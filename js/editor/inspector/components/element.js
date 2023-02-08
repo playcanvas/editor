@@ -1,3 +1,5 @@
+import { BindingTwoWay, BindingElementToObservers } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     const PRESETS = {
         '0,1,0,1': 'Top Left Anchor',
@@ -363,7 +365,7 @@ Object.assign(pcui, (function () {
 
     // Custom binding from element -> observers for texture and sprite assets which
     // resizes an Image Element when the asset is first assigned
-    class ImageAssetElementToObserversBinding extends pcui.BindingElementToObservers {
+    class ImageAssetElementToObserversBinding extends BindingElementToObservers {
         constructor(assets, args) {
             super(args);
             this._assets = assets;
@@ -653,14 +655,14 @@ Object.assign(pcui, (function () {
             this._field('fontAsset').on('change', this._onFieldFontAssetChange.bind(this));
 
             // update binding of textureAsset field
-            this._field('textureAsset').binding = new pcui.BindingTwoWay({
+            this._field('textureAsset').binding = new BindingTwoWay({
                 history: args.history,
                 bindingElementToObservers: new ImageAssetElementToObserversBinding(args.assets, {
                     history: args.history
                 })
             });
             // update binding of spriteAsset field
-            this._field('spriteAsset').binding = new pcui.BindingTwoWay({
+            this._field('spriteAsset').binding = new BindingTwoWay({
                 history: args.history,
                 bindingElementToObservers: new ImageAssetElementToObserversBinding(args.assets, {
                     history: args.history
@@ -669,7 +671,7 @@ Object.assign(pcui, (function () {
                 )
             });
             // update binding of spriteFrame field
-            this._field('spriteFrame').binding = new pcui.BindingTwoWay({
+            this._field('spriteFrame').binding = new BindingTwoWay({
                 history: args.history,
                 bindingElementToObservers: new SpriteFrameElementToObserversBinding(args.assets, {
                     history: args.history

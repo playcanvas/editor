@@ -1,13 +1,15 @@
-editor.once('load', function () {
-    const entry = new pcui.TextInput({ });
-    const label = new pcui.LabelGroup({ field: entry });
-    const button = new pcui.Button({ });
+import { TextInput, LabelGroup, Button, Panel, Overlay } from '@playcanvas/pcui';
 
-    const panel = new pcui.Panel({ flex: true });
+editor.once('load', function () {
+    const entry = new TextInput({ });
+    const label = new LabelGroup({ field: entry });
+    const button = new Button({ });
+
+    const panel = new Panel({ flex: true });
     panel.append(label);
     panel.append(button);
 
-    const overlay = new pcui.Overlay({ clickable: true });
+    const overlay = new Overlay({ clickable: true });
     overlay.append(panel);
     overlay.hidden = true;
 

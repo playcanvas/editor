@@ -1,3 +1,5 @@
+import { Container } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     const CLASS_ROW = 'pcui-table-row';
     const CLASS_SELECTED_ROW = CLASS_ROW + '-selected';
@@ -5,14 +7,14 @@ Object.assign(pcui, (function () {
     /**
      * @name pcui.TableRow
      * @classdesc Represents the row of a pcui.Table
-     * @augments pcui.Container
+     * @augments Container
      * @mixes pcui.IFocusable
      * @property {boolean} selected Whether the row is selected
      * @property {pcui.TableRow} previousSibling Returns the previous visible sibling row
      * @property {pcui.TableRow} nextSibling Returns the next visible sibling row
      * @property {pcui.Table} table Gets / sets the table that this row belongs to
      */
-    class TableRow extends pcui.Container {
+    class TableRow extends Container {
         /**
          * Creates new TableRow.
          *

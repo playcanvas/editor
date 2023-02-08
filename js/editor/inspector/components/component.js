@@ -1,9 +1,11 @@
+import { Panel, BooleanInput, LabelGroup, Button, Menu, BindingTwoWay } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     const CLASS_ROOT = 'component-inspector';
     const CLASS_COMPONENT_ICON = 'component-icon-prefix';
     const CLASS_ENABLED = CLASS_ROOT + '-enabled';
 
-    class ComponentInspector extends pcui.Panel {
+    class ComponentInspector extends Panel {
         constructor(args) {
             args = Object.assign({}, args);
             args.flex = true;
@@ -46,14 +48,14 @@ Object.assign(pcui, (function () {
                 elementForHorizontalAlign: this.header
             });
 
-            this._fieldEnable = new pcui.BooleanInput({
+            this._fieldEnable = new BooleanInput({
                 type: 'toggle',
-                binding: new pcui.BindingTwoWay({
+                binding: new BindingTwoWay({
                     history: args.history
                 })
             });
 
-            const enableGroup = new pcui.LabelGroup({
+            const enableGroup = new LabelGroup({
                 text: 'ON',
                 class: CLASS_ENABLED,
                 field: this._fieldEnable
@@ -65,7 +67,7 @@ Object.assign(pcui, (function () {
             });
 
             // add cog button
-            this._btnCog = new pcui.Button({
+            this._btnCog = new Button({
                 icon: 'E134'
             });
             this._btnCog.style.fontSize = '16px';
@@ -85,7 +87,7 @@ Object.assign(pcui, (function () {
         }
 
         _createContextMenu(target) {
-            const menu = new pcui.Menu({
+            const menu = new Menu({
                 items: [{
                     text: 'Copy',
                     icon: 'E351',

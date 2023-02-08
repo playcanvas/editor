@@ -1,7 +1,9 @@
+import { Container, SelectInput, NumericInput, BooleanInput, Button } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     const CLASS_ROOT = 'pcui-animstategraph-condition';
 
-    class AnimstategraphCondition extends pcui.Container {
+    class AnimstategraphCondition extends Container {
         /**
          * Creates a new condition.
          *
@@ -20,7 +22,7 @@ Object.assign(pcui, (function () {
 
         link(assets, path) {
             if (!assets[0].get(path)) return;
-            const selectParameterName = new pcui.SelectInput({
+            const selectParameterName = new SelectInput({
                 type: 'string',
                 options: this._args.parameters.map((param) => { return { v: param, t: param }; }),
                 value: assets[0].get(path).parameterName
@@ -46,7 +48,7 @@ Object.assign(pcui, (function () {
                     shouldSelectPredicate = true;
                 }
             });
-            const selectPredicate = new pcui.SelectInput({
+            const selectPredicate = new SelectInput({
                 type: 'string',
                 options: [
                     {
@@ -92,7 +94,7 @@ Object.assign(pcui, (function () {
             const parameter = Object.keys(parameters).map(key => parameters[key]).filter(param => param.name === condition.parameterName)[0];
             if (parameter) {
                 if ([ANIM_PARAMETER_FLOAT, ANIM_PARAMETER_INTEGER].includes(parameter.type)) {
-                    const valueInput = new pcui.NumericInput({
+                    const valueInput = new NumericInput({
                         value: assets[0].get(path).value,
                         precision: parameter.type === ANIM_PARAMETER_INTEGER ? 0 : undefined,
                         hideSlider: true
@@ -104,7 +106,7 @@ Object.assign(pcui, (function () {
                     });
                     this.append(valueInput);
                 } else {
-                    const valueInput = new pcui.BooleanInput({
+                    const valueInput = new BooleanInput({
                         value: assets[0].get(path).value
                     });
                     valueInput.on('change', (value) => {
@@ -118,7 +120,7 @@ Object.assign(pcui, (function () {
                     this.append(valueInput);
                 }
             }
-            const removeButton = new pcui.Button({
+            const removeButton = new Button({
                 icon: 'E289'
             });
             removeButton.on('click', () => {

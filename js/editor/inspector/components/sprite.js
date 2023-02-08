@@ -1,3 +1,5 @@
+import { Panel, Container, Button } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     const COMPONENT_ATTRIBUTES = [{
         label: 'Type',
@@ -165,7 +167,7 @@ Object.assign(pcui, (function () {
         return result;
     }
 
-    class SpriteClipInspector extends pcui.Panel {
+    class SpriteClipInspector extends Panel {
         constructor(args) {
             args = Object.assign({
                 collapsible: true,
@@ -337,14 +339,14 @@ Object.assign(pcui, (function () {
             });
             this.append(this._attributesInspector);
 
-            this._containerClips = new pcui.Container({
+            this._containerClips = new Container({
                 flex: true
             });
             this.append(this._containerClips);
 
             this._clipInspectors = {};
 
-            this._btnAddClip = new pcui.Button({
+            this._btnAddClip = new Button({
                 text: 'ADD CLIP',
                 icon: 'E120',
                 flexGrow: 1,

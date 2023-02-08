@@ -1,3 +1,5 @@
+import { Panel, BindingTwoWay } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     const ATTRIBUTES = [{
         label: 'Pixels Per Unit',
@@ -40,7 +42,7 @@ Object.assign(pcui, (function () {
                 assets: parent._args.assets,
                 text: 'Texture Atlas',
                 flexGrow: 1,
-                binding: new pcui.BindingTwoWay({
+                binding: new BindingTwoWay({
                     history: parent._args.history
                 }),
                 allowDragDrop: true
@@ -48,7 +50,7 @@ Object.assign(pcui, (function () {
         }
     ];
 
-    class SpriteAssetInspector extends pcui.Panel {
+    class SpriteAssetInspector extends Panel {
         constructor(args) {
             args = Object.assign({}, args);
             args.headerText = 'SPRITE';

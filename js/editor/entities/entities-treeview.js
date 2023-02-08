@@ -1,3 +1,5 @@
+import { Element, TreeView, TreeViewItem, Container } from '@playcanvas/pcui';
+
 import { getMap, searchItems } from '../advanced_search';
 
 Object.assign(pcui, (function () {
@@ -16,7 +18,7 @@ Object.assign(pcui, (function () {
      * @classdesc Represents the Entity TreeView that shows the Scene hierarchy.
      * @property {ObserverList} entities The entities observer list.
      */
-    class EntitiesTreeView extends pcui.TreeView {
+    class EntitiesTreeView extends TreeView {
         constructor(args) {
             if (!args) args = {};
 
@@ -234,7 +236,8 @@ Object.assign(pcui, (function () {
 
                 let marker = this._userSelectionMarkers[user].pool.pop();
                 if (!marker) {
-                    marker = new pcui.Element(document.createElement('span'), {
+                    marker = new Element({
+                        dom: 'span',
                         class: CLASS_USER_SELECTION_MARKER
                     });
                     marker.style.backgroundColor = this._userSelectionMarkers[user].color;
@@ -570,7 +573,7 @@ Object.assign(pcui, (function () {
             if (this._treeItemIndex[resourceId]) return this._treeItemIndex[resourceId];
 
             // new tree item for entity
-            const treeViewItem = new pcui.TreeViewItem({
+            const treeViewItem = new TreeViewItem({
                 allowSelect: true,
                 allowDrop: true,
                 text: entity.get('name'),
@@ -710,7 +713,7 @@ Object.assign(pcui, (function () {
             });
 
             // container for user selection markers
-            treeViewItem._containerUsers = new pcui.Container({
+            treeViewItem._containerUsers = new Container({
                 class: CLASS_USER_SELECTION_MARKER_CONTAINER
             });
             treeViewItem._containerContents.append(treeViewItem._containerUsers);
@@ -784,7 +787,7 @@ Object.assign(pcui, (function () {
          * @name pcui.EntitiesTreeView#getTreeItemForEntity
          * @description Gets the tree view item that displays the entity with the specified id.
          * @param {string} resourceId - The entity resource id
-         * @returns {pcui.TreeViewItem} The tree view item.
+         * @returns {TreeViewItem} The tree view item.
          */
         getTreeItemForEntity(resourceId) {
             const item = this._treeItemIndex[resourceId];
@@ -818,7 +821,7 @@ Object.assign(pcui, (function () {
         /**
          * @name pcui.EntitiesTreeView#createDropTarget
          * @description Creates a drop target for the tree view.
-         * @param {pcui.Element} targetElement - The element that activates the drop target.
+         * @param {Element} targetElement - The element that activates the drop target.
          * @returns {pcui.DropTarget} The drop target.
          */
         createDropTarget(targetElement) {

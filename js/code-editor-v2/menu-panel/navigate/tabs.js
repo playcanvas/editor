@@ -1,10 +1,12 @@
+import { MenuItem } from '@playcanvas/pcui';
+
 editor.once('load', function () {
     const menu = editor.call('menu:navigate');
 
     let item;
 
     // Next tab
-    item = new pcui.MenuItem({
+    item = new MenuItem({
         class: 'no-bottom-border',
         text: 'Next Tab',
         onIsEnabled: () => {
@@ -41,7 +43,7 @@ editor.once('load', function () {
     });
 
     // Previous tab
-    item = new pcui.MenuItem({
+    item = new MenuItem({
         text: 'Previous Tab',
         onIsEnabled: () => {
             return editor.call('tabs:list').length;

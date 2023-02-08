@@ -1,18 +1,20 @@
+import { Container, Label, Button } from '@playcanvas/pcui';
+
 editor.once('load', function () {
     if (config.owner.plan.type !== 'free')
         return;
 
     const root = editor.call('layout.root');
-    const container = new pcui.Container({
+    const container = new Container({
         id: 'usage-alert'
     });
 
-    const label = new pcui.Label({
+    const label = new Label({
         unsafe: true
     });
     container.append(label);
 
-    const btnClose = new pcui.Button({
+    const btnClose = new Button({
         class: 'close',
         icon: 'E132'
     });

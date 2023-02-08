@@ -1,3 +1,5 @@
+import { Container, Button, Panel, Label } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     const CLASS_ANIMSTATEGRAPH = 'asset-animstategraph-inspector';
     const CLASS_ANIMSTATEGRAPH_TRANSITION = CLASS_ANIMSTATEGRAPH + '-transition';
@@ -26,7 +28,7 @@ Object.assign(pcui, (function () {
         }
     }
 
-    class AnimstategraphTransitions extends pcui.Container {
+    class AnimstategraphTransitions extends Container {
         constructor(args, view) {
             super({
                 args: Object.assign({}, args),
@@ -37,7 +39,7 @@ Object.assign(pcui, (function () {
             this._args = args;
             this._assets = null;
 
-            this._newTransitionButton = new pcui.Button({
+            this._newTransitionButton = new Button({
                 text: 'NEW TRANSITION',
                 icon: 'E120'
             });
@@ -58,7 +60,7 @@ Object.assign(pcui, (function () {
             });
             this.append(this._newTransitionButton);
 
-            this._transitionsContainer = new pcui.Container();
+            this._transitionsContainer = new Container();
             this.append(this._transitionsContainer);
             this._transitionsContainer.on('child:dragend', this._onDragEnd.bind(this));
         }
@@ -215,7 +217,7 @@ Object.assign(pcui, (function () {
                     }
                 ];
 
-                const transitionPanel = new pcui.Panel({
+                const transitionPanel = new Panel({
                     headerText: edge.from === 0 ? 'Default Transition' : i + 1,
                     class: CLASS_ANIMSTATEGRAPH_TRANSITION,
                     collapsible: true,
@@ -250,7 +252,7 @@ Object.assign(pcui, (function () {
                 if (!this._transitionPanels) this._transitionPanels = [];
                 this._transitionPanels.push(transitionPanel);
 
-                transitionPanel.conditions = new pcui.Container();
+                transitionPanel.conditions = new Container();
                 Object.keys(transition.conditions).forEach((conditionId) => {
                     const condition = new pcui.AnimstategraphCondition({
                         parameters: parameters,
@@ -274,7 +276,7 @@ Object.assign(pcui, (function () {
                     if (transitionPanel.conditions) {
                         transitionPanel.remove(transitionPanel.conditions);
                     }
-                    transitionPanel.conditions = new pcui.Container();
+                    transitionPanel.conditions = new Container();
                     Object.keys(transition.conditions).forEach((conditionId) => {
                         const condition = new pcui.AnimstategraphCondition({
                             parameters: parameters,
@@ -304,7 +306,7 @@ Object.assign(pcui, (function () {
                     exitTimeField.enabled = value;
                 });
 
-                const conditionNote = new pcui.Label({
+                const conditionNote = new Label({
                     class: CLASS_ANIMSTATEGRAPH_TRANSITION_CONDITIONS_NOTE,
                     text: 'Note: No Exit Time or Conditions set - transition will activate instantly.'
                 });

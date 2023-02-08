@@ -1,3 +1,5 @@
+import { Element, Panel, Button, Container, Label, TextInput } from '@playcanvas/pcui';
+
 editor.once('load', () => {
 
     // GLOBAL VARIABLES
@@ -25,14 +27,14 @@ editor.once('load', () => {
     root.append(overlay);
 
     // main panel
-    const panel = new pcui.Panel({
+    const panel = new Panel({
         headerText: 'DELETE PROJECT',
         class: 'delete-project-panel'
     });
     overlay.append(panel);
 
     // close button
-    const btnClose = new pcui.Button({
+    const btnClose = new Button({
         class: 'close',
         icon: 'E132'
     });
@@ -41,18 +43,18 @@ editor.once('load', () => {
     });
     panel.header.append(btnClose);
 
-    const inputContainer = new pcui.Container({
+    const inputContainer = new Container({
         flex: true,
         class: 'form-group'
     });
     panel.append(inputContainer);
 
-    const labelElement = new pcui.Label({
+    const labelElement = new Label({
         class: 'form-group--label'
     });
     inputContainer.append(labelElement);
 
-    const inputElement = new pcui.TextInput({
+    const inputElement = new TextInput({
         class: 'form-group--input',
         keyChange: true
     });
@@ -61,12 +63,12 @@ editor.once('load', () => {
     inputElement.on('change', () => { validateInput(inputElement.value); });
     inputElement.dom.addEventListener('paste', e => e.preventDefault());
 
-    const deleteButtonContainer = new pcui.Container({
+    const deleteButtonContainer = new Container({
         flex: true
     });
     panel.append(deleteButtonContainer);
 
-    const deleteButton = new pcui.Button({
+    const deleteButton = new Button({
         class: 'delete-project-button',
         text: 'DELETE',
         enabled: false,  // create button disabled on load
@@ -74,7 +76,7 @@ editor.once('load', () => {
     });
     deleteButtonContainer.append(deleteButton);
 
-    const loader = new pcui.Element(document.createElement('div'), {
+    const loader = new Element({
         class: ['loader', 'small', 'white']
     });
     loader.dom.style.display = 'none';

@@ -1,3 +1,5 @@
+import { Panel } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     const CLASS_ROOT = 'asset-tasks-settings-panel';
     const CLASS_SECTION = CLASS_ROOT + '-section';
@@ -198,7 +200,7 @@ Object.assign(pcui, (function () {
         }
 
         _appendSection(title, attributeElement) {
-            const section = new pcui.Panel({ headerText: title, class: CLASS_SECTION });
+            const section = new Panel({ headerText: title, class: CLASS_SECTION });
             attributeElement.parent.parent.appendAfter(section, attributeElement.parent);
         }
     }

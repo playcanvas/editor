@@ -1,3 +1,5 @@
+import { Container, Button, Menu } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     const CLASS_ROOT = 'entity-inspector';
     const CLASS_NO_COMPONENTS = CLASS_ROOT + '-no-components';
@@ -108,7 +110,7 @@ Object.assign(pcui, (function () {
         attr.reference = `entity:${parts[parts.length - 1]}`;
     });
 
-    class EntityInspector extends pcui.Container {
+    class EntityInspector extends Container {
         constructor(args) {
             if (!args) args = {};
             args.flex = true;
@@ -144,14 +146,14 @@ Object.assign(pcui, (function () {
             });
             this.append(this._attributesInspector);
 
-            const containerComponentButtons = new pcui.Container({
+            const containerComponentButtons = new Container({
                 flex: true,
                 flexDirection: 'row'
             });
             this.append(containerComponentButtons);
 
             // add component button
-            const btnAddComponent = new pcui.Button({
+            const btnAddComponent = new Button({
                 text: 'ADD COMPONENT',
                 icon: 'E120',
                 flexGrow: 1,
@@ -162,7 +164,7 @@ Object.assign(pcui, (function () {
             btnAddComponent.on('click', this._onClickAddComponent.bind(this));
 
             // cog button
-            const btnCog = new pcui.Button({
+            const btnCog = new Button({
                 icon: 'E134'
             });
             btnCog.style.fontSize = '16px';
@@ -227,7 +229,7 @@ Object.assign(pcui, (function () {
         }
 
         _createCogMenu(target) {
-            const menu = new pcui.Menu({
+            const menu = new Menu({
                 items: [{
                     text: 'Paste Component',
                     icon: 'E348',
@@ -367,7 +369,7 @@ Object.assign(pcui, (function () {
                 menuData.push(items[key]);
             });
 
-            menu = new pcui.Menu({ items: menuData });
+            menu = new Menu({ items: menuData });
 
             menu.on('show', () => {
                 const entities = this._entities;

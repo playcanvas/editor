@@ -1,7 +1,9 @@
+import { Button } from '@playcanvas/pcui';
+
 editor.once('load', function () {
     const toolbar = editor.call('layout.toolbar');
 
-    const contact = new pcui.Button({
+    const contact = new Button({
         icon: 'E119'
     });
     contact.class.add('pc-icon', 'contact', 'bottom');

@@ -149,7 +149,7 @@ Object.assign(pcui, (function () {
          * Whenever that path has a template override the provided element will have a CSS class applied to it
          * and a tooltip will be created for that override.
          * @param {string} path - The observer path for the override.
-         * @param {pcui.Element} element - The element that we will highlight when an override appears.
+         * @param {Element} element - The element that we will highlight when an override appears.
          * @param {pcui.TooltipGroup} [tooltipGroup] - An optional tooltip group to use for the override tooltip. If one is not provided
          * then the tooltip will be attached to the element itself.
          */

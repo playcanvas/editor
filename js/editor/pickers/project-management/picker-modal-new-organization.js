@@ -1,3 +1,5 @@
+import { Container, Label, TextInput, Panel, Button } from '@playcanvas/pcui';
+
 editor.once('load', () => {
 
     // GLOBAL VARIABLES
@@ -7,26 +9,26 @@ editor.once('load', () => {
 
     // renders a single input UI in the new project form (text input or textarea)
     const buildFormGroup = (label, hint = null) => {
-        const container = new pcui.Container({
+        const container = new Container({
             flex: true,
             class: 'form-group'
         });
         panel.append(container);
 
-        const labelElement = new pcui.Label({
+        const labelElement = new Label({
             text: label,
             class: 'form-group--label'
         });
         container.append(labelElement);
 
-        const inputElement = new pcui.TextInput({
+        const inputElement = new TextInput({
             class: 'form-group--input',
             keyChange: true
         });
         container.append(inputElement);
 
         if (hint) {
-            const hintElement = new pcui.Label({
+            const hintElement = new Label({
                 class: 'form-group--hint',
                 text: hint
             });
@@ -45,14 +47,14 @@ editor.once('load', () => {
     root.append(overlay);
 
     // main panel
-    const panel = new pcui.Panel({
+    const panel = new Panel({
         headerText: 'NEW ORGANIZATION',
         class: 'new-organization-panel'
     });
     overlay.append(panel);
 
     // close button
-    const btnClose = new pcui.Button({
+    const btnClose = new Button({
         class: 'close',
         icon: 'E132'
     });
@@ -69,7 +71,7 @@ editor.once('load', () => {
     orgIdInput.on('change', () => { validateInputs(); });
     orgEmailInput.on('change', () => { validateInputs(); });
 
-    const createButton = new pcui.Button({
+    const createButton = new Button({
         class: 'create-org-button',
         text: 'CREATE',
         enabled: false,  // create button disabled on load

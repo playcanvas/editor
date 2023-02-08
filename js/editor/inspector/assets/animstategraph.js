@@ -1,3 +1,5 @@
+import { Button, Container } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     const CLASS_ANIMSTATEGRAPH = 'asset-animstategraph-inspector';
     const CLASS_ANIMSTATEGRAPH_OPEN_BUTTON = CLASS_ANIMSTATEGRAPH + '-open-button';
@@ -19,7 +21,7 @@ Object.assign(pcui, (function () {
             })
         },
         {
-            openEditorButton: new pcui.Button({
+            openEditorButton: new Button({
                 text: 'OPEN GRAPH EDITOR',
                 icon: 'E412',
                 class: CLASS_ANIMSTATEGRAPH_OPEN_BUTTON
@@ -27,7 +29,7 @@ Object.assign(pcui, (function () {
         }
     ];
 
-    class AnimstategraphAssetInspector extends pcui.Container {
+    class AnimstategraphAssetInspector extends Container {
         constructor(args) {
             args = Object.assign({
                 class: CLASS_ANIMSTATEGRAPH
@@ -147,7 +149,7 @@ Object.assign(pcui, (function () {
 
             this.parent.emit('fullscreenMode:on');
 
-            this._closeButton = new pcui.Button({
+            this._closeButton = new Button({
                 text: '',
                 icon: 'E389',
                 class: CLASS_ANIMSTATEGRAPH_CLOSE_BUTTON

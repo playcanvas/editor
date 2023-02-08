@@ -1,3 +1,5 @@
+import { Container, Label, Progress, Button } from '@playcanvas/pcui';
+
 editor.once('load', function () {
     // global variables
     const projectSettings = editor.call('settings:project');
@@ -46,24 +48,24 @@ editor.once('load', function () {
     };
 
     // main panel
-    const panel = new pcui.Container({
+    const panel = new Container({
         flex: true,
         class: 'picker-builds-publish'
     });
     // panel.class.add('picker-builds-publish');
 
     // progress bar and loading label
-    const loading = new pcui.Label({
+    const loading = new Label({
         text: 'Loading...'
     });
     panel.append(loading);
 
-    const progressBar = new pcui.Progress({ progress: 1 });
+    const progressBar = new Progress({ progress: 1 });
     progressBar.hidden = true;
     panel.append(progressBar);
 
     // published build section
-    const publishedBuild = new pcui.Label({
+    const publishedBuild = new Label({
         text: 'Your primary build is available at <a href="' + config.project.playUrl + '" target="_blank">' + config.project.playUrl + '</a>.',
         unsafe: true
     });
@@ -71,34 +73,34 @@ editor.once('load', function () {
     panel.append(publishedBuild);
 
     // publish buttons container
-    const publishButtons = new pcui.Container({
+    const publishButtons = new Container({
         flex: true,
         class: 'publish-buttons-container'
     });
     panel.append(publishButtons);
 
     // playcanv.as
-    const panelPlaycanvas = new pcui.Container({
+    const panelPlaycanvas = new Container({
         flex: true,
         class: 'buttons'
     });
     publishButtons.append(panelPlaycanvas);
 
-    const labelPublishIcon = new pcui.Label({
+    const labelPublishIcon = new Label({
         text: '&#57960;',
         unsafe: true,
         class: 'icon'
     });
     panelPlaycanvas.append(labelPublishIcon);
 
-    const labelPublishDesc = new pcui.Label({
+    const labelPublishDesc = new Label({
         text: 'Publish your project publicly on PlayCanvas.',
         class: 'desc'
     });
     panelPlaycanvas.append(labelPublishDesc);
 
     // publish button
-    const btnPublish = new pcui.Button({
+    const btnPublish = new Button({
         text: 'Publish To PlayCanvas',
         class: 'publish'
     });
@@ -111,27 +113,27 @@ editor.once('load', function () {
     });
 
     // self host
-    const panelSelfHost = new pcui.Container({
+    const panelSelfHost = new Container({
         flex: true,
         class: 'buttons'
     });
     publishButtons.append(panelSelfHost);
 
-    const labelDownloadIcon = new pcui.Label({
+    const labelDownloadIcon = new Label({
         text: '&#57925;',
         class: 'icon',
         unsafe: true
     });
     panelSelfHost.append(labelDownloadIcon);
 
-    const labelDownloadDesc = new pcui.Label({
+    const labelDownloadDesc = new Label({
         text: 'Download build and host it on your own server.',
         class: 'desc'
     });
     panelSelfHost.append(labelDownloadDesc);
 
     // download button
-    const btnDownload = new pcui.Button({
+    const btnDownload = new Button({
         text: 'Download .zip',
         class: 'download'
     });
@@ -144,7 +146,7 @@ editor.once('load', function () {
     });
 
     // Existing builds label
-    const existingBuildsLabel = new pcui.Label({
+    const existingBuildsLabel = new Label({
         text: 'Existing builds',
         class: 'builds-list-heading'
     });
@@ -156,7 +158,7 @@ editor.once('load', function () {
         noBuildsText += ' Click PUBLISH to create a new build.';
     }
 
-    const noBuilds = new pcui.Label({
+    const noBuilds = new Label({
         text: noBuildsText,
         class: 'no-builds-label',
         hidden: true
@@ -237,7 +239,7 @@ editor.once('load', function () {
         item.class.add(app.task.status);
 
         // primary app button
-        const primary = new pcui.Button({
+        const primary = new Button({
             icon: 'E223',
             class: 'primary'
         });
@@ -295,14 +297,14 @@ editor.once('load', function () {
         item.element.appendChild(nameRow);
 
         // app name
-        const name = new pcui.Label({
+        const name = new Label({
             text: app.name,
             class: 'name'
         });
         nameRow.appendChild(name.element);
 
         // app version
-        const version = new pcui.Label({
+        const version = new Label({
             text: app.version,
             class: 'version'
         });
@@ -314,7 +316,7 @@ editor.once('load', function () {
         item.element.appendChild(info);
 
         // date
-        const date = new pcui.Label({
+        const date = new Label({
             text: editor.call('datetime:convert', app.created_at),
             class: 'date',
             hidden: app.task.status === 'error'
@@ -322,7 +324,7 @@ editor.once('load', function () {
         info.appendChild(date.element);
 
         // views
-        const views = new pcui.Label({
+        const views = new Label({
             text: numberWithCommas(app.views),
             class: 'views',
             hidden: app.task.status !== 'complete'
@@ -330,7 +332,7 @@ editor.once('load', function () {
         info.appendChild(views.element);
 
         // size
-        const size = new pcui.Label({
+        const size = new Label({
             text: sizeToString(app.size),
             class: 'size',
             hidden: app.task.status !== 'complete'
@@ -338,7 +340,7 @@ editor.once('load', function () {
         info.appendChild(size.element);
 
         // branch
-        const branch = new pcui.Label({
+        const branch = new Label({
             text: app.branch && app.branch.name || 'main',
             class: 'branch',
             hidden: app.task.status !== 'complete' || projectSettings.get('useLegacyScripts')
@@ -346,7 +348,7 @@ editor.once('load', function () {
         info.appendChild(branch.element);
 
         // error message
-        const error = new pcui.Label({
+        const error = new Label({
             text: app.task.message,
             class: 'error',
             hidden: app.task.status !== 'error'
@@ -359,7 +361,7 @@ editor.once('load', function () {
         if (indexOfNewLine !== -1) {
             releaseNotes = releaseNotes.substring(0, indexOfNewLine);
         }
-        const notes = new pcui.Label({
+        const notes = new Label({
             text: app.release_notes,
             class: 'notes',
             hidden: !error.hidden,
@@ -368,7 +370,7 @@ editor.once('load', function () {
         item.element.appendChild(notes.element);
 
         // dropdown
-        const dropdown = new pcui.Button({
+        const dropdown = new Button({
             class: 'dropdown'
         });
         dropdown.element.innerHTML = '&#57689;';
@@ -388,7 +390,7 @@ editor.once('load', function () {
             dropdownMenu.position(rect.right - dropdownMenu.innerElement.clientWidth, rect.bottom);
         }));
 
-        const more = new pcui.Button({
+        const more = new Button({
             text: 'more...',
             class: 'more',
             hidden: true

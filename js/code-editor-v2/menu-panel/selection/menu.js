@@ -1,13 +1,15 @@
+import { Menu, Button } from '@playcanvas/pcui';
+
 editor.once('load', function () {
     const root = editor.call('layout.root');
     const panel = editor.call('layout.top');
 
-    const menu = new pcui.Menu();
+    const menu = new Menu();
 
     menu.position(89, 33);
     root.append(menu);
 
-    const btn = new pcui.Button({
+    const btn = new Button({
         text: 'Selection'
     });
 

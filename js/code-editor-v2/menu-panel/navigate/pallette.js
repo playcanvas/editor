@@ -1,9 +1,11 @@
+import { MenuItem } from '@playcanvas/pcui';
+
 editor.once('load', function () {
     const menu = editor.call('menu:navigate');
     const me = editor.call('editor:monaco');
     const ctrlCmd = editor.call('hotkey:ctrl:string');
 
-    const item = new pcui.MenuItem({
+    const item = new MenuItem({
         text: 'Open Command Pallette',
         onSelect: () => {
             me.focus();

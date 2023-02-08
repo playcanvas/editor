@@ -1,3 +1,5 @@
+import { Canvas } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     const CLASS_CANVAS = 'pcui-asset-preview-canvas';
     const CLASS_CANVAS_FLIP = 'pcui-asset-preview-canvas-flip';
@@ -6,7 +8,7 @@ Object.assign(pcui, (function () {
         constructor(args) {
             super(args);
 
-            this._preview = new pcui.Canvas({
+            this._preview = new Canvas({
                 canvasWidth: 320,
                 canvasHeight: 144,
                 class: [CLASS_CANVAS, CLASS_CANVAS_FLIP]

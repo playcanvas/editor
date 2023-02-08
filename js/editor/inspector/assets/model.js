@@ -1,3 +1,5 @@
+import { Panel, Container, Button } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     const CLASS_ROOT = 'asset-model-inspector';
     const CLASS_AUTO_UNWRAP_PROGRESS = CLASS_ROOT + '-auto-unwrap-progress';
@@ -70,7 +72,7 @@ Object.assign(pcui, (function () {
     const DOM = parent => [
         {
             root: {
-                metaPanel: new pcui.Panel({
+                metaPanel: new Panel({
                     headerText: 'META',
                     collapsible: true
                 })
@@ -87,7 +89,7 @@ Object.assign(pcui, (function () {
         },
         {
             root: {
-                pipelinePanel: new pcui.Panel({
+                pipelinePanel: new Panel({
                     headerText: 'PIPELINE',
                     collapsible: true
                 })
@@ -102,7 +104,7 @@ Object.assign(pcui, (function () {
                 },
                 {
                     root: {
-                        unwrapContainer: new pcui.Container({
+                        unwrapContainer: new Container({
                             flex: true,
                             flexDirection: 'row',
                             alignItems: 'center'
@@ -117,14 +119,14 @@ Object.assign(pcui, (function () {
                             })
                         },
                         {
-                            btnAutoUnwrap: new pcui.Button({
+                            btnAutoUnwrap: new Button({
                                 text: 'AUTO-UNWRAP',
                                 flexGrow: 1,
                                 width: '133px'
                             })
                         },
                         {
-                            btnCancelAutoUnwrap: new pcui.Button({
+                            btnCancelAutoUnwrap: new Button({
                                 text: 'CANCEL',
                                 flexGrow: 1
                             })
@@ -135,7 +137,7 @@ Object.assign(pcui, (function () {
         },
         {
             root: {
-                meshInstancesPanel: new pcui.Panel({
+                meshInstancesPanel: new Panel({
                     headerText: 'MESH INSTANCES',
                     collapsible: true
                 })
@@ -151,7 +153,7 @@ Object.assign(pcui, (function () {
         }
     ];
 
-    class ModelAssetInspector extends pcui.Container {
+    class ModelAssetInspector extends Container {
         constructor(args) {
             args = Object.assign({}, args);
 

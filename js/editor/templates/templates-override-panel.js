@@ -1,3 +1,5 @@
+import { Element, Container, Label, Button, ArrayInput, VectorInput, BooleanInput, NumericInput, TextInput, LabelGroup, Panel } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     const CLASS_ROOT = 'template-overrides';
     const CLASS_TOP_HEADER = CLASS_ROOT + '-top-header';
@@ -46,13 +48,13 @@ Object.assign(pcui, (function () {
         model: '&#57749;'
     };
 
-    class OverrideGroup extends pcui.Container {
+    class OverrideGroup extends Container {
         constructor(args) {
             super(args);
 
             this.class.add(CLASS_OVERRIDE_GROUP);
 
-            const inner = new pcui.Container({
+            const inner = new Container({
                 flex: true,
                 flexDirection: 'row'
             });
@@ -65,14 +67,14 @@ Object.assign(pcui, (function () {
             } else {
                 inner.class.add(CLASS_OVERRIDE_GROUP_CONTENT);
 
-                const icon = new pcui.Label({
+                const icon = new Label({
                     class: CLASS_OVERRIDE_GROUP_ICON,
                     flexShrink: 0,
                     unsafe: true
                 });
                 this._icon = icon;
 
-                const name = new pcui.Label({
+                const name = new Label({
                     text: args.name,
                     flexShrink: 1,
                     class: CLASS_OVERRIDE_GROUP_NAME
@@ -82,7 +84,7 @@ Object.assign(pcui, (function () {
                 inner.append(name);
 
                 if (args.mode === 'new' || args.mode === 'removed') {
-                    const action = new pcui.Label({
+                    const action = new Label({
                         flexShrink: 0,
                         text: args.mode.toUpperCase(),
                         class: CLASS_OVERRIDE_GROUP_ACTION
@@ -100,7 +102,7 @@ Object.assign(pcui, (function () {
         }
     }
 
-    class TemplateOverridesView extends pcui.Container {
+    class TemplateOverridesView extends Container {
         constructor(args) {
             super(args);
 
@@ -118,21 +120,21 @@ Object.assign(pcui, (function () {
             this._projectSettings = args.projectSettings;
 
             // top header
-            const topHeader = new pcui.Container({
+            const topHeader = new Container({
                 class: CLASS_TOP_HEADER,
                 flex: true
             });
-            topHeader.append(new pcui.Label({
+            topHeader.append(new Label({
                 text: 'TEMPLATE ASSET'
             }));
 
-            topHeader.append(new pcui.Label({
+            topHeader.append(new Label({
                 text: 'TEMPLATE INSTANCE',
                 class: CLASS_MARGIN_LEFT
             }));
             this.append(topHeader);
 
-            const btnClose = new pcui.Button({
+            const btnClose = new Button({
                 text: 'Close',
                 class: CLASS_BUTTON_CLOSE
             });
@@ -141,14 +143,14 @@ Object.assign(pcui, (function () {
                 this.hidden = true;
             });
 
-            this._containerOverrides = new pcui.Container({
+            this._containerOverrides = new Container({
                 class: CLASS_CONTAINER,
                 flex: true,
                 scrollable: true
             });
             this.append(this._containerOverrides);
 
-            this._dropdownMenu = new pcui.Container({
+            this._dropdownMenu = new Container({
                 class: CLASS_DROPDOWN_MENU,
                 flex: true,
                 hidden: true
@@ -196,7 +198,7 @@ Object.assign(pcui, (function () {
         }
 
         _appendMarker(panel, element) {
-            const container = new pcui.Container({
+            const container = new Container({
                 class: CLASS_COLUMN_APPLY,
                 flex: true
             });
@@ -242,7 +244,7 @@ Object.assign(pcui, (function () {
             if (isArray) {
                 labelAlignTop = true;
                 if (type === 'string' && name === 'Tags') {
-                    field = pcui.Element.create('tags', {
+                    field = Element.create('tags', {
                         readOnly: true,
                         value: value
                     });
@@ -271,7 +273,7 @@ Object.assign(pcui, (function () {
                         });
                     }
 
-                    field = new pcui.ArrayInput({
+                    field = new ArrayInput({
                         value: value,
                         type: type === 'curve' ? 'curveset' : type,
                         readOnly: true,
@@ -327,21 +329,21 @@ Object.assign(pcui, (function () {
                         });
                         break;
                     case 'vec2':
-                        field = new pcui.VectorInput({
+                        field = new VectorInput({
                             value: value,
                             dimensions: 2,
                             readOnly: true
                         });
                         break;
                     case 'vec3':
-                        field = new pcui.VectorInput({
+                        field = new VectorInput({
                             value: value,
                             dimensions: 3,
                             readOnly: true
                         });
                         break;
                     case 'vec4':
-                        field = new pcui.VectorInput({
+                        field = new VectorInput({
                             value: value,
                             dimensions: 4,
                             readOnly: true
@@ -362,13 +364,13 @@ Object.assign(pcui, (function () {
                         });
                         break;
                     case 'boolean':
-                        field = new pcui.BooleanInput({
+                        field = new BooleanInput({
                             value: value,
                             readOnly: true
                         });
                         break;
                     case 'number':
-                        field = new pcui.NumericInput({
+                        field = new NumericInput({
                             value: value,
                             allowNull: true,
                             readOnly: true
@@ -395,7 +397,7 @@ Object.assign(pcui, (function () {
                     case 'sublayer': // todo
                     case 'object': // todo
                     default:
-                        field = new pcui.TextInput({
+                        field = new TextInput({
                             value: value,
                             readOnly: true
                         });
@@ -406,7 +408,7 @@ Object.assign(pcui, (function () {
             let result = field;
 
             if (type !== 'asset' || isArray) {
-                result = new pcui.LabelGroup({
+                result = new LabelGroup({
                     text: name,
                     field: field,
                     nativeTooltip: true,
@@ -469,7 +471,7 @@ Object.assign(pcui, (function () {
                     }
 
                     templates.forEach((template) => {
-                        const apply = new pcui.Label({
+                        const apply = new Label({
                             text: `Apply to ${template.get('name')}`
                         });
 
@@ -484,7 +486,7 @@ Object.assign(pcui, (function () {
                         this._dropdownMenu.append(apply);
                     });
 
-                    const revert = new pcui.Label({
+                    const revert = new Label({
                         text: 'Revert'
                     });
 
@@ -856,19 +858,19 @@ Object.assign(pcui, (function () {
         }
 
         _showAddedEntity(entityOverride) {
-            const panel = new pcui.Panel({
+            const panel = new Panel({
                 class: CLASS_ENTITY,
                 grid: true,
                 headerText: entityOverride.name,
                 collapsible: true
             });
 
-            this._appendLeft(panel, new pcui.Label({
+            this._appendLeft(panel, new Label({
                 text: 'NO ENTITY',
                 class: CLASS_OVERRIDE_SINGLE_LABEL
             }));
 
-            this._appendRight(panel, new pcui.Label({
+            this._appendRight(panel, new Label({
                 text: 'NEW ENTITY',
                 class: CLASS_OVERRIDE_SINGLE_LABEL
             }));
@@ -879,19 +881,19 @@ Object.assign(pcui, (function () {
         }
 
         _showDeletedEntity(entityOverride) {
-            const panel = new pcui.Panel({
+            const panel = new Panel({
                 class: CLASS_ENTITY,
                 grid: true,
                 headerText: entityOverride.name,
                 collapsible: true
             });
 
-            this._appendLeft(panel, new pcui.Label({
+            this._appendLeft(panel, new Label({
                 text: 'ENTITY EXISTS',
                 class: CLASS_OVERRIDE_SINGLE_LABEL
             }));
 
-            this._appendRight(panel, new pcui.Label({
+            this._appendRight(panel, new Label({
                 text: 'ENTITY REMOVED',
                 class: CLASS_OVERRIDE_SINGLE_LABEL
             }));
@@ -909,7 +911,7 @@ Object.assign(pcui, (function () {
                 components: {}
             };
 
-            const panel = new pcui.Panel({
+            const panel = new Panel({
                 class: CLASS_ENTITY,
                 grid: true,
                 headerText: entity.get('name'),
@@ -1007,13 +1009,13 @@ Object.assign(pcui, (function () {
             }
 
             for (const component in fields.components) {
-                let label = new pcui.Label({
+                let label = new Label({
                     text: COMPONENT_TITLES[component] || component.toUpperCase(),
                     class: [CLASS_COMPONENT_NAME, CLASS_COMPONENT_ICON, `type-${component}`]
                 });
                 this._appendLeft(panel, label);
 
-                label = new pcui.Label({
+                label = new Label({
                     text: COMPONENT_TITLES[component] || component.toUpperCase(),
                     class: [CLASS_COMPONENT_NAME, CLASS_COMPONENT_ICON, `type-${component}`]
                 });

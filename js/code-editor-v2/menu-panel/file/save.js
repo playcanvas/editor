@@ -1,10 +1,12 @@
+import { MenuItem } from '@playcanvas/pcui';
+
 editor.once('load', function () {
     const menu = editor.call('menu:file');
 
     const settings = editor.call('editor:settings');
 
     // create save menu
-    let item = new pcui.MenuItem({
+    let item = new MenuItem({
         class: 'no-bottom-border',
         text: 'Save File',
         onIsEnabled: () => {
@@ -17,7 +19,7 @@ editor.once('load', function () {
     editor.call('menu:item:setShortcut', item, editor.call('hotkey:ctrl:string') + '+S');
     menu.append(item);
 
-    item = new pcui.MenuItem({
+    item = new MenuItem({
         class: 'no-bottom-border',
         text: 'Save Selected Files',
         onIsEnabled: () => {
@@ -29,7 +31,7 @@ editor.once('load', function () {
     });
     menu.append(item);
 
-    menu.append(new pcui.MenuItem({
+    menu.append(new MenuItem({
         text: 'Save All Files',
         onIsEnabled: () => {
             return editor.call('editor:command:can:saveAll');
@@ -49,7 +51,7 @@ editor.once('load', function () {
     });
 
     const ctxMenu = editor.call('files:contextmenu');
-    ctxMenu.append(new pcui.MenuItem({
+    ctxMenu.append(new MenuItem({
         text: 'Save',
         onIsEnabled: () => {
             const selected = editor.call('files:contextmenu:selected');

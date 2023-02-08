@@ -1,3 +1,5 @@
+import { Panel, Button, Container, Label, TextInput } from '@playcanvas/pcui';
+
 editor.once('load', () => {
 
     // GLOBAL VARIABLES
@@ -16,14 +18,14 @@ editor.once('load', () => {
     root.append(overlay);
 
     // main panel
-    const panel = new pcui.Panel({
+    const panel = new Panel({
         headerText: 'DELETE ORGANIZATION',
         class: 'delete-organization-panel'
     });
     overlay.append(panel);
 
     // close button
-    var btnClose = new pcui.Button({
+    var btnClose = new Button({
         class: 'close',
         icon: 'E132'
     });
@@ -34,25 +36,25 @@ editor.once('load', () => {
 
     // input
 
-    const container = new pcui.Container({
+    const container = new Container({
         flex: true,
         class: 'form-group'
     });
     panel.append(container);
 
-    const labelElement = new pcui.Label({
+    const labelElement = new Label({
         class: 'form-group--label'
     });
     container.append(labelElement);
 
     // conditionally display information about containing projects
-    const projectsWarning = new pcui.Label({
+    const projectsWarning = new Label({
         class: 'form-group--warning',
         text: 'WARNING: This organization contains projects. If you decide to go ahead, these will be transferred to your account.'
     });
     container.append(projectsWarning);
 
-    const inputElement = new pcui.TextInput({
+    const inputElement = new TextInput({
         class: 'form-group--input',
         keyChange: true
     });
@@ -65,7 +67,7 @@ editor.once('load', () => {
 
     // delete button
 
-    const deleteButton = new pcui.Button({
+    const deleteButton = new Button({
         class: 'delete-org-button',
         text: 'DELETE',
         enabled: false,  // create button disabled on load

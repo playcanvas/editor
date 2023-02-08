@@ -1,6 +1,8 @@
+import { Container, Panel } from '@playcanvas/pcui';
+
 editor.on('load', function () {
     // main container
-    const root = new pcui.Container({
+    const root = new Container({
         id: 'ui-root',
         flex: true,
         flexDirection: 'column',
@@ -13,7 +15,7 @@ editor.on('load', function () {
     });
 
     // menu bar
-    const top = new pcui.Container({
+    const top = new Container({
         id: 'ui-top',
         flex: true,
         flexDirection: 'row',
@@ -27,7 +29,7 @@ editor.on('load', function () {
     });
 
     // middle
-    const middle = new pcui.Container({
+    const middle = new Container({
         id: 'ui-middle',
         flex: true,
         flexDirection: 'row',
@@ -36,7 +38,7 @@ editor.on('load', function () {
     root.append(middle);
 
     // left
-    const left = new pcui.Panel({
+    const left = new Panel({
         collapseHorizontally: true,
         collapsible: true,
         collapsed: editor.call('localStorage:get', 'editor:layout:left:fold') || false,
@@ -66,7 +68,7 @@ editor.on('load', function () {
     });
 
     // center
-    const center = new pcui.Container({
+    const center = new Container({
         id: 'ui-center'
     });
     middle.append(center);
@@ -76,7 +78,7 @@ editor.on('load', function () {
     });
 
     // tabs
-    const tabs = new pcui.Container({
+    const tabs = new Container({
         class: 'invisible',
         id: 'ui-tabs',
         flex: true,
@@ -91,7 +93,7 @@ editor.on('load', function () {
     });
 
     // code
-    const code = new pcui.Container({
+    const code = new Container({
         id: 'ui-code'
     });
     center.append(code);
@@ -101,7 +103,7 @@ editor.on('load', function () {
     });
 
     // right
-    const right = new pcui.Panel({
+    const right = new Panel({
         collapseHorizontally: true,
         headerText: 'PREFERENCES',
         hidden: true,
@@ -118,7 +120,7 @@ editor.on('load', function () {
     });
 
     // bottom (status)
-    const bottom = new pcui.Container({
+    const bottom = new Container({
         id: 'ui-bottom'
     });
     root.append(bottom);

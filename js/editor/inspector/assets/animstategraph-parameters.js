@@ -1,8 +1,10 @@
+import { Panel, Button } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     const CLASS_ANIMSTATEGRAPH = 'asset-animstategraph-inspector';
     const CLASS_ANIMSTATEGRAPH_PARAMETER = CLASS_ANIMSTATEGRAPH + '-parameter';
 
-    class AnimstategraphParameters extends pcui.Panel {
+    class AnimstategraphParameters extends Panel {
         constructor(args) {
             args = Object.assign({}, args);
             super(args);
@@ -11,7 +13,7 @@ Object.assign(pcui, (function () {
 
             this._parameterPanels = {};
 
-            this._addNewParameterButton = new pcui.Button({ text: 'PARAMETER', icon: 'E120' });
+            this._addNewParameterButton = new Button({ text: 'PARAMETER', icon: 'E120' });
             this._addNewParameterButton.on('click', () => {
                 this._addNewParameter();
             });
@@ -251,7 +253,7 @@ Object.assign(pcui, (function () {
 
         _addParamPanel(paramId) {
             const param = this._assets[0].get(`data.parameters.${paramId}`);
-            const paramPanel = new pcui.Panel({
+            const paramPanel = new Panel({
                 headerText: param.name,
                 collapsible: true,
                 removable: true,

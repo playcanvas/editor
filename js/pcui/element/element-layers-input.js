@@ -1,7 +1,9 @@
+import { Element, SelectInput } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     const CLASS_ROOT = 'pcui-layers-input';
 
-    class LayersInput extends pcui.SelectInput {
+    class LayersInput extends SelectInput {
         constructor(args) {
             if (!args) args = {};
 
@@ -50,7 +52,7 @@ Object.assign(pcui, (function () {
         }
     }
 
-    pcui.Element.register('layers', LayersInput, { renderChanges: true });
+    Element.register('layers', LayersInput, { renderChanges: true });
 
     return {
         LayersInput: LayersInput

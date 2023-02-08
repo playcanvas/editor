@@ -1,3 +1,5 @@
+import { Button } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     const ATTRIBUTES = [{
         label: 'Assets',
@@ -70,7 +72,7 @@ Object.assign(pcui, (function () {
 
             if (!this._assets.get(assetId)) return;
 
-            const btn = new pcui.Button({
+            const btn = new Button({
                 size: 'small',
                 icon: 'E131',
                 class: CLASS_BUTTON_PLAY

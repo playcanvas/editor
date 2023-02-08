@@ -1,8 +1,10 @@
+import { MenuItem } from '@playcanvas/pcui';
+
 editor.once('load', function () {
     const menu = editor.call('menu:file');
 
     // create menu items
-    let item = new pcui.MenuItem({
+    let item = new MenuItem({
         class: 'create-new',
         text: 'Create New',
         onIsEnabled: () => {
@@ -35,7 +37,7 @@ editor.once('load', function () {
     ];
 
     types.forEach(function (type, index) {
-        item.append(new pcui.MenuItem({
+        item.append(new MenuItem({
             class: 'no-bottom-border',
             text: titles[index],
             onIsEnabled: () => {
@@ -51,7 +53,7 @@ editor.once('load', function () {
     // context menu
     const ctxMenu = editor.call('files:contextmenu');
 
-    item = new pcui.MenuItem({
+    item = new MenuItem({
         class: ['create-new', 'no-bottom-border'],
         text: 'Create New',
         onIsEnabled: () => {
@@ -68,7 +70,7 @@ editor.once('load', function () {
     ctxMenu.append(item);
 
     types.forEach(function (type, index) {
-        item.append(new pcui.MenuItem({
+        item.append(new MenuItem({
             class: 'no-bottom-border',
             text: titles[index],
             onIsEnabled: () => {

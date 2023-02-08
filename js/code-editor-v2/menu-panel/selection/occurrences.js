@@ -1,9 +1,11 @@
+import { MenuItem } from '@playcanvas/pcui';
+
 editor.once('load', function () {
     const menu = editor.call('menu:selection');
     const me = editor.call('editor:monaco');
     const ctrl = editor.call('hotkey:ctrl:string');
 
-    let item = new pcui.MenuItem({
+    let item = new MenuItem({
         class: 'no-bottom-border',
         text: 'Add Next Occurrence',
         onSelect: () => {
@@ -14,7 +16,7 @@ editor.once('load', function () {
     editor.call('menu:item:setShortcut', item, ctrl + '+D');
     menu.append(item);
 
-    item = new pcui.MenuItem({
+    item = new MenuItem({
         text: 'Select All Occurrences',
         onSelect: () => {
             me.focus();

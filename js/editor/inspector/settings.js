@@ -1,3 +1,5 @@
+import { Container } from '@playcanvas/pcui';
+
 editor.once('load', function () {
     const settingsArgs = {
         assets: editor.call('assets:raw'),
@@ -77,7 +79,7 @@ Object.assign(pcui, (function () {
         }
     ];
 
-    class Settings extends pcui.Container {
+    class Settings extends Container {
         constructor(args) {
             if (!args) args = {};
             args.flex = true;

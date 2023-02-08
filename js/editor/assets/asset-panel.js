@@ -1,3 +1,5 @@
+import { Element, GridViewItem, Container, Progress, Panel, Button, SelectInput, TextInput, TreeView, TreeViewItem, GridView, Spinner, Label, BindingObserversToElement } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     const CLASS_ROOT = 'pcui-asset-panel';
     const CLASS_FOLDERS = CLASS_ROOT + '-folders';
@@ -103,7 +105,7 @@ Object.assign(pcui, (function () {
     }
 
     // Helper class for asset grid view item
-    class AssetGridViewItem extends pcui.GridViewItem {
+    class AssetGridViewItem extends GridViewItem {
         constructor(args) {
             super(args);
 
@@ -117,7 +119,7 @@ Object.assign(pcui, (function () {
 
             this.prepend(this.thumbnail);
 
-            this.containerUsers = new pcui.Container({
+            this.containerUsers = new Container({
                 flex: true,
                 class: CLASS_USERS_CONTAINER,
                 hidden: true
@@ -139,7 +141,7 @@ Object.assign(pcui, (function () {
 
         showProgress() {
             if (!this.progress) {
-                this.progress = new pcui.Progress({
+                this.progress = new Progress({
                     value: 100,
                     hidden: true
                 });
@@ -210,22 +212,22 @@ Object.assign(pcui, (function () {
      * small thumbnails and a details view. Also shows the project's folders in a treeview
      * on the left. Allows filtering of assets by type and by searching in various ways. Allows
      * creating new assets and moving assets to different folders.
-     * @augments pcui.Panel
+     * @augments Panel
      * @property {pcui.DropManager} The drop manager to support drag and drop.
      * @property {ObserverList} assets The asset list to display.
      * @property {Observer} currentFolder The current folder.
      * @property {pcui.Table} detailsView The details view.
-     * @property {pcui.TreeView} foldersView The folders view.
-     * @property {pcui.GridView} gridView The grid view.
+     * @property {TreeView} foldersView The folders view.
+     * @property {GridView} gridView The grid view.
      * @property {string} viewMode The current view mode. Can be one of:
      * pcui.AssetPanel.VIEW_LARGE_GRID,
      * pcui.AssetPanel.VIEW_SMALL_GRID,
      * pcui.AssetPanel.VIEW_DETAILS
-     * @property {pcui.Element} activeView The current active view (details or gridview)
-     * @property {pcui.Progress} progressBar The progress bar
-     * @property {pcui.SelectInput} dropdownType The type dropdown
+     * @property {Element} activeView The current active view (details or gridview)
+     * @property {Progress} progressBar The progress bar
+     * @property {SelectInput} dropdownType The type dropdown
      * @property {string[]} assetTypes A specific list of asset types to use during filtering
-     * @property {pcui.TextInput} searchInput The search filter text input
+     * @property {TextInput} searchInput The search filter text input
      * @property {Observer[]} selectedAssets The selected assets
      * @property {Observer[]} visibleAssets The assets that are currently visible in the asset panel.
      * @property {boolean} showSourceAssets If false source assets will not be displayed
@@ -233,7 +235,7 @@ Object.assign(pcui, (function () {
      * @property {boolean} suspendFiltering If true changes to filters will not re-filter the asset panel.
      * @property {boolean} writePermissions If false then only a read-only view will be shown
      */
-    class AssetPanel extends pcui.Panel {
+    class AssetPanel extends Panel {
         /**
          * Creates new AssetPanel.
          *
@@ -252,7 +254,7 @@ Object.assign(pcui, (function () {
             this.class.add(CLASS_ROOT);
 
             // append container for all controls
-            this._containerControls = new pcui.Container({
+            this._containerControls = new Container({
                 class: [CLASS_CONTROLS, CLASS_HIDE_ON_COLLAPSE],
                 flex: true
             });
@@ -266,7 +268,7 @@ Object.assign(pcui, (function () {
             // header controls
 
             // button to create new asset
-            this._btnNew = new pcui.Button({
+            this._btnNew = new Button({
                 icon: 'E120',
                 enabled: false,
                 class: [CLASS_BTN_SMALL, CLASS_HIDE_ON_COLLAPSE]
@@ -277,7 +279,7 @@ Object.assign(pcui, (function () {
             this._createTooltip('Create or upload new Asset', this._btnNew);
 
             // button to delete asset
-            this._btnDelete = new pcui.Button({
+            this._btnDelete = new Button({
                 icon: 'E124',
                 enabled: false,
                 class: [CLASS_BTN_SMALL, CLASS_HIDE_ON_COLLAPSE]
@@ -288,7 +290,7 @@ Object.assign(pcui, (function () {
             this._createTooltip('Delete Asset', this._btnDelete);
 
             // button to go up on folder
-            this._btnBack = new pcui.Button({
+            this._btnBack = new Button({
                 icon: 'E114',
                 enabled: false,
                 class: [CLASS_BTN_SMALL, CLASS_HIDE_ON_COLLAPSE]
@@ -299,7 +301,7 @@ Object.assign(pcui, (function () {
             this._createTooltip('Go one folder up', this._btnBack);
 
             // contains view mode buttons
-            const containerBtn = new pcui.Container({
+            const containerBtn = new Container({
                 flex: true,
                 flexDirection: 'row',
                 class: [CLASS_BTN_CONTAINER, CLASS_HIDE_ON_COLLAPSE]
@@ -307,7 +309,7 @@ Object.assign(pcui, (function () {
             this._containerControls.append(containerBtn);
 
             // show large grid view mode
-            this._btnLargeGrid = new pcui.Button({
+            this._btnLargeGrid = new Button({
                 icon: 'E143',
                 class: [CLASS_BTN_SMALL, CLASS_HIDE_ON_COLLAPSE]
             });
@@ -317,7 +319,7 @@ Object.assign(pcui, (function () {
             this._createTooltip('Grid view', this._btnLargeGrid);
 
             // show small grid view mode
-            this._btnSmallGrid = new pcui.Button({
+            this._btnSmallGrid = new Button({
                 icon: 'E145',
                 class: [CLASS_BTN_SMALL, CLASS_HIDE_ON_COLLAPSE]
             });
@@ -327,7 +329,7 @@ Object.assign(pcui, (function () {
             this._createTooltip('Grid view (small)', this._btnSmallGrid);
 
             // show details view mode
-            this._btnDetailsView = new pcui.Button({
+            this._btnDetailsView = new Button({
                 icon: 'E146',
                 class: [CLASS_BTN_SMALL, CLASS_HIDE_ON_COLLAPSE]
             });
@@ -345,7 +347,7 @@ Object.assign(pcui, (function () {
                     t: TYPES[type]
                 };
             });
-            this._dropdownType = new pcui.SelectInput({
+            this._dropdownType = new SelectInput({
                 options: dropdownTypeOptions,
                 value: 'all',
                 class: CLASS_HIDE_ON_COLLAPSE
@@ -358,7 +360,7 @@ Object.assign(pcui, (function () {
             this._dropdownType.on('change', this._onDropDownTypeChange.bind(this));
 
             // search input filter
-            this._searchInput = new pcui.TextInput({
+            this._searchInput = new TextInput({
                 class: CLASS_HIDE_ON_COLLAPSE,
                 keyChange: true,
                 placeholder: 'Search'
@@ -369,7 +371,7 @@ Object.assign(pcui, (function () {
             this._searchPreviousValue = '';
 
             // clear search input
-            this._btnClearSearch = new pcui.Button({
+            this._btnClearSearch = new Button({
                 icon: 'E132',
                 hidden: true,
                 class: CLASS_BTN_CLEAR_SEARCH
@@ -379,7 +381,7 @@ Object.assign(pcui, (function () {
             this._btnClearSearch.on('click', this._onClickClearSearch.bind(this));
 
             // Show asset store
-            const btnStore = new pcui.Button({
+            const btnStore = new Button({
                 text: 'STORE',
                 icon: 'E238',
                 class: [CLASS_BTN_STORE, CLASS_HIDE_ON_COLLAPSE]
@@ -390,7 +392,7 @@ Object.assign(pcui, (function () {
             this._createTooltip('Open PlayCanvas Store', btnStore);
 
             // folders tree view
-            this._containerFolders = new pcui.Container({
+            this._containerFolders = new Container({
                 class: CLASS_FOLDERS,
                 resizable: 'right',
                 resizeMin: 100,
@@ -400,7 +402,7 @@ Object.assign(pcui, (function () {
             });
             this.append(this._containerFolders);
 
-            this._foldersView = new pcui.TreeView({
+            this._foldersView = new TreeView({
                 allowReordering: false,
                 dragScrollElement: this._containerFolders,
                 onReparent: this._onFolderTreeReparent.bind(this)
@@ -412,7 +414,7 @@ Object.assign(pcui, (function () {
             this._foldersView.on('dragstart', this._onFolderTreeDragStart.bind(this));
 
             // root folder element
-            this._foldersViewRoot = new pcui.TreeViewItem({
+            this._foldersViewRoot = new TreeViewItem({
                 text: '/'
             });
             this._foldersViewRoot.on('hover', this._onRootFolderHover.bind(this));
@@ -444,12 +446,12 @@ Object.assign(pcui, (function () {
             }
 
             // initial progress container
-            this._containerProgress = new pcui.Container({
+            this._containerProgress = new Container({
                 class: CLASS_PROGRESS,
                 flex: true,
                 flexDirection: 'row'
             });
-            this._progressBar = new pcui.Progress();
+            this._progressBar = new Progress();
             this._progressBar.on('change', (value) => {
                 if (value >= 100) {
                     // update view mode to show
@@ -498,7 +500,7 @@ Object.assign(pcui, (function () {
             this.append(this._detailsView);
 
             // grid view
-            this._gridView = new pcui.GridView({
+            this._gridView = new GridView({
                 scrollable: true,
                 hidden: true,
                 filterFn: this._filterAssetElement.bind(this)
@@ -1195,8 +1197,8 @@ Object.assign(pcui, (function () {
             row.showProgress = function () {
                 if (!row.spinner) {
                     // spinner for running task
-                    const spinner = new pcui.Spinner({
-                        type: pcui.Spinner.TYPE_SMALL_THICK,
+                    const spinner = new Spinner({
+                        type: Spinner.TYPE_SMALL_THICK,
                         size: 16
                     });
                     row.spinner = spinner;
@@ -1214,8 +1216,8 @@ Object.assign(pcui, (function () {
             };
 
             // asset name
-            const labelName = new pcui.Label({
-                binding: new pcui.BindingObserversToElement()
+            const labelName = new Label({
+                binding: new BindingObserversToElement()
             });
             // make inline so that text-overflow will work
             labelName.style.display = 'inline';
@@ -1229,7 +1231,7 @@ Object.assign(pcui, (function () {
             cell.append(labelName);
 
             // user indicators for remote users who select this asset
-            const containerUsers = new pcui.Container({
+            const containerUsers = new Container({
                 class: CLASS_USERS_CONTAINER,
                 flex: true,
                 hidden: true
@@ -1264,7 +1266,7 @@ Object.assign(pcui, (function () {
                 }
             }
 
-            const labelType = new pcui.Label({
+            const labelType = new Label({
                 text: type
             });
             labelType.style.lineHeight = '24px';
@@ -1276,8 +1278,8 @@ Object.assign(pcui, (function () {
             cell = new pcui.TableCell();
             row.append(cell);
 
-            const labelSize = new pcui.Label({
-                binding: new pcui.BindingObserversToElement({
+            const labelSize = new Label({
+                binding: new BindingObserversToElement({
                     customUpdate: (element, observers, paths) => {
                         if (!observers[0].has(paths[0])) {
                             element.value = '';
@@ -1397,7 +1399,7 @@ Object.assign(pcui, (function () {
         }
 
         _createUserIndicator(userId, userEntry, container) {
-            const indicator = new pcui.Element(document.createElement('div'), {
+            const indicator = new Element({
                 class: CLASS_USER_INDICATOR
             });
             indicator.style.backgroundColor = userEntry.color;
@@ -1748,7 +1750,7 @@ Object.assign(pcui, (function () {
 
             const isLegacyScriptFolder = (asset === LEGACY_SCRIPTS_FOLDER_ASSET);
 
-            const treeItem = new pcui.TreeViewItem({
+            const treeItem = new TreeViewItem({
                 text: asset.get('name'),
                 allowDrop: !isLegacyScriptFolder,
                 allowDrag: !isLegacyScriptFolder

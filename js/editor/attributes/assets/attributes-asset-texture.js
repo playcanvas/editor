@@ -1,8 +1,10 @@
+import { Button, LabelGroup } from '@playcanvas/pcui';
+
 editor.once('load', function () {
     // append the basis module controls to the provided panel
     editor.method('attributes:appendImportModule', function (panel, moduleStoreName, wasmFilename) {
         // button
-        var button = new pcui.Button({
+        var button = new Button({
             text: 'IMPORT BASIS',
             icon: 'E228'
         });
@@ -11,7 +13,7 @@ editor.once('load', function () {
         });
 
         // group
-        var group = new pcui.LabelGroup({
+        var group = new LabelGroup({
             field: button,
             text: 'Basis Library'
         });

@@ -1,3 +1,5 @@
+import { Element, Label, Button, SelectInput, Container, TextInput } from '@playcanvas/pcui';
+
 editor.once('load', function () {
     // GLOBAL VARIABLES
     const isAdmin = editor.call('permissions:admin');
@@ -62,14 +64,15 @@ editor.once('load', function () {
     const createCollaboratorUI = (collaborator) => {
         if (collaborator.inviter_id && currentUser.access_level !== 'admin') return;  // don't display invitees to non-admin users
 
-        const parentContainer = new pcui.Element(document.createElement('div'), {
+        const parentContainer = new Element({
             class: 'collaborator-container'
         });
         if (collaborator.id === config.self.id) parentContainer.dom.classList.add('user-collaborator');
         membersGrid.element.appendChild(parentContainer.dom);
 
         // image container (left)
-        const image = new pcui.Element(document.createElement('img'), {
+        const image = new Element({
+            dom: 'img',
             class: 'collaborator-image',
             height: 62,
             width: 62
@@ -83,28 +86,28 @@ editor.once('load', function () {
         parentContainer.dom.appendChild(image.dom);
 
         // right container
-        const collaboratorRightContainer = new pcui.Element(document.createElement('div'), {
+        const collaboratorRightContainer = new Element({
             class: 'collaborator-right-container'
         });
         parentContainer.dom.appendChild(collaboratorRightContainer.dom);
 
         // first row
-        const firstRow = new pcui.Element(document.createElement('div'), {
+        const firstRow = new Element({
             class: 'collaborator-first-row'
         });
         collaboratorRightContainer.dom.appendChild(firstRow.dom);
 
-        const collaboratorName = new pcui.Label({
+        const collaboratorName = new Label({
             text: collaborator.inviter_id ? collaborator.email : collaborator.username
         });
         firstRow.dom.appendChild(collaboratorName.element);
 
-        const deleteCollaboratorBtn = new pcui.Button({ icon: 'E124' });
+        const deleteCollaboratorBtn = new Button({ icon: 'E124' });
 
         if (collaborator.username !== config.self.username) {
             deleteCollaboratorBtn.enabled = currentProject.access_level === 'admin';  // only allow admins to remove collaborators
         } else {
-            const configCollaboratorBtn = new pcui.Button({ icon: 'E134' });
+            const configCollaboratorBtn = new Button({ icon: 'E134' });
             firstRow.dom.appendChild(configCollaboratorBtn.element);
 
             deleteCollaboratorBtn.enabled = currentProject.owner !== config.self.username && currentProject.id !== config.project.id;
@@ -148,12 +151,12 @@ editor.once('load', function () {
             if (collaborator.inviter_id) displayLabel = 'Pending';
             if (collaborator.organization) displayLabel = 'Organization';
 
-            const accessLevelLabel = new pcui.Label({
+            const accessLevelLabel = new Label({
                 text: displayLabel
             });
             collaboratorRightContainer.dom.appendChild(accessLevelLabel.element);
         } else {
-            const accessLevelDropdown = new pcui.SelectInput({
+            const accessLevelDropdown = new SelectInput({
                 options: [{
                     v: 'read',
                     t: 'Read Only'
@@ -176,7 +179,7 @@ editor.once('load', function () {
     };
 
     // main panel
-    var panel = new pcui.Container({
+    var panel = new Container({
         flex: true,
         class: 'picker-team-management'
     });
@@ -198,29 +201,29 @@ editor.once('load', function () {
     var events = [];
 
     // Invite Container
-    const inviteContainer = new pcui.Container({
+    const inviteContainer = new Container({
         class: 'invite-container'
     });
     panel.append(inviteContainer);
 
-    const inviteLabel = new pcui.Label({
+    const inviteLabel = new Label({
         text: 'Invite',
         class: 'section-label'
     });
     inviteContainer.append(inviteLabel);
 
-    const inviteInputContainer = new pcui.Container({
+    const inviteInputContainer = new Container({
         class: 'invite-input-container',
         flex: true
     });
     inviteContainer.append(inviteInputContainer);
 
-    const inviteInputGroup = new pcui.Container({
+    const inviteInputGroup = new Container({
         class: 'invite-input-group'
     });
     inviteInputContainer.append(inviteInputGroup);
 
-    const inviteInput = new pcui.TextInput({
+    const inviteInput = new TextInput({
         enabled: isAdmin,
         placeholder: 'Type Username or Email Address',
         class: 'invite-input',
@@ -242,14 +245,14 @@ editor.once('load', function () {
         if (inviteInput.value === '') inviteInput.placeholder = 'Type Username or Email Address';
     });
 
-    const inviteSubmit = new pcui.Button({
+    const inviteSubmit = new Button({
         enabled: isAdmin,
         text: 'INVITE',
         class: 'invite-submit'
     });
     inviteInputGroup.append(inviteSubmit);
 
-    const inviteWarning = new pcui.Label({
+    const inviteWarning = new Label({
         class: 'invite-warning',
         text: ''  // by default no label under invite input
     });
@@ -262,28 +265,29 @@ editor.once('load', function () {
     });
 
     // Owner
-    const ownerContainer = new pcui.Container({
+    const ownerContainer = new Container({
         class: 'owner-container'
     });
     panel.append(ownerContainer);
 
-    const ownerLabel = new pcui.Label({
+    const ownerLabel = new Label({
         text: 'Owner',
         class: 'section-label'
     });
     ownerContainer.append(ownerLabel);
 
     // Owner Widget
-    const ownerWidgetContainer = new pcui.Container({
+    const ownerWidgetContainer = new Container({
         class: 'owner-widget-container'
     });
     ownerContainer.append(ownerWidgetContainer);
 
-    const ownerWidget = new pcui.Container({ class: 'collaborator-container' });
+    const ownerWidget = new Container({ class: 'collaborator-container' });
     ownerWidgetContainer.append(ownerWidget);
     ownerWidget.dom.style.width = '307.6px';
 
-    const ownerProfilePic = new pcui.Element(document.createElement('img'), {
+    const ownerProfilePic = new Element({
+        dom: 'img',
         class: 'collaborator-image'
     });
     ownerProfilePic.dom.style.width = '62px';
@@ -291,37 +295,37 @@ editor.once('load', function () {
     ownerProfilePic.dom.loading = 'lazy';
     ownerWidget.element.appendChild(ownerProfilePic.dom);
 
-    const ownerWidgetRightContainer = new pcui.Container({ class: 'collaborator-right-container' });
+    const ownerWidgetRightContainer = new Container({ class: 'collaborator-right-container' });
     ownerWidget.append(ownerWidgetRightContainer);
 
-    const ownerWidgetFirstRow = new pcui.Container({ class: 'collaborator-first-row' });
+    const ownerWidgetFirstRow = new Container({ class: 'collaborator-first-row' });
     ownerWidgetRightContainer.append(ownerWidgetFirstRow);
 
-    const ownerWidgetName = new pcui.Label({ text: '' });
+    const ownerWidgetName = new Label({ text: '' });
     ownerWidgetFirstRow.append(ownerWidgetName);
 
-    const ownerWidgetLabel = new pcui.Label({ text: 'Owner' });
+    const ownerWidgetLabel = new Label({ text: 'Owner' });
     ownerWidgetRightContainer.append(ownerWidgetLabel);
 
     // Members Container
-    const membersContainer = new pcui.Container({
+    const membersContainer = new Container({
         class: 'members-container'
     });
     panel.append(membersContainer);
 
-    const membersLabel = new pcui.Label({
+    const membersLabel = new Label({
         text: `Organization\nMembers\n\n${collaborators.length}/60`,
         class: 'section-label'
     });
     membersContainer.append(membersLabel);
 
-    const membersGrid = new pcui.Element(document.createElement('div'), {
+    const membersGrid = new Element({
         class: 'members-grid',
         flex: true
     });
     membersContainer.append(membersGrid);
 
-    const addMeAsAdminButton = new pcui.Button({
+    const addMeAsAdminButton = new Button({
         class: 'add-me-as-admin',
         text: 'ADD ME AS ADMIN',
         icon: 'E375',

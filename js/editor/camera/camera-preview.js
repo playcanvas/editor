@@ -1,3 +1,5 @@
+import { Button } from '@playcanvas/pcui';
+
 editor.once('load', function () {
     let selectedEntity = null; // currently selected entity
     let currentCamera = null;  // current camera rendering to viewport
@@ -18,7 +20,7 @@ editor.once('load', function () {
     if (editor.call('permissions:write'))
         cameraPreviewBorder.classList.add('clickable');
 
-    const btnPin = new pcui.Button({
+    const btnPin = new Button({
         class: 'lock',
         icon: 'E340'
     });

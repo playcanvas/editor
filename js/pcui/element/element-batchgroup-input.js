@@ -1,10 +1,12 @@
+import { Element, SelectInput } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     /**
      * @name pcui.BatchGroupInput
      * @classdesc A select input that holds batch group options.
-     * @augments pcui.SelectInput
+     * @augments SelectInput
      */
-    class BatchGroupInput extends pcui.SelectInput {
+    class BatchGroupInput extends SelectInput {
         /**
          * Creates new pcui.BatchGroupInput.
          *
@@ -68,7 +70,7 @@ Object.assign(pcui, (function () {
         }
     }
 
-    pcui.Element.register('batchgroup', BatchGroupInput, { renderChanges: true });
+    Element.register('batchgroup', BatchGroupInput, { renderChanges: true });
 
     return {
         BatchGroupInput: BatchGroupInput

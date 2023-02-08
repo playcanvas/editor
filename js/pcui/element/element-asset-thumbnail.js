@@ -1,3 +1,5 @@
+import { Element } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     const CLASS_ASSET_THUMB = 'pcui-asset-thumb';
     const CLASS_ASSET_THUMB_EMPTY = 'pcui-asset-thumb-empty';
@@ -18,9 +20,9 @@ Object.assign(pcui, (function () {
      * @name pcui.AssetThumbnail
      * @classdesc Shows an asset thumbnail. Depending on the asset type that can be an image or a canvas rendering.
      * @property {boolean} renderChanges If true the input will flash when changed.
-     * @augments pcui.Element
+     * @augments Element
      */
-    class AssetThumbnail extends pcui.Element {
+    class AssetThumbnail extends Element {
         /**
          * Creates a new pcui.AssetThumbnail.
          *
@@ -32,7 +34,7 @@ Object.assign(pcui, (function () {
          */
         constructor(args) {
             if (!args) args = {};
-            super(document.createElement('span'), args);
+            super({ ...args, dom: 'span' });
 
             this.class.add(CLASS_ASSET_THUMB, CLASS_ASSET_THUMB_EMPTY);
 

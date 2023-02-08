@@ -1,3 +1,5 @@
+import { Menu, MenuItem } from '@playcanvas/pcui';
+
 editor.once('load', function () {
     var entity = null; // the entity that was clicked on to open the context menu
     var items = [];   // the current selection
@@ -212,12 +214,12 @@ editor.once('load', function () {
         });
 
         // menu
-        menu = new pcui.Menu({ items: menuData });
+        menu = new Menu({ items: menuData });
         root.append(menu);
     });
 
     editor.method('entities:contextmenu:add', function (data) {
-        var item = new pcui.MenuItem({
+        var item = new MenuItem({
             text: data.text,
             icon: data.icon,
             items: data.items,

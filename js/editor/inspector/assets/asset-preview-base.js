@@ -1,9 +1,11 @@
+import { Container, Button } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     const CLASS_ROOT = 'pcui-asset-preview';
     const CLASS_CONTAINER = CLASS_ROOT + '-container';
     const CLASS_CONTAINER_LARGE = CLASS_CONTAINER + '-large';
 
-    class AssetInspectorPreviewBase extends pcui.Container {
+    class AssetInspectorPreviewBase extends Container {
         constructor(args) {
             super(args);
             this.class.add(CLASS_CONTAINER);
@@ -34,7 +36,7 @@ Object.assign(pcui, (function () {
         _onMouseUp(evt) {
             if (evt.button !== 0) return;
 
-            if (this._mouseDown && !this._dragging && this.dom.contains(evt.target) && !(evt.target.ui instanceof pcui.Button)) {
+            if (this._mouseDown && !this._dragging && this.dom.contains(evt.target) && !(evt.target.ui instanceof Button)) {
                 this._toggleSize();
             }
 

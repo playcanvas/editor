@@ -99,6 +99,145 @@
       "MemberExpression": 0,
       "SwitchCase": 1
     }],
-    "no-use-before-define": "off"
+    "no-use-before-define": "off",
+    "no-restricted-properties": [2,
+    {
+      "object": "pcui",
+      "property": "ArrayInput"
+    },
+    {
+      "object": "pcui",
+      "property": "BooleanInput"
+    },
+    {
+      "object": "pcui",
+      "property": "Button"
+    },
+    {
+      "object": "pcui",
+      "property": "Canvas"
+    },
+    {
+      "object": "pcui",
+      "property": "Code"
+    },
+    {
+      "object": "pcui",
+      "property": "ColorPicker"
+    },
+    {
+      "object": "pcui",
+      "property": "Container"
+    },
+    {
+      "object": "pcui",
+      "property": "Divider"
+    },
+    {
+      "object": "pcui",
+      "property": "Element"
+    },
+    {
+      "object": "pcui",
+      "property": "GradientPicker"
+    },
+    {
+      "object": "pcui",
+      "property": "GridView"
+    },
+    {
+      "object": "pcui",
+      "property": "GridViewItem"
+    },
+    {
+      "object": "pcui",
+      "property": "InfoBox"
+    },
+    {
+      "object": "pcui",
+      "property": "Label"
+    },
+    {
+      "object": "pcui",
+      "property": "LabelGroup"
+    },
+    {
+      "object": "pcui",
+      "property": "Menu"
+    },
+    {
+      "object": "pcui",
+      "property": "MenuItem"
+    },
+    {
+      "object": "pcui",
+      "property": "NumericInput"
+    },
+    {
+      "object": "pcui",
+      "property": "Overlay"
+    },
+    {
+      "object": "pcui",
+      "property": "Panel"
+    },
+    {
+      "object": "pcui",
+      "property": "Progress"
+    },
+    {
+      "object": "pcui",
+      "property": "RadioButton"
+    },
+    {
+      "object": "pcui",
+      "property": "SelectInput"
+    },
+    {
+      "object": "pcui",
+      "property": "SliderInput"
+    },
+    {
+      "object": "pcui",
+      "property": "Spinner"
+    },
+    {
+      "object": "pcui",
+      "property": "TextAreaInput"
+    },
+    {
+      "object": "pcui",
+      "property": "TextInput"
+    },
+    {
+      "object": "pcui",
+      "property": "TreeView"
+    },
+    {
+      "object": "pcui",
+      "property": "TreeViewItem"
+    },
+    {
+      "object": "pcui",
+      "property": "VectorInput"
+    },
+    {
+      "object": "pcui",
+      "property": "BindingBase"
+    },
+    {
+      "object": "pcui",
+      "property": "BindingElementToObservers"
+    },
+    {
+      "object": "pcui",
+      "property": "BindingObserversToElement"
+    },
+    {
+      "object": "pcui",
+      "property": "BindingTwoWay"
+    }
+  ]
   }
 }
+

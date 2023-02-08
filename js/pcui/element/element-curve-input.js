@@ -1,3 +1,5 @@
+import { Element, Canvas } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     const CLASS_CURVE = 'pcui-curve';
 
@@ -5,9 +7,9 @@ Object.assign(pcui, (function () {
      * @name pcui.CurveInput
      * @classdesc Shows a curve or curveset
      * @property {boolean} renderChanges If true the input will flash when changed.
-     * @augments pcui.Element
+     * @augments Element
      */
-    class CurveInput extends pcui.Element {
+    class CurveInput extends Element {
         /**
          * Creates a new pcui.CurveInput.
          *
@@ -23,11 +25,11 @@ Object.assign(pcui, (function () {
                 tabIndex: 0
             }, args);
 
-            super(document.createElement('div'), args);
+            super(args);
 
             this.class.add(CLASS_CURVE);
 
-            this._canvas = new pcui.Canvas({ useDevicePixelRatio: true });
+            this._canvas = new Canvas({ useDevicePixelRatio: true });
             this.dom.appendChild(this._canvas.dom);
             this._canvas.parent = this;
             this._canvas.on('resize', this._renderCurves.bind(this));
@@ -429,7 +431,7 @@ Object.assign(pcui, (function () {
         }
     }
 
-    pcui.Element.register('curveset', CurveInput, { renderChanges: true });
+    Element.register('curveset', CurveInput, { renderChanges: true });
 
     return {
         CurveInput: CurveInput

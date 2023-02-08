@@ -1,7 +1,9 @@
+import { Menu } from '@playcanvas/pcui';
+
 editor.once('load', function () {
     const root = editor.call('layout.root');
 
-    const menu = new pcui.Menu();
+    const menu = new Menu();
     root.append(menu);
 
     menu.class.add('context');

@@ -1,3 +1,5 @@
+import { Container, Button, Progress, Panel } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     const CLASS_ROOT = 'asset-audio-inspector';
 
@@ -27,7 +29,7 @@ Object.assign(pcui, (function () {
         },
         {
             root: {
-                audioContainer: new pcui.Container({
+                audioContainer: new Container({
                     flex: true,
                     flexDirection: 'row',
                     alignItems: 'center'
@@ -38,13 +40,13 @@ Object.assign(pcui, (function () {
                     audio: new Audio()
                 },
                 {
-                    audioButton: new pcui.Button({
+                    audioButton: new Button({
                         icon: 'E286',
                         flexShrink: 0
                     })
                 },
                 {
-                    audioTimeline: new pcui.Progress({
+                    audioTimeline: new Progress({
                         flexGrow: 1
                     })
                 }
@@ -52,7 +54,7 @@ Object.assign(pcui, (function () {
         }
     ];
 
-    class AudioAssetInspector extends pcui.Panel {
+    class AudioAssetInspector extends Panel {
         constructor(args) {
             args = Object.assign({}, args);
             args.headerText = 'AUDIO';

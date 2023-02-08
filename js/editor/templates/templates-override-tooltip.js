@@ -1,3 +1,5 @@
+import { Button } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     /**
      * @name pcui.TemplateOverrideTooltip
@@ -38,7 +40,7 @@ Object.assign(pcui, (function () {
 
             templates.forEach((template) => {
                 // button to apply override
-                const btnApply = new pcui.Button({
+                const btnApply = new Button({
                     text: `APPLY TO "${template.get('name')}"`,
                     flexGrow: 1
                 });
@@ -57,7 +59,7 @@ Object.assign(pcui, (function () {
             });
 
             // button to revert override
-            const btnRevert = new pcui.Button({
+            const btnRevert = new Button({
                 text: 'REVERT',
                 flexGrow: 1
             });

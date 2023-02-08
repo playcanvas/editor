@@ -1,3 +1,5 @@
+import { Button, Container } from '@playcanvas/pcui';
+
 editor.once('load', function () {
     var events = [];
 
@@ -509,7 +511,7 @@ editor.once('load', function () {
         panelItem.append(label);
 
         // shortcut button to view changes
-        var btnViewChanges = new pcui.Button({
+        var btnViewChanges = new Button({
             text: 'VIEW CHANGES',
             size: 'small',
             class: 'btn-view-changes'
@@ -610,8 +612,8 @@ editor.once('load', function () {
 
     editor.method('vcgraph:showGraphPanel', function (h) {
         vcGraphPanel.hidden = !vcGraphPanel.hidden;
-        const vcGraphContainer = new pcui.Container();
-        const vcGraphCloseBtn = new pcui.Button({ text: 'CLOSE' });
+        const vcGraphContainer = new Container();
+        const vcGraphCloseBtn = new Button({ text: 'CLOSE' });
         vcGraphCloseBtn.dom.setAttribute('style', `
             position: absolute;
             top: 6px;

@@ -1,9 +1,11 @@
+import { MenuItem } from '@playcanvas/pcui';
+
 editor.once('load', function () {
     const menu = editor.call('menu:file');
 
     let item;
 
-    item = new pcui.MenuItem({
+    item = new MenuItem({
         class: 'no-bottom-border',
         text: 'Close File',
         onIsEnabled: () => {
@@ -16,7 +18,7 @@ editor.once('load', function () {
     editor.call('menu:item:setShortcut', item, 'Alt+W');
     menu.append(item);
 
-    item = new pcui.MenuItem({
+    item = new MenuItem({
         class: 'no-bottom-border',
         text: 'Close Selected Files',
         onIsEnabled: () => {
@@ -29,7 +31,7 @@ editor.once('load', function () {
 
     menu.append(item);
 
-    item = new pcui.MenuItem({
+    item = new MenuItem({
         text: 'Close All Files',
         onIsEnabled: () => {
             return editor.call('editor:command:can:closeAll');
@@ -61,7 +63,7 @@ editor.once('load', function () {
 
     const ctxMenu = editor.call('files:contextmenu');
 
-    const close = new pcui.MenuItem({
+    const close = new MenuItem({
         text: 'Close',
         onIsEnabled: () => {
             const selected = editor.call('files:contextmenu:selected');

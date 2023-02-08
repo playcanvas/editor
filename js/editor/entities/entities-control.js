@@ -1,14 +1,16 @@
+import { Menu, Container, Button } from '@playcanvas/pcui';
+
 editor.once('load', function () {
     const root = editor.call('layout.root');
     const panel = editor.call('layout.hierarchy');
 
-    const menuEntities = new pcui.Menu({
+    const menuEntities = new Menu({
         items: editor.call('menu:entities:new')
     });
     root.append(menuEntities);
 
     // controls
-    const controls = new pcui.Container({
+    const controls = new Container({
         class: 'hierarchy-controls',
         flex: true,
         flexDirection: 'row',
@@ -23,7 +25,7 @@ editor.once('load', function () {
     panel.header.append(controls);
 
     // controls add
-    const btnAdd = new pcui.Button({
+    const btnAdd = new Button({
         icon: 'E287'
     });
     btnAdd.on('click', function () {
@@ -41,7 +43,7 @@ editor.once('load', function () {
     });
 
     // controls duplicate
-    const btnDuplicate = new pcui.Button({
+    const btnDuplicate = new Button({
         icon: 'E288'
     });
     btnDuplicate.on('click', function () {
@@ -61,7 +63,7 @@ editor.once('load', function () {
     });
 
     // controls delete
-    const btnDelete = new pcui.Button({
+    const btnDelete = new Button({
         icon: 'E289'
     });
     btnDelete.on('click', function () {

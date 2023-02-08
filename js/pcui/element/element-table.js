@@ -1,3 +1,5 @@
+import { Element, Container, Label } from '@playcanvas/pcui';
+
 Object.assign(pcui, (function () {
     const CLASS_TABLE = 'pcui-table';
 
@@ -17,7 +19,7 @@ Object.assign(pcui, (function () {
     /**
      * @name pcui.Table
      * @classdesc Represents a table view with optional resizable and sortable columns.
-     * @augments pcui.Container
+     * @augments Container
      * @property {object[]} columns The columns of the table. Each column has the following format:
      * {
      *   title: String - the title displayed on the column,
@@ -26,16 +28,16 @@ Object.assign(pcui, (function () {
      *   sortKey: The observer field with which to sort the table when the column table is clicked. Also serves as an identifier for the column.
      *   sortFn: Overrides the sortKey method to sort the observers using this function instead.
      * }
-     * @property {pcui.Container} table The internal <table> container
-     * @property {pcui.Container} head The internal <thead> container
-     * @property {pcui.Container} body The internal <tbody> container
+     * @property {Container} table The internal <table> container
+     * @property {Container} head The internal <thead> container
+     * @property {Container} body The internal <tbody> container
      * @property {pcui.TableRow[]} selected Gets the selected rows
      * @property {string} sortKey Gets the current sort key
      * @property {Function} sortFn Gets the current sort function
      * @property {boolean} isAscending Gets whether the current sort order is ascending (or descending)
      * @property {boolean} allowRowFocus Gets / sets whether table rows will be focused on selection. Defaults to true.
      */
-    class Table extends pcui.Container {
+    class Table extends Container {
         /**
          * Creates a new Table.
          *
@@ -51,18 +53,18 @@ Object.assign(pcui, (function () {
 
             this.class.add(CLASS_TABLE);
 
-            this._containerTable = new pcui.Container({
+            this._containerTable = new Container({
                 dom: document.createElement('table')
             });
             this.append(this._containerTable);
             this.domContent = this._containerTable.dom;
 
-            this._containerHead = new pcui.Container({
+            this._containerHead = new Container({
                 dom: document.createElement('thead')
             });
             this._containerTable.append(this._containerHead);
 
-            this._containerBody = new pcui.Container({
+            this._containerBody = new Container({
                 dom: document.createElement('tbody')
             });
             this._containerTable.append(this._containerBody);
@@ -141,7 +143,7 @@ Object.assign(pcui, (function () {
                         }
                     }
 
-                    const label = new pcui.Label({
+                    const label = new Label({
                         text: column.title
                     });
                     // make inline to be able to use text-overflow: ellipsis
@@ -308,7 +310,7 @@ Object.assign(pcui, (function () {
 
         // Executes specified function for each cell in the
         // specified column index for the specified pcui.TableRow container
-        // The function has a signature of (pcui.Element) => {}
+        // The function has a signature of (Element) => {}
         _forEachColumnCell(container, columnIndex, fn) {
             container.forEachChild((row) => {
                 if (row instanceof pcui.TableRow) {
@@ -330,7 +332,7 @@ Object.assign(pcui, (function () {
 
         // Executes specified function for each cell in the
         // specified row index for the specified pcui.TableRow container
-        // The function has a signature of (pcui.Element, cellIndex) => {}
+        // The function has a signature of (Element, cellIndex) => {}
         _forEachRowCell(container, rowIndex, fn) {
             const row = container.dom.childNodes[rowIndex];
             if (row.ui instanceof pcui.TableRow) {
@@ -424,7 +426,7 @@ Object.assign(pcui, (function () {
         // Adds handle to resize column
         _addResizeHandle(cell, colIndex) {
             // add resize handle
-            const handle = new pcui.Element(document.createElement('div'), {
+            const handle = new Element({
                 class: CLASS_CELL_HANDLE
             });
             cell.append(handle);

@@ -1,8 +1,10 @@
+import { MenuItem } from '@playcanvas/pcui';
+
 editor.once('load', function () {
     const menu = editor.call('menu:file');
     const leftPanel = editor.call('layout.left');
 
-    menu.append(new pcui.MenuItem({
+    menu.append(new MenuItem({
         text: 'Delete Selected Files',
         onIsEnabled: () => {
             return editor.call('editor:command:can:deleteSelected');
@@ -13,7 +15,7 @@ editor.once('load', function () {
     }));
 
     const ctxMenu = editor.call('files:contextmenu');
-    ctxMenu.append(new pcui.MenuItem({
+    ctxMenu.append(new MenuItem({
         text: 'Delete',
         onIsEnabled: () => {
             return editor.call('permissions:write') &&
