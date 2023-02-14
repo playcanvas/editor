@@ -37,7 +37,10 @@ Object.assign(pcui, (function () {
                 flex: true
             });
 
-            super(container.dom, args);
+            super({
+                ...args,
+                dom: container.dom
+            });
 
             this.class.add(CLASS_ASSET_LIST, CLASS_ASSET_LIST_EMPTY);
 
