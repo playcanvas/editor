@@ -500,8 +500,6 @@ import './editor/inspector/settings-panels/settings-history.js';
 
 // attributes assets
 import './editor/attributes/attributes-asset.js';
-import './editor/attributes/assets/attributes-asset-texture.js';
-
 
 // chat
 import './editor/chat/chat-connection.js';

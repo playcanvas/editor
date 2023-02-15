@@ -45,6 +45,15 @@ editor.once('load', function () {
         return;
     }
 
+    const module = config.wasmModules.filter(m => m.moduleName === 'DracoDecoderModule');
+    if (module) {
+        pc.WasmModule.setConfig('DracoDecoderModule', {
+            glueUrl: module[0].glueUrl,
+            wasmUrl: module[0].wasmUrl,
+            fallbackUrl: module[0].fallbackUrl
+        });
+    }
+
     editorSettings.on('*:set', function () {
         app.setEditorSettings(editorSettings.json().editor);
     });

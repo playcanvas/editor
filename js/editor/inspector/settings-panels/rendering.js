@@ -421,6 +421,15 @@ Object.assign(pcui, (function () {
                 text: 'IMPORT BASIS',
                 icon: 'E228'
             }
+        },
+        {
+            label: 'Draco Library',
+            alias: 'draco',
+            type: 'button',
+            args: {
+                text: 'IMPORT DRACO',
+                icon: 'E228'
+            }
         }
     ];
 
@@ -472,6 +481,13 @@ Object.assign(pcui, (function () {
             });
             this.once('destroy', () => {
                 clickBasisEvt.unbind();
+            });
+
+            const clickDracoEvt = this._attributesInspector.getField('draco').on('click', () => {
+                editor.call('project:module:addModule', 'draco.js', 'draco');
+            });
+            this.once('destroy', () => {
+                clickDracoEvt.unbind();
             });
 
             const shadowsEnabled = this._attributesInspector.getField('render.lightingShadowsEnabled');

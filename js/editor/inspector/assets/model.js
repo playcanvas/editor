@@ -41,6 +41,11 @@ Object.assign(pcui, (function () {
             label: 'Attributes',
             path: 'meta.attributes',
             type: 'label'
+        },
+        {
+            label: 'Mesh Compression',
+            path: 'meta.meshCompression',
+            type: 'label'
         }
     ];
 
@@ -268,7 +273,7 @@ Object.assign(pcui, (function () {
             }
 
             META_ATTRIBUTES.forEach((attribute) => {
-                if (attribute.path !== 'meta.attributes') {
+                if (['meta.attributes', 'meta.meshCompression'].includes(attribute.path)) {
                     this._formatMetaAttribute(attribute.path);
                 }
             });

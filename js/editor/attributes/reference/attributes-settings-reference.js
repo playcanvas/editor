@@ -252,6 +252,10 @@ editor.once('load', function () {
         title: 'Import Hierarchy',
         description: 'Generate a template asset when importing 3D assets (FBX etc). The template asset will contain the full entity hierarchy from the imported file.'
     }, {
+        name: 'asset-tasks:meshCompression',
+        title: 'Mesh Compression',
+        description: 'Specify the mesh compression to apply to imported models.'
+    }, {
         name: 'asset-tasks:createFBXFolder',
         title: 'Create FBX Folder',
         description: 'Create a new folder in the current directory when importing an FBX file, which will store all the imported FBX contents.'

@@ -1,4 +1,4 @@
-import { Panel } from '@playcanvas/pcui';
+import { Panel, Button, Container, Label } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
     const CLASS_ROOT = 'asset-tasks-settings-panel';
@@ -82,6 +82,20 @@ Object.assign(pcui, (function () {
             type: 'boolean',
             alias: 'asset-tasks:useContainers',
             path: 'editor.pipeline.useContainers'
+        },
+        {
+            observer: 'settings',
+            label: 'Mesh Compression',
+            type: 'select',
+            alias: 'asset-tasks:meshCompression',
+            path: 'editor.pipeline.meshCompression',
+            args: {
+                type: 'string',
+                options: [
+                    { v: 'none', t: 'Disabled' },
+                    { v: 'draco', t: 'Draco' }
+                ]
+            }
         },
         {
             observer: 'settings',
@@ -186,22 +200,77 @@ Object.assign(pcui, (function () {
 
             const useGlbField = this._attributesInspector.getField('editor.pipeline.useGlb');
             const useContainersField = this._attributesInspector.getField('editor.pipeline.useContainers');
+            const meshCompressionField = this._attributesInspector.getField('editor.pipeline.meshCompression');
             const animUseFbxFilenameField = this._attributesInspector.getField('editor.pipeline.animUseFbxFilename');
 
-            useContainersField.parent.hidden = !useGlbField.value;
-            animUseFbxFilenameField.parent.hidden = !useGlbField.value;
-            useGlbField.on('change', (value) => {
+            const updateFields = (value) => {
                 useContainersField.parent.hidden = !value;
+                meshCompressionField.parent.hidden = !value;
                 animUseFbxFilenameField.parent.hidden = !value;
+            };
+            updateFields(useGlbField.value);
+
+            useGlbField.on('change', (value) => {
+                updateFields(value);
                 if (!value) {
                     useContainersField.value = false;
+                    meshCompressionField.value = 'none';
+                    animUseFbxFilenameField.value = false;
                 }
             });
+
+            // draco
+            this._setupDracoImportButton(meshCompressionField, 'draco.js', 'draco');
+            const updateDracoImport = (value) => {
+                this._containerImportDraco.hidden = (value !== 'draco') || editor.call('project:module:hasModule', 'draco');
+            };
+            meshCompressionField.on('change', value => updateDracoImport(value));
+            this.on('showToRoot', () => { updateDracoImport(meshCompressionField.value); });
         }
 
         _appendSection(title, attributeElement) {
             const section = new Panel({ headerText: title, class: CLASS_SECTION });
             attributeElement.parent.parent.appendAfter(section, attributeElement.parent);
+            return section;
+        }
+
+        _setupDracoImportButton(previousField, moduleStoreName, wasmFilename) {
+            this._containerImportDraco = new Container({
+                class: 'pcui-subpanel',
+                flex: true,
+                flexDirection: 'row',
+                alignItems: 'center'
+            });
+
+            this._labelImportDraco = new Label({
+                text: 'Draco Not Found'
+            });
+            this._containerImportDraco.append(this._labelImportDraco);
+
+            this._btnImportDraco = new Button({
+                text: 'IMPORT DRACO',
+                icon: 'E228',
+                flexGrow: 1
+            });
+            this._btnImportDraco.on('click', () => {
+                editor.call('project:module:addModule', moduleStoreName, wasmFilename);
+            });
+            this._containerImportDraco.append(this._btnImportDraco);
+
+            previousField.parent.parent.appendAfter(this._containerImportDraco, previousField.parent);
+
+            const events = [];
+            const handleModuleImported = (name) => {
+                if (name === moduleStoreName) {
+                    this._containerImportDraco.hidden = true;
+                }
+            };
+            events.push(editor.on('onModuleImported', handleModuleImported));
+
+            this._containerImportDraco.once('destroy', () => {
+                events.forEach(evt => evt.unbind());
+                events.length = 0;
+            });
         }
     }
 

@@ -36,6 +36,7 @@ editor.once('load', function () {
                     overwriteTexture: true,
                     useGlb: false,
                     useContainers: false,
+                    meshCompression: 'none',
                     createFBXFolder: false,
                     defaultAssetPreload: true,
                     animSampleRate: 10,
@@ -121,8 +122,13 @@ editor.once('load', function () {
             if (!settings.has('editor.pipeline.useGlb')) {
                 settings.set('editor.pipeline.useGlb', false);
             }
+
             if (!settings.has('editor.pipeline.useContainers')) {
                 settings.set('editor.pipeline.useContainers', false);
+            }
+
+            if (!settings.has('editor.pipeline.meshCompression') || !settings.get('editor.pipeline.meshCompression')) {
+                settings.set('editor.pipeline.meshCompression', 'none');
             }
 
             if (!settings.has('editor.pipeline.createFBXFolder')) {
