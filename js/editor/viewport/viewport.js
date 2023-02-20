@@ -52,6 +52,11 @@ editor.once('load', function () {
             wasmUrl: module[0].wasmUrl,
             fallbackUrl: module[0].fallbackUrl
         });
+        // load the draco module at startup (instead of on-demand), because otherwise model
+        // assets containing draco compressed meshes will not be visible in the viewport.
+        // remove this call when the engine correctly loads draco meshes as models with on-demand
+        // draco module initialization.
+        pc.WasmModule.getInstance('DracoDecoderModule', (instance) => {});
     }
 
     editorSettings.on('*:set', function () {
