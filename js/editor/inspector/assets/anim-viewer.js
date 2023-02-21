@@ -228,10 +228,10 @@ Object.assign(
             }
 
             displayMessage(text) {
+                this.clearView();
                 this._messageLabel.text = text;
                 this._messageLabel.hidden = false;
                 this.dom.classList.add('hide');
-                this.clearView();
             }
 
             hideMessage() {
@@ -341,15 +341,19 @@ Object.assign(
                 this._animTrack = null;
                 this._skeleton = null;
                 this._entity = null;
+                this._entityMeshInstances = [];
+                this._renderComponents = [];
                 this._setPaused();
                 if (this._uiContainer) {
                     this._uiContainer.disabled = true;
                     this._slider.value = 0;
                     this._slider.sliderMax = 1;
                 }
+                this.hideMessage();
             }
 
             loadView(animTrack, entity) {
+                this.clearView();
                 if (!animTrack) {
                     this.displayMessage("No animation track provided.");
                     return;
@@ -357,7 +361,6 @@ Object.assign(
                     this.displayMessage("No entity provided.");
                     return;
                 }
-                this.hideMessage();
 
                 this._animTrack = animTrack;
                 this._skeleton = null;
@@ -370,7 +373,6 @@ Object.assign(
                 } else {
                     this._entity = entity;
                 }
-
 
                 this._entity.removeComponent("anim");
                 this._entity.addComponent("anim", {
@@ -387,33 +389,42 @@ Object.assign(
                     this._slider.sliderMax = animTrack.duration;
                 }
 
-                // set camera
-                if (entity && entity.model) {
+                // first try using the legacy model component, if present make sure the model is loaded before setting up the render loop (otherwise the hierarchy will not be available)
+                if (entity.model?.asset) {
+                    if (!entity.model.model) {
+                        const modelAsset = this._app.assets.get(entity.model.asset);
+                        const onModelLoad = () => {
+                            this._entityMeshInstances = this._entity.model.meshInstances;
+                            this.setupRenderLoop();
+                        };
+                        modelAsset.once("load", onModelLoad.bind(this));
+                        this._app.assets.load(modelAsset);
+                        return;
+                    }
                     this._entityMeshInstances = this._entity.model.meshInstances;
-                } else if (entity) {
-                    this._renderComponents = [];
-                    const getHierarchyRenderComponents = (entity) => {
-                        if (entity.render) {
-                            this._renderComponents.push(entity.render);
-                        }
-                        entity.children.forEach((child) => {
-                            getHierarchyRenderComponents(child);
+                }
+
+                // try to retrieve render components from the entity hierarchy
+                this._renderComponents = entity.findComponents("render");
+                this._renderComponents.forEach((render) => {
+                    render._cloneSkinInstances();
+                    const renderAsset = this._app.assets.get(render.asset);
+                    if (!renderAsset.loaded) {
+                        this._app.assets.load(renderAsset);
+                    }
+                    if (render.materialAssets?.length) {
+                        render.materialAssets.forEach((materialAssetId) => {
+                            const materialAsset = this._app.assets.get(materialAssetId);
+                            if (!materialAsset.loaded) {
+                                this._app.assets.load(materialAsset);
+                            }
                         });
-                    };
-                    getHierarchyRenderComponents(this._entity);
-                    this._renderComponents.forEach((render) => {
-                        render._cloneSkinInstances();
-                    });
-                }
+                    }
+                });
+                this.setupRenderLoop();
+            }
 
-                let color;
-                if (this._renderComponents.length > 0 || this._entity.model && this._entity.model.meshInstances.length > 0) {
-                    color = new pc.Color(1, 1, 1, 0.5);
-                    this._skeleton = new Skeleton(this._app, this._entity, color);
-                } else {
-                    this._skeleton = new Skeleton(this._app, this._entity);
-                }
-
+            setupRenderLoop() {
                 this._setupCamera = true;
 
                 this._setPlaying();
@@ -421,6 +432,13 @@ Object.assign(
                 this._lastTime = null;
 
                 this._renderTarget = this.createRenderTarget();
+
+                // create the skeleton
+                if (this._renderComponents.length > 0 || this._entity?.model?.meshInstances?.length > 0) {
+                    this._skeleton = new Skeleton(this._app, this._entity, new pc.Color(1, 1, 1, 0.5));
+                } else {
+                    this._skeleton = new Skeleton(this._app, this._entity);
+                }
 
                 // begin render loop
                 const renderStep = (time) => {
