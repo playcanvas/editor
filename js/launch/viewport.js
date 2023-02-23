@@ -231,8 +231,12 @@ editor.once('load', function () {
             libraries = true;
             if (err) log.error(err);
             // now that modules are loaded, start the realtime connection
-            editor.call('realtime:connect');
-            init();
+            // we use setTimeout here to ensure load.js has a chance to
+            // register its 'realtime:connect' method.
+            setTimeout(() => {
+                editor.call('realtime:connect');
+                init();
+            });
         });
     });
 
