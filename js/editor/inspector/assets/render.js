@@ -96,7 +96,16 @@ Object.assign(pcui, (function () {
             this._metaAttributesInspector.link(assets);
             this._attributesInspector.link(assets);
 
-            // fill attribute meta
+            this._formatMetaAttribute(assets);
+            this._formatMetaMeshCompression(assets);
+        }
+
+        unlink() {
+            this._attributesInspector.unlink();
+            this._metaAttributesInspector.unlink();
+        }
+
+        _formatMetaAttribute(assets) {
             const metaAttributes = {};
             assets.forEach((asset) => {
                 const currMetaAttributes = asset.get('meta.attributes');
@@ -105,18 +114,23 @@ Object.assign(pcui, (function () {
                 }
             });
 
-            const metaAttributesString = Object.keys(metaAttributes).join(', ');
-            const metaAttributesField = this._metaAttributesInspector.getField('meta.attributes');
-            metaAttributesField.parent.hidden = !metaAttributesString;
-            metaAttributesField.style.whiteSpace = 'normal';
-            metaAttributesField.values = assets.map((asset) => {
-                return metaAttributesString;
-            });
+            const text = Object.keys(metaAttributes).join(', ');
+            const field = this._metaAttributesInspector.getField('meta.attributes');
+            field.values = assets.map(asset => text);
         }
 
-        unlink() {
-            this._attributesInspector.unlink();
-            this._metaAttributesInspector.unlink();
+        _formatMetaMeshCompression(assets) {
+            const attribute = 'meta.meshCompression';
+            const names = {
+                none: 'Disabled',
+                draco: 'Draco'
+            };
+            const text =
+                Array.from(new Set(assets.map(asset => asset.get(attribute))))
+                .map(v => names[v] || v)
+                .join(', ');
+            const field = this._metaAttributesInspector.getField(attribute);
+            field.values = assets.map(asset => text);
         }
     }
 

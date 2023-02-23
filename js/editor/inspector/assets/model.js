@@ -233,13 +233,23 @@ Object.assign(pcui, (function () {
                 }
             });
 
-            const metaAttributesString = Object.keys(metaAttributes).join(', ');
-            const metaAttributesField = this._metaAttributesInspector.getField('meta.attributes');
-            metaAttributesField.parent.hidden = !metaAttributesString;
-            metaAttributesField.style.whiteSpace = 'normal';
-            metaAttributesField.values = this._assets.map((asset) => {
-                return metaAttributesString;
-            });
+            const text = Object.keys(metaAttributes).join(', ');
+            const field = this._metaAttributesInspector.getField('meta.attributes');
+            field.values = this._assets.map(asset => text);
+        }
+
+        _formatMetaAttributeMeshCompression() {
+            const attribute = 'meta.meshCompression';
+            const names = {
+                none: 'Disabled',
+                draco: 'Draco'
+            };
+            const text =
+                Array.from(new Set(this._assets.map(asset => asset.get(attribute))))
+                .map(v => names[v] || v)
+                .join(', ');
+            const field = this._metaAttributesInspector.getField(attribute);
+            field.values = this._assets.map(asset => text);
         }
 
         _formatUV1Attribute() {
@@ -273,11 +283,12 @@ Object.assign(pcui, (function () {
             }
 
             META_ATTRIBUTES.forEach((attribute) => {
-                if (['meta.attributes', 'meta.meshCompression'].includes(attribute.path)) {
+                if (!['meta.attributes', 'meta.meshCompression'].includes(attribute.path)) {
                     this._formatMetaAttribute(attribute.path);
                 }
             });
             this._formatMetaAttributesAttribute();
+            this._formatMetaAttributeMeshCompression();
             this._formatUV1Attribute();
             this._resetAutoUnwrap();
 
@@ -296,11 +307,12 @@ Object.assign(pcui, (function () {
                     return;
                 }
                 META_ATTRIBUTES.forEach((attribute) => {
-                    if (attribute.path !== 'meta.attributes') {
+                    if (!['meta.attributes', 'meta.meshCompression'].includes(attribute.path)) {
                         this._formatMetaAttribute(attribute.path);
                     }
                 });
                 this._formatMetaAttributesAttribute();
+                this._formatMetaAttributeMeshCompression();
                 this._formatUV1Attribute();
                 this._resetAutoUnwrap();
             }));
