@@ -86,9 +86,17 @@ editor.once('load', function () {
         connect();
     };
 
-    if (editor.call('visibility')) {
-        reconnect();
-    } else {
-        editor.once('visible', reconnect);
-    }
+    // instead of connecting to realtime immediately, we wait for a 'realtime:connect' event.
+    // this is because connecting immediately will trigger asset load events in the scene and
+    // as of engine v1.61.2 model assets compressed with draco will fail to load depending on
+    // timing relative to draco wasm module loading.
+    // this event can be removed (and the body executed immediately) when the engine supports
+    // loading draco module on demand during model asset load.
+    editor.method('realtime:connect', function () {
+        if (editor.call('visibility')) {
+            reconnect();
+        } else {
+            editor.once('visible', reconnect);
+        }
+    });
 });

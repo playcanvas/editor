@@ -230,6 +230,8 @@ editor.once('load', function () {
         app._loadLibraries(libraryUrls, function (err) {
             libraries = true;
             if (err) log.error(err);
+            // now that modules are loaded, start the realtime connection
+            editor.call('realtime:connect');
             init();
         });
     });
