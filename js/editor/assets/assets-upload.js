@@ -280,6 +280,11 @@ editor.once('load', function () {
             return;
         }
 
+        if (file.size === 0) {
+            editor.call('status:error', `Cannot upload empty file '${file.name}'.`);
+            return;
+        }
+
         var type = extToType[ext] || 'binary';
 
         var source = type !== 'binary' && !targetExtensions[ext];
