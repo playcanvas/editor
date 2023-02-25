@@ -213,13 +213,20 @@ Object.assign(pcui, (function () {
         }
 
         _makeAddComponentMenuItem(component, title, logos, logoName = "", dataComponent = {}) {
-            return {
+            const data = {
                 text: title,
                 icon: logoName.length > 0 ? logos[logoName] : logos[component],
                 onSelect: () => {
                     editor.call('entities:addComponent', this._entities, component, dataComponent);
                 }
             };
+            // Only show the 'Audio Source' component if the project is using the legacy audio system
+            if (component === 'audiosource') {
+                data.onIsVisible = () => {
+                    return editor.call('settings:project').get('useLegacyAudio');
+                };
+            }
+            return data;
         }
 
         _onHotkeyF2() {
