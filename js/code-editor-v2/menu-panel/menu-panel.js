@@ -67,9 +67,9 @@ editor.once('load', function () {
         .replace(/Down Arrow/g, '↓');
 
         const label = new Label({
+            class: 'shortcut',
             text: shortcut
         });
-        label.class.add('shortcut');
 
         // HACK: there is no way to access the elements of a menu item
         // so manipulate the DOM directly

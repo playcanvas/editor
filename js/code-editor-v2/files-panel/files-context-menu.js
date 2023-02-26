@@ -3,10 +3,10 @@ import { Menu } from '@playcanvas/pcui';
 editor.once('load', function () {
     const root = editor.call('layout.root');
 
-    const menu = new Menu();
+    const menu = new Menu({
+        class: 'context'
+    });
     root.append(menu);
-
-    menu.class.add('context');
 
     let currentAsset = null;
 

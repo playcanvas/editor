@@ -17,9 +17,9 @@ editor.once('load', function () {
     const createFilter = function (text, storageKey) {
         const filterButton = new Button({
             class: 'option',
-            text: text
+            text: text,
+            tabIndex: -1
         });
-        filterButton.element.tabIndex = -1;
         filterButton.style.width = '80px';
         filterPanel.append(filterButton);
 
@@ -61,30 +61,30 @@ editor.once('load', function () {
 
     const optionFilter = new Button({
         class: 'option',
-        text: '...'
+        text: '...',
+        tabIndex: -1
     });
-    optionFilter.element.tabIndex = -1;
     panel.append(optionFilter);
 
     const optionRegex = new Button({
         class: 'option',
-        text: '.*'
+        text: '.*',
+        tabIndex: -1
     });
-    optionRegex.element.tabIndex = -1;
     panel.append(optionRegex);
 
     const optionCase = new Button({
         class: 'option',
-        text: 'Aa'
+        text: 'Aa',
+        tabIndex: -1
     });
-    optionCase.element.tabIndex = -1;
     panel.append(optionCase);
 
     const optionWholeWords = new Button({
         class: 'option',
-        text: '“ ”'
+        text: '“ ”',
+        tabIndex: -1
     });
-    optionWholeWords.element.tabIndex = -1;
     panel.append(optionWholeWords);
 
     const searchField = new TextInput({
@@ -105,9 +105,9 @@ editor.once('load', function () {
     searchField.element.appendChild(error.element);
 
     const btnFindInFiles = new Button({
-        'text': 'Find'
+        'text': 'Find',
+        tabIndex: -1
     });
-    btnFindInFiles.element.tabIndex = -1;
     panel.append(btnFindInFiles);
 
     // Tooltips

@@ -60,9 +60,9 @@ Object.assign(pcui, (function () {
                 icon: 'E130',
                 class: CLASS_SCRIPT_VALID,
                 enabled: true,
-                ignoreParent: true
+                ignoreParent: true,
+                tabIndex: -1
             });
-            this._btnEdit.dom.tabIndex = -1;
             this._btnEdit.style.fontSize = '15px';
             this.header.append(this._btnEdit);
             this._btnEdit.on('click', this._onClickEdit.bind(this));
@@ -79,9 +79,9 @@ Object.assign(pcui, (function () {
 
             this._btnParse = new Button({
                 icon: 'E128',
-                class: CLASS_SCRIPT_VALID
+                class: CLASS_SCRIPT_VALID,
+                tabIndex: -1
             });
-            this._btnParse.dom.tabIndex = -1;
             this._btnParse.style.marginRight = '6px';
             this._btnParse.style.fontSize = '15px';
             this.header.append(this._btnParse);
