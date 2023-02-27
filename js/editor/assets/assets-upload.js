@@ -18,6 +18,7 @@ editor.once('load', function () {
         'glsl': true,
         'mp3': true,
         'ogg': true,
+        'opus': true,
         'wav': true,
         'mp4': true,
         'm4a': true,
@@ -32,7 +33,7 @@ editor.once('load', function () {
         'css': ['css'],
         'json': ['json'],
         'texture': ['tif', 'tga', 'png', 'jpg', 'jpeg', 'gif', 'bmp', 'dds', 'hdr', 'exr'],
-        'audio': ['wav', 'mp3', 'mp4', 'ogg', 'm4a'],
+        'audio': ['m4a', 'mp3', 'mp4', 'ogg', 'opus', 'wav'],
         'shader': ['glsl', 'frag', 'vert'],
         'script': ['js'],
         'font': ['ttf', 'ttc', 'otf', 'dfont']
