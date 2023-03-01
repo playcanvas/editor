@@ -1,27 +1,34 @@
+import { Container, Menu, MenuItem, Overlay, TextInput } from '@playcanvas/pcui';
+
 editor.once('load', function () {
+    /** @type {Container} */
     const root = editor.call('layout.root');
-    const overlay = new ui.Overlay();
-    overlay.class.add('picker-fuzzy-search');
-    overlay.clickable = true;
-    overlay.hidden = true;
+    /** @type {Container} */
+    const parent = editor.call('layout.center');
+
+    const overlay = new Overlay({
+        class: 'picker-fuzzy-search',
+        clickable: true,
+        hidden: true
+    });
     root.append(overlay);
 
-    const parent = editor.call('layout.center');
-    const panel = new ui.Panel();
-    panel.hidden = true;
-    panel.class.add('picker-fuzzy-search');
+    const panel = new Container({
+        class: 'picker-fuzzy-search',
+        hidden: true
+    });
     parent.append(panel);
 
     // this is where we type our search query
-    const fieldSearch = new ui.TextField();
-    fieldSearch.elementInput.classList.add('hotkeys');
-    fieldSearch.renderChanges = false;
+    const fieldSearch = new TextInput();
+    fieldSearch.input.classList.add('hotkeys');
     panel.append(fieldSearch);
 
     // shows results
-    const menuResults = new ui.Menu();
-    menuResults.open = true;
-    menuResults.class.add('results');
+    const menuResults = new Menu({
+        class: 'results',
+        hidden: false
+    });
     panel.append(menuResults);
 
     let findInFilesFakeAsset = null;
@@ -38,18 +45,18 @@ editor.once('load', function () {
     const selectionStack = [];
 
     // Open picker
-    editor.method('picker:fuzzy:open', function () {
+    editor.method('picker:fuzzy:open', () => {
         overlay.hidden = false;
     });
 
     // Close picker
-    editor.method('picker:fuzzy:close', function () {
+    editor.method('picker:fuzzy:close', () => {
         overlay.hidden = true;
     });
 
-    overlay.on('show', function () {
+    overlay.on('show', () => {
         panel.hidden = false;
-        menuResults.open = true;
+        menuResults.hidden = false;
         filterAssets();
 
         fieldSearch.focus();
@@ -59,7 +66,7 @@ editor.once('load', function () {
         editor.emit('picker:fuzzy:open');
     });
 
-    overlay.on('hide', function () {
+    overlay.on('hide', () => {
         panel.hidden = true;
         fieldSearch.value = '';
 
@@ -71,7 +78,7 @@ editor.once('load', function () {
 
     // when an asset is selected
     // put it on the front of the stack
-    editor.on('select:asset', function (asset) {
+    editor.on('select:asset', (asset) => {
         if (asset.get('type') === 'folder') return;
 
         const id = asset.get('id');
@@ -83,7 +90,7 @@ editor.once('load', function () {
         selectionStack.push(id);
     });
 
-    editor.on('tabs:focus', function (tab) {
+    editor.on('tabs:focus', (tab) => {
         const id = tab.id;
         if (id !== FIND_RESULTS) return;
 
@@ -105,7 +112,7 @@ editor.once('load', function () {
         selectionStack.push(id);
     });
 
-    editor.on('tabs:close', function (tab) {
+    editor.on('tabs:close', (tab) => {
         if (tab.id === FIND_RESULTS) {
             // clear fake asset if the find results tab is closed
             findInFilesFakeAsset = null;
@@ -113,7 +120,7 @@ editor.once('load', function () {
     });
 
     // when a document is closed remove it from the stack
-    editor.on('documents:close', function (id) {
+    editor.on('documents:close', (id) => {
         const idx = selectionStack.indexOf(id);
         if (idx !== -1) {
             selectionStack.splice(idx, 1);
@@ -122,13 +129,13 @@ editor.once('load', function () {
 
     // when a document if focused steal focus
     // if we are open
-    editor.on('documents:focus', function (id) {
+    editor.on('documents:focus', (id) => {
         if (!panel.hidden) {
             fieldSearch.focus();
         }
     });
 
-    const pick = function (assetId) {
+    const pick = (assetId) => {
         if (assetId === FIND_RESULTS) {
             editor.call('tabs:findInFiles:focus');
             return;
@@ -144,7 +151,7 @@ editor.once('load', function () {
             editor.call('tabs:temp:stick');
     };
 
-    const openSelection = function () {
+    const openSelection = () => {
         const children = menuResults.innerElement.childNodes;
         const selected = children[selectedIndex];
         if (!selected) return;
@@ -152,7 +159,7 @@ editor.once('load', function () {
         pick(selected.ui._assetId);
     };
 
-    const selectIndex = function (index) {
+    const selectIndex = (index) => {
         const children = menuResults.innerElement.childNodes;
         if (!children.length) return;
 
@@ -189,27 +196,30 @@ editor.once('load', function () {
         selectedIndex = index;
     };
 
-    const onKeyDown = function (e) {
-        // enter
-        if (e.keyCode === 13) {
-            e.preventDefault();
-            e.stopPropagation();
-            openSelection();
-            editor.call('picker:fuzzy:close');
-        } else if (e.keyCode === 27 || e.keyCode === 9) { // esc or tab
-            e.preventDefault();
-            e.stopPropagation();
-            editor.call('picker:fuzzy:close');
-        } else if (e.keyCode === 38) { // up
-            selectIndex(selectedIndex - 1);
-        } else if (e.keyCode === 40) { // down
-            selectIndex(selectedIndex + 1);
+    /** @param {KeyboardEvent} e - The keyboard event */
+    const onKeyDown = (e) => {
+        switch (e.key) {
+            case 'Enter':
+            case 'Escape':
+            case 'Tab':
+                e.preventDefault();
+                e.stopPropagation();
+                if (e.key === 'Enter')
+                    openSelection();
+                editor.call('picker:fuzzy:close');
+                break;
+            case 'ArrowUp':
+                selectIndex(selectedIndex - 1);
+                break;
+            case 'ArrowDown':
+                selectIndex(selectedIndex + 1);
+                break;
         }
     };
 
-    const createResultItem = function (asset, index) {
-        const item = menuResults.createItem(asset.get('id'), {
-            select: function () {
+    const createResultItem = (asset) => {
+        const item = new MenuItem({
+            onSelect: () => {
                 pick(asset.get('id'));
                 editor.call('picker:fuzzy:close');
             }
@@ -227,34 +237,25 @@ editor.once('load', function () {
             path = '/';
         }
 
-        item.elementTitle.innerHTML =
-            '<div class="name">' +
-            asset.get('name') +
-            '<span class="path">' +
-            path +
-            '</span></div>';
+        // HACK: when we set the menu item's text, we want to set innerHTML
+        item._labelText._unsafe = true;
+        item.text = `<div class="name">${asset.get('name')}<span class="path">${path}</span></div>`;
         item._assetId = asset.get('id');
         return item;
     };
 
-    const refreshResults = function (results) {
-        const children = menuResults.innerElement.childNodes;
-        let item = children ? children[0] : null;
-        while (item) {
-            const next = item.nextSibling;
-            item.ui.destroy();
-            item = next;
-        }
+    const refreshResults = (results) => {
+        menuResults.clear();
 
-        for (let i = 0, len = results.length; i < len; i++) {
-            const asset = results[i];
-            menuResults.append(createResultItem(asset));
+        for (const asset of results) {
+            const menuItem = createResultItem(asset);
+            menuResults.append(menuItem);
         }
     };
 
     // calculate score:
     // Higher score for more matches close to the beginning
-    const calculateScore = function (name, pattern, patternLength) {
+    const calculateScore = (name, pattern, patternLength) => {
         let score = 0;
         const nameLength = name.length;
         let n = 0;
@@ -285,7 +286,7 @@ editor.once('load', function () {
     };
 
     // Sorts search results by score
-    const sortByScore = function (a, b) {
+    const sortByScore = (a, b) => {
         const aid = a.get('id');
         const bid = b.get('id');
         if (scoreIndex[aid] !== undefined && scoreIndex[bid] !== undefined)
@@ -301,7 +302,7 @@ editor.once('load', function () {
     };
 
     // Sorts by case insensitive name
-    const sortByName = function (a, b) {
+    const sortByName = (a, b) => {
         const aname = a.get('name').toLowerCase();
         const bname = b.get('name').toLowerCase();
         if (aname < bname)
@@ -311,7 +312,7 @@ editor.once('load', function () {
         return 0;
     };
 
-    const fuzzySearch = function () {
+    const fuzzySearch = () => {
         const assets = editor.call('assets:raw').data;
 
         const pattern = fieldSearch.value;
@@ -320,7 +321,7 @@ editor.once('load', function () {
         scoreIndex = {};
         const results = [];
 
-        function process(asset) {
+        const process = (asset) => {
             if (asset.get('type') === 'folder') return;
 
             const name = asset.get('name');
@@ -331,10 +332,10 @@ editor.once('load', function () {
             scoreIndex[asset.get('id')] = score;
 
             results.push(asset);
-        }
+        };
 
-        for (let i = 0, len = assets.length; i < len; i++) {
-            process(assets[i]);
+        for (const asset of assets) {
+            process(asset);
         }
 
         if (findInFilesFakeAsset) {
@@ -349,7 +350,7 @@ editor.once('load', function () {
         selectIndex(0);
     };
 
-    const stackBasedSearch = function () {
+    const stackBasedSearch = () => {
         const skipAssets = {};
         const results = [];
 
@@ -388,8 +389,7 @@ editor.once('load', function () {
         // go through the rest of the assets and add them alphabetically
         const otherAssets = [];
         const assets = editor.call('assets:raw').data;
-        for (let i = 0, len = assets.length; i < len; i++) {
-            const asset = assets[i];
+        for (const asset of assets) {
             if (asset.get('type') === 'folder' || skipAssets[asset.get('id')]) continue;
             otherAssets.push(asset);
         }
@@ -402,7 +402,7 @@ editor.once('load', function () {
         selectIndex(0);
     };
 
-    const filterAssets = function () {
+    const filterAssets = () => {
         if (fieldSearch.value) {
             fuzzySearch();
         } else {
@@ -411,7 +411,7 @@ editor.once('load', function () {
     };
 
     // Handle input
-    fieldSearch.elementInput.addEventListener('input', function (e) {
+    fieldSearch.input.addEventListener('input', (e) => {
         if (panel.hidden) return;
 
         filterAssets();
