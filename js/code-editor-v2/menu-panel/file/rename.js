@@ -19,7 +19,7 @@ editor.once('load', function () {
 
             const treeItem = editor.call('files:getTreeItem', selected[0].get('id'));
             if (treeItem)
-                treeItem._onRename();
+                treeItem.rename();
         }
     }));
 });
