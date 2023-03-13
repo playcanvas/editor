@@ -22,13 +22,13 @@ import '../ajax.js';
 import '../observer-sync.js';
 
 // app
-import '../code-editor-v2/app.js';
-import '../code-editor-v2/platform.js';
-import '../code-editor-v2/api.js';
+import './app.js';
+import './platform.js';
+import './api.js';
 import '../editor/hotkeys.js';
 import '../editor/messenger.js';
 import '../editor/relay.js';
-import '../code-editor-v2/permissions.js';
+import './permissions.js';
 
 // ui
 import '../ui/ui.js';
@@ -58,105 +58,105 @@ import '../ui/menu-item.js';
 
 // editor
 import '../editor/storage/localstorage.js';
-import '../code-editor-v2/errors/error-realtime.js';
-import '../code-editor-v2/realtime/realtime.js';
-import '../code-editor-v2/layout.js';
-import '../code-editor-v2/merge/merge.js';
+import './errors/error-realtime.js';
+import './realtime/realtime.js';
+import './layout.js';
+import './merge/merge.js';
 import '../editor/branches/branches.js';
 
 import '../editor/assets/assets-fs.js';
 import '../editor/assets/assets-rename.js';
-import '../code-editor-v2/assets/assets.js';
-import '../code-editor-v2/assets/assets-messenger.js';
-import '../code-editor-v2/assets/assets-contents.js';
-import '../code-editor-v2/assets/assets-load.js';
-import '../code-editor-v2/assets/assets-delete.js';
-import '../code-editor-v2/assets/assets-create.js';
-import '../code-editor-v2/assets/assets-create-css.js';
-import '../code-editor-v2/assets/assets-create-folder.js';
-import '../code-editor-v2/assets/assets-create-html.js';
-import '../code-editor-v2/assets/assets-create-json.js';
-import '../code-editor-v2/assets/assets-create-script.js';
-import '../code-editor-v2/assets/assets-create-shader.js';
-import '../code-editor-v2/assets/assets-create-text.js';
-import '../code-editor-v2/assets/assets-script-parse.js';
+import './assets/assets.js';
+import './assets/assets-messenger.js';
+import './assets/assets-contents.js';
+import './assets/assets-load.js';
+import './assets/assets-delete.js';
+import './assets/assets-create.js';
+import './assets/assets-create-css.js';
+import './assets/assets-create-folder.js';
+import './assets/assets-create-html.js';
+import './assets/assets-create-json.js';
+import './assets/assets-create-script.js';
+import './assets/assets-create-shader.js';
+import './assets/assets-create-text.js';
+import './assets/assets-script-parse.js';
 import '../editor/assets/handle-script-parse.js';
-import '../code-editor-v2/users/users.js';
-import '../code-editor-v2/users/users-colors.js';
+import './users/users.js';
+import './users/users-colors.js';
 
-import '../code-editor-v2/settings/user-settings.js';
+import './settings/user-settings.js';
 
-import '../code-editor-v2/documents/documents-load.js';
+import './documents/documents-load.js';
 
-import '../code-editor-v2/files-panel/files-context-menu.js';
-import '../code-editor-v2/files-panel/files-panel.js';
-import '../code-editor-v2/status-panel/status-panel.js';
-import '../code-editor-v2/status-panel/status-connection.js';
+import './files-panel/files-context-menu.js';
+import './files-panel/files-panel.js';
+import './status-panel/status-panel.js';
+import './status-panel/status-connection.js';
 
-import '../code-editor-v2/monaco-panel/languages/glsl.js';
-import '../code-editor-v2/monaco-panel/panel.js';
-import '../code-editor-v2/monaco-panel/document.js';
-import '../code-editor-v2/monaco-panel/jshint.js';
-import '../code-editor-v2/monaco-panel/sharedb.js';
-import '../code-editor-v2/monaco-panel/actions.js';
-import '../code-editor-v2/monaco-panel/search.js';
-import '../code-editor-v2/monaco-panel/merge.js';
-import '../code-editor-v2/monaco-panel/diff.js';
+import './monaco-panel/languages/glsl.js';
+import './monaco-panel/panel.js';
+import './monaco-panel/document.js';
+import './monaco-panel/jshint.js';
+import './monaco-panel/sharedb.js';
+import './monaco-panel/actions.js';
+import './monaco-panel/search.js';
+import './monaco-panel/merge.js';
+import './monaco-panel/diff.js';
 
-import '../code-editor-v2/tab-panel/tab-context-menu.js';
-import '../code-editor-v2/tab-panel/tab-panel.js';
+import './tab-panel/tab-context-menu.js';
+import './tab-panel/tab-panel.js';
 
-import '../code-editor-v2/settings-panel/settings-panel.js';
+import './settings-panel/settings-panel.js';
 
 import '../editor/pickers/picker-confirm.js';
-import '../code-editor-v2/pickers/picker-script-create.js';
-import '../code-editor-v2/pickers/picker-search.js';
-import '../code-editor-v2/pickers/picker-fuzzy-search.js';
+import './pickers/picker-script-create.js';
+import './pickers/picker-search.js';
+import './pickers/picker-fuzzy-search.js';
 
-import '../code-editor-v2/search/search-files.js';
+import './search/search-files.js';
 
-import '../code-editor-v2/menu-panel/menu-panel.js';
+import './menu-panel/menu-panel.js';
 
-import '../code-editor-v2/menu-panel/file/menu.js';
-import '../code-editor-v2/menu-panel/file/create.js';
-import '../code-editor-v2/menu-panel/file/save.js';
-import '../code-editor-v2/menu-panel/file/revert.js';
-import '../code-editor-v2/menu-panel/file/rename.js';
-import '../code-editor-v2/menu-panel/file/download.js';
-import '../code-editor-v2/menu-panel/file/close.js';
-import '../code-editor-v2/menu-panel/file/delete.js';
+import './menu-panel/file/menu.js';
+import './menu-panel/file/create.js';
+import './menu-panel/file/save.js';
+import './menu-panel/file/revert.js';
+import './menu-panel/file/rename.js';
+import './menu-panel/file/download.js';
+import './menu-panel/file/close.js';
+import './menu-panel/file/delete.js';
 
-import '../code-editor-v2/menu-panel/edit/menu.js';
-import '../code-editor-v2/menu-panel/edit/undo-redo.js';
-import '../code-editor-v2/menu-panel/edit/find-replace.js';
-import '../code-editor-v2/menu-panel/edit/comment.js';
-import '../code-editor-v2/menu-panel/edit/preferences.js';
+import './menu-panel/edit/menu.js';
+import './menu-panel/edit/undo-redo.js';
+import './menu-panel/edit/find-replace.js';
+import './menu-panel/edit/comment.js';
+import './menu-panel/edit/preferences.js';
 
-import '../code-editor-v2/menu-panel/selection/menu.js';
-import '../code-editor-v2/menu-panel/selection/selectAll.js';
-import '../code-editor-v2/menu-panel/selection/expand-shrink.js';
-import '../code-editor-v2/menu-panel/selection/copy-move-lines.js';
-import '../code-editor-v2/menu-panel/selection/occurrences.js';
+import './menu-panel/selection/menu.js';
+import './menu-panel/selection/selectAll.js';
+import './menu-panel/selection/expand-shrink.js';
+import './menu-panel/selection/copy-move-lines.js';
+import './menu-panel/selection/occurrences.js';
 
-import '../code-editor-v2/menu-panel/navigate/menu.js';
-import '../code-editor-v2/menu-panel/navigate/pallette.js';
-import '../code-editor-v2/menu-panel/navigate/fuzzy.js';
-import '../code-editor-v2/menu-panel/navigate/tabs.js';
+import './menu-panel/navigate/menu.js';
+import './menu-panel/navigate/pallette.js';
+import './menu-panel/navigate/fuzzy.js';
+import './menu-panel/navigate/tabs.js';
 
-import '../code-editor-v2/menu-panel/project/menu.js';
-import '../code-editor-v2/menu-panel/project/links.js';
-import '../code-editor-v2/menu-panel/project/launch.js';
+import './menu-panel/project/menu.js';
+import './menu-panel/project/links.js';
+import './menu-panel/project/launch.js';
 
-import '../code-editor-v2/menu-panel/help/menu.js';
-import '../code-editor-v2/menu-panel/help/links.js';
+import './menu-panel/help/menu.js';
+import './menu-panel/help/links.js';
 
-import '../code-editor-v2/whoisonline/whoisonline.js';
-import '../code-editor-v2/whoisonline/whoisonline-panel.js';
+import './whoisonline/whoisonline.js';
+import './whoisonline/whoisonline-panel.js';
 
-import '../code-editor-v2/menu-panel/menu-readonly.js';
+import './menu-panel/menu-readonly.js';
 
-import '../code-editor-v2/integration.js';
-import '../code-editor-v2/urls.js';
+import './integration.js';
+import './urls.js';
 
 import '../editor/pickers/version-control/picker-version-control-svg.js';
 import '../editor/pickers/version-control/picker-version-control-overlay-message.js';
