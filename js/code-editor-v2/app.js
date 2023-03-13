@@ -1,83 +1,80 @@
-(function () {
-    // set window name if necessary
-    if (!window.name) {
-        window.name = 'codeeditor:' + config.project.id;
-    }
+import { Events } from '@playcanvas/observer';
 
-    function CodeEditor() {
-        window.assignEvents(this);
+class CodeEditor extends Events {
+    constructor() {
+        super();
 
-        this._hooks = { };
+        /** @type {Map<string, Function>} */
+        this.methods = new Map();
 
-        // used by other tabs to identify if this is
-        // the code editor
+        // used by other tabs to identify if this is the code editor
         this.isCodeEditor = true;
+
+        // tab visibility
+        document.addEventListener('visibilitychange', () => {
+            this.emit(document.visibilityState);
+            this.emit('visibility', document.visibilityState === 'visible');
+        });
+
+        this.method('visibility', () => {
+            return document.visibilityState === 'visible';
+        });
+
+        // first load
+        document.addEventListener('DOMContentLoaded', () => {
+            this.emit('load');
+            this.emit('start');
+
+            // if there is a merge in progress for our branch
+            if (config.self.branch.merge && !config.self.branch.merge.conflict) {
+                this.call('picker:versioncontrol:mergeOverlay');
+            }
+        });
     }
-    CodeEditor.prototype = Object.create(Events.prototype);
 
-
-    CodeEditor.prototype.method = function (name, fn) {
-        if (this._hooks[name] !== undefined) {
-            throw new Error('can\'t override hook: ' + name);
+    /**
+     * @param {string} name - The name of the method to add.
+     * @param {Function} fn - The function to call when the method is called.
+     */
+    method(name, fn) {
+        if (this.methods.get(name)) {
+            throw new Error(`Code Editor method '${name}' already registered`);
         }
-        this._hooks[name] = fn;
-    };
+        this.methods.set(name, fn);
+    }
 
+    /**
+     * @param {string} name - The name of the method to remove.
+     */
+    methodRemove(name) {
+        this.methods.delete(name);
+    }
 
-    CodeEditor.prototype.methodRemove = function (name) {
-        delete this._hooks[name];
-    };
-
-
-    CodeEditor.prototype.call = function (name) {
-        if (this._hooks[name]) {
-            const args = Array.prototype.slice.call(arguments, 1);
-
+    /**
+     * @param {string} name - The name of the method to call.
+     * @param {...*} args - The arguments to pass to the method.
+     * @returns {*} The return value of the method.
+     */
+    call(name, ...args) {
+        const fn = this.methods.get(name);
+        if (fn) {
             try {
-                return this._hooks[name].apply(null, args);
-            } catch (ex) {
+                return fn(...args);
+            } catch (error) {
                 console.info('%c%s %c(editor.method error)', 'color: #06f', name, 'color: #f00');
-                log.error(ex);
+                log.error(error);
             }
         }
         return null;
-    };
+    }
+}
 
-    window.editor = new CodeEditor();
+window.editor = new CodeEditor();
 
-
-    let visible = !document.hidden;
-
-    document.addEventListener('visibilitychange', function () {
-        if (visible === !document.hidden)
-            return;
-
-        visible = !document.hidden;
-        if (visible) {
-            editor.emit('visible');
-        } else {
-            editor.emit('hidden');
-        }
-        editor.emit('visibility', visible);
-    }, false);
-
-    editor.method('visibility', function () {
-        return visible;
-    });
-
-
-    // first load
-    document.addEventListener('DOMContentLoaded', function () {
-        editor.emit('load');
-        editor.emit('start');
-
-        // if there is a merge in progress for our branch
-        if (config.self.branch.merge && !config.self.branch.merge.conflict) {
-            editor.call('picker:versioncontrol:mergeOverlay');
-        }
-    }, false);
-})();
-
+// set window name if necessary
+if (!window.name) {
+    window.name = 'codeeditor:' + config.project.id;
+}
 
 // config
 (function () {
