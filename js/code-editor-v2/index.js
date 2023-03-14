@@ -96,7 +96,6 @@ import './status-panel/status-connection.js';
 import './monaco-panel/languages/glsl.js';
 import './monaco-panel/panel.js';
 import './monaco-panel/document.js';
-import './monaco-panel/jshint.js';
 import './monaco-panel/sharedb.js';
 import './monaco-panel/actions.js';
 import './monaco-panel/search.js';
