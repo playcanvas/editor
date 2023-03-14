@@ -23,12 +23,12 @@ editor.once('load', function () {
     }, {
         title: 'renderSceneDepthMap',
         subTitle: '{Boolean}',
-        description: 'If selected, the camera will explicitly clear its render target to the chosen clear color before rendering the scene.',
+        description: 'If selected, the camera will explicitly clear the depth buffer of its render target before rendering the scene.',
         url: 'http://developer.playcanvas.com/api/pc.CameraComponent.html#requestSceneDepthMap'
     }, {
         title: 'renderSceneColorMap',
         subTitle: '{Boolean}',
-        description: 'If selected, the camera will explicitly clear the depth buffer of its render target before rendering the scene.',
+        description: 'If selected, the camera will explicitly clear its render target to the chosen clear color before rendering the scene.',
         url: 'http://developer.playcanvas.com/api/pc.CameraComponent.html#requestSceneColorMap'
     }, {
         name: 'clip',
