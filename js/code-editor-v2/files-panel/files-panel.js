@@ -369,9 +369,9 @@ editor.once('load', function () {
         }
     });
 
-    // Select file by id
-    editor.method('files:select', (/** @type {string} */ id) => {
-        const item = idToItem.get(id);
+    // Select file by id (which can be passed as a string or number)
+    editor.method('files:select', (/** @type {number|string} */ id) => {
+        const item = idToItem.get(String(id));
         if (item) {
             tree.deselect();
             item.selected = true;
