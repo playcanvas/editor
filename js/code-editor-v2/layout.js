@@ -121,7 +121,8 @@ editor.on('load', function () {
 
     // bottom (status)
     const bottom = new Container({
-        id: 'ui-bottom'
+        id: 'ui-bottom',
+        flexShrink: '0'
     });
     root.append(bottom);
     // expose
