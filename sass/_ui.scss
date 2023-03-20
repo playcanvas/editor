@@ -363,7 +363,7 @@ a:visited {
         right: 0;
         bottom: 0;
         left: 0;
-        background-color: rgba(0, 0, 0, 70%);
+        background-color: rgb(0 0 0 / 70%);
 
         &.clickable {
             cursor: pointer;
@@ -374,7 +374,7 @@ a:visited {
         position: relative;
         background-color: #07f;
         transition: width 100ms, height 100ms, margin-left 100ms, margin-top 100ms;
-        box-shadow: 7px 7px 7px rgba(0, 0, 0, 15%);
+        box-shadow: 7px 7px 7px rgb(0 0 0 / 15%);
     }
 }
 
@@ -619,7 +619,7 @@ a:visited {
 }
 
 .ui-tree-item {
-    $line-color: rgba(0, 128, 255, 50%);
+    $line-color: rgb(0 128 255 / 50%);
 
     position: relative;
     padding-left: 24px;
@@ -682,7 +682,7 @@ a:visited {
         &:hover,
         &:focus {
             border-color: #07f;
-            background-color: rgba(0, 128, 255, 10%);
+            background-color: rgb(0 128 255 / 10%);
         }
 
         &:focus {
@@ -981,7 +981,7 @@ a:visited {
         font-family: Helvetica;
         white-space: nowrap;
         color: #999;
-        background-color: rgba(0, 0, 0, 70%);
+        background-color: rgb(0 0 0 / 70%);
         pointer-events: none;
     }
 }
@@ -1039,7 +1039,7 @@ a:visited {
         font-weight: 100;
         white-space: nowrap;
         color: #999;
-        background-color: rgba(0, 0, 0, 70%);
+        background-color: rgb(0 0 0 / 70%);
         pointer-events: none;
     }
 
@@ -1145,7 +1145,7 @@ a:visited {
         font-weight: 100;
         white-space: nowrap;
         color: #999;
-        background-color: rgba(0, 0, 0, 70%);
+        background-color: rgb(0 0 0 / 70%);
         pointer-events: none;
     }
 
@@ -1244,7 +1244,7 @@ a:visited {
         font-weight: 100;
         white-space: nowrap;
         color: #999;
-        background-color: rgba(0, 0, 0, 70%);
+        background-color: rgb(0 0 0 / 70%);
         pointer-events: none;
     }
 
@@ -1582,12 +1582,12 @@ a:visited {
         padding: 0;
         background-color: #000;
         overflow-y: auto;
-        box-shadow: 0 0 8px rgba(0, 0, 0, 50%);
+        box-shadow: 0 0 8px rgb(0 0 0 / 50%);
 
         > li {
             @extend .fieldFont;
 
-            padding: 0 8px 0 8px;
+            padding: 0 8px;
             line-height: 22px;
             white-space: nowrap;
             overflow: hidden;
@@ -1669,7 +1669,7 @@ a:visited {
 
             // pattern
             background: #f66;
-            background: linear-gradient(135deg, rgba(255, 128, 128, 100%) 0%, rgba(255, 128, 128, 100%) 25%, rgba(255, 64, 64, 100%) 26%, rgba(255, 64, 64, 100%) 50%, rgba(255, 128, 128, 100%) 51%, rgba(255, 128, 128, 100%) 75%, rgba(255, 64, 64, 100%) 76%, rgba(255, 64, 64, 100%) 100%);
+            background: linear-gradient(135deg, rgb(255 128 128 / 100%) 0%, rgb(255 128 128 / 100%) 25%, rgb(255 64 64 / 100%) 26%, rgb(255 64 64 / 100%) 50%, rgb(255 128 128 / 100%) 51%, rgb(255 128 128 / 100%) 75%, rgb(255 64 64 / 100%) 76%, rgb(255 64 64 / 100%) 100%);
             background-position: 0 0;
             background-size: 24px 24px;
             background-repeat: repeat;
@@ -1682,7 +1682,7 @@ a:visited {
 
         // pattern
         background: #07f;
-        background: linear-gradient(135deg, rgba(0, 128, 255, 100%) 0%, rgba(0, 128, 255, 100%) 25%, rgba(0, 96, 192, 100%) 26%, rgba(0, 96, 192, 100%) 50%, rgba(0, 128, 255, 100%) 51%, rgba(0, 128, 255, 100%) 75%, rgba(0, 96, 192, 100%) 76%, rgba(0, 96, 192, 100%) 100%);
+        background: linear-gradient(135deg, rgb(0 128 255 / 100%) 0%, rgb(0 128 255 / 100%) 25%, rgb(0 96 192 / 100%) 26%, rgb(0 96 192 / 100%) 50%, rgb(0 128 255 / 100%) 51%, rgb(0 128 255 / 100%) 75%, rgb(0 96 192 / 100%) 76%, rgb(0 96 192 / 100%) 100%);
         background-position: 0 0;
         background-size: 24px 24px;
         background-repeat: repeat;

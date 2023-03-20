@@ -59,6 +59,7 @@
     .pcui-asset-list-item-#{$assetType} {
         &::before {
             content: map-get($icons, 'asset-#{$assetType}');
+
             @extend .font-icon;
         }
     }

@@ -1,6 +1,7 @@
 #layout-assets {
     overflow: visible;
     background-color: $bcg-darker;
+
     @extend .noSelect;
 
     &.pcui-resizable {
@@ -53,6 +54,7 @@
                     padding: 0;
                     margin: 0;
                     vertical-align: top;
+
                     @extend .font-icon;
 
                     font-size: 14px;
@@ -92,6 +94,7 @@
                     border: none;
                     padding: 0;
                     margin: 0;
+
                     @extend .font-bold;
 
                     font-size: 12px;
@@ -208,6 +211,7 @@
                         color: $text-dark;
                         line-height: 32px;
                         padding: 0 8px;
+
                         @extend .font-bold;
 
                         font-size: 12px;
@@ -222,6 +226,7 @@
                         content: '\E129';
                         line-height: 32px;
                         background-color: $bcg-darker;
+
                         @extend .font-icon;
 
                         font-size: 14px;
@@ -253,6 +258,7 @@
                         height: 32px;
                         line-height: 32px;
                         color: $error-secondary;
+
                         @extend .font-icon;
 
                         font-size: 18px;

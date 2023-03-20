@@ -119,7 +119,7 @@
                 left: 0;
                 width: 100%;
                 text-align: right;
-                padding: 10px 10px;
+                padding: 10px;
                 box-sizing: border-box;
                 border-top: 1px solid $border-primary;
 
@@ -194,6 +194,7 @@
         color: $text-dark;
         line-height: 24px;
         padding: 0 8px;
+
         @extend .font-bold;
 
         font-size: 12px;
@@ -209,6 +210,7 @@
         content: '\E129';
         line-height: 21px;
         background-color: $bcg-darker;
+
         @extend .font-icon;
 
         font-size: 14px;
@@ -240,6 +242,7 @@
         height: 24px;
         line-height: 24px;
         color: $error-secondary;
+
         @extend .font-icon;
 
         font-size: 18px;

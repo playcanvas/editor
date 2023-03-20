@@ -113,6 +113,7 @@ a:visited {
                 right: auto;
                 left: 0;
                 content: '\E179';
+
                 @extend .font-icon;
 
                 font-size: 14px;
@@ -278,6 +279,7 @@ a:visited {
             width: 16px;
             height: 16px;
             margin: 3px;
+
             @extend .font-icon;
 
             font-size: 10px;
@@ -492,6 +494,7 @@ a:visited {
     &.container {
         > .title::after {
             content: '\E160';
+
             @extend .font-icon;
 
             font-size: 14px;
@@ -545,7 +548,7 @@ a:visited {
     }
 
     > .content {
-        box-shadow: 0 0 8px rgba(0, 0, 0, 30%);
+        box-shadow: 0 0 8px rgb(0 0 0 / 30%);
     }
 }
 
@@ -1136,6 +1139,7 @@ a:visited {
             line-height: 26px;
             padding: 0;
             margin: 0;
+
             @extend .font-icon;
 
             font-size: 14px;

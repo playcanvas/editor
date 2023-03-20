@@ -5,6 +5,7 @@
     &.pcui-label-group {
         > .pcui-label:first-child {
             color: $override-color;
+
             @extend .font-bold;
         }
     }
@@ -13,6 +14,7 @@
     &.pcui-asset-input {
         .pcui-asset-input-label {
             color: $override-color;
+
             @extend .font-bold;
         }
     }
@@ -21,6 +23,7 @@
     &.pcui-panel {
         > .pcui-panel-header > .pcui-panel-header-title {
             color: $override-color;
+
             @extend .font-bold;
         }
     }

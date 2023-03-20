@@ -428,7 +428,7 @@ strong {
             > h1 {
                 @extend .font-regular;
 
-                margin: 16px 0 0 0;
+                margin: 16px 0 0;
                 line-height: normal;
                 font-size: 14px;
                 font-weight: bold;
@@ -529,6 +529,7 @@ strong {
 
             > .asset-preview {
                 max-height: 500px;
+
                 @extend .noSelect;
 
                 &.flipY {
@@ -620,6 +621,7 @@ strong {
                     &:hover {
                         color: $text-active;
                         text-decoration: underline;
+
                         @extend .noSelect;
                     }
                 }
@@ -643,7 +645,7 @@ strong {
                 > .ui-progress.field-progress {
                     width: 100%;
                     height: 8px;
-                    margin: 11px 3px 0 3px;
+                    margin: 11px 3px 0;
                 }
             }
         }
@@ -693,6 +695,7 @@ strong {
                         width: 24px;
                         line-height: 22px;
                         text-align: center;
+
                         @extend .font-icon;
 
                         &:hover {
@@ -863,6 +866,7 @@ strong {
                             color: $text-dark;
                             height: 28px;
                             line-height: 28px;
+
                             @extend .font-icon;
 
                             font-size: 16px;
@@ -992,6 +996,7 @@ strong {
                 margin: 0;
                 padding: 0;
                 border: none;
+
                 @extend .font-icon;
 
                 font-size: 16px;
@@ -1028,6 +1033,7 @@ strong {
             > .ui-list-item {
                 &::before {
                     content: '\E209';
+
                     @extend .font-icon;
 
                     font-size: 14px;
@@ -1059,7 +1065,7 @@ strong {
                 background-repeat: no-repeat;
                 background-size: 100% 100%;
                 background-color: #07f;
-                color: rgba(255, 255, 255, 50%);
+                color: rgb(255 255 255 / 50%);
 
                 &:hover {
                     outline: $text-active 2px solid;
@@ -1097,6 +1103,7 @@ strong {
                     line-height: 20px;
                     background-color: #364346;
                     cursor: pointer;
+
                     @extend .font-icon;
 
                     font-size: 16px;
@@ -1162,6 +1169,7 @@ strong {
                 > .title {
                     &::before {
                         content: '\E243';
+
                         @extend .font-icon;
 
                         font-size: 14px;
@@ -1196,6 +1204,7 @@ strong {
                     margin: 0;
                     padding: 0;
                     border: none;
+
                     @extend .font-icon;
 
                     font-size: 14px;
@@ -1375,6 +1384,7 @@ strong {
                     &::before {
                         content: '\E120';
                         padding-right: 8px;
+
                         @extend .font-icon;
 
                         color: $text-active;
@@ -1391,7 +1401,7 @@ strong {
                     position: relative;
                     display: block;
                     width: calc(100% - 2px);
-                    margin: 0 0 6px 0;
+                    margin: 0 0 6px;
 
                     &:hover,
                     &:focus,
@@ -1408,6 +1418,7 @@ strong {
                         position: absolute;
                         top: 0;
                         left: 8px;
+
                         @extend .font-icon;
 
                         font-weight: bold;
@@ -1423,6 +1434,7 @@ strong {
                         padding: 0;
                         line-height: 24px;
                         color: $text-secondary;
+
                         @extend .font-bold;
 
                         font-weight: bold;
@@ -1460,6 +1472,7 @@ strong {
                         &.new {
                             &::before {
                                 content: '\E120';
+
                                 @extend .font-icon;
 
                                 font-size: 14px;
@@ -1503,6 +1516,7 @@ strong {
                                     height: 24px;
                                     margin: 4px 2px;
                                     cursor: move;
+
                                     @extend .noSelect;
 
                                     $color: mix($text-darkest, $bcg-primary, 50%);
@@ -1523,6 +1537,7 @@ strong {
 
                                 > .title {
                                     padding: 0 8px;
+
                                     @extend .noSelect;
 
                                     white-space: nowrap;
@@ -1572,6 +1587,7 @@ strong {
                                     padding: 0;
                                     background-color: transparent;
                                     border: none;
+
                                     @extend .font-icon;
 
                                     font-size: 14px;
@@ -1639,6 +1655,7 @@ strong {
                     &::before {
                         float: left;
                         content: '\E128';
+
                         @extend .font-icon;
 
                         font-size: 14px;
@@ -1679,9 +1696,10 @@ strong {
                 > .ui-label.loading {
                     display: block;
                     line-height: 32px;
-                    margin: 0 0 3px 0;
+                    margin: 0 0 3px;
                     padding: 0 8px;
                     font-size: 12px;
+
                     @extend .font-bold;
 
                     color: $text-primary;
@@ -1773,6 +1791,7 @@ strong {
                 padding-left: 30px;
                 height: 26px;
                 line-height: 28px;
+
                 @extend .font-bold;
 
                 &.hidden {
@@ -1792,6 +1811,7 @@ strong {
                     top: 0;
                     left: 8px;
                     content: '\E120';
+
                     @extend .font-icon;
 
                     font-size: 14px;
@@ -1831,6 +1851,7 @@ strong {
                     content: '?';
                     line-height: 23px;
                     padding-right: 8px;
+
                     @extend .font-icon;
 
                     font-size: 16px;
@@ -1899,6 +1920,7 @@ strong {
                     position: absolute;
                     top: 0;
                     left: 8px;
+
                     @extend .font-icon;
 
                     font-size: 14px;
@@ -1929,7 +1951,7 @@ strong {
             .ui-button.add-batch-group,
             .ui-button.add-clip,
             .ui-button.add-i18n-asset {
-                margin: 0 0 8px 0;
+                margin: 0 0 8px;
                 background-color: $bcg-dark;
 
                 &:hover {
@@ -1959,6 +1981,7 @@ strong {
                     top: 0;
                     left: 8px;
                     content: '\E120';
+
                     @extend .font-icon;
 
                     font-size: 14px;
@@ -2041,6 +2064,7 @@ strong {
                                 height: 24px;
                                 margin: 4px 2px;
                                 cursor: move;
+
                                 @extend .noSelect;
 
                                 $color: mix($text-darkest, $bcg-primary, 50%);
@@ -2183,6 +2207,7 @@ strong {
                     padding: 0;
                     background-color: transparent;
                     border: none;
+
                     @extend .font-icon;
 
                     font-size: 14px;
@@ -2308,6 +2333,7 @@ strong {
                         float: right;
                         border-color: transparent;
                         background: transparent;
+
                         @extend .font-icon;
                     }
                 }
@@ -2451,6 +2477,7 @@ strong {
     .ui-tree-item {
         > .title {
             position: relative;
+
             @extend .font-regular;
 
             &:hover > .icon::after {
@@ -2467,6 +2494,7 @@ strong {
             > .icon::after {
                 content: '\E185';
                 line-height: 22px;
+
                 @extend .font-icon;
 
                 font-size: 14px;
@@ -2605,6 +2633,7 @@ strong {
             top: -9px;
             font-size: 12px;
             content: '\E411';
+
             @extend .font-icon;
         }
 
@@ -2624,6 +2653,7 @@ strong {
 
                     > .field {
                         padding: 0;
+
                         @extend .font-regular;
 
                         font-size: 14px;
@@ -2806,6 +2836,7 @@ strong {
                         font-size: 24px;
                         font-weight: bold;
                         line-height: 26px;
+
                         @extend .font-regular;
                     }
                 }
@@ -3084,6 +3115,7 @@ strong {
             height: 22px;
             top: 0;
             left: 0;
+
             @extend .font-icon;
 
             font-size: 14px;
@@ -3264,6 +3296,7 @@ strong {
         padding: 0;
         border: none;
         border-radius: 0;
+
         @extend .font-icon;
 
         font-size: 16px;
@@ -3293,6 +3326,7 @@ strong {
         margin: 0 2px 0 0;
         padding: 0;
         border: none;
+
         @extend .font-regular;
 
         font-size: 12px;
@@ -3386,6 +3420,7 @@ strong {
             padding: 0;
             border: none;
             border-radius: 0;
+
             @extend .font-icon;
 
             font-size: 20px;
@@ -3691,13 +3726,14 @@ strong {
                 font-size: 12px;
 
                 &.multi {
-                    margin: 0 4px 0 4px;
+                    margin: 0 4px;
                 }
 
                 > img {
                     vertical-align: text-bottom;
                     margin-right: 4px;
                     margin-left: -18px;
+
                     @extend .noSelect;
                 }
 
@@ -3772,6 +3808,7 @@ strong {
                 height: 32px;
                 line-height: 32px;
                 color: #d34141;
+
                 @extend .font-icon;
 
                 font-size: 18px;
@@ -3962,12 +3999,12 @@ strong {
         font-size: 12px;
         margin: 0 2px 0 0;
         color: rgba(#fff, 0.75);
-        background-color: rgba(41, 53, 56, 50%);
+        background-color: rgb(41 53 56 / 50%);
         cursor: pointer;
 
         &:hover,
         &.active {
-            background-color: rgba(41, 53, 56, 75%);
+            background-color: rgb(41 53 56 / 75%);
             color: #fff;
         }
 
@@ -4007,6 +4044,7 @@ strong {
         height: 24px;
         top: 0;
         right: 10px;
+
         @extend .font-icon;
 
         text-align: center;
@@ -4095,6 +4133,7 @@ strong {
                 position: absolute;
                 top: 37px;
                 right: 0;
+
                 @extend .font-bold;
             }
         }
@@ -4133,6 +4172,7 @@ strong {
             &::before {
                 content: '\E120';
                 padding-right: 8px;
+
                 @extend .font-icon;
             }
         }
@@ -4155,6 +4195,7 @@ strong {
         padding: 0;
         background-color: transparent;
         border: none;
+
         @extend .font-icon;
 
         font-size: 16px;
@@ -4189,7 +4230,7 @@ strong {
 }
 
 .ui-panel.help-howdoi {
-    background-color: rgba(41, 53, 56, 50%);
+    background-color: rgb(41 53 56 / 50%);
     padding: 0;
     height: 33px;
     line-height: 33px;
@@ -4255,6 +4296,7 @@ strong {
             color: $text-primary;
             border-color: transparent;
             opacity: 0.5;
+
             @extend .noSelect;
 
             &:hover {
@@ -4343,6 +4385,7 @@ strong {
 
                     h2 {
                         color: $text-active;
+
                         @extend .font-bold;
 
                         font-size: 16px;
@@ -4365,6 +4408,7 @@ strong {
                     a.docs {
                         position: absolute;
                         bottom: 20px;
+
                         @extend .font-bold;
 
                         background-color: $bcg-darkest;
@@ -4414,6 +4458,7 @@ strong {
                             height: 30px;
                             text-align: center;
                             content: '\E166';
+
                             @extend .font-icon;
 
                             font-size: 20px;
@@ -4549,7 +4594,7 @@ strong {
         height: auto;
         top: calc(50% - 250px);
         left: calc(50% - 240px);
-        padding: 0 28px 28px 28px;
+        padding: 0 28px 28px;
         background-color: #fff;
 
         > .ui-panel > .content {
@@ -4560,7 +4605,7 @@ strong {
                 display: block;
                 border: none;
                 padding: 0;
-                margin: 0 0 28px 0;
+                margin: 0 0 28px;
             }
 
             > .header {
@@ -4588,6 +4633,7 @@ strong {
                 line-height: 28px;
                 color: $text-darkest;
                 font-size: 18px;
+
                 @extend .font-bold;
             }
 
@@ -4623,6 +4669,7 @@ strong {
             width: 64px;
             height: 64px;
             line-height: 64px;
+
             @extend .font-icon;
 
             font-size: 34px;
@@ -4811,7 +4858,7 @@ strong {
         }
 
         > .bullets {
-            margin: 24px 0 4px 0;
+            margin: 24px 0 4px;
             height: 12px;
 
             > .content {
@@ -5033,6 +5080,7 @@ strong {
             padding: 0 32px;
             line-height: 32px;
             font-size: 12px;
+
             @extend .font-bold;
 
             text-transform: uppercase;
@@ -5157,7 +5205,7 @@ strong {
                 height: 144px;
                 top: 0;
                 left: 0;
-                background: linear-gradient(to right, rgba(255, 255, 255, 100%) 0%, rgba(255, 255, 255, 1%) 100%);
+                background: linear-gradient(to right, rgb(255 255 255 / 100%) 0%, rgb(255 255 255 / 1%) 100%);
             }
 
             > .black {
@@ -5166,7 +5214,7 @@ strong {
                 height: 144px;
                 top: 0;
                 left: 0;
-                background: linear-gradient(to bottom, rgba(0, 0, 0, 1%) 0%, rgba(0, 0, 0, 100%) 100%);
+                background: linear-gradient(to bottom, rgb(0 0 0 / 1%) 0%, rgb(0 0 0 / 100%) 100%);
             }
 
             > .handle {
@@ -5197,13 +5245,13 @@ strong {
             background:
                 linear-gradient(
                     to bottom,
-                    rgba(255, 0, 0, 100%) 0%,
-                    rgba(255, 255, 0, 100%) 16.67%,
-                    rgba(0, 255, 0, 100%) 33.33%,
-                    rgba(0, 255, 255, 100%) 50%,
-                    rgba(0, 0, 255, 100%) 66.67%,
-                    rgba(255, 0, 255, 100%) 83.33%,
-                    rgba(255, 0, 0, 100%) 100%
+                    rgb(255 0 0 / 100%) 0%,
+                    rgb(255 255 0 / 100%) 16.67%,
+                    rgb(0 255 0 / 100%) 33.33%,
+                    rgb(0 255 255 / 100%) 50%,
+                    rgb(0 0 255 / 100%) 66.67%,
+                    rgb(255 0 255 / 100%) 83.33%,
+                    rgb(255 0 0 / 100%) 100%
                 );
 
             > .handle {
@@ -5212,7 +5260,7 @@ strong {
                 left: -3px;
                 width: 16px;
                 height: 4px;
-                margin: -3px 0 0 0;
+                margin: -3px 0 0;
                 border: 1px solid #000;
                 outline: 1px solid #fff;
             }
@@ -5238,7 +5286,7 @@ strong {
                 left: -3px;
                 width: 16px;
                 height: 4px;
-                margin: -3px 0 0 0;
+                margin: -3px 0 0;
                 border: 1px solid #000;
                 outline: 1px solid #fff;
             }
@@ -5283,15 +5331,15 @@ strong {
                         margin: 3px 0;
 
                         &.active.first {
-                            color: rgb(255, 0, 0);
+                            color: rgb(255 0 0);
                         }
 
                         &.active.second {
-                            color: rgb(0, 255, 0);
+                            color: rgb(0 255 0);
                         }
 
                         &.active.third {
-                            color: rgb(133, 133, 252);
+                            color: rgb(133 133 252);
                         }
                     }
                 }
@@ -5337,18 +5385,18 @@ strong {
                 width: 346px;
                 height: 28px;
                 display: block;
-                padding: 10px 10px 0 10px;
+                padding: 10px 10px 0;
             }
 
             > .picker-gradient-anchors {
                 width: 346px;
                 height: 28px;
                 display: block;
-                padding: 0 10px 0 10px;
+                padding: 0 10px;
             }
 
             > .picker-gradient-footer {
-                padding: 5px 5px;
+                padding: 5px;
 
                 > .content {
                     > .ui-number-field {
@@ -5372,7 +5420,7 @@ strong {
 
                 > .content {
                     > .color-rect {
-                        margin: 5px 10px 10px 10px;
+                        margin: 5px 10px 10px;
                         width: 140px;
                         height: 140px;
                         cursor: crosshair;
@@ -5402,14 +5450,14 @@ strong {
                         position: absolute;
                         width: 20px;
                         height: 4px;
-                        border: 1px solid rgb(92, 82, 79);
+                        border: 1px solid rgb(92 82 79);
                         outline: 1px solid #fff;
                         pointer-events: none;
                     }
 
                     > .fields {
                         display: inline-block;
-                        margin: 3px 0 0 0;
+                        margin: 3px 0 0;
                         width: 112px;
                         height: 145px;
                         vertical-align: top;
@@ -5554,6 +5602,7 @@ strong {
                         .bottom-panel {
                             overflow: visible;
                             background-color: $bcg-darker;
+
                             @extend .noSelect;
 
                             &.resizable {
@@ -5793,7 +5842,7 @@ strong {
                     .ui-panel.add-frames-info,
                     .ui-panel.import-error {
                         border: 1px solid $text-active;
-                        margin: 3px 3px 10px 3px;
+                        margin: 3px 3px 10px;
                         padding: 10px 15px;
                         font-size: 12px;
                         background: $bcg-darkest;
@@ -5854,6 +5903,7 @@ strong {
                             height: 24px;
                             margin: 2px 8px 2px 2px;
                             cursor: move;
+
                             @extend .noSelect;
 
                             $color: mix($text-darkest, $bcg-primary, 50%);
@@ -6144,7 +6194,7 @@ strong {
         width: 24px;
         height: 24px;
         background: $text-active;
-        box-shadow: 7px 7px 5px 0 rgba(0, 0, 0, 10%);
+        box-shadow: 7px 7px 5px 0 rgb(0 0 0 / 10%);
         transition: all 0.1s ease;
     }
 
@@ -6234,8 +6284,8 @@ strong {
                     left: 5px;
                     margin: 0;
                     opacity: 1;
-                    background: linear-gradient(360deg, #f06531 -4.69%, #ffa468 125.79%), linear-gradient(0.36deg, #ff0 -151.33%, rgba(63, 63, 63, 0%) 133.42%);
-                    box-shadow: inset 0 0 6px rgba(255, 252, 0, 50%);
+                    background: linear-gradient(360deg, #f06531 -4.69%, #ffa468 125.79%), linear-gradient(0.36deg, #ff0 -151.33%, rgb(63 63 63 / 0%) 133.42%);
+                    box-shadow: inset 0 0 6px rgb(255 252 0 / 50%);
                     height: 100%;
                     border-radius: initial;
                     color: $text-primary;
@@ -6534,7 +6584,7 @@ strong {
                         position: relative;
                         height: 30px;
                         display: flex;
-                        padding: 15px 36px 0 36px;
+                        padding: 15px 36px 0;
 
                         & > .search-project {
                             flex: 18;
@@ -6630,7 +6680,7 @@ strong {
                                 display: block;
                                 height: 100%;
                                 opacity: 0;
-                                background: linear-gradient(89.93deg, rgba(#f60, 0.5) 0.5%, rgba(255, 255, 255, 20%) 75.94%, transparent 94%);
+                                background: linear-gradient(89.93deg, rgba(#f60, 0.5) 0.5%, rgb(255 255 255 / 20%) 75.94%, transparent 94%);
                                 transition: opacity 0.45s ease-in-out;
                                 transition: width 0.3s ease-in-out;
                             }
@@ -6961,7 +7011,7 @@ strong {
                                 &::after {
                                     content: '';
                                     display: block;
-                                    background-image: linear-gradient(180deg, rgba(255, 255, 255, 0%) 0%, rgba(255, 102, 0, 70%) 128.11%);
+                                    background-image: linear-gradient(180deg, rgb(255 255 255 / 0%) 0%, rgb(255 102 0 / 70%) 128.11%);
                                     height: 0;
                                     width: 100%;
                                     position: absolute;
@@ -6984,7 +7034,7 @@ strong {
                                     border-radius: 50%;
                                     color: $text-primary;
                                     box-shadow: inset 0 0 6px rgb(255 252 0 / 50%);
-                                    background-image: linear-gradient(360deg, #f06531 -4.69%, #ffa468 125.79%), linear-gradient(0.36deg, #ff0 -151.33%, rgba(63, 63, 63, 0%) 133.42%);
+                                    background-image: linear-gradient(360deg, #f06531 -4.69%, #ffa468 125.79%), linear-gradient(0.36deg, #ff0 -151.33%, rgb(63 63 63 / 0%) 133.42%);
                                     z-index: 1;
 
                                     &:hover {
@@ -7056,7 +7106,7 @@ strong {
                             &::after {
                                 content: '';
                                 display: block;
-                                background-image: linear-gradient(180deg, rgba(255, 255, 255, 0%) 0%, rgba(255, 102, 0, 40%) 128.11%);
+                                background-image: linear-gradient(180deg, rgb(255 255 255 / 0%) 0%, rgb(255 102 0 / 40%) 128.11%);
                                 height: 0;
                                 width: 100%;
                                 position: absolute;
@@ -7140,7 +7190,7 @@ strong {
                 flex-direction: column;
                 gap: 5px;
                 height: 100%;
-                padding: 25px 15px 10px 15px;
+                padding: 25px 15px 10px;
 
                 .form-group--label {
                     margin-top: 0;
@@ -7221,7 +7271,7 @@ strong {
                 flex-direction: column;
                 gap: 5px;
                 height: 100%;
-                padding: 25px 15px 10px 15px;
+                padding: 25px 15px 10px;
 
                 .form-group--label {
                     white-space: pre-wrap;
@@ -7319,7 +7369,7 @@ strong {
                 flex-direction: column;
                 gap: 5px;
                 height: 100%;
-                padding: 25px 15px 10px 15px;
+                padding: 25px 15px 10px;
 
                 .form-group--label {
                     white-space: pre-wrap;
@@ -7456,7 +7506,7 @@ strong {
                                 height: 50px;
                                 font-size: 0.8em;
                                 color: $text-secondary;
-                                background-image: linear-gradient(rgba(0, 0, 0, 80%) 15%, transparent);
+                                background-image: linear-gradient(rgb(0 0 0 / 80%) 15%, transparent);
                                 opacity: 1;
                                 transition: transform 0.4s ease-in-out, opacity 0.2s ease-in, background-image 0.4s ease-in-out;
 
@@ -7584,6 +7634,7 @@ strong {
                                 border-bottom: 1px solid $border-primary;
                                 text-transform: uppercase;
                                 font-size: 12px;
+
                                 @extend .font-bold;
 
                                 &:hover,
@@ -7787,7 +7838,7 @@ strong {
                     top: 0;
                     width: 35px;
                     height: 100%;
-                    background-image: linear-gradient(360deg, #f06531 -4.69%, #ffa468 125.79%), linear-gradient(0.36deg, #ff0 -151.33%, rgba(63, 63, 63, 0%) 133.42%);
+                    background-image: linear-gradient(360deg, #f06531 -4.69%, #ffa468 125.79%), linear-gradient(0.36deg, #ff0 -151.33%, rgb(63 63 63 / 0%) 133.42%);
 
                     &::after {
                         @extend .font-icon;
@@ -7857,7 +7908,7 @@ strong {
             .header-container {
                 position: fixed;
                 z-index: 10;
-                margin: 0 36px 0 36px;
+                margin: 0 36px;
                 width: 168px;  // No sidebar
             }
 
@@ -7938,7 +7989,7 @@ strong {
                 display: flex;
                 flex-direction: column;
                 justify-content: flex-start;
-                padding: 20px 20px 0 20px;
+                padding: 20px 20px 0;
                 flex-grow: 1;
                 height: fit-content;
                 overflow-y: none;
@@ -7953,7 +8004,7 @@ strong {
                 }
 
                 &::-webkit-scrollbar-thumb {
-                    background-color: rgba(96, 96, 96, 50%);
+                    background-color: rgb(96 96 96 / 50%);
                 }
 
                 .form-group {
@@ -8132,7 +8183,7 @@ strong {
                 }
 
                 > .fields {
-                    padding: 16px 16px;
+                    padding: 16px;
                     background-color: #fff;
 
                     > .switch {
@@ -8227,7 +8278,7 @@ strong {
                     /* stylelint-disable-next-line property-no-vendor-prefix */
                     -webkit-transform: translateZ(0); /* fix Chrome transition bug */
                     transition: opacity 200ms;
-                    background: linear-gradient(to bottom, rgba(69, 69, 69, 0%) 0%, rgba(224, 95, 44, 100%) 100%);
+                    background: linear-gradient(to bottom, rgb(69 69 69 / 0%) 0%, rgb(224 95 44 / 100%) 100%);
                     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#45454500', endColorstr='#E05F2C', GradientType=0);
 
                     .ui-icon-button {
@@ -8267,7 +8318,7 @@ strong {
                         border-radius: 50%;
                         color: #fff;
                         border: none;
-                        background-image: linear-gradient(360deg, #f06531 -4.69%, #ffa468 125.79%), linear-gradient(0.36deg, #ff0 -151.33%, rgba(63, 63, 63, 0%) 133.42%);
+                        background-image: linear-gradient(360deg, #f06531 -4.69%, #ffa468 125.79%), linear-gradient(0.36deg, #ff0 -151.33%, rgb(63 63 63 / 0%) 133.42%);
                         box-shadow: 0 0 10px rgba($text-darkest, 0.8);
 
                         &::before { height: 50%; }
@@ -8651,6 +8702,7 @@ strong {
 .ui-panel.picker-scene-panel {
     .content {
         font-size: 14px;
+
         @extend .font-regular;
     }
 
@@ -8671,6 +8723,7 @@ strong {
             line-height: 34px;
             font-size: 12px;
             text-transform: uppercase;
+
             @extend .font-bold;
 
             &::before {
@@ -8706,7 +8759,7 @@ strong {
             vertical-align: top;
 
             &.field-label {
-                margin: 0 0 8px 0;
+                margin: 0 0 8px;
             }
 
             &.error {
@@ -8800,6 +8853,7 @@ strong {
             font-size: 12px;
             text-transform: uppercase;
             text-align: center;
+
             @extend .font-bold;
 
             &::before {
@@ -8847,7 +8901,7 @@ strong {
 
         > .ui-panel {
             margin: 0;
-            padding: 15px 15px;
+            padding: 15px;
             border-bottom: 1px solid $border-primary;
 
             &.info {
@@ -9081,6 +9135,7 @@ strong {
                     text-align: center;
                     color: $text-primary;
                     text-transform: uppercase;
+
                     @extend .font-bold;
 
                     &::before {
@@ -9197,7 +9252,7 @@ strong {
                     @extend .font-icon;
 
                     font-size: 70px;
-                    margin: 30px 0 0 0;
+                    margin: 30px 0 0;
                 }
 
                 &.desc {
@@ -9219,6 +9274,7 @@ strong {
                 text-transform: uppercase;
                 text-align: center;
                 box-shadow: unset;
+
                 @extend .font-bold;
 
                 &::before {
@@ -9265,7 +9321,7 @@ strong {
 
             height: auto;
             line-height: initial;
-            padding: 0 15px 7px 15px;
+            padding: 0 15px 7px;
             position: relative;
             border-bottom: 1px solid $border-primary;
             background: transparent;
@@ -9347,6 +9403,7 @@ strong {
 
                     &::after {
                         color: $bcg-dark;
+
                         @extend .font-icon;
 
                         font-size: 24px;
@@ -9744,6 +9801,7 @@ strong {
                                 position: absolute;
                                 top: 0;
                                 left: 8px;
+
                                 @extend .font-icon;
 
                                 font-weight: bold;
@@ -9759,6 +9817,7 @@ strong {
                                 padding: 0;
                                 line-height: 24px;
                                 color: $text-secondary;
+
                                 @extend .font-bold;
 
                                 font-weight: bold;
@@ -9796,6 +9855,7 @@ strong {
                                 &.new {
                                     &::before {
                                         content: '\E120';
+
                                         @extend .font-icon;
 
                                         font-size: 14px;
@@ -9865,6 +9925,7 @@ strong {
                                     width: 12px;
                                     height: 24px;
                                     cursor: move;
+
                                     @extend .noSelect;
 
                                     $color: mix($text-darkest, $bcg-primary, 50%);
@@ -9980,6 +10041,7 @@ strong {
 .ui-panel.picker-checkpoint-panel {
     .content {
         font-size: 14px;
+
         @extend .font-regular;
     }
 
@@ -9992,6 +10054,7 @@ strong {
             line-height: 34px;
             font-size: 12px;
             text-transform: uppercase;
+
             @extend .font-bold;
 
             &::before {
@@ -10035,7 +10098,7 @@ strong {
                 .ch-info-first-line {
                     font-size: 14px;
                     color: $text-primary;
-                    padding: 10px 15px 5px 15px;
+                    padding: 10px 15px 5px;
                     white-space: normal;
                     word-wrap: break-word;
                 }
@@ -10044,7 +10107,7 @@ strong {
                     font-size: 12px;
                     line-height: 12px;
                     color: $text-secondary;
-                    padding: 0 15px 10px 15px;
+                    padding: 0 15px 10px;
                     white-space: normal;
                 }
 
@@ -10082,6 +10145,7 @@ strong {
                 .ui-button.delete {
                     height: 22px;
                     width: 22px;
+
                     @extend .font-icon;
 
                     background: transparent;
@@ -10354,7 +10418,7 @@ strong {
 
                                         font-size: 32px;
                                         color: $text-darkest;
-                                        margin: 5px auto 25px auto;
+                                        margin: 5px auto 25px;
                                     }
                                 }
                             }
@@ -10376,7 +10440,7 @@ strong {
 
                                         font-size: 32px;
                                         color: $text-darkest;
-                                        margin: 5px auto 25px auto;
+                                        margin: 5px auto 25px;
                                     }
                                 }
                             }
@@ -10402,7 +10466,7 @@ strong {
 
                                         font-size: 32px;
                                         color: $text-darkest;
-                                        margin: -19px auto 10px auto;
+                                        margin: -19px auto 10px;
                                     }
                                 }
                             }
@@ -10494,7 +10558,7 @@ strong {
                         }
 
                         svg {
-                            margin: 15px auto auto auto;
+                            margin: 15px auto auto;
                         }
                     }
                 }
@@ -10557,6 +10621,7 @@ strong {
                     color: $text-primary;
                     text-transform: uppercase;
                     font-size: 12px;
+
                     @extend .font-bold;
                 }
 
@@ -10592,6 +10657,7 @@ strong {
 
                 > .ui-list-item {
                     box-sizing: border-box;
+
                     @extend .font-regular;
 
                     &:last-child {
@@ -10640,7 +10706,7 @@ strong {
                 overflow-y: auto;
 
                 .spinner {
-                    margin: 200px auto auto auto;
+                    margin: 200px auto auto;
                 }
 
                 .ui-list {
@@ -10743,6 +10809,7 @@ strong {
 
                                 &::before {
                                     content: '\E326';
+
                                     @extend .font-icon;
 
                                     margin-right: 20px;
@@ -10870,6 +10937,7 @@ strong {
 
                                     &::before {
                                         content: '\E399';
+
                                         @extend .font-icon;
 
                                         margin-right: 5px;
@@ -10950,6 +11018,7 @@ strong {
 
                             &::before {
                                 content: '\E128';
+
                                 @extend .font-icon;
 
                                 margin-right: 5px;
@@ -11184,6 +11253,7 @@ strong {
                                                 > .ui-label {
                                                     display: block;
                                                     margin: 0;
+
                                                     @extend .font-regular;
 
                                                     overflow: hidden;
@@ -11283,6 +11353,7 @@ strong {
                                     flex-grow: 1;
                                     flex-basis: $vertical-section-width;
                                     padding: 0 10px;
+
                                     @extend .font-bold;
 
                                     font-size: 12px;
@@ -11302,6 +11373,7 @@ strong {
 
                                         &::before {
                                             content: '\E399';
+
                                             @extend .font-icon;
 
                                             color: $text-active;
@@ -11392,6 +11464,7 @@ strong {
                                             right: -3px;
                                             margin-right: 10px;
                                             color: $text-dark;
+
                                             @extend .font-bold;
                                         }
                                     }
@@ -11400,6 +11473,7 @@ strong {
                                         > .ui-header {
                                             background: lighten($bcg-dark, 1%);
                                             color: $text-primary;
+
                                             @extend .font-regular;
                                         }
                                     }
@@ -11536,6 +11610,7 @@ strong {
                                                     .field-edited {
                                                         .ui-label {
                                                             display: block;
+
                                                             @extend .font-regular;
 
                                                             &.title {
@@ -11571,6 +11646,7 @@ strong {
                                                                     background: transparent;
                                                                     border: 0;
                                                                     box-sizing: border-box;
+
                                                                     @extend .allowSelect;
 
                                                                     > .ui-list-item {
@@ -11636,7 +11712,7 @@ strong {
                                                 > .content {
                                                     > .ui-panel.conflict-field {
                                                         $dis: &;
-                                                        $selected-color: rgb(105, 184, 117);
+                                                        $selected-color: rgb(105 184 117);
 
                                                         cursor: pointer;
 
@@ -11684,6 +11760,7 @@ strong {
                                     margin: 0;
                                     background: $bcg-dark;
                                     border-top: 1px solid $border-primary;
+
                                     @extend .font-bold;
 
                                     color: $text-primary;
@@ -12001,7 +12078,7 @@ strong {
             & > .invite-warning {
                 display: block;
                 width: 100%;
-                margin: 5px 0 0 0;
+                margin: 5px 0 0;
                 white-space: pre-wrap;
 
                 & > .warning-link--white {
@@ -12176,6 +12253,7 @@ strong {
 
             &::after {
                 content: '\E120';
+
                 @extend .font-icon;
 
                 position: absolute;
@@ -12195,7 +12273,7 @@ strong {
 
         .ui-text-field {
             width: 100%;
-            margin: 10px 0 -6px 0;
+            margin: 10px 0 -6px;
             position: relative;
             color: $text-darkest;
 
@@ -12232,6 +12310,7 @@ strong {
 
                 &::before {
                     content: '\E209';
+
                     @extend .font-icon;
 
                     padding-right: 8px;
@@ -12259,6 +12338,7 @@ strong {
                     margin: 0;
                     padding: 0;
                     border: none;
+
                     @extend .font-icon;
 
                     font-size: 12px;

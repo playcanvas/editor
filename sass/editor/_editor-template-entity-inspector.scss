@@ -1,5 +1,5 @@
 .template-entity-inspector {
-    padding: 10px 10px;
+    padding: 10px;
     border-bottom: 1px solid $bcg-dark;
 
     &.pcui-disabled {
@@ -43,6 +43,7 @@
 
     &::before {
         content: '\E411';
+
         @extend .font-icon;
 
         margin-right: 5px;

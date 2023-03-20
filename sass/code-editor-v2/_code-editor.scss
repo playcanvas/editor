@@ -141,6 +141,7 @@ strong {
 
     .ui-panel.tab {
         cursor: pointer;
+
         @extend .noSelect;
 
         flex: 1 1 auto;
@@ -425,7 +426,7 @@ strong {
         z-index: 0;
 
         > .pcui-label {
-            margin: 0 0 8px 0;
+            margin: 0 0 8px;
         }
 
         > .pcui-input-element {
@@ -435,7 +436,7 @@ strong {
 
         > .validate {
             float: right;
-            margin: 2px 0 0 0;
+            margin: 2px 0 0;
             font-size: 12px;
             color: #f30;
         }
@@ -448,7 +449,7 @@ strong {
     flex-direction: row;
 
     > .pcui-input-element {
-        background-color: rgba(0, 0, 0, 50%);
+        background-color: rgb(0 0 0 / 50%);
         margin: 2px;
         height: 28px;
         flex-grow: 1;
@@ -551,7 +552,7 @@ strong {
             width: 100%;
             max-height: 50vh;
             overflow-y: auto;
-            box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 50%);
+            box-shadow: 0 1px 1px 0 rgb(0 0 0 / 50%);
 
             > .pcui-menu-item {
                 flex-shrink: 0;
@@ -723,16 +724,17 @@ strong {
 }
 
 .diff-overlay-add {
-    background: rgba(green, 0.2);
+    background: rgb(0 128 0 / 20%);
 }
 
 .diff-overlay-remove {
-    background: rgba(red, 0.2);
+    background: rgb(255 0 0 / 20%);
 }
 
 .conflict-overlay {
     position: absolute;
     width: 100%;
+
     @extend .font-regular;
 
     &.conflict-overlay-header {
@@ -758,6 +760,7 @@ strong {
             &::before {
                 font-size: 12px;
                 content: '\E399';
+
                 @extend .font-icon;
 
                 margin-right: 5px;

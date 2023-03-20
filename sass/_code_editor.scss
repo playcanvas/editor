@@ -39,7 +39,7 @@ $editor-function: $editor-variable;
 $editor-invalid-text: white;
 $editor-invalid-bg: #ff3295;
 $editor-invalid-deprecated-bg: #e3a9ff;
-$editor-font-family: Monaco, Menlo, Consolas, source-code-pro, monospace;
+$editor-font-family: 'Monaco', 'Menlo', 'Consolas', 'source-code-pro', monospace;
 $save-btn-disabled-bg: #35454a;
 $save-btn-disabled-color: #29363b;
 $editor-btn-bg: lighten($save-btn-disabled-color, 5%);
@@ -153,11 +153,13 @@ body {
         .code-editor-error {
             color: $bright-red;
             font-size: 12px;
+
             @include block;
         }
 
         .code-editor-progress {
             background-color: $muted-green;
+
             @include block;
 
             img {
@@ -408,7 +410,7 @@ li.CodeMirror-hint-active {
 }
 
 .CodeMirror-dialog-top {
-    background-color: rgba(0, 0, 0, 90%);
+    background-color: rgb(0 0 0 / 90%);
     border: none;
     top: 0;
     padding: 10px 20px;

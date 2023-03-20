@@ -83,7 +83,7 @@
                 }
 
                 >.advanced-search-label-filter-checkbox {
-                    margin: 0 0 0 0;
+                    margin: 0;
                     box-shadow: none;
 
                     &.checked {
@@ -214,6 +214,7 @@
                     width: 8px;
                     height: 8px;
                     color: #fff;
+
                     @extend .font-icon;
 
                     font-size: 18px;
@@ -227,6 +228,7 @@
                 align-items: center;
                 justify-content: center;
                 min-width: 38px;
+
                 @extend .font-icon;
 
                 font-size: 18px;
@@ -286,6 +288,7 @@
                     content: '\E185';
                     padding-right: 6px;
                     line-height: 24px;
+
                     @extend .font-icon;
 
                     font-size: 14px;

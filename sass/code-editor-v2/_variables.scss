@@ -46,7 +46,7 @@ $editor-function: $editor-variable;
 $editor-invalid-text: white;
 $editor-invalid-bg: #ff3295;
 $editor-invalid-deprecated-bg: #e3a9ff;
-$editor-font-family: Monaco, Menlo, Consolas, source-code-pro, monospace;
+$editor-font-family: 'Monaco', 'Menlo', 'Consolas', 'source-code-pro', monospace;
 $save-btn-disabled-bg: #35454a;
 $save-btn-disabled-color: #29363b;
 $editor-btn-bg: lighten($save-btn-disabled-color, 5%);
