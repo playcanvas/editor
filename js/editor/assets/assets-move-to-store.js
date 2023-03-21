@@ -19,7 +19,7 @@ editor.once('load', function () {
             }
             Ajax(
                 {
-                    url: '{{url.api}}/store/items/' + text,
+                    url: '{{url.api}}/store/move/' + text,
                     method: 'PUT',
                     auth: true,
                     data: {

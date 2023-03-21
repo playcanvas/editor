@@ -6,7 +6,7 @@ editor.once('load', function () {
         args = args || { };
 
         var asset = {
-            name: 'New Folder',
+            name: args.name || 'New Folder',
             type: 'folder',
             source: true,
             preload: false,
@@ -18,6 +18,6 @@ editor.once('load', function () {
             }
         };
 
-        editor.call('assets:create', asset);
+        editor.call('assets:create', asset, args.fn, args.noSelect);
     });
 });

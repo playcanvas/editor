@@ -3,3 +3,4 @@ node_modules
 /.idea
 dist
 /js/realtime/share.uncompressed.js
+.npmrc

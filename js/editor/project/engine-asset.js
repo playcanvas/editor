@@ -13,7 +13,7 @@ editor.once('load', function () {
     editor.method('project:engineAsset:addEngineAsset', function (storeName, assetName) {
         function addAssetToProject() {
             Ajax({
-                url: '{{url.api}}/store/items?name=' + storeName,
+                url: '{{url.api}}/store?name=' + storeName,
                 method: 'GET',
                 auth: true,
                 data: { }

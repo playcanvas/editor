@@ -382,8 +382,8 @@ Object.assign(pcui, (function () {
 
             // Show asset store
             const btnStore = new Button({
-                text: 'STORE',
-                icon: 'E238',
+                text: 'ASSET STORE',
+                icon: 'E244',
                 class: [CLASS_BTN_STORE, CLASS_HIDE_ON_COLLAPSE]
             });
             btnStore.on('click', this._onClickStore.bind(this));
@@ -670,7 +670,12 @@ Object.assign(pcui, (function () {
         }
 
         _onClickStore() {
-            window.open(config.url.store, '_blank');
+            const superUser = editor.call("users:isSuperUser");
+            if (superUser) {
+                editor.call('picker:store:cms');
+            } else {
+                window.open(config.url.store, '_blank');
+            }
         }
 
         // Shows new asset context menu

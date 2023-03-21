@@ -13,7 +13,7 @@ editor.once('load', function () {
     editor.method('project:module:addModule', function (moduleStoreName, wasmFilename) {
         function addModuleToProject() {
             Ajax({
-                url: '{{url.api}}/store/items?name=' + moduleStoreName,
+                url: '{{url.api}}/store?name=' + moduleStoreName,
                 method: 'GET',
                 auth: true,
                 data: { }

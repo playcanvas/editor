@@ -120,6 +120,9 @@ import './editor/project/project.js';
 import './editor/project/module.js';
 import './editor/project/engine-asset.js';
 
+// store
+import './editor/store/store.js';
+
 // observer lists
 import './editor/entities/entities.js';
 import './editor/assets/assets.js';
@@ -549,6 +552,9 @@ import './editor/pickers/project-management/picker-modal-delete-organization.js'
 import './editor/pickers/project-management/picker-modal-delete-project-confirmation.js';
 import './editor/pickers/project-management/picker-modal-delete-self-confirmation.js';
 import './editor/pickers/project-management/picker-modal-visibility-confirmation.js';
+
+import './editor/pickers/store/picker-store.js';
+import './editor/pickers/store/picker-storeitem.js';
 
 import './editor/pickers/picker-scene.js';
 import './editor/pickers/picker-script-create.js';
