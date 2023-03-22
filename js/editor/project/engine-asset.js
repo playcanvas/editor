@@ -13,14 +13,14 @@ editor.once('load', function () {
     editor.method('project:engineAsset:addEngineAsset', function (storeName, assetName) {
         function addAssetToProject() {
             Ajax({
-                url: '{{url.api}}/store?name=' + storeName,
+                url: '{{url.api}}/store?search=' + storeName,
                 method: 'GET',
                 auth: true,
                 data: { }
             }).on('load', function (status, data) {
-                if (data.length === 1) {
+                if (data.result && data.result.length === 1) {
                     Ajax({
-                        url: '{{url.api}}/store/' + data[0].id.toString() + '/clone',
+                        url: '{{url.api}}/store/' + data.result[0].id.toString() + '/clone',
                         method: 'POST',
                         auth: true,
                         data: { scope: { type: 'project', id: config.project.id } },

@@ -11,7 +11,7 @@ editor.once('load', function () {
 
         let url = `{{url.api}}/store?sort=${sortPolicy}&order=${sortDescending ? -1 : 1}&skip=${skip}&limit=${limit}}`;
         if (search && search.length) {
-            url += `&search=${search}`;
+            url += `&regexp=true&search=${search}`;
         }
         if (selectedFilter && selectedFilter.length && selectedFilter !== 'FEATURED') {
             url += `&tags=${selectedFilter}`;
@@ -62,7 +62,7 @@ editor.once('load', function () {
                                 type: 'project',
                                 id: projectId
                             },
-                            targetFolder: id
+                            targetFolderId: id
                         }
                     })
                     .on('load', (status, response) => { resolve(response); })
@@ -93,7 +93,7 @@ editor.once('load', function () {
         return new Promise((resolve, reject) => {
             const id = asset.id;
             Ajax({
-                url: '{{url.api}}/assets/' + id + '/file/' + asset.file.filename,
+                url: '{{url.api}}/store/assets/' + id + '/file/' + asset.file.filename,
                 auth: false,
                 notJson: true
             })
