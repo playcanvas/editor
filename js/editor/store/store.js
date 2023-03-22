@@ -17,6 +17,8 @@ editor.once('load', function () {
             url += `&tags=${selectedFilter}`;
         }
 
+        url += `&excludeTags=INTERNAL`;
+
         return new Promise((resolve, reject) => {
             Ajax({
                 url: url,
