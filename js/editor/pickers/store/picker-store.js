@@ -13,6 +13,7 @@ editor.once('load', () => {
     let sortingDropdown = null;
     let sortButton = null;
     let loadMoreButton = null;
+    let importProjectButton = null;
 
     let storeItems = [];
     let storeItemsCount = 0;
@@ -267,6 +268,65 @@ editor.once('load', () => {
         return true;
     };
 
+    const createFilePicker = () => {
+
+        if (importProjectButton) {
+            headerUtils.remove(importProjectButton);
+        }
+
+        // add import button for super users
+        if (editor.call("users:isSuperUser")) {
+            // file picker
+            const filePicker = document.createElement('input');
+            filePicker.id = "file-picker";
+            filePicker.type = "file";
+            filePicker.accept = "application/zip";
+
+            filePicker.addEventListener("change", () => {
+                uploadStoreItems(filePicker.files);
+            });
+
+            // import project button
+            importProjectButton = new Button({
+                class: 'import-button',
+                icon: 'E222'
+            });
+            headerUtils.appendBefore(importProjectButton, btnClose);
+
+            importProjectButton.on('click', () => {
+                filePicker.value = '';
+                filePicker.click();
+            });
+        }
+    };
+
+    // handles the flow for project importing including error and loading states
+    const uploadStoreItems = async (files) => {
+
+        if (files.length === 0)
+            return;
+
+        toggleProgress(true, 0, 'Uploading... Please stand by');
+
+        // Convert file to form data
+        var form = new FormData();
+        form.append("file", files[0]);
+
+        try {
+            await editor.call('store:uploadStoreItems', form, (progress) => {
+                // Progress handler function
+                progressBar.value = progress * 100;
+
+                if (progress === 1) progressLabel.text = "Upload Complete! Importing... (Please don't close this window)";
+            });
+            loadStore();
+        } catch (err) {
+            editor.call('picker:project:buildAlert', rightPanel, "There was an error while importing");
+        } finally {
+            toggleProgress(false);
+        }
+    };
+
     // overlay
     const root = editor.call('layout.root');
     const overlay = new Overlay({
@@ -397,6 +457,8 @@ editor.once('load', () => {
             storeItems = values.result;
             await refreshStore();
         }
+
+        createFilePicker();
 
         setupLoadMoreButton();
         clearTimeout(timeoutId);

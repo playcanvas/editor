@@ -25,8 +25,12 @@ editor.once('load', function () {
                 auth: false,
                 method: 'GET'
             })
-            .on('load', (status, response) => { resolve(response); })
-            .on('error', (status, error) => { reject(error); });
+            .on('load', (status, response) => {
+                resolve(response);
+            })
+            .on('error', (status, error) => {
+                reject(error);
+            });
         });
     });
 
@@ -38,8 +42,12 @@ editor.once('load', function () {
                 auth: false,
                 method: 'GET'
             })
-            .on('load', (status, response) => { resolve(response); })
-            .on('error', (status, error) => { reject(error); });
+            .on('load', (status, response) => {
+                resolve(response);
+            })
+            .on('error', (status, error) => {
+                reject(error);
+            });
         });
     });
 
@@ -67,8 +75,12 @@ editor.once('load', function () {
                             targetFolderId: id
                         }
                     })
-                    .on('load', (status, response) => { resolve(response); })
-                    .on('error', (status, error) => { reject(error); });
+                    .on('load', (status, response) => {
+                        resolve(response);
+                    })
+                    .on('error', (status, error) => {
+                        reject(error);
+                    });
                 }
             });
         });
@@ -102,6 +114,31 @@ editor.once('load', function () {
             .on('load', (status, response) => {
                 // replace \r and \r\n with \n
                 response = response.replace(/\r\n?/g, '\n');
+                resolve(response);
+            })
+            .on('error', (status, error) => {
+                reject(error);
+            });
+        });
+    });
+
+    // Upload specified export
+    editor.method('store:uploadStoreItems', function (file, progressHandler) {
+
+        return new Promise((resolve, reject) => {
+            Ajax({
+                'url': `{{url.api}}/store/upload`,
+                'data': file,
+                'method': "POST",
+                'auth': true,
+                'mimeType': 'multipart/form-data'
+            })
+            .on('progress', (progress) => {
+                if (progressHandler) {
+                    progressHandler(progress);
+                }
+            })
+            .on('load', (status, response) => {
                 resolve(response);
             })
             .on('error', (status, error) => {
