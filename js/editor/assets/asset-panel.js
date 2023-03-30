@@ -672,6 +672,9 @@ Object.assign(pcui, (function () {
         _onClickStore() {
             const superUser = editor.call("users:isSuperUser");
             if (superUser) {
+                // log store opened
+                metrics.increment({ metricsName: 'store.opened.count' });
+
                 editor.call('picker:store:cms');
             } else {
                 window.open(config.url.store, '_blank');
