@@ -13,7 +13,8 @@ editor.once('load', () => {
     let sortingDropdown = null;
     let sortButton = null;
     let loadMoreButton = null;
-    let importProjectButton = null;
+    let importStoreItemsButton = null;
+    let events = [];
 
     let storeItems = [];
     let storeItemsCount = 0;
@@ -270,8 +271,8 @@ editor.once('load', () => {
 
     const createFilePicker = () => {
 
-        if (importProjectButton) {
-            headerUtils.remove(importProjectButton);
+        if (importStoreItemsButton) {
+            headerUtils.remove(importStoreItemsButton);
         }
 
         // add import button for super users
@@ -287,13 +288,13 @@ editor.once('load', () => {
             });
 
             // import project button
-            importProjectButton = new Button({
+            importStoreItemsButton = new Button({
                 class: 'import-button',
                 icon: 'E222'
             });
-            headerUtils.appendBefore(importProjectButton, btnClose);
+            headerUtils.appendBefore(importStoreItemsButton, btnClose);
 
-            importProjectButton.on('click', () => {
+            importStoreItemsButton.on('click', () => {
                 filePicker.value = '';
                 filePicker.click();
             });
@@ -313,16 +314,28 @@ editor.once('load', () => {
         form.append("file", files[0]);
 
         try {
-            await editor.call('store:uploadStoreItems', form, (progress) => {
+            const response = await editor.call('store:uploadStoreItems', form, (progress) => {
                 // Progress handler function
                 progressBar.value = progress * 100;
 
                 if (progress === 1) progressLabel.text = "Upload Complete! Importing... (Please don't close this window)";
             });
-            loadStore();
+            const jobId = response.jobId;
+
+            var evt = editor.on('messenger:job.update', (msg) => {
+                if (msg.job.id === jobId) {
+                    evt.unbind();
+
+                    if (msg.error)  {
+                        editor.call('picker:project:buildAlert', rightPanel, `error during import: ${msg.error}`);
+                    }
+                    toggleProgress(false);
+                    loadStore();
+                }
+            });
+            events.push(evt);
         } catch (err) {
             editor.call('picker:project:buildAlert', rightPanel, "There was an error while importing");
-        } finally {
             toggleProgress(false);
         }
     };
@@ -509,6 +522,14 @@ editor.once('load', () => {
         await loadStore();
     };
 
+    const destroyEvents = () => {
+        if (events) {
+            events.forEach(e => e.unbind());
+            events = [];
+        }
+    };
+
+
     // LOCAL UTILS
 
     // EVENTS
@@ -521,6 +542,7 @@ editor.once('load', () => {
 
     // clean up
     overlay.on('hide', () => {
+        destroyEvents();
 
         // reset sorting dropdown state
         sortingDropdown.hidden = true;
