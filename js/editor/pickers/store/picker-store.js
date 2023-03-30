@@ -62,7 +62,6 @@ editor.once('load', () => {
         const [sortByName, nameRadio] = buildSortingMenuItem(sortingContainer, 'radio', 'Sort By Name');
         const [sortByCreated, createdRadio] = buildSortingMenuItem(sortingContainer, 'radio', 'Sort By Created');
         const [sortBySize, sizeRadio] = buildSortingMenuItem(sortingContainer, 'radio', 'Sort By Size');
-        const [sortByPrice, priceRadio] = buildSortingMenuItem(sortingContainer, 'radio', 'Sort By Price');
         const [sortByDownloads, downloadsRadio] = buildSortingMenuItem(sortingContainer, 'radio', 'Sort By Downloads');
         const [sortByViews, viewsRadio] = buildSortingMenuItem(sortingContainer, 'radio', 'Sort By Views');
 
@@ -77,7 +76,6 @@ editor.once('load', () => {
             descendingCheckbox.value = !descendingCheckbox.value;  // update checkbox
             sortDescending = descendingCheckbox.value;
             sortStoreItems(sortPolicy);
-            sortingDropdown.hidden = false; // keep dropdown open
             sortButton.icon = sortDescending ? 'E437' : 'E438';
         });
 
@@ -96,11 +94,6 @@ editor.once('load', () => {
         sortBySize.on('click', () => {
             updateRadioButtons(sizeRadio);
             sortStoreItems('size');
-        });
-
-        sortByPrice.on('click', () => {
-            updateRadioButtons(priceRadio);
-            sortStoreItems('price');
         });
 
         sortByDownloads.on('click', () => {

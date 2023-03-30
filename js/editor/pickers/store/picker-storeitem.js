@@ -183,11 +183,11 @@ editor.once('load', function () {
             // display license
             containerTabContent.clear();
 
-            const elementDescription = new Element({
+            const licenseText = new Element({
                 class: 'item-description'
             });
-            elementDescription.dom.textContent = 'CC BY - Attribution';
-            containerTabContent.append(elementDescription);
+            licenseText.dom.innerHTML = storeItem.license;
+            containerTabContent.append(licenseText);
             containerTabContent.append(itemStats);
         });
         containerTabs.append(labelLicense);
@@ -340,7 +340,7 @@ editor.once('load', function () {
         const textureUrls = [];
 
         storeItemAssets.forEach((asset) => {
-            const url = `/api/assets/${asset.id}/file/${asset.file.filename}`;
+            const url = `/api/store/assets/${asset.id}/file/${asset.file.filename}`;
             if (isGlbAsset(asset)) {
                 modelUrls.push(encodeUrl(url));
             } else if (isTextureAsset(asset)) {
