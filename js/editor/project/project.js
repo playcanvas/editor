@@ -111,6 +111,23 @@ editor.once('load', function () {
         });
     });
 
+    // get job status
+    editor.method('projects:getJobStatus', function (jobId) {
+        return new Promise((resolve, reject) => {
+            Ajax({
+                url: `{{url.api}}/jobs/${jobId}`,
+                method: 'GET',
+                auth: true
+            })
+            .on('load', (status, response) => {
+                resolve(response);
+            })
+            .on('error', (status, error) => {
+                reject(error);
+            });
+        });
+    });
+
     // Export specified project
     editor.method('projects:export', function (project_id, success, errorFn) {
         Ajax({
@@ -127,47 +144,51 @@ editor.once('load', function () {
     });
 
     // Upload specified export
-    editor.method('projects:uploadExport', function (file, progressHandler, success, errorFn) {
-        const deferred = new Defer();
+    editor.method('projects:uploadExport', async function (file, progressHandler) {
+        const response = await new Promise((resolve, reject) => {
+            // use Ajax to get templated api url
+            Ajax({
+                url: `{{url.api}}/projects/upload/signed-url`,
+                method: 'GET',
+                auth: true
+            })
+            .on('progress', (progress) => {
+                if (progressHandler) {
+                    progressHandler(progress);
+                }
+            })
+            .on('load', (status, response) => { resolve(response); })
+            .on('error', (status, error) => { reject(error); });
+        });
+        const signedUrl = response.signedUrl;
 
-        Ajax({
-            'url': `{{url.api}}/projects/upload`,
-            'data': file,
-            'method': "POST",
-            'auth': true,
-            'mimeType': 'multipart/form-data'
-        })
-        .on('progress', (progress) => {
-            if (progressHandler) progressHandler(progress);
-        })
-        .on('load', (status, response) => {
-            deferred.resolve(response);
-            if (success) success(deferred.promise);
-        })
-        .on('error', (status) => {
-            if (status > 0) deferred.reject(status);
-            if (errorFn) errorFn(deferred.promise);
+        // Upload the file to S3 using the pre-signed URL
+        await fetch(signedUrl, {
+            method: 'PUT',
+            body: file, // Pass the file object directly as the request body
+            headers: {
+                'Content-Type': 'application/zip' // Set the content type of the file being uploaded
+            }
         });
 
-        return deferred.promise;
+        // return s3 key to continue process of importing project
+        return { s3Key: response.s3Key };
     });
 
     // Imports specified project
-    editor.method('projects:importNew', (exportUrl, ownerId, success, errorFn) => {
-        Ajax({
-            url: '{{url.api}}/projects/import',
-            auth: true,
-            method: 'POST',
-            data: {
-                export_url: exportUrl,
-                owner: ownerId
-            }
-        })
-        .on('load', (status, result) => {
-            if (success) success(result);
-        })
-        .on('error', (err) => {
-            if (errorFn) errorFn(err);
+    editor.method('projects:importNew', function (exportUrl, ownerId) {
+        return new Promise((resolve, reject) => {
+            Ajax({
+                url: '{{url.api}}/projects/import',
+                auth: true,
+                method: 'POST',
+                data: {
+                    export_url: exportUrl,
+                    owner: ownerId
+                }
+            })
+            .on('load', (status, response) => { resolve(response); })
+            .on('error', (status, error) => { reject(error); });
         });
     });
 

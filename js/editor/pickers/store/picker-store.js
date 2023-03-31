@@ -280,7 +280,7 @@ editor.once('load', () => {
                 uploadStoreItems(filePicker.files);
             });
 
-            // import project button
+            // import store items button
             importStoreItemsButton = new Button({
                 class: 'import-button',
                 icon: 'E222'

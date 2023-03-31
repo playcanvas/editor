@@ -445,6 +445,7 @@ editor.once('load', () => {
 
     filePicker.addEventListener("change", () => {
         importProject(filePicker.files);
+        filePicker.value = null;
     });
 
     // import project button
@@ -725,7 +726,7 @@ editor.once('load', () => {
     };
 
     // handles the flow for project importing including error and loading states
-    const importProject = (files) => {
+    const importProject = async (files) => {
 
         // Check if import is disabled or no file submitted
         if (importDisabled() || files.length === 0)
@@ -737,60 +738,55 @@ editor.once('load', () => {
         var form = new FormData();
         form.append("file", files[0]);
 
-        editor.call('projects:uploadExport', form, (progress) => {
-            // Progress handler function
-            progressBar.value = progress * 100;
+        // upload file to S3
+        try {
+            const result = await editor.call('projects:uploadExport', files[0], (progress) => {
+                // progress returned by Ajax is in range 0-1
+                progressBar.value = progress * 100;
+            });
+            progressLabel.text = "Upload Complete! Importing... (Please don't close this window)";
 
-            if (progress === 1) progressLabel.text = "Upload Complete! Importing... (Please don't close this window)";
-        }, async (data) => {
-            const result = await data;
-
-            let jobId;
-            var evt = editor.on('messenger:job.update', (msg) => {
-                if (msg.job.id === jobId) {
-                    evt.unbind();
+            // setup a job update listener to react to job status changes
+            // we can't simply wait on request completion because the job could be long
+            let job = null;
+            const jobStatusEvent = editor.on('messenger:job.update', async (msg) => {
+                if (msg.job.id === job.id) {
+                    jobStatusEvent.unbind();
                 }
 
-                // get job
-                Ajax({
-                    url: `{{url.api}}/jobs/${msg.job.id}`,
-                    auth: true
-                })
-                .on('load', function (status, job) {
-                    if (job.status === 'complete') {
-                        // togglePopup close
-                        toggleProgress(false);
+                // get job status (import project is corazon API, it would be simpler just to get it from the message)
+                const jobInfo = await editor.call('projects:getJobStatus', msg.job.id);
+                if (jobInfo.status === 'complete') {
+                    // togglePopup close
+                    toggleProgress(false);
 
-                        if (config.self.organization) {
-                            // do not redirect organization viewer to project,
-                            // because they don't have any access permissions. Instead
-                            // add it to the list
-                            refreshProjects();
-                        } else {
-                            editor.call('picker:project:newProjectConfirmation', job.data.project_id);
-                        }
-                    } else if (job.status === 'error') {
-                        const importError = job.messages[0] || "There was an error while importing";
-                        editor.call('picker:project:buildAlert', rightPanel, importError);
+                    if (config.self.organization) {
+                        // do not redirect organization viewer to project,
+                        // because they don't have any access permissions. Instead
+                        // add it to the list
+                        refreshProjects();
+                    } else {
+                        editor.call('picker:project:newProjectConfirmation', jobInfo.data.project_id);
                     }
-                })
-                .on('error', function (error) {
-                    editor.call('picker:project:buildAlert', rightPanel, "There was an error while importing");
-                });
+                } else if (jobInfo.status === 'error') {
+                    const importError = jobInfo.messages[0] || "There was an error while importing";
+                    toggleProgress(false);
+                    console.error(importError);
+                    editor.call('picker:project:buildAlert', rightPanel, "Could not import project");
+                }
             });
-            events.push(evt);
+            events.push(jobStatusEvent);
 
-            editor.call('projects:importNew', result.s3Key, config.self.id, (job) => {
-                jobId = job.id;
-            }, (error) => {
-                toggleProgress(false);
-                editor.call('picker:project:buildAlert', rightPanel, "Could not import project");
-            });
-        }, (err) => {
+            // import project from uploaded file on s3
+            job = await editor.call('projects:importNew', result.s3Key, config.self.id);
+
+        } catch (error) {
             toggleProgress(false);
-            editor.call('picker:project:buildAlert', rightPanel, "There was an error while importing");
-        });
-
+            if (error) {
+                console.error(error);
+            }
+            editor.call('picker:project:buildAlert', rightPanel, "Could not import project");
+        }
     };
 
     // loads the current user's projects into the CMS main panel
