@@ -16,7 +16,6 @@ editor.once('load', function () {
     let containerPreview = null;
     let itemName = null;
     let storeItemThumb = null;
-    const itemStats = null;
     let itemData = null;
     let storeItemAssets = [];
     let codePreview = null;
@@ -188,7 +187,6 @@ editor.once('load', function () {
             });
             licenseText.dom.innerHTML = storeItem.license;
             containerTabContent.append(licenseText);
-            containerTabContent.append(itemStats);
         });
         containerTabs.append(labelLicense);
 
