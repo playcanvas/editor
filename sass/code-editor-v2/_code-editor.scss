@@ -55,10 +55,6 @@ strong {
     }
 }
 
-.noSelect {
-    user-select: none;
-}
-
 #ui-root {
     position: absolute;
     top: 0;
@@ -139,11 +135,8 @@ strong {
     line-height: 32px - $tab-bottom-margin;
     margin-bottom: $tab-bottom-margin;
 
-    .ui-panel.tab {
+    .pcui-container.tab {
         cursor: pointer;
-
-        @extend .noSelect;
-
         flex: 1 1 auto;
         min-width: 10px;
         max-width: 150px;
@@ -171,7 +164,7 @@ strong {
         // to breaks sometimes due to the fact
         // that tabs are removed / readded to the DOM
         &.hovered {
-            > .content > .close {
+            > .close {
                 opacity: 1;
             }
         }
@@ -183,7 +176,7 @@ strong {
             min-width: 100px;
             z-index: 1;
 
-            > .content > .close {
+            > .close {
                 background-color: $bcg-darkest;
                 box-shadow: -2px -2px 2px $bcg-darkest;
             }
@@ -201,7 +194,7 @@ strong {
         &.grabbed {
             z-index: 10;
 
-            > .content > .close {
+            > .close {
                 opacity: 0;
             }
         }
@@ -211,47 +204,49 @@ strong {
         }
 
         &.temporary {
-            > .content > .ui-panel.name {
+            .pcui-label {
                 font-style: italic;
             }
         }
 
-        > .content {
-            > .ui-panel.name {
-                overflow: hidden;
+        > .pcui-container.name {
+            overflow: hidden;
+
+            > .pcui-label.name {
+                line-height: 22px;
+                margin: 3px;
+                vertical-align: bottom;
             }
+        }
 
-            > .close {
-                @extend .font-icon;
+        > .close {
+            color: $text-secondary;
+            background-color: $tab-bg-color;
+            box-shadow: -2px -2px 2px $tab-bg-color;
+            border: 0;
+            position: absolute;
+            padding: 0;
+            margin: 0;
+            top: 0;
+            right: 0;
+            width: 22px;
+            height: 28px;
+            line-height: 30px;
+            font-size: 14px;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 200ms ease;
 
-                color: $text-secondary;
-                background-color: $tab-bg-color;
-                box-shadow: -2px -2px 2px $tab-bg-color;
-                border: 0;
-                position: absolute;
-                padding: 0;
-                margin: 0;
-                top: 0;
-                right: -5px;
-                width: 22px;
-                height: 28px;
-                line-height: 32px;
-                font-size: 14px;
-                text-align: center;
-                opacity: 0;
-                transition: opacity 200ms ease;
-
-                &:hover {
-                    color: $text-active;
-                }
+            &:hover {
+                color: $text-active;
             }
+        }
 
-            > .ui-progress {
-                width: calc(100% + 10px);
-                position: absolute;
-                bottom: -2px;
-                left: -5px;
-            }
+        > .pcui-progress {
+            width: calc(100% + 10px);
+            position: absolute;
+            bottom: -2px;
+            left: -5px;
         }
     }
 }

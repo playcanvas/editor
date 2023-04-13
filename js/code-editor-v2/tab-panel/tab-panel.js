@@ -1,4 +1,7 @@
+import { Button, Container, Label, Progress } from '@playcanvas/pcui';
+
 editor.once('load', function () {
+    /** @type {Container} */
     const panel = editor.call('layout.tabs');
 
     // holds tabs
@@ -124,13 +127,13 @@ editor.once('load', function () {
         // search if we need to swap places with other tabs
         let index = tabOrder.indexOf(grabbedTab);
 
-        const width = grabbedTab.tab.element.offsetWidth;
+        const width = grabbedTab.tab.dom.offsetWidth;
 
         let searchRight = true;
 
         // first search left
         for (let i = index - 1; i >= 0; i--) {
-            const el = tabOrder[i].tab.element;
+            const el = tabOrder[i].tab.dom;
             if (tabPositions[i] + el.offsetWidth / 2 > x) {
                 searchRight = false;
 
@@ -138,13 +141,13 @@ editor.once('load', function () {
                 panel.appendBefore(grabbedTab.tab, tabOrder[i].tab);
 
                 // move tab to the right
-                el.style.left = tabPositions[i] + grabbedTab.tab.element.offsetWidth + 'px';
+                el.style.left = tabPositions[i] + grabbedTab.tab.dom.offsetWidth + 'px';
 
                 // swap
                 tabOrder[index] = tabOrder[i];
                 tabOrder[i] = grabbedTab;
 
-                tabPositions[index] = tabPositions[i] + grabbedTab.tab.element.offsetWidth;
+                tabPositions[index] = tabPositions[i] + grabbedTab.tab.dom.offsetWidth;
 
                 index = i;
             } else {
@@ -155,20 +158,20 @@ editor.once('load', function () {
         // then search right
         if (searchRight) {
             for (let i = index + 1, len = tabOrder.length; i < len; i++) {
-                const el = tabOrder[i].tab.element;
+                const el = tabOrder[i].tab.dom;
                 if (tabPositions[i] < x + width / 2) {
 
                     // swap DOM
                     panel.appendAfter(grabbedTab.tab, tabOrder[i].tab);
 
                     // move tab to the left
-                    el.style.left = tabPositions[i] - grabbedTab.tab.element.offsetWidth + 'px';
+                    el.style.left = tabPositions[i] - grabbedTab.tab.dom.offsetWidth + 'px';
 
                     // swap
                     tabOrder[index] = tabOrder[i];
                     tabOrder[i] = grabbedTab;
 
-                    tabPositions[index] = tabPositions[i] - grabbedTab.tab.element.offsetWidth;
+                    tabPositions[index] = tabPositions[i] - grabbedTab.tab.dom.offsetWidth;
 
                     index = i;
                 } else {
@@ -202,22 +205,22 @@ editor.once('load', function () {
         grabbedTab = tab;
 
         grabbedMouseX = e.clientX;
-        grabbedX = grabbedTab.tab.element.offsetLeft;
+        grabbedX = grabbedTab.tab.dom.offsetLeft;
 
         // turn all tabs to absolute positioning
         // but first get their coords before we start
         // changing them
         const widths = [];
         for (let i = 0; i < tabOrder.length; i++) {
-            tabPositions.push(tabOrder[i].tab.element.offsetLeft);
-            widths.push(tabOrder[i].tab.element.offsetWidth);
+            tabPositions.push(tabOrder[i].tab.dom.offsetLeft);
+            widths.push(tabOrder[i].tab.dom.offsetWidth);
         }
 
         for (let i = 0; i < tabOrder.length; i++) {
-            tabOrder[i].tab.element.style.position = 'absolute';
-            tabOrder[i].tab.element.style.left = tabPositions[i] + 'px';
-            tabOrder[i].tab.element.style.width = widths[i] + 'px';
-            tabOrder[i].tab.element.style.top = '0';
+            tabOrder[i].tab.dom.style.position = 'absolute';
+            tabOrder[i].tab.dom.style.left = tabPositions[i] + 'px';
+            tabOrder[i].tab.dom.style.width = widths[i] + 'px';
+            tabOrder[i].tab.dom.style.top = '0';
         }
 
         // add animated class to other tabs
@@ -244,39 +247,38 @@ editor.once('load', function () {
     const createTab = function (id, asset) {
         const tabName = asset ? asset.get('name') : id;
 
-        const tab = new ui.Panel();
-        tab.class.add('tab');
+        const tab = new Container({
+            class: 'tab'
+        });
 
         if (asset)
             tab._assetId = id;
 
         // name container
-        const panelName = new ui.Panel();
-        panelName.class.add('name');
-
+        const panelName = new Container({
+            class: 'name'
+        });
         tab.append(panelName);
 
         // tab name
-        const name = new ui.Label({
+        const name = new Label({
+            class: 'name',
             text: tabName
         });
-        name.class.add('name');
-
         panelName.append(name);
 
         // close button
-        const btnClose = new ui.Button({
-            text: '&#57650;'
+        const btnClose = new Button({
+            class: 'close',
+            icon: 'E132'
         });
-        btnClose.class.add('close');
-
         tab.append(btnClose);
 
         // loading progress
         let progress;
         if (asset) {
-            progress = new ui.Progress();
-            progress.progress = 100;
+            progress = new Progress();
+            progress.value = 100;
             tab.append(progress);
         }
 
@@ -322,7 +324,7 @@ editor.once('load', function () {
         });
 
         const onGrab = function (e) {
-            if (e.target === btnClose.element)
+            if (e.target === btnClose.dom)
                 return;
 
             // close on middle click
@@ -352,20 +354,20 @@ editor.once('load', function () {
         };
 
         // grab tab
-        tab.element.addEventListener('mousedown', onGrab);
+        tab.dom.addEventListener('mousedown', onGrab);
 
         // use hovered class for the close button
         // because the :hover selector doesn't seem to work
         // right all the time due to the fact that
         // each tab is removed-readded to the DOM when we move it
-        tab.element.addEventListener('mouseenter', onMouseEnter);
+        tab.dom.addEventListener('mouseenter', onMouseEnter);
 
-        tab.element.addEventListener('mouseleave', onMouseLeave);
+        tab.dom.addEventListener('mouseleave', onMouseLeave);
 
         tab.on('destroy', function () {
-            tab.element.removeEventListener('mousedown', onGrab);
-            tab.element.removeEventListener('mouseenter', onMouseEnter);
-            tab.element.removeEventListener('mouseleave', onMouseLeave);
+            tab.dom.removeEventListener('mousedown', onGrab);
+            tab.dom.removeEventListener('mouseenter', onMouseEnter);
+            tab.dom.removeEventListener('mouseleave', onMouseLeave);
         });
 
         // context menu
