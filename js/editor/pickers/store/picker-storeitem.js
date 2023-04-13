@@ -46,7 +46,7 @@ editor.once('load', function () {
         const elementDescription = new Element({
             class: 'item-description'
         });
-        elementDescription.dom.textContent = storeItem.description;
+        elementDescription.dom.innerHTML = storeItem.description;
         containerTabContent.append(elementDescription);
         containerTabContent.append(itemStats);
 
