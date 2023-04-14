@@ -55,20 +55,10 @@ editor.once('load', function () {
             field: new Label({ class: 'data-label', text: sizeToString(storeItem.size) })
         }).dom);
 
-        itemStats.append(new LabelGroup({
-            text: 'Support: ',
-            field: new Label({ class: 'data-label', text: 'PlayCanvas 1.3+' })
-        }).dom);
-
         const date = new Date(storeItem.modified);
         itemStats.append(new LabelGroup({
             text: 'Last updated: ',
             field: new Label({ class: 'data-label', text: date.toLocaleDateString() })
-        }).dom);
-
-        itemStats.append(new LabelGroup({
-            text: 'Created by: ',
-            field: new Label({ class: 'data-label', text: 'PlayCanvas' })
         }).dom);
 
         itemStats.append(new LabelGroup({
