@@ -155,14 +155,16 @@ editor.once('load', () => {
 
         // filter list
         const filters = [
-            { name: 'FEATURED', icon: 'E244' },
+            { name: 'ALL', icon: 'E244' },
+            // { name: 'FEATURED', icon: 'E244' },
+            // { name: '2D', icon: 'E201' },
             { name: '3D', icon: 'E189' },
-            { name: '2D', icon: 'E201' },
-            { name: 'MATERIAL', icon: 'E425' },
-            { name: 'SOUND', icon: 'E197' },
-            { name: 'SHADER', icon: 'E219' },
+            // { name: 'MATERIAL', icon: 'E425' },
             { name: 'SCRIPT', icon: 'E392' },
-            { name: 'TEMPLATE', icon: 'E190' }
+            // { name: 'SHADER', icon: 'E219' },
+            { name: 'SKYBOX', icon: 'E217' }
+            // { name: 'SOUND', icon: 'E197' },
+            // { name: 'TEMPLATE', icon: 'E190' }
         ];
 
         for (const filter of filters) {

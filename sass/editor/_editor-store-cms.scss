@@ -219,6 +219,7 @@
         box-shadow: none;
         border-radius: initial;
         color: white;
+        text-transform: uppercase;
 
         &.selected {
             background-color: $bcg-primary;

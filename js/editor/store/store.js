@@ -13,7 +13,7 @@ editor.once('load', function () {
         if (search && search.length) {
             url += `&regexp=true&search=${search}`;
         }
-        if (selectedFilter && selectedFilter.length && selectedFilter !== 'FEATURED') {
+        if (selectedFilter && selectedFilter.length && selectedFilter !== 'ALL') {
             url += `&tags=${selectedFilter}`;
         }
 
