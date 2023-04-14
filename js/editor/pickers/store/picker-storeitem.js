@@ -178,7 +178,10 @@ editor.once('load', function () {
             licenseText.dom.innerHTML = storeItem.license;
             containerTabContent.append(licenseText);
         });
-        containerTabs.append(labelLicense);
+
+        if (storeItem.license) {
+            containerTabs.append(labelLicense);
+        }
 
         // display description by default
         descriptionOnClick();
@@ -192,7 +195,7 @@ editor.once('load', function () {
 
             if (storeItemAssets && storeItemAssets.length && isScriptAsset(storeItemAssets[0])) {
                 // download script content
-                const code = await editor.call('store:loadAsset', storeItemAssets[0]);
+                const code = storeItemAssets[0].id ? await editor.call('store:loadAsset', storeItemAssets[0]) : '';
 
                 //  script preview
                 codePreview = new Element({
