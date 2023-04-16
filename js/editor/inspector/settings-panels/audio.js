@@ -1,25 +1,23 @@
-Object.assign(pcui, (function () {
-    const ATTRIBUTES = [
-        {
-            observer: 'projectSettings',
-            label: 'Use Legacy Audio',
-            type: 'boolean',
-            path: 'useLegacyAudio'
-        }
-    ];
+import { BaseSettingsPanel } from './base.js';
 
-    class AudioSettingsPanel extends pcui.BaseSettingsPanel {
-        constructor(args) {
-            args = Object.assign({}, args);
-            args.headerText = 'AUDIO';
-            args.attributes = ATTRIBUTES;
-            args._tooltipReference = 'settings:audio';
-
-            super(args);
-        }
+const ATTRIBUTES = [
+    {
+        observer: 'projectSettings',
+        label: 'Use Legacy Audio',
+        type: 'boolean',
+        path: 'useLegacyAudio'
     }
+];
 
-    return {
-        AudioSettingsPanel: AudioSettingsPanel
-    };
-})());
+class AudioSettingsPanel extends BaseSettingsPanel {
+    constructor(args) {
+        args = Object.assign({}, args);
+        args.headerText = 'AUDIO';
+        args.attributes = ATTRIBUTES;
+        args._tooltipReference = 'settings:audio';
+
+        super(args);
+    }
+}
+
+export { AudioSettingsPanel };

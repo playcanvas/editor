@@ -1,4 +1,4 @@
-import { Container } from '@playcanvas/pcui';
+import { SettingsPanel } from './settings-panel.js';
 
 editor.once('load', function () {
     const settingsArgs = {
@@ -12,7 +12,7 @@ editor.once('load', function () {
         sessionSettings: editor.call('settings:session')
     };
 
-    const settingsContainer = new pcui.Settings(settingsArgs);
+    const settingsContainer = new SettingsPanel(settingsArgs);
 
     editor.on('attributes:beforeClear', () => {
         settingsContainer.unlink();
@@ -26,137 +26,5 @@ editor.once('load', function () {
 
         if (!settingsContainer.parent)
             root.append(settingsContainer);
-        // settingsContainer.link([]);
     });
-
 });
-
-Object.assign(pcui, (function () {
-    const CLASS_ROOT = 'settings';
-
-    const SETTING_TYPES = [
-        'editor',
-        'assettasks',
-        'physics',
-        'rendering',
-        'layers',
-        'lightmapping',
-        'batchgroups',
-        'loadingscreen',
-        'externalscripts',
-        'input',
-        'localization',
-        'network',
-        'audio',
-        'scripts',
-        'projectHistory'
-    ];
-
-    const SCENE_ATTRIBUTES = [
-        {
-            label: 'Scene Name',
-            alias: 'name',
-            type: 'string'
-        }
-    ];
-
-    SCENE_ATTRIBUTES.forEach((attr) => {
-        const path = attr.alias || attr.path;
-        if (!path) return;
-        const parts = path.split('.');
-        attr.reference = `settings:${parts[parts.length - 1]}`;
-    });
-
-    const DOM = parent => [
-        {
-            sceneAttributes: new pcui.AttributesInspector({
-                attributes: SCENE_ATTRIBUTES,
-                settings: parent._args.settings,
-                projectSettings: parent._args.projectSettings,
-                userSettings: parent._args.userSettings,
-                sceneSettings: parent._args.sceneSettings
-            })
-        }
-    ];
-
-    class Settings extends Container {
-        constructor(args) {
-            if (!args) args = {};
-            args.flex = true;
-
-            super(args);
-            this._args = args;
-            this._settingsEvents = [];
-
-            this.class.add(CLASS_ROOT);
-
-            this.buildDom(DOM(this));
-
-            this._suspendSceneNameEvt = false;
-
-            // Setup Scene Name attribute
-            this._sceneName = 'Untitled';
-            editor.on('scene:raw', (data) => {
-                editor.emit('scene:name', data.name);
-                this._sceneName = data.name;
-                const sceneNameField = this._sceneAttributes.getField('name');
-
-                const suspend = this._suspendSceneNameEvt;
-                this._suspendSceneNameEvt = true;
-                sceneNameField.value = this._sceneName;
-                this._suspendSceneNameEvt = suspend;
-            });
-            editor.on('realtime:scene:op:name', (op) => {
-                editor.emit('scene:name', op.oi);
-            });
-
-            // Load settings panels
-            this._settingsPanels = [];
-
-            SETTING_TYPES.forEach((setting) => {
-                if (['externalscripts', 'scripts'].includes(setting) && this._args.projectSettings.get('useLegacyScripts'))
-                    return;
-                else if (setting === 'audio' && this._args.projectSettings.get('useLegacyAudio') === null)
-                    return;
-
-                const cls = `${setting[0].toUpperCase()}${setting.substring(1)}SettingsPanel`;
-                const panel = new pcui[cls]({
-                    history: args.history,
-                    assets: args.assets,
-                    entities: args.entities,
-                    settings: args.settings,
-                    projectSettings: args.projectSettings,
-                    userSettings: args.userSettings,
-                    sceneSettings: args.sceneSettings,
-                    sessionSettings: args.sessionSettings
-                });
-                this._settingsPanels[setting] = panel;
-
-                this.append(panel);
-            });
-
-            this._linkSceneNameField();
-        }
-
-        _linkSceneNameField() {
-            const sceneNameField = this._sceneAttributes.getField('name');
-            sceneNameField.value = this._sceneName;
-            this._settingsEvents.push(sceneNameField.on('change', (newSceneName) => {
-                if (this._suspendSceneNameEvt) return;
-                if (!editor.call('permissions:write')) return;
-
-                editor.call('realtime:scene:op', {
-                    p: ['name'],
-                    od: this._sceneName || '',
-                    oi: newSceneName || ''
-                });
-                this._sceneName = newSceneName;
-                editor.emit('scene:name', newSceneName);
-            }));
-        }
-    }
-
-    return {
-        Settings: Settings
-    };
-})());

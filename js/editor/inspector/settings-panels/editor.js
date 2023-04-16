@@ -1,201 +1,199 @@
-Object.assign(pcui, (function () {
-    const ATTRIBUTES = [
-        {
-            observer: 'settings',
-            label: 'Grid Divisions',
-            path: 'editor.gridDivisions',
-            alias: 'grid',
-            type: 'number',
-            args: {
-                min: 0,
-                max: 100
-            }
-        },
-        {
-            observer: 'settings',
-            label: 'Grid Division Size',
-            path: 'editor.gridDivisionSize',
-            alias: 'grid',
-            type: 'number',
-            args: {
-                min: 0,
-                max: 100
-            }
-        },
-        {
-            observer: 'settings',
-            label: 'Snap',
-            path: 'editor.snapIncrement',
-            alias: 'snap',
-            type: 'number',
-            args: {
-                min: 0,
-                max: 100,
-                placeholder: 'Increment'
-            }
-        },
-        {
-            observer: 'settings',
-            label: 'Camera Clip Near',
-            alias: 'cameraClip',
-            paths: 'editor.cameraNearClip',
-            type: 'number',
-            args: {
-                min: 0
-            }
-        },
-        {
-            observer: 'settings',
-            label: 'Camera Clip Far',
-            alias: 'cameraClip',
-            path: 'editor.cameraFarClip',
-            type: 'number',
-            args: {
-                min: 0
-            }
-        },
-        {
-            observer: 'settings',
-            label: 'Camera Depth Grabpass',
-            path: 'editor.cameraGrabDepth',
-            alias: 'cameraGrabDepth',
-            type: 'boolean'
-        },
-        {
-            observer: 'settings',
-            label: 'Camera Color Grabpass',
-            path: 'editor.cameraGrabColor',
-            alias: 'cameraGrabColor',
-            type: 'boolean'
-        },
-        {
-            observer: 'userSettings',
-            label: 'Zoom Sensitivity',
-            type: 'slider',
-            alias: 'zoomSensitivity',
-            path: 'editor.zoomSensitivity',
-            args: {
-                value: 1,
-                min: 1,
-                sliderMin: 1,
-                max: 15,
-                sliderMax: 15,
-                step: 1
-            }
-        },
-        {
-            observer: 'settings',
-            label: 'Clear Color',
-            path: 'editor.cameraClearColor',
-            alias: 'clearColor',
-            type: 'rgba'
-        },
-        {
-            observer: 'settings',
-            label: 'Show Fog',
-            path: 'editor.showFog',
-            alias: 'showFog',
-            type: 'boolean'
-        },
-        {
-            observer: 'userSettings',
-            label: 'Icons Size',
-            path: 'editor.iconSize',
-            alias: 'iconSize',
-            type: 'number',
-            args: {
-                min: 0,
-                max: 100
-            }
-        },
-        {
-            observer: 'sessionSettings',
-            label: 'Engine Version',
-            path: 'engineVersion',
-            type: 'select',
-            args: {
-                type: 'string',
-                options: ['previousMinor', 'previousPatch', 'current']
-                .filter(type => config.engineVersions.hasOwnProperty(type))
-                .map((type) => {
-                    const t = config.engineVersions[type];
-                    return {
-                        t: t.description,
-                        v: type
-                    };
-                })
-            }
-        },
-        {
-            observer: 'settings',
-            label: 'Locale',
-            path: 'editor.locale',
-            type: 'string'
-        },
-        {
-            alias: 'chatNotification',
-            label: 'Chat Notification',
-            type: 'boolean'
-        },
-        {
-            observer: 'settings',
-            path: 'editor.renameDuplicatedEntities',
-            label: 'Rename Duplicated Entities',
-            type: 'boolean'
+import { BaseSettingsPanel } from './base.js';
+
+const ATTRIBUTES = [
+    {
+        observer: 'settings',
+        label: 'Grid Divisions',
+        path: 'editor.gridDivisions',
+        alias: 'grid',
+        type: 'number',
+        args: {
+            min: 0,
+            max: 100
         }
-    ];
-
-    class EditorSettingsPanel extends pcui.BaseSettingsPanel {
-        constructor(args) {
-            args = Object.assign({}, args);
-            args.headerText = 'EDITOR';
-            args.attributes = ATTRIBUTES;
-            args.userOnlySettings = true;
-            args._tooltipReference = 'settings:editor';
-
-            super(args);
-
-            const evtPermission = editor.on('notify:permission', this._checkChatNotificationState.bind(this));
-            const evtChatNotifyState = editor.on('chat:notify', this._checkChatNotificationState.bind(this));
-            const fieldChatNotification = this._attributesInspector.getField('chatNotification');
-            this._checkChatNotificationState();
-            fieldChatNotification.on('change', (value) => {
-                if (editor.call('notify:state') !== 'granted') {
-                    editor.call('notify:permission');
-                } else {
-                    editor.call('localStorage:set', 'editor:notifications:chat', value);
-                    editor.emit('chat:notify', value);
-                    this._checkChatNotificationState();
-                }
-            });
-            this.once('destroy', () => {
-                evtPermission.unbind();
-                evtChatNotifyState.unbind();
-            });
+    },
+    {
+        observer: 'settings',
+        label: 'Grid Division Size',
+        path: 'editor.gridDivisionSize',
+        alias: 'grid',
+        type: 'number',
+        args: {
+            min: 0,
+            max: 100
         }
+    },
+    {
+        observer: 'settings',
+        label: 'Snap',
+        path: 'editor.snapIncrement',
+        alias: 'snap',
+        type: 'number',
+        args: {
+            min: 0,
+            max: 100,
+            placeholder: 'Increment'
+        }
+    },
+    {
+        observer: 'settings',
+        label: 'Camera Clip Near',
+        alias: 'cameraClip',
+        paths: 'editor.cameraNearClip',
+        type: 'number',
+        args: {
+            min: 0
+        }
+    },
+    {
+        observer: 'settings',
+        label: 'Camera Clip Far',
+        alias: 'cameraClip',
+        path: 'editor.cameraFarClip',
+        type: 'number',
+        args: {
+            min: 0
+        }
+    },
+    {
+        observer: 'settings',
+        label: 'Camera Depth Grabpass',
+        path: 'editor.cameraGrabDepth',
+        alias: 'cameraGrabDepth',
+        type: 'boolean'
+    },
+    {
+        observer: 'settings',
+        label: 'Camera Color Grabpass',
+        path: 'editor.cameraGrabColor',
+        alias: 'cameraGrabColor',
+        type: 'boolean'
+    },
+    {
+        observer: 'userSettings',
+        label: 'Zoom Sensitivity',
+        type: 'slider',
+        alias: 'zoomSensitivity',
+        path: 'editor.zoomSensitivity',
+        args: {
+            value: 1,
+            min: 1,
+            sliderMin: 1,
+            max: 15,
+            sliderMax: 15,
+            step: 1
+        }
+    },
+    {
+        observer: 'settings',
+        label: 'Clear Color',
+        path: 'editor.cameraClearColor',
+        alias: 'clearColor',
+        type: 'rgba'
+    },
+    {
+        observer: 'settings',
+        label: 'Show Fog',
+        path: 'editor.showFog',
+        alias: 'showFog',
+        type: 'boolean'
+    },
+    {
+        observer: 'userSettings',
+        label: 'Icons Size',
+        path: 'editor.iconSize',
+        alias: 'iconSize',
+        type: 'number',
+        args: {
+            min: 0,
+            max: 100
+        }
+    },
+    {
+        observer: 'sessionSettings',
+        label: 'Engine Version',
+        path: 'engineVersion',
+        type: 'select',
+        args: {
+            type: 'string',
+            options: ['previousMinor', 'previousPatch', 'current']
+            .filter(type => config.engineVersions.hasOwnProperty(type))
+            .map((type) => {
+                const t = config.engineVersions[type];
+                return {
+                    t: t.description,
+                    v: type
+                };
+            })
+        }
+    },
+    {
+        observer: 'settings',
+        label: 'Locale',
+        path: 'editor.locale',
+        type: 'string'
+    },
+    {
+        alias: 'chatNotification',
+        label: 'Chat Notification',
+        type: 'boolean'
+    },
+    {
+        observer: 'settings',
+        path: 'editor.renameDuplicatedEntities',
+        label: 'Rename Duplicated Entities',
+        type: 'boolean'
+    }
+];
 
-        _checkChatNotificationState() {
-            const permission = editor.call('notify:state');
-            const fieldChatNotification = this._attributesInspector.getField('chatNotification');
+class EditorSettingsPanel extends BaseSettingsPanel {
+    constructor(args) {
+        args = Object.assign({}, args);
+        args.headerText = 'EDITOR';
+        args.attributes = ATTRIBUTES;
+        args.userOnlySettings = true;
+        args._tooltipReference = 'settings:editor';
 
-            fieldChatNotification.enabled = permission !== 'denied';
+        super(args);
 
-            if (permission !== 'granted' && permission !== 'denied')
-                fieldChatNotification.value = null;
+        const evtPermission = editor.on('notify:permission', this._checkChatNotificationState.bind(this));
+        const evtChatNotifyState = editor.on('chat:notify', this._checkChatNotificationState.bind(this));
+        const fieldChatNotification = this._attributesInspector.getField('chatNotification');
+        this._checkChatNotificationState();
+        fieldChatNotification.on('change', (value) => {
+            if (editor.call('notify:state') !== 'granted') {
+                editor.call('notify:permission');
+            } else {
+                editor.call('localStorage:set', 'editor:notifications:chat', value);
+                editor.emit('chat:notify', value);
+                this._checkChatNotificationState();
+            }
+        });
+        this.once('destroy', () => {
+            evtPermission.unbind();
+            evtChatNotifyState.unbind();
+        });
+    }
 
-            if (permission === 'granted') {
-                // restore localstorage state
-                const granted = editor.call('localStorage:get', 'editor:notifications:chat');
-                if (granted === null) {
-                    fieldChatNotification.value = true;
-                } else {
-                    fieldChatNotification.value = granted;
-                }
+    _checkChatNotificationState() {
+        const permission = editor.call('notify:state');
+        const fieldChatNotification = this._attributesInspector.getField('chatNotification');
+
+        fieldChatNotification.enabled = permission !== 'denied';
+
+        if (permission !== 'granted' && permission !== 'denied')
+            fieldChatNotification.value = null;
+
+        if (permission === 'granted') {
+            // restore localstorage state
+            const granted = editor.call('localStorage:get', 'editor:notifications:chat');
+            if (granted === null) {
+                fieldChatNotification.value = true;
+            } else {
+                fieldChatNotification.value = granted;
             }
         }
     }
+}
 
-    return {
-        EditorSettingsPanel: EditorSettingsPanel
-    };
-})());
+export { EditorSettingsPanel };

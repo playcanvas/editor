@@ -480,26 +480,7 @@ import './editor/inspector/assets/render.js';
 import './editor/inspector/assets/render-preview.js';
 import './editor/inspector/assets/container.js';
 import './editor/inspector/settings.js';
-import './editor/inspector/settings-panels/base.js';
-import './editor/inspector/settings-panels/editor.js';
-import './editor/inspector/settings-panels/physics.js';
-import './editor/inspector/settings-panels/rendering.js';
-import './editor/inspector/settings-panels/layers.js';
-import './editor/inspector/settings-panels/layers-layer-panel.js';
-import './editor/inspector/settings-panels/layers-render-order.js';
-import './editor/inspector/settings-panels/layers-render-order-list.js';
-import './editor/inspector/settings-panels/lightmapping.js';
-import './editor/inspector/settings-panels/batchgroups.js';
-import './editor/inspector/settings-panels/batchgroups-item.js';
-import './editor/inspector/settings-panels/loading-screen.js';
-import './editor/inspector/settings-panels/external-scripts.js';
-import './editor/inspector/settings-panels/input.js';
-import './editor/inspector/settings-panels/localization.js';
-import './editor/inspector/settings-panels/network.js';
-import './editor/inspector/settings-panels/asset-tasks.js';
-import './editor/inspector/settings-panels/audio.js';
-import './editor/inspector/settings-panels/scripts.js';
-import './editor/inspector/settings-panels/settings-history.js';
+import './editor/inspector/settings-panels/batchgroups-create.js';
 
 // attributes assets
 import './editor/attributes/attributes-asset.js';
