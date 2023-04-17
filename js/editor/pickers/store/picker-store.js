@@ -162,9 +162,10 @@ editor.once('load', () => {
             // { name: 'MATERIAL', icon: 'E425' },
             { name: 'SCRIPT', icon: 'E392' },
             // { name: 'SHADER', icon: 'E219' },
-            { name: 'SKYBOX', icon: 'E217' }
+            { name: 'SKYBOX', icon: 'E217' },
             // { name: 'SOUND', icon: 'E197' },
             // { name: 'TEMPLATE', icon: 'E190' }
+            { name: 'TEXTURE', icon: 'E201' }
         ];
 
         for (const filter of filters) {
