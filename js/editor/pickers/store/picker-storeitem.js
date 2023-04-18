@@ -19,6 +19,7 @@ editor.once('load', function () {
     let itemData = null;
     let storeItemAssets = [];
     let codePreview = null;
+    let viewerButton = null;
 
     const EMPTY_THUMBNAIL_IMAGE = 'https://playcanvas.com/static-assets/images/store-default-thumbnail.jpg';
 
@@ -191,6 +192,20 @@ editor.once('load', function () {
     const refreshUI = async () => {
 
         if (storeItem) {
+
+            let displayPreviewButton = false;
+            for (const asset of storeItemAssets) {
+                if (isGlbAsset(asset)) {
+                    displayPreviewButton = true;
+                } else if (isTextureAsset(asset)) {
+                    displayPreviewButton = true;
+                }
+            }
+
+            if (viewerButton) {
+                viewerButton.hidden = !displayPreviewButton;
+            }
+
             let displayThumbnail = true;
 
             if (storeItemAssets && storeItemAssets.length && isScriptAsset(storeItemAssets[0])) {
@@ -222,7 +237,6 @@ editor.once('load', function () {
             }
 
             itemName.text = storeItem.name;
-
             refreshDataUI();
         }
     };
@@ -312,7 +326,7 @@ editor.once('load', function () {
     });
 
     // viewer button
-    const viewerButton = new Button({
+    viewerButton = new Button({
         class: 'viewer-button',
         icon: 'E188',
         text: 'OPEN VIEWER'
@@ -403,6 +417,9 @@ editor.once('load', function () {
     // handle hide
     overlay.on('hide', function () {
         // editor-blocking picker closed
+        containerPreview.clear();
+        storeItemAssets = [];
+        storeItem = null;
         editor.emit('picker:close', 'storeitem');
     });
 
@@ -447,9 +464,6 @@ editor.once('load', function () {
 
     // close popup
     editor.method('picker:storeitem:close', () => {
-        containerPreview.clear();
-        storeItemAssets = [];
-        storeItem = null;
         overlay.hidden = true;
     });
 });
