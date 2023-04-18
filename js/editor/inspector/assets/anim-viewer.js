@@ -408,17 +408,19 @@ Object.assign(
                 this._renderComponents = entity.findComponents("render");
                 this._renderComponents.forEach((render) => {
                     render._cloneSkinInstances();
-                    const renderAsset = this._app.assets.get(render.asset);
-                    if (!renderAsset.loaded) {
-                        this._app.assets.load(renderAsset);
-                    }
-                    if (render.materialAssets?.length) {
-                        render.materialAssets.forEach((materialAssetId) => {
-                            const materialAsset = this._app.assets.get(materialAssetId);
-                            if (!materialAsset.loaded) {
-                                this._app.assets.load(materialAsset);
-                            }
-                        });
+                    if (render.asset !== null) {
+                        const renderAsset = this._app.assets.get(render.asset);
+                        if (renderAsset && !renderAsset.loaded) {
+                            this._app.assets.load(renderAsset);
+                        }
+                        if (render.materialAssets?.length) {
+                            render.materialAssets.forEach((materialAssetId) => {
+                                const materialAsset = this._app.assets.get(materialAssetId);
+                                if (materialAsset && !materialAsset.loaded) {
+                                    this._app.assets.load(materialAsset);
+                                }
+                            });
+                        }
                     }
                 });
                 this.setupRenderLoop();
