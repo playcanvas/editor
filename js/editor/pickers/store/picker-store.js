@@ -159,6 +159,7 @@ editor.once('load', () => {
             // { name: 'FEATURED', icon: 'E244' },
             // { name: '2D', icon: 'E201' },
             { name: '3D', icon: 'E189' },
+            { name: 'FONT', icon: 'E227' },
             // { name: 'MATERIAL', icon: 'E425' },
             { name: 'SCRIPT', icon: 'E392' },
             // { name: 'SHADER', icon: 'E219' },
