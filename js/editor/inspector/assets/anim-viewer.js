@@ -413,14 +413,15 @@ Object.assign(
                         if (renderAsset && !renderAsset.loaded) {
                             this._app.assets.load(renderAsset);
                         }
-                        if (render.materialAssets?.length) {
-                            render.materialAssets.forEach((materialAssetId) => {
-                                const materialAsset = this._app.assets.get(materialAssetId);
-                                if (materialAsset && !materialAsset.loaded) {
-                                    this._app.assets.load(materialAsset);
-                                }
-                            });
-                        }
+                    }
+
+                    if (render.materialAssets?.length) {
+                        render.materialAssets.forEach((materialAssetId) => {
+                            const materialAsset = this._app.assets.get(materialAssetId);
+                            if (materialAsset && !materialAsset.loaded) {
+                                this._app.assets.load(materialAsset);
+                            }
+                        });
                     }
                 });
                 this.setupRenderLoop();
