@@ -1,20 +1,19 @@
 {
     "extends": "stylelint-config-standard-scss",
     "rules": {
-        "indentation": 4,
         "declaration-block-no-redundant-longhand-properties": null,
         "declaration-block-no-shorthand-property-overrides": null,
         "font-family-no-missing-generic-family-keyword": null,
         "function-name-case": null,
         "keyframes-name-pattern": null,
         "max-line-length": null,
+        "media-feature-range-notation": null,
         "no-descending-specificity": null,
         "no-duplicate-selectors": null,
         "no-invalid-position-at-import-rule": null,
         "scss/no-global-function-names": null,
         "scss/at-extend-no-missing-placeholder": null,
         "scss/dollar-variable-pattern": null,
-        "selector-class-pattern": null,
-        "string-quotes": "single"
+        "selector-class-pattern": null
     }
 }
