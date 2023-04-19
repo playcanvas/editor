@@ -54,34 +54,26 @@ editor.once('load', function () {
     // clone store item to the scene
     editor.method('store:clone', function (storeItemId, name, projectId) {
         return new Promise((resolve, reject) => {
-            // create a target folder
-            editor.call('assets:create:folder', {
-                name: name,
-                noSelect: true,
-                fn: (err, id) => {
-                    if (err) {
-                        editor.call('status:error', err);
-                        reject(err);
-                    }
-                    Ajax({
-                        url: `{{url.api}}/store/${storeItemId}/clone`,
-                        auth: false,
-                        method: 'POST',
-                        data: {
-                            scope: {
-                                type: 'project',
-                                id: projectId
-                            },
-                            targetFolderId: id
-                        }
-                    })
-                    .on('load', (status, response) => {
-                        resolve(response);
-                    })
-                    .on('error', (status, error) => {
-                        reject(error);
-                    });
+
+            // get selected folder in assets panel
+            const selectedFolder = editor.call('assets:panel:currentFolder');
+            Ajax({
+                url: `{{url.api}}/store/${storeItemId}/clone`,
+                auth: false,
+                method: 'POST',
+                data: {
+                    scope: {
+                        type: 'project',
+                        id: projectId
+                    },
+                    targetFolderId: selectedFolder ? selectedFolder._data.id : null
                 }
+            })
+            .on('load', (status, response) => {
+                resolve(response);
+            })
+            .on('error', (status, error) => {
+                reject(error);
             });
         });
     });
