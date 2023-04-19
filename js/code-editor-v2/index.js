@@ -7,9 +7,6 @@ import '../external/observer.js';
 import '../external/editor-api.js';
 import '../external/pcui.js';
 
-// messenger
-import '../messenger/messenger.js';
-
 // relay
 import '../relay/client.js';
 

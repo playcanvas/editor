@@ -6,7 +6,6 @@ import '../utils.js';
 
 // externals
 import '../external/observer.js';
-import '../messenger/messenger.js';
 import '../realtime/share.uncompressed.js';
 
 // main

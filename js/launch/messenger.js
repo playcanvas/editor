@@ -1,8 +1,7 @@
-editor.on('load', function () {
-    if (typeof Messenger === 'undefined')
-        return;
+import { Messenger } from '../messenger/messenger.js';
 
-    var messenger = new Messenger();
+editor.on('load', function () {
+    const messenger = new Messenger();
 
     messenger.connect(config.url.messenger.ws);
 
