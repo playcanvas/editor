@@ -346,7 +346,7 @@ editor.once('load', function () {
 
         storeItemAssets.forEach((asset) => {
             const url = `/api/store/assets/${asset.id}/file/${asset.file.filename}`;
-            if (isGlbAsset(asset)) {
+            if (isGlbAsset(asset) && modelUrls.length === 0) {
                 modelUrls.push(encodeUrl(url));
             } else if (isTextureAsset(asset)) {
                 textureUrls.push(encodeUrl(url));
