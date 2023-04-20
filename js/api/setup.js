@@ -1,5 +1,3 @@
-import { Messenger } from '../messenger/messenger.js';
-
 // Initialize API globals - order matters
 api.globals.accessToken = config.accessToken;
 api.globals.projectId = config.project.id;

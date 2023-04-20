@@ -6,6 +6,7 @@ import './utils.js';
 
 // externals
 import './external/observer.js';
+import './messenger/messenger.js';
 import './external/editor-api.js';
 import './external/pcui.js';
 import './external/pcui-graph.js';

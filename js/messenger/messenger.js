@@ -255,4 +255,4 @@ class Messenger extends Events {
     }
 }
 
-export { Messenger };
+window.Messenger = Messenger;

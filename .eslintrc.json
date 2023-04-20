@@ -30,6 +30,7 @@
     "pcBootstrap": false,
     "utils": false,
     "observer": false,
+    "Messenger": false,
     "EditorGrid": false,
     "pcuiGraph": false,
     "metrics": false,
