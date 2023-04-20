@@ -29,7 +29,14 @@ editor.once('load', function () {
 
     const whiteTex = createSolidTex('outline-tex', 255, 255, 255, 255);
 
-    const SHADER_OUTLINE = 24;
+    // engine 1.62.* and lower does not have shader pass allocation, and so hardcoded value is used
+    let SHADER_OUTLINE = 24;
+    if (typeof pc.ShaderPass !== 'undefined') {
+        const shadowPassInfo = pc.ShaderPass.get(device).allocate('editor_outline', {
+            isForward: true
+        });
+        SHADER_OUTLINE = shadowPassInfo.index;
+    }
 
     const isSelectableEntity = function (item) {
 
@@ -241,7 +248,9 @@ void main(void)
     outlineComp.pushOpaque(outlineLayer);
 
     const onUpdateShaderOutline = function (options) {
-        if (options.pass !== SHADER_OUTLINE) return options;
+        if (options.pass !== SHADER_OUTLINE) {
+            return options;
+        }
         const outlineOptions = {
             opacityMap: options.opacityMap,
             opacityMapUv: options.opacityMapUv,
