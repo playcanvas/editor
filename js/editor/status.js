@@ -43,7 +43,7 @@ editor.once('load', function () {
     // update jobs
     const updateJobs = function () {
         const count = Object.keys(jobs).length;
-        jobsCount.text = count;
+        jobsCount.text = count.toString();
 
         if (count > 0) {
             let least = 1;
