@@ -1,3 +1,5 @@
+import { EntityInspector } from '../inspector/entity.js';
+
 editor.once('load', function () {
     const projectSettings = editor.call('settings:project');
 
@@ -163,7 +165,7 @@ editor.once('load', function () {
         editor.call('layout.attributes').enabled = editor.call('permissions:write');
     });
 
-    entityInspector = new pcui.EntityInspector({
+    entityInspector = new EntityInspector({
         assets: editor.call('assets:raw'),
         entities: editor.call('entities:raw'),
         projectSettings: editor.call('settings:project'),

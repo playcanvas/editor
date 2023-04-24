@@ -1,44 +1,42 @@
-Object.assign(pcui, (function () {
-    const ATTRIBUTES = [{
-        label: 'Size',
-        path: 'components.zone.size',
-        type: 'vec3',
-        args: {
-            precision: 2,
-            step: 0.1,
-            min: 0,
-            placeholder: ['W', 'H', 'D']
-        }
-    }];
+import { ComponentInspector } from './component.js';
 
-    class ZoneComponentInspector extends pcui.ComponentInspector {
-        constructor(args) {
-            args = Object.assign({}, args);
-            args.component = 'zone';
+const ATTRIBUTES = [{
+    label: 'Size',
+    path: 'components.zone.size',
+    type: 'vec3',
+    args: {
+        precision: 2,
+        step: 0.1,
+        min: 0,
+        placeholder: ['W', 'H', 'D']
+    }
+}];
 
-            super(args);
+class ZoneComponentInspector extends ComponentInspector {
+    constructor(args) {
+        args = Object.assign({}, args);
+        args.component = 'zone';
 
-            this._attributesInspector = new pcui.AttributesInspector({
-                assets: args.assets,
-                history: args.history,
-                attributes: ATTRIBUTES,
-                templateOverridesInspector: this._templateOverridesInspector
-            });
-            this.append(this._attributesInspector);
-        }
+        super(args);
 
-        link(entities) {
-            super.link(entities);
-            this._attributesInspector.link(entities);
-        }
-
-        unlink() {
-            super.unlink();
-            this._attributesInspector.unlink();
-        }
+        this._attributesInspector = new pcui.AttributesInspector({
+            assets: args.assets,
+            history: args.history,
+            attributes: ATTRIBUTES,
+            templateOverridesInspector: this._templateOverridesInspector
+        });
+        this.append(this._attributesInspector);
     }
 
-    return {
-        ZoneComponentInspector: ZoneComponentInspector
-    };
-})());
+    link(entities) {
+        super.link(entities);
+        this._attributesInspector.link(entities);
+    }
+
+    unlink() {
+        super.unlink();
+        this._attributesInspector.unlink();
+    }
+}
+
+export { ZoneComponentInspector };
