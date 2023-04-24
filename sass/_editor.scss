@@ -4588,22 +4588,16 @@ strong {
     }
 }
 
-.ui-overlay.demo {
-    > .content {
-        width: 480px;
+.pcui-overlay.demo {
+    .pcui-overlay-content {
+        width: 536px;
         height: auto;
-        top: calc(50% - 250px);
-        left: calc(50% - 240px);
-        padding: 0 28px 28px;
         background-color: #fff;
+        z-index: 1;
 
-        > .ui-panel > .content {
-            background-color: #fff;
-
-            > .ui-label {
-                background-color: #fff;
+        > .pcui-container {
+            > .pcui-label {
                 display: block;
-                border: none;
                 padding: 0;
                 margin: 0 0 28px;
             }
@@ -4611,6 +4605,7 @@ strong {
             > .header {
                 font-size: 16px;
                 color: $text-active;
+                padding-left: 28px;
 
                 &::before {
                     display: block;
@@ -4619,9 +4614,6 @@ strong {
                     background-repeat: no-repeat;
                     background-position: center center;
                     background-size: cover;
-                    width: 100%;
-                    padding-left: 28px;
-                    padding-right: 28px;
                     height: 110px;
                     margin-left: -28px;
                     margin-bottom: 28px;
@@ -4633,6 +4625,8 @@ strong {
                 line-height: 28px;
                 color: $text-darkest;
                 font-size: 18px;
+                white-space: normal;
+                padding: 0 28px;
 
                 @extend .font-bold;
             }
@@ -4647,6 +4641,9 @@ strong {
                 line-height: 40px;
                 text-align: center;
                 color: #fff;
+                margin: 0 0 28px 28px;
+                border-radius: 0;
+                box-shadow: none;
 
                 &:hover {
                     background-color: $text-active;

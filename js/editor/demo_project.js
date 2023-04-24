@@ -1,5 +1,7 @@
-// if you have loading the Demo Ball project for the first time
-// we show a splash screen with some simple instructions
+import { Button, Container, Label, Overlay } from '@playcanvas/pcui';
+
+// When loading the Tutorial Rolling Ball project for the first time,
+// show a splash screen with some simple instructions
 editor.once('load', function () {
     if (editor.call('users:hasOpenedEditor')) {
         return;
@@ -15,35 +17,36 @@ editor.once('load', function () {
     const root = editor.call('layout.root');
 
     // overlay
-    const overlay = new ui.Overlay();
-    overlay.hidden = true;
-    overlay.clickable = true;
-    overlay.class.add('demo');
+    const overlay = new Overlay({
+        class: 'demo',
+        clickable: true,
+        hidden: true
+    });
     root.append(overlay);
 
-    // panel
-    const panel = new ui.Panel();
-    overlay.append(panel);
+    // container
+    const container = new Container();
+    overlay.append(container);
 
     // contents
-    const header = new ui.Label({
-        text: "Editor Intro"
+    const header = new Label({
+        class: 'header',
+        text: 'Editor Intro'
     });
-    header.class.add('header');
-    panel.append(header);
+    container.append(header);
 
-    const main = new ui.Label({
-        text: "To help you learn PlayCanvas we've created your first project. It's a simple ball rolling game. Complete the design of the level by adding an extra platform, then design your own levels.<br/><br/>We'll pop up some tips to help you along the way.",
+    const main = new Label({
+        class: 'main',
+        text: `To help you learn PlayCanvas we've created your first project. It's a simple ball rolling game. Complete the design of the level by adding an extra platform, then design your own levels.<br><br>We'll pop up some tips to help you along the way.`,
         unsafe: true
     });
-    main.class.add('main');
-    panel.append(main);
+    container.append(main);
 
-    const close = new ui.Button({
-        text: "LET'S GO"
+    const close = new Button({
+        class: 'close',
+        text: `LET'S GO`
     });
-    close.class.add('close');
-    panel.append(close);
+    container.append(close);
     close.on('click', function () {
         overlay.hidden = true;
     });
