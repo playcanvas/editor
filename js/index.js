@@ -179,7 +179,6 @@ import './editor/entities/entities-copy.js';
 import './editor/entities/entities-paste.js';
 import './editor/entities/entities-reparent.js';
 import './editor/entities/entities-panel.js';
-import './editor/entities/entities-treeview.js';
 import './editor/entities/entities-menu.js';
 import './editor/entities/entities-control.js';
 import './editor/entities/entities-fuzzy-search.js';

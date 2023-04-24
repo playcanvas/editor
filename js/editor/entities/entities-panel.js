@@ -1,7 +1,9 @@
-editor.once('load', function () {
-    var panel = editor.call('layout.hierarchy');
+import { EntitiesTreeView } from './entities-treeview.js';
 
-    const treeView = new pcui.EntitiesTreeView({
+editor.once('load', function () {
+    const panel = editor.call('layout.hierarchy');
+
+    const treeView = new EntitiesTreeView({
         allowDrag: editor.call('permissions:write'),
         allowRenaming: editor.call('permissions:write'),
         dropManager: editor.call('editor:dropManager'),
