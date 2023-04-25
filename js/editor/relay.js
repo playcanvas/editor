@@ -1,8 +1,7 @@
-editor.on('start', function () {
-    if (typeof RelayServer === 'undefined')
-        return;
+import { RelayServer } from '../relay/client.js';
 
-    const relay = new RelayServer(); // eslint-disable-line no-undef
+editor.on('start', function () {
+    const relay = new RelayServer();
 
     if (editor.call('permissions:read')) {
         relay.connect(config.url.relay.ws);

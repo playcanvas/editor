@@ -5,7 +5,7 @@ const RELAY_PONG_DELAY = 5000;
 /**
  * Relay server client library
  */
-class RelayServer extends Events { // eslint-disable-line no-unused-vars
+class RelayServer extends Events {
     constructor() {
         super();
         this._url = '';
@@ -323,4 +323,4 @@ class RelayServer extends Events { // eslint-disable-line no-unused-vars
     }
 }
 
-window.RelayServer = RelayServer;
+export { RelayServer };

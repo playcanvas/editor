@@ -10,9 +10,6 @@ import '../external/pcui.js';
 // messenger
 import '../messenger/messenger.js';
 
-// relay
-import '../relay/client.js';
-
 // realtime
 import '../realtime/share.uncompressed.js';
 
