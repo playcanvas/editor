@@ -131,6 +131,8 @@ Object.assign(
             constructor(args) {
                 super(args);
 
+                this._shownError = false;
+
                 this.dom.classList.add("anim-viewer");
 
                 this._canvas = new Canvas({
@@ -572,13 +574,21 @@ Object.assign(
                     this._renderTarget.pixels
                 );
 
-                // render to canvas
-                const ctx = this._canvas.dom.getContext("2d");
-                ctx.putImageData(
-                    new ImageData(this._renderTarget.pixelsClamped, width, height),
-                    (this._canvas.width * this._canvas.pixelRatio - width) / 2,
-                    (this._canvas.height * this._canvas.pixelRatio - height) / 2
-                );
+                // Check if pixel data is valid
+                if (this._renderTarget.pixelsClamped.length % 4 === 0) {
+                    // render to canvas
+                    const ctx = this._canvas.dom.getContext("2d");
+                    ctx.putImageData(
+                        new ImageData(this._renderTarget.pixelsClamped, width, height),
+                        (this._canvas.width * this._canvas.pixelRatio - width) / 2,
+                        (this._canvas.height * this._canvas.pixelRatio - height) / 2
+                    );
+                } else {
+                    if (!this._shownError) {
+                        console.warn('Animation preview cannot render as input data is not a multiple of 4');
+                        this._shownError = true;
+                    }
+                }
 
                 this._layer.removeLight(this._light.light);
                 this._layer.removeCamera(this._camera.camera);
