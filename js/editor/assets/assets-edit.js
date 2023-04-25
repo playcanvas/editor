@@ -1,3 +1,5 @@
+import PreviewLegacyScript from "./assets-preview-legacy-script/index";
+
 editor.once('load', function () {
     var types = {
         'css': 1,
@@ -10,7 +12,18 @@ editor.once('load', function () {
 
     editor.method('assets:edit', function (asset) {
         if (asset.get('type') === 'script' && editor.call('settings:project').get('useLegacyScripts')) {
-            window.open('/editor/code/' + config.project.id + '/' + asset.get('filename'));
+            const filename = asset.get('filename') || asset.get('name');
+            fetch(`/api/projects/${config.project.id}/repositories/directory/sourcefiles/${filename}`)
+            .then((response) => {
+                return response.text();
+            })
+            .then((text) => {
+                const preview = new PreviewLegacyScript({
+                    name: filename,
+                    code: `${text}`
+                });
+                editor.call('layout.root').append(preview);
+            });
         } else {
             if (!editor.call('settings:project').get('useLegacyScripts')) {
                 editor.call('picker:codeeditor', asset);

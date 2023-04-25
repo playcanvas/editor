@@ -120,16 +120,16 @@ export default [
         ]
     },
     {
-        input: 'js/code-editor-v2/index.js',
+        input: 'js/code-editor/index.js',
         output: {
-            file: 'dist/js/code-editor-v2.js',
+            file: 'dist/js/code-editor.js',
             format: 'es',
             sourcemap
         },
         plugins: [
             sass({
                 insert: false,
-                output: 'dist/css/code-editor-v2.css',
+                output: 'dist/css/code-editor.css',
                 outputStyle: 'compressed',
                 processor: css => postcss([autoprefixer])
                 .process(css)
@@ -196,22 +196,6 @@ export default [
             sass({
                 insert: false,
                 output: 'dist/css/error.css',
-                outputStyle: 'compressed',
-                processor: css => postcss([autoprefixer])
-                .process(css)
-                .then(result => result.css)
-            })
-        ]
-    },
-    {
-        input: 'sass/_code_editor.scss',
-        output: {
-            dir: 'dist'
-        },
-        plugins: [
-            sass({
-                insert: false,
-                output: 'dist/css/code_editor.css',
                 outputStyle: 'compressed',
                 processor: css => postcss([autoprefixer])
                 .process(css)

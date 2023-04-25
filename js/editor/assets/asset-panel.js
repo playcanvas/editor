@@ -831,7 +831,7 @@ Object.assign(pcui, (function () {
 
                 // show code editor
                 if (type === 'script' && config.project.settings.useLegacyScripts) {
-                    window.open('/editor/code/' + config.project.id + '/' + asset.legacyScript.get('filename'));
+                    editor.call('assets:edit', asset);
                 } else if (!config.project.settings.useLegacyScripts) {
                     editor.call('picker:codeeditor', asset);
                 } else {

@@ -711,9 +711,11 @@ editor.once('load', function () {
             panelScript._originalTitle = script.get('name') || getFilenameFromUrl(url);
             panelScript._link = href;
             href.textContent = (panelScript.count === entities.length ? '' : '* ') + panelScript._originalTitle;
-            href.url = isExternalUrl ? url : 'https://' + window.location.host + '/editor/code/' + config.project.id + '/' + url;
             href.addEventListener('click', function () {
-                window.open(this.url, this.url);
+                editor.call('assets:edit', new Observer({
+                    filename: script.get('url'),
+                    type: 'script'
+                }));
             });
             panelScript.headerElementTitle.textContent = '';
             panelScript.headerElementTitle.appendChild(href);

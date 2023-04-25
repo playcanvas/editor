@@ -1,5 +1,5 @@
 /js/pcui/diff.js
 /js/realtime/share.uncompressed.js
-/js/code-editor-v2/plugins/*.js
+/js/code-editor/plugins/*.js
 /js/codemirror/**/*.js
 /dist

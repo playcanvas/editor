@@ -1,0 +1,27 @@
+.preview-legacy-script-overlay {
+    .pcui-overlay-content {
+        max-width: 80%;
+        max-height: 80%;
+
+        .preview-legacy-script-panel {
+            height: 100%;
+
+            .preview-legacy-script {
+                overflow: auto;
+                height: calc(100% - 40px);
+
+                pre {
+                    margin: 0;
+                }
+            }
+
+            .copy-button {
+                width: calc(100% - 12px);
+            }
+
+            .close-button {
+                font-size: 20px;
+            }
+        }
+    }
+}

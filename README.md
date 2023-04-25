@@ -27,7 +27,7 @@ Note that this method can also be used to develop the editor's front end code wi
 
 Any time the editor's front end code is changed (JS or SCSS files which are a dependency of the /public/js/index.js file), the rollup script will automatically rebuild. You can then refresh your editor project to view your changes.
 
-This same script also builds the launch page front end code, as well as that for the code-editor-v2. The use_local_frontend parameter can be applied to the launch page and code editor urls in the same way as editor projects.
+This same script also builds the launch page front end code, as well as that for the code-editor. The use_local_frontend parameter can be applied to the launch page and code editor urls in the same way as editor projects.
 
 ### Developing external dependencies
 

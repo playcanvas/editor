@@ -59,7 +59,7 @@ editor.once('load', function () {
             worker.terminate();
         }
 
-        worker = new Worker('/editor/scene/js/code-editor-v2/search/search-worker.js');
+        worker = new Worker('/editor/scene/js/code-editor/search/search-worker.js');
 
         worker.onmessage = function (evt) {
             if (currentSearchId !== lastSearchId) return;

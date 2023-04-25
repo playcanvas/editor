@@ -28,7 +28,7 @@ editor.once('load', function () {
         btnEdit.text = 'Edit Script';
         btnEdit.class.add('edit-script', 'large-with-icon');
         btnEdit.on('click', function (evt) {
-            window.open('/editor/code/' + config.project.id + '/' + script.get('filename'));
+            editor.call('assets:edit', script);
         });
         panel.append(btnEdit);
     });
