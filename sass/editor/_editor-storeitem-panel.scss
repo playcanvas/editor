@@ -11,9 +11,11 @@
     .storeitem-tabs {
         display: flex;
         flex-direction: row;
-        font-size: 12px;
-        font-weight: 600px;
-        padding: 0 15px;
+        font-size: 14px;
+        font-weight: 800px;
+        padding: 0 10px;
+        height: 30px;
+        margin-bottom: 6px;
 
         :hover {
             color: white;
@@ -29,12 +31,28 @@
 
     .item-description {
         font-weight: 400;
-        font-size: 11px;
-        padding-top: 16px;
-        padding-left: 21px;
+        font-size: 14px;
+        padding-top: 10px;
+        padding-left: 20px;
         width: 180px;
         word-wrap: break-word;
     }
+
+    .item-license-label {
+        font-weight: 800px;
+        font-size: 14px;
+        padding-top: 20px;
+        padding-left: 14px;
+        width: 180px;
+    }  
+
+    .item-license {
+        font-weight: 400;
+        font-size: 14px;
+        padding-left: 20px;
+        width: 180px;
+        word-wrap: break-word;
+    }    
 
     .storeitem-root-panel {
         height: 100%;
@@ -287,6 +305,19 @@
             content: '\E227';
         }
     }
+
+
+    .assets-name-template {
+        width: 100%;
+
+        &::before {
+            @extend .font-icon;
+
+            display: inline-block;
+            margin-right: 5px;
+            content: '\E190';
+        }
+    }    
 
     .assets-name {
         width: 100%;

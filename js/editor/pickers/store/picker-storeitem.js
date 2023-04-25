@@ -24,7 +24,7 @@ editor.once('load', function () {
     const EMPTY_THUMBNAIL_IMAGE = 'https://playcanvas.com/static-assets/images/store-default-thumbnail.jpg';
 
     const isGlbAsset = (asset) => {
-        const filename = asset.file.filename;
+        const filename = asset.file ? asset.file.filename : null;
         return filename && String(filename).match(/\.glb$/) !== null;
     };
 
@@ -38,19 +38,7 @@ editor.once('load', function () {
         return type  === 'script';
     };
 
-    // UI
-    const displayDescription = (containerTabContent) => {
-        const itemStats = new Container({
-            class: 'storeitem-stats',
-            flex: true
-        });
-        const elementDescription = new Element({
-            class: 'item-description'
-        });
-        elementDescription.dom.innerHTML = storeItem.description;
-        containerTabContent.append(elementDescription);
-        containerTabContent.append(itemStats);
-
+    const displayStats = (itemStats) => {
         itemStats.append(new LabelGroup({
             text: 'Size: ',
             field: new Label({ class: 'data-label', text: sizeToString(storeItem.size) })
@@ -71,6 +59,37 @@ editor.once('load', function () {
             text: 'Downloads: ',
             field: new Label({ class: 'data-label', text: storeItem.downloads })
         }).dom);
+    };
+
+    // UI
+    const displayDescription = (containerTabContent) => {
+        const itemStats = new Container({
+            class: 'storeitem-stats',
+            flex: true
+        });
+        const elementDescription = new Element({
+            class: 'item-description'
+        });
+        elementDescription.dom.innerHTML = storeItem.description;
+        containerTabContent.append(elementDescription);
+
+        if (storeItem.license) {
+            const labelLicense = new Label({
+                text: 'License:',
+                class: 'item-license-label'
+            });
+            containerTabContent.append(labelLicense);
+
+            const elementLicense = new Element({
+                class: 'item-license'
+            });
+            elementLicense.dom.innerHTML = storeItem.license;
+            containerTabContent.append(elementLicense);
+        }
+
+        containerTabContent.append(itemStats);
+
+        displayStats(itemStats);
     };
 
     const displayContent = (containerTabContent) => {
@@ -94,18 +113,20 @@ editor.once('load', function () {
             if (asset.type === 'font') {
                 return 'assets-name-font';
             }
+            if (asset.type === 'template') {
+                return 'assets-name-template';
+            }
             return 'assets-name';
         };
 
         for (const i in storeItemAssets) {
             const item = storeItemAssets[i];
-            if (item.file) {
-                const containerAssets = new Container({ class: 'assets-row' });
-                itemStats.append(containerAssets);
-                containerAssets.append(new Label({ class: getNameClass(item), text: item.file.filename }));
-                containerAssets.append(new Label({ class: 'assets-size', text: sizeToString(item.file.size) }));
-            }
+            const containerAssets = new Container({ class: 'assets-row' });
+            itemStats.append(containerAssets);
+            containerAssets.append(new Label({ class: getNameClass(item), text: item.file ? item.file.filename : item.name }));
+            containerAssets.append(new Label({ class: 'assets-size', text: item.file ? sizeToString(item.file.size) : '0B' }));
         }
+
     };
 
     const refreshDataUI = (root) => {
@@ -134,7 +155,6 @@ editor.once('load', function () {
             // display description
             labelDescription.class.toggle('clicked', true);
             labelContent.class.toggle('clicked', false);
-            labelLicense.class.toggle('clicked', false);
 
             containerTabContent.clear();
             displayDescription(containerTabContent);
@@ -152,37 +172,11 @@ editor.once('load', function () {
             // display content
             labelDescription.class.toggle('clicked', false);
             labelContent.class.toggle('clicked', true);
-            labelLicense.class.toggle('clicked', false);
 
             containerTabContent.clear();
             displayContent(containerTabContent);
         });
         containerTabs.append(labelContent);
-
-        // license tab
-        const labelLicense = new Label({
-            text: 'License'
-        });
-        labelLicense.on('click', () => {
-
-            // display license
-            labelDescription.class.toggle('clicked', false);
-            labelContent.class.toggle('clicked', false);
-            labelLicense.class.toggle('clicked', true);
-
-            // display license
-            containerTabContent.clear();
-
-            const licenseText = new Element({
-                class: 'item-description'
-            });
-            licenseText.dom.innerHTML = storeItem.license;
-            containerTabContent.append(licenseText);
-        });
-
-        if (storeItem.license) {
-            containerTabs.append(labelLicense);
-        }
 
         // display description by default
         descriptionOnClick();

@@ -165,7 +165,7 @@ editor.once('load', () => {
             // { name: 'SHADER', icon: 'E219' },
             { name: 'SKYBOX', icon: 'E217' },
             // { name: 'SOUND', icon: 'E197' },
-            // { name: 'TEMPLATE', icon: 'E190' }
+            { name: 'TEMPLATE', icon: 'E190' },
             { name: 'TEXTURE', icon: 'E201' }
         ];
 
