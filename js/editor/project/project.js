@@ -187,8 +187,12 @@ editor.once('load', function () {
                     owner: ownerId
                 }
             })
-            .on('load', (status, response) => { resolve(response); })
-            .on('error', (status, error) => { reject(error); });
+            .on('load', (status, response) => {
+                resolve(response);
+            })
+            .on('error', (status, error) => {
+                reject(error);
+            });
         });
     });
 

@@ -746,6 +746,9 @@ editor.once('load', () => {
             });
             progressLabel.text = "Upload Complete! Importing... (Please don't close this window)";
 
+            // import project from uploaded file on s3
+            const currentUser = editor.call('picker:project:cms:currentUser');
+
             // setup a job update listener to react to job status changes
             // we can't simply wait on request completion because the job could be long
             let job = null;
@@ -760,10 +763,11 @@ editor.once('load', () => {
                     // togglePopup close
                     toggleProgress(false);
 
-                    if (config.self.organization) {
+                    if (currentUser.organization) {
                         // do not redirect organization viewer to project,
                         // because they don't have any access permissions. Instead
                         // add it to the list
+                        loadProjects();
                         refreshProjects();
                     } else {
                         editor.call('picker:project:newProjectConfirmation', jobInfo.data.project_id);
@@ -777,8 +781,7 @@ editor.once('load', () => {
             });
             events.push(jobStatusEvent);
 
-            // import project from uploaded file on s3
-            job = await editor.call('projects:importNew', result.s3Key, config.self.id);
+            job = await editor.call('projects:importNew', result.s3Key, currentUser.id);
 
         } catch (error) {
             toggleProgress(false);
