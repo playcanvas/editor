@@ -137,8 +137,15 @@ editor.once('load', function () {
                 return;
 
             var texture = editor.call('assets:get', id);
-            if (texture)
-                asset._textures[ind] = texture.on('file.hash:set', invalidate);
+            if (texture) {
+                const fileSet = texture.get('file');
+                asset._textures[ind] = texture.on('file.hash:set', () => {
+                    // react only to file changes
+                    if (fileSet) {
+                        invalidate();
+                    }
+                });
+            }
         };
 
         var watchFace = function (ind) {
