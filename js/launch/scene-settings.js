@@ -1,5 +1,7 @@
+import { Observer } from '@playcanvas/observer';
+
 editor.once('load', function () {
-    var sceneSettings = new Observer();
+    const sceneSettings = new Observer();
 
     editor.once('scene:raw', function (data) {
         sceneSettings.patch(data.settings);

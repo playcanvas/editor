@@ -1,3 +1,5 @@
+import { Observer, ObserverList } from '@playcanvas/observer';
+
 editor.once('repositories:load', function (repositories) {
     if (!editor.call('settings:project').get('useLegacyScripts'))
         return;

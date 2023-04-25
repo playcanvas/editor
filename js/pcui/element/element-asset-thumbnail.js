@@ -1,3 +1,4 @@
+import { Observer } from '@playcanvas/observer';
 import { Element } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {

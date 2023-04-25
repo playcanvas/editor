@@ -1,3 +1,5 @@
+import { Observer, ObserverHistory } from '@playcanvas/observer';
+
 editor.once('load', function () {
     const sessionSettings = new Observer({
         engineVersion: 'current'

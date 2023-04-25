@@ -1,3 +1,5 @@
+import { Observer } from '@playcanvas/observer';
+
 editor.once('load', function () {
     var uploadJobs = 0;
     var userSettings = editor.call('settings:projectUser');

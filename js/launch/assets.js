@@ -1,7 +1,9 @@
-editor.once('load', function () {
-    var uniqueIdToItemId = {};
+import { ObserverList } from '@playcanvas/observer';
 
-    var assets = new ObserverList({
+editor.once('load', function () {
+    let uniqueIdToItemId = {};
+
+    const assets = new ObserverList({
         index: 'id'
     });
 
@@ -46,7 +48,7 @@ editor.once('load', function () {
 
     // get asset by unique id
     editor.method('assets:getUnique', function (uniqueId) {
-        var id = uniqueIdToItemId[uniqueId];
+        const id = uniqueIdToItemId[uniqueId];
         return id ? assets.get(id) : null;
     });
 

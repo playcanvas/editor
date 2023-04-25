@@ -1,5 +1,7 @@
+import { Observer, ObserverList } from '@playcanvas/observer';
+
 editor.once('load', function () {
-    var entities = new ObserverList({
+    const entities = new ObserverList({
         index: 'resource_id'
     });
 
@@ -41,7 +43,7 @@ editor.once('load', function () {
     });
 
     editor.on('scene:raw', function (data) {
-        for (var key in data.entities) {
+        for (const key in data.entities) {
             entities.add(new Observer(data.entities[key]));
         }
 

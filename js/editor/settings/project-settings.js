@@ -1,3 +1,5 @@
+import { ObserverHistory } from '@playcanvas/observer';
+
 editor.once('load', function () {
     var syncPaths = [
         'antiAlias',

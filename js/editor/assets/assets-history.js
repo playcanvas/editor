@@ -1,3 +1,5 @@
+import { ObserverHistory } from '@playcanvas/observer';
+
 editor.once('load', function () {
     editor.on('assets:add', function (asset) {
         if (asset.history)

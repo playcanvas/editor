@@ -1,3 +1,5 @@
+import { Observer } from '@playcanvas/observer';
+
 editor.once('load', function () {
     var defaults = {
         checkbox: false,

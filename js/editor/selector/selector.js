@@ -1,3 +1,5 @@
+import { ObserverList } from '@playcanvas/observer';
+
 editor.once('load', function () {
     var enabled = true;
     var selector = new ObserverList();

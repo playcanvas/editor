@@ -1,3 +1,4 @@
+import { Observer } from '@playcanvas/observer';
 import { Container, Menu, MenuItem, Overlay, TextInput } from '@playcanvas/pcui';
 
 editor.once('load', function () {

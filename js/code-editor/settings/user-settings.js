@@ -12,6 +12,7 @@
  * Released under MIT license
  * https://github.com/ayu-theme/vscode-ayu/blob/master/LICENSE
  */
+import { Observer } from '@playcanvas/observer';
 
 editor.once('load', function () {
     // settings observer

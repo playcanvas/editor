@@ -1,3 +1,4 @@
+import { Observer, ObserverList } from '@playcanvas/observer';
 import { Element, Container, Label, Button, ArrayInput, VectorInput, BooleanInput, NumericInput, TextInput, LabelGroup, Panel } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {

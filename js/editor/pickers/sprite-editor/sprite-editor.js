@@ -1,3 +1,5 @@
+import { Observer } from '@playcanvas/observer';
+
 editor.once('load', function () {
     const handleWidth = 10;
     const pivotWidth = 7;

@@ -1,3 +1,5 @@
+import { Observer } from '@playcanvas/observer';
+
 editor.once('load', function () {
     editor.method('settings:create', function (args) {
         // settings observer

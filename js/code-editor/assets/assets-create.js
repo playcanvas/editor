@@ -1,3 +1,5 @@
+import { Observer } from '@playcanvas/observer';
+
 editor.once('load', function () {
     editor.method('assets:uploadFile', function (args, fn) {
         // NOTE

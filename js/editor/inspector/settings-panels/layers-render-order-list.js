@@ -1,3 +1,4 @@
+import { Observer } from '@playcanvas/observer';
 import { Container, Panel, Label, BooleanInput } from '@playcanvas/pcui';
 
 const CLASS_ROOT = 'layers-settings-panel';

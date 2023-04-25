@@ -1,3 +1,5 @@
+import { Observer } from '@playcanvas/observer';
+
 editor.once('load', function () {
     const syncPaths = [
         'name',
@@ -78,10 +80,7 @@ editor.once('load', function () {
 
             if (callback)
                 callback(asset);
-
-
         });
-
 
         assetDoc.subscribe();
     });

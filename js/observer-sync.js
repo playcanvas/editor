@@ -1,3 +1,5 @@
+import { Observer, ObserverList } from '@playcanvas/observer';
+
 function ObserverSync(args) {
     window.assignEvents(this);
     args = args || { };

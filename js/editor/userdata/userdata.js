@@ -1,5 +1,7 @@
+import { Observer } from '@playcanvas/observer';
+
 editor.once('load', function () {
-    var userdata = new Observer();
+    const userdata = new Observer();
 
     editor.on('userdata:' + config.self.id + ':raw', function (data) {
 

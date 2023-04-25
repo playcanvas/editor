@@ -1,5 +1,7 @@
+import { ObserverList } from '@playcanvas/observer';
+
 editor.once('load', function () {
-    var whoisonline = new ObserverList();
+    const whoisonline = new ObserverList();
 
     // Set whoisonline
     editor.method('whoisonline:set', function (data) {

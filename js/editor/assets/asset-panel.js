@@ -1,3 +1,4 @@
+import { Observer } from '@playcanvas/observer';
 import { Element, GridViewItem, Container, Progress, Panel, Button, SelectInput, TextInput, TreeView, TreeViewItem, GridView, Spinner, Label, BindingObserversToElement } from '@playcanvas/pcui';
 
 Object.assign(pcui, (function () {
