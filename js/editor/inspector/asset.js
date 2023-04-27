@@ -186,22 +186,31 @@ Object.assign(pcui, (function () {
 
         assets.forEach((asset) => {
             if (isGlbAsset(asset)) {
-                modelUrls.push(encodeUrl(asset.get('file.url')));
+                modelUrls.push(`load=${encodeUrl(asset.get('file.url'))}`);
             } else if (isTextureAsset(asset)) {
-                textureUrls.push(encodeUrl(asset.get('file.url')));
+                const isRGBM = !!asset.get('data.rgbm');
+
+                textureUrls.push(`load=${encodeUrl(asset.get('file.url'))}`);
+                if (isRGBM) {
+                    textureUrls.push(`type=rgbm`);
+                }
+
                 const basisUrl = asset.get('file.variants.basis.url');
                 if (basisUrl) {
-                    textureUrls.push(encodeUrl(basisUrl));
+                    textureUrls.push(`load=${encodeUrl(basisUrl)}`);
+                    if (isRGBM) {
+                        textureUrls.push(`type=rgbm`);
+                    }
                 }
             }
         });
 
         if (modelUrls.length) {
-            window.open(`/model-viewer?load=${modelUrls.join('&load=')}`);
+            window.open(`/model-viewer?${modelUrls.join('&')}`);
         }
 
         if (textureUrls.length) {
-            window.open(`/texture-tool?load=${textureUrls.join('&load=')}`);
+            window.open(`/texture-tool?${textureUrls.join('&')}`);
         }
     });
 
