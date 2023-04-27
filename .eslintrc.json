@@ -12,15 +12,9 @@
     "pcx": false,
     "ui": false,
     "Ajax": false,
-    "DbError": false,
     "Events": false,
-    "InternalError": false,
     "ObserverSync": false,
-    "NotFoundError": false,
-    "NotImplementedError": false,
-    "PermissionError": false,
     "Tooltip": false,
-    "ValueError": false,
     "TreeItem": false,
     "Tree": false,
     "api": false,
@@ -34,8 +28,6 @@
     "rgb2hsv": false,
     "importScripts": false,
     "bytesToHuman": false,
-    "CodeMirror": false,
-    "JSHINT": false,
     "LAYERID_SKYBOX": false,
     "LAYERID_DEPTH": false,
     "LAYERID_WORLD": false,
@@ -79,15 +71,13 @@
     "ANIM_INTERRUPTION_NEXT_PREV": false,
     "LOAD_SCRIPT_AS_ASSET": false,
     "LOAD_SCRIPT_BEFORE_ENGINE": false,
-    "LOAD_SCRIPT_AFTER_ENGINE ": false,
+    "LOAD_SCRIPT_AFTER_ENGINE": false,
     "DEFAULT_CULLING_MASK": false,
     "GEOMETRY_ONLY_CULLING_MASK": false,
-    "GIZMO_MASK": false,
-    "LOAD_SCRIPT_AFTER_ENGINE": false
+    "GIZMO_MASK": false
   },
   "rules": {
     "require-atomic-updates": 1,
-    "grouped-accessor-pairs": 1,
     "accessor-pairs": 1,
     "brace-style": ["error", "1tbs", { "allowSingleLine": true }],
     "indent": ["error", 4, {
@@ -95,145 +85,7 @@
       "MemberExpression": 0,
       "SwitchCase": 1
     }],
-    "no-use-before-define": "off",
-    "no-restricted-properties": [2,
-    {
-      "object": "pcui",
-      "property": "ArrayInput"
-    },
-    {
-      "object": "pcui",
-      "property": "BooleanInput"
-    },
-    {
-      "object": "pcui",
-      "property": "Button"
-    },
-    {
-      "object": "pcui",
-      "property": "Canvas"
-    },
-    {
-      "object": "pcui",
-      "property": "Code"
-    },
-    {
-      "object": "pcui",
-      "property": "ColorPicker"
-    },
-    {
-      "object": "pcui",
-      "property": "Container"
-    },
-    {
-      "object": "pcui",
-      "property": "Divider"
-    },
-    {
-      "object": "pcui",
-      "property": "Element"
-    },
-    {
-      "object": "pcui",
-      "property": "GradientPicker"
-    },
-    {
-      "object": "pcui",
-      "property": "GridView"
-    },
-    {
-      "object": "pcui",
-      "property": "GridViewItem"
-    },
-    {
-      "object": "pcui",
-      "property": "InfoBox"
-    },
-    {
-      "object": "pcui",
-      "property": "Label"
-    },
-    {
-      "object": "pcui",
-      "property": "LabelGroup"
-    },
-    {
-      "object": "pcui",
-      "property": "Menu"
-    },
-    {
-      "object": "pcui",
-      "property": "MenuItem"
-    },
-    {
-      "object": "pcui",
-      "property": "NumericInput"
-    },
-    {
-      "object": "pcui",
-      "property": "Overlay"
-    },
-    {
-      "object": "pcui",
-      "property": "Panel"
-    },
-    {
-      "object": "pcui",
-      "property": "Progress"
-    },
-    {
-      "object": "pcui",
-      "property": "RadioButton"
-    },
-    {
-      "object": "pcui",
-      "property": "SelectInput"
-    },
-    {
-      "object": "pcui",
-      "property": "SliderInput"
-    },
-    {
-      "object": "pcui",
-      "property": "Spinner"
-    },
-    {
-      "object": "pcui",
-      "property": "TextAreaInput"
-    },
-    {
-      "object": "pcui",
-      "property": "TextInput"
-    },
-    {
-      "object": "pcui",
-      "property": "TreeView"
-    },
-    {
-      "object": "pcui",
-      "property": "TreeViewItem"
-    },
-    {
-      "object": "pcui",
-      "property": "VectorInput"
-    },
-    {
-      "object": "pcui",
-      "property": "BindingBase"
-    },
-    {
-      "object": "pcui",
-      "property": "BindingElementToObservers"
-    },
-    {
-      "object": "pcui",
-      "property": "BindingObserversToElement"
-    },
-    {
-      "object": "pcui",
-      "property": "BindingTwoWay"
-    }
-  ]
+    "no-use-before-define": "off"
   }
 }
 
