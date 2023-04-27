@@ -19,7 +19,6 @@ Object.assign(pcui, (function () {
      * @property {boolean} renderChanges If true the input will flash when changed.
      * @property {Function} dragEnterFn A function that is called when we drag an item over the element.
      * @property {Function} dragLeaveFn A function that is called when we stop dragging an item over the element.
-     * @mixes pcui.IBindable
      */
     class AssetInput extends Element {
         /**

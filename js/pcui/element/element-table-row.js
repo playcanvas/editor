@@ -8,7 +8,6 @@ Object.assign(pcui, (function () {
      * @name pcui.TableRow
      * @classdesc Represents the row of a pcui.Table
      * @augments Container
-     * @mixes pcui.IFocusable
      * @property {boolean} selected Whether the row is selected
      * @property {pcui.TableRow} previousSibling Returns the previous visible sibling row
      * @property {pcui.TableRow} nextSibling Returns the next visible sibling row

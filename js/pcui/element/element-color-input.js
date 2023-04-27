@@ -9,8 +9,6 @@ Object.assign(pcui, (function () {
      * @property {number[]} value An array of 1 to 4 numbers that range from 0 to 1. The length of the array depends on the number of channels.
      * @property {number} channels Can be 1 to 4.
      * @property {boolean} renderChanges If true the input will flash when changed.
-     * @mixes pcui.IBindable
-     * @mixes pcui.IFocusable
      */
     class ColorInput extends Element {
         /**
