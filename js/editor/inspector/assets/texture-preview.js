@@ -30,7 +30,40 @@ Object.assign(pcui, (function () {
             if (!previewUrl)
                 return;
 
-            this._preview.style.backgroundImage = `url("${previewUrl}")`;
+            if (assets[0].get('data.rgbm')) {
+                const image = new Image();
+                image.src = previewUrl;
+                image.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = image.width;
+                    canvas.height = image.height;
+
+                    const context = canvas.getContext('2d');
+                    context.globalCompositeOperation = 'copy';
+                    context.drawImage(image, 0, 0);
+
+                    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                    const data = imageData.data;
+                    const numPixels = canvas.width * canvas.height;
+
+                    // decode RGBM in-place
+                    for (let i = 0; i < numPixels; ++i) {
+                        const a = data[i * 4 + 3] / 255 * 8;
+                        data[i * 4 + 0] = Math.min(255, data[i * 4 + 0] * a);
+                        data[i * 4 + 1] = Math.min(255, data[i * 4 + 1] * a);
+                        data[i * 4 + 2] = Math.min(255, data[i * 4 + 2] * a);
+                        data[i * 4 + 3] = 255;
+                    }
+
+                    context.putImageData(imageData, 0, 0);
+
+                    const decodedImage = new Image();
+                    decodedImage.src = canvas.toDataURL();
+                    this._preview.style.backgroundImage = `url("${decodedImage.src}")`;
+                };
+            } else {
+                this._preview.style.backgroundImage = `url("${previewUrl}")`;
+            }
         }
 
         link(assets) {
@@ -41,6 +74,7 @@ Object.assign(pcui, (function () {
             if (assets && Array.isArray(assets) && assets.length) {
                 this._assetEvents.push(assets[0].on('file.hash:set', this._updatePreview));
                 this._assetEvents.push(assets[0].on('file.url:set', this._updatePreview));
+                this._assetEvents.push(assets[0].on('data.rgbm:set', this._updatePreview));
             }
 
             this._updatePreview();
