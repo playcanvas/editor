@@ -446,6 +446,12 @@ class LightComponentInspector extends ComponentInspector {
         if (isCLustered) {
             shadowTypeVsm = false;
         }
+
+        // engine does not support point VSM shadows and drops it to PCF3, update UI to match
+        if (isPoint && shadowTypeVsm) {
+            this._field('shadowType').value = pc.SHADOW_PCF3;
+        }
+
         const areaEnabled = editor.call('sceneSettings').get('render.lightingAreaLightsEnabled');
         const shape = this._field('shape').value;
 
