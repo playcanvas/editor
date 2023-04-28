@@ -1,3 +1,5 @@
+import { TextureCompressor } from '../assets/assets-textures-compress.js';
+
 editor.once('load', function () {
     if (!editor.call('users:hasFlag', 'hasRecompressFlippedTextures')) return;
 
@@ -56,6 +58,6 @@ editor.once('load', function () {
     });
 
     function recompress(toRecompress) {
-        pcui.TextureCompressor.compress(toRecompress, variants);
+        TextureCompressor.compress(toRecompress, variants);
     }
 });

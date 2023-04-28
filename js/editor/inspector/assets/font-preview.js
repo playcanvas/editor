@@ -1,4 +1,5 @@
 import { Canvas } from '@playcanvas/pcui';
+import { FontThumbnailRenderer } from '../../../pcui/asset-thumbnail-renderers/font-thumbnail-renderer.js';
 
 Object.assign(pcui, (function () {
     const CLASS_CANVAS = 'pcui-asset-preview-canvas';
@@ -50,7 +51,7 @@ Object.assign(pcui, (function () {
 
         link(assets) {
             super.link(assets);
-            this._previewRenderer = new pcui.FontThumbnailRenderer(assets[0], this._preview.dom);
+            this._previewRenderer = new FontThumbnailRenderer(assets[0], this._preview.dom);
             this._queueRender();
         }
 

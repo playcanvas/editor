@@ -1,4 +1,5 @@
 import { Canvas } from '@playcanvas/pcui';
+import { ModelThumbnailRenderer } from '../../../pcui/asset-thumbnail-renderers/model-thumbnail-renderer.js';
 
 Object.assign(pcui, (function () {
     const CLASS_CANVAS = 'pcui-asset-preview-canvas';
@@ -96,7 +97,7 @@ Object.assign(pcui, (function () {
             this.unlink();
             super.link();
 
-            this._previewRenderer = new pcui.ModelThumbnailRenderer(assets[0], this._preview.dom);
+            this._previewRenderer = new ModelThumbnailRenderer(assets[0], this._preview.dom);
             this._queueRender();
         }
 

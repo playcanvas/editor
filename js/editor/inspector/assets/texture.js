@@ -1,4 +1,5 @@
 import { Panel, Container, Button, InfoBox, Divider, Label, BindingTwoWay, BindingObserversToElement, BindingElementToObservers } from '@playcanvas/pcui';
+import { TextureCompressor } from '../../assets/assets-textures-compress.js';
 
 Object.assign(pcui, (function () {
     // util
@@ -637,7 +638,7 @@ Object.assign(pcui, (function () {
                     if (key === 'original')
                         continue;
 
-                    if (pcui.TextureCompressor.determineRequiredProcessing(assets[i], key, false) !== 'none') {
+                    if (TextureCompressor.determineRequiredProcessing(assets[i], key, false) !== 'none') {
                         if (key === 'basis') {
                             differentBasis = true;
                         } else {
@@ -674,7 +675,7 @@ Object.assign(pcui, (function () {
                 if (!asset.get('file'))
                     continue;
 
-                const hasAlphaTmp = pcui.TextureCompressor.hasAlpha(asset) ? 1 : 0;
+                const hasAlphaTmp = TextureCompressor.hasAlpha(asset) ? 1 : 0;
                 if (hasAlpha === -1) {
                     hasAlpha = hasAlphaTmp;
                 } else if (hasAlpha !== -2) {
@@ -693,7 +694,7 @@ Object.assign(pcui, (function () {
 
                 // update allowed and selected flags
                 compressionFormats.forEach((format) => {
-                    allowed[format] = allowed[format] || pcui.TextureCompressor.isCompressAllowed(asset, format);
+                    allowed[format] = allowed[format] || TextureCompressor.isCompressAllowed(asset, format);
                     selected[format] = selected[format] || asset.get(`meta.compress.${format}`);
                 });
 
@@ -704,7 +705,7 @@ Object.assign(pcui, (function () {
                 if (!showBasisPvrWarning && asset.get('meta.compress.basis')) {
                     const thisWidth = asset.get('meta.width');
                     const thisHeight = asset.get('meta.height');
-                    showBasisPvrWarning = (!pcui.TextureCompressor.isPOT(thisWidth, thisHeight) || thisWidth !== thisHeight);
+                    showBasisPvrWarning = (!TextureCompressor.isPOT(thisWidth, thisHeight) || thisWidth !== thisHeight);
                 }
             }
 
@@ -800,7 +801,7 @@ Object.assign(pcui, (function () {
                 return;
             }
 
-            pcui.TextureCompressor.compress(assets, formats);
+            TextureCompressor.compress(assets, formats);
         }
 
         _handleAssetChangeWebGl1PotWarnings(path) {
@@ -1035,7 +1036,7 @@ Object.assign(pcui, (function () {
 
             for (let i = 0; i < assets.length; i++) {
                 const asset = assets[i];
-                if (!pcui.TextureCompressor.isPOT(asset.get('meta.width'), asset.get('meta.height'))) {
+                if (!TextureCompressor.isPOT(asset.get('meta.width'), asset.get('meta.height'))) {
                     if (asset.get('data.mipmaps')) {
                         this._webgl1NonPotWithMipmapsWarning.hidden = false;
                         break;
@@ -1045,7 +1046,7 @@ Object.assign(pcui, (function () {
 
             for (let i = 0; i < assets.length; i++) {
                 const asset = assets[i];
-                if (!pcui.TextureCompressor.isPOT(asset.get('meta.width'), asset.get('meta.height'))) {
+                if (!TextureCompressor.isPOT(asset.get('meta.width'), asset.get('meta.height'))) {
                     if (asset.get('data.addressu') !== 'clamp' || asset.get('data.addressv') !== 'clamp') {
                         this._webgl1NonPotWithoutAddressClampWarning.hidden = false;
                         break;
@@ -1114,7 +1115,7 @@ Object.assign(pcui, (function () {
                     if (asset.get('meta') && !asset.has('meta.compress')) {
                         setTimeout(() => {
                             asset.set('meta.compress', {
-                                alpha: pcui.TextureCompressor.hasAlpha(asset),
+                                alpha: TextureCompressor.hasAlpha(asset),
                                 normals: false,
                                 dxt: false,
                                 pvr: false,

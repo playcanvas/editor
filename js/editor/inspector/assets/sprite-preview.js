@@ -1,4 +1,5 @@
 import { Canvas, Button } from '@playcanvas/pcui';
+import { SpriteThumbnailRenderer } from '../../../pcui/asset-thumbnail-renderers/sprite-thumbnail-renderer.js';
 
 Object.assign(pcui, (function () {
     const CLASS_ROOT = 'asset-sprite-preview';
@@ -82,7 +83,7 @@ Object.assign(pcui, (function () {
 
         link(assets) {
             super.link(assets);
-            this._previewRenderer = new pcui.SpriteThumbnailRenderer(assets[0], this._preview.dom, editor.call('assets:raw'));
+            this._previewRenderer = new SpriteThumbnailRenderer(assets[0], this._preview.dom, editor.call('assets:raw'));
             this._spriteFrames = assets[0].get('data.frameKeys').length;
             this._queueRender();
         }

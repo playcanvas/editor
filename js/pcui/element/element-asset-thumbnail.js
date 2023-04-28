@@ -1,5 +1,11 @@
 import { Observer } from '@playcanvas/observer';
 import { Element } from '@playcanvas/pcui';
+import { CubemapThumbnailRenderer } from '../asset-thumbnail-renderers/cubemap-thumbnail-renderer.js';
+import { FontThumbnailRenderer } from '../asset-thumbnail-renderers/font-thumbnail-renderer.js';
+import { MaterialThumbnailRenderer } from '../asset-thumbnail-renderers/material-thumbnail-renderer.js';
+import { ModelThumbnailRenderer } from '../asset-thumbnail-renderers/model-thumbnail-renderer.js';
+import { RenderThumbnailRenderer } from '../asset-thumbnail-renderers/render-thumbnail-renderer.js';
+import { SpriteThumbnailRenderer } from '../asset-thumbnail-renderers/sprite-thumbnail-renderer.js';
 
 Object.assign(pcui, (function () {
     const CLASS_ASSET_THUMB = 'pcui-asset-thumb';
@@ -171,22 +177,22 @@ Object.assign(pcui, (function () {
 
             switch (type) {
                 case 'cubemap':
-                    this._canvasRenderer = new pcui.CubemapThumbnailRenderer(asset, this._domCanvas, this._assets);
+                    this._canvasRenderer = new CubemapThumbnailRenderer(asset, this._domCanvas, this._assets);
                     break;
                 case 'font':
-                    this._canvasRenderer = new pcui.FontThumbnailRenderer(asset, this._domCanvas);
+                    this._canvasRenderer = new FontThumbnailRenderer(asset, this._domCanvas);
                     break;
                 case 'material':
-                    this._canvasRenderer = new pcui.MaterialThumbnailRenderer(asset, this._domCanvas, this._sceneSettings);
+                    this._canvasRenderer = new MaterialThumbnailRenderer(asset, this._domCanvas, this._sceneSettings);
                     break;
                 case 'model':
-                    this._canvasRenderer = new pcui.ModelThumbnailRenderer(asset, this._domCanvas);
+                    this._canvasRenderer = new ModelThumbnailRenderer(asset, this._domCanvas);
                     break;
                 case 'sprite':
-                    this._canvasRenderer = new pcui.SpriteThumbnailRenderer(asset, this._domCanvas, this._assets);
+                    this._canvasRenderer = new SpriteThumbnailRenderer(asset, this._domCanvas, this._assets);
                     break;
                 case 'render':
-                    this._canvasRenderer = new pcui.RenderThumbnailRenderer(asset, this._domCanvas, this._assets);
+                    this._canvasRenderer = new RenderThumbnailRenderer(asset, this._domCanvas, this._assets);
                     break;
             }
 

@@ -1,4 +1,5 @@
 import { Container, Panel } from '@playcanvas/pcui';
+import { AssetPanel } from './assets/asset-panel.js';
 
 editor.on('load', function () {
     var ignoreMouseDownClasses = /(default-mousedown)|(ui-list-item)|(ui-button)|(ui-text)|(ui-number-field)/i;
@@ -110,7 +111,7 @@ editor.on('load', function () {
     editor.method('layout.viewport', function () { return viewport; });
 
     // assets
-    const assetsPanel = new pcui.AssetPanel({
+    const assetsPanel = new AssetPanel({
         id: 'layout-assets',
         class: 'assets',
         panelType: 'normal',

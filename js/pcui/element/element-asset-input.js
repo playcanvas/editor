@@ -162,7 +162,7 @@ Object.assign(pcui, (function () {
             });
         }
 
-        // Fired when the thumnail is clicked
+        // Fired when the thumbnail is clicked
         _onClickThumb() {
             this._selectAssetFn(this.value);
         }

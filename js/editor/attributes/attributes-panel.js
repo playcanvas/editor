@@ -1,3 +1,9 @@
+import { CubemapThumbnailRenderer } from '../../pcui/asset-thumbnail-renderers/cubemap-thumbnail-renderer.js';
+import { FontThumbnailRenderer } from '../../pcui/asset-thumbnail-renderers/font-thumbnail-renderer.js';
+import { MaterialThumbnailRenderer } from '../../pcui/asset-thumbnail-renderers/material-thumbnail-renderer.js';
+import { ModelThumbnailRenderer } from '../../pcui/asset-thumbnail-renderers/model-thumbnail-renderer.js';
+import { SpriteThumbnailRenderer } from '../../pcui/asset-thumbnail-renderers/sprite-thumbnail-renderer.js';
+
 editor.once('load', function () {
     var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
     var title = 'INSPECTOR';
@@ -1203,15 +1209,15 @@ editor.once('load', function () {
                         }
 
                         if (args.kind === 'material') {
-                            previewRenderer = new pcui.MaterialThumbnailRenderer(asset, field.elementImage);
+                            previewRenderer = new MaterialThumbnailRenderer(asset, field.elementImage);
                         } else if (args.kind === 'model') {
-                            previewRenderer = new pcui.ModelThumbnailRenderer(asset, field.elementImage);
+                            previewRenderer = new ModelThumbnailRenderer(asset, field.elementImage);
                         } else if (args.kind === 'cubemap') {
-                            previewRenderer = new pcui.CubemapThumbnailRenderer(asset, field.elementImage, editor.call('assets:raw'));
+                            previewRenderer = new CubemapThumbnailRenderer(asset, field.elementImage, editor.call('assets:raw'));
                         } else if (args.kind === 'font') {
-                            previewRenderer = new pcui.FontThumbnailRenderer(asset, field.elementImage);
+                            previewRenderer = new FontThumbnailRenderer(asset, field.elementImage);
                         } else if (args.kind === 'sprite') {
-                            previewRenderer = new pcui.SpriteThumbnailRenderer(asset, field.elementImage, editor.call('assets:raw'));
+                            previewRenderer = new SpriteThumbnailRenderer(asset, field.elementImage, editor.call('assets:raw'));
                         }
                     }
 

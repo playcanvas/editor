@@ -1,4 +1,5 @@
 import { Canvas } from '@playcanvas/pcui';
+import { Cubemap3dThumbnailRenderer } from '../../../pcui/asset-thumbnail-renderers/cubemap-3d-thumbnail-renderer.js';
 
 Object.assign(pcui, (function () {
     const CLASS_CANVAS = 'pcui-asset-preview-canvas';
@@ -99,7 +100,7 @@ Object.assign(pcui, (function () {
 
         link(assets) {
             super.link(assets);
-            this._previewRenderer = new pcui.Cubemap3dThumbnailRenderer(assets[0], this._preview.dom);
+            this._previewRenderer = new Cubemap3dThumbnailRenderer(assets[0], this._preview.dom);
             this._queueRender();
         }
 
