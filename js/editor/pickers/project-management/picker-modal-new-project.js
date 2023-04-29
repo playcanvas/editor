@@ -1,4 +1,5 @@
 import { Element, Button, Label, TextInput, TextAreaInput, BooleanInput, SelectInput, Panel } from '@playcanvas/pcui';
+import { Ajax } from '../../../common/ajax.js';
 
 editor.once('load', function () {
 

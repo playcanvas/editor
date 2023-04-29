@@ -11,7 +11,6 @@ import '../realtime/share.uncompressed.js';
 
 // main
 import '../constants.js';
-import '../ajax.js';
 import '../array.js';
 import '../observer-sync.js';
 import '../editor/editor.js';

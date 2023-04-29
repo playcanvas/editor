@@ -1,3 +1,5 @@
+import { Ajax } from '../../common/ajax.js';
+
 editor.once('load', function () {
     var index = 0;
     editor.method('assets:reimport', function (assetId, type, callback) {

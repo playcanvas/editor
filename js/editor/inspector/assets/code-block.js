@@ -1,4 +1,5 @@
 import { Panel, Code, Container, Label, Progress } from '@playcanvas/pcui';
+import { Ajax } from '../../../common/ajax.js';
 
 Object.assign(pcui, (function () {
     const DOM = parent => [

@@ -1,4 +1,5 @@
 import { Observer } from '@playcanvas/observer';
+import { Ajax } from '../../common/ajax.js';
 
 editor.once('load', function () {
     editor.method('assets:uploadFile', function (args, fn) {

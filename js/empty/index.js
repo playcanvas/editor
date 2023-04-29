@@ -14,7 +14,6 @@ import '../external/pcui.js';
 import '../constants.js';
 import '../array.js';
 import '../color.js';
-import '../ajax.js';
 import '../observer-sync.js';
 
 // legacy ui

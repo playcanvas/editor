@@ -1,4 +1,5 @@
 import { Observer } from '@playcanvas/observer';
+import { Ajax } from '../../common/ajax.js';
 
 editor.once('load', function () {
     var uploadJobs = 0;

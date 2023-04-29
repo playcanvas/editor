@@ -1,3 +1,5 @@
+import { Ajax } from '../../common/ajax.js';
+
 editor.once('load', function () {
     // method if the Engine Asset is included in the project
     editor.method('project:engineAsset:getEngineAsset', function (assetName) {

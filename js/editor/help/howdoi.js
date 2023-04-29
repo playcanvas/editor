@@ -1,3 +1,5 @@
+import { Ajax } from '../../common/ajax.js';
+
 editor.once('load', function () {
     var viewport = editor.call('layout.viewport');
     var focusedMenuItem = null;

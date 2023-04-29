@@ -1,3 +1,5 @@
+import { Ajax } from '../../common/ajax.js';
+
 editor.once('load', () => {
     editor.method('assets:paste', function (parentFolder, keepFolderStructure, callback) {
         if (!editor.call('permissions:write')) return;

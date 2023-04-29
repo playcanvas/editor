@@ -1,3 +1,5 @@
+import { Ajax } from '../../common/ajax.js';
+
 editor.once('load', function () {
     // Fetch list of apps from the server and
     // pass them to the callback

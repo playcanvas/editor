@@ -1,3 +1,5 @@
+import { Ajax } from '../../common/ajax.js';
+
 editor.once('load', function () {
     editor.method('images:upload', function (file, project, callback, error) {
         if (!file || !file.size)

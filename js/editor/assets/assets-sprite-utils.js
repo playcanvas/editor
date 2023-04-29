@@ -1,3 +1,5 @@
+import { Ajax } from '../../common/ajax.js';
+
 editor.once('load', function () {
     // Creates new texture atlas asset from texture asset
     editor.method('assets:textureToAtlas', function (asset, callback) {

@@ -1,3 +1,5 @@
+import { Ajax } from '../../common/ajax.js';
+
 editor.once('load', function () {
     editor.method('assets:move-to-store', function (asset) {
         if (!asset) {

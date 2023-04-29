@@ -1,3 +1,5 @@
+import { Ajax } from '../../common/ajax.js';
+
 editor.once('load', function () {
     // method if the module is included in the project
     editor.method('project:module:hasModule', function (wasmFilename) {

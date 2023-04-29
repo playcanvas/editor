@@ -1,4 +1,5 @@
 import { Progress, Label, Container, BindingTwoWay } from '@playcanvas/pcui';
+import { Ajax } from '../../../common/ajax.js';
 
 Object.assign(pcui, (function () {
     const CLASS_ROOT = 'asset-model-inspector-mesh-instances';

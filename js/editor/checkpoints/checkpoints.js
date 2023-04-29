@@ -1,3 +1,5 @@
+import { Ajax } from '../../common/ajax.js';
+
 editor.once('load', function () {
     var request = function (args, callback) {
         var request = Ajax(args);

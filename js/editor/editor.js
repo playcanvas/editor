@@ -1,4 +1,5 @@
 import { Events } from '@playcanvas/observer';
+import { Ajax } from '../common/ajax.js';
 
 class Editor extends Events {
     constructor() {

@@ -1,3 +1,5 @@
+import { Ajax } from '../common/ajax.js';
+
 editor.once('load', function () {
     var app = editor.call('viewport:app');
     if (!app) return; // webgl not available

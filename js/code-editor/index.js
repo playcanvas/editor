@@ -14,7 +14,6 @@ import '../messenger/messenger.js';
 import '../realtime/share.uncompressed.js';
 
 import '../constants.js';
-import '../ajax.js';
 
 import '../observer-sync.js';
 
