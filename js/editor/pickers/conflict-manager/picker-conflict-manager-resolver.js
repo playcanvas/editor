@@ -1,3 +1,5 @@
+import { Events } from '@playcanvas/observer';
+
 editor.once('load', function () {
     // Shows all the conflicts for an item
     var ConflictResolver = function (conflicts, mergeObject) {

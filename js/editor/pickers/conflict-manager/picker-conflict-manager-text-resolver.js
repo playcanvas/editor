@@ -1,3 +1,5 @@
+import { Events } from '@playcanvas/observer';
+
 editor.once('load', function () {
     /**
      * Contains the UI for showing text conflicts using

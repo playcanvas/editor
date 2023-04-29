@@ -1,3 +1,5 @@
+import { Events } from '@playcanvas/observer';
+
 function Ajax(args) {
     if (typeof (args) === 'string')
         args = { url: args };

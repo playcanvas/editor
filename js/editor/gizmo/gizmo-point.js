@@ -1,3 +1,5 @@
+import { Events } from '@playcanvas/observer';
+
 editor.once('viewport:load', function () {
     var app = editor.call('viewport:app');
     if (!app) return; // webgl not available

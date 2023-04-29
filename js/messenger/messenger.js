@@ -1,3 +1,5 @@
+import { Events } from '@playcanvas/observer';
+
 const MESSENGER_RECONNECT_DELAY = 1000;
 const MESSENGER_PING_DELAY = 10000;
 const MESSENGER_PONG_DELAY = 5000;

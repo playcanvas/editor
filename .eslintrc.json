@@ -12,7 +12,6 @@
     "pcx": false,
     "ui": false,
     "Ajax": false,
-    "Events": false,
     "ObserverSync": false,
     "Tooltip": false,
     "TreeItem": false,

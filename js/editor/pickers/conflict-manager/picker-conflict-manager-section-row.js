@@ -1,3 +1,5 @@
+import { Events } from '@playcanvas/observer';
+
 editor.once('load', function () {
     const BASE_PANEL = 0;
     const DEST_PANEL = 1;

@@ -1,3 +1,5 @@
+import { Events } from '@playcanvas/observer';
+
 Object.assign(ui, (function () {
     function Element() {
         window.assignEvents(this);

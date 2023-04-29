@@ -1,4 +1,4 @@
-import { Observer, ObserverList } from '@playcanvas/observer';
+import { Events, Observer, ObserverList } from '@playcanvas/observer';
 
 function ObserverSync(args) {
     window.assignEvents(this);

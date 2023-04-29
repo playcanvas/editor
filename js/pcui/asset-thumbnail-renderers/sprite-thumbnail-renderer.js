@@ -1,3 +1,5 @@
+import { Events } from '@playcanvas/observer';
+
 let sceneInitialized = false;
 
 const scene = {

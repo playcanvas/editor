@@ -1,3 +1,5 @@
+import { Events } from '@playcanvas/observer';
+
 editor.once('load', function () {
     // A section contains multiple conflicts and it's meant to group
     // conflicts into meaningful categories

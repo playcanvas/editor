@@ -1,3 +1,5 @@
+import { Events } from '@playcanvas/observer';
+
 const RELAY_RECONNECT_DELAY = 1000;
 const RELAY_PING_DELAY = 10000;
 const RELAY_PONG_DELAY = 5000;
