@@ -563,7 +563,6 @@ import './editor/pickers/sprite-editor/sprite-editor-delete.js';
 
 // viewport
 import './editor/viewport/viewport-application.js';
-import "./editor/viewport/viewport-grid.js";
 import './editor/viewport/viewport.js';
 import './editor/viewport/viewport-resize.js';
 import './editor/viewport/viewport-expand.js';

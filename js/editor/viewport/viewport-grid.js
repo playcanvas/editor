@@ -48,4 +48,4 @@ class EditorGrid {
     }
 }
 
-window.EditorGrid = EditorGrid;
+export { EditorGrid };
