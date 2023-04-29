@@ -1,4 +1,5 @@
 import { Observer } from '@playcanvas/observer';
+import { ObserverSync } from '../common/observer-sync.js';
 
 editor.once('load', function () {
     var syncPaths = [

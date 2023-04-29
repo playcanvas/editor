@@ -13,6 +13,7 @@
  * https://github.com/ayu-theme/vscode-ayu/blob/master/LICENSE
  */
 import { Observer } from '@playcanvas/observer';
+import { ObserverSync } from '../../common/observer-sync.js';
 
 editor.once('load', function () {
     // settings observer

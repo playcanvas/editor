@@ -15,8 +15,6 @@ import '../realtime/share.uncompressed.js';
 
 import '../constants.js';
 
-import '../observer-sync.js';
-
 // app
 import './app.js';
 import './platform.js';

@@ -1,3 +1,5 @@
+import { ObserverSync } from '../../common/observer-sync.js';
+
 editor.once('load', function () {
     editor.on('sceneSettings:load', function (settings) {
         if (!settings.sync) {

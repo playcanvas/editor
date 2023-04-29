@@ -1,4 +1,5 @@
 import { Ajax } from '../../common/ajax.js';
+import { ObserverSync } from '../../common/observer-sync.js';
 
 editor.once('load', function () {
     var legacyScripts = editor.call('settings:project').get('useLegacyScripts');

@@ -1,4 +1,5 @@
 import { Observer } from '@playcanvas/observer';
+import { ObserverSync } from '../../common/observer-sync.js';
 
 editor.once('load', function () {
     editor.method('settings:create', function (args) {

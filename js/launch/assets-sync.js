@@ -1,5 +1,6 @@
 import { Observer } from '@playcanvas/observer';
 import { Ajax } from '../common/ajax.js';
+import { ObserverSync } from '../common/observer-sync.js';
 
 editor.once('load', function () {
     var app = editor.call('viewport:app');

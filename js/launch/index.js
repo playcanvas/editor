@@ -12,7 +12,6 @@ import '../realtime/share.uncompressed.js';
 // main
 import '../constants.js';
 import '../array.js';
-import '../observer-sync.js';
 import '../editor/editor.js';
 import './first-load.js';
 import './messenger.js';
