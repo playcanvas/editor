@@ -1,4 +1,5 @@
 import { Button } from '@playcanvas/pcui';
+import { AttributesInspector } from '../attributes.js';
 import { ComponentInspector } from './component.js';
 
 const ATTRIBUTES = [{
@@ -44,7 +45,7 @@ class AnimationComponentInspector extends ComponentInspector {
 
         this._assets = args.assets;
 
-        this._attributesInspector = new pcui.AttributesInspector({
+        this._attributesInspector = new AttributesInspector({
             assets: args.assets,
             history: args.history,
             attributes: ATTRIBUTES,

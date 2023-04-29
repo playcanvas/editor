@@ -1,3 +1,4 @@
+import { AttributesInspector } from '../attributes.js';
 import { ComponentInspector } from './component.js';
 
 const ATTRIBUTES = [{
@@ -125,7 +126,7 @@ class ScrollviewComponentInspector extends ComponentInspector {
             }
         });
 
-        this._attributesInspector = new pcui.AttributesInspector({
+        this._attributesInspector = new AttributesInspector({
             entities: args.entities,
             history: args.history,
             attributes: attrs,

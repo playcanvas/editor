@@ -1,4 +1,5 @@
 import { Panel, Button } from '@playcanvas/pcui';
+import { AttributesInspector } from '../attributes.js';
 
 Object.assign(pcui, (function () {
     const CLASS_ROOT = 'pcui-asset-animation-inspector';
@@ -42,7 +43,7 @@ Object.assign(pcui, (function () {
 
             this._args = args;
 
-            this._attributesInspector = new pcui.AttributesInspector({
+            this._attributesInspector = new AttributesInspector({
                 assets: args.assets,
                 history: args.history,
                 attributes: ATTRIBUTES
@@ -90,7 +91,7 @@ Object.assign(pcui, (function () {
                 eventPanel.on('click:remove', () => {
                     this.removeEvent(eventKey);
                 });
-                const eventAttributesInspector = new pcui.AttributesInspector({
+                const eventAttributesInspector = new AttributesInspector({
                     assets: this._args.assets,
                     history: this._args.history,
                     attributes: [

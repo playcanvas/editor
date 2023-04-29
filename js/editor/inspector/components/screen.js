@@ -1,3 +1,4 @@
+import { AttributesInspector } from '../attributes.js';
 import { ComponentInspector } from './component.js';
 
 const ATTRIBUTES = [{
@@ -64,7 +65,7 @@ class ScreenComponentInspector extends ComponentInspector {
 
         super(args);
 
-        this._attributesInspector = new pcui.AttributesInspector({
+        this._attributesInspector = new AttributesInspector({
             history: args.history,
             attributes: utils.deepCopy(ATTRIBUTES),
             templateOverridesInspector: this._templateOverridesInspector

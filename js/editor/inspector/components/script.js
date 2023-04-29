@@ -1,4 +1,5 @@
 import { Panel, Container, Button, BooleanInput, LabelGroup, Label, SelectInput, BindingTwoWay } from '@playcanvas/pcui';
+import { AttributesInspector } from '../attributes.js';
 import { ComponentInspector } from './component.js';
 
 const CLASS_SCRIPT_CONTAINER = 'script-component-inspector-scripts';
@@ -168,7 +169,7 @@ class ScriptInspector extends Panel {
             this._attributesInspector.destroy();
         }
 
-        this._attributesInspector = new pcui.AttributesInspector({
+        this._attributesInspector = new AttributesInspector({
             attributes: inspectorAttributes,
             history: this._history,
             assets: this._argsAssets,

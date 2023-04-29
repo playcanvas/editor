@@ -1,4 +1,5 @@
 import { Container, Button, Progress, Panel } from '@playcanvas/pcui';
+import { AttributesInspector } from '../attributes.js';
 
 Object.assign(pcui, (function () {
     const CLASS_ROOT = 'asset-audio-inspector';
@@ -21,7 +22,7 @@ Object.assign(pcui, (function () {
 
     const DOM = parent => [
         {
-            attributesInspector: new pcui.AttributesInspector({
+            attributesInspector: new AttributesInspector({
                 assets: parent.args.assets,
                 history: parent.args.history,
                 attributes: ATTRIBUTES

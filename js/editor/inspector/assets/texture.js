@@ -1,5 +1,6 @@
 import { Panel, Container, Button, InfoBox, Divider, Label, BindingTwoWay, BindingObserversToElement, BindingElementToObservers } from '@playcanvas/pcui';
 import { TextureCompressor } from '../../assets/assets-textures-compress.js';
+import { AttributesInspector } from '../attributes.js';
 
 Object.assign(pcui, (function () {
     // util
@@ -236,7 +237,7 @@ Object.assign(pcui, (function () {
                     ]
                 },
                 {
-                    textureAttributesInspector: new pcui.AttributesInspector({
+                    textureAttributesInspector: new AttributesInspector({
                         assets: parent._args.assets,
                         history: parent._args.history,
                         attributes: TEXTURE_ATTRIBUTES
@@ -265,7 +266,7 @@ Object.assign(pcui, (function () {
                     },
                     children: [
                         {
-                            compressionBasisAttributesInspector: new pcui.AttributesInspector({
+                            compressionBasisAttributesInspector: new AttributesInspector({
                                 assets: parent._args.assets,
                                 history: parent._args.history,
                                 attributes: COMPRESSION_BASIS_ATTRIBUTES
@@ -307,7 +308,7 @@ Object.assign(pcui, (function () {
                     },
                     children: [
                         {
-                            compressionLegacyAttributesInspector: new pcui.AttributesInspector({
+                            compressionLegacyAttributesInspector: new AttributesInspector({
                                 assets: parent._args.assets,
                                 history: parent._args.history,
                                 attributes: COMPRESSION_LEGACY_ATTRIBUTES

@@ -1,4 +1,5 @@
 import { Panel } from '@playcanvas/pcui';
+import { AttributesInspector } from '../attributes.js';
 
 Object.assign(pcui, (function () {
     const ATTRIBUTES = [{
@@ -17,7 +18,7 @@ Object.assign(pcui, (function () {
 
     const DOM = parent => [
         {
-            attributesInspector: new pcui.AttributesInspector({
+            attributesInspector: new AttributesInspector({
                 assets: parent._args.assets,
                 history: parent._args.history,
                 attributes: ATTRIBUTES

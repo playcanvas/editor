@@ -1,3 +1,4 @@
+import { AttributesInspector } from '../attributes.js';
 import { ComponentInspector } from './component.js';
 
 const ATTRIBUTES = [{
@@ -95,7 +96,7 @@ class LayoutgroupComponentInspector extends ComponentInspector {
 
         super(args);
 
-        this._attributesInspector = new pcui.AttributesInspector({
+        this._attributesInspector = new AttributesInspector({
             history: args.history,
             attributes: ATTRIBUTES,
             templateOverridesInspector: this._templateOverridesInspector

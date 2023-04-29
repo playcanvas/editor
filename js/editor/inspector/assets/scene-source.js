@@ -1,4 +1,5 @@
 import { Panel, Container, Label } from '@playcanvas/pcui';
+import { AttributesInspector } from '../attributes.js';
 
 Object.assign(pcui, (function () {
     const CLASS_ROOT = 'scene-asset-inspector';
@@ -51,7 +52,7 @@ Object.assign(pcui, (function () {
             },
             children: [
                 {
-                    contentAttributes: new pcui.AttributesInspector({
+                    contentAttributes: new AttributesInspector({
                         assets: args.assets,
                         history: args.history,
                         attributes: ATTRIBUTES

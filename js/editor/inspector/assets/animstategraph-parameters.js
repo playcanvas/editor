@@ -1,4 +1,5 @@
 import { Panel, Button } from '@playcanvas/pcui';
+import { AttributesInspector } from '../attributes.js';
 
 Object.assign(pcui, (function () {
     const CLASS_ANIMSTATEGRAPH = 'asset-animstategraph-inspector';
@@ -33,7 +34,7 @@ Object.assign(pcui, (function () {
                     valueType = 'number';
                     break;
             }
-            const attributesInspector = new pcui.AttributesInspector({
+            const attributesInspector = new AttributesInspector({
                 assets: this._args.assets,
                 history: this._args.history,
                 attributes: [

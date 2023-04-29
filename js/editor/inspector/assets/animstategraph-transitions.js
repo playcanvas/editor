@@ -1,4 +1,5 @@
 import { Container, Button, Panel, Label } from '@playcanvas/pcui';
+import { AttributesInspector } from '../attributes.js';
 
 Object.assign(pcui, (function () {
     const CLASS_ANIMSTATEGRAPH = 'asset-animstategraph-inspector';
@@ -19,7 +20,7 @@ Object.assign(pcui, (function () {
         return arr;
     }
 
-    class TransitionInspector extends pcui.AttributesInspector {
+    class TransitionInspector extends AttributesInspector {
         unlink() {
             Object.keys(this._fields).forEach((k) => {
                 this._fields[k].blur();

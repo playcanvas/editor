@@ -1,4 +1,5 @@
 import { Panel, Label, Button, BindingTwoWay } from '@playcanvas/pcui';
+import { AttributesInspector } from '../attributes.js';
 
 Object.assign(pcui, (function () {
     const CLASS_ANIMSTATEGRAPH = 'asset-animstategraph-inspector';
@@ -159,7 +160,7 @@ Object.assign(pcui, (function () {
                     type: 'boolean'
                 });
             }
-            this._stateInspector = new pcui.AttributesInspector({
+            this._stateInspector = new AttributesInspector({
                 assets: this._args.assets,
                 history: this._args.history,
                 attributes: attributes,

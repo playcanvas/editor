@@ -1,4 +1,5 @@
 import { Button } from '@playcanvas/pcui';
+import { AttributesInspector } from '../attributes.js';
 import { ComponentInspector } from './component.js';
 
 const ATTRIBUTES = [{
@@ -379,7 +380,7 @@ class LightComponentInspector extends ComponentInspector {
 
         super(args);
 
-        this._attributesInspector = new pcui.AttributesInspector({
+        this._attributesInspector = new AttributesInspector({
             assets: args.assets,
             projectSettings: args.projectSettings,
             history: args.history,

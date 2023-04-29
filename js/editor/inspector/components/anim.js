@@ -1,4 +1,5 @@
 import { InfoBox, Container, TreeView, TreeViewItem, BooleanInput, Menu, Button, Panel, BindingTwoWay } from '@playcanvas/pcui';
+import { AttributesInspector } from '../attributes.js';
 import { ComponentInspector } from './component.js';
 
 const ATTRIBUTES = [
@@ -81,7 +82,7 @@ class AnimComponentInspector extends ComponentInspector {
         this._evts = [];
         this._maskEvts = [];
 
-        this._attributesInspector = new pcui.AttributesInspector({
+        this._attributesInspector = new AttributesInspector({
             assets: args.assets,
             entities: args.entities,
             history: args.history,

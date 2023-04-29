@@ -1,4 +1,5 @@
 import { Panel, Container, Label, BooleanInput, Button } from '@playcanvas/pcui';
+import { AttributesInspector } from '../attributes.js';
 
 Object.assign(pcui, (function () {
     const CLASS_ROOT = 'pcui-cubemap-asset-inspector';
@@ -53,7 +54,7 @@ Object.assign(pcui, (function () {
                 })
             },
             children: [{
-                cubemapAttributesInspector: new pcui.AttributesInspector({
+                cubemapAttributesInspector: new AttributesInspector({
                     assets: args.assets,
                     history: args.history,
                     attributes: ATTRIBUTES

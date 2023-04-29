@@ -21,6 +21,7 @@ import { ScrollviewComponentInspector } from './components/scrollview.js';
 import { SoundComponentInspector } from './components/sound.js';
 import { SpriteComponentInspector } from './components/sprite.js';
 import { ZoneComponentInspector } from './components/zone.js';
+import { AttributesInspector } from './attributes.js';
 
 /** @type {Map<string, new (...args: any[]) => any>} */
 const componentToConstructor = new Map();
@@ -205,7 +206,7 @@ class EntityInspector extends Container {
             });
         }
 
-        this._attributesInspector = new pcui.AttributesInspector({
+        this._attributesInspector = new AttributesInspector({
             history: args.history,
             attributes: ATTRIBUTES,
             templateOverridesInspector: this._templateOverridesInspector

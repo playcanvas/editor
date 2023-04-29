@@ -1,3 +1,4 @@
+import { AttributesInspector } from '../attributes.js';
 import { ComponentInspector } from './component.js';
 
 const ATTRIBUTES = [{
@@ -19,7 +20,7 @@ class ZoneComponentInspector extends ComponentInspector {
 
         super(args);
 
-        this._attributesInspector = new pcui.AttributesInspector({
+        this._attributesInspector = new AttributesInspector({
             assets: args.assets,
             history: args.history,
             attributes: ATTRIBUTES,

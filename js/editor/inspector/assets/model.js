@@ -1,4 +1,5 @@
 import { Panel, Container, Button } from '@playcanvas/pcui';
+import { AttributesInspector } from '../attributes.js';
 
 Object.assign(pcui, (function () {
     const CLASS_ROOT = 'asset-model-inspector';
@@ -84,7 +85,7 @@ Object.assign(pcui, (function () {
             },
             children: [
                 {
-                    metaAttributesInspector: new pcui.AttributesInspector({
+                    metaAttributesInspector: new AttributesInspector({
                         assets: parent._args.assets,
                         history: parent._args.history,
                         attributes: META_ATTRIBUTES
@@ -101,7 +102,7 @@ Object.assign(pcui, (function () {
             },
             children: [
                 {
-                    pipelineAttributesInspector: new pcui.AttributesInspector({
+                    pipelineAttributesInspector: new AttributesInspector({
                         assets: parent._args.assets,
                         history: parent._args.history,
                         attributes: PIPELINE_ATTRIBUTES
@@ -117,7 +118,7 @@ Object.assign(pcui, (function () {
                     },
                     children: [
                         {
-                            unwrapAttributesInspector: new pcui.AttributesInspector({
+                            unwrapAttributesInspector: new AttributesInspector({
                                 assets: parent._args.assets,
                                 history: parent._args.history,
                                 attributes: UNWRAP_ATTRIBUTES

@@ -1,3 +1,4 @@
+import { AttributesInspector } from '../attributes.js';
 import { ComponentInspector } from './component.js';
 
 const ATTRIBUTES = [{
@@ -58,7 +59,7 @@ class ScrollbarComponentInspector extends ComponentInspector {
             }
         });
 
-        this._attributesInspector = new pcui.AttributesInspector({
+        this._attributesInspector = new AttributesInspector({
             history: args.history,
             entities: args.entities,
             attributes: attrs,

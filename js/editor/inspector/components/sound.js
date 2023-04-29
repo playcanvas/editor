@@ -1,4 +1,5 @@
 import { Panel, Container, Button } from '@playcanvas/pcui';
+import { AttributesInspector } from '../attributes.js';
 import { ComponentInspector } from './component.js';
 
 const COMPONENT_ATTRIBUTES = [{
@@ -171,7 +172,7 @@ class SoundSlotInspector extends Panel {
             attr.path = attr.path.replace('$', args.slotKey);
         });
 
-        this._inspector = new pcui.AttributesInspector({
+        this._inspector = new AttributesInspector({
             attributes: this._attrs,
             assets: args.assets,
             history: args.history,
@@ -256,7 +257,7 @@ class SoundComponentInspector extends ComponentInspector {
 
         this._assets = args.assets;
 
-        this._attributesInspector = new pcui.AttributesInspector({
+        this._attributesInspector = new AttributesInspector({
             history: args.history,
             assets: args.assets,
             attributes: COMPONENT_ATTRIBUTES,

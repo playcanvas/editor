@@ -1,5 +1,6 @@
 import { Observer } from '@playcanvas/observer';
 import { Panel, Button, Container, Label, TextInput, Menu, BindingTwoWay } from '@playcanvas/pcui';
+import { AttributesInspector } from '../attributes.js';
 
 Object.assign(pcui, (function () {
     const CLASS_ROOT = 'asset-font-inspector';
@@ -55,7 +56,7 @@ Object.assign(pcui, (function () {
                 })
             },
             children: [{
-                propertiesAttributes: new pcui.AttributesInspector({
+                propertiesAttributes: new AttributesInspector({
                     assets: parent._args.assets,
                     history: parent._args.history,
                     attributes: PROPERTIES_ATTRIBUTES
@@ -129,7 +130,7 @@ Object.assign(pcui, (function () {
                 })
             },
             children: [{
-                fontAttributes: new pcui.AttributesInspector({
+                fontAttributes: new AttributesInspector({
                     assets: parent._args.assets,
                     history: parent._args.history,
                     attributes: FONT_ATTRIBUTES
@@ -248,7 +249,7 @@ Object.assign(pcui, (function () {
                 })
             },
             children: [{
-                localizationAttributes: new pcui.AttributesInspector({
+                localizationAttributes: new AttributesInspector({
                     assets: parent._args.assets,
                     history: parent._args.history,
                     attributes: LOCALIZATION_ATTRIBUTES

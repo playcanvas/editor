@@ -1,4 +1,5 @@
 import { Container, Button, BindingObserversToElement } from '@playcanvas/pcui';
+import { AttributesInspector } from './attributes.js';
 
 Object.assign(pcui, (function () {
     const CLASS_ROOT = 'asset-inspector';
@@ -230,7 +231,7 @@ Object.assign(pcui, (function () {
 
             this._assetTypes = editor.call('schema:assets:list');
 
-            this._attributesInspector = new pcui.AttributesInspector({
+            this._attributesInspector = new AttributesInspector({
                 history: args.history,
                 attributes: ATTRIBUTES
             });

@@ -1,3 +1,4 @@
+import { AttributesInspector } from '../attributes.js';
 import { ComponentInspector } from './component.js';
 
 const ATTRIBUTES = [{
@@ -107,7 +108,7 @@ class CameraComponentInspector extends ComponentInspector {
 
         super(args);
 
-        this._attributesInspector = new pcui.AttributesInspector({
+        this._attributesInspector = new AttributesInspector({
             assets: args.assets,
             projectSettings: args.projectSettings,
             history: args.history,

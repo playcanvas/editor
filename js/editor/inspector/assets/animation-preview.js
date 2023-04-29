@@ -1,4 +1,5 @@
 import { Panel } from '@playcanvas/pcui';
+import { AttributesInspector } from '../attributes.js';
 
 Object.assign(pcui, (function () {
     const CLASS_ROOT = 'pcui-asset-animation-inspector-preview';
@@ -60,7 +61,7 @@ Object.assign(pcui, (function () {
                         }
                     }
                 ];
-                this._attributesInspector = new pcui.AttributesInspector({
+                this._attributesInspector = new AttributesInspector({
                     history: args.history,
                     attributes: ATTRIBUTES
                 });

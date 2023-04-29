@@ -1,4 +1,5 @@
 import { BindingTwoWay, BindingElementToObservers } from '@playcanvas/pcui';
+import { AttributesInspector } from '../attributes.js';
 import { ComponentInspector } from './component.js';
 
 const PRESETS = {
@@ -616,7 +617,7 @@ class ElementComponentInspector extends ComponentInspector {
 
         super(args);
 
-        this._attributesInspector = new pcui.AttributesInspector({
+        this._attributesInspector = new AttributesInspector({
             assets: args.assets,
             projectSettings: args.projectSettings,
             history: args.history,

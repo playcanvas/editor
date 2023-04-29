@@ -1,4 +1,5 @@
 import { Label } from '@playcanvas/pcui';
+import { AttributesInspector } from '../attributes.js';
 import { ComponentInspector } from './component.js';
 
 const ATTRIBUTES = [{
@@ -125,7 +126,7 @@ class RenderComponentInspector extends ComponentInspector {
 
         this._assets = args.assets;
 
-        this._attributesInspector = new pcui.AttributesInspector({
+        this._attributesInspector = new AttributesInspector({
             assets: args.assets,
             entities: args.entities,
             projectSettings: args.projectSettings,

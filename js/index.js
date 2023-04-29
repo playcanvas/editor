@@ -392,7 +392,6 @@ import './editor/templates/templates-entity-inspector.js';
 
 // pcui attribute inspectors
 import './editor/inspector/tooltip-reference.js';
-import './editor/inspector/attributes.js';
 import './editor/inspector/entity.js';
 import './editor/inspector/asset.js';
 import './editor/inspector/assets/asset-preview-base.js';

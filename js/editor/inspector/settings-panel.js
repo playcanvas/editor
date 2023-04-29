@@ -14,6 +14,7 @@ import { NetworkSettingsPanel } from './settings-panels/network.js';
 import { AudioSettingsPanel } from './settings-panels/audio.js';
 import { ScriptsSettingsPanel } from './settings-panels/scripts.js';
 import { ProjectHistorySettingsPanel } from './settings-panels/settings-history.js';
+import { AttributesInspector } from './attributes.js';
 
 const CLASS_ROOT = 'settings';
 
@@ -52,7 +53,7 @@ SCENE_ATTRIBUTES.forEach((attr) => {
 
 const DOM = parent => [
     {
-        sceneAttributes: new pcui.AttributesInspector({
+        sceneAttributes: new AttributesInspector({
             attributes: SCENE_ATTRIBUTES,
             settings: parent._args.settings,
             projectSettings: parent._args.projectSettings,

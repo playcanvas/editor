@@ -1,5 +1,6 @@
 import { Observer, ObserverList } from '@playcanvas/observer';
 import { Element, Container, Label, Button, ArrayInput, VectorInput, BooleanInput, NumericInput, TextInput, LabelGroup, Panel } from '@playcanvas/pcui';
+import { AttributesInspector } from '../inspector/attributes.js';
 
 Object.assign(pcui, (function () {
     const CLASS_ROOT = 'template-overrides';
@@ -378,7 +379,7 @@ Object.assign(pcui, (function () {
                         });
                         break;
                     case 'json':
-                        field = new pcui.AttributesInspector({
+                        field = new AttributesInspector({
                             attributes: Object.keys(value).map((key) => {
                                 return {
                                     label: key,

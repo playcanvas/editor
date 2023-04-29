@@ -1,4 +1,5 @@
 import { Panel, Container } from '@playcanvas/pcui';
+import { AttributesInspector } from '../attributes.js';
 
 Object.assign(pcui, (function () {
     const TextureTypes = {
@@ -112,7 +113,7 @@ Object.assign(pcui, (function () {
             })
         },
         children: [{
-            materialInspector: new pcui.AttributesInspector({
+            materialInspector: new AttributesInspector({
                 assets: parent._args.assets,
                 history: parent._args.history,
                 attributes: [{
@@ -140,7 +141,7 @@ Object.assign(pcui, (function () {
             })
         },
         children: [{
-            offsetTilingInspector: new pcui.AttributesInspector({
+            offsetTilingInspector: new AttributesInspector({
                 assets: parent._args.assets,
                 history: parent._args.history,
                 attributes: [{
@@ -187,7 +188,7 @@ Object.assign(pcui, (function () {
             })
         },
         children: [{
-            ambientInspector: new pcui.AttributesInspector({
+            ambientInspector: new AttributesInspector({
                 assets: parent._args.assets,
                 history: parent._args.history,
                 attributes: [..._textureAttribute('Ambient Occlusion', 'ao', TextureTypes.Scalar), {
@@ -232,7 +233,7 @@ Object.assign(pcui, (function () {
             })
         },
         children: [{
-            diffuseInspector: new pcui.AttributesInspector({
+            diffuseInspector: new AttributesInspector({
                 assets: parent._args.assets,
                 history: parent._args.history,
                 attributes: [..._textureAttribute('Diffuse', 'diffuse', TextureTypes.Color), {
@@ -262,7 +263,7 @@ Object.assign(pcui, (function () {
             })
         },
         children: [{
-            specularInspector: new pcui.AttributesInspector({
+            specularInspector: new AttributesInspector({
                 assets: parent._args.assets,
                 history: parent._args.history,
                 attributes: [{
@@ -289,7 +290,7 @@ Object.assign(pcui, (function () {
                 }]
             })
         }, {
-            metalnessWorkflowInspector: new pcui.AttributesInspector({
+            metalnessWorkflowInspector: new AttributesInspector({
                 assets: parent._args.assets,
                 history: parent._args.history,
                 attributes: [..._textureAttribute('Metalness', 'metalness', TextureTypes.Scalar), {
@@ -352,7 +353,7 @@ Object.assign(pcui, (function () {
                 }]
             })
         }, {
-            specularWorkflowInspector: new pcui.AttributesInspector({
+            specularWorkflowInspector: new AttributesInspector({
                 assets: parent._args.assets,
                 history: parent._args.history,
                 attributes: [..._textureAttribute('Specular', 'specular', TextureTypes.Color), {
@@ -373,7 +374,7 @@ Object.assign(pcui, (function () {
                 }]
             })
         }, {
-            glossInspector: new pcui.AttributesInspector({
+            glossInspector: new AttributesInspector({
                 assets: parent._args.assets,
                 history: parent._args.history,
                 attributes: [{
@@ -411,7 +412,7 @@ Object.assign(pcui, (function () {
             })
         },
         children: [{
-            emissiveInspector: new pcui.AttributesInspector({
+            emissiveInspector: new AttributesInspector({
                 assets: parent._args.assets,
                 history: parent._args.history,
                 attributes: [..._textureAttribute('Emissive', 'emissive', TextureTypes.Color), {
@@ -452,7 +453,7 @@ Object.assign(pcui, (function () {
             })
         },
         children: [{
-            opacityInspector: new pcui.AttributesInspector({
+            opacityInspector: new AttributesInspector({
                 assets: parent._args.assets,
                 history: parent._args.history,
                 attributes: [{
@@ -544,7 +545,7 @@ Object.assign(pcui, (function () {
             })
         },
         children: [{
-            normalsInspector: new pcui.AttributesInspector({
+            normalsInspector: new AttributesInspector({
                 assets: parent._args.assets,
                 history: parent._args.history,
                 attributes: [..._textureAttribute('Normals', 'normal', TextureTypes.Normal), {
@@ -570,7 +571,7 @@ Object.assign(pcui, (function () {
             })
         },
         children: [{
-            parallaxInspector: new pcui.AttributesInspector({
+            parallaxInspector: new AttributesInspector({
                 assets: parent._args.assets,
                 history: parent._args.history,
                 attributes: [..._textureAttribute('Heightmap', 'height', TextureTypes.Scalar), {
@@ -596,7 +597,7 @@ Object.assign(pcui, (function () {
             })
         },
         children: [{
-            clearCoatFactorInspector: new pcui.AttributesInspector({
+            clearCoatFactorInspector: new AttributesInspector({
                 assets: parent._args.assets,
                 history: parent._args.history,
                 attributes: [{
@@ -613,7 +614,7 @@ Object.assign(pcui, (function () {
                 }]
             })
         }, {
-            clearCoatInspector: new pcui.AttributesInspector({
+            clearCoatInspector: new AttributesInspector({
                 assets: parent._args.assets,
                 history: parent._args.history,
                 attributes: [..._textureAttribute('Clear Coat', 'clearCoat', TextureTypes.Color), {
@@ -641,7 +642,7 @@ Object.assign(pcui, (function () {
                 }]
             })
         }, {
-            clearCoatGlossInspector: new pcui.AttributesInspector({
+            clearCoatGlossInspector: new AttributesInspector({
                 assets: parent._args.assets,
                 history: parent._args.history,
                 attributes: [{
@@ -687,7 +688,7 @@ Object.assign(pcui, (function () {
                 }]
             })
         }, {
-            clearCoatNormalInspector: new pcui.AttributesInspector({
+            clearCoatNormalInspector: new AttributesInspector({
                 assets: parent._args.assets,
                 history: parent._args.history,
                 attributes: [..._textureAttribute('Clear Coat Normals', 'clearCoatNormal', TextureTypes.Normal), {
@@ -713,7 +714,7 @@ Object.assign(pcui, (function () {
             })
         },
         children: [{
-            sheenInspector: new pcui.AttributesInspector({
+            sheenInspector: new AttributesInspector({
                 assets: parent._args.assets,
                 history: parent._args.history,
                 attributes: [{
@@ -785,7 +786,7 @@ Object.assign(pcui, (function () {
             })
         },
         children: [{
-            refractionInspector: new pcui.AttributesInspector({
+            refractionInspector: new AttributesInspector({
                 assets: parent._args.assets,
                 history: parent._args.history,
                 attributes: [{
@@ -892,7 +893,7 @@ Object.assign(pcui, (function () {
             })
         },
         children: [{
-            iridescenceInspector: new pcui.AttributesInspector({
+            iridescenceInspector: new AttributesInspector({
                 assets: parent._args.assets,
                 history: parent._args.history,
                 attributes: [{
@@ -950,7 +951,7 @@ Object.assign(pcui, (function () {
             })
         },
         children: [{
-            envInspector: new pcui.AttributesInspector({
+            envInspector: new AttributesInspector({
                 assets: parent._args.assets,
                 history: parent._args.history,
                 attributes: [{
@@ -1023,7 +1024,7 @@ Object.assign(pcui, (function () {
             })
         },
         children: [{
-            lightmapInspector: new pcui.AttributesInspector({
+            lightmapInspector: new AttributesInspector({
                 assets: parent._args.assets,
                 history: parent._args.history,
                 attributes: [..._textureAttribute('Lightmap', 'light', TextureTypes.Color), {
@@ -1043,7 +1044,7 @@ Object.assign(pcui, (function () {
             })
         },
         children: [{
-            otherInspector: new pcui.AttributesInspector({
+            otherInspector: new AttributesInspector({
                 assets: parent._args.assets,
                 history: parent._args.history,
                 attributes: [{

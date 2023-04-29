@@ -1,4 +1,5 @@
 import { Panel, Label } from '@playcanvas/pcui';
+import { AttributesInspector } from '../attributes.js';
 
 class BaseSettingsPanel extends Panel {
     constructor(args) {
@@ -17,7 +18,7 @@ class BaseSettingsPanel extends Panel {
         this.collapsed = true;
 
         if (args.attributes) {
-            this._attributesInspector = new pcui.AttributesInspector({
+            this._attributesInspector = new AttributesInspector({
                 history: args.history,
                 assets: args.assets,
                 settings: args.settings,

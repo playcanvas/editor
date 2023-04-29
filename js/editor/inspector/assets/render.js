@@ -1,4 +1,5 @@
 import { Panel, Container } from '@playcanvas/pcui';
+import { AttributesInspector } from '../attributes.js';
 
 Object.assign(pcui, (function () {
     const META_ATTRIBUTES = [{
@@ -55,7 +56,7 @@ Object.assign(pcui, (function () {
             },
             children: [
                 {
-                    metaAttributesInspector: new pcui.AttributesInspector({
+                    metaAttributesInspector: new AttributesInspector({
                         assets: parent._args.assets,
                         history: parent._args.history,
                         attributes: META_ATTRIBUTES
@@ -71,7 +72,7 @@ Object.assign(pcui, (function () {
             },
             children: [
                 {
-                    attributesInspector: new pcui.AttributesInspector({
+                    attributesInspector: new AttributesInspector({
                         assets: parent._args.assets,
                         history: parent._args.history,
                         attributes: ATTRIBUTES
