@@ -1,5 +1,6 @@
 import { Panel, Container, Label, BooleanInput, Button } from '@playcanvas/pcui';
 import { AttributesInspector } from '../attributes.js';
+import { CubemapFace } from './cubemap-face.js';
 
 Object.assign(pcui, (function () {
     const CLASS_ROOT = 'pcui-cubemap-asset-inspector';
@@ -126,7 +127,7 @@ Object.assign(pcui, (function () {
             this.buildDom(DOM(this, args));
 
             Object.keys(FACES).forEach((face) => {
-                const cubemapFace = new pcui.CubemapFace(Object.assign(args, { label: FACES[face], face }));
+                const cubemapFace = new CubemapFace(Object.assign(args, { label: FACES[face], face }));
                 this._faces.push(cubemapFace);
                 this._facesPanel.append(cubemapFace);
             });

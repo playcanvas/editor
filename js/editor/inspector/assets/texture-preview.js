@@ -1,3 +1,5 @@
+import { AssetInspectorPreviewBase } from './asset-preview-base.js';
+
 Object.assign(pcui, (function () {
     const getPreviewUrl = (asset) => {
         const url = asset.get('file.url');
@@ -8,7 +10,7 @@ Object.assign(pcui, (function () {
         return config.url.home + asset.get('file.url').appendQuery('t=' + asset.get('file.hash'));
     };
 
-    class TextureAssetInspectorPreview extends pcui.AssetInspectorPreviewBase {
+    class TextureAssetInspectorPreview extends AssetInspectorPreviewBase {
         constructor(args) {
             super(args);
             this._assets = null;

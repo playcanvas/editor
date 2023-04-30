@@ -1,11 +1,12 @@
 import { Canvas } from '@playcanvas/pcui';
 import { RenderThumbnailRenderer } from '../../../pcui/asset-thumbnail-renderers/render-thumbnail-renderer.js';
+import { AssetInspectorPreviewBase } from './asset-preview-base.js';
 
 Object.assign(pcui, (function () {
     const CLASS_CANVAS = 'pcui-asset-preview-canvas';
     const CLASS_CANVAS_FLIP = 'pcui-asset-preview-canvas-flip';
 
-    class RenderAssetInspectorPreview extends pcui.AssetInspectorPreviewBase {
+    class RenderAssetInspectorPreview extends AssetInspectorPreviewBase {
         constructor(args) {
             super(args);
 

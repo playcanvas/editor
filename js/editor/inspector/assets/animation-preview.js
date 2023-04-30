@@ -1,10 +1,12 @@
 import { Panel } from '@playcanvas/pcui';
 import { AttributesInspector } from '../attributes.js';
+import { AnimViewer } from './anim-viewer.js';
+import { AssetInspectorPreviewBase } from './asset-preview-base.js';
 
 Object.assign(pcui, (function () {
     const CLASS_ROOT = 'pcui-asset-animation-inspector-preview';
 
-    class AnimationAssetInspectorPreview extends pcui.AssetInspectorPreviewBase {
+    class AnimationAssetInspectorPreview extends AssetInspectorPreviewBase {
         constructor(args) {
             args = Object.assign({}, args);
             args.headerText = 'META';
@@ -15,7 +17,7 @@ Object.assign(pcui, (function () {
 
             setTimeout(() => {
                 this._app = editor.call('viewport:app');
-                this._animViewer = new pcui.AnimViewer({
+                this._animViewer = new AnimViewer({
                     app: this._app,
                     class: 'animstategraph-view-anim-viewer'
                 });

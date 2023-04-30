@@ -1,4 +1,5 @@
 import { Button, Container } from '@playcanvas/pcui';
+import { AnimViewer } from './anim-viewer.js';
 
 Object.assign(pcui, (function () {
     const CLASS_ANIMSTATEGRAPH = 'asset-animstategraph-inspector';
@@ -50,7 +51,7 @@ Object.assign(pcui, (function () {
             args.inspectorPanelSecondary.append(this._transitionsContainer);
             setTimeout(() => {
                 this._app = editor.call('viewport:app');
-                this._animViewer = new pcui.AnimViewer({
+                this._animViewer = new AnimViewer({
                     app: this._app,
                     class: 'animstategraph-view-anim-viewer'
                 });

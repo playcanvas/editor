@@ -1,5 +1,6 @@
 import { Canvas, Button } from '@playcanvas/pcui';
 import { SpriteThumbnailRenderer } from '../../../pcui/asset-thumbnail-renderers/sprite-thumbnail-renderer.js';
+import { AssetInspectorPreviewBase } from './asset-preview-base.js';
 
 Object.assign(pcui, (function () {
     const CLASS_ROOT = 'asset-sprite-preview';
@@ -7,7 +8,7 @@ Object.assign(pcui, (function () {
     const CLASS_BUTTON_PLAYING = CLASS_ROOT + '-button-playing';
     const CLASS_CANVAS = 'pcui-asset-preview-canvas';
 
-    class SpriteAssetInspectorPreview extends pcui.AssetInspectorPreviewBase {
+    class SpriteAssetInspectorPreview extends AssetInspectorPreviewBase {
         constructor(args) {
             super(args);
 
