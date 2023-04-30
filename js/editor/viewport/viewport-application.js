@@ -31,11 +31,7 @@ editor.once('load', function () {
 
         this.systems.on('toolsUpdate', this.systems.particlesystem.onUpdate, this.systems.particlesystem);
         this.systems.on('toolsUpdate', this.systems.animation.onUpdate, this.systems.animation);
-
-        // TODO: remove if once layoutgroups merged
-        if (this.systems.layoutgroup) {
-            this.systems.on('toolsUpdate', this.systems.layoutgroup._onPostUpdate, this.systems.layoutgroup);
-        }
+        this.systems.on('toolsUpdate', this.systems.layoutgroup._onPostUpdate, this.systems.layoutgroup);
     };
 
     editor.method('viewport:application', function () {
@@ -133,12 +129,6 @@ editor.once('load', function () {
             gridLayer.addMeshInstances(this.grid.model.meshInstances);
         }
 
-        this.redraw = true;
-    };
-
-    // Redraw when we set the skybox
-    Application.prototype._setSkybox = function (cubemaps) {
-        Application._super._setSkybox.call(this, cubemaps);
         this.redraw = true;
     };
 });
