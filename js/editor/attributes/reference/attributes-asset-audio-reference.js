@@ -4,12 +4,12 @@ editor.once('load', function () {
         title: 'pc.Sound',
         subTitle: '{Class}',
         description: 'Audio resource file that is used by Web Audio API.',
-        url: 'http://developer.playcanvas.com/api/pc.Sound.html'
+        url: 'https://developer.playcanvas.com/api/pc.Sound.html'
     }, {
         title: 'duration',
         subTitle: '{Number}',
         description: 'Duration of the audio file in seconds.',
-        url: 'http://developer.playcanvas.com/api/pc.Sound.html#duration'
+        url: 'https://developer.playcanvas.com/api/pc.Sound.html#duration'
     }];
 
     // fields reference

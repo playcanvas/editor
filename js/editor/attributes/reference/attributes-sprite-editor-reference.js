@@ -4,13 +4,13 @@ editor.once('load', function () {
         title: 'width',
         subTitle: '{Number}',
         description: 'The width of the texture atlas in pixels.',
-        url: 'http://developer.playcanvas.com/api/pc.Texture.html#width'
+        url: 'https://developer.playcanvas.com/api/pc.Texture.html#width'
     }, {
         name: 'atlas:height',
         title: 'height',
         subTitle: '{Number}',
         description: 'The height of the texture atlas in pixels.',
-        url: 'http://developer.playcanvas.com/api/pc.Texture.html#height'
+        url: 'https://developer.playcanvas.com/api/pc.Texture.html#height'
     }, {
         name: 'atlas:frames',
         title: 'Frames',

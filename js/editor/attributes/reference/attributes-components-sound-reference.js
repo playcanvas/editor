@@ -4,42 +4,42 @@ editor.once('load', function () {
         title: 'pc.SoundComponent',
         subTitle: '{pc.Component}',
         description: 'The Sound Component controls playback of sounds',
-        url: 'http://developer.playcanvas.com/api/pc.SoundComponent.html'
+        url: 'https://developer.playcanvas.com/api/pc.SoundComponent.html'
     }, {
         title: 'positional',
         subTitle: '{Boolean}',
         description: 'If checked, the component will play back audio assets as if played from the location of the entity in 3D space.',
-        url: 'http://developer.playcanvas.com/api/pc.SoundComponent.html#positional'
+        url: 'https://developer.playcanvas.com/api/pc.SoundComponent.html#positional'
     }, {
         title: 'distance',
         subTitle: '{Number}',
         description: "refDistance - The reference distance for reducing volume as the sound source moves further from the listener. maxDistance - The maximum distance from the listener at which audio falloff stops. Note the volume of the audio is not 0 after this distance, but just doesn't fall off anymore.",
-        url: 'http://developer.playcanvas.com/api/pc.SoundComponent.html#refDistance'
+        url: 'https://developer.playcanvas.com/api/pc.SoundComponent.html#refDistance'
     }, {
         title: 'refDistance',
         subTitle: '{Number}',
         description: "The reference distance for reducing volume as the sound source moves further from the listener.",
-        url: 'http://developer.playcanvas.com/api/pc.SoundComponent.html#refDistance'
+        url: 'https://developer.playcanvas.com/api/pc.SoundComponent.html#refDistance'
     }, {
         title: 'maxDistance',
         subTitle: '{Number}',
         description: "The maximum distance from the listener at which audio falloff stops. Note the volume of the audio is not 0 after this distance, but just doesn't fall off anymore.",
-        url: 'http://developer.playcanvas.com/api/pc.SoundComponent.html#maxDistance'
+        url: 'https://developer.playcanvas.com/api/pc.SoundComponent.html#maxDistance'
     }, {
         title: 'pitch',
         subTitle: '{Number}',
         description: 'The pitch to playback the audio at. A value of 1 means the audio is played back at the original pitch. The pitch of each slot is multiplied with this value.',
-        url: 'http://developer.playcanvas.com/api/pc.SoundComponent.html#pitch'
+        url: 'https://developer.playcanvas.com/api/pc.SoundComponent.html#pitch'
     }, {
         title: 'rollOffFactor',
         subTitle: '{Number}',
         description: 'The rate at which volume fall-off occurs.',
-        url: 'http://developer.playcanvas.com/api/pc.SoundComponent.html#rollOffFactor'
+        url: 'https://developer.playcanvas.com/api/pc.SoundComponent.html#rollOffFactor'
     }, {
         title: 'volume',
         subTitle: '{Number}',
         description: 'The volume modifier to play the audio with. The volume of each slot is multiplied with this value.',
-        url: 'http://developer.playcanvas.com/api/pc.SoundComponent.html#volume'
+        url: 'https://developer.playcanvas.com/api/pc.SoundComponent.html#volume'
     }, {
         title: 'distanceModel',
         subTitle: '{String}',

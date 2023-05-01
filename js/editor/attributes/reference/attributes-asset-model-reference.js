@@ -3,7 +3,7 @@ editor.once('load', function () {
         title: 'meshInstances',
         subTitle: '{pc.MeshInstance[]}',
         description: 'An array of meshInstances contained in this model. Materials are defined for each individual Mesh Instance.',
-        url: 'http://developer.playcanvas.com/api/pc.Model.html#meshInstances'
+        url: 'https://developer.playcanvas.com/api/pc.Model.html#meshInstances'
     }];
 
     for (let i = 0; i < fields.length; i++) {

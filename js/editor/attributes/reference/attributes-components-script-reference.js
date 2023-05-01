@@ -4,12 +4,12 @@ editor.once('load', function () {
         title: 'pc.ScriptComponent',
         subTitle: '{pc.Component}',
         description: 'The ScriptComponent allows you to extend the functionality of an Entity by attaching your own javascript files to be executed with access to the Entity. For more details on scripting see Scripting.',
-        url: 'http://developer.playcanvas.com/api/pc.ScriptComponent.html'
+        url: 'https://developer.playcanvas.com/api/pc.ScriptComponent.html'
     }, {
         title: 'scripts',
         subTitle: '{Object[]}',
         description: 'Add scripts by clicking on the button or drag scripts on the script component.',
-        url: 'http://developer.playcanvas.com/api/pc.ScriptComponent.html#scripts'
+        url: 'https://developer.playcanvas.com/api/pc.ScriptComponent.html#scripts'
     }];
 
     for (let i = 0; i < fields.length; i++) {

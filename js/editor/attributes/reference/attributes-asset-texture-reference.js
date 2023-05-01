@@ -4,53 +4,53 @@ editor.once('load', function () {
         title: 'pc.Texture',
         subTitle: '{Class}',
         description: 'Textures assets are image files which are used as part of a material to give a 3D model a realistic appearance.',
-        url: 'http://developer.playcanvas.com/api/pc.Texture.html'
+        url: 'https://developer.playcanvas.com/api/pc.Texture.html'
     }, {
         name: 'dimensions',
         title: 'width / height',
         subTitle: '{Number}',
         description: 'The width and height of the texture.',
-        url: 'http://developer.playcanvas.com/api/pc.Texture.html#width'
+        url: 'https://developer.playcanvas.com/api/pc.Texture.html#width'
     }, {
         title: 'magFilter',
         subTitle: '{pc.FILTER_*}',
         description: 'The magnification filter to be applied to the texture.',
-        url: 'http://developer.playcanvas.com/api/pc.Texture.html#magFilter'
+        url: 'https://developer.playcanvas.com/api/pc.Texture.html#magFilter'
     }, {
         title: 'mipFilter',
         subTitle: '{pc.FILTER_*}',
         description: 'The minification mipmap filter to be applied to the texture.',
-        url: 'http://developer.playcanvas.com/api/pc.Texture.html#mipFilter'
+        url: 'https://developer.playcanvas.com/api/pc.Texture.html#mipFilter'
     }, {
         title: 'minFilter',
         subTitle: '{pc.FILTER_*}',
         description: 'The minification filter to be applied to the texture.',
-        url: 'http://developer.playcanvas.com/api/pc.Texture.html#minFilter'
+        url: 'https://developer.playcanvas.com/api/pc.Texture.html#minFilter'
     }, {
         title: 'addressU',
         subTitle: '{pc.ADDRESS_*}',
         description: 'The addressing mode to be applied to the texture.',
-        url: 'http://developer.playcanvas.com/api/pc.Texture.html#addressU'
+        url: 'https://developer.playcanvas.com/api/pc.Texture.html#addressU'
     }, {
         title: 'addressV',
         subTitle: '{pc.ADDRESS_*}',
         description: 'The addressing mode to be applied to the texture.',
-        url: 'http://developer.playcanvas.com/api/pc.Texture.html#addressV'
+        url: 'https://developer.playcanvas.com/api/pc.Texture.html#addressV'
     }, {
         title: 'anisotropy',
         subTitle: '{Number}',
         description: 'Integer value specifying the level of anisotropic to apply to the texture ranging from 1 (no anisotropic filtering) to the pc.GraphicsDevice property maxAnisotropy.',
-        url: 'http://developer.playcanvas.com/api/pc.Texture.html#anisotropy'
+        url: 'https://developer.playcanvas.com/api/pc.Texture.html#anisotropy'
     }, {
         title: 'width',
         subTitle: '{Number}',
         description: 'The width of the base mip level in pixels.',
-        url: 'http://developer.playcanvas.com/api/pc.Texture.html#width'
+        url: 'https://developer.playcanvas.com/api/pc.Texture.html#width'
     }, {
         title: 'height',
         subTitle: '{Number}',
         description: 'The height of the base mip level in pixels.',
-        url: 'http://developer.playcanvas.com/api/pc.Texture.html#height'
+        url: 'https://developer.playcanvas.com/api/pc.Texture.html#height'
     }, {
         title: 'depth',
         description: 'Bits per pixel.'
@@ -64,12 +64,12 @@ editor.once('load', function () {
         title: 'rgbm',
         subTitle: '{Boolean}',
         description: 'Specifies whether the texture contains RGBM-encoded HDR data. Defaults to false.',
-        url: 'http://developer.playcanvas.com/api/pc.Texture.html#rgbm'
+        url: 'https://developer.playcanvas.com/api/pc.Texture.html#rgbm'
     }, {
         title: 'filtering',
         subTitle: '{pc.FILTER_*}',
         description: 'This property is exposed as minFilter and magFilter to specify how texture is filtered.',
-        url: 'http://developer.playcanvas.com/api/pc.Texture.html#magFilter'
+        url: 'https://developer.playcanvas.com/api/pc.Texture.html#magFilter'
     }, {
         name: 'compression',
         title: 'Compression',

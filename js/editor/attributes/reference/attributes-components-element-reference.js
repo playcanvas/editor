@@ -4,12 +4,12 @@ editor.once('load', function () {
         title: 'pc.ElementComponent',
         subTitle: '{pc.Component}',
         description: '',
-        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html'
+        url: 'https://developer.playcanvas.com/api/pc.ElementComponent.html'
     }, {
         title: 'type',
         subTitle: '{String}',
         description: 'The type of the Element.',
-        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#type'
+        url: 'https://developer.playcanvas.com/api/pc.ElementComponent.html#type'
     }, {
         title: 'preset',
         subTitle: 'Anchor / Pivot preset',
@@ -18,22 +18,22 @@ editor.once('load', function () {
         title: 'anchor',
         subTitle: '{pc.Vec4}',
         description: 'The left, bottom, right and top anchors of the Element. These range from 0 to 1. If the horizontal or vertical anchors are split (not equal) then the Element will grow to fill the difference.',
-        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#anchor'
+        url: 'https://developer.playcanvas.com/api/pc.ElementComponent.html#anchor'
     }, {
         title: 'pivot',
         subTitle: '{pc.Vec2}',
         description: 'The origin of the Element. Rotation and scaling is done based on the pivot.',
-        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#pivot'
+        url: 'https://developer.playcanvas.com/api/pc.ElementComponent.html#pivot'
     }, {
         title: 'text',
         subTitle: '{String}',
         description: 'The text content of the Element. Hit Shift+Enter to add new lines.',
-        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#text'
+        url: 'https://developer.playcanvas.com/api/pc.ElementComponent.html#text'
     }, {
         title: 'key',
         subTitle: '{String}',
         description: 'The localization key of the Element. Hit Shift+Enter to add new lines.',
-        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#key'
+        url: 'https://developer.playcanvas.com/api/pc.ElementComponent.html#key'
     }, {
         name: 'localized',
         title: 'Localized',
@@ -42,181 +42,181 @@ editor.once('load', function () {
         title: 'fontAsset',
         subTitle: '{pc.Asset}',
         description: 'The font asset used by the Element.',
-        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#fontAsset'
+        url: 'https://developer.playcanvas.com/api/pc.ElementComponent.html#fontAsset'
     }, {
         title: 'textureAsset',
         subTitle: '{pc.Asset}',
         description: 'The texture to be used by the Element.',
-        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#textureAsset'
+        url: 'https://developer.playcanvas.com/api/pc.ElementComponent.html#textureAsset'
     }, {
         title: 'spriteAsset',
         subTitle: '{pc.Asset}',
         description: 'The sprite to be used by the Element.',
-        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#spriteAsset'
+        url: 'https://developer.playcanvas.com/api/pc.ElementComponent.html#spriteAsset'
     }, {
         title: 'spriteFrame',
         subTitle: '{Number}',
         description: 'The frame from the Sprite Asset to render.',
-        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#spriteFrame'
+        url: 'https://developer.playcanvas.com/api/pc.ElementComponent.html#spriteFrame'
     }, {
         title: 'pixelsPerUnit',
         subTitle: '{Number}',
         description: 'The number of pixels that correspond to one PlayCanvas unit. Used when using 9 Sliced Sprite Assets to control the thickness of the borders. If this value is not specified the Element component will use the pixelsPerUnit value from the Sprite Asset.',
-        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#pixelsPerUnit'
+        url: 'https://developer.playcanvas.com/api/pc.ElementComponent.html#pixelsPerUnit'
     }, {
         title: 'materialAsset',
         subTitle: '{pc.Asset}',
         description: 'The material to be used by the element.',
-        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#materialAsset'
+        url: 'https://developer.playcanvas.com/api/pc.ElementComponent.html#materialAsset'
     }, {
         title: 'fitMode',
         subTitle: '{String}',
         description: 'Set how the content should be fitted and preserve the aspect ratio of the source texture or sprite. Use \'Stretch\' to always stretch the content to fit the entire Element; Use \'Contain\' to resize the content to fit within this Element\'s bounding box; Use \'Cover\' to cover the entire Element\'s bounding box.',
-        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#fitMode'
+        url: 'https://developer.playcanvas.com/api/pc.ElementComponent.html#fitMode'
     }, {
         title: 'autoWidth',
         subTitle: '{Boolean}',
         description: 'Make the width of the element match the width of the text content automatically.',
-        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#autoWidth'
+        url: 'https://developer.playcanvas.com/api/pc.ElementComponent.html#autoWidth'
     }, {
         title: 'autoHeight',
         subTitle: '{Boolean}',
         description: 'Make the height of the element match the height of the text content automatically.',
-        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#autoHeight'
+        url: 'https://developer.playcanvas.com/api/pc.ElementComponent.html#autoHeight'
     }, {
         title: 'autoFitWidth',
         subTitle: '{Boolean}',
         description: 'If enabled then the font size and the line height of the Element will scale automatically so that it fits the Element\'s width. The value of this field will be ignored if autoWidth is enabled. The font size will scale between the values of minFontSize and fontSize. The lineHeight will scale proportionately.',
-        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#autoFitWidth'
+        url: 'https://developer.playcanvas.com/api/pc.ElementComponent.html#autoFitWidth'
     }, {
         title: 'autoFitHeight',
         subTitle: '{Boolean}',
         description: 'If enabled then the font size of the Element will scale automatically so that it fits the Element\'s height. The value of this field will be ignored if autoHeight is enabled. The font size will scale between the values of minFontSize and fontSize. The lineHeight will scale proportionately.',
-        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#autoFitHeight'
+        url: 'https://developer.playcanvas.com/api/pc.ElementComponent.html#autoFitHeight'
     }, {
         title: 'autoHeight',
         subTitle: '{Boolean}',
         description: 'Make the height of the element match the height of the text content automatically.',
-        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#autoHeight'
+        url: 'https://developer.playcanvas.com/api/pc.ElementComponent.html#autoHeight'
     }, {
         title: 'size',
         subTitle: 'width / height {Number}',
         description: 'The width and height of the Element. You can only edit the width or the height if the corresponding anchors of the Element are not split.',
-        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#width'
+        url: 'https://developer.playcanvas.com/api/pc.ElementComponent.html#width'
     }, {
         title: 'width',
         description: 'The width of the Element. You can only edit the width if the corresponding anchors of the Element are not split.',
-        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#width'
+        url: 'https://developer.playcanvas.com/api/pc.ElementComponent.html#width'
     }, {
         title: 'height',
         description: 'The height of the Element. You can only edit the height if the corresponding anchors of the Element are not split.',
-        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#height'
+        url: 'https://developer.playcanvas.com/api/pc.ElementComponent.html#height'
     }, {
         title: 'margin',
         subTitle: 'margin {pc.Vec4}',
         description: 'Controls the spacing between each edge of the Element and the respective anchor. You can only edit the margin if the related anchors are split.',
-        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#margin'
+        url: 'https://developer.playcanvas.com/api/pc.ElementComponent.html#margin'
     }, {
         title: 'alignment',
         subTitle: 'alignment {pc.Vec2}',
         description: 'Controls the horizontal and vertical alignment of the text relative to its element transform.',
-        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#alignment'
+        url: 'https://developer.playcanvas.com/api/pc.ElementComponent.html#alignment'
     }, {
         title: 'rect',
         subTitle: '{pc.Vec4}',
         description: 'The u, v, width and height of the rectangle that represents the portion of the texture that this image maps to.',
-        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#rect'
+        url: 'https://developer.playcanvas.com/api/pc.ElementComponent.html#rect'
     }, {
         title: 'fontSize',
         subTitle: '{Number}',
         description: 'The size of the font used by the Element. When autoFitWidth or autoFitHeight are true then it scales between minFontSize and maxFontSize depending on the size of the Element.',
-        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#fontSize'
+        url: 'https://developer.playcanvas.com/api/pc.ElementComponent.html#fontSize'
     }, {
         title: 'minFontSize',
         subTitle: '{Number}',
         description: 'The minimum size of the font that the Element can scale to when using autoFitWidth or autoFitHeight.',
-        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#fontSize'
+        url: 'https://developer.playcanvas.com/api/pc.ElementComponent.html#fontSize'
     }, {
         title: 'maxFontSize',
         subTitle: '{Number}',
         description: 'The maximum size of the font that the Element can scale to when using autoFitWidth or autoFitHeight.',
-        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#fontSize'
+        url: 'https://developer.playcanvas.com/api/pc.ElementComponent.html#fontSize'
     }, {
         title: 'lineHeight',
         subTitle: '{Number}',
         description: 'The height of each line of text. If autoFitWidth or autoFitHeight are enabled then the lineHeight will scale with the font.',
-        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#lineHeight'
+        url: 'https://developer.playcanvas.com/api/pc.ElementComponent.html#lineHeight'
     }, {
         title: 'wrapLines',
         subTitle: '{Boolean}',
         description: 'Whether to automatically wrap lines based on the element width.',
-        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#wrapLines'
+        url: 'https://developer.playcanvas.com/api/pc.ElementComponent.html#wrapLines'
     }, {
         title: 'maxLines',
         subTitle: '{Number}',
         description: 'The maximum number of lines that this Element can display. Any left-over text will be appended to the last line of the Element. You can delete this value if you wish to have unlimited lines.',
-        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#maxLines'
+        url: 'https://developer.playcanvas.com/api/pc.ElementComponent.html#maxLines'
     }, {
         title: 'spacing',
         subTitle: '{Number}',
         description: 'The spacing between each letter of the text.',
-        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#spacing'
+        url: 'https://developer.playcanvas.com/api/pc.ElementComponent.html#spacing'
     }, {
         title: 'color',
         subTitle: '{pc.Color}',
         description: 'The color of the Element.',
-        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#color'
+        url: 'https://developer.playcanvas.com/api/pc.ElementComponent.html#color'
     }, {
         title: 'opacity',
         subTitle: '{Number}',
         description: 'The opacity of the Element.',
-        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#opacity'
+        url: 'https://developer.playcanvas.com/api/pc.ElementComponent.html#opacity'
     }, {
         title: 'useInput',
         subTitle: '{Boolean}',
         description: 'Enable this if you want the element to receive input events.',
-        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#useInput'
+        url: 'https://developer.playcanvas.com/api/pc.ElementComponent.html#useInput'
     }, {
         title: 'batchGroupId',
         subTitle: '{Number}',
         description: 'The batch group that this Element belongs to. The engine will attempt to batch Elements in the same batch group to reduce draw calls.',
-        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#batchGroupId'
+        url: 'https://developer.playcanvas.com/api/pc.ElementComponent.html#batchGroupId'
     }, {
         name: 'layers',
         title: 'layers',
         subTitle: '{Number[]}',
         description: 'The layers that this Element belongs to. When an Element belongs to multiple layers it will be rendered multiple times.',
-        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#layers'
+        url: 'https://developer.playcanvas.com/api/pc.ElementComponent.html#layers'
     }, {
         title: 'outlineColor',
         subTitle: '{pc.Color}',
         description: 'The text outline effect color and opacity.',
-        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#outlineColor'
+        url: 'https://developer.playcanvas.com/api/pc.ElementComponent.html#outlineColor'
     }, {
         title: 'outlineThickness',
         subTitle: '{Number}',
         description: 'The text outline effect width. These range from 0 to 1. To disable outline effect set to 0.',
-        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#outlineThickness'
+        url: 'https://developer.playcanvas.com/api/pc.ElementComponent.html#outlineThickness'
     }, {
         title: 'shadowColor',
         subTitle: '{pc.Color}',
         description: 'The text shadow cast effect color and opacity.',
-        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#shadowColor'
+        url: 'https://developer.playcanvas.com/api/pc.ElementComponent.html#shadowColor'
     }, {
         title: 'shadowOffset',
         subTitle: '{pc.Vec2}',
         description: 'Controls the horizontal and vertical shift of the text shadow cast effect. The rage of both components is form -1 to 1. To disable effect set both to 0.',
-        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#shadowOffset'
+        url: 'https://developer.playcanvas.com/api/pc.ElementComponent.html#shadowOffset'
     }, {
         title: 'enableMarkup',
         subTitle: '{Boolean}',
         description: 'Flag for enabling markup processing. Only works for text types.',
-        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#enableMarkup'
+        url: 'https://developer.playcanvas.com/api/pc.ElementComponent.html#enableMarkup'
     }, {
         title: 'mask',
         subTitle: '{Boolean}',
         description: 'Switch Image Element into a mask. Masks do not render into the scene, but instead limit child elements to only be rendered where this element is rendered.',
-        url: 'http://developer.playcanvas.com/api/pc.ElementComponent.html#mask'
+        url: 'https://developer.playcanvas.com/api/pc.ElementComponent.html#mask'
     }];
 
     for (let i = 0; i < fields.length; i++) {

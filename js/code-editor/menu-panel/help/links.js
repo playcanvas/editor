@@ -14,7 +14,7 @@ editor.once('load', function () {
     menu.append(item);
 
     editor.method('editor:command:openApiReference', function () {
-        window.open('http://developer.playcanvas.com/en/api/');
+        window.open('https://developer.playcanvas.com/en/api/');
     });
 
     // User Manual
@@ -28,7 +28,7 @@ editor.once('load', function () {
     menu.append(item);
 
     editor.method('editor:command:openUserManual', function () {
-        window.open('http://developer.playcanvas.com/en/user-manual/');
+        window.open('https://developer.playcanvas.com/en/user-manual/');
     });
 
     // Tutorials
@@ -42,7 +42,7 @@ editor.once('load', function () {
     menu.append(item);
 
     editor.method('editor:command:openTutorials', function () {
-        window.open('http://developer.playcanvas.com/en/tutorials/');
+        window.open('https://developer.playcanvas.com/en/tutorials/');
     });
 
     // Forum
