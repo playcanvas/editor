@@ -184,17 +184,13 @@ void main(void)
         };
         materialDefault.cull = pc.CULLFACE_NONE;
         materialDefault.color = colorPrimary;
-        materialDefault.blend = true;
-        materialDefault.blendSrc = pc.BLENDMODE_SRC_ALPHA;
-        materialDefault.blendDst = pc.BLENDMODE_ONE_MINUS_SRC_ALPHA;
+        materialDefault.blendState = new pc.BlendState(true, pc.BLENDEQUATION_ADD, pc.BLENDMODE_SRC_ALPHA, pc.BLENDMODE_ONE_MINUS_SRC_ALPHA);
         materialDefault.update();
 
         const materialBehind = new pc.BasicMaterial();
         materialBehind.updateShader = materialDefault.updateShader;
         materialBehind.color = colorBehind;
-        materialBehind.blend = true;
-        materialBehind.blendSrc = pc.BLENDMODE_SRC_ALPHA;
-        materialBehind.blendDst = pc.BLENDMODE_ONE_MINUS_SRC_ALPHA;
+        materialBehind.blendState = new pc.BlendState(true, pc.BLENDEQUATION_ADD, pc.BLENDMODE_SRC_ALPHA, pc.BLENDMODE_ONE_MINUS_SRC_ALPHA);
         materialBehind.depthWrite = false;
         materialBehind.depthTest = true;
         materialBehind.cull = pc.CULLFACE_NONE;
@@ -219,17 +215,13 @@ void main(void)
 
         const materialPlaneBehind = new pc.BasicMaterial();
         materialPlaneBehind.color = new pc.Color(1, 1, 1, 0.4);
-        materialPlaneBehind.blend = true;
-        materialPlaneBehind.blendSrc = pc.BLENDMODE_SRC_ALPHA;
-        materialPlaneBehind.blendDst = pc.BLENDMODE_ONE_MINUS_SRC_ALPHA;
+        materialPlaneBehind.blendState = new pc.BlendState(true, pc.BLENDEQUATION_ADD, pc.BLENDMODE_SRC_ALPHA, pc.BLENDMODE_ONE_MINUS_SRC_ALPHA);
         materialPlaneBehind.cull = pc.CULLFACE_NONE;
         materialPlaneBehind.update();
 
         const materialPlane = new pc.BasicMaterial();
         materialPlane.color = new pc.Color(1, 1, 1, 0.1);
-        materialPlane.blend = true;
-        materialPlane.blendSrc = pc.BLENDMODE_SRC_ALPHA;
-        materialPlane.blendDst = pc.BLENDMODE_ONE_MINUS_SRC_ALPHA;
+        materialPlane.blendState = new pc.BlendState(true, pc.BLENDEQUATION_ADD, pc.BLENDMODE_SRC_ALPHA, pc.BLENDMODE_ONE_MINUS_SRC_ALPHA);
         materialPlane.depthTest = false;
         materialPlane.cull = pc.CULLFACE_NONE;
         materialPlane.update();

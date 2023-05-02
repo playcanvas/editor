@@ -208,9 +208,7 @@ editor.once('load', function () {
             // materialBehind
             materialBehind = new pc.BasicMaterial();
             materialBehind.color = colorBehind;
-            materialBehind.blend = true;
-            materialBehind.blendSrc = pc.BLENDMODE_SRC_ALPHA;
-            materialBehind.blendDst = pc.BLENDMODE_ONE_MINUS_SRC_ALPHA;
+            materialBehind.blendState = new pc.BlendState(true, pc.BLENDEQUATION_ADD, pc.BLENDMODE_SRC_ALPHA, pc.BLENDMODE_ONE_MINUS_SRC_ALPHA);
             materialBehind.depthTest = false;
             materialBehind.update();
 
@@ -265,9 +263,7 @@ editor.once('load', function () {
             materialSpotBehind = new pc.BasicMaterial();
             materialSpotBehind.updateShader = materialSpot.updateShader;
             materialSpotBehind.color = colorBehind;
-            materialSpotBehind.blend = true;
-            materialSpotBehind.blendSrc = pc.BLENDMODE_SRC_ALPHA;
-            materialSpotBehind.blendDst = pc.BLENDMODE_ONE_MINUS_SRC_ALPHA;
+            materialSpotBehind.blendState = new pc.BlendState(true, pc.BLENDEQUATION_ADD, pc.BLENDMODE_SRC_ALPHA, pc.BLENDMODE_ONE_MINUS_SRC_ALPHA);
             materialSpotBehind.depthTest = false;
             materialSpotBehind.update();
         }

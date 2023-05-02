@@ -47,8 +47,7 @@ editor.once('viewport:load', function () {
         renderer.setCamera(cam);
         renderer.clearView(cam, depthTarget, true);
 
-        const oldBlending = device.getBlending();
-        device.setBlending(false);
+        device.setBlendState(pc.BlendState.DEFAULT);
 
         const drawCalls = scene.drawCalls;
         const drawCallsCount = drawCalls.length;
@@ -92,8 +91,6 @@ editor.once('viewport:load', function () {
                 renderer._depthDrawCalls++;
             }
         }
-
-        device.setBlending(oldBlending);
 
         rendered = true;
 

@@ -19,17 +19,13 @@ editor.once('load', function () {
     const materialDefault = new pc.BasicMaterial();
     materialDefault.name = 'collision';
     materialDefault.color = colorPrimary;
-    materialDefault.blend = true;
-    materialDefault.blendSrc = pc.BLENDMODE_SRC_ALPHA;
-    materialDefault.blendDst = pc.BLENDMODE_ONE_MINUS_SRC_ALPHA;
+    materialDefault.blendState = new pc.BlendState(true, pc.BLENDEQUATION_ADD, pc.BLENDMODE_SRC_ALPHA, pc.BLENDMODE_ONE_MINUS_SRC_ALPHA);
     materialDefault.update();
 
     const materialBehind = new pc.BasicMaterial();
     materialBehind.name = 'collision behind';
     materialBehind.color = colorBehind;
-    materialBehind.blend = true;
-    materialBehind.blendSrc = pc.BLENDMODE_SRC_ALPHA;
-    materialBehind.blendDst = pc.BLENDMODE_ONE_MINUS_SRC_ALPHA;
+    materialBehind.blendState = new pc.BlendState(true, pc.BLENDEQUATION_ADD, pc.BLENDMODE_SRC_ALPHA, pc.BLENDMODE_ONE_MINUS_SRC_ALPHA);
     materialBehind.depthWrite = false;
     materialBehind.depthTest = true;
     materialBehind.update();

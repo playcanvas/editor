@@ -209,15 +209,15 @@ void main(void)
         `.trim();
     const shaderBlurV = chunks.createShaderFromCode(device, chunks.fullscreenQuadVS, shaderBlurVPS, "editorOutlineV");
 
+    const blendState = new pc.BlendState(true, pc.BLENDEQUATION_ADD, pc.BLENDMODE_SRC_ALPHA, pc.BLENDMODE_ONE_MINUS_SRC_ALPHA);
 
     // ### SETUP THE LAYER ###
     viewportLayer = editor.call('gizmo:layers', 'Viewport Outline');
     viewportLayer.onPostRender = function () {
         const uColorBuffer = device.scope.resolve('source');
         uColorBuffer.setValue(textures[0]);
-        device.setBlending(true);
-        device.setBlendFunction(pc.BLENDMODE_SRC_ALPHA, pc.BLENDMODE_ONE_MINUS_SRC_ALPHA);
-        pc.drawQuadWithShader(device, null, shaderFinal, null, null, true);
+        device.setBlendState(blendState);
+        pc.drawQuadWithShader(device, null, shaderFinal);
     };
 
     const outlineLayer = new pc.Layer({

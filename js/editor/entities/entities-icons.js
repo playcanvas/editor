@@ -293,9 +293,7 @@ void main(void)
         material.update();
 
         materialBehind = new pc.BasicMaterial();
-        materialBehind.blend = true;
-        materialBehind.blendSrc = pc.BLENDMODE_SRC_ALPHA;
-        materialBehind.blendDst = pc.BLENDMODE_ONE_MINUS_SRC_ALPHA;
+        materialBehind.blendState = new pc.BlendState(true, pc.BLENDEQUATION_ADD, pc.BLENDMODE_SRC_ALPHA, pc.BLENDMODE_ONE_MINUS_SRC_ALPHA);
         materialBehind.updateShader = material.updateShader;
         materialBehind.update();
 

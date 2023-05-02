@@ -11,9 +11,7 @@ editor.once('load', function () {
     var materialDefault;
     var materialBehind = new pc.BasicMaterial();
     materialBehind.color = colorBehind;
-    materialBehind.blend = true;
-    materialBehind.blendSrc = pc.BLENDMODE_SRC_ALPHA;
-    materialBehind.blendDst = pc.BLENDMODE_ONE_MINUS_SRC_ALPHA;
+    materialBehind.blendState = new pc.BlendState(true, pc.BLENDEQUATION_ADD, pc.BLENDMODE_SRC_ALPHA, pc.BLENDMODE_ONE_MINUS_SRC_ALPHA);
     materialBehind.depthTest = false;
     materialBehind.update();
     var models = { };

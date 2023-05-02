@@ -22,9 +22,7 @@ editor.once('load', function () {
         var mat = new pc.BasicMaterial();
         mat.color = color;
         if (color.a !== 1) {
-            mat.blend = true;
-            mat.blendSrc = pc.BLENDMODE_SRC_ALPHA;
-            mat.blendDst = pc.BLENDMODE_ONE_MINUS_SRC_ALPHA;
+            mat.blendState = new pc.BlendState(true, pc.BLENDEQUATION_ADD, pc.BLENDMODE_SRC_ALPHA, pc.BLENDMODE_ONE_MINUS_SRC_ALPHA);
         }
         mat.cull = pc.CULLFACE_NONE;
         mat.update();

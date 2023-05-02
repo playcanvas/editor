@@ -20,17 +20,13 @@ editor.once('load', function () {
     const materialQuad = new pc.BasicMaterial();
     materialQuad.color = new pc.Color(1, 1, 1, 0.25);
     materialQuad.cull = pc.CULLFACE_NONE;
-    materialQuad.blend = true;
-    materialQuad.blendSrc = pc.BLENDMODE_SRC_ALPHA;
-    materialQuad.blendDst = pc.BLENDMODE_ONE_MINUS_SRC_ALPHA;
+    materialQuad.blendState = new pc.BlendState(true, pc.BLENDEQUATION_ADD, pc.BLENDMODE_SRC_ALPHA, pc.BLENDMODE_ONE_MINUS_SRC_ALPHA);
     materialQuad.update();
 
     // material behind
     const materialBehind = new pc.BasicMaterial();
     materialBehind.color = new pc.Color(1, 1, 1, 0.15);
-    materialBehind.blend = true;
-    materialBehind.blendSrc = pc.BLENDMODE_SRC_ALPHA;
-    materialBehind.blendDst = pc.BLENDMODE_ONE_MINUS_SRC_ALPHA;
+    materialBehind.blendState = new pc.BlendState(true, pc.BLENDEQUATION_ADD, pc.BLENDMODE_SRC_ALPHA, pc.BLENDMODE_ONE_MINUS_SRC_ALPHA);
     materialBehind.depthTest = false;
     materialBehind.update();
 
