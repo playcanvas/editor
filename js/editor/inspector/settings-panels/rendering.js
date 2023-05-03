@@ -1,3 +1,4 @@
+import { Button, Label, Overlay } from '@playcanvas/pcui';
 import { BaseSettingsPanel } from './base.js';
 
 const ATTRIBUTES = [
@@ -548,36 +549,30 @@ class RenderingSettingsPanel extends BaseSettingsPanel {
     }
 
     showReloadDialog() {
-
-        const text = 'When the Clustered Lighting is toggled, the Editor needs to reload for the effect' +
-        ' to take place. If you have the project launched, please reload it as well.';
-
         // display a modal window, only allowing the user to reload the Editor
         const root = editor.call('layout.root');
-        const overlay = new ui.Overlay();
-        overlay.class.add('rendering-settings-restart-modal');
-        overlay.style.zIndex = 203;
-        overlay.center = true;
-        overlay.clickable = false;
+
+        const overlay = new Overlay({
+            class: 'rendering-settings-restart-modal',
+            clickable: false
+        });
         root.append(overlay);
 
         // label
-        const label = new ui.Label({
-            unsafe: true,
-            text: text
+        const label = new Label({
+            text: 'When Clustered Lighting is toggled, the Editor needs to reloaded. If you have the Launch page open, please reload that as well.'
         });
-        label.class.add('header');
         overlay.append(label);
 
         // reload button
-        const btnClose = new ui.Button();
-        btnClose.class.add('close');
-        btnClose.text = 'Reload';
-        btnClose.on('click', function () {
+        const btnReload = new Button({
+            text: 'RELOAD'
+        });
+        btnReload.on('click', () => {
             // reload the page
             window.location.reload();
         });
-        overlay.append(btnClose);
+        overlay.append(btnReload);
     }
 }
 
