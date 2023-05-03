@@ -52,15 +52,15 @@
     "browserify": "17.0.0",
     "concurrently": "^8.0.1",
     "cross-env": "^7.0.3",
-    "eslint": "^8.38.0",
-    "highlight.js": "^11.7.0",
+    "eslint": "^8.39.0",
+    "highlight.js": "^11.8.0",
     "ot-text": "github:playcanvas/ot-text",
-    "postcss": "^8.4.22",
-    "rollup": "^3.20.6",
+    "postcss": "^8.4.23",
+    "rollup": "^3.21.3",
     "rollup-plugin-sass": "^1.12.16",
     "serve": "^14.1.1",
     "sharedb": "3.2.1",
-    "stylelint": "^15.5.0",
-    "stylelint-config-standard-scss": "^8.0.0"
+    "stylelint": "^15.6.1",
+    "stylelint-config-standard-scss": "^9.0.0"
   }
 }
