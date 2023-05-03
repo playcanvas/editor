@@ -9,9 +9,6 @@ editor.once('load', function () {
     const color = new pc.Color(1, 1, 1);
     const colorBehind = new pc.Color(1, 1, 1, 0.2);
 
-    let immediateRenderOptions;
-    let immediateMaskRenderOptions;
-
     const points = [];
     for (let c = 0; c < 32; c++)
         points[c] = new pc.Vec3();
@@ -51,6 +48,9 @@ editor.once('load', function () {
 
         if (!visible) return;
 
+        const immediateLayer = editor.call('gizmo:layers', 'Axis Gizmo Immediate');
+        const brightLayer = editor.call('gizmo:layers', 'Bright Gizmo');
+
         let ind = 0;
         for (let x = -1; x <= 1; x += 2) {
             for (let y = -1; y <= 1; y += 2) {
@@ -70,13 +70,13 @@ editor.once('load', function () {
                     points[ind * 4 + 3].copy(points[ind * 4]);
                     points[ind * 4 + 3].z -= aabb.halfExtents.z * 0.3 * z;
 
-                    app.renderLine(points[ind * 4], points[ind * 4 + 1], colorBehind, immediateRenderOptions);
-                    app.renderLine(points[ind * 4], points[ind * 4 + 2], colorBehind, immediateRenderOptions);
-                    app.renderLine(points[ind * 4], points[ind * 4 + 3], colorBehind, immediateRenderOptions);
+                    app.drawLine(points[ind * 4], points[ind * 4 + 1], colorBehind, true, immediateLayer);
+                    app.drawLine(points[ind * 4], points[ind * 4 + 2], colorBehind, true, immediateLayer);
+                    app.drawLine(points[ind * 4], points[ind * 4 + 3], colorBehind, true, immediateLayer);
 
-                    app.renderLine(points[ind * 4], points[ind * 4 + 1], color, immediateMaskRenderOptions);
-                    app.renderLine(points[ind * 4], points[ind * 4 + 2], color, immediateMaskRenderOptions);
-                    app.renderLine(points[ind * 4], points[ind * 4 + 3], color, immediateMaskRenderOptions);
+                    app.drawLine(points[ind * 4], points[ind * 4 + 1], color, true, brightLayer);
+                    app.drawLine(points[ind * 4], points[ind * 4 + 2], color, true, brightLayer);
+                    app.drawLine(points[ind * 4], points[ind * 4 + 3], color, true, brightLayer);
 
                     ind++;
                 }
@@ -232,16 +232,6 @@ editor.once('load', function () {
 
     editor.once('viewport:load', function () {
         app = editor.call('viewport:app');
-
-        immediateRenderOptions = {
-            layer: editor.call('gizmo:layers', 'Axis Gizmo Immediate'),
-            mask: GIZMO_MASK
-        };
-
-        immediateMaskRenderOptions = {
-            layer: editor.call('gizmo:layers', 'Bright Gizmo'),
-            mask: GIZMO_MASK
-        };
 
         editor.on('viewport:postUpdate', function () {
             if (!entities.length)

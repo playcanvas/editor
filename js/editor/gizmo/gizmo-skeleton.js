@@ -6,13 +6,15 @@ editor.once('load', function () {
     var color = new pc.Color(1, 1, 1);
     var colorBehind = new pc.Color(1, 1, 1, 0.5);
 
-    var immediateRenderOptions;
-    var immediateMaskRenderOptions;
-
     var renderBones = function (entities) {
+        const immediateLayer = editor.call('gizmo:layers', 'Axis Gizmo Immediate');
+        const brightLayer = editor.call('gizmo:layers', 'Bright Gizmo');
+
         var renderBone = function (parent, child) {
-            app.renderLine(parent.getPosition(), child.getPosition(), colorBehind, immediateRenderOptions);
-            app.renderLine(parent.getPosition(), child.getPosition(), color, immediateMaskRenderOptions);
+            const start = parent.getPosition();
+            const end = child.getPosition();
+            app.drawLine(start, end, colorBehind, true, immediateLayer);
+            app.drawLine(start, end, color, true, brightLayer);
         };
 
         var renderBoneHierarchy = function (node) {
@@ -22,8 +24,7 @@ editor.once('load', function () {
             }
 
             // render child links
-            for (let i = 0; i < node.children.length; ++i) {
-                var child = node.children[i];
+            for (const child of node.children) {
                 renderBone(node, child);
                 renderBoneHierarchy(child);
             }
@@ -54,9 +55,7 @@ editor.once('load', function () {
 
     editor.on('selector:change', function (type, items) {
         if (type === 'entity') {
-            entities = items.map(function (item) {
-                return item.entity;
-            });
+            entities = items.map(item => item.entity);
         } else {
             entities = [];
         }
@@ -66,18 +65,8 @@ editor.once('load', function () {
         // get the app
         app = editor.call('viewport:app');
 
-        immediateRenderOptions = {
-            layer: editor.call('gizmo:layers', 'Axis Gizmo Immediate'),
-            mask: GIZMO_MASK
-        };
-
-        immediateMaskRenderOptions = {
-            layer: editor.call('gizmo:layers', 'Bright Gizmo'),
-            mask: GIZMO_MASK
-        };
-
         // hook up changes to editor.showSkeleton
-        var settings = editor.call('settings:user');
+        const settings = editor.call('settings:user');
         settings.on('editor.showSkeleton:set', function (enabled) {
             visible = enabled;
         });

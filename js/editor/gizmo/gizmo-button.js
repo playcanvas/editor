@@ -1,23 +1,23 @@
 editor.once('load', function () {
-    let hitCorners = [];
-    const renderLineCorners = [];
-    const cornerColor = new pc.Color(0, 1, 0, 0.9);
+    let corners = [];
+    for (let i = 0; i < 4; i++) {
+        corners.push(new pc.Vec3());
+    }
+
+    const positions = [];
+    for (let i = 0; i < 8; i++) {
+        positions.push(new pc.Vec3());
+    }
+
+    const color = new pc.Color(0, 1, 0, 0.9);
+    const colors = [];
+    for (let i = 0; i < 8; i++) {
+        colors.push(color);
+    }
+
     let visible = true;
 
-    for (let i = 0; i < 8; i++) {
-        renderLineCorners.push(new pc.Vec3());
-    }
-
-    for (let i = 0; i < 4; i++) {
-        hitCorners.push(new pc.Vec3());
-    }
-
     editor.once('viewport:load', function (app) {
-        const immediateRenderOptions = {
-            layer: editor.call('gizmo:layers', 'Axis Gizmo Immediate'),
-            mask: GIZMO_MASK
-        };
-
         editor.method('gizmo:button:visible', function (state) {
             if (visible !== state) {
                 visible = state;
@@ -27,41 +27,38 @@ editor.once('load', function () {
         });
 
         editor.on('viewport:gizmoUpdate', function (dt) {
-            // Fri 18 Nov 2022: Check if the function exists as it's a new function in Engine 1.59.0
-            if (!visible || !pc.ElementInput.buildHitCorners) {
+            if (!visible) {
                 return;
             }
 
-            const selected = editor.selection.items;
-            for (let i = 0, len = selected.length; i < len; i++) {
-                const item = selected[i];
-
+            for (const item of editor.selection.items) {
                 const entity = item.viewportEntity;
                 if (!entity || !entity.element || !entity.button)
                     continue;
 
                 const worldCorners = entity.element.worldCorners;
                 for (let i = 0; i < worldCorners.length; ++i) {
-                    hitCorners[i].copy(worldCorners[i]);
+                    corners[i].copy(worldCorners[i]);
                 }
 
                 // Add the padding to the existing world corners
                 // We are always in world space in the Editor
                 const elementScale = pc.ElementInput.calculateScaleToWorld(entity.element);
-                hitCorners = pc.ElementInput.buildHitCorners(entity.element, hitCorners, elementScale);
+                corners = pc.ElementInput.buildHitCorners(entity.element, corners, elementScale);
 
-                renderLineCorners[0].copy(hitCorners[0]);
-                renderLineCorners[1].copy(hitCorners[1]);
-                renderLineCorners[2].copy(hitCorners[1]);
-                renderLineCorners[3].copy(hitCorners[2]);
-                renderLineCorners[4].copy(hitCorners[2]);
-                renderLineCorners[5].copy(hitCorners[3]);
-                renderLineCorners[6].copy(hitCorners[3]);
-                renderLineCorners[7].copy(hitCorners[0]);
+                positions[0].copy(corners[0]);
+                positions[1].copy(corners[1]);
+                positions[2].copy(corners[1]);
+                positions[3].copy(corners[2]);
+                positions[4].copy(corners[2]);
+                positions[5].copy(corners[3]);
+                positions[6].copy(corners[3]);
+                positions[7].copy(corners[0]);
 
-                app.renderLines(renderLineCorners, cornerColor, immediateRenderOptions);
+                const layer = editor.call('gizmo:layers', 'Axis Gizmo Immediate');
+
+                app.drawLines(positions, colors, true, layer);
             }
         });
-
     });
 });

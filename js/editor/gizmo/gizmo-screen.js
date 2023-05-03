@@ -4,8 +4,8 @@ editor.once('load', function () {
     const top = new pc.Vec3();
     const bottom = new pc.Vec3();
 
-    const corners = [];
-    const cornerColors = [];
+    const positions = [];
+    const colors = [];
     let visible = true;
 
     const vecA = new pc.Vec2();
@@ -13,17 +13,12 @@ editor.once('load', function () {
     const projectSettings = editor.call('settings:project');
 
     for (let i = 0; i < 8; i++) {
-        corners.push(new pc.Vec3());
-        cornerColors.push(new pc.Color(1, 1, 1));
+        positions.push(new pc.Vec3());
+        colors.push(pc.Color.WHITE);
     }
 
     editor.once('viewport:load', function (app) {
         const entities = {};
-
-        const immediateRenderOptions = {
-            layer: editor.call('gizmo:layers', 'Axis Gizmo Immediate'),
-            mask: GIZMO_MASK
-        };
 
         // remember selected entities
         const selectedEntities = {};
@@ -206,17 +201,19 @@ editor.once('load', function () {
                 .copy(u)
                 .scale(-0.5 * entity.screen.resolution.y * scale.y / screenScale);
 
-                corners[0].copy(position).add(left).add(top);
-                corners[1].copy(position).add(left).add(bottom);
-                corners[2].copy(position).add(left).add(bottom);
-                corners[3].copy(position).add(right).add(bottom);
-                corners[4].copy(position).add(right).add(bottom);
-                corners[5].copy(position).add(right).add(top);
-                corners[6].copy(position).add(right).add(top);
-                corners[7].copy(position).add(left).add(top);
+                positions[0].copy(position).add(left).add(top);
+                positions[1].copy(position).add(left).add(bottom);
+                positions[2].copy(position).add(left).add(bottom);
+                positions[3].copy(position).add(right).add(bottom);
+                positions[4].copy(position).add(right).add(bottom);
+                positions[5].copy(position).add(right).add(top);
+                positions[6].copy(position).add(right).add(top);
+                positions[7].copy(position).add(left).add(top);
+
+                const layer = editor.call('gizmo:layers', 'Axis Gizmo Immediate');
 
                 // render rectangle for screen
-                app.renderLines(corners, cornerColors, immediateRenderOptions);
+                app.drawLines(positions, colors, true, layer);
             }
         });
     });

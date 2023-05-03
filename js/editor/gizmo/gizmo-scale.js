@@ -16,7 +16,6 @@ editor.once('load', function () {
     var quat = new pc.Quat();
     var evtTapStart;
     var pickStart = new pc.Vec3();
-    var immediateRenderOptions;
 
     var createMaterial = function (color) {
         var mat = new pc.BasicMaterial();
@@ -365,11 +364,6 @@ editor.once('load', function () {
         var app = editor.call('viewport:app');
         if (!app) return; // webgl not available
 
-        immediateRenderOptions = {
-            layer: editor.call('gizmo:layers', 'Axis Gizmo Immediate'),
-            depthTest: true
-        };
-
         gizmo = createEntity();
         gizmo.root.enabled = false;
         app.root.addChild(gizmo.root);
@@ -490,6 +484,8 @@ editor.once('load', function () {
                 gizmo.line.y.model.enabled = gizmo.box.y.model.enabled = !(Math.abs(vecA.x) <= 0.15 && Math.abs(vecA.z) <= 0.15) && visible;
                 gizmo.line.z.model.enabled = gizmo.box.z.model.enabled = !(Math.abs(vecA.x) <= 0.15 && Math.abs(vecA.y) <= 0.15) && visible;
 
+                const layer = editor.call('gizmo:layers', 'Axis Gizmo Immediate');
+
                 // draw axes lines
                 // line x
                 if (gizmo.line.x.model.enabled) {
@@ -497,7 +493,8 @@ editor.once('load', function () {
                     quat.transformVector(vecB, vecB).add(posGizmo);
                     vecC.set(scale * 2, 0, 0);
                     quat.transformVector(vecC, vecC).add(posGizmo);
-                    app.renderLine(vecB, vecC, gizmo.box.x.model.material === gizmo.matActive ? gizmo.matActive.color : gizmo.box.x.color, immediateRenderOptions);
+                    const color = gizmo.box.x.model.material === gizmo.matActive ? gizmo.matActive.color : gizmo.box.x.color;
+                    app.drawLine(vecB, vecC, color, true, layer);
                 }
                 // line y
                 if (gizmo.line.y.model.enabled) {
@@ -505,7 +502,8 @@ editor.once('load', function () {
                     quat.transformVector(vecB, vecB).add(posGizmo);
                     vecC.set(0, scale * 2, 0);
                     quat.transformVector(vecC, vecC).add(posGizmo);
-                    app.renderLine(vecB, vecC, gizmo.box.y.model.material === gizmo.matActive ? gizmo.matActive.color : gizmo.box.y.color, immediateRenderOptions);
+                    const color = gizmo.box.y.model.material === gizmo.matActive ? gizmo.matActive.color : gizmo.box.y.color;
+                    app.drawLine(vecB, vecC, color, true, layer);
                 }
                 // line z
                 if (gizmo.line.z.model.enabled) {
@@ -513,7 +511,8 @@ editor.once('load', function () {
                     quat.transformVector(vecB, vecB).add(posGizmo);
                     vecC.set(0, 0, scale * 2);
                     quat.transformVector(vecC, vecC).add(posGizmo);
-                    app.renderLine(vecB, vecC, gizmo.box.z.model.material === gizmo.matActive ? gizmo.matActive.color : gizmo.box.z.color, immediateRenderOptions);
+                    const color = gizmo.box.z.model.material === gizmo.matActive ? gizmo.matActive.color : gizmo.box.z.color;
+                    app.drawLine(vecB, vecC, color, true, layer);
                 }
             }
         });

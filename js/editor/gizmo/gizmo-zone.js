@@ -2,8 +2,6 @@ editor.once('load', function () {
     let app;
     let visible = false;
 
-    let immediateRenderOptions;
-
     const layerFront = editor.call('gizmo:layers', 'Bright Collision');
     const layerBack = editor.call('gizmo:layers', 'Dim Gizmo');
 
@@ -247,10 +245,6 @@ void main(void)
         const instanceBehind = new pc.MeshInstance(instance.node, instance.mesh, materialPlaneBehind);
         plane.model.meshInstances.push(instanceBehind);
         instanceBehind.__useFrontLayer = true;
-
-        immediateRenderOptions = {
-            layer: editor.call('gizmo:layers', 'Axis Gizmo Immediate')
-        };
 
         // gizmo class
         function Gizmo() {
@@ -685,6 +679,8 @@ void main(void)
 
                 const a = scales[dragPoint.ind];
 
+                const layer = editor.call('gizmo:layers', 'Axis Gizmo Immediate');
+
                 for (let i = 0; i < a.length; i++) {
                     for (let l = 0; l <= 2; l++) {
                         vecA.set(0, 0, 0);
@@ -698,8 +694,8 @@ void main(void)
                         vecB.copy(position).add(vecD).add(vecA);
                         vecC.copy(position).add(vecD).sub(vecA);
 
-                        app.renderLine(vecB, vecC, colorBehind, immediateRenderOptions);
-                        app.renderLine(vecB, vecC, colorPrimary, immediateRenderOptions);
+                        app.drawLine(vecB, vecC, colorBehind, true, layer);
+                        app.drawLine(vecB, vecC, colorPrimary, true, layer);
                     }
                 }
             }

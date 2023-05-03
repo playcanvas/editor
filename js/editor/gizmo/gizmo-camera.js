@@ -6,10 +6,15 @@ editor.once('load', function () {
     var pool = [];
     // colors
     var colorBehind = new pc.Color(1, 1, 1, 0.15);
+    const colorsBehind = [];
+    for (let i = 0; i < 24; i++) {
+        colorsBehind.push(colorBehind);
+    }
     var colorPrimary = new pc.Color(1, 1, 1);
-
-    var immediateRenderOptions;
-    var noDepthImmediateRenderOptions;
+    const colorsPrimary = [];
+    for (let i = 0; i < 24; i++) {
+        colorsPrimary.push(colorPrimary);
+    }
 
     // gizmo class
     function Gizmo() {
@@ -99,8 +104,11 @@ editor.once('load', function () {
         if (!this.visible)
             return;
 
-        app.renderLines(this.lines, colorBehind, noDepthImmediateRenderOptions);
-        app.renderLines(this.lines, colorPrimary, immediateRenderOptions);
+        let layer = editor.call('gizmo:layers', 'Axis Gizmo Immediate');
+        app.drawLines(this.lines, colorsBehind, false, layer);
+
+        layer = editor.call('gizmo:layers', 'Bright Gizmo');
+        app.drawLines(this.lines, colorsPrimary, true, layer);
     };
     // link to entity
     Gizmo.prototype.link = function (obj) {
@@ -175,17 +183,6 @@ editor.once('load', function () {
 
     editor.once('viewport:load', function () {
         app = editor.call('viewport:app');
-
-        noDepthImmediateRenderOptions = {
-            layer: editor.call('gizmo:layers', 'Axis Gizmo Immediate'),
-            mask: GIZMO_MASK,
-            depthTest: false
-        };
-
-        immediateRenderOptions = {
-            layer: editor.call('gizmo:layers', 'Bright Gizmo'),
-            mask: GIZMO_MASK
-        };
     });
 
     editor.on('viewport:gizmoUpdate', function (dt) {

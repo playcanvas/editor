@@ -1,10 +1,10 @@
 editor.once('load', function () {
-    var gizmoType = 'translate';
-    var coordSystem = 'world';
-    var snap = false;
-    var snapToggle = false;
-    var snapShift = false;
-    var snapIncrement = 1;
+    let gizmoType = 'translate';
+    let coordSystem = 'world';
+    let snap = false;
+    let snapToggle = false;
+    let snapShift = false;
+    let snapIncrement = 1;
 
     editor.method('gizmo:type', function (type) {
         if (type === undefined)
@@ -30,8 +30,8 @@ editor.once('load', function () {
         editor.emit('gizmo:coordSystem', system);
     });
 
-    var checkSnap = function () {
-        var state = (snapToggle || snapShift) && (snapToggle !== snapShift);
+    const checkSnap = function () {
+        const state = (snapToggle || snapShift) && (snapToggle !== snapShift);
         if (snap === state)
             return;
 
@@ -47,7 +47,7 @@ editor.once('load', function () {
         checkSnap();
     });
 
-    var editorSettings = editor.call('settings:projectUser');
+    const editorSettings = editor.call('settings:projectUser');
     editorSettings.on('editor.snapIncrement:set', function (value) {
         if (snapIncrement === (value || 1))
             return;

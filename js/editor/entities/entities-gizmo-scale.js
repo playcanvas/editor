@@ -11,8 +11,6 @@ editor.once('load', function () {
     let gizmoAxis, gizmoMiddle;
     const linesColorActive = new pc.Color(1, 1, 1, 1);
     const linesColorBehind = new pc.Color(1, 1, 1, 0.05);
-    let immediateRenderOptions;
-    let brightRenderOptions;
 
     // get position of gizmo based on selected entities
     const getGizmoPosition = function () {
@@ -154,6 +152,8 @@ editor.once('load', function () {
 
         if (gizmoMoving) {
             const camera = editor.call('camera:current');
+            const immediateLayer = editor.call('gizmo:layers', 'Axis Gizmo Immediate');
+            const brightLayer = editor.call('gizmo:layers', 'Bright Gizmo');
 
             for (let i = 0; i < items.length; i++) {
                 if (items[i].child)
@@ -167,24 +167,24 @@ editor.once('load', function () {
                     quat.transformVector(vecB, vecB).add(vecA);
                     vecC.set(camera.camera.farClip * -2, 0, 0);
                     quat.transformVector(vecC, vecC).add(vecA);
-                    app.renderLine(vecB, vecC, linesColorBehind, immediateRenderOptions);
-                    app.renderLine(vecB, vecC, linesColorActive, brightRenderOptions);
+                    app.drawLine(vecB, vecC, linesColorBehind, true, immediateLayer);
+                    app.drawLine(vecB, vecC, linesColorActive, true, brightLayer);
                 }
                 if (gizmoAxis === 'y' || gizmoMiddle) {
                     vecB.set(0, camera.camera.farClip * 2, 0);
                     quat.transformVector(vecB, vecB).add(vecA);
                     vecC.set(0, camera.camera.farClip * -2, 0);
                     quat.transformVector(vecC, vecC).add(vecA);
-                    app.renderLine(vecB, vecC, linesColorBehind, immediateRenderOptions);
-                    app.renderLine(vecB, vecC, linesColorActive, brightRenderOptions);
+                    app.drawLine(vecB, vecC, linesColorBehind, true, immediateLayer);
+                    app.drawLine(vecB, vecC, linesColorActive, true, brightLayer);
                 }
                 if (gizmoAxis === 'z' || gizmoMiddle) {
                     vecB.set(0, 0, camera.camera.farClip * 2);
                     quat.transformVector(vecB, vecB).add(vecA);
                     vecC.set(0, 0, camera.camera.farClip * -2);
                     quat.transformVector(vecC, vecC).add(vecA);
-                    app.renderLine(vecB, vecC, linesColorBehind, immediateRenderOptions);
-                    app.renderLine(vecB, vecC, linesColorActive, brightRenderOptions);
+                    app.drawLine(vecB, vecC, linesColorBehind, true, immediateLayer);
+                    app.drawLine(vecB, vecC, linesColorActive, true, brightLayer);
                 }
             }
         } else {
@@ -211,14 +211,6 @@ editor.once('load', function () {
 
     editor.once('viewport:load', function () {
         app = editor.call('viewport:app');
-
-        immediateRenderOptions = {
-            layer: editor.call('gizmo:layers', 'Axis Gizmo Immediate')
-        };
-
-        brightRenderOptions = {
-            layer: editor.call('gizmo:layers', 'Bright Gizmo')
-        };
     });
 
     const updateChildRelation = function () {

@@ -18,7 +18,6 @@ editor.once('load', function () {
     var quat = new pc.Quat();
     var evtTapStart;
     var pickStart = new pc.Vec3();
-    var immediateRenderOptions;
 
     var createMaterial = function (color) {
         var mat = new pc.BasicMaterial();
@@ -314,13 +313,6 @@ editor.once('load', function () {
         gizmo.root.enabled = false;
         app.root.addChild(gizmo.root);
 
-        if (!immediateRenderOptions) {
-            immediateRenderOptions = {
-                layer: editor.call('gizmo:layers', 'Axis Gizmo Immediate'),
-                mask: GIZMO_MASK
-            };
-        }
-
         var pickPlane = function (x, y) {
             var camera = editor.call('camera:current');
 
@@ -538,6 +530,8 @@ editor.once('load', function () {
 
                 quat.invert();
 
+                const layer = editor.call('gizmo:layers', 'Axis Gizmo Immediate');
+
                 // plane x lines
                 if (gizmo.plane.x.model.enabled) {
                     vecB.set(0, 0, (vecA.z > 0) ? scale * 0.8 : -scale * 0.8);
@@ -547,7 +541,7 @@ editor.once('load', function () {
                     quat.transformVector(vecC, vecC).add(gizmo.root.getPosition());
                     quat.transformVector(vecD, vecD).add(gizmo.root.getPosition());
                     const clr = (hoverAxis === 'x' && hoverPlane) ? gizmo.matActive.color : gizmo.arrow.x.mat.color;
-                    app.renderLines([vecB, vecC, vecC, vecD], clr, immediateRenderOptions);
+                    app.drawLines([vecB, vecC, vecC, vecD], [clr, clr, clr, clr], true, layer);
                 }
                 // plane y lines
                 if (gizmo.plane.y.model.enabled) {
@@ -558,7 +552,7 @@ editor.once('load', function () {
                     quat.transformVector(vecC, vecC).add(gizmo.root.getPosition());
                     quat.transformVector(vecD, vecD).add(gizmo.root.getPosition());
                     const clr = (hoverAxis === 'y' && hoverPlane) ? gizmo.matActive.color : gizmo.arrow.y.mat.color;
-                    app.renderLines([vecB, vecC, vecC, vecD], clr, immediateRenderOptions);
+                    app.drawLines([vecB, vecC, vecC, vecD], [clr, clr, clr, clr], true, layer);
                 }
                 // plane z lines
                 if (gizmo.plane.z.model.enabled) {
@@ -569,7 +563,7 @@ editor.once('load', function () {
                     quat.transformVector(vecC, vecC).add(gizmo.root.getPosition());
                     quat.transformVector(vecD, vecD).add(gizmo.root.getPosition());
                     const clr = (hoverAxis === 'z' && hoverPlane) ? gizmo.matActive.color : gizmo.arrow.z.mat.color;
-                    app.renderLines([vecB, vecC, vecC, vecD], clr, immediateRenderOptions);
+                    app.drawLines([vecB, vecC, vecC, vecD], [clr, clr, clr, clr], true, layer);
                 }
 
                 // hide lines and arrows if viewed from very angle
@@ -584,7 +578,7 @@ editor.once('load', function () {
                     quat.transformVector(vecB, vecB).add(gizmo.root.getPosition());
                     vecC.set(scale * 2, 0, 0);
                     quat.transformVector(vecC, vecC).add(gizmo.root.getPosition());
-                    app.renderLines([vecB, vecC], gizmo.arrow.x.model.material.color, immediateRenderOptions);
+                    app.drawLine(vecB, vecC, gizmo.arrow.x.model.material.color, true, layer);
                 }
                 // line y
                 if (gizmo.line.y.model.enabled) {
@@ -592,7 +586,7 @@ editor.once('load', function () {
                     quat.transformVector(vecB, vecB).add(gizmo.root.getPosition());
                     vecC.set(0, scale * 2, 0);
                     quat.transformVector(vecC, vecC).add(gizmo.root.getPosition());
-                    app.renderLine(vecB, vecC, gizmo.arrow.y.model.material.color, immediateRenderOptions);
+                    app.drawLine(vecB, vecC, gizmo.arrow.y.model.material.color, true, layer);
                 }
                 // line z
                 if (gizmo.line.z.model.enabled) {
@@ -600,7 +594,7 @@ editor.once('load', function () {
                     quat.transformVector(vecB, vecB).add(gizmo.root.getPosition());
                     vecC.set(0, 0, scale * 2);
                     quat.transformVector(vecC, vecC).add(gizmo.root.getPosition());
-                    app.renderLine(vecB, vecC, gizmo.arrow.z.model.material.color, immediateRenderOptions);
+                    app.drawLine(vecB, vecC, gizmo.arrow.z.model.material.color, true, layer);
                 }
             }
 

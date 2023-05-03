@@ -14,8 +14,6 @@ editor.once('load', function () {
     const linesColorActive = new pc.Color(1, 1, 1, 1);
     const linesColor = new pc.Color(1, 1, 1, 0.2);
     const linesColorBehind = new pc.Color(1, 1, 1, 0.05);
-    let immediateRenderOptions;
-    let brightImmediateRenderOptions;
 
     // get position of gizmo based on selected entities
     const getGizmoPosition = function () {
@@ -204,10 +202,6 @@ editor.once('load', function () {
                 entity.setPosition(items[i].start[0] + x, items[i].start[1] + y, items[i].start[2] + z);
             }
 
-            // if (entity.collision) {
-            //     app.systems.collision.onTransformChanged(entity.collision, entity.getPosition(), entity.getRotation(), entity.getLocalScale());
-            // }
-
             const pos = entity.getLocalPosition();
             items[i].obj.set('position', [pos.x, pos.y, pos.z]);
         }
@@ -248,6 +242,9 @@ editor.once('load', function () {
             const camera = editor.call('camera:current');
             let pos;
 
+            const immediateLayer = editor.call("gizmo:layers", 'Axis Gizmo Immediate');
+            const brightLayer = editor.call("gizmo:layers", 'Bright Gizmo');
+
             const len = coordSystem === 'local' ? items.length : 1;
             for (let i = 0; i < len; i++) {
                 if (items[i].child)
@@ -266,11 +263,11 @@ editor.once('load', function () {
                 quat.transformVector(vecB, vecB).add(pos);
                 vecC.set(camera.camera.farClip * -2, 0, 0);
                 quat.transformVector(vecC, vecC).add(pos);
-                app.renderLine(vecB, vecC, linesColorBehind, immediateRenderOptions);
+                app.drawLine(vecB, vecC, linesColorBehind, true, immediateLayer);
                 if ((gizmoAxis === 'x' && !gizmoPlane) || (gizmoPlane && (gizmoAxis === 'y' || gizmoAxis === 'z'))) {
-                    app.renderLine(vecB, vecC, linesColorActive, brightImmediateRenderOptions);
+                    app.drawLine(vecB, vecC, linesColorActive, true, brightLayer);
                 } else {
-                    app.renderLine(vecB, vecC, linesColor, brightImmediateRenderOptions);
+                    app.drawLine(vecB, vecC, linesColor, true, brightLayer);
                 }
 
                 // y
@@ -278,11 +275,11 @@ editor.once('load', function () {
                 quat.transformVector(vecB, vecB).add(pos);
                 vecC.set(0, camera.camera.farClip * -2, 0);
                 quat.transformVector(vecC, vecC).add(pos);
-                app.renderLine(vecB, vecC, linesColorBehind, immediateRenderOptions);
+                app.drawLine(vecB, vecC, linesColorBehind, true, immediateLayer);
                 if ((gizmoAxis === 'y' && !gizmoPlane) || (gizmoPlane && (gizmoAxis === 'x' || gizmoAxis === 'z'))) {
-                    app.renderLine(vecB, vecC, linesColorActive, brightImmediateRenderOptions);
+                    app.drawLine(vecB, vecC, linesColorActive, true, brightLayer);
                 } else {
-                    app.renderLine(vecB, vecC, linesColor, brightImmediateRenderOptions);
+                    app.drawLine(vecB, vecC, linesColor, true, brightLayer);
                 }
 
                 // z
@@ -290,11 +287,11 @@ editor.once('load', function () {
                 quat.transformVector(vecB, vecB).add(pos);
                 vecC.set(0, 0, camera.camera.farClip * -2);
                 quat.transformVector(vecC, vecC).add(pos);
-                app.renderLine(vecB, vecC, linesColorBehind, immediateRenderOptions);
+                app.drawLine(vecB, vecC, linesColorBehind, true, immediateLayer);
                 if ((gizmoAxis === 'z' && !gizmoPlane) || (gizmoPlane && (gizmoAxis === 'x' || gizmoAxis === 'y'))) {
-                    app.renderLine(vecB, vecC, linesColorActive, brightImmediateRenderOptions);
+                    app.drawLine(vecB, vecC, linesColorActive, true, brightLayer);
                 } else {
-                    app.renderLine(vecB, vecC, linesColor, brightImmediateRenderOptions);
+                    app.drawLine(vecB, vecC, linesColor, true, brightLayer);
                 }
             }
         }
@@ -302,14 +299,6 @@ editor.once('load', function () {
 
     editor.once('viewport:load', function () {
         app = editor.call('viewport:app');
-
-        immediateRenderOptions = {
-            layer: editor.call("gizmo:layers", 'Axis Gizmo Immediate')
-        };
-
-        brightImmediateRenderOptions = {
-            layer: editor.call("gizmo:layers", 'Bright Gizmo')
-        };
     });
 
     const updateChildRelation = function () {

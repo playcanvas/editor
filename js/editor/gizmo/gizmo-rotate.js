@@ -18,9 +18,6 @@ editor.once('load', function () {
     var angleStart = 0;
     var startRotation = new pc.Quat();
 
-    var immediateRenderOptions;
-    var noDepthImmediateRenderOptions;
-
     var createMaterial = function (color) {
         var mat = new pc.BasicMaterial();
         mat.color = color;
@@ -395,17 +392,6 @@ editor.once('load', function () {
         gizmo.root.enabled = false;
         app.root.addChild(gizmo.root);
 
-        immediateRenderOptions = {
-            layer: editor.call('gizmo:layers', 'Axis Gizmo Immediate'),
-            mask: GIZMO_MASK
-        };
-
-        noDepthImmediateRenderOptions = {
-            layer: editor.call('gizmo:layers', 'Axis Rotate Gizmo Immediate'),
-            depthTest: false,
-            mask: GIZMO_MASK
-        };
-
         // on picker hover
         editor.on('viewport:pick:hover', function (node, picked) {
             var match = gizmo.hoverable.indexOf(node) !== -1;
@@ -484,17 +470,15 @@ editor.once('load', function () {
                 if (moving && lastPoint) {
                     vecC.copy(lastPoint).normalize().scale(2 * scale);
                     quat.copy(startRotation).transformVector(vecC, vecC);
-                    // quat.invert().transformVector(vecC, vecC);
                     vecC.add(posGizmo);
 
-                    app.renderLine(posGizmo, vecC, gizmo.colorActive, noDepthImmediateRenderOptions);
+                    const layer = editor.call('gizmo:layers', 'Axis Rotate Gizmo Immediate');
+                    app.drawLine(posGizmo, vecC, gizmo.colorActive, false, layer);
                 }
 
                 editor.emit('gizmo:rotate:render', dt);
 
                 posCameraLast.copy(posCamera);
-
-                // posGizmo = gizmo.root.getPosition();
 
                 // calculate viewing angle
                 vecA
@@ -515,49 +499,51 @@ editor.once('load', function () {
 
                 var worldTransform = gizmo.root.getWorldTransform();
 
+                const layer = editor.call('gizmo:layers', 'Axis Gizmo Immediate');
+
                 // draw cull sphere
                 gizmo.line.cull.node.worldTransform = worldTransform;
-                app.renderMeshInstance(gizmo.line.cull, immediateRenderOptions);
+                app.drawMeshInstance(gizmo.line.cull, layer);
 
                 // render lines
                 // x
                 if (moving && hoverAxis === 'x') {
                     // behind line
-                    app.renderMesh(gizmo.line.x.mesh, gizmo.matBehindActive, worldTransform, immediateRenderOptions);
+                    app.drawMesh(gizmo.line.x.mesh, gizmo.matBehindActive, worldTransform, layer);
                 } else {
                     // behind line
-                    app.renderMesh(gizmo.line.x.mesh, gizmo.matBehindHover.x, worldTransform, immediateRenderOptions);
+                    app.drawMesh(gizmo.line.x.mesh, gizmo.matBehindHover.x, worldTransform, layer);
                     // front line
                     if (!moving && gizmo.plane.x.model.enabled) {
                         gizmo.line.x.node.worldTransform = worldTransform;
-                        app.renderMeshInstance(gizmo.line.x, immediateRenderOptions);
+                        app.drawMeshInstance(gizmo.line.x, layer);
                     }
                 }
 
                 // y
                 if (moving && hoverAxis === 'y') {
                     // behind line
-                    app.renderMesh(gizmo.line.y.mesh, gizmo.matBehindActive, worldTransform, immediateRenderOptions);
+                    app.drawMesh(gizmo.line.y.mesh, gizmo.matBehindActive, worldTransform, layer);
                 } else {
                     // behind line
-                    app.renderMesh(gizmo.line.y.mesh, gizmo.matBehindHover.y, worldTransform, immediateRenderOptions);
+                    app.drawMesh(gizmo.line.y.mesh, gizmo.matBehindHover.y, worldTransform, layer);
                     // front line
                     if (!moving && gizmo.plane.y.model.enabled) {
                         gizmo.line.y.node.worldTransform = worldTransform;
-                        app.renderMeshInstance(gizmo.line.y, immediateRenderOptions);
+                        app.drawMeshInstance(gizmo.line.y, layer);
                     }
                 }
                 // z
                 if (moving && hoverAxis === 'z') {
                     // behind line
-                    app.renderMesh(gizmo.line.z.mesh, gizmo.matBehindActive, worldTransform, immediateRenderOptions);
+                    app.drawMesh(gizmo.line.z.mesh, gizmo.matBehindActive, worldTransform, layer);
                 } else {
                     // behind line
-                    app.renderMesh(gizmo.line.z.mesh, gizmo.matBehindHover.z, worldTransform, immediateRenderOptions);
+                    app.drawMesh(gizmo.line.z.mesh, gizmo.matBehindHover.z, worldTransform, layer);
                     // front line
                     if (!moving && gizmo.plane.z.model.enabled) {
                         gizmo.line.z.node.worldTransform = worldTransform;
-                        app.renderMeshInstance(gizmo.line.z, immediateRenderOptions);
+                        app.drawMeshInstance(gizmo.line.z, layer);
                     }
                 }
 
