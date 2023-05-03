@@ -18,6 +18,7 @@ editor.once('load', () => {
 
     let storeItems = [];
     let storeItemsCount = 0;
+    let startItem = 0;
     const EMPTY_THUMBNAIL_IMAGE = 'https://playcanvas.com/static-assets/images/store-default-thumbnail-480x320.jpg';
     const STORE_ITEM_PAGE_SIZE = 40;
 
@@ -117,7 +118,7 @@ editor.once('load', () => {
         });
         controlsContainer.append(searchBar);
 
-        searchBar.on('change', () => {
+        searchBar.dom.addEventListener('input', () => {
             searchBar.placeholder = searchBar.value !== '' ? '' : 'Search';
             loadStore();
         });
@@ -447,32 +448,42 @@ editor.once('load', () => {
 
     // loads the current store items into the store main panel
     const loadStore = async () => {
+        let newItems = [];
+        storeItemsCount = 0;
+        startItem = 0;
+
         // shows progress with a delay to avoid flickering
         const timeoutId = setTimeout(() => {
             toggleProgress(true);
         }, 500);
 
-        const values = await editor.call('store:list',
-            searchBar.value,
-            0,
-            STORE_ITEM_PAGE_SIZE,
-            selectedFilter.text,
-            sortPolicy,
-            sortDescending);
+        try {
 
-        // real number of records matching the query
-        storeItemsCount = values.pagination.total;
-        if (values.result && !itemsAreEqual(storeItems, values.result)) {
-            itemsContainer.clear();
-            storeItems = values.result;
-            await refreshStore();
+
+            const values = await editor.call('store:list',
+                searchBar.value,
+                0,
+                STORE_ITEM_PAGE_SIZE,
+                selectedFilter.text,
+                sortPolicy,
+                sortDescending);
+
+            // real number of records matching the query
+            storeItemsCount = values.pagination.total;
+            newItems = values.result;
+        } catch (err) {
+            console.error('failed to retrieve a list of store items', err);
+        } finally {
+            if (newItems && !itemsAreEqual(storeItems, newItems)) {
+                itemsContainer.clear();
+                storeItems = newItems;
+                await refreshStore();
+            }
+            toggleProgress(false);
+            clearTimeout(timeoutId);
+            createFilePicker();
+            setupLoadMoreButton();
         }
-
-        createFilePicker();
-
-        setupLoadMoreButton();
-        clearTimeout(timeoutId);
-        toggleProgress(false);
     };
 
     // loads the current store items into the store main panel
@@ -482,26 +493,30 @@ editor.once('load', () => {
             toggleProgress(true);
         }, 500);
 
-        const values = await editor.call('store:list',
-            searchBar.value,
-            storeItems.length,
-            STORE_ITEM_PAGE_SIZE,
-            selectedFilter.text,
-            sortPolicy,
-            sortDescending);
+        try {
+            const values = await editor.call('store:list',
+                searchBar.value,
+                storeItems.length,
+                STORE_ITEM_PAGE_SIZE,
+                selectedFilter.text,
+                sortPolicy,
+                sortDescending);
 
-        // real number of records matching the query
-        storeItemsCount = values.pagination.total;
+            // real number of records matching the query
+            storeItemsCount = values.pagination.total;
 
-        if (values.result) {
-            const startItem = storeItems.length;
-            storeItems = storeItems.concat(values.result);
-            await refreshStore(startItem);
+            if (values.result) {
+                startItem = storeItems.length;
+                storeItems = storeItems.concat(values.result);
+                await refreshStore(startItem);
+                setupLoadMoreButton();
+            }
+        } catch (err) {
+            console.error('failed to retrieve a list of store items', err);
+        } finally {
+            clearTimeout(timeoutId);
+            toggleProgress(false);
         }
-
-        setupLoadMoreButton();
-        clearTimeout(timeoutId);
-        toggleProgress(false);
     };
 
     // reloads the storeItems that are currently in view in the CMS main panel
