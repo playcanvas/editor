@@ -61,8 +61,10 @@ export default [
         plugins: [
             sass({
                 insert: false,
+                options: {
+                    outputStyle: 'compressed'
+                },
                 output: 'dist/css/editor.css',
-                outputStyle: 'compressed',
                 processor: css => postcss([autoprefixer])
                 .process(css)
                 .then(result => result.css)
@@ -95,8 +97,10 @@ export default [
         plugins: [
             sass({
                 insert: false,
+                options: {
+                    outputStyle: 'compressed'
+                },
                 output: 'dist/css/editor-empty.css',
-                outputStyle: 'compressed',
                 processor: css => postcss([autoprefixer])
                 .process(css)
                 .then(result => result.css)
@@ -129,8 +133,10 @@ export default [
         plugins: [
             sass({
                 insert: false,
+                options: {
+                    outputStyle: 'compressed'
+                },
                 output: 'dist/css/code-editor.css',
-                outputStyle: 'compressed',
                 processor: css => postcss([autoprefixer])
                 .process(css)
                 .then(result => result.css)
@@ -163,8 +169,10 @@ export default [
         plugins: [
             sass({
                 insert: false,
+                options: {
+                    outputStyle: 'compressed'
+                },
                 output: 'dist/css/launch.css',
-                outputStyle: 'compressed',
                 processor: css => postcss([autoprefixer])
                 .process(css)
                 .then(result => result.css)
@@ -195,8 +203,10 @@ export default [
         plugins: [
             sass({
                 insert: false,
+                options: {
+                    outputStyle: 'compressed'
+                },
                 output: 'dist/css/error.css',
-                outputStyle: 'compressed',
                 processor: css => postcss([autoprefixer])
                 .process(css)
                 .then(result => result.css)
