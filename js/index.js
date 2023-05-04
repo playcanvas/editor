@@ -384,12 +384,6 @@ import './editor/attributes/reference/attributes-asset-sprite-reference.js';
 import './editor/attributes/attributes-entity.js';
 import './editor/attributes/components/attributes-components-script.js';
 
-// templates
-import './editor/templates/templates-override-panel.js';
-import './editor/templates/templates-override-tooltip.js';
-import './editor/templates/templates-override-inspector.js';
-import './editor/templates/templates-entity-inspector.js';
-
 // pcui attribute inspectors
 import './editor/inspector/tooltip-reference.js';
 import './editor/inspector/entity.js';

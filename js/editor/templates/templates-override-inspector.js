@@ -1,220 +1,221 @@
-Object.assign(pcui, (function () {
-    const CLASS_OVERRIDE = 'template-inspector-override';
+import { TemplateOverrideTooltip } from './templates-override-tooltip.js';
 
+const CLASS_OVERRIDE = 'template-inspector-override';
+
+/**
+ * Handles highlighting template overrides on various elements and showing relevant tooltips.
+ */
+class TemplateOverrideInspector {
     /**
-     * @name pcui.TemplateOverrideInspector
-     * @classdesc Handles highlighting template overrides on various elements and showing relevant tooltips.
-     * @property {Observer} entity The current entity we are inspecting for overrides.
+     * Creates new instance of the class.
+     *
+     * @param {object} args - The arguments.
+     * @param {import('@playcanvas/observer').ObserverList} args.entities - The entities observer list.
      */
-    class TemplateOverrideInspector {
-        /**
-         * Creates new instance of the class.
-         *
-         * @param {object} args - The arguments.
-         * @param {ObserverList} args.entities - The entities observer list.
-         */
-        constructor(args) {
-            this._entities = args.entities;
+    constructor(args) {
+        this._entities = args.entities;
 
-            this._registeredElements = {};
-            this._entityEvents = [];
-            this._evtPartOfTemplate = null;
+        this._registeredElements = {};
+        this._entityEvents = [];
+        this._evtPartOfTemplate = null;
 
-            this._evtMessenger = editor.on('messenger:template.apply', this._onTemplateApply.bind(this));
+        this._evtMessenger = editor.on('messenger:template.apply', this._onTemplateApply.bind(this));
+    }
+
+    _onTemplateApply(data) {
+        // if current entity is part of this template
+        // then refresh overrides
+        if (!this._entity) return;
+
+        var template = this._entities.get(data.entity_id);
+        if (!template) return;
+
+        if (!template.has('template_ent_ids.' + this._entity.get('resource_id'))) {
+            return;
         }
 
-        _onTemplateApply(data) {
-            // if current entity is part of this template
-            // then refresh overrides
-            if (!this._entity) return;
+        this._deferRefreshOverrides();
+    }
 
-            var template = this._entities.get(data.entity_id);
-            if (!template) return;
+    _getOverrideKey(override) {
+        return `${override.override_type}${override.resource_id}${override.path}`;
+    }
 
-            if (!template.has('template_ent_ids.' + this._entity.get('resource_id'))) {
-                return;
-            }
+    _bindEntityEvents(entity) {
+        this._entityEvents.push(entity.on('*:set', this._deferRefreshOverrides.bind(this)));
+        this._entityEvents.push(entity.on('*:unset', this._deferRefreshOverrides.bind(this)));
+        this._entityEvents.push(entity.on('*:insert', this._deferRefreshOverrides.bind(this)));
+        this._entityEvents.push(entity.on('*:remove', this._deferRefreshOverrides.bind(this)));
+        this._entityEvents.push(entity.on('*:move', this._deferRefreshOverrides.bind(this)));
+    }
 
-            this._deferRefreshOverrides();
-        }
+    _unbindEntityEvents() {
+        this._entityEvents.forEach(evt => evt.unbind());
+        this._entityEvents.length = 0;
+    }
 
-        _getOverrideKey(override) {
-            return `${override.override_type}${override.resource_id}${override.path}`;
-        }
+    _addOverride(override, templateRoot) {
+        const registered = this._registeredElements[override.path];
+        if (!registered) return;
 
-        _bindEntityEvents(entity) {
-            this._entityEvents.push(entity.on('*:set', this._deferRefreshOverrides.bind(this)));
-            this._entityEvents.push(entity.on('*:unset', this._deferRefreshOverrides.bind(this)));
-            this._entityEvents.push(entity.on('*:insert', this._deferRefreshOverrides.bind(this)));
-            this._entityEvents.push(entity.on('*:remove', this._deferRefreshOverrides.bind(this)));
-            this._entityEvents.push(entity.on('*:move', this._deferRefreshOverrides.bind(this)));
-        }
+        const key = this._getOverrideKey(override);
 
-        _unbindEntityEvents() {
-            this._entityEvents.forEach(evt => evt.unbind());
-            this._entityEvents.length = 0;
-        }
+        // add override class to element
+        registered.element.class.add(CLASS_OVERRIDE);
 
-        _addOverride(override, templateRoot) {
-            const registered = this._registeredElements[override.path];
-            if (!registered) return;
+        // create template override tooltip
+        const tooltip = new TemplateOverrideTooltip({
+            templateRoot: templateRoot,
+            entities: this._entities,
+            override: override
+        });
 
-            const key = this._getOverrideKey(override);
-
-            // add override class to element
-            registered.element.class.add(CLASS_OVERRIDE);
-
-            // create template override tooltip
-            const tooltip = new pcui.TemplateOverrideTooltip({
-                templateRoot: templateRoot,
-                entities: this._entities,
-                override: override
+        // if a tooltip group exists add the tooltip to the group
+        if (registered.tooltipGroup) {
+            tooltip.hidden = false;
+            registered.tooltipGroup.append(tooltip);
+        } else {
+            // else attach the tooltip to the target element
+            tooltip.attach({
+                target: registered.element
             });
-
-            // if a tooltip group exists add the tooltip to the group
-            if (registered.tooltipGroup) {
-                tooltip.hidden = false;
-                registered.tooltipGroup.append(tooltip);
-            } else {
-                // else attach the tooltip to the target element
-                tooltip.attach({
-                    target: registered.element
-                });
-            }
-
-            this._overrides[key] = {
-                element: registered.element,
-                tooltip: tooltip
-            };
         }
 
-        _clearOverrides() {
-            for (const key in this._overrides) {
-                if (!this._overrides[key].element.destroyed) {
-                    this._overrides[key].element.class.remove(CLASS_OVERRIDE);
-                }
+        this._overrides[key] = {
+            element: registered.element,
+            tooltip: tooltip
+        };
+    }
 
-                if (this._overrides[key].tooltip) {
-                    this._overrides[key].tooltip.destroy();
-                }
+    _clearOverrides() {
+        for (const key in this._overrides) {
+            if (!this._overrides[key].element.destroyed) {
+                this._overrides[key].element.class.remove(CLASS_OVERRIDE);
             }
 
-            this._overrides = {};
-        }
-
-        _refreshOverrides() {
-            if (this._refreshTimeout) {
-                clearTimeout(this._refreshTimeout);
-                this._refreshTimeout = null;
-            }
-
-            this._clearOverrides();
-
-            // find template parent
-            let current = this._entity;
-            while (current) {
-                if (current.get('template_id')) {
-                    break;
-                }
-
-                current = this._entities.get(current.get('parent'));
-            }
-
-            if (!current) {
-                return;
-            }
-
-            const resourceId = this._entity.get('resource_id');
-            const overrides = editor.call('templates:computeFilteredOverrides', current);
-            if (overrides) {
-                overrides.conflicts.forEach((override) => {
-                    if (override.resource_id !== resourceId) return;
-
-                    this._addOverride(override, current);
-                });
+            if (this._overrides[key].tooltip) {
+                this._overrides[key].tooltip.destroy();
             }
         }
 
-        _deferRefreshOverrides() {
-            if (this._refreshTimeout) {
-                clearTimeout(this._refreshTimeout);
+        this._overrides = {};
+    }
+
+    _refreshOverrides() {
+        if (this._refreshTimeout) {
+            clearTimeout(this._refreshTimeout);
+            this._refreshTimeout = null;
+        }
+
+        this._clearOverrides();
+
+        // find template parent
+        let current = this._entity;
+        while (current) {
+            if (current.get('template_id')) {
+                break;
             }
 
-            this._refreshTimeout = setTimeout(this._refreshOverrides.bind(this), 100);
+            current = this._entities.get(current.get('parent'));
         }
 
-        /**
-         * @name pcui.TemplateOverrideInspector#registerElementForPath
-         * @description Registers an element and a tooltip group with a template override path.
-         * Whenever that path has a template override the provided element will have a CSS class applied to it
-         * and a tooltip will be created for that override.
-         * @param {string} path - The observer path for the override.
-         * @param {Element} element - The element that we will highlight when an override appears.
-         * @param {pcui.TooltipGroup} [tooltipGroup] - An optional tooltip group to use for the override tooltip. If one is not provided
-         * then the tooltip will be attached to the element itself.
-         */
-        registerElementForPath(path, element, tooltipGroup) {
-            this._registeredElements[path] = {
-                element,
-                tooltipGroup
-            };
+        if (!current) {
+            return;
         }
 
-        /**
-         * @name pcui.TemplateOverrideInspector#unregisterElementForPath
-         * @description Unregister the specified override path.
-         * @param {string} path - The override path.
-         */
-        unregisterElementForPath(path) {
-            delete this._registeredElements[path];
-        }
+        const resourceId = this._entity.get('resource_id');
+        const overrides = editor.call('templates:computeFilteredOverrides', current);
+        if (overrides) {
+            overrides.conflicts.forEach((override) => {
+                if (override.resource_id !== resourceId) return;
 
-        set entity(value) {
-            if (this._entity === value) return;
-
-            if (this._entity) {
-                this._entity = null;
-
-                if (this._evtPartOfTemplate) {
-                    this._evtPartOfTemplate.unbind();
-                    this._evtPartOfTemplate = null;
-                }
-
-                this._unbindEntityEvents();
-
-                this._clearOverrides();
-            }
-
-            this._entity = value;
-
-            if (this._entity) {
-                this._evtPartOfTemplate = this._entity.on('isPartOfTemplate', (partOfTemplate) => {
-                    this._unbindEntityEvents();
-
-                    if (partOfTemplate) {
-                        this._bindEntityEvents(this._entity);
-                    }
-
-                    this._deferRefreshOverrides();
-                });
-
-                if (this._entity.get('template_id') || editor.call('templates:isTemplateChild', this._entity)) {
-                    this._bindEntityEvents(this._entity);
-                }
-
-                // do this in a timeout to give a chance
-                // to any inspectors to be created first and register
-                // their elements
-                this._deferRefreshOverrides();
-            }
-        }
-
-        get entity() {
-            return this._entity;
+                this._addOverride(override, current);
+            });
         }
     }
 
-    return {
-        TemplateOverrideInspector: TemplateOverrideInspector
-    };
-})());
+    _deferRefreshOverrides() {
+        if (this._refreshTimeout) {
+            clearTimeout(this._refreshTimeout);
+        }
+
+        this._refreshTimeout = setTimeout(this._refreshOverrides.bind(this), 100);
+    }
+
+    /**
+     * Registers an element and a tooltip group with a template override path. Whenever that path
+     * has a template override the provided element will have a CSS class applied to it and a
+     * tooltip will be created for that override.
+     *
+     * @param {string} path - The observer path for the override.
+     * @param {Element} element - The element that we will highlight when an override appears.
+     * @param {TooltipGroup} [tooltipGroup] - An optional tooltip group to use for the override
+     * tooltip. If one is not provided then the tooltip will be attached to the element itself.
+     */
+    registerElementForPath(path, element, tooltipGroup) {
+        this._registeredElements[path] = {
+            element,
+            tooltipGroup
+        };
+    }
+
+    /**
+     * Unregister the specified override path.
+     *
+     * @param {string} path - The override path.
+     */
+    unregisterElementForPath(path) {
+        delete this._registeredElements[path];
+    }
+
+    /**
+     * The current entity we are inspecting for overrides.
+     *
+     * @type {import('@playcanvas/observer').Observer}
+     */
+    set entity(value) {
+        if (this._entity === value) return;
+
+        if (this._entity) {
+            this._entity = null;
+
+            if (this._evtPartOfTemplate) {
+                this._evtPartOfTemplate.unbind();
+                this._evtPartOfTemplate = null;
+            }
+
+            this._unbindEntityEvents();
+
+            this._clearOverrides();
+        }
+
+        this._entity = value;
+
+        if (this._entity) {
+            this._evtPartOfTemplate = this._entity.on('isPartOfTemplate', (partOfTemplate) => {
+                this._unbindEntityEvents();
+
+                if (partOfTemplate) {
+                    this._bindEntityEvents(this._entity);
+                }
+
+                this._deferRefreshOverrides();
+            });
+
+            if (this._entity.get('template_id') || editor.call('templates:isTemplateChild', this._entity)) {
+                this._bindEntityEvents(this._entity);
+            }
+
+            // do this in a timeout to give a chance
+            // to any inspectors to be created first and register
+            // their elements
+            this._deferRefreshOverrides();
+        }
+    }
+
+    get entity() {
+        return this._entity;
+    }
+}
+
+export { TemplateOverrideInspector };

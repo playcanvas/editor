@@ -21,6 +21,8 @@ import { ScrollviewComponentInspector } from './components/scrollview.js';
 import { SoundComponentInspector } from './components/sound.js';
 import { SpriteComponentInspector } from './components/sprite.js';
 import { ZoneComponentInspector } from './components/zone.js';
+import { TemplateOverrideInspector } from '../templates/templates-override-inspector.js';
+import { TemplatesEntityInspector } from '../templates/templates-entity-inspector.js';
 import { AttributesInspector } from './attributes.js';
 
 /** @type {Map<string, new (...args: any[]) => any>} */
@@ -191,7 +193,7 @@ class EntityInspector extends Container {
         this._projectSettings = args.projectSettings;
 
         if (!editor.call('settings:project').get('useLegacyScripts')) {
-            this._templateInspector = new pcui.TemplatesEntityInspector({
+            this._templateInspector = new TemplatesEntityInspector({
                 flex: true,
                 assets: args.assets,
                 entities: args.entities,
@@ -201,7 +203,7 @@ class EntityInspector extends Container {
 
             this.append(this._templateInspector);
 
-            this._templateOverridesInspector = new pcui.TemplateOverrideInspector({
+            this._templateOverridesInspector = new TemplateOverrideInspector({
                 entities: args.entities
             });
         }

@@ -1,4 +1,6 @@
 import { EntityInspector } from '../inspector/entity.js';
+import { TemplateOverridesView } from '../templates/templates-override-panel.js';
+import { TemplatesEntityInspector } from '../templates/templates-entity-inspector.js';
 
 editor.once('load', function () {
     const projectSettings = editor.call('settings:project');
@@ -139,7 +141,7 @@ editor.once('load', function () {
         return panel;
     });
 
-    var templateOverrides = new pcui.TemplateOverridesView({
+    var templateOverrides = new TemplateOverridesView({
         flex: true,
         assets: editor.call('assets:raw'),
         entities: editor.call('entities:raw'),
@@ -148,7 +150,7 @@ editor.once('load', function () {
     });
     editor.call('layout.root').append(templateOverrides);
 
-    var templateInspector = new pcui.TemplatesEntityInspector({ // eslint-disable-line no-unused-vars
+    var templateInspector = new TemplatesEntityInspector({ // eslint-disable-line no-unused-vars
         flex: true,
         assets: editor.call('assets:raw'),
         entities: editor.call('entities:raw'),
