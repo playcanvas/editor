@@ -1,13 +1,11 @@
-Object.assign(pcui, (function () {
-    class TextureSourceAssetInspector extends pcui.RelatedAssetsInspector {
-        constructor(args) {
-            args = Object.assign({}, args);
+import { RelatedAssetsInspector } from './related-assets.js';
 
-            super(args);
-        }
+class TextureSourceAssetInspector extends RelatedAssetsInspector {
+    constructor(args) {
+        args = Object.assign({}, args);
+
+        super(args);
     }
+}
 
-    return {
-        TextureSourceAssetInspector: TextureSourceAssetInspector
-    };
-})());
+export { TextureSourceAssetInspector };

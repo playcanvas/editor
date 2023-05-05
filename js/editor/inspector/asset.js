@@ -1,6 +1,80 @@
 import { Container, Button, BindingObserversToElement } from '@playcanvas/pcui';
 import { AttributesInspector } from './attributes.js';
 
+import { AnimationAssetInspector } from './assets/animation.js';
+import { AnimstategraphAssetInspector } from './assets/animstategraph.js';
+import { AudioAssetInspector } from './assets/audio.js';
+import { BundleAssetInspector } from './assets/bundle.js';
+import { ContainerAssetInspector } from './assets/container.js';
+import { CssAssetInspector } from './assets/css.js';
+import { CubemapAssetInspector } from './assets/cubemap.js';
+import { FontAssetInspector } from './assets/font.js';
+import { HtmlAssetInspector } from './assets/html.js';
+import { JsonAssetInspector } from './assets/json.js';
+import { MaterialAssetInspector } from './assets/material.js';
+import { ModelAssetInspector } from './assets/model.js';
+import { RenderAssetInspector } from './assets/render.js';
+import { ScriptAssetInspector } from './assets/script.js';
+import { ShaderAssetInspector } from './assets/shader.js';
+import { SpriteAssetInspector } from './assets/sprite.js';
+import { TextAssetInspector } from './assets/text.js';
+import { TextureAssetInspector } from './assets/texture.js';
+import { WasmAssetInspector } from './assets/wasm.js';
+
+import { FontSourceAssetInspector } from './assets/font-source.js';
+import { SceneSourceAssetInspector } from './assets/scene-source.js';
+import { TextureSourceAssetInspector } from './assets/texture-source.js';
+
+import { AnimationAssetInspectorPreview } from './assets/animation-preview.js';
+import { CubemapAssetInspectorPreview } from './assets/cubemap-preview.js';
+import { FontAssetInspectorPreview } from './assets/font-preview.js';
+import { MaterialAssetInspectorPreview } from './assets/material-preview.js';
+import { ModelAssetInspectorPreview } from './assets/model-preview.js';
+import { RenderAssetInspectorPreview } from './assets/render-preview.js';
+import { SpriteAssetInspectorPreview } from './assets/sprite-preview.js';
+import { TextureAssetInspectorPreview } from './assets/texture-preview.js';
+
+/** @type {Map<string, new (...args: any[]) => any>} */
+const assetInspectors = new Map();
+assetInspectors.set('animation', AnimationAssetInspector);
+assetInspectors.set('animstategraph', AnimstategraphAssetInspector);
+assetInspectors.set('audio', AudioAssetInspector);
+assetInspectors.set('bundle', BundleAssetInspector);
+assetInspectors.set('container', ContainerAssetInspector);
+assetInspectors.set('css', CssAssetInspector);
+assetInspectors.set('cubemap', CubemapAssetInspector);
+assetInspectors.set('font', FontAssetInspector);
+assetInspectors.set('html', HtmlAssetInspector);
+assetInspectors.set('json', JsonAssetInspector);
+assetInspectors.set('material', MaterialAssetInspector);
+assetInspectors.set('model', ModelAssetInspector);
+assetInspectors.set('render', RenderAssetInspector);
+assetInspectors.set('script', ScriptAssetInspector);
+assetInspectors.set('shader', ShaderAssetInspector);
+assetInspectors.set('sprite', SpriteAssetInspector);
+assetInspectors.set('text', TextAssetInspector);
+assetInspectors.set('texture', TextureAssetInspector);
+assetInspectors.set('textureAtlas', TextureAssetInspector);
+assetInspectors.set('wasm', WasmAssetInspector);
+
+/** @type {Map<string, new (...args: any[]) => any>} */
+const sourceAssetInspectors = new Map();
+sourceAssetInspectors.set('font', FontSourceAssetInspector);
+sourceAssetInspectors.set('scene', SceneSourceAssetInspector);
+sourceAssetInspectors.set('texture', TextureSourceAssetInspector);
+
+/** @type {Map<string, new (...args: any[]) => any>} */
+const assetInspectorPreviews = new Map();
+assetInspectorPreviews.set('animation', AnimationAssetInspectorPreview);
+assetInspectorPreviews.set('cubemap', CubemapAssetInspectorPreview);
+assetInspectorPreviews.set('font', FontAssetInspectorPreview);
+assetInspectorPreviews.set('material', MaterialAssetInspectorPreview);
+assetInspectorPreviews.set('model', ModelAssetInspectorPreview);
+assetInspectorPreviews.set('render', RenderAssetInspectorPreview);
+assetInspectorPreviews.set('sprite', SpriteAssetInspectorPreview);
+assetInspectorPreviews.set('texture', TextureAssetInspectorPreview);
+assetInspectorPreviews.set('textureAtlas', TextureAssetInspectorPreview);
+
 Object.assign(pcui, (function () {
     const CLASS_ROOT = 'asset-inspector';
 
@@ -307,9 +381,9 @@ Object.assign(pcui, (function () {
 
             this._assetTypes.forEach((assetType) => {
                 // check if class exists
-                const cls = `${assetType[0].toUpperCase()}${assetType.substring(1)}AssetInspector`;
-                if (pcui.hasOwnProperty(cls)) {
-                    const inspector = new pcui[cls]({
+                const cls = assetInspectors.get(assetType);
+                if (cls) {
+                    const inspector = new cls({
                         hidden: true,
                         assets: args.assets,
                         entities: args.entities,
@@ -323,9 +397,9 @@ Object.assign(pcui, (function () {
 
                     this.append(inspector);
                 }
-                const clsSource = `${assetType[0].toUpperCase()}${assetType.substring(1)}SourceAssetInspector`;
-                if (pcui.hasOwnProperty(clsSource)) {
-                    const inspector = new pcui[clsSource]({
+                const clsSource = sourceAssetInspectors.get(assetType);
+                if (clsSource) {
+                    const inspector = new clsSource({
                         hidden: true,
                         assets: args.assets,
                         projectSettings: args.projectSettings,
@@ -336,9 +410,9 @@ Object.assign(pcui, (function () {
 
                     this.append(inspector);
                 }
-                const clsPreview = `${assetType[0].toUpperCase()}${assetType.substring(1)}AssetInspectorPreview`;
-                if (pcui.hasOwnProperty(clsPreview)) {
-                    const inspector = new pcui[clsPreview]({
+                const clsPreview = assetInspectorPreviews.get(assetType);
+                if (clsPreview) {
+                    const inspector = new clsPreview({
                         hidden: true,
                         assets: args.assets,
                         projectSettings: args.projectSettings,
@@ -513,8 +587,8 @@ Object.assign(pcui, (function () {
 
             this._assetTypes.forEach((assetType) => {
                 // check if class exists
-                const cls = `${assetType[0].toUpperCase()}${assetType.substring(1)}AssetInspector`;
-                if (pcui.hasOwnProperty(cls)) {
+                const cls = assetInspectors.get(assetType);
+                if (cls) {
                     let shouldDisplayTypedInspector = true;
                     assets.forEach((asset) => {
                         if (asset.get('type') !== assetType.toLowerCase() || asset.get('source')) {
@@ -531,8 +605,8 @@ Object.assign(pcui, (function () {
                     }
                 }
                 if (assets.length === 1) {
-                    const clsSource = `${assetType[0].toUpperCase()}${assetType.substring(1)}SourceAssetInspector`;
-                    if (pcui.hasOwnProperty(clsSource)) {
+                    const clsSource = sourceAssetInspectors.get(assetType);
+                    if (clsSource) {
                         let shouldDisplayTypedInspector = true;
                         assets.forEach((asset) => {
                             if (asset.get('type') !== assetType.toLowerCase() || !asset.get('source') || !asset.get('type') === 'scene') {
@@ -546,8 +620,8 @@ Object.assign(pcui, (function () {
                             this._typedAssetInspectors[`${assetType}-source`].hidden = true;
                         }
                     }
-                    const clsPreview = `${assetType[0].toUpperCase()}${assetType.substring(1)}AssetInspectorPreview`;
-                    if (pcui.hasOwnProperty(clsPreview)) {
+                    const clsPreview = assetInspectorPreviews.get(assetType);
+                    if (clsPreview) {
                         let shouldDisplayTypedInspector = true;
                         assets.forEach((asset) => {
                             if (asset.get('type') !== assetType.toLowerCase() || asset.get('source')) {
@@ -659,18 +733,18 @@ Object.assign(pcui, (function () {
             this._attributesInspector.unlink();
 
             this._assetTypes.forEach((assetType) => {
-                const cls = `${assetType[0].toUpperCase()}${assetType.substring(1)}AssetInspector`;
-                if (pcui.hasOwnProperty(cls)) {
+                const cls = assetInspectors.get(assetType);
+                if (cls) {
                     this._typedAssetInspectors[assetType].unlink();
                     this._typedAssetInspectors[assetType].hidden = true;
                 }
-                const clsSource = `${assetType[0].toUpperCase()}${assetType.substring(1)}SourceAssetInspector`;
-                if (pcui.hasOwnProperty(clsSource)) {
+                const clsSource = sourceAssetInspectors.get(assetType);
+                if (clsSource) {
                     this._typedAssetInspectors[`${assetType}-source`].unlink();
                     this._typedAssetInspectors[`${assetType}-source`].hidden = true;
                 }
-                const clsPreview = `${assetType[0].toUpperCase()}${assetType.substring(1)}AssetInspectorPreview`;
-                if (pcui.hasOwnProperty(clsPreview)) {
+                const clsPreview = assetInspectorPreviews.get(assetType);
+                if (clsPreview) {
                     this._typedAssetPreviews[assetType].unlink();
                     this._typedAssetPreviews[assetType].hidden = true;
                 }

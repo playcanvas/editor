@@ -1,14 +1,12 @@
-Object.assign(pcui, (function () {
-    class ShaderAssetInspector extends pcui.CodeBlockAssetInspector {
-        constructor(args) {
-            args = Object.assign({}, args);
-            args.assetType = 'shader';
+import { CodeBlockAssetInspector } from './code-block.js';
 
-            super(args);
-        }
+class ShaderAssetInspector extends CodeBlockAssetInspector {
+    constructor(args) {
+        args = Object.assign({}, args);
+        args.assetType = 'shader';
+
+        super(args);
     }
+}
 
-    return {
-        ShaderAssetInspector: ShaderAssetInspector
-    };
-})());
+export { ShaderAssetInspector };

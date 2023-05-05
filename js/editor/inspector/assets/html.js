@@ -1,14 +1,12 @@
-Object.assign(pcui, (function () {
-    class HtmlAssetInspector extends pcui.CodeBlockAssetInspector {
-        constructor(args) {
-            args = Object.assign({}, args);
-            args.assetType = 'html';
+import { CodeBlockAssetInspector } from './code-block.js';
 
-            super(args);
-        }
+class HtmlAssetInspector extends CodeBlockAssetInspector {
+    constructor(args) {
+        args = Object.assign({}, args);
+        args.assetType = 'html';
+
+        super(args);
     }
+}
 
-    return {
-        HtmlAssetInspector: HtmlAssetInspector
-    };
-})());
+export { HtmlAssetInspector };

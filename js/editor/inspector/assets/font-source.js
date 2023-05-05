@@ -1,13 +1,11 @@
-Object.assign(pcui, (function () {
-    class FontSourceAssetInspector extends pcui.RelatedAssetsInspector {
-        constructor(args) {
-            args = Object.assign({}, args);
+import { RelatedAssetsInspector } from "./related-assets.js";
 
-            super(args);
-        }
+class FontSourceAssetInspector extends RelatedAssetsInspector {
+    constructor(args) {
+        args = Object.assign({}, args);
+
+        super(args);
     }
+}
 
-    return {
-        FontSourceAssetInspector: FontSourceAssetInspector
-    };
-})());
+export { FontSourceAssetInspector };

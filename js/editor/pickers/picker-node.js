@@ -1,3 +1,5 @@
+import { ModelAssetInspectorMeshInstances } from '../inspector/assets/model-mesh-instances.js';
+
 editor.once('load', function () {
     var overlay = new ui.Overlay();
     overlay.class.add('picker-node');
@@ -153,7 +155,7 @@ editor.once('load', function () {
             var root = editor.call('attributes.rootPanel');
             root.style.zIndex = 102;
 
-            const modelEntityMaterials = new pcui.ModelAssetInspectorMeshInstances({
+            const modelEntityMaterials = new ModelAssetInspectorMeshInstances({
                 entities: currentEntities,
                 assets: editor.call('assets:raw'),
                 history: editor.call('editor:history'),
