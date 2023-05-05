@@ -99,6 +99,32 @@ const ATTRIBUTES = [
     },
     {
         observer: 'settings',
+        label: 'Draco Decode Speed',
+        type: 'slider',
+        alias: 'asset-tasks:dracoDecodeSpeed',
+        path: 'editor.pipeline.dracoDecodeSpeed',
+        args: {
+            precision: 1,
+            step: 0.1,
+            min: 0,
+            max: 1
+        }
+    },
+    {
+        observer: 'settings',
+        label: 'Draco Mesh Size',
+        type: 'slider',
+        alias: 'asset-tasks:dracoMeshSize',
+        path: 'editor.pipeline.dracoMeshSize',
+        args: {
+            precision: 1,
+            step: 0.1,
+            min: 0,
+            max: 1
+        }
+    },
+    {
+        observer: 'settings',
         label: 'Unwrap Uv',
         type: 'boolean',
         alias: 'asset-tasks:unwrapUv',
@@ -201,6 +227,8 @@ class AssetTasksSettingsPanel extends BaseSettingsPanel {
         const useGlbField = this._attributesInspector.getField('editor.pipeline.useGlb');
         const useContainersField = this._attributesInspector.getField('editor.pipeline.useContainers');
         const meshCompressionField = this._attributesInspector.getField('editor.pipeline.meshCompression');
+        const dracoDecodeSpeed = this._attributesInspector.getField('editor.pipeline.dracoDecodeSpeed');
+        const dracoMeshSize = this._attributesInspector.getField('editor.pipeline.dracoMeshSize');
         const animUseFbxFilenameField = this._attributesInspector.getField('editor.pipeline.animUseFbxFilename');
 
         const updateFields = (value) => {
@@ -223,6 +251,8 @@ class AssetTasksSettingsPanel extends BaseSettingsPanel {
         this._setupDracoImportButton(meshCompressionField, 'draco.js', 'draco');
         const updateDracoImport = (value) => {
             this._containerImportDraco.hidden = (value !== 'draco') || editor.call('project:module:hasModule', 'draco');
+            dracoDecodeSpeed.parent.hidden = (value !== 'draco');
+            dracoMeshSize.parent.hidden = (value !== 'draco');
         };
         meshCompressionField.on('change', value => updateDracoImport(value));
         this.on('showToRoot', () => { updateDracoImport(meshCompressionField.value); });

@@ -39,6 +39,8 @@ editor.once('load', function () {
                     useGlb: false,
                     useContainers: false,
                     meshCompression: 'none',
+                    dracoDecodeSpeed: 0,
+                    dracoMeshSize: 0.5,
                     createFBXFolder: false,
                     defaultAssetPreload: true,
                     animSampleRate: 10,
@@ -131,6 +133,14 @@ editor.once('load', function () {
 
             if (!settings.has('editor.pipeline.meshCompression') || !settings.get('editor.pipeline.meshCompression')) {
                 settings.set('editor.pipeline.meshCompression', 'none');
+            }
+
+            if (!settings.has('editor.pipeline.dracoDecodeSpeed')) {
+                settings.set('editor.pipeline.dracoDecodeSpeed', 0);
+            }
+
+            if (!settings.has('editor.pipeline.dracoMeshSize')) {
+                settings.set('editor.pipeline.dracoMeshSize', 0.5);
             }
 
             if (!settings.has('editor.pipeline.createFBXFolder')) {

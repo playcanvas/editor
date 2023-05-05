@@ -20,6 +20,8 @@ editor.once('load', function () {
                 data.useGlb = settings.get('editor.pipeline.useGlb');
                 data.useContainers = settings.get('editor.pipeline.useContainers');
                 data.meshCompression = settings.get('editor.pipeline.meshCompression');
+                data.dracoDecodeSpeed = settings.get('editor.pipeline.dracoDecodeSpeed');
+                data.dracoMeshSize = settings.get('editor.pipeline.dracoMeshSize');
                 data.animUseFbxFilename = settings.get('editor.pipeline.animUseFbxFilename');
             }
         }

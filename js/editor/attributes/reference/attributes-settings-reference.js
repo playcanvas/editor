@@ -253,8 +253,16 @@ editor.once('load', function () {
         description: 'Generate a template asset when importing 3D assets (FBX etc). The template asset will contain the full entity hierarchy from the imported file.'
     }, {
         name: 'asset-tasks:meshCompression',
-        title: 'Mesh Compression',
+        title: 'Mesh Compression Type',
         description: 'Specify the mesh compression to apply to imported models.'
+    }, {
+        name: 'asset-tasks:dracoDecodeSpeed',
+        title: 'Draco Decode Speed',
+        description: 'Specify the speed of mesh decoding. A smaller value will result in slower decoding, but smaller file sizes.'
+    }, {
+        name: 'asset-tasks:dracoMeshSize',
+        title: 'Draco Mesh Size',
+        description: 'Specify the size factor to use when compressing mesh attributes. A smaller value will result in fewer bits being used to compress mesh attributes and so a smaller file but less detail and potentially some artifacts.'
     }, {
         name: 'asset-tasks:createFBXFolder',
         title: 'Create FBX Folder',
