@@ -1,3 +1,5 @@
+import { Bubble } from '../../pcui/element/element-bubble.js';
+
 editor.once('load', function () {
     var root = editor.call('layout.root');
 
@@ -25,24 +27,24 @@ editor.once('load', function () {
     });
     overlay.append(btn);
 
-    editor.method('guide:bubble', function (title, text, x, y, align, parent) {
-        var bubble = new ui.Bubble();
+    editor.method('guide:bubble', (title, text, x, y, align, parent) => {
+        const bubble = new Bubble();
 
         if (!parent)
             parent = root;
 
         if (parent instanceof Node) {
-            parent.appendChild(bubble.element);
+            parent.appendChild(bubble.dom);
         } else {
-            parent.append(bubble.element);
+            parent.append(bubble);
         }
 
         bubble.position(x, y);
 
         var evt;
 
-        bubble.on('activate', function () {
-            var rect = bubble.element.getBoundingClientRect();
+        bubble.on('activate', () => {
+            const rect = bubble.dom.getBoundingClientRect();
 
             panel.header = title;
             label.text = text;
@@ -54,16 +56,16 @@ editor.once('load', function () {
             overlay.class.add('arrow-' + align);
 
             if (/^bottom/.test(align)) {
-                var overlayRect = overlay.innerElement.getBoundingClientRect();
+                const overlayRect = overlay.innerElement.getBoundingClientRect();
                 overlay.innerElement.style.marginTop = (-40 - overlayRect.height) + 'px';
             }
 
-            evt = overlay.once('hide', function () {
+            evt = overlay.once('hide', () => {
                 bubble.deactivate();
             });
         });
 
-        bubble.on('deactivate', function () {
+        bubble.on('deactivate', () => {
             bubble.destroy();
             overlay.hidden = true;
             if (evt) {
@@ -75,7 +77,7 @@ editor.once('load', function () {
         return bubble;
     });
 
-    overlay.on('show', function () {
+    overlay.on('show', () => {
         overlay.class.remove('arrow-left');
         overlay.class.remove('arrow-top');
         overlay.class.remove('arrow-top-right');
