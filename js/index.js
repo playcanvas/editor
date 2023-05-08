@@ -384,8 +384,6 @@ import './editor/attributes/attributes-entity.js';
 import './editor/attributes/components/attributes-components-script.js';
 
 // pcui attribute inspectors
-import './editor/inspector/entity.js';
-import './editor/inspector/asset.js';
 import './editor/inspector/settings.js';
 import './editor/inspector/settings-panels/batchgroups-create.js';
 

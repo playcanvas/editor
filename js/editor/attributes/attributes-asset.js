@@ -1,5 +1,7 @@
+import { AssetInspector } from '../inspector/asset.js';
+
 editor.once('load', function () {
-    var editableTypes = {
+    const editableTypes = {
         'script': 1,
         'css': 1,
         'html': 1,
@@ -8,12 +10,11 @@ editor.once('load', function () {
         'json': 1
     };
 
-    var assetsPanel = null;
+    let assetsPanel = null;
 
-    let assetInspector = null;
     let assetInspectorEvents = [];
 
-    assetInspector = new pcui.AssetInspector({
+    const assetInspector = new AssetInspector({
         assets: editor.call('assets:raw'),
         entities: editor.call('entities:raw'),
         projectSettings: editor.call('settings:project'),
@@ -66,8 +67,8 @@ editor.once('load', function () {
     editor.on('attributes:inspect[asset]', function (assets) {
 
         // Set panel title
-        var multi = assets.length > 1;
-        var type = ((assets[0].get('source') && assets[0].get('type') !== 'folder') ? 'source ' : '') + assets[0].get('type');
+        const multi = assets.length > 1;
+        let type = ((assets[0].get('source') && assets[0].get('type') !== 'folder') ? 'source ' : '') + assets[0].get('type');
 
         if (multi) {
             editor.call('attributes:header', assets.length + ' assets');
@@ -82,14 +83,14 @@ editor.once('load', function () {
             editor.call('attributes:header', type);
         }
 
-        var root = editor.call('attributes.rootPanel');
+        const root = editor.call('attributes.rootPanel');
 
         if (!assetInspector.parent)
             root.append(assetInspector);
         assetInspector.link(assets);
 
-        var events = [];
-        var panel = editor.call('attributes:addPanel');
+        let events = [];
+        const panel = editor.call('attributes:addPanel');
         panel.class.add('component');
         assetsPanel = panel;
         panel.once('destroy', function () {
@@ -101,7 +102,6 @@ editor.once('load', function () {
             events = null;
         });
         assetInspectorEvents.push(root.on('resize', assetInspector.updatePreview.bind(assetInspector)));
-
     });
 
     editor.on('attributes:assets:toggleInfo', function (enabled) {
