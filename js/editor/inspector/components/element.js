@@ -1,5 +1,6 @@
 import { BindingTwoWay, BindingElementToObservers } from '@playcanvas/pcui';
 import { AttributesInspector } from '../attributes.js';
+import { TooltipReference } from '../tooltip-reference.js';
 import { ComponentInspector } from './component.js';
 
 const PRESETS = {
@@ -682,7 +683,7 @@ class ElementComponentInspector extends ComponentInspector {
         });
 
         // reset size button tooltip
-        (new pcui.TooltipReference({
+        (new TooltipReference({
             reference: {
                 title: 'Reset Size',
                 description: 'Sets the width and height to the dimensions of the Texture or Sprite asset.'

@@ -1,4 +1,5 @@
 import { Element, Container, LabelGroup, Panel, ArrayInput, BindingTwoWay } from '@playcanvas/pcui';
+import { TooltipReference } from './tooltip-reference.js';
 
 const CLASS_ROOT = 'pcui-inspector';
 
@@ -53,7 +54,7 @@ class AttributesInspector extends Container {
         const group = new pcui.TooltipGroup();
 
         if (tooltipData) {
-            const tooltip = new pcui.TooltipReference({
+            const tooltip = new TooltipReference({
                 reference: tooltipData,
                 hidden: false
             });

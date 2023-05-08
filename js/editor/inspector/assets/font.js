@@ -1,6 +1,7 @@
 import { Observer } from '@playcanvas/observer';
 import { Panel, Button, Container, Label, TextInput, Menu, BindingTwoWay } from '@playcanvas/pcui';
 import { AttributesInspector } from '../attributes.js';
+import { TooltipReference } from '../tooltip-reference.js';
 
 const CLASS_ROOT = 'asset-font-inspector';
 const CLASS_LOCALE_PANEL = CLASS_ROOT + '-locale-panel';
@@ -280,7 +281,7 @@ class FontAssetInspector extends Container {
 
         let ref = editor.call('attributes:reference:get', 'asset:font:presets');
         if (ref) {
-            (new pcui.TooltipReference({
+            (new TooltipReference({
                 reference: ref
             })).attach({
                 target: this._characterPresetsPanel.header
@@ -289,7 +290,7 @@ class FontAssetInspector extends Container {
 
         ref = editor.call('attributes:reference:get', 'asset:font:customRange');
         if (ref) {
-            (new pcui.TooltipReference({
+            (new TooltipReference({
                 reference: ref
             })).attach({
                 target: this._characterRangePanel.header
@@ -298,7 +299,7 @@ class FontAssetInspector extends Container {
 
         ref = editor.call('attributes:reference:get', 'asset:font:asset');
         if (ref) {
-            (new pcui.TooltipReference({
+            (new TooltipReference({
                 reference: ref
             })).attach({
                 target: this._fontPanel.header
@@ -307,7 +308,7 @@ class FontAssetInspector extends Container {
 
         ref = editor.call('attributes:reference:get', 'asset:localization');
         if (ref) {
-            (new pcui.TooltipReference({
+            (new TooltipReference({
                 reference: ref
             })).attach({
                 target: this._localizationPanel.header

@@ -1,4 +1,5 @@
 import { Container, Label, Panel, Button } from '@playcanvas/pcui';
+import { TooltipReference } from '../tooltip-reference.js';
 
 const CLASS_ROOT = 'script-asset-inspector';
 const CLASS_ERROR_CONTAINER = CLASS_ROOT + '-error-container';
@@ -56,7 +57,7 @@ class ScriptAssetInspector extends Panel {
                 const attributeLabel = new Label({ text: attributeName, class: CLASS_ATTRIBUTE });
                 const attributeData = attributes.attributes[attributeName];
 
-                const tooltip = new pcui.TooltipReference({
+                const tooltip = new TooltipReference({
                     reference: {
                         title: attributeName,
                         subTitle: editor.call('assets:scripts:typeToSubTitle', attributeData),

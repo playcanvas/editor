@@ -1,5 +1,6 @@
 import { Panel, Code, Container, Label, Progress } from '@playcanvas/pcui';
 import { Ajax } from '../../../common/ajax.js';
+import { TooltipReference } from '../tooltip-reference.js';
 
 const DOM = parent => [
     {
@@ -55,7 +56,7 @@ class CodeBlockAssetInspector extends Container {
         // reference
         const ref = editor.call('attributes:reference:get', `asset:${this._assetType}:asset`);
         if (ref) {
-            (new pcui.TooltipReference({
+            (new TooltipReference({
                 reference: ref
             })).attach({
                 target: this._panel.header

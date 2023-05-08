@@ -384,7 +384,6 @@ import './editor/attributes/attributes-entity.js';
 import './editor/attributes/components/attributes-components-script.js';
 
 // pcui attribute inspectors
-import './editor/inspector/tooltip-reference.js';
 import './editor/inspector/entity.js';
 import './editor/inspector/asset.js';
 import './editor/inspector/settings.js';

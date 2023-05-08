@@ -1,6 +1,7 @@
 import { Panel, Container, Button, InfoBox, Divider, Label, BindingTwoWay, BindingObserversToElement, BindingElementToObservers } from '@playcanvas/pcui';
 import { TextureCompressor } from '../../assets/assets-textures-compress.js';
 import { AttributesInspector } from '../attributes.js';
+import { TooltipReference } from '../tooltip-reference.js';
 
 // util
 const makeRefAssigner = (prefix = '') => (attr) => {
@@ -940,7 +941,7 @@ class TextureAssetInspector extends Container {
     _setupPanelReferences() {
         let ref = editor.call('attributes:reference:get', 'asset:texture:asset');
         if (ref) {
-            (new pcui.TooltipReference({
+            (new TooltipReference({
                 reference: ref
             })).attach({
                 target: this._texturePanel.header
@@ -949,7 +950,7 @@ class TextureAssetInspector extends Container {
 
         ref = editor.call('attributes:reference:get', 'asset:texture:compression');
         if (ref) {
-            (new pcui.TooltipReference({
+            (new TooltipReference({
                 reference: ref
             })).attach({
                 target: this._compressionPanel.header

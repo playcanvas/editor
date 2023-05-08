@@ -1,4 +1,5 @@
 import { Panel, BooleanInput, LabelGroup, Button, Menu, BindingTwoWay } from '@playcanvas/pcui';
+import { TooltipReference } from '../tooltip-reference.js';
 
 const CLASS_ROOT = 'component-inspector';
 const CLASS_COMPONENT_ICON = 'component-icon-prefix';
@@ -34,7 +35,7 @@ class ComponentInspector extends Panel {
         // reference
         const ref = editor.call('attributes:reference:get', `${args.component}:component`);
         if (ref) {
-            const tooltip = new pcui.TooltipReference({
+            const tooltip = new TooltipReference({
                 reference: ref,
                 hidden: false
             });

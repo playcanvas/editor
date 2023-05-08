@@ -1,5 +1,6 @@
 import { Panel, Label } from '@playcanvas/pcui';
 import { AttributesInspector } from '../attributes.js';
+import { TooltipReference } from '../tooltip-reference.js';
 
 class BaseSettingsPanel extends Panel {
     constructor(args) {
@@ -52,7 +53,7 @@ class BaseSettingsPanel extends Panel {
         }
         ref.subTitle = userOnlySettings ? 'These settings affect only you' : 'These settings affect all users on this branch';
         if (ref) {
-            this._panelTooltip = new pcui.TooltipReference({
+            this._panelTooltip = new TooltipReference({
                 reference: ref
             });
 

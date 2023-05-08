@@ -1,5 +1,6 @@
 import { Panel, Container, Button, BooleanInput, LabelGroup, Label, SelectInput, BindingTwoWay } from '@playcanvas/pcui';
 import { AttributesInspector } from '../attributes.js';
+import { TooltipReference } from '../tooltip-reference.js';
 import { ComponentInspector } from './component.js';
 
 const CLASS_SCRIPT_CONTAINER = 'script-component-inspector-scripts';
@@ -130,7 +131,7 @@ class ScriptInspector extends Panel {
         });
         this.header.appendBefore(this._labelInvalid, this._labelTitle);
 
-        this._tooltipInvalid = new pcui.TooltipReference({
+        this._tooltipInvalid = new TooltipReference({
             title: 'Invalid',
             description: this._getInvalidTooltipText()
         });

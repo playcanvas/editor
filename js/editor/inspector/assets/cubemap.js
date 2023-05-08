@@ -1,5 +1,6 @@
 import { Panel, Container, Label, BooleanInput, Button } from '@playcanvas/pcui';
 import { AttributesInspector } from '../attributes.js';
+import { TooltipReference } from '../tooltip-reference.js';
 import { CubemapFace } from './cubemap-face.js';
 
 const CLASS_ROOT = 'pcui-cubemap-asset-inspector';
@@ -135,7 +136,7 @@ class CubemapAssetInspector extends Container {
 
         const ref = editor.call('attributes:reference:get', 'asset:cubemap:asset');
         if (ref) {
-            (new pcui.TooltipReference({
+            (new TooltipReference({
                 reference: ref
             })).attach({
                 target: this._cubemapPanel.header
@@ -144,7 +145,7 @@ class CubemapAssetInspector extends Container {
 
         const phongRef = editor.call('attributes:reference:get', 'asset:cubemap:useLegacyPhongLobe');
         if (phongRef) {
-            const tooltip = new pcui.TooltipReference({
+            const tooltip = new TooltipReference({
                 reference: phongRef
             });
             tooltip.attach({
