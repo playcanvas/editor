@@ -26,15 +26,15 @@ editor.once('load', function () {
         op: 'resize'
     }].forEach(function (item, index) {
         const button = new Button({
+            class: 'pc-icon',
+            hidden: !editor.call('permissions:write'),
             icon: item.icon
         });
-        button.hidden = !editor.call('permissions:write');
         button.op = item.op;
-        button.class.add('pc-icon');
 
         gizmoButtons[item.op] = button;
 
-        button.on('click', function () {
+        button.on('click', () => {
             if (activeGizmo.op === this.op)
                 return;
 
@@ -50,7 +50,7 @@ editor.once('load', function () {
         toolbar.append(button);
 
         button.tooltip = Tooltip.attach({
-            target: button.element,
+            target: button.dom,
             text: item.tooltip,
             align: 'left',
             root: root
@@ -66,13 +66,13 @@ editor.once('load', function () {
 
     // coordinate system
     const buttonWorld = new Button({
+        class: ['pc-icon', 'active'],
+        hidden: !editor.call('permissions:write'),
         icon: 'E118'
     });
-    buttonWorld.hidden = !editor.call('permissions:write');
-    buttonWorld.class.add('pc-icon', 'active');
     toolbar.append(buttonWorld);
 
-    buttonWorld.on('click', function () {
+    buttonWorld.on('click', () => {
         if (this.class.contains('active')) {
             this.class.remove('active');
             tooltipWorld.html = 'World / <span style="color:#fff">Local</span>';
@@ -84,7 +84,7 @@ editor.once('load', function () {
     });
 
     const tooltipWorld = Tooltip.attach({
-        target: buttonWorld.element,
+        target: buttonWorld.dom,
         align: 'left',
         root: root
     });
@@ -94,11 +94,11 @@ editor.once('load', function () {
 
     // toggle grid snap
     const buttonSnap = new Button({
+        class: 'pc-icon',
+        hidden: !editor.call('permissions:write'),
         icon: 'E116'
     });
-    buttonSnap.hidden = !editor.call('permissions:write');
-    buttonSnap.class.add('pc-icon');
-    buttonSnap.on('click', function () {
+    buttonSnap.on('click', () => {
         if (this.class.contains('active')) {
             this.class.remove('active');
             tooltipSnap.class.add('innactive');
@@ -111,7 +111,7 @@ editor.once('load', function () {
     toolbar.append(buttonSnap);
 
     const tooltipSnap = Tooltip.attach({
-        target: buttonSnap.element,
+        target: buttonSnap.dom,
         text: 'Snap',
         align: 'left',
         root: root
@@ -131,21 +131,21 @@ editor.once('load', function () {
 
     // focus on entity
     const buttonFocus = new Button({
+        class: 'pc-icon',
+        enabled: false,
         icon: 'E117'
     });
-    buttonFocus.disabled = true;
-    buttonFocus.class.add('pc-icon');
-    buttonFocus.on('click', function () {
+    buttonFocus.on('click', () => {
         editor.call('viewport:focus');
     });
     toolbar.append(buttonFocus);
 
-    editor.on('attributes:clear', function () {
-        buttonFocus.disabled = true;
+    editor.on('attributes:clear', () => {
+        buttonFocus.enabled = false;
         tooltipFocus.class.add('innactive');
     });
-    editor.on('attributes:inspect[*]', function (type) {
-        buttonFocus.disabled = type !== 'entity';
+    editor.on('attributes:inspect[*]', (type) => {
+        buttonFocus.enabled = type === 'entity';
         if (type === 'entity') {
             tooltipFocus.class.remove('innactive');
         } else {
@@ -154,7 +154,7 @@ editor.once('load', function () {
     });
 
     const tooltipFocus = Tooltip.attach({
-        target: buttonFocus.element,
+        target: buttonFocus.dom,
         text: 'Focus',
         align: 'left',
         root: root

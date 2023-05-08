@@ -9,7 +9,7 @@ editor.once('load', function () {
     });
     viewport.append(panel);
 
-    editor.method('layout.toolbar.scene', function () {
+    editor.method('layout.toolbar.scene', () => {
         return panel;
     });
 
@@ -18,12 +18,12 @@ editor.once('load', function () {
     });
     panel.append(projectName);
 
-    projectName.on('click', function (argument) {
+    projectName.on('click', () => {
         window.open(`/project/${config.project.id}`, '_blank');
     });
 
     Tooltip.attach({
-        target: projectName.element,
+        target: projectName.dom,
         text: 'Home',
         align: 'top',
         root: root
@@ -35,21 +35,21 @@ editor.once('load', function () {
     panel.append(sceneName);
 
     Tooltip.attach({
-        target: sceneName.element,
+        target: sceneName.dom,
         text: 'Settings',
         align: 'top',
         root: root
     });
 
-    sceneName.on('click', function () {
+    sceneName.on('click', () => {
         editor.call('selector:set', 'editorSettings', [editor.call('settings:projectUser')]);
     });
 
-    editor.on('attributes:clear', function () {
+    editor.on('attributes:clear', () => {
         sceneName.class.remove('active');
     });
 
-    editor.on('attributes:inspect[editorSettings]', function () {
+    editor.on('attributes:inspect[editorSettings]', () => {
         sceneName.class.add('active');
     });
 
@@ -63,12 +63,13 @@ editor.once('load', function () {
             text: name
         });
         panel.append(branchButton);
-        branchButton.on('click', function () {
+
+        branchButton.on('click', () => {
             editor.call('picker:versioncontrol');
         });
 
         Tooltip.attach({
-            target: branchButton.element,
+            target: branchButton.dom,
             text: 'Version Control',
             align: 'top',
             root: root
@@ -78,7 +79,7 @@ editor.once('load', function () {
         if (!editor.call('permissions:read')) {
             branchButton.hidden = true;
         }
-        editor.on('permissions:set', function () {
+        editor.on('permissions:set', () => {
             branchButton.hidden = !editor.call('permissions:read');
         });
     }
@@ -88,26 +89,26 @@ editor.once('load', function () {
     });
     panel.append(sceneList);
 
-    editor.on('scene:name', function (name) {
+    editor.on('scene:name', (name) => {
         sceneList.text = name;
     });
 
     Tooltip.attach({
-        target: sceneList.element,
+        target: sceneList.dom,
         text: 'Manage Scenes',
         align: 'top',
         root: root
     });
 
-    sceneList.on('click', function () {
+    sceneList.on('click', () => {
         editor.call('picker:scene');
     });
 
-    editor.on('picker:scene:open', function () {
+    editor.on('picker:scene:open', () => {
         sceneList.class.add('active');
     });
 
-    editor.on('picker:scene:close', function () {
+    editor.on('picker:scene:close', () => {
         sceneList.class.remove('active');
     });
 });

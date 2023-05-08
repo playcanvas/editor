@@ -10,16 +10,16 @@ editor.once('load', function () {
 
     // coordinate system
     const buttonBake = new Button({
+        class: ['pc-icon', 'light-mapper'],
         icon: 'E191'
     });
-    buttonBake.class.add('pc-icon', 'light-mapper');
     toolbar.append(buttonBake);
 
-    buttonBake.on('click', function () {
+    buttonBake.on('click', () => {
         editor.call('lightmapper:bake');
         editor.call('entities:shadows:update');
     });
-    editor.on('lightmapper:uv1Missing', function (state) {
+    editor.on('lightmapper:uv1Missing', (state) => {
         if (state) {
             buttonBake.class.add('active');
         } else {
@@ -29,7 +29,7 @@ editor.once('load', function () {
 
     // tooltip
     const tooltipBake = Tooltip.attach({
-        target: buttonBake.element,
+        target: buttonBake.dom,
         align: 'left',
         root: root
     });
@@ -48,12 +48,8 @@ editor.once('load', function () {
     if (!editor.call('permissions:write'))
         elAuto.style.display = 'none';
 
-    editor.on('permissions:writeState', function (state) {
-        if (state) {
-            elAuto.style.display = '';
-        } else {
-            elAuto.style.display = 'none';
-        }
+    editor.on('permissions:writeState', (state) => {
+        elAuto.style.display = state ? '' : 'none';
     });
 
     elAuto.classList.add('auto-toggle');

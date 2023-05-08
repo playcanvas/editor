@@ -4,11 +4,12 @@ editor.once('load', function () {
     const root = editor.call('layout.root');
     const viewport = editor.call('layout.viewport');
 
-    const panel = new Container();
-    panel.class.add('whoisonline');
+    const panel = new Container({
+        class: 'whoisonline'
+    });
     viewport.append(panel);
 
-    editor.on('viewport:expand', function (state) {
+    editor.on('viewport:expand', (state) => {
         if (state) {
             panel.class.add('expanded');
         } else {
@@ -26,7 +27,7 @@ editor.once('load', function () {
     assetPanel.on('collapse', adjustPosition);
     assetPanel.on('expand', adjustPosition);
 
-    editor.on('whoisonline:add', function (id) {
+    editor.on('whoisonline:add', (id) => {
         for (const childNode of panel.innerElement.childNodes) {
             if (childNode.userId === id)
                 return;
@@ -49,7 +50,7 @@ editor.once('load', function () {
             root: root
         });
 
-        editor.call('users:loadOne', id, function (user) {
+        editor.call('users:loadOne', id, (user) => {
             link.href = '/user/' + user.username;
             link.tooltip.text = user.username;
             link.style.backgroundColor = editor.call('users:color', user.id, 'hex');
@@ -57,7 +58,7 @@ editor.once('load', function () {
     });
 
 
-    editor.on('whoisonline:remove', function (id, index) {
+    editor.on('whoisonline:remove', (id, index) => {
         for (const childNode of panel.innerElement.childNodes) {
             if (childNode.userId === id) {
                 if (childNode.tooltip)
@@ -69,7 +70,7 @@ editor.once('load', function () {
     });
 
 
-    editor.method('whoisonline:panel', function () {
+    editor.method('whoisonline:panel', () => {
         return panel;
     });
 
@@ -77,10 +78,10 @@ editor.once('load', function () {
     if (chatWidget) {
         panel.class.add('chat-minified');
 
-        chatWidget.on('collapse', function () {
+        chatWidget.on('collapse', () => {
             panel.class.add('chat-minified');
         });
-        chatWidget.on('expand', function () {
+        chatWidget.on('expand', () => {
             panel.class.remove('chat-minified');
         });
 
@@ -88,7 +89,7 @@ editor.once('load', function () {
             panel.class.add('no-chat');
     }
 
-    editor.on('permissions:set', function (level) {
+    editor.on('permissions:set', (level) => {
         if (level) {
             panel.class.remove('no-chat');
         } else {

@@ -4,15 +4,15 @@ editor.once('load', function () {
     if (editor.call('settings:project').get('useLegacyScripts'))
         return;
 
-    var toolbar = editor.call('layout.toolbar');
-    var firefox = navigator.userAgent.indexOf('Firefox') !== -1;
+    const toolbar = editor.call('layout.toolbar');
+    const firefox = navigator.userAgent.indexOf('Firefox') !== -1;
 
-    var button = new Button({
+    const button = new Button({
+        class: 'pc-icon',
         icon: 'E130'
     });
-    button.class.add('pc-icon');
 
-    var publishButton = toolbar.dom.querySelector('.publish-download');
+    const publishButton = toolbar.dom.querySelector('.publish-download');
     toolbar.appendBefore(button, publishButton);
 
     button.on('click', function () {
@@ -23,7 +23,7 @@ editor.once('load', function () {
         // open the new code editor - try to focus existing tab if it exists
         // (only works in Chrome and only if the Code Editor has been opened by the Editor)
 
-        var url = '/editor/code/' + config.project.id;
+        let url = '/editor/code/' + config.project.id;
 
         const query = [];
         if (location.search.includes('use_local_frontend')) {
@@ -36,13 +36,13 @@ editor.once('load', function () {
             url += '?' + query.join('&');
         }
 
-        var name = 'codeeditor:' + config.project.id;
+        const name = 'codeeditor:' + config.project.id;
 
         if (firefox) {
             // (Firefox doesn't work at all so open a new tab every time)
             window.open(url);
         } else {
-            var wnd = window.open('', name);
+            const wnd = window.open('', name);
             try {
                 if (wnd.editor && wnd.editor.isCodeEditor) {
                     if (asset) {
@@ -61,7 +61,7 @@ editor.once('load', function () {
     });
 
     Tooltip.attach({
-        target: button.element,
+        target: button.dom,
         text: 'Code Editor',
         align: 'left',
         root: editor.call('layout.root')

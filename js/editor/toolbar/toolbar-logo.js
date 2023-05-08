@@ -1,59 +1,60 @@
 import { Button, Menu } from '@playcanvas/pcui';
 
 editor.once('load', function () {
-    var root = editor.call('layout.root');
-    var toolbar = editor.call('layout.toolbar');
-    var legacyScripts = editor.call('settings:project').get('useLegacyScripts');
+    const root = editor.call('layout.root');
+    const toolbar = editor.call('layout.toolbar');
+    const legacyScripts = editor.call('settings:project').get('useLegacyScripts');
 
-    var history = editor.call('editor:history');
+    const history = editor.call('editor:history');
 
-    var logo = new Button();
-    logo.class.add('logo');
+    const logo = new Button({
+        class: 'logo'
+    });
     toolbar.append(logo);
 
-    var setField = function (items, field, value) {
-        var records = [];
+    const setField = function (items, field, value) {
+        const records = [];
 
-        for (let i = 0; i < items.length; i++) {
+        for (const item of items) {
             records.push({
-                item: items[i],
+                item: item,
                 value: value,
-                valueOld: items[i].get(field)
+                valueOld: item.get(field)
             });
 
-            items[i].history.enabled = false;
-            items[i].set(field, value);
-            items[i].history.enabled = true;
+            item.history.enabled = false;
+            item.set(field, value);
+            item.history.enabled = true;
         }
 
         history.add({
-            name: 'entities.set[' + field + ']',
+            name: `entities.set[${field}]`,
             undo: function () {
-                for (let i = 0; i < records.length; i++) {
-                    var item = records[i].item.latest();
+                for (const record of records) {
+                    const item = record.item.latest();
                     if (!item)
                         continue;
 
                     item.history.enabled = false;
-                    item.set(field, records[i].valueOld);
+                    item.set(field, record.valueOld);
                     item.history.enabled = true;
                 }
             },
             redo: function () {
-                for (let i = 0; i < records.length; i++) {
-                    var item = records[i].item.latest();
+                for (const record of records) {
+                    const item = record.item.latest();
                     if (!item)
                         continue;
 
                     item.history.enabled = false;
-                    item.set(field, records[i].value);
+                    item.set(field, record.value);
                     item.history.enabled = true;
                 }
             }
         });
     };
 
-    var menu = new Menu({
+    const menu = new Menu({
         items: [{
             text: 'Entity',
             onIsEnabled: function () {
@@ -118,16 +119,16 @@ editor.once('load', function () {
                     return editor.call('selector:type') === 'entity';
                 },
                 onIsVisible: function () {
-                    var type = editor.call('selector:type');
+                    const type = editor.call('selector:type');
                     if (type !== 'entity')
                         return false;
 
-                    var items = editor.call('selector:items');
+                    const items = editor.call('selector:items');
 
                     if (items.length === 1) {
                         return !items[0].get('enabled');
                     }
-                    var enabled = items[0].get('enabled');
+                    const enabled = items[0].get('enabled');
                     for (let i = 1; i < items.length; i++) {
                         if (enabled !== items[i].get('enabled'))
                             return true;
@@ -147,16 +148,16 @@ editor.once('load', function () {
                     return editor.call('selector:type') === 'entity';
                 },
                 onIsVisible: function () {
-                    var type = editor.call('selector:type');
+                    const type = editor.call('selector:type');
                     if (type !== 'entity')
                         return false;
 
-                    var items = editor.call('selector:items');
+                    const items = editor.call('selector:items');
 
                     if (items.length === 1) {
                         return items[0].get('enabled');
                     }
-                    var disabled = items[0].get('enabled');
+                    const disabled = items[0].get('enabled');
                     for (let i = 1; i < items.length; i++) {
                         if (disabled !== items[i].get('enabled'))
                             return true;
@@ -187,7 +188,7 @@ editor.once('load', function () {
                     return false;
                 },
                 onSelect: function () {
-                    var items = editor.call('selector:items');
+                    const items = editor.call('selector:items');
                     const selector = editor.call('selector:type');
                     if (selector === 'entity') {
                         editor.call('entities:copy', items);
@@ -206,7 +207,7 @@ editor.once('load', function () {
                     const clipboard = editor.call('clipboard');
                     const value = clipboard.value;
                     if (value) {
-                        var items = editor.call('selector:items');
+                        const items = editor.call('selector:items');
                         if (items.length === 0 || items.length === 1) {
                             const selector = editor.call('selector:type');
                             if (selector === value.type) {
@@ -228,7 +229,7 @@ editor.once('load', function () {
                     return false;
                 },
                 onSelect: function (value, hasChildren, mouseEvt) {
-                    var items = editor.call('selector:items');
+                    const items = editor.call('selector:items');
                     if (editor.call('selector:type') === 'entity') {
                         editor.call('entities:paste', items[0]);
                     } else if (editor.call('selector:type') === 'asset') {
@@ -240,17 +241,17 @@ editor.once('load', function () {
                 text: 'Edit',
                 icon: 'E130',
                 onIsEnabled: function () {
-                    var type = editor.call('selector:type');
+                    const type = editor.call('selector:type');
                     if (!type || type !== 'asset')
                         return false;
 
-                    var items = editor.call('selector:items');
+                    const items = editor.call('selector:items');
                     return items.length === 1 && ['html', 'css', 'json', 'text', 'script', 'shader'].indexOf(items[0].get('type')) !== -1;
                 },
                 onSelect: function () {
-                    var type = editor.call('selector:type');
+                    const type = editor.call('selector:type');
                     if (!type || type !== 'asset') return;
-                    var items = editor.call('selector:items');
+                    const items = editor.call('selector:items');
 
                     editor.call('assets:edit', items[0]);
                 }
@@ -261,11 +262,11 @@ editor.once('load', function () {
                     if (!editor.call('permissions:write'))
                         return false;
 
-                    var type = editor.call('selector:type');
+                    const type = editor.call('selector:type');
                     if (!type)
                         return false;
 
-                    var items = editor.call('selector:items');
+                    const items = editor.call('selector:items');
 
                     if (type === 'entity') {
                         if (items.indexOf(editor.call('entities:root')) !== -1)
@@ -279,9 +280,9 @@ editor.once('load', function () {
 
                 },
                 onSelect: function () {
-                    var type = editor.call('selector:type');
+                    const type = editor.call('selector:type');
                     if (!type) return;
-                    var items = editor.call('selector:items');
+                    const items = editor.call('selector:items');
 
                     if (type === 'entity') {
                         editor.call('entities:duplicate', items);
@@ -296,12 +297,12 @@ editor.once('load', function () {
                     if (!editor.call('permissions:write'))
                         return false;
 
-                    var type = editor.call('selector:type');
+                    const type = editor.call('selector:type');
                     if (!type) return false;
 
                     if (type === 'entity') {
-                        var root = editor.call('entities:root');
-                        var items = editor.call('selector:items');
+                        const root = editor.call('entities:root');
+                        const items = editor.call('selector:items');
                         for (let i = 0; i < items.length; i++) {
                             if (items[i] === root) {
                                 return false;
@@ -312,12 +313,12 @@ editor.once('load', function () {
                     return true;
                 },
                 onSelect: function () {
-                    var type = editor.call('selector:type');
+                    const type = editor.call('selector:type');
                     if (!type) return;
-                    var items = editor.call('selector:items');
+                    const items = editor.call('selector:items');
 
                     if (type === 'entity') {
-                        var root = editor.call('entities:root');
+                        const root = editor.call('entities:root');
                         if (items.indexOf(root) !== -1)
                             return;
                         editor.call('entities:delete', items);
@@ -440,8 +441,8 @@ editor.once('load', function () {
     menu.position(45, 0);
     root.append(menu);
 
-    var tooltip = Tooltip.attach({
-        target: logo.element,
+    const tooltip = Tooltip.attach({
+        target: logo.dom,
         text: 'Menu',
         align: 'left',
         root: root

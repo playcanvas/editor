@@ -19,7 +19,7 @@ editor.once('load', function () {
         icon: 'E132'
     });
     container.append(btnClose);
-    btnClose.on('click', function () {
+    btnClose.on('click', () => {
         container.hidden = true;
     });
 

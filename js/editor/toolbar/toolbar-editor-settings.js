@@ -5,31 +5,31 @@ editor.once('load', function () {
 
     // settings button
     const button = new Button({
+        class: ['pc-icon', 'editor-settings', 'bottom'],
         icon: 'E134'
     });
-    button.class.add('pc-icon', 'editor-settings', 'bottom');
     toolbar.append(button);
 
-    button.on('click', function () {
+    button.on('click', () => {
         editor.call('selector:set', 'editorSettings', [editor.call('settings:projectUser')]);
     });
 
-    editor.on('attributes:clear', function () {
+    editor.on('attributes:clear', () => {
         button.class.remove('active');
     });
 
-    editor.on('attributes:inspect[editorSettings]', function () {
+    editor.on('attributes:inspect[editorSettings]', () => {
         editor.call('attributes.rootPanel').collapsed = false;
 
         button.class.add('active');
     });
 
-    editor.on('viewport:expand', function (state) {
-        button.disabled = state;
+    editor.on('viewport:expand', (state) => {
+        button.enabled = !state;
     });
 
     Tooltip.attach({
-        target: button.element,
+        target: button.dom,
         text: 'Settings',
         align: 'left',
         root: editor.call('layout.root')

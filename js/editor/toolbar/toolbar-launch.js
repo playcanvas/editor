@@ -10,8 +10,9 @@ editor.once('load', function () {
     const releaseCandidate = config.engineVersions.latest?.version;
 
     // panel
-    const panel = new Container();
-    panel.class.add('top-controls');
+    const panel = new Container({
+        class: 'top-controls'
+    });
     viewport.append(panel);
 
     editor.method('layout.toolbar.launch', function () {
@@ -19,27 +20,28 @@ editor.once('load', function () {
     });
 
     // launch
-    const launch = new Container();
-    launch.class.add('launch');
-    panel.append(launch);
-    launch.disabled = true;
-
-    editor.on('scene:load', function () {
-        launch.disabled = false;
+    const launch = new Container({
+        class: 'launch',
+        enabled: false
     });
+    panel.append(launch);
 
-    editor.on('scene:unload', function () {
-        launch.disabled = true;
+    editor.on('scene:load', () => {
+        launch.enabled = true;
+    });
+    editor.on('scene:unload', () => {
+        launch.enabled = false;
     });
 
     const buttonLaunch = new Button({
+        class: 'icon',
         icon: 'E131'
     });
+
     const launchText = document.createElement('span');
     launchText.innerText = 'Launch';
     buttonLaunch.dom.append(launchText);
 
-    buttonLaunch.class.add('icon');
     launch.append(buttonLaunch);
 
     const launchOptions = { };
@@ -101,22 +103,24 @@ editor.once('load', function () {
 
     buttonLaunch.on('click', launchApp);
 
-    const panelOptions = new Container();
-    panelOptions.class.add('options');
+    const panelOptions = new Container({
+        class: 'options',
+        hidden: true
+    });
     launch.append(panelOptions);
-    panelOptions.hidden = true;
 
     const createOption = function (name, title) {
         const panel = new Container();
         panelOptions.append(panel);
 
-        const option = new BooleanInput();
+        const option = new BooleanInput({
+            class: 'tick',
+            value: false
+        });
         option.style.marginTop = '6px';
-        option.value = false;
-        option.class.add('tick');
         panel.append(option);
 
-        option.on('click', function (e) {
+        option.on('click', (e) => {
             e.stopPropagation();
         });
 
@@ -125,12 +129,12 @@ editor.once('load', function () {
         });
         panel.append(label);
 
-        panel.on('click', function () {
+        panel.on('click', () => {
             option.value = !option.value;
         });
 
         launchOptions[name] = false;
-        option.on('change', function (value) {
+        option.on('change', (value) => {
             launchOptions[name] = value;
         });
 
@@ -203,10 +207,10 @@ editor.once('load', function () {
     tooltipPreferWebGl1.class.add('launch-tooltip');
 
     if (!editor.call('settings:project').get('preferWebGl2'))
-        preferWebGl1.parent.disabled = true;
+        preferWebGl1.parent.enabled = false;
 
     editor.call('settings:project').on('preferWebGl2:set', function (value) {
-        preferWebGl1.parent.disabled = !value;
+        preferWebGl1.parent.enabled = value;
     });
 
     // mini-stats
@@ -262,8 +266,8 @@ editor.once('load', function () {
     let timeout;
 
     // show dropdown menu
-    launch.element.addEventListener('mouseenter', function () {
-        if (!editor.call('permissions:read') || launch.disabled)
+    launch.dom.addEventListener('mouseenter', function () {
+        if (!editor.call('permissions:read') || !launch.enabled)
             return;
 
         panelOptions.hidden = false;
@@ -272,26 +276,25 @@ editor.once('load', function () {
     });
 
     // hide dropdown menu after a delay
-    launch.element.addEventListener('mouseleave', function () {
+    launch.dom.addEventListener('mouseleave', function () {
         if (!editor.call('permissions:write'))
             return;
 
         if (timeout) clearTimeout(timeout);
-        timeout = setTimeout(function () {
+        timeout = setTimeout(() => {
             panelOptions.hidden = true;
             timeout = null;
         }, 50);
     });
 
     // cancel hide
-    panel.element.addEventListener('mouseenter', function () {
+    panel.dom.addEventListener('mouseenter', function () {
         if (!panelOptions.hidden && timeout)
             clearTimeout(timeout);
-
     });
 
     // hide options after a while
-    panel.element.addEventListener('mouseleave', function () {
+    panel.dom.addEventListener('mouseleave', function () {
         if (timeout) clearTimeout(timeout);
         timeout = setTimeout(function () {
             panelOptions.hidden = true;
@@ -302,23 +305,23 @@ editor.once('load', function () {
 
     // fullscreen
     const buttonExpand = new Button({
+        class: ['icon', 'expand'],
         icon: 'E127'
     });
-    buttonExpand.class.add('icon', 'expand');
     panel.append(buttonExpand);
 
-    buttonExpand.on('click', function () {
+    buttonExpand.on('click', () => {
         editor.call('viewport:expand');
     });
 
     const tooltipExpand = Tooltip.attach({
-        target: buttonExpand.element,
+        target: buttonExpand.dom,
         text: 'Hide Panels',
         align: 'top',
         root: root
     });
 
-    editor.on('viewport:expand', function (state) {
+    editor.on('viewport:expand', (state) => {
         if (state) {
             tooltipExpand.text = 'Show Panels';
             buttonExpand.class.add('active');
