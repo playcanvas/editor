@@ -265,8 +265,7 @@
                         }
 
                         > .content {
-                            flex-direction: row;
-                            flex-wrap: wrap;
+                            flex-flow: row wrap;
                             max-height: 188px;
                             overflow-y: auto;
                             overflow-x: hidden;

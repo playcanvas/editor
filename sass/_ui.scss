@@ -117,10 +117,7 @@ a:visited {
 
         > .content {
             position: absolute;
-            top: 32px;
-            right: 0;
-            bottom: 0;
-            left: 0;
+            inset: 32px 0 0;
             width: auto;
             height: auto;
             overflow: auto;
@@ -324,10 +321,7 @@ a:visited {
     position: absolute;
     width: auto;
     height: auto;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
+    inset: 0;
     z-index: 101;
     transition: opacity 100ms, visibility 100ms;
 
@@ -359,10 +353,7 @@ a:visited {
         position: absolute;
         width: auto;
         height: auto;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
+        inset: 0;
         background-color: rgb(0 0 0 / 70%);
 
         &.clickable {
@@ -561,10 +552,7 @@ a:visited {
 
     display: none;
     position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
+    inset: 0;
     width: auto;
     height: auto;
     z-index: 401;
@@ -577,10 +565,7 @@ a:visited {
 
     > .overlay {
         position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
+        inset: 0;
         width: auto;
         height: auto;
 

@@ -32,10 +32,7 @@ strong {
 
 #ui-root {
     position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
+    inset: 0;
     width: auto;
     height: auto;
     max-height: 100%;
@@ -143,10 +140,7 @@ strong {
 
 .drop-overlay {
     position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
+    inset: 0;
     width: auto;
     height: auto;
     z-index: 201;
@@ -199,10 +193,7 @@ strong {
 
 .drop-areas {
     position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
+    inset: 0;
     width: auto;
     height: auto;
     opacity: 0;
@@ -717,8 +708,7 @@ strong {
                         }
 
                         > .content {
-                            flex-direction: row;
-                            flex-wrap: wrap;
+                            flex-flow: row wrap;
                             max-height: 188px;
                             overflow-y: auto;
                             overflow-x: hidden;
@@ -7989,10 +7979,7 @@ strong {
                     display: flex;
                     align-items: flex-end;
                     justify-content: flex-start;
-                    top: 75%;
-                    right: 0;
-                    bottom: 0;
-                    left: 0;
+                    inset: 75% 0 0;
                     opacity: 0;
 
                     /* stylelint-disable-next-line property-no-vendor-prefix */

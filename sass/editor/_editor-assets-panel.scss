@@ -307,10 +307,7 @@
     .pcui-container.progress-overlay {
         z-index: 10;
         position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
+        inset: 0;
         background-color: $bcg-primary;
         justify-content: center;
         align-items: center;
@@ -810,13 +807,12 @@
 }
 
 .pcui-asset-panel-users {
-    flex-direction: row;
+    flex-flow: row wrap;
     position: absolute;
     top: 0;
     right: 0;
     max-height: 65%;
     overflow: hidden;
-    flex-wrap: wrap;
     justify-content: flex-end;
     pointer-events: none;
 }

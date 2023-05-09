@@ -6,11 +6,9 @@
     height: 66px;
     box-sizing: border-box;
     margin: $element-margin;
-    grid-template-columns: 66px minmax(0, 1fr);
-    grid-template-rows: 36px 30px;
-    grid-template-areas:
-        'thumb label'
-        'thumb controls';
+    grid-template:
+        'thumb label' 36px
+        'thumb controls' 30px / 66px minmax(0, 1fr);
 }
 
 // thumb on the left
@@ -43,8 +41,7 @@
 
     @extend .pcui-flex;
 
-    flex-wrap: nowrap;
-    flex-direction: row;
+    flex-flow: row nowrap;
     margin-left: $element-margin;
     align-self: center;
     background: $bcg-dark;
