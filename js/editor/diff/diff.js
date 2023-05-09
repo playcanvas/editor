@@ -21,8 +21,8 @@ editor.once('load', function () {
      * @param {string} dstBranchId - Destination branch id
      * @param {string} dstCheckpointId - Destination checkpoint id
      * @param {string} histItem - Type and id (joined by dash) of the item whose history is requested
-     * @param {Function} callback - Optional callback after the diff is generated.
-     *   Has the following signature: (err, diff)
+     * @param {Function} callback - Optional callback after the diff is generated. Has the
+     * following signature: (err, diff)
      */
     editor.method('diff:create', function (srcBranchId, srcCheckpointId, dstBranchId, dstCheckpointId, histItem, callback) {
         var data = {

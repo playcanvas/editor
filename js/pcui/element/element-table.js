@@ -21,13 +21,12 @@ Object.assign(pcui, (function () {
      * @classdesc Represents a table view with optional resizable and sortable columns.
      * @augments Container
      * @property {object[]} columns The columns of the table. Each column has the following format:
-     * {
-     *   title: String - the title displayed on the column,
-     *   width: CSS width of the initial column width,
-     *   minWidth: Number - the minimum width of the column,
-     *   sortKey: The observer field with which to sort the table when the column table is clicked. Also serves as an identifier for the column.
-     *   sortFn: Overrides the sortKey method to sort the observers using this function instead.
-     * }
+     * - title: String - the title displayed on the column,
+     * - width: CSS width of the initial column width,
+     * - minWidth: Number - the minimum width of the column,
+     * - sortKey: The observer field with which to sort the table when the column table is clicked.
+     * Also serves as an identifier for the column.
+     * - sortFn: Overrides the sortKey method to sort the observers using this function instead.
      * @property {Container} table The internal <table> container
      * @property {Container} head The internal <thead> container
      * @property {Container} body The internal <tbody> container
@@ -35,7 +34,8 @@ Object.assign(pcui, (function () {
      * @property {string} sortKey Gets the current sort key
      * @property {Function} sortFn Gets the current sort function
      * @property {boolean} isAscending Gets whether the current sort order is ascending (or descending)
-     * @property {boolean} allowRowFocus Gets / sets whether table rows will be focused on selection. Defaults to true.
+     * @property {boolean} allowRowFocus Gets / sets whether table rows will be focused on selection.
+     * Defaults to true.
      */
     class Table extends Container {
         /**

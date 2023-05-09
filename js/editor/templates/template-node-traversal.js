@@ -72,17 +72,15 @@ editor.once('load', function () {
     }
 
     /**
-     * Handle a node for the purposes of finding diff conflicts
-     * during recursive traversal of a tree.
+     * Handle a node for the purposes of finding diff conflicts during recursive traversal of a
+     * tree.
      *
-     * A reference to a NodeTraversal instance is provided
-     * as an argument. We call its 'makeRecursiveCalls' method,
-     * unless a conflict or deep equality of nodes has been
-     * found here, in which case the traversal's
-     * 'addCurPathToKnown' methods is called.
+     * A reference to a NodeTraversal instance is provided as an argument. We call its
+     * 'makeRecursiveCalls' method, unless a conflict or deep equality of nodes has been found
+     * here, in which case the traversal's 'addCurPathToKnown' methods is called.
      *
-     * @param {object} data - Traversal state data
-     * @param {object} traversal - A NodeTraversal instance
+     * @param {object} data - Traversal state data.
+     * @param {object} traversal - A NodeTraversal instance.
      */
     class DiffTemplateNode {
         constructor(data, traversal) {
@@ -269,20 +267,17 @@ editor.once('load', function () {
     /**
      * A generalized node traversal mechanism.
      *
-     * Given a path (data.path) and a type (data.type1), which is in turn
-     * 'src' or 'dst', compare the node at that path in both src and dst
-     * (of data.typeToRoot) and either stop (and add a conflict to data.conflicts),
-     * or make recursive calls with all children nodes.
+     * Given a path (data.path) and a type (data.type1), which is in turn 'src' or 'dst', compare
+     * the node at that path in both src and dst (of data.typeToRoot) and either stop (and add a
+     * conflict to data.conflicts), or make recursive calls with all children nodes.
      *
-     * 'NodeTraversal' is used in combination with a handler class, in this case
-     * 'DiffTemplateNode' defined below.
+     * 'NodeTraversal' is used in combination with a handler class, in this case 'DiffTemplateNode'
+     * defined below.
      *
-     * 'NodeTraversal' calls the 'handleNode' method of a handler instance,
-     * which in turn calls the 'makeRecursiveCalls' or 'addCurPathToKnown'
-     * of 'NodeTraversal'.
+     * 'NodeTraversal' calls the 'handleNode' method of a handler instance, which in turn calls the
+     * 'makeRecursiveCalls' or 'addCurPathToKnown' of 'NodeTraversal'.
      *
-     * @param {object} data - Traversal state data with fields:
-     *   typeToRoot, conflicts, path, type1
+     * @param {object} data - Traversal state data with fields: typeToRoot, conflicts, path, type1.
      */
     editor.method('assets:templateNodeTraversal', function (data) {
         new NodeTraversal(data).run();

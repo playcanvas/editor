@@ -173,11 +173,11 @@ editor.once('load', function () {
      * given data representing the instance and the template asset.
      *
      * @param {object} typeToInstData - A map from type (src or dst)
-     *    to an object with the fields: entities, templIdToEntity, templIdToEntId
+     * to an object with the fields: entities, templIdToEntity, templIdToEntId
      * @param {object} typeToIdToTempl - A map from type to a map from
-     *    instance id to template id.
+     * instance id to template id.
      * @returns {object} An object with fields 'conflicts',
-     *    'addedEntities' and 'deletedEntities'
+     * 'addedEntities' and 'deletedEntities'
      */
     editor.method('template:findConflicts', function (typeToInstData, typeToIdToTempl, scriptAttrs) {
         return new FindTemplateConflicts(typeToInstData, typeToIdToTempl, scriptAttrs).run();
