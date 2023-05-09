@@ -12,16 +12,18 @@ editor.once('load', function () {
             return;
 
         var root = editor.call('attributes.rootPanel');
-        if (!root)
+        if (!root?.content)
             return;
 
-        var input = root.dom.querySelector('.ui-text-field.asset-name');
-
-        if (!input || !input.ui)
-            return;
-
-        input.ui.flash();
-        input.ui.elementInput.select();
+        root.content.forEachChild((c) => {
+            const field = c?._attributesInspector?.getField('name');
+            if (field) {
+                field.flash();
+                field.focus();
+                return false;
+            }
+            return true;
+        });
     };
 
     editor.method('assets:rename-select', onRename);
