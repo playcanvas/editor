@@ -44,8 +44,6 @@ import '../ui/list.js';
 import '../ui/list-item.js';
 import '../ui/grid.js';
 import '../ui/grid-item.js';
-import '../ui/tree.js';
-import '../ui/tree-item.js';
 import '../ui/tooltip.js';
 import '../ui/menu.js';
 import '../ui/menu-item.js';

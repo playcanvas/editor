@@ -27,7 +27,6 @@ import '../ui/progress.js';
 import '../ui/list.js';
 import '../ui/list-item.js';
 import '../ui/grid.js';
-import '../ui/tree.js';
 import '../ui/menu.js';
 import '../ui/menu-item.js';
 

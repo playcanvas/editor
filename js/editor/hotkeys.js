@@ -544,13 +544,6 @@ editor.once('load', function () {
         return shift;
     };
 
-    ui.Tree._ctrl = function () {
-        return ctrl;
-    };
-    ui.Tree._shift = function () {
-        return shift;
-    };
-
     ui.List._ctrl = function () {
         return ctrl;
     };
