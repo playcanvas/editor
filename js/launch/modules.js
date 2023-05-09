@@ -31,11 +31,15 @@ editor.once('load', function () {
                             moduleLoaded();
                         } else {
                             // 1.62 and earlier
-                            pc.WasmModule.getInstance(m.moduleName, () => { moduleLoaded(); });
+                            pc.WasmModule.getInstance(m.moduleName, () => {
+                                moduleLoaded();
+                            });
                         }
                     } else {
                         // load remaining modules in global scope
-                        pc.WasmModule.getInstance(m.moduleName, () => { moduleLoaded(); });
+                        pc.WasmModule.getInstance(m.moduleName, () => {
+                            moduleLoaded();
+                        });
                     }
                 } else {
                     moduleLoaded();

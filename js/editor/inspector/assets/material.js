@@ -1966,7 +1966,9 @@ class MaterialAssetInspector extends Container {
         });
 
         this._texturesBeforeHover = {};
-        this._hoverEvents.forEach((evt) => { evt.asset.off('load', evt.fn); });
+        this._hoverEvents.forEach((evt) => {
+            evt.asset.off('load', evt.fn);
+        });
         this._hoverEvents.length = 0;
 
         editor.call('viewport:render');

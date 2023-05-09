@@ -69,7 +69,9 @@ editor.once('load', function () {
             }
 
             // Otherwise, select the first available font in the library
-            var firstAvailableFont = editor.call('assets:findOne', function (asset) { return !asset.get('source') && asset.get('type') === 'font'; });
+            var firstAvailableFont = editor.call('assets:findOne', function (asset) {
+                return !asset.get('source') && asset.get('type') === 'font';
+            });
 
             return firstAvailableFont ? parseInt(firstAvailableFont[1].get('id'), 10) : null;
         };

@@ -255,7 +255,9 @@ class AssetTasksSettingsPanel extends BaseSettingsPanel {
             dracoMeshSize.parent.hidden = (value !== 'draco');
         };
         meshCompressionField.on('change', value => updateDracoImport(value));
-        this.on('showToRoot', () => { updateDracoImport(meshCompressionField.value); });
+        this.on('showToRoot', () => {
+            updateDracoImport(meshCompressionField.value);
+        });
     }
 
     _appendSection(title, attributeElement) {

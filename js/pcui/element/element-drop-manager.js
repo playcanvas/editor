@@ -69,8 +69,12 @@ Object.assign(pcui, (function () {
             this.domContent = targets;
 
             // deactivate when disabled or readonly
-            this.on('disable', () => { this.active = false; });
-            this.on('readOnly', (readOnly) => { if (!readOnly) this.active = false; });
+            this.on('disable', () => {
+                this.active = false;
+            });
+            this.on('readOnly', (readOnly) => {
+                if (!readOnly) this.active = false;
+            });
 
             this._domEventDragEnter = this._onDragEnter.bind(this);
             this._domEventDragOver = this._onDragOver.bind(this);

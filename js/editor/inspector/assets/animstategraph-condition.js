@@ -23,7 +23,9 @@ class AnimstategraphCondition extends Container {
         if (!assets[0].get(path)) return;
         const selectParameterName = new SelectInput({
             type: 'string',
-            options: this._args.parameters.map((param) => { return { v: param, t: param }; }),
+            options: this._args.parameters.map((param) => {
+                return { v: param, t: param };
+            }),
             value: assets[0].get(path).parameterName
         });
         selectParameterName.on('change', (value) => {

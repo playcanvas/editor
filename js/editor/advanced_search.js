@@ -82,7 +82,9 @@ export const getMap = function (items, key) {
 
         case 'Component Type': {
             const componentItems = [];
-            items.forEach((item) => { item[1].entity._data.components._keys.forEach(component => componentItems.push([component.toLowerCase(), item[1]])); });
+            items.forEach((item) => {
+                item[1].entity._data.components._keys.forEach(component => componentItems.push([component.toLowerCase(), item[1]]));
+            });
             return componentItems;
         }
         case 'Script Name': {
@@ -96,7 +98,9 @@ export const getMap = function (items, key) {
         }
         case 'Tags': {
             const tagItems = [];
-            items.forEach((item) => { item[1].entity._data.tags.forEach(tag => tagItems.push([tag.toLowerCase(), item[1]])); });
+            items.forEach((item) => {
+                item[1].entity._data.tags.forEach(tag => tagItems.push([tag.toLowerCase(), item[1]]));
+            });
             return tagItems;
         }
     }

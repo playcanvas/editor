@@ -62,7 +62,9 @@ editor.once('load', () => {
 
     panel.append(container);
 
-    inputElement.on('change', () => { validateInput(); });
+    inputElement.on('change', () => {
+        validateInput();
+    });
     inputElement.dom.addEventListener('paste', e => e.preventDefault());
 
     // delete button

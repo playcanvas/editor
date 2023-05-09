@@ -18,9 +18,15 @@ editor.once('load', function () {
         return epoc;
     });
 
-    editor.method('tools:time:now', function () { return now() - timeBeginning; });
-    editor.method('tools:time:beginning', function () { return timeBeginning; });
-    editor.method('tools:time:hover', function () { return timeHover; });
+    editor.method('tools:time:now', function () {
+        return now() - timeBeginning;
+    });
+    editor.method('tools:time:beginning', function () {
+        return timeBeginning;
+    });
+    editor.method('tools:time:hover', function () {
+        return timeHover;
+    });
 
     editor.method('tools:time:toHuman', function (ms, precision) {
         var s = ms / 1000;
@@ -69,7 +75,9 @@ editor.once('load', function () {
 
     var resize;
 
-    editor.method('tools:enabled', function () { return enabled; });
+    editor.method('tools:enabled', function () {
+        return enabled;
+    });
 
     editor.method('tools:enable', function () {
         if (enabled)
@@ -99,8 +107,12 @@ editor.once('load', function () {
     });
 
     // methods to access view params
-    editor.method('tools:time:capacity', function () { return capacity; });
-    editor.method('tools:scroll:time', function () { return scroll.time; });
+    editor.method('tools:time:capacity', function () {
+        return capacity;
+    });
+    editor.method('tools:scroll:time', function () {
+        return scroll.time;
+    });
 
     // size
     var left = 300;
@@ -125,8 +137,12 @@ editor.once('load', function () {
     window.addEventListener('orientationchange', resize, false);
     setInterval(resize, 500);
     resize();
-    editor.method('tools:size:width', function () { return width; });
-    editor.method('tools:size:height', function () { return height; });
+    editor.method('tools:size:width', function () {
+        return width;
+    });
+    editor.method('tools:size:height', function () {
+        return height;
+    });
 
     editor.on('tools:clear', function () {
         timeBeginning = now();

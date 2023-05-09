@@ -136,7 +136,9 @@ class AnimstategraphTransitions extends Container {
         transitions.forEach((item, i) => {
             const { transition, transitionId } = item;
             let parameters = this._assets[0].get(`data.parameters`);
-            parameters = Object.keys(parameters).map((key) => { return parameters[key].name; });
+            parameters = Object.keys(parameters).map((key) => {
+                return parameters[key].name;
+            });
 
             const baseAttributes = [
                 {
@@ -272,7 +274,9 @@ class AnimstategraphTransitions extends Container {
             const addConditions = () => {
                 if (!this._assets) return;
                 parameters = this._assets[0].get(`data.parameters`);
-                parameters = Object.keys(parameters).map((key) => { return parameters[key].name; });
+                parameters = Object.keys(parameters).map((key) => {
+                    return parameters[key].name;
+                });
                 const transition = this._assets[0].get(`data.transitions.${transitionId}`);
                 if (transitionPanel.conditions) {
                     transitionPanel.remove(transitionPanel.conditions);

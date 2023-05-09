@@ -39,7 +39,9 @@ editor.once('load', function () {
             menu.hidden = !menu.hidden;
         });
 
-        editor.method('menu:' + name, function () { return menu; });
+        editor.method('menu:' + name, function () {
+            return menu;
+        });
     });
 
     // close menus when we click on the background

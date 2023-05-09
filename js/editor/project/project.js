@@ -67,8 +67,12 @@ editor.once('load', function () {
                 auth: true,
                 method: 'GET'
             })
-            .on('load', (status, response) => { resolve(response); })
-            .on('error', (status, error) => { reject(error); });
+            .on('load', (status, response) => {
+                resolve(response);
+            })
+            .on('error', (status, error) => {
+                reject(error);
+            });
         });
     });
 
@@ -159,8 +163,12 @@ editor.once('load', function () {
                     progressHandler(progress);
                 }
             })
-            .on('load', (status, response) => { resolve(response); })
-            .on('error', (status, error) => { reject(error); });
+            .on('load', (status, response) => {
+                resolve(response);
+            })
+            .on('error', (status, error) => {
+                reject(error);
+            });
         });
         const signedUrl = response.signedUrl;
 
@@ -224,8 +232,12 @@ editor.once('load', function () {
                     owner_id: new_owner_id
                 }
             })
-            .on('load', (status, response) => { resolve(response); })
-            .on('error', (status, error) => { reject(error); });
+            .on('load', (status, response) => {
+                resolve(response);
+            })
+            .on('error', (status, error) => {
+                reject(error);
+            });
         });
     });
 
@@ -237,8 +249,12 @@ editor.once('load', function () {
                 auth: true,
                 method: 'POST'
             })
-            .on('load', (status, response) => { resolve(response); })
-            .on('error', (status, error) => { reject(error); });
+            .on('load', (status, response) => {
+                resolve(response);
+            })
+            .on('error', (status, error) => {
+                reject(error);
+            });
         });
     });
 

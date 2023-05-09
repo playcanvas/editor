@@ -1129,7 +1129,9 @@ class TextureAssetInspector extends Container {
                     });
                 }
             }));
-            this._assetEvents.push(asset.on('meta:unset', () => { this._btnGetMeta.hidden = false; }));
+            this._assetEvents.push(asset.on('meta:unset', () => {
+                this._btnGetMeta.hidden = false;
+            }));
 
             // recalculate size
             for (const key in this._compressionFormats) {

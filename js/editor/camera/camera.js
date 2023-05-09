@@ -226,7 +226,9 @@ editor.once('load', function () {
 
             const layerOrder = projectSettings.get('layerOrder');
             if (layerOrder) {
-                params.layers = layerOrder.map(function (l) { return parseInt(l.layer, 10); });
+                params.layers = layerOrder.map(function (l) {
+                    return parseInt(l.layer, 10);
+                });
             }
 
             if (args.ortho) {

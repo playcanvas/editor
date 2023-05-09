@@ -4,7 +4,9 @@ editor.once('load', function () {
 
         const atlasAsset = args.atlasAsset;
         let frames = args.frames;
-        let frameObservers = frames.map(function (f) { return atlasAsset.getRaw('data.frames.' + f); });
+        let frameObservers = frames.map(function (f) {
+            return atlasAsset.getRaw('data.frames.' + f);
+        });
 
         const events = [];
 
@@ -100,7 +102,9 @@ editor.once('load', function () {
         return {
             setFrames: function (newFrames) {
                 frames = newFrames;
-                frameObservers = frames.map(function (f) { return atlasAsset.getRaw('data.frames.' + f); });
+                frameObservers = frames.map(function (f) {
+                    return atlasAsset.getRaw('data.frames.' + f);
+                });
             }
         };
     });

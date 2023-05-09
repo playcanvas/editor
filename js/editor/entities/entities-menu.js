@@ -129,7 +129,9 @@ editor.once('load', () => {
 
     editor.method('menu:entities:new', function (getParentFn) {
         if (!getParentFn)
-            getParentFn = () => { return editor.call('entities:selectedFirst'); };
+            getParentFn = () => {
+                return editor.call('entities:selectedFirst');
+            };
 
         return [{
             // add new entity

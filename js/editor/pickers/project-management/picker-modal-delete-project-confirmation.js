@@ -60,7 +60,9 @@ editor.once('load', () => {
     });
     inputContainer.append(inputElement);
 
-    inputElement.on('change', () => { validateInput(inputElement.value); });
+    inputElement.on('change', () => {
+        validateInput(inputElement.value);
+    });
     inputElement.dom.addEventListener('paste', e => e.preventDefault());
 
     const deleteButtonContainer = new Container({

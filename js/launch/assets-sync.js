@@ -332,7 +332,9 @@ editor.once('load', function () {
                     });
 
                     // create runtime asset for every asset observer
-                    assets.forEach(function (a) { createEngineAsset(a, wasmAssetIds); });
+                    assets.forEach(function (a) {
+                        createEngineAsset(a, wasmAssetIds);
+                    });
 
                     editor.call('assets:progress', 1);
                     editor.emit('assets:load');

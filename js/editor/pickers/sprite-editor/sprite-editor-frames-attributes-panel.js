@@ -33,7 +33,9 @@ editor.once('load', function () {
             name: 'Name',
             type: 'string',
             link: atlasAsset,
-            paths: frames.map(function (f) { return 'data.frames.' + f + '.name'; })
+            paths: frames.map(function (f) {
+                return 'data.frames.' + f + '.name';
+            })
         });
         // reference
         editor.call('attributes:reference:attach', 'spriteeditor:frame:name', fieldName.parent.innerElement.firstChild.ui, null, panel);
@@ -51,7 +53,9 @@ editor.once('load', function () {
             parent: panel,
             type: 'vec4',
             link: atlasAsset,
-            paths: frames.map(function (f) { return 'data.frames.' + f + '.rect'; })
+            paths: frames.map(function (f) {
+                return 'data.frames.' + f + '.rect';
+            })
         });
         fieldRect[0].parent.hidden = true;
 
@@ -421,7 +425,9 @@ editor.once('load', function () {
             step: 0.1,
             placeholder: ['↔', '↕'],
             link: atlasAsset,
-            paths: frames.map(function (f) { return 'data.frames.' + f + '.pivot'; })
+            paths: frames.map(function (f) {
+                return 'data.frames.' + f + '.pivot';
+            })
         });
         // reference
         editor.call('attributes:reference:attach', 'spriteeditor:frame:pivot', fieldPivot[0].parent.innerElement.firstChild.ui, null, panel);
@@ -457,7 +463,9 @@ editor.once('load', function () {
             type: 'vec4',
             link: atlasAsset,
             min: 0,
-            paths: frames.map(function (f) { return 'data.frames.' + f + '.border'; })
+            paths: frames.map(function (f) {
+                return 'data.frames.' + f + '.border';
+            })
         });
         // reference
         editor.call('attributes:reference:attach', 'spriteeditor:frame:border', fieldBorder[0].parent.innerElement.firstChild.ui, null, panel);

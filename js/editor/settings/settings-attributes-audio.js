@@ -11,8 +11,12 @@ editor.once('load', function () {
             });
             panelAudio.foldable = true;
             panelAudio.folded = folded;
-            panelAudio.on('fold', function () { folded = true; });
-            panelAudio.on('unfold', function () { folded = false; });
+            panelAudio.on('fold', function () {
+                folded = true;
+            });
+            panelAudio.on('unfold', function () {
+                folded = false;
+            });
             panelAudio.class.add('component', 'audio');
 
             var fieldLegacyAudio = editor.call('attributes:addField', {

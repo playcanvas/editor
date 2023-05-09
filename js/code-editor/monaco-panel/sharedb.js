@@ -330,7 +330,11 @@ editor.once('load', function () {
         const entry = {
             id: asset.get('id'),
             doc: doc, // our document
-            context: doc.type.api(function () { return doc.data; }, function (component, options, callback) { return doc.submitOp(component, options, callback); }),
+            context: doc.type.api(function () {
+                return doc.data;
+            }, function (component, options, callback) {
+                return doc.submitOp(component, options, callback);
+            }),
             view: editor.call('views:get', asset.get('id')),
             undo: [], // undo stack
             redo: [], // redo stack

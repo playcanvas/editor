@@ -177,7 +177,9 @@ editor.once('load', () => {
                 text: filter.name
             });
             filtersToggle.append(filterButton);
-            filterButton.on('click', () => { setSelectedFilter(filterButton); });
+            filterButton.on('click', () => {
+                setSelectedFilter(filterButton);
+            });
             filter.button = filterButton;
         }
         featuredFilter = filters[0].button;

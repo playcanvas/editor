@@ -73,7 +73,6 @@
   "rules": {
     "require-atomic-updates": 1,
     "accessor-pairs": 1,
-    "brace-style": ["error", "1tbs", { "allowSingleLine": true }],
     "indent": ["error", 4, {
       "FunctionExpression": { "body": 1, "parameters": 2 },
       "MemberExpression": 0,

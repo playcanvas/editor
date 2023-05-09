@@ -68,7 +68,9 @@ editor.on('load', function () {
     });
     root.append(toolbar);
     // expose
-    editor.method('layout.toolbar', function () { return toolbar; });
+    editor.method('layout.toolbar', function () {
+        return toolbar;
+    });
 
     // hierarchy
     var hierarchyPanel = new Panel({
@@ -99,7 +101,9 @@ editor.on('load', function () {
 
     root.append(hierarchyPanel);
     // expose
-    editor.method('layout.hierarchy', function () { return hierarchyPanel; });
+    editor.method('layout.hierarchy', function () {
+        return hierarchyPanel;
+    });
 
     // viewport
     var viewport = new Container({
@@ -108,7 +112,9 @@ editor.on('load', function () {
     });
     root.append(viewport);
     // expose
-    editor.method('layout.viewport', function () { return viewport; });
+    editor.method('layout.viewport', function () {
+        return viewport;
+    });
 
     // assets
     const assetsPanel = new AssetPanel({
@@ -141,7 +147,9 @@ editor.on('load', function () {
 
     root.append(assetsPanel);
     // expose
-    editor.method('layout.assets', function () { return assetsPanel; });
+    editor.method('layout.assets', function () {
+        return assetsPanel;
+    });
 
     // attributes
     var attributesPanel = new Panel({
@@ -172,7 +180,9 @@ editor.on('load', function () {
 
     root.append(attributesPanel);
     // expose
-    editor.method('layout.attributes', function () { return attributesPanel; });
+    editor.method('layout.attributes', function () {
+        return attributesPanel;
+    });
     editor.on('permissions:writeState', function (state) {
         attributesPanel.enabled = state;
     });
@@ -207,7 +217,9 @@ editor.on('load', function () {
 
     root.append(attributesSecondaryPanel);
     // expose
-    editor.method('layout.attributes.secondary', function () { return attributesSecondaryPanel; });
+    editor.method('layout.attributes.secondary', function () {
+        return attributesSecondaryPanel;
+    });
 
 
     // status bar
@@ -218,7 +230,9 @@ editor.on('load', function () {
     });
     root.append(statusBar);
     // expose
-    editor.method('layout.statusBar', function () { return statusBar; });
+    editor.method('layout.statusBar', function () {
+        return statusBar;
+    });
 
     if (window.innerWidth <= 720)
         attributesPanel.folded = true;

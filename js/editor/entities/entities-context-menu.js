@@ -78,7 +78,9 @@ editor.once('load', function () {
             onSelect: () => {
                 editor.call('entities:new', { parent: items[0] });
             },
-            items: editor.call('menu:entities:new', function () { return items[0]; })
+            items: editor.call('menu:entities:new', function () {
+                return items[0];
+            })
         });
 
         menuData.push({

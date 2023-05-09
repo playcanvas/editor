@@ -67,9 +67,15 @@ editor.once('load', () => {
     const orgIdInput = buildFormGroup('Organization ID', 'Your organization will be available at https://playcanvas.com/<organization-id>');
     const orgEmailInput = buildFormGroup('Email');
 
-    orgNameInput.on('change', () => { validateInputs(); });
-    orgIdInput.on('change', () => { validateInputs(); });
-    orgEmailInput.on('change', () => { validateInputs(); });
+    orgNameInput.on('change', () => {
+        validateInputs();
+    });
+    orgIdInput.on('change', () => {
+        validateInputs();
+    });
+    orgEmailInput.on('change', () => {
+        validateInputs();
+    });
 
     const createButton = new Button({
         class: 'create-org-button',

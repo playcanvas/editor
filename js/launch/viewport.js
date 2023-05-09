@@ -457,7 +457,9 @@ editor.once('load', function () {
     });
 
     pcBootstrap.reflow(app, canvas);
-    pcBootstrap.reflowHandler = function () { pcBootstrap.reflow(app, canvas); };
+    pcBootstrap.reflowHandler = function () {
+        pcBootstrap.reflow(app, canvas);
+    };
 
     window.addEventListener('resize', pcBootstrap.reflowHandler, false);
     window.addEventListener('orientationchange', pcBootstrap.reflowHandler, false);

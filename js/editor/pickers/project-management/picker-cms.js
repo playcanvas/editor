@@ -77,7 +77,9 @@ editor.once('load', () => {
             });
             upgradeContainer.dom.appendChild(upgradeButton.element);
 
-            upgradeButton.on('click', () => { window.open(`${config.url.home}/upgrade?account=${currentUser.username}`); });
+            upgradeButton.on('click', () => {
+                window.open(`${config.url.home}/upgrade?account=${currentUser.username}`);
+            });
         });
     };
 
@@ -504,7 +506,9 @@ editor.once('load', () => {
     projectsToggle.append(allFilter);
     selectedFilter = allFilter;  // by default, all filter selected
 
-    allFilter.on('click', () => { setSelectedFilter(allFilter); });
+    allFilter.on('click', () => {
+        setSelectedFilter(allFilter);
+    });
 
     const myProjectsFilter = new Button({
         class: 'filter-button',
@@ -512,7 +516,9 @@ editor.once('load', () => {
         text: 'MY PROJECTS'
     });
     projectsToggle.append(myProjectsFilter);
-    myProjectsFilter.on('click', () => { setSelectedFilter(myProjectsFilter); });
+    myProjectsFilter.on('click', () => {
+        setSelectedFilter(myProjectsFilter);
+    });
 
     const sharedFilter = new Button({
         class: 'filter-button',
@@ -520,7 +526,9 @@ editor.once('load', () => {
         text: 'SHARED WITH ME'
     });
     projectsToggle.append(sharedFilter);
-    sharedFilter.on('click', () => { setSelectedFilter(sharedFilter); });
+    sharedFilter.on('click', () => {
+        setSelectedFilter(sharedFilter);
+    });
 
     const privateFilter = new Button({
         class: 'filter-button',
@@ -528,7 +536,9 @@ editor.once('load', () => {
         text: 'PRIVATE PROJECTS'
     });
     projectsToggle.append(privateFilter);
-    privateFilter.on('click', () => { setSelectedFilter(privateFilter); });
+    privateFilter.on('click', () => {
+        setSelectedFilter(privateFilter);
+    });
 
     // organizations toggle
     const organizationsToggle = new Panel({
@@ -569,7 +579,9 @@ editor.once('load', () => {
         text: 'Explore'
     });  // Explore
 
-    exploreLink.on('click', () => { window.open(`${config.url.home}/explore/featured`, '_blank'); });
+    exploreLink.on('click', () => {
+        window.open(`${config.url.home}/explore/featured`, '_blank');
+    });
 
     const docsLink = new Button({
         class: 'quick-link',
@@ -577,7 +589,9 @@ editor.once('load', () => {
         text: 'Docs and Tutorials'
     });  // Docs
 
-    docsLink.on('click', () => { window.open('https://developer.playcanvas.com/en/', '_blank'); });
+    docsLink.on('click', () => {
+        window.open('https://developer.playcanvas.com/en/', '_blank');
+    });
 
     const feedbackLink = new Button({
         class: 'quick-link',
@@ -585,7 +599,9 @@ editor.once('load', () => {
         text: 'Feedback'
     });  // Feedback
 
-    feedbackLink.on('click', () => { window.open(`https://forum.playcanvas.com/t/playcanvas-editor-feedback/616`, '_blank'); });
+    feedbackLink.on('click', () => {
+        window.open(`https://forum.playcanvas.com/t/playcanvas-editor-feedback/616`, '_blank');
+    });
 
     const githubLink = new Button({
         class: 'quick-link',
@@ -593,7 +609,9 @@ editor.once('load', () => {
         text: 'GitHub'
     });  // GitHub
 
-    githubLink.on('click', () => { window.open(`https://github.com/playcanvas/editor`, '_blank'); });
+    githubLink.on('click', () => {
+        window.open(`https://github.com/playcanvas/editor`, '_blank');
+    });
 
     quickLinksContainer.append(exploreLink);
     quickLinksContainer.append(docsLink);

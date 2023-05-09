@@ -43,7 +43,9 @@ editor.once('load', function () {
         if (editor.call('project:engineAsset:getEngineAsset', assetName).length > 0) {
             editor.call('picker:confirm',
                 'It appears your assets panel already contains this engineAsset. Continuing may result in duplicates. Do you want to continue?',
-                function () { addAssetToProject(); },
+                function () {
+                    addAssetToProject();
+                },
                 {
                     yesText: 'Yes',
                     noText: 'Cancel'

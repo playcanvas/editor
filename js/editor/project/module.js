@@ -43,7 +43,9 @@ editor.once('load', function () {
         if (editor.call('project:module:hasModule', wasmFilename)) {
             editor.call('picker:confirm',
                 'It appears your assets panel already contains this module. Continuing may result in duplicates. Do you want to continue?',
-                function () { addModuleToProject(); },
+                function () {
+                    addModuleToProject();
+                },
                 {
                     yesText: 'Yes',
                     noText: 'Cancel'

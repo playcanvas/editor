@@ -6,7 +6,9 @@ function Helpers() { }
 
 Object.assign(Helpers, {
     rgbaStr: function (color, scale) {
-        if (!scale) { scale = 1; }
+        if (!scale) {
+            scale = 1;
+        }
         let rgba = color.map(function (element, index) {
             return index < 3 ? Math.round(element * scale) : element;
         }).join(',');
@@ -24,14 +26,18 @@ Object.assign(Helpers, {
 
     // rgb(a) -> hsva
     toHsva: function (rgba) {
-        const hsva = rgb2hsv(rgba.map(function (v) { return v * 255; }));
+        const hsva = rgb2hsv(rgba.map(function (v) {
+            return v * 255;
+        }));
         hsva.push(rgba.length > 3 ? rgba[3] : 1);
         return hsva;
     },
 
     // hsv(1) -> rgba
     toRgba: function (hsva) {
-        const rgba = hsv2rgb(hsva).map(function (v) { return v / 255; });
+        const rgba = hsv2rgb(hsva).map(function (v) {
+            return v / 255;
+        });
         rgba.push(hsva.length > 3 ? hsva[3] : 1);
         return rgba;
     },
@@ -587,7 +593,9 @@ editor.once('load', function () {
 
         // sort anchors and remove duplicates
         times.sort();
-        times = times.filter(function (item, pos, ary) { return !pos || item !== ary[pos - 1]; });
+        times = times.filter(function (item, pos, ary) {
+            return !pos || item !== ary[pos - 1];
+        });
 
         return times;
     }
@@ -722,8 +730,12 @@ editor.once('load', function () {
 
             // merge keystore with the drag anchor (ignoring existing anchors at
             // the current anchor location)
-            curve.keys = keystore.map(function (element) { return [element[0], element[1]]; })
-            .filter(function (element) { return element[0] !== time; });
+            curve.keys = keystore.map(function (element) {
+                return [element[0], element[1]];
+            })
+            .filter(function (element) {
+                return element[0] !== time;
+            });
             curve.keys.push([time, STATE.selectedValue[i]]);
             curve.sort();
         }
@@ -977,7 +989,11 @@ editor.once('load', function () {
     UI.footer.append(UI.positionEdit);
     UI.positionEdit.style.width = '40px';
     UI.positionEdit.renderChanges = false;
-    UI.positionEdit.on('change', function (value) { if (!STATE.changing) { moveSelectedAnchor(value / 100); } });
+    UI.positionEdit.on('change', function (value) {
+        if (!STATE.changing) {
+            moveSelectedAnchor(value / 100);
+        }
+    });
 
     UI.resetButton.on('click', doReset);
     UI.footer.append(UI.resetButton);

@@ -147,14 +147,26 @@ editor.once('load', function () {
         const togglePrivate = buildFormGroup('toggle', allowPrivate() ? "Private" : "Private (Premium)", formContent);
         if (formInputs.legacy !== null && currentUser.flags.hasLegacyScripts) {
             const toggleLegacy = buildFormGroup('toggle', "Legacy Scripts", formContent);
-            toggleLegacy.on('change', () => { formInputs.legacy = toggleLegacy.value; });
+            toggleLegacy.on('change', () => {
+                formInputs.legacy = toggleLegacy.value;
+            });
         }
 
-        textName.on('change', () => { formInputs.name = textName.value; });
-        textName.on('focus', () => { textName.element.childNodes[0].select(); });
-        textDescription.on('change', () => { formInputs.description = textDescription.value; });
-        textDescription.on('focus', () => { textDescription.element.childNodes[0].select(); });
-        togglePrivate.on('change', () => { formInputs.private = togglePrivate.value; });
+        textName.on('change', () => {
+            formInputs.name = textName.value;
+        });
+        textName.on('focus', () => {
+            textName.element.childNodes[0].select();
+        });
+        textDescription.on('change', () => {
+            formInputs.description = textDescription.value;
+        });
+        textDescription.on('focus', () => {
+            textDescription.element.childNodes[0].select();
+        });
+        togglePrivate.on('change', () => {
+            formInputs.private = togglePrivate.value;
+        });
     };
 
     // helper method to construct UI for different form groups
@@ -234,7 +246,9 @@ editor.once('load', function () {
 
         const ownerDropdown = new SelectInput({
             class: 'owner-dropdown',
-            options: possibleOwners.map((owner) => { return { v: owner.id, t: owner.full_name }; }),
+            options: possibleOwners.map((owner) => {
+                return { v: owner.id, t: owner.full_name };
+            }),
             value: newProjectOwner.id,
             renderChanges: true
         });

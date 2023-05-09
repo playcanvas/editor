@@ -50,7 +50,9 @@ editor.once('load', function () {
     // A Color field
     var ConflictFieldColor = function (value) {
         this.element = new ui.ColorField();
-        this.element.value = value.map(function (c) { return c * 255; });
+        this.element.value = value.map(function (c) {
+            return c * 255;
+        });
         this.element.class.add('field-color');
     };
     ConflictFieldColor.prototype = Object.create(ConflictField.prototype);

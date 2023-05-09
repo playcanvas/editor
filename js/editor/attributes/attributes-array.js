@@ -123,7 +123,9 @@ editor.once('load', function () {
             var rowExistsEverywhere = true;
 
             var createRow = function (row) {
-                var paths = args.link.map(function (link, i) { return pathAt(args, i) + '.' + row; });
+                var paths = args.link.map(function (link, i) {
+                    return pathAt(args, i) + '.' + row;
+                });
 
                 var fieldArgs = {
                     parent: panelElements,
