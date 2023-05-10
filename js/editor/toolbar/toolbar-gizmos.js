@@ -35,16 +35,16 @@ editor.once('load', function () {
         gizmoButtons[item.op] = button;
 
         button.on('click', () => {
-            if (activeGizmo.op === this.op)
+            if (activeGizmo.op === button.op)
                 return;
 
             activeGizmo.class.remove('active');
             activeGizmo.tooltip.class.add('innactive');
-            activeGizmo = this;
+            activeGizmo = button;
             activeGizmo.class.add('active');
             activeGizmo.tooltip.class.remove('innactive');
 
-            editor.call('gizmo:type', this.op);
+            editor.call('gizmo:type', button.op);
         });
 
         toolbar.append(button);
@@ -73,14 +73,14 @@ editor.once('load', function () {
     toolbar.append(buttonWorld);
 
     buttonWorld.on('click', () => {
-        if (this.class.contains('active')) {
-            this.class.remove('active');
+        if (buttonWorld.class.contains('active')) {
+            buttonWorld.class.remove('active');
             tooltipWorld.html = 'World / <span style="color:#fff">Local</span>';
         } else {
-            this.class.add('active');
+            buttonWorld.class.add('active');
             tooltipWorld.html = '<span style="color:#fff">World</span> / Local';
         }
-        editor.call('gizmo:coordSystem', this.class.contains('active') ? 'world' : 'local');
+        editor.call('gizmo:coordSystem', buttonWorld.class.contains('active') ? 'world' : 'local');
     });
 
     const tooltipWorld = Tooltip.attach({
@@ -99,14 +99,14 @@ editor.once('load', function () {
         icon: 'E116'
     });
     buttonSnap.on('click', () => {
-        if (this.class.contains('active')) {
-            this.class.remove('active');
+        if (buttonSnap.class.contains('active')) {
+            buttonSnap.class.remove('active');
             tooltipSnap.class.add('innactive');
         } else {
-            this.class.add('active');
+            buttonSnap.class.add('active');
             tooltipSnap.class.remove('innactive');
         }
-        editor.call('gizmo:snap', this.class.contains('active'));
+        editor.call('gizmo:snap', buttonSnap.class.contains('active'));
     });
     toolbar.append(buttonSnap);
 
