@@ -185,6 +185,10 @@ const ATTRIBUTES = [
                 {
                     v: 3,
                     t: 'ACES'
+                },
+                {
+                    v: 4,
+                    t: 'ACES2'
                 }
             ]
         }
