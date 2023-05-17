@@ -223,15 +223,17 @@ const ATTRIBUTES = [{
     args: {
         type: 'number',
         options: [{
-            v: 0, t: 'Shadow Map PCF 3x3'
+            v: pc.SHADOW_PCF1, t: 'Shadow Map PCF 1x1'
         }, {
-            v: 4, t: 'Shadow Map PCF 5x5'
+            v: pc.SHADOW_PCF3, t: 'Shadow Map PCF 3x3'
         }, {
-            v: 1, t: 'Variance Shadow Map (8bit)'
+            v: pc.SHADOW_PCF5, t: 'Shadow Map PCF 5x5'
         }, {
-            v: 2, t: 'Variance Shadow Map (16bit)'
+            v: pc.SHADOW_VSM8, t: 'Variance Shadow Map (8bit)'
         }, {
-            v: 3, t: 'Variance Shadow Map (32bit)'
+            v: pc.SHADOW_VSM16, t: 'Variance Shadow Map (16bit)'
+        }, {
+            v: pc.SHADOW_VSM32, t: 'Variance Shadow Map (32bit)'
         }]
     }
 }, {
