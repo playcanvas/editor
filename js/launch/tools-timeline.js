@@ -228,123 +228,127 @@ editor.once('load', function () {
     };
     editor.method('tools:timeline:add', addEvent);
 
-    // subscribe to app reload start
-    app.once('preload:start', function () {
-        if (!enabled) return;
+    editor.once('launcher:device:ready', function () {
 
-        addEvent({
-            time: editor.call('tools:time:now'),
-            name: 'preload'
+        // subscribe to app reload start
+        app.once('preload:start', function () {
+            if (!enabled) return;
+
+            addEvent({
+                time: editor.call('tools:time:now'),
+                name: 'preload'
+            });
         });
+
+        // subscribe to app start
+        app.once('start', function () {
+            if (!enabled) return;
+
+            addEvent({
+                time: editor.call('tools:time:now'),
+                name: 'start'
+            });
+        });
+
+        // subscribe to asset loading start
+        app.assets.on('load:start', function (asset) {
+            if (!enabled) return;
+
+            cacheAssetLoading[asset.id] = addEvent({
+                time: editor.call('tools:time:now'),
+                time2: -1,
+                kind: 'asset'
+            });
+        });
+
+        // subscribe to asset loading end
+        app.assets.on('load', function (asset) {
+            if (!enabled || !cacheAssetLoading[asset.id])
+                return;
+
+            cacheAssetLoading[asset.id].t2 = editor.call('tools:time:now');
+            editor.emit('tools:timeline:update', cacheAssetLoading[asset.id]);
+            delete cacheAssetLoading[asset.id];
+        });
+
+
+        var onShaderStart = function (evt) {
+            if (!enabled) return;
+
+            var time = evt.timestamp;
+            if (editor.call('tools:epoc'))
+                time -= editor.call('tools:time:beginning');
+
+            var item = addEvent({
+                time: time,
+                time2: -1,
+                kind: 'shader'
+            });
+
+            cacheShaderCompile.push(evt.target);
+            cacheShaderCompileEvents[cacheShaderCompile.length - 1] = item;
+        };
+
+        var onShaderEnd = function (evt) {
+            if (!enabled) return;
+
+            var ind = cacheShaderCompile.indexOf(evt.target);
+            if (ind === -1)
+                return;
+
+            var time = evt.timestamp;
+            if (editor.call('tools:epoc'))
+                time -= editor.call('tools:time:beginning');
+
+            cacheShaderCompileEvents[ind].t2 = time;
+            editor.emit('tools:timeline:update', cacheShaderCompileEvents[ind]);
+            cacheShaderCompile.splice(ind, 1);
+            cacheShaderCompileEvents.splice(ind, 1);
+        };
+
+        var onLightmapperStart = function (evt) {
+            if (!enabled) return;
+
+            var time = evt.timestamp;
+            if (editor.call('tools:epoc'))
+                time -= editor.call('tools:time:beginning');
+
+            var item = addEvent({
+                time: time,
+                time2: -1,
+                kind: 'lightmap'
+            });
+
+            cacheLightmapper = evt.target;
+            cacheLightmapperEvent = item;
+        };
+
+        var onLightmapperEnd = function (evt) {
+            if (!enabled) return;
+
+            if (cacheLightmapper !== evt.target)
+                return;
+
+            var time = evt.timestamp;
+            if (editor.call('tools:epoc'))
+                time -= editor.call('tools:time:beginning');
+
+            cacheLightmapperEvent.t2 = time;
+            editor.emit('tools:timeline:update', cacheLightmapperEvent);
+            cacheLightmapper = null;
+        };
+
+        // subscribe to shader compile and linking
+        app.graphicsDevice.on('shader:compile:start', onShaderStart);
+        app.graphicsDevice.on('shader:link:start', onShaderStart);
+        app.graphicsDevice.on('shader:compile:end', onShaderEnd);
+        app.graphicsDevice.on('shader:link:end', onShaderEnd);
+
+        // subscribe to lightmapper baking
+        app.graphicsDevice.on('lightmapper:start', onLightmapperStart);
+        app.graphicsDevice.on('lightmapper:end', onLightmapperEnd);
+
     });
-
-    // subscribe to app start
-    app.once('start', function () {
-        if (!enabled) return;
-
-        addEvent({
-            time: editor.call('tools:time:now'),
-            name: 'start'
-        });
-    });
-
-    // subscribe to asset loading start
-    app.assets.on('load:start', function (asset) {
-        if (!enabled) return;
-
-        cacheAssetLoading[asset.id] = addEvent({
-            time: editor.call('tools:time:now'),
-            time2: -1,
-            kind: 'asset'
-        });
-    });
-
-    // subscribe to asset loading end
-    app.assets.on('load', function (asset) {
-        if (!enabled || !cacheAssetLoading[asset.id])
-            return;
-
-        cacheAssetLoading[asset.id].t2 = editor.call('tools:time:now');
-        editor.emit('tools:timeline:update', cacheAssetLoading[asset.id]);
-        delete cacheAssetLoading[asset.id];
-    });
-
-
-    var onShaderStart = function (evt) {
-        if (!enabled) return;
-
-        var time = evt.timestamp;
-        if (editor.call('tools:epoc'))
-            time -= editor.call('tools:time:beginning');
-
-        var item = addEvent({
-            time: time,
-            time2: -1,
-            kind: 'shader'
-        });
-
-        cacheShaderCompile.push(evt.target);
-        cacheShaderCompileEvents[cacheShaderCompile.length - 1] = item;
-    };
-
-    var onShaderEnd = function (evt) {
-        if (!enabled) return;
-
-        var ind = cacheShaderCompile.indexOf(evt.target);
-        if (ind === -1)
-            return;
-
-        var time = evt.timestamp;
-        if (editor.call('tools:epoc'))
-            time -= editor.call('tools:time:beginning');
-
-        cacheShaderCompileEvents[ind].t2 = time;
-        editor.emit('tools:timeline:update', cacheShaderCompileEvents[ind]);
-        cacheShaderCompile.splice(ind, 1);
-        cacheShaderCompileEvents.splice(ind, 1);
-    };
-
-    var onLightmapperStart = function (evt) {
-        if (!enabled) return;
-
-        var time = evt.timestamp;
-        if (editor.call('tools:epoc'))
-            time -= editor.call('tools:time:beginning');
-
-        var item = addEvent({
-            time: time,
-            time2: -1,
-            kind: 'lightmap'
-        });
-
-        cacheLightmapper = evt.target;
-        cacheLightmapperEvent = item;
-    };
-
-    var onLightmapperEnd = function (evt) {
-        if (!enabled) return;
-
-        if (cacheLightmapper !== evt.target)
-            return;
-
-        var time = evt.timestamp;
-        if (editor.call('tools:epoc'))
-            time -= editor.call('tools:time:beginning');
-
-        cacheLightmapperEvent.t2 = time;
-        editor.emit('tools:timeline:update', cacheLightmapperEvent);
-        cacheLightmapper = null;
-    };
-
-    // subscribe to shader compile and linking
-    app.graphicsDevice.on('shader:compile:start', onShaderStart);
-    app.graphicsDevice.on('shader:link:start', onShaderStart);
-    app.graphicsDevice.on('shader:compile:end', onShaderEnd);
-    app.graphicsDevice.on('shader:link:end', onShaderEnd);
-
-    // subscribe to lightmapper baking
-    app.graphicsDevice.on('lightmapper:start', onLightmapperStart);
-    app.graphicsDevice.on('lightmapper:end', onLightmapperEnd);
 
     // add performance.timing events if available
     if (performance.timing) {

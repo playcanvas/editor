@@ -3,6 +3,7 @@ editor.once('load', function () {
     var done = false;
     var hierarchy = false;
     var assets = false;
+    var gfxCreated = false;
     var settings = false;
     var sourcefiles = false;
     var libraries = false;
@@ -19,7 +20,8 @@ editor.once('load', function () {
 
     // try to start preload and initialization of application after load event
     var init = function () {
-        if (!done && assets && hierarchy && settings && (!legacyScripts || sourcefiles) && libraries && loadingScreen) {
+
+        if (!done && gfxCreated && assets && hierarchy && settings && (!legacyScripts || sourcefiles) && libraries && loadingScreen) {
             // prevent multiple init calls during scene loading
             done = true;
 
@@ -121,6 +123,14 @@ editor.once('load', function () {
         } catch (ex) { }
     }
 
+    // use WebGPU?
+    var preferWebGpu = config.project.settings.preferWebGpu;
+    if (queryParams.hasOwnProperty('webgpu')) {
+        try {
+            preferWebGpu = queryParams.webgpu === undefined ? false : JSON.parse(queryParams.webgpu);
+        } catch (ex) { }
+    }
+
     var powerPreference = config.project.settings.powerPreference;
 
     // listen for project setting changes
@@ -136,333 +146,423 @@ editor.once('load', function () {
     var useTouch = projectSettings.has('useTouch') ? projectSettings.get('useTouch') : true;
     var useGamepads = projectSettings.has('useGamepads') ? projectSettings.get('useGamepads') : !!projectSettings.get('vr');
 
-    app = new pc.Application(canvas, {
-        elementInput: new pc.ElementInput(canvas, {
-            useMouse: useMouse,
-            useTouch: useTouch
-        }),
-        mouse: useMouse ? new pc.Mouse(canvas) : null,
-        touch: useTouch && pc.platform.touch ? new pc.TouchDevice(canvas) : null,
-        keyboard: useKeyboard ? new pc.Keyboard(window) : null,
-        gamepads: useGamepads ? new pc.GamePads() : null,
-        scriptPrefix: scriptPrefix,
-        scriptsOrder: projectSettings.get('scripts') || [],
-        assetPrefix: '/api/',
-        graphicsDeviceOptions: {
-            preferWebGl2: preferWebGl2,
-            powerPreference: powerPreference,
-            antialias: config.project.settings.antiAlias !== false,
-            alpha: config.project.settings.transparentCanvas !== false,
-            preserveDrawingBuffer: !!config.project.settings.preserveDrawingBuffer
-        }
-    });
-
-    if (projectSettings.get('maxAssetRetries')) {
-        app.loader.enableRetry(projectSettings.get('maxAssetRetries'));
-    }
-
-    if (queryParams.useBundles === 'false') {
-        app.enableBundles = false;
-    }
-
-    if (queryParams.ministats) {
-        // eslint-disable-next-line no-unused-vars
-        var miniStats = new pcx.MiniStats(app);
-    }
-
-    if (canvas.classList) {
-        canvas.classList.add('fill-mode-' + config.project.settings.fillMode);
-    }
-
-    if (config.project.settings.useDevicePixelRatio) {
-        app.graphicsDevice.maxPixelRatio = window.devicePixelRatio;
-    }
-
-    app.setCanvasResolution(config.project.settings.resolutionMode, config.project.settings.width, config.project.settings.height);
-    app.setCanvasFillMode(config.project.settings.fillMode, config.project.settings.width, config.project.settings.height);
-
-    // batch groups
-    var batchGroups = config.project.settings.batchGroups;
-    if (batchGroups) {
-        for (var batchGroupId in batchGroups) {
-            var grp = batchGroups[batchGroupId];
-            app.batcher.addGroup(grp.name, grp.dynamic, grp.maxAabbSize, grp.id, grp.layers);
-        }
-    }
-
-    // layers
-    if (config.project.settings.layers && config.project.settings.layerOrder) {
-        var composition = new pc.LayerComposition("viewport");
-
-        for (var key in config.project.settings.layers) {
-            layerIndex[key] = createLayer(key, config.project.settings.layers[key]);
-        }
-
-        for (var i = 0, len = config.project.settings.layerOrder.length; i < len; i++) {
-            var sublayer = config.project.settings.layerOrder[i];
-            var layer = layerIndex[sublayer.layer];
-            if (!layer) continue;
-
-            if (sublayer.transparent) {
-                composition.pushTransparent(layer);
-            } else {
-                composition.pushOpaque(layer);
-            }
-
-            composition.subLayerEnabled[i] = sublayer.enabled;
-        }
-
-        app.scene.layers = composition;
-    }
-
-    // localization
-    if (app.i18n) { // make it backwards compatible ...
-        if (config.self.locale) {
-            app.i18n.locale = config.self.locale;
-        }
-
-        if (config.project.settings.i18nAssets) {
-            app.i18n.assets = config.project.settings.i18nAssets;
-        }
-    }
-
-    editor.call('editor:loadModules', config.wasmModules, "", function () {
-        app._loadLibraries(libraryUrls, function (err) {
-            libraries = true;
-            if (err) log.error(err);
-            // now that modules are loaded, start the realtime connection
-            // we use setTimeout here to ensure load.js has a chance to
-            // register its 'realtime:connect' method.
-            setTimeout(() => {
-                editor.call('realtime:connect');
-                init();
-            });
-        });
-    });
-
-    var style = document.head.querySelector ? document.head.querySelector('style') : null;
-
-    // append css to style
-    var createCss = function () {
-        if (!document.head.querySelector)
-            return;
-
-        if (!style)
-            style = document.head.querySelector('style');
-
-        // css media query for aspect ratio changes
-        var css = "@media screen and (min-aspect-ratio: " + config.project.settings.width + "/" + config.project.settings.height + ") {";
-        css += "    #application-canvas.fill-mode-KEEP_ASPECT {";
-        css += "        width: auto;";
-        css += "        height: 100%;";
-        css += "        margin: 0 auto;";
-        css += "    }";
-        css += "}";
-
-        style.innerHTML = css;
+    const gfxOptions = {
+        deviceTypes: [preferWebGpu ? pc.DEVICETYPE_WEBGPU : pc.DEVICETYPE_WEBGL2],
+        glslangUrl: '/editor/scene/js/launch/webgpu/glslang.js',
+        twgslUrl: '/editor/scene/js/launch/webgpu/twgsl.js'
     };
 
-    createCss();
+    app = new pc.AppBase(canvas);
 
-    var refreshResolutionProperties = function () {
+    pc.createGraphicsDevice(canvas, gfxOptions).then((device) => {
+        const createOptions = new pc.AppOptions();
+        createOptions.graphicsDevice = device;
+
+        createOptions.componentSystems = [
+            pc.RigidBodyComponentSystem,
+            pc.CollisionComponentSystem,
+            pc.JointComponentSystem,
+            pc.AnimationComponentSystem,
+            pc.AnimComponentSystem,
+            pc.ModelComponentSystem,
+            pc.RenderComponentSystem,
+            pc.CameraComponentSystem,
+            pc.LightComponentSystem,
+            pc.script.legacy ? pc.ScriptLegacyComponentSystem : pc.ScriptComponentSystem,
+            pc.AudioSourceComponentSystem,
+            pc.SoundComponentSystem,
+            pc.AudioListenerComponentSystem,
+            pc.ParticleSystemComponentSystem,
+            pc.ScreenComponentSystem,
+            pc.ElementComponentSystem,
+            pc.ButtonComponentSystem,
+            pc.ScrollViewComponentSystem,
+            pc.ScrollbarComponentSystem,
+            pc.SpriteComponentSystem,
+            pc.LayoutGroupComponentSystem,
+            pc.LayoutChildComponentSystem,
+            pc.ZoneComponentSystem
+        ];
+
+        createOptions.resourceHandlers = [
+            pc.RenderHandler,
+            pc.AnimationHandler,
+            pc.AnimClipHandler,
+            pc.AnimStateGraphHandler,
+            pc.ModelHandler,
+            pc.MaterialHandler,
+            pc.TextureHandler,
+            pc.TextHandler,
+            pc.JsonHandler,
+            pc.AudioHandler,
+            pc.ScriptHandler,
+            pc.SceneHandler,
+            pc.CubemapHandler,
+            pc.HtmlHandler,
+            pc.CssHandler,
+            pc.ShaderHandler,
+            pc.HierarchyHandler,
+            pc.FolderHandler,
+            pc.FontHandler,
+            pc.BinaryHandler,
+            pc.TextureAtlasHandler,
+            pc.SpriteHandler,
+            pc.TemplateHandler,
+            pc.ContainerHandler
+        ];
+
+        const options = {
+            elementInput: new pc.ElementInput(canvas, {
+                useMouse: useMouse,
+                useTouch: useTouch
+            }),
+            keyboard: useKeyboard ? new pc.Keyboard(window) : null,
+            mouse: useMouse ? new pc.Mouse(canvas) : null,
+            gamepads: useGamepads ? new pc.GamePads() : null,
+            touch: useTouch && pc.platform.touch ? new pc.TouchDevice(canvas) : null,
+            graphicsDeviceOptions: {
+                preferWebGl2: preferWebGl2,
+                powerPreference: powerPreference,
+                antialias: config.project.settings.antiAlias !== false,
+                alpha: config.project.settings.transparentCanvas !== false,
+                preserveDrawingBuffer: !!config.project.settings.preserveDrawingBuffer
+            },
+            assetPrefix: '/api/',
+            scriptPrefix: scriptPrefix,
+            scriptsOrder: projectSettings.get('scripts') || []
+        };
+
+        createOptions.elementInput = options.elementInput;
+        createOptions.keyboard = options.keyboard;
+        createOptions.mouse = options.mouse;
+        createOptions.touch = options.touch;
+        createOptions.gamepads = options.gamepads;
+
+        createOptions.scriptPrefix = options.scriptPrefix;
+        createOptions.assetPrefix = options.assetPrefix;
+        createOptions.scriptsOrder = options.scriptsOrder;
+
+        createOptions.soundManager = new pc.SoundManager();
+        createOptions.lightmapper = pc.Lightmapper;
+        createOptions.batchManager = pc.BatchManager;
+        createOptions.xr = pc.XrManager;
+
+        app.init(createOptions);
+        gfxCreated = true;
+
+        // when app is initialized (which is async), emit event to allow dependencies to load
+        editor.emit('launcher:device:ready', app);
+
+        init();
+
+        if (projectSettings.get('maxAssetRetries')) {
+            app.loader.enableRetry(projectSettings.get('maxAssetRetries'));
+        }
+
+        if (queryParams.useBundles === 'false') {
+            app.enableBundles = false;
+        }
+
+        if (queryParams.ministats) {
+            // eslint-disable-next-line no-unused-vars
+            var miniStats = new pcx.MiniStats(app);
+        }
+
+        if (canvas.classList) {
+            canvas.classList.add('fill-mode-' + config.project.settings.fillMode);
+        }
+
+        if (config.project.settings.useDevicePixelRatio) {
+            app.graphicsDevice.maxPixelRatio = window.devicePixelRatio;
+        }
+
         app.setCanvasResolution(config.project.settings.resolutionMode, config.project.settings.width, config.project.settings.height);
         app.setCanvasFillMode(config.project.settings.fillMode, config.project.settings.width, config.project.settings.height);
-        pcBootstrap.resizeCanvas(app, canvas);
-    };
 
-    projectSettings.on('width:set', function (value) {
-        config.project.settings.width = value;
+        // batch groups
+        var batchGroups = config.project.settings.batchGroups;
+        if (batchGroups) {
+            for (var batchGroupId in batchGroups) {
+                var grp = batchGroups[batchGroupId];
+                app.batcher.addGroup(grp.name, grp.dynamic, grp.maxAabbSize, grp.id, grp.layers);
+            }
+        }
+
+        // layers
+        if (config.project.settings.layers && config.project.settings.layerOrder) {
+            var composition = new pc.LayerComposition("viewport");
+
+            for (var key in config.project.settings.layers) {
+                layerIndex[key] = createLayer(key, config.project.settings.layers[key]);
+            }
+
+            for (var i = 0, len = config.project.settings.layerOrder.length; i < len; i++) {
+                var sublayer = config.project.settings.layerOrder[i];
+                var layer = layerIndex[sublayer.layer];
+                if (!layer) continue;
+
+                if (sublayer.transparent) {
+                    composition.pushTransparent(layer);
+                } else {
+                    composition.pushOpaque(layer);
+                }
+
+                composition.subLayerEnabled[i] = sublayer.enabled;
+            }
+
+            app.scene.layers = composition;
+        }
+
+        // localization
+        if (app.i18n) { // make it backwards compatible ...
+            if (config.self.locale) {
+                app.i18n.locale = config.self.locale;
+            }
+
+            if (config.project.settings.i18nAssets) {
+                app.i18n.assets = config.project.settings.i18nAssets;
+            }
+        }
+
+        editor.call('editor:loadModules', config.wasmModules, "", function () {
+            app._loadLibraries(libraryUrls, function (err) {
+                libraries = true;
+                if (err) log.error(err);
+                // now that modules are loaded, start the realtime connection
+                // we use setTimeout here to ensure load.js has a chance to
+                // register its 'realtime:connect' method.
+                setTimeout(() => {
+                    editor.call('realtime:connect');
+                    init();
+                });
+            });
+        });
+
+        var style = document.head.querySelector ? document.head.querySelector('style') : null;
+
+        // append css to style
+        var createCss = function () {
+            if (!document.head.querySelector)
+                return;
+
+            if (!style)
+                style = document.head.querySelector('style');
+
+            // css media query for aspect ratio changes
+            var css = "@media screen and (min-aspect-ratio: " + config.project.settings.width + "/" + config.project.settings.height + ") {";
+            css += "    #application-canvas.fill-mode-KEEP_ASPECT {";
+            css += "        width: auto;";
+            css += "        height: 100%;";
+            css += "        margin: 0 auto;";
+            css += "    }";
+            css += "}";
+
+            style.innerHTML = css;
+        };
+
         createCss();
-        refreshResolutionProperties();
-    });
-    projectSettings.on('height:set', function (value) {
-        config.project.settings.height = value;
-        createCss();
-        refreshResolutionProperties();
-    });
 
-    projectSettings.on('fillMode:set', function (value, oldValue) {
-        config.project.settings.fillMode = value;
-        if (canvas.classList) {
-            if (oldValue)
-                canvas.classList.remove('fill-mode-' + oldValue);
+        var refreshResolutionProperties = function () {
+            app.setCanvasResolution(config.project.settings.resolutionMode, config.project.settings.width, config.project.settings.height);
+            app.setCanvasFillMode(config.project.settings.fillMode, config.project.settings.width, config.project.settings.height);
+            pcBootstrap.resizeCanvas(app, canvas);
+        };
 
-            canvas.classList.add('fill-mode-' + value);
-        }
+        projectSettings.on('width:set', function (value) {
+            config.project.settings.width = value;
+            createCss();
+            refreshResolutionProperties();
+        });
+        projectSettings.on('height:set', function (value) {
+            config.project.settings.height = value;
+            createCss();
+            refreshResolutionProperties();
+        });
 
-        refreshResolutionProperties();
-    });
+        projectSettings.on('fillMode:set', function (value, oldValue) {
+            config.project.settings.fillMode = value;
+            if (canvas.classList) {
+                if (oldValue)
+                    canvas.classList.remove('fill-mode-' + oldValue);
 
-    projectSettings.on('resolutionMode:set', function (value) {
-        config.project.settings.resolutionMode = value;
-        refreshResolutionProperties();
-    });
+                canvas.classList.add('fill-mode-' + value);
+            }
 
-    projectSettings.on('useDevicePixelRatio:set', function (value) {
-        config.project.settings.useDevicePixelRatio = value;
-        app.graphicsDevice.maxPixelRatio = value ? window.devicePixelRatio : 1;
-    });
+            refreshResolutionProperties();
+        });
 
-    projectSettings.on('preferWebGl2:set', function (value) {
-        config.project.settings.preferWebGl2 = value;
-    });
+        projectSettings.on('resolutionMode:set', function (value) {
+            config.project.settings.resolutionMode = value;
+            refreshResolutionProperties();
+        });
 
-    projectSettings.on('powerPreference:set', function (value) {
-        config.project.settings.powerPreference = value;
-    });
+        projectSettings.on('useDevicePixelRatio:set', function (value) {
+            config.project.settings.useDevicePixelRatio = value;
+            app.graphicsDevice.maxPixelRatio = value ? window.devicePixelRatio : 1;
+        });
 
-    projectSettings.on('i18nAssets:set', function (value) {
-        app.i18n.assets = value;
-    });
+        projectSettings.on('preferWebGl2:set', function (value) {
+            config.project.settings.preferWebGl2 = value;
+        });
 
-    projectSettings.on('i18nAssets:insert', function (value) {
-        app.i18n.assets = projectSettings.get('i18nAssets');
-    });
+        projectSettings.on('powerPreference:set', function (value) {
+            config.project.settings.powerPreference = value;
+        });
 
-    projectSettings.on('i18nAssets:remove', function (value) {
-        app.i18n.assets = projectSettings.get('i18nAssets');
-    });
+        projectSettings.on('i18nAssets:set', function (value) {
+            app.i18n.assets = value;
+        });
 
-    projectSettings.on('maxAssetRetries:set', function (value) {
-        if (value > 0) {
-            app.loader.enableRetry(value);
-        } else {
-            app.loader.disableRetry();
-        }
-    });
+        projectSettings.on('i18nAssets:insert', function (value) {
+            app.i18n.assets = projectSettings.get('i18nAssets');
+        });
 
-    // locale change
-    projectUserSettings.on('editor.locale:set', function (value) {
-        if (value) {
-            app.i18n.locale = value;
-        }
-    });
+        projectSettings.on('i18nAssets:remove', function (value) {
+            app.i18n.assets = projectSettings.get('i18nAssets');
+        });
 
-    projectSettings.on('*:set', function (path, value) {
-        var parts;
-
-        if (path.startsWith('batchGroups')) {
-            parts = path.split('.');
-            if (parts.length < 2) return;
-            var groupId = parseInt(parts[1], 10);
-            var groupSettings = projectSettings.get('batchGroups.' + groupId);
-            if (!app.batcher._batchGroups[groupId]) {
-                app.batcher.addGroup(
-                    groupSettings.name,
-                    groupSettings.dynamic,
-                    groupSettings.maxAabbSize,
-                    groupId,
-                    groupSettings.layers
-                );
-
-                app.batcher.generate();
+        projectSettings.on('maxAssetRetries:set', function (value) {
+            if (value > 0) {
+                app.loader.enableRetry(value);
             } else {
-                app.batcher._batchGroups[groupId].name = groupSettings.name;
-                app.batcher._batchGroups[groupId].dynamic = groupSettings.dynamic;
-                app.batcher._batchGroups[groupId].maxAabbSize = groupSettings.maxAabbSize;
-
-                app.batcher.generate([groupId]);
+                app.loader.disableRetry();
             }
-        } else if (path.startsWith('layers')) {
-            parts = path.split('.');
-            // create layer
-            var layer;
-            if (parts.length === 2) {
-                layer = createLayer(parts[1], value);
-                layerIndex[layer.id] = layer;
-                var existing = app.scene.layers.getLayerById(layer.id);
-                if (existing) {
-                    app.scene.layers.remove(existing);
+        });
+
+        // locale change
+        projectUserSettings.on('editor.locale:set', function (value) {
+            if (value) {
+                app.i18n.locale = value;
+            }
+        });
+
+        projectSettings.on('*:set', function (path, value) {
+            var parts;
+
+            if (path.startsWith('batchGroups')) {
+                parts = path.split('.');
+                if (parts.length < 2) return;
+                var groupId = parseInt(parts[1], 10);
+                var groupSettings = projectSettings.get('batchGroups.' + groupId);
+                if (!app.batcher._batchGroups[groupId]) {
+                    app.batcher.addGroup(
+                        groupSettings.name,
+                        groupSettings.dynamic,
+                        groupSettings.maxAabbSize,
+                        groupId,
+                        groupSettings.layers
+                    );
+
+                    app.batcher.generate();
+                } else {
+                    app.batcher._batchGroups[groupId].name = groupSettings.name;
+                    app.batcher._batchGroups[groupId].dynamic = groupSettings.dynamic;
+                    app.batcher._batchGroups[groupId].maxAabbSize = groupSettings.maxAabbSize;
+
+                    app.batcher.generate([groupId]);
                 }
-            } else if (parts.length === 3) { // change layer property
-                layer = layerIndex[parts[1]];
+            } else if (path.startsWith('layers')) {
+                parts = path.split('.');
+                // create layer
+                var layer;
+                if (parts.length === 2) {
+                    layer = createLayer(parts[1], value);
+                    layerIndex[layer.id] = layer;
+                    var existing = app.scene.layers.getLayerById(layer.id);
+                    if (existing) {
+                        app.scene.layers.remove(existing);
+                    }
+                } else if (parts.length === 3) { // change layer property
+                    layer = layerIndex[parts[1]];
+                    if (layer) {
+                        layer[parts[2]] = value;
+                    }
+                }
+            } else if (path.startsWith('layerOrder.')) {
+                parts = path.split('.');
+
+                if (parts.length === 3) {
+                    if (parts[2] === 'enabled') {
+                        var subLayerId = parseInt(parts[1], 10);
+                        // Unlike Editor, DON'T add 2 to subLayerId here
+                        app.scene.layers.subLayerEnabled[subLayerId] = value;
+                        editor.call('viewport:render');
+                    }
+                }
+            }
+        });
+
+        projectSettings.on('*:unset', function (path, value) {
+            if (path.startsWith('batchGroups')) {
+                var propNameParts = path.split('.')[1];
+                if (propNameParts.length === 2) {
+                    var id = propNameParts[1];
+                    app.batcher.removeGroup(id);
+                }
+            } else if (path.startsWith('layers.')) {
+                var parts = path.split('.');
+
+                // remove layer
+                var layer = layerIndex[parts[1]];
                 if (layer) {
-                    layer[parts[2]] = value;
+                    app.scene.layers.remove(layer);
+                    delete layerIndex[parts[1]];
                 }
             }
-        } else if (path.startsWith('layerOrder.')) {
-            parts = path.split('.');
+        });
 
-            if (parts.length === 3) {
-                if (parts[2] === 'enabled') {
-                    var subLayerId = parseInt(parts[1], 10);
-                    // Unlike Editor, DON'T add 2 to subLayerId here
-                    app.scene.layers.subLayerEnabled[subLayerId] = value;
-                    editor.call('viewport:render');
-                }
+        projectSettings.on('layerOrder:insert', function (value, index) {
+            var id = value.get('layer');
+            var layer = layerIndex[id];
+            if (!layer) return;
+
+            var transparent = value.get('transparent');
+
+            if (transparent) {
+                app.scene.layers.insertTransparent(layer, index);
+            } else {
+                app.scene.layers.insertOpaque(layer, index);
             }
-        }
-    });
+        });
 
-    projectSettings.on('*:unset', function (path, value) {
-        if (path.startsWith('batchGroups')) {
-            var propNameParts = path.split('.')[1];
-            if (propNameParts.length === 2) {
-                var id = propNameParts[1];
-                app.batcher.removeGroup(id);
+        projectSettings.on('layerOrder:remove', function (value) {
+            var id = value.get('layer');
+            var layer = layerIndex[id];
+            if (!layer) return;
+
+            var transparent = value.get('transparent');
+
+            if (transparent) {
+                app.scene.layers.removeTransparent(layer);
+            } else {
+                app.scene.layers.removeOpaque(layer);
             }
-        } else if (path.startsWith('layers.')) {
-            var parts = path.split('.');
+        });
 
-            // remove layer
-            var layer = layerIndex[parts[1]];
-            if (layer) {
-                app.scene.layers.remove(layer);
-                delete layerIndex[parts[1]];
+        projectSettings.on('layerOrder:move', function (value, indNew, indOld) {
+            var id = value.get('layer');
+            var layer = layerIndex[id];
+            if (!layer) return;
+
+            var transparent = value.get('transparent');
+            if (transparent) {
+                app.scene.layers.removeTransparent(layer);
+                app.scene.layers.insertTransparent(layer, indNew);
+            } else {
+                app.scene.layers.removeOpaque(layer);
+                app.scene.layers.insertOpaque(layer, indNew);
             }
-        }
-    });
+        });
 
-    projectSettings.on('layerOrder:insert', function (value, index) {
-        var id = value.get('layer');
-        var layer = layerIndex[id];
-        if (!layer) return;
-
-        var transparent = value.get('transparent');
-
-        if (transparent) {
-            app.scene.layers.insertTransparent(layer, index);
-        } else {
-            app.scene.layers.insertOpaque(layer, index);
-        }
-    });
-
-    projectSettings.on('layerOrder:remove', function (value) {
-        var id = value.get('layer');
-        var layer = layerIndex[id];
-        if (!layer) return;
-
-        var transparent = value.get('transparent');
-
-        if (transparent) {
-            app.scene.layers.removeTransparent(layer);
-        } else {
-            app.scene.layers.removeOpaque(layer);
-        }
-    });
-
-    projectSettings.on('layerOrder:move', function (value, indNew, indOld) {
-        var id = value.get('layer');
-        var layer = layerIndex[id];
-        if (!layer) return;
-
-        var transparent = value.get('transparent');
-        if (transparent) {
-            app.scene.layers.removeTransparent(layer);
-            app.scene.layers.insertTransparent(layer, indNew);
-        } else {
-            app.scene.layers.removeOpaque(layer);
-            app.scene.layers.insertOpaque(layer, indNew);
-        }
-    });
-
-    pcBootstrap.reflow(app, canvas);
-    pcBootstrap.reflowHandler = function () {
         pcBootstrap.reflow(app, canvas);
-    };
+        pcBootstrap.reflowHandler = function () {
+            pcBootstrap.reflow(app, canvas);
+        };
 
-    window.addEventListener('resize', pcBootstrap.reflowHandler, false);
-    window.addEventListener('orientationchange', pcBootstrap.reflowHandler, false);
+        window.addEventListener('resize', pcBootstrap.reflowHandler, false);
+        window.addEventListener('orientationchange', pcBootstrap.reflowHandler, false);
+
+    });
 
     // get application
     editor.method('viewport:app', function () {

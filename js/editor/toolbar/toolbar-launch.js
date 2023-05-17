@@ -51,7 +51,9 @@ editor.once('load', function () {
 
         const query = [];
 
-        if (launchOptions.webgl1) {
+        if (launchOptions.webgpu) {
+            query.push('webgpu=true');
+        } else if (launchOptions.webgl1) {
             query.push('webgl1=true');
         }
 
@@ -212,6 +214,26 @@ editor.once('load', function () {
     editor.call('settings:project').on('preferWebGl2:set', function (value) {
         preferWebGl1.parent.enabled = value;
     });
+
+    // webGPU is behind a flag for now
+    if (editor.call('users:hasFlag', 'hasWebGPU')) {
+        const preferWebGpu = createOption('webgpu', 'Prefer WebGPU');
+
+        const tooltipPreferWebGpu = Tooltip.attach({
+            target: preferWebGpu.parent.element,
+            text: 'Force the use of WebGPU regardless of whether WebGL is preferred in Scene Settings.',
+            align: 'right',
+            root: root
+        });
+        tooltipPreferWebGpu.class.add('launch-tooltip');
+
+        if (!editor.call('settings:project').get('preferWebGl2'))
+            preferWebGpu.parent.disabled = true;
+
+        editor.call('settings:project').on('preferWebGl2:set', function (value) {
+            preferWebGpu.parent.disabled = !value;
+        });
+    }
 
     // mini-stats
     const optionMiniStats = createOption('ministats', 'Mini stats');
