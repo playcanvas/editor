@@ -20,6 +20,8 @@ editor.once('load', function () {
     let storeItemAssets = [];
     let codePreview = null;
     let viewerButton = null;
+    let importButton = null;
+    let returnButton = null;
 
     const EMPTY_THUMBNAIL_IMAGE = 'https://playcanvas.com/static-assets/images/store-default-thumbnail.jpg';
 
@@ -182,10 +184,35 @@ editor.once('load', function () {
         descriptionOnClick();
     };
 
+    const cloneItem = async () => {
+        toggleProgress(true);
+        importButton.enabled = false;
+        returnButton.enabled = false;
+        overlay.clickable = false;
+
+        await editor.call('store:clone', storeItem.id, storeItem.name, config.project.id);
+        toggleProgress(false);
+        returnButton.enabled = true;
+        overlay.clickable = true;
+    };
+
+    // helper method to check if the storeitem is already cloned
+    const itemClonedAlready = (name) => {
+        const candidates = editor.call('assets:find', function (item) {
+            if (item.get('type') === 'folder' && item.get('name') === name) {
+                return true;
+            }
+            return false;
+        });
+        return candidates.length > 0;
+    };
+
     // helper method to refresh storeitem-specific UI components depending on current view
     const refreshUI = async () => {
 
         if (storeItem) {
+
+            importButton.enabled = true;
 
             let displayPreviewButton = false;
             for (const asset of storeItemAssets) {
@@ -288,7 +315,7 @@ editor.once('load', function () {
     progressBarContainer.append(progressLabel);
 
     // Return button
-    const returnButton = new Button({
+    returnButton = new Button({
         class: 'return-button',
         icon: 'E182'
     });
@@ -306,17 +333,29 @@ editor.once('load', function () {
     topPanel.append(itemName);
 
     // import button
-    const importButton = new Button({
+    importButton = new Button({
         class: 'import-button',
         icon: 'E228',
         text: 'IMPORT'
     });
     topPanel.append(importButton);
 
-    importButton.on('click', async () => {
-        toggleProgress(true);
-        await editor.call('store:clone', storeItem.id, storeItem.name, config.project.id);
-        toggleProgress(false);
+    importButton.on('click', () => {
+
+        // show popup if we think there already exists in the scene
+        if (itemClonedAlready(storeItem.name)) {
+            editor.call('picker:confirm',
+                'It appears your assets panel already contains this item. Continuing may result in duplicates. Do you want to continue?',
+                function () {
+                    cloneItem();
+                },
+                {
+                    yesText: 'Yes',
+                    noText: 'Cancel'
+                });
+        } else {
+            cloneItem();
+        }
     });
 
     // viewer button
@@ -393,7 +432,7 @@ editor.once('load', function () {
         if (e.target && /(input)|(textarea)/i.test(e.target.tagName))
             return;
 
-        if (e.keyCode === 27 && overlay.clickable) {
+        if (e.key === 'Escape' && overlay.clickable && returnButton.enabled) {
             overlay.hidden = true;
         }
     };
@@ -459,5 +498,10 @@ editor.once('load', function () {
     // close popup
     editor.method('picker:storeitem:close', () => {
         overlay.hidden = true;
+    });
+
+    // close popup
+    editor.method('picker:storeitem:opened', () => {
+        return overlay.hidden === false;
     });
 });

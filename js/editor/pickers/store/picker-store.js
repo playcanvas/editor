@@ -343,7 +343,7 @@ editor.once('load', () => {
     // overlay
     const root = editor.call('layout.root');
     const overlay = new Overlay({
-        clickable: false,
+        clickable: true,
         class: 'picker-store-cms',
         hidden: true
     });
@@ -548,8 +548,20 @@ editor.once('load', () => {
 
     // EVENTS
 
+    // ESC key should close popup
+    var onKeyDown = function (e) {
+        if (e.target && /(input)|(textarea)/i.test(e.target.tagName))
+            return;
+
+        if (e.key === 'Escape' && overlay.clickable && !editor.call('picker:storeitem:opened')) {
+            overlay.hidden = true;
+        }
+    };
+
     // load and show data
     overlay.on('show', () => {
+        window.addEventListener('keydown', onKeyDown);
+
         // determine if a scene has been loaded
         if (editor.call('viewport:inViewport')) editor.emit('viewport:hover', false);
     });
