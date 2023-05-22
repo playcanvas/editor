@@ -149,7 +149,12 @@ editor.once('load', function () {
     const gfxOptions = {
         deviceTypes: [preferWebGpu ? pc.DEVICETYPE_WEBGPU : pc.DEVICETYPE_WEBGL2],
         glslangUrl: '/editor/scene/js/launch/webgpu/glslang.js',
-        twgslUrl: '/editor/scene/js/launch/webgpu/twgsl.js'
+        twgslUrl: '/editor/scene/js/launch/webgpu/twgsl.js',
+        preferWebGl2: preferWebGl2,
+        powerPreference: powerPreference,
+        antialias: config.project.settings.antiAlias !== false,
+        alpha: config.project.settings.transparentCanvas !== false,
+        preserveDrawingBuffer: !!config.project.settings.preserveDrawingBuffer
     };
 
     app = new pc.AppBase(canvas);
@@ -220,13 +225,6 @@ editor.once('load', function () {
             mouse: useMouse ? new pc.Mouse(canvas) : null,
             gamepads: useGamepads ? new pc.GamePads() : null,
             touch: useTouch && pc.platform.touch ? new pc.TouchDevice(canvas) : null,
-            graphicsDeviceOptions: {
-                preferWebGl2: preferWebGl2,
-                powerPreference: powerPreference,
-                antialias: config.project.settings.antiAlias !== false,
-                alpha: config.project.settings.transparentCanvas !== false,
-                preserveDrawingBuffer: !!config.project.settings.preserveDrawingBuffer
-            },
             assetPrefix: '/api/',
             scriptPrefix: scriptPrefix,
             scriptsOrder: projectSettings.get('scripts') || []
