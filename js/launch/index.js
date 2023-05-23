@@ -34,7 +34,7 @@ import './entities-sync.js';
 import '../editor/schema/schema.js';
 import '../editor/schema/schema-components.js';
 import '../editor/assets/assets-bundles.js';
-import '../editor/viewport/viewport-engine-data.js';
+import './viewport-engine-data.js';
 import './viewport-binding-entities.js';
 import './viewport-binding-components.js';
 import './viewport-binding-assets.js';
