@@ -3,54 +3,81 @@ import { Ajax } from '../../common/ajax.js';
 editor.once('load', function () {
 
     // Loads all the store's items
-    editor.method('store:list', function (
+    editor.method('store:list', async function (
             search,
             skip,
             limit,
             selectedFilter,
+            tags,
             sortPolicy,
             sortDescending) {
 
-        let url = `{{url.api}}/store?sort=${sortPolicy}&order=${sortDescending ? -1 : 1}&skip=${skip}&limit=${limit}}`;
+        let url = `${config.url.api}/store?sort=${sortPolicy}&order=${sortDescending ? -1 : 1}&skip=${skip}&limit=${limit}}`;
         if (search && search.length) {
-            url += `&regexp=true&search=${search}`;
+            url += `&regexp=true&search=${encodeURIComponent(search)}`;
         }
+        const searchTags = tags || [];
         if (selectedFilter && selectedFilter.length && selectedFilter !== 'ALL') {
-            url += `&tags=${selectedFilter}`;
+            searchTags.push(selectedFilter);
+        }
+
+        if (searchTags.length) {
+            url += `&tags=${encodeURIComponent(searchTags.join(','))}`;
         }
 
         url += `&excludeTags=INTERNAL`;
 
-        return new Promise((resolve, reject) => {
-            Ajax({
-                url: url,
-                auth: false,
-                method: 'GET'
-            })
-            .on('load', (status, response) => {
-                resolve(response);
-            })
-            .on('error', (status, error) => {
-                reject(error);
-            });
-        });
+        const response = await fetch(url);
+        return response.json();
     });
 
+
+    const sortQuery = function (sortPolicy, sortDescending) {
+        if (sortPolicy) {
+            if (sortDescending) {
+                return '&sort_by=-'.concat(sortPolicy);
+            }
+            return '&sort_by='.concat(sortPolicy);
+        }
+    };
+
     // Loads all the store's items
-    editor.method('store:assets:list', function (storeItemId) {
-        return new Promise((resolve, reject) => {
-            Ajax({
-                url: `{{url.api}}/store/${storeItemId}/assets`,
-                auth: false,
-                method: 'GET'
-            })
-            .on('load', (status, response) => {
-                resolve(response);
-            })
-            .on('error', (status, error) => {
-                reject(error);
-            });
-        });
+    editor.method('store:sketchfab:list', async function (
+            search,
+            skip,
+            limit,
+            tags,
+            sortPolicy,
+            sortDescending) {
+
+        // Calculate the date from a week ago
+        var weekAgoDate = new Date();
+        weekAgoDate.setDate(new Date().getDate() - 7);
+
+        // sketch fab doesn't allow more than 24 items per page
+        limit = Math.min(24, limit);
+
+        let url = `https://api.sketchfab.com/v3/search?type=models&downloadable=true&count=${limit}`;
+
+        if (skip) {
+            url += `&cursor=${skip}`;
+        }
+
+        if (tags) {
+            url += `&tags=${encodeURIComponent(tags.join(','))}`;
+        }
+
+        // if search query is not present, just show the models from the last week
+        if ((search && search.length) || (tags && tags.length)) {
+            url += `&q=${encodeURIComponent(search)}`;
+        } else {
+            url += '&date=7';
+        }
+
+        url += sortQuery(sortPolicy, sortDescending);
+
+        const response = await fetch(url);
+        return response.json();
     });
 
     // clone store item to the scene
@@ -68,6 +95,7 @@ editor.once('load', function () {
                         type: 'project',
                         id: projectId
                     },
+                    store: 'playcanvas',
                     targetFolderId: selectedFolder ? selectedFolder._data.id : null
                 }
             })
@@ -80,12 +108,25 @@ editor.once('load', function () {
         });
     });
 
-    // Load store item
-    editor.method('store:loadStoreItem', function (id) {
+    // clone store item to the scene
+    editor.method('store:clone:sketchfab', function (storeItemId, name, projectId) {
         return new Promise((resolve, reject) => {
+
+            // get selected folder in assets panel
+            const selectedFolder = editor.call('assets:panel:currentFolder');
             Ajax({
-                url: '{{url.api}}/store/' + id,
-                auth: false
+                url: `{{url.api}}/store/${storeItemId}/clone`,
+                auth: false,
+                method: 'POST',
+                data: {
+                    scope: {
+                        type: 'project',
+                        id: projectId
+                    },
+                    name: name,
+                    store: 'sketchfab',
+                    targetFolderId: selectedFolder ? selectedFolder._data.id : null
+                }
             })
             .on('load', (status, response) => {
                 resolve(response);
@@ -97,23 +138,11 @@ editor.once('load', function () {
     });
 
     // Load asset file contents and call callback
-    editor.method('store:loadAsset', function (asset) {
-        return new Promise((resolve, reject) => {
-            const id = asset.id;
-            Ajax({
-                url: '{{url.api}}/store/assets/' + id + '/file/' + asset.file.filename,
-                auth: false,
-                notJson: true
-            })
-            .on('load', (status, response) => {
-                // replace \r and \r\n with \n
-                response = response.replace(/\r\n?/g, '\n');
-                resolve(response);
-            })
-            .on('error', (status, error) => {
-                reject(error);
-            });
-        });
+    editor.method('store:loadAsset', async function (asset) {
+        const id = asset.id;
+        const url = `${config.url.api}/store/assets/${id}/file/${asset.name}`;
+        const response = await fetch(url);
+        return response.text();
     });
 
     // Upload specified export

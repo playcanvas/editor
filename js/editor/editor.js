@@ -44,6 +44,19 @@ class Editor extends Events {
         }
         return null;
     }
+
+    /**
+     * @param {string} name - The name of the method to call.
+     * @param {...*} args - The arguments to pass to the method.
+     * @returns {*} The return value of the method.
+     */
+    invoke(name, ...args) {
+        const fn = this.methods.get(name);
+        if (fn) {
+            return fn(...args);
+        }
+        return null;
+    }
 }
 
 // editor

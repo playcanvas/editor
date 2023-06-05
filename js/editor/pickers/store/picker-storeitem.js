@@ -4,8 +4,18 @@ import { sizeToString } from '../../../common/filesystem-utils';
 // highlight.js
 import hljs from 'highlight.js/lib/core';
 import javascript from 'highlight.js/lib/languages/javascript';
-
 hljs.registerLanguage('javascript', javascript);
+
+const sketchfabAuthTitle = `Sketchfab Login`;
+const sketchfabAuthMessage = `To import models from Sketchfab, 
+you need to log in with a Sketchfab account.
+
+Sketchfab is a 3D modeling platform website to publish, share, 
+discover, buy and sell 3D, VR and AR content. 
+All Sketchfab models imported to 
+PlayCanvas are free to use and are licensed 
+under [Creative Commons Attribution](https://creativecommons.org/licenses/by/4.0/).`;
+const sketchfabAuthLogin = 'Sign up or log in to Sketchfab';
 
 editor.once('load', function () {
     // GLOBAL VARIABLES
@@ -17,23 +27,11 @@ editor.once('load', function () {
     let itemName = null;
     let storeItemThumb = null;
     let itemData = null;
-    let storeItemAssets = [];
     let codePreview = null;
     let viewerButton = null;
     let importButton = null;
     let returnButton = null;
-
-    const EMPTY_THUMBNAIL_IMAGE = 'https://playcanvas.com/static-assets/images/store-default-thumbnail.jpg';
-
-    const isGlbAsset = (asset) => {
-        const filename = asset.file ? asset.file.filename : null;
-        return filename && String(filename).match(/\.glb$/) !== null;
-    };
-
-    const isTextureAsset = (asset) => {
-        const type = asset.type;
-        return ['texture', 'textureatlas'].includes(type);
-    };
+    let itemStats = null;
 
     const isScriptAsset = (asset) => {
         const type = asset.type;
@@ -41,10 +39,33 @@ editor.once('load', function () {
     };
 
     const displayStats = (itemStats) => {
-        itemStats.append(new LabelGroup({
-            text: 'Size: ',
-            field: new Label({ class: 'data-label', text: sizeToString(storeItem.size) })
-        }).dom);
+        if (storeItem.size !== undefined) {
+            itemStats.append(new LabelGroup({
+                text: 'Size: ',
+                field: new Label({ class: 'data-label', text: sizeToString(storeItem.size) })
+            }).dom);
+        }
+
+        if (storeItem.vertexCount !== undefined) {
+            itemStats.append(new LabelGroup({
+                text: 'Vertex count: ',
+                field: new Label({ class: 'data-label', text: storeItem.vertexCount })
+            }).dom);
+        }
+
+        if (storeItem.textureCount !== undefined) {
+            itemStats.append(new LabelGroup({
+                text: 'Texture count: ',
+                field: new Label({ class: 'data-label', text: storeItem.textureCount })
+            }).dom);
+        }
+
+        if (storeItem.animationCount !== undefined) {
+            itemStats.append(new LabelGroup({
+                text: 'Animation count: ',
+                field: new Label({ class: 'data-label', text: storeItem.animationCount })
+            }).dom);
+        }
 
         const date = new Date(storeItem.modified);
         itemStats.append(new LabelGroup({
@@ -57,44 +78,46 @@ editor.once('load', function () {
             field: new Label({ class: 'data-label', text: storeItem.views })
         }).dom);
 
-        itemStats.append(new LabelGroup({
-            text: 'Downloads: ',
-            field: new Label({ class: 'data-label', text: storeItem.downloads })
-        }).dom);
+        if (storeItem.downloads !== undefined) {
+            itemStats.append(new LabelGroup({
+                text: 'Downloads: ',
+                field: new Label({ class: 'data-label', text: storeItem.downloads })
+            }).dom);
+        }
     };
 
     // UI
     const displayDescription = (containerTabContent) => {
-        const itemStats = new Container({
-            class: 'storeitem-stats',
-            flex: true
-        });
+
         const elementDescription = new Element({
             class: 'item-description'
         });
         elementDescription.dom.innerHTML = storeItem.description;
         containerTabContent.append(elementDescription);
 
-        if (storeItem.license) {
-            const labelLicense = new Label({
-                text: 'License:',
-                class: 'item-license-label'
+        if (storeItem.author) {
+            const elementAuthor = new Element({
+                class: 'item-author-label'
             });
-            containerTabContent.append(labelLicense);
+            elementAuthor.dom.innerHTML = storeItem.author;
+            containerTabContent.append(elementAuthor);
+        }
 
+        if (storeItem.license) {
             const elementLicense = new Element({
                 class: 'item-license'
             });
             elementLicense.dom.innerHTML = storeItem.license;
             containerTabContent.append(elementLicense);
         }
-
-        containerTabContent.append(itemStats);
-
-        displayStats(itemStats);
     };
 
     const displayContent = (containerTabContent) => {
+
+        if (!storeItem.assets || storeItem.assets.length === 0) {
+            return;
+        }
+
         const itemStats = new Container({
             class: 'storeitem-assets',
             flex: true
@@ -121,14 +144,38 @@ editor.once('load', function () {
             return 'assets-name';
         };
 
-        for (const i in storeItemAssets) {
-            const item = storeItemAssets[i];
-            const containerAssets = new Container({ class: 'assets-row' });
-            itemStats.append(containerAssets);
-            containerAssets.append(new Label({ class: getNameClass(item), text: item.file ? item.file.filename : item.name }));
-            containerAssets.append(new Label({ class: 'assets-size', text: item.file ? sizeToString(item.file.size) : '0B' }));
+        for (const item of storeItem.assets) {
+            const className = getNameClass(item);
+            const labelGroup = new LabelGroup({
+                text: item.name,
+                field: new Label({ class: 'data-label', text: item.size }),
+                nativeTooltip: true
+            });
+            labelGroup.label.class.add(className);
+            itemStats.append(labelGroup.dom);
+        }
+    };
+
+    const displayTags = (containerTabContent) => {
+
+        if (!storeItem.tags || storeItem.tags.length === 0) {
+            return;
         }
 
+        const itemStats = new Container({
+            class: 'storeitem-assets',
+            flex: true
+        });
+        containerTabContent.append(itemStats);
+
+        for (const item of storeItem.tags) {
+            const tagLabel = new Label({ class: 'tag-name', text: item.name });
+            tagLabel.on('click', () => {
+                editor.call('picker:storeitem:close');
+                editor.call('picker:store:search:tags', [item.slug], [item.name]);
+            });
+            itemStats.append(tagLabel.dom);
+        }
     };
 
     const refreshDataUI = (root) => {
@@ -157,9 +204,17 @@ editor.once('load', function () {
             // display description
             labelDescription.class.toggle('clicked', true);
             labelContent.class.toggle('clicked', false);
+            labelTags.class.toggle('clicked', false);
 
             containerTabContent.clear();
             displayDescription(containerTabContent);
+
+            itemStats = new Container({
+                class: 'storeitem-stats',
+                flex: true
+            });
+            itemData.append(itemStats);
+            displayStats(itemStats);
         };
 
         labelDescription.on('click', descriptionOnClick);
@@ -174,26 +229,79 @@ editor.once('load', function () {
             // display content
             labelDescription.class.toggle('clicked', false);
             labelContent.class.toggle('clicked', true);
+            labelTags.class.toggle('clicked', false);
 
             containerTabContent.clear();
+            if (itemStats) {
+                itemData.remove(itemStats);
+            }
             displayContent(containerTabContent);
         });
         containerTabs.append(labelContent);
+
+        // tags tab
+        const labelTags = new Label({
+            text: 'Tags'
+        });
+        labelTags.on('click', () => {
+
+            // display content
+            labelDescription.class.toggle('clicked', false);
+            labelContent.class.toggle('clicked', false);
+            labelTags.class.toggle('clicked', true);
+
+            containerTabContent.clear();
+            if (itemStats) {
+                itemData.remove(itemStats);
+            }
+            displayTags(containerTabContent);
+        });
+        containerTabs.append(labelTags);
 
         // display description by default
         descriptionOnClick();
     };
 
+    const isSketchfabItem = (item) => {
+        return item.store === 'sketchfab';
+    };
+
+    const loginToSketchfab = () => {
+        editor.call('picker:messageBox', sketchfabAuthTitle, sketchfabAuthMessage, sketchfabAuthLogin, null, (ok) => {
+            if (ok) {
+                // visit authorization page
+                const redirectUrl = `${config.store.sketchfab.redirectUrl}`;
+                const authUrl = `https://sketchfab.com/oauth2/authorize/?response_type=code&client_id=${config.store.sketchfab.clientId}&redirect_uri=${redirectUrl}`;
+                window.open(authUrl);
+            }
+        });
+    };
+
     const cloneItem = async () => {
+
         toggleProgress(true);
         importButton.enabled = false;
         returnButton.enabled = false;
         overlay.clickable = false;
 
-        await editor.call('store:clone', storeItem.id, storeItem.name, config.project.id);
-        toggleProgress(false);
-        returnButton.enabled = true;
-        overlay.clickable = true;
+        try {
+            if (isSketchfabItem(storeItem)) {
+                // use invoke to handle exceptions
+                await editor.invoke('store:clone:sketchfab', storeItem.id, storeItem.name, config.project.id);
+            } else {
+                await editor.call('store:clone', storeItem.id, storeItem.name, config.project.id);
+            }
+        } catch (err) {
+            // if user is not logged in to sketchfab
+            if (err === 'Unauthorized' && isSketchfabItem(storeItem)) {
+                loginToSketchfab();
+            }
+            importButton.enabled = true;
+        } finally {
+            toggleProgress(false);
+            returnButton.enabled = true;
+            overlay.clickable = true;
+        }
     };
 
     // helper method to check if the storeitem is already cloned
@@ -214,24 +322,18 @@ editor.once('load', function () {
 
             importButton.enabled = true;
 
-            let displayPreviewButton = false;
-            for (const asset of storeItemAssets) {
-                if (isGlbAsset(asset)) {
-                    displayPreviewButton = true;
-                } else if (isTextureAsset(asset)) {
-                    displayPreviewButton = true;
-                }
-            }
-
             if (viewerButton) {
-                viewerButton.hidden = !displayPreviewButton;
+                viewerButton.hidden = storeItem.viewerUrl === undefined;
             }
 
             let displayThumbnail = true;
 
-            if (storeItemAssets && storeItemAssets.length && isScriptAsset(storeItemAssets[0])) {
+            if (storeItem.assets && storeItem.assets.length && isScriptAsset(storeItem.assets[0])) {
                 // download script content
-                const code = storeItemAssets[0].id ? await editor.call('store:loadAsset', storeItemAssets[0]) : '';
+                const result = storeItem.assets[0].id ? await editor.call('store:loadAsset', storeItem.assets[0]) : '';
+
+                // replace \r and \r\n with \n
+                const code = result.replace(/\r\n?/g, '\n');
 
                 //  script preview
                 codePreview = new Element({
@@ -246,12 +348,7 @@ editor.once('load', function () {
             }
 
             if (displayThumbnail) {
-                if (storeItem.pictures.length) {
-                    const pictures = `${config.url.images}/${config.aws.s3Prefix}files/pictures/`;
-                    storeItemThumb.src = pictures + storeItem.pictures[0] + "/1280x720.jpg";
-                } else {
-                    storeItemThumb.src = EMPTY_THUMBNAIL_IMAGE;
-                }
+                storeItemThumb.src = storeItem.thumbnail;
                 if (containerPreview.dom.firstChild !== storeItemThumb) {
                     containerPreview.append(storeItemThumb);
                 }
@@ -367,32 +464,7 @@ editor.once('load', function () {
     topPanel.append(viewerButton);
 
     viewerButton.on('click', () => {
-
-        // open model viewer with the first asset in the list
-        const hostname = window.location.hostname;
-        const encodeUrl = (url) => {
-            return encodeURIComponent(`https://${hostname}${url}`);
-        };
-
-        const modelUrls = [];
-        const textureUrls = [];
-
-        storeItemAssets.forEach((asset) => {
-            const url = `/api/store/assets/${asset.id}/file/${asset.file.filename}`;
-            if (isGlbAsset(asset) && modelUrls.length === 0) {
-                modelUrls.push(encodeUrl(url));
-            } else if (isTextureAsset(asset)) {
-                textureUrls.push(encodeUrl(url));
-            }
-        });
-
-        if (modelUrls.length) {
-            window.open(`/viewer?load=${modelUrls.join('&load=')}`);
-        }
-
-        if (textureUrls.length) {
-            window.open(`/texture-tool?load=${textureUrls.join('&load=')}`);
-        }
+        window.open(storeItem.viewerUrl);
     });
 
     const bottomPanel = new Container({
@@ -415,16 +487,8 @@ editor.once('load', function () {
     });
     bottomPanel.append(itemData);
 
-    const loadStoreItem = async function (storeItemId) {
-        storeItem = [];
-        const results = await editor.call('store:loadStoreItem', storeItemId);
-        storeItem = results;
-    };
-
-    const loadStoreItemAssets = async function (storeItemId) {
-        storeItemAssets = [];
-        const results = await editor.call('store:assets:list', storeItemId);
-        storeItemAssets = results.result;
+    const loadStoreItem = async function (item) {
+        storeItem = await item.load(item);
     };
 
     // ESC key should close popup
@@ -451,7 +515,6 @@ editor.once('load', function () {
     overlay.on('hide', function () {
         // editor-blocking picker closed
         containerPreview.clear();
-        storeItemAssets = [];
         storeItem = null;
         editor.emit('picker:close', 'storeitem');
     });
@@ -484,10 +547,7 @@ editor.once('load', function () {
         toggleProgress(false);
 
         // create script asset in source branch and dest
-        await Promise.all([
-            loadStoreItem(item.id),
-            loadStoreItemAssets(item.id)
-        ]);
+        await loadStoreItem(item);
 
         // data is downloaded, refresh the panel
         refreshUI();

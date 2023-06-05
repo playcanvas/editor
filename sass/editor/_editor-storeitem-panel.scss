@@ -11,17 +11,16 @@
     .storeitem-tabs {
         display: flex;
         flex-direction: row;
-        font-size: 14px;
-        font-weight: 800px;
-        padding: 0 10px;
-        height: 30px;
+        font-size: 16px;
+        font-weight: bold;
+        height: 34px;
         margin-bottom: 6px;
 
         :hover {
             color: white;
             text-decoration: underline;
             cursor: pointer;
-        }
+        } 
 
         .clicked {
             color: white;
@@ -32,25 +31,21 @@
     .item-description {
         font-weight: 400;
         font-size: 14px;
-        padding-top: 10px;
-        padding-left: 20px;
-        width: 180px;
+        padding-left: 0;
+        max-height: calc(100% - 200px);
         word-wrap: break-word;
+        overflow-y: auto;
     }
-
-    .item-license-label {
+   
+    .item-author-label {
+        padding-top: 10px;
         font-weight: 800px;
         font-size: 14px;
-        padding-top: 20px;
-        padding-left: 14px;
-        width: 180px;
-    }  
+    }      
 
     .item-license {
         font-weight: 400;
         font-size: 14px;
-        padding-left: 20px;
-        width: 180px;
         word-wrap: break-word;
     }    
 
@@ -210,11 +205,9 @@
     }
 
     .storeitem-data {
-        padding: 10px;
+        padding: 15px;
         padding-top: 0;
-        padding-left: 0;
-        padding-right: 5px;
-        width: 300px;
+        width: 400px;
         display: flex;
         flex-direction: column;
     }
@@ -233,8 +226,15 @@
         flex-direction: column;
         position: absolute;
         bottom: 0;
-        padding-left: 10px;
-        min-width: 85%;
+        padding-left: 0;
+        min-width: 90%;
+        padding-bottom: 30px;
+       
+        > .pcui-label-group {
+            > .pcui-label:first-child {
+                width: 188px;
+            } 
+        }
     }
 
     .storeitem-assets {
@@ -242,8 +242,13 @@
         flex-direction: column;
         position: absolute;
         top: 16px;
-        padding-left: 15px;
-        min-width: 85%;
+        min-width: 95%;
+
+        > .pcui-label-group {
+            > .pcui-label:first-child {
+                width: 188px;
+            } 
+        }
     }
 
     .assets-row {
@@ -256,6 +261,10 @@
         position: absolute;
         right: 0;
         font-size: 12px;
+    }
+
+    .pcui-label-group {
+        height: 7px;
     }
 
     .assets-name-texture {
@@ -306,7 +315,6 @@
         }
     }
 
-
     .assets-name-template {
         width: 100%;
 
@@ -328,6 +336,34 @@
             display: inline-block;
             margin-right: 5px;
             content: '\E209';
+        }
+    }
+
+    .tag-name {
+        width: 100%;
+        margin: 0;
+
+        &:hover {
+            color: $text-active;
+            text-decoration: underline;
+            cursor: pointer;
+
+            &::before {
+                @extend .font-icon;
+                
+                display: inline-block;
+                margin-right: 5px;
+                content: '\E208';
+                color: $text-active;
+            }
+        }
+
+        &::before {
+            @extend .font-icon;
+
+            display: inline-block;
+            margin-right: 5px;
+            content: '\E208';
         }
     }
 

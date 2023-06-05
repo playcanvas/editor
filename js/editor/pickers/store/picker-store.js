@@ -1,5 +1,7 @@
 import { Overlay, Label, Button, Container, BooleanInput, RadioButton, Panel, Progress, TextInput } from '@playcanvas/pcui';
 import { sizeToString } from '../../../common/filesystem-utils';
+import Markdown from 'markdown-it';
+const md = Markdown({});
 
 editor.once('load', () => {
 
@@ -20,96 +22,84 @@ editor.once('load', () => {
     let storeItemsCount = 0;
     let startItem = 0;
     const EMPTY_THUMBNAIL_IMAGE = 'https://playcanvas.com/static-assets/images/store-default-thumbnail-480x320.jpg';
-    const STORE_ITEM_PAGE_SIZE = 40;
+    const EMPTY_THUMBNAIL_IMAGE_LARGE = 'https://playcanvas.com/static-assets/images/store-default-thumbnail.jpg';
+    const STORE_ITEM_PAGE_SIZE = 24;
 
     // UI
 
-    const buildSortingMenuItem = (root, type, label) => {
+    // build sorting menu item
+    const buildSortingMenuItem = (root, label, sortPolicy, selected) => {
         const sortingMenuItem = new Container({ class: 'sorting-menu-item' });
         root.append(sortingMenuItem);
 
-        let booleanInput;
-        if (type === 'checkbox') booleanInput = new BooleanInput({ class: type });
-        else booleanInput = new RadioButton({ class: type });
+        const booleanInput = new RadioButton({ class: 'radio' });
 
         const labelElement = new Label({ text: label });
         sortingMenuItem.append(booleanInput);
         sortingMenuItem.append(labelElement);
 
-        return [sortingMenuItem, booleanInput];
+        if (selected) {
+            booleanInput.value = true;
+            selectedSortRadioButton = booleanInput;
+        }
+
+        sortingMenuItem.on('click', () => {
+            selectedSortRadioButton.value = false;
+            booleanInput.value = true;
+            selectedSortRadioButton = booleanInput;
+            sortStoreItems(sortPolicy);
+        });
     };
 
-    const updateRadioButtons = (newSelectedRadio) => {
-        selectedSortRadioButton.value = false;
-        newSelectedRadio.value = true;
-        selectedSortRadioButton = newSelectedRadio;
+    const isSketchfabStore = () => {
+        return selectedFilter && selectedFilter.text === 'SKETCHFAB';
     };
 
     // builds sorting dropdown with different sorting algorithms
     const buildSortingDropdown = (sortButton) => {
-        const sortingContainer = new Container({
-            flex: true,
-            class: 'sorting-container',
-            hidden: true
-        });
-        editor.call('layout.root').append(sortingContainer);
+
+        sortingDropdown.clear();
 
         // descending checkbox
-        const [descendingItem, descendingCheckbox] = buildSortingMenuItem(sortingContainer, 'checkbox', 'Descending');
+        const descendingItem = new Container({ class: 'sorting-menu-item' });
+        sortingDropdown.append(descendingItem);
+        const booleanInput = new BooleanInput({ class: 'checkbox' });
+        const labelElement = new Label({ text: 'Descending' });
+        descendingItem.append(booleanInput);
+        descendingItem.append(labelElement);
+        booleanInput.value = true; // by default we sort in descending order
 
-        // by default we sort in descending order
-        descendingCheckbox.value = true;
-
-        const [sortByName, nameRadio] = buildSortingMenuItem(sortingContainer, 'radio', 'Sort By Name');
-        const [sortByCreated, createdRadio] = buildSortingMenuItem(sortingContainer, 'radio', 'Sort By Created');
-        const [sortBySize, sizeRadio] = buildSortingMenuItem(sortingContainer, 'radio', 'Sort By Size');
-        const [sortByDownloads, downloadsRadio] = buildSortingMenuItem(sortingContainer, 'radio', 'Sort By Downloads');
-        const [sortByViews, viewsRadio] = buildSortingMenuItem(sortingContainer, 'radio', 'Sort By Views');
-
-        selectedSortRadioButton = createdRadio;
-        selectedSortRadioButton.value = true;
-
-        descendingCheckbox.on('click', () => {
-            descendingCheckbox.value = !descendingCheckbox.value;
+        booleanInput.on('click', () => {
+            booleanInput.value = !booleanInput.value;
         });
 
         descendingItem.on('click', () => {
-            descendingCheckbox.value = !descendingCheckbox.value;  // update checkbox
-            sortDescending = descendingCheckbox.value;
+            booleanInput.value = !booleanInput.value;  // update checkbox
+            sortDescending = booleanInput.value;
             sortStoreItems(sortPolicy);
             sortButton.icon = sortDescending ? 'E437' : 'E438';
         });
 
-        descendingItem.dom.id = 'checkbox-menu-item';
+        if (isSketchfabStore()) {
+            buildSortingMenuItem(sortingDropdown, 'Sort By Created', 'publishedAt');
+            buildSortingMenuItem(sortingDropdown, 'Sort By Views', 'viewCount', true);
+            buildSortingMenuItem(sortingDropdown, 'Sort By Likes', 'likeCount');
+            sortPolicy = 'viewCount';
 
-        sortByName.on('click', () => {
-            updateRadioButtons(nameRadio);
-            sortStoreItems('name');
-        });
+        } else {
+            buildSortingMenuItem(sortingDropdown, 'Sort By Name', 'name');
+            buildSortingMenuItem(sortingDropdown, 'Sort By Created', 'created', true);
+            buildSortingMenuItem(sortingDropdown, 'Sort By Size', 'size');
+            buildSortingMenuItem(sortingDropdown, 'Sort By Downloads', 'downloads');
+            buildSortingMenuItem(sortingDropdown, 'Sort By Views', 'views');
+            sortPolicy = 'created';
+        }
 
-        sortByCreated.on('click', () => {
-            updateRadioButtons(createdRadio);
-            sortStoreItems('created');
-        });
-
-        sortBySize.on('click', () => {
-            updateRadioButtons(sizeRadio);
-            sortStoreItems('size');
-        });
-
-        sortByDownloads.on('click', () => {
-            updateRadioButtons(downloadsRadio);
-            sortStoreItems('downloads');
-        });
-
-        sortByViews.on('click', () => {
-            updateRadioButtons(viewsRadio);
-            sortStoreItems('views');
-        });
-        return sortingContainer;
     };
 
-    const buildSortingUI = (rightPanel) => {
+    let searchTimer;
+
+    const buildSearchUI = (rightPanel) => {
 
         searchBar = new TextInput({
             placeholder: 'Search',
@@ -119,8 +109,13 @@ editor.once('load', () => {
         controlsContainer.append(searchBar);
 
         searchBar.dom.addEventListener('input', () => {
-            searchBar.placeholder = searchBar.value !== '' ? '' : 'Search';
-            loadStore();
+            clearTimeout(searchTimer); // Clear previous timer
+
+            // search with throttling
+            searchTimer = setTimeout(function () {
+                searchBar.placeholder = searchBar.value !== '' ? '' : 'Search';
+                loadStore();
+            }, 500);
         });
 
         sortButton = new Button({
@@ -129,7 +124,13 @@ editor.once('load', () => {
         });
         controlsContainer.append(sortButton);
 
-        sortingDropdown = buildSortingDropdown(sortButton);
+        sortingDropdown = new Container({
+            flex: true,
+            class: 'sorting-container',
+            hidden: true
+        });
+
+        editor.call('layout.root').append(sortingDropdown);
 
         sortButton.on('click', () => {
             sortingDropdown.hidden = !sortingDropdown.hidden;
@@ -170,6 +171,11 @@ editor.once('load', () => {
             { name: 'TEXTURE', icon: 'E201' }
         ];
 
+        // add sketchfab button for super users
+        if (editor.call('users:hasFlag', 'hasSketchfabAccess')) {
+            filters.push({ name: 'SKETCHFAB', icon: 'E188' });
+        }
+
         for (const filter of filters) {
             const filterButton = new Button({
                 class: 'filter-button',
@@ -203,12 +209,7 @@ editor.once('load', () => {
         root.append(gridItem);
 
         gridItem.dom.loading = 'lazy';  // lazy loading of images
-        if (item.pictures.length) {
-            const pictures = `${config.url.images}/${config.aws.s3Prefix}files/pictures/`;
-            thumb.src = pictures + item.pictures[0] + "/480x320.jpg";
-        } else {
-            thumb.src = EMPTY_THUMBNAIL_IMAGE;
-        }
+        thumb.src = item.pictures[0];
 
         thumb.addEventListener('load', () => {
             gridItem.on('click', (evt) => {
@@ -230,10 +231,20 @@ editor.once('load', () => {
             gridItem.append(statsContainer);
 
             // downloads
-            const downloadsLabel = new Label({ class: 'text-item-downloads', text: `${item.downloads}` });
+            if (item.downloads !== undefined) {
+                const downloadsLabel = new Label({ class: 'text-item-downloads', text: `${item.downloads}` });
+                statsContainer.append(downloadsLabel);
+            }
+
             const viewsLabel = new Label({ class: 'text-item-views', text: `${item.views}` });  // views
-            statsContainer.append(downloadsLabel);
             statsContainer.append(viewsLabel);
+
+            // likes
+            if (item.likes !== undefined) {
+                const likesLabel = new Label({ class: 'text-item-likes', text: `${item.likes}` });
+                statsContainer.append(likesLabel);
+            }
+
             const sizeLabel = new Label({ class: 'text-item-size', text: sizeToString(item.size) });  // size
             statsContainer.append(sizeLabel);
         });
@@ -243,11 +254,27 @@ editor.once('load', () => {
 
     // updates the current filter UI and triggers reloading
     const setSelectedFilter = (filter, refresh = true) => {
+
+        if (filter === selectedFilter) {
+            return;
+        }
+        const prevFilterSketchfab = isSketchfabStore();
+
         if (selectedFilter) {
             selectedFilter.class.toggle('selected');
         }
         selectedFilter = filter;
         selectedFilter.class.toggle('selected');
+
+        const newFilterSketchfab = isSketchfabStore();
+
+        // reset search bar after switching filters
+        searchBar.value = '';
+
+        // build sorting dropdown (different depending on store)
+        if (prevFilterSketchfab !== newFilterSketchfab) {
+            buildSortingDropdown(sortButton);
+        }
 
         if (refresh) {
             // reload storeItems
@@ -378,8 +405,6 @@ editor.once('load', () => {
     });
     panel.append(leftPanel);
 
-    buildFiltersUI(leftPanel);
-
     // right panel
     const rightPanel = new Container({
         class: 'cms-right-panel'
@@ -405,7 +430,8 @@ editor.once('load', () => {
     });
     rightPanel.append(controlsContainer);
 
-    buildSortingUI(rightPanel);
+    buildSearchUI(rightPanel);
+    buildFiltersUI(leftPanel);
 
     // right panel storeItems
     const itemsContainer = new Container({
@@ -430,21 +456,296 @@ editor.once('load', () => {
     };
 
     const setupLoadMoreButton = () => {
+        // add Load More button if there are more items to load
+        loadMoreButton = new Button({
+            text: 'Load More',
+            class: 'load-more-button'
+        });
+        rightPanel.append(loadMoreButton);
+        loadMoreButton.on('click', () => {
+            loadMoreStore();
+        });
+    };
+
+    const closestThumbnailImage = (images, width, height) => {
+        // Calculate the difference between each thumbnail's dimensions and 480p
+        var closestThumbnail = null;
+        var closestDifference = Infinity;
+
+        for (const thumbnail of images) {
+            var difference = Math.abs(thumbnail.width - width) + Math.abs(thumbnail.height - height);
+            if (difference < closestDifference) {
+                closestThumbnail = thumbnail;
+                closestDifference = difference;
+            }
+        }
+        return closestThumbnail;
+    };
+
+    function escapeString(str) {
+        const escaped = str.replace(/[&<>'"]/g, tag => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            "'": '&#39;',
+            '"': '&quot;'
+        }[tag]));
+        return escaped;
+    }
+
+    // Remove script tags from the URL
+    function removeScript(url) {
+        return url.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+    }
+
+    const buildSketchfabLicenseHtml = (license) => {
+        return `License: <a href="${removeScript(license.url)}" target="_blank" rel="noopener noreferrer">${escapeString(license.label)}</a>`;
+    };
+
+    const buildAuthorHtml = (item) => {
+        return `Author: <a href=\"${removeScript(item.user.profileUrl)}" target=\"_blank\" rel=\"noopener noreferrer\">${item.user.displayName}</a>`;
+    };
+
+    // prepare sketchfab assets for the items details view
+    // extract glb data from the sketchfab item
+    const prepareSketchfabAssets = (item) => {
+        if (item.archives && item.archives.glb) {
+            return [{
+                name: 'model.glb',
+                size: sizeToString(item.archives.glb.size),
+                type: 'model'
+            }];
+        }
+    };
+
+    // prepare playcanvas store assets for the items details view
+    // extract glb data from the sketchfab item
+    const prepareStoreAssets = (items) => {
+        const newItems = [];
+        if (!items) {
+            return newItems;
+        }
+
+        for (const item of items) {
+            const newItem = {
+                name: item.file ? item.file.filename : item.name,
+                size: item.file ? sizeToString(item.file.size) : '0B',
+                type: item.type,
+                id: item.id
+            };
+            newItems.push(newItem);
+        }
+        return newItems;
+    };
+
+    // prepare sketchfab item for the items details view
+    const prepareSketchfabItem = (item, assets) => {
+
+        let thumbnail = EMPTY_THUMBNAIL_IMAGE_LARGE;
+
+        // select the thumbnail image, with resolution closest to 1920x1080
+        if (item.thumbnails.images.length > 0) {
+            thumbnail = closestThumbnailImage(item.thumbnails.images, 1920, 1080).url;
+        }
+
+        const license = buildSketchfabLicenseHtml(item.license);
+        const description = md.render(item.description);
+        const author = buildAuthorHtml(item);
+
+        const tags = [];
+        for (const tag of item.tags) {
+            tags.push({ name: tag.name, slug: tag.slug });
+        }
+
+        return {
+            id: item.uid,
+            name: item.name,
+            description: description,
+            thumbnail: thumbnail,
+            views: item.viewCount,
+            vertexCount: item.vertexCount,
+            textureCount: item.textureCount,
+            animationCount: item.animationCount,
+            downloads: item.downloadCount,
+            likes: item.likeCount,
+            modified: item.updatedAt,
+            license: license,
+            author: author,
+            store: 'sketchfab',
+            viewerUrl: item.viewerUrl,
+            assets: assets,
+            tags: tags
+        };
+    };
+
+    // prepare sketchfab item for the list view
+    const prepareSketchfabItems = (items) => {
+        const newItems = [];
+
+        if (!items) {
+            return newItems;
+        }
+
+        const load = async function (item) {
+            const url = `https://api.sketchfab.com/v3/models/${item.id}`;
+            const response = await fetch(url);
+            return prepareSketchfabItem(await response.json(), item.assets);
+        };
+
+        for (const item of items) {
+
+            // select the thumbnail image, with resolution closest to 480x320
+            const thumb = closestThumbnailImage(item.thumbnails.images, 480, 320);
+
+            const newItem = {
+                id: item.uid,
+                name: item.name,
+                description: item.description,
+                pictures: [thumb.url],
+                views: item.viewCount,
+                likes: item.likeCount,
+                size: item.archives?.glb?.size || 0,
+                created: item.createdAt,
+                license: item.license || '',
+                store: 'sketchfab',
+                assets: prepareSketchfabAssets(item),
+                load: load
+            };
+            newItems.push(newItem);
+        }
+        return newItems;
+    };
+
+    const isGlbAsset = (asset) => {
+        const filename = asset.file ? asset.file.filename : null;
+        return filename && String(filename).match(/\.glb$/) !== null;
+    };
+
+    const isTextureAsset = (asset) => {
+        const type = asset.type;
+        return ['texture', 'textureatlas'].includes(type);
+    };
+
+    const prepareViewerUrl = (item, assets) => {
+
+        // model viewer with the first asset in the list
+        const hostname = window.location.hostname;
+        const encodeUrl = (url) => {
+            return encodeURIComponent(`https://${hostname}${url}`);
+        };
+
+        const modelUrls = [];
+        const textureUrls = [];
+
+        for (const asset of assets) {
+            if (!asset.file || !asset.file.filename) {
+                return;
+            }
+
+            const url = `/api/store/assets/${asset.id}/file/${asset.file.filename}`;
+            if (isGlbAsset(asset) && modelUrls.length === 0) {
+                modelUrls.push(encodeUrl(url));
+            } else if (isTextureAsset(asset)) {
+                textureUrls.push(encodeUrl(url));
+            }
+        }
+
+        if (modelUrls.length) {
+            return `/viewer?load=${modelUrls.join('&load=')}`;
+        }
+
+        if (textureUrls.length) {
+            return `/texture-tool?load=${textureUrls.join('&load=')}`;
+        }
+    };
+
+    const loadAssets = async function (id) {
+        const url = `${config.url.api}/store/${id}/assets`;
+        const response = await fetch(url);
+        const results = await response.json();
+        return results.result;
+    };
+
+    const prepareStoreItem = async (item) => {
+
+        let thumbnail = EMPTY_THUMBNAIL_IMAGE_LARGE;
+        if (item.pictures.length) {
+            const pictures = `${config.url.images}/${config.aws.s3Prefix}files/pictures/`;
+            thumbnail = pictures + item.pictures[0] + "/1280x720.jpg";
+        }
+
+        const assets = await loadAssets(item.id);
+        let viewerUrl;
+        if (assets && assets.length) {
+            viewerUrl = prepareViewerUrl(item, assets);
+        }
+        const processedAssets = prepareStoreAssets(assets);
+
+        const tags = [];
+        for (const tag of item.tags) {
+            tags.push({ name: tag, slug: tag });
+        }
+
+        return {
+            id: item.id,
+            name: item.name,
+            size: item.size,
+            modified: item.modified,
+            views: item.views,
+            downloads: item.downloads,
+            description: item.description,
+            license: `License: ${item.license}`,
+            thumbnail: thumbnail,
+            viewerUrl: viewerUrl,
+            assets: processedAssets,
+            tags: tags,
+            store: 'playcanvas'
+        };
+    };
+
+
+    const prepareStoreItems = (items) => {
+        const newItems = [];
+
+        if (!items) {
+            return newItems;
+        }
+
+        const load = async function (item) {
+            const url = `${config.url.api}/store/${item.id}`;
+            const response = await fetch(url);
+            return prepareStoreItem(await response.json());
+        };
+
+        for (const item of items) {
+            let url = EMPTY_THUMBNAIL_IMAGE;
+            if (item.pictures.length) {
+                const pictures = `${config.url.images}/${config.aws.s3Prefix}files/pictures/`;
+                url = pictures + item.pictures[0] + "/480x320.jpg";
+            }
+
+            const newItem = {
+                id: item.id,
+                name: item.name,
+                description: item.description,
+                pictures: [url],
+                views: item.views,
+                size: item.size,
+                downloads: item.downloads,
+                created: item.created,
+                license: item.license || '',
+                store: 'playcanvas',
+                load: load
+            };
+            newItems.push(newItem);
+        }
+        return newItems;
+    };
+
+    const removeLoadMoreButton = () => {
         if (loadMoreButton) {
             loadMoreButton.destroy();
             loadMoreButton = null;
-        }
-
-        // add Load More button if there are more items to load
-        if (storeItems.length < storeItemsCount) {
-            loadMoreButton = new Button({
-                text: 'Load More',
-                class: 'load-more-button'
-            });
-            rightPanel.append(loadMoreButton);
-            loadMoreButton.on('click', () => {
-                loadMoreStore();
-            });
         }
     };
 
@@ -459,20 +760,45 @@ editor.once('load', () => {
             toggleProgress(true);
         }, 500);
 
+        let searchResults = null;
+        let tags = null;
+        let searchString = searchBar.value.trim();
+        if (searchString.length > 1 && searchString[0] === '#') {
+            if (isSketchfabStore()) {
+                searchString = searchString.toLowerCase();
+            }
+            tags = [searchString.substring(1)];
+            searchString = '';
+        }
+
         try {
 
+            if (isSketchfabStore()) {
+                // sketchfab store - get the list of items
+                searchResults = await editor.call('store:sketchfab:list',
+                    searchString,
+                    0,
+                    STORE_ITEM_PAGE_SIZE,
+                    tags,
+                    sortPolicy,
+                    sortDescending);
 
-            const values = await editor.call('store:list',
-                searchBar.value,
-                0,
-                STORE_ITEM_PAGE_SIZE,
-                selectedFilter.text,
-                sortPolicy,
-                sortDescending);
+                newItems = prepareSketchfabItems(searchResults.results);
 
-            // real number of records matching the query
-            storeItemsCount = values.pagination.total;
-            newItems = values.result;
+            } else {
+                searchResults = await editor.call('store:list',
+                    searchString,
+                    0,
+                    STORE_ITEM_PAGE_SIZE,
+                    selectedFilter.text,
+                    tags,
+                    sortPolicy,
+                    sortDescending);
+
+                // real number of records matching the query
+                storeItemsCount = searchResults.pagination?.total || 0;
+                newItems = prepareStoreItems(searchResults.result);
+            }
         } catch (err) {
             console.error('failed to retrieve a list of store items', err);
         } finally {
@@ -484,7 +810,25 @@ editor.once('load', () => {
             toggleProgress(false);
             clearTimeout(timeoutId);
             createFilePicker();
-            setupLoadMoreButton();
+
+            removeLoadMoreButton();
+            if (isSketchfabStore()) {
+                if (searchResults.next) {
+                    setupLoadMoreButton();
+                }
+            } else {
+                if (storeItems.length < storeItemsCount) {
+                    setupLoadMoreButton();
+                }
+            }
+        }
+    };
+
+    // reloads the storeItems that are currently in view in the CMS main panel
+    const refreshStore = (startItem = 0) => {
+        itemsContainer.hidden = storeItems.length === 0;
+        for (let i = startItem; i < storeItems.length; i++) {
+            buildStoreUI(itemsContainer, storeItems[i]);
         }
     };
 
@@ -496,36 +840,64 @@ editor.once('load', () => {
         }, 500);
 
         try {
-            const values = await editor.call('store:list',
-                searchBar.value,
-                storeItems.length,
-                STORE_ITEM_PAGE_SIZE,
-                selectedFilter.text,
-                sortPolicy,
-                sortDescending);
 
-            // real number of records matching the query
-            storeItemsCount = values.pagination.total;
-
-            if (values.result) {
-                startItem = storeItems.length;
-                storeItems = storeItems.concat(values.result);
-                await refreshStore(startItem);
-                setupLoadMoreButton();
+            let tags = null;
+            let searchString = searchBar.value.trim();
+            if (searchString.length > 1 && searchString[0] === '#') {
+                if (isSketchfabStore()) {
+                    searchString = searchString.toLowerCase();
+                }
+                tags = [searchString.substring(1)];
+                searchString = '';
             }
+
+            if (isSketchfabStore()) {
+                // sketchfab store - get the list of items
+                const searchResults = await editor.call('store:sketchfab:list',
+                    searchString,
+                    storeItems.length,
+                    STORE_ITEM_PAGE_SIZE,
+                    tags,
+                    sortPolicy,
+                    sortDescending);
+
+                if (searchResults.results) {
+                    startItem = storeItems.length;
+                    storeItems = storeItems.concat(prepareSketchfabItems(searchResults.results));
+                    await refreshStore(startItem);
+                    removeLoadMoreButton();
+                    if (searchResults.next) {
+                        setupLoadMoreButton();
+                    }
+                }
+            } else {
+                const values = await editor.call('store:list',
+                    searchString,
+                    storeItems.length,
+                    STORE_ITEM_PAGE_SIZE,
+                    selectedFilter.text,
+                    tags,
+                    sortPolicy,
+                    sortDescending);
+
+                // real number of records matching the query
+                storeItemsCount = values.pagination.total;
+                if (values.result) {
+                    startItem = storeItems.length;
+                    storeItems = storeItems.concat(prepareStoreItems(values.result));
+                    await refreshStore(startItem);
+                    removeLoadMoreButton();
+                    if (storeItems.length < storeItemsCount) {
+                        setupLoadMoreButton();
+                    }
+                }
+            }
+
         } catch (err) {
             console.error('failed to retrieve a list of store items', err);
         } finally {
             clearTimeout(timeoutId);
             toggleProgress(false);
-        }
-    };
-
-    // reloads the storeItems that are currently in view in the CMS main panel
-    const refreshStore = (startItem = 0) => {
-        itemsContainer.hidden = storeItems.length === 0;
-        for (let i = startItem; i < storeItems.length; i++) {
-            buildStoreUI(itemsContainer, storeItems[i]);
         }
     };
 
@@ -598,6 +970,13 @@ editor.once('load', () => {
     editor.method('picker:store:cms', () => {
         loadStore();
         overlay.hidden = false;
+    });
+
+    // method to search sketchfab store with tags
+    editor.method('picker:store:search:tags', (tags, tagNames) => {
+        searchBar.value = `#${tagNames && tagNames.length ? tagNames[0] : ''}`;
+        searchBar.placeholder = searchBar.value !== '' ? '' : 'Search';
+        loadStore();
     });
 
     // hook to retrieve main CMS panel (used to display errors from other files)

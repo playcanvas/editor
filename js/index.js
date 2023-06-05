@@ -439,6 +439,7 @@ import './editor/pickers/project-management/picker-modal-visibility-confirmation
 
 import './editor/pickers/store/picker-store.js';
 import './editor/pickers/store/picker-storeitem.js';
+import './editor/pickers/picker-message.js';
 
 import './editor/pickers/picker-scene.js';
 import './editor/pickers/picker-script-create.js';

@@ -71,6 +71,22 @@
         }
     }
 
+    .text-item-likes {
+        display: inline-block;
+        text-align: center;
+        font-size: 12px;
+        font-weight: 400;
+        color: white;
+
+        &::before {
+            @extend .font-icon;
+
+            display: inline-block;
+            margin-right: 5px;
+            content: '\E244';
+        }
+    }
+
     .text-item-views {
         display: inline-block;
         text-align: center;

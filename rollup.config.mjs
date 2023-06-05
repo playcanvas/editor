@@ -6,6 +6,7 @@ import resolve from '@rollup/plugin-node-resolve';
 import replace from '@rollup/plugin-replace';
 import strip from '@rollup/plugin-strip';
 import terser from '@rollup/plugin-terser';
+import json from "@rollup/plugin-json";
 
 import autoprefixer from 'autoprefixer';
 import postcss from 'postcss';
@@ -83,6 +84,7 @@ export default [
                 functions: ['REPLACE_FUNCTION', 'styleInject']
             }),
             commonjs(),
+            json(),
             resolve(),
             production && terser()
         ]
