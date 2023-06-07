@@ -643,7 +643,10 @@ class AnimstategraphView {
         if (!data.layers[this._selectedLayer].transitions.includes(edgeId)) {
             data.layers[this._selectedLayer].transitions.push(edgeId);
         }
-        data.transitions[edgeId] = Object.assign({ exitTime: 0 }, edge);
+        data.transitions[edgeId] = Object.assign({
+            exitTime: 0,
+            interruptionSource: pc.ANIM_INTERRUPTION_NONE
+        }, edge);
         this._assets[0].set('data', data);
     }
 
