@@ -3121,6 +3121,7 @@ strong {
             line-height: 33px;
             margin: 0 2px 0 0;
             padding: 0 10px;
+            max-width: 200px;
             width: fit-content;
             color: rgba($text-primary, 0.75);
 
@@ -3163,6 +3164,7 @@ strong {
                     height: 16px;
                     margin: 0 3px 0 2px;
                     width: 16px;
+                    flex-shrink: 0;
                 }
 
                 .pcui-label {

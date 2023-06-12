@@ -131,8 +131,8 @@ editor.once('viewport:load', function () {
         }
     };
 
-    const refreshOptions = (entity) => {
-        buildOptionsUI(entity);
+    const refreshOptions = () => {
+        buildOptionsUI();
 
         const writePermission = editor.call('permissions:write');
         for (const key in viewportCamera.optionElements) {
