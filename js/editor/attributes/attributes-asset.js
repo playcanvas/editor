@@ -32,7 +32,6 @@ editor.once('load', function () {
         editor.call('layout.hierarchy').hidden = true;
         editor.call('layout.toolbar').class.add('hide-items');
         editor.call('layout.toolbar.launch').hidden = true;
-        editor.call('layout.viewport.camera').hidden = true;
         editor.call('viewport:canvas').hidden = true;
         editor.call('layout.attributes').class.add('layout-attributes-left');
         editor.call('layout.attributes').resizable = 'right';
@@ -43,7 +42,6 @@ editor.once('load', function () {
         editor.call('layout.hierarchy').hidden = false;
         editor.call('layout.toolbar').class.remove('hide-items');
         editor.call('layout.toolbar.launch').hidden = false;
-        editor.call('layout.viewport.camera').hidden = false;
         editor.call('viewport:canvas').hidden = false;
         editor.call('layout.attributes').class.remove('layout-attributes-left');
         editor.call('layout.attributes').resizable = 'left';

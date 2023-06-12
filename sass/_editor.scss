@@ -3100,86 +3100,85 @@ strong {
         }
     }
 
-    > .ui-panel.camera {
-        position: relative;
-        display: flex;
+    > .pcui-container.camera {
         justify-content: center;
-        align-items: center;
         float: right;
         height: 33px;
         margin: 0 2px 0 0;
-        padding: 0;
-        border: none;
-
-        @extend .font-regular;
-
         font-size: 12px;
-        text-align: center;
-        color: rgba($text-primary, 0.75);
         background-color: rgba($bcg-darker, 0.5);
         cursor: pointer;
 
         &:hover {
-            color: $text-primary;
             background-color: rgba($bcg-darker, 0.75);
+
+            > .pcui-label {
+                color: $text-primary;
+            }
         }
 
-        > .content {
-            > .ui-label {
-                padding: 0 10px;
-                width: fit-content;
+        > .pcui-label {
+            line-height: 33px;
+            margin: 0 2px 0 0;
+            padding: 0 10px;
+            width: fit-content;
+            color: rgba($text-primary, 0.75);
 
-                &::before {
-                    float: left;
+            &::before {
+                float: left;
 
-                    @extend .font-icon;
+                @extend .font-icon;
 
-                    content: '\E212';
-                    margin-right: 7px;
-                    font-size: 14px;
+                content: '\E212';
+                margin-right: 7px;
+                font-size: 14px;
+            }
+        }
+
+        > .pcui-container.camera-options {
+            position: absolute;
+            padding: 10px;
+            top: 33px;
+            right: 0;
+            text-align: start;
+            min-width: 150px;
+            max-height: 300px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            background-color: rgba($bcg-darker, .75);
+
+            .pcui-container {
+                flex-direction: row;
+                line-height: 22px;
+                width: 100%;
+                background: transparent;
+
+                .pcui-boolean-input {
+                    margin: 7px 3px 3px;
+                    vertical-align: text-bottom;
+                }
+
+                .pcui-radio-button {
+                    align-self: center;
+                    height: 16px;
+                    margin: 0 3px 0 2px;
+                    width: 16px;
+                }
+
+                .pcui-label {
+                    margin: 3px;
+                    max-width: 200px;
+                    min-height: 20px;
+                    word-wrap: break-word;
+                    white-space: pre-wrap;
+                    vertical-align: bottom;
                 }
             }
 
-            > .ui-panel.camera-options {
-                > .content {
-                    position: absolute;
-                    display: none;  // Hidden by default
-                    padding: 10px;
-                    top: 3px;
-                    right: 0;
-                    flex-direction: column;
-                    align-items: start;
-                    text-align: start;
-                    min-width: 150px;
-                    max-height: 300px;
-                    overflow-y: auto;
-                    overflow-x: hidden;
-                    background-color: rgba($bcg-darker, 0.75);
-                }
-
-                .ui-panel {
-                    width: 100%;
-                    background: transparent;
-
-                    .ui-label {
-                        max-width: 200px;
-                        min-height: 20px;
-                        word-wrap: break-word;
-                        white-space: pre-wrap;
-                    }
-                }
-
-                .divider {
-                    > .content {
-                        height: 3px;
-                    }
-
-                    position: relative;
-                    align-self: center;
-                    width: 90%;
-                    background-color: rgba($bcg-darker, 0.75);
-                    margin: 5px 0;
-                }
+            .divider {
+                height: 3px;
+                background-color: rgba($bcg-darker, .75);
+                margin: 5px 0;
             }
         }
     }
