@@ -44,7 +44,6 @@ import './ui/menu-item.js';
 import './ui/canvas.js';
 import './ui/curve-field.js';
 import './ui/autocomplete-element.js';
-import './ui/radiobutton.js';
 
 // pcui
 import './pcui/element/element-color-input.js';
