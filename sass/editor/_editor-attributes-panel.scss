@@ -1907,57 +1907,44 @@
     }
 }
 
-.ui-panel.inspector-controls {
-    margin-left: auto;
-    background-color: transparent;
+.pcui-container.inspector-controls {
+    overflow: hidden;
 
-    > .content {
-        background-color: transparent;
-        min-width: 32px;
+    > .pcui-button {
+        float: right;
+        margin: 0;
+        width: 32px;
         height: 32px;
-        overflow: hidden;
+        border: none;
+        color: #9ba1a3;
+        font-size: 16px;
+        background-color: transparent;
+        border-radius: 0;
 
-        > .ui-button {
-            float: right;
-            margin: 0;
-            width: 32px;
-            height: 32px;
-            line-height: 32px;
-            border: none;
-            padding: 0;
-            color: #9ba1a3;
+        &.active {
+            color: $text-active;
+            background-color: $bcg-darkest;
+        }
 
-            @extend .font-icon;
-
-            font-size: 14px;
-            text-align: center;
-            background-color: transparent;
-
-            &.active {
-                color: $text-active;
-                background-color: $bcg-darkest;
-            }
-
-            &.disabled {
-                opacity: 1;
-                color: mix(#9ba1a3, #364346, 30%);
-
-                &:hover,
-                &:focus {
-                    color: mix(#9ba1a3, #364346, 30%);
-                    background-color: transparent;
-                }
-            }
+        &.disabled {
+            opacity: 1;
+            color: mix(#9ba1a3, #364346, 30%);
 
             &:hover,
             &:focus {
-                color: #fff;
-                background-color: $bcg-darkest;
+                color: mix(#9ba1a3, #364346, 30%);
+                background-color: transparent;
             }
+        }
 
-            &.back {
-                transform: rotate(180deg);
-            }
+        &:hover,
+        &:focus {
+            color: #fff;
+            background-color: $bcg-darkest;
+        }
+
+        &.back {
+            transform: rotate(180deg);
         }
     }
 }
