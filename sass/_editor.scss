@@ -18,10 +18,6 @@ strong {
     @extend .font-bold;
 }
 
-[draggable='true'] {
-    -khtml-user-drag: element;
-}
-
 .noSelect {
     user-select: none;
 }
@@ -131,108 +127,6 @@ strong {
 
     &.type-font::before {
         content: '\E208';
-    }
-}
-
-.drop-ref-highlight {
-    z-index: 210;
-}
-
-.drop-overlay {
-    position: absolute;
-    inset: 0;
-    width: auto;
-    height: auto;
-    z-index: 201;
-    background-color: rgba(#20292b, 0.3);
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 100ms, visibility 100ms;
-
-    &.active {
-        opacity: 1;
-        visibility: visible;
-    }
-}
-
-.drop-overlay-hole-part {
-    position: absolute;
-    background-color: rgba(#20292b, 0.3);
-    width: auto;
-    height: auto;
-    z-index: 201;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 100ms, visibility 100ms;
-
-    &.active {
-        opacity: 1;
-        visibility: visible;
-    }
-
-    &.top {
-        top: 0;
-        left: 0;
-        right: 0;
-    }
-
-    &.right {
-        right: 0;
-    }
-
-    &.bottom {
-        bottom: 0;
-        left: 0;
-        right: 0;
-    }
-
-    &.left {
-        left: 0;
-    }
-}
-
-.drop-areas {
-    position: absolute;
-    inset: 0;
-    width: auto;
-    height: auto;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 100ms, visibility 100ms;
-
-    &.active {
-        opacity: 1;
-        visibility: visible;
-    }
-
-    > .drop-area {
-        position: absolute;
-        margin: -2px 0 0 -2px;
-        padding: 2px;
-        width: auto;
-        height: auto;
-        border: none;
-        background-color: rgba($text-active, 0.4);
-        transition: background-color 100ms;
-        pointer-events: auto;
-        z-index: 220;
-
-        &.hole {
-            outline: 2px solid $text-active;
-            background-color: transparent;
-
-            &.over {
-                background-color: transparent;
-            }
-        }
-
-        &.no-pointer {
-            pointer-events: none;
-        }
-
-        &.over {
-            background-color: rgba($text-active, 0.7);
-        }
     }
 }
 
