@@ -1,0 +1,575 @@
+.sprites-editor.center {
+    > .overlay {
+        background-color: rgba($bcg-darkest, 0.9);
+    }
+
+    > .content {
+        width: 90%;
+        height: 90%;
+        left: 5%;
+        top: 5%;
+        transition: none;
+
+        > .root-panel {
+            height: 100%;
+
+            > .ui-header {
+                border: 1px solid $border-primary;
+            }
+
+            .close {
+                @extend .font-icon;
+
+                font-size: 14px;
+                position: absolute;
+                top: 0;
+                right: 0;
+                color: $text-secondary;
+                background-color: transparent;
+                border-color: transparent;
+
+                &:hover {
+                    color: $text-primary;
+                }
+            }
+
+            > .content {
+                display: flex;
+                flex-direction: row;
+                height: 100%;
+
+                .canvas-control {
+                    position: absolute;
+                    left: 0;
+                    bottom: 0;
+                    width: 100%;
+                    height: 34px;
+                    border: {
+                        style: solid;
+                        color: $border-primary;
+                        width: 1px 0 1px 0;
+                    };
+
+                    > .content {
+                        height: 100%;
+                    }
+
+                    .alpha-control,
+                    .slider-control {
+                        > .content {
+                            padding-left: 12px;
+                            height: 100%;
+
+                            > .ui-label {
+                                font-size: 12px;
+                                line-height: 28px;
+                            }
+
+                            > .ui-number-field {
+                                margin: auto 3px;
+                            }
+
+                            > .ui-slider {
+                                margin: auto 3px;
+                            }
+                        }
+                    }
+
+                    .alpha-control {
+                        > .content {
+                            padding-right: 12px;
+                        }
+                        border: {
+                            style: solid;
+                            color: $border-primary;
+                            width: 0 1px 0 0;
+                        };
+                    }
+
+                    .slider-control {
+                        .ui-number-field {
+                            width: 72px;
+                        }
+
+                        .ui-slider {
+                            width: 140px;
+                        }
+                    }
+                }
+
+                .middle-panel {
+                    width: 100%;
+                    height: 100%;
+
+                    > .content {
+                        height: 100%;
+                        overflow: hidden;
+
+                        .canvas {
+                            height: 100%;
+                            width: 100%;
+
+                            $checkerboard-dark: #eaeaea;
+
+                            background-color: #fff;
+                            background-image:
+                                linear-gradient(45deg, $checkerboard-dark 25%, transparent 25%, transparent 75%, $checkerboard-dark 75%, $checkerboard-dark 100%),
+                                linear-gradient(45deg, $checkerboard-dark 25%, transparent 25%, transparent 75%, $checkerboard-dark 75%, $checkerboard-dark 100%);
+                            background-size: 24px 24px;
+                            background-position: 0 0, 12px 12px;
+                        }
+
+                        .bottom-panel {
+                            overflow: visible;
+                            background-color: $bcg-darker;
+
+                            @extend .noSelect;
+
+                            &.resizable {
+                                &.resizable-top.scrollable > .content {
+                                    top: 0;
+                                }
+
+                                &.foldable.folded {
+                                    height: 0 !important;
+                                }
+                            }
+
+                            &.disabled {
+                                > .ui-header {
+                                    background-color: $bcg-darker;
+                                }
+
+                                > .content {
+                                    pointer-events: none;
+                                }
+                            }
+
+                            > .content {
+                                display: flex;
+                                flex-wrap: nowrap;
+
+                                > .ui-grid {
+                                    align-content: flex-start;
+                                    flex-grow: 1;
+                                    flex-shrink: 1;
+
+                                    > .ui-grid-item {
+                                        width: 104px;
+                                        height: 104px;
+                                        position: relative;
+                                        background-color: $bcg-darker;
+
+                                        &:hover {
+                                            background-color: mix($bcg-darkest, $bcg-dark, 50%);
+
+                                            > .thumbnail {
+                                                color: $text-primary;
+                                            }
+
+                                            > .label {
+                                                background-color: mix($bcg-darkest, $bcg-dark, 50%);
+                                            }
+                                        }
+
+                                        &.selected {
+                                            background-color: $bcg-darkest;
+
+                                            > .thumbnail {
+                                                color: $text-primary;
+                                            }
+
+                                            > .label {
+                                                background-color: $bcg-darkest;
+                                            }
+
+                                            &:hover {
+                                                background-color: mix($bcg-darkest, $bcg-darker, 75%);
+
+                                                > .label {
+                                                    background-color: mix($bcg-darkest, $bcg-darker, 75%);
+                                                }
+                                            }
+                                        }
+
+                                        > .thumbnail {
+                                            width: 64px;
+                                            height: 64px;
+                                            line-height: 64px;
+                                            margin: 12px 20px;
+                                            background-position: center center;
+                                            background-size: 64px 64px;
+                                            background-repeat: no-repeat;
+                                            text-align: center;
+                                            color: $text-darkest;
+                                        }
+
+                                        > .label {
+                                            @extend .font-regular;
+
+                                            position: absolute;
+                                            right: 0;
+                                            left: 0;
+                                            bottom: 6px;
+                                            width: auto;
+                                            max-width: 100px;
+                                            max-height: 40px;
+                                            line-height: 14px;
+                                            margin: 0;
+                                            padding: 0 2px;
+                                            font-size: 12px;
+                                            text-align: center;
+                                            white-space: nowrap;
+                                            overflow: hidden;
+                                            text-overflow: ellipsis;
+                                            color: $text-primary;
+                                            background-color: rgba($bcg-darker, 0.8);
+                                        }
+                                    }
+                                }
+                            }
+
+                            > .ui-header {
+                                position: absolute;
+                                top: -32px;
+                                left: 4px;
+                                width: 150px;
+
+                                > .title {
+                                    margin-right: 16px;
+                                    width: 46px;
+                                }
+                            }
+                        }
+                    }
+
+                    &.grab {
+                        cursor: grab;
+                    }
+
+                    &.grabbing {
+                        cursor: grabbing;
+                    }
+
+                    &.ew-resize {
+                        cursor: ew-resize;
+                    }
+
+                    &.ns-resize {
+                        cursor: ns-resize;
+                    }
+
+                    &.nwse-resize {
+                        cursor: nwse-resize;
+                    }
+
+                    &.nesw-resize {
+                        cursor: nesw-resize;
+                    }
+
+                    &.move {
+                        cursor: move;
+                    }
+                }
+
+                .left-columns {
+                    height: 100%;
+
+                    > .content {
+                        height: 100%;
+
+                        .left-rows {
+                            height: calc(100% - 34px);
+
+                            > .content {
+                                height: 100%;
+                            }
+                        }
+                    }
+                }
+
+                .left-panel {
+                    top: 0;
+                    height: 100%;
+                    left: 0;
+
+                    > .content {
+                        height: 100%;
+
+                        > .ui-panel.frames {
+                            height: calc(100% - 50px);
+                            margin: 0;
+
+                            > .content {
+                                padding: 8px 6px;
+                                height: 100%;
+                            }
+                        }
+                    }
+                }
+
+                .right-panel {
+                    top: 0;
+                    height: 100%;
+                    right: 0;
+                    border: 1px solid $border-primary;
+                    box-sizing: border-box;
+
+                    > .content {
+                        > .ui-panel {
+                            > .content {
+                                padding: 8px 6px;
+
+                                .field-button {
+                                    text-align: center;
+                                }
+                            }
+                        }
+                    }
+
+                    .ui-panel.buttons {
+                        > .content {
+                            flex-wrap: wrap;
+
+                            > .ui-button.icon {
+                                margin-bottom: 0;
+                                margin-top: 0;
+                                flex-basis: 0;
+                            }
+
+                            .ui-panel.frames {
+                                width: 100%;
+                                margin-top: 10px;
+                            }
+                        }
+                    }
+
+                    .asset-preview-container {
+                        canvas {
+                            height: 100%;
+                        }
+                    }
+
+                    .ui-panel.preview-controls {
+                        position: absolute;
+                        bottom: 0;
+                        z-index: 1;
+                        background: transparent;
+                        width: 100%;
+                        display: none; // hide for now
+                    }
+
+                    .ui-panel.add-frames-info,
+                    .ui-panel.import-error {
+                        border: 1px solid $text-active;
+                        margin: 3px 3px 10px;
+                        padding: 10px 15px;
+                        font-size: 12px;
+                        background: $bcg-darkest;
+
+                        > .ui-header {
+                            background: transparent;
+                            padding: 0;
+
+                            &::before {
+                                @extend .font-icon;
+
+                                content: '\E400';
+                                float: left;
+                                margin-right: 5px;
+                                margin-left: -3px;
+                                font-size: 20px;
+                                font-weight: 100;
+                            }
+                        }
+
+                        .ui-label {
+                            margin: 0;
+                            line-height: 1.5;
+                        }
+                    }
+
+                    .ui-panel.import-error {
+                        border-color: #fb222f;
+                    }
+                }
+
+                .ui-panel.frames {
+                    margin: 3px;
+
+                    .frame {
+                        background-color: $bcg-dark;
+                        padding: 5px;
+                        white-space: nowrap;
+
+                        &:hover {
+                            background-color: $bcg-darker;
+                            cursor: pointer;
+                        }
+
+                        &.selected {
+                            background-color: $bcg-darkest;
+                        }
+
+                        &.dragged {
+                            background-color: darken($bcg-darkest, 2%);
+                        }
+
+                        border: 1px solid $bcg-darker;
+
+                        .handle {
+                            float: left;
+                            width: 12px;
+                            height: 24px;
+                            margin: 2px 8px 2px 2px;
+                            cursor: move;
+
+                            @extend .noSelect;
+
+                            $color: mix($text-darkest, $bcg-primary, 50%);
+                            $size: 6px;
+                            $radiusI: 20%;
+                            $radiusO: 55%;
+
+                            background: radial-gradient($color $radiusI, transparent $radiusO);
+                            background-size: $size $size;
+
+                            &:hover {
+                                $color: $text-primary;
+
+                                background: radial-gradient($color $radiusI, transparent $radiusO);
+                                background-size: $size $size;
+                            }
+                        }
+
+                        &.sprite-frame {
+                            border: 1px solid $text-active;
+                            background-color: $bcg-dark;
+                        }
+
+                        &.highlighted {
+                            background-color: $bcg-darkest;
+                        }
+
+                        .ui-label.name {
+                            font-size: 12px;
+                            vertical-align: top;
+                            margin-left: 5px;
+                            max-width: calc(100% - 31px);
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                        }
+
+                        canvas {
+                            background-color: darken($text-darkest, 10%);
+                            border: 1px solid $border-primary;
+                            vertical-align: middle;
+                        }
+
+                        .ui-button.remove {
+                            @extend .font-icon;
+
+                            width: 32px;
+                            margin: 0;
+                            padding: 0;
+                            position: absolute;
+                            right: 0;
+                            border: 0;
+                            font-size: 14px;
+                            text-align: center;
+                            background-color: transparent;
+                            color: $text-darkest;
+
+                            &:hover {
+                                color: #d34141;
+                            }
+
+                            &::after {
+                                content: '\E124';
+                                font-weight: 200;
+                            }
+                        }
+                    }
+
+                    .frame.sprite-frame + .frame.sprite-frame {
+                        border-top: 0;
+                        margin-top: 1px;
+                    }
+                }
+
+                .ui-button.icon {
+                    background-color: $bcg-dark;
+
+                    &:hover {
+                        background-color: $bcg-darkest;
+
+                        &::before {
+                            color: $text-active;
+                        }
+
+                        &.remove::before {
+                            color: #d34141;
+                        }
+                    }
+
+                    &.wide {
+                        width: calc(100% - 6px);
+                    }
+
+                    font-size: 12px;
+                    border: none;
+                    position: relative;
+                    height: 28px;
+                    line-height: 30px;
+                    padding-left: 28px;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    text-transform: uppercase;
+                    text-align: left;
+
+                    @extend .font-bold;
+
+                    &::before {
+                        @extend .font-icon;
+
+                        font-size: 14px;
+                        text-align: center;
+                        margin-left: -18px;
+                        margin-right: 9px;
+                        font-weight: 100;
+                    }
+
+                    &.create::before {
+                        content: '\E120';
+                    }
+
+                    &.remove::before {
+                        content: '\E124';
+                    }
+
+                    &.cancel::before {
+                        content: '\E132';
+                    }
+
+                    &.trim::before {
+                        content: '\E394';
+                    }
+
+                    &.focus::before {
+                        content: '\E397';
+                    }
+
+                    &.generate::before {
+                        content: '\E398';
+                    }
+
+                    &.upload::before {
+                        content: '\E222';
+                    }
+                }
+            }
+        }
+    }
+}
+
