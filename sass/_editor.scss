@@ -3194,62 +3194,6 @@ strong {
     }
 }
 
-.ui-radiobtn {
-    position: relative;
-    display: inline-block;
-    width: 16px;
-    align-self: center;
-    margin-left: 2px;
-    margin-right: 3px;
-
-    &:hover {
-        &::before {
-            background-color: $bcg-darkest;
-        }
-    }
-
-    &::before {
-        position: absolute;
-        display: block;
-        content: '';
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        border-radius: 50%;
-        width: 16px;
-        min-width: 16px;
-        height: 16px;
-        background-color: $bcg-darker;
-    }
-
-    &::after {
-        position: absolute;
-        width: 11px;
-        min-width: 11px;
-        height: 11px;
-        left: 50%;
-        top: 50%;
-        border-radius: 50%;
-        background-color: white;
-        transform: translate(-50%, -50%);
-    }
-
-    &.selected {
-        &::before {
-            width: 16px;
-            min-width: 16px;
-            height: 16px;
-            box-sizing: border-box;
-            border: 1px solid white;
-        }
-
-        &::after {
-            display: block;
-            content: '';
-        }
-    }
-}
-
 .pcui-panel.chat-widget {
     position: absolute;
     bottom: 36px;
