@@ -637,10 +637,6 @@ strong {
     visibility: hidden;
 }
 
-.ui-button.icon {
-    @extend .font-icon;
-}
-
 .ui-overlay.version-control-overlay {
     > .content {
         width: 500px;
