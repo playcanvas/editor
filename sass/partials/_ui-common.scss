@@ -43,7 +43,7 @@
 }
 
 // common loader animation element (ported over from platform)
-@keyframes fadeIn {
+@keyframes fade-in {
     from {
         opacity: 0;
     }
@@ -62,7 +62,7 @@
     background-image: url('//playcanvas.com/static-assets/platform/images/loader.gif');
     background-repeat: no-repeat;
     opacity: 0;
-    animation: fadeIn ease-in 1;
+    animation: fade-in ease-in 1;
     animation-fill-mode: forwards;
     animation-duration: $fade-duration;
     width: 32px;

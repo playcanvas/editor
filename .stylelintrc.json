@@ -1,10 +1,7 @@
 {
     "extends": "stylelint-config-standard-scss",
     "rules": {
-        "declaration-block-no-shorthand-property-overrides": null,
         "font-family-no-missing-generic-family-keyword": null,
-        "function-name-case": null,
-        "keyframes-name-pattern": null,
         "media-feature-range-notation": null,
         "no-descending-specificity": null,
         "no-duplicate-selectors": null,

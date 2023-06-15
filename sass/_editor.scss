@@ -2730,13 +2730,11 @@ strong {
                 bottom: 0;
                 width: auto;
                 height: 4px;
-                background-color: $text-darkest;
 
                 $first: rgba($text-active, 1);
                 $second: rgba(darken($text-active, 17%), 1);
 
-                background: $text-active;
-                background: linear-gradient(135deg, $first 0%, $first 25%, $second 26%, $second 50%, $first 51%, $first 75%, $second 76%, $second 100%);
+                background: linear-gradient(135deg, $first 0%, $first 25%, $second 26%, $second 50%, $first 51%, $first 75%, $second 76%, $second 100%) $text-darkest;
                 background-position: 0 0;
                 background-size: 24px 24px;
                 background-repeat: repeat;
@@ -6522,7 +6520,7 @@ strong {
                                 bottom: 10px;
                             }
 
-                            @keyframes slideDown {
+                            @keyframes slide-down {
                                 0% {
                                     top: -50px;
                                     opacity: 0;
@@ -7204,7 +7202,6 @@ strong {
                     -webkit-transform: translateZ(0); /* fix Chrome transition bug */
                     transition: opacity 200ms;
                     background: linear-gradient(to bottom, rgb(69 69 69 / 0%) 0%, rgb(224 95 44 / 100%) 100%);
-                    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#45454500', endColorstr='#E05F2C', GradientType=0);
 
                     .ui-icon-button {
                         display: flex !important;
@@ -11131,7 +11128,6 @@ strong {
                     font-size: 12px;
                     width: 100%;
                     flex-basis: 100%;
-                    margin-top: 0;
                     color: $text-darkest;
                     margin: -1px 3px 0 6px;
                 }
