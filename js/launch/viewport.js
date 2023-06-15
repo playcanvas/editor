@@ -146,11 +146,16 @@ editor.once('load', function () {
     var useTouch = projectSettings.has('useTouch') ? projectSettings.get('useTouch') : true;
     var useGamepads = projectSettings.has('useGamepads') ? projectSettings.get('useGamepads') : !!projectSettings.get('vr');
 
+    const deviceTypes = preferWebGpu ?
+        [pc.DEVICETYPE_WEBGPU] :
+        (preferWebGl2 ?
+            [pc.DEVICETYPE_WEBGL2, pc.DEVICETYPE_WEBGL1] :
+            [pc.DEVICETYPE_WEBGL1, pc.DEVICETYPE_WEBGL2]);
+
     const gfxOptions = {
-        deviceTypes: [preferWebGpu ? pc.DEVICETYPE_WEBGPU : pc.DEVICETYPE_WEBGL2],
+        deviceTypes: deviceTypes,
         glslangUrl: '/editor/scene/js/launch/webgpu/glslang.js',
         twgslUrl: '/editor/scene/js/launch/webgpu/twgsl.js',
-        preferWebGl2: preferWebGl2,
         powerPreference: powerPreference,
         antialias: config.project.settings.antiAlias !== false,
         alpha: config.project.settings.transparentCanvas !== false,
