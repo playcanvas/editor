@@ -81,7 +81,7 @@ editor.once('load', function () {
     });
 
     // clone store item to the scene
-    editor.method('store:clone', function (storeItemId, name, projectId) {
+    editor.method('store:clone', function (storeItemId, name, license, projectId) {
         return new Promise((resolve, reject) => {
 
             // get selected folder in assets panel
@@ -96,7 +96,8 @@ editor.once('load', function () {
                         id: projectId
                     },
                     store: 'playcanvas',
-                    targetFolderId: selectedFolder ? selectedFolder._data.id : null
+                    targetFolderId: selectedFolder ? selectedFolder._data.id : null,
+                    license: license
                 }
             })
             .on('load', (status, response) => {
@@ -109,7 +110,7 @@ editor.once('load', function () {
     });
 
     // clone store item to the scene
-    editor.method('store:clone:sketchfab', function (storeItemId, name, projectId) {
+    editor.method('store:clone:sketchfab', function (storeItemId, name, license, projectId) {
         return new Promise((resolve, reject) => {
 
             // get selected folder in assets panel
@@ -125,7 +126,8 @@ editor.once('load', function () {
                     },
                     name: name,
                     store: 'sketchfab',
-                    targetFolderId: selectedFolder ? selectedFolder._data.id : null
+                    targetFolderId: selectedFolder ? selectedFolder._data.id : null,
+                    license: license
                 }
             })
             .on('load', (status, response) => {
@@ -168,5 +170,12 @@ editor.once('load', function () {
                 reject(error);
             });
         });
+    });
+
+    // Loads all the store's items
+    editor.method('store:license:list', async function () {
+        const response = await fetch(`${config.url.api}/store/licenses`);
+        const results = await response.json();
+        return results.result;
     });
 });

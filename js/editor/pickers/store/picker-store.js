@@ -21,9 +21,25 @@ editor.once('load', () => {
     let storeItems = [];
     let storeItemsCount = 0;
     let startItem = 0;
+
+    let licenses = null;
+
     const EMPTY_THUMBNAIL_IMAGE = 'https://playcanvas.com/static-assets/images/store-default-thumbnail-480x320.jpg';
     const EMPTY_THUMBNAIL_IMAGE_LARGE = 'https://playcanvas.com/static-assets/images/store-default-thumbnail.jpg';
     const STORE_ITEM_PAGE_SIZE = 24;
+
+    // Create a new Intersection Observer to track visibility of Load More button
+    const intersectionObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+                // Unobserve the element to stop observing visibility changes
+                observer.unobserve(entry.target);
+
+                // load new page of content
+                loadMoreStore();
+            }
+        });
+    });
 
     // UI
 
@@ -462,6 +478,7 @@ editor.once('load', () => {
             class: 'load-more-button'
         });
         rightPanel.append(loadMoreButton);
+        intersectionObserver.observe(loadMoreButton.element);
         loadMoreButton.on('click', () => {
             loadMoreStore();
         });
@@ -480,30 +497,6 @@ editor.once('load', () => {
             }
         }
         return closestThumbnail;
-    };
-
-    function escapeString(str) {
-        const escaped = str.replace(/[&<>'"]/g, tag => ({
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            "'": '&#39;',
-            '"': '&quot;'
-        }[tag]));
-        return escaped;
-    }
-
-    // Remove script tags from the URL
-    function removeScript(url) {
-        return url.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
-    }
-
-    const buildSketchfabLicenseHtml = (license) => {
-        return `License: <a href="${removeScript(license.url)}" target="_blank" rel="noopener noreferrer">${escapeString(license.label)}</a>`;
-    };
-
-    const buildAuthorHtml = (item) => {
-        return `Author: <a href=\"${removeScript(item.user.profileUrl)}" target=\"_blank\" rel=\"noopener noreferrer\">${item.user.displayName}</a>`;
     };
 
     // prepare sketchfab assets for the items details view
@@ -548,9 +541,7 @@ editor.once('load', () => {
             thumbnail = closestThumbnailImage(item.thumbnails.images, 1920, 1080).url;
         }
 
-        const license = buildSketchfabLicenseHtml(item.license);
         const description = md.render(item.description);
-        const author = buildAuthorHtml(item);
 
         const tags = [];
         for (const tag of item.tags) {
@@ -569,12 +560,15 @@ editor.once('load', () => {
             downloads: item.downloadCount,
             likes: item.likeCount,
             modified: item.updatedAt,
-            license: license,
-            author: author,
             store: 'sketchfab',
             viewerUrl: item.viewerUrl,
             assets: assets,
-            tags: tags
+            tags: tags,
+            license: {
+                id: item.license.slug,
+                author: item.user.displayName,
+                authorUrl: item.user.profileUrl
+            }
         };
     };
 
@@ -694,7 +688,7 @@ editor.once('load', () => {
             views: item.views,
             downloads: item.downloads,
             description: item.description,
-            license: `License: ${item.license}`,
+            license: item.license,
             thumbnail: thumbnail,
             viewerUrl: viewerUrl,
             assets: processedAssets,
@@ -733,7 +727,7 @@ editor.once('load', () => {
                 size: item.size,
                 downloads: item.downloads,
                 created: item.created,
-                license: item.license || '',
+                license: item.license,
                 store: 'playcanvas',
                 load: load
             };
@@ -747,6 +741,14 @@ editor.once('load', () => {
             loadMoreButton.destroy();
             loadMoreButton = null;
         }
+    };
+
+    // loads licenses
+    const loadLicenses = () => {
+        if (licenses) {
+            return licenses;
+        }
+        return editor.call('store:license:list');
     };
 
     // loads the current store items into the store main panel
@@ -967,9 +969,18 @@ editor.once('load', () => {
     });
 
     // method to display panel
-    editor.method('picker:store:cms', () => {
+    editor.method('picker:store:cms', async () => {
+
+        licenses = await loadLicenses();
+
         loadStore();
         overlay.hidden = false;
+    });
+
+    // method to get licenses
+    editor.method('picker:store:licenses', async () => {
+        licenses = await loadLicenses();
+        return licenses;
     });
 
     // method to search sketchfab store with tags

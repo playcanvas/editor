@@ -1,5 +1,6 @@
 import { Overlay, Element, Label, Button, Container, Panel, LabelGroup, Progress } from '@playcanvas/pcui';
 import { sizeToString } from '../../../common/filesystem-utils';
+import filenamify from 'filenamify';
 
 // highlight.js
 import hljs from 'highlight.js/lib/core';
@@ -32,6 +33,7 @@ editor.once('load', function () {
     let importButton = null;
     let returnButton = null;
     let itemStats = null;
+    let licenses = null;
 
     const isScriptAsset = (asset) => {
         const type = asset.type;
@@ -86,6 +88,54 @@ editor.once('load', function () {
         }
     };
 
+    // Remove script tags from the URL
+    function removeScript(url) {
+        return url.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
+    }
+
+    function escapeString(str) {
+        const escaped = str.replace(/[&<>'"]/g, tag => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            "'": '&#39;',
+            '"': '&quot;'
+        }[tag]));
+        return escaped;
+    }
+
+    const buildLicenseHtml = (license) => {
+        const licenseData = licenses.find(el => el.id === license.id);
+        if (!licenseData) {
+            return '<Error>';
+        }
+        return `License: <a href="${removeScript(licenseData.url)}" target="_blank" rel="noopener noreferrer">${escapeString(licenseData.name)}</a>`;
+    };
+
+    const buildAuthorHtml = (license) => {
+        return `Author: <a href=\"${removeScript(license.authorUrl)}" target=\"_blank\" rel=\"noopener noreferrer\">${license.author}</a>`;
+    };
+
+    const displayLicense = (containerTabContent) => {
+        if (storeItem.license) {
+            const elementLicense = new Element({
+                class: 'item-license'
+            });
+            const licenseHtml = storeItem.license.id ? buildLicenseHtml(storeItem.license) : storeItem.license;
+            elementLicense.dom.innerHTML = licenseHtml;
+            containerTabContent.append(elementLicense);
+        }
+
+        if (storeItem.license.author) {
+            const elementAuthor = new Element({
+                class: 'item-author-label'
+            });
+            const authorHtml = buildAuthorHtml(storeItem.license);
+            elementAuthor.dom.innerHTML = authorHtml;
+            containerTabContent.append(elementAuthor);
+        }
+    };
+
     // UI
     const displayDescription = (containerTabContent) => {
 
@@ -94,22 +144,6 @@ editor.once('load', function () {
         });
         elementDescription.dom.innerHTML = storeItem.description;
         containerTabContent.append(elementDescription);
-
-        if (storeItem.author) {
-            const elementAuthor = new Element({
-                class: 'item-author-label'
-            });
-            elementAuthor.dom.innerHTML = storeItem.author;
-            containerTabContent.append(elementAuthor);
-        }
-
-        if (storeItem.license) {
-            const elementLicense = new Element({
-                class: 'item-license'
-            });
-            elementLicense.dom.innerHTML = storeItem.license;
-            containerTabContent.append(elementLicense);
-        }
     };
 
     const displayContent = (containerTabContent) => {
@@ -208,6 +242,7 @@ editor.once('load', function () {
 
             containerTabContent.clear();
             displayDescription(containerTabContent);
+            displayLicense(containerTabContent);
 
             itemStats = new Container({
                 class: 'storeitem-stats',
@@ -287,9 +322,9 @@ editor.once('load', function () {
         try {
             if (isSketchfabItem(storeItem)) {
                 // use invoke to handle exceptions
-                await editor.invoke('store:clone:sketchfab', storeItem.id, storeItem.name, config.project.id);
+                await editor.invoke('store:clone:sketchfab', storeItem.id, filenamify(storeItem.name), storeItem.license, config.project.id);
             } else {
-                await editor.call('store:clone', storeItem.id, storeItem.name, config.project.id);
+                await editor.call('store:clone', storeItem.id, filenamify(storeItem.name), storeItem.license, config.project.id);
             }
         } catch (err) {
             // if user is not logged in to sketchfab
@@ -306,8 +341,9 @@ editor.once('load', function () {
 
     // helper method to check if the storeitem is already cloned
     const itemClonedAlready = (name) => {
+        const itemName = filenamify(name);
         const candidates = editor.call('assets:find', function (item) {
-            if (item.get('type') === 'folder' && item.get('name') === name) {
+            if (item.get('type') === 'folder' && item.get('name') === itemName) {
                 return true;
             }
             return false;
@@ -545,6 +581,8 @@ editor.once('load', function () {
     editor.method('picker:storeitem', async function (option, item) {
 
         toggleProgress(false);
+
+        licenses = await editor.call('picker:store:licenses');
 
         // create script asset in source branch and dest
         await loadStoreItem(item);

@@ -54,6 +54,7 @@
     "concurrently": "^8.0.1",
     "cross-env": "^7.0.3",
     "eslint": "^8.40.0",
+    "filenamify": "^6.0.0",
     "highlight.js": "^11.8.0",
     "markdown-it": "^13.0.1",
     "ot-text": "github:playcanvas/ot-text",

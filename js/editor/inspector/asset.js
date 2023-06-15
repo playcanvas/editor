@@ -173,6 +173,20 @@ const ATTRIBUTES = [{
     args: {
         renderChanges: false
     }
+}, {
+    label: 'License',
+    alias: 'license',
+    type: 'label',
+    args: {
+        allowTextSelection: true
+    }
+}, {
+    label: 'Author',
+    alias: 'author',
+    type: 'label',
+    args: {
+        allowTextSelection: true
+    }
 }];
 
 ATTRIBUTES.forEach((attr) => {
@@ -235,6 +249,21 @@ const HIDDEN_FIELDS = {
     ],
     'filename': [
         'notLegacyScripts'
+    ],
+    // license and author fields are available for source scene assets only for now
+    'license': [
+        'container',
+        'render',
+        'folder',
+        'folder.source',
+        'legacyScripts'
+    ],
+    'author': [
+        'container',
+        'render',
+        'folder',
+        'folder.source',
+        'legacyScripts'
     ]
 };
 
@@ -303,7 +332,7 @@ class AssetInspector extends Container {
         this._editableTypes = args.editableTypes;
 
         this._assetTypes = editor.call('schema:assets:list');
-
+        this._licenseTypes = null;
         this._attributesInspector = new AttributesInspector({
             history: args.history,
             attributes: ATTRIBUTES
@@ -495,6 +524,59 @@ class AssetInspector extends Container {
         });
     }
 
+    _buildLicenseHtml(licenseId) {
+
+        const licenseData = this._licenseTypes.find(el => el.id === licenseId);
+        if (!licenseData) {
+            return '<Error>';
+        }
+        return `<a href="${licenseData.url}" target="_blank" rel="noopener noreferrer">${licenseData.name}</a>`;
+    }
+
+    _buildAuthorHtml(author, authorUrl) {
+        return `<a href="${authorUrl}" target="_blank" rel="noopener noreferrer">${author}</a>`;
+    }
+
+    async _updateLicense(assets) {
+        if (!this._assets) return;
+
+        if (!this._licenseTypes) {
+            this._licenseTypes = await editor.call('picker:store:licenses');
+        }
+
+        const licenses = this._assets.map((asset) => {
+            return asset.get('license') &&  this._buildLicenseHtml(asset.get('license.id'));
+        });
+
+        if (licenses.length > 0) {
+            let licenseHtml = licenses[0];
+            for (const license of licenses) {
+                if (license !== licenses[0]) {
+                    licenseHtml = '...';
+                    break;
+                }
+            }
+
+            this._attributesInspector.getField('license').dom.innerHTML = licenseHtml;
+        }
+
+        const authors = this._assets.map((asset) => {
+            return asset.get('license') &&  this._buildAuthorHtml(asset.get('license.author'), asset.get('license.authorUrl'));
+        });
+
+        if (authors.length > 0) {
+            let authorHtml = authors[0];
+            for (const author of authors) {
+                if (author !== authors[0]) {
+                    authorHtml = '...';
+                    break;
+                }
+            }
+
+            this._attributesInspector.getField('author').dom.innerHTML  = authorHtml;
+        }
+    }
+
     _updateOpenInViewerButton() {
         const allGlb = this._assets.every(a => isGlbAsset(a));
         const allTexture = !allGlb && this._assets.every(a => isTextureAsset(a));
@@ -571,6 +653,7 @@ class AssetInspector extends Container {
         });
         this._updateFileSize();
         this._updateDates();
+        this._updateLicense();
 
         assets.forEach((asset) => {
             this._assetEvents.push(asset.on('file.size:set', this._updateFileSize.bind(this)));
@@ -687,6 +770,10 @@ class AssetInspector extends Container {
             let assetType = asset.get('type');
             if (asset.get('source') === true) {
                 assetType += '.source';
+            }
+
+            if ((attribute === 'license' || attribute === 'author')  && !asset.get('license')) {
+                hiddenForAnyAsset = true;
             }
 
             if (legacyScripts && hiddenField && hiddenField.includes('legacyScripts') && asset.get('type') === 'script') {
