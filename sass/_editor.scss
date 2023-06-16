@@ -4014,7 +4014,6 @@ strong {
                         margin-bottom: 10px;
                     }
 
-                    .font-icon,
                     .font-icon {
                         font-size: 16px;
                     }
@@ -7965,10 +7964,32 @@ strong {
             &.version {
                 display: none;
             }
+
+            &.info {
+                > .content {
+                    > .image {
+                        display: none;
+                    }
+
+                    > span {
+                        width: 100%;
+
+                        > .image-click {
+                            display: none;
+                        }
+                    }
+                }
+            }
         }
 
-        .ui-button.publish {
+        .ui-button.publish,
+        .ui-panel.notes {
             display: none;
+        }
+
+        .ui-button.web-download,
+        .ui-button.ios-download {
+            display: inline-block;
         }
 
         .progress {
@@ -8003,6 +8024,7 @@ strong {
                         display: block;
                         margin-top: 15px;
                         color: $text-secondary;
+                        content: '\E245';
                     }
                 }
 
@@ -8066,50 +8088,12 @@ strong {
                         font-size: 16px;
                         vertical-align: top;
                         padding-right: 10px;
+                        content: '\E245';
                     }
 
                     &:hover {
                         background-color: $text-active;
                     }
-                }
-            }
-        }
-    }
-
-    &.download-mode {
-        .ui-panel.info {
-            > .content {
-                > .image {
-                    display: none;
-                }
-
-                > span {
-                    width: 100%;
-
-                    > .image-click {
-                        display: none;
-                    }
-                }
-            }
-        }
-
-        .ui-panel.notes {
-            display: none;
-        }
-
-        .ui-button.web-download,
-        .ui-button.ios-download {
-            display: inline-block;
-        }
-
-        .progress {
-            > .icon.success::after {
-                content: '\E245';
-            }
-
-            > .progress-info {
-                > .ready::before {
-                    content: '\E245';
                 }
             }
         }

@@ -16,17 +16,7 @@
     > .pcui-panel-header > .pcui-button.pcui-error {
         color: $error-secondary;
     }
-}
 
-.script-component-inspector-script-enabled {
-    > .pcui-label:first-child {
-        width: auto !important;
-
-        @extend .font-bold;
-    }
-}
-
-.script-component-inspector-script {
     .script-component-inspector-script-invalid {
         display: none;
     }
@@ -57,6 +47,25 @@
         font-weight: bold;
         margin-left: 0;
     }
+
+    .pcui-container.pcui-error {
+        padding: $element-margin;
+        margin: $element-margin 0;
+        background: $bcg-darkest;
+
+        > .pcui-label {
+            font-size: 12px;
+            white-space: normal;
+        }
+    }
+}
+
+.script-component-inspector-script-enabled {
+    > .pcui-label:first-child {
+        width: auto !important;
+
+        @extend .font-bold;
+    }
 }
 
 .script-component-inspector-script-remove {
@@ -67,18 +76,5 @@
 
     &::before {
         line-height: 30px;
-    }
-}
-
-.script-component-inspector-script {
-    .pcui-container.pcui-error {
-        padding: $element-margin;
-        margin: $element-margin 0;
-        background: $bcg-darkest;
-
-        > .pcui-label {
-            font-size: 12px;
-            white-space: normal;
-        }
     }
 }
