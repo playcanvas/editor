@@ -6,9 +6,9 @@ Object.assign(pcui, (function () {
     const CLASS_SUBTITLE = CLASS_ROOT + '-subtitle';
     const CLASS_DESC = CLASS_ROOT + '-desc';
 
-    const TOOLTIP_MARGIN = 16;
-    const TOOLTIP_DELAY_SHOW = 600;
-    const TOOLTIP_DELAY_HIDE = 300;
+    const TOOLTIP_MARGIN = 10;
+    const TOOLTIP_DELAY_SHOW = 200;
+    const TOOLTIP_DELAY_HIDE = 200;
 
     /**
      * @name pcui.Tooltip
@@ -23,9 +23,11 @@ Object.assign(pcui, (function () {
         /**
          * Creates new tooltip.
          *
-         * @param {object} args - The arguments.
+         * @param {object} [args] - The arguments.
          * @param {number} [args.showDelay] - The delay in milliseconds before showing the tooltip.
          * @param {number} [args.hideDelay] - The delay in milliseconds before hiding the tooltip.
+         * @param {'top'|'bottom'|'left'|'right'} [args.align] - The side of the tooltip that is
+         * aligned to the target element.
          */
         constructor(args) {
             args = Object.assign({

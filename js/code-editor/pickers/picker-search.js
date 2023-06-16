@@ -111,32 +111,36 @@ editor.once('load', function () {
     panel.append(btnFindInFiles);
 
     // Tooltips
-    Tooltip.attach({
-        target: optionFilter.element,
-        text: 'Filter Options',
+    const tooltipFilter = new pcui.Tooltip({
         align: 'bottom',
-        root: editor.call('layout.root')
+        description: 'Filter Options'
+    });
+    tooltipFilter.attach({
+        target: optionFilter
     });
 
-    Tooltip.attach({
-        target: optionCase.element,
-        text: 'Case Sensitive',
+    const tooltipCase = new pcui.Tooltip({
         align: 'bottom',
-        root: editor.call('layout.root')
+        description: 'Case Sensitive'
+    });
+    tooltipCase.attach({
+        target: optionCase
     });
 
-    Tooltip.attach({
-        target: optionRegex.element,
-        text: 'Regular Expression',
+    const tooltipRegex = new pcui.Tooltip({
         align: 'bottom',
-        root: editor.call('layout.root')
+        description: 'Regular Expression'
+    });
+    tooltipRegex.attach({
+        target: optionRegex
     });
 
-    Tooltip.attach({
-        target: optionWholeWords.element,
-        text: 'Whole Word',
+    const tooltipWholeWords = new pcui.Tooltip({
         align: 'bottom',
-        root: editor.call('layout.root')
+        description: 'Whole Word'
+    });
+    tooltipWholeWords.attach({
+        target: optionWholeWords
     });
 
     let regexp = null;

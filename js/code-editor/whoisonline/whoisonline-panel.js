@@ -1,4 +1,4 @@
-import { Container } from '@playcanvas/pcui';
+import { Container, Element } from '@playcanvas/pcui';
 
 editor.once('load', function () {
     const panel = editor.call('layout.top');
@@ -12,9 +12,9 @@ editor.once('load', function () {
     const tooltips = {};
 
     const createItem = function (id) {
-        const item = document.createElement('a');
-        item.href = '/' + id;
-        item.target = '_blank';
+        const link = document.createElement('a');
+        link.href = '/' + id;
+        link.target = '_blank';
 
         const img = new Image();
         img.onload = function () {
@@ -22,22 +22,26 @@ editor.once('load', function () {
         };
 
         img.src = `/api/users/${id}/thumbnail?size=28`;
-        item.appendChild(img);
+        link.appendChild(img);
 
+        const item = new Element({
+            dom: link
+        });
         itemsIndex[id] = item;
 
-        editor.call('users:loadOne', id, function (user) {
-            item.href = '/user/' + user.username;
+        wioPanel.append(item);
 
-            tooltips[id] = Tooltip.attach({
-                target: item,
-                text: user.username,
+        editor.call('users:loadOne', id, function (user) {
+            link.href = '/user/' + user.username;
+
+            tooltips[id] = new pcui.Tooltip({
                 align: 'top',
-                root: editor.call('layout.root')
+                description: user.username
+            });
+            tooltips[id].attach({
+                target: item
             });
         });
-
-        wioPanel.append(item);
     };
 
 

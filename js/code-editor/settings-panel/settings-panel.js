@@ -3,7 +3,6 @@ import { Button, LabelGroup, SelectInput, NumericInput, BooleanInput } from '@pl
 editor.once('load', function () {
     const settings = editor.call('editor:settings');
 
-    const root = editor.call('layout.root');
     const settingsPanel = editor.call('layout.attributes');
     let hidden = true;
     let width = settingsPanel.resizeMin + 'px';
@@ -39,7 +38,7 @@ editor.once('load', function () {
     });
 
 
-    const addField = function (name, field, path, tooltip) {
+    const addField = function (name, field, path, tooltipText) {
         const labelGroup = new LabelGroup({
             field: field,
             text: name
@@ -62,12 +61,12 @@ editor.once('load', function () {
             settings.set(path, value);
         });
 
-        if (tooltip) {
-            Tooltip.attach({
-                target: labelGroup.label.dom,
-                html: tooltip,
-                align: 'right',
-                root: root
+        if (tooltipText) {
+            const tooltip = new pcui.Tooltip({
+                description: tooltipText
+            });
+            tooltip.attach({
+                target: labelGroup.label
             });
         }
     };

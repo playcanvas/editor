@@ -48,6 +48,10 @@ import '../ui/tooltip.js';
 import '../ui/menu.js';
 import '../ui/menu-item.js';
 
+// pcui
+import '../pcui/element/element-tooltip.js';
+import '../pcui/element/element-tooltip-group.js';
+
 // editor
 import '../editor/storage/localstorage.js';
 import './errors/error-realtime.js';

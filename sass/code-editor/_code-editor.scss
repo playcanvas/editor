@@ -719,6 +719,15 @@ strong {
     background: rgb(255 0 0 / 20%);
 }
 
+.pcui-tooltip {
+    padding: 8px;
+    background: black;
+}
+
+.pcui-tooltip-desc {
+    margin: 0;
+}
+
 @import '../partials/ui-common';
 @import '../partials/version-control';
 @import '../theme-dark';
