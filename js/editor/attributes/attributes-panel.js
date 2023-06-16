@@ -30,9 +30,7 @@ editor.once('load', function () {
     });
 
     // add panel
-    editor.method('attributes:addPanel', function (args) {
-        args = args || { };
-
+    editor.method('attributes:addPanel', function (args = {}) {
         // panel
         var panel = new ui.Panel(args.name || '');
         // parent

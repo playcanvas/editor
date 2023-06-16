@@ -41,12 +41,10 @@ editor.once('load', function () {
         }
     });
 
-    editor.method('notify', function (args) {
+    editor.method('notify', function (args = {}) {
         // no supported
         if (!window.Notification || !args.title || visible)
             return;
-
-        args = args || { };
 
         var timeout;
         var queueClose = function (item) {

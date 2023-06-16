@@ -1,9 +1,7 @@
 editor.once('load', function () {
-    editor.method('assets:create:sprite', function (args) {
+    editor.method('assets:create:sprite', function (args = {}) {
         if (!editor.call('permissions:write'))
             return;
-
-        args = args || { };
 
         var data = {
             pixelsPerUnit: args.pixelsPerUnit !== undefined ? args.pixelsPerUnit : 100,

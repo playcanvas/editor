@@ -155,9 +155,7 @@ editor.once('load', function () {
             );
         }
 
-        reportDiff(extraFields) {
-            extraFields = extraFields || {};
-
+        reportDiff(extraFields = {}) {
             const h = new MakeNodeConflict(this.data).run();
 
             Object.assign(h, extraFields);

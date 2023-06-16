@@ -1,9 +1,7 @@
 editor.once('load', function () {
-    editor.method('assets:create:html', function (args) {
+    editor.method('assets:create:html', function (args = {}) {
         if (!editor.call('permissions:write'))
             return;
-
-        args = args || { };
 
         var asset = {
             name: 'New Html',

@@ -423,9 +423,7 @@ editor.once('load', function () {
         }
     });
 
-    editor.method('assets:upload:picker', function (args) {
-        args = args || {};
-
+    editor.method('assets:upload:picker', function (args = {}) {
         var fileInput = document.createElement('input');
         fileInput.type = 'file';
         fileInput.multiple = true;

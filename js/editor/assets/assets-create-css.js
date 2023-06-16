@@ -1,9 +1,7 @@
 editor.once('load', function () {
-    editor.method('assets:create:css', function (args) {
+    editor.method('assets:create:css', function (args = {}) {
         if (!editor.call('permissions:write'))
             return;
-
-        args = args || { };
 
         var asset = {
             name: 'New Css',

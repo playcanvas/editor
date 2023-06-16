@@ -1,11 +1,9 @@
 editor.once('load', function () {
     const filenameValid = /^([^0-9.#<>$+%!`&='{}@\\/:*?"<>|\n])([^#<>$+%!`&='{}@\\/:*?"<>|\n])*$/i;
 
-    editor.method('assets:create:script', function (args) {
+    editor.method('assets:create:script', function (args = {}) {
         if (!editor.call('permissions:write'))
             return;
-
-        args = args || { };
 
         const filename = args.filename || 'script.js';
 

@@ -1,9 +1,7 @@
 editor.once('load', function () {
-    editor.method('assets:create:material', function (args) {
+    editor.method('assets:create:material', function (args = {}) {
         if (!editor.call('permissions:write'))
             return;
-
-        args = args || { };
 
         var data = editor.call('schema:material:getDefaultData');
 

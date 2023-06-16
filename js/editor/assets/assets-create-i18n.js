@@ -14,11 +14,9 @@ editor.once('load', function () {
         }]
     }, null, 4);
 
-    editor.method('assets:create:i18n', function (args) {
+    editor.method('assets:create:i18n', function (args = {}) {
         if (!editor.call('permissions:write'))
             return;
-
-        args = args || { };
 
         var filename = 'Localization.json';
 
