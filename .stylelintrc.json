@@ -8,7 +8,6 @@
         "no-invalid-position-at-import-rule": null,
         "scss/no-global-function-names": null,
         "scss/at-extend-no-missing-placeholder": null,
-        "scss/dollar-variable-pattern": null,
         "selector-class-pattern": null
     }
 }

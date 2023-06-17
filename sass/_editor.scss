@@ -1405,16 +1405,16 @@ strong {
 
                                     $color: mix($text-darkest, $bcg-primary, 50%);
                                     $size: 6px;
-                                    $radiusI: 20%;
-                                    $radiusO: 55%;
+                                    $inner-radius: 20%;
+                                    $outer-radius: 55%;
 
-                                    background: radial-gradient($color $radiusI, transparent $radiusO);
+                                    background: radial-gradient($color $inner-radius, transparent $outer-radius);
                                     background-size: $size $size;
 
                                     &:hover {
                                         $color: $text-primary;
 
-                                        background: radial-gradient($color $radiusI, transparent $radiusO);
+                                        background: radial-gradient($color $inner-radius, transparent $outer-radius);
                                         background-size: $size $size;
                                     }
                                 }
@@ -1953,16 +1953,16 @@ strong {
 
                                 $color: mix($text-darkest, $bcg-primary, 50%);
                                 $size: 6px;
-                                $radiusI: 20%;
-                                $radiusO: 55%;
+                                $inner-radius: 20%;
+                                $outer-radius: 55%;
 
-                                background: radial-gradient($color $radiusI, transparent $radiusO);
+                                background: radial-gradient($color $inner-radius, transparent $outer-radius);
                                 background-size: $size $size;
 
                                 &:hover {
                                     $color: $text-primary;
 
-                                    background: radial-gradient($color $radiusI, transparent $radiusO);
+                                    background: radial-gradient($color $inner-radius, transparent $outer-radius);
                                     background-size: $size $size;
                                 }
                             }
@@ -8808,12 +8808,12 @@ strong {
 
                                 > .content {
                                     > .handle {
-                                        $size: 6px;
-                                        $radiusI: 20%;
-                                        $radiusO: 55%;
                                         $color: $text-primary;
+                                        $size: 6px;
+                                        $inner-radius: 20%;
+                                        $outer-radius: 55%;
 
-                                        background: radial-gradient($color $radiusI, transparent $radiusO);
+                                        background: radial-gradient($color $inner-radius, transparent $outer-radius);
                                         background-size: $size $size;
                                         cursor: grabbing;
                                     }
@@ -8836,10 +8836,10 @@ strong {
 
                                     $color: mix($text-darkest, $bcg-primary, 50%);
                                     $size: 6px;
-                                    $radiusI: 20%;
-                                    $radiusO: 55%;
+                                    $inner-radius: 20%;
+                                    $outer-radius: 55%;
 
-                                    background: radial-gradient($color $radiusI, transparent $radiusO);
+                                    background: radial-gradient($color $inner-radius, transparent $outer-radius);
                                     background-size: $size $size;
 
                                     &.disabled {
@@ -8850,7 +8850,7 @@ strong {
                                     &:not(.disabled):hover {
                                         $color: $text-primary;
 
-                                        background: radial-gradient($color $radiusI, transparent $radiusO);
+                                        background: radial-gradient($color $inner-radius, transparent $outer-radius);
                                         background-size: $size $size;
                                     }
                                 }
