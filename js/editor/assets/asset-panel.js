@@ -275,7 +275,7 @@ class AssetPanel extends Panel {
         this._btnNew.on('click', this._onClickNew.bind(this));
         this._containerControls.append(this._btnNew);
 
-        this._createTooltip('Create or upload new Asset', this._btnNew);
+        this._createTooltip('Add Asset', this._btnNew);
 
         // button to delete asset
         this._btnDelete = new Button({
@@ -315,7 +315,7 @@ class AssetPanel extends Panel {
         this._btnLargeGrid.on('click', this._onClickLargeGrid.bind(this));
         containerBtn.append(this._btnLargeGrid);
 
-        this._createTooltip('Grid view', this._btnLargeGrid);
+        this._createTooltip('Large Icons', this._btnLargeGrid);
 
         // show small grid view mode
         this._btnSmallGrid = new Button({
@@ -325,7 +325,7 @@ class AssetPanel extends Panel {
         this._btnSmallGrid.on('click', this._onClickSmallGrid.bind(this));
         containerBtn.append(this._btnSmallGrid);
 
-        this._createTooltip('Grid view (small)', this._btnSmallGrid);
+        this._createTooltip('Small Icons', this._btnSmallGrid);
 
         // show details view mode
         this._btnDetailsView = new Button({
@@ -335,7 +335,7 @@ class AssetPanel extends Panel {
         this._btnDetailsView.on('click', this._onClickDetailsView.bind(this));
         containerBtn.append(this._btnDetailsView);
 
-        this._createTooltip('Details view', this._btnDetailsView);
+        this._createTooltip('Details', this._btnDetailsView);
 
         // asset type dropdown filter
         const dropdownTypeOptions = Object.keys(TYPES)
@@ -388,7 +388,7 @@ class AssetPanel extends Panel {
         btnStore.on('click', this._onClickStore.bind(this));
         this._containerControls.append(btnStore);
 
-        this._createTooltip('Open PlayCanvas Store', btnStore);
+        this._createTooltip('Open Store', btnStore);
 
         // folders tree view
         this._containerFolders = new Container({
