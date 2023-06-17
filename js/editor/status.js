@@ -5,20 +5,23 @@ editor.once('load', function () {
     const panel = editor.call('layout.statusBar');
 
     // status
-    const status = new Label();
-    status.class.add('status');
+    const status = new Label({
+        allowTextSelection: true,
+        class: 'status'
+    });
     panel.append(status);
 
     // progress
-    const progress = new Progress();
-    progress.class.add('jobsProgress');
+    const progress = new Progress({
+        class: 'jobsProgress'
+    });
     panel.append(progress);
 
     // jobs
     const jobsCount = new Label({
+        class: 'jobsCount',
         text: '0'
     });
-    jobsCount.class.add('jobsCount');
     panel.append(jobsCount);
 
 
