@@ -11,8 +11,9 @@ editor.once('load', function () {
 
         var events = [];
 
+        /** @type {import('@playcanvas/pcui').Panel} */
         var rootPanel = editor.call('picker:sprites:rightPanel');
-        rootPanel.header = 'SPRITE ASSET - ' + spriteAsset.get('name');
+        rootPanel.headerText = 'SPRITE ASSET - ' + spriteAsset.get('name');
 
         var fieldPreview = editor.call('picker:sprites:attributes:frames:preview', {
             atlasAsset: atlasAsset,
@@ -49,7 +50,7 @@ editor.once('load', function () {
         editor.call('attributes:reference:attach', 'asset:name', fieldName.parent.innerElement.firstChild.ui, null, panel);
 
         events.push(fieldName.on('change', function (value) {
-            rootPanel.header = 'SPRITE ASSET - ' + value;
+            rootPanel.headerText = 'SPRITE ASSET - ' + value;
             if (value !== spriteAsset.get('name') && !suspendRenameEvt) {
                 suspendRenameEvt = true;
                 editor.call('assets:rename', spriteAsset, value);

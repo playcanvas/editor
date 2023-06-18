@@ -1,4 +1,5 @@
 import { Observer } from '@playcanvas/observer';
+import { Button, Canvas, Container, Overlay, Panel } from '@playcanvas/pcui';
 
 editor.once('load', function () {
     const handleWidth = 10;
@@ -80,96 +81,94 @@ editor.once('load', function () {
     const root = editor.call('layout.root');
 
     // overlay
-    const overlay = new ui.Overlay();
-    overlay.class.add('sprites-editor');
-    overlay.hidden = true;
+    const overlay = new Overlay({
+        hidden: true,
+        id: 'sprite-editor'
+    });
     root.append(overlay);
 
-
-    const panel = new ui.Panel();
-    panel.class.add('root-panel');
-    panel.flex = true;
-    panel.flexDirection = 'row';
-    panel.header = 'SPRITE EDITOR';
-    overlay.append(panel);
-    // close button
-    const btnClose = new ui.Button({
-        text: '&#57650;'
+    const panel = new Panel({
+        class: 'root-panel',
+        headerText: 'SPRITE EDITOR'
     });
-    btnClose.class.add('close');
+    overlay.append(panel);
+
+    // close button
+    const btnClose = new Button({
+        class: 'close',
+        icon: 'E132'
+    });
     btnClose.on('click', function () {
         editor.call('picker:sprites:close');
     });
-    panel.headerElement.appendChild(btnClose.element);
+    panel.header.append(btnClose);
 
-    const leftColumns = new ui.Panel();
-    leftColumns.class.add('left-columns');
-    leftColumns.flex = true;
-    leftColumns.flexGrow = true;
-    leftColumns.flexDirection = 'column';
+    const leftColumns = new Container({
+        class: 'left-columns',
+        flex: true,
+        flexGrow: '1',
+        flexDirection: 'column'
+    });
     panel.append(leftColumns);
 
-    const leftRows = new ui.Panel();
-    leftRows.class.add('left-rows');
-    leftRows.flex = true;
-    leftRows.flexDirection = 'row';
+    const leftRows = new Container({
+        class: 'left-rows',
+        flex: true,
+        flexDirection: 'row'
+    });
     leftColumns.append(leftRows);
 
-    const leftPanel = new ui.Panel();
-    leftPanel.class.add('left-panel');
-    // leftPanel.class.add('attributes');
-    leftPanel.flexShrink = false;
-    leftPanel.style.width = '320px';
-    leftPanel.innerElement.style.width = '320px';
-    leftPanel.horizontal = true;
-    leftPanel.foldable = true;
-    // leftPanel.scroll = true;
-    leftPanel.resizable = 'right';
-    leftPanel.resizeMin = 256;
-    leftPanel.resizeMax = 512;
+    const leftPanel = new Panel({
+        class: 'left-panel',
+        collapseHorizontally: true,
+        collapsible: true,
+        flexShrink: '0',
+        headerText: 'FRAMES IN TEXTURE ATLAS',
+        resizable: 'right',
+        resizeMin: 256,
+        resizeMax: 512,
+        width: 320
+    });
     leftRows.append(leftPanel);
 
     // middle panel
-    const middlePanel = new ui.Panel();
-    middlePanel.class.add('middle-panel');
-    middlePanel.flex = true;
-    middlePanel.flexGrow = true;
-    middlePanel.flexDirection = 'column';
+    const middlePanel = new Container({
+        class: 'middle-panel',
+        flex: true,
+        flexDirection: 'column',
+        flexGrow: '1'
+    });
     leftRows.append(middlePanel);
 
     // canvas
-    const canvasPanel = new ui.Panel();
-    canvasPanel.class.add('canvas-panel');
-    canvasPanel.flexible = true;
-    canvasPanel.flexGrow = true;
+    const canvasPanel = new Container({
+        flex: true,
+        flexGrow: '1'
+    });
     middlePanel.append(canvasPanel);
 
-    const canvas = new ui.Canvas();
-    canvas.class.add('canvas');
+    const canvas = new Canvas({
+        class: 'canvas'
+    });
     canvasPanel.append(canvas);
 
-    // Canvas Context
-    const ctx = canvas.element.getContext("2d");
+    /** @type {HTMLCanvasElement} */
+    const canvasElement = canvas.dom;
+    const ctx = canvasElement.getContext("2d");
 
     // bottom panel
-    const bottomPanel = new ui.Panel('SPRITE ASSETS');
-    bottomPanel.class.add('bottom-panel');
-    bottomPanel.innerElement.style.height = '219px';
-    bottomPanel.foldable = true;
-    bottomPanel.flexShrink = false;
-    bottomPanel.scroll = true;
-    bottomPanel.resizable = 'top';
-    bottomPanel.resizeMin = 106;
-    bottomPanel.resizeMax = 106 * 3;
-    bottomPanel.headerSize = -1;
+    const bottomPanel = new Panel({
+        class: 'bottom-panel',
+        collapsible: true,
+        flexShrink: '0',
+        headerText: 'SPRITE ASSETS',
+        height: 220,
+        resizable: 'top',
+        resizeMax: 106 * 3,
+        resizeMin: 106,
+        scrollable: true
+    });
     middlePanel.append(bottomPanel);
-
-    // // Canvas control
-    const canvasControl = new ui.Panel();
-    canvasControl.flex = true;
-    canvasControl.flexDirection = 'row';
-    canvasControl.class.add('canvas-control');
-    leftColumns.append(canvasControl);
 
     // Right panel
     let rightPanel = null;
@@ -302,7 +301,7 @@ editor.once('load', function () {
     };
 
     var windowToCanvas = function (windowX, windowY) {
-        const rect = canvas.element.getBoundingClientRect();
+        const rect = canvas.dom.getBoundingClientRect();
         return {
             x: Math.round(windowX - rect.left),
             y: Math.round(windowY - rect.top)
@@ -312,8 +311,8 @@ editor.once('load', function () {
     var resizeCanvas = function () {
         let result = false;
 
-        const width = canvasPanel.element.clientWidth;
-        const height = canvasPanel.element.clientHeight;
+        const width = canvasPanel.dom.clientWidth;
+        const height = canvasPanel.dom.clientHeight;
 
         // If it's resolution does not match change it
         if (canvas.width !== width || canvas.height !== height) {
@@ -668,9 +667,6 @@ editor.once('load', function () {
         const spriteAsset = editor.call('picker:sprites:selectedSprite');
 
         // disable smoothing
-        ctx.mozImageSmoothingEnabled = false;
-        ctx.webkitImageSmoothingEnabled = false;
-        ctx.msImageSmoothingEnabled = false;
         ctx.imageSmoothingEnabled = false;
 
         // draw background outside image
@@ -1607,8 +1603,8 @@ editor.once('load', function () {
         window.addEventListener('keyup', onKeyUp);
         window.addEventListener('mouseup', onMouseUp);
         window.addEventListener('mousemove', onMouseMove);
-        canvas.element.addEventListener('mousedown', onMouseDown);
-        canvas.element.addEventListener('wheel', onWheel);
+        canvas.dom.addEventListener('mousedown', onMouseDown);
+        canvas.dom.addEventListener('wheel', onWheel);
 
         // 'F' hotkey to focus canvas
         editor.call('hotkey:register', 'sprite-editor-focus', {
@@ -1654,8 +1650,8 @@ editor.once('load', function () {
         window.removeEventListener('keyup', onKeyUp);
         window.removeEventListener('mouseup', onMouseUp);
         window.removeEventListener('mousemove', onMouseMove);
-        canvas.element.removeEventListener('mousedown', onMouseDown);
-        canvas.element.removeEventListener("wheel", onWheel);
+        canvas.dom.removeEventListener('mousedown', onMouseDown);
+        canvas.dom.removeEventListener("wheel", onWheel);
 
         editor.call('hotkey:unregister', 'sprite-editor-focus');
         editor.call('hotkey:unregister', 'sprite-editor-esc');
@@ -1677,7 +1673,7 @@ editor.once('load', function () {
 
         // if the mouse cursor is not on the canvas
         // then use canvas center point as zoom pivot
-        const canvasRect = canvas.element.getBoundingClientRect();
+        const canvasRect = canvas.dom.getBoundingClientRect();
         if (mouseX < canvasRect.left || mouseX > canvasRect.right ||
             mouseY < canvasRect.top || mouseY > canvasRect.bottom) {
             x = canvas.width / 2;
@@ -1701,18 +1697,17 @@ editor.once('load', function () {
 
     var updateRightPanel = function () {
         if (!rightPanel) {
-            rightPanel = new ui.Panel();
-            rightPanel.class.add('right-panel');
-            rightPanel.class.add('attributes');
-            rightPanel.flexShrink = false;
-            rightPanel.style.width = '320px';
-            rightPanel.innerElement.style.width = '320px';
-            rightPanel.horizontal = true;
-            rightPanel.foldable = true;
-            rightPanel.scroll = true;
-            rightPanel.resizable = 'left';
-            rightPanel.resizeMin = 256;
-            rightPanel.resizeMax = 512;
+            rightPanel = new Panel({
+                class: ['right-panel', 'attributes'],
+                collapseHorizontally: true,
+                collapsible: true,
+                flexShrink: '0',
+                resizable: 'left',
+                resizeMax: 512,
+                resizeMin: 256,
+                scrollable: true,
+                width: 320
+            });
             panel.append(rightPanel);
         } else {
             // emit 'clear' event to clear existing children of right panel
@@ -1753,7 +1748,7 @@ editor.once('load', function () {
         if (!atlasAsset)
             return;
 
-        panel.header = 'SPRITE EDITOR - ' + atlasAsset.get('name').toUpperCase();
+        panel.headerText = 'SPRITE EDITOR - ' + atlasAsset.get('name').toUpperCase();
 
         // show overlay
         overlay.hidden = false;
@@ -1788,7 +1783,7 @@ editor.once('load', function () {
         events.push(atlasAsset.on('*:set', queueRender));
         events.push(atlasAsset.on('*:unset', queueRender));
         events.push(atlasAsset.on('name:set', function (value) {
-            panel.header = 'SPRITE EDITOR - ' + value.toUpperCase();
+            panel.headerText = 'SPRITE EDITOR - ' + value.toUpperCase();
         }));
 
         // resize 20 times a second - if size is the same nothing will happen
@@ -1881,7 +1876,7 @@ editor.once('load', function () {
 
     // Return canvas
     editor.method('picker:sprites:canvas', function () {
-        return canvas.element;
+        return canvas.dom;
     });
 
     // Return left panel

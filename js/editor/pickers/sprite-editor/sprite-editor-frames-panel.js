@@ -15,8 +15,8 @@ editor.once('load', function () {
 
         let scrollSelectionIntoView = true;
 
+        /** @type {import('@playcanvas/pcui').Panel} */
         const leftPanel = editor.call('picker:sprites:leftPanel');
-        leftPanel.header = 'FRAMES IN TEXTURE ATLAS';
 
         const panelFrames = editor.call('attributes:addPanel', {
             parent: leftPanel

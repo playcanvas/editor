@@ -7,7 +7,7 @@ editor.once('load', function () {
     // - canvas: The canvas where the preview will be rendered
     // - allFrames: All the frames relevant to this render
     // - animating: If true then the frames pivot will be used otherwise everything will be rendered as if centered
-    editor.method('picker:sprites:renderFramePreview', function (frame, canvas, allFrames, animating) {
+    editor.method('picker:sprites:renderFramePreview', function (frame, /** @type {HTMLCanvasElement} */ canvas, allFrames, animating = false) {
         const ctx = canvas.getContext('2d');
         const width = canvas.width;
         const height = canvas.height;
@@ -17,6 +17,7 @@ editor.once('load', function () {
             return;
         }
 
+        /** @type {HTMLImageElement} */
         const atlasImage = editor.call('picker:sprites:atlasImage');
         if (!atlasImage) return;
 
@@ -105,9 +106,6 @@ editor.once('load', function () {
 
 
         // disable smoothing
-        ctx.mozImageSmoothingEnabled = false;
-        ctx.webkitImageSmoothingEnabled = false;
-        ctx.msImageSmoothingEnabled = false;
         ctx.imageSmoothingEnabled = false;
 
         ctx.drawImage(atlasImage, x, y, w, h, offsetX, offsetY, targetWidth, targetHeight);

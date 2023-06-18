@@ -1,8 +1,9 @@
 editor.once('load', function () {
     editor.method('picker:sprites:attributes:atlas', function (atlasAsset) {
+        /** @type {import('@playcanvas/pcui').Panel} */
         var rootPanel = editor.call('picker:sprites:rightPanel');
 
-        rootPanel.header = 'TEXTURE ATLAS';
+        rootPanel.headerText = 'TEXTURE ATLAS';
 
         var panel = editor.call('attributes:addPanel', {
             parent: rootPanel

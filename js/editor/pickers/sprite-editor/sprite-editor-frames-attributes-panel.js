@@ -7,11 +7,12 @@ editor.once('load', function () {
         var frames = args.frames;
         var numFrames = frames.length;
 
+        /** @type {import('@playcanvas/pcui').Panel} */
         var rootPanel = editor.call('picker:sprites:rightPanel');
         if (numFrames > 1) {
-            rootPanel.header = 'FRAME INSPECTOR - MULTIPLE FRAMES';
+            rootPanel.headerText = 'FRAME INSPECTOR - MULTIPLE FRAMES';
         } else {
-            rootPanel.header = 'FRAME INSPECTOR - ' + atlasAsset.get('data.frames.' + frames[0] + '.name');
+            rootPanel.headerText = 'FRAME INSPECTOR - ' + atlasAsset.get('data.frames.' + frames[0] + '.name');
         }
 
         editor.call('picker:sprites:attributes:frames:preview', {
@@ -42,7 +43,7 @@ editor.once('load', function () {
 
         fieldName.on('change', function (value) {
             if (numFrames === 1) {
-                rootPanel.header = 'FRAME INSPECTOR - ' + value;
+                rootPanel.headerText = 'FRAME INSPECTOR - ' + value;
             }
         });
 

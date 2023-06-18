@@ -1,5 +1,6 @@
 editor.once('load', function () {
     editor.method('picker:sprites:attributes:frames:preview', function (args) {
+        /** @type {import('@playcanvas/pcui').Panel} */
         const parent = editor.call('picker:sprites:rightPanel');
 
         const atlasAsset = args.atlasAsset;
@@ -25,7 +26,7 @@ editor.once('load', function () {
         }, false);
 
         parent.class.add('asset-preview');
-        parent.element.insertBefore(previewContainer, parent.innerElement);
+        parent.dom.insertBefore(previewContainer, parent.domContent);
 
         const panelControls = new ui.Panel();
         panelControls.class.add('preview-controls');

@@ -35,7 +35,8 @@ editor.once('load', function () {
         });
         menu.append(menuDelete);
 
-        var rootPanel = editor.call('picker:sprites:bottomPanel');
+        /** @type {import('@playcanvas/pcui').Panel} */
+        const rootPanel = editor.call('picker:sprites:bottomPanel');
 
         // grid
         var grid = new ui.Grid({
@@ -258,11 +259,11 @@ editor.once('load', function () {
 
         // Sprite edit mode
         events.push(editor.on('picker:sprites:pickFrames:start', function () {
-            rootPanel.disabled = true;
+            rootPanel.enabled = false;
         }));
 
         events.push(editor.on('picker:sprites:pickFrames:end', function () {
-            rootPanel.disabled = false;
+            rootPanel.enabled = true;
         }));
 
         events.push(rootPanel.on('clear', function () {
