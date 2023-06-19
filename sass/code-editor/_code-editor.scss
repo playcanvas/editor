@@ -1,3 +1,4 @@
+@use 'sass:color';
 @import '../pcui/pcui';
 @import 'variables';
 @import '../fonts';
@@ -81,7 +82,7 @@ strong {
 }
 
 #ui-top {
-    background-color: mix($bcg-darkest, black, 75%);
+    background-color: color.mix($bcg-darkest, black, 75%);
 
     > .pcui-button {
         background-color: transparent;
@@ -95,7 +96,7 @@ strong {
 
         &:hover {
             color: $text-primary;
-            background-color: mix($text-darkest, $bcg-darker, 30%);
+            background-color: color.mix($text-darkest, $bcg-darker, 30%);
             box-shadow: none;
         }
 
@@ -126,7 +127,7 @@ strong {
     box-sizing: border-box;
 
     $tab-bottom-margin: 2px;
-    $tab-bg-color: mix($bcg-darker, $bcg-darkest, 25%);
+    $tab-bg-color: color.mix($bcg-darker, $bcg-darkest, 25%);
 
     height: 32px - $tab-bottom-margin;
     line-height: 32px - $tab-bottom-margin;
@@ -180,7 +181,7 @@ strong {
         }
 
         &.dirty:not(.error) {
-            color: transparentize($muted-yellow, 0.15);
+            color: color.adjust($muted-yellow, $alpha: -0.15);
 
             &:hover,
             &.focused {
@@ -315,7 +316,7 @@ strong {
 }
 
 #ui-bottom {
-    background-color: mix($bcg-darkest, black, 75%);
+    background-color: color.mix($bcg-darkest, black, 75%);
 
     .pcui-label {
         margin: 0 0 0 5px;
@@ -363,7 +364,7 @@ strong {
 
     .pcui-treeview-item.dirty {
         .pcui-treeview-item-contents:not(.pcui-treeview-item-selected) {
-            color: transparentize($muted-yellow, 0.15);
+            color: color.adjust($muted-yellow, $alpha: -0.15);
         }
 
         .pcui-treeview-item-contents.pcui-treeview-item-selected {

@@ -83,6 +83,7 @@
     }
 
     .pcui-asset-input-controls {
+        /* stylelint-disable-next-line scss/no-global-function-names */
         background-color: transparentize($color: $bcg-dark, $amount: 1 - $element-opacity-readonly);
         border-color: transparent;
     }

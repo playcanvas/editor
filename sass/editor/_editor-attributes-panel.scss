@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 .pcui-panel.attributes {
     &.pcui-collapsible.pcui-panel-horizontal {
         &.pcui-collapsed {
@@ -1072,7 +1074,7 @@
 
                                     @extend .noSelect;
 
-                                    $color: mix($text-darkest, $bcg-primary, 50%);
+                                    $color: color.mix($text-darkest, $bcg-primary, 50%);
                                     $size: 6px;
                                     $inner-radius: 20%;
                                     $outer-radius: 55%;
@@ -1310,7 +1312,7 @@
                                     font-size: 12px;
 
                                     &:hover {
-                                        background-color: mix($bcg-dark, $bcg-primary, 50%);
+                                        background-color: color.mix($bcg-dark, $bcg-primary, 50%);
                                     }
 
                                     > .content {
@@ -1627,7 +1629,7 @@
 
                                 @extend .noSelect;
 
-                                $color: mix($text-darkest, $bcg-primary, 50%);
+                                $color: color.mix($text-darkest, $bcg-primary, 50%);
                                 $size: 6px;
                                 $inner-radius: 20%;
                                 $outer-radius: 55%;
@@ -1926,11 +1928,11 @@
 
         &.disabled {
             opacity: 1;
-            color: mix(#9ba1a3, #364346, 30%);
+            color: color.mix(#9ba1a3, #364346, 30%);
 
             &:hover,
             &:focus {
-                color: mix(#9ba1a3, #364346, 30%);
+                color: color.mix(#9ba1a3, #364346, 30%);
                 background-color: transparent;
             }
         }

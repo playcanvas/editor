@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 $cube-size: 24px;
 $color-one: #829193;
 $color-two: #f06531;
@@ -304,7 +306,7 @@ body > #dev-tools {
                 height: 24px;
 
                 > .header {
-                    color: mix(#202020, #fff, 50%);
+                    color: color.mix(#202020, #fff, 50%);
                 }
             }
         }

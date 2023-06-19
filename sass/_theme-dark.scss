@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 body {
     color: $text-secondary;
     background-color: $bcg-darker;
@@ -35,7 +37,7 @@ a {
 }
 
 a:hover {
-    color: saturate(lighten($text-active, 10%), 10%);
+    color: color.scale(color.adjust($text-active, $lightness: 10%), $saturation: 10%);
     text-decoration: underline;
 }
 
@@ -53,7 +55,7 @@ a:visited {
 
     &.disabled {
         > header {
-            background-color: mix($bcg-dark, $bcg-primary, 60%);
+            background-color: color.mix($bcg-dark, $bcg-primary, 60%);
         }
     }
 
@@ -283,7 +285,7 @@ a:visited {
         > .arrow {
             top: -8px;
             left: 8px;
-            border-bottom-color: mix($bcg-darkest, #000, 75%);
+            border-bottom-color: color.mix($bcg-darkest, #000, 75%);
         }
     }
 
@@ -297,7 +299,7 @@ a:visited {
         > .arrow {
             top: 8px;
             right: -8px;
-            border-left-color: mix($bcg-darkest, #000, 75%);
+            border-left-color: color.mix($bcg-darkest, #000, 75%);
         }
     }
 
@@ -311,7 +313,7 @@ a:visited {
         > .arrow {
             bottom: -8px;
             left: 8px;
-            border-top-color: mix($bcg-darkest, #000, 75%);
+            border-top-color: color.mix($bcg-darkest, #000, 75%);
         }
     }
 
@@ -325,7 +327,7 @@ a:visited {
         > .arrow {
             top: 8px;
             left: -8px;
-            border-right-color: mix($bcg-darkest, #000, 75%);
+            border-right-color: color.mix($bcg-darkest, #000, 75%);
         }
     }
 
@@ -333,7 +335,7 @@ a:visited {
         padding: 0 16px;
         line-height: 32px;
         font-size: 14px;
-        background-color: mix($bcg-darkest, #000, 75%);
+        background-color: color.mix($bcg-darkest, #000, 75%);
         color: $text-primary;
     }
 
@@ -397,7 +399,7 @@ a:visited {
 
     > .title {
         color: $text-dark;
-        border-bottom: 1px solid mix($bcg-darkest, $bcg-dark, 50%);
+        border-bottom: 1px solid color.mix($bcg-darkest, $bcg-dark, 50%);
 
         &:hover {
             color: $text-primary;
@@ -480,7 +482,7 @@ a:visited {
         &:hover,
         &:focus {
             color: $text-primary;
-            background-color: mix($bcg-darkest, $bcg-dark, 50%);
+            background-color: color.mix($bcg-darkest, $bcg-dark, 50%);
             outline: none;
         }
 
@@ -490,7 +492,7 @@ a:visited {
             outline: none;
 
             &:hover {
-                background-color: mix($bcg-darkest, $bcg-darker, 75%);
+                background-color: color.mix($bcg-darkest, $bcg-darker, 75%);
             }
         }
     }
@@ -512,7 +514,7 @@ a:visited {
         &:hover,
         &:focus {
             color: $text-primary;
-            background-color: mix($bcg-darkest, $bcg-dark, 50%);
+            background-color: color.mix($bcg-darkest, $bcg-dark, 50%);
             outline-color: transparent;
         }
 
@@ -522,7 +524,7 @@ a:visited {
             outline-color: $text-active;
 
             &:hover {
-                background-color: mix($bcg-darkest, $bcg-darker, 75%);
+                background-color: color.mix($bcg-darkest, $bcg-darker, 75%);
             }
         }
     }
@@ -861,7 +863,7 @@ a:visited {
 
         &.component-toggle::after {
             left: 15px;
-            background-color: mix($text-darkest, #7f7, 50%);
+            background-color: color.mix($text-darkest, #7f7, 50%);
         }
 
         &.component-toggle:hover,
@@ -1001,7 +1003,7 @@ a:visited {
 
     > .inner {
         $first: rgba($text-active, 1);
-        $second: rgba(darken($text-active, 17%), 1);
+        $second: rgba(color.adjust($text-active, $lightness: -17%), 1);
 
         background: $text-active;
         background: linear-gradient(135deg, $first 0%, $first 25%, $second 26%, $second 50%, $first 51%, $first 75%, $second 76%, $second 100%);

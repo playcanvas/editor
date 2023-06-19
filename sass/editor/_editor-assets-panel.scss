@@ -1,3 +1,6 @@
+@use 'sass:color';
+@use 'sass:map';
+
 #layout-assets {
     overflow: visible;
     background-color: $bcg-darker;
@@ -122,13 +125,13 @@
                         }
 
                         &:hover {
-                            background-color: mix($bcg-darker, $bcg-darkest, 33%);
+                            background-color: color.mix($bcg-darker, $bcg-darkest, 33%);
                         }
                     }
 
                     &:hover {
                         color: $text-primary;
-                        background-color: mix($bcg-darker, $bcg-darkest, 66%);
+                        background-color: color.mix($bcg-darker, $bcg-darkest, 66%);
 
                         &::before {
                             color: $text-primary;
@@ -554,11 +557,11 @@
     }
 
     &.type-render::before {
-        content: map-get($asset-icons, 'render');
+        content: map.get($asset-icons, 'render');
     }
 
     &.type-sprite::before {
-        content: map-get($asset-icons, 'sprite');
+        content: map.get($asset-icons, 'sprite');
     }
 }
 

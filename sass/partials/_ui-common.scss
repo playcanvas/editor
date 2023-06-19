@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 .picker-confirm {
     z-index: 10000; // TODO: Reorganize how the UI sets z-indexes
 
@@ -31,12 +33,12 @@
         }
 
         > .no {
-            background: darken($text-active, 7%);
+            background: color.adjust($text-active, $lightness: -7%);
             color: $text-primary;
 
             &:hover,
             &:focus {
-                background: darken($text-active, 12%);
+                background: color.adjust($text-active, $lightness: -12%);
             }
         }
     }

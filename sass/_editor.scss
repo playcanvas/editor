@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 html {
     height: 100%;
     overflow: hidden;
@@ -183,7 +185,7 @@ strong {
                 font-size: 12px;
                 line-height: 20px;
                 font-weight: 100;
-                color: mix($text-dark, $text-primary, 50%);
+                color: color.mix($text-dark, $text-primary, 50%);
 
                 &:first-child {
                     margin-top: 0;
@@ -211,7 +213,7 @@ strong {
                     background-color: $text-active;
 
                     &::after {
-                        background-color: mix($text-active, mix($bcg-darkest, #000, 75%), 50%);
+                        background-color: color.mix($text-active, color.mix($bcg-darkest, #000, 75%), 50%);
                     }
                 }
 
@@ -1403,7 +1405,7 @@ strong {
 
                                     @extend .noSelect;
 
-                                    $color: mix($text-darkest, $bcg-primary, 50%);
+                                    $color: color.mix($text-darkest, $bcg-primary, 50%);
                                     $size: 6px;
                                     $inner-radius: 20%;
                                     $outer-radius: 55%;
@@ -1637,7 +1639,7 @@ strong {
                                     font-size: 12px;
 
                                     &:hover {
-                                        background-color: mix($bcg-dark, $bcg-primary, 50%);
+                                        background-color: color.mix($bcg-dark, $bcg-primary, 50%);
                                     }
 
                                     > .content {
@@ -1951,7 +1953,7 @@ strong {
 
                                 @extend .noSelect;
 
-                                $color: mix($text-darkest, $bcg-primary, 50%);
+                                $color: color.mix($text-darkest, $bcg-primary, 50%);
                                 $size: 6px;
                                 $inner-radius: 20%;
                                 $outer-radius: 55%;
@@ -2237,7 +2239,7 @@ strong {
 
     &.null {
         &::after {
-            color: mix($bcg-primary, $text-darkest, 50%);
+            color: color.mix($bcg-primary, $text-darkest, 50%);
             left: 0;
         }
 
@@ -2288,7 +2290,7 @@ strong {
 
             content: '\E133';
             color: $text-primary;
-            background-color: mix($text-dark, $bcg-darkest, 50%);
+            background-color: color.mix($text-dark, $bcg-darkest, 50%);
         }
     }
 
@@ -2651,18 +2653,18 @@ strong {
         }
 
         &:hover {
-            background-color: mix($bcg-darkest, $bcg-dark, 50%);
+            background-color: color.mix($bcg-darkest, $bcg-dark, 50%);
 
             > .thumbnail {
                 color: $text-primary;
             }
 
             > .label {
-                background-color: mix($bcg-darkest, $bcg-dark, 50%);
+                background-color: color.mix($bcg-darkest, $bcg-dark, 50%);
             }
 
             > .icon {
-                color: mix($bcg-darkest, $bcg-dark, 50%);
+                color: color.mix($bcg-darkest, $bcg-dark, 50%);
             }
         }
 
@@ -2682,10 +2684,10 @@ strong {
             }
 
             &:hover {
-                background-color: mix($bcg-darkest, $bcg-darker, 75%);
+                background-color: color.mix($bcg-darkest, $bcg-darker, 75%);
 
                 > .label {
-                    background-color: mix($bcg-darkest, $bcg-darker, 75%);
+                    background-color: color.mix($bcg-darkest, $bcg-darker, 75%);
                 }
             }
         }
@@ -2712,7 +2714,7 @@ strong {
         &.task {
             &.failed::after {
                 $first: rgba(#f77, 1);
-                $second: rgba(darken(#f77, 17%), 1);
+                $second: rgba(color.adjust(#f77, $lightness: -17%), 1);
 
                 background: $text-active;
                 background: linear-gradient(135deg, $first 0%, $first 25%, $second 26%, $second 50%, $first 51%, $first 75%, $second 76%, $second 100%);
@@ -2732,7 +2734,7 @@ strong {
                 height: 4px;
 
                 $first: rgba($text-active, 1);
-                $second: rgba(darken($text-active, 17%), 1);
+                $second: rgba(color.adjust($text-active, $lightness: -17%), 1);
 
                 background: linear-gradient(135deg, $first 0%, $first 25%, $second 26%, $second 50%, $first 51%, $first 75%, $second 76%, $second 100%) $text-darkest;
                 background-position: 0 0;
@@ -3579,7 +3581,7 @@ strong {
 
                     &:hover,
                     &:focus {
-                        background-color: mix($bcg-dark, $bcg-darkest, 50%);
+                        background-color: color.mix($bcg-dark, $bcg-darkest, 50%);
                     }
                 }
 
@@ -4082,7 +4084,7 @@ strong {
                             @extend .font-icon;
 
                             font-size: 20px;
-                            background-color: transparentize($text-active, 0.5);
+                            background-color: color.adjust($text-active, $alpha: -0.5);
                         }
 
                         &:hover::after {
@@ -8070,7 +8072,7 @@ strong {
                     position: absolute;
                     top: 15px;
                     right: 15px;
-                    background-color: transparentize($text-active, 0.1);
+                    background-color: color.adjust($text-active, $alpha: -0.1);
                     width: 122px;
                     height: 34px;
                     font-size: 12px;
@@ -8789,7 +8791,7 @@ strong {
                                     linear-gradient(45deg, $bcg-darker 25%, transparent 25%, transparent 75%, $bcg-darker 75%, $bcg-darker 100%);
 
                                 &.dragged {
-                                    $color: darken($bcg-darkest, 2%);
+                                    $color: color.adjust($bcg-darkest, $lightness: -2%);
 
                                     background-image:
                                         linear-gradient(45deg, $color 25%, transparent 25%, transparent 75%, $color 75%, $color 100%),
@@ -8834,7 +8836,7 @@ strong {
 
                                     @extend .noSelect;
 
-                                    $color: mix($text-darkest, $bcg-primary, 50%);
+                                    $color: color.mix($text-darkest, $bcg-primary, 50%);
                                     $size: 6px;
                                     $inner-radius: 20%;
                                     $outer-radius: 55%;
@@ -9193,14 +9195,14 @@ strong {
 
                                         &.highlighted {
                                             color: $text-primary;
-                                            background: darken(#f60, 7%);
+                                            background: color.adjust(#f60, $lightness: -7%);
 
                                             &:hover {
-                                                background: darken($text-active, 10%);
+                                                background: color.adjust($text-active, $lightness: -10%);
                                             }
 
                                             &:active {
-                                                background: darken(#f60, 12%);
+                                                background: color.adjust(#f60, $lightness: -12%);
                                             }
                                         }
                                     }
@@ -10377,7 +10379,7 @@ strong {
 
                                     &.foldable {
                                         > .ui-header {
-                                            background: lighten($bcg-dark, 1%);
+                                            background: color.adjust($bcg-dark, $lightness: 1%);
                                             color: $text-primary;
 
                                             @extend .font-regular;
@@ -10594,7 +10596,7 @@ strong {
                                                     height: 32px;
                                                     line-height: 32px;
                                                     color: $text-primary;
-                                                    background: mix($bcg-primary, $bcg-dark, 50%);
+                                                    background: color.mix($bcg-primary, $bcg-dark, 50%);
                                                     box-sizing: border-box;
 
                                                     &.indent-1 {
@@ -10604,7 +10606,7 @@ strong {
                                                     &:not(.light) {
                                                         @extend .font-bold;
 
-                                                        background: lighten($bcg-dark, 1%);
+                                                        background: color.adjust($bcg-dark, $lightness: 1%);
                                                     }
 
                                                     &.light {
@@ -10702,7 +10704,7 @@ strong {
                                     }
 
                                     &.mark-resolved {
-                                        background: darken($text-active, 7%);
+                                        background: color.adjust($text-active, $lightness: -7%);
                                         color: $text-primary;
 
                                         &::before {
@@ -10711,7 +10713,7 @@ strong {
 
                                         &:hover,
                                         &:focus {
-                                            background: darken($text-active, 12%);
+                                            background: color.adjust($text-active, $lightness: -12%);
                                         }
                                     }
 

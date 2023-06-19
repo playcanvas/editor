@@ -96,6 +96,7 @@
 // readonly state
 .pcui-entity-input.pcui-readonly {
     color: $text-secondary;
+    /* stylelint-disable-next-line scss/no-global-function-names */
     background-color: transparentize($color: $bcg-dark, $amount: 1 - $element-opacity-readonly);
     border-color: transparent;
 

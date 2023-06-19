@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 #layout-toolbar {
     background-color: $bcg-darker;
     z-index: 1000;
@@ -39,7 +41,7 @@
 
                 &:hover,
                 &:focus {
-                    background-color: mix($bcg-dark, $bcg-darkest, 50%);
+                    background-color: color.mix($bcg-dark, $bcg-darkest, 50%);
                 }
             }
 
@@ -56,11 +58,11 @@
 
             &.disabled {
                 opacity: 1;
-                color: mix($text-dark, $bcg-primary, 30%);
+                color: color.mix($text-dark, $bcg-primary, 30%);
 
                 &:hover,
                 &:focus {
-                    color: mix($text-dark, $bcg-primary, 30%);
+                    color: color.mix($text-dark, $bcg-primary, 30%);
                     background-color: $bcg-primary;
                 }
             }

@@ -1,9 +1,11 @@
+@use 'sass:color';
+
 .popup-release-notes {
     position: absolute;
     bottom: 5px;
     right: 5px;
     z-index: 1;
-    background: darken($text-active, 5%);
+    background: color.adjust($text-active, $lightness: -5%);
     height: 32px;
     align-items: center;
     padding-left: 3px;

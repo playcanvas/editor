@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 .noSelect {
     user-select: none;
 }
@@ -96,7 +98,7 @@ a:visited {
     &.disabled {
         > header {
             color: #999;
-            background-color: mix(#111, #222, $disabled-opacity);
+            background-color: color.mix(#111, #222, $disabled-opacity);
         }
     }
 

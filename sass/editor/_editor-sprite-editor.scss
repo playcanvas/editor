@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 #sprite-editor {
     > .pcui-overlay-inner {
         background-color: rgba($bcg-darkest, 0.9);
@@ -90,14 +92,14 @@
                                     background-color: $bcg-darker;
 
                                     &:hover {
-                                        background-color: mix($bcg-darkest, $bcg-dark, 50%);
+                                        background-color: color.mix($bcg-darkest, $bcg-dark, 50%);
 
                                         > .thumbnail {
                                             color: $text-primary;
                                         }
 
                                         > .label {
-                                            background-color: mix($bcg-darkest, $bcg-dark, 50%);
+                                            background-color: color.mix($bcg-darkest, $bcg-dark, 50%);
                                         }
                                     }
 
@@ -113,10 +115,10 @@
                                         }
 
                                         &:hover {
-                                            background-color: mix($bcg-darkest, $bcg-darker, 75%);
+                                            background-color: color.mix($bcg-darkest, $bcg-darker, 75%);
 
                                             > .label {
-                                                background-color: mix($bcg-darkest, $bcg-darker, 75%);
+                                                background-color: color.mix($bcg-darkest, $bcg-darker, 75%);
                                             }
                                         }
                                     }
@@ -332,7 +334,7 @@
                         }
 
                         &.dragged {
-                            background-color: darken($bcg-darkest, 2%);
+                            background-color: color.adjust($bcg-darkest, $lightness: -2%);
                         }
 
                         border: 1px solid $bcg-darker;
@@ -346,7 +348,7 @@
 
                             @extend .noSelect;
 
-                            $color: mix($text-darkest, $bcg-primary, 50%);
+                            $color: color.mix($text-darkest, $bcg-primary, 50%);
                             $size: 6px;
                             $inner-radius: 20%;
                             $outer-radius: 55%;
@@ -381,7 +383,7 @@
                         }
 
                         canvas {
-                            background-color: darken($text-darkest, 10%);
+                            background-color: color.adjust($text-darkest, $lightness: -10%);
                             border: 1px solid $border-primary;
                             vertical-align: middle;
                         }

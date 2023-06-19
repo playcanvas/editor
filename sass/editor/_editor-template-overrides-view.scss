@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 .template-overrides {
     background: $bcg-darkest;
     position: absolute;
@@ -165,7 +167,7 @@
 
 .template-overrides-override-group-placeholder {
     height: 25px;
-    background: transparentize($bcg-darkest, 0.8);
+    background: color.adjust($color: $bcg-darkest, $alpha: -0.8);
 }
 
 .template-overrides-override-group-content {

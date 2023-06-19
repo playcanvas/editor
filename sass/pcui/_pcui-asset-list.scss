@@ -1,3 +1,5 @@
+@use "sass:map";
+
 .pcui-asset-list {
     margin: $element-margin;
     transition: opacity 100ms;
@@ -58,7 +60,7 @@
 @each $assetType in $assets {
     .pcui-asset-list-item-#{$assetType} {
         &::before {
-            content: map-get($icons, 'asset-#{$assetType}');
+            content: map.get($icons, 'asset-#{$assetType}');
 
             @extend .font-icon;
         }

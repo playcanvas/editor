@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 .picker-fix-templates {
     .pcui-overlay-content {
         z-index: 1;
@@ -52,7 +54,7 @@
             color: $text-primary;
 
             &:hover {
-                background: darken($text-active, 5%);
+                background: color.adjust($text-active, $lightness: -5%);
             }
         }
     }
@@ -85,7 +87,7 @@
             color: $text-primary;
 
             &:hover {
-                background: darken($text-active, 5%);
+                background: color.adjust($text-active, $lightness: -5%);
             }
         }
     }
