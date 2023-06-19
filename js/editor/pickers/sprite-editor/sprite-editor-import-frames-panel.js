@@ -1,11 +1,11 @@
 editor.once('load', function () {
     editor.method('picker:sprites:attributes:importFrames', function (args) {
-        var events = [];
-        var atlasAsset = args.atlasAsset;
+        const events = [];
+        const atlasAsset = args.atlasAsset;
 
-        var rootPanel = editor.call('picker:sprites:rightPanel');
+        const rootPanel = editor.call('picker:sprites:rightPanel');
 
-        var panel = editor.call('attributes:addPanel', {
+        const panel = editor.call('attributes:addPanel', {
             parent: rootPanel,
             name: 'IMPORT FRAME DATA'
         });
@@ -17,20 +17,20 @@ editor.once('load', function () {
             panel.disabled = !canWrite;
         }));
 
-        var panelError = new ui.Panel('Invalid JSON file');
+        const panelError = new ui.Panel('Invalid JSON file');
         panelError.class.add('import-error');
         panel.append(panelError);
         panelError.flex = true;
         panelError.hidden = true;
 
-        var labelError = new ui.Label({
+        const labelError = new ui.Label({
             text: 'Please upload a valid JSON file that has been created with the Texture Packer application.'
         });
         labelError.flexGrow = 1;
         labelError.renderChanges = false;
         panelError.append(labelError);
 
-        var btnCloseError = new ui.Button({
+        const btnCloseError = new ui.Button({
             text: '&#57650;'
         });
         btnCloseError.class.add('close');
@@ -40,17 +40,17 @@ editor.once('load', function () {
             panelError.hidden = true;
         });
 
-        var panelButtons = new ui.Panel();
+        const panelButtons = new ui.Panel();
         panelButtons.flex = true;
         panel.append(panelButtons);
 
-        var hiddenInput = document.createElement('input');
+        const hiddenInput = document.createElement('input');
         hiddenInput.type = 'file';
         hiddenInput.accept = '.json';
         hiddenInput.style.display = 'none';
         panel.innerElement.appendChild(hiddenInput);
 
-        var btnImport = new ui.Button({
+        const btnImport = new ui.Button({
             text: 'UPLOAD TEXTURE PACKER JSON'
         });
         btnImport.flexGrow = 1;
@@ -63,8 +63,8 @@ editor.once('load', function () {
         btnImport.on('click', function () {
             panelError.hidden = true;
 
-            var hasFrames = false;
-            var currentFrames = atlasAsset.getRaw('data.frames')._data;
+            let hasFrames = false;
+            const currentFrames = atlasAsset.getRaw('data.frames')._data;
             for (const key in currentFrames) { // eslint-disable-line 
                 hasFrames = true;
                 break;
@@ -85,11 +85,11 @@ editor.once('load', function () {
             btnImport.disabled = true;
             btnImport.text = 'PROCESSING...';
 
-            var reader = new FileReader();
+            const reader = new FileReader();
             reader.onload = function (e) {
                 hiddenInput.value = null;
-                var text = reader.result;
-                var data = null;
+                const text = reader.result;
+                let data = null;
                 try {
                     data = JSON.parse(text);
                     importFramesFromTexturePacker(data);
@@ -105,7 +105,7 @@ editor.once('load', function () {
             reader.readAsText(hiddenInput.files[0]);
         });
 
-        var createFrame = function (name, frameData, height, scaleWidth, scaleHeight) {
+        const createFrame = function (name, frameData, height, scaleWidth, scaleHeight) {
             // the free version of texturepacker doesn't include the pivot data, so provide defaults if necessary
             if (!frameData.pivot) {
                 frameData.pivot = {
@@ -136,42 +136,42 @@ editor.once('load', function () {
             };
         };
 
-        var importFramesFromTexturePacker = function (data) {
-            var width = data.meta.size.w;
-            var height = data.meta.size.h;
-            var actualWidth = atlasAsset.get('meta.width');
-            var actualHeight = atlasAsset.get('meta.height');
+        const importFramesFromTexturePacker = function (data) {
+            const width = data.meta.size.w;
+            const height = data.meta.size.h;
+            const actualWidth = atlasAsset.get('meta.width');
+            const actualHeight = atlasAsset.get('meta.height');
 
-            var scaleWidth = actualWidth / width;
-            var scaleHeight = actualHeight / height;
+            const scaleWidth = actualWidth / width;
+            const scaleHeight = actualHeight / height;
 
-            var oldFrames = atlasAsset.getRaw('data.frames')._data;
+            const oldFrames = atlasAsset.getRaw('data.frames')._data;
 
-            var nameIndex = {};
-            var counter = 0;
+            const nameIndex = {};
+            let counter = 0;
 
             for (const key in oldFrames) {
                 // get name of old frame
-                var name = oldFrames[key]._data.name;
+                const name = oldFrames[key]._data.name;
 
                 // if name exists in new frames then remember
                 // its old key
                 if (data.frames[name]) {
                     nameIndex[name] = key;
                     // set counter to be larger than the the max existing index
-                    var intKey = parseInt(key, 10);
+                    const intKey = parseInt(key, 10);
                     if (counter <= intKey) {
                         counter = intKey + 1;
                     }
                 }
             }
 
-            var newFrames = {};
+            const newFrames = {};
             // for all the new frames
             for (const key in data.frames) {
                 // create new frame
-                var frameData = data.frames[key];
-                var frame = createFrame(frameData.filename || key, frameData, height, scaleWidth, scaleHeight);
+                const frameData = data.frames[key];
+                const frame = createFrame(frameData.filename || key, frameData, height, scaleWidth, scaleHeight);
 
                 // if frame already exists then use the same index
                 if (nameIndex.hasOwnProperty(key)) {

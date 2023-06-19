@@ -1,35 +1,35 @@
 editor.once('load', function () {
     editor.method('picker:sprites:attributes:frames:relatedSprites', function (args) {
-        var events = [];
+        const events = [];
 
-        var atlasAsset = args.atlasAsset;
-        var frames = args.frames;
-        var numFrames = frames.length;
+        const atlasAsset = args.atlasAsset;
+        const frames = args.frames;
+        const numFrames = frames.length;
 
-        var rootPanel = editor.call('picker:sprites:rightPanel');
+        const rootPanel = editor.call('picker:sprites:rightPanel');
 
-        var panel = editor.call('attributes:addPanel', {
+        const panel = editor.call('attributes:addPanel', {
             parent: rootPanel,
             name: 'RELATED SPRITE ASSETS'
         });
 
         panel.class.add('component');
 
-        var labelNoAssets = new ui.Label({
+        const labelNoAssets = new ui.Label({
             text: 'None'
         });
         panel.append(labelNoAssets);
 
-        var list = new ui.List();
+        const list = new ui.List();
         list.class.add('related-assets');
         panel.append(list);
 
-        var assets = editor.call('assets:find', function (asset) {
+        const assets = editor.call('assets:find', function (asset) {
             if (asset.get('type') !== 'sprite' || asset.get('data.textureAtlasAsset') !== atlasAsset.get('id')) {
                 return false;
             }
 
-            var keys = asset.getRaw('data.frameKeys');
+            const keys = asset.getRaw('data.frameKeys');
             for (let i = 0; i < numFrames; i++) {
                 if (keys.indexOf(frames[i]) !== -1) {
                     return true;
@@ -42,10 +42,10 @@ editor.once('load', function () {
         labelNoAssets.hidden = assets.length > 0;
         list.hidden = assets.length === 0;
 
-        var createAssetPanel = function (asset) {
-            var assetEvents = [];
+        const createAssetPanel = function (asset) {
+            const assetEvents = [];
 
-            var item = new ui.ListItem({
+            const item = new ui.ListItem({
                 text: asset.get('name')
             });
             item.class.add('type-sprite');

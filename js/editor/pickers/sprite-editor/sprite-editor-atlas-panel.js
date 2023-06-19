@@ -1,18 +1,18 @@
 editor.once('load', function () {
     editor.method('picker:sprites:attributes:atlas', function (atlasAsset) {
         /** @type {import('@playcanvas/pcui').Panel} */
-        var rootPanel = editor.call('picker:sprites:rightPanel');
+        const rootPanel = editor.call('picker:sprites:rightPanel');
 
         rootPanel.headerText = 'TEXTURE ATLAS';
 
-        var panel = editor.call('attributes:addPanel', {
+        const panel = editor.call('attributes:addPanel', {
             parent: rootPanel
         });
 
-        var events = [];
+        const events = [];
 
         // atlas id
-        var fieldId = editor.call('attributes:addField', {
+        const fieldId = editor.call('attributes:addField', {
             parent: panel,
             name: 'ID',
             link: atlasAsset,
@@ -22,7 +22,7 @@ editor.once('load', function () {
         editor.call('attributes:reference:attach', 'asset:id', fieldId.parent.innerElement.firstChild.ui, null, panel);
 
         // atlas width
-        var fieldWidth = editor.call('attributes:addField', {
+        const fieldWidth = editor.call('attributes:addField', {
             parent: panel,
             name: 'Width',
             path: 'meta.width',
@@ -32,7 +32,7 @@ editor.once('load', function () {
         editor.call('attributes:reference:attach', 'spriteeditor:atlas:width', fieldWidth.parent.innerElement.firstChild.ui, null, panel);
 
         // atlas height
-        var fieldHeight = editor.call('attributes:addField', {
+        const fieldHeight = editor.call('attributes:addField', {
             parent: panel,
             name: 'Height',
             path: 'meta.height',
@@ -42,19 +42,19 @@ editor.once('load', function () {
         editor.call('attributes:reference:attach', 'spriteeditor:atlas:height', fieldHeight.parent.innerElement.firstChild.ui, null, panel);
 
         // number of frames
-        var fieldFrames = editor.call('attributes:addField', {
+        const fieldFrames = editor.call('attributes:addField', {
             parent: panel,
             name: 'Frames'
         });
         // reference
         editor.call('attributes:reference:attach', 'spriteeditor:atlas:frames', fieldFrames.parent.innerElement.firstChild.ui, null, panel);
 
-        var timeout;
+        let timeout;
 
         // Update number of frames field
-        var updateFrameCount = function () {
+        const updateFrameCount = function () {
             timeout = null;
-            var frames = atlasAsset.getRaw('data.frames')._data;
+            const frames = atlasAsset.getRaw('data.frames')._data;
             fieldFrames.value = Object.keys(frames).length;
         };
 

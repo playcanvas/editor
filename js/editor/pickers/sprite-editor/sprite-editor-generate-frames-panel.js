@@ -1,14 +1,14 @@
 editor.once('load', function () {
     editor.method('picker:sprites:attributes:slice', function (args) {
-        var events = [];
+        const events = [];
 
-        var atlasAsset = args.atlasAsset;
-        var atlasImage = args.atlasImage;
-        var imageData = args.atlasImageData;
+        const atlasAsset = args.atlasAsset;
+        const atlasImage = args.atlasImage;
+        const imageData = args.atlasImageData;
 
-        var rootPanel = editor.call('picker:sprites:rightPanel');
+        const rootPanel = editor.call('picker:sprites:rightPanel');
 
-        var panel = editor.call('attributes:addPanel', {
+        const panel = editor.call('attributes:addPanel', {
             parent: rootPanel,
             name: 'GENERATE FRAMES'
         });
@@ -19,25 +19,25 @@ editor.once('load', function () {
             panel.disabled = !canWrite;
         }));
 
-        var METHOD_DELETE_EXISTING = 1;
-        var METHOD_ONLY_APPEND = 2;
+        const METHOD_DELETE_EXISTING = 1;
+        const METHOD_ONLY_APPEND = 2;
 
-        var TYPE_GRID_BY_FRAME_COUNT  = 1;
-        var TYPE_GRID_BY_FRAME_SIZE  = 2;
-        var TYPE_GRID_AUTO = 3; // not implemented
+        const TYPE_GRID_BY_FRAME_COUNT  = 1;
+        const TYPE_GRID_BY_FRAME_SIZE  = 2;
+        const TYPE_GRID_AUTO = 3; // not implemented
 
-        var PIVOT_TOP_LEFT  = 0;
-        var PIVOT_TOP       = 1;
-        var PIVOT_TOP_RIGHT = 2;
-        var PIVOT_LEFT      = 3;
-        var PIVOT_CENTER    = 4;
-        var PIVOT_RIGHT     = 5;
-        var PIVOT_BOTTOM_LEFT   = 6;
-        var PIVOT_BOTTOM        = 7;
-        var PIVOT_BOTTOM_RIGHT  = 8;
+        const PIVOT_TOP_LEFT  = 0;
+        const PIVOT_TOP       = 1;
+        const PIVOT_TOP_RIGHT = 2;
+        const PIVOT_LEFT      = 3;
+        const PIVOT_CENTER    = 4;
+        const PIVOT_RIGHT     = 5;
+        const PIVOT_BOTTOM_LEFT   = 6;
+        const PIVOT_BOTTOM        = 7;
+        const PIVOT_BOTTOM_RIGHT  = 8;
 
 
-        var fieldMethod = editor.call('attributes:addField', {
+        const fieldMethod = editor.call('attributes:addField', {
             parent: panel,
             name: 'Method',
             type: 'number',
@@ -50,7 +50,7 @@ editor.once('load', function () {
         // reference
         editor.call('attributes:reference:attach', 'spriteeditor:generate:method', fieldMethod.parent.innerElement.firstChild.ui, null, panel);
 
-        var fieldType = editor.call('attributes:addField', {
+        const fieldType = editor.call('attributes:addField', {
             parent: panel,
             name: 'Type',
             type: 'number',
@@ -64,7 +64,7 @@ editor.once('load', function () {
         // reference
         editor.call('attributes:reference:attach', 'spriteeditor:generate:type', fieldType.parent.innerElement.firstChild.ui, null, panel);
 
-        var fieldColsRows = editor.call('attributes:addField', {
+        const fieldColsRows = editor.call('attributes:addField', {
             parent: panel,
             name: 'Frame Count',
             type: 'vec2',
@@ -76,7 +76,7 @@ editor.once('load', function () {
         // reference
         editor.call('attributes:reference:attach', 'spriteeditor:generate:count', fieldColsRows[0].parent.innerElement.firstChild.ui, null, panel);
 
-        var fieldPixels = editor.call('attributes:addField', {
+        const fieldPixels = editor.call('attributes:addField', {
             parent: panel,
             name: 'Frame Size',
             type: 'vec2',
@@ -88,7 +88,7 @@ editor.once('load', function () {
         // reference
         editor.call('attributes:reference:attach', 'spriteeditor:generate:size', fieldPixels[0].parent.innerElement.firstChild.ui, null, panel);
 
-        var fieldOffset = editor.call('attributes:addField', {
+        const fieldOffset = editor.call('attributes:addField', {
             parent: panel,
             name: 'Offset',
             type: 'vec2',
@@ -100,7 +100,7 @@ editor.once('load', function () {
         // reference
         editor.call('attributes:reference:attach', 'spriteeditor:generate:offset', fieldOffset[0].parent.innerElement.firstChild.ui, null, panel);
 
-        var fieldSpacing = editor.call('attributes:addField', {
+        const fieldSpacing = editor.call('attributes:addField', {
             parent: panel,
             name: 'Spacing',
             type: 'vec2',
@@ -113,7 +113,7 @@ editor.once('load', function () {
         editor.call('attributes:reference:attach', 'spriteeditor:generate:spacing', fieldSpacing[0].parent.innerElement.firstChild.ui, null, panel);
 
         // pivot presets
-        var presetValues = [
+        const presetValues = [
             [0, 1],
             [0.5, 1],
             [1, 1],
@@ -125,7 +125,7 @@ editor.once('load', function () {
             [1, 0]
         ];
 
-        var fieldPivot = editor.call('attributes:addField', {
+        const fieldPivot = editor.call('attributes:addField', {
             parent: panel,
             name: 'Pivot',
             type: 'number',
@@ -145,7 +145,7 @@ editor.once('load', function () {
         // reference
         editor.call('attributes:reference:attach', 'spriteeditor:generate:pivot', fieldPivot.parent.innerElement.firstChild.ui, null, panel);
 
-        var toggleFields = function () {
+        const toggleFields = function () {
             fieldColsRows[0].parent.hidden = fieldType.value !== TYPE_GRID_BY_FRAME_COUNT;
             fieldPixels[0].parent.hidden = fieldType.value !== TYPE_GRID_BY_FRAME_SIZE;
             fieldOffset[0].parent.hidden = fieldType.value !== TYPE_GRID_BY_FRAME_COUNT && fieldType.value !== TYPE_GRID_BY_FRAME_SIZE;
@@ -156,7 +156,7 @@ editor.once('load', function () {
 
         fieldType.on('change', toggleFields);
 
-        var btnGenerate = editor.call('attributes:addField', {
+        const btnGenerate = editor.call('attributes:addField', {
             parent: panel,
             text: 'GENERATE FRAMES',
             type: 'button',
@@ -170,16 +170,16 @@ editor.once('load', function () {
 
         btnGenerate.on('click', function () {
             btnGenerate.disabled = true;
-            var type = fieldType.value;
-            var method = fieldMethod.value;
+            const type = fieldType.value;
+            const method = fieldMethod.value;
 
-            var oldFrames = atlasAsset.get('data.frames');
-            var newFrames = method === METHOD_DELETE_EXISTING ? {} : atlasAsset.get('data.frames');
+            const oldFrames = atlasAsset.get('data.frames');
+            const newFrames = method === METHOD_DELETE_EXISTING ? {} : atlasAsset.get('data.frames');
 
-            var redo = function () {
-                var asset = editor.call('assets:get', atlasAsset.get('id'));
+            const redo = function () {
+                const asset = editor.call('assets:get', atlasAsset.get('id'));
                 if (!asset) return;
-                var history = asset.history.enabled;
+                const history = asset.history.enabled;
                 asset.history.enabled = false;
 
                 if (type === TYPE_GRID_BY_FRAME_COUNT) {
@@ -198,10 +198,10 @@ editor.once('load', function () {
                 asset.history.enabled = history;
             };
 
-            var undo = function () {
-                var asset = editor.call('assets:get', atlasAsset.get('id'));
+            const undo = function () {
+                const asset = editor.call('assets:get', atlasAsset.get('id'));
                 if (!asset) return;
-                var history = asset.history.enabled;
+                const history = asset.history.enabled;
                 asset.history.enabled = false;
                 setFrames(asset, oldFrames);
                 asset.history.enabled = history;
@@ -221,7 +221,7 @@ editor.once('load', function () {
             }, 50);
         });
 
-        var btnClear = editor.call('attributes:addField', {
+        const btnClear = editor.call('attributes:addField', {
             parent: panel,
             text: 'Delete All Frames',
             type: 'button',
@@ -235,23 +235,23 @@ editor.once('load', function () {
 
         btnClear.on('click', function () {
             editor.call('picker:confirm', 'Are you sure you want to delete all the frames?', function () {
-                var frames = atlasAsset.get('data.frames');
+                const frames = atlasAsset.get('data.frames');
 
                 btnClear.disabled = true;
 
-                var redo = function () {
-                    var asset = editor.call('assets:get', atlasAsset.get('id'));
+                const redo = function () {
+                    const asset = editor.call('assets:get', atlasAsset.get('id'));
                     if (!asset) return;
-                    var history = asset.history.enabled;
+                    const history = asset.history.enabled;
                     asset.history.enabled = false;
                     setFrames(asset, {});
                     asset.history.enabled = history;
                 };
 
-                var undo = function () {
-                    var asset = editor.call('assets:get', atlasAsset.get('id'));
+                const undo = function () {
+                    const asset = editor.call('assets:get', atlasAsset.get('id'));
                     if (!asset) return;
-                    var history = asset.history.enabled;
+                    const history = asset.history.enabled;
                     asset.history.enabled = false;
                     setFrames(asset, frames);
                     asset.history.enabled = history;
@@ -272,8 +272,8 @@ editor.once('load', function () {
         });
 
         // Set frames without firing events for each individual json field
-        var setFrames = function (asset, frames) {
-            var suspend = asset.suspendEvents;
+        const setFrames = function (asset, frames) {
+            const suspend = asset.suspendEvents;
             asset.suspendEvents = true;
             asset.set('data.frames', frames);
             asset.suspendEvents = suspend;
@@ -282,35 +282,35 @@ editor.once('load', function () {
         };
 
         // Slice atlas in frames using a grid
-        var sliceGridByCount = function (cols, rows, frames) {
-            var pivot = presetValues[fieldPivot.value];
+        const sliceGridByCount = function (cols, rows, frames) {
+            const pivot = presetValues[fieldPivot.value];
 
-            var maxKey = 1;
+            let maxKey = 1;
             for (const key in frames) {
                 maxKey = Math.max(maxKey, parseInt(key, 10) + 1);
             }
 
-            var offsetX = fieldOffset[0].value;
-            var offsetY = fieldOffset[1].value;
+            const offsetX = fieldOffset[0].value;
+            const offsetY = fieldOffset[1].value;
 
-            var spacingX = fieldSpacing[0].value;
-            var spacingY = fieldSpacing[1].value;
+            const spacingX = fieldSpacing[0].value;
+            const spacingY = fieldSpacing[1].value;
 
-            var imgWidth = atlasImage.width - offsetX;
-            var imgHeight = atlasImage.height - offsetY;
+            const imgWidth = atlasImage.width - offsetX;
+            const imgHeight = atlasImage.height - offsetY;
 
-            var totalSpacingX = spacingX * (cols - 1);
-            var totalSpacingY = spacingY * (rows - 1);
+            const totalSpacingX = spacingX * (cols - 1);
+            const totalSpacingY = spacingY * (rows - 1);
 
-            var frameWidth = Math.floor((imgWidth - totalSpacingX) / cols);
-            var frameHeight = Math.floor((imgHeight - totalSpacingY) / rows);
+            const frameWidth = Math.floor((imgWidth - totalSpacingX) / cols);
+            const frameHeight = Math.floor((imgHeight - totalSpacingY) / rows);
 
-            var spacedHeight = frameHeight + spacingY;
+            const spacedHeight = frameHeight + spacingY;
 
-            for (var r = 0; r < rows; r++) {
-                for (var c = 0; c < cols; c++) {
-                    var left = offsetX + c * (frameWidth + spacingX);
-                    var top = offsetY + r * (frameHeight + spacingY) - offsetY - spacingY;
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    const left = offsetX + c * (frameWidth + spacingX);
+                    const top = offsetY + r * (frameHeight + spacingY) - offsetY - spacingY;
 
                     if (!isRegionEmpty(left, top + spacingY, frameWidth, frameHeight)) {
                         frames[maxKey] = {
@@ -325,32 +325,32 @@ editor.once('load', function () {
             }
         };
 
-        var sliceGridBySize = function (frameWidth, frameHeight, frames) {
-            var pivot = presetValues[fieldPivot.value];
+        const sliceGridBySize = function (frameWidth, frameHeight, frames) {
+            const pivot = presetValues[fieldPivot.value];
 
-            var maxKey = 1;
+            let maxKey = 1;
             for (const key in frames) {
                 maxKey = Math.max(maxKey, parseInt(key, 10) + 1);
             }
 
-            var offsetX = fieldOffset[0].value;
-            var offsetY = fieldOffset[1].value;
+            const offsetX = fieldOffset[0].value;
+            const offsetY = fieldOffset[1].value;
 
-            var spacingX = fieldSpacing[0].value;
-            var spacingY = fieldSpacing[1].value;
+            const spacingX = fieldSpacing[0].value;
+            const spacingY = fieldSpacing[1].value;
 
-            var imgWidth = atlasImage.width - offsetX;
-            var imgHeight = atlasImage.height - offsetY;
+            const imgWidth = atlasImage.width - offsetX;
+            const imgHeight = atlasImage.height - offsetY;
 
-            var cols = Math.floor((imgWidth + spacingX) / (frameWidth + spacingX));
-            var rows = Math.floor((imgHeight + spacingY) / (frameHeight + spacingY));
+            const cols = Math.floor((imgWidth + spacingX) / (frameWidth + spacingX));
+            const rows = Math.floor((imgHeight + spacingY) / (frameHeight + spacingY));
 
-            var spacedHeight = frameHeight + spacingY;
+            const spacedHeight = frameHeight + spacingY;
 
-            for (var r = 0; r < rows; r++) {
-                for (var c = 0; c < cols; c++) {
-                    var left = offsetX + c * (frameWidth + spacingX);
-                    var top = offsetY + r * (frameHeight + spacingY) - offsetY - spacingY;
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    const left = offsetX + c * (frameWidth + spacingX);
+                    const top = offsetY + r * (frameHeight + spacingY) - offsetY - spacingY;
 
                     if (!isRegionEmpty(left, top + spacingY, frameWidth, frameHeight)) {
                         frames[maxKey] = {
@@ -366,9 +366,9 @@ editor.once('load', function () {
         };
 
         // Checks if an image region has alpha
-        var isRegionEmpty = function (left, top, width, height) {
-            var right = left + width;
-            var bottom = top + height;
+        const isRegionEmpty = function (left, top, width, height) {
+            const right = left + width;
+            const bottom = top + height;
 
             for (let x = left; x < right; x++) {
                 for (let y = top; y < bottom; y++) {
@@ -381,8 +381,8 @@ editor.once('load', function () {
             return true;
         };
 
-        var isPixelEmpty = function (x, y) {
-            var alpha = y * (atlasImage.width * 4) + x * 4 + 3;
+        const isPixelEmpty = function (x, y) {
+            const alpha = y * (atlasImage.width * 4) + x * 4 + 3;
             return imageData.data[alpha] === 0;
         };
 

@@ -179,11 +179,11 @@ editor.once('load', function () {
         brightness: 100
     });
 
-    var clamp = function (value, minValue, maxValue) {
+    const clamp = function (value, minValue, maxValue) {
         return Math.min(Math.max(value, minValue), maxValue);
     };
 
-    var updateCursor = function () {
+    const updateCursor = function () {
         const cls = middlePanel.class;
 
         cls.remove('ew-resize');
@@ -249,40 +249,40 @@ editor.once('load', function () {
         }
     };
 
-    var imageWidth = function () {
+    const imageWidth = function () {
         return controls.get('zoom') * (canvasRatio > aspectRatio ? canvas.height * aspectRatio : canvas.width);
     };
 
-    var imageHeight = function (zoom) {
+    const imageHeight = function (zoom) {
         return controls.get('zoom') * (canvasRatio <= aspectRatio ? canvas.width / aspectRatio : canvas.height);
     };
 
-    var imageLeft = function () {
+    const imageLeft = function () {
         return (pivotX + pivotOffsetX + zoomOffsetX) * canvas.width;
     };
 
-    var imageTop = function () {
+    const imageTop = function () {
         return (pivotY + pivotOffsetY + zoomOffsetY) * canvas.height;
     };
 
-    var frameLeft = function (frame, leftOffset, scaledWidth) {
+    const frameLeft = function (frame, leftOffset, scaledWidth) {
         return leftOffset + frame.rect[0] * scaledWidth / atlasImage.width;
     };
 
-    var frameTop = function (frame, topOffset, scaledHeight) {
+    const frameTop = function (frame, topOffset, scaledHeight) {
         const inverted = 1 - (frame.rect[1] + frame.rect[3]) / atlasImage.height;
         return topOffset + inverted * scaledHeight;
     };
 
-    var frameWidth = function (frame, scaledWidth) {
+    const frameWidth = function (frame, scaledWidth) {
         return frame.rect[2] * scaledWidth / atlasImage.width;
     };
 
-    var frameHeight = function (frame, scaledHeight) {
+    const frameHeight = function (frame, scaledHeight) {
         return frame.rect[3] * scaledHeight / atlasImage.height;
     };
 
-    var setHandle = function (handle, frame, mousePoint) {
+    const setHandle = function (handle, frame, mousePoint) {
         selectedHandle = handle;
         if (handle) {
             // this frame will be used as the source frame
@@ -300,7 +300,7 @@ editor.once('load', function () {
         updateCursor();
     };
 
-    var windowToCanvas = function (windowX, windowY) {
+    const windowToCanvas = function (windowX, windowY) {
         const rect = canvas.dom.getBoundingClientRect();
         return {
             x: Math.round(windowX - rect.left),
@@ -308,7 +308,7 @@ editor.once('load', function () {
         };
     };
 
-    var resizeCanvas = function () {
+    const resizeCanvas = function () {
         let result = false;
 
         const width = canvasPanel.dom.clientWidth;
@@ -326,7 +326,7 @@ editor.once('load', function () {
         return result;
     };
 
-    var renderFrame = function (frame, left, top, width, height, offset, renderPivot) {
+    const renderFrame = function (frame, left, top, width, height, offset, renderPivot) {
         const x = frameLeft(frame, left, width);
         const y = frameTop(frame, top, height);
         const w = frameWidth(frame, width);
@@ -350,7 +350,7 @@ editor.once('load', function () {
         }
     };
 
-    var renderHandles = function (frame, left, top, width, height) {
+    const renderHandles = function (frame, left, top, width, height) {
         const x = frameLeft(frame, left, width);
         const y = frameTop(frame, top, height);
         const w = frameWidth(frame, width);
@@ -603,7 +603,7 @@ editor.once('load', function () {
         ctx.stroke();
     };
 
-    var renderBorderLines = function (frame, left, top, width, height) {
+    const renderBorderLines = function (frame, left, top, width, height) {
         const x = frameLeft(frame, left, width);
         const y = frameTop(frame, top, height);
         const w = frameWidth(frame, width);
@@ -641,7 +641,7 @@ editor.once('load', function () {
         }
     };
 
-    var renderCanvas = function () {
+    const renderCanvas = function () {
         queuedRender = false;
 
         if (overlay.hidden) return;
@@ -794,17 +794,17 @@ editor.once('load', function () {
         }
     };
 
-    var queueRender = function () {
+    const queueRender = function () {
         if (queuedRender || overlay.hidden) return;
         queuedRender = true;
         requestAnimationFrame(renderCanvas);
     };
 
-    var rectContainsPoint = function (p, left, top, width, height) {
+    const rectContainsPoint = function (p, left, top, width, height) {
         return left <= p.x && left + width >= p.x && top <= p.y && top + height >= p.y;
     };
 
-    var framesHitTest = function (p) {
+    const framesHitTest = function (p) {
         const imgWidth = imageWidth();
         const imgHeight = imageHeight();
         const imgLeft = imageLeft();
@@ -826,7 +826,7 @@ editor.once('load', function () {
         return null;
     };
 
-    var handlesHitTest = function (p, frame) {
+    const handlesHitTest = function (p, frame) {
         if (!editor.call('permissions:write')) return false;
 
         const imgWidth = imageWidth();
@@ -970,7 +970,7 @@ editor.once('load', function () {
     };
 
     // Modify a frame using the specified handle
-    var modifyFrame = function (handle, frame, mousePoint) {
+    const modifyFrame = function (handle, frame, mousePoint) {
         const imgWidth = imageWidth();
         const imgHeight = imageHeight();
         const imgLeft = imageLeft();
@@ -1318,7 +1318,7 @@ editor.once('load', function () {
         }
     };
 
-    var resetControls = function () {
+    const resetControls = function () {
         controls.set('zoom', 1);
         pivotX = 0;
         pivotY = 0;
@@ -1328,7 +1328,7 @@ editor.once('load', function () {
         zoomOffsetY = 0;
     };
 
-    var startPanning = function (x, y) {
+    const startPanning = function (x, y) {
         panning = true;
         mouseX = x;
         mouseY = y;
@@ -1337,7 +1337,7 @@ editor.once('load', function () {
         updateCursor();
     };
 
-    var stopPanning = function () {
+    const stopPanning = function () {
         panning = false;
         pivotX += pivotOffsetX;
         pivotY += pivotOffsetY;
@@ -1346,7 +1346,7 @@ editor.once('load', function () {
         updateCursor();
     };
 
-    var onKeyDown = function (e) {
+    const onKeyDown = function (e) {
         if (e.shiftKey) {
             shiftDown = true;
             updateCursor();
@@ -1355,7 +1355,7 @@ editor.once('load', function () {
         ctrlDown = e.ctrlKey || e.metaKey;
     };
 
-    var onKeyUp = function (e) {
+    const onKeyUp = function (e) {
         if (!e.shiftKey) {
             shiftDown = false;
             if (panning) {
@@ -1368,7 +1368,7 @@ editor.once('load', function () {
         ctrlDown = e.ctrlKey || e.metaKey;
     };
 
-    var onMouseDown = function (e) {
+    const onMouseDown = function (e) {
         if (e.button === 0) {
             leftButtonDown = true;
         } else if (e.button === 1) {
@@ -1454,7 +1454,7 @@ editor.once('load', function () {
         }
     };
 
-    var onMouseMove = function (e) {
+    const onMouseMove = function (e) {
         mouseX = e.clientX;
         mouseY = e.clientY;
 
@@ -1507,7 +1507,7 @@ editor.once('load', function () {
         }
     };
 
-    var onMouseUp = function (e) {
+    const onMouseUp = function (e) {
         if (e.button === 0) {
             leftButtonDown = false;
         } else if (e.button === 1) {
@@ -1588,7 +1588,7 @@ editor.once('load', function () {
         }
     };
 
-    var onWheel = function (e) {
+    const onWheel = function (e) {
         e.preventDefault();
 
         const wheel = e.deltaY > 0 ? -0.1 : (e.deltaY < 0 ? 0.1 : 0);
@@ -1598,7 +1598,7 @@ editor.once('load', function () {
         }
     };
 
-    var registerInputListeners = function () {
+    const registerInputListeners = function () {
         window.addEventListener('keydown', onKeyDown);
         window.addEventListener('keyup', onKeyUp);
         window.addEventListener('mouseup', onMouseUp);
@@ -1645,7 +1645,7 @@ editor.once('load', function () {
         });
     };
 
-    var unregisterInputListeners = function () {
+    const unregisterInputListeners = function () {
         window.removeEventListener('keydown', onKeyDown);
         window.removeEventListener('keyup', onKeyUp);
         window.removeEventListener('mouseup', onMouseUp);
@@ -1695,7 +1695,7 @@ editor.once('load', function () {
         queueRender();
     });
 
-    var updateRightPanel = function () {
+    const updateRightPanel = function () {
         if (!rightPanel) {
             rightPanel = new Panel({
                 class: ['right-panel', 'attributes'],
@@ -1734,7 +1734,7 @@ editor.once('load', function () {
     };
 
 
-    var showEditor = function (asset) {
+    const showEditor = function (asset) {
         let _spriteAsset = null;
         if (asset.get('type') === 'textureatlas') {
             atlasAsset = asset;
@@ -1815,7 +1815,7 @@ editor.once('load', function () {
         });
     };
 
-    var cleanUp = function () {
+    const cleanUp = function () {
         // reset controls
         controls.set('zoom', 1);
         controls.set('brightness', 100);

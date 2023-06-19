@@ -6,29 +6,29 @@ editor.once('load', function () {
     editor.method('picker:sprites:deleteFrames', function (keys, options) {
         if (!editor.call('permissions:write')) return;
 
-        var atlasAsset = editor.call('picker:sprites:atlasAsset');
+        const atlasAsset = editor.call('picker:sprites:atlasAsset');
         if (!atlasAsset)
             return;
 
-        var history = options && options.history;
+        const history = options && options.history;
         if (history) {
             // make copy of array to make sure undo / redo works
             keys = keys.slice();
         }
 
-        var numKeys = keys.length;
+        const numKeys = keys.length;
 
-        var oldFrames = {};
+        const oldFrames = {};
         if (history) {
             for (let i = 0; i < numKeys; i++) {
                 oldFrames[keys[i]] = atlasAsset.get('data.frames.' + keys[i]);
             }
         }
 
-        var redo = function () {
-            var asset = editor.call('assets:get', atlasAsset.get('id'));
+        const redo = function () {
+            const asset = editor.call('assets:get', atlasAsset.get('id'));
             if (!asset) return;
-            var history = asset.history.enabled;
+            const history = asset.history.enabled;
             asset.history.enabled = false;
 
             for (let i = 0; i < numKeys; i++) {
@@ -43,10 +43,10 @@ editor.once('load', function () {
         };
 
         if (history) {
-            var undo = function () {
-                var asset = editor.call('assets:get', atlasAsset.get('id'));
+            const undo = function () {
+                const asset = editor.call('assets:get', atlasAsset.get('id'));
                 if (!asset) return;
-                var history = asset.history.enabled;
+                const history = asset.history.enabled;
                 asset.history.enabled = false;
 
                 for (let i = 0; i < numKeys; i++) {

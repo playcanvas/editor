@@ -3,10 +3,10 @@ editor.once('load', function () {
     editor.method('picker:sprites:commitFrameChanges', function (key, frame, oldFrame) {
         if (!editor.call('permissions:write')) return;
 
-        var atlasAsset = editor.call('picker:sprites:atlasAsset');
+        const atlasAsset = editor.call('picker:sprites:atlasAsset');
         if (!atlasAsset) return;
 
-        var newValue = {
+        const newValue = {
             name: frame.name,
             rect: frame.rect.slice(),
             pivot: frame.pivot.slice(),
@@ -24,19 +24,19 @@ editor.once('load', function () {
             newValue.rect[1] -= newValue.rect[3];
         }
 
-        var redo = function () {
-            var asset = editor.call('assets:get', atlasAsset.get('id'));
+        const redo = function () {
+            const asset = editor.call('assets:get', atlasAsset.get('id'));
             if (!asset) return;
-            var history = asset.history.enabled;
+            const history = asset.history.enabled;
             asset.history.enabled = false;
             asset.set('data.frames.' + key, newValue);
             asset.history.enabled = history;
         };
 
-        var undo = function () {
-            var asset = editor.call('assets:get', atlasAsset.get('id'));
+        const undo = function () {
+            const asset = editor.call('assets:get', atlasAsset.get('id'));
             if (!asset) return;
-            var history = asset.history.enabled;
+            const history = asset.history.enabled;
             asset.history.enabled = false;
             if (oldFrame) {
                 asset.set('data.frames.' + key, oldFrame);

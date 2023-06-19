@@ -1,14 +1,14 @@
 editor.once('load', function () {
     editor.method('picker:sprites:attributes:frames', function (args) {
-        var events = [];
-        var suspendChanges = false;
-        var atlasAsset = args.atlasAsset;
-        var atlasImage = args.atlasImage;
-        var frames = args.frames;
-        var numFrames = frames.length;
+        const events = [];
+        let suspendChanges = false;
+        const atlasAsset = args.atlasAsset;
+        const atlasImage = args.atlasImage;
+        const frames = args.frames;
+        const numFrames = frames.length;
 
         /** @type {import('@playcanvas/pcui').Panel} */
-        var rootPanel = editor.call('picker:sprites:rightPanel');
+        const rootPanel = editor.call('picker:sprites:rightPanel');
         if (numFrames > 1) {
             rootPanel.headerText = 'FRAME INSPECTOR - MULTIPLE FRAMES';
         } else {
@@ -21,7 +21,7 @@ editor.once('load', function () {
             frames: frames
         });
 
-        var panel = editor.call('attributes:addPanel', {
+        const panel = editor.call('attributes:addPanel', {
             parent: rootPanel
         });
         panel.disabled = !editor.call('permissions:write');
@@ -29,7 +29,7 @@ editor.once('load', function () {
             panel.disabled = !canWrite;
         }));
 
-        var fieldName = editor.call('attributes:addField', {
+        const fieldName = editor.call('attributes:addField', {
             parent: panel,
             name: 'Name',
             type: 'string',
@@ -50,7 +50,7 @@ editor.once('load', function () {
         // add field for frame rect but hide it and only use it for multi-editing
         // The user only will see position and size fields in pixels which is more helpful
         // but we'll use the internal rect fields to edit it
-        var fieldRect = editor.call('attributes:addField', {
+        const fieldRect = editor.call('attributes:addField', {
             parent: panel,
             type: 'vec4',
             link: atlasAsset,
@@ -99,43 +99,43 @@ editor.once('load', function () {
             suspendChanges = false;
         });
 
-        var updateMaxPosition = function (field) {
-            var dimension = field === 0 ? atlasImage.width : atlasImage.height;
-            var maxPos = dimension;
+        const updateMaxPosition = function (field) {
+            const dimension = field === 0 ? atlasImage.width : atlasImage.height;
+            let maxPos = dimension;
 
-            var rectIndex = field === 0 ? 2 : 3;
+            const rectIndex = field === 0 ? 2 : 3;
 
-            var frameData = atlasAsset.getRaw('data.frames')._data;
+            const frameData = atlasAsset.getRaw('data.frames')._data;
 
             for (let i = 0, len = frames.length; i < len; i++) {
-                var f = frameData[frames[i]];
+                const f = frameData[frames[i]];
                 if (!f) continue;
-                var rect = f._data.rect;
+                const rect = f._data.rect;
                 maxPos = Math.min(maxPos, dimension - rect[rectIndex]);
             }
 
             fieldPosition[field].max = maxPos;
         };
 
-        var updateMaxSize = function (field) {
-            var dimension = field === 0 ? atlasImage.width : atlasImage.height;
-            var maxSize = dimension;
+        const updateMaxSize = function (field) {
+            const dimension = field === 0 ? atlasImage.width : atlasImage.height;
+            let maxSize = dimension;
 
-            var rectIndex = field === 0 ? 0 : 1;
+            const rectIndex = field === 0 ? 0 : 1;
 
-            var frameData = atlasAsset.getRaw('data.frames')._data;
+            const frameData = atlasAsset.getRaw('data.frames')._data;
 
             for (let i = 0, len = frames.length; i < len; i++) {
-                var f = frameData[frames[i]];
+                const f = frameData[frames[i]];
                 if (!f) continue;
-                var rect = f._data.rect;
+                const rect = f._data.rect;
                 maxSize = Math.min(maxSize, dimension - rect[rectIndex]);
             }
 
             fieldSize[field].max = maxSize;
         };
 
-        var updatePositionX = function () {
+        const updatePositionX = function () {
             if (fieldRect[0].proxy) {
                 fieldPosition[0].value = null;
             } else {
@@ -150,7 +150,7 @@ editor.once('load', function () {
             });
         };
 
-        var updatePositionY = function () {
+        const updatePositionY = function () {
             if (fieldRect[1].proxy) {
                 fieldPosition[1].value = null;
             } else {
@@ -165,7 +165,7 @@ editor.once('load', function () {
             });
         };
 
-        var updateSizeX = function () {
+        const updateSizeX = function () {
             if (fieldRect[2].proxy) {
                 fieldSize[0].value = null;
             } else {
@@ -180,7 +180,7 @@ editor.once('load', function () {
             });
         };
 
-        var updateSizeY = function () {
+        const updateSizeY = function () {
             if (fieldRect[3].proxy) {
                 fieldSize[1].value = null;
             } else {
@@ -196,7 +196,7 @@ editor.once('load', function () {
         };
 
         // position in pixels
-        var fieldPosition = editor.call('attributes:addField', {
+        const fieldPosition = editor.call('attributes:addField', {
             parent: panel,
             name: 'Position',
             type: 'vec2',
@@ -229,7 +229,7 @@ editor.once('load', function () {
         });
 
         // size in pixels
-        var fieldSize = editor.call('attributes:addField', {
+        const fieldSize = editor.call('attributes:addField', {
             parent: panel,
             name: 'Size',
             type: 'vec2',
@@ -257,22 +257,22 @@ editor.once('load', function () {
 
         // Updates the rect of the selected frames adjusting
         // their borders if necessary.
-        var updateSizeAndAdjustBorder = function (value, isHeight) {
-            var prev = null;
+        const updateSizeAndAdjustBorder = function (value, isHeight) {
+            let prev = null;
 
-            var rect = isHeight ? 3 : 2;
-            var border = isHeight ? 1 : 0;
+            const rect = isHeight ? 3 : 2;
+            const border = isHeight ? 1 : 0;
 
-            var redo = function () {
-                var asset = editor.call('assets:get', atlasAsset.get('id'));
+            const redo = function () {
+                const asset = editor.call('assets:get', atlasAsset.get('id'));
                 if (!asset) return;
 
-                var history = asset.history.enabled;
+                const history = asset.history.enabled;
                 asset.history.enabled = false;
 
-                var frameData = asset.getRaw('data.frames')._data;
+                const frameData = asset.getRaw('data.frames')._data;
                 for (let i = 0, len = frames.length; i < len; i++) {
-                    var frame = frameData[frames[i]];
+                    const frame = frameData[frames[i]];
                     if (!frame) continue;
 
                     if (frame._data.rect[rect] !== value) {
@@ -300,15 +300,15 @@ editor.once('load', function () {
                 asset.history.enabled = history;
             };
 
-            var undo = function () {
+            const undo = function () {
 
-                var asset = editor.call('assets:get', atlasAsset.get('id'));
+                const asset = editor.call('assets:get', atlasAsset.get('id'));
                 if (!asset) return;
 
-                var history = asset.history.enabled;
+                const history = asset.history.enabled;
                 asset.history.enabled = false;
 
-                var frameData = asset.getRaw('data.frames')._data;
+                const frameData = asset.getRaw('data.frames')._data;
 
                 for (const key in prev) {
                     if (!frameData[key]) continue;
@@ -333,7 +333,7 @@ editor.once('load', function () {
         };
 
         // pivot presets
-        var presetValues = [
+        const presetValues = [
             [0, 1],
             [0.5, 1],
             [1, 1],
@@ -345,7 +345,7 @@ editor.once('load', function () {
             [1, 0]
         ];
 
-        var fieldPivotPreset = editor.call('attributes:addField', {
+        const fieldPivotPreset = editor.call('attributes:addField', {
             parent: panel,
             name: 'Pivot Preset',
             type: 'string',
@@ -367,22 +367,22 @@ editor.once('load', function () {
         fieldPivotPreset.on('change', function (value) {
             if (suspendChanges) return;
 
-            var newValue = presetValues[parseInt(value, 10)];
+            const newValue = presetValues[parseInt(value, 10)];
             if (!newValue) return;
 
-            var prevValues = {};
+            const prevValues = {};
             for (let i = 0; i < numFrames; i++) {
                 prevValues[frames[i]] = atlasAsset.get('data.frames.' + frames[i] + '.pivot');
             }
 
-            var redo = function () {
-                var asset = editor.call('assets:get', atlasAsset.get('id'));
+            const redo = function () {
+                const asset = editor.call('assets:get', atlasAsset.get('id'));
                 if (!asset) return;
 
-                var history = asset.history.enabled;
+                const history = asset.history.enabled;
                 asset.history.enabled = false;
                 for (let i = 0; i < numFrames; i++) {
-                    var key = 'data.frames.' + frames[i];
+                    const key = 'data.frames.' + frames[i];
                     if (asset.has(key)) {
                         asset.set(key + '.pivot', newValue);
                     }
@@ -390,14 +390,14 @@ editor.once('load', function () {
                 asset.history.enabled = history;
             };
 
-            var undo = function () {
-                var asset = editor.call('assets:get', atlasAsset.get('id'));
+            const undo = function () {
+                const asset = editor.call('assets:get', atlasAsset.get('id'));
                 if (!asset) return;
 
-                var history = asset.history.enabled;
+                const history = asset.history.enabled;
                 asset.history.enabled = false;
                 for (let i = 0; i < numFrames; i++) {
-                    var key = 'data.frames.' + frames[i];
+                    const key = 'data.frames.' + frames[i];
                     if (asset.has(key) && prevValues[frames[i]]) {
                         asset.set(key + '.pivot', prevValues[frames[i]]);
                     }
@@ -416,7 +416,7 @@ editor.once('load', function () {
         });
 
         // pivot
-        var fieldPivot = editor.call('attributes:addField', {
+        const fieldPivot = editor.call('attributes:addField', {
             parent: panel,
             name: 'Pivot',
             type: 'vec2',
@@ -442,8 +442,8 @@ editor.once('load', function () {
             updatePivotPreset();
         });
 
-        var updatePivotPreset = function () {
-            var suspend = suspendChanges;
+        const updatePivotPreset = function () {
+            const suspend = suspendChanges;
             suspendChanges = true;
             for (let i = 0; i < presetValues.length; i++) {
                 if (presetValues[i][0] === fieldPivot[0].value && presetValues[i][1] === fieldPivot[1].value) {
@@ -457,7 +457,7 @@ editor.once('load', function () {
         updatePivotPreset();
 
         // border
-        var fieldBorder = editor.call('attributes:addField', {
+        const fieldBorder = editor.call('attributes:addField', {
             parent: panel,
             placeholder: ['←', '↓', '→', '↑'],
             name: 'Border',
@@ -471,20 +471,20 @@ editor.once('load', function () {
         // reference
         editor.call('attributes:reference:attach', 'spriteeditor:frame:border', fieldBorder[0].parent.innerElement.firstChild.ui, null, panel);
 
-        var updateBorderMax = function () {
+        const updateBorderMax = function () {
             // set left border max to not exceed the right border in any frame
-            var maxLeft = atlasImage.width;
-            var maxRight = atlasImage.width;
-            var maxBottom = atlasImage.height;
-            var maxTop = atlasImage.height;
+            let maxLeft = atlasImage.width;
+            let maxRight = atlasImage.width;
+            let maxBottom = atlasImage.height;
+            let maxTop = atlasImage.height;
 
-            var frameData = atlasAsset.getRaw('data.frames')._data;
+            const frameData = atlasAsset.getRaw('data.frames')._data;
 
             for (let i = 0, len = frames.length; i < len; i++) {
-                var f = frameData[frames[i]];
+                const f = frameData[frames[i]];
                 if (!f) continue;
-                var rect = f._data.rect;
-                var border = f._data.border;
+                const rect = f._data.rect;
+                const border = f._data.border;
                 maxLeft = Math.min(maxLeft, rect[2] - border[2]);
                 maxRight = Math.min(maxRight, rect[2] - border[0]);
                 maxBottom = Math.min(maxBottom, rect[3] - border[3]);
@@ -501,7 +501,7 @@ editor.once('load', function () {
             fieldBorder[i].on('change', updateBorderMax);
         }
 
-        var panelButtons = editor.call('attributes:addPanel', {
+        const panelButtons = editor.call('attributes:addPanel', {
             parent: rootPanel,
             name: 'ACTIONS'
         });
@@ -512,7 +512,7 @@ editor.once('load', function () {
         }));
 
         // new sprite
-        var btnCreateSprite = new ui.Button({
+        const btnCreateSprite = new ui.Button({
             text: 'New Sprite From Selection'
         });
         btnCreateSprite.class.add('icon', 'wide', 'create');
@@ -531,7 +531,7 @@ editor.once('load', function () {
         });
 
         // new sliced sprite
-        var btnCreateSlicedSprite = new ui.Button({
+        const btnCreateSlicedSprite = new ui.Button({
             text: 'New Sliced Sprite From Selection'
         });
         btnCreateSlicedSprite.class.add('icon', 'wide', 'create');
@@ -551,7 +551,7 @@ editor.once('load', function () {
         });
 
         // new sprites from frames
-        var btnCreateSpritesFromFrames = new ui.Button({
+        const btnCreateSpritesFromFrames = new ui.Button({
             text: 'New Sprite Per Selected Frame'
         });
         btnCreateSpritesFromFrames.class.add('icon', 'wide', 'create');
@@ -570,7 +570,7 @@ editor.once('load', function () {
         });
 
         // focus frame
-        var btnFocus = new ui.Button({
+        const btnFocus = new ui.Button({
             text: 'Focus On Selection'
         });
         btnFocus.class.add('icon', 'wide', 'focus');
@@ -583,7 +583,7 @@ editor.once('load', function () {
         });
 
         // trim rect
-        var btnTrim = new ui.Button({
+        const btnTrim = new ui.Button({
             text: 'Trim Selected Frames'
         });
         btnTrim.class.add('icon', 'wide', 'trim');
@@ -598,7 +598,7 @@ editor.once('load', function () {
         });
 
         // delete frame
-        var btnDelete = new ui.Button({
+        const btnDelete = new ui.Button({
             text: 'Delete Selected Frames'
         });
         btnDelete.class.add('icon', 'wide', 'remove');

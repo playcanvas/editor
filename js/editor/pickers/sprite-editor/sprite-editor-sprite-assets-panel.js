@@ -1,18 +1,18 @@
 editor.once('load', function () {
     editor.method('picker:sprites:spriteassets', function (args) {
-        var events = [];
+        const events = [];
 
-        var atlasAsset = args.atlasAsset;
+        const atlasAsset = args.atlasAsset;
 
         // context menu
-        var menu = new ui.Menu();
+        const menu = new ui.Menu();
         editor.call('layout.root').append(menu);
-        var contextMenuAsset = null;
+        let contextMenuAsset = null;
 
         // context menu options
 
         // duplicate
-        var menuDuplicate = new ui.MenuItem({
+        const menuDuplicate = new ui.MenuItem({
             text: 'Duplicate',
             icon: '&#57638;',
             value: 'duplicate'
@@ -24,7 +24,7 @@ editor.once('load', function () {
         menu.append(menuDuplicate);
 
         // delete
-        var menuDelete = new ui.MenuItem({
+        const menuDelete = new ui.MenuItem({
             text: 'Delete',
             icon: '&#57636;',
             value: 'delete'
@@ -39,27 +39,27 @@ editor.once('load', function () {
         const rootPanel = editor.call('picker:sprites:bottomPanel');
 
         // grid
-        var grid = new ui.Grid({
+        const grid = new ui.Grid({
             multiSelect: false
         });
         grid.class.add('sprites');
         rootPanel.append(grid);
 
         // holds all sprite items indexed by asset id
-        var spriteItems = {};
+        const spriteItems = {};
         // holds the key of the first frame for each sprite asset - used for rendering preview
-        var firstFramePerSprite = {};
+        const firstFramePerSprite = {};
 
-        var createSpriteItem = function (asset) {
-            var spriteEvents = [];
+        const createSpriteItem = function (asset) {
+            const spriteEvents = [];
 
             // sprite item
-            var spriteItem = new ui.GridItem({
+            const spriteItem = new ui.GridItem({
                 toggleSelectOnClick: false
             });
 
             // sprite preview
-            var canvas = new ui.Canvas();
+            const canvas = new ui.Canvas();
             canvas.class.add('thumbnail');
             canvas.resize(64, 64);
             spriteItem.element.appendChild(canvas.element);
@@ -67,13 +67,13 @@ editor.once('load', function () {
             spriteItems[asset.get('id')] = spriteItem;
 
             spriteItem.updateFirstFrame = function () {
-                var frameKeys = asset.getRaw('data.frameKeys');
+                const frameKeys = asset.getRaw('data.frameKeys');
                 firstFramePerSprite[asset.get('id')] = frameKeys[0];
             };
 
             spriteItem.updateFirstFrame();
 
-            var renderQueued = false;
+            let renderQueued = false;
 
             spriteItem.queueRender = function () {
                 if (renderQueued) return;
@@ -81,13 +81,13 @@ editor.once('load', function () {
                 requestAnimationFrame(renderPreview);
             };
 
-            var renderPreview = function () {
+            const renderPreview = function () {
                 renderQueued = false;
 
-                var frameKeys = asset.getRaw('data.frameKeys');
-                var frames = frameKeys.map(function (f) {
+                const frameKeys = asset.getRaw('data.frameKeys');
+                const frames = frameKeys.map(function (f) {
                     if (f) {
-                        var frame = atlasAsset.getRaw('data.frames.' + f);
+                        const frame = atlasAsset.getRaw('data.frames.' + f);
                         return frame && frame._data;
                     }
                     return null;
@@ -100,7 +100,7 @@ editor.once('load', function () {
             renderPreview();
 
             // sprite name
-            var fieldName = new ui.Label();
+            const fieldName = new ui.Label();
             fieldName.class.add('label');
             fieldName.value = asset.get('name');
             spriteItem.element.appendChild(fieldName.element);
@@ -154,7 +154,7 @@ editor.once('load', function () {
             }));
 
             // context menu
-            var contextMenu = function (e) {
+            const contextMenu = function (e) {
                 if (!editor.call('permissions:write')) return;
 
                 contextMenuAsset = asset;
@@ -180,8 +180,8 @@ editor.once('load', function () {
         };
 
         // find all sprite assets associated with this atlas
-        var spriteAssets = editor.call('assets:find', function (asset) {
-            var atlasId = parseInt(atlasAsset.get('id'), 10);
+        const spriteAssets = editor.call('assets:find', function (asset) {
+            const atlasId = parseInt(atlasAsset.get('id'), 10);
             return asset.get('type') === 'sprite' && parseInt(asset.get('data.textureAtlasAsset'), 10) === atlasId;
         });
 
@@ -195,12 +195,12 @@ editor.once('load', function () {
                 return;
             }
 
-            var parts = path.split('.');
+            const parts = path.split('.');
             if (parts.length >= 3) {
-                var key = parts[2];
+                const key = parts[2];
                 for (const assetId in firstFramePerSprite) {
                     if (firstFramePerSprite[assetId] === key) {
-                        var p = spriteItems[assetId];
+                        const p = spriteItems[assetId];
                         if (p) {
                             p.queueRender();
                         }
@@ -215,12 +215,12 @@ editor.once('load', function () {
                 return;
             }
 
-            var parts = path.split('.');
+            const parts = path.split('.');
             if (parts.length >= 3) {
-                var key = parts[2];
+                const key = parts[2];
                 for (const assetId in firstFramePerSprite) {
                     if (firstFramePerSprite[assetId] === key) {
-                        var p = spriteItems[assetId];
+                        const p = spriteItems[assetId];
                         if (p) {
                             p.queueRender();
                         }
@@ -234,7 +234,7 @@ editor.once('load', function () {
             if (!sprite) {
                 grid.selected = [];
             } else {
-                var item = spriteItems[sprite.get('id')];
+                const item = spriteItems[sprite.get('id')];
                 if (item) {
                     grid.selected = [item];
                 } else {
@@ -247,11 +247,11 @@ editor.once('load', function () {
         events.push(editor.on('assets:add', function (asset) {
             if (asset.get('type') !== 'sprite') return;
 
-            var id = parseInt(asset.get('data.textureAtlasAsset'), 10);
+            const id = parseInt(asset.get('data.textureAtlasAsset'), 10);
             if (id !== parseInt(atlasAsset.get('id'), 10)) return;
 
             spriteAssets.push(asset);
-            var item = createSpriteItem(asset);
+            const item = createSpriteItem(asset);
             if (item) {
                 item.flash();
             }

@@ -1,25 +1,25 @@
 editor.once('load', function () {
-    var selected = null;
-    var highlightedFrames = [];
-    var newSpriteFrames = [];
+    let selected = null;
+    let highlightedFrames = [];
+    let newSpriteFrames = [];
 
-    var atlasAsset = null;
-    var spriteAsset = null;
+    let atlasAsset = null;
+    let spriteAsset = null;
 
-    var spriteEditMode = false;
+    let spriteEditMode = false;
 
-    var events = [];
+    const events = [];
 
     // Select frames by keys
     // options.history: Whether to add this action to the history
     // options.add: Whether to add the frames to the existing selection
     // options.clearSprite: Clear sprite selection if true
-    var selectFrames = function (keys, options) {
+    const selectFrames = function (keys, options) {
         if (keys && !(keys instanceof Array))
             keys = [keys];
 
         // check if new selection differs from old
-        var dirty = false;
+        let dirty = false;
         if (!keys && selected || !keys && options && options.clearSprite && spriteAsset) {
             dirty = true;
         } else if (keys && !selected) {
@@ -27,8 +27,8 @@ editor.once('load', function () {
         } else if (selected && spriteAsset && (!options || !options.clearSprite)) {
             dirty = true;
         } else {
-            var klen = keys ? keys.length : 0;
-            var hlen = highlightedFrames.length;
+            const klen = keys ? keys.length : 0;
+            const hlen = highlightedFrames.length;
             if (klen !== hlen) {
                 dirty = true;
             } else {
@@ -44,13 +44,13 @@ editor.once('load', function () {
         if (!dirty)
             return;
 
-        var prevSelection = selected;
-        var prevHighlighted = spriteEditMode ? newSpriteFrames.slice() : highlightedFrames.slice();
-        var prevSprite = spriteAsset;
+        const prevSelection = selected;
+        const prevHighlighted = spriteEditMode ? newSpriteFrames.slice() : highlightedFrames.slice();
+        const prevSprite = spriteAsset;
 
         // add to selection if necessary
         if (keys && options && options.add) {
-            var temp = prevHighlighted.slice();
+            const temp = prevHighlighted.slice();
             for (let i = 0, len = keys.length; i < len; i++) {
                 if (temp.indexOf(keys[i]) === -1) {
                     temp.push(keys[i]);
@@ -59,7 +59,7 @@ editor.once('load', function () {
             keys = temp;
         }
 
-        var select = function (newKeys, newSelection, oldKeys) {
+        const select = function (newKeys, newSelection, oldKeys) {
             selected = null;
 
             if (oldKeys) {
@@ -70,9 +70,9 @@ editor.once('load', function () {
                 }
             }
 
-            var asset = editor.call('assets:get', atlasAsset.get('id'));
+            const asset = editor.call('assets:get', atlasAsset.get('id'));
             if (asset) {
-                var len = newKeys && newKeys.length;
+                const len = newKeys && newKeys.length;
                 if (len) {
                     if (spriteEditMode) {
                         newSpriteFrames = newKeys.slice();
@@ -90,7 +90,7 @@ editor.once('load', function () {
             editor.emit('picker:sprites:framesSelected', newKeys);
         };
 
-        var redo = function () {
+        const redo = function () {
             if (options && options.clearSprite) {
                 setSprite(null);
             }
@@ -98,7 +98,7 @@ editor.once('load', function () {
             select(keys, null, prevHighlighted);
         };
 
-        var undo = function () {
+        const undo = function () {
             if (options && options.clearSprite && prevSprite) {
                 selectSprite(prevSprite);
             } else {
@@ -121,7 +121,7 @@ editor.once('load', function () {
     };
 
     // Sets the selected sprite and hooks event listeners
-    var setSprite = function (asset) {
+    const setSprite = function (asset) {
         if (spriteAsset) {
             spriteAsset.unbind('data.frameKeys:remove', selectSpriteFrames);
             spriteAsset.unbind('data.frameKeys:insert', selectSpriteFrames);
@@ -138,7 +138,7 @@ editor.once('load', function () {
         spriteAsset.on('data.frameKeys:set', selectSpriteFrames);
     };
 
-    var selectSpriteFrames = function () {
+    const selectSpriteFrames = function () {
         if (spriteAsset) {
             selectFrames(spriteAsset.getRaw('data.frameKeys'));
         }
@@ -147,12 +147,12 @@ editor.once('load', function () {
     // Select specified sprite asset
     // Options are:
     // - history: If true make action undoable
-    var selectSprite = function (asset, options) {
+    const selectSprite = function (asset, options) {
         if (options && options.history) {
-            var prevSprite = spriteAsset;
-            var selectedFrames = selected && !prevSprite ? highlightedFrames : null;
+            const prevSprite = spriteAsset;
+            const selectedFrames = selected && !prevSprite ? highlightedFrames : null;
 
-            var redo = function () {
+            const redo = function () {
                 setSprite(asset);
                 if (spriteAsset) {
                     selectFrames(spriteAsset.getRaw('data.frameKeys'));
@@ -161,7 +161,7 @@ editor.once('load', function () {
                 }
             };
 
-            var undo = function () {
+            const undo = function () {
                 setSprite(prevSprite);
                 if (spriteAsset) {
                     selectFrames(spriteAsset.getRaw('data.frameKeys'));
@@ -187,10 +187,10 @@ editor.once('load', function () {
         }
     };
 
-    var getFilename = function (name) {
+    const getFilename = function (name) {
         // Get the filename from a filepath if there's a '/'
         // https://github.com/playcanvas/editor/issues/784
-        var lastSlash = name.lastIndexOf('/');
+        const lastSlash = name.lastIndexOf('/');
         if (lastSlash > 0) {
             if (lastSlash < name.length - 1) {
                 return name.substring(lastSlash + 1);
@@ -215,20 +215,20 @@ editor.once('load', function () {
             return;
 
         // rendermode: 1 - sliced, 0 - simple
-        var renderMode = args && args.sliced ? 1 : 0;
+        const renderMode = args && args.sliced ? 1 : 0;
         // default ppu to 1 if we're using sliced mode and we have just one frame
         // as that's likely going to be used for Image Elements otherwise default to 100
         // which is better for world-space sprites
-        var ppu = args && args.sliced && highlightedFrames.length === 1 ? 1 : 100;
+        const ppu = args && args.sliced && highlightedFrames.length === 1 ? 1 : 100;
 
         // get the atlas name without the extension
-        var atlasNameWithoutExt = atlasAsset.get('name');
-        var lastDot = atlasNameWithoutExt.lastIndexOf('.');
+        let atlasNameWithoutExt = atlasAsset.get('name');
+        const lastDot = atlasNameWithoutExt.lastIndexOf('.');
         if (lastDot > 0) {
             atlasNameWithoutExt = atlasNameWithoutExt.substring(0, lastDot);
         }
 
-        var name;
+        let name;
 
         // if we just have one frame in the atlas use the atlas name for the sprite name
         // without the extension, otherwise if it's only 1 frame selected use the frame name,
@@ -273,7 +273,7 @@ editor.once('load', function () {
     editor.method('picker:sprites:spritesFromFrames', function (args) {
         const folder = editor.call('assets:panel:currentFolder');
 
-        var frameCounter = 0;
+        let frameCounter = 0;
         highlightedFrames.forEach((frame, i) => {
             let name = atlasAsset.get(`data.frames.${frame}.name`);
             if (!name) {
@@ -308,7 +308,7 @@ editor.once('load', function () {
         });
     });
 
-    var startSpriteEditMode = function () {
+    const startSpriteEditMode = function () {
         spriteEditMode = true;
         editor.emit('picker:sprites:pickFrames:start');
 
@@ -326,7 +326,7 @@ editor.once('load', function () {
         });
     };
 
-    var endSpriteEditMode = function () {
+    const endSpriteEditMode = function () {
         spriteEditMode = false;
         newSpriteFrames.length = 0;
 
@@ -353,9 +353,9 @@ editor.once('load', function () {
     editor.method('picker:sprites:pickFrames:add', function () {
         if (!spriteAsset) return;
 
-        var length = newSpriteFrames.length;
+        const length = newSpriteFrames.length;
         if (length) {
-            var keys = spriteAsset.get('data.frameKeys');
+            let keys = spriteAsset.get('data.frameKeys');
             keys = keys.concat(newSpriteFrames);
             spriteAsset.set('data.frameKeys', keys);
         }
