@@ -312,6 +312,10 @@ editor.once('load', function () {
         });
     };
 
+    const displayError = () => {
+        editor.call('picker:messageBox', 'Clone error', 'Cloning item failed. Please check the console logs and report the issue.', 'Close', null);
+    };
+
     const cloneItem = async () => {
 
         toggleProgress(true);
@@ -330,6 +334,11 @@ editor.once('load', function () {
             // if user is not logged in to sketchfab
             if (err === 'Unauthorized' && isSketchfabItem(storeItem)) {
                 loginToSketchfab();
+            } else {
+                // otherwise show error message
+                console.error(err);
+
+                displayError();
             }
             importButton.enabled = true;
         } finally {

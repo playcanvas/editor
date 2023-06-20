@@ -292,6 +292,10 @@ editor.once('load', () => {
             buildSortingDropdown(sortButton);
         }
 
+        if (newFilterSketchfab) {
+            metrics.increment({ metricsName: 'store.opened.sketchfab' });
+        }
+
         if (refresh) {
             // reload storeItems
             loadStore();

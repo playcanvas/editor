@@ -40,7 +40,8 @@ editor.once('load', () => {
         icon: 'E132'
     });
     btnClose.on('click', function () {
-        _callback(false);
+        if (_callback)
+            _callback(false);
         overlay.hidden = true;
     });
     panel.header.append(btnClose);
@@ -59,7 +60,8 @@ editor.once('load', () => {
     panel.append(btnOK);
 
     btnOK.on('click', () => {
-        _callback(true);
+        if (_callback)
+            _callback(true);
         overlay.hidden = true;
     });
 
@@ -71,7 +73,8 @@ editor.once('load', () => {
     panel.append(btnCancel);
 
     btnCancel.on('click', () => {
-        _callback(false);
+        if (_callback)
+            _callback(false);
         overlay.hidden = true;
     });
 

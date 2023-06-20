@@ -70,6 +70,9 @@ editor.once('load', function () {
         // if search query is not present, just show the models from the last week
         if ((search && search.length) || (tags && tags.length)) {
             url += `&q=${encodeURIComponent(search)}`;
+
+            // log number of times sketchfab store was searched
+            metrics.increment({ metricsName: 'store.search.count.sketchfab' });
         } else {
             url += '&date=7';
         }
