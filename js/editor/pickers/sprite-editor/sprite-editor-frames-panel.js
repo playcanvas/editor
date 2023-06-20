@@ -65,8 +65,8 @@ editor.once('load', function () {
             });
             panel.append(fieldName);
 
-            frameEvents.push(atlasAsset.on('data.frames.' + key + '.name:set', function (value) {
-                fieldName.value = value;
+            frameEvents.push(atlasAsset.on(`data.frames.${key}.name:set`, function (value) {
+                fieldName.text = value;
             }));
 
             // remove frame
@@ -170,14 +170,14 @@ editor.once('load', function () {
             panel.dom.addEventListener('mouseleave', onMouseLeave);
 
             // clean up events
-            panel.on('destroy', function () {
+            panel.on('destroy', function (dom) {
                 for (const event of frameEvents) {
                     event.unbind();
                 }
                 frameEvents.length = 0;
 
-                panel.dom.removeEventListener('mouseenter', onMouseEnter);
-                panel.dom.removeEventListener('mouseleave', onMouseLeave);
+                dom.removeEventListener('mouseenter', onMouseEnter);
+                dom.removeEventListener('mouseleave', onMouseLeave);
             });
 
             if (afterPanel) {
@@ -216,11 +216,7 @@ editor.once('load', function () {
             const parts = path.split('.');
             if (parts.length === 2) {
                 // if all frames are set then re-create all frame panels
-                for (const key in panels) {
-                    panels[key].destroy();
-                    delete panels[key];
-                }
-
+                panelFrames.clear();
                 panels = {};
 
                 const raw = atlasAsset.getRaw('data.frames')._data;
@@ -368,10 +364,6 @@ editor.once('load', function () {
 
         // clean up
         events.push(leftPanel.on('clear', function () {
-            panelFrames.destroy();
-        }));
-
-        panelFrames.on('destroy', function () {
             for (const event of events) {
                 event.unbind();
             }
@@ -380,9 +372,11 @@ editor.once('load', function () {
             window.removeEventListener('keydown', onKeyDown);
             window.removeEventListener('keyup', onKeyUp);
 
+            panelFrames.clear();
             panels = {};
+
             selectedKeys.length = 0;
             spriteEditModeKeys.length = 0;
-        });
+        }));
     });
 });
