@@ -340,7 +340,9 @@ editor.once('load', function () {
 
                 displayError();
             }
-            importButton.enabled = true;
+
+            importButton.enabled = editor.call('permissions:write');
+
         } finally {
             toggleProgress(false);
             returnButton.enabled = true;
@@ -365,7 +367,7 @@ editor.once('load', function () {
 
         if (storeItem) {
 
-            importButton.enabled = true;
+            importButton.enabled = editor.call('permissions:write');
 
             if (viewerButton) {
                 viewerButton.hidden = storeItem.viewerUrl === undefined;
