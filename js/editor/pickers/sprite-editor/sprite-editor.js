@@ -127,6 +127,7 @@ editor.once('load', function () {
         resizable: 'right',
         resizeMin: 256,
         resizeMax: 512,
+        scrollable: true,
         width: 320
     });
     leftRows.append(leftPanel);

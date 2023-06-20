@@ -1,3 +1,5 @@
+import { Button, Canvas, Container, Label } from '@playcanvas/pcui';
+
 editor.once('load', function () {
     editor.method('picker:sprites:frames', function (args) {
         const events = [];
@@ -18,27 +20,25 @@ editor.once('load', function () {
         /** @type {import('@playcanvas/pcui').Panel} */
         const leftPanel = editor.call('picker:sprites:leftPanel');
 
-        const panelFrames = editor.call('attributes:addPanel', {
-            parent: leftPanel
-        });
-
-        panelFrames.scroll = true;
+        const panelFrames = leftPanel.content;
         panelFrames.class.add('frames');
 
         const addFramePanel = function (key, frame, afterPanel, beforePanel) {
             const frameEvents = [];
 
-            const panel = new ui.Panel();
-            panel.class.add('frame');
+            const panel = new Container({
+                class: 'frame'
+            });
             panel.frameKey = key;
 
             panels[key] = panel;
 
             // preview
-            const canvas = new ui.Canvas();
+            const canvas = new Canvas({
+                class: 'preview'
+            });
             const previewWidth = 26;
             const previewHeight = 26;
-            canvas.class.add('preview');
             canvas.resize(previewWidth, previewHeight);
 
             panel.append(canvas);
@@ -46,7 +46,7 @@ editor.once('load', function () {
             let renderQueued = false;
 
             const renderPreview = function () {
-                editor.call('picker:sprites:renderFramePreview', frame, canvas.element);
+                editor.call('picker:sprites:renderFramePreview', frame, canvas.dom);
                 renderQueued = false;
             };
 
@@ -59,9 +59,10 @@ editor.once('load', function () {
             renderPreview();
 
             // sprite name
-            const fieldName = new ui.Label();
-            fieldName.class.add('name');
-            fieldName.value = frame.name;
+            const fieldName = new Label({
+                class: 'name',
+                text: frame.name
+            });
             panel.append(fieldName);
 
             frameEvents.push(atlasAsset.on('data.frames.' + key + '.name:set', function (value) {
@@ -69,14 +70,15 @@ editor.once('load', function () {
             }));
 
             // remove frame
-            const btnRemove = new ui.Button();
-            btnRemove.class.add('remove');
+            const btnRemove = new Button({
+                class: 'remove'
+            });
             panel.append(btnRemove);
 
-            btnRemove.disabled = !editor.call('permissions:write');
+            btnRemove.enabled = editor.call('permissions:write');
 
             frameEvents.push(editor.on('permissions:writeState', function (canWrite) {
-                btnRemove.disabled = !canWrite;
+                btnRemove.enabled = canWrite;
             }));
 
             btnRemove.on('click', function (e) {
@@ -99,7 +101,7 @@ editor.once('load', function () {
                         let p = panels[keys[len - 1]];
                         const range = [];
                         while (diff !== 0) {
-                            p = dir > 0 ? p.element.nextSibling : p.element.previousSibling;
+                            p = dir > 0 ? p.dom.nextSibling : p.dom.previousSibling;
                             if (!p) break;
                             p = p.ui;
 
@@ -164,19 +166,18 @@ editor.once('load', function () {
                 editor.call('picker:sprites:hoverFrame', null);
             };
 
-            panel.element.addEventListener('mouseenter', onMouseEnter);
-            panel.element.addEventListener('mouseleave', onMouseLeave);
+            panel.dom.addEventListener('mouseenter', onMouseEnter);
+            panel.dom.addEventListener('mouseleave', onMouseLeave);
 
             // clean up events
             panel.on('destroy', function () {
-                for (let i = 0, len = frameEvents.length; i < len; i++) {
-                    frameEvents[i].unbind();
+                for (const event of frameEvents) {
+                    event.unbind();
                 }
                 frameEvents.length = 0;
 
-
-                panel.element.removeEventListener('mouseenter', onMouseEnter);
-                panel.element.removeEventListener('mouseleave', onMouseLeave);
+                panel.dom.removeEventListener('mouseenter', onMouseEnter);
+                panel.dom.removeEventListener('mouseleave', onMouseLeave);
             });
 
             if (afterPanel) {
@@ -321,7 +322,7 @@ editor.once('load', function () {
                         if (i === 0) {
                             scroll = spriteEditMode ? !panels[key].class.contains('highlighted') : !panels[key].class.contains('selected');
                             if (scroll) {
-                                panelFrames.innerElement.scrollTop = panels[key].element.offsetTop;
+                                panelFrames.innerElement.scrollTop = panels[key].dom.offsetTop;
                             }
                         }
                     }
@@ -341,9 +342,9 @@ editor.once('load', function () {
         events.push(editor.on('picker:sprites:pickFrames:end', function () {
             spriteEditMode = false;
 
-            for (let i = 0, len = spriteEditModeKeys.length; i < len; i++) {
-                if (panels[spriteEditModeKeys[i]]) {
-                    panels[spriteEditModeKeys[i]].class.remove('highlighted');
+            for (const key of spriteEditModeKeys) {
+                if (panels[key]) {
+                    panels[key].class.remove('highlighted');
                 }
             }
 
@@ -353,8 +354,8 @@ editor.once('load', function () {
         events.push(editor.on('picker:sprites:spriteSelected', function (spriteAsset) {
             selectedSprite = spriteAsset;
             const keys = spriteEditMode ? spriteEditModeKeys : selectedKeys;
-            for (let i = 0, len = keys.length; i < len; i++) {
-                const panel = panels[keys[i]];
+            for (const key of keys) {
+                const panel = panels[key];
                 if (!panel) continue;
 
                 if (selectedSprite) {
@@ -371,10 +372,9 @@ editor.once('load', function () {
         }));
 
         panelFrames.on('destroy', function () {
-            for (let i = 0; i < events.length; i++) {
-                events[i].unbind();
+            for (const event of events) {
+                event.unbind();
             }
-
             events.length = 0;
 
             window.removeEventListener('keydown', onKeyDown);

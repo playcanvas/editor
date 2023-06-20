@@ -56,16 +56,6 @@
                         overflow: visible;
                         background-color: $bcg-darker;
 
-                        &.resizable {
-                            &.resizable-top.scrollable > .content {
-                                top: 0;
-                            }
-
-                            &.foldable.folded {
-                                height: 0 !important;
-                            }
-                        }
-
                         &.disabled {
                             > .ui-header {
                                 background-color: $bcg-darker;
@@ -159,18 +149,6 @@
                                 }
                             }
                         }
-
-                        > .ui-header {
-                            position: absolute;
-                            top: -32px;
-                            left: 4px;
-                            width: 150px;
-
-                            > .title {
-                                margin-right: 16px;
-                                width: 46px;
-                            }
-                        }
                     }
 
                     &.grab {
@@ -211,22 +189,9 @@
                 }
 
                 .left-panel {
-                    top: 0;
-                    height: 100%;
-                    left: 0;
-
                     > .pcui-panel-content {
                         height: 100%;
-
-                        > .ui-panel.frames {
-                            height: calc(100% - 50px);
-                            margin: 0;
-
-                            > .content {
-                                padding: 8px 6px;
-                                height: 100%;
-                            }
-                        }
+                        padding: 6px;
                     }
                 }
 
@@ -316,11 +281,10 @@
                     }
                 }
 
-                .ui-panel.frames {
-                    margin: 3px;
-
+                .frames {
                     .frame {
                         background-color: $bcg-dark;
+                        border: 1px solid $bcg-darker;
                         padding: 5px;
                         white-space: nowrap;
 
@@ -336,8 +300,6 @@
                         &.dragged {
                             background-color: color.adjust($bcg-darkest, $lightness: -2%);
                         }
-
-                        border: 1px solid $bcg-darker;
 
                         .handle {
                             float: left;
@@ -373,7 +335,7 @@
                             background-color: $bcg-darkest;
                         }
 
-                        .ui-label.name {
+                        .pcui-label.name {
                             font-size: 12px;
                             vertical-align: top;
                             margin-left: 5px;
@@ -388,7 +350,7 @@
                             vertical-align: middle;
                         }
 
-                        .ui-button.remove {
+                        .pcui-button.remove {
                             @extend .font-icon;
 
                             width: 32px;
@@ -396,11 +358,12 @@
                             padding: 0;
                             position: absolute;
                             right: 0;
-                            border: 0;
                             font-size: 14px;
                             text-align: center;
                             background-color: transparent;
                             color: $text-darkest;
+                            border: none;
+                            box-shadow: none;
 
                             &:hover {
                                 color: #d34141;
