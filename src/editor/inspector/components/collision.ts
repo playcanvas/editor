@@ -254,7 +254,7 @@ class CollisionComponentInspector extends ComponentInspector {
         // Migration at the inspector level
         // We shouldn't need to do this but to allow creation of new
         // components of properties that have no default value, I need to also add them
-        // here as well as support existing components in editor-ui/js/editor/entities/entities-migrations.js
+        // here as well as support existing components in editor/js/editor/entities/entities-migrations.js
         setTimeout(() => {
             for (const entity of entities) {
                 if (!entity.has('components.collision.linearOffset')) {

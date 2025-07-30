@@ -20,13 +20,13 @@ You can see more projects build using the Editor on the [PlayCanvas website](htt
 
 ## Local Development
 
-To initialize a local development environment for the Editor UI, ensure you have [Node.js](https://nodejs.org/) 18 or later installed. Follow these steps:
+To initialize a local development environment for the Editor Frontend, ensure you have [Node.js](https://nodejs.org/) 18 or later installed. Follow these steps:
 
 1. Clone the repository:
 
    ```sh
-   git clone https://github.com/playcanvas/editor-ui.git
-   cd editor-ui
+   git clone https://github.com/playcanvas/editor.git
+   cd editor
    ```
 
 2. Install dependencies:
@@ -74,7 +74,7 @@ To test the integration of these libraries use [npm link](https://docs.npmjs.com
 2. Create a link to the global link
 
     ```sh
-    cd editor-ui
+    cd editor
     npm run link <library>
     ```
 

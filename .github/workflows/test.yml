@@ -13,7 +13,7 @@ jobs:
   test:
     name: Test Suite
     runs-on: ubuntu-latest
-    if: ${{ github.event.label.name == 'test' && github.repository == 'playcanvas/editor-ui' && github.actor == 'kpal81xd' }}
+    if: ${{ github.event.label.name == 'test' && github.repository == 'playcanvas/editor' && github.actor == 'kpal81xd' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -27,7 +27,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build test image
-        run: docker buildx build -t playcanvas/editor-ui:latest --load .
+        run: docker buildx build -t playcanvas/editor:latest --load .
 
       - name: Run tests
         run: |
@@ -38,4 +38,4 @@ jobs:
             -e PC_LOGIN_HOST=login.playcanvas.com \
             -e PC_LAUNCH_HOST=launch.playcanvas.com \
             -e PC_LOCAL_FRONTEND=true \
-            playcanvas/editor-ui:latest
+            playcanvas/editor:latest

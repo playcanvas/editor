@@ -1,9 +1,9 @@
 {
-  "name": "editor-ui",
+  "name": "editor",
   "version": "2.0.0",
   "author": "PlayCanvas <support@playcanvas.com>",
   "homepage": "https://playcanvas.com",
-  "description": "The PlayCanvas Editor UI",
+  "description": "The PlayCanvas Editor Frontend",
   "keywords": [
     "editor",
     "html5",

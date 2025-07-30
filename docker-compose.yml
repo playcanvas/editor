@@ -1,7 +1,7 @@
 services:
-  editor-ui:
+  editor:
     build: .
-    container_name: editor-ui
+    container_name: editor
     env_file:
       - .env
     volumes:

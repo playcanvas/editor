@@ -1,6 +1,6 @@
-# Contributing to PlayCanvas Editor UI
+# Contributing to PlayCanvas Editor Frontend
 
-Thank you for your interest in contributing to the PlayCanvas Editor UI! This guide will help you get started with contributing to this project.
+Thank you for your interest in contributing to the PlayCanvas Editor Frontend! This guide will help you get started with contributing to this project.
 
 Looking for ideas? Check out issues under the [good first issue](https://github.com/playcanvas/editor/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22good%20first%20issue%22) label or create an issue to start a conversation. The [Forum](https://playcanvas.com) is a good place to discuss ideas with the community as well. It strongly advised to create an issue or community post when suggesting major changes or add significant features to get advice on how to approach it.
 
@@ -34,13 +34,13 @@ By participating in this project, you are expected to uphold our Code of Conduct
 1. **Fork the repository** on GitHub
 2. **Clone your fork** locally:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/editor-ui.git
-   cd editor-ui
+   git clone https://github.com/YOUR_USERNAME/editor.git
+   cd editor
    ```
 
 3. **Add the upstream remote**:
    ```bash
-   git remote add upstream https://github.com/playcanvas/editor-ui.git
+   git remote add upstream https://github.com/playcanvas/editor.git
    ```
 
 4. **Install dependencies**:
@@ -63,7 +63,7 @@ By participating in this project, you are expected to uphold our Code of Conduct
 The project is organized as follows:
 
 ```
-editor-ui/
+editor/
 ├── src/                   # Source code
 │   ├── editor/            # Main editor functionality
 │   ├── code-editor/       # Code editor components
@@ -147,10 +147,10 @@ npm run lint
 
 ### Running Tests
 
-Testing for the Editor UI is handled through the [playcanvas/editor-test](https://github.com/playcanvas/editor-test) repository. Tests are automatically triggered via GitHub Actions workflow when a pull request is labeled with `test`.
+Testing for the Editor Frontend is handled through the [playcanvas/editor-test](https://github.com/playcanvas/editor-test) repository. Tests are automatically triggered via GitHub Actions workflow when a pull request is labeled with `test`.
 
 The test workflow:
-1. Builds a Docker image of the Editor UI
+1. Builds a Docker image of the Editor Frontend
 2. Runs comprehensive end-to-end tests against the PlayCanvas platform
 3. Tests are executed in a containerized environment with access to PlayCanvas services
 
@@ -252,7 +252,7 @@ npm run serve
 
 ### Editor Integration
 
-- The Editor UI integrates with the PlayCanvas platform
+- The Editor Frontend integrates with the PlayCanvas platform
 - Test changes using the `?use_local_frontend` parameter
 - Be mindful of backward compatibility with existing projects
 
@@ -276,4 +276,4 @@ Releases are handled by the maintainers. Contributors should:
 
 Contributors will be recognized in release notes and the project's contributor list. We appreciate all forms of contribution, from code to documentation to issue reports.
 
-Thank you for contributing to PlayCanvas Editor UI! 🎮
+Thank you for contributing to PlayCanvas Editor Frontend! 🎮
