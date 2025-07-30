@@ -1,0 +1,342 @@
+@use 'sass:color';
+
+@font-face {
+    font-family: inconsolatamedium;
+    src: url('https://playcanvas.com/static-assets/fonts/Inconsolata-webfont.eot');
+    src:
+        url('https://playcanvas.com/static-assets/fonts/Inconsolata-webfont.eot?#iefix') format('embedded-opentype'),
+        url('https://playcanvas.com/static-assets/fonts/Inconsolata-webfont.woff2') format('woff2'),
+        url('https://playcanvas.com/static-assets/fonts/Inconsolata-webfont.woff') format('woff'),
+        url('https://playcanvas.com/static-assets/fonts/Inconsolata-webfont.ttf') format('truetype'),
+        url('https://playcanvas.com/static-assets/fonts/Inconsolata-webfont.svg#inconsolatamedium') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: pc-icon;
+    src: url('https://playcanvas.com/static-assets/fonts/PlayIcons-Regular.eot');
+    src:
+        url('https://playcanvas.com/static-assets/fonts/PlayIcons-Regular.eot?#iefix') format('embedded-opentype'),
+        url('https://playcanvas.com/static-assets/fonts/PlayIcons-Regular.woff2') format('woff2'),
+        url('https://playcanvas.com/static-assets/fonts/PlayIcons-Regular.woff') format('woff'),
+        url('https://playcanvas.com/static-assets/fonts/PlayIcons-Regular.ttf') format('truetype'),
+        url('https://playcanvas.com/static-assets/fonts/PlayIcons-Regular.svg') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+html {
+    height: 100%;
+    width: 100%;
+    background-color: #1d292c;
+}
+
+body {
+    margin: 0;
+    max-height: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: #1d292c;
+    font-family: Helvetica, arial, sans-serif;
+    position: relative;
+    width: 100%;
+
+    // do not do blue highlight if cursor=pointer on Chrome
+    -webkit-tap-highlight-color: transparent;
+}
+
+#application-canvas {
+    display: block;
+    position: absolute;
+    inset: 0;
+}
+
+#application-canvas.fill-mode-NONE {
+    margin: auto;
+}
+
+#application-canvas.fill-mode-KEEP_ASPECT {
+    width: 100%;
+    height: auto;
+    margin: 0;
+}
+
+#application-canvas.fill-mode-FILL_WINDOW {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+}
+
+canvas:focus {
+    outline: none;
+}
+
+#application-console {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    max-height: 40%;
+    background-color: rgb(0 0 0 / 70%);
+    font-size: 14px;
+    font-family: inconsolatamedium, Monaco, Menlo, 'Ubuntu Mono', Consolas, source-code-pro, monospace;
+    font-weight: normal;
+    color: white;
+    padding-left: 10px;
+    overflow-y: scroll;
+    word-wrap: break-word;
+    border-top: 1px solid #444;
+
+    &.hidden {
+        display: none;
+    }
+
+    img {
+        float: right;
+        padding: 5px;
+        cursor: pointer;
+    }
+
+    p {
+        &.error {
+            color: red;
+        }
+
+        &.trace {
+            color: #ddd;
+        }
+
+        a {
+            color: rgb(255 143 0);
+        }
+    }
+}
+
+#application-tooltips {
+    position: absolute;
+    left: 0;
+    right: 0;
+    margin: auto;
+    top: 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    > .tooltip {
+        margin: auto;
+        background-color: #2c2c2c;
+        padding: 14px;
+        color: white;
+        display: flex;
+        flex-direction: row-reverse;
+        align-items: center;
+        font-family: inconsolatamedium;
+        line-height: 20px;
+    
+        img {
+            margin-left: 14px;
+            cursor: pointer;
+        }
+    
+        &.hidden {
+            display: none;
+        }
+    }
+}
+
+.connecting {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+}
+
+.noSelect {
+    user-select: none;
+}
+
+.font-icon {
+    font-family: pc-icon;
+}
+
+body > #dev-tools {
+    position: absolute;
+    z-index: 10001;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: auto;
+    height: 300px;
+    background-color: #303030;
+    overflow: hidden;
+    cursor: default;
+    border-top: 1px solid #202020;
+
+    &.dragging {
+        cursor: grabbing;
+    }
+
+    > .overview {
+        position: absolute;
+        left: 300px;
+        top: 0;
+        display: block;
+        background-color: #202020;
+
+        @extend .noSelect;
+    }
+
+    > .timeline {
+        position: absolute;
+        left: 300px;
+        top: 24px;
+        display: block;
+        background-color: #303030;
+
+        @extend .noSelect;
+    }
+
+    > .frame {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 299px;
+        height: 300px;
+        border-right: 1px solid #202020;
+        overflow: auto;
+        color: #fff;
+        font-size: 12px;
+        font-family: 'Courier New', monospace;
+
+        &::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+
+        &::-webkit-scrollbar-track {
+            background: #303030;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background: #202020;
+        }
+
+        &::-webkit-scrollbar-thumb:hover {
+            background: #fff;
+        }
+
+        &::-webkit-scrollbar-corner {
+            background: #303030;
+        }
+
+        > .panel {
+            overflow: hidden;
+
+            > .header {
+                text-transform: uppercase;
+                height: 24px;
+                line-height: 24px;
+                padding: 0 8px;
+                font-size: 14px;
+                background-color: #202020;
+                cursor: pointer;
+            }
+
+            > .row {
+                overflow: hidden;
+                margin: 4px 8px;
+
+                > .title {
+                    float: left;
+                    width: 150px;
+                }
+
+                > .field {
+                    float: left;
+                }
+
+                > select {
+                    padding: 0;
+                    margin: 0;
+                    border: none;
+                    width: calc(100% - 150px);
+                    background-color: #202020;
+                    color: #fff;
+                    font-size: 12px;
+                    font-family: 'Courier New', monospace;
+                }
+
+                > input[type='text'] {
+                    float: left;
+                    padding: 4px 8px;
+                    margin: 0;
+                    border: none;
+                    background-color: #202020;
+                    color: #fff;
+                    font-size: 12px;
+                    line-height: 16px;
+                    font-family: 'Courier New', monospace;
+
+                    &.framesSkip {
+                        width: calc(100% - 140px - 16px);
+                        margin-right: 4px;
+                    }
+                }
+
+                > .drawcallsLimitButton {
+                    float: left;
+                    width: 24px;
+                    height: 24px;
+                    line-height: 24px;
+                    text-align: center;
+                    margin-right: 4px;
+                    background-color: #202020;
+                    color: #fff;
+                    cursor: pointer;
+
+                    &:hover {
+                        background-color: #000;
+                    }
+
+                    &:last-child {
+                        margin-right: 0;
+                    }
+                }
+            }
+
+            &.folded {
+                height: 24px;
+
+                > .header {
+                    color: color.mix(#202020, #fff, 50%);
+                }
+            }
+        }
+    }
+
+    > .toolbar {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 32px;
+        background-color: #202020;
+
+        > .button {
+            width: 32px;
+            height: 32px;
+            line-height: 32px;
+            text-align: center;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+
+            @extend .font-icon;
+
+            &:hover {
+                background-color: #000;
+            }
+        }
+    }
+}

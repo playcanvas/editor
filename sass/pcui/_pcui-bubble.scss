@@ -1,0 +1,72 @@
+@keyframes pulseline {
+    0% {
+        width: 2px;
+        height: 2px;
+        opacity: 1;
+        left: 5px;
+        top: 5px;
+        box-shadow: 0 0 0 0 $text-active;
+    }
+
+    100% {
+        width: 47px;
+        height: 46px;
+        opacity: 0;
+        left: -19px;
+        top: -18px;
+        box-shadow: 0 0 0 6px $text-active;
+    }
+}
+
+.pcui-bubble {
+    position: absolute;
+    z-index: 100;
+
+    > .pulse {
+        border-radius: 50%;
+        width: 2px;
+        height: 2px;
+        position: absolute;
+        z-index: 100;
+        opacity: 0;
+        transition: all 2s ease;
+        animation: pulseline 1s ease-out -0.5s infinite;
+    }
+
+    > .center {
+        position: absolute;
+        z-index: 100;
+        left: -7px;
+        top: -7px;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        background: $text-active;
+        box-shadow: 7px 7px 5px 0 rgb(0 0 0 / 10%);
+        transition: all 0.1s ease;
+    }
+
+    &:hover,
+    &.active {
+        cursor: pointer;
+
+        > .pulse {
+            display: none;
+            animation: none;
+        }
+
+        > .center {
+            width: 30px;
+            height: 30px;
+            left: -10px;
+            top: -10px;
+        }
+    }
+
+    &:active,
+    &.active {
+        > .center {
+            background: $text-primary;
+        }
+    }
+}

@@ -1,0 +1,35 @@
+.pcui-inspector {
+    > .pcui-label-group {
+        margin: 3px 10px;
+        min-height: 24px;
+
+        > .pcui-label:first-child {
+            font-size: 12px;
+            width: 30%;
+        }
+
+        > .pcui-label:not(:first-child) {
+            @extend .fixedFont;
+        }
+    }
+
+    > .pcui-asset-input {
+        margin: 3px 10px;
+    }
+
+    > .pcui-panel {
+        margin: 3px 10px;
+
+        > .pcui-panel-content {
+            padding: 0 3px;
+        }
+    }
+}
+
+.pcui-inspector-subhead {
+    :first-child {
+        color: $text-primary;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+}

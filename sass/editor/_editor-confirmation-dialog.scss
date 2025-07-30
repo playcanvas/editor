@@ -1,0 +1,76 @@
+@media (min-width: 0) {
+    .editor-confirmation {
+        background-color: $bcg-primary;
+        padding-bottom: 55px;
+        box-shadow: 10px 0 20px -5px rgb(0 0 0 / 28%);
+    }
+
+    .editor-confirmation-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        flex-direction: column;
+        padding: 0 20px;
+        min-width: 330px;
+    }
+
+    .editor-confirmation-container {
+        width: 100%;
+    }
+
+    .editor-confirmation-top {
+        display: flex;
+        background-color: $bcg-dark;
+
+        a {
+            height: 128px;
+            flex-grow: 1;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: $text-secondary;
+            text-decoration: none;
+
+            .ui-icon {
+                padding-left: 10px;
+                padding-right: 10px;
+                margin-top: -5px;
+                font-size: 20px;
+                visibility: hidden;
+            }
+
+            &.focused {
+                color: $text-primary;
+
+                .ui-icon {
+                    visibility: visible;
+                }
+            }
+        }
+    }
+
+    .editor-confirmation-message {
+        background-color: $bcg-darkest;
+        padding: 5px 20px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        font-size: 14px;
+        color: rgb(255 255 255 / 60%);
+
+        .ui-icon {
+            font-size: 36px;
+            width: 55px;
+            flex-shrink: 0            
+        }
+    }    
+}
+
+/* Small devices (tablets, desktops, 768px and up) */
+@media (min-width: 768px) {
+    .editor-confirmation-container {
+        width: 380px;
+    }
+}

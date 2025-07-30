@@ -1,0 +1,27 @@
+{
+    "compilerOptions": {
+        "allowSyntheticDefaultImports": true,
+        "allowImportingTsExtensions": true,
+        "baseUrl": ".",
+        "checkJs": true,
+        "module": "esnext",
+        "skipLibCheck": true,
+        "noEmit": true,
+        "target": "esnext",
+        "moduleResolution": "bundler",
+        "outDir": "dist",
+        "lib": ["es6", "dom", "webworker"]
+    },
+    "include": [
+        "src",
+        "modules",
+        "test",
+        "eslint.config.mjs",
+        "rollup.config.mjs",
+        "types.d.ts"
+    ],
+    "exclude": [
+        "src/wasm",
+        "src/modules/pcui-diff.js"
+    ]
+}

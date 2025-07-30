@@ -1,0 +1,41 @@
+.pcui-related-assets > .pcui-panel > .pcui-panel-content {
+    padding: $element-margin 0;
+}
+
+.pcui-related-assets-related-asset {
+    @extend .fixedFont;
+
+    background-color: $bcg-dark;
+    border-left: 1px solid $bcg-darker;
+    border-top: 1px solid $bcg-darker;
+    border-right: 1px solid $bcg-darker;
+    margin: 0 $element-margin;
+    flex-grow: 1;
+    cursor: pointer;
+    line-height: 22px;
+    padding-left: 25px;
+    position: relative;
+    font-size: 11px;
+}
+
+.pcui-related-assets-related-asset:last-child {
+    border-bottom: 1px solid $bcg-darker;
+}
+
+.pcui-related-assets-related-asset:hover {
+    color: $text-primary;
+    background-color: $bcg-darkest;
+    border-color: $bcg-darkest;
+}
+
+.pcui-related-assets-related-asset::before {
+    font-size: 14px;
+
+    @extend .font-icon;
+
+    position: absolute;
+    padding: 0 8px;
+    top: 2px;
+    left: -3px;
+    color: $text-darkest;
+}

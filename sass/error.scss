@@ -1,0 +1,79 @@
+@import '../node_modules/@playcanvas/pcui/dist/variables';
+@import '../node_modules/@playcanvas/pcui/dist/theme-colors-green';
+
+body {
+    font-family: 'courier new', monospace;
+    color: $text-secondary;
+    background-color: $bcg-darker;
+    margin: 0;
+}
+
+.block {
+    position: absolute;
+    width: 480px;
+    height: 128px;
+    left: calc(50% - 240px);
+    top: calc(50% - 64px);
+
+    > .icon {
+        float: left;
+        width: 112px;
+        height: 112px;
+        margin: 8px 32px 0 0;
+    }
+
+    > .status {
+        font-size: 48px;
+        font-weight: bold;
+        margin: 0;
+        color: $text-primary;
+    }
+
+    > .message {
+        margin: 0 16px;
+        font-size: 16px;
+        font-weight: bold;
+        color: $text-primary;
+    }
+
+    > a.home {
+        display: inline-block;
+        margin: 8px 2px;
+        font-weight: bold;
+        color: $text-active;
+
+        &:hover {
+            color: $text-primary;
+        }
+    }
+}
+
+pre.stack {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: auto;
+    color: $text-active;
+    font-weight: bold;
+    background-color: $bcg-darkest;
+    padding: 8px;
+    margin: 0;
+}
+
+button {
+    margin-top: 10px;
+    font-size: 14px;
+    border: 0;
+    width: 180px;
+    height: 32px;
+    line-height: 32px;
+    background: #f60;
+    opacity: 0.9;
+    color: #fff;
+
+    &:hover {
+        cursor: pointer;
+        opacity: 1;
+    }
+}

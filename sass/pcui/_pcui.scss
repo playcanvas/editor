@@ -1,0 +1,26 @@
+// external pcui styling
+@import '../../node_modules/@playcanvas/pcui/dist/pcui-theme-green';
+
+// external pcui graph styling
+@import '../../node_modules/@playcanvas/pcui-graph/dist/pcui-graph';
+
+// editor specific pcui controls and extensions
+@import 'pcui-common';
+@import 'pcui-bubble';
+@import 'pcui-color-input';
+@import 'pcui-curve-input';
+@import 'pcui-gradient-input';
+@import 'pcui-asset-input';
+@import 'pcui-asset-list';
+@import 'pcui-entity-input';
+@import 'pcui-asset-thumbnail';
+@import 'pcui-drop-manager';
+@import 'pcui-drop-target';
+@import 'pcui-inspector';
+@import 'pcui-tooltip';
+@import 'pcui-table';
+
+// this should always be last
+.pcui-hidden {
+    display: none;
+}

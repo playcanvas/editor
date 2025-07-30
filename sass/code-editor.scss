@@ -1,0 +1,664 @@
+@use 'sass:color';
+@import 'pcui/pcui';
+@import 'common/fonts';
+
+// Variables
+$bcg-primary: #324447;
+$bcg-darkest: #1d292c;
+$bcg-darker: color.mix($bcg-primary, $bcg-darkest, 25%);
+$bcg-dark: color.mix($bcg-primary, $bcg-darkest, 75%);
+$border-primary: color.mix($bcg-darkest, $bcg-dark, 50%);
+$bright-red: #e74c3c;
+$bright-yellow: #f1c40f;
+$muted-yellow: #f4a62a;
+$status-error: $bright-red;
+$status-warning: $bright-yellow;
+$status-log: #ccc;
+
+html {
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    @extend .font-regular;
+
+    min-height: 100%;
+    height: 100%;
+    overflow: hidden;
+    margin: 0;
+    font-size: 14px;
+}
+
+strong {
+    @extend .font-bold;
+}
+
+.noSelect {
+    user-select: none;
+}
+
+@media (max-width: 480px) {
+    .hidden-xs {
+        display: none;
+    }
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+#ui-root {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-height: 100%;
+    background-color: $bcg-primary;
+    color: $text-primary;
+    overflow: hidden;
+
+    &.file-only-mode {
+        #ui-top,
+        #ui-left,
+        #ui-bottom,
+        #ui-tabs {
+            display: none;
+        }
+
+        #ui-center,
+        #ui-code {
+            height: 100%;
+        }
+    }
+}
+
+#ui-top {
+    background-color: color.mix($bcg-darkest, black, 75%);
+
+    > .pcui-button {
+        background-color: transparent;
+        color: $text-secondary;
+        margin: 0;
+        padding: 0 10px;
+        height: 32px;
+        line-height: 32px;
+        font-size: 14px;
+        border: 0;
+
+        &:hover {
+            color: $text-primary;
+            background-color: color.mix($text-darkest, $bcg-darker, 30%);
+            box-shadow: none;
+        }
+
+        &.open {
+            color: $text-primary;
+            background-color: $bcg-darkest;
+        }
+    }
+}
+
+#ui-center {
+    background-color: $bcg-darkest;
+    height: calc(100vh - 64px);
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+#ui-code {
+    height: calc(100% - 32px);
+
+    &:not(.hidden) {
+        display: block;
+    }
+}
+
+#ui-tabs {
+    background-color: $bcg-darker;
+    box-sizing: border-box;
+
+    $tab-bottom-margin: 2px;
+    $tab-bg-color: color.mix($bcg-darker, $bcg-darkest, 25%);
+
+    height: 32px - $tab-bottom-margin;
+    line-height: 32px - $tab-bottom-margin;
+    margin-bottom: $tab-bottom-margin;
+
+    .pcui-container.tab {
+        cursor: pointer;
+        flex: 1 1 auto;
+        min-width: 10px;
+        max-width: 150px;
+        box-sizing: border-box;
+        background-color: $tab-bg-color;
+        color: $text-secondary;
+        transition: color 200ms ease;
+        padding: 0 5px;
+        height: 32px - $tab-bottom-margin;
+        line-height: 32px - $tab-bottom-margin;
+        margin-right: 3px;
+        font-size: 13px;
+        white-space: nowrap;
+
+        &.animated {
+            transition: left 200ms ease;
+        }
+
+        &:hover {
+            color: $text-primary;
+        }
+
+        // use hovered class for
+        // opacity because :hover seems
+        // to breaks sometimes due to the fact
+        // that tabs are removed / readded to the DOM
+        &.hovered {
+            > .close {
+                opacity: 1;
+            }
+        }
+
+        &.focused {
+            background-color: $bcg-darkest;
+            color: $text-primary;
+            border-bottom: 2px solid $text-active;
+            min-width: 100px;
+            z-index: 1;
+
+            > .close {
+                background-color: $bcg-darkest;
+                box-shadow: -2px -2px 2px $bcg-darkest;
+            }
+        }
+
+        &.dirty:not(.error) {
+            color: color.adjust($muted-yellow, $alpha: -0.15);
+
+            &:hover,
+            &.focused {
+                color: $muted-yellow;
+            }
+        }
+
+        &.grabbed {
+            z-index: 10;
+
+            > .close {
+                opacity: 0;
+            }
+        }
+
+        &.error {
+            color: $bright-red;
+        }
+
+        &.temporary {
+            .pcui-label {
+                font-style: italic;
+            }
+        }
+
+        > .pcui-container.name {
+            overflow: hidden;
+
+            > .pcui-label.name {
+                line-height: 22px;
+                margin: 3px;
+                vertical-align: bottom;
+            }
+        }
+
+        > .close {
+            color: $text-secondary;
+            background-color: $tab-bg-color;
+            box-shadow: -2px -2px 2px $tab-bg-color;
+            border: 0;
+            position: absolute;
+            padding: 0;
+            margin: 0;
+            top: 0;
+            right: 0;
+            width: 22px;
+            height: 28px;
+            line-height: 30px;
+            font-size: 14px;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 200ms ease;
+
+            &:hover {
+                color: $text-active;
+            }
+        }
+
+        > .pcui-progress {
+            width: calc(100% + 10px);
+            position: absolute;
+            bottom: -2px;
+            left: -5px;
+        }
+    }
+}
+
+#ui-left {
+    color: $text-primary;
+    flex-shrink: 0;
+}
+
+#ui-right {
+    flex-shrink: 0;
+    width: 0;
+
+    &:not(.resizing) {
+        transition: width 200ms ease;
+    }
+
+    > .pcui-panel-header {
+        padding: 0;
+
+        > .pcui-panel-header-title::before {
+            @extend .font-icon;
+
+            content: '\E134';
+            display: inline-block;
+            font-size: 14px;
+            width: 32px;
+            height: 32px;
+            line-height: 32px;
+            text-align: center;
+            color: $text-active;
+        }
+
+        > .close {
+            background: transparent;
+            position: absolute;
+            right: 0;
+            font-size: 14px;
+            border: 0;
+
+            &:hover {
+                box-shadow: none;
+            }
+        }
+    }
+
+    > .pcui-panel-content {
+        box-sizing: border-box;
+        padding: 8px 6px;
+
+        > .pcui-label-group {
+            height: 24px;
+
+            > .pcui-label {
+                width: 150px;
+                font-size: 13px;
+            }
+        }
+    }
+}
+
+#ui-bottom {
+    background-color: color.mix($bcg-darkest, black, 75%);
+
+    .pcui-label {
+        margin: 0 0 0 5px;
+        height: 32px;
+        line-height: 32px;
+        vertical-align: bottom;
+        color: $status-log;
+
+        &.error {
+            color: $status-error;
+        }
+
+        &.warning {
+            color: $status-warning;
+        }
+
+        &.connection-status {
+            float: right;
+            padding-right: 5px;
+        }
+
+        &.branch-name {
+            max-width: 150px;
+            padding-right: 10px;
+            border-right: 1px solid $border-primary;
+            margin-right: 5px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+
+            &::before {
+                @extend .font-icon;
+
+                content: '\E399';
+                margin-right: 5px;
+            }
+        }
+    }
+}
+
+.pcui-treeview {
+    .pcui-treeview-item-icon::after {
+        font-size: 16px;
+    }
+
+    .pcui-treeview-item.dirty {
+        .pcui-treeview-item-contents:not(.pcui-treeview-item-selected) {
+            color: color.adjust($muted-yellow, $alpha: -0.15);
+        }
+
+        .pcui-treeview-item-contents.pcui-treeview-item-selected {
+            color: $muted-yellow;
+        }
+    }
+}
+
+.no-bottom-border {
+    > .pcui-menu-item-content {
+        border-bottom: 0;
+    }
+}
+
+.pcui-menu {
+    .pcui-menu-item {
+        font-size: 14px;
+
+        .shortcut {
+            position: absolute;
+            top: 0;
+            right: 4px;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 12px;
+        }
+    }
+
+    .pcui-menu-item.create-new .pcui-menu-item {
+        min-width: 150px;
+    }
+}
+
+.pcui-menu.top {
+    top: 32px; // move overlay below the top menu bar to allow hovering on other items
+
+    .pcui-menu-item {
+        min-width: 300px;
+    }
+}
+
+.pcui-label.readonly {
+    margin: 0 0 0 auto;
+    padding: 0 10px;
+    line-height: 32px;
+    background-color: $bcg-primary;
+}
+
+.pcui-overlay.picker-script-create {
+    .pcui-overlay-content {
+        width: 288px;
+        padding: 16px;
+        z-index: 0;
+
+        > .pcui-label {
+            margin: 0 0 8px;
+        }
+
+        > .pcui-input-element {
+            margin: 0;
+            width: 100%;
+        }
+
+        > .validate {
+            float: right;
+            margin: 2px 0 0;
+            font-size: 12px;
+            color: #f30;
+        }
+    }
+}
+
+.picker-search {
+    background-color: $bcg-darker;
+    height: 32px;
+    flex-direction: row;
+
+    > .pcui-input-element {
+        background-color: rgb(0 0 0 / 50%);
+        margin: 2px;
+        height: 28px;
+        flex-grow: 1;
+
+        > input {
+            font-size: 14px;
+        }
+
+        > .pcui-label.error {
+            color: $bright-red;
+            font-size: 12px;
+            position: absolute;
+            top: 0;
+            right: 5px;
+        }
+
+        &.replace {
+            transition: flex-grow 200ms ease;
+
+            &:not(.focused) {
+                flex-grow: 0.3;
+            }
+        }
+    }
+
+    > .pcui-input-element[placeholder]::after {
+        background-color: transparent;
+        line-height: 26px;
+    }
+
+    > .pcui-button {
+        font-size: 14px;
+        line-height: 14px;
+        margin: 2px;
+    }
+
+    > .pcui-button.option {
+        width: 28px;
+        height: 28px;
+        padding: 0;
+        font-size: 14px;
+        margin: 2px;
+        box-sizing: border-box;
+
+        @extend .font-bold;
+
+        &.toggled {
+            background-color: $text-active;
+            color: $text-primary;
+        }
+    }
+}
+
+.pcui-overlay.picker-fuzzy-search {
+    z-index: 50;
+
+    > .pcui-overlay-inner {
+        background-color: transparent;
+        cursor: default;
+    }
+
+    > .pcui-overlay-content {
+        display: none;
+    }
+}
+
+.pcui-container.picker-fuzzy-search:not(.pcui-overlay) {
+    position: absolute;
+    z-index: 51;
+    top: 28px;
+    left: calc(50% - 25vw);
+    width: 50vw;
+    height: 32px;
+    line-height: 32px;
+
+    > .pcui-text-input {
+        width: 100%;
+        height: 32px;
+        line-height: 32px;
+        margin: 0;
+        padding: 0;
+
+        > input {
+            font-size: 14px;
+        }
+
+        &:hover,
+        &.active,
+        &:focus,
+        &.pcui-focus {
+            background-color: $bcg-primary;
+        }
+    }
+
+    > .pcui-menu {
+        top: 100%;
+
+        > .pcui-menu-items {
+            position: absolute;
+            width: 100%;
+            max-height: 50vh;
+            overflow-y: auto;
+            box-shadow: 0 1px 1px 0 rgb(0 0 0 / 50%);
+
+            > .pcui-menu-item {
+                flex-shrink: 0;
+
+                > .pcui-menu-item-content {
+                    > .pcui-label {
+                        line-height: initial;
+                        margin: 5px 10px;
+
+                        .name {
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                        }
+
+                        .path {
+                            display: block;
+                            font-size: 12px;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                            color: $text-darkest;
+                        }
+                    }
+
+                    &:hover {
+                        background-color: inherit !important;
+                        color: inherit !important;
+                    }
+                }
+
+                &.selected {
+                    background: $text-darkest;
+
+                    .pcui-label {
+                        color: $text-primary;
+
+                        .path {
+                            color: $bcg-darkest;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+.pcui-container.whoisonline {
+    flex-grow: 1;
+    text-align: right;
+    margin: auto;
+    height: 32px;
+    line-height: 32px;
+
+    a {
+        margin-right: 3px;
+        display: inline-block;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        border: 2px solid transparent;
+        vertical-align: middle;
+        transition: border-color 300ms ease;
+
+        img {
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+        }
+    }
+}
+
+.animate-height {
+    transition: height 200ms ease;
+}
+
+.search-results-file {
+    color: $bright-yellow !important;
+}
+
+.search-results-match {
+    outline: 1px solid white;
+}
+
+.invisible {
+    visibility: hidden;
+}
+
+.dst-branch {
+    background: rgba(#0b3b76, 0.5);
+
+    > .ui-button {
+        background: #2460aa;
+        border: 1px solid #20292b;
+    }
+}
+
+.src-branch {
+    background: rgba(#15515e, 0.5);
+
+    > .ui-button {
+        background: #1d6d7f;
+        border: 1px solid #20292b;
+    }
+}
+
+.diff-overlay-hunk {
+    background: $bcg-primary;
+}
+
+.diff-overlay-add {
+    background: rgb(0 128 0 / 20%);
+}
+
+.diff-overlay-remove {
+    background: rgb(255 0 0 / 20%);
+}
+
+.pcui-tooltip {
+    padding: 8px;
+    background: black;
+}
+
+.pcui-tooltip-desc {
+    margin: 0;
+}
+
+@import 'common/ui-common';
+@import 'common/version-control';

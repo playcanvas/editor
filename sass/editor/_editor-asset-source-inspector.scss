@@ -1,0 +1,14 @@
+.scene-asset-inspector-asset {
+    font-family: inconsolatamedium, Monaco, Menlo, 'Ubuntu Mono', Consolas, source-code-pro, monospace;
+    font-weight: normal;
+    font-size: 11px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-left: 1px solid $bcg-darker;
+    border-right: 1px solid $bcg-darker;
+    border-top: 1px solid $bcg-darker;
+    color: $text-secondary;
+    background-color: $bcg-dark;
+    padding: 3px 6px;
+    margin: 3px;
+}

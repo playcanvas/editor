@@ -1,0 +1,8 @@
+services:
+  editor-ui:
+    build: .
+    container_name: editor-ui
+    env_file:
+      - .env
+    volumes:
+      - ./.auth:/usr/src/test/.auth

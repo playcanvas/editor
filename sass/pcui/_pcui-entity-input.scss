@@ -1,0 +1,111 @@
+.pcui-entity-input {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    border: 1px solid $bcg-darker;
+    border-radius: 2px;
+    box-sizing: border-box;
+    margin: $element-margin;
+    height: 24px;
+    background-color: $bcg-dark;
+    vertical-align: top;
+    transition: color 100ms, background-color 100ms, box-shadow 100ms;
+    color: $text-secondary;
+    overflow: hidden;
+
+    > .pcui-label {
+        margin: 0;
+        flex: 1;
+        padding: $element-margin;
+        color: inherit;
+        font-size: 12px;
+
+        @extend .fixedFont;
+    }
+
+    > .pcui-button {
+        margin: 0;
+        background: transparent;
+        border: 0;
+        flex-shrink: 0;
+        padding: 0;
+        height: 24px;
+        width: 24px;
+        line-height: 24px;
+    }
+
+    &::before {
+        color: inherit;
+    }
+}
+
+// empty
+.pcui-entity-input-empty {
+    > .pcui-label {
+        color: $text-darkest;
+    }
+
+    > .pcui-button {
+        display: none;
+    }
+}
+
+.pcui-entity-input.pcui-multiple-values {
+    position: relative;
+
+    &::before {
+        position: absolute;
+        padding: 0 8px;
+        content: '...';
+        white-space: nowrap;
+
+        @extend .fixedFont;
+
+        font-size: 12px;
+    }
+
+    > .pcui-label {
+        display: none;
+    }
+}
+
+// focus / hover states
+.pcui-entity-input:not(.pcui-disabled, .pcui-readonly) {
+    &.pcui-focus,
+    &:hover {
+        cursor: pointer;
+
+        &::after,
+        &::before {
+            display: none;
+        }
+    }
+
+    &:hover {
+        color: $text-primary;
+        background-color: $bcg-darker;
+        box-shadow: $element-shadow-hover;
+    }
+
+    &.pcui-focus {
+        background-color: $bcg-darkest;
+        box-shadow: $element-shadow-active;
+    }
+}
+
+// readonly state
+.pcui-entity-input.pcui-readonly {
+    color: $text-secondary;
+    /* stylelint-disable-next-line scss/no-global-function-names */
+    background-color: transparentize($color: $bcg-dark, $amount: 1 - $element-opacity-readonly);
+    border-color: transparent;
+
+    > .pcui-button {
+        display: none;
+    }
+}
+
+// disabled state
+.pcui-entity-input.pcui-disabled {
+    color: $text-darkest;
+}

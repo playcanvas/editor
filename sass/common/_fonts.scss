@@ -1,0 +1,77 @@
+@font-face {
+    font-family: 'Proxima Nova Regular';
+    src: url('https://playcanvas.com/static-assets/fonts/proxima_nova_regular.eot');
+    src:
+        url('https://playcanvas.com/static-assets/fonts/proxima_nova_regular.eot?#iefix') format('embedded-opentype'),
+        url('https://playcanvas.com/static-assets/fonts/proxima_nova_regular.woff2') format('woff2'),
+        url('https://playcanvas.com/static-assets/fonts/proxima_nova_regular.woff') format('woff'),
+        url('https://playcanvas.com/static-assets/fonts/proxima_nova_regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Proxima Nova Light';
+    src: url('https://playcanvas.com/static-assets/fonts/proxima_nova_light.eot');
+    src:
+        url('https://playcanvas.com/static-assets/fonts/proxima_nova_light.eot?#iefix') format('embedded-opentype'),
+        url('https://playcanvas.com/static-assets/fonts/proxima_nova_light.woff2') format('woff2'),
+        url('https://playcanvas.com/static-assets/fonts/proxima_nova_light.woff') format('woff'),
+        url('https://playcanvas.com/static-assets/fonts/proxima_nova_light.ttf') format('truetype');
+    font-weight: 200;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Proxima Nova Bold';
+    src: url('https://playcanvas.com/static-assets/fonts/proxima_nova_bold.eot');
+    src:
+        url('https://playcanvas.com/static-assets/fonts/proxima_nova_bold.eot?#iefix') format('embedded-opentype'),
+        url('https://playcanvas.com/static-assets/fonts/proxima_nova_bold.woff2') format('woff2'),
+        url('https://playcanvas.com/static-assets/fonts/proxima_nova_bold.woff') format('woff'),
+        url('https://playcanvas.com/static-assets/fonts/proxima_nova_bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Proxima Nova Thin';
+    src: url('https://playcanvas.com/static-assets/fonts/proxima_nova_thin_t.eot');
+    src:
+        url('https://playcanvas.com/static-assets/fonts/proxima_nova_thin_t.eot?#iefix') format('embedded-opentype'),
+        url('https://playcanvas.com/static-assets/fonts/proxima_nova_thin_t.woff2') format('woff2'),
+        url('https://playcanvas.com/static-assets/fonts/proxima_nova_thin_t.woff') format('woff'),
+        url('https://playcanvas.com/static-assets/fonts/proxima_nova_thin_t.ttf') format('truetype');
+    font-weight: 100;
+    font-style: normal;
+}
+
+.font-thin {
+    font-family: 'Proxima Nova Thin', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    font-weight: 100;
+    font-style: normal;
+}
+
+.font-light {
+    font-family: 'Proxima Nova Light', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    font-weight: 200;
+    font-style: normal;
+}
+
+.font-regular {
+    font-family: 'Proxima Nova Regular', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    font-weight: normal;
+    font-style: normal;
+}
+
+.font-bold {
+    font-family: 'Proxima Nova Bold', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+    font-weight: bold;
+    font-style: normal;
+}
+
+.fixedFont {
+    font-family: inconsolatamedium, Monaco, Menlo, 'Ubuntu Mono', Consolas, source-code-pro, monospace;
+    font-weight: normal;
+    font-size: 12px;
+}
