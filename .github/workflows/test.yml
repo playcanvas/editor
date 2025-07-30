@@ -37,6 +37,12 @@ jobs:
         env:
           DOCKER_BUILD_SUMMARY: false
 
+      - name: Manual state injection
+        run: |
+          echo "Injecting manual state for testing purposes"
+          mkdir -p ~/.auth
+          echo '${{ secrets.PC_STATE }}' > ~/.auth/state.json
+
       - name: Cache auth
         uses: actions/cache@v4
         with:
