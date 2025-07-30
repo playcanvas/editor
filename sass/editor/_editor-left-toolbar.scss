@@ -1,0 +1,126 @@
+@use 'sass:color';
+
+#layout-toolbar {
+    background-color: $bcg-darker;
+    z-index: 1000;
+
+    > .pcui-button {
+        display: block;
+        border: none;
+        border-radius: 0;
+        margin: 0;
+        width: 45px;
+        height: 45px;
+        flex-shrink: 0;
+
+        &.hidden {
+            display: none;
+        }
+
+        &.logo {
+            background-image: url('https://playcanvas.com/static-assets/images/editor_logo.png');
+            background-size: 92px 46px;
+            background-repeat: no-repeat;
+            background-position: -1px -1px;
+
+            &:hover {
+                background-position: -47px -1px;
+            }
+        }
+
+        &.icon,
+        &.pc-icon {
+            color: $text-dark;
+            line-height: 43px;
+            text-align: center;
+            background-color: $bcg-primary;
+
+            &.active {
+                color: $text-primary;
+                background-color: $bcg-darkest;
+
+                &:hover,
+                &:focus {
+                    background-color: color.mix($bcg-dark, $bcg-darkest, 50%);
+                }
+            }
+
+            &.light-mapper.active {
+                background-color: $bcg-primary;
+                color: $text-active;
+
+                &:hover,
+                &:focus {
+                    color: $text-primary;
+                    background-color: $bcg-dark;
+                }
+            }
+
+            &.disabled {
+                opacity: 1;
+                color: color.mix($text-dark, $bcg-primary, 30%);
+
+                &:hover,
+                &:focus {
+                    color: color.mix($text-dark, $bcg-primary, 30%);
+                    background-color: $bcg-primary;
+                }
+            }
+
+            &:hover,
+            &:focus {
+                color: $text-primary;
+                background-color: $bcg-dark;
+                box-shadow: none;
+            }
+        }
+
+        &.icon {
+            @extend .font-icon;
+
+            font-size: 24px;
+        }
+
+        &.pc-icon {
+            @extend .font-icon;
+
+            font-size: 20px;
+        }
+
+        &.push-top {
+            margin-top: auto;
+        }
+
+        &.bottom {
+            background-color: $bcg-darker;
+        }
+
+        &.github {
+            order: 1;
+        }
+
+        &.discord {
+            order: 2;
+        }
+
+        &.forum {
+            order: 3;
+        }
+
+        &.help-howdoi {
+            order: 4;
+        }
+
+        &.help-controls {
+            order: 5;
+        }
+
+        &.editor-settings {
+            order: 6;
+        }
+    }
+}
+
+#layout-toolbar.hide-items > div {
+    display: none;
+}

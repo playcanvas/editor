@@ -1,0 +1,1039 @@
+@use 'sass:color';
+
+body {
+    color: $text-secondary;
+    background-color: $bcg-darker;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: $bcg-darkest;
+}
+
+::-webkit-scrollbar-thumb {
+    background: $text-darkest;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: $text-active;
+}
+
+::-webkit-scrollbar-corner {
+    background: $bcg-dark;
+}
+
+::selection {
+    color: $text-active;
+    background-color: $bcg-darkest;
+}
+
+a {
+    color: $text-active;
+    text-decoration: none;
+}
+
+a:hover {
+    color: color.scale(color.adjust($text-active, $lightness: 10%), $saturation: 10%);
+    text-decoration: underline;
+}
+
+a:visited {
+    color: $text-active;
+}
+
+.ui-flash {
+    outline: 1px solid $text-active;
+    animation: ui-flash-animation 200ms ease-in-out forwards;
+}
+
+.ui-panel {
+    background-color: $bcg-primary;
+
+    &.disabled {
+        > header {
+            background-color: color.mix($bcg-dark, $bcg-primary, 60%);
+        }
+    }
+
+    &.scrollable {
+        > .content {
+            top: 32px;
+        }
+    }
+
+    > header {
+        @extend .font-bold;
+
+        background-color: $bcg-darker;
+        color: $text-primary;
+        font-size: 12px;
+    }
+
+    &.foldable {
+        &.folded {
+            > header {
+                color: $text-dark;
+
+                &::after {
+                    color: $text-dark;
+                    content: '\E180';
+                }
+            }
+
+            &.horizontal {
+                background-color: $bcg-darker;
+
+                > header {
+                    top: -32px;
+                }
+            }
+
+            &.resizable-top {
+                > header::after {
+                    content: '\E181';
+                }
+            }
+        }
+
+        > header {
+            padding-left: 32px;
+
+            &:hover {
+                color: $text-primary;
+
+                &::after {
+                    color: $text-primary;
+                }
+            }
+
+            // fold icon
+            &::after {
+                right: auto;
+                left: 0;
+                content: '\E179';
+
+                @extend .font-icon;
+
+                font-size: 14px;
+                text-align: center;
+                margin: 0;
+                padding: 0;
+                width: 32px;
+                height: 32px;
+                line-height: 32px;
+                color: $text-active;
+                background-color: transparent;
+            }
+        }
+
+        &.horizontal {
+            > header::after {
+                content: '\E183';
+            }
+
+            &.resizable-right {
+                &.folded {
+                    > header::after {
+                        content: '\E181';
+                    }
+                }
+            }
+
+            &.resizable-left {
+                > header::after {
+                    content: '\E183';
+                }
+
+                &.folded > header::after {
+                    content: '\E183';
+                }
+            }
+        }
+    }
+
+    &.resizable {
+        $handle-size: 1px;
+
+        &.resizing > .handle {
+            background-color: transparent;
+        }
+
+        &.resizable-left {
+            padding-left: 0;
+
+            &.scrollable > .content {
+                left: 0;
+            }
+
+            > .handle {
+                width: $handle-size;
+                border-left: 3px solid $bcg-darkest;
+            }
+        }
+
+        &.resizable-right {
+            padding-right: 0;
+
+            > .handle {
+                width: $handle-size;
+                border-right: 3px solid $bcg-darkest;
+            }
+        }
+
+        &.resizable-top {
+            padding-top: 0;
+
+            &.scrollable > .content {
+                top: 32px;
+            }
+
+            > .handle {
+                height: $handle-size;
+                border-top: 3px solid $bcg-darkest;
+            }
+        }
+
+        &.resizable-bottom {
+            padding-bottom: 0;
+
+            > .handle {
+                height: $handle-size;
+                border-bottom: 3px solid $bcg-darkest;
+            }
+        }
+
+        &.resizing > .handle {
+            opacity: 1;
+        }
+
+        > .handle {
+            opacity: 0;
+            background-color: transparent;
+
+            &:hover {
+                opacity: 1;
+                background-color: transparent;
+            }
+        }
+    }
+
+    &.flash {
+        @extend .ui-flash;
+    }
+}
+
+.ui-panel.attributes {
+    > .content {
+        background-color: $bcg-primary;
+    }
+
+    .ui-list {
+        &.model-nodes {
+            > .ui-list-item {
+                > .ui-image-field {
+                    background-color: $bcg-darkest;
+                }
+            }
+        }
+    }
+
+    .field-asset {
+        > .content > .ui-image-field.material-asset {
+            background-image: none;
+            background-color: $bcg-darkest;
+        }
+    }
+}
+
+.ui-overlay {
+    > .overlay {
+        background-color: rgba($bcg-darkest, 0.7);
+    }
+
+    > .content {
+        background-color: $bcg-primary;
+    }
+}
+
+.ui-tooltip {
+    padding: 0;
+
+    &.flip {
+        &.align-top,
+        &.align-bottom {
+            margin-left: auto;
+            margin-right: -16px;
+
+            > .arrow {
+                left: auto;
+                right: 8px;
+            }
+        }
+    }
+
+    &.align-top {
+        margin-left: -16px;
+
+        > .inner {
+            margin-top: 8px;
+        }
+
+        > .arrow {
+            top: -8px;
+            left: 8px;
+            border-bottom-color: color.mix($bcg-darkest, #000, 75%);
+        }
+    }
+
+    &.align-right {
+        margin-top: -16px;
+
+        > .inner {
+            margin-right: 8px;
+        }
+
+        > .arrow {
+            top: 8px;
+            right: -8px;
+            border-left-color: color.mix($bcg-darkest, #000, 75%);
+        }
+    }
+
+    &.align-bottom {
+        margin-left: -16px;
+
+        > .inner {
+            margin-bottom: 8px;
+        }
+
+        > .arrow {
+            bottom: -8px;
+            left: 8px;
+            border-top-color: color.mix($bcg-darkest, #000, 75%);
+        }
+    }
+
+    &.align-left {
+        margin-top: -16px;
+
+        > .inner {
+            margin-left: 8px;
+        }
+
+        > .arrow {
+            top: 8px;
+            left: -8px;
+            border-right-color: color.mix($bcg-darkest, #000, 75%);
+        }
+    }
+
+    > .inner {
+        padding: 0 16px;
+        line-height: 32px;
+        font-size: 14px;
+        background-color: color.mix($bcg-darkest, #000, 75%);
+        color: $text-primary;
+    }
+
+    > .arrow {
+        width: 0;
+        height: 0;
+        position: absolute;
+        border: 8px solid transparent;
+    }
+
+    &.innactive {
+        > .inner {
+            color: $text-darkest;
+        }
+    }
+}
+
+.ui-menu-item {
+    background-color: $bcg-darkest;
+
+    &.disabled > .title:hover {
+        color: $text-dark;
+
+        > .icon {
+            color: $text-dark;
+        }
+    }
+
+    &.container {
+        > .title::after {
+            content: '\E160';
+
+            @extend .font-icon;
+
+            font-size: 14px;
+            text-align: center;
+            background-color: transparent;
+            color: $text-dark;
+            line-height: 14px;
+        }
+
+        &.hover > .title {
+            color: $text-primary;
+            background-color: $text-darkest;
+
+            &::after {
+                color: $text-primary;
+            }
+
+            > .icon {
+                color: $text-primary;
+            }
+        }
+    }
+
+    &:last-child {
+        > .title {
+            border-bottom: none;
+        }
+    }
+
+    > .title {
+        color: $text-dark;
+        border-bottom: 1px solid color.mix($bcg-darkest, $bcg-dark, 50%);
+
+        &:hover {
+            color: $text-primary;
+            background-color: $text-darkest;
+
+            > .icon {
+                color: $text-primary;
+            }
+        }
+
+        > .icon {
+            @extend .font-icon;
+
+            font-size: 14px;
+            text-align: center;
+            background-color: transparent;
+            color: $text-dark;
+        }
+    }
+
+    > .content {
+        box-shadow: 0 0 8px rgb(0 0 0 / 30%);
+    }
+}
+
+.ui-list {
+    background-color: $bcg-dark;
+    border-color: $bcg-darker;
+    margin: $field-padding;
+
+    &.flash {
+        @extend .ui-flash;
+    }
+
+    &.selectable {
+        > .ui-list-item {
+            &:hover {
+                color: $text-primary;
+                background-color: $bcg-darkest;
+                border-color: $bcg-darkest;
+                position: relative;
+                z-index: 1;
+            }
+        }
+    }
+}
+
+.ui-list-item {
+    border-color: $bcg-darker;
+    color: $text-secondary;
+
+    &.selected {
+        color: $text-primary;
+        background-color: $bcg-darker;
+    }
+}
+
+.ui-panel.folders {
+    background-color: $bcg-darker;
+}
+
+.ui-panel.files {
+    border-left: 1px solid $bcg-darkest;
+}
+
+.ui-label {
+    color: $text-secondary;
+    margin: $field-padding;
+
+    &.flash {
+        @extend .ui-flash;
+    }
+}
+
+.ui-label[placeholder] {
+    &::after {
+        color: $text-darkest;
+        background-color: transparent;
+    }
+}
+
+.ui-slider {
+    margin: $field-padding;
+
+    &:hover,
+    &.active {
+        > .bar {
+            border-color: $bcg-darkest;
+            background-color: $bcg-darkest;
+
+            > .handle {
+                border-color: $bcg-darkest;
+                background-color: $text-primary;
+                transition: none;
+            }
+        }
+    }
+
+    &.flash {
+        > .bar {
+            @extend .ui-flash;
+        }
+    }
+
+    &.disabled {
+        cursor: default;
+
+        &:hover,
+        &.active {
+            > .bar {
+                border-color: $bcg-darker;
+                background-color: $bcg-dark;
+
+                > .handle {
+                    cursor: default;
+                    border-color: $bcg-darker;
+                    background-color: $text-darkest;
+                }
+            }
+        }
+    }
+
+    > .bar {
+        background-color: $bcg-dark;
+        border-color: $bcg-darker;
+        width: calc(100% - 10px);
+        margin: 9px 4px;
+
+        > .handle {
+            border-color: $bcg-darker;
+            background-color: $text-darkest;
+            width: 8px;
+            margin-left: -5px;
+            transition: left 100ms ease;
+
+            &:focus {
+                border-color: $bcg-darkest;
+                background-color: $text-primary;
+            }
+        }
+    }
+
+    &.null {
+        > .bar {
+            > .handle {
+                display: none;
+            }
+        }
+    }
+}
+
+.ui-text-field {
+    border: 1px solid $bcg-darker;
+    background-color: $bcg-dark;
+    margin: $field-padding;
+
+    > input.field {
+        color: $text-secondary;
+    }
+
+    &.active,
+    &:hover,
+    &:focus,
+    &.focus {
+        border-color: $bcg-darkest;
+        background-color: $bcg-darkest;
+    }
+
+    > input.field:focus,
+    > input.field:hover {
+        box-shadow: none;
+        color: $text-primary;
+        outline: none;
+        border: none;
+    }
+
+    &.flash {
+        @extend .ui-flash;
+    }
+}
+
+.ui-text-field[placeholder] {
+    &::after {
+        color: $text-darkest;
+        background-color: $bcg-dark;
+    }
+}
+
+.ui-textarea-field {
+    border: 1px solid $bcg-darker;
+    background-color: $bcg-dark;
+    margin: $field-padding;
+
+    > textarea.field {
+        color: $text-secondary;
+    }
+
+    &.active,
+    &:hover,
+    &:focus,
+    &.focus {
+        border-color: $bcg-darkest;
+        background-color: $bcg-darkest;
+    }
+
+    > textarea.field:focus,
+    > textarea.field:hover {
+        box-shadow: none;
+        color: $text-primary;
+        outline: none;
+        border: none;
+    }
+
+    &.flash {
+        @extend .ui-flash;
+    }
+}
+
+.ui-textarea-field[placeholder] {
+    &::after {
+        color: $text-darkest;
+        background-color: $bcg-dark;
+    }
+}
+
+.ui-color-field {
+    border: 2px solid $bcg-dark;
+    margin: $field-padding;
+    width: 42px;
+    height: 20px;
+
+    &::after {
+        width: 0;
+        height: 0;
+        background-color: transparent;
+        border: none;
+        border-bottom: 12px solid $bcg-dark;
+        border-left: 12px solid transparent;
+    }
+
+    &:hover,
+    &:focus {
+        outline: 1px solid $bcg-darkest;
+        border-color: $bcg-darkest;
+        box-shadow: none;
+
+        &::after {
+            border-bottom: 12px solid $bcg-darkest;
+        }
+    }
+
+    &.flash {
+        @extend .ui-flash;
+    }
+
+    &.null {
+        > .color {
+            background-color: #465659 !important;
+            background-image:
+                linear-gradient(45deg, #5b696c 25%, transparent 25%, transparent 75%, #5b696c 75%, #5b696c 100%),
+                linear-gradient(45deg, #5b696c 25%, transparent 25%, transparent 75%, #5b696c 75%, #5b696c 100%);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+        }
+    }
+}
+
+.ui-image-field {
+    content: '';
+    border: 1px solid $bcg-darker;
+    margin: $field-padding;
+
+    &::after {
+        background-color: $bcg-darker;
+        border-color: $bcg-darker;
+    }
+
+    &:hover,
+    &:focus {
+        background-color: $bcg-darkest;
+        border-color: $bcg-darkest;
+        outline: 1px solid $bcg-darkest;
+        box-shadow: none;
+
+        &::after {
+            background-color: $bcg-darkest;
+        }
+    }
+
+    &.flash {
+        @extend .ui-flash;
+    }
+}
+
+.ui-number-field {
+    border: 1px solid $bcg-darker;
+    background-color: $bcg-dark;
+    margin: $field-padding;
+
+    > input.field {
+        color: $text-secondary;
+    }
+
+    &.active,
+    &:hover,
+    &:focus,
+    &.focus {
+        border-color: $bcg-darkest;
+        background-color: $bcg-darkest;
+    }
+
+    > input.field:focus,
+    > input.field:hover {
+        box-shadow: none;
+        color: $text-primary;
+        outline: none;
+        border: none;
+    }
+
+    &.flash {
+        @extend .ui-flash;
+    }
+}
+
+.ui-number-field[placeholder] {
+    &::after {
+        color: $text-darkest;
+        background-color: $bcg-dark;
+    }
+}
+
+.ui-number-field[proxy] {
+    &::after {
+        color: $text-secondary;
+        background-color: $bcg-dark;
+    }
+}
+
+.ui-curve-field {
+    border: 1px solid $bcg-darker;
+    background-color: $bcg-dark;
+    margin: $field-padding;
+
+    &.active,
+    &:hover,
+    &:focus,
+    &.active {
+        border-color: $text-primary;
+        outline: 1px solid $text-primary;
+
+        > .ui-canvas {
+            background-color: $bcg-darkest;
+        }
+    }
+
+    &.flash {
+        @extend .ui-flash;
+    }
+}
+
+.ui-checkbox {
+    position: relative;
+    border: none;
+    border: 1px solid $bcg-darker;
+    background-color: $bcg-dark;
+    width: 28px;
+    height: 16px;
+    margin: $field-padding;
+    margin-top: 7px;
+
+    &:hover,
+    &:focus {
+        border-color: $bcg-darkest;
+        background-color: $bcg-darkest;
+
+        &.component-toggle::after {
+            background-color: $error-secondary;
+        }
+    }
+
+    &::after {
+        content: '\00a0';
+        position: absolute;
+        top: 1px;
+        left: 1px;
+        width: 12px;
+        height: 12px;
+        border-radius: 6px;
+        background-color: $text-darkest;
+        transition: left 100ms ease, background-color 100ms ease;
+    }
+
+    &.checked {
+        border-color: $bcg-darker;
+        background-color: $bcg-dark;
+
+        &.component-toggle::after {
+            left: 15px;
+            background-color: color.mix($text-darkest, #7f7, 50%);
+        }
+
+        &.component-toggle:hover,
+        &.component-toggle:focus {
+            border-color: $bcg-darkest;
+            background-color: $bcg-darkest;
+
+            &::after {
+                background-color: #7f7;
+            }
+        }
+    }
+
+    &.null {
+        &::after {
+            left: 8px;
+            background-color: rgba($text-dark, 0.25);
+        }
+
+        &:hover,
+        &:focus {
+            &::after {
+                background-color: rgba($text-dark, 0.5);
+            }
+        }
+    }
+
+    &.component-toggle {
+        border-radius: 8px;
+    }
+}
+
+.ui-select-field {
+    border: 1px solid $bcg-darker;
+    background-color: $bcg-dark;
+    margin: $field-padding;
+
+    &:hover,
+    &:focus {
+        border-color: $bcg-darkest;
+        background-color: $bcg-darkest;
+
+        > .value {
+            color: $text-primary;
+
+            &::after {
+                content: '\E159';
+                color: $text-active;
+            }
+        }
+    }
+
+    > .value {
+        color: $text-secondary;
+
+        &::after {
+            content: '\E159';
+            width: 22px;
+            height: 22px;
+            line-height: 26px;
+            padding: 0;
+            margin: 0;
+
+            @extend .font-icon;
+
+            font-size: 14px;
+            text-align: center;
+            color: $text-darkest;
+            background-color: transparent;
+        }
+
+        &[placeholder]:empty::before {
+            color: $text-darkest;
+            background-color: transparent;
+        }
+    }
+
+    > ul {
+        color: $text-secondary;
+        background-color: $bcg-darkest;
+
+        > li {
+            &:hover,
+            &.hover {
+                color: $text-primary;
+                background-color: $bcg-dark;
+            }
+
+            &.selected {
+                color: $text-primary;
+                background-color: $bcg-darker;
+                cursor: default;
+            }
+        }
+    }
+
+    &.flash {
+        @extend .ui-flash;
+    }
+}
+
+.ui-button {
+    border: 1px solid $bcg-darker;
+    background-color: $bcg-dark;
+    color: $text-secondary;
+    margin: $field-padding;
+
+    &:hover,
+    &:focus {
+        color: $text-primary;
+        border-color: $bcg-darkest;
+        background-color: $bcg-darkest;
+    }
+}
+
+.ui-code {
+    color: $text-active;
+    background-color: $bcg-darkest;
+}
+
+.ui-autocomplete {
+    background-color: $bcg-dark;
+
+    > ul {
+        > li {
+            border-color: $bcg-darker;
+
+            &.selected {
+                background-color: $bcg-darkest;
+            }
+        }
+    }
+}
+
+.ui-progress {
+    background-color: $bcg-darkest;
+
+    > .inner {
+        $first: rgba($text-active, 1);
+        $second: rgba(color.adjust($text-active, $lightness: -17%), 1);
+
+        background: $text-active;
+        background: linear-gradient(135deg, $first 0%, $first 25%, $second 26%, $second 50%, $first 51%, $first 75%, $second 76%, $second 100%);
+        background-position: 0 0;
+        background-size: 24px 24px;
+        background-repeat: repeat;
+    }
+}
+
+// ui-text-field changed animation
+@keyframes ui-flash-animation {
+    from { outline-color: $text-active; }
+    to { outline-color: rgba($text-active, 0); }
+}
+
+.connection-overlay {
+    > .content {
+        background-color: $bcg-darkest;
+
+        > .connection-icon {
+            color: $bcg-darkest;
+
+            &.error {
+                background-color: red;
+            }
+        }
+
+        > .connection-content {
+            color: white;
+        }
+    }
+}
+
+.picker-color {
+    > .content {
+        border: 1px solid $bcg-darkest;
+        background-color: $bcg-dark;
+
+        > .pick-rect,
+        > .pick-hue,
+        > .pick-opacity {
+            border: 1px solid $bcg-darker;
+        }
+
+        > .fields {
+            background-color: $bcg-primary;
+        }
+    }
+}
+
+.picker-curve {
+    > .content {
+        border: 1px solid $bcg-darkest;
+        background-color: $bcg-dark;
+
+        > .picker-curve-panel {
+            > .picker-curve-header {
+                > .content {
+                    .ui-button.picker-curve-toggle {
+                        background-color: $bcg-primary;
+                        color: $text-secondary;
+
+                        &:hover {
+                            border-color: $bcg-darker;
+                        }
+
+                        &.active {
+                            background-color: $bcg-darker;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+.picker-gradient {
+    > .content {
+        border: 1px solid $bcg-darkest;
+        background-color: $bcg-dark;
+
+        > .picker-gradient-panel {
+            > .color-panel {
+                > .content {
+                    > .color-rect,
+                    > .hue-rect,
+                    > .alpha-rect {
+                        border: 1px solid $bcg-darker;
+                    }
+
+                    > .fields {
+                        background-color: $bcg-primary;
+                    }
+                }
+            }
+        }
+    }
+}

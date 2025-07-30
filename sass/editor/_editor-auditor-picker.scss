@@ -1,0 +1,33 @@
+$bright-red: #e74c3c;
+
+.picker-auditor-container {
+    text-align: left;
+    padding: 20px;
+
+    .title {
+        color: white;
+        margin-bottom: 10px;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+
+    .body {
+        margin: 5px 0;
+    }
+
+    .important {
+        font-weight: bold;
+        color: white;
+        background-color: $bright-red;
+        padding: 10px;
+    }
+
+    .header {
+        margin-top: 15px;
+        color: white;
+    }
+
+    .footer {
+        margin-top: 15px;
+    }
+}

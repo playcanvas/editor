@@ -1,0 +1,158 @@
+.asset-animstategraph-inspector {
+    overflow: visible;
+
+    .asset-animstategraph-inspector-parameter,
+    .asset-animstategraph-inspector-layer,
+    .asset-animstategraph-inspector-state,
+    .asset-animstategraph-inspector-transition {
+        margin: $element-margin;
+        border: 1px solid $bcg-darkest;
+    }
+}
+
+.asset-animstategraph-inspector-transitions {
+    overflow: visible;
+
+    .asset-animstategraph-inspector-transition {
+        margin: $element-margin;
+        border: 1px solid $bcg-darkest;
+        overflow: visible;
+
+        .asset-animstategraph-inspector-transition-conditions-note {
+            font-size: 12px;
+            white-space: break-spaces;
+            margin: 6px 0;
+            padding: 3px 10px;
+        }
+    }
+
+    > .pcui-button {
+        width: calc(100% - 12px);
+    }
+}
+
+.asset-animstategraph-inspector-state-transition {
+    background-color: $bcg-dark;
+    border-left: 1px solid $bcg-darker;
+    border-top: 1px solid $bcg-darker;
+    border-right: 1px solid $bcg-darker;
+    margin: 0 $element-margin;
+    flex-grow: 1;
+    cursor: pointer;
+    width: calc(100% - 12px);
+    line-height: 22px;
+    padding-left: 25px;
+    position: relative;
+    font-size: 11px;
+}
+
+.asset-animstategraph-inspector-state-transition:hover {
+    background-color: $bcg-darker;
+}
+
+.asset-animstategraph-inspector-state-transition::before {
+    content: '\E166';
+    font-family: pc-icon;
+    font-size: 16px;
+    margin-top: $element-margin;
+    position: absolute;
+    top: -5px;
+    left: 4px;
+}
+
+.asset-animstategraph-inspector-state-transition:first-child {
+    margin-top: $element-margin;
+}
+
+.asset-animstategraph-inspector-state-transition:last-child {
+    border-bottom: 1px solid $bcg-darker;
+    margin-bottom: $element-margin;
+}
+
+.asset-animstategraph-inspector-open-button {
+    width: calc(100% - 12px);
+}
+
+.asset-animstategraph-inspector-close-button {
+    position: absolute;
+    right: 0;
+    top: -1px;
+    width: 26px;
+    height: 26px;
+    z-index: 1000000;
+    color: rgb(255 255 255 / 75%);
+    background-color: rgb(41 53 56 / 50%);
+}
+
+.pcui-button.asset-animstategraph-inspector-close-button:not(.pcui-disabled, .pcui-readonly):hover {
+    background-color: rgb(41 53 56 / 75%);
+    color: #fff;
+    box-shadow: none;
+}
+
+.asset-animstategraph-inspector-close-button[data-icon]::before {
+    font-size: 26px;
+    position: absolute;
+    left: -1px;
+    top: -5px;
+    line-height: 34px;
+}
+
+.asset-animstategraph-inspector-close-button-tooltip {
+    top: 40px !important;
+}
+
+.pcui-container.asset-animstategraph-inspector-layer-select {
+    position: absolute;
+    top: 0;
+    right: 32px;
+    width: 200px;
+    height: 24px;
+    z-index: 9999;
+}
+
+.asset-animstategraph-inspector-layer-select {
+    .pcui-select-input-container-value {
+        .pcui-select-input-value::before {
+            font-family: pc-icon;
+            font-size: 12px;
+            content: '\E147';
+            padding-right: 8px;
+        }
+    }
+}
+
+.asset-animstategraph-inspector-container {
+    margin: $element-margin;
+}
+
+.pcui-animstategraph-condition {
+    display: flex;
+    align-items: center;
+
+    > .pcui-select-input {
+        width: 30%;
+        margin-right: 0;
+    }
+
+    > .pcui-numeric-input {
+        width: 20%;
+        flex-grow: 1;
+        margin-right: 46px;
+    }
+
+    > .pcui-button {
+        min-width: 30px;
+        margin-right: 10px;
+        border: none;
+        background: inherit;
+        position: absolute;
+        right: 0;
+        top: 0;
+    }
+}
+
+.asset-animstategraph-inspector-state-view-button.active,
+.asset-animstategraph-inspector-state-view-button.active:hover {
+    color: $text-active;
+}

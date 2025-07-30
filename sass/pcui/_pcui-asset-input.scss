@@ -1,0 +1,95 @@
+// asset input
+.pcui-asset-input {
+    @extend .pcui-grid;
+
+    position: relative;
+    height: 66px;
+    box-sizing: border-box;
+    margin: $element-margin;
+    grid-template:
+        'thumb label' 36px
+        'thumb controls' 30px / 66px minmax(0, 1fr);
+}
+
+// thumb on the left
+.pcui-asset-input-thumb {
+    grid-area: thumb;
+    width: 100%;
+    height: 100%;
+    border: 1px solid $bcg-darker;
+    box-sizing: border-box;
+    background-color: $bcg-dark;
+
+    &.asset-icon-prefix::before {
+        font-size: 50px;
+    }
+}
+
+// text on the top right
+.pcui-asset-input-label {
+    grid-area: label;
+    align-self: center;
+    margin: 0;
+    margin-left: $element-margin;
+    font-size: 12px;
+}
+
+// buttons and asset name container
+.pcui-asset-input-controls {
+    grid-area: controls;
+    align-items: center;
+
+    @extend .pcui-flex;
+
+    flex-flow: row nowrap;
+    margin-left: $element-margin;
+    align-self: center;
+    background: $bcg-dark;
+    border: 1px solid $bcg-darker;
+    border-radius: 2px;
+    height: 24px;
+    box-sizing: border-box;
+}
+
+// asset name field
+.pcui-asset-input-asset {
+    flex-grow: 1;
+    font-size: 12px;
+    color: $text-secondary;
+    min-width: 10px;
+}
+
+// edit / remove buttons
+.pcui-asset-input-edit,
+.pcui-asset-input-remove {
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    flex-shrink: 0;
+    padding: 0;
+    margin: 1px;
+    border: 0;
+}
+
+.pcui-asset-input-edit {
+    margin-left: auto;
+}
+
+// readonly state
+.pcui-asset-input.pcui-readonly {
+    .pcui-asset-input-edit,
+    .pcui-asset-input-remove {
+        display: none;
+    }
+
+    .pcui-asset-input-controls {
+        /* stylelint-disable-next-line scss/no-global-function-names */
+        background-color: transparentize($color: $bcg-dark, $amount: 1 - $element-opacity-readonly);
+        border-color: transparent;
+    }
+}
+
+// disabled state
+.pcui-asset-input.pcui-disabled {
+    opacity: $element-opacity-disabled;
+}

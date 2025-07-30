@@ -1,0 +1,84 @@
+@use 'sass:color';
+
+.picker-confirm {
+    z-index: 10000; // TODO: Reorganize how the UI sets z-indexes
+
+    > .pcui-overlay-content {
+        z-index: 10001;
+        width: 400px;
+        height: auto;
+        left: calc(50% - 200px);
+        top: calc(50% - 32px);
+        text-align: right;
+        transition: none;
+        padding: 0;
+
+        > .text {
+            display: block;
+            color: $text-primary;
+            text-align: left;
+            padding: 30px;
+            margin: 0;
+            margin-bottom: 8px;
+            border-bottom: 1px solid $border-primary;
+            white-space: normal;
+        }
+
+        > .pcui-button {
+            line-height: 26px;
+            height: 26px;
+            text-transform: uppercase;
+            margin: 0 12px 8px 0;
+            min-width: 100px;
+        }
+
+        > .no, .action {
+            background: color.adjust($text-active, $lightness: -7%);
+            color: $text-primary;
+
+            &:hover,
+            &:focus {
+                background: color.adjust($text-active, $lightness: -12%);
+            }
+        }
+    }
+}
+
+// common loader animation element (ported over from platform)
+@keyframes fade-in {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.loader {
+    // some styling
+    $fade-duration: 0.5s;
+
+    display: block;
+    background-size: 100%;
+    background-image: url('//playcanvas.com/static-assets/platform/images/loader.gif');
+    background-repeat: no-repeat;
+    opacity: 0;
+    animation: fade-in ease-in 1;
+    animation-fill-mode: forwards;
+    animation-duration: $fade-duration;
+    width: 32px;
+    height: 32px;
+
+    &.white { filter: brightness(5); }
+
+    &.small {
+        width: 24px;
+        height: 24px;
+    }
+
+    &.xsmall {
+        width: 18px;
+        height: 18px;
+    }
+}

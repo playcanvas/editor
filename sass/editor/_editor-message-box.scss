@@ -1,0 +1,62 @@
+.pcui-overlay.picker-message-box {
+    .pcui-overlay-content {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        height: fit-content;
+        width: 500px;
+    }
+
+    .pcui-panel-header {
+        position: relative;
+        display: flex;
+        justify-content: center;
+
+        & > span {
+            flex: initial;
+            margin: 0;
+        }
+
+        & > .close {
+            position: absolute;
+            right: 0;
+            background-color: transparent;
+            box-shadow: unset;
+
+            &:hover { color: $text-active; }
+        }
+    }
+
+    .pcui-panel-content {
+        padding: 20px 25px;
+        
+        > span {
+            display: block;
+            white-space: inherit;
+            margin-bottom: 20px;
+        }
+    }
+    
+    .positive-action-button,
+    .negative-action-button {
+        width: 100%;
+        padding: 17px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border: none;
+        box-shadow: initial;
+    }
+
+    .positive-action-button {
+        background-color: $text-active;
+        color: $text-primary;
+        transition: all 0.2s ease-in-out;
+
+        &:hover {
+            background-color: $text-primary;
+            color: $text-active;
+        }
+    }
+}

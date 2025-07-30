@@ -1,0 +1,17 @@
+.asset-sprite-preview-button {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    display: none;
+}
+
+.asset-sprite-preview:hover {
+    .asset-sprite-preview-button {
+        display: block;
+    }
+}
+
+.asset-sprite-preview-button-playing {
+    color: #f60;
+    display: block !important;
+}

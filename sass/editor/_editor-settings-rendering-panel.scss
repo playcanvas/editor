@@ -1,0 +1,21 @@
+.rendering-settings-panel-divider {
+    height: 1px;
+    background-color: $bcg-dark;
+    margin: 4px 10px;
+}
+
+.rendering-settings-restart-modal {
+    z-index: 10000; // TODO: Reorganize how the UI sets z-indexes
+
+    > .pcui-overlay-content {
+        z-index: 10001;
+        width: 420px;
+        height: auto;
+        padding: 8px;
+        text-align: center;
+
+        > .pcui-label {
+            white-space: normal;
+        }
+    }
+}

@@ -1,0 +1,118 @@
+.tooltip-group {
+    display: flex;
+    column-gap: 4px;
+}
+
+.tooltip-simple {
+    padding: 6px;
+    background: $bcg-darkest;
+    position: static;
+    max-width: 300px;
+    flex-shrink: 0;
+
+    > .pcui-label {
+        white-space: normal;
+    
+        &.text {
+            display: block;
+            color: $text-primary;
+            font-size: 12px;
+        }
+    }
+}
+
+.tooltip-reference {
+    padding: 16px;
+    background: $bcg-darkest;
+    position: relative;
+    max-width: 300px;
+    height: fit-content;
+
+    > .pcui-label {
+        white-space: normal;
+
+        &.title {
+            display: block;
+            color: $text-primary;
+            font-size: 14px;
+            margin: 0;
+        
+            @extend .font-bold;
+        }
+    
+        &.subtitle {
+            display: block;
+            color: $text-secondary;
+            font-size: 11px;
+            margin: 0;
+        }
+    
+        &.desc {
+            display: block;
+            color: $text-primary;
+            font-size: 12px;
+            margin: 6px 0;
+        }
+
+        &.webgl2 {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            line-height: 22px;
+            padding: 0 8px;
+            font-size: 12px;
+            color: $text-secondary;
+            background-color: $bcg-dark;
+        }
+    
+        &.code {
+            color: $text-active;
+            font-family: inconsolatamedium;
+            font-size: 11px;
+            margin: 10px 0;
+            white-space: pre !important;
+        }
+    }
+
+    > .pcui-button {
+        margin-left: 0;
+        margin-right: 0;
+    }
+}
+
+.tooltip-override {
+    padding: 16px;
+    background: $bcg-darkest;
+    position: relative;
+    max-width: 300px;
+
+    > .pcui-label {
+        white-space: normal;
+
+        &.title {
+            display: block;
+            color: $text-primary;
+            font-size: 14px;
+            margin: 0;
+        
+            @extend .font-bold;
+        }
+    
+        &.subtitle {
+            display: block;
+            color: $text-secondary;
+            font-size: 11px;
+            margin: 0 0 5px;
+        }
+    }
+
+    > .pcui-button {
+        margin-left: 0;
+        margin-right: 0;
+
+        &.apply {
+            margin-bottom: 0;
+            min-width: 150px;
+        }
+    }
+}

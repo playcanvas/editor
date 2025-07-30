@@ -1,0 +1,46 @@
+.pcui-tooltip {
+    @extend .pcui-flex;
+
+    background: transparent;
+    position: absolute;
+    max-width: none;
+    padding: 0;
+    flex-direction: row;
+    align-items: flex-start;
+    z-index: 1001;
+
+    .arrow {
+        position: absolute;
+        border: 10px solid transparent;
+        height: 0;
+        width: 0;
+
+        &.left {
+            top: 50%;
+            left: -20px;
+            transform: translateY(-50%);
+            border-right-color: $bcg-darkest;
+        }
+
+        &.right {
+            top: 50%;
+            right: -20px;
+            transform: translateY(-50%);
+            border-left-color: $bcg-darkest;
+        }
+
+        &.top {
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-bottom-color: $bcg-darkest;
+        }
+
+        &.bottom {
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-top-color: $bcg-darkest;
+        }
+    }
+}

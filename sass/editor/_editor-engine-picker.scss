@@ -1,0 +1,76 @@
+$bright-red: #e74c3c;
+$bright-green: #2ecc71;
+
+.picker-engine-container {
+    text-align: left;
+    padding: 20px;
+}
+
+#switch-engine {
+    &.local {
+        > .title {
+            color: white;
+            margin-bottom: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .header {
+            margin-top: 15px;
+            color: white
+        }
+
+        .changes {
+            margin: 5px;
+        }
+
+        .links {
+            margin: 5px;
+        }
+
+        .important {
+            font-weight: bold;
+            color: white;
+            background-color: $bright-red;
+            padding: 10px;
+        }
+    
+        .note {
+            font-weight: bold;
+            font-style: italic;
+            color: white;
+        }
+    
+    }
+
+    &.remote {
+        display: flex;
+        justify-content: space-around;
+
+        > .title {
+            flex: 1;
+            margin-top: 8px;
+        }
+
+        > .spinner {   
+            svg {
+                margin: auto;
+        
+                &.spin {
+                    g {
+                        animation-name: spin;
+                        animation-duration: 500ms;
+                        animation-iteration-count: infinite;
+                        animation-timing-function: linear;
+                        transform-origin: center;
+                    }
+                }
+        
+                &.hidden {
+                    display: none;
+                }
+            }
+        }
+    }
+
+}

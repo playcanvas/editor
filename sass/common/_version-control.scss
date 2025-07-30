@@ -1,0 +1,264 @@
+.pcui-overlay.version-control-overlay {
+    z-index: 9999; // just below the confirm picker
+    &.show-behind-picker {
+        z-index: 299; // just below project picker
+    }
+
+    > .pcui-overlay-content {
+        z-index: 0;
+        width: 500px;
+        left: calc(50% - 250px);
+        height: 106px;
+        top: calc(50% - 53px);
+        white-space: nowrap;
+
+        .pcui-container.left {
+            width: 110px;
+            display: inline-block;
+            text-align: center;
+            top: 25px;
+
+            svg {
+                margin: auto;
+
+                &.spin {
+                    g {
+                        animation-name: spin;
+                        animation-duration: 500ms;
+                        animation-iteration-count: infinite;
+                        animation-timing-function: linear;
+                        transform-origin: center;
+                    }
+                }
+
+                &.hidden {
+                    display: none;
+                }
+            }
+        }
+
+        .pcui-container.right {
+            display: inline-block;
+            width: calc(100% - 110px);
+            white-space: normal;
+            top: 20px;
+
+            .pcui-label {
+                margin: 1px;
+                display: block;
+                line-height: 22px;
+
+                &.title {
+                    color: $text-primary;
+                    font-size: 16px;
+                }
+
+                &.message {
+                    @extend .font-thin;
+                }
+            }
+        }
+    }
+
+    &.merge-overlay {
+        z-index: 9998; // below other version control overlays
+
+        &.show-behind-picker {
+            z-index: 299; // just below project picker
+        }
+
+        > .pcui-overlay-content {
+            height: 186px;
+            top: calc(50% - 93px);
+
+            .pcui-container.left {
+                width: 100px;
+                vertical-align: top;
+
+                .icon {
+                    @extend .font-icon;
+
+                    font-size: 32px;
+                    color: #e05f2c;
+                    margin-top: -5px;
+                }
+            }
+
+            .pcui-container.right {
+                width: calc(100% - 100px);
+            }
+
+            .pcui-container.switch-branch {
+                margin-top: 20px;
+                white-space: nowrap;
+
+                > .pcui-label {
+                    display: inline-block;
+                    vertical-align: top;
+                    font-size: 12px;
+                    margin-right: 30px;
+                }
+
+                > .pcui-select-input {
+                    display: inline-block;
+                    vertical-align: top;
+                    margin-top: -1px;
+                    width: 190px;
+                }
+
+                > .pcui-button {
+                    vertical-align: top;
+                    margin-top: -1px;
+                    height: 24px;
+                    line-height: 24px;
+                    font-size: 12px;
+                }
+            }
+
+            .pcui-container.buttons {
+                position: relative;
+                width: 100%;
+                height: 92px;
+
+                > .pcui-container {
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    width: 100%;
+                    text-align: right;
+                    padding: 10px;
+                    box-sizing: border-box;
+                    border-top: 1px solid $border-primary;
+
+                    .pcui-button {
+                        font-size: 12px;
+                        width: 160px;
+                        height: 28px;
+                        line-height: 28px;
+                        text-align: center;
+                        background: #fb222f;
+                        color: $text-primary;
+                        opacity: 0.8;
+
+                        &:hover {
+                            opacity: 1;
+                        }
+
+                        &:active {
+                            opacity: 0.9;
+                        }
+
+                        &.disabled {
+                            opacity: 0.2;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+.ui-menu.version-control {
+    .ui-menu-item {
+        text-transform: uppercase;
+        font-size: 12px;
+    }
+}
+
+.ui-text-field.search.version-control-search {
+    height: 22px;
+    margin-right: 6px;
+    border: none;
+    background-color: $bcg-darker;
+    position: sticky;
+    left: 0;
+    top: 0;
+    z-index: 2;
+
+    &.active,
+    &:hover,
+    &:focus,
+    &.focus {
+        border-color: $bcg-darkest;
+        background-color: $bcg-darkest;
+
+        &::before {
+            content: '';
+            padding: 0;
+        }
+
+        &::after {
+            content: '';
+        }
+    }
+
+    > input.field {
+        line-height: 24px;
+    }
+
+    &::before {
+        content: 'Search';
+        position: absolute;
+        color: $text-dark;
+        line-height: 24px;
+        padding: 0 8px;
+
+        @extend .font-bold;
+
+        font-size: 12px;
+        font-family: inconsolatamedium, Monaco, Menlo, 'Ubuntu Mono', Consolas, source-code-pro, monospace;
+    }
+
+    &.not-empty::before {
+        padding: 0;
+        content: '';
+    }
+
+    &::after {
+        content: '\E129';
+        line-height: 21px;
+        background-color: $bcg-darker;
+
+        @extend .font-icon;
+
+        font-size: 14px;
+        text-align: center;
+    }
+
+    &.not-empty {
+        background-color: $bcg-darkest;
+
+        > input.field {
+            color: $text-active;
+        }
+
+        > .clear {
+            display: block;
+        }
+
+        &::after {
+            content: '';
+        }
+    }
+
+    > .clear {
+        display: none;
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 24px;
+        height: 24px;
+        line-height: 24px;
+        color: $error-secondary;
+
+        @extend .font-icon;
+
+        font-size: 18px;
+        text-align: center;
+        cursor: pointer;
+    }
+}
+
+.ui-panel.picker-version-control > .content > .ui-panel .branches .ui-list > .ui-list-item .ui-label.name.closed-branch {
+    color: $text-secondary;
+}
