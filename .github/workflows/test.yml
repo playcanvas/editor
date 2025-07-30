@@ -27,7 +27,22 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build test image
-        run: docker buildx build -t playcanvas/editor:latest --load .
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          load: true
+          tags: playcanvas/editor:latest
+        env:
+          DOCKER_BUILD_SUMMARY: false
+
+      - name: Cache auth
+        uses: actions/cache@v4
+        with:
+          path: ~/.auth
+          key: ${{ runner.os }}-auth-${{ github.sha }}
+          restore-keys: ${{ runner.os }}-auth-
 
       - name: Run tests
         run: |
@@ -38,4 +53,5 @@ jobs:
             -e PC_LOGIN_HOST=login.playcanvas.com \
             -e PC_LAUNCH_HOST=launch.playcanvas.com \
             -e PC_LOCAL_FRONTEND=true \
+            -v ~/.auth:/usr/src/test/.auth \
             playcanvas/editor:latest
