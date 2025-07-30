@@ -1,7 +1,7 @@
 services:
-  editor:
+  playcanvas-editor:
     build: .
-    container_name: editor
+    container_name: playcanvas/editor
     env_file:
       - .env
     volumes:
