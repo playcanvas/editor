@@ -42,10 +42,10 @@ editor.once('load', () => {
             }
 
             activeGizmo.class.remove('active');
-            activeGizmo.tooltip.class.add('innactive');
+            activeGizmo.tooltip.class.add('inactive');
             activeGizmo = button;
             activeGizmo.class.add('active');
-            activeGizmo.tooltip.class.remove('innactive');
+            activeGizmo.tooltip.class.remove('inactive');
 
             editor.call('gizmo:type', button.op);
         });
@@ -63,7 +63,7 @@ editor.once('load', () => {
             activeGizmo = button;
             button.class.add('active');
         } else {
-            button.tooltip.class.add('innactive');
+            button.tooltip.class.add('inactive');
         }
     });
 
@@ -92,7 +92,7 @@ editor.once('load', () => {
         root: root
     });
     tooltipWorld.html = '<span style="color:#fff">World</span> / Local';
-    tooltipWorld.class.add('innactive');
+    tooltipWorld.class.add('inactive');
 
 
     // toggle grid snap
@@ -104,10 +104,10 @@ editor.once('load', () => {
     buttonSnap.on('click', () => {
         if (buttonSnap.class.contains('active')) {
             buttonSnap.class.remove('active');
-            tooltipSnap.class.add('innactive');
+            tooltipSnap.class.add('inactive');
         } else {
             buttonSnap.class.add('active');
-            tooltipSnap.class.remove('innactive');
+            tooltipSnap.class.remove('inactive');
         }
         editor.call('gizmo:snap', buttonSnap.class.contains('active'));
     });
@@ -119,7 +119,7 @@ editor.once('load', () => {
         align: 'left',
         root: root
     });
-    tooltipSnap.class.add('innactive');
+    tooltipSnap.class.add('inactive');
 
 
     editor.on('permissions:writeState', (state) => {
@@ -145,14 +145,14 @@ editor.once('load', () => {
 
     editor.on('attributes:clear', () => {
         buttonFocus.enabled = false;
-        tooltipFocus.class.add('innactive');
+        tooltipFocus.class.add('inactive');
     });
     editor.on('attributes:inspect[*]', (type) => {
         buttonFocus.enabled = type === 'entity';
         if (type === 'entity') {
-            tooltipFocus.class.remove('innactive');
+            tooltipFocus.class.remove('inactive');
         } else {
-            tooltipFocus.class.add('innactive');
+            tooltipFocus.class.add('inactive');
         }
     });
 
@@ -162,7 +162,7 @@ editor.once('load', () => {
         align: 'left',
         root: root
     });
-    tooltipFocus.class.add('innactive');
+    tooltipFocus.class.add('inactive');
 
 
     // translate hotkey
