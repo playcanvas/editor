@@ -1,5 +1,3 @@
-import { LegacyPanel } from '../../../common/ui/panel.ts';
-
 /**
  * @import { Panel } from '@playcanvas/pcui'
  */
@@ -33,10 +31,6 @@ editor.once('load', () => {
 
         parent.class.add('asset-preview');
         parent.dom.insertBefore(previewContainer, parent.domContent);
-
-        const panelControls = new LegacyPanel();
-        panelControls.class.add('preview-controls');
-        previewContainer.appendChild(panelControls.element);
 
         let time = 0;
         let playing = true;
@@ -98,8 +92,6 @@ editor.once('load', () => {
             previewContainer = null;
 
             playing = false;
-
-            panelControls.destroy();
 
             for (let i = 0, len = events.length; i < len; i++) {
                 events[i].unbind();
