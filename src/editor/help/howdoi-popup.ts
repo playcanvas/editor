@@ -45,7 +45,7 @@ editor.once('load', () => {
         content.text = data.text;
 
         setTimeout(() => {
-            const closeButton = container.innerElement.querySelector('.close');
+            const closeButton = container.domContent.querySelector('.close');
             if (closeButton) {
                 closeButton.addEventListener('click', () => {
                     overlay.hidden = true;
