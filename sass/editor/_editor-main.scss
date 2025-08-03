@@ -3365,128 +3365,106 @@ strong {
     }
 }
 
-.ui-overlay.help-howdoi {
-    text-align: center;
+.pcui-overlay.help-howdoi {
 
-    // ghost element to help
-    // center vertically
-    &::before {
-        content: '';
-        display: inline-block;
-        height: 100%;
-        vertical-align: middle;
-    }
-
-    > .content {
-        text-align: left;
-        display: inline-block;
-        vertical-align: middle;
-        top: initial;
-        left: initial;
+    > .pcui-overlay-content {
+        background-color: #fff;
         position: relative;
         width: 400px;
-        background-color: #fff;
-        height: auto;
-        max-height: 100%;
-        overflow: auto;
 
-        > .ui-panel {
-            background-color: transparent;
+        > .pcui-container {
+            padding: 20px;
 
-            > .content {
-                padding: 20px;
+            > .pcui-label {
+                color: $text-darkest;
+                line-height: 22px;
+                margin: 0;
+                margin-bottom: 30px;
+                white-space: normal;
 
-                > .ui-label {
-                    margin: 0;
+                h2 {
+                    color: $text-active;
+
+                    @extend .font-bold;
+
+                    font-size: 16px;
+                    margin-top: 0;
+                    margin-bottom: 10px;
+                }
+
+                .font-icon {
+                    font-size: 16px;
+                }
+
+                img,
+                iframe {
+                    border: none;
+                    max-width: 100%;
+                }
+
+                button,
+                a.docs {
+                    position: absolute;
+                    bottom: 20px;
+
+                    @extend .font-bold;
+
+                    background-color: $bcg-darkest;
+                    border: none;
+                    color: $text-primary;
+                    height: 30px;
+                    line-height: 30px;
+                    font-size: 12px;
                     padding: 0;
-                    background-color: transparent;
-                    color: $text-darkest;
-                    margin-bottom: 30px;
+                    margin: 0;
+                    cursor: pointer;
 
-                    h2 {
-                        color: $text-active;
-
-                        @extend .font-bold;
-
-                        font-size: 16px;
-                        margin-top: 0;
-                        margin-bottom: 10px;
+                    &:active,
+                    &:focus {
+                        outline: none;
                     }
+                }
 
-                    .font-icon {
-                        font-size: 16px;
-                    }
+                .close {
+                    width: 80px;
+                    left: 20px;
+                    text-align: center;
 
-                    img,
-                    iframe {
-                        border: none;
-                        max-width: 100%;
-                    }
-
-                    button,
-                    a.docs {
-                        position: absolute;
-                        bottom: 20px;
-
-                        @extend .font-bold;
-
-                        background-color: $bcg-darkest;
-                        border: none;
-                        color: $text-primary;
-                        height: 30px;
-                        line-height: 30px;
-                        font-size: 12px;
-                        padding: 0;
-                        margin: 0;
-                        cursor: pointer;
-
-                        &:active,
-                        &:focus {
-                            outline: none;
-                        }
-                    }
-
-                    .close {
-                        width: 80px;
-                        left: 20px;
-                        text-align: center;
-
-                        &:hover {
-                            background-color: $text-active;
-                            border-color: $text-active;
-                        }
-                    }
-
-                    a.docs {
-                        position: absolute;
-                        bottom: 20px;
-                        left: 118px;
-                        display: block;
-                        padding: 0 10px;
-                        text-decoration: none;
+                    &:hover {
                         background-color: $text-active;
                         border-color: $text-active;
+                    }
+                }
 
-                        &::after {
-                            display: inline-block;
-                            position: absolute;
-                            vertical-align: top;
-                            top: 0;
-                            left: 100%;
-                            width: 30px;
-                            height: 30px;
-                            text-align: center;
-                            content: '\E166';
+                a.docs {
+                    position: absolute;
+                    bottom: 20px;
+                    left: 118px;
+                    display: block;
+                    padding: 0 10px;
+                    text-decoration: none;
+                    background-color: $text-active;
+                    border-color: $text-active;
 
-                            @extend .font-icon;
+                    &::after {
+                        display: inline-block;
+                        position: absolute;
+                        vertical-align: top;
+                        top: 0;
+                        left: 100%;
+                        width: 30px;
+                        height: 30px;
+                        text-align: center;
+                        content: '\E166';
 
-                            font-size: 20px;
-                            background-color: color.adjust($text-active, $alpha: -0.5);
-                        }
+                        @extend .font-icon;
 
-                        &:hover::after {
-                            background-color: $text-active;
-                        }
+                        font-size: 20px;
+                        background-color: color.adjust($text-active, $alpha: -0.5);
+                    }
+
+                    &:hover::after {
+                        background-color: $text-active;
                     }
                 }
             }

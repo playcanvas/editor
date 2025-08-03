@@ -1,56 +1,52 @@
-import { LegacyButton } from '../../common/ui/button.ts';
-import { LegacyLabel } from '../../common/ui/label.ts';
-import { LegacyOverlay } from '../../common/ui/overlay.ts';
-import { LegacyPanel } from '../../common/ui/panel.ts';
+import { Button, Container, Label, Overlay } from '@playcanvas/pcui';
 
 editor.once('load', () => {
     const root = editor.call('layout.root');
-    const overlay = new LegacyOverlay();
-    overlay.class.add('help-howdoi');
-    overlay.hidden = true;
-    overlay.clickable = true;
+    const overlay = new Overlay({
+        class: 'help-howdoi',
+        hidden: true,
+        clickable: true
+    });
     root.append(overlay);
 
-    const panel = new LegacyPanel();
-    overlay.append(panel);
+    const container = new Container();
+    overlay.append(container);
 
-    const content = new LegacyLabel({
+    const content = new Label({
+        renderChanges: false,
         unsafe: true
     });
-    content.renderChanges = false;
-    panel.append(content);
+    container.append(content);
 
-    const docs = new LegacyButton({
-        text: 'View Docs'
+    const docs = new Button({
+        text: 'View Docs',
+        class: 'docs',
+        hidden: true
     });
-    docs.class.add('docs');
-    panel.append(docs);
-    docs.hidden = true;
+    container.append(docs);
 
-    const key = function (e) {
-        // close on esc
-        if (e.keyCode === 27) {
+    const keyDown = (e) => {
+        if (e.key === 'Escape') {
             overlay.hidden = true;
         }
     };
 
     overlay.on('show', () => {
         editor.emit('help:howdoi:popup:open');
-        window.addEventListener('keydown', key);
+        window.addEventListener('keydown', keyDown);
     });
 
     overlay.on('hide', () => {
-        window.removeEventListener('keydown', key);
+        window.removeEventListener('keydown', keyDown);
         editor.emit('help:howdoi:popup:close');
     });
-
 
     editor.method('help:howdoi:popup', (data) => {
         overlay.hidden = false;
         content.text = data.text;
 
         setTimeout(() => {
-            const closeButton = panel.innerElement.querySelector('.close');
+            const closeButton = container.innerElement.querySelector('.close');
             if (closeButton) {
                 closeButton.addEventListener('click', () => {
                     overlay.hidden = true;
@@ -58,5 +54,4 @@ editor.once('load', () => {
             }
         });
     });
-
 });
