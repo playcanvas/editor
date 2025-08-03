@@ -13,7 +13,6 @@ editor.once('load', () => {
     overlay.append(container);
 
     const content = new Label({
-        renderChanges: false,
         unsafe: true
     });
     container.append(content);
