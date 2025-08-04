@@ -7,29 +7,38 @@ workerServer.once('init', async (frontendURL) => {
     const parser = await new JSDocParser().init(`${frontendURL}types/libs.d.ts`);
 
     workerServer.on('attributes:parse', async (guid, scriptContents, deletedFiles, url) => {
-        parser.updateProgram(scriptContents, deletedFiles);
-        const [attributes, errors] = await parser.parseAttributes(url);
+        try {
+            parser.updateProgram(scriptContents, deletedFiles);
+            const [attributes, errors] = await parser.parseAttributes(url);
 
-        // Parse the results
-        const scripts = Object.keys(attributes).reduce((acc, key) => {
-            const script = attributes[key];
-            const attributesOrder = Object.keys(script.attributes);
-            acc[key] = {
-                attributesInvalid: [],
-                attributesOrder,
-                attributes: script.attributes
-            };
-            return acc;
-        }, {});
+            // Parse the results
+            const scripts = Object.keys(attributes).reduce((acc, key) => {
+                const script = attributes[key];
+                const attributesOrder = Object.keys(script.attributes);
+                acc[key] = {
+                    attributesInvalid: [],
+                    attributesOrder,
+                    attributes: script.attributes
+                };
+                return acc;
+            }, {});
 
-        const scriptsInvalid = errors.map((error) => {
-            if (!error.file) {
-                return error.message;
-            }
-            return `${error.file} (${error.line + 1},${error.column + 1}) [JavaScript]: ${error.message}`;
-        });
+            const scriptsInvalid = errors.map((error) => {
+                if (!error.file) {
+                    return error.message;
+                }
+                return `${error.file} (${error.line + 1},${error.column + 1}) [JavaScript]: ${error.message}`;
+            });
 
-        workerServer.send('attributes:parse', guid, scripts, scriptsInvalid);
+            workerServer.send('attributes:parse', guid, scripts, scriptsInvalid);
+
+        } catch (error) {
+            const errorMessage = error instanceof Error ?
+                'The Attribute Parser failed unexpectedly.' :
+                `Attribute parsing error: ${error.toString()}`;
+
+            workerServer.send('attributes:parse', guid, {}, [errorMessage]);
+        }
     });
 
     workerServer.on('attributes:get', (asn, uri, fileName, scriptContents, deletedFiles) => {
