@@ -157,15 +157,6 @@
                         }
                     }
 
-                    .ui-panel.preview-controls {
-                        position: absolute;
-                        bottom: 0;
-                        z-index: 1;
-                        background: transparent;
-                        width: 100%;
-                        display: none; // hide for now
-                    }
-
                     .ui-panel.add-frames-info,
                     .ui-panel.import-error {
                         border: 1px solid $text-active;
