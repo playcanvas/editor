@@ -34,6 +34,10 @@ editor.once('load', () => {
                 });
             }
 
+            if (options.markers) {
+                monaco.editor.setModelMarkers(view, 'script-errors', options.markers);
+            }
+
             monacoEditor.focus();
 
             if (options.callback) {

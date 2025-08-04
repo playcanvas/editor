@@ -1,13 +1,15 @@
 import { Container, Label, Panel, Button } from '@playcanvas/pcui';
 
 import { CLASS_ERROR } from '../../../common/pcui/constants.ts';
-import { tooltip, tooltipRefItem } from '../../../common/tooltips.ts';
+import { tooltip, tooltipRefItem, tooltipSimpleItem } from '../../../common/tooltips.ts';
 
 const CLASS_ROOT = 'script-asset-inspector';
 const CLASS_ERROR_CONTAINER = `${CLASS_ROOT}-error-container`;
 const CLASS_CONTAINER = `${CLASS_ROOT}-container`;
 const CLASS_SCRIPT = `${CLASS_ROOT}-script`;
 const CLASS_ATTRIBUTE = `${CLASS_ROOT}-attribute`;
+const CLASS_ATTRIBUTE_ERROR_CONTAINER = `${CLASS_ROOT}-attribute-error-container`;
+const CLASS_ATTRIBUTE_ERROR_TITLE = `${CLASS_ROOT}-attribute-error-title`;
 
 const DOM = parent => [
     {
@@ -114,11 +116,49 @@ class ScriptAssetInspector extends Panel {
             }
             for (const scriptName in result.scripts) {
                 const attrInvalid = result.scripts[scriptName].attributesInvalid;
+
                 if (attrInvalid.length > 0) {
-                    const label = new Label({ text: attrInvalid, class: [CLASS_ERROR, CLASS_SCRIPT] });
                     const container = this._scriptAttributeContainer[`_${scriptName}Container`];
+
                     if (container) {
-                        container.appendAfter(label, container._scriptLabel);
+
+                        const attributeErrorContainer = new Container({
+                            class: CLASS_ATTRIBUTE_ERROR_CONTAINER
+                        });
+
+                        // add title to the attribute error container
+                        const title = new Label({
+                            text: 'The following attributes are invalid and will be ignored',
+                            class: [CLASS_ERROR, CLASS_SCRIPT]
+                        });
+                        attributeErrorContainer.append(title);
+
+                        // iterate over attrInvalid and create a label for each error
+                        attrInvalid.forEach((error) => {
+                            const errorLabel = new Label({
+                                text: `${error.name} ${error.type ? `(${error.type})` : ''}`,
+                                class: [CLASS_ATTRIBUTE_ERROR_TITLE]
+                            });
+                            attributeErrorContainer.append(errorLabel);
+
+                            // add tooltip to the error label
+                            tooltip().attach({
+                                container: tooltipSimpleItem({
+                                    text: error.message
+                                }),
+                                target: errorLabel,
+                                align: 'right'
+                            });
+                        });
+
+                        // add click handler to the attribute error container
+                        attributeErrorContainer.on('click', () => {
+                            editor.call('picker:codeeditor', this._asset, {
+                                markers: attrInvalid
+                            });
+                        });
+
+                        container.append(attributeErrorContainer);
                     }
                 }
             }

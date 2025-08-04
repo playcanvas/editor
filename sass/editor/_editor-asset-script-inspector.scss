@@ -6,6 +6,25 @@
     margin: 6px;
 }
 
+.script-asset-inspector-attribute-error-container {
+    display: flex;
+    flex-direction: column;
+    border: none;
+    margin: 0;
+    padding: 0;
+}
+
+.script-asset-inspector-attribute-error-container > .script-asset-inspector-attribute-error-title {
+    font-family: inconsolatamedium, Monaco, Menlo, "Ubuntu Mono", Consolas, source-code-pro, monospace;
+    font-weight: normal;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.script-asset-inspector-attribute-error-container > .script-asset-inspector-attribute-error-title:hover {
+    text-decoration: underline;
+}
+
 .script-asset-inspector-error-container > .pcui-label {
     white-space: normal;
 }

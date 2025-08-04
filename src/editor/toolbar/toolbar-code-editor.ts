@@ -17,7 +17,7 @@ editor.once('load', () => {
         editor.call('picker:codeeditor');
     });
 
-    editor.method('picker:codeeditor', (asset) => {
+    editor.method('picker:codeeditor', (asset, metadata) => {
         // open the new code editor - try to focus existing tab if it exists
 
         let url = `/editor/code/${config.project.id}`;
@@ -49,7 +49,7 @@ editor.once('load', () => {
         try {
             if (wnd.editor && wnd.editor.isCodeEditor) {
                 if (asset) {
-                    wnd.editor.call('integration:selectWhenReady', asset.get('id'));
+                    wnd.editor.call('integration:selectWhenReady', asset.get('id'), metadata);
                 }
             } else {
                 wnd.location = url;
