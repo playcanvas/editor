@@ -19,9 +19,9 @@ editor.once('load', () => {
     history.on('canUndo', (state) => {
         buttonUndo.enabled = state;
         if (state) {
-            tooltipUndo.class.remove('innactive');
+            tooltipUndo.class.remove('inactive');
         } else {
-            tooltipUndo.class.add('innactive');
+            tooltipUndo.class.add('inactive');
         }
     });
     buttonUndo.on('click', () => {
@@ -35,7 +35,7 @@ editor.once('load', () => {
         root: root
     });
     if (!history.canUndo) {
-        tooltipUndo.class.add('innactive');
+        tooltipUndo.class.add('inactive');
     }
 
 
@@ -51,9 +51,9 @@ editor.once('load', () => {
     history.on('canRedo', (state) => {
         buttonRedo.enabled = state;
         if (state) {
-            tooltipRedo.class.remove('innactive');
+            tooltipRedo.class.remove('inactive');
         } else {
-            tooltipRedo.class.add('innactive');
+            tooltipRedo.class.add('inactive');
         }
     });
     buttonRedo.on('click', () => {
@@ -67,7 +67,7 @@ editor.once('load', () => {
         root: root
     });
     if (!history.canRedo) {
-        tooltipRedo.class.add('innactive');
+        tooltipRedo.class.add('inactive');
     }
 
     editor.on('permissions:writeState', (state) => {

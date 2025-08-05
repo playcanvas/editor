@@ -91,8 +91,8 @@ editor.once('load', () => {
         const op = enabled ? 'remove' : 'add';
         btnDelete.enabled = enabled;
         btnDuplicate.enabled = enabled;
-        tooltipDelete.class[op]('innactive');
-        tooltipDuplicate.class[op]('innactive');
+        tooltipDelete.class[op]('inactive');
+        tooltipDuplicate.class[op]('inactive');
     };
 
     editor.on('attributes:clear', () => {

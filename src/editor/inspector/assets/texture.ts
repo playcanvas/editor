@@ -1085,6 +1085,11 @@ class TextureAssetInspector extends Container {
         this._webgl1NonPotWithoutAddressClampWarning.hidden = true;
         this._webgl1NonPotWithMipmapsWarning.hidden = true;
 
+        // Don't show WebGL1 warnings when running in Engine v2 mode
+        if (editor.projectEngineV2) {
+            return;
+        }
+
         const assets = this._assets;
         // Show the warnings if any of the assets have an issue
 
