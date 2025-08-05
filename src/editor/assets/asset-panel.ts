@@ -315,12 +315,24 @@ class AssetPanel extends Panel {
      */
     _btnDelete;
 
+    /**
+     * @type {Button}
+     */
     _btnBack;
 
+    /**
+     * @type {Button}
+     */
     _btnLargeGrid;
 
+    /**
+     * @type {Button}
+     */
     _btnSmallGrid;
 
+    /**
+     * @type {Button}
+     */
     _btnDetailsView;
 
     /**
