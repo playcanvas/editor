@@ -123,6 +123,15 @@ editor.on('scene:load', () => {
     scale = initGizmo(new pc.ScaleGizmo(camera.camera, layer));
 });
 
+editor.on('camera:change', (camera: Entity) => {
+    if (!translate || !rotate || !scale) {
+        return;
+    }
+    translate.camera = camera.camera;
+    rotate.camera = camera.camera;
+    scale.camera = camera.camera;
+});
+
 editor.on('gizmo:coordSystem', (system) => {
     if (!translate || !rotate || !scale) {
         return;
