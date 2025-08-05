@@ -13,6 +13,7 @@ const GIZMO_SIZE = 1.2;
 let translate: TranslateGizmo | null = null;
 let rotate: RotateGizmo | null = null;
 let scale: ScaleGizmo | null = null;
+let write: boolean = false;
 
 type GizmoNodeTransform = {
     position: number[];
@@ -123,6 +124,10 @@ editor.on('scene:load', () => {
     scale = initGizmo(new pc.ScaleGizmo(camera.camera, layer));
 });
 
+editor.on('permissions:writeState', (state) => {
+    write = state;
+});
+
 editor.on('camera:change', (camera: Entity) => {
     if (!translate || !rotate || !scale) {
         return;
@@ -146,6 +151,13 @@ const update = () => {
     if (!translate || !rotate || !scale) {
         return;
     }
+
+    // skip if no write permissions
+    if (!write) {
+        return;
+    }
+
+    // skip if not selecting entities (can be assets)
     const selectorType: string = editor.call('selector:type');
     if (selectorType !== 'entity') {
         translate.detach();
@@ -153,6 +165,7 @@ const update = () => {
         scale.detach();
         return;
     }
+
     const gizmoType: string = editor.call('gizmo:type');
     const items = editor.call('selector:items').map(item => item.entity);
     switch (gizmoType) {
