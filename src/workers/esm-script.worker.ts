@@ -6,6 +6,7 @@ import { WorkerServer } from '../core/worker/worker-server.ts';
  * @typedef {Object} SerializableParsingError
  * @property {string} message - The error message
  * @property {string} file - The source file
+ * @property {string} type - The category of the error
  * @property {string} name - The name of the error
  * @property {number} startLine - The start line number of the error
  * @property {number} startColumn - The start column number of the error
