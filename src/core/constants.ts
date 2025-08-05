@@ -1,6 +1,9 @@
 // Editor Engine version
 export const ENGINE_VERSION = typeof pc !== 'undefined' ? `${pc.version}` : '0.0.0';
 
+// Gizmo size
+export const GIZMO_SIZE = 1.2;
+
 // Gizmo mask
 export const GIZMO_MASK = 8;
 
