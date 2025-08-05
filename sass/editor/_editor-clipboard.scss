@@ -1,0 +1,16 @@
+.pcui-contextmenu-clipboard {
+    > .pcui-menu-items {
+        > .pcui-menu-item {
+            > .pcui-menu-item-content {
+                > .pcui-menu-item-postfix {
+                    flex-grow: 1;
+                    text-align: right;
+
+                    &.disabled {
+                        display: none;
+                    }
+                }
+            }
+        }
+    }
+}

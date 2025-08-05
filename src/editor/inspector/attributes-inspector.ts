@@ -2,6 +2,7 @@ import { Element, Container, LabelGroup, Panel, ArrayInput, BindingTwoWay } from
 
 import { AssetInput } from '../../common/pcui/element/element-asset-input.ts';
 import { tooltip, tooltipRefItem } from '../../common/tooltips.ts';
+import '../storage/clipboard-context-menu.ts';
 
 const isEnabledAttribute = ({ label, type }) => label === 'enabled' && type === 'boolean';
 
@@ -46,6 +47,8 @@ class AttributesInspector extends Container {
 
         this._suspendChangeEvt = false;
         this._onAttributeChangeHandler = this._onAttributeChange.bind(this);
+
+        this._clipboardTypes = editor.call('clipboard:types') ?? null;
 
         // entity attributes
         args.attributes.forEach((attr) => {
@@ -126,6 +129,36 @@ class AttributesInspector extends Container {
             evtChange = null;
         });
 
+        if (this._clipboardTypes) {
+            if (attr.type && attr.path && this._clipboardTypes.has(attr.type)) {
+                field.once('parent', (parent) => {
+                    if (!(parent instanceof LabelGroup)) {
+                        console.log(field);
+                        return;
+                    }
+
+                    parent.dom.addEventListener('contextmenu', (evt) => {
+                        if (evt.target !== parent.label?.dom)
+                            return;
+
+                        evt.stopPropagation();
+                        evt.preventDefault();
+
+                        editor.call('clipboard:contextmenu:open', evt.clientX + 1, evt.clientY, attr.path);
+                    });
+                });
+            } else if (attr.type && attr.path && !this._clipboardTypes.has(attr.type)) {
+                // if (attr.type !== 'asset' && attr.type !== 'entity' && attr.type !== 'array:asset' && attr.type !== 'assets')
+                //     console.log(attr);
+
+                // TODO
+                // asset, entity, array:asset, assets
+            } else if (attr.type && attr.paths) {
+                // TODO
+                // implement copy-paste for multi-path fields
+                // console.log(attr);
+            }
+        }
 
         const key = this._getFieldKey(attr);
         if (key) {
