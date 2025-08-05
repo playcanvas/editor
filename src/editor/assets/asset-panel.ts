@@ -417,7 +417,7 @@ class AssetPanel extends Panel {
 
         this._createTooltip('Open Store', btnStore);
 
-        // folders tree view
+        // resizable container for a scrollable folders container
         this._containerLeft = new Container({
             class: CLASS_LEFT,
             resizable: 'right',
