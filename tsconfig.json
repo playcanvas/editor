@@ -8,7 +8,7 @@
         "skipLibCheck": true,
         "noEmit": true,
         "target": "esnext",
-        "moduleResolution": "node",
+        "moduleResolution": "bundler",
         "outDir": "dist",
         "lib": ["es6", "dom", "webworker"]
     },
