@@ -386,7 +386,7 @@ class AssetPanel extends Panel {
      */
     _hoveredAsset;
 
-    /**
+     * @type {Array}
      * @type {[]]}
      */
     _eventsDropManager;
