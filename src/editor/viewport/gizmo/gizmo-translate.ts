@@ -1,5 +1,4 @@
-import { type EntityObserver } from '@playcanvas/editor-api';
-import { type GraphNode, type AppBase, type Entity, type Gizmo } from 'playcanvas';
+import { type Entity, type Gizmo, type Layer } from 'playcanvas';
 
 import { GIZMO_SIZE } from '../../../core/constants.ts';
 
@@ -8,8 +7,7 @@ editor.once('load', () => {
 
     editor.on('scene:load', () => {
         const camera: Entity = editor.call('camera:current');
-        const app: AppBase = editor.call('viewport:app');
-        const layer = pc.Gizmo.createLayer(app);
+        const layer: Layer = editor.call('gizmo:layers', 'Axis Gizmo Immediate');
         gizmo = new pc.TranslateGizmo(camera.camera, layer);
         gizmo.size = GIZMO_SIZE;
 
@@ -34,9 +32,7 @@ editor.once('load', () => {
         const gizmoType: string = editor.call('gizmo:type');
         const selectorType: string = editor.call('selector:type');
         if (gizmoType === 'translate' && selectorType === 'entity') {
-            const observers: EntityObserver[] = editor.call('selector:items');
-            const nodes: GraphNode[] = observers.map(observer => observer.entity);
-            gizmo.attach(nodes);
+            gizmo.attach(editor.call('selector:items').map(item => item.entity));
         } else {
             gizmo.detach();
         }
