@@ -9,10 +9,12 @@ import {
 } from 'playcanvas';
 
 const GIZMO_SIZE = 1.2;
+const GIZMO_ANGLE_MULT = 5;
 
 let translate: TranslateGizmo | null = null;
 let rotate: RotateGizmo | null = null;
 let scale: ScaleGizmo | null = null;
+
 let write: boolean = false;
 
 type GizmoNodeTransform = {
@@ -137,7 +139,7 @@ editor.on('camera:change', (camera: Entity) => {
     scale.camera = camera.camera;
 });
 
-editor.on('gizmo:coordSystem', (system) => {
+editor.on('gizmo:coordSystem', (system: 'local' | 'world') => {
     if (!translate || !rotate || !scale) {
         return;
     }
@@ -145,6 +147,15 @@ editor.on('gizmo:coordSystem', (system) => {
     translate.coordSpace = space;
     rotate.coordSpace = space;
     scale.coordSpace = space;
+});
+
+editor.on('gizmo:snap', (state: boolean, increment: number) => {
+    translate.snap = state;
+    translate.snapIncrement = increment;
+    rotate.snap = state;
+    rotate.snapIncrement = increment * GIZMO_ANGLE_MULT;
+    scale.snap = state;
+    scale.snapIncrement = increment;
 });
 
 const update = () => {
