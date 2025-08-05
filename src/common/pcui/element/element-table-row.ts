@@ -22,6 +22,31 @@ const CLASS_SELECTED_ROW = `${CLASS_ROW}-selected`;
  */
 class TableRow extends Container {
     /**
+     * @type {boolean}
+     */
+    _header;
+
+    /**
+     * @type {Table}
+     */
+    _table;
+
+    /**
+     * @type {boolean}
+     */
+    _selected;
+
+    /**
+     * @type {Function}
+     */
+    _domEvtFocus;
+
+    /**
+     * @type {Function}
+     */
+    _domEvtBlur;
+
+    /**
      * Creates new TableRow.
      *
      * @param {TableRowArgs & ContainerArgs} [args] - The arguments.
