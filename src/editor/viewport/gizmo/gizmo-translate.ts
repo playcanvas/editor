@@ -28,10 +28,13 @@ const getTRS = (item: EntityObserver): GizmoNodeTransform => {
     item.set('scale', scale);
     return { position, rotation, scale };
 };
-const setTRS = (item: EntityObserver, trs: GizmoNodeTransform) => {
+const setTRS = (item: EntityObserver, trs: GizmoNodeTransform, history: boolean = true) => {
+    const historyEnabled = item.history.enabled;
+    item.history.enabled = history;
     item.set('position', trs.position);
     item.set('rotation', trs.rotation);
     item.set('scale', trs.scale);
+    item.history.enabled = historyEnabled;
 };
 
 editor.on('scene:load', () => {
@@ -85,12 +88,12 @@ editor.on('scene:load', () => {
             combine: false,
             undo: () => {
                 for (let i = 0; i < items.length; i++) {
-                    setTRS(items[i].latest() as EntityObserver, state[i].from);
+                    setTRS(items[i].latest() as EntityObserver, state[i].from, false);
                 }
             },
             redo: () => {
                 for (let i = 0; i < items.length; i++) {
-                    setTRS(items[i].latest() as EntityObserver, state[i].to);
+                    setTRS(items[i].latest() as EntityObserver, state[i].to, false);
                 }
             }
         });
