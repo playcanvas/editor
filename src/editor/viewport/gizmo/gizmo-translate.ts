@@ -74,27 +74,27 @@ editor.on('scene:load', () => {
         if (!items.length) {
             return;
         }
-        const action: { from: GizmoNodeTransform, to: GizmoNodeTransform }[] = [];
+
+        // record discrete action
+        const action: [GizmoNodeTransform, GizmoNodeTransform][] = [];
         for (let i = 0; i < items.length; i++) {
-            action.push({
-                from: cache[i],
-                to: getTRS(items[i])
-            });
+            action.push([cache[i], getTRS(items[i])]);
             items[i].history.enabled = true;
         }
         cache.length = 0;
 
+        // add discrete action to history
         editor.api.globals.history.add({
             name: 'entities.translate',
             combine: false,
             undo: () => {
                 for (let i = 0; i < items.length; i++) {
-                    setTRS(items[i].latest() as EntityObserver, action[i].from, false);
+                    setTRS(items[i].latest() as EntityObserver, action[i][0], false);
                 }
             },
             redo: () => {
                 for (let i = 0; i < items.length; i++) {
-                    setTRS(items[i].latest() as EntityObserver, action[i].to, false);
+                    setTRS(items[i].latest() as EntityObserver, action[i][1], false);
                 }
             }
         });
