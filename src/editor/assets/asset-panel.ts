@@ -26,6 +26,7 @@ import { tooltip, tooltipSimpleItem } from '../../common/tooltips.ts';
 import { bytesToHuman, naturalCompare } from '../../common/utils.ts';
 
 const CLASS_ROOT = 'pcui-asset-panel';
+const CLASS_LEFT = `${CLASS_ROOT}-left`;
 const CLASS_FOLDERS = `${CLASS_ROOT}-folders`;
 const CLASS_CURRENT_FOLDER = `${CLASS_ROOT}-current-folder`;
 const CLASS_ASSET_HIGHLIGHTED = `${CLASS_ROOT}-highlighted-asset`;
@@ -417,15 +418,21 @@ class AssetPanel extends Panel {
         this._createTooltip('Open Store', btnStore);
 
         // folders tree view
-        this._containerFolders = new Container({
-            class: CLASS_FOLDERS,
+        this._containerLeft = new Container({
+            class: CLASS_LEFT,
             resizable: 'right',
             resizeMin: 100,
             resizeMax: 600,
-            width: 200,
+            width: 200
+        });
+        this.append(this._containerLeft);
+
+        // folders tree view
+        this._containerFolders = new Container({
+            class: CLASS_FOLDERS,
             scrollable: true
         });
-        this.append(this._containerFolders);
+        this._containerLeft.append(this._containerFolders);
 
         this._foldersView = new TreeView({
             allowReordering: false,
