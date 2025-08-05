@@ -1,9 +1,18 @@
 import { type EntityObserver } from '@playcanvas/editor-api';
-import { type Entity, type Gizmo, type Layer } from 'playcanvas';
+import {
+    type Entity,
+    type TransformGizmo,
+    type TranslateGizmo,
+    type RotateGizmo,
+    type ScaleGizmo,
+    type Layer
+} from 'playcanvas';
 
-import { GIZMO_SIZE } from '../../../core/constants.ts';
+const GIZMO_SIZE = 1.2;
 
-let gizmo: Gizmo | null = null;
+let translate: TranslateGizmo | null = null;
+let rotate: RotateGizmo | null = null;
+let scale: ScaleGizmo | null = null;
 
 type GizmoNodeTransform = {
     position: number[];
@@ -37,10 +46,8 @@ const setTRS = (item: EntityObserver, trs: GizmoNodeTransform, history: boolean 
     item.history.enabled = historyEnabled;
 };
 
-editor.on('scene:load', () => {
-    const camera: Entity = editor.call('camera:current');
-    const layer: Layer = editor.call('gizmo:layers', 'Axis Gizmo Immediate');
-    gizmo = new pc.RotateGizmo(camera.camera, layer);
+const initGizmo = <T extends TransformGizmo>(gizmo: T) => {
+    // set size
     gizmo.size = GIZMO_SIZE;
 
     // call viewport render while moving gizmo
@@ -48,7 +55,7 @@ editor.on('scene:load', () => {
         editor.call('viewport:render');
     });
 
-    // manage history
+    // track history
     const cache: GizmoNodeTransform[] = [];
     gizmo.on(pc.TransformGizmo.EVENT_TRANSFORMSTART, () => {
         const items = selection();
@@ -85,7 +92,7 @@ editor.on('scene:load', () => {
 
         // add discrete action to history
         editor.api.globals.history.add({
-            name: 'entities.rotate',
+            name: 'entities.translate',
             combine: false,
             undo: () => {
                 for (let i = 0; i < items.length; i++) {
@@ -103,27 +110,71 @@ editor.on('scene:load', () => {
     // manually call prerender and update methods
     editor.on('viewport:preRender', gizmo.prerender.bind(gizmo));
     editor.on('viewport:update', gizmo.update.bind(gizmo));
+
+    return gizmo;
+};
+
+editor.on('scene:load', () => {
+    const camera: Entity = editor.call('camera:current');
+    const layer: Layer = editor.call('gizmo:layers', 'Axis Gizmo Immediate');
+
+    translate = initGizmo(new pc.TranslateGizmo(camera.camera, layer));
+    rotate = initGizmo(new pc.RotateGizmo(camera.camera, layer));
+    scale = initGizmo(new pc.ScaleGizmo(camera.camera, layer));
 });
 
 editor.on('gizmo:coordSystem', (system) => {
-    if (!gizmo) {
+    if (!translate || !rotate || !scale) {
         return;
     }
-    gizmo.coordSpace = system === 'local' ? pc.GIZMOSPACE_LOCAL : pc.GIZMOSPACE_WORLD;
+    const space = system === 'local' ? pc.GIZMOSPACE_LOCAL : pc.GIZMOSPACE_WORLD;
+    translate.coordSpace = space;
+    rotate.coordSpace = space;
+    scale.coordSpace = space;
 });
 
 const update = () => {
-    if (!gizmo) {
+    if (!translate || !rotate || !scale) {
+        return;
+    }
+    const selectorType: string = editor.call('selector:type');
+    if (selectorType !== 'entity') {
+        translate.detach();
+        rotate.detach();
+        scale.detach();
         return;
     }
     const gizmoType: string = editor.call('gizmo:type');
-    const selectorType: string = editor.call('selector:type');
-    if (gizmoType === 'rotate' && selectorType === 'entity') {
-        gizmo.attach(editor.call('selector:items').map(item => item.entity));
-    } else {
-        gizmo.detach();
+    const items = editor.call('selector:items').map(item => item.entity);
+    switch (gizmoType) {
+        case 'translate': {
+            translate.attach(items);
+            rotate.detach();
+            scale.detach();
+            break;
+        }
+        case 'rotate': {
+            translate.detach();
+            rotate.attach(items);
+            scale.detach();
+            break;
+        }
+        case 'scale': {
+            translate.detach();
+            rotate.detach();
+            scale.attach(items);
+            break;
+        }
+        default: {
+            translate.detach();
+            rotate.detach();
+            scale.detach();
+            break;
+        }
     }
 };
 editor.on('selector:change', update);
 editor.on('gizmo:type', update);
+editor.on('gizmo:translate:sync', update);
 editor.on('gizmo:rotate:sync', update);
+editor.on('gizmo:scale:sync', update);
