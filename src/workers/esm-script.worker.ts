@@ -28,7 +28,8 @@ const toSerializableError = (error) => {
     const endLineChar = sourceFile.getLineAndCharacterOfPosition(endPos);
 
     return {
-        name: error.node.symbol.getEscapedName(),
+        name: error.node.symbol?.getEscapedName() || 'Unknown',
+        type: error.type,
         message: error.message,
         file: sourceFile.fileName,
         startLineNumber: startLineChar.line + 1,
