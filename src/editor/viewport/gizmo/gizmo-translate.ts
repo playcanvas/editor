@@ -74,9 +74,9 @@ editor.on('scene:load', () => {
         if (!items.length) {
             return;
         }
-        const state: { from: GizmoNodeTransform, to: GizmoNodeTransform }[] = [];
+        const action: { from: GizmoNodeTransform, to: GizmoNodeTransform }[] = [];
         for (let i = 0; i < items.length; i++) {
-            state.push({
+            action.push({
                 from: cache[i],
                 to: getTRS(items[i])
             });
@@ -89,12 +89,12 @@ editor.on('scene:load', () => {
             combine: false,
             undo: () => {
                 for (let i = 0; i < items.length; i++) {
-                    setTRS(items[i].latest() as EntityObserver, state[i].from, false);
+                    setTRS(items[i].latest() as EntityObserver, action[i].from, false);
                 }
             },
             redo: () => {
                 for (let i = 0; i < items.length; i++) {
-                    setTRS(items[i].latest() as EntityObserver, state[i].to, false);
+                    setTRS(items[i].latest() as EntityObserver, action[i].to, false);
                 }
             }
         });
