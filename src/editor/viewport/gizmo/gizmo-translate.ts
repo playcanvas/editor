@@ -48,14 +48,15 @@ editor.on('scene:load', () => {
         editor.call('viewport:render');
     });
 
-    const store: GizmoNodeTransform[] = [];
+    // manage history
+    const cache: GizmoNodeTransform[] = [];
     gizmo.on(pc.TransformGizmo.EVENT_TRANSFORMSTART, () => {
         const items = selection();
         if (!items.length) {
             return;
         }
         for (let i = 0; i < items.length; i++) {
-            store[i] = getTRS(items[i]);
+            cache[i] = getTRS(items[i]);
             items[i].history.enabled = false;
         }
     });
@@ -76,12 +77,12 @@ editor.on('scene:load', () => {
         const state: { from: GizmoNodeTransform, to: GizmoNodeTransform }[] = [];
         for (let i = 0; i < items.length; i++) {
             state.push({
-                from: store[i],
+                from: cache[i],
                 to: getTRS(items[i])
             });
             items[i].history.enabled = true;
         }
-        store.length = 0;
+        cache.length = 0;
 
         editor.api.globals.history.add({
             name: 'entities.translate',
