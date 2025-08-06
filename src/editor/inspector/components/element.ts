@@ -41,7 +41,6 @@ const ATTRIBUTES = [{
     path: 'components.element.type',
     reference: 'element:type',
     type: 'select',
-    clipboard: true,
     args: {
         type: 'string',
         options: [{
@@ -68,7 +67,6 @@ const ATTRIBUTES = [{
     path: 'components.element.anchor',
     reference: 'element:anchor',
     type: 'vec4',
-    clipboard: true,
     args: {
         precision: 3,
         step: 0.1,
@@ -81,7 +79,6 @@ const ATTRIBUTES = [{
     path: 'components.element.pivot',
     reference: 'element:pivot',
     type: 'vec2',
-    clipboard: true,
     args: {
         precision: 3,
         step: 0.1,
@@ -93,20 +90,17 @@ const ATTRIBUTES = [{
     label: 'Auto Width',
     path: 'components.element.autoWidth',
     reference: 'element:autoWidth',
-    type: 'boolean',
-    clipboard: true
+    type: 'boolean'
 }, {
     label: 'Auto Fit Width',
     path: 'components.element.autoFitWidth',
     reference: 'element:autoFitWidth',
-    type: 'boolean',
-    clipboard: true
+    type: 'boolean'
 }, {
     label: 'Width',
     path: 'components.element.width',
     reference: 'element:width',
     type: 'number',
-    clipboard: true,
     args: {
         precision: 3,
         step: 1
@@ -115,20 +109,17 @@ const ATTRIBUTES = [{
     label: 'Auto Height',
     path: 'components.element.autoHeight',
     reference: 'element:autoHeight',
-    type: 'boolean',
-    clipboard: true
+    type: 'boolean'
 }, {
     label: 'Auto Fit Height',
     path: 'components.element.autoFitHeight',
     reference: 'element:autoFitHeight',
-    type: 'boolean',
-    clipboard: true
+    type: 'boolean'
 }, {
     label: 'Height',
     path: 'components.element.height',
     reference: 'element:height',
     type: 'number',
-    clipboard: true,
     args: {
         precision: 3,
         step: 1
@@ -146,7 +137,6 @@ const ATTRIBUTES = [{
     path: 'components.element.margin',
     reference: 'element:margin',
     type: 'vec4',
-    clipboard: true,
     args: {
         placeholder: ['←', '↓', '→', '↑'],
         precision: 3,
@@ -157,7 +147,6 @@ const ATTRIBUTES = [{
     path: 'components.element.alignment',
     reference: 'element:alignment',
     type: 'vec2',
-    clipboard: true,
     args: {
         precision: 3,
         step: 0.1,
@@ -170,7 +159,6 @@ const ATTRIBUTES = [{
     path: 'components.element.fontAsset',
     reference: 'element:fontAsset',
     type: 'asset',
-    // clipboard: true,
     args: {
         assetType: 'font'
     }
@@ -178,14 +166,12 @@ const ATTRIBUTES = [{
     label: 'Localized',
     alias: 'components.element.localized',
     reference: 'element:localized',
-    type: 'boolean',
-    clipboard: true
+    type: 'boolean'
 }, {
     label: 'Text',
     path: 'components.element.text',
     reference: 'element:text',
     type: 'text',
-    clipboard: true,
     args: {
         resizable: 'vertical'
     }
@@ -193,26 +179,22 @@ const ATTRIBUTES = [{
     label: 'Key',
     path: 'components.element.key',
     reference: 'element:key',
-    type: 'text',
-    clipboard: true
+    type: 'text'
 }, {
     label: 'Enable Markup',
     path: 'components.element.enableMarkup',
     reference: 'element:enableMarkup',
-    type: 'boolean',
-    clipboard: true
+    type: 'boolean'
 }, {
     label: 'Font Size',
     path: 'components.element.fontSize',
     reference: 'element:fontSize',
-    type: 'number',
-    clipboard: true
+    type: 'number'
 }, {
     label: 'Min Font Size',
     path: 'components.element.minFontSize',
     reference: 'element:minFontSize',
     type: 'number',
-    clipboard: true,
     args: {
         min: 0
     }
@@ -221,7 +203,6 @@ const ATTRIBUTES = [{
     path: 'components.element.maxFontSize',
     reference: 'element:maxFontSize',
     type: 'number',
-    clipboard: true,
     args: {
         min: 0
     }
@@ -229,20 +210,17 @@ const ATTRIBUTES = [{
     label: 'Line Height',
     path: 'components.element.lineHeight',
     reference: 'element:lineHeight',
-    type: 'number',
-    clipboard: true
+    type: 'number'
 }, {
     label: 'Wrap Lines',
     path: 'components.element.wrapLines',
     reference: 'element:wrapLines',
-    type: 'boolean',
-    clipboard: true
+    type: 'boolean'
 }, {
     label: 'Max Lines',
     path: 'components.element.maxLines',
     reference: 'element:maxLines',
     type: 'number',
-    clipboard: true,
     args: {
         min: 1,
         allowNull: true
@@ -251,20 +229,17 @@ const ATTRIBUTES = [{
     label: 'Spacing',
     path: 'components.element.spacing',
     reference: 'element:spacing',
-    type: 'number',
-    clipboard: true
+    type: 'number'
 }, {
     label: 'Color',
     path: 'components.element.color',
     reference: 'element:color',
-    type: 'rgb',
-    clipboard: true
+    type: 'rgb'
 }, {
     label: 'Opacity',
     path: 'components.element.opacity',
     reference: 'element:opacity',
     type: 'slider',
-    clipboard: true,
     args: {
         min: 0,
         max: 1,
@@ -275,14 +250,12 @@ const ATTRIBUTES = [{
     label: 'Outline Color',
     path: 'components.element.outlineColor',
     reference: 'element:outlineColor',
-    type: 'rgba',
-    clipboard: true
+    type: 'rgba'
 }, {
     label: 'Outline Thickness',
     path: 'components.element.outlineThickness',
     reference: 'element:outlineThickness',
     type: 'slider',
-    clipboard: true,
     args: {
         precision: 3,
         step: 0.1,
@@ -293,14 +266,12 @@ const ATTRIBUTES = [{
     label: 'Shadow Color',
     path: 'components.element.shadowColor',
     reference: 'element:shadowColor',
-    type: 'rgba',
-    clipboard: true
+    type: 'rgba'
 }, {
     label: 'Shadow Offset',
     path: 'components.element.shadowOffset',
     reference: 'element:shadowOffset',
     type: 'vec2',
-    clipboard: true,
     args: {
         precision: 3,
         step: 0.1,
@@ -313,7 +284,6 @@ const ATTRIBUTES = [{
     path: 'components.element.rect',
     reference: 'element:rect',
     type: 'vec4',
-    clipboard: true,
     args: {
         placeholder: ['U', 'V', 'W', 'H']
     }
@@ -321,14 +291,12 @@ const ATTRIBUTES = [{
     label: 'Mask',
     path: 'components.element.mask',
     reference: 'element:mask',
-    type: 'boolean',
-    clipboard: true
+    type: 'boolean'
 }, {
     label: 'Texture',
     path: 'components.element.textureAsset',
     reference: 'element:textureAsset',
     type: 'asset',
-    clipboard: true,
     args: {
         assetType: 'texture'
     }
@@ -337,7 +305,6 @@ const ATTRIBUTES = [{
     path: 'components.element.spriteAsset',
     reference: 'element:spriteAsset',
     type: 'asset',
-    clipboard: true,
     args: {
         assetType: 'sprite'
     }
@@ -346,7 +313,6 @@ const ATTRIBUTES = [{
     path: 'components.element.spriteFrame',
     reference: 'element:spriteFrame',
     type: 'number',
-    clipboard: true,
     args: {
         min: 0,
         precision: 0,
@@ -357,7 +323,6 @@ const ATTRIBUTES = [{
     path: 'components.element.pixelsPerUnit',
     reference: 'element:pixelsPerUnit',
     type: 'number',
-    clipboard: true,
     args: {
         min: 0,
         allowNull: true
@@ -367,7 +332,6 @@ const ATTRIBUTES = [{
     path: 'components.element.materialAsset',
     reference: 'element:materialAsset',
     type: 'asset',
-    clipboard: true,
     args: {
         assetType: 'material'
     }
@@ -376,7 +340,6 @@ const ATTRIBUTES = [{
     path: 'components.element.fitMode',
     reference: 'element:fitMode',
     type: 'select',
-    clipboard: true,
     args: {
         type: 'string',
         options: [{
@@ -391,22 +354,19 @@ const ATTRIBUTES = [{
     label: 'Use Input',
     path: 'components.element.useInput',
     reference: 'element:useInput',
-    type: 'boolean',
-    clipboard: true
+    type: 'boolean'
 }, {
     type: 'divider'
 }, {
     label: 'Batch Group',
     path: 'components.element.batchGroupId',
     reference: 'element:batchGroupId',
-    type: 'batchgroup',
-    clipboard: true
+    type: 'batchgroup'
 }, {
     label: 'Layers',
     path: 'components.element.layers',
     reference: 'element:layers',
     type: 'layers',
-    clipboard: true,
     args: {
         excludeLayers: [
             LAYERID_DEPTH,
