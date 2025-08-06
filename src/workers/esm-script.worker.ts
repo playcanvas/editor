@@ -50,8 +50,8 @@ const toSerializableError = (error) => {
     const startLineChar = sourceFile.getLineAndCharacterOfPosition(startPos);
     const endLineChar = sourceFile.getLineAndCharacterOfPosition(endPos);
 
-    // Some attribute errors are constrained to specific metadata like `range` or `precision`
-    // These can be classified as warnings as the attribute is still valid albeit with a warning
+    // Some errors are limited to specific tags like '@range' or '@precision'
+    // These can be classified as warnings as the attribute is still functionally valid.
     const severity = error.type.startsWith('Invalid Tag') ? 4 : 8;
 
     return {
