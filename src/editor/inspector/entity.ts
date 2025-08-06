@@ -152,14 +152,12 @@ const ATTRIBUTES = [{
     label: 'Name',
     path: 'name',
     reference: 'entity:name',
-    type: 'string',
-    clipboard: true
+    type: 'string'
 }, {
     label: 'Tags',
     path: 'tags',
     reference: 'entity:tags',
     type: 'tags',
-    clipboard: true,
     args: {
         type: 'string',
         placeholder: 'Add Tags'
@@ -169,7 +167,6 @@ const ATTRIBUTES = [{
     path: 'position',
     reference: 'entity:position',
     type: 'vec3',
-    clipboard: true,
     args: {
         placeholder: ['X', 'Y', 'Z'],
         precision: 3,
@@ -180,7 +177,6 @@ const ATTRIBUTES = [{
     path: 'rotation',
     reference: 'entity:rotation',
     type: 'vec3',
-    clipboard: true,
     args: {
         placeholder: ['X', 'Y', 'Z'],
         precision: 2,
@@ -191,7 +187,6 @@ const ATTRIBUTES = [{
     path: 'scale',
     reference: 'entity:scale',
     type: 'vec3',
-    clipboard: true,
     args: {
         placeholder: ['X', 'Y', 'Z'],
         precision: 3,
