@@ -165,11 +165,13 @@ class AttributesInspector extends Container {
                         editor.call('clipboard:contextmenu:open', evt.clientX + 1, evt.clientY, attr.path, type, target.dom);
                     };
 
-                    target.dom.addEventListener('contextmenu', onContextMenu);
+                    const element = target.dom;
+
+                    element.addEventListener('contextmenu', onContextMenu);
 
                     // clean up on field destroy
                     field.once('destroy', () => {
-                        target.dom.removeEventListener('contextmenu', onContextMenu);
+                        element.removeEventListener('contextmenu', onContextMenu);
                     });
 
                     // TODO
