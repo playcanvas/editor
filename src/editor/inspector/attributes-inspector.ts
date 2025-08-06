@@ -129,34 +129,63 @@ class AttributesInspector extends Container {
             evtChange = null;
         });
 
+        // if clipboard types are available
         if (this._clipboardTypes) {
+            // check if attribute has type and path and is of known type
             if (attr.type && attr.path && this._clipboardTypes.has(attr.type)) {
+                // once the field is parented
                 field.once('parent', (parent) => {
-                    if (!(parent instanceof LabelGroup)) {
-                        console.log(field);
-                        return;
-                    }
+                    let target = field;
 
-                    parent.dom.addEventListener('contextmenu', (evt) => {
-                        if (evt.target !== parent.label?.dom)
+                    // if part of a label group, provide copying for the whole element
+                    if (parent instanceof LabelGroup) target = parent;
+
+                    // try to bring context menu
+                    const onContextMenu = (evt) => {
+                        // do not interfere with inputs and buttons
+                        if (evt.target.tagName === 'BUTTON' ||
+                            evt.target.tagName === 'INPUT') {
+
                             return;
+                        }
 
+                        // supress default context menu
                         evt.stopPropagation();
                         evt.preventDefault();
 
-                        editor.call('clipboard:contextmenu:open', evt.clientX + 1, evt.clientY, attr.path);
+                        // modify type based on various rules
+                        let type = attr.type;
+                        if (type === 'select') type = attr.args.type;
+                        if (type === 'tags') type = `array:${attr.args.type}`;
+                        if (type === 'assets') type = 'array:asset';
+                        if (type === 'slider') type = 'number';
+                        if ((type === 'asset' || type === 'array:asset') && attr.args?.assetType) type += `:${attr.args.assetType}`;
+
+                        // call context menu
+                        editor.call('clipboard:contextmenu:open', evt.clientX + 1, evt.clientY, attr.path, type, target.dom);
+                    };
+
+                    target.dom.addEventListener('contextmenu', onContextMenu);
+
+                    // clean up on field destroy
+                    field.once('destroy', () => {
+                        target.dom.removeEventListener('contextmenu', onContextMenu);
                     });
+
+                    // TODO
+                    // add copy/paste icons after labels
+
+                    // TODO
+                    // extra rule for array of assets, to copy individual assets within the group
                 });
             } else if (attr.type && attr.path && !this._clipboardTypes.has(attr.type)) {
-                // if (attr.type !== 'asset' && attr.type !== 'entity' && attr.type !== 'array:asset' && attr.type !== 'assets')
-                //     console.log(attr);
-
                 // TODO
-                // asset, entity, array:asset, assets
+                // make sure as many types are supported
+                // console.log(attr.type, attr.path, attr);
             } else if (attr.type && attr.paths) {
                 // TODO
                 // implement copy-paste for multi-path fields
-                // console.log(attr);
+                // console.log(attr.type, attr.paths, attr);
             }
         }
 

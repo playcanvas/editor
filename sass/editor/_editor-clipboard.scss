@@ -14,3 +14,12 @@
         }
     }
 }
+
+.pcui-element.pcui-highlight::before {
+    content: '\00a0';
+    position: absolute;
+    inset: -4px;
+    border: 1px dotted #07f;
+    z-index: 1;
+    pointer-events: none;
+}
