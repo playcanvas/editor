@@ -49,8 +49,8 @@ editor.once('load', () => {
     // use in-built clipboard (uses localStorage)
     const clipboard = editor.api.globals.clipboard;
 
-    let path : string | null = null;
-    let schemaType : string | null = null;
+    let path: string | null = null;
+    let schemaType: string | null = null;
     let elementHighlighted = null;
 
     if (!clipboard) return;
@@ -68,6 +68,16 @@ editor.once('load', () => {
         }
 
         return type;
+    };
+
+
+    const isValidClipboardObject = (value) => {
+        return value &&
+            (typeof value) === 'object' &&
+            !Array.isArray(value) &&
+            value.hasOwnProperty('type') &&
+            value.hasOwnProperty('value') &&
+            value.type;
     };
 
 
@@ -119,7 +129,7 @@ editor.once('load', () => {
 
             // ensure that clipboard value is of expected format
             const paste = clipboard.value;
-            if (paste && (typeof paste) === 'object' && !Array.isArray(paste) && paste.hasOwnProperty?.('type') && paste.hasOwnProperty?.('value')) {
+            if (isValidClipboardObject(paste)) {
                 // check if clipboard type and target types are matching
                 return schemaType === paste.type;
             }
@@ -133,10 +143,7 @@ editor.once('load', () => {
             if (!items.length) return;
 
             const paste = clipboard.value;
-            if ((typeof paste) === 'object' && // should be an object
-                !Array.isArray(paste) && // not an array
-                paste.hasOwnProperty?.('type') && // should have type
-                paste.hasOwnProperty?.('value') && // should have value
+            if (isValidClipboardObject(paste) && // should be valid paste object
                 paste.type === schemaType) { // the type of copied and candidate paths should match
 
                 // TODO
@@ -238,7 +245,7 @@ editor.once('load', () => {
 
         // check if paste is possible
         const paste = clipboard.value;
-        if (paste && (typeof paste) === 'object' && !Array.isArray(paste) && paste.hasOwnProperty?.('type') && paste.hasOwnProperty?.('value') && paste.type) {
+        if (isValidClipboardObject(paste)) {
             // if possible, update paste postfix
             menuItemPasteLabel.text = schemaTypeToHuman(paste.type);
             menuItemPasteLabel.enabled = true;
