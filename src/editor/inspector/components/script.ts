@@ -18,6 +18,9 @@ const CLASS_SCRIPT = 'script-component-inspector-script';
 const CLASS_SCRIPT_ENABLED = `${CLASS_SCRIPT}-enabled`;
 const CLASS_SCRIPT_VALID = `${CLASS_SCRIPT}-valid`;
 const CLASS_SCRIPT_INVALID = `${CLASS_SCRIPT}-invalid`;
+const CLASS_WARNING = `${CLASS_SCRIPT}-warning`;
+const CLASS_ATTRIBUTE_ERROR_TITLE = `${CLASS_SCRIPT}-attribute-error-title`;
+const CLASS_ATTRIBUTE_WARNING_TITLE = `${CLASS_SCRIPT}-attribute-warning-title`;
 
 const ATTRIBUTE_SUBTITLES = {
     boolean: '{Boolean}',
@@ -257,15 +260,82 @@ class ScriptInspector extends Panel {
 
                 this._componentInspector.onParseError(error.message, this._scriptName);
             } else {
+                // Handle invalid scripts
                 result.scriptsInvalid.forEach((invalidScript) => {
                     this._componentInspector.onParseError(invalidScript, this._scriptName);
                 });
 
                 for (const scriptName in result.scripts) {
                     const attrInvalid = result.scripts[scriptName].attributesInvalid;
-                    attrInvalid.forEach((err) => {
-                        this._componentInspector.onParseError(err, scriptName);
+
+                    // Separate errors and warnings based on severity
+                    const errors = attrInvalid.filter(error => error.severity === 8);
+                    const warnings = attrInvalid.filter(error => error.severity === 4);
+
+                    // Helper function to create attribute issue containers (errors or warnings)
+                    const createAttributeIssueContainer = (issues, config) => {
+                        if (issues.length === 0) return;
+
+                        const container = this.containerErrors;
+                        if (!container) return;
+
+                        const issueContainer = new Container({
+                            class: 'script-attribute-issue-container'
+                        });
+
+                        // Add title
+                        const title = new Label({
+                            text: config.title,
+                            class: config.titleClasses
+                        });
+                        issueContainer.append(title);
+
+                        // Add issue labels
+                        issues.forEach((issue) => {
+                            const issueLabel = new Label({
+                                text: `${issue.name} ${issue.type ? `(${issue.type})` : ''}`,
+                                class: config.labelClasses
+                            });
+                            issueContainer.append(issueLabel);
+
+                            // Add tooltip
+                            tooltip().attach({
+                                container: tooltipSimpleItem({
+                                    text: issue.message
+                                }),
+                                target: issueLabel,
+                                align: 'right'
+                            });
+                        });
+
+                        // Add click handler
+                        issueContainer.on('click', () => {
+                            editor.call('picker:codeeditor', this._asset, {
+                                markers: attrInvalid
+                            });
+                        });
+
+                        container.append(issueContainer);
+                    };
+
+                    // Create error container
+                    createAttributeIssueContainer(errors, {
+                        title: 'The following attributes are invalid and will be ignored',
+                        titleClasses: [CLASS_ERROR, CLASS_SCRIPT],
+                        labelClasses: [CLASS_ATTRIBUTE_ERROR_TITLE]
                     });
+
+                    // Create warning container
+                    createAttributeIssueContainer(warnings, {
+                        title: 'The following attributes have malformed tags',
+                        titleClasses: [CLASS_SCRIPT, CLASS_WARNING],
+                        labelClasses: [CLASS_ATTRIBUTE_WARNING_TITLE]
+                    });
+                }
+
+                // Show error container if there are any issues
+                if (this.containerErrors.dom.childNodes.length > 0) {
+                    this.containerErrors.hidden = false;
                 }
 
                 const script = result.scripts[this._scriptName];

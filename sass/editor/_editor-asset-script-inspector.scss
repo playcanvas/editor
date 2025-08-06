@@ -11,17 +11,17 @@
     flex-direction: column;
     border: none;
     margin: 0;
-    padding: 0;
+    padding: 
 }
 
-.script-asset-inspector-attribute-error-container > .script-asset-inspector-attribute-error-title {
+.script-asset-inspector-attribute-error-title, .script-asset-inspector-attribute-warning-title {
     font-family: inconsolatamedium, Monaco, Menlo, "Ubuntu Mono", Consolas, source-code-pro, monospace;
     font-weight: normal;
     font-size: 12px;
     cursor: pointer;
 }
 
-.script-asset-inspector-attribute-error-container > .script-asset-inspector-attribute-error-title:hover {
+.script-asset-inspector-attribute-error-title:hover, .script-asset-inspector-attribute-warning-title:hover {
     text-decoration: underline;
 }
 
@@ -45,6 +45,11 @@
     padding: 6px;
     margin: 0;
     white-space: normal;
+}
+
+.script-asset-inspector-warning {
+
+    color: $status-warn;
 }
 
 .script-asset-inspector-attribute {
