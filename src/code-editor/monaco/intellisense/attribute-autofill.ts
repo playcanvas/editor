@@ -582,7 +582,6 @@ editor.once('load', () => {
             }
         });
 
-        // monaco.languages.registerCodeLensProvider('javascript', codeLensProvider);
 
         // Register commands for the code lens actions
         monaco.editor.registerCommand('makeAttribute', async (accessor, uri, lineNumber, memberName, attribute) => {
@@ -605,7 +604,6 @@ editor.once('load', () => {
         monaco.editor.registerCommand('removeAttribute', async (accessor, uri, lineNumber, memberName, attribute) => {
             const model = monaco.editor.getModel(uri);
             if (model) {
-                // Found model, calling removeAttributeFromMember
                 removeAttributeFromMember(model, lineNumber, memberName, attribute);
 
                 // Force immediate re-fetch of attributes to update code lens positions
