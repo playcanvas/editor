@@ -509,7 +509,6 @@ editor.once('load', () => {
             provideCodeLenses: (model, _token) => {
 
                 if (busy) {
-                    // Returning empty lenses due to busy flag;
                     return NULL_EDIT_PROVIDER;
                 }
 
