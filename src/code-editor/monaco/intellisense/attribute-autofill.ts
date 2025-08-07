@@ -271,7 +271,7 @@ const buildActions = (model, context) => {
         // Process any provided fixes for the marker
         const markersWithFixes = modelMarkersWithFixes.get(model);
         if (markersWithFixes) {
-            const error = modelMarkersWithFixes.get(model).find(({ message }) => message === marker.message);
+            const error = markersWithFixes.find(({ message }) => message === marker.message);
             if (error?.fix) {
                 actions.push(buildFixAction(model, marker, error.fix));
             }
@@ -424,6 +424,11 @@ editor.once('load', () => {
             const markersWithFixes = markers.filter(marker => marker.fix);
             if (markersWithFixes.length > 0) {
                 modelMarkersWithFixes.set(model, markersWithFixes);
+
+                // Listen for model disposal to clean up the Map entry
+                model.onWillDispose(() => {
+                    modelMarkersWithFixes.delete(model);
+                });
             }
 
             busy = false;
@@ -506,6 +511,11 @@ editor.once('load', () => {
                 modelDirtyFlags.set(model, false);
                 model.onDidChangeContent(() => {
                     modelDirtyFlags.set(model, true);
+                });
+
+                // Listen for model disposal to clean up the dirty flag
+                model.onWillDispose(() => {
+                    modelDirtyFlags.delete(model);
                 });
             }
         };
