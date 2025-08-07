@@ -54,6 +54,29 @@ const NULL_EDIT_PROVIDER = {
 };
 
 /**
+ * Builds a fix action for the given model and fix
+ *
+ * @param {Monaco.editor.ITextModel} model - The model
+ * @param {Monaco.editor.IMarkerData} marker - The marker
+ * @param {Fix} fix - The fix
+ * @returns {Monaco.languages.CodeAction} - The action
+ */
+const buildFixAction = (model, marker, fix) => {
+    return {
+        title: fix.title ?? 'Fix',
+        diagnostics: [marker],
+        kind: 'quickfix',
+        isPreferred: true,
+        edit: {
+            edits: [{
+                resource: model.uri,
+                textEdit: fix
+            }]
+        }
+    };
+};
+
+/**
  * JSDoc manipulation utilities
  */
 class JSDocUtils {
@@ -416,24 +439,27 @@ editor.once('load', () => {
 
             // Handle errors only (no markers for attributes since we use code lenses)
             if (errors && errors.length > 0) {
-                const errorMarkers = errors.map(error => ({
-                    severity: monaco.MarkerSeverity.Error,
-                    message: error.message,
-                    startLineNumber: error.startLineNumber || 1,
-                    startColumn: error.startColumn || 1,
-                    endLineNumber: error.endLineNumber || 1,
-                    endColumn: error.endColumn || 1
-                }));
-                monaco.editor.setModelMarkers(model, OWNER, errorMarkers);
+                // Store errors with fixes for code actions
+                const errorsWithFixes = errors.filter(error => error.fix);
+                if (errorsWithFixes.length > 0) {
+                    modelMarkersWithFixes.set(model, errorsWithFixes);
+                }
+
+                monaco.editor.setModelMarkers(model, OWNER, errors);
             } else {
                 // Clear any existing markers
                 monaco.editor.setModelMarkers(model, OWNER, []);
+                modelMarkersWithFixes.delete(model);
             }
 
-            // Listen for model disposal to clean up attributes
+            // Set up model disposal listeners only once
             if (!modelDirtyFlags.has(model)) {
                 model.onWillDispose(() => {
                     modelAttributes.delete(model);
+                    modelMarkersWithFixes.delete(model);
+                    modelDirtyFlags.delete(model);
+                    clearTimeout(modelTimeouts.get(model));
+                    modelTimeouts.delete(model);
                 });
             }
 
@@ -469,6 +495,9 @@ editor.once('load', () => {
 
         // Store parsed attributes for code lens
         const modelAttributes = new Map();
+
+        // Store markers with fixes for code actions
+        const modelMarkersWithFixes = new Map();
 
         // Create an event emitter for code lens changes
         const codeLensChangeEmitter = new monaco.Emitter();
@@ -598,6 +627,46 @@ editor.once('load', () => {
                 clearTimeout(modelTimeouts.get(model));
                 await fetchAttributes(model);
                 modelDirtyFlags.set(model, false);
+            }
+        });
+
+        /**
+         * Register a code action provider for error fixes
+         */
+        monaco.languages.registerCodeActionProvider('javascript', {
+            provideCodeActions: (model) => {
+
+                const actions = [];
+
+                if (!busy) {
+                    // Get all markers for this model, not just context markers
+                    const allMarkers = monaco.editor.getModelMarkers({ owner: OWNER });
+                    const modelMarkers = allMarkers.filter(marker => marker.resource.toString() === model.uri.toString());
+
+                    modelMarkers.forEach((/** @type {Monaco.editor.IMarker} */ marker) => {
+                        // Process any provided fixes for the marker (both errors and warnings)
+                        const markersWithFixes = modelMarkersWithFixes.get(model);
+                        if (markersWithFixes) {
+                            // Match by position instead of message for more reliable matching
+                            const error = markersWithFixes.find(error => (
+                                error.startLineNumber === marker.startLineNumber &&
+                                error.startColumn === marker.startColumn &&
+                                error.endLineNumber === marker.endLineNumber &&
+                                error.endColumn === marker.endColumn));
+
+                            if (error?.fix) {
+                                actions.push(buildFixAction(model, marker, error.fix));
+                            }
+                        }
+                    });
+                }
+
+                return {
+                    actions,
+                    dispose: async () => {
+                        // No cleanup needed - this provider doesn't hold persistent resources
+                    }
+                };
             }
         });
 
