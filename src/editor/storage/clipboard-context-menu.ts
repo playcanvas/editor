@@ -9,7 +9,9 @@ const types = new Set([
     'boolean',
     'label',
     'string',
+    'array:string',
     'text',
+    'tags',
     'select',
     'number',
     'slider',
@@ -19,7 +21,6 @@ const types = new Set([
     'rgb',
     'rgba',
     'gradient',
-    'array:string',
     'tags',
     'batchgroup',
     'layers',
@@ -61,15 +62,6 @@ editor.once('load', () => {
         // 'asset'
     ]);
 
-    // for menu items, print arrays in more human readable way
-    const schemaTypeToHuman = (type:string) => {
-        if (type.startsWith('array:')) {
-            type = `${type.slice(6)}[]`;
-        }
-
-        return type;
-    };
-
 
     const isValidClipboardObject = (value) => {
         return value &&
@@ -98,14 +90,7 @@ editor.once('load', () => {
         text: 'Copy',
         icon: 'E351',
         onSelect: function () {
-            const items = editor.call('selector:items');
-            if (!items.length) return;
-
-            const data = items[0].get(path);
-            clipboard.value = {
-                type: schemaType,
-                value: data
-            };
+            editor.call('clipboard:copy', path, schemaType);
         }
     });
 
@@ -124,76 +109,10 @@ editor.once('load', () => {
         icon: 'E348',
         onIsVisible: hasWriteAccess, // visible only if user has write access
         onIsEnabled: () => {
-            // no pasting to labels
-            if (schemaType === 'label') return false;
-
-            // ensure that clipboard value is of expected format
-            const paste = clipboard.value;
-            if (isValidClipboardObject(paste)) {
-                // check if clipboard type and target types are matching
-                return schemaType === paste.type;
-            }
-
-            // by default do not allow pasting
-            return false;
+            return editor.call('clipboard:validPaste', path, schemaType);
         },
         onSelect: () => {
-            // should have at least one item in selector
-            const items = editor.call('selector:items');
-            if (!items.length) return;
-
-            const paste = clipboard.value;
-            if (isValidClipboardObject(paste) && // should be valid paste object
-                paste.type === schemaType) { // the type of copied and candidate paths should match
-
-                // TODO
-                // verify if value is actually valid based on type
-
-                // store list of records and their values before modifying for history undo/redo
-                const records = [];
-
-                for (let i = 0; i < items.length; i++) {
-                    // create history records
-                    records.push({
-                        item: items[i],
-                        path: path,
-                        valueOld: items[i].get(path),
-                        valueNew: paste.value
-                    });
-
-                    // paste new value
-                    items[i].history.enabled = false;
-                    items[i].set(path, paste.value);
-                    items[i].history.enabled = true;
-
-                    // TODO
-                    // setting render-component asset does not update materials - bug in render component inspector
-                }
-
-                // custom undo/redo to support multi-selection
-                editor.api.globals.history.add({
-                    name: 'clipboard.paste',
-                    combine: false,
-                    undo: () => {
-                        for (let i = 0; i < records.length; i++) {
-                            const item = records[i].item.latest();
-                            if (!item) continue;
-                            item.history.enabled = false;
-                            item.set(records[i].path, records[i].valueOld);
-                            item.history.enabled = true;
-                        }
-                    },
-                    redo: () => {
-                        for (let i = 0; i < records.length; i++) {
-                            const item = records[i].item.latest();
-                            if (!item) continue;
-                            item.history.enabled = false;
-                            item.set(records[i].path, records[i].valueNew);
-                            item.history.enabled = true;
-                        }
-                    }
-                });
-            }
+            editor.call('clipboard:paste', path, schemaType);
         }
     });
 
@@ -218,6 +137,61 @@ editor.once('load', () => {
     });
 
 
+    // convert type string to more human-friendly version
+    editor.method('clipboard:typeToHuman', (type) => {
+        if (!type) return '';
+
+        if (type.startsWith('array:')) {
+            type = `${type.slice(6)}[]`;
+        }
+
+        return type;
+    });
+
+
+    // return current clipboard type
+    editor.method('clipboard:type', () => {
+        const paste = clipboard.value;
+        if (isValidClipboardObject(paste)) {
+            return paste.type;
+        }
+        return null;
+    });
+
+
+    // check if it is possible to copy value
+    editor.method('clipboard:validCopy', (path, type) => {
+        if (!path || !type) return false;
+
+        // selector should have type
+        const selectionType = editor.call('selector:type') ?? null;
+        if (!selectionType) return false;
+
+        // we should support that selection type
+        if (!objTypes.has(selectionType)) return false;
+
+        return true;
+    });
+
+
+    editor.method('clipboard:validPaste', (path, type) => {
+        if (!path || !type) return false;
+        if (type === 'label') return false;
+
+        // selector should have type
+        const selectionType = editor.call('selector:type') ?? null;
+        if (!selectionType) return false;
+
+        // we should support that selection type
+        if (!objTypes.has(selectionType)) return false;
+
+        const paste = clipboard.value;
+        if (!isValidClipboardObject(paste)) return false;
+
+        return paste.type === type;
+    });
+
+
     // method to open context menu
     editor.method('clipboard:contextmenu:open', (x: number, y: number, newPath: string, type: string, element: Element) => {
         // it might not have a path
@@ -237,7 +211,7 @@ editor.once('load', () => {
         // remember target path and value type
         path = newPath;
         schemaType = type;
-        menuItemCopyLabel.text = schemaTypeToHuman(schemaType);
+        menuItemCopyLabel.text = editor.call('clipboard:typeToHuman', schemaType);
 
         // highlight field
         elementHighlighted = element;
@@ -247,7 +221,7 @@ editor.once('load', () => {
         const paste = clipboard.value;
         if (isValidClipboardObject(paste)) {
             // if possible, update paste postfix
-            menuItemPasteLabel.text = schemaTypeToHuman(paste.type);
+            menuItemPasteLabel.text = editor.call('clipboard:typeToHuman', paste.type);
             menuItemPasteLabel.enabled = true;
         } else {
             menuItemPasteLabel.enabled = false;
@@ -257,4 +231,101 @@ editor.once('load', () => {
         menu.hidden = false;
         menu.position(x + 1, y);
     });
+
+    editor.method('clipboard:copy', (path, type) => {
+        if (!editor.call('clipboard:validCopy', path, type)) {
+            return false;
+        }
+
+        const items = editor.call('selector:items');
+        if (!items.length) return false;
+
+        clipboard.value = {
+            type: type,
+            value: items[0].get(path)
+        };
+
+        if (elementHighlighted) {
+            editor.call('clipboard:flashElement', elementHighlighted);
+        }
+
+        return true;
+    });
+
+    editor.method('clipboard:paste', (path, type) => {
+        if (!editor.call('clipboard:validPaste', path, type)) {
+            return false;
+        }
+
+        // should have at least one item in selector
+        const items = editor.call('selector:items');
+        if (!items.length) return false;
+
+        const paste = clipboard.value;
+
+        // TODO
+        // verify if value is actually valid based on type
+
+        // store list of records and their values before modifying for history undo/redo
+        const records = [];
+
+        for (let i = 0; i < items.length; i++) {
+            // create history records
+            records.push({
+                item: items[i],
+                path: path,
+                valueOld: items[i].get(path),
+                valueNew: paste.value
+            });
+
+            // paste new value
+            items[i].history.enabled = false;
+            items[i].set(path, paste.value);
+            items[i].history.enabled = true;
+
+            // TODO
+            // setting render-component asset does not update materials - bug in render component inspector
+        }
+
+        // custom undo/redo to support multi-selection
+        editor.api.globals.history.add({
+            name: 'clipboard.paste',
+            combine: false,
+            undo: () => {
+                for (let i = 0; i < records.length; i++) {
+                    const item = records[i].item.latest();
+                    if (!item) continue;
+                    item.history.enabled = false;
+                    item.set(records[i].path, records[i].valueOld);
+                    item.history.enabled = true;
+                }
+            },
+            redo: () => {
+                for (let i = 0; i < records.length; i++) {
+                    const item = records[i].item.latest();
+                    if (!item) continue;
+                    item.history.enabled = false;
+                    item.set(records[i].path, records[i].valueNew);
+                    item.history.enabled = true;
+                }
+            }
+        });
+
+        if (elementHighlighted) {
+            editor.call('clipboard:flashElement', elementHighlighted);
+        }
+
+        return true;
+    });
+
+    editor.method('clipboard:flashElement', (domElement: Element) => {
+        domElement.classList.add('pcui-highlight-flash');
+        setTimeout(() => {
+            domElement.classList.remove('pcui-highlight-flash');
+        }, 250);
+    });
 });
+
+// Edge Cases:
+// 1. entity.components.anim.stateGraphAsset - created without path, dynamically linked, when changed it changes slots under
+// 2. entity.components.render.materialAssets - is a fixed length array of asset ID's, the array length should not be changed, and is defined by a number of meshInstances on a render asset

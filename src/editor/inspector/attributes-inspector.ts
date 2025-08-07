@@ -1,7 +1,8 @@
-import { Element, Container, LabelGroup, Panel, ArrayInput, BindingTwoWay } from '@playcanvas/pcui';
+import { Element, Container, LabelGroup, Panel, Button, ArrayInput, BindingTwoWay } from '@playcanvas/pcui';
 
 import { AssetInput } from '../../common/pcui/element/element-asset-input.ts';
 import { tooltip, tooltipRefItem } from '../../common/tooltips.ts';
+import { LegacyTooltip } from '../../common/ui/tooltip.ts';
 import '../storage/clipboard-context-menu.ts';
 
 const isEnabledAttribute = ({ label, type }) => label === 'enabled' && type === 'boolean';
@@ -140,6 +141,13 @@ class AttributesInspector extends Container {
                     // if part of a label group, provide copying for the whole element
                     if (parent instanceof LabelGroup) target = parent;
 
+                    // modify type based on various rules
+                    let type = attr.type;
+                    if (type === 'select') type = attr.args.type;
+                    if (type === 'assets') type = 'array:asset';
+                    if (type === 'slider') type = 'number';
+                    if ((type === 'asset' || type === 'array:asset') && attr.args?.assetType) type += `:${attr.args.assetType}`;
+
                     // try to bring context menu
                     const onContextMenu = (evt) => {
                         // do not interfere with inputs and buttons
@@ -153,29 +161,94 @@ class AttributesInspector extends Container {
                         evt.stopPropagation();
                         evt.preventDefault();
 
-                        // modify type based on various rules
-                        let type = attr.type;
-                        if (type === 'select') type = attr.args.type;
-                        if (type === 'tags') type = `array:${attr.args.type}`;
-                        if (type === 'assets') type = 'array:asset';
-                        if (type === 'slider') type = 'number';
-                        if ((type === 'asset' || type === 'array:asset') && attr.args?.assetType) type += `:${attr.args.assetType}`;
-
                         // call context menu
                         editor.call('clipboard:contextmenu:open', evt.clientX + 1, evt.clientY, attr.path, type, target.dom);
                     };
 
-                    const element = target.dom;
-
+                    let element = target.dom;
                     element.addEventListener('contextmenu', onContextMenu);
 
                     // clean up on field destroy
                     field.once('destroy', () => {
                         element.removeEventListener('contextmenu', onContextMenu);
+                        element = null;
                     });
 
-                    // TODO
-                    // add copy/paste icons after labels
+                    if (((target instanceof LabelGroup) || (target instanceof AssetInput)) && type !== 'label') {
+                        target.label.dom.style.position = 'relative';
+
+                        // paste button
+                        const btnPaste = new Button({
+                            icon: 'E353',
+                            class: 'pcui-clipboard-button'
+                        });
+                        btnPaste.enabled = false;
+                        target.label.dom.appendChild(btnPaste.dom);
+
+                        btnPaste.on('click', () => {
+                            const pasted = editor.call('clipboard:paste', attr.path, type);
+                            if (pasted) editor.call('clipboard:flashElement', target.dom);
+                        });
+
+                        // copy button
+                        const btnCopy = new Button({
+                            // icon: 'E351',
+                            icon: 'E126',
+                            class: ['pcui-clipboard-button', 'pcui-clipboard-button-copy']
+                        });
+                        btnCopy.enabled = false;
+                        target.label.dom.appendChild(btnCopy.dom);
+
+                        // when copy button clicked
+                        btnCopy.on('click', () => {
+                            const copied = editor.call('clipboard:copy', attr.path, type);
+                            if (!copied) {
+                                btnCopy.enabled = false;
+                                btnPaste.enabled = false;
+                            } else {
+                                // toggle paste button
+                                btnPaste.enabled = editor.call('clipboard:validPaste', attr.path, type);
+                                editor.call('clipboard:flashElement', target.dom);
+                            }
+                        });
+
+                        // tooltip on hover for copy
+                        const tooltipCopy = LegacyTooltip.attach({
+                            target: btnCopy.dom,
+                            text: 'Copy',
+                            align: 'bottom',
+                            root: editor.call('layout.root')
+                        });
+
+                        // tooltip on hover for paste
+                        const tooltipPaste = LegacyTooltip.attach({
+                            target: btnPaste.dom,
+                            text: 'Paste',
+                            align: 'bottom',
+                            root: editor.call('layout.root')
+                        });
+
+                        // enabled/disable buttons when hovering on field
+                        target.on('hover', () => {
+                            const canCopy = editor.call('clipboard:validCopy', attr.path, type);
+                            if (!canCopy) {
+                                btnCopy.hidden = true;
+                                btnPaste.hidden = true;
+                            } else {
+                                btnCopy.hidden = false;
+                                btnPaste.hidden = false;
+                                btnCopy.enabled = true;
+                                btnPaste.enabled = editor.call('clipboard:validPaste', attr.path, type);
+
+                                const humanReadableType = editor.call('clipboard:typeToHuman', type);
+                                tooltipCopy.text = `Copy ${humanReadableType}`;
+
+                                const clipboardType = editor.call('clipboard:typeToHuman', editor.call('clipboard:type'));
+                                tooltipPaste.text = `Paste${clipboardType ? ` ${clipboardType}` : ''}`;
+                                tooltipPaste.innerElement.classList.toggle('pcui-tooltip-disabled', !btnPaste.enabled);
+                            }
+                        });
+                    }
 
                     // TODO
                     // extra rule for array of assets, to copy individual assets within the group
@@ -183,11 +256,13 @@ class AttributesInspector extends Container {
             } else if (attr.type && attr.path && !this._clipboardTypes.has(attr.type)) {
                 // TODO
                 // make sure as many types are supported
-                // console.log(attr.type, attr.path, attr);
+                console.log(1, attr.type, attr.path, attr);
             } else if (attr.type && attr.paths) {
                 // TODO
                 // implement copy-paste for multi-path fields
-                // console.log(attr.type, attr.paths, attr);
+                console.log(2, attr.type, attr.paths, attr);
+            } else {
+                console.log(3, attr);
             }
         }
 

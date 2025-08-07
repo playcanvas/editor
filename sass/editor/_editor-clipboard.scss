@@ -23,3 +23,81 @@
     z-index: 1;
     pointer-events: none;
 }
+
+.pcui-element.pcui-highlight-flash::before {
+    content: '\00a0';
+    position: absolute;
+    inset: -4px;
+    border: 1px dotted #07f;
+    z-index: 1;
+    pointer-events: none;
+    animation: pcui-clipboard-flash-animation 200ms ease-in-out forwards;
+}
+
+@keyframes pcui-clipboard-flash-animation {
+    from { border-color: #07f; }
+    to { border-color: rgba(0 128 255 0%); }
+}
+
+.pcui-label-group,
+.pcui-asset-input {
+    &:hover {
+        > .pcui-label > .pcui-clipboard-button {
+            display: block;
+
+            &.pcui-hidden {
+                display: none;
+            }
+        }
+    }
+}
+
+.pcui-label {
+    &:hover {
+        > .pcui-clipboard-button {
+            display: block;
+
+            &.pcui-hidden {
+                display: none;
+            }
+        }
+    }
+
+    > .pcui-clipboard-button {
+        display: none;
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 16px;
+        height: 16px;
+        line-height: 16px;
+        margin: 0;
+        padding: 0;
+        text-align: center;
+        border: 0;
+        background-color: transparent;
+
+        &::before {
+            display: inline-block;
+            line-height: 16px;
+        }
+
+        &:hover,
+        &:focus {
+            box-shadow: none;
+            background-color: transparent;
+        }
+
+        &.pcui-clipboard-button-copy {
+            right: 16px;
+        }
+
+        &.pcui-hidden {
+            display: none;
+        }
+    }
+}
+
+.ui-tooltip > .inner.pcui-tooltip-disabled {
+    color: #777;
+}

@@ -163,7 +163,7 @@ editor.once('load', () => {
             onIsEnabled: function () {
                 if (items.length <= 1) {
                     const clipboard = editor.call('clipboard:get');
-                    if (clipboard && clipboard.type === 'entity') {
+                    if (clipboard && clipboard.type === 'entity' && clipboard.branch && clipboard.scene && clipboard.hierarchy) {
                         return true;
                     }
                 }

@@ -627,7 +627,7 @@ editor.once('load', () => {
                 menuItemPaste.disabled = true;
             } else {
                 const clipboard = editor.call('clipboard:get');
-                menuItemPaste.disabled = !clipboard || clipboard.type !== 'asset';
+                menuItemPaste.disabled = !clipboard || clipboard.type !== 'asset' || !clipboard.branchId || !clipboard.projectId;
             }
 
             menuItemCopy.disabled = !currentAsset;
