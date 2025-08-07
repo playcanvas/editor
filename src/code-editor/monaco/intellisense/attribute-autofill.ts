@@ -271,7 +271,13 @@ const buildActions = (model, context) => {
         // Process any provided fixes for the marker
         const markersWithFixes = modelMarkersWithFixes.get(model);
         if (markersWithFixes) {
-            const error = markersWithFixes.find(({ message }) => message === marker.message);
+            // Match by position instead of message for more reliable matching
+            const error = markersWithFixes.find(error => (
+                error.startLineNumber === marker.startLineNumber &&
+                error.startColumn === marker.startColumn &&
+                error.endLineNumber === marker.endLineNumber &&
+                error.endColumn === marker.endColumn));
+
             if (error?.fix) {
                 actions.push(buildFixAction(model, marker, error.fix));
             }
