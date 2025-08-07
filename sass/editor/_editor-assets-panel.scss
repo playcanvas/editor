@@ -348,13 +348,18 @@
     > .pcui-panel-content {
         height: 100%;
 
-        > .pcui-asset-panel-folders {
+        > .pcui-asset-panel-left {
             flex-shrink: 0;
             max-width: 100%;
+            height: 100%;
             border-top: 1px solid $border-primary;
 
-            .pcui-treeview-item-icon::after {
-                content: '\E139';
+            > .pcui-asset-panel-folders {
+                height: 100%;
+
+                .pcui-treeview-item-icon::after {
+                    content: '\E139';
+                }
             }
 
             // this is to prevent flashing when we drag assets
