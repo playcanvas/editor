@@ -22,19 +22,17 @@ import { WorkerClient } from '../../../core/worker/worker-client.ts';
 /**
  * @typedef {object} ParseAttribute
  * @property {boolean} isAttribute - Whether the attribute is an attribute
- * @property {object} start - The start position
+ * @property {string} name - The member name
+ * @property {string} type - The attribute type (e.g., 'number', 'string')
+ * @property {object} start - The start position (JSDoc start if exists, otherwise member position)
  * @property {number} start.line - The start line number
  * @property {number} start.column - The start column number
- * @property {object} end - The end position
+ * @property {object} end - The end position (JSDoc end if exists, otherwise member position)
  * @property {number} end.line - The end line number
  * @property {number} end.column - The end column number
  */
 
 const OWNER = 'attribute-autofill';
-const CHAR_LIMIT = 1e6;
-const ERROR_LIMIT = 1000;
-const ATTRIBUTE_LIMIT = 1000;
-const modelMarkersWithFixes = new Map();
 
 /**
  * @param {string} url - The engine URL
@@ -45,6 +43,127 @@ const fetchTypes = async (url) => {
     const res = await fetch(typesURL);
     return await res.text();
 };
+
+/**
+ * The null edit provider is used to return empty lenses when the editor is busy
+ * @type {Monaco.languages.CodeLensProvider}
+ */
+const NULL_EDIT_PROVIDER = {
+    lenses: [],
+    dispose: () => {}
+};
+
+/**
+ * JSDoc manipulation utilities
+ */
+class JSDocUtils {
+    static ATTRIBUTE_TAGS = [
+        '@attribute',
+        '@range',
+        '@precision',
+        '@step',
+        '@resource',
+        '@curves',
+        '@placeholder',
+        '@size',
+        '@enabledif',
+        '@visibleif',
+        '@color'
+    ];
+
+    /**
+     * Check if JSDoc block exists and if it's single-line
+     * @param {ParseAttribute} attribute - The attribute object with JSDoc positioning
+     * @returns {{ hasJSDoc: boolean, isSingleLine: boolean }} - The JSDoc analysis result
+     */
+    static analyzeJSDoc(attribute) {
+        // If start == end (same position), no JSDoc exists
+        const hasJSDoc = !(attribute.start.line === attribute.end.line && attribute.start.column === attribute.end.column);
+        // If JSDoc exists and spans only one line, it's single-line
+        const isSingleLine = hasJSDoc && attribute.start.line === attribute.end.line - 1;
+        return { hasJSDoc, isSingleLine };
+    }
+
+    /**
+     * Get indentation from a line
+     * @param {string} line - The line to get the indentation from
+     * @returns {string} - The indentation
+     */
+    static getIndent(line) {
+        return line.match(/^(\s*)/)?.[0] || '';
+    }
+
+    /**
+     * Create JSDoc block with specified tags
+     * @param {string} indent - The indentation to use
+     * @param {string[]} tags - The tags to add to the JSDoc block
+     * @returns {string} - The JSDoc block
+     */
+    static createJSDoc(indent, tags) {
+        const tagLines = tags.map(tag => `${indent} * ${tag}`).join('\n');
+        return `${indent}/**\n${tagLines}\n${indent} */\n`;
+    }
+
+    /**
+     * Remove attribute tags from single-line JSDoc
+     * @param {string} content - The content to clean
+     * @returns {string} - The cleaned content
+     */
+    static cleanSingleLineJSDoc(content) {
+        let cleaned = content;
+        JSDocUtils.ATTRIBUTE_TAGS.forEach((tag) => {
+            cleaned = cleaned.replace(new RegExp(`\\s*\\*?\\s*${tag.replace('@', '@')}\\s*`, 'g'), '');
+        });
+        return cleaned;
+    }
+
+    /**
+     * Find lines containing attribute tags
+     * @param {string[]} lines - The lines to search
+     * @param {number} startLine - The start line number
+     * @param {number} endLine - The end line number
+     * @returns {number[]} - The lines containing attribute tags
+     */
+    static findAttributeLines(lines, startLine, endLine) {
+        const linesToRemove = [];
+        for (let i = startLine - 1; i < endLine; i++) {
+            const line = lines[i];
+            const hasAttributeTag = JSDocUtils.ATTRIBUTE_TAGS.some(tag => line.includes(tag));
+            if (hasAttributeTag) {
+                linesToRemove.push(i + 1);
+            }
+        }
+        return linesToRemove;
+    }
+
+    /**
+     * Check if a specific tag exists in the JSDoc block
+     * @param {Monaco.editor.ITextModel} model - The text model
+     * @param {number} startLine - The start line of the JSDoc block
+     * @param {number} endLine - The end line of the JSDoc block
+     * @param {string} tag - The tag to check for (e.g., '@range', '@attribute')
+     * @returns {boolean} - Whether the tag exists in the JSDoc block
+     */
+    static hasTagInJSDoc(model, startLine, endLine, tag) {
+        const lines = model.getLinesContent();
+        for (let i = startLine - 1; i < endLine; i++) {
+            const line = lines[i];
+            if (line.includes(tag)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Apply multiple edits in reverse order to maintain line numbers
+     * @param {Monaco.editor.ITextModel} model - The text model
+     * @param {Monaco.editor.IEditorEdit[]} edits - The edits to apply
+     */
+    static applyEditsReverse(model, edits) {
+        edits.reverse().forEach(edit => model.applyEdits([edit]));
+    }
+}
 
 /**
  * Fetches all ESM scripts
@@ -105,283 +224,152 @@ const fetchModuleScripts = async (cache, filter = []) => {
 };
 
 /**
- * Creates a JSDoc attribute from the tags
- *
- * @param {Record<string, string>} tags - Object with attribute properties
- * @returns {string} JSDoc attribute
+ * Generic function to modify JSDoc attributes
+ * @param {Monaco.editor.ITextModel} model - The text model
+ * @param {number} lineNumber - The line number of the member
+ * @param {string} memberName - The name of the member
+ * @param {ParseAttribute} attribute - The attribute object with JSDoc positioning
+ * @param {string} action - The action to perform
  */
-const buildJSDoc = (tags) => {
-    return [
-        '/**',
-        ' * @attribute',
-        ...Object.keys(tags).map(key => ` * @${key} ${tags[key]}`),
-        ' */'
-    ].join('\n');
-};
+const modifyJSDocAttribute = (model, lineNumber, memberName, attribute, action) => {
+    const lines = model.getLinesContent();
+    const { hasJSDoc, isSingleLine } = JSDocUtils.analyzeJSDoc(attribute);
 
-/**
- * Builds an attribute marker from the attribute object
- *
- * @param {ParseAttribute} attribute - The attribute object
- * @returns {Monaco.editor.IMarkerData} - The attribute marker
- */
-const buildAttributeMarker = (attribute) => {
-    return {
-        severity: monaco.MarkerSeverity.Hint,
-        message: attribute.isAttribute ? 'Property can be reverted from @attribute' : 'Property can be converted to @attribute',
-        startLineNumber: attribute.start.line,
-        startColumn: attribute.start.column,
-        endLineNumber: attribute.end.line,
-        endColumn: attribute.end.column,
-        source: JSON.stringify(attribute)
-    };
-};
+    if (hasJSDoc) {
+        const jsDocStartLine = attribute.start.line;
+        const jsDocEndLine = attribute.end.line;
+        const startLineContent = lines[jsDocStartLine - 1];
+        const indent = JSDocUtils.getIndent(startLineContent);
 
-/**
- * Generates Monaco markers from the attributes and errors
- *
- * @param {string} path - The file path
- * @param {Record<string, ParseAttribute[]>} attributes - The attributes
- * @param {ParseError[]} errors - The errors
- * @returns {Monaco.editor.IMarkerData[] | undefined} - The markers
- */
-const buildMarkers = (path, attributes, errors) => {
-    const markers = [];
-    if (errors.length) {
-        if (errors.length > ERROR_LIMIT) {
-            console.warn('Too many errors for semantic analysis');
-            return;
+        if (action === 'remove') {
+            JSDocActions.remove(model, lines, jsDocStartLine, jsDocEndLine, isSingleLine);
+        } else {
+            JSDocActions.add(model, jsDocStartLine, jsDocEndLine, startLineContent, indent, isSingleLine, action);
         }
-        errors.forEach((error) => {
-            if (error.file !== path) {
-                return;
-            }
-            markers.push(error);
-        });
     } else {
-        for (const className in attributes) {
-            const data = attributes[className];
-            if (data.length > ATTRIBUTE_LIMIT) {
-                console.warn('Too many attributes for', className);
-                continue;
+        // No JSDoc block - create new one
+        const memberLine = lines[lineNumber - 1];
+        const indent = JSDocUtils.getIndent(memberLine);
+        const tags = action === 'addSlider' ? ['@attribute', '@range [0, 100]'] : ['@attribute'];
+        const jsDoc = JSDocUtils.createJSDoc(indent, tags);
+
+        model.applyEdits([{
+            range: {
+                startLineNumber: lineNumber,
+                startColumn: 1,
+                endLineNumber: lineNumber,
+                endColumn: 1
+            },
+            text: jsDoc
+        }]);
+    }
+};
+
+/**
+ * Specific JSDoc actions
+ */
+const JSDocActions = {
+    remove(model, lines, startLine, endLine, isSingleLine) {
+        if (isSingleLine) {
+            const lineContent = lines[startLine - 1];
+            const newContent = JSDocUtils.cleanSingleLineJSDoc(lineContent);
+
+            if (newContent !== lineContent) {
+                model.applyEdits([{
+                    range: {
+                        startLineNumber: startLine,
+                        startColumn: 1,
+                        endLineNumber: startLine,
+                        endColumn: lineContent.length + 1
+                    },
+                    text: newContent
+                }]);
             }
-            for (const attribute of data) {
-                markers.push(buildAttributeMarker(attribute));
+        } else {
+            const linesToRemove = JSDocUtils.findAttributeLines(lines, startLine, endLine);
+            const edits = linesToRemove.map(lineNumber => ({
+                range: {
+                    startLineNumber: lineNumber,
+                    startColumn: 1,
+                    endLineNumber: lineNumber + 1,
+                    endColumn: 1
+                },
+                text: ''
+            }));
+            JSDocUtils.applyEditsReverse(model, edits);
+        }
+    },
+
+    add(model, startLine, endLine, startLineContent, indent, isSingleLine, action) {
+        if (isSingleLine) {
+            const tags = action === 'addSlider' ? ['@attribute', '@range [0, 100]'] : ['@attribute'];
+            const newJsDoc = JSDocUtils.createJSDoc(indent, tags).slice(0, -1); // Remove trailing newline
+
+            model.applyEdits([{
+                range: {
+                    startLineNumber: startLine,
+                    startColumn: 1,
+                    endLineNumber: startLine,
+                    endColumn: startLineContent.length + 1
+                },
+                text: newJsDoc
+            }]);
+        } else {
+            const insertLine = startLine + 1;
+            let tagsToAdd;
+
+            if (action === 'addSlider') {
+                // Check if @range already exists using the utility function
+                const hasRangeTag = JSDocUtils.hasTagInJSDoc(model, startLine, endLine, '@range');
+                tagsToAdd = hasRangeTag ? `${indent} * @attribute\n` : `${indent} * @attribute\n${indent} * @range [0, 100]\n`;
+            } else {
+                tagsToAdd = `${indent} * @attribute\n`;
             }
+
+            model.applyEdits([{
+                range: {
+                    startLineNumber: insertLine,
+                    startColumn: 1,
+                    endLineNumber: insertLine,
+                    endColumn: 1
+                },
+                text: tagsToAdd
+            }]);
         }
     }
-    return markers;
 };
 
 /**
- * Builds a create action for the given model, marker and name
- *
- * @param {Monaco.editor.ITextModel} model - The model
- * @param {Monaco.editor.IMarkerData} marker - The marker
- * @param {string} name - The attribute name
- * @returns {Monaco.languages.CodeAction} - The action
+ * Add @attribute tag to a member using JSDoc position information
+ * @param {Monaco.editor.ITextModel} model - The text model
+ * @param {number} lineNumber - The line number of the member
+ * @param {string} memberName - The name of the member
+ * @param {ParseAttribute} attribute - The attribute object with JSDoc positioning
  */
-const buildCreateAction = (model, marker, name) => {
-    // pad the snippet with the line content
-    const br = `\n${' '.repeat(marker.startColumn - 1)}`;
-    const word = model.getWordAtPosition({
-        lineNumber: marker.startLineNumber,
-        column: marker.startColumn
-    });
-    const text = `${ATTRIBUTE_SNIPPETS[name].split('\n').join(br)}${br}${word?.word ?? ''}`;
-
-    return {
-        title: `Create ${name} @attribute`,
-        kind: 'quickfix',
-        edit: {
-            edits: [{
-                resource: model.uri,
-                textEdit: {
-                    range: marker,
-                    text: text
-                },
-                versionId: model.getVersionId()
-            }]
-        }
-    };
+const addAttributeToMember = (model, lineNumber, memberName, attribute = null) => {
+    modifyJSDocAttribute(model, lineNumber, memberName, attribute, 'add');
 };
 
 /**
- * Builds a remove action for the given model, marker and name
- *
- * @param {Monaco.editor.ITextModel} model - The model
- * @param {Monaco.editor.IMarkerData} marker - The marker
- * @param {string} name - The attribute name
- * @returns {Monaco.languages.CodeAction} - The action
+ * Add `@attribute` and `@range` tags to a member for slider functionality
+ * @param {Monaco.editor.ITextModel} model - The text model
+ * @param {number} lineNumber - The line number of the member
+ * @param {string} memberName - The name of the member
+ * @param {ParseAttribute} attribute - The attribute object with JSDoc positioning
  */
-const buildRemoveAction = (model, marker, name) => {
-    return {
-        title: 'Remove @attribute',
-        kind: 'quickfix',
-        edit: {
-            edits: [{
-                resource: model.uri,
-                textEdit: {
-                    range: marker,
-                    text: name
-                },
-                versionId: model.getVersionId()
-            }]
-        }
-    };
+const addSliderAttributeToMember = (model, lineNumber, memberName, attribute = null) => {
+    modifyJSDocAttribute(model, lineNumber, memberName, attribute, 'addSlider');
 };
 
 /**
- * Builds a fix action for the given model and fix
- *
- * @param {Monaco.editor.ITextModel} model - The model
- * @param {Monaco.editor.IMarkerData} marker - The marker
- * @param {Fix} fix - The fix
- * @returns {Monaco.languages.CodeAction} - The action
+ * Remove `@attribute` tag from a member using JSDoc position information
+ * @param {Monaco.editor.ITextModel} model - The text model
+ * @param {number} lineNumber - The line number of the member
+ * @param {string} memberName - The name of the member
+ * @param {ParseAttribute} attribute - The attribute object with JSDoc positioning
  */
-const buildFixAction = (model, marker, fix) => {
-    return {
-        title: fix.title ?? 'Fix',
-        diagnostics: [marker],
-        kind: 'quickfix',
-        isPreferred: true,
-        edit: {
-            edits: [{
-                resource: model.uri,
-                textEdit: fix
-            }]
-        }
-    };
-};
-
-/**
- * Build actions for the given model and context
- *
- * @param {Monaco.editor.ITextModel} model - The model
- * @param {Monaco.languages.CodeActionContext} context - The context
- * @returns {Monaco.languages.CodeAction[]} - The actions
- */
-const buildActions = (model, context) => {
-    const actions = [];
-    context.markers.forEach((/** @type {Monaco.editor.IMarker} */ marker) => {
-        if (marker.owner !== OWNER) {
-            return;
-        }
-
-        // Process any provided fixes for the marker
-        const markersWithFixes = modelMarkersWithFixes.get(model);
-        if (markersWithFixes) {
-            // Match by position instead of message for more reliable matching
-            const error = markersWithFixes.find(error => (
-                error.startLineNumber === marker.startLineNumber &&
-                error.startColumn === marker.startColumn &&
-                error.endLineNumber === marker.endLineNumber &&
-                error.endColumn === marker.endColumn));
-
-            if (error?.fix) {
-                actions.push(buildFixAction(model, marker, error.fix));
-            }
-        }
-
-        // only consider hint markers
-        if (marker.severity !== monaco.MarkerSeverity.Hint) {
-            return;
-        }
-
-        // silently ignore invalid source
-        let data = null;
-        try {
-            data = JSON.parse(marker.source);
-        } catch (e) {
-            return;
-        }
-
-        // check if the attribute is already an attribute
-        if (data.isAttribute) {
-            actions.push(buildRemoveAction(model, marker, data.name));
-            return;
-        }
-
-        // check if the attribute is a known type
-        for (const name in ATTRIBUTE_SNIPPETS) {
-            if (data.type === 'any') {
-                actions.push(buildCreateAction(model, marker, name));
-                continue;
-            }
-
-            if (data.type === 'boolean' && name === 'checkbox') {
-                actions.push(buildCreateAction(model, marker, name));
-                continue;
-            }
-
-            if (data.type === 'number' && (name === 'slider' || name === 'numeric')) {
-                actions.push(buildCreateAction(model, marker, name));
-                continue;
-            }
-
-            if (data.type === 'string' && name === 'text') {
-                actions.push(buildCreateAction(model, marker, name));
-                continue;
-            }
-
-            if (data.type === name) {
-                actions.push(buildCreateAction(model, marker, name));
-            }
-        }
-    });
-
-    return actions;
-};
-
-const ATTRIBUTE_SNIPPETS = {
-    checkbox: buildJSDoc({
-        type: '{boolean}'
-    }),
-
-    numeric: buildJSDoc({
-        type: '{number}'
-    }),
-
-    slider: buildJSDoc({
-        type: '{number}',
-        range: '[0.1, 1]',
-        precision: '2',
-        step: '0.01'
-    }),
-
-    text: buildJSDoc({
-        type: '{string}',
-        placeholder: 'Enter text'
-    }),
-
-    Asset: buildJSDoc({
-        type: '{pc.Asset}'
-    }),
-
-    Color: buildJSDoc({
-        type: '{pc.Color}'
-    }),
-
-    Curve: buildJSDoc({
-        type: '{pc.Curve}',
-        color: 'rgb'
-    }),
-
-    Entity: buildJSDoc({
-        type: '{pc.Entity}'
-    }),
-
-    Vec2: buildJSDoc({
-        type: '{pc.Vec2}'
-    }),
-
-    Vec3: buildJSDoc({
-        type: '{pc.Vec3}'
-    }),
-
-    Vec4: buildJSDoc({
-        type: '{pc.Vec4}'
-    })
+const removeAttributeFromMember = (model, lineNumber, memberName, attribute = null) => {
+    modifyJSDocAttribute(model, lineNumber, memberName, attribute, 'remove');
 };
 
 editor.once('load', () => {
@@ -397,6 +385,8 @@ editor.once('load', () => {
 
         // model dirty flags
         const modelDirtyFlags = new Map();
+        // model timeout storage
+        const modelTimeouts = new Map();
 
         // attribute sequence number
         let asn = 0;
@@ -418,26 +408,37 @@ editor.once('load', () => {
                 return;
             }
 
-            // collect markers from response
-            const markers = buildMarkers(url.path, attributes, errors);
-            if (!markers) {
-                return;
+            // Store attributes for code lens provider
+            modelAttributes.set(model, attributes);
+
+            // Set busy to false so code lens provider can work
+            busy = false;
+
+            // Handle errors only (no markers for attributes since we use code lenses)
+            if (errors && errors.length > 0) {
+                const errorMarkers = errors.map(error => ({
+                    severity: monaco.MarkerSeverity.Error,
+                    message: error.message,
+                    startLineNumber: error.startLineNumber || 1,
+                    startColumn: error.startColumn || 1,
+                    endLineNumber: error.endLineNumber || 1,
+                    endColumn: error.endColumn || 1
+                }));
+                monaco.editor.setModelMarkers(model, OWNER, errorMarkers);
+            } else {
+                // Clear any existing markers
+                monaco.editor.setModelMarkers(model, OWNER, []);
             }
 
-            monaco.editor.setModelMarkers(model, OWNER, markers);
-
-            // Store a global Map of markers for the model to any errors that have a fix
-            const markersWithFixes = markers.filter(marker => marker.fix);
-            if (markersWithFixes.length > 0) {
-                modelMarkersWithFixes.set(model, markersWithFixes);
-
-                // Listen for model disposal to clean up the Map entry
+            // Listen for model disposal to clean up attributes
+            if (!modelDirtyFlags.has(model)) {
                 model.onWillDispose(() => {
-                    modelMarkersWithFixes.delete(model);
+                    modelAttributes.delete(model);
                 });
             }
 
-            busy = false;
+            // Fire code lens change event to refresh code lenses{
+            codeLensChangeEmitter.fire(null);
         });
 
         /**
@@ -454,11 +455,6 @@ editor.once('load', () => {
             const uri = model.uri.toString();
             const value = model.getValue();
 
-            if (value.length > CHAR_LIMIT) {
-                console.warn('Too many characters for semantic analysis');
-                return;
-            }
-
             // fetch scripts
             const asset = editor.call('view:asset', model.id);
             const path = editor.call('assets:virtualPath', asset);
@@ -471,19 +467,137 @@ editor.once('load', () => {
             busy = true;
         };
 
-        // register code action provider
-        monaco.languages.registerCodeActionProvider('javascript', {
-            provideCodeActions: (model, _range, context, _token) => {
-                return {
-                    actions: busy ? [] : buildActions(model, context),
-                    dispose: async () => {
-                        // check if the model has been modified
-                        if (modelDirtyFlags.get(model)) {
-                            modelDirtyFlags.set(model, false);
-                            await fetchAttributes(model);
+        // Store parsed attributes for code lens
+        const modelAttributes = new Map();
+
+        // Create an event emitter for code lens changes
+        const codeLensChangeEmitter = new monaco.Emitter();
+
+        // register code lens provider
+        monaco.languages.registerCodeLensProvider('javascript', {
+            // @ts-ignore - Monaco types are overly strict about IEvent<CodeLensProvider>
+            onDidChange: codeLensChangeEmitter.event,
+            provideCodeLenses: (model, _token) => {
+
+                if (busy) {
+                    // Returning empty lenses due to busy flag;
+                    return NULL_EDIT_PROVIDER;
+                }
+
+                const lenses = [];
+                const attributes = modelAttributes.get(model);
+
+                if (!attributes) {
+                    // No attributes found for model, returning empty lenses
+                    return NULL_EDIT_PROVIDER;
+                }
+
+                // Process all parsed attributes
+                for (const className in attributes) {
+                    const classAttributes = attributes[className];
+
+                    for (const attribute of classAttributes) {
+                        // Assume we have the correct attribute data from the worker
+                        const memberName = attribute.name || `member_line_${attribute.start.line}`;
+
+                        // Skip private members if the attribute has a name property
+                        if (memberName.startsWith('#') || memberName.startsWith('_')) {
+                            continue;
+                        }
+
+                        // Use the worker-provided positioning for code lens placement
+                        const lensLine = attribute.start.line;
+
+                        const lens = {
+                            range: {
+                                startLineNumber: lensLine,
+                                startColumn: 1,
+                                endLineNumber: lensLine,
+                                endColumn: 1
+                            },
+                            id: `attribute-${attribute.start.line}`,
+                            command: {
+                                id: attribute.isAttribute ? 'removeAttribute' : 'makeAttribute',
+                                title: attribute.isAttribute ? 'Remove Attribute' : 'Make Attribute',
+                                arguments: [model.uri, attribute.start.line, memberName, attribute]
+                            }
+                        };
+
+                        lenses.push(lens);
+
+                        // Add "Make Slider Attribute" lens for number types (only if not already an attribute)
+                        if (!attribute.isAttribute && attribute.type === 'number') {
+                            const sliderLens = {
+                                range: {
+                                    startLineNumber: lensLine,
+                                    startColumn: 1,
+                                    endLineNumber: lensLine,
+                                    endColumn: 1
+                                },
+                                id: `slider-attribute-${attribute.start.line}`,
+                                command: {
+                                    id: 'makeSliderAttribute',
+                                    title: 'Make Slider Attribute',
+                                    arguments: [model.uri, attribute.start.line, memberName, attribute]
+                                }
+                            };
+                            lenses.push(sliderLens);
                         }
                     }
+                }
+
+                return {
+                    lenses,
+                    dispose: () => {}
                 };
+            }
+        });
+
+        // monaco.languages.registerCodeLensProvider('javascript', codeLensProvider);
+
+        // Register commands for the code lens actions
+        monaco.editor.registerCommand('makeAttribute', async (accessor, uri, lineNumber, memberName, attribute) => {
+            const model = monaco.editor.getModel(uri);
+            if (model) {
+                // Found model, calling addAttributeToMember
+                addAttributeToMember(model, lineNumber, memberName, attribute);
+
+                // Force immediate re-fetch of attributes to update code lens positions
+                modelDirtyFlags.set(model, true);
+                clearTimeout(modelTimeouts.get(model));
+                await fetchAttributes(model);
+                modelDirtyFlags.set(model, false);
+
+                // Fire the code lens change event to trigger refresh
+                codeLensChangeEmitter.fire(null);
+            }
+        });
+
+        monaco.editor.registerCommand('removeAttribute', async (accessor, uri, lineNumber, memberName, attribute) => {
+            const model = monaco.editor.getModel(uri);
+            if (model) {
+                // Found model, calling removeAttributeFromMember
+                removeAttributeFromMember(model, lineNumber, memberName, attribute);
+
+                // Force immediate re-fetch of attributes to update code lens positions
+                clearTimeout(modelTimeouts.get(model));
+                modelDirtyFlags.set(model, true);
+                await fetchAttributes(model);
+                modelDirtyFlags.set(model, false);
+            }
+        });
+
+        monaco.editor.registerCommand('makeSliderAttribute', async (accessor, uri, lineNumber, memberName, attribute) => {
+            const model = monaco.editor.getModel(uri);
+            if (model) {
+                // Found model, calling addSliderAttributeToMember
+                addSliderAttributeToMember(model, lineNumber, memberName, attribute);
+
+                // Force immediate re-fetch of attributes to update code lens positions;
+                modelDirtyFlags.set(model, true);
+                clearTimeout(modelTimeouts.get(model));
+                await fetchAttributes(model);
+                modelDirtyFlags.set(model, false);
             }
         });
 
@@ -517,10 +631,21 @@ editor.once('load', () => {
                 modelDirtyFlags.set(model, false);
                 model.onDidChangeContent(() => {
                     modelDirtyFlags.set(model, true);
+
+                    // Debounce the refetch to avoid too many requests
+                    clearTimeout(modelTimeouts.get(model));
+                    modelTimeouts.set(model, setTimeout(async () => {
+                        if (modelDirtyFlags.get(model)) {
+                            await fetchAttributes(model);
+                            modelDirtyFlags.set(model, false);
+                        }
+                    }, 1000));
                 });
 
                 // Listen for model disposal to clean up the dirty flag
                 model.onWillDispose(() => {
+                    clearTimeout(modelTimeouts.get(model));
+                    modelTimeouts.delete(model);
                     modelDirtyFlags.delete(model);
                 });
             }
