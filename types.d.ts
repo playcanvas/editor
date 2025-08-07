@@ -21,14 +21,14 @@ declare var metrics: {
 declare var monaco: typeof import('monaco-editor');
 
 // pc (loaded in HTML)
-declare var pc: any;
+declare var pc: typeof import('playcanvas');
 
 // pcui
 declare var pcui: typeof import('@playcanvas/pcui') &
     typeof import('./src/pcui/constants');
 
 // pcx (loaded in HTML)
-declare var pcx: any;
+declare var pcx: typeof import('playcanvas');
 
 // pcBootstrap (injected into HTML)
 declare var pcBootstrap: any;
