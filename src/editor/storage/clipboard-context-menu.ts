@@ -63,6 +63,14 @@ editor.once('load', () => {
     ]);
 
 
+    // list of exceptions
+    // if object type and path matches,
+    // copy/paste will not be provided for such field
+    const pathsExceptions = new Set([
+        'entity:components.render.materialAssets'
+    ]);
+
+
     // check if in clipboard we have a valid object
     const isValidClipboardObject = (value) => {
         return value &&
@@ -170,6 +178,9 @@ editor.once('load', () => {
 
         // we should support that selection type
         if (!objTypes.has(selectionType)) return false;
+
+        // respect exceptions
+        if (pathsExceptions.has(`${selectionType}:${path}`)) return false;
 
         return true;
     });
