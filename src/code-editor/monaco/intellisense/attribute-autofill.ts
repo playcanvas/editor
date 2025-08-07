@@ -463,7 +463,7 @@ editor.once('load', () => {
                 });
             }
 
-            // Fire code lens change event to refresh code lenses{
+            // Fire code lens change event to refresh code lenses
             codeLensChangeEmitter.fire(null);
         });
 
@@ -516,7 +516,6 @@ editor.once('load', () => {
                 const attributes = modelAttributes.get(model);
 
                 if (!attributes) {
-                    // No attributes found for model, returning empty lenses
                     return NULL_EDIT_PROVIDER;
                 }
 
