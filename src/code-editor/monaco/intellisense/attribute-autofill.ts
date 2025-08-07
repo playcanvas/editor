@@ -587,7 +587,6 @@ editor.once('load', () => {
         monaco.editor.registerCommand('makeAttribute', async (accessor, uri, lineNumber, memberName, attribute) => {
             const model = monaco.editor.getModel(uri);
             if (model) {
-                // Found model, calling addAttributeToMember
                 addAttributeToMember(model, lineNumber, memberName, attribute);
 
                 // Force immediate re-fetch of attributes to update code lens positions
@@ -617,7 +616,6 @@ editor.once('load', () => {
         monaco.editor.registerCommand('makeSliderAttribute', async (accessor, uri, lineNumber, memberName, attribute) => {
             const model = monaco.editor.getModel(uri);
             if (model) {
-                // Found model, calling addSliderAttributeToMember
                 addSliderAttributeToMember(model, lineNumber, memberName, attribute);
 
                 // Force immediate re-fetch of attributes to update code lens positions;
