@@ -135,7 +135,7 @@ class JSDocUtils {
     static cleanSingleLineJSDoc(content) {
         let cleaned = content;
         JSDocUtils.ATTRIBUTE_TAGS.forEach((tag) => {
-            cleaned = cleaned.replace(new RegExp(`\\s*\\*?\\s*${tag.replace('@', '@')}\\s*`, 'g'), '');
+            cleaned = cleaned.replace(new RegExp(`\\s*\\*?\\s*${tag}\\s*`, 'g'), '');
         });
         return cleaned;
     }
