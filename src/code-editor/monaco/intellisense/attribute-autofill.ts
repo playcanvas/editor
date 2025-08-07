@@ -553,7 +553,6 @@ editor.once('load', () => {
             }
         });
 
-        // monaco.languages.registerCodeLensProvider('javascript', codeLensProvider);
 
         // Register commands for the code lens actions
         monaco.editor.registerCommand('makeAttribute', async (accessor, uri, lineNumber, memberName, attribute) => {
