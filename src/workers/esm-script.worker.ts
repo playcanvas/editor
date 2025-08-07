@@ -2,6 +2,11 @@ import { JSDocParser } from '@playcanvas/attribute-parser';
 
 import { WorkerServer } from '../core/worker/worker-server.ts';
 
+const PLAYCANVAS_ATTRIBUTE_DOCS_URL = {
+    target: 'https://developer.playcanvas.com/user-manual/scripting/fundamentals/script-attributes/esm/#attribute-types';
+    value: 'Attribute Type Docs'
+}
+
 /**
  * @import { Fix } from '../code-editor/monaco/intellisense/attribute-autofill.ts'
  */
@@ -54,6 +59,12 @@ const toSerializableError = (error) => {
     // These can be classified as warnings as the attribute is still functionally valid.
     const severity = error.type.startsWith('Invalid Tag') ? 4 : 8;
 
+    // If the error is an Invalid Type, then we can also provide a link to the docs
+    if (error.type.startsWith('Invalid Type')) {
+        const documentationLink = `https://playcanvas.com/docs/api/pc.Attribute.html#${error.type.replace('Invalid Type: ', '').toLowerCase()}`;
+        error.code = `https://playcanvas.com/docs/api/pc.Attribute.html#${error.type.replace('Invalid Type: ', '').toLowerCase()}`;;
+    }
+
     return {
         name: error.node.symbol?.getEscapedName() || 'Unknown',
         type: error.type,
@@ -64,7 +75,8 @@ const toSerializableError = (error) => {
         startColumn: startLineChar.character + 1,
         endLineNumber: endLineChar.line + 1,
         endColumn: endLineChar.character + 1,
-        severity
+        severity,
+        code: error.type.startsWith('Invalid Type') ? PLAYCANVAS_ATTRIBUTE_DOCS_URL : null
     };
 };
 
