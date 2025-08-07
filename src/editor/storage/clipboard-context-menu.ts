@@ -63,6 +63,7 @@ editor.once('load', () => {
     ]);
 
 
+    // check if in clipboard we have a valid object
     const isValidClipboardObject = (value) => {
         return value &&
             (typeof value) === 'object' &&
@@ -174,6 +175,7 @@ editor.once('load', () => {
     });
 
 
+    // check if path and type are valid to be pasted in the current selection
     editor.method('clipboard:validPaste', (path, type) => {
         if (!path || !type) return false;
         if (type === 'label') return false;
@@ -232,6 +234,7 @@ editor.once('load', () => {
         menu.position(x + 1, y);
     });
 
+    // copy to clipoard value by path from current selection
     editor.method('clipboard:copy', (path, type) => {
         if (!editor.call('clipboard:validCopy', path, type)) {
             return false;
@@ -318,6 +321,7 @@ editor.once('load', () => {
         return true;
     });
 
+    // flash dom element when copied/pasted
     editor.method('clipboard:flashElement', (domElement: Element) => {
         domElement.classList.add('pcui-highlight-flash');
         setTimeout(() => {
@@ -329,3 +333,4 @@ editor.once('load', () => {
 // Edge Cases:
 // 1. entity.components.anim.stateGraphAsset - created without path, dynamically linked, when changed it changes slots under
 // 2. entity.components.render.materialAssets - is a fixed length array of asset ID's, the array length should not be changed, and is defined by a number of meshInstances on a render asset
+// 3. entity.components.particlesystem.%curves% - curvesets are more complex types, with multi-paths for fields

@@ -253,16 +253,9 @@ class AttributesInspector extends Container {
                     // TODO
                     // extra rule for array of assets, to copy individual assets within the group
                 });
-            } else if (attr.type && attr.path && !this._clipboardTypes.has(attr.type)) {
-                // TODO
-                // make sure as many types are supported
-                console.log(1, attr.type, attr.path, attr);
             } else if (attr.type && attr.paths) {
                 // TODO
                 // implement copy-paste for multi-path fields
-                console.log(2, attr.type, attr.paths, attr);
-            } else {
-                console.log(3, attr);
             }
         }
 
