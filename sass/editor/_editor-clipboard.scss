@@ -1,3 +1,5 @@
+$highlight-color: #07f;
+
 .pcui-contextmenu-clipboard {
     > .pcui-menu-items {
         > .pcui-menu-item {
@@ -19,7 +21,7 @@
     content: '\00a0';
     position: absolute;
     inset: -4px;
-    border: 1px dotted #07f;
+    border: 1px dotted $highlight-color;
     z-index: 1;
     pointer-events: none;
 }
@@ -28,15 +30,15 @@
     content: '\00a0';
     position: absolute;
     inset: -4px;
-    border: 1px dotted #07f;
+    border: 1px dotted $highlight-color;
     z-index: 1;
     pointer-events: none;
     animation: pcui-clipboard-flash-animation 200ms ease-in-out forwards;
 }
 
 @keyframes pcui-clipboard-flash-animation {
-    from { border-color: #07f; }
-    to { border-color: rgba(0 128 255 0%); }
+    from { border-color: $highlight-color; }
+    to { border-color: rgba($highlight-color, 0.0); }
 }
 
 .pcui-label-group,
