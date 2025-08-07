@@ -310,9 +310,7 @@ class ScriptInspector extends Panel {
 
                         // Add click handler
                         issueContainer.on('click', () => {
-                            editor.call('picker:codeeditor', this._asset, {
-                                markers: attrInvalid
-                            });
+                            editor.call('picker:codeeditor', this._asset);
                         });
 
                         container.append(issueContainer);
