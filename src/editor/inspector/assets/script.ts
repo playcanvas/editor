@@ -1,7 +1,7 @@
 import { Container, Label, Panel, Button } from '@playcanvas/pcui';
 
 import { CLASS_ERROR } from '../../../common/pcui/constants.ts';
-import { tooltip, tooltipSimpleItem } from '../../../common/tooltips.ts';
+import { tooltip } from '../../../common/tooltips.ts';
 
 const CLASS_ROOT = 'script-asset-inspector';
 const CLASS_ERROR_CONTAINER = `${CLASS_ROOT}-error-container`;
@@ -76,7 +76,7 @@ class ScriptAssetInspector extends Panel {
                 scriptData.attributesInvalid.filter(error => error.severity === 4) :
                 [];
 
-            const areSimpleErrors = scriptErrors.every(error => !error.severity);
+
             const errorAttributeNames = scriptErrors.map(error => error.name);
             const warningAttributeNames = scriptWarnings.map(warning => warning.name);
 
@@ -99,12 +99,12 @@ class ScriptAssetInspector extends Panel {
                         const fileName = error.fileName || this._asset.get('name') || 'unknown';
                         const location = `${fileName}:${error.startLineNumber}:${error.startColumn}`;
                         const firstSentence = error.message.split('.')[0];
-                        
+
                         const errorText = new Label({
                             class: [CLASS_ERROR, 'clickable-error'],
                             text: `${location} - ${firstSentence}`
                         });
-                        
+
                         // Add click handler for rich errors
                         errorText.dom.addEventListener('click', () => {
                             editor.call('picker:codeeditor', this._asset, {
@@ -192,8 +192,8 @@ class ScriptAssetInspector extends Panel {
                 const attributeData = attributes[attributeName];
 
                 const warningsForThisAttribute = scriptWarnings
-                    .filter(w => w.name === attributeName)
-                    .map(w => w.message);
+                .filter(w => w.name === attributeName)
+                .map(w => w.message);
 
                 // Create tooltip content with reference info and warnings
                 const tooltipContainer = new Container({
@@ -280,7 +280,6 @@ class ScriptAssetInspector extends Panel {
             for (const scriptName in result.scripts) {
                 const attrInvalid = result.scripts[scriptName].attributesInvalid;
 
-                const errors = attrInvalid.filter(error => error.severity === 8);
                 const warnings = attrInvalid.filter(error => error.severity === 4);
 
                 // Log warnings to console with click-through to code editor at the warning location
