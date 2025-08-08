@@ -62,7 +62,9 @@ const LOCALIZATION_ATTRIBUTES = [{
 const addReferences = (attributes) => {
     attributes.forEach((attr) => {
         const path = attr.alias || attr.path;
-        if (!path) return;
+        if (!path) {
+            return;
+        }
         const parts = path.split('.');
         attr.reference = `asset:font:${parts[parts.length - 1]}`;
     });
@@ -377,10 +379,14 @@ class FontAssetInspector extends Container {
         const characterValues = this._fontAttributes.getField('characters').value;
         this._assets.forEach((asset) => {
             const sourceId = asset.get('source_asset_id');
-            if (!sourceId) return;
+            if (!sourceId) {
+                return;
+            }
 
             const source = editor.call('assets:get', sourceId);
-            if (!source) return;
+            if (!source) {
+                return;
+            }
 
             // remove duplicate chars but keep same order
             let unique = '';
@@ -501,7 +507,9 @@ class FontAssetInspector extends Container {
                     const availableCharacters = asset.get('data.chars');
                     const unavailableCharacters = [];
                     this._fontAttributes.getField('characters').value.split('').forEach((character) => {
-                        if (!availableCharacters[character.charCodeAt()]) unavailableCharacters.push(character);
+                        if (!availableCharacters[character.charCodeAt()]) {
+                            unavailableCharacters.push(character);
+                        }
                     });
                     if (unavailableCharacters.length > 0) {
                         this._processFontWarningContainer.hidden = false;
@@ -530,7 +538,9 @@ class FontAssetInspector extends Container {
     }
 
     unlink() {
-        if (!this._assets) return;
+        if (!this._assets) {
+            return;
+        }
         this._propertiesAttributes.unlink();
         this._fontAttributes.unlink();
         this._localizationAttributes.unlink();

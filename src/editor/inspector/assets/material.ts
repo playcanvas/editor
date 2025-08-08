@@ -1416,7 +1416,9 @@ class MaterialAssetInspector extends Container {
     }
 
     _toggleFields() {
-        if (this._suppressToggleFields) return;
+        if (this._suppressToggleFields) {
+            return;
+        }
 
         const applyToAllMaps = this._offsetTilingInspector.getField('applyToAllMaps').value;
         this._offsetTilingInspector.getField('offset').parent.hidden = !applyToAllMaps;
@@ -1557,7 +1559,9 @@ class MaterialAssetInspector extends Container {
     }
 
     _getApplyToAllValue() {
-        if (!this._assets) return null;
+        if (!this._assets) {
+            return null;
+        }
 
         let offset = null;
         let tiling = null;
@@ -1592,10 +1596,14 @@ class MaterialAssetInspector extends Container {
     }
 
     _onChangeApplyToAll(value) {
-        if (!this._assets) return;
+        if (!this._assets) {
+            return;
+        }
 
         const suppressToggleFields = this._suppressToggleFields;
-        if (suppressToggleFields) return;
+        if (suppressToggleFields) {
+            return;
+        }
 
         this._suppressToggleFields = true;
 
@@ -1647,7 +1655,9 @@ class MaterialAssetInspector extends Container {
             const undo = () => {
                 prev.forEach((entry) => {
                     const asset = entry.asset.latest();
-                    if (!asset) return;
+                    if (!asset) {
+                        return;
+                    }
 
                     const history = asset.history.enabled;
                     asset.history.enabled = false;
@@ -1678,7 +1688,9 @@ class MaterialAssetInspector extends Container {
 
 
     _updateAllOffsetsTilingsOrRotationUiState(renderChanges) {
-        if (!this._assets) return;
+        if (!this._assets) {
+            return;
+        }
 
         const suppress = this._suppressToggleFields;
         this._suppressToggleFields = false;
@@ -1725,7 +1737,9 @@ class MaterialAssetInspector extends Container {
 
 
     _updateAllOffsetsTilingsAndRotations(value, transform) {
-        if (value === null || !this._assets) return;
+        if (value === null || !this._assets) {
+            return;
+        }
 
         const assets = this._assets.slice();
 
@@ -1736,7 +1750,9 @@ class MaterialAssetInspector extends Container {
 
             assets.forEach((asset) => {
                 asset = asset.latest();
-                if (!asset) return;
+                if (!asset) {
+                    return;
+                }
 
                 const entry = {
                     asset: asset,
@@ -1767,7 +1783,9 @@ class MaterialAssetInspector extends Container {
         const undo = () => {
             prev.forEach((entry) => {
                 const asset = entry.asset.latest();
-                if (!asset) return;
+                if (!asset) {
+                    return;
+                }
 
                 const history = asset.history.enabled;
                 asset.history.enabled = false;
@@ -1795,28 +1813,36 @@ class MaterialAssetInspector extends Container {
     }
 
     _onChangeOffset(value) {
-        if (this._suppressOffsetTilingAndRotationFields) return;
+        if (this._suppressOffsetTilingAndRotationFields) {
+            return;
+        }
         if (this._offsetTilingInspector.getField('applyToAllMaps').value) {
             this._updateAllOffsetsTilingsAndRotations(value, TextureTransformTypes.Offset);
         }
     }
 
     _onChangeTiling(value) {
-        if (this._suppressOffsetTilingAndRotationFields) return;
+        if (this._suppressOffsetTilingAndRotationFields) {
+            return;
+        }
         if (this._offsetTilingInspector.getField('applyToAllMaps').value) {
             this._updateAllOffsetsTilingsAndRotations(value, TextureTransformTypes.Tiling);
         }
     }
 
     _onChangeRotation(value) {
-        if (this._suppressOffsetTilingAndRotationFields) return;
+        if (this._suppressOffsetTilingAndRotationFields) {
+            return;
+        }
         if (this._offsetTilingInspector.getField('applyToAllMaps').value) {
             this._updateAllOffsetsTilingsAndRotations(value, TextureTransformTypes.Rotation);
         }
     }
 
     _onTextureChange(name, value) {
-        if (this._suppressToggleFields) return;
+        if (this._suppressToggleFields) {
+            return;
+        }
 
         this._suppressToggleFields = true;
 
@@ -1826,11 +1852,17 @@ class MaterialAssetInspector extends Container {
             // depending on the filename of the texture being
             // set, see if we can set more properties as well
             const asset = value ? this._args.assets.get(value) : null;
-            if (!asset) return;
+            if (!asset) {
+                return;
+            }
             const tokens = this._tokenizeFilename(asset.get('name'));
-            if (!tokens) return;
+            if (!tokens) {
+                return;
+            }
 
-            if (BULK_SLOTS[name].indexOf(tokens[1]) === -1) return;
+            if (BULK_SLOTS[name].indexOf(tokens[1]) === -1) {
+                return;
+            }
 
             const path = asset.get('path');
 
@@ -1845,10 +1877,14 @@ class MaterialAssetInspector extends Container {
             texturesInSamePath.forEach((entry) => {
                 const t = this._tokenizeFilename(entry[1].get('name'));
 
-                if (!t || t[0] !== tokens[0] || !POSTFIX_TO_BULK_SLOT[t[1]]) return;
+                if (!t || t[0] !== tokens[0] || !POSTFIX_TO_BULK_SLOT[t[1]]) {
+                    return;
+                }
 
                 for (let i = 0; i < POSTFIX_TO_BULK_SLOT[t[1]].length; i++) {
-                    if (POSTFIX_TO_BULK_SLOT[t[1]][i] === name) continue;
+                    if (POSTFIX_TO_BULK_SLOT[t[1]][i] === name) {
+                        continue;
+                    }
 
                     candidates[POSTFIX_TO_BULK_SLOT[t[1]][i]] = {
                         texture: entry[1],
@@ -1863,14 +1899,18 @@ class MaterialAssetInspector extends Container {
                 const assets = this._assets.slice();
 
                 assets.forEach((asset) => {
-                    if (asset.get(`data.${name}Map`)) return;
+                    if (asset.get(`data.${name}Map`)) {
+                        return;
+                    }
 
                     const history = asset.history.enabled;
                     asset.history.enabled = false;
 
                     for (const slot in candidates) {
                         const key = `data.${slot}Map`;
-                        if (asset.get(key)) continue;
+                        if (asset.get(key)) {
+                            continue;
+                        }
 
                         prev.push({
                             asset: asset,
@@ -1980,7 +2020,9 @@ class MaterialAssetInspector extends Container {
                     let dirty = false;
                     prev.forEach((record) => {
                         const asset = record.asset.latest();
-                        if (!asset) return;
+                        if (!asset) {
+                            return;
+                        }
 
                         const history = asset.history.enabled;
                         asset.history.enabled = false;
@@ -1996,7 +2038,9 @@ class MaterialAssetInspector extends Container {
                 const undo = () => {
                     prev.forEach((record) => {
                         const asset = record.asset.latest();
-                        if (!asset) return;
+                        if (!asset) {
+                            return;
+                        }
 
                         const history = asset.history.enabled;
                         asset.history.enabled = false;
@@ -2046,7 +2090,9 @@ class MaterialAssetInspector extends Container {
 
         // drop extension
         const ext = filename.match(REGEX_EXT);
-        if (ext) filename = filename.slice(0, -ext[0].length);
+        if (ext) {
+            filename = filename.slice(0, -ext[0].length);
+        }
 
         if (!filename) {
             return;
@@ -2079,12 +2125,18 @@ class MaterialAssetInspector extends Container {
 
     _onTextureDragEnter(path, type, dropData) {
         const app = editor.call('viewport:app');
-        if (!app) return;
+        if (!app) {
+            return;
+        }
 
-        if (!this._assets) return;
+        if (!this._assets) {
+            return;
+        }
 
         const textureAsset = app.assets.get(dropData.id);
-        if (!textureAsset) return;
+        if (!textureAsset) {
+            return;
+        }
 
         app.assets.load(textureAsset);
 
@@ -2101,11 +2153,15 @@ class MaterialAssetInspector extends Container {
 
         this._assets.forEach((asset) => {
             const engineAsset = app.assets.get(asset.get('id'));
-            if (!engineAsset) return;
+            if (!engineAsset) {
+                return;
+            }
 
             app.assets.load(engineAsset);
 
-            if (!engineAsset.resource) return;
+            if (!engineAsset.resource) {
+                return;
+            }
 
             if (textureAsset.resource) {
                 previewTexture(engineAsset);
@@ -2128,17 +2184,25 @@ class MaterialAssetInspector extends Container {
 
     _onTextureDragLeave(path) {
         const app = editor.call('viewport:app');
-        if (!app) return;
+        if (!app) {
+            return;
+        }
 
-        if (!this._assets) return;
+        if (!this._assets) {
+            return;
+        }
 
         this._assets.forEach((asset) => {
             const engineAsset = app.assets.get(asset.get('id'));
-            if (!engineAsset) return;
+            if (!engineAsset) {
+                return;
+            }
 
             app.assets.load(engineAsset);
 
-            if (!engineAsset.resource || !this._texturesBeforeHover[asset.get('id')]) return;
+            if (!engineAsset.resource || !this._texturesBeforeHover[asset.get('id')]) {
+                return;
+            }
 
             engineAsset.resource[path] = this._texturesBeforeHover[asset.get('id')][path];
             engineAsset.resource.update();
@@ -2157,7 +2221,9 @@ class MaterialAssetInspector extends Container {
         this.unlink();
 
         this._assets = assets;
-        if (!this._assets) return;
+        if (!this._assets) {
+            return;
+        }
 
         this._suppressToggleFields = true;
 
@@ -2257,7 +2323,9 @@ class MaterialAssetInspector extends Container {
         this._assets.forEach((asset) => {
             this._assetEvents.push(asset.on('*:set', (path) => {
                 if (REGEX_MAP_OFFSET_TILING_OR_ROTATION.test(path)) {
-                    if (this._suppressUpdateAllOffsetAndTilingsTimeout) return;
+                    if (this._suppressUpdateAllOffsetAndTilingsTimeout) {
+                        return;
+                    }
 
                     this._suppressUpdateAllOffsetAndTilingsTimeout = setTimeout(() => {
                         this._suppressUpdateAllOffsetAndTilingsTimeout = null;
@@ -2269,7 +2337,9 @@ class MaterialAssetInspector extends Container {
     }
 
     unlink() {
-        if (!this._assets) return;
+        if (!this._assets) {
+            return;
+        }
 
         this._assets = null;
 
@@ -2317,7 +2387,9 @@ class MaterialAssetInspector extends Container {
     }
 
     destroy() {
-        if (this._destroyed) return;
+        if (this._destroyed) {
+            return;
+        }
 
         this._collapsedStates = {};
 

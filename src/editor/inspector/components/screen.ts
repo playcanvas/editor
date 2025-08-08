@@ -91,7 +91,9 @@ class ScreenComponentInspector extends ComponentInspector {
     }
 
     _toggleFields() {
-        if (this._suppressToggleFields) return;
+        if (this._suppressToggleFields) {
+            return;
+        }
 
         const scaleMode = this._field('scaleMode').value;
         const screenSpace = this._field('screenSpace').value;

@@ -106,7 +106,9 @@ editor.once('load', () => {
             text: 'Enable',
             icon: 'E133',
             onIsVisible: function () {
-                if (!hasWriteAccess()) return false;
+                if (!hasWriteAccess()) {
+                    return false;
+                }
 
                 if (items.length === 1) {
                     return !items[0].get('enabled');
@@ -129,7 +131,9 @@ editor.once('load', () => {
             text: 'Disable',
             icon: 'E132',
             onIsVisible: function () {
-                if (!hasWriteAccess()) return false;
+                if (!hasWriteAccess()) {
+                    return false;
+                }
 
                 if (items.length === 1) {
                     return items[0].get('enabled');
@@ -257,7 +261,9 @@ editor.once('load', () => {
     });
 
     editor.method('entities:contextmenu:open', (item, x, y, ignoreSelection) => {
-        if (!menu) return;
+        if (!menu) {
+            return;
+        }
 
         entity = item;
 

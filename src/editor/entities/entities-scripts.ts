@@ -50,7 +50,9 @@ editor.once('load', () => {
 
         const item = index[script][entity.get('resource_id')];
 
-        if (!item) return;
+        if (!item) {
+            return;
+        }
 
         for (let i = 0; i < item.events.length; i++) {
             item.events[i].unbind();

@@ -180,7 +180,9 @@ class AnimationAssetInspectorPreview extends AssetInspectorPreviewBase {
         const modelAssetObserver = editor.api.globals.assets.findOne(a => a.get('source_asset_id') === sourceAssetId && a.get('type') === 'model');
         const containerAssetObserver = editor.api.globals.assets.findOne(a => a.get('source_asset_id') === sourceAssetId && a.get('type') === 'container');
         let templateAssetObserver;
-        if (containerAssetObserver) templateAssetObserver = editor.api.globals.assets.findOne(a => a.get('meta.containerAsset') === containerAssetObserver.get('id') && a.get('type') === 'template');
+        if (containerAssetObserver) {
+            templateAssetObserver = editor.api.globals.assets.findOne(a => a.get('meta.containerAsset') === containerAssetObserver.get('id') && a.get('type') === 'template');
+        }
 
         if (modelAssetObserver) {
             this._attributesInspector.getField('previewAsset').value = null;

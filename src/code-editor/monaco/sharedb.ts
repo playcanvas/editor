@@ -1,5 +1,7 @@
 editor.once('load', () => {
-    if (editor.call('editor:resolveConflictMode')) return;
+    if (editor.call('editor:resolveConflictMode')) {
+        return;
+    }
 
     // max undo history
     const MAX_UNDO_SIZE = 200;
@@ -329,7 +331,9 @@ editor.once('load', () => {
 
     // load document from sharedb
     editor.on('documents:load', (doc, asset, docEntry) => {
-        if (documentIndex[asset.get('id')]) return;
+        if (documentIndex[asset.get('id')]) {
+            return;
+        }
 
         const entry = {
             id: asset.get('id'),
@@ -412,7 +416,9 @@ editor.once('load', () => {
     // submit operation to sharedb
     editor.on('views:change', (id, view, change) => {
         const entry = documentIndex[id];
-        if (!entry || entry.ignoreLocalChanges) return;
+        if (!entry || entry.ignoreLocalChanges) {
+            return;
+        }
 
         // this happens sometimes when there is a doc error
         if (!entry.doc.type) {

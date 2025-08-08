@@ -40,7 +40,9 @@ editor.once('load', () => {
         function undo() {
             entities.forEach((e) => {
                 e = e.latest();
-                if (!e) return;
+                if (!e) {
+                    return;
+                }
 
                 const history = e.history.enabled;
                 e.history.enabled = false;

@@ -10,7 +10,9 @@ editor.once('load', () => {
 
             entities.forEach((e) => {
                 e = e.latest();
-                if (!e) return;
+                if (!e) {
+                    return;
+                }
 
                 // 'layoutgroup' component immediately changes the layout (position, anchor, etc) for the entity's children.
                 // Therefore, before adding the component, store all children layout info for undo
@@ -31,7 +33,9 @@ editor.once('load', () => {
         const undo = () => {
             entities.forEach((e) => {
                 e = e.latest();
-                if (!e) return;
+                if (!e) {
+                    return;
+                }
 
                 const history = e.history.enabled;
                 e.history.enabled = false;

@@ -40,7 +40,9 @@ editor.once('load', () => {
         const children = entity.get('children');
         for (let i = 0; i < children.length; i++) {
             const child = editor.call('entities:get', children[i]);
-            if (!child) continue;
+            if (!child) {
+                continue;
+            }
 
             if (checkCircularReferences(child, Object.assign({}, templateIds))) {
                 return true;
@@ -77,11 +79,15 @@ editor.once('load', () => {
 
     function checkIfReparentedUnderNewEntity(root, override) {
         const templateEntIds = root.get('template_ent_ids');
-        if (!templateEntIds) return;
+        if (!templateEntIds) {
+            return;
+        }
 
         let parent = editor.call('entities:get', override.src_value);
         while (parent) {
-            if (parent === root) break;
+            if (parent === root) {
+                break;
+            }
 
             if (!templateEntIds[parent.get('resource_id')]) {
                 return parent;
@@ -143,7 +149,9 @@ editor.once('load', () => {
         const resourceId = root.get('resource_id');
         const templateId = root.get('template_id');
         const templateAsset = editor.call('assets:get', templateId);
-        if (!templateAsset) return;
+        if (!templateAsset) {
+            return;
+        }
 
         // check if there are any circular references
         if (checkCircularReferencesSingleOverride(root, override)) {

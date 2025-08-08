@@ -13,7 +13,9 @@ editor.once('load', () => {
         }
 
         const uniqueId = Number(asset.id);
-        if (!uniqueId) return;
+        if (!uniqueId) {
+            return;
+        }
 
         editor.call('loadAsset', uniqueId);
     };
@@ -24,14 +26,18 @@ editor.once('load', () => {
     // remove
     editor.on('messenger:asset.delete', (data) => {
         const asset = editor.call('assets:getUnique', data.asset.id);
-        if (asset) editor.call('assets:remove', asset);
+        if (asset) {
+            editor.call('assets:remove', asset);
+        }
     });
 
     // remove multiple
     editor.on('messenger:assets.delete', (data) => {
         data.assets.forEach((id) => {
             const asset = editor.call('assets:getUnique', Number(id));
-            if (asset) editor.call('assets:remove', asset);
+            if (asset) {
+                editor.call('assets:remove', asset);
+            }
         });
     });
 });

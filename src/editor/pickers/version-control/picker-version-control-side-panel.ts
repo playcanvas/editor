@@ -99,10 +99,14 @@ editor.once('load', () => {
                 key: 'Enter',
                 callback: function (e) {
                     if (btnCancel.class.contains('highlighted')) {
-                        if (btnCancel.disabled) return;
+                        if (btnCancel.disabled) {
+                            return;
+                        }
                         btnCancel.emit('click');
                     } else if (btnConfirm.class.contains('highlighted')) {
-                        if (btnConfirm.disabled) return;
+                        if (btnConfirm.disabled) {
+                            return;
+                        }
                         btnConfirm.emit('click');
                     }
                 }

@@ -140,7 +140,9 @@ class RigidbodyComponentInspector extends ComponentInspector {
     }
 
     _toggleFields() {
-        if (this._suppressToggleFields) return;
+        if (this._suppressToggleFields) {
+            return;
+        }
 
         const isDynamic = this._field('type').value === 'dynamic';
 

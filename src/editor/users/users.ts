@@ -6,10 +6,14 @@ editor.once('load', () => {
     editor.method('users:createOne', (org, success, errorFn) => {
         editor.api.globals.rest.users.userCreate(org)
         .on('load', (status, response) => {
-            if (success) success(response);
+            if (success) {
+                success(response);
+            }
         })
         .on('error', (status, error) => {
-            if (errorFn) errorFn(error);
+            if (errorFn) {
+                errorFn(error);
+            }
         });
     });
 
@@ -41,10 +45,14 @@ editor.once('load', () => {
     editor.method('users:deleteOne', (id, success, errorFn) => {
         editor.api.globals.rest.users.userDelete(id)
         .on('load', (status, response) => {
-            if (success) success(response);
+            if (success) {
+                success(response);
+            }
         })
         .on('error', (status, error) => {
-            if (errorFn) errorFn(error);
+            if (errorFn) {
+                errorFn(error);
+            }
         });
     });
 
@@ -56,10 +64,14 @@ editor.once('load', () => {
     editor.method('users:collaborators', (id, success, errorFn) => {
         editor.api.globals.rest.users.userCollabList(id)
         .on('load', (status, response) => {
-            if (success) success(response);
+            if (success) {
+                success(response);
+            }
         })
         .on('error', (status, err) => {
-            if (errorFn) errorFn(status, err);
+            if (errorFn) {
+                errorFn(status, err);
+            }
         });
     });
 
@@ -67,10 +79,14 @@ editor.once('load', () => {
     editor.method('users:createCollaborator', (id, newCollaborator, success, errorFn) => {
         editor.api.globals.rest.projects.projectCollabCreate(id, newCollaborator)
         .on('load', (status, response) => {
-            if (success) success(response);
+            if (success) {
+                success(response);
+            }
         })
         .on('error', (status, err) => {
-            if (errorFn) errorFn(status, err);
+            if (errorFn) {
+                errorFn(status, err);
+            }
         });
     });
 
@@ -78,10 +94,14 @@ editor.once('load', () => {
     editor.method('users:updateCollaboratorAccess', (id, newCollaborator, success, errorFn) => {
         editor.api.globals.rest.projects.projectCollabUpdate(id, newCollaborator)
         .on('load', (status, response) => {
-            if (success) success(response);
+            if (success) {
+                success(response);
+            }
         })
         .on('error', (status, err) => {
-            if (errorFn) errorFn(status, err);
+            if (errorFn) {
+                errorFn(status, err);
+            }
         });
     });
 
@@ -89,10 +109,14 @@ editor.once('load', () => {
     editor.method('users:removeCollaborator', (project, collaborator, success, errorFn) => {
         editor.api.globals.rest.projects.projectCollabDelete(project.id, collaborator.id)
         .on('load', (status, response) => {
-            if (success) success(response);
+            if (success) {
+                success(response);
+            }
         })
         .on('error', (status, err) => {
-            if (errorFn) errorFn(status, err);
+            if (errorFn) {
+                errorFn(status, err);
+            }
         });
     });
 
@@ -101,14 +125,20 @@ editor.once('load', () => {
 
         const options = {};
         Array.from(['token', 'promo', 'seats']).forEach((field) => {
-            if (data[field]) options[field] = data[field];
+            if (data[field]) {
+                options[field] = data[field];
+            }
         });
         editor.api.globals.rest.payment.paymentSubUpdate(owner.id, options)
         .on('load', (status, response) => {
-            if (success) success(response);
+            if (success) {
+                success(response);
+            }
         })
         .on('error', (status, error) => {
-            if (errorFn) errorFn(status, error);
+            if (errorFn) {
+                errorFn(status, error);
+            }
         });
     });
 
@@ -116,10 +146,14 @@ editor.once('load', () => {
     editor.method('users:getUsage', (id, success, errorFn) => {
         editor.api.globals.rest.users.userUsage(id)
         .on('load', (status, response) => {
-            if (success) success(response);
+            if (success) {
+                success(response);
+            }
         })
         .on('error', (status, error) => {
-            if (errorFn) errorFn(status, error);
+            if (errorFn) {
+                errorFn(status, error);
+            }
         });
     });
 

@@ -8,14 +8,18 @@ editor.once('load', () => {
 
         function undo() {
             entity = entity.latest();
-            if (!entity) return;
+            if (!entity) {
+                return;
+            }
 
             const history = entity.history.enabled;
             entity.history.enabled = false;
 
             // if template asset does not exist anymore then skip undo
             const asset = editor.call('assets:get', templateId);
-            if (!asset) return;
+            if (!asset) {
+                return;
+            }
 
             // remove invalid entries from template_ent_ids
             for (const id in template_ent_ids) {
@@ -32,7 +36,9 @@ editor.once('load', () => {
 
         function redo() {
             entity = entity.latest();
-            if (!entity) return;
+            if (!entity) {
+                return;
+            }
 
             templateId = entity.get('template_id');
             template_ent_ids = entity.get('template_ent_ids');

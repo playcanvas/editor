@@ -18,7 +18,9 @@ class LegacyListItem extends LegacyElement {
     }
 
     set text(value) {
-        if (this._text === value) return;
+        if (this._text === value) {
+            return;
+        }
         this._text = value;
         this.elementText.textContent = this._text;
     }

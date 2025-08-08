@@ -46,9 +46,13 @@ editor.once('load', () => {
             if (project && user.id === project.owner.id) {
                 result = 'Owner';
             } else {
-                if (user.access_level === 'read' || !user.access_level) result = 'Read';
-                else if (user.access_level === 'write') result = 'Read & Write';
-                else return 'Admin';
+                if (user.access_level === 'read' || !user.access_level) {
+                    result = 'Read';
+                } else if (user.access_level === 'write') {
+                    result = 'Read & Write';
+                } else {
+                    return 'Admin';
+                }
             }
         }
 
@@ -59,8 +63,12 @@ editor.once('load', () => {
     editor.method('project:management:showOwnerView', () => {
         if (config.self) {
             if (config.owner) {
-                if (config.owner.id === config.self.id) return true;
-                if (editor.call('project:management:isOrgAdmin', config.owner.id, config.self)) return true;
+                if (config.owner.id === config.self.id) {
+                    return true;
+                }
+                if (editor.call('project:management:isOrgAdmin', config.owner.id, config.self)) {
+                    return true;
+                }
             } else {
                 return true;
             }
@@ -94,16 +102,28 @@ editor.once('load', () => {
 
         editor.call('users:getCollaborators', config.self.id, (result) => {
             collaborators = result.sort((a, b) => {
-                if (a.username === config.owner.username) return -1;
-                if (b.username === config.owner.username) return 1;
+                if (a.username === config.owner.username) {
+                    return -1;
+                }
+                if (b.username === config.owner.username) {
+                    return 1;
+                }
                 if (a.access_level === b.access_level) {
-                    if (a.full_name < b.full_name) return -1;
+                    if (a.full_name < b.full_name) {
+                        return -1;
+                    }
                     return 1;
                 }
 
-                if (a.access_level === 'admin') return -1;
-                if (b.access_level === 'admin') return 1;
-                if (a.access_level === 'write') return -1;
+                if (a.access_level === 'admin') {
+                    return -1;
+                }
+                if (b.access_level === 'admin') {
+                    return 1;
+                }
+                if (a.access_level === 'write') {
+                    return -1;
+                }
                 return 1;
             });
         }, (err) => {
@@ -143,7 +163,9 @@ editor.once('load', () => {
     // method to set current state of model variables
     editor.method('project:management:setModel', (updatedModel) => {
         for (const [attrib, value] of Object.entries(updatedModel)) {
-            if (attrib in model) model[attrib] = value;
+            if (attrib in model) {
+                model[attrib] = value;
+            }
         }
     });
 

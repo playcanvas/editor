@@ -27,7 +27,9 @@ class LegacyLabel extends LegacyElement {
                 this._setText(value);
             }
         } else {
-            if (this._text === value) return;
+            if (this._text === value) {
+                return;
+            }
 
             this._text = value;
             if (value === undefined || value === null) {

@@ -84,7 +84,9 @@ editor.once('load', () => {
         });
 
         hiddenInput.addEventListener('change', () => {
-            if (!hiddenInput.files[0]) return;
+            if (!hiddenInput.files[0]) {
+                return;
+            }
 
             btnImport.disabled = true;
             btnImport.text = 'PROCESSING...';

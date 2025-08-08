@@ -1,6 +1,8 @@
 editor.once('load', () => {
     editor.on('messenger:user.usage', (data) => {
-        if (data.user !== config.owner.id) return;
+        if (data.user !== config.owner.id) {
+            return;
+        }
 
         config.owner.size += data.usage.total;
 

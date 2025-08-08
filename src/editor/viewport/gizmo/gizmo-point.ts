@@ -195,7 +195,9 @@ editor.once('viewport:load', (app) => {
 
         item.axis = axis || 'y';
         item.dir = dir === undefined ? 1 : dir;
-        if (position) axis.position.copy(position);
+        if (position) {
+            axis.position.copy(position);
+        }
         item.enabled = true;
         points.push(item.entity);
 

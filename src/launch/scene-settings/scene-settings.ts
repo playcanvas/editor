@@ -16,7 +16,9 @@ editor.once('load', () => {
     });
 
     editor.on('sceneSettings:load', (settings) => {
-        if (settings.sync) return;
+        if (settings.sync) {
+            return;
+        }
 
         settings.sync = new ObserverSync({
             item: settings,

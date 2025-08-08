@@ -90,7 +90,9 @@ class LegacyMenu extends LegacyContainer {
     }
 
     _onOpen(state) {
-        if (state) return;
+        if (state) {
+            return;
+        }
         this._updatePath([]);
     }
 
@@ -116,7 +118,9 @@ class LegacyMenu extends LegacyContainer {
 
         for (let i = 0; i < this._hovered.length; i++) {
             node = node._index[this._hovered[i]];
-            if (!node) break;
+            if (!node) {
+                break;
+            }
             if (path.length <= i || path[i] !== this._hovered[i]) {
                 node.class.remove('hover');
                 node.innerElement.style.top = '';

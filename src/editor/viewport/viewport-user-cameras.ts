@@ -2,7 +2,9 @@ import { createColorMaterial } from './viewport-color-material.ts';
 
 editor.once('load', () => {
     const app = editor.call('viewport:app');
-    if (!app) return; // webgl not available
+    if (!app) {
+        return;
+    } // webgl not available
 
     const container = new pc.Entity(app);
     app.root.addChild(container);
@@ -43,7 +45,9 @@ editor.once('load', () => {
 
     // Removes user camera and unsubscribes from userdata
     const removeUser = function (userId) {
-        if (userId === config.self.id) return;
+        if (userId === config.self.id) {
+            return;
+        }
 
         // unsubscribe from realtime userdata
         if (userdata[userId]) {
@@ -201,7 +205,9 @@ editor.once('load', () => {
     // Add user who comes online
     editor.on('whoisonline:add', (userId) => {
         // ignore the logged in user
-        if (userId === config.self.id) return;
+        if (userId === config.self.id) {
+            return;
+        }
 
         const add = function () {
             // do not add users without read access
@@ -235,7 +241,9 @@ editor.once('load', () => {
 
     // Remove user who goes offline
     editor.on('whoisonline:remove', (userId) => {
-        if (userId === config.self.id) return;
+        if (userId === config.self.id) {
+            return;
+        }
 
         removeUser(userId);
         editor.unbind(`permissions:set:${userId}`);

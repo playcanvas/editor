@@ -24,7 +24,9 @@ class FontAssetInspectorPreview extends AssetInspectorPreviewBase {
 
     // queue up the rendering to prevent too often renders
     _queueRender() {
-        if (this._renderFrame) return;
+        if (this._renderFrame) {
+            return;
+        }
         this._renderFrame = requestAnimationFrame(this._renderPreview.bind(this));
     }
 

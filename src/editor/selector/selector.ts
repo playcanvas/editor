@@ -22,7 +22,9 @@ editor.once('load', () => {
 
     const setIndex = function (type, item) {
         const key = keyByType(type);
-        if (!key) return;
+        if (!key) {
+            return;
+        }
 
         if (!index[type]) {
             index[type] = { };
@@ -44,13 +46,19 @@ editor.once('load', () => {
     };
 
     const removeIndex = function (type, item) {
-        if (!index[type]) return;
+        if (!index[type]) {
+            return;
+        }
 
         const key = keyByType(type);
-        if (!key) return;
+        if (!key) {
+            return;
+        }
 
         const ind = index[type][item.get[key]];
-        if (!ind) return;
+        if (!ind) {
+            return;
+        }
 
         ind.unbind();
     };

@@ -526,7 +526,9 @@ editor.once('load', () => {
 
             // Check if all the conflicts of a group have been
             // resolved
-            if (!isConflictGroupResolved(group)) return;
+            if (!isConflictGroupResolved(group)) {
+                return;
+            }
 
             // Check if all conflicts of all groups are now resolved
             // in a timeout. Do it in a timeout in case the user
@@ -705,7 +707,9 @@ editor.once('load', () => {
 
     // Called when we get a merge progress status message from the messenger
     const onMsgMergeProgress = function (data) {
-        if (data.dst_branch_id !== config.self.branch.id) return;
+        if (data.dst_branch_id !== config.self.branch.id) {
+            return;
+        }
 
         config.self.branch.merge.mergeProgressStatus = data.status;
 

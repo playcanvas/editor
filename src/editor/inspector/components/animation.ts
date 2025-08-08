@@ -76,9 +76,13 @@ class AnimationComponentInspector extends ComponentInspector {
         }
 
         const label = listItem.dom.querySelector('.pcui-label');
-        if (!label) return;
+        if (!label) {
+            return;
+        }
 
-        if (!this._assets.get(assetId)) return;
+        if (!this._assets.get(assetId)) {
+            return;
+        }
 
         const btn = new Button({
             size: 'small',
@@ -109,7 +113,9 @@ class AnimationComponentInspector extends ComponentInspector {
             }
 
             const name = entities[i].entity.animation.animationsIndex[assetId];
-            if (!name) continue;
+            if (!name) {
+                continue;
+            }
 
             entities[i].entity.animation.play(name);
         }

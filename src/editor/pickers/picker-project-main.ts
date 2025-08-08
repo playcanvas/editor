@@ -111,7 +111,9 @@ editor.once('load', () => {
 
     projectNameInput.on('change', () => {
         const newValue = projectNameInput.value;
-        if (projectNameInput.value.length > 32) projectNameInput.value = newValue.slice(0, -2);  // do not allow more than 32 character names
+        if (projectNameInput.value.length > 32) {
+            projectNameInput.value = newValue.slice(0, -2);
+        }  // do not allow more than 32 character names
     });
 
     projectNameInput.on('blur', () => {
@@ -170,7 +172,9 @@ editor.once('load', () => {
     });
 
     privateToggle.on('click', () => {
-        if (initialLoad) return;
+        if (initialLoad) {
+            return;
+        }
         editor.call('picker:project:changeVisibility', privateToggle.value ? 'Private' : 'Public');
     });
     privateSettings.dom.appendChild(privateToggle.element);
@@ -357,7 +361,9 @@ editor.once('load', () => {
     // helper method to delete all outstanding events on close
     const destroyEvents = () => {
         events.forEach((evt) => {
-            if (evt) evt.unbind();
+            if (evt) {
+                evt.unbind();
+            }
         });
         events = [];
     };
@@ -385,7 +391,9 @@ editor.once('load', () => {
     panel.on('hide', () => {
         destroyEvents();
 
-        if (projectSettingsChanged) editor.call('picker:project:cms:refreshProjects');
+        if (projectSettingsChanged) {
+            editor.call('picker:project:cms:refreshProjects');
+        }
 
         copiedURLPopup.dom.classList.remove('open');  // close clipboard popup
 

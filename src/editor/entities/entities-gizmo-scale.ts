@@ -159,7 +159,9 @@ editor.once('load', () => {
     };
 
     const onRender = function () {
-        if (!app) return; // webgl not available
+        if (!app) {
+            return;
+        } // webgl not available
 
         if (gizmoMoving) {
             const camera = editor.call('camera:current');

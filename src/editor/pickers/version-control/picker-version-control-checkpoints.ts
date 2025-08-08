@@ -494,7 +494,9 @@ editor.once('load', () => {
             if (panel.branch != null) {
                 panel.scrollTopMap[panel.branch.id] = panelCheckpoints.element.scrollTop;
             }
-            if (suppressCheckboxEvents) return;
+            if (suppressCheckboxEvents) {
+                return;
+            }
             if (value) {
                 editor.emit('checkpoint:diff:select', panel.branch, checkpoint);
             } else {
@@ -557,7 +559,9 @@ editor.once('load', () => {
 
         let suppressCheckboxEvents = false;
         checkboxSelect.on('change', (value) => {
-            if (suppressCheckboxEvents) return;
+            if (suppressCheckboxEvents) {
+                return;
+            }
             if (value) {
                 editor.emit('checkpoint:diff:select', panel.branch, null);
             } else {
@@ -664,7 +668,9 @@ editor.once('load', () => {
     });
 
     btnFavorite.on('click', () => {
-        if (!panel.branch) return;
+        if (!panel.branch) {
+            return;
+        }
         if (panel.branchIsFavorite) {
             const index = projectUserSettings.get('favoriteBranches').indexOf(panel.branch.id);
             if (index >= 0) {
@@ -737,7 +743,9 @@ editor.once('load', () => {
     });
 
     menuCheckpoints.on('open', (open) => {
-        if (!currentCheckpoint) return;
+        if (!currentCheckpoint) {
+            return;
+        }
 
         // filter menu options
         if (open) {
@@ -757,10 +765,14 @@ editor.once('load', () => {
         if (!open) {
             const item = document.getElementById(`checkpoint-${currentCheckpoint.id}`);
             currentCheckpoint = null;
-            if (!item) return;
+            if (!item) {
+                return;
+            }
 
             const dropdown = item.querySelector('.clicked');
-            if (!dropdown) return;
+            if (!dropdown) {
+                return;
+            }
 
             dropdown.classList.remove('clicked');
             dropdown.innerHTML = '&#57689;';

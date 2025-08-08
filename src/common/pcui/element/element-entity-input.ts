@@ -91,7 +91,9 @@ class EntityInput extends Element {
         });
 
         this.on('click', (evt) => {
-            if (this.readOnly) return;
+            if (this.readOnly) {
+                return;
+            }
 
             this.focus();
 
@@ -201,8 +203,12 @@ class EntityInput extends Element {
         }
 
         // open picker on space
-        if (evt.keyCode !== 32) return;
-        if (!this.enabled || this.readOnly) return;
+        if (evt.keyCode !== 32) {
+            return;
+        }
+        if (!this.enabled || this.readOnly) {
+            return;
+        }
 
         evt.stopPropagation();
 
@@ -221,7 +227,9 @@ class EntityInput extends Element {
     }
 
     destroy() {
-        if (this._destroyed) return;
+        if (this._destroyed) {
+            return;
+        }
         this.dom.removeEventListener('focus', this._domEvtFocus);
         this.dom.removeEventListener('blur', this._domEvtBlur);
         this._highlightEntity(this.value, false);
@@ -230,7 +238,9 @@ class EntityInput extends Element {
     }
 
     set value(value) {
-        if (this._value === value) return;
+        if (this._value === value) {
+            return;
+        }
         this._updateValue(value);
 
         if (this._binding) {

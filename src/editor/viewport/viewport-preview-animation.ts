@@ -4,7 +4,9 @@ editor.once('load', () => {
 
 
     editor.on('viewport:update', () => {
-        if (render !== 0) editor.call('viewport:render');
+        if (render !== 0) {
+            editor.call('viewport:render');
+        }
     });
 
     const checkState = function (item, remove) {

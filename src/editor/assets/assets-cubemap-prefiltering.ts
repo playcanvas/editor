@@ -119,11 +119,17 @@ editor.once('load', () => {
         const DDS_CAPS2_CUBEMAP = 0x200 | 0x400 | 0x800 | 0x1000 | 0x2000 | 0x4000 | 0x8000; // cubemap | all faces
 
         let flags = DDS_FLAGS_REQUIRED;
-        if (texture._levels.length > 1) flags |= DDS_FLAGS_MIPMAP;
+        if (texture._levels.length > 1) {
+            flags |= DDS_FLAGS_MIPMAP;
+        }
 
         let caps = DDS_CAPS_REQUIRED;
-        if (texture._levels.length > 1) caps |= DDS_CAPS_MIPMAP;
-        if (texture._levels.length > 1 || texture.cubemap) caps |= DDS_CAPS_COMPLEX;
+        if (texture._levels.length > 1) {
+            caps |= DDS_CAPS_MIPMAP;
+        }
+        if (texture._levels.length > 1 || texture.cubemap) {
+            caps |= DDS_CAPS_COMPLEX;
+        }
 
         const caps2 = texture.cubemap ? DDS_CAPS2_CUBEMAP : 0;
 

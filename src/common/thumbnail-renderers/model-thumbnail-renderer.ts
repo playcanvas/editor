@@ -107,7 +107,9 @@ class ModelThumbnailRenderer extends ThumbnailRenderer {
         this._unwatchMaterials();
 
         const mapping = this._asset.get('data.mapping');
-        if (!mapping) return;
+        if (!mapping) {
+            return;
+        }
 
         for (const key in mapping) {
             const materialId = mapping[key].material;
@@ -144,8 +146,12 @@ class ModelThumbnailRenderer extends ThumbnailRenderer {
     }
 
     queueRender() {
-        if (this._queuedRender) return;
-        if (!this._asset) return;
+        if (this._queuedRender) {
+            return;
+        }
+        if (!this._asset) {
+            return;
+        }
 
         this._queuedRender = true;
         this._frameRequest = requestAnimationFrame(() => {
@@ -156,14 +162,20 @@ class ModelThumbnailRenderer extends ThumbnailRenderer {
     render(rotationX = -15, rotationY = 45) {
         this._queuedRender = false;
 
-        if (!this._asset) return;
+        if (!this._asset) {
+            return;
+        }
 
         const data = this._asset.get('data');
-        if (!data) return;
+        if (!data) {
+            return;
+        }
 
         const app = pc.Application.getApplication();
         const modelAsset = app.assets.get(this._asset.get('id'));
-        if (!modelAsset) return;
+        if (!modelAsset) {
+            return;
+        }
 
         if (!sceneInitialized) {
             initializeScene();

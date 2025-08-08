@@ -476,7 +476,9 @@ class LightComponentInspector extends ComponentInspector {
     }
 
     _toggleFields() {
-        if (this._skipToggleFields) return;
+        if (this._skipToggleFields) {
+            return;
+        }
 
         const type = this._field('type').value;
         const isDirectional = type === 'directional';

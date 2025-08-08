@@ -148,10 +148,14 @@ class ConflictSection extends Events {
         let addedTitle = false;
 
         for (const field in fields) {
-            if (except && except.indexOf(field) !== -1) continue;
+            if (except && except.indexOf(field) !== -1) {
+                continue;
+            }
 
             const path = fields[field].path;
-            if (!path) continue;
+            if (!path) {
+                continue;
+            }
 
             if (!addedTitle && title) {
                 addedTitle = true;

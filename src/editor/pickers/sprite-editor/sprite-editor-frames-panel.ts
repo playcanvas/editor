@@ -55,7 +55,9 @@ editor.once('load', () => {
             };
 
             panel.queueRender = function () {
-                if (renderQueued) return;
+                if (renderQueued) {
+                    return;
+                }
                 renderQueued = true;
                 requestAnimationFrame(renderPreview);
             };
@@ -106,7 +108,9 @@ editor.once('load', () => {
                         const range = [];
                         while (diff !== 0) {
                             p = dir > 0 ? p.dom.nextSibling : p.dom.previousSibling;
-                            if (!p) break;
+                            if (!p) {
+                                break;
+                            }
                             p = p.ui;
 
                             range.push(p.frameKey);
@@ -216,7 +220,9 @@ editor.once('load', () => {
 
         // listen to atlas set event
         events.push(atlasAsset.on('*:set', (path, value) => {
-            if (!path.startsWith('data.frames')) return;
+            if (!path.startsWith('data.frames')) {
+                return;
+            }
 
             const parts = path.split('.');
             if (parts.length === 2) {
@@ -265,7 +271,9 @@ editor.once('load', () => {
         const checkUnsetPath = /^data\.frames\.(\d+)$/;
         events.push(atlasAsset.on('*:unset', (path) => {
             const match = path.match(checkUnsetPath);
-            if (!match) return;
+            if (!match) {
+                return;
+            }
 
             const key = match[1];
             if (panels[key]) {
@@ -316,7 +324,9 @@ editor.once('load', () => {
                     key = keys[i];
                     index[key] = true;
 
-                    if (!panels[key]) continue;
+                    if (!panels[key]) {
+                        continue;
+                    }
 
                     if (scrollSelectionIntoView) {
                         let scroll = false;
@@ -357,7 +367,9 @@ editor.once('load', () => {
             const keys = spriteEditMode ? spriteEditModeKeys : selectedKeys;
             for (const key of keys) {
                 const panel = panels[key];
-                if (!panel) continue;
+                if (!panel) {
+                    continue;
+                }
 
                 if (selectedSprite) {
                     panel.class.add('sprite-frame');
