@@ -16,7 +16,9 @@ editor.once('load', () => {
     };
 
     editor.on('relay:room:join', (data) => {
-        if (data.name !== `project-${config.project.id}`) return;
+        if (data.name !== `project-${config.project.id}`) {
+            return;
+        }
 
         function addUser(id) {
             if (users[id]) {
@@ -46,7 +48,9 @@ editor.once('load', () => {
     });
 
     editor.on('relay:room:leave', (data) => {
-        if (data.name !== `project-${config.project.id}`) return;
+        if (data.name !== `project-${config.project.id}`) {
+            return;
+        }
 
         const id = data.userId;
         if (!users[id]) {

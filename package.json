@@ -67,7 +67,7 @@
     "concurrently": "9.1.0",
     "cross-env": "7.0.3",
     "dexie": "^4.0.10",
-    "eslint": "9.14.0",
+    "eslint": "9.32.0",
     "filenamify": "6.0.0",
     "highlight.js": "11.9.0",
     "markdown-it": "14.0.0",

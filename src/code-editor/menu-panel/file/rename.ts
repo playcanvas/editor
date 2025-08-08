@@ -5,13 +5,17 @@ editor.once('load', () => {
     ctxMenu.append(new MenuItem({
         text: 'Rename',
         onIsEnabled: () => {
-            if (!editor.call('permissions:write')) return;
+            if (!editor.call('permissions:write')) {
+                return;
+            }
 
             const selected = editor.call('files:contextmenu:selected');
             return selected.length === 1;
         },
         onSelect: () => {
-            if (!editor.call('permissions:write')) return;
+            if (!editor.call('permissions:write')) {
+                return;
+            }
 
             const selected = editor.call('files:contextmenu:selected');
             if (selected.length < 1) {

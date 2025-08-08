@@ -53,7 +53,9 @@ class Trie {
      */
     remove(path) {
         let node = this.find(path);
-        if (!node || node.children.size > 0) return false;
+        if (!node || node.children.size > 0) {
+            return false;
+        }
 
         while (node && node.children.size === 0) {
             node.parent?.children?.delete(node.name);

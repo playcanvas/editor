@@ -116,7 +116,9 @@ editor.once('load', () => {
                 // TODO
                 // disk allowance error
 
-                if (fn) fn(err);
+                if (fn) {
+                    fn(err);
+                }
 
                 return;
             }
@@ -130,7 +132,9 @@ editor.once('load', () => {
                 }
             }
 
-            if (fn) fn(err, res.id);
+            if (fn) {
+                fn(err, res.id);
+            }
         });
     });
 
@@ -180,7 +184,9 @@ editor.once('load', () => {
         }
 
         const asset = editor.api.globals.realtime.assets.get(uniqueId);
-        if (!asset) return;
+        if (!asset) {
+            return;
+        }
 
         asset.submitOp(op);
     });

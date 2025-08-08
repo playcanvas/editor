@@ -83,7 +83,9 @@ export const naturalCompare = (a, b) => {
 
         // If they are both numbers, compare them numerically
         if (/\d/.test(aPart) && /\d/.test(bPart)) {
-            if (+aPart !== +bPart) return +aPart - +bPart;
+            if (+aPart !== +bPart) {
+                return +aPart - +bPart;
+            }
         } else if (aPart !== bPart) {
             return aPart < bPart ? -1 : 1;
         }
@@ -200,7 +202,9 @@ export const remove = (obj, path, index) => {
  * @returns {string} - The human readable string
  */
 export const bytesToHuman = (bytes) => {
-    if (isNaN(bytes) || bytes === 0) return '0 B';
+    if (isNaN(bytes) || bytes === 0) {
+        return '0 B';
+    }
     const k = 1000;
     const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));

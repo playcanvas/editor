@@ -16,7 +16,9 @@ editor.once('load', () => {
         const items = [];
 
         const bits = args.string.match(args.regex);
-        if (!bits) return [args.string];
+        if (!bits) {
+            return [args.string];
+        }
 
         const parts = args.string.split(args.regex);
 
@@ -182,7 +184,9 @@ editor.once('load', () => {
     });
 
     editor.on('relay:room:leave', (data) => {
-        if (data.name !== `project-${config.project.id}`) return;
+        if (data.name !== `project-${config.project.id}`) {
+            return;
+        }
 
         if (lastUser === data.userId) {
             lastUser = null;

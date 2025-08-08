@@ -104,8 +104,12 @@ class LegacySelectField extends LegacyElement {
                 value = '';
             }
 
-            if (this._oldValue === value) return;
-            if (value !== null && this.options[value] === undefined) return;
+            if (this._oldValue === value) {
+                return;
+            }
+            if (value !== null && this.options[value] === undefined) {
+                return;
+            }
 
             if (this.optionElements[this._oldValue]) {
                 this.optionElements[this._oldValue].classList.remove('selected');
@@ -204,7 +208,9 @@ class LegacySelectField extends LegacyElement {
                 break;
             }
 
-            if (!touch) return;
+            if (!touch) {
+                return;
+            }
 
             this.evtTouchId = touch.identifier;
             this.evtMouseDist[0] = touch.pageX;

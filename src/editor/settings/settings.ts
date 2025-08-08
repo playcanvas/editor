@@ -85,7 +85,9 @@ editor.once('load', () => {
 
                     // server -> local
                     doc.on('op', (ops, local) => {
-                        if (local) return;
+                        if (local) {
+                            return;
+                        }
 
                         const history = settings.history?.enabled;
                         if (history) {

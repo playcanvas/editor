@@ -153,11 +153,17 @@ editor.once('load', () => {
             const button = document.createElement('div');
             const divider = items[i].buttons[n].startsWith('$');
             let sign = '';
-            if (divider) sign = items[i].buttons[n].slice(1);
+            if (divider) {
+                sign = items[i].buttons[n].slice(1);
+            }
 
             button.classList.add(divider ? 'divider' : 'button');
-            if (sign === '+') button.classList.add('plus');
-            if (sign === '/') button.classList.add('or');
+            if (sign === '+') {
+                button.classList.add('plus');
+            }
+            if (sign === '/') {
+                button.classList.add('or');
+            }
 
             button.textContent = divider ? sign : items[i].buttons[n];
             buttons.appendChild(button);

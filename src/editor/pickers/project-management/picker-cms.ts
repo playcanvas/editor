@@ -111,7 +111,9 @@ editor.once('load', () => {
             organizationFilter.organization = org;  // add field
             organizationsToggle.append(organizationFilter);
 
-            if (selected && selected === org.full_name) setSelectedFilter(organizationFilter);
+            if (selected && selected === org.full_name) {
+                setSelectedFilter(organizationFilter);
+            }
 
             const organizationImage = new Element({
                 dom: 'img',
@@ -166,8 +168,11 @@ editor.once('load', () => {
         root.append(sortingMenuItem);
 
         let booleanInput;
-        if (type === 'checkbox') booleanInput = new BooleanInput({ class: type });
-        else booleanInput = new RadioButton({ class: type });
+        if (type === 'checkbox') {
+            booleanInput = new BooleanInput({ class: type });
+        } else {
+            booleanInput = new RadioButton({ class: type });
+        }
 
         const labelElement = new Label({ text: label });
         sortingMenuItem.append(booleanInput);
@@ -209,12 +214,19 @@ editor.once('load', () => {
             descendingCheckbox.value = !descendingCheckbox.value;  // update checkbox
             sortDescending = descendingCheckbox.value;
 
-            if (selectedSortRadioButton === nameRadio) sortPolicy = 'name';
-            else if (selectedSortRadioButton === createdRadio) sortPolicy = 'created';
-            else if (selectedSortRadioButton === sizeRadio) sortPolicy = 'size';
+            if (selectedSortRadioButton === nameRadio) {
+                sortPolicy = 'name';
+            } else if (selectedSortRadioButton === createdRadio) {
+                sortPolicy = 'created';
+            } else if (selectedSortRadioButton === sizeRadio) {
+                sortPolicy = 'size';
+            }
 
-            if (sortDescending) sortButton.icon = 'E437';
-            else sortButton.icon = 'E438';
+            if (sortDescending) {
+                sortButton.icon = 'E437';
+            } else {
+                sortButton.icon = 'E438';
+            }
 
             sortProjects(sortPolicy);
         });
@@ -251,7 +263,9 @@ editor.once('load', () => {
             const proj = projects[i];
 
             let lastText = `Last Edited ${formatLastText(proj.modified)}`;
-            if (sortingPolicy === 'created') lastText = `Created ${formatLastText(proj.created)}`;
+            if (sortingPolicy === 'created') {
+                lastText = `Created ${formatLastText(proj.created)}`;
+            }
 
             const spanElement = domProj.querySelector('span.project-last-edited');
             spanElement.innerHTML = lastText;
@@ -276,8 +290,11 @@ editor.once('load', () => {
         });
         projectThumbnailContainer.append(projectThumbnail);
         projectThumbnail.dom.loading = 'lazy';  // lazy loading of images
-        if (project.thumbnails) projectThumbnail.dom.src = project.thumbnails.m;
-        else projectThumbnail.dom.src = EMPTY_THUMBNAIL_IMAGE;
+        if (project.thumbnails) {
+            projectThumbnail.dom.src = project.thumbnails.m;
+        } else {
+            projectThumbnail.dom.src = EMPTY_THUMBNAIL_IMAGE;
+        }
 
         const projectName = new Label({
             class: 'project-name',
@@ -299,7 +316,9 @@ editor.once('load', () => {
                 class: 'extended-settings-button',
                 icon: 'E430'
             });
-            if (isSceneLoaded) projectThumbnailContainer.append(extendedSettings);
+            if (isSceneLoaded) {
+                projectThumbnailContainer.append(extendedSettings);
+            }
 
             extendedSettings.on('click', () => {
                 editor.call('picker:project:close');
@@ -309,22 +328,33 @@ editor.once('load', () => {
 
         projectContainer.on('click', (evt) => {
             // If user clicks on extended settings button, ignore click
-            if (evt.target.nodeName === 'BUTTON') return;
+            if (evt.target.nodeName === 'BUTTON') {
+                return;
+            }
 
             // If disabled project, block click event
-            if (project.disabled) return;
+            if (project.disabled) {
+                return;
+            }
 
-            if (project.locked) editor.call('picker:project:lockedView', project);
-            else if (project.access_level === 'none') editor.call('picker:project:noAdmin', project);
-            else if (IS_EMPTY_STATE || (project.id !== config.project.id)) editor.call('picker:project:reduced', project);
-            else editor.call('picker:project', 'project-main', true);
+            if (project.locked) {
+                editor.call('picker:project:lockedView', project);
+            } else if (project.access_level === 'none') {
+                editor.call('picker:project:noAdmin', project);
+            } else if (IS_EMPTY_STATE || (project.id !== config.project.id)) {
+                editor.call('picker:project:reduced', project);
+            } else {
+                editor.call('picker:project', 'project-main', true);
+            }
         });
 
         // stats container
         const statsContainer = new Container({
             class: 'project-stats-container'
         });
-        if (project.access_level === 'none') statsContainer.class.add('noadmin');
+        if (project.access_level === 'none') {
+            statsContainer.class.add('noadmin');
+        }
         projectContainer.append(statsContainer);
 
         if (project.access_level !== 'none') {
@@ -342,9 +372,15 @@ editor.once('load', () => {
         const sizeLabel = new Label({ class: 'stat', text: bytesToHuman(project.size.total) });  // size
         statsContainer.append(sizeLabel);
 
-        if (project.disabled) projectContainer.element.classList.add('disabled');
-        if (project.access_level === 'none') projectContainer.element.classList.add('noAccess');
-        if (project.locked) projectContainer.element.classList.add('locked');
+        if (project.disabled) {
+            projectContainer.element.classList.add('disabled');
+        }
+        if (project.access_level === 'none') {
+            projectContainer.element.classList.add('noAccess');
+        }
+        if (project.locked) {
+            projectContainer.element.classList.add('locked');
+        }
 
     };
 
@@ -427,7 +463,9 @@ editor.once('load', () => {
     panel.header.append(homeButton);
 
     homeButton.on('click', () => {
-        if (IS_EMPTY_STATE) return;  // disable button if in empty state
+        if (IS_EMPTY_STATE) {
+            return;
+        }  // disable button if in empty state
 
         if (isSceneLoaded) {
             editor.call('picker:project:close');
@@ -661,8 +699,11 @@ editor.once('load', () => {
         searchMatches.clear();  // reset search matches
         const searchResult = editor.call('search:items', projectsToSearch, searchBar.value);
 
-        if (searchBar.value !== '') searchBar.placeholder = '';
-        else searchBar.placeholder = 'Search';
+        if (searchBar.value !== '') {
+            searchBar.placeholder = '';
+        } else {
+            searchBar.placeholder = 'Search';
+        }
 
         searchResult.forEach((result) => {
             result.inSearch = true;
@@ -851,7 +892,9 @@ editor.once('load', () => {
         } else {
             noProjectsButton.hidden = true;
 
-            if (events.length > 0) destroyEvents();
+            if (events.length > 0) {
+                destroyEvents();
+            }
             projectsContainer.element.innerHTML = '';
             projectsContainer.hidden = projects.length === 0;
             projects[currentUser.id].forEach((proj) => {
@@ -869,29 +912,45 @@ editor.once('load', () => {
         switch (sorting_policy) {
             case 'modified':
                 projects[currentUser.id].sort((a, b) => {
-                    if (a.modified < b.modified) return 1 * ascending;
-                    if (a.modified > b.modified) return -1 * ascending;
+                    if (a.modified < b.modified) {
+                        return 1 * ascending;
+                    }
+                    if (a.modified > b.modified) {
+                        return -1 * ascending;
+                    }
                     return 0;
                 });
                 break;
             case 'name':
                 projects[currentUser.id].sort((a, b) => {
-                    if (a.name.toLowerCase() < b.name.toLowerCase()) return 1 * ascending;
-                    if (a.name.toLowerCase() > b.name.toLowerCase()) return -1 * ascending;
+                    if (a.name.toLowerCase() < b.name.toLowerCase()) {
+                        return 1 * ascending;
+                    }
+                    if (a.name.toLowerCase() > b.name.toLowerCase()) {
+                        return -1 * ascending;
+                    }
                     return 0;
                 });
                 break;
             case 'created':
                 projects[currentUser.id].sort((a, b) => {
-                    if (a.created < b.created) return 1 * ascending;
-                    if (a.created > b.created) return -1 * ascending;
+                    if (a.created < b.created) {
+                        return 1 * ascending;
+                    }
+                    if (a.created > b.created) {
+                        return -1 * ascending;
+                    }
                     return 0;
                 });
                 break;
             case 'size':
                 projects[currentUser.id].sort((a, b) => {
-                    if (a.size.total < b.size.total) return 1 * ascending;
-                    if (a.size.total > b.size.total) return -1 * ascending;
+                    if (a.size.total < b.size.total) {
+                        return 1 * ascending;
+                    }
+                    if (a.size.total > b.size.total) {
+                        return -1 * ascending;
+                    }
                     return 0;
                 });
                 break;
@@ -911,7 +970,9 @@ editor.once('load', () => {
     // determines which projects should be shown based on current active filters
     const shouldShowProject = (project) => {
         // If we have a search result, make sure to filter
-        if (searchBar.value.length > 0 && !(searchMatches.has(project.id))) return false;  // ignore project if not in search result
+        if (searchBar.value.length > 0 && !(searchMatches.has(project.id))) {
+            return false;
+        }  // ignore project if not in search result
 
         if (!selectedFilter.organization) {
             switch (selectedFilter.text.toLowerCase()) {
@@ -928,12 +989,17 @@ editor.once('load', () => {
 
     // updates the current filter UI and triggers project reloading
     const setSelectedFilter = (filter) => {
-        if (selectedFilter)  selectedFilter.style.backgroundColor = 'transparent';  // reset old selected filter styling
+        if (selectedFilter)  {
+            selectedFilter.style.backgroundColor = 'transparent';
+        }  // reset old selected filter styling
         selectedFilter = filter;
         selectedFilter.style.backgroundColor = '#364346';
 
-        if (selectedFilter.organization) changeCurrentUser(selectedFilter.organization);
-        else changeCurrentUser(rootUser);
+        if (selectedFilter.organization) {
+            changeCurrentUser(selectedFilter.organization);
+        } else {
+            changeCurrentUser(rootUser);
+        }
 
         loadProjects();  // reload projects
     };
@@ -950,9 +1016,15 @@ editor.once('load', () => {
         const diffMonths = Math.floor(diffDays / 30);
         const diffYears = Math.floor(diffMonths / 12);
 
-        if (diffYears > 0) return diffYears === 1 ? '1 year ago' : `${diffYears} years ago`;
-        if (diffMonths > 0) return diffMonths === 1 ? '1 month ago' : `${diffMonths} months ago`;
-        if (diffDays > 0) return diffDays === 1 ? 'yesterday' : `${diffDays} days ago`;
+        if (diffYears > 0) {
+            return diffYears === 1 ? '1 year ago' : `${diffYears} years ago`;
+        }
+        if (diffMonths > 0) {
+            return diffMonths === 1 ? '1 month ago' : `${diffMonths} months ago`;
+        }
+        if (diffDays > 0) {
+            return diffDays === 1 ? 'yesterday' : `${diffDays} days ago`;
+        }
 
         return 'today';  // return today if project modified less than 24 hours ago
     };
@@ -960,7 +1032,9 @@ editor.once('load', () => {
     // helper method to destroy all outstanding events on close
     const destroyEvents = () => {
         events.forEach((evt) => {
-            if (evt) evt.unbind();
+            if (evt) {
+                evt.unbind();
+            }
         });
         events = [];
     };
@@ -970,8 +1044,12 @@ editor.once('load', () => {
     // load and show data
     overlay.on('show', () => {
         // determine if a scene has been loaded
-        if (config.scene && config.scene.id) isSceneLoaded = true;
-        if (editor.call('viewport:inViewport')) editor.emit('viewport:hover', false);
+        if (config.scene && config.scene.id) {
+            isSceneLoaded = true;
+        }
+        if (editor.call('viewport:inViewport')) {
+            editor.emit('viewport:hover', false);
+        }
     });
 
     // clean up
@@ -988,7 +1066,9 @@ editor.once('load', () => {
 
         editor.call('picker:project:hideAlerts');
 
-        if (editor.call('viewport:inViewport')) editor.emit('viewport:hover', true);
+        if (editor.call('viewport:inViewport')) {
+            editor.emit('viewport:hover', true);
+        }
     });
 
     // prevent viewport hovering when picker is shown
@@ -1029,8 +1109,11 @@ editor.once('load', () => {
     editor.method('picker:project:cms:refreshOrgs', (organization, deleteOrg = false) => {
         const orgsList = organizationsToggle.element.childNodes[1];
         orgsList.innerHTML = '';
-        if (!deleteOrg) rootUser.organizations.push(organization);
-        else rootUser.organizations = rootUser.organizations.filter(org => org.id !== organization.id);
+        if (!deleteOrg) {
+            rootUser.organizations.push(organization);
+        } else {
+            rootUser.organizations = rootUser.organizations.filter(org => org.id !== organization.id);
+        }
         buildOrganizationsUI(organization.full_name);
     });
 

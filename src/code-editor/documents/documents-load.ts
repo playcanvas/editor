@@ -91,7 +91,9 @@ editor.once('load', () => {
             // check if it's dirty
             editor.call('assets:contents:get', asset, (err, content) => {
                 // re-check if we haven't closed the file
-                if (!documentsIndex[id] || err) return;
+                if (!documentsIndex[id] || err) {
+                    return;
+                }
 
                 // If the asset is an ESM script, load its dependencies
                 if (importSubModules && asset.get('file.filename').endsWith('.mjs')) {
@@ -199,7 +201,9 @@ editor.once('load', () => {
         log.error(err);
 
         const entry = documentsIndex[id];
-        if (!entry) return;
+        if (!entry) {
+            return;
+        }
 
         entry.error = err;
         const asset = editor.call('assets:get', id);

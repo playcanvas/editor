@@ -1,7 +1,9 @@
 editor.once('load', () => {
     const sceneSettings = editor.call('sceneSettings');
     const app = editor.call('viewport:app');
-    if (!app) return; // webgl not available
+    if (!app) {
+        return;
+    } // webgl not available
 
     let assetsLoaded = false;
     let sceneSettingsLoaded = false;
@@ -9,7 +11,9 @@ editor.once('load', () => {
 
     // apply settings
     const applySettings = function () {
-        if (!app) return;
+        if (!app) {
+            return;
+        }
 
         updating = false;
 

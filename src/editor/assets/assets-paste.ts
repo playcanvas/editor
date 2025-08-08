@@ -1,11 +1,17 @@
 editor.once('load', () => {
     editor.method('assets:paste', (parentFolder, keepFolderStructure, callback) => {
-        if (!editor.call('permissions:write')) return;
+        if (!editor.call('permissions:write')) {
+            return;
+        }
 
         const clipboard = editor.call('clipboard');
         const value = clipboard.value;
-        if (!value) return;
-        if (value.type !== 'asset') return;
+        if (!value) {
+            return;
+        }
+        if (value.type !== 'asset') {
+            return;
+        }
 
         const data = {
             projectId: value.projectId,

@@ -2,9 +2,15 @@ import { COMPONENT_LOGOS } from '../../core/constants.ts';
 
 editor.once('load', () => {
     const getSubMenu = function (key) {
-        if (['audiolistener', 'sound'].indexOf(key) >= 0) return 'audio-sub-menu';
-        if (['element', 'screen', 'layoutgroup', 'layoutchild', 'button', 'scrollview', 'scrollbar'].indexOf(key) >= 0) return 'ui-sub-menu';
-        if (['rigidbody', 'collision'].indexOf(key) >= 0) return 'physics-sub-menu';
+        if (['audiolistener', 'sound'].indexOf(key) >= 0) {
+            return 'audio-sub-menu';
+        }
+        if (['element', 'screen', 'layoutgroup', 'layoutchild', 'button', 'scrollview', 'scrollbar'].indexOf(key) >= 0) {
+            return 'ui-sub-menu';
+        }
+        if (['rigidbody', 'collision'].indexOf(key) >= 0) {
+            return 'physics-sub-menu';
+        }
 
         return null;
     };

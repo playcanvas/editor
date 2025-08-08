@@ -57,7 +57,9 @@ editor.once('load', () => {
                 evtAssetAdd = editor.once(`assets:add[${res.id}]`, onAssetSelect);
             }
 
-            if (fn) fn(err, res.id);
+            if (fn) {
+                fn(err, res.id);
+            }
         });
     });
 });

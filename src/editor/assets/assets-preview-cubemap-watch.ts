@@ -1,6 +1,8 @@
 editor.once('load', () => {
     const app = editor.call('viewport:app');
-    if (!app) return; // webgl not available
+    if (!app) {
+        return;
+    } // webgl not available
     const watching = { };
 
     const trigger = function (watch, slot) {
@@ -36,7 +38,9 @@ editor.once('load', () => {
         }
 
         const obj = editor.call('assets:get', id);
-        if (obj) obj.on('thumbnails.s:set', watch.textures[slot].fn);
+        if (obj) {
+            obj.on('thumbnails.s:set', watch.textures[slot].fn);
+        }
 
         if (watch.autoLoad) {
             asset = app.assets.get(id);
@@ -63,10 +67,14 @@ editor.once('load', () => {
         app.assets.off(`add:${id}`, watch.textures[slot].addFn);
 
         const asset = app.assets.get(id);
-        if (asset) asset.off('change', watch.textures[slot].fn);
+        if (asset) {
+            asset.off('change', watch.textures[slot].fn);
+        }
 
         const obj = editor.call('assets:get', id);
-        if (obj) obj.unbind('thumbnails.s:set', watch.textures[slot].fn);
+        if (obj) {
+            obj.unbind('thumbnails.s:set', watch.textures[slot].fn);
+        }
 
         delete watch.textures[slot];
     };
@@ -76,7 +84,9 @@ editor.once('load', () => {
             if (watch.textures[slot]) {
                 if (value !== watch.textures[slot].id) {
                     removeTextureWatch(watch, slot);
-                    if (value) addTextureWatch(watch, slot, value);
+                    if (value) {
+                        addTextureWatch(watch, slot, value);
+                    }
                 }
             } else if (value) {
                 addTextureWatch(watch, slot, value);
@@ -101,7 +111,9 @@ editor.once('load', () => {
                     if (watch.textures[i]) {
                         if (id !== watch.textures[i].id) {
                             removeTextureWatch(watch, i);
-                            if (id) addTextureWatch(watch, i, id);
+                            if (id) {
+                                addTextureWatch(watch, i, id);
+                            }
                         }
                     } else if (id) {
                         addTextureWatch(watch, i, id);
@@ -150,7 +162,9 @@ editor.once('load', () => {
 
             watch.retryTimeout = setTimeout(() => {
                 retries--;
-                if (retries < 0) return;
+                if (retries < 0) {
+                    return;
+                }
 
                 asset.loaded = false;
                 watch.onAdd(asset);
@@ -224,7 +238,9 @@ editor.once('load', () => {
 
     editor.method('assets:cubemap:unwatch', (asset, handle) => {
         const watch = watching[asset.get('id')];
-        if (!watch) return;
+        if (!watch) {
+            return;
+        }
 
         if (!watch.callbacks.hasOwnProperty(handle)) {
             return;

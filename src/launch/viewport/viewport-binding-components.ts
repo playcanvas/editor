@@ -1,6 +1,8 @@
 editor.once('load', () => {
     const app = editor.call('viewport:app');
-    if (!app) return; // webgl not available
+    if (!app) {
+        return;
+    } // webgl not available
 
     const assignAttributesToScript = pc.ScriptAttributes.assignAttributesToScript;
 
@@ -55,7 +57,9 @@ editor.once('load', () => {
                         } else if (pc.Script && script instanceof pc.Script) { // otherwise we need to manually assign the value
 
                             // Script has not been initialized yet
-                            if (!script.app) return;
+                            if (!script.app) {
+                                return;
+                            }
 
                             const schema = script.app.scripts.getSchema(scriptName);
                             const attributeSchema = schema.attributes[attributeName];
@@ -143,7 +147,9 @@ editor.once('load', () => {
             }
 
             const entity = app.root.findByGuid(obj.get('resource_id'));
-            if (!entity) return;
+            if (!entity) {
+                return;
+            }
 
             const parts = path.split('.');
             const component = parts[1];
@@ -190,7 +196,9 @@ editor.once('load', () => {
             }
 
             const entity = app.root.findByGuid(obj.get('resource_id'));
-            if (!entity) return;
+            if (!entity) {
+                return;
+            }
 
             const parts = path.split('.');
             const component = parts[1];

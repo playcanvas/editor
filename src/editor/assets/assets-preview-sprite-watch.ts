@@ -1,6 +1,8 @@
 editor.once('load', () => {
     const app = editor.call('viewport:app');
-    if (!app) return; // webgl not available
+    if (!app) {
+        return;
+    } // webgl not available
 
     const watching = { };
 
@@ -11,7 +13,9 @@ editor.once('load', () => {
     };
 
     const unwatchAtlas = function (watch, atlas) {
-        if (!atlas) return;
+        if (!atlas) {
+            return;
+        }
 
         const engineAtlas = app.assets.get(atlas);
 
@@ -55,7 +59,9 @@ editor.once('load', () => {
         const watchAtlas = function () {
             const atlas = watch.asset.get('data.textureAtlasAsset');
             currentAtlas = atlas;
-            if (!atlas) return;
+            if (!atlas) {
+                return;
+            }
 
             const atlasAsset = editor.call('assets:get', atlas);
             if (atlasAsset) {
@@ -152,7 +158,9 @@ editor.once('load', () => {
 
     editor.method('assets:sprite:unwatch', (asset, handle) => {
         const watch = watching[asset.get('id')];
-        if (!watch) return;
+        if (!watch) {
+            return;
+        }
 
         if (!watch.callbacks.hasOwnProperty(handle)) {
             return;

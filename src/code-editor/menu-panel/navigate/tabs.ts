@@ -32,10 +32,14 @@ editor.once('load', () => {
 
     editor.method('editor:command:nextTab', () => {
         const tabs = editor.call('tabs:list');
-        if (!tabs.length) return;
+        if (!tabs.length) {
+            return;
+        }
 
         const focused = editor.call('tabs:focused');
-        if (!focused) return;
+        if (!focused) {
+            return;
+        }
 
         const idx = tabs.indexOf(focused);
         const next = tabs[(idx + 1) % tabs.length];
@@ -68,10 +72,14 @@ editor.once('load', () => {
 
     editor.method('editor:command:previousTab', () => {
         const tabs = editor.call('tabs:list');
-        if (!tabs.length) return;
+        if (!tabs.length) {
+            return;
+        }
 
         const focused = editor.call('tabs:focused');
-        if (!focused) return;
+        if (!focused) {
+            return;
+        }
 
         let idx = tabs.indexOf(focused);
         idx--;
@@ -86,7 +94,9 @@ editor.once('load', () => {
     editor.method('editor:command:selectTab', (index) => {
         const tabs = editor.call('tabs:list');
         const select = tabs[index];
-        if (!select) return;
+        if (!select) {
+            return;
+        }
 
         editor.call('files:select', select.id);
     });

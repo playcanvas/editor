@@ -1,6 +1,10 @@
 editor.once('load', () => {
-    if (!editor.call('users:hasFlag', 'hasFixCorruptedTemplates')) return;
-    if (!editor.call('permissions:write')) return;
+    if (!editor.call('users:hasFlag', 'hasFixCorruptedTemplates')) {
+        return;
+    }
+    if (!editor.call('permissions:write')) {
+        return;
+    }
 
     let entitiesLoaded = false;
     let assetsLoaded = false;
@@ -33,7 +37,9 @@ editor.once('load', () => {
     // and if any are found then open the migration popup and
     // start migrating all scenes if user clicks OK
     function onEntitiesAndAssetsLoaded() {
-        if (canceledMigrationInThisSession || stopMigration) return;
+        if (canceledMigrationInThisSession || stopMigration) {
+            return;
+        }
 
         const foundCorrupted = detectCorruptedTemplateInstances();
         // if (!foundCorrupted) {
@@ -43,7 +49,9 @@ editor.once('load', () => {
         // report corrupted assets but don't show popup just for them
         detectCorruptedTemplateAssets();
 
-        if (!foundCorrupted) return;
+        if (!foundCorrupted) {
+            return;
+        }
 
         evtConfirm = editor.once('picker:fixCorruptedTemplates:confirm', () => {
             runMigration(false);
@@ -195,7 +203,9 @@ editor.once('load', () => {
     // Checks if entity has invalid template ent ids
     function isCorruptedTemplateInstance(entity) {
         const templateEntIds = entity.get('template_ent_ids');
-        if (!templateEntIds) return false;
+        if (!templateEntIds) {
+            return false;
+        }
 
         const id = entity.get('resource_id');
         if (areTemplateEntIdsCorrupted(id, templateEntIds)) {
@@ -206,11 +216,15 @@ editor.once('load', () => {
     // Checks if asset has corrupted nested templates
     function isCorruptedTemplateAsset(asset) {
         const entities = asset.get('data.entities');
-        if (!entities) return;
+        if (!entities) {
+            return;
+        }
 
         for (const id in entities) {
             const templateEntIds = entities[id].template_ent_ids;
-            if (!templateEntIds) continue;
+            if (!templateEntIds) {
+                continue;
+            }
 
             if (areTemplateEntIdsCorrupted(id, templateEntIds)) {
                 return true;
@@ -323,7 +337,9 @@ editor.once('load', () => {
             const entities = asset.get('data.entities');
             for (const id in entities) {
                 const templateEntIds = entities[id].template_ent_ids;
-                if (!templateEntIds) continue;
+                if (!templateEntIds) {
+                    continue;
+                }
 
                 if (areTemplateEntIdsCorrupted(id, templateEntIds)) {
                     if (!dryRun) {

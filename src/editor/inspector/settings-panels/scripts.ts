@@ -132,7 +132,9 @@ class ScriptsSettingsPanel extends BaseSettingsPanel {
     }
 
     destroy() {
-        if (this._destroyed) return;
+        if (this._destroyed) {
+            return;
+        }
 
         this._scriptEvents.forEach(evt => evt.unbind());
         this._scriptEvents.length = 0;

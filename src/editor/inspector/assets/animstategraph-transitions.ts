@@ -58,7 +58,9 @@ class AnimstategraphTransitions extends Container {
             icon: 'E120'
         });
         this._newTransitionButton.on('click', () => {
-            if (this._assets === null) return;
+            if (this._assets === null) {
+                return;
+            }
             const data = this._assets[0].get('data');
             const transitionId = Number(`${Date.now()}${Math.floor(Math.random() * 10000)}`);
             data.transitions[transitionId] = {
@@ -130,7 +132,9 @@ class AnimstategraphTransitions extends Container {
         this._edgeData = edge;
 
         let transitions = this._assets[0].get(`data.layers.${layer}.transitions`);
-        if (!Array.isArray(transitions)) return;
+        if (!Array.isArray(transitions)) {
+            return;
+        }
 
         transitions = transitions.map((transitionId) => {
             const transition = this._assets[0].get(`data.transitions.${transitionId}`);
@@ -268,7 +272,9 @@ class AnimstategraphTransitions extends Container {
                 });
             }
             this._transitionsContainer.append(transitionPanel);
-            if (!this._transitionPanels) this._transitionPanels = [];
+            if (!this._transitionPanels) {
+                this._transitionPanels = [];
+            }
             this._transitionPanels.push(transitionPanel);
 
             transitionPanel.conditions = new Container();
@@ -288,7 +294,9 @@ class AnimstategraphTransitions extends Container {
             }
 
             const addConditions = () => {
-                if (!this._assets) return;
+                if (!this._assets) {
+                    return;
+                }
                 parameters = this._assets[0].get('data.parameters');
                 parameters = Object.keys(parameters).map((key) => {
                     return parameters[key].name;

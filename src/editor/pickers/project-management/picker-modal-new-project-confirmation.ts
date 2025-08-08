@@ -75,12 +75,16 @@ editor.once('load', () => {
 
     // load and show data
     overlay.on('show', () => {
-        if (editor.call('viewport:inViewport')) editor.emit('viewport:hover', false);
+        if (editor.call('viewport:inViewport')) {
+            editor.emit('viewport:hover', false);
+        }
     });
 
     // clean up
     overlay.on('hide', () => {
-        if (editor.call('viewport:inViewport')) editor.emit('viewport:hover', true);
+        if (editor.call('viewport:inViewport')) {
+            editor.emit('viewport:hover', true);
+        }
     });
 
     // prevent viewport hovering when picker is shown

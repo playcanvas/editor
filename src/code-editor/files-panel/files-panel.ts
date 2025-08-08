@@ -87,10 +87,14 @@ editor.once('load', () => {
         /** @type {TreeViewItem} */
         const item = this.ui.parent;
 
-        if (!item.allowSelect || evt.button !== 0) return;
+        if (!item.allowSelect || evt.button !== 0) {
+            return;
+        }
 
         const element = evt.target;
-        if (element.tagName === 'INPUT') return;
+        if (element.tagName === 'INPUT') {
+            return;
+        }
 
         evt.stopPropagation();
 
@@ -295,7 +299,9 @@ editor.once('load', () => {
         asset.on('name:set', (/** @type {string} */ name) => {
             /** @type {TreeViewItem} */
             const parent = item.parent;
-            if (!parent) return;
+            if (!parent) {
+                return;
+            }
 
             // remove and re-insert item
             parent.remove(item);
@@ -395,7 +401,9 @@ editor.once('load', () => {
     // Get selected assets
     editor.method('assets:selected', () => {
         return tree.selected.map((item) => {
-            if (!item._assetId) return null;
+            if (!item._assetId) {
+                return null;
+            }
             return editor.call('assets:get', item._assetId);
         }).filter(asset => !!asset);
     });
@@ -436,7 +444,9 @@ editor.once('load', () => {
 
     // handle reparenting
     tree.on('reparent', (reparented) => {
-        if (!reparented.length) return;
+        if (!reparented.length) {
+            return;
+        }
 
         const assets = reparented.map((node) => {
             return editor.call('assets:get', node.item._assetId);

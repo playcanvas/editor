@@ -37,7 +37,9 @@ editor.once('load', () => {
     // position widget between top elements in viewport
     const positionWidget = function () {
         const canvas = editor.call('viewport:canvas');
-        if (!canvas) return;
+        if (!canvas) {
+            return;
+        }
 
         const canvasRect = canvas.element.getBoundingClientRect();
 
@@ -252,7 +254,9 @@ editor.once('load', () => {
 
     // on focus open the menu and then refocus the input field
     input.elementInput.addEventListener('focus', () => {
-        if (focusing) return;
+        if (focusing) {
+            return;
+        }
 
         focusing = true;
         menu.open = true;
@@ -271,7 +275,9 @@ editor.once('load', () => {
 
     // on blur hide the menu
     input.elementInput.addEventListener('blur', () => {
-        if (focusing) return;
+        if (focusing) {
+            return;
+        }
 
         menu.open = false;
     });
@@ -297,7 +303,9 @@ editor.once('load', () => {
             const words = text.split(' ');
             words.forEach((word) => {
                 word = word.replace(/\W/g, ''); // remove invalid chars
-                if (!word.length) return;
+                if (!word.length) {
+                    return;
+                }
 
                 query.push(new RegExp(`(^|\\s)${word.replace(/\W/, '')}`, 'i'));
             });
@@ -520,7 +528,9 @@ editor.once('load', () => {
         key: ' ',
         ctrl: true,
         callback: function () {
-            if (editor.call('picker:isOpen:otherThan', 'curve')) return;
+            if (editor.call('picker:isOpen:otherThan', 'curve')) {
+                return;
+            }
             editor.call('help:howdoi');
         }
     });

@@ -1,6 +1,8 @@
 editor.once('plugins:load:asset-texture-lod', () => {
     const app = editor.call('viewport:app');
-    if (!app) return; // webgl not available
+    if (!app) {
+        return;
+    } // webgl not available
 
     const slots = ['aoMap', 'diffuseMap', 'emissiveMap', 'glossMap', 'clearCoatMap', 'clearCoatGlossMap', 'clearCoatNormalMap', 'lightMap', 'metalnessMap', 'opacityMap', 'specularMap', 'normalMap'];
 
@@ -305,7 +307,9 @@ editor.once('plugins:load:asset-texture-lod', () => {
             }
 
             const uiItem = editor.call('assets:panel:get', source.get('id'));
-            if (uiItem) uiItem.class.add('task', 'running');
+            if (uiItem) {
+                uiItem.class.add('task', 'running');
+            }
 
             sizes.forEach((options) => {
                 const folder = editor.call('assets:findOne', (asset) => {
@@ -322,7 +326,9 @@ editor.once('plugins:load:asset-texture-lod', () => {
 
                         return asset.get('name') === (`${name}-${options.name}.${ext}`) && parseInt(asset.get('source_asset_id'), 10) === parseInt(source.get('id'), 10) && path[path.length - 1] === folderId;
                     });
-                    if (target) target = target[1];
+                    if (target) {
+                        target = target[1];
+                    }
 
                     let evtTargetAvailable;
 
@@ -352,7 +358,9 @@ editor.once('plugins:load:asset-texture-lod', () => {
                         editor.call('status:text', `texture-lod: converting '${name}-${options.name}.${ext}' asset`);
 
                         const onFileSet = function (value) {
-                            if (!value) return;
+                            if (!value) {
+                                return;
+                            }
                             target.off('file:set', onFileSet);
 
                             setTimeout(() => {

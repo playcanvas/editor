@@ -9,10 +9,14 @@ editor.once('load', () => {
         const line = options.line || 1;
         const col = options.col || 1;
         const view = editor.call('views:get', id);
-        if (!view) return;
+        if (!view) {
+            return;
+        }
 
         setTimeout(() => {
-            if (view !== editor.call('editor:focusedView')) return;
+            if (view !== editor.call('editor:focusedView')) {
+                return;
+            }
 
             const pos = new monaco.Position(line, col);
             monacoEditor.setPosition(pos);

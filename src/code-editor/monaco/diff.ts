@@ -1,8 +1,12 @@
 import { handleCallback } from '../../common/utils.ts';
 
 editor.once('load', () => {
-    if (!editor.call('editor:resolveConflictMode')) return;
-    if (!config.self.branch.merge.isDiff) return;
+    if (!editor.call('editor:resolveConflictMode')) {
+        return;
+    }
+    if (!config.self.branch.merge.isDiff) {
+        return;
+    }
 
     const MODES = {
         script: 'javascript',

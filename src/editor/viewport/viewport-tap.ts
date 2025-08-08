@@ -1,6 +1,8 @@
 editor.once('load', () => {
     const canvas = editor.call('viewport:canvas');
-    if (!canvas) return;
+    if (!canvas) {
+        return;
+    }
 
     function Tap(evt, rect, mouse) {
         this.x = this.lx = this.sx = evt.clientX - rect.left;

@@ -30,6 +30,7 @@ export default [
         },
         rules: {
             'accessor-pairs': ['error', { setWithoutGet: false, getWithoutSet: false }],
+            'curly': ['error', 'all'],
             'no-use-before-define': 'off',
             'no-var': 'off'
         }
@@ -45,6 +46,7 @@ export default [
         },
         rules: {
             'accessor-pairs': ['error', { setWithoutGet: false, getWithoutSet: false }],
+            'curly': ['error', 'all'],
             'no-use-before-define': 'off',
             'no-var': 'off'
         }
@@ -59,6 +61,7 @@ export default [
         },
         rules: {
             'accessor-pairs': ['error', { setWithoutGet: false, getWithoutSet: false }],
+            'curly': ['error', 'all'],
             'no-use-before-define': 'off',
             'no-var': 'off'
         }
@@ -73,6 +76,7 @@ export default [
         },
         rules: {
             'accessor-pairs': ['error', { setWithoutGet: false, getWithoutSet: false }],
+            'curly': ['error', 'all'],
             'no-use-before-define': 'off',
             'no-var': 'off'
         }
@@ -85,6 +89,7 @@ export default [
             }
         },
         rules: {
+            'curly': ['error', 'all'],
             'import/no-named-as-default': 'off'
         }
     },

@@ -121,7 +121,9 @@ class AttributesInspector extends Container {
         const field = Element.create(attr.type, fieldArgs);
         let evtChange = field.on('change', this._onAttributeChangeHandler);
         field.once('destroy', () => {
-            if (!evtChange) return;
+            if (!evtChange) {
+                return;
+            }
             evtChange.unbind();
             evtChange = null;
         });
@@ -308,7 +310,9 @@ class AttributesInspector extends Container {
 
     moveAttribute(path, index) {
         let field = this._fields[path];
-        if (!field) return;
+        if (!field) {
+            return;
+        }
 
         if (!(field instanceof AssetInput)) {
             field = field.parent;
@@ -343,7 +347,9 @@ class AttributesInspector extends Container {
     }
 
     unlink() {
-        if (!this._observers) return;
+        if (!this._observers) {
+            return;
+        }
 
         this._observers = null;
 
@@ -358,7 +364,9 @@ class AttributesInspector extends Container {
     }
 
     destroy() {
-        if (this._destroyed) return;
+        if (this._destroyed) {
+            return;
+        }
 
         if (this._templateOverridesInspector) {
             for (const key in this._fieldAttributes) {
@@ -379,7 +387,9 @@ class AttributesInspector extends Container {
     }
 
     set value(value) {
-        if (!value) return;
+        if (!value) {
+            return;
+        }
 
         const suspend = this._suspendChangeEvt;
         this._suspendChangeEvt = false;

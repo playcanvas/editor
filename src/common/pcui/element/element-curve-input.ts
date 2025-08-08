@@ -69,7 +69,9 @@ class CurveInput extends Element {
         this.dom.addEventListener('blur', this._domEventBlur);
 
         this.on('click', () => {
-            if (!this.enabled || this.readOnly || this.class.contains(CLASS_MULTIPLE_VALUES)) return;
+            if (!this.enabled || this.readOnly || this.class.contains(CLASS_MULTIPLE_VALUES)) {
+                return;
+            }
             this._openCurvePicker();
         });
 
@@ -170,7 +172,9 @@ class CurveInput extends Element {
         editor.call('picker:curve:position', rectField.right - rectPicker.width, rectField.bottom);
 
         let evtChangeStart = editor.on('picker:curve:change:start', () => {
-            if (this._pickerChanging) return;
+            if (this._pickerChanging) {
+                return;
+            }
             this._pickerChanging = true;
 
             if (this._binding) {
@@ -187,7 +191,9 @@ class CurveInput extends Element {
         });
 
         let evtChangeEnd = editor.on('picker:curve:change:end', () => {
-            if (!this._pickerChanging) return;
+            if (!this._pickerChanging) {
+                return;
+            }
             this._pickerChanging = false;
 
             if (this._binding) {
@@ -222,7 +228,9 @@ class CurveInput extends Element {
     }
 
     _onPickerChange(paths, values) {
-        if (!this.value) return;
+        if (!this.value) {
+            return;
+        }
 
         // maybe we should deepCopy the value instead but not doing
         // it now for performance
@@ -233,7 +241,9 @@ class CurveInput extends Element {
         for (let i = 0; i < paths.length; i++) {
             const parts = paths[i].split('.');
             const curve = value[parseInt(parts[0], 10)];
-            if (!curve) continue;
+            if (!curve) {
+                continue;
+            }
 
             if (parts.length === 3) {
                 curve[parts[1]][parseInt(parts[2], 10)] = values[i];
@@ -255,7 +265,9 @@ class CurveInput extends Element {
             }
 
             value.forEach((value) => {
-                if (!value || !value.keys || !value.keys.length) return;
+                if (!value || !value.keys || !value.keys.length) {
+                    return;
+                }
 
                 if (Array.isArray(value.keys[0])) {
                     value.keys.forEach((data) => {
@@ -308,13 +320,19 @@ class CurveInput extends Element {
     // this is mostly to allow splines to go over the limit but if they are too close to
     // the edge then they will avoid rendering half-height lines
     _clampEdge(val, min, max) {
-        if (val < min && val > min - 2) return min;
-        if (val > max && val < max + 2) return max;
+        if (val < min && val > min - 2) {
+            return min;
+        }
+        if (val > max && val < max + 2) {
+            return max;
+        }
         return val;
     }
 
     _convertValueToCurves(value) {
-        if (!value || !value.keys || !value.keys.length) return null;
+        if (!value || !value.keys || !value.keys.length) {
+            return null;
+        }
 
         if (value.keys[0].length !== undefined) {
             return value.keys.map((data) => {
@@ -348,12 +366,16 @@ class CurveInput extends Element {
 
         const minMax = this._getMinMaxValues(value);
 
-        if (!value || !value[0]) return;
+        if (!value || !value[0]) {
+            return;
+        }
 
         // draw curves
         const primaryCurves = this._convertValueToCurves(value[0]);
 
-        if (!primaryCurves) return;
+        if (!primaryCurves) {
+            return;
+        }
 
         const secondaryCurves = value[0].betweenCurves && value.length > 1 ? this._convertValueToCurves(value[1]) : null;
 
@@ -363,7 +385,9 @@ class CurveInput extends Element {
         context.lineWidth = this._lineWidth;
 
         // prevent divide by 0
-        if (width === 0) return;
+        if (width === 0) {
+            return;
+        }
 
         for (let i = 0; i < primaryCurves.length; i++) {
             context.strokeStyle = curveColors[i];
@@ -402,7 +426,9 @@ class CurveInput extends Element {
     }
 
     destroy() {
-        if (this._destroyed) return;
+        if (this._destroyed) {
+            return;
+        }
         this.dom.removeEventListener('keydown', this._domEventKeyDown);
         this.dom.removeEventListener('focus', this._domEventFocus);
         this.dom.removeEventListener('blur', this._domEventBlur);

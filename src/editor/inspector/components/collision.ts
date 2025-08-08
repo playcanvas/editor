@@ -189,11 +189,15 @@ class CollisionComponentInspector extends ComponentInspector {
         });
 
         fieldType.binding.on('history:undo', (context) => {
-            if (!context.prevHeights) return;
+            if (!context.prevHeights) {
+                return;
+            }
 
             context.observers.forEach((entity, i) => {
                 entity = entity.latest();
-                if (!entity) return;
+                if (!entity) {
+                    return;
+                }
 
                 const history = entity.history.enabled;
                 entity.history.enabled = false;
@@ -204,11 +208,15 @@ class CollisionComponentInspector extends ComponentInspector {
         });
 
         fieldType.binding.on('history:redo', (context) => {
-            if (!context.prevHeights) return;
+            if (!context.prevHeights) {
+                return;
+            }
 
             context.observers.forEach((entity) => {
                 entity = entity.latest();
-                if (!entity) return;
+                if (!entity) {
+                    return;
+                }
 
                 const history = entity.history.enabled;
                 entity.history.enabled = false;
@@ -229,7 +237,9 @@ class CollisionComponentInspector extends ComponentInspector {
     }
 
     _toggleFields() {
-        if (this._suppressToggleFields) return;
+        if (this._suppressToggleFields) {
+            return;
+        }
 
         const fieldType = this._field('type');
         this._field('halfExtents').parent.hidden = fieldType.value !== 'box';

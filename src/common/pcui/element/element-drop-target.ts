@@ -123,8 +123,12 @@ class DropTarget extends Element {
     }
 
     _onDragEnter(evt) {
-        if (!this.enabled) return;
-        if (this.readOnly) return;
+        if (!this.enabled) {
+            return;
+        }
+        if (this.readOnly) {
+            return;
+        }
 
         this.class.add(CLASS_DROP_TARGET_DRAG_OVER);
 
@@ -136,15 +140,21 @@ class DropTarget extends Element {
     }
 
     _onDragLeave(evt) {
-        if (!this.enabled) return;
+        if (!this.enabled) {
+            return;
+        }
 
-        if (this.readOnly) return;
+        if (this.readOnly) {
+            return;
+        }
 
         // check if we have already called drag leave. This can happen
         // if we call onDragLeave from onDrop and then our mouse leaves
         // the drop target in which case onDragLeave will be called twice
         // (once in onDrop and once on mouseleave)
-        if (!this.class.contains(CLASS_DROP_TARGET_DRAG_OVER)) return;
+        if (!this.class.contains(CLASS_DROP_TARGET_DRAG_OVER)) {
+            return;
+        }
 
         this.class.remove(CLASS_DROP_TARGET_DRAG_OVER);
 
@@ -205,7 +215,9 @@ class DropTarget extends Element {
     }
 
     destroy() {
-        if (this._destroyed) return;
+        if (this._destroyed) {
+            return;
+        }
         this.dom.removeEventListener('dragenter', this._domEventDragEnter);
         this.dom.removeEventListener('mouseenter', this._domEventDragEnter);
         this.dom.removeEventListener('dragleave', this._domEventDragLeave);

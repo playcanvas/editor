@@ -164,9 +164,13 @@ class CubemapFace extends Container {
                             match = match.index;
 
                             let part = '';
-                            if (match) part = name.slice(0, match).toLowerCase();
+                            if (match) {
+                                part = name.slice(0, match).toLowerCase();
+                            }
                             const i = name.indexOf('.', match);
-                            if (i > 0) part += name.slice(i);
+                            if (i > 0) {
+                                part += name.slice(i);
+                            }
 
                             const faceAssets = editor.call('assets:find', (a) => {
                                 if (a.get('source') || a.get('type') !== 'texture') {
@@ -191,9 +195,13 @@ class CubemapFace extends Container {
                                 m = m.index;
 
                                 let p = '';
-                                if (m) p = name.slice(0, m).toLowerCase();
+                                if (m) {
+                                    p = name.slice(0, m).toLowerCase();
+                                }
                                 const i = name.indexOf('.', m);
-                                if (i > 0) p += name.slice(i);
+                                if (i > 0) {
+                                    p += name.slice(i);
+                                }
 
                                 return p === part;
                             });
@@ -202,9 +210,13 @@ class CubemapFace extends Container {
 
                                 for (let i = 0; i < faceAssets.length; i++) {
                                     let p = faceAssets[i][1].get('name').toLowerCase();
-                                    if (match) p = p.slice(match);
+                                    if (match) {
+                                        p = p.slice(match);
+                                    }
                                     const m = p.indexOf('.');
-                                    if (m > 0) p = p.slice(0, m);
+                                    if (m > 0) {
+                                        p = p.slice(0, m);
+                                    }
 
                                     faceAssets[i] = {
                                         asset: faceAssets[i][1],
@@ -221,7 +233,9 @@ class CubemapFace extends Container {
 
                                 const undo = () => {
                                     currentAsset.latest();
-                                    if (!currentAsset) return;
+                                    if (!currentAsset) {
+                                        return;
+                                    }
                                     currentAsset.history.enabled = false;
                                     for (let i = 0; i < faceAssets.length; i++) {
                                         currentAsset.set(`data.textures.${i}`, null);
@@ -231,7 +245,9 @@ class CubemapFace extends Container {
                                 };
                                 const redo = () => {
                                     currentAsset.latest();
-                                    if (!currentAsset) return;
+                                    if (!currentAsset) {
+                                        return;
+                                    }
                                     currentAsset.history.enabled = false;
                                     for (let i = 0; i < faceAssets.length; i++) {
                                         currentAsset.set(`data.textures.${i}`, parseInt(faceAssetIds[i], 10));
@@ -281,7 +297,9 @@ class CubemapFace extends Container {
     }
 
     unlink() {
-        if (!this._asset) return;
+        if (!this._asset) {
+            return;
+        }
         this._thumbnail.unlink();
         this._assetEvents.forEach(evt => evt.unbind());
         this._assetEvents = [];

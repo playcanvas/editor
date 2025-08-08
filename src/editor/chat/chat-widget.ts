@@ -148,10 +148,14 @@ editor.once('load', () => {
     editor.on('chat:typing', (count, ids) => {
         let color;
         if (count === 0) {
-            if (typersLast) typersLast.classList.remove('active');
+            if (typersLast) {
+                typersLast.classList.remove('active');
+            }
             typersLast = null;
         } else if (count === 1) {
-            if (typersLast) typersLast.classList.remove('active');
+            if (typersLast) {
+                typersLast.classList.remove('active');
+            }
             typersLast = typersSingle;
             typersSingle.classList.add('active');
             // user
@@ -160,7 +164,9 @@ editor.once('load', () => {
             typersSingleUser.textContent = user && user.username || 'user';
             typersSingleUser.style.color = color;
         } else if (count === 2) {
-            if (typersLast) typersLast.classList.remove('active');
+            if (typersLast) {
+                typersLast.classList.remove('active');
+            }
             typersLast = typersDouble;
             typersDouble.classList.add('active');
             // userA
@@ -174,7 +180,9 @@ editor.once('load', () => {
             typersDoubleUserB.textContent = userB && userB.username || 'userB';
             typersDoubleUserB.style.color = color;
         } else {
-            if (typersLast) typersLast.classList.remove('active');
+            if (typersLast) {
+                typersLast.classList.remove('active');
+            }
             typersLast = typersMultiple;
             typersMultiple.classList.add('active');
             typersMultipleUsers.textContent = count;

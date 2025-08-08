@@ -175,7 +175,9 @@ editor.once('load', () => {
         const templateId = root.get('template_id');
 
         const asset = getAssetData(templateId);
-        if (!asset) return null;
+        if (!asset) {
+            return null;
+        }
 
         const instance = getInstanceData(root);
 

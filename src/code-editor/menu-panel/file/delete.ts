@@ -60,7 +60,9 @@ editor.once('load', () => {
 
     // Delete selected files
     editor.method('editor:command:deleteSelected', () => {
-        if (!editor.call('permissions:write')) return;
+        if (!editor.call('permissions:write')) {
+            return;
+        }
 
         const selected = editor.call('assets:selected');
         if (selected.length) {

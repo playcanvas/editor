@@ -36,6 +36,8 @@ editor.once('load', () => {
     }, false);
 
     window.addEventListener('mousedown', () => {
-        if (last) onClear();
+        if (last) {
+            onClear();
+        }
     }, false);
 });

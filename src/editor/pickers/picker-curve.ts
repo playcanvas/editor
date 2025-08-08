@@ -173,7 +173,9 @@ editor.once('load', () => {
 
         if (!betweenCurves) {
             for (i = 0; i < numCurves; i++) {
-                if (!curves[i + numCurves]) continue;
+                if (!curves[i + numCurves]) {
+                    continue;
+                }
 
                 // disable the secondary graph
                 toggleCurve(curves[i + numCurves], false);
@@ -188,7 +190,9 @@ editor.once('load', () => {
         } else {
             // enable the secondary graphs if their respective primary graphs are enabled
             for (i = 0; i < numCurves; i++) {
-                if (!curves[i + numCurves]) continue;
+                if (!curves[i + numCurves]) {
+                    continue;
+                }
 
                 // we might have a different value for the secondary graphs
                 // when we re-enable betweenCurves so fire change event
@@ -294,7 +298,9 @@ editor.once('load', () => {
 
     // called when time or value field change value
     function onFieldChanged() {
-        if (suspendEvents || !selectedAnchor) return;
+        if (suspendEvents || !selectedAnchor) {
+            return;
+        }
 
         changing = true;
 
@@ -384,7 +390,9 @@ editor.once('load', () => {
         }
 
         for (let i = 0; i < numCurves; i++) {
-            if (!curves[numCurves + i]) continue;
+            if (!curves[numCurves + i]) {
+                continue;
+            }
 
             if (betweenCurves) {
                 data.secondaryKeys.push(serializeCurveKeys(curves[numCurves + i]));
@@ -411,7 +419,9 @@ editor.once('load', () => {
 
     btnPaste.on('click', () => {
         const data = editor.call('localStorage:get', 'playcanvas_editor_clipboard_curves');
-        if (!data) return;
+        if (!data) {
+            return;
+        }
 
         const paths = [];
         const values = [];
@@ -957,8 +967,11 @@ editor.once('load', () => {
     // zoom in - out based on delta
     function adjustZoom(delta) {
         const maxDelta = 1;
-        if (delta > maxDelta) delta = maxDelta;
-        else if (delta < -maxDelta) delta = -maxDelta;
+        if (delta > maxDelta) {
+            delta = maxDelta;
+        } else if (delta < -maxDelta) {
+            delta = -maxDelta;
+        }
 
         const speed = delta * (verticalTopValue - verticalBottomValue) / 10;
 

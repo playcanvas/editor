@@ -1,6 +1,8 @@
 editor.once('load', () => {
     const app = editor.call('viewport:app');
-    if (!app) return; // webgl not available
+    if (!app) {
+        return;
+    } // webgl not available
 
     const projectSettings = editor.call('settings:project');
 
@@ -87,7 +89,9 @@ editor.once('load', () => {
         events.push(projectSettings.on('layerOrder:insert', (value, index) => {
             const id = value.get('layer');
             const layer = layerIndex[id];
-            if (!layer) return;
+            if (!layer) {
+                return;
+            }
 
             const transparent = value.get('transparent');
 
@@ -108,7 +112,9 @@ editor.once('load', () => {
         events.push(projectSettings.on('layerOrder:remove', (value) => {
             const id = value.get('layer');
             const layer = layerIndex[id];
-            if (!layer) return;
+            if (!layer) {
+                return;
+            }
 
             const transparent = value.get('transparent');
 
@@ -128,7 +134,9 @@ editor.once('load', () => {
         events.push(projectSettings.on('layerOrder:move', (value, indNew, indOld) => {
             const id = value.get('layer');
             const layer = layerIndex[id];
-            if (!layer) return;
+            if (!layer) {
+                return;
+            }
 
             editor.call('gizmo:layers:removeFromComposition');
 
@@ -147,10 +155,14 @@ editor.once('load', () => {
         }));
 
         const layers = projectSettings.get('layers');
-        if (!layers) return;
+        if (!layers) {
+            return;
+        }
 
         const layerOrder = projectSettings.get('layerOrder');
-        if (!layerOrder) return;
+        if (!layerOrder) {
+            return;
+        }
 
         let i, len;
         const composition = new pc.LayerComposition('viewport-layers');
@@ -162,7 +174,9 @@ editor.once('load', () => {
         for (i = 0, len = layerOrder.length; i < len; i++) {
             const sublayer = layerOrder[i];
             const layer = layerIndex[sublayer.layer];
-            if (!layer) continue;
+            if (!layer) {
+                continue;
+            }
 
             if (sublayer.transparent) {
                 composition.pushTransparent(layer);

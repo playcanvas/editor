@@ -466,7 +466,9 @@ editor.once('load', () => {
                 combine: false,
                 undo: function () {
                     const item = link.latest();
-                    if (!item) return;
+                    if (!item) {
+                        return;
+                    }
 
                     item.history.enabled = false;
                     item.set('position', prevPosition);
@@ -475,7 +477,9 @@ editor.once('load', () => {
                 },
                 redo: function () {
                     const item = link.latest();
-                    if (!item) return;
+                    if (!item) {
+                        return;
+                    }
 
                     item.history.enabled = false;
                     item.set('position', newPosition);
