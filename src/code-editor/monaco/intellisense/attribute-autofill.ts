@@ -1,77 +1,51 @@
+import type { Observer } from '@playcanvas/observer';
+import type * as Monaco from 'monaco-editor';
+
 import { WorkerClient } from '../../../core/worker/worker-client.ts';
 
-/** @import * as Monaco from 'monaco-editor' */
-/** @import { Observer } from '@playcanvas/observer' */
+export interface Fix extends Monaco.languages.TextEdit {
+    title?: string;
+}
 
-/**
- * @typedef {object} ParseError
- * @property {string} file - The file path
- * @property {string} message - The error message
- * @property {number} line - The line number
- * @property {number} column - The column number
- * @property {number} length - The length of the error
- */
-
-/**
- * @typedef {Object} Fix
- * @property {string} text - The text to insert at the fix location
- * @property {string} title - The title of the fix
- * @property {{ startLineNumber: number, startColumn: number, endLineNumber: number, endColumn: number }} range - The range of the fix
- */
-
-/**
- * @typedef {object} ParseAttribute
- * @property {boolean} isAttribute - Whether the attribute is an attribute
- * @property {string} name - The member name
- * @property {string} type - The attribute type (e.g., 'number', 'string')
- * @property {object} start - The start position (JSDoc start if exists, otherwise member position)
- * @property {number} start.line - The start line number
- * @property {number} start.column - The start column number
- * @property {object} end - The end position (JSDoc end if exists, otherwise member position)
- * @property {number} end.line - The end line number
- * @property {number} end.column - The end column number
- */
+interface ParseAttribute {
+    isAttribute: boolean;
+    name: string;
+    type: string;
+    start: { line: number; column: number };
+    end: { line: number; column: number };
+}
 
 const OWNER = 'attribute-autofill';
 
-/**
- * @param {string} url - The engine URL
- * @returns {Promise<string>} - The types source
- */
-const fetchTypes = async (url) => {
+const fetchTypes = async (url: string): Promise<string> => {
     const typesURL = url.replace(/(\.min|\.dbg|\.prf)?\.js$/, '.d.ts');
     const res = await fetch(typesURL);
     return await res.text();
 };
 
-/**
- * The null edit provider is used to return empty lenses when the editor is busy
- * @type {Monaco.languages.CodeLensProvider}
- */
-const NULL_EDIT_PROVIDER = {
+const NULL_EDIT_PROVIDER: Monaco.languages.CodeLensList = {
     lenses: [],
     dispose: () => {}
 };
 
-/**
- * Builds a fix action for the given model and fix
- *
- * @param {Monaco.editor.ITextModel} model - The model
- * @param {Monaco.editor.IMarkerData} marker - The marker
- * @param {Fix} fix - The fix
- * @returns {Monaco.languages.CodeAction} - The action
- */
-const buildFixAction = (model, marker, fix) => {
+const buildFixAction = (
+    model: Monaco.editor.ITextModel,
+    marker: Monaco.editor.IMarkerData,
+    fix: Fix
+): Monaco.languages.CodeAction => {
     return {
         title: fix.title ?? 'Fix',
         diagnostics: [marker],
         kind: 'quickfix',
         isPreferred: true,
         edit: {
-            edits: [{
-                resource: model.uri,
-                textEdit: fix
-            }]
+            edits: [
+                {
+                    resource: model.uri,
+                    textEdit: fix,
+                    versionId: model.getVersionId()
+                } as Monaco.languages.IWorkspaceTextEdit
+            ]
         }
     };
 };
@@ -180,10 +154,13 @@ class JSDocUtils {
 
     /**
      * Apply multiple edits in reverse order to maintain line numbers
-     * @param {Monaco.editor.ITextModel} model - The text model
-     * @param {Monaco.editor.IEditorEdit[]} edits - The edits to apply
+     * @param {Monaco.editor.ITextModel} model - The text model to apply edits to
+     * @param {Monaco.editor.IIdentifiedSingleEditOperation[]} edits - The edits to apply
      */
-    static applyEditsReverse(model, edits) {
+    static applyEditsReverse(
+        model: Monaco.editor.ITextModel,
+        edits: Monaco.editor.IIdentifiedSingleEditOperation[]
+    ): void {
         edits.reverse().forEach(edit => model.applyEdits([edit]));
     }
 }
@@ -195,35 +172,38 @@ class JSDocUtils {
  * @param {string[]} filter - The paths to filter
  * @returns {Promise<[[string, string][], string[]]>} - The scripts and deleted files
  */
-const fetchModuleScripts = async (cache, filter = []) => {
-    const assets = /** @type {Observer[]} */ (editor.call('assets:list') ?? []);
+const fetchModuleScripts = async (
+    cache: Map<string, string>,
+    filter: string[] = []
+) => {
+    const assets = (editor.call('assets:list') ?? []) as Observer[];
 
     // Get all the files that no longer exist. ie files in the cache, but not in esmScripts
     const deletedFiles = [];
 
     // loop over the file cache, remove any files that do no exist in the script assets
-    const assetPaths = assets.map(asset => editor.call('assets:virtualPath', asset));
-    for (const filePath in cache) {
+    const assetPaths = assets.map(asset => editor.call('assets:virtualPath', asset) as string);
+    for (const filePath in cache as any) {
         if (!assetPaths.includes(filePath)) {
             deletedFiles.push(filePath);
             cache.delete(filePath);
         }
     }
 
-    const scripts = await Promise.all(assets.reduce((/** @type {Promise<[string, string]>[]} */ acc, asset) => {
+    const scripts = await Promise.all(assets.reduce((acc: Promise<[string, string]>[], asset: Observer) => {
         // skip non-module assets
         if (!editor.call('assets:isModule', asset)) {
             return acc;
         }
 
         // skip filtered paths
-        const path = /** @type {string} */ (editor.call('assets:virtualPath', asset));
+        const path = editor.call('assets:virtualPath', asset) as string;
         if (filter.includes(path)) {
             return acc;
         }
 
         // skip cached files
-        const hash = asset.get('file.hash');
+        const hash = asset.get('file.hash') as string;
         if (cache.get(path) === hash) {
             return acc;
         }
@@ -232,16 +212,16 @@ const fetchModuleScripts = async (cache, filter = []) => {
         try {
             const url = editor.call('assets:realPath', asset);
 
-            const promise = fetch(url).then(res => res.text()).then((content) => {
+            const promise: Promise<[string, string]> = fetch(url).then(res => res.text()).then((content) => {
                 cache.set(path, hash);
                 return [path, content];
             });
-            acc.push(/** @type {Promise<[string, string]>} */ (promise));
+            acc.push(promise);
         } catch (e) {
             console.error(`Failed to fetch ESM script ${path}`, e);
         }
         return acc;
-    }, []));
+    }, [] as Promise<[string, string]>[]));
 
     return [scripts, deletedFiles];
 };
@@ -254,9 +234,17 @@ const fetchModuleScripts = async (cache, filter = []) => {
  * @param {ParseAttribute} attribute - The attribute object with JSDoc positioning
  * @param {string} action - The action to perform
  */
-const modifyJSDocAttribute = (model, lineNumber, memberName, attribute, action) => {
+const modifyJSDocAttribute = (
+    model: Monaco.editor.ITextModel,
+    lineNumber: number,
+    memberName: string,
+    attribute: ParseAttribute | null,
+    action: 'add' | 'addSlider' | 'remove'
+) => {
     const lines = model.getLinesContent();
-    const { hasJSDoc, isSingleLine } = JSDocUtils.analyzeJSDoc(attribute);
+    const { hasJSDoc, isSingleLine } = JSDocUtils.analyzeJSDoc(
+        attribute ?? { isAttribute: false, name: memberName, type: '', start: { line: lineNumber, column: 1 }, end: { line: lineNumber, column: 1 } }
+    );
 
     if (hasJSDoc) {
         const jsDocStartLine = attribute.start.line;
@@ -292,7 +280,13 @@ const modifyJSDocAttribute = (model, lineNumber, memberName, attribute, action) 
  * Specific JSDoc actions
  */
 const JSDocActions = {
-    remove(model, lines, startLine, endLine, isSingleLine) {
+    remove(
+        model: Monaco.editor.ITextModel,
+        lines: string[],
+        startLine: number,
+        endLine: number,
+        isSingleLine: boolean
+    ) {
         if (isSingleLine) {
             const lineContent = lines[startLine - 1];
             const newContent = JSDocUtils.cleanSingleLineJSDoc(lineContent);
@@ -310,7 +304,7 @@ const JSDocActions = {
             }
         } else {
             const linesToRemove = JSDocUtils.findAttributeLines(lines, startLine, endLine);
-            const edits = linesToRemove.map(lineNumber => ({
+            const edits: Monaco.editor.IIdentifiedSingleEditOperation[] = linesToRemove.map(lineNumber => ({
                 range: {
                     startLineNumber: lineNumber,
                     startColumn: 1,
@@ -323,7 +317,15 @@ const JSDocActions = {
         }
     },
 
-    add(model, startLine, endLine, startLineContent, indent, isSingleLine, action) {
+    add(
+        model: Monaco.editor.ITextModel,
+        startLine: number,
+        endLine: number,
+        startLineContent: string,
+        indent: string,
+        isSingleLine: boolean,
+        action: 'add' | 'addSlider'
+    ) {
         if (isSingleLine) {
             const tags = action === 'addSlider' ? ['@attribute', '@range [0, 100]'] : ['@attribute'];
             const newJsDoc = JSDocUtils.createJSDoc(indent, tags).slice(0, -1); // Remove trailing newline
@@ -369,7 +371,12 @@ const JSDocActions = {
  * @param {string} memberName - The name of the member
  * @param {ParseAttribute} attribute - The attribute object with JSDoc positioning
  */
-const addAttributeToMember = (model, lineNumber, memberName, attribute = null) => {
+const addAttributeToMember = (
+    model: Monaco.editor.ITextModel,
+    lineNumber: number,
+    memberName: string,
+    attribute: ParseAttribute | null = null
+) => {
     modifyJSDocAttribute(model, lineNumber, memberName, attribute, 'add');
 };
 
@@ -380,7 +387,12 @@ const addAttributeToMember = (model, lineNumber, memberName, attribute = null) =
  * @param {string} memberName - The name of the member
  * @param {ParseAttribute} attribute - The attribute object with JSDoc positioning
  */
-const addSliderAttributeToMember = (model, lineNumber, memberName, attribute = null) => {
+const addSliderAttributeToMember = (
+    model: Monaco.editor.ITextModel,
+    lineNumber: number,
+    memberName: string,
+    attribute: ParseAttribute | null = null
+) => {
     modifyJSDocAttribute(model, lineNumber, memberName, attribute, 'addSlider');
 };
 
@@ -391,7 +403,12 @@ const addSliderAttributeToMember = (model, lineNumber, memberName, attribute = n
  * @param {string} memberName - The name of the member
  * @param {ParseAttribute} attribute - The attribute object with JSDoc positioning
  */
-const removeAttributeFromMember = (model, lineNumber, memberName, attribute = null) => {
+const removeAttributeFromMember = (
+    model: Monaco.editor.ITextModel,
+    lineNumber: number,
+    memberName: string,
+    attribute: ParseAttribute | null = null
+) => {
     modifyJSDocAttribute(model, lineNumber, memberName, attribute, 'remove');
 };
 
