@@ -41,7 +41,9 @@ class ColorInput extends Element {
         this.dom.addEventListener('blur', this._domEventBlur);
 
         this.on('click', () => {
-            if (!this.enabled || this.readOnly) return;
+            if (!this.enabled || this.readOnly) {
+                return;
+            }
             this._openColorPicker();
         });
 
@@ -206,7 +208,9 @@ class ColorInput extends Element {
     }
 
     destroy() {
-        if (this._destroyed) return;
+        if (this._destroyed) {
+            return;
+        }
         this.dom.removeEventListener('keydown', this._domEventKeyDown);
         this.dom.removeEventListener('focus', this._domEventFocus);
         this.dom.removeEventListener('blur', this._domEventBlur);
@@ -252,7 +256,9 @@ class ColorInput extends Element {
     }
 
     set channels(value) {
-        if (this._channels === value) return;
+        if (this._channels === value) {
+            return;
+        }
         this._channels = Math.max(0, Math.min(value, 4));
         this._setValue(this.value);
     }

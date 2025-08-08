@@ -113,7 +113,9 @@ editor.once('load', () => {
         app.root.addChild(gizmoAnchor.root);
 
         editor.on('selector:add', (item, type) => {
-            if (type !== 'entity') return;
+            if (type !== 'entity') {
+                return;
+            }
 
             if (!selectedEntity) {
                 selectedEntity = item;

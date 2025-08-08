@@ -1,6 +1,8 @@
 editor.once('load', () => {
     const app = editor.call('viewport:app');
-    if (!app) return; // webgl not available
+    if (!app) {
+        return;
+    } // webgl not available
 
     const canvas = editor.call('viewport:canvas');
     let evtPickHover = null;

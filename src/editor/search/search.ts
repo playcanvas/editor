@@ -4,9 +4,15 @@ editor.once('load', () => {
     editor.method('search:stringEditDistance', (a, b) => {
         // Levenshtein distance
         // https://en.wikibooks.org/wiki/Algorithm_Implementation/Strings/Levenshtein_distance#JavaScript
-        if (a.length === 0) return b.length;
-        if (b.length === 0) return a.length;
-        if (a === b) return 0;
+        if (a.length === 0) {
+            return b.length;
+        }
+        if (b.length === 0) {
+            return a.length;
+        }
+        if (a === b) {
+            return 0;
+        }
 
         let i, j;
         const matrix = [];

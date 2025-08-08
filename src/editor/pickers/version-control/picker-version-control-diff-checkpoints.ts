@@ -219,8 +219,12 @@ editor.once('load', () => {
 
     panel.getSelectedCount = function () {
         let result = 0;
-        if (leftCheckpoint || leftBranch) result++;
-        if (rightCheckpoint || rightBranch) result++;
+        if (leftCheckpoint || leftBranch) {
+            result++;
+        }
+        if (rightCheckpoint || rightBranch) {
+            result++;
+        }
         return result;
     };
 

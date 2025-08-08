@@ -1,6 +1,8 @@
 editor.once('load', () => {
     const app = editor.call('viewport:app');
-    if (!app) return; // webgl not available
+    if (!app) {
+        return;
+    } // webgl not available
     const watching = { };
 
     const trigger = function (watch) {
@@ -35,7 +37,9 @@ editor.once('load', () => {
             watch.engineAsset.on('load', watch.onLoad);
             watch.engineAsset.off('change', watch.onChange);
             watch.engineAsset.on('change', watch.onChange);
-            if (watch.autoLoad) loadFont(watch, asset);
+            if (watch.autoLoad) {
+                loadFont(watch, asset);
+            }
         };
 
         watch.onLoad = function (asset) {
@@ -106,7 +110,9 @@ editor.once('load', () => {
 
     editor.method('assets:font:unwatch', (asset, handle) => {
         const watch = watching[asset.get('id')];
-        if (!watch) return;
+        if (!watch) {
+            return;
+        }
 
         if (!watch.callbacks.hasOwnProperty(handle)) {
             return;

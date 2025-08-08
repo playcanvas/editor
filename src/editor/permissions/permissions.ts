@@ -13,18 +13,24 @@ editor.once('load', () => {
     });
 
     editor.method('permissions:read', (userId) => {
-        if (!userId) userId = config.self.id;
+        if (!userId) {
+            userId = config.self.id;
+        }
         return permissions.hasOwnProperty(userId);
     });
 
     editor.method('permissions:write', (userId) => {
-        if (!userId) userId = config.self.id;
+        if (!userId) {
+            userId = config.self.id;
+        }
 
         return permissions[userId] === 'write' || permissions[userId] === 'admin';
     });
 
     editor.method('permissions:admin', (userId) => {
-        if (!userId) userId = config.self.id;
+        if (!userId) {
+            userId = config.self.id;
+        }
 
         return permissions[userId] === 'admin';
     });

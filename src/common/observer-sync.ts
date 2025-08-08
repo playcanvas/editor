@@ -48,7 +48,9 @@ class ObserverSync extends Events {
     _initialize() {
         // object/array set
         this.item.on('*:set', (path, value, valueOld) => {
-            if (!this._enabled) return;
+            if (!this._enabled) {
+                return;
+            }
 
             // if this happens it's a bug
             if (this.item.sync !== this) {
@@ -108,7 +110,9 @@ class ObserverSync extends Events {
 
         // unset
         this.item.on('*:unset', (path, value) => {
-            if (!this._enabled) return;
+            if (!this._enabled) {
+                return;
+            }
 
             this.emit('op', {
                 p: this._prefix.concat(path.split('.')),
@@ -118,7 +122,9 @@ class ObserverSync extends Events {
 
         // list move
         this.item.on('*:move', (path, value, ind, indOld) => {
-            if (!this._enabled) return;
+            if (!this._enabled) {
+                return;
+            }
             this.emit('op', {
                 p: this._prefix.concat(path.split('.')).concat([indOld]),
                 lm: ind
@@ -127,7 +133,9 @@ class ObserverSync extends Events {
 
         // list remove
         this.item.on('*:remove', (path, value, ind) => {
-            if (!this._enabled) return;
+            if (!this._enabled) {
+                return;
+            }
 
             // need jsonify
             if (value instanceof Observer || value instanceof ObserverList) {
@@ -142,7 +150,9 @@ class ObserverSync extends Events {
 
         // list insert
         this.item.on('*:insert', (path, value, ind) => {
-            if (!this._enabled) return;
+            if (!this._enabled) {
+                return;
+            }
 
             // need jsonify
             if (value instanceof Observer || value instanceof ObserverList) {

@@ -1,8 +1,12 @@
 import { Overlay, Container, Label, Button, Spinner } from '@playcanvas/pcui';
 
 editor.once('load', () => {
-    if (!editor.call('users:hasFlag', 'hasFixCorruptedTemplates')) return;
-    if (!editor.call('permissions:write')) return;
+    if (!editor.call('users:hasFlag', 'hasFixCorruptedTemplates')) {
+        return;
+    }
+    if (!editor.call('permissions:write')) {
+        return;
+    }
 
     const STATE_START = 1;
     const STATE_FINDING_ISSUES = 2;
@@ -81,7 +85,9 @@ editor.once('load', () => {
     let report = null;
 
     function downloadReport(title) {
-        if (!report) return;
+        if (!report) {
+            return;
+        }
 
         const blob = new Blob([JSON.stringify(report, null, 4)], { type: 'application/json' });
         const a = document.createElement('a');
@@ -116,7 +122,9 @@ editor.once('load', () => {
 
     let currentState = null;
     function setState(state, data) {
-        if (currentState === state) return;
+        if (currentState === state) {
+            return;
+        }
 
         currentState = state;
 

@@ -12,7 +12,9 @@ editor.once('load', () => {
     const resyncHierarchy = function () {
         awaitingResyncHierarchy = false;
 
-        if (!app) return; // webgl not available
+        if (!app) {
+            return;
+        } // webgl not available
 
         // sync hierarchy
         app.root.syncHierarchy();
@@ -63,7 +65,9 @@ editor.once('load', () => {
     };
 
     const processEntity = function (/** @type {EntityObserver} */ obj) {
-        if (!app) return null; // webgl not available
+        if (!app) {
+            return null;
+        } // webgl not available
 
         // create entity
         const entity = obj.entity = createEntity(obj);
@@ -97,7 +101,9 @@ editor.once('load', () => {
 
     const processEntityComponents = function (entity, /** @type {EntityObserver} */ obj) {
 
-        if (!entity) return;
+        if (!entity) {
+            return;
+        }
 
         // add components
         const components = obj.json().components;

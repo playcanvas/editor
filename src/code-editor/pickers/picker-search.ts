@@ -288,7 +288,9 @@ editor.once('load', () => {
     }
 
     const closeFilter = function () {
-        if (!filterShow) return;
+        if (!filterShow) {
+            return;
+        }
         filterShow = false;
 
         if (!includeFilter.doFilter && !excludeFilter.doFilter) {
@@ -344,7 +346,9 @@ editor.once('load', () => {
         window.removeEventListener('keydown', onKeyDown);
 
         onTransitionEnd = null;
-        if (!open) return;
+        if (!open) {
+            return;
+        }
 
         onTransitionEnd = function () {
             panel.hidden = true;
@@ -424,7 +428,9 @@ editor.once('load', () => {
 
     // execute search
     searchField.on('change', (value) => {
-        if (suspendChangeEvt) return;
+        if (suspendChangeEvt) {
+            return;
+        }
 
         if (previousText !== value) {
             updateQuery();
@@ -434,7 +440,9 @@ editor.once('load', () => {
     });
 
     includeFilter.textField.on('change', (value) => {
-        if (suspendChangeEvt) return;
+        if (suspendChangeEvt) {
+            return;
+        }
 
         if (includeFilter.pattern !== value) {
             updateFilterRegex(includeFilter);
@@ -443,7 +451,9 @@ editor.once('load', () => {
         }
     });
     excludeFilter.textField.on('change', (value) => {
-        if (suspendChangeEvt) return;
+        if (suspendChangeEvt) {
+            return;
+        }
 
         if (excludeFilter.pattern !== value) {
             updateFilterRegex(excludeFilter);

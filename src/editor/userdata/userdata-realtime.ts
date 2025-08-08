@@ -20,7 +20,9 @@ editor.once('load', () => {
         data.on('load', () => {
             // notify of operations
             data.on('op', (ops, local) => {
-                if (local) return;
+                if (local) {
+                    return;
+                }
 
                 for (let i = 0; i < ops.length; i++) {
                     if (ops[i].p[0]) {

@@ -50,7 +50,9 @@ editor.once('load', () => {
 
     // set tooltip text
     editor.method('cursor:text', (text) => {
-        if (text) tooltip.text = text;
+        if (text) {
+            tooltip.text = text;
+        }
         tooltip.hidden = !text;
 
         tooltip.style.transform = `translate(${lastX}px,${lastY}px)`;

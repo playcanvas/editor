@@ -1,10 +1,14 @@
 editor.once('load', () => {
     // Modify frame and make the action undoable
     editor.method('picker:sprites:commitFrameChanges', (key, frame, oldFrame) => {
-        if (!editor.call('permissions:write')) return;
+        if (!editor.call('permissions:write')) {
+            return;
+        }
 
         const atlasAsset = editor.call('picker:sprites:atlasAsset');
-        if (!atlasAsset) return;
+        if (!atlasAsset) {
+            return;
+        }
 
         const newValue = {
             name: frame.name,
@@ -26,7 +30,9 @@ editor.once('load', () => {
 
         const redo = function () {
             const asset = editor.call('assets:get', atlasAsset.get('id'));
-            if (!asset) return;
+            if (!asset) {
+                return;
+            }
             const history = asset.history.enabled;
             asset.history.enabled = false;
             asset.set(`data.frames.${key}`, newValue);
@@ -35,7 +41,9 @@ editor.once('load', () => {
 
         const undo = function () {
             const asset = editor.call('assets:get', atlasAsset.get('id'));
-            if (!asset) return;
+            if (!asset) {
+                return;
+            }
             const history = asset.history.enabled;
             asset.history.enabled = false;
             if (oldFrame) {

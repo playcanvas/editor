@@ -32,7 +32,9 @@ class RelayServer extends Events {
      * @param {string} url - The server URL
      */
     connect(url) {
-        if (this._connected || this._connecting) return;
+        if (this._connected || this._connecting) {
+            return;
+        }
 
         this._url = url;
         this._connectAttempts++;
@@ -235,7 +237,9 @@ class RelayServer extends Events {
      * @param {object} msg - The message data
      */
     send(msg) {
-        if (!this._connected) return;
+        if (!this._connected) {
+            return;
+        }
 
         this.socket.send(JSON.stringify(msg));
     }
@@ -248,7 +252,9 @@ class RelayServer extends Events {
      * @param {string} args.reason - The reason for the disconnection. Defaults to 'unknown'.
      */
     close(args) {
-        if (!this._connected) return;
+        if (!this._connected) {
+            return;
+        }
 
         args = args || { };
         args.code = args.code || 1000; // 1000 - CLOSE_NORMAL

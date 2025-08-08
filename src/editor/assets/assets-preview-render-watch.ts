@@ -1,6 +1,8 @@
 editor.once('load', () => {
     const app = editor.call('viewport:app');
-    if (!app) return; // webgl not available
+    if (!app) {
+        return;
+    } // webgl not available
 
     const watching = { };
 
@@ -59,7 +61,9 @@ editor.once('load', () => {
         const watchContainer = function () {
             const container = watch.asset.get('data.containerAsset');
             currentContainer = container;
-            if (!container) return;
+            if (!container) {
+                return;
+            }
 
             const containerAsset = editor.call('assets:get', container);
             if (containerAsset) {
@@ -113,11 +117,15 @@ editor.once('load', () => {
 
             watchContainer();
 
-            if (watch.autoLoad) load(watch, asset);
+            if (watch.autoLoad) {
+                load(watch, asset);
+            }
         };
 
         watch.onLoad = function (asset) {
-            if (!asset.resource) return;
+            if (!asset.resource) {
+                return;
+            }
 
             asset.resource.off('set:meshes', watch.onSetMeshes);
             asset.resource.on('set:meshes', watch.onSetMeshes);
@@ -211,7 +219,9 @@ editor.once('load', () => {
 
     editor.method('assets:render:unwatch', (asset, handle) => {
         const watch = watching[asset.get('id')];
-        if (!watch) return;
+        if (!watch) {
+            return;
+        }
 
         if (!watch.callbacks.hasOwnProperty(handle)) {
             return;

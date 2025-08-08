@@ -35,13 +35,19 @@ class CubemapThumbnailRenderer {
     _onImageLoad() {
         // if the renderer is destroyed before the image is loaded
         // the canvas will be null so check here...
-        if (!this._canvas) return;
+        if (!this._canvas) {
+            return;
+        }
         this.queueRender();
     }
 
     queueRender() {
-        if (this._queuedRender) return;
-        if (!this._asset) return;
+        if (this._queuedRender) {
+            return;
+        }
+        if (!this._asset) {
+            return;
+        }
 
         this._queuedRender = true;
         this._frameRequest = requestAnimationFrame(this.render.bind(this));
@@ -50,7 +56,9 @@ class CubemapThumbnailRenderer {
     render() {
         this._queuedRender = false;
 
-        if (!this._asset) return;
+        if (!this._asset) {
+            return;
+        }
 
         const images = this._images;
 

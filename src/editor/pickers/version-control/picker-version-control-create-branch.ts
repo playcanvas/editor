@@ -60,7 +60,9 @@ editor.once('load', () => {
     panel.class.add('create-branch');
 
     var createBranch = function () {
-        if (panel.buttonConfirm.disabled) return;
+        if (panel.buttonConfirm.disabled) {
+            return;
+        }
         panel.emit('confirm', {
             name: fieldBranchName.value,
             sourceBranchId: panel.sourceBranch.id

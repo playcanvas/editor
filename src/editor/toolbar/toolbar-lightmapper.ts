@@ -86,7 +86,9 @@ editor.once('load', () => {
         key: 'b',
         ctrl: true,
         callback: function () {
-            if (editor.call('picker:isOpen:otherThan', 'curve')) return;
+            if (editor.call('picker:isOpen:otherThan', 'curve')) {
+                return;
+            }
 
             editor.call('lightmapper:bake');
             editor.call('entities:shadows:update');

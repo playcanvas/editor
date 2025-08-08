@@ -62,7 +62,9 @@ class AnimationAssetInspector extends Panel {
 
     addEvent() {
         let events = this._assets[0].get('data.events');
-        if (!events) events = {};
+        if (!events) {
+            events = {};
+        }
         events[Object.keys(events).length] = {
             name: 'event',
             time: 0

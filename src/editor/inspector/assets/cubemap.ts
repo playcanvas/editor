@@ -341,7 +341,9 @@ class CubemapAssetInspector extends Container {
     }
 
     unlink() {
-        if (this._assets === null) return;
+        if (this._assets === null) {
+            return;
+        }
         this._cubemapAttributesInspector.unlink();
         this._faces.forEach((face) => {
             face.unlink();

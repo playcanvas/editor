@@ -1,7 +1,9 @@
 editor.once('load', () => {
     editor.method('templates:computeFilteredOverrides', (root) => {
         const overrides = editor.call('templates:computeOverrides', root);
-        if (!overrides) return overrides;
+        if (!overrides) {
+            return overrides;
+        }
 
         filterRemovableConflicts(
             overrides, 'children', 'templates:handleChildrenConflict');

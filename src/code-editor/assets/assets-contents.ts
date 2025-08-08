@@ -27,7 +27,9 @@ editor.once('load', () => {
 
     // Load asset file contents and call callback
     editor.method('assets:loadFile', (asset, fn) => {
-        if (!fn) return;
+        if (!fn) {
+            return;
+        }
 
         const id = asset.get('id');
         if (!loadRequests[id]) {

@@ -9,7 +9,9 @@ editor.once('load', () => {
     const bundleAssets = [];
 
     const addToIndex = function (assetIds, bundleAsset) {
-        if (!assetIds) return;
+        if (!assetIds) {
+            return;
+        }
 
         for (let i = 0; i < assetIds.length; i++) {
             if (!bundlesIndex[assetIds[i]]) {
@@ -26,7 +28,9 @@ editor.once('load', () => {
 
     // fill bundlesIndex when a new bundle asset is added
     editor.on('assets:add', (asset) => {
-        if (asset.get('type') !== 'bundle') return;
+        if (asset.get('type') !== 'bundle') {
+            return;
+        }
 
         bundleAssets.push(asset);
         addToIndex(asset.get('data.assets'), asset);
@@ -40,7 +44,9 @@ editor.once('load', () => {
         });
 
         asset.on('data.assets:remove', (assetId) => {
-            if (!bundlesIndex[assetId]) return;
+            if (!bundlesIndex[assetId]) {
+                return;
+            }
             const idx = bundlesIndex[assetId].indexOf(asset);
             if (idx !== -1) {
                 bundlesIndex[assetId].splice(idx, 1);
@@ -55,7 +61,9 @@ editor.once('load', () => {
     // remove bundle asset from bundlesIndex when a bundle asset is
     // removed
     editor.on('assets:remove', (asset) => {
-        if (asset.get('type') !== 'bundle') return;
+        if (asset.get('type') !== 'bundle') {
+            return;
+        }
 
         let idx = bundleAssets.indexOf(asset);
         if (idx !== -1) {
@@ -105,12 +113,18 @@ editor.once('load', () => {
 
     const isAssetValid = function (asset, bundleAsset) {
         const id = asset.get('id');
-        if (asset.get('source')) return false;
-        if (INVALID_TYPES.indexOf(asset.get('type')) !== -1) return false;
+        if (asset.get('source')) {
+            return false;
+        }
+        if (INVALID_TYPES.indexOf(asset.get('type')) !== -1) {
+            return false;
+        }
 
         if (bundleAsset) {
             const existingAssetIds = bundleAsset.getRaw('data.assets');
-            if (existingAssetIds.indexOf(id) !== -1) return false;
+            if (existingAssetIds.indexOf(id) !== -1) {
+                return false;
+            }
         }
 
         return true;
@@ -135,11 +149,15 @@ editor.once('load', () => {
         });
 
         const len = validAssets.length;
-        if (!len) return;
+        if (!len) {
+            return;
+        }
 
         const undo = function () {
             const asset = editor.call('assets:get', bundleAsset.get('id'));
-            if (!asset) return;
+            if (!asset) {
+                return;
+            }
 
             const history = asset.history.enabled;
             asset.history.enabled = false;
@@ -151,7 +169,9 @@ editor.once('load', () => {
 
         const redo = function () {
             const asset = editor.call('assets:get', bundleAsset.get('id'));
-            if (!asset) return;
+            if (!asset) {
+                return;
+            }
 
             const history = asset.history.enabled;
             asset.history.enabled = false;
@@ -184,7 +204,9 @@ editor.once('load', () => {
     editor.method('assets:bundles:removeAssets', (assets, bundleAsset) => {
         const redo = function () {
             const asset = editor.call('assets:get', bundleAsset.get('id'));
-            if (!asset) return;
+            if (!asset) {
+                return;
+            }
 
             const history = asset.history.enabled;
             asset.history.enabled = false;
@@ -196,7 +218,9 @@ editor.once('load', () => {
 
         const undo = function () {
             const asset = editor.call('assets:get', bundleAsset.get('id'));
-            if (!asset) return;
+            if (!asset) {
+                return;
+            }
 
             const history = asset.history.enabled;
             asset.history.enabled = false;
@@ -230,7 +254,9 @@ editor.once('load', () => {
         const assets = bundleAsset.get('data.assets');
         for (let i = 0; i < assets.length; i++) {
             const asset = editor.call('assets:get', assets[i]);
-            if (!asset || !asset.has('file.size')) continue;
+            if (!asset || !asset.has('file.size')) {
+                continue;
+            }
 
             size += asset.get('file.size');
         }

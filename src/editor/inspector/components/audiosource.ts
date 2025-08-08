@@ -115,7 +115,9 @@ class AudiosourceComponentInspector extends ComponentInspector {
     }
 
     _toggleFields() {
-        if (this._skipToggleFields) return;
+        if (this._skipToggleFields) {
+            return;
+        }
 
         const is3d = this._field('3d').value === true;
 

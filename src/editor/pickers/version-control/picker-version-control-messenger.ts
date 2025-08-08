@@ -114,7 +114,9 @@ editor.once('load', () => {
 
     // Show overlay when checkpoint started being created
     editor.on('messenger:checkpoint.createStarted', (data) => {
-        if (data.branch_id !== config.self.branch.id) return;
+        if (data.branch_id !== config.self.branch.id) {
+            return;
+        }
 
         currentCheckpointBeingCreated = data.checkpoint_id;
         overlayCreatingCheckpoint.setTitle(`${truncateFullName(data.user_full_name)} is creating a checkpoint.`);
@@ -124,7 +126,9 @@ editor.once('load', () => {
     // If the checkpoint that was being created finished and we were showing an
     // overlay for it then hide that overlay
     editor.on('messenger:checkpoint.createEnded', (data) => {
-        if (data.checkpoint_id !== currentCheckpointBeingCreated) return;
+        if (data.checkpoint_id !== currentCheckpointBeingCreated) {
+            return;
+        }
         currentCheckpointBeingCreated = null;
         overlayCreatingCheckpoint.hidden = true;
 
@@ -136,14 +140,18 @@ editor.once('load', () => {
 
     // show overlay when checkpoint starts being restored
     editor.on('messenger:checkpoint.revertStarted', (data) => {
-        if (data.branch_id !== config.self.branch.id) return;
+        if (data.branch_id !== config.self.branch.id) {
+            return;
+        }
         overlayRestoringCheckpoint.setTitle(`${truncateFullName(data.user_full_name)} is restoring checkpoint ${data.checkpoint_id.substring(0, 7)}`);
         overlayRestoringCheckpoint.hidden = false;
     });
 
     // show overlay when checkpoint was restored
     editor.on('messenger:checkpoint.revertEnded', (data) => {
-        if (data.branch_id !== config.self.branch.id) return;
+        if (data.branch_id !== config.self.branch.id) {
+            return;
+        }
         if (data.status === 'success') {
             overlayRestoringCheckpoint.hidden = true;
             overlayCheckpointRestored.setTitle(`${truncateFullName(data.user_full_name)} restored checkpoint ${data.checkpoint_id.substring(0, 7)}`);
@@ -157,14 +165,18 @@ editor.once('load', () => {
 
     // show overlay when branch is deleting
     editor.on('messenger:branch.deleteStarted', (data) => {
-        if (data.branch_id !== config.self.branch.id) return;
+        if (data.branch_id !== config.self.branch.id) {
+            return;
+        }
         overlayDeletingBranch.setTitle(`${truncateFullName(data.user_full_name)} is deleting this branch`);
         overlayDeletingBranch.hidden = false;
     });
 
     // show overlay when branch finished deleting
     editor.on('messenger:branch.deleteEnded', (data) => {
-        if (data.branch_id !== config.self.branch.id) return;
+        if (data.branch_id !== config.self.branch.id) {
+            return;
+        }
         if (data.status === 'success') {
             overlayDeletingBranch.hidden = true;
             overlayDeletedBranch.setTitle(`${truncateFullName(data.user_full_name)} deleted this branch`);
@@ -177,14 +189,18 @@ editor.once('load', () => {
 
     // show overlay when hard reset starts
     editor.on('messenger:checkpoint.hardResetStarted', (data) => {
-        if (data.branch_id !== config.self.branch.id) return;
+        if (data.branch_id !== config.self.branch.id) {
+            return;
+        }
         overlayHardResetInProgress.setTitle(`${truncateFullName(data.user_full_name)} is hard resetting to checkpoint ${data.checkpoint_id.substring(0, 7)}`);
         overlayHardResetInProgress.hidden = false;
     });
 
     // show overlay when hard reset finishes
     editor.on('messenger:checkpoint.hardResetEnded', (data) => {
-        if (data.branch_id !== config.self.branch.id) return;
+        if (data.branch_id !== config.self.branch.id) {
+            return;
+        }
         if (data.status === 'success') {
             overlayHardResetInProgress.hidden = true;
             overlayHardResetDone.setTitle(`${truncateFullName(data.user_full_name)} performed hard reset to checkpoint ${data.checkpoint_id.substring(0, 7)}`);
@@ -198,7 +214,9 @@ editor.once('load', () => {
 
     // show overlay if our current branch was closed
     editor.on('messenger:branch.close', (data) => {
-        if (data.branch_id !== config.self.branch.id) return;
+        if (data.branch_id !== config.self.branch.id) {
+            return;
+        }
 
         overlayDeletingBranch.hidden = true;
         overlayBranchClosed.hidden = false;
@@ -213,7 +231,9 @@ editor.once('load', () => {
 
     // if a merge has started for our branch then show overlay
     editor.on('messenger:merge.new', (data) => {
-        if (data.dst_branch_id !== config.self.branch.id) return;
+        if (data.dst_branch_id !== config.self.branch.id) {
+            return;
+        }
 
         config.self.branch.merge = {
             id: data.merge_id,
@@ -228,7 +248,9 @@ editor.once('load', () => {
 
     // store current merge progress
     editor.on('messenger:merge.setProgress', (data) => {
-        if (data.dst_branch_id !== config.self.branch.id) return;
+        if (data.dst_branch_id !== config.self.branch.id) {
+            return;
+        }
 
         if (config.self.branch.merge) {
             config.self.branch.merge.mergeProgressStatus = data.status;
@@ -247,8 +269,12 @@ editor.once('load', () => {
 
     // show overlay if the current merge has been force stopped
     editor.on('messenger:merge.delete', (data) => {
-        if (!config.self.branch.merge) return;
-        if (config.self.branch.merge.id !== data.merge_id) return;
+        if (!config.self.branch.merge) {
+            return;
+        }
+        if (config.self.branch.merge.id !== data.merge_id) {
+            return;
+        }
 
         editor.call('picker:versioncontrol:mergeOverlay:hide');
 
@@ -273,7 +299,9 @@ editor.once('load', () => {
     // check if our current branch is different than the one we have currently loaded
     // this can happen say if the branch is switch while the window is being refreshed
     function checkValidBranch() {
-        if (!editor.call('permissions:read')) return;
+        if (!editor.call('permissions:read')) {
+            return;
+        }
 
         handleCallback(editor.api.globals.rest.home.homeBranch(), (status, data) => {
             if (data && data.id !== config.self.branch.id) {

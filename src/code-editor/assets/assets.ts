@@ -55,7 +55,9 @@ editor.once('load', () => {
 
                 // After changing the file, update the dependencies of the focused tab
                 const tab = editor.call('tabs:focused');
-                if (tab) editor.call('asset:update-dependencies', tab.asset);
+                if (tab) {
+                    editor.call('asset:update-dependencies', tab.asset);
+                }
             });
             updateAssetVirtualPath(asset);
         });
@@ -173,7 +175,9 @@ editor.once('load', () => {
     });
 
     const assetVirtualPath = (asset) => {
-        if (!asset.get('file')?.filename) return null;
+        if (!asset.get('file')?.filename) {
+            return null;
+        }
         const pathSegments = asset.get('path').map(id => editor.call('assets:get', id).get('name'));
         return `/${[...pathSegments, asset.get('file').filename].join('/')}`;
     };

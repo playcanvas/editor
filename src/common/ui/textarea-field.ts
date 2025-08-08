@@ -104,7 +104,9 @@ class LegacyTextAreaField extends LegacyElement {
     }
 
     _onChange() {
-        if (this.ignoreChange) return;
+        if (this.ignoreChange) {
+            return;
+        }
 
         this.value = this.value || '';
 
@@ -142,7 +144,9 @@ class LegacyTextAreaField extends LegacyElement {
 
     focus(select) {
         this.elementInput.focus();
-        if (select) this.elementInput.select();
+        if (select) {
+            this.elementInput.select();
+        }
     }
 
     _onInputFocus() {

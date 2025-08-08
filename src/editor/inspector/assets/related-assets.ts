@@ -62,7 +62,9 @@ class RelatedAssetsInspector extends Container {
     }
 
     unlink() {
-        if (!this._relatedAssets) return;
+        if (!this._relatedAssets) {
+            return;
+        }
         this._removeRelatedAssets();
         this._assetEvents.forEach(evt => evt.unbind());
         this._assetEvents = [];
