@@ -221,6 +221,9 @@ editor.once('load', () => {
         // we should support that selection type
         if (!objTypes.has(selectionType)) return;
 
+        // respect exceptions
+        if (pathsExceptions.has(`${selectionType}:${newPath}`)) return;
+
         // remember target path and value type
         path = newPath;
         schemaType = type;
