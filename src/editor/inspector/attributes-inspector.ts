@@ -143,14 +143,25 @@ class AttributesInspector extends Container {
                     let target = field;
 
                     // if part of a label group, provide copying for the whole element
-                    if (parent instanceof LabelGroup) target = parent;
+                    if (parent instanceof LabelGroup) {
+                        target = parent;
+                    }
 
                     // modify type based on various rules
                     let type = attr.type;
-                    if (type === 'select') type = attr.args.type;
-                    if (type === 'assets') type = 'array:asset';
-                    if (type === 'slider') type = 'number';
-                    if ((type === 'asset' || type === 'array:asset') && attr.args?.assetType) type += `:${attr.args.assetType}`;
+
+                    if (type === 'select') {
+                        type = attr.args.type;
+                    }
+                    if (type === 'assets') {
+                        type = 'array:asset';
+                    }
+                    if (type === 'slider') {
+                        type = 'number';
+                    }
+                    if ((type === 'asset' || type === 'array:asset') && attr.args?.assetType) {
+                        type += `:${attr.args.assetType}`;
+                    }
 
                     // try to bring context menu
                     const onContextMenu = (evt) => {
@@ -191,7 +202,9 @@ class AttributesInspector extends Container {
 
                         btnPaste.on('click', () => {
                             const pasted = editor.call('clipboard:paste', attr.path, type);
-                            if (pasted) editor.call('clipboard:flashElement', target.dom);
+                            if (pasted) {
+                                editor.call('clipboard:flashElement', target.dom);
+                            }
                         });
 
                         // copy button

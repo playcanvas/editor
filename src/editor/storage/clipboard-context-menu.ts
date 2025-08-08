@@ -54,7 +54,9 @@ editor.once('load', () => {
     let schemaType: string | null = null;
     let elementHighlighted = null;
 
-    if (!clipboard) return;
+    if (!clipboard) {
+        return;
+    }
 
     // types of selected objects currently supported
     const objTypes = new Set([
@@ -141,7 +143,9 @@ editor.once('load', () => {
 
     // when clipboard menu is hidden
     menu.on('hide', () => {
-        if (!elementHighlighted) return;
+        if (!elementHighlighted) {
+            return;
+        }
 
         // remove highlighting
         elementHighlighted.classList.remove('pcui-highlight');
@@ -151,7 +155,9 @@ editor.once('load', () => {
 
     // convert type string to more human-friendly version
     editor.method('clipboard:typeToHuman', (type: string) => {
-        if (!type) return '';
+        if (!type) {
+            return '';
+        }
 
         if (type.startsWith('array:')) {
             type = `${type.slice(6)}[]`;
@@ -173,17 +179,25 @@ editor.once('load', () => {
 
     // check if it is possible to copy value
     editor.method('clipboard:validCopy', (path: string, type: string) => {
-        if (!path || !type) return false;
+        if (!path || !type) {
+            return false;
+        }
 
         // selector should have type
         const selectionType = editor.call('selector:type') ?? null;
-        if (!selectionType) return false;
+        if (!selectionType) {
+            return false;
+        }
 
         // we should support that selection type
-        if (!objTypes.has(selectionType)) return false;
+        if (!objTypes.has(selectionType)) {
+            return false;
+        }
 
         // respect exceptions
-        if (pathsExceptions.has(`${selectionType}:${path}`)) return false;
+        if (pathsExceptions.has(`${selectionType}:${path}`)) {
+            return false;
+        }
 
         return true;
     });
@@ -191,18 +205,29 @@ editor.once('load', () => {
 
     // check if path and type are valid to be pasted in the current selection
     editor.method('clipboard:validPaste', (path: string, type: string) => {
-        if (!path || !type) return false;
-        if (type === 'label') return false;
+        if (!path || !type) {
+            return false;
+        }
+
+        if (type === 'label') {
+            return false;
+        }
 
         // selector should have type
         const selectionType = editor.call('selector:type') ?? null;
-        if (!selectionType) return false;
+        if (!selectionType) {
+            return false;
+        }
 
         // we should support that selection type
-        if (!objTypes.has(selectionType)) return false;
+        if (!objTypes.has(selectionType)) {
+            return false;
+        }
 
         const paste = clipboard.value;
-        if (!isValidClipboardObject(paste)) return false;
+        if (!isValidClipboardObject(paste)) {
+            return false;
+        }
 
         return paste.type === type;
     });
@@ -219,13 +244,19 @@ editor.once('load', () => {
 
         // selector should have type
         const selectionType = editor.call('selector:type') ?? null;
-        if (!selectionType) return;
+        if (!selectionType) {
+            return;
+        }
 
         // we should support that selection type
-        if (!objTypes.has(selectionType)) return;
+        if (!objTypes.has(selectionType)) {
+            return;
+        }
 
         // respect exceptions
-        if (pathsExceptions.has(`${selectionType}:${newPath}`)) return;
+        if (pathsExceptions.has(`${selectionType}:${newPath}`)) {
+            return;
+        }
 
         // remember target path and value type
         path = newPath;
@@ -258,7 +289,9 @@ editor.once('load', () => {
         }
 
         const items = editor.call('selector:items');
-        if (!items.length) return false;
+        if (!items.length) {
+            return false;
+        }
 
         clipboard.value = {
             type: type,
@@ -279,7 +312,9 @@ editor.once('load', () => {
 
         // should have at least one item in selector
         const items = editor.call('selector:items');
-        if (!items.length) return false;
+        if (!items.length) {
+            return false;
+        }
 
         const paste = clipboard.value;
 
@@ -314,7 +349,9 @@ editor.once('load', () => {
             undo: () => {
                 for (let i = 0; i < records.length; i++) {
                     const item = records[i].item.latest();
-                    if (!item) continue;
+                    if (!item) {
+                        continue;
+                    }
                     item.history.enabled = false;
                     item.set(records[i].path, records[i].valueOld);
                     item.history.enabled = true;
@@ -323,7 +360,9 @@ editor.once('load', () => {
             redo: () => {
                 for (let i = 0; i < records.length; i++) {
                     const item = records[i].item.latest();
-                    if (!item) continue;
+                    if (!item) {
+                        continue;
+                    }
                     item.history.enabled = false;
                     item.set(records[i].path, records[i].valueNew);
                     item.history.enabled = true;
