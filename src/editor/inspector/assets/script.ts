@@ -138,13 +138,6 @@ class ScriptAssetInspector extends Panel {
                     }
                 });
 
-                // Clicking the error container should open/expand the console
-                errorContainer.dom.addEventListener('click', () => {
-                    const consolePanel = editor.call('layout.console');
-                    if (consolePanel) {
-                        consolePanel.collapsed = false;
-                    }
-                });
                 this._scriptAttributeContainer[`_${scriptName}Container`].append(errorContainer);
             }
 
