@@ -280,10 +280,14 @@ class ScriptInspector extends Panel {
 
                     // Helper function to create attribute issue containers (errors or warnings)
                     const createAttributeIssueContainer = (issues, config) => {
-                        if (issues.length === 0) return;
+                        if (issues.length === 0) {
+                            return;
+                        }
 
                         const container = this.containerErrors;
-                        if (!container) return;
+                        if (!container) {
+                            return;
+                        }
 
                         const issueContainer = new Container({
                             class: 'script-attribute-issue-container'
