@@ -460,6 +460,7 @@ editor.once('load', () => {
                     modelDirtyFlags.delete(model);
                     clearTimeout(modelTimeouts.get(model));
                     modelTimeouts.delete(model);
+                    lastKnownLenses.delete(model);
                 });
             }
 
@@ -499,6 +500,15 @@ editor.once('load', () => {
         // Store markers with fixes for code actions
         const modelMarkersWithFixes = new Map();
 
+        // Cache last-known lenses per model to avoid flicker when busy
+        const lastKnownLenses = new Map();
+
+        // Helper to convert an active lens into an inactive (no-op) lens
+        const toInactiveLens = lens => ({
+            ...lens,
+            command: lens.command ? { id: 'attribute-autofill:inactive', title: lens.command.title } : undefined
+        });
+
         // Create an event emitter for code lens changes
         const codeLensChangeEmitter = new monaco.Emitter();
 
@@ -508,16 +518,30 @@ editor.once('load', () => {
             onDidChange: codeLensChangeEmitter.event,
             provideCodeLenses: (model, _token) => {
 
+                // While busy analyzing, keep previous lenses visible (as inactive) to avoid flicker
                 if (busy) {
+                    const cached = lastKnownLenses.get(model);
+                    if (cached?.inactive) {
+                        return cached.inactive;
+                    }
+                    if (cached?.active) {
+                        return cached.active;
+                    }
+                    return NULL_EDIT_PROVIDER;
+                }
+
+                const attributes = modelAttributes.get(model);
+
+                // If we have no attributes yet, keep showing last-known lenses (active)
+                if (!attributes) {
+                    const cached = lastKnownLenses.get(model);
+                    if (cached?.active) {
+                        return cached.active;
+                    }
                     return NULL_EDIT_PROVIDER;
                 }
 
                 const lenses = [];
-                const attributes = modelAttributes.get(model);
-
-                if (!attributes) {
-                    return NULL_EDIT_PROVIDER;
-                }
 
                 // Process all parsed attributes
                 for (const className in attributes) {
@@ -573,13 +597,17 @@ editor.once('load', () => {
                     }
                 }
 
-                return {
-                    lenses,
-                    dispose: () => {}
-                };
+                const active = { lenses, dispose: () => {} };
+                const inactive = { lenses: lenses.map(toInactiveLens), dispose: () => {} };
+                lastKnownLenses.set(model, { active, inactive });
+
+                return active;
             }
         });
 
+
+        // Register a no-op command for inactive lenses shown while updating
+        monaco.editor.registerCommand('attribute-autofill:inactive', () => {});
 
         // Register commands for the code lens actions
         monaco.editor.registerCommand('makeAttribute', async (accessor, uri, lineNumber, memberName, attribute) => {
