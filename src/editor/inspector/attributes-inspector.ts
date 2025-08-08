@@ -21,6 +21,8 @@ class AttributesInspector extends Container {
      */
     _templateOverridesInspector;
 
+    _clipboardTypes: Set<string> | null;
+
     constructor(args) {
         args = Object.assign({
             flex: true
@@ -180,9 +182,9 @@ class AttributesInspector extends Container {
                         // paste button
                         const btnPaste = new Button({
                             icon: 'E353',
+                            enabled: false,
                             class: 'pcui-clipboard-button'
                         });
-                        btnPaste.enabled = false;
                         target.label.dom.appendChild(btnPaste.dom);
 
                         btnPaste.on('click', () => {
@@ -192,11 +194,10 @@ class AttributesInspector extends Container {
 
                         // copy button
                         const btnCopy = new Button({
-                            // icon: 'E351',
                             icon: 'E126',
+                            enabled: false,
                             class: ['pcui-clipboard-button', 'pcui-clipboard-button-copy']
                         });
-                        btnCopy.enabled = false;
                         target.label.dom.appendChild(btnCopy.dom);
 
                         // when copy button clicked

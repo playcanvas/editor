@@ -59,8 +59,10 @@ editor.once('load', () => {
     // types of selected objects currently supported
     const objTypes = new Set([
         'entity'
-        // 'asset'
     ]);
+
+    // TODO
+    // add support for 'asset' inspector
 
 
     // list of exceptions
@@ -98,7 +100,7 @@ editor.once('load', () => {
     const menuItemCopy = new MenuItem({
         text: 'Copy',
         icon: 'E351',
-        onSelect: function () {
+        onSelect: () => {
             editor.call('clipboard:copy', path, schemaType);
         }
     });
@@ -147,7 +149,7 @@ editor.once('load', () => {
 
 
     // convert type string to more human-friendly version
-    editor.method('clipboard:typeToHuman', (type) => {
+    editor.method('clipboard:typeToHuman', (type: string) => {
         if (!type) return '';
 
         if (type.startsWith('array:')) {
@@ -169,7 +171,7 @@ editor.once('load', () => {
 
 
     // check if it is possible to copy value
-    editor.method('clipboard:validCopy', (path, type) => {
+    editor.method('clipboard:validCopy', (path: string, type: string) => {
         if (!path || !type) return false;
 
         // selector should have type
@@ -187,7 +189,7 @@ editor.once('load', () => {
 
 
     // check if path and type are valid to be pasted in the current selection
-    editor.method('clipboard:validPaste', (path, type) => {
+    editor.method('clipboard:validPaste', (path: string, type: string) => {
         if (!path || !type) return false;
         if (type === 'label') return false;
 
@@ -249,7 +251,7 @@ editor.once('load', () => {
     });
 
     // copy to clipoard value by path from current selection
-    editor.method('clipboard:copy', (path, type) => {
+    editor.method('clipboard:copy', (path: string, type: string) => {
         if (!editor.call('clipboard:validCopy', path, type)) {
             return false;
         }
@@ -269,7 +271,7 @@ editor.once('load', () => {
         return true;
     });
 
-    editor.method('clipboard:paste', (path, type) => {
+    editor.method('clipboard:paste', (path: string, type: string) => {
         if (!editor.call('clipboard:validPaste', path, type)) {
             return false;
         }

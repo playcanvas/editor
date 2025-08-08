@@ -17,7 +17,7 @@ $highlight-color: #07f;
     }
 }
 
-.pcui-element.pcui-highlight::before {
+%pcui-highlight {
     content: '\00a0';
     position: absolute;
     inset: -4px;
@@ -26,13 +26,13 @@ $highlight-color: #07f;
     pointer-events: none;
 }
 
+.pcui-element.pcui-highlight::before {
+    @extend %pcui-highlight;
+}
+
 .pcui-element.pcui-highlight-flash::before {
-    content: '\00a0';
-    position: absolute;
-    inset: -4px;
-    border: 1px dotted $highlight-color;
-    z-index: 1;
-    pointer-events: none;
+    @extend %pcui-highlight;
+
     animation: pcui-clipboard-flash-animation 200ms ease-in-out forwards;
 }
 
