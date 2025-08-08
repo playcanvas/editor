@@ -1,7 +1,9 @@
 editor.once('load', () => {
     editor.on('sceneSettings:load', (sceneSettings) => {
         const app = editor.call('viewport:app');
-        if (!app) return; // webgl not available
+        if (!app) {
+            return;
+        } // webgl not available
 
         let updating;
 

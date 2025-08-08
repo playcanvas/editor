@@ -568,7 +568,9 @@ editor.once('load', () => {
 
     // handle external updates to primary app
     editor.on('projects:primaryApp', (newValue, oldValue) => {
-        if (panel.hidden) return;
+        if (panel.hidden) {
+            return;
+        }
 
         if (!newValue) {
             publishedBuild.hidden = true;
@@ -588,7 +590,9 @@ editor.once('load', () => {
 
     // handle app created externally
     editor.on('messenger:app.new', (data) => {
-        if (panel.hidden) return;
+        if (panel.hidden) {
+            return;
+        }
 
         // get app from server
         editor.api.globals.rest.apps.appGet(data.app.id).on('load', (status, app) => {
@@ -610,14 +614,18 @@ editor.once('load', () => {
 
     // handle external delete
     editor.on('messenger:app.delete', (data) => {
-        if (panel.hidden) return;
+        if (panel.hidden) {
+            return;
+        }
 
         removeApp(data.app);
     });
 
     // handle external app updates
     editor.on('messenger:app.update', (data) => {
-        if (panel.hidden) return;
+        if (panel.hidden) {
+            return;
+        }
 
         // get app from server
         editor.api.globals.rest.apps.appGet(data.app.id).on('load', (status, app) => {

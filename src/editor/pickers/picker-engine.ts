@@ -44,7 +44,9 @@ editor.once('load', () => {
     root.append(overlay);
 
     const keyDown = (evt) => {
-        if (overlay.hidden) return;
+        if (overlay.hidden) {
+            return;
+        }
 
         evt.preventDefault();
         evt.stopPropagation();

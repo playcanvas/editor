@@ -147,7 +147,9 @@ class RenderThumbnailRenderer extends ThumbnailRenderer {
         }
 
         materialAssets.forEach((asset) => {
-            if (asset === scene.material) return;
+            if (asset === scene.material) {
+                return;
+            }
 
             if (!this._materialWatches[asset.id]) {
                 this._watchMaterial(asset.id);
@@ -182,7 +184,9 @@ class RenderThumbnailRenderer extends ThumbnailRenderer {
     }
 
     queueRender() {
-        if (this._queuedRender) return;
+        if (this._queuedRender) {
+            return;
+        }
         this._queuedRender = true;
         this._frameRequest = requestAnimationFrame(() => {
             this.render(this._rotationX, this._rotationY);
@@ -192,14 +196,20 @@ class RenderThumbnailRenderer extends ThumbnailRenderer {
     render(rotationX = -15, rotationY = 45) {
         this._queuedRender = false;
 
-        if (!this._asset) return;
+        if (!this._asset) {
+            return;
+        }
 
         const data = this._asset.get('data');
-        if (!data) return;
+        if (!data) {
+            return;
+        }
 
         const app = pc.Application.getApplication();
         const renderAsset = app.assets.get(this._asset.get('id'));
-        if (!renderAsset) return;
+        if (!renderAsset) {
+            return;
+        }
 
         if (!sceneInitialized) {
             initializeScene();

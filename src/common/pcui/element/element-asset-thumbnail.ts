@@ -92,7 +92,9 @@ class AssetThumbnail extends Element {
         });
 
         this.on('showToRoot', () => {
-            if (!this._canvasDirty || !this.value) return;
+            if (!this._canvasDirty || !this.value) {
+                return;
+            }
 
             const asset = this._getAsset(this.value);
             if (this._shouldRenderCanvasThumbnailForAsset(asset)) {
@@ -163,7 +165,9 @@ class AssetThumbnail extends Element {
         this._destroyImage();
         this._createCanvas();
 
-        if (this.hiddenToRoot || this._destroyed) return;
+        if (this.hiddenToRoot || this._destroyed) {
+            return;
+        }
 
         if (!this._canvasWidth && !this.width || !this._canvasHeight && !this.height) {
             this._renderCanvasTimeout = setTimeout(() => {
@@ -225,13 +229,17 @@ class AssetThumbnail extends Element {
     }
 
     _createImage() {
-        if (this._domImage) return;
+        if (this._domImage) {
+            return;
+        }
         this._domImage = new Image();
         this.dom.appendChild(this._domImage);
     }
 
     _destroyImage() {
-        if (!this._domImage) return;
+        if (!this._domImage) {
+            return;
+        }
 
         this._disableFontIcons();
 
@@ -269,7 +277,9 @@ class AssetThumbnail extends Element {
             this._renderCanvasTimeout = null;
         }
 
-        if (!this._domCanvas) return;
+        if (!this._domCanvas) {
+            return;
+        }
         this.dom.removeChild(this._domCanvas);
         this._domCanvas = null;
     }
@@ -277,7 +287,9 @@ class AssetThumbnail extends Element {
     _updateValue(value) {
         this.class.remove(CLASS_MULTIPLE_VALUES);
 
-        if (this._value === value) return false;
+        if (this._value === value) {
+            return false;
+        }
 
         this._value = value;
 
@@ -373,7 +385,9 @@ class AssetThumbnail extends Element {
     }
 
     destroy() {
-        if (this._destroyed) return;
+        if (this._destroyed) {
+            return;
+        }
 
         this._destroyImage();
         this._destroyCanvas();

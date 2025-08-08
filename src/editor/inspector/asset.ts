@@ -328,7 +328,9 @@ editor.method('assets:open', (assets) => {
 
 class AssetInspector extends Container {
     constructor(args) {
-        if (!args) args = {};
+        if (!args) {
+            args = {};
+        }
         args.flex = true;
 
         super(args);
@@ -514,7 +516,9 @@ class AssetInspector extends Container {
     }
 
     _updateFileSize(assets) {
-        if (!this._assets) return;
+        if (!this._assets) {
+            return;
+        }
 
         const totalSize = this._assets.map((asset) => {
             return asset.has('file.size') ? asset.get('file.size') : 0;
@@ -528,7 +532,9 @@ class AssetInspector extends Container {
     }
 
     _updateDates(assets) {
-        if (!this._assets) return;
+        if (!this._assets) {
+            return;
+        }
 
         this._attributesInspector.getField('createdAt').values = this._assets.map((asset) => {
             return asset.get('createdAt') &&  convertDatetime(asset.get('createdAt'));
@@ -549,7 +555,9 @@ class AssetInspector extends Container {
     }
 
     async _updateLicense(assets) {
-        if (!this._assets) return;
+        if (!this._assets) {
+            return;
+        }
 
         if (!this._licenseTypes) {
             this._licenseTypes = await editor.call('picker:store:licenses');
@@ -632,14 +640,18 @@ class AssetInspector extends Container {
     }
 
     _updateAssetName(value) {
-        if (!value) return;
+        if (!value) {
+            return;
+        }
         editor.call('assets:rename', this._assets[0], value);
     }
 
     link(assets) {
         this.unlink();
 
-        if (!assets || !assets.length) return;
+        if (!assets || !assets.length) {
+            return;
+        }
 
         this._assets = assets;
 
@@ -672,7 +684,9 @@ class AssetInspector extends Container {
 
         this._attributesInspector.getField('source_asset_id').values = assets.map((asset) => {
             const sourceAssetId = asset.get('source_asset_id');
-            if (!sourceAssetId) return 'none';
+            if (!sourceAssetId) {
+                return 'none';
+            }
 
             const sourceAsset = this._assetsList.get(sourceAssetId);
             return sourceAsset ? sourceAsset.get('name') : sourceAssetId;
@@ -818,7 +832,9 @@ class AssetInspector extends Container {
     unlink() {
         super.unlink();
 
-        if (!this._assets) return;
+        if (!this._assets) {
+            return;
+        }
 
         this._containerButtons.hidden = true;
 

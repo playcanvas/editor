@@ -168,7 +168,9 @@ class ScrollviewComponentInspector extends ComponentInspector {
     }
 
     _toggleFields() {
-        if (this._suppressToggleFields) return;
+        if (this._suppressToggleFields) {
+            return;
+        }
 
         const isBounceMode = this._field('scrollMode').value === SCROLL_MODE_BOUNCE;
         const useMouseWheel = this._field('useMouseWheel').value === true;

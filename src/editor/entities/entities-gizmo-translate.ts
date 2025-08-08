@@ -37,7 +37,9 @@ editor.once('load', () => {
             vecA.copy(reference.obj.entity.getPosition());
         } else {
             const selection = editor.call('selection:aabb');
-            if (!selection) return;
+            if (!selection) {
+                return;
+            }
             vecA.copy(selection.center);
         }
 
@@ -166,7 +168,9 @@ editor.once('load', () => {
             undo: function () {
                 for (let i = 0; i < records.length; i++) {
                     const item = records[i].item.latest();
-                    if (!item) continue;
+                    if (!item) {
+                        continue;
+                    }
 
                     item.history.enabled = false;
                     item.set('position', records[i].valueOld);
@@ -176,7 +180,9 @@ editor.once('load', () => {
             redo: function () {
                 for (let i = 0; i < records.length; i++) {
                     const item = records[i].item.latest();
-                    if (!item) continue;
+                    if (!item) {
+                        continue;
+                    }
 
                     item.history.enabled = false;
                     item.set('position', records[i].value);
@@ -224,7 +230,9 @@ editor.once('load', () => {
     };
 
     const onRender = function () {
-        if (!app) return; // webgl not available
+        if (!app) {
+            return;
+        } // webgl not available
 
         if (!gizmoMoving && items.length) {
             let dirty = false;

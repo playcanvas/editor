@@ -79,13 +79,17 @@ class MainEditor extends Editor {
             return new Promise((resolve) => {
                 let resolved = false;
                 this.call('picker:confirm', text, () => {
-                    if (resolved) return;
+                    if (resolved) {
+                        return;
+                    }
                     resolved = true;
                     resolve(true);
                 }, options);
 
                 this.once('picker:confirm:close', () => {
-                    if (resolved) return;
+                    if (resolved) {
+                        return;
+                    }
                     resolved = true;
                     resolve(false);
                 });

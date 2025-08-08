@@ -11,10 +11,14 @@ import { AttributesInspector } from '../attributes-inspector.ts';
 
 // util
 const makeRefAssigner = (prefix = '') => (attr) => {
-    if (attr.hasOwnProperty('reference')) return;
+    if (attr.hasOwnProperty('reference')) {
+        return;
+    }
 
     const path = attr.alias || attr.path;
-    if (!path) return;
+    if (!path) {
+        return;
+    }
 
     const parts = path.split('.');
     attr.reference = `${prefix}${parts[parts.length - 1]}`;
@@ -402,8 +406,12 @@ class MultiPathBindingElementToObservers extends BindingElementToObservers {
 
     // Override setValue to set additional fields
     setValue(value) {
-        if (this.applyingChange) return;
-        if (!this._observers) return;
+        if (this.applyingChange) {
+            return;
+        }
+        if (!this._observers) {
+            return;
+        }
 
         this.applyingChange = true;
 
@@ -417,7 +425,9 @@ class MultiPathBindingElementToObservers extends BindingElementToObservers {
         const undo = () => {
             for (let i = 0; i < observers.length; i++) {
                 const latest = observers[i].latest();
-                if (!this._latestHasPaths(latest, paths)) continue;
+                if (!this._latestHasPaths(latest, paths)) {
+                    continue;
+                }
 
                 let history = false;
                 if (latest.history) {
@@ -440,7 +450,9 @@ class MultiPathBindingElementToObservers extends BindingElementToObservers {
 
             for (let i = 0; i < observers.length; i++) {
                 const latest = observers[i].latest();
-                if (!this._latestHasPaths(latest, paths)) continue;
+                if (!this._latestHasPaths(latest, paths)) {
+                    continue;
+                }
 
                 let history = false;
                 if (latest.history) {
@@ -1131,7 +1143,9 @@ class TextureAssetInspector extends Container {
                 const variants = [...LEGACY_COMPRESSION_PARAMS, 'basis'];
                 let hideWarning = true;
                 variants.forEach((variant) => {
-                    if (!hideWarning) return;
+                    if (!hideWarning) {
+                        return;
+                    }
                     if (assets[0].has(`file.variants.${variant}`) && !assets[0].get(`file.variants.${variant}.noFlip`)) {
                         hideWarning = false;
                     }

@@ -161,7 +161,9 @@ editor.once('load', () => {
         fieldAssetsList.flexGrow = 1;
 
         fieldAssetsList.on('select', (item) => {
-            if (!item.asset) return;
+            if (!item.asset) {
+                return;
+            }
             editor.call('selector:set', 'asset', [item.asset]);
         });
 
@@ -198,7 +200,9 @@ editor.once('load', () => {
                 undo: function () {
                     for (let i = 0; i < records.length; i++) {
                         const item = records[i].item.latest();
-                        if (!item) continue;
+                        if (!item) {
+                            continue;
+                        }
 
                         historyState(item, false);
                         item.removeValue(records[i].path, records[i].value);
@@ -208,7 +212,9 @@ editor.once('load', () => {
                 redo: function () {
                     for (let i = 0; i < records.length; i++) {
                         const item = records[i].item.latest();
-                        if (!item) continue;
+                        if (!item) {
+                            continue;
+                        }
 
                         historyState(item, false);
                         item.insert(records[i].path, records[i].value);
@@ -247,7 +253,9 @@ editor.once('load', () => {
                 undo: function () {
                     for (let i = 0; i < records.length; i++) {
                         const item = records[i].item.latest();
-                        if (!item) continue;
+                        if (!item) {
+                            continue;
+                        }
 
                         historyState(item, false);
                         item.insert(records[i].path, records[i].value, records[i].ind);
@@ -257,7 +265,9 @@ editor.once('load', () => {
                 redo: function () {
                     for (let i = 0; i < records.length; i++) {
                         const item = records[i].item.latest();
-                        if (!item) continue;
+                        if (!item) {
+                            continue;
+                        }
 
                         historyState(item, false);
                         item.removeValue(records[i].path, records[i].value);

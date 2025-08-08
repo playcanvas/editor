@@ -48,7 +48,9 @@ editor.on('load', async () => {
      */
     const watchAsset = (assetId, callback) => {
         const asset = editor.call('assets:get', assetId);
-        if (!asset) return;
+        if (!asset) {
+            return;
+        }
 
         asset.on('path:set', callback);
         asset.on('name:set', callback);
@@ -62,7 +64,9 @@ editor.on('load', async () => {
      */
     const unwatchAsset = (assetId, callback) => {
         const asset = editor.call('assets:get', assetId);
-        if (!asset) return;
+        if (!asset) {
+            return;
+        }
 
         asset.unbind('path:set', callback);
         asset.unbind('name:set', callback);

@@ -62,12 +62,16 @@ editor.once('load', () => {
 
     // creates a single collaborator component and renders it on screen
     const createCollaboratorUI = (collaborator) => {
-        if (collaborator.inviter_id && currentUser.access_level !== 'admin') return;  // don't display invitees to non-admin users
+        if (collaborator.inviter_id && currentUser.access_level !== 'admin') {
+            return;
+        }  // don't display invitees to non-admin users
 
         const parentContainer = new Element({
             class: 'collaborator-container'
         });
-        if (collaborator.id === config.self.id) parentContainer.dom.classList.add('user-collaborator');
+        if (collaborator.id === config.self.id) {
+            parentContainer.dom.classList.add('user-collaborator');
+        }
         membersGrid.element.appendChild(parentContainer.dom);
 
         // image container (left)
@@ -148,8 +152,12 @@ editor.once('load', () => {
                 }
             }
 
-            if (collaborator.inviter_id) displayLabel = 'Pending';
-            if (collaborator.organization) displayLabel = 'Organization';
+            if (collaborator.inviter_id) {
+                displayLabel = 'Pending';
+            }
+            if (collaborator.organization) {
+                displayLabel = 'Organization';
+            }
 
             const accessLevelLabel = new Label({
                 text: displayLabel
@@ -232,7 +240,9 @@ editor.once('load', () => {
     inviteInputGroup.append(inviteInput);
 
     inviteInput.element.addEventListener('keypress', (evt) => {
-        if (inviteInput.value !== '') inviteInput.placeholder = '';
+        if (inviteInput.value !== '') {
+            inviteInput.placeholder = '';
+        }
 
         if (evt.key === 'Enter') {
             newCollaborator.user = inviteInput.value;
@@ -242,7 +252,9 @@ editor.once('load', () => {
     });
 
     inviteInput.on('blur', () => {
-        if (inviteInput.value === '') inviteInput.placeholder = 'Type Username or Email Address';
+        if (inviteInput.value === '') {
+            inviteInput.placeholder = 'Type Username or Email Address';
+        }
     });
 
     const inviteSubmit = new Button({
@@ -339,16 +351,28 @@ editor.once('load', () => {
     // sorts collaborators based on ownership, access level and finally full name
     const sortCollaborators = () => {
         collaborators = collaborators.sort((a, b) => {
-            if (a.username === owner.username) return -1;
-            if (b.username === owner.username) return 1;
+            if (a.username === owner.username) {
+                return -1;
+            }
+            if (b.username === owner.username) {
+                return 1;
+            }
             if (a.access_level === b.access_level) {
-                if (a.full_name < b.full_name) return -1;
+                if (a.full_name < b.full_name) {
+                    return -1;
+                }
                 return 1;
             }
 
-            if (a.access_level === 'admin') return -1;
-            if (b.access_level === 'admin') return 1;
-            if (a.access_level === 'write') return -1;
+            if (a.access_level === 'admin') {
+                return -1;
+            }
+            if (b.access_level === 'admin') {
+                return 1;
+            }
+            if (a.access_level === 'write') {
+                return -1;
+            }
             return 1;
         });
     };
@@ -438,10 +462,14 @@ editor.once('load', () => {
     const handleTeamError = (status, error) => {
         let text = error;
         const errorMessage = `Team Error: ${text}`;
-        if (status === 404) text = 'User not found';
-        else if (status === 403) {
-            if (!text) text = 'You do not have permission to edit the team';
-            else if (text === 'Could not retrieve customer') editor.call('picker:project:buildAlert', panel, 'You do not have a credit card on your account', true, 'UPGRADE', { url: `${config.url.home}/upgrade` });
+        if (status === 404) {
+            text = 'User not found';
+        } else if (status === 403) {
+            if (!text) {
+                text = 'You do not have permission to edit the team';
+            } else if (text === 'Could not retrieve customer') {
+                editor.call('picker:project:buildAlert', panel, 'You do not have a credit card on your account', true, 'UPGRADE', { url: `${config.url.home}/upgrade` });
+            }
         }
 
         if (text === 'Reached seats limit' || /reached the user limit/.test(text)) {
@@ -464,9 +492,14 @@ editor.once('load', () => {
         if (canRemoveCollaborator(collaborator)) {
             const index = collaborators.indexOf(collaborator);
             editor.call('users:removeCollaborator', currentProject, collaborator, () => {
-                if (index > -1) collaborators.splice(index, 1);
-                if (container.dom) container.dom.remove();
-                else container.remove();
+                if (index > -1) {
+                    collaborators.splice(index, 1);
+                }
+                if (container.dom) {
+                    container.dom.remove();
+                } else {
+                    container.remove();
+                }
                 updateLabels();
             });
         }
@@ -519,7 +552,9 @@ editor.once('load', () => {
     // helper method to delete all outstanding events on close
     const destroyEvents = () => {
         events.forEach((evt) => {
-            if (evt) evt.unbind();
+            if (evt) {
+                evt.unbind();
+            }
         });
         events = [];
     };
@@ -538,7 +573,9 @@ editor.once('load', () => {
         editor.call('users:loadOne', currentProject.owner_id, (res) => {
             owner = res;
 
-            if (config.self.id === owner.id) currentUser = owner;
+            if (config.self.id === owner.id) {
+                currentUser = owner;
+            }
 
             // Only populate first time around
             if (currentProject.access_level !== 'none' && (membersGrid.element.childNodes.length === 0 || uiRefresh)) {
@@ -558,7 +595,9 @@ editor.once('load', () => {
                     });
 
                     sortCollaborators();
-                    if (currentUser && currentUserIsCollaborator) collaborators.unshift(currentUser);  // add current user to top of list (if not organization account)
+                    if (currentUser && currentUserIsCollaborator) {
+                        collaborators.unshift(currentUser);
+                    }  // add current user to top of list (if not organization account)
 
                     updateLabels();
 

@@ -61,7 +61,9 @@ editor.once('load', () => {
 
     panel.buttonConfirm.disabled = true;
     fieldName.on('change', () => {
-        if (!panel.branch) return;
+        if (!panel.branch) {
+            return;
+        }
 
         panel.buttonConfirm.disabled = fieldName.value.toLowerCase() !== panel.branch.name.toLowerCase();
     });

@@ -18,7 +18,9 @@ editor.once('load', () => {
         } else {
             // get deeper into the attribute
             for (const key in attribute) {
-                if (!attribute[key]) continue;
+                if (!attribute[key]) {
+                    continue;
+                }
 
                 appendScriptAttribute(attribute[key], `${attributeName}.${key}`, section);
             }
@@ -121,7 +123,9 @@ editor.once('load', () => {
                 // Components
                 if (entity.components) {
                     for (const component in componentSchema) {
-                        if (!entity.components.hasOwnProperty(component)) continue;
+                        if (!entity.components.hasOwnProperty(component)) {
+                            continue;
+                        }
                         sectionEntity.appendTitle(`${component.toUpperCase()} COMPONENT`);
 
                         // handle script component so that script attributes appear
@@ -137,7 +141,9 @@ editor.once('load', () => {
                             const scripts = entity.components.script.scripts;
                             if (scripts) {
                                 for (const scriptName in scripts) {
-                                    if (!scripts[scriptName]) continue;
+                                    if (!scripts[scriptName]) {
+                                        continue;
+                                    }
 
                                     sectionEntity.appendTitle(`script: '${scriptName}'`, true);
 
@@ -159,11 +165,15 @@ editor.once('load', () => {
                                     });
 
                                     const attributes = scripts[scriptName].attributes;
-                                    if (!attributes) continue;
+                                    if (!attributes) {
+                                        continue;
+                                    }
 
                                     for (const attributeName in attributes) {
                                         const attribute = attributes[attributeName];
-                                        if (!attribute) continue;
+                                        if (!attribute) {
+                                            continue;
+                                        }
 
                                         appendScriptAttribute(attribute, attributeName, sectionEntity);
                                     }

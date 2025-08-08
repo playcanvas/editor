@@ -1,6 +1,8 @@
 editor.once('load', () => {
     const app = editor.call('viewport:app');
-    if (!app) return; // webgl not available
+    if (!app) {
+        return;
+    } // webgl not available
 
     const regexFrameUpdate = /^data\.frames\.(\d+)/;
     const regexFrameRemove = /^data\.frames\.(\d+)$/;
@@ -70,7 +72,9 @@ editor.once('load', () => {
             } else if (path.startsWith('tags')) {
                 if (path === 'tags') {
                     realtimeAsset = app.assets.get(asset.get('id'));
-                    if (!realtimeAsset) return;
+                    if (!realtimeAsset) {
+                        return;
+                    }
 
                     realtimeAsset.tags.clear();
                     value.forEach((tag) => {
@@ -80,7 +84,9 @@ editor.once('load', () => {
             } else if (asset.get('type') === 'textureatlas') {
                 // handle texture atlases specifically for better performance
                 realtimeAsset = app.assets.get(asset.get('id'));
-                if (!realtimeAsset) return;
+                if (!realtimeAsset) {
+                    return;
+                }
 
                 const match = path.match(regexFrameUpdate);
                 if (match) {
@@ -121,7 +127,9 @@ editor.once('load', () => {
             } else if (asset.get('type') === 'textureatlas') {
                 // handle deleting frames from texture atlas
                 realtimeAsset = app.assets.get(asset.get('id'));
-                if (!realtimeAsset) return;
+                if (!realtimeAsset) {
+                    return;
+                }
 
                 const match = path.match(regexFrameRemove);
                 if (match) {

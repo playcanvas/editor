@@ -83,7 +83,9 @@ editor.once('load', () => {
             // check fieldSize._changing otherwise this will
             // cause changeArraySize to be called twice - once in
             // this function and once in the link event handlers
-            if (suspendSizeEvents || fieldSize._changing) return;
+            if (suspendSizeEvents || fieldSize._changing) {
+                return;
+            }
             changeArraySize(value);
         });
 
@@ -171,7 +173,9 @@ editor.once('load', () => {
                             // get link again in case it changed
                             link = link.latest();
 
-                            if (!link) return;
+                            if (!link) {
+                                return;
+                            }
 
                             // store previous array
                             const path = pathAt(args, i);
@@ -180,12 +184,16 @@ editor.once('load', () => {
                         });
 
                         args.link.forEach((link, i) => {
-                            if (!prev[i]) return;
+                            if (!prev[i]) {
+                                return;
+                            }
 
                             // get link again in case it changed
                             link = link.latest();
 
-                            if (!link) return;
+                            if (!link) {
+                                return;
+                            }
 
                             // copy array and remove
                             // the element at the relevant row
@@ -211,12 +219,16 @@ editor.once('load', () => {
 
                     const undo = function () {
                         args.link.forEach((link, i) => {
-                            if (!prev[i]) return;
+                            if (!prev[i]) {
+                                return;
+                            }
 
                             // get link again in case it changed
                             link = link.latest();
 
-                            if (!link) return;
+                            if (!link) {
+                                return;
+                            }
 
                             // set previous value
                             const history = link.history.enabled;
@@ -322,7 +334,9 @@ editor.once('load', () => {
                     // get link again in case it changed
                     link = link.latest();
 
-                    if (!link) return;
+                    if (!link) {
+                        return;
+                    }
 
                     // store previous array
                     const path = pathAt(args, i);
@@ -331,12 +345,16 @@ editor.once('load', () => {
                 });
 
                 args.link.forEach((link, i) => {
-                    if (!prev[i]) return;
+                    if (!prev[i]) {
+                        return;
+                    }
 
                     // get link again in case it changed
                     link = link.latest();
 
-                    if (!link) return;
+                    if (!link) {
+                        return;
+                    }
 
                     // resize array
                     const arr = prev[i].slice();
@@ -369,12 +387,16 @@ editor.once('load', () => {
                 suspendSizeEvents = true;
 
                 args.link.forEach((link, i) => {
-                    if (!prev[i]) return;
+                    if (!prev[i]) {
+                        return;
+                    }
 
                     // get link again in case it changed
                     link = link.latest();
 
-                    if (!link) return;
+                    if (!link) {
+                        return;
+                    }
 
                     // set previous value
                     const history = link.history.enabled;

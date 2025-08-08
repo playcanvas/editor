@@ -27,7 +27,9 @@ editor.once('load', () => {
     overlay.innerElement.appendChild(content);
 
     editor.on('realtime:connected', () => {
-        if (viewportError) return;
+        if (viewportError) {
+            return;
+        }
 
         overlay.hidden = true;
     });
@@ -64,7 +66,9 @@ editor.once('load', () => {
     });
 
     editor.on('realtime:connecting', (attempt) => {
-        if (viewportError) return;
+        if (viewportError) {
+            return;
+        }
 
         overlay.hidden = true;
         clearTimeout(timeout);
@@ -106,7 +110,9 @@ editor.once('load', () => {
     editor.on('realtime:assets:error', onError);
 
     editor.on('messenger:scene.delete', (data) => {
-        if (data.scene.branchId !== config.self.branch.id) return;
+        if (data.scene.branchId !== config.self.branch.id) {
+            return;
+        }
 
         if (config.scene.id && data.scene.id === parseInt(config.scene.id, 10)) {
             content.innerHTML = 'This scene has been deleted.';
@@ -115,7 +121,9 @@ editor.once('load', () => {
     });
 
     editor.on('scene:unload', () => {
-        if (viewportError) return;
+        if (viewportError) {
+            return;
+        }
 
         overlay.hidden = true;
     });

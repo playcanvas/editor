@@ -1,6 +1,8 @@
 editor.once('load', () => {
     const app = editor.call('viewport:app');
-    if (!app) return; // webgl not available
+    if (!app) {
+        return;
+    } // webgl not available
 
     const canvas = editor.call('viewport:canvas');
 
@@ -197,7 +199,9 @@ editor.once('load', () => {
                                 combine: false,
                                 undo: function () {
                                     const item = editor.call('assets:get', asset.get('id'));
-                                    if (!item) return;
+                                    if (!item) {
+                                        return;
+                                    }
 
                                     const history = item.history.enabled;
                                     item.history.enabled = false;
@@ -215,7 +219,9 @@ editor.once('load', () => {
                                 },
                                 redo: function () {
                                     const item = editor.call('assets:get', asset.get('id'));
-                                    if (!item) return;
+                                    if (!item) {
+                                        return;
+                                    }
 
                                     const history = item.history.enabled;
                                     item.history.enabled = false;
@@ -272,7 +278,9 @@ editor.once('load', () => {
                             combine: false,
                             undo: function () {
                                 const item = editor.call('entities:get', resourceId);
-                                if (!item) return;
+                                if (!item) {
+                                    return;
+                                }
 
                                 const history = item.history.enabled;
                                 item.history.enabled = false;
@@ -287,7 +295,9 @@ editor.once('load', () => {
                             },
                             redo: function () {
                                 const item = editor.call('entities:get', resourceId);
-                                if (!item) return;
+                                if (!item) {
+                                    return;
+                                }
 
                                 const history = item.history.enabled;
                                 item.history.enabled = false;
@@ -315,7 +325,9 @@ editor.once('load', () => {
 
                 const undo = function () {
                     entity = entity.latest();
-                    if (!entity || !entity.has('components.render')) return;
+                    if (!entity || !entity.has('components.render')) {
+                        return;
+                    }
 
                     const history = entity.history.enabled;
                     entity.history.enabled = false;
@@ -327,7 +339,9 @@ editor.once('load', () => {
 
                 const redo = function () {
                     entity = entity.latest();
-                    if (!entity || !entity.has('components.render')) return;
+                    if (!entity || !entity.has('components.render')) {
+                        return;
+                    }
 
                     const history = entity.history.enabled;
                     entity.history.enabled = false;

@@ -43,7 +43,9 @@ class LayersSettingsPanelRenderOrderList extends Container {
         this._settingsEvnts.push(this._projectSettings.on('*:set', this._onUpdateProjectSettings.bind(this)));
 
         const order = this._projectSettings.get('layerOrder');
-        if (!order) return;
+        if (!order) {
+            return;
+        }
 
         order.forEach((layer, index) => {
             this._onLayerInsert(layer, index);
@@ -84,7 +86,9 @@ class LayersSettingsPanelRenderOrderList extends Container {
         });
 
         enabledCheckbox.on('change', (value) => {
-            if (this._suspendLayerEvents) return;
+            if (this._suspendLayerEvents) {
+                return;
+            }
             const projectSettings = this._projectSettings.latest();
             const order = projectSettings.get('layerOrder');
             for (let i = 0; i < order.length; i++) {
@@ -128,7 +132,9 @@ class LayersSettingsPanelRenderOrderList extends Container {
         }
 
         layerPanel.once('destroy', () => {
-            if (deleteTooltip) deleteTooltip.destroy();
+            if (deleteTooltip) {
+                deleteTooltip.destroy();
+            }
         });
 
         return layerPanel;
@@ -167,7 +173,9 @@ class LayersSettingsPanelRenderOrderList extends Container {
     }
 
     _onUpdateProjectSettings(path, value) {
-        if (this._suspendLayerEvents) return;
+        if (this._suspendLayerEvents) {
+            return;
+        }
         const match = path.match(REGEX_LAYER_ENABLED);
         if (match) {
             const projectSettings = this._projectSettings.latest();
@@ -188,7 +196,9 @@ class LayersSettingsPanelRenderOrderList extends Container {
     }
 
     destroy() {
-        if (this._destroyed) return;
+        if (this._destroyed) {
+            return;
+        }
 
         this._layerList.length = 0;
 

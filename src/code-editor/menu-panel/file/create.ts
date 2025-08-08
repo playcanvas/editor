@@ -101,7 +101,9 @@ editor.once('load', () => {
 
     editor.method('editor:command:create', (type, folder) => {
         folder = folder || editor.call('assets:selected:folder');
-        if (!editor.call('editor:command:can:create', folder)) return;
+        if (!editor.call('editor:command:can:create', folder)) {
+            return;
+        }
 
         if (type === 'script') {
             editor.call('picker:script-create', (filename) => {

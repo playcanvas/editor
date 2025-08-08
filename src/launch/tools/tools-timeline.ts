@@ -10,7 +10,9 @@ editor.once('load', () => {
     let cacheLightmapper = null;
     let cacheLightmapperEvent = null;
     const app = editor.call('viewport:app');
-    if (!app) return; // webgl not available
+    if (!app) {
+        return;
+    } // webgl not available
 
     // canvas
     const canvas = document.createElement('canvas');
@@ -219,7 +221,9 @@ editor.once('load', () => {
 
     // add event to history
     const addEvent = function (args) {
-        if (!enabled) return;
+        if (!enabled) {
+            return;
+        }
 
         const e = {
             i: ++counter,
@@ -238,7 +242,9 @@ editor.once('load', () => {
 
         // subscribe to app reload start
         app.once('preload:start', () => {
-            if (!enabled) return;
+            if (!enabled) {
+                return;
+            }
 
             addEvent({
                 time: editor.call('tools:time:now'),
@@ -248,7 +254,9 @@ editor.once('load', () => {
 
         // subscribe to app start
         app.once('start', () => {
-            if (!enabled) return;
+            if (!enabled) {
+                return;
+            }
 
             addEvent({
                 time: editor.call('tools:time:now'),
@@ -258,7 +266,9 @@ editor.once('load', () => {
 
         // subscribe to asset loading start
         app.assets.on('load:start', (asset) => {
-            if (!enabled) return;
+            if (!enabled) {
+                return;
+            }
 
             cacheAssetLoading[asset.id] = addEvent({
                 time: editor.call('tools:time:now'),
@@ -280,7 +290,9 @@ editor.once('load', () => {
 
 
         const onShaderStart = function (evt) {
-            if (!enabled) return;
+            if (!enabled) {
+                return;
+            }
 
             let time = evt.timestamp;
             if (editor.call('tools:epoc')) {
@@ -298,7 +310,9 @@ editor.once('load', () => {
         };
 
         const onShaderEnd = function (evt) {
-            if (!enabled) return;
+            if (!enabled) {
+                return;
+            }
 
             const ind = cacheShaderCompile.indexOf(evt.target);
             if (ind === -1) {
@@ -317,7 +331,9 @@ editor.once('load', () => {
         };
 
         const onLightmapperStart = function (evt) {
-            if (!enabled) return;
+            if (!enabled) {
+                return;
+            }
 
             let time = evt.timestamp;
             if (editor.call('tools:epoc')) {
@@ -335,7 +351,9 @@ editor.once('load', () => {
         };
 
         const onLightmapperEnd = function (evt) {
-            if (!enabled) return;
+            if (!enabled) {
+                return;
+            }
 
             if (cacheLightmapper !== evt.target) {
                 return;

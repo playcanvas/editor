@@ -69,7 +69,9 @@ class LegacyElement extends Events {
 
         const self = this;
         this._evtClick = function (evt) {
-            if (self.disabled && !self.disabledClick) return;
+            if (self.disabled && !self.disabledClick) {
+                return;
+            }
             self.emit('click', evt);
         };
         this._element.addEventListener('click', this._evtClick, false);
@@ -159,12 +161,16 @@ class LegacyElement extends Events {
     }
 
     set value(value) {
-        if (!this._link) return;
+        if (!this._link) {
+            return;
+        }
         this._link.set(this.path, value);
     }
 
     get value() {
-        if (!this._link) return null;
+        if (!this._link) {
+            return null;
+        }
         return this._link.get(this.path);
     }
 
@@ -215,7 +221,9 @@ class LegacyElement extends Events {
     link(link, path) {
         const self = this;
 
-        if (this._link) this.unlink();
+        if (this._link) {
+            this.unlink();
+        }
         this._link = link;
         this.path = path;
 
@@ -236,7 +244,9 @@ class LegacyElement extends Events {
     }
 
     unlink() {
-        if (!this._link) return;
+        if (!this._link) {
+            return;
+        }
 
         this.emit('unlink', this.path);
 

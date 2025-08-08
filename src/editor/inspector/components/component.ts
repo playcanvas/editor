@@ -142,7 +142,9 @@ class ComponentInspector extends Panel {
 
     _onClickPaste() {
         let data = this._localStorage.get('copy-component');
-        if (!data) return;
+        if (!data) {
+            return;
+        }
 
         data = JSON.parse(data);
 
@@ -151,7 +153,9 @@ class ComponentInspector extends Panel {
 
     // Remove component on click
     _onClickDelete() {
-        if (!this._entities) return;
+        if (!this._entities) {
+            return;
+        }
 
         // make copy of entities for undo / redo
         const entities = this._entities.slice();
@@ -161,7 +165,9 @@ class ComponentInspector extends Panel {
         const undo = () => {
             for (let i = 0; i < entities.length; i++) {
                 const entity = entities[i].latest();
-                if (!entity) return;
+                if (!entity) {
+                    return;
+                }
 
                 const history = entity.history.enabled;
                 entity.history.enabled = false;
@@ -177,7 +183,9 @@ class ComponentInspector extends Panel {
 
             for (let i = 0; i < entities.length; i++) {
                 const entity = entities[i].latest();
-                if (!entity) return;
+                if (!entity) {
+                    return;
+                }
 
                 const history = entity.history.enabled;
                 entity.history.enabled = false;
@@ -217,7 +225,9 @@ class ComponentInspector extends Panel {
     }
 
     destroy() {
-        if (this._destroyed) return;
+        if (this._destroyed) {
+            return;
+        }
 
         if (this._templateOverridesInspector) {
             this._templateOverridesInspector.unregisterElementForPath(`components.${this._component}`);

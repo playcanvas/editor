@@ -12,7 +12,9 @@ editor.once('load', () => {
         const sectionEntities = {};
 
         for (let i = 0; i < conflicts.data.length; i++) {
-            if (conflicts.data[i].isTextualMerge) continue;
+            if (conflicts.data[i].isTextualMerge) {
+                continue;
+            }
 
             // get the type from the path - force 'data' to be an object for now
             let path = conflicts.data[i].path;

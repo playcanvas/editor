@@ -209,12 +209,16 @@ editor.once('load', () => {
             updateAsset(this.get('id'), 'asset', valueOld, value);
         },
         'render': function (path, value, valueOld) {
-            if (!path.startsWith('data.containerAsset')) return;
+            if (!path.startsWith('data.containerAsset')) {
+                return;
+            }
 
             updateAsset(this.get('id'), 'asset', valueOld, value);
         },
         'font': function (path, value, valueOld) {
-            if (!path.startsWith('i18n')) return;
+            if (!path.startsWith('i18n')) {
+                return;
+            }
             const parts = splitPath(path);
             if (parts.length === 2) {
                 updateAsset(this.get('id'), 'asset', valueOld, value);

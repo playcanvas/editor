@@ -1,6 +1,8 @@
 editor.once('load', () => {
     const app = editor.call('viewport:app');
-    if (!app) return; // webgl not available
+    if (!app) {
+        return;
+    } // webgl not available
 
     const defaultSizeSmall = new pc.Vec3(0.2, 0.2, 0.2);
     const aabb = new pc.BoundingBox();
@@ -63,7 +65,9 @@ editor.once('load', () => {
 
     editor.method('viewport:focus', () => {
         const selection = editor.call('selection:aabb');
-        if (!selection) return;
+        if (!selection) {
+            return;
+        }
 
         const camera = editor.call('camera:current');
 

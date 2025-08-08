@@ -402,8 +402,12 @@ editor.once('load', () => {
 
         // put primary scene first
         result.sort((a, b) => {
-            if (a === primaryScene) return -1;
-            if (b === primaryScene) return 1;
+            if (a === primaryScene) {
+                return -1;
+            }
+            if (b === primaryScene) {
+                return 1;
+            }
             return 0;
         });
 
@@ -666,7 +670,9 @@ editor.once('load', () => {
                 return;
             }
 
-            if (primaryScene === scene.id) return;
+            if (primaryScene === scene.id) {
+                return;
+            }
 
             primaryScene = scene.id;
             editor.call('localStorage:set', primarySceneKey, primaryScene);
@@ -911,8 +917,12 @@ editor.once('load', () => {
 
     // subscribe to messenger scene.delete
     editor.on('messenger:scene.delete', (data) => {
-        if (panel.hidden) return;
-        if (data.scene.branchId !== config.self.branch.id) return;
+        if (panel.hidden) {
+            return;
+        }
+        if (data.scene.branchId !== config.self.branch.id) {
+            return;
+        }
 
         const sceneId = parseInt(data.scene.id, 10);
 
@@ -937,11 +947,17 @@ editor.once('load', () => {
 
     // subscribe to messenger scene.new
     editor.on('messenger:scene.new', (data) => {
-        if (panel.hidden) return;
-        if (data.scene.branchId !== config.self.branch.id) return;
+        if (panel.hidden) {
+            return;
+        }
+        if (data.scene.branchId !== config.self.branch.id) {
+            return;
+        }
 
         editor.call('scenes:get', data.scene.id, (err, scene) => {
-            if (panel.hidden) return; // check if hidden when Ajax returns
+            if (panel.hidden) {
+                return;
+            } // check if hidden when Ajax returns
 
             scenes.push(scene);
 

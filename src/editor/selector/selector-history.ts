@@ -41,7 +41,9 @@ editor.once('load', () => {
     };
 
     editor.on('selector:change', (type, items) => {
-        if (type === 'entity' || type === 'asset') return;
+        if (type === 'entity' || type === 'asset') {
+            return;
+        }
 
         if (!selectorHistory) {
             newType = type;

@@ -178,7 +178,9 @@ const parseTokens = (tokens) => {
     }
 
     function consume(expected, errorMsg) {
-        if (check(expected)) return advance();
+        if (check(expected)) {
+            return advance();
+        }
         throw new Error(`${errorMsg} (found '${peek() ?? 'EOF'}')`);
     }
 
@@ -192,7 +194,9 @@ const parseTokens = (tokens) => {
     }
 
     function check(tokenVal) {
-        if (isAtEnd()) return false;
+        if (isAtEnd()) {
+            return false;
+        }
         return peek() === tokenVal;
     }
 

@@ -41,7 +41,9 @@ editor.once('viewport:load', (app) => {
 
     const setKeyState = (key, state) => {
         const action = keyMappings.get(key.toLowerCase());
-        if (action) keys[action] = state;
+        if (action) {
+            keys[action] = state;
+        }
     };
 
     const updateDirection = () => {
@@ -52,7 +54,9 @@ editor.once('viewport:load', (app) => {
     };
 
     const endFly = () => {
-        if (!flying) return;
+        if (!flying) {
+            return;
+        }
 
         Object.keys(keys).forEach((key) => {
             keys[key] = false;
@@ -64,10 +68,14 @@ editor.once('viewport:load', (app) => {
 
     // Event handlers
     window.addEventListener('keydown', (evt) => {
-        if (isInputOrTextarea(evt.target) || evt.ctrlKey || evt.metaKey || evt.altKey) return;
+        if (isInputOrTextarea(evt.target) || evt.ctrlKey || evt.metaKey || evt.altKey) {
+            return;
+        }
 
         // Check if the pressed key corresponds to a flying action
-        if (!keyMappings.has(evt.key.toLowerCase())) return;
+        if (!keyMappings.has(evt.key.toLowerCase())) {
+            return;
+        }
 
         setKeyState(evt.key, true);
         updateDirection();
@@ -84,7 +92,9 @@ editor.once('viewport:load', (app) => {
     }, false);
 
     window.addEventListener('keyup', (evt) => {
-        if (!flying || isInputOrTextarea(evt.target) || evt.ctrlKey || evt.metaKey || evt.altKey) return;
+        if (!flying || isInputOrTextarea(evt.target) || evt.ctrlKey || evt.metaKey || evt.altKey) {
+            return;
+        }
 
         setKeyState(evt.key, false);
         updateDirection();

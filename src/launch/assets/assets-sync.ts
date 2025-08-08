@@ -4,7 +4,9 @@ import { ObserverSync } from '../../common/observer-sync.ts';
 
 editor.once('load', () => {
     const app = editor.call('viewport:app');
-    if (!app) return; // webgl not available
+    if (!app) {
+        return;
+    } // webgl not available
 
     const settings = editor.call('settings:project');
     const docs = { };
@@ -66,7 +68,9 @@ editor.once('load', () => {
 
             // notify of operations
             doc.on('op', (ops, local) => {
-                if (local) return;
+                if (local) {
+                    return;
+                }
 
                 for (let i = 0; i < ops.length; i++) {
                     editor.emit('realtime:op:assets', ops[i], uniqueId);
@@ -150,7 +154,9 @@ editor.once('load', () => {
         let sync;
 
         // if engine asset already exists return
-        if (app.assets.get(asset.get('id'))) return;
+        if (app.assets.get(asset.get('id'))) {
+            return;
+        }
 
         // handle bundle assets
         if (useBundles && asset.get('type') === 'bundle') {

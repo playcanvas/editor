@@ -1027,7 +1027,9 @@ editor.once('load', () => {
         editor.call('drop:target', {
             ref: panel,
             filter: function (type, data) {
-                if (type !== 'asset.script') return false;
+                if (type !== 'asset.script') {
+                    return false;
+                }
 
                 const root = editor.call('layout.root');
                 const rectA = root.innerElement.getBoundingClientRect();

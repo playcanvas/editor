@@ -134,7 +134,9 @@ editor.once('load', () => {
         spriteAsset = asset;
         editor.emit('picker:sprites:spriteSelected', asset);
 
-        if (!spriteAsset) return;
+        if (!spriteAsset) {
+            return;
+        }
 
         spriteAsset.on('data.frameKeys:remove', selectSpriteFrames);
         spriteAsset.on('data.frameKeys:insert', selectSpriteFrames);
@@ -343,7 +345,9 @@ editor.once('load', () => {
 
     // Start sprite edit mode
     editor.method('picker:sprites:pickFrames', () => {
-        if (spriteEditMode) return;
+        if (spriteEditMode) {
+            return;
+        }
 
         editor.api.globals.history.add({
             name: 'add frames',
@@ -357,7 +361,9 @@ editor.once('load', () => {
 
     // Adds picked frames to sprite asset and exits sprite edit mode
     editor.method('picker:sprites:pickFrames:add', () => {
-        if (!spriteAsset) return;
+        if (!spriteAsset) {
+            return;
+        }
 
         const length = newSpriteFrames.length;
         if (length) {
