@@ -269,7 +269,7 @@ class ScriptInspector extends Panel {
                     const attrInvalid = result.scripts[scriptName].attributesInvalid;
 
                     // Separate errors and warnings based on severity
-                    const errors = attrInvalid.filter(error => error.severity === 8);
+                    const errors = attrInvalid.filter(error => (error.severity ? error.severity === 8 : true));
                     const warnings = attrInvalid.filter(error => error.severity === 4);
 
                     // Helper function to create attribute issue containers (errors or warnings)

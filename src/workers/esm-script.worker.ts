@@ -63,11 +63,12 @@ const toSerializableError = (error) => {
     const code = error.type.startsWith('Invalid Type') ? PLAYCANVAS_ATTRIBUTE_DOCS_URL : null;
 
     return {
-        name: error.node.symbol?.getEscapedName() || 'Unknown',
+        name: error.attributeName,
         type: error.type,
         message: error.message,
         fix: error.fix,
         file: sourceFile.fileName,
+        fileName: sourceFile.fileName.split('/').pop() || sourceFile.fileName, // Extract just the filename
         startLineNumber: startLineChar.line + 1,
         startColumn: startLineChar.character + 1,
         endLineNumber: endLineChar.line + 1,
