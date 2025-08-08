@@ -1,13 +1,15 @@
 import { Container, Label, Panel, Button } from '@playcanvas/pcui';
 
 import { CLASS_ERROR } from '../../../common/pcui/constants.ts';
-import { tooltip, tooltipRefItem } from '../../../common/tooltips.ts';
+import { tooltip } from '../../../common/tooltips.ts';
 
 const CLASS_ROOT = 'script-asset-inspector';
 const CLASS_ERROR_CONTAINER = `${CLASS_ROOT}-error-container`;
 const CLASS_CONTAINER = `${CLASS_ROOT}-container`;
 const CLASS_SCRIPT = `${CLASS_ROOT}-script`;
+const CLASS_WARNING = `${CLASS_ROOT}-warning`;
 const CLASS_ATTRIBUTE = `${CLASS_ROOT}-attribute`;
+const CLASS_ATTRIBUTE_ERROR_CONTAINER = `${CLASS_ROOT}-attribute-error-container`;
 
 const DOM = parent => [
     {
@@ -42,10 +44,14 @@ class ScriptAssetInspector extends Panel {
         this.header.append(this._parseButton);
     }
 
-    _displayScriptAttributes() {
+    _displayScriptAttributes(scr) {
         this._scriptAttributeContainer = new Container({ class: CLASS_CONTAINER });
-        const scripts = this._asset.get('data.scripts');
         let hasScripts = false;
+
+        // If no scripts data passed in, use asset data
+        const scripts = scr || this._asset.get('data.scripts');
+
+        // Iterate over the scripts
         Object.keys(scripts).forEach((scriptName) => {
             hasScripts = true;
             this._scriptAttributeContainer[`_${scriptName}Container`] = new Container({ flex: true });
@@ -55,29 +61,180 @@ class ScriptAssetInspector extends Panel {
             if (hasCollision) {
                 this._scriptAttributeContainer[`_${scriptName}Container`].append(new Label({ text: `script ${scriptName} is already defined in other asset`, class: [CLASS_SCRIPT, CLASS_ERROR] }));
             }
-            const attributes = this._asset.get('data.scripts')[scriptName];
+
+            const scriptData = scripts[scriptName];
+            const attributes = scriptData.attributes;
 
             this._tooltips.forEach(tooltip => tooltip.destroy());
             this._tooltips = [];
 
-            attributes.attributesOrder.forEach((attributeName) => {
-                const attributeLabel = new Label({ text: attributeName, class: CLASS_ATTRIBUTE });
-                const attributeData = attributes.attributes[attributeName];
+            // Get error and warning attributes for this script
+            const scriptErrors = scriptData.attributesInvalid ?
+                scriptData.attributesInvalid.filter(error => (error.severity ? error.severity === 8 : true)) :
+                [];
+            const scriptWarnings = scriptData.attributesInvalid ?
+                scriptData.attributesInvalid.filter(error => error.severity === 4) :
+                [];
 
-                const item = tooltipRefItem({
-                    reference: {
-                        title: attributeName,
-                        subTitle: editor.call('assets:scripts:typeToSubTitle', attributeData),
-                        description: (attributeData.description || attributeData.title || ''),
-                        code: JSON.stringify(attributeData, null, 4)
+
+            const errorAttributeNames = scriptErrors.map(error => error.name);
+            const warningAttributeNames = scriptWarnings.map(warning => warning.name);
+
+            // If there are invalid errors, show an inline error container below the script header
+            if (scriptErrors.length > 0) {
+
+                const errorContainer = new Container({ class: CLASS_ATTRIBUTE_ERROR_CONTAINER, flex: true });
+
+                // Always show the error header with icon
+                const errorHeader = new Label({
+                    class: [CLASS_ERROR, CLASS_SCRIPT, 'script-asset-inspector-attribute-error'],
+                    text: 'This script contains invalid attributes:'
+                });
+                errorContainer.append(errorHeader);
+
+                // List all errors in the container
+                scriptErrors.forEach((error) => {
+                    if (error.severity) {
+                        // Rich error - show first sentence with line/column
+                        const fileName = error.fileName || this._asset.get('name') || 'unknown';
+                        const location = `${fileName}:${error.startLineNumber}:${error.startColumn}`;
+                        const firstSentence = error.message.split('.')[0];
+
+                        const errorText = new Label({
+                            class: [CLASS_ERROR, 'clickable-error'],
+                            text: `${location} - ${firstSentence}`
+                        });
+
+                        // Add click handler for rich errors
+                        errorText.dom.addEventListener('click', () => {
+                            editor.call('picker:codeeditor', this._asset, {
+                                line: error.startLineNumber,
+                                col: error.startColumn,
+                                error: true
+                            });
+                        });
+
+                        errorContainer.append(errorText);
+
+                        // Log to console for rich errors
+                        editor.call('console:error', `${location} - (${error.name}) ${error.message}`, () => {
+                            editor.call('picker:codeeditor', this._asset, {
+                                line: error.startLineNumber,
+                                col: error.startColumn,
+                                error: true
+                            });
+                        });
+                    } else {
+                        // Simple error - show as is
+                        const errorText = new Label({
+                            class: [CLASS_ERROR],
+                            text: error
+                        });
+                        errorContainer.append(errorText);
+
+                        // Log to console for simple errors
+                        const fileName = this._asset.get('name') || 'unknown';
+                        editor.call('console:error', `${fileName} - ${error}`);
                     }
                 });
+
+                this._scriptAttributeContainer[`_${scriptName}Container`].append(errorContainer);
+            }
+
+            // Debug logging
+            console.log(`Script ${scriptName}:`, {
+                errors: scriptErrors.length,
+                warnings: scriptWarnings.length,
+                warningNames: warningAttributeNames
+            });
+
+            scriptData.attributesOrder.forEach((attributeName) => {
+                // Skip error attributes - they should not appear in the list
+                if (errorAttributeNames.includes(attributeName)) {
+                    return;
+                }
+
+                // Check if this attribute has a warning
+                const hasWarning = warningAttributeNames.includes(attributeName);
+                const attributeClasses = hasWarning ? [CLASS_ATTRIBUTE, CLASS_WARNING, 'script-asset-inspector-attribute-warning'] : [CLASS_ATTRIBUTE];
+
+                // Debug logging
+                if (hasWarning) {
+                    console.log(`Warning attribute: ${attributeName}, classes:`, attributeClasses);
+                }
+
+                const attributeLabel = new Label({
+                    text: attributeName,
+                    class: attributeClasses
+                });
+
+                // Add click handler for warning attributes
+                if (hasWarning) {
+                    const warning = scriptWarnings.find(w => w.name === attributeName);
+                    if (warning) {
+                        attributeLabel.class.add('clickable-warning');
+                        attributeLabel.dom.addEventListener('click', () => {
+                            editor.call('picker:codeeditor', this._asset, {
+                                line: warning.startLineNumber,
+                                col: warning.startColumn
+                            });
+                        });
+                    }
+                }
+
+                const attributeData = attributes[attributeName];
+
+                const warningsForThisAttribute = scriptWarnings
+                .filter(w => w.name === attributeName)
+                .map(w => w.message);
+
+                // Create tooltip content with reference info and warnings
+                const tooltipContainer = new Container({
+                    class: ['tooltip-reference'],
+                    flex: true
+                });
+
+                // Add reference information
+                tooltipContainer.append(new Label({
+                    class: 'title',
+                    text: attributeName
+                }));
+                tooltipContainer.append(new Label({
+                    class: 'subtitle',
+                    text: editor.call('assets:scripts:typeToSubTitle', attributeData)
+                }));
+                tooltipContainer.append(new Label({
+                    class: 'desc',
+                    text: (attributeData.description || attributeData.title || '')
+                }));
+                tooltipContainer.append(new Label({
+                    class: 'code',
+                    text: JSON.stringify(attributeData, null, 4),
+                    hidden: !attributeData
+                }));
+
+                // Add warnings section if there are any
+                if (warningsForThisAttribute.length > 0) {
+                    const warningsTitle = new Label({
+                        class: ['warnings-title', 'script-asset-inspector-warning'],
+                        text: 'Warnings'
+                    });
+                    tooltipContainer.append(warningsTitle);
+
+                    warningsForThisAttribute.forEach((warningText: string) => {
+                        tooltipContainer.append(new Label({
+                            class: ['warning-item', 'script-asset-inspector-warning'],
+                            text: warningText
+                        }));
+                    });
+                }
+
                 tooltip().attach({
-                    container: item,
+                    container: tooltipContainer,
                     target: attributeLabel,
                     horzAlignEl: this
                 });
-                this._tooltips.push(item);
+                this._tooltips.push(tooltipContainer);
 
                 this._scriptAttributeContainer[`_${scriptName}Container`].append(attributeLabel);
             });
@@ -97,7 +254,6 @@ class ScriptAssetInspector extends Panel {
                 this._scriptAttributeContainer.destroy();
             }
 
-            this._displayScriptAttributes();
             this._parseButton.disabled = false;
             if (error) {
                 this._errorContainer.hidden = false;
@@ -112,16 +268,30 @@ class ScriptAssetInspector extends Panel {
                 this._errorContainer.hidden = false;
                 return;
             }
+
+            // Process attribute validation issues before displaying attributes
             for (const scriptName in result.scripts) {
                 const attrInvalid = result.scripts[scriptName].attributesInvalid;
-                if (attrInvalid.length > 0) {
-                    const label = new Label({ text: attrInvalid, class: [CLASS_ERROR, CLASS_SCRIPT] });
-                    const container = this._scriptAttributeContainer[`_${scriptName}Container`];
-                    if (container) {
-                        container.appendAfter(label, container._scriptLabel);
-                    }
-                }
+
+                const warnings = attrInvalid.filter(error => error.severity === 4);
+
+                // Log warnings to console with click-through to code editor at the warning location
+                warnings.forEach((warning) => {
+                    const fileName = warning.fileName || this._asset.get('name') || 'unknown';
+                    const location = `${fileName}:${warning.startLineNumber}:${warning.startColumn}`;
+                    editor.call('console:warn', `${location} - (${warning.name}) ${warning.message}`, () => {
+                        editor.call('picker:codeeditor', this._asset, {
+                            line: warning.startLineNumber,
+                            col: warning.startColumn
+                        });
+                    });
+                });
+
+                // Do not add global error entries; errors are shown inline under each script title
             }
+
+            // Now display the script attributes (warnings will be shown in yellow)
+            this._displayScriptAttributes(result.scripts);
         });
     }
 
