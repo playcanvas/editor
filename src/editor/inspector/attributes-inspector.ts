@@ -251,11 +251,11 @@ class AttributesInspector extends Container {
                         });
                     }
 
-                    // TODO
+                    // TODO:
                     // extra rule for array of assets, to copy individual assets within the group
                 });
             } else if (attr.type && attr.paths) {
-                // TODO
+                // TODO:
                 // implement copy-paste for multi-path fields
             }
         }

@@ -61,7 +61,7 @@ editor.once('load', () => {
         'entity'
     ]);
 
-    // TODO
+    // TODO:
     // add support for 'asset' inspector
 
 
@@ -84,7 +84,7 @@ editor.once('load', () => {
     };
 
 
-    // TODO
+    // TODO:
     // type to other type conversions, e.g.:
     // asset:* > asset
     // asset > asset:* - if copied asset is of desired type
@@ -110,6 +110,7 @@ editor.once('load', () => {
         class: 'pcui-menu-item-postfix',
         text: ''
     });
+    // container content is not exposed on menu item, but we need to access it
     menuItemCopy._containerContent.append(menuItemCopyLabel);
 
     menu.append(menuItemCopy);
@@ -282,7 +283,7 @@ editor.once('load', () => {
 
         const paste = clipboard.value;
 
-        // TODO
+        // TODO:
         // verify if value is actually valid based on type
 
         // store list of records and their values before modifying for history undo/redo
@@ -302,7 +303,7 @@ editor.once('load', () => {
             items[i].set(path, paste.value);
             items[i].history.enabled = true;
 
-            // TODO
+            // TODO:
             // setting render-component asset does not update materials - bug in render component inspector
         }
 
