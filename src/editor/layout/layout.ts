@@ -151,7 +151,9 @@ editor.on('load', () => {
 
     // prevent drag'n'select
     window.addEventListener('mousedown', (evt) => {
-        if (shouldNotPrevent(ignoreMouseDownClasses, evt)) return;
+        if (shouldNotPrevent(ignoreMouseDownClasses, evt)) {
+            return;
+        }
 
         // blur inputs
         if (window.getSelection) {
@@ -172,7 +174,9 @@ editor.on('load', () => {
 
     // prevent default context menu
     window.addEventListener('contextmenu', (evt) => {
-        if (shouldNotPrevent(ignoreContextMenuClasses, evt)) return;
+        if (shouldNotPrevent(ignoreContextMenuClasses, evt)) {
+            return;
+        }
 
         evt.preventDefault();
     }, false);

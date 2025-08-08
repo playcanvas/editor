@@ -25,7 +25,9 @@ editor.once('load', () => {
     });
 
     const keydownHandler = function (evt) {
-        if (overlay.hidden) return;
+        if (overlay.hidden) {
+            return;
+        }
 
         // enter -> submit
         if (evt.keyCode === 13) {

@@ -58,7 +58,9 @@ editor.once('load', () => {
 
             // server -> client
             assetDoc.on('op', (ops, local) => {
-                if (local) return;
+                if (local) {
+                    return;
+                }
 
                 for (let i = 0; i < ops.length; i++) {
                     let dirty = true;

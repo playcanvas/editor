@@ -62,7 +62,9 @@ editor.once('load', () => {
             const checkPath = /^(data|file)\b/;
             const onUpdate = function (path, value) {
                 const match = path.match(checkPath);
-                if (!match) return;
+                if (!match) {
+                    return;
+                }
 
                 // skip firing change when an individual frame changes
                 // for performance reasons. We handle this elsewhere

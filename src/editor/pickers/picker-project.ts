@@ -99,7 +99,9 @@ editor.once('load', () => {
                         currentUser.limits.seats++;
                         editor.call('picker:team:management:createCollaborator');
                     }, (status, error) => {
-                        if (callback) callback(status, error);
+                        if (callback) {
+                            callback(status, error);
+                        }
                     });
 
                 } else if (funcParameters.url) {
@@ -150,7 +152,9 @@ editor.once('load', () => {
 
             // ensure all reduced view panels are visible
             for (const key in menuOptions) {
-                if (key === 'project-main' || key === 'team') menuOptions[key].item.hidden = false;
+                if (key === 'project-main' || key === 'team') {
+                    menuOptions[key].item.hidden = false;
+                }
             }
 
             projectCMSButton.enabled = false;
@@ -170,8 +174,12 @@ editor.once('load', () => {
 
             menuOptions['project-main'].item.hidden = true;
             menuOptions.scenes.item.hidden = true;
-            if (menuOptions['builds-publish']) menuOptions['builds-publish'].item.hidden = true;
-            if (menuOptions['version control']) menuOptions['version control'].item.hidden = true;
+            if (menuOptions['builds-publish']) {
+                menuOptions['builds-publish'].item.hidden = true;
+            }
+            if (menuOptions['version control']) {
+                menuOptions['version control'].item.hidden = true;
+            }
 
             // ensure only team management panel is visible
             menuOptions.team.item.hidden = false;
@@ -195,8 +203,12 @@ editor.once('load', () => {
             menuOptions['project-main'].item.hidden = false;
             menuOptions.scenes.item.hidden = true;
             menuOptions.team.item.hidden = true;
-            if (menuOptions['builds-publish']) menuOptions['builds-publish'].item.hidden = true;
-            if (menuOptions['version control']) menuOptions['version control'].item.hidden = true;
+            if (menuOptions['builds-publish']) {
+                menuOptions['builds-publish'].item.hidden = true;
+            }
+            if (menuOptions['version control']) {
+                menuOptions['version control'].item.hidden = true;
+            }
 
             projectCMSButton.enabled = false;
             projectCMSButton.hidden = true;
@@ -223,12 +235,16 @@ editor.once('load', () => {
 
             // ensure all panels are visible
             for (const key in menuOptions) {
-                if (key !== 'publish-download' && key !== 'publish-new') menuOptions[key].item.hidden = false;
+                if (key !== 'publish-download' && key !== 'publish-new') {
+                    menuOptions[key].item.hidden = false;
+                }
             }
             editor.call('picker:project:main:cmsView');
         }
 
-        if (statsContainer) statsContainer.element.remove();
+        if (statsContainer) {
+            statsContainer.element.remove();
+        }
         editor.call('picker:project:main:refreshUI');
         editor.call('picker:team:management:refreshUI');
         buildProjectStatsUI();
@@ -256,13 +272,17 @@ editor.once('load', () => {
     // project image
     var projectImg = document.createElement('div');
     projectImg.classList.add('image');
-    if (!IS_EMPTY_STATE) projectImg.style.backgroundImage = config.project.thumbnails.m ? `url("${config.project.thumbnails.m}")` : EMPTY_THUMBNAIL_IMAGE;
+    if (!IS_EMPTY_STATE) {
+        projectImg.style.backgroundImage = config.project.thumbnails.m ? `url("${config.project.thumbnails.m}")` : EMPTY_THUMBNAIL_IMAGE;
+    }
     leftPanel.append(projectImg);
 
     let uploadingImage = false;
 
     const uploadProjectImage = function (file) {
-        if ((!IS_EMPTY_STATE && !editor.call('permissions:write')) || uploadingImage || currentProject.access_level !== 'admin') return;
+        if ((!IS_EMPTY_STATE && !editor.call('permissions:write')) || uploadingImage || currentProject.access_level !== 'admin') {
+            return;
+        }
 
         const previousBackgroundImage = projectImg.style.backgroundImage;
         projectImg.style.backgroundImage = `url("${config.url.static}/platform/images/common/ajax-loader.gif")`;
@@ -325,7 +345,9 @@ editor.once('load', () => {
     let currentSelection = null;
 
     projectImg.addEventListener('click', () => {
-        if (!editor.call('permissions:write') || leftPanel.disabled || currentProject.access_level !== 'admin' || currentProject.owner_id !== config.self.id) return;
+        if (!editor.call('permissions:write') || leftPanel.disabled || currentProject.access_level !== 'admin' || currentProject.owner_id !== config.self.id) {
+            return;
+        }
 
         fileInput.click();
     });
@@ -395,7 +417,9 @@ editor.once('load', () => {
 
             if (!config.scene.id) {
                 editor.call('picker:project');
-            } else overlay.hidden = true;
+            } else {
+                overlay.hidden = true;
+            }
         } else {
             editor.call('picker:project:cms');
             overlay.hidden = true;
@@ -414,7 +438,9 @@ editor.once('load', () => {
 
     editorBtn.element.addEventListener('mousedown', (e) => {
         let target = '_self';
-        if (e.which === 2 || e.button === 4 || e.metaKey || e.ctrlKey) target = '_blank';  // If middle click, open in new tab
+        if (e.which === 2 || e.button === 4 || e.metaKey || e.ctrlKey) {
+            target = '_blank';
+        }  // If middle click, open in new tab
 
         let url = `${config.url.home}/editor/project/${currentProject.id}`;
         if (location.search.includes('use_local_frontend')) {
@@ -465,7 +491,9 @@ editor.once('load', () => {
 
     // activate menu option
     const select = function (name) {
-        if (!name) return;
+        if (!name) {
+            return;
+        }
 
         if (currentSelection === name) {
             return;
@@ -511,10 +539,14 @@ editor.once('load', () => {
     overlay.on('show', () => {
         window.addEventListener('keydown', onKeyDown);
 
-        if (!statsContainer) buildProjectStatsUI();
+        if (!statsContainer) {
+            buildProjectStatsUI();
+        }
 
         projectImg.classList.remove('progress');
-        if (!IS_EMPTY_STATE) projectImg.style.backgroundImage = config.project.thumbnails.m ? `url("${config.project.thumbnails.m}")` : EMPTY_THUMBNAIL_IMAGE;
+        if (!IS_EMPTY_STATE) {
+            projectImg.style.backgroundImage = config.project.thumbnails.m ? `url("${config.project.thumbnails.m}")` : EMPTY_THUMBNAIL_IMAGE;
+        }
 
         if (editor.call('permissions:write')) {
             projectImg.classList.add('hover');
@@ -559,7 +591,9 @@ editor.once('load', () => {
             menuItem = new LegacyListItem({ text: name });
         }
 
-        if (title === 'PROJECT SETTINGS') projectSettingsListMenu = menuItem;
+        if (title === 'PROJECT SETTINGS') {
+            projectSettingsListMenu = menuItem;
+        }
 
         menuItem.class.add(name.replace(' ', '-'));
         list.append(menuItem);
@@ -682,7 +716,9 @@ editor.once('load', () => {
     editor.method('picker:project:showNoAdmin', (project, collaborators) => {
         let userIsCollaborator = false;
         collaborators.forEach((collaborator) => {
-            if (collaborator.id === currentUser.id) userIsCollaborator = true;
+            if (collaborator.id === currentUser.id) {
+                userIsCollaborator = true;
+            }
         });
         return editor.call('project:management:isOrgAdmin', project.owner_id, currentUser) &&
             !project.locked &&

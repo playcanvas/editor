@@ -1,7 +1,9 @@
 editor.once('load', () => {
     // Creates new texture atlas asset from texture asset
     editor.method('assets:textureToAtlas', (asset, callback) => {
-        if (asset.get('type') !== 'texture' || asset.get('source')) return;
+        if (asset.get('type') !== 'texture' || asset.get('source')) {
+            return;
+        }
 
         editor.api.globals.rest.assets.assetDuplicate(asset.get('id'), {
             type: 'textureatlas',
@@ -24,7 +26,9 @@ editor.once('load', () => {
     // Creates new Sprite Asset from Texture Atlas Asset
     editor.method('assets:atlasToSprite', (args) => {
         const asset = args && args.asset;
-        if (!asset || asset.get('type') !== 'textureatlas' || asset.get('source')) return;
+        if (!asset || asset.get('type') !== 'textureatlas' || asset.get('source')) {
+            return;
+        }
 
         const sliced = args && args.sliced;
 

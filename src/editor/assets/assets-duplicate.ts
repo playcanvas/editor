@@ -1,6 +1,8 @@
 editor.once('load', () => {
     editor.method('assets:duplicate', (asset) => {
-        if (asset.get('type') !== 'material' && asset.get('type') !== 'sprite') return;
+        if (asset.get('type') !== 'material' && asset.get('type') !== 'sprite') {
+            return;
+        }
 
         const path = asset.get('path');
         const parent = path.length ? path[path.length - 1] : null;

@@ -225,7 +225,9 @@ class SoundSlotInspector extends Panel {
 
         // if the name already exists show error
         fieldName.onValidate = (value) => {
-            if (!value) return false;
+            if (!value) {
+                return false;
+            }
 
             const slots = entities[0].get('components.sound.slots');
             for (const key in slots) {
@@ -239,7 +241,9 @@ class SoundSlotInspector extends Panel {
     }
 
     unlink() {
-        if (!this._entities) return;
+        if (!this._entities) {
+            return;
+        }
 
         this._entities = null;
 
@@ -250,7 +254,9 @@ class SoundSlotInspector extends Panel {
     }
 
     destroy() {
-        if (this._destroyed) return;
+        if (this._destroyed) {
+            return;
+        }
 
         if (this._templateOverridesInspector) {
             this._templateOverridesInspector.unregisterElementForPath(`components.sound.slots.${this._slotKey}`);
@@ -302,7 +308,9 @@ class SoundComponentInspector extends ComponentInspector {
     }
 
     _toggleFields() {
-        if (this._suppressToggleFields) return;
+        if (this._suppressToggleFields) {
+            return;
+        }
 
         const positional = this._field('positional').value;
         this._field('refDistance').parent.hidden = !positional;
@@ -375,10 +383,14 @@ class SoundComponentInspector extends ComponentInspector {
             // event for new slots
             this._entityEvents.push(entities[0].on('*:set', (path, value) => {
                 const matches = path.match(/^components.sound.slots.(\d+)$/);
-                if (!matches) return;
+                if (!matches) {
+                    return;
+                }
 
                 // if inspector already exists then do not create a new one
-                if (this._slotInspectors[matches[1]]) return;
+                if (this._slotInspectors[matches[1]]) {
+                    return;
+                }
 
                 this._createSlotInspector(entities[0], matches[1], value);
             }));
@@ -386,7 +398,9 @@ class SoundComponentInspector extends ComponentInspector {
             // event for deleted slots
             this._entityEvents.push(entities[0].on('*:unset', (path) => {
                 const matches = path.match(/^components.sound.slots.(\d+)$/);
-                if (!matches) return;
+                if (!matches) {
+                    return;
+                }
 
                 const inspector = this._slotInspectors[matches[1]];
                 if (inspector) {

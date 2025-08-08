@@ -18,7 +18,9 @@ class AssetInspectorPreviewBase extends Container {
     }
 
     _onMouseDown(evt) {
-        if (evt.button !== 0) return;
+        if (evt.button !== 0) {
+            return;
+        }
 
         evt.preventDefault();
         evt.stopPropagation();
@@ -27,13 +29,17 @@ class AssetInspectorPreviewBase extends Container {
     }
 
     _onMouseMove(evt) {
-        if (!this._mouseDown) return;
+        if (!this._mouseDown) {
+            return;
+        }
 
         this._dragging = true;
     }
 
     _onMouseUp(evt) {
-        if (evt.button !== 0) return;
+        if (evt.button !== 0) {
+            return;
+        }
 
         if (this._mouseDown && !this._dragging && this.dom.contains(evt.target) && !(evt.target.ui instanceof Button)) {
             this._toggleSize();

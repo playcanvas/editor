@@ -194,7 +194,9 @@ editor.once('load', () => {
 
             if (args.enum) {
                 const opt = args.field.optionElements[''];
-                if (opt) opt.style.display = value !== '' ? 'none' : '';
+                if (opt) {
+                    opt.style.display = value !== '' ? 'none' : '';
+                }
             } else {
                 args.field.proxy = value == null ? '...' : null;
             }
@@ -207,7 +209,9 @@ editor.once('load', () => {
 
             if (args.enum) {
                 const opt = this.optionElements[''];
-                if (opt) opt.style.display = value !== '' ? 'none' : '';
+                if (opt) {
+                    opt.style.display = value !== '' ? 'none' : '';
+                }
             } else {
                 this.proxy = value === null ? '...' : null;
             }
@@ -234,7 +238,9 @@ editor.once('load', () => {
 
             for (let i = 0; i < args.link.length; i++) {
                 const path = pathAt(args, i);
-                if (!args.link[i].has(path)) continue;
+                if (!args.link[i].has(path)) {
+                    continue;
+                }
 
                 items.push({
                     item: args.link[i],
@@ -605,7 +611,9 @@ editor.once('load', () => {
                     field.renderChanges = false;
                     field.on('change', (value) => {
                         if (tagType === 'string') {
-                            if (!value) return;
+                            if (!value) {
+                                return;
+                            }
 
                             value = value.trim();
                         }
@@ -1210,7 +1218,9 @@ editor.once('load', () => {
                         field.emit('beforechange', asset.get('id'));
                         field.value = asset.get('id');
                         evtPick = null;
-                        if (args.onSet) args.onSet(asset, oldValues);
+                        if (args.onSet) {
+                            args.onSet(asset, oldValues);
+                        }
                     });
 
                     editor.once('picker:asset:close', () => {
@@ -1228,7 +1238,9 @@ editor.once('load', () => {
                     }
 
                     const asset = editor.call('assets:get', this.value);
-                    if (!asset) return;
+                    if (!asset) {
+                        return;
+                    }
                     editor.call('selector:set', 'asset', [asset]);
 
                     if (legacyScripts && asset.get('type') === 'script') {
@@ -1322,7 +1334,9 @@ editor.once('load', () => {
                     renderPreview();
 
                     queueRender = function () {
-                        if (renderQueued) return;
+                        if (renderQueued) {
+                            return;
+                        }
                         renderQueued = true;
                         requestAnimationFrame(renderPreview);
                     };
@@ -1419,7 +1433,9 @@ editor.once('load', () => {
 
                         if (args.onSet) {
                             const asset = editor.call('assets:get', parseInt(data.id, 10));
-                            if (asset) args.onSet(asset, oldValues);
+                            if (asset) {
+                                args.onSet(asset, oldValues);
+                            }
                         }
                     },
                     over: function (type, data) {
@@ -1555,7 +1571,9 @@ editor.once('load', () => {
                 // highlight on hover
                 field.on('hover', () => {
                     const entity = getCurrentEntity();
-                    if (!entity) return;
+                    if (!entity) {
+                        return;
+                    }
 
                     editor.call('entities:panel:highlight', entity, true);
 
@@ -1680,7 +1698,9 @@ editor.once('load', () => {
                         });
 
                         const evtPickerChanged = editor.on('picker:curve:change', (paths, values) => {
-                            if (!field._link) return;
+                            if (!field._link) {
+                                return;
+                            }
 
                             const link = field._link;
 
@@ -1707,7 +1727,9 @@ editor.once('load', () => {
                             const undo = function () {
                                 const item = link.latest();
 
-                                if (!item) return;
+                                if (!item) {
+                                    return;
+                                }
 
                                 args.keepZoom = true;
 
@@ -1731,7 +1753,9 @@ editor.once('load', () => {
                             const redo = function () {
                                 const item = link.latest();
 
-                                if (!item) return;
+                                if (!item) {
+                                    return;
+                                }
 
                                 args.keepZoom = true;
 
@@ -1827,7 +1851,9 @@ editor.once('load', () => {
                         editor.call('picker:gradient:position', rectField.right - rectPicker.width, rectField.bottom);
 
                         const evtPickerChanged = editor.on('picker:curve:change', (paths, values) => {
-                            if (!field._link) return;
+                            if (!field._link) {
+                                return;
+                            }
 
                             const link = field._link;
 
@@ -1847,7 +1873,9 @@ editor.once('load', () => {
                             const undo = function () {
                                 const item = link.latest();
 
-                                if (!item) return;
+                                if (!item) {
+                                    return;
+                                }
 
                                 let history = false;
                                 if (item.history) {
@@ -1867,7 +1895,9 @@ editor.once('load', () => {
                             const redo = function () {
                                 const item = link.latest();
 
-                                if (!item) return;
+                                if (!item) {
+                                    return;
+                                }
 
                                 let history = false;
                                 if (item.history) {

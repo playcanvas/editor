@@ -49,7 +49,9 @@ editor.once('load', () => {
 
         // update lines
         update() {
-            if (!app) return; // webgl not available
+            if (!app) {
+                return;
+            } // webgl not available
 
             if (!this._link || !this._link.entity) {
                 return;
@@ -154,7 +156,9 @@ editor.once('load', () => {
 
         // link to entity
         link(obj) {
-            if (!app) return; // webgl not available
+            if (!app) {
+                return;
+            } // webgl not available
 
             this.unlink();
             this._link = obj;
@@ -179,7 +183,9 @@ editor.once('load', () => {
 
         // unlink
         unlink() {
-            if (!app) return; // webgl not available
+            if (!app) {
+                return;
+            } // webgl not available
 
             if (!this._link) {
                 return;

@@ -114,7 +114,9 @@ editor.once('load', () => {
         } else {
             // 2. if not indexed, then add
             assetToScripts[assetId][script] = true;
-            if (!scripts[script]) scripts[script] = {};
+            if (!scripts[script]) {
+                scripts[script] = {};
+            }
             scripts[script][assetId] = asset;
 
             editor.emit('assets:scripts:add', asset, script);
@@ -216,7 +218,9 @@ editor.once('load', () => {
             }
 
             const parts = path.split('.');
-            if (parts.length < 3) return;
+            if (parts.length < 3) {
+                return;
+            }
 
             const script = parts[2];
 
@@ -237,7 +241,9 @@ editor.once('load', () => {
             }
 
             const parts = path.split('.');
-            if (parts.length < 3) return;
+            if (parts.length < 3) {
+                return;
+            }
 
             const script = parts[2];
 
@@ -254,7 +260,9 @@ editor.once('load', () => {
             }
 
             const parts = path.split('.');
-            if (parts.length !== 4 || parts[3] !== 'attributesOrder') return;
+            if (parts.length !== 4 || parts[3] !== 'attributesOrder') {
+                return;
+            }
 
             const script = parts[2];
             editor.emit('assets:scripts:attribute:set', asset, script, value, ind);
@@ -270,7 +278,9 @@ editor.once('load', () => {
             }
 
             const parts = path.split('.');
-            if (parts.length !== 4 || parts[3] !== 'attributesOrder') return;
+            if (parts.length !== 4 || parts[3] !== 'attributesOrder') {
+                return;
+            }
 
             const script = parts[2];
             editor.emit('assets:scripts:attribute:unset', asset, script, value);

@@ -4,7 +4,9 @@ function warn(view, condition, message, owner, severity = monaco.MarkerSeverity.
     const matches = condition(view, code);
 
     // Early out if condition not met
-    if (!matches) return;
+    if (!matches) {
+        return;
+    }
 
     for (const match of matches) {
         const startPos = view.getPositionAt(match.index);

@@ -73,7 +73,9 @@ const DOM = parent => [
 
 class SettingsPanel extends Container {
     constructor(args) {
-        if (!args) args = {};
+        if (!args) {
+            args = {};
+        }
         args.flex = true;
 
         super(args);
@@ -124,8 +126,12 @@ class SettingsPanel extends Container {
         const sceneNameField = this._sceneAttributes.getField('name');
         sceneNameField.value = this._sceneName;
         this._settingsEvents.push(sceneNameField.on('change', (newSceneName) => {
-            if (this._suspendSceneNameEvt) return;
-            if (!editor.call('permissions:write')) return;
+            if (this._suspendSceneNameEvt) {
+                return;
+            }
+            if (!editor.call('permissions:write')) {
+                return;
+            }
 
             editor.call('realtime:scene:op', {
                 p: ['name'],

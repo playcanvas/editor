@@ -72,11 +72,15 @@ editor.once('load', () => {
                     }, 200);
                 }
             }
-            if (wnd) wnd.focus();
+            if (wnd) {
+                wnd.focus();
+            }
         } catch (ex) {
             // accessing wnd will throw an exception if it is at a different domain
             const newWnd = window.open(url, name);
-            if (newWnd) newWnd.focus();
+            if (newWnd) {
+                newWnd.focus();
+            }
         }
     });
 

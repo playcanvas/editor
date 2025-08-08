@@ -39,7 +39,9 @@ editor.once('load', () => {
         function redo() {
             const templId = templateInstanceRoot.get('template_id');
             const asset = editor.call('assets:get', templId);
-            if (!asset) return;
+            if (!asset) {
+                return;
+            }
 
             const dstToSrc = templateInstanceRoot.get('template_ent_ids'); // for create asset is src
             const srcToDst = editor.call('template:utils', 'invertMap', dstToSrc);
@@ -85,7 +87,9 @@ editor.once('load', () => {
         // handle new script
         function undo() {
             entity = entity.latest();
-            if (!entity) return;
+            if (!entity) {
+                return;
+            }
 
             const history = entity.history.enabled;
             entity.history.enabled = false;
@@ -102,7 +106,9 @@ editor.once('load', () => {
 
         function redo() {
             entity = entity.latest();
-            if (!entity) return;
+            if (!entity) {
+                return;
+            }
 
             const history = entity.history.enabled;
             entity.history.enabled = false;
@@ -130,7 +136,9 @@ editor.once('load', () => {
 
         function redo() {
             entity = entity.latest();
-            if (!entity) return;
+            if (!entity) {
+                return;
+            }
 
             const history = entity.history.enabled;
             entity.history.enabled = false;
@@ -140,7 +148,9 @@ editor.once('load', () => {
 
         function undo() {
             entity = entity.latest();
-            if (!entity) return;
+            if (!entity) {
+                return;
+            }
 
             const history = entity.history.enabled;
             entity.history.enabled = false;
@@ -166,7 +176,9 @@ editor.once('load', () => {
 
         function undo() {
             entity = entity.latest();
-            if (!entity || !entity.has(path)) return;
+            if (!entity || !entity.has(path)) {
+                return;
+            }
 
             const history = entity.history.enabled;
             entity.history.enabled = false;
@@ -178,7 +190,9 @@ editor.once('load', () => {
 
         function redo() {
             entity = entity.latest();
-            if (!entity || !entity.has(path)) return;
+            if (!entity || !entity.has(path)) {
+                return;
+            }
 
             const history = entity.history.enabled;
             entity.history.enabled = false;
@@ -198,11 +212,15 @@ editor.once('load', () => {
     }
 
     function revertDeletedScript(entity, override, scriptName) {
-        if (!override.missing_in_src) return;
+        if (!override.missing_in_src) {
+            return;
+        }
 
         function undo() {
             entity = entity.latest();
-            if (!entity) return;
+            if (!entity) {
+                return;
+            }
 
             const history = entity.history.enabled;
             entity.history.enabled = false;
@@ -215,7 +233,9 @@ editor.once('load', () => {
 
         function redo() {
             entity = entity.latest();
-            if (!entity) return;
+            if (!entity) {
+                return;
+            }
 
             const history = entity.history.enabled;
             entity.history.enabled = false;
@@ -333,7 +353,9 @@ editor.once('load', () => {
 
         function undo() {
             entity = entity.latest();
-            if (!entity) return;
+            if (!entity) {
+                return;
+            }
 
             const history = entity.history.enabled;
             entity.history.enabled = false;
@@ -363,7 +385,9 @@ editor.once('load', () => {
 
         function redo() {
             entity = entity.latest();
-            if (!entity) return;
+            if (!entity) {
+                return;
+            }
 
             const history = entity.history.enabled;
             entity.history.enabled = false;
@@ -422,7 +446,9 @@ editor.once('load', () => {
 
         function undo() {
             entity = entity.latest();
-            if (!entity) return;
+            if (!entity) {
+                return;
+            }
 
             const history = entity.history.enabled;
             entity.history.enabled = false;
@@ -433,7 +459,9 @@ editor.once('load', () => {
 
         function redo() {
             entity = entity.latest();
-            if (!entity) return;
+            if (!entity) {
+                return;
+            }
 
             oldOrder = override.src_value.slice();
 
@@ -487,7 +515,9 @@ editor.once('load', () => {
         entities = entities || editor.call('entities:raw');
 
         const entity = entities.get(override.resource_id);
-        if (!entity) return;
+        if (!entity) {
+            return;
+        }
 
         if (override.missing_in_dst) {
             let match = override.path.match(REGEX_SCRIPT_NAME);
@@ -533,13 +563,19 @@ editor.once('load', () => {
 
         const templateId = entityObserver.get('template_id');
         const templateEntIds = entityObserver.get('template_ent_ids');
-        if (!templateId || !templateEntIds) return false;
+        if (!templateId || !templateEntIds) {
+            return false;
+        }
 
         const asset = /** @type {AssetObserver} */ (editor.call('assets:get', templateId));
-        if (!asset) return;
+        if (!asset) {
+            return;
+        }
 
         const parent = editor.call('entities:get', entityObserver.get('parent'));
-        if (!parent) return;
+        if (!parent) {
+            return;
+        }
 
         const ignorePathValues = IGNORE_PATHS.map(path => entityObserver.get(path));
 
@@ -550,7 +586,9 @@ editor.once('load', () => {
         let prev;
 
         async function undo() {
-            if (!parent.latest()) return;
+            if (!parent.latest()) {
+                return;
+            }
 
             if (entityObserver) {
                 await entityObserver.apiEntity.delete({ history: false });
@@ -563,7 +601,9 @@ editor.once('load', () => {
         }
 
         async function redo() {
-            if (!parent.latest()) return;
+            if (!parent.latest()) {
+                return;
+            }
 
             // remove entity and then re-add instance from
             // the template keeping the same ids as before

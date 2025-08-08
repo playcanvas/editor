@@ -1,6 +1,8 @@
 editor.once('load', () => {
     const app = editor.call('viewport:app');
-    if (!app) return; // webgl not available
+    if (!app) {
+        return;
+    } // webgl not available
 
     const picker = new pc.Picker(app, 1, 1);
     const pickedData = {
@@ -79,20 +81,26 @@ editor.once('load', () => {
             while (!(node instanceof pc.Entity) && node && node.parent) {
                 node = node.parent;
             }
-            if (!node || !(node instanceof pc.Entity)) return;
+            if (!node || !(node instanceof pc.Entity)) {
+                return;
+            }
 
             fn(node, picked[0]);
         }
     });
 
     editor.on('viewport:tap:start', (tap) => {
-        if (!tap.mouse) return;
+        if (!tap.mouse) {
+            return;
+        }
 
         mouseDown = true;
     });
 
     editor.on('viewport:tap:end', (tap) => {
-        if (!tap.mouse) return;
+        if (!tap.mouse) {
+            return;
+        }
 
         mouseDown = false;
 

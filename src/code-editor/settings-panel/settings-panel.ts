@@ -59,7 +59,9 @@ editor.once('load', () => {
         });
 
         field.on('change', (value) => {
-            if (suspendChange) return;
+            if (suspendChange) {
+                return;
+            }
 
             settings.set(path, value);
         });

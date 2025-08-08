@@ -72,7 +72,9 @@ class LegacyCurveField extends LegacyElement {
     }
 
     link(link, paths) {
-        if (this._link) this.unlink();
+        if (this._link) {
+            this.unlink();
+        }
         this._link = link;
         this._paths = paths;
 
@@ -108,7 +110,9 @@ class LegacyCurveField extends LegacyElement {
     }
 
     unlink() {
-        if (!this._link) return;
+        if (!this._link) {
+            return;
+        }
 
         this.emit('unlink', this._paths);
 
@@ -126,7 +130,9 @@ class LegacyCurveField extends LegacyElement {
     }
 
     _onLinkChange() {
-        if (this.suspendEvents) return;
+        if (this.suspendEvents) {
+            return;
+        }
 
         const values = [];
 
@@ -153,8 +159,12 @@ class LegacyCurveField extends LegacyElement {
     }
 
     _clampEdge(val, min, max) {
-        if (val < min && val > min - 2) return min;
-        if (val > max && val < max + 2) return max;
+        if (val < min && val > min - 2) {
+            return min;
+        }
+        if (val > max && val < max + 2) {
+            return max;
+        }
         return val;
     }
 

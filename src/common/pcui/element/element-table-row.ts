@@ -61,17 +61,23 @@ class TableRow extends Container {
     }
 
     focus() {
-        if (this._header) return;
+        if (this._header) {
+            return;
+        }
         this.dom.focus();
     }
 
     blur() {
-        if (this._header) return;
+        if (this._header) {
+            return;
+        }
         this.dom.blur();
     }
 
     destroy() {
-        if (this._destroyed) return;
+        if (this._destroyed) {
+            return;
+        }
 
         if (this._domEvtFocus) {
             this.dom.removeEventListener('focus', this._domEvtFocus);
@@ -84,7 +90,9 @@ class TableRow extends Container {
     }
 
     set selected(value) {
-        if (this._header) return;
+        if (this._header) {
+            return;
+        }
 
         if (value) {
             if (this.table && this.table.allowRowFocus) {
@@ -92,7 +100,9 @@ class TableRow extends Container {
             }
         }
 
-        if (this.selected === value) return;
+        if (this.selected === value) {
+            return;
+        }
 
         this._selected = value;
 

@@ -2,10 +2,14 @@ import { Entity } from '@playcanvas/editor-api';
 
 editor.once('load', () => {
     const canvas = editor.call('viewport:canvas');
-    if (!canvas) return;
+    if (!canvas) {
+        return;
+    }
 
     const app = editor.call('viewport:app');
-    if (!app) return; // webgl not available
+    if (!app) {
+        return;
+    } // webgl not available
 
     const aabb = new pc.BoundingBox();
     const vecA = new pc.Vec3();
@@ -17,7 +21,9 @@ editor.once('load', () => {
         filter: function (type, data) {
             if (type === 'asset.model') {
                 const asset = app.assets.get(data.id);
-                if (asset) app.assets.load(asset);
+                if (asset) {
+                    app.assets.load(asset);
+                }
 
                 return true;
             }
@@ -36,7 +42,9 @@ editor.once('load', () => {
 
                 for (let i = 0; i < data.ids.length; i++) {
                     const asset = app.assets.get(data.ids[i]);
-                    if (asset) app.assets.load(asset);
+                    if (asset) {
+                        app.assets.load(asset);
+                    }
                 }
 
                 return true;
@@ -51,7 +59,9 @@ editor.once('load', () => {
 
             if (type === 'asset.model') {
                 const asset = editor.call('assets:get', parseInt(data.id, 10));
-                if (asset) assets.push(asset);
+                if (asset) {
+                    assets.push(asset);
+                }
             } else if (type === 'assets') {
                 for (let i = 0; i < data.ids.length; i++) {
                     const asset = editor.call('assets:get', parseInt(data.ids[i], 10));
@@ -80,7 +90,9 @@ editor.once('load', () => {
             let first = true;
             for (let i = 0; i < assets.length; i++) {
                 const assetEngine = app.assets.get(assets[i].get('id'));
-                if (!assetEngine) continue;
+                if (!assetEngine) {
+                    continue;
+                }
 
                 if (assetEngine.resource) {
                     const meshes = assetEngine.resource.meshInstances;
@@ -165,7 +177,9 @@ editor.once('load', () => {
                 },
                 redo: function () {
                     parent = parent.latest();
-                    if (!parent) return;
+                    if (!parent) {
+                        return;
+                    }
 
                     entities.length = 0;
 

@@ -99,7 +99,9 @@ editor.once('load', () => {
             });
 
             const parent = getSelection()[0];
-            if (!parent) return;
+            if (!parent) {
+                return;
+            }
 
             let evtPick = editor.once('picker:asset', (asset) => {
                 asset.apiAsset.instantiateTemplate(parent.apiEntity, {

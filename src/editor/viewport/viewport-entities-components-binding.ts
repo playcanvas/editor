@@ -105,7 +105,9 @@ editor.once('load', () => {
             }
 
             const entity = obj.entity;
-            if (!entity) return;
+            if (!entity) {
+                return;
+            }
 
             const parts = path.split('.');
             const component = parts[1];
@@ -130,7 +132,9 @@ editor.once('load', () => {
                     }
 
                     app = editor.call('viewport:app');
-                    if (!app) return; // webgl not available
+                    if (!app) {
+                        return;
+                    } // webgl not available
                     app.systems[component].addComponent(entity, data);
 
                     // render
@@ -151,7 +155,9 @@ editor.once('load', () => {
             }
 
             const entity = obj.entity;
-            if (!entity) return;
+            if (!entity) {
+                return;
+            }
 
             const parts = path.split('.');
             const component = parts[1];
@@ -181,7 +187,9 @@ editor.once('load', () => {
             }
 
             const entity = obj.entity;
-            if (!entity) return;
+            if (!entity) {
+                return;
+            }
 
             const parts = path.split('.');
             const component = parts[1];
@@ -204,7 +212,9 @@ editor.once('load', () => {
             } else if (entity[component]) {
                 // remove component
                 const app = editor.call('viewport:app');
-                if (!app) return; // webgl not available
+                if (!app) {
+                    return;
+                } // webgl not available
 
                 app.systems[component].removeComponent(entity);
             }
@@ -215,7 +225,9 @@ editor.once('load', () => {
     });
 
     function resolveEntityReference(app, entity, component, field) {
-        if (!entity[component]) return;
+        if (!entity[component]) {
+            return;
+        }
         if (entity[component][field] && typeof entity[component][field] === 'string') {
             const resolvedEntity = app.root.findByGuid(entity[component][field]);
             if (resolvedEntity) {
@@ -241,7 +253,9 @@ editor.once('load', () => {
 
     editor.method('viewport:resolveEntityReferences', (entity) => {
         const app = editor.call('viewport:app');
-        if (!app) return;
+        if (!app) {
+            return;
+        }
 
         const guids = {};
         if (entity) {
@@ -256,7 +270,9 @@ editor.once('load', () => {
                 entityFields.forEach((field) => {
                     if (entity) {
                         for (const id in guids) {
-                            if (!store[id]) continue;
+                            if (!store[id]) {
+                                continue;
+                            }
                             resolveEntityReference(app, store[id].entity, component, field);
                         }
                     } else {

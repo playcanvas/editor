@@ -305,7 +305,9 @@ editor.once('load', () => {
     }, false);
 
     const app = editor.call('viewport:app');
-    if (!app) return; // webgl not available
+    if (!app) {
+        return;
+    } // webgl not available
 
     let frameLast = 0;
 

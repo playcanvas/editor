@@ -109,7 +109,9 @@ class LayersSettingsPanelLayerPanel extends BaseSettingsPanel {
         this.once('destroy', () => {
             nameChangeEvt.unbind();
             removeLayerEvt.unbind();
-            if (deleteTooltip) deleteTooltip.destroy();
+            if (deleteTooltip) {
+                deleteTooltip.destroy();
+            }
         });
 
         this.headerText = this._projectSettings.get('layers')[this._args.layerKey].name;

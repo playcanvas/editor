@@ -32,7 +32,9 @@ editor.once('load', () => {
     let stopLogs = false;
 
     const append = function (msg, cls) {
-        if (stopLogs) return;
+        if (stopLogs) {
+            return;
+        }
 
         // prevent too many log messages
         if (panel.childNodes.length <= 1) {

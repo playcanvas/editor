@@ -20,7 +20,9 @@ editor.once('load', () => {
         if (Notification.permission !== 'denied') {
             Notification.requestPermission((permission) => {
                 editor.emit('notify:permission', permission);
-                if (fn) fn();
+                if (fn) {
+                    fn();
+                }
             });
         }
     });

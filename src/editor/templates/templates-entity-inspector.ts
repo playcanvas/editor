@@ -146,7 +146,9 @@ class TemplatesEntityInspector extends Container {
         // select template asset
         if (this._entity) {
             const asset = this._assets.get(this._entity.get('template_id'));
-            if (!asset) return;
+            if (!asset) {
+                return;
+            }
 
             editor.call('selector:set', 'asset', [asset]);
 
@@ -182,13 +184,17 @@ class TemplatesEntityInspector extends Container {
     }
 
     _onClickWindow(e) {
-        if (this._entityDropdownMenu.dom.contains(e.target)) return;
+        if (this._entityDropdownMenu.dom.contains(e.target)) {
+            return;
+        }
 
         this._dismissEntityDropdownMenu();
     }
 
     _deselectEntityListItem() {
-        if (!this._selectedEntityListItem) return;
+        if (!this._selectedEntityListItem) {
+            return;
+        }
         this._selectedEntityListItem.class.remove(CLASS_ENTITY_LIST_CLICKED);
         this._selectedEntityListItem = null;
     }
@@ -245,9 +251,13 @@ class TemplatesEntityInspector extends Container {
         container.append(btnView);
 
         btnView.on('click', () => {
-            if (!data.resourceId) return;
+            if (!data.resourceId) {
+                return;
+            }
             const entity = editor.call('entities:get', data.resourceId);
-            if (!entity) return;
+            if (!entity) {
+                return;
+            }
 
             editor.call('selector:set', 'entity', [entity]);
         });
@@ -411,8 +421,12 @@ class TemplatesEntityInspector extends Container {
 
             // sort list items by name and add them to the container
             listItems.sort((a, b) => {
-                if (a.name < b.name) return -1;
-                if (a.name > b.name) return 1;
+                if (a.name < b.name) {
+                    return -1;
+                }
+                if (a.name > b.name) {
+                    return 1;
+                }
                 return 0;
             })
             .forEach((l) => {
@@ -435,9 +449,13 @@ class TemplatesEntityInspector extends Container {
     }
 
     _onTemplateApply(data) {
-        if (this.hidden) return;
+        if (this.hidden) {
+            return;
+        }
 
-        if (this._entity.get('resource_id') !== data.entity_id) return;
+        if (this._entity.get('resource_id') !== data.entity_id) {
+            return;
+        }
 
         this._deferRefreshOverrides();
     }
@@ -461,7 +479,9 @@ class TemplatesEntityInspector extends Container {
     }
 
     _onEntityAdd(entity) {
-        if (!this._entity) return;
+        if (!this._entity) {
+            return;
+        }
 
         if (this._isDescendant(entity, this._entity)) {
             this._bindEntityEvents(entity);
@@ -473,7 +493,9 @@ class TemplatesEntityInspector extends Container {
     }
 
     _bindEntityEvents(entity) {
-        if (this._entityEvents[entity.get('resource_id')]) return;
+        if (this._entityEvents[entity.get('resource_id')]) {
+            return;
+        }
 
         const entry = [];
         this._entityEvents[entity.get('resource_id')] = entry;
@@ -487,7 +509,9 @@ class TemplatesEntityInspector extends Container {
             entry.push(entity.on('template_ent_ids:set', onTemplateChange));
             entry.push(entity.on('template_ent_ids:unset', onTemplateChange));
 
-            if (!entity.get('template_id')) return;
+            if (!entity.get('template_id')) {
+                return;
+            }
         }
 
         entry.push(entity.on('*:set', this._deferRefreshOverrides));
@@ -500,7 +524,9 @@ class TemplatesEntityInspector extends Container {
     _bindEntityEventsRecursively(entity) {
         this._bindEntityEvents(entity);
 
-        if (entity === this._entity && !entity.get('template_id')) return;
+        if (entity === this._entity && !entity.get('template_id')) {
+            return;
+        }
 
         for (const id of entity.get('children')) {
             const child = this._entities.get(id);
@@ -528,7 +554,9 @@ class TemplatesEntityInspector extends Container {
     }
 
     _showOverrides() {
-        if (!this._getOverrideCount()) return;
+        if (!this._getOverrideCount()) {
+            return;
+        }
         this._diffView.hidden = false;
         this._diffView.showOverrides(this._overrides, this._templateAsset, this._entity);
     }
@@ -536,7 +564,9 @@ class TemplatesEntityInspector extends Container {
     link(entities) {
         this.unlink();
 
-        if (entities.length !== 1) return;
+        if (entities.length !== 1) {
+            return;
+        }
 
         const entity = entities[0];
 
@@ -557,7 +587,9 @@ class TemplatesEntityInspector extends Container {
     }
 
     unlink() {
-        if (!this._entity) return;
+        if (!this._entity) {
+            return;
+        }
 
         this._templateAsset = null;
 
@@ -572,7 +604,9 @@ class TemplatesEntityInspector extends Container {
     }
 
     destroy() {
-        if (this._destroyed) return;
+        if (this._destroyed) {
+            return;
+        }
 
         this._eventMessenger.unbind();
         this._eventMessenger = null;

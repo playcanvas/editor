@@ -16,7 +16,9 @@ editor.once('load', () => {
                 return;
             }
 
-            if (editor.call('picker:isOpen:otherThan', hotkeyExceptions)) return;
+            if (editor.call('picker:isOpen:otherThan', hotkeyExceptions)) {
+                return;
+            }
 
             history.undo();
         }
@@ -32,7 +34,9 @@ editor.once('load', () => {
                 return;
             }
 
-            if (editor.call('picker:isOpen:otherThan', hotkeyExceptions)) return;
+            if (editor.call('picker:isOpen:otherThan', hotkeyExceptions)) {
+                return;
+            }
 
             history.redo();
         }
@@ -47,7 +51,9 @@ editor.once('load', () => {
                 return;
             }
 
-            if (editor.call('picker:isOpen:otherThan', hotkeyExceptions)) return;
+            if (editor.call('picker:isOpen:otherThan', hotkeyExceptions)) {
+                return;
+            }
 
             history.redo();
         }

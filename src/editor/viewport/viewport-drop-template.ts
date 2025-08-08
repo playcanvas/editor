@@ -1,16 +1,22 @@
 editor.once('load', () => {
     const canvas = editor.call('viewport:canvas');
-    if (!canvas) return;
+    if (!canvas) {
+        return;
+    }
 
     const app = editor.call('viewport:app');
-    if (!app) return; // webgl not available
+    if (!app) {
+        return;
+    } // webgl not available
 
     editor.call('drop:target', {
         ref: canvas,
         filter: (type, data) => {
             if (type === 'asset.template') {
                 const asset = app.assets.get(data.id);
-                if (asset) app.assets.load(asset);
+                if (asset) {
+                    app.assets.load(asset);
+                }
 
                 return true;
             }
@@ -18,7 +24,9 @@ editor.once('load', () => {
             if (type === 'assets') {
                 for (let i = 0; i < data.ids.length; i++) {
                     const asset = app.assets.get(data.ids[i]);
-                    if (!asset || asset.type !== 'template') return false;
+                    if (!asset || asset.type !== 'template') {
+                        return false;
+                    }
                 }
 
                 for (let i = 0; i < data.ids.length; i++) {
@@ -38,7 +46,9 @@ editor.once('load', () => {
 
             if (type === 'asset.template') {
                 const asset = editor.call('assets:get', parseInt(data.id, 10));
-                if (asset) assets.push(asset);
+                if (asset) {
+                    assets.push(asset);
+                }
             } else if (type === 'assets') {
                 for (let i = 0; i < data.ids.length; i++) {
                     const asset = editor.call('assets:get', parseInt(data.ids[i], 10));

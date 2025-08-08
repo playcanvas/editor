@@ -45,9 +45,13 @@ editor.once('load', () => {
     });
 
     editor.method('viewport:render:aabb', (aabb) => {
-        if (!app) return; // webgl not available
+        if (!app) {
+            return;
+        } // webgl not available
 
-        if (!visible) return;
+        if (!visible) {
+            return;
+        }
 
         const immediateLayer = editor.call('gizmo:layers', 'Axis Gizmo Immediate');
         const brightLayer = editor.call('gizmo:layers', 'Bright Gizmo');

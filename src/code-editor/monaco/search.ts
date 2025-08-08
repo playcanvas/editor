@@ -171,10 +171,14 @@ editor.once('load', () => {
 
     // Add results to document
     editor.on('editor:search:files:results', (results, done, ignored, total) => {
-        if (!model) return;
+        if (!model) {
+            return;
+        }
 
         const asset = editor.call('assets:get', results.id);
-        if (!asset) return;
+        if (!asset) {
+            return;
+        }
 
         // show progress
         model.applyEdits([{
@@ -183,7 +187,9 @@ editor.once('load', () => {
         }]);
 
         const len = results.matches.length;
-        if (!len) return;
+        if (!len) {
+            return;
+        }
 
         const decorations = [];
 

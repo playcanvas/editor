@@ -40,7 +40,9 @@ editor.once('load', () => {
 
     const revert = function (id) {
         const asset = editor.call('assets:get', id);
-        if (!asset) return;
+        if (!asset) {
+            return;
+        }
 
         editor.call('assets:loadFile', asset, (err, content) => {
             if (err) {
@@ -48,7 +50,9 @@ editor.once('load', () => {
             }
 
             const view = editor.call('views:get', id);
-            if (!view) return;
+            if (!view) {
+                return;
+            }
 
             view.setValue(content);
 
@@ -94,7 +98,9 @@ editor.once('load', () => {
     // Load asset file and set document content to be the same
     // as the asset file - then save
     editor.method('editor:command:revert', () => {
-        if (!editor.call('editor:command:can:revert')) return;
+        if (!editor.call('editor:command:can:revert')) {
+            return;
+        }
 
         const focused = editor.call('documents:getFocused');
         revert(focused);

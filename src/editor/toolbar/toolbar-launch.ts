@@ -233,7 +233,9 @@ editor.once('load', () => {
         suspendDebug = false;
     });
     optionDebug.on('change', (value) => {
-        if (suspendDebug) return;
+        if (suspendDebug) {
+            return;
+        }
         settings.set('editor.launchDebug', value);
     });
 
@@ -323,7 +325,9 @@ editor.once('load', () => {
         key: 'Enter',
         ctrl: true,
         callback: function () {
-            if (editor.call('picker:isOpen')) return;
+            if (editor.call('picker:isOpen')) {
+                return;
+            }
             launchApp();
         }
     });
@@ -349,7 +353,9 @@ editor.once('load', () => {
             return;
         }
 
-        if (timeout) clearTimeout(timeout);
+        if (timeout) {
+            clearTimeout(timeout);
+        }
         timeout = setTimeout(() => {
             panelOptions.hidden = true;
             timeout = null;
@@ -365,7 +371,9 @@ editor.once('load', () => {
 
     // hide options after a while
     panel.dom.addEventListener('mouseleave', () => {
-        if (timeout) clearTimeout(timeout);
+        if (timeout) {
+            clearTimeout(timeout);
+        }
         timeout = setTimeout(() => {
             panelOptions.hidden = true;
             timeout = null;

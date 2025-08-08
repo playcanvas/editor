@@ -292,7 +292,9 @@ class AnimstategraphView {
         let missingPosCounter = 0;
         data.layers[layer].states.forEach((stateKey) => {
             const state = data.states[stateKey];
-            if (!state) return;
+            if (!state) {
+                return;
+            }
             if (!state.posX || !state.posY) {
                 state.posX = missingPosCounter * 250 + 50;
                 state.posY = 50;
@@ -666,7 +668,9 @@ class AnimstategraphView {
     }
 
     _onSelectNode({ node }) {
-        if (!node) return;
+        if (!node) {
+            return;
+        }
         this._parent._transitionsContainer.unlink();
         this._parent._transitionsContainer.hidden = true;
         this._parent._stateContainer.link(this._assets, this._selectedLayer, `data.states.${node.id}`);
@@ -688,7 +692,9 @@ class AnimstategraphView {
     }
 
     selectEdgeEvent(edge, edgeId) {
-        if (this._suppressGraphDataEvents) return;
+        if (this._suppressGraphDataEvents) {
+            return;
+        }
         this.parent.history.add({
             redo: () => {
                 this._suppressGraphEvents(() => {
@@ -729,18 +735,24 @@ class AnimstategraphView {
         this._graph.on(GRAPH_ACTIONS.DELETE_EDGE, this._onDeleteEdge.bind(this));
 
         this._graph.on(GRAPH_ACTIONS.SELECT_NODE, ({ node, prevItem }) => {
-            if (this._suppressGraphDataEvents) return;
+            if (this._suppressGraphDataEvents) {
+                return;
+            }
             const assetId = this._assets[0].get('id');
             this.parent.history.add({
                 redo: () => {
-                    if (this._assets[0].get('id') !== assetId) return;
+                    if (this._assets[0].get('id') !== assetId) {
+                        return;
+                    }
                     this._suppressGraphEvents(() => {
                         this._onSelectNode({ node });
                         this._graph.selectNode(node);
                     });
                 },
                 undo: () => {
-                    if (this._assets[0].get('id') !== assetId) return;
+                    if (this._assets[0].get('id') !== assetId) {
+                        return;
+                    }
                     this._suppressGraphEvents(() => {
                         if (prevItem) {
                             switch (prevItem.type) {
@@ -774,18 +786,24 @@ class AnimstategraphView {
         });
 
         this._graph.on(GRAPH_ACTIONS.DESELECT_ITEM, ({ type, id, edgeId }) => {
-            if (this._suppressGraphDataEvents) return;
+            if (this._suppressGraphDataEvents) {
+                return;
+            }
             const assetId = this._assets[0].get('id');
             this.parent.history.add({
                 redo: () => {
-                    if (this._assets[0].get('id') !== assetId) return;
+                    if (this._assets[0].get('id') !== assetId) {
+                        return;
+                    }
                     this._suppressGraphEvents(() => {
                         this._onDeselectItem();
                         this._graph.deselectItem();
                     });
                 },
                 undo: () => {
-                    if (this._assets[0].get('id') !== assetId) return;
+                    if (this._assets[0].get('id') !== assetId) {
+                        return;
+                    }
                     this._suppressGraphEvents(() => {
                         switch (type) {
                             case 'NODE': {
@@ -858,8 +876,12 @@ class AnimstategraphView {
 
     unlink() {
         this._destroyGraph();
-        if (this._viewportResizeEvent) this._viewportResizeEvent.unbind();
-        if (this._handleIncomingUpdatesEvent) this._handleIncomingUpdatesEvent.unbind();
+        if (this._viewportResizeEvent) {
+            this._viewportResizeEvent.unbind();
+        }
+        if (this._handleIncomingUpdatesEvent) {
+            this._handleIncomingUpdatesEvent.unbind();
+        }
         // remove keyboard listener
         if (this._keyboardListenerBound) {
             window.removeEventListener('keydown', this._keyboardListenerBound);

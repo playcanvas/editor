@@ -24,7 +24,9 @@ editor.once('load', () => {
             }
 
             // do not go further than the specified template instance root
-            if (entity === templateInstanceRoot) break;
+            if (entity === templateInstanceRoot) {
+                break;
+            }
 
             entity = entities.get(entity.get('parent'));
         }
@@ -52,7 +54,9 @@ editor.once('load', () => {
             }
 
             // do not go further than the specified template instance root
-            if (entity === templateInstanceRoot) break;
+            if (entity === templateInstanceRoot) {
+                break;
+            }
 
             entity = entities.get(entity.get('parent'));
         }

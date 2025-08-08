@@ -93,7 +93,9 @@ class LegacyList extends LegacyContainer {
 
     _onDeselect(item) {
         const ind = this._selected.indexOf(item);
-        if (ind !== -1) this._selected.splice(ind, 1);
+        if (ind !== -1) {
+            this._selected.splice(ind, 1);
+        }
 
         if (this._changing) {
             return;
@@ -126,7 +128,9 @@ class LegacyList extends LegacyContainer {
         }
 
         const ind = this._selected.indexOf(item);
-        if (ind === -1) this._selected.push(item);
+        if (ind === -1) {
+            this._selected.push(item);
+        }
     }
 
     clear() {

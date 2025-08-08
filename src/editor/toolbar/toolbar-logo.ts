@@ -261,7 +261,9 @@ editor.once('load', () => {
                 },
                 onSelect: function () {
                     const type = editor.call('selector:type');
-                    if (!type || type !== 'asset') return;
+                    if (!type || type !== 'asset') {
+                        return;
+                    }
                     const items = editor.call('selector:items');
 
                     editor.call('assets:edit', items[0]);
@@ -296,7 +298,9 @@ editor.once('load', () => {
                 },
                 onSelect: function () {
                     const type = editor.call('selector:type');
-                    if (!type) return;
+                    if (!type) {
+                        return;
+                    }
                     const items = editor.call('selector:items');
 
                     if (type === 'entity') {
@@ -314,7 +318,9 @@ editor.once('load', () => {
                     }
 
                     const type = editor.call('selector:type');
-                    if (!type) return false;
+                    if (!type) {
+                        return false;
+                    }
 
                     if (type === 'entity') {
                         const root = editor.call('entities:root');
@@ -330,7 +336,9 @@ editor.once('load', () => {
                 },
                 onSelect: function () {
                     const type = editor.call('selector:type');
-                    if (!type) return;
+                    if (!type) {
+                        return;
+                    }
                     const items = editor.call('selector:items');
 
                     if (type === 'entity') {

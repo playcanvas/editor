@@ -178,7 +178,9 @@ editor.once('load', () => {
 
             const redo = function () {
                 const asset = editor.call('assets:get', atlasAsset.get('id'));
-                if (!asset) return;
+                if (!asset) {
+                    return;
+                }
                 const history = asset.history.enabled;
                 asset.history.enabled = false;
 
@@ -200,7 +202,9 @@ editor.once('load', () => {
 
             const undo = function () {
                 const asset = editor.call('assets:get', atlasAsset.get('id'));
-                if (!asset) return;
+                if (!asset) {
+                    return;
+                }
                 const history = asset.history.enabled;
                 asset.history.enabled = false;
                 setFrames(asset, oldFrames);
@@ -242,7 +246,9 @@ editor.once('load', () => {
 
                 const redo = function () {
                     const asset = editor.call('assets:get', atlasAsset.get('id'));
-                    if (!asset) return;
+                    if (!asset) {
+                        return;
+                    }
                     const history = asset.history.enabled;
                     asset.history.enabled = false;
                     setFrames(asset, {});
@@ -251,7 +257,9 @@ editor.once('load', () => {
 
                 const undo = function () {
                     const asset = editor.call('assets:get', atlasAsset.get('id'));
-                    if (!asset) return;
+                    if (!asset) {
+                        return;
+                    }
                     const history = asset.history.enabled;
                     asset.history.enabled = false;
                     setFrames(asset, frames);

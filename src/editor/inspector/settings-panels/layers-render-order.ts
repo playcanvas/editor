@@ -67,7 +67,9 @@ class LayersSettingsPanelRenderOrderPanel extends BaseSettingsPanel {
         });
 
         this._addSubLayerSelect.on('change', (value) => {
-            if (value === '') return;
+            if (value === '') {
+                return;
+            }
             const keyAndTransparency = value.split('.');
             const key = parseInt(keyAndTransparency[0], 10);
             const transparent = keyAndTransparency[1].indexOf('transparent') !== -1;
@@ -87,7 +89,9 @@ class LayersSettingsPanelRenderOrderPanel extends BaseSettingsPanel {
             let shouldClose = true;
 
             this._addSubLayerSelect._containerOptions.forEachChild((label) => {
-                if (label.dom.parentElement.querySelector(':hover') === label.dom) shouldClose = false;
+                if (label.dom.parentElement.querySelector(':hover') === label.dom) {
+                    shouldClose = false;
+                }
             });
             if (shouldClose) {
                 this._addSubLayerButton.hidden = false;
@@ -110,7 +114,9 @@ class LayersSettingsPanelRenderOrderPanel extends BaseSettingsPanel {
     _updateAddSublayerOptions() {
         const projectSettings = this._projectSettings.latest();
         const layers = projectSettings.get('layers');
-        if (!layers) return;
+        if (!layers) {
+            return;
+        }
 
         const options = Object.keys(layers)
         .map((layerKey) => {

@@ -29,14 +29,18 @@ editor.once('load', () => {
                     text: 'Duplicate',
                     icon: 'E126',
                     onSelect: () => {
-                        if (!contextMenuAsset) return;
+                        if (!contextMenuAsset) {
+                            return;
+                        }
                         editor.call('assets:duplicate', contextMenuAsset);
                     }
                 }, {
                     text: 'Delete',
                     icon: 'E124',
                     onSelect: () => {
-                        if (!contextMenuAsset) return;
+                        if (!contextMenuAsset) {
+                            return;
+                        }
                         editor.call('assets:delete:picker', [contextMenuAsset]);
                     }
                 }
@@ -82,7 +86,9 @@ editor.once('load', () => {
             let renderQueued = false;
 
             spriteItem.queueRender = function () {
-                if (renderQueued) return;
+                if (renderQueued) {
+                    return;
+                }
                 renderQueued = true;
                 requestAnimationFrame(renderPreview);
             };
@@ -151,7 +157,9 @@ editor.once('load', () => {
 
             // context menu
             const contextMenu = (/** @type {MouseEvent} */ e) => {
-                if (!editor.call('permissions:write')) return;
+                if (!editor.call('permissions:write')) {
+                    return;
+                }
 
                 contextMenuAsset = asset;
                 menu.hidden = false;
@@ -212,7 +220,9 @@ editor.once('load', () => {
         events.push(editor.on('picker:sprites:spriteSelected', (sprite) => {
             // clear selection if no sprite selected
             if (!sprite) {
-                if (grid.selected.length > 0) grid.deselect();
+                if (grid.selected.length > 0) {
+                    grid.deselect();
+                }
                 return;
             }
 
@@ -230,10 +240,14 @@ editor.once('load', () => {
 
         // Asset create event
         events.push(editor.on('assets:add', (/** @type {Observer} */ asset) => {
-            if (asset.get('type') !== 'sprite') return;
+            if (asset.get('type') !== 'sprite') {
+                return;
+            }
 
             const id = parseInt(asset.get('data.textureAtlasAsset'), 10);
-            if (id !== parseInt(atlasAsset.get('id'), 10)) return;
+            if (id !== parseInt(atlasAsset.get('id'), 10)) {
+                return;
+            }
 
             spriteAssets.push(asset);
             const item = createSpriteItem(asset);

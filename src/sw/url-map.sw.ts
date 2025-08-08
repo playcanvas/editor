@@ -31,11 +31,15 @@ const SUPPORTED_FILE_TYPES = ['.mjs'];
 const isWithinScope = url => url.startsWith(SCOPE);
 const isSupportedFile = url => SUPPORTED_FILE_TYPES.some(suffix => url.endsWith(suffix));
 const requestOriginatesFromSupportedFile = (request) => {
-    if (!request.referrer) return false;
+    if (!request.referrer) {
+        return false;
+    }
     const url = new URL(request.referrer);
 
     // The request did not originate from an asset registry script, so allow it.
-    if (!isWithinScope(url.pathname)) return true;
+    if (!isWithinScope(url.pathname)) {
+        return true;
+    }
 
     // The request originated from an asset registry script, so check if it's from a supported 'mjs' file type
     return isSupportedFile(url.pathname);
@@ -52,15 +56,21 @@ const requestOriginatesFromSupportedFile = (request) => {
  */
 const getCacheStorage = async (id) => {
     let hasCache = await caches.has(id);
-    if (hasCache) return caches.open(id);
+    if (hasCache) {
+        return caches.open(id);
+    }
 
     // If no cache storage is found, the request may be from a worker, so check all clients
     const allClients = await worker.clients.matchAll({ type: 'window' });
     const client =  allClients.find(({ frameType, visibilityState }) => (frameType === 'top-level' || frameType === 'auxiliary') && visibilityState === 'visible');
 
-    if (!client) return;
+    if (!client) {
+        return;
+    }
     hasCache = await caches.has(client.id);
-    if (hasCache) return caches.open(client.id);
+    if (hasCache) {
+        return caches.open(client.id);
+    }
 };
 
 
@@ -75,7 +85,9 @@ const mapImport = async (event) => {
 
         const cache = await getCacheStorage(event.clientId);
 
-        if (!cache) return fetch(event.request.url);
+        if (!cache) {
+            return fetch(event.request.url);
+        }
 
         const cacheResponse = await cache.match(url);
         const mappedUrl = await cacheResponse?.text();
@@ -119,25 +131,37 @@ const deleteCacheForUncontrolledClients = async () => {
 const isValidUrlMapping = ({ url, mappedUrl }) => {
 
     // Check if defined
-    if (url === undefined || mappedUrl === undefined) return false;
+    if (url === undefined || mappedUrl === undefined) {
+        return false;
+    }
 
     // ensure they are strings
-    if (typeof url !== 'string' || typeof mappedUrl !== 'string') return false;
+    if (typeof url !== 'string' || typeof mappedUrl !== 'string') {
+        return false;
+    }
 
     // ensure they are urls
-    if (!url.startsWith('http') || !mappedUrl.startsWith('http')) return false;
+    if (!url.startsWith('http') || !mappedUrl.startsWith('http')) {
+        return false;
+    }
 
     const urlObj = new URL(url);
     const mappedUrlObj = new URL(mappedUrl);
 
     // Ensure the mapped url is within the same origin
-    if (mappedUrlObj.origin !== worker.location.origin) return false;
+    if (mappedUrlObj.origin !== worker.location.origin) {
+        return false;
+    }
 
     // ensure correct scope
-    if (!isWithinScope(urlObj.pathname) || !isWithinScope(mappedUrlObj.pathname)) return false;
+    if (!isWithinScope(urlObj.pathname) || !isWithinScope(mappedUrlObj.pathname)) {
+        return false;
+    }
 
     // ensure correct file type
-    if (!isSupportedFile(urlObj.pathname) || !isSupportedFile(mappedUrlObj.pathname)) return false;
+    if (!isSupportedFile(urlObj.pathname) || !isSupportedFile(mappedUrlObj.pathname)) {
+        return false;
+    }
 
     return true;
 };
@@ -147,7 +171,9 @@ const isValidUrlMapping = ({ url, mappedUrl }) => {
 worker.addEventListener('message', async (event) => {
 
     const message = event.data?.message;
-    if (!message) return;
+    if (!message) {
+        return;
+    }
 
     switch (message) {
         case 'importmap:claim': {

@@ -154,7 +154,9 @@ editor.once('load', () => {
                 id: config.project.id
             }
         }, (err, assetId) => {
-            if (err) return;
+            if (err) {
+                return;
+            }
             let currentFolder;
             var interval = setInterval(() => {
                 const asset = editor.api.globals.assets.get(assetId);
@@ -171,7 +173,9 @@ editor.once('load', () => {
         const path = getPathFromFolder(currentFolder);
 
         let ext = file.name.split('.');
-        if (ext.length === 1) return;
+        if (ext.length === 1) {
+            return;
+        }
 
         ext = ext[ext.length - 1].toLowerCase();
 
@@ -270,7 +274,9 @@ editor.once('load', () => {
                 data: data,
                 meta: asset ? asset[1].get('meta') : null
             }, (err, data) => {
-                if (err || ext !== 'js') return;
+                if (err || ext !== 'js') {
+                    return;
+                }
 
                 const onceAssetLoad = function (asset) {
                     const url = asset.get('file.url');

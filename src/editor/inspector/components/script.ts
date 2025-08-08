@@ -178,7 +178,9 @@ class ScriptInspector extends Panel {
 
     _initializeScriptAttributes() {
         const attributes = this._asset.get(`data.scripts.${this._scriptName}.attributes`);
-        if (!attributes) return;
+        if (!attributes) {
+            return;
+        }
 
         this._attributes = attributes;
 
@@ -242,7 +244,9 @@ class ScriptInspector extends Panel {
     }
 
     _onClickParse(evt) {
-        if (!this._asset) return;
+        if (!this._asset) {
+            return;
+        }
 
         this._componentInspector.clearParseErrors();
         this.containerErrors.hidden = true;
@@ -252,7 +256,9 @@ class ScriptInspector extends Panel {
         this._btnParse.class.remove(CLASS_ERROR);
 
         editor.call('scripts:parse', this._asset, (error, result) => {
-            if (this.destroyed) return; // inspector might have been destroyed while waiting for parse results
+            if (this.destroyed) {
+                return;
+            } // inspector might have been destroyed while waiting for parse results
             this._btnParse.enabled = true;
 
             if (error) {
@@ -369,7 +375,9 @@ class ScriptInspector extends Panel {
             let field = inspector.getField(subPath);
 
             // Return early if the field is not found
-            if (!field) return;
+            if (!field) {
+                return;
+            }
 
             // Specific fields are actually within a LabelGroups, and we want to target this, so we need the parent
             if (!(field instanceof AssetInput) &&
@@ -393,7 +401,9 @@ class ScriptInspector extends Panel {
             field.enabled = isEnabled;
 
             // Only continue if the field is a json or array attribute, ie it has sub attributes
-            if (type !== 'json') return;
+            if (type !== 'json') {
+                return;
+            }
 
             if (array) {
                 // If the field is an array, we need to loop over each element
@@ -415,7 +425,9 @@ class ScriptInspector extends Panel {
 
     _evaluateCondition(name, tag, expression, state) {
 
-        if (!expression) return true;
+        if (!expression) {
+            return true;
+        }
 
         if (!this._astCache.has(expression)) {
             this._astCache.set(expression, parse(expression));
@@ -433,7 +445,9 @@ class ScriptInspector extends Panel {
     _onClickRemove(evt) {
         super._onClickRemove(evt);
 
-        if (!this._entities) return;
+        if (!this._entities) {
+            return;
+        }
 
         editor.api.globals.entities.removeScript(this._entities.map(e => e.apiEntity), this._scriptName);
     }
@@ -595,23 +609,31 @@ class ScriptInspector extends Panel {
     }
 
     _onAddAttribute(asset, name, index) {
-        if (this._asset !== asset || !this._asset) return;
+        if (this._asset !== asset || !this._asset) {
+            return;
+        }
 
         const data = this._asset.get(`data.scripts.${this._scriptName}.attributes.${name}`);
-        if (!data) return;
+        if (!data) {
+            return;
+        }
 
         const inspectorData = this._convertAttributeDataToInspectorData(name, name, data);
         this._attributesInspector.addAttribute(inspectorData, index);
     }
 
     _onRemoveAttribute(asset, name) {
-        if (this._asset !== asset || !this._asset) return;
+        if (this._asset !== asset || !this._asset) {
+            return;
+        }
 
         this._attributesInspector.removeAttribute(`components.script.scripts.${this._scriptName}.attributes.${name}`);
     }
 
     _onChangeAttribute(asset, name) {
-        if (this._asset !== asset || !this._asset) return;
+        if (this._asset !== asset || !this._asset) {
+            return;
+        }
 
         this._changedAttributes[name] = true;
 
@@ -622,7 +644,9 @@ class ScriptInspector extends Panel {
 
         this._timeoutChangeAttributes = setTimeout(() => {
             this._timeoutChangeAttributes = null;
-            if (this._asset !== asset || !this._asset) return;
+            if (this._asset !== asset || !this._asset) {
+                return;
+            }
 
             const order = this._asset.get(`data.scripts.${this._scriptName}.attributesOrder`);
 
@@ -639,7 +663,9 @@ class ScriptInspector extends Panel {
     }
 
     _onMoveAttribute(asset, name, index) {
-        if (this._asset !== asset || !this._asset) return;
+        if (this._asset !== asset || !this._asset) {
+            return;
+        }
 
         this._attributesInspector.moveAttribute(`components.script.scripts.${this._scriptName}.attributes.${name}`, index);
     }
@@ -673,7 +699,9 @@ class ScriptInspector extends Panel {
     }
 
     unlink() {
-        if (!this._entities) return;
+        if (!this._entities) {
+            return;
+        }
 
         this._entities = null;
 
@@ -691,7 +719,9 @@ class ScriptInspector extends Panel {
     }
 
     destroy() {
-        if (this._destroyed) return;
+        if (this._destroyed) {
+            return;
+        }
 
         this._editorEvents.forEach(e => e.unbind());
         this._editorEvents.length = 0;
@@ -796,16 +826,22 @@ class ScriptComponentInspector extends ComponentInspector {
     }
 
     _updateScripts(filterScriptsSet) {
-        if (!this._entities) return;
+        if (!this._entities) {
+            return;
+        }
 
         const entitiesPerScript = {};
 
         this._entities.forEach((e, i) => {
             const order = e.get('components.script.order');
-            if (!order) return;
+            if (!order) {
+                return;
+            }
 
             order.forEach((script, j) => {
-                if (filterScriptsSet && !filterScriptsSet.has(script)) return;
+                if (filterScriptsSet && !filterScriptsSet.has(script)) {
+                    return;
+                }
 
                 if (!entitiesPerScript[script]) {
                     entitiesPerScript[script] = [e];
@@ -841,7 +877,9 @@ class ScriptComponentInspector extends ComponentInspector {
     }
 
     _updateDropDown() {
-        if (!this._entities) return [];
+        if (!this._entities) {
+            return [];
+        }
 
         const unparsed = this._findUnparsedScripts();
 
@@ -877,7 +915,9 @@ class ScriptComponentInspector extends ComponentInspector {
         const counts = {};
         this._entities.forEach((e) => {
             const order = e.get('components.script.order');
-            if (!order) return;
+            if (!order) {
+                return;
+            }
 
             order.forEach((script) => {
                 if (!counts[script]) {
@@ -913,7 +953,9 @@ class ScriptComponentInspector extends ComponentInspector {
     }
 
     _onSelectScript(script) {
-        if (!script) return;
+        if (!script) {
+            return;
+        }
 
         this._selectScript.value = null;
 
@@ -954,13 +996,17 @@ class ScriptComponentInspector extends ComponentInspector {
     }
 
     _onDragEnd(scriptInspector, newIndex, oldIndex) {
-        if (!this._entities || this._entities.length !== 1 || newIndex === oldIndex) return;
+        if (!this._entities || this._entities.length !== 1 || newIndex === oldIndex) {
+            return;
+        }
 
         this._entities[0].move('components.script.order', oldIndex, newIndex);
     }
 
     _onScriptAddOrRemove() {
-        if (this._updateScriptsTimeout) return;
+        if (this._updateScriptsTimeout) {
+            return;
+        }
 
         this._updateScriptsTimeout = setTimeout(() => {
             this._updateScriptsTimeout = null;
@@ -976,7 +1022,9 @@ class ScriptComponentInspector extends ComponentInspector {
     }
 
     onParseError(error, scriptName) {
-        if (!this._scriptPanels[scriptName]) return;
+        if (!this._scriptPanels[scriptName]) {
+            return;
+        }
 
         const label = new Label({
             class: CLASS_ERROR,
@@ -1009,7 +1057,9 @@ class ScriptComponentInspector extends ComponentInspector {
             }));
 
             this._entityEvents.push(e.on('components.script.order:set', (value) => {
-                if (!value) return;
+                if (!value) {
+                    return;
+                }
 
                 value.forEach((script) => {
                     this._dirtyScripts.add(script);
@@ -1045,7 +1095,9 @@ class ScriptComponentInspector extends ComponentInspector {
     }
 
     destroy() {
-        if (this._destroyed) return;
+        if (this._destroyed) {
+            return;
+        }
 
         if (this._templateOverridesInspector) {
             this._templateOverridesInspector.unregisterElementForPath('components.script.order');

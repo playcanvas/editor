@@ -135,7 +135,9 @@ class LegacyNumberField extends LegacyElement {
 
     focus(select) {
         this.elementInput.focus();
-        if (select) this.elementInput.select();
+        if (select) {
+            this.elementInput.select();
+        }
     }
 
     _onInputFocus() {

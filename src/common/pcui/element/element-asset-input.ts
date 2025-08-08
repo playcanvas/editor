@@ -210,7 +210,9 @@ class AssetInput extends Element {
     // Default select function. Uses global selector
     _defaultSelectAssetFn(assetId) {
         const asset = this._assets.get(assetId);
-        if (!asset) return;
+        if (!asset) {
+            return;
+        }
 
         editor.call('selector:set', 'asset', [asset]);
 
@@ -233,7 +235,9 @@ class AssetInput extends Element {
     }
 
     _updateValue(value, force) {
-        if (this._value === value && !force) return false;
+        if (this._value === value && !force) {
+            return false;
+        }
 
         if (this._evtAdd) {
             this._evtAdd.unbind();
@@ -302,7 +306,9 @@ class AssetInput extends Element {
     }
 
     destroy() {
-        if (this._destroyed) return;
+        if (this._destroyed) {
+            return;
+        }
 
         this._dragEnterFn = null;
         this._dragLeaveFn = null;

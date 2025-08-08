@@ -2,7 +2,9 @@ import { buildQueryUrl } from '../../common/utils.ts';
 
 editor.once('load', () => {
     const app = editor.call('viewport:app');
-    if (!app) return; // webgl not available
+    if (!app) {
+        return;
+    } // webgl not available
 
     const watching = { };
 
@@ -59,7 +61,9 @@ editor.once('load', () => {
             watch.engineAsset = asset;
             watch.onAdd = null;
 
-            if (watch.autoLoad) loadModel(watch, asset);
+            if (watch.autoLoad) {
+                loadModel(watch, asset);
+            }
         };
 
         const asset = app.assets.get(watch.asset.get('id'));
@@ -125,7 +129,9 @@ editor.once('load', () => {
 
     editor.method('assets:model:unwatch', (asset, handle) => {
         const watch = watching[asset.get('id')];
-        if (!watch) return;
+        if (!watch) {
+            return;
+        }
 
         if (!watch.callbacks.hasOwnProperty(handle)) {
             return;

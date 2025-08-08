@@ -32,7 +32,9 @@ editor.once('load', () => {
             branchId: config.self.branch.id
         };
 
-        if (name) data.name = name;
+        if (name) {
+            data.name = name;
+        }
 
         editor.api.globals.rest.scenes.sceneCreate(data)
         .on('load', (status, data) => {

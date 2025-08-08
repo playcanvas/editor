@@ -17,7 +17,9 @@ class LegacyButton extends LegacyElement {
     }
 
     set text(value) {
-        if (this._text === value) return;
+        if (this._text === value) {
+            return;
+        }
         this._text = value;
         this._element.innerHTML = this._text;
     }

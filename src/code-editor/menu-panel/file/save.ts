@@ -112,7 +112,9 @@ editor.once('load', () => {
 
         function doSave() {
             const asset = editor.call('assets:get', id);
-            if (!asset) return;
+            if (!asset) {
+                return;
+            }
 
             // check if file is different first
             editor.call('assets:contents:get', asset, (err, content) => {

@@ -46,10 +46,14 @@ class TemplateOverrideInspector {
     _onTemplateApply(data) {
         // if current entity is part of this template
         // then refresh overrides
-        if (!this._entity) return;
+        if (!this._entity) {
+            return;
+        }
 
         const template = this._entities.get(data.entity_id);
-        if (!template) return;
+        if (!template) {
+            return;
+        }
 
         if (!template.has(`template_ent_ids.${this._entity.get('resource_id')}`)) {
             return;
@@ -80,7 +84,9 @@ class TemplateOverrideInspector {
 
     _addOverride(override, templateRoot) {
         const registered = this._registeredElements[override.path];
-        if (!registered) return;
+        if (!registered) {
+            return;
+        }
 
         const key = this._getOverrideKey(override);
 
@@ -140,7 +146,9 @@ class TemplateOverrideInspector {
         const overrides = editor.call('templates:computeFilteredOverrides', current);
         if (overrides) {
             overrides.conflicts.forEach((override) => {
-                if (override.resource_id !== resourceId) return;
+                if (override.resource_id !== resourceId) {
+                    return;
+                }
 
                 this._addOverride(override, current);
             });
@@ -187,7 +195,9 @@ class TemplateOverrideInspector {
      * @type {Observer}
      */
     set entity(value) {
-        if (this._entity === value) return;
+        if (this._entity === value) {
+            return;
+        }
 
         if (this._entity) {
             this._entity = null;

@@ -42,13 +42,17 @@ editor.once('load', () => {
 
         // queue up the rendering to prevent too often renders
         const queueRender = function () {
-            if (renderQueued) return;
+            if (renderQueued) {
+                return;
+            }
             renderQueued = true;
             requestAnimationFrame(renderPreview);
         };
 
         const renderPreview = function () {
-            if (!previewContainer) return;
+            if (!previewContainer) {
+                return;
+            }
 
             if (renderQueued) {
                 renderQueued = false;

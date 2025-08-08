@@ -1,6 +1,8 @@
 editor.once('load', () => {
     const app = editor.call('viewport:app');
-    if (!app) return;
+    if (!app) {
+        return;
+    }
 
     const assets = app.assets;
 

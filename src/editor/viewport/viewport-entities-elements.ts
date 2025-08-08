@@ -22,7 +22,9 @@ editor.once('load', () => {
     // has - that's because depending on the screen size an element might not have
     // the correct properties when inspected so make sure these are right
     var updateElementProperties = function (entity) {
-        if (!entity.entity || !entity.has('components.element')) return;
+        if (!entity.entity || !entity.has('components.element')) {
+            return;
+        }
 
         const history = entity.history.enabled;
         const sync = entity.sync.enabled;
@@ -67,11 +69,15 @@ editor.once('load', () => {
         };
 
         events.push(entity.on('*:set', (path, value, valueOld, remote) => {
-            if (remote || !entity.entity || !entity.has('components.element')) return;
+            if (remote || !entity.entity || !entity.has('components.element')) {
+                return;
+            }
 
             // position change
             if (/^position/.test(path)) {
-                if (setting.position) return;
+                if (setting.position) {
+                    return;
+                }
 
                 setting.position = true;
 
@@ -93,7 +99,9 @@ editor.once('load', () => {
             } else if (/^components.element.anchor/.test(path)) {
                 // anchor change
 
-                if (setting.anchor) return;
+                if (setting.anchor) {
+                    return;
+                }
                 setting.anchor = true;
 
                 setTimeout(() => {
@@ -115,7 +123,9 @@ editor.once('load', () => {
             } else if (/^components.element.pivot/.test(path)) {
                 // pivot change
 
-                if (setting.pivot) return;
+                if (setting.pivot) {
+                    return;
+                }
 
                 setting.pivot = true;
 
@@ -139,7 +149,9 @@ editor.once('load', () => {
             } else if (/^components.element.(?:width|height)/.test(path)) {
                 // width / height change
 
-                if (setting.size) return;
+                if (setting.size) {
+                    return;
+                }
 
                 setting.size = true;
 
@@ -158,7 +170,9 @@ editor.once('load', () => {
             } else if (/^components.element.margin/.test(path)) {
                 // margin change
 
-                if (setting.margin) return;
+                if (setting.margin) {
+                    return;
+                }
 
                 setting.margin = true;
 
@@ -183,7 +197,9 @@ editor.once('load', () => {
             } else if (/^components.element.autoWidth/.test(path)) {
                 // autoWidth change
 
-                if (setting.autoWidth) return;
+                if (setting.autoWidth) {
+                    return;
+                }
 
                 setting.autoWidth = true;
                 setTimeout(() => {
@@ -198,7 +214,9 @@ editor.once('load', () => {
             } else if (/^components.element.autoHeight/.test(path)) {
                 // autoHeight change
 
-                if (setting.autoHeight) return;
+                if (setting.autoHeight) {
+                    return;
+                }
 
                 setting.autoHeight = true;
                 setTimeout(() => {
@@ -213,7 +231,9 @@ editor.once('load', () => {
             } else if (/^components.element.(?:text|fontAsset)/.test(path)) {
                 // text / font change
 
-                if (setting.text) return;
+                if (setting.text) {
+                    return;
+                }
 
                 setting.text = true;
                 if (entity.get('components.element.autoWidth') ||
