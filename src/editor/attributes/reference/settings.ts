@@ -306,95 +306,95 @@ editor.once('load', () => {
         title: 'Change Zoom Sensitivity',
         description: 'Change this value if you want to adjust the zoom sensitivity in the Editor viewport.'
     }, {
-        name: 'settings:asset-tasks',
-        title: 'Asset Tasks',
-        description: 'Settings for defining default behavior rules for asset pipeline jobs: assets extracting, textures resizing, etc.'
+        name: 'settings:asset-import',
+        title: 'Asset Import',
+        description: 'Settings for controlling how assets are imported into your project.'
     }, {
-        name: 'settings:asset-tasks:texturePot',
+        name: 'settings:asset-import:texturePot',
         title: 'Texture power of two',
         description: 'When a texture is imported it will be resized to use the nearest power of two resolution.'
     }, {
-        name: 'settings:asset-tasks:textureDefaultToAtlas',
+        name: 'settings:asset-import:textureDefaultToAtlas',
         title: 'Create Atlases',
         description: 'If enabled, when a texture is imported it will be converted to a Texture Atlas asset instead of a Texture asset.'
     }, {
-        name: 'settings:asset-tasks:searchRelatedAssets',
+        name: 'settings:asset-import:searchRelatedAssets',
         title: 'Search related assets',
         description: 'If enabled, importing a source asset will update target assets where ever they are located. If disabled, assets will only be updated if they are in the same folder, otherwise new assets will be created.'
     }, {
-        name: 'settings:asset-tasks:preserveMapping',
+        name: 'settings:asset-import:preserveMapping',
         title: 'Preserve model material mappings',
         description: 'If enabled, after importing an existing source model we will try to preserve the material mappings that were set by the user on the existing model.'
     }, {
-        name: 'settings:asset-tasks:useGlb',
+        name: 'settings:asset-import:useGlb',
         title: 'Use GLB format',
         description: 'Create model assets in GLB format.'
     }, {
-        name: 'settings:asset-tasks:useContainers',
+        name: 'settings:asset-import:useContainers',
         title: 'Import Hierarchy',
         description: 'Generate a template asset when importing 3D assets (FBX etc). The template asset will contain the full entity hierarchy from the imported file.'
     }, {
-        name: 'settings:asset-tasks:meshCompression',
+        name: 'settings:asset-import:meshCompression',
         title: 'Mesh Compression Type',
         description: 'Specify the mesh compression to apply to imported models.'
     }, {
-        name: 'settings:asset-tasks:dracoDecodeSpeed',
+        name: 'settings:asset-import:dracoDecodeSpeed',
         title: 'Draco Decode Speed',
         description: 'Specify the speed of mesh decoding. A smaller value will result in slower decoding, but smaller file sizes.'
     }, {
-        name: 'settings:asset-tasks:dracoMeshSize',
+        name: 'settings:asset-import:dracoMeshSize',
         title: 'Draco Mesh Size',
         description: 'Specify the size factor to use when compressing mesh attributes. A smaller value will result in fewer bits being used to compress mesh attributes and so a smaller file but less detail and potentially some artifacts.'
     }, {
-        name: 'settings:asset-tasks:createFBXFolder',
+        name: 'settings:asset-import:createFBXFolder',
         title: 'Create FBX Folder',
         description: 'Create a new folder in the current directory when importing an FBX file, which will store all the imported FBX contents.'
     }, {
-        name: 'settings:asset-tasks:animSampleRate',
+        name: 'settings:asset-import:animSampleRate',
         title: 'Animation Sample Rate',
         description: 'Rate at which to sample animation curves in samples per second. Specify 0 to disable sampling and use input keys instead.'
     }, {
-        name: 'settings:asset-tasks:animCurveTolerance',
+        name: 'settings:asset-import:animCurveTolerance',
         title: 'Animation Curve Tolerance',
         description: 'Tolerance to use when optimizing linear animation curve segments. Specify 0 to disable curve optimization.'
     }, {
-        name: 'settings:asset-tasks:animEnableCubic',
+        name: 'settings:asset-import:animEnableCubic',
         title: 'Animation Cubic Curves',
         description: 'Output cubic curves when they are encountered. Disable to convert all curves to linear segments.'
     }, {
-        name: 'settings:asset-tasks:animUseFbxFilename',
+        name: 'settings:asset-import:animUseFbxFilename',
         title: 'Animation Naming Strategy (for GLB only)',
         description: 'Choose the naming strategy when importing animations. Select \'Use Take Name\' to name the animation after the take name assigned in the FBX file. Select \'Use FBX Filename\' to name the animation after the FBX filename.'
     }, {
-        name: 'settings:asset-tasks:unwrapUv',
+        name: 'settings:asset-import:unwrapUv',
         title: 'Unwrap Uv',
         description: 'Generate a set of unwrapped uv coordinates.'
     }, {
-        name: 'settings:asset-tasks:unwrapUvTexelsPerMeter',
+        name: 'settings:asset-import:unwrapUvTexelsPerMeter',
         title: 'Padding',
         description: 'When uv unwrapping is enabled, the number of texels per meter. Defaults to 16.'
     }, {
-        name: 'settings:asset-tasks:importMorphNormals',
+        name: 'settings:asset-import:importMorphNormals',
         title: 'Import Morph Target Normals',
         description: 'When importing a model, import the normals of morph targets. Disable this option if the normals on morph targets look incorrect.'
     }, {
-        name: 'settings:asset-tasks:defaultAssetPreload',
+        name: 'settings:asset-import:defaultAssetPreload',
         title: 'Preload new assets',
         description: 'Create new assets with the preload option selected. Script assets will be created with preload enabled regardless of this setting.'
     }, {
-        name: 'settings:asset-tasks:overwrite:model',
+        name: 'settings:asset-import:overwrite:model',
         title: 'Overwrite models',
         description: 'When a model is imported, overwrite a previously imported model asset.'
     }, {
-        name: 'settings:asset-tasks:overwrite:animation',
+        name: 'settings:asset-import:overwrite:animation',
         title: 'Overwrite animations',
         description: 'When a model is imported, overwrite previously imported animation assets.'
     }, {
-        name: 'settings:asset-tasks:overwrite:material',
+        name: 'settings:asset-import:overwrite:material',
         title: 'Overwrite materials',
         description: 'When a model is imported, overwrite previously imported material assets.'
     }, {
-        name: 'settings:asset-tasks:overwrite:texture',
+        name: 'settings:asset-import:overwrite:texture',
         title: 'Overwrite textures',
         description: 'When a model is imported, overwrite previously imported texture assets.'
     }, {
