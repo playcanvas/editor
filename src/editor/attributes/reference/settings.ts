@@ -312,19 +312,19 @@ editor.once('load', () => {
     }, {
         name: 'settings:asset-import:texturePot',
         title: 'Texture power of two',
-        description: 'When a texture is imported it will be resized to use the nearest power of two resolution.'
+        description: 'When a texture is imported, it will be resized to the nearest power-of-two resolution.'
     }, {
         name: 'settings:asset-import:textureDefaultToAtlas',
         title: 'Create Atlases',
-        description: 'If enabled, when a texture is imported it will be converted to a Texture Atlas asset instead of a Texture asset.'
+        description: 'If enabled, imported textures are converted to Texture Atlas assets instead of Texture assets.'
     }, {
         name: 'settings:asset-import:searchRelatedAssets',
         title: 'Search related assets',
-        description: 'If enabled, importing a source asset will update target assets where ever they are located. If disabled, assets will only be updated if they are in the same folder, otherwise new assets will be created.'
+        description: 'If enabled, importing a source asset updates related target assets wherever they are located. If disabled, assets are updated only when in the same folder; otherwise, new assets are created.'
     }, {
         name: 'settings:asset-import:preserveMapping',
         title: 'Preserve model material mappings',
-        description: 'If enabled, after importing an existing source model we will try to preserve the material mappings that were set by the user on the existing model.'
+        description: 'If enabled, when reimporting an existing source model, the Editor attempts to preserve existing user-defined material mappings.'
     }, {
         name: 'settings:asset-import:useGlb',
         title: 'Use GLB format',
@@ -332,7 +332,7 @@ editor.once('load', () => {
     }, {
         name: 'settings:asset-import:useContainers',
         title: 'Import Hierarchy',
-        description: 'Generate a template asset when importing 3D assets (FBX etc). The template asset will contain the full entity hierarchy from the imported file.'
+        description: 'Generates a template asset when importing 3D assets (FBX, etc.). The template asset contains the full entity hierarchy from the imported file.'
     }, {
         name: 'settings:asset-import:meshCompression',
         title: 'Mesh Compression Type',
@@ -340,23 +340,23 @@ editor.once('load', () => {
     }, {
         name: 'settings:asset-import:dracoDecodeSpeed',
         title: 'Draco Decode Speed',
-        description: 'Specify the speed of mesh decoding. A smaller value will result in slower decoding, but smaller file sizes.'
+        description: 'Specify the speed of mesh decoding. A lower value results in slower decoding but smaller file sizes.'
     }, {
         name: 'settings:asset-import:dracoMeshSize',
         title: 'Draco Mesh Size',
-        description: 'Specify the size factor to use when compressing mesh attributes. A smaller value will result in fewer bits being used to compress mesh attributes and so a smaller file but less detail and potentially some artifacts.'
+        description: 'Specify the size factor used when compressing mesh attributes. A lower value uses fewer bits to compress attributes, resulting in a smaller file but less detail and potential artifacts.'
     }, {
         name: 'settings:asset-import:createFBXFolder',
         title: 'Create FBX Folder',
-        description: 'Create a new folder in the current directory when importing an FBX file, which will store all the imported FBX contents.'
+        description: 'Creates a new folder in the current directory when importing an FBX file to store the imported FBX contents.'
     }, {
         name: 'settings:asset-import:animSampleRate',
         title: 'Animation Sample Rate',
-        description: 'Rate at which to sample animation curves in samples per second. Specify 0 to disable sampling and use input keys instead.'
+        description: 'The rate at which to sample animation curves (samples per second). Specify 0 to disable sampling and use input keys instead.'
     }, {
         name: 'settings:asset-import:animCurveTolerance',
         title: 'Animation Curve Tolerance',
-        description: 'Tolerance to use when optimizing linear animation curve segments. Specify 0 to disable curve optimization.'
+        description: 'The tolerance used when optimizing linear animation curve segments. Specify 0 to disable curve optimization.'
     }, {
         name: 'settings:asset-import:animEnableCubic',
         title: 'Animation Cubic Curves',
@@ -364,39 +364,39 @@ editor.once('load', () => {
     }, {
         name: 'settings:asset-import:animUseFbxFilename',
         title: 'Animation Naming Strategy (for GLB only)',
-        description: 'Choose the naming strategy when importing animations. Select \'Use Take Name\' to name the animation after the take name assigned in the FBX file. Select \'Use FBX Filename\' to name the animation after the FBX filename.'
+        description: 'Choose the naming strategy for imported animations. Select \'Use Take Name\' to name the animation after the take name assigned in the FBX file. Select \'Use FBX Filename\' to name the animation after the FBX filename.'
     }, {
         name: 'settings:asset-import:unwrapUv',
         title: 'Unwrap Uv',
-        description: 'Generate a set of unwrapped uv coordinates.'
+        description: 'Generates a set of unwrapped UV coordinates.'
     }, {
         name: 'settings:asset-import:unwrapUvTexelsPerMeter',
         title: 'Padding',
-        description: 'When uv unwrapping is enabled, the number of texels per meter. Defaults to 16.'
+        description: 'Specifies the number of texels per meter when UV unwrapping is enabled. Default: 16.'
     }, {
         name: 'settings:asset-import:importMorphNormals',
         title: 'Import Morph Target Normals',
-        description: 'When importing a model, import the normals of morph targets. Disable this option if the normals on morph targets look incorrect.'
+        description: 'Imports morph target normals when importing a model. Disable this if morph target normals look incorrect.'
     }, {
         name: 'settings:asset-import:defaultAssetPreload',
         title: 'Preload new assets',
-        description: 'Create new assets with the preload option selected. Script assets will be created with preload enabled regardless of this setting.'
+        description: 'Creates new assets with the preload option enabled. Script assets are always created with preload enabled.'
     }, {
         name: 'settings:asset-import:overwrite:model',
         title: 'Overwrite models',
-        description: 'When a model is imported, overwrite a previously imported model asset.'
+        description: 'When a model is imported, overwrites any previously imported model asset.'
     }, {
         name: 'settings:asset-import:overwrite:animation',
         title: 'Overwrite animations',
-        description: 'When a model is imported, overwrite previously imported animation assets.'
+        description: 'When a model is imported, overwrites previously imported animation assets.'
     }, {
         name: 'settings:asset-import:overwrite:material',
         title: 'Overwrite materials',
-        description: 'When a model is imported, overwrite previously imported material assets.'
+        description: 'When a model is imported, overwrites previously imported material assets.'
     }, {
         name: 'settings:asset-import:overwrite:texture',
         title: 'Overwrite textures',
-        description: 'When a model is imported, overwrite previously imported texture assets.'
+        description: 'When a model is imported, overwrites previously imported texture assets.'
     }, {
         name: 'settings:lightmapping',
         title: 'Lightmapping',
