@@ -301,7 +301,7 @@ class ScriptInspector extends Panel {
                     const warningsByAttr = new Map();
                     warningItems.forEach(w => {
                         const name = w.name || 'unknown';
-                        const firstSentence = (w.message || '').split('.')[0] || w.message;
+                        const firstSentence = w.message ? w.message.split('.')[0] : '';
                         if (!warningsByAttr.has(name)) warningsByAttr.set(name, []);
                         warningsByAttr.get(name).push(firstSentence);
                     });
