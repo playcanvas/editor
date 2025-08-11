@@ -7,7 +7,7 @@ export interface Fix extends Monaco.languages.TextEdit {
     title?: string;
 }
 
-interface ParseAttribute {
+type ParseAttribute = {
     isAttribute: boolean;
     name: string;
     type: string;
