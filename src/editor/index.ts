@@ -270,6 +270,9 @@ import './inspector/settings-panels/batchgroups-create.ts';
 // attributes assets
 import './attributes/attributes-asset.ts';
 
+// clipboard
+import './storage/clipboard-context-menu.ts';
+
 // chat
 import './chat/chat-connection.ts';
 import './chat/chat-widget.ts';
