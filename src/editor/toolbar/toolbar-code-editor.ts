@@ -53,24 +53,12 @@ editor.once('load', () => {
                     wnd.editor.call('integration:selectWhenReady', asset.get('id'), options || {});
                 }
             } else {
+                window.addEventListener('message', (event) => {
+                    if (event.data === 'start') {
+                        wnd.editor.call('integration:selectWhenReady', asset.get('id'), options || {});
+                    }
+                });
                 wnd.location = url;
-                // Best-effort: when the new window becomes ready (same-origin), perform selection
-                if (asset) {
-                    const start = Date.now();
-                    const interval = setInterval(() => {
-                        try {
-                            if (wnd && wnd.editor && wnd.editor.isCodeEditor) {
-                                wnd.editor.call('integration:selectWhenReady', asset.get('id'), options || {});
-                                clearInterval(interval);
-                            } else if (Date.now() - start > 5000) {
-                                clearInterval(interval);
-                            }
-                        } catch (e) {
-                            // Cross-origin or window not ready; stop polling
-                            clearInterval(interval);
-                        }
-                    }, 200);
-                }
             }
             if (wnd) {
                 wnd.focus();
