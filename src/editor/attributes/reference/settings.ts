@@ -50,9 +50,6 @@ editor.once('load', () => {
         name: 'settings:iconSize',
         description: 'Size of icons displayed in the editor viewport.'
     }, {
-        name: 'settings:showSkeleton',
-        description: 'Render the bone structure of the selected entity\'s skeleton in the viewport.'
-    }, {
         name: 'settings:locale',
         description: 'The locale to preview in the editor and when you launch the application. This is only visible to you, not to other team members.'
     }, {
