@@ -13,7 +13,9 @@ class CodeEditor extends Editor {
         this.once('loaded', () => {
             this.emit('start');
 
-            window.opener?.postMessage('start');
+            // Send and event to the opener
+            const openerOrigin = new URL(document.referrer).origin;
+            window.opener.postMessage('start', openerOrigin);
 
             // if there is a merge in progress for our branch
             if (config.self.branch.merge && !config.self.branch.merge.conflict) {
