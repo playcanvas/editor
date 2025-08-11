@@ -44,12 +44,9 @@ class ScriptAssetInspector extends Panel {
         this.header.append(this._parseButton);
     }
 
-    _displayScriptAttributes(scr) {
+    _displayScriptAttributes(scripts) {
         this._scriptAttributeContainer = new Container({ class: CLASS_CONTAINER });
         let hasScripts = false;
-
-        // If no scripts data passed in, use asset data
-        const scripts = scr || this._asset.get('data.scripts');
 
         // Iterate over the scripts
         Object.keys(scripts).forEach((scriptName) => {
@@ -141,13 +138,6 @@ class ScriptAssetInspector extends Panel {
                 this._scriptAttributeContainer[`_${scriptName}Container`].append(errorContainer);
             }
 
-            // Debug logging
-            console.log(`Script ${scriptName}:`, {
-                errors: scriptErrors.length,
-                warnings: scriptWarnings.length,
-                warningNames: warningAttributeNames
-            });
-
             scriptData.attributesOrder.forEach((attributeName) => {
                 // Skip error attributes - they should not appear in the list
                 if (errorAttributeNames.includes(attributeName)) {
@@ -157,11 +147,6 @@ class ScriptAssetInspector extends Panel {
                 // Check if this attribute has a warning
                 const hasWarning = warningAttributeNames.includes(attributeName);
                 const attributeClasses = hasWarning ? [CLASS_ATTRIBUTE, CLASS_WARNING, 'script-asset-inspector-attribute-warning'] : [CLASS_ATTRIBUTE];
-
-                // Debug logging
-                if (hasWarning) {
-                    console.log(`Warning attribute: ${attributeName}, classes:`, attributeClasses);
-                }
 
                 const attributeLabel = new Label({
                     text: attributeName,
@@ -298,7 +283,7 @@ class ScriptAssetInspector extends Panel {
     link(assets) {
         this.unlink();
         this._asset = assets[0];
-        this._displayScriptAttributes();
+        this._displayScriptAttributes(this._asset.get('data.scripts'));
         this._errorContainer.hidden = true;
     }
 
