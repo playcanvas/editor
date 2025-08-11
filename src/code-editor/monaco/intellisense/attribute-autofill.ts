@@ -197,7 +197,7 @@ const fetchModuleScripts = async (
         }
 
         // skip filtered paths
-        const path = editor.call('assets:virtualPath', asset) as string;
+        const path: string = editor.call('assets:virtualPath', asset);
         if (filter.includes(path)) {
             return acc;
         }
