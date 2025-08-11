@@ -43,3 +43,50 @@
 .script-asset-inspector-attribute:hover {
     background-color: #313e41;
 }
+
+.script-asset-inspector-warning {
+    color: $status-warn;
+}
+
+.script-asset-inspector-attribute-warning {
+    color: $status-warn;
+    
+    &::before {
+        @extend .font-icon;
+
+        content: '\E218';
+        margin-right: 6px;
+    }
+}
+
+.script-asset-inspector-attribute-warning.clickable-warning {
+    cursor: pointer;
+    
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+.script-asset-inspector-attribute-error {
+    &::before {
+        @extend .font-icon;
+
+        content: '\E368';
+        margin-right: 6px;
+    }
+}
+
+// Tooltip warnings styling
+.warnings-title.script-asset-inspector-warning {
+    // Normal text color for the header
+}
+
+.warning-item.script-asset-inspector-warning {
+    color: var(--pcui-warning-color);
+    font-size: 11px;
+}
+
+.open-console {
+    text-decoration: underline;
+    cursor: pointer;
+}

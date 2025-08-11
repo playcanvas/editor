@@ -14,6 +14,7 @@ const PLAYCANVAS_ATTRIBUTE_DOCS_URL = {
 /**
  * @typedef {Object} SerializableParsingError
  * @property {string} message - The error message
+ * @property {string} attributeName - The name of the attribute that caused the error
  * @property {string} file - The source file
  * @property {string} type - The category of the error
  * @property {string} name - The name of the error
@@ -91,7 +92,8 @@ workerServer.once('init', async (frontendURL) => {
                 const script = attributes[key];
                 const attributesOrder = Object.keys(script.attributes);
                 acc[key] = {
-                    attributesInvalid: [],
+                    attributesInvalid: script.errors.map(toSerializableError),
+                    attributesInvalid: script.errors.map(toSerializableError).filter(Boolean),
                     attributesOrder,
                     attributes: script.attributes
                 };

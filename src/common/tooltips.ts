@@ -72,6 +72,20 @@ export const tooltipRefItem = ({
         hidden: !reference.code
     }));
 
+    // Optional warnings section (if provided by caller)
+    if (Array.isArray((reference as any).warnings) && (reference as any).warnings.length > 0) {
+        item.append(new Label({
+            class: ['warnings-title', 'script-asset-inspector-warning'],
+            text: 'Warnings'
+        }));
+        (reference as any).warnings.forEach((warningText: string) => {
+            item.append(new Label({
+                class: ['warning-item', 'script-asset-inspector-warning'],
+                text: warningText
+            }));
+        });
+    }
+
     const btnUrl = new Button({
         class: 'api',
         text: 'API REFERENCE',

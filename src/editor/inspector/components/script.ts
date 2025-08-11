@@ -64,6 +64,9 @@ class ScriptInspector extends Panel {
 
         this._asset = editor.call('assets:scripts:assetByScript', this._scriptName);
 
+        // Map of attribute name -> string[] warnings (first sentence only)
+        this._attributeWarnings = new Map();
+
         if (this._asset) {
             this._initializeScriptAttributes();
         }
@@ -211,6 +214,8 @@ class ScriptInspector extends Panel {
             this._attributesInspector.link(this._entities);
         }
 
+
+
         this.append(this._attributesInspector);
     }
 
@@ -267,17 +272,113 @@ class ScriptInspector extends Panel {
                     this._componentInspector.onParseError(invalidScript, this._scriptName);
                 });
 
+                // Process attribute validation issues before displaying attributes
                 for (const scriptName in result.scripts) {
                     const attrInvalid = result.scripts[scriptName].attributesInvalid;
-                    attrInvalid.forEach((err) => {
-                        this._componentInspector.onParseError(err, scriptName);
+
+                    const warnings = attrInvalid.filter(error => error.severity === 4);
+
+                    // Log warnings to console with click-through to code editor at the warning location
+                    warnings.forEach((warning) => {
+                        const fileName = warning.fileName || this._asset.get('name') || 'unknown';
+                        const location = `${fileName}:${warning.startLineNumber}:${warning.startColumn}`;
+                        editor.call('console:warn', `${location} - (${warning.name}) ${warning.message}`, () => {
+                            editor.call('picker:codeeditor', this._asset, {
+                                line: warning.startLineNumber,
+                                col: warning.startColumn
+                            });
+                        });
                     });
+
+                    // Do not add global error entries; errors are shown inline under each script title
                 }
 
                 const script = result.scripts[this._scriptName];
                 if (script?.attributes) {
-                    this._attributes = result.scripts[this._scriptName].attributes;
-                    this._updateAttributeStatus(this._attributes, this._attributesInspector.value);
+                    // Build per-attribute warnings map for this script
+                    const attrInvalid = script.attributesInvalid || [];
+                    const warningItems = attrInvalid.filter(w => w && w.severity === 4);
+                    const warningsByAttr = new Map();
+                    warningItems.forEach(w => {
+                        const name = w.name || 'unknown';
+                        const firstSentence = (w.message || '').split('.')[0] || w.message;
+                        if (!warningsByAttr.has(name)) warningsByAttr.set(name, []);
+                        warningsByAttr.get(name).push(firstSentence);
+                    });
+                    this._attributeWarnings = warningsByAttr;
+
+                    // Rebuild attributes so warnings reflect in labels/tooltips
+                    if (this._attributesInspector) {
+                        this._attributesInspector.destroy();
+                        this._attributesInspector = null;
+                    }
+                    this._initializeScriptAttributes();
+
+                    // Add inline error container if there are errors for this script
+                    const errors = attrInvalid.filter(error => (error.severity ? error.severity === 8 : true));
+
+                    if (errors.length > 0) {
+                        const errorContainer = new Container({ 
+                            class: 'script-asset-inspector-attribute-error-container', 
+                            flex: true 
+                        });
+
+                        // Always show the error header with icon
+                        const errorHeader = new Label({
+                            class: [CLASS_ERROR, CLASS_SCRIPT, 'script-asset-inspector-attribute-error'],
+                            text: 'This script contains invalid attributes:'
+                        });
+                        errorContainer.append(errorHeader);
+
+                        // List all errors in the container
+                        errors.forEach((error) => {
+                            if (error.severity) {
+                                // Rich error - show first sentence with line/column
+                                const fileName = error.fileName || this._asset.get('name') || 'unknown';
+                                const location = `${fileName}:${error.startLineNumber}:${error.startColumn}`;
+                                const firstSentence = error.message.split('.')[0];
+
+                                const errorText = new Label({
+                                    class: [CLASS_ERROR, 'clickable-error'],
+                                    text: `${location} - ${firstSentence}`
+                                });
+
+                                // Add click handler for rich errors
+                                errorText.dom.addEventListener('click', () => {
+                                    editor.call('picker:codeeditor', this._asset, {
+                                        line: error.startLineNumber,
+                                        col: error.startColumn,
+                                        error: true
+                                    });
+                                });
+
+                                errorContainer.append(errorText);
+
+                                // Log to console for rich errors
+                                editor.call('console:error', `${location} - (${error.name}) ${error.message}`, () => {
+                                    editor.call('picker:codeeditor', this._asset, {
+                                        line: error.startLineNumber,
+                                        col: error.startColumn,
+                                        error: true
+                                    });
+                                });
+                            } else {
+                                // Simple error - show as is
+                                const errorText = new Label({
+                                    class: [CLASS_ERROR],
+                                    text: error
+                                });
+                                errorContainer.append(errorText);
+
+                                // Log to console for simple errors
+                                const fileName = this._asset.get('name') || 'unknown';
+                                editor.call('console:error', `${fileName} - ${error}`);
+                            }
+                        });
+
+                        // Insert error container before the attributes inspector so it appears below the header
+                        this.appendBefore(errorContainer, this._attributesInspector);
+                    }
                 }
             }
         });
@@ -505,6 +606,13 @@ class ScriptInspector extends Panel {
             },
             args: fieldArgs
         };
+
+        // Attach warnings to tooltip and mark as warning if present
+        const warnings = this._attributeWarnings && this._attributeWarnings.get(attributeName);
+        if (warnings && warnings.length) {
+            data.tooltip.warnings = warnings;
+            data.warning = true;
+        }
 
         if (attributeData.default !== undefined) {
             data.value = attributeData.default;
