@@ -13,6 +13,13 @@ import { WorkerClient } from '../../../core/worker/worker-client.ts';
  */
 
 /**
+ * @typedef {Object} Fix
+ * @property {string} text - The text to insert at the fix location
+ * @property {string} title - The title of the fix
+ * @property {{ startLineNumber: number, startColumn: number, endLineNumber: number, endColumn: number }} range - The range of the fix
+ */
+
+/**
  * @typedef {object} ParseAttribute
  * @property {boolean} isAttribute - Whether the attribute is an attribute
  * @property {object} start - The start position
@@ -27,6 +34,7 @@ const OWNER = 'attribute-autofill';
 const CHAR_LIMIT = 1e6;
 const ERROR_LIMIT = 1000;
 const ATTRIBUTE_LIMIT = 1000;
+const modelMarkersWithFixes = new Map();
 
 /**
  * @param {string} url - The engine URL
@@ -112,23 +120,6 @@ const buildJSDoc = (tags) => {
 };
 
 /**
- * Builds an error marker from the error object
- *
- * @param {ParseError} error - The error object
- * @returns {Monaco.editor.IMarkerData} - The error marker
- */
-const buildErrorMarker = (error) => {
-    return {
-        severity: monaco.MarkerSeverity.Error,
-        message: error.message,
-        startLineNumber: error.line,
-        startColumn: error.column,
-        endLineNumber: error.line,
-        endColumn: error.column + error.length
-    };
-};
-
-/**
  * Builds an attribute marker from the attribute object
  *
  * @param {ParseAttribute} attribute - The attribute object
@@ -165,7 +156,7 @@ const buildMarkers = (path, attributes, errors) => {
             if (error.file !== path) {
                 return;
             }
-            markers.push(buildErrorMarker(error));
+            markers.push(error);
         });
     } else {
         for (const className in attributes) {
@@ -240,6 +231,28 @@ const buildRemoveAction = (model, marker, name) => {
     };
 };
 
+/**
+ * Builds a fix action for the given model and fix
+ *
+ * @param {Monaco.editor.ITextModel} model - The model
+ * @param {Monaco.editor.IMarkerData} marker - The marker
+ * @param {Fix} fix - The fix
+ * @returns {Monaco.languages.CodeAction} - The action
+ */
+const buildFixAction = (model, marker, fix) => {
+    return {
+        title: fix.title ?? 'Fix',
+        diagnostics: [marker],
+        kind: 'quickfix',
+        isPreferred: true,
+        edit: {
+            edits: [{
+                resource: model.uri,
+                textEdit: fix
+            }]
+        }
+    };
+};
 
 /**
  * Build actions for the given model and context
@@ -253,6 +266,21 @@ const buildActions = (model, context) => {
     context.markers.forEach((/** @type {Monaco.editor.IMarker} */ marker) => {
         if (marker.owner !== OWNER) {
             return;
+        }
+
+        // Process any provided fixes for the marker
+        const markersWithFixes = modelMarkersWithFixes.get(model);
+        if (markersWithFixes) {
+            // Match by position instead of message for more reliable matching
+            const error = markersWithFixes.find(error => (
+                error.startLineNumber === marker.startLineNumber &&
+                error.startColumn === marker.startColumn &&
+                error.endLineNumber === marker.endLineNumber &&
+                error.endColumn === marker.endColumn));
+
+            if (error?.fix) {
+                actions.push(buildFixAction(model, marker, error.fix));
+            }
         }
 
         // only consider hint markers
@@ -397,6 +425,18 @@ editor.once('load', () => {
             }
 
             monaco.editor.setModelMarkers(model, OWNER, markers);
+
+            // Store a global Map of markers for the model to any errors that have a fix
+            const markersWithFixes = markers.filter(marker => marker.fix);
+            if (markersWithFixes.length > 0) {
+                modelMarkersWithFixes.set(model, markersWithFixes);
+
+                // Listen for model disposal to clean up the Map entry
+                model.onWillDispose(() => {
+                    modelMarkersWithFixes.delete(model);
+                });
+            }
+
             busy = false;
         });
 
@@ -477,6 +517,11 @@ editor.once('load', () => {
                 modelDirtyFlags.set(model, false);
                 model.onDidChangeContent(() => {
                     modelDirtyFlags.set(model, true);
+                });
+
+                // Listen for model disposal to clean up the dirty flag
+                model.onWillDispose(() => {
+                    modelDirtyFlags.delete(model);
                 });
             }
         };

@@ -94,7 +94,9 @@ editor.once('load', () => {
             targetPanel = targetPanel.dom || targetPanel.element;
 
             const show = function () {
-                if (!target || target.hidden) return;
+                if (!target || target.hidden) {
+                    return;
+                }
                 // fix top offset for new framework
                 const topOffset = (element.ui instanceof Element ? 6 : 16);
                 tooltip.position(targetPanel.getBoundingClientRect().left, element.getBoundingClientRect().top + topOffset);

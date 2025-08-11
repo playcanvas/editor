@@ -28,7 +28,9 @@ editor.once('load', () => {
             vecA.copy(reference.obj.entity.getPosition());
         } else {
             const selection = editor.call('selection:aabb');
-            if (!selection) return;
+            if (!selection) {
+                return;
+            }
             vecA.copy(selection.center);
         }
 

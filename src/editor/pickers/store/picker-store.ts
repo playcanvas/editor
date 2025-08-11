@@ -422,7 +422,9 @@ editor.once('load', () => {
                 // Progress handler function
                 progressBar.value = progress * 100;
 
-                if (progress === 1) progressLabel.text = 'Upload Complete! Importing... (Please don\'t close this window)';
+                if (progress === 1) {
+                    progressLabel.text = 'Upload Complete! Importing... (Please don\'t close this window)';
+                }
             });
             const jobId = response.jobId;
 
@@ -681,7 +683,9 @@ editor.once('load', () => {
         window.addEventListener('keydown', onKeyDown);
 
         // determine if a scene has been loaded
-        if (editor.call('viewport:inViewport')) editor.emit('viewport:hover', false);
+        if (editor.call('viewport:inViewport')) {
+            editor.emit('viewport:hover', false);
+        }
     });
 
     // clean up

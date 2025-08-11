@@ -142,7 +142,9 @@ class LayersSettingsPanel extends BaseSettingsPanel {
 
     _loadLayers() {
         const layers = this._projectSettings.get('layers');
-        if (!layers) return;
+        if (!layers) {
+            return;
+        }
 
         const keepLayerPanels = [];
         this._layerPanels.forEach((layerPanel) => {

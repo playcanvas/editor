@@ -47,7 +47,9 @@ class ImageCache {
 
     // return the ImageCacheEntry at key
     get(key) {
-        if (this.has(key)) return this._items[key];
+        if (this.has(key)) {
+            return this._items[key];
+        }
         return null;
     }
 
@@ -145,8 +147,12 @@ class SpriteThumbnailRenderer {
     }
 
     queueRender() {
-        if (this._queuedRender) return;
-        if (!this._asset) return;
+        if (this._queuedRender) {
+            return;
+        }
+        if (!this._asset) {
+            return;
+        }
 
         this._queuedRender = true;
         this._frameRequest = requestAnimationFrame(() => {
@@ -158,7 +164,9 @@ class SpriteThumbnailRenderer {
         this._queuedRender = false;
         this._frameRequest = null;
 
-        if (!this._asset) return;
+        if (!this._asset) {
+            return;
+        }
 
         if (!sceneInitialized) {
             initializeScene();
@@ -171,19 +179,29 @@ class SpriteThumbnailRenderer {
         const height = this._canvas.height;
 
         const frameKeys = this._asset.get('data.frameKeys');
-        if (!frameKeys || !frameKeys.length) return this._cancelRender();
+        if (!frameKeys || !frameKeys.length) {
+            return this._cancelRender();
+        }
 
         const atlasId = this._asset.get('data.textureAtlasAsset');
-        if (!atlasId) return this._cancelRender();
+        if (!atlasId) {
+            return this._cancelRender();
+        }
 
         const atlas = this._assets.get(atlasId);
-        if (!atlas) return this._cancelRender();
+        if (!atlas) {
+            return this._cancelRender();
+        }
 
         const frames = atlas.get('data.frames');
-        if (!frames) return this._cancelRender();
+        if (!frames) {
+            return this._cancelRender();
+        }
 
         const frameData = frames[frameKeys[frame]];
-        if (!frameData) return this._cancelRender();
+        if (!frameData) {
+            return this._cancelRender();
+        }
 
         const ctx = this._canvas.getContext('2d');
 
@@ -200,7 +218,9 @@ class SpriteThumbnailRenderer {
 
         for (let i = 0; i < frameKeys.length; i++) {
             const f = frames[frameKeys[i]];
-            if (!f) continue;
+            if (!f) {
+                continue;
+            }
 
             const pivot = animating ? f.pivot : CENTER_PIVOT;
             const rect = f.rect;

@@ -138,7 +138,9 @@ editor.once('load', () => {
         key: 'z',
         shift: true,
         callback: () => {
-            if (editor.call('picker:isOpen:otherThan', 'curve')) return;
+            if (editor.call('picker:isOpen:otherThan', 'curve')) {
+                return;
+            }
             selectorReturn();
         }
     });

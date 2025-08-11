@@ -2,7 +2,7 @@ import { Container } from '@playcanvas/pcui';
 
 import { AttributesInspector } from './attributes-inspector.ts';
 import { AISettingsPanel } from './settings-panels/ai.ts';
-import { AssetTasksSettingsPanel } from './settings-panels/asset-tasks.ts';
+import { AssetImportSettingsPanel } from './settings-panels/asset-import.ts';
 import { BatchGroupsSettingsPanel } from './settings-panels/batchgroups.ts';
 import { EditorSettingsPanel } from './settings-panels/editor.ts';
 import { EngineSettingsPanel } from './settings-panels/engine.ts';
@@ -29,7 +29,7 @@ const CLASS_ROOT = 'settings';
 const SETTINGS_PANELS = [
     EngineSettingsPanel,
     EditorSettingsPanel,
-    AssetTasksSettingsPanel,
+    AssetImportSettingsPanel,
     AISettingsPanel,
     PhysicsSettingsPanel,
     RenderingSettingsPanel,
@@ -73,7 +73,9 @@ const DOM = parent => [
 
 class SettingsPanel extends Container {
     constructor(args) {
-        if (!args) args = {};
+        if (!args) {
+            args = {};
+        }
         args.flex = true;
 
         super(args);
@@ -124,8 +126,12 @@ class SettingsPanel extends Container {
         const sceneNameField = this._sceneAttributes.getField('name');
         sceneNameField.value = this._sceneName;
         this._settingsEvents.push(sceneNameField.on('change', (newSceneName) => {
-            if (this._suspendSceneNameEvt) return;
-            if (!editor.call('permissions:write')) return;
+            if (this._suspendSceneNameEvt) {
+                return;
+            }
+            if (!editor.call('permissions:write')) {
+                return;
+            }
 
             editor.call('realtime:scene:op', {
                 p: ['name'],

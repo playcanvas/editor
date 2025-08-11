@@ -118,7 +118,9 @@ class BatchGroupsSettingsPanel extends BaseSettingsPanel {
 
             for (let i = 0, len = affectedModels.length; i < len; i++) {
                 const entity = affectedModels[i].latest();
-                if (!entity) continue;
+                if (!entity) {
+                    continue;
+                }
 
                 const history = entity.history.enabled;
                 entity.history.enabled = false;
@@ -129,7 +131,9 @@ class BatchGroupsSettingsPanel extends BaseSettingsPanel {
 
             for (let i = 0, len = affectedElements.length; i < len; i++) {
                 const entity = affectedElements[i].latest();
-                if (!entity) continue;
+                if (!entity) {
+                    continue;
+                }
 
                 const history = entity.history.enabled;
                 entity.history.enabled = false;

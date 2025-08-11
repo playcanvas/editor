@@ -118,7 +118,9 @@ editor.once('load', () => {
         };
 
         editor.on('selector:add', (item, type) => {
-            if (type !== 'entity') return;
+            if (type !== 'entity') {
+                return;
+            }
 
             if (!selectedEntity) {
                 selectedEntity = item;

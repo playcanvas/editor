@@ -185,7 +185,9 @@ class CameraComponentInspector extends ComponentInspector {
     }
 
     _toggleFields() {
-        if (this._suppressToggleFields) return;
+        if (this._suppressToggleFields) {
+            return;
+        }
 
         const fieldColorBuffer = this._field('clearColorBuffer');
         const fieldProjection = this._field('projection');

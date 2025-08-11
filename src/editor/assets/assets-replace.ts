@@ -40,7 +40,9 @@ editor.once('load', () => {
                         undo: function () {
                             for (let i = 0; i < changed.length; i++) {
                                 const obj = changed[i].latest();
-                                if (!obj) continue;
+                                if (!obj) {
+                                    continue;
+                                }
                                 const history = obj.history.enabled;
                                 obj.history.enabled = false;
                                 obj.set('components.element.textureAsset', oldId);
@@ -52,7 +54,9 @@ editor.once('load', () => {
                         redo: function () {
                             for (let i = 0; i < changed.length; i++) {
                                 const obj = changed[i].latest();
-                                if (!obj) continue;
+                                if (!obj) {
+                                    continue;
+                                }
                                 const history = obj.history.enabled;
                                 obj.history.enabled = false;
                                 obj.set('components.element.textureAsset', null);

@@ -65,7 +65,9 @@ editor.once('load', () => {
     let lastSearch = '';
 
     const branchNameValid = function (branchName) {
-        if (lastSearch === '') return true;
+        if (lastSearch === '') {
+            return true;
+        }
         const result =  editor.call('search:items', [[branchName, branchName]], lastSearch);
         return result.length > 0;
     };
@@ -110,7 +112,9 @@ editor.once('load', () => {
     search.on('change', (value) => {
         value = value.trim();
 
-        if (lastSearch === value) return;
+        if (lastSearch === value) {
+            return;
+        }
         lastSearch = value;
 
         if (value) {
@@ -433,7 +437,9 @@ editor.once('load', () => {
             showRightSidePanel(panelMergeBranchesProgress);
 
             let evtOnMergeCreated = editor.on('messenger:merge.new', (data) => {
-                if (data.dst_branch_id !== config.self.branch.id) return;
+                if (data.dst_branch_id !== config.self.branch.id) {
+                    return;
+                }
 
                 evtOnMergeCreated.unbind();
                 evtOnMergeCreated = null;
@@ -459,7 +465,9 @@ editor.once('load', () => {
                 }
 
                 // if we have already hidden this panel then just return
-                if (panel.hidden) return;
+                if (panel.hidden) {
+                    return;
+                }
 
                 // otherwise show error
                 if (err && !/Request timed out/.test(err)) {
@@ -604,13 +612,19 @@ editor.once('load', () => {
 
     // when the branches context menu is closed 'unclick' dropdowns
     menuBranches.on('open', (open) => {
-        if (open || !contextBranch) return;
+        if (open || !contextBranch) {
+            return;
+        }
 
         const item = document.getElementById(`branch-${contextBranch.id}`);
-        if (!item) return;
+        if (!item) {
+            return;
+        }
 
         const dropdown = item.querySelector('.clicked');
-        if (!dropdown) return;
+        if (!dropdown) {
+            return;
+        }
 
         dropdown.classList.remove('clicked');
         dropdown.innerHTML = '&#57689;';
@@ -654,7 +668,9 @@ editor.once('load', () => {
 
     // favorite branch
     menuBranchesFavorite.on('select', () => {
-        if (!contextBranch) return;
+        if (!contextBranch) {
+            return;
+        }
         if (menuBranches.contextBranchIsFavorite) {
             const index = projectUserSettings.get('favoriteBranches').indexOf(contextBranch.id);
             if (index >= 0) {
@@ -706,7 +722,9 @@ editor.once('load', () => {
 
     // open branch
     menuBranchesOpen.on('select', () => {
-        if (!contextBranch) return;
+        if (!contextBranch) {
+            return;
+        }
 
         const branch = contextBranch;
 
@@ -849,7 +867,9 @@ editor.once('load', () => {
                 showCheckpoints();
             }
 
-            if (panelBranches.disabled) return;
+            if (panelBranches.disabled) {
+                return;
+            }
 
             dropdown.class.add('clicked');
             dropdown.element.innerHTML = '&#57687;';
@@ -876,7 +896,9 @@ editor.once('load', () => {
             wasItemSelectedBeforeClick = item.selected;
         });
         item.element.addEventListener('mouseup', () => {
-            if (!wasItemSelectedBeforeClick || !item.selected) return;
+            if (!wasItemSelectedBeforeClick || !item.selected) {
+                return;
+            }
             wasItemSelectedBeforeClick = false;
 
             if (editor.call('picker:versioncontrol:isErrorWidgetVisible')) {
@@ -1084,7 +1106,9 @@ editor.once('load', () => {
             const lastItem = data.result[data.result.length - 1];
             branchesSkip = lastItem ? lastItem.id : null;
 
-            if (!data.result[0]) return;
+            if (!data.result[0]) {
+                return;
+            }
 
             // convert array to dict
             branches = data.result.reduce((map, branch) => {
@@ -1174,7 +1198,9 @@ editor.once('load', () => {
                 checkpointCallbackQueue.shift()?.();
             }
 
-            if (data.status === 'error') return;
+            if (data.status === 'error') {
+                return;
+            }
 
             // update latest checkpoint in current branches
             if (branches[data.branch_id]) {
@@ -1206,7 +1232,9 @@ editor.once('load', () => {
             // we are seeing the favorite branches view so remove this branch from the list
             // and select the next branch
             const item = getBranchListItem(branchId);
-            if (!item) return;
+            if (!item) {
+                return;
+            }
 
             let nextItem = null;
             if (item.selected) {
@@ -1229,7 +1257,9 @@ editor.once('load', () => {
 
         function removeBranchAndSelectNext(branchId, delay) {
             const item = getBranchListItem(branchId);
-            if (!item) return;
+            if (!item) {
+                return;
+            }
 
             let nextItem = null;
             if (item.selected) {
@@ -1292,7 +1322,9 @@ editor.once('load', () => {
             // branch from this list and select the next one or if there
             // are no more branches in this list then view the open branches
             const item = getBranchListItem(data.branch_id);
-            if (!item) return;
+            if (!item) {
+                return;
+            }
 
             const wasSelected = item.selected;
             let nextItem = null;
@@ -1392,7 +1424,9 @@ editor.once('load', () => {
         key: 's',
         ctrl: true,
         callback: function (e) {
-            if (!editor.call('permissions:write')) return;
+            if (!editor.call('permissions:write')) {
+                return;
+            }
             if (editor.call('picker:isOpen:otherThan', 'project')) {
                 return;
             }

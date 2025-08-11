@@ -29,7 +29,9 @@ editor.once('load', () => {
     }
     // update lines
     Gizmo.prototype.update = function () {
-        if (!app) return; // webgl not available
+        if (!app) {
+            return;
+        } // webgl not available
 
         if (!this._link || !this._link.entity || editor.call('camera:current') === this._link.entity) {
             this.visible = false;
@@ -102,7 +104,9 @@ editor.once('load', () => {
     };
     // render lines
     Gizmo.prototype.render = function () {
-        if (!app) return; // webgl not available
+        if (!app) {
+            return;
+        } // webgl not available
 
         if (!this.visible) {
             return;

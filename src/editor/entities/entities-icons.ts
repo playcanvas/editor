@@ -52,7 +52,9 @@ editor.once('load', () => {
             return;
         }
 
-        if (!app) return; // webgl not available
+        if (!app) {
+            return;
+        } // webgl not available
 
         const self = this;
 
@@ -134,7 +136,9 @@ editor.once('load', () => {
             this.entity.rotateLocal(90, 0, 0);
         }
 
-        if (!this.dirty) return;
+        if (!this.dirty) {
+            return;
+        }
         this.dirty = false;
 
         // hide icon if model is set
@@ -347,7 +351,9 @@ editor.once('load', () => {
     });
 
     editor.on('viewport:postUpdate', () => {
-        if (app) cameraRotation.copy(editor.call('camera:current').getRotation());
+        if (app) {
+            cameraRotation.copy(editor.call('camera:current').getRotation());
+        }
 
         for (let i = 0; i < icons.length; i++) {
             icons[i].update();

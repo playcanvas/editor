@@ -70,7 +70,9 @@ editor.once('load', () => {
         onSelect: () => {
             const tabs = editor.call('tabs:list');
             const idx = tabs.indexOf(currentTab);
-            if (idx === -1) return;
+            if (idx === -1) {
+                return;
+            }
             let i = tabs.length;
             while (i-- && i > idx) {
                 editor.call('tabs:close', tabs[i].id);

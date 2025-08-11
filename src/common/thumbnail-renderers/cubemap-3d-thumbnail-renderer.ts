@@ -78,8 +78,12 @@ class Cubemap3dThumbnailRenderer extends ThumbnailRenderer {
     }
 
     queueRender() {
-        if (this._queuedRender) return;
-        if (!this._asset) return;
+        if (this._queuedRender) {
+            return;
+        }
+        if (!this._asset) {
+            return;
+        }
 
         this._queuedRender = true;
         this._frameRequest = requestAnimationFrame(() => {
@@ -90,7 +94,9 @@ class Cubemap3dThumbnailRenderer extends ThumbnailRenderer {
     render(rotationX = 0, rotationY = 0, mipLevel = 0) {
         this._queuedRender = false;
 
-        if (!this._asset) return;
+        if (!this._asset) {
+            return;
+        }
 
         const app = pc.Application.getApplication();
         const device = app.graphicsDevice;

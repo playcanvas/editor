@@ -14,11 +14,15 @@ const removeExtension = (name) => {
 // Creates new cubemap asset from texture asset
 editor.method('assets:textureToCubemap', (textureAsset, callback) => {
     // validate texture asset
-    if (textureAsset.get('type') !== 'texture' || textureAsset.get('source')) return;
+    if (textureAsset.get('type') !== 'texture' || textureAsset.get('source')) {
+        return;
+    }
 
     // get the app
     const app = editor.call('viewport:app');
-    if (!app) return;
+    if (!app) {
+        return;
+    }
 
     const nameBase = removeExtension(textureAsset.get('name'));
     const filenameBase = removeExtension(textureAsset.get('file.filename'));

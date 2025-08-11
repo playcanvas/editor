@@ -43,7 +43,7 @@
 @import 'editor/editor-settings-rendering-panel';
 @import 'editor/editor-settings-layers-panel';
 @import 'editor/editor-settings-batchgroups-panel';
-@import 'editor/editor-settings-asset-tasks';
+@import 'editor/editor-settings-asset-import';
 @import 'editor/editor-settings-ai';
 @import 'editor/editor-settings-scripts-panel';
 @import 'editor/editor-sprite-editor';
@@ -57,3 +57,4 @@
 @import 'editor/editor-settings-launch-page';
 @import 'editor/editor-engine-picker';
 @import 'editor/editor-auditor-picker';
+@import 'editor/editor-clipboard';

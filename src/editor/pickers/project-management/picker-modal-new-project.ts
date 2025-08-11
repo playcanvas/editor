@@ -74,7 +74,9 @@ editor.once('load', () => {
         });
 
         starterKit.dom.addEventListener('click', () => {
-            if (selectedKitElement) selectedKitElement.dom.classList.remove('selected');
+            if (selectedKitElement) {
+                selectedKitElement.dom.classList.remove('selected');
+            }
 
             selectedKitElement = starterKit;
             formInputs.name = starterKits[fork].name;
@@ -139,12 +141,16 @@ editor.once('load', () => {
     // helper method to build sidebar once data has loaded in
     const buildSidebar = () => {
         // refresh UI if it already exists
-        if (formContent.dom.innerHTML !== '') formContent.dom.innerHTML = '';
+        if (formContent.dom.innerHTML !== '') {
+            formContent.dom.innerHTML = '';
+        }
 
         // make form groups for relevant inputs
         const textName = buildFormGroup('text', 'Name', formContent);
         const textDescription = buildFormGroup('text', 'Description', formContent);
-        if (rootUser.organizations.length > 0) buildOrgDropdown(formContent);
+        if (rootUser.organizations.length > 0) {
+            buildOrgDropdown(formContent);
+        }
         const togglePrivate = buildFormGroup('toggle', allowPrivate() ? 'Private' : 'Private (Premium)', formContent);
         if (formInputs.legacy !== null && currentUser.flags.hasLegacyScripts) {
             const toggleLegacy = buildFormGroup('toggle', 'Legacy Scripts', formContent);
@@ -401,7 +407,9 @@ editor.once('load', () => {
                 starterKits[forkFrom] = starterkit;
             });
 
-            if (kitsContainer.dom) loadUIKits();
+            if (kitsContainer.dom) {
+                loadUIKits();
+            }
         });
     };
 
@@ -418,7 +426,9 @@ editor.once('load', () => {
                     }
 
                     evt = editor.on('messenger:project.create', (msg) => {
-                        if (msg.project_id !== result.id) return;
+                        if (msg.project_id !== result.id) {
+                            return;
+                        }
                         evt.unbind();
                         result.disabled = false;
 
@@ -455,7 +465,9 @@ editor.once('load', () => {
             }
         }, (err) => {
             // unsubscribe from messenger job.update
-            if (data.fork_from && evt) evt.unbind();
+            if (data.fork_from && evt) {
+                evt.unbind();
+            }
 
             toggleLoader(false);
 
@@ -513,7 +525,9 @@ editor.once('load', () => {
 
     // clean up
     overlay.on('hide', () => {
-        if (kitsContainer) kitsContainer.destroy();  // delete all starter kit UI
+        if (kitsContainer) {
+            kitsContainer.destroy();
+        }  // delete all starter kit UI
         editor.emit('picker:close', 'project-new');  // close panel
 
         editor.call('picker:project:hideAlerts');

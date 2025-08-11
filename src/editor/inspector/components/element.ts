@@ -379,7 +379,9 @@ const ATTRIBUTES = [{
 function getSpriteDimensions(id, frame, assets) {
     const spriteAsset = assets.get(id);
     // renderMode has three states: 0 = Simple, 1 = Slices, 2 = Tiled. Only Simple should set the element width / height.
-    if (!spriteAsset || spriteAsset.get('data.renderMode') !== 0) return null;
+    if (!spriteAsset || spriteAsset.get('data.renderMode') !== 0) {
+        return null;
+    }
     let frameKey = spriteAsset.get(`data.frameKeys.${frame}`);
     if (!frameKey) {
         const frameKeys = spriteAsset.get('data.frameKeys');
@@ -387,7 +389,9 @@ function getSpriteDimensions(id, frame, assets) {
     }
 
     const textureAtlasAsset = assets.get(spriteAsset.get('data.textureAtlasAsset'));
-    if (!textureAtlasAsset) return null;
+    if (!textureAtlasAsset) {
+        return null;
+    }
     const spriteRect = textureAtlasAsset.get(`data.frames.${frameKey}.rect`);
     const width = spriteRect[2];
     const height = spriteRect[3];
@@ -434,8 +438,12 @@ class ImageAssetElementToObserversBinding extends BindingElementToObservers {
 
     // Override setValue to set additional fields
     setValue(value) {
-        if (this.applyingChange) return;
-        if (!this._observers) return;
+        if (this.applyingChange) {
+            return;
+        }
+        if (!this._observers) {
+            return;
+        }
 
         this.applyingChange = true;
 
@@ -449,7 +457,9 @@ class ImageAssetElementToObserversBinding extends BindingElementToObservers {
         const undo = () => {
             for (let i = 0; i < observers.length; i++) {
                 const latest = observers[i].latest();
-                if (!latest || !latest.has('components.element')) continue;
+                if (!latest || !latest.has('components.element')) {
+                    continue;
+                }
 
                 let history = false;
                 if (latest.history) {
@@ -482,7 +492,9 @@ class ImageAssetElementToObserversBinding extends BindingElementToObservers {
 
             for (let i = 0; i < observers.length; i++) {
                 const latest = observers[i].latest();
-                if (!latest || !latest.has('components.element')) continue;
+                if (!latest || !latest.has('components.element')) {
+                    continue;
+                }
 
                 const path = this._pathAt(paths, i);
 
@@ -557,8 +569,12 @@ class ImageAssetElementToObserversBinding extends BindingElementToObservers {
 class SpriteFrameElementToObserversBinding extends ImageAssetElementToObserversBinding {
     // Override setValue to set additional fields
     setValue(value) {
-        if (this.applyingChange) return;
-        if (!this._observers) return;
+        if (this.applyingChange) {
+            return;
+        }
+        if (!this._observers) {
+            return;
+        }
 
         this.applyingChange = true;
 
@@ -572,7 +588,9 @@ class SpriteFrameElementToObserversBinding extends ImageAssetElementToObserversB
         const undo = () => {
             for (let i = 0; i < observers.length; i++) {
                 const latest = observers[i].latest();
-                if (!latest || !latest.has('components.element')) continue;
+                if (!latest || !latest.has('components.element')) {
+                    continue;
+                }
 
                 let history = false;
                 if (latest.history) {
@@ -602,7 +620,9 @@ class SpriteFrameElementToObserversBinding extends ImageAssetElementToObserversB
 
             for (let i = 0; i < observers.length; i++) {
                 const latest = observers[i].latest();
-                if (!latest || !latest.has('components.element')) continue;
+                if (!latest || !latest.has('components.element')) {
+                    continue;
+                }
 
                 let history = false;
                 if (latest.history) {
@@ -749,7 +769,9 @@ class ElementComponentInspector extends ComponentInspector {
     }
 
     _toggleFields() {
-        if (this._suppressToggleFields) return;
+        if (this._suppressToggleFields) {
+            return;
+        }
 
         const type = this._field('type').value;
         const isText = type === 'text';
@@ -835,9 +857,13 @@ class ElementComponentInspector extends ComponentInspector {
     }
 
     _onFieldPresetChange(value) {
-        if (!value || value === 'custom' || this._suppressPresetEvents) return;
+        if (!value || value === 'custom' || this._suppressPresetEvents) {
+            return;
+        }
 
-        if (!this._entities) return;
+        if (!this._entities) {
+            return;
+        }
 
         // copy current entities for undo / redo
         const entities = this._entities.slice();
@@ -863,7 +889,9 @@ class ElementComponentInspector extends ComponentInspector {
         function undo() {
             for (let i = 0; i < entities.length; i++) {
                 const entity = entities[i].latest();
-                if (!entity || !entity.has('components.element')) continue;
+                if (!entity || !entity.has('components.element')) {
+                    continue;
+                }
 
                 const history = entity.history.enabled;
                 entity.history.enabled = false;
@@ -884,7 +912,9 @@ class ElementComponentInspector extends ComponentInspector {
         function redo() {
             for (let i = 0; i < entities.length; i++) {
                 const entity = entities[i].latest();
-                if (!entity || !entity.has('components.element')) continue;
+                if (!entity || !entity.has('components.element')) {
+                    continue;
+                }
 
                 const history = entity.history.enabled;
                 entity.history.enabled = false;
@@ -939,13 +969,19 @@ class ElementComponentInspector extends ComponentInspector {
     }
 
     _onFieldLocalizedChange(value) {
-        if (this._suppressLocalizedEvents) return;
+        if (this._suppressLocalizedEvents) {
+            return;
+        }
 
         // if value is not boolean then ignore as it might mean
         // it's just showing multiple different values
-        if (value !== true && value !== false) return;
+        if (value !== true && value !== false) {
+            return;
+        }
 
-        if (!this._entities) return;
+        if (!this._entities) {
+            return;
+        }
 
         // copy current entities for undo / redo functions
         const entities = this._entities.slice();
@@ -957,7 +993,9 @@ class ElementComponentInspector extends ComponentInspector {
         function undo() {
             for (let i = 0; i < prev.length; i += 2) {
                 const e = prev[i].latest();
-                if (!e || !e.has('components.element')) continue;
+                if (!e || !e.has('components.element')) {
+                    continue;
+                }
 
                 const history = e.history.enabled;
                 e.history.enabled = false;
@@ -971,7 +1009,9 @@ class ElementComponentInspector extends ComponentInspector {
             prev = [];
             for (let i = 0, len = entities.length; i < len; i++) {
                 const e = entities[i].latest();
-                if (!e || !e.has('components.element')) continue;
+                if (!e || !e.has('components.element')) {
+                    continue;
+                }
 
                 // we need to switch between the 'key'
                 // and 'text' fields depending on whether we picked
@@ -979,7 +1019,9 @@ class ElementComponentInspector extends ComponentInspector {
                 // But don't do anything if this element is already localized
                 // (or not depending on which we picked).
                 const val = e.get(otherPath);
-                if (val === null) continue;
+                if (val === null) {
+                    continue;
+                }
 
                 prev.push(e);
                 prev.push(val);
@@ -1050,7 +1092,9 @@ class ElementComponentInspector extends ComponentInspector {
     }
 
     _onClickResetSize(assets) {
-        if (!this._entities) return;
+        if (!this._entities) {
+            return;
+        }
 
         let prev = null;
 
@@ -1067,7 +1111,9 @@ class ElementComponentInspector extends ComponentInspector {
         const undo = () => {
             prev.forEach((entry) => {
                 const entity = entry.entity.latest();
-                if (!entity) return;
+                if (!entity) {
+                    return;
+                }
 
                 resetSize(entity, entry.width, entry.height);
             });
@@ -1078,7 +1124,9 @@ class ElementComponentInspector extends ComponentInspector {
 
             entities.forEach((entity) => {
                 entity = entity.latest();
-                if (!entity) return;
+                if (!entity) {
+                    return;
+                }
 
                 let width, height;
 

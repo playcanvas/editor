@@ -156,7 +156,9 @@ class ButtonComponentInspector extends ComponentInspector {
     }
 
     _toggleFields() {
-        if (this._suppressToggleFields) return;
+        if (this._suppressToggleFields) {
+            return;
+        }
 
         const fieldTransitionMode = this._field('transitionMode');
         const isTintMode = (fieldTransitionMode.value === BUTTON_TRANSITION_MODE_TINT);

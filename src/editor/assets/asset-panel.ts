@@ -215,7 +215,9 @@ class AssetGridViewItem extends GridViewItem {
     }
 
     unlink() {
-        if (!this._asset) return;
+        if (!this._asset) {
+            return;
+        }
 
         super.unlink();
 
@@ -638,20 +640,30 @@ class AssetPanel extends Panel {
     }
 
     _onCopyAssets() {
-        if (this._currentFolder === LEGACY_SCRIPTS_FOLDER_ASSET) return;
+        if (this._currentFolder === LEGACY_SCRIPTS_FOLDER_ASSET) {
+            return;
+        }
 
         const selectedAssets = this.selectedAssets;
-        if (!selectedAssets.length) return;
+        if (!selectedAssets.length) {
+            return;
+        }
 
         editor.call('assets:copy', selectedAssets);
     }
 
     _onPasteAssets(keepFolderStructure) {
-        if (!this._writePermissions) return;
-        if (this._currentFolder === LEGACY_SCRIPTS_FOLDER_ASSET) return;
+        if (!this._writePermissions) {
+            return;
+        }
+        if (this._currentFolder === LEGACY_SCRIPTS_FOLDER_ASSET) {
+            return;
+        }
 
         const clipboard = editor.call('clipboard:get');
-        if (!clipboard || clipboard.type !== 'asset') return;
+        if (!clipboard || clipboard.type !== 'asset') {
+            return;
+        }
 
         editor.call('assets:paste', this.currentFolder, keepFolderStructure);
     }
@@ -659,8 +671,12 @@ class AssetPanel extends Panel {
     // Sorts assets by name (case insensitive). Keeps legacy scripts folder on top always.
     _sortByName(a, b, ascending) {
         // keep legacy script folder on top
-        if (a === LEGACY_SCRIPTS_FOLDER_ASSET) return -1;
-        if (b === LEGACY_SCRIPTS_FOLDER_ASSET) return 1;
+        if (a === LEGACY_SCRIPTS_FOLDER_ASSET) {
+            return -1;
+        }
+        if (b === LEGACY_SCRIPTS_FOLDER_ASSET) {
+            return 1;
+        }
 
         const nameA = (a.get('name') || '').toLowerCase();
         const nameB = (b.get('name') || '').toLowerCase();
@@ -672,21 +688,33 @@ class AssetPanel extends Panel {
     // Sorts assets by type. Keeps legacy scripts folder on top always.
     _sortByType(a, b, ascending) {
         // keep legacy script folder on top
-        if (a === LEGACY_SCRIPTS_FOLDER_ASSET) return -1;
-        if (b === LEGACY_SCRIPTS_FOLDER_ASSET) return 1;
+        if (a === LEGACY_SCRIPTS_FOLDER_ASSET) {
+            return -1;
+        }
+        if (b === LEGACY_SCRIPTS_FOLDER_ASSET) {
+            return 1;
+        }
 
         const typeA = a.get('type');
         const typeB = b.get('type');
-        if (typeA < typeB) return ascending ? -1 : 1;
-        if (typeA > typeB) return ascending ? 1 : -1;
+        if (typeA < typeB) {
+            return ascending ? -1 : 1;
+        }
+        if (typeA > typeB) {
+            return ascending ? 1 : -1;
+        }
         return 0;
     }
 
     // Sorts assets by file size. Keeps legacy scripts folder on top always.
     _sortByFileSize(a, b, ascending) {
         // keep legacy script folder on top
-        if (a === LEGACY_SCRIPTS_FOLDER_ASSET) return -1;
-        if (b === LEGACY_SCRIPTS_FOLDER_ASSET) return 1;
+        if (a === LEGACY_SCRIPTS_FOLDER_ASSET) {
+            return -1;
+        }
+        if (b === LEGACY_SCRIPTS_FOLDER_ASSET) {
+            return 1;
+        }
 
         const sizeA = parseInt(a.get('file.size'), 10);
         const sizeB = parseInt(b.get('file.size'), 10);
@@ -751,7 +779,9 @@ class AssetPanel extends Panel {
 
     // Filter by type
     _onDropDownTypeChange() {
-        if (this._suspendFiltering) return;
+        if (this._suspendFiltering) {
+            return;
+        }
         this.filter();
     }
 
@@ -764,7 +794,9 @@ class AssetPanel extends Panel {
     // switch folder to selected asset
     // if we do not have selected assets in different folders
     _setCurrentFolderFromSelectedAssets() {
-        if (!this._selectedAssets.length) return;
+        if (!this._selectedAssets.length) {
+            return;
+        }
 
         const path = this._selectedAssets[0].get('path');
         for (let i = 1; i < this._selectedAssets.length; i++) {
@@ -781,13 +813,19 @@ class AssetPanel extends Panel {
 
     _parseSearchTags(searchQuery) {
         let tags = searchQuery.match(REGEX_TAGS);
-        if (!tags) return;
+        if (!tags) {
+            return;
+        }
         tags = tags[1].trim();
-        if (!tags.length) return;
+        if (!tags.length) {
+            return;
+        }
 
         let subTags;
         while ((subTags = REGEX_SUB_TAGS.exec(tags)) !== null) {
-            if (!this._searchTags) this._searchTags = [];
+            if (!this._searchTags) {
+                this._searchTags = [];
+            }
             this._searchTags.push(this._processTagsString(subTags[1]));
         }
 
@@ -801,7 +839,9 @@ class AssetPanel extends Panel {
         this._searchTags = null;
         value = value.trim();
 
-        if (this._searchPreviousValue === value) return;
+        if (this._searchPreviousValue === value) {
+            return;
+        }
 
         this._searchPreviousValue = value;
 
@@ -920,7 +960,9 @@ class AssetPanel extends Panel {
         const assets = [];
 
         const addAsset = (id) => {
-            if (!parseInt(id, 10)) return; // this can happen for legacy scripts
+            if (!parseInt(id, 10)) {
+                return;
+            } // this can happen for legacy scripts
 
             const asset = this._assets.get(id);
 
@@ -955,7 +997,9 @@ class AssetPanel extends Panel {
             evt.stopPropagation();
         }
 
-        if (!this._writePermissions || !this._dropManager) return;
+        if (!this._writePermissions || !this._dropManager) {
+            return;
+        }
 
         let type = `asset.${asset.get('type')}`;
         let data = {};
@@ -998,8 +1042,12 @@ class AssetPanel extends Panel {
     }
 
     _onRootFolderHover() {
-        if (this._hoveredAsset === null) return;
-        if (!this._dropManager || !this._dropManager.active || !this._dropManager.dropData) return;
+        if (this._hoveredAsset === null) {
+            return;
+        }
+        if (!this._dropManager || !this._dropManager.active || !this._dropManager.dropData) {
+            return;
+        }
 
         const dropData = this._dropManager.dropData;
 
@@ -1021,12 +1069,18 @@ class AssetPanel extends Panel {
     }
 
     _onAssetHover(asset) {
-        if (this._hoveredAsset === asset) return;
-        if (!this._dropManager || !this._dropManager.active || !this._dropManager.dropData) return;
+        if (this._hoveredAsset === asset) {
+            return;
+        }
+        if (!this._dropManager || !this._dropManager.active || !this._dropManager.dropData) {
+            return;
+        }
 
         // check if asset type is hoverable
         const hoveredType = asset.get('type');
-        if (!HOVERABLES[hoveredType]) return;
+        if (!HOVERABLES[hoveredType]) {
+            return;
+        }
 
         const hoveredAssetId = parseInt(asset.get('id'), 10);
         const dropData = this._dropManager.dropData;
@@ -1092,7 +1146,9 @@ class AssetPanel extends Panel {
 
     // Update the hovered asset
     _setHoveredAsset(asset) {
-        if (this._hoveredAsset === asset) return;
+        if (this._hoveredAsset === asset) {
+            return;
+        }
 
         if (this._hoveredAsset !== undefined) {
             // clear previous hovered asset
@@ -1407,16 +1463,24 @@ class AssetPanel extends Panel {
     }
 
     _onSelectAssetElement(element) {
-        if (this._suspendSelectEvents) return;
-        if (element.asset === LEGACY_SCRIPTS_FOLDER_ASSET) return;
+        if (this._suspendSelectEvents) {
+            return;
+        }
+        if (element.asset === LEGACY_SCRIPTS_FOLDER_ASSET) {
+            return;
+        }
 
         editor.call('selector:add', 'asset', element.asset.legacyScript || element.asset);
         this.emit('select', element.asset.legacyScript || element.asset);
     }
 
     _onDeselectAssetElement(element) {
-        if (this._suspendSelectEvents) return;
-        if (element.asset === LEGACY_SCRIPTS_FOLDER_ASSET) return;
+        if (this._suspendSelectEvents) {
+            return;
+        }
+        if (element.asset === LEGACY_SCRIPTS_FOLDER_ASSET) {
+            return;
+        }
 
         editor.call('selector:remove', element.asset.legacyScript || element.asset);
         this.emit('deselect', element.asset.legacyScript || element.asset);
@@ -1462,7 +1526,9 @@ class AssetPanel extends Panel {
             }
         }
 
-        if (data.type !== 'asset') return;
+        if (data.type !== 'asset') {
+            return;
+        }
 
         userEntry = {
             elements: [],
@@ -1724,7 +1790,9 @@ class AssetPanel extends Panel {
         if (asset.get('type') === 'folder') {
 
             // early out if the asset has the same parent
-            if (path[path.length - 1] === oldPath[oldPath.length - 1]) return;
+            if (path[path.length - 1] === oldPath[oldPath.length - 1]) {
+                return;
+            }
 
             const folder = this._foldersIndex[asset.get('id')];
             // remove folder and add it under the right parent
@@ -1781,7 +1849,9 @@ class AssetPanel extends Panel {
             return;
         }
 
-        if (this._foldersIndex[id]) return;
+        if (this._foldersIndex[id]) {
+            return;
+        }
 
         const isLegacyScriptFolder = (asset === LEGACY_SCRIPTS_FOLDER_ASSET);
 
@@ -1910,7 +1980,9 @@ class AssetPanel extends Panel {
     }
 
     _onFolderTreeSelect(item) {
-        if (this._suspendSelectEvents) return;
+        if (this._suspendSelectEvents) {
+            return;
+        }
 
         if (item.asset === LEGACY_SCRIPTS_FOLDER_ASSET) {
             item.selected = false;
@@ -1936,7 +2008,9 @@ class AssetPanel extends Panel {
     }
 
     _onFolderTreeDeselect(item) {
-        if (this._suspendSelectEvents) return;
+        if (this._suspendSelectEvents) {
+            return;
+        }
 
         if (this._foldersView.selected.length === 1 && !this._foldersView.pressedCtrl && !this._foldersView.pressedShift) {
             // if we deselected all folders but one then this probably means we
@@ -1983,7 +2057,9 @@ class AssetPanel extends Panel {
 
     // Show or hide an element based on the current filters
     _filterAssetElement(element) {
-        if (!element.asset) return false;
+        if (!element.asset) {
+            return false;
+        }
 
         if (this.assetTypes) {
             if (!this.assetTypes.includes(element.asset.get('type'))) {
@@ -2142,7 +2218,9 @@ class AssetPanel extends Panel {
      * Filters the asset panel based on the current filters active.
      */
     filter() {
-        if (!this._assets) return;
+        if (!this._assets) {
+            return;
+        }
 
         if (this.viewMode === AssetPanel.VIEW_DETAILS) {
             this._gridView.hidden = true;
@@ -2161,7 +2239,9 @@ class AssetPanel extends Panel {
      * Navigates one folder back from the current folder.
      */
     navigateBack() {
-        if (!this.currentFolder) return;
+        if (!this.currentFolder) {
+            return;
+        }
 
         const path = this.currentFolder.get('path');
         let folder = null;
@@ -2191,7 +2271,9 @@ class AssetPanel extends Panel {
     }
 
     destroy() {
-        if (this._destroyed) return;
+        if (this._destroyed) {
+            return;
+        }
 
         this._legacyScriptsIndex = {};
 
@@ -2231,7 +2313,9 @@ class AssetPanel extends Panel {
         this._foldersWaitingParent = {};
 
         this._assets = value;
-        if (!this._assets) return;
+        if (!this._assets) {
+            return;
+        }
 
         const assets = this._assets.array();
 
@@ -2272,7 +2356,9 @@ class AssetPanel extends Panel {
             value = LEGACY_SCRIPTS_FOLDER_ASSET;
         }
 
-        if (this._currentFolder === value) return;
+        if (this._currentFolder === value) {
+            return;
+        }
 
         let id;
         if (this._currentFolder) {
@@ -2322,7 +2408,9 @@ class AssetPanel extends Panel {
     }
 
     set dropManager(value) {
-        if (this._dropManager === value) return;
+        if (this._dropManager === value) {
+            return;
+        }
 
         if (this._foldersDropTarget) {
             this._foldersDropTarget.destroy();
@@ -2370,7 +2458,9 @@ class AssetPanel extends Panel {
     }
 
     set viewMode(value) {
-        if (this._viewMode === value) return;
+        if (this._viewMode === value) {
+            return;
+        }
 
         this._viewMode = value;
 
@@ -2414,7 +2504,9 @@ class AssetPanel extends Panel {
     }
 
     set selectedAssets(value) {
-        if (!value) value = [];
+        if (!value) {
+            value = [];
+        }
 
         this._btnDelete.enabled = this.writePermissions && value.length;
 
@@ -2429,7 +2521,9 @@ class AssetPanel extends Panel {
         const selected = this._selectedAssets;
         let i = selected.length;
         while (i--) {
-            if (selectedIndex[selected[i].get('id')]) continue;
+            if (selectedIndex[selected[i].get('id')]) {
+                continue;
+            }
             this._setAssetSelected(selected[i], false);
         }
 
@@ -2505,7 +2599,9 @@ class AssetPanel extends Panel {
     }
 
     set writePermissions(value) {
-        if (this._writePermissions === value) return;
+        if (this._writePermissions === value) {
+            return;
+        }
 
         this._writePermissions = value;
 

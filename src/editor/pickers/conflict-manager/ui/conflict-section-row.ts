@@ -428,7 +428,9 @@ class ConflictSectionRow extends Events {
     }
 
     unresolve() {
-        if (!this._resolved) return;
+        if (!this._resolved) {
+            return;
+        }
 
         this._resolved = false;
 
@@ -442,7 +444,9 @@ class ConflictSectionRow extends Events {
     }
 
     resolveUsingSource() {
-        if (this._conflict.useSrc) return;
+        if (this._conflict.useSrc) {
+            return;
+        }
 
         this.unresolve();
         this._conflict.useSrc = true;
@@ -455,7 +459,9 @@ class ConflictSectionRow extends Events {
     }
 
     resolveUsingDestination() {
-        if (this._conflict.useDst) return;
+        if (this._conflict.useDst) {
+            return;
+        }
 
         this.unresolve();
         this._conflict.useDst = true;

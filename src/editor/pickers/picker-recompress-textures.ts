@@ -1,9 +1,13 @@
 import { TextureCompressor } from '../assets/assets-textures-compress.ts';
 
 editor.once('load', () => {
-    if (!editor.call('users:hasFlag', 'hasRecompressFlippedTextures')) return;
+    if (!editor.call('users:hasFlag', 'hasRecompressFlippedTextures')) {
+        return;
+    }
 
-    if (!editor.call('permissions:write')) return;
+    if (!editor.call('permissions:write')) {
+        return;
+    }
 
     const variants = ['etc1', 'etc2', 'pvr', 'dxt', 'basis'];
 
@@ -26,16 +30,24 @@ editor.once('load', () => {
             const toRecompress = [];
 
             editor.call('assets:list').forEach((asset) => {
-                if (asset.get('source')) return;
+                if (asset.get('source')) {
+                    return;
+                }
 
                 const type = asset.get('type');
-                if (type !== 'texture' && type !== 'textureatlas') return;
+                if (type !== 'texture' && type !== 'textureatlas') {
+                    return;
+                }
 
-                if (asset.get('task') === 'running') return;
+                if (asset.get('task') === 'running') {
+                    return;
+                }
 
                 for (let i = 0; i < variants.length; i++) {
                     const variant = variants[i];
-                    if (!asset.has(`file.variants.${variant}`)) continue;
+                    if (!asset.has(`file.variants.${variant}`)) {
+                        continue;
+                    }
                     if (!asset.get(`file.variants.${variant}.noFlip`)) {
                         toRecompress.push(asset);
                         break;
@@ -43,7 +55,9 @@ editor.once('load', () => {
                 }
             });
 
-            if (!toRecompress.length) return;
+            if (!toRecompress.length) {
+                return;
+            }
 
             editor.call('picker:confirm', 'This project contains textures which must be recompressed due to a non-backwards compatible engine change. These textures will appear upside down if they aren\'t recompressed.', () => {
                 recompress(toRecompress);

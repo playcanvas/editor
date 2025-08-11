@@ -44,7 +44,9 @@ editor.once('load', () => {
 
     let timeout;
     const deferredUpdate = function (tab) {
-        if (!tab.asset) return;
+        if (!tab.asset) {
+            return;
+        }
         clearTimeout(timeout);
         timeout = setTimeout(updateUrl);
     };

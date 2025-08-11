@@ -1,6 +1,8 @@
 editor.once('load', () => {
     const app = editor.call('viewport:app');
-    if (!app) return; // webgl not available
+    if (!app) {
+        return;
+    } // webgl not available
 
     editor.on('settings:projectUser:load', () => {
         const projectUserSettings = editor.call('settings:projectUser');

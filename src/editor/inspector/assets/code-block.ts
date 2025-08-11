@@ -113,7 +113,9 @@ class CodeBlockAssetInspector extends Container {
     }
 
     unlink() {
-        if (!this._assets) return;
+        if (!this._assets) {
+            return;
+        }
         this._assets = null;
         if (this._request) {
             this._request.owner.abort();

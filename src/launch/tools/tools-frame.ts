@@ -3,7 +3,9 @@ import { bytesToHuman } from '../../common/utils.ts';
 editor.once('load', () => {
     let enabled = editor.call('tools:enabled');
     const app = editor.call('viewport:app');
-    if (!app) return; // webgl not available
+    if (!app) {
+        return;
+    } // webgl not available
 
     editor.on('tools:state', (state) => {
         enabled = state;

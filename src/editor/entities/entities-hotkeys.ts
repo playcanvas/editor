@@ -8,7 +8,9 @@ editor.once('load', () => {
                 return;
             }
 
-            if (editor.call('picker:isOpen')) return;
+            if (editor.call('picker:isOpen')) {
+                return;
+            }
 
             const type = editor.call('selector:type');
             const items = editor.call('selector:items');
@@ -33,19 +35,29 @@ editor.once('load', () => {
         key: 'd',
         ctrl: true,
         callback: function () {
-            if (!editor.call('permissions:write')) return;
-            if (editor.call('picker:isOpen')) return;
+            if (!editor.call('permissions:write')) {
+                return;
+            }
+            if (editor.call('picker:isOpen')) {
+                return;
+            }
 
             const type = editor.call('selector:type');
             const items = editor.call('selector:items');
 
-            if (!items.length) return;
+            if (!items.length) {
+                return;
+            }
 
             if (type === 'entity') {
-                if (items.indexOf(editor.call('entities:root')) !== -1) return;
+                if (items.indexOf(editor.call('entities:root')) !== -1) {
+                    return;
+                }
                 editor.call('entities:duplicate', items);
             } else if (type === 'asset' && items.length === 1) {
-                if (items[0].get('type') !== 'material' && items[0].get('type') !== 'sprite') return;
+                if (items[0].get('type') !== 'material' && items[0].get('type') !== 'sprite') {
+                    return;
+                }
                 editor.call('assets:duplicate', items[0]);
             }
         }
@@ -53,7 +65,9 @@ editor.once('load', () => {
 
     // delete
     const deleteCallback = function () {
-        if (editor.call('picker:isOpen')) return;
+        if (editor.call('picker:isOpen')) {
+            return;
+        }
 
         if (!editor.call('permissions:write')) {
             return;
@@ -96,7 +110,9 @@ editor.once('load', () => {
                 return;
             }
 
-            if (editor.call('picker:isOpen')) return;
+            if (editor.call('picker:isOpen')) {
+                return;
+            }
 
             const type = editor.call('selector:type');
             if (type !== 'entity') {
@@ -122,7 +138,9 @@ editor.once('load', () => {
                 return;
             }
 
-            if (editor.call('picker:isOpen')) return;
+            if (editor.call('picker:isOpen')) {
+                return;
+            }
 
             const items = editor.call('selector:items');
             if (items.length === 0 || items.length === 1 && editor.call('selector:type') === 'entity') {

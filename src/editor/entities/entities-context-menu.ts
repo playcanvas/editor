@@ -106,7 +106,9 @@ editor.once('load', () => {
             text: 'Enable',
             icon: 'E133',
             onIsVisible: function () {
-                if (!hasWriteAccess()) return false;
+                if (!hasWriteAccess()) {
+                    return false;
+                }
 
                 if (items.length === 1) {
                     return !items[0].get('enabled');
@@ -129,7 +131,9 @@ editor.once('load', () => {
             text: 'Disable',
             icon: 'E132',
             onIsVisible: function () {
-                if (!hasWriteAccess()) return false;
+                if (!hasWriteAccess()) {
+                    return false;
+                }
 
                 if (items.length === 1) {
                     return items[0].get('enabled');
@@ -163,7 +167,7 @@ editor.once('load', () => {
             onIsEnabled: function () {
                 if (items.length <= 1) {
                     const clipboard = editor.call('clipboard:get');
-                    if (clipboard && clipboard.type === 'entity') {
+                    if (clipboard && clipboard.type === 'entity' && clipboard.branch && clipboard.scene && clipboard.hierarchy) {
                         return true;
                     }
                 }
@@ -257,7 +261,9 @@ editor.once('load', () => {
     });
 
     editor.method('entities:contextmenu:open', (item, x, y, ignoreSelection) => {
-        if (!menu) return;
+        if (!menu) {
+            return;
+        }
 
         entity = item;
 

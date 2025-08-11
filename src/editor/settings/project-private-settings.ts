@@ -23,7 +23,9 @@ editor.once('load', () => {
     });
 
     const reload = function () {
-        if (!isConnected) return;
+        if (!isConnected) {
+            return;
+        }
 
         if (config.project.hasPrivateSettings && editor.call('permissions:write')) {
             settings.reload(settings.scopeId);
@@ -88,7 +90,9 @@ editor.once('load', () => {
 
     if (!config.project.hasPrivateSettings) {
         editor.on('messenger:settings.create', (msg) => {
-            if (config.project.hasPrivateSettings) return; // skip if we've already created the settings locally
+            if (config.project.hasPrivateSettings) {
+                return;
+            } // skip if we've already created the settings locally
 
             if (msg.settings.name === 'project-private') {
                 config.project.hasPrivateSettings = true;

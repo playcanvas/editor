@@ -155,8 +155,12 @@ class MaterialThumbnailRenderer extends ThumbnailRenderer {
     }
 
     queueRender() {
-        if (this._queuedRender) return;
-        if (!this._asset) return;
+        if (this._queuedRender) {
+            return;
+        }
+        if (!this._asset) {
+            return;
+        }
 
         this._queuedRender = true;
 
@@ -168,16 +172,22 @@ class MaterialThumbnailRenderer extends ThumbnailRenderer {
     render(rotationX = 0, rotationY = 0, model = 'sphere') {
         this._queuedRender = false;
 
-        if (!this._asset) return;
+        if (!this._asset) {
+            return;
+        }
 
         this._rotationX = rotationX;
         this._rotationY = rotationY;
         this._model = model;
 
         const data = this._asset.get('data');
-        if (!data) return;
+        if (!data) {
+            return;
+        }
 
-        if (!sceneInitialized) initializeScene();
+        if (!sceneInitialized) {
+            initializeScene();
+        }
 
         const app = pc.Application.getApplication();
         const layerComposition = this.layerComposition;
@@ -220,7 +230,9 @@ class MaterialThumbnailRenderer extends ThumbnailRenderer {
         // first handle texture assets
         for (let i = 0; i < pc.StandardMaterial.TEXTURE_PARAMETERS.length; i++) {
             const name = pc.StandardMaterial.TEXTURE_PARAMETERS[i];
-            if (!migrated.hasOwnProperty(name) || !migrated[name]) continue;
+            if (!migrated.hasOwnProperty(name) || !migrated[name]) {
+                continue;
+            }
 
             const engineAsset = app.assets.get(migrated[name]);
             if (!engineAsset || !engineAsset.resource) {
@@ -236,7 +248,9 @@ class MaterialThumbnailRenderer extends ThumbnailRenderer {
         // then handle cubemap assets
         for (let i = 0; i < pc.StandardMaterial.CUBEMAP_PARAMETERS.length; i++) {
             const name = pc.StandardMaterial.CUBEMAP_PARAMETERS[i];
-            if (!migrated.hasOwnProperty(name) || !migrated[name]) continue;
+            if (!migrated.hasOwnProperty(name) || !migrated[name]) {
+                continue;
+            }
 
             const engineAsset = app.assets.get(migrated[name]);
             if (!engineAsset) {

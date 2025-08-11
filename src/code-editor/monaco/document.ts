@@ -64,13 +64,17 @@ editor.once('load', () => {
     // Utility method that returns the import map if available
     editor.method('editor:importMap', () => new Promise((resolve, reject) => {
         const importMapId = config.project.settings.importMap;
-        if (!importMapId) resolve({ imports: {} });
+        if (!importMapId) {
+            resolve({ imports: {} });
+        }
         const asset = editor.call('assets:get', importMapId);
         if (!asset) {
             resolve({ imports: {} });
         } else {
             editor.call('assets:contents:get', asset, (err, content) => {
-                if (err) reject(err);
+                if (err) {
+                    reject(err);
+                }
                 resolve(JSON.parse(content));
             });
         }
@@ -80,7 +84,9 @@ editor.once('load', () => {
     // if the asset is not loaded hide
     // the code panel until it's loaded
     editor.on('select:asset', (asset) => {
-        if (asset.get('type') === 'folder') return;
+        if (asset.get('type') === 'folder') {
+            return;
+        }
 
         if (!viewIndex[asset.get('id')]) {
             panel.toggleCode(false);
@@ -91,7 +97,9 @@ editor.once('load', () => {
     // and add entry to index
     editor.on('documents:load', async (doc, asset) => {
         const id = asset.get('id');
-        if (viewIndex[id]) return;
+        if (viewIndex[id]) {
+            return;
+        }
 
         let mode;
         const type = asset.get('type');
@@ -121,7 +129,9 @@ editor.once('load', () => {
 
         // emit change event
         entry.view.onDidChangeContent((evt) => {
-            if (entry.suppressChanges) return;
+            if (entry.suppressChanges) {
+                return;
+            }
 
             editor.emit('views:change', id, entry.view, evt);
         });
@@ -279,7 +289,9 @@ editor.once('load', () => {
     const getDependenciesForAsset = (asset) => {
         return new Promise((resolve, reject) => {
             editor.call('assets:contents:get', asset, (err, content) => {
-                if (err) reject(err);
+                if (err) {
+                    reject(err);
+                }
 
                 if (!asset.get('file.filename').endsWith('.mjs')) {
                     resolve([]);
@@ -328,7 +340,9 @@ editor.once('load', () => {
         // Remove the views for the files that are no longer dependencies
         filesToRemove.forEach((file) => {
             // Don't remove the file if it's open in a tab
-            if (openTabs.includes(new URL(file).pathname)) return;
+            if (openTabs.includes(new URL(file).pathname)) {
+                return;
+            }
             const entry = pathEntryMap.get(file);
             editor.emit('documents:close', entry.asset.get('id'));
         });
@@ -343,7 +357,9 @@ editor.once('load', () => {
 
         // We must force the editor content to refresh for changes to take effect
         const targetView = viewIndex[asset.get('id')];
-        if (!targetView) return;
+        if (!targetView) {
+            return;
+        }
 
         targetView.suppressChanges = true;
         const monacoEditor = editor.call('editor:monaco');

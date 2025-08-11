@@ -91,7 +91,9 @@ class AnimstategraphAssetInspector extends Container {
         editor.call('selector:add', 'asset', asset);
         editor.once('selector:change', () => {
             editor.call('selector:history', true);
-            if (selectedItem) this._view.selectItem(selectedItem);
+            if (selectedItem) {
+                this._view.selectItem(selectedItem);
+            }
         });
     }
 
@@ -111,7 +113,9 @@ class AnimstategraphAssetInspector extends Container {
             this.deselectAnimStateGraph();
         };
         const undo = () => {
-            if (layer) this._openWithLayer = layer;
+            if (layer) {
+                this._openWithLayer = layer;
+            }
             this.selectAnimStateGraph(asset, selectedItem);
         };
         this.history.add({
@@ -138,7 +142,9 @@ class AnimstategraphAssetInspector extends Container {
     }
 
     openFullscreenMode() {
-        if (this._assets.length > 1) return;
+        if (this._assets.length > 1) {
+            return;
+        }
 
         this._view.link(this._assets, this._selectedLayer);
         this._layersPanel.link(this._assets);
