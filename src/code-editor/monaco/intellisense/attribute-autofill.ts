@@ -228,11 +228,11 @@ const fetchModuleScripts = async (
 
 /**
  * Generic function to modify JSDoc attributes
- * @param {Monaco.editor.ITextModel} model - The text model
- * @param {number} lineNumber - The line number of the member
- * @param {string} memberName - The name of the member
- * @param {ParseAttribute} attribute - The attribute object with JSDoc positioning
- * @param {string} action - The action to perform
+ * @param model - The text model
+ * @param lineNumber - The line number of the member
+ * @param memberName - The name of the member
+ * @param attribute - The attribute object with JSDoc positioning
+ * @param action - The action to perform
  */
 const modifyJSDocAttribute = (
     model: Monaco.editor.ITextModel,
