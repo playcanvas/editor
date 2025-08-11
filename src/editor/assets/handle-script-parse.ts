@@ -64,9 +64,6 @@ editor.once('load', () => {
                 const errors = checkForErrors(res);
                 if (errors) {
                     editor.call('status:error', `There was an error while parsing script asset '${asset.get('name')}'`);
-                    errors.forEach((error) => {
-                        console.error('Error parsing script asset', error?.message ?? error);
-                    });
                     callback?.(null, res);
                     return;
                 }
