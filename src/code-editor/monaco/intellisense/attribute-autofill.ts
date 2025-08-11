@@ -69,24 +69,11 @@ class JSDocUtils {
     ];
 
     /**
-     * Check if JSDoc block exists and if it's single-line
-     * @param {ParseAttribute} attribute - The attribute object with JSDoc positioning
-     * @returns {{ hasJSDoc: boolean, isSingleLine: boolean }} - The JSDoc analysis result
-     */
-    static analyzeJSDoc(attribute) {
-        // If start == end (same position), no JSDoc exists
-        const hasJSDoc = !(attribute.start.line === attribute.end.line && attribute.start.column === attribute.end.column);
-        // If JSDoc exists and spans only one line, it's single-line
-        const isSingleLine = hasJSDoc && attribute.start.line === attribute.end.line - 1;
-        return { hasJSDoc, isSingleLine };
-    }
-
-    /**
      * Get indentation from a line
      * @param {string} line - The line to get the indentation from
      * @returns {string} - The indentation
      */
-    static getIndent(line) {
+    static getIndent(line: string) {
         return line.match(/^(\s*)/)?.[0] || '';
     }
 
@@ -96,7 +83,7 @@ class JSDocUtils {
      * @param {string[]} tags - The tags to add to the JSDoc block
      * @returns {string} - The JSDoc block
      */
-    static createJSDoc(indent, tags) {
+    static createJSDoc(indent: string, tags: string[]) {
         const tagLines = tags.map(tag => `${indent} * ${tag}`).join('\n');
         return `${indent}/**\n${tagLines}\n${indent} */\n`;
     }
@@ -106,7 +93,7 @@ class JSDocUtils {
      * @param {string} content - The content to clean
      * @returns {string} - The cleaned content
      */
-    static cleanSingleLineJSDoc(content) {
+    static cleanSingleLineJSDoc(content: string) {
         let cleaned = content;
         JSDocUtils.ATTRIBUTE_TAGS.forEach((tag) => {
             cleaned = cleaned.replace(new RegExp(`\\s*\\*?\\s*${tag}\\s*`, 'g'), '');
@@ -121,7 +108,7 @@ class JSDocUtils {
      * @param {number} endLine - The end line number
      * @returns {number[]} - The lines containing attribute tags
      */
-    static findAttributeLines(lines, startLine, endLine) {
+    static findAttributeLines(lines: string[], startLine: number, endLine: number) {
         const linesToRemove = [];
         for (let i = startLine - 1; i < endLine; i++) {
             const line = lines[i];
@@ -141,7 +128,7 @@ class JSDocUtils {
      * @param {string} tag - The tag to check for (e.g., '@range', '@attribute')
      * @returns {boolean} - Whether the tag exists in the JSDoc block
      */
-    static hasTagInJSDoc(model, startLine, endLine, tag) {
+    static hasTagInJSDoc(model: Monaco.editor.ITextModel, startLine: number, endLine: number, tag: string) {
         const lines = model.getLinesContent();
         for (let i = startLine - 1; i < endLine; i++) {
             const line = lines[i];
@@ -228,23 +215,24 @@ const fetchModuleScripts = async (
 
 /**
  * Generic function to modify JSDoc attributes
- * @param model - The text model
- * @param lineNumber - The line number of the member
- * @param memberName - The name of the member
- * @param attribute - The attribute object with JSDoc positioning
- * @param action - The action to perform
+ * @param {Monaco.editor.ITextModel} model - The text model
+ * @param {number} lineNumber - The line number of the member
+ * @param {ParseAttribute | null} attribute - The attribute object with JSDoc positioning
+ * @param {'add' | 'addSlider' | 'remove'} action - The action to perform
  */
 const modifyJSDocAttribute = (
     model: Monaco.editor.ITextModel,
     lineNumber: number,
-    memberName: string,
     attribute: ParseAttribute | null,
     action: 'add' | 'addSlider' | 'remove'
 ) => {
     const lines = model.getLinesContent();
-    const { hasJSDoc, isSingleLine } = JSDocUtils.analyzeJSDoc(
-        attribute ?? { isAttribute: false, name: memberName, type: '', start: { line: lineNumber, column: 1 }, end: { line: lineNumber, column: 1 } }
-    );
+
+    // If start == end (same position), no JSDoc exists
+    const hasJSDoc = !(attribute.start.line === attribute.end.line && attribute.start.column === attribute.end.column);
+
+    // If JSDoc exists and spans only one line, it's single-line
+    const isSingleLine = hasJSDoc && attribute.start.line === attribute.end.line - 1;
 
     if (hasJSDoc) {
         const jsDocStartLine = attribute.start.line;
@@ -374,10 +362,9 @@ const JSDocActions = {
 const addAttributeToMember = (
     model: Monaco.editor.ITextModel,
     lineNumber: number,
-    memberName: string,
     attribute: ParseAttribute | null = null
 ) => {
-    modifyJSDocAttribute(model, lineNumber, memberName, attribute, 'add');
+    modifyJSDocAttribute(model, lineNumber, attribute, 'add');
 };
 
 /**
@@ -390,10 +377,9 @@ const addAttributeToMember = (
 const addSliderAttributeToMember = (
     model: Monaco.editor.ITextModel,
     lineNumber: number,
-    memberName: string,
     attribute: ParseAttribute | null = null
 ) => {
-    modifyJSDocAttribute(model, lineNumber, memberName, attribute, 'addSlider');
+    modifyJSDocAttribute(model, lineNumber, attribute, 'addSlider');
 };
 
 /**
@@ -406,10 +392,9 @@ const addSliderAttributeToMember = (
 const removeAttributeFromMember = (
     model: Monaco.editor.ITextModel,
     lineNumber: number,
-    memberName: string,
     attribute: ParseAttribute | null = null
 ) => {
-    modifyJSDocAttribute(model, lineNumber, memberName, attribute, 'remove');
+    modifyJSDocAttribute(model, lineNumber, attribute, 'remove');
 };
 
 editor.once('load', () => {
@@ -587,7 +572,7 @@ editor.once('load', () => {
                             command: {
                                 id: attribute.isAttribute ? 'removeAttribute' : 'makeAttribute',
                                 title: attribute.isAttribute ? 'Remove Attribute' : 'Make Attribute',
-                                arguments: [model.uri, attribute.start.line, memberName, attribute]
+                                arguments: [model.uri, attribute.start.line, attribute]
                             }
                         };
 
@@ -606,7 +591,7 @@ editor.once('load', () => {
                                 command: {
                                     id: 'makeSliderAttribute',
                                     title: 'Make Slider Attribute',
-                                    arguments: [model.uri, attribute.start.line, memberName, attribute]
+                                    arguments: [model.uri, attribute.start.line, attribute]
                                 }
                             };
                             lenses.push(sliderLens);
@@ -627,10 +612,10 @@ editor.once('load', () => {
         monaco.editor.registerCommand('attribute-autofill:inactive', () => {});
 
         // Register commands for the code lens actions
-        monaco.editor.registerCommand('makeAttribute', async (accessor, uri, lineNumber, memberName, attribute) => {
+        monaco.editor.registerCommand('makeAttribute', async (accessor, uri, lineNumber, attribute) => {
             const model = monaco.editor.getModel(uri);
             if (model) {
-                addAttributeToMember(model, lineNumber, memberName, attribute);
+                addAttributeToMember(model, lineNumber, attribute);
 
                 // Force immediate re-fetch of attributes to update code lens positions
                 modelDirtyFlags.set(model, true);
@@ -643,10 +628,10 @@ editor.once('load', () => {
             }
         });
 
-        monaco.editor.registerCommand('removeAttribute', async (accessor, uri, lineNumber, memberName, attribute) => {
+        monaco.editor.registerCommand('removeAttribute', async (accessor, uri, lineNumber, attribute) => {
             const model = monaco.editor.getModel(uri);
             if (model) {
-                removeAttributeFromMember(model, lineNumber, memberName, attribute);
+                removeAttributeFromMember(model, lineNumber, attribute);
 
                 // Force immediate re-fetch of attributes to update code lens positions
                 clearTimeout(modelTimeouts.get(model));
@@ -656,10 +641,10 @@ editor.once('load', () => {
             }
         });
 
-        monaco.editor.registerCommand('makeSliderAttribute', async (accessor, uri, lineNumber, memberName, attribute) => {
+        monaco.editor.registerCommand('makeSliderAttribute', async (accessor, uri, lineNumber, attribute) => {
             const model = monaco.editor.getModel(uri);
             if (model) {
-                addSliderAttributeToMember(model, lineNumber, memberName, attribute);
+                addSliderAttributeToMember(model, lineNumber, attribute);
 
                 // Force immediate re-fetch of attributes to update code lens positions;
                 modelDirtyFlags.set(model, true);
