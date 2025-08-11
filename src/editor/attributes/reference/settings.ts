@@ -110,7 +110,7 @@ editor.once('load', () => {
         name: 'settings:ambientColor',
         title: 'ambientColor',
         subTitle: '{pc.Color}',
-        description: 'The color of the scene\'s ambient light, specified in sRGB color space. Defaults to black (0, 0, 0).',
+        description: 'The color of the scene\'s ambient light, specified in sRGB color space.',
         url: 'https://api.playcanvas.com/engine/classes/Scene.html#ambientlight'
     }, {
         name: 'settings:skybox',
