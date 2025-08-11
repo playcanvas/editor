@@ -13,7 +13,7 @@ class CodeEditor extends Editor {
         this.once('loaded', () => {
             this.emit('start');
 
-            // Send and event to the opener
+            // Send an event to the opener
             const openerOrigin = new URL(document.referrer).origin;
             window.opener.postMessage('start', openerOrigin);
 
