@@ -1,4 +1,4 @@
-import { Element, Container, LabelGroup, Panel, Button, ArrayInput, BindingTwoWay } from '@playcanvas/pcui';
+import { Element, Container, LabelGroup, Panel, Button, ArrayInput, BindingTwoWay, Label } from '@playcanvas/pcui';
 
 import { AssetInput } from '../../common/pcui/element/element-asset-input.ts';
 import { tooltip, tooltipRefItem } from '../../common/tooltips.ts';
@@ -94,10 +94,23 @@ class AttributesInspector extends Container {
             horzAlignEl: this
         });
 
+        // If tooltip data is provided, create a tooltip item
         if (tooltipData) {
-            group.append(tooltipRefItem({
+            const tooltipItem = tooltipRefItem({
                 reference: tooltipData
-            }));
+            });
+
+            // Optional warnings section (if provided by caller)
+            if (tooltipData?.warnings && tooltipData.warnings.length > 0) {
+                tooltipData.warnings.forEach((warningText: string) => {
+                    tooltipItem.append(new Label({
+                        class: ['warning-item', 'script-asset-inspector-warning'],
+                        text: warningText
+                    }));
+                });
+            }
+
+            group.append(tooltipItem);
         }
 
         return group;
