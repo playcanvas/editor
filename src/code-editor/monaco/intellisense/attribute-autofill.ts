@@ -667,7 +667,7 @@ editor.once('load', () => {
                     const allMarkers = monaco.editor.getModelMarkers({ owner: OWNER });
                     const modelMarkers = allMarkers.filter(marker => marker.resource.toString() === model.uri.toString());
 
-                    modelMarkers.forEach((/** @type {Monaco.editor.IMarker} */ marker) => {
+                    modelMarkers.forEach((marker: Monaco.editor.IMarker) => {
                         // Process any provided fixes for the marker (both errors and warnings)
                         const markersWithFixes = modelMarkersWithFixes.get(model);
                         if (markersWithFixes) {
