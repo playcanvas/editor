@@ -102,11 +102,9 @@ $status-warn: $bright-yellow;
 
 .script-asset-inspector-attribute-warning {
     color: $status-warn;
-    &::before {
-        @extend .font-icon;
-
-        content: '\E218';
-        margin-right: 6px;
+    
+    .pcui-label {
+        color: $status-warn;
     }
 }
 
