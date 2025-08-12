@@ -3,7 +3,7 @@ import type * as Monaco from 'monaco-editor';
 
 import { WorkerClient } from '../../../core/worker/worker-client.ts';
 
-export interface Fix extends Monaco.languages.TextEdit {
+export type Fix = Monaco.languages.TextEdit & {
     title?: string;
 }
 
@@ -170,7 +170,7 @@ const fetchModuleScripts = async (
 
     // loop over the file cache, remove any files that do no exist in the script assets
     const assetPaths: string[] = assets.map(asset => editor.call('assets:virtualPath', asset));
-    for (const filePath in cache as any) {
+    for (const filePath in cache) {
         if (!assetPaths.includes(filePath)) {
             deletedFiles.push(filePath);
             cache.delete(filePath);
