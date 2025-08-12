@@ -52,18 +52,8 @@ class ScriptAssetInspector extends Panel {
         Object.keys(scripts).forEach((scriptName) => {
             hasScripts = true;
             this._scriptAttributeContainer[`_${scriptName}Container`] = new Container({ flex: true });
-            this._scriptAttributeContainer[`_${scriptName}Container`]._scriptLabel = new Label({ text: scriptName, class: CLASS_SCRIPT });
-            this._scriptAttributeContainer[`_${scriptName}Container`].append(this._scriptAttributeContainer[`_${scriptName}Container`]._scriptLabel);
-            const hasCollision = editor.call('assets:scripts:collide', scriptName);
-            if (hasCollision) {
-                this._scriptAttributeContainer[`_${scriptName}Container`].append(new Label({ text: `script ${scriptName} is already defined in other asset`, class: [CLASS_SCRIPT, CLASS_ERROR] }));
-            }
 
             const scriptData = scripts[scriptName];
-            const attributes = scriptData.attributes;
-
-            this._tooltips.forEach(tooltip => tooltip.destroy());
-            this._tooltips = [];
 
             // Get error and warning attributes for this script
             const scriptErrors = scriptData.attributesInvalid ?
@@ -73,13 +63,28 @@ class ScriptAssetInspector extends Panel {
                 scriptData.attributesInvalid.filter(error => error.severity === 4) :
                 [];
 
+            this._scriptAttributeContainer[`_${scriptName}Container`]._scriptLabel = new Label({
+                text: scriptName,
+                class: [CLASS_SCRIPT]
+            });
+
+            this._scriptAttributeContainer[`_${scriptName}Container`].append(this._scriptAttributeContainer[`_${scriptName}Container`]._scriptLabel);
+            const hasCollision = editor.call('assets:scripts:collide', scriptName);
+            if (hasCollision) {
+                this._scriptAttributeContainer[`_${scriptName}Container`].append(new Label({ text: `script ${scriptName} is already defined in other asset`, class: [CLASS_SCRIPT, CLASS_ERROR] }));
+            }
+
+            const attributes = scriptData.attributes;
+
+            this._tooltips.forEach(tooltip => tooltip.destroy());
+            this._tooltips = [];
+
 
             const errorAttributeNames = scriptErrors.map(error => error.name);
             const warningAttributeNames = scriptWarnings.map(warning => warning.name);
 
-            // If there are invalid errors, show an inline error container below the script header
+            // If there are invalid errors, show them in red below the script header
             if (scriptErrors.length > 0) {
-
                 const errorContainer = new Container({ class: CLASS_ATTRIBUTE_ERROR_CONTAINER, flex: true });
 
                 // Always show the error header with icon
@@ -131,10 +136,11 @@ class ScriptAssetInspector extends Panel {
 
                         // Log to console for simple errors
                         const fileName = this._asset.get('name') || 'unknown';
-                        editor.call('console:error', `${fileName} - ${error}`);
+                        // editor.call('console:error', `${fileName} - ${error}`);
                     }
                 });
 
+                editor.call('status:error', `There was an error while parsing script asset '${this._asset.get('name')}'`);
                 this._scriptAttributeContainer[`_${scriptName}Container`].append(errorContainer);
             }
 
@@ -146,7 +152,7 @@ class ScriptAssetInspector extends Panel {
 
                 // Check if this attribute has a warning
                 const hasWarning = warningAttributeNames.includes(attributeName);
-                const attributeClasses = hasWarning ? [CLASS_ATTRIBUTE, CLASS_WARNING, 'script-asset-inspector-attribute-warning'] : [CLASS_ATTRIBUTE];
+                const attributeClasses = hasWarning ? [CLASS_ATTRIBUTE, CLASS_WARNING] : [CLASS_ATTRIBUTE];
 
                 const attributeLabel = new Label({
                     text: attributeName,
@@ -246,9 +252,32 @@ class ScriptAssetInspector extends Panel {
                 return;
             }
             if (result.scriptsInvalid.length > 0) {
-                this._errorContainer.append(new Label({ text: 'Validation Errors: ', class: [CLASS_SCRIPT, CLASS_ERROR] }));
+                this._errorContainer.append(new Label({ text: 'This Script contains errors', class: [CLASS_SCRIPT, CLASS_ERROR] }));
                 result.scriptsInvalid.forEach((invalidScript) => {
-                    this._errorContainer.append(new Label({ text: invalidScript, class: [CLASS_SCRIPT, CLASS_ERROR] }));
+                    if (typeof invalidScript === 'string') {
+                        // Simple string error
+                        this._errorContainer.append(new Label({ text: invalidScript, class: [CLASS_SCRIPT, CLASS_ERROR] }));
+                    } else {
+                        // Rich error object with file, line, column, message
+                        const fileName = invalidScript.file || this._asset.get('name') || 'unknown';
+                        const location = `${fileName}:${invalidScript.line}:${invalidScript.column}`;
+                        const errorText = `${location} - ${invalidScript.message}`;
+
+                        const errorLabel = new Label({ 
+                            text: errorText, 
+                            class: [CLASS_SCRIPT, CLASS_ERROR, 'clickable-error']
+                        });
+
+                        // Add click handler to open code editor
+                        errorLabel.dom.addEventListener('click', () => {
+                            editor.call('picker:codeeditor', this._asset, {
+                                line: invalidScript.line,
+                                col: invalidScript.column
+                            });
+                        });
+
+                        this._errorContainer.append(errorLabel);
+                    }
                 });
                 this._errorContainer.hidden = false;
                 return;

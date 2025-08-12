@@ -21,19 +21,28 @@ $status-warn: $bright-yellow;
     margin: 0;
     background-color: #2c393c;
     
-    .pcui-label {
-        &.clickable-error {
-            cursor: pointer;
-            font-size: 11px;
-            
-            &:hover {
-                text-decoration: underline;
-            }
-        }
+}
+
+.pcui-label {
+    &.clickable-error {
+        cursor: pointer;
+        font-size: 11px;
         
-        &.pcui-error { // For simple errors
-            font-size: 11px;
+        &:hover {
+            text-decoration: underline;
         }
+    }
+    
+    &.pcui-error { // For simple errors
+        font-size: 11px;
+    }
+}
+
+.script-asset-inspector-script.pcui-error.clickable-error {
+    cursor: pointer;
+    
+    &:hover {
+        text-decoration: underline;
     }
 }
 
