@@ -133,10 +133,6 @@ class ScriptAssetInspector extends Panel {
                             text: error
                         });
                         errorContainer.append(errorText);
-
-                        // Log to console for simple errors
-                        const fileName = this._asset.get('name') || 'unknown';
-                        // editor.call('console:error', `${fileName} - ${error}`);
                     }
                 });
 
@@ -263,8 +259,8 @@ class ScriptAssetInspector extends Panel {
                         const location = `${fileName}:${invalidScript.line}:${invalidScript.column}`;
                         const errorText = `${location} - ${invalidScript.message}`;
 
-                        const errorLabel = new Label({ 
-                            text: errorText, 
+                        const errorLabel = new Label({
+                            text: errorText,
                             class: [CLASS_SCRIPT, CLASS_ERROR, 'clickable-error']
                         });
 
