@@ -6,64 +6,61 @@ editor.once('load', () => {
         name: 'settings:name',
         title: 'name',
         subTitle: '{String}',
-        description: 'Name of the Scene for better navigation across content.'
+        description: 'Name of the scene to aid navigation across your content.'
     }, {
         name: 'settings:engine',
         title: 'Engine',
-        description: 'Settings for the Engine: setting Engine version.'
+        description: 'Engine settings, including the engine version.'
     }, {
         name: 'settings:engineVersion',
-        description: 'The engine to use when you click Launch or when you publish or download a build. ',
-        subTitle: 'This setting is only valid during your current session and is not shared amongst team members.'
+        description: 'The engine to use when you click Launch or when you publish or download a build.',
+        subTitle: 'This setting is only valid during your current session and is not shared among team members.'
     }, {
         name: 'settings:editor',
         title: 'Editor',
-        description: 'Settings for the Editor: setting Editor camera near and far clip, zoom sensitivity etc.'
+        description: 'Editor settings such as camera near/far clip, zoom sensitivity, and more.'
     }, {
         name: 'settings:snap',
-        description: 'Change increment value for Snap gizmo state. Use SHIFT or Snap Toggle on toolbar to enable Snapping during use of Gizmos.'
+        description: 'Set the increment for gizmo snapping. Hold Shift or use the Snap toggle on the toolbar to enable snapping while using gizmos.'
     }, {
         name: 'settings:grid',
-        description: 'To disable grid set Divisions to 0. Divisions specify number of grid rectangles in each horizontal direction. And Size specifies the size of a rectangles.'
+        description: 'To disable the grid, set Divisions to 0. Divisions specifies the number of grid cells in each horizontal direction. Size specifies the size of a cell.'
     }, {
         name: 'settings:cameraClip',
-        description: 'If your scene is too large or objects needs to be too close, change Near/Far clip values of a camera for Editor. This setting does not affects the game.'
+        description: 'If your scene is very large or objects need to be very close, adjust the editor camera Near/Far clip values. This setting does not affect the game.'
     }, {
         name: 'settings:cameraGrabDepth',
-        description: 'Request the Editor viewport to generate a texture containing the scene depth map. Needed to see some material rendering effects in the viewport.'
+        description: 'Enable generating a depth map texture for the editor viewport. Required to preview certain material effects.'
     }, {
         name: 'settings:cameraGrabColor',
-        description: 'Request the Editor viewport to generate a texture containing the scene color map. Needed to see some material rendering effects in the viewport.'
+        description: 'Enable generating a color map texture for the editor viewport. Required to preview certain material effects.'
     }, {
         name: 'settings:cameraClearColor',
-        description: 'Set the Camera Clear Color of your preference to affect Editor. This color will not affect the game.'
+        description: 'Set the editor camera clear color. This does not affect the game.'
     }, {
         name: 'settings:cameraToneMapping',
-        description: 'Set the Camera Tonemapping of your preference to affect Editor. This setting does not affects the game.'
+        description: 'Set the editor camera tone mapping. This setting does not affect the game.'
     }, {
         name: 'settings:cameraGammaCorrection',
-        description: 'Set the Camera Gamma Correction of your preference to affect Editor. This setting does not affects the game.'
+        description: 'Set the editor camera gamma correction. This setting does not affect the game.'
     }, {
         name: 'settings:showFog',
-        description: 'Renders fog in the viewport.'
+        description: 'Enable fog rendering in the viewport.'
     }, {
         name: 'settings:iconSize',
-        description: 'Size of icons displayed in Editor viewport'
-    }, {
-        name: 'settings:showSkeleton',
-        description: 'Set whether to render the bone structure of selected entity skeleton in the viewport'
+        description: 'Size of icons displayed in the editor viewport.'
     }, {
         name: 'settings:locale',
-        description: 'The locale that you can preview in the Editor and when you Launch your application. This is only visible to you not other members of your team.'
+        description: 'The locale to preview in the editor and when you launch the application. This is only visible to you, not to other team members.'
     }, {
         name: 'settings:chatNotification',
-        description: 'Get notified for in-editor chat messages'
+        description: 'Receive notifications for in-editor chat messages.'
     }, {
         name: 'settings:renameDuplicatedEntities',
-        description: 'If ticked, duplicated entity names get an incremental number added to the end for a unique name from the original. E.g. \'Box\' becomes \'Box2\'.'
+        description: 'When enabled, duplicated entities are renamed by appending an incrementing number to ensure uniqueness. For example, \'Box\' becomes \'Box2\'.'
     }, {
         name: 'settings:lightmapperAutoBake',
-        description: 'Enables or disables auto baking of the lightmapper.'
+        description: 'Enable or disable automatic lightmap baking.'
     },
     {
         name: 'settings:ai',
@@ -78,12 +75,12 @@ editor.once('load', () => {
         name: 'settings:autocompleteDelay',
         title: 'Autocomplete Delay',
         subTitle: 'number',
-        description: 'The delay in seconds before autocomplete executes.'
+        description: 'The delay in seconds before autocomplete triggers.'
     },
     {
         name: 'settings:physics',
         title: 'Physics',
-        description: 'Settings for the physics to import the library and set gravity.'
+        description: 'Physics settings to include the library and set gravity.'
     }, {
         name: 'settings:gravity',
         title: 'gravity',
@@ -93,35 +90,35 @@ editor.once('load', () => {
     }, {
         name: 'settings:ammo',
         title: 'Physics Library',
-        description: 'Add the Ammo asm.js and wasm modules to this project from the PlayCanvas Store'
+        description: 'Add the Ammo asm.js and WebAssembly modules to this project from the PlayCanvas Store.'
     }, {
         name: 'settings:basis',
         title: 'Basis Library',
-        description: 'Add the necessary libraries to support Basis compression'
+        description: 'Add the necessary libraries to support Basis compression.'
     }, {
         name: 'settings:draco',
         title: 'Draco Library',
-        description: 'Add the necessary libraries to support Draco compression'
+        description: 'Add the necessary libraries to support Draco compression.'
     }, {
         name: 'settings:rendering',
         title: 'Rendering',
-        description: 'Settings for the rendering: setting the skybox, clustered lighting, shadow settings etc.'
+        description: 'Rendering settings such as skybox, clustered lighting, shadow settings, and more.'
     }, {
         name: 'settings:ambientColor',
         title: 'ambientColor',
         subTitle: '{pc.Color}',
-        description: 'The color of the scene\'s ambient light source. PlayCanvas allows you to create directional, point and spot lights. These lights account for direct light that falls on objects. But in reality, light actually bounces around the environment and we call this indirect light. A global ambient light is a crude approximation of this and allows you to set a light source that appears to shine from all directions. The global ambient color is multiplied with the Ambient property of a Phong Material to add a contribution to the final color of an object. Note, if you are using a Skybox and Physical Materials the Ambient Color has no effect.',
+        description: 'The color of the scene\'s ambient light, specified in sRGB color space.',
         url: 'https://api.playcanvas.com/engine/classes/Scene.html#ambientlight'
     }, {
         name: 'settings:skybox',
         title: 'skybox',
         subTitle: '{pc.Texture}',
-        description: 'The Skybox is a cubemap asset that is rendered behind your 3D scene. This lets your use a set of 6 2D images to display the distant world beyond the 3D models in your scene. To add a skybox, create a cubemap asset and then assign it to the cubemap slot in the settings panel. Note, if you are using a Prefiltered Cubemap, the skybox will be used as the default environment map for all Physical materials.',
+        description: 'The skybox is a cubemap asset rendered behind your 3D scene. This lets you use a set of six 2D images to display the distant world beyond the 3D models in your scene. To add a skybox, create a cubemap asset and assign it to the cubemap slot in the settings panel. Note: If you are using a prefiltered cubemap, the skybox is used as the default environment map for all physical materials.',
         url: 'https://api.playcanvas.com/engine/classes/Scene.html#skybox'
     }, {
         name: 'settings:skyType',
         title: 'Sky Type',
-        description: 'Type of sky.'
+        description: 'Select the projection used to render the skybox cubemap. Options: Infinite (rendered at infinity), Box (mapped to a box mesh), Dome (mapped to a hemispherical dome).'
     }, {
         name: 'settings:skyMeshPosition',
         title: 'Sky Mesh Position',
@@ -142,24 +139,24 @@ editor.once('load', () => {
         name: 'settings:skyboxIntensity',
         title: 'skyboxIntensity',
         subTitle: '{Number}',
-        description: 'Intensity of the skybox to match the exposure levels.',
+        description: 'The skybox intensity, used to match exposure levels.',
         url: 'https://api.playcanvas.com/engine/classes/Scene.html#skyboxintensity'
     }, {
         name: 'settings:skyboxMip',
         title: 'skyboxMip',
         subTitle: '{Number}',
-        description: 'Mip level of the prefiltered skybox, higher value is lower mip level which is lower resolution and more prefiltered (blured).',
+        description: 'Mip level of the prefiltered skybox. Higher values select lower-resolution, more prefiltered (blurred) mips.',
         url: 'https://api.playcanvas.com/engine/classes/Scene.html#skyboxmip'
     }, {
         name: 'settings:skyboxRotation',
         title: 'skyboxRotation',
-        description: 'Rotation of skybox.',
+        description: 'Rotation of the skybox.',
         url: 'https://api.playcanvas.com/engine/classes/Scene.html#skyboxrotation'
     }, {
         name: 'settings:toneMapping',
         title: 'toneMapping',
         subTitle: '{Number}',
-        description: 'Tonemapping is the process of compressing High Dynamic Range (HDR) colors into limited Low Dynamic Range (e.g. into visible monitor output values). There are two options for tonemapping. Linear: imply scales HDR colors by exposure. Filmic: More sophisticated curve, good at softening overly bright spots, while preserving dark shades as well. Linear tonemapping is active by default, it\'s simply (color * exposure). You can tweak exposure to make quick changes to brightness. Note that it\'s not just simple brightness à la Photoshop because your input can be HDR. e.g. If you have a light source with intensity = 8, it will still be quite bright (4) after exposure = 0.5. So, all visible things won\'t just fade out linearly. Filmic tonemapping is a good choice in high-contrast environments, like scenes lit by bright Sun, or interiors with bright lights being close to walls/ceiling. It will nicely remap out-of-range super bright values to something more perceptually realistic (our eyes and film do tonemapping as well, we don\'t see physically linear values). Well, ask any photographer: nobody likes to leave extremely bright spots as well as pitch black spots on a photo. Filmic tonemapping gives you nice abilities to get rid of such spots.',
+        description: 'Tone mapping compresses HDR colors into the displayable range. Options: Linear - scales by exposure; Filmic - soft highlight roll-off; Hejl - filmic-like with stronger contrast; ACES - Academy curve for a filmic look; ACES2 - updated ACES with improved color/contrast; Neutral - minimal tonal shaping.',
         url: 'https://api.playcanvas.com/engine/classes/Scene.html#tonemapping'
     }, {
         name: 'settings:exposure',
@@ -171,13 +168,13 @@ editor.once('load', () => {
         name: 'settings:gammaCorrection',
         title: 'gammaCorrection',
         subTitle: '{pc.GAMMA_*}',
-        description: 'Computer screens are set up to output not physically linear, but perceptually linear (sRGB) signal. However, for correct appearance when performing lighting calculations, color textures must be converted to physically linear space, and then the fully lit image must be fit again into sRGB. Rendering with gamma correction enabled reduces the number of ugly, overly saturated highlights and better preserves color after lighting, and it\'s generally recommended that this be enabled in your scene. The following image shows a simple scene with a sphere. On the left the scene has been gamma corrected while on the right, the scene is uncorrected.',
+        description: 'Computer displays output a perceptually linear (sRGB) signal, not a physically linear one. For correct lighting, color textures should be converted to linear space, and the fully lit image converted back to sRGB. Enabling gamma correction reduces overly saturated highlights and better preserves color after lighting. It is generally recommended to enable this for your scene.',
         url: 'https://api.playcanvas.com/engine/classes/Scene.html#gammacorrection'
     }, {
         name: 'settings:fog',
         title: 'fog',
         subTitle: '{pc.FOG_*}',
-        description: 'The Fog Type property can be used to control an approximation of an ambient fog in your scene. Here is an example of fog being enabled: The types available are as follows: None - Fog is disabled Linear - Fog fades in linearly between a Fog Start and Fog End distance Exp - Fog fades in from the view position according to an exponential function Exp2 - Fog fades in from the view position according to an exponential squared function',
+        description: 'Controls an approximation of ambient fog in your scene. Types: None — fog disabled; Linear — fades in linearly between Fog Start and Fog End distances; Exp — fades in from the view position according to an exponential function; Exp2 — fades in from the view position according to an exponential squared function.',
         url: 'https://api.playcanvas.com/engine/classes/Scene.html#fog'
     }, {
         name: 'settings:fogDensity',
@@ -189,7 +186,7 @@ editor.once('load', () => {
         name: 'settings:fogDistance',
         title: 'fogStart / fogEnd',
         subTitle: '{Number}',
-        description: 'The distance in scene units from the viewpoint from where the fog starts to fade in and reaches a maximum. Any objects beyond maximum distance will be rendered with the fog color.',
+        description: 'The distances, in scene units, from the viewpoint where fog starts to fade in (start) and where it reaches maximum (end). Objects beyond the maximum distance are rendered with the fog color.',
         url: 'https://api.playcanvas.com/engine/classes/Scene.html#fogend'
     }, {
         name: 'settings:fogColor',
@@ -200,7 +197,7 @@ editor.once('load', () => {
     }, {
         name: 'settings:loadingScreenScript',
         title: 'Loading Screen Script',
-        description: 'The name of the script to use for creating the loading screen of the application. The script needs to call pc.script.createLoadingScreen.',
+        description: 'The name of the script to use for creating the application\'s loading screen. The script must call pc.script.createLoadingScreen.',
         url: 'https://api.playcanvas.com/engine/functions/script.createLoadingScreen.html'
     }, {
         name: 'settings:external-scripts',
@@ -217,7 +214,7 @@ editor.once('load', () => {
     }, {
         name: 'settings:project:enableSharedArrayBuffer',
         title: 'Enable SharedArrayBuffer',
-        description: 'Additional headers on the launch page to enable SharedArrayBuffer.'
+        description: 'Adds the required headers on the launch page to enable SharedArrayBuffer.'
     }, {
         name: 'settings:project',
         title: 'Project Settings',
@@ -240,11 +237,11 @@ editor.once('load', () => {
         description: 'Resolution Mode decides whether the canvas resolution will change when it is resized.'
     }, {
         name: 'settings:project:physics',
-        description: 'When enabled the Physics library code is included in your app.'
+        description: 'When enabled, the physics library code is included in your app.'
     }, {
         name: 'settings:project:pixelRatio',
         title: 'Device Pixel Ratio',
-        description: 'When enabled the canvas resolution will be calculated including the device pixel ratio. Enabling this might affect performance.'
+        description: 'When enabled, the canvas back buffer resolution is multiplied by the device pixel ratio (e.g., 2x on Retina). This increases sharpness on high‑DPI displays but also increases GPU workload and memory usage.'
     }, {
         name: 'settings:project:deviceOrder',
         title: 'Device Order',
@@ -252,55 +249,55 @@ editor.once('load', () => {
     }, {
         name: 'settings:project:enableWebGpu',
         title: `Enable WebGPU${editor.projectEngineV2 ? '' : ' (beta)'}`,
-        description: `When enabled the application will try to use WebGPU${editor.projectEngineV2 ? '' : ' (beta)'} if available.`
+        description: `When enabled, the application will try to use WebGPU${editor.projectEngineV2 ? '' : ' (beta)'} if available.`
     }, {
         name: 'settings:project:enableWebGl2',
         title: 'Enable WebGL 2.0',
-        description: 'When enabled the application will try to use WebGL 2.0 if available.'
+        description: 'When enabled, the application will try to use WebGL 2.0 if available.'
     }, {
         name: 'settings:project:powerPreference',
         title: 'Power Preference',
-        description: 'Provides a hint to WebGL regarding the preferred power preference mode. When set to Default, the browser decides which GPU configuration is most suitable. When set to High Performance, a GPU configuration that prioritizes rendering performance over power consumption is selected. When set to Low Power, a GPU configuration that prioritizes power saving over rendering performance is selected.'
+        description: 'Provides a hint to WebGL regarding the preferred power mode: Default (browser decides), High Performance (prioritize rendering performance), or Low Power (prioritize power saving).'
     }, {
         name: 'settings:project:antiAlias',
-        title: 'Anti-Alias',
-        description: 'When disabled, anti-aliasing will be disabled for back-buffer.'
+        title: 'Anti-aliasing',
+        description: 'When disabled, anti-aliasing is disabled for the back buffer.'
     }, {
         name: 'settings:project:transparentCanvas',
         title: 'Transparent Canvas',
-        description: 'When enabled the canvas will blend with the web page.'
+        description: 'Makes the canvas background transparent so the web page (e.g., CSS backgrounds and DOM content) shows through. Useful for overlaying the app on custom page designs or UI.'
     }, {
         name: 'settings:project:preserveDrawingBuffer',
         title: 'Preserve drawing buffer',
-        description: 'When enabled the drawing buffer will be preserved until its explicitly cleared. Useful if you want to take screenshots.'
+        description: 'When enabled, the drawing buffer is preserved until it\'s explicitly cleared. Useful for taking screenshots.'
     }, {
         name: 'settings:input',
         title: 'Input',
-        description: 'Settings for enabling/disabling different input controllers. Mouse, keyboard etc.'
+        description: 'Enable or disable input devices (mouse, keyboard, etc.).'
     }, {
         name: 'settings:project:useKeyboard',
         title: 'Enable Keyboard input',
-        description: 'Disable this if you do not want to handle any keyboard input in your application.'
+        description: 'Disable to ignore keyboard input in your application.'
     }, {
         name: 'settings:project:useMouse',
         title: 'Enable Mouse input',
-        description: 'Disable this if you do not want to handle any mouse input in your application.'
+        description: 'Disable to ignore mouse input in your application.'
     }, {
         name: 'settings:project:useTouch',
         title: 'Enable Touch input',
-        description: 'Disable this if you do not want to handle any touch input in your application.'
+        description: 'Disable to ignore touch input in your application.'
     }, {
         name: 'settings:project:useGamepads',
         title: 'Enable Gamepad input',
-        description: 'Disable this if you do not want to handle any gamepad input in your application.'
+        description: 'Disable to ignore gamepad input in your application.'
     }, {
         name: 'settings:network',
         title: 'Network',
-        description: 'Network related settings for the project.'
+        description: 'Network-related settings for the project.'
     }, {
         name: 'settings:project:maxAssetRetries',
         title: 'Max Asset Retries',
-        description: 'The maximum number of times to retry loading an asset if it fails to be loaded. If an asset request fails it will be retried with an exponential backoff.'
+        description: 'The maximum number of times to retry loading an asset if it fails to load. If an asset request fails, it will be retried with exponential backoff.'
     }, {
         name: 'settings:zoomSensitivity',
         title: 'Change Zoom Sensitivity',
@@ -367,7 +364,7 @@ editor.once('load', () => {
         description: 'Choose the naming strategy for imported animations. Select \'Use Take Name\' to name the animation after the take name assigned in the FBX file. Select \'Use FBX Filename\' to name the animation after the FBX filename.'
     }, {
         name: 'settings:asset-import:unwrapUv',
-        title: 'Unwrap Uv',
+        title: 'Unwrap UV',
         description: 'Generates a set of unwrapped UV coordinates.'
     }, {
         name: 'settings:asset-import:unwrapUvTexelsPerMeter',
@@ -400,12 +397,12 @@ editor.once('load', () => {
     }, {
         name: 'settings:lightmapping',
         title: 'Lightmapping',
-        description: 'Settings for the lightmapper: setting the resolution, mode and ambient bake settings.'
+        description: 'Lightmapping settings such as resolution, mode, and ambient bake.'
     }, {
         name: 'settings:lightmapSizeMultiplier',
         title: 'lightmapSizeMultiplier',
         subTitle: '{Number}',
-        description: 'Auto-generated lightmap textures resolution is calculated using area of geometry in world space and size multiplier of model and scene. Changing this value will affect resolution of lightmaps for whole scene.',
+        description: 'The resolution of auto-generated lightmap textures is based on the area of geometry in world space and the size multipliers of the model and scene. Changing this value affects lightmap resolution across the whole scene.',
         url: 'https://api.playcanvas.com/engine/classes/Scene.html#lightmapsizemultiplier'
     }, {
         name: 'settings:lightmapMaxResolution',
@@ -417,31 +414,31 @@ editor.once('load', () => {
         name: 'settings:lightmapMode',
         title: 'lightmapMode',
         subTitle: '{Number}',
-        description: 'The lightmap baking mode. Can be "Color Only" for just a single color lightmap or "Color and Direction" for single color plus dominant light direction (used for bump/specular).',
+        description: 'The lightmap baking mode. Color Only — a single color lightmap. Color and Direction — a color lightmap plus dominant light direction (used for bump/specular).',
         url: 'https://api.playcanvas.com/engine/classes/Scene.html#lightmapmode'
     }, {
         name: 'settings:project:lightmapFilterEnabled',
         title: 'lightmapFilterEnabled',
         subTitle: 'boolean',
-        description: 'Enable bilateral filter on runtime baked lightmaps.',
+        description: 'Enable a bilateral filter on runtime-baked lightmaps.',
         url: 'https://api.playcanvas.com/engine/classes/Scene.html#lightmapfilterenabled'
     }, {
         name: 'settings:project:lightmapFilterRange',
         title: 'lightmapFilterRange',
         subTitle: 'number',
-        description: 'A range parameter of the bilateral filter.',
+        description: 'The range parameter of the bilateral filter.',
         url: 'https://api.playcanvas.com/engine/classes/Scene.html#lightmapfilterrange'
     }, {
         name: 'settings:project:lightmapFilterSmoothness',
         title: 'lightmapFilterSmoothness',
         subTitle: 'number',
-        description: 'A spatial parameter of the bilateral filter.',
+        description: 'The spatial parameter of the bilateral filter.',
         url: 'https://api.playcanvas.com/engine/classes/Scene.html#lightmapfiltersmoothness'
     }, {
         name: 'settings:project:ambientBake',
         title: 'ambientBake',
         subTitle: 'boolean',
-        description: 'Enable baking ambient light into lightmaps.',
+        description: 'Bake ambient light into lightmaps.',
         url: 'https://api.playcanvas.com/engine/classes/Scene.html#ambientbake'
     }, {
         name: 'settings:project:ambientBakeNumSamples',
@@ -453,7 +450,7 @@ editor.once('load', () => {
         name: 'settings:project:ambientBakeSpherePart',
         title: 'ambientBakeSpherePart',
         subTitle: 'number',
-        description: 'How much of the sphere to include when baking ambient light.',
+        description: 'The portion of the sphere to include when baking ambient light.',
         url: 'https://api.playcanvas.com/engine/classes/Scene.html#ambientbakespherepart'
     }, {
         name: 'settings:project:ambientBakeOcclusionBrightness',
@@ -471,12 +468,12 @@ editor.once('load', () => {
         name: 'settings:clusteredLightingEnabled',
         title: 'clusteredLightingEnabled',
         subTitle: 'boolean',
-        description: 'Enable the clustered lighting.',
+        description: 'Enable clustered lighting.',
         url: 'https://api.playcanvas.com/engine/classes/Scene.html#clusteredlightingenabled'
     }, {
         name: 'settings:lightingCells',
         title: 'lightingCells',
-        description: 'Number of cells along each world-space axis the space containing lights is subdivided into.',
+        description: 'Number of cells per world-space axis used to subdivide the space containing lights.',
         url: 'https://api.playcanvas.com/engine/classes/LightingParams.html#cells'
     }, {
         name: 'settings:lightingMaxLightsPerCell',
@@ -501,37 +498,37 @@ editor.once('load', () => {
     }, {
         name: 'settings:lightingCookiesEnabled',
         title: 'lightingCookiesEnabled',
-        description: 'Cluster lights support cookies.',
+        description: 'Clustered lights support cookies.',
         url: 'https://api.playcanvas.com/engine/classes/LightingParams.html#cookiesenabled'
     }, {
         name: 'settings:lightingAreaLightsEnabled',
         title: 'lightingAreaLightsEnabled',
-        description: 'Cluster lights support area lights.',
+        description: 'Clustered lights support area lights.',
         url: 'https://api.playcanvas.com/engine/classes/LightingParams.html#arealightsenabled'
     }, {
         name: 'settings:lightingShadowsEnabled',
         title: 'lightingShadowsEnabled',
-        description: 'Cluster lights support shadows.',
+        description: 'Clustered lights support shadows.',
         url: 'https://api.playcanvas.com/engine/classes/LightingParams.html#shadowsenabled'
     }, {
         name: 'settings:batchGroups',
         title: 'Batch Groups',
-        description: 'Manage batch groups for this project. Batch groups allow you to reduce draw calls by batching similar Models and Elements together.'
+        description: 'Manage batch groups for this project. Batch groups reduce draw calls by batching similar models and elements together.'
     }, {
         name: 'settings:batchGroups:name',
         title: 'name',
         subTitle: '{String}',
-        description: 'The name of the batch group'
+        description: 'The name of the batch group.'
     }, {
         name: 'settings:batchGroups:dynamic',
         title: 'dynamic',
         subTitle: '{Boolean}',
-        description: 'Enable this if you want to allow objects in this batch group to move/rotate/scale after being batched. If your objects are completely static then disable this field.'
+        description: 'Enable to allow objects in this batch group to move, rotate, or scale after being batched. If your objects are completely static, disable this setting.'
     }, {
         name: 'settings:batchGroups:maxAabbSize',
         title: 'maxAabbSize',
         subTitle: '{Number}',
-        description: 'The maximum size of any dimension of a bounding box around batched objects. A larger size will batch more objects generating less draw calls but the batched objects will be larger and harder for the camera to cull. A smaller size will generate more draw calls (but less than without batching) but the resulting objects will be easier for the camera to cull.'
+        description: 'The maximum size of any dimension of a bounding box around batched objects. A larger size batches more objects, generating fewer draw calls, but creates larger batched objects that are harder to cull. A smaller size generates more draw calls (but fewer than without batching) while producing smaller batched objects that are easier to cull.'
     }, {
         name: 'settings:batchGroups:layers',
         title: 'layers',
@@ -540,12 +537,12 @@ editor.once('load', () => {
     }, {
         name: 'settings:layers',
         title: 'Layers',
-        description: 'Manage rendering Layers and their render order.'
+        description: 'Manage rendering layers and their order.'
     }, {
         name: 'settings:layers:name',
         title: 'name',
         subTitle: '{String}',
-        description: 'The name of the layer',
+        description: 'The name of the layer.',
         url: 'https://api.playcanvas.com/engine/classes/Layer.html#name'
     }, {
         name: 'settings:layers:opaqueSort',
@@ -574,7 +571,7 @@ editor.once('load', () => {
     }, {
         name: 'settings:layers:sublayers:enabled',
         title: 'Enabled',
-        description: 'Enables or disables this part of the layer. When a part is disabled the mesh instances of that part will not be rendered.'
+        description: 'Enables or disables this part of the layer. When a part is disabled, the mesh instances of that part will not be rendered.'
     }, {
         name: 'settings:localization',
         title: 'Localization',
@@ -582,10 +579,10 @@ editor.once('load', () => {
     }, {
         name: 'settings:localization:i18nAssets',
         title: 'Localization Assets',
-        description: 'JSON Assets that contain localization data. Assets in this list will automatically be parsed for localization data when loaded. These are used to localized your Text Elements.'
+        description: 'JSON assets that contain localization data. Assets in this list are automatically parsed for localization data when loaded. These are used to localize your text elements.'
     }, {
         name: 'settings:localization:createAsset',
-        description: 'Creates a new Localization JSON Asset with the default en-US format.'
+        description: 'Creates a new localization JSON asset with the default en-US format.'
     }, {
         name: 'settings:loading-screen',
         title: 'Loading Screen',
