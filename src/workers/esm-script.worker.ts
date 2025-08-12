@@ -93,7 +93,6 @@ workerServer.once('init', async (frontendURL) => {
                 const script = attributes[key];
                 const attributesOrder = Object.keys(script.attributes);
                 acc[key] = {
-                    attributesInvalid: script.errors.map(toSerializableError),
                     attributesInvalid: script.errors.map(toSerializableError).filter(Boolean),
                     attributesOrder,
                     attributes: script.attributes,
