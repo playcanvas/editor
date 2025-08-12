@@ -1,4 +1,4 @@
-import { Button, LabelGroup, SelectInput, NumericInput, BooleanInput } from '@playcanvas/pcui';
+import { BooleanInput, Button, LabelGroup, NumericInput, SelectInput } from '@playcanvas/pcui';
 
 import { tooltip, tooltipSimpleItem } from '../../common/tooltips.ts';
 import { THEMES } from '../../core/constants.ts';
@@ -74,6 +74,7 @@ editor.once('load', () => {
                 target: labelGroup.label
             });
         }
+        return labelGroup;
     };
 
     const themeOptions = Object.keys(THEMES).map((key) => {
@@ -119,6 +120,25 @@ editor.once('load', () => {
 
     const fieldFormatOnSave = new BooleanInput();
     addField('Format On Save:', fieldFormatOnSave, 'ide.formatOnSave', 'If enabled the document will be auto-formatted on save');
+
+    // AI settings (moved from Editor AI panel)
+    const fieldAutocompleteEnabled = new BooleanInput();
+    const groupAutocompleteEnabled = addField('Autocomplete:', fieldAutocompleteEnabled, 'editor.ai.autocompleteEnabled', 'Enable AI autocomplete suggestions while typing.');
+
+    const fieldAutocompleteDelay = new NumericInput({
+        min: 100,
+        max: 2000,
+        precision: 1,
+        placeholder: 'ms'
+    });
+    const groupAutocompleteDelay = addField('Autocomplete Delay:', fieldAutocompleteDelay, 'editor.ai.autocompleteDelay', 'Delay before showing autocomplete suggestions.');
+
+    // Hide AI settings if the user does not have access
+    const flags = (typeof config !== 'undefined' && config && config.self) ? config.self.flags : null;
+    if (!flags || !(flags.hasAutocomplete || flags.superUser)) {
+        groupAutocompleteEnabled.hidden = true;
+        groupAutocompleteDelay.hidden = true;
+    }
 
     settingsPanel.on('show', () => {
         editor.emit('picker:settings:open');
