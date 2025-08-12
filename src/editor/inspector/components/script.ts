@@ -166,7 +166,7 @@ class ScriptInspector extends Panel {
         this._editorEvents = [];
 
         // Holds the container that lists validation errors under the header
-        (this as any)._attributesErrorContainer = null;
+        this._attributesErrorContainer = null;
 
         this._timeoutChangeAttributes = null;
         this._changedAttributes = {};
@@ -999,18 +999,18 @@ class ScriptComponentInspector extends ComponentInspector {
         };
 
         if (scriptName) {
-            clearForPanel((this as any)._scriptPanels[scriptName]);
+            clearForPanel(this._scriptPanels[scriptName]);
             return;
         }
 
         // Clear all
-        for (const name in (this as any)._scriptPanels) {
-            clearForPanel((this as any)._scriptPanels[name]);
+        for (const name in this._scriptPanels) {
+            clearForPanel(this._scriptPanels[name]);
         }
     }
 
     onValidationIssues(scriptName: string, issues: any[], asset: any) {
-        const panel: any = (this as any)._scriptPanels[scriptName];
+        const panel = this._scriptPanels[scriptName];
         if (!panel) {
             return;
         }
