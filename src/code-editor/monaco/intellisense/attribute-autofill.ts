@@ -169,7 +169,7 @@ const fetchModuleScripts = async (
     const deletedFiles = [];
 
     // loop over the file cache, remove any files that do no exist in the script assets
-    const assetPaths = assets.map(asset => editor.call('assets:virtualPath', asset) as string);
+    const assetPaths: string[] = assets.map(asset => editor.call('assets:virtualPath', asset));
     for (const filePath in cache as any) {
         if (!assetPaths.includes(filePath)) {
             deletedFiles.push(filePath);
