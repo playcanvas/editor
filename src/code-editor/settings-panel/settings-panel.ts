@@ -121,7 +121,7 @@ editor.once('load', () => {
     const fieldFormatOnSave = new BooleanInput();
     addField('Format On Save:', fieldFormatOnSave, 'ide.formatOnSave', 'If enabled the document will be auto-formatted on save');
 
-    // AI settings (moved from Editor AI panel)
+    // AI autocomplete settings
     const fieldAutocompleteEnabled = new BooleanInput();
     const groupAutocompleteEnabled = addField('Autocomplete:', fieldAutocompleteEnabled, 'editor.ai.autocompleteEnabled', 'Enable AI autocomplete suggestions while typing.');
 
@@ -133,7 +133,7 @@ editor.once('load', () => {
     });
     const groupAutocompleteDelay = addField('Autocomplete Delay:', fieldAutocompleteDelay, 'editor.ai.autocompleteDelay', 'Delay before showing autocomplete suggestions.');
 
-    // Hide AI settings if the user does not have access
+    // Hide AI autocomplete settings if the user does not have access
     const flags = (typeof config !== 'undefined' && config && config.self) ? config.self.flags : null;
     if (!flags || !(flags.hasAutocomplete || flags.superUser)) {
         groupAutocompleteEnabled.hidden = true;
