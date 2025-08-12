@@ -190,7 +190,7 @@ const fetchModuleScripts = async (
         }
 
         // skip cached files
-        const hash = asset.get('file.hash') as string;
+        const hash: string = asset.get('file.hash');
         if (cache.get(path) === hash) {
             return acc;
         }
