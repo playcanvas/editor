@@ -45,7 +45,7 @@ const toSerializableError = (error) => {
         const commentText = error.node.comment.split('\n')[0]?.trim() || '';
 
         // Find the start of the comment content within the full text
-        const commentStart = fullText.indexOf(commentText);
+        const commentStart = fullText.lastIndexOf(commentText);
         if (commentStart !== -1) {
             startPos = error.node.getStart() + commentStart;
             endPos = startPos + commentText.length;
