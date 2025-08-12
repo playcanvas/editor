@@ -217,8 +217,6 @@ class ScriptInspector extends Panel {
             this._attributesInspector.link(this._entities);
         }
 
-
-
         this.append(this._attributesInspector);
     }
 
@@ -982,7 +980,10 @@ class ScriptComponentInspector extends ComponentInspector {
 
     clearValidationIssues(scriptName: string) {
         const clearForPanel = (panel: any) => {
-            if (!panel) return;
+            if (!panel) {
+                return;
+            }
+
             // Remove inline error container
             if (panel._attributesErrorContainer) {
                 panel._attributesErrorContainer.destroy();
@@ -1045,7 +1046,9 @@ class ScriptComponentInspector extends ComponentInspector {
             warnings.forEach((warning) => {
                 const name = warning.name || 'unknown';
                 const firstSentence = warning.message ? warning.message.split('.')[0] : '';
-                if (!warningsByAttr.has(name)) warningsByAttr.set(name, []);
+                if (!warningsByAttr.has(name)) {
+                    warningsByAttr.set(name, []);
+                }
                 warningsByAttr.get(name).push(firstSentence);
             });
             panel._attributeWarnings = warningsByAttr;
