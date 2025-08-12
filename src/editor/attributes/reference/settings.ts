@@ -66,21 +66,6 @@ editor.once('load', () => {
         description: 'Enables or disables auto baking of the lightmapper.'
     },
     {
-        name: 'settings:ai',
-        title: 'AI',
-        description: 'Settings for controlling AI autocomplete in the code editor.'
-    }, {
-        name: 'settings:autocompleteEnabled',
-        title: 'Autocomplete Enabled',
-        description: 'Enable autocomplete in the code editor.'
-    },
-    {
-        name: 'settings:autocompleteDelay',
-        title: 'Autocomplete Delay',
-        subTitle: 'number',
-        description: 'The delay in seconds before autocomplete executes.'
-    },
-    {
         name: 'settings:physics',
         title: 'Physics',
         description: 'Settings for the physics to import the library and set gravity.'
