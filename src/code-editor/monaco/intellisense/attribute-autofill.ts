@@ -83,7 +83,7 @@ class JSDocUtils {
      * @param {string[]} tags - The tags to add to the JSDoc block
      * @returns {string} - The JSDoc block
      */
-    static createJSDoc(indent: string, tags: string[]) {
+    static createJSDoc(indent: string, tags: string[]) : string {
         const tagLines = tags.map(tag => `${indent} * ${tag}`).join('\n');
         return `${indent}/**\n${tagLines}\n${indent} */\n`;
     }
@@ -108,7 +108,7 @@ class JSDocUtils {
      * @param {number} endLine - The end line number
      * @returns {number[]} - The lines containing attribute tags
      */
-    static findAttributeLines(lines: string[], startLine: number, endLine: number) {
+    static findAttributeLines(lines: string[], startLine: number, endLine: number) : number[] {
         const linesToRemove = [];
         for (let i = startLine - 1; i < endLine; i++) {
             const line = lines[i];
@@ -128,7 +128,7 @@ class JSDocUtils {
      * @param {string} tag - The tag to check for (e.g., '@range', '@attribute')
      * @returns {boolean} - Whether the tag exists in the JSDoc block
      */
-    static hasTagInJSDoc(model: Monaco.editor.ITextModel, startLine: number, endLine: number, tag: string) {
+    static hasTagInJSDoc(model: Monaco.editor.ITextModel, startLine: number, endLine: number, tag: string) : boolean {
         const lines = model.getLinesContent();
         for (let i = startLine - 1; i < endLine; i++) {
             const line = lines[i];
@@ -162,7 +162,7 @@ class JSDocUtils {
 const fetchModuleScripts = async (
     cache: Map<string, string>,
     filter: string[] = []
-) => {
+) : Promise<[[string, string][], string[]]> => {
     const assets = (editor.call('assets:list') ?? []) as Observer[];
 
     // Get all the files that no longer exist. ie files in the cache, but not in esmScripts
@@ -225,7 +225,7 @@ const modifyJSDocAttribute = (
     lineNumber: number,
     attribute: ParseAttribute | null,
     action: 'add' | 'addSlider' | 'remove'
-) => {
+) : void => {
     const lines = model.getLinesContent();
 
     // If start == end (same position), no JSDoc exists
@@ -274,7 +274,7 @@ const JSDocActions = {
         startLine: number,
         endLine: number,
         isSingleLine: boolean
-    ) {
+    ) : void {
         if (isSingleLine) {
             const lineContent = lines[startLine - 1];
             const newContent = JSDocUtils.cleanSingleLineJSDoc(lineContent);
@@ -313,7 +313,7 @@ const JSDocActions = {
         indent: string,
         isSingleLine: boolean,
         action: 'add' | 'addSlider'
-    ) {
+    ) : void {
         if (isSingleLine) {
             const tags = action === 'addSlider' ? ['@attribute', '@range [0, 100]'] : ['@attribute'];
             const newJsDoc = JSDocUtils.createJSDoc(indent, tags).slice(0, -1); // Remove trailing newline
@@ -363,7 +363,7 @@ const addAttributeToMember = (
     model: Monaco.editor.ITextModel,
     lineNumber: number,
     attribute: ParseAttribute | null = null
-) => {
+) : void => {
     modifyJSDocAttribute(model, lineNumber, attribute, 'add');
 };
 
