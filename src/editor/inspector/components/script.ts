@@ -280,7 +280,7 @@ class ScriptInspector extends Panel {
                 const script = result.scripts[this._scriptName];
                 this._componentInspector.onValidationIssues(
                     this._scriptName,
-                    script ? (script.attributesInvalid || []) : [],
+                    script?.attributesInvalid ?? [],
                     this._asset
                 );
             }

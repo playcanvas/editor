@@ -3,7 +3,7 @@ import type * as Monaco from 'monaco-editor';
 
 import { WorkerClient } from '../../../core/worker/worker-client.ts';
 
-export interface Fix extends Monaco.languages.TextEdit {
+export type Fix = Monaco.languages.TextEdit & {
     title?: string;
 }
 

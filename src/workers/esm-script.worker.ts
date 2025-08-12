@@ -1,5 +1,6 @@
 import { JSDocParser } from '@playcanvas/attribute-parser';
 
+import { type Fix } from '../code-editor/monaco/intellisense/attribute-autofill.ts';
 import { WorkerServer } from '../core/worker/worker-server.ts';
 
 const PLAYCANVAS_ATTRIBUTE_DOCS_URL = {
@@ -7,24 +8,17 @@ const PLAYCANVAS_ATTRIBUTE_DOCS_URL = {
     value: 'Attribute Type Docs'
 };
 
-/**
- * @import { Fix } from '../code-editor/monaco/intellisense/attribute-autofill.ts'
- */
-
-/**
- * @typedef {Object} SerializableParsingError
- * @property {string} message - The error message
- * @property {string} attributeName - The name of the attribute that caused the error
- * @property {string} file - The source file
- * @property {string} type - The category of the error
- * @property {string} name - The name of the error
- * @property {number} start - The start line number of the error
- * @property {number} startColumn - The start column number of the error
- * @property {number} endLine - The end line number of the error
- * @property {number} endColumn - The end column number of the error
- * @property {8 | 4} severity - The severity of the error
- * @property {Fix} fix - The fix for the error
- */
+export type SerializableParsingError = {
+    message: string;
+    attributeName: string;
+    file: string;
+    type: string;
+    start: number;
+    startColumn: number;
+    severity: 8 | 4;
+    code: string | null;
+    fix: Fix | null;
+};
 
 /**
  * Convert an error to a serializable error
