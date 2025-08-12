@@ -20,7 +20,7 @@ editor.once('load', () => {
     editor.method('picker:codeeditor', (asset, options) => {
         // open the new code editor - try to focus existing tab if it exists
 
-        const projectId = (config as any).project?.id;
+        const projectId = config.project?.id;
         let url = `/editor/code/${projectId}`;
 
         const query = [];

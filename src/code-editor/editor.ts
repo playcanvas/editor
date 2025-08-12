@@ -14,8 +14,7 @@ class CodeEditor extends Editor {
             this.emit('start');
 
             if (window.opener) {
-                const openerOrigin = new URL(document.referrer).origin;
-                window.opener.postMessage('start', openerOrigin);
+                window.opener.postMessage('start', window.opener.origin);
             }
 
             // if there is a merge in progress for our branch
