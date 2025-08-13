@@ -4,12 +4,11 @@ import { AssetInput } from '../../common/pcui/element/element-asset-input.ts';
 import { tooltip, tooltipRefItem } from '../../common/tooltips.ts';
 import { LegacyTooltip } from '../../common/ui/tooltip.ts';
 import '../storage/clipboard-context-menu.ts';
-
-const isEnabledAttribute = ({ label, type }) => label === 'enabled' && type === 'boolean';
-
 import type { Attribute } from './attribute.type.d.ts';
 import type { Tooltip } from '../../common/pcui/element/element-tooltip.js';
 import type { TemplateOverrideInspector } from '../templates/templates-override-inspector.js';
+
+const isEnabledAttribute = ({ label, type }) => label === 'enabled' && type === 'boolean';
 
 const CLASS_ROOT = 'pcui-inspector';
 
