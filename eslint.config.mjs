@@ -31,6 +31,8 @@ export default [
         rules: {
             'accessor-pairs': ['error', { setWithoutGet: false, getWithoutSet: false }],
             'curly': ['error', 'all'],
+            'jsdoc/require-param-type': 'off',
+            'jsdoc/require-returns-type': 'off',
             'no-use-before-define': 'off',
             'no-var': 'off'
         }
@@ -47,6 +49,8 @@ export default [
         rules: {
             'accessor-pairs': ['error', { setWithoutGet: false, getWithoutSet: false }],
             'curly': ['error', 'all'],
+            'jsdoc/require-param-type': 'off',
+            'jsdoc/require-returns-type': 'off',
             'no-use-before-define': 'off',
             'no-var': 'off'
         }
@@ -62,6 +66,8 @@ export default [
         rules: {
             'accessor-pairs': ['error', { setWithoutGet: false, getWithoutSet: false }],
             'curly': ['error', 'all'],
+            'jsdoc/require-param-type': 'off',
+            'jsdoc/require-returns-type': 'off',
             'no-use-before-define': 'off',
             'no-var': 'off'
         }
@@ -77,6 +83,8 @@ export default [
         rules: {
             'accessor-pairs': ['error', { setWithoutGet: false, getWithoutSet: false }],
             'curly': ['error', 'all'],
+            'jsdoc/require-param-type': 'off',
+            'jsdoc/require-returns-type': 'off',
             'no-use-before-define': 'off',
             'no-var': 'off'
         }
