@@ -41,7 +41,7 @@ editor.once('load', () => {
     });
 
 
-    const addField = function (name, field, path, tooltipText) {
+    const addField = (name, field, path, tooltipText) => {
         const labelGroup = new LabelGroup({
             field: field,
             text: name
@@ -74,7 +74,6 @@ editor.once('load', () => {
                 target: labelGroup.label
             });
         }
-        return labelGroup;
     };
 
     const themeOptions = Object.keys(THEMES).map((key) => {
@@ -121,23 +120,19 @@ editor.once('load', () => {
     const fieldFormatOnSave = new BooleanInput();
     addField('Format On Save:', fieldFormatOnSave, 'ide.formatOnSave', 'If enabled the document will be auto-formatted on save');
 
-    // AI autocomplete settings
-    const fieldAutocompleteEnabled = new BooleanInput();
-    const groupAutocompleteEnabled = addField('Autocomplete:', fieldAutocompleteEnabled, 'editor.ai.autocompleteEnabled', 'Enable AI autocomplete suggestions while typing.');
+    // Only show AI autocomplete settings if the user has access
+    const hasAutocompleteAccess = config?.self?.flags?.hasAutocomplete || config?.self?.flags?.superUser;
+    if (hasAutocompleteAccess) {
+        const fieldAutocompleteEnabled = new BooleanInput();
+        addField('Autocomplete:', fieldAutocompleteEnabled, 'editor.ai.autocompleteEnabled', 'Enable AI autocomplete suggestions while typing.');
 
-    const fieldAutocompleteDelay = new NumericInput({
-        min: 100,
-        max: 2000,
-        precision: 1,
-        placeholder: 'ms'
-    });
-    const groupAutocompleteDelay = addField('Autocomplete Delay:', fieldAutocompleteDelay, 'editor.ai.autocompleteDelay', 'Delay before showing autocomplete suggestions.');
-
-    // Hide AI autocomplete settings if the user does not have access
-    const flags = (typeof config !== 'undefined' && config && config.self) ? config.self.flags : null;
-    if (!flags || !(flags.hasAutocomplete || flags.superUser)) {
-        groupAutocompleteEnabled.hidden = true;
-        groupAutocompleteDelay.hidden = true;
+        const fieldAutocompleteDelay = new NumericInput({
+            min: 100,
+            max: 2000,
+            precision: 1,
+            placeholder: 'ms'
+        });
+        addField('Autocomplete Delay:', fieldAutocompleteDelay, 'editor.ai.autocompleteDelay', 'Delay before showing autocomplete suggestions.');
     }
 
     settingsPanel.on('show', () => {
