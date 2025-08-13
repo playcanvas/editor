@@ -1,6 +1,6 @@
 import { BaseSettingsPanel } from './base.ts';
 
-/** @import { Attribute } from '../attribute.type.d.ts' */
+import type { Attribute } from '../attribute.type.d.ts'
 
 /**
  * @type {Attribute[]}

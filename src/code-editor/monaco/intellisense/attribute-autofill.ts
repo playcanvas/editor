@@ -703,7 +703,7 @@ editor.once('load', () => {
             if (!assetId) {
                 return;
             }
-            const model = /** @type {Monaco.editor.ITextModel} */ (editor.call('views:get', assetId));
+            const model: Monaco.editor.ITextModel = (editor.call('views:get', assetId));
             if (!model) {
                 // FIXME: View is not defined sometimes
                 console.warn('No view found with id:', assetId);

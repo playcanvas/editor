@@ -9,7 +9,7 @@ import { Table } from '../../../common/pcui/element/element-table.ts';
 import { tooltip, tooltipRefItem } from '../../../common/tooltips.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-/** @import { Attribute } from '../attribute.type.d.ts' */
+import type { Attribute } from '../attribute.type.d.ts'
 
 const CLASS_ROOT = 'asset-font-inspector';
 const CLASS_LOCALE_PANEL = `${CLASS_ROOT}-locale-panel`;

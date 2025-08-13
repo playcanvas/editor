@@ -1,10 +1,7 @@
-import { Menu } from '@playcanvas/pcui';
-
-/** @import { Container, TreeViewItem } from '@playcanvas/pcui' */
+import { Menu, type Container, type TreeViewItem } from '@playcanvas/pcui';
 
 editor.once('load', () => {
-    /** @type {Container} */
-    const root = editor.call('layout.root');
+    const root: Container = editor.call('layout.root');
 
     const menu = new Menu({
         class: 'context'
@@ -34,7 +31,7 @@ editor.once('load', () => {
     });
 
     // show context menu for tree item
-    editor.method('files:contextmenu:attach', (/** @type {TreeViewItem} */ treeItem) => {
+    editor.method('files:contextmenu:attach', (treeItem: TreeViewItem) => {
         const showMenu = function (e) {
             e.stopPropagation();
             e.preventDefault();

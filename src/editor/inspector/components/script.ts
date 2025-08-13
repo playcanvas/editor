@@ -10,8 +10,8 @@ import { evaluate } from '../../scripting/expr-eval/evaluate.ts';
 import { parse } from '../../scripting/expr-eval/parser.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-/** @import { Attribute } from '../attribute.type.d.ts' */
-/** @import { ASTNode } from '../../scripting/expr-eval/parser.js' */
+import type { Attribute } from '../attribute.type.d.ts'
+import type { ASTNode } from '../../scripting/expr-eval/parser.js'
 
 const CLASS_SCRIPT_CONTAINER = 'script-component-inspector-scripts';
 const CLASS_SCRIPT = 'script-component-inspector-script';

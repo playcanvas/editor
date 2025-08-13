@@ -5,7 +5,7 @@ import { LegacyList } from '../../common/ui/list.ts';
 import { LegacyPanel } from '../../common/ui/panel.ts';
 import { LegacyTextField } from '../../common/ui/text-field.ts';
 
-/** @import { Observer } from '@playcanvas/observer' */
+import type { Observer } from '@playcanvas/observer'
 
 editor.once('load', () => {
     const legacyScripts = editor.call('settings:project').get('useLegacyScripts');

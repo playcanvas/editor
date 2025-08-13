@@ -3,8 +3,8 @@ import { Element, Label, Container, Button, BindingObserversToElement } from '@p
 import { AssetThumbnail } from './element-asset-thumbnail.ts';
 import { CLASS_MULTIPLE_VALUES } from '../constants.ts';
 
-/** @import { ObserverList } from '@playcanvas/observer'; */
-/** @import { ElementArgs } from '@playcanvas/pcui'; */
+import type { ObserverList } from '@playcanvas/observer';
+import type { ElementArgs } from '@playcanvas/pcui';
 
 const CLASS_ASSET_INPUT = 'pcui-asset-input';
 const CLASS_ASSET_INPUT_THUMB = 'pcui-asset-input-thumb';

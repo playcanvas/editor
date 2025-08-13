@@ -2,7 +2,7 @@ import { ObserverSync } from '../../common/observer-sync.ts';
 import { formatter as f } from '../../common/utils.ts';
 import { GAMMA_NONE, GAMMA_SRGB } from '../../core/constants.ts';
 
-/** @import { Observer } from '@playcanvas/observer' */
+import type { Observer } from '@playcanvas/observer'
 
 editor.once('load', () => {
     const schema = editor.api.globals.schema;

@@ -1,7 +1,7 @@
 import { Element, Container, Button, Label, TextInput, BindingObserversToElement } from '@playcanvas/pcui';
 
-/** @import { ObserverList } from '@playcanvas/observer'; */
-/** @import { ElementArgs } from '@playcanvas/pcui'; */
+import type { ObserverList } from '@playcanvas/observer';
+import type { ElementArgs } from '@playcanvas/pcui';
 
 const CLASS_ASSET_LIST = 'pcui-asset-list';
 const CLASS_ASSET_LIST_SELECTION_MODE = `${CLASS_ASSET_LIST}-selection-mode`;

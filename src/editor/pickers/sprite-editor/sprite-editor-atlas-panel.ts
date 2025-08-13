@@ -1,9 +1,8 @@
-/** @import { Panel } from '@playcanvas/pcui' */
+import type { Panel } from '@playcanvas/pcui'
 
 editor.once('load', () => {
     editor.method('picker:sprites:attributes:atlas', (atlasAsset) => {
-        /** @type {Panel} */
-        const rootPanel = editor.call('picker:sprites:rightPanel');
+        const rootPanel: Panel = editor.call('picker:sprites:rightPanel');
 
         rootPanel.headerText = 'TEXTURE ATLAS';
 

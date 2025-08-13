@@ -161,14 +161,14 @@ editor.once('load', () => {
                 }
 
                 // new entity
-                const entity = editor.api.globals.entities.create(/** @type {any} */ ({
+                const entity = editor.api.globals.entities.create(({
                     parent: parent,
                     name: name,
                     position: [vecC.x, vecC.y, vecC.z],
                     components: {
                         sprite: component
                     }
-                }), { history: false });
+                } as any), { history: false });
 
                 entities.push(entity);
                 data.push(entity.json());

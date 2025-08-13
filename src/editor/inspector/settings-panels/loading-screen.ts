@@ -3,9 +3,9 @@ import { Container, Button } from '@playcanvas/pcui';
 import { BaseSettingsPanel } from './base.ts';
 import { LegacyTooltip } from '../../../common/ui/tooltip.ts';
 
-/** @import { Asset } from '@playcanvas/editor-api' */
+import type { Asset } from '@playcanvas/editor-api'
 
-/** @import { Attribute } from '../attribute.type.d.ts' */
+import type { Attribute } from '../attribute.type.d.ts'
 
 /**
  * @type {Attribute[]}
@@ -135,7 +135,7 @@ class LoadingScreenSettingsPanel extends BaseSettingsPanel {
                 filename: filename,
                 parent: folder && folder.apiAsset,
                 text: editor.call('sourcefiles:loadingScreen:skeleton')
-            }, (/** @type {Asset} */ asset) => {
+            }, (asset: Asset) => {
                 this._setLoadingScreen(asset.observer);
             });
         });

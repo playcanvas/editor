@@ -1,6 +1,6 @@
 import { Label } from '@playcanvas/pcui';
 
-/** @import { Button, Menu, MenuItem } from '@playcanvas/pcui' */
+import type { Button, Menu, MenuItem } from '@playcanvas/pcui'
 
 editor.once('load', () => {
     const panel = editor.call('layout.top');
@@ -8,7 +8,7 @@ editor.once('load', () => {
     const menus = {};
     let openMenus = 0;
 
-    editor.method('menu:register', (/** @type {string} */ name, /** @type {Button} */ button, /** @type {Menu} */ menu) => {
+    editor.method('menu:register', (name: string, button: Button, menu: Menu) => {
         menus[name] = menu;
 
         menu.class.add('top');
@@ -54,7 +54,7 @@ editor.once('load', () => {
     });
 
     // Add shortcut label to a menu item
-    editor.method('menu:item:setShortcut', (/** @type {MenuItem} */ item, /** @type {string} */ shortcut) => {
+    editor.method('menu:item:setShortcut', (item: MenuItem, shortcut: string) => {
         // replace common things with icons
         if (editor.call('editor:mac')) {
             shortcut = shortcut.replace(/Ctrl/g, '⌃');

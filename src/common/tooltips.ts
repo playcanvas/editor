@@ -1,7 +1,7 @@
 import { Button, Container, Label } from '@playcanvas/pcui';
 
-/** @import { Observer, ObserverList } from '@playcanvas/observer' */
-/** @import { Tooltip } from './pcui/element/element-tooltip.js' */
+import type { Observer, ObserverList } from '@playcanvas/observer'
+import type { Tooltip } from './pcui/element/element-tooltip.js'
 
 /**
  * Gets the tooltip instance

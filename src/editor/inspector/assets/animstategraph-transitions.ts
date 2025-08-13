@@ -11,7 +11,7 @@ import {
 } from '../../../core/constants.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-/** @import { Attribute, Divider } from '../attribute.type.d.ts'; */
+import type { Attribute, Divider } from '../attribute.type.d.ts';
 
 const CLASS_ANIMSTATEGRAPH = 'asset-animstategraph-inspector';
 const CLASS_ANIMSTATEGRAPH_TRANSITION = `${CLASS_ANIMSTATEGRAPH}-transition`;

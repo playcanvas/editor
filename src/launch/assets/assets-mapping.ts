@@ -1,6 +1,6 @@
 import { registerSW } from '../../common/service-worker.ts';
 
-/** @import { Observer } from '@playcanvas/observer' */
+import type { Observer } from '@playcanvas/observer'
 
 editor.on('load', async () => {
     // Register the service worker

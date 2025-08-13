@@ -1,6 +1,6 @@
 import { Container } from '@playcanvas/pcui';
 
-/** @import { ContainerArgs } from '@playcanvas/pcui'; */
+import type { ContainerArgs } from '@playcanvas/pcui';
 
 const CLASS_CELL = 'pcui-table-cell';
 

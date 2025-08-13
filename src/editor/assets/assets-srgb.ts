@@ -1,6 +1,6 @@
 import { formatter as f } from '../../common/utils.ts';
 
-/** @import { Observer } from '@playcanvas/observer' */
+import type { Observer } from '@playcanvas/observer'
 
 const SRGB_PATH_MAP = {
     texture: {
@@ -94,8 +94,7 @@ const startChecker = () => {
         const assetId = asset.get('id');
         const assetUsed = used[assetId];
 
-        /** @type {TextureUsage[]} */
-        const usages = [];
+        const usages: TextureUsage[] = [];
 
         if (!assetUsed) {
             return usages;

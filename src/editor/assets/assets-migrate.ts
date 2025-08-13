@@ -1,7 +1,7 @@
 import { deepEqual, formatter as f } from '../../common/utils.ts';
 import { LOAD_SCRIPT_AS_ASSET } from '../../core/constants.ts';
 
-/** @import { Observer } from '@playcanvas/observer' */
+import type { Observer } from '@playcanvas/observer'
 
 const LEGACY_TINT_PROPERTIES = [
     ['data.diffuseMapTint', 'data.diffuseTint'],

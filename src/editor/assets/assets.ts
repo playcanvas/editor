@@ -1,4 +1,4 @@
-/** @import { Asset, AssetObserver } from '@playcanvas/editor-api' */
+import type { Asset, AssetObserver } from '@playcanvas/editor-api'
 
 // NAMESPACE
 //     asset
@@ -19,12 +19,12 @@ editor.once('load', () => {
     // (this should all be temporary as this file should eventually be removed)
     const assets = editor.api.globals.assets.raw;
 
-    editor.api.globals.assets.on('add', (/** @type {Asset} */ asset, /** @type {number} */ pos) => {
+    editor.api.globals.assets.on('add', (asset: Asset, pos: number) => {
         editor.emit(`assets:add[${asset.get('id')}]`, asset.observer, pos);
         editor.emit('assets:add', asset.observer, pos);
     });
 
-    editor.api.globals.assets.on('remove', (/** @type {Asset} */ asset) => {
+    editor.api.globals.assets.on('remove', (asset: Asset) => {
         editor.emit('assets:remove', asset.observer);
         editor.emit(`assets:remove[${asset.get('id')}]`);
     });
@@ -33,7 +33,7 @@ editor.once('load', () => {
         editor.emit('assets:clear');
     });
 
-    editor.api.globals.assets.on('move', (/** @type {Asset} */ asset, /** @type {number} */ pos) => {
+    editor.api.globals.assets.on('move', (asset: Asset, pos: number) => {
         editor.emit('assets:move', asset, pos);
     });
 
@@ -51,12 +51,12 @@ editor.once('load', () => {
     });
 
     // allow adding assets
-    editor.method('assets:add', (/** @type {AssetObserver} */ asset) => {
+    editor.method('assets:add', (asset: AssetObserver) => {
         editor.api.globals.assets.add(asset.apiAsset);
     });
 
     // allow removing assets
-    editor.method('assets:remove', (/** @type {AssetObserver} */ asset) => {
+    editor.method('assets:remove', (asset: AssetObserver) => {
         editor.api.globals.assets.remove(asset.apiAsset);
     });
 

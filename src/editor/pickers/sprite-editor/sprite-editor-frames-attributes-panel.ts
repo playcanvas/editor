@@ -1,6 +1,6 @@
 import { LegacyButton } from '../../../common/ui/button.ts';
 
-/** @import { Panel } from '@playcanvas/pcui' */
+import type { Panel } from '@playcanvas/pcui'
 
 editor.once('load', () => {
     editor.method('picker:sprites:attributes:frames', (args) => {
@@ -11,8 +11,7 @@ editor.once('load', () => {
         const frames = args.frames;
         const numFrames = frames.length;
 
-        /** @type {Panel} */
-        const rootPanel = editor.call('picker:sprites:rightPanel');
+        const rootPanel: Panel = editor.call('picker:sprites:rightPanel');
         if (numFrames > 1) {
             rootPanel.headerText = 'FRAME INSPECTOR - MULTIPLE FRAMES';
         } else {

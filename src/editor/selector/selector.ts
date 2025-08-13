@@ -82,15 +82,15 @@ editor.once('load', () => {
         }
     });
 
-    selection.on('add', (/** @type {Asset | Entity} */ item) => {
+    selection.on('add', (item: Asset | Entity) => {
         editor.emit('selector:add', item.observer, item instanceof Entity ? 'entity' : 'asset');
     });
 
-    selection.on('remove', (/** @type {Asset | Entity} */ item) => {
+    selection.on('remove', (item: Asset | Entity) => {
         editor.emit('selector:remove', item.observer, item instanceof Entity ? 'entity' : 'asset');
     });
 
-    selection.on('change', (/** @type {(Asset | Entity)[]} */ items) => {
+    selection.on('change', (items: (Asset | Entity)[]) => {
         editor.emit('selector:change', items[0] instanceof Entity ? 'entity' : 'asset', items.map(item => item.observer));
     });
 

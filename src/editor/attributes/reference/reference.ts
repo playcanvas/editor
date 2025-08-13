@@ -23,7 +23,7 @@ editor.once('load', () => {
         return str.replace(/</g, '&lt;').replace(/>/g, '&gt;');
     };
 
-    editor.method('attributes:reference:add', (/** @type {AttributeReference} */ attr) => {
+    editor.method('attributes:reference:add', (attr: AttributeReference) => {
         referenceIndex[attr.name] = attr;
     });
 
@@ -35,7 +35,7 @@ editor.once('load', () => {
         return referenceIndex[name];
     });
 
-    editor.method('attributes:reference:addLegacy', (/** @type {LegacyAttributeReference} */ attr) => {
+    editor.method('attributes:reference:addLegacy', (attr: LegacyAttributeReference) => {
         legacyReferenceIndex[attr.name] = editor.call('attributes:reference', attr);
     });
 
@@ -60,7 +60,7 @@ editor.once('load', () => {
         return tooltip;
     });
 
-    editor.method('attributes:reference', (/** @type {LegacyAttributeReference} */ attr) => {
+    editor.method('attributes:reference', (attr: LegacyAttributeReference) => {
         const tooltip = new LegacyTooltip({
             align: 'right'
         });

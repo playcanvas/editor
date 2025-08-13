@@ -3,8 +3,8 @@ import { Element, Container, Label } from '@playcanvas/pcui';
 import { TableCell } from './element-table-cell.ts';
 import { TableRow } from './element-table-row.ts';
 
-/** @import { Observer } from '@playcanvas/observer'; */
-/** @import { ContainerArgs } from '@playcanvas/pcui'; */
+import type { Observer } from '@playcanvas/observer';
+import type { ContainerArgs } from '@playcanvas/pcui';
 
 const CLASS_TABLE = 'pcui-table';
 

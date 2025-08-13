@@ -3,7 +3,7 @@ import { LegacyCanvas } from '../../../common/ui/canvas.ts';
 import { LegacyLabel } from '../../../common/ui/label.ts';
 import { LegacyPanel } from '../../../common/ui/panel.ts';
 
-/** @import { Panel } from '@playcanvas/pcui' */
+import type { Panel } from '@playcanvas/pcui'
 
 editor.once('load', () => {
     editor.method('picker:sprites:attributes:sprite', (args) => {
@@ -18,8 +18,7 @@ editor.once('load', () => {
 
         const events = [];
 
-        /** @type {Panel} */
-        const rootPanel = editor.call('picker:sprites:rightPanel');
+        const rootPanel: Panel = editor.call('picker:sprites:rightPanel');
         rootPanel.headerText = `SPRITE ASSET - ${spriteAsset.get('name')}`;
 
         const fieldPreview = editor.call('picker:sprites:attributes:frames:preview', {

@@ -2,8 +2,8 @@ import { Element, Container, Label, Button, BindingObserversToElement } from '@p
 
 import { CLASS_FOCUS, CLASS_MULTIPLE_VALUES } from '../constants.ts';
 
-/** @import { ObserverList } from '@playcanvas/observer'; */
-/** @import { ElementArgs } from '@playcanvas/pcui'; */
+import type { ObserverList } from '@playcanvas/observer';
+import type { ElementArgs } from '@playcanvas/pcui';
 
 const CLASS_ENTITY_INPUT = 'pcui-entity-input';
 const CLASS_EMPTY = `${CLASS_ENTITY_INPUT}-empty`;

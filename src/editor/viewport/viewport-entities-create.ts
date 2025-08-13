@@ -64,7 +64,7 @@ editor.once('load', () => {
         parent.addChild(node);
     };
 
-    const processEntity = function (/** @type {EntityObserver} */ obj) {
+    const processEntity = function (obj: EntityObserver) {
         if (!app) {
             return null;
         } // webgl not available
@@ -99,7 +99,7 @@ editor.once('load', () => {
         return entity;
     };
 
-    const processEntityComponents = function (entity, /** @type {EntityObserver} */ obj) {
+    const processEntityComponents = function (entity, obj: EntityObserver) {
 
         if (!entity) {
             return;
@@ -141,7 +141,7 @@ editor.once('load', () => {
 
     const createEntities = function () {
         // new entity created
-        editor.on('entities:add', (/** @type {EntityObserver} */ entityObserver) => {
+        editor.on('entities:add', (entityObserver: EntityObserver) => {
             const entity = processEntity(entityObserver);
             processEntityComponents(entity, entityObserver);
         });

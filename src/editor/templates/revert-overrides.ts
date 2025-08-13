@@ -559,7 +559,7 @@ editor.once('load', () => {
     });
 
     /* eslint-disable require-atomic-updates */
-    editor.method('templates:revertAll', (/** @type {EntityObserver} */ entityObserver) => {
+    editor.method('templates:revertAll', (entityObserver: EntityObserver) => {
 
         const templateId = entityObserver.get('template_id');
         const templateEntIds = entityObserver.get('template_ent_ids');
@@ -567,7 +567,7 @@ editor.once('load', () => {
             return false;
         }
 
-        const asset = /** @type {AssetObserver} */ (editor.call('assets:get', templateId));
+        const asset: AssetObserver = (editor.call('assets:get', templateId));
         if (!asset) {
             return;
         }

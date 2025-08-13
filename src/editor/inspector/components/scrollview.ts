@@ -9,7 +9,7 @@ import {
 } from '../../../core/constants.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-/** @import { Attribute, Divider } from '../attribute.type.d.ts' */
+import type { Attribute, Divider } from '../attribute.type.d.ts'
 
 /**
  * @type {(Attribute | Divider)[]}
