@@ -233,6 +233,7 @@ class AttributesInspector extends Container {
                             target: btnCopy.dom,
                             text: 'Copy',
                             align: 'bottom',
+                            class: 'pcui-tooltip-clipboard',
                             root: editor.call('layout.root')
                         });
 
@@ -241,6 +242,7 @@ class AttributesInspector extends Container {
                             target: btnPaste.dom,
                             text: 'Paste',
                             align: 'bottom',
+                            class: 'pcui-tooltip-clipboard',
                             root: editor.call('layout.root')
                         });
 
