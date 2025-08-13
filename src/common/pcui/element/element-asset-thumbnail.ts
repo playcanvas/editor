@@ -43,12 +43,7 @@ type AssetThumbnailArgs = {
  * @property {boolean} renderChanges If true the input will flash when changed.
  */
 class AssetThumbnail extends Element {
-    /**
-     * Creates a new AssetThumbnail.
-     *
-     * @param {AssetThumbnailArgs} [args] - The arguments.
-     */
-    constructor(args = {}) {
+    constructor(args: AssetThumbnailArgs = {}) {
         super({ ...args, dom: 'span' });
 
         this.class.add(CLASS_ASSET_THUMB, CLASS_ASSET_THUMB_EMPTY);

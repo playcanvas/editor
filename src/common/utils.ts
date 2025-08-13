@@ -2,39 +2,37 @@ import { Events, Observer } from '@playcanvas/observer';
 
 /**
  * Performs deep copy
- *
- * @param {object} data - The object to copy
- * @returns {object} - The copied object
+ * @param data - The object to copy
+ * @returns The copied object
  */
-export const deepCopy = (data) => {
+export const deepCopy = <T>(data: T): T => {
     if (data == null || typeof (data) !== 'object') {
         return data;
     }
 
     if (data instanceof Array) {
-        const arr = [];
+        const arr: any[] = [];
         for (let i = 0; i < data.length; i++) {
             arr[i] = deepCopy(data[i]);
         }
-        return arr;
+        return arr as T;
     }
-    const obj = { };
+    const obj: any = { };
     for (const key in data) {
         if (data.hasOwnProperty(key)) {
             obj[key] = deepCopy(data[key]);
         }
     }
-    return obj;
+    return obj as T;
 };
 
 /**
  * Performs deep equal comparison
- *
- * @param {any} a - The first item to compare
- * @param {any} b - The second item to compare
- * @returns {boolean} - Whether the objects are equal
+ * @param a - The first item to compare
+ * @param b - The second item to compare
+ * @returns Whether the objects are equal
  */
-export const deepEqual = (a, b) => {
+export const deepEqual = (a: any, b: any): boolean => {
     if (a === b) {
         return true;
     }
@@ -63,12 +61,11 @@ export const deepEqual = (a, b) => {
 
 /**
  * Natural sort comparison
- *
- * @param {string} a - The first string to compare
- * @param {string} b - The second string to compare
- * @returns {number} - The comparison result
+ * @param a - The first string to compare
+ * @param b - The second string to compare
+ * @returns The comparison result
  */
-export const naturalCompare = (a, b) => {
+export const naturalCompare = (a: string, b: string): number => {
     const regex = /(\d+|\D+)/g;
     const split = str => str.match(regex);
 
@@ -94,13 +91,12 @@ export const naturalCompare = (a, b) => {
 
 /**
  * Sets a value at a path in an object
- *
- * @param {object} obj - The object to set the value in
- * @param {string} path - The path to set the value at
- * @param {any} value - The value to set
- * @returns {boolean} - Whether the value was set
+ * @param obj - The object to set the value in
+ * @param path - The path to set the value at
+ * @param value - The value to set
+ * @returns Whether the value was set
  */
-export const set = (obj, path, value) => {
+export const set = (obj: any, path: string, value: any): boolean => {
     const parts = path.split('.');
     let ref = obj;
     for (let i = 0; i < parts.length - 1; i++) {
@@ -115,12 +111,11 @@ export const set = (obj, path, value) => {
 
 /**
  * Gets a value at a path in an object
- *
- * @param {object} obj - The object to get the value from
- * @param {string} path - The path to get the value from
- * @returns {boolean} - The value at the path
+ * @param obj - The object to get the value from
+ * @param path - The path to get the value from
+ * @returns The value at the path
  */
-export const unset = (obj, path) => {
+export const unset = (obj: any, path: string): boolean => {
     const parts = path.split('.');
     let ref = obj;
     for (let i = 0; i < parts.length - 1; i++) {
@@ -138,14 +133,13 @@ export const unset = (obj, path) => {
 
 /**
  * Inserts a value at a path in an object
- *
- * @param {object} obj - The object to insert the value in
- * @param {string} path - The path to insert the value at
- * @param {any} value - The value to insert
- * @param {number} index - The index to insert the value at
- * @returns {boolean} - Whether the value was inserted
+ * @param obj - The object to insert the value in
+ * @param path - The path to insert the value at
+ * @param value - The value to insert
+ * @param index - The index to insert the value at
+ * @returns Whether the value was inserted
  */
-export const insert = (obj, path, value, index) => {
+export const insert = (obj: any, path: string, value: any, index: number): boolean => {
     const parts = path.split('.');
     let ref = obj;
     for (let i = 0; i < parts.length - 1; i++) {
@@ -167,13 +161,12 @@ export const insert = (obj, path, value, index) => {
 
 /**
  * Removes a value at a path in an object
- *
- * @param {object} obj - The object to remove the value from
- * @param {string} path - The path to remove the value from
- * @param {number} index - The index to remove the value from
- * @returns {boolean} - Whether the value was removed
+ * @param obj - The object to remove the value from
+ * @param path - The path to remove the value from
+ * @param index - The index to remove the value from
+ * @returns Whether the value was removed
  */
-export const remove = (obj, path, index) => {
+export const remove = (obj: any, path: string, index: number): boolean => {
     const parts = path.split('.');
     let ref = obj;
     for (let i = 0; i < parts.length - 1; i++) {
@@ -195,11 +188,10 @@ export const remove = (obj, path, index) => {
 
 /**
  * Converts bytes to human readable string
- *
- * @param {number} bytes - The number of bytes
- * @returns {string} - The human readable string
+ * @param bytes - The number of bytes
+ * @returns The human readable string
  */
-export const bytesToHuman = (bytes) => {
+export const bytesToHuman = (bytes: number): string => {
     if (isNaN(bytes) || bytes === 0) {
         return '0 B';
     }
@@ -211,11 +203,10 @@ export const bytesToHuman = (bytes) => {
 
 /**
  * Converts count to human readable string
- *
- * @param {number} count - The count
- * @returns {string} - The human readable string
+ * @param count - The count
+ * @returns The human readable string
  */
-export const countToHuman = (count) => {
+export const countToHuman = (count: number): string => {
     if (count < 1000) {
         return count.toString();
     }
@@ -228,11 +219,10 @@ export const countToHuman = (count) => {
 /**
  * Converts specified date string to a date in this format:
  * Wed, Jul 18, 2018, 12:55:00
- *
- * @param {*} date - The date string
- * @returns {string} - The converted date string
+ * @param date - The date string
+ * @returns The converted date string
  */
-export const convertDatetime = (date) => {
+export const convertDatetime = (date: string | Date): string => {
     const d = new Date(date);
     const dateString = d.toDateString();
     const dateParts = dateString.split(' ');
@@ -242,30 +232,29 @@ export const convertDatetime = (date) => {
 };
 
 /**
- * @param {object} t - The object to assign events
+ * @param t - The object to assign events
  */
-export const assignEvents = (t) => {
+export const assignEvents = (t: any): void => {
     Object.assign(t, new Events());
     t._events = {};
 };
 
 /**
- * @param {string} url - The url to append query string to
- * @param {object} params - The query object
- * @returns {string} - The url with query string appended
+ * @param url - The url to append query string to
+ * @param params - The query object
+ * @returns The url with query string appended
  */
-export const buildQueryUrl = (url, params) => {
+export const buildQueryUrl = (url: string, params: Record<string, string | number | boolean>): string => {
     const adj = url.indexOf('?') === -1 ? '?' : '&';
     return `${url}${adj}${Object.entries(params).map(([key, value]) => `${key}=${encodeURIComponent(value)}`).join('&')}`;
 };
 
 /**
  * Create a new file from the source and download it.
- *
- * @param {string} filename - The filename
- * @param {string} src - The source
+ * @param filename - The filename
+ * @param src - The source
  */
-export const fileDownload = (filename, src) => {
+export const fileDownload = (filename: string, src: string): void => {
     const blob = new Blob([src], { type: 'text/plain' });
     const a = document.createElement('a');
     a.download = filename;
@@ -276,32 +265,29 @@ export const fileDownload = (filename, src) => {
 
 /**
  * Creates a date string for use in filenames.
- *
- * @returns {string} - The date string
+ * @returns The date string
  */
-export const fileNameDate = () => {
+export const fileNameDate = (): string => {
     const d = new Date();
     return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}_${d.getHours()}-${d.getMinutes()}-${d.getSeconds()}`;
 };
 
 /**
  * Converts camel case to title case.
- *
- * @param {string} str - The string to convert
- * @returns {string} - The converted string
+ * @param str - The string to convert
+ * @returns The converted string
  */
-export const camelCaseToTitle = (str) => {
+export const camelCaseToTitle = (str: string): string => {
     return str.replace(/([0-9A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase());
 };
 
 /**
  * Converts a value to a clean string.
- *
- * @param {*} val - The value to convert
- * @param {number} [depth] - The depth to convert
- * @returns {string} - The converted string
+ * @param val - The value to convert
+ * @param depth - The depth to convert
+ * @returns The converted string
  */
-export const toCleanStr = (val, depth = 0) => {
+export const toCleanStr = (val: any, depth: number = 0): string => {
     if (Array.isArray(val)) {
         if (depth > 1) {
             return '[array]';
@@ -330,78 +316,68 @@ export const toCleanStr = (val, depth = 0) => {
 
 /**
  * Formats objects for display and logging
- *
- * @type {{
- *    parse: (string) => string[],
- *    asset: (Observer) => string,
- *    entity: (Observer) => string,
- *    path: (string) => string,
- *    value: (any) => string,
- *    const: (string, any) => string
- * }}
  */
 export const formatter = {
     /**
-     * @param {string} msg - The message to format
-     * @returns {string[]} - The formatted message
+     * @param msg - The message to format
+     * @returns The formatted message
      */
-    parse: (msg) => {
+    parse: (msg: string): string[] => {
         const minText = msg.replace(/<<[^>]*>>/g, '');
         const text = msg.replace(/<<([^>]*)>>/g, '$1');
         return [minText, text];
     },
 
     /**
-     * @param {Observer} asset - The asset to format
-     * @returns {string} - The formatted asset
+     * @param asset - The asset to format
+     * @returns The formatted asset
      */
-    asset: (asset) => {
+    asset: (asset: Observer): string => {
         return `${asset.get('name')}<< (${asset.get('id')})>>`;
     },
 
     /**
-     * @param {Observer} entity - The asset to format
-     * @returns {string} - The formatted asset
+     * @param entity - The asset to format
+     * @returns The formatted asset
      */
-    entity: (entity) => {
+    entity: (entity: Observer): string => {
         return `${entity.get('name')}<< (${entity.get('resource_id')})>>`;
     },
 
     /**
-     * @param {string} path - The path to format
-     * @returns {string} - The formatted path
+     * @param path - The path to format
+     * @returns The formatted path
      */
-    path: (path) => {
+    path: (path: string): string => {
         const last = path.split('.').pop();
         return `${camelCaseToTitle(last)}<< (${path})>>`;
     },
 
     /**
-     * @param {any} val - The value to format
-     * @returns {string} - The formatted value
+     * @param val - The value to format
+     * @returns The formatted value
      */
-    value: (val) => {
+    value: (val: any): string => {
         return `${toCleanStr(val)}<< (${JSON.stringify(val)})>>`;
     },
 
     /**
-     * @param {string} name - The name to format
-     * @param {string} value - The value to format
-     * @returns {string} - The formatted constant
+     * @param name - The name to format
+     * @param value - The value to format
+     * @returns The formatted constant
      */
-    const: (name, value) => {
+    const: (name: string, value: string): string => {
         return `${name}<< (${value})>>`;
     }
 };
 
 /**
  * Throttles a function to once per delay
- *
- * @param {function} fn - The function to throttle
- * @param {number} [delay] - The delay to throttle by
- * @returns {function} - The throttled function
+ * @param fn - The function to throttle
+ * @param delay - The delay to throttle by
+ * @returns The throttled function
  */
-export const throttler = (fn, delay = 0) => {
+export const throttler = (fn: Function, delay: number = 0): Function => {
     let timeout = null;
     return (...args) => {
         if (timeout) {
@@ -416,11 +392,10 @@ export const throttler = (fn, delay = 0) => {
 
 /**
  * Limits a function to once per frame
- *
- * @param {function} fn - The function to limit
- * @returns {function} - The limited function
+ * @param fn - The function to limit
+ * @returns The limited function
  */
-export const frameLimiter = (fn) => {
+export const frameLimiter = (fn: Function): Function => {
     let called = false;
     return (...args) => {
         if (called) {
@@ -436,12 +411,11 @@ export const frameLimiter = (fn) => {
 
 /**
  * Creates a spinner element
- *
- * @param {number} size - The size of the spinner
- * @param {string} [className] - The class name of the spinner
- * @returns {SVGElement} - The spinner element
+ * @param size - The size of the spinner
+ * @param className - The class name of the spinner
+ * @returns The spinner element
  */
-export const createSpinner = (size, className = 'spin') => {
+export const createSpinner = (size: number, className: string = 'spin'): SVGElement => {
     const spinner = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     spinner.classList.add(className);
     spinner.setAttribute('width', `${size}`);
@@ -455,13 +429,14 @@ export const createSpinner = (size, className = 'spin') => {
 
 /**
  * Handles AJAX result in single callback
- *
- * @template T
- * @param {T & { on: (event: string, handler: (status: any, data: any) => void) => any }} ajax - The AJAX object
- * @param {(err?: string, data?: any) => void} callback - The callback function
- * @returns {T} - The AJAX object
+ * @param ajax - The AJAX object
+ * @param callback - The callback function
+ * @returns The AJAX object
  */
-export const handleCallback = (ajax, callback) => {
+export const handleCallback = <T extends { on: (event: string, handler: (status: any, data: any) => void) => any }>(
+    ajax: T,
+    callback: (err?: string, data?: any) => void
+): T => {
     ajax.on('load', (status, data) => callback(null, data));
     ajax.on('error', (status, err) => callback(err));
     return ajax;

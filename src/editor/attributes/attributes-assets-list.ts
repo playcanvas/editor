@@ -34,13 +34,18 @@ editor.once('load', () => {
     /**
      * Creates an Asset List widget
      *
-     * @param {object} args - Widget arguments
-     * @param {Observer[]} args.link - The observers we are editing
-     * @param {string} [args.type] - The asset type that is selectable from the asset list
-     * @param {Function} [args.filterFn] - A custom function that filters assets that can be dragged on the list. The function
+     * @param args - Widget arguments
+     * @param args.link - The observers we are editing
+     * @param args.type - The asset type that is selectable from the asset list
+     * @param args.filterFn - A custom function that filters assets that can be dragged on the list. The function
      * takes the asset as its only argument.
      */
-    editor.method('attributes:addAssetsList', (args) => {
+    editor.method('attributes:addAssetsList', (args: {
+        link: Observer[];
+        type?: string;
+        filterFn?: (asset: Observer) => boolean;
+        panel: LegacyPanel;
+    }) => {
         const link = args.link;
         const assetType = args.type;
         const assetFilterFn = args.filterFn;

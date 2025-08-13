@@ -9,10 +9,7 @@ const CLASS_COMPONENT_ICON = 'component-icon-prefix';
 const CLASS_ENABLED = `${CLASS_ROOT}-enabled`;
 
 class ComponentInspector extends Panel {
-    /**
-     * @type {TemplateOverrideInspector}
-     */
-    _templateOverridesInspector;
+    private _templateOverridesInspector: TemplateOverrideInspector;
 
     constructor(args) {
         args = Object.assign({}, args);

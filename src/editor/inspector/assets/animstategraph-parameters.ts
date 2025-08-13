@@ -37,10 +37,7 @@ class AnimstategraphParameters extends Panel {
                 break;
         }
 
-        /**
-         * @type {Attribute[]}
-         */
-        const ATTRIBUTES = [
+        const ATTRIBUTES: Attribute[] = [
             {
                 label: 'Name',
                 alias: `data.parameters.${paramId}.name`,

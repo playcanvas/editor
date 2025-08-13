@@ -31,13 +31,7 @@ type DropTargetArgs = {
  * Defines an area where we can drag drop data.
  */
 class DropTarget extends Element {
-    /**
-     * Creates a new DropTarget.
-     *
-     * @param {Element} targetElement - The element that will allow drag dropping.
-     * @param {DropTargetArgs} [args] - The arguments.
-     */
-    constructor(targetElement, args = {}) {
+    constructor(targetElement: Element, args: DropTargetArgs = {}) {
         super(args);
 
         this.class.add(CLASS_DROP_TARGET);

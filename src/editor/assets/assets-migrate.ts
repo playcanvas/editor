@@ -32,10 +32,10 @@ editor.once('load', () => {
      * This function removes tint flags from the material and if the tint flag is off, sets the
      * default color
      *
-     * @param {Observer} asset - The asset to migrate
+     * @param asset - The asset to migrate
      */
-    const removeMaterialTintFlags = (asset) => {
-        const resetNeutral = (path, defaultVal, tintPath) => {
+    const removeMaterialTintFlags = (asset: Observer) => {
+        const resetNeutral = (path: string, defaultVal: any, tintPath: string) => {
             const oldVal = asset.get(path) ?? defaultVal;
             asset.set(path, defaultVal);
             if (!deepEqual(oldVal, defaultVal)) {

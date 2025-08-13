@@ -328,10 +328,7 @@ class AnimstategraphLayers extends Panel {
                 this._deleteLayer(layerKey);
             });
 
-            /**
-             * @type {Attribute[]}
-             */
-            const ATTRIBUTES = [
+            const ATTRIBUTES: Attribute[] = [
                 {
                     label: 'Name',
                     path: `data.layers.${layerKey}.name`,

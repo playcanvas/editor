@@ -1,23 +1,14 @@
+import type { AttributeReference, LegacyAttributeReference } from './reference.type';
 import { LegacyTooltip } from '../../../common/ui/tooltip.ts';
 
 editor.once('load', () => {
     const root = editor.call('layout.root');
     const panel = editor.call('layout.attributes');
 
-    /**
-     * @type {Set<string>}
-     */
-    const legacyMissing = new Set();
-    /**
-     * @type {Record<string, LegacyAttributeReference>}
-     */
-    const legacyReferenceIndex = {};
+    const legacyMissing: Set<string> = new Set();
+    const legacyReferenceIndex: Record<string, LegacyAttributeReference> = {};
 
-
-    /**
-     * @type {Record<string, AttributeReference> }
-     */
-    const referenceIndex = {};
+    const referenceIndex: Record<string, AttributeReference> = {};
 
     const sanitize = function (str) {
         return str.replace(/</g, '&lt;').replace(/>/g, '&gt;');

@@ -882,13 +882,13 @@ class EntitiesTreeView extends TreeView {
     /**
      * Gets dictionary with the expanded state the specified Entity and its children.
      *
-     * @param {Observer} entity - The entity to query.
-     * @returns {object} A dictionary with <resource_id, boolean> entries.
+     * @param entity - The entity to query.
+     * @returns A dictionary with <resource_id, boolean> entries.
      */
-    getExpandedState(entity) {
+    getExpandedState(entity: Observer): object {
         const result = {};
 
-        const recurse = (entity) => {
+        const recurse = (entity: Observer) => {
             if (!entity) {
                 return;
             }
@@ -943,10 +943,8 @@ class EntitiesTreeView extends TreeView {
 
     /**
      * The entities observer list.
-     *
-     * @type {ObserverList}
      */
-    set entities(value) {
+    set entities(value: ObserverList) {
         this.clearTreeItems();
 
         this._rootItem = null;

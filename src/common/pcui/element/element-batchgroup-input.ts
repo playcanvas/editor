@@ -1,5 +1,5 @@
 import type { Observer } from '@playcanvas/observer';
-import { Element, SelectInput, SelectInputArgs } from '@playcanvas/pcui';
+import { Element, SelectInput } from '@playcanvas/pcui';
 
 type BatchGroupInputArgs = {
     /** The project settings observer */
@@ -10,12 +10,7 @@ type BatchGroupInputArgs = {
  * A select input that holds batch group options.
  */
 class BatchGroupInput extends SelectInput {
-    /**
-     * Creates a new BatchGroupInput.
-     *
-     * @param {BatchGroupInputArgs & SelectInputArgs} [args] - The arguments.
-     */
-    constructor(args = {}) {
+    constructor(args: BatchGroupInputArgs = {}) {
         args.type = 'number';
         args.allowNull = true;
         args.allowInput = true;

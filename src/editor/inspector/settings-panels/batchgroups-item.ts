@@ -3,10 +3,10 @@ import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from '../../../core/
 import type { Attribute } from '../attribute.type.d.ts';
 
 /**
- * @param {object} args - The attribute args
- * @returns {Attribute[]} - The attributes
+ * @param args - The attribute args
+ * @returns - The attributes
  */
-const ATTRIBUTES = args => [
+const ATTRIBUTES = (args: object): Attribute[] => [
     {
         observer: 'projectSettings',
         label: 'Name',

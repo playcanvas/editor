@@ -1,5 +1,3 @@
-import type { Observer } from '@playcanvas/observer';
-
 import { ObserverSync } from '../../common/observer-sync.ts';
 import { formatter as f } from '../../common/utils.ts';
 import { GAMMA_NONE, GAMMA_SRGB } from '../../core/constants.ts';

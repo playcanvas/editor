@@ -1,3 +1,5 @@
+import type { AssetObserver, EntityObserver } from '@playcanvas/editor-api';
+
 editor.once('load', () => {
     const REGEX_SCRIPT_NAME = /^components\.script\.scripts\.([^.]+)$/;
     const REGEX_JSON_SCRIPT_ATTR_ARRAY_ELEMENT = /^components\.script\.scripts\.[^.]+\.attributes\.[^.]+\.\d+$/;

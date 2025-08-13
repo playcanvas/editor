@@ -155,10 +155,7 @@ class AnimstategraphTransitions extends Container {
                 return parameters[key].name;
             });
 
-            /**
-             * @type {(Attribute | Divider)[]}
-             */
-            const ATTRIBUTES = [
+            const ATTRIBUTES: (Attribute | Divider)[] = [
                 {
                     label: 'Duration',
                     path: `data.transitions.${transitionId}.time`,

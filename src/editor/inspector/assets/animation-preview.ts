@@ -34,10 +34,7 @@ class AnimationAssetInspectorPreview extends AssetInspectorPreviewBase {
             });
             this.append(this._controlsContainer);
 
-            /**
-             * @type {Attribute[]}
-             */
-            const ATTRIBUTES = [
+            const ATTRIBUTES: Attribute[] = [
                 {
                     label: 'Show Skeleton',
                     alias: 'showSkeleton',

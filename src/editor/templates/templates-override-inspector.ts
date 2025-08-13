@@ -9,25 +9,13 @@ const CLASS_OVERRIDE = 'template-inspector-override';
  * Handles highlighting template overrides on various elements and showing relevant tooltips.
  */
 class TemplateOverrideInspector {
-    /**
-     * @type {Record<string, { element: Element, tooltipItem: Container }>}
-     */
-    _overrides = {};
+    private _overrides: Record<string, { element: Element, tooltipItem: Container }> = {};
 
-    /**
-     * @type {Record<string, { element: Element, tooltipGroup: Container }>}
-     */
-    _registeredElements = {};
+    private _registeredElements: Record<string, { element: Element, tooltipGroup: Container }> = {};
 
-    /**
-     * @type {EventHandle[]}
-     */
-    _entityEvents = [];
+    private _entityEvents: EventHandle[] = [];
 
-    /**
-     * @type {EventHandle | null}
-     */
-    _evtPartOfTemplate = null;
+    private _evtPartOfTemplate: EventHandle | null = null;
 
     constructor(args: ObserverList) {
         this._entities = args.entities;
@@ -59,9 +47,9 @@ class TemplateOverrideInspector {
     }
 
     /**
-     * @param {Observer} entity - The entity to bind events to.
+     * @param entity - The entity to bind events to.
      */
-    _bindEntityEvents(entity) {
+    _bindEntityEvents(entity: Observer) {
         this._entityEvents.push(entity.on('*:set', this._deferRefreshOverrides.bind(this)));
         this._entityEvents.push(entity.on('*:unset', this._deferRefreshOverrides.bind(this)));
         this._entityEvents.push(entity.on('*:insert', this._deferRefreshOverrides.bind(this)));

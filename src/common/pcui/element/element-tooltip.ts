@@ -5,28 +5,16 @@ import { Container, Element } from '@playcanvas/pcui';
  * A floating tooltip that can be attached to a target element.
  */
 class Tooltip extends Container {
-    /**
-     * @type {number}
-     * @private
-     */
-    _margin = 10;
+    private _margin = 10;
 
-    /**
-     * @type {number}
-     * @private
-     */
-    _delay = 200;
+    private _delay = 200;
 
-    /**
-     * @type {Map<Element, {
-     * container: Container,
-     * target: Element,
-     * arrow: HTMLDivElement,
-     * events: EventHandle[]
-     * }>}
-     * @private
-     */
-    _targets = new Map();
+    private _targets: Map<Element, {
+        container: Container,
+        target: Element,
+        arrow: HTMLDivElement,
+        events: EventHandle[]
+    }> = new Map();
 
     /**
      * Creates new tooltip.

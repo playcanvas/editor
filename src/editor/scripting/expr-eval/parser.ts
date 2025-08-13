@@ -1,4 +1,4 @@
-type ASTNode = {
+export type ASTNode = {
     /** The type or kind of this AST node */
     type: 'BinaryExpression' | 'UnaryExpression' | 'MemberExpression' | 'Identifier' | 'Literal';
     /** The associated token */

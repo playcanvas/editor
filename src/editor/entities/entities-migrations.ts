@@ -6,9 +6,9 @@ import { LAYERID_WORLD, LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE, LAYERI
 
 editor.once('load', () => {
     /**
-     * @param {Observer & { insert: (string, val) => void }} entity - The entity to migrate
+     * @param entity - The entity to migrate
      */
-    const migrate = (entity) => {
+    const migrate = (entity: Observer & { insert: (string, val) => void }) => {
         // Defer migration to ensure document is ready
         setTimeout(() => {
             entity.history.enabled = false;

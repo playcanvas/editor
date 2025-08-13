@@ -38,10 +38,8 @@ class ScriptInspector extends Panel {
     /**
      * AST cache for script parsing. This means expressions are parsed only once,
      * and then the AST is cached for future evaluation.
-     *
-     * @type {Map<string, ASTNode>}
      */
-    _astCache = new Map();
+    private _astCache: Map<string, ASTNode> = new Map();
 
     constructor(args) {
         super(args);
@@ -190,10 +188,7 @@ class ScriptInspector extends Panel {
         const order = this._asset.get(`data.scripts.${this._scriptName}.attributesOrder`) || [];
 
         // script attributes inspector
-        /**
-         * @type {Attribute[]}
-         */
-        const ATTRIBUTES = order.map((attribute) => {
+        const ATTRIBUTES: Attribute[] = order.map((attribute) => {
             return this._convertAttributeDataToInspectorData(attribute, attribute, attributes[attribute]);
         });
 

@@ -154,10 +154,7 @@ class AnimstategraphState extends Panel {
 
         this._enabled = enabled;
 
-        /**
-         * @type {Attribute[]}
-         */
-        const ATTRIBUTES = [
+        const ATTRIBUTES: Attribute[] = [
             {
                 label: 'Name',
                 alias: `${path}.name`,

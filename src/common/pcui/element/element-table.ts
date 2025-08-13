@@ -1,5 +1,5 @@
 import type { Observer } from '@playcanvas/observer';
-import { Element, Container, Label, ContainerArgs } from '@playcanvas/pcui';
+import { Element, Container, Label } from '@playcanvas/pcui';
 
 import { TableCell } from './element-table-cell.ts';
 import { TableRow } from './element-table-row.ts';
@@ -50,7 +50,7 @@ type TableArgs = {
  * Defaults to true.
  */
 class Table extends Container {
-    constructor(args: TableArgs & ContainerArgs) {
+    constructor(args: TableArgs) {
         args = Object.assign({}, args);
 
         super(args);

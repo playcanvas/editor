@@ -92,10 +92,10 @@ const startChecker = () => {
     /**
      * Find the references to an asset and check if the srgb flag is set correctly
      *
-     * @param {Observer} asset - The asset to check for usage flag
-     * @returns {TextureUsage[]} The list of references for the asset
+     * @param asset - The asset to check for usage flag
+     * @returns The list of references for the asset
      */
-    const findUsages = (asset) => {
+    const findUsages = (asset: Observer): TextureUsage[] => {
         const used = editor.call('assets:used:index');
         const assetId = asset.get('id');
         const assetUsed = used[assetId];

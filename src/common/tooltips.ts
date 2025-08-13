@@ -3,12 +3,7 @@ import { Button, Container, Label } from '@playcanvas/pcui';
 
 import type { Tooltip } from './pcui/element/element-tooltip.js';
 
-/**
- * Gets the tooltip instance
- *
- * @returns {Tooltip} The tooltip.
- */
-export const tooltip = () => editor.call('layout.tooltip');
+export const tooltip = (): Tooltip => editor.call('layout.tooltip');
 
 /**
  * Creates a new simple tooltip item
@@ -91,16 +86,20 @@ export const tooltipRefItem = ({
 /**
  * Creates a new override tooltip item
  *
- * @param {object} args - The arguments.
- * @param {Observer} args.templateRoot - The entity that represents the template root in the scene.
- * @param {ObserverList} args.entities - The entities observer list.
- * @param {object} args.override - The override.
- * @returns {Container} The tooltip.
+ * @param args - The arguments.
+ * @param args.templateRoot - The entity that represents the template root in the scene.
+ * @param args.entities - The entities observer list.
+ * @param args.override - The override.
+ * @returns The tooltip.
  */
 export const tooltipOverrideItem = ({
     templateRoot,
     entities,
     override
+}: {
+    templateRoot: Observer;
+    entities: ObserverList;
+    override: object;
 }) => {
     const title = 'Override';
     let subTitle = '';

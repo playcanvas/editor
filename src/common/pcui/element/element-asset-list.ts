@@ -30,12 +30,7 @@ type AssetListArgs = {
  * @property {boolean} renderChanges If true the input will flash when changed.
  */
 class AssetList extends Element {
-    /**
-     * Creates a new AssetList.
-     *
-     * @param {AssetListArgs} [args] - The arguments.
-     */
-    constructor(args = {}) {
+    constructor(args: AssetListArgs = {}) {
         const container = new Container({
             flex: true
         });

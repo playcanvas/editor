@@ -1,4 +1,3 @@
-import type { Asset } from '@playcanvas/editor-api';
 import { Container, Button } from '@playcanvas/pcui';
 
 import { BaseSettingsPanel } from './base.ts';
