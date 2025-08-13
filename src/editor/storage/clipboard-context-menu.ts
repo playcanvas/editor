@@ -52,6 +52,7 @@ editor.once('load', () => {
 
     let path: string | null = null;
     let schemaType: string | null = null;
+    let fieldEnabled: boolean = false;
     let fieldOptions: object[] | null = null;
     let elementHighlighted = null;
 
@@ -61,11 +62,9 @@ editor.once('load', () => {
 
     // types of selected objects currently supported
     const objTypes = new Set([
-        'entity'
+        'entity',
+        'asset'
     ]);
-
-    // TODO:
-    // add support for 'asset' inspector
 
 
     // list of exceptions
@@ -124,7 +123,7 @@ editor.once('load', () => {
         icon: 'E348',
         onIsVisible: hasWriteAccess, // visible only if user has write access
         onIsEnabled: () => {
-            return editor.call('clipboard:validPaste', path, schemaType, fieldOptions);
+            return fieldEnabled && editor.call('clipboard:validPaste', path, schemaType, fieldOptions);
         },
         onSelect: () => {
             editor.call('clipboard:paste', path, schemaType, fieldOptions);
@@ -251,7 +250,7 @@ editor.once('load', () => {
 
 
     // method to open context menu
-    editor.method('clipboard:contextmenu:open', (x: number, y: number, newPath: string, type: string, options: object[] | null, element: Element) => {
+    editor.method('clipboard:contextmenu:open', (x: number, y: number, newPath: string, type: string, options: object[] | null, element: Element, canPaste: boolean = true) => {
         // it might not have a path
         if (!newPath) {
             schemaType = null;
@@ -279,6 +278,7 @@ editor.once('load', () => {
         path = newPath;
         schemaType = type;
         fieldOptions = options;
+        fieldEnabled = canPaste;
         menuItemCopyLabel.text = editor.call('clipboard:typeToHuman', schemaType);
 
         // highlight field
@@ -408,3 +408,5 @@ editor.once('load', () => {
 // 1. entity.components.anim.stateGraphAsset - created without path, dynamically linked, when changed it changes slots under
 // 2. entity.components.render.materialAssets - is a fixed length array of asset ID's, the array length should not be changed, and is defined by a number of meshInstances on a render asset
 // 3. entity.components.particlesystem.%curves% - curvesets are more complex types, with multi-paths for fields
+// 4. asset material offset/tiling/rotation - texture transform options that apply to all texture slots
+// 5. asset texture/cubemap filtering - is a combined field
