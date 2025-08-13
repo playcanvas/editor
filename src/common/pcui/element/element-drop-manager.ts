@@ -21,12 +21,7 @@ const CLASS_DROP_MANAGER_ACTIVE = `${CLASS_DROP_MANAGER}-active`;
  * @property {Any} dropData The data being dropped
  */
 class DropManager extends Container {
-    /**
-     * Creates a new DropManager.
-     *
-     * @param {object} args - The arguments.
-     */
-    constructor(args) {
+    constructor(args: object) {
         super(args);
 
         this.class.add(CLASS_DROP_MANAGER);

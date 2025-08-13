@@ -1,16 +1,11 @@
 import { Container } from '@playcanvas/pcui';
 
-/**
- * @import { ContainerArgs } from '@playcanvas/pcui';
- */
-
 const CLASS_CELL = 'pcui-table-cell';
 
-/**
- * @typedef TableCellArgs
- * @property {boolean} [header] - If true then this cell belongs to a header row so it will use the
- * <th> element.
- */
+type TableCellArgs = {
+    /** If true then this cell belongs to a header row so it will use the <th> element */
+    header?: boolean;
+};
 
 /**
  * Represents a table cell inside a TableRow
@@ -19,9 +14,9 @@ class TableCell extends Container {
     /**
      * Creates a new TableCell.
      *
-     * @param {TableCellArgs & ContainerArgs} [args] - The arguments.
+     * @param {TableCellArgs} args - The arguments.
      */
-    constructor(args) {
+    constructor(args?: TableCellArgs) {
         let dom;
         if (args && args.header) {
             dom = document.createElement('th');

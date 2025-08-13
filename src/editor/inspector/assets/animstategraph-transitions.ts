@@ -9,11 +9,9 @@ import {
     ANIM_INTERRUPTION_NEXT_PREV,
     ANIM_INTERRUPTION_PREV_NEXT
 } from '../../../core/constants.ts';
+import type { Attribute, Divider } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-/**
- * @import { Attribute, Divider } from '../attribute.type.d.ts';
- */
 
 const CLASS_ANIMSTATEGRAPH = 'asset-animstategraph-inspector';
 const CLASS_ANIMSTATEGRAPH_TRANSITION = `${CLASS_ANIMSTATEGRAPH}-transition`;
@@ -157,10 +155,7 @@ class AnimstategraphTransitions extends Container {
                 return parameters[key].name;
             });
 
-            /**
-             * @type {(Attribute | Divider)[]}
-             */
-            const ATTRIBUTES = [
+            const ATTRIBUTES: (Attribute | Divider)[] = [
                 {
                     label: 'Duration',
                     path: `data.transitions.${transitionId}.time`,

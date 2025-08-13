@@ -1,36 +1,20 @@
-import { Container } from '@playcanvas/pcui';
-
-/**
- * @import { Element } from '@playcanvas/pcui';
- * @import { EventHandle } from '@playcanvas/observer';
- */
+import type { EventHandle } from '@playcanvas/observer';
+import { Container, Element } from '@playcanvas/pcui';
 
 /**
  * A floating tooltip that can be attached to a target element.
  */
 class Tooltip extends Container {
-    /**
-     * @type {number}
-     * @private
-     */
-    _margin = 10;
+    private _margin = 10;
 
-    /**
-     * @type {number}
-     * @private
-     */
-    _delay = 200;
+    private _delay = 200;
 
-    /**
-     * @type {Map<Element, {
-     * container: Container,
-     * target: Element,
-     * arrow: HTMLDivElement,
-     * events: EventHandle[]
-     * }>}
-     * @private
-     */
-    _targets = new Map();
+    private _targets: Map<Element, {
+        container: Container,
+        target: Element,
+        arrow: HTMLDivElement,
+        events: EventHandle[]
+    }> = new Map();
 
     /**
      * Creates new tooltip.
@@ -52,10 +36,8 @@ class Tooltip extends Container {
 
     /**
      * The margin in pixels between the tooltip and the target element.
-     *
-     * @type {number}
      */
-    set margin(value) {
+    set margin(value: number) {
         this._margin = value ?? this._margin;
     }
 
@@ -65,10 +47,8 @@ class Tooltip extends Container {
 
     /**
      * The delay in milliseconds before the tooltip is shown.
-     *
-     * @type {number}
      */
-    set delay(value) {
+    set delay(value: number) {
         this._delay = value ?? this._delay;
     }
 

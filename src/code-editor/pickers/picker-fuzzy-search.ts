@@ -2,10 +2,8 @@ import { Observer } from '@playcanvas/observer';
 import { Container, Menu, MenuItem, Overlay, TextInput } from '@playcanvas/pcui';
 
 editor.once('load', () => {
-    /** @type {Container} */
-    const root = editor.call('layout.root');
-    /** @type {Container} */
-    const parent = editor.call('layout.center');
+    const root: Container = editor.call('layout.root');
+    const parent: Container = editor.call('layout.center');
 
     const overlay = new Overlay({
         class: 'picker-fuzzy-search',

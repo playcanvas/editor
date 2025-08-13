@@ -1,3 +1,5 @@
+import type { AssetObserver, EntityObserver } from '@playcanvas/editor-api';
+
 editor.once('load', () => {
     const REGEX_SCRIPT_NAME = /^components\.script\.scripts\.([^.]+)$/;
     const REGEX_JSON_SCRIPT_ATTR_ARRAY_ELEMENT = /^components\.script\.scripts\.[^.]+\.attributes\.[^.]+\.\d+$/;
@@ -559,7 +561,7 @@ editor.once('load', () => {
     });
 
     /* eslint-disable require-atomic-updates */
-    editor.method('templates:revertAll', (/** @type {EntityObserver} */ entityObserver) => {
+    editor.method('templates:revertAll', (entityObserver: EntityObserver) => {
 
         const templateId = entityObserver.get('template_id');
         const templateEntIds = entityObserver.get('template_ent_ids');
@@ -567,7 +569,7 @@ editor.once('load', () => {
             return false;
         }
 
-        const asset = /** @type {AssetObserver} */ (editor.call('assets:get', templateId));
+        const asset: AssetObserver = (editor.call('assets:get', templateId));
         if (!asset) {
             return;
         }

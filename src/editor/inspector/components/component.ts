@@ -2,20 +2,14 @@ import { LocalStorage } from '@playcanvas/editor-api';
 import { Panel, BooleanInput, LabelGroup, Button, Menu, BindingTwoWay, Container } from '@playcanvas/pcui';
 
 import { tooltip, tooltipRefItem } from '../../../common/tooltips.ts';
-
-/**
- * @import { TemplateOverrideInspector } from '../../templates/templates-override-inspector.js'
- */
+import type { TemplateOverrideInspector } from '../../templates/templates-override-inspector.js';
 
 const CLASS_ROOT = 'component-inspector';
 const CLASS_COMPONENT_ICON = 'component-icon-prefix';
 const CLASS_ENABLED = `${CLASS_ROOT}-enabled`;
 
 class ComponentInspector extends Panel {
-    /**
-     * @type {TemplateOverrideInspector}
-     */
-    _templateOverridesInspector;
+    private _templateOverridesInspector: TemplateOverrideInspector;
 
     constructor(args) {
         args = Object.assign({}, args);

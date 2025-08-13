@@ -109,7 +109,6 @@ editor.on('load', () => {
             return;
         }
         await addLog('error', msg, verboseMsg, onclick);
-        editor.call('status:error', msg);
     });
     editor.method('console:history', () => {
         pendingHistory = true;

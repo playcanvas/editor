@@ -1,15 +1,10 @@
 import { Panel, Container } from '@playcanvas/pcui';
 
+import type { Attribute } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-/**
- * @import { Attribute } from '../attribute.type.d.ts'
- */
 
-/**
- * @type {Attribute[]}
- */
-const META_ATTRIBUTES = [{
+const META_ATTRIBUTES: Attribute[] = [{
     label: 'Vertices',
     alias: 'vertices',
     path: 'meta.vertices',
@@ -37,10 +32,7 @@ const META_ATTRIBUTES = [{
     type: 'label'
 }];
 
-/**
- * @type {Attribute[]}
- */
-const ATTRIBUTES = [{
+const ATTRIBUTES: Attribute[] = [{
     label: 'Index',
     path: 'data.renderIndex',
     type: 'label',

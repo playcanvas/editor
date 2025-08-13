@@ -2,9 +2,6 @@ import { Element, Canvas } from '@playcanvas/pcui';
 
 import { CLASS_MULTIPLE_VALUES } from '../constants.ts';
 
-/**
- * @import { ElementArgs } from '@playcanvas/pcui';
- */
 
 const REGEX_KEYS = /keys/;
 const REGEX_TYPE = /type/;
@@ -30,10 +27,10 @@ function createCheckerboardPattern(context) {
     return context.createPattern(canvas, 'repeat');
 }
 
-/**
- * @typedef GradientInputArgs
- * @property {number} [channels] - The number of color channels. Between 1 and 4.
- */
+type GradientInputArgs = {
+    /** The number of color channels. Between 1 and 4. */
+    channels?: number;
+}
 
 /**
  * Shows a color gradient.
@@ -41,12 +38,7 @@ function createCheckerboardPattern(context) {
  * @property {boolean} renderChanges If true the input will flash when changed.
  */
 class GradientInput extends Element {
-    /**
-     * Creates a new GradientInput.
-     *
-     * @param {GradientInputArgs & ElementArgs} args - The arguments.
-     */
-    constructor(args) {
+    constructor(args: GradientInputArgs) {
         args = Object.assign({
             tabIndex: 0
         }, args);

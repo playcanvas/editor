@@ -1,10 +1,8 @@
 import { Panel, Container, Button, SelectInput } from '@playcanvas/pcui';
 
+import type { Attribute } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-/**
- * @import { Attribute } from '../attribute.type.d.ts'
- */
 
 const CLASS_ANIMSTATEGRAPH = 'asset-animstategraph-inspector';
 const CLASS_ANIMSTATEGRAPH_LAYER = `${CLASS_ANIMSTATEGRAPH}-layer`;
@@ -330,10 +328,7 @@ class AnimstategraphLayers extends Panel {
                 this._deleteLayer(layerKey);
             });
 
-            /**
-             * @type {Attribute[]}
-             */
-            const ATTRIBUTES = [
+            const ATTRIBUTES: Attribute[] = [
                 {
                     label: 'Name',
                     path: `data.layers.${layerKey}.name`,

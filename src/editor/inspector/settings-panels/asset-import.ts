@@ -1,19 +1,13 @@
 import { Panel, Button, Container, Label } from '@playcanvas/pcui';
 
 import { BaseSettingsPanel } from './base.ts';
-
-/**
- * @import { Attribute } from '../attribute.type.d.ts'
- */
+import type { Attribute } from '../attribute.type.d.ts';
 
 const CLASS_ROOT = 'asset-import-settings-panel';
 const CLASS_SECTION = `${CLASS_ROOT}-section`;
 const CLASS_ATTRIBUTES = `${CLASS_ROOT}-attributes`;
 
-/**
- * @type {Attribute[]}
- */
-const ATTRIBUTES = [
+const ATTRIBUTES: Attribute[] = [
     {
         observer: 'settings',
         label: 'Search related assets',

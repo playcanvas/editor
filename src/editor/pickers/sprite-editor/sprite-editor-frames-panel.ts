@@ -1,8 +1,4 @@
-import { Button, Canvas, Container, Label } from '@playcanvas/pcui';
-
-/**
- * @import { Panel } from '@playcanvas/pcui'
- */
+import { Button, Canvas, Container, Label, Panel } from '@playcanvas/pcui';
 
 editor.once('load', () => {
     editor.method('picker:sprites:frames', (args) => {
@@ -21,8 +17,7 @@ editor.once('load', () => {
 
         let scrollSelectionIntoView = true;
 
-        /** @type {Panel} */
-        const leftPanel = editor.call('picker:sprites:leftPanel');
+        const leftPanel: Panel = editor.call('picker:sprites:leftPanel');
 
         const panelFrames = leftPanel.content;
         panelFrames.class.add('frames');
