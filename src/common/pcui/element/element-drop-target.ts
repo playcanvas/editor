@@ -1,4 +1,4 @@
-import { Element, ElementArgs } from '@playcanvas/pcui';
+import { Element } from '@playcanvas/pcui';
 
 import type { DropManager } from './element-drop-manager.ts';
 
@@ -35,7 +35,7 @@ class DropTarget extends Element {
      * Creates a new DropTarget.
      *
      * @param {Element} targetElement - The element that will allow drag dropping.
-     * @param {DropTargetArgs & ElementArgs} [args] - The arguments.
+     * @param {DropTargetArgs} [args] - The arguments.
      */
     constructor(targetElement, args = {}) {
         super(args);

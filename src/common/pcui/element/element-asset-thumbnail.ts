@@ -1,5 +1,5 @@
 import { Observer, ObserverList } from '@playcanvas/observer';
-import { Element, ElementArgs } from '@playcanvas/pcui';
+import { Element } from '@playcanvas/pcui';
 
 import { CubemapThumbnailRenderer } from '../../thumbnail-renderers/cubemap-thumbnail-renderer.ts';
 import { FontThumbnailRenderer } from '../../thumbnail-renderers/font-thumbnail-renderer.ts';
@@ -46,7 +46,7 @@ class AssetThumbnail extends Element {
     /**
      * Creates a new AssetThumbnail.
      *
-     * @param {AssetThumbnailArgs & ElementArgs} [args] - The arguments.
+     * @param {AssetThumbnailArgs} [args] - The arguments.
      */
     constructor(args = {}) {
         super({ ...args, dom: 'span' });

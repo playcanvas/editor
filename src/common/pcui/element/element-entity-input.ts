@@ -1,5 +1,5 @@
 import type { ObserverList } from '@playcanvas/observer';
-import { Element, Container, Label, Button, BindingObserversToElement, ElementArgs } from '@playcanvas/pcui';
+import { Element, Container, Label, Button, BindingObserversToElement } from '@playcanvas/pcui';
 
 import { CLASS_FOCUS, CLASS_MULTIPLE_VALUES } from '../constants.ts';
 
@@ -27,7 +27,7 @@ class EntityInput extends Element {
     /**
      * Creates a new EntityInput.
      *
-     * @param {EntityInputArgs & ElementArgs} [args] - The arguments.
+     * @param {EntityInputArgs} [args] - The arguments.
      */
     constructor(args) {
         const container = new Container();

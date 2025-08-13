@@ -1,5 +1,5 @@
 import type { ObserverList } from '@playcanvas/observer';
-import { Element, Container, Button, Label, TextInput, BindingObserversToElement, ElementArgs } from '@playcanvas/pcui';
+import { Element, Container, Button, Label, TextInput, BindingObserversToElement } from '@playcanvas/pcui';
 
 const CLASS_ASSET_LIST = 'pcui-asset-list';
 const CLASS_ASSET_LIST_SELECTION_MODE = `${CLASS_ASSET_LIST}-selection-mode`;
@@ -33,7 +33,7 @@ class AssetList extends Element {
     /**
      * Creates a new AssetList.
      *
-     * @param {AssetListArgs & ElementArgs} [args] - The arguments.
+     * @param {AssetListArgs} [args] - The arguments.
      */
     constructor(args = {}) {
         const container = new Container({

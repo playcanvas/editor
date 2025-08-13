@@ -1,4 +1,4 @@
-import { Element, Canvas, ElementArgs } from '@playcanvas/pcui';
+import { Element, Canvas } from '@playcanvas/pcui';
 
 import { deepCopy } from '../../utils.ts';
 import { CLASS_MULTIPLE_VALUES } from '../constants.ts';
@@ -28,7 +28,7 @@ class CurveInput extends Element {
     /**
      * Creates a new CurveInput.
      *
-     * @param {CurveInputArgs & ElementArgs} [args] - The arguments.
+     * @param {CurveInputArgs} [args] - The arguments.
      */
     constructor(args) {
         args = Object.assign({

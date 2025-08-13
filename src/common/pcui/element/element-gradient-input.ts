@@ -1,4 +1,4 @@
-import { Element, Canvas, ElementArgs } from '@playcanvas/pcui';
+import { Element, Canvas } from '@playcanvas/pcui';
 
 import { CLASS_MULTIPLE_VALUES } from '../constants.ts';
 
@@ -41,7 +41,7 @@ class GradientInput extends Element {
     /**
      * Creates a new GradientInput.
      *
-     * @param {GradientInputArgs & ElementArgs} args - The arguments.
+     * @param {GradientInputArgs} args - The arguments.
      */
     constructor(args) {
         args = Object.assign({

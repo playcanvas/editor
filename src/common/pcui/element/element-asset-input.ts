@@ -1,5 +1,5 @@
 import type { ObserverList } from '@playcanvas/observer';
-import { Element, Label, Container, Button, BindingObserversToElement, ElementArgs } from '@playcanvas/pcui';
+import { Element, Label, Container, Button, BindingObserversToElement } from '@playcanvas/pcui';
 
 import { AssetThumbnail } from './element-asset-thumbnail.ts';
 import { CLASS_MULTIPLE_VALUES } from '../constants.ts';
@@ -44,7 +44,7 @@ class AssetInput extends Element {
     /**
      * Creates a new AssetInput.
      *
-     * @param {AssetInputArgs & ElementArgs} args - The arguments.
+     * @param {AssetInputArgs} args - The arguments.
      */
     constructor(args) {
         args = Object.assign({}, args);
