@@ -22,7 +22,7 @@
  */
 
 // Type cast
-const worker = /** @type {ServiceWorkerGlobalScope & self} */ (self);
+const worker: ServiceWorkerGlobalScope & self = (self);
 
 // Constants
 const SCOPE = '/api/assets/';

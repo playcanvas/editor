@@ -38,7 +38,7 @@ editor.once('viewport:load', (app) => {
     };
 
     // Option Fields UI
-    const createOption = (/** @type {string} */ cameraName, /** @type {string} */ guid) => {
+    const createOption = (cameraName: string, guid: string) => {
 
         // Create UI Panel
         const panelCameraOption = new Container({

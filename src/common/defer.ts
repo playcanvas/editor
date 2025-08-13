@@ -1,18 +1,9 @@
-class Defer {
-    /**
-     * @type {Promise}
-     */
-    promise;
+class Defer<T> {
+    promise: Promise<T>;
 
-    /**
-     * @type {Function}
-     */
-    resolve;
+    resolve: (value: T) => void;
 
-    /**
-     * @type {Function}
-     */
-    reject;
+    reject: (reason?: any) => void;
 
     constructor() {
         this.promise = new Promise((resolve, reject) => {

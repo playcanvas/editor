@@ -1,23 +1,11 @@
 class WorkerClient {
-    /**
-     * @type {(ArrayBuffer | MessagePort | ImageBitmap)[]}
-     */
-    _transfer = [];
+    _transfer: (ArrayBuffer | MessagePort | ImageBitmap)[] = [];
 
-    /**
-     * @type {Map<string, Function[]>}
-     */
-    _callbacks = new Map();
+    _callbacks: Map<string, Function[]> = new Map();
 
-    /**
-     * @type {string}
-     */
-    url;
+    url: string;
 
-    /**
-     * @type {Worker | null}
-     */
-    worker;
+    worker: Worker | null;
 
     /**
      * @param {string} url - The URL of the worker.

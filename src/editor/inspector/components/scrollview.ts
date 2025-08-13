@@ -7,16 +7,11 @@ import {
     SCROLLBAR_VISIBILITY_SHOW_ALWAYS,
     SCROLLBAR_VISIBILITY_SHOW_WHEN_REQUIRED
 } from '../../../core/constants.ts';
+import type { Attribute, Divider } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-/**
- * @import { Attribute, Divider } from '../attribute.type.d.ts'
- */
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const ATTRIBUTES = [{
+const ATTRIBUTES: (Attribute | Divider)[] = [{
     label: 'Scroll Mode',
     path: 'components.scrollview.scrollMode',
     reference: 'scrollview:scrollMode',

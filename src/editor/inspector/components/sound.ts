@@ -2,16 +2,11 @@ import { Panel, Container, Button } from '@playcanvas/pcui';
 
 import { ComponentInspector } from './component.ts';
 import { deepCopy } from '../../../common/utils.ts';
+import type { Attribute } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-/**
- * @import { Attribute } from '../attribute.type.d.ts'
- */
 
-/**
- * @type {Attribute[]}
- */
-const COMPONENT_ATTRIBUTES = [{
+const COMPONENT_ATTRIBUTES: Attribute[] = [{
     label: 'Positional',
     path: 'components.sound.positional',
     type: 'boolean',
@@ -83,10 +78,7 @@ const COMPONENT_ATTRIBUTES = [{
     reference: 'sound:rollOffFactor'
 }];
 
-/**
- * @type {Attribute[]}
- */
-const SLOT_ATTRIBUTES = [{
+const SLOT_ATTRIBUTES: Attribute[] = [{
     label: 'Name',
     path: 'components.sound.slots.$.name',
     type: 'string',

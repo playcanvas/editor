@@ -1,9 +1,5 @@
+import type { ObserverList } from '@playcanvas/observer';
 import { Element, Container, Button, Label, TextInput, BindingObserversToElement } from '@playcanvas/pcui';
-
-/**
- * @import { ObserverList } from '@playcanvas/observer';
- * @import { ElementArgs } from '@playcanvas/pcui';
- */
 
 const CLASS_ASSET_LIST = 'pcui-asset-list';
 const CLASS_ASSET_LIST_SELECTION_MODE = `${CLASS_ASSET_LIST}-selection-mode`;
@@ -17,15 +13,16 @@ const CLASS_CONTAINER_ASSETS = `${CLASS_ASSET_LIST}-assets`;
 const CLASS_ASSET_ITEM = `${CLASS_ASSET_LIST}-item`;
 const CLASS_ASSET_NOT_EVERYWHERE = `${CLASS_ASSET_LIST}-not-everywhere`;
 
-/**
- * @typedef AssetListArgs
- * @property {ObserverList} [assets] - The assets list
- * @property {string} [assetType] - An optional filter for a specific asset type.
- * @property {Function} [filterFn] - An optional filter function when determining which assets to
- * show with the asset picker.
- * @property {boolean} [allowDragDrop] - If true then this will enable drag and drop of assets on
- * the input. The function takes an asset observer as an argument and returns true or false.
- */
+type AssetListArgs = {
+    /** The assets list */
+    assets?: ObserverList;
+    /** An optional filter for a specific asset type. */
+    assetType?: string;
+    /** An optional filter function when determining which assets to show with the asset picker. */
+    filterFn?: (asset: any) => boolean;
+    /** If true then this will enable drag and drop of assets on the input. The function takes an asset observer as an argument and returns true or false. */
+    allowDragDrop?: boolean;
+}
 
 /**
  * Element that can allows selecting multiple assets.
@@ -33,12 +30,7 @@ const CLASS_ASSET_NOT_EVERYWHERE = `${CLASS_ASSET_LIST}-not-everywhere`;
  * @property {boolean} renderChanges If true the input will flash when changed.
  */
 class AssetList extends Element {
-    /**
-     * Creates a new AssetList.
-     *
-     * @param {AssetListArgs & ElementArgs} [args] - The arguments.
-     */
-    constructor(args = {}) {
+    constructor(args: AssetListArgs = {}) {
         const container = new Container({
             flex: true
         });

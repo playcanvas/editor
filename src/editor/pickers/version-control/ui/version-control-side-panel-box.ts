@@ -5,25 +5,32 @@ import { LegacyLabel } from '../../../../common/ui/label.ts';
 import { LegacyPanel } from '../../../../common/ui/panel.ts';
 import { LegacyTooltip } from '../../../../common/ui/tooltip.ts';
 
+type VersionControlSidePanelBoxArgs = {
+    /** The box title */
+    header?: string;
+    /** The text of the note next to the header */
+    headerNote?: string;
+    /** If true then this box will also contain a panel to take a checkpoint in the target branch */
+    createTargetCheckpoint?: boolean;
+    /** The text of the help tooltip in the target checkpoint panel */
+    targetCheckpointHelp?: string;
+    /** If true then this box will also contain a panel to take a checkpoint in the source branch */
+    createSourceCheckpoint?: boolean;
+    /** The text of the help tooltip in the source checkpoint panel */
+    sourceCheckpointHelp?: string;
+    /** If true then this box will also contain a checkbox to close the source branch after merging */
+    closeSourceBranch?: boolean;
+    /** The text of the help tooltip in the close source branch panel */
+    closeSourceBranchHelp?: string;
+    /** If true the box header will not have a top left icon */
+    noIcon?: boolean;
+};
+
 /**
  * Represents a box widget that is commonly used in version control side panels.
  */
 class VersionControlSidePanelBox extends Events {
-    /**
-     * Create a new VersionControlSidePanelBox.
-     *
-     * @param {object} args - Various options for the widget
-     * @param {string} [args.header] - The box title
-     * @param {string} [args.headerNote] - The text of the note next to the header
-     * @param {boolean} [args.createTargetCheckpoint] - If true then this box will also contain a panel to take a checkpoint in the target branch
-     * @param {string} [args.targetCheckpointHelp] - The text of the help tooltip in the target checkpoint panel
-     * @param {boolean} [args.createSourceCheckpoint] - If true then this box will also contain a panel to take a checkpoint in the source branch
-     * @param {string} [args.sourceCheckpointHelp] - The text of the help tooltip in the source checkpoint panel
-     * @param {boolean} [args.closeSourceBranch] - If true then this box will also contain a checkbox to close the source branch after merging
-     * @param {string} [args.closeSourceBranchHelp] - The text of the help tooltip in the close source branch panel
-     * @param {boolean} [args.noIcon] - If true the box header will not have a top left icon
-     */
-    constructor(args) {
+    constructor(args: VersionControlSidePanelBoxArgs) {
         super();
 
         // main box panel
@@ -207,17 +214,13 @@ class VersionControlSidePanelBox extends Events {
 
     /**
      * Set the header text of the box.
-     *
-     * @type {string}
      */
-    set header(value) {
+    set header(value: string) {
         this.panel.header = value;
     }
 
     /**
      * Get the header text of the box.
-     *
-     * @type {string}
      */
     get header() {
         return this.panel.header;
