@@ -1,6 +1,5 @@
 import type { EventHandle } from '@playcanvas/observer';
-import { Container } from '@playcanvas/pcui';
-import type { Element } from '@playcanvas/pcui';
+import { Container, Element } from '@playcanvas/pcui';
 
 /**
  * A floating tooltip that can be attached to a target element.

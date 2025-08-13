@@ -1,6 +1,5 @@
 import type { Observer } from '@playcanvas/observer';
-import { Element, Container, Label } from '@playcanvas/pcui';
-import type { ContainerArgs } from '@playcanvas/pcui';
+import { Element, Container, Label, ContainerArgs } from '@playcanvas/pcui';
 
 import { TableCell } from './element-table-cell.ts';
 import { TableRow } from './element-table-row.ts';

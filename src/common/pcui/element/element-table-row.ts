@@ -1,5 +1,4 @@
-import { Container } from '@playcanvas/pcui';
-import type { ContainerArgs } from '@playcanvas/pcui';
+import { Container, ContainerArgs } from '@playcanvas/pcui';
 
 const CLASS_ROW = 'pcui-table-row';
 const CLASS_SELECTED_ROW = `${CLASS_ROW}-selected`;

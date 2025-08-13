@@ -1,6 +1,5 @@
 import type { Observer } from '@playcanvas/observer';
-import { Element, SelectInput } from '@playcanvas/pcui';
-import type { SelectInputArgs } from '@playcanvas/pcui';
+import { Element, SelectInput, SelectInputArgs } from '@playcanvas/pcui';
 
 /**
  * @typedef BatchGroupInputArgs

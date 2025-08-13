@@ -1,5 +1,4 @@
-import { Element, Canvas } from '@playcanvas/pcui';
-import type { ElementArgs } from '@playcanvas/pcui';
+import { Element, Canvas, ElementArgs } from '@playcanvas/pcui';
 
 import { CLASS_MULTIPLE_VALUES } from '../constants.ts';
 

@@ -1,5 +1,4 @@
-import { Events } from '@playcanvas/observer';
-import type { Observer } from '@playcanvas/observer';
+import { Events, Observer } from '@playcanvas/observer';
 
 /**
  * Performs deep copy

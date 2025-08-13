@@ -1,5 +1,4 @@
-import { ObserverHistory } from '@playcanvas/observer';
-import type { Observer } from '@playcanvas/observer';
+import { ObserverHistory, Observer } from '@playcanvas/observer';
 
 editor.once('load', () => {
     let isConnected = false;

@@ -1,5 +1,4 @@
-import { Element } from '@playcanvas/pcui';
-import type { ElementArgs } from '@playcanvas/pcui';
+import { Element, ElementArgs } from '@playcanvas/pcui';
 
 import type { DropManager } from './element-drop-manager.ts';
 

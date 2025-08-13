@@ -1,5 +1,4 @@
-import { ObserverHistory } from '@playcanvas/observer';
-import type { Observer } from '@playcanvas/observer';
+import { ObserverHistory, Observer } from '@playcanvas/observer';
 
 import { deepCopy, formatter as f, insert, remove, set, unset } from '../../common/utils.ts';
 import { LAYERID_WORLD, LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE, LAYERID_UI } from '../../core/constants.ts';

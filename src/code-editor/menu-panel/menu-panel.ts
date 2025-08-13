@@ -1,5 +1,4 @@
-import { Label } from '@playcanvas/pcui';
-import type { Button, Menu, MenuItem } from '@playcanvas/pcui';
+import { Label, Button, Menu, MenuItem } from '@playcanvas/pcui';
 
 editor.once('load', () => {
     const panel = editor.call('layout.top');

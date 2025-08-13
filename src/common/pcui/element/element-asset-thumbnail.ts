@@ -1,7 +1,5 @@
-import { Observer } from '@playcanvas/observer';
-import type { ObserverList } from '@playcanvas/observer';
-import { Element } from '@playcanvas/pcui';
-import type { ElementArgs } from '@playcanvas/pcui';
+import { Observer, ObserverList } from '@playcanvas/observer';
+import { Element, ElementArgs } from '@playcanvas/pcui';
 
 import { CubemapThumbnailRenderer } from '../../thumbnail-renderers/cubemap-thumbnail-renderer.ts';
 import { FontThumbnailRenderer } from '../../thumbnail-renderers/font-thumbnail-renderer.ts';

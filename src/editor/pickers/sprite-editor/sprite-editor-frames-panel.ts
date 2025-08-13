@@ -1,5 +1,4 @@
-import { Button, Canvas, Container, Label } from '@playcanvas/pcui';
-import type { Panel } from '@playcanvas/pcui';
+import { Button, Canvas, Container, Label, Panel } from '@playcanvas/pcui';
 
 editor.once('load', () => {
     editor.method('picker:sprites:frames', (args) => {
