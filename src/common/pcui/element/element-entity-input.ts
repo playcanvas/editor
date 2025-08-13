@@ -24,12 +24,7 @@ type EntityInputArgs = {
  * @property {boolean} renderChanges If true then the Element will flash when its value changes.
  */
 class EntityInput extends Element {
-    /**
-     * Creates a new EntityInput.
-     *
-     * @param {EntityInputArgs} [args] - The arguments.
-     */
-    constructor(args) {
+    constructor(args: EntityInputArgs) {
         const container = new Container();
 
         args = Object.assign({

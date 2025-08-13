@@ -29,13 +29,7 @@ class TemplateOverrideInspector {
      */
     _evtPartOfTemplate = null;
 
-    /**
-     * Creates new instance of the class.
-     *
-     * @param {object} args - The arguments.
-     * @param {ObserverList} args.entities - The entities observer list.
-     */
-    constructor(args) {
+    constructor(args: ObserverList) {
         this._entities = args.entities;
 
         this._evtMessenger = editor.on('messenger:template.apply', this._onTemplateApply.bind(this));

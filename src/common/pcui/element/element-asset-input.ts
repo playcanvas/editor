@@ -41,12 +41,7 @@ type AssetInputArgs = {
  * @property {Function} dragLeaveFn A function that is called when we stop dragging an item over the element.
  */
 class AssetInput extends Element {
-    /**
-     * Creates a new AssetInput.
-     *
-     * @param {AssetInputArgs} args - The arguments.
-     */
-    constructor(args) {
+    constructor(args: AssetInputArgs) {
         args = Object.assign({}, args);
 
         super(args);

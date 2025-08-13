@@ -25,12 +25,7 @@ type CurveInputArgs = {
  * @property {boolean} renderChanges If true the input will flash when changed.
  */
 class CurveInput extends Element {
-    /**
-     * Creates a new CurveInput.
-     *
-     * @param {CurveInputArgs} [args] - The arguments.
-     */
-    constructor(args) {
+    constructor(args: CurveInputArgs) {
         args = Object.assign({
             tabIndex: 0
         }, args);

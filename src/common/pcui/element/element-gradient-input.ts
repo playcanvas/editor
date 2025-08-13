@@ -38,12 +38,7 @@ type GradientInputArgs = {
  * @property {boolean} renderChanges If true the input will flash when changed.
  */
 class GradientInput extends Element {
-    /**
-     * Creates a new GradientInput.
-     *
-     * @param {GradientInputArgs} args - The arguments.
-     */
-    constructor(args) {
+    constructor(args: GradientInputArgs) {
         args = Object.assign({
             tabIndex: 0
         }, args);

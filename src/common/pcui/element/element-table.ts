@@ -50,12 +50,7 @@ type TableArgs = {
  * Defaults to true.
  */
 class Table extends Container {
-    /**
-     * Creates a new Table.
-     *
-     * @param {TableArgs & ContainerArgs} [args] - The arguments.
-     */
-    constructor(args) {
+    constructor(args: TableArgs & ContainerArgs) {
         args = Object.assign({}, args);
 
         super(args);
