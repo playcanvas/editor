@@ -264,12 +264,7 @@ class AssetGridViewItem extends GridViewItem {
  * @property {boolean} writePermissions If false then only a read-only view will be shown
  */
 class AssetPanel extends Panel {
-    /**
-     * Creates new AssetPanel.
-     *
-     * @param {object} args - The arguments
-     */
-    constructor(args) {
+    constructor(args: object) {
         args = Object.assign({
             headerText: 'ASSETS'
         }, args);

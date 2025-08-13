@@ -1,5 +1,16 @@
 import { Events, Observer, ObserverList } from '@playcanvas/observer';
 
+type ObserverSyncArgs = {
+    /** The item to sync */
+    item: Observer;
+    /** Whether the sync is enabled */
+    enabled?: boolean;
+    /** The prefix for the paths */
+    prefix?: any[];
+    /** The paths to allow */
+    paths?: string[];
+};
+
 class ObserverSync extends Events {
     /**
      * @type {Observer}
@@ -24,14 +35,7 @@ class ObserverSync extends Events {
      */
     _paths;
 
-    /**
-     * @param {object} args - The arguments
-     * @param {Observer} args.item - The item to sync
-     * @param {boolean} [args.enabled] - Whether the sync is enabled
-     * @param {any[]} [args.prefix] - The prefix
-     * @param {string[]} [args.paths] - The paths
-     */
-    constructor(args) {
+    constructor(args: ObserverSyncArgs) {
         super();
 
         this.item = args.item;
