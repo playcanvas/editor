@@ -52,7 +52,7 @@ editor.once('load', () => {
 
     let path: string | null = null;
     let schemaType: string | null = null;
-    let fieldOptions: string[] | null = null;
+    let fieldOptions: object[] | null = null;
     let elementHighlighted = null;
 
     if (!clipboard) {
@@ -205,7 +205,7 @@ editor.once('load', () => {
 
 
     // check if path and type are valid to be pasted in the current selection
-    editor.method('clipboard:validPaste', (path: string, type: string, options: string[] | null) => {
+    editor.method('clipboard:validPaste', (path: string, type: string, options: object[] | null) => {
         if (!path || !type) {
             return false;
         }
@@ -251,7 +251,7 @@ editor.once('load', () => {
 
 
     // method to open context menu
-    editor.method('clipboard:contextmenu:open', (x: number, y: number, newPath: string, type: string, options: string[] | null, element: Element) => {
+    editor.method('clipboard:contextmenu:open', (x: number, y: number, newPath: string, type: string, options: object[] | null, element: Element) => {
         // it might not have a path
         if (!newPath) {
             schemaType = null;
@@ -323,7 +323,7 @@ editor.once('load', () => {
         return true;
     });
 
-    editor.method('clipboard:paste', (path: string, type: string, options: string[] | null) => {
+    editor.method('clipboard:paste', (path: string, type: string, options: object[] | null) => {
         if (!editor.call('clipboard:validPaste', path, type, options)) {
             return false;
         }
