@@ -241,7 +241,7 @@ class AssetGridViewItem extends GridViewItem {
  * type and by searching in various ways. Allows creating new assets and moving assets to different
  * folders.
  *
- * @property {DropManager} The drop manager to support drag and drop.
+ * @property {DropManager} dropManager The drop manager to support drag and drop.
  * @property {ObserverList} assets The asset list to display.
  * @property {Observer} currentFolder The current folder.
  * @property {Table} detailsView The details view.
