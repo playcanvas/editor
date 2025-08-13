@@ -178,7 +178,7 @@ class AttributesInspector extends Container {
                         evt.preventDefault();
 
                         // call context menu
-                        editor.call('clipboard:contextmenu:open', evt.clientX + 1, evt.clientY, attr.path, type, options, target.dom);
+                        editor.call('clipboard:contextmenu:open', evt.clientX + 1, evt.clientY, attr.path, type, options, target.dom, field.enabled);
                     };
 
                     let element = target.dom;
@@ -224,7 +224,7 @@ class AttributesInspector extends Container {
                                 btnPaste.enabled = false;
                             } else {
                                 // toggle paste button
-                                btnPaste.enabled = editor.call('clipboard:validPaste', attr.path, type, options);
+                                btnPaste.enabled = field.enabled && editor.call('clipboard:validPaste', attr.path, type, options);
                                 editor.call('clipboard:flashElement', target.dom);
                             }
                         });
@@ -255,7 +255,7 @@ class AttributesInspector extends Container {
                                 btnCopy.hidden = false;
                                 btnPaste.hidden = false;
                                 btnCopy.enabled = true;
-                                btnPaste.enabled = editor.call('clipboard:validPaste', attr.path, type, options);
+                                btnPaste.enabled = field.enabled && editor.call('clipboard:validPaste', attr.path, type, options);
 
                                 const humanReadableType = editor.call('clipboard:typeToHuman', type);
                                 tooltipCopy.text = `Copy ${humanReadableType}`;
