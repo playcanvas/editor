@@ -2,7 +2,6 @@ import { Container } from '@playcanvas/pcui';
 
 import type { Attribute } from './attribute.type.d.ts';
 import { AttributesInspector } from './attributes-inspector.ts';
-import { AISettingsPanel } from './settings-panels/ai.ts';
 import { AssetImportSettingsPanel } from './settings-panels/asset-import.ts';
 import { BatchGroupsSettingsPanel } from './settings-panels/batchgroups.ts';
 import { EditorSettingsPanel } from './settings-panels/editor.ts';
@@ -28,7 +27,6 @@ const SETTINGS_PANELS = [
     EngineSettingsPanel,
     EditorSettingsPanel,
     AssetImportSettingsPanel,
-    AISettingsPanel,
     PhysicsSettingsPanel,
     RenderingSettingsPanel,
     LayersSettingsPanel,
