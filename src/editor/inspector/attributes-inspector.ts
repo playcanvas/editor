@@ -1,11 +1,10 @@
 import { Element, Container, LabelGroup, Panel, Button, ArrayInput, BindingTwoWay, Label } from '@playcanvas/pcui';
 
+import type { Attribute } from './attribute.type.d.ts';
 import { AssetInput } from '../../common/pcui/element/element-asset-input.ts';
 import { tooltip, tooltipRefItem } from '../../common/tooltips.ts';
 import { LegacyTooltip } from '../../common/ui/tooltip.ts';
 import '../storage/clipboard-context-menu.ts';
-import type { Attribute } from './attribute.type.d.ts';
-import type { Tooltip } from '../../common/pcui/element/element-tooltip.js';
 import type { TemplateOverrideInspector } from '../templates/templates-override-inspector.js';
 
 const isEnabledAttribute = ({ label, type }) => label === 'enabled' && type === 'boolean';
@@ -13,10 +12,7 @@ const isEnabledAttribute = ({ label, type }) => label === 'enabled' && type === 
 const CLASS_ROOT = 'pcui-inspector';
 
 class AttributesInspector extends Container {
-    /**
-     * @type {TemplateOverrideInspector}
-     */
-    _templateOverridesInspector;
+    _templateOverridesInspector: TemplateOverrideInspector;
 
     _clipboardTypes: Set<string> | null;
 
@@ -56,11 +52,7 @@ class AttributesInspector extends Container {
         });
     }
 
-    /**
-     * @param {Attribute} attr - Attribute data
-     * @returns {string | null} - Key for the field
-     */
-    _getFieldKey(attr) {
+    _getFieldKey(attr: Attribute): string | null {
         if (attr.path) {
             return attr.path;
         }
