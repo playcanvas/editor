@@ -1,15 +1,23 @@
-/**
- * @typedef {Object} ASTNode
- * @property {'BinaryExpression'|'UnaryExpression'|'MemberExpression'|'Identifier'|'Literal'} type - The type or kind of this AST node
- * @property {string} [name] - The associated token
- * @property {string} [operator] - The type of operator for this AST node
- * @property {string|number|boolean|null} [value] - The value of the node, if applicable
- * @property {ASTNode} [object] - Reference to the object node, in nested props
- * @property {boolean} [computed] - Whether the node is computed ie `obj["a" + "b"]`
- * @property {ASTNode} [property] - The AST Node of a nodes property ie `obj.prop`
- * @property {ASTNode} [left] - The left node in a binary expression, ie `a` in `a + b`
- * @property {ASTNode} [right] - The right node in a binary expression, ie `b` in `a + b`
- */
+export type ASTNode = {
+    /** The type or kind of this AST node */
+    type: 'BinaryExpression' | 'UnaryExpression' | 'MemberExpression' | 'Identifier' | 'Literal';
+    /** The associated token */
+    name?: string;
+    /** The type of operator for this AST node */
+    operator?: string;
+    /** The value of the node, if applicable */
+    value?: string | number | boolean | null;
+    /** Reference to the object node, in nested props */
+    object?: ASTNode;
+    /** Whether the node is computed ie `obj["a" + "b"]` */
+    computed?: boolean;
+    /** The AST Node of a nodes property ie `obj.prop` */
+    property?: ASTNode;
+    /** The left node in a binary expression, ie `a` in `a + b` */
+    left?: ASTNode;
+    /** The right node in a binary expression, ie `b` in `a + b` */
+    right?: ASTNode;
+};
 
 /**
  * Tokenizes a string based on the grammar rules below

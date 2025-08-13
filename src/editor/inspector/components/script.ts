@@ -7,11 +7,11 @@ import { tooltip, tooltipSimpleItem } from '../../../common/tooltips.ts';
 import { LegacyTooltip } from '../../../common/ui/tooltip.ts';
 import { deepCopy } from '../../../common/utils.ts';
 import { evaluate } from '../../scripting/expr-eval/evaluate.ts';
+import type { ASTNode } from '../../scripting/expr-eval/parser.js';
 import { parse } from '../../scripting/expr-eval/parser.ts';
+import type { Attribute } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-/** @import { Attribute } from '../attribute.type.d.ts' */
-/** @import { ASTNode } from '../../scripting/expr-eval/parser.js' */
 
 const CLASS_SCRIPT_CONTAINER = 'script-component-inspector-scripts';
 const CLASS_SCRIPT = 'script-component-inspector-script';
@@ -38,10 +38,8 @@ class ScriptInspector extends Panel {
     /**
      * AST cache for script parsing. This means expressions are parsed only once,
      * and then the AST is cached for future evaluation.
-     *
-     * @type {Map<string, ASTNode>}
      */
-    _astCache = new Map();
+    private _astCache: Map<string, ASTNode> = new Map();
 
     constructor(args) {
         super(args);
@@ -190,10 +188,7 @@ class ScriptInspector extends Panel {
         const order = this._asset.get(`data.scripts.${this._scriptName}.attributesOrder`) || [];
 
         // script attributes inspector
-        /**
-         * @type {Attribute[]}
-         */
-        const ATTRIBUTES = order.map((attribute) => {
+        const ATTRIBUTES: Attribute[] = order.map((attribute) => {
             return this._convertAttributeDataToInspectorData(attribute, attribute, attributes[attribute]);
         });
 
@@ -493,10 +488,7 @@ class ScriptInspector extends Panel {
             type = `array:${type}`;
         }
 
-        /**
-         * @type {Attribute}
-         */
-        const data = {
+        const data: Attribute = {
             label: attributeData.title || attributeName,
             type: type,
             path: `components.script.scripts.${this._scriptName}.attributes.${attributePath}`,

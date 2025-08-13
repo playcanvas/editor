@@ -1,13 +1,14 @@
+import type { Observer } from '@playcanvas/observer';
+
 import { formatter as f } from '../../common/utils.ts';
 import { LAYERID_WORLD, LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE, LAYERID_UI } from '../../core/constants.ts';
 
-/** @import { Observer } from '@playcanvas/observer' */
 
 editor.once('load', () => {
     /**
-     * @param {Observer & { insert: (string, val) => void }} entity - The entity to migrate
+     * @param entity - The entity to migrate
      */
-    const migrate = (entity) => {
+    const migrate = (entity: Observer & { insert: (string, val) => void }) => {
         // Defer migration to ensure document is ready
         setTimeout(() => {
             entity.history.enabled = false;

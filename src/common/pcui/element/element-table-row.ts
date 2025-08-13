@@ -1,16 +1,12 @@
 import { Container } from '@playcanvas/pcui';
 
-/**
- * @import { ContainerArgs } from '@playcanvas/pcui';
- */
-
 const CLASS_ROW = 'pcui-table-row';
 const CLASS_SELECTED_ROW = `${CLASS_ROW}-selected`;
 
-/**
- * @typedef TableRowArgs
- * @property {boolean} [header] - If true then this is a header row.
- */
+type TableRowArgs = {
+    /** If true then this is a header row */
+    header?: boolean;
+};
 
 /**
  * Represents the row of a Table.
@@ -24,9 +20,9 @@ class TableRow extends Container {
     /**
      * Creates new TableRow.
      *
-     * @param {TableRowArgs & ContainerArgs} [args] - The arguments.
+     * @param {TableRowArgs} args - The arguments.
      */
-    constructor(args) {
+    constructor(args?: TableRowArgs) {
         args = Object.assign({
             tabIndex: args && args.header ? -1 : 0,
             dom: document.createElement('tr')

@@ -32,16 +32,13 @@ import { TextureAssetInspectorPreview } from './assets/texture-preview.ts';
 import { TextureSourceAssetInspector } from './assets/texture-source.ts';
 import { TextureAssetInspector } from './assets/texture.ts';
 import { WasmAssetInspector } from './assets/wasm.ts';
+import type { Attribute } from './attribute.type.d.ts';
 import { AttributesInspector } from './attributes-inspector.ts';
 import { bytesToHuman, convertDatetime } from '../../common/utils.ts';
 import { LOAD_SCRIPT_AS_ASSET, LOAD_SCRIPT_BEFORE_ENGINE, LOAD_SCRIPT_AFTER_ENGINE } from '../../core/constants.ts';
 
-/**
- * @import { Attribute } from './attribute.type.d.ts'
- */
 
-/** @type {Map<string, new (...args: any[]) => any>} */
-const assetInspectors = new Map();
+const assetInspectors: Map<string, new (...args: any[]) => any> = new Map();
 assetInspectors.set('animation', AnimationAssetInspector);
 assetInspectors.set('animstategraph', AnimstategraphAssetInspector);
 assetInspectors.set('audio', AudioAssetInspector);
@@ -64,14 +61,12 @@ assetInspectors.set('texture', TextureAssetInspector);
 assetInspectors.set('textureAtlas', TextureAssetInspector);
 assetInspectors.set('wasm', WasmAssetInspector);
 
-/** @type {Map<string, new (...args: any[]) => any>} */
-const sourceAssetInspectors = new Map();
+const sourceAssetInspectors: Map<string, new (...args: any[]) => any> = new Map();
 sourceAssetInspectors.set('font', FontSourceAssetInspector);
 sourceAssetInspectors.set('scene', SceneSourceAssetInspector);
 sourceAssetInspectors.set('texture', TextureSourceAssetInspector);
 
-/** @type {Map<string, new (...args: any[]) => any>} */
-const assetInspectorPreviews = new Map();
+const assetInspectorPreviews: Map<string, new (...args: any[]) => any> = new Map();
 assetInspectorPreviews.set('animation', AnimationAssetInspectorPreview);
 assetInspectorPreviews.set('cubemap', CubemapAssetInspectorPreview);
 assetInspectorPreviews.set('font', FontAssetInspectorPreview);
@@ -84,10 +79,7 @@ assetInspectorPreviews.set('textureAtlas', TextureAssetInspectorPreview);
 
 const CLASS_ROOT = 'asset-inspector';
 
-/**
- * @type {Attribute[]}
- */
-const ATTRIBUTES = [{
+const ATTRIBUTES: Attribute[] = [{
     label: 'ID',
     alias: 'id',
     path: 'id',

@@ -1,8 +1,7 @@
+import type { AttributeReference } from './reference.type';
+
 editor.once('load', () => {
-    /**
-     * @type {AttributeReference[]}
-     */
-    const fields = [{
+    const fields: AttributeReference[] = [{
         name: 'entity:enabled',
         title: 'enabled',
         subTitle: '{Boolean}',

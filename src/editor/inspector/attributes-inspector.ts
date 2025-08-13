@@ -1,25 +1,18 @@
 import { Element, Container, LabelGroup, Panel, Button, ArrayInput, BindingTwoWay, Label } from '@playcanvas/pcui';
 
+import type { Attribute } from './attribute.type.d.ts';
 import { AssetInput } from '../../common/pcui/element/element-asset-input.ts';
 import { tooltip, tooltipRefItem } from '../../common/tooltips.ts';
 import { LegacyTooltip } from '../../common/ui/tooltip.ts';
 import '../storage/clipboard-context-menu.ts';
+import type { TemplateOverrideInspector } from '../templates/templates-override-inspector.js';
 
 const isEnabledAttribute = ({ label, type }) => label === 'enabled' && type === 'boolean';
-
-/**
- * @import { Attribute } from './attribute.type.d.ts'
- * @import { Tooltip } from '../../common/pcui/element/element-tooltip.js'
- * @import { TemplateOverrideInspector } from '../templates/templates-override-inspector.js'
- */
 
 const CLASS_ROOT = 'pcui-inspector';
 
 class AttributesInspector extends Container {
-    /**
-     * @type {TemplateOverrideInspector}
-     */
-    _templateOverridesInspector;
+    _templateOverridesInspector: TemplateOverrideInspector;
 
     _clipboardTypes: Set<string> | null;
 
@@ -59,11 +52,7 @@ class AttributesInspector extends Container {
         });
     }
 
-    /**
-     * @param {Attribute} attr - Attribute data
-     * @returns {string | null} - Key for the field
-     */
-    _getFieldKey(attr) {
+    _getFieldKey(attr: Attribute): string | null {
         if (attr.path) {
             return attr.path;
         }
@@ -318,10 +307,7 @@ class AttributesInspector extends Container {
 
             const field = this.createFieldForAttribute(attr);
 
-            /**
-             * @type {Container}
-             */
-            let tooltipGroup;
+            let tooltipGroup: Container;
 
             if (attr.type !== 'asset' && attr.type !== 'json' && attr.type !== 'array:json') {
                 if (attr.label) {

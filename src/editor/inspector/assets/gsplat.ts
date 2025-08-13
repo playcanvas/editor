@@ -1,15 +1,10 @@
 import { Container, Panel } from '@playcanvas/pcui';
 
+import type { Attribute } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-/**
- * @import { Attribute } from '../attribute.type.d.ts'
- */
 
-/**
- * @type {Attribute[]}
- */
-const META_ATTRIBUTES = [{
+const META_ATTRIBUTES: Attribute[] = [{
     label: 'Format',
     alias: 'format',
     path: 'meta.format',

@@ -1,17 +1,12 @@
 import { BaseSettingsPanel } from './base.ts';
-
-/**
- * @import { Attribute } from '../attribute.type.d.ts'
- */
+import type { Attribute } from '../attribute.type.d.ts';
 
 /**
  * Add a section titled 'SHOW SETTINGS HISTORY'
  * to the settings menu on the right, with a button shown
  * when expanded.
- *
- * @type {Attribute[]}
  */
-const ATTRIBUTES = [
+const ATTRIBUTES: Attribute[] = [
     {
         label: '',
         type: 'button',

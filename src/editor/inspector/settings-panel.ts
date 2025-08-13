@@ -1,5 +1,6 @@
 import { Container } from '@playcanvas/pcui';
 
+import type { Attribute } from './attribute.type.d.ts';
 import { AttributesInspector } from './attributes-inspector.ts';
 import { AssetImportSettingsPanel } from './settings-panels/asset-import.ts';
 import { BatchGroupsSettingsPanel } from './settings-panels/batchgroups.ts';
@@ -19,9 +20,6 @@ import { RenderingSettingsPanel } from './settings-panels/rendering.ts';
 import { ScriptsSettingsPanel } from './settings-panels/scripts.ts';
 import { ProjectHistorySettingsPanel } from './settings-panels/settings-history.ts';
 
-/**
- * @import { Attribute } from './attribute.type.d.ts'
- */
 
 const CLASS_ROOT = 'settings';
 
@@ -45,10 +43,7 @@ const SETTINGS_PANELS = [
     ProjectHistorySettingsPanel
 ];
 
-/**
- * @type {Attribute[]}
- */
-const ATTRIBUTES = [
+const ATTRIBUTES: Attribute[] = [
     {
         label: 'Scene Name',
         alias: 'name',

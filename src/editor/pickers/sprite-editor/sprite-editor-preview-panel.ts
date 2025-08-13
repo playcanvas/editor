@@ -1,11 +1,8 @@
-/**
- * @import { Panel } from '@playcanvas/pcui'
- */
+import type { Panel } from '@playcanvas/pcui';
 
 editor.once('load', () => {
     editor.method('picker:sprites:attributes:frames:preview', (args) => {
-        /** @type {Panel} */
-        const parent = editor.call('picker:sprites:rightPanel');
+        const parent: Panel = editor.call('picker:sprites:rightPanel');
 
         const atlasAsset = args.atlasAsset;
         let frames = args.frames;

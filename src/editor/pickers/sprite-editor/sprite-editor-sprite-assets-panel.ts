@@ -1,26 +1,17 @@
-import { Canvas, GridView, GridViewItem, Menu } from '@playcanvas/pcui';
-
-/**
- * @import { EventHandle, Observer } from '@playcanvas/observer'
- * @import { Container, Panel } from '@playcanvas/pcui'
- */
+import type { EventHandle, Observer } from '@playcanvas/observer';
+import { Canvas, GridView, GridViewItem, Menu, Container, Panel } from '@playcanvas/pcui';
 
 editor.once('load', () => {
     editor.method('picker:sprites:spriteassets', (args) => {
-        /** @type {EventHandle[]} */
-        const events = [];
+        const events: EventHandle[] = [];
 
-        /** @type {Observer} */
-        let contextMenuAsset = null;
+        let contextMenuAsset: Observer = null;
 
-        /** @type {Observer} */
-        const atlasAsset = args.atlasAsset;
+        const atlasAsset: Observer = args.atlasAsset;
 
-        /** @type {Container} */
-        const root = editor.call('layout.root');
+        const root: Container = editor.call('layout.root');
 
-        /** @type {Panel} */
-        const rootPanel = editor.call('picker:sprites:bottomPanel');
+        const rootPanel: Panel = editor.call('picker:sprites:bottomPanel');
 
         // context menu
         const menu = new Menu({
@@ -60,9 +51,8 @@ editor.once('load', () => {
         // holds the key of the first frame for each sprite asset - used for rendering preview
         const firstFramePerSprite = {};
 
-        const createSpriteItem = (/** @type {Observer} */ asset) => {
-            /** @type {EventHandle[]} */
-            const spriteEvents = [];
+        const createSpriteItem = (asset: Observer) => {
+            const spriteEvents: EventHandle[] = [];
 
             // sprite item
             const spriteItem = new GridViewItem({
@@ -111,7 +101,7 @@ editor.once('load', () => {
 
             renderPreview();
 
-            spriteEvents.push(asset.on('name:set', (/** @type {string} */ name) => {
+            spriteEvents.push(asset.on('name:set', (name: string) => {
                 spriteItem.text = name;
             }));
 
@@ -156,7 +146,7 @@ editor.once('load', () => {
             }));
 
             // context menu
-            const contextMenu = (/** @type {MouseEvent} */ e) => {
+            const contextMenu = (e: MouseEvent) => {
                 if (!editor.call('permissions:write')) {
                     return;
                 }
@@ -169,7 +159,7 @@ editor.once('load', () => {
             spriteItem.dom.addEventListener('contextmenu', contextMenu);
 
             // clean up events
-            spriteItem.on('destroy', (/** @type {HTMLElement} */ dom) => {
+            spriteItem.on('destroy', (dom: HTMLElement) => {
                 for (const event of spriteEvents) {
                     event.unbind();
                 }
@@ -193,7 +183,7 @@ editor.once('load', () => {
             createSpriteItem(spriteAssets[i][1]);
         }
 
-        const onUpdateFrame = (/** @type {string} */ path) => {
+        const onUpdateFrame = (path: string) => {
             if (!path.startsWith('data.frames')) {
                 return;
             }
@@ -239,7 +229,7 @@ editor.once('load', () => {
         }));
 
         // Asset create event
-        events.push(editor.on('assets:add', (/** @type {Observer} */ asset) => {
+        events.push(editor.on('assets:add', (asset: Observer) => {
             if (asset.get('type') !== 'sprite') {
                 return;
             }

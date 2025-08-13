@@ -8,6 +8,26 @@ const RELAY_PONG_DELAY = 5000;
  * Relay server client library
  */
 class RelayServer extends Events {
+    private _url: string;
+
+    private _reconnectDelay: number | null;
+
+    private _connecting: boolean;
+
+    private _connectAttempts: number;
+
+    private _connected: boolean;
+
+    private _pingTimeout: number | null;
+
+    private _pongTimeout: number | null;
+
+    private _rooms: Record<string, Set<number>>;
+
+    private _userId: number | null;
+
+    private socket: WebSocket;
+
     constructor() {
         super();
         this._url = '';
@@ -77,8 +97,6 @@ class RelayServer extends Events {
 
     /**
      * Whether we are connected to the server
-     *
-     * @type {boolean}
      */
     get isConnected() {
         return this._connected;
