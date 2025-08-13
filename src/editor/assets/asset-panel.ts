@@ -133,6 +133,31 @@ function randomColor() {
 
 // Helper class for asset grid view item
 class AssetGridViewItem extends GridViewItem {
+    /**
+     * @type {AssetThumbnail}
+     */
+    thumbnail;
+
+    /**
+     * @type {Container}
+     */
+    containerUsers;
+
+    /**
+     * @type {Progress}
+     */
+    progress;
+
+    /**
+     * @type {Asset}
+     */
+    _asset;
+
+    /**
+     * @type {EventHandler}
+     */
+    _evtName;
+
     constructor(args) {
         super(args);
 
@@ -264,6 +289,260 @@ class AssetGridViewItem extends GridViewItem {
  * @property {boolean} writePermissions If false then only a read-only view will be shown
  */
 class AssetPanel extends Panel {
+    // Static properties
+    static VIEW_LARGE_GRID = 'lgrid';
+
+    static VIEW_SMALL_GRID = 'sgrid';
+
+    static VIEW_DETAILS = 'details';
+
+    static LEGACY_SCRIPTS_ID = LEGACY_SCRIPTS_ID;
+
+    /**
+     * @type {Container}
+     */
+    _containerControls;
+
+    /**
+     * @type {Tooltip[]}
+     */
+    _tooltips;
+
+    /**
+     * @type {Button}
+     */
+    _btnNew;
+
+    /**
+     * @type {Button}
+     */
+    _btnDelete;
+
+    /**
+     * @type {Button}
+     */
+    _btnBack;
+
+    /**
+     * @type {Button}
+     */
+    _btnLargeGrid;
+
+    /**
+     * @type {Button}
+     */
+    _btnSmallGrid;
+
+    /**
+     * @type {Button}
+     */
+    _btnDetailsView;
+
+    /**
+     * @type {SelectInput}
+     */
+    _dropdownType;
+
+    /**
+     * @type {TextInput}
+     */
+    _searchInput;
+
+    /**
+     * @type {Button}
+     */
+    _btnClearSearch;
+
+    /**
+     * @type {Container}
+     */
+    _containerFolders;
+
+    /**
+     * @type {TreeView}
+     */
+    _foldersView;
+
+    /**
+     * @type {TreeViewItem}
+     */
+    _foldersViewRoot;
+
+    /**
+     * @type {Map<string, TreeViewItem>}
+     */
+    _foldersIndex;
+
+    /**
+     * @type {Object.<string, Set>}
+     */
+    _foldersWaitingParent;
+
+    /**
+     * @type {Object.<string, Observer>}
+     */
+    _legacyScriptsIndex;
+
+    /**
+     * @type {Observer|undefined|null}
+     */
+    _hoveredAsset;
+
+     * @type {Array}
+     * @type {[]]}
+     */
+    _eventsDropManager;
+
+    /**
+     * @type {DropTarget}
+     */
+    _foldersDropTarget;
+
+    /**
+     * @type {DropTarget}
+     */
+    _tableDropTarget;
+
+    /**
+     * @type {DropTarget}
+     */
+    _gridViewDropTarget;
+
+    /**
+     * @type {Container}
+     */
+    _containerProgress;
+
+    /**
+     * @type {Progress}
+     */
+    _progressBar;
+
+    /**
+     * @type {Table}
+     */
+    _detailsView;
+
+    /**
+     * @type {GridView}
+     */
+    _gridView;
+
+    /**
+     * @type {string}
+     */
+    _viewMode;
+
+    /**
+     * @type {Object.<string, TableRow>}
+     */
+    _rowsIndex;
+
+    /**
+     * @type {Object.<string, AssetGridViewItem>}
+     */
+    _gridIndex;
+
+    /**
+     * @type {Object.<string, Object>}
+     */
+    _usersIndex;
+
+    /**
+     * @type {boolean}
+     */
+    _suspendFiltering;
+
+    /**
+     * @type {boolean}
+     */
+    _suspendSelectEvents;
+
+    /**
+     * @type {Array}
+     */
+    _eventsEditor;
+
+    /**
+     * @type {Array}
+     */
+    _assetListEvents;
+
+    /**
+     * @type {Object.<string, Array>}
+     */
+    _assetEvents;
+
+    /**
+     * @type {boolean}
+     */
+    _showSourceAssets;
+
+    /**
+     * @type {Array}
+     */
+    _prevSelectorItems;
+
+    /**
+     * @type {string}
+     */
+    _prevSelectorType;
+
+    /**
+     * @type {Array}
+     */
+    _selectorItems;
+
+    /**
+     * @type {string}
+     */
+    _selectorType;
+
+    /**
+     * @type {Array}
+     */
+    _selectedAssets;
+
+    /**
+     * @type {Array}
+     */
+    assetTypes;
+
+    /**
+     * @type {Observer}
+     */
+    _currentFolder;
+
+    /**
+     * @type {boolean}
+     */
+    _writePermissions;
+
+    /**
+     * @type {Observer}
+     */
+    _assets;
+
+    /**
+     * @type {DropManager}
+     */
+    _dropManager;
+
+    /**
+     * @type {Array}
+     */
+    _searchTags;
+
+    /**
+     * @type {string}
+     */
+    _searchPreviousValue;
+
+    /**
+     * @type {Function}
+     */
+    validateAssetsFn;
+
     /**
      * Creates new AssetPanel.
      *
@@ -606,7 +885,7 @@ class AssetPanel extends Panel {
             editor.call('hotkey:register', 'asset:paste', {
                 key: 'v',
                 ctrl: true,
-                callback: () => this._onPasteAssets()
+                callback: () => this._onPasteAssets(false)
             });
 
             // paste (keep folder structure)
@@ -1203,7 +1482,7 @@ class AssetPanel extends Panel {
 
     // Creates a table row for the details view for the specified asset.
     _createDetailsViewRow(asset) {
-        const row = new TableRow();
+        const row = new TableRow({});
 
         // store asset in row for reference
         row.asset = asset;
@@ -1341,7 +1620,7 @@ class AssetPanel extends Panel {
         });
 
         // type cell
-        cell = new TableCell();
+        cell = new TableCell({});
         row.append(cell);
 
         let typeKey = asset.get('type');
@@ -1366,7 +1645,7 @@ class AssetPanel extends Panel {
         cell.append(labelType);
 
         // file size cell
-        cell = new TableCell();
+        cell = new TableCell({});
         row.append(cell);
 
         const labelSize = new Label({
@@ -1578,7 +1857,7 @@ class AssetPanel extends Panel {
         delete this._legacyScriptsIndex[script.get('filename')];
     }
 
-    _addAsset(asset, index, addToDetailsView) {
+    _addAsset(asset, index = null, addToDetailsView = false) {
         const id = asset.get('id');
 
         // init events
@@ -1605,7 +1884,7 @@ class AssetPanel extends Panel {
         }));
 
         this._assetEvents[id].push(asset.on('task:set', (value) => {
-            this._onAssetTaskChange(asset, value);
+            this._onAssetTaskChange(asset);
         }));
 
         // add to grid view
@@ -2372,7 +2651,7 @@ class AssetPanel extends Panel {
 
         this._currentFolder = value;
 
-        const focused = document.activeElement;
+        const focused = document.activeElement as HTMLElement;
 
         if (this._currentFolder) {
             this._btnBack.enabled = true;
@@ -2620,10 +2899,5 @@ class AssetPanel extends Panel {
         return this._writePermissions;
     }
 }
-
-AssetPanel.VIEW_LARGE_GRID = 'lgrid';
-AssetPanel.VIEW_SMALL_GRID = 'sgrid';
-AssetPanel.VIEW_DETAILS = 'details';
-AssetPanel.LEGACY_SCRIPTS_ID = LEGACY_SCRIPTS_ID;
 
 export { AssetPanel };
