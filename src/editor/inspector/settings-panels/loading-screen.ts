@@ -5,9 +5,7 @@ import { LegacyTooltip } from '../../../common/ui/tooltip.ts';
 
 /** @import { Asset } from '@playcanvas/editor-api' */
 
-/**
- * @import { Attribute } from '../attribute.type.d.ts'
- */
+/** @import { Attribute } from '../attribute.type.d.ts' */
 
 /**
  * @type {Attribute[]}

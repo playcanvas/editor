@@ -1,9 +1,7 @@
 import { Container } from '@playcanvas/pcui';
 
-/**
- * @import { Element } from '@playcanvas/pcui';
- * @import { EventHandle } from '@playcanvas/observer';
- */
+/** @import { Element } from '@playcanvas/pcui'; */
+/** @import { EventHandle } from '@playcanvas/observer'; */
 
 /**
  * A floating tooltip that can be attached to a target element.

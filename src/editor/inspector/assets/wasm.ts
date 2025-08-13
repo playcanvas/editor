@@ -2,9 +2,7 @@ import { Panel } from '@playcanvas/pcui';
 
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-/**
- * @import { Attribute } from '../attribute.type.d.ts'
- */
+/** @import { Attribute } from '../attribute.type.d.ts' */
 
 /**
  * @type {Attribute[]}

@@ -5,9 +5,7 @@ import { LayersSettingsPanelLayerPanel } from './layers-layer-panel.ts';
 import { LayersSettingsPanelRenderOrderPanel } from './layers-render-order.ts';
 import { CLASS_ERROR } from '../../../common/pcui/constants.ts';
 
-/**
- * @import { Attribute } from '../attribute.type.d.ts'
- */
+/** @import { Attribute } from '../attribute.type.d.ts' */
 
 const CLASS_ROOT = 'layers-settings-panel';
 const CLASS_LAYERS_CONTAINER = `${CLASS_ROOT}-layers-container`;

@@ -1,9 +1,7 @@
 import { Element } from '@playcanvas/pcui';
 
-/**
- * @import { ElementArgs } from '@playcanvas/pcui';
- * @import { DropManager } from './element-drop-manager.ts';
- */
+/** @import { ElementArgs } from '@playcanvas/pcui'; */
+/** @import { DropManager } from './element-drop-manager.ts'; */
 
 const CLASS_DROP_TARGET = 'pcui-droptarget';
 const CLASS_DROP_TARGET_HOLE = `${CLASS_DROP_TARGET}-hole`;

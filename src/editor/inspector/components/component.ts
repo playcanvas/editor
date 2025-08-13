@@ -3,9 +3,7 @@ import { Panel, BooleanInput, LabelGroup, Button, Menu, BindingTwoWay, Container
 
 import { tooltip, tooltipRefItem } from '../../../common/tooltips.ts';
 
-/**
- * @import { TemplateOverrideInspector } from '../../templates/templates-override-inspector.js'
- */
+/** @import { TemplateOverrideInspector } from '../../templates/templates-override-inspector.js' */
 
 const CLASS_ROOT = 'component-inspector';
 const CLASS_COMPONENT_ICON = 'component-icon-prefix';

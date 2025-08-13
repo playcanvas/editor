@@ -1,8 +1,6 @@
 import { Menu } from '@playcanvas/pcui';
 
-/**
- * @import { Container, TreeViewItem } from '@playcanvas/pcui'
- */
+/** @import { Container, TreeViewItem } from '@playcanvas/pcui' */
 
 editor.once('load', () => {
     /** @type {Container} */

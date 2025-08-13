@@ -1,9 +1,7 @@
 import { BaseSettingsPanel } from './base.ts';
 import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from '../../../core/constants.ts';
 
-/**
- * @import { Attribute } from '../attribute.type.d.ts'
- */
+/** @import { Attribute } from '../attribute.type.d.ts' */
 
 /**
  * @param {object} args - The attribute args

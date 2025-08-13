@@ -2,9 +2,7 @@ import { Element, TreeView, TreeViewItem, Container } from '@playcanvas/pcui';
 
 import { getMap, searchItems } from '../search/search-advanced.ts';
 
-/**
- * @import { Observer, ObserverList } from '@playcanvas/observer'
- */
+/** @import { Observer, ObserverList } from '@playcanvas/observer' */
 
 const CLASS_ROOT = 'entities-treeview';
 const CLASS_COMPONENT_ICON = 'component-icon-postfix';

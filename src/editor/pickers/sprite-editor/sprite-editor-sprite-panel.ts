@@ -3,9 +3,7 @@ import { LegacyCanvas } from '../../../common/ui/canvas.ts';
 import { LegacyLabel } from '../../../common/ui/label.ts';
 import { LegacyPanel } from '../../../common/ui/panel.ts';
 
-/**
- * @import { Panel } from '@playcanvas/pcui'
- */
+/** @import { Panel } from '@playcanvas/pcui' */
 
 editor.once('load', () => {
     editor.method('picker:sprites:attributes:sprite', (args) => {

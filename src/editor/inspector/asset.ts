@@ -36,9 +36,7 @@ import { AttributesInspector } from './attributes-inspector.ts';
 import { bytesToHuman, convertDatetime } from '../../common/utils.ts';
 import { LOAD_SCRIPT_AS_ASSET, LOAD_SCRIPT_BEFORE_ENGINE, LOAD_SCRIPT_AFTER_ENGINE } from '../../core/constants.ts';
 
-/**
- * @import { Attribute } from './attribute.type.d.ts'
- */
+/** @import { Attribute } from './attribute.type.d.ts' */
 
 /** @type {Map<string, new (...args: any[]) => any>} */
 const assetInspectors = new Map();

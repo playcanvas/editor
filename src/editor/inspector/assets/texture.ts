@@ -5,9 +5,7 @@ import { bytesToHuman } from '../../../common/utils.ts';
 import { TextureCompressor } from '../../assets/assets-textures-compress.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-/**
- * @import { Attribute } from '../attribute.type.d.ts'
- */
+/** @import { Attribute } from '../attribute.type.d.ts' */
 
 // util
 const makeRefAssigner = (prefix = '') => (attr) => {

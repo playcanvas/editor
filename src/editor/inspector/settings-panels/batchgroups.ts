@@ -6,9 +6,7 @@ import { BatchGroupsSettingsPanelItem } from './batchgroups-item.ts';
 const CLASS_ROOT = 'batchgroups-settings-panel';
 const CLASS_ITEM = `${CLASS_ROOT}-item`;
 
-/**
- * @import { Attribute } from '../attribute.type.d.ts'
- */
+/** @import { Attribute } from '../attribute.type.d.ts' */
 
 /**
  * @type {Attribute[]}

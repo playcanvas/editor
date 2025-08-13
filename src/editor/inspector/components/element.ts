@@ -6,9 +6,7 @@ import { tooltip, tooltipRefItem } from '../../../common/tooltips.ts';
 import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from '../../../core/constants.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-/**
- * @import { Attribute, Divider } from '../attribute.type.d.ts'
- */
+/** @import { Attribute, Divider } from '../attribute.type.d.ts' */
 
 const PRESETS = {
     '0,1,0,1': 'Top Left Anchor',

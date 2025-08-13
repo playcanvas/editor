@@ -5,9 +5,7 @@ import { CLASS_ERROR } from '../../../common/pcui/constants.ts';
 import { tooltip, tooltipRefItem } from '../../../common/tooltips.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-/**
- * @import { Attribute } from '../attribute.type.d.ts'
- */
+/** @import { Attribute } from '../attribute.type.d.ts' */
 
 const CLASS_ROOT = 'pcui-cubemap-asset-inspector';
 const CLASS_FACES_CONTAINER = `${CLASS_ROOT}-faces-container`;

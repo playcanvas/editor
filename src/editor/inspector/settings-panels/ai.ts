@@ -1,8 +1,6 @@
 import { BaseSettingsPanel } from './base.ts';
 
-/**
- * @import { Attribute } from '../attribute.type.js'
- */
+/** @import { Attribute } from '../attribute.type.js' */
 
 const CLASS_ROOT = 'ai-settings-panel';
 const CLASS_ATTRIBUTES = `${CLASS_ROOT}-attributes`;

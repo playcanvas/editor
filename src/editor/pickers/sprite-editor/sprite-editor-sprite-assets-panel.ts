@@ -1,9 +1,7 @@
 import { Canvas, GridView, GridViewItem, Menu } from '@playcanvas/pcui';
 
-/**
- * @import { EventHandle, Observer } from '@playcanvas/observer'
- * @import { Container, Panel } from '@playcanvas/pcui'
- */
+/** @import { EventHandle, Observer } from '@playcanvas/observer' */
+/** @import { Container, Panel } from '@playcanvas/pcui' */
 
 editor.once('load', () => {
     editor.method('picker:sprites:spriteassets', (args) => {

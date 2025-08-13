@@ -6,9 +6,7 @@ import { AssetInput } from '../../../common/pcui/element/element-asset-input.ts'
 import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from '../../../core/constants.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-/**
- * @import { Attribute } from '../attribute.type.d.ts'
- */
+/** @import { Attribute } from '../attribute.type.d.ts' */
 
 /**
  * @type {Attribute[]}

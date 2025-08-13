@@ -1,9 +1,7 @@
 import { BaseSettingsPanel } from './base.ts';
 import { LayersSettingsPanelRenderOrderList } from './layers-render-order-list.ts';
 
-/**
- * @import { Attribute } from '../attribute.type.d.ts'
- */
+/** @import { Attribute } from '../attribute.type.d.ts' */
 
 const CLASS_ROOT = 'layers-settings-panel';
 const CLASS_RENDER_ORDER_PANEL = `${CLASS_ROOT}-render-order-panel`;

@@ -20,9 +20,7 @@ import { RenderingSettingsPanel } from './settings-panels/rendering.ts';
 import { ScriptsSettingsPanel } from './settings-panels/scripts.ts';
 import { ProjectHistorySettingsPanel } from './settings-panels/settings-history.ts';
 
-/**
- * @import { Attribute } from './attribute.type.d.ts'
- */
+/** @import { Attribute } from './attribute.type.d.ts' */
 
 const CLASS_ROOT = 'settings';
 

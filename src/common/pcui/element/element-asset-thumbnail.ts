@@ -10,10 +10,8 @@ import { SpriteThumbnailRenderer } from '../../thumbnail-renderers/sprite-thumbn
 import { buildQueryUrl } from '../../utils.ts';
 import { CLASS_MULTIPLE_VALUES } from '../constants.ts';
 
-/**
- * @import { ObserverList } from '@playcanvas/observer';
- * @import { ElementArgs } from '@playcanvas/pcui';
- */
+/** @import { ObserverList } from '@playcanvas/observer'; */
+/** @import { ElementArgs } from '@playcanvas/pcui'; */
 
 const CLASS_ASSET_THUMB = 'pcui-asset-thumb';
 const CLASS_ASSET_THUMB_EMPTY = 'pcui-asset-thumb-empty';

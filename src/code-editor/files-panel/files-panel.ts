@@ -1,8 +1,6 @@
 import { Progress, TreeView, TreeViewItem } from '@playcanvas/pcui';
 
-/**
- * @import { Panel } from '@playcanvas/pcui'
- */
+/** @import { Panel } from '@playcanvas/pcui' */
 
 editor.once('load', () => {
     /** @type {Map<string, string>} */

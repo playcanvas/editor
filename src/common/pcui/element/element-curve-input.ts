@@ -3,9 +3,7 @@ import { Element, Canvas } from '@playcanvas/pcui';
 import { deepCopy } from '../../utils.ts';
 import { CLASS_MULTIPLE_VALUES } from '../constants.ts';
 
-/**
- * @import { ElementArgs } from '@playcanvas/pcui';
- */
+/** @import { ElementArgs } from '@playcanvas/pcui'; */
 
 const CLASS_CURVE = 'pcui-curve';
 

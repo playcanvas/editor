@@ -4,9 +4,7 @@ import { AnimViewer } from './anim-viewer.ts';
 import { AssetInspectorPreviewBase } from './asset-preview-base.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-/**
- * @import { Attribute } from '../attribute.type.d.ts'
- */
+/** @import { Attribute } from '../attribute.type.d.ts' */
 
 const CLASS_ROOT = 'pcui-asset-animation-inspector-preview';
 

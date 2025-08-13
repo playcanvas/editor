@@ -1,6 +1,4 @@
-/**
- * @import { Panel } from '@playcanvas/pcui'
- */
+/** @import { Panel } from '@playcanvas/pcui' */
 
 editor.once('load', () => {
     editor.method('picker:sprites:attributes:frames:preview', (args) => {

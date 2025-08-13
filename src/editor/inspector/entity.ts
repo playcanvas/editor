@@ -29,9 +29,7 @@ import { COMPONENT_LOGOS } from '../../core/constants.ts';
 import { TemplatesEntityInspector } from '../templates/templates-entity-inspector.ts';
 import { TemplateOverrideInspector } from '../templates/templates-override-inspector.ts';
 
-/**
- * @import { Attribute } from './attribute.type.d.ts'
- */
+/** @import { Attribute } from './attribute.type.d.ts' */
 
 /** @type {Map<string, new (...args: any[]) => any>} */
 const componentToConstructor = new Map();
