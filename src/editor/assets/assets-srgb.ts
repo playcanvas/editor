@@ -49,20 +49,25 @@ const MATERIAL_PATH_CHANNEL_MAP = Object.keys(SRGB_PATH_MAP.material).reduce((ma
     return map;
 }, new Map());
 
+type TextureUsage = {
+    /** The srgb flag for the texture usage */
+    srgb: boolean;
+    /** The id of the entity or asset that references the texture */
+    id: string;
+    /** The type of the entity or asset that references the texture */
+    type: string;
+    /** The path of the property that references the texture */
+    path: string;
+    /** A function to jump to the entity or asset that references the texture */
+    jump: () => void;
+};
+
 /**
  * This function checks for srgb conflicts for texture srgb flags based on their usage in
  * entities and assets and logs a warning if any are found. On load it checks all assets and
  * entities and determines the srgb flag based on the majority of references.
  */
 const startChecker = () => {
-    /**
-     * @typedef {object} TextureUsage
-     * @property {boolean} srgb - The srgb flag for the texture usage
-     * @property {string} id - The id of the entity or asset that references the texture
-     * @property {string} type - The type of the entity or asset that references the texture
-     * @property {string} path - The path of the property that references the texture
-     * @property {function} jump - A function to jump to the entity or asset that references the texture
-     */
 
     /**
      * @type {Map<number, TextureUsage[]>} A map of texture asset ids to their usages

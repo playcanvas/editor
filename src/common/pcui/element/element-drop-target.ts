@@ -8,22 +8,24 @@ const CLASS_DROP_TARGET_PASSTHROUGH = `${CLASS_DROP_TARGET}-passthrough`;
 const CLASS_DROP_TARGET_DRAG_OVER = `${CLASS_DROP_TARGET}-dragover`;
 const CLASS_DROP_TARGET_FRONT = `${CLASS_DROP_TARGET}-front`;
 
-/**
- * @typedef DropTargetArgs
- * @property {string} [dropType] - The type of data that is valid for this drop target.
- * @property {DropManager} [dropManager] - The drop manager.
- * @property {boolean} [hole] - If true then the drop target will be above other overlays and will
- * receive drag drop events (unless passThrough is true).
- * @property {boolean} [passThrough] - If true then the drop target will not receive mouse events.
- * @property {Function} [onFilter] - A function with signature (type, data) => bool that returns
- * true if the dragged type and data is valid for this drop target.
- * @property {Function} [onDragEnter] - A function with signature (type, data) => void that is
- * called when something is dragged over the drop target.
- * @property {Function} [onDragLeave] - A function with signature () => void that is called when
- * something is no longer dragged over the drop target.
- * @property {Function} [onDrop] - A function with signature (type, data) => void that is called
- * when something is dropped over the drop target.
- */
+type DropTargetArgs = {
+    /** The type of data that is valid for this drop target. */
+    dropType?: string;
+    /** The drop manager. */
+    dropManager?: DropManager;
+    /** If true then the drop target will be above other overlays and will receive drag drop events (unless passThrough is true). */
+    hole?: boolean;
+    /** If true then the drop target will not receive mouse events. */
+    passThrough?: boolean;
+    /** A function with signature (type, data) => bool that returns true if the dragged type and data is valid for this drop target. */
+    onFilter?: (type: string, data: any) => boolean;
+    /** A function with signature (type, data) => void that is called when something is dragged over the drop target. */
+    onDragEnter?: (type: string, data: any) => void;
+    /** A function with signature () => void that is called when something is no longer dragged over the drop target. */
+    onDragLeave?: () => void;
+    /** A function with signature (type, data) => void that is called when something is dropped over the drop target. */
+    onDrop?: (type: string, data: any) => void;
+}
 
 /**
  * Defines an area where we can drag drop data.

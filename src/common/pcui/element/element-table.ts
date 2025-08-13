@@ -20,15 +20,14 @@ const CLASS_RESIZING_VISIBLE = `${CLASS_RESIZING}-visible`;
 const CSS_PROPERTY_HEIGHT_BEFORE = '--resizing-before';
 const CSS_PROPERTY_HEIGHT_AFTER = '--resizing-after';
 
-/**
- * @typedef TableArgs
- * @param {Function} [createRowFn] - A function like (observer) => TableRow that creates a TableRow
- * from an observer.
- * @param {Function} [getRowFn] - A function like (observer) => TableRow that returns an existing
- * row from an observer. Used for faster sorting.
- * @param {Function} [filterFn] - A function like (TableRow) => boolean that hides the row if it
- * returns false.
- */
+type TableArgs = {
+    /** A function like (observer) => TableRow that creates a TableRow from an observer. */
+    createRowFn?: (observer: Observer) => TableRow;
+    /** A function like (observer) => TableRow that returns an existing row from an observer. Used for faster sorting. */
+    getRowFn?: (observer: Observer) => TableRow;
+    /** A function like (TableRow) => boolean that hides the row if it returns false. */
+    filterFn?: (row: TableRow) => boolean;
+}
 
 /**
  * Represents a table view with optional resizable and sortable columns.

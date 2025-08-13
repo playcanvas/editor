@@ -27,10 +27,10 @@ function createCheckerboardPattern(context) {
     return context.createPattern(canvas, 'repeat');
 }
 
-/**
- * @typedef GradientInputArgs
- * @property {number} [channels] - The number of color channels. Between 1 and 4.
- */
+type GradientInputArgs = {
+    /** The number of color channels. Between 1 and 4. */
+    channels?: number;
+}
 
 /**
  * Shows a color gradient.

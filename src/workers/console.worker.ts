@@ -7,19 +7,25 @@ const RECORD_LIMIT_TOLERANCE = 1e3; // Prune logs when we exceed 50k + 1k record
 const RECORD_CHUNK_SIZE = 1e3; // Add logs in chunks of 1k
 const RECORD_MAX_QUEUE_LENGTH = 1e4; // Maximum number of logs to queue before dropping logs
 
+type Log = {
+    /** Auto increment */
+    id?: number;
+    /** Project id */
+    projectId: number;
+    /** Branch id */
+    branchId: string;
+    /** Timestamp */
+    ts: number;
+    /** Log type */
+    type: 'info' | 'warn' | 'error';
+    /** Message */
+    msg: string;
+};
+
 const workerServer = new WorkerServer(self);
 workerServer.on('init', async ({ projectId, branchId, legacyLogs }) => {
-    /**
-     * @typedef {object} Log
-     * @property {number} [id] - auto increment
-     * @property {number} projectId - project id
-     * @property {string} branchId - branch id
-     * @property {number} ts - timestamp
-     * @property {string} type - info | warn | error
-     * @property {string} msg - message
-     */
 
-    const db = /** @type {Dexie & { logs: Dexie.Table<Log, number> }} */ (new Dexie('editor-console'));
+    const db = new Dexie('editor-console') as Dexie & { logs: Dexie.Table<Log, number> };
     db.version(1).stores({ logs: '++id' });
 
     // get log count
@@ -85,10 +91,7 @@ workerServer.on('init', async ({ projectId, branchId, legacyLogs }) => {
     };
 
     // queue log addition
-    /**
-     * @type {Log[]}
-     */
-    const queue = [];
+    const queue: Log[] = [];
     workerServer.on('log', (data) => {
         queue.push(data);
     });

@@ -26,15 +26,16 @@ const CANVAS_TYPES = {
     'render': true
 };
 
-/**
- * @typedef AssetThumbnailArgs
- * @property {ObserverList} [assets] - The assets list.
- * @property {Observer} [sceneSettings] - The scene settings.
- * @property {number} [canvasWidth] - Fixed width for the canvas. Increases performance but uses
- * same canvas resolution every time.
- * @property {number} [canvasHeight] - Fixed height for the canvas. Increases performance but uses
- * same canvas resolution every time.
- */
+type AssetThumbnailArgs = {
+    /** The assets list. */
+    assets?: ObserverList;
+    /** The scene settings. */
+    sceneSettings?: Observer;
+    /** Fixed width for the canvas. Increases performance but uses same canvas resolution every time. */
+    canvasWidth?: number;
+    /** Fixed height for the canvas. Increases performance but uses same canvas resolution every time. */
+    canvasHeight?: number;
+}
 
 /**
  * Shows an asset thumbnail. Depending on the asset type that can be an image or a canvas rendering.
