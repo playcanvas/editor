@@ -2,11 +2,9 @@ import { Panel } from '@playcanvas/pcui';
 
 import { AnimViewer } from './anim-viewer.ts';
 import { AssetInspectorPreviewBase } from './asset-preview-base.ts';
+import type { Attribute } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-/**
- * @import { Attribute } from '../attribute.type.d.ts'
- */
 
 const CLASS_ROOT = 'pcui-asset-animation-inspector-preview';
 
@@ -36,10 +34,7 @@ class AnimationAssetInspectorPreview extends AssetInspectorPreviewBase {
             });
             this.append(this._controlsContainer);
 
-            /**
-             * @type {Attribute[]}
-             */
-            const ATTRIBUTES = [
+            const ATTRIBUTES: Attribute[] = [
                 {
                     label: 'Show Skeleton',
                     alias: 'showSkeleton',

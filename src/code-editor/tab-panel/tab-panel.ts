@@ -1,8 +1,7 @@
 import { Button, Container, Label, Progress } from '@playcanvas/pcui';
 
 editor.once('load', () => {
-    /** @type {Container} */
-    const panel = editor.call('layout.tabs');
+    const panel: Container = editor.call('layout.tabs');
 
     // holds tabs
     const tabsIndex = {};

@@ -7,11 +7,9 @@ import { TableCell } from '../../../common/pcui/element/element-table-cell.ts';
 import { TableRow } from '../../../common/pcui/element/element-table-row.ts';
 import { Table } from '../../../common/pcui/element/element-table.ts';
 import { tooltip, tooltipRefItem } from '../../../common/tooltips.ts';
+import type { Attribute } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-/**
- * @import { Attribute } from '../attribute.type.d.ts'
- */
 
 const CLASS_ROOT = 'asset-font-inspector';
 const CLASS_LOCALE_PANEL = `${CLASS_ROOT}-locale-panel`;
@@ -22,19 +20,13 @@ const CLASS_FONT = `${CLASS_ROOT}-font`;
 const CLASS_PROCESS_FONT_WARNING_MESSAGE = `${CLASS_ROOT}-process-font-warning-message`;
 const CLASS_PROCESS_FONT_WARNING_ITEMS = `${CLASS_ROOT}-process-font-warning-items`;
 
-/**
- * @type {Attribute[]}
- */
-const PROPERTIES_ATTRIBUTES = [{
+const PROPERTIES_ATTRIBUTES: Attribute[] = [{
     label: 'Intensity',
     path: 'data.intensity',
     type: 'slider'
 }];
 
-/**
- * @type {Attribute[]}
- */
-const FONT_ATTRIBUTES = [{
+const FONT_ATTRIBUTES: Attribute[] = [{
     label: 'Characters',
     alias: 'characters',
     type: 'text'
@@ -44,10 +36,7 @@ const FONT_ATTRIBUTES = [{
     type: 'boolean'
 }];
 
-/**
- * @type {Attribute[]}
- */
-const LOCALIZATION_ATTRIBUTES = [{
+const LOCALIZATION_ATTRIBUTES: Attribute[] = [{
     label: 'Add Locale',
     alias: 'localization',
     type: 'string',

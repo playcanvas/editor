@@ -3,16 +3,11 @@ import { Label } from '@playcanvas/pcui';
 import { ComponentInspector } from './component.ts';
 import { CLASS_ERROR } from '../../../common/pcui/constants.ts';
 import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from '../../../core/constants.ts';
+import type { Attribute } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-/**
- * @import { Attribute } from '../attribute.type.d.ts'
- */
 
-/**
- * @type {Attribute[]}
- */
-const ATTRIBUTES = [{
+const ATTRIBUTES: Attribute[] = [{
     label: 'Type',
     path: 'components.render.type',
     reference: 'render:type',

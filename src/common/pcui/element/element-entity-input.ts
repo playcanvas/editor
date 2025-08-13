@@ -1,27 +1,22 @@
+import type { ObserverList } from '@playcanvas/observer';
 import { Element, Container, Label, Button, BindingObserversToElement } from '@playcanvas/pcui';
 
 import { CLASS_FOCUS, CLASS_MULTIPLE_VALUES } from '../constants.ts';
 
-/**
- * @import { ObserverList } from '@playcanvas/observer';
- * @import { ElementArgs } from '@playcanvas/pcui';
- */
 
 const CLASS_ENTITY_INPUT = 'pcui-entity-input';
 const CLASS_EMPTY = `${CLASS_ENTITY_INPUT}-empty`;
 
-/**
- * @typedef EntityInputArgs
- * @property {ObserverList} [entities] - The entities list.
- * @property {Function} [pickEntityFn] - A function with signature (callback) => void. The function
- * should allow the user to pick an Entity and then the function should call the callback passing
- * the Entity's resource id as the argument.
- * @property {Function} [highlightEntityFn] - A function that highlights an Entity with signature
- * (string, boolean) => void. The first argument is the resource id of the Entity and the second
- * argument signifies whether we should highlight the entity or not.
- * @property {boolean} [allowDragDrop] - If true then this will enable drag and drop of entities on
- * the input.
- */
+type EntityInputArgs = {
+    /** The entities list. */
+    entities?: ObserverList;
+    /** A function with signature (callback) => void. The function should allow the user to pick an Entity and then the function should call the callback passing the Entity's resource id as the argument. */
+    pickEntityFn?: (callback: (resourceId: string) => void) => void;
+    /** A function that highlights an Entity with signature (string, boolean) => void. The first argument is the resource id of the Entity and the second argument signifies whether we should highlight the entity or not. */
+    highlightEntityFn?: (resourceId: string, highlight: boolean) => void;
+    /** If true then this will enable drag and drop of entities on the input. */
+    allowDragDrop?: boolean;
+}
 
 /**
  * An input that accepts an Entity.
@@ -29,12 +24,7 @@ const CLASS_EMPTY = `${CLASS_ENTITY_INPUT}-empty`;
  * @property {boolean} renderChanges If true then the Element will flash when its value changes.
  */
 class EntityInput extends Element {
-    /**
-     * Creates a new EntityInput.
-     *
-     * @param {EntityInputArgs & ElementArgs} [args] - The arguments.
-     */
-    constructor(args) {
+    constructor(args: EntityInputArgs) {
         const container = new Container();
 
         args = Object.assign({

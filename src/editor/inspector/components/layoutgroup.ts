@@ -7,16 +7,11 @@ import {
     FITTING_SHRINK,
     FITTING_BOTH
 } from '../../../core/constants.ts';
+import type { Attribute } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-/**
- * @import { Attribute } from '../attribute.type.d.ts'
- */
 
-/**
- * @type {Attribute[]}
- */
-const ATTRIBUTES = [{
+const ATTRIBUTES: Attribute[] = [{
     label: 'Orientation',
     path: 'components.layoutgroup.orientation',
     reference: 'layoutgroup:orientation',

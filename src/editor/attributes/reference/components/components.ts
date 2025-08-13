@@ -23,12 +23,10 @@ import { fields as soundslot } from './soundslot.ts';
 import { fields as spriteAnimationClip } from './sprite-animation-clip.ts';
 import { fields as sprite } from './sprite.ts';
 import { fields as zone } from './zone.ts';
+import type { AttributeReference } from '../reference.type';
 
 editor.once('load', () => {
-    /**
-     * @type {AttributeReference[]}
-     */
-    const fields = [
+    const fields: AttributeReference[] = [
         ...anim,
         ...animation,
         ...audiolistener,

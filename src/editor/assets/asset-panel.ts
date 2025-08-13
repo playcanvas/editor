@@ -241,7 +241,7 @@ class AssetGridViewItem extends GridViewItem {
  * type and by searching in various ways. Allows creating new assets and moving assets to different
  * folders.
  *
- * @property {DropManager} The drop manager to support drag and drop.
+ * @property {DropManager} dropManager The drop manager to support drag and drop.
  * @property {ObserverList} assets The asset list to display.
  * @property {Observer} currentFolder The current folder.
  * @property {Table} detailsView The details view.
@@ -264,12 +264,7 @@ class AssetGridViewItem extends GridViewItem {
  * @property {boolean} writePermissions If false then only a read-only view will be shown
  */
 class AssetPanel extends Panel {
-    /**
-     * Creates new AssetPanel.
-     *
-     * @param {object} args - The arguments
-     */
-    constructor(args) {
+    constructor(args: object) {
         args = Object.assign({
             headerText: 'ASSETS'
         }, args);

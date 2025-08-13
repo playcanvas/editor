@@ -1,10 +1,8 @@
 import { Panel, Button } from '@playcanvas/pcui';
 
+import type { Attribute } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-/**
- * @import { Attribute } from '../attribute.type.d.ts'
- */
 
 const CLASS_ANIMSTATEGRAPH = 'asset-animstategraph-inspector';
 const CLASS_ANIMSTATEGRAPH_PARAMETER = `${CLASS_ANIMSTATEGRAPH}-parameter`;
@@ -39,10 +37,7 @@ class AnimstategraphParameters extends Panel {
                 break;
         }
 
-        /**
-         * @type {Attribute[]}
-         */
-        const ATTRIBUTES = [
+        const ATTRIBUTES: Attribute[] = [
             {
                 label: 'Name',
                 alias: `data.parameters.${paramId}.name`,

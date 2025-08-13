@@ -141,14 +141,14 @@ editor.once('load', () => {
                 }
 
                 // new entity
-                const entity = editor.api.globals.entities.create(/** @type {any} */ ({
+                const entity = editor.api.globals.entities.create(({
                     parent: parent,
                     name: name,
                     position: [vecC.x, vecC.y, vecC.z],
                     components: {
                         gsplat: component
                     }
-                }), {
+                } as any), {
                     history: false
                 });
 

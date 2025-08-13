@@ -1,14 +1,9 @@
 import { ComponentInspector } from './component.ts';
+import type { Attribute } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-/**
- * @import { Attribute } from '../attribute.type.d.ts'
- */
 
-/**
- * @type {Attribute[]}
- */
-const ATTRIBUTES = [{
+const ATTRIBUTES: Attribute[] = [{
     label: 'Assets',
     path: 'components.audiosource.assets',
     reference: 'audiosource:assets',

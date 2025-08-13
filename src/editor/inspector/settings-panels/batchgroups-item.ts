@@ -1,15 +1,12 @@
 import { BaseSettingsPanel } from './base.ts';
 import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from '../../../core/constants.ts';
+import type { Attribute } from '../attribute.type.d.ts';
 
 /**
- * @import { Attribute } from '../attribute.type.d.ts'
+ * @param args - The attribute args
+ * @returns - The attributes
  */
-
-/**
- * @param {object} args - The attribute args
- * @returns {Attribute[]} - The attributes
- */
-const ATTRIBUTES = args => [
+const ATTRIBUTES = (args: object): Attribute[] => [
     {
         observer: 'projectSettings',
         label: 'Name',

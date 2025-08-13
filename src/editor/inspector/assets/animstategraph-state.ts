@@ -1,11 +1,9 @@
 import { Panel, Label, Button, BindingTwoWay } from '@playcanvas/pcui';
 
 import { AssetInput } from '../../../common/pcui/element/element-asset-input.ts';
+import type { Attribute } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-/**
- * @import { Attribute } from '../attribute.type.d.ts'
- */
 
 const CLASS_ANIMSTATEGRAPH = 'asset-animstategraph-inspector';
 const CLASS_ANIMSTATEGRAPH_STATE = `${CLASS_ANIMSTATEGRAPH}-state`;
@@ -156,10 +154,7 @@ class AnimstategraphState extends Panel {
 
         this._enabled = enabled;
 
-        /**
-         * @type {Attribute[]}
-         */
-        const ATTRIBUTES = [
+        const ATTRIBUTES: Attribute[] = [
             {
                 label: 'Name',
                 alias: `${path}.name`,

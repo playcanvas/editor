@@ -1,6 +1,7 @@
+import type { Observer } from '@playcanvas/observer';
+
 import { formatter as f } from '../../common/utils.ts';
 
-/** @import { Observer } from '@playcanvas/observer' */
 
 const SRGB_PATH_MAP = {
     texture: {
@@ -48,54 +49,58 @@ const MATERIAL_PATH_CHANNEL_MAP = Object.keys(SRGB_PATH_MAP.material).reduce((ma
     return map;
 }, new Map());
 
+type TextureUsage = {
+    /** The srgb flag for the texture usage */
+    srgb: boolean;
+    /** The id of the entity or asset that references the texture */
+    id: string;
+    /** The type of the entity or asset that references the texture */
+    type: string;
+    /** The path of the property that references the texture */
+    path: string;
+    /** A function to jump to the entity or asset that references the texture */
+    jump: () => void;
+};
+
 /**
  * This function checks for srgb conflicts for texture srgb flags based on their usage in
  * entities and assets and logs a warning if any are found. On load it checks all assets and
  * entities and determines the srgb flag based on the majority of references.
  */
 const startChecker = () => {
-    /**
-     * @typedef {object} TextureUsage
-     * @property {boolean} srgb - The srgb flag for the texture usage
-     * @property {string} id - The id of the entity or asset that references the texture
-     * @property {string} type - The type of the entity or asset that references the texture
-     * @property {string} path - The path of the property that references the texture
-     * @property {function} jump - A function to jump to the entity or asset that references the texture
-     */
 
     /**
-     * @type {Map<number, TextureUsage[]>} A map of texture asset ids to their usages
+     * A map of texture asset ids to their usages
      */
-    const textureUsages = new Map();
+    const textureUsages = new Map<number, TextureUsage[]>();
 
     /**
-     * @type {Set<number>} A map of texture asset ids that need to be autofixed their error status
+     * A map of texture asset ids that need to be autofixed their error status
      */
-    const textureFixes = new Set();
+    const textureFixes = new Set<number>();
 
     /**
-     * @type {Set<number>} A set of texture asset ids that have conflicts
+     * A set of texture asset ids that have conflicts
      */
-    const textureConflicts = new Set();
+    const textureConflicts = new Set<number>();
 
     /**
-     * @type {Set<number>} A set of textures with srgb flag enforced
+     * A set of textures with srgb flag enforced
      */
-    const textureEnforce = new Set();
+    const textureEnforce = new Set<number>();
 
     /**
      * Find the references to an asset and check if the srgb flag is set correctly
      *
-     * @param {Observer} asset - The asset to check for usage flag
-     * @returns {TextureUsage[]} The list of references for the asset
+     * @param asset - The asset to check for usage flag
+     * @returns The list of references for the asset
      */
-    const findUsages = (asset) => {
+    const findUsages = (asset: Observer): TextureUsage[] => {
         const used = editor.call('assets:used:index');
         const assetId = asset.get('id');
         const assetUsed = used[assetId];
 
-        /** @type {TextureUsage[]} */
-        const usages = [];
+        const usages: TextureUsage[] = [];
 
         if (!assetUsed) {
             return usages;

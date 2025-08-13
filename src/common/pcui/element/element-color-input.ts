@@ -12,12 +12,7 @@ const CLASS_COLOR_INPUT = 'pcui-color-input';
  * @property {boolean} renderChanges If true the input will flash when changed.
  */
 class ColorInput extends Element {
-    /**
-     * Creates a new ColorInput.
-     *
-     * @param {object} args - The arguments.
-     */
-    constructor(args) {
+    constructor(args: object) {
         args = Object.assign({
             tabIndex: 0
         }, args);

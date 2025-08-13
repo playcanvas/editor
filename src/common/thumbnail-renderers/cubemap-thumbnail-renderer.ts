@@ -95,7 +95,7 @@ class CubemapThumbnailRenderer {
                         images[i] = null;
 
                         if (url) {
-                            image = images[i] = /** @type {HTMLImageElement & { hash: string }} */ (new Image());
+                            image = images[i] = new Image();
                             image.hash = hash;
                             image.onload = this._onImageLoadHandler;
                             image.src = buildQueryUrl(url, { t: hash });

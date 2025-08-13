@@ -1,19 +1,14 @@
 import { Panel, Container, Label } from '@playcanvas/pcui';
 
 import { RelatedAssetsInspector } from './related-assets.ts';
+import type { Attribute } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-/**
- * @import { Attribute } from '../attribute.type.d.ts'
- */
 
 const CLASS_ROOT = 'scene-asset-inspector';
 const CLASS_ASSET = `${CLASS_ROOT}-asset`;
 
-/**
- * @type {Attribute[]}
- */
-const ATTRIBUTES = [{
+const ATTRIBUTES: Attribute[] = [{
     label: 'Animation',
     alias: 'animation',
     type: 'container',
