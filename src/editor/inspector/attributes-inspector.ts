@@ -7,9 +7,9 @@ import '../storage/clipboard-context-menu.ts';
 
 const isEnabledAttribute = ({ label, type }) => label === 'enabled' && type === 'boolean';
 
-import type { Attribute } from './attribute.type.d.ts'
-import type { Tooltip } from '../../common/pcui/element/element-tooltip.js'
-import type { TemplateOverrideInspector } from '../templates/templates-override-inspector.js'
+import type { Attribute } from './attribute.type.d.ts';
+import type { Tooltip } from '../../common/pcui/element/element-tooltip.js';
+import type { TemplateOverrideInspector } from '../templates/templates-override-inspector.js';
 
 const CLASS_ROOT = 'pcui-inspector';
 

@@ -1,8 +1,8 @@
 import { ComponentInspector } from './component.ts';
 import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from '../../../core/constants.ts';
+import type { Attribute } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-import type { Attribute } from '../attribute.type.d.ts'
 
 /**
  * @type {Attribute[]}

@@ -1,5 +1,7 @@
 import { Observer } from '@playcanvas/observer';
+import type { ObserverList } from '@playcanvas/observer';
 import { Element } from '@playcanvas/pcui';
+import type { ElementArgs } from '@playcanvas/pcui';
 
 import { CubemapThumbnailRenderer } from '../../thumbnail-renderers/cubemap-thumbnail-renderer.ts';
 import { FontThumbnailRenderer } from '../../thumbnail-renderers/font-thumbnail-renderer.ts';
@@ -10,8 +12,6 @@ import { SpriteThumbnailRenderer } from '../../thumbnail-renderers/sprite-thumbn
 import { buildQueryUrl } from '../../utils.ts';
 import { CLASS_MULTIPLE_VALUES } from '../constants.ts';
 
-import type { ObserverList } from '@playcanvas/observer';
-import type { ElementArgs } from '@playcanvas/pcui';
 
 const CLASS_ASSET_THUMB = 'pcui-asset-thumb';
 const CLASS_ASSET_THUMB_EMPTY = 'pcui-asset-thumb-empty';

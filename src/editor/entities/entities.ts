@@ -1,4 +1,4 @@
-import type { Entity, EntityObserver } from '@playcanvas/editor-api'
+import type { Entity, EntityObserver } from '@playcanvas/editor-api';
 
 editor.once('load', () => {
     const entities = editor.api.globals.entities.raw;

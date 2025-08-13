@@ -1,8 +1,8 @@
 import { Element, Canvas } from '@playcanvas/pcui';
+import type { ElementArgs } from '@playcanvas/pcui';
 
 import { CLASS_MULTIPLE_VALUES } from '../constants.ts';
 
-import type { ElementArgs } from '@playcanvas/pcui';
 
 const REGEX_KEYS = /keys/;
 const REGEX_TYPE = /type/;

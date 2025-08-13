@@ -4,9 +4,9 @@ import { ComponentInspector } from './component.ts';
 import { CLASS_ERROR } from '../../../common/pcui/constants.ts';
 import { AssetInput } from '../../../common/pcui/element/element-asset-input.ts';
 import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from '../../../core/constants.ts';
+import type { Attribute } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-import type { Attribute } from '../attribute.type.d.ts'
 
 /**
  * @type {Attribute[]}

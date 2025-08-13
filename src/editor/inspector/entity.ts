@@ -1,6 +1,7 @@
 import { LocalStorage } from '@playcanvas/editor-api';
 import { Container, Button, Menu } from '@playcanvas/pcui';
 
+import type { Attribute } from './attribute.type.d.ts';
 import { AttributesInspector } from './attributes-inspector.ts';
 import { AnimComponentInspector } from './components/anim.ts';
 import { AnimationComponentInspector } from './components/animation.ts';
@@ -29,7 +30,6 @@ import { COMPONENT_LOGOS } from '../../core/constants.ts';
 import { TemplatesEntityInspector } from '../templates/templates-entity-inspector.ts';
 import { TemplateOverrideInspector } from '../templates/templates-override-inspector.ts';
 
-import type { Attribute } from './attribute.type.d.ts'
 
 const componentToConstructor: Map<string, new (...args: any[]) => any> = new Map();
 componentToConstructor.set('anim', AnimComponentInspector);

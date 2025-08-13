@@ -1,8 +1,8 @@
 import { Container, Button, Progress, Panel } from '@playcanvas/pcui';
 
+import type { Attribute } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-import type { Attribute } from '../attribute.type.d.ts'
 
 const CLASS_ROOT = 'asset-audio-inspector';
 

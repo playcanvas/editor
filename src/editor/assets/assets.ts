@@ -1,4 +1,4 @@
-import type { Asset, AssetObserver } from '@playcanvas/editor-api'
+import type { Asset, AssetObserver } from '@playcanvas/editor-api';
 
 // NAMESPACE
 //     asset

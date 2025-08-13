@@ -1,5 +1,6 @@
 import { Container } from '@playcanvas/pcui';
 
+import type { Attribute } from './attribute.type.d.ts';
 import { AttributesInspector } from './attributes-inspector.ts';
 import { AISettingsPanel } from './settings-panels/ai.ts';
 import { AssetImportSettingsPanel } from './settings-panels/asset-import.ts';
@@ -20,7 +21,6 @@ import { RenderingSettingsPanel } from './settings-panels/rendering.ts';
 import { ScriptsSettingsPanel } from './settings-panels/scripts.ts';
 import { ProjectHistorySettingsPanel } from './settings-panels/settings-history.ts';
 
-import type { Attribute } from './attribute.type.d.ts'
 
 const CLASS_ROOT = 'settings';
 

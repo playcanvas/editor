@@ -1,10 +1,10 @@
+import type { ObserverList } from '@playcanvas/observer';
 import { Element, Label, Container, Button, BindingObserversToElement } from '@playcanvas/pcui';
+import type { ElementArgs } from '@playcanvas/pcui';
 
 import { AssetThumbnail } from './element-asset-thumbnail.ts';
 import { CLASS_MULTIPLE_VALUES } from '../constants.ts';
 
-import type { ObserverList } from '@playcanvas/observer';
-import type { ElementArgs } from '@playcanvas/pcui';
 
 const CLASS_ASSET_INPUT = 'pcui-asset-input';
 const CLASS_ASSET_INPUT_THUMB = 'pcui-asset-input-thumb';

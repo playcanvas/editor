@@ -1,6 +1,5 @@
-import { Element, SelectInput } from '@playcanvas/pcui';
-
 import type { Observer } from '@playcanvas/observer';
+import { Element, SelectInput } from '@playcanvas/pcui';
 import type { SelectInputArgs } from '@playcanvas/pcui';
 
 /**

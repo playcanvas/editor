@@ -1,5 +1,4 @@
 import { Container } from '@playcanvas/pcui';
-
 import type { ContainerArgs } from '@playcanvas/pcui';
 
 const CLASS_ROW = 'pcui-table-row';

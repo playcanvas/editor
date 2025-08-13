@@ -1,9 +1,9 @@
 import { Panel, Container } from '@playcanvas/pcui';
 
 import { CLASS_MULTIPLE_VALUES } from '../../../common/pcui/constants.ts';
+import type { Attribute, Divider } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-import type { Attribute, Divider } from '../attribute.type.d.ts'
 
 const TextureTypes = {
     Normal: 'Normal',

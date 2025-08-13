@@ -1,6 +1,5 @@
 import { Progress, TreeView, TreeViewItem } from '@playcanvas/pcui';
-
-import type { Panel } from '@playcanvas/pcui'
+import type { Panel } from '@playcanvas/pcui';
 
 editor.once('load', () => {
     const icons: Map<string, string> = new Map();

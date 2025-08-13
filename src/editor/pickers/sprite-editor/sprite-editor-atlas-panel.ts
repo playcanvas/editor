@@ -1,4 +1,4 @@
-import type { Panel } from '@playcanvas/pcui'
+import type { Panel } from '@playcanvas/pcui';
 
 editor.once('load', () => {
     editor.method('picker:sprites:attributes:atlas', (atlasAsset) => {

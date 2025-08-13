@@ -1,6 +1,7 @@
+import type { Panel } from '@playcanvas/pcui';
+
 import { LegacyButton } from '../../../common/ui/button.ts';
 
-import type { Panel } from '@playcanvas/pcui'
 
 editor.once('load', () => {
     editor.method('picker:sprites:attributes:frames', (args) => {

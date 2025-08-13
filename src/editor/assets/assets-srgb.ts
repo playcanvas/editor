@@ -1,6 +1,7 @@
+import type { Observer } from '@playcanvas/observer';
+
 import { formatter as f } from '../../common/utils.ts';
 
-import type { Observer } from '@playcanvas/observer'
 
 const SRGB_PATH_MAP = {
     texture: {

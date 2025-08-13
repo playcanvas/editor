@@ -1,9 +1,9 @@
 import { ComponentInspector } from './component.ts';
 import { deepCopy } from '../../../common/utils.ts';
 import { ORIENTATION_HORIZONTAL, ORIENTATION_VERTICAL } from '../../../core/constants.ts';
+import type { Attribute } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-import type { Attribute } from '../attribute.type.d.ts'
 
 /**
  * @type {Attribute[]}

@@ -7,11 +7,11 @@ import { tooltip, tooltipSimpleItem } from '../../../common/tooltips.ts';
 import { LegacyTooltip } from '../../../common/ui/tooltip.ts';
 import { deepCopy } from '../../../common/utils.ts';
 import { evaluate } from '../../scripting/expr-eval/evaluate.ts';
+import type { ASTNode } from '../../scripting/expr-eval/parser.js';
 import { parse } from '../../scripting/expr-eval/parser.ts';
+import type { Attribute } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-import type { Attribute } from '../attribute.type.d.ts'
-import type { ASTNode } from '../../scripting/expr-eval/parser.js'
 
 const CLASS_SCRIPT_CONTAINER = 'script-component-inspector-scripts';
 const CLASS_SCRIPT = 'script-component-inspector-script';

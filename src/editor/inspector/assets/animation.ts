@@ -1,8 +1,8 @@
 import { Panel, Button } from '@playcanvas/pcui';
 
+import type { Attribute } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-import type { Attribute } from '../attribute.type.d.ts'
 
 const CLASS_ROOT = 'pcui-asset-animation-inspector';
 const CLASS_EVENT_PANEL = `${CLASS_ROOT}-event-panel`;

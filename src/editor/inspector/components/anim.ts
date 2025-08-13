@@ -2,9 +2,9 @@ import { InfoBox, Container, TreeView, TreeViewItem, BooleanInput, Menu, Button,
 
 import { ComponentInspector } from './component.ts';
 import { AssetInput } from '../../../common/pcui/element/element-asset-input.ts';
+import type { Attribute, Divider } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-import type { Attribute, Divider } from '../attribute.type.d.ts'
 
 /**
  * @type {(Attribute | Divider)[]}

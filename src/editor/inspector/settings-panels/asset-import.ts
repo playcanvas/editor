@@ -1,8 +1,7 @@
 import { Panel, Button, Container, Label } from '@playcanvas/pcui';
 
 import { BaseSettingsPanel } from './base.ts';
-
-import type { Attribute } from '../attribute.type.d.ts'
+import type { Attribute } from '../attribute.type.d.ts';
 
 const CLASS_ROOT = 'asset-import-settings-panel';
 const CLASS_SECTION = `${CLASS_ROOT}-section`;

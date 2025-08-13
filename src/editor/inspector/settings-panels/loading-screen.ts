@@ -1,11 +1,9 @@
+import type { Asset } from '@playcanvas/editor-api';
 import { Container, Button } from '@playcanvas/pcui';
 
 import { BaseSettingsPanel } from './base.ts';
 import { LegacyTooltip } from '../../../common/ui/tooltip.ts';
-
-import type { Asset } from '@playcanvas/editor-api'
-
-import type { Attribute } from '../attribute.type.d.ts'
+import type { Attribute } from '../attribute.type.d.ts';
 
 /**
  * @type {Attribute[]}

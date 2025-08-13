@@ -1,6 +1,5 @@
 import { BaseSettingsPanel } from './base.ts';
-
-import type { Attribute } from '../attribute.type.d.ts'
+import type { Attribute } from '../attribute.type.d.ts';
 
 const CLASS_ROOT = 'launch-page-settings-panel';
 const CLASS_ATTRIBUTES = `${CLASS_ROOT}-attributes`;

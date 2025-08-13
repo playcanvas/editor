@@ -1,6 +1,5 @@
-import { Element, Container, Button, Label, TextInput, BindingObserversToElement } from '@playcanvas/pcui';
-
 import type { ObserverList } from '@playcanvas/observer';
+import { Element, Container, Button, Label, TextInput, BindingObserversToElement } from '@playcanvas/pcui';
 import type { ElementArgs } from '@playcanvas/pcui';
 
 const CLASS_ASSET_LIST = 'pcui-asset-list';

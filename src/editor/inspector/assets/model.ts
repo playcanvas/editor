@@ -1,9 +1,9 @@
 import { Panel, Container, Button } from '@playcanvas/pcui';
 
 import { ModelAssetInspectorMeshInstances } from './model-mesh-instances.ts';
+import type { Attribute } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-import type { Attribute } from '../attribute.type.d.ts'
 
 const CLASS_ROOT = 'asset-model-inspector';
 const CLASS_AUTO_UNWRAP_PROGRESS = `${CLASS_ROOT}-auto-unwrap-progress`;

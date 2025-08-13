@@ -1,9 +1,10 @@
+import type { Panel } from '@playcanvas/pcui';
+
 import { LegacyButton } from '../../../common/ui/button.ts';
 import { LegacyCanvas } from '../../../common/ui/canvas.ts';
 import { LegacyLabel } from '../../../common/ui/label.ts';
 import { LegacyPanel } from '../../../common/ui/panel.ts';
 
-import type { Panel } from '@playcanvas/pcui'
 
 editor.once('load', () => {
     editor.method('picker:sprites:attributes:sprite', (args) => {

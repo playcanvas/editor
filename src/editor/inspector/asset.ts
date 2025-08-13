@@ -32,11 +32,11 @@ import { TextureAssetInspectorPreview } from './assets/texture-preview.ts';
 import { TextureSourceAssetInspector } from './assets/texture-source.ts';
 import { TextureAssetInspector } from './assets/texture.ts';
 import { WasmAssetInspector } from './assets/wasm.ts';
+import type { Attribute } from './attribute.type.d.ts';
 import { AttributesInspector } from './attributes-inspector.ts';
 import { bytesToHuman, convertDatetime } from '../../common/utils.ts';
 import { LOAD_SCRIPT_AS_ASSET, LOAD_SCRIPT_BEFORE_ENGINE, LOAD_SCRIPT_AFTER_ENGINE } from '../../core/constants.ts';
 
-import type { Attribute } from './attribute.type.d.ts'
 
 const assetInspectors: Map<string, new (...args: any[]) => any> = new Map();
 assetInspectors.set('animation', AnimationAssetInspector);

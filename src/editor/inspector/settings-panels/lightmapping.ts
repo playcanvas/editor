@@ -1,6 +1,5 @@
 import { BaseSettingsPanel } from './base.ts';
-
-import type { Attribute, Divider } from '../attribute.type.d.ts'
+import type { Attribute, Divider } from '../attribute.type.d.ts';
 
 /**
  * @type {(Attribute | Divider)[]}
