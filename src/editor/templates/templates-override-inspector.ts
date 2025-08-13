@@ -17,6 +17,8 @@ class TemplateOverrideInspector {
 
     private _evtPartOfTemplate: EventHandle | null = null;
 
+    private _entity: Observer | null = null;
+
     constructor(args: ObserverList) {
         this._entities = args.entities;
 
@@ -171,10 +173,8 @@ class TemplateOverrideInspector {
 
     /**
      * The current entity we are inspecting for overrides.
-     *
-     * @type {Observer}
      */
-    set entity(value) {
+    set entity(value: Observer) {
         if (this._entity === value) {
             return;
         }

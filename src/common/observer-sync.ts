@@ -12,28 +12,13 @@ type ObserverSyncArgs = {
 };
 
 class ObserverSync extends Events {
-    /**
-     * @type {Observer}
-     */
-    item;
+    item: Observer;
 
-    /**
-     * @type {boolean}
-     * @private
-     */
-    _enabled;
+    private _enabled: boolean;
 
-    /**
-     * @type {any[]}
-     * @private
-     */
-    _prefix;
+    private _prefix: any[];
 
-    /**
-     * @type {string[]}
-     * @private
-     */
-    _paths;
+    private _paths: string[];
 
     constructor(args: ObserverSyncArgs) {
         super();

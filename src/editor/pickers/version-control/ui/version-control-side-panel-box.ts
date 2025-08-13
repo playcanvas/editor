@@ -214,17 +214,13 @@ class VersionControlSidePanelBox extends Events {
 
     /**
      * Set the header text of the box.
-     *
-     * @type {string}
      */
-    set header(value) {
+    set header(value: string) {
         this.panel.header = value;
     }
 
     /**
      * Get the header text of the box.
-     *
-     * @type {string}
      */
     get header() {
         return this.panel.header;

@@ -1,18 +1,9 @@
 class WorkerServer {
-    /**
-     * @type {(ArrayBuffer | MessagePort | ImageBitmap)[]}
-     */
-    _transfer = [];
+    _transfer: (ArrayBuffer | MessagePort | ImageBitmap)[] = [];
 
-    /**
-     * @type {Map<string, Function[]>}
-     */
-    _callbacks = new Map();
+    _callbacks: Map<string, Function[]> = new Map();
 
-    /**
-     * @type {DedicatedWorkerGlobalScope}
-     */
-    worker;
+    worker: globalThis.DedicatedWorkerGlobalScope;
 
     constructor(worker) {
         this.worker = worker;

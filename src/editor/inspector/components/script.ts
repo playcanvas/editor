@@ -488,10 +488,7 @@ class ScriptInspector extends Panel {
             type = `array:${type}`;
         }
 
-        /**
-         * @type {Attribute}
-         */
-        const data = {
+        const data: Attribute = {
             label: attributeData.title || attributeName,
             type: type,
             path: `components.script.scripts.${this._scriptName}.attributes.${attributePath}`,

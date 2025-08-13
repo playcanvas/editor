@@ -33,6 +33,7 @@ export default [
             'curly': ['error', 'all'],
             'jsdoc/require-param-type': 'off',
             'jsdoc/require-returns-type': 'off',
+            'jsdoc/require-returns': 'off',
             'no-use-before-define': 'off',
             'no-var': 'off'
         }
@@ -51,6 +52,7 @@ export default [
             'curly': ['error', 'all'],
             'jsdoc/require-param-type': 'off',
             'jsdoc/require-returns-type': 'off',
+            'jsdoc/require-returns': 'off',
             'no-use-before-define': 'off',
             'no-var': 'off'
         }
@@ -68,6 +70,7 @@ export default [
             'curly': ['error', 'all'],
             'jsdoc/require-param-type': 'off',
             'jsdoc/require-returns-type': 'off',
+            'jsdoc/require-returns': 'off',
             'no-use-before-define': 'off',
             'no-var': 'off'
         }
@@ -85,6 +88,7 @@ export default [
             'curly': ['error', 'all'],
             'jsdoc/require-param-type': 'off',
             'jsdoc/require-returns-type': 'off',
+            'jsdoc/require-returns': 'off',
             'no-use-before-define': 'off',
             'no-var': 'off'
         }

@@ -91,10 +91,7 @@ class AnimationAssetInspector extends Panel {
                 this.removeEvent(eventKey);
             });
 
-            /**
-             * @type {Attribute[]}
-             */
-            const ATTRIBUTES = [
+            const ATTRIBUTES: Attribute[] = [
                 {
                     label: 'time',
                     type: 'number',

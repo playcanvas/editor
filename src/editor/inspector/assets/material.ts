@@ -17,11 +17,8 @@ const TextureTypes = {
  * @param {string} type - The type of the texture
  * @returns {Attribute[]} - The attributes for the texture
  */
-const createTextureAttribute = (label, attributeName, type) => {
-    /**
-     * @type {Attribute}
-     */
-    const scalarColorChannel = {
+const createTextureAttribute = (label, attributeName, type): Attribute[] => {
+    const scalarColorChannel: Attribute = {
         label: 'Color Channel',
         path: `data.${attributeName}MapChannel`,
         type: 'select',
@@ -40,10 +37,7 @@ const createTextureAttribute = (label, attributeName, type) => {
         reference: `asset:material:${attributeName}MapChannel`
     };
 
-    /**
-     * @type {Attribute}
-     */
-    const rgbColorChannel = {
+    const rgbColorChannel: Attribute = {
         label: 'Color Channel',
         path: `data.${attributeName}MapChannel`,
         type: 'select',
@@ -64,9 +58,6 @@ const createTextureAttribute = (label, attributeName, type) => {
         reference: `asset:material:${attributeName}MapChannel`
     };
 
-    /**
-     * @type {Attribute[]}
-     */
     return [{
         label: label,
         type: 'asset',

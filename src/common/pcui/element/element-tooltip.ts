@@ -36,10 +36,8 @@ class Tooltip extends Container {
 
     /**
      * The margin in pixels between the tooltip and the target element.
-     *
-     * @type {number}
      */
-    set margin(value) {
+    set margin(value: number) {
         this._margin = value ?? this._margin;
     }
 
@@ -49,10 +47,8 @@ class Tooltip extends Container {
 
     /**
      * The delay in milliseconds before the tooltip is shown.
-     *
-     * @type {number}
      */
-    set delay(value) {
+    set delay(value: number) {
         this._delay = value ?? this._delay;
     }
 

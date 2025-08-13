@@ -63,10 +63,8 @@ editor.once('load', () => {
 
     /**
      * Map asset id to tree view item.
-     *
-     * @type {Map<string, TreeViewItem>}
      */
-    const idToItem = new Map();
+    const idToItem: Map<string, TreeViewItem> = new Map();
 
     // contains <folder id, nodes that wait for folder id to be added>
     const waitingParent = {};

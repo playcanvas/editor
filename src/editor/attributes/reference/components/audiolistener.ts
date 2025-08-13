@@ -1,7 +1,6 @@
-/**
- * @type {AttributeReference[]}
- */
-export const fields  = [{
+import type { AttributeReference } from '../reference.type.ts';
+
+export const fields: AttributeReference[]  = [{
     name: 'audiolistener:component',
     title: 'pc.AudioListenerComponent',
     subTitle: '{pc.Component}',

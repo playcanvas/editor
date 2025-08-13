@@ -78,7 +78,11 @@ editor.once('load', () => {
         let timerHover = null;
         let timerBlur = null;
 
-        tooltip.attach = function (/** @type {{ target, element, panel }} */ args) {
+        tooltip.attach = function (args: {
+            target?: HTMLElement,
+            element?: HTMLElement,
+            panel?: HTMLElement
+        }) {
             let target = args.target;
             let element = args.element;
             let targetPanel = args.panel || panel;

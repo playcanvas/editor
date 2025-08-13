@@ -70,24 +70,24 @@ type TextureUsage = {
 const startChecker = () => {
 
     /**
-     * @type {Map<number, TextureUsage[]>} A map of texture asset ids to their usages
+     * A map of texture asset ids to their usages
      */
-    const textureUsages = new Map();
+    const textureUsages = new Map<number, TextureUsage[]>();
 
     /**
-     * @type {Set<number>} A map of texture asset ids that need to be autofixed their error status
+     * A map of texture asset ids that need to be autofixed their error status
      */
-    const textureFixes = new Set();
+    const textureFixes = new Set<number>();
 
     /**
-     * @type {Set<number>} A set of texture asset ids that have conflicts
+     * A set of texture asset ids that have conflicts
      */
-    const textureConflicts = new Set();
+    const textureConflicts = new Set<number>();
 
     /**
-     * @type {Set<number>} A set of textures with srgb flag enforced
+     * A set of textures with srgb flag enforced
      */
-    const textureEnforce = new Set();
+    const textureEnforce = new Set<number>();
 
     /**
      * Find the references to an asset and check if the srgb flag is set correctly

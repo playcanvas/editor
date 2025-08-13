@@ -307,10 +307,7 @@ class AttributesInspector extends Container {
 
             const field = this.createFieldForAttribute(attr);
 
-            /**
-             * @type {Container}
-             */
-            let tooltipGroup;
+            let tooltipGroup: Container;
 
             if (attr.type !== 'asset' && attr.type !== 'json' && attr.type !== 'array:json') {
                 if (attr.label) {

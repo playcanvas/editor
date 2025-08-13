@@ -1,7 +1,6 @@
-/**
- * @type {AttributeReference[]}
- */
-export const fields  = [{
+import type { AttributeReference } from '../reference.type.ts';
+
+export const fields: AttributeReference[]  = [{
     name: 'spriteAnimation:clip',
     title: 'pc.SpriteAnimationClip',
     description: 'A Sprite Animation Clip can play all the frames of a Sprite Asset at a specified speed.',
