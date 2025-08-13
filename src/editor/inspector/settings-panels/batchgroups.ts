@@ -8,10 +8,7 @@ const CLASS_ITEM = `${CLASS_ROOT}-item`;
 
 import type { Attribute } from '../attribute.type.d.ts';
 
-/**
- * @type {Attribute[]}
- */
-const ATTRIBUTES = [{
+const ATTRIBUTES: Attribute[] = [{
     label: '',
     alias: 'addGroupButton',
     type: 'button',

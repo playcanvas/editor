@@ -7,10 +7,7 @@ import type { Attribute } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
 
-/**
- * @type {Attribute[]}
- */
-const COMPONENT_ATTRIBUTES = [{
+const COMPONENT_ATTRIBUTES: Attribute[] = [{
     label: 'Type',
     path: 'components.sprite.type',
     type: 'select',
@@ -100,10 +97,7 @@ const COMPONENT_ATTRIBUTES = [{
     }
 }];
 
-/**
- * @type {Attribute[]}
- */
-const CLIP_ATTRIBUTES = [{
+const CLIP_ATTRIBUTES: Attribute[] = [{
     label: 'Name',
     path: 'components.sprite.clips.$.name',
     type: 'string'

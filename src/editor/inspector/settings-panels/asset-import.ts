@@ -7,10 +7,7 @@ const CLASS_ROOT = 'asset-import-settings-panel';
 const CLASS_SECTION = `${CLASS_ROOT}-section`;
 const CLASS_ATTRIBUTES = `${CLASS_ROOT}-attributes`;
 
-/**
- * @type {Attribute[]}
- */
-const ATTRIBUTES = [
+const ATTRIBUTES: Attribute[] = [
     {
         observer: 'settings',
         label: 'Search related assets',

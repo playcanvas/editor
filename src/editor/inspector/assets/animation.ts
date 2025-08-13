@@ -7,10 +7,7 @@ import { AttributesInspector } from '../attributes-inspector.ts';
 const CLASS_ROOT = 'pcui-asset-animation-inspector';
 const CLASS_EVENT_PANEL = `${CLASS_ROOT}-event-panel`;
 
-/**
- * @type {Attribute[]}
- */
-const ATTRIBUTES = [{
+const ATTRIBUTES: Attribute[] = [{
     label: 'Duration',
     path: 'meta.duration',
     reference: 'asset:animation:duration',

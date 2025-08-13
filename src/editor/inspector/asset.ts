@@ -79,10 +79,7 @@ assetInspectorPreviews.set('textureAtlas', TextureAssetInspectorPreview);
 
 const CLASS_ROOT = 'asset-inspector';
 
-/**
- * @type {Attribute[]}
- */
-const ATTRIBUTES = [{
+const ATTRIBUTES: Attribute[] = [{
     label: 'ID',
     alias: 'id',
     path: 'id',

@@ -4,10 +4,7 @@ import { BaseSettingsPanel } from './base.ts';
 import { TONEMAPPING } from '../../../core/constants.ts';
 import type { Attribute, Divider } from '../attribute.type.d.ts';
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const ATTRIBUTES = [
+const ATTRIBUTES: (Attribute | Divider)[] = [
     {
         observer: 'sceneSettings',
         label: 'Ambient Color',

@@ -4,10 +4,7 @@ import type { Attribute } from '../attribute.type.js';
 const CLASS_ROOT = 'ai-settings-panel';
 const CLASS_ATTRIBUTES = `${CLASS_ROOT}-attributes`;
 
-/**
- * @type {Attribute[]}
- */
-const ATTRIBUTES = [
+const ATTRIBUTES: Attribute[] = [
     {
         observer: 'userSettings',
         label: 'Autocomplete Enabled',

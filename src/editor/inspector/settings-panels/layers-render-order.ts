@@ -5,10 +5,7 @@ import type { Attribute } from '../attribute.type.d.ts';
 const CLASS_ROOT = 'layers-settings-panel';
 const CLASS_RENDER_ORDER_PANEL = `${CLASS_ROOT}-render-order-panel`;
 
-/**
- * @type {Attribute[]}
- */
-const ATTRIBUTES = [
+const ATTRIBUTES: Attribute[] = [
     {
         observer: 'projectSettings',
         alias: 'addSubLayerButton',

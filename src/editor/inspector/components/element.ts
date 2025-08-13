@@ -31,10 +31,7 @@ const PRESETS = {
     'custom': 'Custom'
 };
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const ATTRIBUTES = [{
+const ATTRIBUTES: (Attribute | Divider)[] = [{
     label: 'Type',
     path: 'components.element.type',
     reference: 'element:type',

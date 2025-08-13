@@ -8,10 +8,7 @@ import { AttributesInspector } from '../attributes-inspector.ts';
 const CLASS_ROOT = 'scene-asset-inspector';
 const CLASS_ASSET = `${CLASS_ROOT}-asset`;
 
-/**
- * @type {Attribute[]}
- */
-const ATTRIBUTES = [{
+const ATTRIBUTES: Attribute[] = [{
     label: 'Animation',
     alias: 'animation',
     type: 'container',

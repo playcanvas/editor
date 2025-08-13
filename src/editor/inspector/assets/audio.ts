@@ -6,10 +6,7 @@ import { AttributesInspector } from '../attributes-inspector.ts';
 
 const CLASS_ROOT = 'asset-audio-inspector';
 
-/**
- * @type {Attribute[]}
- */
-const ATTRIBUTES = [{
+const ATTRIBUTES: Attribute[] = [{
     label: 'Duration',
     alias: 'duration',
     reference: 'asset:audio:duration',

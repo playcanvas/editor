@@ -9,10 +9,7 @@ const CLASS_ROOT = 'asset-model-inspector';
 const CLASS_AUTO_UNWRAP_PROGRESS = `${CLASS_ROOT}-auto-unwrap-progress`;
 const CLASS_AUTO_UNWRAP_PADDING = `${CLASS_ROOT}-auto-unwrap-padding`;
 
-/**
- * @type {Attribute[]}
- */
-const META_ATTRIBUTES = [
+const META_ATTRIBUTES: Attribute[] = [
     {
         label: 'Vertices',
         alias: 'vertices',
@@ -56,10 +53,7 @@ const META_ATTRIBUTES = [
     }
 ];
 
-/**
- * @type {Attribute[]}
- */
-const PIPELINE_ATTRIBUTES = [
+const PIPELINE_ATTRIBUTES: Attribute[] = [
     {
         label: 'UV1',
         path: 'meta.attributes.texCoord1',
@@ -67,10 +61,7 @@ const PIPELINE_ATTRIBUTES = [
     }
 ];
 
-/**
- * @type {Attribute[]}
- */
-const UNWRAP_ATTRIBUTES = [
+const UNWRAP_ATTRIBUTES: Attribute[] = [
     {
         label: 'Padding',
         alias: 'padding',

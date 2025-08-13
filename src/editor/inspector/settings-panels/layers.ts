@@ -11,10 +11,7 @@ const CLASS_LAYERS_CONTAINER = `${CLASS_ROOT}-layers-container`;
 
 const htmlSymbols = ['\'', '\\', '/', '"', '<', '>', '&', '`', '='];
 
-/**
- * @type {Attribute[]}
- */
-const ATTRIBUTES = [
+const ATTRIBUTES: Attribute[] = [
     {
         label: 'New Layer',
         alias: 'newLayer',

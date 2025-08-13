@@ -124,15 +124,9 @@ const createTextureAttribute = (label, attributeName, type) => {
 
 const CLASS_ROOT = 'asset-material-inspector';
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const MATERIAL_ATTRIBUTES = [];
+const MATERIAL_ATTRIBUTES: (Attribute | Divider)[] = [];
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const TEXTURE_TRANFORM_ATTRIBUTES = [{
+const TEXTURE_TRANFORM_ATTRIBUTES: (Attribute | Divider)[] = [{
     label: 'Apply To All Maps',
     type: 'boolean',
     alias: 'applyToAllMaps'
@@ -166,10 +160,7 @@ const TEXTURE_TRANFORM_ATTRIBUTES = [{
     reference: 'asset:material:rotation'
 }];
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const AMBIENT_ATTRIBUTES = [...createTextureAttribute('Ambient Occlusion', 'ao', TextureTypes.Scalar), {
+const AMBIENT_ATTRIBUTES: (Attribute | Divider)[] = [...createTextureAttribute('Ambient Occlusion', 'ao', TextureTypes.Scalar), {
     label: 'Occlude Specular',
     type: 'select',
     path: 'data.occludeSpecular',
@@ -207,10 +198,7 @@ const AMBIENT_ATTRIBUTES = [...createTextureAttribute('Ambient Occlusion', 'ao',
     }
 }];
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const DIFFUSE_ATTRIBUTES = [...createTextureAttribute('Diffuse', 'diffuse', TextureTypes.Color), {
+const DIFFUSE_ATTRIBUTES: (Attribute | Divider)[] = [...createTextureAttribute('Diffuse', 'diffuse', TextureTypes.Color), {
     label: 'Vertex Color',
     type: 'boolean',
     path: 'data.diffuseVertexColor',
@@ -222,10 +210,7 @@ const DIFFUSE_ATTRIBUTES = [...createTextureAttribute('Diffuse', 'diffuse', Text
     reference: 'asset:material:diffuse'
 }];
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const SPECULAR_ATTRIBUTES = [{
+const SPECULAR_ATTRIBUTES: (Attribute | Divider)[] = [{
     label: 'Enable GGX Specular',
     path: 'data.enableGGXSpecular',
     type: 'boolean',
@@ -261,10 +246,7 @@ const SPECULAR_ATTRIBUTES = [{
     reference: 'asset:material:useMetalness'
 }];
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const METALNESS_WORKFLOW_ATTRIBUTES = [...createTextureAttribute('Metalness', 'metalness', TextureTypes.Scalar), {
+const METALNESS_WORKFLOW_ATTRIBUTES: (Attribute | Divider)[] = [...createTextureAttribute('Metalness', 'metalness', TextureTypes.Scalar), {
     label: 'Vertex Color',
     path: 'data.metalnessVertexColor',
     type: 'boolean',
@@ -323,10 +305,7 @@ const METALNESS_WORKFLOW_ATTRIBUTES = [...createTextureAttribute('Metalness', 'm
     reference: 'asset:material:specularityFactor'
 }];
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const SPECULAR_WORKFLOW_ATTRIBUTES = [...createTextureAttribute('Specular', 'specular', TextureTypes.Color), {
+const SPECULAR_WORKFLOW_ATTRIBUTES: (Attribute | Divider)[] = [...createTextureAttribute('Specular', 'specular', TextureTypes.Color), {
     label: 'Vertex Color',
     path: 'data.specularVertexColor',
     type: 'boolean',
@@ -343,10 +322,7 @@ const SPECULAR_WORKFLOW_ATTRIBUTES = [...createTextureAttribute('Specular', 'spe
     reference: 'asset:material:specular'
 }];
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const GLOSS_ATTRIBUTES = [{
+const GLOSS_ATTRIBUTES: (Attribute | Divider)[] = [{
     type: 'divider'
 }, ...createTextureAttribute('Glossiness', 'gloss', TextureTypes.Scalar), {
     label: 'Vertex Color',
@@ -371,10 +347,7 @@ const GLOSS_ATTRIBUTES = [{
     reference: 'asset:material:glossInvert'
 }];
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const EMISSIVE_ATTRIBUTES = [...createTextureAttribute('Emissive', 'emissive', TextureTypes.Color), {
+const EMISSIVE_ATTRIBUTES: (Attribute | Divider)[] = [...createTextureAttribute('Emissive', 'emissive', TextureTypes.Color), {
     label: 'Vertex Color',
     path: 'data.emissiveVertexColor',
     type: 'boolean',
@@ -397,10 +370,7 @@ const EMISSIVE_ATTRIBUTES = [...createTextureAttribute('Emissive', 'emissive', T
     reference: 'asset:material:emissiveIntensity'
 }];
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const OPACITY_ATTRIBUTES = [{
+const OPACITY_ATTRIBUTES: (Attribute | Divider)[] = [{
     label: 'Blend Type',
     path: 'data.blendType',
     type: 'select',
@@ -509,10 +479,7 @@ const OPACITY_ATTRIBUTES = [{
     reference: 'asset:material:alphaFade'
 }];
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const NORMALS_ATTRIBUTES = [...createTextureAttribute('Normals', 'normal', TextureTypes.Normal), {
+const NORMALS_ATTRIBUTES: (Attribute | Divider)[] = [...createTextureAttribute('Normals', 'normal', TextureTypes.Normal), {
     label: 'Bumpiness',
     path: 'data.bumpMapFactor',
     type: 'slider',
@@ -525,10 +492,7 @@ const NORMALS_ATTRIBUTES = [...createTextureAttribute('Normals', 'normal', Textu
     reference: 'asset:material:bumpiness'
 }];
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const PARALLAX_ATTRIBUTES = [...createTextureAttribute('Heightmap', 'height', TextureTypes.Scalar), {
+const PARALLAX_ATTRIBUTES: (Attribute | Divider)[] = [...createTextureAttribute('Heightmap', 'height', TextureTypes.Scalar), {
     label: 'Strength',
     path: 'data.heightMapFactor',
     type: 'slider',
@@ -541,10 +505,7 @@ const PARALLAX_ATTRIBUTES = [...createTextureAttribute('Heightmap', 'height', Te
     reference: 'asset:material:heightMapFactor'
 }];
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const CLEARCOAT_FACTOR_ATTRIBUTES = [{
+const CLEARCOAT_FACTOR_ATTRIBUTES: (Attribute | Divider)[] = [{
     label: 'Clear Coat Factor',
     path: 'data.clearCoat',
     type: 'slider',
@@ -557,10 +518,7 @@ const CLEARCOAT_FACTOR_ATTRIBUTES = [{
     reference: 'asset:material:clearCoat'
 }];
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const CLEARCOAT_ATTRIBUTES = [...createTextureAttribute('Clear Coat', 'clearCoat', TextureTypes.Color), {
+const CLEARCOAT_ATTRIBUTES: (Attribute | Divider)[] = [...createTextureAttribute('Clear Coat', 'clearCoat', TextureTypes.Color), {
     label: 'Vertex Color',
     path: 'data.clearCoatVertexColor',
     type: 'boolean',
@@ -584,10 +542,7 @@ const CLEARCOAT_ATTRIBUTES = [...createTextureAttribute('Clear Coat', 'clearCoat
     reference: 'asset:material:clearCoatVertexColorChannel'
 }];
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const CLEARCOAT_GLOSS_ATTRIBUTES = [{
+const CLEARCOAT_GLOSS_ATTRIBUTES: (Attribute | Divider)[] = [{
     type: 'divider'
 }, ...createTextureAttribute('Clear Coat Gloss', 'clearCoatGloss', TextureTypes.Scalar), {
     label: 'Vertex Color',
@@ -629,10 +584,7 @@ const CLEARCOAT_GLOSS_ATTRIBUTES = [{
     reference: 'asset:material:clearCoatGlossInvert'
 }];
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const CLEARCOAT_NORMAL_ATTRIBUTES = [...createTextureAttribute('Clear Coat Normals', 'clearCoatNormal', TextureTypes.Normal), {
+const CLEARCOAT_NORMAL_ATTRIBUTES: (Attribute | Divider)[] = [...createTextureAttribute('Clear Coat Normals', 'clearCoatNormal', TextureTypes.Normal), {
     label: 'Bumpiness',
     path: 'data.clearCoatBumpiness',
     type: 'slider',
@@ -645,10 +597,7 @@ const CLEARCOAT_NORMAL_ATTRIBUTES = [...createTextureAttribute('Clear Coat Norma
     reference: 'asset:material:clearCoatBumpiness'
 }];
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const SHEEN_ATTRIBUTES = [{
+const SHEEN_ATTRIBUTES: (Attribute | Divider)[] = [{
     label: 'Use Sheen',
     path: 'data.useSheen',
     type: 'boolean',
@@ -697,10 +646,7 @@ const SHEEN_ATTRIBUTES = [{
     reference: 'asset:material:sheenGlossInvert'
 }];
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const REFRACTION_ATTRIBUTES = [{
+const REFRACTION_ATTRIBUTES: (Attribute | Divider)[] = [{
     label: 'Dynamic Refractions',
     path: 'data.useDynamicRefraction',
     type: 'boolean',
@@ -805,10 +751,7 @@ const REFRACTION_ATTRIBUTES = [{
     }
 }];
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const IRIDESCENCE_ATTRIBUTES = [{
+const IRIDESCENCE_ATTRIBUTES: (Attribute | Divider)[] = [{
     label: 'Use Iridescence',
     path: 'data.useIridescence',
     type: 'boolean',
@@ -853,10 +796,7 @@ const IRIDESCENCE_ATTRIBUTES = [{
     }
 }];
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const ENVIRONMENT_ATTRIBUTES = [{
+const ENVIRONMENT_ATTRIBUTES: (Attribute | Divider)[] = [{
     label: 'Sphere Map',
     path: 'data.sphereMap',
     type: 'asset',
@@ -916,20 +856,14 @@ const ENVIRONMENT_ATTRIBUTES = [{
     reference: 'asset:material:cubeMapProjectionBoxHalfExtents'
 }];
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const LIGHTMAP_ATTRIBUTES = [...createTextureAttribute('Lightmap', 'light', TextureTypes.Color), {
+const LIGHTMAP_ATTRIBUTES: (Attribute | Divider)[] = [...createTextureAttribute('Lightmap', 'light', TextureTypes.Color), {
     label: 'Vertex Color',
     path: 'data.lightVertexColor',
     type: 'boolean',
     reference: 'asset:material:lightVertexColor'
 }];
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const OTHER_ATTRIBUTES = [{
+const OTHER_ATTRIBUTES: (Attribute | Divider)[] = [{
     label: 'Depth Test',
     path: 'data.depthTest',
     type: 'boolean',

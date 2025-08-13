@@ -6,10 +6,7 @@ import type { Attribute } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
 
-/**
- * @type {Attribute[]}
- */
-const ATTRIBUTES = [{
+const ATTRIBUTES: Attribute[] = [{
     label: 'Auto Play',
     path: 'components.particlesystem.autoPlay',
     reference: 'particlesystem:autoPlay',

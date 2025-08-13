@@ -45,10 +45,7 @@ const SETTINGS_PANELS = [
     ProjectHistorySettingsPanel
 ];
 
-/**
- * @type {Attribute[]}
- */
-const ATTRIBUTES = [
+const ATTRIBUTES: Attribute[] = [
     {
         label: 'Scene Name',
         alias: 'name',

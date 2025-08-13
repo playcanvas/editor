@@ -7,10 +7,7 @@ import type { Attribute, Divider } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const ATTRIBUTES = [{
+const ATTRIBUTES: (Attribute | Divider)[] = [{
     label: 'Type',
     path: 'components.light.type',
     reference: 'light:type',

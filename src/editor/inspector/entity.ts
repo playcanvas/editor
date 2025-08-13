@@ -137,10 +137,7 @@ const getSubMenu = function (key) {
     }
 };
 
-/**
- * @type {Attribute[]}
- */
-const ATTRIBUTES = [{
+const ATTRIBUTES: Attribute[] = [{
     label: 'Enabled',
     path: 'enabled',
     reference: 'entity:enabled',

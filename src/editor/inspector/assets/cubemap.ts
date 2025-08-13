@@ -10,10 +10,7 @@ import { AttributesInspector } from '../attributes-inspector.ts';
 const CLASS_ROOT = 'pcui-cubemap-asset-inspector';
 const CLASS_FACES_CONTAINER = `${CLASS_ROOT}-faces-container`;
 
-/**
- * @type {Attribute[]}
- */
-const ATTRIBUTES = [{
+const ATTRIBUTES: Attribute[] = [{
     label: 'Filtering',
     alias: 'filtering',
     type: 'select',

@@ -5,10 +5,7 @@ import { BaseSettingsPanel } from './base.ts';
 import { LegacyTooltip } from '../../../common/ui/tooltip.ts';
 import type { Attribute } from '../attribute.type.d.ts';
 
-/**
- * @type {Attribute[]}
- */
-const ATTRIBUTES = [
+const ATTRIBUTES: Attribute[] = [
     {
         observer: 'projectSettings',
         label: 'Script',

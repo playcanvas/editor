@@ -25,10 +25,7 @@ const makeRefAssigner = (prefix = '') => (attr) => {
 const CLASS_ROOT = 'asset-texture-inspector';
 const CLASS_COMPRESS_BUTTON = `${CLASS_ROOT}-compress-button`;
 
-/**
- * @type {Attribute[]}
- */
-const TEXTURE_ATTRIBUTES = [
+const TEXTURE_ATTRIBUTES: Attribute[] = [
     {
         label: 'Width',
         path: 'meta.width',
@@ -128,10 +125,7 @@ const TEXTURE_ATTRIBUTES = [
 ];
 TEXTURE_ATTRIBUTES.forEach(makeRefAssigner('asset:texture:'));
 
-/**
- * @type {Attribute[]}
- */
-const COMPRESSION_BASIS_ATTRIBUTES = [
+const COMPRESSION_BASIS_ATTRIBUTES: Attribute[] = [
     {
         label: 'Basis',
         path: 'meta.compress.basis',
@@ -174,10 +168,7 @@ const COMPRESSION_BASIS_ATTRIBUTES = [
 COMPRESSION_BASIS_ATTRIBUTES.forEach(makeRefAssigner('asset:texture:compress:'));
 
 const LEGACY_COMPRESSION_PARAMS = ['dxt', 'pvr', 'etc1', 'etc2'];
-/**
- * @type {Attribute[]}
- */
-const COMPRESSION_LEGACY_ATTRIBUTES = [
+const COMPRESSION_LEGACY_ATTRIBUTES: Attribute[] = [
     {
         label: 'Legacy',
         type: 'boolean',

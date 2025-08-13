@@ -4,10 +4,7 @@ import type { Attribute } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
 
-/**
- * @type {Attribute[]}
- */
-const META_ATTRIBUTES = [{
+const META_ATTRIBUTES: Attribute[] = [{
     label: 'Format',
     alias: 'format',
     path: 'meta.format',

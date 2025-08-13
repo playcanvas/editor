@@ -3,10 +3,7 @@ import type { Attribute } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
 
-/**
- * @type {Attribute[]}
- */
-const ATTRIBUTES = [{
+const ATTRIBUTES: Attribute[] = [{
     label: 'Min Width',
     path: 'components.layoutchild.minWidth',
     reference: 'layoutchild:minWidth',
