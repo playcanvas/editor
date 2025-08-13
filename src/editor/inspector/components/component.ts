@@ -2,20 +2,14 @@ import { LocalStorage } from '@playcanvas/editor-api';
 import { Panel, BooleanInput, LabelGroup, Button, Menu, BindingTwoWay, Container } from '@playcanvas/pcui';
 
 import { tooltip, tooltipRefItem } from '../../../common/tooltips.ts';
-
-/**
- * @import { TemplateOverrideInspector } from '../../templates/templates-override-inspector.js'
- */
+import type { TemplateOverrideInspector } from '../../templates/templates-override-inspector.js';
 
 const CLASS_ROOT = 'component-inspector';
 const CLASS_COMPONENT_ICON = 'component-icon-prefix';
 const CLASS_ENABLED = `${CLASS_ROOT}-enabled`;
 
 class ComponentInspector extends Panel {
-    /**
-     * @type {TemplateOverrideInspector}
-     */
-    _templateOverridesInspector;
+    private _templateOverridesInspector: TemplateOverrideInspector;
 
     constructor(args) {
         args = Object.assign({}, args);
@@ -142,7 +136,9 @@ class ComponentInspector extends Panel {
 
     _onClickPaste() {
         let data = this._localStorage.get('copy-component');
-        if (!data) return;
+        if (!data) {
+            return;
+        }
 
         data = JSON.parse(data);
 
@@ -151,7 +147,9 @@ class ComponentInspector extends Panel {
 
     // Remove component on click
     _onClickDelete() {
-        if (!this._entities) return;
+        if (!this._entities) {
+            return;
+        }
 
         // make copy of entities for undo / redo
         const entities = this._entities.slice();
@@ -161,7 +159,9 @@ class ComponentInspector extends Panel {
         const undo = () => {
             for (let i = 0; i < entities.length; i++) {
                 const entity = entities[i].latest();
-                if (!entity) return;
+                if (!entity) {
+                    return;
+                }
 
                 const history = entity.history.enabled;
                 entity.history.enabled = false;
@@ -177,7 +177,9 @@ class ComponentInspector extends Panel {
 
             for (let i = 0; i < entities.length; i++) {
                 const entity = entities[i].latest();
-                if (!entity) return;
+                if (!entity) {
+                    return;
+                }
 
                 const history = entity.history.enabled;
                 entity.history.enabled = false;
@@ -217,7 +219,9 @@ class ComponentInspector extends Panel {
     }
 
     destroy() {
-        if (this._destroyed) return;
+        if (this._destroyed) {
+            return;
+        }
 
         if (this._templateOverridesInspector) {
             this._templateOverridesInspector.unregisterElementForPath(`components.${this._component}`);

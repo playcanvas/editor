@@ -3,19 +3,14 @@ import { Panel, Container, Label, BooleanInput, Button } from '@playcanvas/pcui'
 import { CubemapFace } from './cubemap-face.ts';
 import { CLASS_ERROR } from '../../../common/pcui/constants.ts';
 import { tooltip, tooltipRefItem } from '../../../common/tooltips.ts';
+import type { Attribute } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-/**
- * @import { Attribute } from '../attribute.type.d.ts'
- */
 
 const CLASS_ROOT = 'pcui-cubemap-asset-inspector';
 const CLASS_FACES_CONTAINER = `${CLASS_ROOT}-faces-container`;
 
-/**
- * @type {Attribute[]}
- */
-const ATTRIBUTES = [{
+const ATTRIBUTES: Attribute[] = [{
     label: 'Filtering',
     alias: 'filtering',
     type: 'select',
@@ -341,7 +336,9 @@ class CubemapAssetInspector extends Container {
     }
 
     unlink() {
-        if (this._assets === null) return;
+        if (this._assets === null) {
+            return;
+        }
         this._cubemapAttributesInspector.unlink();
         this._faces.forEach((face) => {
             face.unlink();

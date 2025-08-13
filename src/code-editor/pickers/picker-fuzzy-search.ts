@@ -2,10 +2,8 @@ import { Observer } from '@playcanvas/observer';
 import { Container, Menu, MenuItem, Overlay, TextInput } from '@playcanvas/pcui';
 
 editor.once('load', () => {
-    /** @type {Container} */
-    const root = editor.call('layout.root');
-    /** @type {Container} */
-    const parent = editor.call('layout.center');
+    const root: Container = editor.call('layout.root');
+    const parent: Container = editor.call('layout.center');
 
     const overlay = new Overlay({
         class: 'picker-fuzzy-search',
@@ -79,7 +77,9 @@ editor.once('load', () => {
     // when an asset is selected
     // put it on the front of the stack
     editor.on('select:asset', (asset) => {
-        if (asset.get('type') === 'folder') return;
+        if (asset.get('type') === 'folder') {
+            return;
+        }
 
         const id = asset.get('id');
         const idx = selectionStack.indexOf(id);
@@ -92,7 +92,9 @@ editor.once('load', () => {
 
     editor.on('tabs:focus', (tab) => {
         const id = tab.id;
-        if (id !== FIND_RESULTS) return;
+        if (id !== FIND_RESULTS) {
+            return;
+        }
 
         // if the find results tab is focused create
         // a fake asset for the find results tab to be
@@ -155,14 +157,18 @@ editor.once('load', () => {
     const openSelection = () => {
         const children = menuResults.innerElement.childNodes;
         const selected = children[selectedIndex];
-        if (!selected) return;
+        if (!selected) {
+            return;
+        }
 
         pick(selected.ui._assetId);
     };
 
     const selectIndex = (index) => {
         const children = menuResults.innerElement.childNodes;
-        if (!children.length) return;
+        if (!children.length) {
+            return;
+        }
 
         if (index < 0) {
             index = 0;
@@ -184,7 +190,9 @@ editor.once('load', () => {
         }
 
         item = children[index];
-        if (!item) return;
+        if (!item) {
+            return;
+        }
 
         item.classList.add('selected');
 
@@ -335,12 +343,16 @@ editor.once('load', () => {
         const results = [];
 
         const process = (asset) => {
-            if (asset.get('type') === 'folder') return;
+            if (asset.get('type') === 'folder') {
+                return;
+            }
 
             const name = asset.get('name');
 
             const score = calculateScore(name, pattern, plen);
-            if (!score) return;
+            if (!score) {
+                return;
+            }
 
             scoreIndex[asset.get('id')] = score;
 
@@ -403,7 +415,9 @@ editor.once('load', () => {
         const otherAssets = [];
         const assets = editor.call('assets:raw').data;
         for (const asset of assets) {
-            if (asset.get('type') === 'folder' || skipAssets[asset.get('id')]) continue;
+            if (asset.get('type') === 'folder' || skipAssets[asset.get('id')]) {
+                continue;
+            }
             otherAssets.push(asset);
         }
 
@@ -425,7 +439,9 @@ editor.once('load', () => {
 
     // Handle input
     fieldSearch.input.addEventListener('input', (e) => {
-        if (panel.hidden) return;
+        if (panel.hidden) {
+            return;
+        }
 
         filterAssets();
     });

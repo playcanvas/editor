@@ -1,11 +1,10 @@
+import type { Panel } from '@playcanvas/pcui';
+
 import { LegacyButton } from '../../../common/ui/button.ts';
 import { LegacyCanvas } from '../../../common/ui/canvas.ts';
 import { LegacyLabel } from '../../../common/ui/label.ts';
 import { LegacyPanel } from '../../../common/ui/panel.ts';
 
-/**
- * @import { Panel } from '@playcanvas/pcui'
- */
 
 editor.once('load', () => {
     editor.method('picker:sprites:attributes:sprite', (args) => {
@@ -20,8 +19,7 @@ editor.once('load', () => {
 
         const events = [];
 
-        /** @type {Panel} */
-        const rootPanel = editor.call('picker:sprites:rightPanel');
+        const rootPanel: Panel = editor.call('picker:sprites:rightPanel');
         rootPanel.headerText = `SPRITE ASSET - ${spriteAsset.get('name')}`;
 
         const fieldPreview = editor.call('picker:sprites:attributes:frames:preview', {
@@ -191,7 +189,9 @@ editor.once('load', () => {
 
 
             const onDragStart = function (evt) {
-                if (!editor.call('permissions:write')) return;
+                if (!editor.call('permissions:write')) {
+                    return;
+                }
 
                 draggedPanel = panel;
                 draggedIndex = panels.indexOf(panel);
@@ -218,7 +218,9 @@ editor.once('load', () => {
             let renderQueued = false;
 
             panel.queueRender = function () {
-                if (renderQueued) return;
+                if (renderQueued) {
+                    return;
+                }
                 renderQueued = true;
                 requestAnimationFrame(renderPreview);
             };
@@ -228,10 +230,14 @@ editor.once('load', () => {
 
                 ctx.clearRect(0, 0, previewWidth, previewHeight);
 
-                if (!atlasImage) return;
+                if (!atlasImage) {
+                    return;
+                }
 
                 let frame = atlasAsset.getRaw(`data.frames.${key}`);
-                if (!frame) return;
+                if (!frame) {
+                    return;
+                }
                 frame = frame._data;
 
                 const x = frame.rect[0];
@@ -290,7 +296,9 @@ editor.once('load', () => {
 
             panel.on('click', () => {
                 // do not select missing frames
-                if (!atlasAsset.has(`data.frames.${key}`)) return;
+                if (!atlasAsset.has(`data.frames.${key}`)) {
+                    return;
+                }
 
                 // select frame
                 editor.call('picker:sprites:selectFrames', key, {
@@ -343,7 +351,9 @@ editor.once('load', () => {
         };
 
         const onDragEnd = function () {
-            if (!draggedPanel) return;
+            if (!draggedPanel) {
+                return;
+            }
 
             const oldIndex = draggedIndex;
             const newIndex = Array.prototype.indexOf.call(panelFrames.innerElement.childNodes, draggedPanel.element);
@@ -366,7 +376,9 @@ editor.once('load', () => {
         }
 
         events.push(spriteAsset.on('data.frameKeys:remove', (value, index) => {
-            if (!panels[index]) return;
+            if (!panels[index]) {
+                return;
+            }
 
             panels[index].destroy();
             panels.splice(index, 1);
@@ -388,7 +400,9 @@ editor.once('load', () => {
                 draggedIndex = indNew;
             }
 
-            if (draggedIndex === indNew) return;
+            if (draggedIndex === indNew) {
+                return;
+            }
 
             const movedPanel = panels[indOld];
             if (movedPanel && movedPanel._frameKey === value) {
@@ -465,7 +479,9 @@ editor.once('load', () => {
         }));
 
         events.push(editor.on('picker:sprites:framesSelected', (keys) => {
-            if (!spriteEditMode) return;
+            if (!spriteEditMode) {
+                return;
+            }
 
             selectedFrames = keys;
 

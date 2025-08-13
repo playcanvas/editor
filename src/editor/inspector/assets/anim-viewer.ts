@@ -102,7 +102,9 @@ class Skeleton {
     }
 
     update() {
-        if (!this._entity.children || this._entity.children.length === 0) return;
+        if (!this._entity.children || this._entity.children.length === 0) {
+            return;
+        }
         this._vertexCount = 0;
         this._boundingBox = new pc.BoundingBox(new pc.Vec3(), new pc.Vec3(0.1, 0.1, 0.1));
         this._entity.children.forEach((c) => {
@@ -301,9 +303,13 @@ class AnimViewer extends Container {
         });
 
         this._slider.on('change', (value) => {
-            if (this._suppressSliderChange) return;
+            if (this._suppressSliderChange) {
+                return;
+            }
             this._playing = true;
-            if (this._entity) this._entity.anim.baseLayer.activeStateCurrentTime = value;
+            if (this._entity) {
+                this._entity.anim.baseLayer.activeStateCurrentTime = value;
+            }
             this.render(0);
             this._setPaused();
         });
@@ -451,7 +457,9 @@ class AnimViewer extends Container {
 
         // begin render loop
         const renderStep = (time) => {
-            if (time <= this._lastTime) return;
+            if (time <= this._lastTime) {
+                return;
+            }
             if (!this._lastTime) {
                 this.render(1 / 60);
             } else {
@@ -480,7 +488,9 @@ class AnimViewer extends Container {
     }
 
     render(dt) {
-        if (this._entity) this._entity.anim.layers[0].update(dt);
+        if (this._entity) {
+            this._entity.anim.layers[0].update(dt);
+        }
 
 
         if (this._skeleton && this._showSkeleton) {

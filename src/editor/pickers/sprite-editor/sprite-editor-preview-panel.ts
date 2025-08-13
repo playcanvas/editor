@@ -1,11 +1,8 @@
-/**
- * @import { Panel } from '@playcanvas/pcui'
- */
+import type { Panel } from '@playcanvas/pcui';
 
 editor.once('load', () => {
     editor.method('picker:sprites:attributes:frames:preview', (args) => {
-        /** @type {Panel} */
-        const parent = editor.call('picker:sprites:rightPanel');
+        const parent: Panel = editor.call('picker:sprites:rightPanel');
 
         const atlasAsset = args.atlasAsset;
         let frames = args.frames;
@@ -42,13 +39,17 @@ editor.once('load', () => {
 
         // queue up the rendering to prevent too often renders
         const queueRender = function () {
-            if (renderQueued) return;
+            if (renderQueued) {
+                return;
+            }
             renderQueued = true;
             requestAnimationFrame(renderPreview);
         };
 
         const renderPreview = function () {
-            if (!previewContainer) return;
+            if (!previewContainer) {
+                return;
+            }
 
             if (renderQueued) {
                 renderQueued = false;

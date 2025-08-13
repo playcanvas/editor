@@ -19,7 +19,9 @@ editor.once('load', () => {
     });
 
     editor.on('relay:room:join', (data) => {
-        if (!data.name.startsWith('scene-')) return;
+        if (!data.name.startsWith('scene-')) {
+            return;
+        }
 
         if (data.name !== `scene-${config.scene.uniqueId}`) {
             onSceneUnload(data.name.substring('scene-').length);
@@ -38,7 +40,9 @@ editor.once('load', () => {
     });
 
     editor.on('relay:room:leave', (data) => {
-        if (!data.name.startsWith('scene-')) return;
+        if (!data.name.startsWith('scene-')) {
+            return;
+        }
 
         if (config.scene.uniqueId && data.name !== `scene-${config.scene.uniqueId}`) {
             return;
@@ -52,8 +56,12 @@ editor.once('load', () => {
     });
 
     function onSceneLoad(uniqueId) {
-        if (!relayEnabled) return;
-        if (currentRoom === uniqueId) return;
+        if (!relayEnabled) {
+            return;
+        }
+        if (currentRoom === uniqueId) {
+            return;
+        }
 
         currentRoom = config.scene.uniqueId;
         editor.call('relay:joinRoom', `scene-${uniqueId}`);
@@ -73,7 +81,9 @@ editor.once('load', () => {
     });
 
     editor.on('scene:unload', (id, uniqueId) => {
-        if (!relayEnabled) return;
+        if (!relayEnabled) {
+            return;
+        }
         if (editor.call('relay:isConnected')) {
             onSceneUnload(uniqueId);
         }

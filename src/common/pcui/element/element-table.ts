@@ -1,12 +1,9 @@
+import type { Observer } from '@playcanvas/observer';
 import { Element, Container, Label } from '@playcanvas/pcui';
 
 import { TableCell } from './element-table-cell.ts';
 import { TableRow } from './element-table-row.ts';
 
-/**
- * @import { Observer } from '@playcanvas/observer';
- * @import { ContainerArgs } from '@playcanvas/pcui';
- */
 
 const CLASS_TABLE = 'pcui-table';
 
@@ -23,15 +20,14 @@ const CLASS_RESIZING_VISIBLE = `${CLASS_RESIZING}-visible`;
 const CSS_PROPERTY_HEIGHT_BEFORE = '--resizing-before';
 const CSS_PROPERTY_HEIGHT_AFTER = '--resizing-after';
 
-/**
- * @typedef TableArgs
- * @param {Function} [createRowFn] - A function like (observer) => TableRow that creates a TableRow
- * from an observer.
- * @param {Function} [getRowFn] - A function like (observer) => TableRow that returns an existing
- * row from an observer. Used for faster sorting.
- * @param {Function} [filterFn] - A function like (TableRow) => boolean that hides the row if it
- * returns false.
- */
+type TableArgs = {
+    /** A function like (observer) => TableRow that creates a TableRow from an observer. */
+    createRowFn?: (observer: Observer) => TableRow;
+    /** A function like (observer) => TableRow that returns an existing row from an observer. Used for faster sorting. */
+    getRowFn?: (observer: Observer) => TableRow;
+    /** A function like (TableRow) => boolean that hides the row if it returns false. */
+    filterFn?: (row: TableRow) => boolean;
+}
 
 /**
  * Represents a table view with optional resizable and sortable columns.
@@ -54,12 +50,7 @@ const CSS_PROPERTY_HEIGHT_AFTER = '--resizing-after';
  * Defaults to true.
  */
 class Table extends Container {
-    /**
-     * Creates a new Table.
-     *
-     * @param {TableArgs & ContainerArgs} [args] - The arguments.
-     */
-    constructor(args) {
+    constructor(args: TableArgs) {
         args = Object.assign({}, args);
 
         super(args);
@@ -172,7 +163,9 @@ class Table extends Container {
             this.head.append(headRow);
         }
 
-        if (!this._observers) return;
+        if (!this._observers) {
+            return;
+        }
 
         this._sortObservers();
 
@@ -215,7 +208,9 @@ class Table extends Container {
         } else if (evt.shiftKey) {
             const lastRowSelected = this._selectedRows[this._selectedRows.length - 1];
             if (lastRowSelected) {
-                if (lastRowSelected === row) return;
+                if (lastRowSelected === row) {
+                    return;
+                }
 
                 // select everything between the last
                 // row selected and this row
@@ -225,7 +220,9 @@ class Table extends Container {
                     while (next) {
                         next.selected = true;
 
-                        if (next === row) break;
+                        if (next === row) {
+                            break;
+                        }
 
                         next = next.nextSibling;
                     }
@@ -234,7 +231,9 @@ class Table extends Container {
                     while (prev) {
                         prev.selected = true;
 
-                        if (prev === row) break;
+                        if (prev === row) {
+                            break;
+                        }
 
                         prev = prev.previousSibling;
                     }
@@ -287,12 +286,18 @@ class Table extends Container {
     }
 
     _onRowKeyDown(evt) {
-        if (!this._selectedRows.length) return;
+        if (!this._selectedRows.length) {
+            return;
+        }
 
-        if (evt.target.tagName.toLowerCase() === 'input') return;
+        if (evt.target.tagName.toLowerCase() === 'input') {
+            return;
+        }
 
         // handle up and down arrow keys
-        if ([38, 40].indexOf(evt.keyCode) === -1) return;
+        if ([38, 40].indexOf(evt.keyCode) === -1) {
+            return;
+        }
 
         evt.preventDefault();
         evt.stopPropagation();
@@ -300,7 +305,9 @@ class Table extends Container {
         const lastRow = this._lastRowFocused || this._selectedRows[this._selectedRows.length - 1];
 
         const next = evt.keyCode === 40 ? lastRow.nextSibling : lastRow.previousSibling;
-        if (!next) return;
+        if (!next) {
+            return;
+        }
 
         if (!evt.ctrlKey && !evt.metaKey && !evt.shiftKey) {
             // deselect others
@@ -412,7 +419,9 @@ class Table extends Container {
             const afterHeight = bodyRect.bottom - lastRect.bottom;
 
             requestAnimationFrame(() => {
-                if (!visible.length) return;
+                if (!visible.length) {
+                    return;
+                }
 
                 // Set custom CSS properties for before and after heights so that we fill
                 // the table with a pseudo-element row before the first visible row and one
@@ -464,8 +473,12 @@ class Table extends Container {
         let width;
 
         const onMouseUp = (evt) => {
-            if (evt.button !== 0) return;
-            if (this._draggedColumn === null) return;
+            if (evt.button !== 0) {
+                return;
+            }
+            if (this._draggedColumn === null) {
+                return;
+            }
 
             cleanUp();
         };
@@ -480,8 +493,12 @@ class Table extends Container {
         };
 
         const onMouseDown = (evt) => {
-            if (evt.button !== 0) return;
-            if (this._draggedColumn !== null) return;
+            if (evt.button !== 0) {
+                return;
+            }
+            if (this._draggedColumn !== null) {
+                return;
+            }
 
             this._draggedColumn = colIndex;
 
@@ -514,7 +531,9 @@ class Table extends Container {
             window.removeEventListener('mouseup', onMouseUp, true);
             window.removeEventListener('mousemove', onMouseMove, true);
 
-            if (this.destroyed) return;
+            if (this.destroyed) {
+                return;
+            }
 
             this.class.remove(CLASS_RESIZING);
             this._forEachColumnCell(this._containerHead, colIndex, (cell) => {
@@ -660,13 +679,17 @@ class Table extends Container {
         this.unlink();
 
         this._observers = observers;
-        if (!this._observers) return;
+        if (!this._observers) {
+            return;
+        }
 
         this._refreshLayout();
     }
 
     unlink() {
-        if (!this._observers) return;
+        if (!this._observers) {
+            return;
+        }
 
         this.deselect();
 
@@ -707,10 +730,14 @@ class Table extends Container {
      * @param {Observer} observer - The observer.
      */
     removeObserver(observer) {
-        if (!this._observers) return;
+        if (!this._observers) {
+            return;
+        }
 
         const index = this._observers.indexOf(observer);
-        if (index === -1) return;
+        if (index === -1) {
+            return;
+        }
 
         this._observers.splice(index, 1);
 
@@ -727,10 +754,14 @@ class Table extends Container {
      * @param {Observer} observer - The observer.
      */
     sortObserver(observer) {
-        if (!this._observers) return;
+        if (!this._observers) {
+            return;
+        }
 
         const index = this._observers.indexOf(observer);
-        if (index === -1) return;
+        if (index === -1) {
+            return;
+        }
 
         let row = null;
         if (this._getRowFn) {
@@ -742,7 +773,9 @@ class Table extends Container {
             }
         }
 
-        if (!row) return;
+        if (!row) {
+            return;
+        }
 
         this._sortObservers();
 
@@ -762,7 +795,9 @@ class Table extends Container {
      */
     sortByColumnIndex(index) {
         const column = this._columns[index];
-        if (!column) return;
+        if (!column) {
+            return;
+        }
 
         if (this._draggedColumn !== null) {
             return;
@@ -833,7 +868,9 @@ class Table extends Container {
     }
 
     destroy() {
-        if (this._destroyed) return;
+        if (this._destroyed) {
+            return;
+        }
 
         this._resizingVisibleRows.length = 0;
         this.dom.addEventListener('wheel', this._domEvtWheel);

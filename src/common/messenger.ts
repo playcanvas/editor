@@ -34,7 +34,9 @@ class Messenger extends Events {
     }
 
     connect(url) {
-        if (this._connecting) return;
+        if (this._connecting) {
+            return;
+        }
 
         this._url = url;
         this._connectAttempts++;
@@ -86,7 +88,9 @@ class Messenger extends Events {
 
 
     _onclose() {
-        if (!this._connected) return;
+        if (!this._connected) {
+            return;
+        }
 
         this._connected = false;
         this._authenticated = false;
@@ -171,7 +175,9 @@ class Messenger extends Events {
     }
 
     authenticate(accessToken, type) {
-        if (!this._connected) return;
+        if (!this._connected) {
+            return;
+        }
 
         this.send({
             name: 'authenticate',
@@ -181,7 +187,9 @@ class Messenger extends Events {
     }
 
     send(msg) {
-        if (!this._connected) return;
+        if (!this._connected) {
+            return;
+        }
 
         if (MESSENGER_RESERVED_NAMES.indexOf(msg.name) !== -1) {
             this._onerror(new Error(`could not send message - name is reserved: ${msg.name}`));
@@ -192,7 +200,9 @@ class Messenger extends Events {
 
 
     close(args) {
-        if (!this._connected) return;
+        if (!this._connected) {
+            return;
+        }
 
         args = args || { };
         args.code = args.code || 1000; // 1000 - CLOSE_NORMAL

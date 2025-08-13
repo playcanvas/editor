@@ -11,7 +11,9 @@ editor.once('load', () => {
     // In this case the wheel/scroll events will not pass through to the attributes panel
     // so do manual scrolling with javascript
     dropManager.dom.addEventListener('wheel', (e) => {
-        if (attributesPanel.hidden || attributesPanel.collapsed) return;
+        if (attributesPanel.hidden || attributesPanel.collapsed) {
+            return;
+        }
 
         const rect = attributesPanel.dom.getBoundingClientRect();
         // if mouse on top of attributes panel...

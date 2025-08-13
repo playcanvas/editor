@@ -211,7 +211,9 @@ class LegacyTooltip extends LegacyContainer {
 
             switch (item.align) {
                 case 'top':
-                    if (rect.width < 64) off = rect.width / 2;
+                    if (rect.width < 64) {
+                        off = rect.width / 2;
+                    }
                     item.flip = rect.left + off > window.innerWidth / 2;
                     if (item.flip) {
                         item.position(rect.right - off, rect.bottom);
@@ -220,12 +222,16 @@ class LegacyTooltip extends LegacyContainer {
                     }
                     break;
                 case 'right':
-                    if (rect.height < 64) off = rect.height / 2;
+                    if (rect.height < 64) {
+                        off = rect.height / 2;
+                    }
                     item.flip = false;
                     item.position(rect.left, rect.top + off);
                     break;
                 case 'bottom':
-                    if (rect.width < 64) off = rect.width / 2;
+                    if (rect.width < 64) {
+                        off = rect.width / 2;
+                    }
                     item.flip = rect.left + off > window.innerWidth / 2;
                     if (item.flip) {
                         item.position(rect.right - off, rect.top);
@@ -234,7 +240,9 @@ class LegacyTooltip extends LegacyContainer {
                     }
                     break;
                 case 'left':
-                    if (rect.height < 64) off = rect.height / 2;
+                    if (rect.height < 64) {
+                        off = rect.height / 2;
+                    }
                     item.flip = false;
                     item.position(rect.right, rect.top + off);
                     break;

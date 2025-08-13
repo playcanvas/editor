@@ -7,7 +7,7 @@ editor.once('load', () => {
     // - canvas: The canvas where the preview will be rendered
     // - allFrames: All the frames relevant to this render
     // - animating: If true then the frames pivot will be used otherwise everything will be rendered as if centered
-    editor.method('picker:sprites:renderFramePreview', (frame, /** @type {HTMLCanvasElement} */ canvas, allFrames, animating = false) => {
+    editor.method('picker:sprites:renderFramePreview', (frame, canvas: HTMLCanvasElement, allFrames, animating = false) => {
         const ctx = canvas.getContext('2d');
         const width = canvas.width;
         const height = canvas.height;
@@ -17,9 +17,10 @@ editor.once('load', () => {
             return;
         }
 
-        /** @type {HTMLImageElement} */
-        const atlasImage = editor.call('picker:sprites:atlasImage');
-        if (!atlasImage) return;
+        const atlasImage: HTMLImageElement = editor.call('picker:sprites:atlasImage');
+        if (!atlasImage) {
+            return;
+        }
 
         const x = frame.rect[0];
         // convert bottom left WebGL coord to top left pixel coord
@@ -42,7 +43,9 @@ editor.once('load', () => {
             let topBound = Number.NEGATIVE_INFINITY;
             for (let i = 0, len = allFrames.length; i < len; i++) {
                 let f = allFrames[i];
-                if (!f) continue;
+                if (!f) {
+                    continue;
+                }
 
                 if (f._data) {
                     f = f._data;

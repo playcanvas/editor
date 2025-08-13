@@ -5,16 +5,11 @@ import {
     BUTTON_TRANSITION_MODE_TINT,
     BUTTON_TRANSITION_MODE_SPRITE_CHANGE
 } from '../../../core/constants.ts';
+import type { Attribute } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-/**
- * @import { Attribute } from '../attribute.type.d.ts'
- */
 
-/**
- * @type {Attribute[]}
- */
-const ATTRIBUTES = [{
+const ATTRIBUTES: Attribute[] = [{
     label: 'Active',
     path: 'components.button.active',
     reference: 'button:active',
@@ -156,7 +151,9 @@ class ButtonComponentInspector extends ComponentInspector {
     }
 
     _toggleFields() {
-        if (this._suppressToggleFields) return;
+        if (this._suppressToggleFields) {
+            return;
+        }
 
         const fieldTransitionMode = this._field('transitionMode');
         const isTintMode = (fieldTransitionMode.value === BUTTON_TRANSITION_MODE_TINT);

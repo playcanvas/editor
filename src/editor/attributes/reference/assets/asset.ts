@@ -15,12 +15,10 @@ import { fields as shader } from './shader.ts';
 import { fields as sprite } from './sprite.ts';
 import { fields as text } from './text.ts';
 import { fields as texture } from './texture.ts';
+import type { AttributeReference } from '../reference.type';
 
 editor.once('load', () => {
-    /**
-     * @type {AttributeReference[]}
-     */
-    const fields  = [
+    const fields: AttributeReference[]  = [
         {
             name: 'asset:id',
             title: 'id',

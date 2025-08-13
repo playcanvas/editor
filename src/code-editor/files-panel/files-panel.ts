@@ -1,12 +1,7 @@
-import { Progress, TreeView, TreeViewItem } from '@playcanvas/pcui';
-
-/**
- * @import { Panel } from '@playcanvas/pcui'
- */
+import { Progress, TreeView, TreeViewItem, Panel } from '@playcanvas/pcui';
 
 editor.once('load', () => {
-    /** @type {Map<string, string>} */
-    const icons = new Map();
+    const icons: Map<string, string> = new Map();
     icons.set('css', 'E206');
     icons.set('folder', 'E139');
     icons.set('html', 'E205');
@@ -15,8 +10,7 @@ editor.once('load', () => {
     icons.set('shader', 'E219');
     icons.set('text', 'E209');
 
-    /** @type {Panel} */
-    const panel = editor.call('layout.left');
+    const panel: Panel = editor.call('layout.left');
 
     const tree = new TreeView({
         allowDrag: true,
@@ -27,7 +21,7 @@ editor.once('load', () => {
     panel.append(tree);
 
     // Handle tree item renaming via the context menu
-    tree.on('rename', (/** @type {TreeViewItem} */ item, /** @type {string} */ name) => {
+    tree.on('rename', (item: TreeViewItem, name: string) => {
         const asset = editor.call('assets:get', item._assetId);
         editor.call('assets:rename', asset, name);
     });
@@ -69,10 +63,8 @@ editor.once('load', () => {
 
     /**
      * Map asset id to tree view item.
-     *
-     * @type {Map<string, TreeViewItem>}
      */
-    const idToItem = new Map();
+    const idToItem: Map<string, TreeViewItem> = new Map();
 
     // contains <folder id, nodes that wait for folder id to be added>
     const waitingParent = {};
@@ -84,13 +76,16 @@ editor.once('load', () => {
      * @param {MouseEvent} evt - Mouse event.
      */
     const onItemClick = function (evt) {
-        /** @type {TreeViewItem} */
-        const item = this.ui.parent;
+        const item: TreeViewItem = this.ui.parent;
 
-        if (!item.allowSelect || evt.button !== 0) return;
+        if (!item.allowSelect || evt.button !== 0) {
+            return;
+        }
 
         const element = evt.target;
-        if (element.tagName === 'INPUT') return;
+        if (element.tagName === 'INPUT') {
+            return;
+        }
 
         evt.stopPropagation();
 
@@ -116,8 +111,7 @@ editor.once('load', () => {
      * @param {MouseEvent} evt - Mouse event.
      */
     const onItemDblClick = function (evt) {
-        /** @type {TreeViewItem} */
-        const item = this.ui.parent;
+        const item: TreeViewItem = this.ui.parent;
 
         if (evt.button !== 0) {
             return;
@@ -216,14 +210,10 @@ editor.once('load', () => {
 
     // Create tree nodes for each asset
     const addAsset = function (asset) {
-        /** @type {string} */
-        const id = asset.get('id');
-        /** @type {string} */
-        const name = asset.get('name');
-        /** @type {number[]} */
-        const path = asset.get('path');
-        /** @type {string} */
-        const type = asset.get('type');
+        const id: string = asset.get('id');
+        const name: string = asset.get('name');
+        const path: number[] = asset.get('path');
+        const type: string = asset.get('type');
 
         const item = new TreeViewItem({
             allowDrop: type === 'folder',
@@ -292,10 +282,11 @@ editor.once('load', () => {
         });
 
         // handle name changes (need to keep alphabetical order)
-        asset.on('name:set', (/** @type {string} */ name) => {
-            /** @type {TreeViewItem} */
-            const parent = item.parent;
-            if (!parent) return;
+        asset.on('name:set', (name: string) => {
+            const parent: TreeViewItem = item.parent;
+            if (!parent) {
+                return;
+            }
 
             // remove and re-insert item
             parent.remove(item);
@@ -320,8 +311,7 @@ editor.once('load', () => {
 
     // Delete tree node for removed assets
     editor.on('assets:remove', (asset) => {
-        /** @type {string} */
-        const id = asset.get('id');
+        const id: string = asset.get('id');
         const item = idToItem.get(id);
         if (item) {
             item.destroy();
@@ -330,7 +320,7 @@ editor.once('load', () => {
     });
 
     // handle selections
-    tree.on('select', (/** @type {TreeViewItem} */ item) => {
+    tree.on('select', (item: TreeViewItem) => {
         // open items till parent
         let parent = item.parent;
         while (parent && parent instanceof TreeViewItem) {
@@ -362,12 +352,12 @@ editor.once('load', () => {
         editor.emit('select:asset', asset);
     });
 
-    editor.method('files:getTreeItem', (/** @type {string} */ id) => {
+    editor.method('files:getTreeItem', (id: string) => {
         return idToItem.get(id);
     });
 
     // show dirty assets
-    editor.on('documents:dirty', (/** @type {string} */ id, /** @type {boolean} */ dirty) => {
+    editor.on('documents:dirty', (id: string, dirty: boolean) => {
         const item = idToItem.get(id);
         if (item) {
             if (dirty) {
@@ -379,7 +369,7 @@ editor.once('load', () => {
     });
 
     // Select file by id (which can be passed as a string or number)
-    editor.method('files:select', (/** @type {number|string} */ id) => {
+    editor.method('files:select', (id: number|string) => {
         const item = idToItem.get(String(id));
         if (item) {
             tree.deselect();
@@ -395,7 +385,9 @@ editor.once('load', () => {
     // Get selected assets
     editor.method('assets:selected', () => {
         return tree.selected.map((item) => {
-            if (!item._assetId) return null;
+            if (!item._assetId) {
+                return null;
+            }
             return editor.call('assets:get', item._assetId);
         }).filter(asset => !!asset);
     });
@@ -436,7 +428,9 @@ editor.once('load', () => {
 
     // handle reparenting
     tree.on('reparent', (reparented) => {
-        if (!reparented.length) return;
+        if (!reparented.length) {
+            return;
+        }
 
         const assets = reparented.map((node) => {
             return editor.call('assets:get', node.item._assetId);
@@ -448,7 +442,7 @@ editor.once('load', () => {
     });
 
     // deselect tree item
-    editor.on('documents:close', (/** @type {string} */ id) => {
+    editor.on('documents:close', (id: string) => {
         const item = idToItem.get(id);
         if (item) {
             item.selected = false;

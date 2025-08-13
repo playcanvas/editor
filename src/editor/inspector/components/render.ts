@@ -3,16 +3,11 @@ import { Label } from '@playcanvas/pcui';
 import { ComponentInspector } from './component.ts';
 import { CLASS_ERROR } from '../../../common/pcui/constants.ts';
 import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from '../../../core/constants.ts';
+import type { Attribute } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-/**
- * @import { Attribute } from '../attribute.type.d.ts'
- */
 
-/**
- * @type {Attribute[]}
- */
-const ATTRIBUTES = [{
+const ATTRIBUTES: Attribute[] = [{
     label: 'Type',
     path: 'components.render.type',
     reference: 'render:type',
@@ -198,7 +193,9 @@ class RenderComponentInspector extends ComponentInspector {
     // also change the materialAssets to the correct length
     _changeMaterialsOnChange(field) {
         const binding = field.binding;
-        if (!binding) return;
+        if (!binding) {
+            return;
+        }
 
         binding.on('history:init', (context) => {
             context.prevMaterials = context.observers.map(observer => observer.get('components.render.materialAssets'));
@@ -208,7 +205,9 @@ class RenderComponentInspector extends ComponentInspector {
         binding.on('history:redo', (context) => {
             context.observers.forEach((observer) => {
                 observer = observer.latest();
-                if (!observer) return;
+                if (!observer) {
+                    return;
+                }
 
                 const history = observer.history.enabled;
                 observer.history.enabled = false;
@@ -235,7 +234,9 @@ class RenderComponentInspector extends ComponentInspector {
         binding.on('history:undo', (context) => {
             context.observers.forEach((observer, index) => {
                 observer = observer.latest();
-                if (!observer) return;
+                if (!observer) {
+                    return;
+                }
 
                 const history = observer.history.enabled;
                 observer.history.enabled = false;
@@ -277,8 +278,12 @@ class RenderComponentInspector extends ComponentInspector {
 
                 e.entity.render.lightmapSizeMultiplier = this._field('lightmapSizeMultiplier').value;
                 const size = lightmapper.calculateLightmapSize(e.entity);
-                if (size > max) max = size;
-                if (size < min) min = size;
+                if (size > max) {
+                    max = size;
+                }
+                if (size < min) {
+                    min = size;
+                }
             });
 
             if (min) {
@@ -301,7 +306,9 @@ class RenderComponentInspector extends ComponentInspector {
             }
 
             const asset = this._assets.get(e.get('components.render.asset'));
-            if (!asset) continue;
+            if (!asset) {
+                continue;
+            }
 
             if (!asset.has('meta.attributes.TEXCOORD_1')) {
                 missing = true;
@@ -312,7 +319,9 @@ class RenderComponentInspector extends ComponentInspector {
     }
 
     _toggleFields() {
-        if (this._suppressToggleFields) return;
+        if (this._suppressToggleFields) {
+            return;
+        }
 
         const fieldLightmapSize = this._field('lightmapSize');
         fieldLightmapSize.parent.hidden = !this._field('lightmapped').value;
@@ -344,8 +353,12 @@ class RenderComponentInspector extends ComponentInspector {
     }
 
     _onCustomAabbChange(value) {
-        if (!this._entities) return;
-        if (this._suppressCustomAabb) return;
+        if (!this._entities) {
+            return;
+        }
+        if (this._suppressCustomAabb) {
+            return;
+        }
 
         let prev;
 
@@ -353,7 +366,9 @@ class RenderComponentInspector extends ComponentInspector {
             prev = {};
             this._entities.forEach((e) => {
                 e = e.latest();
-                if (!e || !e.has('components.render')) return;
+                if (!e || !e.has('components.render')) {
+                    return;
+                }
 
                 const history = e.history.enabled;
                 e.history.enabled = false;
@@ -381,10 +396,14 @@ class RenderComponentInspector extends ComponentInspector {
         const undo = () => {
             this._entities.forEach((e) => {
                 e = e.latest();
-                if (!e || !e.has('components.render')) return;
+                if (!e || !e.has('components.render')) {
+                    return;
+                }
 
                 const previous = prev[e.get('resource_id')];
-                if (!previous) return;
+                if (!previous) {
+                    return;
+                }
 
                 const history = e.history.enabled;
                 e.history.enabled = false;
@@ -416,7 +435,9 @@ class RenderComponentInspector extends ComponentInspector {
 
 
     _refreshCustomAabb() {
-        if (!this._entities) return;
+        if (!this._entities) {
+            return;
+        }
 
         this._suppressCustomAabb = true;
         this._suppressToggleFields = true;
@@ -454,7 +475,9 @@ class RenderComponentInspector extends ComponentInspector {
         this._field('materialAssets').forEachArrayElement((assetInput, index) => {
             assetInput.dragEnterFn = (type, dropData) => {
                 const entity = this._entities && this._entities[0];
-                if (!entity || !entity.entity || !entity.entity.render) return;
+                if (!entity || !entity.entity || !entity.entity.render) {
+                    return;
+                }
 
                 const materials = entity.entity.render.materialAssets;
                 materials[index] = parseInt(dropData.id, 10);
@@ -465,7 +488,9 @@ class RenderComponentInspector extends ComponentInspector {
 
             assetInput.dragLeaveFn = () => {
                 const entity = this._entities && this._entities[0];
-                if (!entity || !entity.entity || !entity.entity.render) return;
+                if (!entity || !entity.entity || !entity.entity.render) {
+                    return;
+                }
 
                 const materials = entity.entity.render.materialAssets;
                 materials[index] = entity.get(`components.render.materialAssets.${index}`);

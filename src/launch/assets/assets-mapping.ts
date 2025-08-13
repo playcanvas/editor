@@ -1,6 +1,7 @@
+import type { Observer } from '@playcanvas/observer';
+
 import { registerSW } from '../../common/service-worker.ts';
 
-/** @import { Observer } from '@playcanvas/observer' */
 
 editor.on('load', async () => {
     // Register the service worker
@@ -48,7 +49,9 @@ editor.on('load', async () => {
      */
     const watchAsset = (assetId, callback) => {
         const asset = editor.call('assets:get', assetId);
-        if (!asset) return;
+        if (!asset) {
+            return;
+        }
 
         asset.on('path:set', callback);
         asset.on('name:set', callback);
@@ -62,7 +65,9 @@ editor.on('load', async () => {
      */
     const unwatchAsset = (assetId, callback) => {
         const asset = editor.call('assets:get', assetId);
-        if (!asset) return;
+        if (!asset) {
+            return;
+        }
 
         asset.unbind('path:set', callback);
         asset.unbind('name:set', callback);
@@ -71,10 +76,10 @@ editor.on('load', async () => {
     /**
      * Creates a url mapping from an asset
      *
-     * @param {Observer} scriptAsset - The asset to create a url mapping from
-     * @returns {{ url: string, mappedUrl: string }} - The url mapping
+     * @param scriptAsset - The asset to create a url mapping from
+     * @returns - The url mapping
      */
-    const createUrlMapping = (scriptAsset) => {
+    const createUrlMapping = (scriptAsset: Observer): { url: string, mappedUrl: string } => {
         const url = new URL(`${pc.app.assets.prefix}${scriptAsset.get('file.url')}`, location.origin);
         return {
             url: `${url.origin}${url.pathname}`,
@@ -85,10 +90,10 @@ editor.on('load', async () => {
     /**
      * Creates a url mapping and registers it with the service worker
      *
-     * @param {Observer} asset - The asset to add to the service worker
-     * @returns {Promise<void>} - A promise that resolves when the asset has been added to the service worker
+     * @param asset - The asset to add to the service worker
+     * @returns - A promise that resolves when the asset has been added to the service worker
      */
-    const addScript = (asset) => {
+    const addScript = (asset: Observer) => {
         const assetId = asset.get('id');
         const { url, mappedUrl } = createUrlMapping(asset);
 

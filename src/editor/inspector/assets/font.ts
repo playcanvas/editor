@@ -7,11 +7,9 @@ import { TableCell } from '../../../common/pcui/element/element-table-cell.ts';
 import { TableRow } from '../../../common/pcui/element/element-table-row.ts';
 import { Table } from '../../../common/pcui/element/element-table.ts';
 import { tooltip, tooltipRefItem } from '../../../common/tooltips.ts';
+import type { Attribute } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-/**
- * @import { Attribute } from '../attribute.type.d.ts'
- */
 
 const CLASS_ROOT = 'asset-font-inspector';
 const CLASS_LOCALE_PANEL = `${CLASS_ROOT}-locale-panel`;
@@ -22,19 +20,13 @@ const CLASS_FONT = `${CLASS_ROOT}-font`;
 const CLASS_PROCESS_FONT_WARNING_MESSAGE = `${CLASS_ROOT}-process-font-warning-message`;
 const CLASS_PROCESS_FONT_WARNING_ITEMS = `${CLASS_ROOT}-process-font-warning-items`;
 
-/**
- * @type {Attribute[]}
- */
-const PROPERTIES_ATTRIBUTES = [{
+const PROPERTIES_ATTRIBUTES: Attribute[] = [{
     label: 'Intensity',
     path: 'data.intensity',
     type: 'slider'
 }];
 
-/**
- * @type {Attribute[]}
- */
-const FONT_ATTRIBUTES = [{
+const FONT_ATTRIBUTES: Attribute[] = [{
     label: 'Characters',
     alias: 'characters',
     type: 'text'
@@ -44,10 +36,7 @@ const FONT_ATTRIBUTES = [{
     type: 'boolean'
 }];
 
-/**
- * @type {Attribute[]}
- */
-const LOCALIZATION_ATTRIBUTES = [{
+const LOCALIZATION_ATTRIBUTES: Attribute[] = [{
     label: 'Add Locale',
     alias: 'localization',
     type: 'string',
@@ -62,7 +51,9 @@ const LOCALIZATION_ATTRIBUTES = [{
 const addReferences = (attributes) => {
     attributes.forEach((attr) => {
         const path = attr.alias || attr.path;
-        if (!path) return;
+        if (!path) {
+            return;
+        }
         const parts = path.split('.');
         attr.reference = `asset:font:${parts[parts.length - 1]}`;
     });
@@ -377,10 +368,14 @@ class FontAssetInspector extends Container {
         const characterValues = this._fontAttributes.getField('characters').value;
         this._assets.forEach((asset) => {
             const sourceId = asset.get('source_asset_id');
-            if (!sourceId) return;
+            if (!sourceId) {
+                return;
+            }
 
             const source = editor.call('assets:get', sourceId);
-            if (!source) return;
+            if (!source) {
+                return;
+            }
 
             // remove duplicate chars but keep same order
             let unique = '';
@@ -501,7 +496,9 @@ class FontAssetInspector extends Container {
                     const availableCharacters = asset.get('data.chars');
                     const unavailableCharacters = [];
                     this._fontAttributes.getField('characters').value.split('').forEach((character) => {
-                        if (!availableCharacters[character.charCodeAt()]) unavailableCharacters.push(character);
+                        if (!availableCharacters[character.charCodeAt()]) {
+                            unavailableCharacters.push(character);
+                        }
                     });
                     if (unavailableCharacters.length > 0) {
                         this._processFontWarningContainer.hidden = false;
@@ -530,7 +527,9 @@ class FontAssetInspector extends Container {
     }
 
     unlink() {
-        if (!this._assets) return;
+        if (!this._assets) {
+            return;
+        }
         this._propertiesAttributes.unlink();
         this._fontAttributes.unlink();
         this._localizationAttributes.unlink();

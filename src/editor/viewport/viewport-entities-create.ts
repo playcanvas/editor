@@ -1,3 +1,5 @@
+import type { EntityObserver } from '@playcanvas/editor-api';
+
 editor.once('load', () => {
     const app = editor.call('viewport:app');
 
@@ -12,7 +14,9 @@ editor.once('load', () => {
     const resyncHierarchy = function () {
         awaitingResyncHierarchy = false;
 
-        if (!app) return; // webgl not available
+        if (!app) {
+            return;
+        } // webgl not available
 
         // sync hierarchy
         app.root.syncHierarchy();
@@ -62,8 +66,10 @@ editor.once('load', () => {
         parent.addChild(node);
     };
 
-    const processEntity = function (/** @type {EntityObserver} */ obj) {
-        if (!app) return null; // webgl not available
+    const processEntity = function (obj: EntityObserver) {
+        if (!app) {
+            return null;
+        } // webgl not available
 
         // create entity
         const entity = obj.entity = createEntity(obj);
@@ -95,9 +101,11 @@ editor.once('load', () => {
         return entity;
     };
 
-    const processEntityComponents = function (entity, /** @type {EntityObserver} */ obj) {
+    const processEntityComponents = function (entity, obj: EntityObserver) {
 
-        if (!entity) return;
+        if (!entity) {
+            return;
+        }
 
         // add components
         const components = obj.json().components;
@@ -135,7 +143,7 @@ editor.once('load', () => {
 
     const createEntities = function () {
         // new entity created
-        editor.on('entities:add', (/** @type {EntityObserver} */ entityObserver) => {
+        editor.on('entities:add', (entityObserver: EntityObserver) => {
             const entity = processEntity(entityObserver);
             processEntityComponents(entity, entityObserver);
         });

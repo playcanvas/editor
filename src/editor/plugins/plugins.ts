@@ -7,7 +7,9 @@ editor.once('load', () => {
 
     editor.method('plugins:load', (name, fn) => {
         if (!name || !pluginNameCheck.test(name)) {
-            if (fn) fn(new Error('invalid plugin name'));
+            if (fn) {
+                fn(new Error('invalid plugin name'));
+            }
             return;
         }
 
@@ -32,7 +34,9 @@ editor.once('load', () => {
 
             editor.call('status:error', `plugins:load:error ${name}`);
 
-            if (fn) fn(err);
+            if (fn) {
+                fn(err);
+            }
         });
 
         element.onload = element.onreadystatechange = function () {
@@ -52,7 +56,9 @@ editor.once('load', () => {
 
             editor.call('status:text', `plugins:load ${name}`);
 
-            if (fn) fn(null);
+            if (fn) {
+                fn(null);
+            }
         };
 
         element.src = `${config.url.frontend}js/plugins/${name}.js`;

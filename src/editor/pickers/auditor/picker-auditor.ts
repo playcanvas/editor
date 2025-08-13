@@ -52,7 +52,9 @@ editor.on('load', () => {
     root.append(overlay);
 
     const keyDown = (evt) => {
-        if (overlay.hidden) return;
+        if (overlay.hidden) {
+            return;
+        }
 
         evt.preventDefault();
         evt.stopPropagation();
@@ -164,8 +166,7 @@ editor.on('load', () => {
     };
 
     const showTextureAuditor = () => {
-        /** @type {{ fixes: Set<number>, conflicts: Set<number> }} */
-        const issues = editor.call('assets:srgb:issues');
+        const issues: { fixes: Set<number>, conflicts: Set<number> } = editor.call('assets:srgb:issues');
         if (!issues) {
             return;
         }

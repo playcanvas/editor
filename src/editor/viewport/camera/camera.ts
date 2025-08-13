@@ -50,7 +50,9 @@ editor.once('load', () => {
         };
 
         editor.method('camera:set', (entity) => {
-            if (!entity) entity = defaultCamera;
+            if (!entity) {
+                entity = defaultCamera;
+            }
 
             if (currentCamera === entity || !entity.camera) {
                 return;
@@ -91,11 +93,15 @@ editor.once('load', () => {
             // camera at the moment
             if (!entity.__editorCamera) {
                 const fixLayers = function () {
-                    if (entity !== currentCamera) return;
+                    if (entity !== currentCamera) {
+                        return;
+                    }
 
                     setTimeout(() => {
                         // check again
-                        if (entity !== currentCamera) return;
+                        if (entity !== currentCamera) {
+                            return;
+                        }
 
                         // add layers and re-render
                         addGizmoLayers(entity.camera, editor.call('gizmo:layers:list'));

@@ -9,7 +9,9 @@ editor.once('load', () => {
 
     // make titles for each component
     for (componentName in schema) {
-        if (componentName.startsWith('$')) continue;
+        if (componentName.startsWith('$')) {
+            continue;
+        }
 
         var title;
         switch (componentName) {
@@ -93,7 +95,9 @@ editor.once('load', () => {
         }
 
         for (const fieldName in schemaField) {
-            if (fieldName.startsWith('$')) continue;
+            if (fieldName.startsWith('$')) {
+                continue;
+            }
 
             const field = schemaField[fieldName];
             const type = editor.call('schema:getType', field);
@@ -122,8 +126,12 @@ editor.once('load', () => {
     const components = Object.keys(schema);
 
     let list = components.sort((a, b) => {
-        if (a < b) return -1;
-        if (a > b) return 1;
+        if (a < b) {
+            return -1;
+        }
+        if (a > b) {
+            return 1;
+        }
         return 0;
     });
 
@@ -197,7 +205,9 @@ editor.once('load', () => {
     editor.method('components:getDefault', (component) => {
         const result = {};
         for (const fieldName in schema[component]) {
-            if (fieldName.startsWith('$')) continue;
+            if (fieldName.startsWith('$')) {
+                continue;
+            }
             const field = schema[component][fieldName];
             if (field.hasOwnProperty('$default')) {
                 result[fieldName] = deepCopy(field.$default);

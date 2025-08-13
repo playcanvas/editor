@@ -39,10 +39,14 @@ editor.once('load', () => {
 
     // picked asset
     assetsPanel.on('select', (asset) => {
-        if (overlay.hidden) return;
+        if (overlay.hidden) {
+            return;
+        }
 
         // do not allow selecting source assets
-        if (asset.get('source')) return;
+        if (asset.get('source')) {
+            return;
+        }
 
         if (!parseInt(asset.get('id'), 10)) {
             // probably a legacy script
@@ -71,7 +75,9 @@ editor.once('load', () => {
     });
 
     assetsPanel.on('deselect', (asset) => {
-        if (overlay.hidden || !asset) return;
+        if (overlay.hidden || !asset) {
+            return;
+        }
 
         if (asset === currentAsset) {
             assetsPanel.selectedAssets = [asset];

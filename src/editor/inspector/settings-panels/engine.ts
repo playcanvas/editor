@@ -1,13 +1,7 @@
 import { BaseSettingsPanel } from './base.ts';
+import type { Attribute } from '../attribute.type.js';
 
-/**
- * @import { Attribute } from '../attribute.type.js'
- */
-
-/**
- * @type {Attribute[]}
- */
-const ATTRIBUTES = [
+const ATTRIBUTES: Attribute[] = [
     {
         observer: 'sessionSettings',
         label: 'Engine Version',

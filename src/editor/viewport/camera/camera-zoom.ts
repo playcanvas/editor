@@ -79,7 +79,9 @@ editor.once('viewport:load', (app) => {
                                 if ((Date.now() - aabbSelectionLast > 1000)) {
                                     aabbSelectionLast = Date.now();
                                     aabb = editor.call('selection:aabb');
-                                    if (aabb) aabbSelection.copy(aabb);
+                                    if (aabb) {
+                                        aabbSelection.copy(aabb);
+                                    }
                                 } else {
                                     aabb = aabbSelection;
                                 }
@@ -115,7 +117,9 @@ editor.once('viewport:load', (app) => {
                     } else {
                         const orthoHeight = camera.camera.orthoHeight;
                         diff *= -orthoHeight;
-                        if (diff) camera.camera.orthoHeight = Math.max(0.1, orthoHeight + diff);
+                        if (diff) {
+                            camera.camera.orthoHeight = Math.max(0.1, orthoHeight + diff);
+                        }
 
                         // TODO
                         // on zoom, move camera same as google maps does

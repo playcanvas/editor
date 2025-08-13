@@ -1,17 +1,11 @@
 import { BaseSettingsPanel } from './base.ts';
 import { LayersSettingsPanelRenderOrderList } from './layers-render-order-list.ts';
-
-/**
- * @import { Attribute } from '../attribute.type.d.ts'
- */
+import type { Attribute } from '../attribute.type.d.ts';
 
 const CLASS_ROOT = 'layers-settings-panel';
 const CLASS_RENDER_ORDER_PANEL = `${CLASS_ROOT}-render-order-panel`;
 
-/**
- * @type {Attribute[]}
- */
-const ATTRIBUTES = [
+const ATTRIBUTES: Attribute[] = [
     {
         observer: 'projectSettings',
         alias: 'addSubLayerButton',
@@ -67,7 +61,9 @@ class LayersSettingsPanelRenderOrderPanel extends BaseSettingsPanel {
         });
 
         this._addSubLayerSelect.on('change', (value) => {
-            if (value === '') return;
+            if (value === '') {
+                return;
+            }
             const keyAndTransparency = value.split('.');
             const key = parseInt(keyAndTransparency[0], 10);
             const transparent = keyAndTransparency[1].indexOf('transparent') !== -1;
@@ -87,7 +83,9 @@ class LayersSettingsPanelRenderOrderPanel extends BaseSettingsPanel {
             let shouldClose = true;
 
             this._addSubLayerSelect._containerOptions.forEachChild((label) => {
-                if (label.dom.parentElement.querySelector(':hover') === label.dom) shouldClose = false;
+                if (label.dom.parentElement.querySelector(':hover') === label.dom) {
+                    shouldClose = false;
+                }
             });
             if (shouldClose) {
                 this._addSubLayerButton.hidden = false;
@@ -110,7 +108,9 @@ class LayersSettingsPanelRenderOrderPanel extends BaseSettingsPanel {
     _updateAddSublayerOptions() {
         const projectSettings = this._projectSettings.latest();
         const layers = projectSettings.get('layers');
-        if (!layers) return;
+        if (!layers) {
+            return;
+        }
 
         const options = Object.keys(layers)
         .map((layerKey) => {

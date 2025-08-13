@@ -1,6 +1,7 @@
 import { LocalStorage } from '@playcanvas/editor-api';
 import { Container, Button, Menu } from '@playcanvas/pcui';
 
+import type { Attribute } from './attribute.type.d.ts';
 import { AttributesInspector } from './attributes-inspector.ts';
 import { AnimComponentInspector } from './components/anim.ts';
 import { AnimationComponentInspector } from './components/animation.ts';
@@ -29,12 +30,8 @@ import { COMPONENT_LOGOS } from '../../core/constants.ts';
 import { TemplatesEntityInspector } from '../templates/templates-entity-inspector.ts';
 import { TemplateOverrideInspector } from '../templates/templates-override-inspector.ts';
 
-/**
- * @import { Attribute } from './attribute.type.d.ts'
- */
 
-/** @type {Map<string, new (...args: any[]) => any>} */
-const componentToConstructor = new Map();
+const componentToConstructor: Map<string, new (...args: any[]) => any> = new Map();
 componentToConstructor.set('anim', AnimComponentInspector);
 componentToConstructor.set('animation', AnimationComponentInspector);
 componentToConstructor.set('audiolistener', AudiolistenerComponentInspector);
@@ -140,10 +137,7 @@ const getSubMenu = function (key) {
     }
 };
 
-/**
- * @type {Attribute[]}
- */
-const ATTRIBUTES = [{
+const ATTRIBUTES: Attribute[] = [{
     label: 'Enabled',
     path: 'enabled',
     reference: 'entity:enabled',
@@ -196,7 +190,9 @@ const ATTRIBUTES = [{
 
 class EntityInspector extends Container {
     constructor(args) {
-        if (!args) args = {};
+        if (!args) {
+            args = {};
+        }
         args.flex = true;
 
         super(args);
@@ -261,7 +257,9 @@ class EntityInspector extends Container {
         this._componentInspectors = {};
         const components = editor.call('components:list');
         components.forEach((component) => {
-            if (component === 'script' && args.projectSettings.get('useLegacyScripts')) return;
+            if (component === 'script' && args.projectSettings.get('useLegacyScripts')) {
+                return;
+            }
 
             const cstr = componentToConstructor.get(component);
             if (cstr) {
@@ -307,7 +305,9 @@ class EntityInspector extends Container {
     }
 
     _onHotkeyF2() {
-        if (editor.call('picker:isOpen')) return;
+        if (editor.call('picker:isOpen')) {
+            return;
+        }
         this._attributesInspector.getField('name').flash();
         this._attributesInspector.getField('name').focus();
     }
@@ -458,7 +458,9 @@ class EntityInspector extends Container {
 
         menu.on('show', () => {
             const entities = this._entities;
-            if (!this._entities) return;
+            if (!this._entities) {
+                return;
+            }
 
             for (let i = 0; i < components.length; i++) {
                 let different = false;
@@ -497,11 +499,15 @@ class EntityInspector extends Container {
 
     _onClickPasteComponent() {
         let data = this._localStorage.get('copy-component');
-        if (!data) return;
+        if (!data) {
+            return;
+        }
         data = JSON.parse(data);
 
         const component = this._localStorage.get('copy-component-name');
-        if (!component) return;
+        if (!component) {
+            return;
+        }
 
         editor.call('entities:pasteComponent', this._entities, component, data);
     }
@@ -514,7 +520,9 @@ class EntityInspector extends Container {
             previous = {};
             entities.forEach((e) => {
                 e = e.latest();
-                if (!e) return;
+                if (!e) {
+                    return;
+                }
 
                 const history = e.history.enabled;
                 e.history.enabled = false;
@@ -531,7 +539,9 @@ class EntityInspector extends Container {
         const undo = () => {
             entities.forEach((e) => {
                 e = e.latest();
-                if (!e) return;
+                if (!e) {
+                    return;
+                }
 
                 const history = e.history.enabled;
                 e.history.enabled = false;
@@ -554,7 +564,9 @@ class EntityInspector extends Container {
     }
 
     _onClickAddComponent(evt) {
-        if (this.readOnly) return;
+        if (this.readOnly) {
+            return;
+        }
 
         const rect = evt.target.getBoundingClientRect();
 
@@ -566,8 +578,12 @@ class EntityInspector extends Container {
     }
 
     _onSetComponent(component) {
-        if (!this._componentInspectors[component]) return;
-        if (!this._doAllEntitiesHaveComponent(this._entities, component)) return;
+        if (!this._componentInspectors[component]) {
+            return;
+        }
+        if (!this._doAllEntitiesHaveComponent(this._entities, component)) {
+            return;
+        }
 
         this._componentInspectors[component].hidden = false;
         this._componentInspectors[component].link(this._entities);
@@ -576,7 +592,9 @@ class EntityInspector extends Container {
     }
 
     _onUnsetComponent(component) {
-        if (!this._componentInspectors[component]) return;
+        if (!this._componentInspectors[component]) {
+            return;
+        }
 
         this._componentInspectors[component].unlink();
         this._componentInspectors[component].hidden = true;
@@ -597,7 +615,9 @@ class EntityInspector extends Container {
     }
 
     _disableUiFields() {
-        if (!this._entities) return;
+        if (!this._entities) {
+            return;
+        }
 
         let disablePositionXY = false;
         let disableRotation = false;
@@ -646,7 +666,9 @@ class EntityInspector extends Container {
     link(entities) {
         this.unlink();
 
-        if (!entities || !entities.length) return;
+        if (!entities || !entities.length) {
+            return;
+        }
 
         this._entities = entities;
 
@@ -702,7 +724,9 @@ class EntityInspector extends Container {
     unlink() {
         super.unlink();
 
-        if (!this._entities) return;
+        if (!this._entities) {
+            return;
+        }
 
         this._entities = null;
 
@@ -730,7 +754,9 @@ class EntityInspector extends Container {
     }
 
     destroy() {
-        if (this._destroyed) return;
+        if (this._destroyed) {
+            return;
+        }
 
         this._menuAddComponent.destroy();
         this._menuCog.destroy();

@@ -13,6 +13,10 @@ class CodeEditor extends Editor {
         this.once('loaded', () => {
             this.emit('start');
 
+            if (window.opener) {
+                window.opener.postMessage('start', window.opener.origin);
+            }
+
             // if there is a merge in progress for our branch
             if (config.self.branch.merge && !config.self.branch.merge.conflict) {
                 this.call('picker:versioncontrol:mergeOverlay');

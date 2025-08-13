@@ -25,14 +25,18 @@ editor.once('load', () => {
 
     // menu related only to creating assets
     const menuCreate = new Menu();
-    if (editor.call('permissions:write')) root.append(menuCreate);
+    if (editor.call('permissions:write')) {
+        root.append(menuCreate);
+    }
 
     // edit
     const menuItemNewScript = new MenuItem({
         text: 'New Script',
         icon: 'E208',
         onSelect: () => {
-            if (legacyScripts) return;
+            if (legacyScripts) {
+                return;
+            }
 
             editor.call('picker:script-create', (filename) => {
                 editor.call('assets:create:script', {
@@ -43,14 +47,18 @@ editor.once('load', () => {
             });
         }
     });
-    if (editor.call('permissions:write')) menu.append(menuItemNewScript);
+    if (editor.call('permissions:write')) {
+        menu.append(menuItemNewScript);
+    }
 
     // new asset
     const menuItemNew = new MenuItem({
         text: 'New Asset',
         icon: 'E120'
     });
-    if (editor.call('permissions:write')) menu.append(menuItemNew);
+    if (editor.call('permissions:write')) {
+        menu.append(menuItemNew);
+    }
 
     // Asset types that are downloadable (via context menu)
     const downloadable = new Set([
@@ -171,7 +179,9 @@ editor.once('load', () => {
                     const meta = asset.get('meta');
 
                     // Return if not a texture or if attempting to convert to the same format
-                    if (type !== 'texture' || !meta.format || meta.format === format) return;
+                    if (type !== 'texture' || !meta.format || meta.format === format) {
+                        return;
+                    }
 
                     const id = asset.get('id');
 
@@ -312,7 +322,9 @@ editor.once('load', () => {
             });
         }
     });
-    if (editor.call('permissions:write')) menu.append(menuItemCreateSprite);
+    if (editor.call('permissions:write')) {
+        menu.append(menuItemCreateSprite);
+    }
 
     // Create Sliced Sprite From Atlas
     const menuItemCreateSlicedSprite = new MenuItem({
@@ -325,7 +337,9 @@ editor.once('load', () => {
             });
         }
     });
-    if (editor.call('permissions:write')) menu.append(menuItemCreateSlicedSprite);
+    if (editor.call('permissions:write')) {
+        menu.append(menuItemCreateSlicedSprite);
+    }
 
     // copy
     const menuItemCopy = new MenuItem({
@@ -364,7 +378,9 @@ editor.once('load', () => {
         text: 'Paste',
         icon: ICONS.PASTE,
         onSelect: () => {
-            if (currentAsset && currentAsset.get('type') !== 'folder') return;
+            if (currentAsset && currentAsset.get('type') !== 'folder') {
+                return;
+            }
 
             const keepFolderStructure = editor.call('hotkey:shift');
             editor.call('assets:paste', currentAsset === null ? editor.call('assets:panel:currentFolder') : currentAsset, keepFolderStructure);
@@ -379,13 +395,17 @@ editor.once('load', () => {
         onIsVisible: function () {
 
             // If this is a multiple selection don't limit the transcode options
-            if (editor.api.globals.selection.items.length > 1) return;
+            if (editor.api.globals.selection.items.length > 1) {
+                return;
+            }
 
             // Favor the selection api asset list
             const asset = editor.api.globals.selection.items[0] ?? currentAsset;
 
             const meta = asset && asset.get('meta');
-            if (!meta) return;
+            if (!meta) {
+                return;
+            }
 
             this.domContent.ui.forEachChild((child) => {
                 child.enabled = meta.format !== child.format;
@@ -442,7 +462,9 @@ editor.once('load', () => {
             });
         }
     });
-    if (editor.call('permissions:write')) menu.append(menuItemReplace);
+    if (editor.call('permissions:write')) {
+        menu.append(menuItemReplace);
+    }
 
     const menuItemReplaceTextureToSprite = new MenuItem({
         text: 'Convert Texture To Sprite',
@@ -466,7 +488,9 @@ editor.once('load', () => {
             });
         }
     });
-    if (editor.call('permissions:write')) menu.append(menuItemReplaceTextureToSprite);
+    if (editor.call('permissions:write')) {
+        menu.append(menuItemReplaceTextureToSprite);
+    }
 
     // todo: xdu.
     // todo: merge these 2 items.
@@ -479,7 +503,9 @@ editor.once('load', () => {
             editor.call('assets:reimport', currentAsset.get('id'), currentAsset.get('type'));
         }
     });
-    if (editor.call('permissions:write')) menu.append(menuItemExtract);
+    if (editor.call('permissions:write')) {
+        menu.append(menuItemExtract);
+    }
 
     // re-import. Used for target assets.
     const menuItemReImport = new MenuItem({
@@ -489,7 +515,9 @@ editor.once('load', () => {
             editor.call('assets:reimport', currentAsset.get('id'), currentAsset.get('type'));
         }
     });
-    if (editor.call('permissions:write')) menu.append(menuItemReImport);
+    if (editor.call('permissions:write')) {
+        menu.append(menuItemReImport);
+    }
 
     // download
     const menuItemDownload = new MenuItem({
@@ -519,7 +547,9 @@ editor.once('load', () => {
             editor.call('assets:duplicate', currentAsset);
         }
     });
-    if (editor.call('permissions:write')) menu.append(menuItemDuplicate);
+    if (editor.call('permissions:write')) {
+        menu.append(menuItemDuplicate);
+    }
 
     // delete
     const menuItemDelete = new MenuItem({
@@ -557,7 +587,9 @@ editor.once('load', () => {
         }
 
     });
-    if (editor.call('permissions:write')) menu.append(menuItemDelete);
+    if (editor.call('permissions:write')) {
+        menu.append(menuItemDelete);
+    }
 
     // move-to-store
     const menuItemMoveToStore = new MenuItem({
@@ -567,7 +599,9 @@ editor.once('load', () => {
             editor.call('assets:move-to-store', currentAsset);
         }
     });
-    if (editor.call('permissions:write')) menu.append(menuItemMoveToStore);
+    if (editor.call('permissions:write')) {
+        menu.append(menuItemMoveToStore);
+    }
 
     // open-in-viewer
     const menuItemOpenInViewer = new MenuItem({
@@ -627,7 +661,7 @@ editor.once('load', () => {
                 menuItemPaste.disabled = true;
             } else {
                 const clipboard = editor.call('clipboard:get');
-                menuItemPaste.disabled = !clipboard || clipboard.type !== 'asset';
+                menuItemPaste.disabled = !clipboard || clipboard.type !== 'asset' || !clipboard.branchId || !clipboard.projectId;
             }
 
             menuItemCopy.disabled = !currentAsset;
@@ -724,7 +758,9 @@ editor.once('load', () => {
                             menuItem.text = 'Scene Settings';
                             menuItem.icon = ICONS.SCENE_SETTINGS;
                             item = projectUserSettings;
-                            if (!item) return;
+                            if (!item) {
+                                return;
+                            }
                         } else {
                             if (type === 'entity') {
                                 item = editor.call('entities:get', id);
@@ -733,7 +769,9 @@ editor.once('load', () => {
                                 item = editor.call('assets:get', id);
                                 menuItem.icon = icons[item.get('type')] || '';
                             }
-                            if (!item) return;
+                            if (!item) {
+                                return;
+                            }
                             menuItem.text = item.get('name');
                         }
 
@@ -836,7 +874,9 @@ editor.once('load', () => {
     editor.on('assets:add', (asset) => {
         // get grid item
         const item = editor.call('assets:panel:get', asset.get('id'));
-        if (!item) return;
+        if (!item) {
+            return;
+        }
 
         const contextMenuHandler = function (evt) {
             evt.stopPropagation();
@@ -880,7 +920,9 @@ editor.once('load', () => {
     editor.on('sourcefiles:add', (asset) => {
         // get grid item
         const item = editor.call('assets:panel:get', asset.get('filename'));
-        if (!item) return;
+        if (!item) {
+            return;
+        }
 
         // attach contextmenu event
         item.element.addEventListener('contextmenu', (evt) => {

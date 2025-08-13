@@ -1,15 +1,10 @@
 import { ComponentInspector } from './component.ts';
 import { deepCopy } from '../../../common/utils.ts';
+import type { Attribute } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-/**
- * @import { Attribute } from '../attribute.type.d.ts'
- */
 
-/**
- * @type {Attribute[]}
- */
-const ATTRIBUTES = [{
+const ATTRIBUTES: Attribute[] = [{
     label: 'Screen Space',
     path: 'components.screen.screenSpace',
     reference: 'screen:screenSpace',
@@ -91,7 +86,9 @@ class ScreenComponentInspector extends ComponentInspector {
     }
 
     _toggleFields() {
-        if (this._suppressToggleFields) return;
+        if (this._suppressToggleFields) {
+            return;
+        }
 
         const scaleMode = this._field('scaleMode').value;
         const screenSpace = this._field('screenSpace').value;

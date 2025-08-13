@@ -1,10 +1,8 @@
 import { Panel, Button } from '@playcanvas/pcui';
 
+import type { Attribute } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-/**
- * @import { Attribute } from '../attribute.type.d.ts'
- */
 
 const CLASS_ANIMSTATEGRAPH = 'asset-animstategraph-inspector';
 const CLASS_ANIMSTATEGRAPH_PARAMETER = `${CLASS_ANIMSTATEGRAPH}-parameter`;
@@ -39,10 +37,7 @@ class AnimstategraphParameters extends Panel {
                 break;
         }
 
-        /**
-         * @type {Attribute[]}
-         */
-        const ATTRIBUTES = [
+        const ATTRIBUTES: Attribute[] = [
             {
                 label: 'Name',
                 alias: `data.parameters.${paramId}.name`,
@@ -94,7 +89,9 @@ class AnimstategraphParameters extends Panel {
         paramTypeSelect.value = this._assets[0].get(`data.parameters.${paramId}.type`);
         paramTypeSelect.on('change', (value) => {
             param = this._assets[0].get(`data.parameters.${paramId}`);
-            if (param.type === value) return;
+            if (param.type === value) {
+                return;
+            }
 
             const prevConditionValues = [];
             const prevConditionPredicates = [];
@@ -200,7 +197,9 @@ class AnimstategraphParameters extends Panel {
 
         nameField.on('change', (value) => {
             const prevName = this._assets[0].get(`data.parameters.${paramId}.name`);
-            if (prevName === value) return;
+            if (prevName === value) {
+                return;
+            }
 
             const conditionsWithName = [];
 
@@ -310,7 +309,9 @@ class AnimstategraphParameters extends Panel {
                     Object.keys(transition.conditions).forEach((conditionKey) => {
                         const condition = transition.conditions[conditionKey];
                         if (condition.parameterName === param.name) {
-                            if (!conditions[transitionKey]) conditions[transitionKey] = {};
+                            if (!conditions[transitionKey]) {
+                                conditions[transitionKey] = {};
+                            }
                             conditions[transitionKey][conditionKey] = condition;
                             asset.unset(`data.transitions.${transitionKey}.conditions.${conditionKey}.parameterName`);
                         }
@@ -377,7 +378,9 @@ class AnimstategraphParameters extends Panel {
         this._assetEvents = [];
         this._assetEvents.push(
             this._assets[0].on('*:set', (path, value) => {
-                if (this._suppressAddParamEvent) return;
+                if (this._suppressAddParamEvent) {
+                    return;
+                }
                 const pathArr = path.split('.');
                 if (path.includes('data.parameters.') && pathArr.length === 3 && !this._parameterPanels[pathArr[2]]) {
                     this._addParamPanel(pathArr[2]);

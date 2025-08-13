@@ -3,18 +3,20 @@ import { Panel, Container, Button, InfoBox, Divider, Label, BindingTwoWay, Bindi
 import { tooltip, tooltipRefItem } from '../../../common/tooltips.ts';
 import { bytesToHuman } from '../../../common/utils.ts';
 import { TextureCompressor } from '../../assets/assets-textures-compress.ts';
+import type { Attribute } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-/**
- * @import { Attribute } from '../attribute.type.d.ts'
- */
 
 // util
 const makeRefAssigner = (prefix = '') => (attr) => {
-    if (attr.hasOwnProperty('reference')) return;
+    if (attr.hasOwnProperty('reference')) {
+        return;
+    }
 
     const path = attr.alias || attr.path;
-    if (!path) return;
+    if (!path) {
+        return;
+    }
 
     const parts = path.split('.');
     attr.reference = `${prefix}${parts[parts.length - 1]}`;
@@ -23,10 +25,7 @@ const makeRefAssigner = (prefix = '') => (attr) => {
 const CLASS_ROOT = 'asset-texture-inspector';
 const CLASS_COMPRESS_BUTTON = `${CLASS_ROOT}-compress-button`;
 
-/**
- * @type {Attribute[]}
- */
-const TEXTURE_ATTRIBUTES = [
+const TEXTURE_ATTRIBUTES: Attribute[] = [
     {
         label: 'Width',
         path: 'meta.width',
@@ -126,10 +125,7 @@ const TEXTURE_ATTRIBUTES = [
 ];
 TEXTURE_ATTRIBUTES.forEach(makeRefAssigner('asset:texture:'));
 
-/**
- * @type {Attribute[]}
- */
-const COMPRESSION_BASIS_ATTRIBUTES = [
+const COMPRESSION_BASIS_ATTRIBUTES: Attribute[] = [
     {
         label: 'Basis',
         path: 'meta.compress.basis',
@@ -172,10 +168,7 @@ const COMPRESSION_BASIS_ATTRIBUTES = [
 COMPRESSION_BASIS_ATTRIBUTES.forEach(makeRefAssigner('asset:texture:compress:'));
 
 const LEGACY_COMPRESSION_PARAMS = ['dxt', 'pvr', 'etc1', 'etc2'];
-/**
- * @type {Attribute[]}
- */
-const COMPRESSION_LEGACY_ATTRIBUTES = [
+const COMPRESSION_LEGACY_ATTRIBUTES: Attribute[] = [
     {
         label: 'Legacy',
         type: 'boolean',
@@ -402,8 +395,12 @@ class MultiPathBindingElementToObservers extends BindingElementToObservers {
 
     // Override setValue to set additional fields
     setValue(value) {
-        if (this.applyingChange) return;
-        if (!this._observers) return;
+        if (this.applyingChange) {
+            return;
+        }
+        if (!this._observers) {
+            return;
+        }
 
         this.applyingChange = true;
 
@@ -417,7 +414,9 @@ class MultiPathBindingElementToObservers extends BindingElementToObservers {
         const undo = () => {
             for (let i = 0; i < observers.length; i++) {
                 const latest = observers[i].latest();
-                if (!this._latestHasPaths(latest, paths)) continue;
+                if (!this._latestHasPaths(latest, paths)) {
+                    continue;
+                }
 
                 let history = false;
                 if (latest.history) {
@@ -440,7 +439,9 @@ class MultiPathBindingElementToObservers extends BindingElementToObservers {
 
             for (let i = 0; i < observers.length; i++) {
                 const latest = observers[i].latest();
-                if (!this._latestHasPaths(latest, paths)) continue;
+                if (!this._latestHasPaths(latest, paths)) {
+                    continue;
+                }
 
                 let history = false;
                 if (latest.history) {
@@ -1131,7 +1132,9 @@ class TextureAssetInspector extends Container {
                 const variants = [...LEGACY_COMPRESSION_PARAMS, 'basis'];
                 let hideWarning = true;
                 variants.forEach((variant) => {
-                    if (!hideWarning) return;
+                    if (!hideWarning) {
+                        return;
+                    }
                     if (assets[0].has(`file.variants.${variant}`) && !assets[0].get(`file.variants.${variant}.noFlip`)) {
                         hideWarning = false;
                     }

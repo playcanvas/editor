@@ -1,16 +1,11 @@
 import { Button } from '@playcanvas/pcui';
 
 import { ComponentInspector } from './component.ts';
+import type { Attribute } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-/**
- * @import { Attribute } from '../attribute.type.d.ts'
- */
 
-/**
- * @type {Attribute[]}
- */
-const ATTRIBUTES = [{
+const ATTRIBUTES: Attribute[] = [{
     label: 'Assets',
     path: 'components.animation.assets',
     reference: 'animation:assets',
@@ -76,9 +71,13 @@ class AnimationComponentInspector extends ComponentInspector {
         }
 
         const label = listItem.dom.querySelector('.pcui-label');
-        if (!label) return;
+        if (!label) {
+            return;
+        }
 
-        if (!this._assets.get(assetId)) return;
+        if (!this._assets.get(assetId)) {
+            return;
+        }
 
         const btn = new Button({
             size: 'small',
@@ -109,7 +108,9 @@ class AnimationComponentInspector extends ComponentInspector {
             }
 
             const name = entities[i].entity.animation.animationsIndex[assetId];
-            if (!name) continue;
+            if (!name) {
+                continue;
+            }
 
             entities[i].entity.animation.play(name);
         }

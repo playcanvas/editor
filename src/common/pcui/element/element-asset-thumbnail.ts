@@ -1,4 +1,4 @@
-import { Observer } from '@playcanvas/observer';
+import { Observer, ObserverList } from '@playcanvas/observer';
 import { Element } from '@playcanvas/pcui';
 
 import { CubemapThumbnailRenderer } from '../../thumbnail-renderers/cubemap-thumbnail-renderer.ts';
@@ -10,10 +10,6 @@ import { SpriteThumbnailRenderer } from '../../thumbnail-renderers/sprite-thumbn
 import { buildQueryUrl } from '../../utils.ts';
 import { CLASS_MULTIPLE_VALUES } from '../constants.ts';
 
-/**
- * @import { ObserverList } from '@playcanvas/observer';
- * @import { ElementArgs } from '@playcanvas/pcui';
- */
 
 const CLASS_ASSET_THUMB = 'pcui-asset-thumb';
 const CLASS_ASSET_THUMB_EMPTY = 'pcui-asset-thumb-empty';
@@ -30,15 +26,16 @@ const CANVAS_TYPES = {
     'render': true
 };
 
-/**
- * @typedef AssetThumbnailArgs
- * @property {ObserverList} [assets] - The assets list.
- * @property {Observer} [sceneSettings] - The scene settings.
- * @property {number} [canvasWidth] - Fixed width for the canvas. Increases performance but uses
- * same canvas resolution every time.
- * @property {number} [canvasHeight] - Fixed height for the canvas. Increases performance but uses
- * same canvas resolution every time.
- */
+type AssetThumbnailArgs = {
+    /** The assets list. */
+    assets?: ObserverList;
+    /** The scene settings. */
+    sceneSettings?: Observer;
+    /** Fixed width for the canvas. Increases performance but uses same canvas resolution every time. */
+    canvasWidth?: number;
+    /** Fixed height for the canvas. Increases performance but uses same canvas resolution every time. */
+    canvasHeight?: number;
+}
 
 /**
  * Shows an asset thumbnail. Depending on the asset type that can be an image or a canvas rendering.
@@ -46,12 +43,7 @@ const CANVAS_TYPES = {
  * @property {boolean} renderChanges If true the input will flash when changed.
  */
 class AssetThumbnail extends Element {
-    /**
-     * Creates a new AssetThumbnail.
-     *
-     * @param {AssetThumbnailArgs & ElementArgs} [args] - The arguments.
-     */
-    constructor(args = {}) {
+    constructor(args: AssetThumbnailArgs = {}) {
         super({ ...args, dom: 'span' });
 
         this.class.add(CLASS_ASSET_THUMB, CLASS_ASSET_THUMB_EMPTY);
@@ -92,7 +84,9 @@ class AssetThumbnail extends Element {
         });
 
         this.on('showToRoot', () => {
-            if (!this._canvasDirty || !this.value) return;
+            if (!this._canvasDirty || !this.value) {
+                return;
+            }
 
             const asset = this._getAsset(this.value);
             if (this._shouldRenderCanvasThumbnailForAsset(asset)) {
@@ -163,7 +157,9 @@ class AssetThumbnail extends Element {
         this._destroyImage();
         this._createCanvas();
 
-        if (this.hiddenToRoot || this._destroyed) return;
+        if (this.hiddenToRoot || this._destroyed) {
+            return;
+        }
 
         if (!this._canvasWidth && !this.width || !this._canvasHeight && !this.height) {
             this._renderCanvasTimeout = setTimeout(() => {
@@ -225,13 +221,17 @@ class AssetThumbnail extends Element {
     }
 
     _createImage() {
-        if (this._domImage) return;
+        if (this._domImage) {
+            return;
+        }
         this._domImage = new Image();
         this.dom.appendChild(this._domImage);
     }
 
     _destroyImage() {
-        if (!this._domImage) return;
+        if (!this._domImage) {
+            return;
+        }
 
         this._disableFontIcons();
 
@@ -269,7 +269,9 @@ class AssetThumbnail extends Element {
             this._renderCanvasTimeout = null;
         }
 
-        if (!this._domCanvas) return;
+        if (!this._domCanvas) {
+            return;
+        }
         this.dom.removeChild(this._domCanvas);
         this._domCanvas = null;
     }
@@ -277,7 +279,9 @@ class AssetThumbnail extends Element {
     _updateValue(value) {
         this.class.remove(CLASS_MULTIPLE_VALUES);
 
-        if (this._value === value) return false;
+        if (this._value === value) {
+            return false;
+        }
 
         this._value = value;
 
@@ -373,7 +377,9 @@ class AssetThumbnail extends Element {
     }
 
     destroy() {
-        if (this._destroyed) return;
+        if (this._destroyed) {
+            return;
+        }
 
         this._destroyImage();
         this._destroyCanvas();

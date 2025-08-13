@@ -41,7 +41,9 @@ editor.once('load', () => {
     });
 
     editor.method('whoisonline:remove', (assetId, id) => {
-        if (!whoisonline[assetId]) return;
+        if (!whoisonline[assetId]) {
+            return;
+        }
 
         delete whoisonline[assetId][id];
         if (Object.keys(whoisonline[assetId]).length === 0) {
@@ -66,11 +68,15 @@ editor.once('load', () => {
     });
 
     editor.on('relay:room:join', (data) => {
-        if (!data.name.startsWith('document-')) return;
+        if (!data.name.startsWith('document-')) {
+            return;
+        }
 
         const id = data.name.substring('document-'.length);
         const asset = editor.call('assets:getUnique', id);
-        if (!asset) return;
+        if (!asset) {
+            return;
+        }
 
         if (data.users) {
             editor.call('whoisonline:set', asset.get('id'), data.users);
@@ -80,11 +86,15 @@ editor.once('load', () => {
     });
 
     editor.on('relay:room:leave', (data) => {
-        if (!data.name.startsWith('document-')) return;
+        if (!data.name.startsWith('document-')) {
+            return;
+        }
 
         const id = data.name.substring('document-'.length);
         const asset = editor.call('assets:getUnique', id);
-        if (!asset) return;
+        if (!asset) {
+            return;
+        }
 
         if (data.userId === config.self.id) {
             editor.call('whoisonline:set', asset.get('id'), []);
@@ -94,15 +104,21 @@ editor.once('load', () => {
     });
 
     editor.on('documents:load', (doc, asset) => {
-        if (!editor.call('relay:isConnected')) return;
+        if (!editor.call('relay:isConnected')) {
+            return;
+        }
         onOpenDocument(asset.get('id'));
     });
 
     function onOpenDocument(id) {
-        if (whoisonline[id]) return;
+        if (whoisonline[id]) {
+            return;
+        }
 
         const asset = editor.call('assets:get', id);
-        if (!asset) return;
+        if (!asset) {
+            return;
+        }
 
         editor.call('relay:joinRoom', `document-${asset.get('uniqueId')}`);
     }

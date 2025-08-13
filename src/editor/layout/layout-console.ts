@@ -26,10 +26,7 @@ const createTooltip = (target, text) => {
 };
 
 const createCounters = (consolePanel) => {
-    /**
-     * @type {Record<string, { tooltip: string, el: Label }>}
-     */
-    const counters = {
+    const counters: Record<string, { tooltip: string, el: Label }> = {
         info: {
             tooltip: 'Toggle info console messages'
         },
@@ -282,15 +279,9 @@ export const createConsolePanel = () => {
 
     const logTypes = ['info', 'warn', 'error'];
 
-    /**
-     * @type {{ el: Container, textEl: Label, counterEl: Label, timeEl: Label }[]}
-     */
-    const consoleItems = [];
+    const consoleItems: { el: Container, textEl: Label, counterEl: Label, timeEl: Label }[] = [];
 
-    /**
-     * @type {{ ts: number, mask: number, msg: string, onclick: () => void }[]}
-     */
-    const consoleLogs = [];
+    const consoleLogs: { ts: number, mask: number, msg: string, onclick: () => void }[] = [];
 
     let consoleFilter = '';
     let consoleTypeFlag = 0b111;

@@ -16,12 +16,7 @@ import {
 const CLASS_ROOT = 'pcui-animstategraph-condition';
 
 class AnimstategraphCondition extends Container {
-    /**
-     * Creates a new condition.
-     *
-     * @param {object} [args] - The arguments
-     */
-    constructor(args) {
+    constructor(args: object) {
         args = Object.assign({
             class: CLASS_ROOT
         }, args);
@@ -33,7 +28,9 @@ class AnimstategraphCondition extends Container {
     }
 
     link(assets, path) {
-        if (!assets[0].get(path)) return;
+        if (!assets[0].get(path)) {
+            return;
+        }
         const selectParameterName = new SelectInput({
             type: 'string',
             options: this._args.parameters.map((param) => {

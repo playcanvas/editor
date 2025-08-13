@@ -4,45 +4,33 @@ import * as observer from '@playcanvas/observer';
 class Editor extends observer.Events {
     /**
      * The name of the Editor.
-     *
-     * @type {string}
      */
-    _name = 'Editor';
+    private _name: string = 'Editor';
 
     /**
      * Exposed API for the Editor.
-     *
-     * @type {typeof api}
      */
-    api = api;
+    api: typeof api = api;
 
     /**
      * Exposed Observer for the Editor.
-     *
-     * @type {typeof observer}
      */
-    observer = observer;
+    observer: typeof observer = observer;
 
     /**
      * The methods registered with the Editor.
-     *
-     * @type {Map<string, Function>}
      */
-    methods = new Map();
+    methods: Map<string, Function> = new Map();
 
     /**
      * Whether the Editor is a code editor.
-     *
-     * @type {boolean}
      */
-    isCodeEditor = false;
+    isCodeEditor: boolean = false;
 
     /**
      * Whether the Editor project is using engine v2.
-     *
-     * @type {boolean}
      */
-    projectEngineV2 = config.project?.settings?.engineV2 ?? false;
+    projectEngineV2: boolean = config.project?.settings?.engineV2 ?? false;
 
     constructor(name) {
         super();

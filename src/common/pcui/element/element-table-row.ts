@@ -1,16 +1,12 @@
 import { Container } from '@playcanvas/pcui';
 
-/**
- * @import { ContainerArgs } from '@playcanvas/pcui';
- */
-
 const CLASS_ROW = 'pcui-table-row';
 const CLASS_SELECTED_ROW = `${CLASS_ROW}-selected`;
 
-/**
- * @typedef TableRowArgs
- * @property {boolean} [header] - If true then this is a header row.
- */
+type TableRowArgs = {
+    /** If true then this is a header row */
+    header?: boolean;
+};
 
 /**
  * Represents the row of a Table.
@@ -24,9 +20,9 @@ class TableRow extends Container {
     /**
      * Creates new TableRow.
      *
-     * @param {TableRowArgs & ContainerArgs} [args] - The arguments.
+     * @param {TableRowArgs} args - The arguments.
      */
-    constructor(args) {
+    constructor(args?: TableRowArgs) {
         args = Object.assign({
             tabIndex: args && args.header ? -1 : 0,
             dom: document.createElement('tr')
@@ -61,17 +57,23 @@ class TableRow extends Container {
     }
 
     focus() {
-        if (this._header) return;
+        if (this._header) {
+            return;
+        }
         this.dom.focus();
     }
 
     blur() {
-        if (this._header) return;
+        if (this._header) {
+            return;
+        }
         this.dom.blur();
     }
 
     destroy() {
-        if (this._destroyed) return;
+        if (this._destroyed) {
+            return;
+        }
 
         if (this._domEvtFocus) {
             this.dom.removeEventListener('focus', this._domEvtFocus);
@@ -84,7 +86,9 @@ class TableRow extends Container {
     }
 
     set selected(value) {
-        if (this._header) return;
+        if (this._header) {
+            return;
+        }
 
         if (value) {
             if (this.table && this.table.allowRowFocus) {
@@ -92,7 +96,9 @@ class TableRow extends Container {
             }
         }
 
-        if (this.selected === value) return;
+        if (this.selected === value) {
+            return;
+        }
 
         this._selected = value;
 

@@ -9,12 +9,16 @@ editor.once('load', () => {
         // icon
         if (node._icon || (node.__editor && node._getEntity)) {
             node = node._getEntity();
-            if (!node) return;
+            if (!node) {
+                return;
+            }
         }
 
         // get entity
         const entity = editor.call('entities:get', node.getGuid());
-        if (!entity) return;
+        if (!entity) {
+            return;
+        }
 
         // get selector data
         const type = editor.call('selector:type');

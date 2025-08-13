@@ -5,17 +5,21 @@ editor.once('load', () => {
     editor.method('projects:create', (data, success, errorFn) => {
         // Prepare project data for API call
         const keys = ['name', 'description', 'private', 'private_assets', 'fork_from', 'owner', 'settings'];
-        const apiData = /** @type {any} */ ({});
+        const apiData: any = ({});
         keys.forEach((key) => {
             apiData[key] = data[key];
         });
 
         editor.api.globals.rest.projects.projectCreate(apiData)
         .on('load', (status, response) => {
-            if (success) success(response);
+            if (success) {
+                success(response);
+            }
         })
         .on('error', (status, err) => {
-            if (errorFn) errorFn(err);
+            if (errorFn) {
+                errorFn(err);
+            }
         });
     });
 
@@ -23,10 +27,14 @@ editor.once('load', () => {
     editor.method('projects:getOne', (projectId, success, errorFn) => {
         const request = editor.api.globals.rest.projects.projectGet({ projectId })
         .on('load', (status, data) => {
-            if (success) success(data);
+            if (success) {
+                success(data);
+            }
         })
         .on('error', (status, err) => {
-            if (errorFn) errorFn(err);
+            if (errorFn) {
+                errorFn(err);
+            }
         });
 
         return request;
@@ -36,7 +44,9 @@ editor.once('load', () => {
     editor.method('projects:getCurrent', (success) => {
         editor.api.globals.rest.projects.projectGet({ projectId: config.project.id })
         .on('load', (status, data) => {
-            if (success) success(data);
+            if (success) {
+                success(data);
+            }
         });
     });
 
@@ -57,7 +67,9 @@ editor.once('load', () => {
     editor.method('projects:listStarterKits', (success) => {
         editor.api.globals.rest.apps.appList('starterkit')
         .on('load', (status, data) => {
-            if (success) success(data.result);
+            if (success) {
+                success(data.result);
+            }
         });
     });
 
@@ -69,10 +81,14 @@ editor.once('load', () => {
             ...data
         })
         .on('load', (status, response) => {
-            if (success) success(response);
+            if (success) {
+                success(response);
+            }
         })
         .on('error', (status, error) => {
-            if (errorFn) errorFn(error);
+            if (errorFn) {
+                errorFn(error);
+            }
         });
     });
 
@@ -80,7 +96,9 @@ editor.once('load', () => {
     editor.method('projects:delete', (projectId, success) => {
         editor.api.globals.rest.projects.projectDelete({ projectId })
         .on('load', () => {
-            if (success) success();
+            if (success) {
+                success();
+            }
         });
     });
 
@@ -101,10 +119,14 @@ editor.once('load', () => {
     editor.method('projects:export', (projectId, success, errorFn) => {
         editor.api.globals.rest.projects.projectExport({ projectId })
         .on('load', (status, result) => {
-            if (success) success(result);
+            if (success) {
+                success(result);
+            }
         })
         .on('error', (error) => {
-            if (errorFn) errorFn(error);
+            if (errorFn) {
+                errorFn(error);
+            }
         });
     });
 
@@ -200,10 +222,14 @@ editor.once('load', () => {
     editor.method('projects:unlockOne', (projectId, success, errorFn) => {
         editor.api.globals.rest.projects.projectUnlock(projectId)
         .on('load', (status, result) => {
-            if (success) success();
+            if (success) {
+                success();
+            }
         })
         .on('error', (status, err) => {
-            if (errorFn) errorFn(err);
+            if (errorFn) {
+                errorFn(err);
+            }
         });
     });
 
@@ -239,10 +265,14 @@ editor.once('load', () => {
     editor.method('projects:declineTransfer', (projectId, success, errorFn) => {
         editor.api.globals.rest.projects.projectDeclineTransfer(projectId)
         .on('load', (status, response) => {
-            if (success) success(response);
+            if (success) {
+                success(response);
+            }
         })
         .on('error', (err) => {
-            if (errorFn) errorFn(err);
+            if (errorFn) {
+                errorFn(err);
+            }
         });
     });
 
@@ -255,10 +285,14 @@ editor.once('load', () => {
             }
         })
         .on('load', (status, response) => {
-            if (success) success(response);
+            if (success) {
+                success(response);
+            }
         })
         .on('error', (err) => {
-            if (errorFn) errorFn(err);
+            if (errorFn) {
+                errorFn(err);
+            }
         });
     });
 
@@ -266,10 +300,14 @@ editor.once('load', () => {
     editor.method('projects:unwatch', (watchId, success, errorFn) => {
         editor.api.globals.rest.watch.watchDelete(watchId)
         .on('load', (status, response) => {
-            if (success) success(response);
+            if (success) {
+                success(response);
+            }
         })
         .on('error', (err) => {
-            if (errorFn) errorFn(err);
+            if (errorFn) {
+                errorFn(err);
+            }
         });
     });
 
@@ -279,10 +317,14 @@ editor.once('load', () => {
             scope: { type: starType, id: projectId }
         })
         .on('load', (status, response) => {
-            if (success) success(response);
+            if (success) {
+                success(response);
+            }
         })
         .on('error', (err) => {
-            if (errorFn) errorFn(err);
+            if (errorFn) {
+                errorFn(err);
+            }
         });
     });
 
@@ -290,10 +332,14 @@ editor.once('load', () => {
     editor.method('projects:unstar', (starId, success, errorFn) => {
         editor.api.globals.rest.star.starDelete(starId)
         .on('load', (status, response) => {
-            if (success) success(response);
+            if (success) {
+                success(response);
+            }
         })
         .on('error', (err) => {
-            if (errorFn) errorFn(err);
+            if (errorFn) {
+                errorFn(err);
+            }
         });
     });
 
@@ -304,11 +350,17 @@ editor.once('load', () => {
         editor.api.globals.rest.projects.projectCreate(data)
         .on('load', (status, response) => {
             deferred.resolve(response);
-            if (success) success(deferred.promise);
+            if (success) {
+                success(deferred.promise);
+            }
         })
         .on('error', (status, response) => {
-            if (status > 0) deferred.reject(`${status}: ${response}`);
-            if (errorFn) errorFn(deferred.promise);
+            if (status > 0) {
+                deferred.reject(`${status}: ${response}`);
+            }
+            if (errorFn) {
+                errorFn(deferred.promise);
+            }
         });
     });
 
@@ -316,10 +368,14 @@ editor.once('load', () => {
     editor.method('projects:activity', (projectId, success, errorFn) => {
         editor.api.globals.rest.projects.projectActivity(projectId)
         .on('load', (status, data) => {
-            if (success) success(data);
+            if (success) {
+                success(data);
+            }
         })
         .on('error', (err) => {
-            if (errorFn) errorFn(err);
+            if (errorFn) {
+                errorFn(err);
+            }
         });
     });
 
@@ -330,10 +386,14 @@ editor.once('load', () => {
             ...data
         })
         .on('load', (status, response) => {
-            if (success) success(response);
+            if (success) {
+                success(response);
+            }
         })
         .on('error', (status, err) => {
-            if (errorFn) errorFn(err);
+            if (errorFn) {
+                errorFn(err);
+            }
         });
     });
 
@@ -341,10 +401,14 @@ editor.once('load', () => {
     editor.method('projects:getCollaborators', (project, success, errorFn) => {
         editor.api.globals.rest.projects.projectCollabList(project.id)
         .on('load', (status, data) => {
-            if (success) success(data.result);
+            if (success) {
+                success(data.result);
+            }
         })
         .on('error', (status, error) => {
-            if (errorFn) errorFn(status, error);
+            if (errorFn) {
+                errorFn(status, error);
+            }
         });
     });
 
@@ -352,10 +416,14 @@ editor.once('load', () => {
     editor.method('projects:invitations', (options, success, errorFn) => {
         editor.api.globals.rest.invitations.invitationList(options)
         .on('load', (status, data) => {
-            if (success) success(data.result);
+            if (success) {
+                success(data.result);
+            }
         })
         .on('error', (status, error) => {
-            if (errorFn) errorFn(error);
+            if (errorFn) {
+                errorFn(error);
+            }
         });
     });
 
@@ -368,10 +436,14 @@ editor.once('load', () => {
             permission: permission
         })
         .on('load', (status, data) => {
-            if (success) success(data);
+            if (success) {
+                success(data);
+            }
         })
         .on('error', (status, error) => {
-            if (errorFn) errorFn(error);
+            if (errorFn) {
+                errorFn(error);
+            }
         });
     });
 
@@ -379,10 +451,14 @@ editor.once('load', () => {
     editor.method('projects:deleteInvitation', (invitation, success, errorFn) => {
         editor.api.globals.rest.invitations.invitationDelete(invitation.key)
         .on('load', () => {
-            if (success) success();
+            if (success) {
+                success();
+            }
         })
         .on('error', () => {
-            if (errorFn) errorFn();
+            if (errorFn) {
+                errorFn();
+            }
         });
     });
 

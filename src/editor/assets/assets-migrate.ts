@@ -1,7 +1,8 @@
+import type { Observer } from '@playcanvas/observer';
+
 import { deepEqual, formatter as f } from '../../common/utils.ts';
 import { LOAD_SCRIPT_AS_ASSET } from '../../core/constants.ts';
 
-/** @import { Observer } from '@playcanvas/observer' */
 
 const LEGACY_TINT_PROPERTIES = [
     ['data.diffuseMapTint', 'data.diffuseTint'],
@@ -31,10 +32,10 @@ editor.once('load', () => {
      * This function removes tint flags from the material and if the tint flag is off, sets the
      * default color
      *
-     * @param {Observer} asset - The asset to migrate
+     * @param asset - The asset to migrate
      */
-    const removeMaterialTintFlags = (asset) => {
-        const resetNeutral = (path, defaultVal, tintPath) => {
+    const removeMaterialTintFlags = (asset: Observer) => {
+        const resetNeutral = (path: string, defaultVal: any, tintPath: string) => {
             const oldVal = asset.get(path) ?? defaultVal;
             asset.set(path, defaultVal);
             if (!deepEqual(oldVal, defaultVal)) {

@@ -32,16 +32,13 @@ import { TextureAssetInspectorPreview } from './assets/texture-preview.ts';
 import { TextureSourceAssetInspector } from './assets/texture-source.ts';
 import { TextureAssetInspector } from './assets/texture.ts';
 import { WasmAssetInspector } from './assets/wasm.ts';
+import type { Attribute } from './attribute.type.d.ts';
 import { AttributesInspector } from './attributes-inspector.ts';
 import { bytesToHuman, convertDatetime } from '../../common/utils.ts';
 import { LOAD_SCRIPT_AS_ASSET, LOAD_SCRIPT_BEFORE_ENGINE, LOAD_SCRIPT_AFTER_ENGINE } from '../../core/constants.ts';
 
-/**
- * @import { Attribute } from './attribute.type.d.ts'
- */
 
-/** @type {Map<string, new (...args: any[]) => any>} */
-const assetInspectors = new Map();
+const assetInspectors: Map<string, new (...args: any[]) => any> = new Map();
 assetInspectors.set('animation', AnimationAssetInspector);
 assetInspectors.set('animstategraph', AnimstategraphAssetInspector);
 assetInspectors.set('audio', AudioAssetInspector);
@@ -64,14 +61,12 @@ assetInspectors.set('texture', TextureAssetInspector);
 assetInspectors.set('textureAtlas', TextureAssetInspector);
 assetInspectors.set('wasm', WasmAssetInspector);
 
-/** @type {Map<string, new (...args: any[]) => any>} */
-const sourceAssetInspectors = new Map();
+const sourceAssetInspectors: Map<string, new (...args: any[]) => any> = new Map();
 sourceAssetInspectors.set('font', FontSourceAssetInspector);
 sourceAssetInspectors.set('scene', SceneSourceAssetInspector);
 sourceAssetInspectors.set('texture', TextureSourceAssetInspector);
 
-/** @type {Map<string, new (...args: any[]) => any>} */
-const assetInspectorPreviews = new Map();
+const assetInspectorPreviews: Map<string, new (...args: any[]) => any> = new Map();
 assetInspectorPreviews.set('animation', AnimationAssetInspectorPreview);
 assetInspectorPreviews.set('cubemap', CubemapAssetInspectorPreview);
 assetInspectorPreviews.set('font', FontAssetInspectorPreview);
@@ -84,10 +79,7 @@ assetInspectorPreviews.set('textureAtlas', TextureAssetInspectorPreview);
 
 const CLASS_ROOT = 'asset-inspector';
 
-/**
- * @type {Attribute[]}
- */
-const ATTRIBUTES = [{
+const ATTRIBUTES: Attribute[] = [{
     label: 'ID',
     alias: 'id',
     path: 'id',
@@ -328,7 +320,9 @@ editor.method('assets:open', (assets) => {
 
 class AssetInspector extends Container {
     constructor(args) {
-        if (!args) args = {};
+        if (!args) {
+            args = {};
+        }
         args.flex = true;
 
         super(args);
@@ -514,7 +508,9 @@ class AssetInspector extends Container {
     }
 
     _updateFileSize(assets) {
-        if (!this._assets) return;
+        if (!this._assets) {
+            return;
+        }
 
         const totalSize = this._assets.map((asset) => {
             return asset.has('file.size') ? asset.get('file.size') : 0;
@@ -528,7 +524,9 @@ class AssetInspector extends Container {
     }
 
     _updateDates(assets) {
-        if (!this._assets) return;
+        if (!this._assets) {
+            return;
+        }
 
         this._attributesInspector.getField('createdAt').values = this._assets.map((asset) => {
             return asset.get('createdAt') &&  convertDatetime(asset.get('createdAt'));
@@ -549,7 +547,9 @@ class AssetInspector extends Container {
     }
 
     async _updateLicense(assets) {
-        if (!this._assets) return;
+        if (!this._assets) {
+            return;
+        }
 
         if (!this._licenseTypes) {
             this._licenseTypes = await editor.call('picker:store:licenses');
@@ -632,14 +632,18 @@ class AssetInspector extends Container {
     }
 
     _updateAssetName(value) {
-        if (!value) return;
+        if (!value) {
+            return;
+        }
         editor.call('assets:rename', this._assets[0], value);
     }
 
     link(assets) {
         this.unlink();
 
-        if (!assets || !assets.length) return;
+        if (!assets || !assets.length) {
+            return;
+        }
 
         this._assets = assets;
 
@@ -672,7 +676,9 @@ class AssetInspector extends Container {
 
         this._attributesInspector.getField('source_asset_id').values = assets.map((asset) => {
             const sourceAssetId = asset.get('source_asset_id');
-            if (!sourceAssetId) return 'none';
+            if (!sourceAssetId) {
+                return 'none';
+            }
 
             const sourceAsset = this._assetsList.get(sourceAssetId);
             return sourceAsset ? sourceAsset.get('name') : sourceAssetId;
@@ -818,7 +824,9 @@ class AssetInspector extends Container {
     unlink() {
         super.unlink();
 
-        if (!this._assets) return;
+        if (!this._assets) {
+            return;
+        }
 
         this._containerButtons.hidden = true;
 

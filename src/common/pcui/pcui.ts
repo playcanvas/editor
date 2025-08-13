@@ -49,11 +49,8 @@ const customElements = {
     Tooltip
 };
 
-/**
- * @type {constants & coreElements & customElements}
- */
 window.pcui = {
     ...constants,
     ...coreElements,
     ...customElements
-};
+} as typeof constants & typeof coreElements & typeof customElements;

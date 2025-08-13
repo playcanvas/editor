@@ -1,3 +1,5 @@
+import type { Observer } from '@playcanvas/observer';
+
 import { LegacyButton } from '../../common/ui/button.ts';
 import { LegacyLabel } from '../../common/ui/label.ts';
 import { LegacyListItem } from '../../common/ui/list-item.ts';
@@ -5,7 +7,6 @@ import { LegacyList } from '../../common/ui/list.ts';
 import { LegacyPanel } from '../../common/ui/panel.ts';
 import { LegacyTextField } from '../../common/ui/text-field.ts';
 
-/** @import { Observer } from '@playcanvas/observer' */
 
 editor.once('load', () => {
     const legacyScripts = editor.call('settings:project').get('useLegacyScripts');
@@ -33,13 +34,18 @@ editor.once('load', () => {
     /**
      * Creates an Asset List widget
      *
-     * @param {object} args - Widget arguments
-     * @param {Observer[]} args.link - The observers we are editing
-     * @param {string} [args.type] - The asset type that is selectable from the asset list
-     * @param {Function} [args.filterFn] - A custom function that filters assets that can be dragged on the list. The function
+     * @param args - Widget arguments
+     * @param args.link - The observers we are editing
+     * @param args.type - The asset type that is selectable from the asset list
+     * @param args.filterFn - A custom function that filters assets that can be dragged on the list. The function
      * takes the asset as its only argument.
      */
-    editor.method('attributes:addAssetsList', (args) => {
+    editor.method('attributes:addAssetsList', (args: {
+        link: Observer[];
+        type?: string;
+        filterFn?: (asset: Observer) => boolean;
+        panel: LegacyPanel;
+    }) => {
         const link = args.link;
         const assetType = args.type;
         const assetFilterFn = args.filterFn;
@@ -161,7 +167,9 @@ editor.once('load', () => {
         fieldAssetsList.flexGrow = 1;
 
         fieldAssetsList.on('select', (item) => {
-            if (!item.asset) return;
+            if (!item.asset) {
+                return;
+            }
             editor.call('selector:set', 'asset', [item.asset]);
         });
 
@@ -198,7 +206,9 @@ editor.once('load', () => {
                 undo: function () {
                     for (let i = 0; i < records.length; i++) {
                         const item = records[i].item.latest();
-                        if (!item) continue;
+                        if (!item) {
+                            continue;
+                        }
 
                         historyState(item, false);
                         item.removeValue(records[i].path, records[i].value);
@@ -208,7 +218,9 @@ editor.once('load', () => {
                 redo: function () {
                     for (let i = 0; i < records.length; i++) {
                         const item = records[i].item.latest();
-                        if (!item) continue;
+                        if (!item) {
+                            continue;
+                        }
 
                         historyState(item, false);
                         item.insert(records[i].path, records[i].value);
@@ -247,7 +259,9 @@ editor.once('load', () => {
                 undo: function () {
                     for (let i = 0; i < records.length; i++) {
                         const item = records[i].item.latest();
-                        if (!item) continue;
+                        if (!item) {
+                            continue;
+                        }
 
                         historyState(item, false);
                         item.insert(records[i].path, records[i].value, records[i].ind);
@@ -257,7 +271,9 @@ editor.once('load', () => {
                 redo: function () {
                     for (let i = 0; i < records.length; i++) {
                         const item = records[i].item.latest();
-                        if (!item) continue;
+                        if (!item) {
+                            continue;
+                        }
 
                         historyState(item, false);
                         item.removeValue(records[i].path, records[i].value);

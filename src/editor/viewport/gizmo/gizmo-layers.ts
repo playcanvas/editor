@@ -59,7 +59,9 @@ editor.once('load', () => {
     editor.method('gizmo:layers:removeFromComposition', (composition) => {
         if (!composition) {
             const app = editor.call('viewport:app');
-            if (!app) return;
+            if (!app) {
+                return;
+            }
             composition = app.scene.layers;
         }
 
@@ -75,7 +77,9 @@ editor.once('load', () => {
     editor.method('gizmo:layers:addToComposition', (composition) => {
         if (!composition) {
             const app = editor.call('viewport:app');
-            if (!app) return;
+            if (!app) {
+                return;
+            }
 
             composition = app.scene.layers;
 

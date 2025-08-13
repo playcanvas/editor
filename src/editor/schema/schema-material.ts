@@ -12,7 +12,9 @@ editor.once('load', () => {
         const schema = config.schema.materialData;
 
         for (const key in schema) {
-            if (key.startsWith('$')) continue;
+            if (key.startsWith('$')) {
+                continue;
+            }
             if (existingData && existingData[key] !== undefined) {
                 result[key] = existingData[key];
             } else {

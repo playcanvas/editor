@@ -65,7 +65,9 @@ editor.once('load', () => {
     };
 
     textField.on('change', () => {
-        if (!panel.checkpoint) return;
+        if (!panel.checkpoint) {
+            return;
+        }
 
         panel.buttonConfirm.disabled = (textField.value !== 'hard reset' && textField.value !== '"hard reset"');
     });

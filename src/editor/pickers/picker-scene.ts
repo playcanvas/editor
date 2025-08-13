@@ -66,7 +66,9 @@ editor.once('load', () => {
             editor.call('picker:project:setClosable', false);
         }
 
-        if (panel.hidden) return;
+        if (panel.hidden) {
+            return;
+        }
 
         const row = document.getElementById(`picker-scene-${sceneId}`);
         if (row) {
@@ -110,12 +112,20 @@ editor.once('load', () => {
             const aname = a.name.toLowerCase();
             const bname = b.name.toLowerCase();
 
-            if (aname < bname) return -1;
-            if (aname > bname) return 1;
+            if (aname < bname) {
+                return -1;
+            }
+            if (aname > bname) {
+                return 1;
+            }
 
             // then sort by item_id
-            if (a.id < b.id) return -1;
-            if (a.id > b.id) return 1;
+            if (a.id < b.id) {
+                return -1;
+            }
+            if (a.id > b.id) {
+                return 1;
+            }
 
             return 0;
         });
@@ -351,7 +361,9 @@ editor.once('load', () => {
 
         input.elementInput.addEventListener('keydown', (e) => {
             if (e.keyCode === 13) {
-                if (!input.value) return;
+                if (!input.value) {
+                    return;
+                }
 
                 editor.call('picker:scene:close');
                 editor.call('scenes:new', input.value, (scene) => {
@@ -414,17 +426,25 @@ editor.once('load', () => {
 
     // subscribe to messenger scene.delete
     editor.on('messenger:scene.delete', (data) => {
-        if (data.scene.branchId !== config.self.branch.id) return;
+        if (data.scene.branchId !== config.self.branch.id) {
+            return;
+        }
         onSceneDeleted(data.scene.id);
     });
 
     // subscribe to messenger scene.new
     editor.on('messenger:scene.new', (data) => {
-        if (panel.hidden) return;
-        if (data.scene.branchId !== config.self.branch.id) return;
+        if (panel.hidden) {
+            return;
+        }
+        if (data.scene.branchId !== config.self.branch.id) {
+            return;
+        }
 
         editor.call('scenes:get', data.scene.id, (err, scene) => {
-            if (panel.hidden) return; // check if hidden when Ajax returns
+            if (panel.hidden) {
+                return;
+            } // check if hidden when Ajax returns
 
             scenes.push(scene);
 

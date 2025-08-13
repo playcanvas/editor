@@ -1,9 +1,9 @@
 import { Panel, Container } from '@playcanvas/pcui';
 
 import { CLASS_MULTIPLE_VALUES } from '../../../common/pcui/constants.ts';
+import type { Attribute, Divider } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-/** @import { Attribute, Divider } from '../attribute.type.d.ts' */
 
 const TextureTypes = {
     Normal: 'Normal',
@@ -17,11 +17,8 @@ const TextureTypes = {
  * @param {string} type - The type of the texture
  * @returns {Attribute[]} - The attributes for the texture
  */
-const createTextureAttribute = (label, attributeName, type) => {
-    /**
-     * @type {Attribute}
-     */
-    const scalarColorChannel = {
+const createTextureAttribute = (label, attributeName, type): Attribute[] => {
+    const scalarColorChannel: Attribute = {
         label: 'Color Channel',
         path: `data.${attributeName}MapChannel`,
         type: 'select',
@@ -40,10 +37,7 @@ const createTextureAttribute = (label, attributeName, type) => {
         reference: `asset:material:${attributeName}MapChannel`
     };
 
-    /**
-     * @type {Attribute}
-     */
-    const rgbColorChannel = {
+    const rgbColorChannel: Attribute = {
         label: 'Color Channel',
         path: `data.${attributeName}MapChannel`,
         type: 'select',
@@ -64,9 +58,6 @@ const createTextureAttribute = (label, attributeName, type) => {
         reference: `asset:material:${attributeName}MapChannel`
     };
 
-    /**
-     * @type {Attribute[]}
-     */
     return [{
         label: label,
         type: 'asset',
@@ -124,15 +115,9 @@ const createTextureAttribute = (label, attributeName, type) => {
 
 const CLASS_ROOT = 'asset-material-inspector';
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const MATERIAL_ATTRIBUTES = [];
+const MATERIAL_ATTRIBUTES: (Attribute | Divider)[] = [];
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const TEXTURE_TRANFORM_ATTRIBUTES = [{
+const TEXTURE_TRANFORM_ATTRIBUTES: (Attribute | Divider)[] = [{
     label: 'Apply To All Maps',
     type: 'boolean',
     alias: 'applyToAllMaps'
@@ -166,10 +151,7 @@ const TEXTURE_TRANFORM_ATTRIBUTES = [{
     reference: 'asset:material:rotation'
 }];
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const AMBIENT_ATTRIBUTES = [...createTextureAttribute('Ambient Occlusion', 'ao', TextureTypes.Scalar), {
+const AMBIENT_ATTRIBUTES: (Attribute | Divider)[] = [...createTextureAttribute('Ambient Occlusion', 'ao', TextureTypes.Scalar), {
     label: 'Occlude Specular',
     type: 'select',
     path: 'data.occludeSpecular',
@@ -207,10 +189,7 @@ const AMBIENT_ATTRIBUTES = [...createTextureAttribute('Ambient Occlusion', 'ao',
     }
 }];
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const DIFFUSE_ATTRIBUTES = [...createTextureAttribute('Diffuse', 'diffuse', TextureTypes.Color), {
+const DIFFUSE_ATTRIBUTES: (Attribute | Divider)[] = [...createTextureAttribute('Diffuse', 'diffuse', TextureTypes.Color), {
     label: 'Vertex Color',
     type: 'boolean',
     path: 'data.diffuseVertexColor',
@@ -222,10 +201,7 @@ const DIFFUSE_ATTRIBUTES = [...createTextureAttribute('Diffuse', 'diffuse', Text
     reference: 'asset:material:diffuse'
 }];
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const SPECULAR_ATTRIBUTES = [{
+const SPECULAR_ATTRIBUTES: (Attribute | Divider)[] = [{
     label: 'Enable GGX Specular',
     path: 'data.enableGGXSpecular',
     type: 'boolean',
@@ -261,10 +237,7 @@ const SPECULAR_ATTRIBUTES = [{
     reference: 'asset:material:useMetalness'
 }];
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const METALNESS_WORKFLOW_ATTRIBUTES = [...createTextureAttribute('Metalness', 'metalness', TextureTypes.Scalar), {
+const METALNESS_WORKFLOW_ATTRIBUTES: (Attribute | Divider)[] = [...createTextureAttribute('Metalness', 'metalness', TextureTypes.Scalar), {
     label: 'Vertex Color',
     path: 'data.metalnessVertexColor',
     type: 'boolean',
@@ -323,10 +296,7 @@ const METALNESS_WORKFLOW_ATTRIBUTES = [...createTextureAttribute('Metalness', 'm
     reference: 'asset:material:specularityFactor'
 }];
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const SPECULAR_WORKFLOW_ATTRIBUTES = [...createTextureAttribute('Specular', 'specular', TextureTypes.Color), {
+const SPECULAR_WORKFLOW_ATTRIBUTES: (Attribute | Divider)[] = [...createTextureAttribute('Specular', 'specular', TextureTypes.Color), {
     label: 'Vertex Color',
     path: 'data.specularVertexColor',
     type: 'boolean',
@@ -343,10 +313,7 @@ const SPECULAR_WORKFLOW_ATTRIBUTES = [...createTextureAttribute('Specular', 'spe
     reference: 'asset:material:specular'
 }];
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const GLOSS_ATTRIBUTES = [{
+const GLOSS_ATTRIBUTES: (Attribute | Divider)[] = [{
     type: 'divider'
 }, ...createTextureAttribute('Glossiness', 'gloss', TextureTypes.Scalar), {
     label: 'Vertex Color',
@@ -371,10 +338,7 @@ const GLOSS_ATTRIBUTES = [{
     reference: 'asset:material:glossInvert'
 }];
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const EMISSIVE_ATTRIBUTES = [...createTextureAttribute('Emissive', 'emissive', TextureTypes.Color), {
+const EMISSIVE_ATTRIBUTES: (Attribute | Divider)[] = [...createTextureAttribute('Emissive', 'emissive', TextureTypes.Color), {
     label: 'Vertex Color',
     path: 'data.emissiveVertexColor',
     type: 'boolean',
@@ -397,10 +361,7 @@ const EMISSIVE_ATTRIBUTES = [...createTextureAttribute('Emissive', 'emissive', T
     reference: 'asset:material:emissiveIntensity'
 }];
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const OPACITY_ATTRIBUTES = [{
+const OPACITY_ATTRIBUTES: (Attribute | Divider)[] = [{
     label: 'Blend Type',
     path: 'data.blendType',
     type: 'select',
@@ -509,10 +470,7 @@ const OPACITY_ATTRIBUTES = [{
     reference: 'asset:material:alphaFade'
 }];
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const NORMALS_ATTRIBUTES = [...createTextureAttribute('Normals', 'normal', TextureTypes.Normal), {
+const NORMALS_ATTRIBUTES: (Attribute | Divider)[] = [...createTextureAttribute('Normals', 'normal', TextureTypes.Normal), {
     label: 'Bumpiness',
     path: 'data.bumpMapFactor',
     type: 'slider',
@@ -525,10 +483,7 @@ const NORMALS_ATTRIBUTES = [...createTextureAttribute('Normals', 'normal', Textu
     reference: 'asset:material:bumpiness'
 }];
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const PARALLAX_ATTRIBUTES = [...createTextureAttribute('Heightmap', 'height', TextureTypes.Scalar), {
+const PARALLAX_ATTRIBUTES: (Attribute | Divider)[] = [...createTextureAttribute('Heightmap', 'height', TextureTypes.Scalar), {
     label: 'Strength',
     path: 'data.heightMapFactor',
     type: 'slider',
@@ -541,10 +496,7 @@ const PARALLAX_ATTRIBUTES = [...createTextureAttribute('Heightmap', 'height', Te
     reference: 'asset:material:heightMapFactor'
 }];
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const CLEARCOAT_FACTOR_ATTRIBUTES = [{
+const CLEARCOAT_FACTOR_ATTRIBUTES: (Attribute | Divider)[] = [{
     label: 'Clear Coat Factor',
     path: 'data.clearCoat',
     type: 'slider',
@@ -557,10 +509,7 @@ const CLEARCOAT_FACTOR_ATTRIBUTES = [{
     reference: 'asset:material:clearCoat'
 }];
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const CLEARCOAT_ATTRIBUTES = [...createTextureAttribute('Clear Coat', 'clearCoat', TextureTypes.Color), {
+const CLEARCOAT_ATTRIBUTES: (Attribute | Divider)[] = [...createTextureAttribute('Clear Coat', 'clearCoat', TextureTypes.Color), {
     label: 'Vertex Color',
     path: 'data.clearCoatVertexColor',
     type: 'boolean',
@@ -584,10 +533,7 @@ const CLEARCOAT_ATTRIBUTES = [...createTextureAttribute('Clear Coat', 'clearCoat
     reference: 'asset:material:clearCoatVertexColorChannel'
 }];
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const CLEARCOAT_GLOSS_ATTRIBUTES = [{
+const CLEARCOAT_GLOSS_ATTRIBUTES: (Attribute | Divider)[] = [{
     type: 'divider'
 }, ...createTextureAttribute('Clear Coat Gloss', 'clearCoatGloss', TextureTypes.Scalar), {
     label: 'Vertex Color',
@@ -629,10 +575,7 @@ const CLEARCOAT_GLOSS_ATTRIBUTES = [{
     reference: 'asset:material:clearCoatGlossInvert'
 }];
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const CLEARCOAT_NORMAL_ATTRIBUTES = [...createTextureAttribute('Clear Coat Normals', 'clearCoatNormal', TextureTypes.Normal), {
+const CLEARCOAT_NORMAL_ATTRIBUTES: (Attribute | Divider)[] = [...createTextureAttribute('Clear Coat Normals', 'clearCoatNormal', TextureTypes.Normal), {
     label: 'Bumpiness',
     path: 'data.clearCoatBumpiness',
     type: 'slider',
@@ -645,10 +588,7 @@ const CLEARCOAT_NORMAL_ATTRIBUTES = [...createTextureAttribute('Clear Coat Norma
     reference: 'asset:material:clearCoatBumpiness'
 }];
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const SHEEN_ATTRIBUTES = [{
+const SHEEN_ATTRIBUTES: (Attribute | Divider)[] = [{
     label: 'Use Sheen',
     path: 'data.useSheen',
     type: 'boolean',
@@ -697,10 +637,7 @@ const SHEEN_ATTRIBUTES = [{
     reference: 'asset:material:sheenGlossInvert'
 }];
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const REFRACTION_ATTRIBUTES = [{
+const REFRACTION_ATTRIBUTES: (Attribute | Divider)[] = [{
     label: 'Dynamic Refractions',
     path: 'data.useDynamicRefraction',
     type: 'boolean',
@@ -805,10 +742,7 @@ const REFRACTION_ATTRIBUTES = [{
     }
 }];
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const IRIDESCENCE_ATTRIBUTES = [{
+const IRIDESCENCE_ATTRIBUTES: (Attribute | Divider)[] = [{
     label: 'Use Iridescence',
     path: 'data.useIridescence',
     type: 'boolean',
@@ -853,10 +787,7 @@ const IRIDESCENCE_ATTRIBUTES = [{
     }
 }];
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const ENVIRONMENT_ATTRIBUTES = [{
+const ENVIRONMENT_ATTRIBUTES: (Attribute | Divider)[] = [{
     label: 'Sphere Map',
     path: 'data.sphereMap',
     type: 'asset',
@@ -916,20 +847,14 @@ const ENVIRONMENT_ATTRIBUTES = [{
     reference: 'asset:material:cubeMapProjectionBoxHalfExtents'
 }];
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const LIGHTMAP_ATTRIBUTES = [...createTextureAttribute('Lightmap', 'light', TextureTypes.Color), {
+const LIGHTMAP_ATTRIBUTES: (Attribute | Divider)[] = [...createTextureAttribute('Lightmap', 'light', TextureTypes.Color), {
     label: 'Vertex Color',
     path: 'data.lightVertexColor',
     type: 'boolean',
     reference: 'asset:material:lightVertexColor'
 }];
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const OTHER_ATTRIBUTES = [{
+const OTHER_ATTRIBUTES: (Attribute | Divider)[] = [{
     label: 'Depth Test',
     path: 'data.depthTest',
     type: 'boolean',
@@ -1416,7 +1341,9 @@ class MaterialAssetInspector extends Container {
     }
 
     _toggleFields() {
-        if (this._suppressToggleFields) return;
+        if (this._suppressToggleFields) {
+            return;
+        }
 
         const applyToAllMaps = this._offsetTilingInspector.getField('applyToAllMaps').value;
         this._offsetTilingInspector.getField('offset').parent.hidden = !applyToAllMaps;
@@ -1557,7 +1484,9 @@ class MaterialAssetInspector extends Container {
     }
 
     _getApplyToAllValue() {
-        if (!this._assets) return null;
+        if (!this._assets) {
+            return null;
+        }
 
         let offset = null;
         let tiling = null;
@@ -1592,10 +1521,14 @@ class MaterialAssetInspector extends Container {
     }
 
     _onChangeApplyToAll(value) {
-        if (!this._assets) return;
+        if (!this._assets) {
+            return;
+        }
 
         const suppressToggleFields = this._suppressToggleFields;
-        if (suppressToggleFields) return;
+        if (suppressToggleFields) {
+            return;
+        }
 
         this._suppressToggleFields = true;
 
@@ -1647,7 +1580,9 @@ class MaterialAssetInspector extends Container {
             const undo = () => {
                 prev.forEach((entry) => {
                     const asset = entry.asset.latest();
-                    if (!asset) return;
+                    if (!asset) {
+                        return;
+                    }
 
                     const history = asset.history.enabled;
                     asset.history.enabled = false;
@@ -1678,7 +1613,9 @@ class MaterialAssetInspector extends Container {
 
 
     _updateAllOffsetsTilingsOrRotationUiState(renderChanges) {
-        if (!this._assets) return;
+        if (!this._assets) {
+            return;
+        }
 
         const suppress = this._suppressToggleFields;
         this._suppressToggleFields = false;
@@ -1725,7 +1662,9 @@ class MaterialAssetInspector extends Container {
 
 
     _updateAllOffsetsTilingsAndRotations(value, transform) {
-        if (value === null || !this._assets) return;
+        if (value === null || !this._assets) {
+            return;
+        }
 
         const assets = this._assets.slice();
 
@@ -1736,7 +1675,9 @@ class MaterialAssetInspector extends Container {
 
             assets.forEach((asset) => {
                 asset = asset.latest();
-                if (!asset) return;
+                if (!asset) {
+                    return;
+                }
 
                 const entry = {
                     asset: asset,
@@ -1767,7 +1708,9 @@ class MaterialAssetInspector extends Container {
         const undo = () => {
             prev.forEach((entry) => {
                 const asset = entry.asset.latest();
-                if (!asset) return;
+                if (!asset) {
+                    return;
+                }
 
                 const history = asset.history.enabled;
                 asset.history.enabled = false;
@@ -1795,28 +1738,36 @@ class MaterialAssetInspector extends Container {
     }
 
     _onChangeOffset(value) {
-        if (this._suppressOffsetTilingAndRotationFields) return;
+        if (this._suppressOffsetTilingAndRotationFields) {
+            return;
+        }
         if (this._offsetTilingInspector.getField('applyToAllMaps').value) {
             this._updateAllOffsetsTilingsAndRotations(value, TextureTransformTypes.Offset);
         }
     }
 
     _onChangeTiling(value) {
-        if (this._suppressOffsetTilingAndRotationFields) return;
+        if (this._suppressOffsetTilingAndRotationFields) {
+            return;
+        }
         if (this._offsetTilingInspector.getField('applyToAllMaps').value) {
             this._updateAllOffsetsTilingsAndRotations(value, TextureTransformTypes.Tiling);
         }
     }
 
     _onChangeRotation(value) {
-        if (this._suppressOffsetTilingAndRotationFields) return;
+        if (this._suppressOffsetTilingAndRotationFields) {
+            return;
+        }
         if (this._offsetTilingInspector.getField('applyToAllMaps').value) {
             this._updateAllOffsetsTilingsAndRotations(value, TextureTransformTypes.Rotation);
         }
     }
 
     _onTextureChange(name, value) {
-        if (this._suppressToggleFields) return;
+        if (this._suppressToggleFields) {
+            return;
+        }
 
         this._suppressToggleFields = true;
 
@@ -1826,11 +1777,17 @@ class MaterialAssetInspector extends Container {
             // depending on the filename of the texture being
             // set, see if we can set more properties as well
             const asset = value ? this._args.assets.get(value) : null;
-            if (!asset) return;
+            if (!asset) {
+                return;
+            }
             const tokens = this._tokenizeFilename(asset.get('name'));
-            if (!tokens) return;
+            if (!tokens) {
+                return;
+            }
 
-            if (BULK_SLOTS[name].indexOf(tokens[1]) === -1) return;
+            if (BULK_SLOTS[name].indexOf(tokens[1]) === -1) {
+                return;
+            }
 
             const path = asset.get('path');
 
@@ -1845,10 +1802,14 @@ class MaterialAssetInspector extends Container {
             texturesInSamePath.forEach((entry) => {
                 const t = this._tokenizeFilename(entry[1].get('name'));
 
-                if (!t || t[0] !== tokens[0] || !POSTFIX_TO_BULK_SLOT[t[1]]) return;
+                if (!t || t[0] !== tokens[0] || !POSTFIX_TO_BULK_SLOT[t[1]]) {
+                    return;
+                }
 
                 for (let i = 0; i < POSTFIX_TO_BULK_SLOT[t[1]].length; i++) {
-                    if (POSTFIX_TO_BULK_SLOT[t[1]][i] === name) continue;
+                    if (POSTFIX_TO_BULK_SLOT[t[1]][i] === name) {
+                        continue;
+                    }
 
                     candidates[POSTFIX_TO_BULK_SLOT[t[1]][i]] = {
                         texture: entry[1],
@@ -1863,14 +1824,18 @@ class MaterialAssetInspector extends Container {
                 const assets = this._assets.slice();
 
                 assets.forEach((asset) => {
-                    if (asset.get(`data.${name}Map`)) return;
+                    if (asset.get(`data.${name}Map`)) {
+                        return;
+                    }
 
                     const history = asset.history.enabled;
                     asset.history.enabled = false;
 
                     for (const slot in candidates) {
                         const key = `data.${slot}Map`;
-                        if (asset.get(key)) continue;
+                        if (asset.get(key)) {
+                            continue;
+                        }
 
                         prev.push({
                             asset: asset,
@@ -1980,7 +1945,9 @@ class MaterialAssetInspector extends Container {
                     let dirty = false;
                     prev.forEach((record) => {
                         const asset = record.asset.latest();
-                        if (!asset) return;
+                        if (!asset) {
+                            return;
+                        }
 
                         const history = asset.history.enabled;
                         asset.history.enabled = false;
@@ -1996,7 +1963,9 @@ class MaterialAssetInspector extends Container {
                 const undo = () => {
                     prev.forEach((record) => {
                         const asset = record.asset.latest();
-                        if (!asset) return;
+                        if (!asset) {
+                            return;
+                        }
 
                         const history = asset.history.enabled;
                         asset.history.enabled = false;
@@ -2046,7 +2015,9 @@ class MaterialAssetInspector extends Container {
 
         // drop extension
         const ext = filename.match(REGEX_EXT);
-        if (ext) filename = filename.slice(0, -ext[0].length);
+        if (ext) {
+            filename = filename.slice(0, -ext[0].length);
+        }
 
         if (!filename) {
             return;
@@ -2079,12 +2050,18 @@ class MaterialAssetInspector extends Container {
 
     _onTextureDragEnter(path, type, dropData) {
         const app = editor.call('viewport:app');
-        if (!app) return;
+        if (!app) {
+            return;
+        }
 
-        if (!this._assets) return;
+        if (!this._assets) {
+            return;
+        }
 
         const textureAsset = app.assets.get(dropData.id);
-        if (!textureAsset) return;
+        if (!textureAsset) {
+            return;
+        }
 
         app.assets.load(textureAsset);
 
@@ -2101,11 +2078,15 @@ class MaterialAssetInspector extends Container {
 
         this._assets.forEach((asset) => {
             const engineAsset = app.assets.get(asset.get('id'));
-            if (!engineAsset) return;
+            if (!engineAsset) {
+                return;
+            }
 
             app.assets.load(engineAsset);
 
-            if (!engineAsset.resource) return;
+            if (!engineAsset.resource) {
+                return;
+            }
 
             if (textureAsset.resource) {
                 previewTexture(engineAsset);
@@ -2128,17 +2109,25 @@ class MaterialAssetInspector extends Container {
 
     _onTextureDragLeave(path) {
         const app = editor.call('viewport:app');
-        if (!app) return;
+        if (!app) {
+            return;
+        }
 
-        if (!this._assets) return;
+        if (!this._assets) {
+            return;
+        }
 
         this._assets.forEach((asset) => {
             const engineAsset = app.assets.get(asset.get('id'));
-            if (!engineAsset) return;
+            if (!engineAsset) {
+                return;
+            }
 
             app.assets.load(engineAsset);
 
-            if (!engineAsset.resource || !this._texturesBeforeHover[asset.get('id')]) return;
+            if (!engineAsset.resource || !this._texturesBeforeHover[asset.get('id')]) {
+                return;
+            }
 
             engineAsset.resource[path] = this._texturesBeforeHover[asset.get('id')][path];
             engineAsset.resource.update();
@@ -2157,7 +2146,9 @@ class MaterialAssetInspector extends Container {
         this.unlink();
 
         this._assets = assets;
-        if (!this._assets) return;
+        if (!this._assets) {
+            return;
+        }
 
         this._suppressToggleFields = true;
 
@@ -2257,7 +2248,9 @@ class MaterialAssetInspector extends Container {
         this._assets.forEach((asset) => {
             this._assetEvents.push(asset.on('*:set', (path) => {
                 if (REGEX_MAP_OFFSET_TILING_OR_ROTATION.test(path)) {
-                    if (this._suppressUpdateAllOffsetAndTilingsTimeout) return;
+                    if (this._suppressUpdateAllOffsetAndTilingsTimeout) {
+                        return;
+                    }
 
                     this._suppressUpdateAllOffsetAndTilingsTimeout = setTimeout(() => {
                         this._suppressUpdateAllOffsetAndTilingsTimeout = null;
@@ -2269,7 +2262,9 @@ class MaterialAssetInspector extends Container {
     }
 
     unlink() {
-        if (!this._assets) return;
+        if (!this._assets) {
+            return;
+        }
 
         this._assets = null;
 
@@ -2317,7 +2312,9 @@ class MaterialAssetInspector extends Container {
     }
 
     destroy() {
-        if (this._destroyed) return;
+        if (this._destroyed) {
+            return;
+        }
 
         this._collapsedStates = {};
 

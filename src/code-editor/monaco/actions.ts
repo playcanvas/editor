@@ -1,5 +1,7 @@
 editor.once('load', () => {
-    if (editor.call('editor:resolveConflictMode')) return;
+    if (editor.call('editor:resolveConflictMode')) {
+        return;
+    }
 
     const monacoEditor = editor.call('editor:monaco');
 

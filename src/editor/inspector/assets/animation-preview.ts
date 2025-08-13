@@ -2,11 +2,9 @@ import { Panel } from '@playcanvas/pcui';
 
 import { AnimViewer } from './anim-viewer.ts';
 import { AssetInspectorPreviewBase } from './asset-preview-base.ts';
+import type { Attribute } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-/**
- * @import { Attribute } from '../attribute.type.d.ts'
- */
 
 const CLASS_ROOT = 'pcui-asset-animation-inspector-preview';
 
@@ -36,10 +34,7 @@ class AnimationAssetInspectorPreview extends AssetInspectorPreviewBase {
             });
             this.append(this._controlsContainer);
 
-            /**
-             * @type {Attribute[]}
-             */
-            const ATTRIBUTES = [
+            const ATTRIBUTES: Attribute[] = [
                 {
                     label: 'Show Skeleton',
                     alias: 'showSkeleton',
@@ -180,7 +175,9 @@ class AnimationAssetInspectorPreview extends AssetInspectorPreviewBase {
         const modelAssetObserver = editor.api.globals.assets.findOne(a => a.get('source_asset_id') === sourceAssetId && a.get('type') === 'model');
         const containerAssetObserver = editor.api.globals.assets.findOne(a => a.get('source_asset_id') === sourceAssetId && a.get('type') === 'container');
         let templateAssetObserver;
-        if (containerAssetObserver) templateAssetObserver = editor.api.globals.assets.findOne(a => a.get('meta.containerAsset') === containerAssetObserver.get('id') && a.get('type') === 'template');
+        if (containerAssetObserver) {
+            templateAssetObserver = editor.api.globals.assets.findOne(a => a.get('meta.containerAsset') === containerAssetObserver.get('id') && a.get('type') === 'template');
+        }
 
         if (modelAssetObserver) {
             this._attributesInspector.getField('previewAsset').value = null;

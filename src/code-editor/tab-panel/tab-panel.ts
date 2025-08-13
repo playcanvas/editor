@@ -1,8 +1,7 @@
 import { Button, Container, Label, Progress } from '@playcanvas/pcui';
 
 editor.once('load', () => {
-    /** @type {Container} */
-    const panel = editor.call('layout.tabs');
+    const panel: Container = editor.call('layout.tabs');
 
     // holds tabs
     const tabsIndex = {};
@@ -80,7 +79,9 @@ editor.once('load', () => {
     // Closes a tab
     const closeTab = function (id) {
         const tab = tabsIndex[id];
-        if (!tab) return;
+        if (!tab) {
+            return;
+        }
 
         tab.tab.destroy();
 
@@ -537,7 +538,9 @@ editor.once('load', () => {
     // close tab
     editor.method('tabs:close', (id) => {
         const entry = tabsIndex[id];
-        if (!entry) return;
+        if (!entry) {
+            return;
+        }
 
         if (entry.asset) {
             editor.emit('documents:close', id);

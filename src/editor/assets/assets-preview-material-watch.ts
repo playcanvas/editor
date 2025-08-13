@@ -1,6 +1,8 @@
 editor.once('load', () => {
     const app = editor.call('viewport:app');
-    if (!app) return; // webgl not available
+    if (!app) {
+        return;
+    } // webgl not available
 
     const watching = { };
     const slots = ['aoMap', 'diffuseMap', 'emissiveMap', 'glossMap', 'lightMap', 'metalnessMap', 'opacityMap', 'specularMap', 'normalMap', 'cubeMap', 'sphereMap'];
@@ -62,7 +64,9 @@ editor.once('load', () => {
         app.assets.off(`add:${watch.textures[slot].id}`, watch.textures[slot].addFn);
 
         const asset = app.assets.get(watch.textures[slot].id);
-        if (asset) asset.off('change', watch.textures[slot].fn);
+        if (asset) {
+            asset.off('change', watch.textures[slot].fn);
+        }
 
         delete watch.textures[slot];
     };
@@ -72,7 +76,9 @@ editor.once('load', () => {
             if (watch.textures[slot]) {
                 if (value !== watch.textures[slot].id) {
                     removeTextureWatch(watch, slot);
-                    if (value) addTextureWatch(watch, slot, value);
+                    if (value) {
+                        addTextureWatch(watch, slot, value);
+                    }
                 }
             } else if (value) {
                 addTextureWatch(watch, slot, value);
@@ -103,7 +109,9 @@ editor.once('load', () => {
                     if (watch.textures[slots[i]]) {
                         if (id !== watch.textures[slots[i]].id) {
                             removeTextureWatch(watch, slots[i]);
-                            if (id) addTextureWatch(watch, slots[i], id);
+                            if (id) {
+                                addTextureWatch(watch, slots[i], id);
+                            }
                         }
                     } else if (id) {
                         addTextureWatch(watch, slots[i], id);
@@ -188,7 +196,9 @@ editor.once('load', () => {
 
     editor.method('assets:material:unwatch', (asset, handle) => {
         const watch = watching[asset.get('id')];
-        if (!watch) return;
+        if (!watch) {
+            return;
+        }
 
         if (!watch.callbacks.hasOwnProperty(handle)) {
             return;

@@ -186,10 +186,14 @@ editor.once('load', () => {
     };
 
     const showBubble = function (name, bubbleFn, delay, force, callback) {
-        if (!force && config.self.flags.tips[name] !== false) return false;
+        if (!force && config.self.flags.tips[name] !== false) {
+            return false;
+        }
 
         // Set by Selenium tests in order to prevent bubbles from showing up in viewport screenshots
-        if (/disableBubbles=true/.test(location.search)) return false;
+        if (/disableBubbles=true/.test(location.search)) {
+            return false;
+        }
 
         if (timeouts[name]) {
             clearTimeout(timeouts[name]);
@@ -255,7 +259,9 @@ editor.once('load', () => {
         // entity bubble on select entity
         if (config.self.flags.tips.entityInspector === false) {
             var evtEntitySelect = editor.on('selector:change', (type, items) => {
-                if (type !== 'entity') return;
+                if (type !== 'entity') {
+                    return;
+                }
 
                 evtEntitySelect.unbind();
 
@@ -300,7 +306,9 @@ editor.once('load', () => {
                 }
 
                 // if a sound component is added show bubble
-                if (!selectEvents) selectEvents = [];
+                if (!selectEvents) {
+                    selectEvents = [];
+                }
 
                 for (let i = 0; i < items.length; i++) {
                     selectEvents.push(items[i].on('components.sound:set', showSoundBubble));

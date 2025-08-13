@@ -1,8 +1,7 @@
+import type { LegacyAttributeReference } from './reference.type';
+
 editor.once('load', () => {
-    /**
-     * @type {LegacyAttributeReference[]}
-     */
-    const fields = [{
+    const fields: LegacyAttributeReference[] = [{
         name: 'spriteeditor:atlas:width',
         title: 'width',
         subTitle: '{Number}',

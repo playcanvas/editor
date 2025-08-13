@@ -1,9 +1,5 @@
+import type { ObserverList } from '@playcanvas/observer';
 import { Element, Container, Button, Label, TextInput, BindingObserversToElement } from '@playcanvas/pcui';
-
-/**
- * @import { ObserverList } from '@playcanvas/observer';
- * @import { ElementArgs } from '@playcanvas/pcui';
- */
 
 const CLASS_ASSET_LIST = 'pcui-asset-list';
 const CLASS_ASSET_LIST_SELECTION_MODE = `${CLASS_ASSET_LIST}-selection-mode`;
@@ -17,15 +13,16 @@ const CLASS_CONTAINER_ASSETS = `${CLASS_ASSET_LIST}-assets`;
 const CLASS_ASSET_ITEM = `${CLASS_ASSET_LIST}-item`;
 const CLASS_ASSET_NOT_EVERYWHERE = `${CLASS_ASSET_LIST}-not-everywhere`;
 
-/**
- * @typedef AssetListArgs
- * @property {ObserverList} [assets] - The assets list
- * @property {string} [assetType] - An optional filter for a specific asset type.
- * @property {Function} [filterFn] - An optional filter function when determining which assets to
- * show with the asset picker.
- * @property {boolean} [allowDragDrop] - If true then this will enable drag and drop of assets on
- * the input. The function takes an asset observer as an argument and returns true or false.
- */
+type AssetListArgs = {
+    /** The assets list */
+    assets?: ObserverList;
+    /** An optional filter for a specific asset type. */
+    assetType?: string;
+    /** An optional filter function when determining which assets to show with the asset picker. */
+    filterFn?: (asset: any) => boolean;
+    /** If true then this will enable drag and drop of assets on the input. The function takes an asset observer as an argument and returns true or false. */
+    allowDragDrop?: boolean;
+}
 
 /**
  * Element that can allows selecting multiple assets.
@@ -33,12 +30,7 @@ const CLASS_ASSET_NOT_EVERYWHERE = `${CLASS_ASSET_LIST}-not-everywhere`;
  * @property {boolean} renderChanges If true the input will flash when changed.
  */
 class AssetList extends Element {
-    /**
-     * Creates a new AssetList.
-     *
-     * @param {AssetListArgs & ElementArgs} [args] - The arguments.
-     */
-    constructor(args = {}) {
+    constructor(args: AssetListArgs = {}) {
         const container = new Container({
             flex: true
         });
@@ -193,7 +185,9 @@ class AssetList extends Element {
 
     // Add selected assets to the list
     _onClickAdd() {
-        if (!this._selectedAssets.length) return;
+        if (!this._selectedAssets.length) {
+            return;
+        }
 
         this._addAssets(this._selectedAssets);
         this._selectedAssets.length = 0;
@@ -212,7 +206,9 @@ class AssetList extends Element {
 
             // add to all values
             this._values.forEach((array) => {
-                if (!array) return;
+                if (!array) {
+                    return;
+                }
                 if (array.indexOf(assetId) === -1) {
                     array.push(assetId);
                 }
@@ -397,7 +393,9 @@ class AssetList extends Element {
         let evtAssetAdd = null;
         if (!asset) {
             evtAssetAdd = this._assets.on('add', (item) => {
-                if (item.get('id') !== assetId) return;
+                if (item.get('id') !== assetId) {
+                    return;
+                }
 
                 evtAssetAdd.unbind();
                 evtAssetAdd = null;
@@ -432,14 +430,18 @@ class AssetList extends Element {
 
     _removeAssetItem(assetId) {
         const entry = this._indexAssets[assetId];
-        if (!entry) return;
+        if (!entry) {
+            return;
+        }
         entry.element.destroy();
 
         this._btnDone.text = 'DONE';
 
         // remove from all values
         this._values.forEach((array) => {
-            if (!array) return;
+            if (!array) {
+                return;
+            }
             const idx = array.indexOf(assetId);
             if (idx !== -1) {
                 array.splice(idx, 1);
@@ -467,7 +469,9 @@ class AssetList extends Element {
         // for every array in values add all
         // assets to the list
         values.forEach((array) => {
-            if (!array) return;
+            if (!array) {
+                return;
+            }
             array.forEach((assetId) => {
                 const entry = this._indexAssets[assetId] || this._createAssetItem(assetId);
                 entry.count++;
@@ -505,8 +509,12 @@ class AssetList extends Element {
         }
 
         const current = this.value;
-        if (current === value) return;
-        if (Array.isArray(value) && value.equals(current)) return;
+        if (current === value) {
+            return;
+        }
+        if (Array.isArray(value) && value.equals(current)) {
+            return;
+        }
 
         // set values property - try to use the existing array length of values
         value = this._updateValues(new Array(this._values.length || 1).fill(value));
@@ -535,7 +543,9 @@ class AssetList extends Element {
     }
 
     set values(values) {
-        if (this._values.equals(values)) return;
+        if (this._values.equals(values)) {
+            return;
+        }
         this._updateValues(values);
     }
 

@@ -1,12 +1,12 @@
 editor.once('load', () => {
     const app = editor.call('viewport:app');
-    if (!app) return; // webgl not available
+    if (!app) {
+        return;
+    } // webgl not available
 
-    /** @type {Map<Number, any[]>} */
-    const userSelections = new Map();
+    const userSelections: Map<Number, any[]> = new Map();
 
-    /** @type {Map<Number, any>} */
-    const userColors = new Map();
+    const userColors: Map<Number, any> = new Map();
 
     // create outline renderer
     // internally an existing Viewport Outline layer is used to render outlines

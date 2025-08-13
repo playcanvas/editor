@@ -761,7 +761,9 @@ class TemplateOverridesView extends Container {
     }
 
     _handleModelComponent(result, override, pathParts) {
-        if (pathParts[2] !== 'mapping') return;
+        if (pathParts[2] !== 'mapping') {
+            return;
+        }
 
         if (!result.overrideGroups) {
             result.overrideGroups = {};
@@ -851,16 +853,24 @@ class TemplateOverridesView extends Container {
         });
 
         result.sort((a, b) => {
-            if (a.name < b.name) return -1;
-            if (a.name > b.name) return 1;
+            if (a.name < b.name) {
+                return -1;
+            }
+            if (a.name > b.name) {
+                return 1;
+            }
             return 0;
         });
 
         result.forEach((entry) => {
             if (entry.conflicts) {
                 entry.conflicts.sort((a, b) => {
-                    if (a.path < b.path) return -1;
-                    if (a.path > b.path) return 1;
+                    if (a.path < b.path) {
+                        return -1;
+                    }
+                    if (a.path > b.path) {
+                        return 1;
+                    }
                     return 0;
                 });
             }
@@ -1106,13 +1116,17 @@ class TemplateOverridesView extends Container {
         this._templateAsset = templateAsset;
         this._entity = templateInstance;
 
-        if (this.hidden) return;
+        if (this.hidden) {
+            return;
+        }
 
         this._showOverrides();
     }
 
     destroy() {
-        if (this._destroyed) return;
+        if (this._destroyed) {
+            return;
+        }
 
         window.removeEventListener('click', this._evtWindowClick);
 

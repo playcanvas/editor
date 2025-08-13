@@ -1,11 +1,9 @@
 import { Panel, Label, Button, BindingTwoWay } from '@playcanvas/pcui';
 
 import { AssetInput } from '../../../common/pcui/element/element-asset-input.ts';
+import type { Attribute } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-/**
- * @import { Attribute } from '../attribute.type.d.ts'
- */
 
 const CLASS_ANIMSTATEGRAPH = 'asset-animstategraph-inspector';
 const CLASS_ANIMSTATEGRAPH_STATE = `${CLASS_ANIMSTATEGRAPH}-state`;
@@ -53,18 +51,24 @@ class AnimstategraphState extends Panel {
 
     _loadTransitions() {
         const state = this._assets[0].get(this._path);
-        if (!state) return;
+        if (!state) {
+            return;
+        }
         this._transitionsPanel.clear();
         let hasTransitions = false;
         const data = this._assets[0].get('data');
         data.layers[this._layer].transitions.sort((a, b) => {
             const stateA = data.states[data.transitions[a].to];
             const stateB = data.states[data.transitions[b].to];
-            if (!stateA || !stateB) return 1;
+            if (!stateA || !stateB) {
+                return 1;
+            }
             return stateA.name > stateB.name ? 1 : -1;
         }).forEach((transitionId) => {
             const transition = data.transitions[transitionId];
-            if (transition.from !== state.id || transition.to === undefined) return;
+            if (transition.from !== state.id || transition.to === undefined) {
+                return;
+            }
             hasTransitions = true;
             const toStateName = data.states[transition.to].name;
             const transitionLabel = new Label({
@@ -81,8 +85,12 @@ class AnimstategraphState extends Panel {
     }
 
     static validateStateName(stateId, value, asset) {
-        if (!value.match('^[A-Za-z0-9 ]*$')) return false;
-        if (value === '') return false;
+        if (!value.match('^[A-Za-z0-9 ]*$')) {
+            return false;
+        }
+        if (value === '') {
+            return false;
+        }
         let nameExists = false;
         const layers = asset.get('data.layers');
         Object.keys(layers).forEach((layerKey) => {
@@ -134,7 +142,9 @@ class AnimstategraphState extends Panel {
         const layerName = this._assets[0].get(`data.layers.${layer}.name`);
         this._layerName = layerName;
         const state = this._assets[0].get(path);
-        if (!state) return;
+        if (!state) {
+            return;
+        }
         this._stateName = state.name;
         const enabled = ![
             this._view.ANIM_SCHEMA.NODE.START_STATE,
@@ -144,10 +154,7 @@ class AnimstategraphState extends Panel {
 
         this._enabled = enabled;
 
-        /**
-         * @type {Attribute[]}
-         */
-        const ATTRIBUTES = [
+        const ATTRIBUTES: Attribute[] = [
             {
                 label: 'Name',
                 alias: `${path}.name`,
@@ -294,7 +301,9 @@ class AnimstategraphState extends Panel {
         this._stateInspector.getField(`${path}.name`).on('change', (value) => {
             const prevName = this._stateName;
             const newName = value;
-            if (prevName === newName || this._suppressOnNameChange) return;
+            if (prevName === newName || this._suppressOnNameChange) {
+                return;
+            }
             const action = {
                 redo: () => {
                     this._linkedEntities.forEach((entityObserver) => {

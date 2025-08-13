@@ -2,16 +2,11 @@ import { Button, LabelGroup } from '@playcanvas/pcui';
 
 import { ComponentInspector } from './component.ts';
 import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from '../../../core/constants.ts';
+import type { Attribute } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-/**
- * @import { Attribute } from '../attribute.type.d.ts'
- */
 
-/**
- * @type {Attribute[]}
- */
-const ATTRIBUTES = [{
+const ATTRIBUTES: Attribute[] = [{
     label: 'Auto Play',
     path: 'components.particlesystem.autoPlay',
     reference: 'particlesystem:autoPlay',
@@ -484,7 +479,9 @@ class ParticlesystemComponentInspector extends ComponentInspector {
     }
 
     _toggleFields() {
-        if (this._suppressToggleFields) return;
+        if (this._suppressToggleFields) {
+            return;
+        }
 
         const emitterShape = this._field('emitterShape').value;
 
@@ -515,13 +512,17 @@ class ParticlesystemComponentInspector extends ComponentInspector {
     }
 
     _onClickPlay() {
-        if (!this._entities) return;
+        if (!this._entities) {
+            return;
+        }
 
         this._btnPlay.hidden = true;
         this._btnPause.hidden = false;
 
         this._entities.forEach((e) => {
-            if (!e.entity || !e.entity.particlesystem || !e.entity.particlesystem.emitter) return;
+            if (!e.entity || !e.entity.particlesystem || !e.entity.particlesystem.emitter) {
+                return;
+            }
 
             if (e.entity.particlesystem.data.paused) {
                 e.entity.particlesystem.unpause();
@@ -534,13 +535,17 @@ class ParticlesystemComponentInspector extends ComponentInspector {
     }
 
     _onClickPause() {
-        if (!this._entities) return;
+        if (!this._entities) {
+            return;
+        }
 
         this._btnPlay.hidden = false;
         this._btnPause.hidden = true;
 
         this._entities.forEach((e) => {
-            if (!e.entity || !e.entity.particlesystem || !e.entity.particlesystem.emitter) return;
+            if (!e.entity || !e.entity.particlesystem || !e.entity.particlesystem.emitter) {
+                return;
+            }
 
             e.entity.particlesystem.pause();
         });
@@ -548,10 +553,14 @@ class ParticlesystemComponentInspector extends ComponentInspector {
     }
 
     _onClickStop() {
-        if (!this._entities) return;
+        if (!this._entities) {
+            return;
+        }
 
         this._entities.forEach((e) => {
-            if (!e.entity || !e.entity.particlesystem || !e.entity.particlesystem.emitter) return;
+            if (!e.entity || !e.entity.particlesystem || !e.entity.particlesystem.emitter) {
+                return;
+            }
 
             e.entity.particlesystem.stop();
         });
@@ -561,10 +570,14 @@ class ParticlesystemComponentInspector extends ComponentInspector {
     }
 
     _onClickReset() {
-        if (!this._entities) return;
+        if (!this._entities) {
+            return;
+        }
 
         this._entities.forEach((e) => {
-            if (!e.entity || !e.entity.particlesystem || !e.entity.particlesystem.emitter) return;
+            if (!e.entity || !e.entity.particlesystem || !e.entity.particlesystem.emitter) {
+                return;
+            }
 
             e.entity.particlesystem.rebuild();
             e.entity.particlesystem.reset();

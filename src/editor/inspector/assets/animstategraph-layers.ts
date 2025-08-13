@@ -1,10 +1,8 @@
 import { Panel, Container, Button, SelectInput } from '@playcanvas/pcui';
 
+import type { Attribute } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-/**
- * @import { Attribute } from '../attribute.type.d.ts'
- */
 
 const CLASS_ANIMSTATEGRAPH = 'asset-animstategraph-inspector';
 const CLASS_ANIMSTATEGRAPH_LAYER = `${CLASS_ANIMSTATEGRAPH}-layer`;
@@ -53,7 +51,9 @@ class AnimstategraphLayers extends Panel {
             type: 'number'
         });
         this._layerSelect.on('change', (value) => {
-            if (this._suppressLayerSelectChange) return;
+            if (this._suppressLayerSelectChange) {
+                return;
+            }
             const prevLayer = this._parent._view._selectedLayer;
             const newLayer = value;
             const redo = () => {
@@ -61,16 +61,24 @@ class AnimstategraphLayers extends Panel {
                 this._layerSelect.value = newLayer;
                 this._suppressLayerSelectChange = false;
                 this._parent._view.link(this._assets, newLayer);
-                if (this._parent._stateContainer) this._parent._stateContainer.unlink();
-                if (this._parent._transitionContainer) this._parent._transitionContainer.unlink();
+                if (this._parent._stateContainer) {
+                    this._parent._stateContainer.unlink();
+                }
+                if (this._parent._transitionContainer) {
+                    this._parent._transitionContainer.unlink();
+                }
             };
             const undo = () => {
                 this._suppressLayerSelectChange = true;
                 this._layerSelect.value = prevLayer;
                 this._suppressLayerSelectChange = false;
                 this._parent._view.link(this._assets, prevLayer);
-                if (this._parent._stateContainer) this._parent._stateContainer.unlink();
-                if (this._parent._transitionContainer) this._parent._transitionContainer.unlink();
+                if (this._parent._stateContainer) {
+                    this._parent._stateContainer.unlink();
+                }
+                if (this._parent._transitionContainer) {
+                    this._parent._transitionContainer.unlink();
+                }
             };
             this.parent.history.add({
                 name: 'select layer',
@@ -222,10 +230,14 @@ class AnimstategraphLayers extends Panel {
 
     _updateDefaultStateSelect(defaultStateSelect, layerKey) {
         const states = this._assets[0].get(`data.layers.${layerKey}.states`);
-        if (!states) return;
+        if (!states) {
+            return;
+        }
         defaultStateSelect.options = states.map((stateKey) => {
             const state = this._assets[0].get('data.states')[stateKey];
-            if (!state) return {};
+            if (!state) {
+                return {};
+            }
             if (state.nodeType === ANIM_SCHEMA.NODE.DEFAULT_STATE) {
                 defaultStateSelect.value = stateKey;
             }
@@ -316,10 +328,7 @@ class AnimstategraphLayers extends Panel {
                 this._deleteLayer(layerKey);
             });
 
-            /**
-             * @type {Attribute[]}
-             */
-            const ATTRIBUTES = [
+            const ATTRIBUTES: Attribute[] = [
                 {
                     label: 'Name',
                     path: `data.layers.${layerKey}.name`,

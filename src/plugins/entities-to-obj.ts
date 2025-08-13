@@ -1,6 +1,8 @@
 editor.once('plugins:load:entities-to-obj', () => {
     const app = editor.call('viewport:app');
-    if (!app) return; // webgl not available
+    if (!app) {
+        return;
+    } // webgl not available
 
     editor.method('plugins:entities-to-obj', (items) => {
         const entities = [];
@@ -101,7 +103,9 @@ editor.once('plugins:load:entities-to-obj', () => {
             icon: 'E228',
             onSelect: function (selection) {
                 const obj = editor.call('plugins:entities-to-obj', selection);
-                if (!obj) return;
+                if (!obj) {
+                    return;
+                }
 
                 const element = document.createElement('a');
                 element.href = window.URL.createObjectURL(new Blob([obj], { type: 'text/plain;charset=utf-8' }));

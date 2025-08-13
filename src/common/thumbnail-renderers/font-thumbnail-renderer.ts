@@ -164,7 +164,9 @@ function updateMeshes(text, font) {
     for (let i = 0; i < 2; i++) {
         const char = text[i]; // TODO: use symbol not char
         const charData = font.data.chars[char];
-        if (!charData) continue;
+        if (!charData) {
+            continue;
+        }
 
         const map = charData.map || 0;
 
@@ -250,8 +252,12 @@ class FontThumbnailRenderer extends ThumbnailRenderer {
     }
 
     queueRender() {
-        if (this._queuedRender) return;
-        if (!this._asset) return;
+        if (this._queuedRender) {
+            return;
+        }
+        if (!this._asset) {
+            return;
+        }
 
         this._queuedRender = true;
         this._frameRequest = requestAnimationFrame(() => {
@@ -262,7 +268,9 @@ class FontThumbnailRenderer extends ThumbnailRenderer {
     render() {
         this._queuedRender = false;
 
-        if (!this._asset) return;
+        if (!this._asset) {
+            return;
+        }
 
         if (!sceneInitialized) {
             initializeScene();

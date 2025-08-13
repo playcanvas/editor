@@ -1,10 +1,8 @@
+import type { Observer, ObserverList } from '@playcanvas/observer';
 import { Element, TreeView, TreeViewItem, Container } from '@playcanvas/pcui';
 
 import { getMap, searchItems } from '../search/search-advanced.ts';
 
-/**
- * @import { Observer, ObserverList } from '@playcanvas/observer'
- */
 
 const CLASS_ROOT = 'entities-treeview';
 const CLASS_COMPONENT_ICON = 'component-icon-postfix';
@@ -21,7 +19,9 @@ const CLASS_FILTER_RESULT = `${CLASS_FILTERING}-result`;
  */
 class EntitiesTreeView extends TreeView {
     constructor(args) {
-        if (!args) args = {};
+        if (!args) {
+            args = {};
+        }
 
         super(args);
 
@@ -153,14 +153,18 @@ class EntitiesTreeView extends TreeView {
     }
 
     _onSelectEntityItem(item) {
-        if (this._suspendSelectionEvents) return;
+        if (this._suspendSelectionEvents) {
+            return;
+        }
 
         // add to selection
         editor.call('selector:add', 'entity', item.entity);
     }
 
     _onDeselectEntityItem(item) {
-        if (this._suspendSelectionEvents) return;
+        if (this._suspendSelectionEvents) {
+            return;
+        }
 
         // remove from selection
         editor.call('selector:remove', item.entity);
@@ -186,7 +190,9 @@ class EntitiesTreeView extends TreeView {
         const selected = this._selectedItems;
         let i = selected.length;
         while (i--) {
-            if (!selected[i]) continue;
+            if (!selected[i]) {
+                continue;
+            }
             if (!index[selected[i].entity.get('resource_id')]) {
                 selected[i].selected = false;
             }
@@ -219,7 +225,9 @@ class EntitiesTreeView extends TreeView {
             this._userSelectionMarkers[user].markers.length = 0;
         }
 
-        if (data.type !== 'entity') return;
+        if (data.type !== 'entity') {
+            return;
+        }
 
         // create new entry in userSelectionMarkers for user
         if (!this._userSelectionMarkers[user]) {
@@ -233,7 +241,9 @@ class EntitiesTreeView extends TreeView {
         // create marker for each selection
         data.ids.forEach((resourceId) => {
             const item = this.getTreeItemForEntity(resourceId);
-            if (!item) return;
+            if (!item) {
+                return;
+            }
 
             let marker = this._userSelectionMarkers[user].pool.pop();
             if (!marker) {
@@ -262,7 +272,9 @@ class EntitiesTreeView extends TreeView {
     }
 
     _onActivateDropManager() {
-        if (!this._writePermissions) return;
+        if (!this._writePermissions) {
+            return;
+        }
 
         // remove event listeners just in case
         this.dom.removeEventListener('mouseenter', this._domEvtEntitiesMouseEnter);
@@ -280,7 +292,9 @@ class EntitiesTreeView extends TreeView {
     _onEntitiesMouseEnter(evt) {
         this._dropType = this._dropManager.dropType;
         this._dropData = this._dropManager.dropData;
-        if (!this._isDraggingValidAssetType(this._dropType, this._dropData)) return;
+        if (!this._isDraggingValidAssetType(this._dropType, this._dropData)) {
+            return;
+        }
 
         if (this._dropData) {
             this.isDragging = true;
@@ -292,7 +306,9 @@ class EntitiesTreeView extends TreeView {
     _onEntitiesMouseUp(evt) {
         window.removeEventListener('mouseup', this._domEvtEntitiesMouseUp);
 
-        if (!this.isDragging) return;
+        if (!this.isDragging) {
+            return;
+        }
 
         let dragOverItem = this._dragOverItem;
         const dragArea = this._dragArea;
@@ -351,7 +367,9 @@ class EntitiesTreeView extends TreeView {
             }
         });
 
-        if (!results.length) return;
+        if (!results.length) {
+            return;
+        }
         results.forEach((item) => {
             this._filterResults.push(item);
             item.class.add(CLASS_FILTER_RESULT);
@@ -387,7 +405,9 @@ class EntitiesTreeView extends TreeView {
             assets = dropData.ids
             .map(id => this._assets.get(id))
             .filter((asset) => {
-                if (!asset) return false;
+                if (!asset) {
+                    return false;
+                }
                 const type = asset.get('type');
                 return type === 'template' || type === 'sprite' || type === 'model';
             });
@@ -401,7 +421,9 @@ class EntitiesTreeView extends TreeView {
             }
         }
 
-        if (!assets.length) return;
+        if (!assets.length) {
+            return;
+        }
 
         let newEntityIds;
 
@@ -423,7 +445,9 @@ class EntitiesTreeView extends TreeView {
             if (parent) {
                 parent = parent.latest();
             }
-            if (!parent) return;
+            if (!parent) {
+                return;
+            }
 
             const templates = [];
             assets.forEach((asset) => {
@@ -553,12 +577,16 @@ class EntitiesTreeView extends TreeView {
     }
 
     _isDraggingValidAssetType(dropType, dropData) {
-        if (!this._writePermissions) return false;
+        if (!this._writePermissions) {
+            return false;
+        }
 
         if (dropType === 'assets') {
             const assets = dropData.ids.map(id => this._assets.get(id));
             return assets.filter((asset) => {
-                if (!asset) return false;
+                if (!asset) {
+                    return false;
+                }
                 const type = asset.get('type');
                 return type === 'template' ||
                         type === 'model' ||
@@ -572,7 +600,9 @@ class EntitiesTreeView extends TreeView {
 
     _onAddEntity(entity) {
         const resourceId = entity.get('resource_id');
-        if (this._treeItemIndex[resourceId]) return this._treeItemIndex[resourceId];
+        if (this._treeItemIndex[resourceId]) {
+            return this._treeItemIndex[resourceId];
+        }
 
         // new tree item for entity
         const treeViewItem = new TreeViewItem({
@@ -631,7 +661,9 @@ class EntitiesTreeView extends TreeView {
         // add child
         events.push(entity.on('children:insert', (childId, index) => {
             const item = this.getTreeItemForEntity(childId);
-            if (!item) return;
+            if (!item) {
+                return;
+            }
 
             if (item.parent) {
                 item.parent.remove(item);
@@ -648,7 +680,9 @@ class EntitiesTreeView extends TreeView {
         // remove child
         events.push(entity.on('children:remove', (childId) => {
             const item = this.getTreeItemForEntity(childId);
-            if (!item) return;
+            if (!item) {
+                return;
+            }
 
             treeViewItem.remove(item);
         }));
@@ -831,7 +865,9 @@ class EntitiesTreeView extends TreeView {
         const dropTarget = editor.call('drop:target', {
             ref: targetElement,
             filter: (dropType, dropData) => {
-                if (dropType === 'entity') return true;
+                if (dropType === 'entity') {
+                    return true;
+                }
 
                 return this._isDraggingValidAssetType(dropType, dropData);
             },
@@ -846,14 +882,16 @@ class EntitiesTreeView extends TreeView {
     /**
      * Gets dictionary with the expanded state the specified Entity and its children.
      *
-     * @param {Observer} entity - The entity to query.
-     * @returns {object} A dictionary with <resource_id, boolean> entries.
+     * @param entity - The entity to query.
+     * @returns A dictionary with <resource_id, boolean> entries.
      */
-    getExpandedState(entity) {
+    getExpandedState(entity: Observer): object {
         const result = {};
 
-        const recurse = (entity) => {
-            if (!entity) return;
+        const recurse = (entity: Observer) => {
+            if (!entity) {
+                return;
+            }
 
             const item = this.getTreeItemForEntity(entity.get('resource_id'));
             if (item) {
@@ -886,7 +924,9 @@ class EntitiesTreeView extends TreeView {
     }
 
     destroy() {
-        if (this._destroyed) return;
+        if (this._destroyed) {
+            return;
+        }
 
         this._unbindObserverListEvents();
         this._unbindEntityEvents();
@@ -903,10 +943,8 @@ class EntitiesTreeView extends TreeView {
 
     /**
      * The entities observer list.
-     *
-     * @type {ObserverList}
      */
-    set entities(value) {
+    set entities(value: ObserverList) {
         this.clearTreeItems();
 
         this._rootItem = null;
@@ -933,7 +971,9 @@ class EntitiesTreeView extends TreeView {
     }
 
     set writePermissions(value) {
-        if (this._writePermissions === value) return;
+        if (this._writePermissions === value) {
+            return;
+        }
 
         this._writePermissions = value;
 

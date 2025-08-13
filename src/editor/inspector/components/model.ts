@@ -4,16 +4,11 @@ import { ComponentInspector } from './component.ts';
 import { CLASS_ERROR } from '../../../common/pcui/constants.ts';
 import { AssetInput } from '../../../common/pcui/element/element-asset-input.ts';
 import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from '../../../core/constants.ts';
+import type { Attribute } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-/**
- * @import { Attribute } from '../attribute.type.d.ts'
- */
 
-/**
- * @type {Attribute[]}
- */
-const ATTRIBUTES = [{
+const ATTRIBUTES: Attribute[] = [{
     label: 'Type',
     path: 'components.model.type',
     reference: 'model:type',
@@ -153,8 +148,12 @@ class AssetElementToObserversBinding extends BindingElementToObservers {
 
     // Override setValue to set additional fields
     setValue(value) {
-        if (this.applyingChange) return;
-        if (!this._observers) return;
+        if (this.applyingChange) {
+            return;
+        }
+        if (!this._observers) {
+            return;
+        }
 
         this.applyingChange = true;
 
@@ -168,7 +167,9 @@ class AssetElementToObserversBinding extends BindingElementToObservers {
         const undo = () => {
             for (let i = 0; i < observers.length; i++) {
                 const latest = observers[i].latest();
-                if (!latest || !latest.has('components.model')) continue;
+                if (!latest || !latest.has('components.model')) {
+                    continue;
+                }
 
                 let history = false;
                 if (latest.history) {
@@ -197,7 +198,9 @@ class AssetElementToObserversBinding extends BindingElementToObservers {
 
             for (let i = 0; i < observers.length; i++) {
                 const latest = observers[i].latest();
-                if (!latest || !latest.has('components.model')) continue;
+                if (!latest || !latest.has('components.model')) {
+                    continue;
+                }
 
                 let history = false;
                 if (latest.history) {
@@ -329,7 +332,9 @@ class ModelComponentInspector extends ComponentInspector {
     }
 
     _onClickAssetMaterials() {
-        if (!this._entities) return;
+        if (!this._entities) {
+            return;
+        }
 
         // select model asset
         const modelAsset = this._assets.get(this._entities[0].get('components.model.asset'));
@@ -339,7 +344,9 @@ class ModelComponentInspector extends ComponentInspector {
     }
 
     _onClickEntityMaterials() {
-        if (!this._entities) return;
+        if (!this._entities) {
+            return;
+        }
 
         // open entity materials picker
         editor.call('picker:node', this._entities);
@@ -349,7 +356,9 @@ class ModelComponentInspector extends ComponentInspector {
         const result = {};
         this._entities.forEach((e) => {
             const mapping = e.get('components.model.mapping');
-            if (!mapping) return;
+            if (!mapping) {
+                return;
+            }
 
             for (const key in mapping) {
                 if (!result[key]) {
@@ -416,10 +425,14 @@ class ModelComponentInspector extends ComponentInspector {
                 });
 
                 entities.forEach((e) => {
-                    if (!e.entity || !e.entity.model) return;
+                    if (!e.entity || !e.entity.model) {
+                        return;
+                    }
 
                     const mapping = e.entity.model.mapping;
-                    if (!mapping || !mapping.hasOwnProperty(key)) return;
+                    if (!mapping || !mapping.hasOwnProperty(key)) {
+                        return;
+                    }
 
                     mapping[key] = parseInt(dropData.id, 10);
                     e.entity.model.mapping = mapping;
@@ -430,10 +443,14 @@ class ModelComponentInspector extends ComponentInspector {
             // restore viewport materials on drag leave
             dragLeaveFn: () => {
                 entities.forEach((e, i) => {
-                    if (!e.entity || !e.entity.model) return;
+                    if (!e.entity || !e.entity.model) {
+                        return;
+                    }
 
                     const mapping = e.entity.model.mapping;
-                    if (!mapping || !mapping.hasOwnProperty(key)) return;
+                    if (!mapping || !mapping.hasOwnProperty(key)) {
+                        return;
+                    }
 
                     mapping[key] = previousMappings[i];
                     e.entity.model.mapping = mapping;
@@ -508,7 +525,9 @@ class ModelComponentInspector extends ComponentInspector {
     }
 
     _refreshCustomAabb() {
-        if (!this._entities) return;
+        if (!this._entities) {
+            return;
+        }
 
         this._suppressCustomAabb = true;
         this._suppressToggleFields = true;
@@ -540,8 +559,12 @@ class ModelComponentInspector extends ComponentInspector {
                 }
 
                 const size = lightmapper.calculateLightmapSize(e.entity);
-                if (size > max) max = size;
-                if (size < min) min = size;
+                if (size > max) {
+                    max = size;
+                }
+                if (size < min) {
+                    min = size;
+                }
             });
 
             if (min) {
@@ -571,13 +594,17 @@ class ModelComponentInspector extends ComponentInspector {
     }
 
     _onAssetChange() {
-        if (this._suppressAssetChange) return;
+        if (this._suppressAssetChange) {
+            return;
+        }
 
         this._refreshMappings();
     }
 
     _toggleFields() {
-        if (this._suppressToggleFields) return;
+        if (this._suppressToggleFields) {
+            return;
+        }
 
         const fieldLightmapSize = this._field('lightmapSize');
         fieldLightmapSize.parent.hidden = !this._field('lightmapped').value;
@@ -601,8 +628,12 @@ class ModelComponentInspector extends ComponentInspector {
     }
 
     _onCustomAabbChange(value) {
-        if (!this._entities) return;
-        if (this._suppressCustomAabb) return;
+        if (!this._entities) {
+            return;
+        }
+        if (this._suppressCustomAabb) {
+            return;
+        }
 
         let prev;
 
@@ -610,7 +641,9 @@ class ModelComponentInspector extends ComponentInspector {
             prev = {};
             this._entities.forEach((e) => {
                 e = e.latest();
-                if (!e || !e.has('components.model')) return;
+                if (!e || !e.has('components.model')) {
+                    return;
+                }
 
                 const history = e.history.enabled;
                 e.history.enabled = false;
@@ -638,10 +671,14 @@ class ModelComponentInspector extends ComponentInspector {
         const undo = () => {
             this._entities.forEach((e) => {
                 e = e.latest();
-                if (!e || !e.has('components.model')) return;
+                if (!e || !e.has('components.model')) {
+                    return;
+                }
 
                 const previous = prev[e.get('resource_id')];
-                if (!previous) return;
+                if (!previous) {
+                    return;
+                }
 
                 const history = e.history.enabled;
                 e.history.enabled = false;
@@ -690,7 +727,9 @@ class ModelComponentInspector extends ComponentInspector {
         entities.forEach((e) => {
             this._entityEvents.push(e.on('*:set', (path) => {
                 const match = path.match(REGEX_MAPPING);
-                if (!match) return;
+                if (!match) {
+                    return;
+                }
 
                 this._dirtyMappings[match[1]] = true;
 
@@ -699,7 +738,9 @@ class ModelComponentInspector extends ComponentInspector {
 
             this._entityEvents.push(e.on('*:unset', (path) => {
                 const match = path.match(REGEX_MAPPING);
-                if (!match) return;
+                if (!match) {
+                    return;
+                }
 
                 this._dirtyMappings[match[1]] = true;
 

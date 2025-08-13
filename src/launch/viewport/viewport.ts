@@ -36,7 +36,9 @@ editor.once('load', () => {
             app.preload((err) => {
                 // load scripts that are in the scene data
                 app._preloadScripts(sceneData, (err) => {
-                    if (err) log.error(err);
+                    if (err) {
+                        log.error(err);
+                    }
 
                     // create scene
                     app.scene = app.loader.open('scene', sceneData);
@@ -50,7 +52,9 @@ editor.once('load', () => {
                     sceneSettings = null;
                     scriptList = null;
 
-                    if (err) log.error(err);
+                    if (err) {
+                        log.error(err);
+                    }
 
                     app.start();
                 });
@@ -300,7 +304,9 @@ editor.once('load', () => {
             for (let i = 0, len = config.project.settings.layerOrder.length; i < len; i++) {
                 const sublayer = config.project.settings.layerOrder[i];
                 const layer = layerIndex[sublayer.layer];
-                if (!layer) continue;
+                if (!layer) {
+                    continue;
+                }
 
                 if (sublayer.transparent) {
                     composition.pushTransparent(layer);
@@ -333,7 +339,9 @@ editor.once('load', () => {
         editor.call('wasm:load', config.wasmModules, '', () => {
             app._loadLibraries(libraryUrls, (err) => {
                 libraries = true;
-                if (err) log.error(err);
+                if (err) {
+                    log.error(err);
+                }
                 // now that modules are loaded, start the realtime connection
                 // we use setTimeout here to ensure load.js has a chance to
                 // register its 'realtime:connect' method.
@@ -450,7 +458,9 @@ editor.once('load', () => {
 
             if (path.startsWith('batchGroups')) {
                 parts = path.split('.');
-                if (parts.length < 2) return;
+                if (parts.length < 2) {
+                    return;
+                }
                 const groupId = parseInt(parts[1], 10);
                 const groupSettings = projectSettings.get(`batchGroups.${groupId}`);
                 if (!app.batcher._batchGroups[groupId]) {
@@ -523,7 +533,9 @@ editor.once('load', () => {
         projectSettings.on('layerOrder:insert', (value, index) => {
             const id = value.get('layer');
             const layer = layerIndex[id];
-            if (!layer) return;
+            if (!layer) {
+                return;
+            }
 
             const transparent = value.get('transparent');
 
@@ -537,7 +549,9 @@ editor.once('load', () => {
         projectSettings.on('layerOrder:remove', (value) => {
             const id = value.get('layer');
             const layer = layerIndex[id];
-            if (!layer) return;
+            if (!layer) {
+                return;
+            }
 
             const transparent = value.get('transparent');
 
@@ -551,7 +565,9 @@ editor.once('load', () => {
         projectSettings.on('layerOrder:move', (value, indNew, indOld) => {
             const id = value.get('layer');
             const layer = layerIndex[id];
-            if (!layer) return;
+            if (!layer) {
+                return;
+            }
 
             const transparent = value.get('transparent');
             if (transparent) {

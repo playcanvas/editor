@@ -155,8 +155,7 @@ editor.once('load', () => {
     });
     canvasPanel.append(canvas);
 
-    /** @type {HTMLCanvasElement} */
-    const canvasElement = canvas.dom;
+    const canvasElement: HTMLCanvasElement = canvas.dom;
     const ctx = canvasElement.getContext('2d');
 
     // bottom panel
@@ -647,11 +646,15 @@ editor.once('load', () => {
     const renderCanvas = function () {
         queuedRender = false;
 
-        if (overlay.hidden) return;
+        if (overlay.hidden) {
+            return;
+        }
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        if (!atlasImageLoaded) return;
+        if (!atlasImageLoaded) {
+            return;
+        }
 
         let selected = editor.call('picker:sprites:selectedFrame');
 
@@ -702,7 +705,9 @@ editor.once('load', () => {
         ctx.strokeStyle = COLOR_GRAY;
         ctx.lineWidth = 1;
         for (const key in frames) {
-            if (highlightedFrames.indexOf(key) !== -1 || newSpriteFrames.indexOf(key) !== -1) continue;
+            if (highlightedFrames.indexOf(key) !== -1 || newSpriteFrames.indexOf(key) !== -1) {
+                continue;
+            }
 
             renderFrame(frames[key]._data, left, top, width, height);
         }
@@ -714,7 +719,9 @@ editor.once('load', () => {
         ctx.strokeStyle = spriteAsset ? COLOR_ORANGE : COLOR_DARK;
         for (let i = 0, len = highlightedFrames.length; i < len; i++) {
             const key = highlightedFrames[i];
-            if (selected && selected === key) continue;
+            if (selected && selected === key) {
+                continue;
+            }
 
             // check if frame no longer exists
             if (!frames[key]) {
@@ -754,7 +761,9 @@ editor.once('load', () => {
         if (!spriteEditMode) {
             for (let i = 0, len = highlightedFrames.length; i < len; i++) {
                 const key = highlightedFrames[i];
-                if (selected && selected === key) continue;
+                if (selected && selected === key) {
+                    continue;
+                }
                 renderBorderLines(frames[key]._data, left, top, width, height);
             }
         }
@@ -800,7 +809,9 @@ editor.once('load', () => {
     };
 
     const queueRender = function () {
-        if (queuedRender || overlay.hidden) return;
+        if (queuedRender || overlay.hidden) {
+            return;
+        }
         queuedRender = true;
         requestAnimationFrame(renderCanvas);
     };
@@ -832,7 +843,9 @@ editor.once('load', () => {
     };
 
     const handlesHitTest = function (p, frame) {
-        if (!editor.call('permissions:write')) return false;
+        if (!editor.call('permissions:write')) {
+            return false;
+        }
 
         const imgWidth = imageWidth();
         const imgHeight = imageHeight();
@@ -987,9 +1000,13 @@ editor.once('load', () => {
         const p = mousePoint;
 
         const currentX = realWidth * (p.x - imgLeft) / imgWidth;
-        if (currentX < 0 && startingHandleCoords.x <= 0) return;
+        if (currentX < 0 && startingHandleCoords.x <= 0) {
+            return;
+        }
         const currentY = realHeight * (p.y - imgTop) / imgHeight;
-        if (currentY < 0 && startingHandleCoords.y <= 0) return;
+        if (currentY < 0 && startingHandleCoords.y <= 0) {
+            return;
+        }
 
         let dx = Math.floor(currentX - startingHandleCoords.x);
         let dy = Math.floor(currentY - startingHandleCoords.y);
@@ -1388,7 +1405,9 @@ editor.once('load', () => {
             return;
         }
 
-        if (e.button !== 0) return;
+        if (e.button !== 0) {
+            return;
+        }
 
         const p = windowToCanvas(e.clientX, e.clientY);
 
@@ -1524,7 +1543,9 @@ editor.once('load', () => {
             stopPanning();
         }
 
-        if (e.button !== 0) return;
+        if (e.button !== 0) {
+            return;
+        }
 
         let selected = editor.call('picker:sprites:selectedFrame');
 
@@ -1665,7 +1686,9 @@ editor.once('load', () => {
 
 
     controls.on('zoom:set', (value, oldValue) => {
-        if (overlay.hidden) return;
+        if (overlay.hidden) {
+            return;
+        }
 
         // store current zoom offset
         pivotX += zoomOffsetX;
@@ -1720,7 +1743,9 @@ editor.once('load', () => {
             rightPanel.emit('clear');
         }
 
-        if (!atlasImageLoaded) return;
+        if (!atlasImageLoaded) {
+            return;
+        }
 
         const spriteAsset = editor.call('picker:sprites:selectedSprite');
 
@@ -1999,7 +2024,9 @@ editor.once('load', () => {
             },
             redo: function () {
                 const currentAsset = editor.call('assets:get', asset.get('id'));
-                if (!currentAsset) return;
+                if (!currentAsset) {
+                    return;
+                }
 
                 showEditor(currentAsset);
             }
@@ -2028,7 +2055,9 @@ editor.once('load', () => {
                 combine: false,
                 undo: function () {
                     const asset = editor.call('assets:get', currentAsset.get('id'));
-                    if (!asset) return;
+                    if (!asset) {
+                        return;
+                    }
 
                     showEditor(asset);
                 },

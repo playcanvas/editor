@@ -2,16 +2,11 @@ import { InfoBox, Container, TreeView, TreeViewItem, BooleanInput, Menu, Button,
 
 import { ComponentInspector } from './component.ts';
 import { AssetInput } from '../../../common/pcui/element/element-asset-input.ts';
+import type { Attribute, Divider } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-/**
- * @import { Attribute, Divider } from '../attribute.type.d.ts'
- */
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const ATTRIBUTES = [
+const ATTRIBUTES: (Attribute | Divider)[] = [
     {
         label: 'Activate',
         path: 'components.anim.activate',
@@ -188,10 +183,14 @@ class AnimComponentInspector extends ComponentInspector {
             let suppressChanges = false;
 
             booleanInput.on('change', (value) => {
-                if (suppressChanges) return;
+                if (suppressChanges) {
+                    return;
+                }
                 const redo = () => {
                     const e = entityObserver.latest();
-                    if (!e) return;
+                    if (!e) {
+                        return;
+                    }
                     const history = e.history.enabled;
                     e.history.enabled = false;
                     e.set(`components.anim.masks.${layerId}.mask.${path}.value`, value);
@@ -199,7 +198,9 @@ class AnimComponentInspector extends ComponentInspector {
                 };
                 const undo = () => {
                     const e = entityObserver.latest();
-                    if (!e) return;
+                    if (!e) {
+                        return;
+                    }
                     const history = e.history.enabled;
                     e.history.enabled = false;
                     e.set(`components.anim.masks.${layerId}.mask.${path}.value`, !value);
@@ -239,7 +240,9 @@ class AnimComponentInspector extends ComponentInspector {
                         onSelect: () => {
                             const redo = () => {
                                 const e = entityObserver.latest();
-                                if (!e) return;
+                                if (!e) {
+                                    return;
+                                }
                                 const history = e.history.enabled;
                                 e.history.enabled = false;
                                 updateItemAndChildren(item, true);
@@ -247,7 +250,9 @@ class AnimComponentInspector extends ComponentInspector {
                             };
                             const undo = () => {
                                 const e = entityObserver.latest();
-                                if (!e) return;
+                                if (!e) {
+                                    return;
+                                }
                                 const history = e.history.enabled;
                                 e.history.enabled = false;
                                 updateItemAndChildren(item, false);
@@ -266,7 +271,9 @@ class AnimComponentInspector extends ComponentInspector {
                         onSelect: () => {
                             const redo = () => {
                                 const e = entityObserver.latest();
-                                if (!e) return;
+                                if (!e) {
+                                    return;
+                                }
                                 const history = e.history.enabled;
                                 e.history.enabled = false;
                                 updateItemAndChildren(item, false);
@@ -274,7 +281,9 @@ class AnimComponentInspector extends ComponentInspector {
                             };
                             const undo = () => {
                                 const e = entityObserver.latest();
-                                if (!e) return;
+                                if (!e) {
+                                    return;
+                                }
                                 const history = e.history.enabled;
                                 e.history.enabled = false;
                                 updateItemAndChildren(item, true);
@@ -322,7 +331,9 @@ class AnimComponentInspector extends ComponentInspector {
         const setAllPaths = (value) => {
             const redo = () => {
                 const e = entityObserver.latest();
-                if (!e) return;
+                if (!e) {
+                    return;
+                }
                 const history = e.history.enabled;
                 e.history.enabled = false;
                 const mask = e.get(`components.anim.masks.${layerId}.mask`);
@@ -339,7 +350,9 @@ class AnimComponentInspector extends ComponentInspector {
             };
             const undo = () => {
                 const e = entityObserver.latest();
-                if (!e) return;
+                if (!e) {
+                    return;
+                }
                 const history = e.history.enabled;
                 e.history.enabled = false;
                 const mask = e.get(`components.anim.masks.${layerId}.mask`);
@@ -431,10 +444,14 @@ class AnimComponentInspector extends ComponentInspector {
 
     _addAnimationAssetSlots() {
         this._clearAnimationSlots();
-        if (!this._entities) return;
+        if (!this._entities) {
+            return;
+        }
 
         const stateGraph = this._assets.get(this._stateGraphAssetId);
-        if (!stateGraph) return;
+        if (!stateGraph) {
+            return;
+        }
         const layers = stateGraph.get('data.layers');
         this._layersContainer = new Container();
         for (const layerId in layers) {
@@ -475,7 +492,9 @@ class AnimComponentInspector extends ComponentInspector {
 
             layer.states.forEach((stateId) => {
                 const state = stateGraph.get(`data.states.${stateId}`);
-                if (!state) return;
+                if (!state) {
+                    return;
+                }
                 if (!['START', 'END', 'ANY'].includes(state.name)) {
                     if (!this._entities[0].get(`components.anim.animationAssets.${layer.name}:${state.name}`)) {
                         const animAssets = this._entities[0].get('components.anim.animationAssets');
@@ -544,7 +563,9 @@ class AnimComponentInspector extends ComponentInspector {
         // update state graph asset id and animationAssets when state graph asset is changed by the user
         let suppressStateGraphAssetFieldChanges = false;
         this._entityEvents.push(stateGraphAssetField.on('change', (value) => {
-            if (suppressStateGraphAssetFieldChanges) return;
+            if (suppressStateGraphAssetFieldChanges) {
+                return;
+            }
             const prevStateGraphAssetId = this._entities[0].get('components.anim.stateGraphAsset');
             const prevAnimAssets = this._entities[0].get('components.anim.animationAssets');
             const undo = () => {

@@ -8,6 +8,26 @@ const RELAY_PONG_DELAY = 5000;
  * Relay server client library
  */
 class RelayServer extends Events {
+    private _url: string;
+
+    private _reconnectDelay: number | null;
+
+    private _connecting: boolean;
+
+    private _connectAttempts: number;
+
+    private _connected: boolean;
+
+    private _pingTimeout: number | null;
+
+    private _pongTimeout: number | null;
+
+    private _rooms: Record<string, Set<number>>;
+
+    private _userId: number | null;
+
+    private socket: WebSocket;
+
     constructor() {
         super();
         this._url = '';
@@ -32,7 +52,9 @@ class RelayServer extends Events {
      * @param {string} url - The server URL
      */
     connect(url) {
-        if (this._connected || this._connecting) return;
+        if (this._connected || this._connecting) {
+            return;
+        }
 
         this._url = url;
         this._connectAttempts++;
@@ -75,8 +97,6 @@ class RelayServer extends Events {
 
     /**
      * Whether we are connected to the server
-     *
-     * @type {boolean}
      */
     get isConnected() {
         return this._connected;
@@ -235,7 +255,9 @@ class RelayServer extends Events {
      * @param {object} msg - The message data
      */
     send(msg) {
-        if (!this._connected) return;
+        if (!this._connected) {
+            return;
+        }
 
         this.socket.send(JSON.stringify(msg));
     }
@@ -248,7 +270,9 @@ class RelayServer extends Events {
      * @param {string} args.reason - The reason for the disconnection. Defaults to 'unknown'.
      */
     close(args) {
-        if (!this._connected) return;
+        if (!this._connected) {
+            return;
+        }
 
         args = args || { };
         args.code = args.code || 1000; // 1000 - CLOSE_NORMAL

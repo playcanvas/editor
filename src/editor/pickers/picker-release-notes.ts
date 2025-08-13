@@ -3,7 +3,9 @@ import { Container, Label, Button } from '@playcanvas/pcui';
 editor.once('load', () => {
     const LOCALSTORAGE_KEY = 'playcanvas-editor-latest-release-notes';
     const latestVersionSeen = localStorage.getItem(LOCALSTORAGE_KEY);
-    if (latestVersionSeen === config.version) return;
+    if (latestVersionSeen === config.version) {
+        return;
+    }
 
     const popup = new Container({
         class: 'popup-release-notes',

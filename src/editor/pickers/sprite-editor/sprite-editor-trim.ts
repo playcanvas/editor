@@ -10,7 +10,9 @@ editor.once('load', () => {
             key: 't',
             callback: function () {
                 const spriteAsset = editor.call('picker:sprites:selectedSprite');
-                if (spriteAsset) return;
+                if (spriteAsset) {
+                    return;
+                }
 
                 const highlightedFrames = editor.call('picker:sprites:highlightedFrames');
                 if (highlightedFrames.length) {
@@ -26,19 +28,27 @@ editor.once('load', () => {
 
     // Trim transparent pixels from specified frames
     editor.method('picker:sprites:trimFrames', (framesToTrim) => {
-        if (!editor.call('permissions:write')) return;
+        if (!editor.call('permissions:write')) {
+            return;
+        }
 
         let prev = {};
 
         const frames = framesToTrim.slice();
         const atlasAsset = editor.call('picker:sprites:atlasAsset');
-        if (!atlasAsset) return;
+        if (!atlasAsset) {
+            return;
+        }
         const imageData = editor.call('picker:sprites:atlasImageData');
-        if (!imageData) return;
+        if (!imageData) {
+            return;
+        }
 
         const redo = function () {
             const asset = editor.call('assets:get', atlasAsset.get('id'));
-            if (!asset) return;
+            if (!asset) {
+                return;
+            }
 
             const history = asset.history.enabled;
             asset.history.enabled = false;
@@ -51,7 +61,9 @@ editor.once('load', () => {
             const frameData = atlasAsset.getRaw('data.frames')._data;
             for (let i = 0, len = frames.length; i < len; i++) {
                 let frame = frameData[frames[i]];
-                if (!frame) continue;
+                if (!frame) {
+                    continue;
+                }
                 frame = frame._data;
 
                 let left = Math.max(0, frame.rect[0]);
@@ -143,7 +155,9 @@ editor.once('load', () => {
 
         const undo = function () {
             const asset = editor.call('assets:get', atlasAsset.get('id'));
-            if (!asset) return;
+            if (!asset) {
+                return;
+            }
 
             const history = asset.history.enabled;
             asset.history.enabled = false;

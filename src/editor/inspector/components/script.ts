@@ -7,11 +7,11 @@ import { tooltip, tooltipSimpleItem } from '../../../common/tooltips.ts';
 import { LegacyTooltip } from '../../../common/ui/tooltip.ts';
 import { deepCopy } from '../../../common/utils.ts';
 import { evaluate } from '../../scripting/expr-eval/evaluate.ts';
+import type { ASTNode } from '../../scripting/expr-eval/parser.js';
 import { parse } from '../../scripting/expr-eval/parser.ts';
+import type { Attribute } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-/** @import { Attribute } from '../attribute.type.d.ts' */
-/** @import { ASTNode } from '../../scripting/expr-eval/parser.js' */
 
 const CLASS_SCRIPT_CONTAINER = 'script-component-inspector-scripts';
 const CLASS_SCRIPT = 'script-component-inspector-script';
@@ -38,10 +38,8 @@ class ScriptInspector extends Panel {
     /**
      * AST cache for script parsing. This means expressions are parsed only once,
      * and then the AST is cached for future evaluation.
-     *
-     * @type {Map<string, ASTNode>}
      */
-    _astCache = new Map();
+    private _astCache: Map<string, ASTNode> = new Map();
 
     constructor(args) {
         super(args);
@@ -63,6 +61,9 @@ class ScriptInspector extends Panel {
         this._templateOverridesInspector = args.templateOverridesInspector;
 
         this._asset = editor.call('assets:scripts:assetByScript', this._scriptName);
+
+        // Map of attribute name -> string[] warnings (first sentence only)
+        this._attributeWarnings = new Map();
 
         if (this._asset) {
             this._initializeScriptAttributes();
@@ -162,6 +163,9 @@ class ScriptInspector extends Panel {
         this._entityEvents = [];
         this._editorEvents = [];
 
+        // Holds the container that lists validation errors under the header
+        this._attributesErrorContainer = null;
+
         this._timeoutChangeAttributes = null;
         this._changedAttributes = {};
 
@@ -175,17 +179,16 @@ class ScriptInspector extends Panel {
 
     _initializeScriptAttributes() {
         const attributes = this._asset.get(`data.scripts.${this._scriptName}.attributes`);
-        if (!attributes) return;
+        if (!attributes) {
+            return;
+        }
 
         this._attributes = attributes;
 
         const order = this._asset.get(`data.scripts.${this._scriptName}.attributesOrder`) || [];
 
         // script attributes inspector
-        /**
-         * @type {Attribute[]}
-         */
-        const ATTRIBUTES = order.map((attribute) => {
+        const ATTRIBUTES: Attribute[] = order.map((attribute) => {
             return this._convertAttributeDataToInspectorData(attribute, attribute, attributes[attribute]);
         });
 
@@ -239,18 +242,25 @@ class ScriptInspector extends Panel {
     }
 
     _onClickParse(evt) {
-        if (!this._asset) return;
+        if (!this._asset) {
+            return;
+        }
 
         this._componentInspector.clearParseErrors();
+        this._componentInspector.clearValidationIssues(this._scriptName);
         this.containerErrors.hidden = true;
         this.containerErrors.clear();
 
         this._btnParse.enabled = false;
         this._btnParse.class.remove(CLASS_ERROR);
+        this.containerErrors.clear();
 
         editor.call('scripts:parse', this._asset, (error, result) => {
-            if (this.destroyed) return; // inspector might have been destroyed while waiting for parse results
+            if (this.destroyed) {
+                return;
+            } // inspector might have been destroyed while waiting for parse results
             this._btnParse.enabled = true;
+            this._componentInspector.clearParseErrors();
 
             if (error) {
                 this._btnParse.class.add(CLASS_ERROR);
@@ -260,19 +270,12 @@ class ScriptInspector extends Panel {
                 result.scriptsInvalid.forEach((invalidScript) => {
                     this._componentInspector.onParseError(invalidScript, this._scriptName);
                 });
-
-                for (const scriptName in result.scripts) {
-                    const attrInvalid = result.scripts[scriptName].attributesInvalid;
-                    attrInvalid.forEach((err) => {
-                        this._componentInspector.onParseError(err, scriptName);
-                    });
-                }
-
                 const script = result.scripts[this._scriptName];
-                if (script?.attributes) {
-                    this._attributes = result.scripts[this._scriptName].attributes;
-                    this._updateAttributeStatus(this._attributes, this._attributesInspector.value);
-                }
+                this._componentInspector.onValidationIssues(
+                    this._scriptName,
+                    script?.attributesInvalid ?? [],
+                    this._asset
+                );
             }
         });
     }
@@ -301,7 +304,9 @@ class ScriptInspector extends Panel {
             let field = inspector.getField(subPath);
 
             // Return early if the field is not found
-            if (!field) return;
+            if (!field) {
+                return;
+            }
 
             // Specific fields are actually within a LabelGroups, and we want to target this, so we need the parent
             if (!(field instanceof AssetInput) &&
@@ -325,7 +330,9 @@ class ScriptInspector extends Panel {
             field.enabled = isEnabled;
 
             // Only continue if the field is a json or array attribute, ie it has sub attributes
-            if (type !== 'json') return;
+            if (type !== 'json') {
+                return;
+            }
 
             if (array) {
                 // If the field is an array, we need to loop over each element
@@ -347,7 +354,9 @@ class ScriptInspector extends Panel {
 
     _evaluateCondition(name, tag, expression, state) {
 
-        if (!expression) return true;
+        if (!expression) {
+            return true;
+        }
 
         if (!this._astCache.has(expression)) {
             this._astCache.set(expression, parse(expression));
@@ -365,7 +374,9 @@ class ScriptInspector extends Panel {
     _onClickRemove(evt) {
         super._onClickRemove(evt);
 
-        if (!this._entities) return;
+        if (!this._entities) {
+            return;
+        }
 
         editor.api.globals.entities.removeScript(this._entities.map(e => e.apiEntity), this._scriptName);
     }
@@ -477,10 +488,7 @@ class ScriptInspector extends Panel {
             type = `array:${type}`;
         }
 
-        /**
-         * @type {Attribute}
-         */
-        const data = {
+        const data: Attribute = {
             label: attributeData.title || attributeName,
             type: type,
             path: `components.script.scripts.${this._scriptName}.attributes.${attributePath}`,
@@ -491,6 +499,13 @@ class ScriptInspector extends Panel {
             },
             args: fieldArgs
         };
+
+        // Attach warnings to tooltip and mark as warning if present
+        const warnings = this._attributeWarnings && this._attributeWarnings.get(attributeName);
+        if (warnings && warnings.length) {
+            data.tooltip.warnings = warnings;
+            data.warning = true;
+        }
 
         if (attributeData.default !== undefined) {
             data.value = attributeData.default;
@@ -527,23 +542,31 @@ class ScriptInspector extends Panel {
     }
 
     _onAddAttribute(asset, name, index) {
-        if (this._asset !== asset || !this._asset) return;
+        if (this._asset !== asset || !this._asset) {
+            return;
+        }
 
         const data = this._asset.get(`data.scripts.${this._scriptName}.attributes.${name}`);
-        if (!data) return;
+        if (!data) {
+            return;
+        }
 
         const inspectorData = this._convertAttributeDataToInspectorData(name, name, data);
         this._attributesInspector.addAttribute(inspectorData, index);
     }
 
     _onRemoveAttribute(asset, name) {
-        if (this._asset !== asset || !this._asset) return;
+        if (this._asset !== asset || !this._asset) {
+            return;
+        }
 
         this._attributesInspector.removeAttribute(`components.script.scripts.${this._scriptName}.attributes.${name}`);
     }
 
     _onChangeAttribute(asset, name) {
-        if (this._asset !== asset || !this._asset) return;
+        if (this._asset !== asset || !this._asset) {
+            return;
+        }
 
         this._changedAttributes[name] = true;
 
@@ -554,7 +577,9 @@ class ScriptInspector extends Panel {
 
         this._timeoutChangeAttributes = setTimeout(() => {
             this._timeoutChangeAttributes = null;
-            if (this._asset !== asset || !this._asset) return;
+            if (this._asset !== asset || !this._asset) {
+                return;
+            }
 
             const order = this._asset.get(`data.scripts.${this._scriptName}.attributesOrder`);
 
@@ -571,7 +596,9 @@ class ScriptInspector extends Panel {
     }
 
     _onMoveAttribute(asset, name, index) {
-        if (this._asset !== asset || !this._asset) return;
+        if (this._asset !== asset || !this._asset) {
+            return;
+        }
 
         this._attributesInspector.moveAttribute(`components.script.scripts.${this._scriptName}.attributes.${name}`, index);
     }
@@ -605,7 +632,9 @@ class ScriptInspector extends Panel {
     }
 
     unlink() {
-        if (!this._entities) return;
+        if (!this._entities) {
+            return;
+        }
 
         this._entities = null;
 
@@ -623,7 +652,9 @@ class ScriptInspector extends Panel {
     }
 
     destroy() {
-        if (this._destroyed) return;
+        if (this._destroyed) {
+            return;
+        }
 
         this._editorEvents.forEach(e => e.unbind());
         this._editorEvents.length = 0;
@@ -728,16 +759,22 @@ class ScriptComponentInspector extends ComponentInspector {
     }
 
     _updateScripts(filterScriptsSet) {
-        if (!this._entities) return;
+        if (!this._entities) {
+            return;
+        }
 
         const entitiesPerScript = {};
 
         this._entities.forEach((e, i) => {
             const order = e.get('components.script.order');
-            if (!order) return;
+            if (!order) {
+                return;
+            }
 
             order.forEach((script, j) => {
-                if (filterScriptsSet && !filterScriptsSet.has(script)) return;
+                if (filterScriptsSet && !filterScriptsSet.has(script)) {
+                    return;
+                }
 
                 if (!entitiesPerScript[script]) {
                     entitiesPerScript[script] = [e];
@@ -773,7 +810,9 @@ class ScriptComponentInspector extends ComponentInspector {
     }
 
     _updateDropDown() {
-        if (!this._entities) return [];
+        if (!this._entities) {
+            return [];
+        }
 
         const unparsed = this._findUnparsedScripts();
 
@@ -809,7 +848,9 @@ class ScriptComponentInspector extends ComponentInspector {
         const counts = {};
         this._entities.forEach((e) => {
             const order = e.get('components.script.order');
-            if (!order) return;
+            if (!order) {
+                return;
+            }
 
             order.forEach((script) => {
                 if (!counts[script]) {
@@ -845,7 +886,9 @@ class ScriptComponentInspector extends ComponentInspector {
     }
 
     _onSelectScript(script) {
-        if (!script) return;
+        if (!script) {
+            return;
+        }
 
         this._selectScript.value = null;
 
@@ -886,13 +929,17 @@ class ScriptComponentInspector extends ComponentInspector {
     }
 
     _onDragEnd(scriptInspector, newIndex, oldIndex) {
-        if (!this._entities || this._entities.length !== 1 || newIndex === oldIndex) return;
+        if (!this._entities || this._entities.length !== 1 || newIndex === oldIndex) {
+            return;
+        }
 
         this._entities[0].move('components.script.order', oldIndex, newIndex);
     }
 
     _onScriptAddOrRemove() {
-        if (this._updateScriptsTimeout) return;
+        if (this._updateScriptsTimeout) {
+            return;
+        }
 
         this._updateScriptsTimeout = setTimeout(() => {
             this._updateScriptsTimeout = null;
@@ -908,15 +955,169 @@ class ScriptComponentInspector extends ComponentInspector {
     }
 
     onParseError(error, scriptName) {
-        if (!this._scriptPanels[scriptName]) return;
+        if (!this._scriptPanels[scriptName]) {
+            return;
+        }
 
         const label = new Label({
             class: CLASS_ERROR,
             text: error
         });
 
+        console.log(this._scriptPanels[scriptName].containerErrors);
+
         this._scriptPanels[scriptName].containerErrors.append(label);
         this._scriptPanels[scriptName].containerErrors.hidden = false;
+    }
+
+    clearValidationIssues(scriptName: string) {
+        const clearForPanel = (panel: any) => {
+            if (!panel) {
+                return;
+            }
+
+            // Remove inline error container
+            if (panel._attributesErrorContainer) {
+                panel._attributesErrorContainer.destroy();
+                panel._attributesErrorContainer = null;
+            }
+            // Reset warnings and rebuild attributes to remove warning styling
+            panel._attributeWarnings = new Map();
+            if (panel._attributesInspector) {
+                panel._attributesInspector.destroy();
+                panel._attributesInspector = null;
+            }
+            // Recreate attributes inspector with cleared warnings
+            panel._initializeScriptAttributes();
+        };
+
+        if (scriptName) {
+            clearForPanel(this._scriptPanels[scriptName]);
+            return;
+        }
+
+        // Clear all
+        for (const name in this._scriptPanels) {
+            clearForPanel(this._scriptPanels[name]);
+        }
+    }
+
+    onValidationIssues(scriptName: string, issues: any[], asset: any) {
+        const panel = this._scriptPanels[scriptName];
+        if (!panel) {
+            return;
+        }
+
+        // Start by clearing any existing UI for this script
+        this.clearValidationIssues(scriptName);
+
+        const fileNameFallback = asset && asset.get ? (asset.get('name') || 'unknown') : 'unknown';
+
+        // Separate warnings and errors
+        const warnings = [];
+        const richErrors = [];
+        const simpleErrors = [];
+
+        (issues || []).forEach((issue) => {
+            if (typeof issue === 'string') {
+                simpleErrors.push(issue);
+                return;
+            }
+            if (issue && issue.severity === 4) {
+                warnings.push(issue);
+                return;
+            }
+            if (issue) {
+                richErrors.push(issue);
+            }
+        });
+
+        // Build per-attribute warnings map for this panel
+        if (warnings.length) {
+            const warningsByAttr = new Map();
+            warnings.forEach((warning) => {
+                const name = warning.name || 'unknown';
+                const firstSentence = warning.message ? warning.message.split('.')[0] : '';
+                if (!warningsByAttr.has(name)) {
+                    warningsByAttr.set(name, []);
+                }
+                warningsByAttr.get(name).push(firstSentence);
+            });
+            panel._attributeWarnings = warningsByAttr;
+
+            // Rebuild attributes so warnings reflect in labels/tooltips
+            if (panel._attributesInspector) {
+                panel._attributesInspector.destroy();
+                panel._attributesInspector = null;
+            }
+            panel._initializeScriptAttributes();
+
+            // Log warnings to console with click-through
+            warnings.forEach((warning) => {
+                const fileName = warning.fileName || fileNameFallback;
+                const location = `${fileName}:${warning.startLineNumber}:${warning.startColumn}`;
+                editor.call('console:warn', `${location} - (${warning.name}) ${warning.message}`, () => {
+                    editor.call('picker:codeeditor', asset, {
+                        line: warning.startLineNumber,
+                        col: warning.startColumn
+                    });
+                });
+            });
+        }
+
+        // Render errors inline under the script header
+        if (richErrors.length || simpleErrors.length) {
+            const errorContainer = new Container({
+                class: 'script-asset-inspector-attribute-error-container',
+                flex: true
+            });
+
+            const header = new Label({
+                class: [CLASS_ERROR, CLASS_SCRIPT, 'script-asset-inspector-attribute-error'],
+                text: 'This script contains invalid attributes:'
+            });
+            errorContainer.append(header);
+
+            // Rich errors with positions
+            richErrors.forEach((err) => {
+                const fileName = err.fileName || fileNameFallback;
+                const location = `${fileName}:${err.startLineNumber}:${err.startColumn}`;
+                const firstSentence = err.message ? err.message.split('.')[0] : '';
+
+                const line = new Label({
+                    class: [CLASS_ERROR, 'clickable-error'],
+                    text: `${location} - ${firstSentence}`
+                });
+                line.dom.addEventListener('click', () => {
+                    editor.call('picker:codeeditor', asset, {
+                        line: err.startLineNumber,
+                        col: err.startColumn,
+                        error: true
+                    });
+                });
+                errorContainer.append(line);
+
+                // Console
+                editor.call('console:error', `${location} - (${err.name}) ${err.message}`, () => {
+                    editor.call('picker:codeeditor', asset, {
+                        line: err.startLineNumber,
+                        col: err.startColumn,
+                        error: true
+                    });
+                });
+            });
+
+            // Simple error strings
+            simpleErrors.forEach((msg) => {
+                const line = new Label({ class: [CLASS_ERROR], text: msg });
+                errorContainer.append(line);
+                editor.call('console:error', `${fileNameFallback} - ${msg}`);
+            });
+
+            // Insert before attributes inspector to appear under header
+            panel.appendBefore(errorContainer, panel._attributesInspector);
+            panel._attributesErrorContainer = errorContainer;
+        }
     }
 
     link(entities) {
@@ -941,7 +1142,9 @@ class ScriptComponentInspector extends ComponentInspector {
             }));
 
             this._entityEvents.push(e.on('components.script.order:set', (value) => {
-                if (!value) return;
+                if (!value) {
+                    return;
+                }
 
                 value.forEach((script) => {
                     this._dirtyScripts.add(script);
@@ -977,7 +1180,9 @@ class ScriptComponentInspector extends ComponentInspector {
     }
 
     destroy() {
-        if (this._destroyed) return;
+        if (this._destroyed) {
+            return;
+        }
 
         if (this._templateOverridesInspector) {
             this._templateOverridesInspector.unregisterElementForPath('components.script.order');

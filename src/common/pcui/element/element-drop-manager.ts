@@ -21,12 +21,7 @@ const CLASS_DROP_MANAGER_ACTIVE = `${CLASS_DROP_MANAGER}-active`;
  * @property {Any} dropData The data being dropped
  */
 class DropManager extends Container {
-    /**
-     * Creates a new DropManager.
-     *
-     * @param {object} args - The arguments.
-     */
-    constructor(args) {
+    constructor(args: object) {
         super(args);
 
         this.class.add(CLASS_DROP_MANAGER);
@@ -74,7 +69,9 @@ class DropManager extends Container {
             this.active = false;
         });
         this.on('readOnly', (readOnly) => {
-            if (!readOnly) this.active = false;
+            if (!readOnly) {
+                this.active = false;
+            }
         });
 
         this._domEventDragEnter = this._onDragEnter.bind(this);
@@ -124,17 +121,27 @@ class DropManager extends Container {
         const children = this.domContent.childNodes;
         for (let i = 0; i < children.length; i++) {
             const dropTarget = children[i].ui;
-            if (!(dropTarget instanceof DropTarget)) continue;
+            if (!(dropTarget instanceof DropTarget)) {
+                continue;
+            }
 
             dropTarget.hidden = !dropTarget.onFilter(this.dropType, this.dropData);
 
             if (!dropTarget.hidden && dropTarget.hole) {
 
                 const rect = dropTarget.rect;
-                if (top > rect.top) top = rect.top;
-                if (bottom < rect.bottom) bottom = rect.bottom;
-                if (left > rect.left) left = rect.left;
-                if (right < rect.right) right = rect.right;
+                if (top > rect.top) {
+                    top = rect.top;
+                }
+                if (bottom < rect.bottom) {
+                    bottom = rect.bottom;
+                }
+                if (left > rect.left) {
+                    left = rect.left;
+                }
+                if (right < rect.right) {
+                    right = rect.right;
+                }
 
                 this._domWallTop.classList.remove(CLASS_HIDDEN);
                 this._domWallTop.style.height = `${top}px`;
@@ -174,7 +181,9 @@ class DropManager extends Container {
         const children = this.domContent.childNodes;
         for (let i = 0; i < children.length; i++) {
             const dropTarget = children[i].ui;
-            if (!(dropTarget instanceof DropTarget)) continue;
+            if (!(dropTarget instanceof DropTarget)) {
+                continue;
+            }
 
             dropTarget.hidden = true;
         }
@@ -186,22 +195,30 @@ class DropManager extends Container {
     }
 
     _onDragEnter(evt) {
-        if (!this.enabled) return;
+        if (!this.enabled) {
+            return;
+        }
 
         evt.preventDefault();
 
-        if (this.readOnly) return;
+        if (this.readOnly) {
+            return;
+        }
 
         this._dragEventCounter++;
         this.active = true;
     }
 
     _onDragOver(evt) {
-        if (!this.enabled) return;
+        if (!this.enabled) {
+            return;
+        }
 
         evt.preventDefault();
 
-        if (this.readOnly) return;
+        if (this.readOnly) {
+            return;
+        }
 
         evt.dataTransfer.dropEffect = 'move';
 
@@ -209,11 +226,15 @@ class DropManager extends Container {
     }
 
     _onDragLeave(evt) {
-        if (!this.enabled) return;
+        if (!this.enabled) {
+            return;
+        }
 
         evt.preventDefault();
 
-        if (this.readOnly) return;
+        if (this.readOnly) {
+            return;
+        }
 
         this._dragEventCounter--;
 
@@ -224,18 +245,26 @@ class DropManager extends Container {
     }
 
     _onMouseUp(evt) {
-        if (!this.enabled) return;
-        if (this.readOnly) return;
+        if (!this.enabled) {
+            return;
+        }
+        if (this.readOnly) {
+            return;
+        }
 
         this.active = false;
     }
 
     _onDrop(evt) {
-        if (!this.enabled) return;
+        if (!this.enabled) {
+            return;
+        }
 
         evt.preventDefault();
 
-        if (this.readOnly) return;
+        if (this.readOnly) {
+            return;
+        }
 
         // deactivate
         this.active = false;
@@ -243,7 +272,9 @@ class DropManager extends Container {
 
     _onAppendChild(element) {
         super._onAppendChild(element);
-        if (!(element instanceof DropTarget)) return;
+        if (!(element instanceof DropTarget)) {
+            return;
+        }
 
         element.dropManager = this;
         element.hidden = true;
@@ -251,7 +282,9 @@ class DropManager extends Container {
 
     _onRemoveChild(element) {
         super._onRemoveChild(element);
-        if (!(element instanceof DropTarget)) return;
+        if (!(element instanceof DropTarget)) {
+            return;
+        }
 
         element.dropManager = null;
     }
@@ -266,7 +299,9 @@ class DropManager extends Container {
     }
 
     destroy() {
-        if (this._destroyed) return;
+        if (this._destroyed) {
+            return;
+        }
         window.removeEventListener('dragenter', this._domEventDragEnter);
         window.removeEventListener('dragover', this._domEventDragOver);
         window.removeEventListener('dragleave', this._domEventDragLeave);
@@ -277,7 +312,9 @@ class DropManager extends Container {
     }
 
     set active(value) {
-        if (this._active === value) return;
+        if (this._active === value) {
+            return;
+        }
         this._active = value;
         if (value) {
             this._onActivate();
@@ -291,7 +328,9 @@ class DropManager extends Container {
     }
 
     set dropType(value) {
-        if (this._dropType === value) return;
+        if (this._dropType === value) {
+            return;
+        }
         this._dropType = value || 'files';
         this.emit('dropType', this.dropType);
     }
@@ -301,7 +340,9 @@ class DropManager extends Container {
     }
 
     set dropData(value) {
-        if (this._dropData === value) return;
+        if (this._dropData === value) {
+            return;
+        }
         this._dropData = value || {};
         this.emit('dropData', value);
     }

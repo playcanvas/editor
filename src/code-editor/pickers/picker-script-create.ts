@@ -30,7 +30,9 @@ editor.once('load', () => {
     overlay.append(input);
 
     input.dom.addEventListener('keydown', (evt) => {
-        if (overlay.hidden) return;
+        if (overlay.hidden) {
+            return;
+        }
 
         if (evt.keyCode === 13) {
             // enter

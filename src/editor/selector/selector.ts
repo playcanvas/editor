@@ -22,7 +22,9 @@ editor.once('load', () => {
 
     const setIndex = function (type, item) {
         const key = keyByType(type);
-        if (!key) return;
+        if (!key) {
+            return;
+        }
 
         if (!index[type]) {
             index[type] = { };
@@ -44,13 +46,19 @@ editor.once('load', () => {
     };
 
     const removeIndex = function (type, item) {
-        if (!index[type]) return;
+        if (!index[type]) {
+            return;
+        }
 
         const key = keyByType(type);
-        if (!key) return;
+        if (!key) {
+            return;
+        }
 
         const ind = index[type][item.get[key]];
-        if (!ind) return;
+        if (!ind) {
+            return;
+        }
 
         ind.unbind();
     };
@@ -74,15 +82,15 @@ editor.once('load', () => {
         }
     });
 
-    selection.on('add', (/** @type {Asset | Entity} */ item) => {
+    selection.on('add', (item: Asset | Entity) => {
         editor.emit('selector:add', item.observer, item instanceof Entity ? 'entity' : 'asset');
     });
 
-    selection.on('remove', (/** @type {Asset | Entity} */ item) => {
+    selection.on('remove', (item: Asset | Entity) => {
         editor.emit('selector:remove', item.observer, item instanceof Entity ? 'entity' : 'asset');
     });
 
-    selection.on('change', (/** @type {(Asset | Entity)[]} */ items) => {
+    selection.on('change', (items: (Asset | Entity)[]) => {
         editor.emit('selector:change', items[0] instanceof Entity ? 'entity' : 'asset', items.map(item => item.observer));
     });
 

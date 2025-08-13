@@ -2,18 +2,12 @@ import { Container } from '@playcanvas/pcui';
 
 import { BaseSettingsPanel } from './base.ts';
 import { BatchGroupsSettingsPanelItem } from './batchgroups-item.ts';
+import type { Attribute } from '../attribute.type.d.ts';
 
 const CLASS_ROOT = 'batchgroups-settings-panel';
 const CLASS_ITEM = `${CLASS_ROOT}-item`;
 
-/**
- * @import { Attribute } from '../attribute.type.d.ts'
- */
-
-/**
- * @type {Attribute[]}
- */
-const ATTRIBUTES = [{
+const ATTRIBUTES: Attribute[] = [{
     label: '',
     alias: 'addGroupButton',
     type: 'button',
@@ -118,7 +112,9 @@ class BatchGroupsSettingsPanel extends BaseSettingsPanel {
 
             for (let i = 0, len = affectedModels.length; i < len; i++) {
                 const entity = affectedModels[i].latest();
-                if (!entity) continue;
+                if (!entity) {
+                    continue;
+                }
 
                 const history = entity.history.enabled;
                 entity.history.enabled = false;
@@ -129,7 +125,9 @@ class BatchGroupsSettingsPanel extends BaseSettingsPanel {
 
             for (let i = 0, len = affectedElements.length; i < len; i++) {
                 const entity = affectedElements[i].latest();
-                if (!entity) continue;
+                if (!entity) {
+                    continue;
+                }
 
                 const history = entity.history.enabled;
                 entity.history.enabled = false;

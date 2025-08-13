@@ -1,25 +1,19 @@
 import { Panel, Button, Container, Label } from '@playcanvas/pcui';
 
 import { BaseSettingsPanel } from './base.ts';
+import type { Attribute } from '../attribute.type.d.ts';
 
-/**
- * @import { Attribute } from '../attribute.type.d.ts'
- */
-
-const CLASS_ROOT = 'asset-tasks-settings-panel';
+const CLASS_ROOT = 'asset-import-settings-panel';
 const CLASS_SECTION = `${CLASS_ROOT}-section`;
 const CLASS_ATTRIBUTES = `${CLASS_ROOT}-attributes`;
 
-/**
- * @type {Attribute[]}
- */
-const ATTRIBUTES = [
+const ATTRIBUTES: Attribute[] = [
     {
         observer: 'settings',
         label: 'Search related assets',
         type: 'boolean',
         alias: 'asset-tasks:searchRelatedAssets',
-        reference: 'settings:asset-tasks:searchRelatedAssets',
+        reference: 'settings:asset-import:searchRelatedAssets',
         path: 'editor.pipeline.searchRelatedAssets'
     },
     {
@@ -27,7 +21,7 @@ const ATTRIBUTES = [
         label: 'Assets default to preload',
         type: 'boolean',
         alias: 'asset-tasks:defaultAssetPreload',
-        reference: 'settings:asset-tasks:defaultAssetPreload',
+        reference: 'settings:asset-import:defaultAssetPreload',
         path: 'editor.pipeline.defaultAssetPreload'
     },
     {
@@ -35,7 +29,7 @@ const ATTRIBUTES = [
         label: 'Textures POT',
         type: 'boolean',
         alias: 'asset-tasks:texturePot',
-        reference: 'settings:asset-tasks:texturePot',
+        reference: 'settings:asset-import:texturePot',
         path: 'editor.pipeline.texturePot'
     },
     {
@@ -43,7 +37,7 @@ const ATTRIBUTES = [
         label: 'Create Atlases',
         type: 'boolean',
         alias: 'asset-tasks:textureDefaultToAtlas',
-        reference: 'settings:asset-tasks:textureDefaultToAtlas',
+        reference: 'settings:asset-import:textureDefaultToAtlas',
         path: 'editor.pipeline.textureDefaultToAtlas'
     },
     {
@@ -51,7 +45,7 @@ const ATTRIBUTES = [
         label: 'Preserve material mappings',
         type: 'boolean',
         alias: 'asset-tasks:preserveMapping',
-        reference: 'settings:asset-tasks:preserveMapping',
+        reference: 'settings:asset-import:preserveMapping',
         path: 'editor.pipeline.preserveMapping'
     },
     {
@@ -59,7 +53,7 @@ const ATTRIBUTES = [
         label: 'Overwrite Models',
         type: 'boolean',
         alias: 'asset-tasks:overwrite.model',
-        reference: 'settings:asset-tasks:overwrite:model',
+        reference: 'settings:asset-import:overwrite:model',
         path: 'editor.pipeline.overwriteModel'
     },
     {
@@ -67,7 +61,7 @@ const ATTRIBUTES = [
         label: 'Overwrite Animations',
         type: 'boolean',
         alias: 'asset-tasks:overwrite.animation',
-        reference: 'settings:asset-tasks:overwrite:animation',
+        reference: 'settings:asset-import:overwrite:animation',
         path: 'editor.pipeline.overwriteAnimation'
     },
     {
@@ -75,7 +69,7 @@ const ATTRIBUTES = [
         label: 'Overwrite Materials',
         type: 'boolean',
         alias: 'asset-tasks:overwrite.material',
-        reference: 'settings:asset-tasks:overwrite:material',
+        reference: 'settings:asset-import:overwrite:material',
         path: 'editor.pipeline.overwriteMaterial'
     },
     {
@@ -83,7 +77,7 @@ const ATTRIBUTES = [
         label: 'Overwrite Textures',
         type: 'boolean',
         alias: 'asset-tasks:overwrite.texture',
-        reference: 'settings:asset-tasks:overwrite:texture',
+        reference: 'settings:asset-import:overwrite:texture',
         path: 'editor.pipeline.overwriteTexture'
     },
     {
@@ -91,7 +85,7 @@ const ATTRIBUTES = [
         label: 'Convert to GLB',
         type: 'boolean',
         alias: 'asset-tasks:useGlb',
-        reference: 'settings:asset-tasks:useGlb',
+        reference: 'settings:asset-import:useGlb',
         path: 'editor.pipeline.useGlb'
     },
     {
@@ -99,7 +93,7 @@ const ATTRIBUTES = [
         label: 'Import Hierarchy',
         type: 'boolean',
         alias: 'asset-tasks:useContainers',
-        reference: 'settings:asset-tasks:useContainers',
+        reference: 'settings:asset-import:useContainers',
         path: 'editor.pipeline.useContainers'
     },
     {
@@ -107,7 +101,7 @@ const ATTRIBUTES = [
         label: 'Mesh Compression',
         type: 'select',
         alias: 'asset-tasks:meshCompression',
-        reference: 'settings:asset-tasks:meshCompression',
+        reference: 'settings:asset-import:meshCompression',
         path: 'editor.pipeline.meshCompression',
         args: {
             type: 'string',
@@ -122,7 +116,7 @@ const ATTRIBUTES = [
         label: 'Draco Decode Speed',
         type: 'slider',
         alias: 'asset-tasks:dracoDecodeSpeed',
-        reference: 'settings:asset-tasks:dracoDecodeSpeed',
+        reference: 'settings:asset-import:dracoDecodeSpeed',
         path: 'editor.pipeline.dracoDecodeSpeed',
         args: {
             precision: 1,
@@ -136,7 +130,7 @@ const ATTRIBUTES = [
         label: 'Draco Mesh Size',
         type: 'slider',
         alias: 'asset-tasks:dracoMeshSize',
-        reference: 'settings:asset-tasks:dracoMeshSize',
+        reference: 'settings:asset-import:dracoMeshSize',
         path: 'editor.pipeline.dracoMeshSize',
         args: {
             precision: 1,
@@ -150,7 +144,7 @@ const ATTRIBUTES = [
         label: 'Unwrap Uv',
         type: 'boolean',
         alias: 'asset-tasks:unwrapUv',
-        reference: 'settings:asset-tasks:unwrapUv',
+        reference: 'settings:asset-import:unwrapUv',
         path: 'editor.pipeline.unwrapUv'
     },
     {
@@ -158,7 +152,7 @@ const ATTRIBUTES = [
         label: 'Texels Per Meter',
         type: 'number',
         alias: 'asset-tasks:unwrapUvTexelsPerMeter',
-        reference: 'settings:asset-tasks:unwrapUvTexelsPerMeter',
+        reference: 'settings:asset-import:unwrapUvTexelsPerMeter',
         path: 'editor.pipeline.unwrapUvTexelsPerMeter',
         args: {
             min: 0
@@ -169,7 +163,7 @@ const ATTRIBUTES = [
         label: 'Import Morph Normals',
         type: 'boolean',
         alias: 'asset-tasks:importMorphNormals',
-        reference: 'settings:asset-tasks:importMorphNormals',
+        reference: 'settings:asset-import:importMorphNormals',
         path: 'editor.pipeline.importMorphNormals'
     },
     {
@@ -177,7 +171,7 @@ const ATTRIBUTES = [
         label: 'Create FBX Folder',
         type: 'boolean',
         alias: 'asset-tasks:createFBXFolder',
-        reference: 'settings:asset-tasks:createFBXFolder',
+        reference: 'settings:asset-import:createFBXFolder',
         path: 'editor.pipeline.createFBXFolder'
     },
     {
@@ -192,14 +186,14 @@ const ATTRIBUTES = [
             ]
         },
         alias: 'asset-tasks:animUseFbxFilename',
-        reference: 'settings:asset-tasks:animUseFbxFilename',
+        reference: 'settings:asset-import:animUseFbxFilename',
         path: 'editor.pipeline.animUseFbxFilename'
     },
     {
         observer: 'settings',
         label: 'Sample Rate',
         alias: 'asset-tasks:animSampleRate',
-        reference: 'settings:asset-tasks:animSampleRate',
+        reference: 'settings:asset-import:animSampleRate',
         path: 'editor.pipeline.animSampleRate',
         type: 'select',
         args: {
@@ -225,7 +219,7 @@ const ATTRIBUTES = [
         label: 'Curve Tolerance',
         type: 'number',
         alias: 'asset-tasks:animCurveTolerance',
-        reference: 'settings:asset-tasks:animCurveTolerance',
+        reference: 'settings:asset-import:animCurveTolerance',
         path: 'editor.pipeline.animCurveTolerance'
     },
     {
@@ -233,18 +227,18 @@ const ATTRIBUTES = [
         label: 'Cubic Curves',
         type: 'boolean',
         alias: 'asset-tasks:animEnableCubic',
-        reference: 'settings:asset-tasks:animEnableCubic',
+        reference: 'settings:asset-import:animEnableCubic',
         path: 'editor.pipeline.animEnableCubic'
     }
 ];
 
-class AssetTasksSettingsPanel extends BaseSettingsPanel {
+class AssetImportSettingsPanel extends BaseSettingsPanel {
     constructor(args) {
         args = Object.assign({}, args);
-        args.headerText = 'ASSET TASKS';
+        args.headerText = 'ASSET IMPORT';
         args.attributes = ATTRIBUTES;
         args.userOnlySettings = true;
-        args._tooltipReference = 'settings:asset-tasks';
+        args._tooltipReference = 'settings:asset-import';
 
         super(args);
 
@@ -342,4 +336,4 @@ class AssetTasksSettingsPanel extends BaseSettingsPanel {
     }
 }
 
-export { AssetTasksSettingsPanel };
+export { AssetImportSettingsPanel };

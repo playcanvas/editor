@@ -136,7 +136,9 @@ editor.once('load', () => {
 
     // subscribe to messenger scene.delete
     editor.on('messenger:scene.delete', (data) => {
-        if (data.scene.branchId !== config.self.branch.id) return;
+        if (data.scene.branchId !== config.self.branch.id) {
+            return;
+        }
 
         // add scene to deleted so that we don't try to reopen it
         // on the 'popstate' event

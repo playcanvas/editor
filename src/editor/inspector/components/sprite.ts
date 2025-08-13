@@ -3,16 +3,11 @@ import { Panel, Container, Button } from '@playcanvas/pcui';
 import { ComponentInspector } from './component.ts';
 import { deepCopy } from '../../../common/utils.ts';
 import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from '../../../core/constants.ts';
+import type { Attribute } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-/**
- * @import { Attribute } from '../attribute.type.d.ts'
- */
 
-/**
- * @type {Attribute[]}
- */
-const COMPONENT_ATTRIBUTES = [{
+const COMPONENT_ATTRIBUTES: Attribute[] = [{
     label: 'Type',
     path: 'components.sprite.type',
     type: 'select',
@@ -102,10 +97,7 @@ const COMPONENT_ATTRIBUTES = [{
     }
 }];
 
-/**
- * @type {Attribute[]}
- */
-const CLIP_ATTRIBUTES = [{
+const CLIP_ATTRIBUTES: Attribute[] = [{
     label: 'Name',
     path: 'components.sprite.clips.$.name',
     type: 'string'
@@ -131,13 +123,17 @@ const CLIP_ATTRIBUTES = [{
 
 // add reference fields
 COMPONENT_ATTRIBUTES.forEach((attr) => {
-    if (!attr.path) return;
+    if (!attr.path) {
+        return;
+    }
     const parts = attr.path.split('.');
     attr.reference = `sprite:${parts[parts.length - 1]}`;
 });
 
 CLIP_ATTRIBUTES.forEach((attr) => {
-    if (!attr.path) return;
+    if (!attr.path) {
+        return;
+    }
     const parts = attr.path.split('.');
     attr.reference = `spriteAnimation:${parts[parts.length - 1]}`;
 });
@@ -153,7 +149,9 @@ function getClipsGroupedByName(entities) {
     // first group clips by name
     entities.forEach((e) => {
         const clips = e.get('components.sprite.clips');
-        if (!clips) return;
+        if (!clips) {
+            return;
+        }
 
         for (const key in clips) {
             const clip = clips[key];
@@ -245,10 +243,14 @@ class SpriteClipInspector extends Panel {
 
             entities.forEach((e, i) => {
                 const entity = e.latest();
-                if (!entity || !entity.has('components.sprite')) return;
+                if (!entity || !entity.has('components.sprite')) {
+                    return;
+                }
 
                 const path = `components.sprite.clips.${clipKeys[i]}`;
-                if (!entity.has(path)) return;
+                if (!entity.has(path)) {
+                    return;
+                }
 
                 const clip = entity.get(path);
                 const autoPlayClip = entity.get('components.sprite.autoPlayClip');
@@ -271,10 +273,14 @@ class SpriteClipInspector extends Panel {
         const undo = () => {
             entities.forEach((e, i) => {
                 const entity = e.latest();
-                if (!entity || !entity.has('components.sprite') || !prev[e.get('resource_id')]) return;
+                if (!entity || !entity.has('components.sprite') || !prev[e.get('resource_id')]) {
+                    return;
+                }
 
                 const record = prev[e.get('resource_id')];
-                if (!record) return;
+                if (!record) {
+                    return;
+                }
 
                 const history = entity.history.enabled;
                 entity.history.enabled = false;
@@ -326,7 +332,9 @@ class SpriteClipInspector extends Panel {
     }
 
     destroy() {
-        if (this._destroyed) return;
+        if (this._destroyed) {
+            return;
+        }
 
         if (this._templateOverridesInspector) {
             this._templateOverridesInspector.unregisterElementForPath(`components.sprite.clips.${this._clipKeys[0]}`);
@@ -389,7 +397,9 @@ class SpriteComponentInspector extends ComponentInspector {
         let largestKey = 1;
         for (let i = 0; i < entities.length; i++) {
             const clips = entities[i].get('components.sprite.clips');
-            if (!clips) continue;
+            if (!clips) {
+                continue;
+            }
 
             for (const key in clips) {
                 largestKey = Math.max(largestKey, parseInt(key, 10) + 1);
@@ -407,7 +417,9 @@ class SpriteComponentInspector extends ComponentInspector {
         function redo() {
             entities.forEach((e) => {
                 const entity = e.latest();
-                if (!entity || !entity.has('components.sprite')) return;
+                if (!entity || !entity.has('components.sprite')) {
+                    return;
+                }
 
                 const history = entity.history.enabled;
                 entity.history.enabled = false;
@@ -430,14 +442,18 @@ class SpriteComponentInspector extends ComponentInspector {
         function undo() {
             entities.forEach((e) => {
                 const entity = e.latest();
-                if (!entity) return;
+                if (!entity) {
+                    return;
+                }
 
                 const history = entity.history.enabled;
                 entity.history.enabled = false;
 
                 // find clip by clip name
                 const clips = entity.get('components.sprite.clips');
-                if (!clips) return;
+                if (!clips) {
+                    return;
+                }
 
                 let clipKey = null;
                 for (const key in clips) {
@@ -447,7 +463,9 @@ class SpriteComponentInspector extends ComponentInspector {
                     }
                 }
 
-                if (clipKey === null) return;
+                if (clipKey === null) {
+                    return;
+                }
 
                 entity.unset(`components.sprite.clips.${clipKey}`);
                 entity.history.enabled = history;
@@ -503,7 +521,9 @@ class SpriteComponentInspector extends ComponentInspector {
 
         // try to insert the clip at the correct index
         const idx = Object.keys(commonClips).indexOf(clipName);
-        if (idx === -1) return;
+        if (idx === -1) {
+            return;
+        }
 
         const nextSibling = this._containerClips.dom.childNodes[idx];
 
@@ -539,7 +559,9 @@ class SpriteComponentInspector extends ComponentInspector {
     }
 
     _onAfterClipNameChange() {
-        if (!this._entities) return;
+        if (!this._entities) {
+            return;
+        }
 
         // make sure we are still only showing the common clips between entities
         // and add any missing ones / remove any obsolete
@@ -556,7 +578,9 @@ class SpriteComponentInspector extends ComponentInspector {
         // add new clips
         const names = Object.keys(commonClips);
         names.forEach((name, i) => {
-            if (this._clipInspectors[name]) return;
+            if (this._clipInspectors[name]) {
+                return;
+            }
 
             const nextSibling = this._containerClips.dom.childNodes[i];
             this._createClipInspector(this._entities, name, commonClips[name], nextSibling);
@@ -585,7 +609,9 @@ class SpriteComponentInspector extends ComponentInspector {
     }
 
     _toggleFields() {
-        if (this._suppressToggleFields) return;
+        if (this._suppressToggleFields) {
+            return;
+        }
 
         const isAnimated = this._field('type').value === 'animated';
         const isSimple = this._field('type').value === 'simple';
@@ -634,7 +660,9 @@ class SpriteComponentInspector extends ComponentInspector {
         // event for deleted clips
         entities.forEach((e, i) => {
             this._entityEvents.push(e.on('*:unset', (path, value) => {
-                if (!REGEX_CLIP.test(path)) return;
+                if (!REGEX_CLIP.test(path)) {
+                    return;
+                }
                 this._onUnsetClip(value.name);
             }));
         });

@@ -1,8 +1,7 @@
+import type { Panel } from '@playcanvas/pcui';
+
 import { LegacyButton } from '../../../common/ui/button.ts';
 
-/**
- * @import { Panel } from '@playcanvas/pcui'
- */
 
 editor.once('load', () => {
     editor.method('picker:sprites:attributes:frames', (args) => {
@@ -13,8 +12,7 @@ editor.once('load', () => {
         const frames = args.frames;
         const numFrames = frames.length;
 
-        /** @type {Panel} */
-        const rootPanel = editor.call('picker:sprites:rightPanel');
+        const rootPanel: Panel = editor.call('picker:sprites:rightPanel');
         if (numFrames > 1) {
             rootPanel.headerText = 'FRAME INSPECTOR - MULTIPLE FRAMES';
         } else {
@@ -67,7 +65,9 @@ editor.once('load', () => {
         fieldRect[0].parent.hidden = true;
 
         fieldRect[0].on('change', () => {
-            if (suspendChanges) return;
+            if (suspendChanges) {
+                return;
+            }
 
             suspendChanges = true;
             updatePositionX();
@@ -77,7 +77,9 @@ editor.once('load', () => {
         });
 
         fieldRect[1].on('change', () => {
-            if (suspendChanges) return;
+            if (suspendChanges) {
+                return;
+            }
 
             suspendChanges = true;
             updatePositionY();
@@ -87,7 +89,9 @@ editor.once('load', () => {
         });
 
         fieldRect[2].on('change', () => {
-            if (suspendChanges) return;
+            if (suspendChanges) {
+                return;
+            }
 
             suspendChanges = true;
             updateSizeX();
@@ -96,7 +100,9 @@ editor.once('load', () => {
         });
 
         fieldRect[3].on('change', () => {
-            if (suspendChanges) return;
+            if (suspendChanges) {
+                return;
+            }
 
             suspendChanges = true;
             updatePositionY();
@@ -115,7 +121,9 @@ editor.once('load', () => {
 
             for (let i = 0, len = frames.length; i < len; i++) {
                 const f = frameData[frames[i]];
-                if (!f) continue;
+                if (!f) {
+                    continue;
+                }
                 const rect = f._data.rect;
                 maxPos = Math.min(maxPos, dimension - rect[rectIndex]);
             }
@@ -133,7 +141,9 @@ editor.once('load', () => {
 
             for (let i = 0, len = frames.length; i < len; i++) {
                 const f = frameData[frames[i]];
-                if (!f) continue;
+                if (!f) {
+                    continue;
+                }
                 const rect = f._data.rect;
                 maxSize = Math.min(maxSize, dimension - rect[rectIndex]);
             }
@@ -217,7 +227,9 @@ editor.once('load', () => {
         updatePositionY();
 
         fieldPosition[0].on('change', (value) => {
-            if (suspendChanges) return;
+            if (suspendChanges) {
+                return;
+            }
             suspendChanges = true;
             fieldRect[0].value = value;
             fieldPosition[0].proxy = fieldRect[0].proxy;
@@ -226,7 +238,9 @@ editor.once('load', () => {
         });
 
         fieldPosition[1].on('change', (value) => {
-            if (suspendChanges) return;
+            if (suspendChanges) {
+                return;
+            }
             suspendChanges = true;
             fieldRect[1].value = value;
             fieldPosition[1].proxy = fieldRect[1].proxy;
@@ -250,13 +264,17 @@ editor.once('load', () => {
         updateSizeY();
 
         fieldSize[0].on('change', (value) => {
-            if (suspendChanges) return;
+            if (suspendChanges) {
+                return;
+            }
 
             updateSizeAndAdjustBorder(value, false);
         });
 
         fieldSize[1].on('change', (value) => {
-            if (suspendChanges) return;
+            if (suspendChanges) {
+                return;
+            }
 
             updateSizeAndAdjustBorder(value, true);
         });
@@ -271,7 +289,9 @@ editor.once('load', () => {
 
             const redo = function () {
                 const asset = editor.call('assets:get', atlasAsset.get('id'));
-                if (!asset) return;
+                if (!asset) {
+                    return;
+                }
 
                 const history = asset.history.enabled;
                 asset.history.enabled = false;
@@ -279,10 +299,14 @@ editor.once('load', () => {
                 const frameData = asset.getRaw('data.frames')._data;
                 for (let i = 0, len = frames.length; i < len; i++) {
                     const frame = frameData[frames[i]];
-                    if (!frame) continue;
+                    if (!frame) {
+                        continue;
+                    }
 
                     if (frame._data.rect[rect] !== value) {
-                        if (!prev) prev = {};
+                        if (!prev) {
+                            prev = {};
+                        }
 
                         prev[frames[i]] = {
                             value: frame._data.rect[rect],
@@ -309,7 +333,9 @@ editor.once('load', () => {
             const undo = function () {
 
                 const asset = editor.call('assets:get', atlasAsset.get('id'));
-                if (!asset) return;
+                if (!asset) {
+                    return;
+                }
 
                 const history = asset.history.enabled;
                 asset.history.enabled = false;
@@ -317,7 +343,9 @@ editor.once('load', () => {
                 const frameData = asset.getRaw('data.frames')._data;
 
                 for (const key in prev) {
-                    if (!frameData[key]) continue;
+                    if (!frameData[key]) {
+                        continue;
+                    }
 
                     asset.set(`data.frames.${key}.rect.${rect}`, prev[key].value);
                     asset.set(`data.frames.${key}.border.${border}`, prev[key].border[0]);
@@ -372,10 +400,14 @@ editor.once('load', () => {
         editor.call('attributes:reference:attach', 'spriteeditor:frame:pivotPreset', fieldPivotPreset.parent.innerElement.firstChild.ui, null, panel);
 
         fieldPivotPreset.on('change', (value) => {
-            if (suspendChanges) return;
+            if (suspendChanges) {
+                return;
+            }
 
             const newValue = presetValues[parseInt(value, 10)];
-            if (!newValue) return;
+            if (!newValue) {
+                return;
+            }
 
             const prevValues = {};
             for (let i = 0; i < numFrames; i++) {
@@ -384,7 +416,9 @@ editor.once('load', () => {
 
             const redo = function () {
                 const asset = editor.call('assets:get', atlasAsset.get('id'));
-                if (!asset) return;
+                if (!asset) {
+                    return;
+                }
 
                 const history = asset.history.enabled;
                 asset.history.enabled = false;
@@ -399,7 +433,9 @@ editor.once('load', () => {
 
             const undo = function () {
                 const asset = editor.call('assets:get', atlasAsset.get('id'));
-                if (!asset) return;
+                if (!asset) {
+                    return;
+                }
 
                 const history = asset.history.enabled;
                 asset.history.enabled = false;
@@ -442,11 +478,15 @@ editor.once('load', () => {
         editor.call('attributes:reference:attach', 'spriteeditor:frame:pivot', fieldPivot[0].parent.innerElement.firstChild.ui, null, panel);
 
         fieldPivot[0].on('change', (value) => {
-            if (suspendChanges) return;
+            if (suspendChanges) {
+                return;
+            }
             updatePivotPreset();
         });
         fieldPivot[1].on('change', (value) => {
-            if (suspendChanges) return;
+            if (suspendChanges) {
+                return;
+            }
             updatePivotPreset();
         });
 
@@ -490,7 +530,9 @@ editor.once('load', () => {
 
             for (let i = 0, len = frames.length; i < len; i++) {
                 const f = frameData[frames[i]];
-                if (!f) continue;
+                if (!f) {
+                    continue;
+                }
                 const rect = f._data.rect;
                 const border = f._data.border;
                 maxLeft = Math.min(maxLeft, rect[2] - border[2]);
