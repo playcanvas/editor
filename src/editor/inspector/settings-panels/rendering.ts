@@ -494,7 +494,7 @@ const ATTRIBUTES = [
     },
     {
         observer: 'projectSettings',
-        label: 'Anti-Alias',
+        label: 'Anti-aliasing',
         type: 'boolean',
         alias: 'project:antiAlias',
         reference: 'settings:project:antiAlias',
