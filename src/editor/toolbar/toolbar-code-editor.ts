@@ -28,9 +28,6 @@ editor.once('load', () => {
         if (asset) {
             query.push(`tabs=${asset.get('id')}`);
         }
-        if (params.has('v2')) {
-            query.push('v2');
-        }
         if (params.has('version')) {
             query.push('version');
         }
