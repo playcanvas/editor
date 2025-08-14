@@ -50,8 +50,52 @@ const setTRS = (item: EntityObserver, trs: GizmoNodeTransform, history: boolean 
 };
 
 const initGizmo = <T extends TransformGizmo>(gizmo: T) => {
-    // set size
+    // general settings
     gizmo.size = GIZMO_SIZE;
+    gizmo.setTheme({
+        axis: {
+            x: pc.Color.RED,
+            y: pc.Color.GREEN,
+            z: pc.Color.BLUE,
+            xyz: pc.Color.WHITE,
+            f: pc.Color.YELLOW
+        },
+        hover: {
+            x: pc.Color.WHITE,
+            y: pc.Color.WHITE,
+            z: pc.Color.WHITE,
+            xyz: pc.Color.WHITE,
+            f: pc.Color.WHITE
+        },
+        guide: {
+            x: pc.Color.WHITE,
+            y: pc.Color.WHITE,
+            z: pc.Color.WHITE,
+            f: pc.Color.WHITE
+        },
+        disabled: new pc.Color(0.5, 0.5, 0.5, 0.5)
+    });
+
+    // gizmo specific settings
+    if (gizmo instanceof pc.TranslateGizmo) {
+        gizmo.flipAxes = false;
+        gizmo.dragMode = 'hide';
+        gizmo.axisLineThickness = 0.01;
+        gizmo.axisPlaneGap = 0;
+        gizmo.axisCenterSize = 0.01; // TODO: hide center sphere for now
+    }
+    if (gizmo instanceof pc.RotateGizmo) {
+        gizmo.faceTubeRadius = 0.0075;
+        gizmo.xyzTubeRadius = 0.0075;
+    }
+    if (gizmo instanceof pc.ScaleGizmo) {
+        gizmo.flipAxes = false;
+        gizmo.dragMode = 'hide';
+        gizmo.axisLineThickness = 0.01;
+        gizmo.axisPlaneGap = 0;
+        gizmo.axisPlaneSize = 0; // TODO: look unintuitive when flipped as it scales in the opposite direction
+        // gizmo.uniform = true; // FIXME: uniform scaling direction not working correctly after rotation
+    }
 
     // call viewport render while moving gizmo
     gizmo.on(pc.Gizmo.EVENT_POINTERMOVE, () => {
