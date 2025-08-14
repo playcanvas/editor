@@ -1,8 +1,7 @@
+import { AttributeReference } from './reference.type.ts';
+
 editor.once('load', () => {
-    /**
-     * @type {AttributeReference[]}
-     */
-    const fields = [{
+    const fields: AttributeReference[] = [{
         name: 'settings:name',
         title: 'name',
         subTitle: '{String}',
@@ -61,21 +60,6 @@ editor.once('load', () => {
     }, {
         name: 'settings:lightmapperAutoBake',
         description: 'Enable or disable automatic lightmap baking.'
-    },
-    {
-        name: 'settings:ai',
-        title: 'AI',
-        description: 'Settings for controlling AI autocomplete in the code editor.'
-    }, {
-        name: 'settings:autocompleteEnabled',
-        title: 'Autocomplete Enabled',
-        description: 'Enable autocomplete in the code editor.'
-    },
-    {
-        name: 'settings:autocompleteDelay',
-        title: 'Autocomplete Delay',
-        subTitle: 'number',
-        description: 'The delay in seconds before autocomplete triggers.'
     },
     {
         name: 'settings:physics',

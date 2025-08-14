@@ -1,7 +1,6 @@
-/**
- * @type {AttributeReference[]}
- */
-export const fields  = [{
+import type { AttributeReference } from '../reference.type.ts';
+
+export const fields: AttributeReference[]  = [{
     name: 'asset:text:asset',
     title: 'TEXT',
     subTitle: '{String}',

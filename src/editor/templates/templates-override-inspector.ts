@@ -1,9 +1,7 @@
-import { tooltipOverrideItem } from '../../common/tooltips.ts';
+import type { Observer, ObserverList, EventHandle } from '@playcanvas/observer';
+import type { Element, Container } from '@playcanvas/pcui';
 
-/**
- * @import { Observer, ObserverList, EventHandle } from '@playcanvas/observer'
- * @import { Element, Container } from '@playcanvas/pcui';
- */
+import { tooltipOverrideItem } from '../../common/tooltips.ts';
 
 const CLASS_OVERRIDE = 'template-inspector-override';
 
@@ -11,33 +9,17 @@ const CLASS_OVERRIDE = 'template-inspector-override';
  * Handles highlighting template overrides on various elements and showing relevant tooltips.
  */
 class TemplateOverrideInspector {
-    /**
-     * @type {Record<string, { element: Element, tooltipItem: Container }>}
-     */
-    _overrides = {};
+    private _overrides: Record<string, { element: Element, tooltipItem: Container }> = {};
 
-    /**
-     * @type {Record<string, { element: Element, tooltipGroup: Container }>}
-     */
-    _registeredElements = {};
+    private _registeredElements: Record<string, { element: Element, tooltipGroup: Container }> = {};
 
-    /**
-     * @type {EventHandle[]}
-     */
-    _entityEvents = [];
+    private _entityEvents: EventHandle[] = [];
 
-    /**
-     * @type {EventHandle | null}
-     */
-    _evtPartOfTemplate = null;
+    private _evtPartOfTemplate: EventHandle | null = null;
 
-    /**
-     * Creates new instance of the class.
-     *
-     * @param {object} args - The arguments.
-     * @param {ObserverList} args.entities - The entities observer list.
-     */
-    constructor(args) {
+    private _entity: Observer | null = null;
+
+    constructor(args: ObserverList) {
         this._entities = args.entities;
 
         this._evtMessenger = editor.on('messenger:template.apply', this._onTemplateApply.bind(this));
@@ -67,9 +49,9 @@ class TemplateOverrideInspector {
     }
 
     /**
-     * @param {Observer} entity - The entity to bind events to.
+     * @param entity - The entity to bind events to.
      */
-    _bindEntityEvents(entity) {
+    _bindEntityEvents(entity: Observer) {
         this._entityEvents.push(entity.on('*:set', this._deferRefreshOverrides.bind(this)));
         this._entityEvents.push(entity.on('*:unset', this._deferRefreshOverrides.bind(this)));
         this._entityEvents.push(entity.on('*:insert', this._deferRefreshOverrides.bind(this)));
@@ -191,10 +173,8 @@ class TemplateOverrideInspector {
 
     /**
      * The current entity we are inspecting for overrides.
-     *
-     * @type {Observer}
      */
-    set entity(value) {
+    set entity(value: Observer) {
         if (this._entity === value) {
             return;
         }

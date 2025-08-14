@@ -1,10 +1,7 @@
 import { BaseSettingsPanel } from './base.ts';
 import { CLASS_ERROR } from '../../../common/pcui/constants.ts';
 import { LegacyTooltip } from '../../../common/ui/tooltip.ts';
-
-/**
- * @import { Attribute } from '../attribute.type.d.ts'
- */
+import type { Attribute } from '../attribute.type.d.ts';
 
 const CLASS_ROOT = 'layers-settings-panel';
 const CLASS_LAYER_PANEL = `${CLASS_ROOT}-layer-panel`;
@@ -12,10 +9,10 @@ const CLASS_LAYER_PANEL = `${CLASS_ROOT}-layer-panel`;
 const htmlSymbols = ['\'', '\\', '/', '"', '<', '>', '&', '`', '='];
 
 /**
- * @param {object} args - The attribute args
- * @returns {Attribute[]} - The attributes
+ * @param args - The attribute args
+ * @returns - The attributes
  */
-const ATTRIBUTES = args => [
+const ATTRIBUTES = (args: object): Attribute[] => [
     {
         observer: 'projectSettings',
         label: 'Name',

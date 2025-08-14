@@ -52,6 +52,8 @@ editor.once('load', () => {
 
     let path: string | null = null;
     let schemaType: string | null = null;
+    let fieldEnabled: boolean = false;
+    let fieldOptions: object[] | null = null;
     let elementHighlighted = null;
 
     if (!clipboard) {
@@ -60,11 +62,9 @@ editor.once('load', () => {
 
     // types of selected objects currently supported
     const objTypes = new Set([
-        'entity'
+        'entity',
+        'asset'
     ]);
-
-    // TODO:
-    // add support for 'asset' inspector
 
 
     // list of exceptions
@@ -123,10 +123,10 @@ editor.once('load', () => {
         icon: 'E348',
         onIsVisible: hasWriteAccess, // visible only if user has write access
         onIsEnabled: () => {
-            return editor.call('clipboard:validPaste', path, schemaType);
+            return fieldEnabled && editor.call('clipboard:validPaste', path, schemaType, fieldOptions);
         },
         onSelect: () => {
-            editor.call('clipboard:paste', path, schemaType);
+            editor.call('clipboard:paste', path, schemaType, fieldOptions);
         }
     });
 
@@ -204,7 +204,7 @@ editor.once('load', () => {
 
 
     // check if path and type are valid to be pasted in the current selection
-    editor.method('clipboard:validPaste', (path: string, type: string) => {
+    editor.method('clipboard:validPaste', (path: string, type: string, options: object[] | null) => {
         if (!path || !type) {
             return false;
         }
@@ -229,12 +229,28 @@ editor.once('load', () => {
             return false;
         }
 
-        return paste.type === type;
+        // types should match
+        if (paste.type !== type) {
+            return false;
+        }
+
+        // if options are provided
+        // ensure the clipboard value is one of the options
+        if (options) {
+            for (const item of options) {
+                if (item.v === paste.value) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        return true;
     });
 
 
     // method to open context menu
-    editor.method('clipboard:contextmenu:open', (x: number, y: number, newPath: string, type: string, element: Element) => {
+    editor.method('clipboard:contextmenu:open', (x: number, y: number, newPath: string, type: string, options: object[] | null, element: Element, canPaste: boolean = true) => {
         // it might not have a path
         if (!newPath) {
             schemaType = null;
@@ -261,6 +277,8 @@ editor.once('load', () => {
         // remember target path and value type
         path = newPath;
         schemaType = type;
+        fieldOptions = options;
+        fieldEnabled = canPaste;
         menuItemCopyLabel.text = editor.call('clipboard:typeToHuman', schemaType);
 
         // highlight field
@@ -305,8 +323,8 @@ editor.once('load', () => {
         return true;
     });
 
-    editor.method('clipboard:paste', (path: string, type: string) => {
-        if (!editor.call('clipboard:validPaste', path, type)) {
+    editor.method('clipboard:paste', (path: string, type: string, options: object[] | null) => {
+        if (!editor.call('clipboard:validPaste', path, type, options)) {
             return false;
         }
 
@@ -390,3 +408,5 @@ editor.once('load', () => {
 // 1. entity.components.anim.stateGraphAsset - created without path, dynamically linked, when changed it changes slots under
 // 2. entity.components.render.materialAssets - is a fixed length array of asset ID's, the array length should not be changed, and is defined by a number of meshInstances on a render asset
 // 3. entity.components.particlesystem.%curves% - curvesets are more complex types, with multi-paths for fields
+// 4. asset material offset/tiling/rotation - texture transform options that apply to all texture slots
+// 5. asset texture/cubemap filtering - is a combined field

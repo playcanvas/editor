@@ -1,12 +1,9 @@
+import type { ObserverList } from '@playcanvas/observer';
 import { Element, Label, Container, Button, BindingObserversToElement } from '@playcanvas/pcui';
 
 import { AssetThumbnail } from './element-asset-thumbnail.ts';
 import { CLASS_MULTIPLE_VALUES } from '../constants.ts';
 
-/**
- * @import { ObserverList } from '@playcanvas/observer';
- * @import { ElementArgs } from '@playcanvas/pcui';
- */
 
 const CLASS_ASSET_INPUT = 'pcui-asset-input';
 const CLASS_ASSET_INPUT_THUMB = 'pcui-asset-input-thumb';
@@ -16,21 +13,22 @@ const CLASS_ASSET_INPUT_ASSET = 'pcui-asset-input-asset';
 const CLASS_ASSET_INPUT_EDIT = 'pcui-asset-input-edit';
 const CLASS_ASSET_INPUT_REMOVE = 'pcui-asset-input-remove';
 
-/**
- * @typedef AssetInputArgs
- * @property {ObserverList} [assets] - The assets observer list.
- * @property {string} [text] - The text on the top right of the field.
- * @property {string} [assetType] - The type of assets that this input can display. Used when
- * picking assets with the asset picker.
- * @property {boolean} [allowDragDrop] - If true then this will enable drag and drop of assets on
- * the input.
- * @property {Function} [pickAssetFn] - A function to pick an asset and pass its id to the callback
- * parameter. If none is provided the default Editor asset picker will be used.
- * @property {Function} [selectAssetFn] - A function that selects the asset id passed as a
- * parameter. If none is provided the default Editor selector will be used.
- * @property {Function} [validateAssetFn] - A function that validates whether an asset is
- * selectable by this asset input.
- */
+type AssetInputArgs = {
+    /** The assets observer list */
+    assets?: ObserverList;
+    /** The text on the top right of the field */
+    text?: string;
+    /** The type of assets that this input can display. Used when picking assets with the asset picker */
+    assetType?: string;
+    /** If true then this will enable drag and drop of assets on the input */
+    allowDragDrop?: boolean;
+    /** A function to pick an asset and pass its id to the callback parameter. If none is provided the default Editor asset picker will be used */
+    pickAssetFn?: Function;
+    /** A function that selects the asset id passed as a parameter. If none is provided the default Editor selector will be used */
+    selectAssetFn?: Function;
+    /** A function that validates whether an asset is selectable by this asset input */
+    validateAssetFn?: Function;
+};
 
 /**
  * Represents an asset input field. It shows a thumbnail of the asset and allows picking of an
@@ -43,12 +41,7 @@ const CLASS_ASSET_INPUT_REMOVE = 'pcui-asset-input-remove';
  * @property {Function} dragLeaveFn A function that is called when we stop dragging an item over the element.
  */
 class AssetInput extends Element {
-    /**
-     * Creates a new AssetInput.
-     *
-     * @param {AssetInputArgs & ElementArgs} args - The arguments.
-     */
-    constructor(args) {
+    constructor(args: AssetInputArgs) {
         args = Object.assign({}, args);
 
         super(args);

@@ -1,25 +1,18 @@
-import { Element, Container, LabelGroup, Panel, Button, ArrayInput, BindingTwoWay } from '@playcanvas/pcui';
+import { Element, Container, LabelGroup, Panel, Button, ArrayInput, BindingTwoWay, Label } from '@playcanvas/pcui';
 
+import type { Attribute } from './attribute.type.d.ts';
 import { AssetInput } from '../../common/pcui/element/element-asset-input.ts';
 import { tooltip, tooltipRefItem } from '../../common/tooltips.ts';
 import { LegacyTooltip } from '../../common/ui/tooltip.ts';
 import '../storage/clipboard-context-menu.ts';
+import type { TemplateOverrideInspector } from '../templates/templates-override-inspector.js';
 
 const isEnabledAttribute = ({ label, type }) => label === 'enabled' && type === 'boolean';
-
-/**
- * @import { Attribute } from './attribute.type.d.ts'
- * @import { Tooltip } from '../../common/pcui/element/element-tooltip.js'
- * @import { TemplateOverrideInspector } from '../templates/templates-override-inspector.js'
- */
 
 const CLASS_ROOT = 'pcui-inspector';
 
 class AttributesInspector extends Container {
-    /**
-     * @type {TemplateOverrideInspector}
-     */
-    _templateOverridesInspector;
+    _templateOverridesInspector: TemplateOverrideInspector;
 
     _clipboardTypes: Set<string> | null;
 
@@ -59,11 +52,7 @@ class AttributesInspector extends Container {
         });
     }
 
-    /**
-     * @param {Attribute} attr - Attribute data
-     * @returns {string | null} - Key for the field
-     */
-    _getFieldKey(attr) {
+    _getFieldKey(attr: Attribute): string | null {
         if (attr.path) {
             return attr.path;
         }
@@ -94,10 +83,23 @@ class AttributesInspector extends Container {
             horzAlignEl: this
         });
 
+        // If tooltip data is provided, create a tooltip item
         if (tooltipData) {
-            group.append(tooltipRefItem({
+            const tooltipItem = tooltipRefItem({
                 reference: tooltipData
-            }));
+            });
+
+            // Optional warnings section (if provided by caller)
+            if (tooltipData?.warnings && tooltipData.warnings.length > 0) {
+                tooltipData.warnings.forEach((warningText: string) => {
+                    tooltipItem.append(new Label({
+                        class: ['warning-item', 'script-asset-inspector-warning'],
+                        text: warningText
+                    }));
+                });
+            }
+
+            group.append(tooltipItem);
         }
 
         return group;
@@ -141,6 +143,7 @@ class AttributesInspector extends Container {
                 // once the field is parented
                 field.once('parent', (parent) => {
                     let target = field;
+                    const options = attr?.args?.options ?? null;
 
                     // if part of a label group, provide copying for the whole element
                     if (parent instanceof LabelGroup) {
@@ -177,7 +180,7 @@ class AttributesInspector extends Container {
                         evt.preventDefault();
 
                         // call context menu
-                        editor.call('clipboard:contextmenu:open', evt.clientX + 1, evt.clientY, attr.path, type, target.dom);
+                        editor.call('clipboard:contextmenu:open', evt.clientX + 1, evt.clientY, attr.path, type, options, target.dom, field.enabled);
                     };
 
                     let element = target.dom;
@@ -201,7 +204,7 @@ class AttributesInspector extends Container {
                         target.label.dom.appendChild(btnPaste.dom);
 
                         btnPaste.on('click', () => {
-                            const pasted = editor.call('clipboard:paste', attr.path, type);
+                            const pasted = editor.call('clipboard:paste', attr.path, type, options);
                             if (pasted) {
                                 editor.call('clipboard:flashElement', target.dom);
                             }
@@ -223,7 +226,7 @@ class AttributesInspector extends Container {
                                 btnPaste.enabled = false;
                             } else {
                                 // toggle paste button
-                                btnPaste.enabled = editor.call('clipboard:validPaste', attr.path, type);
+                                btnPaste.enabled = field.enabled && editor.call('clipboard:validPaste', attr.path, type, options);
                                 editor.call('clipboard:flashElement', target.dom);
                             }
                         });
@@ -233,6 +236,7 @@ class AttributesInspector extends Container {
                             target: btnCopy.dom,
                             text: 'Copy',
                             align: 'bottom',
+                            class: 'pcui-tooltip-clipboard',
                             root: editor.call('layout.root')
                         });
 
@@ -241,6 +245,7 @@ class AttributesInspector extends Container {
                             target: btnPaste.dom,
                             text: 'Paste',
                             align: 'bottom',
+                            class: 'pcui-tooltip-clipboard',
                             root: editor.call('layout.root')
                         });
 
@@ -254,7 +259,7 @@ class AttributesInspector extends Container {
                                 btnCopy.hidden = false;
                                 btnPaste.hidden = false;
                                 btnCopy.enabled = true;
-                                btnPaste.enabled = editor.call('clipboard:validPaste', attr.path, type);
+                                btnPaste.enabled = field.enabled && editor.call('clipboard:validPaste', attr.path, type, options);
 
                                 const humanReadableType = editor.call('clipboard:typeToHuman', type);
                                 tooltipCopy.text = `Copy ${humanReadableType}`;
@@ -305,10 +310,7 @@ class AttributesInspector extends Container {
 
             const field = this.createFieldForAttribute(attr);
 
-            /**
-             * @type {Container}
-             */
-            let tooltipGroup;
+            let tooltipGroup: Container;
 
             if (attr.type !== 'asset' && attr.type !== 'json' && attr.type !== 'array:json') {
                 if (attr.label) {
@@ -333,6 +335,10 @@ class AttributesInspector extends Container {
                         tooltipData = attr.tooltip;
                     }
 
+                    // If attribute has warnings, add yellow styling with icon
+                    if (attr.warning) {
+                        labelGroup.class.add('script-asset-inspector-attribute-warning');
+                    }
                     tooltipGroup = this._createTooltipGroup(labelGroup, tooltipData);
                 } else {
                     this.append(field);
@@ -342,6 +348,9 @@ class AttributesInspector extends Container {
                 }
             } else if (attr.type === 'asset') {
                 field.text = attr.label;
+                if (attr.warning) {
+                    field.class.add('script-asset-inspector-attribute-warning');
+                }
                 this.append(field);
                 if (index >= 0) {
                     this.move(field, index);
@@ -360,6 +369,10 @@ class AttributesInspector extends Container {
                     collapsible: true,
                     flex: true
                 });
+
+                if (attr.warning && panel.header) {
+                    panel.header.class.add('script-asset-inspector-attribute-warning');
+                }
 
                 panel.append(field);
 

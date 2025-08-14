@@ -5,7 +5,7 @@ editor.once('load', () => {
     editor.method('projects:create', (data, success, errorFn) => {
         // Prepare project data for API call
         const keys = ['name', 'description', 'private', 'private_assets', 'fork_from', 'owner', 'settings'];
-        const apiData = /** @type {any} */ ({});
+        const apiData: any = ({});
         keys.forEach((key) => {
             apiData[key] = data[key];
         });

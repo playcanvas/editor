@@ -1,7 +1,6 @@
-/**
- * @type {AttributeReference[]}
- */
-export const fields  = [{
+import type { AttributeReference } from '../reference.type.ts';
+
+export const fields: AttributeReference[]  = [{
     name: 'layoutchild:component',
     title: 'pc.LayoutChildComponent',
     subTitle: '{pc.Component}',

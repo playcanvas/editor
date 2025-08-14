@@ -1,13 +1,7 @@
 import { BaseSettingsPanel } from './base.ts';
+import type { Attribute } from '../attribute.type.d.ts';
 
-/**
- * @import { Attribute } from '../attribute.type.d.ts'
- */
-
-/**
- * @type {Attribute[]}
- */
-const ATTRIBUTES = [
+const ATTRIBUTES: Attribute[] = [
     {
         observer: 'projectSettings',
         label: 'URLs',

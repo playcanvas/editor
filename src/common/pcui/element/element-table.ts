@@ -1,12 +1,9 @@
+import type { Observer } from '@playcanvas/observer';
 import { Element, Container, Label } from '@playcanvas/pcui';
 
 import { TableCell } from './element-table-cell.ts';
 import { TableRow } from './element-table-row.ts';
 
-/**
- * @import { Observer } from '@playcanvas/observer';
- * @import { ContainerArgs } from '@playcanvas/pcui';
- */
 
 const CLASS_TABLE = 'pcui-table';
 
@@ -23,15 +20,14 @@ const CLASS_RESIZING_VISIBLE = `${CLASS_RESIZING}-visible`;
 const CSS_PROPERTY_HEIGHT_BEFORE = '--resizing-before';
 const CSS_PROPERTY_HEIGHT_AFTER = '--resizing-after';
 
-/**
- * @typedef TableArgs
- * @param {Function} [createRowFn] - A function like (observer) => TableRow that creates a TableRow
- * from an observer.
- * @param {Function} [getRowFn] - A function like (observer) => TableRow that returns an existing
- * row from an observer. Used for faster sorting.
- * @param {Function} [filterFn] - A function like (TableRow) => boolean that hides the row if it
- * returns false.
- */
+type TableArgs = {
+    /** A function like (observer) => TableRow that creates a TableRow from an observer. */
+    createRowFn?: (observer: Observer) => TableRow;
+    /** A function like (observer) => TableRow that returns an existing row from an observer. Used for faster sorting. */
+    getRowFn?: (observer: Observer) => TableRow;
+    /** A function like (TableRow) => boolean that hides the row if it returns false. */
+    filterFn?: (row: TableRow) => boolean;
+}
 
 /**
  * Represents a table view with optional resizable and sortable columns.
@@ -54,12 +50,7 @@ const CSS_PROPERTY_HEIGHT_AFTER = '--resizing-after';
  * Defaults to true.
  */
 class Table extends Container {
-    /**
-     * Creates a new Table.
-     *
-     * @param {TableArgs & ContainerArgs} [args] - The arguments.
-     */
-    constructor(args) {
+    constructor(args: TableArgs) {
         args = Object.assign({}, args);
 
         super(args);

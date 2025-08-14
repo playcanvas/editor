@@ -3,22 +3,21 @@ import { Element, Canvas } from '@playcanvas/pcui';
 import { deepCopy } from '../../utils.ts';
 import { CLASS_MULTIPLE_VALUES } from '../constants.ts';
 
-/**
- * @import { ElementArgs } from '@playcanvas/pcui';
- */
 
 const CLASS_CURVE = 'pcui-curve';
 
-/**
- * @typedef CurveInputArgs
- * @property {number} [lineWidth] - The width of the rendered lines in pixels.
- * @property {number} [min] - The minimum value that curves can take.
- * @property {number} [max] - The maximum value that curves can take.
- * @property {number} [verticalValue] - The default maximum and minimum values to show if min
- * and max are undefined.
- * @property {boolean} [hideRandomize] - Whether to hide the randomize button in the curve
- * picker.
- */
+type CurveInputArgs = {
+    /** The width of the rendered lines in pixels. */
+    lineWidth?: number;
+    /** The minimum value that curves can take. */
+    min?: number;
+    /** The maximum value that curves can take. */
+    max?: number;
+    /** The default maximum and minimum values to show if min and max are undefined. */
+    verticalValue?: number;
+    /** Whether to hide the randomize button in the curve picker. */
+    hideRandomize?: boolean;
+}
 
 /**
  * Shows a curve or curveset.
@@ -26,12 +25,7 @@ const CLASS_CURVE = 'pcui-curve';
  * @property {boolean} renderChanges If true the input will flash when changed.
  */
 class CurveInput extends Element {
-    /**
-     * Creates a new CurveInput.
-     *
-     * @param {CurveInputArgs & ElementArgs} [args] - The arguments.
-     */
-    constructor(args) {
+    constructor(args: CurveInputArgs) {
         args = Object.assign({
             tabIndex: 0
         }, args);

@@ -16,12 +16,7 @@ import {
 const CLASS_ROOT = 'pcui-animstategraph-condition';
 
 class AnimstategraphCondition extends Container {
-    /**
-     * Creates a new condition.
-     *
-     * @param {object} [args] - The arguments
-     */
-    constructor(args) {
+    constructor(args: object) {
         args = Object.assign({
             class: CLASS_ROOT
         }, args);

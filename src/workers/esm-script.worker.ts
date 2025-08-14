@@ -1,5 +1,6 @@
 import { JSDocParser } from '@playcanvas/attribute-parser';
 
+import { type Fix } from '../code-editor/monaco/intellisense/attribute-autofill.ts';
 import { WorkerServer } from '../core/worker/worker-server.ts';
 
 const PLAYCANVAS_ATTRIBUTE_DOCS_URL = {
@@ -7,23 +8,17 @@ const PLAYCANVAS_ATTRIBUTE_DOCS_URL = {
     value: 'Attribute Type Docs'
 };
 
-/**
- * @import { Fix } from '../code-editor/monaco/intellisense/attribute-autofill.ts'
- */
-
-/**
- * @typedef {Object} SerializableParsingError
- * @property {string} message - The error message
- * @property {string} file - The source file
- * @property {string} type - The category of the error
- * @property {string} name - The name of the error
- * @property {number} startLine - The start line number of the error
- * @property {number} startColumn - The start column number of the error
- * @property {number} endLine - The end line number of the error
- * @property {number} endColumn - The end column number of the error
- * @property {8 | 4} severity - The severity of the error
- * @property {Fix} fix - The fix for the error
- */
+export type SerializableParsingError = {
+    message: string;
+    attributeName: string;
+    file: string;
+    type: string;
+    start: number;
+    startColumn: number;
+    severity: 8 | 4;
+    code: string | null;
+    fix: Fix | null;
+};
 
 /**
  * Convert an error to a serializable error
@@ -63,11 +58,12 @@ const toSerializableError = (error) => {
     const code = error.type.startsWith('Invalid Type') ? PLAYCANVAS_ATTRIBUTE_DOCS_URL : null;
 
     return {
-        name: error.node.symbol?.getEscapedName() || 'Unknown',
+        name: error.attributeName,
         type: error.type,
         message: error.message,
         fix: error.fix,
         file: sourceFile.fileName,
+        fileName: sourceFile.fileName.split('/').pop() || sourceFile.fileName, // Extract just the filename
         startLineNumber: startLineChar.line + 1,
         startColumn: startLineChar.character + 1,
         endLineNumber: endLineChar.line + 1,
@@ -91,21 +87,16 @@ workerServer.once('init', async (frontendURL) => {
                 const script = attributes[key];
                 const attributesOrder = Object.keys(script.attributes);
                 acc[key] = {
-                    attributesInvalid: [],
+                    attributesInvalid: script.errors.map(toSerializableError).filter(Boolean),
                     attributesOrder,
-                    attributes: script.attributes
+                    attributes: script.attributes,
+                    name: key
                 };
                 return acc;
             }, {});
 
-            const scriptsInvalid = errors.map((error) => {
-                if (!error.file) {
-                    return error.message;
-                }
-                return `${error.file} (${error.line + 1},${error.column + 1}) [JavaScript]: ${error.message}`;
-            });
 
-            workerServer.send('attributes:parse', guid, scripts, scriptsInvalid);
+            workerServer.send('attributes:parse', guid, scripts, errors);
 
         } catch (error) {
             const errorMessage = error instanceof Error ?

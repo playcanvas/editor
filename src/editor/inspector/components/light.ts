@@ -3,16 +3,11 @@ import { Button } from '@playcanvas/pcui';
 import { ComponentInspector } from './component.ts';
 import { LegacyTooltip } from '../../../common/ui/tooltip.ts';
 import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from '../../../core/constants.ts';
+import type { Attribute, Divider } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-/**
- * @import { Attribute, Divider } from '../attribute.type.d.ts'
- */
 
-/**
- * @type {(Attribute | Divider)[]}
- */
-const ATTRIBUTES = [{
+const ATTRIBUTES: (Attribute | Divider)[] = [{
     label: 'Type',
     path: 'components.light.type',
     reference: 'light:type',

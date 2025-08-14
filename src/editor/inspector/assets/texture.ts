@@ -3,11 +3,9 @@ import { Panel, Container, Button, InfoBox, Divider, Label, BindingTwoWay, Bindi
 import { tooltip, tooltipRefItem } from '../../../common/tooltips.ts';
 import { bytesToHuman } from '../../../common/utils.ts';
 import { TextureCompressor } from '../../assets/assets-textures-compress.ts';
+import type { Attribute } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
-/**
- * @import { Attribute } from '../attribute.type.d.ts'
- */
 
 // util
 const makeRefAssigner = (prefix = '') => (attr) => {
@@ -27,10 +25,7 @@ const makeRefAssigner = (prefix = '') => (attr) => {
 const CLASS_ROOT = 'asset-texture-inspector';
 const CLASS_COMPRESS_BUTTON = `${CLASS_ROOT}-compress-button`;
 
-/**
- * @type {Attribute[]}
- */
-const TEXTURE_ATTRIBUTES = [
+const TEXTURE_ATTRIBUTES: Attribute[] = [
     {
         label: 'Width',
         path: 'meta.width',
@@ -130,10 +125,7 @@ const TEXTURE_ATTRIBUTES = [
 ];
 TEXTURE_ATTRIBUTES.forEach(makeRefAssigner('asset:texture:'));
 
-/**
- * @type {Attribute[]}
- */
-const COMPRESSION_BASIS_ATTRIBUTES = [
+const COMPRESSION_BASIS_ATTRIBUTES: Attribute[] = [
     {
         label: 'Basis',
         path: 'meta.compress.basis',
@@ -176,10 +168,7 @@ const COMPRESSION_BASIS_ATTRIBUTES = [
 COMPRESSION_BASIS_ATTRIBUTES.forEach(makeRefAssigner('asset:texture:compress:'));
 
 const LEGACY_COMPRESSION_PARAMS = ['dxt', 'pvr', 'etc1', 'etc2'];
-/**
- * @type {Attribute[]}
- */
-const COMPRESSION_LEGACY_ATTRIBUTES = [
+const COMPRESSION_LEGACY_ATTRIBUTES: Attribute[] = [
     {
         label: 'Legacy',
         type: 'boolean',
