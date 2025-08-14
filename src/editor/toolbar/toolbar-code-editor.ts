@@ -53,13 +53,15 @@ editor.once('load', () => {
                     wnd.editor.call('integration:selectWhenReady', asset.get('id'), options || {});
                 }
             } else {
-                const onCodeEditorReady = (event) => {
-                    if (event.data === 'start') {
-                        wnd.editor.call('integration:selectWhenReady', asset.get('id'), options || {});
-                        window.removeEventListener('message', onCodeEditorReady);
-                    }
-                };
-                window.addEventListener('message', onCodeEditorReady);
+                if (asset) {
+                    const onCodeEditorReady = (event) => {
+                        if (event.data === 'start') {
+                            wnd.editor.call('integration:selectWhenReady', asset.get('id'), options || {});
+                            window.removeEventListener('message', onCodeEditorReady);
+                        }
+                    };
+                    window.addEventListener('message', onCodeEditorReady);
+                }
                 wnd.location = url;
             }
             if (wnd) {
