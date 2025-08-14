@@ -48,31 +48,33 @@ editor.once('load', () => {
 
         const wnd = window.open('', name);
         try {
-            if (wnd.editor && wnd.editor.isCodeEditor) {
+            // check if the window is already open and if it has the code editor loaded
+            if (wnd?.editor?.isCodeEditor) {
                 if (asset) {
                     wnd.editor.call('integration:selectWhenReady', asset.get('id'), options || {});
                 }
-            } else {
-                if (asset) {
-                    const onCodeEditorReady = (event) => {
-                        if (event.data === 'start') {
-                            wnd.editor.call('integration:selectWhenReady', asset.get('id'), options || {});
-                            window.removeEventListener('message', onCodeEditorReady);
-                        }
-                    };
-                    window.addEventListener('message', onCodeEditorReady);
-                }
-                wnd.location = url;
+                wnd?.focus();
+                return;
             }
-            if (wnd) {
-                wnd.focus();
+
+            // if the window is not open or does not have the code editor loaded, set the location
+            // and wait for the code editor to mark itself as ready
+            if (asset) {
+                const onmessage = (event) => {
+                    if (event.data !== 'ready') {
+                        return;
+                    }
+                    wnd.editor.call('integration:selectWhenReady', asset.get('id'), options || {});
+                    window.removeEventListener('message', onmessage);
+                };
+                window.addEventListener('message', onmessage);
             }
+            wnd.location = url;
+            wnd?.focus();
         } catch (ex) {
             // accessing wnd will throw an exception if it is at a different domain
             const newWnd = window.open(url, name);
-            if (newWnd) {
-                newWnd.focus();
-            }
+            newWnd?.focus();
         }
     });
 
