@@ -143,6 +143,7 @@ class AttributesInspector extends Container {
                 // once the field is parented
                 field.once('parent', (parent) => {
                     let target = field;
+                    const options = attr?.args?.options ?? null;
 
                     // if part of a label group, provide copying for the whole element
                     if (parent instanceof LabelGroup) {
@@ -179,7 +180,7 @@ class AttributesInspector extends Container {
                         evt.preventDefault();
 
                         // call context menu
-                        editor.call('clipboard:contextmenu:open', evt.clientX + 1, evt.clientY, attr.path, type, target.dom);
+                        editor.call('clipboard:contextmenu:open', evt.clientX + 1, evt.clientY, attr.path, type, options, target.dom, field.enabled);
                     };
 
                     let element = target.dom;
@@ -203,7 +204,7 @@ class AttributesInspector extends Container {
                         target.label.dom.appendChild(btnPaste.dom);
 
                         btnPaste.on('click', () => {
-                            const pasted = editor.call('clipboard:paste', attr.path, type);
+                            const pasted = editor.call('clipboard:paste', attr.path, type, options);
                             if (pasted) {
                                 editor.call('clipboard:flashElement', target.dom);
                             }
@@ -225,7 +226,7 @@ class AttributesInspector extends Container {
                                 btnPaste.enabled = false;
                             } else {
                                 // toggle paste button
-                                btnPaste.enabled = editor.call('clipboard:validPaste', attr.path, type);
+                                btnPaste.enabled = field.enabled && editor.call('clipboard:validPaste', attr.path, type, options);
                                 editor.call('clipboard:flashElement', target.dom);
                             }
                         });
@@ -235,6 +236,7 @@ class AttributesInspector extends Container {
                             target: btnCopy.dom,
                             text: 'Copy',
                             align: 'bottom',
+                            class: 'pcui-tooltip-clipboard',
                             root: editor.call('layout.root')
                         });
 
@@ -243,6 +245,7 @@ class AttributesInspector extends Container {
                             target: btnPaste.dom,
                             text: 'Paste',
                             align: 'bottom',
+                            class: 'pcui-tooltip-clipboard',
                             root: editor.call('layout.root')
                         });
 
@@ -256,7 +259,7 @@ class AttributesInspector extends Container {
                                 btnCopy.hidden = false;
                                 btnPaste.hidden = false;
                                 btnCopy.enabled = true;
-                                btnPaste.enabled = editor.call('clipboard:validPaste', attr.path, type);
+                                btnPaste.enabled = field.enabled && editor.call('clipboard:validPaste', attr.path, type, options);
 
                                 const humanReadableType = editor.call('clipboard:typeToHuman', type);
                                 tooltipCopy.text = `Copy ${humanReadableType}`;

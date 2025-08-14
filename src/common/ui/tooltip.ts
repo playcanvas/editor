@@ -5,6 +5,9 @@ class LegacyTooltip extends LegacyContainer {
         super();
         this.element = document.createElement('div');
         this._element.classList.add('ui-tooltip', 'align-left');
+        if (args.class) {
+            this._element.classList.add(args.class);
+        }
 
         this.innerElement = document.createElement('div');
         this.innerElement.classList.add('inner');
@@ -194,7 +197,8 @@ class LegacyTooltip extends LegacyContainer {
     static attach(args) {
         const data = {
             align: args.align,
-            hoverable: args.hoverable
+            hoverable: args.hoverable,
+            class: args.class ?? null
         };
 
         if (args.html) {
