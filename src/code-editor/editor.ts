@@ -13,9 +13,8 @@ class CodeEditor extends Editor {
         this.once('loaded', () => {
             this.emit('start');
 
-            if (window.opener) {
-                window.opener.postMessage('start', window.opener.origin);
-            }
+            // notify the parent window that the code editor is ready
+            window.opener?.postMessage('ready');
 
             // if there is a merge in progress for our branch
             if (config.self.branch.merge && !config.self.branch.merge.conflict) {
