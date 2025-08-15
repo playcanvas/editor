@@ -24,9 +24,6 @@ editor.once('load', () => {
         if (focusedTab) {
             query.push(`focused=${focusedTab.id}`);
         }
-        if (params.has('v2')) {
-            query.push('v2');
-        }
         if (params.has('version')) {
             query.push('version');
         }

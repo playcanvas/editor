@@ -330,8 +330,6 @@ editor.once('load', () => {
         // get set of files that are not loaded
         const newFiles = deps.difference(currentFiles);
 
-        console.log('newFiles', newFiles);
-
         // files to remove
         const filesToRemove = currentFiles.difference(deps);
 
