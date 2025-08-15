@@ -33,7 +33,6 @@ editor.once('load', () => {
         }
         if (params.has('use_local_frontend')) {
             query.push('use_local_frontend');
-            metrics.increment({ metricsName: 'editor.local-frontend' });
         }
         if (params.has('use_local_engine')) {
             query.push(`use_local_engine=${params.get('use_local_engine')}`);

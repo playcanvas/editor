@@ -96,7 +96,6 @@ editor.once('load', () => {
 
         if (location.search.includes('use_local_frontend')) {
             query.push('use_local_frontend');
-            metrics.increment({ metricsName: 'editor.local-frontend' });
         }
 
         if (query.length) {

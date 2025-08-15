@@ -101,7 +101,6 @@ editor.once('load', () => {
         projectURL = `/editor/project/${projectId}`;
         if (location.search.includes('use_local_frontend')) {
             projectURL += '?use_local_frontend';
-            metrics.increment({ metricsName: 'editor.local-frontend' });
         }
         overlay.hidden = false;
     });
