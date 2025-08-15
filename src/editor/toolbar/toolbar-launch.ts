@@ -85,9 +85,6 @@ editor.once('load', () => {
             query.push(`use_local_engine=${config.url.engine}`);
         } else if (releaseCandidate && launchOptions.releaseCandidate) {
             query.push(`version=${releaseCandidate}`);
-            if (metrics) {
-                metrics.increment('launch-release-candidate');
-            }
         } else if (launchOptions.force) {
             query.push(`version=${config.engineVersions.force.version}`);
         } else {
@@ -97,9 +94,7 @@ editor.once('load', () => {
             }
         }
 
-        if (location.search.includes('v2')) {
-            query.push('v2');
-        } else if (location.search.includes('use_local_frontend')) {
+        if (location.search.includes('use_local_frontend')) {
             query.push('use_local_frontend');
         }
 
