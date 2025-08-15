@@ -85,7 +85,6 @@ editor.once('load', () => {
             query.push(`use_local_engine=${config.url.engine}`);
         } else if (releaseCandidate && launchOptions.releaseCandidate) {
             query.push(`version=${releaseCandidate}`);
-            metrics.increment('launch-release-candidate');
         } else if (launchOptions.force) {
             query.push(`version=${config.engineVersions.force.version}`);
         } else {
