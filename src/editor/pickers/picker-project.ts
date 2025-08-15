@@ -445,6 +445,7 @@ editor.once('load', () => {
         let url = `${config.url.home}/editor/project/${currentProject.id}`;
         if (location.search.includes('use_local_frontend')) {
             url += '?use_local_frontend';
+            metrics.increment('use_local_frontend');
         }
 
         window.open(url, target);
