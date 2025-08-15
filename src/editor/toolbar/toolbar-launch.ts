@@ -97,9 +97,7 @@ editor.once('load', () => {
             }
         }
 
-        if (location.search.includes('v2')) {
-            query.push('v2');
-        } else if (location.search.includes('use_local_frontend')) {
+        if (location.search.includes('use_local_frontend')) {
             query.push('use_local_frontend');
         }
 
