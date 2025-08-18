@@ -1,6 +1,7 @@
 import { Panel, Container } from '@playcanvas/pcui';
 
 import { CLASS_MULTIPLE_VALUES } from '../../../common/pcui/constants.ts';
+import { validateEnginePath } from '../../../common/utils.ts';
 import type { Attribute, Divider } from '../attribute.type.d.ts';
 import { AttributesInspector } from '../attributes-inspector.ts';
 
@@ -1271,10 +1272,10 @@ class MaterialAssetInspector extends Container {
             this._opacityInspector.getField('data.opacityFadesSpecular').parent.hidden = true;
         }
 
-        this._opacityInspector.getField('data.opacityDither').parent.hidden = !editor.validateEnginePath('StandardMaterial.prototype.opacityDither');
-        this._opacityInspector.getField('data.opacityShadowDither').parent.hidden = !editor.validateEnginePath('StandardMaterial.prototype.opacityShadowDither');
-        this._refractionInspector.getField('data.dispersion').parent.hidden = !editor.validateEnginePath('StandardMaterial.prototype.dispersion');
-        this._ambientInspector.getField('data.aoIntensity').parent.hidden = !editor.validateEnginePath('StandardMaterial.prototype.aoIntensity');
+        this._opacityInspector.getField('data.opacityDither').parent.hidden = !validateEnginePath('StandardMaterial.prototype.opacityDither');
+        this._opacityInspector.getField('data.opacityShadowDither').parent.hidden = !validateEnginePath('StandardMaterial.prototype.opacityShadowDither');
+        this._refractionInspector.getField('data.dispersion').parent.hidden = !validateEnginePath('StandardMaterial.prototype.dispersion');
+        this._ambientInspector.getField('data.aoIntensity').parent.hidden = !validateEnginePath('StandardMaterial.prototype.aoIntensity');
 
         // separated out because it needs more work before release
         if (!editor.call('users:hasFlag', 'hasAnisoGGXSpec')) {

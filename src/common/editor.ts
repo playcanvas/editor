@@ -32,7 +32,60 @@ class Editor extends observer.Events {
      */
     projectEngineV2: boolean = config.project?.settings?.engineV2 ?? false;
 
-    constructor(name) {
+    /**
+     * Editor API history global
+     */
+    history: typeof api.globals.history;
+
+    /**
+     * Editor API selection global
+     */
+    selection: typeof api.globals.selection;
+
+    /**
+     * Editor API schema global
+     */
+    schema: typeof api.globals.schema;
+
+    /**
+     * Editor API realtime global
+     */
+    realtime: typeof api.globals.realtime;
+
+    /**
+     * Editor API settings global
+     */
+    settings: typeof api.globals.settings;
+
+    /**
+     * Editor API messenger global
+     */
+    messenger: typeof api.globals.messenger;
+
+    /**
+     * Editor API assets global
+     */
+    assets: typeof api.globals.assets;
+
+    /**
+     * Editor API entities global
+     */
+    entities: typeof api.globals.entities;
+
+    /**
+     * Editor API jobs global
+     */
+    jobs: typeof api.globals.jobs;
+
+    /**
+     * Editor API clipboard global
+     */
+    clipboard: typeof api.globals.clipboard;
+
+    /**
+     * @param name - The name of the Editor.
+     */
+    constructor(name: string) {
         super();
         this._name = name ?? 'Editor';
 
@@ -55,10 +108,8 @@ class Editor extends observer.Events {
 
     /**
      * Register the visibility method and event.
-     *
-     * @private
      */
-    _registerVisibility() {
+    private _registerVisibility() {
         this.method('visibility', () => {
             return document.visibilityState === 'visible';
         });
@@ -71,10 +122,8 @@ class Editor extends observer.Events {
 
     /**
      * Register the load and loaded events.
-     *
-     * @private
      */
-    _registerLoad() {
+    private _registerLoad() {
         document.addEventListener('DOMContentLoaded', () => {
             this.emit('load');
             queueMicrotask(() => this.emit('loaded'));
@@ -83,10 +132,8 @@ class Editor extends observer.Events {
 
     /**
      * Register the API for the Editor.
-     *
-     * @protected
      */
-    _registerApi() {
+    protected _registerApi() {
         // Initialize API globals - order matters
         console.log(`PlayCanvas Editor API v${api.version} revision ${api.revision}`);
         api.globals.accessToken = config.accessToken;
@@ -98,10 +145,10 @@ class Editor extends observer.Events {
     }
 
     /**
-     * @param {string} name - The name of the method to add.
-     * @param {Function} fn - The function to call when the method is called.
+     * @param name - The name of the method to add.
+     * @param fn - The function to call when the method is called.
      */
-    method(name, fn) {
+    method(name: string, fn: () => any) {
         if (this.methods.get(name)) {
             throw new Error(`${this._name} method '${name}' already registered`);
         }
@@ -109,18 +156,18 @@ class Editor extends observer.Events {
     }
 
     /**
-     * @param {string} name - The name of the method to remove.
+     * @param name - The name of the method to remove.
      */
-    methodRemove(name) {
+    methodRemove(name: string) {
         this.methods.delete(name);
     }
 
     /**
-     * @param {string} name - The name of the method to call.
-     * @param {...*} args - The arguments to pass to the method.
-     * @returns {*} The return value of the method.
+     * @param name - The name of the method to call.
+     * @param args - The arguments to pass to the method.
+     * @returns The return value of the method.
      */
-    call(name, ...args) {
+    call(name: string, ...args: any[]) {
         const fn = this.methods.get(name);
         if (fn) {
             try {
@@ -134,32 +181,16 @@ class Editor extends observer.Events {
     }
 
     /**
-     * @param {string} name - The name of the method to call.
-     * @param {...*} args - The arguments to pass to the method.
-     * @returns {*} The return value of the method.
+     * @param name - The name of the method to call.
+     * @param args - The arguments to pass to the method.
+     * @returns The return value of the method.
      */
-    invoke(name, ...args) {
+    invoke(name: string, ...args: any[]) {
         const fn = this.methods.get(name);
         if (fn) {
             return fn(...args);
         }
         return null;
-    }
-
-    /**
-     * @param {string} path - The path to check in the engine.
-     * @returns {boolean} Whether the engine has the property.
-     */
-    validateEnginePath(path) {
-        const parts = path.split('.');
-        let obj = pc;
-        for (let i = 0; i < parts.length; i++) {
-            if (!obj.hasOwnProperty(parts[i]) && obj[parts[i]] === undefined) {
-                return false;
-            }
-            obj = obj[parts[i]];
-        }
-        return true;
     }
 }
 
