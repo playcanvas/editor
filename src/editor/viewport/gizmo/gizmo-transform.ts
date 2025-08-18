@@ -1,6 +1,7 @@
 import { type EntityObserver } from '@playcanvas/editor-api';
 import {
     type Entity,
+    type MeshInstance,
     type TransformGizmo,
     type TranslateGizmo,
     type RotateGizmo,
@@ -100,8 +101,9 @@ const initGizmo = <T extends TransformGizmo>(gizmo: T) => {
     }
 
     // call viewport render while moving gizmo
-    gizmo.on(pc.Gizmo.EVENT_POINTERMOVE, () => {
+    gizmo.on(pc.Gizmo.EVENT_POINTERMOVE, (_x, _y, meshInstance: MeshInstance) => {
         editor.call('viewport:render');
+        editor.emit('viewport:gizmo:hover', !!meshInstance);
     });
 
     // track history
