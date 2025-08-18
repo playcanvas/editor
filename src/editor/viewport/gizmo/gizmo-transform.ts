@@ -1,5 +1,6 @@
 import { type EntityObserver } from '@playcanvas/editor-api';
 import {
+    type Color,
     type Entity,
     type TransformGizmo,
     type TranslateGizmo,
@@ -8,6 +9,7 @@ import {
     type Layer
 } from 'playcanvas';
 
+const GIZMO_OPACITY = 0.7;
 const GIZMO_SIZE = 1.2;
 const GIZMO_ANGLE_MULT = 5;
 
@@ -21,6 +23,11 @@ type GizmoNodeTransform = {
     position: number[];
     rotation: number[];
     scale: number[];
+};
+
+const color4from4 = (color: Color, a: number) => {
+    const { r, g, b } = color;
+    return new pc.Color(r, g, b, a);
 };
 
 const selection = (): EntityObserver[] => {
@@ -54,11 +61,11 @@ const initGizmo = <T extends TransformGizmo>(gizmo: T) => {
     gizmo.size = GIZMO_SIZE;
     gizmo.setTheme({
         axis: {
-            x: pc.Color.RED,
-            y: pc.Color.GREEN,
-            z: pc.Color.BLUE,
-            xyz: pc.Color.WHITE,
-            f: pc.Color.YELLOW
+            x: color4from4(pc.Color.RED, GIZMO_OPACITY),
+            y: color4from4(pc.Color.GREEN, GIZMO_OPACITY),
+            z: color4from4(pc.Color.BLUE, GIZMO_OPACITY),
+            xyz: color4from4(pc.Color.WHITE, GIZMO_OPACITY),
+            f: color4from4(pc.Color.YELLOW, GIZMO_OPACITY)
         },
         hover: {
             x: pc.Color.WHITE,
