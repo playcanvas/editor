@@ -78,16 +78,9 @@ const initGizmo = <T extends TransformGizmo>(gizmo: T) => {
             x: pc.Color.WHITE,
             y: pc.Color.WHITE,
             z: pc.Color.WHITE,
-            xyz: pc.Color.WHITE,
             f: pc.Color.WHITE
         },
-        guideOccluded: {
-            x: color4from4(pc.Color.WHITE, 0.1),
-            y: color4from4(pc.Color.WHITE, 0.1),
-            z: color4from4(pc.Color.WHITE, 0.1),
-            xyz: color4from4(pc.Color.WHITE, 0.1),
-            f: color4from4(pc.Color.WHITE, 0.1)
-        },
+        guideOcclusion: 0.9,
         disabled: new pc.Color(0.5, 0.5, 0.5, 0.5)
     });
 
