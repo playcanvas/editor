@@ -60,25 +60,31 @@ const initGizmo = <T extends TransformGizmo>(gizmo: T) => {
     // general settings
     gizmo.size = GIZMO_SIZE;
     gizmo.setTheme({
-        axis: {
+        shapeBase: {
             x: color4from4(pc.Color.RED, GIZMO_OPACITY),
             y: color4from4(pc.Color.GREEN, GIZMO_OPACITY),
             z: color4from4(pc.Color.BLUE, GIZMO_OPACITY),
             xyz: color4from4(pc.Color.WHITE, GIZMO_OPACITY),
             f: color4from4(pc.Color.YELLOW, GIZMO_OPACITY)
         },
-        hover: {
+        shapeHover: {
             x: pc.Color.WHITE,
             y: pc.Color.WHITE,
             z: pc.Color.WHITE,
             xyz: pc.Color.WHITE,
             f: pc.Color.WHITE
         },
-        guide: {
+        guideBase: {
             x: pc.Color.WHITE,
             y: pc.Color.WHITE,
             z: pc.Color.WHITE,
             f: pc.Color.WHITE
+        },
+        guideOccluded: {
+            x: color4from4(pc.Color.WHITE, 0.1),
+            y: color4from4(pc.Color.WHITE, 0.1),
+            z: color4from4(pc.Color.WHITE, 0.1),
+            f: color4from4(pc.Color.WHITE, 0.1)
         },
         disabled: new pc.Color(0.5, 0.5, 0.5, 0.5)
     });
