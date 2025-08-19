@@ -95,9 +95,10 @@ const initGizmo = <T extends TransformGizmo>(gizmo: T) => {
         gizmo.flipAxes = false;
         gizmo.dragMode = 'hide';
         gizmo.axisLineThickness = 0.01;
-        gizmo.axisPlaneGap = 0;
-        gizmo.axisPlaneSize = 0; // TODO: look unintuitive when flipped as it scales in the opposite direction
-        // gizmo.uniform = true; // FIXME: uniform scaling direction not working correctly after rotation
+        gizmo.enableShape('xy', false);
+        gizmo.enableShape('xz', false);
+        gizmo.enableShape('yz', false);
+        gizmo.axisPlaneSize = 0; // TODO: disable planes as scaling unintuitive right now
     }
 
     // call viewport render while moving gizmo
