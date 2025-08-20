@@ -1,5 +1,5 @@
 import { type AssetObserver } from '@playcanvas/editor-api';
-import { Observer, type EventHandle } from '@playcanvas/observer';
+import { Observer, type ObserverList, type EventHandle } from '@playcanvas/observer';
 import {
     Element,
     GridViewItem,
@@ -305,7 +305,7 @@ class AssetPanel extends Panel {
 
     private _foldersIndex: Record<number, TreeViewItem>;
 
-    private _foldersWaitingParent: Record<string, number>;
+    private _foldersWaitingParent: Record<string, Set<number>>;
 
     private _legacyScriptsIndex: Record<string, Observer>;
 
@@ -405,7 +405,7 @@ class AssetPanel extends Panel {
     /**
      * The asset list to display
      */
-    private _assets: Observer;
+    private _assets: ObserverList;
 
     /**
      * The drop manager to support drag and drop
@@ -422,7 +422,7 @@ class AssetPanel extends Panel {
         dropManager: any;
         viewMode?: typeof AssetPanel.VIEW_LARGE_GRID | typeof AssetPanel.VIEW_SMALL_GRID | typeof AssetPanel.VIEW_DETAILS;
         writePermissions?: boolean;
-        assets?: Observer;
+        assets?: ObserverList;
     }) {
         args = Object.assign({
             headerText: 'ASSETS'
@@ -1157,7 +1157,7 @@ class AssetPanel extends Panel {
         }
 
         let type = `asset.${asset.get('type')}`;
-        let data = {};
+        let data: Record<string, any> = {};
 
         if (asset.legacyScript) {
             data.filename = asset.legacyScript.get('filename');
@@ -1759,8 +1759,8 @@ class AssetPanel extends Panel {
             this._onAssetPathChange(asset, path, oldPath);
         }));
 
-        this._assetEvents[id].push(asset.on('task:set', (value) => {
-            this._onAssetTaskChange(asset, value);
+        this._assetEvents[id].push(asset.on('task:set', () => {
+            this._onAssetTaskChange(asset);
         }));
 
         // add to grid view
@@ -1768,7 +1768,7 @@ class AssetPanel extends Panel {
 
         // add to details view
         if (addToDetailsView) {
-            this._detailsView.addObserver(asset, index);
+            this._detailsView.addObserver(asset);
         }
     }
 
@@ -2445,7 +2445,7 @@ class AssetPanel extends Panel {
         super.destroy();
     }
 
-    set assets(value) {
+    set assets(value: ObserverList) {
         this._setHoveredAsset(undefined);
 
         this._prevSelectorType = null;
@@ -2505,10 +2505,13 @@ class AssetPanel extends Panel {
         return this._assets;
     }
 
-    set currentFolder(value) {
+    set currentFolder(folder: 'scripts' | Observer) {
         // legacy
-        if (value === 'scripts') {
+        let value: Observer;
+        if (folder === 'scripts') {
             value = LEGACY_SCRIPTS_FOLDER_ASSET;
+        } else {
+            value = folder;
         }
 
         if (this._currentFolder === value) {
