@@ -1,5 +1,8 @@
-import { Container, Label, Button, BindingObserversToElement } from '@playcanvas/pcui';
+import { type EntityObserver } from '@playcanvas/editor-api';
+import { EventHandle, type ObserverList } from '@playcanvas/observer';
+import { Container, Label, Button, BindingObserversToElement, type ContainerArgs, type Element } from '@playcanvas/pcui';
 
+import { type TemplateOverridesView } from './templates-override-panel.ts';
 import { LegacyLabel } from '../../common/ui/label.ts';
 
 const CLASS_ROOT = 'template-entity-inspector';
@@ -20,7 +23,53 @@ const CLASS_BUTTON_DROPDOWN = `${CLASS_ENTITY_LIST}-btn-dropdown`;
 const CLASS_ENTITY_DROPDOWN = `${CLASS_ENTITY_LIST}-dropdown`;
 
 class TemplatesEntityInspector extends Container {
-    constructor(args) {
+    private _entities: ObserverList;
+
+    private _assets: ObserverList;
+
+    private _entity: EntityObserver | null;
+
+    private _overrides: Record<string, any> | null;
+
+    private _templateAsset: unknown | null;
+
+    private _refreshTimeout: ReturnType<typeof setTimeout> | null;
+
+    private _entityEvents: Record<string, EventHandle[]>;
+
+    private _diffView: TemplateOverridesView;
+
+    private _innerContainer: Container;
+
+    private _labelTemplate: Label;
+
+    private _labelOverrides: Label;
+
+    private _btnViewDiff: Button;
+
+    private _btnRevertAll: Button;
+
+    private _btnApplyAll: Button;
+
+    private _containerEntitiesList: Container;
+
+    private _entityDropdownMenu: Container;
+
+    private _entityDropdownTarget: Element | null;
+
+    private _domEventClickAnywhere: (event: MouseEvent) => void;
+
+    private _selectedEntityListItem: Container | null;
+
+    private _deferRefreshOverrides: () => void;
+
+    private _eventMessenger: EventHandle;
+
+    constructor(args: ContainerArgs & {
+        entities: ObserverList;
+        assets: ObserverList;
+        templateOverridesDiffView: TemplateOverridesView
+    }) {
         super(args);
         this.class.add(CLASS_ROOT);
 
@@ -536,7 +585,7 @@ class TemplatesEntityInspector extends Container {
         }
     }
 
-    _unbindEntityEvents(entity) {
+    _unbindEntityEvents(entity?: EntityObserver) {
         // if entity is null then unbind all events
         if (!entity) {
             for (const key in this._entityEvents) {
@@ -561,7 +610,7 @@ class TemplatesEntityInspector extends Container {
         this._diffView.showOverrides(this._overrides, this._templateAsset, this._entity);
     }
 
-    link(entities) {
+    link(entities: EntityObserver[]) {
         this.unlink();
 
         if (entities.length !== 1) {
