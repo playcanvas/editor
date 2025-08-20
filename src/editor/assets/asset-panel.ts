@@ -1,4 +1,5 @@
-import { Observer } from '@playcanvas/observer';
+import { type AssetObserver } from '@playcanvas/editor-api';
+import { Observer, type ObserverList, type EventHandle } from '@playcanvas/observer';
 import {
     Element,
     GridViewItem,
@@ -13,15 +14,18 @@ import {
     GridView,
     Spinner,
     Label,
-    BindingObserversToElement
+    BindingObserversToElement,
+    type PanelArgs
 } from '@playcanvas/pcui';
 
 import { CLASS_ERROR } from '../../common/pcui/constants.ts';
 import { AssetThumbnail } from '../../common/pcui/element/element-asset-thumbnail.ts';
+import { type DropManager } from '../../common/pcui/element/element-drop-manager.ts';
 import { DropTarget } from '../../common/pcui/element/element-drop-target.ts';
 import { TableCell } from '../../common/pcui/element/element-table-cell.ts';
 import { TableRow } from '../../common/pcui/element/element-table-row.ts';
 import { Table } from '../../common/pcui/element/element-table.ts';
+import { type Tooltip } from '../../common/pcui/element/element-tooltip.ts';
 import { tooltip, tooltipSimpleItem } from '../../common/tooltips.ts';
 import { bytesToHuman, naturalCompare } from '../../common/utils.ts';
 
@@ -133,6 +137,16 @@ function randomColor() {
 
 // Helper class for asset grid view item
 class AssetGridViewItem extends GridViewItem {
+    thumbnail: AssetThumbnail;
+
+    containerUsers: Container;
+
+    progress: Progress;
+
+    private _asset: AssetObserver;
+
+    private _evtName: EventHandle;
+
     constructor(args) {
         super(args);
 
@@ -240,31 +254,176 @@ class AssetGridViewItem extends GridViewItem {
  * view. Also shows the project's folders in a treeview on the left. Allows filtering of assets by
  * type and by searching in various ways. Allows creating new assets and moving assets to different
  * folders.
- *
- * @property {DropManager} dropManager The drop manager to support drag and drop.
- * @property {ObserverList} assets The asset list to display.
- * @property {Observer} currentFolder The current folder.
- * @property {Table} detailsView The details view.
- * @property {TreeView} foldersView The folders view.
- * @property {GridView} gridView The grid view.
- * @property {string} viewMode The current view mode. Can be one of:
- * AssetPanel.VIEW_LARGE_GRID,
- * AssetPanel.VIEW_SMALL_GRID,
- * AssetPanel.VIEW_DETAILS
- * @property {Element} activeView The current active view (details or gridview)
- * @property {Progress} progressBar The progress bar
- * @property {SelectInput} dropdownType The type dropdown
- * @property {string[]} assetTypes A specific list of asset types to use during filtering
- * @property {TextInput} searchInput The search filter text input
- * @property {Observer[]} selectedAssets The selected assets
- * @property {Observer[]} visibleAssets The assets that are currently visible in the asset panel.
- * @property {boolean} showSourceAssets If false source assets will not be displayed
- * @property {boolean} suspendSelectionEvents If true selection events will not the editor's selector to be affected
- * @property {boolean} suspendFiltering If true changes to filters will not re-filter the asset panel.
- * @property {boolean} writePermissions If false then only a read-only view will be shown
  */
 class AssetPanel extends Panel {
-    constructor(args: object) {
+    static readonly VIEW_LARGE_GRID = 'lgrid';
+
+    static readonly VIEW_SMALL_GRID = 'sgrid';
+
+    static readonly VIEW_DETAILS = 'details';
+
+    static readonly LEGACY_SCRIPTS_ID = LEGACY_SCRIPTS_ID;
+
+    private _containerControls: Container;
+
+    private _tooltips: Tooltip[];
+
+    private _btnNew: Button;
+
+    private _btnDelete: Button;
+
+    private _btnBack: Button;
+
+    private _btnLargeGrid: Button;
+
+    private _btnSmallGrid: Button;
+
+    private _btnDetailsView: Button;
+
+    /**
+     * The type dropdown
+     */
+    private _dropdownType: SelectInput;
+
+    /**
+     * The search filter text input
+     */
+    private _searchInput: TextInput;
+
+    private _btnClearSearch: Button;
+
+    private _containerLeft: Container;
+
+    private _containerFolders: Container;
+
+    /**
+     * The folders view
+     */
+    private _foldersView: TreeView;
+
+    private _foldersViewRoot: TreeViewItem;
+
+    private _foldersIndex: Record<number, TreeViewItem>;
+
+    private _foldersWaitingParent: Record<string, Set<number>>;
+
+    private _legacyScriptsIndex: Record<string, Observer>;
+
+    private _hoveredAsset: Observer|undefined|null;
+
+    private _eventsDropManager: EventHandle[];
+
+    private _foldersDropTarget: DropTarget;
+
+    private _tableDropTarget: DropTarget;
+
+    private _gridViewDropTarget: DropTarget;
+
+    private _containerProgress: Container;
+
+    /**
+     * The progress bar
+     */
+    private _progressBar: Progress;
+
+    /**
+     * The details view
+     */
+    private _detailsView: Table;
+
+    /**
+     * The grid view
+     */
+    private _gridView: GridView;
+
+    /**
+     * The current view mode. Can be one of:
+     * AssetPanel.VIEW_LARGE_GRID,
+     * AssetPanel.VIEW_SMALL_GRID,
+     * AssetPanel.VIEW_DETAILS
+     */
+    private _viewMode: typeof AssetPanel.VIEW_LARGE_GRID | typeof AssetPanel.VIEW_SMALL_GRID | typeof AssetPanel.VIEW_DETAILS;
+
+    private _rowsIndex: Record<string, TableRow>;
+
+    private _gridIndex: Record<string, AssetGridViewItem>;
+
+    private _usersIndex: Record<string, {
+        elements: Element[];
+        color: string;
+    }>;
+
+    /**
+     * If true changes to filters will not re-filter the asset panel.
+     */
+    private _suspendFiltering: boolean;
+
+    /**
+     * If true selection events will not the editor's selector to be affected
+     */
+    private _suspendSelectEvents: boolean;
+
+    private _eventsEditor: EventHandle[];
+
+    private _assetListEvents: EventHandle[];
+
+    private _assetEvents: Record<string, EventHandle[]>;
+
+    /**
+     * If false source assets will not be displayed
+     */
+    private _showSourceAssets: boolean;
+
+    private _prevSelectorItems: AssetObserver[];
+
+    private _prevSelectorType: string;
+
+    private _selectorItems: AssetObserver[];
+
+    private _selectorType: string;
+
+    /**
+     * The selected assets
+     */
+    private _selectedAssets: AssetObserver[];
+
+    /**
+     * A specific list of asset types to use during filtering
+     */
+    assetTypes: string[];
+
+    /**
+     * The current folder
+     */
+    private _currentFolder: Observer;
+
+    /**
+     * If false then only a read-only view will be shown
+     */
+    private _writePermissions: boolean;
+
+    /**
+     * The asset list to display
+     */
+    private _assets: ObserverList;
+
+    /**
+     * The drop manager to support drag and drop
+     */
+    private _dropManager: DropManager;
+
+    private _searchTags: string[];
+
+    private _searchPreviousValue: string;
+
+    validateAssetsFn?: (asset: AssetObserver) => boolean;
+
+    constructor(args: PanelArgs & {
+        dropManager: any;
+        viewMode?: typeof AssetPanel.VIEW_LARGE_GRID | typeof AssetPanel.VIEW_SMALL_GRID | typeof AssetPanel.VIEW_DETAILS;
+        writePermissions?: boolean;
+        assets?: ObserverList;
+    }) {
         args = Object.assign({
             headerText: 'ASSETS'
         }, args);
@@ -433,6 +592,7 @@ class AssetPanel extends Panel {
 
         this._foldersView = new TreeView({
             allowReordering: false,
+            // FIXME: Broken in PCUI <= 5.2.0
             dragScrollElement: this._containerFolders,
             onReparent: this._onFolderTreeReparent.bind(this)
         });
@@ -647,7 +807,7 @@ class AssetPanel extends Panel {
         editor.call('assets:copy', selectedAssets);
     }
 
-    _onPasteAssets(keepFolderStructure) {
+    _onPasteAssets(keepFolderStructure?: boolean) {
         if (!this._writePermissions) {
             return;
         }
@@ -997,7 +1157,7 @@ class AssetPanel extends Panel {
         }
 
         let type = `asset.${asset.get('type')}`;
-        let data = {};
+        let data: Record<string, any> = {};
 
         if (asset.legacyScript) {
             data.filename = asset.legacyScript.get('filename');
@@ -1403,7 +1563,7 @@ class AssetPanel extends Panel {
 
         // do folders first so that they will not be focused
         // when clicking the arrows in the grid view
-        let element = this._foldersIndex[id];
+        let element: TreeViewItem | GridViewItem | TableRow = this._foldersIndex[id];
         if (element) {
             fn(element);
         }
@@ -1599,8 +1759,8 @@ class AssetPanel extends Panel {
             this._onAssetPathChange(asset, path, oldPath);
         }));
 
-        this._assetEvents[id].push(asset.on('task:set', (value) => {
-            this._onAssetTaskChange(asset, value);
+        this._assetEvents[id].push(asset.on('task:set', () => {
+            this._onAssetTaskChange(asset);
         }));
 
         // add to grid view
@@ -1608,7 +1768,7 @@ class AssetPanel extends Panel {
 
         // add to details view
         if (addToDetailsView) {
-            this._detailsView.addObserver(asset, index);
+            this._detailsView.addObserver(asset);
         }
     }
 
@@ -2285,7 +2445,7 @@ class AssetPanel extends Panel {
         super.destroy();
     }
 
-    set assets(value) {
+    set assets(value: ObserverList) {
         this._setHoveredAsset(undefined);
 
         this._prevSelectorType = null;
@@ -2345,7 +2505,7 @@ class AssetPanel extends Panel {
         return this._assets;
     }
 
-    set currentFolder(value) {
+    set currentFolder(value: 'scripts' | Observer) {
         // legacy
         if (value === 'scripts') {
             value = LEGACY_SCRIPTS_FOLDER_ASSET;
@@ -2498,12 +2658,12 @@ class AssetPanel extends Panel {
         return this._searchInput;
     }
 
-    set selectedAssets(value) {
+    set selectedAssets(value: AssetObserver[]) {
         if (!value) {
             value = [];
         }
 
-        this._btnDelete.enabled = this.writePermissions && value.length;
+        this._btnDelete.enabled = this.writePermissions && !!value.length;
 
         const selectedIndex = {};
 
@@ -2615,10 +2775,5 @@ class AssetPanel extends Panel {
         return this._writePermissions;
     }
 }
-
-AssetPanel.VIEW_LARGE_GRID = 'lgrid';
-AssetPanel.VIEW_SMALL_GRID = 'sgrid';
-AssetPanel.VIEW_DETAILS = 'details';
-AssetPanel.LEGACY_SCRIPTS_ID = LEGACY_SCRIPTS_ID;
 
 export { AssetPanel };

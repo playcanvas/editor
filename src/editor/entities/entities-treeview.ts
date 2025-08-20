@@ -730,6 +730,9 @@ class EntitiesTreeView extends TreeView {
             // once we're done with all the children
             // to avoid multiple DOM operations
             this._rootItem = treeViewItem;
+
+            // set root to expanded
+            this._rootItem.open = true;
         }
 
         // add children

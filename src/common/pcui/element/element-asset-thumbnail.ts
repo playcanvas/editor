@@ -1,5 +1,6 @@
-import { Observer, ObserverList } from '@playcanvas/observer';
-import { Element } from '@playcanvas/pcui';
+import { type AssetObserver } from '@playcanvas/editor-api';
+import { EventHandle, Observer, ObserverList } from '@playcanvas/observer';
+import { Element, type ElementArgs } from '@playcanvas/pcui';
 
 import { CubemapThumbnailRenderer } from '../../thumbnail-renderers/cubemap-thumbnail-renderer.ts';
 import { FontThumbnailRenderer } from '../../thumbnail-renderers/font-thumbnail-renderer.ts';
@@ -35,6 +36,10 @@ type AssetThumbnailArgs = {
     canvasWidth?: number;
     /** Fixed height for the canvas. Increases performance but uses same canvas resolution every time. */
     canvasHeight?: number;
+
+    renderChanges?: boolean;
+
+    value?: number;
 }
 
 /**
@@ -43,7 +48,37 @@ type AssetThumbnailArgs = {
  * @property {boolean} renderChanges If true the input will flash when changed.
  */
 class AssetThumbnail extends Element {
-    constructor(args: AssetThumbnailArgs = {}) {
+    private _assets: ObserverList | null;
+
+    private _sceneSettings: Observer | null;
+
+    private _canvasWidth: number | null;
+
+    private _canvasHeight: number | null;
+
+    private _domImage: HTMLImageElement | null;
+
+    private _domCanvas: HTMLCanvasElement | null;
+
+    private _canvasRenderer: any | null;
+
+    private _canvasDirty: boolean;
+
+    private _renderCanvasTimeout: any | null;
+
+    private _evtThumbnailSet: EventHandle | null;
+
+    private _evtThumbnailUnset: EventHandle | null;
+
+    private _previousAssetType: string | null;
+
+    private _evtAdd: EventHandle | null;
+
+    private _value: number | AssetObserver | null;
+
+    renderChanges: boolean;
+
+    constructor(args: ElementArgs & AssetThumbnailArgs = {}) {
         super({ ...args, dom: 'span' });
 
         this.class.add(CLASS_ASSET_THUMB, CLASS_ASSET_THUMB_EMPTY);

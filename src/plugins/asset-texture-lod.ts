@@ -4,6 +4,8 @@ editor.once('plugins:load:asset-texture-lod', () => {
         return;
     } // webgl not available
 
+    let awaitingFolderCreation;
+
     const slots = ['aoMap', 'diffuseMap', 'emissiveMap', 'glossMap', 'clearCoatMap', 'clearCoatGlossMap', 'clearCoatNormalMap', 'lightMap', 'metalnessMap', 'opacityMap', 'specularMap', 'normalMap'];
 
     const convertFilter = function (current) {
@@ -292,8 +294,8 @@ editor.once('plugins:load:asset-texture-lod', () => {
                 name = name.slice(0, match.index);
             }
 
-            if (!editor._awaitingFolderCreation) {
-                editor._awaitingFolderCreation = { };
+            if (!awaitingFolderCreation) {
+                awaitingFolderCreation = { };
             }
 
             if (!sizes) {
@@ -430,12 +432,12 @@ editor.once('plugins:load:asset-texture-lod', () => {
                     const parentFolder = path.length ? path[path.length - 1] : null;
                     const evtName = `${parentFolder}-${options.name}`;
 
-                    if (editor._awaitingFolderCreation[evtName]) {
+                    if (awaitingFolderCreation[evtName]) {
                         editor.once(`plugin:texture-lod:folder:create:${evtName}`, (id) => {
                             onFolderAvailable(parseInt(id, 10));
                         });
                     } else {
-                        editor._awaitingFolderCreation[evtName] = true;
+                        awaitingFolderCreation[evtName] = true;
 
                         const folderNew = {
                             name: options.name,
@@ -457,7 +459,7 @@ editor.once('plugins:load:asset-texture-lod', () => {
                             onFolderAvailable(parseInt(id, 10));
 
                             editor.emit(`plugin:texture-lod:folder:create:${evtName}`, id);
-                            delete editor._awaitingFolderCreation[evtName];
+                            delete awaitingFolderCreation[evtName];
                         }, true);
                     }
                 }

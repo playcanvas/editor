@@ -1,5 +1,5 @@
 import type { ObserverList } from '@playcanvas/observer';
-import { Element, Container, Button, Label, TextInput, BindingObserversToElement } from '@playcanvas/pcui';
+import { Element, Container, Button, Label, TextInput, BindingObserversToElement, type ElementArgs } from '@playcanvas/pcui';
 
 const CLASS_ASSET_LIST = 'pcui-asset-list';
 const CLASS_ASSET_LIST_SELECTION_MODE = `${CLASS_ASSET_LIST}-selection-mode`;
@@ -22,15 +22,51 @@ type AssetListArgs = {
     filterFn?: (asset: any) => boolean;
     /** If true then this will enable drag and drop of assets on the input. The function takes an asset observer as an argument and returns true or false. */
     allowDragDrop?: boolean;
+    /** If true then this will enable rendering changes to the asset list. */
+    renderChanges?: boolean;
+
+    value?: number[];
 }
 
 /**
  * Element that can allows selecting multiple assets.
- *
- * @property {boolean} renderChanges If true the input will flash when changed.
  */
 class AssetList extends Element {
-    constructor(args: AssetListArgs = {}) {
+    private _container: Container;
+
+    private _assets: ObserverList | null;
+
+    private _assetType: string | null;
+
+    private _filterFn: ((asset: any) => boolean) | null;
+
+    private _btnSelectionMode: Button;
+
+    private _labelAddAssets: Label;
+
+    private _containerButtons: Container;
+
+    private _btnAdd: Button;
+
+    private _btnDone: Button;
+
+    private _searchInput: TextInput;
+
+    private _containerAssets: Container;
+
+    private _selectedAssets: number[];
+
+    private _indexAssets: Record<number, {
+        element: Container,
+        label: Label,
+        count: number
+    }> = {};
+
+    private _values: number[][];
+
+    renderChanges: boolean;
+
+    constructor(args: ElementArgs & AssetListArgs = {}) {
         const container = new Container({
             flex: true
         });
@@ -155,7 +191,7 @@ class AssetList extends Element {
             filter: (type, dropData) => {
                 if (dropData.id && type.startsWith('asset') &&
                     (!this._assetType || type === `asset.${this._assetType}`) &&
-                    parseInt(dropData.id, 10) !== this.value) {
+                    !this.value.includes(parseInt(dropData.id, 10))) {
 
                     const asset = this._assets.get(dropData.id);
                     if (!asset || asset.get('source')) {
@@ -529,14 +565,12 @@ class AssetList extends Element {
         // this is a lossy concept as it doesn't capture whether an asset id is only
         // in some observers
         const result = [];
-        let node = this._containerAssets.dom.childNodes[0];
-        while (node) {
+        for (let i = 0; i < this._containerAssets.dom.children.length; i++) {
+            const node = this._containerAssets.dom.children[i];
             const assetId = parseInt(node.getAttribute('data-asset-id'), 10);
             if (!isNaN(assetId)) {
                 result.push(assetId);
             }
-
-            node = node.nextSibling;
         }
 
         return result;
