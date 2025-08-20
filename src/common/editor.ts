@@ -1,12 +1,15 @@
 import * as api from '@playcanvas/editor-api';
 import * as observer from '@playcanvas/observer';
 
-class Editor extends observer.Events {
-    /**
-     * The name of the Editor.
-     */
-    private _name: string = 'Editor';
+import { Caller } from './caller.ts';
 
+type EditorMethods = {
+    'load': () => void;
+    'loaded': () => void;
+    'visibility': () => boolean;
+} & Record<string, (...args: any[]) => any>;
+
+class Editor<T extends EditorMethods> extends Caller<T> {
     /**
      * Exposed API for the Editor.
      */
@@ -16,11 +19,6 @@ class Editor extends observer.Events {
      * Exposed Observer for the Editor.
      */
     observer: typeof observer = observer;
-
-    /**
-     * The methods registered with the Editor.
-     */
-    methods: Map<string, Function> = new Map();
 
     /**
      * Whether the Editor is a code editor.
@@ -85,9 +83,8 @@ class Editor extends observer.Events {
     /**
      * @param name - The name of the Editor.
      */
-    constructor(name: string) {
-        super();
-        this._name = name ?? 'Editor';
+    constructor(name: string = 'Editor') {
+        super(name);
 
         this._registerVisibility();
         this._registerLoad();
@@ -143,55 +140,9 @@ class Editor extends observer.Events {
         api.globals.homeUrl = config.url.home;
         api.globals.rest = new api.Rest();
     }
-
-    /**
-     * @param name - The name of the method to add.
-     * @param fn - The function to call when the method is called.
-     */
-    method(name: string, fn: () => any) {
-        if (this.methods.get(name)) {
-            throw new Error(`${this._name} method '${name}' already registered`);
-        }
-        this.methods.set(name, fn);
-    }
-
-    /**
-     * @param name - The name of the method to remove.
-     */
-    methodRemove(name: string) {
-        this.methods.delete(name);
-    }
-
-    /**
-     * @param name - The name of the method to call.
-     * @param args - The arguments to pass to the method.
-     * @returns The return value of the method.
-     */
-    call(name: string, ...args: any[]) {
-        const fn = this.methods.get(name);
-        if (fn) {
-            try {
-                return fn(...args);
-            } catch (error) {
-                console.info('%c%s %c(editor.method error)', 'color: #06f', name, 'color: #f00');
-                log.error(error);
-            }
-        }
-        return null;
-    }
-
-    /**
-     * @param name - The name of the method to call.
-     * @param args - The arguments to pass to the method.
-     * @returns The return value of the method.
-     */
-    invoke(name: string, ...args: any[]) {
-        const fn = this.methods.get(name);
-        if (fn) {
-            return fn(...args);
-        }
-        return null;
-    }
 }
 
-export { Editor };
+export {
+    type EditorMethods,
+    Editor
+};
