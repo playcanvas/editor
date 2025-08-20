@@ -44,7 +44,7 @@ declare interface Array {
 declare interface Window {
     // diff (injected into HTML)
     diff: {
-        default: any;
+        default: (t: any, e: any, n: any) => any;
     };
 
     // global variables

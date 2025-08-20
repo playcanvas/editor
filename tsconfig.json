@@ -18,7 +18,7 @@
         "test",
         "eslint.config.mjs",
         "rollup.config.mjs",
-        "globals.d.ts"
+        "types.d.ts"
     ],
     "exclude": [
         "src/wasm",
