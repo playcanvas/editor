@@ -22,6 +22,12 @@ const CLASS_BUTTON_VIEW = `${CLASS_ENTITY_LIST}-btn-view`;
 const CLASS_BUTTON_DROPDOWN = `${CLASS_ENTITY_LIST}-btn-dropdown`;
 const CLASS_ENTITY_DROPDOWN = `${CLASS_ENTITY_LIST}-dropdown`;
 
+type TemplatesEntityInspectorArgs = {
+    entities: ObserverList;
+    assets: ObserverList;
+    templateOverridesDiffView: TemplateOverridesView;
+}
+
 class TemplatesEntityInspector extends Container {
     private _entities: ObserverList;
 
@@ -65,11 +71,7 @@ class TemplatesEntityInspector extends Container {
 
     private _eventMessenger: EventHandle;
 
-    constructor(args: ContainerArgs & {
-        entities: ObserverList;
-        assets: ObserverList;
-        templateOverridesDiffView: TemplateOverridesView
-    }) {
+    constructor(args: ContainerArgs & TemplatesEntityInspectorArgs) {
         super(args);
         this.class.add(CLASS_ROOT);
 
