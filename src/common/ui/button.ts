@@ -1,7 +1,11 @@
 import { LegacyElement } from './element.ts';
 
 class LegacyButton extends LegacyElement {
-    constructor(args = {}) {
+    private _text: string;
+
+    declare protected _element: HTMLDivElement & { ui: any };
+
+    constructor(args: { text?: string } = {}) {
         super();
         this._text = args.text || '';
 
@@ -14,6 +18,10 @@ class LegacyButton extends LegacyElement {
 
         this._element.addEventListener('keydown', this._onKeyDown.bind(this), false);
         this.on('click', this._onClick.bind(this));
+
+        this._onLinkChange = (value) => {
+            this._element.value = value;
+        };
     }
 
     set text(value) {
@@ -44,10 +52,6 @@ class LegacyButton extends LegacyElement {
 
     _onClick() {
         this._element.blur();
-    }
-
-    _onLinkChange(value) {
-        this._element.value = value;
     }
 }
 

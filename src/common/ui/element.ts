@@ -1,43 +1,43 @@
 import { Events, type EventHandle, type Observer } from '@playcanvas/observer';
 
 class LegacyElement extends Events {
-    private _parent: LegacyElement | null;
+    protected _parent: LegacyElement | null;
 
-    private _destroyed: boolean;
+    protected _destroyed: boolean;
 
-    private _element: HTMLElement & { ui: any } | null;
+    protected _element: HTMLElement & { ui: any } | null;
 
-    private _link: Observer | null;
+    protected _link: Observer | null;
 
-    private _linkOnSet: EventHandle | null;
+    protected _linkOnSet: EventHandle | null;
 
-    private _linkOnUnset: EventHandle | null;
+    protected _linkOnUnset: EventHandle | null;
 
-    private _disabled: boolean;
+    protected _disabled: boolean;
 
-    private _disabledParent: boolean;
+    protected _disabledParent: boolean;
 
-    private _evtClick: (evt: Event) => void | null;
+    protected _evtClick: (evt: Event) => void | null;
 
-    private _evtHover: (evt: Event) => void | null;
+    protected _evtHover: (evt: Event) => void | null;
 
-    private _evtBlur: (evt: Event) => void | null;
+    protected _evtBlur: (evt: Event) => void | null;
 
-    private _parentDestroy: () => void;
+    protected _parentDestroy: () => void;
 
-    private _parentDisable: () => void;
+    protected _parentDisable: () => void;
 
-    private _parentEnable: () => void;
+    protected _parentEnable: () => void;
 
-    private _onFlashDelay: () => void;
+    protected _onFlashDelay: () => void;
 
-    private _evtParentDestroy: EventHandle | null;
+    protected _evtParentDestroy: EventHandle | null;
 
-    private _evtParentDisable: EventHandle | null;
+    protected _evtParentDisable: EventHandle | null;
 
-    private _evtParentEnable: EventHandle | null;
+    protected _evtParentEnable: EventHandle | null;
 
-    private _onLinkChange: (value: any) => void;
+    protected _onLinkChange: (value: any) => void;
 
     path: string;
 
