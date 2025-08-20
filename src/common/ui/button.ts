@@ -20,7 +20,7 @@ class LegacyButton extends LegacyElement {
         this.on('click', this._onClick.bind(this));
 
         this._onLinkChange = (value) => {
-            this._element.value = value;
+            (this._element as any).value = value;
         };
     }
 
