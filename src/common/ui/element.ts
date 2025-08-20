@@ -1,6 +1,52 @@
-import { Events } from '@playcanvas/observer';
+import { Events, type EventHandle, type Observer } from '@playcanvas/observer';
 
 class LegacyElement extends Events {
+    private _parent: LegacyElement | null;
+
+    private _destroyed: boolean;
+
+    private _element: HTMLElement & { ui: any } | null;
+
+    private _link: Observer | null;
+
+    private _linkOnSet: EventHandle | null;
+
+    private _linkOnUnset: EventHandle | null;
+
+    private _disabled: boolean;
+
+    private _disabledParent: boolean;
+
+    private _evtClick: (evt: Event) => void | null;
+
+    private _evtHover: (evt: Event) => void | null;
+
+    private _evtBlur: (evt: Event) => void | null;
+
+    private _parentDestroy: () => void;
+
+    private _parentDisable: () => void;
+
+    private _parentEnable: () => void;
+
+    private _onFlashDelay: () => void;
+
+    private _evtParentDestroy: EventHandle | null;
+
+    private _evtParentDisable: EventHandle | null;
+
+    private _evtParentEnable: EventHandle | null;
+
+    private _onLinkChange: (value: any) => void;
+
+    path: string;
+
+    renderChanges: boolean | null;
+
+    disabledClick: boolean;
+
+    innerElement: HTMLElement & { ui: any } | null;
+
     constructor() {
         super();
 
@@ -8,9 +54,9 @@ class LegacyElement extends Events {
         this._destroyed = false;
         this._element = null;
         this._link = null;
+        this._linkOnSet = null;
+        this._linkOnUnset = null;
         this.path = '';
-        this._linkSet = null;
-        this._linkUnset = null;
         this.renderChanges = null;
         this.disabledClick = false;
         this._disabled = false;
@@ -202,7 +248,7 @@ class LegacyElement extends Events {
 
     set flexGrow(value) {
         this._element.style.flexGrow = value;
-        this._element.style.WebkitFlexGrow = value;
+        this._element.style.webkitFlexGrow = value;
     }
 
     get flexGrow() {
@@ -211,14 +257,14 @@ class LegacyElement extends Events {
 
     set flexShrink(value) {
         this._element.style.flexShrink = value;
-        this._element.style.WebkitFlexShrink = value;
+        this._element.style.webkitFlexShrink = value;
     }
 
     get flexShrink() {
         return this._element.style.flexShrink;
     }
 
-    link(link, path) {
+    link(link: Observer, path: string) {
         const self = this;
 
         if (this._link) {
