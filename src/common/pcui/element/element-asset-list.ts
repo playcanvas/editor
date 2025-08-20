@@ -191,7 +191,7 @@ class AssetList extends Element {
             filter: (type, dropData) => {
                 if (dropData.id && type.startsWith('asset') &&
                     (!this._assetType || type === `asset.${this._assetType}`) &&
-                    parseInt(dropData.id, 10) !== this.value) {
+                    !this.value.includes(parseInt(dropData.id, 10))) {
 
                     const asset = this._assets.get(dropData.id);
                     if (!asset || asset.get('source')) {
@@ -565,14 +565,12 @@ class AssetList extends Element {
         // this is a lossy concept as it doesn't capture whether an asset id is only
         // in some observers
         const result = [];
-        let node = this._containerAssets.dom.childNodes[0];
-        while (node) {
+        for (let i = 0; i < this._containerAssets.dom.children.length; i++) {
+            const node = this._containerAssets.dom.children[i];
             const assetId = parseInt(node.getAttribute('data-asset-id'), 10);
             if (!isNaN(assetId)) {
                 result.push(assetId);
             }
-
-            node = node.nextSibling;
         }
 
         return result;
