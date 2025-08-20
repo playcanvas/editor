@@ -5,7 +5,7 @@ declare var config: import('@playcanvas/editor-api').EditorBlankConfig &
     import('@playcanvas/editor-api').LaunchConfig;
 
 // editor
-declare var editor: import('./src/common/editor').Editor;
+declare var editor: import('./src/common/editor').Editor<import('./src/common/editor').EditorMethods>;
 
 // log
 declare var log: {
@@ -21,14 +21,14 @@ declare var metrics: {
 declare var monaco: typeof import('monaco-editor');
 
 // pc (loaded in HTML)
-declare var pc: any;
+declare var pc: typeof import('playcanvas');
 
 // pcui
 declare var pcui: typeof import('@playcanvas/pcui') &
     typeof import('./src/pcui/constants');
 
 // pcx (loaded in HTML)
-declare var pcx: any;
+declare var pcx: typeof import('playcanvas');
 
 // pcBootstrap (injected into HTML)
 declare var pcBootstrap: any;
@@ -44,7 +44,7 @@ declare interface Array {
 declare interface Window {
     // diff (injected into HTML)
     diff: {
-        default: any;
+        default: (t: any, e: any, n: any) => any;
     };
 
     // global variables

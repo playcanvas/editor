@@ -1,3 +1,4 @@
+import * as SVG from '../../../common/svg.ts';
 import { handleCallback } from '../../../common/utils.ts';
 import { MERGE_STATUS_APPLY_ENDED } from '../../../core/constants.ts';
 
@@ -6,61 +7,61 @@ editor.once('load', () => {
 
     const overlayBranchSwitched = editor.call('picker:versioncontrol:createOverlay', {
         message: 'Refreshing browser window...',
-        icon: editor.call('picker:versioncontrol:svg:completed', 50)
+        icon: SVG.completed(50)
     });
 
     const overlayCreatingCheckpoint = editor.call('picker:versioncontrol:createOverlay', {
         message: 'Please wait while the checkpoint is being created.',
-        icon: editor.call('picker:versioncontrol:svg:spinner', 50)
+        icon: SVG.spinner(50)
     });
 
     const overlayRestoringCheckpoint = editor.call('picker:versioncontrol:createOverlay', {
         message: 'Please wait while the checkpoint is restored.',
-        icon: editor.call('picker:versioncontrol:svg:spinner', 50)
+        icon: SVG.spinner(50)
     });
 
     const overlayCheckpointRestored = editor.call('picker:versioncontrol:createOverlay', {
         message: 'Refreshing browser window...',
-        icon: editor.call('picker:versioncontrol:svg:completed', 50)
+        icon: SVG.completed(50)
     });
 
     const overlayHardResetInProgress = editor.call('picker:versioncontrol:createOverlay', {
         message: 'Please wait while hard reset to checkpoint is in progress.',
-        icon: editor.call('picker:versioncontrol:svg:completed', 50)
+        icon: SVG.completed(50)
     });
 
     const overlayHardResetDone = editor.call('picker:versioncontrol:createOverlay', {
         message: 'Refreshing browser window...',
-        icon: editor.call('picker:versioncontrol:svg:completed', 50)
+        icon: SVG.completed(50)
     });
 
     const overlayBranchClosed = editor.call('picker:versioncontrol:createOverlay', {
         title: 'This branch has been closed.',
         message: 'Switching to main branch...',
-        icon: editor.call('picker:versioncontrol:svg:spinner', 50)
+        icon: SVG.spinner(50)
     });
 
     const overlayMergeStopped = editor.call('picker:versioncontrol:createOverlay', {
         message: 'Refreshing browser...',
-        icon: editor.call('picker:versioncontrol:svg:error', 50)
+        icon: SVG.error(50)
     });
 
     const overlayMergeCompleted = editor.call('picker:versioncontrol:createOverlay', {
         title: 'Merge completed.',
         message: 'Refreshing browser...',
-        icon: editor.call('picker:versioncontrol:svg:completed', 50)
+        icon: SVG.completed(50)
     });
 
     const overlayDeletingBranch = editor.call('picker:versioncontrol:createOverlay', {
         title: 'Deleting branch',
         message: 'Please wait while this branch is being deleted.',
-        icon: editor.call('picker:versioncontrol:svg:spinner', 50)
+        icon: SVG.spinner(50)
     });
 
     const overlayDeletedBranch = editor.call('picker:versioncontrol:createOverlay', {
         title: 'This branch has been deleted.',
         message: 'Refreshing browser window...',
-        icon: editor.call('picker:versioncontrol:svg:completed', 50)
+        icon: SVG.completed(50)
     });
 
     // don't let the user's full name be too big

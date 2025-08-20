@@ -1,5 +1,6 @@
 import { Element, Label, Button, Container, BooleanInput, RadioButton, Panel, Progress, TextInput } from '@playcanvas/pcui';
 
+import * as SVG from '../../../common/svg.ts';
 import { LegacyMenu } from '../../../common/ui/menu.ts';
 import { LegacyOverlay } from '../../../common/ui/overlay.ts';
 import { bytesToHuman } from '../../../common/utils.ts';
@@ -426,7 +427,7 @@ editor.once('load', () => {
 
     // spinner used to reload usage modal on project creation / deletion
     const toggleSpinner = (root, toggle) => {
-        const spinnerIcon = editor.call('picker:versioncontrol:svg:spinner', 32);
+        const spinnerIcon = SVG.spinner(32);
         spinnerIcon.classList.add('progress-icon');
         spinnerIcon.classList.add('spin');
 

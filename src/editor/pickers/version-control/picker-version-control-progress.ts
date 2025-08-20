@@ -1,3 +1,4 @@
+import * as SVG from '../../../common/svg.ts';
 import { LegacyLabel } from '../../../common/ui/label.ts';
 import { LegacyPanel } from '../../../common/ui/panel.ts';
 
@@ -35,16 +36,16 @@ editor.once('load', () => {
         panel.append(labelNote);
 
         // spinner svg
-        const spinner = editor.call('picker:versioncontrol:svg:spinner', 65);
+        const spinner = SVG.spinner(65);
         panel.innerElement.appendChild(spinner);
 
         // completed svg
-        const completed = editor.call('picker:versioncontrol:svg:completed', 65);
+        const completed = SVG.completed(65);
         panel.innerElement.appendChild(completed);
         completed.classList.add('hidden');
 
         // error svg
-        const error = editor.call('picker:versioncontrol:svg:error', 65);
+        const error = SVG.error(65);
         panel.innerElement.appendChild(error);
         error.classList.add('hidden');
 

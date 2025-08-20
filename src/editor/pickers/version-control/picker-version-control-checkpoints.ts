@@ -1,5 +1,6 @@
 import { Button, Container } from '@playcanvas/pcui';
 
+import * as SVG from '../../../common/svg.ts';
 import { LegacyButton } from '../../../common/ui/button.ts';
 import { LegacyCheckbox } from '../../../common/ui/checkbox.ts';
 import { LegacyLabel } from '../../../common/ui/label.ts';
@@ -178,12 +179,12 @@ editor.once('load', () => {
     editor.call('layout.root').append(menuCheckpoints);
 
     // loading checkpoints icon
-    const spinner = editor.call('picker:versioncontrol:svg:spinner', 64);
+    const spinner = SVG.spinner(64);
     spinner.classList.add('hidden');
     spinner.classList.add('spinner');
     panelCheckpoints.innerElement.appendChild(spinner);
 
-    const miniSpinner = editor.call('picker:versioncontrol:svg:spinner', 32);
+    const miniSpinner = SVG.spinner(32);
     miniSpinner.classList.add('hidden');
     miniSpinner.classList.add('spinner');
     miniSpinner.classList.add('mini-spinner');
