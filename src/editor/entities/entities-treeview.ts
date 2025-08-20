@@ -598,7 +598,7 @@ class EntitiesTreeView extends TreeView {
                 dropType === 'asset.sprite';
     }
 
-    _onAddEntity(entity) {
+    _onAddEntity(entity, open: boolean = false) {
         const resourceId = entity.get('resource_id');
         if (this._treeItemIndex[resourceId]) {
             return this._treeItemIndex[resourceId];
@@ -609,7 +609,8 @@ class EntitiesTreeView extends TreeView {
             allowSelect: true,
             allowDrop: true,
             text: entity.get('name'),
-            enabled: entity.get('enabled')
+            enabled: entity.get('enabled'),
+            open
         });
 
         treeViewItem.iconLabel.class.add(CLASS_COMPONENT_ICON);
@@ -957,7 +958,7 @@ class EntitiesTreeView extends TreeView {
         if (this._entities) {
             this._eventsObserverList.push(this._entities.on('add', this._onAddEntity.bind(this)));
             this._eventsObserverList.push(this._entities.on('remove', this._onRemoveEntity.bind(this)));
-            this._entities.forEach(entity => this._onAddEntity(entity));
+            this._entities.forEach((entity, i) => this._onAddEntity(entity, i === 0));
 
             // append root in the end to avoid multiple DOM operations
             if (this._rootItem) {
