@@ -1,8 +1,8 @@
-export const spinner = (size) => {
+export const spinner = (size: number) => {
     const spinner = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     spinner.classList.add('spin');
-    spinner.setAttribute('width', size);
-    spinner.setAttribute('height', size);
+    spinner.setAttribute('width', `${size}`);
+    spinner.setAttribute('height', `${size}`);
     spinner.setAttribute('x', '0');
     spinner.setAttribute('y', '0');
     spinner.setAttribute('viewBox', '0 0 64 64');
@@ -10,10 +10,10 @@ export const spinner = (size) => {
     return spinner;
 };
 
-export const completed = (size) => {
+export const completed = (size: number) => {
     const completed = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    completed.setAttribute('width', size);
-    completed.setAttribute('height', size);
+    completed.setAttribute('width', `${size}`);
+    completed.setAttribute('height', `${size}`);
     completed.setAttribute('x', '0');
     completed.setAttribute('y', '0');
     completed.setAttribute('viewBox', '0 0 65 65');
@@ -21,10 +21,10 @@ export const completed = (size) => {
     return completed;
 };
 
-export const error = (size) => {
+export const error = (size: number) => {
     const error = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    error.setAttribute('width', size);
-    error.setAttribute('height', size);
+    error.setAttribute('width', `${size}`);
+    error.setAttribute('height', `${size}`);
     error.setAttribute('x', '0');
     error.setAttribute('y', '0');
     error.setAttribute('viewBox', '0 0 65 65');
