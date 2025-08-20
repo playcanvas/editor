@@ -598,7 +598,7 @@ class EntitiesTreeView extends TreeView {
                 dropType === 'asset.sprite';
     }
 
-    _onAddEntity(entity, i) {
+    _onAddEntity(entity) {
         const resourceId = entity.get('resource_id');
         if (this._treeItemIndex[resourceId]) {
             return this._treeItemIndex[resourceId];
