@@ -5,7 +5,7 @@ declare var config: import('@playcanvas/editor-api').EditorBlankConfig &
     import('@playcanvas/editor-api').LaunchConfig;
 
 // editor
-declare var editor: import('./src/common/editor').Editor;
+declare var editor: import('./src/common/editor').Editor<import('./src/common/editor').EditorMethods>;
 
 // log
 declare var log: {
@@ -44,7 +44,7 @@ declare interface Array {
 declare interface Window {
     // diff (injected into HTML)
     diff: {
-        default: any;
+        default: (t: any, e: any, n: any) => any;
     };
 
     // global variables

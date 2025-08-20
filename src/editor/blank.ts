@@ -38,8 +38,5 @@ import './pickers/project-management/picker-modal-visibility-confirmation.ts';
 
 import './pickers/picker-scene.ts';
 
-// version control svg loader
-import './pickers/version-control/picker-version-control-svg.ts';
-
 // team management picker
 import './pickers/picker-team-management.ts';

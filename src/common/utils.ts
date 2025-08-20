@@ -441,3 +441,20 @@ export const handleCallback = <T extends { on: (event: string, handler: (status:
     ajax.on('error', (status, err) => callback(err));
     return ajax;
 };
+
+
+/**
+ * @param path - The path to check in the engine.
+ * @returns Whether the engine has the property.
+ */
+export const validateEnginePath = (path: string) => {
+    const parts = path.split('.');
+    let obj = pc;
+    for (let i = 0; i < parts.length; i++) {
+        if (!obj.hasOwnProperty(parts[i]) && obj[parts[i]] === undefined) {
+            return false;
+        }
+        obj = obj[parts[i]];
+    }
+    return true;
+};

@@ -1,10 +1,10 @@
 import * as api from '@playcanvas/editor-api';
 
-import { Editor } from '../common/editor.ts';
+import { type EditorMethods, Editor } from '../common/editor.ts';
 import { Messenger } from '../common/messenger.ts';
 
 
-class CodeEditor extends Editor {
+class CodeEditor extends Editor<EditorMethods> {
     isCodeEditor = true;
 
     constructor() {
@@ -28,7 +28,7 @@ class CodeEditor extends Editor {
         });
     }
 
-    _registerApi() {
+    protected override _registerApi() {
         super._registerApi();
 
         // Initialize API globals - order matters

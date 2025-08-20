@@ -150,7 +150,6 @@ import './monaco/integration.ts';
 import './urls.ts';
 
 // version control pickers (from main editor)
-import '../editor/pickers/version-control/picker-version-control-svg.ts';
 import '../editor/pickers/version-control/picker-version-control-overlay-message.ts';
 import '../editor/pickers/version-control/picker-version-control-messenger.ts';
 import '../editor/pickers/version-control/picker-version-control-overlay-merge.ts';

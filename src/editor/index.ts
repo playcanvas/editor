@@ -336,7 +336,6 @@ import './pickers/picker-scene.ts';
 import './pickers/picker-script-create.ts';
 
 // version control pickers
-import './pickers/version-control/picker-version-control-svg.ts';
 import './pickers/version-control/picker-version-control-side-panel.ts';
 import './pickers/version-control/picker-version-control-progress.ts';
 import './pickers/version-control/picker-version-control-create-checkpoint.ts';

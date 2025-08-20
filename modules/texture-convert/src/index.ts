@@ -25,7 +25,7 @@ const importImageEncoder = (format) => {
     }
 };
 
-export const convert = async (frontendURL, buffer, sourceFormat, targetFormat) => {
+export const convert = async (frontendURL, buffer, sourceFormat, targetFormat): Promise<ArrayBuffer> => {
     const { default: encode, init: initEncode } = await importImageEncoder(targetFormat);
     const { default: decode, init: initDecode } = await importImageDecoder(sourceFormat);
 
@@ -36,7 +36,7 @@ export const convert = async (frontendURL, buffer, sourceFormat, targetFormat) =
     await initDecode(decodeBinary);
 
     const decoded = await decode(buffer);
-    const encoded = await encode(decoded);
+    const encoded = await encode(decoded) as any;
 
     // PNG encode method doesn't return a buffer, so you must access it manually.
     return encoded.buffer ? encoded.buffer : encoded;

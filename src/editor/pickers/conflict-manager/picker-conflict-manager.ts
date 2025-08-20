@@ -1,3 +1,4 @@
+import * as SVG from '../../../common/svg.ts';
 import { LegacyButton } from '../../../common/ui/button.ts';
 import { LegacyLabel } from '../../../common/ui/label.ts';
 import { LegacyListItem } from '../../../common/ui/list-item.ts';
@@ -83,14 +84,14 @@ editor.once('load', () => {
     panelRight.append(labelMainProgress);
 
     // main progress icons
-    const spinnerIcon = editor.call('picker:versioncontrol:svg:spinner', 64);
+    const spinnerIcon = SVG.spinner(64);
     spinnerIcon.classList.add('progress-icon');
     spinnerIcon.classList.add('hidden');
     spinnerIcon.classList.add('spin');
-    const completedIcon = editor.call('picker:versioncontrol:svg:completed', 64);
+    const completedIcon = SVG.completed(64);
     completedIcon.classList.add('progress-icon');
     completedIcon.classList.add('hidden');
-    const errorIcon = editor.call('picker:versioncontrol:svg:error', 64);
+    const errorIcon = SVG.error(64);
     errorIcon.classList.add('progress-icon');
     errorIcon.classList.add('hidden');
     panelRight.innerElement.appendChild(spinnerIcon);
