@@ -2505,13 +2505,10 @@ class AssetPanel extends Panel {
         return this._assets;
     }
 
-    set currentFolder(folder: 'scripts' | Observer) {
+    set currentFolder(value: 'scripts' | Observer) {
         // legacy
-        let value: Observer;
-        if (folder === 'scripts') {
+        if (value === 'scripts') {
             value = LEGACY_SCRIPTS_FOLDER_ASSET;
-        } else {
-            value = folder;
         }
 
         if (this._currentFolder === value) {
