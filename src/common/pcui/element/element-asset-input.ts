@@ -1,9 +1,9 @@
-import type { ObserverList } from '@playcanvas/observer';
-import { Element, Label, Container, Button, BindingObserversToElement } from '@playcanvas/pcui';
+import { type AssetObserver } from '@playcanvas/editor-api';
+import type { EventHandle, ObserverList } from '@playcanvas/observer';
+import { Element, type ElementArgs, Label, Container, Button, BindingObserversToElement } from '@playcanvas/pcui';
 
 import { AssetThumbnail } from './element-asset-thumbnail.ts';
 import { CLASS_MULTIPLE_VALUES } from '../constants.ts';
-
 
 const CLASS_ASSET_INPUT = 'pcui-asset-input';
 const CLASS_ASSET_INPUT_THUMB = 'pcui-asset-input-thumb';
@@ -16,6 +16,9 @@ const CLASS_ASSET_INPUT_REMOVE = 'pcui-asset-input-remove';
 type AssetInputArgs = {
     /** The assets observer list */
     assets?: ObserverList;
+
+    value?: number | null;
+
     /** The text on the top right of the field */
     text?: string;
     /** The type of assets that this input can display. Used when picking assets with the asset picker */
@@ -23,25 +26,59 @@ type AssetInputArgs = {
     /** If true then this will enable drag and drop of assets on the input */
     allowDragDrop?: boolean;
     /** A function to pick an asset and pass its id to the callback parameter. If none is provided the default Editor asset picker will be used */
-    pickAssetFn?: Function;
+    pickAssetFn?: (callback: (assetId: number) => void) => void;
     /** A function that selects the asset id passed as a parameter. If none is provided the default Editor selector will be used */
-    selectAssetFn?: Function;
+    selectAssetFn?: (assetId: number) => void;
     /** A function that validates whether an asset is selectable by this asset input */
-    validateAssetFn?: Function;
-};
+    validateAssetFn?: (asset: AssetObserver) => boolean;
+
+    dragEnterFn?: (...args: any[]) => void;
+
+    dragLeaveFn?: (...args: any[]) => void;
+
+    renderChanges?: boolean;
+}
 
 /**
  * Represents an asset input field. It shows a thumbnail of the asset and allows picking of an
  * asset using an asset picker.
- *
- * @property {string} assetType The type of assets that this input can display. Used when picking assets with the asset picker.
- * @property {Label} label Gets the label element on the top right of the input.
- * @property {boolean} renderChanges If true the input will flash when changed.
- * @property {Function} dragEnterFn A function that is called when we drag an item over the element.
- * @property {Function} dragLeaveFn A function that is called when we stop dragging an item over the element.
  */
 class AssetInput extends Element {
-    constructor(args: AssetInputArgs) {
+    private _thumbnail: AssetThumbnail;
+
+    private _label: Label;
+
+    private _containerControls: Container;
+
+    private _labelAsset: Label;
+
+    private _labelVarious: Label;
+
+    private _btnEdit: Button;
+
+    private _btnRemove: Button;
+
+    private _assets: ObserverList;
+
+    private _assetType: string;
+
+    private _pickAssetFn: (callback: (assetId: number) => void) => void;
+
+    private _selectAssetFn: (assetId: number) => void;
+
+    private _validateAssetFn: (asset: AssetObserver) => boolean;
+
+    private _evtAdd: EventHandle | null;
+
+    private _value: number | null = null;
+
+    private _dragEnterFn: (...args: any[]) => void;
+
+    private _dragLeaveFn: (...args: any[]) => void;
+
+    private _renderChanges: boolean;
+
+    constructor(args: ElementArgs & AssetInputArgs = {}) {
         args = Object.assign({}, args);
 
         super(args);
@@ -179,7 +216,7 @@ class AssetInput extends Element {
     }
 
     // Default pick asset function. Uses global asset picker
-    _defaultPickAssetFn(callback) {
+    _defaultPickAssetFn(callback: (assetId: number) => void) {
         // TODO: use less global functions here
         editor.call('picker:asset', {
             type: this._assetType || '*',
@@ -201,7 +238,7 @@ class AssetInput extends Element {
     }
 
     // Default select function. Uses global selector
-    _defaultSelectAssetFn(assetId) {
+    _defaultSelectAssetFn(assetId: number) {
         const asset = this._assets.get(assetId);
         if (!asset) {
             return;
@@ -227,7 +264,7 @@ class AssetInput extends Element {
         editor.call('assets:panel:currentFolder', folder);
     }
 
-    _updateValue(value, force) {
+    _updateValue(value, force: boolean = false) {
         if (this._value === value && !force) {
             return false;
         }
