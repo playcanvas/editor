@@ -119,6 +119,9 @@ const initGizmo = <T extends TransformGizmo>(gizmo: T) => {
             cache[i] = getTRS(items[i]);
             items[i].history.enabled = false;
         }
+
+        editor.call('camera:toggle', false);
+        editor.call('viewport:pick:state', false);
     });
     gizmo.on(pc.TransformGizmo.EVENT_TRANSFORMMOVE, () => {
         const items = selection();
@@ -158,6 +161,9 @@ const initGizmo = <T extends TransformGizmo>(gizmo: T) => {
                 }
             }
         });
+
+        editor.call('camera:toggle', true);
+        editor.call('viewport:pick:state', true);
     });
 
     // manually call prerender and update methods
