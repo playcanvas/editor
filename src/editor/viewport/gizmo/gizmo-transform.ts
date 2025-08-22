@@ -87,7 +87,7 @@ const initGizmo = <T extends TransformGizmo>(gizmo: T) => {
         gizmo.axisCenterSize = 0.01; // TODO: hide center sphere for now
     }
     if (gizmo instanceof pc.RotateGizmo) {
-        gizmo.dragMode = 'hide';
+        gizmo.dragMode = 'selected';
         gizmo.orbitRotation = true;
         gizmo.faceTubeRadius = 0.0075;
         gizmo.xyzTubeRadius = 0.0075;
