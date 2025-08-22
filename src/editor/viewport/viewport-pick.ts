@@ -14,6 +14,11 @@ editor.once('load', () => {
     let picking = true;
     let filter = null;
     let mouseDown = false;
+    let gizmoHover = false;
+
+    editor.on('viewport:gizmo:hover', (hover) => {
+        gizmoHover = hover;
+    });
 
     editor.method('viewport:pick:filter', (fn) => {
         if (filter === fn) {
@@ -40,6 +45,10 @@ editor.once('load', () => {
 
         // pick
         editor.call('viewport:pick', mouseCoords.x, mouseCoords.y, (node, picked) => {
+            if (gizmoHover) {
+                node = null;
+                picked = null;
+            }
             if (pickedData.node !== node || pickedData.picked !== picked) {
                 pickedData.node = node;
                 pickedData.picked = picked;
