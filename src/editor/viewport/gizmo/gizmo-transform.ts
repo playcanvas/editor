@@ -91,6 +91,7 @@ const initGizmo = <T extends TransformGizmo>(gizmo: T) => {
         gizmo.orbitRotation = true;
         gizmo.faceTubeRadius = 0.0075;
         gizmo.xyzTubeRadius = 0.0075;
+        gizmo.angleGuideThickness = 0.015;
     }
     if (gizmo instanceof pc.ScaleGizmo) {
         gizmo.flipAxes = false;
