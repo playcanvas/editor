@@ -31,19 +31,19 @@
     ">0.3%, defaults"
   ],
   "scripts": {
-    "lint:css": "stylelint sass",
-    "lint:js": "eslint src",
-    "lint": "npm run lint:css && npm run lint:js",
-    "type:check": "tsc",
+    "build": "npm run build:css && npm run build:js",
     "build:css": "node compile-sass.mjs",
     "build:js": "cross-env NODE_ENV=production rollup -c",
-    "build": "npm run build:css && npm run build:js",
-    "watch:css": "nodemon compile-sass.mjs -w sass -e .scss -q",
-    "watch:js": "rollup -c -w",
-    "watch": "concurrently --kill-others \"npm run watch:css\" \"npm run watch:js\"",
-    "serve": "serve dist -p 3487 --cors",
     "develop": "concurrently --kill-others \"npm run watch:css\" \"npm run watch:js\" \"npm run serve\"",
-    "test": "mocha"
+    "lint": "npm run lint:css && npm run lint:js",
+    "lint:css": "stylelint sass",
+    "lint:js": "eslint src",
+    "serve": "serve dist -p 3487 --cors",
+    "test": "mocha",
+    "type:check": "tsc",
+    "watch": "concurrently --kill-others \"npm run watch:css\" \"npm run watch:js\"",
+    "watch:css": "nodemon compile-sass.mjs -w sass -e .scss -q",
+    "watch:js": "rollup -c -w"
   },
   "devDependencies": {
     "@jsquash/avif": "1.3.0",
