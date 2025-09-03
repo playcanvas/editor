@@ -73,9 +73,3 @@ To test the integration of these libraries use [npm link](https://docs.npmjs.com
     cd editor
     npm run link <library>
     ```
-
-[resolution-badge]: https://isitmaintained.com/badge/resolution/playcanvas/editor.svg
-[open-issues-badge]: https://isitmaintained.com/badge/open/playcanvas/editor.svg
-[isitmaintained-url]: https://isitmaintained.com/project/playcanvas/editor
-[twitter-badge]: https://img.shields.io/twitter/follow/playcanvas.svg?style=social&label=Follow
-[twitter-url]: https://twitter.com/intent/follow?screen_name=playcanvas
