@@ -64,12 +64,12 @@ To test the integration of these libraries use [npm link](https://docs.npmjs.com
 
     ```sh
     cd <library>
-    npm run link
+    npm link
     ```
 
 2. Create a link to the global link
 
     ```sh
     cd editor
-    npm run link <library>
+    npm link <library>
     ```
