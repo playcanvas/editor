@@ -7,6 +7,8 @@
 
 | [User Manual](https://developer.playcanvas.com/user-manual/editor) | [API Reference](https://api.playcanvas.com/editor) | [Blog](https://blog.playcanvas.com) | [Forum](https://forum.playcanvas.com) |
 
+The PlayCanvas Editor is a visual editing environment for building WebGL/WebGPU/WebXR apps. It can be accessed at https://playcanvas.com.
+
 ![Editor](https://raw.githubusercontent.com/playcanvas/editor/refs/heads/main/images/editor.png)
 
 You can see more projects build using the Editor on the [PlayCanvas website](https://playcanvas.com/explore).
