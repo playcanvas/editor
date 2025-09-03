@@ -1,22 +1,15 @@
-<div align="center">
-
-<img width="200" src="https://s3-eu-west-1.amazonaws.com/static.playcanvas.com/platform/images/logo/playcanvas-logo-medium.png"/>
-
 # PlayCanvas Editor
 
-[User Manual](https://developer.playcanvas.com) | [Forum](https://forum.playcanvas.com)
+[![License](https://img.shields.io/npm/l/@playcanvas/editor)](https://github.com/playcanvas/editor/blob/main/LICENSE)
+[![Discord](https://img.shields.io/badge/Discord-5865F2?style=flat&logo=discord&logoColor=white&color=black)](https://discord.gg/RSaMRzg)
+[![Reddit](https://img.shields.io/badge/Reddit-FF4500?style=flat&logo=reddit&logoColor=white&color=black)](https://www.reddit.com/r/PlayCanvas)
+[![X](https://img.shields.io/badge/X-000000?style=flat&logo=x&logoColor=white&color=black)](https://x.com/intent/follow?screen_name=playcanvas)
 
-The PlayCanvas Editor is a visual editing environment for building WebGL/WebGPU/WebXR apps. It can be accessed at https://playcanvas.com.
-
-[![Average time to resolve an issue][resolution-badge]][isitmaintained-url]
-[![Percentage of issues still open][open-issues-badge]][isitmaintained-url]
-[![Twitter][twitter-badge]][twitter-url]
+| [User Manual](https://developer.playcanvas.com/user-manual/editor) | [API Reference](https://api.playcanvas.com/editor) | [Blog](https://blog.playcanvas.com) | [Forum](https://forum.playcanvas.com) |
 
 ![Editor](https://raw.githubusercontent.com/playcanvas/editor/refs/heads/main/images/editor.png)
 
 You can see more projects build using the Editor on the [PlayCanvas website](https://playcanvas.com/explore).
-
-</div>
 
 ## Local Development
 
