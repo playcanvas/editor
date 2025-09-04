@@ -94,6 +94,24 @@ export default [
         }
     },
     {
+        files: ['test/**/*.ts'],
+        languageOptions: {
+            parser: typescriptParser,
+            globals: {
+                ...globals.node
+            }
+        },
+        rules: {
+            'accessor-pairs': ['error', { setWithoutGet: false, getWithoutSet: false }],
+            'curly': ['error', 'all'],
+            'jsdoc/require-param-type': 'off',
+            'jsdoc/require-returns-type': 'off',
+            'jsdoc/require-returns': 'off',
+            'no-use-before-define': 'off',
+            'no-var': 'off'
+        }
+    },
+    {
         files: ['**/*.mjs'],
         languageOptions: {
             globals: {
