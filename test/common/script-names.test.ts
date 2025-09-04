@@ -1,7 +1,8 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
-import { normalizeScriptName } from '../../src/common/script-names.ts';
 import { getReservedScriptNames } from 'playcanvas';
+
+import { normalizeScriptName } from '../../src/common/script-names.ts';
 
 describe('normalizeScriptName', () => {
     it('should return the original when it is valid', () => {
@@ -41,10 +42,10 @@ describe('normalizeScriptName', () => {
                     expect(normalizeScriptName(`    ${reservedScriptName}   `)).to.be.null;
                 });
                 it(`${reservedScriptName}.mjs`, () => {
-                    expect(normalizeScriptName(reservedScriptName + '.mjs')).to.be.null;
+                    expect(normalizeScriptName(`${reservedScriptName}.mjs`)).to.be.null;
                 });
                 it(`${reservedScriptName}.js`, () => {
-                    expect(normalizeScriptName(reservedScriptName + '.js')).to.be.null;
+                    expect(normalizeScriptName(`${reservedScriptName}.js`)).to.be.null;
                 });
             });
         });
@@ -64,7 +65,7 @@ describe('normalizeScriptName', () => {
         expect(normalizeScriptName('script+.js')).to.be.null;
         expect(normalizeScriptName('script!.js')).to.be.null;
         expect(normalizeScriptName('script`.js')).to.be.null;
-        expect(normalizeScriptName("script&.js")).to.be.null;
+        expect(normalizeScriptName('script&.js')).to.be.null;
         expect(normalizeScriptName('script=.js')).to.be.null;
         expect(normalizeScriptName('script\'.js')).to.be.null;
         expect(normalizeScriptName('script{.js')).to.be.null;

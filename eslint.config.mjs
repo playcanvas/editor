@@ -104,6 +104,7 @@ export default [
         rules: {
             'accessor-pairs': ['error', { setWithoutGet: false, getWithoutSet: false }],
             'curly': ['error', 'all'],
+            'no-unused-expressions': 'off',
             'jsdoc/require-param-type': 'off',
             'jsdoc/require-returns-type': 'off',
             'jsdoc/require-returns': 'off',
