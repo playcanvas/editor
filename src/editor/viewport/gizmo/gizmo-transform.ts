@@ -196,11 +196,10 @@ editor.on('camera:change', (camera: Entity) => {
     scale.camera = camera.camera;
 });
 
-editor.on('gizmo:coordSystem', (system: 'local' | 'world') => {
+editor.on('gizmo:coordSystem', (space: 'local' | 'world') => {
     if (!translate || !rotate || !scale) {
         return;
     }
-    const space = system === 'local' ? pc.GIZMOSPACE_LOCAL : pc.GIZMOSPACE_WORLD;
     translate.coordSpace = space;
     rotate.coordSpace = space;
     scale.coordSpace = space;
