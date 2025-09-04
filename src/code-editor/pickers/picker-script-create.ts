@@ -1,8 +1,8 @@
 import { Overlay, Label, TextInput } from '@playcanvas/pcui';
+import { normalizeScriptName } from "../../common/script-names.ts";
 
 editor.once('load', () => {
     let callback = null;
-    const filenameValid = /^[^0-9.#<>$+%!`&='{}@\\/:*?"|\n][^#<>$+%!`&='{}@\\/:*?"|\n]*$/;
 
     // overlay
     const overlay = new Overlay({
@@ -36,18 +36,16 @@ editor.once('load', () => {
 
         if (evt.keyCode === 13) {
             // enter
-            let filename = input.value.trim();
-            if (!filename || !filenameValid.test(filename)) {
+            const normalizedScriptName = normalizeScriptName(input.value);
+            const scriptNameValid = normalizedScriptName !== null;
+
+            if (!scriptNameValid) {
                 validate.hidden = false;
             } else {
                 validate.hidden = true;
 
-                if (!filename.endsWith('.js') && !filename.endsWith('.mjs')) {
-                    filename += '.js';
-                }
-
                 if (callback) {
-                    callback(filename);
+                    callback(normalizedScriptName);
                 }
 
                 overlay.hidden = true;
@@ -68,17 +66,7 @@ editor.once('load', () => {
         editor.emit('picker:script-create:close');
     });
 
-    editor.method('picker:script-create:validate', (filename) => {
-        if (!filename || !filenameValid.test(filename)) {
-            return false;
-        }
-
-        if (!filename.endsWith('.js') && !filename.endsWith('.mjs')) {
-            filename += '.js';
-        }
-
-        return filename;
-    });
+    editor.method('picker:script-create:validate', normalizeScriptName);
 
     // call picker
     editor.method('picker:script-create', (fn, string) => {
