@@ -1,5 +1,6 @@
 import { Overlay, Label, TextInput } from '@playcanvas/pcui';
-import { normalizeScriptName } from "../../common/script-names.ts";
+
+import { normalizeScriptName } from '../../common/script-names.ts';
 
 editor.once('load', () => {
     let callback = null;
