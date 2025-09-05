@@ -75,7 +75,7 @@ const initGizmo = <T extends TransformGizmo>(gizmo: T) => {
             f: pc.Color.WHITE
         },
         guideOcclusion: 0.9,
-        disabled: new pc.Color(0.5, 0.5, 0.5, 0.5)
+        disabled: new pc.Color(0, 0, 0, 0)
     });
 
     // gizmo specific settings
@@ -84,7 +84,8 @@ const initGizmo = <T extends TransformGizmo>(gizmo: T) => {
         gizmo.dragMode = 'hide';
         gizmo.axisLineThickness = 0.01;
         gizmo.axisPlaneGap = 0;
-        gizmo.axisCenterSize = 0.01; // TODO: hide center sphere for now
+
+        gizmo.enableShape('xyz', false); // TODO: hide center sphere for now
     }
     if (gizmo instanceof pc.RotateGizmo) {
         gizmo.dragMode = 'selected';
@@ -92,15 +93,17 @@ const initGizmo = <T extends TransformGizmo>(gizmo: T) => {
         gizmo.faceTubeRadius = 0.0075;
         gizmo.xyzTubeRadius = 0.0075;
         gizmo.angleGuideThickness = 0.015;
+
+        gizmo.enableShape('xyz', false); // TODO: hide ball rotation for now
     }
     if (gizmo instanceof pc.ScaleGizmo) {
         gizmo.flipAxes = false;
         gizmo.dragMode = 'hide';
         gizmo.axisLineThickness = 0.01;
-        gizmo.enableShape('xy', false);
-        gizmo.enableShape('xz', false);
-        gizmo.enableShape('yz', false);
-        gizmo.axisPlaneSize = 0; // TODO: disable planes as scaling unintuitive right now
+
+        gizmo.enableShape('xy', false); // TODO: disable planes as scaling unintuitive right now
+        gizmo.enableShape('xz', false); // TODO: disable planes as scaling unintuitive right now
+        gizmo.enableShape('yz', false); // TODO: disable planes as scaling unintuitive right now
     }
 
     // call viewport render while moving gizmo
