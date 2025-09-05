@@ -59,7 +59,7 @@ describe('expr-eval: Evaluate Function', () => {
         const context = { b: [2, 3, 4] };
         expect(evaluate('b[1] + b[2]', context)).to.equal(7);
         expect(evaluate('b[0] + b[2]', context)).to.equal(6);
-        expect(evaluate('b[0] + b[100]', context)).to.be.NaN; // eslint-disable-line no-unused-expressions
+        expect(evaluate('b[0] + b[100]', context)).to.be.NaN;
     });
 
     it('should handle cyclical references', () => {
