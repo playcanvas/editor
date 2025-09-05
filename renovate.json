@@ -5,6 +5,10 @@
   ],
   "packageRules": [
     {
+      "matchPackageNames": ["node"],
+      "rangeStrategy": "pin"
+    },
+    {
       "matchManagers": [
         "npm"
       ],
