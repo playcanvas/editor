@@ -18,7 +18,7 @@ const META_ATTRIBUTES: Attribute[] = [{
     label: 'SH Bands',
     alias: 'bands',
     path: 'meta.bands',
-    type: 'label',
+    type: 'label'
 }, {
     label: 'Bound Min',
     alias: 'bounds.min',
@@ -62,7 +62,7 @@ class GSplatAssetInspector extends Container {
         this.unlink();
         this._metaAttributesInspector.link(assets);
 
-        ['meta.bounds.min', 'meta.bounds.max'].forEach(path => {
+        ['meta.bounds.min', 'meta.bounds.max'].forEach((path) => {
             this._metaAttributesInspector.getField(path).enabled = false;
         });
     }
