@@ -28,7 +28,8 @@ editor.once('load', () => {
         'mjs': true,
         'atlas': true,
         'ply': true,
-        'wasm': true
+        'wasm': true,
+        'sog': true
     };
 
     const typeToExt = {
@@ -42,7 +43,7 @@ editor.once('load', () => {
         'shader': ['glsl', 'frag', 'vert'],
         'script': ['js', 'mjs'],
         'font': ['ttf', 'ttc', 'otf', 'dfont'],
-        'gsplat': ['ply'],
+        'gsplat': ['ply', 'sog'],
         'wasm': ['wasm']
     };
 
