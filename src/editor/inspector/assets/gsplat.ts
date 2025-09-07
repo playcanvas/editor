@@ -17,7 +17,7 @@ const META_ATTRIBUTES: Attribute[] = [{
 }, {
     label: 'SH Bands',
     alias: 'bands',
-    path:'meta.bands',
+    path: 'meta.bands',
     type: 'label',
 }, {
     label: 'Bound Min',
