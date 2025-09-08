@@ -222,8 +222,13 @@ const update = (visible = true) => {
         return;
     }
 
-    // disable if no write permissions
-    if (!write || !visible) {
+    // skip if no write permissions
+    if (!write) {
+        return;
+    }
+
+    // disable if set to not visible
+    if (!visible) {
         translate.detach();
         rotate.detach();
         scale.detach();
