@@ -217,21 +217,13 @@ editor.on('gizmo:snap', (state: boolean, increment: number) => {
     scale.snapIncrement = increment;
 });
 
-const update = (visible = true) => {
+const reflow = () => {
     if (!translate || !rotate || !scale) {
         return;
     }
 
     // skip if no write permissions
     if (!write) {
-        return;
-    }
-
-    // disable if set to not visible
-    if (!visible) {
-        translate.detach();
-        rotate.detach();
-        scale.detach();
         return;
     }
 
@@ -273,10 +265,18 @@ const update = (visible = true) => {
         }
     }
 };
+editor.on('selector:change', reflow);
+editor.on('gizmo:type', reflow);
+editor.on('gizmo:translate:sync', reflow);
+editor.on('gizmo:rotate:sync', reflow);
+editor.on('gizmo:scale:sync', reflow);
 
-editor.on('selector:change', () => update());
-editor.on('gizmo:type', () => update());
-editor.on('gizmo:translate:sync', () => update());
-editor.on('gizmo:rotate:sync', () => update());
-editor.on('gizmo:scale:sync', () => update());
-editor.on('gizmo:transform:visible', visible => update(visible));
+const enable = (state: boolean = true) => {
+    if (!translate || !rotate || !scale) {
+        return;
+    }
+    translate.enabled = state;
+    rotate.enabled = state;
+    scale.enabled = state;
+};
+editor.on('gizmo:transform:visible', enable);
