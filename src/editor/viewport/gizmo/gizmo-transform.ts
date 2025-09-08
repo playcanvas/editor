@@ -217,13 +217,16 @@ editor.on('gizmo:snap', (state: boolean, increment: number) => {
     scale.snapIncrement = increment;
 });
 
-const update = () => {
+const update = (visible = true) => {
     if (!translate || !rotate || !scale) {
         return;
     }
 
-    // skip if no write permissions
-    if (!write) {
+    // disable if no write permissions
+    if (!write || !visible) {
+        translate.detach();
+        rotate.detach();
+        scale.detach();
         return;
     }
 
@@ -265,8 +268,10 @@ const update = () => {
         }
     }
 };
-editor.on('selector:change', update);
-editor.on('gizmo:type', update);
-editor.on('gizmo:translate:sync', update);
-editor.on('gizmo:rotate:sync', update);
-editor.on('gizmo:scale:sync', update);
+
+editor.on('selector:change', () => update());
+editor.on('gizmo:type', () => update());
+editor.on('gizmo:translate:sync', () => update());
+editor.on('gizmo:rotate:sync', () => update());
+editor.on('gizmo:scale:sync', () => update());
+editor.on('gizmo:transform:visible', visible => update(visible));
