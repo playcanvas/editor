@@ -275,8 +275,9 @@ const enable = (state: boolean = true) => {
     if (!translate || !rotate || !scale) {
         return;
     }
-    translate.enabled = state;
-    rotate.enabled = state;
-    scale.enabled = state;
+    const enabled = write && state;
+    translate.enabled = enabled;
+    rotate.enabled = enabled;
+    scale.enabled = enabled;
 };
 editor.on('gizmo:transform:visible', enable);
