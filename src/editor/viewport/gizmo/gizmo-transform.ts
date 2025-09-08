@@ -106,10 +106,19 @@ const initGizmo = <T extends TransformGizmo>(gizmo: T) => {
         gizmo.enableShape('yz', false); // TODO: disable planes as scaling unintuitive right now
     }
 
-    // call viewport render while moving gizmo
-    gizmo.on(pc.Gizmo.EVENT_POINTERMOVE, (_x, _y, meshInstance: MeshInstance) => {
+    // call viewport render when gizmo fires update
+    gizmo.on(pc.Gizmo.EVENT_RENDERUPDATE, () => {
         editor.call('viewport:render');
-        editor.emit('viewport:gizmo:hover', !!meshInstance);
+    });
+
+    // track hover state
+    let hovering = false;
+    gizmo.on(pc.Gizmo.EVENT_POINTERMOVE, (_x: number, _y: number, meshInstance: MeshInstance) => {
+        if (hovering === !!meshInstance) {
+            return;
+        }
+        hovering = !!meshInstance;
+        editor.emit('gizmo:transform:hover', hovering);
     });
 
     // track history
