@@ -291,6 +291,7 @@ editor.once('load', () => {
             if (!node || !node.handle) {
                 if (gizmoAnchor.handle) {
                     gizmoAnchor.handle = null;
+                    editor.emit('gizmo:transform:visible', true);
 
                     for (const key in gizmoAnchor.handles) {
                         setModelMaterial(gizmoAnchor.handles[key].handleModel, gizmoAnchor.matInactive);
@@ -304,6 +305,7 @@ editor.once('load', () => {
             } else {
                 if (!gizmoAnchor.handle || gizmoAnchor.handle !== node.handle) {
                     gizmoAnchor.handle = node.handle;
+                    editor.emit('gizmo:transform:visible', false);
 
                     for (const key in gizmoAnchor.handles) {
                         setModelMaterial(gizmoAnchor.handles[key].handleModel, gizmoAnchor.handles[key] === gizmoAnchor.handle ? gizmoAnchor.matActive : gizmoAnchor.matInactive);
@@ -337,8 +339,6 @@ editor.once('load', () => {
 
                 anchorStart = selectedEntity.get('components.element.anchor').slice(0);
             }
-
-            editor.emit('gizmo:transform:visible', false);
         };
 
         const onTapMove = function (tap) {
@@ -364,7 +364,6 @@ editor.once('load', () => {
             moving = false;
             mouseTap = tap;
 
-            editor.emit('gizmo:transform:visible', true);
             editor.call('viewport:pick:state', true);
 
             // update entity anchor
