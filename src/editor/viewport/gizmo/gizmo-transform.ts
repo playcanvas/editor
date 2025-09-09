@@ -194,6 +194,20 @@ editor.on('scene:load', () => {
     rotate = initGizmo(new pc.RotateGizmo(camera.camera, layer));
     scale = initGizmo(new pc.ScaleGizmo(camera.camera, layer));
 });
+editor.on('scene:unload', () => {
+    if (translate) {
+        translate.destroy();
+        translate = null;
+    }
+    if (rotate) {
+        rotate.destroy();
+        rotate = null;
+    }
+    if (scale) {
+        scale.destroy();
+        scale = null;
+    }
+});
 
 editor.on('permissions:writeState', (state) => {
     write = state;
