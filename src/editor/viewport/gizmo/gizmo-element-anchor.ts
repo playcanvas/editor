@@ -1,4 +1,4 @@
-import { GIZMO_MASK } from '../../../core/constants.ts';
+import { FORCE_PICK_TAG, GIZMO_MASK } from '../../../core/constants.ts';
 import { createColorMaterial } from '../viewport-color-material.ts';
 
 editor.once('load', () => {
@@ -23,6 +23,12 @@ editor.once('load', () => {
     let offset = new pc.Vec3();
     let visible = true;
 
+    const createEntity = () => {
+        const entity = new pc.Entity();
+        entity.tags.add(FORCE_PICK_TAG);
+        return entity;
+    };
+
     const createAnchorGizmo = function () {
         const obj = {
             root: null,
@@ -38,7 +44,7 @@ editor.once('load', () => {
             handle: null
         };
 
-        obj.root = new pc.Entity();
+        obj.root = createEntity();
         obj.root.enabled = false;
 
         const c = 0.8;
@@ -48,11 +54,11 @@ editor.once('load', () => {
         const layer = editor.call('gizmo:layers', 'Axis Gizmo');
 
         const createCone = function (angle) {
-            const result = new pc.Entity();
+            const result = createEntity();
             result.setLocalEulerAngles(0, 0, angle);
             obj.root.addChild(result);
 
-            const cone = new pc.Entity();
+            const cone = createEntity();
             cone.addComponent('model', {
                 type: 'cone',
                 layers: [layer.id]
@@ -76,8 +82,8 @@ editor.once('load', () => {
         obj.handles.bl = createCone(130 + 180);
         obj.handles.br = createCone(230 + 180);
 
-        // obj.handles.center = new pc.Entity();
-        // var sphere = new pc.Entity();
+        // obj.handles.center = createEntity();
+        // var sphere = createEntity();
         // obj.handles.center.addChild(sphere);
         // sphere.addComponent('model', {type: 'sphere'});
         // sphere.model.castShadows = false;
