@@ -12,13 +12,23 @@ const META_ATTRIBUTES: Attribute[] = [{
 }, {
     label: 'Splats',
     alias: 'splats',
-    path: 'meta.elements.vertex.count',
+    path: 'meta.count',
     type: 'label'
 }, {
-    label: 'Properties',
-    alias: 'properties',
-    path: 'meta.properties',
+    label: 'SH Bands',
+    alias: 'bands',
+    path: 'meta.bands',
     type: 'label'
+}, {
+    label: 'Bound Min',
+    alias: 'bounds.min',
+    path: 'meta.bounds.min',
+    type: 'vec3'
+}, {
+    label: 'Bound Max',
+    alias: 'bounds.max',
+    path: 'meta.bounds.max',
+    type: 'vec3'
 }];
 
 const DOM = parent => [
@@ -52,17 +62,9 @@ class GSplatAssetInspector extends Container {
         this.unlink();
         this._metaAttributesInspector.link(assets);
 
-        const props = {};
-        assets.forEach((asset) => {
-            const properties = asset.get('meta.elements.vertex.properties');
-            if (properties) {
-                Object.assign(props, properties);
-            }
+        ['meta.bounds.min', 'meta.bounds.max'].forEach((path) => {
+            this._metaAttributesInspector.getField(path).enabled = false;
         });
-
-        const text = Object.keys(props).join(', ');
-        const field = this._metaAttributesInspector.getField('meta.properties');
-        field.values = assets.map(asset => text);
     }
 
     unlink() {

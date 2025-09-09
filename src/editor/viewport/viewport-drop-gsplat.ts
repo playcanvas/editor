@@ -91,7 +91,7 @@ editor.once('load', () => {
             for (let i = 0; i < assets.length; i++) {
                 const assetEngine = app.assets.get(assets[i].get('id'));
                 if (assetEngine?.resource) {
-                    assetEngine.resource.splatData.calcAabb(gsplatAabb);
+                    assetEngine.resource.gsplatData.calcAabb(gsplatAabb);
                     if (first) {
                         first = false;
                         aabb.copy(gsplatAabb);
@@ -145,6 +145,7 @@ editor.once('load', () => {
                     parent: parent,
                     name: name,
                     position: [vecC.x, vecC.y, vecC.z],
+                    rotation: [0, 0, 180],
                     components: {
                         gsplat: component
                     }
