@@ -67,7 +67,7 @@ class TemplatesEntityInspector extends Container {
 
     private _selectedEntityListItem: Container | null;
 
-    private _deferRefreshOverrides: () => void;
+    private _deferRefresh: () => void;
 
     private _eventMessenger: EventHandle;
 
@@ -178,12 +178,12 @@ class TemplatesEntityInspector extends Container {
         this._entities.on('add', this._onEntityAdd.bind(this));
         this._entities.on('remove', this._onEntityRemove.bind(this));
 
-        this._deferRefreshOverrides = () => {
+        this._deferRefresh = () => {
             if (this._refreshTimeout) {
                 clearTimeout(this._refreshTimeout);
             }
 
-            this._refreshTimeout = setTimeout(this._refreshOverrides.bind(this), 50);
+            this._refreshTimeout = setTimeout(this._refreshTemplateAndOverrides.bind(this), 50);
         };
 
         this.on('hide', () => {
@@ -391,7 +391,7 @@ class TemplatesEntityInspector extends Container {
         };
     }
 
-    _refreshOverrides() {
+    _refreshTemplateAndOverrides() {
         if (this._refreshTimeout) {
             clearTimeout(this._refreshTimeout);
             this._refreshTimeout = null;
@@ -400,10 +400,18 @@ class TemplatesEntityInspector extends Container {
         this._btnApplyAll.enabled = true;
 
         // check if entity is no longer linked to template
-        if (!this._entity || !this._entity.get('template_id')) {
+        const templateId = this._entity?.get('template_id');
+        if (!templateId) {
             this._overrides = null;
             this.hidden = true;
             return;
+        }
+
+        this._templateAsset = this._assets.get(templateId);
+        if (this._templateAsset) {
+            this._labelTemplate.link(this._templateAsset, 'name');
+        } else {
+            this._labelTemplate.text = templateId;
         }
 
         this.hidden = false;
@@ -508,7 +516,7 @@ class TemplatesEntityInspector extends Container {
             return;
         }
 
-        this._deferRefreshOverrides();
+        this._deferRefresh();
     }
 
     _isDescendant(entity, parent) {
@@ -565,11 +573,11 @@ class TemplatesEntityInspector extends Container {
             }
         }
 
-        entry.push(entity.on('*:set', this._deferRefreshOverrides));
-        entry.push(entity.on('*:unset', this._deferRefreshOverrides));
-        entry.push(entity.on('*:insert', this._deferRefreshOverrides));
-        entry.push(entity.on('*:remove', this._deferRefreshOverrides));
-        entry.push(entity.on('*:move', this._deferRefreshOverrides));
+        entry.push(entity.on('*:set', this._deferRefresh));
+        entry.push(entity.on('*:unset', this._deferRefresh));
+        entry.push(entity.on('*:insert', this._deferRefresh));
+        entry.push(entity.on('*:remove', this._deferRefresh));
+        entry.push(entity.on('*:move', this._deferRefresh));
     }
 
     _bindEntityEventsRecursively(entity) {
@@ -624,18 +632,11 @@ class TemplatesEntityInspector extends Container {
         this._entity = entity;
 
         this.hidden = false;
-        if (this._entity.get('template_id')) {
-            this._templateAsset = this._assets.get(this._entity.get('template_id'));
-            if (this._templateAsset) {
-                this._labelTemplate.link(this._templateAsset, 'name');
-            } else {
-                this._labelTemplate.text = this._entity.get('template_id');
-            }
-        }
         this._bindEntityEventsRecursively(this._entity);
 
-        this._refreshOverrides();
+        this._refreshTemplateAndOverrides();
     }
+
 
     unlink() {
         if (!this._entity) {
