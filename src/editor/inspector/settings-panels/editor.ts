@@ -180,26 +180,6 @@ const ATTRIBUTES: (Attribute | Divider)[] = [
         }
     },
     {
-        observer: 'settings',
-        label: 'Gizmo Rotation Mode',
-        path: 'editor.gizmoRotationMode',
-        reference: 'settings:gizmoRotationMode',
-        type: 'select',
-        args: {
-            type: 'string',
-            options: [
-                {
-                    v: 'orbit',
-                    t: 'Orbit'
-                },
-                {
-                    v: 'absolute',
-                    t: 'Absolute'
-                }
-            ]
-        }
-    },
-    {
         alias: 'divider:2',
         type: 'divider'
     },
