@@ -169,12 +169,12 @@ const ATTRIBUTES: (Attribute | Divider)[] = [
             type: 'string',
             options: [
                 {
-                    v: 'classic',
-                    t: 'Classic'
-                },
-                {
                     v: 'default',
                     t: 'Default'
+                },
+                {
+                    v: 'classic',
+                    t: 'Classic'
                 }
             ]
         }
