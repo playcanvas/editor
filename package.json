@@ -35,7 +35,7 @@
     "@playcanvas/editor-api": "^1.1.24",
     "@playcanvas/eslint-config": "2.1.0",
     "@playcanvas/observer": "1.6.6",
-    "@playcanvas/pcui": "5.2.1",
+    "@playcanvas/pcui": "5.2.2",
     "@playcanvas/pcui-graph": "4.1.0",
     "@rollup/plugin-commonjs": "28.0.1",
     "@rollup/plugin-json": "6.1.0",
