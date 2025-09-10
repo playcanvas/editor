@@ -9,7 +9,46 @@ import {
     type Layer
 } from 'playcanvas';
 
-const GIZMO_SIZE = 1.2;
+import { Defer } from '../../../common/defer.ts';
+
+type GizmoNodeTransform = {
+    position: number[];
+    rotation: number[];
+    scale: number[];
+};
+
+type GizmoAxis = Parameters<TransformGizmo['enableShape']>[0];
+type GizmoTheme = TransformGizmo['theme'];
+type GizmoDragMode = TransformGizmo['dragMode'];
+
+type GizmoPreset = {
+    translate: {
+        theme: GizmoTheme;
+        dragMode: GizmoDragMode;
+        flipAxes: boolean;
+        axisLineThickness: number;
+        axisPlaneGap: number;
+        disableShapes: GizmoAxis[];
+    };
+    rotate: {
+        theme: GizmoTheme;
+        dragMode: GizmoDragMode;
+        orbitRotation: boolean;
+        faceTubeRadius: number;
+        xyzTubeRadius: number;
+        angleGuideThickness: number;
+        disableShapes: GizmoAxis[];
+    };
+    scale: {
+        theme: GizmoTheme;
+        dragMode: GizmoDragMode;
+        flipAxes: boolean;
+        axisLineThickness: number;
+        disableShapes: GizmoAxis[];
+    };
+}
+
+const GIZMO_AXES = ['x', 'y', 'z', 'xy', 'xz', 'yz', 'xyz', 'f'] as GizmoAxis[];
 const GIZMO_ANGLE_MULT = 5;
 
 let translate: TranslateGizmo | null = null;
@@ -18,11 +57,85 @@ let scale: ScaleGizmo | null = null;
 
 let write: boolean = false;
 
-type GizmoNodeTransform = {
-    position: number[];
-    rotation: number[];
-    scale: number[];
+const loaded = new Defer<void>();
+
+const CLASSIC_THEME: GizmoTheme = {
+    shapeBase: {
+        x: pc.Color.RED,
+        y: pc.Color.GREEN,
+        z: pc.Color.BLUE,
+        xyz: pc.Color.WHITE,
+        f: pc.Color.YELLOW
+    },
+    shapeHover: {
+        x: pc.Color.WHITE,
+        y: pc.Color.WHITE,
+        z: pc.Color.WHITE,
+        xyz: pc.Color.WHITE,
+        f: pc.Color.WHITE
+    },
+    guideBase: {
+        x: pc.Color.WHITE,
+        y: pc.Color.WHITE,
+        z: pc.Color.WHITE,
+        f: pc.Color.WHITE
+    },
+    guideOcclusion: 0.9,
+    disabled: new pc.Color(0, 0, 0, 0)
 };
+const CLASSIC_PRESET: GizmoPreset = {
+    translate: {
+        theme: CLASSIC_THEME,
+        dragMode: 'hide',
+        flipAxes: false,
+        axisLineThickness: 0.01,
+        axisPlaneGap: 0,
+        disableShapes: ['xyz'] // TODO: hide center sphere for now
+    },
+    rotate: {
+        theme: CLASSIC_THEME,
+        dragMode: 'selected',
+        orbitRotation: true,
+        faceTubeRadius: 0.0075,
+        xyzTubeRadius: 0.0075,
+        angleGuideThickness: 0.015,
+        disableShapes: ['xyz'] // TODO: hide ball rotation for now
+    },
+    scale: {
+        theme: CLASSIC_THEME,
+        dragMode: 'hide',
+        flipAxes: false,
+        axisLineThickness: 0.01,
+        disableShapes: ['xy', 'xz', 'yz'] // TODO: disable planes as scaling unintuitive right now
+    }
+};
+const presets = new Map<string, GizmoPreset>();
+presets.set('classic', CLASSIC_PRESET);
+
+const cloneTheme = (theme: GizmoTheme): GizmoTheme => ({
+    shapeBase: {
+        x: theme.shapeBase.x.clone(),
+        y: theme.shapeBase.y.clone(),
+        z: theme.shapeBase.z.clone(),
+        xyz: theme.shapeBase.xyz.clone(),
+        f: theme.shapeBase.f.clone()
+    },
+    shapeHover: {
+        x: theme.shapeHover.x.clone(),
+        y: theme.shapeHover.y.clone(),
+        z: theme.shapeHover.z.clone(),
+        xyz: theme.shapeHover.xyz.clone(),
+        f: theme.shapeHover.f.clone()
+    },
+    guideBase: {
+        x: theme.guideBase.x.clone(),
+        y: theme.guideBase.y.clone(),
+        z: theme.guideBase.z.clone(),
+        f: theme.guideBase.f.clone()
+    },
+    guideOcclusion: theme.guideOcclusion,
+    disabled: theme.disabled.clone()
+});
 
 const selection = (): EntityObserver[] => {
     const type = editor.call('selector:type');
@@ -32,80 +145,25 @@ const selection = (): EntityObserver[] => {
     return editor.call('selector:items');
 };
 
-const getTRS = (item: EntityObserver): GizmoNodeTransform => {
-    const position: number[] = item.entity.getLocalPosition().toArray();
-    const rotation: number[] = item.entity.getLocalEulerAngles().toArray();
-    const scale: number[] = item.entity.getLocalScale().toArray();
-    item.set('position', position);
-    item.set('rotation', rotation);
-    item.set('scale', scale);
+const getTRS = (observer: EntityObserver): GizmoNodeTransform => {
+    const position: number[] = observer.entity.getLocalPosition().toArray();
+    const rotation: number[] = observer.entity.getLocalEulerAngles().toArray();
+    const scale: number[] = observer.entity.getLocalScale().toArray();
+    observer.set('position', position);
+    observer.set('rotation', rotation);
+    observer.set('scale', scale);
     return { position, rotation, scale };
 };
-const setTRS = (item: EntityObserver, trs: GizmoNodeTransform, history: boolean = true) => {
-    const historyEnabled = item.history.enabled;
-    item.history.enabled = history;
-    item.set('position', trs.position);
-    item.set('rotation', trs.rotation);
-    item.set('scale', trs.scale);
-    item.history.enabled = historyEnabled;
+const setTRS = (observer: EntityObserver, trs: GizmoNodeTransform, history: boolean = true) => {
+    const historyEnabled = observer.history.enabled;
+    observer.history.enabled = history;
+    observer.set('position', trs.position);
+    observer.set('rotation', trs.rotation);
+    observer.set('scale', trs.scale);
+    observer.history.enabled = historyEnabled;
 };
 
 const initGizmo = <T extends TransformGizmo>(gizmo: T) => {
-    // general settings
-    gizmo.size = GIZMO_SIZE;
-    gizmo.setTheme({
-        shapeBase: {
-            x: pc.Color.RED,
-            y: pc.Color.GREEN,
-            z: pc.Color.BLUE,
-            xyz: pc.Color.WHITE,
-            f: pc.Color.YELLOW
-        },
-        shapeHover: {
-            x: pc.Color.WHITE,
-            y: pc.Color.WHITE,
-            z: pc.Color.WHITE,
-            xyz: pc.Color.WHITE,
-            f: pc.Color.WHITE
-        },
-        guideBase: {
-            x: pc.Color.WHITE,
-            y: pc.Color.WHITE,
-            z: pc.Color.WHITE,
-            f: pc.Color.WHITE
-        },
-        guideOcclusion: 0.9,
-        disabled: new pc.Color(0, 0, 0, 0)
-    });
-
-    // gizmo specific settings
-    if (gizmo instanceof pc.TranslateGizmo) {
-        gizmo.flipAxes = false;
-        gizmo.dragMode = 'hide';
-        gizmo.axisLineThickness = 0.01;
-        gizmo.axisPlaneGap = 0;
-
-        gizmo.enableShape('xyz', false); // TODO: hide center sphere for now
-    }
-    if (gizmo instanceof pc.RotateGizmo) {
-        gizmo.dragMode = 'selected';
-        gizmo.orbitRotation = true;
-        gizmo.faceTubeRadius = 0.0075;
-        gizmo.xyzTubeRadius = 0.0075;
-        gizmo.angleGuideThickness = 0.015;
-
-        gizmo.enableShape('xyz', false); // TODO: hide ball rotation for now
-    }
-    if (gizmo instanceof pc.ScaleGizmo) {
-        gizmo.flipAxes = false;
-        gizmo.dragMode = 'hide';
-        gizmo.axisLineThickness = 0.01;
-
-        gizmo.enableShape('xy', false); // TODO: disable planes as scaling unintuitive right now
-        gizmo.enableShape('xz', false); // TODO: disable planes as scaling unintuitive right now
-        gizmo.enableShape('yz', false); // TODO: disable planes as scaling unintuitive right now
-    }
-
     // call viewport render when gizmo fires update
     gizmo.on(pc.Gizmo.EVENT_RENDERUPDATE, () => {
         editor.call('viewport:render');
@@ -124,38 +182,38 @@ const initGizmo = <T extends TransformGizmo>(gizmo: T) => {
     // track history
     const cache: GizmoNodeTransform[] = [];
     gizmo.on(pc.TransformGizmo.EVENT_TRANSFORMSTART, () => {
-        const items = selection();
-        if (!items.length) {
+        const observers = selection();
+        if (!observers.length) {
             return;
         }
-        for (let i = 0; i < items.length; i++) {
-            cache[i] = getTRS(items[i]);
-            items[i].history.enabled = false;
+        for (let i = 0; i < observers.length; i++) {
+            cache[i] = getTRS(observers[i]);
+            observers[i].history.enabled = false;
         }
 
         editor.call('camera:toggle', false);
         editor.call('viewport:pick:state', false);
     });
     gizmo.on(pc.TransformGizmo.EVENT_TRANSFORMMOVE, () => {
-        const items = selection();
-        if (!items.length) {
+        const observers = selection();
+        if (!observers.length) {
             return;
         }
-        for (let i = 0; i < items.length; i++) {
-            getTRS(items[i]);
+        for (let i = 0; i < observers.length; i++) {
+            getTRS(observers[i]);
         }
     });
     gizmo.on(pc.TransformGizmo.EVENT_TRANSFORMEND, () => {
-        const items = selection();
-        if (!items.length) {
+        const observers = selection();
+        if (!observers.length) {
             return;
         }
 
         // record discrete action
         const action: [GizmoNodeTransform, GizmoNodeTransform][] = [];
-        for (let i = 0; i < items.length; i++) {
-            action.push([cache[i], getTRS(items[i])]);
-            items[i].history.enabled = true;
+        for (let i = 0; i < observers.length; i++) {
+            action.push([cache[i], getTRS(observers[i])]);
+            observers[i].history.enabled = true;
         }
         cache.length = 0;
 
@@ -164,13 +222,13 @@ const initGizmo = <T extends TransformGizmo>(gizmo: T) => {
             name: 'entities.translate',
             combine: false,
             undo: () => {
-                for (let i = 0; i < items.length; i++) {
-                    setTRS(items[i].latest() as EntityObserver, action[i][0], false);
+                for (let i = 0; i < observers.length; i++) {
+                    setTRS(observers[i].latest() as EntityObserver, action[i][0], false);
                 }
             },
             redo: () => {
-                for (let i = 0; i < items.length; i++) {
-                    setTRS(items[i].latest() as EntityObserver, action[i][1], false);
+                for (let i = 0; i < observers.length; i++) {
+                    setTRS(observers[i].latest() as EntityObserver, action[i][1], false);
                 }
             }
         });
@@ -190,23 +248,52 @@ editor.on('scene:load', () => {
     const camera: Entity = editor.call('camera:current');
     const layer: Layer = editor.call('gizmo:layers', 'Axis Gizmo Immediate');
 
-    translate = initGizmo(new pc.TranslateGizmo(camera.camera, layer));
-    rotate = initGizmo(new pc.RotateGizmo(camera.camera, layer));
-    scale = initGizmo(new pc.ScaleGizmo(camera.camera, layer));
+    if (!translate) {
+        translate = initGizmo(new pc.TranslateGizmo(camera.camera, layer));
+    }
+    if (!rotate) {
+        rotate = initGizmo(new pc.RotateGizmo(camera.camera, layer));
+    }
+    if (!scale) {
+        scale = initGizmo(new pc.ScaleGizmo(camera.camera, layer));
+    }
+
+    // save default preset if not already set
+    if (!presets.has('default')) {
+        presets.set('default', {
+            translate: {
+                theme: cloneTheme(translate.theme),
+                dragMode: translate.dragMode,
+                flipAxes: translate.flipAxes,
+                axisLineThickness: translate.axisLineThickness,
+                axisPlaneGap: translate.axisPlaneGap,
+                disableShapes: GIZMO_AXES.filter(axis => !translate.isShapeEnabled(axis))
+            },
+            rotate: {
+                theme: cloneTheme(rotate.theme),
+                dragMode: rotate.dragMode,
+                orbitRotation: rotate.orbitRotation,
+                faceTubeRadius: rotate.faceTubeRadius,
+                xyzTubeRadius: rotate.xyzTubeRadius,
+                angleGuideThickness: rotate.angleGuideThickness,
+                disableShapes: GIZMO_AXES.filter(axis => !rotate.isShapeEnabled(axis))
+            },
+            scale: {
+                theme: cloneTheme(scale.theme),
+                dragMode: scale.dragMode,
+                flipAxes: scale.flipAxes,
+                axisLineThickness: scale.axisLineThickness,
+                disableShapes: GIZMO_AXES.filter(axis => !scale.isShapeEnabled(axis))
+            }
+        });
+    }
+
+    loaded.resolve();
 });
 editor.on('scene:unload', () => {
-    if (translate) {
-        translate.destroy();
-        translate = null;
-    }
-    if (rotate) {
-        rotate.destroy();
-        rotate = null;
-    }
-    if (scale) {
-        scale.destroy();
-        scale = null;
-    }
+    translate.detach();
+    rotate.detach();
+    scale.detach();
 });
 
 editor.on('permissions:writeState', (state) => {
@@ -251,33 +338,34 @@ const reflow = () => {
     }
 
     // skip if not selecting entities (can be assets)
-    const selectorType: string = editor.call('selector:type');
-    if (selectorType !== 'entity') {
+    const observers = selection();
+    if (!observers.length) {
         translate.detach();
         rotate.detach();
         scale.detach();
         return;
     }
 
+    // set gizmo based on type
     const gizmoType: string = editor.call('gizmo:type');
-    const items = editor.call('selector:items').map(item => item.entity);
+    const nodes = observers.map(observer => observer.entity);
     switch (gizmoType) {
         case 'translate': {
-            translate.attach(items);
+            translate.attach(nodes);
             rotate.detach();
             scale.detach();
             break;
         }
         case 'rotate': {
             translate.detach();
-            rotate.attach(items);
+            rotate.attach(nodes);
             scale.detach();
             break;
         }
         case 'scale': {
             translate.detach();
             rotate.detach();
-            scale.attach(items);
+            scale.attach(nodes);
             break;
         }
         default: {
@@ -304,3 +392,63 @@ const enable = (state: boolean = true) => {
     scale.enabled = enabled;
 };
 editor.on('gizmo:transform:visible', enable);
+
+editor.once('settings:projectUser:load', async () => {
+    // ensure gizmos loaded
+    await loaded.promise;
+
+    const settings = editor.call('settings:projectUser');
+    const bind = (path: string, callback: (value: any) => void) => {
+        settings.on(`${path}:set`, callback);
+        settings.emit(`${path}:set`, settings.get(path));
+    };
+
+    // gizmo size
+    bind('editor.gizmoSize', (value: number) => {
+        translate.size = value;
+        rotate.size = value;
+        scale.size = value;
+
+        editor.call('viewport:render');
+    });
+
+    // gizmo preset
+    bind('editor.gizmoPreset', (value: 'classic' | 'default') => {
+        const preset = presets.get(value);
+        if (!preset) {
+            return;
+        }
+
+        const setShapes = (gizmo: TransformGizmo, disabled: GizmoAxis[]) => {
+            GIZMO_AXES.forEach((axis) => {
+                gizmo.enableShape(axis, !disabled.includes(axis));
+            });
+        };
+
+        // translate
+        translate.setTheme(preset.translate.theme);
+        translate.dragMode = preset.translate.dragMode;
+        translate.flipAxes = preset.translate.flipAxes;
+        translate.axisLineThickness = preset.translate.axisLineThickness;
+        translate.axisPlaneGap = preset.translate.axisPlaneGap;
+        setShapes(translate, preset.translate.disableShapes);
+
+        // rotate
+        rotate.setTheme(preset.rotate.theme);
+        rotate.dragMode = preset.rotate.dragMode;
+        rotate.orbitRotation = preset.rotate.orbitRotation;
+        rotate.faceTubeRadius = preset.rotate.faceTubeRadius;
+        rotate.xyzTubeRadius = preset.rotate.xyzTubeRadius;
+        rotate.angleGuideThickness = preset.rotate.angleGuideThickness;
+        setShapes(rotate, preset.rotate.disableShapes);
+
+        // scale
+        scale.setTheme(preset.scale.theme);
+        scale.dragMode = preset.scale.dragMode;
+        scale.flipAxes = preset.scale.flipAxes;
+        scale.axisLineThickness = preset.scale.axisLineThickness;
+        setShapes(scale, preset.scale.disableShapes);
+
+        editor.call('viewport:render');
+    });
+});
