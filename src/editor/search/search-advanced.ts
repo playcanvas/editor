@@ -246,12 +246,14 @@ export const searchItems = function (items, search, args) {
     let records = [];
 
     for (i = 0; i < items.length; i++) {
-        const subInd = items[i][0].toLowerCase().trim().indexOf(search);
+        const item = items[i];
+        const name = items[i].text;
+        const subInd = name.toLowerCase().trim().indexOf(search);
 
         records.push({
-            name: items[i][0],
-            item: items[i][1],
-            tokens: args.fuzzy ? searchStringTokenize(items[i][0]) : [],
+            name: name,
+            item: item,
+            tokens: args.fuzzy ? searchStringTokenize(name) : [],
             edits: Infinity,
             subFull: (subInd !== -1) ? subInd : Infinity,
             sub: Infinity
