@@ -164,6 +164,11 @@ const setTRS = (observer: EntityObserver, trs: GizmoNodeTransform, history: bool
 };
 
 const initGizmo = <T extends TransformGizmo>(gizmo: T) => {
+    // enable uniform scaling for scale gizmo
+    if (gizmo instanceof pc.ScaleGizmo) {
+        gizmo.uniform = true;
+    }
+
     // call viewport render when gizmo fires update
     gizmo.on(pc.Gizmo.EVENT_RENDERUPDATE, () => {
         editor.call('viewport:render');
