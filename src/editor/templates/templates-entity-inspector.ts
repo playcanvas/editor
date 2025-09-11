@@ -626,14 +626,8 @@ class TemplatesEntityInspector extends Container {
         if (entities.length !== 1) {
             return;
         }
-
-        const entity = entities[0];
-
-        this._entity = entity;
-
-        this.hidden = false;
+        this._entity = entities[0];
         this._bindEntityEventsRecursively(this._entity);
-
         this._refreshTemplateAndOverrides();
     }
 
