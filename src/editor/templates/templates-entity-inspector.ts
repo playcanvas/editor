@@ -183,7 +183,7 @@ class TemplatesEntityInspector extends Container {
                 clearTimeout(this._refreshTimeout);
             }
 
-            this._refreshTimeout = setTimeout(this._refreshTemplateAndOverrides.bind(this), 50);
+            this._refreshTimeout = setTimeout(this._refresh.bind(this), 50);
         };
 
         this.on('hide', () => {
@@ -391,7 +391,7 @@ class TemplatesEntityInspector extends Container {
         };
     }
 
-    _refreshTemplateAndOverrides() {
+    _refresh() {
         if (this._refreshTimeout) {
             clearTimeout(this._refreshTimeout);
             this._refreshTimeout = null;
@@ -628,7 +628,7 @@ class TemplatesEntityInspector extends Container {
         }
         this._entity = entities[0];
         this._bindEntityEventsRecursively(this._entity);
-        this._refreshTemplateAndOverrides();
+        this._refresh();
     }
 
 
