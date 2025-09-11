@@ -275,7 +275,8 @@ editor.once('load', () => {
                 data: data,
                 meta: asset ? asset[1].get('meta') : null
             }, (err, data) => {
-                if (err || ext !== 'js') {
+                const isJavascript = ext === 'js' || ext === 'mjs';
+                if (err || !isJavascript) {
                     return;
                 }
 
