@@ -79,8 +79,8 @@ class ViewportApplication extends pc.Application {
 
                 editor.emit('viewport:gizmoUpdate', dt);
 
+                editor.emit('viewport:preRender');
                 app.render();
-
                 editor.emit('viewport:postRender');
             }
         };
