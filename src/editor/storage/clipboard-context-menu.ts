@@ -534,6 +534,26 @@ const convertTypes = new Map([
         (n, o) => {
             return [n[0], n[1], n[2]];
         }
+    ], [
+        'entity-array:entity',
+        (n, o) => {
+            if (Array.isArray(n)) {
+                return n;
+            } else if (n) {
+                return [n];
+            }
+            return [];
+
+        }
+    ], [
+        'array:entity-entity',
+        (n, o) => {
+            if (n.length) {
+                return n[0];
+            }
+            return null;
+
+        }
     ]
 ]);
 
@@ -906,7 +926,11 @@ editor.once('load', () => {
 
         for (let i = 0; i < items.length; i++) {
             const valueOld = items[i].get(path);
-            const valueNew = convert ? convertTypes.get(conversionTuple)(paste.value, valueOld) : paste.value;
+            let valueNew = convert ? convertTypes.get(conversionTuple)(paste.value, valueOld) : paste.value;
+
+            if (type === 'entity' && Array.isArray(valueNew)) {
+                valueNew = valueNew[0];
+            }
 
             // create history records
             records.push({
