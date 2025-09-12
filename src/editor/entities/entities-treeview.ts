@@ -353,7 +353,9 @@ class EntitiesTreeView extends TreeView {
     }
 
     // Override PCUI function
-    _searchItems(searchArr, filter) {
+    _searchItems(rawArray: TreeViewItem[], filter) {
+        const searchArr = rawArray.map(item => [item.text, item]);
+
         let results = [];
         const filters = Object.keys(this.searchFilters).filter(key => this.searchFilters[key]);
 
