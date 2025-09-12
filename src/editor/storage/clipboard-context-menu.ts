@@ -543,7 +543,6 @@ const convertTypes = new Map([
                 return [n];
             }
             return [];
-
         }
     ], [
         'array:entity-entity',
@@ -552,6 +551,17 @@ const convertTypes = new Map([
                 return n[0];
             }
             return null;
+
+        }
+    ], [
+        'asset-array:asset',
+        (n, o) => {
+            if (Array.isArray(n)) {
+                return n;
+            } else if (n) {
+                return [n];
+            }
+            return [];
 
         }
     ]
@@ -579,6 +589,49 @@ for (const type of assetTypes) {
         }
 
         return o;
+    });
+
+    convertTypes.set(`asset-array:asset:${type}`, (n, o) => {
+        if (!n) {
+            return [];
+        }
+
+        if (Array.isArray(n)) {
+            const items = [];
+            for (let i = 0; i < n.length; i++) {
+                const assetType = editor.call('assets:get', n[i])?.get('type');
+
+                if (!assetType) {
+                    continue;
+                }
+
+                if (assetType === type) {
+                    items.push(n[i]);
+                }
+            }
+
+            if (items.length) {
+                return items;
+            }
+            return o;
+
+        } else if (n) {
+            const assetType = editor.call('assets:get', n)?.get('type');
+
+            if (!assetType) {
+                return o;
+            }
+
+            if (assetType === type) {
+                return n;
+            }
+        }
+
+        return o;
+    });
+
+    convertTypes.set(`array:asset:${type}-array:asset`, (n, o) => {
+        return n;
     });
 
     convertTypes.set(`number-asset:${type}`, (n, o) => {
@@ -929,6 +982,8 @@ editor.once('load', () => {
             let valueNew = convert ? convertTypes.get(conversionTuple)(paste.value, valueOld) : paste.value;
 
             if (type === 'entity' && Array.isArray(valueNew)) {
+                valueNew = valueNew[0];
+            } else if (type === 'asset' && Array.isArray(valueNew)) {
                 valueNew = valueNew[0];
             }
 
