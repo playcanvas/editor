@@ -172,6 +172,21 @@ const convertTypes = new Map([
             return n;
         }
     ], [
+        'string-array:string',
+        (n, o) => {
+            const items = [];
+            const data = n.split(',');
+
+            for (let i = 0; i < data.length; i++) {
+                const string = data[i].trim();
+                if (string) {
+                    items.push(string);
+                }
+            }
+
+            return items;
+        }
+    ], [
         'string-tags',
         (n, o) => {
             const set = new Set();
