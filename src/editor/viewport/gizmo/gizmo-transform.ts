@@ -25,15 +25,18 @@ type GizmoPreset = {
     translate: {
         theme: GizmoTheme;
         dragMode: GizmoDragMode;
-        flipAxes: boolean;
+        axisArrowThickness: number;
+        axisArrowLength: number;
+        axisGap: number;
+        axisLineLength: number;
         axisLineThickness: number;
         axisPlaneGap: number;
+        axisPlaneSize: number;
         disableShapes: GizmoAxis[];
     };
     rotate: {
         theme: GizmoTheme;
         dragMode: GizmoDragMode;
-        orbitRotation: boolean;
         faceTubeRadius: number;
         xyzTubeRadius: number;
         angleGuideThickness: number;
@@ -42,8 +45,11 @@ type GizmoPreset = {
     scale: {
         theme: GizmoTheme;
         dragMode: GizmoDragMode;
-        flipAxes: boolean;
+        axisGap: number;
+        axisBoxSize: number;
+        axisLineLength: number;
         axisLineThickness: number;
+        axisCenterSize: number;
         disableShapes: GizmoAxis[];
     };
 }
@@ -64,8 +70,8 @@ const CLASSIC_THEME: GizmoTheme = {
         x: pc.Color.RED,
         y: pc.Color.GREEN,
         z: pc.Color.BLUE,
-        xyz: pc.Color.WHITE,
-        f: pc.Color.YELLOW
+        xyz: new pc.Color(1, 1, 1, 0.35),
+        f: new pc.Color(1, 1, 1, 0.35)
     },
     shapeHover: {
         x: pc.Color.WHITE,
@@ -77,8 +83,7 @@ const CLASSIC_THEME: GizmoTheme = {
     guideBase: {
         x: pc.Color.WHITE,
         y: pc.Color.WHITE,
-        z: pc.Color.WHITE,
-        f: pc.Color.WHITE
+        z: pc.Color.WHITE
     },
     guideOcclusion: 0.9,
     disabled: new pc.Color(0, 0, 0, 0)
@@ -87,25 +92,31 @@ const CLASSIC_PRESET: GizmoPreset = {
     translate: {
         theme: CLASSIC_THEME,
         dragMode: 'hide',
-        flipAxes: false,
-        axisLineThickness: 0.01,
+        axisArrowThickness: 0.11,
+        axisArrowLength: 0.16,
+        axisGap: 0.25,
+        axisLineLength: 0.27,
+        axisLineThickness: 0.005,
         axisPlaneGap: 0,
+        axisPlaneSize: 0.21,
         disableShapes: ['xyz'] // TODO: hide center sphere for now
     },
     rotate: {
         theme: CLASSIC_THEME,
         dragMode: 'selected',
-        orbitRotation: true,
-        faceTubeRadius: 0.0075,
-        xyzTubeRadius: 0.0075,
-        angleGuideThickness: 0.015,
+        faceTubeRadius: 0.005,
+        xyzTubeRadius: 0.005,
+        angleGuideThickness: 0.01,
         disableShapes: ['xyz'] // TODO: hide ball rotation for now
     },
     scale: {
         theme: CLASSIC_THEME,
         dragMode: 'hide',
-        flipAxes: false,
-        axisLineThickness: 0.01,
+        axisGap: 0.125,
+        axisBoxSize: 0.1,
+        axisLineLength: 0.4,
+        axisLineThickness: 0.005,
+        axisCenterSize: 0.16,
         disableShapes: ['xy', 'xz', 'yz'] // TODO: disable planes as scaling unintuitive right now
     }
 };
@@ -130,8 +141,7 @@ const cloneTheme = (theme: GizmoTheme): GizmoTheme => ({
     guideBase: {
         x: theme.guideBase.x.clone(),
         y: theme.guideBase.y.clone(),
-        z: theme.guideBase.z.clone(),
-        f: theme.guideBase.f.clone()
+        z: theme.guideBase.z.clone()
     },
     guideOcclusion: theme.guideOcclusion,
     disabled: theme.disabled.clone()
@@ -164,6 +174,11 @@ const setTRS = (observer: EntityObserver, trs: GizmoNodeTransform, history: bool
 };
 
 const initGizmo = <T extends TransformGizmo>(gizmo: T) => {
+    // enable orbit rotation for rotate gizmo
+    if (gizmo instanceof pc.RotateGizmo) {
+        gizmo.rotationMode = 'orbit';
+    }
+
     // enable uniform scaling for scale gizmo
     if (gizmo instanceof pc.ScaleGizmo) {
         gizmo.uniform = true;
@@ -269,15 +284,18 @@ editor.on('scene:load', () => {
             translate: {
                 theme: cloneTheme(translate.theme),
                 dragMode: translate.dragMode,
-                flipAxes: translate.flipAxes,
+                axisArrowThickness: translate.axisArrowThickness,
+                axisArrowLength: translate.axisArrowLength,
+                axisGap: translate.axisGap,
+                axisLineLength: translate.axisLineLength,
                 axisLineThickness: translate.axisLineThickness,
                 axisPlaneGap: translate.axisPlaneGap,
+                axisPlaneSize: translate.axisPlaneSize,
                 disableShapes: GIZMO_AXES.filter(axis => !translate.isShapeEnabled(axis))
             },
             rotate: {
                 theme: cloneTheme(rotate.theme),
                 dragMode: rotate.dragMode,
-                orbitRotation: rotate.orbitRotation,
                 faceTubeRadius: rotate.faceTubeRadius,
                 xyzTubeRadius: rotate.xyzTubeRadius,
                 angleGuideThickness: rotate.angleGuideThickness,
@@ -286,8 +304,11 @@ editor.on('scene:load', () => {
             scale: {
                 theme: cloneTheme(scale.theme),
                 dragMode: scale.dragMode,
-                flipAxes: scale.flipAxes,
+                axisGap: scale.axisGap,
+                axisBoxSize: scale.axisBoxSize,
+                axisLineLength: scale.axisLineLength,
                 axisLineThickness: scale.axisLineThickness,
+                axisCenterSize: scale.axisCenterSize,
                 disableShapes: GIZMO_AXES.filter(axis => !scale.isShapeEnabled(axis))
             }
         });
@@ -433,15 +454,18 @@ editor.once('settings:projectUser:load', async () => {
         // translate
         translate.setTheme(preset.translate.theme);
         translate.dragMode = preset.translate.dragMode;
-        translate.flipAxes = preset.translate.flipAxes;
-        translate.axisLineThickness = preset.translate.axisLineThickness;
+        translate.axisArrowThickness = preset.translate.axisArrowThickness;
+        translate.axisArrowLength = preset.translate.axisArrowLength;
+        translate.axisGap = preset.translate.axisGap;
         translate.axisPlaneGap = preset.translate.axisPlaneGap;
+        translate.axisPlaneSize = preset.translate.axisPlaneSize;
+        translate.axisLineLength = preset.translate.axisLineLength;
+        translate.axisLineThickness = preset.translate.axisLineThickness;
         setShapes(translate, preset.translate.disableShapes);
 
         // rotate
         rotate.setTheme(preset.rotate.theme);
         rotate.dragMode = preset.rotate.dragMode;
-        rotate.orbitRotation = preset.rotate.orbitRotation;
         rotate.faceTubeRadius = preset.rotate.faceTubeRadius;
         rotate.xyzTubeRadius = preset.rotate.xyzTubeRadius;
         rotate.angleGuideThickness = preset.rotate.angleGuideThickness;
@@ -450,8 +474,11 @@ editor.once('settings:projectUser:load', async () => {
         // scale
         scale.setTheme(preset.scale.theme);
         scale.dragMode = preset.scale.dragMode;
-        scale.flipAxes = preset.scale.flipAxes;
+        scale.axisGap = preset.scale.axisGap;
+        scale.axisBoxSize = preset.scale.axisBoxSize;
+        scale.axisLineLength = preset.scale.axisLineLength;
         scale.axisLineThickness = preset.scale.axisLineThickness;
+        scale.axisCenterSize = preset.scale.axisCenterSize;
         setShapes(scale, preset.scale.disableShapes);
 
         editor.call('viewport:render');
