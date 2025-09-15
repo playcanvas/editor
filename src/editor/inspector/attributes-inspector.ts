@@ -199,6 +199,7 @@ class AttributesInspector extends Container {
                         const btnPaste = new Button({
                             icon: 'E353',
                             enabled: false,
+                            tabIndex: -1,
                             class: 'pcui-clipboard-button'
                         });
                         target.label.dom.appendChild(btnPaste.dom);
@@ -214,6 +215,7 @@ class AttributesInspector extends Container {
                         const btnCopy = new Button({
                             icon: 'E126',
                             enabled: false,
+                            tabIndex: -1,
                             class: ['pcui-clipboard-button', 'pcui-clipboard-button-copy']
                         });
                         target.label.dom.appendChild(btnCopy.dom);
