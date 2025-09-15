@@ -1,5 +1,5 @@
-// TODO: Better types once available
-type Entity = any;
+import type { EntityObserver } from '@playcanvas/editor-api';
+
 type SnapshotEntry = {
     entityId: any;
     templateId: any;
@@ -7,20 +7,20 @@ type SnapshotEntry = {
 };
 
 editor.once('load', () => {
-    function extractEntityIds(entities: Entity | Entity[]): string[] {
+    function extractEntityIds(entities: EntityObserver | EntityObserver[]): string[] {
         if (!Array.isArray(entities)) {
             entities = [entities];
         }
         return entities.filter(e => e.get('template_id')).map(e => e.get('resource_id'));
     }
 
-    editor.method('templates:unlink', (entities: Entity | Entity[]) => {
+    editor.method('templates:unlink', (entities: EntityObserver | EntityObserver[]) => {
         if (!editor.call('permissions:write')) {
             return;
         }
 
         const entityIds = extractEntityIds(entities);
-        let snapshots: SnapshotEntry[] = [];
+        const snapshots: SnapshotEntry[] = [];
 
         function undo() {
             snapshots.forEach(({ entityId, template_ent_ids, templateId }) => {
@@ -47,11 +47,11 @@ editor.once('load', () => {
                 entity.set('template_ent_ids', template_ent_ids);
                 entity.history.enabled = history;
             });
+
+            snapshots.length = 0;
         }
 
         function redo() {
-            snapshots = [];
-
             entityIds.forEach((entityId) => {
                 const entity = editor.call('entities:get', entityId);
                 if (!entity) {
