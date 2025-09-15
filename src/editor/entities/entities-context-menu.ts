@@ -96,7 +96,14 @@ editor.once('load', () => {
             menuData.push({
                 text: 'Template',
                 icon: 'E411',
-                onIsEnabled: isOneSelected,
+                onIsEnabled: () => {
+                    if (isOneSelected()) {
+                        return true;
+                    }
+                    // For multi-select, enable if at least one entity is linked to a template
+                    // For instance, allows "Unlink Template" for multiple entity selection.
+                    return items.some(e => e.get('template_id'));
+                },
                 onIsVisible: hasWriteAccess,
                 items: editor.call('menu:entities:template')
             });
