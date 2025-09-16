@@ -1,6 +1,7 @@
 import type { Container } from '@playcanvas/pcui';
 
 import { LegacyContainer } from './container.ts';
+
 class LegacyTooltip extends LegacyContainer {
     arrow: HTMLElement;
 
