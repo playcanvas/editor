@@ -992,14 +992,13 @@ class ScriptComponentInspector extends ComponentInspector {
     }
 
     clearValidationIssues(scriptName?: string) {
-        // Clear for specific script
+        // Re-initialize specific script
         if (scriptName) {
             const panel = this._scriptPanels[scriptName];
             panel?._initializeScriptAttributes();
             return;
         }
-
-        // Clear all
+        // Re-initialize all scripts
         for (const name in this._scriptPanels) {
             const panel = this._scriptPanels[name];
             panel?._initializeScriptAttributes();
