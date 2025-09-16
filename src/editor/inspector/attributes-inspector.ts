@@ -1,6 +1,6 @@
 import type { History } from '@playcanvas/editor-api';
 import type { Observer, ObserverList } from '@playcanvas/observer';
-import { Element, Container, LabelGroup, Panel, Button, ArrayInput, BindingTwoWay, Label } from '@playcanvas/pcui';
+import { Element, Container, LabelGroup, Panel, Button, ArrayInput, BindingTwoWay, Label, type ContainerArgs } from '@playcanvas/pcui';
 
 import type { Attribute } from './attribute.type.d.ts';
 import { AssetInput } from '../../common/pcui/element/element-asset-input.ts';
@@ -47,7 +47,18 @@ class AttributesInspector extends Container {
 
     private _onAttributeChangeHandler: () => void;
 
-    constructor(args) {
+    constructor(args: {
+        history?: History;
+        assets?: ObserverList;
+        entities?: ObserverList;
+        settings?: Observer;
+        projectSettings?: Observer;
+        userSettings?: Observer;
+        sceneSettings?: Observer;
+        sessionSettings?: Observer;
+        attributes?: Attribute[];
+        templateOverridesInspector?: TemplateOverrideInspector;
+    } & ContainerArgs = {}) {
         args = Object.assign({
             flex: true
         }, args);
