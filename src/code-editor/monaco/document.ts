@@ -1,8 +1,20 @@
+import type * as Monaco from 'monaco-editor';
+
+// TODO: Types
+type ViewEntry = {
+    doc: any;
+    type: any;
+    asset: any;
+    view: Monaco.editor.ITextModel;
+    suppressChanges: boolean;
+    viewState: any;
+};
+
 editor.once('load', () => {
     const panel = editor.call('layout.code');
 
     const monacoEditor = editor.call('editor:monaco');
-    const viewIndex = {};
+    const viewIndex: Record<string, ViewEntry> = {};
     let focusedView = null;
 
     const modes = {
@@ -12,7 +24,6 @@ editor.once('load', () => {
         css: 'css',
         shader: 'glsl'
     };
-
 
     /**
      * Converts an import entry to a Monaco-compatible path.
@@ -118,7 +129,7 @@ editor.once('load', () => {
             editor.call('status:error', `Failed to open asset (${asset.get('id')}) from path ${path}. An asset with the same path is already open.`);
             return;
         }
-        const entry = {
+        const entry: ViewEntry = {
             doc: doc,
             type: type,
             asset: asset,
@@ -193,7 +204,6 @@ editor.once('load', () => {
             focusedView.suppressChanges = true;
             focusedView.view.setValue(content);
             focusedView.suppressChanges = false;
-
         } else {
             focusedView = viewIndex[id];
 
@@ -201,15 +211,9 @@ editor.once('load', () => {
             monacoEditor.setModel(focusedView.view);
 
             const options = {
-                lineNumbers: true
+                lineNumbers: true,
+                folding: focusedView.type !== 'text'
             };
-
-            // change mode options
-            if (focusedView.type === 'text') {
-                options.folding = false;
-            } else {
-                options.folding = true;
-            }
 
             monacoEditor.updateOptions(options);
 
@@ -242,7 +246,6 @@ editor.once('load', () => {
     // Close document
     editor.on('documents:close', (id) => {
         if (focusedView === viewIndex[id]) {
-
             // clear code
             // but suppress changes to the doc
             // to avoid sending them to sharedb
@@ -260,18 +263,15 @@ editor.once('load', () => {
         }
 
         delete viewIndex[id];
-
     });
 
     // Returns the dependencies of an ESM Script Asset
     const getDependenciesFromString = (content, importer = './') => {
-
         const importRegex = /import\s[\w\s{},*]+\sfrom\s+['"]([^'"]+)['"]/g;
         let match;
-        const paths = new Set();
+        const paths: Set<string> = new Set();
 
         while ((match = importRegex.exec(content)) !== null) {
-
             // Get the full path relative to the importer
             const path = new URL(match[1], `https://base${importer}`).pathname;
 
@@ -286,7 +286,7 @@ editor.once('load', () => {
 
     editor.method('utils:deps-from-string', getDependenciesFromString);
 
-    const getDependenciesForAsset = (asset) => {
+    const getDependenciesForAsset = (asset): Promise<Set<string>> => {
         return new Promise((resolve, reject) => {
             editor.call('assets:contents:get', asset, (err, content) => {
                 if (err) {
@@ -294,7 +294,7 @@ editor.once('load', () => {
                 }
 
                 if (!asset.get('file.filename').endsWith('.mjs')) {
-                    resolve([]);
+                    resolve(new Set([]));
                 }
 
                 const importer = editor.call('assets:virtualPath', asset);
@@ -308,15 +308,14 @@ editor.once('load', () => {
     editor.method('utils:deps-from-asset', asset => getDependenciesForAsset(asset));
 
     editor.method('asset:update-dependencies', async (asset) => {
-
         const filePath = editor.call('assets:virtualPath', asset);
 
         // Fetch the dependencies for the asset
         const deps = await getDependenciesForAsset(asset);
 
         const openPaths = Object.values(viewIndex)
-        .map(({ view }) => new URL(view.uri.toString()).pathname) // ignore the schema
-        .filter(uri => uri.endsWith('.mjs'))  // only esm files
+        .map(({ view }) => view.uri.path) // ignore the schema
+        .filter(uri => uri.endsWith('.mjs')) // only esm files
         .filter(uri => uri !== filePath); // exclude the current asset
 
         // Create a set of the current files
@@ -324,7 +323,7 @@ editor.once('load', () => {
 
         // Create a map of file paths to views. eg: { '/path/to/file.mjs': view }
         const pathEntryMap = new Map(
-            Object.values(viewIndex).map(entry => [entry.view.uri.toString(), entry])
+            Object.values(viewIndex).map(entry => [entry.view.uri.path, entry])
         );
 
         // get set of files that are not loaded
@@ -333,16 +332,18 @@ editor.once('load', () => {
         // files to remove
         const filesToRemove = currentFiles.difference(deps);
 
-        const openTabs = editor.call('tabs:list').map(tab => editor.call('assets:virtualPath', tab.asset));
+        const openTabs = editor.call('tabs:list').map(tab => editor.call('assets:virtualPath', tab.asset)).filter(Boolean);
 
         // Remove the views for the files that are no longer dependencies
-        filesToRemove.forEach((file) => {
+        filesToRemove.forEach((filePath) => {
             // Don't remove the file if it's open in a tab
-            if (openTabs.includes(new URL(file).pathname)) {
+            if (openTabs.includes(filePath)) {
                 return;
             }
-            const entry = pathEntryMap.get(file);
-            editor.emit('documents:close', entry.asset.get('id'));
+            const entry = pathEntryMap.get(filePath);
+            if (entry) {
+                editor.emit('documents:close', entry.asset.get('id'));
+            }
         });
 
         // Find the associated asset for the file path, and load it
@@ -366,7 +367,6 @@ editor.once('load', () => {
         targetView.view.setValue(contents);
         monacoEditor.setPosition(position);
         targetView.suppressChanges = false;
-
     });
 
     // unfocus
@@ -413,5 +413,4 @@ editor.once('load', () => {
         }
         return null;
     });
-
 });

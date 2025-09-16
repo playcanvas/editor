@@ -76,10 +76,10 @@ editor.once('load', () => {
         icon: 'E358',
         onIsEnabled: function () {
             const selection = getSelection();
-            return selection.length === 1 && selection[0].get('template_id');
+            return selection.some(e => e.get('template_id'));
         },
         onSelect: function () {
-            editor.call('templates:unlink', getSelection()[0]);
+            editor.call('templates:unlink', getSelection());
         }
     });
 
