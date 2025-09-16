@@ -10009,7 +10009,8 @@ strong {
 
                                                         > .content {
                                                             > .ui-label.name {
-                                                                width: 160px;
+                                                                white-space: normal;
+                                                                line-height: 1em;
                                                             }
 
                                                             .value {
