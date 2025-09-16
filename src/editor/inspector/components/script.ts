@@ -687,6 +687,8 @@ class ScriptInspector extends Panel {
 }
 
 class ScriptComponentInspector extends ComponentInspector {
+    private _scriptPanels: Record<string, ScriptInspector>;
+
     constructor(args) {
         args = Object.assign({}, args);
         args.component = 'script';
