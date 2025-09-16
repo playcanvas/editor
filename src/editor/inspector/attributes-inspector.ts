@@ -1,3 +1,5 @@
+import type { History } from '@playcanvas/editor-api';
+import type { Observer, ObserverList } from '@playcanvas/observer';
 import { Element, Container, LabelGroup, Panel, Button, ArrayInput, BindingTwoWay, Label } from '@playcanvas/pcui';
 
 import type { Attribute } from './attribute.type.d.ts';
@@ -15,9 +17,35 @@ let tooltipCopy: LegacyTooltip | null = null;
 let tooltipPaste: LegacyTooltip | null = null;
 
 class AttributesInspector extends Container {
-    _templateOverridesInspector: TemplateOverrideInspector;
+    private _observers: Observer[] | null;
 
-    _clipboardTypes: Set<string> | null;
+    private _history: History;
+
+    private _assets: ObserverList;
+
+    private _entities: ObserverList;
+
+    private _settings: Observer;
+
+    private _projectSettings: Observer;
+
+    private _userSettings: Observer;
+
+    private _sceneSettings: Observer;
+
+    private _sessionSettings: Observer;
+
+    private _fields: Record<string, Element>;
+
+    private _fieldAttributes: Record<string, Attribute>;
+
+    private _templateOverridesInspector: TemplateOverrideInspector;
+
+    private _clipboardTypes: Set<string> | null;
+
+    private _suspendChangeEvt: boolean;
+
+    private _onAttributeChangeHandler: () => void;
 
     constructor(args) {
         args = Object.assign({
@@ -55,7 +83,7 @@ class AttributesInspector extends Container {
         });
     }
 
-    _getFieldKey(attr: Attribute): string | null {
+    private _getFieldKey(attr: Attribute): string | null {
         if (attr.path) {
             return attr.path;
         }
@@ -69,7 +97,7 @@ class AttributesInspector extends Container {
         return null;
     }
 
-    _createTooltipGroup(target, tooltipData) {
+    private _createTooltipGroup(target, tooltipData) {
         let actualTarget = target;
         if (target instanceof LabelGroup) {
             actualTarget = target.label;
@@ -108,7 +136,7 @@ class AttributesInspector extends Container {
         return group;
     }
 
-    _onAttributeChange() {
+    private _onAttributeChange() {
         if (!this._suspendChangeEvt && this._events.change) {
             this.emit('change', this.value);
         }
@@ -309,10 +337,10 @@ class AttributesInspector extends Container {
     }
 
     /**
-     * @param {Attribute} attr - Attribute data
-     * @param {*} [index] - Index to insert the attribute at
+     * @param attr - Attribute data
+     * @param index - Index to insert the attribute at
      */
-    addAttribute(attr, index) {
+    addAttribute(attr: Attribute, index?: number) {
         try {
 
             // If the attribute is a boolean and has an 'enabled' sub-attribute, add a toggle field to the header
@@ -490,7 +518,7 @@ class AttributesInspector extends Container {
         this.move(field, index);
     }
 
-    _linkObservers(key) {
+    private _linkObservers(key) {
         const field = this.getField(key);
         const attr = this._fieldAttributes[key];
         if (attr.observer) {
