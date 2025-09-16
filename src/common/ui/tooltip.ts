@@ -194,8 +194,22 @@ class LegacyTooltip extends LegacyContainer {
         this._reflow();
     }
 
-    static attach(args) {
-        const data = {
+    static attach(args: {
+        root: HTMLElement,
+        target: HTMLElement,
+        text?: string,
+        html?: string,
+        align?: 'top' | 'right' | 'bottom' | 'left',
+        hoverable?: boolean,
+        class?: string
+    }) {
+        const data: {
+            text?: string,
+            html?: string,
+            align: 'top' | 'right' | 'bottom' | 'left',
+            hoverable: boolean,
+            class: string | null
+        } = {
             align: args.align,
             hoverable: args.hoverable,
             class: args.class ?? null
