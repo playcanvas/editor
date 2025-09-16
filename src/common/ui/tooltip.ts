@@ -1,8 +1,32 @@
+import type { EventHandle } from '@playcanvas/observer';
 import type { Container } from '@playcanvas/pcui';
 
 import { LegacyContainer } from './container.ts';
 class LegacyTooltip extends LegacyContainer {
-    constructor(args = {}) {
+    arrow: HTMLElement;
+
+    hoverable: boolean;
+
+    x: number;
+
+    y: number;
+
+    private _align: 'top' | 'right' | 'bottom' | 'left';
+
+    private _attached?: {
+        remove: () => void
+    };
+
+    constructor(args: {
+        class?: string,
+        hoverable?: boolean,
+        x?: number,
+        y?: number,
+        align?: 'top' | 'right' | 'bottom' | 'left',
+        hidden?: boolean,
+        text?: string,
+        html?: string
+    } = {}) {
         super();
         this.element = document.createElement('div');
         this._element.classList.add('ui-tooltip', 'align-left');
@@ -36,6 +60,10 @@ class LegacyTooltip extends LegacyContainer {
 
         this._element.addEventListener('mouseover', this._onMouseOver.bind(this), false);
         this._element.addEventListener('mouseleave', this._onMouseLeave.bind(this), false);
+
+        this.on('destroy', () => {
+            this.detach();
+        });
     }
 
     set align(value) {
@@ -195,6 +223,80 @@ class LegacyTooltip extends LegacyContainer {
         this._reflow();
     }
 
+    attach(target: HTMLElement) {
+        if (this._attached) {
+            this.detach();
+        }
+
+        const evtHover = () => {
+            const rect = target.getBoundingClientRect();
+            let off = 16;
+
+            switch (this.align) {
+                case 'top':
+                    if (rect.width < 64) {
+                        off = rect.width / 2;
+                    }
+                    this.flip = rect.left + off > window.innerWidth / 2;
+                    if (this.flip) {
+                        this.position(rect.right - off, rect.bottom);
+                    } else {
+                        this.position(rect.left + off, rect.bottom);
+                    }
+                    break;
+                case 'right':
+                    if (rect.height < 64) {
+                        off = rect.height / 2;
+                    }
+                    this.flip = false;
+                    this.position(rect.left, rect.top + off);
+                    break;
+                case 'bottom':
+                    if (rect.width < 64) {
+                        off = rect.width / 2;
+                    }
+                    this.flip = rect.left + off > window.innerWidth / 2;
+                    if (this.flip) {
+                        this.position(rect.right - off, rect.top);
+                    } else {
+                        this.position(rect.left + off, rect.top);
+                    }
+                    break;
+                case 'left':
+                    if (rect.height < 64) {
+                        off = rect.height / 2;
+                    }
+                    this.flip = false;
+                    this.position(rect.right, rect.top + off);
+                    break;
+            }
+
+            this.hidden = false;
+        };
+        const evtBlur = () => {
+            this.hidden = true;
+        };
+
+        target.addEventListener('mouseover', evtHover, false);
+        target.addEventListener('mouseout', evtBlur, false);
+
+        const remove = () => {
+            target.removeEventListener('mouseover', evtHover, false);
+            target.removeEventListener('mouseout', evtBlur, false);
+        };
+
+        this._attached = { remove };
+    }
+
+    detach() {
+        if (!this._attached) {
+            return;
+        }
+        const { remove } = this._attached;
+        remove();
+        this._attached = undefined;
+    }
+
     static attach(args: {
         root: Container,
         target: HTMLElement,
@@ -215,72 +317,13 @@ class LegacyTooltip extends LegacyContainer {
             hoverable: args.hoverable,
             class: args.class ?? null
         };
-
         if (args.html) {
             data.html = args.html;
         } else {
             data.text = args.text || '';
         }
-
         const item = new LegacyTooltip(data);
-
-        const evtHover = () => {
-            const rect = args.target.getBoundingClientRect();
-            let off = 16;
-
-            switch (item.align) {
-                case 'top':
-                    if (rect.width < 64) {
-                        off = rect.width / 2;
-                    }
-                    item.flip = rect.left + off > window.innerWidth / 2;
-                    if (item.flip) {
-                        item.position(rect.right - off, rect.bottom);
-                    } else {
-                        item.position(rect.left + off, rect.bottom);
-                    }
-                    break;
-                case 'right':
-                    if (rect.height < 64) {
-                        off = rect.height / 2;
-                    }
-                    item.flip = false;
-                    item.position(rect.left, rect.top + off);
-                    break;
-                case 'bottom':
-                    if (rect.width < 64) {
-                        off = rect.width / 2;
-                    }
-                    item.flip = rect.left + off > window.innerWidth / 2;
-                    if (item.flip) {
-                        item.position(rect.right - off, rect.top);
-                    } else {
-                        item.position(rect.left + off, rect.top);
-                    }
-                    break;
-                case 'left':
-                    if (rect.height < 64) {
-                        off = rect.height / 2;
-                    }
-                    item.flip = false;
-                    item.position(rect.right, rect.top + off);
-                    break;
-            }
-
-            item.hidden = false;
-        };
-
-        const evtBlur = () => {
-            item.hidden = true;
-        };
-
-        args.target.addEventListener('mouseover', evtHover, false);
-        args.target.addEventListener('mouseout', evtBlur, false);
-
-        item.on('destroy', () => {
-            args.target.removeEventListener('mouseover', evtHover);
-            args.target.removeEventListener('mouseout', evtBlur);
-        });
+        item.attach(args.target);
 
         args.root.append(item);
 
