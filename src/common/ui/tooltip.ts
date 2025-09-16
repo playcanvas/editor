@@ -297,9 +297,8 @@ class LegacyTooltip extends LegacyContainer {
         this._attached = undefined;
     }
 
-    static attach(args: {
+    static create(args: {
         root: Container,
-        target: HTMLElement,
         text?: string,
         html?: string,
         align?: 'top' | 'right' | 'bottom' | 'left',
@@ -323,10 +322,23 @@ class LegacyTooltip extends LegacyContainer {
             data.text = args.text || '';
         }
         const item = new LegacyTooltip(data);
-        item.attach(args.target);
 
         args.root.append(item);
 
+        return item;
+    }
+
+    static attach(args: {
+        root: Container,
+        target: HTMLElement,
+        text?: string,
+        html?: string,
+        align?: 'top' | 'right' | 'bottom' | 'left',
+        hoverable?: boolean,
+        class?: string
+    }) {
+        const item = LegacyTooltip.create(args);
+        item.attach(args.target);
         return item;
     }
 }
