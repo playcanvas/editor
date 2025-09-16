@@ -1,4 +1,3 @@
-import type { EventHandle } from '@playcanvas/observer';
 import type { Container } from '@playcanvas/pcui';
 
 import { LegacyContainer } from './container.ts';
