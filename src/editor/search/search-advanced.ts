@@ -213,19 +213,17 @@ const _searchItems = function (items, search, args) {
     return results;
 };
 
-// perform search through items
-// items is an array with arrays of two values
-// where first value is a string to be searched by
-// and second value is an object to be found
-//
-// [
-//     [ 'camera', {object} ],
-//     [ 'New Entity', {object} ],
-//     [ 'Sun', {object} ]
-// ]
-//
-
-export const searchItems = function (items, search, args) {
+/**
+ * Search for items in a list.
+ *
+ * @param items - array of [string, any] tuples
+ * @param items[0] - string to search by
+ * @param items[1] - object to be found
+ * @param search - search string
+ * @param args - search arguments
+ * @returns array of matched items
+ */
+export const searchItems = function (items: [string, any][], search: string, args: any) {
     let i;
 
     search = (search || '').toLowerCase().trim();
@@ -246,14 +244,12 @@ export const searchItems = function (items, search, args) {
     let records = [];
 
     for (i = 0; i < items.length; i++) {
-        const item = items[i];
-        const name = items[i].text;
-        const subInd = name.toLowerCase().trim().indexOf(search);
+        const subInd = items[i][0].toLowerCase().trim().indexOf(search);
 
         records.push({
-            name: name,
-            item: item,
-            tokens: args.fuzzy ? searchStringTokenize(name) : [],
+            name: items[i][0],
+            item: items[i][1],
+            tokens: args.fuzzy ? searchStringTokenize(items[i][0]) : [],
             edits: Infinity,
             subFull: (subInd !== -1) ? subInd : Infinity,
             sub: Infinity
