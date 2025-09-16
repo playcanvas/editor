@@ -1,5 +1,6 @@
-import { LegacyContainer } from './container.ts';
+import type { Container } from '@playcanvas/pcui';
 
+import { LegacyContainer } from './container.ts';
 class LegacyTooltip extends LegacyContainer {
     constructor(args = {}) {
         super();
@@ -195,7 +196,7 @@ class LegacyTooltip extends LegacyContainer {
     }
 
     static attach(args: {
-        root: HTMLElement,
+        root: Container,
         target: HTMLElement,
         text?: string,
         html?: string,
