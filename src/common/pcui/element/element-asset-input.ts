@@ -113,7 +113,8 @@ class AssetInput extends Element {
 
         // asset name
         this._labelAsset = new Label({
-            binding: new BindingObserversToElement()
+            binding: new BindingObserversToElement(),
+            text: 'Empty'
         });
         this._labelAsset.class.add(CLASS_ASSET_INPUT_ASSET);
         this._containerControls.append(this._labelAsset);
