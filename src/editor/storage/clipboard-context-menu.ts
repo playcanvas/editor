@@ -1,5 +1,8 @@
 import { Menu, MenuItem, Label } from '@playcanvas/pcui';
+import { Color } from 'playcanvas';
 
+
+const colorA = new Color();
 
 // list of asset types
 const assetTypes = config.schema.asset.type.$enum;
@@ -41,11 +44,8 @@ for (const type of assetTypes) {
 // 8, 16, 32
 // [ 8, 16 ]
 // { "x": 8, "z": 32 }
-const convertStringToVec = (string, valueOld) => {
-    const valueNew = [];
-    for (let i = 0; i < valueOld.length; i++) {
-        valueNew[i] = valueOld[i];
-    }
+const convertStringToVec = (string: string, valueOld: number[]) => {
+    const valueNew = valueOld.slice();
 
     try {
         string = string.trim();
@@ -86,31 +86,15 @@ const convertStringToVec = (string, valueOld) => {
 // 8, 16, 32
 // [ 8, 16 ]
 // { "x": 8, "z": 32 }
-const convertStringToColor = (string, valueOld) => {
-    const valueNew = [];
-    for (let i = 0; i < valueOld.length; i++) {
-        valueNew[i] = valueOld[i];
-    }
+const convertStringToColor = (string: string, valueOld: number[]) => {
+    const valueNew = valueOld.slice();
 
     try {
         string = string.trim();
 
         if (/#[0-9a-f]{6,8}/i.test(string)) {
-            const i = parseInt(string.replace('#', '0x'), 16);
-            let bytes;
-            if (string.length > 7) {
-                bytes = pc.math.intToBytes32(i);
-            } else {
-                bytes = pc.math.intToBytes24(i);
-                bytes[3] = 255;
-            }
-
-            valueNew[0] = bytes[0] / 255;
-            valueNew[1] = bytes[1] / 255;
-            valueNew[2] = bytes[2] / 255;
-            if (valueOld.length === 4) {
-                valueNew[3] = bytes[3] / 255;
-            }
+            colorA.fromString(string);
+            colorA.toArray(valueNew, 0, valueOld.length === 4);
         } else {
             if (!string.startsWith('[') && !string.startsWith('{')) {
                 string = `[${string}`;
@@ -457,22 +441,12 @@ const convertTypes = new Map([
     ], [
         'rgb-string',
         (n, o) => {
-            return pc.Color.prototype.toString.call({
-                r: n[0],
-                g: n[1],
-                b: n[2],
-                a: 0
-            }, false).toUpperCase();
+            return colorA.fromArray(n).toString(false).toUpperCase();
         }
     ], [
         'rgb-text',
         (n, o) => {
-            return pc.Color.prototype.toString.call({
-                r: n[0],
-                g: n[1],
-                b: n[2],
-                a: 0
-            }, false).toUpperCase();
+            return colorA.fromArray(n).toString(false).toUpperCase();
         }
     ], [
         'rgb-vec2',
@@ -497,22 +471,12 @@ const convertTypes = new Map([
     ], [
         'rgba-string',
         (n, o) => {
-            return pc.Color.prototype.toString.call({
-                r: n[0],
-                g: n[1],
-                b: n[2],
-                a: n[3]
-            }, true).toUpperCase();
+            return colorA.fromArray(n).toString(true).toUpperCase();
         }
     ], [
         'rgba-text',
         (n, o) => {
-            return pc.Color.prototype.toString.call({
-                r: n[0],
-                g: n[1],
-                b: n[2],
-                a: n[3]
-            }, true).toUpperCase();
+            return colorA.fromArray(n).toString(true).toUpperCase();
         }
     ], [
         'rgba-vec2',
@@ -613,6 +577,7 @@ for (const type of assetTypes) {
             if (items.length) {
                 return items;
             }
+
             return o;
 
         } else if (n) {
@@ -623,7 +588,7 @@ for (const type of assetTypes) {
             }
 
             if (assetType === type) {
-                return n;
+                return [n];
             }
         }
 
@@ -838,7 +803,8 @@ editor.once('load', () => {
         if (paste.type !== type) {
             if (!convertTypes.has(`${paste.type}-${type}`)) {
                 return false;
-            } else if (paste.type === 'asset' && type.startsWith('asset:') && paste.value) {
+            }
+            if (paste.type === 'asset' && type.startsWith('asset:') && paste.value) {
                 const assetType = editor.call('assets:get', paste.value)?.get('type');
                 if (!assetType) {
                     return false;
