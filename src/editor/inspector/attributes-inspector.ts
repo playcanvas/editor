@@ -11,6 +11,9 @@ const isEnabledAttribute = ({ label, type }) => label === 'enabled' && type === 
 
 const CLASS_ROOT = 'pcui-inspector';
 
+let tooltipCopy: LegacyTooltip | null = null;
+let tooltipPaste: LegacyTooltip | null = null;
+
 class AttributesInspector extends Container {
     _templateOverridesInspector: TemplateOverrideInspector;
 
@@ -232,22 +235,26 @@ class AttributesInspector extends Container {
                         });
 
                         // tooltip on hover for copy
-                        const tooltipCopy = LegacyTooltip.attach({
-                            target: btnCopy.dom,
-                            text: 'Copy',
-                            align: 'bottom',
-                            class: 'pcui-tooltip-clipboard',
-                            root: editor.call('layout.root')
-                        });
+                        if (!tooltipCopy) {
+                            console.log('Creating copy tooltip');
+                            tooltipCopy = LegacyTooltip.create({
+                                text: 'Copy',
+                                align: 'bottom',
+                                class: 'pcui-tooltip-clipboard',
+                                root: editor.call('layout.root')
+                            });
+                        }
 
                         // tooltip on hover for paste
-                        const tooltipPaste = LegacyTooltip.attach({
-                            target: btnPaste.dom,
-                            text: 'Paste',
-                            align: 'bottom',
-                            class: 'pcui-tooltip-clipboard',
-                            root: editor.call('layout.root')
-                        });
+                        if (!tooltipPaste) {
+                            console.log('Creating paste tooltip');
+                            tooltipPaste = LegacyTooltip.create({
+                                text: 'Paste',
+                                align: 'bottom',
+                                class: 'pcui-tooltip-clipboard',
+                                root: editor.call('layout.root')
+                            });
+                        }
 
                         // enabled/disable buttons when hovering on field
                         target.on('hover', () => {
@@ -260,6 +267,9 @@ class AttributesInspector extends Container {
                                 btnPaste.hidden = false;
                                 btnCopy.enabled = true;
                                 btnPaste.enabled = field.enabled && editor.call('clipboard:validPaste', attr.path, type, options);
+
+                                tooltipCopy.attach(btnCopy.dom);
+                                tooltipPaste.attach(btnPaste.dom);
 
                                 const humanReadableType = editor.call('clipboard:typeToHuman', type);
                                 tooltipCopy.text = `Copy ${humanReadableType}`;
