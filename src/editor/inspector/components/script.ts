@@ -1,3 +1,4 @@
+import type { AssetObserver } from '@playcanvas/editor-api';
 import { Panel, Container, Button, BooleanInput, LabelGroup, Label, SelectInput, BindingTwoWay, ArrayInput } from '@playcanvas/pcui';
 
 import { ComponentInspector } from './component.ts';
@@ -35,11 +36,28 @@ const ATTRIBUTE_SUBTITLES = {
 };
 
 class ScriptInspector extends Panel {
+    private _componentInspector: ScriptComponentInspector;
+
+    private _attributesInspector: AttributesInspector;
+
+    private _scriptName: string;
+
+    private _asset: AssetObserver;
+
+    private _attributeWarnings: Map<string, string[]> = new Map();
+
+    /**
+     * Holds the container that lists validation errors under the header
+     */
+    private _attributesErrorContainer: Container | null;
+
     /**
      * AST cache for script parsing. This means expressions are parsed only once,
      * and then the AST is cached for future evaluation.
      */
     private _astCache: Map<string, ASTNode> = new Map();
+
+    containerErrors: Container;
 
     constructor(args) {
         super(args);
@@ -61,9 +79,6 @@ class ScriptInspector extends Panel {
         this._templateOverridesInspector = args.templateOverridesInspector;
 
         this._asset = editor.call('assets:scripts:assetByScript', this._scriptName);
-
-        // Map of attribute name -> string[] warnings (first sentence only)
-        this._attributeWarnings = new Map();
 
         if (this._asset) {
             this._initializeScriptAttributes();
@@ -163,9 +178,6 @@ class ScriptInspector extends Panel {
         this._entityEvents = [];
         this._editorEvents = [];
 
-        // Holds the container that lists validation errors under the header
-        this._attributesErrorContainer = null;
-
         this._timeoutChangeAttributes = null;
         this._changedAttributes = {};
 
@@ -178,6 +190,15 @@ class ScriptInspector extends Panel {
     }
 
     _initializeScriptAttributes() {
+        // Remove inline error container
+        if (this._attributesErrorContainer) {
+            this._attributesErrorContainer.destroy();
+            this._attributesErrorContainer = null;
+        }
+
+        // Reset warnings
+        this._attributeWarnings.clear();
+
         const attributes = this._asset.get(`data.scripts.${this._scriptName}.attributes`);
         if (!attributes) {
             return;
@@ -192,9 +213,8 @@ class ScriptInspector extends Panel {
             return this._convertAttributeDataToInspectorData(attribute, attribute, attributes[attribute]);
         });
 
-        if (this._attributesInspector) {
-            this._attributesInspector.destroy();
-        }
+        // save old inspector to destroy after new one is created and linked to prevent scroll jump
+        const oldInspector = this._attributesInspector;
 
         this._attributesInspector = new AttributesInspector({
             attributes: ATTRIBUTES,
@@ -213,6 +233,10 @@ class ScriptInspector extends Panel {
         }
 
         this.append(this._attributesInspector);
+
+        if (oldInspector) {
+            oldInspector.destroy();
+        }
     }
 
     _getInvalidTooltipText() {
@@ -247,7 +271,6 @@ class ScriptInspector extends Panel {
         }
 
         this._componentInspector.clearParseErrors();
-        this._componentInspector.clearValidationIssues(this._scriptName);
         this.containerErrors.hidden = true;
         this.containerErrors.clear();
 
@@ -964,41 +987,22 @@ class ScriptComponentInspector extends ComponentInspector {
             text: error
         });
 
-        console.log(this._scriptPanels[scriptName].containerErrors);
-
         this._scriptPanels[scriptName].containerErrors.append(label);
         this._scriptPanels[scriptName].containerErrors.hidden = false;
     }
 
-    clearValidationIssues(scriptName: string) {
-        const clearForPanel = (panel: any) => {
-            if (!panel) {
-                return;
-            }
-
-            // Remove inline error container
-            if (panel._attributesErrorContainer) {
-                panel._attributesErrorContainer.destroy();
-                panel._attributesErrorContainer = null;
-            }
-            // Reset warnings and rebuild attributes to remove warning styling
-            panel._attributeWarnings = new Map();
-            if (panel._attributesInspector) {
-                panel._attributesInspector.destroy();
-                panel._attributesInspector = null;
-            }
-            // Recreate attributes inspector with cleared warnings
-            panel._initializeScriptAttributes();
-        };
-
+    clearValidationIssues(scriptName?: string) {
+        // Clear for specific script
         if (scriptName) {
-            clearForPanel(this._scriptPanels[scriptName]);
+            const panel = this._scriptPanels[scriptName];
+            panel?._initializeScriptAttributes();
             return;
         }
 
         // Clear all
         for (const name in this._scriptPanels) {
-            clearForPanel(this._scriptPanels[name]);
+            const panel = this._scriptPanels[name];
+            panel?._initializeScriptAttributes();
         }
     }
 
