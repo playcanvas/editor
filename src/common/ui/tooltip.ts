@@ -12,9 +12,7 @@ class LegacyTooltip extends LegacyContainer {
 
     private _align: 'top' | 'right' | 'bottom' | 'left';
 
-    private _attached?: {
-        remove: () => void
-    };
+    private _removeTarget? : () => void;
 
     constructor(args: {
         class?: string,
@@ -223,7 +221,7 @@ class LegacyTooltip extends LegacyContainer {
     }
 
     attach(target: HTMLElement) {
-        if (this._attached) {
+        if (this._removeTarget) {
             this.detach();
         }
 
@@ -284,16 +282,15 @@ class LegacyTooltip extends LegacyContainer {
             target.removeEventListener('mouseout', evtBlur, false);
         };
 
-        this._attached = { remove };
+        this._removeTarget = remove;
     }
 
     detach() {
-        if (!this._attached) {
+        if (!this._removeTarget) {
             return;
         }
-        const { remove } = this._attached;
-        remove();
-        this._attached = undefined;
+        this._removeTarget();
+        this._removeTarget = undefined;
     }
 
     static create(args: {
