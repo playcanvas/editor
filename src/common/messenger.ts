@@ -24,7 +24,6 @@ class Messenger extends Events {
 
     private _authenticated: boolean;
 
-
     constructor() {
         super();
 
