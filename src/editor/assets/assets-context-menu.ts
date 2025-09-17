@@ -224,12 +224,21 @@ editor.once('load', () => {
                     }
                 }
 
-                const selectAsset = (asset) => {
-                    // Reason for skipping the selection can be read here: https://github.com/playcanvas/editor/issues/1063
-                    const isFocusedOnEntity = editor.api.globals.selection.items.some(item => item instanceof Entity);
-                    if (!isFocusedOnEntity) {
-                        editor.api.globals.selection.set([asset]);
-                    }
+                const selectAsset = () => {
+                    let selectionChanged = false;
+                    editor.api.globals.selection.once('change', () => {
+                        selectionChanged = true;
+                    });
+                    return (asset) => {
+                        const isFocusedOnEntity = editor.api.globals.selection.items.some(item => item instanceof Entity);
+
+                        // Reason for skipping the selection can be read here: https://github.com/playcanvas/editor/issues/1063
+                        const wouldDisruptWorkflow = isFocusedOnEntity || selectionChanged;
+
+                        if (!wouldDisruptWorkflow) {
+                            editor.api.globals.selection.set([asset]);
+                        }
+                    };
                 };
 
                 if (key === 'upload') {
@@ -242,7 +251,7 @@ editor.once('load', () => {
                             editor.call('assets:create:script', {
                                 filename: filename,
                                 parent: folder
-                            }, selectAsset);
+                            }, selectAsset());
                         });
                     }
                 } else {
@@ -251,7 +260,7 @@ editor.once('load', () => {
                             folder: folder,
                             preload
                         })
-                        .then(selectAsset)
+                        .then(selectAsset())
                         .catch((err) => {
                             editor.call('status:error', err);
                         });
