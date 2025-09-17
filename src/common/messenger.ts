@@ -7,24 +7,14 @@ const MESSENGER_RESERVED_NAMES = ['connect', 'close', 'error', 'message'];
 
 class Messenger extends Events {
     private _url: string;
-
     private _reconnectDelay: number | null;
-
     private _connecting: boolean;
-
     private _connectAttempts: number;
-
     private _connected: boolean;
-
     private _pingTimeout: number | null;
-
     private _pongTimeout: number | null;
-
     private socket: WebSocket;
-
     private _authenticated: boolean;
-
-
     constructor() {
         super();
 
