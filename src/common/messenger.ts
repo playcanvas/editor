@@ -20,7 +20,7 @@ class Messenger extends Events {
 
     private _pongTimeout: number | null;
 
-    private socket: WebSocket;
+    private socket: WebSocket | null;
 
     private _authenticated: boolean;
 
