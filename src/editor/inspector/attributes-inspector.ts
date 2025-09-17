@@ -275,7 +275,6 @@ class AttributesInspector extends Container {
 
                         // tooltip on hover for copy
                         if (!tooltipCopy) {
-                            console.log('Creating copy tooltip');
                             tooltipCopy = LegacyTooltip.create({
                                 text: 'Copy',
                                 align: 'bottom',
@@ -286,7 +285,6 @@ class AttributesInspector extends Container {
 
                         // tooltip on hover for paste
                         if (!tooltipPaste) {
-                            console.log('Creating paste tooltip');
                             tooltipPaste = LegacyTooltip.create({
                                 text: 'Paste',
                                 align: 'bottom',
