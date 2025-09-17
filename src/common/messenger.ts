@@ -6,6 +6,25 @@ const MESSENGER_PONG_DELAY = 5000;
 const MESSENGER_RESERVED_NAMES = ['connect', 'close', 'error', 'message'];
 
 class Messenger extends Events {
+    private _url: string;
+
+    private _reconnectDelay: number | null;
+
+    private _connecting: boolean;
+
+    private _connectAttempts: number;
+
+    private _connected: boolean;
+
+    private _pingTimeout: number | null;
+
+    private _pongTimeout: number | null;
+
+    private socket: WebSocket;
+
+    private _authenticated: boolean;
+
+
     constructor() {
         super();
 
@@ -22,6 +41,12 @@ class Messenger extends Events {
         this.on('welcome', (msg) => {
             this._authenticated = true;
             this._ping();
+        });
+
+        // If the users connection is restored, reconnect immediately
+        window.addEventListener('online', () => {
+            this._connectAttempts = 0;
+            this.reconnect();
         });
     }
 
@@ -72,7 +97,7 @@ class Messenger extends Events {
         // start delay
         this._reconnectDelay = setTimeout(() => {
             this.connect(this._url);
-        }, MESSENGER_RECONNECT_DELAY);
+        }, MESSENGER_RECONNECT_DELAY * (this._connectAttempts + 1));
     }
 
 
@@ -88,10 +113,6 @@ class Messenger extends Events {
 
 
     _onclose() {
-        if (!this._connected) {
-            return;
-        }
-
         this._connected = false;
         this._authenticated = false;
 
