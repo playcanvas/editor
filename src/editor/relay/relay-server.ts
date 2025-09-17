@@ -44,6 +44,12 @@ class RelayServer extends Events {
             this._userId = data.userId;
             this._ping();
         });
+
+        // If the users connection is restored, reconnect immediately
+        window.addEventListener('online', () => {
+            this._connectAttempts = 0;
+            this.reconnect();
+        });
     }
 
     /**
