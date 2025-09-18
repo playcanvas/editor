@@ -58,7 +58,7 @@
     "monaco-themes": "^0.4.2",
     "nodemon": "3.1.7",
     "ot-text": "github:playcanvas/ot-text",
-    "playcanvas": "^2.11.6",
+    "playcanvas": "^2.11.8",
     "postcss": "8.4.48",
     "rollup": "4.25.0",
     "rollup-plugin-copy": "3.5.0",
