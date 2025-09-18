@@ -1,6 +1,8 @@
 import { Menu, MenuItem, Label } from '@playcanvas/pcui';
 
 
+const colorA = new pc.Color();
+
 // list of asset types
 const assetTypes = config.schema.asset.type.$enum;
 
@@ -21,7 +23,6 @@ const types = new Set([
     'rgb',
     'rgba',
     'gradient',
-    'tags',
     'batchgroup',
     'layers',
     'entity',
@@ -35,6 +36,581 @@ const types = new Set([
 for (const type of assetTypes) {
     types.add(`asset:${type}`);
     types.add(`array:asset:${type}`);
+}
+
+// converts string to vector (2-4 components)
+// these formats supported:
+// 8, 16, 32
+// [ 8, 16 ]
+// { "x": 8, "z": 32 }
+const convertStringToVec = (string: string, valueOld: number[]) => {
+    const valueNew = valueOld.slice();
+
+    try {
+        string = string.trim();
+
+        if (!string.startsWith('[') && !string.startsWith('{')) {
+            string = `[${string}`;
+        }
+        if (!string.endsWith(']') && !string.endsWith('}')) {
+            string = `${string}]`;
+        }
+
+        const value = JSON.parse(string);
+
+        if (Array.isArray(value)) {
+            for (let i = 0; i < Math.min(value.length, valueOld.length); i++) {
+                if (typeof (value[i]) === 'number') {
+                    valueNew[i] = value[i];
+                }
+            }
+        } else if (typeof (value) === 'object') {
+            ['x', 'y', 'z', 'w'].forEach((c, i) => {
+                if (i >= valueOld.length) {
+                    return;
+                }
+                if (value.hasOwnProperty(c) && typeof (value[c]) === 'number') {
+                    valueNew[i] = value[c];
+                }
+            });
+        }
+    } catch (ex) { }
+
+    return valueNew;
+};
+
+// converts string to color (with optional alpha)
+// these formats supported:
+// #ffffffff
+// 8, 16, 32
+// [ 8, 16 ]
+// { "x": 8, "z": 32 }
+const convertStringToColor = (string: string, valueOld: number[]) => {
+    const valueNew = valueOld.slice();
+
+    try {
+        string = string.trim();
+
+        if (/#[0-9a-f]{6,8}/i.test(string)) {
+            colorA.fromString(string);
+            colorA.toArray(valueNew, 0, valueOld.length === 4);
+        } else {
+            if (!string.startsWith('[') && !string.startsWith('{')) {
+                string = `[${string}`;
+            }
+            if (!string.endsWith(']') && !string.endsWith('}')) {
+                string = `${string}]`;
+            }
+
+            const value = JSON.parse(string);
+
+            if (Array.isArray(value)) {
+                for (let i = 0; i < Math.min(value.length, valueOld.length); i++) {
+                    if (typeof (value[i]) === 'number') {
+                        valueNew[i] = value[i];
+                    }
+                }
+            } else if (typeof (value) === 'object') {
+                ['r', 'g', 'b', 'a'].forEach((c, i) => {
+                    if (i >= valueOld.length) {
+                        return;
+                    }
+                    if (value.hasOwnProperty(c) && typeof (value[c]) === 'number') {
+                        valueNew[i] = value[c];
+                    }
+                });
+            }
+        }
+    } catch (ex) { }
+
+    return valueNew;
+};
+
+// list of conversion methods,
+// it uses new value (n) and optionally an old value (o)
+const convertTypes = new Map([
+    [
+        'boolean-string',
+        (n, o) => {
+            return n ? 'true' : 'false';
+        }
+    ], [
+        'boolean-text',
+        (n, o) => {
+            return n ? 'true' : 'false';
+        }
+    ], [
+        'boolean-number',
+        (n, o) => {
+            return n ? 1 : 0;
+        }
+    ], [
+        'boolean-slider',
+        (n, o) => {
+            return n ? 1 : 0;
+        }
+    ], [
+        'string-text',
+        (n, o) => {
+            return n;
+        }
+    ], [
+        'string-array:string',
+        (n, o) => {
+            const items = [];
+            const data = n.split(',');
+
+            for (let i = 0; i < data.length; i++) {
+                const string = data[i].trim();
+                if (string) {
+                    items.push(string);
+                }
+            }
+
+            return items;
+        }
+    ], [
+        'string-tags',
+        (n, o) => {
+            const set = new Set();
+            const items = n.split(',');
+            for (let i = 0; i < items.length; i++) {
+                const tag = items[i].trim();
+                if (!tag) {
+                    continue;
+                }
+                set.add(tag);
+            }
+            if (set.size === 0) {
+                return [];
+            }
+            return Array.from(set);
+        }
+    ], [
+        'string-number',
+        (n, o) => {
+            const number = parseFloat(n);
+            if (isNaN(number)) {
+                return 0;
+            }
+            return number;
+        }
+    ], [
+        'string-slider',
+        (n, o) => {
+            const number = parseFloat(n);
+            if (isNaN(number)) {
+                return 0;
+            }
+            return number;
+        }
+    ], [
+        'string-vec2',
+        convertStringToVec
+    ], [
+        'string-vec3',
+        convertStringToVec
+    ], [
+        'string-vec4',
+        convertStringToVec
+    ], [
+        'string-rgb',
+        convertStringToColor
+    ], [
+        'string-rgba',
+        convertStringToColor
+    ], [
+        'array:string-string',
+        (n, o) => {
+            return n.join(', ');
+        }
+    ], [
+        'array:string-text',
+        (n, o) => {
+            return n.join('\n');
+        }
+    ], [
+        'array:string-tags',
+        (n, o) => {
+            const set = new Set();
+            for (let i = 0; i < n.length; i++) {
+                if (!n[i]) {
+                    continue;
+                }
+                set.add(n[i]);
+            }
+            if (set.size === 0) {
+                return [];
+            }
+            return Array.from(set);
+        }
+    ], [
+        'text-string',
+        (n, o) => {
+            return n;
+        }
+    ], [
+        'text-array:string',
+        (n, o) => {
+            const items = n.split('\n');
+            if (items.length === 1 && items[0] === '') {
+                return [];
+            }
+            return items;
+        }
+    ], [
+        'text-tags',
+        (n, o) => {
+            const set = new Set();
+            const items = n.split('\n');
+            for (let i = 0; i < items.length; i++) {
+                const tag = items[i].trim();
+                if (!tag) {
+                    continue;
+                }
+                set.add(tag);
+            }
+            if (set.size === 0) {
+                return [];
+            }
+            return Array.from(set);
+        }
+    ], [
+        'tags-string',
+        (n, o) => {
+            return n.join(', ');
+        }
+    ], [
+        'tags-array:string',
+        (n, o) => {
+            return n;
+        }
+    ], [
+        'tags-text',
+        (n, o) => {
+            return n.join('\n');
+        }
+    ], [
+        'number-boolean',
+        (n, o) => {
+            return !!n;
+        }
+    ], [
+        'number-string',
+        (n, o) => {
+            return `${n}`;
+        }
+    ], [
+        'number-text',
+        (n, o) => {
+            return `${n}`;
+        }
+    ], [
+        'number-slider',
+        (n, o) => {
+            return n;
+        }
+    ], [
+        'number-vec2',
+        (n, o) => {
+            return [n, o[1]];
+        }
+    ], [
+        'number-vec3',
+        (n, o) => {
+            return [n, o[1], o[2]];
+        }
+    ], [
+        'number-vec4',
+        (n, o) => {
+            return [n, o[1], o[2], o[3]];
+        }
+    ], [
+        'number-rgb',
+        (n, o) => {
+            return [n, o[1], o[2]];
+        }
+    ], [
+        'number-rgba',
+        (n, o) => {
+            return [n, o[1], o[2], o[3]];
+        }
+    ], [
+        'number-asset',
+        (n, o) => {
+            if (!n) {
+                return o;
+            }
+            const asset = editor.call('assets:get', n);
+            if (!asset) {
+                return o;
+            }
+            return n;
+        }
+    ], [
+        'vec2-string',
+        (n, o) => {
+            return JSON.stringify(n);
+        }
+    ], [
+        'vec2-text',
+        (n, o) => {
+            return JSON.stringify(n);
+        }
+    ], [
+        'vec2-vec3',
+        (n, o) => {
+            return [n[0], n[1], o[2]];
+        }
+    ], [
+        'vec2-vec4',
+        (n, o) => {
+            return [n[0], n[1], o[2], o[3]];
+        }
+    ], [
+        'vec2-rgb',
+        (n, o) => {
+            return [n[0], n[1], o[2]];
+        }
+    ], [
+        'vec2-rgba',
+        (n, o) => {
+            return [n[0], n[1], o[2], o[3]];
+        }
+    ], [
+        'vec3-string',
+        (n, o) => {
+            return JSON.stringify(n);
+        }
+    ], [
+        'vec3-text',
+        (n, o) => {
+            return JSON.stringify(n);
+        }
+    ], [
+        'vec3-vec2',
+        (n, o) => {
+            return [n[0], n[1]];
+        }
+    ], [
+        'vec3-vec4',
+        (n, o) => {
+            return [n[0], n[1], n[2], o[3]];
+        }
+    ], [
+        'vec3-rgb',
+        (n, o) => {
+            return [n[0], n[1], n[2]];
+        }
+    ], [
+        'vec3-rgba',
+        (n, o) => {
+            return [n[0], n[1], n[2], o[3]];
+        }
+    ], [
+        'vec4-string',
+        (n, o) => {
+            return JSON.stringify(n);
+        }
+    ], [
+        'vec4-text',
+        (n, o) => {
+            return JSON.stringify(n);
+        }
+    ], [
+        'vec4-vec2',
+        (n, o) => {
+            return [n[0], n[1]];
+        }
+    ], [
+        'vec4-vec3',
+        (n, o) => {
+            return [n[0], n[1], n[2]];
+        }
+    ], [
+        'vec4-rgb',
+        (n, o) => {
+            return [n[0], n[1], n[2]];
+        }
+    ], [
+        'vec4-rgba',
+        (n, o) => {
+            return [n[0], n[1], n[2], n[3]];
+        }
+    ], [
+        'rgb-string',
+        (n, o) => {
+            return colorA.fromArray(n).toString(false).toUpperCase();
+        }
+    ], [
+        'rgb-text',
+        (n, o) => {
+            return colorA.fromArray(n).toString(false).toUpperCase();
+        }
+    ], [
+        'rgb-vec2',
+        (n, o) => {
+            return [n[0], n[1]];
+        }
+    ], [
+        'rgb-vec3',
+        (n, o) => {
+            return [n[0], n[1], n[2]];
+        }
+    ], [
+        'rgb-vec4',
+        (n, o) => {
+            return [n[0], n[1], n[2], o[3]];
+        }
+    ], [
+        'rgb-rgba',
+        (n, o) => {
+            return [n[0], n[1], n[2], o[3]];
+        }
+    ], [
+        'rgba-string',
+        (n, o) => {
+            return colorA.fromArray(n).toString(true).toUpperCase();
+        }
+    ], [
+        'rgba-text',
+        (n, o) => {
+            return colorA.fromArray(n).toString(true).toUpperCase();
+        }
+    ], [
+        'rgba-vec2',
+        (n, o) => {
+            return [n[0], n[1]];
+        }
+    ], [
+        'rgba-vec3',
+        (n, o) => {
+            return [n[0], n[1], n[2]];
+        }
+    ], [
+        'rgba-vec4',
+        (n, o) => {
+            return [n[0], n[1], n[2], n[3]];
+        }
+    ], [
+        'rgba-rgb',
+        (n, o) => {
+            return [n[0], n[1], n[2]];
+        }
+    ], [
+        'entity-array:entity',
+        (n, o) => {
+            if (Array.isArray(n)) {
+                return n;
+            } else if (n) {
+                return [n];
+            }
+            return [];
+        }
+    ], [
+        'array:entity-entity',
+        (n, o) => {
+            if (n.length) {
+                return n[0];
+            }
+            return null;
+
+        }
+    ], [
+        'asset-array:asset',
+        (n, o) => {
+            if (Array.isArray(n)) {
+                return n;
+            } else if (n) {
+                return [n];
+            }
+            return [];
+
+        }
+    ]
+]);
+
+
+// additional assets conversions
+for (const type of assetTypes) {
+    convertTypes.set(`asset:${type}-asset`, (n, o) => {
+        return n;
+    });
+
+    convertTypes.set(`asset-asset:${type}`, (n, o) => {
+        if (!n) {
+            return null;
+        }
+
+        const assetType = editor.call('assets:get', n)?.get('type');
+        if (!assetType) {
+            return o;
+        }
+
+        if (assetType === type) {
+            return n;
+        }
+
+        return o;
+    });
+
+    convertTypes.set(`asset-array:asset:${type}`, (n, o) => {
+        if (!n) {
+            return [];
+        }
+
+        if (Array.isArray(n)) {
+            const items = [];
+            for (let i = 0; i < n.length; i++) {
+                const assetType = editor.call('assets:get', n[i])?.get('type');
+
+                if (!assetType) {
+                    continue;
+                }
+
+                if (assetType === type) {
+                    items.push(n[i]);
+                }
+            }
+
+            if (items.length) {
+                return items;
+            }
+
+            return o;
+
+        } else if (n) {
+            const assetType = editor.call('assets:get', n)?.get('type');
+
+            if (!assetType) {
+                return o;
+            }
+
+            if (assetType === type) {
+                return [n];
+            }
+        }
+
+        return o;
+    });
+
+    convertTypes.set(`array:asset:${type}-array:asset`, (n, o) => {
+        return n;
+    });
+
+    convertTypes.set(`number-asset:${type}`, (n, o) => {
+        if (!n) {
+            return o;
+        }
+        const asset = editor.call('assets:get', n);
+        if (!asset) {
+            return o;
+        }
+        if (asset.get('type') !== type) {
+            return o;
+        }
+        return n;
+    });
 }
 
 
@@ -84,14 +660,6 @@ editor.once('load', () => {
             value.hasOwnProperty('value') &&
             value.type;
     };
-
-
-    // TODO:
-    // type to other type conversions, e.g.:
-    // asset:* > asset
-    // asset > asset:* - if copied asset is of desired type
-    // rgb <> rgba
-
 
     // context menu
     const menu = new Menu({
@@ -230,8 +798,34 @@ editor.once('load', () => {
         }
 
         // types should match
+        // or there should be a valid conversion option
         if (paste.type !== type) {
-            return false;
+            if (!convertTypes.has(`${paste.type}-${type}`)) {
+                return false;
+            }
+            if (paste.type === 'asset' && type.startsWith('asset:') && paste.value) {
+                const assetType = editor.call('assets:get', paste.value)?.get('type');
+                if (!assetType) {
+                    return false;
+                }
+                if (`asset:${assetType}` !== type) {
+                    return false;
+                }
+            } else if (paste.type === 'number' && type === 'asset' && paste.value) {
+                const asset = editor.call('assets:get', paste.value);
+                if (!asset) {
+                    return false;
+                }
+            } else if (paste.type === 'number' && type.startsWith('asset:') && paste.value) {
+                const asset = editor.call('assets:get', paste.value);
+                if (!asset) {
+                    return false;
+                }
+                const assetType = asset.get('type');
+                if (`asset:${assetType}` !== type) {
+                    return false;
+                }
+            }
         }
 
         // if options are provided
@@ -336,6 +930,12 @@ editor.once('load', () => {
 
         const paste = clipboard.value;
 
+        const convert = paste.type !== type;
+        const conversionTuple = `${paste.type}-${type}`;
+        if (convert && !convertTypes.has(conversionTuple)) {
+            return false;
+        }
+
         // TODO:
         // verify if value is actually valid based on type
 
@@ -343,17 +943,26 @@ editor.once('load', () => {
         const records = [];
 
         for (let i = 0; i < items.length; i++) {
+            const valueOld = items[i].get(path);
+            let valueNew = convert ? convertTypes.get(conversionTuple)(paste.value, valueOld) : paste.value;
+
+            if (type === 'entity' && Array.isArray(valueNew)) {
+                valueNew = valueNew[0];
+            } else if (type === 'asset' && Array.isArray(valueNew)) {
+                valueNew = valueNew[0];
+            }
+
             // create history records
             records.push({
                 item: items[i],
                 path: path,
-                valueOld: items[i].get(path),
-                valueNew: paste.value
+                valueOld: valueOld,
+                valueNew: valueNew
             });
 
             // paste new value
             items[i].history.enabled = false;
-            items[i].set(path, paste.value);
+            items[i].set(path, valueNew);
             items[i].history.enabled = true;
 
             // TODO:

@@ -11,6 +11,18 @@ editor.once('load', () => {
             assets: assets.map(asset => asset.get('id'))
         };
 
+        const assetClipboardIds = assets.reduce((ids, asset) => {
+            if (asset.get('type') === 'folder') {
+                return ids;
+            }
+            ids.push(asset.get('id'));
+            return ids;
+        }, []);
+
+        if (assetClipboardIds.length) {
+            clipboard.value.value = assetClipboardIds.length > 1 ? assetClipboardIds : assetClipboardIds[0];
+        }
+
         editor.call('status:text', 'Copied assets to clipboard');
     });
 });
