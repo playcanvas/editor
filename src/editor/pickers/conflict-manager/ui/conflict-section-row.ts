@@ -82,7 +82,7 @@ class ConflictSectionRow extends Events {
             let label = null;
             if (self._name) {
                 label = new LegacyLabel({
-                    text: `${args.prettify ? this._prettifyName(self._name) : self._name} :`
+                    text: `${args.prettify ? this._prettifyName(self._name) : self._name}:`
                 });
                 label.class.add('name');
                 panel.append(label);

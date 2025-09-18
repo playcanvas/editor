@@ -77,6 +77,12 @@ editor.once('viewport:load', (app) => {
             // distance to selected entity
             let aabb = editor.call('selection:aabb');
 
+            // ignore aabb if selected entity is the camera itself
+            const selection = editor.call('selector:items');
+            if (selection.length === 1 && selection[0].entity === camera) {
+                aabb = null;
+            }
+
             if (aabb) {
                 const dist = aabb.center.clone().sub(camera.getPosition()).length();
                 panPoint.copy(camera.camera.screenToWorld(vecA.x, vecA.y, dist));
