@@ -27,7 +27,7 @@ editor.once('load', () => {
     // hotkey
     if (!editor.call('editor:resolveConflictMode')) {
         editor.call('hotkey:register', 'go-to-file', {
-            key: 'p',
+            key: 'KeyP',
             ctrl: true,
             callback: function () {
                 editor.call('editor:command:goToFile');

@@ -52,6 +52,7 @@
     "eslint": "9.32.0",
     "filenamify": "6.0.0",
     "highlight.js": "11.9.0",
+    "keyboard-event-key-type": "^1.5.0",
     "markdown-it": "14.0.0",
     "mocha": "^11.1.0",
     "monaco-editor": "^0.47.0",

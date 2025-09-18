@@ -213,7 +213,7 @@ editor.once('load', () => {
 
     // hotkey
     editor.call('hotkey:register', 'help:controls', {
-        key: '?',
+        key: 'Slash', // Shift + Slash = '?'
         shift: true,
         callback: function () {
             editor.call('help:controls');

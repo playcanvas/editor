@@ -1,4 +1,18 @@
+import { KeyboardEventKey } from 'keyboard-event-key-type';
+
 import { LegacyList } from '../../common/ui/list.ts';
+
+type HotkeyDefinition = {
+    // The physical key i.e. https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code
+    key: KeyboardEventKey,
+    ctrl: boolean,
+    shift: boolean,
+    alt: boolean,
+    callback: (e: KeyboardEvent) => void,
+    skipPreventDefault: boolean,
+};
+
+type PartialHotkeyDefinition = Partial<HotkeyDefinition> & Pick<HotkeyDefinition, 'key' | 'callback'>;
 
 editor.once('load', () => {
     // State management
@@ -13,13 +27,12 @@ editor.once('load', () => {
     const isMac = /Mac/.test(navigator.platform);
 
     // Convert a hotkey registration into a consistent internal format
-    function normalizeHotkeyDefinition(definition) {
+    function normalizeHotkeyDefinition(definition: PartialHotkeyDefinition): HotkeyDefinition {
         if (!definition.key) {
-            throw new Error('Hotkey must specify key');
+            throw new Error('Hotkey must specify physical key (KeyboardEvent.code)');
         }
-
         return {
-            key: definition.key.toLowerCase(),  // Normalize to lowercase
+            key: definition.key,
             ctrl: !!definition.ctrl,
             shift: !!definition.shift,
             alt: !!definition.alt,
@@ -39,7 +52,7 @@ editor.once('load', () => {
     }
 
     // Register a new hotkey
-    editor.method('hotkey:register', (name, definition) => {
+    editor.method('hotkey:register', (name: string, definition: PartialHotkeyDefinition) => {
         const normalized = normalizeHotkeyDefinition(definition);
         const id = getHotkeyId(normalized);
 
@@ -75,18 +88,23 @@ editor.once('load', () => {
     }
 
     // Handle keydown events
-    function handleKeydown(evt) {
+    function handleKeydown(evt: KeyboardEvent) {
         // Ignore if target is input/textarea without hotkeys class
-        if (evt.target &&
-            /^(?:input|textarea)$/i.test(evt.target.tagName) &&
-            !evt.target.classList.contains('hotkeys')) {
-            return;
+        if (evt.target instanceof HTMLElement) {
+            if (
+                /^(?:input|textarea)$/i.test(evt.target.tagName) &&
+                !evt.target.classList.contains('hotkeys')
+            ) {
+                return;
+            }
         }
 
         updateModifierState(evt);
 
         const id = getHotkeyId({
-            key: evt.key.toLowerCase(),
+            // We use the physical key which is [`KeyboardEvent#code`](https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/code)
+            // This prevents issues such as Ctrl+Y not working on German keyboard.
+            key: evt.code,
             ctrl: modifierState.ctrl,
             shift: modifierState.shift,
             alt: modifierState.alt

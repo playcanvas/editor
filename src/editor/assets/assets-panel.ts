@@ -50,7 +50,7 @@ editor.once('load', () => {
     // // select all hotkey
     // // ctrl + a
     editor.call('hotkey:register', 'asset:select-all', {
-        key: 'a',
+        key: 'KeyA',
         ctrl: true,
         callback: () => {
             const assets = assetsPanel.visibleAssets;

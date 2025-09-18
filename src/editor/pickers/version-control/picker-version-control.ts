@@ -1421,7 +1421,7 @@ editor.once('load', () => {
 
     // hotkey to create new checkpoint
     editor.call('hotkey:register', 'new-checkpoint', {
-        key: 's',
+        key: 'KeyS',
         ctrl: true,
         callback: function (e) {
             if (!editor.call('permissions:write')) {

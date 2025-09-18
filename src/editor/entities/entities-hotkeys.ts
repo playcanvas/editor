@@ -1,7 +1,7 @@
 editor.once('load', () => {
     // new
     editor.call('hotkey:register', 'entity:new', {
-        key: 'e',
+        key: 'KeyE',
         ctrl: true,
         callback: function () {
             if (!editor.call('permissions:write')) {
@@ -32,7 +32,7 @@ editor.once('load', () => {
 
     // duplicate
     editor.call('hotkey:register', 'entity:duplicate', {
-        key: 'd',
+        key: 'KeyD',
         ctrl: true,
         callback: function () {
             if (!editor.call('permissions:write')) {
@@ -101,7 +101,7 @@ editor.once('load', () => {
 
     // copy
     editor.call('hotkey:register', 'entity:copy', {
-        key: 'c',
+        key: 'KeyC',
         ctrl: true,
         skipPreventDefault: true,
         callback: function () {
@@ -130,7 +130,7 @@ editor.once('load', () => {
 
     // paste
     editor.call('hotkey:register', 'entity:paste', {
-        key: 'v',
+        key: 'KeyV',
         ctrl: true,
         callback: function () {
             // write permissions only (perhaps we could also allow read permissions)

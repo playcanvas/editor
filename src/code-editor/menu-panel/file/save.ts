@@ -43,7 +43,7 @@ editor.once('load', () => {
 
     // hotkeys
     editor.call('hotkey:register', 'save', {
-        key: 's',
+        key: 'KeyS',
         ctrl: true,
         callback: function () {
             editor.call('editor:command:save');

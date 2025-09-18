@@ -135,7 +135,7 @@ editor.once('load', () => {
     });
 
     editor.call('hotkey:register', 'selector:return', {
-        key: 'z',
+        key: 'KeyZ',
         shift: true,
         callback: () => {
             if (editor.call('picker:isOpen:otherThan', 'curve')) {

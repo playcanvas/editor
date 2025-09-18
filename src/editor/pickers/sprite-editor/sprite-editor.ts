@@ -1635,7 +1635,7 @@ editor.once('load', () => {
 
         // 'F' hotkey to focus canvas
         editor.call('hotkey:register', 'sprite-editor-focus', {
-            key: 'f',
+            key: 'KeyF',
             callback: function () {
                 editor.call('picker:sprites:focus');
             }

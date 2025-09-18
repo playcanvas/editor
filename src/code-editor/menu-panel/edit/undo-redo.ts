@@ -21,7 +21,7 @@ editor.once('load', () => {
 
     // hotkeys
     editor.call('hotkey:register', 'undo', {
-        key: 'z',
+        key: 'KeyZ',
         ctrl: true,
         skipPreventDefault: true,
         callback: function (e) {
@@ -48,7 +48,7 @@ editor.once('load', () => {
 
     // hotkeys
     editor.call('hotkey:register', 'redo', {
-        key: 'y',
+        key: 'KeyY',
         ctrl: true,
         skipPreventDefault: true,
         callback: function (e) {
@@ -62,7 +62,7 @@ editor.once('load', () => {
     });
 
     editor.call('hotkey:register', 'redo-2', {
-        key: 'z',
+        key: 'KeyZ',
         ctrl: true,
         shift: true,
         skipPreventDefault: true,

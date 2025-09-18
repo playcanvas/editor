@@ -9,7 +9,7 @@ editor.once('load', () => {
 
     // hotkey undo
     editor.call('hotkey:register', 'history:undo', {
-        key: 'z',
+        key: 'KeyZ',
         ctrl: true,
         callback: function () {
             if (!editor.call('permissions:write')) {
@@ -26,7 +26,7 @@ editor.once('load', () => {
 
     // hotkey redo
     editor.call('hotkey:register', 'history:redo', {
-        key: 'z',
+        key: 'KeyZ',
         ctrl: true,
         shift: true,
         callback: function () {
@@ -44,7 +44,7 @@ editor.once('load', () => {
 
     // hotkey redo
     editor.call('hotkey:register', 'history:redo:y', {
-        key: 'y',
+        key: 'KeyY',
         ctrl: true,
         callback: function () {
             if (!editor.call('permissions:write')) {

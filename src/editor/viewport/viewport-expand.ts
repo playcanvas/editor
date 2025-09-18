@@ -33,7 +33,7 @@ editor.once('load', () => {
 
     // expand hotkey
     editor.call('hotkey:register', 'viewport:expand', {
-        key: ' ',
+        key: 'Space',
         callback: function () {
             editor.call('viewport:expand');
         }

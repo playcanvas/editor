@@ -45,7 +45,7 @@ editor.once('load', () => {
 
     // hotkeys
     editor.call('hotkey:register', 'close-selected', {
-        key: 'w',
+        key: 'KeyW',
         alt: true,
         callback: function () {
             editor.call('editor:command:close');
@@ -53,7 +53,7 @@ editor.once('load', () => {
     });
 
     editor.call('hotkey:register', 'close-all', {
-        key: 'w',
+        key: 'KeyW',
         alt: true,
         shift: true,
         callback: function () {

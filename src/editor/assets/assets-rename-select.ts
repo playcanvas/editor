@@ -33,7 +33,7 @@ editor.once('load', () => {
     editor.method('assets:rename-select', onRename);
 
     editor.call('hotkey:register', 'assets:rename-select', {
-        key: 'n',
+        key: 'KeyN',
         callback: onRename
     });
 

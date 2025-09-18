@@ -83,7 +83,7 @@ editor.once('load', () => {
     });
 
     editor.call('hotkey:register', 'code-editor', {
-        key: 'i',
+        key: 'KeyI',
         ctrl: true,
         callback: function () {
             editor.call('picker:codeeditor');

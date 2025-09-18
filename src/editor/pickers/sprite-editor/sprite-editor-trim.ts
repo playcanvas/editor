@@ -7,7 +7,7 @@ editor.once('load', () => {
     editor.on('picker:sprites:open', () => {
         // Trim selected frames
         editor.call('hotkey:register', 'sprite-editor-trim', {
-            key: 't',
+            key: 'KeyT',
             callback: function () {
                 const spriteAsset = editor.call('picker:sprites:selectedSprite');
                 if (spriteAsset) {

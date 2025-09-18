@@ -21,7 +21,7 @@ editor.once('load', () => {
 
     // hotkey
     editor.call('hotkey:register', 'next-tab', {
-        key: '.',
+        key: 'Period',
         ctrl: true,
         alt: true,
         callback: function () {
@@ -61,7 +61,7 @@ editor.once('load', () => {
 
     // hotkey
     editor.call('hotkey:register', 'prev-tab', {
-        key: ',',
+        key: 'Comma',
         ctrl: true,
         alt: true,
         callback: function () {

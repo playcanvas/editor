@@ -83,7 +83,7 @@ editor.once('load', () => {
 
     // hotkey ctrl+b
     editor.call('hotkey:register', 'lightmapper:bake', {
-        key: 'b',
+        key: 'KeyB',
         ctrl: true,
         callback: function () {
             if (editor.call('picker:isOpen:otherThan', 'curve')) {

@@ -525,7 +525,7 @@ editor.once('load', () => {
 
     // hotkey
     editor.call('hotkey:register', 'help:howdoi', {
-        key: ' ',
+        key: 'Space',
         ctrl: true,
         callback: function () {
             if (editor.call('picker:isOpen:otherThan', 'curve')) {

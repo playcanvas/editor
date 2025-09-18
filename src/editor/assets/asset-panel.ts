@@ -751,7 +751,7 @@ class AssetPanel extends Panel {
 
             // copy
             editor.call('hotkey:register', 'asset:copy', {
-                key: 'c',
+                key: 'KeyC',
                 ctrl: true,
                 skipPreventDefault: true,
                 callback: this._onCopyAssets.bind(this)
@@ -759,14 +759,14 @@ class AssetPanel extends Panel {
 
             // paste
             editor.call('hotkey:register', 'asset:paste', {
-                key: 'v',
+                key: 'KeyV',
                 ctrl: true,
                 callback: () => this._onPasteAssets()
             });
 
             // paste (keep folder structure)
             editor.call('hotkey:register', 'asset:paste:keepFolderStructure', {
-                key: 'v',
+                key: 'KeyV',
                 ctrl: true,
                 shift: true,
                 callback: () => this._onPasteAssets(true)

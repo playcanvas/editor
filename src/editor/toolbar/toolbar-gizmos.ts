@@ -167,7 +167,7 @@ editor.once('load', () => {
 
     // translate hotkey
     editor.call('hotkey:register', 'gizmo:translate', {
-        key: '1',
+        key: 'Digit1',
         callback: function () {
             if (editor.call('picker:isOpen:otherThan', 'curve')) {
                 return;
@@ -178,7 +178,7 @@ editor.once('load', () => {
 
     // rotate hotkey
     editor.call('hotkey:register', 'gizmo:rotate', {
-        key: '2',
+        key: 'Digit2',
         callback: function () {
             if (editor.call('picker:isOpen:otherThan', 'curve')) {
                 return;
@@ -189,7 +189,7 @@ editor.once('load', () => {
 
     // scale hotkey
     editor.call('hotkey:register', 'gizmo:scale', {
-        key: '3',
+        key: 'Digit3',
         callback: function () {
             if (editor.call('picker:isOpen:otherThan', 'curve')) {
                 return;
@@ -200,7 +200,7 @@ editor.once('load', () => {
 
     // resize hotkey
     editor.call('hotkey:register', 'gizmo:resize', {
-        key: '4',
+        key: 'Digit4',
         callback: function () {
             if (editor.call('picker:isOpen:otherThan', 'curve')) {
                 return;
@@ -211,7 +211,7 @@ editor.once('load', () => {
 
     // world/local hotkey
     editor.call('hotkey:register', 'gizmo:world', {
-        key: 'l',
+        key: 'KeyL',
         callback: function () {
             if (editor.call('picker:isOpen:otherThan', 'curve')) {
                 return;
@@ -222,7 +222,7 @@ editor.once('load', () => {
 
     // focus
     editor.call('hotkey:register', 'viewport:focus', {
-        key: 'f',
+        key: 'KeyF',
         callback: function () {
             if (editor.call('picker:isOpen:otherThan', 'curve')) {
                 return;
