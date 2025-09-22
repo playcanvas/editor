@@ -27,13 +27,13 @@ const NUMBER_STATE = [
 
 export const jsRules = {
     jsdoc: [
+        [/\*\//, 'comment.doc', '@pop'],
         ...(CUSTOM_TAGS.number.map(tag => ([`([@]${tag})`, 'keyword', '@jsdocNumber']))),
-        ...(CUSTOM_TAGS.string.map(tag => ([`([@]${tag})(\\s*.+)`, ['keyword', 'identifier']]))),
+        ...(CUSTOM_TAGS.string.map(tag => ([`([@]${tag})(\\s*(?:(?!\\*\\/).)+)`, ['keyword', 'identifier']]))),
         ...(CUSTOM_TAGS.array.map(tag => ([`([@]${tag})(\\s*\\[)`, ['keyword', { token: 'identifier', next: '@jsdocSquareBrackets' }]]))),
         [/@\w+/, 'keyword'],
         [/(\})([^-]+)(?=-)/, ['comment.doc', 'identifier']],
         [/\{/, 'comment.doc', '@jsdocCurlyBrackets'],
-        [/\*\//, 'comment.doc', '@pop'],
         [/./, 'comment.doc']
     ],
     jsdocCurlyBrackets: [
