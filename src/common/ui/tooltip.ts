@@ -284,6 +284,10 @@ class LegacyTooltip extends LegacyContainer {
         };
 
         this._removeTarget = remove;
+
+        if (target.matches(':hover')) {
+            evtHover();
+        }
     }
 
     detach() {
