@@ -833,6 +833,13 @@ class AssetPanel extends Panel {
             return 1;
         }
 
+        const folderA = a.get('type') === 'folder' ? 1 : 0;
+        const folderB = b.get('type') === 'folder' ? 1 : 0;
+
+        if (folderA !== folderB) {
+            return folderB - folderA;
+        }
+
         const nameA = (a.get('name') || '').toLowerCase();
         const nameB = (b.get('name') || '').toLowerCase();
         const comp = naturalCompare(nameA, nameB);
@@ -852,6 +859,14 @@ class AssetPanel extends Panel {
 
         const typeA = a.get('type');
         const typeB = b.get('type');
+
+        const folderA = typeA === 'folder' ? 1 : 0;
+        const folderB = typeB === 'folder' ? 1 : 0;
+
+        if (folderA !== folderB) {
+            return folderB - folderA;
+        }
+
         if (typeA < typeB) {
             return ascending ? -1 : 1;
         }
@@ -869,6 +884,13 @@ class AssetPanel extends Panel {
         }
         if (b === LEGACY_SCRIPTS_FOLDER_ASSET) {
             return 1;
+        }
+
+        const folderA = a.get('type') === 'folder' ? 1 : 0;
+        const folderB = b.get('type') === 'folder' ? 1 : 0;
+
+        if (folderA !== folderB) {
+            return folderB - folderA;
         }
 
         const sizeA = parseInt(a.get('file.size'), 10);
