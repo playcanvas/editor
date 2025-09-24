@@ -823,6 +823,13 @@ class AssetPanel extends Panel {
         editor.call('assets:paste', this.currentFolder, keepFolderStructure);
     }
 
+    // Sorts assets to have folders above and other files below
+    _sortByFolder(a, b) {
+        const folderA = a.get('type') === 'folder' ? 1 : 0;
+        const folderB = b.get('type') === 'folder' ? 1 : 0;
+        return folderB - folderA;
+    }
+
     // Sorts assets by name (case insensitive). Keeps legacy scripts folder on top always.
     _sortByName(a, b, ascending) {
         // keep legacy script folder on top
@@ -833,11 +840,9 @@ class AssetPanel extends Panel {
             return 1;
         }
 
-        const folderA = a.get('type') === 'folder' ? 1 : 0;
-        const folderB = b.get('type') === 'folder' ? 1 : 0;
-
-        if (folderA !== folderB) {
-            return folderB - folderA;
+        const folderDiff = this._sortByFolder(a, b);
+        if (folderDiff) {
+            return folderDiff;
         }
 
         const nameA = (a.get('name') || '').toLowerCase();
@@ -857,15 +862,13 @@ class AssetPanel extends Panel {
             return 1;
         }
 
+        const folderDiff = this._sortByFolder(a, b);
+        if (folderDiff) {
+            return folderDiff;
+        }
+
         const typeA = a.get('type');
         const typeB = b.get('type');
-
-        const folderA = typeA === 'folder' ? 1 : 0;
-        const folderB = typeB === 'folder' ? 1 : 0;
-
-        if (folderA !== folderB) {
-            return folderB - folderA;
-        }
 
         if (typeA < typeB) {
             return ascending ? -1 : 1;
@@ -886,11 +889,9 @@ class AssetPanel extends Panel {
             return 1;
         }
 
-        const folderA = a.get('type') === 'folder' ? 1 : 0;
-        const folderB = b.get('type') === 'folder' ? 1 : 0;
-
-        if (folderA !== folderB) {
-            return folderB - folderA;
+        const folderDiff = this._sortByFolder(a, b);
+        if (folderDiff) {
+            return folderDiff;
         }
 
         const sizeA = parseInt(a.get('file.size'), 10);
