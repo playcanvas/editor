@@ -1,9 +1,8 @@
-const pc = typeof window.pc !== 'undefined' ? window.pc : {
-    Layer: class {},
-    RenderTarget: class {},
-    LayerComposition: class {}
-};
+import type { GraphicsDevice } from 'playcanvas';
 
+/**
+ * Singleton Thumbnail Renderer
+ */
 class ThumbnailRenderer {
     static renderTargets = new Map();
 
@@ -17,7 +16,7 @@ class ThumbnailRenderer {
 
     static _layerComposition;
 
-    getRenderTarget(device, width, height) {
+    getRenderTarget(device: GraphicsDevice, width: number, height: number) {
 
         const key = `${width}-${height}`;
         let target = ThumbnailRenderer.renderTargets.get(key);

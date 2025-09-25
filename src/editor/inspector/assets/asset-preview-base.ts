@@ -5,12 +5,14 @@ const CLASS_CONTAINER = `${CLASS_ROOT}-container`;
 const CLASS_CONTAINER_LARGE = `${CLASS_CONTAINER}-large`;
 
 class AssetInspectorPreviewBase extends Container {
+    protected _dragging = false;
+
+    protected _mouseDown = false;
+
     constructor(args) {
         super(args);
         this.class.add(CLASS_CONTAINER);
 
-        this._mouseDown = false;
-        this._dragging = false;
 
         this._domEvtMouseDown = this._onMouseDown.bind(this);
         this._domEvtMouseMove = this._onMouseMove.bind(this);
