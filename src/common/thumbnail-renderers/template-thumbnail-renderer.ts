@@ -40,6 +40,8 @@ class TemplatePreviewScene extends pc.EventHandler {
 
     meshInstances: MeshInstance[] | null = null;
 
+    materialAssetIds: number[] = [];
+
     aabb: BoundingBox;
 
     requiredAssetLoadCount = 0;
@@ -105,10 +107,14 @@ class TemplatePreviewScene extends pc.EventHandler {
     }
 
     instantiateTemplate(template: Template) {
+        this.isInitialized = false;
         if (this.templateInstance) {
-            this.templateInstance.destroy();
             this.templateOrigin.removeChild(this.templateInstance);
+            this.templateInstance.destroy();
         }
+
+        this.meshInstances = null;
+        this.materialAssetIds = [];
         this.templateInstance = template.instantiate();
         this.templateOrigin.addChild(this.templateInstance);
 
@@ -130,7 +136,10 @@ class TemplatePreviewScene extends pc.EventHandler {
             }
             if (component.materialAssets) {
                 component.materialAssets.forEach((assetId) => {
-                    this.queueAssetLoad(assetId);
+                    if (assetId) {
+                        this.materialAssetIds.push(assetId);
+                        this.queueAssetLoad(assetId);
+                    }
                 });
             }
         });
@@ -215,16 +224,34 @@ export class TemplateThumbnailRenderer extends ThumbnailRenderer {
 
     private rotationY: number = 25;
 
-    constructor(asset: EditorAsset,
+    private _materialWatches: Record<number, number> = {};
+
+    private readonly handleQueueRender: () => void;
+
+    private readonly handleTemplateAssetLoad: (asset: Asset) => void;
+
+    private readonly handleTemplateAssetChange: (asset: Asset) => void;
+
+    constructor(editorAsset: EditorAsset,
                 private _canvas: HTMLCanvasElement) {
         super();
         this.app = pc.Application.getApplication();
 
         this.scene = new TemplatePreviewScene(this.app);
         this.scene.initializePlaceholderScene();
-        this.loadTemplateAsset(asset);
+        this.handleQueueRender = this.queueRender.bind(this);
+        this.handleTemplateAssetLoad = this.onTemplateAssetLoad.bind(this);
+        this.handleTemplateAssetChange = this.onTemplateAssetChange.bind(this);
 
-        // TODO: Watch for template changes
+        this.templateAsset = this.app.assets.get(editorAsset.get('id'));
+
+        if (this.templateAsset?.type === 'template') {
+            this.templateAsset.on('change', this.handleTemplateAssetChange);
+            this.templateAsset.ready(this.handleTemplateAssetLoad);
+            this.app.assets.load(this.templateAsset);
+        } else {
+            console.error('No template asset was passed into the thumbnail renderer');
+        }
     }
 
     queueRender() {
@@ -236,17 +263,52 @@ export class TemplateThumbnailRenderer extends ThumbnailRenderer {
         });
     }
 
-    private loadTemplateAsset(editorAsset: EditorAsset) {
-        this.templateAsset = this.app.assets.get(editorAsset.get('id'));
-        if (!this.templateAsset) {
-            console.error('Can not find template asset');
+    private onTemplateAssetChange(_asset: Asset, type: string) {
+        if (type === 'data') {
+            // It's not patched yet. The 'change' event gets fired before the patch in the asset registry happens.
+            requestAnimationFrame(() => {
+                this.handleTemplateAssetLoad(this.templateAsset);
+                this.queueRender();
+            });
+        }
+    }
+
+    private onTemplateAssetLoad(engineAsset: Asset) {
+        this.scene.instantiateTemplate(engineAsset.resource as Template);
+        this.watchDependencies();
+    }
+
+    // The template visual can change even without applying an override. This happens when the texture of a material changes.
+    private watchDependencies() {
+        this.unwatchDependencies();
+
+        const materialAssetIds = this.scene.materialAssetIds;
+        materialAssetIds.forEach(id => this._watchMaterial(id));
+    }
+
+    private unwatchDependencies() {
+        for (const idStr in this._materialWatches) {
+            const id = parseInt(idStr, 10);
+            const handle = this._materialWatches[id];
+            const asset = editor.call('assets:get', id) as EditorAsset;
+            if (asset && handle) {
+                editor.call('assets:material:unwatch', asset, handle);
+            }
+        }
+        this._materialWatches = {};
+    }
+
+    private _watchMaterial(id: number) {
+        const asset = editor.call('assets:get', id) as EditorAsset;
+        if (!asset) {
             return;
         }
-
-        this.templateAsset.ready((asset) => {
-            this.scene.instantiateTemplate(asset.resource as Template);
+        this._materialWatches[id] = editor.call('assets:material:watch', {
+            asset: asset,
+            loadMaterial: true,
+            autoLoad: true,
+            callback: this.handleQueueRender
         });
-        this.app.assets.load(this.templateAsset);
     }
 
     render(rotationX = 0, rotationY = 0) {
@@ -257,7 +319,7 @@ export class TemplateThumbnailRenderer extends ThumbnailRenderer {
         this.rotationY = rotationY;
 
         if (!this.scene.isInitialized) {
-            this.scene.once('loaded', this.queueRender.bind(this));
+            this.scene.once('loaded', this.handleQueueRender);
             return;
         }
 
@@ -334,6 +396,13 @@ export class TemplateThumbnailRenderer extends ThumbnailRenderer {
         }
 
         this.scene.off('loaded', this.queueRender, this);
+
+        this.unwatchDependencies();
+
+        if (this.templateAsset && this.handleTemplateAssetLoad) {
+            this.templateAsset.off('load', this.handleTemplateAssetLoad);
+            this.templateAsset.off('change', this.handleTemplateAssetChange);
+        }
 
         if (this.scene) {
             this.scene.destroy();
