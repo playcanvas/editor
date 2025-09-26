@@ -224,7 +224,7 @@ export class TemplateThumbnailRenderer extends ThumbnailRenderer {
 
     private rotationY: number = 25;
 
-    private _materialWatches: Record<number, number> = {};
+	private materialWatches: Map<number, number> = new Map();
 
     private readonly handleQueueRender: () => void;
 
@@ -287,15 +287,13 @@ export class TemplateThumbnailRenderer extends ThumbnailRenderer {
     }
 
     private unwatchDependencies() {
-        for (const idStr in this._materialWatches) {
-            const id = parseInt(idStr, 10);
-            const handle = this._materialWatches[id];
-            const asset = editor.call('assets:get', id) as EditorAsset;
-            if (asset && handle) {
-                editor.call('assets:material:unwatch', asset, handle);
-            }
-        }
-        this._materialWatches = {};
+		this.materialWatches.forEach((handle, id) => {
+			const asset = editor.call('assets:get', id) as EditorAsset;
+			if (asset && handle) {
+				editor.call('assets:material:unwatch', asset, handle);
+			}
+		});
+		this.materialWatches.clear();
     }
 
     private _watchMaterial(id: number) {
@@ -303,12 +301,12 @@ export class TemplateThumbnailRenderer extends ThumbnailRenderer {
         if (!asset) {
             return;
         }
-        this._materialWatches[id] = editor.call('assets:material:watch', {
+		this.materialWatches.set(id, editor.call('assets:material:watch', {
             asset: asset,
             loadMaterial: true,
             autoLoad: true,
             callback: this.handleQueueRender
-        });
+		}));
     }
 
     render(rotationX = 0, rotationY = 0) {
