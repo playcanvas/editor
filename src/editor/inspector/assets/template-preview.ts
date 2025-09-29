@@ -49,7 +49,12 @@ export class TemplateAssetInspectorPreview extends AssetInspectorPreviewBase {
             this._preview.dom as HTMLCanvasElement
         );
 
+        this._previewRenderer.on('preview-available', this.handlePreviewAvailable.bind(this));
         this._queueRender();
+    }
+
+    handlePreviewAvailable(hasPreview: boolean) {
+        this.setHasPreview(hasPreview);
     }
 
     unlink() {

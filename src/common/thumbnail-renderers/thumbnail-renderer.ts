@@ -3,7 +3,7 @@ import type { GraphicsDevice } from 'playcanvas';
 /**
  * Singleton Thumbnail Renderer
  */
-class ThumbnailRenderer {
+class ThumbnailRenderer extends pc.EventHandler {
     static renderTargets = new Map();
 
     static _layer = new pc.Layer({

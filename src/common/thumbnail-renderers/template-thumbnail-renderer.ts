@@ -42,7 +42,7 @@ class TemplatePreviewScene extends pc.EventHandler {
 
     materialAssetIds: number[] = [];
 
-    aabb: BoundingBox;
+    aabb: BoundingBox = new pc.BoundingBox();
 
     requiredAssetLoadCount = 0;
 
@@ -108,13 +108,14 @@ class TemplatePreviewScene extends pc.EventHandler {
 
     instantiateTemplate(template: Template) {
         this.isInitialized = false;
+        this.meshInstances = [];
+        this.materialAssetIds = [];
+
         if (this.templateInstance) {
             this.templateOrigin.removeChild(this.templateInstance);
             this.templateInstance.destroy();
         }
 
-        this.meshInstances = null;
-        this.materialAssetIds = [];
         this.templateInstance = template.instantiate();
         this.templateOrigin.addChild(this.templateInstance);
 
@@ -143,6 +144,18 @@ class TemplatePreviewScene extends pc.EventHandler {
                 });
             }
         });
+
+        // We need this edge case check, otherwise it never gets called.
+        if (this.requiredAssetLoadCount === 0) {
+            this.onAllAssetsLoaded();
+        }
+    }
+
+    private onAllAssetsLoaded() {
+        // Now we should be able to have all mesh instances and we can load.
+        this.initializeMeshInstances();
+        this.isInitialized = true;
+        this.fire('loaded');
     }
 
     private queueAssetLoad(assetId: number) {
@@ -185,19 +198,11 @@ class TemplatePreviewScene extends pc.EventHandler {
         // most cases.
 
         if (this.assetLoadedCount >= this.requiredAssetLoadCount) {
-            // Now we should be able to have all mesh instances and we can load.
-            this.initializeMeshInstances();
-            this.isInitialized = true;
-            this.fire('loaded');
+            this.onAllAssetsLoaded();
         }
     }
 
     initializeMeshInstances() {
-        // Already initialised
-        if (this.meshInstances !== null) {
-            return;
-        }
-
         this.meshInstances = [];
         // We need to load the materials and render assets in case it is not here
         this.renderComponents.forEach((renderComponent) => {
@@ -383,6 +388,10 @@ export class TemplateThumbnailRenderer extends ThumbnailRenderer {
         layer.removeLight(this.scene.lightEntity.light);
         layer.removeCamera(this.scene.cameraEntity.camera);
         layer.removeMeshInstances(this.scene.meshInstances);
+
+        // Notify whether we only cleared the canvas or actually rendered some mesh instances.
+        const hasNonEmptyPreview = this.scene.meshInstances.length > 0;
+        this.fire('preview-available', hasNonEmptyPreview);
 
         this.scene.disableScene();
     }
