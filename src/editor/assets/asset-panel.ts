@@ -826,7 +826,6 @@ class AssetPanel extends Panel {
     // Sorts assets to have folders above and other files below
     _sortByFolder(a, b) {
         return +(b.get('type') === 'folder') - +(a.get('type') === 'folder');
-        return folderB - folderA;
     }
 
     // Sorts assets by name (case insensitive). Keeps legacy scripts folder on top always.
