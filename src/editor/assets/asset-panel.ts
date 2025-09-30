@@ -823,6 +823,11 @@ class AssetPanel extends Panel {
         editor.call('assets:paste', this.currentFolder, keepFolderStructure);
     }
 
+    // Sorts assets to have folders above and other files below
+    _sortByFolder(a, b) {
+        return +(b.get('type') === 'folder') - +(a.get('type') === 'folder');
+    }
+
     // Sorts assets by name (case insensitive). Keeps legacy scripts folder on top always.
     _sortByName(a, b, ascending) {
         // keep legacy script folder on top
@@ -831,6 +836,11 @@ class AssetPanel extends Panel {
         }
         if (b === LEGACY_SCRIPTS_FOLDER_ASSET) {
             return 1;
+        }
+
+        const folderDiff = this._sortByFolder(a, b);
+        if (folderDiff) {
+            return folderDiff;
         }
 
         const nameA = (a.get('name') || '').toLowerCase();
@@ -850,8 +860,14 @@ class AssetPanel extends Panel {
             return 1;
         }
 
+        const folderDiff = this._sortByFolder(a, b);
+        if (folderDiff) {
+            return folderDiff;
+        }
+
         const typeA = a.get('type');
         const typeB = b.get('type');
+
         if (typeA < typeB) {
             return ascending ? -1 : 1;
         }
@@ -869,6 +885,11 @@ class AssetPanel extends Panel {
         }
         if (b === LEGACY_SCRIPTS_FOLDER_ASSET) {
             return 1;
+        }
+
+        const folderDiff = this._sortByFolder(a, b);
+        if (folderDiff) {
+            return folderDiff;
         }
 
         const sizeA = parseInt(a.get('file.size'), 10);
