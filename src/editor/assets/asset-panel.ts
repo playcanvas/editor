@@ -825,8 +825,7 @@ class AssetPanel extends Panel {
 
     // Sorts assets to have folders above and other files below
     _sortByFolder(a, b) {
-        const folderA = a.get('type') === 'folder' ? 1 : 0;
-        const folderB = b.get('type') === 'folder' ? 1 : 0;
+        return +(b.get('type') === 'folder') - +(a.get('type') === 'folder');
         return folderB - folderA;
     }
 
