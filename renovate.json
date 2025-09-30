@@ -6,6 +6,7 @@
   "packageRules": [
     {
       "matchPackageNames": ["node"],
+      "allowedVersions": "18.x",
       "rangeStrategy": "pin"
     },
     {
