@@ -1,4 +1,5 @@
 import { Asset as EditorAsset } from '@playcanvas/editor-api';
+import { Observer } from '@playcanvas/observer';
 import type { Entity, Layer, Template, Asset, AppBase, WebglGraphicsDevice, MeshInstance, RenderComponent, BoundingBox, AssetReference } from 'playcanvas';
 
 import { ThumbnailRenderer } from './thumbnail-renderer.ts';
@@ -22,8 +23,16 @@ function calculateBoundingBoxOfMeshInstances(meshInstances: MeshInstance[]): Bou
     return aabb;
 }
 
+const DEFAULT_FOV = 45.0;
+const INV_TAN_HALF_FOV = 1 / Math.tan((DEFAULT_FOV / 2.0) * Math.PI / 180);
+function calculateCameraDistance(boundingRadius: number) {
+    // Assuming default (vertical) FOV = 45 Degrees.
+    // Radius/Distance = tan(FOV/2)
+    // Distance = Radius/tan(FOV/2)
+    return boundingRadius * INV_TAN_HALF_FOV * 1.05;
+}
 
-class TemplatePreviewScene extends pc.EventHandler {
+class TemplatePreviewScene extends Observer {
     sceneRoot: Entity;
 
     templateOrigin: Entity;
@@ -155,7 +164,7 @@ class TemplatePreviewScene extends pc.EventHandler {
         // Now we should be able to have all mesh instances and we can load.
         this.initializeMeshInstances();
         this.isInitialized = true;
-        this.fire('loaded');
+        this.emit('loaded');
     }
 
     private queueAssetLoad(assetId: number) {
@@ -238,7 +247,7 @@ export class TemplateThumbnailRenderer extends ThumbnailRenderer {
     private readonly handleTemplateAssetChange: (asset: Asset) => void;
 
     constructor(editorAsset: EditorAsset,
-                private _canvas: HTMLCanvasElement) {
+                private canvas: HTMLCanvasElement) {
         super();
         this.app = pc.Application.getApplication();
 
@@ -329,8 +338,8 @@ export class TemplateThumbnailRenderer extends ThumbnailRenderer {
         const layerComposition = super.layerComposition;
         const layer = super.layer as Layer;
 
-        const width = this._canvas.width;
-        const height = this._canvas.height;
+        const width = this.canvas.width;
+        const height = this.canvas.height;
 
         this.scene.enableScene();
 
@@ -345,11 +354,8 @@ export class TemplateThumbnailRenderer extends ThumbnailRenderer {
 
         // Set Camera Position based on AABB of the mesh instances
         const boundingRadius = aabb.halfExtents.length();
+        const cameraDistance = calculateCameraDistance(boundingRadius);
 
-        // Default (vertical) FOV = 45 Degrees.
-        // Radius/Distance = tan(FOV/2)
-        // Distance = Radius/tan(22.5) = Radius * 2.414
-        const cameraDistance = boundingRadius * 2.414 * 1.05;
         this.scene.cameraEntity.setLocalPosition(0, 0, cameraDistance);
         this.scene.cameraEntity.camera.farClip = cameraDistance * 2.0;
 
@@ -381,8 +387,8 @@ export class TemplateThumbnailRenderer extends ThumbnailRenderer {
         device.gl.readPixels(0, 0, width, height, device.gl.RGBA, device.gl.UNSIGNED_BYTE, renderTarget.pixels);
 
         // Read the rendered data and write into the Canvas DOM element
-        const ctx = this._canvas.getContext('2d');
-        ctx.putImageData(new ImageData(renderTarget.pixelsClamped, width, height), (this._canvas.width - width) / 2, (this._canvas.height - height) / 2);
+        const ctx = this.canvas.getContext('2d');
+        ctx.putImageData(new ImageData(renderTarget.pixelsClamped, width, height), (this.canvas.width - width) / 2, (this.canvas.height - height) / 2);
 
         // Cleanup after rendering into this Singleton layer shared across all ThumbnailRenderers
         layer.removeLight(this.scene.lightEntity.light);
@@ -391,7 +397,7 @@ export class TemplateThumbnailRenderer extends ThumbnailRenderer {
 
         // Notify whether we only cleared the canvas or actually rendered some mesh instances.
         const hasNonEmptyPreview = this.scene.meshInstances.length > 0;
-        this.fire('preview-available', hasNonEmptyPreview);
+        this.emit('preview-available', hasNonEmptyPreview);
 
         this.scene.disableScene();
     }
@@ -402,7 +408,7 @@ export class TemplateThumbnailRenderer extends ThumbnailRenderer {
             this.requestFrameId = 0;
         }
 
-        this.scene.off('loaded', this.queueRender, this);
+        this.scene.unbind('loaded', this.queueRender);
 
         this.unwatchDependencies();
 
@@ -417,6 +423,6 @@ export class TemplateThumbnailRenderer extends ThumbnailRenderer {
         }
 
         this.templateAsset = null;
-        this._canvas = null;
+        this.canvas = null;
     }
 }

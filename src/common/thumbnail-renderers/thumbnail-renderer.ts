@@ -1,9 +1,17 @@
+// Required for Editor blank page, where "pc" is not loaded.
+const pc = typeof window.pc !== 'undefined' ? window.pc : {
+    Layer: class {},
+    RenderTarget: class {},
+    LayerComposition: class {}
+};
+
+import { Observer } from '@playcanvas/observer';
 import type { GraphicsDevice } from 'playcanvas';
 
 /**
  * Singleton Thumbnail Renderer
  */
-class ThumbnailRenderer extends pc.EventHandler {
+class ThumbnailRenderer extends Observer {
     static renderTargets = new Map();
 
     static _layer = new pc.Layer({

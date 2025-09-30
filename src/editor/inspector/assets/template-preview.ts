@@ -71,19 +71,19 @@ export class TemplateAssetInspectorPreview extends AssetInspectorPreviewBase {
         }
     }
 
-    _toggleSize() {
+    private _toggleSize() {
         super._toggleSize();
         this._queueRender();
     }
 
-    _queueRender() {
+    private _queueRender() {
         if (this._renderFrame || !this._previewRenderer) {
             return;
         }
         this._renderFrame = requestAnimationFrame(this._renderPreview.bind(this));
     }
 
-    _renderPreview() {
+    private _renderPreview() {
         if (this._renderFrame) {
             cancelAnimationFrame(this._renderFrame);
             this._renderFrame = null;
@@ -100,7 +100,7 @@ export class TemplateAssetInspectorPreview extends AssetInspectorPreviewBase {
         );
     }
 
-    _onMouseDown(evt: MouseEvent) {
+    private _onMouseDown(evt: MouseEvent) {
         super._onMouseDown(evt);
         if (this._mouseDown) {
             this._sx = this._x = evt.clientX;
@@ -108,7 +108,7 @@ export class TemplateAssetInspectorPreview extends AssetInspectorPreviewBase {
         }
     }
 
-    _onMouseMove(evt: MouseEvent) {
+    private _onMouseMove(evt: MouseEvent) {
         super._onMouseMove(evt);
         if (this._dragging) {
             this._nx = this._x - evt.clientX;
@@ -120,7 +120,7 @@ export class TemplateAssetInspectorPreview extends AssetInspectorPreviewBase {
         }
     }
 
-    _onMouseUp(evt: MouseEvent) {
+    private _onMouseUp(evt: MouseEvent) {
         if (this._dragging) {
             if ((Math.abs(this._sx - this._x) + Math.abs(this._sy - this._y)) < 8) {
                 this._preview.dom.height = this.height;
