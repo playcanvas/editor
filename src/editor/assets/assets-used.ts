@@ -252,11 +252,11 @@ editor.once('load', () => {
                 }
             } else if (!legacyScripts && path.startsWith('components.script.scripts')) {
                 const parts = splitPath(path);
-                if (parts.length === 6 && parts[4] === 'attributes') {
+                if (parts.length >= 6 && parts[4] === 'attributes') {
                     const primaryScript = editor.call('assets:scripts:assetByScript', parts[3]);
                     if (primaryScript) {
                         const type = primaryScript.get(`data.scripts.${parts[3]}.attributes.${parts[5]}.type`);
-                        if (type !== 'asset') {
+                        if (type !== 'asset' && type !== 'json') {
                             return;
                         }
                     } else {
@@ -321,11 +321,11 @@ editor.once('load', () => {
                 }
             } else if (!legacyScripts && path.startsWith('components.script.scripts')) {
                 const parts = splitPath(path);
-                if (parts.length === 6 && parts[4] === 'attributes') {
+                if (parts.length >= 6 && parts[4] === 'attributes') {
                     const primaryScript = editor.call('assets:scripts:assetByScript', parts[3]);
                     if (primaryScript) {
                         const type = primaryScript.get(`data.scripts.${parts[3]}.attributes.${parts[5]}.type`);
-                        if (type !== 'asset') {
+                        if (type !== 'asset' && type !== 'json') {
                             return;
                         }
                     } else {
