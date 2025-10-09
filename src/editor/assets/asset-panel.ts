@@ -570,8 +570,9 @@ class AssetPanel extends Panel {
         this._containerControls.append(this._dropdownType);
         this._dropdownType.on('change', this._onDropDownTypeChange.bind(this));
 
-        this._dropdownType.on('hover', () => {
-            tooltip.attach(this._dropdownType.dom);
+
+        this._dropdownType._labelValue.on('hover', () => {
+            tooltip.attach(this._dropdownType._labelValue.dom);
             tooltip.text = 'Filter by Type';
             tooltip.class.remove('inactive');
         });
