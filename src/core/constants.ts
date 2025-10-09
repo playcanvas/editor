@@ -4,6 +4,9 @@ export const ENGINE_VERSION = typeof pc !== 'undefined' ? `${pc.version}` : '0.0
 // Gizmo mask
 export const GIZMO_MASK = 8;
 
+// Picker force pick tag
+export const FORCE_PICK_TAG = 'force-pick';
+
 // Layer ids
 export const LAYERID_WORLD = 0;
 export const LAYERID_DEPTH = 1;
