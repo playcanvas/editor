@@ -505,7 +505,7 @@ class LightComponentInspector extends ComponentInspector {
         });
 
         // falloff mode is ignored on area lights
-        if (shape !== 0) {
+        if (areaEnabled && shape !== 0) {
             this._field('falloffMode').parent.hidden = true;
         }
 
