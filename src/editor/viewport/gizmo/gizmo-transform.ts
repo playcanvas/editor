@@ -419,11 +419,11 @@ const enable = (state: boolean = true) => {
 };
 editor.on('gizmo:transform:visible', enable);
 
-editor.once('settings:projectUser:load', async () => {
+editor.once('settings:user:load', async () => {
     // ensure gizmos loaded
     await loaded.promise;
 
-    const settings = editor.call('settings:projectUser');
+    const settings = editor.call('settings:user');
     const bind = (path: string, callback: (value: any) => void) => {
         settings.on(`${path}:set`, callback);
         settings.emit(`${path}:set`, settings.get(path));

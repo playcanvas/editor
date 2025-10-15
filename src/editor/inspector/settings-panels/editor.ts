@@ -62,6 +62,42 @@ const ATTRIBUTES: (Attribute | Divider)[] = [
         type: 'divider'
     },
     {
+        observer: 'userSettings',
+        label: 'Gizmo Size',
+        type: 'slider',
+        reference: 'settings:gizmoSize',
+        path: 'editor.gizmoSize',
+        args: {
+            min: 0.1,
+            max: 5,
+            step: 0.1
+        }
+    },
+    {
+        observer: 'userSettings',
+        label: 'Gizmo Preset',
+        path: 'editor.gizmoPreset',
+        reference: 'settings:gizmoPreset',
+        type: 'select',
+        args: {
+            type: 'string',
+            options: [
+                {
+                    v: 'default',
+                    t: 'Default'
+                },
+                {
+                    v: 'classic',
+                    t: 'Classic'
+                }
+            ]
+        }
+    },
+    {
+        alias: 'divider:1',
+        type: 'divider'
+    },
+    {
         observer: 'settings',
         label: 'Camera Depth Grabpass',
         path: 'editor.cameraGrabDepth',
@@ -139,42 +175,6 @@ const ATTRIBUTES: (Attribute | Divider)[] = [
                 {
                     v: 1,
                     t: '2.2'
-                }
-            ]
-        }
-    },
-    {
-        alias: 'divider:1',
-        type: 'divider'
-    },
-    {
-        observer: 'settings',
-        label: 'Gizmo Size',
-        type: 'slider',
-        reference: 'settings:gizmoSize',
-        path: 'editor.gizmoSize',
-        args: {
-            min: 0.1,
-            max: 5,
-            step: 0.1
-        }
-    },
-    {
-        observer: 'settings',
-        label: 'Gizmo Preset',
-        path: 'editor.gizmoPreset',
-        reference: 'settings:gizmoPreset',
-        type: 'select',
-        args: {
-            type: 'string',
-            options: [
-                {
-                    v: 'default',
-                    t: 'Default'
-                },
-                {
-                    v: 'classic',
-                    t: 'Classic'
                 }
             ]
         }
