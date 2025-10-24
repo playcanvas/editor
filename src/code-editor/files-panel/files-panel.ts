@@ -215,6 +215,10 @@ editor.once('load', () => {
         const path: number[] = asset.get('path');
         const type: string = asset.get('type');
 
+        if (id === '524644') {
+            console.log('adding', path.join(','), name);
+        }
+
         const item = new TreeViewItem({
             allowDrop: type === 'folder',
             icon: icons.get(type),
