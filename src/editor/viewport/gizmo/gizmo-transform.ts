@@ -202,6 +202,12 @@ const initGizmo = <T extends TransformGizmo>(gizmo: T) => {
         hovering = !!meshInstance;
         editor.emit('gizmo:transform:hover', hovering);
     });
+    gizmo.on(pc.Gizmo.EVENT_NODESDETACH, () => {
+        if (hovering) {
+            hovering = false;
+            editor.emit('gizmo:transform:hover', false);
+        }
+    });
 
     // track history
     const cache: GizmoNodeTransform[] = [];
@@ -385,7 +391,6 @@ const reflow = () => {
         translate.detach();
         rotate.detach();
         scale.detach();
-        editor.emit('gizmo:transform:hover', false);
         return;
     }
 
