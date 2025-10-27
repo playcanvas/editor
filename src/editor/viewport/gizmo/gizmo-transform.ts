@@ -63,6 +63,8 @@ let scale: ScaleGizmo | null = null;
 
 let write: boolean = false;
 
+const cursor = [0, 0];
+
 const loaded = new Defer<void>();
 
 const CLASSIC_THEME: GizmoTheme = {
@@ -187,6 +189,12 @@ const initGizmo = <T extends TransformGizmo>(gizmo: T) => {
     // call viewport render when gizmo fires update
     gizmo.on(pc.Gizmo.EVENT_RENDERUPDATE, () => {
         editor.call('viewport:render');
+    });
+
+    // track cursor position for carry functionality
+    gizmo.on(pc.Gizmo.EVENT_POINTERDOWN, (x: number, y: number) => {
+        cursor[0] = x;
+        cursor[1] = y;
     });
 
     // track hover state
@@ -351,6 +359,18 @@ editor.on('gizmo:snap', (state: boolean, increment: number) => {
     rotate.snapIncrement = increment * GIZMO_ANGLE_MULT;
     scale.snap = state;
     scale.snapIncrement = increment;
+});
+
+editor.on('gizmo:carry', () => {
+    if (!translate || !rotate || !scale) {
+        return;
+    }
+
+    // manual fire pointer move to update gizmo position
+    // TODO: add carry functionality to engine
+    translate.fire(pc.Gizmo.EVENT_POINTERMOVE, cursor[0], cursor[1], null);
+    rotate.fire(pc.Gizmo.EVENT_POINTERMOVE, cursor[0], cursor[1], null);
+    scale.fire(pc.Gizmo.EVENT_POINTERMOVE, cursor[0], cursor[1], null);
 });
 
 const reflow = () => {
