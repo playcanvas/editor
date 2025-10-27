@@ -191,15 +191,11 @@ const initGizmo = <T extends TransformGizmo>(gizmo: T) => {
         editor.call('viewport:render');
     });
 
-    // track cursor position for carry functionality
-    gizmo.on(pc.Gizmo.EVENT_POINTERDOWN, (x: number, y: number) => {
+    // track hover state and cursor position
+    let hovering = false;
+    gizmo.on(pc.Gizmo.EVENT_POINTERMOVE, (x: number, y: number, meshInstance: MeshInstance) => {
         cursor[0] = x;
         cursor[1] = y;
-    });
-
-    // track hover state
-    let hovering = false;
-    gizmo.on(pc.Gizmo.EVENT_POINTERMOVE, (_x: number, _y: number, meshInstance: MeshInstance) => {
         if (hovering === !!meshInstance) {
             return;
         }
