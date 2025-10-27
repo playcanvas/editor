@@ -385,6 +385,7 @@ const reflow = () => {
         translate.detach();
         rotate.detach();
         scale.detach();
+        editor.emit('gizmo:transform:hover', false);
         return;
     }
 
