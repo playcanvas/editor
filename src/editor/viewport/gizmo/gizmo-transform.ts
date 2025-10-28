@@ -176,6 +176,9 @@ const setTRS = (observer: EntityObserver, trs: GizmoNodeTransform, history: bool
 };
 
 const initGizmo = <T extends TransformGizmo>(gizmo: T) => {
+    // disable pointer event prevent default to allow viewport tap handling
+    gizmo.preventDefault = false;
+
     // enable orbit rotation for rotate gizmo
     if (gizmo instanceof pc.RotateGizmo) {
         gizmo.rotationMode = 'orbit';
@@ -223,6 +226,8 @@ const initGizmo = <T extends TransformGizmo>(gizmo: T) => {
 
         editor.call('camera:toggle', false);
         editor.call('viewport:pick:state', false);
+
+        editor.emit('gizmo:transform:drag', true);
     });
     gizmo.on(pc.TransformGizmo.EVENT_TRANSFORMMOVE, () => {
         const observers = selection();
@@ -265,6 +270,8 @@ const initGizmo = <T extends TransformGizmo>(gizmo: T) => {
 
         editor.call('camera:toggle', true);
         editor.call('viewport:pick:state', true);
+
+        editor.emit('gizmo:transform:drag', false);
     });
 
     // manually call prerender and update methods
