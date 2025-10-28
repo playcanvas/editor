@@ -1,6 +1,6 @@
 {
   "name": "@playcanvas/editor",
-  "version": "2.6.5",
+  "version": "2.6.6",
   "author": "PlayCanvas <support@playcanvas.com>",
   "homepage": "https://playcanvas.com",
   "description": "The PlayCanvas Editor Frontend",
@@ -58,7 +58,7 @@
     "monaco-themes": "^0.4.2",
     "nodemon": "3.1.7",
     "ot-text": "github:playcanvas/ot-text",
-    "playcanvas": "^2.12.3",
+    "playcanvas": "^2.12.4",
     "postcss": "8.4.48",
     "rollup": "4.25.0",
     "rollup-plugin-copy": "3.5.0",
