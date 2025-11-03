@@ -1,6 +1,6 @@
 {
   "name": "@playcanvas/editor",
-  "version": "2.6.7",
+  "version": "2.7.0",
   "author": "PlayCanvas <support@playcanvas.com>",
   "homepage": "https://playcanvas.com",
   "description": "The PlayCanvas Editor Frontend",
