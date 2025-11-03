@@ -85,7 +85,7 @@ editor.once('load', () => {
             title: 'Focus on Entity',
             icons: ['&#58120;']
         }, {
-            buttons: ['Shift', '$+', 'Z'],
+            buttons: ['Shift', '$+', 'X'],
             title: 'Previous Selection',
             icons: ['&#57671;']
         }, {
