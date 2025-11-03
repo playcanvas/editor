@@ -26,7 +26,7 @@ import { TableCell } from '../../common/pcui/element/element-table-cell.ts';
 import { TableRow } from '../../common/pcui/element/element-table-row.ts';
 import { Table } from '../../common/pcui/element/element-table.ts';
 import { type Tooltip } from '../../common/pcui/element/element-tooltip.ts';
-import { tooltip, tooltipSimpleItem } from '../../common/tooltips.ts';
+import { LegacyTooltip } from '../../common/ui/tooltip.ts';
 import { bytesToHuman, naturalCompare } from '../../common/utils.ts';
 
 const CLASS_ROOT = 'pcui-asset-panel';
@@ -449,6 +449,14 @@ class AssetPanel extends Panel {
 
         // header controls
 
+        const tooltip = LegacyTooltip.create({
+            text: 'Add Asset',
+            align: 'bottom',
+            class: 'pcui-tooltip-clipboard',
+            root: editor.call('layout.root')
+        });
+        tooltip.hidden = true;
+
         // button to create new asset
         this._btnNew = new Button({
             icon: 'E120',
@@ -456,9 +464,12 @@ class AssetPanel extends Panel {
             class: [CLASS_BTN_SMALL, CLASS_HIDE_ON_COLLAPSE]
         });
         this._btnNew.on('click', this._onClickNew.bind(this));
+        this._btnNew.on('hover', () => {
+            tooltip.attach(this._btnNew.dom);
+            tooltip.text = 'Add Asset';
+            tooltip.class.toggle('inactive', !this._btnNew.enabled);
+        });
         this._containerControls.append(this._btnNew);
-
-        this._createTooltip('Add Asset', this._btnNew);
 
         // button to delete asset
         this._btnDelete = new Button({
@@ -467,9 +478,12 @@ class AssetPanel extends Panel {
             class: [CLASS_BTN_SMALL, CLASS_HIDE_ON_COLLAPSE]
         });
         this._btnDelete.on('click', this._onClickDelete.bind(this));
+        this._btnDelete.on('hover', () => {
+            tooltip.attach(this._btnDelete.dom);
+            tooltip.text = 'Delete Asset';
+            tooltip.class.toggle('inactive', !this._btnDelete.enabled);
+        });
         this._containerControls.append(this._btnDelete);
-
-        this._createTooltip('Delete Asset', this._btnDelete);
 
         // button to go up on folder
         this._btnBack = new Button({
@@ -477,10 +491,16 @@ class AssetPanel extends Panel {
             enabled: false,
             class: [CLASS_BTN_SMALL, CLASS_HIDE_ON_COLLAPSE]
         });
-        this._btnBack.on('click', this._onClickBack.bind(this));
+        this._btnBack.on('click', () => {
+            this.navigateBack();
+            tooltip.class.toggle('inactive', !this._btnBack.enabled);
+        });
+        this._btnBack.on('hover', () => {
+            tooltip.attach(this._btnBack.dom);
+            tooltip.text = 'Go one folder up';
+            tooltip.class.toggle('inactive', !this._btnBack.enabled);
+        });
         this._containerControls.append(this._btnBack);
-
-        this._createTooltip('Go one folder up', this._btnBack);
 
         // contains view mode buttons
         const containerBtn = new Container({
@@ -496,9 +516,12 @@ class AssetPanel extends Panel {
             class: [CLASS_BTN_SMALL, CLASS_HIDE_ON_COLLAPSE]
         });
         this._btnLargeGrid.on('click', this._onClickLargeGrid.bind(this));
+        this._btnLargeGrid.on('hover', () => {
+            tooltip.attach(this._btnLargeGrid.dom);
+            tooltip.text = 'Large Icons';
+            tooltip.class.remove('inactive');
+        });
         containerBtn.append(this._btnLargeGrid);
-
-        this._createTooltip('Large Icons', this._btnLargeGrid);
 
         // show small grid view mode
         this._btnSmallGrid = new Button({
@@ -506,9 +529,12 @@ class AssetPanel extends Panel {
             class: [CLASS_BTN_SMALL, CLASS_HIDE_ON_COLLAPSE]
         });
         this._btnSmallGrid.on('click', this._onClickSmallGrid.bind(this));
+        this._btnSmallGrid.on('hover', () => {
+            tooltip.attach(this._btnSmallGrid.dom);
+            tooltip.text = 'Small Icons';
+            tooltip.class.remove('inactive');
+        });
         containerBtn.append(this._btnSmallGrid);
-
-        this._createTooltip('Small Icons', this._btnSmallGrid);
 
         // show details view mode
         this._btnDetailsView = new Button({
@@ -516,9 +542,12 @@ class AssetPanel extends Panel {
             class: [CLASS_BTN_SMALL, CLASS_HIDE_ON_COLLAPSE]
         });
         this._btnDetailsView.on('click', this._onClickDetailsView.bind(this));
+        this._btnDetailsView.on('hover', () => {
+            tooltip.attach(this._btnDetailsView.dom);
+            tooltip.text = 'Details';
+            tooltip.class.remove('inactive');
+        });
         containerBtn.append(this._btnDetailsView);
-
-        this._createTooltip('Details', this._btnDetailsView);
 
         // asset type dropdown filter
         const dropdownTypeOptions = Object.keys(TYPES)
@@ -540,6 +569,13 @@ class AssetPanel extends Panel {
 
         this._containerControls.append(this._dropdownType);
         this._dropdownType.on('change', this._onDropDownTypeChange.bind(this));
+
+
+        this._dropdownType._labelValue.on('hover', () => {
+            tooltip.attach(this._dropdownType._labelValue.dom);
+            tooltip.text = 'Filter by Type';
+            tooltip.class.remove('inactive');
+        });
 
         // search input filter
         this._searchInput = new TextInput({
@@ -569,9 +605,12 @@ class AssetPanel extends Panel {
             class: [CLASS_BTN_STORE, CLASS_HIDE_ON_COLLAPSE]
         });
         btnStore.on('click', this._onClickStore.bind(this));
+        btnStore.on('hover', () => {
+            tooltip.attach(btnStore.dom);
+            tooltip.text = 'Open Store';
+            tooltip.class.remove('inactive');
+        });
         this._containerControls.append(btnStore);
-
-        this._createTooltip('Open Store', btnStore);
 
         // resizable container for a scrollable folders container
         this._containerLeft = new Container({
@@ -782,18 +821,6 @@ class AssetPanel extends Panel {
         });
     }
 
-    _createTooltip(text, target) {
-        const item = tooltipSimpleItem({
-            text: text
-        });
-        tooltip().attach({
-            container: item,
-            target: target,
-            align: 'bottom'
-        });
-        this._tooltips.push(item);
-    }
-
     _onCopyAssets() {
         if (this._currentFolder === LEGACY_SCRIPTS_FOLDER_ASSET) {
             return;
@@ -933,11 +960,6 @@ class AssetPanel extends Panel {
         }
     }
 
-    // Goes up on folder
-    _onClickBack() {
-        this.navigateBack();
-    }
-
     // Sets view mode to large grid
     _onClickLargeGrid() {
         this.viewMode = AssetPanel.VIEW_LARGE_GRID;
@@ -958,7 +980,10 @@ class AssetPanel extends Panel {
         if (this._suspendFiltering) {
             return;
         }
+
         this.filter();
+
+        this._dropdownType.class.toggle('asset-filter-specific', this._dropdownType.value !== 'all');
     }
 
     // Convert string in form "tag1, tag2" to an array

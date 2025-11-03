@@ -660,25 +660,24 @@
             flex-direction: row;
             flex-grow: 1;
             align-items: center;
-        }
-
-        .pcui-button {
-            height: 24px;
-            line-height: 24px;
-            border: 1px solid $bcg-darkest;
-            background-color: $bcg-dark;
-            margin: $element-margin;
-            flex-shrink: 0;
+            height: 32px;
+            border-left: 1px solid $bcg-darkest;
         }
 
         .pcui-asset-panel-btn-small {
             padding: 0;
-            width: 24px;
+            margin: 0;
+            border: 0;
+            width: 32px;
+            height: 32px;
+            line-height: 32px;
             font-size: 15px;
-            line-height: 15px;
-            margin-left: 0;
-            margin-top: 4px;
-            margin-bottom: 4px;
+            flex-shrink: 0;
+
+            &:hover {
+                z-index: 1;
+                background-color: #20292b;
+            }
         }
 
         .pcui-asset-panel-btn-active {
@@ -687,26 +686,33 @@
         }
 
         .pcui-asset-panel-btn-container {
-            height: 100%;
             align-items: center;
-            margin-left: 2 * $element-margin;
-            padding-left: 3 * $element-margin;
-            border-left: 1px solid $bcg-darkest;
             flex-shrink: 0;
-            margin-right: 2 * $element-margin;
-            padding-right: 2 * $element-margin;
+            border-left: 1px solid $bcg-darkest;
             border-right: 1px solid $bcg-darkest;
         }
 
         .pcui-select-input {
-            width: 230px;
+            min-width: 100px;
+            width: 180px;
+            margin: 0;
 
             &.pcui-open {
                 z-index: 2;
             }
 
-            .pcui-label {
-                font-weight: bold;
+            &.asset-filter-specific > .pcui-container > .pcui-select-input-value {
+                background-color: #20292b;
+            }
+
+            .pcui-select-input-value {
+                height: 32px;
+                line-height: 32px;
+                font-size: 14px;
+            }
+
+            .pcui-select-input-icon {
+                line-height: 32px;
             }
 
             .pcui-select-input-list {
@@ -716,38 +722,69 @@
 
         .pcui-input-element {
             width: 230px;
-            font-weight: bold;
-            line-height: 24px;
+            height: 32px;
+            line-height: 32px;
+            margin: 0;
+            border: 0;
+            border-left: 1px solid $bcg-darkest;
+            border-right: 1px solid $bcg-darkest;
 
             > input {
                 max-width: calc(100% - 24px);
                 text-overflow: ellipsis;
+                background-color: transparent;
             }
 
             .pcui-button {
                 position: absolute;
                 right: 0;
-                background: transparent;
+                background-color: transparent;
                 margin: 0;
                 border: 0;
                 box-shadow: none;
+                height: 32px;
+                line-height: 32px;
 
                 &:hover {
                     color: $error;
                 }
             }
 
-            // placeholder left
+            &:hover,
+            &:not([placeholder]) {
+                background-color: #20292b;
+            }
+
+            // placeholder text
             &::after {
-                left: 0;
+                left: 24px;
                 right: initial;
-                font-size: 12px;
+                font-size: 14px;
+                font-weight: normal;
+                line-height: 32px;
+                background-color: transparent;
+            }
+
+            // magnifying glass
+            &[placeholder]::before {
+                @extend .font-icon;
+
+                content: '\E129';
+                font-size: 18px;
+                font-weight: normal;
+                text-align: center;
+                position: absolute;
+                width: 32px;
             }
         }
 
         .pcui-asset-panel-btn-store {
             margin-left: auto;
             color: white;
+        }
+
+        &:hover {
+            z-index: 2;
         }
     }
 }

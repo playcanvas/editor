@@ -111,17 +111,12 @@ import './entities/entities-components-menu.ts';
 import './entities/entities-template-menu.ts';
 import './entities/entities-pick.ts';
 import './entities/entities-icons.ts';
-import './entities/entities-gizmo-translate.ts';
-import './entities/entities-gizmo-scale.ts';
-import './entities/entities-gizmo-rotate.ts';
 
 // gizmo
 import './viewport/gizmo/gizmo.ts';
 import './viewport/gizmo/gizmo-layers.ts';
 import './viewport/gizmo/gizmo-point.ts';
-import './viewport/gizmo/gizmo-translate.ts';
-import './viewport/gizmo/gizmo-scale.ts';
-import './viewport/gizmo/gizmo-rotate.ts';
+import './viewport/gizmo/gizmo-transform.ts';
 import './viewport/gizmo/gizmo-camera.ts';
 import './viewport/gizmo/gizmo-light.ts';
 import './viewport/gizmo/gizmo-collision.ts';
