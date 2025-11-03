@@ -45,7 +45,7 @@ class TemplatePreviewScene extends Observer {
 
     lightEntity: Entity;
 
-    private renderComponents: RenderComponent[] = [];
+    private _renderComponents: RenderComponent[] = [];
 
     meshInstances: MeshInstance[] | null = null;
 
@@ -128,18 +128,18 @@ class TemplatePreviewScene extends Observer {
         this.templateInstance = template.instantiate();
         this.templateOrigin.addChild(this.templateInstance);
 
-        this.renderComponents = (this.templateInstance.findComponents('render') as RenderComponent[]);
+        this._renderComponents = (this.templateInstance.findComponents('render') as RenderComponent[]);
 
         // Filtering out Render components that are disabled in the hierarchy
         // We need the .enabled() to be correct, this can only be true, if "fake" set the root's _enabledInHierarchy to true.
         this.enableScene();
-        this.renderComponents = this.renderComponents.filter(rc => rc.entity.enabled);
+        this._renderComponents = this._renderComponents.filter(rc => rc.entity.enabled);
         this.disableScene();
 
         // TODO: Start a timer and probably just abandon if it's taking too long to load.
         this.assetLoadedCount = this.requiredAssetLoadCount = 0;
 
-        this.renderComponents.forEach((component) => {
+        this._renderComponents.forEach((component) => {
             // Some components do not have an asset (e.g. spheres)
             if (component.asset) {
                 this.queueAssetLoad(component.asset);
@@ -214,7 +214,7 @@ class TemplatePreviewScene extends Observer {
     initializeMeshInstances() {
         this.meshInstances = [];
         // We need to load the materials and render assets in case it is not here
-        this.renderComponents.forEach((renderComponent) => {
+        this._renderComponents.forEach((renderComponent) => {
             // Detach this component from the app.scene.layers
             // If we don't do this, we have "ghost" mesh instances lingering in app.scene.layers
             renderComponent.layers = [];
