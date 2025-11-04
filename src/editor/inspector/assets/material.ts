@@ -701,7 +701,7 @@ const REFRACTION_ATTRIBUTES: (Attribute | Divider)[] = [{
     label: 'Vertex Color Channel',
     path: 'data.thicknessVertexColorChannel',
     type: 'boolean',
-    reference: 'asset:material:thicknessVertexColor',
+    reference: 'asset:material:thicknessVertexColorChannel',
     args: {
         type: 'string',
         options: [{

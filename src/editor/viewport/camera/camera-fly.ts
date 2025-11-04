@@ -146,6 +146,8 @@ editor.once('viewport:load', (app) => {
 
             firstUpdate = false;
             editor.call('viewport:render');
+
+            editor.emit('gizmo:carry');
         }
     });
 
