@@ -14,10 +14,10 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v5
 
-      - name: Set up Node.js 18.x
+      - name: Set up Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 18.x
+          node-version: 24.x
           cache: 'npm'
           registry-url: 'https://registry.npmjs.org/'
 
@@ -34,10 +34,10 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v5
 
-      - name: Set up Node.js 18.x
+      - name: Set up Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 18.x
+          node-version: 24.x
           cache: 'npm'
           registry-url: 'https://registry.npmjs.org/'
 
@@ -54,10 +54,10 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v5
 
-      - name: Set up Node.js 18.x
+      - name: Set up Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 18.x
+          node-version: 24.x
           cache: 'npm'
           registry-url: 'https://registry.npmjs.org/'
 
