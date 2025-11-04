@@ -8,6 +8,7 @@ import { MaterialThumbnailRenderer } from '../../thumbnail-renderers/material-th
 import { ModelThumbnailRenderer } from '../../thumbnail-renderers/model-thumbnail-renderer.ts';
 import { RenderThumbnailRenderer } from '../../thumbnail-renderers/render-thumbnail-renderer.ts';
 import { SpriteThumbnailRenderer } from '../../thumbnail-renderers/sprite-thumbnail-renderer.ts';
+import { TemplateThumbnailRenderer } from '../../thumbnail-renderers/template-thumbnail-renderer.ts';
 import { buildQueryUrl } from '../../utils.ts';
 import { CLASS_MULTIPLE_VALUES } from '../constants.ts';
 
@@ -24,7 +25,8 @@ const CANVAS_TYPES = {
     'material': true,
     'model': true,
     'sprite': true,
-    'render': true
+    'render': true,
+    'template': false // TODO: Change to true after testing with optimisations (GH Issue #783)
 };
 
 type AssetThumbnailArgs = {
@@ -240,6 +242,9 @@ class AssetThumbnail extends Element {
                 break;
             case 'render':
                 this._canvasRenderer = new RenderThumbnailRenderer(asset, this._domCanvas);
+                break;
+            case 'template':
+                this._canvasRenderer = new TemplateThumbnailRenderer(asset, this._domCanvas);
                 break;
         }
 

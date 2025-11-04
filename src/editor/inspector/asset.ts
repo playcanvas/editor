@@ -27,6 +27,7 @@ import { ScriptAssetInspector } from './assets/script.ts';
 import { ShaderAssetInspector } from './assets/shader.ts';
 import { SpriteAssetInspectorPreview } from './assets/sprite-preview.ts';
 import { SpriteAssetInspector } from './assets/sprite.ts';
+import { TemplateAssetInspectorPreview } from './assets/template-preview.ts';
 import { TextAssetInspector } from './assets/text.ts';
 import { TextureAssetInspectorPreview } from './assets/texture-preview.ts';
 import { TextureSourceAssetInspector } from './assets/texture-source.ts';
@@ -75,6 +76,7 @@ assetInspectorPreviews.set('model', ModelAssetInspectorPreview);
 assetInspectorPreviews.set('render', RenderAssetInspectorPreview);
 assetInspectorPreviews.set('sprite', SpriteAssetInspectorPreview);
 assetInspectorPreviews.set('texture', TextureAssetInspectorPreview);
+assetInspectorPreviews.set('template', TemplateAssetInspectorPreview);
 assetInspectorPreviews.set('textureAtlas', TextureAssetInspectorPreview);
 
 const CLASS_ROOT = 'asset-inspector';

@@ -1,10 +1,17 @@
+// Required for Editor blank page, where "pc" is not loaded.
 const pc = typeof window.pc !== 'undefined' ? window.pc : {
     Layer: class {},
     RenderTarget: class {},
     LayerComposition: class {}
 };
 
-class ThumbnailRenderer {
+import { Observer } from '@playcanvas/observer';
+import type { GraphicsDevice } from 'playcanvas';
+
+/**
+ * Singleton Thumbnail Renderer
+ */
+class ThumbnailRenderer extends Observer {
     static renderTargets = new Map();
 
     static _layer = new pc.Layer({
@@ -17,7 +24,7 @@ class ThumbnailRenderer {
 
     static _layerComposition;
 
-    getRenderTarget(device, width, height) {
+    getRenderTarget(device: GraphicsDevice, width: number, height: number) {
 
         const key = `${width}-${height}`;
         let target = ThumbnailRenderer.renderTargets.get(key);
