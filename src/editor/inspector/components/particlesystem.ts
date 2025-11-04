@@ -46,7 +46,7 @@ const ATTRIBUTES: Attribute[] = [{
     reference: 'particlesystem:startAngle',
     type: 'number',
     args: {
-        placeholder: ['From']
+        placeholder: 'From'
     }
 }, {
     label: 'Start Angle 2',
@@ -54,7 +54,7 @@ const ATTRIBUTES: Attribute[] = [{
     reference: 'particlesystem:startAngle',
     type: 'number',
     args: {
-        placeholder: ['To']
+        placeholder: 'To'
     }
 }, {
     label: 'Loop',
