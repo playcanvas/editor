@@ -296,6 +296,7 @@ import './toolbar/toolbar-connection.ts';
 import './toolbar/toolbar-usage.ts';
 import './toolbar/toolbar-scene-limits.ts';
 import './toolbar/toolbar-render.ts';
+import './toolbar/toolbar-maintenance.ts';
 
 
 // pickers
