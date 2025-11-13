@@ -25,7 +25,7 @@ jobs:
     
       - name: Create maintenance issue
         run: |
-          gh issue create --title "${{ github.event.inputs.title }}" --body "> Close issue to end maintenance" --label "maintenance" --repo playcanvas/editor
+          gh issue create --title "${{ github.event.inputs.title }}" --body "> Close issue to end maintenance" --label maintenance --repo playcanvas/editor
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
         
