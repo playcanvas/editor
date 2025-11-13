@@ -1,6 +1,14 @@
 import { Container, Label, Button } from '@playcanvas/pcui';
 
-editor.once('load', () => {
+editor.once('load', async () => {
+    const res = await fetch('https://api.github.com/repos/playcanvas/editor/issues?state=open&labels=alert');
+    const issues = await res.json() as { title: string, html_url: string }[];
+    if (issues.length === 0) {
+        return;
+    }
+    const [issue] = issues;
+    console.error('MAINTENANCE ALERT:', issue.title, issue.html_url);
+
     const root = editor.call('layout.root');
     const container = new Container({
         class: 'toolbar-alert'
@@ -8,7 +16,7 @@ editor.once('load', () => {
 
     const label = new Label({
         unsafe: true,
-        text: 'MAINTENANCE ALERT: The editor may be disrupted during maintenance hours on Sunday from 1 AM to 3 AM UTC.'
+        text: `<a href='${issue.html_url}'>MAINTENANCE ALERT</a>: ${issue.title}`
     });
     container.append(label);
 
