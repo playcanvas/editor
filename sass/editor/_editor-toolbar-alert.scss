@@ -1,15 +1,22 @@
-#usage-alert {
-    background-color: #e95e4f;
+@use 'sass:color';
+
+$bright-red: #e74c3c;
+
+.toolbar-alert {
+    background-color: $bright-red;
     grid-column: 1 / -1;
     height: 30px;
     line-height: 30px;
     padding-left: 10px;
+    border-top: 1px solid color.mix($bright-red, $border-primary, 60%);
 
     .pcui-label {
-        color: white;
-        font-size: 12px;
+        width: 100%;
+        color: #fff;
+        font-size: 14px;
         height: 30px;
         line-height: 30px;
+        text-align: center;
         margin: 0;
         vertical-align: bottom;
 
