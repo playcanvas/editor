@@ -3,6 +3,7 @@
 $bright-red: #e74c3c;
 
 .toolbar-alert {
+    display: flex;
     background-color: $bright-red;
     grid-column: 1 / -1;
     height: 30px;
