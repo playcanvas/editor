@@ -12,7 +12,7 @@ permissions:
   contents: write
 
 jobs:
-  beta:
+  maintenance:
     runs-on: ubuntu-latest
     if: github.repository == 'playcanvas/editor' && github.ref_name == 'main'
     steps:
