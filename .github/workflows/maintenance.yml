@@ -1,0 +1,31 @@
+name: Maintenance
+
+on:
+  workflow_dispatch:
+    inputs:
+        title:
+          description: 'Maintenance alert title'
+          type: string
+          default: 'Maintenance Alert'
+
+permissions:
+  contents: write
+
+jobs:
+  maintenance:
+    runs-on: ubuntu-latest
+    if: github.repository == 'playcanvas/editor' && github.ref_name == 'main'
+    steps:
+      - name: Generate app token
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_KEY }}
+    
+      - name: Create maintenance issue
+        run: |
+          gh issue create --title "${{ github.event.inputs.title }}" --body "> Close issue to end maintenance" --label maintenance --repo playcanvas/editor
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+        
