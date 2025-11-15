@@ -6,7 +6,7 @@ editor.once('load', () => {
     const ctrlCmd = editor.call('hotkey:ctrl:string');
 
     const item = new MenuItem({
-        text: 'Open Command Pallette',
+        text: 'Open Command Palette',
         onSelect: () => {
             me.focus();
             me.trigger(null, 'editor.action.quickCommand');
