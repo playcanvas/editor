@@ -127,7 +127,7 @@ import './menu-panel/selection/expand-shrink.ts';
 import './menu-panel/selection/copy-move-lines.ts';
 import './menu-panel/selection/occurrences.ts';
 import './menu-panel/navigate/menu.ts';
-import './menu-panel/navigate/pallette.ts';
+import './menu-panel/navigate/palette.ts';
 import './menu-panel/navigate/fuzzy.ts';
 import './menu-panel/navigate/tabs.ts';
 import './menu-panel/project/menu.ts';
