@@ -26,7 +26,7 @@ editor.once('load', async () => {
 
     const label = new Label({
         unsafe: true,
-        text: `<a href='${html_url}' target='_blank'>MAINTENANCE ALERT</a>: ${title}`
+        text: `${title}. Click <a href="${html_url}" target="_blank" rel="noopener">here</a> for more info.`
     });
     container.append(label);
 
