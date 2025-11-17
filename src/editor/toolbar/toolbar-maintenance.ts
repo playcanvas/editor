@@ -11,7 +11,13 @@ url.searchParams.set('direction', 'desc');
 const ISSUES_URL = url.toString();
 
 editor.once('load', async () => {
-    const res = await fetch(ISSUES_URL);
+    // FIXME: non authenticated requests to GitHub API are rate limited to 60 per hour per IP
+    let res;
+    try {
+        res = await fetch(ISSUES_URL);
+    } catch (err) {
+        return;
+    }
     const issues = await res.json() as { title: string, html_url: string }[];
     const maintenance = issues.find(issue => issue.title.startsWith(PREFIX));
     if (!maintenance) {
