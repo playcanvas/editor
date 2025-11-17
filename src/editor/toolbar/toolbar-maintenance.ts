@@ -1,6 +1,7 @@
 import { Container, Label, Button } from '@playcanvas/pcui';
 
 const PREFIX = '[MAINTENANCE]';
+const LOCALSTORAGE_KEY = 'playcanvas-editor-maintenance-notice';
 
 const url = new URL('https://api.github.com/repos/playcanvas/editor/issues');
 url.searchParams.set('state', 'open');
@@ -19,6 +20,11 @@ editor.once('load', async () => {
     const title = maintenance.title.replace(PREFIX, '').trim();
     const html_url = maintenance.html_url;
 
+    const lastNotice = localStorage.getItem(LOCALSTORAGE_KEY);
+    if (lastNotice === title) {
+        return;
+    }
+
     const root = editor.call('layout.root');
     const container = new Container({
         class: 'toolbar-alert'
@@ -36,6 +42,7 @@ editor.once('load', async () => {
     });
     container.append(btnClose);
     btnClose.on('click', () => {
+        localStorage.setItem(LOCALSTORAGE_KEY, title);
         container.hidden = true;
     });
     root.prepend(container);
