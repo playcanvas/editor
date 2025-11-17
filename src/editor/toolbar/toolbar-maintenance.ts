@@ -18,7 +18,6 @@ editor.once('load', async () => {
     }
     const title = maintenance.title.replace(PREFIX, '').trim();
     const html_url = maintenance.html_url;
-    console.error('Maintenance Alert:', title, html_url);
 
     const root = editor.call('layout.root');
     const container = new Container({
