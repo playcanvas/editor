@@ -9,16 +9,24 @@ url.searchParams.set('creator', 'playcanvas-bot[bot]');
 url.searchParams.set('sort', 'updated');
 url.searchParams.set('direction', 'desc');
 const ISSUES_URL = url.toString();
+const RATE_LIMIT_URL = 'https://api.github.com/rate_limit';
 
 editor.once('load', async () => {
     // FIXME: non authenticated requests to GitHub API are rate limited to 60 per hour per IP
-    let res;
-    try {
-        res = await fetch(ISSUES_URL);
-    } catch (err) {
+    const res1 = await fetch(RATE_LIMIT_URL);
+    if (res1.ok) {
         return;
     }
-    const issues = await res.json() as { title: string, html_url: string }[];
+    const rate = await res1.json() as { rate: { remaining: number } };
+    if (rate.rate.remaining === 0) {
+        return;
+    }
+
+    const res2 = await fetch(ISSUES_URL);
+    if (!res2.ok) {
+        return;
+    }
+    const issues = await res2.json() as { title: string, html_url: string }[];
     const maintenance = issues.find(issue => issue.title.startsWith(PREFIX));
     if (!maintenance) {
         return;
