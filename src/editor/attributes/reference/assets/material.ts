@@ -711,6 +711,12 @@ export const fields: AttributeReference[]  = [{
     description: 'Apply fogging (as configured in scene settings).',
     url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#usefog'
 }, {
+    name: 'asset:material:vertexColorGamma',
+    title: 'vertexColorGamma',
+    subTitle: '{Boolean}',
+    description: 'Convert vertex colors to gamma space.',
+    url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#vertexColorGamma'
+}, {
     name: 'asset:material:useLighting',
     title: 'useLighting',
     subTitle: '{Boolean}',
