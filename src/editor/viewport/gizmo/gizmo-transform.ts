@@ -179,6 +179,11 @@ const initGizmo = <T extends TransformGizmo>(gizmo: T) => {
     // disable pointer event prevent default to allow viewport tap handling
     gizmo.preventDefault = false;
 
+    // only allow left mouse button interaction
+    gizmo.mouseButtons[0] = true; // left
+    gizmo.mouseButtons[1] = false; // middle
+    gizmo.mouseButtons[2] = false; // right
+
     // enable orbit rotation for rotate gizmo
     if (gizmo instanceof pc.RotateGizmo) {
         gizmo.rotationMode = 'orbit';
