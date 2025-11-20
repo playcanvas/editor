@@ -16,7 +16,7 @@ jobs:
     if: ${{ github.event.label.name == 'test' && github.repository == 'playcanvas/editor' && github.actor == 'kpal81xd' }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Log in to the Container registry
