@@ -1,7 +1,8 @@
 import { Canvas } from '@playcanvas/pcui';
 
-import { AssetInspectorPreviewBase } from './asset-preview-base.ts';
-import { FontThumbnailRenderer } from '../../../common/thumbnail-renderers/font-thumbnail-renderer.ts';
+import { FontThumbnailRenderer } from '@/common/thumbnail-renderers/font-thumbnail-renderer';
+
+import { AssetInspectorPreviewBase } from './asset-preview-base';
 
 const CLASS_CANVAS = 'pcui-asset-preview-canvas';
 const CLASS_CANVAS_FLIP = 'pcui-asset-preview-canvas-flip';

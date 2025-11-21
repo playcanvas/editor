@@ -1,4 +1,4 @@
-import { LegacyScriptPreviewOverlay } from './legacy-script-preview-overlay.ts';
+import { LegacyScriptPreviewOverlay } from './legacy-script-preview-overlay';
 
 editor.once('load', () => {
     const types = new Set(['css', 'html', 'json', 'script', 'shader', 'text']);

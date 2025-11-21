@@ -1,4 +1,4 @@
-import { AssetPanel } from './asset-panel.ts';
+import { AssetPanel } from './asset-panel';
 
 editor.once('load', () => {
     const assetsPanel = editor.call('layout.assets');

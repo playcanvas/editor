@@ -1,16 +1,16 @@
 import { Button, Container } from '@playcanvas/pcui';
 
-import * as SVG from '../../../common/svg.ts';
-import { LegacyButton } from '../../../common/ui/button.ts';
-import { LegacyCheckbox } from '../../../common/ui/checkbox.ts';
-import { LegacyLabel } from '../../../common/ui/label.ts';
-import { LegacyListItem } from '../../../common/ui/list-item.ts';
-import { LegacyList } from '../../../common/ui/list.ts';
-import { LegacyMenuItem } from '../../../common/ui/menu-item.ts';
-import { LegacyMenu } from '../../../common/ui/menu.ts';
-import { LegacyPanel } from '../../../common/ui/panel.ts';
-import { LegacyTooltip } from '../../../common/ui/tooltip.ts';
-import { convertDatetime, handleCallback } from '../../../common/utils.ts';
+import * as SVG from '@/common/svg';
+import { LegacyButton } from '@/common/ui/button';
+import { LegacyCheckbox } from '@/common/ui/checkbox';
+import { LegacyLabel } from '@/common/ui/label';
+import { LegacyList } from '@/common/ui/list';
+import { LegacyListItem } from '@/common/ui/list-item';
+import { LegacyMenu } from '@/common/ui/menu';
+import { LegacyMenuItem } from '@/common/ui/menu-item';
+import { LegacyPanel } from '@/common/ui/panel';
+import { LegacyTooltip } from '@/common/ui/tooltip';
+import { convertDatetime, handleCallback } from '@/common/utils';
 
 editor.once('load', () => {
     const events = [];

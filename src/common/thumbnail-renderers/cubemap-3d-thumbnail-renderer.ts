@@ -1,5 +1,6 @@
-import { ThumbnailRenderer } from './thumbnail-renderer.ts';
-import { LAYERID_SKYBOX } from '../../core/constants.ts';
+import { LAYERID_SKYBOX } from '@/core/constants';
+
+import { ThumbnailRenderer } from './thumbnail-renderer';
 
 const scene = {
     scene: null,

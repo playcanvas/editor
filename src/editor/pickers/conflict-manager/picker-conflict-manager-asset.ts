@@ -1,5 +1,5 @@
-import { ConflictResolver } from './ui/conflict-resolver.ts';
-import { TextResolver } from './ui/text-resolver.ts';
+import { ConflictResolver } from './ui/conflict-resolver';
+import { TextResolver } from './ui/text-resolver';
 
 editor.once('load', () => {
     // Shows asset field conflicts

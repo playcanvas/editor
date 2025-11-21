@@ -1,4 +1,4 @@
-import { TextureCompressor } from '../assets/assets-textures-compress.ts';
+import { TextureCompressor } from '../assets/assets-textures-compress';
 
 editor.once('load', () => {
     if (!editor.call('users:hasFlag', 'hasRecompressFlippedTextures')) {

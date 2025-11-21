@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 
-import { evaluate } from '../../src/editor/scripting/expr-eval/evaluate.ts';
-import { parse } from '../../src/editor/scripting/expr-eval/parser.ts';
+import { evaluate } from '../../src/editor/scripting/expr-eval/evaluate';
+import { parse } from '../../src/editor/scripting/expr-eval/parser';
 
 describe('expr-eval: Evaluate Function', () => {
 

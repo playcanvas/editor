@@ -1,9 +1,9 @@
 import { Panel } from '@playcanvas/pcui';
 
-import { AnimViewer } from './anim-viewer.ts';
-import { AssetInspectorPreviewBase } from './asset-preview-base.ts';
-import type { Attribute } from '../attribute.type.d.ts';
-import { AttributesInspector } from '../attributes-inspector.ts';
+import { AnimViewer } from './anim-viewer';
+import { AssetInspectorPreviewBase } from './asset-preview-base';
+import type { Attribute } from '../attribute.type.d';
+import { AttributesInspector } from '../attributes-inspector';
 
 
 const CLASS_ROOT = 'pcui-asset-animation-inspector-preview';

@@ -1,10 +1,11 @@
 import { Panel, Container, Button } from '@playcanvas/pcui';
 
-import { ComponentInspector } from './component.ts';
-import { deepCopy } from '../../../common/utils.ts';
-import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from '../../../core/constants.ts';
-import type { Attribute } from '../attribute.type.d.ts';
-import { AttributesInspector } from '../attributes-inspector.ts';
+import { deepCopy } from '@/common/utils';
+import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from '@/core/constants';
+
+import { ComponentInspector } from './component';
+import type { Attribute } from '../attribute.type.d';
+import { AttributesInspector } from '../attributes-inspector';
 
 
 const COMPONENT_ATTRIBUTES: Attribute[] = [{

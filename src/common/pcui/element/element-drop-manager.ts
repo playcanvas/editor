@@ -1,7 +1,7 @@
 import { Container } from '@playcanvas/pcui';
 
-import { DropTarget } from './element-drop-target.ts';
-import { CLASS_HIDDEN } from '../constants.ts';
+import { DropTarget } from './element-drop-target';
+import { CLASS_HIDDEN } from '../constants';
 
 const CLASS_DROP_MANAGER = 'pcui-dropmanager';
 const CLASS_DROP_MANAGER_WALL = `${CLASS_DROP_MANAGER}-wall`;

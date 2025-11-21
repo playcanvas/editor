@@ -1,5 +1,5 @@
-import { BaseSettingsPanel } from './base.ts';
-import type { Attribute, Divider } from '../attribute.type.d.ts';
+import { BaseSettingsPanel } from './base';
+import type { Attribute, Divider } from '../attribute.type.d';
 
 const ATTRIBUTES: (Attribute | Divider)[] = [
     {

@@ -1,4 +1,4 @@
-import { LegacyElement } from './element.ts';
+import { LegacyElement } from './element';
 
 class LegacyColorField extends LegacyElement {
     constructor(args = {}) {

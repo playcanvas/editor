@@ -1,4 +1,4 @@
-import { VersionControlSidePanelBox } from './ui/version-control-side-panel-box.ts';
+import { VersionControlSidePanelBox } from './ui/version-control-side-panel-box';
 
 editor.once('load', () => {
     const boxRestore = new VersionControlSidePanelBox({

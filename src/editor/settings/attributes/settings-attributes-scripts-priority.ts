@@ -1,9 +1,9 @@
-import { LegacyButton } from '../../../common/ui/button.ts';
-import { LegacyLabel } from '../../../common/ui/label.ts';
-import { LegacyListItem } from '../../../common/ui/list-item.ts';
-import { LegacyList } from '../../../common/ui/list.ts';
-import { LegacyOverlay } from '../../../common/ui/overlay.ts';
-import { LegacyPanel } from '../../../common/ui/panel.ts';
+import { LegacyButton } from '@/common/ui/button';
+import { LegacyLabel } from '@/common/ui/label';
+import { LegacyList } from '@/common/ui/list';
+import { LegacyListItem } from '@/common/ui/list-item';
+import { LegacyOverlay } from '@/common/ui/overlay';
+import { LegacyPanel } from '@/common/ui/panel';
 
 editor.once('load', () => {
     if (!editor.call('settings:project').get('useLegacyScripts')) {

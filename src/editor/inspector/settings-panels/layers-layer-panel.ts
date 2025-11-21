@@ -1,7 +1,8 @@
-import { BaseSettingsPanel } from './base.ts';
-import { CLASS_ERROR } from '../../../common/pcui/constants.ts';
-import { LegacyTooltip } from '../../../common/ui/tooltip.ts';
-import type { Attribute } from '../attribute.type.d.ts';
+import { CLASS_ERROR } from '@/common/pcui/constants';
+import { LegacyTooltip } from '@/common/ui/tooltip';
+
+import { BaseSettingsPanel } from './base';
+import type { Attribute } from '../attribute.type.d';
 
 const CLASS_ROOT = 'layers-settings-panel';
 const CLASS_LAYER_PANEL = `${CLASS_ROOT}-layer-panel`;

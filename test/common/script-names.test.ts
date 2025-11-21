@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import { describe, it } from 'mocha';
 import { getReservedScriptNames } from 'playcanvas';
 
-import { normalizeScriptName } from '../../src/common/script-names.ts';
+import { normalizeScriptName } from '../../src/common/script-names';
 
 describe('normalizeScriptName', () => {
     it('should return the original when it is valid', () => {

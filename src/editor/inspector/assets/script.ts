@@ -1,7 +1,7 @@
 import { Container, Label, Panel, Button } from '@playcanvas/pcui';
 
-import { CLASS_ERROR } from '../../../common/pcui/constants.ts';
-import { tooltip } from '../../../common/tooltips.ts';
+import { CLASS_ERROR } from '@/common/pcui/constants';
+import { tooltip } from '@/common/tooltips';
 
 const CLASS_ROOT = 'script-asset-inspector';
 const CLASS_ERROR_CONTAINER = `${CLASS_ROOT}-error-container`;

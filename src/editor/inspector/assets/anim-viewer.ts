@@ -1,6 +1,6 @@
 import { Container, Canvas, Label, Button, SliderInput } from '@playcanvas/pcui';
 
-import { createColorMaterial } from '../../viewport/viewport-color-material.ts';
+import { createColorMaterial } from '../../viewport/viewport-color-material';
 
 class Skeleton {
     static _boneVertex = new pc.Vec3();

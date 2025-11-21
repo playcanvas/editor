@@ -7,6 +7,7 @@ import replace from '@rollup/plugin-replace';
 import swc from '@rollup/plugin-swc';
 import copy from 'rollup-plugin-copy';
 import polyfills from 'rollup-plugin-polyfill-node';
+import tsconfigPaths from 'rollup-plugin-tsconfig-paths';
 
 const production = process.env.NODE_ENV === 'production';
 const sourcemap = production ? true : 'inline';
@@ -23,7 +24,11 @@ const plugins = () => {
         commonjs(),
         json(),
         polyfills(),
-        resolve(),
+        tsconfigPaths(),
+        resolve({
+            extensions: ['.ts', '.js', '.json'],
+            browser: true
+        }),
         swc({
             swc: {
                 jsc: {
@@ -117,7 +122,9 @@ const WORKER_TARGETS = fs.readdirSync('src/workers').map((file) => {
                     format: 'esm'
                 },
                 plugins: [
+                    tsconfigPaths(),
                     resolve({
+                        extensions: ['.ts', '.js', '.json'],
                         browser: true
                     }),
                     commonjs(),
@@ -137,7 +144,9 @@ const WORKER_TARGETS = fs.readdirSync('src/workers').map((file) => {
                     format: 'esm'
                 },
                 plugins: [
+                    tsconfigPaths(),
                     resolve({
+                        extensions: ['.ts', '.js', '.json'],
                         browser: true
                     }),
                     copy({
@@ -161,7 +170,9 @@ const WORKER_TARGETS = fs.readdirSync('src/workers').map((file) => {
                     format: 'esm'
                 },
                 plugins: [
+                    tsconfigPaths(),
                     resolve({
+                        extensions: ['.ts', '.js', '.json'],
                         browser: true
                     }),
                     copy({
@@ -185,7 +196,9 @@ const WORKER_TARGETS = fs.readdirSync('src/workers').map((file) => {
                     format: 'esm'
                 },
                 plugins: [
+                    tsconfigPaths(),
                     resolve({
+                        extensions: ['.ts', '.js', '.json'],
                         browser: true
                     }),
                     swc({
@@ -222,7 +235,11 @@ const MODULE_TARGETS = [
         },
         plugins: [
             commonjs(),
-            resolve(),
+            tsconfigPaths(),
+            resolve({
+                extensions: ['.ts', '.js', '.json'],
+                browser: true
+            }),
             copy({
                 targets: [{ src: 'src/wasm/codecs', dest: 'dist/wasm' }]
             }),
@@ -243,7 +260,11 @@ const SERVICE_WORKER_TARGETS = fs.readdirSync('src/sw').map((file) => {
             format: 'esm'
         },
         plugins: [
-            resolve(),
+            tsconfigPaths(),
+            resolve({
+                extensions: ['.ts', '.js', '.json'],
+                browser: true
+            }),
             swc({
                 swc: {
                     minify: production

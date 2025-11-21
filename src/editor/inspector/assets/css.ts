@@ -1,4 +1,4 @@
-import { CodeBlockAssetInspector } from './code-block.ts';
+import { CodeBlockAssetInspector } from './code-block';
 
 class CssAssetInspector extends CodeBlockAssetInspector {
     constructor(args) {

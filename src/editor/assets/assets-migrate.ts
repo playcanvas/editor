@@ -1,7 +1,7 @@
 import type { Observer } from '@playcanvas/observer';
 
-import { deepEqual, formatter as f } from '../../common/utils.ts';
-import { LOAD_SCRIPT_AS_ASSET } from '../../core/constants.ts';
+import { deepEqual, formatter as f } from '@/common/utils';
+import { LOAD_SCRIPT_AS_ASSET } from '@/core/constants';
 
 
 const LEGACY_TINT_PROPERTIES = [

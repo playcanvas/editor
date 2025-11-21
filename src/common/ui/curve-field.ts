@@ -1,5 +1,5 @@
-import { LegacyCanvas } from './canvas.ts';
-import { LegacyElement } from './element.ts';
+import { LegacyCanvas } from './canvas';
+import { LegacyElement } from './element';
 
 class LegacyCurveField extends LegacyElement {
     constructor(args = {}) {

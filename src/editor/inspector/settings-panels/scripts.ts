@@ -1,6 +1,6 @@
 import { Container, Panel, Label } from '@playcanvas/pcui';
 
-import { BaseSettingsPanel } from './base.ts';
+import { BaseSettingsPanel } from './base';
 
 const CLASS_ROOT = 'scripts-settings-panel';
 const CLASS_SCRIPTS_LIST = `${CLASS_ROOT}-scripts-list`;

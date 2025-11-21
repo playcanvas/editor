@@ -1,6 +1,7 @@
-import { BaseSettingsPanel } from './base.ts';
-import { TONEMAPPING } from '../../../core/constants.ts';
-import type { Attribute, Divider } from '../attribute.type.d.ts';
+import { TONEMAPPING } from '@/core/constants';
+
+import { BaseSettingsPanel } from './base';
+import type { Attribute, Divider } from '../attribute.type.d';
 
 const ATTRIBUTES: (Attribute | Divider)[] = [
     {

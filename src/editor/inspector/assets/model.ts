@@ -1,8 +1,8 @@
 import { Panel, Container, Button } from '@playcanvas/pcui';
 
-import { ModelAssetInspectorMeshInstances } from './model-mesh-instances.ts';
-import type { Attribute } from '../attribute.type.d.ts';
-import { AttributesInspector } from '../attributes-inspector.ts';
+import { ModelAssetInspectorMeshInstances } from './model-mesh-instances';
+import type { Attribute } from '../attribute.type.d';
+import { AttributesInspector } from '../attributes-inspector';
 
 
 const CLASS_ROOT = 'asset-model-inspector';

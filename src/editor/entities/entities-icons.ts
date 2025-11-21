@@ -1,4 +1,4 @@
-import { GIZMO_MASK } from '../../core/constants.ts';
+import { GIZMO_MASK } from '@/core/constants';
 
 editor.once('load', () => {
     let app;

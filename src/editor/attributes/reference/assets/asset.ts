@@ -1,20 +1,20 @@
-import { fields as anim } from './anim.ts';
-import { fields as animation } from './animation.ts';
-import { fields as audio } from './audio.ts';
-import { fields as css } from './css.ts';
-import { fields as cubemap } from './cubemap.ts';
-import { fields as font } from './font.ts';
-import { fields as gsplat } from './gsplat.ts';
-import { fields as html } from './html.ts';
-import { fields as json } from './json.ts';
-import { fields as material } from './material.ts';
-import { fields as model } from './model.ts';
-import { fields as render } from './render.ts';
-import { fields as script } from './script.ts';
-import { fields as shader } from './shader.ts';
-import { fields as sprite } from './sprite.ts';
-import { fields as text } from './text.ts';
-import { fields as texture } from './texture.ts';
+import { fields as anim } from './anim';
+import { fields as animation } from './animation';
+import { fields as audio } from './audio';
+import { fields as css } from './css';
+import { fields as cubemap } from './cubemap';
+import { fields as font } from './font';
+import { fields as gsplat } from './gsplat';
+import { fields as html } from './html';
+import { fields as json } from './json';
+import { fields as material } from './material';
+import { fields as model } from './model';
+import { fields as render } from './render';
+import { fields as script } from './script';
+import { fields as shader } from './shader';
+import { fields as sprite } from './sprite';
+import { fields as text } from './text';
+import { fields as texture } from './texture';
 import type { AttributeReference } from '../reference.type';
 
 editor.once('load', () => {

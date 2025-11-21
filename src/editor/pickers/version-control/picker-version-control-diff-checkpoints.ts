@@ -1,7 +1,7 @@
-import { LegacyButton } from '../../../common/ui/button.ts';
-import { LegacyLabel } from '../../../common/ui/label.ts';
-import { LegacyPanel } from '../../../common/ui/panel.ts';
-import { convertDatetime } from '../../../common/utils.ts';
+import { LegacyButton } from '@/common/ui/button';
+import { LegacyLabel } from '@/common/ui/label';
+import { LegacyPanel } from '@/common/ui/panel';
+import { convertDatetime } from '@/common/utils';
 
 editor.once('load', () => {
     let leftBranch = null;

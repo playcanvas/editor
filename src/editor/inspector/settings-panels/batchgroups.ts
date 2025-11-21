@@ -1,8 +1,8 @@
 import { Container } from '@playcanvas/pcui';
 
-import { BaseSettingsPanel } from './base.ts';
-import { BatchGroupsSettingsPanelItem } from './batchgroups-item.ts';
-import type { Attribute } from '../attribute.type.d.ts';
+import { BaseSettingsPanel } from './base';
+import { BatchGroupsSettingsPanelItem } from './batchgroups-item';
+import type { Attribute } from '../attribute.type.d';
 
 const CLASS_ROOT = 'batchgroups-settings-panel';
 const CLASS_ITEM = `${CLASS_ROOT}-item`;

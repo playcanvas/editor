@@ -1,10 +1,10 @@
 import { Element, Label, Button, Container, LabelGroup, Progress } from '@playcanvas/pcui';
 // @ts-ignore
-import filenamify from 'filenamify/browser'; // eslint-disable-line import/no-unresolved
+import filenamify from 'filenamify/browser';
 import hljs from 'highlight.js/lib/core';
 import javascript from 'highlight.js/lib/languages/javascript';
 
-import { bytesToHuman } from '../../../common/utils.ts';
+import { bytesToHuman } from '@/common/utils';
 
 hljs.registerLanguage('javascript', javascript);
 

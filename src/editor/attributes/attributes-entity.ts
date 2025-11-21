@@ -1,8 +1,9 @@
-import { LegacyButton } from '../../common/ui/button.ts';
-import { LegacyLabel } from '../../common/ui/label.ts';
-import { EntityInspector } from '../inspector/entity.ts';
-import { TemplatesEntityInspector } from '../templates/templates-entity-inspector.ts';
-import { TemplateOverridesView } from '../templates/templates-override-panel.ts';
+import { LegacyButton } from '@/common/ui/button';
+import { LegacyLabel } from '@/common/ui/label';
+
+import { EntityInspector } from '../inspector/entity';
+import { TemplatesEntityInspector } from '../templates/templates-entity-inspector';
+import { TemplateOverridesView } from '../templates/templates-override-panel';
 
 editor.once('load', () => {
     const projectSettings = editor.call('settings:project');

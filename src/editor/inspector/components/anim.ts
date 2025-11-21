@@ -1,9 +1,10 @@
 import { InfoBox, Container, TreeView, TreeViewItem, BooleanInput, Menu, Button, Panel, BindingTwoWay } from '@playcanvas/pcui';
 
-import { ComponentInspector } from './component.ts';
-import { AssetInput } from '../../../common/pcui/element/element-asset-input.ts';
-import type { Attribute, Divider } from '../attribute.type.d.ts';
-import { AttributesInspector } from '../attributes-inspector.ts';
+import { AssetInput } from '@/common/pcui/element/element-asset-input';
+
+import { ComponentInspector } from './component';
+import type { Attribute, Divider } from '../attribute.type.d';
+import { AttributesInspector } from '../attributes-inspector';
 
 
 const ATTRIBUTES: (Attribute | Divider)[] = [

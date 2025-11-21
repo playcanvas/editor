@@ -1,6 +1,6 @@
 import { Panel, Button, Container, TextInput } from '@playcanvas/pcui';
 
-import { LegacyTooltip } from '../../common/ui/tooltip.ts';
+import { LegacyTooltip } from '@/common/ui/tooltip';
 
 editor.once('load', () => {
     const root = editor.call('layout.root');

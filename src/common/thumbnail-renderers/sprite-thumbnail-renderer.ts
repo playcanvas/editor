@@ -1,6 +1,6 @@
 import { Events } from '@playcanvas/observer';
 
-import { buildQueryUrl } from '../utils.ts';
+import { buildQueryUrl } from '../utils';
 
 let sceneInitialized = false;
 

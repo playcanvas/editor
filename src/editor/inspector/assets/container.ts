@@ -1,6 +1,6 @@
 import { Container } from '@playcanvas/pcui';
 
-import { RelatedAssetsInspector } from './related-assets.ts';
+import { RelatedAssetsInspector } from './related-assets';
 
 const CLASS_ROOT = 'container-asset-inspector';
 const CLASS_ASSET = `${CLASS_ROOT}-asset`;

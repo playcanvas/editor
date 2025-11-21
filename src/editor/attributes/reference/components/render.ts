@@ -1,4 +1,4 @@
-import type { AttributeReference } from '../reference.type.ts';
+import type { AttributeReference } from '../reference.type';
 
 export const fields: AttributeReference[]  = [{
     name: 'render:component',

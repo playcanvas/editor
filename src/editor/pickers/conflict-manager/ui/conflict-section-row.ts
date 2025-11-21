@@ -1,5 +1,8 @@
 import { Events } from '@playcanvas/observer';
 
+import { LegacyLabel } from '@/common/ui/label';
+import { LegacyPanel } from '@/common/ui/panel';
+
 import {
     ConflictArrayField,
     ConflictField,
@@ -8,9 +11,7 @@ import {
     ConflictFieldEdited,
     ConflictFieldNotAvailable,
     ConflictFieldNotRenderable
-} from './conflict-field.ts';
-import { LegacyLabel } from '../../../../common/ui/label.ts';
-import { LegacyPanel } from '../../../../common/ui/panel.ts';
+} from './conflict-field';
 
 const BASE_PANEL = 0;
 const DEST_PANEL = 1;

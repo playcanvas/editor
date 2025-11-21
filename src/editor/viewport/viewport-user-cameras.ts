@@ -1,4 +1,4 @@
-import { createColorMaterial } from './viewport-color-material.ts';
+import { createColorMaterial } from './viewport-color-material';
 
 editor.once('load', () => {
     const app = editor.call('viewport:app');

@@ -1,8 +1,9 @@
 import { Events } from '@playcanvas/observer';
 
-import { assignEvents } from '../../../common/utils.ts';
-import { GIZMO_MASK } from '../../../core/constants.ts';
-import { createColorMaterial } from '../viewport-color-material.ts';
+import { assignEvents } from '@/common/utils';
+import { GIZMO_MASK } from '@/core/constants';
+
+import { createColorMaterial } from '../viewport-color-material';
 
 editor.once('viewport:load', (app) => {
     const pool = [];

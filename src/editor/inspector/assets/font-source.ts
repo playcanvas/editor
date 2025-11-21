@@ -1,4 +1,4 @@
-import { RelatedAssetsInspector } from './related-assets.ts';
+import { RelatedAssetsInspector } from './related-assets';
 
 class FontSourceAssetInspector extends RelatedAssetsInspector {
     constructor(args) {

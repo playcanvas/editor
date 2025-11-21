@@ -1,6 +1,6 @@
 import { default as PCUIGraph } from '@playcanvas/pcui-graph';
 
-import { AnimstategraphState } from './animstategraph-state.ts';
+import { AnimstategraphState } from './animstategraph-state';
 
 const GRAPH_ACTIONS = {
     ADD_NODE: 'EVENT_ADD_NODE',

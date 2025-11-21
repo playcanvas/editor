@@ -1,7 +1,7 @@
 import { Observer } from '@playcanvas/observer';
 
-import { LegacyButton } from '../../common/ui/button.ts';
-import { LegacyPanel } from '../../common/ui/panel.ts';
+import { LegacyButton } from '@/common/ui/button';
+import { LegacyPanel } from '@/common/ui/panel';
 
 editor.once('load', () => {
     if (!editor.call('settings:project').get('useLegacyScripts')) {

@@ -1,4 +1,4 @@
-import { SettingsPanel } from './settings-panel.ts';
+import { SettingsPanel } from './settings-panel';
 
 editor.once('load', () => {
     const settingsArgs = {

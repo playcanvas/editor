@@ -1,11 +1,11 @@
 import type { Observer } from '@playcanvas/observer';
 
-import { LegacyButton } from '../../common/ui/button.ts';
-import { LegacyLabel } from '../../common/ui/label.ts';
-import { LegacyListItem } from '../../common/ui/list-item.ts';
-import { LegacyList } from '../../common/ui/list.ts';
-import { LegacyPanel } from '../../common/ui/panel.ts';
-import { LegacyTextField } from '../../common/ui/text-field.ts';
+import { LegacyButton } from '@/common/ui/button';
+import { LegacyLabel } from '@/common/ui/label';
+import { LegacyList } from '@/common/ui/list';
+import { LegacyListItem } from '@/common/ui/list-item';
+import { LegacyPanel } from '@/common/ui/panel';
+import { LegacyTextField } from '@/common/ui/text-field';
 
 
 editor.once('load', () => {

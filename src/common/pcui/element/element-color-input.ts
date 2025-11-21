@@ -1,6 +1,6 @@
 import { Element } from '@playcanvas/pcui';
 
-import { CLASS_MULTIPLE_VALUES, CLASS_NOT_FLEXIBLE } from '../constants.ts';
+import { CLASS_MULTIPLE_VALUES, CLASS_NOT_FLEXIBLE } from '../constants';
 
 const CLASS_COLOR_INPUT = 'pcui-color-input';
 

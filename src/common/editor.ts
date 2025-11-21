@@ -1,7 +1,7 @@
 import * as api from '@playcanvas/editor-api';
 import * as observer from '@playcanvas/observer';
 
-import { Caller } from './caller.ts';
+import { Caller } from './caller';
 
 type EditorMethods = {
     'load': () => void;

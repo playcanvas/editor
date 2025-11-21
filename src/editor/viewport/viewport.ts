@@ -1,6 +1,6 @@
 import { Canvas } from '@playcanvas/pcui';
 
-import { ViewportApplication } from './viewport-application.ts';
+import { ViewportApplication } from './viewport-application';
 
 editor.once('load', () => {
     const canvas = new Canvas({
