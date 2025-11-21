@@ -7,6 +7,7 @@ import replace from '@rollup/plugin-replace';
 import swc from '@rollup/plugin-swc';
 import copy from 'rollup-plugin-copy';
 import polyfills from 'rollup-plugin-polyfill-node';
+import tsconfigPaths from 'rollup-plugin-tsconfig-paths';
 
 const production = process.env.NODE_ENV === 'production';
 const sourcemap = production ? true : 'inline';
@@ -23,6 +24,7 @@ const plugins = () => {
         commonjs(),
         json(),
         polyfills(),
+        tsconfigPaths(),
         resolve(),
         swc({
             swc: {
