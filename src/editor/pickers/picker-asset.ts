@@ -1,4 +1,4 @@
-import { LegacyOverlay } from '../../common/ui/overlay.ts';
+import { LegacyOverlay } from '../../common/ui/overlay';
 
 editor.once('load', () => {
     const legacyScripts = editor.call('settings:project').get('useLegacyScripts');

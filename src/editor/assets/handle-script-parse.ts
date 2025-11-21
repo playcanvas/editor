@@ -1,5 +1,5 @@
-import { buildQueryUrl } from '../../common/utils.ts';
-import { WorkerClient } from '../../core/worker/worker-client.ts';
+import { buildQueryUrl } from '../../common/utils';
+import { WorkerClient } from '../../core/worker/worker-client';
 
 editor.once('load', () => {
     const genGUID = () => {

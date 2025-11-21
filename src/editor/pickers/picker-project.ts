@@ -1,11 +1,11 @@
 import { Element, Container, Label, Button } from '@playcanvas/pcui';
 
-import { LegacyButton } from '../../common/ui/button.ts';
-import { LegacyListItem } from '../../common/ui/list-item.ts';
-import { LegacyList } from '../../common/ui/list.ts';
-import { LegacyOverlay } from '../../common/ui/overlay.ts';
-import { LegacyPanel } from '../../common/ui/panel.ts';
-import { bytesToHuman } from '../../common/utils.ts';
+import { LegacyButton } from '../../common/ui/button';
+import { LegacyList } from '../../common/ui/list';
+import { LegacyListItem } from '../../common/ui/list-item';
+import { LegacyOverlay } from '../../common/ui/overlay';
+import { LegacyPanel } from '../../common/ui/panel';
+import { bytesToHuman } from '../../common/utils';
 
 editor.once('load', () => {
     // GLOBAL VARIABLES

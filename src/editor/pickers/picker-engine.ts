@@ -1,6 +1,6 @@
 import { Overlay, Button, Container } from '@playcanvas/pcui';
 
-import { createSpinner } from '../../common/utils.ts';
+import { createSpinner } from '../../common/utils';
 
 editor.once('load', () => {
     let callback = null;

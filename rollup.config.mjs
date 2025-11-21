@@ -25,7 +25,10 @@ const plugins = () => {
         json(),
         polyfills(),
         tsconfigPaths(),
-        resolve(),
+        resolve({
+            extensions: ['.ts', '.js', '.json'],
+            browser: true
+        }),
         swc({
             swc: {
                 jsc: {
@@ -120,6 +123,7 @@ const WORKER_TARGETS = fs.readdirSync('src/workers').map((file) => {
                 },
                 plugins: [
                     resolve({
+                        extensions: ['.ts', '.js', '.json'],
                         browser: true
                     }),
                     commonjs(),
@@ -140,6 +144,7 @@ const WORKER_TARGETS = fs.readdirSync('src/workers').map((file) => {
                 },
                 plugins: [
                     resolve({
+                        extensions: ['.ts', '.js', '.json'],
                         browser: true
                     }),
                     copy({
@@ -164,6 +169,7 @@ const WORKER_TARGETS = fs.readdirSync('src/workers').map((file) => {
                 },
                 plugins: [
                     resolve({
+                        extensions: ['.ts', '.js', '.json'],
                         browser: true
                     }),
                     copy({
@@ -188,6 +194,7 @@ const WORKER_TARGETS = fs.readdirSync('src/workers').map((file) => {
                 },
                 plugins: [
                     resolve({
+                        extensions: ['.ts', '.js', '.json'],
                         browser: true
                     }),
                     swc({
@@ -224,7 +231,10 @@ const MODULE_TARGETS = [
         },
         plugins: [
             commonjs(),
-            resolve(),
+            resolve({
+                extensions: ['.ts', '.js', '.json'],
+                browser: true
+            }),
             copy({
                 targets: [{ src: 'src/wasm/codecs', dest: 'dist/wasm' }]
             }),
@@ -245,7 +255,10 @@ const SERVICE_WORKER_TARGETS = fs.readdirSync('src/sw').map((file) => {
             format: 'esm'
         },
         plugins: [
-            resolve(),
+            resolve({
+                extensions: ['.ts', '.js', '.json'],
+                browser: true
+            }),
             swc({
                 swc: {
                     minify: production

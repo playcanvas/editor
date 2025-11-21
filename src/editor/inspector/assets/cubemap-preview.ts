@@ -1,7 +1,7 @@
 import { Canvas } from '@playcanvas/pcui';
 
-import { AssetInspectorPreviewBase } from './asset-preview-base.ts';
-import { Cubemap3dThumbnailRenderer } from '../../../common/thumbnail-renderers/cubemap-3d-thumbnail-renderer.ts';
+import { AssetInspectorPreviewBase } from './asset-preview-base';
+import { Cubemap3dThumbnailRenderer } from '../../../common/thumbnail-renderers/cubemap-3d-thumbnail-renderer';
 
 const CLASS_CANVAS = 'pcui-asset-preview-canvas';
 const CLASS_CANVAS_FLIP = 'pcui-asset-preview-canvas-flip';

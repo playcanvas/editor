@@ -2,8 +2,8 @@ import { type EntityObserver } from '@playcanvas/editor-api';
 import { EventHandle, type ObserverList } from '@playcanvas/observer';
 import { Container, Label, Button, BindingObserversToElement, type ContainerArgs, type Element } from '@playcanvas/pcui';
 
-import { type TemplateOverridesView } from './templates-override-panel.ts';
-import { LegacyLabel } from '../../common/ui/label.ts';
+import { type TemplateOverridesView } from './templates-override-panel';
+import { LegacyLabel } from '../../common/ui/label';
 
 const CLASS_ROOT = 'template-entity-inspector';
 const CLASS_HEADER = `${CLASS_ROOT}-header`;

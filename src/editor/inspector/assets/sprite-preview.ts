@@ -1,7 +1,7 @@
 import { Canvas, Button } from '@playcanvas/pcui';
 
-import { AssetInspectorPreviewBase } from './asset-preview-base.ts';
-import { SpriteThumbnailRenderer } from '../../../common/thumbnail-renderers/sprite-thumbnail-renderer.ts';
+import { AssetInspectorPreviewBase } from './asset-preview-base';
+import { SpriteThumbnailRenderer } from '../../../common/thumbnail-renderers/sprite-thumbnail-renderer';
 
 const CLASS_ROOT = 'asset-sprite-preview';
 const CLASS_BUTTON = `${CLASS_ROOT}-button`;

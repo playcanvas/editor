@@ -1,6 +1,6 @@
-import { LegacyButton } from '../../../common/ui/button.ts';
-import { LegacyLabel } from '../../../common/ui/label.ts';
-import { LegacyPanel } from '../../../common/ui/panel.ts';
+import { LegacyButton } from '../../../common/ui/button';
+import { LegacyLabel } from '../../../common/ui/label';
+import { LegacyPanel } from '../../../common/ui/panel';
 
 editor.once('load', () => {
     let sidePanelIndex = 1;

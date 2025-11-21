@@ -1,8 +1,8 @@
-import { VersionControlSidePanelBox } from './ui/version-control-side-panel-box.ts';
-import { LegacyLabel } from '../../../common/ui/label.ts';
-import { LegacyPanel } from '../../../common/ui/panel.ts';
-import { LegacyTextField } from '../../../common/ui/text-field.ts';
-import { handleCallback } from '../../../common/utils.ts';
+import { VersionControlSidePanelBox } from './ui/version-control-side-panel-box';
+import { LegacyLabel } from '../../../common/ui/label';
+import { LegacyPanel } from '../../../common/ui/panel';
+import { LegacyTextField } from '../../../common/ui/text-field';
+import { handleCallback } from '../../../common/utils';
 
 editor.once('load', () => {
     const boxBranch = new VersionControlSidePanelBox({

@@ -1,8 +1,7 @@
-// eslint-disable-next-line import/no-unresolved
 import filenamify from 'filenamify/browser';
 
-import { BaseStore, EMPTY_THUMBNAIL_IMAGE, EMPTY_THUMBNAIL_IMAGE_LARGE, STORE_ITEM_PAGE_SIZE } from './baseStore.ts';
-import { bytesToHuman } from '../../common/utils.ts';
+import { BaseStore, EMPTY_THUMBNAIL_IMAGE, EMPTY_THUMBNAIL_IMAGE_LARGE, STORE_ITEM_PAGE_SIZE } from './baseStore';
+import { bytesToHuman } from '../../common/utils';
 
 class MyAssetsStore extends BaseStore {
     constructor(args) {

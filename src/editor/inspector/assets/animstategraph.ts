@@ -1,14 +1,14 @@
 import { Button, Container } from '@playcanvas/pcui';
 
 
-import { AnimViewer } from './anim-viewer.ts';
-import { AnimstategraphAnimComponent } from './animstategraph-anim-component.ts';
-import { AnimstategraphLayers } from './animstategraph-layers.ts';
-import { AnimstategraphParameters } from './animstategraph-parameters.ts';
-import { AnimstategraphState } from './animstategraph-state.ts';
-import { AnimstategraphTransitions } from './animstategraph-transitions.ts';
-import { AnimstategraphView } from './animstategraph-view.ts';
-import { tooltip, tooltipSimpleItem } from '../../../common/tooltips.ts';
+import { AnimViewer } from './anim-viewer';
+import { AnimstategraphAnimComponent } from './animstategraph-anim-component';
+import { AnimstategraphLayers } from './animstategraph-layers';
+import { AnimstategraphParameters } from './animstategraph-parameters';
+import { AnimstategraphState } from './animstategraph-state';
+import { AnimstategraphTransitions } from './animstategraph-transitions';
+import { AnimstategraphView } from './animstategraph-view';
+import { tooltip, tooltipSimpleItem } from '../../../common/tooltips';
 
 const CLASS_ANIMSTATEGRAPH = 'asset-animstategraph-inspector';
 const CLASS_ANIMSTATEGRAPH_OPEN_BUTTON = `${CLASS_ANIMSTATEGRAPH}-open-button`;

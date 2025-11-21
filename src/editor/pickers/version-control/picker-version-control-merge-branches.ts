@@ -1,6 +1,6 @@
-import { VersionControlSidePanelBox } from './ui/version-control-side-panel-box.ts';
-import { LegacyLabel } from '../../../common/ui/label.ts';
-import { handleCallback } from '../../../common/utils.ts';
+import { VersionControlSidePanelBox } from './ui/version-control-side-panel-box';
+import { LegacyLabel } from '../../../common/ui/label';
+import { handleCallback } from '../../../common/utils';
 
 editor.once('load', () => {
     const boxFrom = new VersionControlSidePanelBox({

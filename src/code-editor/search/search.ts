@@ -1,4 +1,4 @@
-import { WorkerClient } from '../../core/worker/worker-client.ts';
+import { WorkerClient } from '../../core/worker/worker-client';
 
 editor.once('load', () => {
     const workerClient = new WorkerClient(`${config.url.frontend}js/search.worker.js`);

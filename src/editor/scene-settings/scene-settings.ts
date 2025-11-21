@@ -1,6 +1,6 @@
-import { ObserverSync } from '../../common/observer-sync.ts';
-import { formatter as f } from '../../common/utils.ts';
-import { GAMMA_NONE, GAMMA_SRGB } from '../../core/constants.ts';
+import { ObserverSync } from '../../common/observer-sync';
+import { formatter as f } from '../../common/utils';
+import { GAMMA_NONE, GAMMA_SRGB } from '../../core/constants';
 
 
 editor.once('load', () => {

@@ -1,9 +1,9 @@
 import { Overlay, Label, Button, Container, BooleanInput, Panel, Progress, TextInput } from '@playcanvas/pcui';
 
-import { bytesToHuman } from '../../../common/utils.ts';
-import { AssetsStore } from '../../store/assetsStore.ts';
-import { MyAssetsStore } from '../../store/myAssetsStore.ts';
-import { SketchFabStore } from '../../store/sketchFabStore.ts';
+import { bytesToHuman } from '../../../common/utils';
+import { AssetsStore } from '../../store/assetsStore';
+import { MyAssetsStore } from '../../store/myAssetsStore';
+import { SketchFabStore } from '../../store/sketchFabStore';
 
 editor.once('load', () => {
 

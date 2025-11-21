@@ -1,10 +1,10 @@
 import { Container, Label, Progress, Button } from '@playcanvas/pcui';
 
-import { LegacyListItem } from '../../common/ui/list-item.ts';
-import { LegacyList } from '../../common/ui/list.ts';
-import { LegacyMenu } from '../../common/ui/menu.ts';
-import { LegacyTooltip } from '../../common/ui/tooltip.ts';
-import { bytesToHuman, convertDatetime } from '../../common/utils.ts';
+import { LegacyList } from '../../common/ui/list';
+import { LegacyListItem } from '../../common/ui/list-item';
+import { LegacyMenu } from '../../common/ui/menu';
+import { LegacyTooltip } from '../../common/ui/tooltip';
+import { bytesToHuman, convertDatetime } from '../../common/utils';
 
 const APP_LIMIT = 16;
 

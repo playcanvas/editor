@@ -1,8 +1,8 @@
 import { Panel, Code, Container, Label, Progress } from '@playcanvas/pcui';
 
-import { CLASS_ERROR } from '../../../common/pcui/constants.ts';
-import { tooltip, tooltipRefItem } from '../../../common/tooltips.ts';
-import { buildQueryUrl } from '../../../common/utils.ts';
+import { CLASS_ERROR } from '../../../common/pcui/constants';
+import { tooltip, tooltipRefItem } from '../../../common/tooltips';
+import { buildQueryUrl } from '../../../common/utils';
 
 const DOM = parent => [
     {

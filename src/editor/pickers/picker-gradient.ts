@@ -1,17 +1,17 @@
 import { Events } from '@playcanvas/observer';
 
-import { LegacyButton } from '../../common/ui/button.ts';
-import { LegacyCanvas } from '../../common/ui/canvas.ts';
-import { LegacyLabel } from '../../common/ui/label.ts';
-import { LegacyNumberField } from '../../common/ui/number-field.ts';
-import { LegacyOverlay } from '../../common/ui/overlay.ts';
-import { LegacyPanel } from '../../common/ui/panel.ts';
-import { LegacySelectField } from '../../common/ui/select-field.ts';
-import { LegacyTextField } from '../../common/ui/text-field.ts';
-import { LegacyTooltip } from '../../common/ui/tooltip.ts';
-import { assignEvents } from '../../common/utils.ts';
-import { hexStr, hsv2rgb, normalizedCoord, rgb2hsv, rgbaStr, toHsva, toRgba } from '../../core/color.ts';
-import { CURVE_LINEAR, CURVE_SPLINE, CURVE_STEP } from '../../core/constants.ts';
+import { LegacyButton } from '../../common/ui/button';
+import { LegacyCanvas } from '../../common/ui/canvas';
+import { LegacyLabel } from '../../common/ui/label';
+import { LegacyNumberField } from '../../common/ui/number-field';
+import { LegacyOverlay } from '../../common/ui/overlay';
+import { LegacyPanel } from '../../common/ui/panel';
+import { LegacySelectField } from '../../common/ui/select-field';
+import { LegacyTextField } from '../../common/ui/text-field';
+import { LegacyTooltip } from '../../common/ui/tooltip';
+import { assignEvents } from '../../common/utils';
+import { hexStr, hsv2rgb, normalizedCoord, rgb2hsv, rgbaStr, toHsva, toRgba } from '../../core/color';
+import { CURVE_LINEAR, CURVE_SPLINE, CURVE_STEP } from '../../core/constants';
 
 function ColorPicker(parent) {
     assignEvents(this);

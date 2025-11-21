@@ -1,8 +1,8 @@
 import { Events } from '@playcanvas/observer';
 
-import { ConflictSectionRow } from './conflict-section-row.ts';
-import { LegacyLabel } from '../../../../common/ui/label.ts';
-import { LegacyPanel } from '../../../../common/ui/panel.ts';
+import { ConflictSectionRow } from './conflict-section-row';
+import { LegacyLabel } from '../../../../common/ui/label';
+import { LegacyPanel } from '../../../../common/ui/panel';
 
 // A section contains multiple conflicts and it's meant to group
 // conflicts into meaningful categories

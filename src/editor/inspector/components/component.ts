@@ -1,7 +1,7 @@
 import { LocalStorage } from '@playcanvas/editor-api';
 import { Panel, BooleanInput, LabelGroup, Button, Menu, BindingTwoWay, Container } from '@playcanvas/pcui';
 
-import { tooltip, tooltipRefItem } from '../../../common/tooltips.ts';
+import { tooltip, tooltipRefItem } from '../../../common/tooltips';
 import type { TemplateOverrideInspector } from '../../templates/templates-override-inspector.js';
 
 const CLASS_ROOT = 'component-inspector';

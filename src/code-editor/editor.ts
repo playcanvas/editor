@@ -1,7 +1,7 @@
 import * as api from '@playcanvas/editor-api';
 
-import { type EditorMethods, Editor } from '../common/editor.ts';
-import { Messenger } from '../common/messenger.ts';
+import { type EditorMethods, Editor } from '../common/editor';
+import { Messenger } from '../common/messenger';
 
 
 class CodeEditor extends Editor<EditorMethods> {

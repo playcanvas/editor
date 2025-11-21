@@ -1,6 +1,6 @@
-import { formatter as f } from '../../common/utils.ts';
-import { ENGINE_VERSION } from '../../core/constants.ts';
-import { WorkerClient } from '../../core/worker/worker-client.ts';
+import { formatter as f } from '../../common/utils';
+import { ENGINE_VERSION } from '../../core/constants';
+import { WorkerClient } from '../../core/worker/worker-client';
 
 editor.on('load', () => {
     // create worker

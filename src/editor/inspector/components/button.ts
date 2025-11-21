@@ -1,12 +1,12 @@
 import { InfoBox } from '@playcanvas/pcui';
 
-import { ComponentInspector } from './component.ts';
+import { ComponentInspector } from './component';
 import {
     BUTTON_TRANSITION_MODE_TINT,
     BUTTON_TRANSITION_MODE_SPRITE_CHANGE
-} from '../../../core/constants.ts';
-import type { Attribute } from '../attribute.type.d.ts';
-import { AttributesInspector } from '../attributes-inspector.ts';
+} from '../../../core/constants';
+import type { Attribute } from '../attribute.type.d';
+import { AttributesInspector } from '../attributes-inspector';
 
 
 const ATTRIBUTES: Attribute[] = [{

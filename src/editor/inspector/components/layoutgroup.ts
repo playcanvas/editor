@@ -1,4 +1,4 @@
-import { ComponentInspector } from './component.ts';
+import { ComponentInspector } from './component';
 import {
     ORIENTATION_HORIZONTAL,
     ORIENTATION_VERTICAL,
@@ -6,9 +6,9 @@ import {
     FITTING_STRETCH,
     FITTING_SHRINK,
     FITTING_BOTH
-} from '../../../core/constants.ts';
-import type { Attribute } from '../attribute.type.d.ts';
-import { AttributesInspector } from '../attributes-inspector.ts';
+} from '../../../core/constants';
+import type { Attribute } from '../attribute.type.d';
+import { AttributesInspector } from '../attributes-inspector';
 
 
 const ATTRIBUTES: Attribute[] = [{

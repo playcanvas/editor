@@ -1,7 +1,7 @@
-import { normalizeScriptName } from '../../common/script-names.ts';
-import { LegacyLabel } from '../../common/ui/label.ts';
-import { LegacyOverlay } from '../../common/ui/overlay.ts';
-import { LegacyTextField } from '../../common/ui/text-field.ts';
+import { normalizeScriptName } from '../../common/script-names';
+import { LegacyLabel } from '../../common/ui/label';
+import { LegacyOverlay } from '../../common/ui/overlay';
+import { LegacyTextField } from '../../common/ui/text-field';
 
 editor.once('load', () => {
     let callback = null;

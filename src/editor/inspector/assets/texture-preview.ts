@@ -1,5 +1,5 @@
-import { AssetInspectorPreviewBase } from './asset-preview-base.ts';
-import { buildQueryUrl } from '../../../common/utils.ts';
+import { AssetInspectorPreviewBase } from './asset-preview-base';
+import { buildQueryUrl } from '../../../common/utils';
 
 const getPreviewUrl = (asset) => {
     const url = asset.get('file.url');

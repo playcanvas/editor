@@ -1,4 +1,4 @@
-import { Defer } from '../../common/defer.ts';
+import { Defer } from '../../common/defer';
 
 editor.once('load', () => {
     // Create a project from data

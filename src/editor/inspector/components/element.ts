@@ -1,11 +1,11 @@
 import { BindingTwoWay, BindingElementToObservers } from '@playcanvas/pcui';
 
-import { ComponentInspector } from './component.ts';
-import { CLASS_MULTIPLE_VALUES } from '../../../common/pcui/constants.ts';
-import { tooltip, tooltipRefItem } from '../../../common/tooltips.ts';
-import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from '../../../core/constants.ts';
-import type { Attribute, Divider } from '../attribute.type.d.ts';
-import { AttributesInspector } from '../attributes-inspector.ts';
+import { ComponentInspector } from './component';
+import { CLASS_MULTIPLE_VALUES } from '../../../common/pcui/constants';
+import { tooltip, tooltipRefItem } from '../../../common/tooltips';
+import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from '../../../core/constants';
+import type { Attribute, Divider } from '../attribute.type.d';
+import { AttributesInspector } from '../attributes-inspector';
 
 
 const PRESETS = {

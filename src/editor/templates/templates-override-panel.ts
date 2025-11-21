@@ -2,15 +2,15 @@ import { Observer, ObserverList } from '@playcanvas/observer';
 import { Element, Container, Label, Button, ArrayInput, VectorInput, BooleanInput, NumericInput, TextInput, LabelGroup, Panel } from '@playcanvas/pcui';
 
 
-import { AssetInput } from '../../common/pcui/element/element-asset-input.ts';
-import { AssetList } from '../../common/pcui/element/element-asset-list.ts';
-import { ColorInput } from '../../common/pcui/element/element-color-input.ts';
-import { CurveInput } from '../../common/pcui/element/element-curve-input.ts';
-import { EntityInput } from '../../common/pcui/element/element-entity-input.ts';
-import { GradientInput } from '../../common/pcui/element/element-gradient-input.ts';
-import { LayersInput } from '../../common/pcui/element/element-layers-input.ts';
-import { LegacyLabel } from '../../common/ui/label.ts';
-import { AttributesInspector } from '../inspector/attributes-inspector.ts';
+import { AssetInput } from '../../common/pcui/element/element-asset-input';
+import { AssetList } from '../../common/pcui/element/element-asset-list';
+import { ColorInput } from '../../common/pcui/element/element-color-input';
+import { CurveInput } from '../../common/pcui/element/element-curve-input';
+import { EntityInput } from '../../common/pcui/element/element-entity-input';
+import { GradientInput } from '../../common/pcui/element/element-gradient-input';
+import { LayersInput } from '../../common/pcui/element/element-layers-input';
+import { LegacyLabel } from '../../common/ui/label';
+import { AttributesInspector } from '../inspector/attributes-inspector';
 
 const CLASS_ROOT = 'template-overrides';
 const CLASS_TOP_HEADER = `${CLASS_ROOT}-top-header`;

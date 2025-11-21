@@ -1,9 +1,9 @@
 import { Events } from '@playcanvas/observer';
 
-import { LegacyCheckbox } from '../../../../common/ui/checkbox.ts';
-import { LegacyLabel } from '../../../../common/ui/label.ts';
-import { LegacyPanel } from '../../../../common/ui/panel.ts';
-import { LegacyTooltip } from '../../../../common/ui/tooltip.ts';
+import { LegacyCheckbox } from '../../../../common/ui/checkbox';
+import { LegacyLabel } from '../../../../common/ui/label';
+import { LegacyPanel } from '../../../../common/ui/panel';
+import { LegacyTooltip } from '../../../../common/ui/tooltip';
 
 type VersionControlSidePanelBoxArgs = {
     /** The box title */

@@ -1,6 +1,6 @@
 import { Container, Button, Panel, Label } from '@playcanvas/pcui';
 
-import { AnimstategraphCondition } from './animstategraph-condition.ts';
+import { AnimstategraphCondition } from './animstategraph-condition';
 import {
     ANIM_EQUAL_TO,
     ANIM_INTERRUPTION_NONE,
@@ -8,9 +8,9 @@ import {
     ANIM_INTERRUPTION_PREV,
     ANIM_INTERRUPTION_NEXT_PREV,
     ANIM_INTERRUPTION_PREV_NEXT
-} from '../../../core/constants.ts';
-import type { Attribute, Divider } from '../attribute.type.d.ts';
-import { AttributesInspector } from '../attributes-inspector.ts';
+} from '../../../core/constants';
+import type { Attribute, Divider } from '../attribute.type.d';
+import { AttributesInspector } from '../attributes-inspector';
 
 
 const CLASS_ANIMSTATEGRAPH = 'asset-animstategraph-inspector';

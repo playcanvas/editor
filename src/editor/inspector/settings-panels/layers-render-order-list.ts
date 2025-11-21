@@ -1,7 +1,7 @@
 import { Observer } from '@playcanvas/observer';
 import { Container, Panel, Label, BooleanInput } from '@playcanvas/pcui';
 
-import { LegacyTooltip } from '../../../common/ui/tooltip.ts';
+import { LegacyTooltip } from '../../../common/ui/tooltip';
 
 const CLASS_ROOT = 'layers-settings-panel';
 const CLASS_RENDER_ORDER_LIST = `${CLASS_ROOT}-render-order-list`;

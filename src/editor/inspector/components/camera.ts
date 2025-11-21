@@ -1,7 +1,7 @@
-import { ComponentInspector } from './component.ts';
-import { TONEMAPPING } from '../../../core/constants.ts';
-import type { Attribute, Divider } from '../attribute.type.d.ts';
-import { AttributesInspector } from '../attributes-inspector.ts';
+import { ComponentInspector } from './component';
+import { TONEMAPPING } from '../../../core/constants';
+import type { Attribute, Divider } from '../attribute.type.d';
+import { AttributesInspector } from '../attributes-inspector';
 
 
 const ATTRIBUTES: (Attribute | Divider)[] = [{

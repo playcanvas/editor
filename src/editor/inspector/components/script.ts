@@ -1,17 +1,17 @@
 import type { AssetObserver } from '@playcanvas/editor-api';
 import { Panel, Container, Button, BooleanInput, LabelGroup, Label, SelectInput, BindingTwoWay, ArrayInput } from '@playcanvas/pcui';
 
-import { ComponentInspector } from './component.ts';
-import { CLASS_ERROR, DEFAULTS } from '../../../common/pcui/constants.ts';
-import { AssetInput } from '../../../common/pcui/element/element-asset-input.ts';
-import { tooltip, tooltipSimpleItem } from '../../../common/tooltips.ts';
-import { LegacyTooltip } from '../../../common/ui/tooltip.ts';
-import { deepCopy } from '../../../common/utils.ts';
-import { evaluate } from '../../scripting/expr-eval/evaluate.ts';
+import { ComponentInspector } from './component';
+import { CLASS_ERROR, DEFAULTS } from '../../../common/pcui/constants';
+import { AssetInput } from '../../../common/pcui/element/element-asset-input';
+import { tooltip, tooltipSimpleItem } from '../../../common/tooltips';
+import { LegacyTooltip } from '../../../common/ui/tooltip';
+import { deepCopy } from '../../../common/utils';
+import { evaluate } from '../../scripting/expr-eval/evaluate';
+import { parse } from '../../scripting/expr-eval/parser';
 import type { ASTNode } from '../../scripting/expr-eval/parser.js';
-import { parse } from '../../scripting/expr-eval/parser.ts';
-import type { Attribute } from '../attribute.type.d.ts';
-import { AttributesInspector } from '../attributes-inspector.ts';
+import type { Attribute } from '../attribute.type.d';
+import { AttributesInspector } from '../attributes-inspector';
 
 
 const CLASS_SCRIPT_CONTAINER = 'script-component-inspector-scripts';

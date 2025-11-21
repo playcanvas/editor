@@ -1,4 +1,4 @@
-import { share } from '../../common/sharedb.ts';
+import { share } from '../../common/sharedb';
 
 editor.once('load', () => {
     const RECONNECT_INTERVAL = 1;

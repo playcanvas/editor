@@ -1,8 +1,8 @@
 import { Button, Label, Overlay } from '@playcanvas/pcui';
 
-import { BaseSettingsPanel } from './base.ts';
-import { TONEMAPPING } from '../../../core/constants.ts';
-import type { Attribute, Divider } from '../attribute.type.d.ts';
+import { BaseSettingsPanel } from './base';
+import { TONEMAPPING } from '../../../core/constants';
+import type { Attribute, Divider } from '../attribute.type.d';
 
 const ATTRIBUTES: (Attribute | Divider)[] = [
     {

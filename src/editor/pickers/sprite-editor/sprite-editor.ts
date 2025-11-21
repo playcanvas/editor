@@ -1,7 +1,7 @@
 import { Observer } from '@playcanvas/observer';
 import { Button, Canvas, Container, Overlay, Panel } from '@playcanvas/pcui';
 
-import { buildQueryUrl, deepCopy } from '../../../common/utils.ts';
+import { buildQueryUrl, deepCopy } from '../../../common/utils';
 
 editor.once('load', () => {
     const handleWidth = 10;

@@ -1,6 +1,6 @@
 import { default as PCUIGraph } from '@playcanvas/pcui-graph';
 
-import { handleCallback } from '../../../common/utils.ts';
+import { handleCallback } from '../../../common/utils';
 
 editor.once('load', () => {
     const COORD_OFFSETS = { x: 80, y: 50 };

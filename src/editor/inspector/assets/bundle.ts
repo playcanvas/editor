@@ -1,6 +1,6 @@
 import { Panel, BindingTwoWay } from '@playcanvas/pcui';
 
-import { AssetList } from '../../../common/pcui/element/element-asset-list.ts';
+import { AssetList } from '../../../common/pcui/element/element-asset-list';
 
 const DOM = parent => [
     {

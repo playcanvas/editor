@@ -1,12 +1,12 @@
-import { LegacyButton } from '../../common/ui/button.ts';
-import { LegacyCanvas } from '../../common/ui/canvas.ts';
-import { LegacyCheckbox } from '../../common/ui/checkbox.ts';
-import { LegacyLabel } from '../../common/ui/label.ts';
-import { LegacyNumberField } from '../../common/ui/number-field.ts';
-import { LegacyOverlay } from '../../common/ui/overlay.ts';
-import { LegacyPanel } from '../../common/ui/panel.ts';
-import { LegacySelectField } from '../../common/ui/select-field.ts';
-import { LegacyTooltip } from '../../common/ui/tooltip.ts';
+import { LegacyButton } from '../../common/ui/button';
+import { LegacyCanvas } from '../../common/ui/canvas';
+import { LegacyCheckbox } from '../../common/ui/checkbox';
+import { LegacyLabel } from '../../common/ui/label';
+import { LegacyNumberField } from '../../common/ui/number-field';
+import { LegacyOverlay } from '../../common/ui/overlay';
+import { LegacyPanel } from '../../common/ui/panel';
+import { LegacySelectField } from '../../common/ui/select-field';
+import { LegacyTooltip } from '../../common/ui/tooltip';
 
 editor.once('load', () => {
     // used to disable event handlers

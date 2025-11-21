@@ -1,5 +1,5 @@
-import { jsRules } from './tokenizer-rules.ts';
-import { THEMES } from '../../core/constants.ts';
+import { jsRules } from './tokenizer-rules';
+import { THEMES } from '../../core/constants';
 
 editor.once('load', () => {
     const settings = editor.call('editor:settings');

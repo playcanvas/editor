@@ -1,7 +1,7 @@
 import type { Observer, ObserverList, EventHandle } from '@playcanvas/observer';
 import type { Element, Container } from '@playcanvas/pcui';
 
-import { tooltipOverrideItem } from '../../common/tooltips.ts';
+import { tooltipOverrideItem } from '../../common/tooltips';
 
 const CLASS_OVERRIDE = 'template-inspector-override';
 

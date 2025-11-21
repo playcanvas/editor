@@ -1,61 +1,61 @@
 // extensions
-import '../common/extensions.ts';
+import '../common/extensions';
 
 // general
-import './editor.ts';
-import './messenger/messenger.ts';
-import './wasm/wasm.ts';
+import './editor';
+import './messenger/messenger';
+import './wasm/wasm';
 
 // realtime
-import './realtime/realtime.ts';
+import './realtime/realtime';
 
 // settings (from main editor)
-import '../editor/settings/settings.ts';
-import '../editor/settings/project-settings.ts';
-import '../editor/settings/project-user-settings.ts';
+import '../editor/settings/settings';
+import '../editor/settings/project-settings';
+import '../editor/settings/project-user-settings';
 
 // scene settings
-import './scene-settings/scene-settings.ts';
+import './scene-settings/scene-settings';
 
 // viewport preload
-import './viewport/viewport-loading.ts';
-import './viewport/viewport.ts';
-import './viewport/viewport-error-console.ts';
-import './viewport/viewport-tooltip.ts';
+import './viewport/viewport-loading';
+import './viewport/viewport';
+import './viewport/viewport-error-console';
+import './viewport/viewport-tooltip';
 
 // tools
-import './tools/tools.ts';
-import './tools/tools-overview.ts';
-import './tools/tools-timeline.ts';
-import './tools/tools-frame.ts';
-import './tools/tools-toolbar.ts';
+import './tools/tools';
+import './tools/tools-overview';
+import './tools/tools-timeline';
+import './tools/tools-frame';
+import './tools/tools-toolbar';
 
 // entities
-import './entities/entities.ts';
-import './entities/entities-sync.ts';
+import './entities/entities';
+import './entities/entities-sync';
 
 // schema (from main editor)
-import '../editor/schema/schema.ts';
-import '../editor/schema/schema-components.ts';
-import '../editor/assets/assets-bundles.ts';
+import '../editor/schema/schema';
+import '../editor/schema/schema-components';
+import '../editor/assets/assets-bundles';
 
 // viewport onload
-import './viewport/viewport-engine-data.ts';
-import './viewport/viewport-binding-entities.ts';
-import './viewport/viewport-binding-components.ts';
-import './viewport/viewport-binding-assets.ts';
-import './viewport/viewport-binding-scene.ts';
-import './viewport/viewport-scene-handler.ts';
-import './viewport/viewport-connection.ts';
+import './viewport/viewport-engine-data';
+import './viewport/viewport-binding-entities';
+import './viewport/viewport-binding-components';
+import './viewport/viewport-binding-assets';
+import './viewport/viewport-binding-scene';
+import './viewport/viewport-scene-handler';
+import './viewport/viewport-connection';
 
 // assets
-import './assets/assets.ts';
-import './assets/assets-sync.ts';
-import './assets/assets-mapping.ts';
-import './assets/assets-messenger.ts';
+import './assets/assets';
+import './assets/assets-sync';
+import './assets/assets-mapping';
+import './assets/assets-messenger';
 
 // source files
-import './sourcefiles/sourcefiles.ts';
+import './sourcefiles/sourcefiles';
 
 // scene loading
-import './scene-loading/scene-loading.ts';
+import './scene-loading/scene-loading';

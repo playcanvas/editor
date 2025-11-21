@@ -1,4 +1,4 @@
-import { ORIENTATION_HORIZONTAL, ORIENTATION_VERTICAL } from '../../core/constants.ts';
+import { ORIENTATION_HORIZONTAL, ORIENTATION_VERTICAL } from '../../core/constants';
 
 editor.once('load', () => {
     const events = [];

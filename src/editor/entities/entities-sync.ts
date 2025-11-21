@@ -1,4 +1,4 @@
-import { ObserverSync } from '../../common/observer-sync.ts';
+import { ObserverSync } from '../../common/observer-sync';
 
 editor.once('load', () => {
 

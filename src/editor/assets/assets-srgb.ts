@@ -1,6 +1,6 @@
 import type { Observer } from '@playcanvas/observer';
 
-import { formatter as f } from '../../common/utils.ts';
+import { formatter as f } from '../../common/utils';
 
 
 const SRGB_PATH_MAP = {

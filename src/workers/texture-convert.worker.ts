@@ -1,4 +1,4 @@
-import { WorkerServer } from '../core/worker/worker-server.ts';
+import { WorkerServer } from '../core/worker/worker-server';
 
 const workerServer = new WorkerServer(self);
 workerServer.on('convert', async (frontendURL, buffer, sourceFormat, targetFormat) => {

@@ -1,4 +1,4 @@
-import { LAYERID_DEPTH } from '../../core/constants.ts';
+import { LAYERID_DEPTH } from '../../core/constants';
 
 editor.once('load', () => {
     // Wait for assets, hierarchy and settings to load before initializing application and starting.

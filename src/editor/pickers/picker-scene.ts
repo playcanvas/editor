@@ -1,12 +1,12 @@
-import { LegacyButton } from '../../common/ui/button.ts';
-import { LegacyLabel } from '../../common/ui/label.ts';
-import { LegacyListItem } from '../../common/ui/list-item.ts';
-import { LegacyList } from '../../common/ui/list.ts';
-import { LegacyMenu } from '../../common/ui/menu.ts';
-import { LegacyPanel } from '../../common/ui/panel.ts';
-import { LegacyProgress } from '../../common/ui/progress.ts';
-import { LegacyTextField } from '../../common/ui/text-field.ts';
-import { convertDatetime } from '../../common/utils.ts';
+import { LegacyButton } from '../../common/ui/button';
+import { LegacyLabel } from '../../common/ui/label';
+import { LegacyList } from '../../common/ui/list';
+import { LegacyListItem } from '../../common/ui/list-item';
+import { LegacyMenu } from '../../common/ui/menu';
+import { LegacyPanel } from '../../common/ui/panel';
+import { LegacyProgress } from '../../common/ui/progress';
+import { LegacyTextField } from '../../common/ui/text-field';
+import { convertDatetime } from '../../common/utils';
 
 editor.once('load', () => {
     const panel = new LegacyPanel();

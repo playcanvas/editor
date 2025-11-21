@@ -11,7 +11,7 @@ import {
     ANIM_PARAMETER_FLOAT,
     ANIM_PARAMETER_BOOLEAN,
     ANIM_PARAMETER_TRIGGER
-} from '../../../core/constants.ts';
+} from '../../../core/constants';
 
 const CLASS_ROOT = 'pcui-animstategraph-condition';
 

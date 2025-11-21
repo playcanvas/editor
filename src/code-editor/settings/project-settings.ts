@@ -1,4 +1,4 @@
-import { deepCopy, insert, remove, set, unset } from '../../common/utils.ts';
+import { deepCopy, insert, remove, set, unset } from '../../common/utils';
 
 editor.once('load', () => {
     const schema = editor.api.globals.schema;

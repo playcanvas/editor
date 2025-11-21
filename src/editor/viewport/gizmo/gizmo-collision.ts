@@ -1,5 +1,5 @@
-import { GIZMO_MASK } from '../../../core/constants.ts';
-import { cloneColorMaterial, createColorMaterial } from '../viewport-color-material.ts';
+import { GIZMO_MASK } from '../../../core/constants';
+import { cloneColorMaterial, createColorMaterial } from '../viewport-color-material';
 
 editor.once('load', () => {
     let app;

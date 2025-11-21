@@ -1,5 +1,5 @@
-import { LegacyOverlay } from '../../common/ui/overlay.ts';
-import { ModelAssetInspectorMeshInstances } from '../inspector/assets/model-mesh-instances.ts';
+import { LegacyOverlay } from '../../common/ui/overlay';
+import { ModelAssetInspectorMeshInstances } from '../inspector/assets/model-mesh-instances';
 
 editor.once('load', () => {
     const overlay = new LegacyOverlay();

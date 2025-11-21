@@ -1,8 +1,8 @@
 import { Panel, Label, Button, BindingTwoWay } from '@playcanvas/pcui';
 
-import { AssetInput } from '../../../common/pcui/element/element-asset-input.ts';
-import type { Attribute } from '../attribute.type.d.ts';
-import { AttributesInspector } from '../attributes-inspector.ts';
+import { AssetInput } from '../../../common/pcui/element/element-asset-input';
+import type { Attribute } from '../attribute.type.d';
+import { AttributesInspector } from '../attributes-inspector';
 
 
 const CLASS_ANIMSTATEGRAPH = 'asset-animstategraph-inspector';

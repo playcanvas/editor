@@ -1,6 +1,6 @@
 import { Container, Button, TextInput, Label } from '@playcanvas/pcui';
 
-import { tooltip, tooltipSimpleItem } from '../../common/tooltips.ts';
+import { tooltip, tooltipSimpleItem } from '../../common/tooltips';
 
 editor.once('load', () => {
     const parent = editor.call('layout.center');

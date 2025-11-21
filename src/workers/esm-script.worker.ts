@@ -1,7 +1,7 @@
 import { JSDocParser } from '@playcanvas/attribute-parser';
 
-import { type Fix } from '../code-editor/monaco/intellisense/attribute-autofill.ts';
-import { WorkerServer } from '../core/worker/worker-server.ts';
+import { type Fix } from '../code-editor/monaco/intellisense/attribute-autofill';
+import { WorkerServer } from '../core/worker/worker-server';
 
 const PLAYCANVAS_ATTRIBUTE_DOCS_URL = {
     target: 'https://developer.playcanvas.com/user-manual/scripting/fundamentals/script-attributes/esm/#attribute-types',
