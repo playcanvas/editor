@@ -1,12 +1,12 @@
-import { LegacyButton } from '../../common/ui/button';
-import { LegacyCanvas } from '../../common/ui/canvas';
-import { LegacyCheckbox } from '../../common/ui/checkbox';
-import { LegacyLabel } from '../../common/ui/label';
-import { LegacyNumberField } from '../../common/ui/number-field';
-import { LegacyOverlay } from '../../common/ui/overlay';
-import { LegacyPanel } from '../../common/ui/panel';
-import { LegacySelectField } from '../../common/ui/select-field';
-import { LegacyTooltip } from '../../common/ui/tooltip';
+import { LegacyButton } from '@/common/ui/button';
+import { LegacyCanvas } from '@/common/ui/canvas';
+import { LegacyCheckbox } from '@/common/ui/checkbox';
+import { LegacyLabel } from '@/common/ui/label';
+import { LegacyNumberField } from '@/common/ui/number-field';
+import { LegacyOverlay } from '@/common/ui/overlay';
+import { LegacyPanel } from '@/common/ui/panel';
+import { LegacySelectField } from '@/common/ui/select-field';
+import { LegacyTooltip } from '@/common/ui/tooltip';
 
 editor.once('load', () => {
     // used to disable event handlers

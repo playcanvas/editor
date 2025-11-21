@@ -1,5 +1,5 @@
 import { ComponentInspector } from './component';
-import { deepCopy } from '../../../common/utils';
+import { deepCopy } from '@/common/utils';
 import {
     SCROLL_MODE_BOUNCE,
     SCROLL_MODE_CLAMP,

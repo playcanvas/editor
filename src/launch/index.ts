@@ -1,5 +1,5 @@
 // extensions
-import '../common/extensions';
+import '@/common/extensions';
 
 // general
 import './editor';

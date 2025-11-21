@@ -1,9 +1,9 @@
 import { Element, Label, Button, Container, BooleanInput, RadioButton, Panel, Progress, TextInput } from '@playcanvas/pcui';
 
-import * as SVG from '../../../common/svg';
-import { LegacyMenu } from '../../../common/ui/menu';
-import { LegacyOverlay } from '../../../common/ui/overlay';
-import { bytesToHuman } from '../../../common/utils';
+import * as SVG from '@/common/svg';
+import { LegacyMenu } from '@/common/ui/menu';
+import { LegacyOverlay } from '@/common/ui/overlay';
+import { bytesToHuman } from '@/common/utils';
 
 editor.once('load', () => {
 

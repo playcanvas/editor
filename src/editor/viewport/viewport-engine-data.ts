@@ -1,4 +1,4 @@
-import AREA_LIGHTS_LUTS from '../../common/viewport-area-lights-luts';
+import AREA_LIGHTS_LUTS from '@/common/viewport-area-lights-luts';
 
 editor.once('load', () => {
     const app = editor.call('viewport:app');

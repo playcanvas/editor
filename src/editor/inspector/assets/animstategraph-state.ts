@@ -1,6 +1,6 @@
 import { Panel, Label, Button, BindingTwoWay } from '@playcanvas/pcui';
 
-import { AssetInput } from '../../../common/pcui/element/element-asset-input';
+import { AssetInput } from '@/common/pcui/element/element-asset-input';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 

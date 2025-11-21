@@ -1,7 +1,7 @@
 import { Button } from '@playcanvas/pcui';
 
-import { LegacyButton } from '../../common/ui/button';
-import { LegacyTooltip } from '../../common/ui/tooltip';
+import { LegacyButton } from '@/common/ui/button';
+import { LegacyTooltip } from '@/common/ui/tooltip';
 
 editor.once('load', () => {
     const root = editor.call('layout.root');

@@ -1,8 +1,8 @@
 import { BindingTwoWay, BindingElementToObservers } from '@playcanvas/pcui';
 
 import { ComponentInspector } from './component';
-import { CLASS_MULTIPLE_VALUES } from '../../../common/pcui/constants';
-import { tooltip, tooltipRefItem } from '../../../common/tooltips';
+import { CLASS_MULTIPLE_VALUES } from '@/common/pcui/constants';
+import { tooltip, tooltipRefItem } from '@/common/tooltips';
 import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from '../../../core/constants';
 import type { Attribute, Divider } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';

@@ -1,6 +1,6 @@
 import type { Panel } from '@playcanvas/pcui';
 
-import { LegacyButton } from '../../../common/ui/button';
+import { LegacyButton } from '@/common/ui/button';
 
 
 editor.once('load', () => {

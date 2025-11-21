@@ -1,8 +1,8 @@
-import { LegacyButton } from '../../common/ui/button';
-import { LegacyMenu } from '../../common/ui/menu';
-import { LegacyMenuItem } from '../../common/ui/menu-item';
-import { LegacyPanel } from '../../common/ui/panel';
-import { LegacyTextField } from '../../common/ui/text-field';
+import { LegacyButton } from '@/common/ui/button';
+import { LegacyMenu } from '@/common/ui/menu';
+import { LegacyMenuItem } from '@/common/ui/menu-item';
+import { LegacyPanel } from '@/common/ui/panel';
+import { LegacyTextField } from '@/common/ui/text-field';
 
 editor.once('load', () => {
     const viewport = editor.call('layout.viewport');

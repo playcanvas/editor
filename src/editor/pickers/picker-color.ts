@@ -1,6 +1,6 @@
-import { LegacyNumberField } from '../../common/ui/number-field';
-import { LegacyOverlay } from '../../common/ui/overlay';
-import { LegacyTextField } from '../../common/ui/text-field';
+import { LegacyNumberField } from '@/common/ui/number-field';
+import { LegacyOverlay } from '@/common/ui/overlay';
+import { LegacyTextField } from '@/common/ui/text-field';
 import { hsv2rgb, rgb2hsv } from '../../core/color';
 
 editor.once('load', () => {

@@ -1,4 +1,4 @@
-import { ObserverSync } from '../../common/observer-sync';
+import { ObserverSync } from '@/common/observer-sync';
 
 editor.once('load', () => {
     const legacyScripts = editor.call('settings:project').get('useLegacyScripts');

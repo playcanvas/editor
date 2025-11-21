@@ -1,12 +1,12 @@
 import { Observer } from '@playcanvas/observer';
 import { Panel, Button, Container, Label, TextInput, Menu, BindingTwoWay } from '@playcanvas/pcui';
 
-import { CLASS_ERROR } from '../../../common/pcui/constants';
-import { AssetInput } from '../../../common/pcui/element/element-asset-input';
-import { Table } from '../../../common/pcui/element/element-table';
-import { TableCell } from '../../../common/pcui/element/element-table-cell';
-import { TableRow } from '../../../common/pcui/element/element-table-row';
-import { tooltip, tooltipRefItem } from '../../../common/tooltips';
+import { CLASS_ERROR } from '@/common/pcui/constants';
+import { AssetInput } from '@/common/pcui/element/element-asset-input';
+import { Table } from '@/common/pcui/element/element-table';
+import { TableCell } from '@/common/pcui/element/element-table-cell';
+import { TableRow } from '@/common/pcui/element/element-table-row';
+import { tooltip, tooltipRefItem } from '@/common/tooltips';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 

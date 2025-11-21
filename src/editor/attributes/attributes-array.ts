@@ -1,8 +1,8 @@
 import { Observer } from '@playcanvas/observer';
 
-import { LegacyButton } from '../../common/ui/button';
-import { LegacyPanel } from '../../common/ui/panel';
-import { deepCopy } from '../../common/utils';
+import { LegacyButton } from '@/common/ui/button';
+import { LegacyPanel } from '@/common/ui/panel';
+import { deepCopy } from '@/common/utils';
 
 editor.once('load', () => {
     const defaults = {

@@ -1,6 +1,6 @@
 import { Container, Element } from '@playcanvas/pcui';
 
-import { tooltip, tooltipSimpleItem } from '../../common/tooltips';
+import { tooltip, tooltipSimpleItem } from '@/common/tooltips';
 
 editor.once('load', () => {
     const panel = editor.call('layout.top');

@@ -1,6 +1,6 @@
 import { Button, Container } from '@playcanvas/pcui';
 
-import { LegacyTooltip } from '../../common/ui/tooltip';
+import { LegacyTooltip } from '@/common/ui/tooltip';
 
 editor.once('load', () => {
     let list = [];

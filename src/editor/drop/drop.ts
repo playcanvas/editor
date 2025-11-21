@@ -1,5 +1,5 @@
-import { DropManager } from '../../common/pcui/element/element-drop-manager';
-import { DropTarget } from '../../common/pcui/element/element-drop-target';
+import { DropManager } from '@/common/pcui/element/element-drop-manager';
+import { DropTarget } from '@/common/pcui/element/element-drop-target';
 
 editor.once('load', () => {
     const dropManager = new DropManager();

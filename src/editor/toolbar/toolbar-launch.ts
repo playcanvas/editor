@@ -1,6 +1,6 @@
 import { Container, Button, BooleanInput, Label, Divider } from '@playcanvas/pcui';
 
-import { LegacyTooltip } from '../../common/ui/tooltip';
+import { LegacyTooltip } from '@/common/ui/tooltip';
 
 editor.once('load', () => {
     const root = editor.call('layout.root');

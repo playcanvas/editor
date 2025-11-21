@@ -1,6 +1,6 @@
-import * as SVG from '../../../common/svg';
-import { LegacyLabel } from '../../../common/ui/label';
-import { LegacyPanel } from '../../../common/ui/panel';
+import * as SVG from '@/common/svg';
+import { LegacyLabel } from '@/common/ui/label';
+import { LegacyPanel } from '@/common/ui/panel';
 
 editor.once('load', () => {
     // this is true if ANY progress widget is currently

@@ -1,15 +1,15 @@
 import { Events } from '@playcanvas/observer';
 
-import { LegacyButton } from '../../common/ui/button';
-import { LegacyCanvas } from '../../common/ui/canvas';
-import { LegacyLabel } from '../../common/ui/label';
-import { LegacyNumberField } from '../../common/ui/number-field';
-import { LegacyOverlay } from '../../common/ui/overlay';
-import { LegacyPanel } from '../../common/ui/panel';
-import { LegacySelectField } from '../../common/ui/select-field';
-import { LegacyTextField } from '../../common/ui/text-field';
-import { LegacyTooltip } from '../../common/ui/tooltip';
-import { assignEvents } from '../../common/utils';
+import { LegacyButton } from '@/common/ui/button';
+import { LegacyCanvas } from '@/common/ui/canvas';
+import { LegacyLabel } from '@/common/ui/label';
+import { LegacyNumberField } from '@/common/ui/number-field';
+import { LegacyOverlay } from '@/common/ui/overlay';
+import { LegacyPanel } from '@/common/ui/panel';
+import { LegacySelectField } from '@/common/ui/select-field';
+import { LegacyTextField } from '@/common/ui/text-field';
+import { LegacyTooltip } from '@/common/ui/tooltip';
+import { assignEvents } from '@/common/utils';
 import { hexStr, hsv2rgb, normalizedCoord, rgb2hsv, rgbaStr, toHsva, toRgba } from '../../core/color';
 import { CURVE_LINEAR, CURVE_SPLINE, CURVE_STEP } from '../../core/constants';
 

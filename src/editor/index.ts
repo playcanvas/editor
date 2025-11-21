@@ -1,8 +1,8 @@
 // extensions
-import '../common/extensions';
+import '@/common/extensions';
 
 // pcui
-import '../common/pcui/pcui';
+import '@/common/pcui/pcui';
 
 // general
 import './editor';

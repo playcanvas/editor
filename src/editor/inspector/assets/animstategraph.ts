@@ -8,7 +8,7 @@ import { AnimstategraphParameters } from './animstategraph-parameters';
 import { AnimstategraphState } from './animstategraph-state';
 import { AnimstategraphTransitions } from './animstategraph-transitions';
 import { AnimstategraphView } from './animstategraph-view';
-import { tooltip, tooltipSimpleItem } from '../../../common/tooltips';
+import { tooltip, tooltipSimpleItem } from '@/common/tooltips';
 
 const CLASS_ANIMSTATEGRAPH = 'asset-animstategraph-inspector';
 const CLASS_ANIMSTATEGRAPH_OPEN_BUTTON = `${CLASS_ANIMSTATEGRAPH}-open-button`;

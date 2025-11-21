@@ -1,6 +1,6 @@
 import { Panel, Button, Label } from '@playcanvas/pcui';
 
-import { LegacyOverlay } from '../../../common/ui/overlay';
+import { LegacyOverlay } from '@/common/ui/overlay';
 
 editor.once('load', () => {
 

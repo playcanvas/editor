@@ -1,7 +1,7 @@
 import { Button, Container, Divider, Label, Panel, Progress, TextInput } from '@playcanvas/pcui';
 
-import { tooltip, tooltipSimpleItem } from '../../common/tooltips';
-import { countToHuman, frameLimiter } from '../../common/utils';
+import { tooltip, tooltipSimpleItem } from '@/common/tooltips';
+import { countToHuman, frameLimiter } from '@/common/utils';
 
 const INITIAL_ITEM_COUNT = 1000;
 

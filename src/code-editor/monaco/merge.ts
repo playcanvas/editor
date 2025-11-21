@@ -1,4 +1,4 @@
-import { handleCallback } from '../../common/utils';
+import { handleCallback } from '@/common/utils';
 
 editor.once('load', () => {
     if (!editor.call('editor:resolveConflictMode')) {

@@ -1,7 +1,7 @@
 import { Progress, Label, Container, BindingTwoWay } from '@playcanvas/pcui';
 
-import { CLASS_ERROR } from '../../../common/pcui/constants';
-import { AssetInput } from '../../../common/pcui/element/element-asset-input';
+import { CLASS_ERROR } from '@/common/pcui/constants';
+import { AssetInput } from '@/common/pcui/element/element-asset-input';
 
 const CLASS_ROOT = 'asset-model-inspector-mesh-instances';
 const CLASS_PICKER_MODE = `${CLASS_ROOT}-picker-mode`;

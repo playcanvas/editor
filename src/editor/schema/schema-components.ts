@@ -1,4 +1,4 @@
-import { deepCopy } from '../../common/utils';
+import { deepCopy } from '@/common/utils';
 
 editor.once('load', () => {
     const projectSettings = editor.call('settings:project');

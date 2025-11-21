@@ -1,7 +1,7 @@
 import { Panel, Container, Button, InfoBox, Divider, Label, BindingTwoWay, BindingObserversToElement, BindingElementToObservers } from '@playcanvas/pcui';
 
-import { tooltip, tooltipRefItem } from '../../../common/tooltips';
-import { bytesToHuman } from '../../../common/utils';
+import { tooltip, tooltipRefItem } from '@/common/tooltips';
+import { bytesToHuman } from '@/common/utils';
 import { TextureCompressor } from '../../assets/assets-textures-compress';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';

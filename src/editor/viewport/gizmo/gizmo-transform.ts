@@ -9,7 +9,7 @@ import {
     type Layer
 } from 'playcanvas';
 
-import { Defer } from '../../../common/defer';
+import { Defer } from '@/common/defer';
 
 type GizmoNodeTransform = {
     position: number[];

@@ -1,13 +1,13 @@
-import { LegacyButton } from '../../../common/ui/button';
-import { LegacyLabel } from '../../../common/ui/label';
-import { LegacyList } from '../../../common/ui/list';
-import { LegacyListItem } from '../../../common/ui/list-item';
-import { LegacyMenu } from '../../../common/ui/menu';
-import { LegacyMenuItem } from '../../../common/ui/menu-item';
-import { LegacyPanel } from '../../../common/ui/panel';
-import { LegacySelectField } from '../../../common/ui/select-field';
-import { LegacyTextField } from '../../../common/ui/text-field';
-import { handleCallback } from '../../../common/utils';
+import { LegacyButton } from '@/common/ui/button';
+import { LegacyLabel } from '@/common/ui/label';
+import { LegacyList } from '@/common/ui/list';
+import { LegacyListItem } from '@/common/ui/list-item';
+import { LegacyMenu } from '@/common/ui/menu';
+import { LegacyMenuItem } from '@/common/ui/menu-item';
+import { LegacyPanel } from '@/common/ui/panel';
+import { LegacySelectField } from '@/common/ui/select-field';
+import { LegacyTextField } from '@/common/ui/text-field';
+import { handleCallback } from '@/common/utils';
 
 editor.once('load', () => {
     if (config.project.settings.useLegacyScripts) {

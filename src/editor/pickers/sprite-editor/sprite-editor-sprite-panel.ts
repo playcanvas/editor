@@ -1,9 +1,9 @@
 import type { Panel } from '@playcanvas/pcui';
 
-import { LegacyButton } from '../../../common/ui/button';
-import { LegacyCanvas } from '../../../common/ui/canvas';
-import { LegacyLabel } from '../../../common/ui/label';
-import { LegacyPanel } from '../../../common/ui/panel';
+import { LegacyButton } from '@/common/ui/button';
+import { LegacyCanvas } from '@/common/ui/canvas';
+import { LegacyLabel } from '@/common/ui/label';
+import { LegacyPanel } from '@/common/ui/panel';
 
 
 editor.once('load', () => {

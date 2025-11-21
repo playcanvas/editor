@@ -1,6 +1,6 @@
 import { Container, Panel } from '@playcanvas/pcui';
 
-import { Tooltip } from '../../common/pcui/element/element-tooltip';
+import { Tooltip } from '@/common/pcui/element/element-tooltip';
 
 editor.on('load', () => {
     // main container

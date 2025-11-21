@@ -1,7 +1,7 @@
 import { Container, Button } from '@playcanvas/pcui';
 
 import { BaseSettingsPanel } from './base';
-import { LegacyTooltip } from '../../../common/ui/tooltip';
+import { LegacyTooltip } from '@/common/ui/tooltip';
 import type { Attribute } from '../attribute.type.d';
 
 const ATTRIBUTES: Attribute[] = [

@@ -1,5 +1,5 @@
 import { ComponentInspector } from './component';
-import { deepCopy } from '../../../common/utils';
+import { deepCopy } from '@/common/utils';
 import { ORIENTATION_HORIZONTAL, ORIENTATION_VERTICAL } from '../../../core/constants';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';

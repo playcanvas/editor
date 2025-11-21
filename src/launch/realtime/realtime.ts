@@ -1,4 +1,4 @@
-import { share } from '../../common/sharedb';
+import { share } from '@/common/sharedb';
 
 editor.once('load', () => {
     let auth = false;

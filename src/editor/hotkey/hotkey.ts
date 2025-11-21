@@ -1,4 +1,4 @@
-import { LegacyList } from '../../common/ui/list';
+import { LegacyList } from '@/common/ui/list';
 
 editor.once('load', () => {
     // State management

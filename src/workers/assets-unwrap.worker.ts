@@ -1,4 +1,5 @@
-import { Unwrap } from '../common/unwrap';
+import { Unwrap } from '@/common/unwrap';
+
 import { WorkerServer } from '../core/worker/worker-server';
 
 const loadFile = (id, filename) => {

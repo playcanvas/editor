@@ -1,4 +1,4 @@
-import { buildQueryUrl } from '../../common/utils';
+import { buildQueryUrl } from '@/common/utils';
 
 editor.once('load', () => {
     const app = editor.call('viewport:app');

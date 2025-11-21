@@ -1,7 +1,7 @@
 import { Panel, Container, Button } from '@playcanvas/pcui';
 
 import { ComponentInspector } from './component';
-import { deepCopy } from '../../../common/utils';
+import { deepCopy } from '@/common/utils';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 

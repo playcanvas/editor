@@ -3,7 +3,7 @@ import { Container } from '@playcanvas/pcui';
 import { BaseSettingsPanel } from './base';
 import { LayersSettingsPanelLayerPanel } from './layers-layer-panel';
 import { LayersSettingsPanelRenderOrderPanel } from './layers-render-order';
-import { CLASS_ERROR } from '../../../common/pcui/constants';
+import { CLASS_ERROR } from '@/common/pcui/constants';
 import type { Attribute } from '../attribute.type.d';
 
 const CLASS_ROOT = 'layers-settings-panel';

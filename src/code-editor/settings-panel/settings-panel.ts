@@ -1,6 +1,6 @@
 import { BooleanInput, Button, LabelGroup, NumericInput, SelectInput } from '@playcanvas/pcui';
 
-import { tooltip, tooltipSimpleItem } from '../../common/tooltips';
+import { tooltip, tooltipSimpleItem } from '@/common/tooltips';
 import { THEMES } from '../../core/constants';
 
 editor.once('load', () => {

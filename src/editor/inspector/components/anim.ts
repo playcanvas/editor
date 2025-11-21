@@ -1,7 +1,7 @@
 import { InfoBox, Container, TreeView, TreeViewItem, BooleanInput, Menu, Button, Panel, BindingTwoWay } from '@playcanvas/pcui';
 
 import { ComponentInspector } from './component';
-import { AssetInput } from '../../../common/pcui/element/element-asset-input';
+import { AssetInput } from '@/common/pcui/element/element-asset-input';
 import type { Attribute, Divider } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 

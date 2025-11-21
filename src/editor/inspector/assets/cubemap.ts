@@ -1,8 +1,8 @@
 import { Panel, Container, Label, BooleanInput, Button } from '@playcanvas/pcui';
 
 import { CubemapFace } from './cubemap-face';
-import { CLASS_ERROR } from '../../../common/pcui/constants';
-import { tooltip, tooltipRefItem } from '../../../common/tooltips';
+import { CLASS_ERROR } from '@/common/pcui/constants';
+import { tooltip, tooltipRefItem } from '@/common/tooltips';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 

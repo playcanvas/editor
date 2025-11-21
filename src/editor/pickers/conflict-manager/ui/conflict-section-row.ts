@@ -9,8 +9,8 @@ import {
     ConflictFieldNotAvailable,
     ConflictFieldNotRenderable
 } from './conflict-field';
-import { LegacyLabel } from '../../../../common/ui/label';
-import { LegacyPanel } from '../../../../common/ui/panel';
+import { LegacyLabel } from '@/common/ui/label';
+import { LegacyPanel } from '@/common/ui/panel';
 
 const BASE_PANEL = 0;
 const DEST_PANEL = 1;

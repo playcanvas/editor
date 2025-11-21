@@ -1,6 +1,6 @@
 import { Panel, Label } from '@playcanvas/pcui';
 
-import { tooltip, tooltipRefItem } from '../../../common/tooltips';
+import { tooltip, tooltipRefItem } from '@/common/tooltips';
 import { AttributesInspector } from '../attributes-inspector';
 
 class BaseSettingsPanel extends Panel {

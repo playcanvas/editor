@@ -1,8 +1,8 @@
-import { Bubble } from '../../common/pcui/element/element-bubble';
-import { LegacyButton } from '../../common/ui/button';
-import { LegacyLabel } from '../../common/ui/label';
-import { LegacyOverlay } from '../../common/ui/overlay';
-import { LegacyPanel } from '../../common/ui/panel';
+import { Bubble } from '@/common/pcui/element/element-bubble';
+import { LegacyButton } from '@/common/ui/button';
+import { LegacyLabel } from '@/common/ui/label';
+import { LegacyOverlay } from '@/common/ui/overlay';
+import { LegacyPanel } from '@/common/ui/panel';
 
 editor.once('load', () => {
     const root = editor.call('layout.root');

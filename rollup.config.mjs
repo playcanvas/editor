@@ -122,6 +122,7 @@ const WORKER_TARGETS = fs.readdirSync('src/workers').map((file) => {
                     format: 'esm'
                 },
                 plugins: [
+                    tsconfigPaths(),
                     resolve({
                         extensions: ['.ts', '.js', '.json'],
                         browser: true
@@ -143,6 +144,7 @@ const WORKER_TARGETS = fs.readdirSync('src/workers').map((file) => {
                     format: 'esm'
                 },
                 plugins: [
+                    tsconfigPaths(),
                     resolve({
                         extensions: ['.ts', '.js', '.json'],
                         browser: true
@@ -168,6 +170,7 @@ const WORKER_TARGETS = fs.readdirSync('src/workers').map((file) => {
                     format: 'esm'
                 },
                 plugins: [
+                    tsconfigPaths(),
                     resolve({
                         extensions: ['.ts', '.js', '.json'],
                         browser: true
@@ -193,6 +196,7 @@ const WORKER_TARGETS = fs.readdirSync('src/workers').map((file) => {
                     format: 'esm'
                 },
                 plugins: [
+                    tsconfigPaths(),
                     resolve({
                         extensions: ['.ts', '.js', '.json'],
                         browser: true
@@ -231,6 +235,7 @@ const MODULE_TARGETS = [
         },
         plugins: [
             commonjs(),
+            tsconfigPaths(),
             resolve({
                 extensions: ['.ts', '.js', '.json'],
                 browser: true
@@ -255,6 +260,7 @@ const SERVICE_WORKER_TARGETS = fs.readdirSync('src/sw').map((file) => {
             format: 'esm'
         },
         plugins: [
+            tsconfigPaths(),
             resolve({
                 extensions: ['.ts', '.js', '.json'],
                 browser: true

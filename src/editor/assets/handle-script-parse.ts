@@ -1,4 +1,4 @@
-import { buildQueryUrl } from '../../common/utils';
+import { buildQueryUrl } from '@/common/utils';
 import { WorkerClient } from '../../core/worker/worker-client';
 
 editor.once('load', () => {

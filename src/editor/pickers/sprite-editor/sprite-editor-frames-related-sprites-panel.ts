@@ -1,6 +1,6 @@
-import { LegacyLabel } from '../../../common/ui/label';
-import { LegacyList } from '../../../common/ui/list';
-import { LegacyListItem } from '../../../common/ui/list-item';
+import { LegacyLabel } from '@/common/ui/label';
+import { LegacyList } from '@/common/ui/list';
+import { LegacyListItem } from '@/common/ui/list-item';
 
 editor.once('load', () => {
     editor.method('picker:sprites:attributes:frames:relatedSprites', (args) => {

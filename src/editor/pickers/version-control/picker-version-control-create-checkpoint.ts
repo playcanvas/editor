@@ -1,6 +1,6 @@
-import { LegacyButton } from '../../../common/ui/button';
-import { LegacyLabel } from '../../../common/ui/label';
-import { LegacyTextAreaField } from '../../../common/ui/textarea-field';
+import { LegacyButton } from '@/common/ui/button';
+import { LegacyLabel } from '@/common/ui/label';
+import { LegacyTextAreaField } from '@/common/ui/textarea-field';
 
 editor.once('load', () => {
     const labelDesc = new LegacyLabel({

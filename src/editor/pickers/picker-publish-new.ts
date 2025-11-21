@@ -1,15 +1,15 @@
 import { SelectInput } from '@playcanvas/pcui';
 
-import { LegacyButton } from '../../common/ui/button';
-import { LegacyCheckbox } from '../../common/ui/checkbox';
-import { LegacyLabel } from '../../common/ui/label';
-import { LegacyList } from '../../common/ui/list';
-import { LegacyListItem } from '../../common/ui/list-item';
-import { LegacyPanel } from '../../common/ui/panel';
-import { LegacyProgress } from '../../common/ui/progress';
-import { LegacyTextField } from '../../common/ui/text-field';
-import { LegacyTooltip } from '../../common/ui/tooltip';
-import { convertDatetime } from '../../common/utils';
+import { LegacyButton } from '@/common/ui/button';
+import { LegacyCheckbox } from '@/common/ui/checkbox';
+import { LegacyLabel } from '@/common/ui/label';
+import { LegacyList } from '@/common/ui/list';
+import { LegacyListItem } from '@/common/ui/list-item';
+import { LegacyPanel } from '@/common/ui/panel';
+import { LegacyProgress } from '@/common/ui/progress';
+import { LegacyTextField } from '@/common/ui/text-field';
+import { LegacyTooltip } from '@/common/ui/tooltip';
+import { convertDatetime } from '@/common/utils';
 
 editor.once('load', () => {
     const legacyScripts = editor.call('settings:project').get('useLegacyScripts');

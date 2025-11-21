@@ -1,7 +1,7 @@
 import { Container, Panel } from '@playcanvas/pcui';
 
 import { createConsolePanel } from './layout-console';
-import { Tooltip } from '../../common/pcui/element/element-tooltip';
+import { Tooltip } from '@/common/pcui/element/element-tooltip';
 import { AssetPanel } from '../assets/asset-panel';
 
 const createHierarchyPanel = () => {
