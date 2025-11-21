@@ -1,6 +1,6 @@
 import { Dexie } from 'dexie';
 
-import { WorkerServer } from '../core/worker/worker-server';
+import { WorkerServer } from '@/core/worker/worker-server';
 
 const RECORD_LIMIT = 5e4; // Performance degradation starts at 50k records
 const RECORD_LIMIT_TOLERANCE = 1e3; // Prune logs when we exceed 50k + 1k records

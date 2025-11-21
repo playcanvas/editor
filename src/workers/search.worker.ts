@@ -1,4 +1,4 @@
-import { WorkerServer } from '../core/worker/worker-server';
+import { WorkerServer } from '@/core/worker/worker-server';
 
 const search = (id, text, query) => {
     const results = {

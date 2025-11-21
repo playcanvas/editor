@@ -1,4 +1,5 @@
-import { FORCE_PICK_TAG, GIZMO_MASK } from '../../../core/constants';
+import { FORCE_PICK_TAG, GIZMO_MASK } from '@/core/constants';
+
 import { createColorMaterial } from '../viewport-color-material';
 
 editor.once('load', () => {

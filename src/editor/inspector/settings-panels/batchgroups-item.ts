@@ -1,5 +1,6 @@
+import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from '@/core/constants';
+
 import { BaseSettingsPanel } from './base';
-import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from '../../../core/constants';
 import type { Attribute } from '../attribute.type.d';
 
 /**

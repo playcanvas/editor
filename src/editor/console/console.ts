@@ -1,7 +1,6 @@
 import { formatter as f } from '@/common/utils';
-
-import { ENGINE_VERSION } from '../../core/constants';
-import { WorkerClient } from '../../core/worker/worker-client';
+import { ENGINE_VERSION } from '@/core/constants';
+import { WorkerClient } from '@/core/worker/worker-client';
 
 editor.on('load', () => {
     // create worker

@@ -1,13 +1,13 @@
 import { deepCopy } from '@/common/utils';
-
-import { ComponentInspector } from './component';
 import {
     SCROLL_MODE_BOUNCE,
     SCROLL_MODE_CLAMP,
     SCROLL_MODE_INFINITE,
     SCROLLBAR_VISIBILITY_SHOW_ALWAYS,
     SCROLLBAR_VISIBILITY_SHOW_WHEN_REQUIRED
-} from '../../../core/constants';
+} from '@/core/constants';
+
+import { ComponentInspector } from './component';
 import type { Attribute, Divider } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 

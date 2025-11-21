@@ -1,4 +1,4 @@
-import { Trie } from '../../../core/trie';
+import { Trie } from '@/core/trie';
 
 editor.on('assets:load', () => {
     // A regexp to check if this is a module path

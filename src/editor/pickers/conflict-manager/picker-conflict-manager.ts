@@ -6,14 +6,13 @@ import { LegacyListItem } from '@/common/ui/list-item';
 import { LegacyOverlay } from '@/common/ui/overlay';
 import { LegacyPanel } from '@/common/ui/panel';
 import { handleCallback } from '@/common/utils';
-
 import {
     MERGE_STATUS_APPLY_ENDED,
     MERGE_STATUS_APPLY_STARTED,
     MERGE_STATUS_AUTO_ENDED,
     MERGE_STATUS_AUTO_STARTED,
     MERGE_STATUS_READY_FOR_REVIEW
-} from '../../../core/constants';
+} from '@/core/constants';
 
 editor.once('load', () => {
     const LAYOUT_NONE = 0;

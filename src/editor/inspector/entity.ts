@@ -1,6 +1,8 @@
 import { LocalStorage } from '@playcanvas/editor-api';
 import { Container, Button, Menu } from '@playcanvas/pcui';
 
+import { COMPONENT_LOGOS } from '@/core/constants';
+
 import type { Attribute } from './attribute.type.d';
 import { AttributesInspector } from './attributes-inspector';
 import { AnimComponentInspector } from './components/anim';
@@ -26,7 +28,6 @@ import { ScrollviewComponentInspector } from './components/scrollview';
 import { SoundComponentInspector } from './components/sound';
 import { SpriteComponentInspector } from './components/sprite';
 import { ZoneComponentInspector } from './components/zone';
-import { COMPONENT_LOGOS } from '../../core/constants';
 import { TemplatesEntityInspector } from '../templates/templates-entity-inspector';
 import { TemplateOverrideInspector } from '../templates/templates-override-inspector';
 

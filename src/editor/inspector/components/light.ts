@@ -1,9 +1,9 @@
 import { Button } from '@playcanvas/pcui';
 
 import { LegacyTooltip } from '@/common/ui/tooltip';
+import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from '@/core/constants';
 
 import { ComponentInspector } from './component';
-import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from '../../../core/constants';
 import type { Attribute, Divider } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 

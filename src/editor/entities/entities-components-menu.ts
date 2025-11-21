@@ -1,4 +1,4 @@
-import { COMPONENT_LOGOS } from '../../core/constants';
+import { COMPONENT_LOGOS } from '@/core/constants';
 
 editor.once('load', () => {
     const getSubMenu = function (key) {

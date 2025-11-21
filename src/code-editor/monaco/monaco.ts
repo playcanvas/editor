@@ -1,5 +1,6 @@
+import { THEMES } from '@/core/constants';
+
 import { jsRules } from './tokenizer-rules';
-import { THEMES } from '../../core/constants';
 
 editor.once('load', () => {
     const settings = editor.call('editor:settings');

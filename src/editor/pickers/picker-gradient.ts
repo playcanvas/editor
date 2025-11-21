@@ -10,9 +10,8 @@ import { LegacySelectField } from '@/common/ui/select-field';
 import { LegacyTextField } from '@/common/ui/text-field';
 import { LegacyTooltip } from '@/common/ui/tooltip';
 import { assignEvents } from '@/common/utils';
-
-import { hexStr, hsv2rgb, normalizedCoord, rgb2hsv, rgbaStr, toHsva, toRgba } from '../../core/color';
-import { CURVE_LINEAR, CURVE_SPLINE, CURVE_STEP } from '../../core/constants';
+import { hexStr, hsv2rgb, normalizedCoord, rgb2hsv, rgbaStr, toHsva, toRgba } from '@/core/color';
+import { CURVE_LINEAR, CURVE_SPLINE, CURVE_STEP } from '@/core/constants';
 
 function ColorPicker(parent) {
     assignEvents(this);

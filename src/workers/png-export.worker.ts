@@ -1,4 +1,4 @@
-import { WorkerServer } from '../core/worker/worker-server';
+import { WorkerServer } from '@/core/worker/worker-server';
 
 const compress = (codec, pixels, width, height) => {
     const resultDataPtrPtr = codec._malloc(4);

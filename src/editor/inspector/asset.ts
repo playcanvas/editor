@@ -2,6 +2,7 @@ import { Container, Button, BindingObserversToElement } from '@playcanvas/pcui';
 
 
 import { bytesToHuman, convertDatetime } from '@/common/utils';
+import { LOAD_SCRIPT_AS_ASSET, LOAD_SCRIPT_BEFORE_ENGINE, LOAD_SCRIPT_AFTER_ENGINE } from '@/core/constants';
 
 import { AnimationAssetInspector } from './assets/animation';
 import { AnimationAssetInspectorPreview } from './assets/animation-preview';
@@ -37,7 +38,6 @@ import { TextureSourceAssetInspector } from './assets/texture-source';
 import { WasmAssetInspector } from './assets/wasm';
 import type { Attribute } from './attribute.type.d';
 import { AttributesInspector } from './attributes-inspector';
-import { LOAD_SCRIPT_AS_ASSET, LOAD_SCRIPT_BEFORE_ENGINE, LOAD_SCRIPT_AFTER_ENGINE } from '../../core/constants';
 
 
 const assetInspectors: Map<string, new (...args: any[]) => any> = new Map();

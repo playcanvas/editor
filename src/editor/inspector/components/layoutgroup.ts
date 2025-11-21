@@ -1,4 +1,3 @@
-import { ComponentInspector } from './component';
 import {
     ORIENTATION_HORIZONTAL,
     ORIENTATION_VERTICAL,
@@ -6,7 +5,9 @@ import {
     FITTING_STRETCH,
     FITTING_SHRINK,
     FITTING_BOTH
-} from '../../../core/constants';
+} from '@/core/constants';
+
+import { ComponentInspector } from './component';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 

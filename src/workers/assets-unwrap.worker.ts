@@ -1,6 +1,5 @@
 import { Unwrap } from '@/common/unwrap';
-
-import { WorkerServer } from '../core/worker/worker-server';
+import { WorkerServer } from '@/core/worker/worker-server';
 
 const loadFile = (id, filename) => {
     return new Promise((resolve, reject) => {

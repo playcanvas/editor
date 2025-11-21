@@ -1,5 +1,6 @@
+import { TONEMAPPING } from '@/core/constants';
+
 import { ComponentInspector } from './component';
-import { TONEMAPPING } from '../../../core/constants';
 import type { Attribute, Divider } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 

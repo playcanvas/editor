@@ -1,5 +1,6 @@
+import { TONEMAPPING } from '@/core/constants';
+
 import { BaseSettingsPanel } from './base';
-import { TONEMAPPING } from '../../../core/constants';
 import type { Attribute, Divider } from '../attribute.type.d';
 
 const ATTRIBUTES: (Attribute | Divider)[] = [

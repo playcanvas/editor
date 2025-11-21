@@ -1,9 +1,9 @@
 import { Label } from '@playcanvas/pcui';
 
 import { CLASS_ERROR } from '@/common/pcui/constants';
+import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from '@/core/constants';
 
 import { ComponentInspector } from './component';
-import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from '../../../core/constants';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
