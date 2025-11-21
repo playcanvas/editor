@@ -1,6 +1,7 @@
 import { Events } from '@playcanvas/observer';
 
 import { assignEvents } from '@/common/utils';
+
 import { GIZMO_MASK } from '../../../core/constants';
 import { createColorMaterial } from '../viewport-color-material';
 

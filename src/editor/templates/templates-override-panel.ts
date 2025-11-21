@@ -10,6 +10,7 @@ import { EntityInput } from '@/common/pcui/element/element-entity-input';
 import { GradientInput } from '@/common/pcui/element/element-gradient-input';
 import { LayersInput } from '@/common/pcui/element/element-layers-input';
 import { LegacyLabel } from '@/common/ui/label';
+
 import { AttributesInspector } from '../inspector/attributes-inspector';
 
 const CLASS_ROOT = 'template-overrides';

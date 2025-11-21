@@ -1,5 +1,6 @@
 import { LegacyButton } from '@/common/ui/button';
 import { LegacyLabel } from '@/common/ui/label';
+
 import { EntityInspector } from '../inspector/entity';
 import { TemplatesEntityInspector } from '../templates/templates-entity-inspector';
 import { TemplateOverridesView } from '../templates/templates-override-panel';

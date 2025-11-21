@@ -1,5 +1,6 @@
-import { ComponentInspector } from './component';
 import { deepCopy } from '@/common/utils';
+
+import { ComponentInspector } from './component';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 

@@ -1,5 +1,6 @@
-import type { AttributeReference, LegacyAttributeReference } from './reference.type';
 import { LegacyTooltip } from '@/common/ui/tooltip';
+
+import type { AttributeReference, LegacyAttributeReference } from './reference.type';
 
 editor.once('load', () => {
     const root = editor.call('layout.root');

@@ -1,12 +1,13 @@
 import type { AssetObserver } from '@playcanvas/editor-api';
 import { Panel, Container, Button, BooleanInput, LabelGroup, Label, SelectInput, BindingTwoWay, ArrayInput } from '@playcanvas/pcui';
 
-import { ComponentInspector } from './component';
 import { CLASS_ERROR, DEFAULTS } from '@/common/pcui/constants';
 import { AssetInput } from '@/common/pcui/element/element-asset-input';
 import { tooltip, tooltipSimpleItem } from '@/common/tooltips';
 import { LegacyTooltip } from '@/common/ui/tooltip';
 import { deepCopy } from '@/common/utils';
+
+import { ComponentInspector } from './component';
 import { evaluate } from '../../scripting/expr-eval/evaluate';
 import { parse } from '../../scripting/expr-eval/parser';
 import type { ASTNode } from '../../scripting/expr-eval/parser.js';

@@ -1,6 +1,8 @@
 import { Container, Button, BindingObserversToElement } from '@playcanvas/pcui';
 
 
+import { bytesToHuman, convertDatetime } from '@/common/utils';
+
 import { AnimationAssetInspector } from './assets/animation';
 import { AnimationAssetInspectorPreview } from './assets/animation-preview';
 import { AnimstategraphAssetInspector } from './assets/animstategraph';
@@ -35,7 +37,6 @@ import { TextureSourceAssetInspector } from './assets/texture-source';
 import { WasmAssetInspector } from './assets/wasm';
 import type { Attribute } from './attribute.type.d';
 import { AttributesInspector } from './attributes-inspector';
-import { bytesToHuman, convertDatetime } from '@/common/utils';
 import { LOAD_SCRIPT_AS_ASSET, LOAD_SCRIPT_BEFORE_ENGINE, LOAD_SCRIPT_AFTER_ENGINE } from '../../core/constants';
 
 

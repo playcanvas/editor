@@ -1,5 +1,6 @@
-import { AssetInspectorPreviewBase } from './asset-preview-base';
 import { buildQueryUrl } from '@/common/utils';
+
+import { AssetInspectorPreviewBase } from './asset-preview-base';
 
 const getPreviewUrl = (asset) => {
     const url = asset.get('file.url');

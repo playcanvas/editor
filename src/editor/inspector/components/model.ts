@@ -1,8 +1,9 @@
 import { Label, Container, Button, BindingTwoWay, BindingElementToObservers } from '@playcanvas/pcui';
 
-import { ComponentInspector } from './component';
 import { CLASS_ERROR } from '@/common/pcui/constants';
 import { AssetInput } from '@/common/pcui/element/element-asset-input';
+
+import { ComponentInspector } from './component';
 import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from '../../../core/constants';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';

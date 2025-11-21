@@ -2,6 +2,7 @@ import { Panel, Container } from '@playcanvas/pcui';
 
 import { CLASS_MULTIPLE_VALUES } from '@/common/pcui/constants';
 import { validateEnginePath } from '@/common/utils';
+
 import type { Attribute, Divider } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 

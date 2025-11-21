@@ -1,4 +1,5 @@
 import { LegacyOverlay } from '@/common/ui/overlay';
+
 import { ModelAssetInspectorMeshInstances } from '../inspector/assets/model-mesh-instances';
 
 editor.once('load', () => {
