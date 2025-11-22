@@ -87,13 +87,11 @@ editor.once('load', () => {
                     }
                 }
 
-                if (index[oldId].count === 0) {
-                    index[oldId].ref[referer][0].unbind();
-                    if (index[oldId].ref[referer][1]) {
-                        index[oldId].ref[referer][1].unbind();
-                    }
-                    delete index[oldId].ref[referer];
+                index[oldId].ref[referer][0].unbind();
+                if (index[oldId].ref[referer][1]) {
+                    index[oldId].ref[referer][1].unbind();
                 }
+                delete index[oldId].ref[referer];
             }
 
             if (index[oldId].count === 0) {
@@ -122,6 +120,8 @@ editor.once('load', () => {
                     }
 
                     index[newId].parent += state * 2 - 1;
+                    // ensure parent is not negative
+                    index[newId].parent = Math.max(0, index[newId].parent);
 
                     if (index[newId].parent === 0) {
                         // now not used
