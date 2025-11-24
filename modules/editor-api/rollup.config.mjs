@@ -7,6 +7,7 @@ import polyfills from 'rollup-plugin-polyfill-node';
 import { runTsc } from './utils/plugins/rollup-run-tsc.mjs';
 
 const TEST = process.env.BUILD === 'test';
+console.log('Build:', TEST ? 'TEST' : 'PRODUCTION');
 
 const module = {
     input: 'src/index.ts',
