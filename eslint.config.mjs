@@ -152,9 +152,13 @@ export default [
     esmJsConfig,
     {
         ignores: [
+            '**/node_modules/**',
+            '**/dist/**',
             'src/realtime/share.uncompressed.js', // added when serving
             'src/modules/pcui-diff.js',
-            'src/wasm/**/*.js'
+            'src/wasm/**/*.js',
+            'modules/editor-api/test',
+            'modules/editor-api/types'
         ]
     }
 ];
