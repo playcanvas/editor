@@ -91,6 +91,7 @@
     "serve": "serve dist -p 3487 --cors",
     "test": "mocha",
     "type:check": "tsc",
+    "type:check:api": "tsc -p modules/editor-api/tsconfig.json --noEmit",
     "watch": "concurrently --kill-others \"npm run watch:css\" \"npm run watch:js\"",
     "watch:css": "nodemon compile-sass.mjs -w sass -e .scss -q",
     "watch:js": "rollup -c -w"

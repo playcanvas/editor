@@ -20,7 +20,6 @@
   },
   "scripts": {
     "test": "rollup -c && karma start test/karma.conf.cjs --single-run",
-    "test:debug": "rollup -c && karma start test/karma.conf.cjs --single-run=false --browsers Chrome",
-    "type:check": "tsc --noEmit"
+    "test:debug": "rollup -c && karma start test/karma.conf.cjs --single-run=false --browsers Chrome"
   }
 }
