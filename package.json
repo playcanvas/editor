@@ -88,7 +88,6 @@
     "lint:css": "stylelint sass",
     "lint:js": "eslint",
     "lint:js:fix": "eslint --fix",
-    "postinstall": "cd modules/editor-api && npm install && cd -",
     "serve": "serve dist -p 3487 --cors",
     "test": "mocha",
     "test:api": "cd modules/editor-api && npm test && cd -",
