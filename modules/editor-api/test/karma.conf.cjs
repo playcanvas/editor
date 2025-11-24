@@ -12,11 +12,17 @@ module.exports = function (config) {
             // libraries
             'node_modules/sinon/pkg/sinon.js',
             'node_modules/chai/chai.js',
-
             'test/lib/schema.js',
-            'node_modules/@playcanvas/observer/dist/index.js',
-            'dist/index.js',
+            '../../node_modules/@playcanvas/observer/dist/index.js',
 
+            // source files
+            {
+                pattern: 'dist/index.js',
+                type: 'module',
+                nocache: true
+            },
+
+            // setup file
             {
                 pattern: 'test/setup.js',
                 type: 'module',

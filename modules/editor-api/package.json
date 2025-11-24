@@ -20,10 +20,11 @@
   },
   "scripts": {
     "build": "rollup -c",
+    "build:test": "rollup -c --environment BUILD:test",
     "lint": "eslint src rollup.config.mjs eslint.config.mjs",
     "lint:fix": "eslint src rollup.config.mjs eslint.config.mjs --fix",
-    "test": "karma start test/karma.conf.cjs --single-run",
-    "test:debug": "karma start test/karma.conf.cjs --single-run=false --browsers Chrome",
+    "test": "npm -s run build:test && karma start test/karma.conf.cjs --single-run",
+    "test:debug": "npm -s run build:test && karma start test/karma.conf.cjs --single-run=false --browsers Chrome",
     "type:check": "tsc --noEmit",
     "watch": "rollup -c -w"
   }

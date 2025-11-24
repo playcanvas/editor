@@ -6,16 +6,18 @@ import polyfills from 'rollup-plugin-polyfill-node';
 
 import { runTsc } from './utils/plugins/rollup-run-tsc.mjs';
 
+const TEST = process.env.BUILD === 'test';
+
 const module = {
-    external: ['@playcanvas/observer'],
     input: 'src/index.ts',
     output: {
         file: 'dist/index.js',
         format: 'module',
-        globals: {
+        globals: TEST ? undefined : {
             '@playcanvas/observer': 'observer'
         }
     },
+    external: TEST ? undefined : ['@playcanvas/observer'],
     plugins: [
         commonjs(),
         polyfills(),
