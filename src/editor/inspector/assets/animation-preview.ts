@@ -2,7 +2,7 @@ import { Panel } from '@playcanvas/pcui';
 
 import { AnimViewer } from './anim-viewer';
 import { AssetInspectorPreviewBase } from './asset-preview-base';
-import type { Attribute } from '../attribute.type.d';
+import type { Attribute } from '../attribute.type';
 import { AttributesInspector } from '../attributes-inspector';
 
 
