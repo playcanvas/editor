@@ -44,6 +44,7 @@
     "@rollup/plugin-swc": "0.4.0",
     "@swc/core": "1.9.2",
     "@typescript-eslint/parser": "^8.35.1",
+    "@types/sharedb": "^3.2.1",
     "autoprefixer": "10.4.20",
     "chai": "^5.1.2",
     "concurrently": "9.1.0",
