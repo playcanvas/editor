@@ -10,7 +10,7 @@ import { dts } from 'rollup-plugin-dts';
 import polyfills from 'rollup-plugin-polyfill-node';
 import tsconfigPaths from 'rollup-plugin-tsconfig-paths';
 
-import { runTsc } from './utils/plugins/rollup-run-tsc.mjs';
+import { runTsc } from './modules/editor-api/utils/plugins/rollup-run-tsc.mjs';
 
 const production = process.env.NODE_ENV === 'production';
 const sourcemap = production ? true : 'inline';
