@@ -1,7 +1,7 @@
-import { Assets } from '@playcanvas/editor-api';
 import { Canvas } from '@playcanvas/pcui';
 
 import { TemplateThumbnailRenderer } from '@/common/thumbnail-renderers/template-thumbnail-renderer';
+import { Assets } from '@playcanvas/editor-api';
 
 import { AssetInspectorPreviewBase } from './asset-preview-base';
 

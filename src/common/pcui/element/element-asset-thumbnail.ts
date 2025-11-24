@@ -1,6 +1,7 @@
-import { type AssetObserver } from '@playcanvas/editor-api';
 import { EventHandle, Observer, ObserverList } from '@playcanvas/observer';
 import { Element, type ElementArgs } from '@playcanvas/pcui';
+
+import { type AssetObserver } from '@playcanvas/editor-api';
 
 import { CubemapThumbnailRenderer } from '../../thumbnail-renderers/cubemap-thumbnail-renderer';
 import { FontThumbnailRenderer } from '../../thumbnail-renderers/font-thumbnail-renderer';
