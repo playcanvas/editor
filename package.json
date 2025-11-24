@@ -91,6 +91,7 @@
     "postinstall": "cd modules/editor-api && npm install && cd -",
     "serve": "serve dist -p 3487 --cors",
     "test": "mocha",
+    "test:api": "cd modules/editor-api && npm test && cd -",
     "type:check": "tsc",
     "type:check:api": "tsc -p modules/editor-api/tsconfig.json --noEmit",
     "watch": "concurrently --kill-others \"npm run watch:css\" \"npm run watch:js\"",
