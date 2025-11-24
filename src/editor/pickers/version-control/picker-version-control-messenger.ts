@@ -1,6 +1,6 @@
-import * as SVG from '../../../common/svg.ts';
-import { handleCallback } from '../../../common/utils.ts';
-import { MERGE_STATUS_APPLY_ENDED } from '../../../core/constants.ts';
+import * as SVG from '@/common/svg';
+import { handleCallback } from '@/common/utils';
+import { MERGE_STATUS_APPLY_ENDED } from '@/core/constants';
 
 editor.once('load', () => {
     let currentCheckpointBeingCreated = null;

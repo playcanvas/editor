@@ -1,6 +1,6 @@
 import { Button, Container, Label, SelectInput } from '@playcanvas/pcui';
 
-import { handleCallback } from '../../../common/utils.ts';
+import { handleCallback } from '@/common/utils';
 
 editor.once('load', () => {
     const icon = document.createElement('div');

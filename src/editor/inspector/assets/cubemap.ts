@@ -1,10 +1,11 @@
 import { Panel, Container, Label, BooleanInput, Button } from '@playcanvas/pcui';
 
-import { CubemapFace } from './cubemap-face.ts';
-import { CLASS_ERROR } from '../../../common/pcui/constants.ts';
-import { tooltip, tooltipRefItem } from '../../../common/tooltips.ts';
-import type { Attribute } from '../attribute.type.d.ts';
-import { AttributesInspector } from '../attributes-inspector.ts';
+import { CLASS_ERROR } from '@/common/pcui/constants';
+import { tooltip, tooltipRefItem } from '@/common/tooltips';
+
+import { CubemapFace } from './cubemap-face';
+import type { Attribute } from '../attribute.type.d';
+import { AttributesInspector } from '../attributes-inspector';
 
 
 const CLASS_ROOT = 'pcui-cubemap-asset-inspector';

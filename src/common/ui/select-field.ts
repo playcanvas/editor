@@ -1,4 +1,4 @@
-import { LegacyElement } from './element.ts';
+import { LegacyElement } from './element';
 
 class LegacySelectField extends LegacyElement {
     constructor(args = {}) {

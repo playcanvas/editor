@@ -1,4 +1,4 @@
-import { RelatedAssetsInspector } from './related-assets.ts';
+import { RelatedAssetsInspector } from './related-assets';
 
 class TextureSourceAssetInspector extends RelatedAssetsInspector {
     constructor(args) {

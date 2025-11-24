@@ -1,5 +1,6 @@
-import { FORCE_PICK_TAG, GIZMO_MASK } from '../../../core/constants.ts';
-import { createColorMaterial } from '../viewport-color-material.ts';
+import { FORCE_PICK_TAG, GIZMO_MASK } from '@/core/constants';
+
+import { createColorMaterial } from '../viewport-color-material';
 
 editor.once('load', () => {
     const vecA = new pc.Vec3();

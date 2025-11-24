@@ -1,4 +1,4 @@
-import { AttributeReference } from './reference.type.ts';
+import { AttributeReference } from './reference.type';
 
 editor.once('load', () => {
     const fields: AttributeReference[] = [{

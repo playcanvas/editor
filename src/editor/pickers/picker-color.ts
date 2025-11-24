@@ -1,7 +1,7 @@
-import { LegacyNumberField } from '../../common/ui/number-field.ts';
-import { LegacyOverlay } from '../../common/ui/overlay.ts';
-import { LegacyTextField } from '../../common/ui/text-field.ts';
-import { hsv2rgb, rgb2hsv } from '../../core/color.ts';
+import { LegacyNumberField } from '@/common/ui/number-field';
+import { LegacyOverlay } from '@/common/ui/overlay';
+import { LegacyTextField } from '@/common/ui/text-field';
+import { hsv2rgb, rgb2hsv } from '@/core/color';
 
 editor.once('load', () => {
     const size = 144;

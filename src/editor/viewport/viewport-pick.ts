@@ -1,4 +1,4 @@
-import { FORCE_PICK_TAG } from '../../core/constants.ts';
+import { FORCE_PICK_TAG } from '@/core/constants';
 
 editor.once('load', () => {
     const app = editor.call('viewport:app');

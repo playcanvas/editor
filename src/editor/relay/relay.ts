@@ -1,4 +1,4 @@
-import { RelayServer } from './relay-server.ts';
+import { RelayServer } from './relay-server';
 
 editor.on('start', () => {
     const relay = new RelayServer();

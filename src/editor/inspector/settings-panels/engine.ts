@@ -1,4 +1,4 @@
-import { BaseSettingsPanel } from './base.ts';
+import { BaseSettingsPanel } from './base';
 import type { Attribute } from '../attribute.type.js';
 
 const ATTRIBUTES: Attribute[] = [
