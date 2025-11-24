@@ -81,7 +81,9 @@ class Asset extends Events {
     }
 
     initializeHistory() {
-        if (this._observer.history) return;
+        if (this._observer.history) {
+            return;
+        }
 
         this._history = new ObserverHistory({
             item: this._observer,
@@ -94,7 +96,9 @@ class Asset extends Events {
 
     private _resetThumbnailUrls() {
         const type = this.get('type') || '';
-        if (!type.startsWith('texture')) return;
+        if (!type.startsWith('texture')) {
+            return;
+        }
 
         if (this.get('has_thumbnail')) {
             const id = this.get('id');
@@ -243,7 +247,9 @@ class Asset extends Events {
      * Loads the asset's data from sharedb and subscribes to changes.
      */
     async loadAndSubscribe() {
-        if (!api.realtime) return;
+        if (!api.realtime) {
+            return;
+        }
 
         const uniqueId = this.get('uniqueId');
         const a = api.realtime.assets.load(uniqueId);

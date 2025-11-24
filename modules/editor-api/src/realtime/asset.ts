@@ -44,7 +44,9 @@ class RealtimeAsset extends Events {
      * Loads asset from sharedb and subscribes to changes.
      */
     load() {
-        if (this._document) return;
+        if (this._document) {
+            return;
+        }
 
         this._document = this._connection.getDocument('assets', this._uniqueId);
         this._document.on('error', this._onError.bind(this));
@@ -59,7 +61,9 @@ class RealtimeAsset extends Events {
      * Unloads asset from sharedb and unsubscribes from changes.
      */
     unload() {
-        if (!this._document) return;
+        if (!this._document) {
+            return;
+        }
 
         this._document.destroy();
         this._document = null;
@@ -78,7 +82,9 @@ class RealtimeAsset extends Events {
      * @param callback - The callback
      */
     submitOp(op: object, callback?: Function) {
-        if (!this._loaded) return;
+        if (!this._loaded) {
+            return;
+        }
 
         try {
             this._document.submitOp([op], callback);
@@ -125,7 +131,9 @@ class RealtimeAsset extends Events {
     }
 
     _onOp(ops: any, local: boolean) {
-        if (local) return;
+        if (local) {
+            return;
+        }
 
         for (let i = 0; i < ops.length; i++) {
             if (ops[i].p[0]) {

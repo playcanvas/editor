@@ -93,7 +93,9 @@ function createEntity(data: any, options: { index?: number, history?: boolean, s
             // undo new entity
             undo: () => {
                 entity = entity.latest();
-                if (!entity) return;
+                if (!entity) {
+                    return;
+                }
 
                 api.entities.delete([entity], {
                     history: false

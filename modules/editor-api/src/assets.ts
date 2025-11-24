@@ -207,7 +207,9 @@ class Assets extends Events {
     }
 
     private _onMessengerAddAsset(data: { asset: { branchId: string; id: string; source: boolean; status: string; type: any; source_asset_id: string; createdAt: any; }; }) {
-        if (data.asset.branchId !== api.branchId) return;
+        if (data.asset.branchId !== api.branchId) {
+            return;
+        }
 
         const uniqueId = parseInt(data.asset.id, 10);
 
@@ -216,7 +218,9 @@ class Assets extends Events {
         }
 
         let asset = this.getUnique(uniqueId);
-        if (asset) return;
+        if (asset) {
+            return;
+        }
 
         asset = new Asset({
             id: uniqueId,
@@ -330,7 +334,9 @@ class Assets extends Events {
         asset.initializeHistory();
 
         const pos = this._assets.add(asset.observer);
-        if (pos === null) return;
+        if (pos === null) {
+            return;
+        }
 
         const id = asset.get('id');
         this._uniqueIdToItemId[asset.get('uniqueId')] = id;
@@ -383,7 +389,9 @@ class Assets extends Events {
      * @param asset - The asset
      */
     remove(asset: Asset) {
-        if (!this._assets.has(asset.observer)) return;
+        if (!this._assets.has(asset.observer)) {
+            return;
+        }
 
         this._assets.remove(asset.observer);
 
@@ -405,7 +413,9 @@ class Assets extends Events {
      */
     clear() {
         const assets = this.list();
-        if (!assets.length) return;
+        if (!assets.length) {
+            return;
+        }
 
         this._assets.clear();
 

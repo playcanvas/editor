@@ -101,7 +101,9 @@ async function deleteEntities(entities: Entity[] | Entity, options: { history?: 
 
     entities = entities.filter((entity) => {
         entity = entity.latest();
-        if (!entity) return false;
+        if (!entity) {
+            return false;
+        }
 
         let parent = entity.parent;
         let parentInSelection = false;

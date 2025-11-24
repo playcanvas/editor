@@ -23,8 +23,12 @@ class SettingsSchema {
     _getDefaultData(obj: Record<string, any>, scope: string) {
         const result: Record<string, any> = {};
         for (const key in obj) {
-            if (key.startsWith('$')) continue;
-            if (!(obj[key] instanceof Object)) continue;
+            if (key.startsWith('$')) {
+                continue;
+            }
+            if (!(obj[key] instanceof Object)) {
+                continue;
+            }
 
             if (obj[key].hasOwnProperty('$default')) {
                 if (obj[key].$scope === scope) {

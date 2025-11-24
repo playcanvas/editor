@@ -161,11 +161,15 @@ function replace(oldAsset: Asset, newAsset: Asset, options: { history?: boolean 
             name: 'replace asset references',
             combine: false,
             undo: () => {
-                if (!records) return;
+                if (!records) {
+                    return;
+                }
 
                 records.forEach((record) => {
                     const obj = record.obj.latest ? record.obj.latest() : record.obj;
-                    if (!obj || !obj.has(record.path)) return;
+                    if (!obj || !obj.has(record.path)) {
+                        return;
+                    }
 
                     const history = obj.history.enabled;
                     obj.history.enabled = false;
@@ -180,8 +184,12 @@ function replace(oldAsset: Asset, newAsset: Asset, options: { history?: boolean 
             redo: () => {
                 records = null;
 
-                if (!oldAsset.latest()) return;
-                if (!newAsset.latest()) return;
+                if (!oldAsset.latest()) {
+                    return;
+                }
+                if (!newAsset.latest()) {
+                    return;
+                }
 
                 records = replace(oldAsset, newAsset, { history: false });
             }

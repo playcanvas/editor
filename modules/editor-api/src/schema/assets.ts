@@ -27,13 +27,17 @@ class AssetsSchema {
     getDefaultData(type: string) {
         const field = `${type}Data`;
 
-        if (!field || !this._schema[field]) return null;
+        if (!field || !this._schema[field]) {
+            return null;
+        }
 
         const result: Record<string, any> = {};
 
         const schema = this._schema[field];
         for (const key in schema) {
-            if (key.startsWith('$')) continue;
+            if (key.startsWith('$')) {
+                continue;
+            }
             const block = schema[key];
             if (block.hasOwnProperty('$default')) {
                 result[key] = utils.deepCopy(block.$default);
@@ -58,7 +62,9 @@ class AssetsSchema {
         const result: string[] = [];
 
         const recurse = (schemaField: Record<string, any>, path: string, prefix: string = '') => {
-            if (!schemaField) return;
+            if (!schemaField) {
+                return;
+            }
 
             if (schemaField.$editorType === type || schemaField.$editorType === `array:${type}`) {
                 result.push(prefix + path);
@@ -66,7 +72,9 @@ class AssetsSchema {
             }
 
             for (const field in schemaField) {
-                if (field.startsWith('$')) continue;
+                if (field.startsWith('$')) {
+                    continue;
+                }
 
                 const p = (path ? `${path}.` : '') + field;
                 const fieldType = this._schemaApi.getType(schemaField[field]);

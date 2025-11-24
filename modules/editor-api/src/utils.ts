@@ -34,7 +34,9 @@ class utils {
 
     static expandPath(obj: any, path: string, fn: (obj: any, path: string) => void) {
         function forEachPathInData(pathParts: string[], pathSoFar: string, startIndex: number, data: any[], fn: (obj: object, path: string) => void) {
-            if (!data) return;
+            if (!data) {
+                return;
+            }
 
             function process(item: any, key: string | number) {
                 let current = item;
@@ -105,15 +107,21 @@ class utils {
         let firstPartialPath = parts[0];
         let i;
         for (i = 1; i < parts.length; i++) {
-            if (parts[i] === '*') break;
+            if (parts[i] === '*') {
+                break;
+            }
             firstPartialPath += `.${parts[i]}`;
         }
 
-        if (!obj.has(firstPartialPath)) return;
+        if (!obj.has(firstPartialPath)) {
+            return;
+        }
 
         // get json just before first star
         const json = obj.get(firstPartialPath);
-        if (!json) return;
+        if (!json) {
+            return;
+        }
 
         // start breaking down each path
         forEachPathInData(parts, firstPartialPath, i + 1, json, fn);

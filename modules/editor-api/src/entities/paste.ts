@@ -22,7 +22,9 @@ let evtMessenger: EventHandle;
  * @returns The asset id in this project
  */
 function remapAsset(assetId: any, assetsIndex: Record<string, any>): number {
-    if (!assetId) return null;
+    if (!assetId) {
+        return null;
+    }
 
     // return the old asset id if not found
     let result = parseInt(assetId, 10);
@@ -105,17 +107,25 @@ function mapValue(value: string, mapping: Record<string, any>, sameProject: bool
 function remapField(entity: Entity, path: string, mapping: Record<string, any>, sameProject: boolean) {
     if (REGEX_CONTAINS_STAR.test(path)) {
         const parts = path.split('.*.');
-        if (!entity.has(parts[0])) return;
+        if (!entity.has(parts[0])) {
+            return;
+        }
 
         const obj = entity.get(parts[0]);
-        if (!obj) return;
+        if (!obj) {
+            return;
+        }
 
         for (const key in obj) {
             const fullKey = `${parts[0]}.${key}.${parts[1]}`;
-            if (!entity.has(fullKey)) continue;
+            if (!entity.has(fullKey)) {
+                continue;
+            }
 
             const value = entity.get(fullKey);
-            if (!value) continue;
+            if (!value) {
+                continue;
+            }
 
             if (value instanceof Array) {
                 for (let j = 0; j < value.length; j++) {
@@ -128,7 +138,9 @@ function remapField(entity: Entity, path: string, mapping: Record<string, any>, 
         }
     } else if (entity.has(path)) {
         const value = entity.get(path);
-        if (!value) return;
+        if (!value) {
+            return;
+        }
 
         if (value instanceof Array) {
             for (let j = 0; j < value.length; j++) {
@@ -143,7 +155,9 @@ function remapField(entity: Entity, path: string, mapping: Record<string, any>, 
 
 function remapScriptAttribute(assetAttr: any, componentAttr: any, entity: Entity, path: string, entityMapping: Record<string, any>, assetMapping: Record<string, any>, sameProject: boolean) {
     if (assetAttr.type === 'asset') {
-        if (sameProject) return;
+        if (sameProject) {
+            return;
+        }
 
         // remap asset ids
         if (assetAttr.array) {
@@ -239,11 +253,15 @@ function remapEntitiesAndAssets(entity: Entity, parent: Entity, data: Record<str
                 if (api.hasLegacyScripts) {
                     for (let i = 0; i < scripts.length; i++) {
                         const script = scripts[i];
-                        if (!script.attributes) continue;
+                        if (!script.attributes) {
+                            continue;
+                        }
 
                         for (const name in script.attributes) {
                             const attr = script.attributes[name];
-                            if (!attr) continue;
+                            if (!attr) {
+                                continue;
+                            }
 
                             if (attr.type === 'asset' && data.project !== api.projectId) {
                                 if (attr.value) {
@@ -280,10 +298,14 @@ function remapEntitiesAndAssets(entity: Entity, parent: Entity, data: Record<str
                     if (scripts) {
                         for (const script in scripts) {
                             const asset = api.assets.getAssetForScript(script);
-                            if (!asset) continue;
+                            if (!asset) {
+                                continue;
+                            }
 
                             const attrs = scripts[script].attributes;
-                            if (!attrs) continue;
+                            if (!attrs) {
+                                continue;
+                            }
 
                             for (const key in attrs) {
                                 const attrData = asset.get(`data.scripts.${script}.attributes.${key}`);
@@ -293,7 +315,9 @@ function remapEntitiesAndAssets(entity: Entity, parent: Entity, data: Record<str
                                         // json attribute array
                                         if (attrData.array) {
                                             for (let j = 0; j < attrs[key].length; j++) {
-                                                if (!attrs[key][j]) continue;
+                                                if (!attrs[key][j]) {
+                                                    continue;
+                                                }
 
                                                 for (let k = 0; k < attrData.schema.length; k++) {
                                                     const field = attrData.schema[k];
@@ -362,7 +386,9 @@ function pasteInBackend(data: Record<string, any>, parent: Entity, options: { hi
     if (!evtMessenger)  {
         evtMessenger = api.messenger.on('entity.copy', (data) => {
             const callback = api.jobs.finish(data.job_id);
-            if (!callback) return;
+            if (!callback) {
+                return;
+            }
 
             const result = data.multTaskResults.map((d: { newRootId: any; }) => d.newRootId);
             callback(result);
@@ -371,7 +397,9 @@ function pasteInBackend(data: Record<string, any>, parent: Entity, options: { hi
 
     function redo() {
         parent = parent.latest();
-        if (!parent) return;
+        if (!parent) {
+            return;
+        }
 
         const jobId = api.jobs.start((newEntityIds: string[]) => {
             const cancel = api.entities.waitToExist(newEntityIds, TIME_WAIT_ENTITIES, (newEntities) => {
@@ -466,7 +494,9 @@ async function pasteEntities(parent: Entity, options: { history?: boolean } = {}
 
     // parse data from local storage
     const data = api.clipboard.value as any;
-    if (!data || data.type !== 'entity') return;
+    if (!data || data.type !== 'entity') {
+        return;
+    }
 
     // paste on root if no parent specified
     if (!parent) {
@@ -547,7 +577,9 @@ async function pasteEntities(parent: Entity, options: { history?: boolean } = {}
             combine: false,
             undo: () => {
                 parent = parent.latest();
-                if (!parent) return;
+                if (!parent) {
+                    return;
+                }
 
                 deletedHierarchy = [];
                 previousSelection = api.selection.items;
@@ -555,7 +587,9 @@ async function pasteEntities(parent: Entity, options: { history?: boolean } = {}
                 // get latest data for each new entity
                 for (const id in newEntities) {
                     const e = api.entities.get(id);
-                    if (!e) continue;
+                    if (!e) {
+                        continue;
+                    }
 
                     // put top level entities in deletedHierarchy
                     if (!(e.parent.get('resource_id') in newEntities)) {
@@ -573,7 +607,9 @@ async function pasteEntities(parent: Entity, options: { history?: boolean } = {}
             },
             redo: () => {
                 parent = parent.latest();
-                if (!parent) return;
+                if (!parent) {
+                    return;
+                }
 
                 // re-insert delete hierarchy
                 for (const entity of deletedHierarchy) {

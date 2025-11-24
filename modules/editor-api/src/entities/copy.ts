@@ -18,10 +18,14 @@ function storeAssetPaths(assetIds: number[], assets: Record<number, any>) {
 
     for (let i = 0; i < assetIds.length; i++) {
         const assetId = assetIds[i];
-        if (!assetId || assets[assetId]) continue;
+        if (!assetId || assets[assetId]) {
+            continue;
+        }
 
         const asset = api.assets.get(assetId);
-        if (!asset) return;
+        if (!asset) {
+            return;
+        }
 
         const parts = [];
 
@@ -29,7 +33,9 @@ function storeAssetPaths(assetIds: number[], assets: Record<number, any>) {
         if (path && path.length) {
             for (let j = 0; j < path.length; j++) {
                 const a = api.assets.get(path[j]);
-                if (!a) continue;
+                if (!a) {
+                    continue;
+                }
 
                 parts.push(a.get('name'));
             }
@@ -76,10 +82,14 @@ function gatherDependencies(entity: Entity, data: Record<string, any>) {
         // handle paths that contain a '*' as a wildcard
         if (REGEX_CONTAINS_STAR.test(path)) {
             const parts = path.split('.*.');
-            if (!entity.has(parts[0])) continue;
+            if (!entity.has(parts[0])) {
+                continue;
+            }
 
             const obj = entity.get(parts[0]);
-            if (!obj) continue;
+            if (!obj) {
+                continue;
+            }
 
             for (const key in obj) {
                 const fullKey = `${parts[0]}.${key}.${parts[1]}`;
@@ -88,14 +98,18 @@ function gatherDependencies(entity: Entity, data: Record<string, any>) {
                 }
 
                 const assets = entity.get(fullKey);
-                if (!assets) continue;
+                if (!assets) {
+                    continue;
+                }
 
                 storeAssetPaths(assets, data.assets);
             }
         } else if (entity.has(path)) {
             // handle path without '*'
             const assets = entity.get(path);
-            if (!assets) continue;
+            if (!assets) {
+                continue;
+            }
 
             storeAssetPaths(assets, data.assets);
         }
@@ -110,10 +124,14 @@ function gatherDependencies(entity: Entity, data: Record<string, any>) {
             if (api.hasLegacyScripts) {
                 for (let i = 0; i < scripts.length; i++) {
                     const script = scripts[i];
-                    if (!script.attributes) continue;
+                    if (!script.attributes) {
+                        continue;
+                    }
                     for (const name in script.attributes) {
                         const attr = script.attributes[name];
-                        if (!attr) continue;
+                        if (!attr) {
+                            continue;
+                        }
 
                         if (attr.type === 'asset') {
                             if (attr.value) {
@@ -131,18 +149,26 @@ function gatherDependencies(entity: Entity, data: Record<string, any>) {
                 // scripts 2.0
                 for (const key in scripts) {
                     const scriptData = scripts[key];
-                    if (!scriptData || !scriptData.attributes) continue;
+                    if (!scriptData || !scriptData.attributes) {
+                        continue;
+                    }
 
                     const asset = api.assets.getAssetForScript(key);
-                    if (!asset) continue;
+                    if (!asset) {
+                        continue;
+                    }
 
                     // search for asset script attributes in script asset
                     const assetData = asset.get(`data.scripts.${key}.attributes`);
-                    if (!assetData) continue;
+                    if (!assetData) {
+                        continue;
+                    }
 
                     for (const name in assetData) {
                         const componentAttribute = scriptData.attributes[name];
-                        if (!componentAttribute) continue;
+                        if (!componentAttribute) {
+                            continue;
+                        }
 
                         if (assetData[name].type === 'asset') {
                             storeAssetPaths(componentAttribute, data.assets);
@@ -217,7 +243,9 @@ function sortEntities(entities: Entity[]) {
  */
 function copyEntities(entities: Entity[]) {
     const currentScene = api.realtime?.scenes?.current;
-    if (!currentScene) throw new Error('No current scene loaded');
+    if (!currentScene) {
+        throw new Error('No current scene loaded');
+    }
 
     const data: Record<string, any> = {
         project: api.projectId,

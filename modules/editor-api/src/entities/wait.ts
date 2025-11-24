@@ -52,7 +52,9 @@ function wait(entityIds: string[], timeoutMs: number, callback: Function) {
 
     const onAdd = (entity: Entity) => {
         const id = entity.get('resource_id');
-        if (!index.hasOwnProperty(id)) return;
+        if (!index.hasOwnProperty(id)) {
+            return;
+        }
 
         index[id] = entity;
 

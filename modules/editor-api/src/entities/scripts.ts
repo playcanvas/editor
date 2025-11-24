@@ -3,7 +3,9 @@ import { globals as api } from '../globals';
 
 async function addScript(entities: Entity[], scriptName: string, options: { enabled?: boolean, attributes?: any, index?: number, history?: boolean } = {}) {
     entities = entities.filter(e => !e.has(`components.script.scripts.${scriptName}`));
-    if (!entities.length) return;
+    if (!entities.length) {
+        return;
+    }
 
     const addedComponentsTo = new Set();
 
@@ -169,7 +171,9 @@ function removeScript(entities: Entity[], scriptName: string, options: { history
                 prev = {};
 
                 entities = entities.map(e => e.latest()).filter(e => !!e);
-                if (!entities.length) return;
+                if (!entities.length) {
+                    return;
+                }
 
                 entities.forEach((entity) => {
                     let prevIndex;

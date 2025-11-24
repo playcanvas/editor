@@ -148,7 +148,9 @@ async function uploadFile(data: Record<string, any>, settings: object = null, on
         });
 
         xhr.upload.addEventListener('progress', (evt) => {
-            if (!evt.lengthComputable) return;
+            if (!evt.lengthComputable) {
+                return;
+            }
 
             onProgressUpdate(evt.loaded / evt.total);
         });

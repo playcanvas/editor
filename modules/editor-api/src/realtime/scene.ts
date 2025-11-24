@@ -44,7 +44,9 @@ class RealtimeScene extends Events {
      * Loads scene from sharedb and subscribes to changes.
      */
     load() {
-        if (this._document) return;
+        if (this._document) {
+            return;
+        }
 
         this._document = this._connection.getDocument('scenes', this._uniqueId);
         this._document.on('error', this._onError.bind(this));
@@ -59,7 +61,9 @@ class RealtimeScene extends Events {
      * Unloads scene from sharedb and unsubscribes from changes.
      */
     unload() {
-        if (!this._document) return;
+        if (!this._document) {
+            return;
+        }
 
         this._document.destroy();
         this._document = null;
@@ -103,7 +107,9 @@ class RealtimeScene extends Events {
      * @param op - The operation
      */
     submitOp(op: object) {
-        if (!this._loaded) return;
+        if (!this._loaded) {
+            return;
+        }
 
         try {
             this._document.submitOp([op]);
@@ -137,7 +143,9 @@ class RealtimeScene extends Events {
     }
 
     private _onOp(ops: any, local: boolean) {
-        if (local) return;
+        if (local) {
+            return;
+        }
 
         for (let i = 0; i < ops.length; i++) {
             if (ops[i].p[0]) {

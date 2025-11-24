@@ -171,7 +171,9 @@ function duplicateInBackend(entities: Entity[], options: { history?: boolean } =
     if (!evtMessenger) {
         evtMessenger = api.messenger.on('entity.copy', (data) => {
             const callback = api.jobs.finish(data.job_id);
-            if (!callback) return;
+            if (!callback) {
+                return;
+            }
 
             const result = data.multTaskResults.map((d: { newRootId: any; }) => d.newRootId);
             callback(result);

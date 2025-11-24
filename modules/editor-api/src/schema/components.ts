@@ -46,7 +46,9 @@ class ComponentSchema {
     getDefaultData(component: string) {
         const result: Record<string, any> = {};
         for (const fieldName in this._schema[component]) {
-            if (fieldName.startsWith('$')) continue;
+            if (fieldName.startsWith('$')) {
+                continue;
+            }
             const field = this._schema[component][fieldName];
             if (field.hasOwnProperty('$default')) {
                 result[fieldName] = utils.deepCopy(field.$default);
@@ -73,7 +75,9 @@ class ComponentSchema {
         const result: string[] = [];
 
         const recurse = (schemaField: Record<string, any>, path: string) => {
-            if (!schemaField) return;
+            if (!schemaField) {
+                return;
+            }
 
             if (schemaField.$editorType === type || schemaField.$editorType === `array:${type}`) {
                 result.push(path);
@@ -81,7 +85,9 @@ class ComponentSchema {
             }
 
             for (const field in schemaField) {
-                if (field.startsWith('$')) continue;
+                if (field.startsWith('$')) {
+                    continue;
+                }
 
                 const p = (path ? `${path}.` : '') + field;
                 const fieldType = this._schemaApi.getType(schemaField[field]);

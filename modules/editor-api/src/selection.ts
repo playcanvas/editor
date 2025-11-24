@@ -104,7 +104,9 @@ class Selection extends Events {
      * Fire 'change' event in timeout
      */
     private _deferChangeEvt() {
-        if (this._timeoutChange) return;
+        if (this._timeoutChange) {
+            return;
+        }
         this._timeoutChange = setTimeout(() => {
             this._timeoutChange = null;
             this.emit('change', this.items);
@@ -121,8 +123,12 @@ class Selection extends Events {
      * ```
      */
     add(item: any, options: { history?: boolean } = {}) {
-        if (!this.enabled) return;
-        if (this.has(item)) return;
+        if (!this.enabled) {
+            return;
+        }
+        if (this.has(item)) {
+            return;
+        }
 
         if (options.history === undefined) {
             options.history = true;
@@ -154,7 +160,9 @@ class Selection extends Events {
      * ```
      */
     remove(item: any, options: { history?: boolean } = {}) {
-        if (!this.enabled) return;
+        if (!this.enabled) {
+            return;
+        }
 
         if (options.history === undefined) {
             options.history = true;
@@ -186,7 +194,9 @@ class Selection extends Events {
      * ```
      */
     toggle(item: any, options: { history?: boolean } = {}) {
-        if (!this.enabled) return;
+        if (!this.enabled) {
+            return;
+        }
 
         if (options.history === undefined) {
             options.history = true;
@@ -232,10 +242,14 @@ class Selection extends Events {
      * ```
      */
     clear(options: { history?: boolean } = {}) {
-        if (!this.enabled) return;
+        if (!this.enabled) {
+            return;
+        }
 
         const length = this._items.length;
-        if (!length) return;
+        if (!length) {
+            return;
+        }
 
         if (options.history === undefined) {
             options.history = true;
@@ -271,7 +285,9 @@ class Selection extends Events {
      * ```
      */
     set(items: any[], options: { history?: boolean } = {}) {
-        if (!this.enabled) return;
+        if (!this.enabled) {
+            return;
+        }
 
         if (options.history === undefined) {
             options.history = true;

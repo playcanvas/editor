@@ -83,7 +83,9 @@ async function instantiateTemplates(assets: Asset[], parent: any, options: { ind
             },
             redo: () => {
                 parent = parent.latest();
-                if (!parent) return;
+                if (!parent) {
+                    return;
+                }
 
                 const newOptions = Object.assign({}, options);
                 newOptions.history = false;

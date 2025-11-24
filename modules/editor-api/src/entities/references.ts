@@ -19,7 +19,9 @@ function findReferencesInComponents(entity: Entity, refType: string) {
     }
 
     function handleScriptAttribute(entity: Entity, path: string, attributeDefinition: { array: any; }, attributeValue: any[]) {
-        if (!attributeValue) return;
+        if (!attributeValue) {
+            return;
+        }
         if (attributeDefinition.array) {
             attributeValue.forEach((id, i) => {
                 if (id) {
@@ -35,7 +37,9 @@ function findReferencesInComponents(entity: Entity, refType: string) {
 
     function handleReference(entity: Entity, path: string) {
         const value = entity.get(path);
-        if (!value) return;
+        if (!value) {
+            return;
+        }
         if (Array.isArray(value)) {
             value.forEach((id, i) => {
                 if (id) {
@@ -70,33 +74,45 @@ function findReferencesInComponents(entity: Entity, refType: string) {
                 for (const scriptName in scriptComponent.scripts) {
                     // get script asset
                     const scriptAsset = api.assets.getAssetForScript(scriptName);
-                    if (!scriptAsset) continue;
+                    if (!scriptAsset) {
+                        continue;
+                    }
 
                     // go through the script component attribute values
                     for (const attributeName in scriptComponent.scripts[scriptName].attributes) {
                         const attributeValue = scriptComponent.scripts[scriptName].attributes[attributeName];
                         // early out if the value is null
-                        if (!attributeValue || (Array.isArray(attributeValue) && !attributeValue.length)) continue;
+                        if (!attributeValue || (Array.isArray(attributeValue) && !attributeValue.length)) {
+                            continue;
+                        }
 
                         const attributeDef = scriptAsset.get(`data.scripts.${scriptName}.attributes.${attributeName}`);
-                        if (!attributeDef) continue;
+                        if (!attributeDef) {
+                            continue;
+                        }
 
                         const componentAttributePath = `components.script.scripts.${scriptName}.attributes.${attributeName}`;
 
                         if (attributeDef.type === 'json') {
-                            if (!Array.isArray(attributeDef.schema)) continue;
+                            if (!Array.isArray(attributeDef.schema)) {
+                                continue;
+                            }
 
                             if (attributeDef.array) {
                                 for (let i = 0; i < attributeValue.length; i++) {
                                     attributeDef.schema.forEach((field: any) => {
-                                        if (field.type !== refType) return;
+                                        if (field.type !== refType) {
+                                            return;
+                                        }
 
                                         handleScriptAttribute(entity, `${componentAttributePath}.${i}.${field.name}`, field, attributeValue[i]?.[field.name]);
                                     });
                                 }
                             } else {
                                 attributeDef.schema.forEach((field: any) => {
-                                    if (field.type !== refType) return;
+                                    if (field.type !== refType) {
+                                        return;
+                                    }
 
                                     handleScriptAttribute(entity, `${componentAttributePath}.${field.name}`, field, attributeValue[field.name]);
                                 });
@@ -147,7 +163,9 @@ function findAssetReferencesInComponents(entity: Entity) {
  */
 function updateReferences(references: Record<string, any>, oldValue: string | number, newValue: string | number) {
     const referencesToEntity = references[oldValue];
-    if (!referencesToEntity) return;
+    if (!referencesToEntity) {
+        return;
+    }
 
     referencesToEntity.forEach((reference: { entityId: string; path: any; }) => {
         const entity = api.entities.get(reference.entityId);

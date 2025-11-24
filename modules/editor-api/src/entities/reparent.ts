@@ -105,11 +105,15 @@ function reparentEntities(data: ReparentArguments[], options: { preserveTransfor
 
         const latest = (record: Record<string, any>) => {
             const entity = record.entity.latest();
-            if (!entity) return;
+            if (!entity) {
+                return;
+            }
 
             const parent = record.parent.latest();
             const parentOld = entity.parent;
-            if (!parentOld || !parent) return;
+            if (!parentOld || !parent) {
+                return;
+            }
 
             return { entity, parent, parentOld };
         };
@@ -117,14 +121,18 @@ function reparentEntities(data: ReparentArguments[], options: { preserveTransfor
         const validRecords: any[] = [];
         records.forEach((record, i) => {
             const data = latest(record);
-            if (!data) return;
+            if (!data) {
+                return;
+            }
 
             if (isValidRecord(data.entity, data.parentOld, data.parent)) {
                 validRecords.push(record);
             }
         });
 
-        if (!validRecords.length) return false;
+        if (!validRecords.length) {
+            return false;
+        }
 
         // remember selection
         let selection;
@@ -173,13 +181,19 @@ function reparentEntities(data: ReparentArguments[], options: { preserveTransfor
 
             const latest = (record: Record<string, any>) => {
                 const entity = record.entity.latest();
-                if (!entity) return;
+                if (!entity) {
+                    return;
+                }
 
                 const parent = entity.parent;
-                if (!parent) return;
+                if (!parent) {
+                    return;
+                }
 
                 const parentOld = record.parentOld.latest();
-                if (!parentOld) return;
+                if (!parentOld) {
+                    return;
+                }
 
                 return { entity, parent, parentOld };
             };
@@ -188,14 +202,18 @@ function reparentEntities(data: ReparentArguments[], options: { preserveTransfor
 
             records.forEach((record) => {
                 const data = latest(record);
-                if (!data) return;
+                if (!data) {
+                    return;
+                }
 
                 if (isValidRecord(data.entity, data.parent, data.parentOld)) {
                     validRecords.push(record);
                 }
             });
 
-            if (!validRecords.length) return;
+            if (!validRecords.length) {
+                return;
+            }
 
             // remember selection
             let selection;

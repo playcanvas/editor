@@ -19,8 +19,6 @@
     "sinon": "^17.0.1"
   },
   "scripts": {
-    "lint": "eslint src rollup.config.mjs eslint.config.mjs",
-    "lint:fix": "eslint src rollup.config.mjs eslint.config.mjs --fix",
     "test": "rollup -c && karma start test/karma.conf.cjs --single-run",
     "test:debug": "rollup -c && karma start test/karma.conf.cjs --single-run=false --browsers Chrome",
     "type:check": "tsc --noEmit"

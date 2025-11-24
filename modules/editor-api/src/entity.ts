@@ -107,7 +107,9 @@ class Entity extends Events {
     }
 
     _initializeHistory() {
-        if (this._observer.history) return;
+        if (this._observer.history) {
+            return;
+        }
 
         this._history = new ObserverHistory({
             item: this._observer,
