@@ -86,6 +86,7 @@
     "lint:css": "stylelint sass",
     "lint:js": "eslint src test compile-sass.mjs rollup.config.mjs eslint.config.mjs",
     "lint:js:fix": "eslint src test compile-sass.mjs rollup.config.mjs eslint.config.mjs --fix",
+    "postinstall": "cd modules/editor-api && npm install && cd -",
     "serve": "serve dist -p 3487 --cors",
     "test": "mocha",
     "type:check": "tsc",
