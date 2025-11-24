@@ -4,7 +4,7 @@ import fs from 'fs';
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
 import replace from '@rollup/plugin-replace';
-import typescript from '@rollup/plugin-typescript';
+import swc from '@rollup/plugin-swc';
 import { dts } from 'rollup-plugin-dts';
 import polyfills from 'rollup-plugin-polyfill-node';
 
@@ -51,13 +51,26 @@ const module = {
         }
     },
     plugins: [
-        typescript({
-            sourceMap: false
-        }),
         replace(replacements),
         commonjs(),
         polyfills(),
-        resolve()
+        resolve({
+            extensions: ['.ts', '.js', '.json']
+        }),
+        swc({
+            swc: {
+                jsc: {
+                    externalHelpers: false
+                },
+                env: {
+                    loose: true,
+                    bugfixes: true,
+                    targets: {
+                        chrome: 63 // supports esmodules
+                    }
+                }
+            }
+        })
     ]
 };
 
