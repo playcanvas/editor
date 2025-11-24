@@ -47,6 +47,9 @@ jobs:
       - name: Run ESLint
         run: npm run lint
 
+      - name: Run typecheck for Editor API module
+        run: npm run type:check:api
+
   test:
     name: Test
     runs-on: ubuntu-latest
@@ -64,5 +67,8 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      - name: Run Tests
+      - name: Run Editor Tests
         run: npm test
+
+      - name: Run Editor API Module Tests
+        run: npm run test:api
