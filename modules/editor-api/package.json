@@ -1,0 +1,56 @@
+{
+  "name": "@playcanvas/editor-api",
+  "version": "0.0.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs"
+    }
+  },
+  "devDependencies": {
+    "@babel/core": "^7.23.7",
+    "@babel/eslint-parser": "^7.23.3",
+    "@babel/preset-env": "^7.23.8",
+    "@playcanvas/eslint-config": "2.0.8",
+    "@playcanvas/observer": "^1.6.6",
+    "@rollup/plugin-babel": "^6.0.4",
+    "@rollup/plugin-commonjs": "^26.0.1",
+    "@rollup/plugin-node-resolve": "^15.2.3",
+    "@rollup/plugin-replace": "^6.0.2",
+    "@rollup/plugin-typescript": "^12.1.2",
+    "@types/sharedb": "^3.2.1",
+    "@typescript-eslint/parser": "^8.19.1",
+    "chai": "^4.4.1",
+    "eslint": "^9.16.0",
+    "globals": "^15.14.0",
+    "karma": "^6.4.2",
+    "karma-chrome-launcher": "^3.2.0",
+    "karma-mocha": "2.0.1",
+    "karma-spec-reporter": "^0.0.36",
+    "mocha": "^10.2.0",
+    "ot-text": "github:playcanvas/ot-text",
+    "rollup": "^4.9.5",
+    "rollup-plugin-dts": "^6.1.1",
+    "rollup-plugin-polyfill-node": "^0.13.0",
+    "sharedb": "^3.2.1",
+    "sinon": "^17.0.1",
+    "typescript": "^5.3.3"
+  },
+  "scripts": {
+    "build": "rollup -c",
+    "lint": "eslint src rollup.config.mjs eslint.config.mjs",
+    "lint:fix": "eslint src rollup.config.mjs eslint.config.mjs --fix",
+    "test": "karma start test/karma.conf.cjs --single-run",
+    "test:debug": "karma start test/karma.conf.cjs --single-run=false --browsers Chrome",
+    "type:check": "tsc --noEmit",
+    "watch": "rollup -c -w"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

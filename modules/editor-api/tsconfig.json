@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+        "esModuleInterop" : true,
+        "lib": [
+            "es2019",
+            "dom",
+            "dom.iterable"
+        ],
+        "moduleResolution": "node",
+        "noImplicitAny": true,
+        "outDir": "dist",
+        "sourceMap": true,
+        "target": "es6",
+    },
+    "include": ["src", "external", "test/**/*.js", "rollup.config.mjs"],
+}

@@ -7,3 +7,4 @@ dist
 /js/realtime/share.uncompressed.js
 .npmrc
 /.vscode
+modules/**/types
