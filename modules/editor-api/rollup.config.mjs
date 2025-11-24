@@ -1,7 +1,6 @@
 import { execSync } from 'child_process';
 import fs from 'fs';
 
-import { babel } from '@rollup/plugin-babel';
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
 import replace from '@rollup/plugin-replace';
@@ -41,52 +40,11 @@ const replacements = {
     preventAssignment: true
 };
 
-const umd = {
-    external: ['@playcanvas/observer'],
-    input: 'src/index.ts',
-    output: {
-        file: 'dist/index.js',
-        format: 'umd',
-        name: 'api',
-        globals: {
-            '@playcanvas/observer': 'observer'
-        }
-    },
-    plugins: [
-        typescript({
-            sourceMap: false
-        }),
-        replace(replacements),
-        commonjs(),
-        polyfills(),
-        resolve(),
-        babel({
-            babelHelpers: 'bundled',
-            babelrc: false,
-            comments: false,
-            compact: false,
-            minified: false,
-            presets: [
-                [
-                    '@babel/preset-env', {
-                        bugfixes: true,
-                        loose: true,
-                        modules: false,
-                        targets: {
-                            esmodules: true
-                        }
-                    }
-                ]
-            ]
-        })
-    ]
-};
-
 const module = {
     external: ['@playcanvas/observer'],
     input: 'src/index.ts',
     output: {
-        file: 'dist/index.mjs',
+        file: 'dist/index.js',
         format: 'module',
         globals: {
             '@playcanvas/observer': 'observer'
@@ -122,5 +80,5 @@ const types = {
 };
 
 export default () => {
-    return [umd, module, types];
+    return [module, types];
 };
