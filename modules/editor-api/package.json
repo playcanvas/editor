@@ -6,29 +6,17 @@
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "devDependencies": {
-    "@playcanvas/eslint-config": "2.0.8",
-    "@playcanvas/observer": "^1.6.6",
-    "@rollup/plugin-commonjs": "^26.0.1",
-    "@rollup/plugin-node-resolve": "^15.2.3",
     "@types/sharedb": "^3.2.1",
-    "@typescript-eslint/parser": "^8.19.1",
-    "@rollup/plugin-swc": "0.4.0",
-    "@swc/core": "1.9.2",
     "chai": "^4.4.1",
-    "eslint": "^9.16.0",
-    "globals": "^15.14.0",
     "karma": "^6.4.2",
     "karma-chrome-launcher": "^3.2.0",
     "karma-mocha": "2.0.1",
     "karma-spec-reporter": "^0.0.36",
     "mocha": "^10.2.0",
     "ot-text": "github:playcanvas/ot-text",
-    "rollup": "^4.9.5",
     "rollup-plugin-dts": "^6.1.1",
-    "rollup-plugin-polyfill-node": "^0.13.0",
     "sharedb": "^3.2.1",
-    "sinon": "^17.0.1",
-    "typescript": "^5.3.3"
+    "sinon": "^17.0.1"
   },
   "scripts": {
     "build": "rollup -c",
@@ -38,8 +26,5 @@
     "test:debug": "karma start test/karma.conf.cjs --single-run=false --browsers Chrome",
     "type:check": "tsc --noEmit",
     "watch": "rollup -c -w"
-  },
-  "engines": {
-    "node": ">=18.0.0"
   }
 }
