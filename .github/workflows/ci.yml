@@ -47,6 +47,9 @@ jobs:
       - name: Install Editor API Module Dependencies
         run: npm ci --prefix modules/editor-api
 
+      - name: Build Editor API Module
+        run: npm run build --prefix modules/editor-api
+
       - name: Run ESLint
         run: npm run lint
 

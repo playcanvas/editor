@@ -15,9 +15,9 @@
     "sinon": "^17.0.1"
   },
   "scripts": {
-    "postinstall": "rollup -c",
-    "build": "rollup -c --environment TEST:true",
-    "test": "npm -s run build && karma start test/karma.conf.cjs --single-run",
-    "test:debug": "npm -s run build && karma start test/karma.conf.cjs --single-run=false --browsers Chrome"
+    "build": "rollup -c",
+    "build:test": "rollup -c --environment TEST:true",
+    "test": "npm -s run build:test && karma start test/karma.conf.cjs --single-run",
+    "test:debug": "npm -s run build:test && karma start test/karma.conf.cjs --single-run=false --browsers Chrome"
   }
 }
