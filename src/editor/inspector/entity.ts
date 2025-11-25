@@ -1,7 +1,7 @@
-import { LocalStorage } from '@playcanvas/editor-api';
 import { Container, Button, Menu } from '@playcanvas/pcui';
 
 import { COMPONENT_LOGOS } from '@/core/constants';
+import { LocalStorage } from '@playcanvas/editor-api';
 
 import type { Attribute } from './attribute.type.d';
 import { AttributesInspector } from './attributes-inspector';

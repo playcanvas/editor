@@ -1,4 +1,3 @@
-import { type EntityObserver } from '@playcanvas/editor-api';
 import {
     type Entity,
     type MeshInstance,
@@ -10,6 +9,7 @@ import {
 } from 'playcanvas';
 
 import { Defer } from '@/common/defer';
+import { type EntityObserver } from '@playcanvas/editor-api';
 
 type GizmoNodeTransform = {
     position: number[];

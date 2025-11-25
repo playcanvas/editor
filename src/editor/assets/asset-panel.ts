@@ -1,4 +1,3 @@
-import { type AssetObserver } from '@playcanvas/editor-api';
 import { Observer, type ObserverList, type EventHandle } from '@playcanvas/observer';
 import {
     Element,
@@ -28,6 +27,7 @@ import { TableRow } from '@/common/pcui/element/element-table-row';
 import { type Tooltip } from '@/common/pcui/element/element-tooltip';
 import { LegacyTooltip } from '@/common/ui/tooltip';
 import { bytesToHuman, naturalCompare } from '@/common/utils';
+import { type AssetObserver } from '@playcanvas/editor-api';
 
 const CLASS_ROOT = 'pcui-asset-panel';
 const CLASS_LEFT = `${CLASS_ROOT}-left`;

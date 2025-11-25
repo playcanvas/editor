@@ -1,6 +1,7 @@
-import { Asset as EditorAsset } from '@playcanvas/editor-api';
 import { Observer } from '@playcanvas/observer';
 import type { Entity, Layer, Template, Asset, AppBase, WebglGraphicsDevice, MeshInstance, RenderComponent, BoundingBox, AssetReference } from 'playcanvas';
+
+import { Asset as EditorAsset } from '@playcanvas/editor-api';
 
 import { ThumbnailRenderer } from './thumbnail-renderer';
 

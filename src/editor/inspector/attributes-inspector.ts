@@ -1,10 +1,10 @@
-import type { History } from '@playcanvas/editor-api';
 import type { Observer, ObserverList } from '@playcanvas/observer';
 import { Element, Container, LabelGroup, Panel, Button, ArrayInput, BindingTwoWay, Label, type ContainerArgs } from '@playcanvas/pcui';
 
 import { AssetInput } from '@/common/pcui/element/element-asset-input';
 import { tooltip, tooltipRefItem } from '@/common/tooltips';
 import { LegacyTooltip } from '@/common/ui/tooltip';
+import type { History } from '@playcanvas/editor-api';
 
 import type { Attribute } from './attribute.type.d';
 import '../storage/clipboard-context-menu';

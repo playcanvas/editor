@@ -1,8 +1,7 @@
-import * as api from '@playcanvas/editor-api';
-
 import { type EditorMethods, Editor } from '@/common/editor';
 import { Messenger } from '@/common/messenger';
 import { MERGE_STATUS_APPLY_STARTED, MERGE_STATUS_AUTO_STARTED, MERGE_STATUS_READY_FOR_REVIEW } from '@/core/constants';
+import * as api from '@playcanvas/editor-api';
 
 class MainEditor extends Editor<EditorMethods> {
     constructor() {

@@ -99,9 +99,11 @@ const modulesConfig = {
     rules: {
         'accessor-pairs': ['error', { setWithoutGet: false, getWithoutSet: false }],
         'curly': ['error', 'all'],
+        'jsdoc/require-jsdoc': 'off',
+        'jsdoc/require-param': 'off',
         'jsdoc/require-param-type': 'off',
-        'jsdoc/require-returns-type': 'off',
         'jsdoc/require-returns': 'off',
+        'jsdoc/require-returns-type': 'off',
         'no-use-before-define': 'off',
         'no-var': 'off'
     }
@@ -152,9 +154,13 @@ export default [
     esmJsConfig,
     {
         ignores: [
+            '**/node_modules/**',
+            '**/dist/**',
             'src/realtime/share.uncompressed.js', // added when serving
-            'src/modules/pcui-diff.js',
-            'src/wasm/**/*.js'
+            'src/wasm/**/*.js',
+            'modules/pcui-diff.ts',
+            'modules/editor-api/test',
+            'modules/editor-api/types'
         ]
     }
 ];

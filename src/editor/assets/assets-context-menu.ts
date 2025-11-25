@@ -1,5 +1,6 @@
-import { Asset, Entity } from '@playcanvas/editor-api';
 import { Menu, MenuItem } from '@playcanvas/pcui';
+
+import { Asset, Entity } from '@playcanvas/editor-api';
 
 editor.once('load', () => {
     let currentAsset = null;
