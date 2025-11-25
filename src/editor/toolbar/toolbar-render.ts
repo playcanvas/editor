@@ -131,9 +131,7 @@ editor.once('viewport:load', (app) => {
     };
     for (const name in shaderPassMap) {
         createShaderOption(name, name === 'Standard', () => {
-            const camera = editor.call('camera:current');
-            camera.camera.setShaderPass(shaderPassMap[name]);
-            editor.call('viewport:render');
+            editor.emit('camera:shader:pass', shaderPassMap[name]);
         });
     }
 
