@@ -317,8 +317,8 @@ editor.once('load', () => {
         });
 
         editor.on('camera:shader:pass', (shaderPass: string) => {
-            for (const key in editorCameras) {
-                const entity = editorCameras[key];
+            for (const key in camerasIndex) {
+                const entity = camerasIndex[key];
                 entity.camera.setShaderPass(shaderPass);
             }
             editor.call('viewport:render');
