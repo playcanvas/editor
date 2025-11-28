@@ -6666,6 +6666,11 @@ strong {
                 white-space: nowrap;
                 line-height: 1;
                 color: $text-primary;
+
+                &.selectable {
+                    user-select: text;
+                    cursor: text;
+                }
             }
 
             > .primary {

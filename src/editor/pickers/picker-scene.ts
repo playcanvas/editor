@@ -138,7 +138,9 @@ editor.once('load', () => {
 
         container.append(row);
 
-        if (config.scene.id && parseInt(scene.id, 10) === parseInt(config.scene.id, 10)) {
+        const isCurrentScene = config.scene.id && parseInt(scene.id, 10) === parseInt(config.scene.id, 10);
+
+        if (isCurrentScene) {
             row.class.add('current');
         }
 
@@ -147,6 +149,11 @@ editor.once('load', () => {
             text: scene.name
         });
         name.class.add('name');
+
+        // make name text selectable only for current scene
+        if (isCurrentScene) {
+            name.class.add('selectable');
+        }
 
         row.element.appendChild(name.element);
 
@@ -174,7 +181,7 @@ editor.once('load', () => {
             dropdownMenu.position(rect.right - dropdownMenu.innerElement.clientWidth, rect.bottom);
         });
 
-        if (parseInt(config.scene.id, 10) !== parseInt(scene.id, 10)) {
+        if (!isCurrentScene) {
             events.push(row.on('click', (e) => {
                 if (e.target === row.element || e.target === name.element || e.target === date.element) {
                     if (parseInt(config.scene.id, 10) === parseInt(scene.id, 10)) {
