@@ -6,13 +6,13 @@
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "devDependencies": {
-    "chai": "^4.4.1",
-    "karma": "^6.4.2",
-    "karma-chrome-launcher": "^3.2.0",
+    "chai": "4.5.0",
+    "karma": "6.4.4",
+    "karma-chrome-launcher": "3.2.0",
     "karma-mocha": "2.0.1",
-    "karma-spec-reporter": "^0.0.36",
-    "mocha": "^10.2.0",
-    "sinon": "^17.0.1"
+    "karma-spec-reporter": "0.0.36",
+    "mocha": "10.8.2",
+    "sinon": "17.0.1"
   },
   "scripts": {
     "build": "rollup -c",
