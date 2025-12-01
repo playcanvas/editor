@@ -152,15 +152,8 @@ editor.once('load', () => {
                 return;
             }
 
-            let component = '';
-            for (let i = 0; i < components.length; i++) {
-                if (!this._link.has(`components.${components[i]}`)) {
-                    continue;
-                }
-
-                component = components[i];
-                break;
-            }
+            // Find the first component that should display an icon (priority order)
+            const component = components.find(c => this._link.has(`components.${c}`)) || '';
 
             if (component) {
                 if (!this.entity) {
@@ -196,16 +189,14 @@ editor.once('load', () => {
 
                 if (this.local !== component) {
                     // clear local binds
-                    for (let n = 0; n < this.eventsLocal.length; n++) {
-                        this.eventsLocal[n].unbind();
-                    }
+                    this.eventsLocal.forEach(evt => evt.unbind());
                     this.eventsLocal = [];
 
                     // add local binds
                     if (dirtifyLocalKeys[component]) {
-                        for (let n = 0; n < dirtifyLocalKeys[component].length; n++) {
-                            this.eventsLocal.push(this._link.on(dirtifyLocalKeys[component][n], this.dirtify));
-                        }
+                        dirtifyLocalKeys[component].forEach(key => {
+                            this.eventsLocal.push(this._link.on(key, this.dirtify));
+                        });
                     }
                 }
             } else if (this.entity) {
@@ -217,14 +208,14 @@ editor.once('load', () => {
             this.unlink();
 
             this._link = obj;
-            for (let i = 0; i < dirtifyKeys.length; i++) {
-                this.events.push(obj.on(dirtifyKeys[i], this.dirtify));
-            }
+            dirtifyKeys.forEach(key => {
+                this.events.push(obj.on(key, this.dirtify));
+            });
 
-            for (let i = 0; i < components.length; i++) {
-                this.events.push(obj.on(`components.${components[i]}:set`, this.dirtify));
-                this.events.push(obj.on(`components.${components[i]}:unset`, this.dirtify));
-            }
+            components.forEach(component => {
+                this.events.push(obj.on(`components.${component}:set`, this.dirtify));
+                this.events.push(obj.on(`components.${component}:unset`, this.dirtify));
+            });
 
             this.events.push(obj.once('destroy', () => {
                 this.unlink();
@@ -240,9 +231,7 @@ editor.once('load', () => {
                 return;
             }
 
-            for (let i = 0; i < this.events.length; i++) {
-                this.events[i].unbind();
-            }
+            this.events.forEach(evt => evt.unbind());
 
             if (this.entity) {
                 this.entityDelete();
