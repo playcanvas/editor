@@ -253,12 +253,15 @@ editor.once('load', () => {
             }
 
             this.events.forEach(evt => evt.unbind());
+            this.eventsLocal.forEach(evt => evt.unbind());
 
             if (this.entity) {
                 this.entityDelete();
             }
 
             this.events = [];
+            this.eventsLocal = [];
+            this.local = '';
             this._link = null;
 
             const ind = icons.indexOf(this);
