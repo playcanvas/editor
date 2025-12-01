@@ -219,6 +219,8 @@ editor.once('load', () => {
                             this.eventsLocal.push(this._link.on(key, this.dirtify));
                         });
                     }
+
+                    this.local = component;
                 }
             } else if (this.entity) {
                 this.entityDelete();
