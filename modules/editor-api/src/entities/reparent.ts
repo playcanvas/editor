@@ -96,12 +96,10 @@ function reparentEntities(data: ReparentArguments[], options: { preserveTransfor
             // localScale = worldScale / parentWorldScale (component-wise division)
             if (scale) {
                 const parentWorldScale = entity.viewportEntity.parent.getScale();
-                const localScale = new pc.Vec3();
-                localScale.x = scale.x / parentWorldScale.x;
-                localScale.y = scale.y / parentWorldScale.y;
-                localScale.z = scale.z / parentWorldScale.z;
-
-                entity.viewportEntity.setLocalScale(localScale);
+                const x = scale.x / parentWorldScale.x;
+                const y = scale.y / parentWorldScale.y;
+                const z = scale.z / parentWorldScale.z;
+                entity.viewportEntity.setLocalScale(x, y, z);
             }
 
             const localPosition = entity.viewportEntity.getLocalPosition();
