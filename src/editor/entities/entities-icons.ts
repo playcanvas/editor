@@ -20,9 +20,8 @@ editor.once('load', () => {
             'components.light.type:set'
         ]
     };
-    let material = null;
-    let materialBehind = null;
-    const iconColor = new pc.Color(1, 1, 1, 1);
+    const materials = { };
+    const materialsBehind = { };
     const textures = { };
     let scale = 0.5;
     const cameraRotation = new pc.Quat();
@@ -32,8 +31,6 @@ editor.once('load', () => {
     class ViewportIcon {
         entity: any = null;
         behind: any = null;
-        color = new pc.Color();
-        colorUniform = new Float32Array(4);
         _link: any = null;
         events: any[] = [];
         eventsLocal: any[] = [];
@@ -161,31 +158,27 @@ editor.once('load', () => {
                 }
 
                 this.entity.enabled = true;
-                this.entity.render.material = material;
-                this.behind.render.material = materialBehind;
 
-                this.color.copy(iconColor);
                 let textureName = component;
                 if (component === 'light') {
                     textureName += `-${this._link.entity.light.type}`;
-                    this.color.copy(this._link.entity.light.color);
                 }
 
-                if (!textureName || !textures[textureName]) {
+                if (!textureName || !materials[textureName]) {
                     textureName = 'unknown';
                 }
 
-                this.entity.render.meshInstances[0].setParameter('texture_diffuseMap', textures[textureName]);
-                this.colorUniform[0] = this.color.r;
-                this.colorUniform[1] = this.color.g;
-                this.colorUniform[2] = this.color.b;
-                this.colorUniform[3] = this.color.a;
-                this.entity.render.meshInstances[0].setParameter('uColor', this.colorUniform);
+                this.entity.render.material = materials[textureName];
+                this.behind.render.material = materialsBehind[textureName];
 
-                this.behind.render.meshInstances[0].setParameter('texture_diffuseMap', textures[textureName]);
-                this.color.a = 0.25;
-                this.colorUniform[3] = this.color.a;
-                this.behind.render.meshInstances[0].setParameter('uColor', this.colorUniform);
+                // Update light color if needed
+                if (component === 'light') {
+                    const lightColor = this._link.entity.light.color;
+                    materials[textureName].emissive.copy(lightColor);
+                    materials[textureName].update();
+                    materialsBehind[textureName].emissive.copy(lightColor);
+                    materialsBehind[textureName].update();
+                }
 
                 if (this.local !== component) {
                     // clear local binds
@@ -249,69 +242,51 @@ editor.once('load', () => {
     editor.once('viewport:load', (application) => {
         app = application;
 
-        const vshader = `
-            attribute vec3 vertex_position;
-
-            uniform mat4 matrix_model;
-            uniform mat4 matrix_viewProjection;
-
-            varying vec2 vUv0;
-
-            void main(void)
-            {
-                mat4 modelMatrix = matrix_model;
-                vec4 positionW = modelMatrix * vec4(vertex_position, 1.0);
-                gl_Position = matrix_viewProjection * positionW;
-                vUv0 = vertex_position.xz + vec2(0.5);
-            }`;
-
-        const fshader = `
-            varying vec2 vUv0;
-
-            uniform vec4 uColor;
-            uniform sampler2D texture_diffuseMap;
-
-            void main(void)
-            {
-                float alpha = texture2D(texture_diffuseMap, vUv0).b;
-                if (alpha < 0.5) discard;
-                gl_FragColor = vec4(uColor.rgb, uColor.a * alpha);
-            }`;
-
-        const shaderDesc = {
-            uniqueName: 'EntitiesIconShader',
-            vertexGLSL: vshader,
-            fragmentGLSL: fshader,
-            attributes: {
-                vertex_position: pc.SEMANTIC_POSITION
-            }
-        };
-
-        material = new pc.ShaderMaterial(shaderDesc);
-        material.update();
-
-        materialBehind = new pc.ShaderMaterial(shaderDesc);
-        materialBehind.blendState = new pc.BlendState(true, pc.BLENDEQUATION_ADD, pc.BLENDMODE_SRC_ALPHA, pc.BLENDMODE_ONE_MINUS_SRC_ALPHA);
-        materialBehind.update();
-
         iconsEntity = new pc.Entity(app);
         app.root.addChild(iconsEntity);
 
         for (let i = 0; i < textureNames.length; i++) {
-            textures[textureNames[i]] = new pc.Texture(app.graphicsDevice, {
+            const textureName = textureNames[i];
+            
+            textures[textureName] = new pc.Texture(app.graphicsDevice, {
                 width: 64,
                 height: 64
             });
-            textures[textureNames[i]].anisotropy = 16;
-            textures[textureNames[i]].addressU = pc.ADDRESS_CLAMP_TO_EDGE;
-            textures[textureNames[i]].addressV = pc.ADDRESS_CLAMP_TO_EDGE;
+            textures[textureName].anisotropy = 16;
+            textures[textureName].addressU = pc.ADDRESS_CLAMP_TO_EDGE;
+            textures[textureName].addressV = pc.ADDRESS_CLAMP_TO_EDGE;
+            textures[textureName].minFilter = pc.FILTER_NEAREST;
+            textures[textureName].magFilter = pc.FILTER_NEAREST;
 
             const img = new Image();
-            img.textureName = textureNames[i];
+            img.textureName = textureName;
             img.onload = function () {
                 textures[this.textureName].setSource(this);
             };
-            img.src = `/editor/scene/img/entity-icons/${textureNames[i]}.png`;
+            img.src = `/editor/scene/img/entity-icons/${textureName}.png`;
+
+            // Create front material (bright when visible)
+            materials[textureName] = new pc.StandardMaterial();
+            materials[textureName].emissive = pc.Color.WHITE;
+            materials[textureName].opacityMap = textures[textureName];
+            materials[textureName].opacityMapChannel = 'b';
+            materials[textureName].alphaTest = 0.05;
+            materials[textureName].blendType = pc.BLEND_NONE;
+            materials[textureName].depthTest = true;
+            materials[textureName].depthWrite = true;
+            materials[textureName].update();
+
+            // Create behind material (dimmed when occluded)
+            materialsBehind[textureName] = new pc.StandardMaterial();
+            materialsBehind[textureName].emissive = pc.Color.WHITE;
+            materialsBehind[textureName].opacityMap = textures[textureName];
+            materialsBehind[textureName].opacityMapChannel = 'b';
+            materialsBehind[textureName].opacity = 0.25;
+            materialsBehind[textureName].alphaTest = 0.05;
+            materialsBehind[textureName].blendType = pc.BLEND_NORMAL;
+            materialsBehind[textureName].depthTest = false;
+            materialsBehind[textureName].depthWrite = false;
+            materialsBehind[textureName].update();
         }
 
         editor.on('entities:add', (obj) => {
