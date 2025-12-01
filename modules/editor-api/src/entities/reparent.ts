@@ -30,6 +30,7 @@ function reparentEntities(data: ReparentArguments[], options: { preserveTransfor
         if (options.preserveTransform) {
             record.position = record.entity.viewportEntity.getPosition().clone();
             record.rotation = record.entity.viewportEntity.getRotation().clone();
+            record.scale = record.entity.viewportEntity.getScale().clone();
         }
 
         return record;
@@ -65,7 +66,7 @@ function reparentEntities(data: ReparentArguments[], options: { preserveTransfor
     };
 
 
-    const doReparent = (entity: Entity, parent: Entity, indNew: number, position: any, rotation: any) => {
+    const doReparent = (entity: Entity, parent: Entity, indNew: number, position: any, rotation: any, scale: any) => {
         const history = {
             parent: parent.history.enabled,
             entity: entity.history.enabled
@@ -91,10 +92,24 @@ function reparentEntities(data: ReparentArguments[], options: { preserveTransfor
             entity.viewportEntity.setPosition(position);
             entity.viewportEntity.setRotation(rotation);
 
+            // Calculate local scale from desired world scale
+            // localScale = worldScale / parentWorldScale (component-wise division)
+            if (scale) {
+                const parentWorldScale = entity.viewportEntity.parent.getScale();
+                const localScale = new pc.Vec3();
+                localScale.x = scale.x / parentWorldScale.x;
+                localScale.y = scale.y / parentWorldScale.y;
+                localScale.z = scale.z / parentWorldScale.z;
+
+                entity.viewportEntity.setLocalScale(localScale);
+            }
+
             const localPosition = entity.viewportEntity.getLocalPosition();
             const localRotation = entity.viewportEntity.getLocalEulerAngles();
+            const localScale = entity.viewportEntity.getLocalScale();
             entity.set('position', [localPosition.x, localPosition.y, localPosition.z]);
             entity.set('rotation', [localRotation.x, localRotation.y, localRotation.z]);
+            entity.set('scale', [localScale.x, localScale.y, localScale.z]);
         }
 
         entity.history.enabled = history.entity;
@@ -161,7 +176,8 @@ function reparentEntities(data: ReparentArguments[], options: { preserveTransfor
                 data.parent,
                 record.indNew,
                 record.position,
-                record.rotation
+                record.rotation,
+                record.scale
             );
         });
 
@@ -242,7 +258,8 @@ function reparentEntities(data: ReparentArguments[], options: { preserveTransfor
                     data.parentOld,
                     record.indOld,
                     record.position,
-                    record.rotation
+                    record.rotation,
+                    record.scale
                 );
             });
 
