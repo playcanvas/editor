@@ -93,7 +93,8 @@ editor.once('load', () => {
             meshCompression: projectUserSettings.get('editor.pipeline.meshCompression'),
             unwrapUv: projectUserSettings.get('editor.pipeline.unwrapUv'),
             unwrapUvTexelsPerMeter: projectUserSettings.get('editor.pipeline.unwrapUvTexelsPerMeter'),
-            importMorphNormals: projectUserSettings.get('editor.pipeline.importMorphNormals')
+            importMorphNormals: projectUserSettings.get('editor.pipeline.importMorphNormals'),
+            useUniqueIndices: projectUserSettings.get('editor.pipeline.useUniqueIndices')
         };
     };
 
