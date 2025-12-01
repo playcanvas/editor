@@ -96,10 +96,17 @@ function reparentEntities(data: ReparentArguments[], options: { preserveTransfor
             // localScale = worldScale / parentWorldScale (component-wise division)
             if (scale) {
                 const parentWorldScale = entity.viewportEntity.parent.getScale();
-                const x = scale.x / parentWorldScale.x;
-                const y = scale.y / parentWorldScale.y;
-                const z = scale.z / parentWorldScale.z;
-                entity.viewportEntity.setLocalScale(x, y, z);
+                // Only preserve scale if parent scale is valid (non-zero on all axes)
+                // to avoid division by zero or NaN/Infinity values
+                const epsilon = 0.0001;
+                if (Math.abs(parentWorldScale.x) > epsilon &&
+                    Math.abs(parentWorldScale.y) > epsilon &&
+                    Math.abs(parentWorldScale.z) > epsilon) {
+                    const x = scale.x / parentWorldScale.x;
+                    const y = scale.y / parentWorldScale.y;
+                    const z = scale.z / parentWorldScale.z;
+                    entity.viewportEntity.setLocalScale(x, y, z);
+                }
             }
 
             const localPosition = entity.viewportEntity.getLocalPosition();
