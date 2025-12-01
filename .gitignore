@@ -1,5 +1,4 @@
 .env*
-.auth
 node_modules
 .sass-cache
 /.idea
@@ -8,3 +7,4 @@ dist
 .npmrc
 /.vscode
 modules/editor-api/types
+/test-results
