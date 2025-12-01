@@ -29,236 +29,233 @@ editor.once('load', () => {
     let selectedIds = { };
 
     // icon class
-    function Icon() {
-        const self = this;
+    class ViewportIcon {
+        entity: any = null;
+        behind: any = null;
+        color = new pc.Color();
+        colorUniform = new Float32Array(4);
+        _link: any = null;
+        events: any[] = [];
+        eventsLocal: any[] = [];
+        local = '';
+        dirty = true;
 
-        this.entity = null;
-        this.behind = null;
-        this.color = new pc.Color();
-        this.colorUniform = new Float32Array(4);
-
-        this._link = null;
-        this.events = [];
-        this.eventsLocal = [];
-        this.local = '';
-        this.dirty = true;
-        this.dirtify = function () {
-            self.dirty = true;
-        };
-    }
-
-    Icon.prototype.entityCreate = function () {
-        if (this.entity) {
-            return;
-        }
-
-        if (!app) {
-            return;
-        } // webgl not available
-
-        const self = this;
-
-        this.entity = new pc.Entity('front', app);
-        this.entity._icon = true;
-        this.entity._getEntity = function () {
-            return self._link && self._link.entity || null;
+        dirtify = () => {
+            this.dirty = true;
         };
 
-        const layerFront = editor.call('gizmo:layers', 'Bright Gizmo');
-        const layerBehind = editor.call('gizmo:layers', 'Dim Gizmo');
-
-        this.entity.addComponent('model', {
-            type: 'plane',
-            castShadows: false,
-            receiveShadows: false,
-            castShadowsLightmap: false,
-            layers: [layerFront.id]
-        });
-        this.entity.model.meshInstances[0].__editor = true;
-        this.entity.model.meshInstances[0].mask = GIZMO_MASK;
-
-        if (this._link && this._link.entity) {
-            this.entity.setPosition(this._link.entity.getPosition());
-        }
-
-        this.entity.setLocalScale(scale, scale, scale);
-        this.entity.setRotation(cameraRotation);
-        this.entity.rotateLocal(90, 0, 0);
-
-        this.behind = new pc.Entity('behind', app);
-        this.behind._icon = true;
-        this.behind._getEntity = this.entity._getEntity;
-        this.entity.addChild(this.behind);
-        this.behind.addComponent('model', {
-            type: 'plane',
-            castShadows: false,
-            receiveShadows: false,
-            castShadowsLightmap: false,
-            layers: [layerBehind.id]
-        });
-        this.behind.model.meshInstances[0].mask = GIZMO_MASK;
-        this.behind.model.meshInstances[0].pick = false;
-
-        iconsEntity.addChild(this.entity);
-    };
-
-    Icon.prototype.entityDelete = function () {
-        if (!this.entity) {
-            return;
-        }
-
-        this.entity.destroy();
-
-        this.entity = null;
-        this.behind = null;
-    };
-
-    Icon.prototype.update = function () {
-        if (!this._link || !this._link.entity) {
-            return;
-        }
-
-        // don't render if selected or disabled
-        if (!this._link.entity._enabled || !this._link.entity._enabledInHierarchy || this._link.entity.__noIcon || scale === 0 || selectedIds[this._link.entity.getGuid()]) {
+        entityCreate() {
             if (this.entity) {
-                this.entityDelete();
+                return;
             }
 
-            this.dirty = true;
-            return;
-        }
+            if (!app) {
+                return;
+            } // webgl not available
 
-        if (this.entity) {
-            // position
-            this.entity.setPosition(this._link.entity.getPosition());
+            this.entity = new pc.Entity('front', app);
+            this.entity._icon = true;
+            this.entity._getEntity = () => {
+                return this._link && this._link.entity || null;
+            };
+
+            const layerFront = editor.call('gizmo:layers', 'Bright Gizmo');
+            const layerBehind = editor.call('gizmo:layers', 'Dim Gizmo');
+
+            this.entity.addComponent('render', {
+                type: 'plane',
+                castShadows: false,
+                receiveShadows: false,
+                castShadowsLightmap: false,
+                layers: [layerFront.id]
+            });
+            this.entity.render.meshInstances[0].__editor = true;
+            this.entity.render.meshInstances[0].mask = GIZMO_MASK;
+
+            if (this._link && this._link.entity) {
+                this.entity.setPosition(this._link.entity.getPosition());
+            }
+
             this.entity.setLocalScale(scale, scale, scale);
             this.entity.setRotation(cameraRotation);
             this.entity.rotateLocal(90, 0, 0);
+
+            this.behind = new pc.Entity('behind', app);
+            this.behind._icon = true;
+            this.behind._getEntity = this.entity._getEntity;
+            this.entity.addChild(this.behind);
+            this.behind.addComponent('render', {
+                type: 'plane',
+                castShadows: false,
+                receiveShadows: false,
+                castShadowsLightmap: false,
+                layers: [layerBehind.id]
+            });
+            this.behind.render.meshInstances[0].mask = GIZMO_MASK;
+            this.behind.render.meshInstances[0].pick = false;
+
+            iconsEntity.addChild(this.entity);
         }
 
-        if (!this.dirty) {
-            return;
-        }
-        this.dirty = false;
-
-        // hide icon if model is set
-        if (this._link.has('components.model') && this._link.get('components.model.enabled') && (this._link.get('components.model.type') !== 'asset' || this._link.get('components.model.asset'))) {
-            if (this.entity) {
-                this.entityDelete();
-            }
-            return;
-        }
-
-        // hide icon if element is set
-        if (this._link.has('components.element') && this._link.get('components.element.enabled')) {
-            if (this.entity) {
-                this.entityDelete();
-            }
-            return;
-        }
-
-        let component = '';
-        for (let i = 0; i < components.length; i++) {
-            if (!this._link.has(`components.${components[i]}`)) {
-                continue;
-            }
-
-            component = components[i];
-            break;
-        }
-
-        if (component) {
+        entityDelete() {
             if (!this.entity) {
-                this.entityCreate();
+                return;
             }
 
-            this.entity.enabled = true;
-            this.entity.model.material = material;
-            this.behind.model.material = materialBehind;
+            this.entity.destroy();
 
-            this.color.copy(iconColor);
-            let textureName = component;
-            if (component === 'light') {
-                textureName += `-${this._link.entity.light.type}`;
-                this.color.copy(this._link.entity.light.color);
+            this.entity = null;
+            this.behind = null;
+        }
+
+        update() {
+            if (!this._link || !this._link.entity) {
+                return;
             }
 
-            if (!textureName || !textures[textureName]) {
-                textureName = 'unknown';
-            }
-
-            this.entity.model.meshInstances[0].setParameter('texture_diffuseMap', textures[textureName]);
-            this.colorUniform[0] = this.color.r;
-            this.colorUniform[1] = this.color.g;
-            this.colorUniform[2] = this.color.b;
-            this.colorUniform[3] = this.color.a;
-            this.entity.model.meshInstances[0].setParameter('uColor', this.colorUniform);
-
-            this.behind.model.meshInstances[0].setParameter('texture_diffuseMap', textures[textureName]);
-            this.color.a = 0.25;
-            this.colorUniform[3] = this.color.a;
-            this.behind.model.meshInstances[0].setParameter('uColor', this.colorUniform);
-
-            if (this.local !== component) {
-                // clear local binds
-                for (let n = 0; n < this.eventsLocal.length; n++) {
-                    this.eventsLocal[n].unbind();
+            // don't render if selected or disabled
+            if (!this._link.entity._enabled || !this._link.entity._enabledInHierarchy || this._link.entity.__noIcon || scale === 0 || selectedIds[this._link.entity.getGuid()]) {
+                if (this.entity) {
+                    this.entityDelete();
                 }
-                this.eventsLocal = [];
 
-                // add local binds
-                if (dirtifyLocalKeys[component]) {
-                    for (let n = 0; n < dirtifyLocalKeys[component].length; n++) {
-                        this.eventsLocal.push(this._link.on(dirtifyLocalKeys[component][n], this.dirtify));
+                this.dirty = true;
+                return;
+            }
+
+            if (this.entity) {
+                // position
+                this.entity.setPosition(this._link.entity.getPosition());
+                this.entity.setLocalScale(scale, scale, scale);
+                this.entity.setRotation(cameraRotation);
+                this.entity.rotateLocal(90, 0, 0);
+            }
+
+            if (!this.dirty) {
+                return;
+            }
+            this.dirty = false;
+
+            // hide icon if model is set
+            if (this._link.has('components.model') && this._link.get('components.model.enabled') && (this._link.get('components.model.type') !== 'asset' || this._link.get('components.model.asset'))) {
+                if (this.entity) {
+                    this.entityDelete();
+                }
+                return;
+            }
+
+            // hide icon if element is set
+            if (this._link.has('components.element') && this._link.get('components.element.enabled')) {
+                if (this.entity) {
+                    this.entityDelete();
+                }
+                return;
+            }
+
+            let component = '';
+            for (let i = 0; i < components.length; i++) {
+                if (!this._link.has(`components.${components[i]}`)) {
+                    continue;
+                }
+
+                component = components[i];
+                break;
+            }
+
+            if (component) {
+                if (!this.entity) {
+                    this.entityCreate();
+                }
+
+                this.entity.enabled = true;
+                this.entity.render.material = material;
+                this.behind.render.material = materialBehind;
+
+                this.color.copy(iconColor);
+                let textureName = component;
+                if (component === 'light') {
+                    textureName += `-${this._link.entity.light.type}`;
+                    this.color.copy(this._link.entity.light.color);
+                }
+
+                if (!textureName || !textures[textureName]) {
+                    textureName = 'unknown';
+                }
+
+                this.entity.render.meshInstances[0].setParameter('texture_diffuseMap', textures[textureName]);
+                this.colorUniform[0] = this.color.r;
+                this.colorUniform[1] = this.color.g;
+                this.colorUniform[2] = this.color.b;
+                this.colorUniform[3] = this.color.a;
+                this.entity.render.meshInstances[0].setParameter('uColor', this.colorUniform);
+
+                this.behind.render.meshInstances[0].setParameter('texture_diffuseMap', textures[textureName]);
+                this.color.a = 0.25;
+                this.colorUniform[3] = this.color.a;
+                this.behind.render.meshInstances[0].setParameter('uColor', this.colorUniform);
+
+                if (this.local !== component) {
+                    // clear local binds
+                    for (let n = 0; n < this.eventsLocal.length; n++) {
+                        this.eventsLocal[n].unbind();
+                    }
+                    this.eventsLocal = [];
+
+                    // add local binds
+                    if (dirtifyLocalKeys[component]) {
+                        for (let n = 0; n < dirtifyLocalKeys[component].length; n++) {
+                            this.eventsLocal.push(this._link.on(dirtifyLocalKeys[component][n], this.dirtify));
+                        }
                     }
                 }
+            } else if (this.entity) {
+                this.entityDelete();
             }
-        } else if (this.entity) {
-            this.entityDelete();
-        }
-    };
-    Icon.prototype.link = function (obj) {
-        this.unlink();
-
-        this._link = obj;
-        for (let i = 0; i < dirtifyKeys.length; i++) {
-            this.events.push(obj.on(dirtifyKeys[i], this.dirtify));
         }
 
-        for (let i = 0; i < components.length; i++) {
-            this.events.push(obj.on(`components.${components[i]}:set`, this.dirtify));
-            this.events.push(obj.on(`components.${components[i]}:unset`, this.dirtify));
+        link(obj) {
+            this.unlink();
+
+            this._link = obj;
+            for (let i = 0; i < dirtifyKeys.length; i++) {
+                this.events.push(obj.on(dirtifyKeys[i], this.dirtify));
+            }
+
+            for (let i = 0; i < components.length; i++) {
+                this.events.push(obj.on(`components.${components[i]}:set`, this.dirtify));
+                this.events.push(obj.on(`components.${components[i]}:unset`, this.dirtify));
+            }
+
+            this.events.push(obj.once('destroy', () => {
+                this.unlink();
+            }));
+
+            icons.push(this);
+
+            this.dirty = true;
         }
 
-        const self = this;
-        this.events.push(obj.once('destroy', () => {
-            self.unlink();
-        }));
+        unlink() {
+            if (!this._link) {
+                return;
+            }
 
-        icons.push(this);
+            for (let i = 0; i < this.events.length; i++) {
+                this.events[i].unbind();
+            }
 
-        this.dirty = true;
-    };
-    Icon.prototype.unlink = function () {
-        if (!this._link) {
-            return;
+            if (this.entity) {
+                this.entityDelete();
+            }
+
+            this.events = [];
+            this._link = null;
+
+            const ind = icons.indexOf(this);
+            icons.splice(ind, 1);
+            pool.push(this);
         }
-
-        for (let i = 0; i < this.events.length; i++) {
-            this.events[i].unbind();
-        }
-
-        if (this.entity) {
-            this.entityDelete();
-        }
-
-        this.events = [];
-        this._link = null;
-
-        const ind = icons.indexOf(this);
-        icons.splice(ind, 1);
-        pool.push(this);
-    };
+    }
 
     editor.once('viewport:load', (application) => {
         app = application;
@@ -331,7 +328,7 @@ editor.once('load', () => {
         editor.on('entities:add', (obj) => {
             let icon = pool.shift();
             if (!icon) {
-                icon = new Icon();
+                icon = new ViewportIcon();
             }
 
             icon.link(obj);
