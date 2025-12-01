@@ -33,7 +33,6 @@ editor.once('load', () => {
             width: ICON_TEXTURE_SIZE,
             height: ICON_TEXTURE_SIZE
         });
-        texture.anisotropy = 16;
         texture.addressU = pc.ADDRESS_CLAMP_TO_EDGE;
         texture.addressV = pc.ADDRESS_CLAMP_TO_EDGE;
         texture.minFilter = pc.FILTER_NEAREST;
@@ -57,7 +56,6 @@ editor.once('load', () => {
         return material;
     };
 
-    // icon class
     class ViewportIcon {
         entity: any = null;
 
@@ -78,13 +76,9 @@ editor.once('load', () => {
         };
 
         entityCreate() {
-            if (this.entity) {
+            if (this.entity || !app) {
                 return;
             }
-
-            if (!app) {
-                return;
-            } // webgl not available
 
             this.entity = new pc.Entity('front', app);
             this.entity._icon = true;
