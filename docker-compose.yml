@@ -4,5 +4,3 @@ services:
     container_name: playcanvas-editor
     env_file:
       - .env
-    volumes:
-      - ./.auth:/usr/src/test/.auth
