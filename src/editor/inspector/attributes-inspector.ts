@@ -120,14 +120,15 @@ class AttributesInspector extends Container {
         const group = new Container({
             class: 'tooltip-group'
         });
-        tooltip().attach({
-            container: group,
-            target: actualTarget,
-            horzAlignEl: this
-        });
 
-        // If tooltip data is provided, create a tooltip item
+        // Only attach tooltip if tooltip data is provided
         if (tooltipData) {
+            tooltip().attach({
+                container: group,
+                target: actualTarget,
+                horzAlignEl: this
+            });
+
             const tooltipItem = tooltipRefItem({
                 reference: tooltipData
             });
