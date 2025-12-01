@@ -1,4 +1,4 @@
-import { ThumbnailRenderer } from './thumbnail-renderer.ts';
+import { ThumbnailRenderer } from './thumbnail-renderer';
 
 const PREFILTERED_CUBEMAP_PROPERTIES = [
     'prefilteredCubeMap128',

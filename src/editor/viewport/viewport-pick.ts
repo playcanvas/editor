@@ -1,3 +1,5 @@
+import { FORCE_PICK_TAG } from '@/core/constants';
+
 editor.once('load', () => {
     const app = editor.call('viewport:app');
     if (!app) {
@@ -14,6 +16,11 @@ editor.once('load', () => {
     let picking = true;
     let filter = null;
     let mouseDown = false;
+    let gizmoHover = false;
+
+    editor.on('gizmo:transform:hover', (state) => {
+        gizmoHover = state;
+    });
 
     editor.method('viewport:pick:filter', (fn) => {
         if (filter === fn) {
@@ -40,6 +47,10 @@ editor.once('load', () => {
 
         // pick
         editor.call('viewport:pick', mouseCoords.x, mouseCoords.y, (node, picked) => {
+            if (gizmoHover && !node?.tags.has(FORCE_PICK_TAG)) {
+                node = null;
+                picked = null;
+            }
             if (pickedData.node !== node || pickedData.picked !== picked) {
                 pickedData.node = node;
                 pickedData.picked = picked;
@@ -125,6 +136,10 @@ editor.once('load', () => {
             editor.emit('viewport:pick:node', pickedData.node, pickedData.picked);
         } else {
             editor.call('viewport:pick', tap.x, tap.y, (node, picked) => {
+                if (gizmoHover && !node?.tags.has(FORCE_PICK_TAG)) {
+                    node = null;
+                    picked = null;
+                }
                 if (pickedData.node !== node || pickedData.picked !== picked) {
                     pickedData.node = node;
                     pickedData.picked = picked;

@@ -1,9 +1,10 @@
 import { Panel, Container } from '@playcanvas/pcui';
 
-import { CLASS_MULTIPLE_VALUES } from '../../../common/pcui/constants.ts';
-import { validateEnginePath } from '../../../common/utils.ts';
-import type { Attribute, Divider } from '../attribute.type.d.ts';
-import { AttributesInspector } from '../attributes-inspector.ts';
+import { CLASS_MULTIPLE_VALUES } from '@/common/pcui/constants';
+import { validateEnginePath } from '@/common/utils';
+
+import type { Attribute, Divider } from '../attribute.type.d';
+import { AttributesInspector } from '../attributes-inspector';
 
 
 const TextureTypes = {
@@ -701,7 +702,7 @@ const REFRACTION_ATTRIBUTES: (Attribute | Divider)[] = [{
     label: 'Vertex Color Channel',
     path: 'data.thicknessVertexColorChannel',
     type: 'boolean',
-    reference: 'asset:material:thicknessVertexColor',
+    reference: 'asset:material:thicknessVertexColorChannel',
     args: {
         type: 'string',
         options: [{

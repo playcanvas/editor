@@ -1,7 +1,7 @@
 import type { Observer } from '@playcanvas/observer';
 
-import { formatter as f } from '../../common/utils.ts';
-import { LAYERID_WORLD, LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE, LAYERID_UI } from '../../core/constants.ts';
+import { formatter as f } from '@/common/utils';
+import { LAYERID_WORLD, LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE, LAYERID_UI } from '@/core/constants';
 
 
 editor.once('load', () => {

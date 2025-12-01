@@ -1,4 +1,4 @@
-import { LegacyElement } from './element.ts';
+import { LegacyElement } from './element';
 
 class LegacyListItem extends LegacyElement {
     constructor(args = {}) {

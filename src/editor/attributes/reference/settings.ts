@@ -1,4 +1,4 @@
-import { AttributeReference } from './reference.type.ts';
+import { AttributeReference } from './reference.type';
 
 editor.once('load', () => {
     const fields: AttributeReference[] = [{
@@ -42,6 +42,12 @@ editor.once('load', () => {
     }, {
         name: 'settings:cameraGammaCorrection',
         description: 'Set the editor camera gamma correction. This setting does not affect the game.'
+    }, {
+        name: 'settings:gizmoSize',
+        description: 'Set the gizmo size in the editor viewport.'
+    }, {
+        name: 'settings:gizmoPreset',
+        description: 'Set the gizmo preset in the editor viewport. This affects the transform gizmos\'s style and interaction behavior.'
     }, {
         name: 'settings:showFog',
         description: 'Enable fog rendering in the viewport.'

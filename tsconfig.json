@@ -10,7 +10,10 @@
         "target": "esnext",
         "moduleResolution": "bundler",
         "outDir": "dist",
-        "lib": ["es6", "dom", "webworker"]
+        "lib": ["es6", "dom", "webworker"],
+        "paths": {
+            "@/*": ["./src/*"]
+        }
     },
     "include": [
         "src",

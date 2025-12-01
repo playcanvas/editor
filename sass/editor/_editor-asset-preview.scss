@@ -28,3 +28,10 @@
 .pcui-asset-preview-canvas-flip {
     transform: scale(1, -1);
 }
+
+.pcui-asset-preview-label-no-preview {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}

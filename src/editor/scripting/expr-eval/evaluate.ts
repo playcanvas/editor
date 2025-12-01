@@ -1,4 +1,4 @@
-import { parse } from './parser.ts';
+import { parse } from './parser';
 /**
  * Takes an expression as an AST and evaluates it.
  *

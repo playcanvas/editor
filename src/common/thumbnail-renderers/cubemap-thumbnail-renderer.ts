@@ -1,4 +1,4 @@
-import { buildQueryUrl } from '../utils.ts';
+import { buildQueryUrl } from '../utils';
 
 const POSITIONS = [
     [30 / 64, 22 / 64],

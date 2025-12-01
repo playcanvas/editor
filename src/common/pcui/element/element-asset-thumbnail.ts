@@ -1,15 +1,17 @@
-import { type AssetObserver } from '@playcanvas/editor-api';
 import { EventHandle, Observer, ObserverList } from '@playcanvas/observer';
 import { Element, type ElementArgs } from '@playcanvas/pcui';
 
-import { CubemapThumbnailRenderer } from '../../thumbnail-renderers/cubemap-thumbnail-renderer.ts';
-import { FontThumbnailRenderer } from '../../thumbnail-renderers/font-thumbnail-renderer.ts';
-import { MaterialThumbnailRenderer } from '../../thumbnail-renderers/material-thumbnail-renderer.ts';
-import { ModelThumbnailRenderer } from '../../thumbnail-renderers/model-thumbnail-renderer.ts';
-import { RenderThumbnailRenderer } from '../../thumbnail-renderers/render-thumbnail-renderer.ts';
-import { SpriteThumbnailRenderer } from '../../thumbnail-renderers/sprite-thumbnail-renderer.ts';
-import { buildQueryUrl } from '../../utils.ts';
-import { CLASS_MULTIPLE_VALUES } from '../constants.ts';
+import { type AssetObserver } from '@playcanvas/editor-api';
+
+import { CubemapThumbnailRenderer } from '../../thumbnail-renderers/cubemap-thumbnail-renderer';
+import { FontThumbnailRenderer } from '../../thumbnail-renderers/font-thumbnail-renderer';
+import { MaterialThumbnailRenderer } from '../../thumbnail-renderers/material-thumbnail-renderer';
+import { ModelThumbnailRenderer } from '../../thumbnail-renderers/model-thumbnail-renderer';
+import { RenderThumbnailRenderer } from '../../thumbnail-renderers/render-thumbnail-renderer';
+import { SpriteThumbnailRenderer } from '../../thumbnail-renderers/sprite-thumbnail-renderer';
+import { TemplateThumbnailRenderer } from '../../thumbnail-renderers/template-thumbnail-renderer';
+import { buildQueryUrl } from '../../utils';
+import { CLASS_MULTIPLE_VALUES } from '../constants';
 
 
 const CLASS_ASSET_THUMB = 'pcui-asset-thumb';
@@ -24,7 +26,8 @@ const CANVAS_TYPES = {
     'material': true,
     'model': true,
     'sprite': true,
-    'render': true
+    'render': true,
+    'template': false // TODO: Change to true after testing with optimisations (GH Issue #783)
 };
 
 type AssetThumbnailArgs = {
@@ -240,6 +243,9 @@ class AssetThumbnail extends Element {
                 break;
             case 'render':
                 this._canvasRenderer = new RenderThumbnailRenderer(asset, this._domCanvas);
+                break;
+            case 'template':
+                this._canvasRenderer = new TemplateThumbnailRenderer(asset, this._domCanvas);
                 break;
         }
 

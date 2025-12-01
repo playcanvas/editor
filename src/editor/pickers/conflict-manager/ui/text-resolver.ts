@@ -1,11 +1,11 @@
 import { Events } from '@playcanvas/observer';
 
-import { LegacyButton } from '../../../../common/ui/button.ts';
-import { LegacyLabel } from '../../../../common/ui/label.ts';
-import { LegacyMenuItem } from '../../../../common/ui/menu-item.ts';
-import { LegacyMenu } from '../../../../common/ui/menu.ts';
-import { LegacyPanel } from '../../../../common/ui/panel.ts';
-import { handleCallback } from '../../../../common/utils.ts';
+import { LegacyButton } from '@/common/ui/button';
+import { LegacyLabel } from '@/common/ui/label';
+import { LegacyMenu } from '@/common/ui/menu';
+import { LegacyMenuItem } from '@/common/ui/menu-item';
+import { LegacyPanel } from '@/common/ui/panel';
+import { handleCallback } from '@/common/utils';
 
 /**
  * Contains the UI for showing text conflicts using an i-framed code editor. Also contains buttons

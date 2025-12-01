@@ -1,6 +1,6 @@
 import { Observer } from '@playcanvas/observer';
 
-import { ObserverSync } from '../../common/observer-sync.ts';
+import { ObserverSync } from '@/common/observer-sync';
 
 editor.once('load', () => {
     const settings = new Observer();

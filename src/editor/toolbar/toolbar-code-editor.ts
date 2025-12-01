@@ -1,6 +1,6 @@
 import { Button } from '@playcanvas/pcui';
 
-import { LegacyTooltip } from '../../common/ui/tooltip.ts';
+import { LegacyTooltip } from '@/common/ui/tooltip';
 
 editor.once('load', () => {
     const toolbar = editor.call('layout.toolbar');

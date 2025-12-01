@@ -1,5 +1,5 @@
-import { LegacyContainer } from './container.ts';
-import { LegacyMenuItem } from './menu-item.ts';
+import { LegacyContainer } from './container';
+import { LegacyMenuItem } from './menu-item';
 
 class LegacyMenu extends LegacyContainer {
     constructor(args = {}) {

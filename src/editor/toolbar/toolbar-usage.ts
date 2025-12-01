@@ -7,7 +7,7 @@ editor.once('load', () => {
 
     const root = editor.call('layout.root');
     const container = new Container({
-        id: 'usage-alert'
+        class: 'toolbar-alert'
     });
 
     const label = new Label({
