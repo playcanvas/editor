@@ -75,7 +75,17 @@ editor.once('load', () => {
         }
     };
 
+    // track gizmo dragging state to splice into tap handling (uses pointer events)
+    let gizmoDragging = false;
+    editor.on('gizmo:transform:drag', (dragging) => {
+        gizmoDragging = dragging;
+    });
+    const gizmoCapture = (evt: MouseEvent) => gizmoDragging && evt.button === 0;
+
     const evtMouseUp = function (evt) {
+        if (gizmoCapture(evt)) {
+            return;
+        }
         const items = taps.slice(0);
 
         for (let i = 0; i < items.length; i++) {
@@ -108,6 +118,9 @@ editor.once('load', () => {
     };
 
     canvas.element.addEventListener('mousedown', (evt) => {
+        if (gizmoCapture(evt)) {
+            return;
+        }
         const rect = canvas.element.getBoundingClientRect();
 
         editor.emit('viewport:mouse:move', {

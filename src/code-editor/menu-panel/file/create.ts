@@ -1,5 +1,6 @@
-import * as api from '@playcanvas/editor-api';
 import { MenuItem } from '@playcanvas/pcui';
+
+import * as api from '@playcanvas/editor-api';
 
 editor.once('load', () => {
     const menu = editor.call('menu:file');

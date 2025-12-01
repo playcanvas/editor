@@ -1,7 +1,7 @@
 import { Container, Panel } from '@playcanvas/pcui';
 
-import type { Attribute } from '../attribute.type.d.ts';
-import { AttributesInspector } from '../attributes-inspector.ts';
+import type { Attribute } from '../attribute.type.d';
+import { AttributesInspector } from '../attributes-inspector';
 
 
 const META_ATTRIBUTES: Attribute[] = [{

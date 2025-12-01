@@ -1,12 +1,13 @@
-import type { History } from '@playcanvas/editor-api';
 import type { Observer, ObserverList } from '@playcanvas/observer';
 import { Element, Container, LabelGroup, Panel, Button, ArrayInput, BindingTwoWay, Label, type ContainerArgs } from '@playcanvas/pcui';
 
-import type { Attribute } from './attribute.type.d.ts';
-import { AssetInput } from '../../common/pcui/element/element-asset-input.ts';
-import { tooltip, tooltipRefItem } from '../../common/tooltips.ts';
-import { LegacyTooltip } from '../../common/ui/tooltip.ts';
-import '../storage/clipboard-context-menu.ts';
+import { AssetInput } from '@/common/pcui/element/element-asset-input';
+import { tooltip, tooltipRefItem } from '@/common/tooltips';
+import { LegacyTooltip } from '@/common/ui/tooltip';
+import type { History } from '@playcanvas/editor-api';
+
+import type { Attribute } from './attribute.type.d';
+import '../storage/clipboard-context-menu';
 import type { TemplateOverrideInspector } from '../templates/templates-override-inspector.js';
 
 const isEnabledAttribute = ({ label, type }) => label === 'enabled' && type === 'boolean';

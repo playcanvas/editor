@@ -672,6 +672,7 @@
             height: 32px;
             line-height: 32px;
             font-size: 15px;
+            flex-shrink: 0;
 
             &:hover {
                 z-index: 1;
@@ -686,11 +687,13 @@
 
         .pcui-asset-panel-btn-container {
             align-items: center;
+            flex-shrink: 0;
             border-left: 1px solid $bcg-darkest;
             border-right: 1px solid $bcg-darkest;
         }
 
         .pcui-select-input {
+            min-width: 100px;
             width: 180px;
             margin: 0;
 
@@ -772,7 +775,6 @@
                 text-align: center;
                 position: absolute;
                 width: 32px;
-                z-index: 1;
             }
         }
 

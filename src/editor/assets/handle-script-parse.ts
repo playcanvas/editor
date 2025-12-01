@@ -1,5 +1,5 @@
-import { buildQueryUrl } from '../../common/utils.ts';
-import { WorkerClient } from '../../core/worker/worker-client.ts';
+import { buildQueryUrl } from '@/common/utils';
+import { WorkerClient } from '@/core/worker/worker-client';
 
 editor.once('load', () => {
     const genGUID = () => {
@@ -189,6 +189,7 @@ editor.once('load', () => {
 
         editor.method('scripts:handleParse', async (asset, inEditor, callback) => {
             if (editor.call('assets:isModule', asset)) {
+                // FIXME: just check engine version directly
                 if (!(await isEsmSupportedInEngine(config.url.engine))) {
                     editor.call('status:error', 'ESM scripts are not supported in this version of the engine. Please update to the latest version.');
                     return;

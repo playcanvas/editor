@@ -1,5 +1,6 @@
-import { GIZMO_MASK } from '../../../core/constants.ts';
-import { createColorMaterial } from '../viewport-color-material.ts';
+import { GIZMO_MASK } from '@/core/constants';
+
+import { createColorMaterial } from '../viewport-color-material';
 
 editor.once('load', () => {
     const vecA = new pc.Vec3();
@@ -261,9 +262,7 @@ editor.once('load', () => {
                 pickStart.copy(pickPlane(tap.x, tap.y));
             }
 
-            editor.call('gizmo:translate:visible', false);
-            editor.call('gizmo:rotate:visible', false);
-            editor.call('gizmo:scale:visible', false);
+            editor.emit('gizmo:transform:visible', false);
         };
 
         const onTapMove = function (tap) {
@@ -289,9 +288,7 @@ editor.once('load', () => {
             moving = false;
             mouseTap = tap;
 
-            editor.call('gizmo:translate:visible', true);
-            editor.call('gizmo:rotate:visible', true);
-            editor.call('gizmo:scale:visible', true);
+            editor.emit('gizmo:transform:visible', true);
             editor.call('viewport:pick:state', true);
 
             if (selectedEntity) {

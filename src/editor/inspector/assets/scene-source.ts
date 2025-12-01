@@ -1,8 +1,8 @@
 import { Panel, Container, Label } from '@playcanvas/pcui';
 
-import { RelatedAssetsInspector } from './related-assets.ts';
-import type { Attribute } from '../attribute.type.d.ts';
-import { AttributesInspector } from '../attributes-inspector.ts';
+import { RelatedAssetsInspector } from './related-assets';
+import type { Attribute } from '../attribute.type.d';
+import { AttributesInspector } from '../attributes-inspector';
 
 
 const CLASS_ROOT = 'scene-asset-inspector';

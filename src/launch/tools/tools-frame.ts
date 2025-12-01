@@ -1,4 +1,4 @@
-import { bytesToHuman } from '../../common/utils.ts';
+import { bytesToHuman } from '@/common/utils';
 
 editor.once('load', () => {
     let enabled = editor.call('tools:enabled');

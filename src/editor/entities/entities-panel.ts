@@ -1,4 +1,4 @@
-import { EntitiesTreeView } from './entities-treeview.ts';
+import { EntitiesTreeView } from './entities-treeview';
 
 editor.once('load', () => {
     const panel = editor.call('layout.hierarchy');

@@ -1,5 +1,6 @@
-import { Asset, Entity } from '@playcanvas/editor-api';
 import { ObserverList } from '@playcanvas/observer';
+
+import { Asset, Entity } from '@playcanvas/editor-api';
 
 editor.once('load', () => {
     const selection = editor.api.globals.selection;

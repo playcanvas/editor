@@ -1,24 +1,24 @@
 import * as coreElements from '@playcanvas/pcui';
 
-import * as constants from './constants.ts';
-import { deepCopy } from '../utils.ts';
-import { AssetInput } from './element/element-asset-input.ts';
-import { AssetList } from './element/element-asset-list.ts';
-import { AssetThumbnail } from './element/element-asset-thumbnail.ts';
-import { BatchGroupInput } from './element/element-batchgroup-input.ts';
-import { Bubble } from './element/element-bubble.ts';
-import { BundlesInput } from './element/element-bundles-input.ts';
-import { ColorInput } from './element/element-color-input.ts';
-import { CurveInput } from './element/element-curve-input.ts';
-import { DropManager } from './element/element-drop-manager.ts';
-import { DropTarget } from './element/element-drop-target.ts';
-import { EntityInput } from './element/element-entity-input.ts';
-import { GradientInput } from './element/element-gradient-input.ts';
-import { LayersInput } from './element/element-layers-input.ts';
-import { TableCell } from './element/element-table-cell.ts';
-import { TableRow } from './element/element-table-row.ts';
-import { Table } from './element/element-table.ts';
-import { Tooltip } from './element/element-tooltip.ts';
+import * as constants from './constants';
+import { deepCopy } from '../utils';
+import { AssetInput } from './element/element-asset-input';
+import { AssetList } from './element/element-asset-list';
+import { AssetThumbnail } from './element/element-asset-thumbnail';
+import { BatchGroupInput } from './element/element-batchgroup-input';
+import { Bubble } from './element/element-bubble';
+import { BundlesInput } from './element/element-bundles-input';
+import { ColorInput } from './element/element-color-input';
+import { CurveInput } from './element/element-curve-input';
+import { DropManager } from './element/element-drop-manager';
+import { DropTarget } from './element/element-drop-target';
+import { EntityInput } from './element/element-entity-input';
+import { GradientInput } from './element/element-gradient-input';
+import { LayersInput } from './element/element-layers-input';
+import { Table } from './element/element-table';
+import { TableCell } from './element/element-table-cell';
+import { TableRow } from './element/element-table-row';
+import { Tooltip } from './element/element-tooltip';
 
 // Core elements
 for (const name in constants.DEFAULTS) {

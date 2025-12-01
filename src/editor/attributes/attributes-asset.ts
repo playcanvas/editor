@@ -1,4 +1,4 @@
-import { AssetInspector } from '../inspector/asset.ts';
+import { AssetInspector } from '../inspector/asset';
 
 editor.once('load', () => {
     const editableTypes = {

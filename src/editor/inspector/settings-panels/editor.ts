@@ -1,6 +1,7 @@
-import { BaseSettingsPanel } from './base.ts';
-import { TONEMAPPING } from '../../../core/constants.ts';
-import type { Attribute, Divider } from '../attribute.type.d.ts';
+import { TONEMAPPING } from '@/core/constants';
+
+import { BaseSettingsPanel } from './base';
+import type { Attribute, Divider } from '../attribute.type.d';
 
 const ATTRIBUTES: (Attribute | Divider)[] = [
     {
@@ -59,6 +60,42 @@ const ATTRIBUTES: (Attribute | Divider)[] = [
     },
     {
         alias: 'divider:0',
+        type: 'divider'
+    },
+    {
+        observer: 'userSettings',
+        label: 'Gizmo Size',
+        type: 'slider',
+        reference: 'settings:gizmoSize',
+        path: 'editor.gizmoSize',
+        args: {
+            min: 0.1,
+            max: 5,
+            step: 0.1
+        }
+    },
+    {
+        observer: 'userSettings',
+        label: 'Gizmo Preset',
+        path: 'editor.gizmoPreset',
+        reference: 'settings:gizmoPreset',
+        type: 'select',
+        args: {
+            type: 'string',
+            options: [
+                {
+                    v: 'default',
+                    t: 'Default'
+                },
+                {
+                    v: 'classic',
+                    t: 'Classic'
+                }
+            ]
+        }
+    },
+    {
+        alias: 'divider:1',
         type: 'divider'
     },
     {
@@ -144,7 +181,7 @@ const ATTRIBUTES: (Attribute | Divider)[] = [
         }
     },
     {
-        alias: 'divider:1',
+        alias: 'divider:2',
         type: 'divider'
     },
     {

@@ -316,6 +316,14 @@ editor.once('load', () => {
             editor.call('viewport:render');
         });
 
+        editor.on('camera:shader:pass', (shaderPass: string) => {
+            for (const key in camerasIndex) {
+                const entity = camerasIndex[key];
+                entity.camera.setShaderPass(shaderPass);
+            }
+            editor.call('viewport:render');
+        });
+
         const requestSceneColorMap = function (enabled) {
             for (const key in editorCameras) {
                 const entity = editorCameras[key];
