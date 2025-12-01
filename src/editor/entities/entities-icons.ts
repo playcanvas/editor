@@ -202,10 +202,8 @@ editor.once('load', () => {
                 // Update light color if needed
                 if (component === 'light') {
                     const lightColor = this._link.entity.light.color;
-                    materials[textureName].emissive.copy(lightColor);
-                    materials[textureName].update();
-                    materialsBehind[textureName].emissive.copy(lightColor);
-                    materialsBehind[textureName].update();
+                    this.entity.render.meshInstances[0].setParameter('material_emissive', [lightColor.r, lightColor.g, lightColor.b]);
+                    this.behind.render.meshInstances[0].setParameter('material_emissive', [lightColor.r, lightColor.g, lightColor.b]);
                 }
 
                 if (this.local !== component) {
