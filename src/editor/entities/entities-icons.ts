@@ -1,5 +1,3 @@
-import { GIZMO_MASK } from '@/core/constants';
-
 editor.once('load', () => {
     let app;
     let iconsEntity;
@@ -24,7 +22,6 @@ editor.once('load', () => {
     const materialsBehind = { };
     const textures = { };
     let scale = 0.5;
-    const cameraRotation = new pc.Quat();
     let selectedIds = { };
 
     const ICON_TEXTURE_SIZE = 64;
@@ -106,14 +103,13 @@ editor.once('load', () => {
                 layers: [layerFront.id]
             });
             this.entity.render.meshInstances[0].__editor = true;
-            this.entity.render.meshInstances[0].mask = GIZMO_MASK;
 
             if (this._link && this._link.entity) {
                 this.entity.setPosition(this._link.entity.getPosition());
             }
 
             this.entity.setLocalScale(scale, scale, scale);
-            this.entity.setRotation(cameraRotation);
+            this.entity.setRotation(editor.call('camera:current').getRotation());
             this.entity.rotateLocal(90, 0, 0);
 
             this.behind = new pc.Entity('behind', app);
@@ -127,7 +123,6 @@ editor.once('load', () => {
                 castShadowsLightmap: false,
                 layers: [layerBehind.id]
             });
-            this.behind.render.meshInstances[0].mask = GIZMO_MASK;
             this.behind.render.meshInstances[0].pick = false;
 
             iconsEntity.addChild(this.entity);
@@ -163,7 +158,7 @@ editor.once('load', () => {
                 // position
                 this.entity.setPosition(this._link.entity.getPosition());
                 this.entity.setLocalScale(scale, scale, scale);
-                this.entity.setRotation(cameraRotation);
+                this.entity.setRotation(editor.call('camera:current').getRotation());
                 this.entity.rotateLocal(90, 0, 0);
             }
 
@@ -324,10 +319,6 @@ editor.once('load', () => {
     });
 
     editor.on('viewport:postUpdate', () => {
-        if (app) {
-            cameraRotation.copy(editor.call('camera:current').getRotation());
-        }
-
         icons.forEach(icon => icon.update());
     });
 
