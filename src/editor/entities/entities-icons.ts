@@ -27,14 +27,53 @@ editor.once('load', () => {
     const cameraRotation = new pc.Quat();
     let selectedIds = { };
 
+    const ICON_TEXTURE_SIZE = 64;
+    const ICON_ALPHA_TEST = 0.05;
+    const ICON_BEHIND_OPACITY = 0.25;
+
+    const createIconTexture = (device, textureName) => {
+        const texture = new pc.Texture(device, {
+            width: ICON_TEXTURE_SIZE,
+            height: ICON_TEXTURE_SIZE
+        });
+        texture.anisotropy = 16;
+        texture.addressU = pc.ADDRESS_CLAMP_TO_EDGE;
+        texture.addressV = pc.ADDRESS_CLAMP_TO_EDGE;
+        texture.minFilter = pc.FILTER_NEAREST;
+        texture.magFilter = pc.FILTER_NEAREST;
+
+        const img = new Image();
+        img.onload = () => texture.setSource(img);
+        img.src = `/editor/scene/img/entity-icons/${textureName}.png`;
+
+        return texture;
+    };
+
+    const createIconMaterial = (texture, options) => {
+        const material = new pc.StandardMaterial();
+        material.emissive = pc.Color.WHITE;
+        material.opacityMap = texture;
+        material.opacityMapChannel = 'b';
+        material.alphaTest = ICON_ALPHA_TEST;
+        Object.assign(material, options);
+        material.update();
+        return material;
+    };
+
     // icon class
     class ViewportIcon {
         entity: any = null;
+
         behind: any = null;
+
         _link: any = null;
+
         events: any[] = [];
+
         eventsLocal: any[] = [];
+
         local = '';
+
         dirty = true;
 
         dirtify = () => {
@@ -187,7 +226,7 @@ editor.once('load', () => {
 
                     // add local binds
                     if (dirtifyLocalKeys[component]) {
-                        dirtifyLocalKeys[component].forEach(key => {
+                        dirtifyLocalKeys[component].forEach((key) => {
                             this.eventsLocal.push(this._link.on(key, this.dirtify));
                         });
                     }
@@ -201,11 +240,11 @@ editor.once('load', () => {
             this.unlink();
 
             this._link = obj;
-            dirtifyKeys.forEach(key => {
+            dirtifyKeys.forEach((key) => {
                 this.events.push(obj.on(key, this.dirtify));
             });
 
-            components.forEach(component => {
+            components.forEach((component) => {
                 this.events.push(obj.on(`components.${component}:set`, this.dirtify));
                 this.events.push(obj.on(`components.${component}:unset`, this.dirtify));
             });
@@ -245,49 +284,22 @@ editor.once('load', () => {
         iconsEntity = new pc.Entity(app);
         app.root.addChild(iconsEntity);
 
-        for (let i = 0; i < textureNames.length; i++) {
-            const textureName = textureNames[i];
-            
-            textures[textureName] = new pc.Texture(app.graphicsDevice, {
-                width: 64,
-                height: 64
+        textureNames.forEach((textureName) => {
+            textures[textureName] = createIconTexture(app.graphicsDevice, textureName);
+
+            materials[textureName] = createIconMaterial(textures[textureName], {
+                blendType: pc.BLEND_NONE,
+                depthTest: true,
+                depthWrite: true
             });
-            textures[textureName].anisotropy = 16;
-            textures[textureName].addressU = pc.ADDRESS_CLAMP_TO_EDGE;
-            textures[textureName].addressV = pc.ADDRESS_CLAMP_TO_EDGE;
-            textures[textureName].minFilter = pc.FILTER_NEAREST;
-            textures[textureName].magFilter = pc.FILTER_NEAREST;
 
-            const img = new Image();
-            img.textureName = textureName;
-            img.onload = function () {
-                textures[this.textureName].setSource(this);
-            };
-            img.src = `/editor/scene/img/entity-icons/${textureName}.png`;
-
-            // Create front material (bright when visible)
-            materials[textureName] = new pc.StandardMaterial();
-            materials[textureName].emissive = pc.Color.WHITE;
-            materials[textureName].opacityMap = textures[textureName];
-            materials[textureName].opacityMapChannel = 'b';
-            materials[textureName].alphaTest = 0.05;
-            materials[textureName].blendType = pc.BLEND_NONE;
-            materials[textureName].depthTest = true;
-            materials[textureName].depthWrite = true;
-            materials[textureName].update();
-
-            // Create behind material (dimmed when occluded)
-            materialsBehind[textureName] = new pc.StandardMaterial();
-            materialsBehind[textureName].emissive = pc.Color.WHITE;
-            materialsBehind[textureName].opacityMap = textures[textureName];
-            materialsBehind[textureName].opacityMapChannel = 'b';
-            materialsBehind[textureName].opacity = 0.25;
-            materialsBehind[textureName].alphaTest = 0.05;
-            materialsBehind[textureName].blendType = pc.BLEND_NORMAL;
-            materialsBehind[textureName].depthTest = false;
-            materialsBehind[textureName].depthWrite = false;
-            materialsBehind[textureName].update();
-        }
+            materialsBehind[textureName] = createIconMaterial(textures[textureName], {
+                opacity: ICON_BEHIND_OPACITY,
+                blendType: pc.BLEND_NORMAL,
+                depthTest: false,
+                depthWrite: false
+            });
+        });
 
         editor.on('entities:add', (obj) => {
             let icon = pool.shift();
@@ -306,9 +318,9 @@ editor.once('load', () => {
             return;
         }
 
-        for (let i = 0; i < items.length; i++) {
-            selectedIds[items[i].get('resource_id')] = true;
-        }
+        items.forEach((item) => {
+            selectedIds[item.get('resource_id')] = true;
+        });
     });
 
     editor.on('viewport:postUpdate', () => {
@@ -316,9 +328,7 @@ editor.once('load', () => {
             cameraRotation.copy(editor.call('camera:current').getRotation());
         }
 
-        for (let i = 0; i < icons.length; i++) {
-            icons[i].update();
-        }
+        icons.forEach(icon => icon.update());
     });
 
     editor.method('viewport:icons:size', (size) => {
