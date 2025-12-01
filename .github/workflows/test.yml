@@ -4,6 +4,7 @@ on:
   pull_request:
     branches: [main]
     types: [labeled]
+  workflow_dispatch:
 
 concurrency:
   group: 'test'
@@ -13,7 +14,7 @@ jobs:
   test:
     name: Test Suite
     runs-on: ubuntu-latest
-    if: ${{ github.event.label.name == 'test' && github.repository == 'playcanvas/editor' && github.actor == 'kpal81xd' }}
+    if: ${{ github.repository == 'playcanvas/editor' && github.actor == 'kpal81xd' && (github.event.label.name == 'test' || github.event_name == 'workflow_dispatch') }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
