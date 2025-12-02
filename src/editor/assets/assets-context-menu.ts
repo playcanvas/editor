@@ -61,18 +61,13 @@ editor.once('load', () => {
         menu.append(menuItemNew);
     }
 
-    // Asset types that are downloadable (via context menu)
-    const downloadable = new Set([
-        'audio',
-        'container',
-        'css',
-        'html',
-        'json',
-        'scene',
-        'shader',
-        'text',
-        'texture',
-        'textureatlas'
+    // Asset types that are NOT downloadable (via context menu)
+    const notDownloadable = new Set([
+        'folder',
+        'sprite',
+        'animstategraph',
+        'render',
+        'template'
     ]);
 
     const icons = {
@@ -689,10 +684,9 @@ editor.once('load', () => {
 
             // download
             const hasDownloadPermission = !config.project.privateAssets || (config.project.privateAssets && editor.call('permissions:read'));
-            const isDownloadable = currentAsset.get('source') || downloadable.has(currentAsset.get('type')) || (!legacyScripts && currentAsset.get('type') === 'script');
-            const hasFileUrl = currentAsset.get('file.url');
+            const isDownloadable = currentAsset.get('source') || (!notDownloadable.has(currentAsset.get('type')) && !(legacyScripts && currentAsset.get('type') === 'script'));
 
-            menuItemDownload.hidden = !(hasDownloadPermission && isDownloadable && hasFileUrl);
+            menuItemDownload.hidden = !(hasDownloadPermission && isDownloadable);
 
             // duplicate
             if (currentAsset.get('type') === 'material' || currentAsset.get('type') === 'sprite') {
