@@ -403,7 +403,7 @@ editor.once('load', () => {
             } else {
                 const self = this;
 
-                this.events.push(asset.once('load', function (asset) {
+                this.events.push(asset.once('load', (asset) => {
                     if (self.asset !== asset.id) {
                         return;
                     }
