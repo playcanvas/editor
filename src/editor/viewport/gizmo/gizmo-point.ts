@@ -144,7 +144,7 @@ editor.once('viewport:load', (app) => {
             const camera = editor.call('camera:current');
             const posCamera = camera.getPosition();
             const pos = this.entity.getLocalPosition();
-            let scale = 1;
+            let scale;
 
             // scale to screen space
             if (camera.camera.projection === pc.PROJECTION_PERSPECTIVE) {
