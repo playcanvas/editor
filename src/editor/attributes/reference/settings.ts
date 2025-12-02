@@ -367,7 +367,7 @@ editor.once('load', () => {
     }, {
         name: 'settings:asset-import:useUniqueIndices',
         title: 'Use Unique Indices',
-        description: 'Use vertex indices to resolve uniqueness when importing FBX models.'
+        description: 'Use vertex attribute indices to resolve uniqueness when importing FBX models. Otherwise use vertex attributes to resolve uniqueness. Enabling this option will generally result in more vertices being generated, but their order will be preserved.'
     }, {
         name: 'settings:asset-import:defaultAssetPreload',
         title: 'Preload new assets',
