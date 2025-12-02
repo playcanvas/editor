@@ -365,6 +365,10 @@ editor.once('load', () => {
         title: 'Import Morph Target Normals',
         description: 'Imports morph target normals when importing a model. Disable this if morph target normals look incorrect.'
     }, {
+        name: 'settings:asset-import:useUniqueIndices',
+        title: 'Use Unique Indices',
+        description: 'Use vertex attribute indices to resolve uniqueness when importing FBX models. Otherwise use vertex attributes to resolve uniqueness. Enabling this option will generally result in more vertices being generated, but their order will be preserved.'
+    }, {
         name: 'settings:asset-import:defaultAssetPreload',
         title: 'Preload new assets',
         description: 'Creates new assets with the preload option enabled. Script assets are always created with preload enabled.'
