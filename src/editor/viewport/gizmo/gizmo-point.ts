@@ -158,10 +158,6 @@ editor.once('viewport:load', (app) => {
             this.entity.setLocalScale(vecA);
         }
 
-        get enabled() {
-            return !!this.entity;
-        }
-
         set enabled(value) {
             if (!!value === !!this.entity) {
                 return;
@@ -186,6 +182,10 @@ editor.once('viewport:load', (app) => {
                 this.entity.destroy();
                 this.entity = null;
             }
+        }
+
+        get enabled() {
+            return !!this.entity;
         }
     }
 

@@ -231,10 +231,6 @@ class ColorPicker extends Events {
         }
     }
 
-    get hsva() {
-        return this._hsva;
-    }
-
     set hsva(hsva) {
         const rgb = hsv2rgb(hsva);
         const hueRgb = hsv2rgb([hsva[0], 1, 1]);
@@ -272,8 +268,8 @@ class ColorPicker extends Events {
         this._hsva = hsva;
     }
 
-    get color() {
-        return toRgba(this._hsva);
+    get hsva() {
+        return this._hsva;
     }
 
     set color(clr) {
@@ -284,6 +280,10 @@ class ColorPicker extends Events {
             hsva[0] = this._hsva[0];
         }
         this.hsva = hsva;
+    }
+
+    get color() {
+        return toRgba(this._hsva);
     }
 
     set editAlpha(editAlpha) {
