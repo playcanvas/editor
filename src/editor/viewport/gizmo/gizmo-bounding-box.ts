@@ -219,7 +219,7 @@ editor.once('load', () => {
             }
             if (entity.particlesystem.emitterShape === pc.EMITTERSHAPE_BOX) {
                 _tmpBB.center.set(0, 0, 0);
-                _tmpBB.halfExtents.copy(entity.particlesystem.emitterExtents).scale(0.5);
+                _tmpBB.halfExtents.copy(entity.particlesystem.emitterExtents).mulScalar(0.5);
                 resultBB.setFromTransformedAabb(_tmpBB, entity.getWorldTransform());
                 return resultBB;
             }
@@ -232,7 +232,7 @@ editor.once('load', () => {
 
         // then zone
         if (entity.zone) {
-            _tmpBB.halfExtents.copy(entity.zone.size).scale(0.5);
+            _tmpBB.halfExtents.copy(entity.zone.size).mulScalar(0.5);
             const position = entity.getPosition();
             const rotation = entity.getRotation();
             _matA.setTRS(position, rotation, pc.Vec3.ONE);

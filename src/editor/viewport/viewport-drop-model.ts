@@ -119,7 +119,7 @@ editor.once('load', () => {
             const ctrlDown = editor.call('hotkey:ctrl');
 
             if (ctrlDown) {
-                vecA.copy(camera.forward).scale(aabb.halfExtents.length() * 2.2);
+                vecA.copy(camera.forward).mulScalar(aabb.halfExtents.length() * 2.2);
                 vecB.copy(camera.getPosition()).add(vecA);
                 vecC.copy(vecB).sub(aabb.center);
 

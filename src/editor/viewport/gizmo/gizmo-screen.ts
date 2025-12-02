@@ -192,19 +192,19 @@ editor.once('load', () => {
 
                 left
                 .copy(r)
-                .scale(-0.5 * entity.screen.resolution.x * scale.x / screenScale);
+                .mulScalar(-0.5 * entity.screen.resolution.x * scale.x / screenScale);
 
                 right
                 .copy(r)
-                .scale(0.5 * entity.screen.resolution.x * scale.x / screenScale);
+                .mulScalar(0.5 * entity.screen.resolution.x * scale.x / screenScale);
 
                 top
                 .copy(u)
-                .scale(0.5 * entity.screen.resolution.y * scale.y / screenScale);
+                .mulScalar(0.5 * entity.screen.resolution.y * scale.y / screenScale);
 
                 bottom
                 .copy(u)
-                .scale(-0.5 * entity.screen.resolution.y * scale.y / screenScale);
+                .mulScalar(-0.5 * entity.screen.resolution.y * scale.y / screenScale);
 
                 positions[0].copy(position).add(left).add(top);
                 positions[1].copy(position).add(left).add(bottom);

@@ -93,7 +93,7 @@ editor.once('load', () => {
                 if (ctrlDown) {
                     // position entities in front of camera based on aabb
                     const aabb = editor.call('entities:aabb', entityObservers);
-                    vec.copy(cameraForward).scale(aabb.halfExtents.length() * 2.2);
+                    vec.copy(cameraForward).mulScalar(aabb.halfExtents.length() * 2.2);
                     vec.add(cameraPos);
 
                     const tmp = new pc.Entity();

@@ -39,7 +39,7 @@ editor.once('viewport:load', (app) => {
             const rayPlaneDot = planeNormal.dot(rayDirection);
             const planeDist = panPoint.dot(planeNormal);
             const pointPlaneDist = (planeNormal.dot(rayOrigin) - planeDist) / rayPlaneDot;
-            const pickedPos = rayDirection.scale(-pointPlaneDist).add(rayOrigin);
+            const pickedPos = rayDirection.mulScalar(-pointPlaneDist).add(rayOrigin);
 
             vecB.copy(panPoint).sub(pickedPos);
 
