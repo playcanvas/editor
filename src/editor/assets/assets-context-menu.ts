@@ -540,7 +540,9 @@ editor.once('load', () => {
         text: 'Download',
         icon: ICONS.DOWNLOAD,
         onSelect: () => {
-            window.open(currentAsset.get('file.url'));
+            // Use the download API endpoint which properly handles filenames
+            // including special characters like # that would otherwise be URL-encoded
+            window.open(`/api/assets/${currentAsset.get('id')}/download?branchId=${config.self.branch.id}`);
         }
     });
     menu.append(menuItemDownload);
