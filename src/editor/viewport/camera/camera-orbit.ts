@@ -22,7 +22,7 @@ editor.once('viewport:load', (app) => {
         }
 
         distance = Math.max(0.01, vecA.copy(pivot).sub(camera.getPosition()).length());
-        pivot.copy(camera.forward).scale(distance).add(camera.getPosition());
+        pivot.copy(camera.forward).mulScalar(distance).add(camera.getPosition());
 
         if (orbiting) {
             quat.setFromEulerAngles(pitch, yaw, 0);
@@ -61,7 +61,7 @@ editor.once('viewport:load', (app) => {
     editor.on('camera:focus:end', (point, value) => {
         const camera = editor.call('camera:current');
         distance = value;
-        pivot.copy(camera.forward).scale(distance).add(camera.getPosition());
+        pivot.copy(camera.forward).mulScalar(distance).add(camera.getPosition());
 
         if (camera.focus) {
             camera.focus.copy(pivot);

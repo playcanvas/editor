@@ -55,18 +55,18 @@ editor.once('viewport:load', (app) => {
         quatA.transformVector(planeNormal, planeNormal);
 
         vecD.copy(rayOrigin).sub(posGizmo).normalize();
-        planeNormal.copy(vecD.sub(planeNormal.scale(planeNormal.dot(vecD))).normalize());
+        planeNormal.copy(vecD.sub(planeNormal.mulScalar(planeNormal.dot(vecD))).normalize());
 
         const rayPlaneDot = planeNormal.dot(rayDirection);
         const planeDist = posGizmo.dot(planeNormal);
         const pointPlaneDist = (planeNormal.dot(rayOrigin) - planeDist) / rayPlaneDot;
-        const pickedPos = rayDirection.scale(-pointPlaneDist).add(rayOrigin);
+        const pickedPos = rayDirection.mulScalar(-pointPlaneDist).add(rayOrigin);
 
         // single axis
         planeNormal.set(0, 0, 0);
         planeNormal[dragPoint.axis] = 1;
         quatA.transformVector(planeNormal, planeNormal);
-        pickedPos.copy(planeNormal.scale(planeNormal.dot(pickedPos)));
+        pickedPos.copy(planeNormal.mulScalar(planeNormal.dot(pickedPos)));
 
         quatA.invert().transformVector(pickedPos, pickedPos);
 
@@ -165,7 +165,7 @@ editor.once('viewport:load', (app) => {
             } else {
                 scale = camera.camera.orthoHeight / 3 * gizmoSize;
             }
-            vecA.copy(this.scale).scale(scale);
+            vecA.copy(this.scale).mulScalar(scale);
             this.entity.setLocalScale(vecA);
         }
 

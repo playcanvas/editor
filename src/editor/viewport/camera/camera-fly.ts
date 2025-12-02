@@ -117,7 +117,7 @@ editor.once('viewport:load', (app) => {
 
             camera = editor.call('camera:current');
 
-            vecA.copy(direction).scale(speed);
+            vecA.copy(direction).mulScalar(speed);
 
             if (camera.camera.projection === pc.PROJECTION_ORTHOGRAPHIC) {
                 vecA.y = -vecA.z;
