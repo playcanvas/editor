@@ -42,12 +42,13 @@ editor.once('load', () => {
 
     // gizmo class
     class Gizmo {
-        constructor() {
-            this._link = null;
-            this.events = [];
-            this.type = '';
-            this.entity = null;
-        }
+        _link: any = null;
+
+        events: any[] = [];
+
+        type: string = '';
+
+        entity: any = null;
 
         // update lines
         update() {

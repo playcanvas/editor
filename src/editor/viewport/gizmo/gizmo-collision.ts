@@ -76,15 +76,21 @@ editor.once('load', () => {
 
     // gizmo class
     class Gizmo {
-        constructor() {
-            this._link = null;
-            this.lines = [];
-            this.events = [];
-            this.type = '';
-            this.asset = 0;
-            this.entity = null;
-            this.color = null;
-        }
+        _link: any = null;
+
+        lines: any[] = [];
+
+        events: any[] = [];
+
+        type: string = '';
+
+        asset: number = 0;
+
+        entity: any = null;
+
+        color: any = null;
+
+        wireframeMesh: any;
 
         // update lines
         update() {

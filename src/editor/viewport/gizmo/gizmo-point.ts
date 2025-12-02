@@ -125,10 +125,21 @@ editor.once('viewport:load', (app) => {
     };
 
     class Gizmo extends Events {
+        entity: any = null;
+
+        axis: string;
+
+        dir: number;
+
+        rotation: any;
+
+        position: any;
+
+        scale: any;
+
         constructor(axis, dir) {
             super();
             assignEvents(this);
-            this.entity = null;
             this.axis = axis || 'y';
             this.dir = dir === undefined ? 1 : dir;
             this.rotation = new pc.Quat();

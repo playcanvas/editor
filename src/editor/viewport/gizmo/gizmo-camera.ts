@@ -18,12 +18,15 @@ editor.once('load', () => {
 
     // gizmo class
     class Gizmo {
-        constructor() {
-            this._link = null;
-            this.lines = [];
-            this.events = [];
-            this.visible = false;
+        _link: any = null;
 
+        lines: any[] = [];
+
+        events: any[] = [];
+
+        visible: boolean = false;
+
+        constructor() {
             for (let i = 0; i < 24; i++) {
                 this.lines.push(new pc.Vec3());
             }

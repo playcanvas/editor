@@ -246,13 +246,15 @@ editor.once('load', () => {
 
         // gizmo class
         class Gizmo {
-            constructor() {
-                this._link = null;
-                this.events = [];
-                this.entity = null;
-                this.type = '';
-                this.color = null;
-            }
+            _link: any = null;
+
+            events: any[] = [];
+
+            entity: any = null;
+
+            type: string = '';
+
+            color: any = null;
 
             // update lines
             update() {

@@ -5,13 +5,33 @@ editor.once('load', () => {
     }
 
     class Tap {
+        x: number;
+
+        y: number;
+
+        lx: number;
+
+        ly: number;
+
+        sx: number;
+
+        sy: number;
+
+        nx: number = 0;
+
+        ny: number = 0;
+
+        move: boolean = false;
+
+        down: boolean = true;
+
+        button: number;
+
+        mouse: boolean;
+
         constructor(evt, rect, mouse) {
             this.x = this.lx = this.sx = evt.clientX - rect.left;
             this.y = this.ly = this.sy = evt.clientY - rect.top;
-            this.nx = 0;
-            this.ny = 0;
-            this.move = false;
-            this.down = true;
             this.button = evt.button;
             this.mouse = !!mouse;
         }

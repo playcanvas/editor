@@ -14,6 +14,50 @@ import { hexStr, hsv2rgb, normalizedCoord, rgb2hsv, rgbaStr, toHsva, toRgba } fr
 import { CURVE_LINEAR, CURVE_SPLINE, CURVE_STEP } from '@/core/constants';
 
 class ColorPicker extends Events {
+    panel: any;
+
+    colorRect: any;
+
+    colorHandle: any;
+
+    hueRect: any;
+
+    hueHandle: any;
+
+    alphaRect: any;
+
+    alphaHandle: any;
+
+    fields: any;
+
+    fieldChangeHandler: any;
+
+    hexChangeHandler: any;
+
+    downHandler: any;
+
+    moveHandler: any;
+
+    upHandler: any;
+
+    rField: any;
+
+    gField: any;
+
+    bField: any;
+
+    aField: any;
+
+    hexField: any;
+
+    _hsva: number[] = [-1, -1, -1, 1];
+
+    _storeHsva: number[] = [0, 0, 0, 1];
+
+    _dragMode: number = 0;
+
+    _changing: boolean = false;
+
     constructor(parent) {
         super();
         assignEvents(this);
@@ -101,11 +145,6 @@ class ColorPicker extends Events {
 
         this._generateHue(this.hueRect);
         this._generateAlpha(this.alphaRect);
-
-        this._hsva = [-1, -1, -1, 1];
-        this._storeHsva = [0, 0, 0, 1];
-        this._dragMode = 0;
-        this._changing = false;
     }
 
     _generateHue(canvas) {

@@ -3,9 +3,7 @@ editor.once('load', () => {
     // When primary script is set, update attributes on entities components
     // When script attributes change, update attributes on entities components
     class EntitiesScriptsIndex {
-        constructor() {
-            this._index = {};
-        }
+        _index: any = {};
 
         // Returns a list of entities that have the specified script name
         listEntitiesByScript(script) {
