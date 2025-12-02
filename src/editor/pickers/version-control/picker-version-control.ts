@@ -1042,7 +1042,21 @@ editor.once('load', () => {
             sourceBranchId: params.sourceBranchId,
             sourceCheckpointId: params.sourceCheckpointId
         }), (err, result) => {
-            // FIXME: Refresh handled by messenger
+            if (err) {
+                console.error(err);
+            }
+
+            // if we have already hidden this panel then just return
+            if (panel.hidden) {
+                return;
+            }
+
+            // Handle immediate errors (e.g. duplicate branch name)
+            // The messenger:branch.createEnded event handles async errors and success/refresh
+            if (err && !/Request timed out/.test(err)) {
+                panelCreateBranchProgress.finish(err);
+                togglePanels(true);
+            }
         });
     });
 
