@@ -27,7 +27,7 @@ editor.once('viewport:load', (app) => {
         }
 
         focusTarget.copy(point);
-        vecA.copy(camera.forward).scale(-distance);
+        vecA.copy(camera.forward).mulScalar(-distance);
         focusPoint.copy(point).add(vecA);
 
         editor.emit('camera:focus', point, distance);
