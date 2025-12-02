@@ -168,6 +168,14 @@ const ATTRIBUTES: Attribute[] = [
     },
     {
         observer: 'settings',
+        label: 'Use Unique Indices',
+        type: 'boolean',
+        alias: 'asset-tasks:useUniqueIndices',
+        reference: 'settings:asset-import:useUniqueIndices',
+        path: 'editor.pipeline.useUniqueIndices'
+    },
+    {
+        observer: 'settings',
         label: 'Create FBX Folder',
         type: 'boolean',
         alias: 'asset-tasks:createFBXFolder',

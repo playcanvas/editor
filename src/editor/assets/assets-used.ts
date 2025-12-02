@@ -258,7 +258,8 @@ editor.once('load', () => {
                 }
             } else if (path.startsWith('components.render.materialAssets')) {
                 const parts = splitPath(path);
-                if (parts.length !== 4) {
+                // Allow both full array path (length 3) and individual element path (length 4)
+                if (parts.length !== 3 && parts.length !== 4) {
                     return;
                 }
             } else if (!legacyScripts && path.startsWith('components.script.scripts')) {
