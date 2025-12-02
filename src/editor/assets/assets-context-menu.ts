@@ -437,23 +437,25 @@ editor.once('load', () => {
     });
 
     // replace
-    const replaceAvailable = {
-        'material': true,
-        'texture': true,
-        'textureatlas': true,
-        'model': true,
-        'animation': true,
-        'audio': true,
-        'cubemap': true,
-        'css': true,
-        'html': true,
-        'shader': true,
-        'sprite': true,
-        'json': true,
-        'text': true,
-        'animstategraph': true,
-        'font': true
-    };
+    const replaceAvailable = new Set([
+        'animation',
+        'animstategraph',
+        'audio',
+        'css',
+        'cubemap',
+        'font',
+        'html',
+        'json',
+        'material',
+        'model',
+        'render',
+        'shader',
+        'sprite',
+        'text',
+        'texture',
+        'textureatlas'
+    ]);
+
     const menuItemReplace = new MenuItem({
         text: 'Replace',
         icon: ICONS.REPLACE,
@@ -757,7 +759,7 @@ editor.once('load', () => {
                 const ref = editor.call('assets:used:index')[currentAsset.get('id')];
                 if (ref && ref.count && ref.ref) {
                     menuItemReferences.hidden = false;
-                    menuItemReplace.hidden = !replaceAvailable[currentAsset.get('type')];
+                    menuItemReplace.hidden = !replaceAvailable.has(currentAsset.get('type'));
                     menuItemReplaceTextureToSprite.hidden = !editor.call('users:hasFlag', 'hasTextureToSprite') || (currentAsset.get('type') !== 'texture');
 
                     menuItemReferences.clear();
