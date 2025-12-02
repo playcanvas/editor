@@ -409,9 +409,9 @@ editor.once('load', () => {
                     }
 
                     if (isRender) {
-                        this.entity.render.meshInstances = createRenderCopy(asset.resource, this.color);
+                        self.entity.render.meshInstances = createRenderCopy(asset.resource, self.color);
                     } else {
-                        self.entity.model.model = createModelCopy(asset.resource, this.color);
+                        self.entity.model.model = createModelCopy(asset.resource, self.color);
                     }
                 }));
             }
