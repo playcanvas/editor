@@ -660,7 +660,7 @@ editor.once('load', () => {
     });
 
     // update frame fields
-    app.on('frameend', () => {
+    editor.on('tools:render', () => {
         if (!enabled) {
             return;
         }
