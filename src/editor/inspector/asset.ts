@@ -465,12 +465,10 @@ class AssetInspector extends Container {
     }
 
     _onClickDownloadAsset(evt) {
-        const legacyScripts = this._projectSettings.get('useLegacyScripts');
-        if (this._assets[0].get('type') !== 'folder' && !(legacyScripts && this._assets[0].get('type') === 'script') && this._assets[0].get('type') !== 'sprite') {
-            // Use the download API endpoint which properly handles filenames
-            // including special characters like # that would otherwise be URL-encoded
-            window.open(`/api/assets/${this._assets[0].get('id')}/download?branchId=${config.self.branch.id}`);
-        }
+        // Use the download API endpoint which properly handles filenames
+        // including special characters like # that would otherwise be URL-encoded
+        // Note: Button visibility is controlled by _updateDownloadButton()
+        window.open(`/api/assets/${this._assets[0].get('id')}/download?branchId=${config.self.branch.id}`);
     }
 
     _onClickOpenInViewer(evt) {
