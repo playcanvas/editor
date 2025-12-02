@@ -944,8 +944,8 @@ class AssetPanel extends Panel {
         // is created by the panel or passed in.
         const menu = editor.call('assets:contextmenu:create');
         const rect = this._btnNew.dom.getBoundingClientRect();
-        menu.position(rect.right, rect.top);
         menu.hidden = false;
+        menu.position(rect.right, rect.top);
     }
 
     // Shows asset delete picker
