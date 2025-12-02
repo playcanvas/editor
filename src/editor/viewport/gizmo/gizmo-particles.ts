@@ -41,141 +41,146 @@ editor.once('load', () => {
     };
 
     // gizmo class
-    function Gizmo() {
-        this._link = null;
-        this.events = [];
-        this.type = '';
-        this.entity = null;
-    }
-    // update lines
-    Gizmo.prototype.update = function () {
-        if (!app) {
-            return;
-        } // webgl not available
-
-        if (!this._link || !this._link.entity) {
-            return;
+    class Gizmo {
+        constructor() {
+            this._link = null;
+            this.events = [];
+            this.type = '';
+            this.entity = null;
         }
 
-        const particles = this._link.entity.particlesystem;
-        this.entity.enabled = this._link.entity.enabled && particles && particles.enabled;
-        if (!this.entity.enabled) {
-            return;
-        }
+        // update lines
+        update() {
+            if (!app) {
+                return;
+            } // webgl not available
 
-        this.entity.setPosition(this._link.entity.getPosition());
-        this.entity.setRotation(this._link.entity.getRotation());
-
-        const type = shapes[particles.emitterShape];
-
-        if (this.type !== type) {
-            this.type = type;
-
-            // set new model based on type
-            if (models[this.type]) {
-                // get current model
-                let model = this.entity.model.model;
-                if (model) {
-                    // put back in pool
-                    this.entity.removeChild(model.getGraph());
-                    if (poolModels[model._type]) {
-                        poolModels[model._type].push(model);
-                    }
-                }
-                // get from pool
-                model = null;
-                if (poolModels[this.type]) {
-                    model = poolModels[this.type].shift();
-                }
-
-                if (!model) {
-                    // no in pool
-                    model = models[this.type].clone();
-                    for (let i = 0; i < model.meshInstances.length; i++) {
-                        model.meshInstances[i].__useFrontLayer = models[this.type].meshInstances[i].__useFrontLayer;
-                    }
-                    model._type = this.type;
-                }
-                // set to model
-                this.entity.model.model = model;
-                // mask meshinstance from camera preview
-                model.meshInstances.forEach((mi) => {
-                    mi.mask = GIZMO_MASK;
-                });
-                this.entity.setLocalScale(1, 1, 1);
-            } else {
-                this.entity.enabled = false;
-                this.entity.model.model = null;
+            if (!this._link || !this._link.entity) {
                 return;
             }
-        }
 
-        switch (this.type) {
-            case 'sphere':
-                this.entity.setLocalScale(particles.emitterRadius || 0.000001, particles.emitterRadius || 0.000001, particles.emitterRadius || 0.000001);
-                break;
-            case 'box':
-                this.entity.setLocalScale(particles.emitterExtents.x / 2 || 0.00001, particles.emitterExtents.y / 2 || 0.00001, particles.emitterExtents.z / 2 || 0.00001);
-                break;
-        }
-    };
-    // link to entity
-    Gizmo.prototype.link = function (obj) {
-        if (!app) {
-            return;
-        } // webgl not available
+            const particles = this._link.entity.particlesystem;
+            this.entity.enabled = this._link.entity.enabled && particles && particles.enabled;
+            if (!this.entity.enabled) {
+                return;
+            }
 
-        this.unlink();
-        this._link = obj;
+            this.entity.setPosition(this._link.entity.getPosition());
+            this.entity.setRotation(this._link.entity.getRotation());
 
-        const self = this;
+            const type = shapes[particles.emitterShape];
 
-        this.events.push(this._link.once('destroy', () => {
-            self.unlink();
-        }));
+            if (this.type !== type) {
+                this.type = type;
 
-        this.entity = new pc.Entity();
-        this.entity.addComponent('model', {
-            castShadows: false,
-            receiveShadows: false,
-            castShadowsLightmap: false,
-            layers: [layerFront.id, layerBack.id]
-        });
-        this.entity.model.addModelToLayers = addModelToLayers;
+                // set new model based on type
+                if (models[this.type]) {
+                    // get current model
+                    let model = this.entity.model.model;
+                    if (model) {
+                        // put back in pool
+                        this.entity.removeChild(model.getGraph());
+                        if (poolModels[model._type]) {
+                            poolModels[model._type].push(model);
+                        }
+                    }
+                    // get from pool
+                    model = null;
+                    if (poolModels[this.type]) {
+                        model = poolModels[this.type].shift();
+                    }
 
-        container.addChild(this.entity);
-    };
-    // unlink
-    Gizmo.prototype.unlink = function () {
-        if (!app) {
-            return;
-        } // webgl not available
+                    if (!model) {
+                        // no in pool
+                        model = models[this.type].clone();
+                        for (let i = 0; i < model.meshInstances.length; i++) {
+                            model.meshInstances[i].__useFrontLayer = models[this.type].meshInstances[i].__useFrontLayer;
+                        }
+                        model._type = this.type;
+                    }
+                    // set to model
+                    this.entity.model.model = model;
+                    // mask meshinstance from camera preview
+                    model.meshInstances.forEach((mi) => {
+                        mi.mask = GIZMO_MASK;
+                    });
+                    this.entity.setLocalScale(1, 1, 1);
+                } else {
+                    this.entity.enabled = false;
+                    this.entity.model.model = null;
+                    return;
+                }
+            }
 
-        if (!this._link) {
-            return;
-        }
-
-        for (let i = 0; i < this.events.length; i++) {
-            if (this.events[i] && this.events[i].unbind) {
-                this.events[i].unbind();
+            switch (this.type) {
+                case 'sphere':
+                    this.entity.setLocalScale(particles.emitterRadius || 0.000001, particles.emitterRadius || 0.000001, particles.emitterRadius || 0.000001);
+                    break;
+                case 'box':
+                    this.entity.setLocalScale(particles.emitterExtents.x / 2 || 0.00001, particles.emitterExtents.y / 2 || 0.00001, particles.emitterExtents.z / 2 || 0.00001);
+                    break;
             }
         }
 
-        this.events = [];
-        this._link = null;
-        this.type = '';
+        // link to entity
+        link(obj) {
+            if (!app) {
+                return;
+            } // webgl not available
 
-        const model = this.entity.model.model;
-        if (model) {
-            // put back in pool
-            this.entity.removeChild(model.getGraph());
-            if (model._type) {
-                poolModels[model._type].push(model);
-            }
+            this.unlink();
+            this._link = obj;
+
+            const self = this;
+
+            this.events.push(this._link.once('destroy', () => {
+                self.unlink();
+            }));
+
+            this.entity = new pc.Entity();
+            this.entity.addComponent('model', {
+                castShadows: false,
+                receiveShadows: false,
+                castShadowsLightmap: false,
+                layers: [layerFront.id, layerBack.id]
+            });
+            this.entity.model.addModelToLayers = addModelToLayers;
+
+            container.addChild(this.entity);
         }
 
-        this.entity.destroy();
-    };
+        // unlink
+        unlink() {
+            if (!app) {
+                return;
+            } // webgl not available
+
+            if (!this._link) {
+                return;
+            }
+
+            for (let i = 0; i < this.events.length; i++) {
+                if (this.events[i] && this.events[i].unbind) {
+                    this.events[i].unbind();
+                }
+            }
+
+            this.events = [];
+            this._link = null;
+            this.type = '';
+
+            const model = this.entity.model.model;
+            if (model) {
+                // put back in pool
+                this.entity.removeChild(model.getGraph());
+                if (model._type) {
+                    poolModels[model._type].push(model);
+                }
+            }
+
+            this.entity.destroy();
+        }
+    }
 
     editor.on('selector:change', (type, items) => {
         // clear gizmos

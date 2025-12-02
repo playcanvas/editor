@@ -245,157 +245,159 @@ editor.once('load', () => {
         instanceBehind.__useFrontLayer = true;
 
         // gizmo class
-        function Gizmo() {
-            this._link = null;
-            this.events = [];
-            this.entity = null;
-            this.type = '';
-            this.color = null;
-        }
-
-        // update lines
-        Gizmo.prototype.update = function () {
-            if (!this._link || !this._link.entity) {
-                return;
+        class Gizmo {
+            constructor() {
+                this._link = null;
+                this.events = [];
+                this.entity = null;
+                this.type = '';
+                this.color = null;
             }
 
-            const zone = this._link.entity.zone;
-            const select = selected[this._link.get('resource_id')] === this._link;
-
-            this.entity.enabled = this._link.entity.enabled && zone && zone.enabled && (select || visible);
-            if (!this.entity.enabled) {
-                return;
-            }
-
-            if (this.type !== 'box') {
-                this.type = 'box';
-
-                if (!this.color && this._link.entity) {
-                    let hash = 0;
-                    const string = this._link.entity.getGuid();
-                    for (let i = 0; i < string.length; i++) {
-                        hash += string.charCodeAt(i);
-                    }
-
-                    this.color = editor.call('color:hsl2rgb', (hash % 128) / 128, 0.5, 0.5);
+            // update lines
+            update() {
+                if (!this._link || !this._link.entity) {
+                    return;
                 }
 
-                if (models[this.type]) {
-                    let model = this.entity.model.model;
-                    if (model) {
-                        this.entity.removeChild(model.getGraph());
-                        poolModels[model._type].push(model);
+                const zone = this._link.entity.zone;
+                const select = selected[this._link.get('resource_id')] === this._link;
+
+                this.entity.enabled = this._link.entity.enabled && zone && zone.enabled && (select || visible);
+                if (!this.entity.enabled) {
+                    return;
+                }
+
+                if (this.type !== 'box') {
+                    this.type = 'box';
+
+                    if (!this.color && this._link.entity) {
+                        let hash = 0;
+                        const string = this._link.entity.getGuid();
+                        for (let i = 0; i < string.length; i++) {
+                            hash += string.charCodeAt(i);
+                        }
+
+                        this.color = editor.call('color:hsl2rgb', (hash % 128) / 128, 0.5, 0.5);
                     }
 
-                    model = poolModels[this.type].shift();
-                    if (!model) {
-                        model = models[this.type].clone();
-                        model._type = this.type;
+                    if (models[this.type]) {
+                        let model = this.entity.model.model;
+                        if (model) {
+                            this.entity.removeChild(model.getGraph());
+                            poolModels[model._type].push(model);
+                        }
 
-                        const color = this.color || colorDefault;
+                        model = poolModels[this.type].shift();
+                        if (!model) {
+                            model = models[this.type].clone();
+                            model._type = this.type;
 
-                        // let old = model.meshInstances[0].material;
-                        model.meshInstances[0].setParameter('offset', 0);
-                        model.meshInstances[0].mask = GIZMO_MASK;
-                        model.meshInstances[0].__editor = true;
-                        model.meshInstances[0].__zone = true;
-                        // model.meshInstances[0].material = old.clone();
-                        // model.meshInstances[0].material.updateShader = old.updateShader;
-                        model.meshInstances[0].material.color.set(color[0], color[1], color[2], alphaFront);
-                        model.meshInstances[0].material.update();
+                            const color = this.color || colorDefault;
 
-                        // old = model.meshInstances[1].material;
-                        model.meshInstances[1].setParameter('offset', 0.001);
-                        model.meshInstances[1].pick = false;
-                        model.meshInstances[1].mask = GIZMO_MASK;
-                        model.meshInstances[1].__editor = true;
-                        // model.meshInstances[1].material = old.clone();
-                        // model.meshInstances[1].material.updateShader = old.updateShader;
-                        model.meshInstances[1].material.color.set(color[0], color[1], color[2], alphaBehind);
-                        model.meshInstances[1].material.update();
-                        model.meshInstances[1].__useFrontLayer = true;
+                            // let old = model.meshInstances[0].material;
+                            model.meshInstances[0].setParameter('offset', 0);
+                            model.meshInstances[0].mask = GIZMO_MASK;
+                            model.meshInstances[0].__editor = true;
+                            model.meshInstances[0].__zone = true;
+                            // model.meshInstances[0].material = old.clone();
+                            // model.meshInstances[0].material.updateShader = old.updateShader;
+                            model.meshInstances[0].material.color.set(color[0], color[1], color[2], alphaFront);
+                            model.meshInstances[0].material.update();
 
-                        model.meshInstances[2].mask = GIZMO_MASK;
+                            // old = model.meshInstances[1].material;
+                            model.meshInstances[1].setParameter('offset', 0.001);
+                            model.meshInstances[1].pick = false;
+                            model.meshInstances[1].mask = GIZMO_MASK;
+                            model.meshInstances[1].__editor = true;
+                            // model.meshInstances[1].material = old.clone();
+                            // model.meshInstances[1].material.updateShader = old.updateShader;
+                            model.meshInstances[1].material.color.set(color[0], color[1], color[2], alphaBehind);
+                            model.meshInstances[1].material.update();
+                            model.meshInstances[1].__useFrontLayer = true;
 
-                        model.meshInstances[3].setParameter('offset', 0);
-                        model.meshInstances[3].mask = GIZMO_MASK;
-                        model.meshInstances[3].pick = false;
-                        model.meshInstances[3].__editor = true;
+                            model.meshInstances[2].mask = GIZMO_MASK;
+
+                            model.meshInstances[3].setParameter('offset', 0);
+                            model.meshInstances[3].mask = GIZMO_MASK;
+                            model.meshInstances[3].pick = false;
+                            model.meshInstances[3].__editor = true;
+                        }
+
+                        this.entity.model.model = model;
+                        this.entity.enabled = true;
+                    } else {
+                        this.entity.model.model = null;
+                        this.entity.enabled = false;
                     }
+                }
 
-                    this.entity.model.model = model;
-                    this.entity.enabled = true;
-                } else {
+                if (this.entity && this.entity.enabled) {
+                    this.entity.setLocalPosition(this._link.entity.getPosition());
+                    this.entity.setLocalRotation(this._link.entity.getRotation());
+                    this.entity.setLocalScale(this._link.entity.zone.size);
+                }
+
+                if (select) {
+                    zones++;
+                    lastZone = this;
+                }
+            }
+
+            // link to entity
+            link(obj) {
+                this.unlink();
+                this._link = obj;
+
+                const self = this;
+
+                this.events.push(this._link.once('destroy', () => {
+                    self.unlink();
+                }));
+
+                this.entity = new pc.Entity();
+                this.entity.addComponent('model', {
+                    castShadows: false,
+                    receiveShadows: false,
+                    castShadowsLightmap: false,
+                    layers: [layerBack.id, layerFront.id]
+                });
+                this.entity.model.addModelToLayers = addModelToLayers;
+                this.entity._getEntity = function () {
+                    return self._link.entity;
+                };
+                this.entity.setLocalScale(1, 1, 1);
+                this.entity.__editor = true;
+
+                container.addChild(this.entity);
+            }
+
+            // unlink
+            unlink() {
+                if (!this._link) {
+                    return;
+                }
+
+                for (let i = 0; i < this.events.length; i++) {
+                    this.events[i].unbind();
+                }
+
+                this.events = [];
+                this._link = null;
+
+                const model = this.entity.model.model;
+                if (model) {
+                    // put back in pool
+                    this.entity.removeChild(model.getGraph());
                     this.entity.model.model = null;
-                    this.entity.enabled = false;
+                    poolModels[model._type].push(model);
                 }
+
+                container.removeChild(this.entity);
+                this.entity = null;
+                this.type = '';
             }
-
-            if (this.entity && this.entity.enabled) {
-                this.entity.setLocalPosition(this._link.entity.getPosition());
-                this.entity.setLocalRotation(this._link.entity.getRotation());
-                this.entity.setLocalScale(this._link.entity.zone.size);
-            }
-
-            if (select) {
-                zones++;
-                lastZone = this;
-            }
-        };
-
-        // link to entity
-        Gizmo.prototype.link = function (obj) {
-            this.unlink();
-            this._link = obj;
-
-            const self = this;
-
-            this.events.push(this._link.once('destroy', () => {
-                self.unlink();
-            }));
-
-            this.entity = new pc.Entity();
-            this.entity.addComponent('model', {
-                castShadows: false,
-                receiveShadows: false,
-                castShadowsLightmap: false,
-                layers: [layerBack.id, layerFront.id]
-            });
-            this.entity.model.addModelToLayers = addModelToLayers;
-            this.entity._getEntity = function () {
-                return self._link.entity;
-            };
-            this.entity.setLocalScale(1, 1, 1);
-            this.entity.__editor = true;
-
-            container.addChild(this.entity);
-        };
-
-        // unlink
-        Gizmo.prototype.unlink = function () {
-            if (!this._link) {
-                return;
-            }
-
-            for (let i = 0; i < this.events.length; i++) {
-                this.events[i].unbind();
-            }
-
-            this.events = [];
-            this._link = null;
-
-            const model = this.entity.model.model;
-            if (model) {
-                // put back in pool
-                this.entity.removeChild(model.getGraph());
-                this.entity.model.model = null;
-                poolModels[model._type].push(model);
-            }
-
-            container.removeChild(this.entity);
-            this.entity = null;
-            this.type = '';
-        };
+        }
 
         const onPointFocus = function () {
             if (hoverPoint) {

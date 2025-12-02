@@ -124,41 +124,45 @@ editor.once('viewport:load', (app) => {
         editor.call('viewport:pick:state', true);
     };
 
-    function Gizmo(axis, dir) {
-        assignEvents(this);
-        this.entity = null;
-        this.axis = axis || 'y';
-        this.dir = dir === undefined ? 1 : dir;
-        this.rotation = new pc.Quat();
-        this.position = new pc.Vec3();
-        this.scale = new pc.Vec3(1, 1, 1);
-    }
-    Gizmo.prototype = Object.create(Events.prototype);
-
-    Gizmo.prototype.update = function () {
-        if (!this.entity) {
-            return;
+    class Gizmo extends Events {
+        constructor(axis, dir) {
+            super();
+            assignEvents(this);
+            this.entity = null;
+            this.axis = axis || 'y';
+            this.dir = dir === undefined ? 1 : dir;
+            this.rotation = new pc.Quat();
+            this.position = new pc.Vec3();
+            this.scale = new pc.Vec3(1, 1, 1);
         }
 
-        const camera = editor.call('camera:current');
-        const posCamera = camera.getPosition();
-        const pos = this.entity.getLocalPosition();
-        let scale = 1;
+        update() {
+            if (!this.entity) {
+                return;
+            }
 
-        // scale to screen space
-        if (camera.camera.projection === pc.PROJECTION_PERSPECTIVE) {
-            const dot = vecA.copy(pos).sub(posCamera).dot(camera.forward);
-            const denom = 1280 / (2 * Math.tan(camera.camera.fov * pc.math.DEG_TO_RAD / 2));
-            scale = Math.max(0.0001, (dot / denom) * 150) * gizmoSize;
-        } else {
-            scale = camera.camera.orthoHeight / 3 * gizmoSize;
+            const camera = editor.call('camera:current');
+            const posCamera = camera.getPosition();
+            const pos = this.entity.getLocalPosition();
+            let scale = 1;
+
+            // scale to screen space
+            if (camera.camera.projection === pc.PROJECTION_PERSPECTIVE) {
+                const dot = vecA.copy(pos).sub(posCamera).dot(camera.forward);
+                const denom = 1280 / (2 * Math.tan(camera.camera.fov * pc.math.DEG_TO_RAD / 2));
+                scale = Math.max(0.0001, (dot / denom) * 150) * gizmoSize;
+            } else {
+                scale = camera.camera.orthoHeight / 3 * gizmoSize;
+            }
+            vecA.copy(this.scale).scale(scale);
+            this.entity.setLocalScale(vecA);
         }
-        vecA.copy(this.scale).scale(scale);
-        this.entity.setLocalScale(vecA);
-    };
 
-    Object.defineProperty(Gizmo.prototype, 'enabled', {
-        set: function (value) {
+        get enabled() {
+            return !!this.entity;
+        }
+
+        set enabled(value) {
             if (!!value === !!this.entity) {
                 return;
             }
@@ -182,11 +186,8 @@ editor.once('viewport:load', (app) => {
                 this.entity.destroy();
                 this.entity = null;
             }
-        },
-        get: function () {
-            return !!this.entity;
         }
-    });
+    }
 
     editor.method('gizmo:point:create', (axis, position, dir) => {
         let item = pool.shift();
