@@ -86,6 +86,14 @@ class ImportMapSettingsPanel extends BaseSettingsPanel {
                 this._loadLayout();
             }
         });
+
+        // Clear the import map setting when the asset is removed
+        editor.on('assets:remove', (asset) => {
+            const id = this._projectSettings.get('importMap');
+            if (id && asset.get('id').toString() === id.toString()) {
+                this._projectSettings.set('importMap', null);
+            }
+        });
     }
 
     _loadLayout() {
