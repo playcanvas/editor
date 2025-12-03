@@ -22,32 +22,28 @@ editor.once('viewport:load', (app) => {
     };
 
     const keyMappings = new Map([
-        // Arrow keys (use evt.key - consistent across layouts)
-        ['arrowup', 'forward'],
-        ['arrowleft', 'left'],
-        ['arrowdown', 'back'],
-        ['arrowright', 'right'],
-        ['pageup', 'up'],
-        ['pagedown', 'down'],
-        // WASD keys (use evt.code - physical position)
-        ['keyw', 'forward'],
-        ['keya', 'left'],
-        ['keys', 'back'],
-        ['keyd', 'right'],
-        ['keyq', 'down'],
-        ['keye', 'up']
+        // Arrow keys
+        ['ArrowUp', 'forward'],
+        ['ArrowLeft', 'left'],
+        ['ArrowDown', 'back'],
+        ['ArrowRight', 'right'],
+        // WASD (physical position - works on all keyboard layouts)
+        ['KeyW', 'forward'],
+        ['KeyA', 'left'],
+        ['KeyS', 'back'],
+        ['KeyD', 'right'],
+        // Vertical
+        ['KeyE', 'up'],
+        ['PageUp', 'up'],
+        ['KeyQ', 'down'],
+        ['PageDown', 'down']
     ]);
 
     // Helper functions
     const isInputOrTextarea = target => /input|textarea/i.test(target.tagName);
 
-    const setKeyState = (evt, state) => {
-        // Try physical key code first (for letter keys on all keyboard layouts)
-        let action = keyMappings.get(evt.code.toLowerCase());
-        // Fallback to character key (for arrow keys, page keys, etc.)
-        if (!action) {
-            action = keyMappings.get(evt.key.toLowerCase());
-        }
+    const setKeyState = (key, state) => {
+        const action = keyMappings.get(key);
         if (action) {
             keys[action] = state;
         }
@@ -80,17 +76,14 @@ editor.once('viewport:load', (app) => {
         }
 
         // Check if the pressed key corresponds to a flying action
-        // Check both physical key code (for WASD) and character key (for arrows)
-        const hasKeyCode = keyMappings.has(evt.code.toLowerCase());
-        const hasKey = keyMappings.has(evt.key.toLowerCase());
-        if (!hasKeyCode && !hasKey) {
+        if (!keyMappings.has(evt.code)) {
             return;
         }
 
         // Prevent this event from triggering other handlers (like hotkeys)
         evt.preventDefault();
 
-        setKeyState(evt, true);
+        setKeyState(evt.code, true);
         updateDirection();
 
         if (!flying) {
@@ -110,16 +103,14 @@ editor.once('viewport:load', (app) => {
         }
 
         // Check if this key was handled by camera fly
-        const hasKeyCode = keyMappings.has(evt.code.toLowerCase());
-        const hasKey = keyMappings.has(evt.key.toLowerCase());
-        if (!hasKeyCode && !hasKey) {
+        if (!keyMappings.has(evt.code)) {
             return;
         }
 
         // Prevent this event from triggering other handlers (like hotkeys)
         evt.preventDefault();
 
-        setKeyState(evt, false);
+        setKeyState(evt.code, false);
         updateDirection();
 
         if (Object.values(keys).every(state => !state)) {
