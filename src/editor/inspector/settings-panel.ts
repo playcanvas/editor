@@ -1,24 +1,24 @@
 import { Container } from '@playcanvas/pcui';
 
-import type { Attribute } from './attribute.type.d.ts';
-import { AttributesInspector } from './attributes-inspector.ts';
-import { AssetImportSettingsPanel } from './settings-panels/asset-import.ts';
-import { BatchGroupsSettingsPanel } from './settings-panels/batchgroups.ts';
-import { EditorSettingsPanel } from './settings-panels/editor.ts';
-import { EngineSettingsPanel } from './settings-panels/engine.ts';
-import { ExternalScriptsSettingsPanel } from './settings-panels/external-scripts.ts';
-import { ImportMapSettingsPanel } from './settings-panels/import-map.ts';
-import { InputSettingsPanel } from './settings-panels/input.ts';
-import { LaunchPageSettingsPanel } from './settings-panels/launch-page.ts';
-import { LayersSettingsPanel } from './settings-panels/layers.ts';
-import { LightmappingSettingsPanel } from './settings-panels/lightmapping.ts';
-import { LoadingScreenSettingsPanel } from './settings-panels/loading-screen.ts';
-import { LocalizationSettingsPanel } from './settings-panels/localization.ts';
-import { NetworkSettingsPanel } from './settings-panels/network.ts';
-import { PhysicsSettingsPanel } from './settings-panels/physics.ts';
-import { RenderingSettingsPanel } from './settings-panels/rendering.ts';
-import { ScriptsSettingsPanel } from './settings-panels/scripts.ts';
-import { ProjectHistorySettingsPanel } from './settings-panels/settings-history.ts';
+import type { Attribute } from './attribute.type.d';
+import { AttributesInspector } from './attributes-inspector';
+import { AssetImportSettingsPanel } from './settings-panels/asset-import';
+import { BatchGroupsSettingsPanel } from './settings-panels/batchgroups';
+import { EditorSettingsPanel } from './settings-panels/editor';
+import { EngineSettingsPanel } from './settings-panels/engine';
+import { ExternalScriptsSettingsPanel } from './settings-panels/external-scripts';
+import { ImportMapSettingsPanel } from './settings-panels/import-map';
+import { InputSettingsPanel } from './settings-panels/input';
+import { LaunchPageSettingsPanel } from './settings-panels/launch-page';
+import { LayersSettingsPanel } from './settings-panels/layers';
+import { LightmappingSettingsPanel } from './settings-panels/lightmapping';
+import { LoadingScreenSettingsPanel } from './settings-panels/loading-screen';
+import { LocalizationSettingsPanel } from './settings-panels/localization';
+import { NetworkSettingsPanel } from './settings-panels/network';
+import { PhysicsSettingsPanel } from './settings-panels/physics';
+import { RenderingSettingsPanel } from './settings-panels/rendering';
+import { ScriptsSettingsPanel } from './settings-panels/scripts';
+import { ProjectHistorySettingsPanel } from './settings-panels/settings-history';
 
 
 const CLASS_ROOT = 'settings';

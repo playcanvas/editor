@@ -111,7 +111,7 @@ editor.once('viewport:load', (app) => {
                         diff *= distance;
 
                         if (diff) {
-                            vecA.copy(rayDirection).scale(diff);
+                            vecA.copy(rayDirection).mulScalar(diff);
                             camera.setPosition(camera.getPosition().add(vecA));
                         }
                     } else {

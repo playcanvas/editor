@@ -1,8 +1,8 @@
 import { InfoBox } from '@playcanvas/pcui';
 
-import { ComponentInspector } from './component.ts';
-import type { Attribute } from '../attribute.type.d.ts';
-import { AttributesInspector } from '../attributes-inspector.ts';
+import { ComponentInspector } from './component';
+import type { Attribute } from '../attribute.type.d';
+import { AttributesInspector } from '../attributes-inspector';
 
 
 const ATTRIBUTES: Attribute[] = [{

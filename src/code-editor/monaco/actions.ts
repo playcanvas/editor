@@ -73,7 +73,7 @@ editor.once('load', () => {
         }
     );
 
-    // command pallette
+    // command palette
     monacoEditor.addCommand(
         monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyP, () => {
             monacoEditor.focus();

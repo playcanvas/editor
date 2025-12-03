@@ -1,4 +1,4 @@
-import { LegacyContainer } from './container.ts';
+import { LegacyContainer } from './container';
 
 class LegacyList extends LegacyContainer {
     constructor(args = {}) {

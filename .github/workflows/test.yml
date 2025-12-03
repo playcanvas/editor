@@ -4,6 +4,7 @@ on:
   pull_request:
     branches: [main]
     types: [labeled]
+  workflow_dispatch:
 
 concurrency:
   group: 'test'
@@ -13,10 +14,10 @@ jobs:
   test:
     name: Test Suite
     runs-on: ubuntu-latest
-    if: ${{ github.event.label.name == 'test' && github.repository == 'playcanvas/editor' && github.actor == 'kpal81xd' }}
+    if: ${{ github.repository == 'playcanvas/editor' && github.actor == 'kpal81xd' && (github.event.label.name == 'test' || github.event_name == 'workflow_dispatch') }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Log in to the Container registry
@@ -37,21 +38,13 @@ jobs:
         env:
           DOCKER_BUILD_SUMMARY: false
 
-      - name: Cache auth
-        uses: actions/cache@v4
-        with:
-          path: ~/.auth
-          key: ${{ runner.os }}-auth-${{ github.sha }}
-          restore-keys: ${{ runner.os }}-auth-
-
       - name: Run tests
         run: |
           docker run --rm \
-            -e PC_EMAIL=${{ secrets.PC_EMAIL }} \
-            -e PC_PASSWORD=${{ secrets.PC_PASSWORD }} \
             -e PC_HOST=playcanvas.com \
             -e PC_LOGIN_HOST=login.playcanvas.com \
             -e PC_LAUNCH_HOST=launch.playcanvas.com \
             -e PC_LOCAL_FRONTEND=true \
-            -v ~/.auth:/usr/src/test/.auth \
+            -e PC_COOKIE_NAME=${{ secrets.PC_COOKIE_NAME }} \
+            -e PC_COOKIE_VALUE=${{ secrets.PC_COOKIE_VALUE }} \
             playcanvas/editor:latest

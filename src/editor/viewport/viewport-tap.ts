@@ -4,37 +4,60 @@ editor.once('load', () => {
         return;
     }
 
-    function Tap(evt, rect, mouse) {
-        this.x = this.lx = this.sx = evt.clientX - rect.left;
-        this.y = this.ly = this.sy = evt.clientY - rect.top;
-        this.nx = 0;
-        this.ny = 0;
-        this.move = false;
-        this.down = true;
-        this.button = evt.button;
-        this.mouse = !!mouse;
+    class Tap {
+        x: number;
+
+        y: number;
+
+        lx: number;
+
+        ly: number;
+
+        sx: number;
+
+        sy: number;
+
+        nx: number = 0;
+
+        ny: number = 0;
+
+        move: boolean = false;
+
+        down: boolean = true;
+
+        button: number;
+
+        mouse: boolean;
+
+        constructor(evt, rect, mouse) {
+            this.x = this.lx = this.sx = evt.clientX - rect.left;
+            this.y = this.ly = this.sy = evt.clientY - rect.top;
+            this.button = evt.button;
+            this.mouse = !!mouse;
+        }
+
+        update(evt, rect) {
+            const x = evt.clientX - rect.left;
+            const y = evt.clientY - rect.top;
+
+            // if it's moved
+            if (this.down && !this.move && (Math.abs(this.sx - x) + Math.abs(this.sy - y)) > 8) {
+                this.move = true;
+            }
+
+            // moving
+            if (this.move) {
+                this.nx = x - this.lx;
+                this.ny = y - this.ly;
+                this.lx = this.x;
+                this.ly = this.y;
+            }
+
+            // coords
+            this.x = x;
+            this.y = y;
+        }
     }
-    Tap.prototype.update = function (evt, rect) {
-        const x = evt.clientX - rect.left;
-        const y = evt.clientY - rect.top;
-
-        // if it's moved
-        if (this.down && !this.move && (Math.abs(this.sx - x) + Math.abs(this.sy - y)) > 8) {
-            this.move = true;
-        }
-
-        // moving
-        if (this.move) {
-            this.nx = x - this.lx;
-            this.ny = y - this.ly;
-            this.lx = this.x;
-            this.ly = this.y;
-        }
-
-        // coords
-        this.x = x;
-        this.y = y;
-    };
 
     const taps = [];
     // var tapMouse = new Tap({ clientX: 0, clientY: 0 }, { left: 0, top: 0 });
@@ -75,7 +98,17 @@ editor.once('load', () => {
         }
     };
 
+    // track gizmo dragging state to splice into tap handling (uses pointer events)
+    let gizmoDragging = false;
+    editor.on('gizmo:transform:drag', (dragging) => {
+        gizmoDragging = dragging;
+    });
+    const gizmoCapture = (evt: MouseEvent) => gizmoDragging && evt.button === 0;
+
     const evtMouseUp = function (evt) {
+        if (gizmoCapture(evt)) {
+            return;
+        }
         const items = taps.slice(0);
 
         for (let i = 0; i < items.length; i++) {
@@ -108,6 +141,9 @@ editor.once('load', () => {
     };
 
     canvas.element.addEventListener('mousedown', (evt) => {
+        if (gizmoCapture(evt)) {
+            return;
+        }
         const rect = canvas.element.getBoundingClientRect();
 
         editor.emit('viewport:mouse:move', {

@@ -1,5 +1,6 @@
-import { Asset, Entity } from '@playcanvas/editor-api';
 import { Menu, MenuItem } from '@playcanvas/pcui';
+
+import { Asset, Entity } from '@playcanvas/editor-api';
 
 editor.once('load', () => {
     let currentAsset = null;
@@ -60,18 +61,13 @@ editor.once('load', () => {
         menu.append(menuItemNew);
     }
 
-    // Asset types that are downloadable (via context menu)
-    const downloadable = new Set([
-        'audio',
-        'container',
-        'css',
-        'html',
-        'json',
-        'scene',
-        'shader',
-        'text',
-        'texture',
-        'textureatlas'
+    // Asset types that are NOT downloadable (via context menu)
+    const notDownloadable = new Set([
+        'folder',
+        'sprite',
+        'animstategraph',
+        'render',
+        'template'
     ]);
 
     const icons = {
@@ -436,23 +432,25 @@ editor.once('load', () => {
     });
 
     // replace
-    const replaceAvailable = {
-        'material': true,
-        'texture': true,
-        'textureatlas': true,
-        'model': true,
-        'animation': true,
-        'audio': true,
-        'cubemap': true,
-        'css': true,
-        'html': true,
-        'shader': true,
-        'sprite': true,
-        'json': true,
-        'text': true,
-        'animstategraph': true,
-        'font': true
-    };
+    const replaceAvailable = new Set([
+        'animation',
+        'animstategraph',
+        'audio',
+        'css',
+        'cubemap',
+        'font',
+        'html',
+        'json',
+        'material',
+        'model',
+        'render',
+        'shader',
+        'sprite',
+        'text',
+        'texture',
+        'textureatlas'
+    ]);
+
     const menuItemReplace = new MenuItem({
         text: 'Replace',
         icon: ICONS.REPLACE,
@@ -537,7 +535,9 @@ editor.once('load', () => {
         text: 'Download',
         icon: ICONS.DOWNLOAD,
         onSelect: () => {
-            window.open(currentAsset.get('file.url'));
+            // Use the download API endpoint which properly handles filenames
+            // including special characters like # that would otherwise be URL-encoded
+            window.open(`/api/assets/${currentAsset.get('id')}/download?branchId=${config.self.branch.id}`);
         }
     });
     menu.append(menuItemDownload);
@@ -684,10 +684,9 @@ editor.once('load', () => {
 
             // download
             const hasDownloadPermission = !config.project.privateAssets || (config.project.privateAssets && editor.call('permissions:read'));
-            const isDownloadable = currentAsset.get('source') || downloadable.has(currentAsset.get('type')) || (!legacyScripts && currentAsset.get('type') === 'script');
-            const hasFileUrl = currentAsset.get('file.url');
+            const isDownloadable = currentAsset.get('source') || (!notDownloadable.has(currentAsset.get('type')) && !(legacyScripts && currentAsset.get('type') === 'script'));
 
-            menuItemDownload.hidden = !(hasDownloadPermission && isDownloadable && hasFileUrl);
+            menuItemDownload.hidden = !(hasDownloadPermission && isDownloadable);
 
             // duplicate
             if (currentAsset.get('type') === 'material' || currentAsset.get('type') === 'sprite') {
@@ -756,7 +755,7 @@ editor.once('load', () => {
                 const ref = editor.call('assets:used:index')[currentAsset.get('id')];
                 if (ref && ref.count && ref.ref) {
                     menuItemReferences.hidden = false;
-                    menuItemReplace.hidden = !replaceAvailable[currentAsset.get('type')];
+                    menuItemReplace.hidden = !replaceAvailable.has(currentAsset.get('type'));
                     menuItemReplaceTextureToSprite.hidden = !editor.call('users:hasFlag', 'hasTextureToSprite') || (currentAsset.get('type') !== 'texture');
 
                     menuItemReferences.clear();

@@ -1,4 +1,4 @@
-import type { AttributeReference } from '../reference.type.ts';
+import type { AttributeReference } from '../reference.type';
 
 export const fields: AttributeReference[]  = [{
     name: 'asset:material:asset',
@@ -1163,7 +1163,7 @@ export const fields: AttributeReference[]  = [{
 }, {
     name: 'asset:material:thicknessVertexColorChannel',
     title: 'thicknessVertexColorChannel',
-    subTitle: '{Boolean}',
+    subTitle: '{String}',
     description: 'A color channel to extract thickness from the vertex color. Can be r, g, b or a.',
     url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#thicknessvertexcolorchannel'
 }, {

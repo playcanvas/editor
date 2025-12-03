@@ -1,155 +1,155 @@
 // extensions
-import '../common/extensions.ts';
+import '@/common/extensions';
 
 // pcui
-import '../common/pcui/pcui.ts';
+import '@/common/pcui/pcui';
 
 // general
-import './editor.ts';
+import './editor';
 
 // general (from main editor)
-import '../editor/hotkey/hotkey.ts';
-import '../editor/messenger/messenger.ts';
-import '../editor/relay/relay.ts';
+import '../editor/hotkey/hotkey';
+import '../editor/messenger/messenger';
+import '../editor/relay/relay';
 
 // realtime
-import './realtime/realtime.ts';
+import './realtime/realtime';
 
 // permissions
-import './permissions/permissions.ts';
+import './permissions/permissions';
 
 // local storage (from main editor)
-import '../editor/storage/localstorage.ts';
+import '../editor/storage/localstorage';
 
 // errors
-import './errors/errors-realtime.ts';
+import './errors/errors-realtime';
 
 // layout
-import './layout/layout.ts';
+import './layout/layout';
 
 // version control
-import './merge/merge.ts';
+import './merge/merge';
 
 // assets (from main editor)
-import '../editor/assets/assets-fs.ts';
-import '../editor/assets/assets-rename.ts';
+import '../editor/assets/assets-fs';
+import '../editor/assets/assets-rename';
 
 // assets
-import './assets/assets.ts';
-import './assets/assets-messenger.ts';
-import './assets/assets-contents.ts';
-import './assets/assets-load.ts';
-import './assets/assets-delete.ts';
-import './assets/assets-create.ts';
-import './assets/assets-create-css.ts';
-import './assets/assets-create-folder.ts';
-import './assets/assets-create-html.ts';
-import './assets/assets-create-json.ts';
-import './assets/assets-create-script.ts';
-import './assets/assets-create-shader.ts';
-import './assets/assets-create-text.ts';
-import './assets/assets-script-parse.ts';
+import './assets/assets';
+import './assets/assets-messenger';
+import './assets/assets-contents';
+import './assets/assets-load';
+import './assets/assets-delete';
+import './assets/assets-create';
+import './assets/assets-create-css';
+import './assets/assets-create-folder';
+import './assets/assets-create-html';
+import './assets/assets-create-json';
+import './assets/assets-create-script';
+import './assets/assets-create-shader';
+import './assets/assets-create-text';
+import './assets/assets-script-parse';
 
 // script parse (from main editor)
-import '../editor/assets/handle-script-parse.ts';
+import '../editor/assets/handle-script-parse';
 
 // users
-import './users/users.ts';
-import './users/users-colors.ts';
+import './users/users';
+import './users/users-colors';
 
 // settings
-import '../editor/settings/settings.ts';
-import './settings/user-settings.ts';
-import './settings/project-settings.ts';
+import '../editor/settings/settings';
+import './settings/user-settings';
+import './settings/project-settings';
 
 // documents
-import './documents/documents-load.ts';
+import './documents/documents-load';
 
 // files panel
-import './files-panel/files-context-menu.ts';
-import './files-panel/files-panel.ts';
+import './files-panel/files-context-menu';
+import './files-panel/files-panel';
 
 // status panel
-import './status-panel/status-panel.ts';
-import './status-panel/status-connection.ts';
+import './status-panel/status-panel';
+import './status-panel/status-connection';
 
 // monaco
-import './monaco/languages/glsl.ts';
-import './monaco/monaco.ts';
-import './monaco/document.ts';
-import './monaco/copilot/autocomplete.ts';
-import './monaco/intellisense/attribute-autofill.ts';
-import './monaco/intellisense/path-completion.ts';
-import './monaco/intellisense/warnings.ts';
-import './monaco/intellisense/color-picker.ts';
-import './monaco/sharedb.ts';
-import './monaco/actions.ts';
-import './monaco/search.ts';
-import './monaco/merge.ts';
-import './monaco/diff.ts';
+import './monaco/languages/glsl';
+import './monaco/monaco';
+import './monaco/document';
+import './monaco/copilot/autocomplete';
+import './monaco/intellisense/attribute-autofill';
+import './monaco/intellisense/path-completion';
+import './monaco/intellisense/warnings';
+import './monaco/intellisense/color-picker';
+import './monaco/sharedb';
+import './monaco/actions';
+import './monaco/search';
+import './monaco/merge';
+import './monaco/diff';
 
 // tab panel
-import './tab-panel/tab-context-menu.ts';
-import './tab-panel/tab-panel.ts';
+import './tab-panel/tab-context-menu';
+import './tab-panel/tab-panel';
 
 // settings panel
-import './settings-panel/settings-panel.ts';
+import './settings-panel/settings-panel';
 
 // picker confirm (from main editor)
-import '../editor/pickers/picker-confirm.ts';
+import '../editor/pickers/picker-confirm';
 
 // pickers
-import './pickers/picker-script-create.ts';
-import './pickers/picker-search.ts';
-import './pickers/picker-fuzzy-search.ts';
+import './pickers/picker-script-create';
+import './pickers/picker-search';
+import './pickers/picker-fuzzy-search';
 
 // search
-import './search/search.ts';
+import './search/search';
 
 // menu panel
-import './menu-panel/menu-panel.ts';
-import './menu-panel/file/menu.ts';
-import './menu-panel/file/create.ts';
-import './menu-panel/file/save.ts';
-import './menu-panel/file/revert.ts';
-import './menu-panel/file/rename.ts';
-import './menu-panel/file/download.ts';
-import './menu-panel/file/close.ts';
-import './menu-panel/file/delete.ts';
-import './menu-panel/edit/menu.ts';
-import './menu-panel/edit/undo-redo.ts';
-import './menu-panel/edit/find-replace.ts';
-import './menu-panel/edit/comment.ts';
-import './menu-panel/edit/preferences.ts';
-import './menu-panel/selection/menu.ts';
-import './menu-panel/selection/selectAll.ts';
-import './menu-panel/selection/expand-shrink.ts';
-import './menu-panel/selection/copy-move-lines.ts';
-import './menu-panel/selection/occurrences.ts';
-import './menu-panel/navigate/menu.ts';
-import './menu-panel/navigate/pallette.ts';
-import './menu-panel/navigate/fuzzy.ts';
-import './menu-panel/navigate/tabs.ts';
-import './menu-panel/project/menu.ts';
-import './menu-panel/project/links.ts';
-import './menu-panel/project/launch.ts';
-import './menu-panel/help/menu.ts';
-import './menu-panel/help/links.ts';
+import './menu-panel/menu-panel';
+import './menu-panel/file/menu';
+import './menu-panel/file/create';
+import './menu-panel/file/save';
+import './menu-panel/file/revert';
+import './menu-panel/file/rename';
+import './menu-panel/file/download';
+import './menu-panel/file/close';
+import './menu-panel/file/delete';
+import './menu-panel/edit/menu';
+import './menu-panel/edit/undo-redo';
+import './menu-panel/edit/find-replace';
+import './menu-panel/edit/comment';
+import './menu-panel/edit/preferences';
+import './menu-panel/selection/menu';
+import './menu-panel/selection/selectAll';
+import './menu-panel/selection/expand-shrink';
+import './menu-panel/selection/copy-move-lines';
+import './menu-panel/selection/occurrences';
+import './menu-panel/navigate/menu';
+import './menu-panel/navigate/palette';
+import './menu-panel/navigate/fuzzy';
+import './menu-panel/navigate/tabs';
+import './menu-panel/project/menu';
+import './menu-panel/project/links';
+import './menu-panel/project/launch';
+import './menu-panel/help/menu';
+import './menu-panel/help/links';
 
 // whoisonline
-import './whoisonline/whoisonline.ts';
-import './whoisonline/whoisonline-panel.ts';
+import './whoisonline/whoisonline';
+import './whoisonline/whoisonline-panel';
 
 // menu panel readonly
-import './menu-panel/menu-readonly.ts';
+import './menu-panel/menu-readonly';
 
 // monaco integration
-import './monaco/integration.ts';
+import './monaco/integration';
 
 // urls
-import './urls.ts';
+import './urls';
 
 // version control pickers (from main editor)
-import '../editor/pickers/version-control/picker-version-control-overlay-message.ts';
-import '../editor/pickers/version-control/picker-version-control-messenger.ts';
-import '../editor/pickers/version-control/picker-version-control-overlay-merge.ts';
+import '../editor/pickers/version-control/picker-version-control-overlay-message';
+import '../editor/pickers/version-control/picker-version-control-messenger';
+import '../editor/pickers/version-control/picker-version-control-overlay-merge';

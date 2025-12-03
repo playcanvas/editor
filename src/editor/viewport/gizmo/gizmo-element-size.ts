@@ -1,5 +1,6 @@
-import { GIZMO_MASK } from '../../../core/constants.ts';
-import { createColorMaterial } from '../viewport-color-material.ts';
+import { GIZMO_MASK } from '@/core/constants';
+
+import { createColorMaterial } from '../viewport-color-material';
 
 editor.once('load', () => {
     const vecA = new pc.Vec3();
@@ -100,7 +101,7 @@ editor.once('load', () => {
             const rayDirection = vecB.set(0, 0, 0);
 
             vecC.copy(entity.forward);
-            const planeNormal = vecC.scale(-1);
+            const planeNormal = vecC.mulScalar(-1);
 
             if (camera.camera.projection === pc.PROJECTION_PERSPECTIVE) {
                 rayDirection.copy(posMouse).sub(rayOrigin).normalize();
@@ -112,7 +113,7 @@ editor.once('load', () => {
             const rayPlaneDot = planeNormal.dot(rayDirection);
             const planeDist = posEntity.dot(planeNormal);
             const pointPlaneDist = (planeNormal.dot(rayOrigin) - planeDist) / rayPlaneDot;
-            const pickedPos = rayDirection.scale(-pointPlaneDist).add(rayOrigin);
+            const pickedPos = rayDirection.mulScalar(-pointPlaneDist).add(rayOrigin);
 
             return pickedPos;
         };
@@ -261,9 +262,7 @@ editor.once('load', () => {
                 pickStart.copy(pickPlane(tap.x, tap.y));
             }
 
-            editor.call('gizmo:translate:visible', false);
-            editor.call('gizmo:rotate:visible', false);
-            editor.call('gizmo:scale:visible', false);
+            editor.emit('gizmo:transform:visible', false);
         };
 
         const onTapMove = function (tap) {
@@ -289,9 +288,7 @@ editor.once('load', () => {
             moving = false;
             mouseTap = tap;
 
-            editor.call('gizmo:translate:visible', true);
-            editor.call('gizmo:rotate:visible', true);
-            editor.call('gizmo:scale:visible', true);
+            editor.emit('gizmo:transform:visible', true);
             editor.call('viewport:pick:state', true);
 
             if (selectedEntity) {

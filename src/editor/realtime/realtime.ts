@@ -13,10 +13,12 @@ editor.once('start', () => {
     });
 
     realtime.on('connected', () => {
+        console.log('realtime connected');
         editor.emit('realtime:connected');
     });
 
     realtime.on('error', (err) => {
+        console.error('realtime error', err);
         editor.emit('realtime:error', err);
     });
 
@@ -33,6 +35,7 @@ editor.once('start', () => {
     });
 
     realtime.on('disconnect', (reason) => {
+        console.log('realtime disconnected', reason);
         editor.emit('realtime:disconnected', reason);
     });
 

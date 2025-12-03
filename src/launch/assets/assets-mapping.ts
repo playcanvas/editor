@@ -1,6 +1,6 @@
 import type { Observer } from '@playcanvas/observer';
 
-import { registerSW } from '../../common/service-worker.ts';
+import { registerSW } from '@/common/service-worker';
 
 
 editor.on('load', async () => {

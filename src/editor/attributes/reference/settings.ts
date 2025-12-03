@@ -1,4 +1,4 @@
-import { AttributeReference } from './reference.type.ts';
+import { AttributeReference } from './reference.type';
 
 editor.once('load', () => {
     const fields: AttributeReference[] = [{
@@ -42,6 +42,12 @@ editor.once('load', () => {
     }, {
         name: 'settings:cameraGammaCorrection',
         description: 'Set the editor camera gamma correction. This setting does not affect the game.'
+    }, {
+        name: 'settings:gizmoSize',
+        description: 'Set the gizmo size in the editor viewport.'
+    }, {
+        name: 'settings:gizmoPreset',
+        description: 'Set the gizmo preset in the editor viewport. This affects the transform gizmos\'s style and interaction behavior.'
     }, {
         name: 'settings:showFog',
         description: 'Enable fog rendering in the viewport.'
@@ -358,6 +364,10 @@ editor.once('load', () => {
         name: 'settings:asset-import:importMorphNormals',
         title: 'Import Morph Target Normals',
         description: 'Imports morph target normals when importing a model. Disable this if morph target normals look incorrect.'
+    }, {
+        name: 'settings:asset-import:useUniqueIndices',
+        title: 'Use Unique Indices',
+        description: 'Use vertex attribute indices to resolve uniqueness when importing FBX models. Otherwise use vertex attributes to resolve uniqueness. Enabling this option will generally result in more vertices being generated, but their order will be preserved.'
     }, {
         name: 'settings:asset-import:defaultAssetPreload',
         title: 'Preload new assets',

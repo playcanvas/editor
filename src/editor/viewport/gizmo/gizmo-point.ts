@@ -1,8 +1,9 @@
 import { Events } from '@playcanvas/observer';
 
-import { assignEvents } from '../../../common/utils.ts';
-import { GIZMO_MASK } from '../../../core/constants.ts';
-import { createColorMaterial } from '../viewport-color-material.ts';
+import { assignEvents } from '@/common/utils';
+import { GIZMO_MASK } from '@/core/constants';
+
+import { createColorMaterial } from '../viewport-color-material';
 
 editor.once('viewport:load', (app) => {
     const pool = [];
@@ -54,18 +55,18 @@ editor.once('viewport:load', (app) => {
         quatA.transformVector(planeNormal, planeNormal);
 
         vecD.copy(rayOrigin).sub(posGizmo).normalize();
-        planeNormal.copy(vecD.sub(planeNormal.scale(planeNormal.dot(vecD))).normalize());
+        planeNormal.copy(vecD.sub(planeNormal.mulScalar(planeNormal.dot(vecD))).normalize());
 
         const rayPlaneDot = planeNormal.dot(rayDirection);
         const planeDist = posGizmo.dot(planeNormal);
         const pointPlaneDist = (planeNormal.dot(rayOrigin) - planeDist) / rayPlaneDot;
-        const pickedPos = rayDirection.scale(-pointPlaneDist).add(rayOrigin);
+        const pickedPos = rayDirection.mulScalar(-pointPlaneDist).add(rayOrigin);
 
         // single axis
         planeNormal.set(0, 0, 0);
         planeNormal[dragPoint.axis] = 1;
         quatA.transformVector(planeNormal, planeNormal);
-        pickedPos.copy(planeNormal.scale(planeNormal.dot(pickedPos)));
+        pickedPos.copy(planeNormal.mulScalar(planeNormal.dot(pickedPos)));
 
         quatA.invert().transformVector(pickedPos, pickedPos);
 
@@ -123,41 +124,52 @@ editor.once('viewport:load', (app) => {
         editor.call('viewport:pick:state', true);
     };
 
-    function Gizmo(axis, dir) {
-        assignEvents(this);
-        this.entity = null;
-        this.axis = axis || 'y';
-        this.dir = dir === undefined ? 1 : dir;
-        this.rotation = new pc.Quat();
-        this.position = new pc.Vec3();
-        this.scale = new pc.Vec3(1, 1, 1);
-    }
-    Gizmo.prototype = Object.create(Events.prototype);
+    class Gizmo extends Events {
+        entity: any = null;
 
-    Gizmo.prototype.update = function () {
-        if (!this.entity) {
-            return;
+        axis: string;
+
+        dir: number;
+
+        rotation: any;
+
+        position: any;
+
+        scale: any;
+
+        constructor(axis, dir) {
+            super();
+            assignEvents(this);
+            this.axis = axis || 'y';
+            this.dir = dir === undefined ? 1 : dir;
+            this.rotation = new pc.Quat();
+            this.position = new pc.Vec3();
+            this.scale = new pc.Vec3(1, 1, 1);
         }
 
-        const camera = editor.call('camera:current');
-        const posCamera = camera.getPosition();
-        const pos = this.entity.getLocalPosition();
-        let scale = 1;
+        update() {
+            if (!this.entity) {
+                return;
+            }
 
-        // scale to screen space
-        if (camera.camera.projection === pc.PROJECTION_PERSPECTIVE) {
-            const dot = vecA.copy(pos).sub(posCamera).dot(camera.forward);
-            const denom = 1280 / (2 * Math.tan(camera.camera.fov * pc.math.DEG_TO_RAD / 2));
-            scale = Math.max(0.0001, (dot / denom) * 150) * gizmoSize;
-        } else {
-            scale = camera.camera.orthoHeight / 3 * gizmoSize;
+            const camera = editor.call('camera:current');
+            const posCamera = camera.getPosition();
+            const pos = this.entity.getLocalPosition();
+            let scale;
+
+            // scale to screen space
+            if (camera.camera.projection === pc.PROJECTION_PERSPECTIVE) {
+                const dot = vecA.copy(pos).sub(posCamera).dot(camera.forward);
+                const denom = 1280 / (2 * Math.tan(camera.camera.fov * pc.math.DEG_TO_RAD / 2));
+                scale = Math.max(0.0001, (dot / denom) * 150) * gizmoSize;
+            } else {
+                scale = camera.camera.orthoHeight / 3 * gizmoSize;
+            }
+            vecA.copy(this.scale).mulScalar(scale);
+            this.entity.setLocalScale(vecA);
         }
-        vecA.copy(this.scale).scale(scale);
-        this.entity.setLocalScale(vecA);
-    };
 
-    Object.defineProperty(Gizmo.prototype, 'enabled', {
-        set: function (value) {
+        set enabled(value) {
             if (!!value === !!this.entity) {
                 return;
             }
@@ -181,11 +193,12 @@ editor.once('viewport:load', (app) => {
                 this.entity.destroy();
                 this.entity = null;
             }
-        },
-        get: function () {
+        }
+
+        get enabled() {
             return !!this.entity;
         }
-    });
+    }
 
     editor.method('gizmo:point:create', (axis, position, dir) => {
         let item = pool.shift();

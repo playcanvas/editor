@@ -1,113 +1,153 @@
 import { Events } from '@playcanvas/observer';
 
-import { LegacyButton } from '../../common/ui/button.ts';
-import { LegacyCanvas } from '../../common/ui/canvas.ts';
-import { LegacyLabel } from '../../common/ui/label.ts';
-import { LegacyNumberField } from '../../common/ui/number-field.ts';
-import { LegacyOverlay } from '../../common/ui/overlay.ts';
-import { LegacyPanel } from '../../common/ui/panel.ts';
-import { LegacySelectField } from '../../common/ui/select-field.ts';
-import { LegacyTextField } from '../../common/ui/text-field.ts';
-import { LegacyTooltip } from '../../common/ui/tooltip.ts';
-import { assignEvents } from '../../common/utils.ts';
-import { hexStr, hsv2rgb, normalizedCoord, rgb2hsv, rgbaStr, toHsva, toRgba } from '../../core/color.ts';
-import { CURVE_LINEAR, CURVE_SPLINE, CURVE_STEP } from '../../core/constants.ts';
+import { LegacyButton } from '@/common/ui/button';
+import { LegacyCanvas } from '@/common/ui/canvas';
+import { LegacyLabel } from '@/common/ui/label';
+import { LegacyNumberField } from '@/common/ui/number-field';
+import { LegacyOverlay } from '@/common/ui/overlay';
+import { LegacyPanel } from '@/common/ui/panel';
+import { LegacySelectField } from '@/common/ui/select-field';
+import { LegacyTextField } from '@/common/ui/text-field';
+import { LegacyTooltip } from '@/common/ui/tooltip';
+import { assignEvents } from '@/common/utils';
+import { hexStr, hsv2rgb, normalizedCoord, rgb2hsv, rgbaStr, toHsva, toRgba } from '@/core/color';
+import { CURVE_LINEAR, CURVE_SPLINE, CURVE_STEP } from '@/core/constants';
 
-function ColorPicker(parent) {
-    assignEvents(this);
+class ColorPicker extends Events {
+    panel: any;
 
-    // capture this for the event handler
-    function genEvtHandler(self, func) {
-        return function (evt) {
-            func.apply(self, [evt]);
-        };
+    colorRect: any;
+
+    colorHandle: any;
+
+    hueRect: any;
+
+    hueHandle: any;
+
+    alphaRect: any;
+
+    alphaHandle: any;
+
+    fields: any;
+
+    fieldChangeHandler: any;
+
+    hexChangeHandler: any;
+
+    downHandler: any;
+
+    moveHandler: any;
+
+    upHandler: any;
+
+    rField: any;
+
+    gField: any;
+
+    bField: any;
+
+    aField: any;
+
+    hexField: any;
+
+    _hsva: number[] = [-1, -1, -1, 1];
+
+    _storeHsva: number[] = [0, 0, 0, 1];
+
+    _dragMode: number = 0;
+
+    _changing: boolean = false;
+
+    constructor(parent) {
+        super();
+        assignEvents(this);
+
+        // capture this for the event handler
+        function genEvtHandler(self, func) {
+            return function (evt) {
+                func.apply(self, [evt]);
+            };
+        }
+
+        this.panel = new LegacyPanel();
+        this.panel.class.add('color-panel');
+        parent.appendChild(this.panel.element);
+
+        this.colorRect = new LegacyCanvas({ useDevicePixelRatio: true });
+        this.colorRect.class.add('color-rect');
+        this.panel.append(this.colorRect.element);
+        this.colorRect.resize(this.colorRect.element.clientWidth,
+            this.colorRect.element.clientHeight);
+
+        this.colorHandle = document.createElement('div');
+        this.colorHandle.classList.add('color-handle');
+        this.panel.append(this.colorHandle);
+
+        this.hueRect = new LegacyCanvas({ useDevicePixelRatio: true });
+        this.hueRect.class.add('hue-rect');
+        this.panel.append(this.hueRect.element);
+        this.hueRect.resize(this.hueRect.element.clientWidth,
+            this.hueRect.element.clientHeight);
+
+        this.hueHandle = document.createElement('div');
+        this.hueHandle.classList.add('hue-handle');
+        this.panel.append(this.hueHandle);
+
+        this.alphaRect = new LegacyCanvas({ useDevicePixelRatio: true });
+        this.alphaRect.class.add('alpha-rect');
+        this.panel.append(this.alphaRect.element);
+        this.alphaRect.resize(this.alphaRect.element.clientWidth,
+            this.alphaRect.element.clientHeight);
+
+        this.alphaHandle = document.createElement('div');
+        this.alphaHandle.classList.add('alpha-handle');
+        this.panel.append(this.alphaHandle);
+
+        this.fields = document.createElement('div');
+        this.fields.classList.add('fields');
+        this.panel.append(this.fields);
+
+        this.fieldChangeHandler = genEvtHandler(this, this._onFieldChanged);
+        this.hexChangeHandler = genEvtHandler(this, this._onHexChanged);
+        this.downHandler = genEvtHandler(this, this._onMouseDown);
+        this.moveHandler = genEvtHandler(this, this._onMouseMove);
+        this.upHandler = genEvtHandler(this, this._onMouseUp);
+
+        function numberField(label) {
+            const field = new LegacyNumberField({
+                precision: 1,
+                step: 1,
+                min: 0,
+                max: 255
+            });
+            field.renderChanges = false;
+            field.placeholder = label;
+            field.on('change', this.fieldChangeHandler);
+            this.fields.appendChild(field.element);
+            return field;
+        }
+
+        this.rField = numberField.call(this, 'r');
+        this.gField = numberField.call(this, 'g');
+        this.bField = numberField.call(this, 'b');
+        this.aField = numberField.call(this, 'a');
+
+        this.hexField = new LegacyTextField({});
+        this.hexField.renderChanges = false;
+        this.hexField.placeholder = '#';
+        this.hexField.on('change', this.hexChangeHandler);
+        this.fields.appendChild(this.hexField.element);
+
+        // hook up mouse handlers
+        this.colorRect.element.addEventListener('mousedown', this.downHandler);
+        this.hueRect.element.addEventListener('mousedown', this.downHandler);
+        this.alphaRect.element.addEventListener('mousedown', this.downHandler);
+
+        this._generateHue(this.hueRect);
+        this._generateAlpha(this.alphaRect);
     }
 
-    this.panel = new LegacyPanel();
-    this.panel.class.add('color-panel');
-    parent.appendChild(this.panel.element);
-
-    this.colorRect = new LegacyCanvas({ useDevicePixelRatio: true });
-    this.colorRect.class.add('color-rect');
-    this.panel.append(this.colorRect.element);
-    this.colorRect.resize(this.colorRect.element.clientWidth,
-        this.colorRect.element.clientHeight);
-
-    this.colorHandle = document.createElement('div');
-    this.colorHandle.classList.add('color-handle');
-    this.panel.append(this.colorHandle);
-
-    this.hueRect = new LegacyCanvas({ useDevicePixelRatio: true });
-    this.hueRect.class.add('hue-rect');
-    this.panel.append(this.hueRect.element);
-    this.hueRect.resize(this.hueRect.element.clientWidth,
-        this.hueRect.element.clientHeight);
-
-    this.hueHandle = document.createElement('div');
-    this.hueHandle.classList.add('hue-handle');
-    this.panel.append(this.hueHandle);
-
-    this.alphaRect = new LegacyCanvas({ useDevicePixelRatio: true });
-    this.alphaRect.class.add('alpha-rect');
-    this.panel.append(this.alphaRect.element);
-    this.alphaRect.resize(this.alphaRect.element.clientWidth,
-        this.alphaRect.element.clientHeight);
-
-    this.alphaHandle = document.createElement('div');
-    this.alphaHandle.classList.add('alpha-handle');
-    this.panel.append(this.alphaHandle);
-
-    this.fields = document.createElement('div');
-    this.fields.classList.add('fields');
-    this.panel.append(this.fields);
-
-    this.fieldChangeHandler = genEvtHandler(this, this._onFieldChanged);
-    this.hexChangeHandler = genEvtHandler(this, this._onHexChanged);
-    this.downHandler = genEvtHandler(this, this._onMouseDown);
-    this.moveHandler = genEvtHandler(this, this._onMouseMove);
-    this.upHandler = genEvtHandler(this, this._onMouseUp);
-
-    function numberField(label) {
-        const field = new LegacyNumberField({
-            precision: 1,
-            step: 1,
-            min: 0,
-            max: 255
-        });
-        field.renderChanges = false;
-        field.placeholder = label;
-        field.on('change', this.fieldChangeHandler);
-        this.fields.appendChild(field.element);
-        return field;
-    }
-
-    this.rField = numberField.call(this, 'r');
-    this.gField = numberField.call(this, 'g');
-    this.bField = numberField.call(this, 'b');
-    this.aField = numberField.call(this, 'a');
-
-    this.hexField = new LegacyTextField({});
-    this.hexField.renderChanges = false;
-    this.hexField.placeholder = '#';
-    this.hexField.on('change', this.hexChangeHandler);
-    this.fields.appendChild(this.hexField.element);
-
-    // hook up mouse handlers
-    this.colorRect.element.addEventListener('mousedown', this.downHandler);
-    this.hueRect.element.addEventListener('mousedown', this.downHandler);
-    this.alphaRect.element.addEventListener('mousedown', this.downHandler);
-
-    this._generateHue(this.hueRect);
-    this._generateAlpha(this.alphaRect);
-
-    this._hsva = [-1, -1, -1, 1];
-    this._storeHsva = [0, 0, 0, 1];
-    this._dragMode = 0;
-    this._changing = false;
-}
-
-ColorPicker.prototype = {
-    _generateHue: function (canvas) {
+    _generateHue(canvas) {
         const ctx = canvas.element.getContext('2d');
         const w = canvas.pixelWidth;
         const h = canvas.pixelHeight;
@@ -117,9 +157,9 @@ ColorPicker.prototype = {
         }
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, w, h);
-    },
+    }
 
-    _generateAlpha: function (canvas) {
+    _generateAlpha(canvas) {
         const ctx = canvas.element.getContext('2d');
         const w = canvas.pixelWidth;
         const h = canvas.pixelHeight;
@@ -128,9 +168,9 @@ ColorPicker.prototype = {
         gradient.addColorStop(1, 'rgb(0, 0, 0)');
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, w, h);
-    },
+    }
 
-    _generateGradient: function (canvas, clr) {
+    _generateGradient(canvas, clr) {
         const ctx = canvas.element.getContext('2d');
         const w = canvas.pixelWidth;
         const h = canvas.pixelHeight;
@@ -146,9 +186,9 @@ ColorPicker.prototype = {
         gradient.addColorStop(1, 'rgba(0, 0, 0, 255)');
         ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, w, h);
-    },
+    }
 
-    _onFieldChanged: function () {
+    _onFieldChanged() {
         if (!this._changing) {
             const rgba = [
                 this.rField.value,
@@ -161,9 +201,9 @@ ColorPicker.prototype = {
             this.hsva = toHsva(rgba);
             this.emit('change', this.color);
         }
-    },
+    }
 
-    _onHexChanged: function () {
+    _onHexChanged() {
         if (!this._changing) {
             const hex = this.hexField.value.trim().toLowerCase();
             if (/^(?:[0-9a-f]{2}){3,4}$/.test(hex)) {
@@ -174,9 +214,9 @@ ColorPicker.prototype = {
                 this.emit('change', this.color);
             }
         }
-    },
+    }
 
-    _onMouseDown: function (evt) {
+    _onMouseDown(evt) {
         if (evt.currentTarget === this.colorRect.element) {
             this._dragMode = 1;     // drag color
         } else if (evt.currentTarget === this.hueRect.element) {
@@ -191,9 +231,9 @@ ColorPicker.prototype = {
         // hook up mouse
         window.addEventListener('mousemove', this.moveHandler);
         window.addEventListener('mouseup', this.upHandler);
-    },
+    }
 
-    _onMouseMove: function (evt) {
+    _onMouseMove(evt) {
         let newhsva;
         if (this._dragMode === 1) {
             const m = normalizedCoord(this.colorRect, evt.pageX, evt.pageY);
@@ -216,9 +256,9 @@ ColorPicker.prototype = {
             this.hsva = newhsva;
             this.emit('changing', this.color);
         }
-    },
+    }
 
-    _onMouseUp: function (evt) {
+    _onMouseUp(evt) {
         window.removeEventListener('mousemove', this.moveHandler);
         window.removeEventListener('mouseup', this.upHandler);
 
@@ -228,16 +268,9 @@ ColorPicker.prototype = {
             this._storeHsva[3] !== this._hsva[3]) {
             this.emit('change', this.color);
         }
-    },
+    }
 
-    __proto__: Events.prototype
-};
-
-Object.defineProperty(ColorPicker.prototype, 'hsva', {
-    get: function () {
-        return this._hsva;
-    },
-    set: function (hsva) {
+    set hsva(hsva) {
         const rgb = hsv2rgb(hsva);
         const hueRgb = hsv2rgb([hsva[0], 1, 1]);
 
@@ -273,13 +306,12 @@ Object.defineProperty(ColorPicker.prototype, 'hsva', {
 
         this._hsva = hsva;
     }
-});
 
-Object.defineProperty(ColorPicker.prototype, 'color', {
-    get: function () {
-        return toRgba(this._hsva);
-    },
-    set: function (clr) {
+    get hsva() {
+        return this._hsva;
+    }
+
+    set color(clr) {
         const hsva = toHsva(clr);
         if (hsva[0] === 0 && hsva[1] === 0 && this._hsva[0] !== -1) {
             // if the incoming RGB is a shade of grey (without hue),
@@ -288,11 +320,12 @@ Object.defineProperty(ColorPicker.prototype, 'color', {
         }
         this.hsva = hsva;
     }
-});
 
+    get color() {
+        return toRgba(this._hsva);
+    }
 
-Object.defineProperty(ColorPicker.prototype, 'editAlpha', {
-    set: function (editAlpha) {
+    set editAlpha(editAlpha) {
         if (editAlpha) {
             this.alphaRect.element.style.display = 'inline';
             this.alphaHandle.style.display = 'block';
@@ -303,7 +336,7 @@ Object.defineProperty(ColorPicker.prototype, 'editAlpha', {
             this.aField.element.style.display = 'none';
         }
     }
-});
+}
 
 // gradient picker
 
