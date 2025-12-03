@@ -68,6 +68,6 @@ editor.once('load', () => {
     menu.append(item);
 
     editor.method('editor:command:openVSCodeExtensionHelp', () => {
-        window.open('https://developer.playcanvas.com/user-manual/scripting/vscode-extension/');
+        window.open('https://developer.playcanvas.com/user-manual/scripting/editor-users/vscode-extension/');
     });
 });
