@@ -547,6 +547,11 @@ class LightComponentInspector extends ComponentInspector {
         this._field('cookieDivider').hidden = this._field('cookieAsset').hidden;
         this._field('cookieAsset').assetType = (isPoint ? 'cubemap' : 'texture');
 
+        // Update the label to indicate which asset type is needed
+        if (!isDirectional) {
+            this._field('cookieAsset').text = isPoint ? 'Cookie (Cubemap)' : 'Cookie (Texture)';
+        }
+
         this._field('cookieFalloff').parent.hidden = !isSpot || !cookie || isCLustered;
 
         this._field('shadowResolution').parent.hidden = !castShadows || isCLustered;
