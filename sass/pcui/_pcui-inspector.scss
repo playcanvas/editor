@@ -10,6 +10,8 @@
 
         > .pcui-label:not(:first-child) {
             @extend .fixedFont;
+
+            min-width: 0;
         }
     }
 

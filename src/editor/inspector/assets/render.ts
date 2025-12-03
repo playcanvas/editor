@@ -3,6 +3,7 @@ import { Panel, Container } from '@playcanvas/pcui';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
+const CLASS_META_ATTRIBUTES = 'asset-model-inspector-meta-attributes';
 
 const META_ATTRIBUTES: Attribute[] = [{
     label: 'Vertices',
@@ -120,6 +121,7 @@ class RenderAssetInspector extends Container {
         const text = Object.keys(metaAttributes).join(', ');
         const field = this._metaAttributesInspector.getField('meta.attributes');
         field.values = assets.map(asset => text);
+        field.parent.class.add(CLASS_META_ATTRIBUTES);
     }
 
     _formatMetaMeshCompression(assets) {

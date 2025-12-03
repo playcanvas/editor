@@ -31,6 +31,19 @@
     }
 }
 
+// Multi-line attributes display for model/render META section
+.asset-model-inspector-meta-attributes {
+    align-items: flex-start;
+
+    > .pcui-label:first-child {
+        margin-top: 4px;
+    }
+
+    > .pcui-label:not(:first-child) {
+        white-space: normal;
+    }
+}
+
 .asset-model-inspector-mesh-instances-picker-mode {
     .pcui-asset-input {
         margin: 0;
