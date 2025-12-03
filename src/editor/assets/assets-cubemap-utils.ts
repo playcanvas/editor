@@ -43,7 +43,7 @@ editor.method('assets:textureToCubemap', (textureAsset, callback) => {
 
         // set required render state settings on source texture
         sourceTexture.addressU = pc.ADDRESS_REPEAT;
-        sourceTexture.addressV = pc.ADDRESS_CLAMO_TO_EDGE;
+        sourceTexture.addressV = pc.ADDRESS_CLAMP_TO_EDGE;
         sourceTexture.anisotropy = app.graphicsDevice.maxAnisotropy;
 
         // perform reproject
