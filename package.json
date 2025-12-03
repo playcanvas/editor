@@ -98,6 +98,6 @@
     "watch:js": "rollup -c -w"
   },
   "engines": {
-    "node": "v25.2.1"
+    "node": ">=18.0.0"
   }
 }
