@@ -87,6 +87,14 @@ class LoadingScreenSettingsPanel extends BaseSettingsPanel {
                 this._loadLayout();
             }
         });
+
+        // Clear the loading screen script setting when the asset is removed
+        editor.on('assets:remove', (asset) => {
+            const scriptId = this._projectSettings.get('loadingScreenScript');
+            if (scriptId && asset.get('id').toString() === scriptId.toString()) {
+                this._projectSettings.set('loadingScreenScript', null);
+            }
+        });
     }
 
     _loadLayout() {
