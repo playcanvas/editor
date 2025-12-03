@@ -1,7 +1,7 @@
 import {
     readGPUPixels,
     pixelsToPngBlob
-} from './assets-utils.ts';
+} from './assets-utils';
 
 editor.once('load', () => {
 

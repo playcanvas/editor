@@ -1,6 +1,16 @@
+import type { EventHandle } from '@playcanvas/observer';
+
+type UsedType = 'asset' | 'entity' | 'editorSettings';
+type UsedId = string | number;
+type UsedIndex = Record<UsedId, {
+    count: number;
+    parent: number;
+    ref: Record<string, [EventHandle, EventHandle?] & { type: UsedType }>;
+}>;
+
 editor.once('load', () => {
     const legacyScripts = editor.call('settings:project').get('useLegacyScripts');
-    const index = {};
+    const index: UsedIndex = {};
     const keys = {
         'cubemap': {
             'data.textures.0': true,
@@ -75,7 +85,7 @@ editor.once('load', () => {
         return pathsCache[path];
     }
 
-    const updateAsset = function (referer, type, oldId, newId) {
+    const updateAsset = function (referer: string, type: UsedType, oldId: UsedId | null, newId: UsedId | null = null) {
         if (oldId && index[oldId] !== undefined) {
             index[oldId].count--;
 
@@ -87,13 +97,11 @@ editor.once('load', () => {
                     }
                 }
 
-                if (index[oldId].count === 0) {
-                    index[oldId].ref[referer][0].unbind();
-                    if (index[oldId].ref[referer][1]) {
-                        index[oldId].ref[referer][1].unbind();
-                    }
-                    delete index[oldId].ref[referer];
+                index[oldId].ref[referer][0].unbind();
+                if (index[oldId].ref[referer][1]) {
+                    index[oldId].ref[referer][1].unbind();
                 }
+                delete index[oldId].ref[referer];
             }
 
             if (index[oldId].count === 0) {
@@ -113,6 +121,7 @@ editor.once('load', () => {
             index[newId].count++;
 
             if (!index[newId].ref[referer]) {
+                // @ts-expect-error assigning property directly to array
                 index[newId].ref[referer] = [];
                 index[newId].ref[referer].type = type;
 
@@ -121,7 +130,9 @@ editor.once('load', () => {
                         return;
                     }
 
+                    // state: true = +1, false = -1
                     index[newId].parent += state * 2 - 1;
+                    index[newId].parent = Math.max(0, index[newId].parent);
 
                     if (index[newId].parent === 0) {
                         // now not used
@@ -133,7 +144,7 @@ editor.once('load', () => {
                 });
 
                 // referer can be destroyed
-                let itemType = 'asset';
+                let itemType: 'asset' | 'entity' = 'asset';
                 let item = editor.call('assets:get', referer);
                 if (!item) {
                     item = editor.call('entities:get', referer);
@@ -247,16 +258,17 @@ editor.once('load', () => {
                 }
             } else if (path.startsWith('components.render.materialAssets')) {
                 const parts = splitPath(path);
-                if (parts.length !== 4) {
+                // Allow both full array path (length 3) and individual element path (length 4)
+                if (parts.length !== 3 && parts.length !== 4) {
                     return;
                 }
             } else if (!legacyScripts && path.startsWith('components.script.scripts')) {
                 const parts = splitPath(path);
-                if (parts.length === 6 && parts[4] === 'attributes') {
+                if (parts.length >= 6 && parts[4] === 'attributes') {
                     const primaryScript = editor.call('assets:scripts:assetByScript', parts[3]);
                     if (primaryScript) {
                         const type = primaryScript.get(`data.scripts.${parts[3]}.attributes.${parts[5]}.type`);
-                        if (type !== 'asset') {
+                        if (type !== 'asset' && type !== 'json') {
                             return;
                         }
                     } else {
@@ -321,11 +333,11 @@ editor.once('load', () => {
                 }
             } else if (!legacyScripts && path.startsWith('components.script.scripts')) {
                 const parts = splitPath(path);
-                if (parts.length === 6 && parts[4] === 'attributes') {
+                if (parts.length >= 6 && parts[4] === 'attributes') {
                     const primaryScript = editor.call('assets:scripts:assetByScript', parts[3]);
                     if (primaryScript) {
                         const type = primaryScript.get(`data.scripts.${parts[3]}.attributes.${parts[5]}.type`);
-                        if (type !== 'asset') {
+                        if (type !== 'asset' && type !== 'json') {
                             return;
                         }
                     } else {

@@ -1,7 +1,7 @@
 import { Panel, Button, Container, Label } from '@playcanvas/pcui';
 
-import { BaseSettingsPanel } from './base.ts';
-import type { Attribute } from '../attribute.type.d.ts';
+import { BaseSettingsPanel } from './base';
+import type { Attribute } from '../attribute.type.d';
 
 const CLASS_ROOT = 'asset-import-settings-panel';
 const CLASS_SECTION = `${CLASS_ROOT}-section`;
@@ -165,6 +165,14 @@ const ATTRIBUTES: Attribute[] = [
         alias: 'asset-tasks:importMorphNormals',
         reference: 'settings:asset-import:importMorphNormals',
         path: 'editor.pipeline.importMorphNormals'
+    },
+    {
+        observer: 'settings',
+        label: 'Use Unique Indices',
+        type: 'boolean',
+        alias: 'asset-tasks:useUniqueIndices',
+        reference: 'settings:asset-import:useUniqueIndices',
+        path: 'editor.pipeline.useUniqueIndices'
     },
     {
         observer: 'settings',

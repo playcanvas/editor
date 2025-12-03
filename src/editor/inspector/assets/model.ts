@@ -1,13 +1,14 @@
 import { Panel, Container, Button } from '@playcanvas/pcui';
 
-import { ModelAssetInspectorMeshInstances } from './model-mesh-instances.ts';
-import type { Attribute } from '../attribute.type.d.ts';
-import { AttributesInspector } from '../attributes-inspector.ts';
+import { ModelAssetInspectorMeshInstances } from './model-mesh-instances';
+import type { Attribute } from '../attribute.type.d';
+import { AttributesInspector } from '../attributes-inspector';
 
 
 const CLASS_ROOT = 'asset-model-inspector';
 const CLASS_AUTO_UNWRAP_PROGRESS = `${CLASS_ROOT}-auto-unwrap-progress`;
 const CLASS_AUTO_UNWRAP_PADDING = `${CLASS_ROOT}-auto-unwrap-padding`;
+const CLASS_META_ATTRIBUTES = `${CLASS_ROOT}-meta-attributes`;
 
 const META_ATTRIBUTES: Attribute[] = [
     {
@@ -241,6 +242,7 @@ class ModelAssetInspector extends Container {
         const text = Object.keys(metaAttributes).join(', ');
         const field = this._metaAttributesInspector.getField('meta.attributes');
         field.values = this._assets.map(asset => text);
+        field.parent.class.add(CLASS_META_ATTRIBUTES);
     }
 
     _formatMetaAttributeMeshCompression() {

@@ -1,5 +1,6 @@
-import { GIZMO_MASK } from '../../../core/constants.ts';
-import { cloneColorMaterial, createColorMaterial } from '../viewport-color-material.ts';
+import { GIZMO_MASK } from '@/core/constants';
+
+import { cloneColorMaterial, createColorMaterial } from '../viewport-color-material';
 
 editor.once('load', () => {
     let app;
@@ -74,345 +75,354 @@ editor.once('load', () => {
     });
 
     // gizmo class
-    function Gizmo() {
-        this._link = null;
-        this.lines = [];
-        this.events = [];
-        this.type = '';
-        this.asset = 0;
-        this.entity = null;
-        this.color = null;
-    }
+    class Gizmo {
+        _link: any = null;
 
-    // update lines
-    Gizmo.prototype.update = function () {
-        if (!app) {
-            return;
-        } // webgl not available
+        lines: any[] = [];
 
-        if (!this._link || !this._link.entity) {
-            return;
-        }
+        events: any[] = [];
 
-        const select = selected[this._link.get('resource_id')];
-        const collision = this._link.entity.collision;
-        this.entity.enabled = this._link.entity.enabled && collision && collision.enabled && (select || visible);
-        if (!this.entity.enabled) {
-            this._link.entity.__noIcon = false;
-            return;
-        }
+        type: string = '';
 
-        this._link.entity.__noIcon = true;
-        this.entity.setPosition(this._link.entity.collision.getShapePosition());
-        this.entity.setRotation(this._link.entity.collision.getShapeRotation());
+        asset: number = 0;
 
-        let type = collision.type;
+        entity: any = null;
 
-        if (type === 'cylinder' || type === 'capsule' || type === 'cone') {
-            type += `-${axesNames[collision.axis]}`;
-        }
+        color: any = null;
 
-        if (this.type !== type) {
-            this.type = type;
+        wireframeMesh: any;
 
-            if (!this.color) {
-                let hash = 0;
-                const string = this._link.entity.getGuid();
-                for (let i = 0; i < string.length; i++) {
-                    hash += string.charCodeAt(i);
-                }
+        // update lines
+        update() {
+            if (!app) {
+                return;
+            } // webgl not available
 
-                this.color = editor.call('color:hsl2rgb', (hash % 128) / 128, 0.5, 0.5);
+            if (!this._link || !this._link.entity) {
+                return;
             }
 
-            this.wireframeMesh = null;
+            const select = selected[this._link.get('resource_id')];
+            const collision = this._link.entity.collision;
+            this.entity.enabled = this._link.entity.enabled && collision && collision.enabled && (select || visible);
+            if (!this.entity.enabled) {
+                this._link.entity.__noIcon = false;
+                return;
+            }
 
-            // set new model based on type
-            if (models[this.type]) {
-                // get current model
-                let model = this.entity.model.model;
-                if (model) {
-                    // put back in pool
-                    layerFront.removeMeshInstances(model.meshInstances);
-                    layerBack.removeMeshInstances(model.meshInstances);
+            this._link.entity.__noIcon = true;
+            this.entity.setPosition(this._link.entity.collision.getShapePosition());
+            this.entity.setRotation(this._link.entity.collision.getShapeRotation());
 
-                    this.entity.removeChild(model.getGraph());
-                    if (poolModels[model._type]) {
-                        poolModels[model._type].push(model);
+            let type = collision.type;
+
+            if (type === 'cylinder' || type === 'capsule' || type === 'cone') {
+                type += `-${axesNames[collision.axis]}`;
+            }
+
+            if (this.type !== type) {
+                this.type = type;
+
+                if (!this.color) {
+                    let hash = 0;
+                    const string = this._link.entity.getGuid();
+                    for (let i = 0; i < string.length; i++) {
+                        hash += string.charCodeAt(i);
                     }
-                }
-                // get from pool
-                model = null;
-                if (poolModels[this.type]) {
-                    model = poolModels[this.type].shift();
+
+                    this.color = editor.call('color:hsl2rgb', (hash % 128) / 128, 0.5, 0.5);
                 }
 
-                if (!model) {
-                    // no in pool
-                    model = models[this.type].clone();
-                    model._type = this.type;
+                this.wireframeMesh = null;
 
-                    const color = this.color || colorDefault;
+                // set new model based on type
+                if (models[this.type]) {
+                    // get current model
+                    let model = this.entity.model.model;
+                    if (model) {
+                        // put back in pool
+                        layerFront.removeMeshInstances(model.meshInstances);
+                        layerBack.removeMeshInstances(model.meshInstances);
 
-                    let old = model.meshInstances[0].material;
-                    model.meshInstances[0].setParameter('offset', 0);
-                    model.meshInstances[0].__editor = true;
-                    model.meshInstances[0].__collision = true;
-                    model.meshInstances[0].material = old.clone();
-                    model.meshInstances[0].material.getShaderVariant = old.getShaderVariant;
-                    model.meshInstances[0].material.depthBias = -8;
-                    model.meshInstances[0].material.setParameter('uColor', new Float32Array([color[0], color[1], color[2], alphaFront]));
-                    model.meshInstances[0].material.update();
-
-                    old = model.meshInstances[1].material;
-                    model.meshInstances[1].setParameter('offset', 0.001);
-                    model.meshInstances[1].pick = false;
-                    model.meshInstances[1].__editor = true;
-                    model.meshInstances[1].material = old.clone();
-                    model.meshInstances[1].material.getShaderVariant = old.getShaderVariant;
-                    model.meshInstances[0].material.setParameter('uColor', new Float32Array([color[0], color[1], color[2], alphaFront]));
-                    model.meshInstances[1].material.update();
-                    model.meshInstances[1].__useFrontLayer = true;
-
-                    model.meshInstances[2].setParameter('offset', 0);
-                    model.meshInstances[2].pick = false;
-                    model.meshInstances[2].__editor = true;
-
-                    switch (this.type) {
-                        case 'capsule-x':
-                        case 'capsule-y':
-                        case 'capsule-z':
-                            for (let i = 0; i < model.meshInstances.length; i++) {
-                                model.meshInstances[i].setParameter('radius', collision.radius || 0.5);
-                                model.meshInstances[i].setParameter('height', collision.height || 2);
-                            }
-                            break;
+                        this.entity.removeChild(model.getGraph());
+                        if (poolModels[model._type]) {
+                            poolModels[model._type].push(model);
+                        }
                     }
-                }
-                // set to model
-                this.entity.model.model = model;
+                    // get from pool
+                    model = null;
+                    if (poolModels[this.type]) {
+                        model = poolModels[this.type].shift();
+                    }
 
-                // set masks after model is assigned to ensure they are correct
-                model.meshInstances.forEach((mi) => {
-                    mi.mask = GIZMO_MASK;
-                });
+                    if (!model) {
+                        // no in pool
+                        model = models[this.type].clone();
+                        model._type = this.type;
 
-                this.entity.setLocalScale(1, 1, 1);
-            } else if (this.type === 'mesh') {
-                const isRender = !!collision.renderAsset;
-                this.asset = isRender ? collision.renderAsset : collision.asset;
-                this.entity.setLocalScale(this._link.entity.getWorldTransform().getScale());
-                this.createWireframe(this.asset, isRender);
-                if (!this.asset) {
+                        const color = this.color || colorDefault;
+
+                        let old = model.meshInstances[0].material;
+                        model.meshInstances[0].setParameter('offset', 0);
+                        model.meshInstances[0].__editor = true;
+                        model.meshInstances[0].__collision = true;
+                        model.meshInstances[0].material = old.clone();
+                        model.meshInstances[0].material.getShaderVariant = old.getShaderVariant;
+                        model.meshInstances[0].material.depthBias = -8;
+                        model.meshInstances[0].material.setParameter('uColor', new Float32Array([color[0], color[1], color[2], alphaFront]));
+                        model.meshInstances[0].material.update();
+
+                        old = model.meshInstances[1].material;
+                        model.meshInstances[1].setParameter('offset', 0.001);
+                        model.meshInstances[1].pick = false;
+                        model.meshInstances[1].__editor = true;
+                        model.meshInstances[1].material = old.clone();
+                        model.meshInstances[1].material.getShaderVariant = old.getShaderVariant;
+                        model.meshInstances[0].material.setParameter('uColor', new Float32Array([color[0], color[1], color[2], alphaFront]));
+                        model.meshInstances[1].material.update();
+                        model.meshInstances[1].__useFrontLayer = true;
+
+                        model.meshInstances[2].setParameter('offset', 0);
+                        model.meshInstances[2].pick = false;
+                        model.meshInstances[2].__editor = true;
+
+                        switch (this.type) {
+                            case 'capsule-x':
+                            case 'capsule-y':
+                            case 'capsule-z':
+                                for (let i = 0; i < model.meshInstances.length; i++) {
+                                    model.meshInstances[i].setParameter('radius', collision.radius || 0.5);
+                                    model.meshInstances[i].setParameter('height', collision.height || 2);
+                                }
+                                break;
+                        }
+                    }
+                    // set to model
+                    this.entity.model.model = model;
+
+                    // set masks after model is assigned to ensure they are correct
+                    model.meshInstances.forEach((mi) => {
+                        mi.mask = GIZMO_MASK;
+                    });
+
+                    this.entity.setLocalScale(1, 1, 1);
+                } else if (this.type === 'mesh') {
+                    const isRender = !!collision.renderAsset;
+                    this.asset = isRender ? collision.renderAsset : collision.asset;
+                    this.entity.setLocalScale(this._link.entity.getWorldTransform().getScale());
+                    this.createWireframe(this.asset, isRender);
+                    if (!this.asset) {
+                        this.entity.enabled = false;
+                        this.entity.model.model = null;
+                        return;
+                    }
+                } else {
                     this.entity.enabled = false;
                     this.entity.model.model = null;
                     return;
                 }
-            } else {
-                this.entity.enabled = false;
-                this.entity.model.model = null;
-                return;
             }
-        }
 
-        const radius = collision.radius || 0.00001;
-        const height = collision.height || 0.00001;
+            const radius = collision.radius || 0.00001;
+            const height = collision.height || 0.00001;
 
-        switch (this.type) {
-            case 'sphere':
-                this.entity.setLocalScale(radius, radius, radius);
-                break;
-            case 'box':
-                this.entity.setLocalScale(collision.halfExtents.x || 0.00001, collision.halfExtents.y || 0.00001, collision.halfExtents.z || 0.00001);
-                break;
-            case 'cylinder-x':
-            case 'cone-x':
-            case 'capsule-x':
-                this.entity.setLocalScale(height, radius, radius);
-                break;
-            case 'cylinder-y':
-            case 'cone-y':
-            case 'capsule-y':
-                this.entity.setLocalScale(radius, height, radius);
-                break;
-            case 'cylinder-z':
-            case 'cone-z':
-            case 'capsule-z':
-                this.entity.setLocalScale(radius, radius, height);
-                break;
-            case 'mesh':
-                {
-                    this.entity.setLocalScale(this._link.entity.getWorldTransform().getScale());
+            switch (this.type) {
+                case 'sphere':
+                    this.entity.setLocalScale(radius, radius, radius);
+                    break;
+                case 'box':
+                    this.entity.setLocalScale(collision.halfExtents.x || 0.00001, collision.halfExtents.y || 0.00001, collision.halfExtents.z || 0.00001);
+                    break;
+                case 'cylinder-x':
+                case 'cone-x':
+                case 'capsule-x':
+                    this.entity.setLocalScale(height, radius, radius);
+                    break;
+                case 'cylinder-y':
+                case 'cone-y':
+                case 'capsule-y':
+                    this.entity.setLocalScale(radius, height, radius);
+                    break;
+                case 'cylinder-z':
+                case 'cone-z':
+                case 'capsule-z':
+                    this.entity.setLocalScale(radius, radius, height);
+                    break;
+                case 'mesh':
+                    {
+                        this.entity.setLocalScale(this._link.entity.getWorldTransform().getScale());
 
-                    // if the asset has changed
-                    const isRender = !!collision.renderAsset;
-                    const asset = isRender ? collision.renderAsset : collision.asset;
-                    if (asset !== this.asset) {
+                        // if the asset has changed
+                        const isRender = !!collision.renderAsset;
+                        const asset = isRender ? collision.renderAsset : collision.asset;
+                        if (asset !== this.asset) {
 
-                        this.asset = asset;
-                        this.createWireframe(this.asset, isRender);
-                        if (!this.asset) {
-                            this.entity.enabled = false;
+                            this.asset = asset;
+                            this.createWireframe(this.asset, isRender);
+                            if (!this.asset) {
+                                this.entity.enabled = false;
 
-                            if (isRender) {
-                                this.entity.render.meshInstances = [];
-                            } else {
-                                this.entity.model.model = null;
-                            }
-                            return;
-                        }
-                    }
-
-                    // when model collision mesh gets clicked on again, the mesh instance of the model is selected
-                    // Note: render does not have an equivalent of this and so this is not implemented
-                    if (this.entity.model.model) {
-                        const picking = !visible && this._link.entity.model && this._link.entity.model.enabled && this._link.entity.model.type === 'asset' && this._link.entity.model.asset === collision.asset;
-                        if (picking !== this.entity.model.model.__picking) {
-                            this.entity.model.model.__picking = picking;
-
-                            const meshes = this.entity.model.meshInstances;
-                            for (let i = 0; i < meshes.length; i++) {
-                                if (!meshes[i].__collision) {
-                                    continue;
+                                if (isRender) {
+                                    this.entity.render.meshInstances = [];
+                                } else {
+                                    this.entity.model.model = null;
                                 }
+                                return;
+                            }
+                        }
 
-                                meshes[i].pick = !picking;
+                        // when model collision mesh gets clicked on again, the mesh instance of the model is selected
+                        // Note: render does not have an equivalent of this and so this is not implemented
+                        if (this.entity.model.model) {
+                            const picking = !visible && this._link.entity.model && this._link.entity.model.enabled && this._link.entity.model.type === 'asset' && this._link.entity.model.asset === collision.asset;
+                            if (picking !== this.entity.model.model.__picking) {
+                                this.entity.model.model.__picking = picking;
+
+                                const meshes = this.entity.model.meshInstances;
+                                for (let i = 0; i < meshes.length; i++) {
+                                    if (!meshes[i].__collision) {
+                                        continue;
+                                    }
+
+                                    meshes[i].pick = !picking;
+                                }
                             }
                         }
                     }
-                }
-                break;
-        }
-    };
-    // link to entity
-    Gizmo.prototype.link = function (obj) {
-        if (!app) {
-            return;
-        } // webgl not available
-
-        this.unlink();
-        this._link = obj;
-
-        const self = this;
-
-        this.events.push(this._link.once('destroy', () => {
-            self.unlink();
-        }));
-
-        this.color = null;
-
-        // hack: override addModelToLayers to selectively put some
-        // mesh instances to the front and others to the back layer depending
-        // on the __useFrontLayer property
-        const customAddMeshInstancesToLayers = function () {
-            const frontMeshInstances = this.meshInstances.filter((mi) => {
-                return mi.__useFrontLayer;
-            });
-            const backMeshInstances = this.meshInstances.filter((mi) => {
-                return !mi.__useFrontLayer;
-            });
-
-            layerBack.addMeshInstances(frontMeshInstances);
-            layerFront.addMeshInstances(backMeshInstances);
-        };
-
-        this.entity = new pc.Entity();
-        this.entity.__editor = true;
-
-        // model component
-        this.entity.addComponent('model', {
-            castShadows: false,
-            receiveShadows: false,
-            castShadowsLightmap: false,
-            layers: [layerFront.id, layerBack.id]
-        });
-        this.entity.model.addModelToLayers = customAddMeshInstancesToLayers;
-
-        // render component
-        this.entity.addComponent('render', {
-            castShadows: false,
-            receiveShadows: false,
-            castShadowsLightmap: false,
-            layers: [layerFront.id, layerBack.id]
-        });
-        this.entity.render.addToLayers = customAddMeshInstancesToLayers;
-
-        this.entity._getEntity = function () {
-            return self._link.entity;
-        };
-
-        container.addChild(this.entity);
-    };
-
-    // unlink
-    Gizmo.prototype.unlink = function () {
-        if (!app) {
-            return;
-        } // webgl not available
-
-        if (!this._link) {
-            return;
-        }
-
-        for (let i = 0; i < this.events.length; i++) {
-            if (this.events[i] && this.events[i].unbind) {
-                this.events[i].unbind();
+                    break;
             }
         }
 
-        this.events = [];
-        this._link = null;
-        this.color = null;
-        this.type = '';
-        this.asset = 0;
+        // link to entity
+        link(obj) {
+            if (!app) {
+                return;
+            } // webgl not available
 
-        const model = this.entity.model.model;
-        if (model) {
-            // put back in pool
-            layerFront.removeMeshInstances(model.meshInstances);
-            layerBack.removeMeshInstances(model.meshInstances);
-            this.entity.removeChild(model.getGraph());
-            if (model._type) {
-                poolModels[model._type].push(model);
-            }
-        }
+            this.unlink();
+            this._link = obj;
 
-        this.entity.destroy();
-    };
-
-    // create wireframe
-    Gizmo.prototype.createWireframe = function (asset, isRender) {
-        if (!app) {
-            return;
-        } // webgl not available
-
-        asset = app.assets.get(asset);
-        if (!asset) {
-            return null;
-        }
-
-        if (asset.resource) {
-            if (isRender) {
-                this.entity.render.meshInstances = createRenderCopy(asset.resource, this.color);
-            } else {
-                this.entity.model.model = createModelCopy(asset.resource, this.color);
-            }
-        } else {
             const self = this;
 
-            this.events.push(asset.once('load', function (asset) {
-                if (self.asset !== asset.id) {
-                    return;
-                }
+            this.events.push(this._link.once('destroy', () => {
+                self.unlink();
+            }));
 
+            this.color = null;
+
+            // hack: override addModelToLayers to selectively put some
+            // mesh instances to the front and others to the back layer depending
+            // on the __useFrontLayer property
+            const customAddMeshInstancesToLayers = function () {
+                const frontMeshInstances = this.meshInstances.filter((mi) => {
+                    return mi.__useFrontLayer;
+                });
+                const backMeshInstances = this.meshInstances.filter((mi) => {
+                    return !mi.__useFrontLayer;
+                });
+
+                layerBack.addMeshInstances(frontMeshInstances);
+                layerFront.addMeshInstances(backMeshInstances);
+            };
+
+            this.entity = new pc.Entity();
+            this.entity.__editor = true;
+
+            // model component
+            this.entity.addComponent('model', {
+                castShadows: false,
+                receiveShadows: false,
+                castShadowsLightmap: false,
+                layers: [layerFront.id, layerBack.id]
+            });
+            this.entity.model.addModelToLayers = customAddMeshInstancesToLayers;
+
+            // render component
+            this.entity.addComponent('render', {
+                castShadows: false,
+                receiveShadows: false,
+                castShadowsLightmap: false,
+                layers: [layerFront.id, layerBack.id]
+            });
+            this.entity.render.addToLayers = customAddMeshInstancesToLayers;
+
+            this.entity._getEntity = function () {
+                return self._link.entity;
+            };
+
+            container.addChild(this.entity);
+        }
+
+        // unlink
+        unlink() {
+            if (!app) {
+                return;
+            } // webgl not available
+
+            if (!this._link) {
+                return;
+            }
+
+            for (let i = 0; i < this.events.length; i++) {
+                if (this.events[i] && this.events[i].unbind) {
+                    this.events[i].unbind();
+                }
+            }
+
+            this.events = [];
+            this._link = null;
+            this.color = null;
+            this.type = '';
+            this.asset = 0;
+
+            const model = this.entity.model.model;
+            if (model) {
+                // put back in pool
+                layerFront.removeMeshInstances(model.meshInstances);
+                layerBack.removeMeshInstances(model.meshInstances);
+                this.entity.removeChild(model.getGraph());
+                if (model._type) {
+                    poolModels[model._type].push(model);
+                }
+            }
+
+            this.entity.destroy();
+        }
+
+        // create wireframe
+        createWireframe(asset, isRender) {
+            if (!app) {
+                return;
+            } // webgl not available
+
+            asset = app.assets.get(asset);
+            if (!asset) {
+                return null;
+            }
+
+            if (asset.resource) {
                 if (isRender) {
                     this.entity.render.meshInstances = createRenderCopy(asset.resource, this.color);
                 } else {
-                    self.entity.model.model = createModelCopy(asset.resource, this.color);
+                    this.entity.model.model = createModelCopy(asset.resource, this.color);
                 }
-            }));
+            } else {
+                const self = this;
+
+                this.events.push(asset.once('load', (asset) => {
+                    if (self.asset !== asset.id) {
+                        return;
+                    }
+
+                    if (isRender) {
+                        self.entity.render.meshInstances = createRenderCopy(asset.resource, self.color);
+                    } else {
+                        self.entity.model.model = createModelCopy(asset.resource, self.color);
+                    }
+                }));
+            }
         }
-    };
+    }
 
     editor.on('entities:add', (entity) => {
         const key = entity.get('resource_id');

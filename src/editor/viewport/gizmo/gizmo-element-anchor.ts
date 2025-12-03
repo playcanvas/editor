@@ -1,5 +1,6 @@
-import { FORCE_PICK_TAG, GIZMO_MASK } from '../../../core/constants.ts';
-import { createColorMaterial } from '../viewport-color-material.ts';
+import { FORCE_PICK_TAG, GIZMO_MASK } from '@/core/constants';
+
+import { createColorMaterial } from '../viewport-color-material';
 
 editor.once('load', () => {
     const vecA = new pc.Vec3();
@@ -420,7 +421,7 @@ editor.once('load', () => {
             const rayDirection = vecB.set(0, 0, 0);
 
             vecC.copy(gizmoAnchor.root.forward);
-            const planeNormal = vecC.scale(-1);
+            const planeNormal = vecC.mulScalar(-1);
 
             if (camera.camera.projection === pc.PROJECTION_PERSPECTIVE) {
                 rayDirection.copy(mouseWPos).sub(rayOrigin).normalize();
@@ -432,7 +433,7 @@ editor.once('load', () => {
             const rayPlaneDot = planeNormal.dot(rayDirection);
             const planeDist = posGizmo.dot(planeNormal);
             const pointPlaneDist = (planeNormal.dot(rayOrigin) - planeDist) / rayPlaneDot;
-            const pickedPos = rayDirection.scale(-pointPlaneDist).add(rayOrigin);
+            const pickedPos = rayDirection.mulScalar(-pointPlaneDist).add(rayOrigin);
 
             // convert pickedPos to local position relative to the gizmo
             quat.copy(gizmoAnchor.root.getRotation()).invert().transformVector(pickedPos, pickedPos);

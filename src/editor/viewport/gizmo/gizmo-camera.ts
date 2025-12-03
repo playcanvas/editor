@@ -17,132 +17,141 @@ editor.once('load', () => {
     }
 
     // gizmo class
-    function Gizmo() {
-        this._link = null;
-        this.lines = [];
-        this.events = [];
-        this.visible = false;
+    class Gizmo {
+        _link: any = null;
 
-        for (let i = 0; i < 24; i++) {
-            this.lines.push(new pc.Vec3());
+        lines: any[] = [];
+
+        events: any[] = [];
+
+        visible: boolean = false;
+
+        constructor() {
+            for (let i = 0; i < 24; i++) {
+                this.lines.push(new pc.Vec3());
+            }
+        }
+
+        // update lines
+        update() {
+            if (!app) {
+                return;
+            } // webgl not available
+
+            if (!this._link || !this._link.entity || editor.call('camera:current') === this._link.entity) {
+                this.visible = false;
+                return;
+            }
+
+            const camera = this._link.entity.camera;
+            this.visible = camera && this._link.get('enabled') && this._link.get('components.camera.enabled') && editor.call('camera:current') !== this._link.entity;
+            if (!this.visible) {
+                return;
+            }
+
+            const nearClip = camera.nearClip || 0.0001;
+            const farClip = camera.farClip;
+            const fov = camera.fov * Math.PI / 180.0;
+            const projection = camera.projection;
+
+            const device = app.graphicsDevice;
+            const rect = camera.rect;
+            const aspectRatio = (device.width * rect.z) / (device.height * rect.w);
+
+            let nx, ny, fx, fy;
+            if (projection === pc.PROJECTION_PERSPECTIVE) {
+                ny = Math.tan(fov / 2.0) * nearClip;
+                fy = Math.tan(fov / 2.0) * farClip;
+                nx = ny * aspectRatio;
+                fx = fy * aspectRatio;
+            } else {
+                ny = camera.camera._orthoHeight;
+                fy = ny;
+                nx = ny * aspectRatio;
+                fx = nx;
+            }
+
+            // near plane
+            this.lines[0].set(nx, -ny, -nearClip);
+            this.lines[1].set(nx, ny, -nearClip);
+            this.lines[2].set(nx, ny, -nearClip);
+            this.lines[3].set(-nx, ny, -nearClip);
+            this.lines[4].set(-nx, ny, -nearClip);
+            this.lines[5].set(-nx, -ny, -nearClip);
+            this.lines[6].set(-nx, -ny, -nearClip);
+            this.lines[7].set(nx, -ny, -nearClip);
+            // far plane
+            this.lines[8].set(fx, -fy, -farClip);
+            this.lines[9].set(fx, fy, -farClip);
+            this.lines[10].set(fx, fy, -farClip);
+            this.lines[11].set(-fx, fy, -farClip);
+            this.lines[12].set(-fx, fy, -farClip);
+            this.lines[13].set(-fx, -fy, -farClip);
+            this.lines[14].set(-fx, -fy, -farClip);
+            this.lines[15].set(fx, -fy, -farClip);
+            // parallel lines
+            this.lines[16].set(nx, -ny, -nearClip);
+            this.lines[17].set(fx, -fy, -farClip);
+            this.lines[18].set(nx, ny, -nearClip);
+            this.lines[19].set(fx, fy, -farClip);
+            this.lines[20].set(-nx, ny, -nearClip);
+            this.lines[21].set(-fx, fy, -farClip);
+            this.lines[22].set(-nx, -ny, -nearClip);
+            this.lines[23].set(-fx, -fy, -farClip);
+
+            // transform lines according to camera transform
+            const wtm = new pc.Mat4().setTRS(this._link.entity.getPosition(), this._link.entity.getRotation(), pc.Vec3.ONE);
+            for (let i = 0; i < this.lines.length; i++) {
+                wtm.transformPoint(this.lines[i], this.lines[i]);
+            }
+
+            this.visible = true;
+        }
+
+        // render lines
+        render() {
+            if (!app) {
+                return;
+            } // webgl not available
+
+            if (!this.visible) {
+                return;
+            }
+
+            let layer = editor.call('gizmo:layers', 'Axis Gizmo Immediate');
+            app.drawLines(this.lines, colorsBehind, false, layer);
+
+            layer = editor.call('gizmo:layers', 'Bright Gizmo');
+            app.drawLines(this.lines, colorsPrimary, true, layer);
+        }
+
+        // link to entity
+        link(obj) {
+            this.unlink();
+            this._link = obj;
+
+            const self = this;
+
+            this.events.push(this._link.once('destroy', () => {
+                self.unlink();
+            }));
+        }
+
+        // unlink
+        unlink() {
+            if (!this._link) {
+                return;
+            }
+
+            for (let i = 0; i < this.events.length; i++) {
+                this.events[i].unbind();
+            }
+
+            this.events = [];
+            this._link = null;
+            this.visible = false;
         }
     }
-    // update lines
-    Gizmo.prototype.update = function () {
-        if (!app) {
-            return;
-        } // webgl not available
-
-        if (!this._link || !this._link.entity || editor.call('camera:current') === this._link.entity) {
-            this.visible = false;
-            return;
-        }
-
-        const camera = this._link.entity.camera;
-        this.visible = camera && this._link.get('enabled') && this._link.get('components.camera.enabled') && editor.call('camera:current') !== this._link.entity;
-        if (!this.visible) {
-            return;
-        }
-
-        const nearClip = camera.nearClip || 0.0001;
-        const farClip = camera.farClip;
-        const fov = camera.fov * Math.PI / 180.0;
-        const projection = camera.projection;
-
-        const device = app.graphicsDevice;
-        const rect = camera.rect;
-        const aspectRatio = (device.width * rect.z) / (device.height * rect.w);
-
-        let nx, ny, fx, fy;
-        if (projection === pc.PROJECTION_PERSPECTIVE) {
-            ny = Math.tan(fov / 2.0) * nearClip;
-            fy = Math.tan(fov / 2.0) * farClip;
-            nx = ny * aspectRatio;
-            fx = fy * aspectRatio;
-        } else {
-            ny = camera.camera._orthoHeight;
-            fy = ny;
-            nx = ny * aspectRatio;
-            fx = nx;
-        }
-
-        // near plane
-        this.lines[0].set(nx, -ny, -nearClip);
-        this.lines[1].set(nx, ny, -nearClip);
-        this.lines[2].set(nx, ny, -nearClip);
-        this.lines[3].set(-nx, ny, -nearClip);
-        this.lines[4].set(-nx, ny, -nearClip);
-        this.lines[5].set(-nx, -ny, -nearClip);
-        this.lines[6].set(-nx, -ny, -nearClip);
-        this.lines[7].set(nx, -ny, -nearClip);
-        // far plane
-        this.lines[8].set(fx, -fy, -farClip);
-        this.lines[9].set(fx, fy, -farClip);
-        this.lines[10].set(fx, fy, -farClip);
-        this.lines[11].set(-fx, fy, -farClip);
-        this.lines[12].set(-fx, fy, -farClip);
-        this.lines[13].set(-fx, -fy, -farClip);
-        this.lines[14].set(-fx, -fy, -farClip);
-        this.lines[15].set(fx, -fy, -farClip);
-        // parallel lines
-        this.lines[16].set(nx, -ny, -nearClip);
-        this.lines[17].set(fx, -fy, -farClip);
-        this.lines[18].set(nx, ny, -nearClip);
-        this.lines[19].set(fx, fy, -farClip);
-        this.lines[20].set(-nx, ny, -nearClip);
-        this.lines[21].set(-fx, fy, -farClip);
-        this.lines[22].set(-nx, -ny, -nearClip);
-        this.lines[23].set(-fx, -fy, -farClip);
-
-        // transform lines according to camera transform
-        const wtm = new pc.Mat4().setTRS(this._link.entity.getPosition(), this._link.entity.getRotation(), pc.Vec3.ONE);
-        for (let i = 0; i < this.lines.length; i++) {
-            wtm.transformPoint(this.lines[i], this.lines[i]);
-        }
-
-        this.visible = true;
-    };
-    // render lines
-    Gizmo.prototype.render = function () {
-        if (!app) {
-            return;
-        } // webgl not available
-
-        if (!this.visible) {
-            return;
-        }
-
-        let layer = editor.call('gizmo:layers', 'Axis Gizmo Immediate');
-        app.drawLines(this.lines, colorsBehind, false, layer);
-
-        layer = editor.call('gizmo:layers', 'Bright Gizmo');
-        app.drawLines(this.lines, colorsPrimary, true, layer);
-    };
-    // link to entity
-    Gizmo.prototype.link = function (obj) {
-        this.unlink();
-        this._link = obj;
-
-        const self = this;
-
-        this.events.push(this._link.once('destroy', () => {
-            self.unlink();
-        }));
-    };
-    // unlink
-    Gizmo.prototype.unlink = function () {
-        if (!this._link) {
-            return;
-        }
-
-        for (let i = 0; i < this.events.length; i++) {
-            this.events[i].unbind();
-        }
-
-        this.events = [];
-        this._link = null;
-        this.visible = false;
-    };
 
     editor.on('selector:change', (type, items) => {
         // clear gizmos

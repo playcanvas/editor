@@ -1,7 +1,8 @@
 import { Events } from '@playcanvas/observer';
 
-import { ConflictSection } from './conflict-section.ts';
-import { LegacyLabel } from '../../../../common/ui/label.ts';
+import { LegacyLabel } from '@/common/ui/label';
+
+import { ConflictSection } from './conflict-section';
 
 // Shows all the conflicts for an item
 class ConflictResolver extends Events {

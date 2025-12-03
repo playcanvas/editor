@@ -1,7 +1,7 @@
 import type { Observer } from '@playcanvas/observer';
 import type * as Monaco from 'monaco-editor';
 
-import { WorkerClient } from '../../../core/worker/worker-client.ts';
+import { WorkerClient } from '@/core/worker/worker-client';
 
 export type Fix = Monaco.languages.TextEdit & {
     title?: string;

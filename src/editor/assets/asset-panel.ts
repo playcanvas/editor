@@ -1,4 +1,3 @@
-import { type AssetObserver } from '@playcanvas/editor-api';
 import { Observer, type ObserverList, type EventHandle } from '@playcanvas/observer';
 import {
     Element,
@@ -18,16 +17,17 @@ import {
     type PanelArgs
 } from '@playcanvas/pcui';
 
-import { CLASS_ERROR } from '../../common/pcui/constants.ts';
-import { AssetThumbnail } from '../../common/pcui/element/element-asset-thumbnail.ts';
-import { type DropManager } from '../../common/pcui/element/element-drop-manager.ts';
-import { DropTarget } from '../../common/pcui/element/element-drop-target.ts';
-import { TableCell } from '../../common/pcui/element/element-table-cell.ts';
-import { TableRow } from '../../common/pcui/element/element-table-row.ts';
-import { Table } from '../../common/pcui/element/element-table.ts';
-import { type Tooltip } from '../../common/pcui/element/element-tooltip.ts';
-import { LegacyTooltip } from '../../common/ui/tooltip.ts';
-import { bytesToHuman, naturalCompare } from '../../common/utils.ts';
+import { CLASS_ERROR } from '@/common/pcui/constants';
+import { AssetThumbnail } from '@/common/pcui/element/element-asset-thumbnail';
+import { type DropManager } from '@/common/pcui/element/element-drop-manager';
+import { DropTarget } from '@/common/pcui/element/element-drop-target';
+import { Table } from '@/common/pcui/element/element-table';
+import { TableCell } from '@/common/pcui/element/element-table-cell';
+import { TableRow } from '@/common/pcui/element/element-table-row';
+import { type Tooltip } from '@/common/pcui/element/element-tooltip';
+import { LegacyTooltip } from '@/common/ui/tooltip';
+import { bytesToHuman, naturalCompare } from '@/common/utils';
+import { type AssetObserver } from '@playcanvas/editor-api';
 
 const CLASS_ROOT = 'pcui-asset-panel';
 const CLASS_LEFT = `${CLASS_ROOT}-left`;
@@ -944,8 +944,8 @@ class AssetPanel extends Panel {
         // is created by the panel or passed in.
         const menu = editor.call('assets:contextmenu:create');
         const rect = this._btnNew.dom.getBoundingClientRect();
-        menu.position(rect.right, rect.top);
         menu.hidden = false;
+        menu.position(rect.right, rect.top);
     }
 
     // Shows asset delete picker

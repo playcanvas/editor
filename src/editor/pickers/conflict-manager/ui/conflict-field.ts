@@ -1,11 +1,11 @@
 import { TextAreaInput } from '@playcanvas/pcui';
 
-import { LegacyColorField } from '../../../../common/ui/color-field.ts';
-import { LegacyCurveField } from '../../../../common/ui/curve-field.ts';
-import { LegacyLabel } from '../../../../common/ui/label.ts';
-import { LegacyListItem } from '../../../../common/ui/list-item.ts';
-import { LegacyList } from '../../../../common/ui/list.ts';
-import { LegacyPanel } from '../../../../common/ui/panel.ts';
+import { LegacyColorField } from '@/common/ui/color-field';
+import { LegacyCurveField } from '@/common/ui/curve-field';
+import { LegacyLabel } from '@/common/ui/label';
+import { LegacyList } from '@/common/ui/list';
+import { LegacyListItem } from '@/common/ui/list-item';
+import { LegacyPanel } from '@/common/ui/panel';
 
 // Base class for fields
 class ConflictField {

@@ -5,4 +5,4 @@ services:
     env_file:
       - .env
     volumes:
-      - ./.auth:/usr/src/test/.auth
+      - ./test-results:/usr/src/test/test-results

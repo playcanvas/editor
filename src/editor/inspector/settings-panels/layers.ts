@@ -1,10 +1,11 @@
 import { Container } from '@playcanvas/pcui';
 
-import { BaseSettingsPanel } from './base.ts';
-import { LayersSettingsPanelLayerPanel } from './layers-layer-panel.ts';
-import { LayersSettingsPanelRenderOrderPanel } from './layers-render-order.ts';
-import { CLASS_ERROR } from '../../../common/pcui/constants.ts';
-import type { Attribute } from '../attribute.type.d.ts';
+import { CLASS_ERROR } from '@/common/pcui/constants';
+
+import { BaseSettingsPanel } from './base';
+import { LayersSettingsPanelLayerPanel } from './layers-layer-panel';
+import { LayersSettingsPanelRenderOrderPanel } from './layers-render-order';
+import type { Attribute } from '../attribute.type.d';
 
 const CLASS_ROOT = 'layers-settings-panel';
 const CLASS_LAYERS_CONTAINER = `${CLASS_ROOT}-layers-container`;

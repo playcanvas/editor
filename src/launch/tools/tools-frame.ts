@@ -1,4 +1,4 @@
-import { bytesToHuman } from '../../common/utils.ts';
+import { bytesToHuman } from '@/common/utils';
 
 editor.once('load', () => {
     let enabled = editor.call('tools:enabled');
@@ -660,7 +660,7 @@ editor.once('load', () => {
     });
 
     // update frame fields
-    app.on('frameend', () => {
+    editor.on('tools:render', () => {
         if (!enabled) {
             return;
         }

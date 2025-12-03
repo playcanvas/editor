@@ -1,6 +1,6 @@
 import { Button } from '@playcanvas/pcui';
 
-import { LegacyTooltip } from '../../common/ui/tooltip.ts';
+import { LegacyTooltip } from '@/common/ui/tooltip';
 
 const discordSvg = (color, style = '') => {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');

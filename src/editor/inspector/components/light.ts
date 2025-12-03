@@ -1,10 +1,11 @@
 import { Button } from '@playcanvas/pcui';
 
-import { ComponentInspector } from './component.ts';
-import { LegacyTooltip } from '../../../common/ui/tooltip.ts';
-import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from '../../../core/constants.ts';
-import type { Attribute, Divider } from '../attribute.type.d.ts';
-import { AttributesInspector } from '../attributes-inspector.ts';
+import { LegacyTooltip } from '@/common/ui/tooltip';
+import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from '@/core/constants';
+
+import { ComponentInspector } from './component';
+import type { Attribute, Divider } from '../attribute.type.d';
+import { AttributesInspector } from '../attributes-inspector';
 
 
 const ATTRIBUTES: (Attribute | Divider)[] = [{
@@ -545,6 +546,11 @@ class LightComponentInspector extends ComponentInspector {
         this._field('cookieAsset').hidden = isDirectional;
         this._field('cookieDivider').hidden = this._field('cookieAsset').hidden;
         this._field('cookieAsset').assetType = (isPoint ? 'cubemap' : 'texture');
+
+        // Update the label to indicate which asset type is needed
+        if (!isDirectional) {
+            this._field('cookieAsset').text = isPoint ? 'Cookie (Cubemap)' : 'Cookie (Texture)';
+        }
 
         this._field('cookieFalloff').parent.hidden = !isSpot || !cookie || isCLustered;
 

@@ -1,6 +1,6 @@
 import { Button, Container } from '@playcanvas/pcui';
 
-import { LegacyTooltip } from '../../common/ui/tooltip.ts';
+import { LegacyTooltip } from '@/common/ui/tooltip';
 
 editor.once('load', () => {
     let list = [];
@@ -135,7 +135,7 @@ editor.once('load', () => {
     });
 
     editor.call('hotkey:register', 'selector:return', {
-        key: 'z',
+        key: 'x',
         shift: true,
         callback: () => {
             if (editor.call('picker:isOpen:otherThan', 'curve')) {

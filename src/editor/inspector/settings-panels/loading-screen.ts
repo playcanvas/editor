@@ -1,9 +1,10 @@
-import type { Asset } from '@playcanvas/editor-api';
 import { Container, Button } from '@playcanvas/pcui';
 
-import { BaseSettingsPanel } from './base.ts';
-import { LegacyTooltip } from '../../../common/ui/tooltip.ts';
-import type { Attribute } from '../attribute.type.d.ts';
+import { LegacyTooltip } from '@/common/ui/tooltip';
+import type { Asset } from '@playcanvas/editor-api';
+
+import { BaseSettingsPanel } from './base';
+import type { Attribute } from '../attribute.type.d';
 
 const ATTRIBUTES: Attribute[] = [
     {
@@ -84,6 +85,14 @@ class LoadingScreenSettingsPanel extends BaseSettingsPanel {
         this._projectSettings.on('*:set', (path) => {
             if (path === 'loadingScreenScript') {
                 this._loadLayout();
+            }
+        });
+
+        // Clear the loading screen script setting when the asset is removed
+        editor.on('assets:remove', (asset) => {
+            const scriptId = this._projectSettings.get('loadingScreenScript');
+            if (scriptId && asset.get('id').toString() === scriptId.toString()) {
+                this._projectSettings.set('loadingScreenScript', null);
             }
         });
     }

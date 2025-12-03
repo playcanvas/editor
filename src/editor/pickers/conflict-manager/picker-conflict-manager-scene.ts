@@ -1,4 +1,4 @@
-import { ConflictResolver } from './ui/conflict-resolver.ts';
+import { ConflictResolver } from './ui/conflict-resolver';
 
 editor.once('load', () => {
     const componentSchema = config.schema.scene.entities.$of.components;

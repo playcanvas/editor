@@ -1,4 +1,4 @@
-import type { AttributeReference } from '../reference.type.ts';
+import type { AttributeReference } from '../reference.type';
 
 export const fields: AttributeReference[]  = [{
     name: 'light:component',
@@ -181,16 +181,10 @@ export const fields: AttributeReference[]  = [{
     description: 'Constant depth offset applied to a shadow map that enables the tuning of shadows in order to eliminate rendering artifacts, namely \'shadow acne\' and \'peter-panning\'',
     url: 'https://api.playcanvas.com/engine/classes/LightComponent.html#vsmbias'
 }, {
-    name: 'light:cookie',
-    title: 'cookie',
-    subTitle: '{pc.Texture}',
-    description: 'Projection texture. Must be 2D for spot and cubemap for point (ignored if incorrect type is used).',
-    url: 'https://api.playcanvas.com/engine/classes/LightComponent.html#cookie'
-}, {
     name: 'light:cookieAsset',
     title: 'cookieAsset',
     subTitle: '{pc.Asset}',
-    description: 'Asset that has texture that will be assigned to cookie internally once asset resource is available.',
+    description: 'Projection texture asset. Spot lights require a texture asset, omni lights require a cubemap asset.',
     url: 'https://api.playcanvas.com/engine/classes/LightComponent.html#cookieasset'
 }, {
     name: 'light:cookieIntensity',

@@ -1,6 +1,6 @@
 import { Observer } from '@playcanvas/observer';
 
-import { ObserverSync } from '../../common/observer-sync.ts';
+import { ObserverSync } from '@/common/observer-sync';
 
 editor.once('load', () => {
     const app = editor.call('viewport:app');
@@ -31,7 +31,7 @@ editor.once('load', () => {
             if (folder) {
                 path += `${encodeURIComponent(folder.get('name'))}/`;
             } else {
-                path += `${assetNames[folders[i]] || 'unknown'}/`;
+                path += `${encodeURIComponent(assetNames[folders[i]] || 'unknown')}/`;
             }
         }
         return `assets/files/${path}${encodeURIComponent(filename)}?id=${id}&branchId=${config.self.branch.id}`;

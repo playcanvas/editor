@@ -1,5 +1,4 @@
 .env*
-.auth
 node_modules
 .sass-cache
 /.idea
@@ -7,3 +6,5 @@ dist
 /js/realtime/share.uncompressed.js
 .npmrc
 /.vscode
+modules/editor-api/types
+/test-results

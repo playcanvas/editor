@@ -22,25 +22,28 @@ editor.once('viewport:load', (app) => {
     };
 
     const keyMappings = new Map([
-        ['arrowup', 'forward'],
-        ['w', 'forward'],
-        ['arrowleft', 'left'],
-        ['a', 'left'],
-        ['arrowdown', 'back'],
-        ['s', 'back'],
-        ['arrowright', 'right'],
-        ['d', 'right'],
-        ['e', 'up'],
-        ['pageup', 'up'],
-        ['q', 'down'],
-        ['pagedown', 'down']
+        // Arrow keys
+        ['ArrowUp', 'forward'],
+        ['ArrowLeft', 'left'],
+        ['ArrowDown', 'back'],
+        ['ArrowRight', 'right'],
+        // WASD
+        ['KeyW', 'forward'],
+        ['KeyA', 'left'],
+        ['KeyS', 'back'],
+        ['KeyD', 'right'],
+        // Vertical
+        ['KeyE', 'up'],
+        ['PageUp', 'up'],
+        ['KeyQ', 'down'],
+        ['PageDown', 'down']
     ]);
 
     // Helper functions
     const isInputOrTextarea = target => /input|textarea/i.test(target.tagName);
 
     const setKeyState = (key, state) => {
-        const action = keyMappings.get(key.toLowerCase());
+        const action = keyMappings.get(key);
         if (action) {
             keys[action] = state;
         }
@@ -73,11 +76,11 @@ editor.once('viewport:load', (app) => {
         }
 
         // Check if the pressed key corresponds to a flying action
-        if (!keyMappings.has(evt.key.toLowerCase())) {
+        if (!keyMappings.has(evt.code)) {
             return;
         }
 
-        setKeyState(evt.key, true);
+        setKeyState(evt.code, true);
         updateDirection();
 
         if (!flying) {
@@ -96,7 +99,7 @@ editor.once('viewport:load', (app) => {
             return;
         }
 
-        setKeyState(evt.key, false);
+        setKeyState(evt.code, false);
         updateDirection();
 
         if (Object.values(keys).every(state => !state)) {
@@ -117,7 +120,7 @@ editor.once('viewport:load', (app) => {
 
             camera = editor.call('camera:current');
 
-            vecA.copy(direction).scale(speed);
+            vecA.copy(direction).mulScalar(speed);
 
             if (camera.camera.projection === pc.PROJECTION_ORTHOGRAPHIC) {
                 vecA.y = -vecA.z;
