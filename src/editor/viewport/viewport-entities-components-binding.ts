@@ -87,6 +87,10 @@ editor.once('load', () => {
                     q.setFromEulerAngles(v[0], v[1], v[2]);
                     entity[component].angularOffset = q;
                     callSetter = false;
+                } else if (property === 'linearOffset') {
+                    const v = obj.get('components.collision.linearOffset');
+                    entity[component].linearOffset = new pc.Vec3(v[0], v[1], v[2]);
+                    callSetter = false;
                 }
             }
 
