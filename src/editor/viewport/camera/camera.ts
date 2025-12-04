@@ -136,6 +136,14 @@ editor.once('load', () => {
             }
 
             editor.emit('camera:change', currentCamera, old);
+
+            // Update shadow maps for lights with Shadow Update Mode set to "Once"
+            editor.call('entities:list').forEach((e) => {
+                if (e.get('components.light.shadowUpdateMode') === pc.SHADOWUPDATE_THISFRAME && e.entity?.light) {
+                    e.entity.light.shadowUpdateMode = pc.SHADOWUPDATE_THISFRAME;
+                }
+            });
+
             editor.call('viewport:render');
         });
 
