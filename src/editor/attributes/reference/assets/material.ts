@@ -732,7 +732,7 @@ export const fields: AttributeReference[]  = [{
     name: 'asset:material:vertexColorGamma',
     title: 'vertexColorGamma',
     subTitle: '{Boolean}',
-    description: 'Convert vertex colors to gamma space.',
+    description: 'Vertex Colors are specified in gamma space.',
     url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#vertexColorGamma'
 }, {
     name: 'asset:material:enableGGXSpecular',
