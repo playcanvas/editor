@@ -118,7 +118,6 @@ editor.once('load', () => {
                 if (!property) {
                     // add component
                     const data = runtimeComponentData(component, value);
-
                     app.systems[component].addComponent(entity, data);
 
                     // render
