@@ -901,6 +901,11 @@ const OTHER_ATTRIBUTES: (Attribute | Divider)[] = [{
     path: 'data.useTonemap',
     type: 'boolean',
     reference: 'asset:material:useTonemap'
+}, {
+    label: 'Vertex Color Gamma',
+    path: 'data.vertexColorGamma',
+    type: 'boolean',
+    reference: 'asset:material:vertexColorGamma'
 }];
 
 const DOM = parent => [{
