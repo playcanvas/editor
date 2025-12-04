@@ -173,16 +173,6 @@ editor.once('load', () => {
                         break;
                 }
             }
-
-            // Special case: collision component's angularOffset stores euler angles
-            // but needs to be converted to a Quat for the engine
-            if (component === 'collision' && property === 'angularOffset' && Array.isArray(value)) {
-                if (value.length === 3) {
-                    result = new pc.Quat().setFromEulerAngles(value[0], value[1], value[2]);
-                } else if (value.length === 4) {
-                    result = new pc.Quat(value[0], value[1], value[2], value[3]);
-                }
-            }
         }
 
         // for batchGroupId convert null to -1 for runtime
