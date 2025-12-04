@@ -92,13 +92,6 @@ editor.once('load', () => {
                         }
                         return;
                     }
-                } else if (component === 'collision') {
-                    if (property === 'angularOffset') {
-                        // angularOffset is stored as euler angles but needs to be a Quat
-                        const v = obj.get(`components.${component}.angularOffset`);
-                        entity[component].angularOffset = new pc.Quat().setFromEulerAngles(v[0], v[1], v[2]);
-                        return;
-                    }
                 }
 
                 value = obj.get(`components.${component}.${property}`);
@@ -125,6 +118,7 @@ editor.once('load', () => {
                 if (!property) {
                     // add component
                     const data = runtimeComponentData(component, value);
+
                     app.systems[component].addComponent(entity, data);
 
                     // render
