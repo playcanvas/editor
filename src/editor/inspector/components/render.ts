@@ -338,7 +338,9 @@ class RenderComponentInspector extends ComponentInspector {
 
         // Show Root Bone only if all selected entities have a skinned render asset
         const showRootBone = this._entities?.every((e) => {
-            if (e.get('components.render.type') !== 'asset') return false;
+            if (e.get('components.render.type') !== 'asset') {
+                return false;
+            }
             const assetId = e.get('components.render.asset');
             return assetId && this._assets.get(assetId)?.get('meta.skinned');
         }) ?? false;
