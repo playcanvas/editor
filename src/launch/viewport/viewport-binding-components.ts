@@ -92,14 +92,6 @@ editor.once('load', () => {
                         }
                         return;
                     }
-                } else if (component === 'collision') {
-                    if (property === 'angularOffset') {
-                        const v = obj.get(`components.${component}.angularOffset`);
-                        const q = entity[component].angularOffset;
-                        q.setFromEulerAngles(v[0], v[1], v[2]);
-                        entity[component].angularOffset = q;
-                        return;
-                    }
                 }
 
                 value = obj.get(`components.${component}.${property}`);

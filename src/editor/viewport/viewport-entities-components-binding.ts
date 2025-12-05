@@ -80,14 +80,6 @@ editor.once('load', () => {
                     }
                     callSetter = false;
                 }
-            } else if (component === 'collision') {
-                if (property === 'angularOffset') {
-                    const v = obj.get('components.collision.angularOffset');
-                    const q = entity[component].angularOffset;
-                    q.setFromEulerAngles(v[0], v[1], v[2]);
-                    entity[component].angularOffset = q;
-                    callSetter = false;
-                }
             }
 
             if (callSetter) {
