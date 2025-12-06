@@ -255,31 +255,31 @@ editor.once('load', () => {
                     }
                     break;
                 case 'mesh': {
-                    this.entity.setLocalScale(this._link.entity.getWorldTransform().getScale());
+                        this.entity.setLocalScale(this._link.entity.getWorldTransform().getScale());
 
-                    const isRender = !!collision.renderAsset;
-                    const asset = isRender ? collision.renderAsset : collision.asset;
-                    if (asset !== this.asset) {
-                        this.asset = asset;
-                        this.createWireframe(this.asset, isRender);
-                        if (!this.asset) {
-                            this.entity.enabled = false;
-                            if (isRender) {
-                                this.entity.render.meshInstances = [];
-                            } else {
-                                this.entity.model.model = null;
+                        const isRender = !!collision.renderAsset;
+                        const asset = isRender ? collision.renderAsset : collision.asset;
+                        if (asset !== this.asset) {
+                            this.asset = asset;
+                            this.createWireframe(this.asset, isRender);
+                            if (!this.asset) {
+                                this.entity.enabled = false;
+                                if (isRender) {
+                                    this.entity.render.meshInstances = [];
+                                } else {
+                                    this.entity.model.model = null;
+                                }
+                                return;
                             }
-                            return;
                         }
-                    }
 
                     // when model collision mesh gets clicked on again, select the mesh instance
                     // Note: render does not have an equivalent of this
-                    if (this.entity.model.model) {
+                        if (this.entity.model.model) {
                         const { model: entityModel } = this._link.entity;
                         const picking = !visible && entityModel?.enabled && entityModel.type === 'asset' && entityModel.asset === collision.asset;
-                        if (picking !== this.entity.model.model.__picking) {
-                            this.entity.model.model.__picking = picking;
+                            if (picking !== this.entity.model.model.__picking) {
+                                this.entity.model.model.__picking = picking;
                             for (const mesh of this.entity.model.meshInstances) {
                                 if (mesh.__collision) {
                                     mesh.pick = !picking;
@@ -772,12 +772,11 @@ void main(void)
 
         // ================
         // capsules
-        // Create custom capsule geometry with aSide attribute for proper shader-based sizing
-        // The geometry is a unit capsule (radius=1) with two hemispheres centered at y=0
-        // Each vertex has aSide = +1 (top) or -1 (bottom) to indicate which hemisphere
+        // Create custom capsule geometry matching engine's CapsuleGeometry topology
+        // Structure: cylinder body + two hemisphere caps, with aSide attribute for shader sizing
         const createCapsuleGeometry = (axis) => {
-            const segments = 32; // segments around the circumference
-            const rings = 16; // rings per hemisphere
+            const capSegments = 20; // segments around (matching engine default)
+            const latitudeBands = Math.floor(capSegments / 2); // rings per hemisphere (matching engine)
 
             const positions = [];
             const normals = [];
@@ -792,95 +791,156 @@ void main(void)
             };
             const [r1, r2, h] = axisMap[axis];
 
-            // Create top hemisphere (aSide = +1)
-            // Vertices go from equator (phi=0) to pole (phi=PI/2)
-            for (let ring = 0; ring <= rings; ring++) {
-                const phi = (ring / rings) * (Math.PI / 2);
-                const y = Math.sin(phi);
-                const r = Math.cos(phi);
+            // === CYLINDER BODY ===
+            // Two rings at y=0, one moves up (aSide=+1), one moves down (aSide=-1)
+            // This creates the cylindrical section when the shader offsets them
+            // Use same angular offset as hemispheres (-PI/2) so vertices align
 
-                for (let seg = 0; seg <= segments; seg++) {
-                    const theta = (seg / segments) * Math.PI * 2;
-                    const x = r * Math.cos(theta);
-                    const z = r * Math.sin(theta);
+            // Top cylinder ring (aSide = +1)
+            for (let j = 0; j <= capSegments; j++) {
+                const phi = j * 2 * Math.PI / capSegments - Math.PI / 2;
+                const x = Math.cos(phi);
+                const z = Math.sin(phi);
 
-                    // Map to correct axis
+                const pos = [0, 0, 0];
+                const norm = [0, 0, 0];
+                pos[r1] = x; pos[r2] = z; pos[h] = 0;
+                norm[r1] = x; norm[r2] = z; norm[h] = 0; // Radial normal
+
+                positions.push(pos[0], pos[1], pos[2]);
+                normals.push(norm[0], norm[1], norm[2]);
+                sides.push(1);
+            }
+
+            // Bottom cylinder ring (aSide = -1)
+            for (let j = 0; j <= capSegments; j++) {
+                const phi = j * 2 * Math.PI / capSegments - Math.PI / 2;
+                const x = Math.cos(phi);
+                const z = Math.sin(phi);
+
+                const pos = [0, 0, 0];
+                const norm = [0, 0, 0];
+                pos[r1] = x; pos[r2] = z; pos[h] = 0;
+                norm[r1] = x; norm[r2] = z; norm[h] = 0;
+
+                positions.push(pos[0], pos[1], pos[2]);
+                normals.push(norm[0], norm[1], norm[2]);
+                sides.push(-1);
+            }
+
+            // Cylinder body indices (winding for outward-facing normals)
+            for (let j = 0; j < capSegments; j++) {
+                const top = j;
+                const bottom = capSegments + 1 + j;
+
+                indices.push(top, top + 1, bottom);
+                indices.push(top + 1, bottom + 1, bottom);
+            }
+
+            const cylinderVertexCount = 2 * (capSegments + 1);
+
+            // === TOP HEMISPHERE CAP ===
+            // Positioned at y=0 in geometry, shader moves it to y=(height/2 - radius)
+            const topCapOffset = cylinderVertexCount;
+
+            for (let lat = 0; lat <= latitudeBands; lat++) {
+                const theta = (lat * Math.PI * 0.5) / latitudeBands;
+                const sinTheta = Math.sin(theta);
+                const cosTheta = Math.cos(theta);
+
+                for (let lon = 0; lon <= capSegments; lon++) {
+                    const phi = lon * 2 * Math.PI / capSegments - Math.PI / 2;
+                    const sinPhi = Math.sin(phi);
+                    const cosPhi = Math.cos(phi);
+
+                    const x = cosPhi * sinTheta;
+                    const y = cosTheta;
+                    const z = sinPhi * sinTheta;
+
                     const pos = [0, 0, 0];
                     const norm = [0, 0, 0];
-                    pos[r1] = x;
-                    pos[r2] = z;
-                    pos[h] = y;
-                    norm[r1] = x;
-                    norm[r2] = z;
-                    norm[h] = y;
+                    pos[r1] = x; pos[r2] = z; pos[h] = y;
+                    norm[r1] = x; norm[r2] = z; norm[h] = y;
 
                     positions.push(pos[0], pos[1], pos[2]);
                     normals.push(norm[0], norm[1], norm[2]);
-                    sides.push(1); // Top hemisphere
+                    sides.push(1); // Moves with top
                 }
             }
 
-            const topVertexCount = (rings + 1) * (segments + 1);
+            // Top hemisphere indices
+            for (let lat = 0; lat < latitudeBands; lat++) {
+                for (let lon = 0; lon < capSegments; lon++) {
+                    const first = topCapOffset + lat * (capSegments + 1) + lon;
+                    const second = first + capSegments + 1;
 
-            // Create bottom hemisphere (aSide = -1)
-            // Vertices go from equator (phi=0) to pole (phi=-PI/2)
-            for (let ring = 0; ring <= rings; ring++) {
-                const phi = (ring / rings) * (Math.PI / 2);
-                const y = -Math.sin(phi);
-                const r = Math.cos(phi);
+                    indices.push(first + 1, second, first);
+                    indices.push(first + 1, second + 1, second);
+                }
+            }
 
-                for (let seg = 0; seg <= segments; seg++) {
-                    const theta = (seg / segments) * Math.PI * 2;
-                    const x = r * Math.cos(theta);
-                    const z = r * Math.sin(theta);
+            // Connect cylinder top ring to top hemisphere equator
+            // Top hemisphere goes from pole (lat=0) to equator (lat=latitudeBands)
+            // So equator is at the END of the top hemisphere vertices
+            const topHemiEquatorOffset = topCapOffset + latitudeBands * (capSegments + 1);
+            for (let j = 0; j < capSegments; j++) {
+                const cylTop = j;
+                const hemiEquator = topHemiEquatorOffset + j;
+
+                indices.push(cylTop, hemiEquator, hemiEquator + 1);
+                indices.push(cylTop, hemiEquator + 1, cylTop + 1);
+            }
+
+            const topHemiVertexCount = (latitudeBands + 1) * (capSegments + 1);
+
+            // === BOTTOM HEMISPHERE CAP ===
+            const bottomCapOffset = cylinderVertexCount + topHemiVertexCount;
+
+            for (let lat = 0; lat <= latitudeBands; lat++) {
+                const theta = Math.PI * 0.5 + (lat * Math.PI * 0.5) / latitudeBands;
+                const sinTheta = Math.sin(theta);
+                const cosTheta = Math.cos(theta);
+
+                for (let lon = 0; lon <= capSegments; lon++) {
+                    const phi = lon * 2 * Math.PI / capSegments - Math.PI / 2;
+                    const sinPhi = Math.sin(phi);
+                    const cosPhi = Math.cos(phi);
+
+                    const x = cosPhi * sinTheta;
+                    const y = cosTheta;
+                    const z = sinPhi * sinTheta;
 
                     const pos = [0, 0, 0];
                     const norm = [0, 0, 0];
-                    pos[r1] = x;
-                    pos[r2] = z;
-                    pos[h] = y;
-                    norm[r1] = x;
-                    norm[r2] = z;
-                    norm[h] = y;
+                    pos[r1] = x; pos[r2] = z; pos[h] = y;
+                    norm[r1] = x; norm[r2] = z; norm[h] = y;
 
                     positions.push(pos[0], pos[1], pos[2]);
                     normals.push(norm[0], norm[1], norm[2]);
-                    sides.push(-1); // Bottom hemisphere
+                    sides.push(-1); // Moves with bottom
                 }
             }
 
-            // Generate indices for top hemisphere
-            for (let ring = 0; ring < rings; ring++) {
-                for (let seg = 0; seg < segments; seg++) {
-                    const curr = ring * (segments + 1) + seg;
-                    const next = curr + segments + 1;
+            // Bottom hemisphere indices
+            for (let lat = 0; lat < latitudeBands; lat++) {
+                for (let lon = 0; lon < capSegments; lon++) {
+                    const first = bottomCapOffset + lat * (capSegments + 1) + lon;
+                    const second = first + capSegments + 1;
 
-                    indices.push(curr, next, curr + 1);
-                    indices.push(curr + 1, next, next + 1);
+                    indices.push(first + 1, second, first);
+                    indices.push(first + 1, second + 1, second);
                 }
             }
 
-            // Generate indices for bottom hemisphere
-            for (let ring = 0; ring < rings; ring++) {
-                for (let seg = 0; seg < segments; seg++) {
-                    const curr = topVertexCount + ring * (segments + 1) + seg;
-                    const next = curr + segments + 1;
+            // Connect cylinder bottom ring to bottom hemisphere equator
+            // Bottom hemisphere goes from equator (lat=0) to pole (lat=latitudeBands)
+            // So equator is at the START of the bottom hemisphere vertices
+            for (let j = 0; j < capSegments; j++) {
+                const cylBottom = capSegments + 1 + j;
+                const hemiEquator = bottomCapOffset + j;
 
-                    // Reverse winding for bottom hemisphere
-                    indices.push(curr, curr + 1, next);
-                    indices.push(curr + 1, next + 1, next);
-                }
-            }
-
-            // Generate indices connecting the two hemispheres (cylindrical section)
-            // Top hemisphere equator is at ring 0, bottom hemisphere equator is at ring 0
-            for (let seg = 0; seg < segments; seg++) {
-                const topEquator = seg;
-                const bottomEquator = topVertexCount + seg;
-
-                // Winding order for outward-facing normals
-                indices.push(topEquator, topEquator + 1, bottomEquator);
-                indices.push(topEquator + 1, bottomEquator + 1, bottomEquator);
+                indices.push(cylBottom, hemiEquator + 1, hemiEquator);
+                indices.push(cylBottom, cylBottom + 1, hemiEquator + 1);
             }
 
             // Create the mesh with custom aSide attribute
