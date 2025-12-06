@@ -159,7 +159,9 @@ async function deleteEntities(entities: Entity[] | Entity, options: { history?: 
                 });
 
                 entities.forEach((entity) => {
-                    updateReferences(entityReferences, entity.get('resource_id'), entity.get('resource_id'));
+                    entity.depthFirst((e: Entity) => {
+                        updateReferences(entityReferences, e.get('resource_id'), e.get('resource_id'));
+                    });
                 });
 
                 if (api.selection) {
