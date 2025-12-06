@@ -17,8 +17,6 @@ editor.once('load', () => {
     const colorOccluder = new pc.Color(1, 1, 1, 1);
     const colorDefault = [1, 1, 1];
     let container;
-    const vecA = new pc.Vec3();
-    const vecB = new pc.Vec3();
 
     const materialDefault = createColorMaterial();
     materialDefault.name = 'collision';
@@ -672,29 +670,8 @@ void main(void)
             makeCapsuleMaterial(axesNames[key]);
         }
 
-        const rad = Math.PI / 180;
-
         const createModel = function (args) {
-            let mesh;
-
-            if (args.mesh) {
-                mesh = args.mesh;
-            } else if (args.vertices) {
-                // mesh
-                mesh = new pc.Mesh(app.graphicsDevice);
-                mesh.vertexBuffer = args.vertices;
-                mesh.indexBuffer[0] = args.indices;
-                mesh.primitive[0].type = pc.PRIMITIVE_TRIANGLES;
-                mesh.primitive[0].base = 0;
-                mesh.primitive[0].count = args.count;
-                mesh.primitive[0].indexed = true;
-            } else {
-                const geom = new pc.Geometry();
-                geom.positions = args.positions;
-                geom.normals = args.normals;
-                geom.indices = args.indices;
-                mesh = pc.Mesh.fromGeometry(app.graphicsDevice, geom);
-            }
+            const mesh = args.mesh;
 
             // node
             const node = new pc.GraphNode();
@@ -737,34 +714,10 @@ void main(void)
 
         // ================
         // box
-        let positions = [
-            1, 1, 1,   1, 1, -1,   -1, 1, -1,   -1, 1, 1, // top
-            1, 1, 1,   -1, 1, 1,   -1, -1, 1,   1, -1, 1, // front
-            1, 1, 1,   1, -1, 1,   1, -1, -1,   1, 1, -1, // right
-            1, 1, -1,   1, -1, -1,   -1, -1, -1,   -1, 1, -1, // back
-            -1, 1, 1,   -1, 1, -1,   -1, -1, -1,   -1, -1, 1, // left
-            1, -1, 1,   -1, -1, 1,   -1, -1, -1,   1, -1, -1 // bottom
-        ];
-        let normals = [
-            0, 1, 0,   0, 1, 0,   0, 1, 0,   0, 1, 0,
-            0, 0, 1,   0, 0, 1,   0, 0, 1,   0, 0, 1,
-            1, 0, 0,   1, 0, 0,   1, 0, 0,   1, 0, 0,
-            0, 0, -1,   0, 0, -1,   0, 0, -1,   0, 0, -1,
-            -1, 0, 0,   -1, 0, 0,   -1, 0, 0,   -1, 0, 0,
-            0, -1, 0,   0, -1, 0,   0, -1, 0,   0, -1, 0
-        ];
-        let indices = [
-            0, 1, 2, 2, 3, 0,
-            4, 5, 6, 6, 7, 4,
-            8, 9, 10, 10, 11, 8,
-            12, 13, 14, 14, 15, 12,
-            16, 17, 18, 18, 19, 16,
-            20, 21, 22, 22, 23, 20
-        ];
         models.box = createModel({
-            positions: positions,
-            normals: normals,
-            indices: indices,
+            mesh: pc.Mesh.fromGeometry(app.graphicsDevice, new pc.BoxGeometry({
+                halfExtents: new pc.Vec3(1, 1, 1)
+            })),
             matDefault: materialDefault,
             matBehind: materialBehind,
             matOccluder: materialOccluder
@@ -773,43 +726,12 @@ void main(void)
 
         // ================
         // sphere
-        const segments = 64;
-        positions = [];
-        normals = [];
-        indices = [];
-
-        for (let y = 1; y < segments / 2; y++) {
-            for (let i = 0; i < segments; i++) {
-                const l = Math.sin((y * (180 / (segments / 2)) + 90) * rad);
-                const c = Math.cos((y * (180 / (segments / 2)) + 90) * rad);
-                vecA.set(Math.sin(360 / segments * i * rad) * Math.abs(c), l, Math.cos(360 / segments * i * rad) * Math.abs(c));
-                positions.push(vecA.x, vecA.y, vecA.z);
-                vecA.normalize();
-                normals.push(vecA.x, vecA.y, vecA.z);
-            }
-        }
-
-        positions.push(0, 1, 0);
-        normals.push(0, 1, 0);
-        positions.push(0, -1, 0);
-        normals.push(0, -1, 0);
-
-        for (let y = 0; y < segments / 2 - 2; y++) {
-            for (let i = 0; i < segments; i++) {
-                indices.push(y * segments + i, (y + 1) * segments + i, y * segments + (i + 1) % segments);
-                indices.push((y + 1) * segments + i, (y + 1) * segments + (i + 1) % segments, y * segments + (i + 1) % segments);
-            }
-        }
-
-        for (let i = 0; i < segments; i++) {
-            indices.push(i, (i + 1) % segments, (segments / 2 - 1) * segments);
-            indices.push((segments / 2 - 2) * segments + i, (segments / 2 - 1) * segments + 1, (segments / 2 - 2) * segments + (i + 1) % segments);
-        }
-
         models.sphere = createModel({
-            positions: positions,
-            normals: normals,
-            indices: indices,
+            mesh: pc.Mesh.fromGeometry(app.graphicsDevice, new pc.SphereGeometry({
+                radius: 1,
+                latitudeBands: 32,
+                longitudeBands: 64
+            })),
             matDefault: materialDefault,
             matBehind: materialBehind,
             matOccluder: materialOccluder
@@ -843,69 +765,38 @@ void main(void)
 
         // ================
         // cylinders
-        const axes = {
-            'x': ['z', 'y', 'x'],
-            'y': ['x', 'z', 'y'],
-            'z': ['y', 'x', 'z']
-        };
-        for (const a in axes) {
-            positions = [];
-            indices = [];
-            normals = [];
-            const segments = 72;
-
-            // side
-            for (let v = 1; v >= -1; v -= 2) {
-                for (let i = 0; i < segments; i++) {
-                    vecA[axes[a][0]] = Math.sin(360 / segments * i * rad);
-                    vecA[axes[a][1]] = Math.cos(360 / segments * i * rad);
-                    vecA[axes[a][2]] = v * 0.5;
-
-                    vecB.copy(vecA);
-                    vecB[axes[a][2]] = 0;
-                    positions.push(vecA.x, vecA.y, vecA.z);
-                    normals.push(vecB.x, vecB.y, vecB.z);
-                }
-            }
-
-            // top/bottom
-            for (let v = 1; v >= -1; v -= 2) {
-                vecA.set(0, 0, 0);
-                vecA[axes[a][2]] = v;
-                positions.push(vecA.x * 0.5, vecA.y * 0.5, vecA.z * 0.5);
-                normals.push(vecA.x, vecA.y, vecA.z);
-
-                for (let i = 0; i < segments; i++) {
-                    vecA[axes[a][0]] = Math.sin(360 / segments * i * rad);
-                    vecA[axes[a][1]] = Math.cos(360 / segments * i * rad);
-                    vecA[axes[a][2]] = v * 0.5;
-
-                    vecB.set(0, 0, 0);
-                    vecB[axes[a][2]] = v;
-
-                    positions.push(vecA.x, vecA.y, vecA.z);
-                    normals.push(vecB.x, vecB.y, vecB.z);
-                }
-            }
-
-            for (let i = 0; i < segments; i++) {
-                // sides
-                indices.push(i, i + segments, (i + 1) % segments);
-                indices.push(i + segments, (i + 1) % segments + segments, (i + 1) % segments);
-
-                // lids
-                indices.push(segments * 2, segments * 2 + i + 1, segments * 2 + (i + 1) % segments + 1);
-                indices.push(segments * 3 + 1, segments * 3 + (i + 1) % segments + 2, segments * 3 + i + 2);
-            }
-            models[`cylinder-${a}`] = createModel({
-                positions: positions,
-                normals: normals,
-                indices: indices,
-                matDefault: materialDefault,
-                matBehind: materialBehind,
-                matOccluder: materialOccluder
-            });
-        }
+        models['cylinder-x'] = createModel({
+            mesh: pc.Mesh.fromGeometry(app.graphicsDevice, new pc.CylinderGeometry({
+                radius: 1,
+                height: 1,
+                capSegments: 72
+            })),
+            matDefault: materialDefault,
+            matBehind: materialBehind,
+            matOccluder: materialOccluder
+        });
+        models['cylinder-x'].graph.setLocalEulerAngles(0, 0, -90);
+        models['cylinder-y'] = createModel({
+            mesh: pc.Mesh.fromGeometry(app.graphicsDevice, new pc.CylinderGeometry({
+                radius: 1,
+                height: 1,
+                capSegments: 72
+            })),
+            matDefault: materialDefault,
+            matBehind: materialBehind,
+            matOccluder: materialOccluder
+        });
+        models['cylinder-z'] = createModel({
+            mesh: pc.Mesh.fromGeometry(app.graphicsDevice, new pc.CylinderGeometry({
+                radius: 1,
+                height: 1,
+                capSegments: 72
+            })),
+            matDefault: materialDefault,
+            matBehind: materialBehind,
+            matOccluder: materialOccluder
+        });
+        models['cylinder-z'].graph.setLocalEulerAngles(90, 0, 0);
 
         // ================
         // capsules
