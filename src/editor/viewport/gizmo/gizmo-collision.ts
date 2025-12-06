@@ -4,19 +4,18 @@ import { cloneColorMaterial, createColorMaterial } from '../viewport-color-mater
 
 editor.once('load', () => {
     let app;
-    // selected entity gizmos
-    const entities = { };
-    let selected = { };
-    // pool of gizmos
+    let container;
+    let selected = {};
+
+    const entities: Record<string, Gizmo> = {};
     const pool = [];
-    // colors
+
     const alphaFront = 0.6;
     const alphaBehind = 0.2;
     const colorBehind = new pc.Color(1, 1, 1, 0.05);
     const colorPrimary = new pc.Color(1, 1, 1);
     const colorOccluder = new pc.Color(1, 1, 1, 1);
     const colorDefault = [1, 1, 1];
-    let container;
 
     const materialDefault = createColorMaterial();
     materialDefault.name = 'collision';
@@ -43,11 +42,16 @@ editor.once('load', () => {
     materialOccluder.depthTest = true;
     materialOccluder.update();
 
-    const models = { };
-    const materials = { };
-    const poolModels = { 'box': [], 'sphere': [], 'capsule-x': [], 'capsule-y': [], 'capsule-z': [], 'cylinder-x': [], 'cylinder-y': [], 'cylinder-z': [], 'cone-x': [], 'cone-y': [], 'cone-z': [] };
+    const models = {};
+    const materials = {};
+    const shaderCapsule = {};
     const axesNames = { 0: 'x', 1: 'y', 2: 'z' };
-    const shaderCapsule = { };
+    const poolModels = {
+        'box': [], 'sphere': [],
+        'capsule-x': [], 'capsule-y': [], 'capsule-z': [],
+        'cylinder-x': [], 'cylinder-y': [], 'cylinder-z': [],
+        'cone-x': [], 'cone-y': [], 'cone-z': []
+    };
 
     const layerFront = editor.call('gizmo:layers', 'Bright Collision');
     const layerBack = editor.call('gizmo:layers', 'Dim Gizmo');
@@ -58,12 +62,12 @@ editor.once('load', () => {
             return visible;
         }
 
-        if (visible === !!state) {
+        const newState = !!state;
+        if (visible === newState) {
             return;
         }
 
-        visible = !!state;
-
+        visible = newState;
         if (visible) {
             editor.call('gizmo:zone:visible', false);
         }
@@ -72,48 +76,33 @@ editor.once('load', () => {
         editor.call('viewport:render');
     });
 
-    // gizmo class
     class Gizmo {
         _link: any = null;
-
-        lines: any[] = [];
-
-        events: any[] = [];
-
-        type: string = '';
-
-        asset: number = 0;
-
         entity: any = null;
-
         color: any = null;
+        wireframeMesh: any = null;
+        events: any[] = [];
+        type = '';
+        asset = 0;
 
-        wireframeMesh: any;
-
-        // update lines
         update() {
-            if (!app) {
-                return;
-            } // webgl not available
-
-            if (!this._link || !this._link.entity) {
+            if (!app || !this._link?.entity) {
                 return;
             }
 
             const select = selected[this._link.get('resource_id')];
-            const collision = this._link.entity.collision;
-            this.entity.enabled = this._link.entity.enabled && collision && collision.enabled && (select || visible);
+            const { collision } = this._link.entity;
+            this.entity.enabled = this._link.entity.enabled && collision?.enabled && (select || visible);
             if (!this.entity.enabled) {
                 this._link.entity.__noIcon = false;
                 return;
             }
 
             this._link.entity.__noIcon = true;
-            this.entity.setPosition(this._link.entity.collision.getShapePosition());
-            this.entity.setRotation(this._link.entity.collision.getShapeRotation());
+            this.entity.setPosition(collision.getShapePosition());
+            this.entity.setRotation(collision.getShapeRotation());
 
             let type = collision.type;
-
             if (type === 'cylinder' || type === 'capsule' || type === 'cone') {
                 type += `-${axesNames[collision.axis]}`;
             }
@@ -122,86 +111,80 @@ editor.once('load', () => {
                 this.type = type;
 
                 if (!this.color) {
+                    const guid = this._link.entity.getGuid();
                     let hash = 0;
-                    const string = this._link.entity.getGuid();
-                    for (let i = 0; i < string.length; i++) {
-                        hash += string.charCodeAt(i);
+                    for (const char of guid) {
+                        hash += char.charCodeAt(0);
                     }
-
                     this.color = editor.call('color:hsl2rgb', (hash % 128) / 128, 0.5, 0.5);
                 }
 
                 this.wireframeMesh = null;
 
-                // set new model based on type
                 if (models[this.type]) {
-                    // get current model
+                    // return current model to pool
                     let model = this.entity.model.model;
                     if (model) {
-                        // put back in pool
                         layerFront.removeMeshInstances(model.meshInstances);
                         layerBack.removeMeshInstances(model.meshInstances);
-
                         this.entity.removeChild(model.getGraph());
-                        if (poolModels[model._type]) {
-                            poolModels[model._type].push(model);
-                        }
-                    }
-                    // get from pool
-                    model = null;
-                    if (poolModels[this.type]) {
-                        model = poolModels[this.type].shift();
+                        poolModels[model._type]?.push(model);
                     }
 
+                    // get from pool or clone
+                    model = poolModels[this.type]?.shift();
                     if (!model) {
-                        // no in pool
                         model = models[this.type].clone();
                         model._type = this.type;
 
-                        const color = this.color || colorDefault;
+                        const color = this.color ?? colorDefault;
+                        const colorArray = new Float32Array([color[0], color[1], color[2], alphaFront]);
 
-                        let old = model.meshInstances[0].material;
-                        model.meshInstances[0].setParameter('offset', 0);
-                        model.meshInstances[0].__editor = true;
-                        model.meshInstances[0].__collision = true;
-                        model.meshInstances[0].material = old.clone();
-                        model.meshInstances[0].material.getShaderVariant = old.getShaderVariant;
-                        model.meshInstances[0].material.depthBias = -8;
-                        model.meshInstances[0].material.setParameter('uColor', new Float32Array([color[0], color[1], color[2], alphaFront]));
-                        model.meshInstances[0].material.update();
+                        // setup front mesh instance
+                        const mi0 = model.meshInstances[0];
+                        const mat0 = mi0.material.clone();
+                        mat0.getShaderVariant = mi0.material.getShaderVariant;
+                        mat0.depthBias = -8;
+                        mat0.setParameter('uColor', colorArray);
+                        mat0.update();
+                        mi0.material = mat0;
+                        mi0.setParameter('offset', 0);
+                        mi0.__editor = true;
+                        mi0.__collision = true;
 
-                        old = model.meshInstances[1].material;
-                        model.meshInstances[1].setParameter('offset', 0.001);
-                        model.meshInstances[1].pick = false;
-                        model.meshInstances[1].__editor = true;
-                        model.meshInstances[1].material = old.clone();
-                        model.meshInstances[1].material.getShaderVariant = old.getShaderVariant;
-                        model.meshInstances[0].material.setParameter('uColor', new Float32Array([color[0], color[1], color[2], alphaFront]));
-                        model.meshInstances[1].material.update();
-                        model.meshInstances[1].__useFrontLayer = true;
+                        // setup behind mesh instance
+                        const mi1 = model.meshInstances[1];
+                        const mat1 = mi1.material.clone();
+                        mat1.getShaderVariant = mi1.material.getShaderVariant;
+                        mat1.setParameter('uColor', colorArray);
+                        mat1.update();
+                        mi1.material = mat1;
+                        mi1.setParameter('offset', 0.001);
+                        mi1.pick = false;
+                        mi1.__editor = true;
+                        mi1.__useFrontLayer = true;
 
-                        model.meshInstances[2].setParameter('offset', 0);
-                        model.meshInstances[2].pick = false;
-                        model.meshInstances[2].__editor = true;
+                        // setup occluder mesh instance
+                        const mi2 = model.meshInstances[2];
+                        mi2.setParameter('offset', 0);
+                        mi2.pick = false;
+                        mi2.__editor = true;
 
-                        switch (this.type) {
-                            case 'capsule-x':
-                            case 'capsule-y':
-                            case 'capsule-z':
-                                for (let i = 0; i < model.meshInstances.length; i++) {
-                                    model.meshInstances[i].setParameter('radius', collision.radius || 0.5);
-                                    model.meshInstances[i].setParameter('height', collision.height || 2);
-                                }
-                                break;
+                        // set capsule-specific parameters
+                        if (this.type.startsWith('capsule-')) {
+                            for (const mi of model.meshInstances) {
+                                mi.setParameter('radius', collision.radius || 0.5);
+                                mi.setParameter('height', collision.height || 2);
+                            }
                         }
                     }
-                    // set to model
+
                     this.entity.model.model = model;
 
-                    // set masks after model is assigned to ensure they are correct
-                    model.meshInstances.forEach((mi) => {
+                    // set masks after model is assigned
+                    for (const mi of model.meshInstances) {
                         mi.mask = GIZMO_MASK;
-                    });
+                    }
 
                     this.entity.setLocalScale(1, 1, 1);
                 } else if (this.type === 'mesh') {
@@ -229,7 +212,11 @@ editor.once('load', () => {
                     this.entity.setLocalScale(radius, radius, radius);
                     break;
                 case 'box':
-                    this.entity.setLocalScale(collision.halfExtents.x || 0.00001, collision.halfExtents.y || 0.00001, collision.halfExtents.z || 0.00001);
+                    this.entity.setLocalScale(
+                        collision.halfExtents.x || 0.00001,
+                        collision.halfExtents.y || 0.00001,
+                        collision.halfExtents.z || 0.00001
+                    );
                     break;
                 case 'cylinder-x':
                 case 'cone-x':
@@ -246,48 +233,41 @@ editor.once('load', () => {
                 case 'capsule-z':
                     this.entity.setLocalScale(radius, radius, height);
                     break;
-                case 'mesh':
-                    {
-                        this.entity.setLocalScale(this._link.entity.getWorldTransform().getScale());
+                case 'mesh': {
+                    this.entity.setLocalScale(this._link.entity.getWorldTransform().getScale());
 
-                        // if the asset has changed
-                        const isRender = !!collision.renderAsset;
-                        const asset = isRender ? collision.renderAsset : collision.asset;
-                        if (asset !== this.asset) {
-
-                            this.asset = asset;
-                            this.createWireframe(this.asset, isRender);
-                            if (!this.asset) {
-                                this.entity.enabled = false;
-
-                                if (isRender) {
-                                    this.entity.render.meshInstances = [];
-                                } else {
-                                    this.entity.model.model = null;
-                                }
-                                return;
+                    const isRender = !!collision.renderAsset;
+                    const asset = isRender ? collision.renderAsset : collision.asset;
+                    if (asset !== this.asset) {
+                        this.asset = asset;
+                        this.createWireframe(this.asset, isRender);
+                        if (!this.asset) {
+                            this.entity.enabled = false;
+                            if (isRender) {
+                                this.entity.render.meshInstances = [];
+                            } else {
+                                this.entity.model.model = null;
                             }
+                            return;
                         }
+                    }
 
-                        // when model collision mesh gets clicked on again, the mesh instance of the model is selected
-                        // Note: render does not have an equivalent of this and so this is not implemented
-                        if (this.entity.model.model) {
-                            const picking = !visible && this._link.entity.model && this._link.entity.model.enabled && this._link.entity.model.type === 'asset' && this._link.entity.model.asset === collision.asset;
-                            if (picking !== this.entity.model.model.__picking) {
-                                this.entity.model.model.__picking = picking;
-
-                                const meshes = this.entity.model.meshInstances;
-                                for (let i = 0; i < meshes.length; i++) {
-                                    if (!meshes[i].__collision) {
-                                        continue;
-                                    }
-
-                                    meshes[i].pick = !picking;
+                    // when model collision mesh gets clicked on again, select the mesh instance
+                    // Note: render does not have an equivalent of this
+                    if (this.entity.model.model) {
+                        const { model: entityModel } = this._link.entity;
+                        const picking = !visible && entityModel?.enabled && entityModel.type === 'asset' && entityModel.asset === collision.asset;
+                        if (picking !== this.entity.model.model.__picking) {
+                            this.entity.model.model.__picking = picking;
+                            for (const mesh of this.entity.model.meshInstances) {
+                                if (mesh.__collision) {
+                                    mesh.pick = !picking;
                                 }
                             }
                         }
                     }
                     break;
+                }
             }
         }
 
@@ -295,29 +275,22 @@ editor.once('load', () => {
         link(obj) {
             if (!app) {
                 return;
-            } // webgl not available
+            }
 
             this.unlink();
             this._link = obj;
 
-            const self = this;
-
             this.events.push(this._link.once('destroy', () => {
-                self.unlink();
+                this.unlink();
             }));
 
             this.color = null;
 
-            // hack: override addModelToLayers to selectively put some
-            // mesh instances to the front and others to the back layer depending
-            // on the __useFrontLayer property
+            // override addModelToLayers to selectively put some mesh instances
+            // to the front and others to the back layer depending on __useFrontLayer
             const customAddMeshInstancesToLayers = function () {
-                const frontMeshInstances = this.meshInstances.filter((mi) => {
-                    return mi.__useFrontLayer;
-                });
-                const backMeshInstances = this.meshInstances.filter((mi) => {
-                    return !mi.__useFrontLayer;
-                });
+                const frontMeshInstances = this.meshInstances.filter(mi => mi.__useFrontLayer);
+                const backMeshInstances = this.meshInstances.filter(mi => !mi.__useFrontLayer);
 
                 layerBack.addMeshInstances(frontMeshInstances);
                 layerFront.addMeshInstances(backMeshInstances);
@@ -344,27 +317,18 @@ editor.once('load', () => {
             });
             this.entity.render.addToLayers = customAddMeshInstancesToLayers;
 
-            this.entity._getEntity = function () {
-                return self._link.entity;
-            };
+            this.entity._getEntity = () => this._link.entity;
 
             container.addChild(this.entity);
         }
 
-        // unlink
         unlink() {
-            if (!app) {
-                return;
-            } // webgl not available
-
-            if (!this._link) {
+            if (!app || !this._link) {
                 return;
             }
 
-            for (let i = 0; i < this.events.length; i++) {
-                if (this.events[i] && this.events[i].unbind) {
-                    this.events[i].unbind();
-                }
+            for (const event of this.events) {
+                event?.unbind?.();
             }
 
             this.events = [];
@@ -375,7 +339,6 @@ editor.once('load', () => {
 
             const model = this.entity.model.model;
             if (model) {
-                // put back in pool
                 layerFront.removeMeshInstances(model.meshInstances);
                 layerBack.removeMeshInstances(model.meshInstances);
                 this.entity.removeChild(model.getGraph());
@@ -387,13 +350,12 @@ editor.once('load', () => {
             this.entity.destroy();
         }
 
-        // create wireframe
-        createWireframe(asset, isRender) {
+        createWireframe(assetId, isRender) {
             if (!app) {
                 return;
-            } // webgl not available
+            }
 
-            asset = app.assets.get(asset);
+            const asset = app.assets.get(assetId);
             if (!asset) {
                 return null;
             }
@@ -405,17 +367,15 @@ editor.once('load', () => {
                     this.entity.model.model = createModelCopy(asset.resource, this.color);
                 }
             } else {
-                const self = this;
-
-                this.events.push(asset.once('load', (asset) => {
-                    if (self.asset !== asset.id) {
+                this.events.push(asset.once('load', (loadedAsset) => {
+                    if (this.asset !== loadedAsset.id) {
                         return;
                     }
 
                     if (isRender) {
-                        self.entity.render.meshInstances = createRenderCopy(asset.resource, self.color);
+                        this.entity.render.meshInstances = createRenderCopy(loadedAsset.resource, this.color);
                     } else {
-                        self.entity.model.model = createModelCopy(asset.resource, self.color);
+                        this.entity.model.model = createModelCopy(loadedAsset.resource, this.color);
                     }
                 }));
             }
@@ -425,23 +385,19 @@ editor.once('load', () => {
     editor.on('entities:add', (entity) => {
         const key = entity.get('resource_id');
 
-        const addGizmo = function () {
+        const addGizmo = () => {
             if (entities[key]) {
                 return;
             }
 
-            let gizmo = pool.shift();
-            if (!gizmo) {
-                gizmo = new Gizmo();
-            }
-
+            const gizmo = pool.shift() ?? new Gizmo();
             gizmo.link(entity);
             entities[key] = gizmo;
 
             editor.call('viewport:render');
         };
 
-        const removeGizmo = function () {
+        const removeGizmo = () => {
             if (!entities[key]) {
                 return;
             }
@@ -463,11 +419,11 @@ editor.once('load', () => {
     });
 
     editor.on('selector:change', (type, items) => {
-        selected = { };
+        selected = {};
 
-        if (type === 'entity' && items && items.length) {
-            for (let i = 0; i < items.length; i++) {
-                selected[items[i].get('resource_id')] = true;
+        if (type === 'entity' && items?.length) {
+            for (const item of items) {
+                selected[item.get('resource_id')] = true;
             }
         }
     });
@@ -618,26 +574,26 @@ void main(void)
 }
             `.trim();
 
-        const makeCapsuleMaterial = function (a) {
-            const matDefault = materials[`capsule-${a}`] = cloneColorMaterial(materialDefault);
+        const makeCapsuleMaterial = (axis) => {
+            const matDefault = materials[`capsule-${axis}`] = cloneColorMaterial(materialDefault);
             const _getShaderVariant = matDefault.getShaderVariant;
             matDefault.getShaderVariant = function (params) {
                 if (params.pass === pc.SHADER_FORWARD) {
-                    if (!shaderCapsule[a]) {
-                        shaderCapsule[a] = new pc.Shader(params.device, {
+                    if (!shaderCapsule[axis]) {
+                        shaderCapsule[axis] = new pc.Shader(params.device, {
                             attributes: {
                                 aPosition: pc.SEMANTIC_POSITION,
                                 aNormal: pc.SEMANTIC_NORMAL,
                                 aSide: pc.SEMANTIC_ATTR15
                             },
-                            vshader: capsuleVShader.replace('{axis}', a),
+                            vshader: capsuleVShader.replace('{axis}', axis),
                             fshader: capsuleFShader
                         });
                     }
-                    return shaderCapsule[a];
+                    return shaderCapsule[axis];
                 }
                 if (params.pass === pc.SHADER_PICK) {
-                    const shaderName = `pick-${a}`;
+                    const shaderName = `pick-${axis}`;
                     if (!shaderCapsule[shaderName]) {
                         shaderCapsule[shaderName] = new pc.Shader(params.device, {
                             attributes: {
@@ -645,65 +601,53 @@ void main(void)
                                 aNormal: pc.SEMANTIC_NORMAL,
                                 aSide: pc.SEMANTIC_ATTR15
                             },
-                            vshader: capsuleVShaderPick.replace('{axis}', a),
+                            vshader: capsuleVShaderPick.replace('{axis}', axis),
                             fshader: capsuleFShaderPick
                         });
                     }
                     return shaderCapsule[shaderName];
                 }
-                _getShaderVariant.call(this, params);
-
+                return _getShaderVariant.call(this, params);
             };
 
             matDefault.update();
 
-            const matBehind = materials[`capsuleBehind-${a}`] = materialBehind.clone();
+            const matBehind = materials[`capsuleBehind-${axis}`] = materialBehind.clone();
             matBehind.getShaderVariant = matDefault.getShaderVariant;
             matBehind.update();
 
-            const matOccluder = materials[`capsuleOcclude-${a}`] = materialOccluder.clone();
+            const matOccluder = materials[`capsuleOcclude-${axis}`] = materialOccluder.clone();
             matOccluder.getShaderVariant = matDefault.getShaderVariant;
             matOccluder.update();
         };
 
-        for (const key in axesNames) {
-            makeCapsuleMaterial(axesNames[key]);
+        for (const axis of Object.values(axesNames)) {
+            makeCapsuleMaterial(axis);
         }
 
-        const createModel = function (args) {
-            const mesh = args.mesh;
-
-            // node
+        const createModel = (args) => {
+            const { mesh, matDefault, matBehind, matOccluder } = args;
             const node = new pc.GraphNode();
-            // meshInstance
-            const meshInstance = new pc.MeshInstance(mesh, args.matDefault, node);
+
+            const meshInstance = new pc.MeshInstance(mesh, matDefault, node);
             meshInstance.__editor = true;
             meshInstance.__collision = true;
-            // meshInstance.layer = 12;
             meshInstance.castShadow = false;
-            // meshInstance.castLightmapShadow = false;
             meshInstance.receiveShadow = false;
-            // meshInstance.updateKey();
-            // meshInstanceBehind
-            const meshInstanceBehind = new pc.MeshInstance(mesh, args.matBehind, node);
+
+            const meshInstanceBehind = new pc.MeshInstance(mesh, matBehind, node);
             meshInstanceBehind.__editor = true;
             meshInstanceBehind.pick = false;
-            // meshInstanceBehind.layer = 2;
             meshInstanceBehind.drawToDepth = false;
             meshInstanceBehind.castShadow = false;
-            // meshInstanceBehind.castLightmapShadow = false;
             meshInstanceBehind.receiveShadow = false;
-            // meshInstanceBehind.updateKey();
-            // meshInstanceOccluder
-            const meshInstanceOccluder = new pc.MeshInstance(mesh, args.matOccluder, node);
+
+            const meshInstanceOccluder = new pc.MeshInstance(mesh, matOccluder, node);
             meshInstanceOccluder.__editor = true;
             meshInstanceOccluder.pick = false;
-            // meshInstanceOccluder.layer = 9;
             meshInstanceOccluder.castShadow = false;
-            // meshInstanceOccluder.castLightmapShadow = false;
             meshInstanceOccluder.receiveShadow = false;
-            // meshInstanceOccluder.updateKey();
-            // model
+
             const model = new pc.Model();
             model.graph = node;
             model.meshInstances = [meshInstance, meshInstanceBehind, meshInstanceOccluder];
@@ -838,25 +782,22 @@ void main(void)
     });
 
     // prepares mesh instances to be rendered as collision meshes
-    const prepareMeshInstances = function (meshInstances, color) {
-
+    const prepareMeshInstances = (meshInstances, color) => {
         const meshesExtra = [];
 
-        for (let i = 0; i < meshInstances.length; i++) {
-
+        for (const mi of meshInstances) {
             // clone original instance and set it up
-            meshInstances[i].material = cloneColorMaterial(materialDefault);
-            meshInstances[i].material.getShaderVariant = materialDefault.getShaderVariant;
-            meshInstances[i].material.color = new pc.Color(color[0], color[1], color[2], alphaFront);
-            meshInstances[i].material.update();
-            meshInstances[i].__editor = true;
-            meshInstances[i].__collision = true;
-            meshInstances[i].castShadow = false;
-            meshInstances[i].receiveShadow = false;
-            meshInstances[i].setParameter('offset', 0);
+            mi.material = cloneColorMaterial(materialDefault);
+            mi.material.getShaderVariant = materialDefault.getShaderVariant;
+            mi.material.color = new pc.Color(color[0], color[1], color[2], alphaFront);
+            mi.material.update();
+            mi.__editor = true;
+            mi.__collision = true;
+            mi.castShadow = false;
+            mi.receiveShadow = false;
+            mi.setParameter('offset', 0);
 
-            const node = meshInstances[i].node;
-            const mesh = meshInstances[i].mesh;
+            const { node, mesh } = mi;
 
             // additional instance for behind the mesh
             const meshInstanceBehind = new pc.MeshInstance(mesh, cloneColorMaterial(materialBehind), node);
@@ -886,29 +827,23 @@ void main(void)
     };
 
     // returns an array of meshInstances
-    var createRenderCopy = function (resource, color) {
-        let meshInstances = [];
-        const meshes = resource.meshes;
-        for (let i = 0; i < meshes.length; i++) {
-            const material = cloneColorMaterial(materialDefault);
-            const meshInstance = new pc.MeshInstance(meshes[i], material);
-            meshInstances.push(meshInstance);
-        }
-
+    const createRenderCopy = (resource, color) => {
+        let meshInstances = resource.meshes.map((mesh) => {
+            return new pc.MeshInstance(mesh, cloneColorMaterial(materialDefault));
+        });
         meshInstances = prepareMeshInstances(meshInstances, color);
         return meshInstances;
     };
 
-    var createModelCopy = function (resource, color) {
+    const createModelCopy = (resource, color) => {
         const model = resource.clone();
-        const meshInstances = prepareMeshInstances(model.meshInstances, color);
-        model.meshInstances = meshInstances;
+        model.meshInstances = prepareMeshInstances(model.meshInstances, color);
         return model;
     };
 
-    editor.on('viewport:gizmoUpdate', (dt) => {
-        for (const key in entities) {
-            entities[key].update();
+    editor.on('viewport:gizmoUpdate', () => {
+        for (const gizmo of Object.values(entities)) {
+            gizmo.update();
         }
     });
 });
