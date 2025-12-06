@@ -628,8 +628,8 @@ class EntitiesTreeView extends TreeView {
      *
      * @param {Observer} entity - The entity whose tree item to update.
      * @param {boolean} [parentDisabled] - Whether a parent in the hierarchy is disabled.
-     *        If not provided, it will be calculated.
-     * @param {boolean} [recurse=false] - Whether to recursively update descendants.
+     * If not provided, it will be calculated.
+     * @param {boolean} [recurse] - Whether to recursively update descendants.
      */
     _updateTreeItemEnabledState(entity, parentDisabled, recurse = false) {
         const item = this.getTreeItemForEntity(entity.get('resource_id'));
