@@ -233,18 +233,26 @@ editor.once('load', () => {
                     break;
                 case 'cylinder-x':
                 case 'cone-x':
-                case 'capsule-x':
                     this.entity.setLocalScale(height, radius, radius);
                     break;
                 case 'cylinder-y':
                 case 'cone-y':
-                case 'capsule-y':
                     this.entity.setLocalScale(radius, height, radius);
                     break;
                 case 'cylinder-z':
                 case 'cone-z':
-                case 'capsule-z':
                     this.entity.setLocalScale(radius, radius, height);
+                    break;
+                case 'capsule-x':
+                case 'capsule-y':
+                case 'capsule-z':
+                    // Capsules use shader-based sizing, not entity scale
+                    // Update the radius and height parameters on the mesh instances
+                    this.entity.setLocalScale(1, 1, 1);
+                    for (const mi of this.entity.model.model.meshInstances) {
+                        mi.setParameter('radius', radius);
+                        mi.setParameter('height', height);
+                    }
                     break;
                 case 'mesh': {
                     this.entity.setLocalScale(this._link.entity.getWorldTransform().getScale());
@@ -513,6 +521,10 @@ void main(void)
         materialBehind.getShaderVariant = materialDefault.getShaderVariant;
         materialOccluder.getShaderVariant = materialDefault.getShaderVariant;
 
+        // Capsule vertex shader - handles proper hemisphere scaling and positioning
+        // The geometry is a unit capsule (radius=1) with hemispheres at y=0
+        // aSide indicates which hemisphere: +1 for top, -1 for bottom
+        // The shader scales by radius and offsets hemispheres to create the cylindrical section
         const capsuleVShader = `
 attribute vec3 aPosition;
 attribute vec3 aNormal;
@@ -530,8 +542,12 @@ varying vec3 vPosition;
 
 void main(void)
 {
+    // Scale the entire position by radius to get correct hemisphere size
     vec3 pos = aPosition * radius;
-    pos.{axis} += aSide * max(height / 2.0 - radius, 0.0);
+    // Offset the hemispheres apart to create the cylindrical section
+    // When height = 2*radius, offset is 0 (hemispheres touching)
+    // When height > 2*radius, offset > 0 (cylindrical gap)
+    pos.{axis} += aSide * max(height * 0.5 - radius, 0.0);
     vec4 posW = matrix_model * vec4(pos, 1.0);
     vNormal = normalize(matrix_normal * aNormal);
     posW += vec4(vNormal * offset, 0.0);
@@ -559,7 +575,6 @@ void main(void)
 
         const capsuleVShaderPick = `
 attribute vec3 aPosition;
-attribute vec3 aNormal;
 attribute float aSide;
 
 uniform mat4 matrix_model;
@@ -570,7 +585,7 @@ uniform float height;
 void main(void)
 {
     vec3 pos = aPosition * radius;
-    pos.{axis} += aSide * max(height / 2.0 - radius, 0.0);
+    pos.{axis} += aSide * max(height * 0.5 - radius, 0.0);
     vec4 posW = matrix_model * vec4(pos, 1.0);
     gl_Position = matrix_viewProjection * posW;
 }
@@ -757,41 +772,194 @@ void main(void)
 
         // ================
         // capsules
+        // Create custom capsule geometry with aSide attribute for proper shader-based sizing
+        // The geometry is a unit capsule (radius=1) with two hemispheres centered at y=0
+        // Each vertex has aSide = +1 (top) or -1 (bottom) to indicate which hemisphere
+        const createCapsuleGeometry = (axis) => {
+            const segments = 32; // segments around the circumference
+            const rings = 16; // rings per hemisphere
 
-        models['capsule-x'] = createModel({
-            mesh: pc.Mesh.fromGeometry(app.graphicsDevice, new pc.CapsuleGeometry({
-                height: 2.0,
-                radius: 0.5
-            })),
-            matDefault: materialDefault,
-            matBehind: materialBehind,
-            matOccluder: materialOccluder
-        });
-        models['capsule-x'].graph.setLocalEulerAngles(0.0, 0.0, -90.0);
-        models['capsule-x'].graph.setLocalScale(2.0, 0.5, 2.0);
+            const positions = [];
+            const normals = [];
+            const sides = []; // aSide attribute
+            const indices = [];
 
-        models['capsule-y'] = createModel({
-            mesh: pc.Mesh.fromGeometry(app.graphicsDevice, new pc.CapsuleGeometry({
-                height: 2.0,
-                radius: 0.5
-            })),
-            matDefault: materialDefault,
-            matBehind: materialBehind,
-            matOccluder: materialOccluder
-        });
-        models['capsule-y'].graph.setLocalScale(2.0, 0.5, 2.0);
+            // Axis mapping: [radial1, radial2, height]
+            const axisMap = {
+                'x': [2, 1, 0],
+                'y': [0, 2, 1],
+                'z': [1, 0, 2]
+            };
+            const [r1, r2, h] = axisMap[axis];
 
-        models['capsule-z'] = createModel({
-            mesh: pc.Mesh.fromGeometry(app.graphicsDevice, new pc.CapsuleGeometry({
-                height: 2.0,
-                radius: 0.5
-            })),
-            matDefault: materialDefault,
-            matBehind: materialBehind,
-            matOccluder: materialOccluder
-        });
-        models['capsule-z'].graph.setLocalEulerAngles(90.0, 0.0, 0.0);
-        models['capsule-z'].graph.setLocalScale(2.0, 0.5, 2.0);
+            // Create top hemisphere (aSide = +1)
+            // Vertices go from equator (phi=0) to pole (phi=PI/2)
+            for (let ring = 0; ring <= rings; ring++) {
+                const phi = (ring / rings) * (Math.PI / 2);
+                const y = Math.sin(phi);
+                const r = Math.cos(phi);
+
+                for (let seg = 0; seg <= segments; seg++) {
+                    const theta = (seg / segments) * Math.PI * 2;
+                    const x = r * Math.cos(theta);
+                    const z = r * Math.sin(theta);
+
+                    // Map to correct axis
+                    const pos = [0, 0, 0];
+                    const norm = [0, 0, 0];
+                    pos[r1] = x;
+                    pos[r2] = z;
+                    pos[h] = y;
+                    norm[r1] = x;
+                    norm[r2] = z;
+                    norm[h] = y;
+
+                    positions.push(pos[0], pos[1], pos[2]);
+                    normals.push(norm[0], norm[1], norm[2]);
+                    sides.push(1); // Top hemisphere
+                }
+            }
+
+            const topVertexCount = (rings + 1) * (segments + 1);
+
+            // Create bottom hemisphere (aSide = -1)
+            // Vertices go from equator (phi=0) to pole (phi=-PI/2)
+            for (let ring = 0; ring <= rings; ring++) {
+                const phi = (ring / rings) * (Math.PI / 2);
+                const y = -Math.sin(phi);
+                const r = Math.cos(phi);
+
+                for (let seg = 0; seg <= segments; seg++) {
+                    const theta = (seg / segments) * Math.PI * 2;
+                    const x = r * Math.cos(theta);
+                    const z = r * Math.sin(theta);
+
+                    const pos = [0, 0, 0];
+                    const norm = [0, 0, 0];
+                    pos[r1] = x;
+                    pos[r2] = z;
+                    pos[h] = y;
+                    norm[r1] = x;
+                    norm[r2] = z;
+                    norm[h] = y;
+
+                    positions.push(pos[0], pos[1], pos[2]);
+                    normals.push(norm[0], norm[1], norm[2]);
+                    sides.push(-1); // Bottom hemisphere
+                }
+            }
+
+            // Generate indices for top hemisphere
+            for (let ring = 0; ring < rings; ring++) {
+                for (let seg = 0; seg < segments; seg++) {
+                    const curr = ring * (segments + 1) + seg;
+                    const next = curr + segments + 1;
+
+                    indices.push(curr, next, curr + 1);
+                    indices.push(curr + 1, next, next + 1);
+                }
+            }
+
+            // Generate indices for bottom hemisphere
+            for (let ring = 0; ring < rings; ring++) {
+                for (let seg = 0; seg < segments; seg++) {
+                    const curr = topVertexCount + ring * (segments + 1) + seg;
+                    const next = curr + segments + 1;
+
+                    // Reverse winding for bottom hemisphere
+                    indices.push(curr, curr + 1, next);
+                    indices.push(curr + 1, next + 1, next);
+                }
+            }
+
+            // Generate indices connecting the two hemispheres (cylindrical section)
+            // Top hemisphere equator is at ring 0, bottom hemisphere equator is at ring 0
+            for (let seg = 0; seg < segments; seg++) {
+                const topEquator = seg;
+                const bottomEquator = topVertexCount + seg;
+
+                // Winding order for outward-facing normals
+                indices.push(topEquator, topEquator + 1, bottomEquator);
+                indices.push(topEquator + 1, bottomEquator + 1, bottomEquator);
+            }
+
+            // Create the mesh with custom aSide attribute
+            const mesh = new pc.Mesh(app.graphicsDevice);
+
+            // Create vertex format with position, normal, and aSide
+            const vertexFormat = new pc.VertexFormat(app.graphicsDevice, [
+                { semantic: pc.SEMANTIC_POSITION, components: 3, type: pc.TYPE_FLOAT32 },
+                { semantic: pc.SEMANTIC_NORMAL, components: 3, type: pc.TYPE_FLOAT32 },
+                { semantic: pc.SEMANTIC_ATTR15, components: 1, type: pc.TYPE_FLOAT32 }
+            ]);
+
+            const vertexCount = positions.length / 3;
+            const vertexBuffer = new pc.VertexBuffer(app.graphicsDevice, vertexFormat, vertexCount);
+            const vertexData = new Float32Array(vertexBuffer.lock());
+
+            for (let i = 0; i < vertexCount; i++) {
+                const offset = i * 7; // 3 pos + 3 normal + 1 side
+                vertexData[offset] = positions[i * 3];
+                vertexData[offset + 1] = positions[i * 3 + 1];
+                vertexData[offset + 2] = positions[i * 3 + 2];
+                vertexData[offset + 3] = normals[i * 3];
+                vertexData[offset + 4] = normals[i * 3 + 1];
+                vertexData[offset + 5] = normals[i * 3 + 2];
+                vertexData[offset + 6] = sides[i];
+            }
+
+            vertexBuffer.unlock();
+            mesh.vertexBuffer = vertexBuffer;
+
+            // Create index buffer
+            const indexBuffer = new pc.IndexBuffer(app.graphicsDevice, pc.INDEXFORMAT_UINT16, indices.length);
+            const indexData = new Uint16Array(indexBuffer.lock());
+            indexData.set(indices);
+            indexBuffer.unlock();
+
+            mesh.indexBuffer[0] = indexBuffer;
+            mesh.primitive[0].type = pc.PRIMITIVE_TRIANGLES;
+            mesh.primitive[0].base = 0;
+            mesh.primitive[0].count = indices.length;
+            mesh.primitive[0].indexed = true;
+
+            return mesh;
+        };
+
+        // Create capsule models for each axis with capsule-specific materials
+        const createCapsuleModel = (axis) => {
+            const mesh = createCapsuleGeometry(axis);
+            const node = new pc.GraphNode();
+
+            const meshInstance = new pc.MeshInstance(mesh, materials[`capsule-${axis}`], node);
+            meshInstance.__editor = true;
+            meshInstance.__collision = true;
+            meshInstance.castShadow = false;
+            meshInstance.receiveShadow = false;
+
+            const meshInstanceBehind = new pc.MeshInstance(mesh, materials[`capsuleBehind-${axis}`], node);
+            meshInstanceBehind.__editor = true;
+            meshInstanceBehind.pick = false;
+            meshInstanceBehind.drawToDepth = false;
+            meshInstanceBehind.castShadow = false;
+            meshInstanceBehind.receiveShadow = false;
+
+            const meshInstanceOccluder = new pc.MeshInstance(mesh, materials[`capsuleOcclude-${axis}`], node);
+            meshInstanceOccluder.__editor = true;
+            meshInstanceOccluder.pick = false;
+            meshInstanceOccluder.castShadow = false;
+            meshInstanceOccluder.receiveShadow = false;
+
+            const model = new pc.Model();
+            model.graph = node;
+            model.meshInstances = [meshInstance, meshInstanceBehind, meshInstanceOccluder];
+
+            return model;
+        };
+
+        models['capsule-x'] = createCapsuleModel('x');
+        models['capsule-y'] = createCapsuleModel('y');
+        models['capsule-z'] = createCapsuleModel('z');
     });
 
     // prepares mesh instances to be rendered as collision meshes
