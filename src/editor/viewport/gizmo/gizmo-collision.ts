@@ -44,7 +44,6 @@ editor.once('load', () => {
 
     const models = {};
     const materials = {};
-    const shaderCapsule = {};
     const axesNames = { 0: 'x', 1: 'y', 2: 'z' };
     const poolModels = {
         'box': [],
@@ -522,9 +521,10 @@ void main(void)
         materialOccluder.getShaderVariant = materialDefault.getShaderVariant;
 
         // Capsule vertex shader - handles proper hemisphere scaling and positioning
-        // The geometry is a unit capsule (radius=1) with hemispheres at y=0
+        // The geometry is a Y-axis unit capsule (radius=1) with hemispheres at y=0
         // aSide indicates which hemisphere: +1 for top, -1 for bottom
-        // The shader scales by radius and offsets hemispheres to create the cylindrical section
+        // The shader scales by radius and offsets hemispheres along local Y
+        // Graph rotation handles X and Z axis orientations
         const capsuleVShader = `
 attribute vec3 aPosition;
 attribute vec3 aNormal;
@@ -544,10 +544,10 @@ void main(void)
 {
     // Scale the entire position by radius to get correct hemisphere size
     vec3 pos = aPosition * radius;
-    // Offset the hemispheres apart to create the cylindrical section
+    // Offset the hemispheres apart along local Y to create the cylindrical section
     // When height = 2*radius, offset is 0 (hemispheres touching)
     // When height > 2*radius, offset > 0 (cylindrical gap)
-    pos.{axis} += aSide * max(height * 0.5 - radius, 0.0);
+    pos.y += aSide * max(height * 0.5 - radius, 0.0);
     vec4 posW = matrix_model * vec4(pos, 1.0);
     vNormal = normalize(matrix_normal * aNormal);
     posW += vec4(vNormal * offset, 0.0);
@@ -585,7 +585,7 @@ uniform float height;
 void main(void)
 {
     vec3 pos = aPosition * radius;
-    pos.{axis} += aSide * max(height * 0.5 - radius, 0.0);
+    pos.y += aSide * max(height * 0.5 - radius, 0.0);
     vec4 posW = matrix_model * vec4(pos, 1.0);
     gl_Position = matrix_viewProjection * posW;
 }
@@ -602,56 +602,52 @@ void main(void)
 }
             `.trim();
 
-        const makeCapsuleMaterial = (axis) => {
-            const matDefault = materials[`capsule-${axis}`] = cloneColorMaterial(materialDefault);
-            const _getShaderVariant = matDefault.getShaderVariant;
-            matDefault.getShaderVariant = function (params) {
-                if (params.pass === pc.SHADER_FORWARD) {
-                    if (!shaderCapsule[axis]) {
-                        shaderCapsule[axis] = new pc.Shader(params.device, {
-                            attributes: {
-                                aPosition: pc.SEMANTIC_POSITION,
-                                aNormal: pc.SEMANTIC_NORMAL,
-                                aSide: pc.SEMANTIC_ATTR15
-                            },
-                            vshader: capsuleVShader.replace('{axis}', axis),
-                            fshader: capsuleFShader
-                        });
-                    }
-                    return shaderCapsule[axis];
+        // Create single set of capsule materials (Y-axis, rotation handles other axes)
+        let shaderCapsuleForward;
+        let shaderCapsulePick;
+
+        const matCapsule = materials.capsule = cloneColorMaterial(materialDefault);
+        const _getCapsuleShaderVariant = matCapsule.getShaderVariant;
+        matCapsule.getShaderVariant = function (params) {
+            if (params.pass === pc.SHADER_FORWARD) {
+                if (!shaderCapsuleForward) {
+                    shaderCapsuleForward = new pc.Shader(params.device, {
+                        attributes: {
+                            aPosition: pc.SEMANTIC_POSITION,
+                            aNormal: pc.SEMANTIC_NORMAL,
+                            aSide: pc.SEMANTIC_ATTR15
+                        },
+                        vshader: capsuleVShader,
+                        fshader: capsuleFShader
+                    });
                 }
-                if (params.pass === pc.SHADER_PICK) {
-                    const shaderName = `pick-${axis}`;
-                    if (!shaderCapsule[shaderName]) {
-                        shaderCapsule[shaderName] = new pc.Shader(params.device, {
-                            attributes: {
-                                aPosition: pc.SEMANTIC_POSITION,
-                                aNormal: pc.SEMANTIC_NORMAL,
-                                aSide: pc.SEMANTIC_ATTR15
-                            },
-                            vshader: capsuleVShaderPick.replace('{axis}', axis),
-                            fshader: capsuleFShaderPick
-                        });
-                    }
-                    return shaderCapsule[shaderName];
+                return shaderCapsuleForward;
+            }
+            if (params.pass === pc.SHADER_PICK) {
+                if (!shaderCapsulePick) {
+                    shaderCapsulePick = new pc.Shader(params.device, {
+                        attributes: {
+                            aPosition: pc.SEMANTIC_POSITION,
+                            aNormal: pc.SEMANTIC_NORMAL,
+                            aSide: pc.SEMANTIC_ATTR15
+                        },
+                        vshader: capsuleVShaderPick,
+                        fshader: capsuleFShaderPick
+                    });
                 }
-                return _getShaderVariant.call(this, params);
-            };
-
-            matDefault.update();
-
-            const matBehind = materials[`capsuleBehind-${axis}`] = materialBehind.clone();
-            matBehind.getShaderVariant = matDefault.getShaderVariant;
-            matBehind.update();
-
-            const matOccluder = materials[`capsuleOcclude-${axis}`] = materialOccluder.clone();
-            matOccluder.getShaderVariant = matDefault.getShaderVariant;
-            matOccluder.update();
+                return shaderCapsulePick;
+            }
+            return _getCapsuleShaderVariant.call(this, params);
         };
+        matCapsule.update();
 
-        for (const axis of Object.values(axesNames)) {
-            makeCapsuleMaterial(axis);
-        }
+        const matCapsuleBehind = materials.capsuleBehind = materialBehind.clone();
+        matCapsuleBehind.getShaderVariant = matCapsule.getShaderVariant;
+        matCapsuleBehind.update();
+
+        const matCapsuleOccluder = materials.capsuleOccluder = materialOccluder.clone();
+        matCapsuleOccluder.getShaderVariant = matCapsule.getShaderVariant;
+        matCapsuleOccluder.update();
 
         const createModel = (args) => {
             const { mesh, matDefault, matBehind, matOccluder } = args;
@@ -772,29 +768,19 @@ void main(void)
 
         // ================
         // capsules
-        // Create custom capsule geometry matching engine's CapsuleGeometry topology
-        // Structure: cylinder body + two hemisphere caps, with aSide attribute for shader sizing
-        const createCapsuleGeometry = (axis) => {
+        // Create Y-axis capsule geometry with aSide attribute for shader sizing
+        // Rotation on graph node handles X and Z axis orientations
+        const createCapsuleGeometry = () => {
             const capSegments = 20; // segments around (matching engine default)
-            const latitudeBands = Math.floor(capSegments / 2); // rings per hemisphere (matching engine)
+            const latitudeBands = Math.floor(capSegments / 2); // rings per hemisphere
 
             const positions = [];
             const normals = [];
             const sides = []; // aSide attribute
             const indices = [];
 
-            // Axis mapping: [radial1, radial2, height]
-            const axisMap = {
-                'x': [2, 1, 0],
-                'y': [0, 2, 1],
-                'z': [1, 0, 2]
-            };
-            const [r1, r2, h] = axisMap[axis];
-
             // === CYLINDER BODY ===
             // Two rings at y=0, one moves up (aSide=+1), one moves down (aSide=-1)
-            // This creates the cylindrical section when the shader offsets them
-            // Use same angular offset as hemispheres (-PI/2) so vertices align
 
             // Top cylinder ring (aSide = +1)
             for (let j = 0; j <= capSegments; j++) {
@@ -802,13 +788,8 @@ void main(void)
                 const x = Math.cos(phi);
                 const z = Math.sin(phi);
 
-                const pos = [0, 0, 0];
-                const norm = [0, 0, 0];
-                pos[r1] = x; pos[r2] = z; pos[h] = 0;
-                norm[r1] = x; norm[r2] = z; norm[h] = 0; // Radial normal
-
-                positions.push(pos[0], pos[1], pos[2]);
-                normals.push(norm[0], norm[1], norm[2]);
+                positions.push(x, 0, z);
+                normals.push(x, 0, z); // Radial normal
                 sides.push(1);
             }
 
@@ -818,17 +799,12 @@ void main(void)
                 const x = Math.cos(phi);
                 const z = Math.sin(phi);
 
-                const pos = [0, 0, 0];
-                const norm = [0, 0, 0];
-                pos[r1] = x; pos[r2] = z; pos[h] = 0;
-                norm[r1] = x; norm[r2] = z; norm[h] = 0;
-
-                positions.push(pos[0], pos[1], pos[2]);
-                normals.push(norm[0], norm[1], norm[2]);
+                positions.push(x, 0, z);
+                normals.push(x, 0, z);
                 sides.push(-1);
             }
 
-            // Cylinder body indices (winding for outward-facing normals)
+            // Cylinder body indices
             for (let j = 0; j < capSegments; j++) {
                 const top = j;
                 const bottom = capSegments + 1 + j;
@@ -840,7 +816,6 @@ void main(void)
             const cylinderVertexCount = 2 * (capSegments + 1);
 
             // === TOP HEMISPHERE CAP ===
-            // Positioned at y=0 in geometry, shader moves it to y=(height/2 - radius)
             const topCapOffset = cylinderVertexCount;
 
             for (let lat = 0; lat <= latitudeBands; lat++) {
@@ -857,14 +832,9 @@ void main(void)
                     const y = cosTheta;
                     const z = sinPhi * sinTheta;
 
-                    const pos = [0, 0, 0];
-                    const norm = [0, 0, 0];
-                    pos[r1] = x; pos[r2] = z; pos[h] = y;
-                    norm[r1] = x; norm[r2] = z; norm[h] = y;
-
-                    positions.push(pos[0], pos[1], pos[2]);
-                    normals.push(norm[0], norm[1], norm[2]);
-                    sides.push(1); // Moves with top
+                    positions.push(x, y, z);
+                    normals.push(x, y, z);
+                    sides.push(1);
                 }
             }
 
@@ -880,8 +850,6 @@ void main(void)
             }
 
             // Connect cylinder top ring to top hemisphere equator
-            // Top hemisphere goes from pole (lat=0) to equator (lat=latitudeBands)
-            // So equator is at the END of the top hemisphere vertices
             const topHemiEquatorOffset = topCapOffset + latitudeBands * (capSegments + 1);
             for (let j = 0; j < capSegments; j++) {
                 const cylTop = j;
@@ -910,14 +878,9 @@ void main(void)
                     const y = cosTheta;
                     const z = sinPhi * sinTheta;
 
-                    const pos = [0, 0, 0];
-                    const norm = [0, 0, 0];
-                    pos[r1] = x; pos[r2] = z; pos[h] = y;
-                    norm[r1] = x; norm[r2] = z; norm[h] = y;
-
-                    positions.push(pos[0], pos[1], pos[2]);
-                    normals.push(norm[0], norm[1], norm[2]);
-                    sides.push(-1); // Moves with bottom
+                    positions.push(x, y, z);
+                    normals.push(x, y, z);
+                    sides.push(-1);
                 }
             }
 
@@ -933,8 +896,6 @@ void main(void)
             }
 
             // Connect cylinder bottom ring to bottom hemisphere equator
-            // Bottom hemisphere goes from equator (lat=0) to pole (lat=latitudeBands)
-            // So equator is at the START of the bottom hemisphere vertices
             for (let j = 0; j < capSegments; j++) {
                 const cylBottom = capSegments + 1 + j;
                 const hemiEquator = bottomCapOffset + j;
@@ -946,7 +907,6 @@ void main(void)
             // Create the mesh with custom aSide attribute
             const mesh = new pc.Mesh(app.graphicsDevice);
 
-            // Create vertex format with position, normal, and aSide
             const vertexFormat = new pc.VertexFormat(app.graphicsDevice, [
                 { semantic: pc.SEMANTIC_POSITION, components: 3, type: pc.TYPE_FLOAT32 },
                 { semantic: pc.SEMANTIC_NORMAL, components: 3, type: pc.TYPE_FLOAT32 },
@@ -958,7 +918,7 @@ void main(void)
             const vertexData = new Float32Array(vertexBuffer.lock());
 
             for (let i = 0; i < vertexCount; i++) {
-                const offset = i * 7; // 3 pos + 3 normal + 1 side
+                const offset = i * 7;
                 vertexData[offset] = positions[i * 3];
                 vertexData[offset + 1] = positions[i * 3 + 1];
                 vertexData[offset + 2] = positions[i * 3 + 2];
@@ -971,7 +931,6 @@ void main(void)
             vertexBuffer.unlock();
             mesh.vertexBuffer = vertexBuffer;
 
-            // Create index buffer
             const indexBuffer = new pc.IndexBuffer(app.graphicsDevice, pc.INDEXFORMAT_UINT16, indices.length);
             const indexData = new Uint16Array(indexBuffer.lock());
             indexData.set(indices);
@@ -986,25 +945,27 @@ void main(void)
             return mesh;
         };
 
-        // Create capsule models for each axis with capsule-specific materials
-        const createCapsuleModel = (axis) => {
-            const mesh = createCapsuleGeometry(axis);
+        // Create single capsule mesh (Y-axis), shared by all capsule models
+        const capsuleMesh = createCapsuleGeometry();
+
+        // Create capsule model with shared mesh and materials
+        const createCapsuleModel = () => {
             const node = new pc.GraphNode();
 
-            const meshInstance = new pc.MeshInstance(mesh, materials[`capsule-${axis}`], node);
+            const meshInstance = new pc.MeshInstance(capsuleMesh, matCapsule, node);
             meshInstance.__editor = true;
             meshInstance.__collision = true;
             meshInstance.castShadow = false;
             meshInstance.receiveShadow = false;
 
-            const meshInstanceBehind = new pc.MeshInstance(mesh, materials[`capsuleBehind-${axis}`], node);
+            const meshInstanceBehind = new pc.MeshInstance(capsuleMesh, matCapsuleBehind, node);
             meshInstanceBehind.__editor = true;
             meshInstanceBehind.pick = false;
             meshInstanceBehind.drawToDepth = false;
             meshInstanceBehind.castShadow = false;
             meshInstanceBehind.receiveShadow = false;
 
-            const meshInstanceOccluder = new pc.MeshInstance(mesh, materials[`capsuleOcclude-${axis}`], node);
+            const meshInstanceOccluder = new pc.MeshInstance(capsuleMesh, matCapsuleOccluder, node);
             meshInstanceOccluder.__editor = true;
             meshInstanceOccluder.pick = false;
             meshInstanceOccluder.castShadow = false;
@@ -1017,9 +978,14 @@ void main(void)
             return model;
         };
 
-        models['capsule-x'] = createCapsuleModel('x');
-        models['capsule-y'] = createCapsuleModel('y');
-        models['capsule-z'] = createCapsuleModel('z');
+        // Create capsule models - Y-axis is base, X and Z use rotation
+        models['capsule-x'] = createCapsuleModel();
+        models['capsule-x'].graph.setLocalEulerAngles(0, 0, -90);
+
+        models['capsule-y'] = createCapsuleModel();
+
+        models['capsule-z'] = createCapsuleModel();
+        models['capsule-z'].graph.setLocalEulerAngles(90, 0, 0);
     });
 
     // prepares mesh instances to be rendered as collision meshes
