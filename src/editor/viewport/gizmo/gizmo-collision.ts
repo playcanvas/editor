@@ -255,31 +255,31 @@ editor.once('load', () => {
                     }
                     break;
                 case 'mesh': {
-                        this.entity.setLocalScale(this._link.entity.getWorldTransform().getScale());
+                    this.entity.setLocalScale(this._link.entity.getWorldTransform().getScale());
 
-                        const isRender = !!collision.renderAsset;
-                        const asset = isRender ? collision.renderAsset : collision.asset;
-                        if (asset !== this.asset) {
-                            this.asset = asset;
-                            this.createWireframe(this.asset, isRender);
-                            if (!this.asset) {
-                                this.entity.enabled = false;
-                                if (isRender) {
-                                    this.entity.render.meshInstances = [];
-                                } else {
-                                    this.entity.model.model = null;
-                                }
-                                return;
+                    const isRender = !!collision.renderAsset;
+                    const asset = isRender ? collision.renderAsset : collision.asset;
+                    if (asset !== this.asset) {
+                        this.asset = asset;
+                        this.createWireframe(this.asset, isRender);
+                        if (!this.asset) {
+                            this.entity.enabled = false;
+                            if (isRender) {
+                                this.entity.render.meshInstances = [];
+                            } else {
+                                this.entity.model.model = null;
                             }
+                            return;
                         }
+                    }
 
                     // when model collision mesh gets clicked on again, select the mesh instance
                     // Note: render does not have an equivalent of this
-                        if (this.entity.model.model) {
+                    if (this.entity.model.model) {
                         const { model: entityModel } = this._link.entity;
                         const picking = !visible && entityModel?.enabled && entityModel.type === 'asset' && entityModel.asset === collision.asset;
-                            if (picking !== this.entity.model.model.__picking) {
-                                this.entity.model.model.__picking = picking;
+                        if (picking !== this.entity.model.model.__picking) {
+                            this.entity.model.model.__picking = picking;
                             for (const mesh of this.entity.model.meshInstances) {
                                 if (mesh.__collision) {
                                     mesh.pick = !picking;
