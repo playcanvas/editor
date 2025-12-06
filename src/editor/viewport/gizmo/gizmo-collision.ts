@@ -47,10 +47,17 @@ editor.once('load', () => {
     const shaderCapsule = {};
     const axesNames = { 0: 'x', 1: 'y', 2: 'z' };
     const poolModels = {
-        'box': [], 'sphere': [],
-        'capsule-x': [], 'capsule-y': [], 'capsule-z': [],
-        'cylinder-x': [], 'cylinder-y': [], 'cylinder-z': [],
-        'cone-x': [], 'cone-y': [], 'cone-z': []
+        'box': [],
+        'sphere': [],
+        'capsule-x': [],
+        'capsule-y': [],
+        'capsule-z': [],
+        'cylinder-x': [],
+        'cylinder-y': [],
+        'cylinder-z': [],
+        'cone-x': [],
+        'cone-y': [],
+        'cone-z': []
     };
 
     const layerFront = editor.call('gizmo:layers', 'Bright Collision');
@@ -78,11 +85,17 @@ editor.once('load', () => {
 
     class Gizmo {
         _link: any = null;
+
         entity: any = null;
+
         color: any = null;
+
         wireframeMesh: any = null;
+
         events: any[] = [];
+
         type = '';
+
         asset = 0;
 
         update() {
