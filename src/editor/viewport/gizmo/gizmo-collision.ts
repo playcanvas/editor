@@ -88,8 +88,6 @@ editor.once('load', () => {
 
         color: any = null;
 
-        wireframeMesh: any = null;
-
         events: any[] = [];
 
         type = '';
@@ -129,8 +127,6 @@ editor.once('load', () => {
                     }
                     this.color = editor.call('color:hsl2rgb', (hash % 128) / 128, 0.5, 0.5);
                 }
-
-                this.wireframeMesh = null;
 
                 if (models[this.type]) {
                     // return current model to pool
@@ -376,7 +372,7 @@ editor.once('load', () => {
 
             const asset = app.assets.get(assetId);
             if (!asset) {
-                return null;
+                return;
             }
 
             if (asset.resource) {
@@ -658,13 +654,11 @@ void main(void)
             return model;
         };
 
-
         // ================
         // box
         models.box = createModel(pc.Mesh.fromGeometry(app.graphicsDevice, new pc.BoxGeometry({
             halfExtents: new pc.Vec3(1, 1, 1)
         })));
-
 
         // ================
         // sphere
