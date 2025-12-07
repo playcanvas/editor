@@ -65,7 +65,6 @@ editor.once('load', () => {
     const notDownloadable = new Set([
         'folder',
         'sprite',
-        'animstategraph',
         'render',
         'template'
     ]);
@@ -535,9 +534,7 @@ editor.once('load', () => {
         text: 'Download',
         icon: ICONS.DOWNLOAD,
         onSelect: () => {
-            // Use the download API endpoint which properly handles filenames
-            // including special characters like # that would otherwise be URL-encoded
-            window.open(`/api/assets/${currentAsset.get('id')}/download?branchId=${config.self.branch.id}`);
+            editor.call('assets:download', currentAsset);
         }
     });
     menu.append(menuItemDownload);
