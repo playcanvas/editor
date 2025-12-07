@@ -10,9 +10,13 @@ editor.once('load', () => {
     ];
 
     // Paths that should not be synced to the server
-    // (file.url is a client-computed value that doesn't exist in the server document schema)
+    // (file.url and file.variants contain client-computed URLs that don't exist in the server document schema)
     const isExcludedPath = (path: string[]): boolean => {
-        return path.length === 2 && path[0] === 'file' && path[1] === 'url';
+        if (path[0] !== 'file' || path.length < 2) {
+            return false;
+        }
+        // Exclude file.url and file.variants (which contains computed URLs)
+        return path[1] === 'url' || path[1] === 'variants';
     };
 
     let totalAssets = 0;
