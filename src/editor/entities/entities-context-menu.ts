@@ -209,17 +209,22 @@ editor.once('load', () => {
             icon: 'E228',
             onIsEnabled: () => items.length === 1 && items[0].entity,
             onSelect: async () => {
-                const entity = items[0].entity;
-                const exporter = new pc.GltfExporter();
-                const arrayBuffer = await exporter.build(entity);
+                try {
+                    const entity = items[0].entity;
+                    const exporter = new pc.GltfExporter();
+                    const arrayBuffer = await exporter.build(entity);
 
-                // Create and trigger download
-                const blob = new Blob([arrayBuffer], { type: 'model/gltf-binary' });
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = `${items[0].get('name') || 'entity'}.glb`;
-                link.click();
-                URL.revokeObjectURL(link.href);
+                    // Create and trigger download
+                    const blob = new Blob([arrayBuffer], { type: 'model/gltf-binary' });
+                    const link = document.createElement('a');
+                    link.href = URL.createObjectURL(blob);
+                    link.download = `${items[0].get('name') || 'entity'}.glb`;
+                    link.click();
+                    URL.revokeObjectURL(link.href);
+                } catch (err) {
+                    console.error('GLB export failed:', err);
+                    editor.call('status:error', `Failed to export GLB: ${err.message}`);
+                }
             }
         });
 
