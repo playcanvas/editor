@@ -211,7 +211,7 @@ editor.once('load', () => {
             onSelect: async () => {
                 const entity = items[0].entity;
                 const exporter = new pc.GltfExporter();
-                const arrayBuffer = await exporter.build(entity, { maxTextureSize: 1024 });
+                const arrayBuffer = await exporter.build(entity);
 
                 // Create and trigger download
                 const blob = new Blob([arrayBuffer], { type: 'model/gltf-binary' });
