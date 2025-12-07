@@ -205,7 +205,7 @@ editor.once('load', () => {
         });
 
         menuData.push({
-            text: 'Download GLB',
+            text: 'Export as GLB',
             icon: 'E228',
             onIsEnabled: () => items.length === 1 && items[0].entity,
             onSelect: async () => {
