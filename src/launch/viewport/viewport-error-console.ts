@@ -96,7 +96,7 @@ editor.once('load', () => {
 
                 codeEditorUrl = config.url.home + target;
                 query = `?line=${line}&col=${col}&error=true`;
-            } else if (!editor.call('settings:project').get('useLegacyScripts') && url.indexOf('/api/assets/') !== -1 && (url.indexOf('.js') !== -1 || url.indexOf('.mjs') !== -1)) {
+            } else if (!editor.call('settings:project').get('useLegacyScripts') && url.includes('/api/assets/') && (url.includes('.js') || url.includes('.mjs'))) {
                 const match = url.match(/\/api\/assets\/files\/.+?id=(\d+)/);
                 if (match) {
                     assetId = parseInt(match[1], 10);
