@@ -628,7 +628,6 @@ void main(void)
                     shaderCapsulePick = new pc.Shader(params.device, {
                         attributes: {
                             aPosition: pc.SEMANTIC_POSITION,
-                            aNormal: pc.SEMANTIC_NORMAL,
                             aSide: pc.SEMANTIC_ATTR15
                         },
                         vshader: capsuleVShaderPick,
