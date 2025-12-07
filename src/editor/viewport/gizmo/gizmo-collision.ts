@@ -43,7 +43,6 @@ editor.once('load', () => {
     materialOccluder.update();
 
     const models = {};
-    const materials = {};
     const axesNames = { 0: 'x', 1: 'y', 2: 'z' };
     const poolModels = {
         'box': [],
@@ -462,7 +461,6 @@ attribute vec3 aNormal;
 uniform float offset;
 uniform mat4 matrix_model;
 uniform mat3 matrix_normal;
-uniform mat4 matrix_view;
 uniform mat4 matrix_viewProjection;
 
 varying vec3 vNormal;
@@ -556,23 +554,6 @@ void main(void)
 }
             `.trim();
 
-        const capsuleFShader = `
-precision ${app.graphicsDevice.precision} float;
-
-varying vec3 vNormal;
-varying vec3 vPosition;
-
-uniform vec4 uColor;
-uniform vec3 view_position;
-
-void main(void)
-{
-    vec3 viewNormal = normalize(view_position - vPosition);
-    float light = dot(vNormal, viewNormal);
-    gl_FragColor = vec4(uColor.rgb * light * 2.0, uColor.a);
-}
-            `.trim();
-
         const capsuleVShaderPick = `
 attribute vec3 aPosition;
 attribute float aSide;
@@ -606,7 +587,7 @@ void main(void)
         let shaderCapsuleForward;
         let shaderCapsulePick;
 
-        const matCapsule = materials.capsule = cloneColorMaterial(materialDefault);
+        const matCapsule = cloneColorMaterial(materialDefault);
         const _getCapsuleShaderVariant = matCapsule.getShaderVariant;
         matCapsule.getShaderVariant = function (params) {
             if (params.pass === pc.SHADER_FORWARD) {
@@ -618,7 +599,7 @@ void main(void)
                             aSide: pc.SEMANTIC_ATTR15
                         },
                         vshader: capsuleVShader,
-                        fshader: capsuleFShader
+                        fshader: defaultFShader
                     });
                 }
                 return shaderCapsuleForward;
@@ -640,32 +621,31 @@ void main(void)
         };
         matCapsule.update();
 
-        const matCapsuleBehind = materials.capsuleBehind = materialBehind.clone();
+        const matCapsuleBehind = materialBehind.clone();
         matCapsuleBehind.getShaderVariant = matCapsule.getShaderVariant;
         matCapsuleBehind.update();
 
-        const matCapsuleOccluder = materials.capsuleOccluder = materialOccluder.clone();
+        const matCapsuleOccluder = materialOccluder.clone();
         matCapsuleOccluder.getShaderVariant = matCapsule.getShaderVariant;
         matCapsuleOccluder.update();
 
-        const createModel = (args) => {
-            const { mesh, matDefault, matBehind, matOccluder } = args;
+        const createModel = (mesh) => {
             const node = new pc.GraphNode();
 
-            const meshInstance = new pc.MeshInstance(mesh, matDefault, node);
+            const meshInstance = new pc.MeshInstance(mesh, materialDefault, node);
             meshInstance.__editor = true;
             meshInstance.__collision = true;
             meshInstance.castShadow = false;
             meshInstance.receiveShadow = false;
 
-            const meshInstanceBehind = new pc.MeshInstance(mesh, matBehind, node);
+            const meshInstanceBehind = new pc.MeshInstance(mesh, materialBehind, node);
             meshInstanceBehind.__editor = true;
             meshInstanceBehind.pick = false;
             meshInstanceBehind.drawToDepth = false;
             meshInstanceBehind.castShadow = false;
             meshInstanceBehind.receiveShadow = false;
 
-            const meshInstanceOccluder = new pc.MeshInstance(mesh, matOccluder, node);
+            const meshInstanceOccluder = new pc.MeshInstance(mesh, materialOccluder, node);
             meshInstanceOccluder.__editor = true;
             meshInstanceOccluder.pick = false;
             meshInstanceOccluder.castShadow = false;
@@ -681,88 +661,38 @@ void main(void)
 
         // ================
         // box
-        models.box = createModel({
-            mesh: pc.Mesh.fromGeometry(app.graphicsDevice, new pc.BoxGeometry({
-                halfExtents: new pc.Vec3(1, 1, 1)
-            })),
-            matDefault: materialDefault,
-            matBehind: materialBehind,
-            matOccluder: materialOccluder
-        });
+        models.box = createModel(pc.Mesh.fromGeometry(app.graphicsDevice, new pc.BoxGeometry({
+            halfExtents: new pc.Vec3(1, 1, 1)
+        })));
 
 
         // ================
         // sphere
-        models.sphere = createModel({
-            mesh: pc.Mesh.fromGeometry(app.graphicsDevice, new pc.SphereGeometry({
-                radius: 1,
-                latitudeBands: 32,
-                longitudeBands: 64
-            })),
-            matDefault: materialDefault,
-            matBehind: materialBehind,
-            matOccluder: materialOccluder
-        });
+        models.sphere = createModel(pc.Mesh.fromGeometry(app.graphicsDevice, new pc.SphereGeometry({
+            radius: 1,
+            latitudeBands: 32,
+            longitudeBands: 64
+        })));
 
         // ================
-        // cones
-        models['cone-x'] = createModel({
-            mesh: pc.Mesh.fromGeometry(app.graphicsDevice, new pc.ConeGeometry()),
-            matDefault: materialDefault,
-            matBehind: materialBehind,
-            matOccluder: materialOccluder
-        });
+        // cones (shared mesh, rotation handles axis)
+        const coneMesh = pc.Mesh.fromGeometry(app.graphicsDevice, new pc.ConeGeometry());
+        models['cone-x'] = createModel(coneMesh);
         models['cone-x'].graph.setLocalEulerAngles(0, 0, -90);
         models['cone-x'].graph.setLocalScale(2, 1, 2);
-        models['cone-y'] = createModel({
-            mesh: pc.Mesh.fromGeometry(app.graphicsDevice, new pc.ConeGeometry()),
-            matDefault: materialDefault,
-            matBehind: materialBehind,
-            matOccluder: materialOccluder
-        });
+        models['cone-y'] = createModel(coneMesh);
         models['cone-y'].graph.setLocalScale(2, 1, 2);
-        models['cone-z'] = createModel({
-            mesh: pc.Mesh.fromGeometry(app.graphicsDevice, new pc.ConeGeometry()),
-            matDefault: materialDefault,
-            matBehind: materialBehind,
-            matOccluder: materialOccluder
-        });
+        models['cone-z'] = createModel(coneMesh);
         models['cone-z'].graph.setLocalEulerAngles(90, 0, 0);
         models['cone-z'].graph.setLocalScale(2, 1, 2);
 
         // ================
-        // cylinders
-        models['cylinder-x'] = createModel({
-            mesh: pc.Mesh.fromGeometry(app.graphicsDevice, new pc.CylinderGeometry({
-                radius: 1,
-                height: 1,
-                capSegments: 72
-            })),
-            matDefault: materialDefault,
-            matBehind: materialBehind,
-            matOccluder: materialOccluder
-        });
+        // cylinders (shared mesh, rotation handles axis)
+        const cylinderMesh = pc.Mesh.fromGeometry(app.graphicsDevice, new pc.CylinderGeometry({ radius: 1, height: 1, capSegments: 72 }));
+        models['cylinder-x'] = createModel(cylinderMesh);
         models['cylinder-x'].graph.setLocalEulerAngles(0, 0, -90);
-        models['cylinder-y'] = createModel({
-            mesh: pc.Mesh.fromGeometry(app.graphicsDevice, new pc.CylinderGeometry({
-                radius: 1,
-                height: 1,
-                capSegments: 72
-            })),
-            matDefault: materialDefault,
-            matBehind: materialBehind,
-            matOccluder: materialOccluder
-        });
-        models['cylinder-z'] = createModel({
-            mesh: pc.Mesh.fromGeometry(app.graphicsDevice, new pc.CylinderGeometry({
-                radius: 1,
-                height: 1,
-                capSegments: 72
-            })),
-            matDefault: materialDefault,
-            matBehind: materialBehind,
-            matOccluder: materialOccluder
-        });
+        models['cylinder-y'] = createModel(cylinderMesh);
+        models['cylinder-z'] = createModel(cylinderMesh);
         models['cylinder-z'].graph.setLocalEulerAngles(90, 0, 0);
 
         // ================
