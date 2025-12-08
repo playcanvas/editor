@@ -12,7 +12,7 @@ The PlayCanvas Editor is a visual editing environment for building WebGL/WebGPU/
 
 ![Editor](https://raw.githubusercontent.com/playcanvas/editor/refs/heads/main/images/editor.png)
 
-You can see more projects build using the Editor on the [PlayCanvas website](https://playcanvas.com/explore).
+You can see more projects built using the Editor on the [PlayCanvas website](https://playcanvas.com/explore).
 
 ## Local Development
 
@@ -31,17 +31,19 @@ To initialize a local development environment for the Editor Frontend, ensure yo
    npm install
    ```
 
-3. Build Editor and start a local web server on port 51000:
+3. Build the Editor frontend and start a local web server:
 
    ```sh
    npm run develop
    ```
 
-4. Append the query parameter `use_local_frontend` to load the development build:
+4. Open the Editor at [playcanvas.com](https://playcanvas.com) and append the query parameter `use_local_frontend` to load the development build:
 
     ```
-    https://playcanvas.com/editor/project/2535?use_local_frontend
+    https://playcanvas.com/editor/scene/<YOUR_SCENE_ID>?use_local_frontend
     ```
+
+   This will load the Editor frontend from `http://localhost:3487` instead of the production build.
 
 > [!NOTE]
 > This query parameter is also supported in the code editor and launch page
@@ -56,9 +58,8 @@ The Editor is built on the following open source libraries:
 | [Observer](https://github.com/playcanvas/playcanvas-observer) | Data binding and history                    |
 | [PCUI](https://github.com/playcanvas/pcui)                    | Front-end component library                 |
 | [PCUI-Graph](https://github.com/playcanvas/pcui-graph)        | PCUI plugin for rendering node-based graphs |
-| [Editor API](https://github.com/playcanvas/editor-api)        | Public API for Editor automation            |
 
-To test the integration of these libraries use [npm link](https://docs.npmjs.com/cli/v9/commands/npm-link). Follow these steps:
+To test the integration of these libraries, use [npm link](https://docs.npmjs.com/cli/v9/commands/npm-link). Follow these steps:
 
 1. Create a global link from source
 
