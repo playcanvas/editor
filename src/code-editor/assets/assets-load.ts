@@ -9,6 +9,16 @@ editor.once('load', () => {
         'data'
     ];
 
+    // Paths that should not be synced to the server
+    // (file.url and file.variants contain client-computed URLs that don't exist in the server document schema)
+    const isExcludedPath = (path: string[]): boolean => {
+        if (path[0] !== 'file' || path.length < 2) {
+            return false;
+        }
+        // Exclude file.url and file.variants (which contains computed URLs)
+        return path[1] === 'url' || path[1] === 'variants';
+    };
+
     let totalAssets = 0;
     let loadedAssets = 0;
 
@@ -50,6 +60,11 @@ editor.once('load', () => {
             // client -> server
             asset.sync.on('op', (op) => {
                 if (!editor.call('permissions:write')) {
+                    return;
+                }
+
+                // Skip client-computed paths that don't exist in server document
+                if (isExcludedPath(op.p)) {
                     return;
                 }
 

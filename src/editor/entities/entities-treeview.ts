@@ -600,6 +600,57 @@ class EntitiesTreeView extends TreeView {
                 dropType === 'asset.sprite';
     }
 
+    /**
+     * Returns whether any parent in the entity's hierarchy is disabled.
+     *
+     * @param {Observer} entity - The entity to check.
+     * @returns {boolean} True if a parent is disabled, false otherwise.
+     */
+    _isParentDisabled(entity) {
+        let parentId = entity.get('parent');
+        while (parentId) {
+            const parent = this._entities.get(parentId);
+            if (!parent) {
+                break;
+            }
+            if (!parent.get('enabled')) {
+                return true;
+            }
+            parentId = parent.get('parent');
+        }
+        return false;
+    }
+
+    /**
+     * Updates the visual enabled state of an entity's tree item and optionally its descendants.
+     * The visual state reflects whether the entity is effectively enabled in the hierarchy
+     * (its own enabled flag AND all parents being enabled).
+     *
+     * @param {Observer} entity - The entity whose tree item to update.
+     * @param {boolean} [parentDisabled] - Whether a parent in the hierarchy is disabled.
+     * If not provided, it will be calculated.
+     * @param {boolean} [recurse] - Whether to recursively update descendants.
+     */
+    _updateTreeItemEnabledState(entity, parentDisabled, recurse = false) {
+        const item = this.getTreeItemForEntity(entity.get('resource_id'));
+        if (!item) {
+            return;
+        }
+
+        // Visual state is enabled only if both self is enabled AND no parent is disabled
+        item.enabled = entity.get('enabled') && !(parentDisabled ?? this._isParentDisabled(entity));
+
+        if (recurse) {
+            const childParentDisabled = !this.enabled;
+            entity.get('children').forEach((childId) => {
+                const child = this._entities.get(childId);
+                if (child) {
+                    this._updateTreeItemEnabledState(child, childParentDisabled, true);
+                }
+            });
+        }
+    }
+
     _onAddEntity(entity) {
         const resourceId = entity.get('resource_id');
         if (this._treeItemIndex[resourceId]) {
@@ -607,11 +658,13 @@ class EntitiesTreeView extends TreeView {
         }
 
         // new tree item for entity
+        // Initial enabled state considers both entity's own enabled and parent hierarchy
+        const parentDisabled = this._isParentDisabled(entity);
         const treeViewItem = new TreeViewItem({
             allowSelect: true,
             allowDrop: true,
             text: entity.get('name'),
-            enabled: entity.get('enabled')
+            enabled: entity.get('enabled') && !parentDisabled
         });
 
         treeViewItem.iconLabel.class.add(CLASS_COMPONENT_ICON);
@@ -655,9 +708,14 @@ class EntitiesTreeView extends TreeView {
             treeViewItem.text = name;
         }));
 
-        // enabled change
-        events.push(entity.on('enabled:set', (enabled) => {
-            treeViewItem.enabled = enabled;
+        // enabled change - update this item and all descendants
+        events.push(entity.on('enabled:set', () => {
+            this._updateTreeItemEnabledState(entity, undefined, true);
+        }));
+
+        // parent change - update enabled state when reparented
+        events.push(entity.on('parent:set', () => {
+            this._updateTreeItemEnabledState(entity, undefined, true);
         }));
 
         // add child

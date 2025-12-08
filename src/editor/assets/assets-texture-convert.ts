@@ -20,6 +20,10 @@ editor.once('load', () => {
             const sourceFilename = asset.get('name');
             const targetFilename = sourceFilename.replace(/\.[^/.]+$/, `.${targetFormat}`);
 
+            // Get the parent folder from the source asset's path
+            const path = asset.get('path');
+            const parent = path.length ? path[path.length - 1] : null;
+
             // FIXME: No way to use arrayBuffer with AJAX
             const response = await fetch(`/api/assets/${id}/download?branchId=${config.self.branch.id}`);
             const buffer = await response.arrayBuffer();
@@ -34,7 +38,8 @@ editor.once('load', () => {
                         name: targetFilename,
                         type: 'texture',
                         filename: targetFilename,
-                        file
+                        file,
+                        parent
                     }, () => {
                         callback();
                         workerClient.stop();
