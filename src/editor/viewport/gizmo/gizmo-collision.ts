@@ -4,21 +4,18 @@ import { cloneColorMaterial, createColorMaterial } from '../viewport-color-mater
 
 editor.once('load', () => {
     let app;
-    // selected entity gizmos
-    const entities = { };
-    let selected = { };
-    // pool of gizmos
+    let container;
+    let selected = {};
+
+    const entities: Record<string, Gizmo> = {};
     const pool = [];
-    // colors
+
     const alphaFront = 0.6;
     const alphaBehind = 0.2;
     const colorBehind = new pc.Color(1, 1, 1, 0.05);
     const colorPrimary = new pc.Color(1, 1, 1);
     const colorOccluder = new pc.Color(1, 1, 1, 1);
     const colorDefault = [1, 1, 1];
-    let container;
-    const vecA = new pc.Vec3();
-    const vecB = new pc.Vec3();
 
     const materialDefault = createColorMaterial();
     materialDefault.name = 'collision';
@@ -45,11 +42,21 @@ editor.once('load', () => {
     materialOccluder.depthTest = true;
     materialOccluder.update();
 
-    const models = { };
-    const materials = { };
-    const poolModels = { 'box': [], 'sphere': [], 'capsule-x': [], 'capsule-y': [], 'capsule-z': [], 'cylinder-x': [], 'cylinder-y': [], 'cylinder-z': [], 'cone-x': [], 'cone-y': [], 'cone-z': [] };
+    const models = {};
     const axesNames = { 0: 'x', 1: 'y', 2: 'z' };
-    const shaderCapsule = { };
+    const poolModels = {
+        'box': [],
+        'sphere': [],
+        'capsule-x': [],
+        'capsule-y': [],
+        'capsule-z': [],
+        'cylinder-x': [],
+        'cylinder-y': [],
+        'cylinder-z': [],
+        'cone-x': [],
+        'cone-y': [],
+        'cone-z': []
+    };
 
     const layerFront = editor.call('gizmo:layers', 'Bright Collision');
     const layerBack = editor.call('gizmo:layers', 'Dim Gizmo');
@@ -60,12 +67,12 @@ editor.once('load', () => {
             return visible;
         }
 
-        if (visible === !!state) {
+        const newState = !!state;
+        if (visible === newState) {
             return;
         }
 
-        visible = !!state;
-
+        visible = newState;
         if (visible) {
             editor.call('gizmo:zone:visible', false);
         }
@@ -74,48 +81,37 @@ editor.once('load', () => {
         editor.call('viewport:render');
     });
 
-    // gizmo class
     class Gizmo {
         _link: any = null;
-
-        lines: any[] = [];
-
-        events: any[] = [];
-
-        type: string = '';
-
-        asset: number = 0;
 
         entity: any = null;
 
         color: any = null;
 
-        wireframeMesh: any;
+        events: any[] = [];
 
-        // update lines
+        type = '';
+
+        asset = 0;
+
         update() {
-            if (!app) {
-                return;
-            } // webgl not available
-
-            if (!this._link || !this._link.entity) {
+            if (!app || !this._link?.entity) {
                 return;
             }
 
             const select = selected[this._link.get('resource_id')];
-            const collision = this._link.entity.collision;
-            this.entity.enabled = this._link.entity.enabled && collision && collision.enabled && (select || visible);
+            const { collision } = this._link.entity;
+            this.entity.enabled = this._link.entity.enabled && collision?.enabled && (select || visible);
             if (!this.entity.enabled) {
                 this._link.entity.__noIcon = false;
                 return;
             }
 
             this._link.entity.__noIcon = true;
-            this.entity.setPosition(this._link.entity.collision.getShapePosition());
-            this.entity.setRotation(this._link.entity.collision.getShapeRotation());
+            this.entity.setPosition(collision.getShapePosition());
+            this.entity.setRotation(collision.getShapeRotation());
 
             let type = collision.type;
-
             if (type === 'cylinder' || type === 'capsule' || type === 'cone') {
                 type += `-${axesNames[collision.axis]}`;
             }
@@ -124,86 +120,78 @@ editor.once('load', () => {
                 this.type = type;
 
                 if (!this.color) {
+                    const guid = this._link.entity.getGuid();
                     let hash = 0;
-                    const string = this._link.entity.getGuid();
-                    for (let i = 0; i < string.length; i++) {
-                        hash += string.charCodeAt(i);
+                    for (const char of guid) {
+                        hash += char.charCodeAt(0);
                     }
-
                     this.color = editor.call('color:hsl2rgb', (hash % 128) / 128, 0.5, 0.5);
                 }
 
-                this.wireframeMesh = null;
-
-                // set new model based on type
                 if (models[this.type]) {
-                    // get current model
+                    // return current model to pool
                     let model = this.entity.model.model;
                     if (model) {
-                        // put back in pool
                         layerFront.removeMeshInstances(model.meshInstances);
                         layerBack.removeMeshInstances(model.meshInstances);
-
                         this.entity.removeChild(model.getGraph());
-                        if (poolModels[model._type]) {
-                            poolModels[model._type].push(model);
-                        }
-                    }
-                    // get from pool
-                    model = null;
-                    if (poolModels[this.type]) {
-                        model = poolModels[this.type].shift();
+                        poolModels[model._type]?.push(model);
                     }
 
+                    // get from pool or clone
+                    model = poolModels[this.type]?.shift();
                     if (!model) {
-                        // no in pool
                         model = models[this.type].clone();
                         model._type = this.type;
 
-                        const color = this.color || colorDefault;
+                        const color = this.color ?? colorDefault;
+                        const colorArray = new Float32Array([color[0], color[1], color[2], alphaFront]);
 
-                        let old = model.meshInstances[0].material;
-                        model.meshInstances[0].setParameter('offset', 0);
-                        model.meshInstances[0].__editor = true;
-                        model.meshInstances[0].__collision = true;
-                        model.meshInstances[0].material = old.clone();
-                        model.meshInstances[0].material.getShaderVariant = old.getShaderVariant;
-                        model.meshInstances[0].material.depthBias = -8;
-                        model.meshInstances[0].material.setParameter('uColor', new Float32Array([color[0], color[1], color[2], alphaFront]));
-                        model.meshInstances[0].material.update();
+                        // setup front mesh instance
+                        const mi0 = model.meshInstances[0];
+                        const mat0 = mi0.material.clone();
+                        mat0.getShaderVariant = mi0.material.getShaderVariant;
+                        mat0.depthBias = -8;
+                        mat0.setParameter('uColor', colorArray);
+                        mat0.update();
+                        mi0.material = mat0;
+                        mi0.setParameter('offset', 0);
+                        mi0.__editor = true;
+                        mi0.__collision = true;
 
-                        old = model.meshInstances[1].material;
-                        model.meshInstances[1].setParameter('offset', 0.001);
-                        model.meshInstances[1].pick = false;
-                        model.meshInstances[1].__editor = true;
-                        model.meshInstances[1].material = old.clone();
-                        model.meshInstances[1].material.getShaderVariant = old.getShaderVariant;
-                        model.meshInstances[0].material.setParameter('uColor', new Float32Array([color[0], color[1], color[2], alphaFront]));
-                        model.meshInstances[1].material.update();
-                        model.meshInstances[1].__useFrontLayer = true;
+                        // setup behind mesh instance
+                        const mi1 = model.meshInstances[1];
+                        const mat1 = mi1.material.clone();
+                        mat1.getShaderVariant = mi1.material.getShaderVariant;
+                        mat1.setParameter('uColor', colorArray);
+                        mat1.update();
+                        mi1.material = mat1;
+                        mi1.setParameter('offset', 0.001);
+                        mi1.pick = false;
+                        mi1.__editor = true;
+                        mi1.__useFrontLayer = true;
 
-                        model.meshInstances[2].setParameter('offset', 0);
-                        model.meshInstances[2].pick = false;
-                        model.meshInstances[2].__editor = true;
+                        // setup occluder mesh instance
+                        const mi2 = model.meshInstances[2];
+                        mi2.setParameter('offset', 0);
+                        mi2.pick = false;
+                        mi2.__editor = true;
 
-                        switch (this.type) {
-                            case 'capsule-x':
-                            case 'capsule-y':
-                            case 'capsule-z':
-                                for (let i = 0; i < model.meshInstances.length; i++) {
-                                    model.meshInstances[i].setParameter('radius', collision.radius || 0.5);
-                                    model.meshInstances[i].setParameter('height', collision.height || 2);
-                                }
-                                break;
+                        // set capsule-specific parameters
+                        if (this.type.startsWith('capsule-')) {
+                            for (const mi of model.meshInstances) {
+                                mi.setParameter('radius', collision.radius || 0.5);
+                                mi.setParameter('height', collision.height || 2);
+                            }
                         }
                     }
-                    // set to model
+
                     this.entity.model.model = model;
 
-                    // set masks after model is assigned to ensure they are correct
-                    model.meshInstances.forEach((mi) => {
+                    // set masks after model is assigned
+                    for (const mi of model.meshInstances) {
                         mi.mask = GIZMO_MASK;
-                    });
+                    }
 
                     this.entity.setLocalScale(1, 1, 1);
                 } else if (this.type === 'mesh') {
@@ -231,65 +219,70 @@ editor.once('load', () => {
                     this.entity.setLocalScale(radius, radius, radius);
                     break;
                 case 'box':
-                    this.entity.setLocalScale(collision.halfExtents.x || 0.00001, collision.halfExtents.y || 0.00001, collision.halfExtents.z || 0.00001);
+                    this.entity.setLocalScale(
+                        collision.halfExtents.x || 0.00001,
+                        collision.halfExtents.y || 0.00001,
+                        collision.halfExtents.z || 0.00001
+                    );
                     break;
                 case 'cylinder-x':
                 case 'cone-x':
-                case 'capsule-x':
                     this.entity.setLocalScale(height, radius, radius);
                     break;
                 case 'cylinder-y':
                 case 'cone-y':
-                case 'capsule-y':
                     this.entity.setLocalScale(radius, height, radius);
                     break;
                 case 'cylinder-z':
                 case 'cone-z':
-                case 'capsule-z':
                     this.entity.setLocalScale(radius, radius, height);
                     break;
-                case 'mesh':
-                    {
-                        this.entity.setLocalScale(this._link.entity.getWorldTransform().getScale());
+                case 'capsule-x':
+                case 'capsule-y':
+                case 'capsule-z':
+                    // Capsules use shader-based sizing, not entity scale
+                    // Update the radius and height parameters on the mesh instances
+                    this.entity.setLocalScale(1, 1, 1);
+                    for (const mi of this.entity.model.model.meshInstances) {
+                        mi.setParameter('radius', radius);
+                        mi.setParameter('height', height);
+                    }
+                    break;
+                case 'mesh': {
+                    this.entity.setLocalScale(this._link.entity.getWorldTransform().getScale());
 
-                        // if the asset has changed
-                        const isRender = !!collision.renderAsset;
-                        const asset = isRender ? collision.renderAsset : collision.asset;
-                        if (asset !== this.asset) {
-
-                            this.asset = asset;
-                            this.createWireframe(this.asset, isRender);
-                            if (!this.asset) {
-                                this.entity.enabled = false;
-
-                                if (isRender) {
-                                    this.entity.render.meshInstances = [];
-                                } else {
-                                    this.entity.model.model = null;
-                                }
-                                return;
+                    const isRender = !!collision.renderAsset;
+                    const asset = isRender ? collision.renderAsset : collision.asset;
+                    if (asset !== this.asset) {
+                        this.asset = asset;
+                        this.createWireframe(this.asset, isRender);
+                        if (!this.asset) {
+                            this.entity.enabled = false;
+                            if (isRender) {
+                                this.entity.render.meshInstances = [];
+                            } else {
+                                this.entity.model.model = null;
                             }
+                            return;
                         }
+                    }
 
-                        // when model collision mesh gets clicked on again, the mesh instance of the model is selected
-                        // Note: render does not have an equivalent of this and so this is not implemented
-                        if (this.entity.model.model) {
-                            const picking = !visible && this._link.entity.model && this._link.entity.model.enabled && this._link.entity.model.type === 'asset' && this._link.entity.model.asset === collision.asset;
-                            if (picking !== this.entity.model.model.__picking) {
-                                this.entity.model.model.__picking = picking;
-
-                                const meshes = this.entity.model.meshInstances;
-                                for (let i = 0; i < meshes.length; i++) {
-                                    if (!meshes[i].__collision) {
-                                        continue;
-                                    }
-
-                                    meshes[i].pick = !picking;
+                    // when model collision mesh gets clicked on again, select the mesh instance
+                    // Note: render does not have an equivalent of this
+                    if (this.entity.model.model) {
+                        const { model: entityModel } = this._link.entity;
+                        const picking = !visible && entityModel?.enabled && entityModel.type === 'asset' && entityModel.asset === collision.asset;
+                        if (picking !== this.entity.model.model.__picking) {
+                            this.entity.model.model.__picking = picking;
+                            for (const mesh of this.entity.model.meshInstances) {
+                                if (mesh.__collision) {
+                                    mesh.pick = !picking;
                                 }
                             }
                         }
                     }
                     break;
+                }
             }
         }
 
@@ -297,29 +290,22 @@ editor.once('load', () => {
         link(obj) {
             if (!app) {
                 return;
-            } // webgl not available
+            }
 
             this.unlink();
             this._link = obj;
 
-            const self = this;
-
             this.events.push(this._link.once('destroy', () => {
-                self.unlink();
+                this.unlink();
             }));
 
             this.color = null;
 
-            // hack: override addModelToLayers to selectively put some
-            // mesh instances to the front and others to the back layer depending
-            // on the __useFrontLayer property
+            // override addModelToLayers to selectively put some mesh instances
+            // to the front and others to the back layer depending on __useFrontLayer
             const customAddMeshInstancesToLayers = function () {
-                const frontMeshInstances = this.meshInstances.filter((mi) => {
-                    return mi.__useFrontLayer;
-                });
-                const backMeshInstances = this.meshInstances.filter((mi) => {
-                    return !mi.__useFrontLayer;
-                });
+                const frontMeshInstances = this.meshInstances.filter(mi => mi.__useFrontLayer);
+                const backMeshInstances = this.meshInstances.filter(mi => !mi.__useFrontLayer);
 
                 layerBack.addMeshInstances(frontMeshInstances);
                 layerFront.addMeshInstances(backMeshInstances);
@@ -346,27 +332,18 @@ editor.once('load', () => {
             });
             this.entity.render.addToLayers = customAddMeshInstancesToLayers;
 
-            this.entity._getEntity = function () {
-                return self._link.entity;
-            };
+            this.entity._getEntity = () => this._link.entity;
 
             container.addChild(this.entity);
         }
 
-        // unlink
         unlink() {
-            if (!app) {
-                return;
-            } // webgl not available
-
-            if (!this._link) {
+            if (!app || !this._link) {
                 return;
             }
 
-            for (let i = 0; i < this.events.length; i++) {
-                if (this.events[i] && this.events[i].unbind) {
-                    this.events[i].unbind();
-                }
+            for (const event of this.events) {
+                event?.unbind?.();
             }
 
             this.events = [];
@@ -377,7 +354,6 @@ editor.once('load', () => {
 
             const model = this.entity.model.model;
             if (model) {
-                // put back in pool
                 layerFront.removeMeshInstances(model.meshInstances);
                 layerBack.removeMeshInstances(model.meshInstances);
                 this.entity.removeChild(model.getGraph());
@@ -389,15 +365,14 @@ editor.once('load', () => {
             this.entity.destroy();
         }
 
-        // create wireframe
-        createWireframe(asset, isRender) {
+        createWireframe(assetId, isRender) {
             if (!app) {
                 return;
-            } // webgl not available
+            }
 
-            asset = app.assets.get(asset);
+            const asset = app.assets.get(assetId);
             if (!asset) {
-                return null;
+                return;
             }
 
             if (asset.resource) {
@@ -407,17 +382,15 @@ editor.once('load', () => {
                     this.entity.model.model = createModelCopy(asset.resource, this.color);
                 }
             } else {
-                const self = this;
-
-                this.events.push(asset.once('load', (asset) => {
-                    if (self.asset !== asset.id) {
+                this.events.push(asset.once('load', (loadedAsset) => {
+                    if (this.asset !== loadedAsset.id) {
                         return;
                     }
 
                     if (isRender) {
-                        self.entity.render.meshInstances = createRenderCopy(asset.resource, self.color);
+                        this.entity.render.meshInstances = createRenderCopy(loadedAsset.resource, this.color);
                     } else {
-                        self.entity.model.model = createModelCopy(asset.resource, self.color);
+                        this.entity.model.model = createModelCopy(loadedAsset.resource, this.color);
                     }
                 }));
             }
@@ -427,23 +400,19 @@ editor.once('load', () => {
     editor.on('entities:add', (entity) => {
         const key = entity.get('resource_id');
 
-        const addGizmo = function () {
+        const addGizmo = () => {
             if (entities[key]) {
                 return;
             }
 
-            let gizmo = pool.shift();
-            if (!gizmo) {
-                gizmo = new Gizmo();
-            }
-
+            const gizmo = pool.shift() ?? new Gizmo();
             gizmo.link(entity);
             entities[key] = gizmo;
 
             editor.call('viewport:render');
         };
 
-        const removeGizmo = function () {
+        const removeGizmo = () => {
             if (!entities[key]) {
                 return;
             }
@@ -465,11 +434,11 @@ editor.once('load', () => {
     });
 
     editor.on('selector:change', (type, items) => {
-        selected = { };
+        selected = {};
 
-        if (type === 'entity' && items && items.length) {
-            for (let i = 0; i < items.length; i++) {
-                selected[items[i].get('resource_id')] = true;
+        if (type === 'entity' && items?.length) {
+            for (const item of items) {
+                selected[item.get('resource_id')] = true;
             }
         }
     });
@@ -488,7 +457,6 @@ attribute vec3 aNormal;
 uniform float offset;
 uniform mat4 matrix_model;
 uniform mat3 matrix_normal;
-uniform mat4 matrix_view;
 uniform mat4 matrix_viewProjection;
 
 varying vec3 vNormal;
@@ -546,6 +514,11 @@ void main(void)
         materialBehind.getShaderVariant = materialDefault.getShaderVariant;
         materialOccluder.getShaderVariant = materialDefault.getShaderVariant;
 
+        // Capsule vertex shader - handles proper hemisphere scaling and positioning
+        // The geometry is a Y-axis unit capsule (radius=1) with hemispheres at y=0
+        // aSide indicates which hemisphere: +1 for top, -1 for bottom
+        // The shader scales by radius and offsets hemispheres along local Y
+        // Graph rotation handles X and Z axis orientations
         const capsuleVShader = `
 attribute vec3 aPosition;
 attribute vec3 aNormal;
@@ -563,8 +536,12 @@ varying vec3 vPosition;
 
 void main(void)
 {
+    // Scale the entire position by radius to get correct hemisphere size
     vec3 pos = aPosition * radius;
-    pos.{axis} += aSide * max(height / 2.0 - radius, 0.0);
+    // Offset the hemispheres apart along local Y to create the cylindrical section
+    // When height = 2*radius, offset is 0 (hemispheres touching)
+    // When height > 2*radius, offset > 0 (cylindrical gap)
+    pos.y += aSide * max(height * 0.5 - radius, 0.0);
     vec4 posW = matrix_model * vec4(pos, 1.0);
     vNormal = normalize(matrix_normal * aNormal);
     posW += vec4(vNormal * offset, 0.0);
@@ -573,26 +550,8 @@ void main(void)
 }
             `.trim();
 
-        const capsuleFShader = `
-precision ${app.graphicsDevice.precision} float;
-
-varying vec3 vNormal;
-varying vec3 vPosition;
-
-uniform vec4 uColor;
-uniform vec3 view_position;
-
-void main(void)
-{
-    vec3 viewNormal = normalize(view_position - vPosition);
-    float light = dot(vNormal, viewNormal);
-    gl_FragColor = vec4(uColor.rgb * light * 2.0, uColor.a);
-}
-            `.trim();
-
         const capsuleVShaderPick = `
 attribute vec3 aPosition;
-attribute vec3 aNormal;
 attribute float aSide;
 
 uniform mat4 matrix_model;
@@ -603,7 +562,7 @@ uniform float height;
 void main(void)
 {
     vec3 pos = aPosition * radius;
-    pos.{axis} += aSide * max(height / 2.0 - radius, 0.0);
+    pos.y += aSide * max(height * 0.5 - radius, 0.0);
     vec4 posW = matrix_model * vec4(pos, 1.0);
     gl_Position = matrix_viewProjection * posW;
 }
@@ -620,113 +579,74 @@ void main(void)
 }
             `.trim();
 
-        const makeCapsuleMaterial = function (a) {
-            const matDefault = materials[`capsule-${a}`] = cloneColorMaterial(materialDefault);
-            const _getShaderVariant = matDefault.getShaderVariant;
-            matDefault.getShaderVariant = function (params) {
-                if (params.pass === pc.SHADER_FORWARD) {
-                    if (!shaderCapsule[a]) {
-                        shaderCapsule[a] = new pc.Shader(params.device, {
-                            attributes: {
-                                aPosition: pc.SEMANTIC_POSITION,
-                                aNormal: pc.SEMANTIC_NORMAL,
-                                aSide: pc.SEMANTIC_ATTR15
-                            },
-                            vshader: capsuleVShader.replace('{axis}', a),
-                            fshader: capsuleFShader
-                        });
-                    }
-                    return shaderCapsule[a];
+        // Create single set of capsule materials (Y-axis, rotation handles other axes)
+        let shaderCapsuleForward;
+        let shaderCapsulePick;
+
+        const matCapsule = cloneColorMaterial(materialDefault);
+        const _getCapsuleShaderVariant = matCapsule.getShaderVariant;
+        matCapsule.getShaderVariant = function (params) {
+            if (params.pass === pc.SHADER_FORWARD) {
+                if (!shaderCapsuleForward) {
+                    shaderCapsuleForward = new pc.Shader(params.device, {
+                        attributes: {
+                            aPosition: pc.SEMANTIC_POSITION,
+                            aNormal: pc.SEMANTIC_NORMAL,
+                            aSide: pc.SEMANTIC_ATTR15
+                        },
+                        vshader: capsuleVShader,
+                        fshader: defaultFShader
+                    });
                 }
-                if (params.pass === pc.SHADER_PICK) {
-                    const shaderName = `pick-${a}`;
-                    if (!shaderCapsule[shaderName]) {
-                        shaderCapsule[shaderName] = new pc.Shader(params.device, {
-                            attributes: {
-                                aPosition: pc.SEMANTIC_POSITION,
-                                aNormal: pc.SEMANTIC_NORMAL,
-                                aSide: pc.SEMANTIC_ATTR15
-                            },
-                            vshader: capsuleVShaderPick.replace('{axis}', a),
-                            fshader: capsuleFShaderPick
-                        });
-                    }
-                    return shaderCapsule[shaderName];
-                }
-                _getShaderVariant.call(this, params);
-
-            };
-
-            matDefault.update();
-
-            const matBehind = materials[`capsuleBehind-${a}`] = materialBehind.clone();
-            matBehind.getShaderVariant = matDefault.getShaderVariant;
-            matBehind.update();
-
-            const matOccluder = materials[`capsuleOcclude-${a}`] = materialOccluder.clone();
-            matOccluder.getShaderVariant = matDefault.getShaderVariant;
-            matOccluder.update();
-        };
-
-        for (const key in axesNames) {
-            makeCapsuleMaterial(axesNames[key]);
-        }
-
-        const rad = Math.PI / 180;
-
-        const createModel = function (args) {
-            let mesh;
-
-            if (args.mesh) {
-                mesh = args.mesh;
-            } else if (args.vertices) {
-                // mesh
-                mesh = new pc.Mesh(app.graphicsDevice);
-                mesh.vertexBuffer = args.vertices;
-                mesh.indexBuffer[0] = args.indices;
-                mesh.primitive[0].type = pc.PRIMITIVE_TRIANGLES;
-                mesh.primitive[0].base = 0;
-                mesh.primitive[0].count = args.count;
-                mesh.primitive[0].indexed = true;
-            } else {
-                const geom = new pc.Geometry();
-                geom.positions = args.positions;
-                geom.normals = args.normals;
-                geom.indices = args.indices;
-                mesh = pc.Mesh.fromGeometry(app.graphicsDevice, geom);
+                return shaderCapsuleForward;
             }
+            if (params.pass === pc.SHADER_PICK) {
+                if (!shaderCapsulePick) {
+                    shaderCapsulePick = new pc.Shader(params.device, {
+                        attributes: {
+                            aPosition: pc.SEMANTIC_POSITION,
+                            aSide: pc.SEMANTIC_ATTR15
+                        },
+                        vshader: capsuleVShaderPick,
+                        fshader: capsuleFShaderPick
+                    });
+                }
+                return shaderCapsulePick;
+            }
+            return _getCapsuleShaderVariant.call(this, params);
+        };
+        matCapsule.update();
 
-            // node
+        const matCapsuleBehind = materialBehind.clone();
+        matCapsuleBehind.getShaderVariant = matCapsule.getShaderVariant;
+        matCapsuleBehind.update();
+
+        const matCapsuleOccluder = materialOccluder.clone();
+        matCapsuleOccluder.getShaderVariant = matCapsule.getShaderVariant;
+        matCapsuleOccluder.update();
+
+        const createModel = (mesh) => {
             const node = new pc.GraphNode();
-            // meshInstance
-            const meshInstance = new pc.MeshInstance(mesh, args.matDefault, node);
+
+            const meshInstance = new pc.MeshInstance(mesh, materialDefault, node);
             meshInstance.__editor = true;
             meshInstance.__collision = true;
-            // meshInstance.layer = 12;
             meshInstance.castShadow = false;
-            // meshInstance.castLightmapShadow = false;
             meshInstance.receiveShadow = false;
-            // meshInstance.updateKey();
-            // meshInstanceBehind
-            const meshInstanceBehind = new pc.MeshInstance(mesh, args.matBehind, node);
+
+            const meshInstanceBehind = new pc.MeshInstance(mesh, materialBehind, node);
             meshInstanceBehind.__editor = true;
             meshInstanceBehind.pick = false;
-            // meshInstanceBehind.layer = 2;
             meshInstanceBehind.drawToDepth = false;
             meshInstanceBehind.castShadow = false;
-            // meshInstanceBehind.castLightmapShadow = false;
             meshInstanceBehind.receiveShadow = false;
-            // meshInstanceBehind.updateKey();
-            // meshInstanceOccluder
-            const meshInstanceOccluder = new pc.MeshInstance(mesh, args.matOccluder, node);
+
+            const meshInstanceOccluder = new pc.MeshInstance(mesh, materialOccluder, node);
             meshInstanceOccluder.__editor = true;
             meshInstanceOccluder.pick = false;
-            // meshInstanceOccluder.layer = 9;
             meshInstanceOccluder.castShadow = false;
-            // meshInstanceOccluder.castLightmapShadow = false;
             meshInstanceOccluder.receiveShadow = false;
-            // meshInstanceOccluder.updateKey();
-            // model
+
             const model = new pc.Model();
             model.graph = node;
             model.meshInstances = [meshInstance, meshInstanceBehind, meshInstanceOccluder];
@@ -734,238 +654,280 @@ void main(void)
             return model;
         };
 
-
         // ================
         // box
-        let positions = [
-            1, 1, 1,   1, 1, -1,   -1, 1, -1,   -1, 1, 1, // top
-            1, 1, 1,   -1, 1, 1,   -1, -1, 1,   1, -1, 1, // front
-            1, 1, 1,   1, -1, 1,   1, -1, -1,   1, 1, -1, // right
-            1, 1, -1,   1, -1, -1,   -1, -1, -1,   -1, 1, -1, // back
-            -1, 1, 1,   -1, 1, -1,   -1, -1, -1,   -1, -1, 1, // left
-            1, -1, 1,   -1, -1, 1,   -1, -1, -1,   1, -1, -1 // bottom
-        ];
-        let normals = [
-            0, 1, 0,   0, 1, 0,   0, 1, 0,   0, 1, 0,
-            0, 0, 1,   0, 0, 1,   0, 0, 1,   0, 0, 1,
-            1, 0, 0,   1, 0, 0,   1, 0, 0,   1, 0, 0,
-            0, 0, -1,   0, 0, -1,   0, 0, -1,   0, 0, -1,
-            -1, 0, 0,   -1, 0, 0,   -1, 0, 0,   -1, 0, 0,
-            0, -1, 0,   0, -1, 0,   0, -1, 0,   0, -1, 0
-        ];
-        let indices = [
-            0, 1, 2, 2, 3, 0,
-            4, 5, 6, 6, 7, 4,
-            8, 9, 10, 10, 11, 8,
-            12, 13, 14, 14, 15, 12,
-            16, 17, 18, 18, 19, 16,
-            20, 21, 22, 22, 23, 20
-        ];
-        models.box = createModel({
-            positions: positions,
-            normals: normals,
-            indices: indices,
-            matDefault: materialDefault,
-            matBehind: materialBehind,
-            matOccluder: materialOccluder
-        });
-
+        models.box = createModel(pc.Mesh.fromGeometry(app.graphicsDevice, new pc.BoxGeometry({
+            halfExtents: new pc.Vec3(1, 1, 1)
+        })));
 
         // ================
         // sphere
-        const segments = 64;
-        positions = [];
-        normals = [];
-        indices = [];
-
-        for (let y = 1; y < segments / 2; y++) {
-            for (let i = 0; i < segments; i++) {
-                const l = Math.sin((y * (180 / (segments / 2)) + 90) * rad);
-                const c = Math.cos((y * (180 / (segments / 2)) + 90) * rad);
-                vecA.set(Math.sin(360 / segments * i * rad) * Math.abs(c), l, Math.cos(360 / segments * i * rad) * Math.abs(c));
-                positions.push(vecA.x, vecA.y, vecA.z);
-                vecA.normalize();
-                normals.push(vecA.x, vecA.y, vecA.z);
-            }
-        }
-
-        positions.push(0, 1, 0);
-        normals.push(0, 1, 0);
-        positions.push(0, -1, 0);
-        normals.push(0, -1, 0);
-
-        for (let y = 0; y < segments / 2 - 2; y++) {
-            for (let i = 0; i < segments; i++) {
-                indices.push(y * segments + i, (y + 1) * segments + i, y * segments + (i + 1) % segments);
-                indices.push((y + 1) * segments + i, (y + 1) * segments + (i + 1) % segments, y * segments + (i + 1) % segments);
-            }
-        }
-
-        for (let i = 0; i < segments; i++) {
-            indices.push(i, (i + 1) % segments, (segments / 2 - 1) * segments);
-            indices.push((segments / 2 - 2) * segments + i, (segments / 2 - 1) * segments + 1, (segments / 2 - 2) * segments + (i + 1) % segments);
-        }
-
-        models.sphere = createModel({
-            positions: positions,
-            normals: normals,
-            indices: indices,
-            matDefault: materialDefault,
-            matBehind: materialBehind,
-            matOccluder: materialOccluder
-        });
+        models.sphere = createModel(pc.Mesh.fromGeometry(app.graphicsDevice, new pc.SphereGeometry({
+            radius: 1,
+            latitudeBands: 32,
+            longitudeBands: 64
+        })));
 
         // ================
-        // cones
-        models['cone-x'] = createModel({
-            mesh: pc.Mesh.fromGeometry(app.graphicsDevice, new pc.ConeGeometry()),
-            matDefault: materialDefault,
-            matBehind: materialBehind,
-            matOccluder: materialOccluder
-        });
+        // cones (shared mesh, rotation handles axis)
+        const coneMesh = pc.Mesh.fromGeometry(app.graphicsDevice, new pc.ConeGeometry());
+        models['cone-x'] = createModel(coneMesh);
         models['cone-x'].graph.setLocalEulerAngles(0, 0, -90);
         models['cone-x'].graph.setLocalScale(2, 1, 2);
-        models['cone-y'] = createModel({
-            mesh: pc.Mesh.fromGeometry(app.graphicsDevice, new pc.ConeGeometry()),
-            matDefault: materialDefault,
-            matBehind: materialBehind,
-            matOccluder: materialOccluder
-        });
+        models['cone-y'] = createModel(coneMesh);
         models['cone-y'].graph.setLocalScale(2, 1, 2);
-        models['cone-z'] = createModel({
-            mesh: pc.Mesh.fromGeometry(app.graphicsDevice, new pc.ConeGeometry()),
-            matDefault: materialDefault,
-            matBehind: materialBehind,
-            matOccluder: materialOccluder
-        });
+        models['cone-z'] = createModel(coneMesh);
         models['cone-z'].graph.setLocalEulerAngles(90, 0, 0);
         models['cone-z'].graph.setLocalScale(2, 1, 2);
 
         // ================
-        // cylinders
-        const axes = {
-            'x': ['z', 'y', 'x'],
-            'y': ['x', 'z', 'y'],
-            'z': ['y', 'x', 'z']
-        };
-        for (const a in axes) {
-            positions = [];
-            indices = [];
-            normals = [];
-            const segments = 72;
-
-            // side
-            for (let v = 1; v >= -1; v -= 2) {
-                for (let i = 0; i < segments; i++) {
-                    vecA[axes[a][0]] = Math.sin(360 / segments * i * rad);
-                    vecA[axes[a][1]] = Math.cos(360 / segments * i * rad);
-                    vecA[axes[a][2]] = v * 0.5;
-
-                    vecB.copy(vecA);
-                    vecB[axes[a][2]] = 0;
-                    positions.push(vecA.x, vecA.y, vecA.z);
-                    normals.push(vecB.x, vecB.y, vecB.z);
-                }
-            }
-
-            // top/bottom
-            for (let v = 1; v >= -1; v -= 2) {
-                vecA.set(0, 0, 0);
-                vecA[axes[a][2]] = v;
-                positions.push(vecA.x * 0.5, vecA.y * 0.5, vecA.z * 0.5);
-                normals.push(vecA.x, vecA.y, vecA.z);
-
-                for (let i = 0; i < segments; i++) {
-                    vecA[axes[a][0]] = Math.sin(360 / segments * i * rad);
-                    vecA[axes[a][1]] = Math.cos(360 / segments * i * rad);
-                    vecA[axes[a][2]] = v * 0.5;
-
-                    vecB.set(0, 0, 0);
-                    vecB[axes[a][2]] = v;
-
-                    positions.push(vecA.x, vecA.y, vecA.z);
-                    normals.push(vecB.x, vecB.y, vecB.z);
-                }
-            }
-
-            for (let i = 0; i < segments; i++) {
-                // sides
-                indices.push(i, i + segments, (i + 1) % segments);
-                indices.push(i + segments, (i + 1) % segments + segments, (i + 1) % segments);
-
-                // lids
-                indices.push(segments * 2, segments * 2 + i + 1, segments * 2 + (i + 1) % segments + 1);
-                indices.push(segments * 3 + 1, segments * 3 + (i + 1) % segments + 2, segments * 3 + i + 2);
-            }
-            models[`cylinder-${a}`] = createModel({
-                positions: positions,
-                normals: normals,
-                indices: indices,
-                matDefault: materialDefault,
-                matBehind: materialBehind,
-                matOccluder: materialOccluder
-            });
-        }
+        // cylinders (shared mesh, rotation handles axis)
+        const cylinderMesh = pc.Mesh.fromGeometry(app.graphicsDevice, new pc.CylinderGeometry({ radius: 1, height: 1, capSegments: 72 }));
+        models['cylinder-x'] = createModel(cylinderMesh);
+        models['cylinder-x'].graph.setLocalEulerAngles(0, 0, -90);
+        models['cylinder-y'] = createModel(cylinderMesh);
+        models['cylinder-z'] = createModel(cylinderMesh);
+        models['cylinder-z'].graph.setLocalEulerAngles(90, 0, 0);
 
         // ================
         // capsules
+        // Create Y-axis capsule geometry with aSide attribute for shader sizing
+        // Rotation on graph node handles X and Z axis orientations
+        const createCapsuleGeometry = () => {
+            const capSegments = 20; // segments around (matching engine default)
+            const latitudeBands = Math.floor(capSegments / 2); // rings per hemisphere
 
-        models['capsule-x'] = createModel({
-            mesh: pc.Mesh.fromGeometry(app.graphicsDevice, new pc.CapsuleGeometry({
-                height: 2.0,
-                radius: 0.5
-            })),
-            matDefault: materialDefault,
-            matBehind: materialBehind,
-            matOccluder: materialOccluder
-        });
-        models['capsule-x'].graph.setLocalEulerAngles(0.0, 0.0, -90.0);
-        models['capsule-x'].graph.setLocalScale(2.0, 0.5, 2.0);
+            const positions = [];
+            const normals = [];
+            const sides = []; // aSide attribute
+            const indices = [];
 
-        models['capsule-y'] = createModel({
-            mesh: pc.Mesh.fromGeometry(app.graphicsDevice, new pc.CapsuleGeometry({
-                height: 2.0,
-                radius: 0.5
-            })),
-            matDefault: materialDefault,
-            matBehind: materialBehind,
-            matOccluder: materialOccluder
-        });
-        models['capsule-y'].graph.setLocalScale(2.0, 0.5, 2.0);
+            // === CYLINDER BODY ===
+            // Two rings at y=0, one moves up (aSide=+1), one moves down (aSide=-1)
 
-        models['capsule-z'] = createModel({
-            mesh: pc.Mesh.fromGeometry(app.graphicsDevice, new pc.CapsuleGeometry({
-                height: 2.0,
-                radius: 0.5
-            })),
-            matDefault: materialDefault,
-            matBehind: materialBehind,
-            matOccluder: materialOccluder
-        });
-        models['capsule-z'].graph.setLocalEulerAngles(90.0, 0.0, 0.0);
-        models['capsule-z'].graph.setLocalScale(2.0, 0.5, 2.0);
+            // Top cylinder ring (aSide = +1)
+            for (let j = 0; j <= capSegments; j++) {
+                const phi = j * 2 * Math.PI / capSegments - Math.PI / 2;
+                const x = Math.cos(phi);
+                const z = Math.sin(phi);
+
+                positions.push(x, 0, z);
+                normals.push(x, 0, z); // Radial normal
+                sides.push(1);
+            }
+
+            // Bottom cylinder ring (aSide = -1)
+            for (let j = 0; j <= capSegments; j++) {
+                const phi = j * 2 * Math.PI / capSegments - Math.PI / 2;
+                const x = Math.cos(phi);
+                const z = Math.sin(phi);
+
+                positions.push(x, 0, z);
+                normals.push(x, 0, z);
+                sides.push(-1);
+            }
+
+            // Cylinder body indices
+            for (let j = 0; j < capSegments; j++) {
+                const top = j;
+                const bottom = capSegments + 1 + j;
+
+                indices.push(top, top + 1, bottom);
+                indices.push(top + 1, bottom + 1, bottom);
+            }
+
+            const cylinderVertexCount = 2 * (capSegments + 1);
+
+            // === TOP HEMISPHERE CAP ===
+            const topCapOffset = cylinderVertexCount;
+
+            for (let lat = 0; lat <= latitudeBands; lat++) {
+                const theta = (lat * Math.PI * 0.5) / latitudeBands;
+                const sinTheta = Math.sin(theta);
+                const cosTheta = Math.cos(theta);
+
+                for (let lon = 0; lon <= capSegments; lon++) {
+                    const phi = lon * 2 * Math.PI / capSegments - Math.PI / 2;
+                    const sinPhi = Math.sin(phi);
+                    const cosPhi = Math.cos(phi);
+
+                    const x = cosPhi * sinTheta;
+                    const y = cosTheta;
+                    const z = sinPhi * sinTheta;
+
+                    positions.push(x, y, z);
+                    normals.push(x, y, z);
+                    sides.push(1);
+                }
+            }
+
+            // Top hemisphere indices
+            for (let lat = 0; lat < latitudeBands; lat++) {
+                for (let lon = 0; lon < capSegments; lon++) {
+                    const first = topCapOffset + lat * (capSegments + 1) + lon;
+                    const second = first + capSegments + 1;
+
+                    indices.push(first + 1, second, first);
+                    indices.push(first + 1, second + 1, second);
+                }
+            }
+
+            // Connect cylinder top ring to top hemisphere equator
+            const topHemiEquatorOffset = topCapOffset + latitudeBands * (capSegments + 1);
+            for (let j = 0; j < capSegments; j++) {
+                const cylTop = j;
+                const hemiEquator = topHemiEquatorOffset + j;
+
+                indices.push(cylTop, hemiEquator, hemiEquator + 1);
+                indices.push(cylTop, hemiEquator + 1, cylTop + 1);
+            }
+
+            const topHemiVertexCount = (latitudeBands + 1) * (capSegments + 1);
+
+            // === BOTTOM HEMISPHERE CAP ===
+            const bottomCapOffset = cylinderVertexCount + topHemiVertexCount;
+
+            for (let lat = 0; lat <= latitudeBands; lat++) {
+                const theta = Math.PI * 0.5 + (lat * Math.PI * 0.5) / latitudeBands;
+                const sinTheta = Math.sin(theta);
+                const cosTheta = Math.cos(theta);
+
+                for (let lon = 0; lon <= capSegments; lon++) {
+                    const phi = lon * 2 * Math.PI / capSegments - Math.PI / 2;
+                    const sinPhi = Math.sin(phi);
+                    const cosPhi = Math.cos(phi);
+
+                    const x = cosPhi * sinTheta;
+                    const y = cosTheta;
+                    const z = sinPhi * sinTheta;
+
+                    positions.push(x, y, z);
+                    normals.push(x, y, z);
+                    sides.push(-1);
+                }
+            }
+
+            // Bottom hemisphere indices
+            for (let lat = 0; lat < latitudeBands; lat++) {
+                for (let lon = 0; lon < capSegments; lon++) {
+                    const first = bottomCapOffset + lat * (capSegments + 1) + lon;
+                    const second = first + capSegments + 1;
+
+                    indices.push(first + 1, second, first);
+                    indices.push(first + 1, second + 1, second);
+                }
+            }
+
+            // Connect cylinder bottom ring to bottom hemisphere equator
+            for (let j = 0; j < capSegments; j++) {
+                const cylBottom = capSegments + 1 + j;
+                const hemiEquator = bottomCapOffset + j;
+
+                indices.push(cylBottom, hemiEquator + 1, hemiEquator);
+                indices.push(cylBottom, cylBottom + 1, hemiEquator + 1);
+            }
+
+            // Create the mesh with custom aSide attribute
+            const mesh = new pc.Mesh(app.graphicsDevice);
+
+            const vertexFormat = new pc.VertexFormat(app.graphicsDevice, [
+                { semantic: pc.SEMANTIC_POSITION, components: 3, type: pc.TYPE_FLOAT32 },
+                { semantic: pc.SEMANTIC_NORMAL, components: 3, type: pc.TYPE_FLOAT32 },
+                { semantic: pc.SEMANTIC_ATTR15, components: 1, type: pc.TYPE_FLOAT32 }
+            ]);
+
+            const vertexCount = positions.length / 3;
+            const vertexBuffer = new pc.VertexBuffer(app.graphicsDevice, vertexFormat, vertexCount);
+            const vertexData = new Float32Array(vertexBuffer.lock());
+
+            for (let i = 0; i < vertexCount; i++) {
+                const offset = i * 7;
+                vertexData[offset] = positions[i * 3];
+                vertexData[offset + 1] = positions[i * 3 + 1];
+                vertexData[offset + 2] = positions[i * 3 + 2];
+                vertexData[offset + 3] = normals[i * 3];
+                vertexData[offset + 4] = normals[i * 3 + 1];
+                vertexData[offset + 5] = normals[i * 3 + 2];
+                vertexData[offset + 6] = sides[i];
+            }
+
+            vertexBuffer.unlock();
+            mesh.vertexBuffer = vertexBuffer;
+
+            const indexBuffer = new pc.IndexBuffer(app.graphicsDevice, pc.INDEXFORMAT_UINT16, indices.length);
+            const indexData = new Uint16Array(indexBuffer.lock());
+            indexData.set(indices);
+            indexBuffer.unlock();
+
+            mesh.indexBuffer[0] = indexBuffer;
+            mesh.primitive[0].type = pc.PRIMITIVE_TRIANGLES;
+            mesh.primitive[0].base = 0;
+            mesh.primitive[0].count = indices.length;
+            mesh.primitive[0].indexed = true;
+
+            return mesh;
+        };
+
+        // Create single capsule mesh (Y-axis), shared by all capsule models
+        const capsuleMesh = createCapsuleGeometry();
+
+        // Create capsule model with shared mesh and materials
+        const createCapsuleModel = () => {
+            const node = new pc.GraphNode();
+
+            const meshInstance = new pc.MeshInstance(capsuleMesh, matCapsule, node);
+            meshInstance.__editor = true;
+            meshInstance.__collision = true;
+            meshInstance.castShadow = false;
+            meshInstance.receiveShadow = false;
+
+            const meshInstanceBehind = new pc.MeshInstance(capsuleMesh, matCapsuleBehind, node);
+            meshInstanceBehind.__editor = true;
+            meshInstanceBehind.pick = false;
+            meshInstanceBehind.drawToDepth = false;
+            meshInstanceBehind.castShadow = false;
+            meshInstanceBehind.receiveShadow = false;
+
+            const meshInstanceOccluder = new pc.MeshInstance(capsuleMesh, matCapsuleOccluder, node);
+            meshInstanceOccluder.__editor = true;
+            meshInstanceOccluder.pick = false;
+            meshInstanceOccluder.castShadow = false;
+            meshInstanceOccluder.receiveShadow = false;
+
+            const model = new pc.Model();
+            model.graph = node;
+            model.meshInstances = [meshInstance, meshInstanceBehind, meshInstanceOccluder];
+
+            return model;
+        };
+
+        // Create capsule models - Y-axis is base, X and Z use rotation
+        models['capsule-x'] = createCapsuleModel();
+        models['capsule-x'].graph.setLocalEulerAngles(0, 0, -90);
+
+        models['capsule-y'] = createCapsuleModel();
+
+        models['capsule-z'] = createCapsuleModel();
+        models['capsule-z'].graph.setLocalEulerAngles(90, 0, 0);
     });
 
     // prepares mesh instances to be rendered as collision meshes
-    const prepareMeshInstances = function (meshInstances, color) {
-
+    const prepareMeshInstances = (meshInstances, color) => {
         const meshesExtra = [];
 
-        for (let i = 0; i < meshInstances.length; i++) {
-
+        for (const mi of meshInstances) {
             // clone original instance and set it up
-            meshInstances[i].material = cloneColorMaterial(materialDefault);
-            meshInstances[i].material.getShaderVariant = materialDefault.getShaderVariant;
-            meshInstances[i].material.color = new pc.Color(color[0], color[1], color[2], alphaFront);
-            meshInstances[i].material.update();
-            meshInstances[i].__editor = true;
-            meshInstances[i].__collision = true;
-            meshInstances[i].castShadow = false;
-            meshInstances[i].receiveShadow = false;
-            meshInstances[i].setParameter('offset', 0);
+            mi.material = cloneColorMaterial(materialDefault);
+            mi.material.getShaderVariant = materialDefault.getShaderVariant;
+            mi.material.color = new pc.Color(color[0], color[1], color[2], alphaFront);
+            mi.material.update();
+            mi.__editor = true;
+            mi.__collision = true;
+            mi.castShadow = false;
+            mi.receiveShadow = false;
+            mi.setParameter('offset', 0);
 
-            const node = meshInstances[i].node;
-            const mesh = meshInstances[i].mesh;
+            const { node, mesh } = mi;
 
             // additional instance for behind the mesh
             const meshInstanceBehind = new pc.MeshInstance(mesh, cloneColorMaterial(materialBehind), node);
@@ -995,29 +957,23 @@ void main(void)
     };
 
     // returns an array of meshInstances
-    var createRenderCopy = function (resource, color) {
-        let meshInstances = [];
-        const meshes = resource.meshes;
-        for (let i = 0; i < meshes.length; i++) {
-            const material = cloneColorMaterial(materialDefault);
-            const meshInstance = new pc.MeshInstance(meshes[i], material);
-            meshInstances.push(meshInstance);
-        }
-
+    const createRenderCopy = (resource, color) => {
+        let meshInstances = resource.meshes.map((mesh) => {
+            return new pc.MeshInstance(mesh, cloneColorMaterial(materialDefault));
+        });
         meshInstances = prepareMeshInstances(meshInstances, color);
         return meshInstances;
     };
 
-    var createModelCopy = function (resource, color) {
+    const createModelCopy = (resource, color) => {
         const model = resource.clone();
-        const meshInstances = prepareMeshInstances(model.meshInstances, color);
-        model.meshInstances = meshInstances;
+        model.meshInstances = prepareMeshInstances(model.meshInstances, color);
         return model;
     };
 
-    editor.on('viewport:gizmoUpdate', (dt) => {
-        for (const key in entities) {
-            entities[key].update();
+    editor.on('viewport:gizmoUpdate', () => {
+        for (const gizmo of Object.values(entities)) {
+            gizmo.update();
         }
     });
 });
