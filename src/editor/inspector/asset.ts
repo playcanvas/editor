@@ -465,10 +465,7 @@ class AssetInspector extends Container {
     }
 
     _onClickDownloadAsset(evt) {
-        // Use the download API endpoint which properly handles filenames
-        // including special characters like # that would otherwise be URL-encoded
-        // Note: Button visibility is controlled by _updateDownloadButton()
-        window.open(`/api/assets/${this._assets[0].get('id')}/download?branchId=${config.self.branch.id}`);
+        editor.call('assets:download', this._assets[0]);
     }
 
     _onClickOpenInViewer(evt) {
@@ -611,7 +608,7 @@ class AssetInspector extends Container {
         if (this._assets) {
             if (this._assets[0].get('type') === 'script' && this._projectSettings.get('useLegacyScripts')) {
                 hidden = true;
-            } else if (this._assets.length > 1 || ['folder', 'sprite', 'animstategraph', 'render', 'template'].includes(this._assets[0].get('type'))) {
+            } else if (this._assets.length > 1 || ['folder', 'sprite', 'render', 'template'].includes(this._assets[0].get('type'))) {
                 hidden = true;
             }
         }
