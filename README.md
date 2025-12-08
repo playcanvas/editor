@@ -55,7 +55,7 @@ The Editor is built on the following open source libraries:
 | Library                                                       | Details                                     |
 | ------------------------------------------------------------- | ------------------------------------------- |
 | [PlayCanvas Engine](https://github.com/playcanvas/engine)     | Powers the Editor's 3D View and Launch Page |
-| [Observer](https://github.com/playcanvas/playcanvas-observer) | Data binding and history                    |
+| [Observer](https://github.com/playcanvas/observer)            | Data binding and history                    |
 | [PCUI](https://github.com/playcanvas/pcui)                    | Front-end component library                 |
 | [PCUI-Graph](https://github.com/playcanvas/pcui-graph)        | PCUI plugin for rendering node-based graphs |
 
