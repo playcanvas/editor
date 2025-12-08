@@ -144,6 +144,7 @@ import './assets/assets-duplicate';
 import './assets/assets-copy';
 import './assets/assets-paste';
 import './assets/assets-edit';
+import './assets/assets-download';
 import './assets/assets-replace';
 import './assets/assets-rename';
 import './assets/assets-rename-select';
