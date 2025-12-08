@@ -637,19 +637,11 @@ class EntitiesTreeView extends TreeView {
             return;
         }
 
-        if (parentDisabled === undefined) {
-            parentDisabled = this._isParentDisabled(entity);
-        }
-
-        const selfEnabled = entity.get('enabled');
         // Visual state is enabled only if both self is enabled AND no parent is disabled
-        item.enabled = selfEnabled && !parentDisabled;
+        item.enabled = entity.get('enabled') && !(parentDisabled ?? this._isParentDisabled(entity));
 
         if (recurse) {
-            // When recursing to children, they are "parent disabled" if:
-            // - Our parent was disabled, OR
-            // - We ourselves are disabled
-            const childParentDisabled = parentDisabled || !selfEnabled;
+            const childParentDisabled = !this.enabled;
             entity.get('children').forEach((childId) => {
                 const child = this._entities.get(childId);
                 if (child) {
