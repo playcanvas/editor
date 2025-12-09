@@ -6,6 +6,7 @@
   "packageRules": [
     {
       "matchPackageNames": ["node"],
+      "matchDepTypes": ["engines"],
       "allowedVersions": "18.x",
       "rangeStrategy": "pin"
     },
