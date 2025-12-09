@@ -43,7 +43,7 @@
     "@rollup/plugin-replace": "6.0.3",
     "@rollup/plugin-swc": "0.4.0",
     "@swc/core": "1.15.3",
-    "@typescript-eslint/parser": "8.47.0",
+    "@typescript-eslint/parser": "8.49.0",
     "@types/sharedb": "3.3.13",
     "autoprefixer": "10.4.22",
     "chai": "5.3.3",
@@ -58,14 +58,14 @@
     "markdown-it": "14.1.0",
     "mocha": "11.7.5",
     "monaco-editor": "0.47.0",
-    "monaco-themes": "0.4.7",
+    "monaco-themes": "0.4.8",
     "nodemon": "3.1.11",
     "ot-text": "github:playcanvas/ot-text",
-    "playcanvas": "2.13.6",
+    "playcanvas": "2.14.3",
     "postcss": "8.5.6",
     "rollup": "4.53.3",
     "rollup-plugin-copy": "3.5.0",
-    "rollup-plugin-dts": "6.2.3",
+    "rollup-plugin-dts": "6.3.0",
     "rollup-plugin-polyfill-node": "0.13.0",
     "rollup-plugin-tsconfig-paths": "1.5.2",
     "sass-embedded": "1.93.3",
@@ -98,6 +98,6 @@
     "watch:js": "rollup -c -w"
   },
   "engines": {
-    "node": "22.11.0"
+    "node": "22.21.1"
   }
 }
