@@ -1,4 +1,4 @@
-import { BooleanInput, Container, Label, SelectInput, TextAreaInput } from '@playcanvas/pcui';
+import { BooleanInput, Container, Label, SelectInput, TextAreaInput, TextInput } from '@playcanvas/pcui';
 
 import { LegacyButton } from '@/common/ui/button';
 import { LegacyCheckbox } from '@/common/ui/checkbox';
@@ -187,29 +187,33 @@ editor.once('load', () => {
     panelDescription.append(inputDescription);
 
     // version
-    const panelVersion = new LegacyPanel();
-    panelVersion.class.add('version');
+    const panelVersion = new Container({
+        class: 'version'
+    });
     panel.append(panelVersion);
 
-    label = new LegacyLabel({ text: 'Version' });
-    label.class.add('field-label');
-    panelVersion.append(label);
-
-    const inputVersionError = new LegacyLabel({
-        text: 'Cannot exceed 20 characters'
+    const labelVersion = new Label({
+        text: 'Version',
+        class: 'field-label'
     });
-    inputVersionError.class.add('error');
-    inputVersionError.hidden = true;
+    panelVersion.append(labelVersion);
+
+    const inputVersionError = new Label({
+        text: 'Cannot exceed 20 characters',
+        class: 'error',
+        hidden: true
+    });
     panelVersion.append(inputVersionError);
 
-    const inputVersion = new LegacyTextField();
-    inputVersion.renderChanges = false;
-    inputVersion.class.add('input-field');
-    inputVersion.placeholder = 'e.g. 1.0.0';
+    const inputVersion = new TextInput({
+        renderChanges: false,
+        class: 'input-field',
+        placeholder: 'e.g. 1.0.0'
+    });
     panelVersion.append(inputVersion);
 
-    inputVersion.elementInput.addEventListener('keyup', (e) => {
-        inputVersionError.hidden = inputVersion.value.length <= 20;
+    inputVersion.on('change', (value: string) => {
+        inputVersionError.hidden = value.length <= 20;
         refreshButtonsState();
     });
 

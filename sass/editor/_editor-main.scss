@@ -6850,7 +6850,8 @@ strong {
             }
         }
 
-        .ui-text-field.input-field {
+        .ui-text-field.input-field,
+        .pcui-text-input.input-field {
             margin: 0;
             height: 36px;
             line-height: 34px;
@@ -7180,7 +7181,8 @@ strong {
     }
 
     &.download-mode {
-        .ui-panel {
+        .ui-panel,
+        .pcui-container {
             &.description,
             &.version {
                 display: none;
