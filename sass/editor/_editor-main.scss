@@ -6906,6 +6906,47 @@ strong {
             }
         }
 
+        // PCUI TextAreaInput (no .content wrapper)
+        > .notes > .pcui-text-area-input {
+            margin: 0; // Reset PCUI default 6px margin
+            width: 100%;
+            height: auto;
+            background-color: $bcg-dark;
+            border: 1px solid $bcg-darker;
+            border-radius: 0;
+
+            > textarea {
+                display: block;
+                background-color: transparent;
+                color: $text-primary;
+                margin: 0;
+                padding: 10px;
+                resize: none;
+
+                @extend .font-regular;
+
+                font-size: 14px;
+                width: calc(100% - 20px);
+                height: 65px;
+
+                &.active,
+                &:hover,
+                &:focus,
+                &.focus {
+                    background-color: $bcg-darkest;
+                    outline: none;
+                    border-color: transparent;
+                    box-shadow: none;
+                }
+            }
+
+            &:hover,
+            &:focus-within {
+                background-color: $bcg-darkest;
+                border-color: transparent;
+            }
+        }
+
         > .options {
             > .content {
                 > .ui-panel.field {

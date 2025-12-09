@@ -1,4 +1,4 @@
-import { BooleanInput, Container, Label, SelectInput } from '@playcanvas/pcui';
+import { BooleanInput, Container, Label, SelectInput, TextAreaInput } from '@playcanvas/pcui';
 
 import { LegacyButton } from '@/common/ui/button';
 import { LegacyCheckbox } from '@/common/ui/checkbox';
@@ -214,29 +214,30 @@ editor.once('load', () => {
     });
 
     // release notes
-    const panelNotes = new LegacyPanel();
-    panelNotes.class.add('notes');
+    const panelNotes = new Container({
+        class: 'notes'
+    });
     panel.append(panelNotes);
 
-    label = new LegacyLabel({ text: 'Release Notes' });
-    label.class.add('field-label');
-    panelNotes.append(label);
-
-    const inputNotesError = new LegacyLabel({
-        text: 'Cannot exceed 10000 characters'
+    const labelNotes = new Label({
+        text: 'Release Notes',
+        class: 'field-label'
     });
-    inputNotesError.class.add('error');
-    inputNotesError.hidden = true;
+    panelNotes.append(labelNotes);
+
+    const inputNotesError = new Label({
+        text: 'Cannot exceed 10000 characters',
+        class: 'error',
+        hidden: true
+    });
     panelNotes.append(inputNotesError);
 
-    const inputNotes = document.createElement('textarea');
+    const inputNotes = new TextAreaInput({
+        keyChange: true
+    });
     panelNotes.append(inputNotes);
-    inputNotes.addEventListener('keyup', (e) => {
-        if (e.keyCode === 27) {
-            inputNotes.blur();
-        }
-
-        inputNotesError.hidden = inputNotes.value.length <= 10000;
+    inputNotes.on('change', (value: string) => {
+        inputNotesError.hidden = value.length <= 10000;
         refreshButtonsState();
     });
 
