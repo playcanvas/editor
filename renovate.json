@@ -7,7 +7,7 @@
     {
       "matchPackageNames": ["node"],
       "matchDepTypes": ["engines"],
-      "allowedVersions": "18.x",
+      "allowedVersions": "22.x",
       "rangeStrategy": "pin"
     },
     {
