@@ -11,6 +11,12 @@
       "rangeStrategy": "pin"
     },
     {
+      "matchPackageNames": ["node"],
+      "matchManagers": ["nvm"],
+      "allowedVersions": "22.x",
+      "rangeStrategy": "pin"
+    },
+    {
       "matchManagers": [
         "npm"
       ],
