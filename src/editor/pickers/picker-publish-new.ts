@@ -1,4 +1,4 @@
-import { BooleanInput, Container, Label, SelectInput, TextAreaInput, TextInput } from '@playcanvas/pcui';
+import { BooleanInput, Button, Container, Label, SelectInput, TextAreaInput, TextInput } from '@playcanvas/pcui';
 
 import { LegacyButton } from '@/common/ui/button';
 import { LegacyCheckbox } from '@/common/ui/checkbox';
@@ -7,7 +7,6 @@ import { LegacyList } from '@/common/ui/list';
 import { LegacyListItem } from '@/common/ui/list-item';
 import { LegacyPanel } from '@/common/ui/panel';
 import { LegacyProgress } from '@/common/ui/progress';
-import { LegacyTextField } from '@/common/ui/text-field';
 import { LegacyTooltip } from '@/common/ui/tooltip';
 import { convertDatetime } from '@/common/utils';
 
@@ -444,10 +443,10 @@ editor.once('load', () => {
     let jobInProgress = false;
 
     // publish button
-    const btnPublish = new LegacyButton({
-        text: 'Publish Now'
+    const btnPublish = new Button({
+        text: 'Publish Now',
+        class: 'publish'
     });
-    btnPublish.class.add('publish');
     panel.append(btnPublish);
 
     btnPublish.on('click', () => {
@@ -516,10 +515,10 @@ editor.once('load', () => {
     });
 
     // web download button
-    const btnWebDownload = new LegacyButton({
-        text: 'Download'
+    const btnWebDownload = new Button({
+        text: 'Download',
+        class: 'web-download'
     });
-    btnWebDownload.class.add('web-download');
     panel.append(btnWebDownload);
 
     let urlToDownload = null;
