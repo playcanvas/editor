@@ -6832,7 +6832,9 @@ strong {
 
     > .content {
         > .ui-panel > .content > .ui-label,
-        > .info > .content > span > .ui-label {
+        > .info > .content > span > .ui-label,
+        // PCUI Container (no .content wrapper)
+        > .pcui-container > .pcui-label {
             font-size: 12px;
             height: auto;
             line-height: initial;
@@ -6923,6 +6925,22 @@ strong {
                     }
                 }
             }
+
+            // PCUI Container (no .content wrapper)
+            > .pcui-container.field {
+                line-height: 24px;
+
+                > .pcui-boolean-input {
+                    margin: 4px 8px 0 0;
+                }
+
+                > .pcui-label {
+                    margin: 0;
+                    font-size: 12px;
+                    line-height: 24px;
+                    vertical-align: top;
+                }
+            }
         }
 
         > .ui-button {
@@ -6979,11 +6997,14 @@ strong {
             border: none;
         }
 
-        > .ui-panel {
+        > .ui-panel,
+        > .pcui-container {
             margin: 0;
             padding: 15px;
             border-bottom: 1px solid $border-primary;
+        }
 
+        > .ui-panel {
             &.info {
                 > .content {
                     > .image {

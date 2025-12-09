@@ -1,4 +1,4 @@
-import { SelectInput } from '@playcanvas/pcui';
+import { BooleanInput, Container, Label, SelectInput } from '@playcanvas/pcui';
 
 import { LegacyButton } from '@/common/ui/button';
 import { LegacyCheckbox } from '@/common/ui/checkbox';
@@ -20,7 +20,7 @@ editor.once('load', () => {
     // holds events that need to be destroyed
     let events = [];
 
-    let panelOptionsWebLens = null;
+    let panelOptionsWebLens: Container = null;
 
     // main panel
     const panel = new LegacyPanel();
@@ -241,10 +241,14 @@ editor.once('load', () => {
     });
 
     // engine version
-    const panelEngineVersion = new LegacyPanel();
-    label = new LegacyLabel({ text: 'Engine Version' });
-    label.class.add('field-label');
-    panelEngineVersion.append(label);
+    const panelEngineVersion = new Container({
+        class: 'engine-version'
+    });
+    const labelEngineVersion = new Label({
+        text: 'Engine Version',
+        class: 'field-label'
+    });
+    panelEngineVersion.append(labelEngineVersion);
 
     const engineVersionDropdown = new SelectInput({
         value: editor.call('settings:projectUser').get('editor.launchReleaseCandidate') ? 'releaseCandidate' : editor.call('settings:session').get('engineVersion'),
@@ -262,84 +266,97 @@ editor.once('load', () => {
     panelEngineVersion.append(engineVersionDropdown);
     panel.append(panelEngineVersion);
 
-    let fieldOptionsConcat;
-    let fieldOptionsMinify;
-    let fieldOptionsSourcemaps;
-    let fieldOptionsOptimizeSceneFormat;
-    let fieldOptionsWebLens;
+    let fieldOptionsConcat: BooleanInput;
+    let fieldOptionsMinify: BooleanInput;
+    let fieldOptionsSourcemaps: BooleanInput;
+    let fieldOptionsOptimizeSceneFormat: BooleanInput;
+    let fieldOptionsWebLens: BooleanInput;
 
     if (!legacyScripts) {
         // options
-        const panelOptions = new LegacyPanel();
-        panelOptions.class.add('options');
+        const panelOptions = new Container({
+            class: 'options'
+        });
         panel.append(panelOptions);
 
-        label = new LegacyLabel({ text: 'Options' });
-        label.class.add('field-label');
-        panelOptions.append(label);
+        const labelOptions = new Label({
+            text: 'Options',
+            class: 'field-label'
+        });
+        panelOptions.append(labelOptions);
 
         // concatenate scripts
-        const panelOptionsConcat = new LegacyPanel();
-        panelOptionsConcat.class.add('field');
+        const panelOptionsConcat = new Container({
+            class: 'field'
+        });
         panelOptions.append(panelOptionsConcat);
-        fieldOptionsConcat = new LegacyCheckbox();
-        fieldOptionsConcat.value = true;
-        fieldOptionsConcat.class.add('tick');
+        fieldOptionsConcat = new BooleanInput({
+            value: true,
+            class: 'tick'
+        });
         panelOptionsConcat.append(fieldOptionsConcat);
-        label = new LegacyLabel({ text: 'Concatenate Scripts' });
-        panelOptionsConcat.append(label);
+        const labelConcat = new Label({ text: 'Concatenate Scripts' });
+        panelOptionsConcat.append(labelConcat);
 
         // minify scripts
-        const panelOptionsMinify = new LegacyPanel();
-        panelOptionsMinify.class.add('field');
+        const panelOptionsMinify = new Container({
+            class: 'field'
+        });
         panelOptions.append(panelOptionsMinify);
-        fieldOptionsMinify = new LegacyCheckbox();
-        fieldOptionsMinify.value = true;
-        fieldOptionsMinify.class.add('tick');
+        fieldOptionsMinify = new BooleanInput({
+            value: true,
+            class: 'tick'
+        });
         panelOptionsMinify.append(fieldOptionsMinify);
-        label = new LegacyLabel({ text: 'Minify Scripts' });
-        panelOptionsMinify.append(label);
+        const labelMinify = new Label({ text: 'Minify Scripts' });
+        panelOptionsMinify.append(labelMinify);
 
         // generate sourcemaps
-        const panelOptionsSourcemaps = new LegacyPanel();
-        panelOptionsSourcemaps.class.add('field');
+        const panelOptionsSourcemaps = new Container({
+            class: 'field'
+        });
         panelOptions.append(panelOptionsSourcemaps);
-        fieldOptionsSourcemaps = new LegacyCheckbox();
-        fieldOptionsSourcemaps.value = false;
-        fieldOptionsSourcemaps.class.add('tick');
+        fieldOptionsSourcemaps = new BooleanInput({
+            value: false,
+            class: 'tick'
+        });
         panelOptionsSourcemaps.append(fieldOptionsSourcemaps);
-        label = new LegacyLabel({ text: 'Generate Source Maps' });
-        panelOptionsSourcemaps.append(label);
+        const labelSourcemaps = new Label({ text: 'Generate Source Maps' });
+        panelOptionsSourcemaps.append(labelSourcemaps);
 
-        fieldOptionsConcat.on('change', (value) => {
+        fieldOptionsConcat.on('change', (value: boolean) => {
             panelOptionsMinify.hidden = !value;
             panelOptionsSourcemaps.hidden = (!fieldOptionsMinify.value || !value);
         });
 
-        fieldOptionsMinify.on('change', (value) => {
+        fieldOptionsMinify.on('change', (value: boolean) => {
             panelOptionsSourcemaps.hidden = !value;
         });
 
         // optimize scene format
-        const panelOptionsOptimizeFormat = new LegacyPanel();
-        panelOptionsOptimizeFormat.class.add('field');
+        const panelOptionsOptimizeFormat = new Container({
+            class: 'field'
+        });
         panelOptions.append(panelOptionsOptimizeFormat);
-        fieldOptionsOptimizeSceneFormat = new LegacyCheckbox();
-        fieldOptionsOptimizeSceneFormat.value = false;
-        fieldOptionsOptimizeSceneFormat.class.add('tick');
+        fieldOptionsOptimizeSceneFormat = new BooleanInput({
+            value: false,
+            class: 'tick'
+        });
         panelOptionsOptimizeFormat.append(fieldOptionsOptimizeSceneFormat);
-        const labelPreload = new LegacyLabel({ text: 'Optimize Scene Format' });
+        const labelPreload = new Label({ text: 'Optimize Scene Format' });
         panelOptionsOptimizeFormat.append(labelPreload);
 
         // export to WebLens format
-        panelOptionsWebLens = new LegacyPanel();
-        panelOptionsWebLens.class.add('field');
+        panelOptionsWebLens = new Container({
+            class: 'field'
+        });
         panelOptions.append(panelOptionsWebLens);
-        fieldOptionsWebLens = new LegacyCheckbox();
-        fieldOptionsWebLens.value = false;
-        fieldOptionsWebLens.class.add('tick');
+        fieldOptionsWebLens = new BooleanInput({
+            value: false,
+            class: 'tick'
+        });
         panelOptionsWebLens.append(fieldOptionsWebLens);
-        const labelWebLens = new LegacyLabel({ text: 'Export to WebLens Format' });
+        const labelWebLens = new Label({ text: 'Export to WebLens Format' });
         panelOptionsWebLens.append(labelWebLens);
         panelOptionsWebLens.hidden = true;
     }
