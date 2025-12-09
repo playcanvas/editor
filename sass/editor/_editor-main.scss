@@ -6908,6 +6908,7 @@ strong {
         }
 
         // PCUI TextAreaInput (no .content wrapper)
+        > .description > .pcui-text-area-input,
         > .notes > .pcui-text-area-input {
             margin: 0; // Reset PCUI default 6px margin
             width: 100%;

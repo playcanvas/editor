@@ -160,28 +160,29 @@ editor.once('load', () => {
     group.appendChild(label.element);
 
     // description
-    const panelDescription = new LegacyPanel();
-    panelDescription.class.add('description');
+    const panelDescription = new Container({
+        class: 'description'
+    });
     panel.append(panelDescription);
 
-    label = new LegacyLabel({ text: 'Description' });
-    label.class.add('field-label');
-    panelDescription.append(label);
-
-    const inputDescError = new LegacyLabel({
-        text: 'Cannot exceed 10000 characters'
+    const labelDescription = new Label({
+        text: 'Description',
+        class: 'field-label'
     });
-    inputDescError.class.add('error');
-    inputDescError.hidden = true;
+    panelDescription.append(labelDescription);
+
+    const inputDescError = new Label({
+        text: 'Cannot exceed 10000 characters',
+        class: 'error',
+        hidden: true
+    });
     panelDescription.append(inputDescError);
 
-    const inputDescription = document.createElement('textarea');
-    inputDescription.addEventListener('keyup', (e) => {
-        if (e.keyCode === 27) {
-            inputDescription.blur();
-        }
-
-        inputDescError.hidden = inputDescription.value.length < 10000;
+    const inputDescription = new TextAreaInput({
+        keyChange: true
+    });
+    inputDescription.on('change', (value: string) => {
+        inputDescError.hidden = value.length < 10000;
         refreshButtonsState();
     });
     panelDescription.append(inputDescription);
