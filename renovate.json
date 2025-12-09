@@ -33,6 +33,11 @@
       ]
     },
     {
+      "matchPackageNames": ["monaco-editor"],
+      "allowedVersions": "0.47.0",
+      "rangeStrategy": "pin"
+    },
+    {
       "matchDepTypes": ["devDependencies"],
       "rangeStrategy": "pin"
     },
