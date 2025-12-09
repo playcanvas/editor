@@ -132,32 +132,36 @@ editor.once('load', () => {
     panelInfo.append(group);
 
     // name
-    let label = new LegacyLabel({ text: 'Title' });
-    label.class.add('field-label');
-    group.appendChild(label.element);
-
-    const inputNameError = new LegacyLabel({
-        text: 'Cannot exceed 1000 characters'
+    const labelTitle = new Label({
+        text: 'Title',
+        class: 'field-label'
     });
-    inputNameError.class.add('error');
-    inputNameError.hidden = true;
-    group.appendChild(inputNameError.element);
+    group.appendChild(labelTitle.dom);
 
-    const inputName = new LegacyTextField();
-    inputName.renderChanges = false;
-    inputName.placeholder = 'Required';
-    inputName.class.add('name');
-    inputName.class.add('input-field');
-    group.appendChild(inputName.element);
+    const inputNameError = new Label({
+        text: 'Cannot exceed 1000 characters',
+        class: 'error',
+        hidden: true
+    });
+    group.appendChild(inputNameError.dom);
 
-    inputName.elementInput.addEventListener('keyup', (e) => {
-        inputNameError.hidden = inputName.elementInput.value.length <= 1000;
+    const inputName = new TextInput({
+        renderChanges: false,
+        placeholder: 'Required',
+        class: ['name', 'input-field']
+    });
+    group.appendChild(inputName.dom);
+
+    inputName.on('change', (value: string) => {
+        inputNameError.hidden = value.length <= 1000;
         refreshButtonsState();
     });
 
-    label = new LegacyLabel({ text: 'Click on the image to upload artwork. 720 x 720px' });
-    label.class.add('image-click');
-    group.appendChild(label.element);
+    const labelImageClick = new Label({
+        text: 'Click on the image to upload artwork. 720 x 720px',
+        class: 'image-click'
+    });
+    group.appendChild(labelImageClick.dom);
 
     // description
     const panelDescription = new Container({
@@ -372,16 +376,16 @@ editor.once('load', () => {
     panelScenes.class.add('scenes');
     panel.append(panelScenes);
 
-    label = new LegacyLabel({ text: 'Choose Scenes' });
-    panelScenes.append(label);
+    const labelChooseScenes = new LegacyLabel({ text: 'Choose Scenes' });
+    panelScenes.append(labelChooseScenes);
 
     const selectAll = new LegacyCheckbox();
     selectAll.class.add('tick');
     panelScenes.append(selectAll);
 
-    label = new LegacyLabel({ text: 'Select all' });
-    panelScenes.append(label);
-    label.class.add('select-all');
+    const labelSelectAll = new LegacyLabel({ text: 'Select all' });
+    panelScenes.append(labelSelectAll);
+    labelSelectAll.class.add('select-all');
 
     // scenes container
     const container = new LegacyList();
@@ -907,7 +911,7 @@ editor.once('load', () => {
         }
 
 
-        inputName.elementInput.focus();
+        inputName.focus();
 
         if (editor.call('viewport:inViewport')) {
             editor.emit('viewport:hover', false);

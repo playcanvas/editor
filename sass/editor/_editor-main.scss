@@ -6833,8 +6833,9 @@ strong {
     > .content {
         > .ui-panel > .content > .ui-label,
         > .info > .content > span > .ui-label,
-        // PCUI Container (no .content wrapper)
-        > .pcui-container > .pcui-label {
+        // PCUI versions
+        > .pcui-container > .pcui-label,
+        > .info > .content > span > .pcui-label {
             font-size: 12px;
             height: auto;
             line-height: initial;
@@ -6847,6 +6848,10 @@ strong {
             &.error {
                 color: #fb222f;
                 float: right;
+            }
+
+            &.image-click {
+                margin: 3px; // Match legacy ui-label margin
             }
         }
 
