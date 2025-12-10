@@ -18,7 +18,9 @@ editor.once('load', () => {
     let panelOptionsWebLens: Container | null = null;
 
     // main panel
-    const container = new Container({ class: 'picker-publish-new' });
+    const container = new Container({
+        class: 'picker-publish-new'
+    });
 
     // register panel with project popup
     editor.call('picker:project:registerPanel', 'publish-download', 'Download New Build', container);
@@ -46,7 +48,9 @@ editor.once('load', () => {
     });
 
     // info panel
-    const panelInfo = new Container({ class: 'info' });
+    const panelInfo = new Container({
+        class: 'info'
+    });
     container.append(panelInfo);
 
     // image
@@ -294,11 +298,12 @@ editor.once('load', () => {
         });
         panelOptions.append(panelOptionsConcat);
         fieldOptionsConcat = new BooleanInput({
-            value: true,
-            class: 'tick'
+            value: true
         });
         panelOptionsConcat.append(fieldOptionsConcat);
-        const labelConcat = new Label({ text: 'Concatenate Scripts' });
+        const labelConcat = new Label({
+            text: 'Concatenate Scripts'
+        });
         panelOptionsConcat.append(labelConcat);
 
         // minify scripts
@@ -307,11 +312,12 @@ editor.once('load', () => {
         });
         panelOptions.append(panelOptionsMinify);
         fieldOptionsMinify = new BooleanInput({
-            value: true,
-            class: 'tick'
+            value: true
         });
         panelOptionsMinify.append(fieldOptionsMinify);
-        const labelMinify = new Label({ text: 'Minify Scripts' });
+        const labelMinify = new Label({
+            text: 'Minify Scripts'
+        });
         panelOptionsMinify.append(labelMinify);
 
         // generate sourcemaps
@@ -320,11 +326,12 @@ editor.once('load', () => {
         });
         panelOptions.append(panelOptionsSourcemaps);
         fieldOptionsSourcemaps = new BooleanInput({
-            value: false,
-            class: 'tick'
+            value: false
         });
         panelOptionsSourcemaps.append(fieldOptionsSourcemaps);
-        const labelSourcemaps = new Label({ text: 'Generate Source Maps' });
+        const labelSourcemaps = new Label({
+            text: 'Generate Source Maps'
+        });
         panelOptionsSourcemaps.append(labelSourcemaps);
 
         fieldOptionsConcat.on('change', (value: boolean) => {
@@ -342,11 +349,12 @@ editor.once('load', () => {
         });
         panelOptions.append(panelOptionsOptimizeFormat);
         fieldOptionsOptimizeSceneFormat = new BooleanInput({
-            value: false,
-            class: 'tick'
+            value: false
         });
         panelOptionsOptimizeFormat.append(fieldOptionsOptimizeSceneFormat);
-        const labelPreload = new Label({ text: 'Optimize Scene Format' });
+        const labelPreload = new Label({
+            text: 'Optimize Scene Format'
+        });
         panelOptionsOptimizeFormat.append(labelPreload);
 
         // export to WebLens format
@@ -355,26 +363,35 @@ editor.once('load', () => {
         });
         panelOptions.append(panelOptionsWebLens);
         fieldOptionsWebLens = new BooleanInput({
-            value: false,
-            class: 'tick'
+            value: false
         });
         panelOptionsWebLens.append(fieldOptionsWebLens);
-        const labelWebLens = new Label({ text: 'Export to WebLens Format' });
+        const labelWebLens = new Label({
+            text: 'Export to WebLens Format'
+        });
         panelOptionsWebLens.append(labelWebLens);
         panelOptionsWebLens.hidden = true;
     }
 
     // scenes
-    const panelScenes = new Container({ class: 'scenes' });
+    const panelScenes = new Container({
+        class: 'scenes'
+    });
     container.append(panelScenes);
 
-    const labelChooseScenes = new Label({ text: 'Choose Scenes', class: 'field-label' });
+    const labelChooseScenes = new Label({
+        text: 'Choose Scenes',
+        class: 'field-label'
+    });
     panelScenes.append(labelChooseScenes);
 
-    const selectAll = new BooleanInput({ class: 'tick' });
+    const selectAll = new BooleanInput();
     panelScenes.append(selectAll);
 
-    const labelSelectAll = new Label({ text: 'Select all', class: 'select-all' });
+    const labelSelectAll = new Label({
+        text: 'Select all',
+        class: 'select-all'
+    });
     panelScenes.append(labelSelectAll);
 
     // scenes container
@@ -382,18 +399,28 @@ editor.once('load', () => {
     sceneList.class.add('scene-list');
     panelScenes.append(sceneList);
 
-    const panelNoScenes = new Container({ class: 'scenes' });
+    const panelNoScenes = new Container({
+        class: 'scenes'
+    });
     container.append(panelNoScenes);
 
     // no scenes msg
-    const labelNoScenes = new Label({ text: 'There are no scenes.', class: 'error', hidden: true });
+    const labelNoScenes = new Label({
+        text: 'There are no scenes.',
+        class: 'error',
+        hidden: true
+    });
     panelNoScenes.append(labelNoScenes);
 
     // loading scenes
-    const loadingScenes = new Label({ text: 'Loading scenes...' });
+    const loadingScenes = new Label({
+        text: 'Loading scenes...'
+    });
     panelNoScenes.append(loadingScenes);
 
-    const progressBar = new Progress({ value: 100 });
+    const progressBar = new Progress({
+        value: 100
+    });
     progressBar.hidden = false;
     panelNoScenes.append(progressBar);
 
@@ -624,10 +651,16 @@ editor.once('load', () => {
     downloadProgressInfo.classList.add('progress-info');
     panelDownloadProgress.appendChild(downloadProgressInfo);
 
-    const downloadProgressTitle = new Label({ text: 'Preparing build', class: 'progress-title' });
+    const downloadProgressTitle = new Label({
+        text: 'Preparing build',
+        class: 'progress-title'
+    });
     downloadProgressInfo.appendChild(downloadProgressTitle.dom);
 
-    const btnDownloadReady = new Button({ text: 'Download', class: 'ready' });
+    const btnDownloadReady = new Button({
+        text: 'Download',
+        class: 'ready'
+    });
     downloadProgressInfo.appendChild(btnDownloadReady.dom);
 
     btnDownloadReady.on('click', () => {
@@ -716,7 +749,7 @@ editor.once('load', () => {
         row.element.appendChild(date.dom);
 
         // selection
-        const select = new BooleanInput({ class: 'tick' });
+        const select = new BooleanInput();
         row.element.appendChild(select.dom);
 
         // if selectAll changes then change this too
