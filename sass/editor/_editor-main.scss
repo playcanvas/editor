@@ -7211,15 +7211,16 @@ strong {
                     }
                 }
 
-                > .ready {
+                > .pcui-button.ready {
                     position: absolute;
                     top: 15px;
                     right: 15px;
+                    margin: 3px;
                     background-color: color.adjust($text-active, $alpha: -0.1);
                     width: 122px;
                     height: 34px;
                     font-size: 12px;
-                    line-height: 34px;
+                    line-height: 32px;
                     padding: 0;
                     text-align: center;
                     color: $text-primary;
@@ -7238,14 +7239,6 @@ strong {
 
                     &:hover {
                         background-color: $text-active;
-                    }
-                }
-
-                > .pcui-button.ready {
-                    margin: 3px;
-                    line-height: 32px; // Slightly smaller to fit within container
-
-                    &:hover {
                         box-shadow: none;
                     }
                 }
