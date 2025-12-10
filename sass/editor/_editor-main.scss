@@ -6967,8 +6967,7 @@ strong {
                 }
             }
 
-            &.web-download,
-            &.ios-download {
+            &.web-download {
                 display: none;
                 width: 208px;
 
@@ -7163,8 +7162,7 @@ strong {
             display: none;
         }
 
-        .pcui-button.web-download,
-        .pcui-button.ios-download {
+        .pcui-button.web-download {
             display: inline-block;
         }
 
