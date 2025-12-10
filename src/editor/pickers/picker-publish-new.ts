@@ -160,33 +160,40 @@ editor.once('load', () => {
     });
     group.appendChild(labelImageClick.dom);
 
-    // description
-    const containerDescription = new Container({
-        class: 'description'
-    });
-    container.append(containerDescription);
+    // Helper to create a text area section with label and error
+    const createTextAreaSection = (className: string, labelText: string, maxLength: number) => {
+        const sectionContainer = new Container({
+            class: className
+        });
+        container.append(sectionContainer);
 
-    const labelDescription = new Label({
-        text: 'Description',
-        class: 'field-label'
-    });
-    containerDescription.append(labelDescription);
+        const label = new Label({
+            text: labelText,
+            class: 'field-label'
+        });
+        sectionContainer.append(label);
 
-    const inputDescError = new Label({
-        text: 'Cannot exceed 10000 characters',
-        class: 'error',
-        hidden: true
-    });
-    containerDescription.append(inputDescError);
+        const errorLabel = new Label({
+            text: `Cannot exceed ${maxLength} characters`,
+            class: 'error',
+            hidden: true
+        });
+        sectionContainer.append(errorLabel);
 
-    const inputDescription = new TextAreaInput({
-        keyChange: true
-    });
-    inputDescription.on('change', (value: string) => {
-        inputDescError.hidden = value.length < 10000;
-        refreshButtonsState();
-    });
-    containerDescription.append(inputDescription);
+        const input = new TextAreaInput({
+            keyChange: true
+        });
+        sectionContainer.append(input);
+
+        input.on('change', (value: string) => {
+            errorLabel.hidden = value.length <= maxLength;
+            refreshButtonsState();
+        });
+
+        return input;
+    };
+
+    const inputDescription = createTextAreaSection('description', 'Description', 10000);
 
     // version
     const containerVersion = new Container({
@@ -219,33 +226,7 @@ editor.once('load', () => {
         refreshButtonsState();
     });
 
-    // release notes
-    const containerNotes = new Container({
-        class: 'notes'
-    });
-    container.append(containerNotes);
-
-    const labelNotes = new Label({
-        text: 'Release Notes',
-        class: 'field-label'
-    });
-    containerNotes.append(labelNotes);
-
-    const inputNotesError = new Label({
-        text: 'Cannot exceed 10000 characters',
-        class: 'error',
-        hidden: true
-    });
-    containerNotes.append(inputNotesError);
-
-    const inputNotes = new TextAreaInput({
-        keyChange: true
-    });
-    containerNotes.append(inputNotes);
-    inputNotes.on('change', (value: string) => {
-        inputNotesError.hidden = value.length <= 10000;
-        refreshButtonsState();
-    });
+    const inputNotes = createTextAreaSection('notes', 'Release Notes', 10000);
 
     // engine version
     const containerEngineVersion = new Container({
