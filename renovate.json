@@ -6,7 +6,14 @@
   "packageRules": [
     {
       "matchPackageNames": ["node"],
-      "allowedVersions": "18.x",
+      "matchDepTypes": ["engines"],
+      "allowedVersions": "22.x",
+      "rangeStrategy": "pin"
+    },
+    {
+      "matchPackageNames": ["node"],
+      "matchManagers": ["nvm"],
+      "allowedVersions": "22.x",
       "rangeStrategy": "pin"
     },
     {
@@ -30,6 +37,11 @@
       "schedule": [
         "at any time"
       ]
+    },
+    {
+      "matchPackageNames": ["monaco-editor"],
+      "allowedVersions": "0.47.0",
+      "rangeStrategy": "pin"
     },
     {
       "matchDepTypes": ["devDependencies"],
