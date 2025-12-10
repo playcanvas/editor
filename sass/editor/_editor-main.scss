@@ -7240,11 +7240,6 @@ strong {
                     }
                 }
 
-                // Override overflow when PCUI elements are present
-                &:has(.pcui-label, .pcui-button) {
-                    overflow: hidden;
-                }
-
                 > .pcui-label.progress-title {
                     margin: 3px;
                     line-height: 22px;
