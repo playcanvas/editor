@@ -6948,7 +6948,7 @@ strong {
             padding-right: 10px;
         }
 
-        &:not(.disabled):not(.pcui-disabled):hover::before {
+        &:not(.disabled, .pcui-disabled):hover::before {
             color: $text-active;
         }
 
