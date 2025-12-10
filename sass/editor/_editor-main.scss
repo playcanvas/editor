@@ -7148,7 +7148,8 @@ strong {
                                 left: 30px;
                             }
 
-                            > .ui-checkbox {
+                            > .ui-checkbox,
+                            > .pcui-boolean-input {
                                 position: absolute;
                                 top: 25px;
                                 right: 0;
@@ -7158,6 +7159,19 @@ strong {
                             > .primary {
                                 padding-left: 0;
                                 margin-left: 0;
+                            }
+
+                            > .pcui-button.primary {
+                                margin: 3px 3px 3px 0;
+
+                                &:hover {
+                                    box-shadow: none;
+                                }
+                            }
+
+                            > .pcui-label.name,
+                            > .pcui-label.date {
+                                margin: 3px;
                             }
                         }
                     }
@@ -7273,7 +7287,8 @@ strong {
                         left: 30px;
                     }
 
-                    > .ui-checkbox {
+                    > .ui-checkbox,
+                    > .pcui-boolean-input {
                         position: absolute;
                         top: 25px;
                         right: 0;
@@ -7283,6 +7298,19 @@ strong {
                     > .primary {
                         padding-left: 0;
                         margin-left: 0;
+                    }
+
+                    > .pcui-button.primary {
+                        margin: 3px 3px 3px 0;
+
+                        &:hover {
+                            box-shadow: none;
+                        }
+                    }
+
+                    > .pcui-label.name,
+                    > .pcui-label.date {
+                        margin: 3px;
                     }
                 }
             }

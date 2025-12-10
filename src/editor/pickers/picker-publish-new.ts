@@ -1,7 +1,6 @@
 import { BooleanInput, Button, Container, Label, Progress, SelectInput, TextAreaInput, TextInput } from '@playcanvas/pcui';
 
 import { LegacyButton } from '@/common/ui/button';
-import { LegacyCheckbox } from '@/common/ui/checkbox';
 import { LegacyLabel } from '@/common/ui/label';
 import { LegacyList } from '@/common/ui/list';
 import { LegacyListItem } from '@/common/ui/list-item';
@@ -675,11 +674,11 @@ editor.once('load', () => {
             row.class.add('primary');
         }
         // primary scene icon
-        const primary = new LegacyButton({
-            text: '&#57891'
+        const primary = new Button({
+            text: '\uE223',
+            class: 'primary'
         });
-        primary.class.add('primary');
-        row.element.appendChild(primary.element);
+        row.element.appendChild(primary.dom);
 
         primary.on('click', () => {
             if (!editor.call('permissions:write')) {
@@ -702,7 +701,7 @@ editor.once('load', () => {
         // show tooltip for primary scene icon
         const tooltipText = scene.id === primaryScene ? 'Primary Scene' : 'Set Primary Scene';
         const tooltip = LegacyTooltip.attach({
-            target: primary.element,
+            target: primary.dom,
             text: tooltipText,
             align: 'right',
             root: editor.call('layout.root')
@@ -710,24 +709,22 @@ editor.once('load', () => {
         tooltips.push(tooltip);
 
         // scene name
-        const name = new LegacyLabel({
-            text: scene.name
+        const name = new Label({
+            text: scene.name,
+            class: 'name'
         });
-        name.class.add('name');
-
-        row.element.appendChild(name.element);
+        row.element.appendChild(name.dom);
 
         // scene date
-        const date = new LegacyLabel({
-            text: convertDatetime(scene.modified)
+        const date = new Label({
+            text: convertDatetime(scene.modified),
+            class: 'date'
         });
-        date.class.add('date');
-        row.element.appendChild(date.element);
+        row.element.appendChild(date.dom);
 
         // selection
-        const select = new LegacyCheckbox();
-        select.class.add('tick');
-        row.element.appendChild(select.element);
+        const select = new BooleanInput({ class: 'tick' });
+        row.element.appendChild(select.dom);
 
         // if selectAll changes then change this too
         events.push(selectAll.on('change', (value) => {
