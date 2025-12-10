@@ -7164,6 +7164,88 @@ strong {
                 }
             }
         }
+
+        // PCUI Container version of scenes
+        > .pcui-container.scenes {
+            border-bottom: none;
+
+            &:not(.pcui-hidden) {
+                display: block; // Override flex for float to work
+            }
+
+            > .pcui-label.field-label {
+                margin: 3px;
+            }
+
+            > .pcui-boolean-input {
+                float: right;
+                margin: 0;
+                margin-top: 2px;
+            }
+
+            > .pcui-label.select-all {
+                float: right;
+                padding-right: 10px;
+                margin: 3px;
+            }
+
+            > .pcui-progress {
+                width: 100%;
+                margin: 0;
+            }
+
+            > .pcui-label.error {
+                float: none;
+            }
+
+            // LegacyList inside PCUI Container
+            > .ui-list {
+                margin-top: 10px;
+
+                > .ui-list-item {
+                    border-top: 1px solid $border-primary;
+                    border-bottom: none;
+                    padding-left: 0;
+
+                    &:last-child {
+                        border-bottom: 1px solid $border-primary;
+                    }
+
+                    &:hover {
+                        background-color: transparent;
+                        cursor: default;
+
+                        > .name {
+                            color: $text-primary;
+                        }
+                    }
+
+                    > .name {
+                        left: 30px;
+
+                        &:hover {
+                            cursor: default;
+                        }
+                    }
+
+                    > .date {
+                        left: 30px;
+                    }
+
+                    > .ui-checkbox {
+                        position: absolute;
+                        top: 25px;
+                        right: 0;
+                        margin: 0;
+                    }
+
+                    > .primary {
+                        padding-left: 0;
+                        margin-left: 0;
+                    }
+                }
+            }
+        }
     }
 
     &.upgrade {

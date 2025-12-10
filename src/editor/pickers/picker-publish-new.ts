@@ -1,4 +1,4 @@
-import { BooleanInput, Button, Container, Label, SelectInput, TextAreaInput, TextInput } from '@playcanvas/pcui';
+import { BooleanInput, Button, Container, Label, Progress, SelectInput, TextAreaInput, TextInput } from '@playcanvas/pcui';
 
 import { LegacyButton } from '@/common/ui/button';
 import { LegacyCheckbox } from '@/common/ui/checkbox';
@@ -371,43 +371,35 @@ editor.once('load', () => {
     }
 
     // scenes
-    const panelScenes = new LegacyPanel();
-    panelScenes.class.add('scenes');
+    const panelScenes = new Container({ class: 'scenes' });
     panel.append(panelScenes);
 
-    const labelChooseScenes = new LegacyLabel({ text: 'Choose Scenes' });
+    const labelChooseScenes = new Label({ text: 'Choose Scenes', class: 'field-label' });
     panelScenes.append(labelChooseScenes);
 
-    const selectAll = new LegacyCheckbox();
-    selectAll.class.add('tick');
+    const selectAll = new BooleanInput({ class: 'tick' });
     panelScenes.append(selectAll);
 
-    const labelSelectAll = new LegacyLabel({ text: 'Select all' });
+    const labelSelectAll = new Label({ text: 'Select all', class: 'select-all' });
     panelScenes.append(labelSelectAll);
-    labelSelectAll.class.add('select-all');
 
     // scenes container
     const container = new LegacyList();
     container.class.add('scene-list');
     panelScenes.append(container);
 
-    const panelNoScenes = new LegacyPanel();
-    panelNoScenes.class.add('scenes');
+    const panelNoScenes = new Container({ class: 'scenes' });
     panel.append(panelNoScenes);
 
     // no scenes msg
-    const labelNoScenes = new LegacyLabel({ text: 'There are no scenes.' });
-    labelNoScenes.class.add('error');
-    labelNoScenes.hidden = true;
+    const labelNoScenes = new Label({ text: 'There are no scenes.', class: 'error', hidden: true });
     panelNoScenes.append(labelNoScenes);
 
     // loading scenes
-    const loadingScenes = new LegacyLabel({
-        text: 'Loading scenes...'
-    });
+    const loadingScenes = new Label({ text: 'Loading scenes...' });
     panelNoScenes.append(loadingScenes);
 
-    const progressBar = new LegacyProgress({ progress: 1 });
+    const progressBar = new Progress({ value: 100 });
     progressBar.hidden = false;
     panelNoScenes.append(progressBar);
 
