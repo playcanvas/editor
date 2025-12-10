@@ -785,7 +785,7 @@ editor.once('load', () => {
         sortScenes(scenes);
         panelScenes.hidden = !scenes.length;
         panelNoScenes.hidden = !panelScenes.hidden;
-        labelNoScenes.hidden = scenes.length;
+        labelNoScenes.hidden = scenes.length > 0;
         loadingScenes.hidden = true;
         progressBar.hidden = true;
         refreshButtonsState();
