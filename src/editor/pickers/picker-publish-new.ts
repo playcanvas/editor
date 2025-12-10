@@ -3,14 +3,14 @@ import { BooleanInput, Button, Container, Label, Progress, SelectInput, TextArea
 import { LegacyList } from '@/common/ui/list';
 import { LegacyListItem } from '@/common/ui/list-item';
 import { LegacyPanel } from '@/common/ui/panel';
-import { LegacyTooltip } from '@/common/ui/tooltip';
+import { tooltip, tooltipSimpleItem } from '@/common/tooltips';
 import { convertDatetime } from '@/common/utils';
 
 editor.once('load', () => {
     const legacyScripts = editor.call('settings:project').get('useLegacyScripts');
 
-    // holds all tooltips
-    let tooltips = [];
+    // holds tooltip targets for cleanup
+    let tooltipTargets: Button[] = [];
 
     // holds events that need to be destroyed
     let events = [];
@@ -695,13 +695,12 @@ editor.once('load', () => {
 
         // show tooltip for primary scene icon
         const tooltipText = scene.id === primaryScene ? 'Primary Scene' : 'Set Primary Scene';
-        const tooltip = LegacyTooltip.attach({
-            target: primary.dom,
-            text: tooltipText,
-            align: 'right',
-            root: editor.call('layout.root')
+        tooltip().attach({
+            container: tooltipSimpleItem({ text: tooltipText }),
+            target: primary,
+            align: 'right'
         });
-        tooltips.push(tooltip);
+        tooltipTargets.push(primary);
 
         // scene name
         const name = new Label({
@@ -740,10 +739,10 @@ editor.once('load', () => {
     };
 
     const destroyTooltips = function () {
-        tooltips.forEach((tooltip) => {
-            tooltip.destroy();
+        tooltipTargets.forEach((target) => {
+            tooltip().detach(target);
         });
-        tooltips = [];
+        tooltipTargets = [];
     };
 
     const destroyEvents = function () {

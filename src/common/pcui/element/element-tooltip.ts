@@ -24,7 +24,7 @@ class Tooltip extends Container {
      * @param {number} [args.delay] - The delay in milliseconds before the tooltip is shown.
      * @param {number} [args.margin] - The margin in pixels between the tooltip and the target element.
      */
-    constructor({ id, delay, margin } = {}) {
+    constructor({ id, delay, margin }: { id?: string, delay?: number, margin?: number } = {}) {
         super({
             id,
             class: 'pcui-tooltip',
@@ -146,6 +146,12 @@ class Tooltip extends Container {
         horzAlignEl,
         vertAlignEl,
         align = 'right'
+    }: {
+        container: Container,
+        target: Element,
+        horzAlignEl?: Element,
+        vertAlignEl?: Element,
+        align?: 'top' | 'bottom' | 'left' | 'right'
     }) {
         const horz = horzAlignEl ?? target;
         const vert = vertAlignEl ?? target;
@@ -159,7 +165,7 @@ class Tooltip extends Container {
                 clearTimeout(timeout);
                 timeout = null;
             }
-            return new Promise((resolve) => {
+            return new Promise<void>((resolve) => {
                 timeout = setTimeout(() => {
                     timeout = null;
                     resolve();
