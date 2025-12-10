@@ -6831,9 +6831,6 @@ strong {
     }
 
     > .content {
-        > .ui-panel > .content > .ui-label,
-        > .info > .content > span > .ui-label,
-        // PCUI versions (no .content wrapper)
         > .pcui-container > .pcui-label,
         > .pcui-container.info > span > .pcui-label {
             font-size: 12px;
@@ -6855,7 +6852,6 @@ strong {
             }
         }
 
-        .ui-text-field.input-field,
         .pcui-text-input.input-field {
             margin: 0;
             height: 36px;
@@ -6954,40 +6950,18 @@ strong {
             }
         }
 
-        > .options {
-            > .content {
-                > .ui-panel.field {
-                    > .content {
-                        line-height: 24px;
+        > .options > .pcui-container.field {
+            line-height: 24px;
 
-                        > .ui-checkbox {
-                            margin: 4px 8px 0 0;
-                        }
-
-                        > .ui-label {
-                            margin: 0;
-                            font-size: 12px;
-                            line-height: 24px;
-                            vertical-align: top;
-                        }
-                    }
-                }
+            > .pcui-boolean-input {
+                margin: 4px 8px 0 0;
             }
 
-            // PCUI Container (no .content wrapper)
-            > .pcui-container.field {
+            > .pcui-label {
+                margin: 0;
+                font-size: 12px;
                 line-height: 24px;
-
-                > .pcui-boolean-input {
-                    margin: 4px 8px 0 0;
-                }
-
-                > .pcui-label {
-                    margin: 0;
-                    font-size: 12px;
-                    line-height: 24px;
-                    vertical-align: top;
-                }
+                vertical-align: top;
             }
         }
 
