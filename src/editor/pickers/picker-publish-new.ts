@@ -1,7 +1,5 @@
 import { BooleanInput, Button, Container, Label, Progress, SelectInput, TextAreaInput, TextInput } from '@playcanvas/pcui';
 
-import { LegacyButton } from '@/common/ui/button';
-import { LegacyLabel } from '@/common/ui/label';
 import { LegacyList } from '@/common/ui/list';
 import { LegacyListItem } from '@/common/ui/list-item';
 import { LegacyPanel } from '@/common/ui/panel';
@@ -627,14 +625,11 @@ editor.once('load', () => {
     downloadProgressInfo.classList.add('progress-info');
     panelDownloadProgress.appendChild(downloadProgressInfo);
 
-    const downloadProgressTitle = new LegacyLabel({ text: 'Preparing build' });
-    downloadProgressTitle.renderChanges = false;
-    downloadProgressTitle.class.add('progress-title');
-    downloadProgressInfo.appendChild(downloadProgressTitle.element);
+    const downloadProgressTitle = new Label({ text: 'Preparing build', class: 'progress-title' });
+    downloadProgressInfo.appendChild(downloadProgressTitle.dom);
 
-    const btnDownloadReady = new LegacyButton({ text: 'Download' });
-    btnDownloadReady.class.add('ready');
-    downloadProgressInfo.appendChild(btnDownloadReady.element);
+    const btnDownloadReady = new Button({ text: 'Download', class: 'ready' });
+    downloadProgressInfo.appendChild(btnDownloadReady.dom);
 
     btnDownloadReady.on('click', () => {
         if (urlToDownload) {

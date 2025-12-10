@@ -7466,6 +7466,17 @@ strong {
                     }
                 }
 
+                // Override overflow when PCUI elements are present
+                &:has(.pcui-label, .pcui-button) {
+                    overflow: hidden;
+                }
+
+                > .pcui-label.progress-title {
+                    margin: 3px;
+                    line-height: 22px;
+                    height: 22px;
+                }
+
                 > .ready {
                     position: absolute;
                     top: 15px;
@@ -7493,6 +7504,15 @@ strong {
 
                     &:hover {
                         background-color: $text-active;
+                    }
+                }
+
+                > .pcui-button.ready {
+                    margin: 3px;
+                    line-height: 32px; // Slightly smaller to fit within container
+
+                    &:hover {
+                        box-shadow: none;
                     }
                 }
             }
