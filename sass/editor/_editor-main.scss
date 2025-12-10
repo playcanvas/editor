@@ -6886,7 +6886,6 @@ strong {
         > .notes > .pcui-text-area-input {
             margin: 0; // Reset PCUI default 6px margin
             width: 100%;
-            height: auto;
             background-color: $bcg-dark;
             border: 1px solid $bcg-darker;
             border-radius: 0;
@@ -6897,7 +6896,6 @@ strong {
                 color: $text-primary;
                 margin: 0;
                 padding: 10px;
-                resize: none;
 
                 @extend .font-regular;
 
@@ -6943,9 +6941,7 @@ strong {
             padding: 0;
             height: 34px;
             line-height: 34px;
-            font-size: 12px;
             text-transform: uppercase;
-            text-align: center;
 
             @extend .font-bold;
 
@@ -7054,7 +7050,6 @@ strong {
             }
 
             > .pcui-progress {
-                width: 100%;
                 margin: 0;
             }
 
