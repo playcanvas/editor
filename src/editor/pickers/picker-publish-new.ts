@@ -755,17 +755,8 @@ editor.once('load', () => {
         }
     });
 
-    const sortScenes = function (scenes) {
-        scenes.sort((a, b) => {
-            if (a.modified < b.modified) {
-                return 1;
-            }
-            if (a.modified > b.modified) {
-                return -1;
-            }
-
-            return 0;
-        });
+    const sortScenes = (sceneList: { modified: string }[]) => {
+        sceneList.sort((a, b) => b.modified.localeCompare(a.modified));
     };
 
     const refreshScenes = function () {
