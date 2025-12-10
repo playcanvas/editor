@@ -6833,9 +6833,9 @@ strong {
     > .content {
         > .ui-panel > .content > .ui-label,
         > .info > .content > span > .ui-label,
-        // PCUI versions
+        // PCUI versions (no .content wrapper)
         > .pcui-container > .pcui-label,
-        > .info > .content > span > .pcui-label {
+        > .pcui-container.info > span > .pcui-label {
             font-size: 12px;
             height: auto;
             line-height: initial;
@@ -7165,6 +7165,47 @@ strong {
             }
         }
 
+        // PCUI Container version of info
+        > .pcui-container.info {
+            > .image {
+                display: inline-block;
+                width: 80px;
+                height: 80px;
+                border: 2px solid $border-primary;
+                margin-right: 15px;
+                vertical-align: top;
+                background-size: 100% 100%;
+
+                &.progress {
+                    background-size: 40%;
+                    background-position: 50%;
+                    background-repeat: no-repeat;
+                    background-color: $bcg-darkest;
+                }
+
+                &.blank {
+                    background-size: 180%;
+                }
+
+                &:hover {
+                    cursor: pointer;
+                }
+            }
+
+            > span {
+                display: inline-block;
+                width: calc(100% - 100px);
+
+                > .name {
+                    margin-bottom: 8px;
+                }
+
+                > .pcui-label {
+                    margin: 3px;
+                }
+            }
+        }
+
         // PCUI Container version of scenes
         > .pcui-container.scenes {
             border-bottom: none;
@@ -7291,6 +7332,19 @@ strong {
                         > .image-click {
                             display: none;
                         }
+                    }
+                }
+
+                // PCUI Container (no .content wrapper)
+                > .image {
+                    display: none;
+                }
+
+                > span {
+                    width: 100%;
+
+                    > .image-click {
+                        display: none;
                     }
                 }
             }

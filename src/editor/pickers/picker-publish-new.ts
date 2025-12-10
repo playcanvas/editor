@@ -6,7 +6,6 @@ import { LegacyLabel } from '@/common/ui/label';
 import { LegacyList } from '@/common/ui/list';
 import { LegacyListItem } from '@/common/ui/list-item';
 import { LegacyPanel } from '@/common/ui/panel';
-import { LegacyProgress } from '@/common/ui/progress';
 import { LegacyTooltip } from '@/common/ui/tooltip';
 import { convertDatetime } from '@/common/utils';
 
@@ -51,8 +50,7 @@ editor.once('load', () => {
     });
 
     // info panel
-    const panelInfo = new LegacyPanel();
-    panelInfo.class.add('info');
+    const panelInfo = new Container({ class: 'info' });
     panel.append(panelInfo);
 
     // image
