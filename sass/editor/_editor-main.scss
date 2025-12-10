@@ -7189,7 +7189,6 @@ strong {
     }
 
     &.download-mode {
-        .ui-panel,
         .pcui-container {
             &.description,
             &.version {
@@ -7197,21 +7196,6 @@ strong {
             }
 
             &.info {
-                > .content {
-                    > .image {
-                        display: none;
-                    }
-
-                    > span {
-                        width: 100%;
-
-                        > .image-click {
-                            display: none;
-                        }
-                    }
-                }
-
-                // PCUI Container (no .content wrapper)
                 > .image {
                     display: none;
                 }
@@ -7226,15 +7210,11 @@ strong {
             }
         }
 
-        .ui-button.publish,
         .pcui-button.publish,
-        .ui-panel.notes,
         .pcui-container.notes {
             display: none;
         }
 
-        .ui-button.web-download,
-        .ui-button.ios-download,
         .pcui-button.web-download,
         .pcui-button.ios-download {
             display: inline-block;
