@@ -6628,7 +6628,8 @@ strong {
 }
 
 .ui-panel.picker-scene-panel,
-.ui-panel.picker-publish-new {
+.ui-panel.picker-publish-new,
+.pcui-container.picker-publish-new {
     .ui-list.scene-list {
         margin: 0;
         padding: 0;
@@ -6824,279 +6825,277 @@ strong {
     }
 }
 
-.ui-panel.picker-publish-new {
+.pcui-container.picker-publish-new {
     &.disabled {
         opacity: 0.5;
         pointer-events: none;
     }
 
-    > .content {
-        > .pcui-container > .pcui-label,
-        > .pcui-container.info > span > .pcui-label {
-            font-size: 12px;
-            height: auto;
-            line-height: initial;
-            vertical-align: top;
+    > .pcui-container > .pcui-label,
+    > .pcui-container.info > span > .pcui-label {
+        font-size: 12px;
+        height: auto;
+        line-height: initial;
+        vertical-align: top;
 
-            &.field-label {
-                margin: 0 0 8px;
-            }
-
-            &.error {
-                color: #fb222f;
-                float: right;
-            }
-
-            &.image-click {
-                margin: 3px;
-            }
+        &.field-label {
+            margin: 0 0 8px;
         }
 
-        .pcui-text-input.input-field {
-            margin: 0;
-            height: 36px;
-            line-height: 34px;
-            width: 100%;
+        &.error {
+            color: #fb222f;
+            float: right;
+        }
+
+        &.image-click {
+            margin: 3px;
+        }
+    }
+
+    .pcui-text-input.input-field {
+        margin: 0;
+        height: 36px;
+        line-height: 34px;
+        width: 100%;
+        display: block;
+
+        > input {
+            @extend .font-regular;
+
+            font-size: 14px;
+            color: $text-primary;
+        }
+
+        &[placeholder] {
+            &::after {
+                line-height: 34px;
+            }
+        }
+    }
+
+    > .description > .pcui-text-area-input,
+    > .notes > .pcui-text-area-input {
+        margin: 0; // Reset PCUI default 6px margin
+        width: 100%;
+        background-color: $bcg-dark;
+        border: 1px solid $bcg-darker;
+        border-radius: 0;
+
+        > textarea {
             display: block;
+            background-color: transparent;
+            color: $text-primary;
+            margin: 0;
+            padding: 10px;
 
-            > input {
-                @extend .font-regular;
+            @extend .font-regular;
 
-                font-size: 14px;
-                color: $text-primary;
-            }
+            font-size: 14px;
+            width: calc(100% - 20px);
+            height: 65px;
 
-            &[placeholder] {
-                &::after {
-                    line-height: 34px;
-                }
-            }
-        }
-
-        > .description > .pcui-text-area-input,
-        > .notes > .pcui-text-area-input {
-            margin: 0; // Reset PCUI default 6px margin
-            width: 100%;
-            background-color: $bcg-dark;
-            border: 1px solid $bcg-darker;
-            border-radius: 0;
-
-            > textarea {
-                display: block;
-                background-color: transparent;
-                color: $text-primary;
-                margin: 0;
-                padding: 10px;
-
-                @extend .font-regular;
-
-                font-size: 14px;
-                width: calc(100% - 20px);
-                height: 65px;
-
-                &.active,
-                &:hover,
-                &:focus,
-                &.focus {
-                    background-color: $bcg-darkest;
-                    outline: none;
-                    border-color: transparent;
-                    box-shadow: none;
-                }
-            }
-
+            &.active,
             &:hover,
-            &:focus-within {
+            &:focus,
+            &.focus {
                 background-color: $bcg-darkest;
+                outline: none;
                 border-color: transparent;
+                box-shadow: none;
             }
         }
 
-        > .options > .pcui-container.field {
-            line-height: 24px;
+        &:hover,
+        &:focus-within {
+            background-color: $bcg-darkest;
+            border-color: transparent;
+        }
+    }
 
-            > .pcui-boolean-input {
-                margin: 4px 8px 0 0;
+    > .options > .pcui-container.field {
+        line-height: 24px;
+
+        > .pcui-boolean-input {
+            margin: 4px 8px 0 0;
+        }
+
+        > .pcui-label {
+            margin: 0;
+            font-size: 12px;
+            line-height: 24px;
+            vertical-align: top;
+        }
+    }
+
+    > .pcui-button {
+        margin: 3px 0 15px 15px; // Top margin needed for PCUI button hover shadow
+        padding: 0;
+        height: 34px;
+        line-height: 34px;
+        text-transform: uppercase;
+
+        @extend .font-bold;
+
+        &::before {
+            @extend .font-icon;
+
+            font-size: 14px;
+            color: $text-secondary;
+            vertical-align: top;
+            padding-right: 10px;
+        }
+
+        &:not(.disabled):not(.pcui-disabled):hover::before {
+            color: $text-active;
+        }
+
+        &.publish {
+            text-align: center;
+            width: calc(100% - 30px);
+
+            &::before {
+                content: '\E226';
+            }
+        }
+
+        &.web-download {
+            display: none;
+            width: 208px;
+
+            &::before {
+                content: '\E245';
+            }
+        }
+    }
+
+    > .pcui-container {
+        margin: 0;
+        padding: 15px;
+        border-bottom: 1px solid $border-primary;
+    }
+
+    > .pcui-container.info {
+        > .image {
+            display: inline-block;
+            width: 80px;
+            height: 80px;
+            border: 2px solid $border-primary;
+            margin-right: 15px;
+            vertical-align: top;
+            background-size: 100% 100%;
+
+            &.progress {
+                background-size: 40%;
+                background-position: 50%;
+                background-repeat: no-repeat;
+                background-color: $bcg-darkest;
+            }
+
+            &.blank {
+                background-size: 180%;
+            }
+
+            &:hover {
+                cursor: pointer;
+            }
+        }
+
+        > span {
+            display: inline-block;
+            width: calc(100% - 100px);
+
+            > .name {
+                margin-bottom: 8px;
             }
 
             > .pcui-label {
-                margin: 0;
-                font-size: 12px;
-                line-height: 24px;
-                vertical-align: top;
+                margin: 3px;
             }
         }
+    }
 
-        > .pcui-button {
-            margin: 3px 0 15px 15px; // Top margin needed for PCUI button hover shadow
-            padding: 0;
-            height: 34px;
-            line-height: 34px;
-            text-transform: uppercase;
+    > .pcui-container.scenes {
+        border-bottom: none;
 
-            @extend .font-bold;
-
-            &::before {
-                @extend .font-icon;
-
-                font-size: 14px;
-                color: $text-secondary;
-                vertical-align: top;
-                padding-right: 10px;
-            }
-
-            &:not(.disabled):not(.pcui-disabled):hover::before {
-                color: $text-active;
-            }
-
-            &.publish {
-                text-align: center;
-                width: calc(100% - 30px);
-
-                &::before {
-                    content: '\E226';
-                }
-            }
-
-            &.web-download {
-                display: none;
-                width: 208px;
-
-                &::before {
-                    content: '\E245';
-                }
-            }
+        &:not(.pcui-hidden) {
+            display: block; // Override flex for float to work
         }
 
-        > .pcui-container {
+        > .pcui-label.field-label {
+            margin: 3px;
+        }
+
+        > .pcui-boolean-input {
+            float: right;
             margin: 0;
-            padding: 15px;
-            border-bottom: 1px solid $border-primary;
+            margin-top: 2px;
         }
 
-        > .pcui-container.info {
-            > .image {
-                display: inline-block;
-                width: 80px;
-                height: 80px;
-                border: 2px solid $border-primary;
-                margin-right: 15px;
-                vertical-align: top;
-                background-size: 100% 100%;
+        > .pcui-label.select-all {
+            float: right;
+            padding-right: 10px;
+            margin: 3px;
+        }
 
-                &.progress {
-                    background-size: 40%;
-                    background-position: 50%;
-                    background-repeat: no-repeat;
-                    background-color: $bcg-darkest;
-                }
+        > .pcui-progress {
+            margin: 0;
+        }
 
-                &.blank {
-                    background-size: 180%;
+        > .pcui-label.error {
+            float: none;
+        }
+
+        > .ui-list {
+            margin-top: 10px;
+
+            > .ui-list-item {
+                border-top: 1px solid $border-primary;
+                border-bottom: none;
+                padding-left: 0;
+
+                &:last-child {
+                    border-bottom: 1px solid $border-primary;
                 }
 
                 &:hover {
-                    cursor: pointer;
-                }
-            }
-
-            > span {
-                display: inline-block;
-                width: calc(100% - 100px);
-
-                > .name {
-                    margin-bottom: 8px;
-                }
-
-                > .pcui-label {
-                    margin: 3px;
-                }
-            }
-        }
-
-        > .pcui-container.scenes {
-            border-bottom: none;
-
-            &:not(.pcui-hidden) {
-                display: block; // Override flex for float to work
-            }
-
-            > .pcui-label.field-label {
-                margin: 3px;
-            }
-
-            > .pcui-boolean-input {
-                float: right;
-                margin: 0;
-                margin-top: 2px;
-            }
-
-            > .pcui-label.select-all {
-                float: right;
-                padding-right: 10px;
-                margin: 3px;
-            }
-
-            > .pcui-progress {
-                margin: 0;
-            }
-
-            > .pcui-label.error {
-                float: none;
-            }
-
-            > .ui-list {
-                margin-top: 10px;
-
-                > .ui-list-item {
-                    border-top: 1px solid $border-primary;
-                    border-bottom: none;
-                    padding-left: 0;
-
-                    &:last-child {
-                        border-bottom: 1px solid $border-primary;
-                    }
-
-                    &:hover {
-                        background-color: transparent;
-                        cursor: default;
-
-                        > .name {
-                            color: $text-primary;
-                        }
-                    }
+                    background-color: transparent;
+                    cursor: default;
 
                     > .name {
-                        left: 30px;
-
-                        &:hover {
-                            cursor: default;
-                        }
+                        color: $text-primary;
                     }
+                }
 
-                    > .date {
-                        left: 30px;
+                > .name {
+                    left: 30px;
+
+                    &:hover {
+                        cursor: default;
                     }
+                }
 
-                    > .pcui-boolean-input {
-                        position: absolute;
-                        top: 25px;
-                        right: 0;
-                        margin: 0;
+                > .date {
+                    left: 30px;
+                }
+
+                > .pcui-boolean-input {
+                    position: absolute;
+                    top: 25px;
+                    right: 0;
+                    margin: 0;
+                }
+
+                > .pcui-button.primary {
+                    margin: 3px 3px 3px 0;
+
+                    &:hover {
+                        box-shadow: none;
                     }
+                }
 
-                    > .pcui-button.primary {
-                        margin: 3px 3px 3px 0;
-
-                        &:hover {
-                            box-shadow: none;
-                        }
-                    }
-
-                    > .pcui-label.name,
-                    > .pcui-label.date {
-                        margin: 3px;
-                    }
+                > .pcui-label.name,
+                > .pcui-label.date {
+                    margin: 3px;
                 }
             }
         }

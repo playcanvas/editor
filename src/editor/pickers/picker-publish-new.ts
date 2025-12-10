@@ -2,7 +2,6 @@ import { BooleanInput, Button, Container, Label, Progress, SelectInput, TextArea
 
 import { LegacyList } from '@/common/ui/list';
 import { LegacyListItem } from '@/common/ui/list-item';
-import { LegacyPanel } from '@/common/ui/panel';
 import { tooltip, tooltipSimpleItem } from '@/common/tooltips';
 import { convertDatetime } from '@/common/utils';
 
@@ -18,12 +17,11 @@ editor.once('load', () => {
     let panelOptionsWebLens: Container = null;
 
     // main panel
-    const panel = new LegacyPanel();
-    panel.class.add('picker-publish-new');
+    const container = new Container({ class: 'picker-publish-new' });
 
     // register panel with project popup
-    editor.call('picker:project:registerPanel', 'publish-download', 'Download New Build', panel);
-    editor.call('picker:project:registerPanel', 'publish-new', 'Publish New Build', panel);
+    editor.call('picker:project:registerPanel', 'publish-download', 'Download New Build', container);
+    editor.call('picker:project:registerPanel', 'publish-new', 'Publish New Build', container);
 
     let mode = 'publish';
 
@@ -33,14 +31,14 @@ editor.once('load', () => {
     editor.method('picker:publish:new', () => {
         mode = 'publish';
         editor.call('picker:project', 'publish-new');
-        panel.class.remove('download-mode');
+        container.class.remove('download-mode');
         panelOptionsWebLens.hidden = true;
     });
 
     editor.method('picker:publish:download', () => {
         mode = 'download';
         editor.call('picker:project', 'publish-download');
-        panel.class.add('download-mode');
+        container.class.add('download-mode');
         if (config.self.flags.superUser) {
             panelOptionsWebLens.hidden = false;
         }
@@ -48,7 +46,7 @@ editor.once('load', () => {
 
     // info panel
     const panelInfo = new Container({ class: 'info' });
-    panel.append(panelInfo);
+    container.append(panelInfo);
 
     // image
     const imageField = document.createElement('div');
@@ -161,7 +159,7 @@ editor.once('load', () => {
     const panelDescription = new Container({
         class: 'description'
     });
-    panel.append(panelDescription);
+    container.append(panelDescription);
 
     const labelDescription = new Label({
         text: 'Description',
@@ -189,7 +187,7 @@ editor.once('load', () => {
     const panelVersion = new Container({
         class: 'version'
     });
-    panel.append(panelVersion);
+    container.append(panelVersion);
 
     const labelVersion = new Label({
         text: 'Version',
@@ -220,7 +218,7 @@ editor.once('load', () => {
     const panelNotes = new Container({
         class: 'notes'
     });
-    panel.append(panelNotes);
+    container.append(panelNotes);
 
     const labelNotes = new Label({
         text: 'Release Notes',
@@ -268,7 +266,7 @@ editor.once('load', () => {
     });
     engineVersionDropdown.style.margin = '0';
     panelEngineVersion.append(engineVersionDropdown);
-    panel.append(panelEngineVersion);
+    container.append(panelEngineVersion);
 
     let fieldOptionsConcat: BooleanInput;
     let fieldOptionsMinify: BooleanInput;
@@ -281,7 +279,7 @@ editor.once('load', () => {
         const panelOptions = new Container({
             class: 'options'
         });
-        panel.append(panelOptions);
+        container.append(panelOptions);
 
         const labelOptions = new Label({
             text: 'Options',
@@ -367,7 +365,7 @@ editor.once('load', () => {
 
     // scenes
     const panelScenes = new Container({ class: 'scenes' });
-    panel.append(panelScenes);
+    container.append(panelScenes);
 
     const labelChooseScenes = new Label({ text: 'Choose Scenes', class: 'field-label' });
     panelScenes.append(labelChooseScenes);
@@ -379,12 +377,12 @@ editor.once('load', () => {
     panelScenes.append(labelSelectAll);
 
     // scenes container
-    const container = new LegacyList();
-    container.class.add('scene-list');
-    panelScenes.append(container);
+    const sceneList = new LegacyList();
+    sceneList.class.add('scene-list');
+    panelScenes.append(sceneList);
 
     const panelNoScenes = new Container({ class: 'scenes' });
-    panel.append(panelNoScenes);
+    container.append(panelNoScenes);
 
     // no scenes msg
     const labelNoScenes = new Label({ text: 'There are no scenes.', class: 'error', hidden: true });
@@ -406,7 +404,7 @@ editor.once('load', () => {
     const getSelectedScenes = function () {
         const result = [];
 
-        const listItems = container.innerElement.childNodes;
+        const listItems = sceneList.innerElement.childNodes;
         for (let i = 0; i < listItems.length; i++) {
             if (listItems[i].ui.isSelected()) {
                 result.push(listItems[i].ui.sceneId);
@@ -434,7 +432,7 @@ editor.once('load', () => {
         text: 'Publish Now',
         class: 'publish'
     });
-    panel.append(btnPublish);
+    container.append(btnPublish);
 
     btnPublish.on('click', () => {
         if (jobInProgress) {
@@ -506,7 +504,7 @@ editor.once('load', () => {
         text: 'Download',
         class: 'web-download'
     });
-    panel.append(btnWebDownload);
+    container.append(btnWebDownload);
 
     let urlToDownload = null;
 
@@ -609,7 +607,7 @@ editor.once('load', () => {
     const panelDownloadProgress = document.createElement('div');
     panelDownloadProgress.classList.add('progress');
     panelDownloadProgress.classList.add('download');
-    panel.append(panelDownloadProgress);
+    container.append(panelDownloadProgress);
 
     // icon
     const downloadProgressIconWrapper = document.createElement('span');
@@ -659,7 +657,7 @@ editor.once('load', () => {
         row.element.id = `picker-scene-${scene.id}`;
         row.sceneId = scene.id;
 
-        container.append(row);
+        sceneList.append(row);
 
         if (config.scene.id && parseInt(scene.id, 10) === parseInt(config.scene.id, 10)) {
             row.class.add('current');
@@ -756,9 +754,9 @@ editor.once('load', () => {
     // handle permission changes
     editor.on(`permissions:set:${config.self.id}`, (accessLevel) => {
         if (accessLevel === 'write' || accessLevel === 'admin') {
-            panel.class.remove('disabled');
+            container.class.remove('disabled');
         } else {
-            panel.class.add('disabled');
+            container.class.add('disabled');
         }
     });
 
@@ -783,7 +781,7 @@ editor.once('load', () => {
 
         destroyTooltips();
         destroyEvents();
-        container.element.innerHTML = '';
+        sceneList.element.innerHTML = '';
         sortScenes(scenes);
         panelScenes.hidden = !scenes.length;
         panelNoScenes.hidden = !panelScenes.hidden;
@@ -806,13 +804,13 @@ editor.once('load', () => {
     };
 
     // on show
-    panel.on('show', () => {
+    container.on('show', () => {
         panelDownloadProgress.hidden = true;
         panelNoScenes.hidden = false;
         labelNoScenes.hidden = true;
         loadingScenes.hidden = false;
         progressBar.hidden = false;
-        container.element.innerHTML = '';
+        sceneList.element.innerHTML = '';
         inputName.value = config.project.name;
         inputDescription.value = config.project.description;
         inputVersion.value = '';
@@ -899,7 +897,7 @@ editor.once('load', () => {
     });
 
     // on hide
-    panel.on('hide', () => {
+    container.on('hide', () => {
         scenes = [];
         primaryScene = null;
         imageS3Key = null;
@@ -915,7 +913,7 @@ editor.once('load', () => {
     });
 
     editor.on('viewport:hover', (state) => {
-        if (state && !panel.hidden) {
+        if (state && !container.hidden) {
             setTimeout(() => {
                 editor.emit('viewport:hover', false);
             }, 0);
@@ -924,7 +922,7 @@ editor.once('load', () => {
 
     // subscribe to messenger scene.delete
     editor.on('messenger:scene.delete', (data) => {
-        if (panel.hidden) {
+        if (container.hidden) {
             return;
         }
         if (data.scene.branchId !== config.self.branch.id) {
@@ -954,7 +952,7 @@ editor.once('load', () => {
 
     // subscribe to messenger scene.new
     editor.on('messenger:scene.new', (data) => {
-        if (panel.hidden) {
+        if (container.hidden) {
             return;
         }
         if (data.scene.branchId !== config.self.branch.id) {
@@ -962,7 +960,7 @@ editor.once('load', () => {
         }
 
         editor.call('scenes:get', data.scene.id, (err, scene) => {
-            if (panel.hidden) {
+            if (container.hidden) {
                 return;
             } // check if hidden when Ajax returns
 
