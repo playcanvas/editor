@@ -513,7 +513,6 @@ editor.once('load', () => {
             data.web_lens = fieldOptionsWebLens.value;
         }
 
-
         data.engine_version = config.engineVersions[engineVersionDropdown.value].version;
 
         editor.api.globals.rest.apps.appCreate(data).on('load', () => {
@@ -920,7 +919,6 @@ editor.once('load', () => {
                 }
             });
         }
-
 
         inputName.focus();
 
