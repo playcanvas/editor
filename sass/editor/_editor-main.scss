@@ -7030,8 +7030,7 @@ strong {
 
         > .pcui-boolean-input {
             float: right;
-            margin: 0;
-            margin-top: 2px;
+            margin: 2px 0 0;
         }
 
         > .pcui-label.select-all {
@@ -7198,7 +7197,10 @@ strong {
                 width: calc(100% - 86px);
                 overflow: auto;
 
-                > .progress-title {
+                > .pcui-label.progress-title {
+                    margin: 3px;
+                    line-height: 22px;
+                    height: 22px;
                     color: $text-primary;
                     font-size: 14px;
                     vertical-align: middle;
@@ -7207,12 +7209,6 @@ strong {
                         position: static;
                         padding: 0;
                     }
-                }
-
-                > .pcui-label.progress-title {
-                    margin: 3px;
-                    line-height: 22px;
-                    height: 22px;
                 }
 
                 > .ready {
