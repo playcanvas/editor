@@ -15,14 +15,14 @@ editor.once('load', () => {
     // holds events that need to be destroyed
     let events: EventHandle[] = [];
 
-    let panelOptionsWebLens: Container | null = null;
+    let containerOptionsWebLens: Container | null = null;
 
-    // main panel
+    // root container
     const container = new Container({
         class: 'picker-publish-new'
     });
 
-    // register panel with project popup
+    // register container with project popup
     editor.call('picker:project:registerPanel', 'publish-download', 'Download New Build', container);
     editor.call('picker:project:registerPanel', 'publish-new', 'Publish New Build', container);
 
@@ -35,7 +35,7 @@ editor.once('load', () => {
         mode = 'publish';
         editor.call('picker:project', 'publish-new');
         container.class.remove('download-mode');
-        panelOptionsWebLens.hidden = true;
+        containerOptionsWebLens.hidden = true;
     });
 
     editor.method('picker:publish:download', () => {
@@ -43,20 +43,20 @@ editor.once('load', () => {
         editor.call('picker:project', 'publish-download');
         container.class.add('download-mode');
         if (config.self.flags.superUser) {
-            panelOptionsWebLens.hidden = false;
+            containerOptionsWebLens.hidden = false;
         }
     });
 
     // info panel
-    const panelInfo = new Container({
+    const containerInfo = new Container({
         class: 'info'
     });
-    container.append(panelInfo);
+    container.append(containerInfo);
 
     // image
     const imageField = document.createElement('div');
     imageField.classList.add('image');
-    panelInfo.append(imageField);
+    containerInfo.append(imageField);
 
     const blankImage = `${config.url.static}/platform/images/common/blank_project.png`;
 
@@ -126,7 +126,7 @@ editor.once('load', () => {
     });
 
     const group = document.createElement('span');
-    panelInfo.append(group);
+    containerInfo.append(group);
 
     // name
     const labelTitle = new Label({
@@ -161,23 +161,23 @@ editor.once('load', () => {
     group.appendChild(labelImageClick.dom);
 
     // description
-    const panelDescription = new Container({
+    const containerDescription = new Container({
         class: 'description'
     });
-    container.append(panelDescription);
+    container.append(containerDescription);
 
     const labelDescription = new Label({
         text: 'Description',
         class: 'field-label'
     });
-    panelDescription.append(labelDescription);
+    containerDescription.append(labelDescription);
 
     const inputDescError = new Label({
         text: 'Cannot exceed 10000 characters',
         class: 'error',
         hidden: true
     });
-    panelDescription.append(inputDescError);
+    containerDescription.append(inputDescError);
 
     const inputDescription = new TextAreaInput({
         keyChange: true
@@ -186,33 +186,33 @@ editor.once('load', () => {
         inputDescError.hidden = value.length < 10000;
         refreshButtonsState();
     });
-    panelDescription.append(inputDescription);
+    containerDescription.append(inputDescription);
 
     // version
-    const panelVersion = new Container({
+    const containerVersion = new Container({
         class: 'version'
     });
-    container.append(panelVersion);
+    container.append(containerVersion);
 
     const labelVersion = new Label({
         text: 'Version',
         class: 'field-label'
     });
-    panelVersion.append(labelVersion);
+    containerVersion.append(labelVersion);
 
     const inputVersionError = new Label({
         text: 'Cannot exceed 20 characters',
         class: 'error',
         hidden: true
     });
-    panelVersion.append(inputVersionError);
+    containerVersion.append(inputVersionError);
 
     const inputVersion = new TextInput({
         renderChanges: false,
         class: 'input-field',
         placeholder: 'e.g. 1.0.0'
     });
-    panelVersion.append(inputVersion);
+    containerVersion.append(inputVersion);
 
     inputVersion.on('change', (value: string) => {
         inputVersionError.hidden = value.length <= 20;
@@ -220,42 +220,42 @@ editor.once('load', () => {
     });
 
     // release notes
-    const panelNotes = new Container({
+    const containerNotes = new Container({
         class: 'notes'
     });
-    container.append(panelNotes);
+    container.append(containerNotes);
 
     const labelNotes = new Label({
         text: 'Release Notes',
         class: 'field-label'
     });
-    panelNotes.append(labelNotes);
+    containerNotes.append(labelNotes);
 
     const inputNotesError = new Label({
         text: 'Cannot exceed 10000 characters',
         class: 'error',
         hidden: true
     });
-    panelNotes.append(inputNotesError);
+    containerNotes.append(inputNotesError);
 
     const inputNotes = new TextAreaInput({
         keyChange: true
     });
-    panelNotes.append(inputNotes);
+    containerNotes.append(inputNotes);
     inputNotes.on('change', (value: string) => {
         inputNotesError.hidden = value.length <= 10000;
         refreshButtonsState();
     });
 
     // engine version
-    const panelEngineVersion = new Container({
+    const containerEngineVersion = new Container({
         class: 'engine-version'
     });
     const labelEngineVersion = new Label({
         text: 'Engine Version',
         class: 'field-label'
     });
-    panelEngineVersion.append(labelEngineVersion);
+    containerEngineVersion.append(labelEngineVersion);
 
     const engineVersionDropdown = new SelectInput({
         class: 'engine-version-dropdown',
@@ -270,8 +270,8 @@ editor.once('load', () => {
             };
         })
     });
-    panelEngineVersion.append(engineVersionDropdown);
-    container.append(panelEngineVersion);
+    containerEngineVersion.append(engineVersionDropdown);
+    container.append(containerEngineVersion);
 
     let fieldOptionsConcat: BooleanInput;
     let fieldOptionsMinify: BooleanInput;
@@ -281,128 +281,128 @@ editor.once('load', () => {
 
     if (!legacyScripts) {
         // options
-        const panelOptions = new Container({
+        const containerOptions = new Container({
             class: 'options'
         });
-        container.append(panelOptions);
+        container.append(containerOptions);
 
         const labelOptions = new Label({
             text: 'Options',
             class: 'field-label'
         });
-        panelOptions.append(labelOptions);
+        containerOptions.append(labelOptions);
 
         // concatenate scripts
-        const panelOptionsConcat = new Container({
+        const containerOptionsConcat = new Container({
             class: 'field'
         });
-        panelOptions.append(panelOptionsConcat);
+        containerOptions.append(containerOptionsConcat);
         fieldOptionsConcat = new BooleanInput({
             value: true
         });
-        panelOptionsConcat.append(fieldOptionsConcat);
+        containerOptionsConcat.append(fieldOptionsConcat);
         const labelConcat = new Label({
             text: 'Concatenate Scripts'
         });
-        panelOptionsConcat.append(labelConcat);
+        containerOptionsConcat.append(labelConcat);
 
         // minify scripts
-        const panelOptionsMinify = new Container({
+        const containerOptionsMinify = new Container({
             class: 'field'
         });
-        panelOptions.append(panelOptionsMinify);
+        containerOptions.append(containerOptionsMinify);
         fieldOptionsMinify = new BooleanInput({
             value: true
         });
-        panelOptionsMinify.append(fieldOptionsMinify);
+        containerOptionsMinify.append(fieldOptionsMinify);
         const labelMinify = new Label({
             text: 'Minify Scripts'
         });
-        panelOptionsMinify.append(labelMinify);
+        containerOptionsMinify.append(labelMinify);
 
         // generate sourcemaps
-        const panelOptionsSourcemaps = new Container({
+        const containerOptionsSourcemaps = new Container({
             class: 'field'
         });
-        panelOptions.append(panelOptionsSourcemaps);
+        containerOptions.append(containerOptionsSourcemaps);
         fieldOptionsSourcemaps = new BooleanInput({
             value: false
         });
-        panelOptionsSourcemaps.append(fieldOptionsSourcemaps);
+        containerOptionsSourcemaps.append(fieldOptionsSourcemaps);
         const labelSourcemaps = new Label({
             text: 'Generate Source Maps'
         });
-        panelOptionsSourcemaps.append(labelSourcemaps);
+        containerOptionsSourcemaps.append(labelSourcemaps);
 
         fieldOptionsConcat.on('change', (value: boolean) => {
-            panelOptionsMinify.hidden = !value;
-            panelOptionsSourcemaps.hidden = (!fieldOptionsMinify.value || !value);
+            containerOptionsMinify.hidden = !value;
+            containerOptionsSourcemaps.hidden = (!fieldOptionsMinify.value || !value);
         });
 
         fieldOptionsMinify.on('change', (value: boolean) => {
-            panelOptionsSourcemaps.hidden = !value;
+            containerOptionsSourcemaps.hidden = !value;
         });
 
         // optimize scene format
-        const panelOptionsOptimizeFormat = new Container({
+        const containerOptionsOptimizeFormat = new Container({
             class: 'field'
         });
-        panelOptions.append(panelOptionsOptimizeFormat);
+        containerOptions.append(containerOptionsOptimizeFormat);
         fieldOptionsOptimizeSceneFormat = new BooleanInput({
             value: false
         });
-        panelOptionsOptimizeFormat.append(fieldOptionsOptimizeSceneFormat);
+        containerOptionsOptimizeFormat.append(fieldOptionsOptimizeSceneFormat);
         const labelPreload = new Label({
             text: 'Optimize Scene Format'
         });
-        panelOptionsOptimizeFormat.append(labelPreload);
+        containerOptionsOptimizeFormat.append(labelPreload);
 
         // export to WebLens format
-        panelOptionsWebLens = new Container({
+        containerOptionsWebLens = new Container({
             class: 'field'
         });
-        panelOptions.append(panelOptionsWebLens);
+        containerOptions.append(containerOptionsWebLens);
         fieldOptionsWebLens = new BooleanInput({
             value: false
         });
-        panelOptionsWebLens.append(fieldOptionsWebLens);
+        containerOptionsWebLens.append(fieldOptionsWebLens);
         const labelWebLens = new Label({
             text: 'Export to WebLens Format'
         });
-        panelOptionsWebLens.append(labelWebLens);
-        panelOptionsWebLens.hidden = true;
+        containerOptionsWebLens.append(labelWebLens);
+        containerOptionsWebLens.hidden = true;
     }
 
     // scenes
-    const panelScenes = new Container({
+    const containerScenes = new Container({
         class: 'scenes'
     });
-    container.append(panelScenes);
+    container.append(containerScenes);
 
     const labelChooseScenes = new Label({
         text: 'Choose Scenes',
         class: 'field-label'
     });
-    panelScenes.append(labelChooseScenes);
+    containerScenes.append(labelChooseScenes);
 
     const selectAll = new BooleanInput();
-    panelScenes.append(selectAll);
+    containerScenes.append(selectAll);
 
     const labelSelectAll = new Label({
         text: 'Select all',
         class: 'select-all'
     });
-    panelScenes.append(labelSelectAll);
+    containerScenes.append(labelSelectAll);
 
     // scenes container
     const sceneList = new LegacyList();
     sceneList.class.add('scene-list');
-    panelScenes.append(sceneList);
+    containerScenes.append(sceneList);
 
-    const panelNoScenes = new Container({
+    const containerNoScenes = new Container({
         class: 'scenes'
     });
-    container.append(panelNoScenes);
+    container.append(containerNoScenes);
 
     // no scenes msg
     const labelNoScenes = new Label({
@@ -410,18 +410,18 @@ editor.once('load', () => {
         class: 'error',
         hidden: true
     });
-    panelNoScenes.append(labelNoScenes);
+    containerNoScenes.append(labelNoScenes);
 
     // loading scenes
     const loadingScenes = new Label({
         text: 'Loading scenes...'
     });
-    panelNoScenes.append(loadingScenes);
+    containerNoScenes.append(loadingScenes);
 
     const progressBar = new Progress({
         value: 100
     });
-    panelNoScenes.append(progressBar);
+    containerNoScenes.append(progressBar);
 
     // holds all scenes
     let scenes: { id: number | string, name: string, modified: string }[] = [];
@@ -815,8 +815,8 @@ editor.once('load', () => {
         destroyEvents();
         sceneList.element.innerHTML = '';
         sortScenes(scenes);
-        panelScenes.hidden = !scenes.length;
-        panelNoScenes.hidden = !panelScenes.hidden;
+        containerScenes.hidden = !scenes.length;
+        containerNoScenes.hidden = !containerScenes.hidden;
         labelNoScenes.hidden = scenes.length > 0;
         loadingScenes.hidden = true;
         progressBar.hidden = true;
@@ -838,7 +838,7 @@ editor.once('load', () => {
     // on show
     container.on('show', () => {
         panelDownloadProgress.hidden = true;
-        panelNoScenes.hidden = false;
+        containerNoScenes.hidden = false;
         labelNoScenes.hidden = true;
         loadingScenes.hidden = false;
         progressBar.hidden = false;
@@ -975,8 +975,8 @@ editor.once('load', () => {
         }
 
         if (!scenes.length) {
-            panelScenes.hidden = true;
-            panelNoScenes.hidden = false;
+            containerScenes.hidden = true;
+            containerNoScenes.hidden = false;
             refreshButtonsState();
         }
     });
