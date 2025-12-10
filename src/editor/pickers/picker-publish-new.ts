@@ -1,3 +1,4 @@
+import type { EventHandle } from '@playcanvas/observer';
 import { BooleanInput, Button, Container, Label, Progress, SelectInput, TextAreaInput, TextInput } from '@playcanvas/pcui';
 
 import { tooltip, tooltipSimpleItem } from '@/common/tooltips';
@@ -12,9 +13,9 @@ editor.once('load', () => {
     let tooltipTargets: Button[] = [];
 
     // holds events that need to be destroyed
-    let events = [];
+    let events: EventHandle[] = [];
 
-    let panelOptionsWebLens: Container = null;
+    let panelOptionsWebLens: Container | null = null;
 
     // main panel
     const container = new Container({ class: 'picker-publish-new' });
@@ -25,7 +26,7 @@ editor.once('load', () => {
 
     let mode = 'publish';
 
-    let primaryScene = null;
+    let primaryScene: number | null = null;
     const primarySceneKey = `publish:primaryScene:${config.project.id}:${config.self.branch.id}`;
 
     editor.method('picker:publish:new', () => {
@@ -87,7 +88,7 @@ editor.once('load', () => {
         fileInput.click();
     });
 
-    let imageS3Key = null;
+    let imageS3Key: string | null = null;
     let isUploadingImage = false;
 
     fileInput.addEventListener('change', () => {
@@ -397,7 +398,7 @@ editor.once('load', () => {
     panelNoScenes.append(progressBar);
 
     // holds all scenes
-    let scenes = [];
+    let scenes: { id: number | string, name: string, modified: string }[] = [];
 
     // returns a list of the selected scenes
     // with the primary scene first
@@ -506,7 +507,7 @@ editor.once('load', () => {
     });
     container.append(btnWebDownload);
 
-    let urlToDownload = null;
+    let urlToDownload: string | null = null;
 
     // download app
     const download = function () {
@@ -937,7 +938,7 @@ editor.once('load', () => {
         }
 
         for (let i = 0; i < scenes.length; i++) {
-            if (parseInt(scenes[i].id, 10) === sceneId) {
+            if (parseInt(String(scenes[i].id), 10) === sceneId) {
                 scenes.splice(i, 1);
                 break;
             }
