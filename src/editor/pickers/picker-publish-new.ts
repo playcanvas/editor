@@ -258,6 +258,7 @@ editor.once('load', () => {
     panelEngineVersion.append(labelEngineVersion);
 
     const engineVersionDropdown = new SelectInput({
+        class: 'engine-version-dropdown',
         value: editor.call('settings:projectUser').get('editor.launchReleaseCandidate') ? 'releaseCandidate' : editor.call('settings:session').get('engineVersion'),
         options: ['previous', 'current', 'releaseCandidate']
         .filter(type => config.engineVersions.hasOwnProperty(type))
@@ -269,7 +270,6 @@ editor.once('load', () => {
             };
         })
     });
-    engineVersionDropdown.style.margin = '0';
     panelEngineVersion.append(engineVersionDropdown);
     container.append(panelEngineVersion);
 
@@ -421,7 +421,6 @@ editor.once('load', () => {
     const progressBar = new Progress({
         value: 100
     });
-    progressBar.hidden = false;
     panelNoScenes.append(progressBar);
 
     // holds all scenes
