@@ -6881,34 +6881,7 @@ strong {
             display: none;
         }
 
-        > .description > .content > textarea,
-        > .notes > .content > textarea {
-            display: block;
-            border: 1px solid $bcg-darker;
-            background-color: $bcg-dark;
-            color: $text-primary;
-            margin: 0;
-            padding: 10px;
-            resize: none;
-
-            @extend .font-regular;
-
-            font-size: 14px;
-            width: calc(100% - 20px);
-            height: 65px;
-
-            &.active,
-            &:hover,
-            &:focus,
-            &.focus {
-                background-color: $bcg-darkest;
-                outline: none;
-                border-color: transparent;
-                box-shadow: none;
-            }
-        }
-
-        // PCUI TextAreaInput (no .content wrapper)
+        // PCUI TextAreaInput
         > .description > .pcui-text-area-input,
         > .notes > .pcui-text-area-input {
             margin: 0; // Reset PCUI default 6px margin
@@ -6965,7 +6938,6 @@ strong {
             }
         }
 
-        > .ui-button,
         > .pcui-button {
             margin: 3px 0 15px 15px; // Top margin needed for PCUI button hover shadow
             padding: 0;
@@ -7010,17 +6982,6 @@ strong {
             }
         }
 
-        .ui-button.help {
-            @extend .font-icon;
-
-            background: transparent;
-            vertical-align: top;
-            line-height: 1;
-            display: inline;
-            border: none;
-        }
-
-        > .ui-panel,
         > .pcui-container {
             margin: 0;
             padding: 15px;
@@ -7142,11 +7103,6 @@ strong {
                         margin: 0;
                     }
 
-                    > .primary {
-                        padding-left: 0;
-                        margin-left: 0;
-                    }
-
                     > .pcui-button.primary {
                         margin: 3px 3px 3px 0;
 
@@ -7170,7 +7126,6 @@ strong {
                 display: block;
             }
 
-            .ui-panel,
             .pcui-container {
                 &.info,
                 &.scenes,
@@ -7180,7 +7135,6 @@ strong {
                 }
             }
 
-            .ui-button,
             .pcui-button {
                 display: none !important;
             }
