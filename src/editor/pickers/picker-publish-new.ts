@@ -280,7 +280,6 @@ editor.once('load', () => {
     let fieldOptionsWebLens: BooleanInput;
 
     if (!legacyScripts) {
-        // options
         const containerOptions = new Container({
             class: 'options'
         });
@@ -292,85 +291,49 @@ editor.once('load', () => {
         });
         containerOptions.append(labelOptions);
 
-        // concatenate scripts
-        const containerOptionsConcat = new Container({
-            class: 'field'
-        });
-        containerOptions.append(containerOptionsConcat);
-        fieldOptionsConcat = new BooleanInput({
-            value: true
-        });
-        containerOptionsConcat.append(fieldOptionsConcat);
-        const labelConcat = new Label({
-            text: 'Concatenate Scripts'
-        });
-        containerOptionsConcat.append(labelConcat);
+        // Helper to create an option row with checkbox and label
+        const createOption = (text: string, value: boolean) => {
+            const row = new Container({
+                class: 'field'
+            });
+            containerOptions.append(row);
 
-        // minify scripts
-        const containerOptionsMinify = new Container({
-            class: 'field'
-        });
-        containerOptions.append(containerOptionsMinify);
-        fieldOptionsMinify = new BooleanInput({
-            value: true
-        });
-        containerOptionsMinify.append(fieldOptionsMinify);
-        const labelMinify = new Label({
-            text: 'Minify Scripts'
-        });
-        containerOptionsMinify.append(labelMinify);
+            const input = new BooleanInput({
+                value
+            });
+            row.append(input);
 
-        // generate sourcemaps
-        const containerOptionsSourcemaps = new Container({
-            class: 'field'
-        });
-        containerOptions.append(containerOptionsSourcemaps);
-        fieldOptionsSourcemaps = new BooleanInput({
-            value: false
-        });
-        containerOptionsSourcemaps.append(fieldOptionsSourcemaps);
-        const labelSourcemaps = new Label({
-            text: 'Generate Source Maps'
-        });
-        containerOptionsSourcemaps.append(labelSourcemaps);
+            const label = new Label({
+                text
+            });
+            row.append(label);
+
+            return { row, input };
+        };
+
+        const optConcat = createOption('Concatenate Scripts', true);
+        const optMinify = createOption('Minify Scripts', true);
+        const optSourcemaps = createOption('Generate Source Maps', false);
+        const optOptimizeFormat = createOption('Optimize Scene Format', false);
+        const optWebLens = createOption('Export to WebLens Format', false);
+
+        fieldOptionsConcat = optConcat.input;
+        fieldOptionsMinify = optMinify.input;
+        fieldOptionsSourcemaps = optSourcemaps.input;
+        fieldOptionsOptimizeSceneFormat = optOptimizeFormat.input;
+        fieldOptionsWebLens = optWebLens.input;
+
+        containerOptionsWebLens = optWebLens.row;
+        containerOptionsWebLens.hidden = true;
 
         fieldOptionsConcat.on('change', (value: boolean) => {
-            containerOptionsMinify.hidden = !value;
-            containerOptionsSourcemaps.hidden = (!fieldOptionsMinify.value || !value);
+            optMinify.row.hidden = !value;
+            optSourcemaps.row.hidden = !fieldOptionsMinify.value || !value;
         });
 
         fieldOptionsMinify.on('change', (value: boolean) => {
-            containerOptionsSourcemaps.hidden = !value;
+            optSourcemaps.row.hidden = !value;
         });
-
-        // optimize scene format
-        const containerOptionsOptimizeFormat = new Container({
-            class: 'field'
-        });
-        containerOptions.append(containerOptionsOptimizeFormat);
-        fieldOptionsOptimizeSceneFormat = new BooleanInput({
-            value: false
-        });
-        containerOptionsOptimizeFormat.append(fieldOptionsOptimizeSceneFormat);
-        const labelPreload = new Label({
-            text: 'Optimize Scene Format'
-        });
-        containerOptionsOptimizeFormat.append(labelPreload);
-
-        // export to WebLens format
-        containerOptionsWebLens = new Container({
-            class: 'field'
-        });
-        containerOptions.append(containerOptionsWebLens);
-        fieldOptionsWebLens = new BooleanInput({
-            value: false
-        });
-        containerOptionsWebLens.append(fieldOptionsWebLens);
-        const labelWebLens = new Label({
-            text: 'Export to WebLens Format'
-        });
-        containerOptionsWebLens.append(labelWebLens);
-        containerOptionsWebLens.hidden = true;
     }
 
     // scenes
