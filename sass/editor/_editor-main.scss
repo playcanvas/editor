@@ -6848,7 +6848,7 @@ strong {
             }
 
             &.image-click {
-                margin: 3px; // Match legacy ui-label margin
+                margin: 3px;
             }
         }
 
@@ -6873,15 +6873,6 @@ strong {
             }
         }
 
-        .upgrade {
-            color: #fff;
-            padding: 15px;
-            margin: 0;
-            border-bottom: 1px solid $bcg-darker;
-            display: none;
-        }
-
-        // PCUI TextAreaInput
         > .description > .pcui-text-area-input,
         > .notes > .pcui-text-area-input {
             margin: 0; // Reset PCUI default 6px margin
@@ -6983,7 +6974,6 @@ strong {
             border-bottom: 1px solid $border-primary;
         }
 
-        // PCUI Container version of info
         > .pcui-container.info {
             > .image {
                 display: inline-block;
@@ -7024,7 +7014,6 @@ strong {
             }
         }
 
-        // PCUI Container version of scenes
         > .pcui-container.scenes {
             border-bottom: none;
 
@@ -7056,7 +7045,6 @@ strong {
                 float: none;
             }
 
-            // LegacyList inside PCUI Container
             > .ui-list {
                 margin-top: 10px;
 
@@ -7110,27 +7098,6 @@ strong {
                         margin: 3px;
                     }
                 }
-            }
-        }
-    }
-
-    &.upgrade {
-        > .content {
-            .upgrade {
-                display: block;
-            }
-
-            .pcui-container {
-                &.info,
-                &.scenes,
-                &.options,
-                &.notes {
-                    display: none;
-                }
-            }
-
-            .pcui-button {
-                display: none !important;
             }
         }
     }
