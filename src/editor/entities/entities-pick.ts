@@ -5,6 +5,36 @@ editor.once('load', () => {
         }
     });
 
+    // Handle rectangle selection
+    editor.on('viewport:pick:rect:nodes', (nodes) => {
+        // Convert pc.Entity nodes to entity observers
+        const entities = [];
+
+        for (const node of nodes) {
+            // Handle icon entities
+            let targetNode = node;
+            if (node._icon || (node.__editor && node._getEntity)) {
+                targetNode = node._getEntity();
+                if (!targetNode) {
+                    continue;
+                }
+            }
+
+            const entity = editor.call('entities:get', targetNode.getGuid());
+            if (entity) {
+                entities.push(entity);
+            }
+        }
+
+        if (entities.length > 0) {
+            // Rectangle select replaces current selection
+            editor.call('selector:set', 'entity', entities);
+        } else {
+            // No entities selected, clear selection
+            editor.call('selector:clear');
+        }
+    });
+
     editor.on('viewport:pick:node', (node, picked) => {
         // icon
         if (node._icon || (node.__editor && node._getEntity)) {
