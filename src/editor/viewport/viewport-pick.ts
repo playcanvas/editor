@@ -23,6 +23,14 @@ editor.once('load', () => {
     let rectStartX = 0;
     let rectStartY = 0;
 
+    // Traverses up the node hierarchy to find the parent pc.Entity
+    const findParentEntity = (node) => {
+        while (node && !(node instanceof pc.Entity) && node.parent) {
+            node = node.parent;
+        }
+        return (node instanceof pc.Entity) ? node : null;
+    };
+
     editor.on('gizmo:transform:hover', (state) => {
         gizmoHover = state;
     });
@@ -91,17 +99,12 @@ editor.once('load', () => {
         if (!picked.length || !picked[0]) {
             fn(null, null);
         } else {
-            let node = picked[0].node;
-
-            // traverse to pc.Entity
-            while (!(node instanceof pc.Entity) && node && node.parent) {
-                node = node.parent;
-            }
-            if (!node || !(node instanceof pc.Entity)) {
+            const entity = findParentEntity(picked[0].node);
+            if (!entity) {
                 return;
             }
 
-            fn(node, picked[0]);
+            fn(entity, picked[0]);
         }
     });
 
@@ -124,21 +127,15 @@ editor.once('load', () => {
                 continue;
             }
 
-            let node = meshInstance.node;
-
-            // traverse to pc.Entity
-            while (!(node instanceof pc.Entity) && node && node.parent) {
-                node = node.parent;
-            }
-
-            if (!node || !(node instanceof pc.Entity)) {
+            const entity = findParentEntity(meshInstance.node);
+            if (!entity) {
                 continue;
             }
 
-            const guid = node.getGuid();
+            const guid = entity.getGuid();
             if (!seenGuids.has(guid)) {
                 seenGuids.add(guid);
-                entities.push(node);
+                entities.push(entity);
             }
         }
 
