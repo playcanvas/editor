@@ -149,8 +149,8 @@ editor.once('load', () => {
 
         mouseDown = true;
 
-        // Start rect selection on Ctrl + LMB
-        if (tap.button === 0 && (evt.ctrlKey || evt.metaKey)) {
+        // Start rect selection on Ctrl + LMB (but not if hovering over gizmo)
+        if (tap.button === 0 && (evt.ctrlKey || evt.metaKey) && !gizmoHover) {
             rectSelecting = true;
             rectStartX = tap.x;
             rectStartY = tap.y;
