@@ -1,4 +1,18 @@
 editor.once('load', () => {
+    // Resolves a picked node (which may be an icon entity) to its entity observer
+    const resolveEntityFromNode = (node) => {
+        // Handle icon entities
+        let targetNode = node;
+        if (node._icon || (node.__editor && node._getEntity)) {
+            targetNode = node._getEntity();
+            if (!targetNode) {
+                return null;
+            }
+        }
+
+        return editor.call('entities:get', targetNode.getGuid()) || null;
+    };
+
     editor.on('viewport:pick:clear', () => {
         if (!editor.call('hotkey:ctrl')) {
             editor.call('selector:clear');
@@ -11,16 +25,7 @@ editor.once('load', () => {
         const entities = [];
 
         for (const node of nodes) {
-            // Handle icon entities
-            let targetNode = node;
-            if (node._icon || (node.__editor && node._getEntity)) {
-                targetNode = node._getEntity();
-                if (!targetNode) {
-                    continue;
-                }
-            }
-
-            const entity = editor.call('entities:get', targetNode.getGuid());
+            const entity = resolveEntityFromNode(node);
             if (entity) {
                 entities.push(entity);
             }
@@ -36,18 +41,14 @@ editor.once('load', () => {
     });
 
     editor.on('viewport:pick:node', (node, picked) => {
-        // icon
-        if (node._icon || (node.__editor && node._getEntity)) {
-            node = node._getEntity();
-            if (!node) {
-                return;
-            }
-        }
-
-        // get entity
-        const entity = editor.call('entities:get', node.getGuid());
+        const entity = resolveEntityFromNode(node);
         if (!entity) {
             return;
+        }
+
+        // Resolve the actual node for model component checks below
+        if (node._icon || (node.__editor && node._getEntity)) {
+            node = node._getEntity();
         }
 
         // get selector data
