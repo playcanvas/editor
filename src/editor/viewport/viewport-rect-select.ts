@@ -16,9 +16,6 @@ editor.once('load', () => {
     `;
     canvas.element.parentElement.appendChild(rectOverlay);
 
-    let startX = 0;
-    let startY = 0;
-
     const updateRect = (x1: number, y1: number, x2: number, y2: number) => {
         const minX = Math.min(x1, x2);
         const minY = Math.min(y1, y2);
@@ -32,8 +29,6 @@ editor.once('load', () => {
     };
 
     editor.on('viewport:pick:rect:start', (x: number, y: number) => {
-        startX = x;
-        startY = y;
         updateRect(x, y, x, y);
         rectOverlay.style.display = 'block';
     });
