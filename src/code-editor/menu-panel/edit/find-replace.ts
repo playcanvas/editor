@@ -1,5 +1,7 @@
 import { MenuItem } from '@playcanvas/pcui';
 
+import { formatShortcut } from '../../../common/utils';
+
 editor.once('load', () => {
     const menu = editor.call('menu:edit');
     const ctrl = editor.call('hotkey:ctrl:string');
@@ -9,29 +11,29 @@ editor.once('load', () => {
     let item = new MenuItem({
         class: 'no-bottom-border',
         text: 'Find',
+        shortcut: formatShortcut(`${ctrl}+F`),
         onSelect: () => {
             me.trigger(null, 'actions.find');
         }
     });
-    editor.call('menu:item:setShortcut', item, `${ctrl}+F`);
     menu.append(item);
 
     item = new MenuItem({
         class: 'no-bottom-border',
         text: 'Replace',
+        shortcut: formatShortcut(isMac ? 'Alt+Cmd+F' : 'Ctrl+H'),
         onSelect: () => {
             me.trigger(null, 'editor.action.startFindReplaceAction');
         }
     });
-    editor.call('menu:item:setShortcut', item, isMac ? 'Alt+Cmd+F' : 'Ctrl+H');
     menu.append(item);
 
     item = new MenuItem({
         text: 'Find In Files',
+        shortcut: formatShortcut(`${ctrl}+Shift+F`),
         onSelect: () => {
             editor.call('picker:search:open');
         }
     });
-    editor.call('menu:item:setShortcut', item, `${ctrl}Shift+F`);
     menu.append(item);
 });

@@ -1,14 +1,18 @@
 import { MenuItem } from '@playcanvas/pcui';
 
+import { formatShortcut } from '../../../common/utils';
+
 editor.once('load', () => {
     const menu = editor.call('menu:file');
 
     const settings = editor.call('editor:settings');
+    const ctrl = editor.call('hotkey:ctrl:string');
 
     // create save menu
     let item = new MenuItem({
         class: 'no-bottom-border',
         text: 'Save File',
+        shortcut: formatShortcut(`${ctrl}+S`),
         onIsEnabled: () => {
             return editor.call('editor:command:can:save');
         },
@@ -16,7 +20,6 @@ editor.once('load', () => {
             return editor.call('editor:command:save');
         }
     });
-    editor.call('menu:item:setShortcut', item, `${editor.call('hotkey:ctrl:string')}+S`);
     menu.append(item);
 
     item = new MenuItem({
