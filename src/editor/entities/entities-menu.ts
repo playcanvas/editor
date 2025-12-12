@@ -1,7 +1,7 @@
 import { COMPONENT_LOGOS, ORIENTATION_HORIZONTAL, ORIENTATION_VERTICAL } from '@/core/constants';
 
 editor.once('load', () => {
-    const applyAdditions = function (object, additions) {
+    const applyAdditions = (object, additions) => {
         if (additions) {
             Object.keys(additions).forEach((name) => {
                 object[name] = additions[name];
@@ -9,7 +9,7 @@ editor.once('load', () => {
         }
     };
 
-    const createGroupElementComponentData = function (additions) {
+    const createGroupElementComponentData = (additions?) => {
         const data = editor.call('components:getDefault', 'element');
         data.type = 'group';
 
@@ -18,7 +18,7 @@ editor.once('load', () => {
         return data;
     };
 
-    const createImageElementComponentData = function (additions) {
+    const createImageElementComponentData = (additions?) => {
         const data = editor.call('components:getDefault', 'element');
         data.type = 'image';
 
@@ -27,7 +27,7 @@ editor.once('load', () => {
         return data;
     };
 
-    const createTextElementComponentData = function (additions) {
+    const createTextElementComponentData = (additions?) => {
         const data = editor.call('components:getDefault', 'element');
         data.type = 'text';
         data.text = 'Text';
@@ -39,7 +39,7 @@ editor.once('load', () => {
         return data;
     };
 
-    const createButtonTextElementComponentData = function (additions) {
+    const createButtonTextElementComponentData = (additions?) => {
         const data = editor.call('components:getDefault', 'element');
         data.type = 'text';
         data.text = 'Text';
@@ -56,7 +56,7 @@ editor.once('load', () => {
         return data;
     };
 
-    const createButtonEntityData = function (additions) {
+    const createButtonEntityData = (additions?) => {
         const data = {
             components: {
                 button: editor.call('components:getDefault', 'button'),
@@ -79,7 +79,7 @@ editor.once('load', () => {
         return data;
     };
 
-    const createScrollbarEntityData = function (orientation, additions) {
+    const createScrollbarEntityData = (orientation, additions) => {
         const scrollbarComponentData = editor.call('components:getDefault', 'scrollbar');
         scrollbarComponentData.orientation = orientation;
 
@@ -112,7 +112,7 @@ editor.once('load', () => {
         return data;
     };
 
-    const createPrimitiveEntityData = function (type, additions) {
+    const createPrimitiveEntityData = (type, additions) => {
         const data = {
             components: {}
         };
@@ -469,7 +469,8 @@ editor.once('load', () => {
                         name: 'Layout Group',
                         parent: getParentFn(),
                         components: {
-                            layoutgroup: editor.call('components:getDefault', 'layoutgroup')
+                            layoutgroup: editor.call('components:getDefault', 'layoutgroup'),
+                            element: createGroupElementComponentData()
                         }
                     });
                 }
@@ -481,7 +482,8 @@ editor.once('load', () => {
                         name: 'Layout Child',
                         parent: getParentFn(),
                         components: {
-                            layoutchild: editor.call('components:getDefault', 'layoutchild')
+                            layoutchild: editor.call('components:getDefault', 'layoutchild'),
+                            element: createGroupElementComponentData()
                         }
                     });
                 }
