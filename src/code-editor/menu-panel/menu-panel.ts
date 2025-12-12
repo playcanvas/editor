@@ -51,13 +51,12 @@ editor.once('load', () => {
         }
     });
 
-    // Format a shortcut string for display (replace modifiers with symbols)
-    const formatShortcut = (shortcut: string): string => {
+    editor.method('menu:item:setShortcut', (item: MenuItem, shortcut: string) => {
         if (editor.call('editor:mac')) {
             shortcut = shortcut.replace(/Ctrl/g, '⌃');
         }
 
-        return shortcut
+        item.shortcut = shortcut
             .replace(/\+/g, ' ')
             .replace(/Shift/g, '⇧')
             .replace(/Alt/g, '⌥')
@@ -66,13 +65,5 @@ editor.once('load', () => {
             .replace(/Left Arrow/g, '←')
             .replace(/Up Arrow/g, '↑')
             .replace(/Down Arrow/g, '↓');
-    };
-
-    // Add shortcut label to a menu item using native PCUI support
-    editor.method('menu:item:setShortcut', (item: MenuItem, shortcut: string) => {
-        item.shortcut = formatShortcut(shortcut);
     });
-
-    // Expose formatShortcut for use by other modules
-    editor.method('menu:formatShortcut', formatShortcut);
 });
