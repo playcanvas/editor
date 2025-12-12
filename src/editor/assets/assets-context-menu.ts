@@ -2,11 +2,14 @@ import { Menu, MenuItem } from '@playcanvas/pcui';
 
 import { Asset, Entity } from '@playcanvas/editor-api';
 
+import { formatShortcut } from '../../common/utils';
+
 editor.once('load', () => {
     let currentAsset = null;
     const legacyScripts = editor.call('settings:project').get('useLegacyScripts');
     const projectUserSettings = editor.call('settings:projectUser');
     const root = editor.call('layout.root');
+    const ctrl = editor.call('hotkey:ctrl:string');
 
     const LEGACY_SCRIPTS_ID = 'legacyScripts';
 
@@ -353,6 +356,7 @@ editor.once('load', () => {
     const menuItemCopy = new MenuItem({
         text: 'Copy',
         icon: ICONS.COPY,
+        shortcut: formatShortcut(`${ctrl}+C`),
         onSelect: () => {
             const asset = currentAsset;
             let multiple = false;
@@ -381,10 +385,10 @@ editor.once('load', () => {
     menu.append(menuItemCopy);
 
     // paste
-    // copy
     const menuItemPaste = new MenuItem({
         text: 'Paste',
         icon: ICONS.PASTE,
+        shortcut: formatShortcut(`${ctrl}+V`),
         onSelect: () => {
             if (currentAsset && currentAsset.get('type') !== 'folder') {
                 return;
@@ -565,6 +569,7 @@ editor.once('load', () => {
     const menuItemDelete = new MenuItem({
         text: 'Delete',
         icon: ICONS.DELETE,
+        shortcut: formatShortcut('Delete'),
         onSelect: () => {
             const asset = currentAsset;
             let multiple = false;

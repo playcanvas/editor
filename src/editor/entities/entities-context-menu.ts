@@ -1,5 +1,7 @@
 import { Menu, MenuItem } from '@playcanvas/pcui';
 
+import { formatShortcut } from '../../common/utils';
+
 editor.once('load', () => {
     let entity = null; // the entity that was clicked on to open the context menu
     let items = [];   // the current selection
@@ -73,6 +75,7 @@ editor.once('load', () => {
 
         const isOneSelected = () => items.length === 1;
         const hasWriteAccess = () => editor.call('permissions:write');
+        const ctrl = editor.call('hotkey:ctrl:string');
 
         menuData.push({
             text: 'New Entity',
@@ -162,6 +165,7 @@ editor.once('load', () => {
         menuData.push({
             text: 'Copy',
             icon: 'E351',
+            shortcut: formatShortcut(`${ctrl}+C`),
             onSelect: function () {
                 editor.call('entities:copy', items);
             }
@@ -170,6 +174,7 @@ editor.once('load', () => {
         menuData.push({
             text: 'Paste',
             icon: 'E348',
+            shortcut: formatShortcut(`${ctrl}+V`),
             onIsVisible: hasWriteAccess,
             onIsEnabled: function () {
                 if (items.length <= 1) {
@@ -189,6 +194,7 @@ editor.once('load', () => {
         menuData.push({
             text: 'Duplicate',
             icon: 'E126',
+            shortcut: formatShortcut(`${ctrl}+D`),
             onIsVisible: hasWriteAccess,
             onIsEnabled: function () {
                 const items = getSelection();
@@ -242,6 +248,7 @@ editor.once('load', () => {
         menuData.push({
             text: 'Delete',
             icon: 'E124',
+            shortcut: formatShortcut('Delete'),
             onIsVisible: hasWriteAccess,
             onIsEnabled: function () {
                 const root = editor.call('entities:root');
