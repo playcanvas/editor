@@ -7,6 +7,7 @@ editor.once('load', () => {
     const legacyScripts = editor.call('settings:project').get('useLegacyScripts');
     const projectUserSettings = editor.call('settings:projectUser');
     const root = editor.call('layout.root');
+    const ctrl = editor.call('hotkey:ctrl:string');
 
     const LEGACY_SCRIPTS_ID = 'legacyScripts';
 
@@ -353,6 +354,7 @@ editor.once('load', () => {
     const menuItemCopy = new MenuItem({
         text: 'Copy',
         icon: ICONS.COPY,
+        shortcut: `${ctrl}+C`,
         onSelect: () => {
             const asset = currentAsset;
             let multiple = false;
@@ -381,10 +383,10 @@ editor.once('load', () => {
     menu.append(menuItemCopy);
 
     // paste
-    // copy
     const menuItemPaste = new MenuItem({
         text: 'Paste',
         icon: ICONS.PASTE,
+        shortcut: `${ctrl}+V`,
         onSelect: () => {
             if (currentAsset && currentAsset.get('type') !== 'folder') {
                 return;
@@ -565,6 +567,7 @@ editor.once('load', () => {
     const menuItemDelete = new MenuItem({
         text: 'Delete',
         icon: ICONS.DELETE,
+        shortcut: 'Delete',
         onSelect: () => {
             const asset = currentAsset;
             let multiple = false;

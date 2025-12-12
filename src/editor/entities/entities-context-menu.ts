@@ -73,6 +73,7 @@ editor.once('load', () => {
 
         const isOneSelected = () => items.length === 1;
         const hasWriteAccess = () => editor.call('permissions:write');
+        const ctrl = editor.call('hotkey:ctrl:string');
 
         menuData.push({
             text: 'New Entity',
@@ -162,6 +163,7 @@ editor.once('load', () => {
         menuData.push({
             text: 'Copy',
             icon: 'E351',
+            shortcut: `${ctrl}+C`,
             onSelect: function () {
                 editor.call('entities:copy', items);
             }
@@ -170,6 +172,7 @@ editor.once('load', () => {
         menuData.push({
             text: 'Paste',
             icon: 'E348',
+            shortcut: `${ctrl}+V`,
             onIsVisible: hasWriteAccess,
             onIsEnabled: function () {
                 if (items.length <= 1) {
@@ -189,6 +192,7 @@ editor.once('load', () => {
         menuData.push({
             text: 'Duplicate',
             icon: 'E126',
+            shortcut: `${ctrl}+D`,
             onIsVisible: hasWriteAccess,
             onIsEnabled: function () {
                 const items = getSelection();
@@ -242,6 +246,7 @@ editor.once('load', () => {
         menuData.push({
             text: 'Delete',
             icon: 'E124',
+            shortcut: 'Delete',
             onIsVisible: hasWriteAccess,
             onIsEnabled: function () {
                 const root = editor.call('entities:root');
