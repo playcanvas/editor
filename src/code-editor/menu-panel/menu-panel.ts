@@ -51,7 +51,9 @@ editor.once('load', () => {
         }
     });
 
+    // Add shortcut label to a menu item
     editor.method('menu:item:setShortcut', (item: MenuItem, shortcut: string) => {
+        // replace common things with icons
         if (editor.call('editor:mac')) {
             shortcut = shortcut.replace(/Ctrl/g, '⌃');
         }
