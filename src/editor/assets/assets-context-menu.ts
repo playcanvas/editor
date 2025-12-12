@@ -623,7 +623,14 @@ editor.once('load', () => {
         text: 'Open In Viewer',
         icon: ICONS.OPEN_IN_VIEWER,
         onSelect: () => {
-            editor.call('assets:open', [currentAsset]);
+            let assets = editor.api.globals.selection.items.filter(item => item instanceof Asset);
+            // If none are selected, use currentAsset instead
+            if (assets.length === 0 && currentAsset) {
+                assets = [currentAsset];
+            }
+            if (assets.length > 0) {
+                editor.call('assets:open', assets);
+            }
         }
     });
     menu.append(menuItemOpenInViewer);
@@ -861,8 +868,14 @@ editor.once('load', () => {
             // move-to-store
             menuItemMoveToStore.hidden = !editor.call('users:isSuperUser') || !currentAsset || currentAsset.get('id') === LEGACY_SCRIPTS_ID || (legacyScripts && currentAsset.get('type') === 'script');
 
-            // open-in-viewer
-            menuItemOpenInViewer.hidden = !currentAsset || !(isModelAsset(currentAsset) || isTextureAsset(currentAsset));
+            // open-in-viewer - only show when all viewable assets are the same type (all models OR all textures)
+            const selectedAssets = editor.api.globals.selection.items.filter(item => item instanceof Asset);
+            const assetsToCheck = selectedAssets.length > 0 ? selectedAssets : (currentAsset ? [currentAsset] : []);
+            const modelAssets = assetsToCheck.filter(asset => isModelAsset(asset));
+            const textureAssets = assetsToCheck.filter(asset => isTextureAsset(asset));
+            const hasOnlyModels = modelAssets.length > 0 && textureAssets.length === 0;
+            const hasOnlyTextures = textureAssets.length > 0 && modelAssets.length === 0;
+            menuItemOpenInViewer.hidden = !(hasOnlyModels || hasOnlyTextures);
         } else {
             // no asset
             menuItemExtract.hidden = true;
