@@ -59,13 +59,13 @@ editor.once('load', () => {
         }
 
         item.shortcut = shortcut
-            .replace(/\+/g, ' ')
-            .replace(/Shift/g, '⇧')
-            .replace(/Alt/g, '⌥')
-            .replace(/Cmd/g, '⌘')
-            .replace(/Right Arrow/g, '→')
-            .replace(/Left Arrow/g, '←')
-            .replace(/Up Arrow/g, '↑')
-            .replace(/Down Arrow/g, '↓');
+        .replace(/\+/g, ' ')
+        .replace(/Shift/g, '⇧')
+        .replace(/Alt/g, '⌥')
+        .replace(/Cmd/g, '⌘')
+        .replace(/Right Arrow/g, '→')
+        .replace(/Left Arrow/g, '←')
+        .replace(/Up Arrow/g, '↑')
+        .replace(/Down Arrow/g, '↓');
     });
 });
