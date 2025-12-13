@@ -77,6 +77,24 @@ editor.once('load', () => {
         const hasWriteAccess = () => editor.call('permissions:write');
         const ctrl = editor.call('hotkey:ctrl:string');
 
+        const exportEntity = async (ExporterClass, mimeType, extension, formatName) => {
+            try {
+                const entity = items[0].entity;
+                const exporter = new ExporterClass();
+                const arrayBuffer = await exporter.build(entity);
+
+                const blob = new Blob([arrayBuffer], { type: mimeType });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `${items[0].get('name') || 'entity'}.${extension}`;
+                link.click();
+                URL.revokeObjectURL(link.href);
+            } catch (err) {
+                console.error(`${formatName} export failed:`, err);
+                editor.call('status:error', `Failed to export ${formatName}: ${err.message}`);
+            }
+        };
+
         menuData.push({
             text: 'New Entity',
             onIsEnabled: isOneSelected,
@@ -211,27 +229,19 @@ editor.once('load', () => {
         });
 
         menuData.push({
-            text: 'Export as GLB',
+            text: 'Export As...',
             icon: 'E228',
             onIsEnabled: () => items.length === 1 && items[0].entity,
-            onSelect: async () => {
-                try {
-                    const entity = items[0].entity;
-                    const exporter = new pc.GltfExporter();
-                    const arrayBuffer = await exporter.build(entity);
-
-                    // Create and trigger download
-                    const blob = new Blob([arrayBuffer], { type: 'model/gltf-binary' });
-                    const link = document.createElement('a');
-                    link.href = URL.createObjectURL(blob);
-                    link.download = `${items[0].get('name') || 'entity'}.glb`;
-                    link.click();
-                    URL.revokeObjectURL(link.href);
-                } catch (err) {
-                    console.error('GLB export failed:', err);
-                    editor.call('status:error', `Failed to export GLB: ${err.message}`);
+            items: [
+                {
+                    text: 'GLB',
+                    onSelect: () => exportEntity(pc.GltfExporter, 'model/gltf-binary', 'glb', 'GLB')
+                },
+                {
+                    text: 'USDZ',
+                    onSelect: () => exportEntity(pc.UsdzExporter, 'application/octet-stream', 'usdz', 'USDZ')
                 }
-            }
+            ]
         });
 
         menuData.push({
