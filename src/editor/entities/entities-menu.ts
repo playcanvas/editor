@@ -1,7 +1,7 @@
 import { COMPONENT_LOGOS, ORIENTATION_HORIZONTAL, ORIENTATION_VERTICAL } from '@/core/constants';
 
 editor.once('load', () => {
-    const applyAdditions = (object, additions) => {
+    const applyAdditions = (object, additions?) => {
         if (additions) {
             Object.keys(additions).forEach((name) => {
                 object[name] = additions[name];
