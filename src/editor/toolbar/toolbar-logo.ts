@@ -21,6 +21,10 @@ editor.once('load', () => {
      * Determines whether to show the Enable/Disable menu item based on selection state.
      * Shows "Enable" when entities are disabled, "Disable" when enabled.
      * For mixed selection states, shows both options.
+     *
+     * @param showWhenEnabled - If true, show when entities are enabled (for Disable item).
+     * If false, show when entities are disabled (for Enable item).
+     * @returns Whether to show the menu item.
      */
     const shouldShowEnableToggle = (showWhenEnabled: boolean) => {
         if (!isEntitySelected()) {
