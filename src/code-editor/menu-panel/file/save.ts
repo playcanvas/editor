@@ -77,7 +77,10 @@ editor.once('load', () => {
     }));
 
     // documents currently being saved
-    const savingIndex = {};
+    const saving: Set<string> = new Set();
+
+    // documents that need to be saved after the current save completes
+    const pendingSave: Set<string> = new Set();
 
     // Returns true if we can save
     editor.method('editor:command:can:save', (id) => {
@@ -85,11 +88,10 @@ editor.once('load', () => {
             const focused = id || editor.call('documents:getFocused');
 
             return focused &&
-                   !savingIndex[focused] &&
+                   !saving.has(focused) &&
                    !editor.call('documents:isLoading', focused) &&
                    editor.call('documents:isDirty', focused);
         }
-
 
         return false;
     });
@@ -105,7 +107,7 @@ editor.once('load', () => {
     const save = function (id) {
         beforeSave();
 
-        savingIndex[id] = true;
+        saving.add(id);
 
         editor.emit('editor:command:save:start', id);
 
@@ -149,11 +151,20 @@ editor.once('load', () => {
 
     // Save
     editor.method('editor:command:save', (id) => {
+        const docId = id || editor.call('documents:getFocused');
+
+        // If a save is already in progress for this document, mark it as pending
+        // so we save again after the current save completes
+        if (docId && saving.has(docId)) {
+            pendingSave.add(docId);
+            return;
+        }
+
         if (!editor.call('editor:command:can:save', id)) {
             return;
         }
 
-        save(id || editor.call('documents:getFocused'));
+        save(docId);
     });
 
     editor.method('editor:command:can:saveSelected', () => {
@@ -162,7 +173,7 @@ editor.once('load', () => {
             const selected = editor.call('assets:selected');
             for (const doc of selected) {
                 const id = doc.get('id');
-                if (!savingIndex[id] && editor.call('documents:isDirty', id)) {
+                if (!saving.has(id) && editor.call('documents:isDirty', id)) {
                     hasDirty = true;
                     break;
                 }
@@ -170,7 +181,6 @@ editor.once('load', () => {
 
             return hasDirty;
         }
-
 
         return false;
     });
@@ -183,7 +193,7 @@ editor.once('load', () => {
         const selected = editor.call('assets:selected');
         for (const doc of selected) {
             const id = doc.get('id');
-            if (savingIndex[id] || !editor.call('documents:isDirty', id)) {
+            if (saving.has(id) || !editor.call('documents:isDirty', id)) {
                 continue;
             }
 
@@ -196,7 +206,7 @@ editor.once('load', () => {
             let hasDirty = false;
             const open = editor.call('documents:list');
             for (const id of open) {
-                if (!savingIndex[id] && editor.call('documents:isDirty', id)) {
+                if (!saving.has(id) && editor.call('documents:isDirty', id)) {
                     hasDirty = true;
                     break;
                 }
@@ -204,7 +214,6 @@ editor.once('load', () => {
 
             return hasDirty;
         }
-
 
         return false;
     });
@@ -216,7 +225,7 @@ editor.once('load', () => {
 
         const open = editor.call('documents:list');
         for (const id of open) {
-            if (savingIndex[id] || !editor.call('documents:isDirty', id)) {
+            if (saving.has(id) || !editor.call('documents:isDirty', id)) {
                 continue;
             }
 
@@ -224,20 +233,30 @@ editor.once('load', () => {
         }
     });
 
-    // Handle save success
+    // Handle save completion (success or error)
+    function onSaveComplete(id: string) {
+        saving.delete(id);
+
+        // If a save was requested while we were saving, trigger it now
+        if (pendingSave.has(id)) {
+            pendingSave.delete(id);
+            // Use setTimeout to allow the current save to fully complete before starting a new one
+            setTimeout(() => {
+                editor.call('editor:command:save', id);
+            }, 0);
+        }
+    }
+
     editor.on('documents:save:success', (uniqueId) => {
         const asset = editor.call('assets:getUnique', uniqueId);
         editor.call('status:log', `Saved "${asset.get('name')}"`);
-
-        delete savingIndex[asset.get('id')];
+        onSaveComplete(asset.get('id'));
     });
 
-    // Handle save error
     editor.on('documents:save:error', (uniqueId) => {
         const asset = editor.call('assets:getUnique', uniqueId);
         editor.call('status:error', `Could not save "${asset.get('name')}"`);
-
-        delete savingIndex[asset.get('id')];
+        onSaveComplete(asset.get('id'));
     });
 
     // When a document is marked as clean
@@ -245,10 +264,12 @@ editor.once('load', () => {
     // to re-save
     editor.on('documents:dirty', (id, dirty) => {
         if (!dirty) {
-            if (savingIndex[id]) {
-                delete savingIndex[id];
+            if (saving.has(id)) {
+                saving.delete(id);
                 editor.call('status:clear');
             }
+            // Clear pending save since the document is now clean
+            pendingSave.delete(id);
         }
     });
 
@@ -257,18 +278,21 @@ editor.once('load', () => {
     // if we got disconnected in the meantime
     editor.on('documents:load', (doc, asset, docEntry) => {
         const id = asset.get('id');
-        if (savingIndex[id]) {
-            delete savingIndex[id];
+        if (saving.has(id)) {
+            saving.delete(id);
             editor.call('status:clear');
         }
+        // Clear pending save since the document was reloaded
+        pendingSave.delete(id);
     });
 
-    // when we close a document remove it's saving status
+    // when we close a document remove its saving status
     editor.on('documents:close', (id) => {
-        if (savingIndex[id]) {
-            delete savingIndex[id];
+        if (saving.has(id)) {
+            saving.delete(id);
             editor.call('status:clear');
         }
+        pendingSave.delete(id);
     });
 
     editor.on('editor:command:save:start', (id) => {
