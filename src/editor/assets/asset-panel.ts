@@ -1454,11 +1454,26 @@ class AssetPanel extends Panel {
 
 
         // context menu (TODO: change this when the context menu becomes a PCUI element)
-        editor.call('assets:contextmenu:attach', row, asset.legacyScript || asset);
+        // Custom handler that allows clicks on empty row space (::after pseudo-element) to bubble
+        // up to the detailsView's context menu handler which enables paste (issue #1244)
+        const contextMenuAsset = asset.legacyScript || asset;
+        const onContextMenu = (evt: MouseEvent) => {
+            // If clicked directly on the row element (not on a child cell), let the event
+            // bubble up to the detailsView's handler which shows the context menu with paste enabled
+            if (evt.target === row.dom) {
+                return;
+            }
+
+            evt.stopPropagation();
+            evt.preventDefault();
+            editor.call('assets:contextmenu:show', contextMenuAsset, evt.clientX, evt.clientY);
+        };
+        row.dom.addEventListener('contextmenu', onContextMenu);
 
         // clean up
         row.on('destroy', (dom) => {
             delete this._rowsIndex[asset.get('id')];
+            dom.removeEventListener('contextmenu', onContextMenu);
             if (onMouseDown) {
                 dom.removeEventListener('mousedown', onMouseDown);
             }

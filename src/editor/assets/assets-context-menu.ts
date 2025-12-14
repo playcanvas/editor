@@ -940,6 +940,13 @@ editor.once('load', () => {
         });
     });
 
+    // Show the context menu for a given asset at the specified position
+    editor.method('assets:contextmenu:show', (asset, x, y) => {
+        currentAsset = asset;
+        menu.hidden = false;
+        menu.position(x + 1, y);
+    });
+
     editor.method('assets:contextmenu:create', () => {
         return menuCreate;
     });
