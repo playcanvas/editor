@@ -1452,10 +1452,8 @@ class AssetPanel extends Panel {
             row.dom.addEventListener('dragstart', onDragStart);
         }
 
-
-        // context menu (TODO: change this when the context menu becomes a PCUI element)
-        // Custom handler that allows clicks on empty row space (::after pseudo-element) to bubble
-        // up to the detailsView's context menu handler which enables paste (issue #1244)
+        // Context menu - custom handler that allows clicks on empty row space (::after pseudo-element)
+        // to bubble up to the detailsView's context menu handler which enables paste
         const contextMenuAsset = asset.legacyScript || asset;
         const onContextMenu = (evt: MouseEvent) => {
             // If clicked directly on the row element (not on a child cell), let the event
