@@ -1452,7 +1452,7 @@ class AssetPanel extends Panel {
             row.dom.addEventListener('dragstart', onDragStart);
         }
 
-        // Context menu - custom handler that allows clicks on empty row space (::after pseudo-element)
+        // Context menu - custom handler that allows clicks on empty row space (not covered by cells)
         // to bubble up to the detailsView's context menu handler which enables paste
         const contextMenuAsset = asset.legacyScript || asset;
         const onContextMenu = (evt: MouseEvent) => {
