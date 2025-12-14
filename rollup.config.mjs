@@ -135,7 +135,9 @@ const PAGE_TARGETS = [
                 targets: [
                     { src: 'node_modules/monaco-editor/min/vs/*', dest: 'dist/js/monaco-editor/min/vs' },
                     { src: 'node_modules/monaco-themes/themes/*', dest: 'dist/json/monaco-themes' },
-                    { src: 'src/json/monaco-themes/*', dest: 'dist/json/monaco-themes' }
+                    { src: 'src/json/monaco-themes/*', dest: 'dist/json/monaco-themes' },
+                    { src: 'static/json/*', dest: 'dist/static/json' },
+                    { src: 'static/img/*', dest: 'dist/static/img' }
                 ]
             })
         ])
