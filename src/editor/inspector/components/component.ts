@@ -1,4 +1,4 @@
-import { Panel, BooleanInput, LabelGroup, Button, Menu, BindingTwoWay, Container } from '@playcanvas/pcui';
+import { Panel, BooleanInput, LabelGroup, Button, Menu, BindingTwoWay, Container, Label } from '@playcanvas/pcui';
 
 import { tooltip, tooltipRefItem } from '@/common/tooltips';
 import { LocalStorage } from '@playcanvas/editor-api';
@@ -6,7 +6,7 @@ import { LocalStorage } from '@playcanvas/editor-api';
 import type { TemplateOverrideInspector } from '../../templates/templates-override-inspector.js';
 
 const CLASS_ROOT = 'component-inspector';
-const CLASS_COMPONENT_ICON = 'component-icon-prefix';
+const CLASS_COMPONENT_ICON = 'component-icon';
 const CLASS_ENABLED = `${CLASS_ROOT}-enabled`;
 
 class ComponentInspector extends Panel {
@@ -15,6 +15,7 @@ class ComponentInspector extends Panel {
     constructor(args) {
         args = Object.assign({}, args);
         args.flex = true;
+        args.collapsible = true;
         super(args);
 
         this.class.add(CLASS_ROOT);
@@ -22,9 +23,11 @@ class ComponentInspector extends Panel {
 
         this._component = args.component;
 
-        // add common component icon class for header
-        this.header.class.add(CLASS_COMPONENT_ICON);
-        this.header.class.add(`type-${args.component}`);
+        // add component icon as a separate element (to the right of the collapse arrow)
+        const iconLabel = new Label({
+            class: [CLASS_COMPONENT_ICON, `type-${args.component}`]
+        });
+        this.header.prepend(iconLabel);
 
         let title = args.component.toUpperCase();
         if (args.component === 'animation' ||
