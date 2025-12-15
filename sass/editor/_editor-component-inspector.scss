@@ -6,6 +6,8 @@
 
 // Component icon element (separate from collapse arrow)
 .component-icon {
+    @extend .component-icon-prefix;
+
     width: 24px;
     margin-left: 0;
     margin-right: 4px;
@@ -17,13 +19,6 @@
 
         font-size: 14px;
         color: $text-active;
-    }
-
-    // Component-specific icons
-    @each $name, $glyph in $component-icons {
-        &.type-#{$name}::before {
-            content: $glyph;
-        }
     }
 }
 
