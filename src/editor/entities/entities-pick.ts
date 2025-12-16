@@ -1,23 +1,54 @@
 editor.once('load', () => {
+    // Resolves a picked node (which may be an icon entity) to its entity observer
+    const resolveEntityFromNode = (node) => {
+        // Handle icon entities
+        let targetNode = node;
+        if (node._icon || (node.__editor && node._getEntity)) {
+            targetNode = node._getEntity();
+            if (!targetNode) {
+                return null;
+            }
+        }
+
+        return editor.call('entities:get', targetNode.getGuid()) || null;
+    };
+
     editor.on('viewport:pick:clear', () => {
         if (!editor.call('hotkey:ctrl')) {
             editor.call('selector:clear');
         }
     });
 
-    editor.on('viewport:pick:node', (node, picked) => {
-        // icon
-        if (node._icon || (node.__editor && node._getEntity)) {
-            node = node._getEntity();
-            if (!node) {
-                return;
+    // Handle rectangle selection
+    editor.on('viewport:pick:rect:nodes', (nodes) => {
+        // Convert pc.Entity nodes to entity observers
+        const entities = [];
+
+        for (const node of nodes) {
+            const entity = resolveEntityFromNode(node);
+            if (entity) {
+                entities.push(entity);
             }
         }
 
-        // get entity
-        const entity = editor.call('entities:get', node.getGuid());
+        if (entities.length > 0) {
+            // Rectangle select replaces current selection
+            editor.call('selector:set', 'entity', entities);
+        } else {
+            // No entities selected, clear selection
+            editor.call('selector:clear');
+        }
+    });
+
+    editor.on('viewport:pick:node', (node, picked) => {
+        const entity = resolveEntityFromNode(node);
         if (!entity) {
             return;
+        }
+
+        // Resolve the actual node for model component checks below
+        if (node._icon || (node.__editor && node._getEntity)) {
+            node = node._getEntity();
         }
 
         // get selector data
