@@ -506,22 +506,7 @@ editor.once('load', () => {
         menu.append(menuItemReplaceTextureToSprite);
     }
 
-    // todo: xdu.
-    // todo: merge these 2 items.
-
-    // extract. Used for source assets.
-    const menuItemExtract = new MenuItem({
-        text: 'Re-Import',
-        icon: ICONS.REIMPORT,
-        onSelect: () => {
-            editor.call('assets:reimport', currentAsset.get('id'), currentAsset.get('type'));
-        }
-    });
-    if (editor.call('permissions:write')) {
-        menu.append(menuItemExtract);
-    }
-
-    // re-import. Used for target assets.
+    // Re-import. Used for both source and target assets.
     const menuItemReImport = new MenuItem({
         text: 'Re-Import',
         icon: ICONS.REIMPORT,
@@ -737,9 +722,7 @@ editor.once('load', () => {
             menuItemQuickConvert.hidden = currentAsset && currentAsset.get('type') !== 'texture';
 
             if (!currentAsset.get('source')) {
-                menuItemExtract.hidden = true;
-
-                // re-import
+                // re-import (target assets)
                 const sourceId = currentAsset.get('source_asset_id');
                 if (sourceId) {
                     const source = editor.call('assets:get', sourceId);
@@ -858,11 +841,11 @@ editor.once('load', () => {
                     menuItemReplaceTextureToSprite.hidden = true;
                 }
             } else {
+                // re-import (source assets)
                 menuItemReferences.hidden = true;
                 menuItemReplace.hidden = true;
                 menuItemReplaceTextureToSprite.hidden = true;
-                menuItemReImport.hidden = true;
-                menuItemExtract.hidden = ['scene', 'texture', 'textureatlas'].indexOf(currentAsset.get('type')) === -1 || !currentAsset.get('meta');
+                menuItemReImport.hidden = ['scene', 'texture', 'textureatlas'].indexOf(currentAsset.get('type')) === -1 || !currentAsset.get('meta');
             }
 
             // move-to-store
@@ -878,7 +861,6 @@ editor.once('load', () => {
             menuItemOpenInViewer.hidden = !(hasOnlyModels || hasOnlyTextures);
         } else {
             // no asset
-            menuItemExtract.hidden = true;
             menuItemReImport.hidden = true;
             menuItemDownload.hidden = true;
             menuItemDuplicate.hidden = true;
@@ -938,6 +920,13 @@ editor.once('load', () => {
         element.on('destroy', (dom) => {
             dom.removeEventListener('contextmenu', contextMenuHandler);
         });
+    });
+
+    // Show the context menu for a given asset at the specified position
+    editor.method('assets:contextmenu:show', (asset, x, y) => {
+        currentAsset = asset;
+        menu.hidden = false;
+        menu.position(x + 1, y);
     });
 
     editor.method('assets:contextmenu:create', () => {

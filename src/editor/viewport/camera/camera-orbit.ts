@@ -69,7 +69,7 @@ editor.once('viewport:load', (app) => {
     });
 
     editor.on('viewport:tap:start', (tap, evt) => {
-        if (tap.button !== 0 || evt.shiftKey || orbiting) {
+        if (tap.button !== 0 || evt.shiftKey || evt.ctrlKey || evt.metaKey || orbiting) {
             return;
         }
 

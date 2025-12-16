@@ -1,19 +1,24 @@
 .component-inspector {
-    > .pcui-panel-header {
-        &::before {
-            @extend .font-icon;
-
-            font-size: 14px;
-            width: 24px;
-            margin-right: 4px;
-            text-align: center;
-            color: $text-active;
-            flex-shrink: 0;
-        }
-    }
-
     > .pcui-panel-content {
         padding-top: $element-margin;
+    }
+}
+
+// Component icon element (separate from collapse arrow)
+.component-icon {
+    @extend .component-icon-prefix;
+
+    width: 24px;
+    margin-left: 0;
+    margin-right: 4px;
+    text-align: center;
+    flex-shrink: 0;
+
+    &::before {
+        @extend .font-icon;
+
+        font-size: 14px;
+        color: $text-active;
     }
 }
 
