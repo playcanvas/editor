@@ -8,7 +8,7 @@ editor.once('load', () => {
         try {
             editor.api.globals.entities.copyToClipboard(entities.map(e => e.apiEntity));
         } catch (err) {
-            if (err.name === 'QuotaExceededError') {
+            if (err instanceof QuotaExceededError) {
                 editor.call('status:error', 'Cannot copy: Selection is too large');
             } else {
                 editor.call('status:error', `Copy failed: ${err.message}`);
