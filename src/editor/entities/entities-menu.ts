@@ -1,3 +1,4 @@
+import { formatShortcut } from '@/common/utils';
 import { COMPONENT_LOGOS, ORIENTATION_HORIZONTAL, ORIENTATION_VERTICAL } from '@/core/constants';
 
 editor.once('load', () => {
@@ -134,10 +135,13 @@ editor.once('load', () => {
             };
         }
 
+        const ctrl = editor.call('hotkey:ctrl:string');
+
         return [{
             // add new entity
             text: 'Entity',
             icon: 'E120',
+            shortcut: formatShortcut(`${ctrl}+E`),
             onSelect: () => {
                 editor.call('entities:new', { parent: getParentFn() });
             }
