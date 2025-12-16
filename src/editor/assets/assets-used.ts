@@ -697,6 +697,16 @@ editor.once('load', () => {
         updateAsset('sceneSettings', 'editorSettings', valueOld, value);
     });
 
+    // project settings
+    const projectSettings = editor.call('settings:project');
+    const loadingScreenScript = projectSettings.get('loadingScreenScript');
+    if (loadingScreenScript) {
+        updateAsset('projectSettings', 'editorSettings', null, parseInt(loadingScreenScript, 10));
+    }
+    projectSettings.on('loadingScreenScript:set', (value, valueOld) => {
+        updateAsset('projectSettings', 'editorSettings', valueOld ? parseInt(valueOld, 10) : null, value ? parseInt(value, 10) : null);
+    });
+
     editor.method('assets:used:index', () => {
         return index;
     });

@@ -1,5 +1,7 @@
 import { MenuItem } from '@playcanvas/pcui';
 
+import { formatShortcut } from '../../../common/utils';
+
 editor.once('load', () => {
     const menu = editor.call('menu:navigate');
     const ctrl = editor.call('hotkey:ctrl:string');
@@ -17,11 +19,11 @@ editor.once('load', () => {
     // Go to anything
     const item = new MenuItem({
         text: 'Go To File',
+        shortcut: formatShortcut(`${ctrl}+P`),
         onSelect: () => {
             editor.call('editor:command:goToFile');
         }
     });
-    editor.call('menu:item:setShortcut', item, `${ctrl}+P`);
     menu.append(item);
 
     // hotkey
