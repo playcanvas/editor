@@ -631,7 +631,6 @@ class AssetPanel extends Panel {
 
         this._foldersView = new TreeView({
             allowReordering: false,
-            // FIXME: Broken in PCUI <= 5.2.0
             dragScrollElement: this._containerFolders,
             onReparent: this._onFolderTreeReparent.bind(this)
         });
