@@ -18,6 +18,7 @@ RUN npm run build:css
 # build js
 COPY src ./src
 COPY modules ./modules
+COPY static ./static
 COPY types.d.ts ./
 COPY tsconfig.json ./
 COPY rollup.config.mjs ./
