@@ -2,11 +2,14 @@ import { Menu, MenuItem } from '@playcanvas/pcui';
 
 import { Asset, Entity } from '@playcanvas/editor-api';
 
+import { formatShortcut } from '../../common/utils';
+
 editor.once('load', () => {
     let currentAsset = null;
     const legacyScripts = editor.call('settings:project').get('useLegacyScripts');
     const projectUserSettings = editor.call('settings:projectUser');
     const root = editor.call('layout.root');
+    const ctrl = editor.call('hotkey:ctrl:string');
 
     const LEGACY_SCRIPTS_ID = 'legacyScripts';
 
@@ -353,6 +356,7 @@ editor.once('load', () => {
     const menuItemCopy = new MenuItem({
         text: 'Copy',
         icon: ICONS.COPY,
+        shortcut: formatShortcut(`${ctrl}+C`),
         onSelect: () => {
             const asset = currentAsset;
             let multiple = false;
@@ -381,10 +385,10 @@ editor.once('load', () => {
     menu.append(menuItemCopy);
 
     // paste
-    // copy
     const menuItemPaste = new MenuItem({
         text: 'Paste',
         icon: ICONS.PASTE,
+        shortcut: formatShortcut(`${ctrl}+V`),
         onSelect: () => {
             if (currentAsset && currentAsset.get('type') !== 'folder') {
                 return;
@@ -502,22 +506,7 @@ editor.once('load', () => {
         menu.append(menuItemReplaceTextureToSprite);
     }
 
-    // todo: xdu.
-    // todo: merge these 2 items.
-
-    // extract. Used for source assets.
-    const menuItemExtract = new MenuItem({
-        text: 'Re-Import',
-        icon: ICONS.REIMPORT,
-        onSelect: () => {
-            editor.call('assets:reimport', currentAsset.get('id'), currentAsset.get('type'));
-        }
-    });
-    if (editor.call('permissions:write')) {
-        menu.append(menuItemExtract);
-    }
-
-    // re-import. Used for target assets.
+    // Re-import. Used for both source and target assets.
     const menuItemReImport = new MenuItem({
         text: 'Re-Import',
         icon: ICONS.REIMPORT,
@@ -565,6 +554,7 @@ editor.once('load', () => {
     const menuItemDelete = new MenuItem({
         text: 'Delete',
         icon: ICONS.DELETE,
+        shortcut: formatShortcut('Delete'),
         onSelect: () => {
             const asset = currentAsset;
             let multiple = false;
@@ -618,7 +608,14 @@ editor.once('load', () => {
         text: 'Open In Viewer',
         icon: ICONS.OPEN_IN_VIEWER,
         onSelect: () => {
-            editor.call('assets:open', [currentAsset]);
+            let assets = editor.api.globals.selection.items.filter(item => item instanceof Asset);
+            // If none are selected, use currentAsset instead
+            if (assets.length === 0 && currentAsset) {
+                assets = [currentAsset];
+            }
+            if (assets.length > 0) {
+                editor.call('assets:open', assets);
+            }
         }
     });
     menu.append(menuItemOpenInViewer);
@@ -725,9 +722,7 @@ editor.once('load', () => {
             menuItemQuickConvert.hidden = currentAsset && currentAsset.get('type') !== 'texture';
 
             if (!currentAsset.get('source')) {
-                menuItemExtract.hidden = true;
-
-                // re-import
+                // re-import (target assets)
                 const sourceId = currentAsset.get('source_asset_id');
                 if (sourceId) {
                     const source = editor.call('assets:get', sourceId);
@@ -846,21 +841,26 @@ editor.once('load', () => {
                     menuItemReplaceTextureToSprite.hidden = true;
                 }
             } else {
+                // re-import (source assets)
                 menuItemReferences.hidden = true;
                 menuItemReplace.hidden = true;
                 menuItemReplaceTextureToSprite.hidden = true;
-                menuItemReImport.hidden = true;
-                menuItemExtract.hidden = ['scene', 'texture', 'textureatlas'].indexOf(currentAsset.get('type')) === -1 || !currentAsset.get('meta');
+                menuItemReImport.hidden = ['scene', 'texture', 'textureatlas'].indexOf(currentAsset.get('type')) === -1 || !currentAsset.get('meta');
             }
 
             // move-to-store
             menuItemMoveToStore.hidden = !editor.call('users:isSuperUser') || !currentAsset || currentAsset.get('id') === LEGACY_SCRIPTS_ID || (legacyScripts && currentAsset.get('type') === 'script');
 
-            // open-in-viewer
-            menuItemOpenInViewer.hidden = !currentAsset || !(isModelAsset(currentAsset) || isTextureAsset(currentAsset));
+            // open-in-viewer - only show when all viewable assets are the same type (all models OR all textures)
+            const selectedAssets = editor.api.globals.selection.items.filter(item => item instanceof Asset);
+            const assetsToCheck = selectedAssets.length > 0 ? selectedAssets : (currentAsset ? [currentAsset] : []);
+            const modelAssets = assetsToCheck.filter(asset => isModelAsset(asset));
+            const textureAssets = assetsToCheck.filter(asset => isTextureAsset(asset));
+            const hasOnlyModels = modelAssets.length > 0 && textureAssets.length === 0;
+            const hasOnlyTextures = textureAssets.length > 0 && modelAssets.length === 0;
+            menuItemOpenInViewer.hidden = !(hasOnlyModels || hasOnlyTextures);
         } else {
             // no asset
-            menuItemExtract.hidden = true;
             menuItemReImport.hidden = true;
             menuItemDownload.hidden = true;
             menuItemDuplicate.hidden = true;
@@ -920,6 +920,13 @@ editor.once('load', () => {
         element.on('destroy', (dom) => {
             dom.removeEventListener('contextmenu', contextMenuHandler);
         });
+    });
+
+    // Show the context menu for a given asset at the specified position
+    editor.method('assets:contextmenu:show', (asset, x, y) => {
+        currentAsset = asset;
+        menu.hidden = false;
+        menu.position(x + 1, y);
     });
 
     editor.method('assets:contextmenu:create', () => {

@@ -30,6 +30,7 @@ class Skeleton {
         this._entity = entity;
 
         this._vertexCount = 0;
+        this._maxVertexCount = 1024 * 2;
 
         this._vertexFormat = new pc.VertexFormat(device, [
             { semantic: pc.SEMANTIC_POSITION, components: 3, type: pc.TYPE_FLOAT32 },
@@ -37,7 +38,7 @@ class Skeleton {
         ]);
 
         const mesh = new pc.Mesh(device);
-        mesh.vertexBuffer = new pc.VertexBuffer(device, this._vertexFormat, 1024 * 2, {
+        mesh.vertexBuffer = new pc.VertexBuffer(device, this._vertexFormat, this._maxVertexCount, {
             usage: pc.BUFFER_DYNAMIC
         });
         mesh.primitive[0].type = pc.PRIMITIVE_LINES;
@@ -70,6 +71,14 @@ class Skeleton {
     }
 
     _createBone(v0, v1) {
+        // Check if adding this bone would exceed the vertex buffer capacity
+        const verticesPerBone = Skeleton._unitBone.length;
+        if (this._vertexCount + verticesPerBone > this._maxVertexCount) {
+            // Still update bounding box even if we can't render this bone
+            this._boundingBox.add(new pc.BoundingBox(v1, new pc.Vec3(0.1, 0.1, 0.1)));
+            return;
+        }
+
         // generate bone transform
         const boneLength = v0.clone().sub(v1).length();
         const boneDirection = v0.clone().sub(v1).normalize();
@@ -81,7 +90,7 @@ class Skeleton {
         const vertexData = new Float32Array(this._mesh.vertexBuffer.lock());
         const colorData = new Uint32Array(this._mesh.vertexBuffer.lock());
 
-        for (let i = 0; i < Skeleton._unitBone.length; i++) {
+        for (let i = 0; i < verticesPerBone; i++) {
             let boneVertex = Skeleton._boneVertex.set(...Skeleton._unitBone[i]);
             // scale
             boneVertex.mul(new pc.Vec3(boneLength * 0.3, -boneLength, boneLength * 0.3));
@@ -318,10 +327,13 @@ class AnimViewer extends Container {
     }
 
     createRenderTarget() {
-        this._width =
-            this._canvas.dom.offsetParent.offsetWidth * this._canvas.pixelRatio;
-        this._height =
-            this._canvas.dom.offsetParent.offsetHeight * this._canvas.pixelRatio;
+        const offsetParent = this._canvas.dom.offsetParent;
+        const offsetWidth = offsetParent?.offsetWidth ?? 0;
+        const offsetHeight = offsetParent?.offsetHeight ?? 0;
+
+        // Round dimensions to integers and ensure minimum size of 1
+        this._width = Math.max(1, Math.round(offsetWidth * this._canvas.pixelRatio));
+        this._height = Math.max(1, Math.round(offsetHeight * this._canvas.pixelRatio));
         this._canvas.width = this._width / this._canvas.pixelRatio;
         this._canvas.height = this._height / this._canvas.pixelRatio;
 
@@ -588,8 +600,9 @@ class AnimViewer extends Container {
             this._renderTarget.pixels
         );
 
-        // Check if pixel data is valid
-        if (this._renderTarget.pixelsClamped.length % 4 === 0) {
+        // Check if pixel data is valid (buffer length must match width * height * 4)
+        const expectedLength = width * height * 4;
+        if (this._renderTarget.pixelsClamped.length === expectedLength && width > 0 && height > 0) {
             // render to canvas
             const ctx = this._canvas.dom.getContext('2d');
             ctx.putImageData(
@@ -599,7 +612,7 @@ class AnimViewer extends Container {
             );
         } else {
             if (!this._shownError) {
-                console.warn('Animation preview cannot render as input data is not a multiple of 4');
+                console.warn('Animation preview cannot render: buffer length mismatch or invalid dimensions');
                 this._shownError = true;
             }
         }

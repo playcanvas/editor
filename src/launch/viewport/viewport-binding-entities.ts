@@ -43,15 +43,9 @@ editor.once('load', () => {
         return entity;
     };
 
-    const processEntity = function (obj) {
+    const createEntityHierarchy = function (obj) {
         // create entity
         const entity = createEntity(obj);
-
-        // add components
-        const components = obj.json().components;
-        for (const key in components) {
-            app.systems[key].addComponent(entity, components[key]);
-        }
 
         // parenting
         if (!obj.get('parent')) {
@@ -91,6 +85,16 @@ editor.once('load', () => {
             delete awaitingParent[obj.get('resource_id')];
         }
 
+        return entity;
+    };
+
+    const addEntityComponents = function (entity, obj) {
+        // add components
+        const components = obj.json().components;
+        for (const key in components) {
+            app.systems[key].addComponent(entity, components[key]);
+        }
+
         // queue resync hierarchy
         // done on timeout to allow bulk entity creation
         // without sync after each entity
@@ -98,15 +102,41 @@ editor.once('load', () => {
             awaitingResyncHierarchy = true;
             setTimeout(resyncHierarchy, 0);
         }
+    };
 
-        return entity;
+    // Pending entities awaiting component creation
+    // This batching ensures all entities are created before components are added,
+    // allowing GUID references (like rootBone) to resolve correctly
+    const pendingEntities = [];
+    let awaitingComponentCreation = false;
+
+    const processPendingComponents = function () {
+        awaitingComponentCreation = false;
+
+        // Process all pending entities - add components now that all entities exist
+        for (let i = 0; i < pendingEntities.length; i++) {
+            const pending = pendingEntities[i];
+            addEntityComponents(pending.entity, pending.obj);
+        }
+        pendingEntities.length = 0;
     };
 
     editor.on('entities:add', (obj) => {
         const sceneLoading = editor.call('isLoadingScene');
         if (!app.root.findByGuid(obj.get('resource_id')) && !sceneLoading) {
             // create entity if it does not exist and all initial entities have loaded
-            processEntity(obj);
+            const entity = createEntityHierarchy(obj);
+
+            // Queue entity for component creation
+            pendingEntities.push({ entity: entity, obj: obj });
+
+            // Defer component creation to allow batch entity creation
+            // This ensures all entities exist before components are added,
+            // which allows GUID references (e.g., rootBone) to resolve correctly
+            if (!awaitingComponentCreation) {
+                awaitingComponentCreation = true;
+                setTimeout(processPendingComponents, 0);
+            }
         }
 
         const resetPhysics = function (entity) {

@@ -1483,11 +1483,9 @@ class MaterialAssetInspector extends Container {
         cubeMapField.hidden = !cubeMapField.value && sphereMapField.value;
         sphereMapField.hidden = !sphereMapField.value && cubeMapField.value;
 
-        const cubeMapProjectField = this._envInspector.getField('data.cubeMapProjection');
-        cubeMapProjectField.parent.hidden = !cubeMapField.value;
-        const cubeMapCenterField = this._envInspector.getField('data.cubeMapProjectionBox.center');
-        cubeMapCenterField.parent.hidden = cubeMapProjectField.parent.hidden || cubeMapProjectField.value === 0;
-        this._envInspector.getField('data.cubeMapProjectionBox.halfExtents').parent.hidden = cubeMapCenterField.parent.hidden;
+        const hideBoxProjection = this._envInspector.getField('data.cubeMapProjection').value === 0;
+        this._envInspector.getField('data.cubeMapProjectionBox.center').parent.hidden = hideBoxProjection;
+        this._envInspector.getField('data.cubeMapProjectionBox.halfExtents').parent.hidden = hideBoxProjection;
     }
 
     _getApplyToAllValue() {
