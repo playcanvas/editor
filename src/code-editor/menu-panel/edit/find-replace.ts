@@ -36,4 +36,15 @@ editor.once('load', () => {
         }
     });
     menu.append(item);
+
+    // hotkey
+    // Register global hotkey for Find in Files so it works even when no files are open
+    editor.call('hotkey:register', 'find-in-files', {
+        key: 'f',
+        ctrl: true,
+        shift: true,
+        callback: () => {
+            editor.call('picker:search:open');
+        }
+    });
 });
