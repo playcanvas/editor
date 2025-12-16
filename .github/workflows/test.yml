@@ -5,6 +5,11 @@ on:
     branches: [main]
     types: [labeled]
   workflow_dispatch:
+    inputs:
+      env:
+        description: 'Environment to run tests against'
+        required: true
+        type: environment
 
 concurrency:
   group: 'test'
@@ -14,6 +19,7 @@ jobs:
   test:
     name: Test Suite
     runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.env }}
     if: ${{ github.repository == 'playcanvas/editor' && github.actor == 'kpal81xd' && (github.event.label.name == 'test' || github.event_name == 'workflow_dispatch') }}
     steps:
       - name: Checkout code
@@ -41,9 +47,9 @@ jobs:
       - name: Run tests
         run: |
           docker run --rm \
-            -e PC_HOST=playcanvas.com \
-            -e PC_LOGIN_HOST=login.playcanvas.com \
-            -e PC_LAUNCH_HOST=launch.playcanvas.com \
+            -e PC_HOST=${{ secrets.PC_HOST }} \
+            -e PC_LOGIN_HOST=${{ secrets.PC_LOGIN_HOST }} \
+            -e PC_LAUNCH_HOST=${{ secrets.PC_LAUNCH_HOST }} \
             -e PC_LOCAL_FRONTEND=true \
             -e PC_COOKIE_NAME=${{ secrets.PC_COOKIE_NAME }} \
             -e PC_COOKIE_VALUE=${{ secrets.PC_COOKIE_VALUE }} \
