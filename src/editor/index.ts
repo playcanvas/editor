@@ -415,6 +415,7 @@ import './viewport/viewport-userdata';
 import './viewport/viewport-user-cameras';
 import './viewport/viewport-tap';
 import './viewport/viewport-pick';
+import './viewport/viewport-rect-select';
 import './viewport/viewport-cursor';
 import './viewport/viewport-tooltips';
 import './viewport/viewport-focus';
