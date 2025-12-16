@@ -6628,7 +6628,7 @@ strong {
 }
 
 .ui-panel.picker-scene-panel,
-.ui-panel.picker-publish-new {
+.pcui-container.picker-publish-new {
     .ui-list.scene-list {
         margin: 0;
         padding: 0;
@@ -6824,68 +6824,68 @@ strong {
     }
 }
 
-.ui-panel.picker-publish-new {
+.pcui-container.picker-publish-new {
     &.disabled {
         opacity: 0.5;
         pointer-events: none;
     }
 
-    > .content {
-        > .ui-panel > .content > .ui-label,
-        > .info > .content > span > .ui-label {
-            font-size: 12px;
-            height: auto;
-            line-height: initial;
-            vertical-align: top;
+    > .pcui-container > .pcui-label,
+    > .pcui-container.info > span > .pcui-label {
+        font-size: 12px;
+        height: auto;
+        line-height: initial;
+        vertical-align: top;
 
-            &.field-label {
-                margin: 0 0 8px;
-            }
-
-            &.error {
-                color: #fb222f;
-                float: right;
-            }
+        &.field-label {
+            margin: 0 0 8px;
         }
 
-        .ui-text-field.input-field {
-            margin: 0;
-            height: 36px;
-            line-height: 34px;
-            width: 100%;
+        &.error {
+            color: #fb222f;
+            float: right;
+        }
+
+        &.image-click {
+            margin: 3px;
+        }
+    }
+
+    .pcui-text-input.input-field {
+        margin: 0;
+        height: 36px;
+        line-height: 34px;
+        width: 100%;
+        display: block;
+
+        > input {
+            @extend .font-regular;
+
+            font-size: 14px;
+            color: $text-primary;
+        }
+
+        &[placeholder] {
+            &::after {
+                line-height: 34px;
+            }
+        }
+    }
+
+    > .description > .pcui-text-area-input,
+    > .notes > .pcui-text-area-input {
+        margin: 0; // Reset PCUI default 6px margin
+        width: 100%;
+        background-color: $bcg-dark;
+        border: 1px solid $bcg-darker;
+        border-radius: 0;
+
+        > textarea {
             display: block;
-
-            > input {
-                @extend .font-regular;
-
-                font-size: 14px;
-                color: $text-primary;
-            }
-
-            &[placeholder] {
-                &::after {
-                    line-height: 34px;
-                }
-            }
-        }
-
-        .upgrade {
-            color: #fff;
-            padding: 15px;
-            margin: 0;
-            border-bottom: 1px solid $bcg-darker;
-            display: none;
-        }
-
-        > .description > .content > textarea,
-        > .notes > .content > textarea {
-            display: block;
-            border: 1px solid $bcg-darker;
-            background-color: $bcg-dark;
+            background-color: transparent;
             color: $text-primary;
             margin: 0;
             padding: 10px;
-            resize: none;
 
             @extend .font-regular;
 
@@ -6904,250 +6904,233 @@ strong {
             }
         }
 
-        > .options {
-            > .content {
-                > .ui-panel.field {
-                    > .content {
-                        line-height: 24px;
+        &:hover,
+        &:focus-within {
+            background-color: $bcg-darkest;
+            border-color: transparent;
+        }
+    }
 
-                        > .ui-checkbox {
-                            margin: 4px 8px 0 0;
-                        }
+    .pcui-select-input.engine-version-dropdown {
+        margin: 0;
+    }
 
-                        > .ui-label {
-                            margin: 0;
-                            font-size: 12px;
-                            line-height: 24px;
-                            vertical-align: top;
-                        }
-                    }
-                }
-            }
+    > .options > .pcui-container.field {
+        line-height: 24px;
+
+        > .pcui-boolean-input {
+            margin: 4px 8px 0 0;
         }
 
-        > .ui-button {
-            margin: 0 0 15px 15px;
-            padding: 0;
-            height: 34px;
-            line-height: 34px;
+        > .pcui-label {
+            margin: 0;
             font-size: 12px;
-            text-transform: uppercase;
-            text-align: center;
-
-            @extend .font-bold;
-
-            &::before {
-                @extend .font-icon;
-
-                font-size: 14px;
-                color: $text-secondary;
-                vertical-align: top;
-                padding-right: 10px;
-            }
-
-            &:not(.disabled):hover::before {
-                color: $text-active;
-            }
-
-            &.publish {
-                text-align: center;
-                width: calc(100% - 30px);
-
-                &::before {
-                    content: '\E226';
-                }
-            }
-
-            &.web-download,
-            &.ios-download {
-                display: none;
-                width: 208px;
-
-                &::before {
-                    content: '\E245';
-                }
-            }
+            line-height: 24px;
+            vertical-align: top;
         }
+    }
 
-        .ui-button.help {
+    > .pcui-button {
+        margin: 3px 0 15px 15px; // Top margin needed for PCUI button hover shadow
+        padding: 0;
+        height: 34px;
+        line-height: 34px;
+        text-transform: uppercase;
+
+        @extend .font-bold;
+
+        &::before {
             @extend .font-icon;
 
-            background: transparent;
+            font-size: 14px;
+            color: $text-secondary;
             vertical-align: top;
-            line-height: 1;
-            display: inline;
-            border: none;
+            padding-right: 10px;
         }
 
-        > .ui-panel {
-            margin: 0;
-            padding: 15px;
-            border-bottom: 1px solid $border-primary;
+        &:not(.disabled, .pcui-disabled):hover::before {
+            color: $text-active;
+        }
 
-            &.info {
-                > .content {
-                    > .image {
-                        display: inline-block;
-                        width: 80px;
-                        height: 80px;
-                        border: 2px solid $border-primary;
-                        margin-right: 15px;
-                        vertical-align: top;
-                        background-size: 100% 100%;
+        &.publish {
+            text-align: center;
+            width: calc(100% - 30px);
 
-                        &.progress {
-                            background-size: 40%;
-                            background-position: 50%;
-                            background-repeat: no-repeat;
-                            background-color: $bcg-darkest;
-                        }
-
-                        &.blank {
-                            background-size: 180%;
-                        }
-
-                        &:hover {
-                            cursor: pointer;
-                        }
-                    }
-
-                    > span {
-                        display: inline-block;
-                        width: calc(100% - 100px);
-
-                        > .name {
-                            margin-bottom: 8px;
-                        }
-                    }
-                }
+            &::before {
+                content: '\E226';
             }
+        }
 
-            &.scenes {
-                border-bottom: none;
+        &.web-download {
+            display: none;
+            width: 208px;
 
-                > .content {
-                    > .ui-checkbox {
-                        float: right;
-                        margin: 0;
-                        margin-top: 2px;
-                    }
-
-                    > .ui-label.select-all {
-                        float: right;
-                        padding-right: 10px;
-                    }
-
-                    > .ui-progress {
-                        width: 100%;
-                    }
-
-                    > .ui-label.error {
-                        float: none;
-                    }
-
-                    > .ui-list {
-                        margin-top: 10px;
-
-                        > .ui-list-item {
-                            border-top: 1px solid $border-primary;
-                            border-bottom: none;
-                            padding-left: 0;
-
-                            &:last-child {
-                                border-bottom: 1px solid $border-primary;
-                            }
-
-                            &:hover {
-                                background-color: transparent;
-                                cursor: default;
-
-                                > .name {
-                                    color: $text-primary;
-                                }
-                            }
-
-                            > .name {
-                                left: 30px;
-
-                                &:hover {
-                                    cursor: default;
-                                }
-                            }
-
-                            > .date {
-                                left: 30px;
-                            }
-
-                            > .ui-checkbox {
-                                position: absolute;
-                                top: 25px;
-                                right: 0;
-                                margin: 0;
-                            }
-
-                            > .primary {
-                                padding-left: 0;
-                                margin-left: 0;
-                            }
-                        }
-                    }
-                }
+            &::before {
+                content: '\E245';
             }
         }
     }
 
-    &.upgrade {
-        > .content {
-            .upgrade {
-                display: block;
+    > .pcui-container {
+        margin: 0;
+        padding: 15px;
+        border-bottom: 1px solid $border-primary;
+    }
+
+    > .pcui-container.info {
+        > .image {
+            display: inline-block;
+            width: 80px;
+            height: 80px;
+            border: 2px solid $border-primary;
+            margin-right: 15px;
+            vertical-align: top;
+            background-size: 100% 100%;
+
+            &.progress {
+                background-size: 40%;
+                background-position: 50%;
+                background-repeat: no-repeat;
+                background-color: $bcg-darkest;
             }
 
-            .ui-panel {
-                &.info,
-                &.scenes,
-                &.options,
-                &.notes {
-                    display: none;
+            &.blank {
+                background-size: 180%;
+            }
+
+            &:hover {
+                cursor: pointer;
+            }
+        }
+
+        > span {
+            display: inline-block;
+            width: calc(100% - 100px);
+
+            > .name {
+                margin-bottom: 8px;
+            }
+
+            > .pcui-label {
+                margin: 3px;
+            }
+        }
+    }
+
+    > .pcui-container.scenes {
+        border-bottom: none;
+
+        &:not(.pcui-hidden) {
+            display: block; // Override flex for float to work
+        }
+
+        > .pcui-label.field-label {
+            margin: 3px;
+        }
+
+        > .pcui-boolean-input {
+            float: right;
+            margin: 2px 0 0;
+        }
+
+        > .pcui-label.select-all {
+            float: right;
+            padding-right: 10px;
+            margin: 3px;
+        }
+
+        > .pcui-progress {
+            margin: 0;
+        }
+
+        > .pcui-label.error {
+            float: none;
+        }
+
+        > .ui-list {
+            margin-top: 10px;
+
+            > .ui-list-item {
+                border-top: 1px solid $border-primary;
+                border-bottom: none;
+                padding-left: 0;
+
+                &:last-child {
+                    border-bottom: 1px solid $border-primary;
                 }
-            }
 
-            .ui-button {
-                display: none !important;
+                &:hover {
+                    background-color: transparent;
+                    cursor: default;
+
+                    > .name {
+                        color: $text-primary;
+                    }
+                }
+
+                > .name {
+                    left: 30px;
+
+                    &:hover {
+                        cursor: default;
+                    }
+                }
+
+                > .date {
+                    left: 30px;
+                }
+
+                > .pcui-boolean-input {
+                    position: absolute;
+                    top: 25px;
+                    right: 0;
+                    margin: 0;
+                }
+
+                > .pcui-button.primary {
+                    margin: 3px 3px 3px 0;
+
+                    &:hover {
+                        box-shadow: none;
+                    }
+                }
+
+                > .pcui-label.name,
+                > .pcui-label.date {
+                    margin: 3px;
+                }
             }
         }
     }
 
     &.download-mode {
-        .ui-panel {
+        .pcui-container {
             &.description,
             &.version {
                 display: none;
             }
 
             &.info {
-                > .content {
-                    > .image {
+                > .image {
+                    display: none;
+                }
+
+                > span {
+                    width: 100%;
+
+                    > .image-click {
                         display: none;
-                    }
-
-                    > span {
-                        width: 100%;
-
-                        > .image-click {
-                            display: none;
-                        }
                     }
                 }
             }
         }
 
-        .ui-button.publish,
-        .ui-panel.notes {
+        .pcui-button.publish,
+        .pcui-container.notes {
             display: none;
         }
 
-        .ui-button.web-download,
-        .ui-button.ios-download {
+        .pcui-button.web-download {
             display: inline-block;
         }
 
@@ -7214,7 +7197,10 @@ strong {
                 width: calc(100% - 86px);
                 overflow: auto;
 
-                > .progress-title {
+                > .pcui-label.progress-title {
+                    margin: 3px;
+                    line-height: 22px;
+                    height: 22px;
                     color: $text-primary;
                     font-size: 14px;
                     vertical-align: middle;
@@ -7225,15 +7211,16 @@ strong {
                     }
                 }
 
-                > .ready {
+                > .pcui-button.ready {
                     position: absolute;
                     top: 15px;
                     right: 15px;
+                    margin: 3px;
                     background-color: color.adjust($text-active, $alpha: -0.1);
                     width: 122px;
                     height: 34px;
                     font-size: 12px;
-                    line-height: 34px;
+                    line-height: 32px;
                     padding: 0;
                     text-align: center;
                     color: $text-primary;
@@ -7252,6 +7239,7 @@ strong {
 
                     &:hover {
                         background-color: $text-active;
+                        box-shadow: none;
                     }
                 }
             }

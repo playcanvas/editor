@@ -1,65 +1,62 @@
-import { SelectInput } from '@playcanvas/pcui';
+import type { EventHandle } from '@playcanvas/observer';
+import { BooleanInput, Button, Container, Label, Progress, SelectInput, TextAreaInput, TextInput } from '@playcanvas/pcui';
 
-import { LegacyButton } from '@/common/ui/button';
-import { LegacyCheckbox } from '@/common/ui/checkbox';
-import { LegacyLabel } from '@/common/ui/label';
+import { tooltip, tooltipSimpleItem } from '@/common/tooltips';
 import { LegacyList } from '@/common/ui/list';
 import { LegacyListItem } from '@/common/ui/list-item';
-import { LegacyPanel } from '@/common/ui/panel';
-import { LegacyProgress } from '@/common/ui/progress';
-import { LegacyTextField } from '@/common/ui/text-field';
-import { LegacyTooltip } from '@/common/ui/tooltip';
 import { convertDatetime } from '@/common/utils';
 
 editor.once('load', () => {
     const legacyScripts = editor.call('settings:project').get('useLegacyScripts');
 
-    // holds all tooltips
-    let tooltips = [];
+    // holds tooltip targets for cleanup
+    let tooltipTargets: Button[] = [];
 
     // holds events that need to be destroyed
-    let events = [];
+    let events: EventHandle[] = [];
 
-    let panelOptionsWebLens = null;
+    let containerOptionsWebLens: Container | null = null;
 
-    // main panel
-    const panel = new LegacyPanel();
-    panel.class.add('picker-publish-new');
+    // root container
+    const container = new Container({
+        class: 'picker-publish-new'
+    });
 
-    // register panel with project popup
-    editor.call('picker:project:registerPanel', 'publish-download', 'Download New Build', panel);
-    editor.call('picker:project:registerPanel', 'publish-new', 'Publish New Build', panel);
+    // register container with project popup
+    editor.call('picker:project:registerPanel', 'publish-download', 'Download New Build', container);
+    editor.call('picker:project:registerPanel', 'publish-new', 'Publish New Build', container);
 
     let mode = 'publish';
 
-    let primaryScene = null;
+    let primaryScene: number | null = null;
     const primarySceneKey = `publish:primaryScene:${config.project.id}:${config.self.branch.id}`;
 
     editor.method('picker:publish:new', () => {
         mode = 'publish';
         editor.call('picker:project', 'publish-new');
-        panel.class.remove('download-mode');
-        panelOptionsWebLens.hidden = true;
+        container.class.remove('download-mode');
+        containerOptionsWebLens.hidden = true;
     });
 
     editor.method('picker:publish:download', () => {
         mode = 'download';
         editor.call('picker:project', 'publish-download');
-        panel.class.add('download-mode');
+        container.class.add('download-mode');
         if (config.self.flags.superUser) {
-            panelOptionsWebLens.hidden = false;
+            containerOptionsWebLens.hidden = false;
         }
     });
 
     // info panel
-    const panelInfo = new LegacyPanel();
-    panelInfo.class.add('info');
-    panel.append(panelInfo);
+    const containerInfo = new Container({
+        class: 'info'
+    });
+    container.append(containerInfo);
 
     // image
     const imageField = document.createElement('div');
     imageField.classList.add('image');
-    panelInfo.append(imageField);
+    containerInfo.append(imageField);
 
     const blankImage = `${config.url.static}/platform/images/common/blank_project.png`;
 
@@ -95,7 +92,7 @@ editor.once('load', () => {
         fileInput.click();
     });
 
-    let imageS3Key = null;
+    let imageS3Key: string | null = null;
     let isUploadingImage = false;
 
     fileInput.addEventListener('change', () => {
@@ -129,124 +126,120 @@ editor.once('load', () => {
     });
 
     const group = document.createElement('span');
-    panelInfo.append(group);
+    containerInfo.append(group);
 
     // name
-    let label = new LegacyLabel({ text: 'Title' });
-    label.class.add('field-label');
-    group.appendChild(label.element);
-
-    const inputNameError = new LegacyLabel({
-        text: 'Cannot exceed 1000 characters'
+    const labelTitle = new Label({
+        text: 'Title',
+        class: 'field-label'
     });
-    inputNameError.class.add('error');
-    inputNameError.hidden = true;
-    group.appendChild(inputNameError.element);
+    group.appendChild(labelTitle.dom);
 
-    const inputName = new LegacyTextField();
-    inputName.renderChanges = false;
-    inputName.placeholder = 'Required';
-    inputName.class.add('name');
-    inputName.class.add('input-field');
-    group.appendChild(inputName.element);
+    const inputNameError = new Label({
+        text: 'Cannot exceed 1000 characters',
+        class: 'error',
+        hidden: true
+    });
+    group.appendChild(inputNameError.dom);
 
-    inputName.elementInput.addEventListener('keyup', (e) => {
-        inputNameError.hidden = inputName.elementInput.value.length <= 1000;
+    const inputName = new TextInput({
+        renderChanges: false,
+        placeholder: 'Required',
+        class: ['name', 'input-field']
+    });
+    group.appendChild(inputName.dom);
+
+    inputName.on('change', (value: string) => {
+        inputNameError.hidden = value.length <= 1000;
         refreshButtonsState();
     });
 
-    label = new LegacyLabel({ text: 'Click on the image to upload artwork. 720 x 720px' });
-    label.class.add('image-click');
-    group.appendChild(label.element);
-
-    // description
-    const panelDescription = new LegacyPanel();
-    panelDescription.class.add('description');
-    panel.append(panelDescription);
-
-    label = new LegacyLabel({ text: 'Description' });
-    label.class.add('field-label');
-    panelDescription.append(label);
-
-    const inputDescError = new LegacyLabel({
-        text: 'Cannot exceed 10000 characters'
+    const labelImageClick = new Label({
+        text: 'Click on the image to upload artwork. 720 x 720px',
+        class: 'image-click'
     });
-    inputDescError.class.add('error');
-    inputDescError.hidden = true;
-    panelDescription.append(inputDescError);
+    group.appendChild(labelImageClick.dom);
 
-    const inputDescription = document.createElement('textarea');
-    inputDescription.addEventListener('keyup', (e) => {
-        if (e.keyCode === 27) {
-            inputDescription.blur();
-        }
+    // Helper to create a text area section with label and error
+    const createTextAreaSection = (className: string, labelText: string, maxLength: number) => {
+        const sectionContainer = new Container({
+            class: className
+        });
+        container.append(sectionContainer);
 
-        inputDescError.hidden = inputDescription.value.length < 10000;
-        refreshButtonsState();
-    });
-    panelDescription.append(inputDescription);
+        const label = new Label({
+            text: labelText,
+            class: 'field-label'
+        });
+        sectionContainer.append(label);
+
+        const errorLabel = new Label({
+            text: `Cannot exceed ${maxLength} characters`,
+            class: 'error',
+            hidden: true
+        });
+        sectionContainer.append(errorLabel);
+
+        const input = new TextAreaInput({
+            keyChange: true
+        });
+        sectionContainer.append(input);
+
+        input.on('change', (value: string) => {
+            errorLabel.hidden = value.length <= maxLength;
+            refreshButtonsState();
+        });
+
+        return input;
+    };
+
+    const inputDescription = createTextAreaSection('description', 'Description', 10000);
 
     // version
-    const panelVersion = new LegacyPanel();
-    panelVersion.class.add('version');
-    panel.append(panelVersion);
-
-    label = new LegacyLabel({ text: 'Version' });
-    label.class.add('field-label');
-    panelVersion.append(label);
-
-    const inputVersionError = new LegacyLabel({
-        text: 'Cannot exceed 20 characters'
+    const containerVersion = new Container({
+        class: 'version'
     });
-    inputVersionError.class.add('error');
-    inputVersionError.hidden = true;
-    panelVersion.append(inputVersionError);
+    container.append(containerVersion);
 
-    const inputVersion = new LegacyTextField();
-    inputVersion.renderChanges = false;
-    inputVersion.class.add('input-field');
-    inputVersion.placeholder = 'e.g. 1.0.0';
-    panelVersion.append(inputVersion);
+    const labelVersion = new Label({
+        text: 'Version',
+        class: 'field-label'
+    });
+    containerVersion.append(labelVersion);
 
-    inputVersion.elementInput.addEventListener('keyup', (e) => {
-        inputVersionError.hidden = inputVersion.value.length <= 20;
+    const inputVersionError = new Label({
+        text: 'Cannot exceed 20 characters',
+        class: 'error',
+        hidden: true
+    });
+    containerVersion.append(inputVersionError);
+
+    const inputVersion = new TextInput({
+        renderChanges: false,
+        class: 'input-field',
+        placeholder: 'e.g. 1.0.0'
+    });
+    containerVersion.append(inputVersion);
+
+    inputVersion.on('change', (value: string) => {
+        inputVersionError.hidden = value.length <= 20;
         refreshButtonsState();
     });
 
-    // release notes
-    const panelNotes = new LegacyPanel();
-    panelNotes.class.add('notes');
-    panel.append(panelNotes);
-
-    label = new LegacyLabel({ text: 'Release Notes' });
-    label.class.add('field-label');
-    panelNotes.append(label);
-
-    const inputNotesError = new LegacyLabel({
-        text: 'Cannot exceed 10000 characters'
-    });
-    inputNotesError.class.add('error');
-    inputNotesError.hidden = true;
-    panelNotes.append(inputNotesError);
-
-    const inputNotes = document.createElement('textarea');
-    panelNotes.append(inputNotes);
-    inputNotes.addEventListener('keyup', (e) => {
-        if (e.keyCode === 27) {
-            inputNotes.blur();
-        }
-
-        inputNotesError.hidden = inputNotes.value.length <= 10000;
-        refreshButtonsState();
-    });
+    const inputNotes = createTextAreaSection('notes', 'Release Notes', 10000);
 
     // engine version
-    const panelEngineVersion = new LegacyPanel();
-    label = new LegacyLabel({ text: 'Engine Version' });
-    label.class.add('field-label');
-    panelEngineVersion.append(label);
+    const containerEngineVersion = new Container({
+        class: 'engine-version'
+    });
+    const labelEngineVersion = new Label({
+        text: 'Engine Version',
+        class: 'field-label'
+    });
+    containerEngineVersion.append(labelEngineVersion);
 
     const engineVersionDropdown = new SelectInput({
+        class: 'engine-version-dropdown',
         value: editor.call('settings:projectUser').get('editor.launchReleaseCandidate') ? 'releaseCandidate' : editor.call('settings:session').get('engineVersion'),
         options: ['previous', 'current', 'releaseCandidate']
         .filter(type => config.engineVersions.hasOwnProperty(type))
@@ -258,142 +251,131 @@ editor.once('load', () => {
             };
         })
     });
-    engineVersionDropdown.style.margin = '0';
-    panelEngineVersion.append(engineVersionDropdown);
-    panel.append(panelEngineVersion);
+    containerEngineVersion.append(engineVersionDropdown);
+    container.append(containerEngineVersion);
 
-    let fieldOptionsConcat;
-    let fieldOptionsMinify;
-    let fieldOptionsSourcemaps;
-    let fieldOptionsOptimizeSceneFormat;
-    let fieldOptionsWebLens;
+    let fieldOptionsConcat: BooleanInput;
+    let fieldOptionsMinify: BooleanInput;
+    let fieldOptionsSourcemaps: BooleanInput;
+    let fieldOptionsOptimizeSceneFormat: BooleanInput;
+    let fieldOptionsWebLens: BooleanInput;
 
     if (!legacyScripts) {
-        // options
-        const panelOptions = new LegacyPanel();
-        panelOptions.class.add('options');
-        panel.append(panelOptions);
+        const containerOptions = new Container({
+            class: 'options'
+        });
+        container.append(containerOptions);
 
-        label = new LegacyLabel({ text: 'Options' });
-        label.class.add('field-label');
-        panelOptions.append(label);
+        const labelOptions = new Label({
+            text: 'Options',
+            class: 'field-label'
+        });
+        containerOptions.append(labelOptions);
 
-        // concatenate scripts
-        const panelOptionsConcat = new LegacyPanel();
-        panelOptionsConcat.class.add('field');
-        panelOptions.append(panelOptionsConcat);
-        fieldOptionsConcat = new LegacyCheckbox();
-        fieldOptionsConcat.value = true;
-        fieldOptionsConcat.class.add('tick');
-        panelOptionsConcat.append(fieldOptionsConcat);
-        label = new LegacyLabel({ text: 'Concatenate Scripts' });
-        panelOptionsConcat.append(label);
+        // Helper to create an option row with checkbox and label
+        const createOption = (text: string, value: boolean) => {
+            const row = new Container({
+                class: 'field'
+            });
+            containerOptions.append(row);
 
-        // minify scripts
-        const panelOptionsMinify = new LegacyPanel();
-        panelOptionsMinify.class.add('field');
-        panelOptions.append(panelOptionsMinify);
-        fieldOptionsMinify = new LegacyCheckbox();
-        fieldOptionsMinify.value = true;
-        fieldOptionsMinify.class.add('tick');
-        panelOptionsMinify.append(fieldOptionsMinify);
-        label = new LegacyLabel({ text: 'Minify Scripts' });
-        panelOptionsMinify.append(label);
+            const input = new BooleanInput({
+                value
+            });
+            row.append(input);
 
-        // generate sourcemaps
-        const panelOptionsSourcemaps = new LegacyPanel();
-        panelOptionsSourcemaps.class.add('field');
-        panelOptions.append(panelOptionsSourcemaps);
-        fieldOptionsSourcemaps = new LegacyCheckbox();
-        fieldOptionsSourcemaps.value = false;
-        fieldOptionsSourcemaps.class.add('tick');
-        panelOptionsSourcemaps.append(fieldOptionsSourcemaps);
-        label = new LegacyLabel({ text: 'Generate Source Maps' });
-        panelOptionsSourcemaps.append(label);
+            const label = new Label({
+                text
+            });
+            row.append(label);
 
-        fieldOptionsConcat.on('change', (value) => {
-            panelOptionsMinify.hidden = !value;
-            panelOptionsSourcemaps.hidden = (!fieldOptionsMinify.value || !value);
+            return { row, input };
+        };
+
+        const optConcat = createOption('Concatenate Scripts', true);
+        const optMinify = createOption('Minify Scripts', true);
+        const optSourcemaps = createOption('Generate Source Maps', false);
+        const optOptimizeFormat = createOption('Optimize Scene Format', false);
+        const optWebLens = createOption('Export to WebLens Format', false);
+
+        fieldOptionsConcat = optConcat.input;
+        fieldOptionsMinify = optMinify.input;
+        fieldOptionsSourcemaps = optSourcemaps.input;
+        fieldOptionsOptimizeSceneFormat = optOptimizeFormat.input;
+        fieldOptionsWebLens = optWebLens.input;
+
+        containerOptionsWebLens = optWebLens.row;
+        containerOptionsWebLens.hidden = true;
+
+        fieldOptionsConcat.on('change', (value: boolean) => {
+            optMinify.row.hidden = !value;
+            optSourcemaps.row.hidden = !fieldOptionsMinify.value || !value;
         });
 
-        fieldOptionsMinify.on('change', (value) => {
-            panelOptionsSourcemaps.hidden = !value;
+        fieldOptionsMinify.on('change', (value: boolean) => {
+            optSourcemaps.row.hidden = !value;
         });
-
-        // optimize scene format
-        const panelOptionsOptimizeFormat = new LegacyPanel();
-        panelOptionsOptimizeFormat.class.add('field');
-        panelOptions.append(panelOptionsOptimizeFormat);
-        fieldOptionsOptimizeSceneFormat = new LegacyCheckbox();
-        fieldOptionsOptimizeSceneFormat.value = false;
-        fieldOptionsOptimizeSceneFormat.class.add('tick');
-        panelOptionsOptimizeFormat.append(fieldOptionsOptimizeSceneFormat);
-        const labelPreload = new LegacyLabel({ text: 'Optimize Scene Format' });
-        panelOptionsOptimizeFormat.append(labelPreload);
-
-        // export to WebLens format
-        panelOptionsWebLens = new LegacyPanel();
-        panelOptionsWebLens.class.add('field');
-        panelOptions.append(panelOptionsWebLens);
-        fieldOptionsWebLens = new LegacyCheckbox();
-        fieldOptionsWebLens.value = false;
-        fieldOptionsWebLens.class.add('tick');
-        panelOptionsWebLens.append(fieldOptionsWebLens);
-        const labelWebLens = new LegacyLabel({ text: 'Export to WebLens Format' });
-        panelOptionsWebLens.append(labelWebLens);
-        panelOptionsWebLens.hidden = true;
     }
 
     // scenes
-    const panelScenes = new LegacyPanel();
-    panelScenes.class.add('scenes');
-    panel.append(panelScenes);
+    const containerScenes = new Container({
+        class: 'scenes'
+    });
+    container.append(containerScenes);
 
-    label = new LegacyLabel({ text: 'Choose Scenes' });
-    panelScenes.append(label);
+    const labelChooseScenes = new Label({
+        text: 'Choose Scenes',
+        class: 'field-label'
+    });
+    containerScenes.append(labelChooseScenes);
 
-    const selectAll = new LegacyCheckbox();
-    selectAll.class.add('tick');
-    panelScenes.append(selectAll);
+    const selectAll = new BooleanInput();
+    containerScenes.append(selectAll);
 
-    label = new LegacyLabel({ text: 'Select all' });
-    panelScenes.append(label);
-    label.class.add('select-all');
+    const labelSelectAll = new Label({
+        text: 'Select all',
+        class: 'select-all'
+    });
+    containerScenes.append(labelSelectAll);
 
     // scenes container
-    const container = new LegacyList();
-    container.class.add('scene-list');
-    panelScenes.append(container);
+    const sceneList = new LegacyList();
+    sceneList.class.add('scene-list');
+    containerScenes.append(sceneList);
 
-    const panelNoScenes = new LegacyPanel();
-    panelNoScenes.class.add('scenes');
-    panel.append(panelNoScenes);
+    const containerNoScenes = new Container({
+        class: 'scenes'
+    });
+    container.append(containerNoScenes);
 
     // no scenes msg
-    const labelNoScenes = new LegacyLabel({ text: 'There are no scenes.' });
-    labelNoScenes.class.add('error');
-    labelNoScenes.hidden = true;
-    panelNoScenes.append(labelNoScenes);
+    const labelNoScenes = new Label({
+        text: 'There are no scenes.',
+        class: 'error',
+        hidden: true
+    });
+    containerNoScenes.append(labelNoScenes);
 
     // loading scenes
-    const loadingScenes = new LegacyLabel({
+    const loadingScenes = new Label({
         text: 'Loading scenes...'
     });
-    panelNoScenes.append(loadingScenes);
+    containerNoScenes.append(loadingScenes);
 
-    const progressBar = new LegacyProgress({ progress: 1 });
-    progressBar.hidden = false;
-    panelNoScenes.append(progressBar);
+    const progressBar = new Progress({
+        value: 100
+    });
+    containerNoScenes.append(progressBar);
 
     // holds all scenes
-    let scenes = [];
+    let scenes: { id: number | string, name: string, modified: string }[] = [];
 
     // returns a list of the selected scenes
     // with the primary scene first
     const getSelectedScenes = function () {
         const result = [];
 
-        const listItems = container.innerElement.childNodes;
+        const listItems = sceneList.innerElement.childNodes;
         for (let i = 0; i < listItems.length; i++) {
             if (listItems[i].ui.isSelected()) {
                 result.push(listItems[i].ui.sceneId);
@@ -417,11 +399,11 @@ editor.once('load', () => {
     let jobInProgress = false;
 
     // publish button
-    const btnPublish = new LegacyButton({
-        text: 'Publish Now'
+    const btnPublish = new Button({
+        text: 'Publish Now',
+        class: 'publish'
     });
-    btnPublish.class.add('publish');
-    panel.append(btnPublish);
+    container.append(btnPublish);
 
     btnPublish.on('click', () => {
         if (jobInProgress) {
@@ -475,7 +457,6 @@ editor.once('load', () => {
             data.web_lens = fieldOptionsWebLens.value;
         }
 
-
         data.engine_version = config.engineVersions[engineVersionDropdown.value].version;
 
         editor.api.globals.rest.apps.appCreate(data).on('load', () => {
@@ -489,13 +470,13 @@ editor.once('load', () => {
     });
 
     // web download button
-    const btnWebDownload = new LegacyButton({
-        text: 'Download'
+    const btnWebDownload = new Button({
+        text: 'Download',
+        class: 'web-download'
     });
-    btnWebDownload.class.add('web-download');
-    panel.append(btnWebDownload);
+    container.append(btnWebDownload);
 
-    let urlToDownload = null;
+    let urlToDownload: string | null = null;
 
     // download app
     const download = function () {
@@ -596,7 +577,7 @@ editor.once('load', () => {
     const panelDownloadProgress = document.createElement('div');
     panelDownloadProgress.classList.add('progress');
     panelDownloadProgress.classList.add('download');
-    panel.append(panelDownloadProgress);
+    container.append(panelDownloadProgress);
 
     // icon
     const downloadProgressIconWrapper = document.createElement('span');
@@ -612,14 +593,17 @@ editor.once('load', () => {
     downloadProgressInfo.classList.add('progress-info');
     panelDownloadProgress.appendChild(downloadProgressInfo);
 
-    const downloadProgressTitle = new LegacyLabel({ text: 'Preparing build' });
-    downloadProgressTitle.renderChanges = false;
-    downloadProgressTitle.class.add('progress-title');
-    downloadProgressInfo.appendChild(downloadProgressTitle.element);
+    const downloadProgressTitle = new Label({
+        text: 'Preparing build',
+        class: 'progress-title'
+    });
+    downloadProgressInfo.appendChild(downloadProgressTitle.dom);
 
-    const btnDownloadReady = new LegacyButton({ text: 'Download' });
-    btnDownloadReady.class.add('ready');
-    downloadProgressInfo.appendChild(btnDownloadReady.element);
+    const btnDownloadReady = new Button({
+        text: 'Download',
+        class: 'ready'
+    });
+    downloadProgressInfo.appendChild(btnDownloadReady.dom);
 
     btnDownloadReady.on('click', () => {
         if (urlToDownload) {
@@ -649,7 +633,7 @@ editor.once('load', () => {
         row.element.id = `picker-scene-${scene.id}`;
         row.sceneId = scene.id;
 
-        container.append(row);
+        sceneList.append(row);
 
         if (config.scene.id && parseInt(scene.id, 10) === parseInt(config.scene.id, 10)) {
             row.class.add('current');
@@ -659,11 +643,11 @@ editor.once('load', () => {
             row.class.add('primary');
         }
         // primary scene icon
-        const primary = new LegacyButton({
-            text: '&#57891'
+        const primary = new Button({
+            text: '\uE223',
+            class: 'primary'
         });
-        primary.class.add('primary');
-        row.element.appendChild(primary.element);
+        row.element.appendChild(primary.dom);
 
         primary.on('click', () => {
             if (!editor.call('permissions:write')) {
@@ -685,33 +669,30 @@ editor.once('load', () => {
 
         // show tooltip for primary scene icon
         const tooltipText = scene.id === primaryScene ? 'Primary Scene' : 'Set Primary Scene';
-        const tooltip = LegacyTooltip.attach({
-            target: primary.element,
-            text: tooltipText,
-            align: 'right',
-            root: editor.call('layout.root')
+        tooltip().attach({
+            container: tooltipSimpleItem({ text: tooltipText }),
+            target: primary,
+            align: 'right'
         });
-        tooltips.push(tooltip);
+        tooltipTargets.push(primary);
 
         // scene name
-        const name = new LegacyLabel({
-            text: scene.name
+        const name = new Label({
+            text: scene.name,
+            class: 'name'
         });
-        name.class.add('name');
-
-        row.element.appendChild(name.element);
+        row.element.appendChild(name.dom);
 
         // scene date
-        const date = new LegacyLabel({
-            text: convertDatetime(scene.modified)
+        const date = new Label({
+            text: convertDatetime(scene.modified),
+            class: 'date'
         });
-        date.class.add('date');
-        row.element.appendChild(date.element);
+        row.element.appendChild(date.dom);
 
         // selection
-        const select = new LegacyCheckbox();
-        select.class.add('tick');
-        row.element.appendChild(select.element);
+        const select = new BooleanInput();
+        row.element.appendChild(select.dom);
 
         // if selectAll changes then change this too
         events.push(selectAll.on('change', (value) => {
@@ -732,10 +713,10 @@ editor.once('load', () => {
     };
 
     const destroyTooltips = function () {
-        tooltips.forEach((tooltip) => {
-            tooltip.destroy();
+        tooltipTargets.forEach((target) => {
+            tooltip().detach(target);
         });
-        tooltips = [];
+        tooltipTargets = [];
     };
 
     const destroyEvents = function () {
@@ -749,23 +730,14 @@ editor.once('load', () => {
     // handle permission changes
     editor.on(`permissions:set:${config.self.id}`, (accessLevel) => {
         if (accessLevel === 'write' || accessLevel === 'admin') {
-            panel.class.remove('disabled');
+            container.class.remove('disabled');
         } else {
-            panel.class.add('disabled');
+            container.class.add('disabled');
         }
     });
 
-    const sortScenes = function (scenes) {
-        scenes.sort((a, b) => {
-            if (a.modified < b.modified) {
-                return 1;
-            }
-            if (a.modified > b.modified) {
-                return -1;
-            }
-
-            return 0;
-        });
+    const sortScenes = (sceneList: { modified: string }[]) => {
+        sceneList.sort((a, b) => b.modified.localeCompare(a.modified));
     };
 
     const refreshScenes = function () {
@@ -776,11 +748,11 @@ editor.once('load', () => {
 
         destroyTooltips();
         destroyEvents();
-        container.element.innerHTML = '';
+        sceneList.element.innerHTML = '';
         sortScenes(scenes);
-        panelScenes.hidden = !scenes.length;
-        panelNoScenes.hidden = !panelScenes.hidden;
-        labelNoScenes.hidden = scenes.length;
+        containerScenes.hidden = !scenes.length;
+        containerNoScenes.hidden = !containerScenes.hidden;
+        labelNoScenes.hidden = scenes.length > 0;
         loadingScenes.hidden = true;
         progressBar.hidden = true;
         refreshButtonsState();
@@ -799,13 +771,13 @@ editor.once('load', () => {
     };
 
     // on show
-    panel.on('show', () => {
+    container.on('show', () => {
         panelDownloadProgress.hidden = true;
-        panelNoScenes.hidden = false;
+        containerNoScenes.hidden = false;
         labelNoScenes.hidden = true;
         loadingScenes.hidden = false;
         progressBar.hidden = false;
-        container.element.innerHTML = '';
+        sceneList.element.innerHTML = '';
         inputName.value = config.project.name;
         inputDescription.value = config.project.description;
         inputVersion.value = '';
@@ -883,8 +855,7 @@ editor.once('load', () => {
             });
         }
 
-
-        inputName.elementInput.focus();
+        inputName.focus();
 
         if (editor.call('viewport:inViewport')) {
             editor.emit('viewport:hover', false);
@@ -892,7 +863,7 @@ editor.once('load', () => {
     });
 
     // on hide
-    panel.on('hide', () => {
+    container.on('hide', () => {
         scenes = [];
         primaryScene = null;
         imageS3Key = null;
@@ -908,7 +879,7 @@ editor.once('load', () => {
     });
 
     editor.on('viewport:hover', (state) => {
-        if (state && !panel.hidden) {
+        if (state && !container.hidden) {
             setTimeout(() => {
                 editor.emit('viewport:hover', false);
             }, 0);
@@ -917,7 +888,7 @@ editor.once('load', () => {
 
     // subscribe to messenger scene.delete
     editor.on('messenger:scene.delete', (data) => {
-        if (panel.hidden) {
+        if (container.hidden) {
             return;
         }
         if (data.scene.branchId !== config.self.branch.id) {
@@ -932,22 +903,22 @@ editor.once('load', () => {
         }
 
         for (let i = 0; i < scenes.length; i++) {
-            if (parseInt(scenes[i].id, 10) === sceneId) {
+            if (parseInt(String(scenes[i].id), 10) === sceneId) {
                 scenes.splice(i, 1);
                 break;
             }
         }
 
         if (!scenes.length) {
-            panelScenes.hidden = true;
-            panelNoScenes.hidden = false;
+            containerScenes.hidden = true;
+            containerNoScenes.hidden = false;
             refreshButtonsState();
         }
     });
 
     // subscribe to messenger scene.new
     editor.on('messenger:scene.new', (data) => {
-        if (panel.hidden) {
+        if (container.hidden) {
             return;
         }
         if (data.scene.branchId !== config.self.branch.id) {
@@ -955,7 +926,7 @@ editor.once('load', () => {
         }
 
         editor.call('scenes:get', data.scene.id, (err, scene) => {
-            if (panel.hidden) {
+            if (container.hidden) {
                 return;
             } // check if hidden when Ajax returns
 
