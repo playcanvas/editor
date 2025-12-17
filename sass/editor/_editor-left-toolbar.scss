@@ -2,7 +2,7 @@
 
 #layout-toolbar {
     background-color: $bcg-darker;
-    z-index: 400;
+    z-index: 400; // Below PCUI Menu overlay (401) so context menus close when clicking toolbar
 
     > .pcui-button {
         display: block;
