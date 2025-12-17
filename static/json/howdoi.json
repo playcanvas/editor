@@ -1,7 +1,7 @@
 [
     {
         "title": "Add a component",
-        "html": "<h2 id=\"how-do-i-add-a-component\">How do I add a component?</h2>\n<p>To add a <strong>component</strong> to an Entity, select the Entity and then click <strong>Add Component</strong> in the <strong>Inspector</strong> or right click on the Entity and select a component from the Add Component context menu.</p>\n<p><a target=\"_blank\" href=\"https://developer.playcanvas.com/en/user-manual/packs/components/\" class=\"docs\">View User Manual</a></p>\n\n<button class=\"close\">GOT IT</button>",
+        "html": "<h2>How do I add a component?</h2>\n<p>To add a <strong>component</strong> to an Entity, select the Entity and then click <strong>Add Component</strong> in the <strong>Inspector</strong> or right click on the Entity and select a component from the Add Component context menu.</p>\n<p><a target=\"_blank\" href=\"https://developer.playcanvas.com/user-manual/scenes/components/\" class=\"docs\">View User Manual</a></p>\n\n<button class=\"close\">GOT IT</button>",
         "keywords": [
             "entity",
             "add",
@@ -11,7 +11,7 @@
     },
     {
         "title": "Add a script",
-        "html": "<h2 id=\"how-do-i-add-a-script\">How do I add a script?</h2>\n<img src=\"https://playcanvas.com/static-assets/instructions/add-new-script.gif\">\n\n<p>You can use JavaScript to control the behavior of entities. Select any entity, add a script component and create a new script asset.</p>\n<p><a target=\"_blank\" href=\"https://developer.playcanvas.com/en/user-manual/scripting/creating-new/\" class=\"docs\">View User Manual</a></p>\n\n<button class=\"close\">GOT IT</button>",
+        "html": "<h2>How do I add a script?</h2>\n<img src=\"https://playcanvas.com/static-assets/instructions/add-new-script.gif\" />\n\n<p>You can use JavaScript to control the behavior of entities. Select any entity, add a script component and create a new script asset.</p>\n<p><a target=\"_blank\" href=\"https://developer.playcanvas.com/user-manual/scripting/editor-users/managing-scripts/\" class=\"docs\">View User Manual</a></p>\n\n<button class=\"close\">GOT IT</button>",
         "keywords": [
             "script",
             "code",
@@ -22,7 +22,7 @@
     },
     {
         "title": "Change the background color",
-        "html": "<h2 id=\"how-do-i-change-the-background-color\">How do I change the background color?</h2>\n<p>To change the background color of your scene, you should update the Clear Color property of the camera in your scene.</p>\n<p>You could also try and adding a <a target=\"_blank\" href=\"https://developer.playcanvas.com/en/user-manual/assets/cubemaps/\">skybox</a> to your scene.</p>\n<p><a target=\"_blank\" href=\"https://developer.playcanvas.com/en/user-manual/packs/components/camera/\" class=\"docs\">View User Manual</a></p>\n\n<button class=\"close\">GOT IT</button>",
+        "html": "<h2>How do I change the background color?</h2>\n<p>To change the background color of your scene, you should update the Clear Color property of the camera in your scene.</p>\n<p>You could also try and adding a <a target=\"_blank\" href=\"https://developer.playcanvas.com/user-manual/assets/types/cubemap/\">skybox</a> to your scene.</p>\n<p><a target=\"_blank\" href=\"https://developer.playcanvas.com/user-manual/scenes/components/camera/\" class=\"docs\">View User Manual</a></p>\n\n<button class=\"close\">GOT IT</button>",
         "keywords": [
             "camera",
             "color",
@@ -33,7 +33,7 @@
     },
     {
         "title": "Change the material of a model",
-        "html": "<h2 id=\"how-do-i-change-the-material-of-a-model\">How do I change the material of a model?</h2>\n<img src=\"https://playcanvas.com/static-assets/instructions/change_material.gif\">\n\n<p>Every surface on a 3D model is rendered using a <strong>material</strong>. The material defines the properties of that surface, such as its color, shininess, bumpiness etc.</p>\n<p>You can create a new material and drag and drop it on your model or you can select its existing materials and edit their properties in the Inspector.</p>\n<p><a target=\"_blank\" href=\"https://developer.playcanvas.com/en/user-manual/assets/materials/\" class=\"docs\">View User Manual</a></p>\n\n<button class=\"close\">GOT IT</button>",
+        "html": "<h2>How do I change the material of a model?</h2>\n<img src=\"https://playcanvas.com/static-assets/instructions/change_material.gif\" />\n\n<p>Every surface on a 3D model is rendered using a <strong>material</strong>. The material defines the properties of that surface, such as its color, shininess, bumpiness etc.</p>\n<p>You can create a new material and drag and drop it on your model or you can select its existing materials and edit their properties in the Inspector.</p>\n<p><a target=\"_blank\" href=\"https://developer.playcanvas.com/user-manual/assets/materials/\" class=\"docs\">View User Manual</a></p>\n\n<button class=\"close\">GOT IT</button>",
         "keywords": [
             "asset",
             "material",
@@ -46,7 +46,7 @@
     },
     {
         "title": "Create a cubemap",
-        "html": "<h2 id=\"how-do-i-create-a-cubemap\">How do I create a cubemap?</h2>\n<img src=\"https://playcanvas.com/static-assets/instructions/new_cubemap.gif\">\n\n<p>Cubemaps are a special type of texture asset. They are formed from 6 texture assets where each texture represents the face of a cube.</p>\n<p>To create a cubemap click on the <strong><span class=\"font-icon\">&#57632;</span> Add</strong> button in the Assets panel and select <strong>New Cubemap</strong>. Then drag 6 textures in the cubemap inspector. To take advantage of Physically Based Rendering make sure you click <strong>Prefilter</strong> after setting the 6 textures.</p>\n<p><a target=\"_blank\" href=\"https://developer.playcanvas.com/en/user-manual/assets/cubemaps/\" class=\"docs\">View User Manual</a></p>\n\n<button class=\"close\">GOT IT</button>",
+        "html": "<h2>How do I create a cubemap?</h2>\n<img src=\"https://playcanvas.com/static-assets/instructions/new_cubemap.gif\" />\n\n<p>Cubemaps are a special type of texture asset. They are formed from 6 texture assets where each texture represents the face of a cube.</p>\n<p>To create a cubemap click on the <strong><span class=\"font-icon\">&#57632;</span> Add</strong> button in the Assets panel and select <strong>New Cubemap</strong>. Then drag 6 textures in the cubemap inspector. To take advantage of Physically Based Rendering make sure you click <strong>Prefilter</strong> after setting the 6 textures.</p>\n<p><a target=\"_blank\" href=\"https://developer.playcanvas.com/user-manual/assets/types/cubemap/\" class=\"docs\">View User Manual</a></p>\n\n<button class=\"close\">GOT IT</button>",
         "keywords": [
             "asset",
             "cubemap",
@@ -59,7 +59,7 @@
     },
     {
         "title": "Create an Entity",
-        "html": "<h2 id=\"how-do-i-create-an-entity\">How do I create an Entity?</h2>\n<img src=\"https://playcanvas.com/static-assets/instructions/new_entity.gif\">\n\n<p>You can create a new Entity by clicking on the <span class=\"font-icon\">&#57632;</span> Add button in the Hierarchy panel or right click on an Entity and use the <strong>New Entity</strong> menu item.</p>\n\n<button class=\"close\">GOT IT</button>",
+        "html": "<h2>How do I create an Entity?</h2>\n<img src=\"https://playcanvas.com/static-assets/instructions/new_entity.gif\" />\n\n<p>You can create a new Entity by clicking on the <span class=\"font-icon\">&#57632;</span> Add button in the Hierarchy panel or right click on an Entity and use the <strong>New Entity</strong> menu item.</p>\n\n<button class=\"close\">GOT IT</button>",
         "keywords": [
             "entity",
             "new",
@@ -68,7 +68,7 @@
     },
     {
         "title": "Create a light",
-        "html": "<h2 id=\"how-do-i-create-a-light\">How do I create a light?</h2>\n<p>You can create a light by adding a <strong>Light</strong> component to an Entity. You can also right click on an Entity and select New Entity / Directional Light to create a new directional light and similarly for spot lights and omni lights.</p>\n<p><a target=\"_blank\" href=\"https://developer.playcanvas.com/en/user-manual/packs/components/light/\" class=\"docs\">View User Manual</a></p>\n\n<button class=\"close\">GOT IT</button>",
+        "html": "<h2>How do I create a light?</h2>\n<p>You can create a light by adding a <strong>Light</strong> component to an Entity. You can also right click on an Entity and select New Entity / Directional Light to create a new directional light and similarly for spot lights and omni lights.</p>\n<p><a target=\"_blank\" href=\"https://developer.playcanvas.com/user-manual/scenes/components/light/\" class=\"docs\">View User Manual</a></p>\n\n<button class=\"close\">GOT IT</button>",
         "keywords": [
             "component",
             "light",
@@ -81,7 +81,7 @@
     },
     {
         "title": "Create a material",
-        "html": "<h2 id=\"how-do-i-create-a-material\">How do I create a material?</h2>\n<p>Every surface on a 3D model is rendered using a <strong>material</strong>. The material defines the properties of that surface, such as its color, shininess, bumpiness etc.</p>\n<p>To create a material click on the <strong><span class=\"font-icon\">&#57632;</span> Add</strong> button in the Assets panel and then select <strong>New Material</strong>.</p>\n<p><a target=\"_blank\" href=\"https://developer.playcanvas.com/en/user-manual/assets/materials/\" class=\"docs\">View User Manual</a></p>\n\n<button class=\"close\">GOT IT</button>",
+        "html": "<h2>How do I create a material?</h2>\n<p>Every surface on a 3D model is rendered using a <strong>material</strong>. The material defines the properties of that surface, such as its color, shininess, bumpiness etc.</p>\n<p>To create a material click on the <strong><span class=\"font-icon\">&#57632;</span> Add</strong> button in the Assets panel and then select <strong>New Material</strong>.</p>\n<p><a target=\"_blank\" href=\"https://developer.playcanvas.com/user-manual/assets/materials/\" class=\"docs\">View User Manual</a></p>\n\n<button class=\"close\">GOT IT</button>",
         "keywords": [
             "asset",
             "material",
@@ -98,7 +98,7 @@
     },
     {
         "title": "Create a new shader",
-        "html": "<h2 id=\"how-do-i-create-a-new-shader\">How do I create a new shader?</h2>\n<p>You can create a new shader asset from the asset panel. Click <strong>Add Asset -&gt; Shader</strong>.</p>\n<p><a target=\"_blank\" href=\"http://developer.playcanvas.com/en/tutorials/custom-shaders/\" class=\"docs\">View Tutorial</a></p>\n\n<button class=\"close\">GOT IT</button>",
+        "html": "<h2>How do I create a new shader?</h2>\n<p>You can create a new shader asset from the asset panel. Click <strong>Add Asset -&gt; Shader</strong>.</p>\n<p><a target=\"_blank\" href=\"http://developer.playcanvas.com/tutorials/custom-shaders/\" class=\"docs\">View Tutorial</a></p>\n\n<button class=\"close\">GOT IT</button>",
         "keywords": [
             "asset",
             "shader",
@@ -108,7 +108,7 @@
     },
     {
         "title": "Create a shape like a box, sphere etc.",
-        "html": "<h2 id=\"how-do-i-create-a-shape-like-a-box-or-sphere\">How do I create a shape like a box or sphere?</h2>\n<img src=\"https://playcanvas.com/static-assets/instructions/new_box.gif\">\n\n<p>You can add primitive shapes like boxes, spheres and others by adding a <strong>Render Component</strong> on an Entity and changing its type to the desired shape.</p>\n<p>You can also right click on an Entity and select New Entity/Box to add a box (similarly for other shapes).</p>\n<p><a target=\"_blank\" href=\"https://developer.playcanvas.com/en/user-manual/packs/components/render/\" class=\"docs\">View User Manual</a></p>\n\n<button class=\"close\">GOT IT</button>",
+        "html": "<h2>How do I create a shape like a box or sphere?</h2>\n<img src=\"https://playcanvas.com/static-assets/instructions/new_box.gif\" />\n\n<p>You can add primitive shapes like boxes, spheres and others by adding a <strong>Render Component</strong> on an Entity and changing its type to the desired shape.</p>\n<p>You can also right click on an Entity and select New Entity/Box to add a box (similarly for other shapes).</p>\n<p><a target=\"_blank\" href=\"https://developer.playcanvas.com/user-manual/scenes/components/render/\" class=\"docs\">View User Manual</a></p>\n\n<button class=\"close\">GOT IT</button>",
         "keywords": [
             "component",
             "model",
@@ -124,7 +124,7 @@
     },
     {
         "title": "Create a skybox",
-        "html": "<h2 id=\"how-do-i-create-a-skybox\">How do I create a skybox?</h2>\n<p>To create a skybox for your scene you first need to create a <a target=\"_blank\" href=\"http://developer.playcanvas.com/en/user-manual/assets/cubemaps/\">Cubemap asset</a>. Then you can drag and drop the Cubemap inside the 3D viewport, or you can go to the Scene Settings and drag the Cubemap in the Skybox field.</p>\n<p><a target=\"_blank\" href=\"https://developer.playcanvas.com/en/user-manual/designer/settings/#skybox\" class=\"docs\">View User Manual</a></p>\n\n<button class=\"close\">GOT IT</button>",
+        "html": "<h2>How do I create a skybox?</h2>\n<p>To create a skybox for your scene you first need to create a <a target=\"_blank\" href=\"http://developer.playcanvas.com/user-manual/assets/types/cubemap/\">Cubemap asset</a>. Then you can drag and drop the Cubemap inside the 3D viewport, or you can go to the Scene Settings and drag the Cubemap in the Skybox field.</p>\n<p><a target=\"_blank\" href=\"https://developer.playcanvas.com/user-manual/editor/settings/#skybox\" class=\"docs\">View User Manual</a></p>\n\n<button class=\"close\">GOT IT</button>",
         "keywords": [
             "skybox",
             "cubemap",
@@ -136,7 +136,7 @@
     },
     {
         "title": "Delete an asset",
-        "html": "<h2 id=\"how-do-i-delete-an-asset\">How do I delete an asset?</h2>\n<p>To delete an asset select it and press <strong>Delete</strong> or right click on it and select Delete.</p>\n\n<button class=\"close\">GOT IT</button>",
+        "html": "<h2>How do I delete an asset?</h2>\n<p>To delete an asset select it and press <strong>Delete</strong> or right click on it and select Delete.</p>\n\n<button class=\"close\">GOT IT</button>",
         "keywords": [
             "asset",
             "delete",
@@ -145,7 +145,7 @@
     },
     {
         "title": "Delete an Entity",
-        "html": "<h2 id=\"how-do-i-delete-an-entity\">How do I delete an Entity?</h2>\n<p>You can delete an Entity by selecting it and pressing <strong>Delete</strong>. Alternatively you can click on the <span class=\"font-icon\">&#57636;</span> Delete button in the Hierarchy panel or right click on the Entity and select Delete from the context menu.</p>\n\n<button class=\"close\">GOT IT</button>",
+        "html": "<h2>How do I delete an Entity?</h2>\n<p>You can delete an Entity by selecting it and pressing <strong>Delete</strong>. Alternatively you can click on the <span class=\"font-icon\">&#57636;</span> Delete button in the Hierarchy panel or right click on the Entity and select Delete from the context menu.</p>\n\n<button class=\"close\">GOT IT</button>",
         "keywords": [
             "entity",
             "delete",
@@ -155,7 +155,7 @@
     },
     {
         "title": "Duplicate an Entity",
-        "html": "<h2 id=\"how-do-i-duplicate-an-entity\">How do I duplicate an Entity?</h2>\n<p>To duplicate an Entity use the <span class=\"font-icon\">&#57638;</span> Duplicate button in the Hierarchy panel or press <strong>Ctrl+D</strong>.</p>\n<p>You can also copy and paste an Entity. To copy press <strong>Ctrl+C</strong> and to paste <strong>Ctrl+V</strong>.</p>\n\n<button class=\"close\">GOT IT</button>",
+        "html": "<h2>How do I duplicate an Entity?</h2>\n<p>To duplicate an Entity use the <span class=\"font-icon\">&#57638;</span> Duplicate button in the Hierarchy panel or press <strong>Ctrl+D</strong>.</p>\n<p>You can also copy and paste an Entity. To copy press <strong>Ctrl+C</strong> and to paste <strong>Ctrl+V</strong>.</p>\n\n<button class=\"close\">GOT IT</button>",
         "keywords": [
             "entity",
             "duplicate",
@@ -165,7 +165,7 @@
     },
     {
         "title": "Play an animation",
-        "html": "<h2 id=\"how-do-i-play-an-animation\">How do I play an animation?</h2>\n<p>To play an animation of a 3D model you need to create an Entity with a <a target=\"_blank\" href=\"https://developer.playcanvas.com/en/user-manual/packs/components/model/\">Model Component</a> and an <a target=\"_blank\" href=\"https://developer.playcanvas.com/en/user-manual/packs/components/animation/\">Animation Component</a>. The <strong>Model Component</strong> will render your model and the <strong>Animation Component</strong> will play animations.</p>\n<p>To render the model drag a model Asset in the Asset field of the Model Component. To play animations drag Animation Assets on the Assets field of the Animation Component.</p>\n\n<button class=\"close\">GOT IT</button>",
+        "html": "<h2>How do I play an animation?</h2>\n<p>To play an animation of a 3D model you need to create an Entity with a <a target=\"_blank\" href=\"https://developer.playcanvas.com/user-manual/scenes/components/model/\">Model Component</a> and an <a target=\"_blank\" href=\"https://developer.playcanvas.com/user-manual/scenes/components/animation/\">Animation Component</a>. The <strong>Model Component</strong> will render your model and the <strong>Animation Component</strong> will play animations.</p>\n<p>To render the model drag a model Asset in the Asset field of the Model Component. To play animations drag Animation Assets on the Assets field of the Animation Component.</p>\n\n<button class=\"close\">GOT IT</button>",
         "keywords": [
             "component",
             "animation",
@@ -176,7 +176,7 @@
     },
     {
         "title": "Play a sound",
-        "html": "<h2 id=\"how-do-i-play-a-sound\">How do I play a sound?</h2>\n<p>To play sounds you need to add a <a target=\"_blank\" href=\"https://developer.playcanvas.com/en/user-manual/packs/components/sound/\">Sound component</a> to an Entity. Then you can create slots to play <a target=\"_blank\" href=\"https://developer.playcanvas.com/en/user-manual/assets/audio/\">Audio assets</a>. Simply click &quot;Add Slot&quot; and drag an Audio Asset on the Asset field. In order to hear the sounds you also need to add an <a target=\"_blank\" href=\"https://developer.playcanvas.com/en/user-manual/packs/components/audiolistener/\">AudioListener component</a> to an Entity - usually to the Camera Entity.</p>\n<p>You can create Audio assets by dragging audio files from your computer into the Assets panel.</p>\n<p><a target=\"_blank\" href=\"https://developer.playcanvas.com/en/tutorials/basic-audio/\" class=\"docs\">View Tutorial</a></p>\n\n<button class=\"close\">GOT IT</button>",
+        "html": "<h2>How do I play a sound?</h2>\n<p>To play sounds you need to add a <a target=\"_blank\" href=\"https://developer.playcanvas.com/user-manual/scenes/components/sound/\">Sound component</a> to an Entity. Then you can create slots to play <a target=\"_blank\" href=\"https://developer.playcanvas.com/user-manual/assets/audio/\">Audio assets</a>. Simply click &quot;Add Slot&quot; and drag an Audio Asset on the Asset field. In order to hear the sounds you also need to add an <a target=\"_blank\" href=\"https://developer.playcanvas.com/user-manual/scenes/components/audiolistener/\">AudioListener component</a> to an Entity - usually to the Camera Entity.</p>\n<p>You can create Audio assets by dragging audio files from your computer into the Assets panel.</p>\n<p><a target=\"_blank\" href=\"https://developer.playcanvas.com/tutorials/basic-audio/\" class=\"docs\">View Tutorial</a></p>\n\n<button class=\"close\">GOT IT</button>",
         "keywords": [
             "component",
             "sound",
@@ -187,7 +187,7 @@
     },
     {
         "title": "Remove a component",
-        "html": "<h2 id=\"how-do-i-remove-a-component\">How do I remove a component?</h2>\n<img src=\"https://playcanvas.com/static-assets/instructions/remove_component.jpg\">\n\n<p>To remove a component, select the Entity and then click on the <strong><span class=\"font-icon\">&#57636;</span> Delete</strong> button in the Inspector next the component’s title.</p>\n\n<button class=\"close\">GOT IT</button>",
+        "html": "<h2>How do I remove a component?</h2>\n<img src=\"https://playcanvas.com/static-assets/instructions/remove_component.jpg\" />\n\n<p>To remove a component, select the Entity and then click on the <strong><span class=\"font-icon\">&#57636;</span> Delete</strong> button in the Inspector next the component’s title.</p>\n\n<button class=\"close\">GOT IT</button>",
         "keywords": [
             "entity",
             "remove",
@@ -197,7 +197,7 @@
     },
     {
         "title": "Render a 3D model",
-        "html": "<h2 id=\"how-do-i-render-a-3d-model\">How do I render a 3D model?</h2>\n<img src=\"https://playcanvas.com/static-assets/instructions/new_model.gif\">\n\n<p>To render a 3D model you need to add a <strong>Model Component</strong> to an Entity and drag a <strong>Model Asset</strong> on the Asset field. Alternatively you can drag and drop a Model Asset from the Assets Panel into the 3D Viewport.</p>\n<p><a target=\"_blank\" href=\"https://developer.playcanvas.com/en/user-manual/packs/components/model/\" class=\"docs\">View User Manual</a></p>\n\n<button class=\"close\">GOT IT</button>",
+        "html": "<h2>How do I render a 3D model?</h2>\n<img src=\"https://playcanvas.com/static-assets/instructions/new_model.gif\" />\n\n<p>To render a 3D model you need to add a <strong>Model Component</strong> to an Entity and drag a <strong>Model Asset</strong> on the Asset field. Alternatively you can drag and drop a Model Asset from the Assets Panel into the 3D Viewport.</p>\n<p><a target=\"_blank\" href=\"https://developer.playcanvas.com/user-manual/scenes/components/model/\" class=\"docs\">View User Manual</a></p>\n\n<button class=\"close\">GOT IT</button>",
         "keywords": [
             "component",
             "model",
@@ -208,7 +208,7 @@
     },
     {
         "title": "Move / Rotate / Scale an Entity",
-        "html": "<h2 id=\"how-do-i-move--rotate--scale-an-entity\">How do I move / rotate / scale an Entity?</h2>\n<img src=\"https://playcanvas.com/static-assets/instructions/transform.gif\">\n\n<p>To move an Entity, select it and then move it using the <strong><span class=\"font-icon\">&#57617;</span> Translate tool</strong>. To rotate it use the <strong><span class=\"font-icon\">&#57619;</span> Rotate tool</strong> and to scale it use the <strong><span class=\"font-icon\">&#57618;</span> Scale tool</strong>.</p>\n<p>Switch between the Translate / Rotate / Scale tools by pressing 1 / 2 / 3 respectively.</p>\n\n<button class=\"close\">GOT IT</button>",
+        "html": "<h2>How do I move / rotate / scale an Entity?</h2>\n<img src=\"https://playcanvas.com/static-assets/instructions/transform.gif\" />\n\n<p>To move an Entity, select it and then move it using the <strong><span class=\"font-icon\">&#57617;</span> Translate tool</strong>. To rotate it use the <strong><span class=\"font-icon\">&#57619;</span> Rotate tool</strong> and to scale it use the <strong><span class=\"font-icon\">&#57618;</span> Scale tool</strong>.</p>\n<p>Switch between the Translate / Rotate / Scale tools by pressing 1 / 2 / 3 respectively.</p>\n<p>You can also toggle between <strong>World</strong> and <strong>Local</strong> coordinate systems by pressing L. In World mode, gizmo axes align with the world coordinates. In Local mode, they align with the Entity&#39;s local rotation.</p>\n\n<button class=\"close\">GOT IT</button>",
         "keywords": [
             "entity",
             "move",
@@ -220,7 +220,7 @@
     },
     {
         "title": "Upload assets",
-        "html": "<h2 id=\"how-do-i-upload-assets\">How do I upload assets?</h2>\n<p>To upload Assets simply drag and drop files from your computer into the Assets panel. Your files will be processed by the server and will appear shortly after in the Assets Panel.</p>\n<p><a target=\"_blank\" href=\"https://developer.playcanvas.com/en/user-manual/assets/importing/\" class=\"docs\">View User Manual</a></p>\n\n<button class=\"close\">GOT IT</button>",
+        "html": "<h2>How do I upload assets?</h2>\n<p>To upload Assets simply drag and drop files from your computer into the Assets panel. Your files will be processed by the server and will appear shortly after in the Assets Panel.</p>\n<p><a target=\"_blank\" href=\"https://developer.playcanvas.com/user-manual/assets/importing/\" class=\"docs\">View User Manual</a></p>\n\n<button class=\"close\">GOT IT</button>",
         "keywords": [
             "asset",
             "new",
@@ -230,7 +230,7 @@
     },
     {
         "title": "Use physics",
-        "html": "<h2 id=\"how-do-i-use-physics\">How do I use physics?</h2>\n<p>To give physical properties to an Entity you need to add a <a target=\"_blank\" href=\"https://developer.playcanvas.com/en/user-manual/packs/components/collision/\">Collision component</a> to it and a <a target=\"_blank\" href=\"https://developer.playcanvas.com/en/user-manual/packs/components/rigidbody/\">RigidBody component</a>. The Collision component gives a physical shape to the Entity and the RigidBody component makes the Entity be simulated by the physics engine.</p>\n<p>You can change the default <a target=\"_blank\" href=\"https://developer.playcanvas.com/en/user-manual/designer/settings/#gravity\">gravity</a> in the Scene Settings.</p>\n<p><a target=\"_blank\" href=\"https://developer.playcanvas.com/en/tutorials/collision-and-triggers/\" class=\"docs\">View Tutorial</a></p>\n\n<button class=\"close\">GOT IT</button>",
+        "html": "<h2>How do I use physics?</h2>\n<p>To give physical properties to an Entity you need to add a <a target=\"_blank\" href=\"https://developer.playcanvas.com/user-manual/scenes/components/collision/\">Collision component</a> to it and a <a target=\"_blank\" href=\"https://developer.playcanvas.com/user-manual/scenes/components/rigidbody/\">RigidBody component</a>. The Collision component gives a physical shape to the Entity and the RigidBody component makes the Entity be simulated by the physics engine.</p>\n<p>You can change the default <a target=\"_blank\" href=\"https://developer.playcanvas.com/user-manual/editor/settings/#gravity\">gravity</a> in the Scene Settings.</p>\n<p><a target=\"_blank\" href=\"https://developer.playcanvas.com/tutorials/collision-and-triggers/\" class=\"docs\">View Tutorial</a></p>\n\n<button class=\"close\">GOT IT</button>",
         "keywords": [
             "component",
             "physics",
@@ -245,7 +245,7 @@
     },
     {
         "title": "Use real-time shadows",
-        "html": "<h2 id=\"how-do-i-use-real-time-shadows\">How do I use real-time shadows?</h2>\n<p>Real-time shadows are rendered for each light source that has <strong>Cast Shadows</strong> enabled. To enable shadows, select an Entity with a Light component and enable Cast Shadows. You also need to enable Cast Shadows on any Model components in your scene.</p>\n<p><a target=\"_blank\" href=\"https://developer.playcanvas.com/en/user-manual/graphics/lighting/shadows/\" class=\"docs\">View User Manual</a></p>\n\n<button class=\"close\">GOT IT</button>",
+        "html": "<h2>How do I use real-time shadows?</h2>\n<p>Real-time shadows are rendered for each light source that has <strong>Cast Shadows</strong> enabled. To enable shadows, select an Entity with a Light component and enable Cast Shadows. You also need to enable Cast Shadows on any Model components in your scene.</p>\n<p><a target=\"_blank\" href=\"https://developer.playcanvas.com/user-manual/graphics/lighting/shadows/\" class=\"docs\">View User Manual</a></p>\n\n<button class=\"close\">GOT IT</button>",
         "keywords": [
             "real-time",
             "shadows",
