@@ -11,7 +11,7 @@
     },
     {
         "title": "Add a script",
-        "html": "<h2>How do I add a script?</h2>\n<img src=\"https://playcanvas.com/static-assets/instructions/add-new-script.gif\" />\n\n<p>You can use JavaScript to control the behavior of entities. Select any entity, add a script component and create a new script asset.</p>\n<p><a target=\"_blank\" href=\"https://developer.playcanvas.com/user-manual/scripting/editor-users/managing-scripts/\" class=\"docs\">View User Manual</a></p>\n\n<button class=\"close\">GOT IT</button>",
+        "html": "<h2>How do I add a script?</h2>\n<img src=\"https://playcanvas.com/static-assets/instructions/add-new-script.gif\" />\n\n<p>You can use JavaScript to control the behavior of entities. Select any entity, add a script component and create a new script asset.</p>\n<p><a target=\"_blank\" href=\"https://developer.playcanvas.com/user-manual/editor/scripting/managing-scripts/\" class=\"docs\">View User Manual</a></p>\n\n<button class=\"close\">GOT IT</button>",
         "keywords": [
             "script",
             "code",
@@ -33,7 +33,7 @@
     },
     {
         "title": "Change the material of a model",
-        "html": "<h2>How do I change the material of a model?</h2>\n<img src=\"https://playcanvas.com/static-assets/instructions/change_material.gif\" />\n\n<p>Every surface on a 3D model is rendered using a <strong>material</strong>. The material defines the properties of that surface, such as its color, shininess, bumpiness etc.</p>\n<p>You can create a new material and drag and drop it on your model or you can select its existing materials and edit their properties in the Inspector.</p>\n<p><a target=\"_blank\" href=\"https://developer.playcanvas.com/user-manual/assets/materials/\" class=\"docs\">View User Manual</a></p>\n\n<button class=\"close\">GOT IT</button>",
+        "html": "<h2>How do I change the material of a model?</h2>\n<img src=\"https://playcanvas.com/static-assets/instructions/change_material.gif\" />\n\n<p>Every surface on a 3D model is rendered using a <strong>material</strong>. The material defines the properties of that surface, such as its color, shininess, bumpiness etc.</p>\n<p>You can create a new material and drag and drop it on your model or you can select its existing materials and edit their properties in the Inspector.</p>\n<p><a target=\"_blank\" href=\"https://developer.playcanvas.com/user-manual/assets/types/material/\" class=\"docs\">View User Manual</a></p>\n\n<button class=\"close\">GOT IT</button>",
         "keywords": [
             "asset",
             "material",
@@ -81,7 +81,7 @@
     },
     {
         "title": "Create a material",
-        "html": "<h2>How do I create a material?</h2>\n<p>Every surface on a 3D model is rendered using a <strong>material</strong>. The material defines the properties of that surface, such as its color, shininess, bumpiness etc.</p>\n<p>To create a material click on the <strong><span class=\"font-icon\">&#57632;</span> Add</strong> button in the Assets panel and then select <strong>New Material</strong>.</p>\n<p><a target=\"_blank\" href=\"https://developer.playcanvas.com/user-manual/assets/materials/\" class=\"docs\">View User Manual</a></p>\n\n<button class=\"close\">GOT IT</button>",
+        "html": "<h2>How do I create a material?</h2>\n<p>Every surface on a 3D model is rendered using a <strong>material</strong>. The material defines the properties of that surface, such as its color, shininess, bumpiness etc.</p>\n<p>To create a material click on the <strong><span class=\"font-icon\">&#57632;</span> Add</strong> button in the Assets panel and then select <strong>New Material</strong>.</p>\n<p><a target=\"_blank\" href=\"https://developer.playcanvas.com/user-manual/assets/types/material/\" class=\"docs\">View User Manual</a></p>\n\n<button class=\"close\">GOT IT</button>",
         "keywords": [
             "asset",
             "material",
@@ -98,7 +98,7 @@
     },
     {
         "title": "Create a new shader",
-        "html": "<h2>How do I create a new shader?</h2>\n<p>You can create a new shader asset from the asset panel. Click <strong>Add Asset -&gt; Shader</strong>.</p>\n<p><a target=\"_blank\" href=\"http://developer.playcanvas.com/tutorials/custom-shaders/\" class=\"docs\">View Tutorial</a></p>\n\n<button class=\"close\">GOT IT</button>",
+        "html": "<h2>How do I create a new shader?</h2>\n<p>You can create a new shader asset from the asset panel. Click <strong>Add Asset -&gt; Shader</strong>.</p>\n<p><a target=\"_blank\" href=\"https://developer.playcanvas.com/tutorials/custom-shaders/\" class=\"docs\">View Tutorial</a></p>\n\n<button class=\"close\">GOT IT</button>",
         "keywords": [
             "asset",
             "shader",
@@ -124,7 +124,7 @@
     },
     {
         "title": "Create a skybox",
-        "html": "<h2>How do I create a skybox?</h2>\n<p>To create a skybox for your scene you first need to create a <a target=\"_blank\" href=\"http://developer.playcanvas.com/user-manual/assets/types/cubemap/\">Cubemap asset</a>. Then you can drag and drop the Cubemap inside the 3D viewport, or you can go to the Scene Settings and drag the Cubemap in the Skybox field.</p>\n<p><a target=\"_blank\" href=\"https://developer.playcanvas.com/user-manual/editor/settings/#skybox\" class=\"docs\">View User Manual</a></p>\n\n<button class=\"close\">GOT IT</button>",
+        "html": "<h2>How do I create a skybox?</h2>\n<p>To create a skybox for your scene you first need to create a <a target=\"_blank\" href=\"https://developer.playcanvas.com/user-manual/assets/types/cubemap/\">Cubemap asset</a>. Then you can drag and drop the Cubemap inside the 3D viewport, or you can go to the Scene Settings and drag the Cubemap in the Skybox field.</p>\n<p><a target=\"_blank\" href=\"https://developer.playcanvas.com/user-manual/editor/interface/settings/rendering/\" class=\"docs\">View User Manual</a></p>\n\n<button class=\"close\">GOT IT</button>",
         "keywords": [
             "skybox",
             "cubemap",
@@ -176,7 +176,7 @@
     },
     {
         "title": "Play a sound",
-        "html": "<h2>How do I play a sound?</h2>\n<p>To play sounds you need to add a <a target=\"_blank\" href=\"https://developer.playcanvas.com/user-manual/scenes/components/sound/\">Sound component</a> to an Entity. Then you can create slots to play <a target=\"_blank\" href=\"https://developer.playcanvas.com/user-manual/assets/audio/\">Audio assets</a>. Simply click &quot;Add Slot&quot; and drag an Audio Asset on the Asset field. In order to hear the sounds you also need to add an <a target=\"_blank\" href=\"https://developer.playcanvas.com/user-manual/scenes/components/audiolistener/\">AudioListener component</a> to an Entity - usually to the Camera Entity.</p>\n<p>You can create Audio assets by dragging audio files from your computer into the Assets panel.</p>\n<p><a target=\"_blank\" href=\"https://developer.playcanvas.com/tutorials/basic-audio/\" class=\"docs\">View Tutorial</a></p>\n\n<button class=\"close\">GOT IT</button>",
+        "html": "<h2>How do I play a sound?</h2>\n<p>To play sounds you need to add a <a target=\"_blank\" href=\"https://developer.playcanvas.com/user-manual/scenes/components/sound/\">Sound component</a> to an Entity. Then you can create slots to play <a target=\"_blank\" href=\"https://developer.playcanvas.com/user-manual/assets/types/audio/\">Audio assets</a>. Simply click &quot;Add Slot&quot; and drag an Audio Asset on the Asset field. In order to hear the sounds you also need to add an <a target=\"_blank\" href=\"https://developer.playcanvas.com/user-manual/scenes/components/audiolistener/\">AudioListener component</a> to an Entity - usually to the Camera Entity.</p>\n<p>You can create Audio assets by dragging audio files from your computer into the Assets panel.</p>\n<p><a target=\"_blank\" href=\"https://developer.playcanvas.com/tutorials/basic-audio/\" class=\"docs\">View Tutorial</a></p>\n\n<button class=\"close\">GOT IT</button>",
         "keywords": [
             "component",
             "sound",
@@ -230,7 +230,7 @@
     },
     {
         "title": "Use physics",
-        "html": "<h2>How do I use physics?</h2>\n<p>To give physical properties to an Entity you need to add a <a target=\"_blank\" href=\"https://developer.playcanvas.com/user-manual/scenes/components/collision/\">Collision component</a> to it and a <a target=\"_blank\" href=\"https://developer.playcanvas.com/user-manual/scenes/components/rigidbody/\">RigidBody component</a>. The Collision component gives a physical shape to the Entity and the RigidBody component makes the Entity be simulated by the physics engine.</p>\n<p>You can change the default <a target=\"_blank\" href=\"https://developer.playcanvas.com/user-manual/editor/settings/#gravity\">gravity</a> in the Scene Settings.</p>\n<p><a target=\"_blank\" href=\"https://developer.playcanvas.com/tutorials/collision-and-triggers/\" class=\"docs\">View Tutorial</a></p>\n\n<button class=\"close\">GOT IT</button>",
+        "html": "<h2>How do I use physics?</h2>\n<p>To give physical properties to an Entity you need to add a <a target=\"_blank\" href=\"https://developer.playcanvas.com/user-manual/scenes/components/collision/\">Collision component</a> to it and a <a target=\"_blank\" href=\"https://developer.playcanvas.com/user-manual/scenes/components/rigidbody/\">RigidBody component</a>. The Collision component gives a physical shape to the Entity and the RigidBody component makes the Entity be simulated by the physics engine.</p>\n<p>You can change the default <a target=\"_blank\" href=\"https://developer.playcanvas.com/user-manual/editor/interface/settings/physics/\">gravity</a> in the Scene Settings.</p>\n<p><a target=\"_blank\" href=\"https://developer.playcanvas.com/tutorials/collision-and-triggers/\" class=\"docs\">View Tutorial</a></p>\n\n<button class=\"close\">GOT IT</button>",
         "keywords": [
             "component",
             "physics",
