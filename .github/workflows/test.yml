@@ -12,7 +12,7 @@ on:
         type: environment
 
 concurrency:
-  group: 'test'
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -20,7 +20,7 @@ jobs:
     name: Test Suite
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.env || 'dev' }}
-    if: ${{ github.repository == 'playcanvas/editor' && github.actor == 'kpal81xd' && (github.event.label.name == 'test' || github.event_name == 'workflow_dispatch') }}
+    if: ${{ github.repository == 'playcanvas/editor' && ((github.event.label.name == 'test' && github.actor == 'kpal81xd') || github.event_name == 'workflow_dispatch') }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
