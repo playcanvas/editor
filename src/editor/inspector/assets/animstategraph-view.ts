@@ -786,13 +786,8 @@ class AnimstategraphView {
         });
 
         this._graph.on(GRAPH_ACTIONS.DESELECT_ITEM, ({ prevItem }) => {
-            if (this._suppressGraphDataEvents) {
-                return;
-            }
-            // Only add history entry if there was actually a selected item
-            if (!prevItem) {
-                this._onDeselectItem();
-                this._graph.deselectItem();
+            // Skip if events are suppressed or if nothing was selected
+            if (this._suppressGraphDataEvents || !prevItem) {
                 return;
             }
             const assetId = this._assets[0].get('id');
@@ -814,7 +809,6 @@ class AnimstategraphView {
                     this._suppressGraphEvents(() => {
                         switch (type) {
                             case 'NODE': {
-
                                 const node = this._graph._graphData.get(`data.nodes.${id}`);
                                 this._graph.selectNode(node);
                                 this._onSelectNode({ node });
