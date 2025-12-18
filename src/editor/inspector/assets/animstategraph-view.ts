@@ -785,11 +785,18 @@ class AnimstategraphView {
             this.selectEdgeEvent(edge, edgeId);
         });
 
-        this._graph.on(GRAPH_ACTIONS.DESELECT_ITEM, ({ type, id, edgeId }) => {
+        this._graph.on(GRAPH_ACTIONS.DESELECT_ITEM, ({ prevItem }) => {
             if (this._suppressGraphDataEvents) {
                 return;
             }
+            // Only add history entry if there was actually a selected item
+            if (!prevItem) {
+                this._onDeselectItem();
+                this._graph.deselectItem();
+                return;
+            }
             const assetId = this._assets[0].get('id');
+            const { type, id, edgeId } = prevItem;
             this.parent.history.add({
                 redo: () => {
                     if (this._assets[0].get('id') !== assetId) {
