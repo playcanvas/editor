@@ -36,7 +36,7 @@
     "@playcanvas/eslint-config": "2.1.0",
     "@playcanvas/observer": "1.6.6",
     "@playcanvas/pcui": "5.4.1",
-    "@playcanvas/pcui-graph": "4.1.0",
+    "@playcanvas/pcui-graph": "5.0.0",
     "@rollup/plugin-commonjs": "28.0.9",
     "@rollup/plugin-json": "6.1.0",
     "@rollup/plugin-node-resolve": "15.3.1",
