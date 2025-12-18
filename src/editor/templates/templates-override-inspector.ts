@@ -160,14 +160,34 @@ class TemplateOverrideInspector {
             element,
             tooltipGroup
         };
+
+        // If we have an entity, check if there's already an override for this path
+        // and apply the CSS class immediately to avoid a visual blip when elements
+        // are recreated (e.g., during script parsing). Schedule a full refresh to
+        // properly set up tooltips.
+        if (this._entity) {
+            for (const key in this._overrides) {
+                if (key.endsWith(path)) {
+                    element.class.add(CLASS_OVERRIDE);
+                    break;
+                }
+            }
+            this._deferRefreshOverrides();
+        }
     }
 
     /**
      * Unregister the specified override path.
      *
      * @param {string} path - The override path.
+     * @param {Element} [element] - Optional element to match. If provided, only unregisters
+     * if the currently registered element matches. This prevents a destroyed inspector from
+     * unregistering elements that a new inspector just registered for the same path.
      */
-    unregisterElementForPath(path) {
+    unregisterElementForPath(path, element?) {
+        if (element && this._registeredElements[path]?.element !== element) {
+            return;
+        }
         delete this._registeredElements[path];
     }
 
