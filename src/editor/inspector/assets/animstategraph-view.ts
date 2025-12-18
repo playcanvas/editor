@@ -785,13 +785,11 @@ class AnimstategraphView {
             this.selectEdgeEvent(edge, edgeId);
         });
 
-        this._graph.on(GRAPH_ACTIONS.DESELECT_ITEM, ({ prevItem }) => {
-            // Skip if events are suppressed or if nothing was selected
-            if (this._suppressGraphDataEvents || !prevItem) {
+        this._graph.on(GRAPH_ACTIONS.DESELECT_ITEM, ({ type, id, edgeId }) => {
+            if (this._suppressGraphDataEvents) {
                 return;
             }
             const assetId = this._assets[0].get('id');
-            const { type, id, edgeId } = prevItem;
             this.parent.history.add({
                 redo: () => {
                     if (this._assets[0].get('id') !== assetId) {
@@ -809,6 +807,7 @@ class AnimstategraphView {
                     this._suppressGraphEvents(() => {
                         switch (type) {
                             case 'NODE': {
+
                                 const node = this._graph._graphData.get(`data.nodes.${id}`);
                                 this._graph.selectNode(node);
                                 this._onSelectNode({ node });
