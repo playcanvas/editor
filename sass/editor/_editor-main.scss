@@ -6825,6 +6825,15 @@ strong {
     }
 }
 
+.pcui-menu.picker-scene-menu {
+    .pcui-menu-item-content {
+        > .pcui-label {
+            line-height: 32px;
+            margin: 0 0 0 8px;
+        }
+    }
+}
+
 .pcui-container.picker-publish-new {
     &.disabled {
         opacity: 0.5;

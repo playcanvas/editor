@@ -1,4 +1,4 @@
-import { Button, TextInput } from '@playcanvas/pcui';
+import { Button, Menu, TextInput } from '@playcanvas/pcui';
 
 import { LegacyButton } from '@/common/ui/button';
 import { LegacyLabel } from '@/common/ui/label';
@@ -81,7 +81,7 @@ editor.once('load', () => {
             if (parseInt(scenes[i].id, 10) === parseInt(sceneId, 10)) {
                 // close dropdown menu if current scene deleted
                 if (dropdownScene === scenes[i]) {
-                    dropdownMenu.open = false;
+                    dropdownMenu.hidden = true;
                 }
 
                 scenes.splice(i, 1);
@@ -178,9 +178,10 @@ editor.once('load', () => {
             dropdown.element.innerHTML = '&#57687;';
 
             dropdownScene = scene;
-            dropdownMenu.open = true;
+            dropdownMenu.hidden = false;
             const rect = dropdown.element.getBoundingClientRect();
-            dropdownMenu.position(rect.right - dropdownMenu.innerElement.clientWidth, rect.bottom);
+            const menuItems = dropdownMenu.dom.querySelector('.pcui-menu-items') as HTMLElement;
+            dropdownMenu.position(rect.right - menuItems.clientWidth, rect.bottom);
         });
 
         if (!isCurrentScene) {
@@ -207,7 +208,7 @@ editor.once('load', () => {
     };
 
     const refreshScenes = function () {
-        dropdownMenu.open = false;
+        dropdownMenu.hidden = true;
         destroyTooltips();
         destroyEvents();
         container.element.innerHTML = '';
@@ -220,75 +221,70 @@ editor.once('load', () => {
     };
 
     // dropdown menu for each scene
-    dropdownMenu = LegacyMenu.fromData({
-        'scene-duplicate': {
-            title: 'Duplicate Scene',
-            filter: function () {
-                return editor.call('permissions:write');
-            },
-            select: function () {
-                let name = dropdownScene.name;
-                const regex = /^(.*?) (\d+)$/;
-                let numberPart = 2;
-                let namePart = dropdownScene.name;
-                const matches = dropdownScene.name.match(regex);
-                if (matches && matches.length === 3) {
-                    namePart = matches[1];
-                    numberPart = parseInt(matches[2], 10);
-                }
+    dropdownMenu = new Menu({
+        class: 'picker-scene-menu',
+        items: [
+            {
+                text: 'Duplicate Scene',
+                onIsEnabled: () => editor.call('permissions:write'),
+                onSelect: () => {
+                    let name = dropdownScene.name;
+                    const regex = /^(.*?) (\d+)$/;
+                    let numberPart = 2;
+                    let namePart = dropdownScene.name;
+                    const matches = dropdownScene.name.match(regex);
+                    if (matches && matches.length === 3) {
+                        namePart = matches[1];
+                        numberPart = parseInt(matches[2], 10);
+                    }
 
-                // create duplicate scene name
-                while (true) {
-                    name = `${namePart} ${numberPart}`;
-                    let found = true;
-                    for (let i = 0; i < scenes.length; i++) {
-                        if (scenes[i].name === name) {
-                            numberPart++;
-                            found = false;
+                    // create duplicate scene name
+                    while (true) {
+                        name = `${namePart} ${numberPart}`;
+                        let found = true;
+                        for (let i = 0; i < scenes.length; i++) {
+                            if (scenes[i].name === name) {
+                                numberPart++;
+                                found = false;
+                                break;
+                            }
+                        }
+
+                        if (found) {
                             break;
                         }
                     }
 
-                    if (found) {
-                        break;
-                    }
+                    editor.call('scenes:duplicate', dropdownScene.id, name);
                 }
-
-                editor.call('scenes:duplicate', dropdownScene.id, name);
-            }
-        },
-        'scene-delete': {
-            title: 'Delete Scene',
-            filter: function () {
-                return editor.call('permissions:write');
             },
-            select: function () {
-                editor.call('picker:confirm', `Are you sure you want to permanently delete scene '${dropdownScene.name}'?`);
-                editor.once('picker:confirm:yes', () => {
-                    const id = dropdownScene.id;
-                    onSceneDeleted(id);
-                    editor.call('scenes:delete', id);
-                });
-            }
-        },
-        'scene-history': {
-            title: 'Item History',
-            filter: function () {
-                return editor.call('permissions:read');
+            {
+                text: 'Delete Scene',
+                onIsEnabled: () => editor.call('permissions:write'),
+                onSelect: () => {
+                    editor.call('picker:confirm', `Are you sure you want to permanently delete scene '${dropdownScene.name}'?`);
+                    editor.once('picker:confirm:yes', () => {
+                        const id = dropdownScene.id;
+                        onSceneDeleted(id);
+                        editor.call('scenes:delete', id);
+                    });
+                }
             },
-            select: function () {
-                editor.call('vcgraph:utils', 'launchItemHist', 'scenes', dropdownScene.id);
-            }
-        },
-        'open-scene': {
-            title: 'Open in New Tab',
-            filter: () => {
-                return editor.call('permissions:read');
+            {
+                text: 'Item History',
+                onIsEnabled: () => editor.call('permissions:read'),
+                onSelect: () => {
+                    editor.call('vcgraph:utils', 'launchItemHist', 'scenes', dropdownScene.id);
+                }
             },
-            select: () => {
-                window.open(`/editor/scene/${dropdownScene.id}`, '_blank');
+            {
+                text: 'Open in New Tab',
+                onIsEnabled: () => editor.call('permissions:read'),
+                onSelect: () => {
+                    window.open(`/editor/scene/${dropdownScene.id}`, '_blank');
+                }
             }
-        }
+        ]
     });
 
     editor.call('layout.root').append(dropdownMenu);
@@ -306,8 +302,8 @@ editor.once('load', () => {
     };
 
     // on closing menu remove 'clicked' class from respective dropdown
-    dropdownMenu.on('open', (open) => {
-        if (!open && dropdownScene) {
+    dropdownMenu.on('hide', () => {
+        if (dropdownScene) {
             const item = document.getElementById(`picker-scene-${dropdownScene.id}`);
             if (item) {
                 const clicked = item.querySelector('.clicked');
