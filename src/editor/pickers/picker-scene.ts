@@ -1,3 +1,5 @@
+import { Button } from '@playcanvas/pcui';
+
 import { LegacyButton } from '@/common/ui/button';
 import { LegacyLabel } from '@/common/ui/label';
 import { LegacyList } from '@/common/ui/list';
@@ -318,12 +320,12 @@ editor.once('load', () => {
     });
 
     // new scene button
-    const newScene = new LegacyButton({
-        text: 'Add new Scene'
+    const newScene = new Button({
+        text: 'Add new Scene',
+        class: 'new'
     });
 
     handlePermissions(newScene);
-    newScene.class.add('new');
 
     panel.append(newScene);
 

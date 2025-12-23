@@ -6795,7 +6795,7 @@ strong {
             width: 100%;
         }
 
-        > .new {
+        > .pcui-button.new {
             margin: 15px 0 15px 10px;
             padding: 0;
             width: 165px;
@@ -6803,6 +6803,7 @@ strong {
             line-height: 34px;
             font-size: 12px;
             text-transform: uppercase;
+            text-align: left;
 
             @extend .font-bold;
 
