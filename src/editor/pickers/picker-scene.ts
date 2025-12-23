@@ -1,4 +1,4 @@
-import { Button } from '@playcanvas/pcui';
+import { Button, TextInput } from '@playcanvas/pcui';
 
 import { LegacyButton } from '@/common/ui/button';
 import { LegacyLabel } from '@/common/ui/label';
@@ -33,12 +33,12 @@ editor.once('load', () => {
     progressBar.hidden = true;
     panel.append(progressBar);
 
-    const filter = new LegacyTextField({
-        placeholder: 'Filter scenes'
+    const filter = new TextInput({
+        placeholder: 'Filter scenes',
+        keyChange: true,
+        renderChanges: false,
+        class: 'filter'
     });
-    filter.keyChange = true;
-    filter.renderChanges = false;
-    filter.class.add('filter');
     filter.on('change', () => {
         refreshScenes();
     });
