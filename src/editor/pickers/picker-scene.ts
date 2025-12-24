@@ -42,10 +42,10 @@ editor.once('load', () => {
     });
     panel.append(filter);
 
-    const container = new LegacyList();
-    container.class.add('scene-list');
-    panel.append(container);
-    container.hidden = true;
+    const sceneList = new LegacyList();
+    sceneList.class.add('scene-list');
+    panel.append(sceneList);
+    sceneList.hidden = true;
 
     let tooltips = [];
     let events = [];
@@ -57,7 +57,7 @@ editor.once('load', () => {
     const toggleProgress = function (toggle) {
         loading.hidden = !toggle;
         progressBar.hidden = !toggle;
-        container.hidden = toggle || !scenes.length;
+        sceneList.hidden = toggle || !scenes.length;
     };
 
     const onSceneDeleted = function (sceneId) {
@@ -88,7 +88,7 @@ editor.once('load', () => {
         }
 
         if (!scenes.length) {
-            container.hidden = true;
+            sceneList.hidden = true;
         }
     };
 
@@ -136,7 +136,7 @@ editor.once('load', () => {
         const row = new LegacyListItem();
         row.element.id = `picker-scene-${scene.id}`;
 
-        container.append(row);
+        sceneList.append(row);
 
         const isCurrentScene = config.scene.id && parseInt(scene.id, 10) === parseInt(config.scene.id, 10);
 
@@ -204,12 +204,12 @@ editor.once('load', () => {
         dropdownMenu.hidden = true;
         destroyTooltips();
         destroyEvents();
-        container.element.innerHTML = '';
+        sceneList.element.innerHTML = '';
         const filterScenes = scenes.filter((scene) => {
             return scene.name.toLowerCase().indexOf(filter.value.toLowerCase()) !== -1;
         });
         sortScenes(filterScenes);
-        container.hidden = filterScenes.length === 0;
+        sceneList.hidden = filterScenes.length === 0;
         filterScenes.forEach(createSceneEntry);
     };
 
@@ -323,8 +323,8 @@ editor.once('load', () => {
 
         // add list item
         const listItem = new LegacyListItem();
-        container.append(listItem);
-        container.hidden = false;
+        sceneList.append(listItem);
+        sceneList.hidden = false;
 
         // add label
         const label = new Label({
@@ -387,7 +387,7 @@ editor.once('load', () => {
 
         // destroy scene items because same row ids
         // might be used by download / new build popups
-        container.element.innerHTML = '';
+        sceneList.element.innerHTML = '';
 
         editor.emit('picker:scene:close');
 
