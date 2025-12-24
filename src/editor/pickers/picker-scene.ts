@@ -1,4 +1,4 @@
-import { Button, Menu, TextInput } from '@playcanvas/pcui';
+import { Button, Label, Menu, TextInput } from '@playcanvas/pcui';
 
 import { LegacyButton } from '@/common/ui/button';
 import { LegacyLabel } from '@/common/ui/label';
@@ -147,46 +147,41 @@ editor.once('load', () => {
         }
 
         // scene name
-        const name = new LegacyLabel({
-            text: scene.name
+        const name = new Label({
+            text: scene.name,
+            class: isCurrentScene ? ['name', 'selectable'] : 'name'
         });
-        name.class.add('name');
 
-        // make name text selectable only for current scene
-        if (isCurrentScene) {
-            name.class.add('selectable');
-        }
-
-        row.element.appendChild(name.element);
+        row.element.appendChild(name.dom);
 
         // scene date
-        const date = new LegacyLabel({
-            text: convertDatetime(scene.modified)
+        const date = new Label({
+            text: convertDatetime(scene.modified),
+            class: 'date'
         });
-        date.class.add('date');
-        row.element.appendChild(date.element);
+        row.element.appendChild(date.dom);
 
         // dropdown
-        const dropdown = new LegacyButton({
-            text: '&#57689;'
+        const dropdown = new Button({
+            text: '\uE159',
+            class: 'dropdown'
         });
-        dropdown.class.add('dropdown');
-        row.element.appendChild(dropdown.element);
+        row.element.appendChild(dropdown.dom);
 
         dropdown.on('click', () => {
             dropdown.class.add('clicked');
-            dropdown.element.innerHTML = '&#57687;';
+            dropdown.text = '\uE157';
 
             dropdownScene = scene;
             dropdownMenu.hidden = false;
-            const rect = dropdown.element.getBoundingClientRect();
+            const rect = dropdown.dom.getBoundingClientRect();
             const menuItems = dropdownMenu.dom.querySelector('.pcui-menu-items') as HTMLElement;
             dropdownMenu.position(rect.right - menuItems.clientWidth, rect.bottom);
         });
 
         if (!isCurrentScene) {
             events.push(row.on('click', (e) => {
-                if (e.target === row.element || e.target === name.element || e.target === date.element) {
+                if (e.target === row.element || e.target === name.dom || e.target === date.dom) {
                     if (parseInt(config.scene.id, 10) === parseInt(scene.id, 10)) {
                         return;
                     }
@@ -309,7 +304,7 @@ editor.once('load', () => {
                 const clicked = item.querySelector('.clicked');
                 if (clicked) {
                     clicked.classList.remove('clicked');
-                    clicked.innerHTML = '&#57689;';
+                    clicked.textContent = '\uE159';
                 }
             }
         }

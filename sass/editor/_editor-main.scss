@@ -6655,7 +6655,7 @@ strong {
                 cursor: default;
             }
 
-            > .name {
+            > .pcui-label.name {
                 font-size: 14px;
                 position: absolute;
                 cursor: pointer;
@@ -6666,6 +6666,7 @@ strong {
                 white-space: nowrap;
                 line-height: 1;
                 color: $text-primary;
+                margin: 3px;
 
                 &.selectable {
                     user-select: text;
@@ -6724,15 +6725,16 @@ strong {
                 }
             }
 
-            > .date {
+            > .pcui-label.date {
                 position: absolute;
                 top: 35px;
                 font-size: 12px;
                 color: $text-darkest;
                 line-height: 1;
+                margin: 3px;
             }
 
-            > .dropdown {
+            > .pcui-button.dropdown {
                 position: absolute;
                 top: 25px;
                 right: 15px;
@@ -6740,10 +6742,12 @@ strong {
                 height: 16px;
                 line-height: 16px;
                 border: none;
+                border-radius: 0;
                 padding: 0;
                 margin: 0;
                 text-align: center;
                 vertical-align: top;
+                box-shadow: none;
 
                 @extend .font-icon;
 
@@ -6755,6 +6759,7 @@ strong {
                 &.clicked {
                     color: $text-primary;
                     background-color: $bcg-darkest;
+                    box-shadow: none;
                 }
             }
 
