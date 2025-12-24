@@ -11,7 +11,7 @@ editor.once('load', () => {
         const frames = args.frames;
         const numFrames = frames.length;
 
-        const rootPanel = editor.call('picker:sprites:rightPanel');
+        const rootPanel: Panel = editor.call('picker:sprites:rightPanel');
 
         const panel = new Panel({
             headerText: 'RELATED SPRITE ASSETS',
@@ -46,7 +46,7 @@ editor.once('load', () => {
         labelNoAssets.hidden = assets.length > 0;
         list.hidden = assets.length === 0;
 
-        const createAssetPanel = function (asset) {
+        const createAssetPanel = (asset) => {
             const assetEvents = [];
 
             const item = new LegacyListItem({
@@ -67,16 +67,14 @@ editor.once('load', () => {
             }));
 
             item.on('destroy', () => {
-                for (let i = 0; i < assetEvents.length; i++) {
-                    assetEvents[i].unbind();
-                }
+                assetEvents.forEach((evt) => {
+                    evt.unbind();
+                });
                 assetEvents.length = 0;
             });
         };
 
-        for (let i = 0; i < assets.length; i++) {
-            createAssetPanel(assets[i][1]);
-        }
+        assets.forEach(([, asset]) => createAssetPanel(asset));
 
         // clean up
         events.push(rootPanel.on('clear', () => {
@@ -84,9 +82,9 @@ editor.once('load', () => {
         }));
 
         panel.on('destroy', () => {
-            for (let i = 0, len = events.length; i < len; i++) {
-                events[i].unbind();
-            }
+            events.forEach((evt) => {
+                evt.unbind();
+            });
             events.length = 0;
         });
     });
