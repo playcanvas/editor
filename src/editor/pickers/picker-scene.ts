@@ -5,6 +5,13 @@ import { LegacyList } from '@/common/ui/list';
 import { LegacyListItem } from '@/common/ui/list-item';
 import { convertDatetime } from '@/common/utils';
 
+interface Scene {
+    id: number | string;
+    name: string;
+    modified: string;
+    uniqueId: string;
+}
+
 editor.once('load', () => {
     const container = new Container({
         class: 'picker-scene-panel'
@@ -48,9 +55,9 @@ editor.once('load', () => {
     sceneList.hidden = true;
 
     let events: EventHandle[] = [];
-    let scenes: { id: number | string, name: string, modified: string, uniqueId: string }[] = [];
+    let scenes: Scene[] = [];
 
-    let dropdownScene: { id: number | string, name: string, modified: string, uniqueId: string } | null = null;
+    let dropdownScene: Scene | null = null;
     let dropdownMenu: Menu | null = null;
 
     const toggleProgress = (toggle) => {
