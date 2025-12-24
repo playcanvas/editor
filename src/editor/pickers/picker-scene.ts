@@ -84,7 +84,7 @@ editor.once('load', () => {
         for (let i = 0; i < scenes.length; i++) {
             if (parseInt(String(scenes[i].id), 10) === parseInt(String(sceneId), 10)) {
                 // close dropdown menu if current scene deleted
-                if (dropdownScene === scenes[i]) {
+                if (dropdownScene === scenes[i] && dropdownMenu) {
                     dropdownMenu.hidden = true;
                 }
 
