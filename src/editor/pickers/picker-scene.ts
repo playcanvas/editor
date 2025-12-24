@@ -284,13 +284,9 @@ editor.once('load', () => {
 
     // disables / enables field depending on permissions
     const handlePermissions = function (field) {
-        field.disabled = !editor.call('permissions:write');
+        field.enabled = editor.call('permissions:write');
         return editor.on(`permissions:set:${config.self.id}`, (accessLevel) => {
-            if (accessLevel === 'write' || accessLevel === 'admin') {
-                field.disabled = false;
-            } else {
-                field.disabled = true;
-            }
+            field.enabled = accessLevel === 'write' || accessLevel === 'admin';
         });
     };
 
@@ -323,7 +319,7 @@ editor.once('load', () => {
             return;
         }
 
-        newScene.disabled = true;
+        newScene.enabled = false;
 
         // add list item
         const listItem = new LegacyListItem();
@@ -331,34 +327,30 @@ editor.once('load', () => {
         container.hidden = false;
 
         // add label
-        const label = new LegacyLabel({
-            text: 'Enter Scene name and press Enter:'
+        const label = new Label({
+            text: 'Enter Scene name and press Enter:',
+            class: 'new-scene-label'
         });
-        label.class.add('new-scene-label');
-        listItem.element.appendChild(label.element);
+        listItem.element.appendChild(label.dom);
 
         // add new scene input field
-        const input = new LegacyTextField({
-            default: 'Untitled',
-            placeholder: 'Enter Scene name and press Enter'
+        const input = new TextInput({
+            value: 'Untitled',
+            placeholder: 'Enter Scene name and press Enter',
+            blurOnEnter: false
         });
 
-        input.blurOnEnter = false;
+        listItem.element.appendChild(input.dom);
 
-        listItem.element.appendChild(input.element);
+        input.focus(true);
 
-        input.elementInput.focus();
-        input.elementInput.select();
-
-        const destroyField = function () {
+        input.once('blur', () => {
             listItem.destroy();
-            newScene.disabled = false;
-        };
+            newScene.enabled = true;
+        });
 
-        input.elementInput.addEventListener('blur', destroyField);
-
-        input.elementInput.addEventListener('keydown', (e) => {
-            if (e.keyCode === 13) {
+        input.dom.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
                 if (!input.value) {
                     return;
                 }

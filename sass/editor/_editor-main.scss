@@ -6763,17 +6763,21 @@ strong {
                 }
             }
 
-            > .new-scene-label {
-                margin-left: 0;
-                margin-right: 0;
+            > .pcui-label.new-scene-label {
+                margin: 3px 0;
                 display: block;
+                line-height: 22px;
             }
 
-            > .ui-text-field {
+            > .pcui-text-input {
                 display: block;
                 width: 100%;
                 line-height: 1;
                 margin: 0;
+
+                > input {
+                    padding: 0 8px;
+                }
             }
         }
     }
