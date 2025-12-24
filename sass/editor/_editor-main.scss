@@ -3683,114 +3683,87 @@ strong {
     }
 }
 
+@mixin bubble-arrow($border-color-side) {
+    content: '';
+    width: 0;
+    height: 0;
+    position: absolute;
+    border: 16px solid transparent;
+    border-#{$border-color-side}-color: #fff;
+}
+
 .pcui-overlay.bubble {
     z-index: 1000;
 
-    &.arrow-left {
-        > .pcui-overlay-content {
-            margin-left: 48px;
-            margin-top: -28px;
+    &.arrow-left > .pcui-overlay-content {
+        margin-left: 48px;
+        margin-top: -28px;
 
-            &::after {
-                content: '';
-                width: 0;
-                height: 0;
-                position: absolute;
-                top: 16px;
-                left: -32px;
-                border: 16px solid transparent;
-                border-right-color: #fff;
-            }
+        &::after {
+            @include bubble-arrow(right);
+
+            top: 16px;
+            left: -32px;
         }
     }
 
-    &.arrow-right {
-        > .pcui-overlay-content {
-            margin-top: -28px;
-            margin-left: -520px;
+    &.arrow-right > .pcui-overlay-content {
+        margin-top: -28px;
+        margin-left: -520px;
 
-            &::after {
-                content: '';
-                width: 0;
-                height: 0;
-                position: absolute;
-                top: 16px;
-                right: -32px;
-                border: 16px solid transparent;
-                border-left-color: #fff;
-            }
+        &::after {
+            @include bubble-arrow(left);
+
+            top: 16px;
+            right: -32px;
         }
     }
 
-    &.arrow-bottom {
-        > .pcui-overlay-content {
-            margin-top: -16px;
-            margin-left: -28px;
+    &.arrow-bottom > .pcui-overlay-content {
+        margin-top: -16px;
+        margin-left: -28px;
 
-            &::after {
-                content: '';
-                width: 0;
-                height: 0;
-                position: absolute;
-                bottom: -32px;
-                left: 16px;
-                border: 16px solid transparent;
-                border-top-color: #fff;
-            }
+        &::after {
+            @include bubble-arrow(top);
+
+            bottom: -32px;
+            left: 16px;
         }
     }
 
-    &.arrow-top {
-        > .pcui-overlay-content {
-            margin-top: 48px;
-            margin-left: -28px;
+    &.arrow-top > .pcui-overlay-content {
+        margin-top: 48px;
+        margin-left: -28px;
 
-            &::after {
-                content: '';
-                width: 0;
-                height: 0;
-                position: absolute;
-                top: -32px;
-                left: 16px;
-                border: 16px solid transparent;
-                border-bottom-color: #fff;
-            }
+        &::after {
+            @include bubble-arrow(bottom);
+
+            top: -32px;
+            left: 16px;
         }
     }
 
-    &.arrow-top-right {
-        > .pcui-overlay-content {
-            margin-top: 48px;
-            margin-left: -444px;
+    &.arrow-top-right > .pcui-overlay-content {
+        margin-top: 48px;
+        margin-left: -444px;
 
-            &::after {
-                content: '';
-                width: 0;
-                height: 0;
-                position: absolute;
-                top: -32px;
-                right: 16px;
-                border: 16px solid transparent;
-                border-bottom-color: #fff;
-            }
+        &::after {
+            @include bubble-arrow(bottom);
+
+            top: -32px;
+            right: 16px;
         }
     }
 
-    &.arrow-bottom-right {
-        > .pcui-overlay-content {
-            margin-top: -16px;
-            margin-left: -444px;
+    &.arrow-bottom-right > .pcui-overlay-content {
+        margin-top: -16px;
+        margin-left: -444px;
 
-            &::after {
-                content: '';
-                width: 0;
-                height: 0;
-                position: absolute;
-                bottom: -32px;
-                right: 16px;
-                border: 16px solid transparent;
-                border-top-color: #fff;
-            }
+        &::after {
+            @include bubble-arrow(top);
+
+            bottom: -32px;
+            right: 16px;
         }
     }
 
@@ -3836,6 +3809,7 @@ strong {
                     color: $text-darkest;
                     margin: 0;
                     line-height: 22px;
+                    white-space: normal;
 
                     > .font-icon {
                         color: $text-darkest;
@@ -3855,6 +3829,8 @@ strong {
             height: 32px;
             line-height: 32px;
             font-size: 12px;
+            border-radius: 0;
+            box-shadow: none;
 
             @extend .font-bold;
 
@@ -3866,6 +3842,7 @@ strong {
             &:hover {
                 color: #fff;
                 background-color: $text-active;
+                box-shadow: none;
             }
         }
     }
