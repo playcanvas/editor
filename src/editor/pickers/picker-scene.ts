@@ -1,5 +1,5 @@
 import type { EventHandle } from '@playcanvas/observer';
-import { Button, Container, Label, Menu, Progress, TextInput } from '@playcanvas/pcui';
+import { Button, Container, Element, Label, Menu, Progress, TextInput } from '@playcanvas/pcui';
 
 import { LegacyList } from '@/common/ui/list';
 import { LegacyListItem } from '@/common/ui/list-item';
@@ -60,15 +60,15 @@ editor.once('load', () => {
     let dropdownScene: Scene | null = null;
     let dropdownMenu: Menu | null = null;
 
-    const toggleProgress = (toggle) => {
+    const toggleProgress = (toggle: boolean) => {
         loading.hidden = !toggle;
         progressBar.hidden = !toggle;
         sceneList.hidden = toggle || !scenes.length;
     };
 
-    const onSceneDeleted = (sceneId) => {
+    const onSceneDeleted = (sceneId: number | string) => {
         // if loaded scene deleted do not allow closing popup
-        if (!config.scene.id || parseInt(String(config.scene.id), 10) === parseInt(sceneId, 10)) {
+        if (!config.scene.id || parseInt(String(config.scene.id), 10) === parseInt(String(sceneId), 10)) {
             editor.call('picker:project:setClosable', false);
         }
 
@@ -82,7 +82,7 @@ editor.once('load', () => {
         }
 
         for (let i = 0; i < scenes.length; i++) {
-            if (parseInt(String(scenes[i].id), 10) === parseInt(sceneId, 10)) {
+            if (parseInt(String(scenes[i].id), 10) === parseInt(String(sceneId), 10)) {
                 // close dropdown menu if current scene deleted
                 if (dropdownScene === scenes[i]) {
                     dropdownMenu.hidden = true;
@@ -106,7 +106,7 @@ editor.once('load', () => {
     };
 
     // sort by case insensitive alphabetical order
-    const sortScenes = (scenes) => {
+    const sortScenes = (scenes: Scene[]) => {
         scenes.sort((a, b) => {
             const aname = a.name.toLowerCase();
             const bname = b.name.toLowerCase();
@@ -131,7 +131,7 @@ editor.once('load', () => {
     };
 
     // create row for scene
-    const createSceneEntry = (scene) => {
+    const createSceneEntry = (scene: Scene) => {
         const row = new LegacyListItem();
         row.element.id = `picker-scene-${scene.id}`;
 
@@ -281,7 +281,7 @@ editor.once('load', () => {
     editor.call('layout.root').append(dropdownMenu);
 
     // disables / enables field depending on permissions
-    const handlePermissions = (field) => {
+    const handlePermissions = (field: Element) => {
         field.enabled = editor.call('permissions:write');
         return editor.on(`permissions:set:${config.self.id}`, (accessLevel) => {
             field.enabled = accessLevel === 'write' || accessLevel === 'admin';
