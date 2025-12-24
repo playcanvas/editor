@@ -1,10 +1,8 @@
 import { Button, Canvas, Container, Label, Panel } from '@playcanvas/pcui';
 
 import { LegacyButton } from '@/common/ui/button';
-import { LegacyCanvas } from '@/common/ui/canvas';
 import { LegacyLabel } from '@/common/ui/label';
 import { LegacyPanel } from '@/common/ui/panel';
-
 
 editor.once('load', () => {
     editor.method('picker:sprites:attributes:sprite', (args) => {
