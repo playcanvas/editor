@@ -3683,11 +3683,11 @@ strong {
     }
 }
 
-.ui-overlay.bubble {
+.pcui-overlay.bubble {
     z-index: 1000;
 
     &.arrow-left {
-        > .content {
+        > .pcui-overlay-content {
             margin-left: 48px;
             margin-top: -28px;
 
@@ -3705,7 +3705,7 @@ strong {
     }
 
     &.arrow-right {
-        > .content {
+        > .pcui-overlay-content {
             margin-top: -28px;
             margin-left: -520px;
 
@@ -3723,7 +3723,7 @@ strong {
     }
 
     &.arrow-bottom {
-        > .content {
+        > .pcui-overlay-content {
             margin-top: -16px;
             margin-left: -28px;
 
@@ -3741,7 +3741,7 @@ strong {
     }
 
     &.arrow-top {
-        > .content {
+        > .pcui-overlay-content {
             margin-top: 48px;
             margin-left: -28px;
 
@@ -3759,7 +3759,7 @@ strong {
     }
 
     &.arrow-top-right {
-        > .content {
+        > .pcui-overlay-content {
             margin-top: 48px;
             margin-left: -444px;
 
@@ -3777,7 +3777,7 @@ strong {
     }
 
     &.arrow-bottom-right {
-        > .content {
+        > .pcui-overlay-content {
             margin-top: -16px;
             margin-left: -444px;
 
@@ -3794,43 +3794,48 @@ strong {
         }
     }
 
-    > .overlay {
+    > .pcui-overlay-inner {
         background-color: transparent;
     }
 
-    > .content {
+    > .pcui-overlay-content {
+        position: absolute;
         width: 480px;
         height: auto;
-        left: calc(50% - 240px);
         background-color: #fff;
         transition: none;
 
-        > .ui-panel {
+        > .pcui-panel {
+            display: block;
             background-color: transparent;
 
-            > .ui-header {
+            > .pcui-panel-header {
+                display: block;
                 @extend .font-bold;
 
                 background-color: transparent;
                 font-size: 18px;
-                height: auto;
-                line-height: normal;
+                height: auto !important;
+                line-height: normal !important;
                 padding: 0;
                 overflow: hidden;
                 color: $text-active;
 
-                > .title {
+                > .pcui-panel-header-title {
+                    margin: 0;
                     padding: 28px;
                     padding-bottom: 0;
                 }
             }
 
-            > .content {
+            > .pcui-panel-content {
+                display: block;
                 padding: 28px;
 
-                > .ui-label {
+                > .pcui-label {
                     color: $text-darkest;
                     margin: 0;
+                    line-height: 22px;
 
                     > .font-icon {
                         color: $text-darkest;
@@ -3844,9 +3849,10 @@ strong {
             }
         }
 
-        > .ui-button.next {
+        > .pcui-button.next {
             margin: 0 0 28px 28px;
             padding: 0 32px;
+            height: 32px;
             line-height: 32px;
             font-size: 12px;
 
