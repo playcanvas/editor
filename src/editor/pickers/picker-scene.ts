@@ -1,8 +1,7 @@
-import { Button, Container, Label, Menu, TextInput } from '@playcanvas/pcui';
+import { Button, Container, Label, Menu, Progress, TextInput } from '@playcanvas/pcui';
 
 import { LegacyList } from '@/common/ui/list';
 import { LegacyListItem } from '@/common/ui/list-item';
-import { LegacyProgress } from '@/common/ui/progress';
 import { convertDatetime } from '@/common/utils';
 
 editor.once('load', () => {
@@ -25,7 +24,9 @@ editor.once('load', () => {
     });
     container.append(loading);
 
-    const progressBar = new LegacyProgress({ progress: 1 });
+    const progressBar = new Progress({
+        value: 100
+    });
     progressBar.hidden = true;
     container.append(progressBar);
 
