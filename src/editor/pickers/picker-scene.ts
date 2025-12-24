@@ -52,13 +52,13 @@ editor.once('load', () => {
     let dropdownScene = null;
     let dropdownMenu = null;
 
-    const toggleProgress = function (toggle) {
+    const toggleProgress = (toggle) => {
         loading.hidden = !toggle;
         progressBar.hidden = !toggle;
         sceneList.hidden = toggle || !scenes.length;
     };
 
-    const onSceneDeleted = function (sceneId) {
+    const onSceneDeleted = (sceneId) => {
         // if loaded scene deleted do not allow closing popup
         if (!config.scene.id || parseInt(config.scene.id, 10) === parseInt(sceneId, 10)) {
             editor.call('picker:project:setClosable', false);
@@ -90,7 +90,7 @@ editor.once('load', () => {
         }
     };
 
-    const destroyEvents = function () {
+    const destroyEvents = () => {
         events.forEach((evt) => {
             evt.unbind();
         });
@@ -98,7 +98,7 @@ editor.once('load', () => {
     };
 
     // sort by case insensitive alphabetical order
-    const sortScenes = function (scenes) {
+    const sortScenes = (scenes) => {
         scenes.sort((a, b) => {
             const aname = a.name.toLowerCase();
             const bname = b.name.toLowerCase();
@@ -123,7 +123,7 @@ editor.once('load', () => {
     };
 
     // create row for scene
-    const createSceneEntry = function (scene) {
+    const createSceneEntry = (scene) => {
         const row = new LegacyListItem();
         row.element.id = `picker-scene-${scene.id}`;
 
@@ -191,7 +191,7 @@ editor.once('load', () => {
         return row;
     };
 
-    const refreshScenes = function () {
+    const refreshScenes = () => {
         dropdownMenu.hidden = true;
         destroyEvents();
         sceneList.element.innerHTML = '';
@@ -273,7 +273,7 @@ editor.once('load', () => {
     editor.call('layout.root').append(dropdownMenu);
 
     // disables / enables field depending on permissions
-    const handlePermissions = function (field) {
+    const handlePermissions = (field) => {
         field.enabled = editor.call('permissions:write');
         return editor.on(`permissions:set:${config.self.id}`, (accessLevel) => {
             field.enabled = accessLevel === 'write' || accessLevel === 'admin';
