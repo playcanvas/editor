@@ -1,35 +1,33 @@
-import { Button, Label, Menu, TextInput } from '@playcanvas/pcui';
+import { Button, Container, Label, Menu, TextInput } from '@playcanvas/pcui';
 
-import { LegacyLabel } from '@/common/ui/label';
 import { LegacyList } from '@/common/ui/list';
 import { LegacyListItem } from '@/common/ui/list-item';
-import { LegacyPanel } from '@/common/ui/panel';
 import { LegacyProgress } from '@/common/ui/progress';
-import { LegacyTextField } from '@/common/ui/text-field';
 import { convertDatetime } from '@/common/utils';
 
 editor.once('load', () => {
-    const panel = new LegacyPanel();
-    panel.class.add('picker-scene-panel');
+    const container = new Container({
+        class: 'picker-scene-panel'
+    });
 
-    editor.call('picker:project:registerMenu', 'scenes', 'Scenes', panel);
+    editor.call('picker:project:registerMenu', 'scenes', 'Scenes', container);
 
     // scene should be the default
     editor.call('picker:project:setDefaultMenu', 'scenes');
 
     if (!editor.call('permissions:write')) {
-        panel.class.add('disabled');
+        container.class.add('disabled');
     }
 
     // progress bar and loading label
-    const loading = new LegacyLabel({
+    const loading = new Label({
         text: 'Loading...'
     });
-    panel.append(loading);
+    container.append(loading);
 
     const progressBar = new LegacyProgress({ progress: 1 });
     progressBar.hidden = true;
-    panel.append(progressBar);
+    container.append(progressBar);
 
     const filter = new TextInput({
         placeholder: 'Filter scenes',
@@ -40,11 +38,11 @@ editor.once('load', () => {
     filter.on('change', () => {
         refreshScenes();
     });
-    panel.append(filter);
+    container.append(filter);
 
     const sceneList = new LegacyList();
     sceneList.class.add('scene-list');
-    panel.append(sceneList);
+    container.append(sceneList);
     sceneList.hidden = true;
 
     let tooltips = [];
@@ -66,7 +64,7 @@ editor.once('load', () => {
             editor.call('picker:project:setClosable', false);
         }
 
-        if (panel.hidden) {
+        if (container.hidden) {
             return;
         }
 
@@ -312,7 +310,7 @@ editor.once('load', () => {
 
     handlePermissions(newScene);
 
-    panel.append(newScene);
+    container.append(newScene);
 
     newScene.on('click', () => {
         if (!editor.call('permissions:write')) {
@@ -364,7 +362,7 @@ editor.once('load', () => {
     });
 
     // on show
-    panel.on('show', () => {
+    container.on('show', () => {
         toggleProgress(true);
 
         // load scenes
@@ -380,7 +378,7 @@ editor.once('load', () => {
     });
 
     // on hide
-    panel.on('hide', () => {
+    container.on('hide', () => {
         destroyTooltips();
         destroyEvents();
         scenes = [];
@@ -397,7 +395,7 @@ editor.once('load', () => {
     });
 
     editor.on('viewport:hover', (state) => {
-        if (state && !panel.hidden) {
+        if (state && !container.hidden) {
             setTimeout(() => {
                 editor.emit('viewport:hover', false);
             }, 0);
@@ -424,7 +422,7 @@ editor.once('load', () => {
 
     // subscribe to messenger scene.new
     editor.on('messenger:scene.new', (data) => {
-        if (panel.hidden) {
+        if (container.hidden) {
             return;
         }
         if (data.scene.branchId !== config.self.branch.id) {
@@ -432,7 +430,7 @@ editor.once('load', () => {
         }
 
         editor.call('scenes:get', data.scene.id, (err, scene) => {
-            if (panel.hidden) {
+            if (container.hidden) {
                 return;
             } // check if hidden when Ajax returns
 

@@ -6627,7 +6627,7 @@ strong {
     }
 }
 
-.ui-panel.picker-scene-panel,
+.pcui-container.picker-scene-panel,
 .pcui-container.picker-publish-new {
     .ui-list.scene-list {
         margin: 0;
@@ -6783,53 +6783,49 @@ strong {
     }
 }
 
-.ui-panel.picker-scene-panel {
-    .content {
-        font-size: 14px;
+.pcui-container.picker-scene-panel {
+    font-size: 14px;
 
-        @extend .font-regular;
+    @extend .font-regular;
+
+    > span {
+        padding-left: 10px;
     }
 
-    > .content {
-        > span {
-            padding-left: 10px;
+    > .pcui-text-input {
+        margin: 10px;
+        width: calc(100% - 20px);
+    }
+
+    > .ui-progress {
+        width: 100%;
+    }
+
+    > .pcui-button.new {
+        margin: 15px 0 15px 10px;
+        padding: 0;
+        width: 165px;
+        height: 34px;
+        line-height: 34px;
+        font-size: 12px;
+        text-transform: uppercase;
+        text-align: left;
+
+        @extend .font-bold;
+
+        &::before {
+            @extend .font-icon;
+
+            font-size: 14px;
+            content: '\E122';
+            color: $text-secondary;
+            vertical-align: top;
+            padding-right: 10px;
+            padding-left: 20px;
         }
 
-        > .pcui-text-input {
-            margin: 10px;
-            width: calc(100% - 20px);
-        }
-
-        > .ui-progress {
-            width: 100%;
-        }
-
-        > .pcui-button.new {
-            margin: 15px 0 15px 10px;
-            padding: 0;
-            width: 165px;
-            height: 34px;
-            line-height: 34px;
-            font-size: 12px;
-            text-transform: uppercase;
-            text-align: left;
-
-            @extend .font-bold;
-
-            &::before {
-                @extend .font-icon;
-
-                font-size: 14px;
-                content: '\E122';
-                color: $text-secondary;
-                vertical-align: top;
-                padding-right: 10px;
-                padding-left: 20px;
-            }
-
-            &:not(.disabled):hover::before {
-                color: $text-active;
-            }
+        &:not(.disabled):hover::before {
+            color: $text-active;
         }
     }
 }
