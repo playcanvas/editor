@@ -67,9 +67,7 @@ editor.once('load', () => {
             }));
 
             item.on('destroy', () => {
-                assetEvents.forEach((evt) => {
-                    evt.unbind();
-                });
+                assetEvents.forEach(event => event.unbind());
                 assetEvents.length = 0;
             });
         };
@@ -82,9 +80,7 @@ editor.once('load', () => {
         }));
 
         panel.on('destroy', () => {
-            events.forEach((evt) => {
-                evt.unbind();
-            });
+            events.forEach(event => event.unbind());
             events.length = 0;
         });
     });

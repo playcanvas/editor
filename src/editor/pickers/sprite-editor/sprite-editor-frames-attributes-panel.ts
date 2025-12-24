@@ -673,9 +673,7 @@ editor.once('load', () => {
         }));
 
         panel.on('destroy', () => {
-            events.forEach((evt) => {
-                evt.unbind();
-            });
+            events.forEach(event => event.unbind());
             events.length = 0;
         });
     });
