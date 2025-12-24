@@ -1,3 +1,4 @@
+import type { EventHandle } from '@playcanvas/observer';
 import { Button, Container, Label, Menu, Progress, TextInput } from '@playcanvas/pcui';
 
 import { LegacyList } from '@/common/ui/list';
@@ -46,11 +47,11 @@ editor.once('load', () => {
     container.append(sceneList);
     sceneList.hidden = true;
 
-    let events = [];
-    let scenes = [];
+    let events: EventHandle[] = [];
+    let scenes: { id: number | string, name: string, modified: string, uniqueId: string }[] = [];
 
-    let dropdownScene = null;
-    let dropdownMenu = null;
+    let dropdownScene: { id: number | string, name: string, modified: string, uniqueId: string } | null = null;
+    let dropdownMenu: Menu | null = null;
 
     const toggleProgress = (toggle) => {
         loading.hidden = !toggle;
@@ -60,7 +61,7 @@ editor.once('load', () => {
 
     const onSceneDeleted = (sceneId) => {
         // if loaded scene deleted do not allow closing popup
-        if (!config.scene.id || parseInt(config.scene.id, 10) === parseInt(sceneId, 10)) {
+        if (!config.scene.id || Number(config.scene.id) === Number(sceneId)) {
             editor.call('picker:project:setClosable', false);
         }
 
@@ -74,7 +75,7 @@ editor.once('load', () => {
         }
 
         for (let i = 0; i < scenes.length; i++) {
-            if (parseInt(scenes[i].id, 10) === parseInt(sceneId, 10)) {
+            if (Number(scenes[i].id) === Number(sceneId)) {
                 // close dropdown menu if current scene deleted
                 if (dropdownScene === scenes[i]) {
                     dropdownMenu.hidden = true;
@@ -129,7 +130,7 @@ editor.once('load', () => {
 
         sceneList.append(row);
 
-        const isCurrentScene = config.scene.id && parseInt(scene.id, 10) === parseInt(config.scene.id, 10);
+        const isCurrentScene = config.scene.id && Number(scene.id) === Number(config.scene.id);
 
         if (isCurrentScene) {
             row.class.add('current');
@@ -171,7 +172,7 @@ editor.once('load', () => {
         if (!isCurrentScene) {
             events.push(row.on('click', (e) => {
                 if (e.target === row.element || e.target === name.dom || e.target === date.dom) {
-                    if (parseInt(config.scene.id, 10) === parseInt(scene.id, 10)) {
+                    if (Number(config.scene.id) === Number(scene.id)) {
                         return;
                     }
 
