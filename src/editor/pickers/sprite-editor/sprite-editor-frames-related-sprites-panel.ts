@@ -1,4 +1,5 @@
-import { LegacyLabel } from '@/common/ui/label';
+import { Label, Panel } from '@playcanvas/pcui';
+
 import { LegacyList } from '@/common/ui/list';
 import { LegacyListItem } from '@/common/ui/list-item';
 
@@ -12,14 +13,13 @@ editor.once('load', () => {
 
         const rootPanel = editor.call('picker:sprites:rightPanel');
 
-        const panel = editor.call('attributes:addPanel', {
-            parent: rootPanel,
-            name: 'RELATED SPRITE ASSETS'
+        const panel = new Panel({
+            headerText: 'RELATED SPRITE ASSETS',
+            class: 'component'
         });
+        rootPanel.append(panel);
 
-        panel.class.add('component');
-
-        const labelNoAssets = new LegacyLabel({
+        const labelNoAssets = new Label({
             text: 'None'
         });
         panel.append(labelNoAssets);
