@@ -1,3 +1,4 @@
+import type { EventHandle } from '@playcanvas/observer';
 import { Button, Label, Overlay, Panel } from '@playcanvas/pcui';
 
 import { Bubble } from '@/common/pcui/element/element-bubble';
@@ -16,8 +17,7 @@ editor.once('load', () => {
     overlay.append(panel);
 
     const label = new Label({
-        unsafe: true,
-        renderChanges: false
+        unsafe: true
     });
     panel.append(label);
 
@@ -45,7 +45,7 @@ editor.once('load', () => {
 
         bubble.position(x, y);
 
-        let evt;
+        let evt: EventHandle | null = null;
 
         bubble.on('activate', () => {
             const rect = bubble.dom.getBoundingClientRect();
