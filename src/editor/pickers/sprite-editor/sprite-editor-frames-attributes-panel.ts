@@ -1,6 +1,4 @@
-import type { Panel } from '@playcanvas/pcui';
-
-import { LegacyButton } from '@/common/ui/button';
+import { Button, Panel } from '@playcanvas/pcui';
 
 
 editor.once('load', () => {
@@ -551,79 +549,83 @@ editor.once('load', () => {
             fieldBorder[i].on('change', updateBorderMax);
         }
 
-        const panelButtons = editor.call('attributes:addPanel', {
-            parent: rootPanel,
-            name: 'ACTIONS'
+        const panelButtons = new Panel({
+            headerText: 'ACTIONS',
+            class: 'buttons'
         });
-        panelButtons.class.add('buttons');
-        panelButtons.disabled = !editor.call('permissions:write');
+        rootPanel.append(panelButtons);
+        panelButtons.enabled = editor.call('permissions:write');
         events.push(editor.on('permissions:writeState', (canWrite) => {
-            panelButtons.disabled = !canWrite;
+            panelButtons.enabled = canWrite;
         }));
 
         // new sprite
-        const btnCreateSprite = new LegacyButton({
-            text: 'New Sprite From Selection'
+        const btnCreateSprite = new Button({
+            text: 'New Sprite From Selection',
+            icon: 'E120',
+            class: 'wide'
         });
-        btnCreateSprite.class.add('icon', 'wide', 'create');
         panelButtons.append(btnCreateSprite);
 
         // reference
         editor.call('attributes:reference:attach', 'spriteeditor:frame:newsprite', btnCreateSprite, null, panel);
 
         btnCreateSprite.on('click', () => {
-            btnCreateSprite.disabled = true;
+            btnCreateSprite.enabled = false;
             editor.call('picker:sprites:spriteFromSelection', {
                 callback: function () {
-                    btnCreateSprite.disabled = false;
+                    btnCreateSprite.enabled = true;
                 }
             });
         });
 
         // new sliced sprite
-        const btnCreateSlicedSprite = new LegacyButton({
-            text: 'New Sliced Sprite From Selection'
+        const btnCreateSlicedSprite = new Button({
+            text: 'New Sliced Sprite From Selection',
+            icon: 'E120',
+            class: 'wide'
         });
-        btnCreateSlicedSprite.class.add('icon', 'wide', 'create');
         panelButtons.append(btnCreateSlicedSprite);
 
         // reference
         editor.call('attributes:reference:attach', 'spriteeditor:frame:newsprite', btnCreateSlicedSprite, null, panel);
 
         btnCreateSlicedSprite.on('click', () => {
-            btnCreateSlicedSprite.disabled = true;
+            btnCreateSlicedSprite.enabled = false;
             editor.call('picker:sprites:spriteFromSelection', {
                 sliced: true,
                 callback: function () {
-                    btnCreateSprite.disabled = false;
+                    btnCreateSlicedSprite.enabled = true;
                 }
             });
         });
 
         // new sprites from frames
-        const btnCreateSpritesFromFrames = new LegacyButton({
-            text: 'New Sprite Per Selected Frame'
+        const btnCreateSpritesFromFrames = new Button({
+            text: 'New Sprite Per Selected Frame',
+            icon: 'E120',
+            class: 'wide'
         });
-        btnCreateSpritesFromFrames.class.add('icon', 'wide', 'create');
         panelButtons.append(btnCreateSpritesFromFrames);
 
         // reference
         editor.call('attributes:reference:attach', 'spriteeditor:frame:newspritesfromframes', btnCreateSpritesFromFrames, null, panel);
 
         btnCreateSpritesFromFrames.on('click', () => {
-            btnCreateSpritesFromFrames.disabled = true;
+            btnCreateSpritesFromFrames.enabled = false;
             editor.call('picker:sprites:spritesFromFrames', {
                 callback: function () {
-                    btnCreateSpritesFromFrames.disabled = false;
+                    btnCreateSpritesFromFrames.enabled = true;
                 }
             });
         });
 
         // focus frame
-        const btnFocus = new LegacyButton({
-            text: 'Focus On Selection'
+        const btnFocus = new Button({
+            text: 'Focus On Selection',
+            icon: 'E397',
+            class: 'wide'
         });
-        btnFocus.class.add('icon', 'wide', 'focus');
         panelButtons.append(btnFocus);
         // reference
         editor.call('attributes:reference:attach', 'spriteeditor:frame:focus', btnFocus, null, panel);
@@ -633,10 +635,11 @@ editor.once('load', () => {
         });
 
         // trim rect
-        const btnTrim = new LegacyButton({
-            text: 'Trim Selected Frames'
+        const btnTrim = new Button({
+            text: 'Trim Selected Frames',
+            icon: 'E394',
+            class: 'wide'
         });
-        btnTrim.class.add('icon', 'wide', 'trim');
         panelButtons.append(btnTrim);
 
         // reference
@@ -648,10 +651,11 @@ editor.once('load', () => {
         });
 
         // delete frame
-        const btnDelete = new LegacyButton({
-            text: 'Delete Selected Frames'
+        const btnDelete = new Button({
+            text: 'Delete Selected Frames',
+            icon: 'E124',
+            class: 'wide'
         });
-        btnDelete.class.add('icon', 'wide', 'remove');
         panelButtons.append(btnDelete);
 
         // reference

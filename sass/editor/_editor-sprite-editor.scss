@@ -295,6 +295,33 @@
                     }
                 }
 
+                .pcui-panel.buttons > .pcui-panel-content {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 3px;
+                    padding: 6px;
+                }
+
+                .pcui-button.wide {
+                    border: none;
+                    border-radius: 0;
+                    margin: 0;
+                    text-align: left;
+                    text-transform: uppercase;
+                    width: 100%;
+
+                    @extend .font-bold;
+
+                    &::before {
+                        font-size: 14px;
+                    }
+
+                    &:hover,
+                    &:focus {
+                        box-shadow: none;
+                    }
+                }
+
                 .ui-button.icon {
                     background-color: $bcg-dark;
 
