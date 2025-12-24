@@ -1,10 +1,8 @@
 import { Button, Label, Menu, TextInput } from '@playcanvas/pcui';
 
-import { LegacyButton } from '@/common/ui/button';
 import { LegacyLabel } from '@/common/ui/label';
 import { LegacyList } from '@/common/ui/list';
 import { LegacyListItem } from '@/common/ui/list-item';
-import { LegacyMenu } from '@/common/ui/menu';
 import { LegacyPanel } from '@/common/ui/panel';
 import { LegacyProgress } from '@/common/ui/progress';
 import { LegacyTextField } from '@/common/ui/text-field';
