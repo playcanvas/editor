@@ -1,6 +1,5 @@
 import { Button, Panel } from '@playcanvas/pcui';
 
-
 editor.once('load', () => {
     editor.method('picker:sprites:attributes:frames', (args) => {
         const events = [];
@@ -573,7 +572,7 @@ editor.once('load', () => {
         btnCreateSprite.on('click', () => {
             btnCreateSprite.enabled = false;
             editor.call('picker:sprites:spriteFromSelection', {
-                callback: function () {
+                callback: () => {
                     btnCreateSprite.enabled = true;
                 }
             });
@@ -594,7 +593,7 @@ editor.once('load', () => {
             btnCreateSlicedSprite.enabled = false;
             editor.call('picker:sprites:spriteFromSelection', {
                 sliced: true,
-                callback: function () {
+                callback: () => {
                     btnCreateSlicedSprite.enabled = true;
                 }
             });
@@ -614,7 +613,7 @@ editor.once('load', () => {
         btnCreateSpritesFromFrames.on('click', () => {
             btnCreateSpritesFromFrames.enabled = false;
             editor.call('picker:sprites:spritesFromFrames', {
-                callback: function () {
+                callback: () => {
                     btnCreateSpritesFromFrames.enabled = true;
                 }
             });
@@ -674,9 +673,9 @@ editor.once('load', () => {
         }));
 
         panel.on('destroy', () => {
-            for (let i = 0, len = events.length; i < len; i++) {
-                events[i].unbind();
-            }
+            events.forEach((evt) => {
+                evt.unbind();
+            });
             events.length = 0;
         });
     });
