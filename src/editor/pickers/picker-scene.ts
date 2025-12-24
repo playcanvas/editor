@@ -46,7 +46,6 @@ editor.once('load', () => {
     container.append(sceneList);
     sceneList.hidden = true;
 
-    let tooltips = [];
     let events = [];
     let scenes = [];
 
@@ -89,13 +88,6 @@ editor.once('load', () => {
         if (!scenes.length) {
             sceneList.hidden = true;
         }
-    };
-
-    const destroyTooltips = function () {
-        tooltips.forEach((tooltip) => {
-            tooltip.destroy();
-        });
-        tooltips = [];
     };
 
     const destroyEvents = function () {
@@ -201,7 +193,6 @@ editor.once('load', () => {
 
     const refreshScenes = function () {
         dropdownMenu.hidden = true;
-        destroyTooltips();
         destroyEvents();
         sceneList.element.innerHTML = '';
         const filterScenes = scenes.filter((scene) => {
@@ -380,7 +371,6 @@ editor.once('load', () => {
 
     // on hide
     container.on('hide', () => {
-        destroyTooltips();
         destroyEvents();
         scenes = [];
 
