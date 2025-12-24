@@ -480,12 +480,12 @@ editor.once('load', () => {
                 return;
             }
 
-            const len = keys ? keys.length : 0;
-            btnAddSelected.enabled = !!len;
+            const hasKeys = keys?.length > 0;
+            btnAddSelected.enabled = hasKeys;
 
             // update preview to show what sprite would look like after
             // the selected keys were added
-            if (len) {
+            if (hasKeys) {
                 fieldPreview.setFrames(frameKeys.slice().concat(keys));
             }
         }));
