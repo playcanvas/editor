@@ -310,6 +310,15 @@
                     padding: 6px;
                 }
 
+                .pcui-container.edit-buttons {
+                    gap: 3px;
+
+                    > .pcui-button {
+                        display: block;
+                        width: auto;
+                    }
+                }
+
                 .pcui-button.wide {
                     border: none;
                     border-radius: 0;

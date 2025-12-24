@@ -1,5 +1,4 @@
-import type { Panel } from '@playcanvas/pcui';
-import { Container } from '@playcanvas/pcui';
+import { Button, Container, Panel } from '@playcanvas/pcui';
 
 import { LegacyButton } from '@/common/ui/button';
 import { LegacyCanvas } from '@/common/ui/canvas';
@@ -98,16 +97,15 @@ editor.once('load', () => {
         // reference
         editor.call('attributes:reference:attach', 'asset:sprite:renderMode', fieldRenderMode.parent.innerElement.firstChild.ui, null, panel);
 
-        const panelEdit = editor.call('attributes:addPanel', {
-            parent: rootPanel,
-            name: 'FRAMES IN SPRITE ASSET'
+        const panelEdit = new Panel({
+            headerText: 'FRAMES IN SPRITE ASSET',
+            class: 'buttons'
         });
-        panelEdit.flex = true;
-        panelEdit.class.add('buttons');
+        rootPanel.append(panelEdit);
 
-        panelEdit.disabled = !editor.call('permissions:write');
+        panelEdit.enabled = editor.call('permissions:write');
         events.push(editor.on('permissions:writeState', (canWrite) => {
-            panelEdit.disabled = !canWrite;
+            panelEdit.enabled = canWrite;
         }));
 
         // add frames tooltip
@@ -121,13 +119,13 @@ editor.once('load', () => {
         });
         panelAddFramesInfo.append(labelInfo);
 
-        const btnAddFrames = new LegacyButton({
-            text: 'ADD FRAMES TO SPRITE ASSET'
+        const btnAddFrames = new Button({
+            text: 'ADD FRAMES TO SPRITE ASSET',
+            icon: 'E120',
+            class: 'wide'
         });
-        btnAddFrames.flexGrow = 1;
-        btnAddFrames.class.add('icon', 'wide', 'create');
+        btnAddFrames.style.flexGrow = '1';
         panelEdit.append(btnAddFrames);
-
 
         // reference
         editor.call('attributes:reference:attach', 'spriteeditor:sprites:addFrames', btnAddFrames, null, panel);
@@ -136,26 +134,34 @@ editor.once('load', () => {
             editor.call('picker:sprites:pickFrames');
         });
 
-        const btnAddSelected = new LegacyButton({
-            text: 'ADD SELECTED FRAMES'
+        const containerEditButtons = new Container({
+            flex: true,
+            flexDirection: 'row',
+            hidden: true,
+            class: 'edit-buttons'
         });
-        btnAddSelected.class.add('icon', 'create');
-        btnAddSelected.flexGrow = 3;
-        btnAddSelected.hidden = true;
-        panelEdit.append(btnAddSelected);
+        panelEdit.append(containerEditButtons);
+
+        const btnAddSelected = new Button({
+            text: 'ADD SELECTED FRAMES',
+            icon: 'E120',
+            class: 'wide'
+        });
+        btnAddSelected.style.flexGrow = '3';
+        containerEditButtons.append(btnAddSelected);
 
         // add selected frames to sprite asset
         btnAddSelected.on('click', () => {
             editor.call('picker:sprites:pickFrames:add');
         });
 
-        const btnCancel = new LegacyButton({
-            text: 'DONE'
+        const btnCancel = new Button({
+            text: 'DONE',
+            icon: 'E133',
+            class: 'wide'
         });
-        btnCancel.class.add('icon', 'done');
-        btnCancel.flexGrow = 1;
-        btnCancel.hidden = true;
-        panelEdit.append(btnCancel);
+        btnCancel.style.flexGrow = '1';
+        containerEditButtons.append(btnCancel);
 
         btnCancel.on('click', () => {
             editor.call('picker:sprites:pickFrames:cancel');
@@ -310,9 +316,7 @@ editor.once('load', () => {
 
             // clean up events
             panel.on('destroy', () => {
-                for (let i = 0, len = frameEvents.length; i < len; i++) {
-                    frameEvents[i].unbind();
-                }
+                frameEvents.forEach(event => event.unbind());
                 frameEvents.length = 0;
 
                 handle.removeEventListener('mousedown', onDragStart);
@@ -341,7 +345,7 @@ editor.once('load', () => {
             const height = draggedPanel.element.offsetHeight;
             const top = evt.clientY - rect.top - 6;
             const overPanelIndex = Math.floor(top / height);
-            const overPanel = panels[overPanelIndex];// panelFrames.innerElement.childNodes[overPanelIndex];
+            const overPanel = panels[overPanelIndex];
 
             if (overPanel && overPanel !== draggedPanel) {
                 panelFrames.remove(draggedPanel);
@@ -419,17 +423,11 @@ editor.once('load', () => {
         }));
 
         events.push(spriteAsset.on('data.frameKeys:set', (value) => {
-            let i, len;
-
-            for (i = 0, len = panels.length; i < len; i++) {
-                panels[i].destroy();
-            }
+            panels.forEach(panel => panel.destroy());
             panels.length = 0;
 
             frameKeys = spriteAsset.get('data.frameKeys');
-            for (i = 0, len = frameKeys.length; i < len; i++) {
-                addFramePanel(frameKeys[i]);
-            }
+            frameKeys.forEach(key => addFramePanel(key));
 
             fieldPreview.setFrames(frameKeys);
         }));
@@ -462,17 +460,15 @@ editor.once('load', () => {
         events.push(editor.on('picker:sprites:pickFrames:start', () => {
             spriteEditMode = true;
             btnAddFrames.hidden = true;
-            btnAddSelected.disabled = true;
-            btnAddSelected.hidden = false;
-            btnCancel.hidden = false;
+            btnAddSelected.enabled = false;
+            containerEditButtons.hidden = false;
             panelAddFramesInfo.hidden = false;
         }));
 
         events.push(editor.on('picker:sprites:pickFrames:end', () => {
             spriteEditMode = false;
             btnAddFrames.hidden = false;
-            btnAddSelected.hidden = true;
-            btnCancel.hidden = true;
+            containerEditButtons.hidden = true;
             panelAddFramesInfo.hidden = true;
 
             // restore preview to the actual frames that the sprite currently has
@@ -485,7 +481,7 @@ editor.once('load', () => {
             }
 
             const len = keys ? keys.length : 0;
-            btnAddSelected.disabled = !len;
+            btnAddSelected.enabled = !!len;
 
             // update preview to show what sprite would look like after
             // the selected keys were added
@@ -500,10 +496,7 @@ editor.once('load', () => {
         }));
 
         panel.on('destroy', () => {
-            for (let i = 0; i < events.length; i++) {
-                events[i].unbind();
-            }
-
+            events.forEach(event => event.unbind());
             events.length = 0;
             panels.length = 0;
             spriteEditMode = false;
