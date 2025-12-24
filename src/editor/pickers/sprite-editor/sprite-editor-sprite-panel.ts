@@ -1,4 +1,5 @@
 import type { Panel } from '@playcanvas/pcui';
+import { Container } from '@playcanvas/pcui';
 
 import { LegacyButton } from '@/common/ui/button';
 import { LegacyCanvas } from '@/common/ui/canvas';
@@ -15,7 +16,6 @@ editor.once('load', () => {
         let frameKeys = spriteAsset.get('data.frameKeys');
 
         let spriteEditMode = false;
-        let selectedFrames = null; // eslint-disable-line no-unused-vars
 
         const events = [];
 
@@ -28,12 +28,13 @@ editor.once('load', () => {
             frames: frameKeys
         });
 
-        const panel = editor.call('attributes:addPanel', {
-            parent: rootPanel
+        const panel = new Container({
+            class: 'sprite-attributes'
         });
-        panel.disabled = !editor.call('permissions:write');
+        rootPanel.append(panel);
+        panel.enabled = editor.call('permissions:write');
         events.push(editor.on('permissions:writeState', (canWrite) => {
-            panel.disabled = !canWrite;
+            panel.enabled = canWrite;
         }));
 
         const fieldId = editor.call('attributes:addField', {
@@ -482,8 +483,6 @@ editor.once('load', () => {
             if (!spriteEditMode) {
                 return;
             }
-
-            selectedFrames = keys;
 
             const len = keys ? keys.length : 0;
             btnAddSelected.disabled = !len;
