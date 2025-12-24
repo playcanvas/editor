@@ -187,6 +187,39 @@
                         }
                     }
 
+                    .pcui-panel.add-frames-info {
+                        border: 1px solid $text-active;
+                        margin: 3px 3px 10px;
+                        font-size: 12px;
+                        background: $bcg-darkest;
+
+                        > .pcui-panel-header {
+                            background: transparent;
+                            padding: 10px 15px 0px 15px;
+
+                            &::before {
+                                @extend .font-icon;
+
+                                content: '\E400';
+                                float: left;
+                                margin-right: 5px;
+                                margin-left: -3px;
+                                font-size: 20px;
+                                font-weight: 100;
+                            }
+                        }
+
+                        > .pcui-panel-content {
+                            padding: 0 15px 10px;
+                        }
+
+                        .pcui-label {
+                            margin: 0;
+                            line-height: 1.5;
+                            white-space: normal;
+                        }
+                    }
+
                     .ui-panel.import-error {
                         border-color: #fb222f;
                     }

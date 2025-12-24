@@ -1,4 +1,4 @@
-import { Button, Container, Panel } from '@playcanvas/pcui';
+import { Button, Canvas, Container, Label, Panel } from '@playcanvas/pcui';
 
 import { LegacyButton } from '@/common/ui/button';
 import { LegacyCanvas } from '@/common/ui/canvas';
@@ -109,12 +109,14 @@ editor.once('load', () => {
         }));
 
         // add frames tooltip
-        const panelAddFramesInfo = new LegacyPanel('Adding more frames to a sprite');
-        panelAddFramesInfo.class.add('add-frames-info');
-        panelAddFramesInfo.hidden = true;
+        const panelAddFramesInfo = new Panel({
+            headerText: 'Adding more frames to a sprite',
+            class: 'add-frames-info',
+            hidden: true
+        });
         panelEdit.append(panelAddFramesInfo);
 
-        const labelInfo = new LegacyLabel({
+        const labelInfo = new Label({
             text: 'To add more frames to a sprite asset, select the frames you wish to add either on the texture atlas viewport or from the panel on the left, then click ADD SELECTED FRAMES.'
         });
         panelAddFramesInfo.append(labelInfo);
@@ -212,15 +214,16 @@ editor.once('load', () => {
             handle.addEventListener('mousedown', onDragStart);
 
             // preview
-            const canvas = new LegacyCanvas();
+            const canvas = new Canvas({
+                class: 'preview'
+            });
             const previewWidth = 26;
             const previewHeight = 26;
-            canvas.class.add('preview');
             canvas.resize(previewWidth, previewHeight);
 
             panel.append(canvas);
 
-            const ctx = canvas.element.getContext('2d');
+            const ctx = (canvas.dom as HTMLCanvasElement).getContext('2d');
 
             let renderQueued = false;
 
