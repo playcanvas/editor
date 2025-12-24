@@ -200,7 +200,9 @@ editor.once('load', () => {
     };
 
     const refreshScenes = () => {
-        dropdownMenu.hidden = true;
+        if (dropdownMenu) {
+            dropdownMenu.hidden = true;
+        }
         destroyEvents();
         sceneList.element.innerHTML = '';
         const filterScenes = scenes.filter((scene) => {
