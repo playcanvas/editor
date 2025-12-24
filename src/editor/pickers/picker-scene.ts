@@ -219,7 +219,7 @@ editor.once('load', () => {
                 text: 'Duplicate Scene',
                 onIsEnabled: () => editor.call('permissions:write'),
                 onSelect: () => {
-                    let name = dropdownScene.name;
+                    let name;
                     const regex = /^(.*?) (\d+)$/;
                     let numberPart = 2;
                     let namePart = dropdownScene.name;
