@@ -1,7 +1,6 @@
 import { Button, Canvas, Container, Label, Panel } from '@playcanvas/pcui';
 
 import { LegacyButton } from '@/common/ui/button';
-import { LegacyLabel } from '@/common/ui/label';
 import { LegacyPanel } from '@/common/ui/panel';
 
 editor.once('load', () => {
@@ -274,9 +273,10 @@ editor.once('load', () => {
             renderPreview();
 
             // sprite name
-            const fieldName = new LegacyLabel();
-            fieldName.class.add('name');
-            fieldName.value = atlasAsset.get(`data.frames.${key}.name`) || 'Missing';
+            const fieldName = new Label({
+                class: 'name',
+                text: atlasAsset.get(`data.frames.${key}.name`) || 'Missing'
+            });
             panel.append(fieldName);
 
             frameEvents.push(atlasAsset.on(`data.frames.${key}.name:set`, (value) => {
