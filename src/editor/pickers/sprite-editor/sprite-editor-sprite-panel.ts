@@ -1,8 +1,5 @@
 import { Button, Canvas, Container, Label, Panel } from '@playcanvas/pcui';
 
-import { LegacyButton } from '@/common/ui/button';
-import { LegacyPanel } from '@/common/ui/panel';
-
 editor.once('load', () => {
     editor.method('picker:sprites:attributes:sprite', (args) => {
         const atlasAsset = args.atlasAsset;
@@ -166,10 +163,10 @@ editor.once('load', () => {
             editor.call('picker:sprites:pickFrames:cancel');
         });
 
-        const panelFrames = editor.call('attributes:addPanel', {
-            parent: panelEdit
+        const panelFrames = new Container({
+            class: 'frames'
         });
-        panelFrames.class.add('frames');
+        panelEdit.append(panelFrames);
 
         let draggedPanel = null;
         let draggedIndex = null;
@@ -179,8 +176,9 @@ editor.once('load', () => {
         const addFramePanel = function (key, index) {
             const frameEvents = [];
 
-            const panel = new LegacyPanel();
-            panel.class.add('frame');
+            const panel = new Container({
+                class: 'frame'
+            }) as Container & { _frameKey: string; queueRender: () => void };
             panel._frameKey = key;
             if (index !== undefined) {
                 panels.splice(index, 0, panel);
