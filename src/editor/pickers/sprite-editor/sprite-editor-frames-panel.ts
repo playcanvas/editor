@@ -175,7 +175,7 @@ editor.once('load', () => {
             panel.dom.addEventListener('mouseleave', onMouseLeave);
 
             // clean up events
-            panel.on('destroy', (dom) => {
+            panel.once('destroy', (dom) => {
                 frameEvents.forEach(event => event.unbind());
                 frameEvents.length = 0;
 

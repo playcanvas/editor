@@ -67,7 +67,7 @@ editor.once('load', () => {
                 item.destroy();
             }));
 
-            item.on('destroy', () => {
+            item.once('destroy', () => {
                 assetEvents.forEach(event => event.unbind());
                 assetEvents.length = 0;
             });
@@ -80,7 +80,7 @@ editor.once('load', () => {
             panel.destroy();
         }));
 
-        panel.on('destroy', () => {
+        panel.once('destroy', () => {
             events.forEach(event => event.unbind());
             events.length = 0;
         });

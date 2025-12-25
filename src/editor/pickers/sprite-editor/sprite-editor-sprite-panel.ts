@@ -317,7 +317,7 @@ editor.once('load', () => {
             });
 
             // clean up events
-            panel.on('destroy', () => {
+            panel.once('destroy', () => {
                 frameEvents.forEach(event => event.unbind());
                 frameEvents.length = 0;
 
@@ -497,7 +497,7 @@ editor.once('load', () => {
             panelEdit.destroy();
         }));
 
-        panel.on('destroy', () => {
+        panel.once('destroy', () => {
             events.forEach(event => event.unbind());
             events.length = 0;
 

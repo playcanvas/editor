@@ -673,7 +673,7 @@ editor.once('load', () => {
             panelButtons.destroy();
         }));
 
-        container.on('destroy', () => {
+        container.once('destroy', () => {
             events.forEach(event => event.unbind());
             events.length = 0;
         });

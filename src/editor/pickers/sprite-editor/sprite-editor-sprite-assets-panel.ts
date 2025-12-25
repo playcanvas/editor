@@ -159,7 +159,7 @@ editor.once('load', () => {
             spriteItem.dom.addEventListener('contextmenu', contextMenu);
 
             // clean up events
-            spriteItem.on('destroy', (dom: HTMLElement) => {
+            spriteItem.once('destroy', (dom: HTMLElement) => {
                 spriteEvents.forEach(event => event.unbind());
                 spriteEvents.length = 0;
 
@@ -257,7 +257,7 @@ editor.once('load', () => {
             grid.destroy();
         }));
 
-        grid.on('destroy', () => {
+        grid.once('destroy', () => {
             menu.destroy();
             contextMenuAsset = null;
 

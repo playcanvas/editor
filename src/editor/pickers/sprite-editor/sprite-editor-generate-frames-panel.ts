@@ -402,7 +402,7 @@ editor.once('load', () => {
             panel.destroy();
         }));
 
-        panel.on('destroy', () => {
+        panel.once('destroy', () => {
             events.forEach(event => event.unbind());
             events.length = 0;
         });
