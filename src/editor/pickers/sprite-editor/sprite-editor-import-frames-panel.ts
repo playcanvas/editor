@@ -69,12 +69,8 @@ editor.once('load', () => {
         btnImport.on('click', () => {
             panelError.hidden = true;
 
-            let hasFrames = false;
             const currentFrames = atlasAsset.getRaw('data.frames')._data;
-            for (const key in currentFrames) { // eslint-disable-line 
-                hasFrames = true;
-                break;
-            }
+            const hasFrames = Object.keys(currentFrames).length > 0;
 
             if (hasFrames) {
                 editor.call('picker:confirm', 'Uploading frame data will replace all current frames - Are you sure you want to upload?', () => {
@@ -182,7 +178,7 @@ editor.once('load', () => {
                 const frame = createFrame(frameData.filename || key, frameData, height, scaleWidth, scaleHeight);
 
                 // if frame already exists then use the same index
-                if (nameIndex.hasOwnProperty(key)) {
+                if (key in nameIndex) {
                     newFrames[nameIndex[key]] = frame;
                 } else {
                     // otherwise put the new frame after all the other existing indexes
