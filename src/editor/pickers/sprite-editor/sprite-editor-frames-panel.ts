@@ -23,7 +23,7 @@ editor.once('load', () => {
         const panelFrames = leftPanel.content;
         panelFrames.class.add('frames');
 
-        const addFramePanel = (key, frame, afterPanel, beforePanel) => {
+        const addFramePanel = (key, frame, afterPanel?, beforePanel?) => {
             const frameEvents = [];
 
             const panel = new Container({
