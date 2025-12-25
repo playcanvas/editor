@@ -160,9 +160,7 @@ editor.once('load', () => {
 
             // clean up events
             spriteItem.on('destroy', (dom: HTMLElement) => {
-                for (const event of spriteEvents) {
-                    event.unbind();
-                }
+                spriteEvents.forEach(event => event.unbind());
                 spriteEvents.length = 0;
 
                 dom.removeEventListener('contextmenu', contextMenu);

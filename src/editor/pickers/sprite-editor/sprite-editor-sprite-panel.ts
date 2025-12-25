@@ -499,6 +499,7 @@ editor.once('load', () => {
         panel.on('destroy', () => {
             events.forEach(event => event.unbind());
             events.length = 0;
+
             panels.length = 0;
             spriteEditMode = false;
         });

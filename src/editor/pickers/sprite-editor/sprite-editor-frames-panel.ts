@@ -175,9 +175,7 @@ editor.once('load', () => {
 
             // clean up events
             panel.on('destroy', (dom) => {
-                for (const event of frameEvents) {
-                    event.unbind();
-                }
+                frameEvents.forEach(event => event.unbind());
                 frameEvents.length = 0;
 
                 dom.removeEventListener('mouseenter', onMouseEnter);
@@ -376,9 +374,7 @@ editor.once('load', () => {
 
         // clean up
         events.push(leftPanel.on('clear', () => {
-            for (const event of events) {
-                event.unbind();
-            }
+            events.forEach(event => event.unbind());
             events.length = 0;
 
             window.removeEventListener('keydown', onKeyDown);
