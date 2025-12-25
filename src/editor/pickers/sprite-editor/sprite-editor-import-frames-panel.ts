@@ -1,10 +1,12 @@
+import type { EventHandle } from '@playcanvas/observer';
+
 import { LegacyButton } from '@/common/ui/button';
 import { LegacyLabel } from '@/common/ui/label';
 import { LegacyPanel } from '@/common/ui/panel';
 
 editor.once('load', () => {
     editor.method('picker:sprites:attributes:importFrames', (args) => {
-        const events = [];
+        const events: EventHandle[] = [];
         const atlasAsset = args.atlasAsset;
 
         const rootPanel = editor.call('picker:sprites:rightPanel');

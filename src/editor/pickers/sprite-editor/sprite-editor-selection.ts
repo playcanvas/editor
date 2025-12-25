@@ -1,3 +1,5 @@
+import type { EventHandle } from '@playcanvas/observer';
+
 editor.once('load', () => {
     let selected = null;
     let highlightedFrames = [];
@@ -8,7 +10,7 @@ editor.once('load', () => {
 
     let spriteEditMode = false;
 
-    const events = [];
+    const events: EventHandle[] = [];
 
     // Select frames by keys
     // options.history: Whether to add this action to the history

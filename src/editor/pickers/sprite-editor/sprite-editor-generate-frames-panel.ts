@@ -1,6 +1,8 @@
+import type { EventHandle } from '@playcanvas/observer';
+
 editor.once('load', () => {
     editor.method('picker:sprites:attributes:slice', (args) => {
-        const events = [];
+        const events: EventHandle[] = [];
 
         const atlasAsset = args.atlasAsset;
         const atlasImage = args.atlasImage;

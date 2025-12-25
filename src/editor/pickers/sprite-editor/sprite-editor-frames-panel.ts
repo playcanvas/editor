@@ -1,8 +1,9 @@
 import { Button, Canvas, Container, Label, Panel } from '@playcanvas/pcui';
+import type { EventHandle } from '@playcanvas/observer';
 
 editor.once('load', () => {
     editor.method('picker:sprites:frames', (args) => {
-        const events = [];
+        const events: EventHandle[] = [];
 
         const atlasAsset = args.atlasAsset;
 

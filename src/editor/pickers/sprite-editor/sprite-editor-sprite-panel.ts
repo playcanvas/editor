@@ -1,4 +1,5 @@
 import { Button, Canvas, Container, Label, Panel } from '@playcanvas/pcui';
+import type { EventHandle } from '@playcanvas/observer';
 
 editor.once('load', () => {
     editor.method('picker:sprites:attributes:sprite', (args) => {
@@ -10,7 +11,7 @@ editor.once('load', () => {
 
         let spriteEditMode = false;
 
-        const events = [];
+        const events: EventHandle[] = [];
 
         const rootPanel: Panel = editor.call('picker:sprites:rightPanel');
         rootPanel.headerText = `SPRITE ASSET - ${spriteAsset.get('name')}`;

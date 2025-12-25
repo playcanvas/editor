@@ -1,4 +1,5 @@
 import type { Panel } from '@playcanvas/pcui';
+import type { EventHandle } from '@playcanvas/observer';
 
 editor.once('load', () => {
     editor.method('picker:sprites:attributes:frames:preview', (args) => {
@@ -10,7 +11,7 @@ editor.once('load', () => {
             return atlasAsset.getRaw(`data.frames.${f}`);
         });
 
-        const events = [];
+        const events: EventHandle[] = [];
 
         let previewContainer = document.createElement('div');
         previewContainer.classList.add('asset-preview-container');

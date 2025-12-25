@@ -1,11 +1,12 @@
 import { Label, Panel } from '@playcanvas/pcui';
+import type { EventHandle } from '@playcanvas/observer';
 
 import { LegacyList } from '@/common/ui/list';
 import { LegacyListItem } from '@/common/ui/list-item';
 
 editor.once('load', () => {
     editor.method('picker:sprites:attributes:frames:relatedSprites', (args) => {
-        const events = [];
+        const events: EventHandle[] = [];
 
         const atlasAsset = args.atlasAsset;
         const frames = args.frames;

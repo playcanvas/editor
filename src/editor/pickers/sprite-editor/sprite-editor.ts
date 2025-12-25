@@ -1,4 +1,5 @@
 import { Observer } from '@playcanvas/observer';
+import type { EventHandle } from '@playcanvas/observer';
 import { Button, Canvas, Container, Overlay, Panel } from '@playcanvas/pcui';
 
 import { buildQueryUrl, deepCopy } from '@/common/utils';
@@ -77,7 +78,7 @@ editor.once('load', () => {
         LEFT: 18
     };
 
-    const events = [];
+    const events: EventHandle[] = [];
 
     // create UI
     const root = editor.call('layout.root');
