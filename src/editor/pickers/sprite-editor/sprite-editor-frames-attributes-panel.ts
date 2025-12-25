@@ -1,8 +1,9 @@
 import { Button, Container, Panel } from '@playcanvas/pcui';
+import type { EventHandle } from '@playcanvas/observer';
 
 editor.once('load', () => {
     editor.method('picker:sprites:attributes:frames', (args) => {
-        const events = [];
+        const events: EventHandle[] = [];
         let suspendChanges = false;
         const atlasAsset = args.atlasAsset;
         const atlasImage = args.atlasImage;
@@ -17,9 +18,9 @@ editor.once('load', () => {
         }
 
         editor.call('picker:sprites:attributes:frames:preview', {
-            atlasAsset: atlasAsset,
-            atlasImage: atlasImage,
-            frames: frames
+            atlasAsset,
+            atlasImage,
+            frames
         });
 
         const container = new Container({
@@ -357,8 +358,8 @@ editor.once('load', () => {
             editor.api.globals.history.add({
                 name: 'change rect',
                 combine: false,
-                undo: undo,
-                redo: redo
+                undo,
+                redo
             });
 
             redo();
@@ -449,8 +450,8 @@ editor.once('load', () => {
             editor.api.globals.history.add({
                 name: 'edit pivot',
                 combine: false,
-                undo: undo,
-                redo: redo
+                undo,
+                redo
             });
 
             redo();
