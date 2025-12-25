@@ -295,8 +295,7 @@
                             vertical-align: middle;
                         }
 
-                        .ui-button.remove,
-                        .pcui-button.remove {
+                        .ui-button.remove {
                             @extend .font-icon;
 
                             width: 32px;
@@ -307,17 +306,24 @@
                             font-size: 14px;
                             text-align: center;
                             background-color: transparent;
-                            color: $text-darkest;
+                        }
+
+                        .pcui-button.frame-remove {
+                            width: 32px;
+                            margin: 0;
+                            padding: 0;
+                            position: absolute;
+                            right: 0;
+                            font-size: 14px;
+                            text-align: center;
+                            background-color: transparent;
                             border: none;
+                            color: $text-darkest;
                             box-shadow: none;
 
                             &:hover {
                                 color: #d34141;
-                            }
-
-                            &::after {
-                                content: '\E124';
-                                font-weight: 200;
+                                box-shadow: none;
                             }
                         }
                     }

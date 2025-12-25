@@ -289,8 +289,10 @@ editor.once('load', () => {
             }));
 
             // remove frame
-            const btnRemove = new LegacyButton();
-            btnRemove.class.add('remove');
+            const btnRemove = new Button({
+                icon: 'E124',
+                class: 'frame-remove'
+            });
             panel.append(btnRemove);
 
             btnRemove.on('click', (e) => {
