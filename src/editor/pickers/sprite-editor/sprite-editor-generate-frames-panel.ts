@@ -17,7 +17,7 @@ editor.once('load', () => {
 
         panel.disabled = !editor.call('permissions:write');
 
-        events.push(editor.on('permissions:writeState', (canWrite) => {
+        events.push(editor.on('permissions:writeState', (canWrite: boolean) => {
             panel.disabled = !canWrite;
         }));
 
@@ -147,7 +147,7 @@ editor.once('load', () => {
         // reference
         editor.call('attributes:reference:attach', 'spriteeditor:generate:pivot', fieldPivot.parent.innerElement.firstChild.ui, null, panel);
 
-        const toggleFields = () => {
+        const toggleFields = (): void => {
             fieldColsRows[0].parent.hidden = fieldType.value !== TYPE_GRID_BY_FRAME_COUNT;
             fieldPixels[0].parent.hidden = fieldType.value !== TYPE_GRID_BY_FRAME_SIZE;
             fieldOffset[0].parent.hidden = fieldType.value !== TYPE_GRID_BY_FRAME_COUNT && fieldType.value !== TYPE_GRID_BY_FRAME_SIZE;
@@ -178,7 +178,7 @@ editor.once('load', () => {
             const oldFrames = atlasAsset.get('data.frames');
             const newFrames = method === METHOD_DELETE_EXISTING ? {} : atlasAsset.get('data.frames');
 
-            const redo = () => {
+            const redo = (): void => {
                 const asset = editor.call('assets:get', atlasAsset.get('id'));
                 if (!asset) {
                     return;
@@ -202,7 +202,7 @@ editor.once('load', () => {
                 asset.history.enabled = history;
             };
 
-            const undo = () => {
+            const undo = (): void => {
                 const asset = editor.call('assets:get', atlasAsset.get('id'));
                 if (!asset) {
                     return;
@@ -246,7 +246,7 @@ editor.once('load', () => {
 
                 btnClear.disabled = true;
 
-                const redo = () => {
+                const redo = (): void => {
                     const asset = editor.call('assets:get', atlasAsset.get('id'));
                     if (!asset) {
                         return;
@@ -257,7 +257,7 @@ editor.once('load', () => {
                     asset.history.enabled = history;
                 };
 
-                const undo = () => {
+                const undo = (): void => {
                     const asset = editor.call('assets:get', atlasAsset.get('id'));
                     if (!asset) {
                         return;
@@ -284,7 +284,7 @@ editor.once('load', () => {
         });
 
         // Set frames without firing events for each individual json field
-        const setFrames = (asset, frames) => {
+        const setFrames = (asset, frames): void => {
             const suspend = asset.suspendEvents;
             asset.suspendEvents = true;
             asset.set('data.frames', frames);
@@ -294,7 +294,7 @@ editor.once('load', () => {
         };
 
         // Slice atlas in frames using a grid
-        const sliceGridByCount = (cols, rows, frames) => {
+        const sliceGridByCount = (cols: number, rows: number, frames): void => {
             const pivot = presetValues[fieldPivot.value];
 
             let maxKey = 1;
@@ -337,7 +337,7 @@ editor.once('load', () => {
             }
         };
 
-        const sliceGridBySize = (frameWidth, frameHeight, frames) => {
+        const sliceGridBySize = (frameWidth: number, frameHeight: number, frames): void => {
             const pivot = presetValues[fieldPivot.value];
 
             let maxKey = 1;
@@ -378,7 +378,7 @@ editor.once('load', () => {
         };
 
         // Checks if an image region has alpha
-        const isRegionEmpty = (left, top, width, height) => {
+        const isRegionEmpty = (left: number, top: number, width: number, height: number): boolean => {
             const right = left + width;
             const bottom = top + height;
 
@@ -393,7 +393,7 @@ editor.once('load', () => {
             return true;
         };
 
-        const isPixelEmpty = (x, y) => {
+        const isPixelEmpty = (x: number, y: number): boolean => {
             const alpha = y * (atlasImage.width * 4) + x * 4 + 3;
             return imageData.data[alpha] === 0;
         };

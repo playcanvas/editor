@@ -27,7 +27,7 @@ editor.once('load', () => {
         });
         rootPanel.append(panel);
         panel.enabled = editor.call('permissions:write');
-        events.push(editor.on('permissions:writeState', (canWrite) => {
+        events.push(editor.on('permissions:writeState', (canWrite: boolean) => {
             panel.enabled = canWrite;
         }));
 
@@ -99,7 +99,7 @@ editor.once('load', () => {
         rootPanel.append(panelEdit);
 
         panelEdit.enabled = editor.call('permissions:write');
-        events.push(editor.on('permissions:writeState', (canWrite) => {
+        events.push(editor.on('permissions:writeState', (canWrite: boolean) => {
             panelEdit.enabled = canWrite;
         }));
 
@@ -174,7 +174,7 @@ editor.once('load', () => {
 
         const panels = [];
 
-        const addFramePanel = (key, index) => {
+        const addFramePanel = (key: string, index?: number): void => {
             const frameEvents = [];
 
             const panel = new Container({
@@ -193,7 +193,7 @@ editor.once('load', () => {
             panel.append(handle);
 
 
-            const onDragStart = (evt) => {
+            const onDragStart = (evt: MouseEvent): void => {
                 if (!editor.call('permissions:write')) {
                     return;
                 }
@@ -223,7 +223,7 @@ editor.once('load', () => {
 
             let renderQueued = false;
 
-            panel.queueRender = () => {
+            panel.queueRender = (): void => {
                 if (renderQueued) {
                     return;
                 }
@@ -231,7 +231,7 @@ editor.once('load', () => {
                 requestAnimationFrame(renderPreview);
             };
 
-            const renderPreview = () => {
+            const renderPreview = (): void => {
                 renderQueued = false;
 
                 ctx.clearRect(0, 0, previewWidth, previewHeight);
@@ -294,7 +294,7 @@ editor.once('load', () => {
             });
             panel.append(btnRemove);
 
-            btnRemove.on('click', (e) => {
+            btnRemove.on('click', (e: MouseEvent) => {
                 e.stopPropagation();
 
                 const idx = panels.indexOf(panel);
@@ -342,7 +342,7 @@ editor.once('load', () => {
             }
         };
 
-        const onDragMove = (evt) => {
+        const onDragMove = (evt: MouseEvent): void => {
             const rect = panelFrames.innerElement.getBoundingClientRect();
             const height = draggedPanel.element.offsetHeight;
             const top = evt.clientY - rect.top - 6;
@@ -357,7 +357,7 @@ editor.once('load', () => {
             }
         };
 
-        const onDragEnd = () => {
+        const onDragEnd = (): void => {
             if (!draggedPanel) {
                 return;
             }
@@ -434,7 +434,7 @@ editor.once('load', () => {
             fieldPreview.setFrames(frameKeys);
         }));
 
-        events.push(atlasAsset.on('*:set', (path) => {
+        events.push(atlasAsset.on('*:set', (path: string) => {
             if (!path.startsWith('data.frames')) {
                 return;
             }

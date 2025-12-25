@@ -55,7 +55,7 @@ editor.once('load', () => {
         let timeout: ReturnType<typeof setTimeout> | null = null;
 
         // Update number of frames field
-        const updateFrameCount = () => {
+        const updateFrameCount = (): void => {
             timeout = null;
             const frames = atlasAsset.getRaw('data.frames')._data;
             fieldFrames.value = Object.keys(frames).length;
@@ -64,7 +64,7 @@ editor.once('load', () => {
         updateFrameCount();
 
         // Update number of frames when data.frames changes or when a new frame is added
-        atlasAsset.on('*:set', (path, value) => {
+        atlasAsset.on('*:set', (path: string) => {
             if (!/^data\.frames(?:\.\d+)?$/.test(path)) {
                 return;
             }
@@ -77,7 +77,7 @@ editor.once('load', () => {
         });
 
         // Update number of frames when a frame is deleted
-        atlasAsset.on('*:unset', (path) => {
+        atlasAsset.on('*:unset', (path: string) => {
             if (!/^data\.frames\.\d+$/.test(path)) {
                 return;
             }

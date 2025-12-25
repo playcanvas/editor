@@ -45,12 +45,12 @@ editor.once('load', () => {
 
             let renderQueued = false;
 
-            const renderPreview = () => {
+            const renderPreview = (): void => {
                 editor.call('picker:sprites:renderFramePreview', frame, canvas.dom);
                 renderQueued = false;
             };
 
-            panel.queueRender = () => {
+            panel.queueRender = (): void => {
                 if (renderQueued) {
                     return;
                 }
@@ -79,11 +79,11 @@ editor.once('load', () => {
 
             btnRemove.enabled = editor.call('permissions:write');
 
-            frameEvents.push(editor.on('permissions:writeState', (canWrite) => {
+            frameEvents.push(editor.on('permissions:writeState', (canWrite: boolean) => {
                 btnRemove.enabled = canWrite;
             }));
 
-            btnRemove.on('click', (e) => {
+            btnRemove.on('click', (e: MouseEvent) => {
                 e.stopPropagation();
                 editor.call('picker:sprites:deleteFrames', [key], {
                     history: true
@@ -163,11 +163,11 @@ editor.once('load', () => {
 
             });
 
-            const onMouseEnter = () => {
+            const onMouseEnter = (): void => {
                 editor.call('picker:sprites:hoverFrame', key);
             };
 
-            const onMouseLeave = () => {
+            const onMouseLeave = (): void => {
                 editor.call('picker:sprites:hoverFrame', null);
             };
 
@@ -199,21 +199,21 @@ editor.once('load', () => {
         }
 
         // keydown
-        const onKeyDown = (e) => {
+        const onKeyDown = (e: KeyboardEvent): void => {
             ctrlDown = e.ctrlKey || e.metaKey;
             shiftDown = e.shiftKey;
         };
         window.addEventListener('keydown', onKeyDown);
 
         // keyup
-        const onKeyUp = (e) => {
+        const onKeyUp = (e: KeyboardEvent): void => {
             ctrlDown = e.ctrlKey || e.metaKey;
             shiftDown = e.shiftKey;
         };
         window.addEventListener('keyup', onKeyUp);
 
         // listen to atlas set event
-        events.push(atlasAsset.on('*:set', (path, value) => {
+        events.push(atlasAsset.on('*:set', (path: string, value) => {
             if (!path.startsWith('data.frames')) {
                 return;
             }
@@ -263,7 +263,7 @@ editor.once('load', () => {
 
         // listen to atlas unset event
         const checkUnsetPath = /^data\.frames\.(\d+)$/;
-        events.push(atlasAsset.on('*:unset', (path) => {
+        events.push(atlasAsset.on('*:unset', (path: string) => {
             const match = path.match(checkUnsetPath);
             if (!match) {
                 return;

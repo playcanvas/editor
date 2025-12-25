@@ -94,7 +94,7 @@ editor.once('load', () => {
             editor.emit('picker:sprites:framesSelected', newKeys);
         };
 
-        const redo = () => {
+        const redo = (): void => {
             if (options && options.clearSprite) {
                 setSprite(null);
             }
@@ -102,7 +102,7 @@ editor.once('load', () => {
             select(keys, null, prevHighlighted);
         };
 
-        const undo = () => {
+        const undo = (): void => {
             if (options && options.clearSprite && prevSprite) {
                 selectSprite(prevSprite);
             } else {
@@ -145,7 +145,7 @@ editor.once('load', () => {
         spriteAsset.on('data.frameKeys:set', selectSpriteFrames);
     };
 
-    const selectSpriteFrames = () => {
+    const selectSpriteFrames = (): void => {
         if (spriteAsset) {
             selectFrames(spriteAsset.getRaw('data.frameKeys'));
         }
@@ -159,7 +159,7 @@ editor.once('load', () => {
             const prevSprite = spriteAsset;
             const selectedFrames = selected && !prevSprite ? highlightedFrames : null;
 
-            const redo = () => {
+            const redo = (): void => {
                 setSprite(asset);
                 if (spriteAsset) {
                     selectFrames(spriteAsset.getRaw('data.frameKeys'));
@@ -168,7 +168,7 @@ editor.once('load', () => {
                 }
             };
 
-            const undo = () => {
+            const undo = (): void => {
                 setSprite(prevSprite);
                 if (spriteAsset) {
                     selectFrames(spriteAsset.getRaw('data.frameKeys'));
@@ -195,7 +195,7 @@ editor.once('load', () => {
         }
     };
 
-    const getFilename = (name) => {
+    const getFilename = (name: string): string => {
         // Get the filename from a filepath if there's a '/'
         // https://github.com/playcanvas/editor/issues/784
         const lastSlash = name.lastIndexOf('/');
@@ -317,7 +317,7 @@ editor.once('load', () => {
         });
     });
 
-    const startSpriteEditMode = () => {
+    const startSpriteEditMode = (): void => {
         spriteEditMode = true;
         editor.emit('picker:sprites:pickFrames:start');
 
@@ -335,7 +335,7 @@ editor.once('load', () => {
         });
     };
 
-    const endSpriteEditMode = () => {
+    const endSpriteEditMode = (): void => {
         spriteEditMode = false;
         newSpriteFrames.length = 0;
 

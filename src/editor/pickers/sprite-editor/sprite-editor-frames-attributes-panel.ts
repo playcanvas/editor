@@ -28,7 +28,7 @@ editor.once('load', () => {
         });
         rootPanel.append(container);
         container.enabled = editor.call('permissions:write');
-        events.push(editor.on('permissions:writeState', (canWrite) => {
+        events.push(editor.on('permissions:writeState', (canWrite: boolean) => {
             container.enabled = canWrite;
         }));
 
@@ -110,7 +110,7 @@ editor.once('load', () => {
             suspendChanges = false;
         });
 
-        const updateMaxPosition = (field) => {
+        const updateMaxPosition = (field: number): void => {
             const dimension = field === 0 ? atlasImage.width : atlasImage.height;
             let maxPos = dimension;
 
@@ -130,7 +130,7 @@ editor.once('load', () => {
             fieldPosition[field].max = maxPos;
         };
 
-        const updateMaxSize = (field) => {
+        const updateMaxSize = (field: number): void => {
             const dimension = field === 0 ? atlasImage.width : atlasImage.height;
             let maxSize = dimension;
 
@@ -150,7 +150,7 @@ editor.once('load', () => {
             fieldSize[field].max = maxSize;
         };
 
-        const updatePositionX = () => {
+        const updatePositionX = (): void => {
             if (fieldRect[0].proxy) {
                 fieldPosition[0].value = null;
             } else {
@@ -165,7 +165,7 @@ editor.once('load', () => {
             });
         };
 
-        const updatePositionY = () => {
+        const updatePositionY = (): void => {
             if (fieldRect[1].proxy) {
                 fieldPosition[1].value = null;
             } else {
@@ -180,7 +180,7 @@ editor.once('load', () => {
             });
         };
 
-        const updateSizeX = () => {
+        const updateSizeX = (): void => {
             if (fieldRect[2].proxy) {
                 fieldSize[0].value = null;
             } else {
@@ -195,7 +195,7 @@ editor.once('load', () => {
             });
         };
 
-        const updateSizeY = () => {
+        const updateSizeY = (): void => {
             if (fieldRect[3].proxy) {
                 fieldSize[1].value = null;
             } else {
@@ -280,13 +280,13 @@ editor.once('load', () => {
 
         // Updates the rect of the selected frames adjusting
         // their borders if necessary.
-        const updateSizeAndAdjustBorder = (value, isHeight) => {
+        const updateSizeAndAdjustBorder = (value: number, isHeight: boolean): void => {
             let prev = null;
 
             const rect = isHeight ? 3 : 2;
             const border = isHeight ? 1 : 0;
 
-            const redo = () => {
+            const redo = (): void => {
                 const asset = editor.call('assets:get', atlasAsset.get('id'));
                 if (!asset) {
                     return;
@@ -329,7 +329,7 @@ editor.once('load', () => {
                 asset.history.enabled = history;
             };
 
-            const undo = () => {
+            const undo = (): void => {
                 const asset = editor.call('assets:get', atlasAsset.get('id'));
                 if (!asset) {
                     return;
@@ -412,7 +412,7 @@ editor.once('load', () => {
                 prevValues[frames[i]] = atlasAsset.get(`data.frames.${frames[i]}.pivot`);
             }
 
-            const redo = () => {
+            const redo = (): void => {
                 const asset = editor.call('assets:get', atlasAsset.get('id'));
                 if (!asset) {
                     return;
@@ -429,7 +429,7 @@ editor.once('load', () => {
                 asset.history.enabled = history;
             };
 
-            const undo = () => {
+            const undo = (): void => {
                 const asset = editor.call('assets:get', atlasAsset.get('id'));
                 if (!asset) {
                     return;
@@ -488,7 +488,7 @@ editor.once('load', () => {
             updatePivotPreset();
         });
 
-        const updatePivotPreset = () => {
+        const updatePivotPreset = (): void => {
             const suspend = suspendChanges;
             suspendChanges = true;
             for (let i = 0; i < presetValues.length; i++) {
@@ -517,7 +517,7 @@ editor.once('load', () => {
         // reference
         editor.call('attributes:reference:attach', 'spriteeditor:frame:border', fieldBorder[0].parent.innerElement.firstChild.ui, null, container);
 
-        const updateBorderMax = () => {
+        const updateBorderMax = (): void => {
             // set left border max to not exceed the right border in any frame
             let maxLeft = atlasImage.width;
             let maxRight = atlasImage.width;
@@ -555,7 +555,7 @@ editor.once('load', () => {
         });
         rootPanel.append(panelButtons);
         panelButtons.enabled = editor.call('permissions:write');
-        events.push(editor.on('permissions:writeState', (canWrite) => {
+        events.push(editor.on('permissions:writeState', (canWrite: boolean) => {
             panelButtons.enabled = canWrite;
         }));
 

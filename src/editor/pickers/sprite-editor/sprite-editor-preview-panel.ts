@@ -39,7 +39,7 @@ editor.once('load', () => {
         let renderQueued;
 
         // queue up the rendering to prevent too often renders
-        const queueRender = () => {
+        const queueRender = (): void => {
             if (renderQueued) {
                 return;
             }
@@ -47,7 +47,7 @@ editor.once('load', () => {
             requestAnimationFrame(renderPreview);
         };
 
-        const renderPreview = () => {
+        const renderPreview = (): void => {
             if (!previewContainer) {
                 return;
             }
@@ -100,7 +100,7 @@ editor.once('load', () => {
         }));
 
         return {
-            setFrames: (newFrames) => {
+            setFrames: (newFrames: string[]): void => {
                 frames = newFrames;
                 frameObservers = frames.map((f) => {
                     return atlasAsset.getRaw(`data.frames.${f}`);
