@@ -1,4 +1,4 @@
-import { Button, Panel } from '@playcanvas/pcui';
+import { Button, Container, Panel } from '@playcanvas/pcui';
 
 editor.once('load', () => {
     editor.method('picker:sprites:attributes:frames', (args) => {
@@ -22,16 +22,17 @@ editor.once('load', () => {
             frames: frames
         });
 
-        const panel = editor.call('attributes:addPanel', {
-            parent: rootPanel
+        const container = new Container({
+            class: 'frame-attributes'
         });
-        panel.disabled = !editor.call('permissions:write');
+        rootPanel.append(container);
+        container.enabled = editor.call('permissions:write');
         events.push(editor.on('permissions:writeState', (canWrite) => {
-            panel.disabled = !canWrite;
+            container.enabled = canWrite;
         }));
 
         const fieldName = editor.call('attributes:addField', {
-            parent: panel,
+            parent: container,
             name: 'Name',
             type: 'string',
             link: atlasAsset,
@@ -40,7 +41,7 @@ editor.once('load', () => {
             })
         });
         // reference
-        editor.call('attributes:reference:attach', 'spriteeditor:frame:name', fieldName.parent.innerElement.firstChild.ui, null, panel);
+        editor.call('attributes:reference:attach', 'spriteeditor:frame:name', fieldName.parent.innerElement.firstChild.ui, null, container);
 
         fieldName.on('change', (value) => {
             if (numFrames === 1) {
@@ -52,7 +53,7 @@ editor.once('load', () => {
         // The user only will see position and size fields in pixels which is more helpful
         // but we'll use the internal rect fields to edit it
         const fieldRect = editor.call('attributes:addField', {
-            parent: panel,
+            parent: container,
             type: 'vec4',
             link: atlasAsset,
             paths: frames.map((f) => {
@@ -108,7 +109,7 @@ editor.once('load', () => {
             suspendChanges = false;
         });
 
-        const updateMaxPosition = function (field) {
+        const updateMaxPosition = (field) => {
             const dimension = field === 0 ? atlasImage.width : atlasImage.height;
             let maxPos = dimension;
 
@@ -128,7 +129,7 @@ editor.once('load', () => {
             fieldPosition[field].max = maxPos;
         };
 
-        const updateMaxSize = function (field) {
+        const updateMaxSize = (field) => {
             const dimension = field === 0 ? atlasImage.width : atlasImage.height;
             let maxSize = dimension;
 
@@ -148,7 +149,7 @@ editor.once('load', () => {
             fieldSize[field].max = maxSize;
         };
 
-        const updatePositionX = function () {
+        const updatePositionX = () => {
             if (fieldRect[0].proxy) {
                 fieldPosition[0].value = null;
             } else {
@@ -163,7 +164,7 @@ editor.once('load', () => {
             });
         };
 
-        const updatePositionY = function () {
+        const updatePositionY = () => {
             if (fieldRect[1].proxy) {
                 fieldPosition[1].value = null;
             } else {
@@ -178,7 +179,7 @@ editor.once('load', () => {
             });
         };
 
-        const updateSizeX = function () {
+        const updateSizeX = () => {
             if (fieldRect[2].proxy) {
                 fieldSize[0].value = null;
             } else {
@@ -193,7 +194,7 @@ editor.once('load', () => {
             });
         };
 
-        const updateSizeY = function () {
+        const updateSizeY = () => {
             if (fieldRect[3].proxy) {
                 fieldSize[1].value = null;
             } else {
@@ -210,7 +211,7 @@ editor.once('load', () => {
 
         // position in pixels
         const fieldPosition = editor.call('attributes:addField', {
-            parent: panel,
+            parent: container,
             name: 'Position',
             type: 'vec2',
             precision: 0,
@@ -218,7 +219,7 @@ editor.once('load', () => {
             placeholder: ['→', '↑']
         });
         // reference
-        editor.call('attributes:reference:attach', 'spriteeditor:frame:position', fieldPosition[0].parent.innerElement.firstChild.ui, null, panel);
+        editor.call('attributes:reference:attach', 'spriteeditor:frame:position', fieldPosition[0].parent.innerElement.firstChild.ui, null, container);
 
         updatePositionX();
         updatePositionY();
@@ -247,7 +248,7 @@ editor.once('load', () => {
 
         // size in pixels
         const fieldSize = editor.call('attributes:addField', {
-            parent: panel,
+            parent: container,
             name: 'Size',
             type: 'vec2',
             precision: 0,
@@ -255,7 +256,7 @@ editor.once('load', () => {
             placeholder: ['→', '↑']
         });
         // reference
-        editor.call('attributes:reference:attach', 'spriteeditor:frame:size', fieldSize[0].parent.innerElement.firstChild.ui, null, panel);
+        editor.call('attributes:reference:attach', 'spriteeditor:frame:size', fieldSize[0].parent.innerElement.firstChild.ui, null, container);
 
         updateSizeX();
         updateSizeY();
@@ -278,13 +279,13 @@ editor.once('load', () => {
 
         // Updates the rect of the selected frames adjusting
         // their borders if necessary.
-        const updateSizeAndAdjustBorder = function (value, isHeight) {
+        const updateSizeAndAdjustBorder = (value, isHeight) => {
             let prev = null;
 
             const rect = isHeight ? 3 : 2;
             const border = isHeight ? 1 : 0;
 
-            const redo = function () {
+            const redo = () => {
                 const asset = editor.call('assets:get', atlasAsset.get('id'));
                 if (!asset) {
                     return;
@@ -327,8 +328,7 @@ editor.once('load', () => {
                 asset.history.enabled = history;
             };
 
-            const undo = function () {
-
+            const undo = () => {
                 const asset = editor.call('assets:get', atlasAsset.get('id'));
                 if (!asset) {
                     return;
@@ -378,7 +378,7 @@ editor.once('load', () => {
         ];
 
         const fieldPivotPreset = editor.call('attributes:addField', {
-            parent: panel,
+            parent: container,
             name: 'Pivot Preset',
             type: 'string',
             enum: [
@@ -394,7 +394,7 @@ editor.once('load', () => {
             ]
         });
         // reference
-        editor.call('attributes:reference:attach', 'spriteeditor:frame:pivotPreset', fieldPivotPreset.parent.innerElement.firstChild.ui, null, panel);
+        editor.call('attributes:reference:attach', 'spriteeditor:frame:pivotPreset', fieldPivotPreset.parent.innerElement.firstChild.ui, null, container);
 
         fieldPivotPreset.on('change', (value) => {
             if (suspendChanges) {
@@ -411,7 +411,7 @@ editor.once('load', () => {
                 prevValues[frames[i]] = atlasAsset.get(`data.frames.${frames[i]}.pivot`);
             }
 
-            const redo = function () {
+            const redo = () => {
                 const asset = editor.call('assets:get', atlasAsset.get('id'));
                 if (!asset) {
                     return;
@@ -428,7 +428,7 @@ editor.once('load', () => {
                 asset.history.enabled = history;
             };
 
-            const undo = function () {
+            const undo = () => {
                 const asset = editor.call('assets:get', atlasAsset.get('id'));
                 if (!asset) {
                     return;
@@ -458,7 +458,7 @@ editor.once('load', () => {
 
         // pivot
         const fieldPivot = editor.call('attributes:addField', {
-            parent: panel,
+            parent: container,
             name: 'Pivot',
             type: 'vec2',
             min: 0,
@@ -472,7 +472,7 @@ editor.once('load', () => {
             })
         });
         // reference
-        editor.call('attributes:reference:attach', 'spriteeditor:frame:pivot', fieldPivot[0].parent.innerElement.firstChild.ui, null, panel);
+        editor.call('attributes:reference:attach', 'spriteeditor:frame:pivot', fieldPivot[0].parent.innerElement.firstChild.ui, null, container);
 
         fieldPivot[0].on('change', (value) => {
             if (suspendChanges) {
@@ -487,7 +487,7 @@ editor.once('load', () => {
             updatePivotPreset();
         });
 
-        const updatePivotPreset = function () {
+        const updatePivotPreset = () => {
             const suspend = suspendChanges;
             suspendChanges = true;
             for (let i = 0; i < presetValues.length; i++) {
@@ -503,7 +503,7 @@ editor.once('load', () => {
 
         // border
         const fieldBorder = editor.call('attributes:addField', {
-            parent: panel,
+            parent: container,
             placeholder: ['←', '↓', '→', '↑'],
             name: 'Border',
             type: 'vec4',
@@ -514,9 +514,9 @@ editor.once('load', () => {
             })
         });
         // reference
-        editor.call('attributes:reference:attach', 'spriteeditor:frame:border', fieldBorder[0].parent.innerElement.firstChild.ui, null, panel);
+        editor.call('attributes:reference:attach', 'spriteeditor:frame:border', fieldBorder[0].parent.innerElement.firstChild.ui, null, container);
 
-        const updateBorderMax = function () {
+        const updateBorderMax = () => {
             // set left border max to not exceed the right border in any frame
             let maxLeft = atlasImage.width;
             let maxRight = atlasImage.width;
@@ -567,7 +567,7 @@ editor.once('load', () => {
         panelButtons.append(btnCreateSprite);
 
         // reference
-        editor.call('attributes:reference:attach', 'spriteeditor:frame:newsprite', btnCreateSprite, null, panel);
+        editor.call('attributes:reference:attach', 'spriteeditor:frame:newsprite', btnCreateSprite, null, container);
 
         btnCreateSprite.on('click', () => {
             btnCreateSprite.enabled = false;
@@ -587,7 +587,7 @@ editor.once('load', () => {
         panelButtons.append(btnCreateSlicedSprite);
 
         // reference
-        editor.call('attributes:reference:attach', 'spriteeditor:frame:newsprite', btnCreateSlicedSprite, null, panel);
+        editor.call('attributes:reference:attach', 'spriteeditor:frame:newsprite', btnCreateSlicedSprite, null, container);
 
         btnCreateSlicedSprite.on('click', () => {
             btnCreateSlicedSprite.enabled = false;
@@ -608,7 +608,7 @@ editor.once('load', () => {
         panelButtons.append(btnCreateSpritesFromFrames);
 
         // reference
-        editor.call('attributes:reference:attach', 'spriteeditor:frame:newspritesfromframes', btnCreateSpritesFromFrames, null, panel);
+        editor.call('attributes:reference:attach', 'spriteeditor:frame:newspritesfromframes', btnCreateSpritesFromFrames, null, container);
 
         btnCreateSpritesFromFrames.on('click', () => {
             btnCreateSpritesFromFrames.enabled = false;
@@ -627,7 +627,7 @@ editor.once('load', () => {
         });
         panelButtons.append(btnFocus);
         // reference
-        editor.call('attributes:reference:attach', 'spriteeditor:frame:focus', btnFocus, null, panel);
+        editor.call('attributes:reference:attach', 'spriteeditor:frame:focus', btnFocus, null, container);
 
         btnFocus.on('click', () => {
             editor.call('picker:sprites:focus');
@@ -642,7 +642,7 @@ editor.once('load', () => {
         panelButtons.append(btnTrim);
 
         // reference
-        editor.call('attributes:reference:attach', 'spriteeditor:frame:trim', btnTrim, null, panel);
+        editor.call('attributes:reference:attach', 'spriteeditor:frame:trim', btnTrim, null, container);
 
         // trim transparent pixels around frame
         btnTrim.on('click', () => {
@@ -658,7 +658,7 @@ editor.once('load', () => {
         panelButtons.append(btnDelete);
 
         // reference
-        editor.call('attributes:reference:attach', 'spriteeditor:frame:delete', btnDelete, null, panel);
+        editor.call('attributes:reference:attach', 'spriteeditor:frame:delete', btnDelete, null, container);
 
         btnDelete.on('click', () => {
             editor.call('picker:sprites:deleteFrames', frames, {
@@ -668,11 +668,11 @@ editor.once('load', () => {
 
         // clean up
         events.push(rootPanel.on('clear', () => {
-            panel.destroy();
+            container.destroy();
             panelButtons.destroy();
         }));
 
-        panel.on('destroy', () => {
+        container.on('destroy', () => {
             events.forEach(event => event.unbind());
             events.length = 0;
         });
