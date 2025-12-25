@@ -1,5 +1,5 @@
-import { Button, Container, Panel } from '@playcanvas/pcui';
 import type { EventHandle } from '@playcanvas/observer';
+import { Button, Container, Panel } from '@playcanvas/pcui';
 
 editor.once('load', () => {
     editor.method('picker:sprites:attributes:frames', (args) => {

@@ -1,5 +1,4 @@
-import { Observer } from '@playcanvas/observer';
-import type { EventHandle } from '@playcanvas/observer';
+import { Observer, type EventHandle } from '@playcanvas/observer';
 import { Button, Canvas, Container, Overlay, Panel } from '@playcanvas/pcui';
 
 import { buildQueryUrl, deepCopy } from '@/common/utils';

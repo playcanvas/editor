@@ -1,5 +1,5 @@
-import { Label, Panel } from '@playcanvas/pcui';
 import type { EventHandle } from '@playcanvas/observer';
+import { Label, Panel } from '@playcanvas/pcui';
 
 import { LegacyList } from '@/common/ui/list';
 import { LegacyListItem } from '@/common/ui/list-item';
