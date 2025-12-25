@@ -28,7 +28,7 @@ editor.once('load', () => {
             }
         }
 
-        const redo = function () {
+        const redo = () => {
             const asset = editor.call('assets:get', atlasAsset.get('id'));
             if (!asset) {
                 return;
@@ -48,7 +48,7 @@ editor.once('load', () => {
         };
 
         if (history) {
-            const undo = function () {
+            const undo = () => {
                 const asset = editor.call('assets:get', atlasAsset.get('id'));
                 if (!asset) {
                     return;

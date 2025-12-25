@@ -16,7 +16,7 @@ editor.once('load', () => {
     // options.history: Whether to add this action to the history
     // options.add: Whether to add the frames to the existing selection
     // options.clearSprite: Clear sprite selection if true
-    const selectFrames = function (keys, options) {
+    const selectFrames = (keys, options) => {
         if (keys && !(keys instanceof Array)) {
             keys = [keys];
         }
@@ -63,7 +63,7 @@ editor.once('load', () => {
             keys = temp;
         }
 
-        const select = function (newKeys, newSelection, oldKeys) {
+        const select = (newKeys, newSelection, oldKeys) => {
             selected = null;
 
             if (oldKeys) {
@@ -94,7 +94,7 @@ editor.once('load', () => {
             editor.emit('picker:sprites:framesSelected', newKeys);
         };
 
-        const redo = function () {
+        const redo = () => {
             if (options && options.clearSprite) {
                 setSprite(null);
             }
@@ -102,7 +102,7 @@ editor.once('load', () => {
             select(keys, null, prevHighlighted);
         };
 
-        const undo = function () {
+        const undo = () => {
             if (options && options.clearSprite && prevSprite) {
                 selectSprite(prevSprite);
             } else {
@@ -126,7 +126,7 @@ editor.once('load', () => {
     };
 
     // Sets the selected sprite and hooks event listeners
-    const setSprite = function (asset) {
+    const setSprite = (asset) => {
         if (spriteAsset) {
             spriteAsset.unbind('data.frameKeys:remove', selectSpriteFrames);
             spriteAsset.unbind('data.frameKeys:insert', selectSpriteFrames);
@@ -145,7 +145,7 @@ editor.once('load', () => {
         spriteAsset.on('data.frameKeys:set', selectSpriteFrames);
     };
 
-    const selectSpriteFrames = function () {
+    const selectSpriteFrames = () => {
         if (spriteAsset) {
             selectFrames(spriteAsset.getRaw('data.frameKeys'));
         }
@@ -154,12 +154,12 @@ editor.once('load', () => {
     // Select specified sprite asset
     // Options are:
     // - history: If true make action undoable
-    const selectSprite = function (asset, options) {
+    const selectSprite = (asset, options) => {
         if (options && options.history) {
             const prevSprite = spriteAsset;
             const selectedFrames = selected && !prevSprite ? highlightedFrames : null;
 
-            const redo = function () {
+            const redo = () => {
                 setSprite(asset);
                 if (spriteAsset) {
                     selectFrames(spriteAsset.getRaw('data.frameKeys'));
@@ -168,7 +168,7 @@ editor.once('load', () => {
                 }
             };
 
-            const undo = function () {
+            const undo = () => {
                 setSprite(prevSprite);
                 if (spriteAsset) {
                     selectFrames(spriteAsset.getRaw('data.frameKeys'));
@@ -195,7 +195,7 @@ editor.once('load', () => {
         }
     };
 
-    const getFilename = function (name) {
+    const getFilename = (name) => {
         // Get the filename from a filepath if there's a '/'
         // https://github.com/playcanvas/editor/issues/784
         const lastSlash = name.lastIndexOf('/');
@@ -317,14 +317,14 @@ editor.once('load', () => {
         });
     });
 
-    const startSpriteEditMode = function () {
+    const startSpriteEditMode = () => {
         spriteEditMode = true;
         editor.emit('picker:sprites:pickFrames:start');
 
         // Enter key to add frames and end sprite edit mode
         editor.call('hotkey:register', 'sprite-editor-add-frames', {
             key: 'Enter',
-            callback: function () {
+            callback: () => {
                 // do this in a timeout because this will terminate sprite edit mode
                 // which will unregister the hotkey which will cause an error because
                 // we are still in the hotkey execution loop
@@ -335,7 +335,7 @@ editor.once('load', () => {
         });
     };
 
-    const endSpriteEditMode = function () {
+    const endSpriteEditMode = () => {
         spriteEditMode = false;
         newSpriteFrames.length = 0;
 
@@ -415,7 +415,7 @@ editor.once('load', () => {
         // Delete hotkey to delete selected frames
         editor.call('hotkey:register', 'sprite-editor-delete', {
             key: 'Delete',
-            callback: function () {
+            callback: () => {
                 if (!spriteAsset && highlightedFrames.length) {
                     editor.call('picker:sprites:deleteFrames', highlightedFrames, {
                         history: true

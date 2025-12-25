@@ -174,7 +174,7 @@ editor.once('load', () => {
 
         const panels = [];
 
-        const addFramePanel = function (key, index) {
+        const addFramePanel = (key, index) => {
             const frameEvents = [];
 
             const panel = new Container({
@@ -193,7 +193,7 @@ editor.once('load', () => {
             panel.append(handle);
 
 
-            const onDragStart = function (evt) {
+            const onDragStart = (evt) => {
                 if (!editor.call('permissions:write')) {
                     return;
                 }
@@ -223,7 +223,7 @@ editor.once('load', () => {
 
             let renderQueued = false;
 
-            panel.queueRender = function () {
+            panel.queueRender = () => {
                 if (renderQueued) {
                     return;
                 }
@@ -231,7 +231,7 @@ editor.once('load', () => {
                 requestAnimationFrame(renderPreview);
             };
 
-            const renderPreview = function () {
+            const renderPreview = () => {
                 renderQueued = false;
 
                 ctx.clearRect(0, 0, previewWidth, previewHeight);
@@ -342,7 +342,7 @@ editor.once('load', () => {
             }
         };
 
-        const onDragMove = function (evt) {
+        const onDragMove = (evt) => {
             const rect = panelFrames.innerElement.getBoundingClientRect();
             const height = draggedPanel.element.offsetHeight;
             const top = evt.clientY - rect.top - 6;
@@ -357,7 +357,7 @@ editor.once('load', () => {
             }
         };
 
-        const onDragEnd = function () {
+        const onDragEnd = () => {
             if (!draggedPanel) {
                 return;
             }

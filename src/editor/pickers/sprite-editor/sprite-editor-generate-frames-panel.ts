@@ -147,7 +147,7 @@ editor.once('load', () => {
         // reference
         editor.call('attributes:reference:attach', 'spriteeditor:generate:pivot', fieldPivot.parent.innerElement.firstChild.ui, null, panel);
 
-        const toggleFields = function () {
+        const toggleFields = () => {
             fieldColsRows[0].parent.hidden = fieldType.value !== TYPE_GRID_BY_FRAME_COUNT;
             fieldPixels[0].parent.hidden = fieldType.value !== TYPE_GRID_BY_FRAME_SIZE;
             fieldOffset[0].parent.hidden = fieldType.value !== TYPE_GRID_BY_FRAME_COUNT && fieldType.value !== TYPE_GRID_BY_FRAME_SIZE;
@@ -178,7 +178,7 @@ editor.once('load', () => {
             const oldFrames = atlasAsset.get('data.frames');
             const newFrames = method === METHOD_DELETE_EXISTING ? {} : atlasAsset.get('data.frames');
 
-            const redo = function () {
+            const redo = () => {
                 const asset = editor.call('assets:get', atlasAsset.get('id'));
                 if (!asset) {
                     return;
@@ -202,7 +202,7 @@ editor.once('load', () => {
                 asset.history.enabled = history;
             };
 
-            const undo = function () {
+            const undo = () => {
                 const asset = editor.call('assets:get', atlasAsset.get('id'));
                 if (!asset) {
                     return;
@@ -246,7 +246,7 @@ editor.once('load', () => {
 
                 btnClear.disabled = true;
 
-                const redo = function () {
+                const redo = () => {
                     const asset = editor.call('assets:get', atlasAsset.get('id'));
                     if (!asset) {
                         return;
@@ -257,7 +257,7 @@ editor.once('load', () => {
                     asset.history.enabled = history;
                 };
 
-                const undo = function () {
+                const undo = () => {
                     const asset = editor.call('assets:get', atlasAsset.get('id'));
                     if (!asset) {
                         return;
@@ -284,7 +284,7 @@ editor.once('load', () => {
         });
 
         // Set frames without firing events for each individual json field
-        const setFrames = function (asset, frames) {
+        const setFrames = (asset, frames) => {
             const suspend = asset.suspendEvents;
             asset.suspendEvents = true;
             asset.set('data.frames', frames);
@@ -294,7 +294,7 @@ editor.once('load', () => {
         };
 
         // Slice atlas in frames using a grid
-        const sliceGridByCount = function (cols, rows, frames) {
+        const sliceGridByCount = (cols, rows, frames) => {
             const pivot = presetValues[fieldPivot.value];
 
             let maxKey = 1;
@@ -337,7 +337,7 @@ editor.once('load', () => {
             }
         };
 
-        const sliceGridBySize = function (frameWidth, frameHeight, frames) {
+        const sliceGridBySize = (frameWidth, frameHeight, frames) => {
             const pivot = presetValues[fieldPivot.value];
 
             let maxKey = 1;
@@ -378,7 +378,7 @@ editor.once('load', () => {
         };
 
         // Checks if an image region has alpha
-        const isRegionEmpty = function (left, top, width, height) {
+        const isRegionEmpty = (left, top, width, height) => {
             const right = left + width;
             const bottom = top + height;
 
@@ -393,7 +393,7 @@ editor.once('load', () => {
             return true;
         };
 
-        const isPixelEmpty = function (x, y) {
+        const isPixelEmpty = (x, y) => {
             const alpha = y * (atlasImage.width * 4) + x * 4 + 3;
             return imageData.data[alpha] === 0;
         };

@@ -23,7 +23,7 @@ editor.once('load', () => {
         const panelFrames = leftPanel.content;
         panelFrames.class.add('frames');
 
-        const addFramePanel = function (key, frame, afterPanel, beforePanel) {
+        const addFramePanel = (key, frame, afterPanel, beforePanel) => {
             const frameEvents = [];
 
             const panel = new Container({
@@ -45,12 +45,12 @@ editor.once('load', () => {
 
             let renderQueued = false;
 
-            const renderPreview = function () {
+            const renderPreview = () => {
                 editor.call('picker:sprites:renderFramePreview', frame, canvas.dom);
                 renderQueued = false;
             };
 
-            panel.queueRender = function () {
+            panel.queueRender = () => {
                 if (renderQueued) {
                     return;
                 }
@@ -163,11 +163,11 @@ editor.once('load', () => {
 
             });
 
-            const onMouseEnter = function () {
+            const onMouseEnter = () => {
                 editor.call('picker:sprites:hoverFrame', key);
             };
 
-            const onMouseLeave = function () {
+            const onMouseLeave = () => {
                 editor.call('picker:sprites:hoverFrame', null);
             };
 
@@ -199,14 +199,14 @@ editor.once('load', () => {
         }
 
         // keydown
-        const onKeyDown = function (e) {
+        const onKeyDown = (e) => {
             ctrlDown = e.ctrlKey || e.metaKey;
             shiftDown = e.shiftKey;
         };
         window.addEventListener('keydown', onKeyDown);
 
         // keyup
-        const onKeyUp = function (e) {
+        const onKeyUp = (e) => {
             ctrlDown = e.ctrlKey || e.metaKey;
             shiftDown = e.shiftKey;
         };
