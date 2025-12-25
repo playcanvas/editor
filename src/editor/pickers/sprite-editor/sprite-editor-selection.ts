@@ -16,7 +16,7 @@ editor.once('load', () => {
     // options.history: Whether to add this action to the history
     // options.add: Whether to add the frames to the existing selection
     // options.clearSprite: Clear sprite selection if true
-    const selectFrames = (keys, options) => {
+    const selectFrames = (keys, options?) => {
         if (keys && !(keys instanceof Array)) {
             keys = [keys];
         }
