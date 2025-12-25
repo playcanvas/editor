@@ -154,7 +154,7 @@ editor.once('load', () => {
     // Select specified sprite asset
     // Options are:
     // - history: If true make action undoable
-    const selectSprite = (asset, options) => {
+    const selectSprite = (asset, options?) => {
         if (options && options.history) {
             const prevSprite = spriteAsset;
             const selectedFrames = selected && !prevSprite ? highlightedFrames : null;
