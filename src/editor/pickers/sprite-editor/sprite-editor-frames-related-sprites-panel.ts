@@ -1,4 +1,4 @@
-import type { EventHandle } from '@playcanvas/observer';
+import type { EventHandle, Observer } from '@playcanvas/observer';
 import { Label, Panel } from '@playcanvas/pcui';
 
 import { LegacyList } from '@/common/ui/list';
@@ -29,7 +29,7 @@ editor.once('load', () => {
         list.class.add('related-assets');
         panel.append(list);
 
-        const assets = editor.call('assets:find', (asset) => {
+        const assets = editor.call('assets:find', (asset: Observer) => {
             if (asset.get('type') !== 'sprite' || asset.get('data.textureAtlasAsset') !== atlasAsset.get('id')) {
                 return false;
             }
@@ -47,7 +47,7 @@ editor.once('load', () => {
         labelNoAssets.hidden = assets.length > 0;
         list.hidden = assets.length === 0;
 
-        const createAssetPanel = (asset) => {
+        const createAssetPanel = (asset: Observer): void => {
             const assetEvents = [];
 
             const item = new LegacyListItem({
