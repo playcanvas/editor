@@ -90,7 +90,7 @@ editor.once('load', () => {
         events.push(parent.on('clear', () => {
             parent.class.remove('asset-preview', 'animate');
 
-            previewContainer.parentElement.removeChild(previewContainer);
+            previewContainer.remove();
             previewContainer = null;
 
             playing = false;

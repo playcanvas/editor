@@ -40,7 +40,7 @@ editor.once('load', () => {
             text: '&#57650;'
         });
         btnCloseError.class.add('close');
-        panelError.headerElement.appendChild(btnCloseError.element);
+        panelError.headerElement.append(btnCloseError.element);
 
         btnCloseError.on('click', () => {
             panelError.hidden = true;
@@ -54,7 +54,7 @@ editor.once('load', () => {
         hiddenInput.type = 'file';
         hiddenInput.accept = '.json';
         hiddenInput.style.display = 'none';
-        panel.innerElement.appendChild(hiddenInput);
+        panel.innerElement.append(hiddenInput);
 
         const btnImport = new LegacyButton({
             text: 'UPLOAD TEXTURE PACKER JSON'
