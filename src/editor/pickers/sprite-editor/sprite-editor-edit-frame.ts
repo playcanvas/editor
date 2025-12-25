@@ -57,8 +57,8 @@ editor.once('load', () => {
         editor.api.globals.history.add({
             name: `data.frames.${key}`,
             combine: false,
-            undo: undo,
-            redo: redo
+            undo,
+            redo
         });
 
         redo();

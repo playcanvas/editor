@@ -123,7 +123,7 @@ editor.once('load', () => {
             }
 
             return {
-                name: name,
+                name,
                 border: frameData.borders ? [
                     Math.max(0, frameData.borders.x),
                     Math.max(0, frameData.frame.h - frameData.borders.y - frameData.borders.h),

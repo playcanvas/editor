@@ -114,8 +114,8 @@ editor.once('load', () => {
             editor.api.globals.history.add({
                 name: 'select frame',
                 combine: false,
-                undo: undo,
-                redo: redo
+                undo,
+                redo
             });
 
         }
@@ -180,8 +180,8 @@ editor.once('load', () => {
             editor.api.globals.history.add({
                 name: 'select sprite',
                 combine: false,
-                undo: undo,
-                redo: redo
+                undo,
+                redo
             });
 
             redo();

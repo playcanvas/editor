@@ -216,8 +216,8 @@ editor.once('load', () => {
             editor.api.globals.history.add({
                 name: 'slice',
                 combine: false,
-                redo: redo,
-                undo: undo
+                redo,
+                undo
             });
 
             // do this in a timeout to give a chance to the button to
@@ -271,8 +271,8 @@ editor.once('load', () => {
                 editor.api.globals.history.add({
                     name: 'delete all frames',
                     combine: false,
-                    undo: undo,
-                    redo: redo
+                    undo,
+                    redo
                 });
 
                 // do this in a timeout so that the button can appear disabled

@@ -71,8 +71,8 @@ editor.once('load', () => {
             editor.api.globals.history.add({
                 name: 'delete frames',
                 combine: false,
-                undo: undo,
-                redo: redo
+                undo,
+                redo
             });
         }
 

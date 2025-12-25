@@ -17,8 +17,8 @@ editor.once('load', () => {
         rootPanel.headerText = `SPRITE ASSET - ${spriteAsset.get('name')}`;
 
         const fieldPreview = editor.call('picker:sprites:attributes:frames:preview', {
-            atlasAsset: atlasAsset,
-            atlasImage: atlasImage,
+            atlasAsset,
+            atlasImage,
             frames: frameKeys
         });
 
