@@ -255,7 +255,7 @@ editor.once('load', () => {
         return controls.get('zoom') * (canvasRatio > aspectRatio ? canvas.height * aspectRatio : canvas.width);
     };
 
-    const imageHeight = function (zoom) {
+    const imageHeight = function () {
         return controls.get('zoom') * (canvasRatio <= aspectRatio ? canvas.width / aspectRatio : canvas.height);
     };
 
