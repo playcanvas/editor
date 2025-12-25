@@ -93,9 +93,7 @@ editor.once('load', () => {
         }));
 
         panel.on('destroy', () => {
-            for (let i = 0, len = events.length; i < len; i++) {
-                events[i].unbind();
-            }
+            events.forEach(event => event.unbind());
             events.length = 0;
         });
     });

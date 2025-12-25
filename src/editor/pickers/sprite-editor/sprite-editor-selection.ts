@@ -430,9 +430,7 @@ editor.once('load', () => {
         newSpriteFrames.length = 0;
         setSprite(null);
 
-        for (let i = 0; i < events.length; i++) {
-            events[i].unbind();
-        }
+        events.forEach(event => event.unbind());
         events.length = 0;
 
         editor.call('hotkey:unregister', 'sprite-editor-delete');

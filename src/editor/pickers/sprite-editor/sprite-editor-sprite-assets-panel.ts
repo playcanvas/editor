@@ -263,9 +263,7 @@ editor.once('load', () => {
             menu.destroy();
             contextMenuAsset = null;
 
-            for (const event of events) {
-                event.unbind();
-            }
+            events.forEach(event => event.unbind());
             events.length = 0;
         });
     });

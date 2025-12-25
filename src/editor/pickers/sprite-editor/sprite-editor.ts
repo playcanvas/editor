@@ -1897,9 +1897,7 @@ editor.once('load', () => {
         middlePanel.class.remove('grab');
         middlePanel.class.remove('grabbing');
 
-        for (let i = 0; i < events.length; i++) {
-            events[i].unbind();
-        }
+        events.forEach(event => event.unbind());
         events.length = 0;
 
         unregisterInputListeners();
