@@ -1,4 +1,5 @@
-import type { Panel } from '@playcanvas/pcui';
+import type { EventHandle } from '@playcanvas/observer';
+import { Container, type Panel } from '@playcanvas/pcui';
 
 editor.once('load', () => {
     editor.method('picker:sprites:attributes:atlas', (atlasAsset) => {
@@ -6,54 +7,55 @@ editor.once('load', () => {
 
         rootPanel.headerText = 'TEXTURE ATLAS';
 
-        const panel = editor.call('attributes:addPanel', {
-            parent: rootPanel
+        const container = new Container({
+            class: 'atlas-attributes'
         });
+        rootPanel.append(container);
 
-        const events = [];
+        const events: EventHandle[] = [];
 
         // atlas id
         const fieldId = editor.call('attributes:addField', {
-            parent: panel,
+            parent: container,
             name: 'ID',
             link: atlasAsset,
             path: 'id'
         });
         // reference
-        editor.call('attributes:reference:attach', 'asset:id', fieldId.parent.innerElement.firstChild.ui, null, panel);
+        editor.call('attributes:reference:attach', 'asset:id', fieldId.parent.innerElement.firstChild.ui, null, container);
 
         // atlas width
         const fieldWidth = editor.call('attributes:addField', {
-            parent: panel,
+            parent: container,
             name: 'Width',
             path: 'meta.width',
             link: atlasAsset
         });
         // reference
-        editor.call('attributes:reference:attach', 'spriteeditor:atlas:width', fieldWidth.parent.innerElement.firstChild.ui, null, panel);
+        editor.call('attributes:reference:attach', 'spriteeditor:atlas:width', fieldWidth.parent.innerElement.firstChild.ui, null, container);
 
         // atlas height
         const fieldHeight = editor.call('attributes:addField', {
-            parent: panel,
+            parent: container,
             name: 'Height',
             path: 'meta.height',
             link: atlasAsset
         });
         // reference
-        editor.call('attributes:reference:attach', 'spriteeditor:atlas:height', fieldHeight.parent.innerElement.firstChild.ui, null, panel);
+        editor.call('attributes:reference:attach', 'spriteeditor:atlas:height', fieldHeight.parent.innerElement.firstChild.ui, null, container);
 
         // number of frames
         const fieldFrames = editor.call('attributes:addField', {
-            parent: panel,
+            parent: container,
             name: 'Frames'
         });
         // reference
-        editor.call('attributes:reference:attach', 'spriteeditor:atlas:frames', fieldFrames.parent.innerElement.firstChild.ui, null, panel);
+        editor.call('attributes:reference:attach', 'spriteeditor:atlas:frames', fieldFrames.parent.innerElement.firstChild.ui, null, container);
 
-        let timeout;
+        let timeout: ReturnType<typeof setTimeout> | null = null;
 
         // Update number of frames field
-        const updateFrameCount = function () {
+        const updateFrameCount = () => {
             timeout = null;
             const frames = atlasAsset.getRaw('data.frames')._data;
             fieldFrames.value = Object.keys(frames).length;
@@ -72,7 +74,6 @@ editor.once('load', () => {
             if (!timeout) {
                 timeout = setTimeout(updateFrameCount);
             }
-
         });
 
         // Update number of frames when a frame is deleted
@@ -89,10 +90,10 @@ editor.once('load', () => {
         });
 
         events.push(rootPanel.on('clear', () => {
-            panel.destroy();
+            container.destroy();
         }));
 
-        panel.on('destroy', () => {
+        container.on('destroy', () => {
             events.forEach(event => event.unbind());
             events.length = 0;
         });
