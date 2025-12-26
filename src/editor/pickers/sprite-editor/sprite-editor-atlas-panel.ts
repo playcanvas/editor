@@ -61,7 +61,7 @@ editor.once('load', () => {
         updateFrameCount();
 
         // Update number of frames when data.frames changes or when a new frame is added
-        atlasAsset.on('*:set', (path: string) => {
+        events.push(atlasAsset.on('*:set', (path: string) => {
             if (!/^data\.frames(?:\.\d+)?$/.test(path)) {
                 return;
             }
@@ -71,10 +71,10 @@ editor.once('load', () => {
             if (!timeout) {
                 timeout = setTimeout(updateFrameCount);
             }
-        });
+        }));
 
         // Update number of frames when a frame is deleted
-        atlasAsset.on('*:unset', (path: string) => {
+        events.push(atlasAsset.on('*:unset', (path: string) => {
             if (!/^data\.frames\.\d+$/.test(path)) {
                 return;
             }
@@ -84,9 +84,13 @@ editor.once('load', () => {
             if (!timeout) {
                 timeout = setTimeout(updateFrameCount);
             }
-        });
+        }));
 
         events.push(rootPanel.on('clear', () => {
+            if (timeout) {
+                clearTimeout(timeout);
+                timeout = null;
+            }
             inspector.unlink();
             inspector.destroy();
         }));
