@@ -44,8 +44,7 @@ editor.once('load', () => {
 
         const inspector = new AttributesInspector({
             history: editor.api.globals.history,
-            attributes: ATTRIBUTES,
-            class: 'attribute-panel'
+            attributes: ATTRIBUTES
         });
         rootPanel.append(inspector);
         inspector.link([atlasAsset]);

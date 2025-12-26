@@ -65,8 +65,7 @@ editor.once('load', () => {
 
         const inspector = new AttributesInspector({
             history: editor.api.globals.history,
-            attributes: SPRITE_ATTRIBUTES,
-            class: 'attribute-panel'
+            attributes: SPRITE_ATTRIBUTES
         });
         rootPanel.append(inspector);
         inspector.link([spriteAsset]);

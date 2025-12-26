@@ -126,8 +126,7 @@ editor.once('load', () => {
         // Create inspector with dynamic attributes based on selected frames
         const inspector = new AttributesInspector({
             history: editor.api.globals.history,
-            attributes: createAttributes(frames),
-            class: 'attribute-panel'
+            attributes: createAttributes(frames)
         });
         rootPanel.append(inspector);
         // Pass atlasAsset once per frame so PCUI shows "..." for differing values
