@@ -533,12 +533,7 @@ editor.once('load', () => {
         editor.call('attributes:reference:attach', 'spriteeditor:frame:newsprite', btnCreateSprite, null, inspector);
 
         btnCreateSprite.on('click', () => {
-            btnCreateSprite.enabled = false;
-            editor.call('picker:sprites:spriteFromSelection', {
-                callback: () => {
-                    btnCreateSprite.enabled = true;
-                }
-            });
+            editor.call('picker:sprites:spriteFromSelection');
         });
 
         // new sliced sprite
@@ -553,13 +548,7 @@ editor.once('load', () => {
         editor.call('attributes:reference:attach', 'spriteeditor:frame:newsprite', btnCreateSlicedSprite, null, inspector);
 
         btnCreateSlicedSprite.on('click', () => {
-            btnCreateSlicedSprite.enabled = false;
-            editor.call('picker:sprites:spriteFromSelection', {
-                sliced: true,
-                callback: () => {
-                    btnCreateSlicedSprite.enabled = true;
-                }
-            });
+            editor.call('picker:sprites:spriteFromSelection', { sliced: true });
         });
 
         // new sprites from frames
@@ -574,12 +563,7 @@ editor.once('load', () => {
         editor.call('attributes:reference:attach', 'spriteeditor:frame:newspritesfromframes', btnCreateSpritesFromFrames, null, inspector);
 
         btnCreateSpritesFromFrames.on('click', () => {
-            btnCreateSpritesFromFrames.enabled = false;
-            editor.call('picker:sprites:spritesFromFrames', {
-                callback: () => {
-                    btnCreateSpritesFromFrames.enabled = true;
-                }
-            });
+            editor.call('picker:sprites:spritesFromFrames');
         });
 
         // focus frame
