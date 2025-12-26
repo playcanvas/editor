@@ -1,5 +1,5 @@
 import type { EventHandle } from '@playcanvas/observer';
-import { Button, Panel } from '@playcanvas/pcui';
+import { Button, Container, Panel } from '@playcanvas/pcui';
 
 import { LegacyButton } from '@/common/ui/button';
 import { LegacyLabel } from '@/common/ui/label';
@@ -47,9 +47,10 @@ editor.once('load', () => {
             panelError.hidden = true;
         });
 
-        const panelButtons = new LegacyPanel();
-        panelButtons.flex = true;
-        panel.append(panelButtons);
+        const containerButtons = new Container({
+            flex: true
+        });
+        panel.append(containerButtons);
 
         const hiddenInput = document.createElement('input');
         hiddenInput.type = 'file';
@@ -62,7 +63,7 @@ editor.once('load', () => {
             icon: 'E222',
             class: 'wide'
         });
-        panelButtons.append(btnImport);
+        containerButtons.append(btnImport);
 
         // reference
         editor.call('attributes:reference:attach', 'spriteeditor:import:texturepacker', btnImport, null, panel);
