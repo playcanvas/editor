@@ -1,4 +1,5 @@
 import type { EventHandle } from '@playcanvas/observer';
+import { Panel } from '@playcanvas/pcui';
 
 editor.once('load', () => {
     editor.method('picker:sprites:attributes:slice', (args) => {
@@ -10,15 +11,16 @@ editor.once('load', () => {
 
         const rootPanel = editor.call('picker:sprites:rightPanel');
 
-        const panel = editor.call('attributes:addPanel', {
-            parent: rootPanel,
-            name: 'GENERATE FRAMES'
+        const panel = new Panel({
+            headerText: 'GENERATE FRAMES',
+            class: 'component'
         });
+        rootPanel.append(panel);
 
-        panel.disabled = !editor.call('permissions:write');
+        panel.enabled = editor.call('permissions:write');
 
         events.push(editor.on('permissions:writeState', (canWrite: boolean) => {
-            panel.disabled = !canWrite;
+            panel.enabled = canWrite;
         }));
 
         const METHOD_DELETE_EXISTING = 1;

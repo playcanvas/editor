@@ -24,7 +24,7 @@ editor.once('load', () => {
             headerText: 'Invalid JSON file',
             class: 'import-error',
             flex: true,
-            hidden: false
+            hidden: true
         });
         panel.append(panelError);
 
