@@ -225,7 +225,6 @@
                             background-color: $bcg-darkest;
                         }
 
-                        .ui-label.name,
                         .pcui-label.name {
                             font-size: 12px;
                             vertical-align: top;
@@ -321,78 +320,6 @@
                     &:hover,
                     &:focus {
                         box-shadow: none;
-                    }
-                }
-
-                .ui-button.icon {
-                    background-color: $bcg-dark;
-
-                    &:hover {
-                        background-color: $bcg-darkest;
-
-                        &::before {
-                            color: $text-active;
-                        }
-
-                        &.remove::before {
-                            color: #d34141;
-                        }
-                    }
-
-                    &.wide {
-                        width: calc(100% - 6px);
-                    }
-
-                    font-size: 12px;
-                    border: none;
-                    position: relative;
-                    height: 28px;
-                    line-height: 30px;
-                    padding-left: 28px;
-                    white-space: nowrap;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    text-transform: uppercase;
-                    text-align: left;
-
-                    @extend .font-bold;
-
-                    &::before {
-                        @extend .font-icon;
-
-                        font-size: 14px;
-                        text-align: center;
-                        margin-left: -18px;
-                        margin-right: 9px;
-                        font-weight: 100;
-                    }
-
-                    &.create::before {
-                        content: '\E120';
-                    }
-
-                    &.remove::before {
-                        content: '\E124';
-                    }
-
-                    &.cancel::before {
-                        content: '\E132';
-                    }
-
-                    &.trim::before {
-                        content: '\E394';
-                    }
-
-                    &.focus::before {
-                        content: '\E397';
-                    }
-
-                    &.generate::before {
-                        content: '\E398';
-                    }
-
-                    &.upload::before {
-                        content: '\E222';
                     }
                 }
             }
