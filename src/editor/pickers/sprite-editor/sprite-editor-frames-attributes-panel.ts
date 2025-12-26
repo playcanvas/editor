@@ -139,7 +139,7 @@ editor.once('load', () => {
         }));
 
         // Get field references
-        const fieldName = inspector.getField('data.frames.' + frames[0] + '.name') as TextInput;
+        const fieldName = inspector.getField(`data.frames.${frames[0]}.name`) as TextInput;
         const fieldRect = inspector.getField('rect') as VectorInput;
         const fieldPosition = inspector.getField('position') as VectorInput;
         const fieldSize = inspector.getField('size') as VectorInput;
