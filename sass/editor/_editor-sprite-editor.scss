@@ -122,18 +122,6 @@
                     border: 1px solid $border-primary;
                     box-sizing: border-box;
 
-                    > .pcui-panel-content {
-                        > .ui-panel {
-                            > .content {
-                                padding: 8px 6px;
-
-                                .field-button {
-                                    text-align: center;
-                                }
-                            }
-                        }
-                    }
-
                     .asset-preview-container {
                         canvas {
                             height: 100%;
