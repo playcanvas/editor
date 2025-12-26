@@ -354,9 +354,13 @@ editor.once('load', () => {
             const overPanel = panels[overPanelIndex];
 
             if (overPanel && overPanel !== draggedPanel) {
+                const currentIndex = panels.indexOf(draggedPanel);
+
                 panelFrames.remove(draggedPanel);
                 panelFrames.appendBefore(draggedPanel, panelFrames.innerElement.childNodes[overPanelIndex]);
 
+                // Update panels array to match DOM order
+                panels.splice(currentIndex, 1);
                 panels.splice(overPanelIndex, 0, draggedPanel);
             }
         };
