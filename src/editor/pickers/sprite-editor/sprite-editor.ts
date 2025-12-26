@@ -1750,16 +1750,16 @@ editor.once('load', () => {
         const spriteAsset = editor.call('picker:sprites:selectedSprite');
 
         if (spriteAsset) {
-            editor.call('picker:sprites:attributes:sprite', { atlasAsset: atlasAsset, atlasImage: atlasImage, spriteAsset: spriteAsset });
+            editor.call('picker:sprites:attributes:sprite', { atlasAsset, atlasImage, spriteAsset });
         } else {
             const highlightedFrames = editor.call('picker:sprites:highlightedFrames');
             if (highlightedFrames.length) {
-                editor.call('picker:sprites:attributes:frames', { atlasAsset: atlasAsset, atlasImage: atlasImage, frames: highlightedFrames });
-                editor.call('picker:sprites:attributes:frames:relatedSprites', { atlasAsset: atlasAsset, frames: highlightedFrames });
+                editor.call('picker:sprites:attributes:frames', { atlasAsset, atlasImage, frames: highlightedFrames });
+                editor.call('picker:sprites:attributes:frames:relatedSprites', { atlasAsset, frames: highlightedFrames });
             } else {
                 editor.call('picker:sprites:attributes:atlas', atlasAsset);
-                editor.call('picker:sprites:attributes:slice', { atlasAsset: atlasAsset, atlasImage: atlasImage, atlasImageData: atlasImageData });
-                editor.call('picker:sprites:attributes:importFrames', { atlasAsset: atlasAsset });
+                editor.call('picker:sprites:attributes:slice', { atlasAsset, atlasImage, atlasImageData });
+                editor.call('picker:sprites:attributes:importFrames', { atlasAsset });
             }
         }
     };
@@ -1797,8 +1797,8 @@ editor.once('load', () => {
 
             aspectRatio = atlasImage.width / atlasImage.height;
 
-            editor.call('picker:sprites:frames', { atlasAsset: atlasAsset });
-            editor.call('picker:sprites:spriteassets', { atlasAsset: atlasAsset });
+            editor.call('picker:sprites:frames', { atlasAsset });
+            editor.call('picker:sprites:spriteassets', { atlasAsset });
             editor.emit('picker:sprites:open');
 
             if (_spriteAsset) {
