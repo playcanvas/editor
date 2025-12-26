@@ -160,7 +160,6 @@ editor.once('load', () => {
                 }
 
                 scrollSelectionIntoView = true;
-
             });
 
             const onMouseEnter = (): void => {
