@@ -155,7 +155,7 @@ editor.once('load', () => {
     });
     canvasPanel.append(canvas);
 
-    const canvasElement: HTMLCanvasElement = canvas.dom;
+    const canvasElement = canvas.dom as HTMLCanvasElement;
     const ctx = canvasElement.getContext('2d');
 
     // bottom panel
