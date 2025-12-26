@@ -97,7 +97,7 @@ editor.once('load', () => {
 
     // close button
     const btnClose = new Button({
-        class: 'close',
+        class: ['icon-button', 'close'],
         icon: 'E132'
     });
     btnClose.on('click', () => {
@@ -1415,7 +1415,7 @@ editor.once('load', () => {
 
         // if a frame is already selected try to select one of its handles
         if (selected && !ctrlDown) {
-            oldFrame = atlasAsset.get(`data.frames.${selected}`);
+            oldFrame = deepCopy(atlasAsset.get(`data.frames.${selected}`));
             if (oldFrame) {
                 setHandle(handlesHitTest(p, oldFrame), oldFrame, p);
 

@@ -35,7 +35,7 @@ editor.once('load', () => {
 
         const btnCloseError = new Button({
             icon: 'E132',
-            class: 'close'
+            class: ['icon-button', 'close']
         });
         panelError.header.append(btnCloseError);
 
