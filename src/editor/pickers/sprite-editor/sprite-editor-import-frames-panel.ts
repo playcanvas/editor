@@ -1,4 +1,5 @@
 import type { EventHandle } from '@playcanvas/observer';
+import { Panel } from '@playcanvas/pcui';
 
 import { LegacyButton } from '@/common/ui/button';
 import { LegacyLabel } from '@/common/ui/label';
@@ -11,16 +12,16 @@ editor.once('load', () => {
 
         const rootPanel = editor.call('picker:sprites:rightPanel');
 
-        const panel = editor.call('attributes:addPanel', {
-            parent: rootPanel,
-            name: 'IMPORT FRAME DATA'
+        const panel = new Panel({
+            headerText: 'IMPORT FRAME DATA',
+            class: 'component'
         });
-        panel.class.add('component');
+        rootPanel.append(panel);
 
-        panel.disabled = !editor.call('permissions:write');
+        panel.enabled = editor.call('permissions:write');
 
-        events.push(editor.on('permissions:writeState', (canWrite) => {
-            panel.disabled = !canWrite;
+        events.push(editor.on('permissions:writeState', (canWrite: boolean) => {
+            panel.enabled = canWrite;
         }));
 
         const panelError = new LegacyPanel('Invalid JSON file');
