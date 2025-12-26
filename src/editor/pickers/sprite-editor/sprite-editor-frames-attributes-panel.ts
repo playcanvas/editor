@@ -529,9 +529,6 @@ editor.once('load', () => {
         });
         panelButtons.append(btnCreateSprite);
 
-        // reference
-        editor.call('attributes:reference:attach', 'spriteeditor:frame:newsprite', btnCreateSprite, null, inspector);
-
         btnCreateSprite.on('click', () => {
             editor.call('picker:sprites:spriteFromSelection');
         });
@@ -543,9 +540,6 @@ editor.once('load', () => {
             class: 'wide'
         });
         panelButtons.append(btnCreateSlicedSprite);
-
-        // reference
-        editor.call('attributes:reference:attach', 'spriteeditor:frame:newsprite', btnCreateSlicedSprite, null, inspector);
 
         btnCreateSlicedSprite.on('click', () => {
             editor.call('picker:sprites:spriteFromSelection', { sliced: true });
@@ -559,9 +553,6 @@ editor.once('load', () => {
         });
         panelButtons.append(btnCreateSpritesFromFrames);
 
-        // reference
-        editor.call('attributes:reference:attach', 'spriteeditor:frame:newspritesfromframes', btnCreateSpritesFromFrames, null, inspector);
-
         btnCreateSpritesFromFrames.on('click', () => {
             editor.call('picker:sprites:spritesFromFrames');
         });
@@ -573,8 +564,6 @@ editor.once('load', () => {
             class: 'wide'
         });
         panelButtons.append(btnFocus);
-        // reference
-        editor.call('attributes:reference:attach', 'spriteeditor:frame:focus', btnFocus, null, inspector);
 
         btnFocus.on('click', () => {
             editor.call('picker:sprites:focus');
@@ -588,9 +577,6 @@ editor.once('load', () => {
         });
         panelButtons.append(btnTrim);
 
-        // reference
-        editor.call('attributes:reference:attach', 'spriteeditor:frame:trim', btnTrim, null, inspector);
-
         // trim transparent pixels around frame
         btnTrim.on('click', () => {
             editor.call('picker:sprites:trimFrames', frames);
@@ -603,9 +589,6 @@ editor.once('load', () => {
             class: 'wide'
         });
         panelButtons.append(btnDelete);
-
-        // reference
-        editor.call('attributes:reference:attach', 'spriteeditor:frame:delete', btnDelete, null, inspector);
 
         btnDelete.on('click', () => {
             editor.call('picker:sprites:deleteFrames', frames, {

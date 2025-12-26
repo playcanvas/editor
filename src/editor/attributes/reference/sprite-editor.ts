@@ -45,21 +45,6 @@ const fields: AttributeReference[] = [{
     title: 'Pivot',
     description: 'The pivot to use for each new frame.'
 }, {
-    name: 'spriteeditor:generate:generate',
-    title: 'generate Atlas',
-    description: 'Create new frames and add them to the atlas based on the method chosen above.'
-}, {
-    name: 'spriteeditor:generate:clear',
-    title: 'Delete All Frames',
-    description: 'Delete all frames from the texture atlas.'
-}, {
-    name: 'spriteeditor:import:texturepacker',
-    title: 'Click here to upload a JSON file that has been created with the Texture Packer application. PlayCanvas will create new frames for your texture atlas based on that JSON file.'
-}, {
-    name: 'spriteeditor:sprites:addFrames',
-    title: 'Add Frames',
-    description: 'Add frames to this Sprite Asset. Click to start selecting the frames you want to add.'
-}, {
     name: 'spriteeditor:frame:name',
     title: 'Name',
     description: 'The name of the frame(s).'
@@ -83,29 +68,6 @@ const fields: AttributeReference[] = [{
     name: 'spriteeditor:frame:border',
     title: 'Border',
     description: 'The border of the frame(s) in pixels when using 9 Slicing. Each field specifies the distance from the left / bottom / right / top edges of the frame(s) respectively.'
-}, {
-    name: 'spriteeditor:frame:newsprite',
-    title: 'New Sprite',
-    description: 'Create a new Sprite Asset with the selected frames.'
-}, {
-    name: 'spriteeditor:frame:newspritesfromframes',
-    title: 'New Sprites',
-    description: 'Create a new Sprite Asset for each selected frame.'
-}, {
-    name: 'spriteeditor:frame:focus',
-    title: 'Focus',
-    subTitle: 'Shortcut: F',
-    description: 'Focus on the selected frame.'
-}, {
-    name: 'spriteeditor:frame:trim',
-    title: 'Trim',
-    subTitle: 'Shortcut: T',
-    description: 'Resize the selected frames so that they fit around the edge of the graphic based on transparency.'
-}, {
-    name: 'spriteeditor:frame:delete',
-    subTitle: 'Shortcut: Delete',
-    title: 'Delete',
-    description: 'Delete the selected frames.'
 }];
 
 editor.once('load', () => {

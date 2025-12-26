@@ -196,9 +196,6 @@ editor.once('load', () => {
         });
         buttonContainer.append(btnGenerate);
 
-        // reference
-        editor.call('attributes:reference:attach', 'spriteeditor:generate:generate', btnGenerate, null, panel);
-
         btnGenerate.on('click', () => {
             btnGenerate.enabled = false;
             const type = (fieldType as SelectInput).value as number;
@@ -265,9 +262,6 @@ editor.once('load', () => {
             class: 'wide'
         });
         buttonContainer.append(btnClear);
-
-        // reference
-        editor.call('attributes:reference:attach', 'spriteeditor:generate:clear', btnClear, null, panel);
 
         btnClear.on('click', () => {
             editor.call('picker:confirm', 'Are you sure you want to delete all the frames?', () => {

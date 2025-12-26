@@ -128,9 +128,6 @@ editor.once('load', () => {
         btnAddFrames.style.flexGrow = '1';
         panelEdit.append(btnAddFrames);
 
-        // reference
-        editor.call('attributes:reference:attach', 'spriteeditor:sprites:addFrames', btnAddFrames, null, inspector);
-
         btnAddFrames.on('click', () => {
             editor.call('picker:sprites:pickFrames');
         });

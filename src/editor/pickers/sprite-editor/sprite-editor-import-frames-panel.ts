@@ -61,9 +61,6 @@ editor.once('load', () => {
         });
         containerButtons.append(btnImport);
 
-        // reference
-        editor.call('attributes:reference:attach', 'spriteeditor:import:texturepacker', btnImport, null, panel);
-
         btnImport.on('click', () => {
             panelError.hidden = true;
 
