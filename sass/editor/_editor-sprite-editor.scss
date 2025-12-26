@@ -241,19 +241,6 @@
                             vertical-align: middle;
                         }
 
-                        .ui-button.remove {
-                            @extend .font-icon;
-
-                            width: 32px;
-                            margin: 0;
-                            padding: 0;
-                            position: absolute;
-                            right: 0;
-                            font-size: 14px;
-                            text-align: center;
-                            background-color: transparent;
-                        }
-
                         .pcui-button.frame-remove {
                             width: 32px;
                             margin: 0;
