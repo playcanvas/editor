@@ -69,7 +69,8 @@ const createAttributes = (frames: string[]): Attribute[] => [
                 { v: 5, t: 'Right' },
                 { v: 6, t: 'Bottom Left' },
                 { v: 7, t: 'Bottom' },
-                { v: 8, t: 'Bottom Right' }
+                { v: 8, t: 'Bottom Right' },
+                { v: 9, t: 'Custom' }
             ]
         }
     },
@@ -456,9 +457,8 @@ editor.once('load', () => {
             suspendChanges = true;
             const pivotValue = fieldPivot.value as number[];
             const index = PIVOT_PRESETS.findIndex(p => p[0] === pivotValue[0] && p[1] === pivotValue[1]);
-            if (index >= 0) {
-                fieldPivotPreset.value = index;
-            }
+            // Set to 9 (Custom) if no preset matches
+            fieldPivotPreset.value = index >= 0 ? index : 9;
             suspendChanges = suspend;
         };
 
