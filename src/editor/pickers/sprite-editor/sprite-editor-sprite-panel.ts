@@ -1,5 +1,46 @@
 import type { EventHandle } from '@playcanvas/observer';
-import { Button, Canvas, Container, Label, Panel } from '@playcanvas/pcui';
+import { Button, Canvas, Container, Label, Panel, type TextInput } from '@playcanvas/pcui';
+
+import type { Attribute } from '@/editor/inspector/attribute.type.d';
+import { AttributesInspector } from '@/editor/inspector/attributes-inspector';
+
+const SPRITE_ATTRIBUTES: Attribute[] = [
+    {
+        label: 'ID',
+        path: 'id',
+        type: 'label',
+        reference: 'asset:id'
+    },
+    {
+        label: 'Name',
+        alias: 'name',
+        type: 'string',
+        reference: 'asset:name'
+    },
+    {
+        label: 'Pixels Per Unit',
+        path: 'data.pixelsPerUnit',
+        type: 'number',
+        reference: 'asset:sprite:pixelsPerUnit',
+        args: {
+            min: 0
+        }
+    },
+    {
+        label: 'Render Mode',
+        path: 'data.renderMode',
+        type: 'select',
+        reference: 'asset:sprite:renderMode',
+        args: {
+            type: 'number',
+            options: [
+                { v: 0, t: 'Simple' },
+                { v: 1, t: 'Sliced' },
+                { v: 2, t: 'Tiled' }
+            ]
+        }
+    }
+];
 
 editor.once('load', () => {
     editor.method('picker:sprites:attributes:sprite', (args) => {
@@ -22,36 +63,25 @@ editor.once('load', () => {
             frames: frameKeys
         });
 
-        const panel = new Container({
+        const inspector = new AttributesInspector({
+            history: editor.api.globals.history,
+            attributes: SPRITE_ATTRIBUTES,
             class: 'sprite-attributes'
         });
-        rootPanel.append(panel);
-        panel.enabled = editor.call('permissions:write');
+        rootPanel.append(inspector);
+        inspector.link([spriteAsset]);
+
+        inspector.enabled = editor.call('permissions:write');
         events.push(editor.on('permissions:writeState', (canWrite: boolean) => {
-            panel.enabled = canWrite;
+            inspector.enabled = canWrite;
         }));
 
-        const fieldId = editor.call('attributes:addField', {
-            parent: panel,
-            name: 'ID',
-            link: spriteAsset,
-            path: 'id'
-        });
-        // reference
-        editor.call('attributes:reference:attach', 'asset:id', fieldId.parent.innerElement.firstChild.ui, null, panel);
-
+        // Custom handling for Name field (rename asset)
         let suspendRenameEvt = false;
+        const fieldName = inspector.getField('name') as TextInput;
+        fieldName.value = spriteAsset.get('name');
 
-        const fieldName = editor.call('attributes:addField', {
-            parent: panel,
-            name: 'Name',
-            type: 'string',
-            value: spriteAsset.get('name')
-        });
-        // reference
-        editor.call('attributes:reference:attach', 'asset:name', fieldName.parent.innerElement.firstChild.ui, null, panel);
-
-        events.push(fieldName.on('change', (value) => {
+        events.push(fieldName.on('change', (value: string) => {
             rootPanel.headerText = `SPRITE ASSET - ${value}`;
             if (value !== spriteAsset.get('name') && !suspendRenameEvt) {
                 suspendRenameEvt = true;
@@ -60,37 +90,11 @@ editor.once('load', () => {
             }
         }));
 
-        events.push(spriteAsset.on('name:set', (value) => {
+        events.push(spriteAsset.on('name:set', (value: string) => {
             suspendRenameEvt = true;
             fieldName.value = value;
             suspendRenameEvt = false;
         }));
-
-        const fieldPpu = editor.call('attributes:addField', {
-            parent: panel,
-            name: 'Pixels Per Unit',
-            type: 'number',
-            link: spriteAsset,
-            min: 0,
-            path: 'data.pixelsPerUnit'
-        });
-        // reference
-        editor.call('attributes:reference:attach', 'asset:sprite:pixelsPerUnit', fieldPpu.parent.innerElement.firstChild.ui, null, panel);
-
-        const fieldRenderMode = editor.call('attributes:addField', {
-            parent: panel,
-            name: 'Render Mode',
-            type: 'number',
-            enum: [
-                { v: 0, t: 'Simple' },
-                { v: 1, t: 'Sliced' },
-                { v: 2, t: 'Tiled' }
-            ],
-            link: spriteAsset,
-            path: 'data.renderMode'
-        });
-        // reference
-        editor.call('attributes:reference:attach', 'asset:sprite:renderMode', fieldRenderMode.parent.innerElement.firstChild.ui, null, panel);
 
         const panelEdit = new Panel({
             headerText: 'FRAMES IN SPRITE ASSET',
@@ -125,7 +129,7 @@ editor.once('load', () => {
         panelEdit.append(btnAddFrames);
 
         // reference
-        editor.call('attributes:reference:attach', 'spriteeditor:sprites:addFrames', btnAddFrames, null, panel);
+        editor.call('attributes:reference:attach', 'spriteeditor:sprites:addFrames', btnAddFrames, null, inspector);
 
         btnAddFrames.on('click', () => {
             editor.call('picker:sprites:pickFrames');
@@ -493,11 +497,12 @@ editor.once('load', () => {
         }));
 
         events.push(rootPanel.on('clear', () => {
-            panel.destroy();
+            inspector.unlink();
+            inspector.destroy();
             panelEdit.destroy();
         }));
 
-        panel.once('destroy', () => {
+        inspector.once('destroy', () => {
             events.forEach(event => event.unbind());
             events.length = 0;
 
