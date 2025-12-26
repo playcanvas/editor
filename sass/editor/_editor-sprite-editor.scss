@@ -134,56 +134,9 @@
                         }
                     }
 
-                    .ui-panel.buttons {
-                        > .content {
-                            flex-wrap: wrap;
-
-                            > .ui-button.icon {
-                                margin-bottom: 0;
-                                margin-top: 0;
-                                flex-basis: 0;
-                            }
-
-                            .ui-panel.frames {
-                                width: 100%;
-                                margin-top: 10px;
-                            }
-                        }
-                    }
-
                     .asset-preview-container {
                         canvas {
                             height: 100%;
-                        }
-                    }
-
-                    .ui-panel.add-frames-info,
-                    .ui-panel.import-error {
-                        border: 1px solid $text-active;
-                        margin: 3px 3px 10px;
-                        padding: 10px 15px;
-                        font-size: 12px;
-                        background: $bcg-darkest;
-
-                        > .ui-header {
-                            background: transparent;
-                            padding: 0;
-
-                            &::before {
-                                @extend .font-icon;
-
-                                content: '\E400';
-                                float: left;
-                                margin-right: 5px;
-                                margin-left: -3px;
-                                font-size: 20px;
-                                font-weight: 100;
-                            }
-                        }
-
-                        .ui-label {
-                            margin: 0;
-                            line-height: 1.5;
                         }
                     }
 
