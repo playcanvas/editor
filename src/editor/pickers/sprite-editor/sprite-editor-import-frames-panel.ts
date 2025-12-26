@@ -1,5 +1,5 @@
 import type { EventHandle } from '@playcanvas/observer';
-import { Panel } from '@playcanvas/pcui';
+import { Button, Panel } from '@playcanvas/pcui';
 
 import { LegacyButton } from '@/common/ui/button';
 import { LegacyLabel } from '@/common/ui/label';
@@ -57,11 +57,11 @@ editor.once('load', () => {
         hiddenInput.style.display = 'none';
         panel.innerElement.append(hiddenInput);
 
-        const btnImport = new LegacyButton({
-            text: 'UPLOAD TEXTURE PACKER JSON'
+        const btnImport = new Button({
+            text: 'UPLOAD TEXTURE PACKER JSON',
+            icon: 'E222',
+            class: 'wide'
         });
-        btnImport.flexGrow = 1;
-        btnImport.class.add('icon', 'upload');
         panelButtons.append(btnImport);
 
         // reference
