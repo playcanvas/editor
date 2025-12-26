@@ -314,6 +314,10 @@
                     &:hover,
                     &:focus {
                         box-shadow: none;
+
+                        &::before {
+                            color: $text-active;
+                        }
                     }
                 }
             }
