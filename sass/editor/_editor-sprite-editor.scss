@@ -277,6 +277,13 @@
                     padding: 9px;
                 }
 
+                .pcui-container.action-buttons {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 3px;
+                    padding: 9px;
+                }
+
                 .pcui-container.attribute-panel {
                     padding: 6px;
                 }

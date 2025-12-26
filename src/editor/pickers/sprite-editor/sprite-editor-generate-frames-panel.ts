@@ -1,5 +1,5 @@
 import type { EventHandle } from '@playcanvas/observer';
-import { Button, Panel, type SelectInput, type VectorInput } from '@playcanvas/pcui';
+import { Button, Container, Panel, type SelectInput, type VectorInput } from '@playcanvas/pcui';
 
 import type { Attribute } from '@/editor/inspector/attribute.type.d';
 import { AttributesInspector } from '@/editor/inspector/attributes-inspector';
@@ -181,13 +181,20 @@ editor.once('load', () => {
 
         fieldType.on('change', toggleFields);
 
+        // Button container with same styling as ACTIONS panel
+        const buttonContainer = new Container({
+            flex: true,
+            class: 'action-buttons'
+        });
+        panel.append(buttonContainer);
+
         // Generate Frames button
         const btnGenerate = new Button({
             text: 'GENERATE FRAMES',
             icon: 'E398',
             class: 'wide'
         });
-        panel.append(btnGenerate);
+        buttonContainer.append(btnGenerate);
 
         // reference
         editor.call('attributes:reference:attach', 'spriteeditor:generate:generate', btnGenerate, null, panel);
@@ -253,11 +260,11 @@ editor.once('load', () => {
 
         // Delete All Frames button
         const btnClear = new Button({
-            text: 'Delete All Frames',
+            text: 'DELETE ALL FRAMES',
             icon: 'E124',
             class: 'wide'
         });
-        panel.append(btnClear);
+        buttonContainer.append(btnClear);
 
         // reference
         editor.call('attributes:reference:attach', 'spriteeditor:generate:clear', btnClear, null, panel);

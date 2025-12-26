@@ -18,11 +18,11 @@ const fields: AttributeReference[] = [{
     description: 'The number of frames in the texture atlas. Each frame defines a region in the atlas.'
 }, {
     name: 'spriteeditor:generate:method',
-    title: 'METHOD',
+    title: 'Method',
     description: '"Delete Existing" will delete all frames from the texture atlas first and then create new frames. "Only Append" will append the new frames to the texture atlas without deleting the old ones.'
 }, {
     name: 'spriteeditor:generate:type',
-    title: 'TYPE',
+    title: 'Type',
     description: '"Grid By Frame Count" will create a grid of frames using the specified number of columns and rows. "Grid By Frame Size" will create a grid of frames using the specified frame size. Frames will only be created in areas of the atlas that are not completely transparent.'
 }, {
     name: 'spriteeditor:generate:count',
