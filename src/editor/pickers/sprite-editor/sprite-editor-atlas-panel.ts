@@ -1,5 +1,38 @@
 import type { EventHandle } from '@playcanvas/observer';
-import { Container, type Panel } from '@playcanvas/pcui';
+import { Label, type Panel } from '@playcanvas/pcui';
+
+import type { Attribute } from '@/editor/inspector/attribute.type.d';
+import { AttributesInspector } from '@/editor/inspector/attributes-inspector';
+
+const ATTRIBUTES: Attribute[] = [
+    {
+        label: 'ID',
+        path: 'id',
+        reference: 'asset:id',
+        type: 'label'
+    },
+    {
+        label: 'Width',
+        path: 'meta.width',
+        reference: 'spriteeditor:atlas:width',
+        type: 'label'
+    },
+    {
+        label: 'Height',
+        path: 'meta.height',
+        reference: 'spriteeditor:atlas:height',
+        type: 'label'
+    },
+    {
+        label: 'Frames',
+        alias: 'frames',
+        reference: 'spriteeditor:atlas:frames',
+        type: 'label',
+        args: {
+            value: '0'
+        }
+    }
+];
 
 editor.once('load', () => {
     editor.method('picker:sprites:attributes:atlas', (atlasAsset) => {
@@ -7,50 +40,15 @@ editor.once('load', () => {
 
         rootPanel.headerText = 'TEXTURE ATLAS';
 
-        const container = new Container({
-            class: 'atlas-attributes'
-        });
-        rootPanel.append(container);
-
         const events: EventHandle[] = [];
 
-        // atlas id
-        const fieldId = editor.call('attributes:addField', {
-            parent: container,
-            name: 'ID',
-            link: atlasAsset,
-            path: 'id'
+        const inspector = new AttributesInspector({
+            history: editor.api.globals.history,
+            attributes: ATTRIBUTES,
+            class: 'atlas-attributes'
         });
-        // reference
-        editor.call('attributes:reference:attach', 'asset:id', fieldId.parent.innerElement.firstChild.ui, null, container);
-
-        // atlas width
-        const fieldWidth = editor.call('attributes:addField', {
-            parent: container,
-            name: 'Width',
-            path: 'meta.width',
-            link: atlasAsset
-        });
-        // reference
-        editor.call('attributes:reference:attach', 'spriteeditor:atlas:width', fieldWidth.parent.innerElement.firstChild.ui, null, container);
-
-        // atlas height
-        const fieldHeight = editor.call('attributes:addField', {
-            parent: container,
-            name: 'Height',
-            path: 'meta.height',
-            link: atlasAsset
-        });
-        // reference
-        editor.call('attributes:reference:attach', 'spriteeditor:atlas:height', fieldHeight.parent.innerElement.firstChild.ui, null, container);
-
-        // number of frames
-        const fieldFrames = editor.call('attributes:addField', {
-            parent: container,
-            name: 'Frames'
-        });
-        // reference
-        editor.call('attributes:reference:attach', 'spriteeditor:atlas:frames', fieldFrames.parent.innerElement.firstChild.ui, null, container);
+        rootPanel.append(inspector);
+        inspector.link([atlasAsset]);
 
         let timeout: ReturnType<typeof setTimeout> | null = null;
 
@@ -58,7 +56,7 @@ editor.once('load', () => {
         const updateFrameCount = (): void => {
             timeout = null;
             const frames = atlasAsset.getRaw('data.frames')._data;
-            fieldFrames.value = Object.keys(frames).length;
+            (inspector.getField('frames') as Label).value = String(Object.keys(frames).length);
         };
 
         updateFrameCount();
@@ -90,10 +88,11 @@ editor.once('load', () => {
         });
 
         events.push(rootPanel.on('clear', () => {
-            container.destroy();
+            inspector.unlink();
+            inspector.destroy();
         }));
 
-        container.once('destroy', () => {
+        inspector.once('destroy', () => {
             events.forEach(event => event.unbind());
             events.length = 0;
         });
