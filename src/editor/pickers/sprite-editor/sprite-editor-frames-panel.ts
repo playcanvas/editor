@@ -73,7 +73,8 @@ editor.once('load', () => {
 
             // remove frame
             const btnRemove = new Button({
-                class: 'remove'
+                icon: 'E124',
+                class: 'frame-remove'
             });
             panel.append(btnRemove);
 
