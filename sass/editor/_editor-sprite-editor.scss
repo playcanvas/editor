@@ -187,7 +187,8 @@
                         }
                     }
 
-                    .pcui-panel.add-frames-info {
+                    .pcui-panel.add-frames-info,
+                    .pcui-panel.import-error {
                         border: 1px solid $text-active;
                         margin: 3px 3px 10px;
                         font-size: 12px;
@@ -218,6 +219,10 @@
                             line-height: 1.5;
                             white-space: normal;
                         }
+                    }
+
+                    .pcui-panel.import-error {
+                        border-color: #fb222f;
                     }
 
                     .ui-panel.import-error {

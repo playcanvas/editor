@@ -1,9 +1,5 @@
 import type { EventHandle } from '@playcanvas/observer';
-import { Button, Container, Panel } from '@playcanvas/pcui';
-
-import { LegacyButton } from '@/common/ui/button';
-import { LegacyLabel } from '@/common/ui/label';
-import { LegacyPanel } from '@/common/ui/panel';
+import { Button, Container, Label, Panel } from '@playcanvas/pcui';
 
 editor.once('load', () => {
     editor.method('picker:sprites:attributes:importFrames', (args) => {
@@ -24,24 +20,24 @@ editor.once('load', () => {
             panel.enabled = canWrite;
         }));
 
-        const panelError = new LegacyPanel('Invalid JSON file');
-        panelError.class.add('import-error');
+        const panelError = new Panel({
+            headerText: 'Invalid JSON file',
+            class: 'import-error',
+            flex: true,
+            hidden: false
+        });
         panel.append(panelError);
-        panelError.flex = true;
-        panelError.hidden = true;
 
-        const labelError = new LegacyLabel({
+        const labelError = new Label({
             text: 'Please upload a valid JSON file that has been created with the Texture Packer application.'
         });
-        labelError.flexGrow = 1;
-        labelError.renderChanges = false;
         panelError.append(labelError);
 
-        const btnCloseError = new LegacyButton({
-            text: '&#57650;'
+        const btnCloseError = new Button({
+            icon: 'E132',
+            class: 'close'
         });
-        btnCloseError.class.add('close');
-        panelError.headerElement.append(btnCloseError.element);
+        panelError.header.append(btnCloseError);
 
         btnCloseError.on('click', () => {
             panelError.hidden = true;
