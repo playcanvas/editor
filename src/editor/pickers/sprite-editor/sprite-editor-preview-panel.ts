@@ -1,111 +1,166 @@
-import type { EventHandle } from '@playcanvas/observer';
-import type { Panel } from '@playcanvas/pcui';
+import type { EventHandle, Observer } from '@playcanvas/observer';
+import { Container, type ContainerArgs } from '@playcanvas/pcui';
 
-editor.once('load', () => {
-    editor.method('picker:sprites:attributes:frames:preview', (args) => {
-        const parent: Panel = editor.call('picker:sprites:rightPanel');
+interface SpritePreviewContainerArgs extends ContainerArgs {
+    atlasAsset: Observer;
+    frames: string[];
+}
 
-        const atlasAsset = args.atlasAsset;
-        let frames = args.frames;
-        let frameObservers = frames.map((f) => {
-            return atlasAsset.getRaw(`data.frames.${f}`);
+class SpritePreviewContainer extends Container {
+    private _atlasAsset: Observer;
+
+    private _frames: string[];
+
+    private _frameObservers: any[];
+
+    private _canvas: HTMLCanvasElement;
+
+    private _time: number = 0;
+
+    private _playing: boolean = true;
+
+    private _fps: number = 10;
+
+    private _frame: number = 0;
+
+    private _lastTime: number = Date.now();
+
+    private _renderQueued: boolean = false;
+
+    private _parentPanel: Container | null = null;
+
+    private _parentEvents: EventHandle[] = [];
+
+    constructor(args: SpritePreviewContainerArgs) {
+        super({
+            ...args,
+            class: ['asset-preview-container']
         });
 
-        const events: EventHandle[] = [];
+        this._atlasAsset = args.atlasAsset;
+        this._frames = args.frames;
+        this._frameObservers = this._frames.map(f => this._atlasAsset.getRaw(`data.frames.${f}`));
 
-        let previewContainer = document.createElement('div');
-        previewContainer.classList.add('asset-preview-container');
+        this._canvas = document.createElement('canvas');
+        this._canvas.width = 256;
+        this._canvas.height = 256;
+        this._canvas.classList.add('asset-preview');
+        this.dom.appendChild(this._canvas);
 
-        const canvas = document.createElement('canvas');
-        canvas.width = 256;
-        canvas.height = 256;
-        canvas.classList.add('asset-preview');
-        previewContainer.append(canvas);
+        this._canvas.addEventListener('click', this._onCanvasClick);
 
-        canvas.addEventListener('click', () => {
-            parent.class.toggle('large');
-            queueRender();
-        }, false);
+        this._queueRender();
+    }
 
+    private _onCanvasClick = (): void => {
+        this._parentPanel?.class.toggle('large');
+        this._queueRender();
+    };
+
+    private _queueRender = (): void => {
+        if (this._renderQueued) {
+            return;
+        }
+        this._renderQueued = true;
+        requestAnimationFrame(this._renderPreview);
+    };
+
+    private _renderPreview = (): void => {
+        if (this.destroyed) {
+            return;
+        }
+
+        this._renderQueued = false;
+
+        if (this._playing) {
+            const now = Date.now();
+            this._time += (now - this._lastTime) / 1000;
+
+            this._frame = Math.floor(this._time * this._fps);
+            const numFrames = this._frames.length;
+            if (this._frame >= numFrames) {
+                this._frame = 0;
+                this._time -= numFrames / this._fps;
+            }
+
+            this._lastTime = now;
+        }
+
+        this._canvas.width = this._canvas.clientWidth;
+        this._canvas.height = this._canvas.clientHeight;
+
+        // render
+        const frameData = this._frameObservers[this._frame]?._data;
+        editor.call('picker:sprites:renderFramePreview', frameData, this._canvas, this._frameObservers, true);
+
+        if (this._playing) {
+            this._queueRender();
+        }
+    };
+
+    /**
+     * Attaches the preview to a parent panel. The preview is inserted before the panel's content
+     * so it remains fixed while the content scrolls.
+     *
+     * @param parent - The parent panel to attach to.
+     */
+    attachToPanel(parent: Container): void {
+        this._parentPanel = parent;
         parent.class.add('asset-preview');
-        parent.dom.insertBefore(previewContainer, parent.domContent);
-
-        let time = 0;
-        let playing = true;
-        const fps = 10;
-        let frame = 0;
-        let lastTime = Date.now();
-
-        let renderQueued;
-
-        // queue up the rendering to prevent too often renders
-        const queueRender = (): void => {
-            if (renderQueued) {
-                return;
-            }
-            renderQueued = true;
-            requestAnimationFrame(renderPreview);
-        };
-
-        const renderPreview = (): void => {
-            if (!previewContainer) {
-                return;
-            }
-
-            if (renderQueued) {
-                renderQueued = false;
-            }
-
-            if (playing) {
-                const now = Date.now();
-                time += (now - lastTime) / 1000;
-
-                frame = Math.floor(time * fps);
-                const numFrames = frames.length;
-                if (frame >= numFrames) {
-                    frame = 0;
-                    time -= numFrames / fps;
-                }
-
-                lastTime = now;
-            }
-
-            canvas.width = canvas.clientWidth;
-            canvas.height = canvas.clientHeight;
-
-            // render
-            const frameData = frameObservers[frame] && frameObservers[frame]._data;
-            editor.call('picker:sprites:renderFramePreview', frameData, canvas, frameObservers, true);
-
-            if (playing) {
-                queueRender();
-            }
-        };
-
-        renderPreview();
+        parent.dom.insertBefore(this.dom, parent.domContent);
 
         // render on resize
-        events.push(parent.on('resize', queueRender));
+        this._parentEvents.push(parent.on('resize', this._queueRender));
 
-        events.push(parent.on('clear', () => {
-            parent.class.remove('asset-preview', 'animate');
-
-            previewContainer.remove();
-            previewContainer = null;
-
-            playing = false;
-
-            events.forEach(event => event.unbind());
-            events.length = 0;
+        // clean up when parent clears
+        this._parentEvents.push(parent.on('clear', () => {
+            this.destroy();
         }));
+    }
 
-        return {
-            setFrames: (newFrames: string[]): void => {
-                frames = newFrames;
-                frameObservers = frames.map((f) => {
-                    return atlasAsset.getRaw(`data.frames.${f}`);
-                });
-            }
-        };
+    /**
+     * Updates the frames to display in the preview.
+     *
+     * @param frames - The new array of frame keys.
+     */
+    setFrames(frames: string[]): void {
+        this._frames = frames;
+        this._frameObservers = this._frames.map(f => this._atlasAsset.getRaw(`data.frames.${f}`));
+    }
+
+    override destroy(): void {
+        if (this.destroyed) {
+            return;
+        }
+
+        this._playing = false;
+
+        this._parentPanel?.class.remove('asset-preview', 'animate');
+        this._parentPanel = null;
+
+        this._parentEvents.forEach(event => event.unbind());
+        this._parentEvents.length = 0;
+
+        this._canvas.removeEventListener('click', this._onCanvasClick);
+
+        // Remove DOM element explicitly since we bypassed PCUI's parent tracking
+        this.dom.remove();
+
+        super.destroy();
+    }
+}
+
+editor.once('load', () => {
+    editor.method('picker:sprites:attributes:frames:preview', (args: { atlasAsset: Observer; frames: string[] }) => {
+        const parent: Container = editor.call('picker:sprites:rightPanel');
+
+        const preview = new SpritePreviewContainer({
+            atlasAsset: args.atlasAsset,
+            frames: args.frames
+        });
+
+        preview.attachToPanel(parent);
+
+        return preview;
     });
 });
