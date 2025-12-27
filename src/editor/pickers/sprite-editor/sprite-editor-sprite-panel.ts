@@ -3,6 +3,7 @@ import { Button, Canvas, Container, Label, Panel, type TextInput } from '@playca
 
 import type { Attribute } from '@/editor/inspector/attribute.type.d';
 import { AttributesInspector } from '@/editor/inspector/attributes-inspector';
+
 import { SpritePreviewContainer } from './sprite-editor-preview-panel';
 
 const SPRITE_ATTRIBUTES: Attribute[] = [
@@ -59,7 +60,7 @@ editor.once('load', () => {
         const rootPanelContent: Container = editor.call('picker:sprites:rightPanelContent');
         rootPanel.headerText = `SPRITE ASSET - ${spriteAsset.get('name')}`;
 
-         // Create preview and prepend to panel (before scrollable content)
+        // Create preview and prepend to panel (before scrollable content)
         const preview = new SpritePreviewContainer({
             atlasAsset,
             frames: frameKeys

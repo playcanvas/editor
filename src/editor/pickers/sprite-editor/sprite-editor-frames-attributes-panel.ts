@@ -3,6 +3,7 @@ import { Button, Container, Panel, type NumericInput, type SelectInput, type Tex
 
 import type { Attribute } from '@/editor/inspector/attribute.type.d';
 import { AttributesInspector } from '@/editor/inspector/attributes-inspector';
+
 import { SpritePreviewContainer } from './sprite-editor-preview-panel';
 
 // Pivot presets mapping
