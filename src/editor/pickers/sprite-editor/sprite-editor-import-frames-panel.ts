@@ -228,7 +228,7 @@ editor.once('load', () => {
                 const frame = createFrame(frameData.filename || key, frameData, height, scaleWidth, scaleHeight);
 
                 // if frame already exists then use the same index
-                if (key in nameIndex) {
+                if (Object.prototype.hasOwnProperty.call(nameIndex, key)) {
                     newFrames[nameIndex[key]] = frame;
                 } else {
                     // otherwise put the new frame after all the other existing indexes
