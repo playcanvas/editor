@@ -102,23 +102,25 @@ $delete-hover-color: #d34141;
         border: 1px solid $border-primary;
         box-sizing: border-box;
 
-        // When preview is active, use flex layout for fixed preview + scrolling content
-        &.asset-preview > .pcui-panel-content {
+        // Panel content always uses flex for proper scrolling
+        > .pcui-panel-content {
             display: flex;
             flex-direction: column;
             overflow: hidden;
 
-            > .asset-preview-container {
-                flex-shrink: 0;
-
-                canvas {
-                    height: 100%;
-                }
-            }
-
             > .right-panel-content {
                 flex: 1;
                 overflow: auto;
+                min-height: 0; // Allow flex item to shrink below content size
+            }
+        }
+
+        // When preview is active, preview stays fixed at top
+        &.asset-preview > .pcui-panel-content > .asset-preview-container {
+            flex-shrink: 0;
+
+            canvas {
+                height: 100%;
             }
         }
     }

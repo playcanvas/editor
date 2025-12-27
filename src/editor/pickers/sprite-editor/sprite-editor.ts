@@ -1743,8 +1743,7 @@ editor.once('load', () => {
             // Create scrollable content area inside the panel
             rightPanelContent = new Container({
                 class: 'right-panel-content',
-                scrollable: true,
-                flex: true
+                scrollable: true
             });
             rightPanel.append(rightPanelContent);
         } else {
@@ -1757,8 +1756,7 @@ editor.once('load', () => {
             }
             rightPanelContent = new Container({
                 class: 'right-panel-content',
-                scrollable: true,
-                flex: true
+                scrollable: true
             });
             rightPanel.append(rightPanelContent);
         }
