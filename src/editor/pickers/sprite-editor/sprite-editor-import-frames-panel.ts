@@ -1,6 +1,20 @@
 import type { EventHandle } from '@playcanvas/observer';
 import { Button, Container, Label, Panel } from '@playcanvas/pcui';
 
+const BUTTON_TEXT = 'UPLOAD TEXTURE PACKER JSON';
+
+interface TexturePackerFrame {
+    frame: { x: number; y: number; w: number; h: number };
+    pivot?: { x: number; y: number };
+    borders?: { x: number; y: number; w: number; h: number };
+    filename?: string;
+}
+
+interface TexturePackerData {
+    meta: { size: { w: number; h: number } };
+    frames: Record<string, TexturePackerFrame>;
+}
+
 editor.once('load', () => {
     editor.method('picker:sprites:attributes:importFrames', (args) => {
         const events: EventHandle[] = [];
@@ -21,7 +35,7 @@ editor.once('load', () => {
         }));
 
         const panelError = new Panel({
-            headerText: 'Invalid JSON file',
+            headerText: 'Invalid TexturePacker JSON file',
             class: 'import-error',
             flex: true,
             hidden: true
@@ -29,7 +43,7 @@ editor.once('load', () => {
         panel.append(panelError);
 
         const labelError = new Label({
-            text: 'Please upload a valid JSON file that has been created with the Texture Packer application.'
+            text: 'Please upload a valid JSON file that has been created with TexturePacker.'
         });
         panelError.append(labelError);
 
@@ -56,11 +70,21 @@ editor.once('load', () => {
         panel.innerElement.append(hiddenInput);
 
         const btnImport = new Button({
-            text: 'UPLOAD TEXTURE PACKER JSON',
+            text: BUTTON_TEXT,
             icon: 'E222',
             class: 'wide'
         });
         buttonContainer.append(btnImport);
+
+        const resetButton = (): void => {
+            btnImport.text = BUTTON_TEXT;
+            btnImport.disabled = false;
+        };
+
+        const showError = (message: string): void => {
+            labelError.text = message;
+            panelError.hidden = false;
+        };
 
         btnImport.on('click', () => {
             panelError.hidden = true;
@@ -86,33 +110,44 @@ editor.once('load', () => {
             btnImport.text = 'PROCESSING...';
 
             const reader = new FileReader();
-            reader.onload = function (e) {
-                hiddenInput.value = null;
-                const text = reader.result;
-                let data = null;
+
+            reader.onload = function () {
+                hiddenInput.value = '';
+
+                const text = reader.result as string;
+
+                let data: TexturePackerData;
                 try {
                     data = JSON.parse(text);
+                } catch (err) {
+                    log.error(err);
+                    showError('File is not valid JSON. Please ensure the file is a properly formatted TexturePacker export.');
+                    resetButton();
+                    return;
+                }
+
+                try {
                     importFramesFromTexturePacker(data);
                 } catch (err) {
                     log.error(err);
-                    panelError.hidden = false;
-                    return;
+                    showError(err instanceof Error ? err.message : 'Unknown error - please check the contents of the file and try again');
                 } finally {
-                    btnImport.text = 'UPLOAD TEXTURE PACKER JSON';
-                    btnImport.disabled = false;
+                    resetButton();
                 }
             };
+
+            reader.onerror = function () {
+                log.error('FileReader error');
+                showError('Failed to read the file');
+                resetButton();
+            };
+
             reader.readAsText(hiddenInput.files[0]);
         });
 
-        const createFrame = function (name, frameData, height, scaleWidth, scaleHeight) {
+        const createFrame = (name: string, frameData: TexturePackerFrame, height: number, scaleWidth: number, scaleHeight: number) => {
             // the free version of texturepacker doesn't include the pivot data, so provide defaults if necessary
-            if (!frameData.pivot) {
-                frameData.pivot = {
-                    x: 0.5,
-                    y: 0.5
-                };
-            }
+            const pivot = frameData.pivot ?? { x: 0.5, y: 0.5 };
 
             return {
                 name,
@@ -121,22 +156,41 @@ editor.once('load', () => {
                     Math.max(0, frameData.frame.h - frameData.borders.y - frameData.borders.h),
                     Math.max(0, frameData.frame.w - frameData.borders.x - frameData.borders.w),
                     Math.max(0, frameData.borders.y)
-                ] :
-                    [0, 0, 0, 0],
+                ] : [0, 0, 0, 0],
                 rect: [
                     frameData.frame.x * scaleWidth,
                     (height - frameData.frame.y - frameData.frame.h) * scaleHeight,
                     frameData.frame.w * scaleWidth,
                     frameData.frame.h * scaleHeight
                 ],
-                pivot: [
-                    frameData.pivot.x,
-                    frameData.pivot.y
-                ]
+                pivot: [pivot.x, pivot.y]
             };
         };
 
-        const importFramesFromTexturePacker = function (data) {
+        const importFramesFromTexturePacker = (data: TexturePackerData): void => {
+            // Validate TexturePacker JSON structure
+            if (!data?.meta?.size?.w || !data?.meta?.size?.h || !data?.frames) {
+                throw new Error('Invalid TexturePacker JSON format: missing required meta.size or frames data');
+            }
+
+            // Check for empty frames
+            const frameKeys = Object.keys(data.frames);
+            if (frameKeys.length === 0) {
+                throw new Error('No frames found in TexturePacker file');
+            }
+
+            // Validate individual frame data
+            for (const key of frameKeys) {
+                const frameData = data.frames[key];
+                if (!frameData?.frame ||
+                    typeof frameData.frame.x !== 'number' ||
+                    typeof frameData.frame.y !== 'number' ||
+                    typeof frameData.frame.w !== 'number' ||
+                    typeof frameData.frame.h !== 'number') {
+                    throw new Error(`Invalid frame data for "${key}": missing required frame coordinates (x, y, w, h)`);
+                }
+            }
+
             const width = data.meta.size.w;
             const height = data.meta.size.h;
             const actualWidth = atlasAsset.get('meta.width');
@@ -147,7 +201,7 @@ editor.once('load', () => {
 
             const oldFrames = atlasAsset.getRaw('data.frames')._data;
 
-            const nameIndex = {};
+            const nameIndex: Record<string, string> = {};
             let counter = 0;
 
             for (const key in oldFrames) {
@@ -166,7 +220,7 @@ editor.once('load', () => {
                 }
             }
 
-            const newFrames = {};
+            const newFrames: Record<string, ReturnType<typeof createFrame>> = {};
             // for all the new frames
             for (const key in data.frames) {
                 // create new frame
