@@ -10,8 +10,7 @@ editor.once('load', () => {
         const rootPanelContent: Container = editor.call('picker:sprites:rightPanelContent');
 
         const panel = new Panel({
-            headerText: 'IMPORT FRAME DATA',
-            class: 'component'
+            headerText: 'IMPORT FRAME DATA'
         });
         rootPanelContent.append(panel);
 
@@ -44,10 +43,11 @@ editor.once('load', () => {
             panelError.hidden = true;
         });
 
-        const containerButtons = new Container({
-            flex: true
+        const buttonContainer = new Container({
+            flex: true,
+            class: 'action-buttons'
         });
-        panel.append(containerButtons);
+        panel.append(buttonContainer);
 
         const hiddenInput = document.createElement('input');
         hiddenInput.type = 'file';
@@ -60,7 +60,7 @@ editor.once('load', () => {
             icon: 'E222',
             class: 'wide'
         });
-        containerButtons.append(btnImport);
+        buttonContainer.append(btnImport);
 
         btnImport.on('click', () => {
             panelError.hidden = true;
