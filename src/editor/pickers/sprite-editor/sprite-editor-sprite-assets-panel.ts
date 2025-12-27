@@ -237,6 +237,12 @@ editor.once('load', () => {
                 return;
             }
 
+            // Skip if item already exists (can happen on reconnect)
+            const assetId = asset.get('id');
+            if (spriteItems[assetId]) {
+                return;
+            }
+
             spriteAssets.push(asset);
             const item = createSpriteItem(asset);
             if (item) {
