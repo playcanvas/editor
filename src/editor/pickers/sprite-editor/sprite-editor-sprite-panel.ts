@@ -3,6 +3,7 @@ import { Button, Canvas, Container, Label, Panel, type TextInput } from '@playca
 
 import type { Attribute } from '@/editor/inspector/attribute.type.d';
 import { AttributesInspector } from '@/editor/inspector/attributes-inspector';
+import { SpritePreviewContainer } from './sprite-editor-preview-panel';
 
 const SPRITE_ATTRIBUTES: Attribute[] = [
     {
@@ -55,19 +56,22 @@ editor.once('load', () => {
         const events: EventHandle[] = [];
 
         const rootPanel: Panel = editor.call('picker:sprites:rightPanel');
+        const rootPanelContent: Container = editor.call('picker:sprites:rightPanelContent');
         rootPanel.headerText = `SPRITE ASSET - ${spriteAsset.get('name')}`;
 
-        const fieldPreview = editor.call('picker:sprites:attributes:frames:preview', {
+         // Create preview and prepend to panel (before scrollable content)
+        const preview = new SpritePreviewContainer({
             atlasAsset,
-            atlasImage,
             frames: frameKeys
         });
+        preview.resizeTarget = rootPanel;
+        rootPanel.prepend(preview);
 
         const inspector = new AttributesInspector({
             history: editor.api.globals.history,
             attributes: SPRITE_ATTRIBUTES
         });
-        rootPanel.append(inspector);
+        rootPanelContent.append(inspector);
         inspector.link([spriteAsset]);
 
         inspector.enabled = editor.call('permissions:write');
@@ -99,7 +103,7 @@ editor.once('load', () => {
             headerText: 'FRAMES IN SPRITE ASSET',
             class: 'buttons'
         });
-        rootPanel.append(panelEdit);
+        rootPanelContent.append(panelEdit);
 
         panelEdit.enabled = editor.call('permissions:write');
         events.push(editor.on('permissions:writeState', (canWrite: boolean) => {
@@ -396,13 +400,13 @@ editor.once('load', () => {
 
             frameKeys = spriteAsset.get('data.frameKeys');
 
-            fieldPreview.setFrames(frameKeys);
+            preview.setFrames(frameKeys);
         }));
 
         events.push(spriteAsset.on('data.frameKeys:insert', (value, index) => {
             frameKeys = spriteAsset.get('data.frameKeys');
             addFramePanel(frameKeys[index], index);
-            fieldPreview.setFrames(frameKeys);
+            preview.setFrames(frameKeys);
         }));
 
         events.push(spriteAsset.on('data.frameKeys:move', (value, indNew, indOld) => {
@@ -425,7 +429,7 @@ editor.once('load', () => {
             }
 
             frameKeys = spriteAsset.get('data.frameKeys');
-            fieldPreview.setFrames(frameKeys);
+            preview.setFrames(frameKeys);
         }));
 
         events.push(spriteAsset.on('data.frameKeys:set', (value) => {
@@ -435,7 +439,7 @@ editor.once('load', () => {
             frameKeys = spriteAsset.get('data.frameKeys');
             frameKeys.forEach(key => addFramePanel(key));
 
-            fieldPreview.setFrames(frameKeys);
+            preview.setFrames(frameKeys);
         }));
 
         events.push(atlasAsset.on('*:set', (path: string) => {
@@ -454,7 +458,7 @@ editor.once('load', () => {
                         // if this frame was added back to the atlas
                         // then re-render preview
                         if (partsLen === 3) {
-                            fieldPreview.setFrames(frameKeys);
+                            preview.setFrames(frameKeys);
                         }
 
                         break;
@@ -478,7 +482,7 @@ editor.once('load', () => {
             panelAddFramesInfo.hidden = true;
 
             // restore preview to the actual frames that the sprite currently has
-            fieldPreview.setFrames(frameKeys);
+            preview.setFrames(frameKeys);
         }));
 
         events.push(editor.on('picker:sprites:framesSelected', (keys) => {
@@ -492,11 +496,12 @@ editor.once('load', () => {
             // update preview to show what sprite would look like after
             // the selected keys were added
             if (hasKeys) {
-                fieldPreview.setFrames(frameKeys.slice().concat(keys));
+                preview.setFrames(frameKeys.slice().concat(keys));
             }
         }));
 
         events.push(rootPanel.on('clear', () => {
+            preview.destroy();
             inspector.unlink();
             inspector.destroy();
             panelEdit.destroy();

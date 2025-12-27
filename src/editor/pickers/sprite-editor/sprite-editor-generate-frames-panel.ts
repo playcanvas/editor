@@ -140,11 +140,12 @@ editor.once('load', () => {
         const imageData = args.atlasImageData;
 
         const rootPanel = editor.call('picker:sprites:rightPanel');
+        const rootPanelContent: Container = editor.call('picker:sprites:rightPanelContent');
 
         const panel = new Panel({
             headerText: 'GENERATE FRAMES'
         });
-        rootPanel.append(panel);
+        rootPanelContent.append(panel);
 
         const inspector = new AttributesInspector({
             history: editor.api.globals.history,

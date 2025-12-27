@@ -102,8 +102,24 @@ $delete-hover-color: #d34141;
         border: 1px solid $border-primary;
         box-sizing: border-box;
 
-        .asset-preview-container canvas {
-            height: 100%;
+        // When preview is active, use flex layout for fixed preview + scrolling content
+        &.asset-preview > .pcui-panel-content {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+
+            > .asset-preview-container {
+                flex-shrink: 0;
+
+                canvas {
+                    height: 100%;
+                }
+            }
+
+            > .right-panel-content {
+                flex: 1;
+                overflow: auto;
+            }
         }
     }
 

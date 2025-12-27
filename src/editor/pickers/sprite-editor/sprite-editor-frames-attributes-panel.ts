@@ -1,8 +1,9 @@
 import type { EventHandle } from '@playcanvas/observer';
-import { Button, Panel, type NumericInput, type SelectInput, type TextInput, type VectorInput } from '@playcanvas/pcui';
+import { Button, Container, Panel, type NumericInput, type SelectInput, type TextInput, type VectorInput } from '@playcanvas/pcui';
 
 import type { Attribute } from '@/editor/inspector/attribute.type.d';
 import { AttributesInspector } from '@/editor/inspector/attributes-inspector';
+import { SpritePreviewContainer } from './sprite-editor-preview-panel';
 
 // Pivot presets mapping
 const PIVOT_PRESETS = [
@@ -111,24 +112,27 @@ editor.once('load', () => {
         const numFrames = frames.length;
 
         const rootPanel: Panel = editor.call('picker:sprites:rightPanel');
+        const rootPanelContent: Container = editor.call('picker:sprites:rightPanelContent');
         if (numFrames > 1) {
             rootPanel.headerText = 'FRAME INSPECTOR - MULTIPLE FRAMES';
         } else {
             rootPanel.headerText = `FRAME INSPECTOR - ${atlasAsset.get(`data.frames.${frames[0]}.name`)}`;
         }
 
-        editor.call('picker:sprites:attributes:frames:preview', {
+        // Create preview and prepend to panel (before scrollable content)
+        const preview = new SpritePreviewContainer({
             atlasAsset,
-            atlasImage,
             frames
         });
+        preview.resizeTarget = rootPanel;
+        rootPanel.prepend(preview);
 
         // Create inspector with dynamic attributes based on selected frames
         const inspector = new AttributesInspector({
             history: editor.api.globals.history,
             attributes: createAttributes(frames)
         });
-        rootPanel.append(inspector);
+        rootPanelContent.append(inspector);
         // Pass atlasAsset once per frame so PCUI shows "..." for differing values
         inspector.link(frames.map(() => atlasAsset));
 
@@ -514,7 +518,7 @@ editor.once('load', () => {
             headerText: 'ACTIONS',
             class: 'buttons'
         });
-        rootPanel.append(panelButtons);
+        rootPanelContent.append(panelButtons);
         panelButtons.enabled = editor.call('permissions:write');
         events.push(editor.on('permissions:writeState', (canWrite: boolean) => {
             panelButtons.enabled = canWrite;
@@ -597,6 +601,7 @@ editor.once('load', () => {
 
         // clean up
         events.push(rootPanel.on('clear', () => {
+            preview.destroy();
             inspector.unlink();
             inspector.destroy();
             panelButtons.destroy();

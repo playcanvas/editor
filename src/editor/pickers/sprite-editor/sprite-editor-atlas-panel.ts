@@ -1,5 +1,5 @@
 import type { EventHandle } from '@playcanvas/observer';
-import { Label, type Panel } from '@playcanvas/pcui';
+import { type Container, Label, type Panel } from '@playcanvas/pcui';
 
 import type { Attribute } from '@/editor/inspector/attribute.type.d';
 import { AttributesInspector } from '@/editor/inspector/attributes-inspector';
@@ -37,6 +37,7 @@ const ATTRIBUTES: Attribute[] = [
 editor.once('load', () => {
     editor.method('picker:sprites:attributes:atlas', (atlasAsset) => {
         const rootPanel: Panel = editor.call('picker:sprites:rightPanel');
+        const rootPanelContent: Container = editor.call('picker:sprites:rightPanelContent');
 
         rootPanel.headerText = 'TEXTURE ATLAS';
 
@@ -46,7 +47,7 @@ editor.once('load', () => {
             history: editor.api.globals.history,
             attributes: ATTRIBUTES
         });
-        rootPanel.append(inspector);
+        rootPanelContent.append(inspector);
         inspector.link([atlasAsset]);
 
         let timeout: ReturnType<typeof setTimeout> | null = null;

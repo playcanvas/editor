@@ -173,7 +173,8 @@ editor.once('load', () => {
     middlePanel.append(bottomPanel);
 
     // Right panel
-    let rightPanel = null;
+    let rightPanel: Panel | null = null;
+    let rightPanelContent: Container | null = null;
 
     // controls observer (for zoom/brightness).
     const controls = new Observer({
@@ -1734,13 +1735,32 @@ editor.once('load', () => {
                 resizable: 'left',
                 resizeMax: 512,
                 resizeMin: 256,
-                scrollable: true,
+                scrollable: false,
                 width: 320
             });
             panel.append(rightPanel);
+
+            // Create scrollable content area inside the panel
+            rightPanelContent = new Container({
+                class: 'right-panel-content',
+                scrollable: true,
+                flex: true
+            });
+            rightPanel.append(rightPanelContent);
         } else {
             // emit 'clear' event to clear existing children of right panel
             rightPanel.emit('clear');
+
+            // Destroy old content container and create new one
+            if (rightPanelContent) {
+                rightPanelContent.destroy();
+            }
+            rightPanelContent = new Container({
+                class: 'right-panel-content',
+                scrollable: true,
+                flex: true
+            });
+            rightPanel.append(rightPanelContent);
         }
 
         if (!atlasImageLoaded) {
@@ -1865,6 +1885,7 @@ editor.once('load', () => {
             rightPanel.emit('clear');
             rightPanel.destroy();
             rightPanel = null;
+            rightPanelContent = null;
         }
 
         leftPanel.emit('clear');
@@ -1918,6 +1939,11 @@ editor.once('load', () => {
     // Return right panel
     editor.method('picker:sprites:rightPanel', () => {
         return rightPanel;
+    });
+
+    // Return right panel scrollable content area
+    editor.method('picker:sprites:rightPanelContent', () => {
+        return rightPanelContent;
     });
 
     // Return main panel

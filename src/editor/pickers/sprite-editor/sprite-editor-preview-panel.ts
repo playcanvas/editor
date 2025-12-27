@@ -6,7 +6,11 @@ interface SpritePreviewContainerArgs extends ContainerArgs {
     frames: string[];
 }
 
-class SpritePreviewContainer extends Container {
+/**
+ * A container that displays an animated preview of sprite frames.
+ * Click on the preview to toggle between normal and large size.
+ */
+export class SpritePreviewContainer extends Container {
     private _atlasAsset: Observer;
 
     private _frames: string[];
@@ -27,9 +31,9 @@ class SpritePreviewContainer extends Container {
 
     private _renderQueued: boolean = false;
 
-    private _parentPanel: Container | null = null;
+    private _resizeTarget: Container | null = null;
 
-    private _parentEvents: EventHandle[] = [];
+    private _resizeEvents: EventHandle[] = [];
 
     constructor(args: SpritePreviewContainerArgs) {
         super({
@@ -53,7 +57,7 @@ class SpritePreviewContainer extends Container {
     }
 
     private _onCanvasClick = (): void => {
-        this._parentPanel?.class.toggle('large');
+        this._resizeTarget?.class.toggle('large');
         this._queueRender();
     };
 
@@ -99,23 +103,26 @@ class SpritePreviewContainer extends Container {
     };
 
     /**
-     * Attaches the preview to a parent panel. The preview is inserted before the panel's content
-     * so it remains fixed while the content scrolls.
+     * Sets a target container that will have 'large' class toggled when preview is clicked,
+     * and will trigger re-renders on resize.
      *
-     * @param parent - The parent panel to attach to.
+     * @param target - The container to use for resize events and large toggle.
      */
-    attachToPanel(parent: Container): void {
-        this._parentPanel = parent;
-        parent.class.add('asset-preview');
-        parent.dom.insertBefore(this.dom, parent.domContent);
+    set resizeTarget(target: Container | null) {
+        // Unbind previous events
+        this._resizeEvents.forEach(e => e.unbind());
+        this._resizeEvents.length = 0;
 
-        // render on resize
-        this._parentEvents.push(parent.on('resize', this._queueRender));
+        this._resizeTarget = target;
 
-        // clean up when parent clears
-        this._parentEvents.push(parent.on('clear', () => {
-            this.destroy();
-        }));
+        if (target) {
+            target.class.add('asset-preview');
+            this._resizeEvents.push(target.on('resize', this._queueRender));
+        }
+    }
+
+    get resizeTarget(): Container | null {
+        return this._resizeTarget;
     }
 
     /**
@@ -135,32 +142,14 @@ class SpritePreviewContainer extends Container {
 
         this._playing = false;
 
-        this._parentPanel?.class.remove('asset-preview', 'animate');
-        this._parentPanel = null;
+        this._resizeTarget?.class.remove('asset-preview', 'animate', 'large');
+        this._resizeTarget = null;
 
-        this._parentEvents.forEach(event => event.unbind());
-        this._parentEvents.length = 0;
+        this._resizeEvents.forEach(event => event.unbind());
+        this._resizeEvents.length = 0;
 
         this._canvas.removeEventListener('click', this._onCanvasClick);
-
-        // Remove DOM element explicitly since we bypassed PCUI's parent tracking
-        this.dom.remove();
 
         super.destroy();
     }
 }
-
-editor.once('load', () => {
-    editor.method('picker:sprites:attributes:frames:preview', (args: { atlasAsset: Observer; frames: string[] }) => {
-        const parent: Container = editor.call('picker:sprites:rightPanel');
-
-        const preview = new SpritePreviewContainer({
-            atlasAsset: args.atlasAsset,
-            frames: args.frames
-        });
-
-        preview.attachToPanel(parent);
-
-        return preview;
-    });
-});

@@ -7,12 +7,13 @@ editor.once('load', () => {
         const atlasAsset = args.atlasAsset;
 
         const rootPanel = editor.call('picker:sprites:rightPanel');
+        const rootPanelContent: Container = editor.call('picker:sprites:rightPanelContent');
 
         const panel = new Panel({
             headerText: 'IMPORT FRAME DATA',
             class: 'component'
         });
-        rootPanel.append(panel);
+        rootPanelContent.append(panel);
 
         panel.enabled = editor.call('permissions:write');
 
