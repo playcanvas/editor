@@ -29,3 +29,16 @@
         @extend .font-bold;
     }
 }
+
+.component-header-btn {
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+    font-size: 14px;
+    margin: 1px;
+    padding: 0;
+
+    &:last-child {
+        margin-right: 10px;
+    }
+}
