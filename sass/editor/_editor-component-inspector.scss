@@ -29,3 +29,18 @@
         @extend .font-bold;
     }
 }
+
+.component-header-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    font-size: 16px;
+    margin: 1px;
+    padding: 0;
+
+    &:last-child {
+        margin-right: 10px;
+    }
+}
