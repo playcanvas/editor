@@ -1,8 +1,9 @@
+import type { EventHandle } from '@playcanvas/observer';
 import { Button, Canvas, Container, Label, Panel } from '@playcanvas/pcui';
 
 editor.once('load', () => {
     editor.method('picker:sprites:frames', (args) => {
-        const events = [];
+        const events: EventHandle[] = [];
 
         const atlasAsset = args.atlasAsset;
 
@@ -22,7 +23,7 @@ editor.once('load', () => {
         const panelFrames = leftPanel.content;
         panelFrames.class.add('frames');
 
-        const addFramePanel = function (key, frame, afterPanel, beforePanel) {
+        const addFramePanel = (key, frame, afterPanel?, beforePanel?) => {
             const frameEvents = [];
 
             const panel = new Container({
@@ -44,12 +45,12 @@ editor.once('load', () => {
 
             let renderQueued = false;
 
-            const renderPreview = function () {
+            const renderPreview = (): void => {
                 editor.call('picker:sprites:renderFramePreview', frame, canvas.dom);
                 renderQueued = false;
             };
 
-            panel.queueRender = function () {
+            panel.queueRender = (): void => {
                 if (renderQueued) {
                     return;
                 }
@@ -72,17 +73,18 @@ editor.once('load', () => {
 
             // remove frame
             const btnRemove = new Button({
-                class: 'remove'
+                icon: 'E124',
+                class: 'icon-button'
             });
             panel.append(btnRemove);
 
             btnRemove.enabled = editor.call('permissions:write');
 
-            frameEvents.push(editor.on('permissions:writeState', (canWrite) => {
+            frameEvents.push(editor.on('permissions:writeState', (canWrite: boolean) => {
                 btnRemove.enabled = canWrite;
             }));
 
-            btnRemove.on('click', (e) => {
+            btnRemove.on('click', (e: MouseEvent) => {
                 e.stopPropagation();
                 editor.call('picker:sprites:deleteFrames', [key], {
                     history: true
@@ -159,14 +161,13 @@ editor.once('load', () => {
                 }
 
                 scrollSelectionIntoView = true;
-
             });
 
-            const onMouseEnter = function () {
+            const onMouseEnter = (): void => {
                 editor.call('picker:sprites:hoverFrame', key);
             };
 
-            const onMouseLeave = function () {
+            const onMouseLeave = (): void => {
                 editor.call('picker:sprites:hoverFrame', null);
             };
 
@@ -174,10 +175,8 @@ editor.once('load', () => {
             panel.dom.addEventListener('mouseleave', onMouseLeave);
 
             // clean up events
-            panel.on('destroy', (dom) => {
-                for (const event of frameEvents) {
-                    event.unbind();
-                }
+            panel.once('destroy', (dom) => {
+                frameEvents.forEach(event => event.unbind());
                 frameEvents.length = 0;
 
                 dom.removeEventListener('mouseenter', onMouseEnter);
@@ -200,21 +199,21 @@ editor.once('load', () => {
         }
 
         // keydown
-        const onKeyDown = function (e) {
+        const onKeyDown = (e: KeyboardEvent): void => {
             ctrlDown = e.ctrlKey || e.metaKey;
             shiftDown = e.shiftKey;
         };
         window.addEventListener('keydown', onKeyDown);
 
         // keyup
-        const onKeyUp = function (e) {
+        const onKeyUp = (e: KeyboardEvent): void => {
             ctrlDown = e.ctrlKey || e.metaKey;
             shiftDown = e.shiftKey;
         };
         window.addEventListener('keyup', onKeyUp);
 
         // listen to atlas set event
-        events.push(atlasAsset.on('*:set', (path, value) => {
+        events.push(atlasAsset.on('*:set', (path: string, value) => {
             if (!path.startsWith('data.frames')) {
                 return;
             }
@@ -264,7 +263,7 @@ editor.once('load', () => {
 
         // listen to atlas unset event
         const checkUnsetPath = /^data\.frames\.(\d+)$/;
-        events.push(atlasAsset.on('*:unset', (path) => {
+        events.push(atlasAsset.on('*:unset', (path: string) => {
             const match = path.match(checkUnsetPath);
             if (!match) {
                 return;
@@ -376,9 +375,7 @@ editor.once('load', () => {
 
         // clean up
         events.push(leftPanel.on('clear', () => {
-            for (const event of events) {
-                event.unbind();
-            }
+            events.forEach(event => event.unbind());
             events.length = 0;
 
             window.removeEventListener('keydown', onKeyDown);

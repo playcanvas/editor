@@ -159,10 +159,8 @@ editor.once('load', () => {
             spriteItem.dom.addEventListener('contextmenu', contextMenu);
 
             // clean up events
-            spriteItem.on('destroy', (dom: HTMLElement) => {
-                for (const event of spriteEvents) {
-                    event.unbind();
-                }
+            spriteItem.once('destroy', (dom: HTMLElement) => {
+                spriteEvents.forEach(event => event.unbind());
                 spriteEvents.length = 0;
 
                 dom.removeEventListener('contextmenu', contextMenu);
@@ -239,6 +237,12 @@ editor.once('load', () => {
                 return;
             }
 
+            // Skip if item already exists (can happen on reconnect)
+            const assetId = asset.get('id');
+            if (spriteItems[assetId]) {
+                return;
+            }
+
             spriteAssets.push(asset);
             const item = createSpriteItem(asset);
             if (item) {
@@ -259,13 +263,11 @@ editor.once('load', () => {
             grid.destroy();
         }));
 
-        grid.on('destroy', () => {
+        grid.once('destroy', () => {
             menu.destroy();
             contextMenuAsset = null;
 
-            for (const event of events) {
-                event.unbind();
-            }
+            events.forEach(event => event.unbind());
             events.length = 0;
         });
     });

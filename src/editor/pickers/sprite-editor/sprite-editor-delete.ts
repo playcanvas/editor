@@ -28,7 +28,7 @@ editor.once('load', () => {
             }
         }
 
-        const redo = function () {
+        const redo = (): void => {
             const asset = editor.call('assets:get', atlasAsset.get('id'));
             if (!asset) {
                 return;
@@ -48,7 +48,7 @@ editor.once('load', () => {
         };
 
         if (history) {
-            const undo = function () {
+            const undo = (): void => {
                 const asset = editor.call('assets:get', atlasAsset.get('id'));
                 if (!asset) {
                     return;
@@ -71,8 +71,8 @@ editor.once('load', () => {
             editor.api.globals.history.add({
                 name: 'delete frames',
                 combine: false,
-                undo: undo,
-                redo: redo
+                undo,
+                redo
             });
         }
 
