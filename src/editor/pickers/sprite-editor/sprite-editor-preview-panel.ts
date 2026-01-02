@@ -1,112 +1,155 @@
-import type { Panel } from '@playcanvas/pcui';
+import type { EventHandle, Observer } from '@playcanvas/observer';
+import { Container, type ContainerArgs } from '@playcanvas/pcui';
 
-editor.once('load', () => {
-    editor.method('picker:sprites:attributes:frames:preview', (args) => {
-        const parent: Panel = editor.call('picker:sprites:rightPanel');
+interface SpritePreviewContainerArgs extends ContainerArgs {
+    atlasAsset: Observer;
+    frames: string[];
+}
 
-        const atlasAsset = args.atlasAsset;
-        let frames = args.frames;
-        let frameObservers = frames.map((f) => {
-            return atlasAsset.getRaw(`data.frames.${f}`);
+/**
+ * A container that displays an animated preview of sprite frames.
+ * Click on the preview to toggle between normal and large size.
+ */
+export class SpritePreviewContainer extends Container {
+    private _atlasAsset: Observer;
+
+    private _frames: string[];
+
+    private _frameObservers: any[];
+
+    private _canvas: HTMLCanvasElement;
+
+    private _time: number = 0;
+
+    private _playing: boolean = true;
+
+    private _fps: number = 10;
+
+    private _frame: number = 0;
+
+    private _lastTime: number = Date.now();
+
+    private _renderQueued: boolean = false;
+
+    private _resizeTarget: Container | null = null;
+
+    private _resizeEvents: EventHandle[] = [];
+
+    constructor(args: SpritePreviewContainerArgs) {
+        super({
+            ...args,
+            class: ['asset-preview-container']
         });
 
-        const events = [];
+        this._atlasAsset = args.atlasAsset;
+        this._frames = args.frames;
+        this._frameObservers = this._frames.map(f => this._atlasAsset.getRaw(`data.frames.${f}`));
 
-        let previewContainer = document.createElement('div');
-        previewContainer.classList.add('asset-preview-container');
+        this._canvas = document.createElement('canvas');
+        this._canvas.width = 256;
+        this._canvas.height = 256;
+        this._canvas.classList.add('asset-preview');
+        this.dom.appendChild(this._canvas);
 
-        const canvas = document.createElement('canvas');
-        canvas.width = 256;
-        canvas.height = 256;
-        canvas.classList.add('asset-preview');
-        previewContainer.append(canvas);
+        this._canvas.addEventListener('click', this._onCanvasClick);
 
-        canvas.addEventListener('click', () => {
-            parent.class.toggle('large');
-            queueRender();
-        }, false);
+        this._queueRender();
+    }
 
-        parent.class.add('asset-preview');
-        parent.dom.insertBefore(previewContainer, parent.domContent);
+    private _onCanvasClick = (): void => {
+        this._resizeTarget?.class.toggle('large');
+        this._queueRender();
+    };
 
-        let time = 0;
-        let playing = true;
-        const fps = 10;
-        let frame = 0;
-        let lastTime = Date.now();
+    private _queueRender = (): void => {
+        if (this._renderQueued) {
+            return;
+        }
+        this._renderQueued = true;
+        requestAnimationFrame(this._renderPreview);
+    };
 
-        let renderQueued;
+    private _renderPreview = (): void => {
+        if (this.destroyed) {
+            return;
+        }
 
-        // queue up the rendering to prevent too often renders
-        const queueRender = function () {
-            if (renderQueued) {
-                return;
-            }
-            renderQueued = true;
-            requestAnimationFrame(renderPreview);
-        };
+        this._renderQueued = false;
 
-        const renderPreview = function () {
-            if (!previewContainer) {
-                return;
-            }
+        if (this._playing) {
+            const now = Date.now();
+            this._time += (now - this._lastTime) / 1000;
 
-            if (renderQueued) {
-                renderQueued = false;
-            }
-
-            if (playing) {
-                const now = Date.now();
-                time += (now - lastTime) / 1000;
-
-                frame = Math.floor(time * fps);
-                const numFrames = frames.length;
-                if (frame >= numFrames) {
-                    frame = 0;
-                    time -= numFrames / fps;
-                }
-
-                lastTime = now;
+            this._frame = Math.floor(this._time * this._fps);
+            const numFrames = this._frames.length;
+            if (this._frame >= numFrames) {
+                this._frame = 0;
+                this._time -= numFrames / this._fps;
             }
 
-            canvas.width = canvas.clientWidth;
-            canvas.height = canvas.clientHeight;
+            this._lastTime = now;
+        }
 
-            // render
-            const frameData = frameObservers[frame] && frameObservers[frame]._data;
-            editor.call('picker:sprites:renderFramePreview', frameData, canvas, frameObservers, true);
+        this._canvas.width = this._canvas.clientWidth;
+        this._canvas.height = this._canvas.clientHeight;
 
-            if (playing) {
-                queueRender();
-            }
-        };
+        // render
+        const frameData = this._frameObservers[this._frame]?._data;
+        editor.call('picker:sprites:renderFramePreview', frameData, this._canvas, this._frameObservers, true);
 
-        renderPreview();
+        if (this._playing) {
+            this._queueRender();
+        }
+    };
 
-        // render on resize
-        events.push(parent.on('resize', queueRender));
+    /**
+     * Sets a target container that will have 'large' class toggled when preview is clicked,
+     * and will trigger re-renders on resize.
+     *
+     * @param target - The container to use for resize events and large toggle.
+     */
+    set resizeTarget(target: Container | null) {
+        // Unbind previous events
+        this._resizeEvents.forEach(e => e.unbind());
+        this._resizeEvents.length = 0;
 
-        events.push(parent.on('clear', () => {
-            parent.class.remove('asset-preview', 'animate');
+        this._resizeTarget = target;
 
-            previewContainer.parentElement.removeChild(previewContainer);
-            previewContainer = null;
+        if (target) {
+            target.class.add('asset-preview');
+            this._resizeEvents.push(target.on('resize', this._queueRender));
+        }
+    }
 
-            playing = false;
+    get resizeTarget(): Container | null {
+        return this._resizeTarget;
+    }
 
-            for (let i = 0, len = events.length; i < len; i++) {
-                events[i].unbind();
-            }
-            events.length = 0;
-        }));
+    /**
+     * Updates the frames to display in the preview.
+     *
+     * @param frames - The new array of frame keys.
+     */
+    setFrames(frames: string[]): void {
+        this._frames = frames;
+        this._frameObservers = this._frames.map(f => this._atlasAsset.getRaw(`data.frames.${f}`));
+    }
 
-        return {
-            setFrames: function (newFrames) {
-                frames = newFrames;
-                frameObservers = frames.map((f) => {
-                    return atlasAsset.getRaw(`data.frames.${f}`);
-                });
-            }
-        };
-    });
-});
+    override destroy(): void {
+        if (this.destroyed) {
+            return;
+        }
+
+        this._playing = false;
+
+        this._resizeTarget?.class.remove('asset-preview', 'animate', 'large');
+        this._resizeTarget = null;
+
+        this._resizeEvents.forEach(event => event.unbind());
+        this._resizeEvents.length = 0;
+
+        this._canvas.removeEventListener('click', this._onCanvasClick);
+
+        super.destroy();
+    }
+}

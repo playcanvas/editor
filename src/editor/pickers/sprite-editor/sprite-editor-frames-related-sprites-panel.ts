@@ -1,25 +1,27 @@
-import { LegacyLabel } from '@/common/ui/label';
+import type { EventHandle, Observer } from '@playcanvas/observer';
+import { type Container, Label, Panel } from '@playcanvas/pcui';
+
 import { LegacyList } from '@/common/ui/list';
 import { LegacyListItem } from '@/common/ui/list-item';
 
 editor.once('load', () => {
     editor.method('picker:sprites:attributes:frames:relatedSprites', (args) => {
-        const events = [];
+        const events: EventHandle[] = [];
 
         const atlasAsset = args.atlasAsset;
         const frames = args.frames;
         const numFrames = frames.length;
 
-        const rootPanel = editor.call('picker:sprites:rightPanel');
+        const rootPanel: Panel = editor.call('picker:sprites:rightPanel');
+        const rootPanelContent: Container = editor.call('picker:sprites:rightPanelContent');
 
-        const panel = editor.call('attributes:addPanel', {
-            parent: rootPanel,
-            name: 'RELATED SPRITE ASSETS'
+        const panel = new Panel({
+            headerText: 'RELATED SPRITE ASSETS',
+            class: 'component'
         });
+        rootPanelContent.append(panel);
 
-        panel.class.add('component');
-
-        const labelNoAssets = new LegacyLabel({
+        const labelNoAssets = new Label({
             text: 'None'
         });
         panel.append(labelNoAssets);
@@ -28,7 +30,7 @@ editor.once('load', () => {
         list.class.add('related-assets');
         panel.append(list);
 
-        const assets = editor.call('assets:find', (asset) => {
+        const assets = editor.call('assets:find', (asset: Observer) => {
             if (asset.get('type') !== 'sprite' || asset.get('data.textureAtlasAsset') !== atlasAsset.get('id')) {
                 return false;
             }
@@ -46,7 +48,7 @@ editor.once('load', () => {
         labelNoAssets.hidden = assets.length > 0;
         list.hidden = assets.length === 0;
 
-        const createAssetPanel = function (asset) {
+        const createAssetPanel = (asset: Observer): void => {
             const assetEvents = [];
 
             const item = new LegacyListItem({
@@ -66,27 +68,21 @@ editor.once('load', () => {
                 item.destroy();
             }));
 
-            item.on('destroy', () => {
-                for (let i = 0; i < assetEvents.length; i++) {
-                    assetEvents[i].unbind();
-                }
+            item.once('destroy', () => {
+                assetEvents.forEach(event => event.unbind());
                 assetEvents.length = 0;
             });
         };
 
-        for (let i = 0; i < assets.length; i++) {
-            createAssetPanel(assets[i][1]);
-        }
+        assets.forEach(([, asset]) => createAssetPanel(asset));
 
         // clean up
         events.push(rootPanel.on('clear', () => {
             panel.destroy();
         }));
 
-        panel.on('destroy', () => {
-            for (let i = 0, len = events.length; i < len; i++) {
-                events[i].unbind();
-            }
+        panel.once('destroy', () => {
+            events.forEach(event => event.unbind());
             events.length = 0;
         });
     });

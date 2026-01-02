@@ -28,7 +28,7 @@ editor.once('load', () => {
             newValue.rect[1] -= newValue.rect[3];
         }
 
-        const redo = function () {
+        const redo = (): void => {
             const asset = editor.call('assets:get', atlasAsset.get('id'));
             if (!asset) {
                 return;
@@ -39,7 +39,7 @@ editor.once('load', () => {
             asset.history.enabled = history;
         };
 
-        const undo = function () {
+        const undo = (): void => {
             const asset = editor.call('assets:get', atlasAsset.get('id'));
             if (!asset) {
                 return;
@@ -57,8 +57,8 @@ editor.once('load', () => {
         editor.api.globals.history.add({
             name: `data.frames.${key}`,
             combine: false,
-            undo: undo,
-            redo: redo
+            undo,
+            redo
         });
 
         redo();

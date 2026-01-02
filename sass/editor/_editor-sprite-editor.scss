@@ -1,12 +1,23 @@
 @use 'sass:color';
 
+// Local variables
+$checkerboard-color: #eaeaea;
+$error-border-color: #fb222f;
+$delete-hover-color: #d34141;
+
+// Mixins
+@mixin button-column {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
 #sprite-editor {
-    // a pcui gridview doesn't have a default style for the disabled state
+    // GridView overrides
     .pcui-gridview.pcui-disabled {
         opacity: $disabled-opacity;
     }
 
-    // tweak item spacing
     .pcui-gridview-item {
         height: 104px;
 
@@ -15,11 +26,11 @@
         }
     }
 
-    // brighter than the default
     .pcui-gridview-item-text {
         color: $text-primary;
     }
 
+    // Overlay
     > .pcui-overlay-inner {
         background-color: rgba($bcg-darkest, 0.9);
     }
@@ -27,345 +38,293 @@
     > .pcui-overlay-content {
         width: 90%;
         height: 90%;
+    }
 
-        > .root-panel {
+    // Root panel
+    .root-panel {
+        height: 100%;
+
+        > .pcui-panel-header {
+            border: 1px solid $border-primary;
+        }
+
+        > .pcui-panel-content {
+            display: flex;
+            flex-direction: row;
             height: 100%;
+        }
+    }
 
-            > .pcui-panel-header {
-                border: 1px solid $border-primary;
+    // Left panel structure
+    .left-columns,
+    .left-rows {
+        height: 100%;
+    }
+
+    .left-panel > .pcui-panel-content {
+        height: 100%;
+        padding: 6px;
+    }
+
+    // Middle panel (canvas area)
+    .middle-panel {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+
+        // Checkerboard background for transparency
+        .canvas {
+            height: 100%;
+            width: 100%;
+            background-color: #fff;
+            background-image:
+                linear-gradient(45deg, $checkerboard-color 25%, transparent 25%, transparent 75%, $checkerboard-color 75%, $checkerboard-color 100%),
+                linear-gradient(45deg, $checkerboard-color 25%, transparent 25%, transparent 75%, $checkerboard-color 75%, $checkerboard-color 100%);
+            background-size: 24px 24px;
+            background-position: 0 0, 12px 12px;
+        }
+
+        // Cursor states
+        &.grab { cursor: grab; }
+        &.grabbing { cursor: grabbing; }
+        &.ew-resize { cursor: ew-resize; }
+        &.ns-resize { cursor: ns-resize; }
+        &.nwse-resize { cursor: nwse-resize; }
+        &.nesw-resize { cursor: nesw-resize; }
+        &.move { cursor: move; }
+    }
+
+    // Right panel
+    .right-panel {
+        top: 0;
+        height: 100%;
+        right: 0;
+        border: 1px solid $border-primary;
+        box-sizing: border-box;
+
+        // Panel content always uses flex for proper scrolling
+        > .pcui-panel-content {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+
+            > .right-panel-content {
+                flex: 1;
+                overflow: auto;
+                min-height: 0; // Allow flex item to shrink below content size
             }
+        }
 
-            .close {
-                font-size: 16px;
-                color: $text-secondary;
-                background-color: transparent;
-                border: none;
-                box-shadow: none;
+        // When preview is active, preview stays fixed at top
+        &.asset-preview > .pcui-panel-content > .asset-preview-container {
+            flex-shrink: 0;
 
-                &:hover {
-                    color: $text-primary;
-                }
-            }
-
-            > .pcui-panel-content {
-                display: flex;
-                flex-direction: row;
+            canvas {
                 height: 100%;
+            }
+        }
+    }
 
-                .middle-panel {
-                    width: 100%;
-                    height: 100%;
-                    overflow: hidden;
+    // Info panels (add-frames-info, import-error)
+    .pcui-panel.add-frames-info,
+    .pcui-panel.import-error {
+        border: 1px solid $text-active;
+        margin: 3px 3px 10px;
+        font-size: 12px;
+        background: $bcg-darkest;
 
-                    .canvas {
-                        height: 100%;
-                        width: 100%;
+        > .pcui-panel-header {
+            background: transparent;
+            padding: 10px 15px 0;
 
-                        $checkerboard-dark: #eaeaea;
+            &::before {
+                @extend .font-icon;
 
-                        background-color: #fff;
-                        background-image:
-                            linear-gradient(45deg, $checkerboard-dark 25%, transparent 25%, transparent 75%, $checkerboard-dark 75%, $checkerboard-dark 100%),
-                            linear-gradient(45deg, $checkerboard-dark 25%, transparent 25%, transparent 75%, $checkerboard-dark 75%, $checkerboard-dark 100%);
-                        background-size: 24px 24px;
-                        background-position: 0 0, 12px 12px;
-                    }
+                content: '\E400';
+                float: left;
+                margin-right: 5px;
+                margin-left: -3px;
+                font-size: 20px;
+                font-weight: 100;
+            }
+        }
 
-                    &.grab {
-                        cursor: grab;
-                    }
+        > .pcui-panel-content {
+            padding: 0 15px 10px;
+        }
 
-                    &.grabbing {
-                        cursor: grabbing;
-                    }
+        .pcui-label {
+            margin: 0;
+            line-height: 1.5;
+            white-space: normal;
+        }
+    }
 
-                    &.ew-resize {
-                        cursor: ew-resize;
-                    }
+    .pcui-panel.import-error {
+        border-color: $error-border-color;
+    }
 
-                    &.ns-resize {
-                        cursor: ns-resize;
-                    }
+    // Frame list items
+    .frames .frame {
+        background-color: $bcg-dark;
+        border: 1px solid $bcg-darker;
+        padding: 5px;
+        white-space: nowrap;
 
-                    &.nwse-resize {
-                        cursor: nwse-resize;
-                    }
+        &:hover {
+            background-color: $bcg-darker;
+            cursor: pointer;
+        }
 
-                    &.nesw-resize {
-                        cursor: nesw-resize;
-                    }
+        &.selected,
+        &.highlighted {
+            background-color: $bcg-darkest;
+        }
 
-                    &.move {
-                        cursor: move;
-                    }
-                }
+        &.dragged {
+            background-color: color.adjust($bcg-darkest, $lightness: -2%);
+        }
 
-                .left-columns {
-                    height: 100%;
+        &.sprite-frame {
+            border: 1px solid $text-active;
+            background-color: $bcg-dark;
+        }
 
-                    .left-rows {
-                        height: 100%;
-                    }
-                }
+        // Drag handle
+        .handle {
+            float: left;
+            width: 12px;
+            height: 24px;
+            margin: 2px 8px 2px 2px;
+            cursor: move;
 
-                .left-panel {
-                    > .pcui-panel-content {
-                        height: 100%;
-                        padding: 6px;
-                    }
-                }
+            @extend .noSelect;
 
-                .right-panel {
-                    top: 0;
-                    height: 100%;
-                    right: 0;
-                    border: 1px solid $border-primary;
-                    box-sizing: border-box;
+            $handle-color: color.mix($text-darkest, $bcg-primary, 50%);
+            $handle-size: 6px;
 
-                    > .pcui-panel-content {
-                        > .ui-panel {
-                            > .content {
-                                padding: 8px 6px;
+            background: radial-gradient($handle-color 20%, transparent 55%);
+            background-size: $handle-size $handle-size;
 
-                                .field-button {
-                                    text-align: center;
-                                }
-                            }
-                        }
-                    }
+            &:hover {
+                background: radial-gradient($text-primary 20%, transparent 55%);
+                background-size: $handle-size $handle-size;
+            }
+        }
 
-                    .ui-panel.buttons {
-                        > .content {
-                            flex-wrap: wrap;
+        .pcui-label.name {
+            font-size: 12px;
+            vertical-align: top;
+            margin-left: 5px;
+            max-width: calc(100% - 31px);
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
 
-                            > .ui-button.icon {
-                                margin-bottom: 0;
-                                margin-top: 0;
-                                flex-basis: 0;
-                            }
+        canvas {
+            background-color: color.adjust($text-darkest, $lightness: -10%);
+            border: 1px solid $border-primary;
+            vertical-align: middle;
+        }
+    }
 
-                            .ui-panel.frames {
-                                width: 100%;
-                                margin-top: 10px;
-                            }
-                        }
-                    }
+    .frames .frame.sprite-frame + .frame.sprite-frame {
+        border-top: 0;
+        margin-top: 1px;
+    }
 
-                    .asset-preview-container {
-                        canvas {
-                            height: 100%;
-                        }
-                    }
+    // Panel content layouts
+    .pcui-panel.buttons > .pcui-panel-content {
+        @include button-column;
 
-                    .ui-panel.add-frames-info,
-                    .ui-panel.import-error {
-                        border: 1px solid $text-active;
-                        margin: 3px 3px 10px;
-                        padding: 10px 15px;
-                        font-size: 12px;
-                        background: $bcg-darkest;
+        padding: 9px;
 
-                        > .ui-header {
-                            background: transparent;
-                            padding: 0;
+        .pcui-container.frames {
+            width: 100%;
+            margin-top: 7px;
+        }
+    }
 
-                            &::before {
-                                @extend .font-icon;
+    .pcui-panel.component > .pcui-panel-content {
+        padding: 6px;
+    }
 
-                                content: '\E400';
-                                float: left;
-                                margin-right: 5px;
-                                margin-left: -3px;
-                                font-size: 20px;
-                                font-weight: 100;
-                            }
-                        }
+    .pcui-container.action-buttons {
+        @include button-column;
 
-                        .ui-label {
-                            margin: 0;
-                            line-height: 1.5;
-                        }
-                    }
+        padding: 9px;
+    }
 
-                    .ui-panel.import-error {
-                        border-color: #fb222f;
-                    }
-                }
+    .pcui-container.edit-buttons {
+        gap: 3px;
 
-                .frames {
-                    .frame {
-                        background-color: $bcg-dark;
-                        border: 1px solid $bcg-darker;
-                        padding: 5px;
-                        white-space: nowrap;
+        > .pcui-button {
+            display: block;
+            width: auto;
+        }
+    }
 
-                        &:hover {
-                            background-color: $bcg-darker;
-                            cursor: pointer;
-                        }
+    // Buttons - shared overrides
+    .pcui-button {
+        border: none;
+        border-radius: 0;
+        margin: 0;
 
-                        &.selected {
-                            background-color: $bcg-darkest;
-                        }
+        &:hover,
+        &:focus {
+            box-shadow: none;
+        }
+    }
 
-                        &.dragged {
-                            background-color: color.adjust($bcg-darkest, $lightness: -2%);
-                        }
+    // Icon buttons
+    .pcui-button.icon-button {
+        padding: 0;
+        background-color: transparent;
 
-                        .handle {
-                            float: left;
-                            width: 12px;
-                            height: 24px;
-                            margin: 2px 8px 2px 2px;
-                            cursor: move;
+        &.close {
+            font-size: 16px;
+            color: $text-secondary;
 
-                            @extend .noSelect;
+            &:hover {
+                color: $text-primary;
+            }
+        }
+    }
 
-                            $color: color.mix($text-darkest, $bcg-primary, 50%);
-                            $size: 6px;
-                            $inner-radius: 20%;
-                            $outer-radius: 55%;
+    .frames .frame .pcui-button.icon-button {
+        width: 32px;
+        height: 100%;
+        position: absolute;
+        right: 0;
+        top: 0;
+        font-size: 14px;
+        color: $text-darkest;
 
-                            background: radial-gradient($color $inner-radius, transparent $outer-radius);
-                            background-size: $size $size;
+        &::before {
+            line-height: 26px;
+        }
 
-                            &:hover {
-                                $color: $text-primary;
+        &:hover {
+            color: $delete-hover-color;
+        }
+    }
 
-                                background: radial-gradient($color $inner-radius, transparent $outer-radius);
-                                background-size: $size $size;
-                            }
-                        }
+    // Wide action buttons
+    .pcui-button.wide {
+        text-align: left;
+        text-transform: uppercase;
+        width: 100%;
 
-                        &.sprite-frame {
-                            border: 1px solid $text-active;
-                            background-color: $bcg-dark;
-                        }
+        @extend .font-bold;
 
-                        &.highlighted {
-                            background-color: $bcg-darkest;
-                        }
+        &::before {
+            font-size: 14px;
+        }
 
-                        .ui-label.name,
-                        .pcui-label.name {
-                            font-size: 12px;
-                            vertical-align: top;
-                            margin-left: 5px;
-                            max-width: calc(100% - 31px);
-                            overflow: hidden;
-                            text-overflow: ellipsis;
-                        }
-
-                        canvas {
-                            background-color: color.adjust($text-darkest, $lightness: -10%);
-                            border: 1px solid $border-primary;
-                            vertical-align: middle;
-                        }
-
-                        .ui-button.remove,
-                        .pcui-button.remove {
-                            @extend .font-icon;
-
-                            width: 32px;
-                            margin: 0;
-                            padding: 0;
-                            position: absolute;
-                            right: 0;
-                            font-size: 14px;
-                            text-align: center;
-                            background-color: transparent;
-                            color: $text-darkest;
-                            border: none;
-                            box-shadow: none;
-
-                            &:hover {
-                                color: #d34141;
-                            }
-
-                            &::after {
-                                content: '\E124';
-                                font-weight: 200;
-                            }
-                        }
-                    }
-
-                    .frame.sprite-frame + .frame.sprite-frame {
-                        border-top: 0;
-                        margin-top: 1px;
-                    }
-                }
-
-                .ui-button.icon {
-                    background-color: $bcg-dark;
-
-                    &:hover {
-                        background-color: $bcg-darkest;
-
-                        &::before {
-                            color: $text-active;
-                        }
-
-                        &.remove::before {
-                            color: #d34141;
-                        }
-                    }
-
-                    &.wide {
-                        width: calc(100% - 6px);
-                    }
-
-                    font-size: 12px;
-                    border: none;
-                    position: relative;
-                    height: 28px;
-                    line-height: 30px;
-                    padding-left: 28px;
-                    white-space: nowrap;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    text-transform: uppercase;
-                    text-align: left;
-
-                    @extend .font-bold;
-
-                    &::before {
-                        @extend .font-icon;
-
-                        font-size: 14px;
-                        text-align: center;
-                        margin-left: -18px;
-                        margin-right: 9px;
-                        font-weight: 100;
-                    }
-
-                    &.create::before {
-                        content: '\E120';
-                    }
-
-                    &.remove::before {
-                        content: '\E124';
-                    }
-
-                    &.cancel::before {
-                        content: '\E132';
-                    }
-
-                    &.trim::before {
-                        content: '\E394';
-                    }
-
-                    &.focus::before {
-                        content: '\E397';
-                    }
-
-                    &.generate::before {
-                        content: '\E398';
-                    }
-
-                    &.upload::before {
-                        content: '\E222';
-                    }
-                }
+        &:hover,
+        &:focus {
+            &::before {
+                color: $text-active;
             }
         }
     }
