@@ -1,72 +1,78 @@
-import { LegacyButton } from '@/common/ui/button';
-import { LegacyLabel } from '@/common/ui/label';
+import type { EventHandle } from '@playcanvas/observer';
+import { Button, Container, Element, Label, Menu, Progress, TextInput } from '@playcanvas/pcui';
+
 import { LegacyList } from '@/common/ui/list';
 import { LegacyListItem } from '@/common/ui/list-item';
-import { LegacyMenu } from '@/common/ui/menu';
-import { LegacyPanel } from '@/common/ui/panel';
-import { LegacyProgress } from '@/common/ui/progress';
-import { LegacyTextField } from '@/common/ui/text-field';
 import { convertDatetime } from '@/common/utils';
 
-editor.once('load', () => {
-    const panel = new LegacyPanel();
-    panel.class.add('picker-scene-panel');
+interface Scene {
+    id: number | string;
+    name: string;
+    modified: string;
+    uniqueId: string;
+}
 
-    editor.call('picker:project:registerMenu', 'scenes', 'Scenes', panel);
+editor.once('load', () => {
+    const container = new Container({
+        class: 'picker-scene-panel'
+    });
+
+    editor.call('picker:project:registerMenu', 'scenes', 'Scenes', container);
 
     // scene should be the default
     editor.call('picker:project:setDefaultMenu', 'scenes');
 
     if (!editor.call('permissions:write')) {
-        panel.class.add('disabled');
+        container.class.add('disabled');
     }
 
     // progress bar and loading label
-    const loading = new LegacyLabel({
+    const loading = new Label({
         text: 'Loading...'
     });
-    panel.append(loading);
+    container.append(loading);
 
-    const progressBar = new LegacyProgress({ progress: 1 });
-    progressBar.hidden = true;
-    panel.append(progressBar);
-
-    const filter = new LegacyTextField({
-        placeholder: 'Filter scenes'
+    const progressBar = new Progress({
+        value: 100
     });
-    filter.keyChange = true;
-    filter.renderChanges = false;
-    filter.class.add('filter');
+    progressBar.hidden = true;
+    container.append(progressBar);
+
+    const filter = new TextInput({
+        placeholder: 'Filter scenes',
+        keyChange: true,
+        renderChanges: false,
+        class: 'filter'
+    });
     filter.on('change', () => {
         refreshScenes();
     });
-    panel.append(filter);
+    container.append(filter);
 
-    const container = new LegacyList();
-    container.class.add('scene-list');
-    panel.append(container);
-    container.hidden = true;
+    const sceneList = new LegacyList();
+    sceneList.class.add('scene-list');
+    container.append(sceneList);
+    sceneList.hidden = true;
 
-    let tooltips = [];
-    let events = [];
-    let scenes = [];
+    let events: EventHandle[] = [];
+    let scenes: Scene[] = [];
 
-    let dropdownScene = null;
-    let dropdownMenu = null;
+    let dropdownScene: Scene | null = null;
+    let dropdownMenu: Menu | null = null;
 
-    const toggleProgress = function (toggle) {
+    const toggleProgress = (toggle: boolean) => {
         loading.hidden = !toggle;
         progressBar.hidden = !toggle;
-        container.hidden = toggle || !scenes.length;
+        sceneList.hidden = toggle || !scenes.length;
     };
 
-    const onSceneDeleted = function (sceneId) {
+    const onSceneDeleted = (sceneId: number | string) => {
         // if loaded scene deleted do not allow closing popup
-        if (!config.scene.id || parseInt(config.scene.id, 10) === parseInt(sceneId, 10)) {
+        if (!config.scene.id || parseInt(String(config.scene.id), 10) === parseInt(String(sceneId), 10)) {
             editor.call('picker:project:setClosable', false);
         }
 
-        if (panel.hidden) {
+        if (container.hidden) {
             return;
         }
 
@@ -76,10 +82,10 @@ editor.once('load', () => {
         }
 
         for (let i = 0; i < scenes.length; i++) {
-            if (parseInt(scenes[i].id, 10) === parseInt(sceneId, 10)) {
+            if (parseInt(String(scenes[i].id), 10) === parseInt(String(sceneId), 10)) {
                 // close dropdown menu if current scene deleted
-                if (dropdownScene === scenes[i]) {
-                    dropdownMenu.open = false;
+                if (dropdownScene === scenes[i] && dropdownMenu) {
+                    dropdownMenu.hidden = true;
                 }
 
                 scenes.splice(i, 1);
@@ -88,18 +94,11 @@ editor.once('load', () => {
         }
 
         if (!scenes.length) {
-            container.hidden = true;
+            sceneList.hidden = true;
         }
     };
 
-    const destroyTooltips = function () {
-        tooltips.forEach((tooltip) => {
-            tooltip.destroy();
-        });
-        tooltips = [];
-    };
-
-    const destroyEvents = function () {
+    const destroyEvents = () => {
         events.forEach((evt) => {
             evt.unbind();
         });
@@ -107,7 +106,7 @@ editor.once('load', () => {
     };
 
     // sort by case insensitive alphabetical order
-    const sortScenes = function (scenes) {
+    const sortScenes = (scenes: Scene[]) => {
         scenes.sort((a, b) => {
             const aname = a.name.toLowerCase();
             const bname = b.name.toLowerCase();
@@ -132,59 +131,55 @@ editor.once('load', () => {
     };
 
     // create row for scene
-    const createSceneEntry = function (scene) {
+    const createSceneEntry = (scene: Scene) => {
         const row = new LegacyListItem();
         row.element.id = `picker-scene-${scene.id}`;
 
-        container.append(row);
+        sceneList.append(row);
 
-        const isCurrentScene = config.scene.id && parseInt(scene.id, 10) === parseInt(config.scene.id, 10);
+        const isCurrentScene = config.scene.id && parseInt(String(scene.id), 10) === parseInt(String(config.scene.id), 10);
 
         if (isCurrentScene) {
             row.class.add('current');
         }
 
         // scene name
-        const name = new LegacyLabel({
-            text: scene.name
+        const name = new Label({
+            text: scene.name,
+            class: isCurrentScene ? ['name', 'selectable'] : 'name'
         });
-        name.class.add('name');
 
-        // make name text selectable only for current scene
-        if (isCurrentScene) {
-            name.class.add('selectable');
-        }
-
-        row.element.appendChild(name.element);
+        row.element.appendChild(name.dom);
 
         // scene date
-        const date = new LegacyLabel({
-            text: convertDatetime(scene.modified)
+        const date = new Label({
+            text: convertDatetime(scene.modified),
+            class: 'date'
         });
-        date.class.add('date');
-        row.element.appendChild(date.element);
+        row.element.appendChild(date.dom);
 
         // dropdown
-        const dropdown = new LegacyButton({
-            text: '&#57689;'
+        const dropdown = new Button({
+            text: '\uE159',
+            class: 'dropdown'
         });
-        dropdown.class.add('dropdown');
-        row.element.appendChild(dropdown.element);
+        row.element.appendChild(dropdown.dom);
 
         dropdown.on('click', () => {
             dropdown.class.add('clicked');
-            dropdown.element.innerHTML = '&#57687;';
+            dropdown.text = '\uE157';
 
             dropdownScene = scene;
-            dropdownMenu.open = true;
-            const rect = dropdown.element.getBoundingClientRect();
-            dropdownMenu.position(rect.right - dropdownMenu.innerElement.clientWidth, rect.bottom);
+            dropdownMenu.hidden = false;
+            const rect = dropdown.dom.getBoundingClientRect();
+            const menuItems = dropdownMenu.dom.querySelector('.pcui-menu-items') as HTMLElement;
+            dropdownMenu.position(rect.right - menuItems.clientWidth, rect.bottom);
         });
 
         if (!isCurrentScene) {
             events.push(row.on('click', (e) => {
-                if (e.target === row.element || e.target === name.element || e.target === date.element) {
-                    if (parseInt(config.scene.id, 10) === parseInt(scene.id, 10)) {
+                if (e.target === row.element || e.target === name.dom || e.target === date.dom) {
+                    if (parseInt(String(config.scene.id), 10) === parseInt(String(scene.id), 10)) {
                         return;
                     }
 
@@ -204,170 +199,158 @@ editor.once('load', () => {
         return row;
     };
 
-    const refreshScenes = function () {
-        dropdownMenu.open = false;
-        destroyTooltips();
+    const refreshScenes = () => {
+        if (dropdownMenu) {
+            dropdownMenu.hidden = true;
+        }
         destroyEvents();
-        container.element.innerHTML = '';
+        sceneList.element.innerHTML = '';
         const filterScenes = scenes.filter((scene) => {
             return scene.name.toLowerCase().indexOf(filter.value.toLowerCase()) !== -1;
         });
         sortScenes(filterScenes);
-        container.hidden = filterScenes.length === 0;
+        sceneList.hidden = filterScenes.length === 0;
         filterScenes.forEach(createSceneEntry);
     };
 
     // dropdown menu for each scene
-    dropdownMenu = LegacyMenu.fromData({
-        'scene-duplicate': {
-            title: 'Duplicate Scene',
-            filter: function () {
-                return editor.call('permissions:write');
-            },
-            select: function () {
-                let name = dropdownScene.name;
-                const regex = /^(.*?) (\d+)$/;
-                let numberPart = 2;
-                let namePart = dropdownScene.name;
-                const matches = dropdownScene.name.match(regex);
-                if (matches && matches.length === 3) {
-                    namePart = matches[1];
-                    numberPart = parseInt(matches[2], 10);
-                }
+    dropdownMenu = new Menu({
+        class: 'picker-scene-menu',
+        items: [
+            {
+                text: 'Duplicate Scene',
+                onIsEnabled: () => editor.call('permissions:write'),
+                onSelect: () => {
+                    let name;
+                    const regex = /^(.*?) (\d+)$/;
+                    let numberPart = 2;
+                    let namePart = dropdownScene.name;
+                    const matches = dropdownScene.name.match(regex);
+                    if (matches && matches.length === 3) {
+                        namePart = matches[1];
+                        numberPart = parseInt(matches[2], 10);
+                    }
 
-                // create duplicate scene name
-                while (true) {
-                    name = `${namePart} ${numberPart}`;
-                    let found = true;
-                    for (let i = 0; i < scenes.length; i++) {
-                        if (scenes[i].name === name) {
-                            numberPart++;
-                            found = false;
+                    // create duplicate scene name
+                    while (true) {
+                        name = `${namePart} ${numberPart}`;
+                        let found = true;
+                        for (let i = 0; i < scenes.length; i++) {
+                            if (scenes[i].name === name) {
+                                numberPart++;
+                                found = false;
+                                break;
+                            }
+                        }
+
+                        if (found) {
                             break;
                         }
                     }
 
-                    if (found) {
-                        break;
-                    }
+                    editor.call('scenes:duplicate', dropdownScene.id, name);
                 }
-
-                editor.call('scenes:duplicate', dropdownScene.id, name);
-            }
-        },
-        'scene-delete': {
-            title: 'Delete Scene',
-            filter: function () {
-                return editor.call('permissions:write');
             },
-            select: function () {
-                editor.call('picker:confirm', `Are you sure you want to permanently delete scene '${dropdownScene.name}'?`);
-                editor.once('picker:confirm:yes', () => {
-                    const id = dropdownScene.id;
-                    onSceneDeleted(id);
-                    editor.call('scenes:delete', id);
-                });
-            }
-        },
-        'scene-history': {
-            title: 'Item History',
-            filter: function () {
-                return editor.call('permissions:read');
+            {
+                text: 'Delete Scene',
+                onIsEnabled: () => editor.call('permissions:write'),
+                onSelect: () => {
+                    editor.call('picker:confirm', `Are you sure you want to permanently delete scene '${dropdownScene.name}'?`);
+                    editor.once('picker:confirm:yes', () => {
+                        const id = dropdownScene.id;
+                        onSceneDeleted(id);
+                        editor.call('scenes:delete', id);
+                    });
+                }
             },
-            select: function () {
-                editor.call('vcgraph:utils', 'launchItemHist', 'scenes', dropdownScene.id);
-            }
-        },
-        'open-scene': {
-            title: 'Open in New Tab',
-            filter: () => {
-                return editor.call('permissions:read');
+            {
+                text: 'Item History',
+                onIsEnabled: () => editor.call('permissions:read'),
+                onSelect: () => {
+                    editor.call('vcgraph:utils', 'launchItemHist', 'scenes', dropdownScene.id);
+                }
             },
-            select: () => {
-                window.open(`/editor/scene/${dropdownScene.id}`, '_blank');
+            {
+                text: 'Open in New Tab',
+                onIsEnabled: () => editor.call('permissions:read'),
+                onSelect: () => {
+                    window.open(`/editor/scene/${dropdownScene.id}`, '_blank');
+                }
             }
-        }
+        ]
     });
 
     editor.call('layout.root').append(dropdownMenu);
 
     // disables / enables field depending on permissions
-    const handlePermissions = function (field) {
-        field.disabled = !editor.call('permissions:write');
+    const handlePermissions = (field: Element) => {
+        field.enabled = editor.call('permissions:write');
         return editor.on(`permissions:set:${config.self.id}`, (accessLevel) => {
-            if (accessLevel === 'write' || accessLevel === 'admin') {
-                field.disabled = false;
-            } else {
-                field.disabled = true;
-            }
+            field.enabled = accessLevel === 'write' || accessLevel === 'admin';
         });
     };
 
     // on closing menu remove 'clicked' class from respective dropdown
-    dropdownMenu.on('open', (open) => {
-        if (!open && dropdownScene) {
+    dropdownMenu.on('hide', () => {
+        if (dropdownScene) {
             const item = document.getElementById(`picker-scene-${dropdownScene.id}`);
             if (item) {
                 const clicked = item.querySelector('.clicked');
                 if (clicked) {
                     clicked.classList.remove('clicked');
-                    clicked.innerHTML = '&#57689;';
+                    clicked.textContent = '\uE159';
                 }
             }
         }
     });
 
     // new scene button
-    const newScene = new LegacyButton({
-        text: 'Add new Scene'
+    const newScene = new Button({
+        text: 'Add new Scene',
+        class: 'new'
     });
 
     handlePermissions(newScene);
-    newScene.class.add('new');
 
-    panel.append(newScene);
+    container.append(newScene);
 
     newScene.on('click', () => {
         if (!editor.call('permissions:write')) {
             return;
         }
 
-        newScene.disabled = true;
+        newScene.enabled = false;
 
         // add list item
         const listItem = new LegacyListItem();
-        container.append(listItem);
-        container.hidden = false;
+        sceneList.append(listItem);
+        sceneList.hidden = false;
 
         // add label
-        const label = new LegacyLabel({
-            text: 'Enter Scene name and press Enter:'
+        const label = new Label({
+            text: 'Enter Scene name and press Enter:',
+            class: 'new-scene-label'
         });
-        label.class.add('new-scene-label');
-        listItem.element.appendChild(label.element);
+        listItem.element.appendChild(label.dom);
 
         // add new scene input field
-        const input = new LegacyTextField({
-            default: 'Untitled',
-            placeholder: 'Enter Scene name and press Enter'
+        const input = new TextInput({
+            value: 'Untitled',
+            placeholder: 'Enter Scene name and press Enter',
+            blurOnEnter: false
         });
 
-        input.blurOnEnter = false;
+        listItem.element.appendChild(input.dom);
 
-        listItem.element.appendChild(input.element);
+        input.focus(true);
 
-        input.elementInput.focus();
-        input.elementInput.select();
-
-        const destroyField = function () {
+        input.once('blur', () => {
             listItem.destroy();
-            newScene.disabled = false;
-        };
+            newScene.enabled = true;
+        });
 
-        input.elementInput.addEventListener('blur', destroyField);
-
-        input.elementInput.addEventListener('keydown', (e) => {
-            if (e.keyCode === 13) {
+        input.dom.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
                 if (!input.value) {
                     return;
                 }
@@ -381,7 +364,7 @@ editor.once('load', () => {
     });
 
     // on show
-    panel.on('show', () => {
+    container.on('show', () => {
         toggleProgress(true);
 
         // load scenes
@@ -397,14 +380,13 @@ editor.once('load', () => {
     });
 
     // on hide
-    panel.on('hide', () => {
-        destroyTooltips();
+    container.on('hide', () => {
         destroyEvents();
         scenes = [];
 
         // destroy scene items because same row ids
         // might be used by download / new build popups
-        container.element.innerHTML = '';
+        sceneList.element.innerHTML = '';
 
         editor.emit('picker:scene:close');
 
@@ -414,7 +396,7 @@ editor.once('load', () => {
     });
 
     editor.on('viewport:hover', (state) => {
-        if (state && !panel.hidden) {
+        if (state && !container.hidden) {
             setTimeout(() => {
                 editor.emit('viewport:hover', false);
             }, 0);
@@ -441,7 +423,7 @@ editor.once('load', () => {
 
     // subscribe to messenger scene.new
     editor.on('messenger:scene.new', (data) => {
-        if (panel.hidden) {
+        if (container.hidden) {
             return;
         }
         if (data.scene.branchId !== config.self.branch.id) {
@@ -449,7 +431,7 @@ editor.once('load', () => {
         }
 
         editor.call('scenes:get', data.scene.id, (err, scene) => {
-            if (panel.hidden) {
+            if (container.hidden) {
                 return;
             } // check if hidden when Ajax returns
 

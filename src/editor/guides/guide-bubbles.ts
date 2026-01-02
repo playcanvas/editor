@@ -1,31 +1,30 @@
+import type { EventHandle } from '@playcanvas/observer';
+import { Button, Label, Overlay, Panel } from '@playcanvas/pcui';
+
 import { Bubble } from '@/common/pcui/element/element-bubble';
-import { LegacyButton } from '@/common/ui/button';
-import { LegacyLabel } from '@/common/ui/label';
-import { LegacyOverlay } from '@/common/ui/overlay';
-import { LegacyPanel } from '@/common/ui/panel';
 
 editor.once('load', () => {
     const root = editor.call('layout.root');
 
-    const overlay = new LegacyOverlay();
-    overlay.clickable = true;
-    overlay.hidden = true;
-    overlay.class.add('bubble');
+    const overlay = new Overlay({
+        clickable: true,
+        hidden: true,
+        class: 'bubble'
+    });
     root.append(overlay);
 
-    const panel = new LegacyPanel();
+    const panel = new Panel();
     overlay.append(panel);
 
-    const label = new LegacyLabel({
+    const label = new Label({
         unsafe: true
     });
-    label.renderChanges = false;
     panel.append(label);
 
-    const btn = new LegacyButton({
-        text: 'GOT IT'
+    const btn = new Button({
+        text: 'GOT IT',
+        class: 'next'
     });
-    btn.class.add('next');
     btn.on('click', () => {
         overlay.hidden = true;
     });
@@ -46,23 +45,23 @@ editor.once('load', () => {
 
         bubble.position(x, y);
 
-        let evt;
+        let evt: EventHandle | null = null;
 
         bubble.on('activate', () => {
             const rect = bubble.dom.getBoundingClientRect();
 
-            panel.header = title;
+            panel.headerText = title;
             label.text = text;
             overlay.hidden = false;
 
-            overlay.innerElement.style.top = `${rect.top}px`;
-            overlay.innerElement.style.left = `${rect.left}px`;
+            overlay.domContent.style.top = `${rect.top}px`;
+            overlay.domContent.style.left = `${rect.left}px`;
 
             overlay.class.add(`arrow-${align}`);
 
             if (/^bottom/.test(align)) {
-                const overlayRect = overlay.innerElement.getBoundingClientRect();
-                overlay.innerElement.style.marginTop = `${-40 - overlayRect.height}px`;
+                const overlayRect = overlay.domContent.getBoundingClientRect();
+                overlay.domContent.style.marginTop = `${-40 - overlayRect.height}px`;
             }
 
             evt = overlay.once('hide', () => {
@@ -89,6 +88,6 @@ editor.once('load', () => {
         overlay.class.remove('arrow-right');
         overlay.class.remove('arrow-bottom');
         overlay.class.remove('arrow-bottom-right');
-        overlay.innerElement.style.marginTop = '';
+        overlay.domContent.style.marginTop = '';
     });
 });
