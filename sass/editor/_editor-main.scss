@@ -6611,7 +6611,7 @@ strong {
     }
 }
 
-.ui-panel.picker-scene-panel,
+.pcui-container.picker-scene-panel,
 .pcui-container.picker-publish-new {
     .ui-list.scene-list {
         margin: 0;
@@ -6639,7 +6639,7 @@ strong {
                 cursor: default;
             }
 
-            > .name {
+            > .pcui-label.name {
                 font-size: 14px;
                 position: absolute;
                 cursor: pointer;
@@ -6650,6 +6650,7 @@ strong {
                 white-space: nowrap;
                 line-height: 1;
                 color: $text-primary;
+                margin: 3px;
 
                 &.selectable {
                     user-select: text;
@@ -6708,15 +6709,16 @@ strong {
                 }
             }
 
-            > .date {
+            > .pcui-label.date {
                 position: absolute;
                 top: 35px;
                 font-size: 12px;
                 color: $text-darkest;
                 line-height: 1;
+                margin: 3px;
             }
 
-            > .dropdown {
+            > .pcui-button.dropdown {
                 position: absolute;
                 top: 25px;
                 right: 15px;
@@ -6724,10 +6726,12 @@ strong {
                 height: 16px;
                 line-height: 16px;
                 border: none;
+                border-radius: 0;
                 padding: 0;
                 margin: 0;
                 text-align: center;
                 vertical-align: top;
+                box-shadow: none;
 
                 @extend .font-icon;
 
@@ -6739,71 +6743,82 @@ strong {
                 &.clicked {
                     color: $text-primary;
                     background-color: $bcg-darkest;
+                    box-shadow: none;
                 }
             }
 
-            > .new-scene-label {
-                margin-left: 0;
-                margin-right: 0;
+            > .pcui-label.new-scene-label {
+                margin: 3px 0;
                 display: block;
+                line-height: 22px;
             }
 
-            > .ui-text-field {
+            > .pcui-text-input {
                 display: block;
                 width: 100%;
                 line-height: 1;
                 margin: 0;
+
+                > input {
+                    padding: 0 8px;
+                }
             }
         }
     }
 }
 
-.ui-panel.picker-scene-panel {
-    .content {
-        font-size: 14px;
+.pcui-container.picker-scene-panel {
+    font-size: 14px;
 
-        @extend .font-regular;
+    @extend .font-regular;
+
+    > span {
+        padding-left: 10px;
     }
 
-    > .content {
-        > span {
-            padding-left: 10px;
+    > .pcui-text-input {
+        margin: 10px;
+        width: calc(100% - 20px);
+    }
+
+    > .pcui-progress {
+        width: 100%;
+    }
+
+    > .pcui-button.new {
+        margin: 15px 0 15px 10px;
+        padding: 0;
+        width: 165px;
+        height: 34px;
+        line-height: 34px;
+        font-size: 12px;
+        text-transform: uppercase;
+        text-align: left;
+
+        @extend .font-bold;
+
+        &::before {
+            @extend .font-icon;
+
+            font-size: 14px;
+            content: '\E122';
+            color: $text-secondary;
+            vertical-align: top;
+            padding-right: 10px;
+            padding-left: 20px;
         }
 
-        > .ui-text-field {
-            margin: 10px;
-            width: calc(100% - 20px);
+        &:not(.disabled):hover::before {
+            color: $text-active;
         }
+    }
+}
 
-        > .ui-progress {
-            width: 100%;
-        }
-
-        > .new {
-            margin: 15px 0 15px 10px;
-            padding: 0;
-            width: 165px;
-            height: 34px;
-            line-height: 34px;
-            font-size: 12px;
-            text-transform: uppercase;
-
-            @extend .font-bold;
-
-            &::before {
-                @extend .font-icon;
-
-                font-size: 14px;
-                content: '\E122';
-                color: $text-secondary;
-                vertical-align: top;
-                padding-right: 10px;
-                padding-left: 20px;
-            }
-
-            &:not(.disabled):hover::before {
-                color: $text-active;
-            }
+.pcui-menu.picker-scene-menu {
+    .pcui-menu-item-content {
+        > .pcui-label {
+            line-height: 32px;
+            margin: 0 0 0 8px;
         }
     }
 }
