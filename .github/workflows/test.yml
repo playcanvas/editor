@@ -53,4 +53,13 @@ jobs:
             -e PC_LOCAL_FRONTEND=true \
             -e PC_COOKIE_NAME=${{ secrets.PC_COOKIE_NAME }} \
             -e PC_COOKIE_VALUE=${{ secrets.PC_COOKIE_VALUE }} \
+            -v ${{ github.workspace }}/test-results:/usr/src/test/test-results \
             playcanvas/editor:latest
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: test-results
+          retention-days: 5
