@@ -77,11 +77,22 @@ class ComponentInspector extends Panel {
             enableGroup.text = value ? 'ON' : 'OFF';
         });
 
+        // add help button
+        this._btnHelp = new Button({
+            icon: 'E138',
+            class: 'component-header-btn'
+        });
+        this._btnHelp.on('click', () => {
+            const slug = this._component === 'audiosource' ? 'sound' : this._component;
+            window.open(`https://developer.playcanvas.com/user-manual/editor/scenes/components/${slug}/`, '_blank', 'noopener,noreferrer');
+        });
+        this.header.append(this._btnHelp);
+
         // add cog button
         this._btnCog = new Button({
-            icon: 'E134'
+            icon: 'E134',
+            class: 'component-header-btn'
         });
-        this._btnCog.style.fontSize = '16px';
         this.header.append(this._btnCog);
 
         this._localStorage = new LocalStorage();
