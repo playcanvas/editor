@@ -25,6 +25,7 @@
     ],
     "exclude": [
         "src/wasm",
-        "modules/pcui-diff.ts"
+        "modules/pcui-diff.ts",
+        "modules/editor-api"
     ]
 }
