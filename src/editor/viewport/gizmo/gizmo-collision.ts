@@ -630,19 +630,16 @@ void main(void)
             const meshInstance = new pc.MeshInstance(mesh, materialDefault, node);
             meshInstance.__editor = true;
             meshInstance.__collision = true;
-            meshInstance.castShadow = false;
             meshInstance.receiveShadow = false;
 
             const meshInstanceBehind = new pc.MeshInstance(mesh, materialBehind, node);
             meshInstanceBehind.__editor = true;
             meshInstanceBehind.pick = false;
-            meshInstanceBehind.castShadow = false;
             meshInstanceBehind.receiveShadow = false;
 
             const meshInstanceOccluder = new pc.MeshInstance(mesh, materialOccluder, node);
             meshInstanceOccluder.__editor = true;
             meshInstanceOccluder.pick = false;
-            meshInstanceOccluder.castShadow = false;
             meshInstanceOccluder.receiveShadow = false;
 
             const model = new pc.Model();
