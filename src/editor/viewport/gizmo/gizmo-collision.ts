@@ -163,7 +163,6 @@ editor.once('load', () => {
                         const mi1 = model.meshInstances[1];
                         const mat1 = mi1.material.clone();
                         mat1.getShaderVariant = mi1.material.getShaderVariant;
-                        mat1.setParameter('uColor', colorArray);
                         mat1.update();
                         mi1.material = mat1;
                         mi1.setParameter('offset', 0.001);
