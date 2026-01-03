@@ -636,7 +636,6 @@ void main(void)
             const meshInstanceBehind = new pc.MeshInstance(mesh, materialBehind, node);
             meshInstanceBehind.__editor = true;
             meshInstanceBehind.pick = false;
-            meshInstanceBehind.drawToDepth = false;
             meshInstanceBehind.castShadow = false;
             meshInstanceBehind.receiveShadow = false;
 
@@ -877,20 +876,16 @@ void main(void)
             const meshInstance = new pc.MeshInstance(capsuleMesh, matCapsule, node);
             meshInstance.__editor = true;
             meshInstance.__collision = true;
-            meshInstance.castShadow = false;
             meshInstance.receiveShadow = false;
 
             const meshInstanceBehind = new pc.MeshInstance(capsuleMesh, matCapsuleBehind, node);
             meshInstanceBehind.__editor = true;
             meshInstanceBehind.pick = false;
-            meshInstanceBehind.drawToDepth = false;
-            meshInstanceBehind.castShadow = false;
             meshInstanceBehind.receiveShadow = false;
 
             const meshInstanceOccluder = new pc.MeshInstance(capsuleMesh, matCapsuleOccluder, node);
             meshInstanceOccluder.__editor = true;
             meshInstanceOccluder.pick = false;
-            meshInstanceOccluder.castShadow = false;
             meshInstanceOccluder.receiveShadow = false;
 
             const model = new pc.Model();
@@ -936,7 +931,6 @@ void main(void)
             meshInstanceBehind.setParameter('offset', 0);
             meshInstanceBehind.__editor = true;
             meshInstanceBehind.pick = false;
-            meshInstanceBehind.drawToDepth = false;
             meshInstanceBehind.castShadow = false;
             meshInstanceBehind.receiveShadow = false;
             meshInstanceBehind.__useFrontLayer = true;
