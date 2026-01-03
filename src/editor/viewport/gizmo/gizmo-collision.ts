@@ -928,7 +928,6 @@ void main(void)
             meshInstanceBehind.setParameter('offset', 0);
             meshInstanceBehind.__editor = true;
             meshInstanceBehind.pick = false;
-            meshInstanceBehind.castShadow = false;
             meshInstanceBehind.receiveShadow = false;
             meshInstanceBehind.__useFrontLayer = true;
 
@@ -937,7 +936,6 @@ void main(void)
             meshInstanceOccluder.setParameter('offset', 0);
             meshInstanceOccluder.__editor = true;
             meshInstanceOccluder.pick = false;
-            meshInstanceOccluder.castShadow = false;
             meshInstanceOccluder.receiveShadow = false;
 
             meshesExtra.push(meshInstanceBehind, meshInstanceOccluder);
