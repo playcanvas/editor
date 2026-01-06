@@ -34,7 +34,7 @@
     "@jsquash/webp": "1.5.0",
     "@playcanvas/editor-api": "file:modules/editor-api",
     "@playcanvas/eslint-config": "2.1.0",
-    "@playcanvas/observer": "1.6.6",
+    "@playcanvas/observer": "1.7.0",
     "@playcanvas/pcui": "5.5.0",
     "@playcanvas/pcui-graph": "5.0.0",
     "@rollup/plugin-commonjs": "28.0.9",
