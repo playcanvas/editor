@@ -173,9 +173,15 @@ class TemplatePreviewScene extends Observer {
             console.warn('Asset ID not provided');
             return;
         }
-        this.requiredAssetLoadCount++;
+
         const asset = this.app.assets.get(assetId);
 
+        // If asset doesn't exist (e.g., was deleted), skip loading
+        if (!asset) {
+            return;
+        }
+
+        this.requiredAssetLoadCount++;
         asset.ready(this.handleAssetLoad.bind(this));
         this.app.assets.load(asset);
     }
