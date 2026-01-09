@@ -375,10 +375,26 @@
             background-color: $bcg-dark;
 
             > table > tbody {
-                .pcui-table-row:not(.pcui-table-row-selected) {
-                    &:hover,
-                    &:focus {
-                        background-color: $bcg-darker;
+                // Apply hover/focus/selected background to cells only, not the entire row.
+                // This keeps the empty space to the right of Size column unhighlighted,
+                // making it visually clear that right-clicking there is different
+                .pcui-table-row {
+                    // Override base row background to be transparent
+                    background-color: transparent;
+
+                    &:not(.pcui-table-row-selected) {
+                        &:hover,
+                        &:focus {
+                            > .pcui-table-cell {
+                                background-color: $bcg-darker;
+                            }
+                        }
+                    }
+
+                    &.pcui-table-row-selected {
+                        > .pcui-table-cell {
+                            background-color: $bcg-darkest;
+                        }
                     }
                 }
             }

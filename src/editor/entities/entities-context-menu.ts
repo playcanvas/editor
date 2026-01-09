@@ -1,5 +1,7 @@
 import { Menu, MenuItem } from '@playcanvas/pcui';
 
+import { formatShortcut } from '../../common/utils';
+
 editor.once('load', () => {
     let entity = null; // the entity that was clicked on to open the context menu
     let items = [];   // the current selection
@@ -73,6 +75,25 @@ editor.once('load', () => {
 
         const isOneSelected = () => items.length === 1;
         const hasWriteAccess = () => editor.call('permissions:write');
+        const ctrl = editor.call('hotkey:ctrl:string');
+
+        const exportEntity = async (ExporterClass, mimeType, extension, formatName) => {
+            try {
+                const entity = items[0].entity;
+                const exporter = new ExporterClass();
+                const arrayBuffer = await exporter.build(entity);
+
+                const blob = new Blob([arrayBuffer], { type: mimeType });
+                const link = document.createElement('a');
+                link.href = URL.createObjectURL(blob);
+                link.download = `${items[0].get('name') || 'entity'}.${extension}`;
+                link.click();
+                URL.revokeObjectURL(link.href);
+            } catch (err) {
+                console.error(`${formatName} export failed:`, err);
+                editor.call('status:error', `Failed to export ${formatName}: ${err.message}`);
+            }
+        };
 
         menuData.push({
             text: 'New Entity',
@@ -162,6 +183,7 @@ editor.once('load', () => {
         menuData.push({
             text: 'Copy',
             icon: 'E351',
+            shortcut: formatShortcut(`${ctrl}+C`),
             onSelect: function () {
                 editor.call('entities:copy', items);
             }
@@ -170,6 +192,7 @@ editor.once('load', () => {
         menuData.push({
             text: 'Paste',
             icon: 'E348',
+            shortcut: formatShortcut(`${ctrl}+V`),
             onIsVisible: hasWriteAccess,
             onIsEnabled: function () {
                 if (items.length <= 1) {
@@ -189,6 +212,7 @@ editor.once('load', () => {
         menuData.push({
             text: 'Duplicate',
             icon: 'E126',
+            shortcut: formatShortcut(`${ctrl}+D`),
             onIsVisible: hasWriteAccess,
             onIsEnabled: function () {
                 const items = getSelection();
@@ -205,27 +229,19 @@ editor.once('load', () => {
         });
 
         menuData.push({
-            text: 'Export as GLB',
+            text: 'Export As...',
             icon: 'E228',
             onIsEnabled: () => items.length === 1 && items[0].entity,
-            onSelect: async () => {
-                try {
-                    const entity = items[0].entity;
-                    const exporter = new pc.GltfExporter();
-                    const arrayBuffer = await exporter.build(entity);
-
-                    // Create and trigger download
-                    const blob = new Blob([arrayBuffer], { type: 'model/gltf-binary' });
-                    const link = document.createElement('a');
-                    link.href = URL.createObjectURL(blob);
-                    link.download = `${items[0].get('name') || 'entity'}.glb`;
-                    link.click();
-                    URL.revokeObjectURL(link.href);
-                } catch (err) {
-                    console.error('GLB export failed:', err);
-                    editor.call('status:error', `Failed to export GLB: ${err.message}`);
+            items: [
+                {
+                    text: 'GLB',
+                    onSelect: () => exportEntity(pc.GltfExporter, 'model/gltf-binary', 'glb', 'GLB')
+                },
+                {
+                    text: 'USDZ',
+                    onSelect: () => exportEntity(pc.UsdzExporter, 'application/octet-stream', 'usdz', 'USDZ')
                 }
-            }
+            ]
         });
 
         menuData.push({
@@ -242,6 +258,7 @@ editor.once('load', () => {
         menuData.push({
             text: 'Delete',
             icon: 'E124',
+            shortcut: formatShortcut('Delete'),
             onIsVisible: hasWriteAccess,
             onIsEnabled: function () {
                 const root = editor.call('entities:root');

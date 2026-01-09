@@ -467,18 +467,17 @@ class AttributesInspector extends Container {
                     this._templateOverridesInspector.registerElementForPath(attr.path, attr.type === 'asset' ? field : field.parent, tooltipGroup);
 
                     if (field instanceof ArrayInput) {
-                        const pathsIndex = {};
+                        const pathsIndex: Record<number, { path: string, element: Element }> = {};
 
                         // register each array element for template overrides
                         field.on('linkElement', (element, index, path) => {
-                            pathsIndex[index] = path;
-
                             const arrayElementPanel = element.parent;
+                            pathsIndex[index] = { path, element: arrayElementPanel };
                             this._templateOverridesInspector.registerElementForPath(path, arrayElementPanel);
 
                             element.once('destroy', () => {
-                                if (pathsIndex[index] === path) {
-                                    this._templateOverridesInspector.unregisterElementForPath(path);
+                                if (pathsIndex[index]?.path === path) {
+                                    this._templateOverridesInspector.unregisterElementForPath(path, arrayElementPanel);
                                     delete pathsIndex[index];
                                 }
                             });
@@ -486,7 +485,7 @@ class AttributesInspector extends Container {
 
                         field.on('unlinkElement', (element, index) => {
                             if (pathsIndex[index]) {
-                                this._templateOverridesInspector.unregisterElementForPath(pathsIndex[index]);
+                                this._templateOverridesInspector.unregisterElementForPath(pathsIndex[index].path, pathsIndex[index].element);
                                 delete pathsIndex[index];
                             }
                         });
@@ -582,12 +581,16 @@ class AttributesInspector extends Container {
             for (const key in this._fieldAttributes) {
                 const attr = this._fieldAttributes[key];
                 if (attr.path) {
-                    this._templateOverridesInspector.unregisterElementForPath(attr.path);
+                    const field = this.getField(attr.path);
+                    const element = attr.type === 'asset' ? field : field?.parent;
+                    this._templateOverridesInspector.unregisterElementForPath(attr.path, element);
                 } else if (attr.paths) {
+                    const field = this.getField(attr.paths[0]);
+                    const element = attr.type === 'asset' ? field : field?.parent;
                     attr.paths.forEach((path) => {
                         // use first path to get field as subsequent paths
                         // are not going to be used to index the field in the attribute inspector
-                        this._templateOverridesInspector.unregisterElementForPath(path);
+                        this._templateOverridesInspector.unregisterElementForPath(path, element);
                     });
                 }
             }

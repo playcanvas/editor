@@ -1,5 +1,7 @@
 import { MenuItem } from '@playcanvas/pcui';
 
+import { formatShortcut } from '../../../common/utils';
+
 editor.once('load', () => {
     const menu = editor.call('menu:edit');
     const me = editor.call('editor:monaco');
@@ -13,12 +15,12 @@ editor.once('load', () => {
     let item = new MenuItem({
         class: 'no-bottom-border',
         text: 'Toggle Comment',
+        shortcut: formatShortcut(`${ctrl}+/`),
         onIsEnabled: canEditLine,
         onSelect: () => {
             return editor.call('editor:command:toggleComment');
         }
     });
-    editor.call('menu:item:setShortcut', item, `${ctrl}+/`);
     menu.append(item);
 
     editor.method('editor:command:toggleComment', () => {
@@ -29,15 +31,15 @@ editor.once('load', () => {
         me.trigger(null, 'editor.action.commentLine');
     });
 
-    // toggle comment
+    // block comment
     item = new MenuItem({
         text: 'Block Comment',
+        shortcut: formatShortcut('Shift+Alt+A'),
         onIsEnabled: canEditLine,
         onSelect: () => {
             return editor.call('editor:command:toggleBlockComment');
         }
     });
-    editor.call('menu:item:setShortcut', item, 'Shift+Alt+A');
     menu.append(item);
 
     editor.method('editor:command:toggleBlockComment', () => {

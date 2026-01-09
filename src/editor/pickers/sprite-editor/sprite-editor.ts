@@ -1,4 +1,4 @@
-import { Observer } from '@playcanvas/observer';
+import { Observer, type EventHandle } from '@playcanvas/observer';
 import { Button, Canvas, Container, Overlay, Panel } from '@playcanvas/pcui';
 
 import { buildQueryUrl, deepCopy } from '@/common/utils';
@@ -77,7 +77,7 @@ editor.once('load', () => {
         LEFT: 18
     };
 
-    const events = [];
+    const events: EventHandle[] = [];
 
     // create UI
     const root = editor.call('layout.root');
@@ -97,7 +97,7 @@ editor.once('load', () => {
 
     // close button
     const btnClose = new Button({
-        class: 'close',
+        class: ['icon-button', 'close'],
         icon: 'E132'
     });
     btnClose.on('click', () => {
@@ -155,7 +155,7 @@ editor.once('load', () => {
     });
     canvasPanel.append(canvas);
 
-    const canvasElement: HTMLCanvasElement = canvas.dom;
+    const canvasElement = canvas.dom as HTMLCanvasElement;
     const ctx = canvasElement.getContext('2d');
 
     // bottom panel
@@ -173,7 +173,8 @@ editor.once('load', () => {
     middlePanel.append(bottomPanel);
 
     // Right panel
-    let rightPanel = null;
+    let rightPanel: Panel | null = null;
+    let rightPanelContent: Container | null = null;
 
     // controls observer (for zoom/brightness).
     const controls = new Observer({
@@ -181,11 +182,11 @@ editor.once('load', () => {
         brightness: 100
     });
 
-    const clamp = function (value, minValue, maxValue) {
+    const clamp = (value: number, minValue: number, maxValue: number): number => {
         return Math.min(Math.max(value, minValue), maxValue);
     };
 
-    const updateCursor = function () {
+    const updateCursor = (): void => {
         const cls = middlePanel.class;
 
         cls.remove('ew-resize');
@@ -251,40 +252,40 @@ editor.once('load', () => {
         }
     };
 
-    const imageWidth = function () {
+    const imageWidth = (): number => {
         return controls.get('zoom') * (canvasRatio > aspectRatio ? canvas.height * aspectRatio : canvas.width);
     };
 
-    const imageHeight = function (zoom) {
+    const imageHeight = (): number => {
         return controls.get('zoom') * (canvasRatio <= aspectRatio ? canvas.width / aspectRatio : canvas.height);
     };
 
-    const imageLeft = function () {
+    const imageLeft = (): number => {
         return (pivotX + pivotOffsetX + zoomOffsetX) * canvas.width;
     };
 
-    const imageTop = function () {
+    const imageTop = (): number => {
         return (pivotY + pivotOffsetY + zoomOffsetY) * canvas.height;
     };
 
-    const frameLeft = function (frame, leftOffset, scaledWidth) {
+    const frameLeft = (frame, leftOffset: number, scaledWidth: number): number => {
         return leftOffset + frame.rect[0] * scaledWidth / atlasImage.width;
     };
 
-    const frameTop = function (frame, topOffset, scaledHeight) {
+    const frameTop = (frame, topOffset: number, scaledHeight: number): number => {
         const inverted = 1 - (frame.rect[1] + frame.rect[3]) / atlasImage.height;
         return topOffset + inverted * scaledHeight;
     };
 
-    const frameWidth = function (frame, scaledWidth) {
+    const frameWidth = (frame, scaledWidth: number): number => {
         return frame.rect[2] * scaledWidth / atlasImage.width;
     };
 
-    const frameHeight = function (frame, scaledHeight) {
+    const frameHeight = (frame, scaledHeight: number): number => {
         return frame.rect[3] * scaledHeight / atlasImage.height;
     };
 
-    const setHandle = function (handle, frame, mousePoint) {
+    const setHandle = (handle, frame?, mousePoint?): void => {
         selectedHandle = handle;
         if (handle) {
             // this frame will be used as the source frame
@@ -302,7 +303,7 @@ editor.once('load', () => {
         updateCursor();
     };
 
-    const windowToCanvas = function (windowX, windowY) {
+    const windowToCanvas = (windowX: number, windowY: number) => {
         const rect = canvas.dom.getBoundingClientRect();
         return {
             x: Math.round(windowX - rect.left),
@@ -310,7 +311,7 @@ editor.once('load', () => {
         };
     };
 
-    const resizeCanvas = function () {
+    const resizeCanvas = (): boolean => {
         let result = false;
 
         const width = canvasPanel.dom.clientWidth;
@@ -328,7 +329,7 @@ editor.once('load', () => {
         return result;
     };
 
-    const renderFrame = function (frame, left, top, width, height, offset, renderPivot) {
+    const renderFrame = (frame, left: number, top: number, width: number, height: number, offset?: number, renderPivot?: boolean): void => {
         const x = frameLeft(frame, left, width);
         const y = frameTop(frame, top, height);
         const w = frameWidth(frame, width);
@@ -352,7 +353,7 @@ editor.once('load', () => {
         }
     };
 
-    const renderHandles = function (frame, left, top, width, height) {
+    const renderHandles = (frame, left: number, top: number, width: number, height: number): void => {
         const x = frameLeft(frame, left, width);
         const y = frameTop(frame, top, height);
         const w = frameWidth(frame, width);
@@ -605,7 +606,7 @@ editor.once('load', () => {
         ctx.stroke();
     };
 
-    const renderBorderLines = function (frame, left, top, width, height) {
+    const renderBorderLines = (frame, left: number, top: number, width: number, height: number): void => {
         const x = frameLeft(frame, left, width);
         const y = frameTop(frame, top, height);
         const w = frameWidth(frame, width);
@@ -643,7 +644,7 @@ editor.once('load', () => {
         }
     };
 
-    const renderCanvas = function () {
+    const renderCanvas = (): void => {
         queuedRender = false;
 
         if (overlay.hidden) {
@@ -808,7 +809,7 @@ editor.once('load', () => {
         }
     };
 
-    const queueRender = function () {
+    const queueRender = (): void => {
         if (queuedRender || overlay.hidden) {
             return;
         }
@@ -816,11 +817,11 @@ editor.once('load', () => {
         requestAnimationFrame(renderCanvas);
     };
 
-    const rectContainsPoint = function (p, left, top, width, height) {
+    const rectContainsPoint = (p, left: number, top: number, width: number, height: number): boolean => {
         return left <= p.x && left + width >= p.x && top <= p.y && top + height >= p.y;
     };
 
-    const framesHitTest = function (p) {
+    const framesHitTest = (p): string | null => {
         const imgWidth = imageWidth();
         const imgHeight = imageHeight();
         const imgLeft = imageLeft();
@@ -842,7 +843,7 @@ editor.once('load', () => {
         return null;
     };
 
-    const handlesHitTest = function (p, frame) {
+    const handlesHitTest = (p, frame) => {
         if (!editor.call('permissions:write')) {
             return false;
         }
@@ -988,7 +989,7 @@ editor.once('load', () => {
     };
 
     // Modify a frame using the specified handle
-    const modifyFrame = function (handle, frame, mousePoint) {
+    const modifyFrame = (handle, frame, mousePoint): void => {
         const imgWidth = imageWidth();
         const imgHeight = imageHeight();
         const imgLeft = imageLeft();
@@ -1340,7 +1341,7 @@ editor.once('load', () => {
         }
     };
 
-    const resetControls = function () {
+    const resetControls = (): void => {
         controls.set('zoom', 1);
         pivotX = 0;
         pivotY = 0;
@@ -1350,7 +1351,7 @@ editor.once('load', () => {
         zoomOffsetY = 0;
     };
 
-    const startPanning = function (x, y) {
+    const startPanning = (x: number, y: number): void => {
         panning = true;
         mouseX = x;
         mouseY = y;
@@ -1359,7 +1360,7 @@ editor.once('load', () => {
         updateCursor();
     };
 
-    const stopPanning = function () {
+    const stopPanning = (): void => {
         panning = false;
         pivotX += pivotOffsetX;
         pivotY += pivotOffsetY;
@@ -1368,7 +1369,7 @@ editor.once('load', () => {
         updateCursor();
     };
 
-    const onKeyDown = function (e) {
+    const onKeyDown = (e: KeyboardEvent): void => {
         if (e.shiftKey) {
             shiftDown = true;
             updateCursor();
@@ -1377,7 +1378,7 @@ editor.once('load', () => {
         ctrlDown = e.ctrlKey || e.metaKey;
     };
 
-    const onKeyUp = function (e) {
+    const onKeyUp = (e: KeyboardEvent): void => {
         if (!e.shiftKey) {
             shiftDown = false;
             if (panning) {
@@ -1390,7 +1391,7 @@ editor.once('load', () => {
         ctrlDown = e.ctrlKey || e.metaKey;
     };
 
-    const onMouseDown = function (e) {
+    const onMouseDown = (e: MouseEvent): void => {
         if (e.button === 0) {
             leftButtonDown = true;
         } else if (e.button === 1) {
@@ -1415,7 +1416,7 @@ editor.once('load', () => {
 
         // if a frame is already selected try to select one of its handles
         if (selected && !ctrlDown) {
-            oldFrame = atlasAsset.get(`data.frames.${selected}`);
+            oldFrame = deepCopy(atlasAsset.get(`data.frames.${selected}`));
             if (oldFrame) {
                 setHandle(handlesHitTest(p, oldFrame), oldFrame, p);
 
@@ -1478,7 +1479,7 @@ editor.once('load', () => {
         }
     };
 
-    const onMouseMove = function (e) {
+    const onMouseMove = (e: MouseEvent): void => {
         mouseX = e.clientX;
         mouseY = e.clientY;
 
@@ -1531,7 +1532,7 @@ editor.once('load', () => {
         }
     };
 
-    const onMouseUp = function (e) {
+    const onMouseUp = (e: MouseEvent): void => {
         if (e.button === 0) {
             leftButtonDown = false;
         } else if (e.button === 1) {
@@ -1614,7 +1615,7 @@ editor.once('load', () => {
         }
     };
 
-    const onWheel = function (e) {
+    const onWheel = (e: WheelEvent): void => {
         e.preventDefault();
         e.stopPropagation();
 
@@ -1625,7 +1626,7 @@ editor.once('load', () => {
         }
     };
 
-    const registerInputListeners = function () {
+    const registerInputListeners = (): void => {
         window.addEventListener('keydown', onKeyDown);
         window.addEventListener('keyup', onKeyUp);
         window.addEventListener('mouseup', onMouseUp);
@@ -1636,7 +1637,7 @@ editor.once('load', () => {
         // 'F' hotkey to focus canvas
         editor.call('hotkey:register', 'sprite-editor-focus', {
             key: 'f',
-            callback: function () {
+            callback: () => {
                 editor.call('picker:sprites:focus');
             }
         });
@@ -1644,7 +1645,7 @@ editor.once('load', () => {
         // Esc to deselect and if no selection close the window
         editor.call('hotkey:register', 'sprite-editor-esc', {
             key: 'Escape',
-            callback: function () {
+            callback: () => {
                 if (editor.call('picker:isOpen', 'confirm')) {
                     return;
                 }
@@ -1672,7 +1673,7 @@ editor.once('load', () => {
         });
     };
 
-    const unregisterInputListeners = function () {
+    const unregisterInputListeners = (): void => {
         window.removeEventListener('keydown', onKeyDown);
         window.removeEventListener('keyup', onKeyUp);
         window.removeEventListener('mouseup', onMouseUp);
@@ -1724,7 +1725,7 @@ editor.once('load', () => {
         queueRender();
     });
 
-    const updateRightPanel = function () {
+    const updateRightPanel = (): void => {
         if (!rightPanel) {
             rightPanel = new Panel({
                 class: ['right-panel', 'attributes'],
@@ -1734,13 +1735,30 @@ editor.once('load', () => {
                 resizable: 'left',
                 resizeMax: 512,
                 resizeMin: 256,
-                scrollable: true,
+                scrollable: false,
                 width: 320
             });
             panel.append(rightPanel);
+
+            // Create scrollable content area inside the panel
+            rightPanelContent = new Container({
+                class: 'right-panel-content',
+                scrollable: true
+            });
+            rightPanel.append(rightPanelContent);
         } else {
             // emit 'clear' event to clear existing children of right panel
             rightPanel.emit('clear');
+
+            // Destroy old content container and create new one
+            if (rightPanelContent) {
+                rightPanelContent.destroy();
+            }
+            rightPanelContent = new Container({
+                class: 'right-panel-content',
+                scrollable: true
+            });
+            rightPanel.append(rightPanelContent);
         }
 
         if (!atlasImageLoaded) {
@@ -1750,22 +1768,22 @@ editor.once('load', () => {
         const spriteAsset = editor.call('picker:sprites:selectedSprite');
 
         if (spriteAsset) {
-            editor.call('picker:sprites:attributes:sprite', { atlasAsset: atlasAsset, atlasImage: atlasImage, spriteAsset: spriteAsset });
+            editor.call('picker:sprites:attributes:sprite', { atlasAsset, atlasImage, spriteAsset });
         } else {
             const highlightedFrames = editor.call('picker:sprites:highlightedFrames');
             if (highlightedFrames.length) {
-                editor.call('picker:sprites:attributes:frames', { atlasAsset: atlasAsset, atlasImage: atlasImage, frames: highlightedFrames });
-                editor.call('picker:sprites:attributes:frames:relatedSprites', { atlasAsset: atlasAsset, frames: highlightedFrames });
+                editor.call('picker:sprites:attributes:frames', { atlasAsset, atlasImage, frames: highlightedFrames });
+                editor.call('picker:sprites:attributes:frames:relatedSprites', { atlasAsset, frames: highlightedFrames });
             } else {
                 editor.call('picker:sprites:attributes:atlas', atlasAsset);
-                editor.call('picker:sprites:attributes:slice', { atlasAsset: atlasAsset, atlasImage: atlasImage, atlasImageData: atlasImageData });
-                editor.call('picker:sprites:attributes:importFrames', { atlasAsset: atlasAsset });
+                editor.call('picker:sprites:attributes:slice', { atlasAsset, atlasImage, atlasImageData });
+                editor.call('picker:sprites:attributes:importFrames', { atlasAsset });
             }
         }
     };
 
 
-    const showEditor = function (asset) {
+    const showEditor = (asset): void => {
         let _spriteAsset = null;
         if (asset.get('type') === 'textureatlas') {
             atlasAsset = asset;
@@ -1786,7 +1804,7 @@ editor.once('load', () => {
         overlay.hidden = false;
 
         atlasImageLoaded = false;
-        atlasImage.onload = function () {
+        atlasImage.onload = () => {
             atlasImageLoaded = true;
 
             // get image data
@@ -1797,8 +1815,8 @@ editor.once('load', () => {
 
             aspectRatio = atlasImage.width / atlasImage.height;
 
-            editor.call('picker:sprites:frames', { atlasAsset: atlasAsset });
-            editor.call('picker:sprites:spriteassets', { atlasAsset: atlasAsset });
+            editor.call('picker:sprites:frames', { atlasAsset });
+            editor.call('picker:sprites:spriteassets', { atlasAsset });
             editor.emit('picker:sprites:open');
 
             if (_spriteAsset) {
@@ -1848,7 +1866,7 @@ editor.once('load', () => {
         });
     };
 
-    const cleanUp = function () {
+    const cleanUp = (): void => {
         // reset controls
         controls.set('zoom', 1);
         controls.set('brightness', 100);
@@ -1865,6 +1883,7 @@ editor.once('load', () => {
             rightPanel.emit('clear');
             rightPanel.destroy();
             rightPanel = null;
+            rightPanelContent = null;
         }
 
         leftPanel.emit('clear');
@@ -1897,9 +1916,7 @@ editor.once('load', () => {
         middlePanel.class.remove('grab');
         middlePanel.class.remove('grabbing');
 
-        for (let i = 0; i < events.length; i++) {
-            events[i].unbind();
-        }
+        events.forEach(event => event.unbind());
         events.length = 0;
 
         unregisterInputListeners();
@@ -1920,6 +1937,11 @@ editor.once('load', () => {
     // Return right panel
     editor.method('picker:sprites:rightPanel', () => {
         return rightPanel;
+    });
+
+    // Return right panel scrollable content area
+    editor.method('picker:sprites:rightPanelContent', () => {
+        return rightPanelContent;
     });
 
     // Return main panel
@@ -2019,10 +2041,10 @@ editor.once('load', () => {
         editor.api.globals.history.add({
             name: 'open sprite editor',
             combine: false,
-            undo: function () {
+            undo: () => {
                 overlay.hidden = true;
             },
-            redo: function () {
+            redo: () => {
                 const currentAsset = editor.call('assets:get', asset.get('id'));
                 if (!currentAsset) {
                     return;
@@ -2053,7 +2075,7 @@ editor.once('load', () => {
             editor.api.globals.history.add({
                 name: 'close sprite editor',
                 combine: false,
-                undo: function () {
+                undo: () => {
                     const asset = editor.call('assets:get', currentAsset.get('id'));
                     if (!asset) {
                         return;
@@ -2061,7 +2083,7 @@ editor.once('load', () => {
 
                     showEditor(asset);
                 },
-                redo: function () {
+                redo: () => {
                     suspendCloseUndo = true;
                     overlay.hidden = true;
                     suspendCloseUndo = false;

@@ -1,5 +1,7 @@
 import { MenuItem } from '@playcanvas/pcui';
 
+import { formatShortcut } from '../../../common/utils';
+
 editor.once('load', () => {
     const menu = editor.call('menu:selection');
     const me = editor.call('editor:monaco');
@@ -7,12 +9,12 @@ editor.once('load', () => {
 
     const item = new MenuItem({
         text: 'Select All',
+        shortcut: formatShortcut(`${ctrl}+A`),
         onSelect: () => {
             me.focus();
             const range = me.getModel().getFullModelRange();
             me.setSelection(range);
         }
     });
-    editor.call('menu:item:setShortcut', item, `${ctrl}+A`);
     menu.append(item);
 });

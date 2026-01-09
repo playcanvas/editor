@@ -1,5 +1,7 @@
 import { MenuItem } from '@playcanvas/pcui';
 
+import { formatShortcut } from '../../../common/utils';
+
 editor.once('load', () => {
     const menu = editor.call('menu:navigate');
 
@@ -9,6 +11,7 @@ editor.once('load', () => {
     item = new MenuItem({
         class: 'no-bottom-border',
         text: 'Next Tab',
+        shortcut: formatShortcut('Ctrl+Alt+.'),
         onIsEnabled: () => {
             return editor.call('tabs:list').length;
         },
@@ -16,7 +19,6 @@ editor.once('load', () => {
             editor.call('editor:command:nextTab');
         }
     });
-    editor.call('menu:item:setShortcut', item, 'Ctrl+Alt+.');
     menu.append(item);
 
     // hotkey
@@ -49,6 +51,7 @@ editor.once('load', () => {
     // Previous tab
     item = new MenuItem({
         text: 'Previous Tab',
+        shortcut: formatShortcut('Ctrl+Alt+,'),
         onIsEnabled: () => {
             return editor.call('tabs:list').length;
         },
@@ -56,7 +59,6 @@ editor.once('load', () => {
             editor.call('editor:command:previousTab');
         }
     });
-    editor.call('menu:item:setShortcut', item, 'Ctrl+Alt+,');
     menu.append(item);
 
     // hotkey

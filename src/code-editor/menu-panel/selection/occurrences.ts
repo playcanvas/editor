@@ -1,5 +1,7 @@
 import { MenuItem } from '@playcanvas/pcui';
 
+import { formatShortcut } from '../../../common/utils';
+
 editor.once('load', () => {
     const menu = editor.call('menu:selection');
     const me = editor.call('editor:monaco');
@@ -8,21 +10,21 @@ editor.once('load', () => {
     let item = new MenuItem({
         class: 'no-bottom-border',
         text: 'Add Next Occurrence',
+        shortcut: formatShortcut(`${ctrl}+D`),
         onSelect: () => {
             me.focus();
             me.trigger(null, 'editor.action.addSelectionToNextFindMatch');
         }
     });
-    editor.call('menu:item:setShortcut', item, `${ctrl}+D`);
     menu.append(item);
 
     item = new MenuItem({
         text: 'Select All Occurrences',
+        shortcut: formatShortcut(`${ctrl}+Shift+L`),
         onSelect: () => {
             me.focus();
             me.trigger(null, 'editor.action.selectHighlights');
         }
     });
-    editor.call('menu:item:setShortcut', item, `${ctrl}+Shift+L`);
     menu.append(item);
 });

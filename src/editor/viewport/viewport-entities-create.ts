@@ -141,11 +141,37 @@ editor.once('load', () => {
         editor.emit('entities:add:entity', obj);
     };
 
+    // Pending entities awaiting component creation
+    // This batching ensures all entities are created before components are added,
+    // allowing GUID references (like rootBone) to resolve correctly
+    const pendingEntities: { entity: pc.Entity; observer: EntityObserver }[] = [];
+    let awaitingComponentCreation = false;
+
+    const processPendingComponents = function () {
+        awaitingComponentCreation = false;
+
+        // Process all pending entities - add components now that all entities exist
+        for (const { entity, observer } of pendingEntities) {
+            processEntityComponents(entity, observer);
+        }
+        pendingEntities.length = 0;
+    };
+
     const createEntities = function () {
         // new entity created
         editor.on('entities:add', (entityObserver: EntityObserver) => {
             const entity = processEntity(entityObserver);
-            processEntityComponents(entity, entityObserver);
+
+            // Queue entity for component creation
+            pendingEntities.push({ entity, observer: entityObserver });
+
+            // Defer component creation to allow batch entity creation
+            // This ensures all entities exist before components are added,
+            // which allows GUID references (e.g., rootBone) to resolve correctly
+            if (!awaitingComponentCreation) {
+                awaitingComponentCreation = true;
+                setTimeout(processPendingComponents, 0);
+            }
         });
 
         // clear entitiesIndex and childIndex

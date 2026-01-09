@@ -1,5 +1,33 @@
 import { Events, Observer } from '@playcanvas/observer';
 
+const isMac = navigator.platform.indexOf('Mac') !== -1;
+
+/**
+ * Formats a keyboard shortcut string for display, converting modifier keys to symbols.
+ * On Mac, Ctrl is converted to ⌃. Shift, Alt, Cmd and arrow keys are always converted to symbols.
+ * @param shortcut - The shortcut string (e.g., "Ctrl+S", "Shift+Alt+A")
+ * @returns The formatted shortcut string with symbols
+ */
+export const formatShortcut = (shortcut: string): string => {
+    if (!shortcut) {
+        return '';
+    }
+
+    if (isMac) {
+        shortcut = shortcut.replace(/Ctrl/g, '⌃');
+    }
+
+    return shortcut
+    .replace(/\+/g, ' ')
+    .replace(/Shift/g, '⇧')
+    .replace(/Alt/g, '⌥')
+    .replace(/Cmd/g, '⌘')
+    .replace(/Right Arrow/g, '→')
+    .replace(/Left Arrow/g, '←')
+    .replace(/Up Arrow/g, '↑')
+    .replace(/Down Arrow/g, '↓');
+};
+
 /**
  * Performs deep copy
  * @param data - The object to copy

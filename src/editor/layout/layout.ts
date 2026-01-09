@@ -81,7 +81,7 @@ const createAttributesPanel = () => {
         scrollable: true,
         resizable: 'left',
         resizeMin: 256,
-        resizeMax: 512
+        resizeMax: 600
     });
 
     attributesPanel.on('resize', () => {

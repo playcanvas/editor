@@ -257,6 +257,14 @@ class ScriptInspector extends Panel {
 
         if (this._asset) {
             editor.call('selector:set', 'asset', [this._asset]);
+
+            // Navigate to the folder containing this script asset
+            let folder = null;
+            const path = this._asset.get('path');
+            if (path && path.length) {
+                folder = editor.call('assets:get', path[path.length - 1]);
+            }
+            editor.call('assets:panel:currentFolder', folder);
         }
     }
 

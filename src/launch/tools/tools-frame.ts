@@ -673,7 +673,7 @@ editor.once('load', () => {
             const key0 = fields[i].key[0];
             const key1 = fields[i].key[1];
 
-            if (key0 in app.stats && app.stats[key0] && key1 in app.stats[key0]) {
+            if (app.stats && key0 in app.stats && app.stats[key0] && key1 in app.stats[key0]) {
 
                 let value = app.stats[key0][key1];
 

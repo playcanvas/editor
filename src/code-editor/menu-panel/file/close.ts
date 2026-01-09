@@ -1,5 +1,7 @@
 import { MenuItem } from '@playcanvas/pcui';
 
+import { formatShortcut } from '../../../common/utils';
+
 editor.once('load', () => {
     const menu = editor.call('menu:file');
 
@@ -8,6 +10,7 @@ editor.once('load', () => {
     item = new MenuItem({
         class: 'no-bottom-border',
         text: 'Close File',
+        shortcut: formatShortcut('Alt+W'),
         onIsEnabled: () => {
             return editor.call('editor:command:can:close');
         },
@@ -15,7 +18,6 @@ editor.once('load', () => {
             return editor.call('editor:command:close');
         }
     });
-    editor.call('menu:item:setShortcut', item, 'Alt+W');
     menu.append(item);
 
     item = new MenuItem({
@@ -33,6 +35,7 @@ editor.once('load', () => {
 
     item = new MenuItem({
         text: 'Close All Files',
+        shortcut: formatShortcut('Alt+Shift+W'),
         onIsEnabled: () => {
             return editor.call('editor:command:can:closeAll');
         },
@@ -40,7 +43,6 @@ editor.once('load', () => {
             return editor.call('editor:command:closeAll');
         }
     });
-    editor.call('menu:item:setShortcut', item, 'Alt+Shift+W');
     menu.append(item);
 
     // hotkeys

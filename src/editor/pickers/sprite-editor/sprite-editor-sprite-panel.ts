@@ -1,10 +1,48 @@
-import type { Panel } from '@playcanvas/pcui';
+import type { EventHandle } from '@playcanvas/observer';
+import { Button, Canvas, Container, Label, Panel, type TextInput } from '@playcanvas/pcui';
 
-import { LegacyButton } from '@/common/ui/button';
-import { LegacyCanvas } from '@/common/ui/canvas';
-import { LegacyLabel } from '@/common/ui/label';
-import { LegacyPanel } from '@/common/ui/panel';
+import type { Attribute } from '@/editor/inspector/attribute.type.d';
+import { AttributesInspector } from '@/editor/inspector/attributes-inspector';
 
+import { SpritePreviewContainer } from './sprite-editor-preview-panel';
+
+const SPRITE_ATTRIBUTES: Attribute[] = [
+    {
+        label: 'ID',
+        path: 'id',
+        type: 'label',
+        reference: 'asset:id'
+    },
+    {
+        label: 'Name',
+        alias: 'name',
+        type: 'string',
+        reference: 'asset:name'
+    },
+    {
+        label: 'Pixels Per Unit',
+        path: 'data.pixelsPerUnit',
+        type: 'number',
+        reference: 'asset:sprite:pixelsPerUnit',
+        args: {
+            min: 0
+        }
+    },
+    {
+        label: 'Render Mode',
+        path: 'data.renderMode',
+        type: 'select',
+        reference: 'asset:sprite:renderMode',
+        args: {
+            type: 'number',
+            options: [
+                { v: 0, t: 'Simple' },
+                { v: 1, t: 'Sliced' },
+                { v: 2, t: 'Tiled' }
+            ]
+        }
+    }
+];
 
 editor.once('load', () => {
     editor.method('picker:sprites:attributes:sprite', (args) => {
@@ -15,48 +53,39 @@ editor.once('load', () => {
         let frameKeys = spriteAsset.get('data.frameKeys');
 
         let spriteEditMode = false;
-        let selectedFrames = null; // eslint-disable-line no-unused-vars
 
-        const events = [];
+        const events: EventHandle[] = [];
 
         const rootPanel: Panel = editor.call('picker:sprites:rightPanel');
+        const rootPanelContent: Container = editor.call('picker:sprites:rightPanelContent');
         rootPanel.headerText = `SPRITE ASSET - ${spriteAsset.get('name')}`;
 
-        const fieldPreview = editor.call('picker:sprites:attributes:frames:preview', {
-            atlasAsset: atlasAsset,
-            atlasImage: atlasImage,
+        // Create preview and prepend to panel (before scrollable content)
+        const preview = new SpritePreviewContainer({
+            atlasAsset,
             frames: frameKeys
         });
+        preview.resizeTarget = rootPanel;
+        rootPanel.prepend(preview);
 
-        const panel = editor.call('attributes:addPanel', {
-            parent: rootPanel
+        const inspector = new AttributesInspector({
+            history: editor.api.globals.history,
+            attributes: SPRITE_ATTRIBUTES
         });
-        panel.disabled = !editor.call('permissions:write');
-        events.push(editor.on('permissions:writeState', (canWrite) => {
-            panel.disabled = !canWrite;
+        rootPanelContent.append(inspector);
+        inspector.link([spriteAsset]);
+
+        inspector.enabled = editor.call('permissions:write');
+        events.push(editor.on('permissions:writeState', (canWrite: boolean) => {
+            inspector.enabled = canWrite;
         }));
 
-        const fieldId = editor.call('attributes:addField', {
-            parent: panel,
-            name: 'ID',
-            link: spriteAsset,
-            path: 'id'
-        });
-        // reference
-        editor.call('attributes:reference:attach', 'asset:id', fieldId.parent.innerElement.firstChild.ui, null, panel);
-
+        // Custom handling for Name field (rename asset)
         let suspendRenameEvt = false;
+        const fieldName = inspector.getField('name') as TextInput;
+        fieldName.value = spriteAsset.get('name');
 
-        const fieldName = editor.call('attributes:addField', {
-            parent: panel,
-            name: 'Name',
-            type: 'string',
-            value: spriteAsset.get('name')
-        });
-        // reference
-        editor.call('attributes:reference:attach', 'asset:name', fieldName.parent.innerElement.firstChild.ui, null, panel);
-
-        events.push(fieldName.on('change', (value) => {
+        events.push(fieldName.on('change', (value: string) => {
             rootPanel.headerText = `SPRITE ASSET - ${value}`;
             if (value !== spriteAsset.get('name') && !suspendRenameEvt) {
                 suspendRenameEvt = true;
@@ -65,116 +94,97 @@ editor.once('load', () => {
             }
         }));
 
-        events.push(spriteAsset.on('name:set', (value) => {
+        events.push(spriteAsset.on('name:set', (value: string) => {
             suspendRenameEvt = true;
             fieldName.value = value;
             suspendRenameEvt = false;
         }));
 
-        const fieldPpu = editor.call('attributes:addField', {
-            parent: panel,
-            name: 'Pixels Per Unit',
-            type: 'number',
-            link: spriteAsset,
-            min: 0,
-            path: 'data.pixelsPerUnit'
+        const panelEdit = new Panel({
+            headerText: 'FRAMES IN SPRITE ASSET',
+            class: 'buttons'
         });
-        // reference
-        editor.call('attributes:reference:attach', 'asset:sprite:pixelsPerUnit', fieldPpu.parent.innerElement.firstChild.ui, null, panel);
+        rootPanelContent.append(panelEdit);
 
-        const fieldRenderMode = editor.call('attributes:addField', {
-            parent: panel,
-            name: 'Render Mode',
-            type: 'number',
-            enum: [
-                { v: 0, t: 'Simple' },
-                { v: 1, t: 'Sliced' },
-                { v: 2, t: 'Tiled' }
-            ],
-            link: spriteAsset,
-            path: 'data.renderMode'
-        });
-        // reference
-        editor.call('attributes:reference:attach', 'asset:sprite:renderMode', fieldRenderMode.parent.innerElement.firstChild.ui, null, panel);
-
-        const panelEdit = editor.call('attributes:addPanel', {
-            parent: rootPanel,
-            name: 'FRAMES IN SPRITE ASSET'
-        });
-        panelEdit.flex = true;
-        panelEdit.class.add('buttons');
-
-        panelEdit.disabled = !editor.call('permissions:write');
-        events.push(editor.on('permissions:writeState', (canWrite) => {
-            panelEdit.disabled = !canWrite;
+        panelEdit.enabled = editor.call('permissions:write');
+        events.push(editor.on('permissions:writeState', (canWrite: boolean) => {
+            panelEdit.enabled = canWrite;
         }));
 
         // add frames tooltip
-        const panelAddFramesInfo = new LegacyPanel('Adding more frames to a sprite');
-        panelAddFramesInfo.class.add('add-frames-info');
-        panelAddFramesInfo.hidden = true;
+        const panelAddFramesInfo = new Panel({
+            headerText: 'Adding more frames to a sprite',
+            class: 'add-frames-info',
+            hidden: true
+        });
         panelEdit.append(panelAddFramesInfo);
 
-        const labelInfo = new LegacyLabel({
+        const labelInfo = new Label({
             text: 'To add more frames to a sprite asset, select the frames you wish to add either on the texture atlas viewport or from the panel on the left, then click ADD SELECTED FRAMES.'
         });
         panelAddFramesInfo.append(labelInfo);
 
-        const btnAddFrames = new LegacyButton({
-            text: 'ADD FRAMES TO SPRITE ASSET'
+        const btnAddFrames = new Button({
+            text: 'ADD FRAMES TO SPRITE ASSET',
+            icon: 'E120',
+            class: 'wide'
         });
-        btnAddFrames.flexGrow = 1;
-        btnAddFrames.class.add('icon', 'wide', 'create');
+        btnAddFrames.style.flexGrow = '1';
         panelEdit.append(btnAddFrames);
-
-
-        // reference
-        editor.call('attributes:reference:attach', 'spriteeditor:sprites:addFrames', btnAddFrames, null, panel);
 
         btnAddFrames.on('click', () => {
             editor.call('picker:sprites:pickFrames');
         });
 
-        const btnAddSelected = new LegacyButton({
-            text: 'ADD SELECTED FRAMES'
+        const containerEditButtons = new Container({
+            flex: true,
+            flexDirection: 'row',
+            hidden: true,
+            class: 'edit-buttons'
         });
-        btnAddSelected.class.add('icon', 'create');
-        btnAddSelected.flexGrow = 3;
-        btnAddSelected.hidden = true;
-        panelEdit.append(btnAddSelected);
+        panelEdit.append(containerEditButtons);
+
+        const btnAddSelected = new Button({
+            text: 'ADD SELECTED FRAMES',
+            icon: 'E120',
+            class: 'wide'
+        });
+        btnAddSelected.style.flexGrow = '3';
+        containerEditButtons.append(btnAddSelected);
 
         // add selected frames to sprite asset
         btnAddSelected.on('click', () => {
             editor.call('picker:sprites:pickFrames:add');
         });
 
-        const btnCancel = new LegacyButton({
-            text: 'DONE'
+        const btnCancel = new Button({
+            text: 'DONE',
+            icon: 'E133',
+            class: 'wide'
         });
-        btnCancel.class.add('icon', 'done');
-        btnCancel.flexGrow = 1;
-        btnCancel.hidden = true;
-        panelEdit.append(btnCancel);
+        btnCancel.style.flexGrow = '1';
+        containerEditButtons.append(btnCancel);
 
         btnCancel.on('click', () => {
             editor.call('picker:sprites:pickFrames:cancel');
         });
 
-        const panelFrames = editor.call('attributes:addPanel', {
-            parent: panelEdit
+        const panelFrames = new Container({
+            class: 'frames'
         });
-        panelFrames.class.add('frames');
+        panelEdit.append(panelFrames);
 
         let draggedPanel = null;
         let draggedIndex = null;
 
         const panels = [];
 
-        const addFramePanel = function (key, index) {
+        const addFramePanel = (key: string, index?: number): void => {
             const frameEvents = [];
 
-            const panel = new LegacyPanel();
-            panel.class.add('frame');
+            const panel = new Container({
+                class: 'frame'
+            }) as Container & { _frameKey: string; queueRender: () => void };
             panel._frameKey = key;
             if (index !== undefined) {
                 panels.splice(index, 0, panel);
@@ -188,7 +198,7 @@ editor.once('load', () => {
             panel.append(handle);
 
 
-            const onDragStart = function (evt) {
+            const onDragStart = (evt: MouseEvent): void => {
                 if (!editor.call('permissions:write')) {
                     return;
                 }
@@ -205,19 +215,20 @@ editor.once('load', () => {
             handle.addEventListener('mousedown', onDragStart);
 
             // preview
-            const canvas = new LegacyCanvas();
+            const canvas = new Canvas({
+                class: 'preview'
+            });
             const previewWidth = 26;
             const previewHeight = 26;
-            canvas.class.add('preview');
             canvas.resize(previewWidth, previewHeight);
 
             panel.append(canvas);
 
-            const ctx = canvas.element.getContext('2d');
+            const ctx = (canvas.dom as HTMLCanvasElement).getContext('2d');
 
             let renderQueued = false;
 
-            panel.queueRender = function () {
+            panel.queueRender = (): void => {
                 if (renderQueued) {
                     return;
                 }
@@ -225,7 +236,7 @@ editor.once('load', () => {
                 requestAnimationFrame(renderPreview);
             };
 
-            const renderPreview = function () {
+            const renderPreview = (): void => {
                 renderQueued = false;
 
                 ctx.clearRect(0, 0, previewWidth, previewHeight);
@@ -266,9 +277,10 @@ editor.once('load', () => {
             renderPreview();
 
             // sprite name
-            const fieldName = new LegacyLabel();
-            fieldName.class.add('name');
-            fieldName.value = atlasAsset.get(`data.frames.${key}.name`) || 'Missing';
+            const fieldName = new Label({
+                class: 'name',
+                text: atlasAsset.get(`data.frames.${key}.name`) || 'Missing'
+            });
             panel.append(fieldName);
 
             frameEvents.push(atlasAsset.on(`data.frames.${key}.name:set`, (value) => {
@@ -281,11 +293,13 @@ editor.once('load', () => {
             }));
 
             // remove frame
-            const btnRemove = new LegacyButton();
-            btnRemove.class.add('remove');
+            const btnRemove = new Button({
+                icon: 'E124',
+                class: 'icon-button'
+            });
             panel.append(btnRemove);
 
-            btnRemove.on('click', (e) => {
+            btnRemove.on('click', (e: MouseEvent) => {
                 e.stopPropagation();
 
                 const idx = panels.indexOf(panel);
@@ -308,10 +322,8 @@ editor.once('load', () => {
             });
 
             // clean up events
-            panel.on('destroy', () => {
-                for (let i = 0, len = frameEvents.length; i < len; i++) {
-                    frameEvents[i].unbind();
-                }
+            panel.once('destroy', () => {
+                frameEvents.forEach(event => event.unbind());
                 frameEvents.length = 0;
 
                 handle.removeEventListener('mousedown', onDragStart);
@@ -335,22 +347,26 @@ editor.once('load', () => {
             }
         };
 
-        const onDragMove = function (evt) {
+        const onDragMove = (evt: MouseEvent): void => {
             const rect = panelFrames.innerElement.getBoundingClientRect();
             const height = draggedPanel.element.offsetHeight;
             const top = evt.clientY - rect.top - 6;
             const overPanelIndex = Math.floor(top / height);
-            const overPanel = panels[overPanelIndex];// panelFrames.innerElement.childNodes[overPanelIndex];
+            const overPanel = panels[overPanelIndex];
 
             if (overPanel && overPanel !== draggedPanel) {
+                const currentIndex = panels.indexOf(draggedPanel);
+
                 panelFrames.remove(draggedPanel);
                 panelFrames.appendBefore(draggedPanel, panelFrames.innerElement.childNodes[overPanelIndex]);
 
+                // Update panels array to match DOM order
+                panels.splice(currentIndex, 1);
                 panels.splice(overPanelIndex, 0, draggedPanel);
             }
         };
 
-        const onDragEnd = function () {
+        const onDragEnd = (): void => {
             if (!draggedPanel) {
                 return;
             }
@@ -385,13 +401,13 @@ editor.once('load', () => {
 
             frameKeys = spriteAsset.get('data.frameKeys');
 
-            fieldPreview.setFrames(frameKeys);
+            preview.setFrames(frameKeys);
         }));
 
         events.push(spriteAsset.on('data.frameKeys:insert', (value, index) => {
             frameKeys = spriteAsset.get('data.frameKeys');
             addFramePanel(frameKeys[index], index);
-            fieldPreview.setFrames(frameKeys);
+            preview.setFrames(frameKeys);
         }));
 
         events.push(spriteAsset.on('data.frameKeys:move', (value, indNew, indOld) => {
@@ -414,26 +430,20 @@ editor.once('load', () => {
             }
 
             frameKeys = spriteAsset.get('data.frameKeys');
-            fieldPreview.setFrames(frameKeys);
+            preview.setFrames(frameKeys);
         }));
 
         events.push(spriteAsset.on('data.frameKeys:set', (value) => {
-            let i, len;
-
-            for (i = 0, len = panels.length; i < len; i++) {
-                panels[i].destroy();
-            }
+            panels.forEach(panel => panel.destroy());
             panels.length = 0;
 
             frameKeys = spriteAsset.get('data.frameKeys');
-            for (i = 0, len = frameKeys.length; i < len; i++) {
-                addFramePanel(frameKeys[i]);
-            }
+            frameKeys.forEach(key => addFramePanel(key));
 
-            fieldPreview.setFrames(frameKeys);
+            preview.setFrames(frameKeys);
         }));
 
-        events.push(atlasAsset.on('*:set', (path) => {
+        events.push(atlasAsset.on('*:set', (path: string) => {
             if (!path.startsWith('data.frames')) {
                 return;
             }
@@ -449,7 +459,7 @@ editor.once('load', () => {
                         // if this frame was added back to the atlas
                         // then re-render preview
                         if (partsLen === 3) {
-                            fieldPreview.setFrames(frameKeys);
+                            preview.setFrames(frameKeys);
                         }
 
                         break;
@@ -461,21 +471,19 @@ editor.once('load', () => {
         events.push(editor.on('picker:sprites:pickFrames:start', () => {
             spriteEditMode = true;
             btnAddFrames.hidden = true;
-            btnAddSelected.disabled = true;
-            btnAddSelected.hidden = false;
-            btnCancel.hidden = false;
+            btnAddSelected.enabled = false;
+            containerEditButtons.hidden = false;
             panelAddFramesInfo.hidden = false;
         }));
 
         events.push(editor.on('picker:sprites:pickFrames:end', () => {
             spriteEditMode = false;
             btnAddFrames.hidden = false;
-            btnAddSelected.hidden = true;
-            btnCancel.hidden = true;
+            containerEditButtons.hidden = true;
             panelAddFramesInfo.hidden = true;
 
             // restore preview to the actual frames that the sprite currently has
-            fieldPreview.setFrames(frameKeys);
+            preview.setFrames(frameKeys);
         }));
 
         events.push(editor.on('picker:sprites:framesSelected', (keys) => {
@@ -483,29 +491,27 @@ editor.once('load', () => {
                 return;
             }
 
-            selectedFrames = keys;
-
-            const len = keys ? keys.length : 0;
-            btnAddSelected.disabled = !len;
+            const hasKeys = keys?.length > 0;
+            btnAddSelected.enabled = hasKeys;
 
             // update preview to show what sprite would look like after
             // the selected keys were added
-            if (len) {
-                fieldPreview.setFrames(frameKeys.slice().concat(keys));
+            if (hasKeys) {
+                preview.setFrames(frameKeys.slice().concat(keys));
             }
         }));
 
         events.push(rootPanel.on('clear', () => {
-            panel.destroy();
+            preview.destroy();
+            inspector.unlink();
+            inspector.destroy();
             panelEdit.destroy();
         }));
 
-        panel.on('destroy', () => {
-            for (let i = 0; i < events.length; i++) {
-                events[i].unbind();
-            }
-
+        inspector.once('destroy', () => {
+            events.forEach(event => event.unbind());
             events.length = 0;
+
             panels.length = 0;
             spriteEditMode = false;
         });

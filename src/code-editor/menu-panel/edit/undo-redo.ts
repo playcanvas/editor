@@ -1,5 +1,7 @@
 import { MenuItem } from '@playcanvas/pcui';
 
+import { formatShortcut } from '../../../common/utils';
+
 editor.once('load', () => {
     const menu = editor.call('menu:edit');
     const codePanel = editor.call('layout.code');
@@ -8,6 +10,7 @@ editor.once('load', () => {
     let item = new MenuItem({
         class: 'no-bottom-border',
         text: 'Undo',
+        shortcut: formatShortcut(`${ctrl}+Z`),
         onIsEnabled: () => {
             return editor.call('editor:command:can:undo');
         },
@@ -15,7 +18,6 @@ editor.once('load', () => {
             return editor.call('editor:command:undo');
         }
     });
-    editor.call('menu:item:setShortcut', item, `${editor.call('hotkey:ctrl:string')}+Z`);
     menu.append(item);
 
 
@@ -36,6 +38,7 @@ editor.once('load', () => {
 
     item = new MenuItem({
         text: 'Redo',
+        shortcut: formatShortcut(`${ctrl}+Y or Shift+${ctrl}+Z`),
         onIsEnabled: () => {
             return editor.call('editor:command:can:redo');
         },
@@ -43,7 +46,6 @@ editor.once('load', () => {
             return editor.call('editor:command:redo');
         }
     });
-    editor.call('menu:item:setShortcut', item, `${ctrl}+Y or Shift+${ctrl}+Z`);
     menu.append(item);
 
     // hotkeys
