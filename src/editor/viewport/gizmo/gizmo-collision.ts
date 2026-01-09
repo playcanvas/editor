@@ -23,6 +23,7 @@ import {
     Shader,
     SphereGeometry,
     TYPE_FLOAT32,
+    Vec3,
     VertexBuffer,
     VertexFormat
 } from 'playcanvas';
@@ -681,7 +682,7 @@ void main(void)
         // ================
         // box
         models.box = createModel(Mesh.fromGeometry(app.graphicsDevice, new BoxGeometry({
-            halfExtents: { x: 1, y: 1, z: 1 }
+            halfExtents: new Vec3(1, 1, 1)
         })));
 
         // ================
