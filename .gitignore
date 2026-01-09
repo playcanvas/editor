@@ -6,5 +6,6 @@ dist
 /js/realtime/share.uncompressed.js
 .npmrc
 /.vscode
+/.cursor
 modules/editor-api/types
 /test-results
