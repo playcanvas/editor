@@ -1,5 +1,5 @@
 import type { Observer, ObserverList } from '@playcanvas/observer';
-import { Container, Button, BindingObserversToElement } from '@playcanvas/pcui';
+import { Container, Button, BindingObserversToElement, ContainerArgs } from '@playcanvas/pcui';
 
 
 import { bytesToHuman, convertDatetime } from '@/common/utils';
@@ -322,10 +322,20 @@ editor.method('assets:open', (assets) => {
     }
 });
 
+type AssetInspectorArgs = {
+    assets: ObserverList;
+    entities: ObserverList;
+    projectSettings: Observer;
+    history: typeof editor.api.globals.history;
+    editableTypes: Record<string, number>;
+    inspectorPanel: Container;
+    inspectorPanelSecondary: Container;
+} & ContainerArgs;
+
 class AssetInspector extends Container {
     _projectSettings: Observer;
 
-    _editableTypes: Record<string, boolean>;
+    _editableTypes: Record<string, number>;
 
     _assetTypes: string[];
 
@@ -353,10 +363,9 @@ class AssetInspector extends Container {
 
     _assets: Observer[] | null;
 
-    constructor(args) {
-        if (!args) {
-            args = {};
-        }
+    args: AssetInspectorArgs;
+
+    constructor(args: AssetInspectorArgs) {
         args.flex = true;
 
         super(args);
@@ -421,22 +430,6 @@ class AssetInspector extends Container {
         });
         this._btnEditAsset.on('click', this._onClickEditAsset.bind(this));
         this._containerButtons.append(this._btnEditAsset);
-
-        // add edit in VSCode button
-        this._btnEditAssetInVSCode = new Button({
-            text: editor.call('permissions:write') ? 'EDIT' : 'VIEW',
-            icon: 'E130',
-            ignoreParent: true
-        });
-        this._btnEditAssetInVSCode.style.flex = '1';
-        const evtBtnEditInVSCodePermissions = editor.on('permissions:writeState', (state) => {
-            this._btnEditAssetInVSCode.text = `${state ? 'EDIT' : 'VIEW'} IN VSCODE`;
-        });
-        this._btnEditAssetInVSCode.once('destroy', () => {
-            evtBtnEditInVSCodePermissions.unbind();
-        });
-        this._btnEditAssetInVSCode.on('click', this.__onClickEditAssetInVSCode.bind(this));
-        this._containerButtons.append(this._btnEditAssetInVSCode);
 
         // add edit button
         this._btnEditSprite = new Button({
@@ -520,12 +513,6 @@ class AssetInspector extends Container {
 
     _onClickEditAsset(evt) {
         editor.call('assets:edit', this._assets[0]);
-    }
-
-    __onClickEditAssetInVSCode(evt) {
-        const projectName = `${config.project.name} (${config.project.id})`;
-        const filePath = editor.call('assets:virtualPath', this._assets[0]);
-        window.open(`vscode://playcanvas.playcanvas/${projectName}${filePath}`);
     }
 
     _onClickEditSprite(evt) {
@@ -791,7 +778,6 @@ class AssetInspector extends Container {
 
         // Determine if the Edit/View button should be displayed
         this._btnEditAsset.hidden = assets.length > 1 || !this._editableTypes[assets[0].get('type')];
-        this._btnEditAssetInVSCode.hidden = this._btnEditAsset.hidden;
 
         // Determine the Download button state
         this._updateDownloadButton();
