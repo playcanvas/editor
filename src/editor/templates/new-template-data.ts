@@ -1,3 +1,5 @@
+import { guid } from 'playcanvas';
+
 editor.once('load', () => {
     class NewTemplateData {
         constructor(root, srcEnts) {
@@ -29,7 +31,7 @@ editor.once('load', () => {
         handleSrcEnt(srcEnt) {
             const srcId = srcEnt.get('resource_id');
 
-            const dstId = pc.guid.create();
+            const dstId = guid.create();
 
             const dstEnt = srcEnt.json();
 

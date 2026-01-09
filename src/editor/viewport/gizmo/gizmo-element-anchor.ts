@@ -1,31 +1,32 @@
 import { FORCE_PICK_TAG, GIZMO_MASK } from '@/core/constants';
+import { BlendState, BLENDEQUATION_ADD, BLENDMODE_ONE_MINUS_SRC_ALPHA, BLENDMODE_SRC_ALPHA, Color, Entity, math, PROJECTION_PERSPECTIVE, Quat, Vec3 } from 'playcanvas';
 
 import { createColorMaterial } from '../viewport-color-material';
 
 editor.once('load', () => {
-    const vecA = new pc.Vec3();
-    const vecB = new pc.Vec3();
-    const vecC = new pc.Vec3();
-    const vecD = new pc.Vec3();
-    const quat = new pc.Quat();
+    const vecA = new Vec3();
+    const vecB = new Vec3();
+    const vecC = new Vec3();
+    const vecD = new Vec3();
+    const quat = new Quat();
 
     const gizmoAnchor = null; // eslint-disable-line no-unused-vars
     let evtTapStart = null;
     let moving = false;
     let mouseTap = null;
     let mouseTapMoved = false;
-    const pickStart = new pc.Vec3();
-    const posCameraLast = new pc.Vec3();
+    const pickStart = new Vec3();
+    const posCameraLast = new Vec3();
     let selectedEntity = null;
     let anchorDirty = false;
     let anchorStart = [];
     const anchorCurrent = [];
     const localPosition = []; // eslint-disable-line no-unused-vars
-    let offset = new pc.Vec3();
+    let offset = new Vec3();
     let visible = true;
 
     const createEntity = () => {
-        const entity = new pc.Entity();
+        const entity = new Entity();
         entity.tags.add(FORCE_PICK_TAG);
         return entity;
     };
@@ -49,8 +50,8 @@ editor.once('load', () => {
         obj.root.enabled = false;
 
         const c = 0.8;
-        obj.matInactive = createMaterial(new pc.Color(c, c, c, 0.5));
-        obj.matActive = createMaterial(new pc.Color(c, c, c, 1));
+        obj.matInactive = createMaterial(new Color(c, c, c, 0.5));
+        obj.matActive = createMaterial(new Color(c, c, c, 1));
 
         const layer = editor.call('gizmo:layers', 'Axis Gizmo');
 
@@ -103,7 +104,7 @@ editor.once('load', () => {
         const mat = createColorMaterial();
         mat.color = color;
         if (color.a !== 1) {
-            mat.blendState = new pc.BlendState(true, pc.BLENDEQUATION_ADD, pc.BLENDMODE_SRC_ALPHA, pc.BLENDMODE_ONE_MINUS_SRC_ALPHA);
+            mat.blendState = new BlendState(true, BLENDEQUATION_ADD, BLENDMODE_SRC_ALPHA, BLENDMODE_ONE_MINUS_SRC_ALPHA);
         }
         mat.update();
         return mat;
@@ -198,11 +199,11 @@ editor.once('load', () => {
             // scale to screen space
             let scale = 1;
             const gizmoSize = 0.2;
-            if (camera.camera.projection === pc.PROJECTION_PERSPECTIVE) {
+            if (camera.camera.projection === PROJECTION_PERSPECTIVE) {
                 const center = vecA;
                 center.lerp(gizmoAnchor.handles.bl.getPosition(), gizmoAnchor.handles.tr.getPosition(), 0.5);
                 const dot = center.sub(posCamera).dot(camera.forward);
-                const denom = 1280 / (2 * Math.tan(camera.camera.fov * pc.math.DEG_TO_RAD / 2));
+                const denom = 1280 / (2 * Math.tan(camera.camera.fov * math.DEG_TO_RAD / 2));
                 scale = Math.max(0.0001, (dot / denom) * 150) * gizmoSize;
             } else {
                 scale = camera.camera.orthoHeight / 3 * gizmoSize;
@@ -423,7 +424,7 @@ editor.once('load', () => {
             vecC.copy(gizmoAnchor.root.forward);
             const planeNormal = vecC.mulScalar(-1);
 
-            if (camera.camera.projection === pc.PROJECTION_PERSPECTIVE) {
+            if (camera.camera.projection === PROJECTION_PERSPECTIVE) {
                 rayDirection.copy(mouseWPos).sub(rayOrigin).normalize();
             } else {
                 rayOrigin.add(mouseWPos);

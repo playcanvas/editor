@@ -1,3 +1,4 @@
+import { GltfExporter, UsdzExporter } from 'playcanvas';
 import { Menu, MenuItem } from '@playcanvas/pcui';
 
 import { formatShortcut } from '../../common/utils';
@@ -235,11 +236,11 @@ editor.once('load', () => {
             items: [
                 {
                     text: 'GLB',
-                    onSelect: () => exportEntity(pc.GltfExporter, 'model/gltf-binary', 'glb', 'GLB')
+                    onSelect: () => exportEntity(GltfExporter, 'model/gltf-binary', 'glb', 'GLB')
                 },
                 {
                     text: 'USDZ',
-                    onSelect: () => exportEntity(pc.UsdzExporter, 'application/octet-stream', 'usdz', 'USDZ')
+                    onSelect: () => exportEntity(UsdzExporter, 'application/octet-stream', 'usdz', 'USDZ')
                 }
             ]
         });

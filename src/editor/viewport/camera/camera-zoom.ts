@@ -1,3 +1,5 @@
+import { BoundingBox, PROJECTION_PERSPECTIVE, Vec2, Vec3 } from 'playcanvas';
+
 editor.once('viewport:load', (app) => {
     // Moving towards mouse point in world using mouse wheel
     // Speed is relative to distance of point in world
@@ -20,15 +22,15 @@ editor.once('viewport:load', (app) => {
     let altKey = false;
     let hovering = false;
     let firstUpdate = 3;
-    const mouseCoords = new pc.Vec2();
-    const vecA = new pc.Vec3();
-    const vecB = new pc.Vec3();
+    const mouseCoords = new Vec2();
+    const vecA = new Vec3();
+    const vecB = new Vec3();
     let distance = 1;
 
     let selectorLastType = null;
-    const aabbSelection = new pc.BoundingBox();
+    const aabbSelection = new BoundingBox();
     let aabbSelectionLast = 0;
-    const aabbRoot = new pc.BoundingBox();
+    const aabbRoot = new BoundingBox();
     let aabbRootLast = 0;
 
     editor.on('viewport:hover', (state) => {
@@ -62,7 +64,7 @@ editor.once('viewport:load', (app) => {
                     dist -= diff * Math.max(1, Math.min(zoomMax, dist));
                     editor.call('camera:orbit:distance', dist);
                 } else {
-                    if (camera.camera.projection === pc.PROJECTION_PERSPECTIVE) {
+                    if (camera.camera.projection === PROJECTION_PERSPECTIVE) {
                         const mouseWPos = camera.camera.screenToWorld(mouseCoords.x, mouseCoords.y, 1);
                         const rayDirection = vecB.copy(mouseWPos).sub(camera.getPosition()).normalize();
 

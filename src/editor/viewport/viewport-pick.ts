@@ -1,4 +1,5 @@
 import { FORCE_PICK_TAG } from '@/core/constants';
+import { Entity, Picker, Vec2 } from 'playcanvas';
 
 editor.once('load', () => {
     const app = editor.call('viewport:app');
@@ -6,12 +7,12 @@ editor.once('load', () => {
         return;
     } // webgl not available
 
-    const picker = new pc.Picker(app, 1, 1);
+    const picker = new Picker(app, 1, 1);
     const pickedData = {
         node: null,
         picked: null
     };
-    const mouseCoords = new pc.Vec2();
+    const mouseCoords = new Vec2();
     let inViewport = false;
     let picking = true;
     let filter = null;
@@ -23,12 +24,12 @@ editor.once('load', () => {
     let rectStartX = 0;
     let rectStartY = 0;
 
-    // Traverses up the node hierarchy to find the parent pc.Entity
+    // Traverses up the node hierarchy to find the parent Entity
     const findParentEntity = (node) => {
-        while (node && !(node instanceof pc.Entity) && node.parent) {
+        while (node && !(node instanceof Entity) && node.parent) {
             node = node.parent;
         }
-        return (node instanceof pc.Entity) ? node : null;
+        return (node instanceof Entity) ? node : null;
     };
 
     editor.on('gizmo:transform:hover', (state) => {
@@ -119,7 +120,7 @@ editor.once('load', () => {
         const picked = picker.getSelection(x, y, width, height);
 
         // Convert mesh instances to unique entities
-        const entities: pc.Entity[] = [];
+        const entities: Entity[] = [];
         const seenGuids = new Set<string>();
 
         for (const meshInstance of picked) {
@@ -186,7 +187,7 @@ editor.once('load', () => {
 
                 // Only pick if rectangle has some size
                 if (width > 1 && height > 1) {
-                    editor.call('viewport:pick:rect', minX, minY, width, height, (entities: pc.Entity[]) => {
+                    editor.call('viewport:pick:rect', minX, minY, width, height, (entities: Entity[]) => {
                         editor.emit('viewport:pick:rect:nodes', entities);
                     });
                 }

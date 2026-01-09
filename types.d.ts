@@ -20,7 +20,7 @@ declare var metrics: {
 // monaco
 declare var monaco: typeof import('monaco-editor');
 
-// pc (loaded in HTML)
+// pc (bundled in editor, injected in HTML for launch page)
 declare var pc: typeof import('playcanvas');
 
 // pcui

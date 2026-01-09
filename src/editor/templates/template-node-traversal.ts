@@ -1,3 +1,5 @@
+import { guid } from 'playcanvas';
+
 editor.once('load', () => {
     const bothTypes = ['src', 'dst'];
 
@@ -15,10 +17,10 @@ editor.once('load', () => {
         }
 
         initialize() {
-            const guid = pc.guid.create();
+            const id = guid.create();
 
             this.result = {
-                conflict_id: guid,
+                conflict_id: id,
                 use_src: 0,
                 use_dst: 0
             };

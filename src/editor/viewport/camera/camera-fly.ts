@@ -1,3 +1,5 @@
+import { PROJECTION_ORTHOGRAPHIC, Vec3 } from 'playcanvas';
+
 editor.once('viewport:load', (app) => {
 
     // Variables
@@ -5,12 +7,12 @@ editor.once('viewport:load', (app) => {
     const flySpeed = 7;
     const flySpeedFast = 25;
     const flyEasing = 0.5;
-    const flyVec = new pc.Vec3();
-    const direction = new pc.Vec3();
+    const flyVec = new Vec3();
+    const direction = new Vec3();
     let flyCamera = null;
     let firstUpdate = false;
     let shiftKey = false;
-    const vecA = new pc.Vec3();
+    const vecA = new Vec3();
 
     const keys = {
         forward: false,
@@ -122,7 +124,7 @@ editor.once('viewport:load', (app) => {
 
             vecA.copy(direction).mulScalar(speed);
 
-            if (camera.camera.projection === pc.PROJECTION_ORTHOGRAPHIC) {
+            if (camera.camera.projection === PROJECTION_ORTHOGRAPHIC) {
                 vecA.y = -vecA.z;
                 vecA.z = 0;
             }

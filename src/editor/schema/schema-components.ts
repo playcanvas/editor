@@ -1,3 +1,5 @@
+import { Color, Curve, CurveSet, Quat, Vec2, Vec3, Vec4 } from 'playcanvas';
+
 import { deepCopy } from '@/common/utils';
 
 editor.once('load', () => {
@@ -146,26 +148,26 @@ editor.once('load', () => {
                 const type = editor.call('schema:getType', data[property]);
                 switch (type) {
                     case 'rgb':
-                        result = new pc.Color(value[0], value[1], value[2]);
+                        result = new Color(value[0], value[1], value[2]);
                         break;
                     case 'rgba':
-                        result = new pc.Color(value[0], value[1], value[2], value[3]);
+                        result = new Color(value[0], value[1], value[2], value[3]);
                         break;
                     case 'vec2':
-                        result = new pc.Vec2(value[0], value[1]);
+                        result = new Vec2(value[0], value[1]);
                         break;
                     case 'vec3':
-                        result = new pc.Vec3(value[0], value[1], value[2]);
+                        result = new Vec3(value[0], value[1], value[2]);
                         break;
                     case 'vec4':
-                        result = new pc.Vec4(value[0], value[1], value[2], value[3]);
+                        result = new Vec4(value[0], value[1], value[2], value[3]);
                         break;
                     case 'curveset':
-                        result = new pc.CurveSet(value.keys);
+                        result = new CurveSet(value.keys);
                         result.type = value.type;
                         break;
                     case 'curve':
-                        result = new pc.Curve(value.keys);
+                        result = new Curve(value.keys);
                         result.type = value.type;
                         break;
                     case 'entity':
@@ -176,7 +178,7 @@ editor.once('load', () => {
 
             // Collision component's angularOffset is stored as euler angles but runtime needs Quat
             if (component === 'collision' && property === 'angularOffset' && Array.isArray(value) && value.length === 3) {
-                result = new pc.Quat().setFromEulerAngles(value[0], value[1], value[2]);
+                result = new Quat().setFromEulerAngles(value[0], value[1], value[2]);
             }
         }
 

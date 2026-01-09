@@ -1,4 +1,5 @@
 import { Entity } from '@playcanvas/editor-api';
+import { BoundingBox, Entity as PcEntity, Vec3 } from 'playcanvas';
 
 editor.once('load', () => {
     const canvas = editor.call('viewport:canvas');
@@ -11,10 +12,10 @@ editor.once('load', () => {
         return;
     } // webgl not available
 
-    const aabb = new pc.BoundingBox();
-    const vecA = new pc.Vec3();
-    const vecB = new pc.Vec3();
-    const vecC = new pc.Vec3();
+    const aabb = new BoundingBox();
+    const vecA = new Vec3();
+    const vecB = new Vec3();
+    const vecC = new Vec3();
 
     editor.call('drop:target', {
         ref: canvas,
@@ -87,7 +88,7 @@ editor.once('load', () => {
 
             // calculate aabb
             let first = true;
-            const gsplatAabb = new pc.BoundingBox();
+            const gsplatAabb = new BoundingBox();
             for (let i = 0; i < assets.length; i++) {
                 const assetEngine = app.assets.get(assets[i].get('id'));
                 if (assetEngine?.resource) {
@@ -117,7 +118,7 @@ editor.once('load', () => {
                 vecB.copy(camera.getPosition()).add(vecA);
                 vecC.copy(vecB).sub(aabb.center);
 
-                const tmp = new pc.Entity();
+                const tmp = new PcEntity();
                 parent.observer.entity.addChild(tmp);
                 tmp.setPosition(vecC);
                 vecC.copy(tmp.getLocalPosition());

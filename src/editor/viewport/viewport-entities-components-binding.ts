@@ -1,3 +1,5 @@
+import { BoundingBox, Vec3 } from 'playcanvas';
+
 editor.once('load', () => {
     // converts the data to runtime types
     const runtimeComponentData = function (component, data) {
@@ -76,7 +78,7 @@ editor.once('load', () => {
                     const aabbHalfExtents = obj.get(`components.${component}.aabbHalfExtents`);
 
                     if (aabbCenter && aabbHalfExtents) {
-                        entity[component].customAabb = new pc.BoundingBox(new pc.Vec3(aabbCenter), new pc.Vec3(aabbHalfExtents));
+                        entity[component].customAabb = new BoundingBox(new Vec3(aabbCenter), new Vec3(aabbHalfExtents));
                     }
                     callSetter = false;
                 }

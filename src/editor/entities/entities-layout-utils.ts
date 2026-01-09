@@ -49,7 +49,8 @@ editor.once('load', () => {
     });
 
     editor.method('entities:layout:scheduleReflow', (entityId) => {
-        pc.app.systems.layoutgroup.scheduleReflow(getLayoutGroup(entityId));
+        const app = editor.call('viewport:app');
+        app?.systems.layoutgroup.scheduleReflow(getLayoutGroup(entityId));
     });
 
     // build the layout data block used by restoreElementChildrenLayouts

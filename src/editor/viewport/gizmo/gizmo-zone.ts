@@ -1,3 +1,22 @@
+import {
+    BlendState,
+    BLENDEQUATION_ADD,
+    BLENDMODE_ONE_MINUS_SRC_ALPHA,
+    BLENDMODE_SRC_ALPHA,
+    Color,
+    CULLFACE_NONE,
+    Entity,
+    Geometry,
+    GraphNode,
+    LAYER_GIZMO,
+    Mesh,
+    MeshInstance,
+    Model,
+    PRIMITIVE_LINES,
+    Quat,
+    Vec3
+} from 'playcanvas';
+
 import { GIZMO_MASK } from '@/core/constants';
 
 import { createColorMaterial } from '../viewport-color-material';
@@ -14,7 +33,7 @@ editor.once('load', () => {
             return true;
         }
 
-        return (drawCall.__editor && drawCall.__zone) || drawCall.layer === pc.LAYER_GIZMO;
+        return (drawCall.__editor && drawCall.__zone) || drawCall.layer === LAYER_GIZMO;
     };
 
     // hack: override addModelToLayers to selectively put some
@@ -53,7 +72,7 @@ editor.once('load', () => {
     editor.once('viewport:load', (application) => {
         app = application;
 
-        const container = new pc.Entity();
+        const container = new Entity();
         container.name = 'zones';
         container.__editor = true;
         app.root.addChild(container);
@@ -70,23 +89,23 @@ editor.once('load', () => {
         };
         let zones = 0;
         let lastZone = null;
-        const historyPosition = new pc.Vec3();
-        const historySize = new pc.Vec3();
+        const historyPosition = new Vec3();
+        const historySize = new Vec3();
         let points = [];
         let hoverPoint = null;
         let dragPoint = null;
         let dragLength = 0;
-        const dragPos = new pc.Vec3();
+        const dragPos = new Vec3();
         let dragGizmoType = '';
         let events = [];
 
-        const vecA = new pc.Vec3();
-        const vecB = new pc.Vec3();
-        const vecC = new pc.Vec3();
-        const vecD = new pc.Vec3();
-        const quatA = new pc.Quat();
-        const quatB = new pc.Quat();
-        const quatC = new pc.Quat();
+        const vecA = new Vec3();
+        const vecB = new Vec3();
+        const vecC = new Vec3();
+        const vecD = new Vec3();
+        const quatA = new Quat();
+        const quatB = new Quat();
+        const quatC = new Quat();
 
         const axesInd = { 'x': 0, 'y': 1, 'z': 2 };
         const axes = ['z', 'x', 'z', 'x', 'y', 'y'];
@@ -108,12 +127,12 @@ editor.once('load', () => {
             ['x', 'z']  // bottom
         ];
         const materials = [
-            new pc.Color(0, 0, 1),
-            new pc.Color(1, 0, 0),
-            new pc.Color(0, 0, 1),
-            new pc.Color(1, 0, 0),
-            new pc.Color(0, 1, 0),
-            new pc.Color(0, 1, 0)
+            new Color(0, 0, 1),
+            new Color(1, 0, 0),
+            new Color(0, 0, 1),
+            new Color(1, 0, 0),
+            new Color(0, 1, 0),
+            new Color(0, 1, 0)
         ];
         for (let i = 0; i < materials.length; i++) {
             const color = materials[i];
@@ -125,9 +144,9 @@ editor.once('load', () => {
         const alphaFront = 0.6;
         const alphaBehind = 0.1;
         const colorDefault = [1, 1, 1];
-        const colorPrimary = new pc.Color(1, 1, 1, alphaFront);
-        const colorBehind = new pc.Color(1, 1, 1, alphaBehind);
-        const colorOccluder = new pc.Color(1, 1, 1, 1);
+        const colorPrimary = new Color(1, 1, 1, alphaFront);
+        const colorBehind = new Color(1, 1, 1, alphaBehind);
+        const colorOccluder = new Color(1, 1, 1, 1);
 
         // // material
         // const defaultVShader = `
@@ -179,17 +198,17 @@ editor.once('load', () => {
         // };
 
         const materialDefault = createColorMaterial(); // new pc.ShaderMaterial(shaderDesc);
-        materialDefault.cull = pc.CULLFACE_NONE;
+        materialDefault.cull = CULLFACE_NONE;
         materialDefault.color = colorPrimary;
-        materialDefault.blendState = new pc.BlendState(true, pc.BLENDEQUATION_ADD, pc.BLENDMODE_SRC_ALPHA, pc.BLENDMODE_ONE_MINUS_SRC_ALPHA);
+        materialDefault.blendState = new BlendState(true, BLENDEQUATION_ADD, BLENDMODE_SRC_ALPHA, BLENDMODE_ONE_MINUS_SRC_ALPHA);
         materialDefault.update();
 
         const materialBehind = createColorMaterial(); // new pc.ShaderMaterial(shaderDesc);
         materialBehind.color = colorBehind;
-        materialBehind.blendState = new pc.BlendState(true, pc.BLENDEQUATION_ADD, pc.BLENDMODE_SRC_ALPHA, pc.BLENDMODE_ONE_MINUS_SRC_ALPHA);
+        materialBehind.blendState = new BlendState(true, BLENDEQUATION_ADD, BLENDMODE_SRC_ALPHA, BLENDMODE_ONE_MINUS_SRC_ALPHA);
         materialBehind.depthWrite = false;
         materialBehind.depthTest = true;
-        materialBehind.cull = pc.CULLFACE_NONE;
+        materialBehind.cull = CULLFACE_NONE;
         materialBehind.update();
 
         const materialOccluder = createColorMaterial();
@@ -200,33 +219,33 @@ editor.once('load', () => {
         materialOccluder.alphaWrite = false;
         materialOccluder.depthWrite = true;
         materialOccluder.depthTest = true;
-        materialOccluder.cull = pc.CULLFACE_NONE;
+        materialOccluder.cull = CULLFACE_NONE;
         materialOccluder.update();
 
         const materialWireframe = createColorMaterial();
-        materialWireframe.color = new pc.Color(1, 1, 1, 0.4);
+        materialWireframe.color = new Color(1, 1, 1, 0.4);
         materialWireframe.depthWrite = false;
         materialWireframe.depthTest = false;
         materialWireframe.update();
 
         const materialPlaneBehind = createColorMaterial();
-        materialPlaneBehind.color = new pc.Color(1, 1, 1, 0.4);
-        materialPlaneBehind.blendState = new pc.BlendState(true, pc.BLENDEQUATION_ADD, pc.BLENDMODE_SRC_ALPHA, pc.BLENDMODE_ONE_MINUS_SRC_ALPHA);
-        materialPlaneBehind.cull = pc.CULLFACE_NONE;
+        materialPlaneBehind.color = new Color(1, 1, 1, 0.4);
+        materialPlaneBehind.blendState = new BlendState(true, BLENDEQUATION_ADD, BLENDMODE_SRC_ALPHA, BLENDMODE_ONE_MINUS_SRC_ALPHA);
+        materialPlaneBehind.cull = CULLFACE_NONE;
         materialPlaneBehind.update();
 
         const materialPlane = createColorMaterial();
-        materialPlane.color = new pc.Color(1, 1, 1, 0.1);
-        materialPlane.blendState = new pc.BlendState(true, pc.BLENDEQUATION_ADD, pc.BLENDMODE_SRC_ALPHA, pc.BLENDMODE_ONE_MINUS_SRC_ALPHA);
+        materialPlane.color = new Color(1, 1, 1, 0.1);
+        materialPlane.blendState = new BlendState(true, BLENDEQUATION_ADD, BLENDMODE_SRC_ALPHA, BLENDMODE_ONE_MINUS_SRC_ALPHA);
         materialPlane.depthTest = false;
-        materialPlane.cull = pc.CULLFACE_NONE;
+        materialPlane.cull = CULLFACE_NONE;
         materialPlane.update();
 
         const handleHighlightMaterial = createColorMaterial();
-        handleHighlightMaterial.color = new pc.Color(1, 1, 1, 0.1);
+        handleHighlightMaterial.color = new Color(1, 1, 1, 0.1);
         handleHighlightMaterial.update();
 
-        const plane = new pc.Entity();
+        const plane = new Entity();
         plane.enabled = false;
         plane.__editor = true;
         plane.addComponent('model', {
@@ -240,7 +259,7 @@ editor.once('load', () => {
 
         const instance = plane.model.meshInstances[0];
         instance.material = materialPlane;
-        const instanceBehind = new pc.MeshInstance(instance.mesh, materialPlaneBehind, instance.node);
+        const instanceBehind = new MeshInstance(instance.mesh, materialPlaneBehind, instance.node);
         plane.model.meshInstances.push(instanceBehind);
         instanceBehind.__useFrontLayer = true;
 
@@ -357,7 +376,7 @@ editor.once('load', () => {
                     self.unlink();
                 }));
 
-                this.entity = new pc.Entity();
+                this.entity = new Entity();
                 this.entity.addComponent('model', {
                     castShadows: false,
                     receiveShadows: false,
@@ -749,11 +768,11 @@ editor.once('load', () => {
                 20, 21, 22, 22, 23, 20
             ];
 
-            const geom = new pc.Geometry();
+            const geom = new Geometry();
             geom.positions = positions;
             geom.normals = normals;
             geom.indices = indices;
-            const mesh = pc.Mesh.fromGeometry(app.graphicsDevice, geom);
+            const mesh = Mesh.fromGeometry(app.graphicsDevice, geom);
 
             const wireframePositions = [
                 0.5, 0.5, 0.5,    0.5, 0.5, -0.5,   -0.5, 0.5, -0.5,   -0.5, 0.5, 0.5, // top
@@ -764,15 +783,15 @@ editor.once('load', () => {
                 0.5, -0.5, 0.5,   0.5, -0.5, -0.5,  -0.5, -0.5, -0.5,  -0.5, -0.5, 0.5 // bottom
             ];
 
-            const wireGeom = new pc.Geometry();
+            const wireGeom = new Geometry();
             wireGeom.positions = wireframePositions;
-            const meshWireframe = pc.Mesh.fromGeometry(app.graphicsDevice, wireGeom);
-            meshWireframe.primitive[0].type = pc.PRIMITIVE_LINES;
+            const meshWireframe = Mesh.fromGeometry(app.graphicsDevice, wireGeom);
+            meshWireframe.primitive[0].type = PRIMITIVE_LINES;
 
             // node
-            const node = new pc.GraphNode();
+            const node = new GraphNode();
             // meshInstance
-            const meshInstance = new pc.MeshInstance(mesh, materialDefault, node);
+            const meshInstance = new MeshInstance(mesh, materialDefault, node);
             // meshInstance.layer = 12;
             meshInstance.mask = GIZMO_MASK;
             meshInstance.__editor = true;
@@ -782,7 +801,7 @@ editor.once('load', () => {
             meshInstance.setParameter('offset', 0);
             // meshInstance.updateKey();
 
-            const meshInstanceBehind = new pc.MeshInstance(mesh, materialBehind, node);
+            const meshInstanceBehind = new MeshInstance(mesh, materialBehind, node);
             // meshInstanceBehind.layer = 2;
             meshInstanceBehind.mask = GIZMO_MASK;
             meshInstanceBehind.__editor = true;
@@ -794,7 +813,7 @@ editor.once('load', () => {
             meshInstanceBehind.setParameter('offset', 0);
             // meshInstanceBehind.updateKey();
 
-            const meshInstanceOccluder = new pc.MeshInstance(mesh, materialOccluder, node);
+            const meshInstanceOccluder = new MeshInstance(mesh, materialOccluder, node);
             // meshInstanceOccluder.layer = 9;
             meshInstanceOccluder.mask = GIZMO_MASK;
             meshInstanceOccluder.__editor = true;
@@ -805,13 +824,13 @@ editor.once('load', () => {
             meshInstanceOccluder.setParameter('offset', 0);
             // meshInstanceOccluder.updateKey();
 
-            const meshInstanceWireframe = new pc.MeshInstance(meshWireframe, materialWireframe, node);
-            // meshInstanceWireframe.layer = pc.LAYER_GIZMO;
+            const meshInstanceWireframe = new MeshInstance(meshWireframe, materialWireframe, node);
+            // meshInstanceWireframe.layer = LAYER_GIZMO;
             meshInstanceWireframe.mask = GIZMO_MASK;
             meshInstanceWireframe.__editor = true;
             // meshInstanceWireframe.updateKey();
             // model
-            const model = new pc.Model();
+            const model = new Model();
             model.graph = node;
             model.meshInstances = [meshInstance, meshInstanceBehind, meshInstanceWireframe, meshInstanceOccluder];
 

@@ -1,10 +1,12 @@
+import { Color, Vec3 } from 'playcanvas';
+
 editor.once('load', () => {
     const positions = [];
     for (let i = 0; i < 8; i++) {
-        positions.push(new pc.Vec3());
+        positions.push(new Vec3());
     }
 
-    const color = new pc.Color(1, 1, 1, 0.9);
+    const color = new Color(1, 1, 1, 0.9);
     const colors = [];
     for (let i = 0; i < 8; i++) {
         colors.push(color);

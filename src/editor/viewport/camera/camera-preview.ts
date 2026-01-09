@@ -1,4 +1,5 @@
 import { Button } from '@playcanvas/pcui';
+import { FOG_NONE, Vec4 } from 'playcanvas';
 
 editor.once('load', () => {
 
@@ -10,7 +11,7 @@ editor.once('load', () => {
     let preRenderEvent = null;
     let postRenderEvent = null;
     let events = [];
-    const rect = new pc.Vec4(0, 0.8, 0.2, 0.2);
+    const rect = new Vec4(0, 0.8, 0.2, 0.2);
     let app = null;
     let previewCamera = null;
 
@@ -70,7 +71,7 @@ editor.once('load', () => {
 
                 postRenderEvent = app.scene.on('postrender', () => {
                     if (previewCamera === camera) {
-                        app.scene.fog.type = pc.FOG_NONE;
+                        app.scene.fog.type = FOG_NONE;
                     }
                 });
 

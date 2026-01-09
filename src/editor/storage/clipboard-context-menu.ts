@@ -1,7 +1,8 @@
 import { Menu, MenuItem, Label } from '@playcanvas/pcui';
+import { Color } from 'playcanvas';
 
 
-const colorA = new pc.Color();
+const colorA = new Color();
 
 // list of asset types
 const assetTypes = config.schema.asset.type.$enum;

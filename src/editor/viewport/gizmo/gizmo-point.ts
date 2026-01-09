@@ -1,4 +1,5 @@
 import { Events } from '@playcanvas/observer';
+import { Color, CULLFACE_NONE, Entity, math, PROJECTION_PERSPECTIVE, Quat, Vec3 } from 'playcanvas';
 
 import { assignEvents } from '@/common/utils';
 import { GIZMO_MASK } from '@/core/constants';
@@ -13,22 +14,22 @@ editor.once('viewport:load', (app) => {
     let dragPoint = null;
     let mouseTap;
     let evtTapStart;
-    const pickStart = new pc.Vec3();
-    const vecA = new pc.Vec3();
-    const vecB = new pc.Vec3();
-    const vecC = new pc.Vec3();
-    const vecD = new pc.Vec3();
-    const vecE = new pc.Vec3();
-    const quatA = new pc.Quat();
+    const pickStart = new Vec3();
+    const vecA = new Vec3();
+    const vecB = new Vec3();
+    const vecC = new Vec3();
+    const vecD = new Vec3();
+    const vecE = new Vec3();
+    const quatA = new Quat();
 
-    const container = new pc.Entity();
+    const container = new Entity();
     container.name = 'gizmo-points';
     container.__editor = true;
     app.root.addChild(container);
 
     var material = createColorMaterial();
-    material.color = new pc.Color(1.0, 1.0, 1.0);
-    material.cull = pc.CULLFACE_NONE;
+    material.color = new Color(1.0, 1.0, 1.0);
+    material.cull = CULLFACE_NONE;
     material.update();
 
     const layer = editor.call('gizmo:layers', 'Axis Gizmo');
@@ -42,7 +43,7 @@ editor.once('viewport:load', (app) => {
         const planeNormal = vecC.set(0, 0, 0);
         planeNormal[dragPoint.axis] = 1;
 
-        if (camera.camera.projection === pc.PROJECTION_PERSPECTIVE) {
+        if (camera.camera.projection === PROJECTION_PERSPECTIVE) {
             rayDirection.copy(mouseWPos).sub(rayOrigin).normalize();
         } else {
             rayOrigin.add(mouseWPos);
@@ -142,9 +143,9 @@ editor.once('viewport:load', (app) => {
             assignEvents(this);
             this.axis = axis || 'y';
             this.dir = dir === undefined ? 1 : dir;
-            this.rotation = new pc.Quat();
-            this.position = new pc.Vec3();
-            this.scale = new pc.Vec3(1, 1, 1);
+            this.rotation = new Quat();
+            this.position = new Vec3();
+            this.scale = new Vec3(1, 1, 1);
         }
 
         update() {
@@ -158,9 +159,9 @@ editor.once('viewport:load', (app) => {
             let scale;
 
             // scale to screen space
-            if (camera.camera.projection === pc.PROJECTION_PERSPECTIVE) {
+            if (camera.camera.projection === PROJECTION_PERSPECTIVE) {
                 const dot = vecA.copy(pos).sub(posCamera).dot(camera.forward);
-                const denom = 1280 / (2 * Math.tan(camera.camera.fov * pc.math.DEG_TO_RAD / 2));
+                const denom = 1280 / (2 * Math.tan(camera.camera.fov * math.DEG_TO_RAD / 2));
                 scale = Math.max(0.0001, (dot / denom) * 150) * gizmoSize;
             } else {
                 scale = camera.camera.orthoHeight / 3 * gizmoSize;
@@ -175,7 +176,7 @@ editor.once('viewport:load', (app) => {
             }
 
             if (value) {
-                this.entity = new pc.Entity();
+                this.entity = new Entity();
                 this.entity.addComponent('model', {
                     type: 'box',
                     receiveShadows: false,

@@ -1,12 +1,13 @@
 import { GIZMO_MASK } from '@/core/constants';
+import { BlendState, BLENDEQUATION_ADD, BLENDMODE_ONE_MINUS_SRC_ALPHA, BLENDMODE_SRC_ALPHA, Color, Entity, Mat4, math, PROJECTION_PERSPECTIVE, Vec3 } from 'playcanvas';
 
 import { createColorMaterial } from '../viewport-color-material';
 
 editor.once('load', () => {
-    const vecA = new pc.Vec3();
-    const vecB = new pc.Vec3();
-    const vecC = new pc.Vec3();
-    const vecD = new pc.Vec3();
+    const vecA = new Vec3();
+    const vecB = new Vec3();
+    const vecC = new Vec3();
+    const vecD = new Vec3();
 
     let selectedEntity = null;
 
@@ -14,21 +15,21 @@ editor.once('load', () => {
     let moving = false;
     let mouseTap = null;
     let mouseTapMoved = false;
-    const pickStart = new pc.Vec3();
-    const posCameraLast = new pc.Vec3();
+    const pickStart = new Vec3();
+    const posCameraLast = new Vec3();
 
     let posStart = [];
     const posCurrent = [];
     const sizeStart = [0, 0];
     const sizeCurrent = [0, 0];
-    const startWorldCorners = [new pc.Vec3(), new pc.Vec3(), new pc.Vec3(), new pc.Vec3()];
-    const worldToEntitySpace = new pc.Mat4();
-    const entitySpaceToParentSpace = new pc.Mat4();
+    const startWorldCorners = [new Vec3(), new Vec3(), new Vec3(), new Vec3()];
+    const worldToEntitySpace = new Mat4();
+    const entitySpaceToParentSpace = new Mat4();
     let dirty = false;
 
-    let offset = new pc.Vec3();
-    const localOffset = new pc.Vec3();
-    const offsetWithPivot = new pc.Vec3();
+    let offset = new Vec3();
+    const localOffset = new Vec3();
+    const offsetWithPivot = new Vec3();
 
     const createGizmo = function () {
         const obj = {
@@ -39,26 +40,26 @@ editor.once('load', () => {
             handle: null
         };
 
-        obj.root = new pc.Entity();
+        obj.root = new Entity();
         obj.root.enabled = false;
 
         const createMaterial = function (color) {
             const mat = createColorMaterial();
             mat.color = color;
             if (color.a !== 1) {
-                mat.blendState = new pc.BlendState(true, pc.BLENDEQUATION_ADD, pc.BLENDMODE_SRC_ALPHA, pc.BLENDMODE_ONE_MINUS_SRC_ALPHA);
+                mat.blendState = new BlendState(true, BLENDEQUATION_ADD, BLENDMODE_SRC_ALPHA, BLENDMODE_ONE_MINUS_SRC_ALPHA);
             }
             mat.update();
             return mat;
         };
 
-        obj.matInactive = createMaterial(new pc.Color(1, 1, 0, 0.5));
-        obj.matActive = createMaterial(new pc.Color(1, 1, 0, 1));
+        obj.matInactive = createMaterial(new Color(1, 1, 0, 0.5));
+        obj.matActive = createMaterial(new Color(1, 1, 0, 1));
 
         const layer = editor.call('gizmo:layers', 'Axis Gizmo');
 
         const createHandle = function () {
-            const sphere = new pc.Entity();
+            const sphere = new Entity();
             sphere.addComponent('model', {
                 type: 'sphere',
                 layers: [layer.id]
@@ -103,7 +104,7 @@ editor.once('load', () => {
             vecC.copy(entity.forward);
             const planeNormal = vecC.mulScalar(-1);
 
-            if (camera.camera.projection === pc.PROJECTION_PERSPECTIVE) {
+            if (camera.camera.projection === PROJECTION_PERSPECTIVE) {
                 rayDirection.copy(posMouse).sub(rayOrigin).normalize();
             } else {
                 rayOrigin.add(posMouse);
@@ -150,9 +151,9 @@ editor.once('load', () => {
             const worldCorners = entity.element.worldCorners;
 
             for (let i = 0; i < 4; i++) {
-                if (camera.camera.projection === pc.PROJECTION_PERSPECTIVE) {
+                if (camera.camera.projection === PROJECTION_PERSPECTIVE) {
                     const dot = vecA.copy(worldCorners[i]).sub(posCamera).dot(camera.forward);
-                    const denom = 1280 / (2 * Math.tan(camera.camera.fov * pc.math.DEG_TO_RAD / 2));
+                    const denom = 1280 / (2 * Math.tan(camera.camera.fov * math.DEG_TO_RAD / 2));
                     scale = Math.max(0.0001, (dot / denom) * 150) * gizmoSize;
                 } else {
                     scale = camera.camera.orthoHeight / 3 * gizmoSize;

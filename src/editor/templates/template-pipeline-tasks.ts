@@ -1,8 +1,10 @@
+import { guid } from 'playcanvas';
+
 editor.once('load', () => {
     const jobsInProgress = {};
 
     function randomGuid() {
-        return pc.guid.create().substring(0, 8);
+        return guid.create().substring(0, 8);
     }
 
     function addJob(jobId, callback) {

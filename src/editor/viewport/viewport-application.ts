@@ -1,7 +1,9 @@
-let time;
-const rect = new pc.Vec4(0, 0, 1, 1);
+import { Application, Color, FOG_NONE, math, PROJECTION_PERSPECTIVE, Vec4 } from 'playcanvas';
 
-class ViewportApplication extends pc.Application {
+let time;
+const rect = new Vec4(0, 0, 1, 1);
+
+class ViewportApplication extends Application {
     constructor(canvas, options) {
         super(canvas, options);
 
@@ -32,8 +34,8 @@ class ViewportApplication extends pc.Application {
 
             if (cameraEntity.__editorCamera) {
                 const clearColor = this.editorSettings.cameraClearColor;
-                cameraEntity.camera.clearColor = new pc.Color(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
-                if (cameraEntity.camera.projection === pc.PROJECTION_PERSPECTIVE) {
+                cameraEntity.camera.clearColor = new Color(clearColor[0], clearColor[1], clearColor[2], clearColor[3]);
+                if (cameraEntity.camera.projection === PROJECTION_PERSPECTIVE) {
                     cameraEntity.camera.nearClip = this.editorSettings.cameraNearClip || 0.0001;
                     cameraEntity.camera.farClip = this.editorSettings.cameraFarClip;
                     cameraEntity.camera.toneMapping = this.editorSettings.cameraToneMapping;
@@ -42,7 +44,7 @@ class ViewportApplication extends pc.Application {
                 showFog = this.editorSettings.showFog;
             }
 
-            this.scene.fog.type = showFog ? this.sceneSettingsObserver.get('render.fog') : pc.FOG_NONE;
+            this.scene.fog.type = showFog ? this.sceneSettingsObserver.get('render.fog') : FOG_NONE;
             cameraEntity.camera.rect = rect;
         }
 
@@ -52,7 +54,7 @@ class ViewportApplication extends pc.Application {
     getDt() {
         const now = (window.performance && window.performance.now) ? performance.now() : Date.now();
         let dt = (now - (time || now)) / 1000.0;
-        dt = pc.math.clamp(dt, 0, 0.1); // Maximum delta is 0.1s or 10 fps.
+        dt = math.clamp(dt, 0, 0.1); // Maximum delta is 0.1s or 10 fps.
         time = now;
         return dt;
     }
@@ -61,8 +63,6 @@ class ViewportApplication extends pc.Application {
         const app = this;
         return function () {
             requestAnimationFrame(app.tick);
-
-            pc.app = app;
 
             const dt = app.getDt();
 

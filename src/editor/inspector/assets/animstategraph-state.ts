@@ -38,7 +38,8 @@ class AnimstategraphState extends Panel {
     _previewEntity(entityObserver) {
         const animationAssetId = entityObserver.get(`components.anim.animationAssets.${this._layerName}:${this._stateName}.asset`);
         if (animationAssetId) {
-            const animationAsset = pc.app.assets.get(animationAssetId).resource;
+            const app = editor.call('viewport:app');
+            const animationAsset = app.assets.get(animationAssetId).resource;
             const rootBoneEntity = editor.api.globals.entities.get(entityObserver.get('components.anim.rootBone'));
             if (rootBoneEntity) {
                 this._view._parent._animViewer.loadView(animationAsset, rootBoneEntity.observer.entity.clone());

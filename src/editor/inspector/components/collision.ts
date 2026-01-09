@@ -1,4 +1,5 @@
 import { InfoBox } from '@playcanvas/pcui';
+import { CollisionComponent } from 'playcanvas';
 
 import { ComponentInspector } from './component';
 import type { Attribute } from '../attribute.type.d';
@@ -160,7 +161,7 @@ class CollisionComponentInspector extends ComponentInspector {
             this._importAmmoPanel.hidden = editor.call('project:settings:hasPhysics');
         });
 
-        if (!pc.CollisionComponent.prototype.hasOwnProperty('convexHull')) {
+        if (!CollisionComponent.prototype.hasOwnProperty('convexHull')) {
             this._field('convexHull').hidden = true;
         } else {
             this._field('type').on('change', (value) => {

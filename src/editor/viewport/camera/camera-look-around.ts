@@ -1,9 +1,11 @@
+import { PROJECTION_PERSPECTIVE, Vec2 } from 'playcanvas';
+
 editor.once('viewport:load', (app) => {
     // Looking around with right mouse button
 
     let looking = false;
     const sensitivity = 0.2;
-    const vecA = new pc.Vec2();
+    const vecA = new Vec2();
     let lookCamera;
 
     let pitch = 0;
@@ -17,7 +19,7 @@ editor.once('viewport:load', (app) => {
         editor.call('camera:focus:stop');
         const camera = editor.call('camera:current');
 
-        if (camera.camera.projection === pc.PROJECTION_PERSPECTIVE) {
+        if (camera.camera.projection === PROJECTION_PERSPECTIVE) {
             looking = true;
             lookCamera = camera;
             editor.call('camera:history:start', lookCamera);
@@ -51,7 +53,7 @@ editor.once('viewport:load', (app) => {
 
         const camera = editor.call('camera:current');
 
-        if (camera.camera.projection !== pc.PROJECTION_PERSPECTIVE) {
+        if (camera.camera.projection !== PROJECTION_PERSPECTIVE) {
             return;
         }
 

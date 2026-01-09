@@ -1,3 +1,5 @@
+import { Entity } from 'playcanvas';
+
 editor.once('load', () => {
     const app = editor.call('viewport:app');
     if (!app) {
@@ -62,7 +64,7 @@ editor.once('load', () => {
                     const children = obj.entity.children;
                     let i = 0;
                     for (let len = children.length; i < len && index > 0; i++) {
-                        if (children[i] instanceof pc.Entity) {
+                        if (children[i] instanceof Entity) {
                             index--;
                         }
                     }

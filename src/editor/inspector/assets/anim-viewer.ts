@@ -1,13 +1,39 @@
 import { Container, Canvas, Label, Button, SliderInput } from '@playcanvas/pcui';
+import {
+    BLEND_NORMAL,
+    BoundingBox,
+    BUFFER_DYNAMIC,
+    Color,
+    Entity,
+    FOG_NONE,
+    GraphNode,
+    Layer,
+    LayerComposition,
+    Mat4,
+    math,
+    Mesh,
+    MeshInstance,
+    PIXELFORMAT_RGBA8,
+    PRIMITIVE_LINES,
+    RenderTarget,
+    SEMANTIC_COLOR,
+    SEMANTIC_POSITION,
+    Texture,
+    TYPE_FLOAT32,
+    TYPE_UINT8,
+    Vec3,
+    VertexBuffer,
+    VertexFormat
+} from 'playcanvas';
 
 import { createColorMaterial } from '../../viewport/viewport-color-material';
 
 class Skeleton {
-    static _boneVertex = new pc.Vec3();
+    static _boneVertex = new Vec3();
 
-    static _unitVector = new pc.Vec3(0, 1, 0);
+    static _unitVector = new Vec3(0, 1, 0);
 
-    static _rotationMatrix = new pc.Mat4();
+    static _rotationMatrix = new Mat4();
 
     static _unitBone = [
         [0, 0, 0], [-0.5, 0.3, 0],
@@ -32,29 +58,29 @@ class Skeleton {
         this._vertexCount = 0;
         this._maxVertexCount = 1024 * 2;
 
-        this._vertexFormat = new pc.VertexFormat(device, [
-            { semantic: pc.SEMANTIC_POSITION, components: 3, type: pc.TYPE_FLOAT32 },
-            { semantic: pc.SEMANTIC_COLOR, components: 4, type: pc.TYPE_UINT8, normalize: true }
+        this._vertexFormat = new VertexFormat(device, [
+            { semantic: SEMANTIC_POSITION, components: 3, type: TYPE_FLOAT32 },
+            { semantic: SEMANTIC_COLOR, components: 4, type: TYPE_UINT8, normalize: true }
         ]);
 
-        const mesh = new pc.Mesh(device);
-        mesh.vertexBuffer = new pc.VertexBuffer(device, this._vertexFormat, this._maxVertexCount, {
-            usage: pc.BUFFER_DYNAMIC
+        const mesh = new Mesh(device);
+        mesh.vertexBuffer = new VertexBuffer(device, this._vertexFormat, this._maxVertexCount, {
+            usage: BUFFER_DYNAMIC
         });
-        mesh.primitive[0].type = pc.PRIMITIVE_LINES;
+        mesh.primitive[0].type = PRIMITIVE_LINES;
         mesh.primitive[0].base = 0;
         mesh.primitive[0].indexed = false;
         this._mesh = mesh;
 
         const material = createColorMaterial();
-        material.blendType = pc.BLEND_NORMAL;
+        material.blendType = BLEND_NORMAL;
         material.depthTest = false;
-        material.color = color || new pc.Color(1, 0.4, 0, 1);
+        material.color = color || new Color(1, 0.4, 0, 1);
         material.update();
         this._material = material;
 
-        this._meshInstance = new pc.MeshInstance(mesh, material, new pc.GraphNode());
-        this._boundingBox = new pc.BoundingBox(new pc.Vec3(), new pc.Vec3(0.1, 0.1, 0.1));
+        this._meshInstance = new MeshInstance(mesh, material, new GraphNode());
+        this._boundingBox = new BoundingBox(new Vec3(), new Vec3(0.1, 0.1, 0.1));
     }
 
     setColor(color) {
@@ -75,7 +101,7 @@ class Skeleton {
         const verticesPerBone = Skeleton._unitBone.length;
         if (this._vertexCount + verticesPerBone > this._maxVertexCount) {
             // Still update bounding box even if we can't render this bone
-            this._boundingBox.add(new pc.BoundingBox(v1, new pc.Vec3(0.1, 0.1, 0.1)));
+            this._boundingBox.add(new BoundingBox(v1, new Vec3(0.1, 0.1, 0.1)));
             return;
         }
 
@@ -83,8 +109,8 @@ class Skeleton {
         const boneLength = v0.clone().sub(v1).length();
         const boneDirection = v0.clone().sub(v1).normalize();
 
-        const angle = Math.acos(Skeleton._unitVector.dot(boneDirection)) * pc.math.RAD_TO_DEG;
-        const axis = new pc.Vec3().cross(new pc.Vec3(0, 1, 0), boneDirection).normalize();
+        const angle = Math.acos(Skeleton._unitVector.dot(boneDirection)) * math.RAD_TO_DEG;
+        const axis = new Vec3().cross(new Vec3(0, 1, 0), boneDirection).normalize();
         Skeleton._rotationMatrix.setFromAxisAngle(axis, angle);
 
         const vertexData = new Float32Array(this._mesh.vertexBuffer.lock());
@@ -93,7 +119,7 @@ class Skeleton {
         for (let i = 0; i < verticesPerBone; i++) {
             let boneVertex = Skeleton._boneVertex.set(...Skeleton._unitBone[i]);
             // scale
-            boneVertex.mul(new pc.Vec3(boneLength * 0.3, -boneLength, boneLength * 0.3));
+            boneVertex.mul(new Vec3(boneLength * 0.3, -boneLength, boneLength * 0.3));
             // rotate
             boneVertex = Skeleton._rotationMatrix.transformPoint(boneVertex);
             // translate
@@ -107,7 +133,7 @@ class Skeleton {
         }
 
         // update bounding box
-        this._boundingBox.add(new pc.BoundingBox(v1, new pc.Vec3(0.1, 0.1, 0.1)));
+        this._boundingBox.add(new BoundingBox(v1, new Vec3(0.1, 0.1, 0.1)));
     }
 
     update() {
@@ -115,7 +141,7 @@ class Skeleton {
             return;
         }
         this._vertexCount = 0;
-        this._boundingBox = new pc.BoundingBox(new pc.Vec3(), new pc.Vec3(0.1, 0.1, 0.1));
+        this._boundingBox = new BoundingBox(new Vec3(), new Vec3(0.1, 0.1, 0.1));
         this._entity.children.forEach((c) => {
             this._createSkeleton(c);
         });
@@ -153,19 +179,19 @@ class AnimViewer extends Container {
         this.append(this._canvas);
         this._app = args.app;
 
-        this._layer = new pc.Layer({
+        this._layer = new Layer({
             id: -1,
             enabled: true,
             opaqueSortMode: 2,
             transparentSortMode: 3
         });
-        this._frontLayer = new pc.Layer({
+        this._frontLayer = new Layer({
             id: -2,
             enabled: true,
             opaqueSortMode: 2,
             transparentSortMode: 3
         });
-        this._layerComposition = new pc.LayerComposition('anim-viewer');
+        this._layerComposition = new LayerComposition('anim-viewer');
         this._layerComposition.push(this._layer);
         this._layerComposition.push(this._frontLayer);
 
@@ -175,15 +201,15 @@ class AnimViewer extends Container {
         this._showModel = true;
         this._renderComponents = [];
 
-        this._root = new pc.Entity('root');
+        this._root = new Entity('root');
         this._root._enabledInHierarchy = true;
         this._root.enabled = true;
 
         // create camera entity
-        this._cameraOrigin = new pc.Entity('cameraOrigin');
-        this._camera = new pc.Entity('AnimViewerCamera');
+        this._cameraOrigin = new Entity('cameraOrigin');
+        this._camera = new Entity('AnimViewerCamera');
         this._camera.addComponent('camera', {
-            clearColor: new pc.Color(41 / 255, 53 / 255, 56 / 255),
+            clearColor: new Color(41 / 255, 53 / 255, 56 / 255),
             layers: [-1, -2]
         });
         this._camera.setPosition(0, 0, 3);
@@ -193,7 +219,7 @@ class AnimViewer extends Container {
         this._rotationY = 45;
 
         // create directional light entity
-        this._light = new pc.Entity('light');
+        this._light = new Entity('light');
         this._light.addComponent('light', {
             type: 'directional',
             layers: []
@@ -340,13 +366,13 @@ class AnimViewer extends Container {
         const width = this._width;
         const height = this._height;
 
-        const texture = new pc.Texture(this._app.graphicsDevice, {
+        const texture = new Texture(this._app.graphicsDevice, {
             width: width,
             height: height,
-            format: pc.PIXELFORMAT_RGBA8
+            format: PIXELFORMAT_RGBA8
         });
 
-        const target = new pc.RenderTarget({
+        const target = new RenderTarget({
             name: 'AnimViewerRT',
             colorBuffer: texture
         });
@@ -387,7 +413,7 @@ class AnimViewer extends Container {
         this._animTrack = animTrack;
         this._skeleton = null;
         if (entity && entity.model) {
-            this._entity = new pc.Entity('entity');
+            this._entity = new Entity('entity');
             this._entity.addComponent('model', {
                 type: 'asset'
             });
@@ -462,7 +488,7 @@ class AnimViewer extends Container {
 
         // create the skeleton
         if (this._renderComponents.length > 0 || this._entity?.model?.meshInstances?.length > 0) {
-            this._skeleton = new Skeleton(this._app, this._entity, new pc.Color(1, 1, 1, 0.5));
+            this._skeleton = new Skeleton(this._app, this._entity, new Color(1, 1, 1, 0.5));
         } else {
             this._skeleton = new Skeleton(this._app, this._entity);
         }
@@ -511,9 +537,9 @@ class AnimViewer extends Container {
 
             if (this._renderComponents.length > 0 || this._entity.model && this._entity.model.meshInstances.length > 0) {
                 if (this._showModel) {
-                    this._skeleton.setColor(new pc.Color(1, 1, 1, 0.5));
+                    this._skeleton.setColor(new Color(1, 1, 1, 0.5));
                 } else {
-                    this._skeleton.setColor(new pc.Color(1, 0.4, 0, 1));
+                    this._skeleton.setColor(new Color(1, 0.4, 0, 1));
                 }
             }
         }
@@ -567,10 +593,10 @@ class AnimViewer extends Container {
 
         // disable fog
         const backupFogType = this._app.scene.fog.type;
-        this._app.scene.fog.type = pc.FOG_NONE;
+        this._app.scene.fog.type = FOG_NONE;
 
         const backupAmbientLight = this._app.scene.ambientLight;
-        this._app.scene.ambientLight = new pc.Color(0.5, 0.5, 0.5);
+        this._app.scene.ambientLight = new Color(0.5, 0.5, 0.5);
 
         this._app.renderComposition(this._layerComposition);
 

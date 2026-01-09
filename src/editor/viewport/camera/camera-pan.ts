@@ -1,14 +1,16 @@
+import { PROJECTION_PERSPECTIVE, Vec2, Vec3 } from 'playcanvas';
+
 editor.once('viewport:load', (app) => {
     // Panning with left mouse button while shift key is down
 
     let panning = false;
     let panCamera;
     let shiftKey = false;
-    const vecA = new pc.Vec2();
-    const vecB = new pc.Vec3();
-    const vecC = new pc.Vec3();
-    const vecD = new pc.Vec3();
-    const panPoint = new pc.Vec3();
+    const vecA = new Vec2();
+    const vecB = new Vec3();
+    const vecC = new Vec3();
+    const vecD = new Vec3();
+    const panPoint = new Vec3();
     let grabbed = false;
     let panButton = 0;
 
@@ -29,7 +31,7 @@ editor.once('viewport:load', (app) => {
             const rayDirection = vecC.set(0, 0, -1);
             const planeNormal = vecD.copy(camera.forward);
 
-            if (camera.camera.projection === pc.PROJECTION_PERSPECTIVE) {
+            if (camera.camera.projection === PROJECTION_PERSPECTIVE) {
                 rayDirection.copy(mouseWPos).sub(rayOrigin).normalize();
             } else {
                 rayOrigin.copy(mouseWPos);
