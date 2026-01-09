@@ -1,5 +1,6 @@
-import { WorkerClient } from '@/core/worker/worker-client';
 import { RenderTarget } from 'playcanvas';
+
+import { WorkerClient } from '@/core/worker/worker-client';
 
 // read the pixel data of the given texture face
 const readGPUPixels = (texture, face) => {

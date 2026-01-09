@@ -1,5 +1,6 @@
-import { FORCE_PICK_TAG, GIZMO_MASK } from '@/core/constants';
 import { BlendState, BLENDEQUATION_ADD, BLENDMODE_ONE_MINUS_SRC_ALPHA, BLENDMODE_SRC_ALPHA, Color, Entity, math, PROJECTION_PERSPECTIVE, Quat, Vec3 } from 'playcanvas';
+
+import { FORCE_PICK_TAG, GIZMO_MASK } from '@/core/constants';
 
 import { createColorMaterial } from '../viewport-color-material';
 

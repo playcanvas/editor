@@ -1,5 +1,5 @@
-import { GltfExporter, UsdzExporter } from 'playcanvas';
 import { Menu, MenuItem } from '@playcanvas/pcui';
+import { GltfExporter, UsdzExporter } from 'playcanvas';
 
 import { formatShortcut } from '../../common/utils';
 

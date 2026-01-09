@@ -1,5 +1,5 @@
-import { LAYERID_DEPTH, Mouse, TouchDevice, WasmModule } from 'playcanvas';
 import { Canvas } from '@playcanvas/pcui';
+import { LAYERID_DEPTH, Mouse, TouchDevice, WasmModule } from 'playcanvas';
 
 import { ViewportApplication } from './viewport-application';
 

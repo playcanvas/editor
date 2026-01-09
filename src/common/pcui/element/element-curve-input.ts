@@ -1,5 +1,5 @@
-import { Curve } from 'playcanvas';
 import { Element, Canvas } from '@playcanvas/pcui';
+import { Curve } from 'playcanvas';
 
 import { deepCopy } from '../../utils';
 import { CLASS_MULTIPLE_VALUES } from '../constants';

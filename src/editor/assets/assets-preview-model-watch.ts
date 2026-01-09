@@ -1,5 +1,6 @@
-import { buildQueryUrl } from '@/common/utils';
 import { ABSOLUTE_URL } from 'playcanvas';
+
+import { buildQueryUrl } from '@/common/utils';
 
 editor.once('load', () => {
     const app = editor.call('viewport:app');
