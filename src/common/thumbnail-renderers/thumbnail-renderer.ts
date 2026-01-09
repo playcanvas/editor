@@ -1,6 +1,5 @@
-import { Layer, LayerComposition, PIXELFORMAT_RGBA8, RenderTarget, Texture } from 'playcanvas';
 import { Observer } from '@playcanvas/observer';
-import type { GraphicsDevice } from 'playcanvas';
+import { type GraphicsDevice, Layer, LayerComposition, PIXELFORMAT_RGBA8, RenderTarget, Texture } from 'playcanvas';
 
 /**
  * Singleton Thumbnail Renderer

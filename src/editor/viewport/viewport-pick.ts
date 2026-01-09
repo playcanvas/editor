@@ -1,5 +1,6 @@
-import { FORCE_PICK_TAG } from '@/core/constants';
 import { Entity, Picker, Vec2 } from 'playcanvas';
+
+import { FORCE_PICK_TAG } from '@/core/constants';
 
 editor.once('load', () => {
     const app = editor.call('viewport:app');

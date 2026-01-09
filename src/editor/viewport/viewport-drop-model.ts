@@ -1,4 +1,5 @@
 import { BoundingBox, Entity as PcEntity, Vec3 } from 'playcanvas';
+
 import { Entity } from '@playcanvas/editor-api';
 
 editor.once('load', () => {
