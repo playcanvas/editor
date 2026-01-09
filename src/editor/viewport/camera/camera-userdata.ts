@@ -1,3 +1,5 @@
+import { PROJECTION_ORTHOGRAPHIC, Quat } from 'playcanvas';
+
 editor.once('camera:load', () => {
     const userdata = editor.call('userdata');
     let camera = editor.call('camera:current');
@@ -22,7 +24,7 @@ editor.once('camera:load', () => {
                 userdata.set(`cameras.${name}.focus`, [focus.x, focus.y, focus.z]);
             }
 
-            if (camera.camera.projection === pc.PROJECTION_ORTHOGRAPHIC) {
+            if (camera.camera.projection === PROJECTION_ORTHOGRAPHIC) {
                 const orthoHeight = camera.camera.orthoHeight;
                 if (data.orthoHeight !== orthoHeight) {
                     userdata.set(`cameras.${name}.orthoHeight`, orthoHeight);
@@ -43,7 +45,7 @@ editor.once('camera:load', () => {
 
             const rotA = camera.getLocalRotation();
             const rotOld = obj.get('rotation');
-            const rotB = new pc.Quat();
+            const rotB = new Quat();
             rotB.setFromEulerAngles(rotOld[0], rotOld[1], rotOld[2]);
             const theta = rotA.w * rotB.w + rotA.x * rotB.x + rotA.y * rotB.y + rotA.z * rotB.z;
 
@@ -54,7 +56,7 @@ editor.once('camera:load', () => {
                 }
             }
 
-            if (camera.camera.projection === pc.PROJECTION_ORTHOGRAPHIC) {
+            if (camera.camera.projection === PROJECTION_ORTHOGRAPHIC) {
                 const orthoHeight = camera.camera.orthoHeight;
                 if (obj.get('components.camera.orthoHeight') !== orthoHeight) {
                     obj.set('components.camera.orthoHeight', orthoHeight);

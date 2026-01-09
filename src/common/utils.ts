@@ -477,9 +477,9 @@ export const handleCallback = <T extends { on: (event: string, handler: (status:
  */
 export const validateEnginePath = (path: string) => {
     const parts = path.split('.');
-    let obj = pc;
+    let obj: any = pc;
     for (let i = 0; i < parts.length; i++) {
-        if (!obj.hasOwnProperty(parts[i]) && obj[parts[i]] === undefined) {
+        if (!(parts[i] in obj) && obj[parts[i]] === undefined) {
             return false;
         }
         obj = obj[parts[i]];

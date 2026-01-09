@@ -1,3 +1,5 @@
+import { StandardMaterial, Vec2, Vec4 } from 'playcanvas';
+
 editor.once('load', () => {
     const app = editor.call('viewport:app');
     if (!app) {
@@ -48,9 +50,9 @@ editor.once('load', () => {
                     if (assetEngine.resource) {
                         if (frame) {
                             assetEngine.resource.setFrame(frameKey, {
-                                rect: new pc.Vec4(frame.rect),
-                                pivot: new pc.Vec2(frame.pivot),
-                                border: new pc.Vec4(frame.border)
+                                rect: new Vec4(frame.rect),
+                                pivot: new Vec2(frame.pivot),
+                                border: new Vec4(frame.border)
                             });
                         }
                     }
@@ -119,8 +121,8 @@ editor.once('load', () => {
     });
 
     // patch update for materials to re-render the viewport
-    const update = pc.StandardMaterial.prototype.update;
-    pc.StandardMaterial.prototype.update = function () {
+    const update = StandardMaterial.prototype.update;
+    StandardMaterial.prototype.update = function () {
         update.call(this);
         editor.call('viewport:render');
     };
