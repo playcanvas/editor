@@ -438,7 +438,6 @@ class AssetInspector extends Container {
         });
         this._btnEditAssetInVSCode.on('click', this._onClickEditAssetInVSCode.bind(this));
         this._containerButtons.append(this._btnEditAssetInVSCode);
-
         // add edit button
         this._btnEditSprite = new Button({
             text: 'SPRITE EDITOR',
