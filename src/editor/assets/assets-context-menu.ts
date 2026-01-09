@@ -538,18 +538,6 @@ editor.once('load', () => {
     });
     menu.append(menuItemEdit);
 
-    // edit in VSCode
-    const menuItemEditInVSCode = new MenuItem({
-        text: `${editor.call('permissions:write') ? 'Edit' : 'View'} In VSCode`,
-        icon: ICONS.EDIT,
-        onSelect: () => {
-            const projectName = `${config.project.name} (${config.project.id})`;
-            const filePath = editor.call('assets:virtualPath', currentAsset);
-            window.open(`vscode://playcanvas.playcanvas/${projectName}${filePath}`);
-        }
-    });
-    menu.append(menuItemEditInVSCode);
-
     // duplicate
     const menuItemDuplicate = new MenuItem({
         text: 'Duplicate',
@@ -888,9 +876,6 @@ editor.once('load', () => {
             menuItemMoveToStore.hidden = true;
             menuItemOpenInViewer.hidden = true;
         }
-
-        // bind vscode edit to edit menu item
-        menuItemEditInVSCode.hidden = menuItemEdit.hidden;
     });
 
 
