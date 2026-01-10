@@ -198,24 +198,11 @@ editor.once('load', () => {
             (fieldPosition.inputs[field] as NumericInput).max = maxPos;
         };
 
+        // Max size is the full texture dimension since we adjust position
+        // when the new size would exceed the boundary
         const updateMaxSize = (field: number): void => {
             const dimension = field === 0 ? atlasImage.width : atlasImage.height;
-            let maxSize = dimension;
-
-            const rectIndex = field === 0 ? 0 : 1;
-
-            const frameData = atlasAsset.getRaw('data.frames')._data;
-
-            for (let i = 0, len = frames.length; i < len; i++) {
-                const f = frameData[frames[i]];
-                if (!f) {
-                    continue;
-                }
-                const rect = f._data.rect;
-                maxSize = Math.min(maxSize, dimension - rect[rectIndex]);
-            }
-
-            (fieldSize.inputs[field] as NumericInput).max = maxSize;
+            (fieldSize.inputs[field] as NumericInput).max = dimension;
         };
 
         // Updates a position or size input from rect values
@@ -306,12 +293,17 @@ editor.once('load', () => {
         });
 
         // Updates the rect of the selected frames adjusting
-        // their borders if necessary.
+        // their position and borders if necessary.
         const updateSizeAndAdjustBorder = (value: number, isHeight: boolean): void => {
-            let prev: Record<string, { value: number; border: number[] }> | null = null;
+            let prev: Record<string, { position: number; size: number; border: number[] }> | null = null;
 
-            const rect = isHeight ? 3 : 2;
-            const border = isHeight ? 1 : 0;
+            const posIdx = isHeight ? 1 : 0;
+            const sizeIdx = isHeight ? 3 : 2;
+            const borderIdx = isHeight ? 1 : 0;
+            const dimension = isHeight ? atlasImage.height : atlasImage.width;
+
+            // Clamp size to the texture dimension
+            const clampedValue = Math.min(value, dimension);
 
             const redo = (): void => {
                 const asset = editor.call('assets:get', atlasAsset.get('id'));
@@ -329,26 +321,38 @@ editor.once('load', () => {
                         continue;
                     }
 
-                    if (frame._data.rect[rect] !== value) {
+                    const currentPos = frame._data.rect[posIdx];
+                    const currentSize = frame._data.rect[sizeIdx];
+
+                    if (currentSize !== clampedValue) {
                         if (!prev) {
                             prev = {};
                         }
 
                         prev[frames[i]] = {
-                            value: frame._data.rect[rect],
-                            border: [frame._data.border[border], frame._data.border[border + 2]]
+                            position: currentPos,
+                            size: currentSize,
+                            border: [frame._data.border[borderIdx], frame._data.border[borderIdx + 2]]
                         };
 
-                        // set property
-                        asset.set(`data.frames.${frames[i]}.rect.${rect}`, value);
-
-                        // check if border needs to be adjusted
-                        if (frame._data.border[border] > value - frame._data.border[border + 2]) {
-                            asset.set(`data.frames.${frames[i]}.border.${border}`, Math.max(0, value - frame._data.border[border + 2]));
+                        // Check if the new size would exceed the boundary
+                        // and adjust position if necessary
+                        let newPos = currentPos;
+                        if (currentPos + clampedValue > dimension) {
+                            newPos = Math.max(0, dimension - clampedValue);
+                            asset.set(`data.frames.${frames[i]}.rect.${posIdx}`, newPos);
                         }
 
-                        if (frame._data.border[border + 2] > value - frame._data.border[border]) {
-                            asset.set(`data.frames.${frames[i]}.border.${border + 2}`, Math.max(0, value - frame._data.border[border]));
+                        // Set the new size
+                        asset.set(`data.frames.${frames[i]}.rect.${sizeIdx}`, clampedValue);
+
+                        // Check if border needs to be adjusted
+                        if (frame._data.border[borderIdx] > clampedValue - frame._data.border[borderIdx + 2]) {
+                            asset.set(`data.frames.${frames[i]}.border.${borderIdx}`, Math.max(0, clampedValue - frame._data.border[borderIdx + 2]));
+                        }
+
+                        if (frame._data.border[borderIdx + 2] > clampedValue - frame._data.border[borderIdx]) {
+                            asset.set(`data.frames.${frames[i]}.border.${borderIdx + 2}`, Math.max(0, clampedValue - frame._data.border[borderIdx]));
                         }
                     }
                 }
@@ -372,9 +376,10 @@ editor.once('load', () => {
                         continue;
                     }
 
-                    asset.set(`data.frames.${key}.rect.${rect}`, prev[key].value);
-                    asset.set(`data.frames.${key}.border.${border}`, prev[key].border[0]);
-                    asset.set(`data.frames.${key}.border.${border + 2}`, prev[key].border[1]);
+                    asset.set(`data.frames.${key}.rect.${posIdx}`, prev[key].position);
+                    asset.set(`data.frames.${key}.rect.${sizeIdx}`, prev[key].size);
+                    asset.set(`data.frames.${key}.border.${borderIdx}`, prev[key].border[0]);
+                    asset.set(`data.frames.${key}.border.${borderIdx + 2}`, prev[key].border[1]);
                 }
 
                 asset.history.enabled = history;
