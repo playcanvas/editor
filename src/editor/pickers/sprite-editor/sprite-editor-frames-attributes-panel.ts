@@ -337,9 +337,8 @@ editor.once('load', () => {
 
                         // Check if the new size would exceed the boundary
                         // and adjust position if necessary
-                        let newPos = currentPos;
                         if (currentPos + clampedValue > dimension) {
-                            newPos = Math.max(0, dimension - clampedValue);
+                            const newPos = Math.max(0, dimension - clampedValue);
                             asset.set(`data.frames.${frames[i]}.rect.${posIdx}`, newPos);
                         }
 
