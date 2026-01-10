@@ -220,6 +220,7 @@ class AnimViewer extends Container {
         // listen for mouse events
         let mouseDown = false;
         this._zoom = 1;
+        this._cameraDistance = 3;
         this._canvas.dom.addEventListener('mousedown', (e) => {
             if (e.button === 0) {
                 mouseDown = true;
