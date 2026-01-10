@@ -219,6 +219,7 @@ class AnimViewer extends Container {
 
         // listen for mouse events
         let mouseDown = false;
+        this._zoom = 1;
         this._canvas.dom.addEventListener('mousedown', (e) => {
             if (e.button === 0) {
                 mouseDown = true;
@@ -239,6 +240,12 @@ class AnimViewer extends Container {
                 requestAnimationFrame(() => this.render(0));
             }
         });
+        this._canvas.dom.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            this._zoom = Math.min(Math.max(this._zoom + e.deltaY * 0.001, 0.1), 5);
+            this._camera.setLocalPosition(0, 0, this._cameraDistance * this._zoom);
+            requestAnimationFrame(() => this.render(0));
+        });
     }
 
     displayMessage(text) {
@@ -255,12 +262,12 @@ class AnimViewer extends Container {
 
     _setPlaying() {
         this._playing = true;
-        this._playButton.text = 'Pause';
+        this._playButton.icon = 'E135';
     }
 
     _setPaused() {
         this._playing = false;
-        this._playButton.text = 'Play';
+        this._playButton.icon = 'E286';
     }
 
     set showSkeleton(value) {
@@ -292,7 +299,7 @@ class AnimViewer extends Container {
 
         this._playButton = new Button({
             class: 'anim-viewer-play-button',
-            text: 'Pause'
+            icon: 'E286'
         });
 
         this._playButton.on('click', () => {
@@ -522,7 +529,23 @@ class AnimViewer extends Container {
             if (!this._showSkeleton) {
                 this._skeleton.update();
             }
-            this._cameraOrigin.setLocalPosition(0, this._skeleton.boundingBox.center.y, 0);
+
+            // Compute combined bounding box from skeleton and mesh instances
+            const bounds = this._skeleton.boundingBox.clone();
+            if (this._entityMeshInstances) {
+                this._entityMeshInstances.forEach((mi) => {
+                    bounds.add(mi.aabb);
+                });
+            }
+            if (this._renderComponents) {
+                this._renderComponents.forEach((render) => {
+                    render.meshInstances.forEach((mi) => {
+                        bounds.add(mi.aabb);
+                    });
+                });
+            }
+
+            this._cameraOrigin.setLocalPosition(bounds.center);
             this._rotationX = -15;
             this._rotationY = 45;
             this._cameraOrigin.setLocalEulerAngles(
@@ -531,8 +554,10 @@ class AnimViewer extends Container {
                 0
             );
 
-            const { x, y, z } = this._skeleton.boundingBox.halfExtents;
-            this._camera.setLocalPosition(0, 0, Math.max(x, y, z) * 3.5);
+            const { x, y, z } = bounds.halfExtents;
+            this._cameraDistance = Math.max(x, y, z) * 3.5;
+            this._zoom = 1;
+            this._camera.setLocalPosition(0, 0, this._cameraDistance);
             this._setupCamera = false;
         }
 
