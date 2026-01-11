@@ -495,10 +495,14 @@ class AnimstategraphView {
                             // Always delete the specific edge from the graph
                             this._graph.deleteEdge(key, true);
 
-                            // Find remaining transitions on the same from-to path
+                            // Find remaining transitions on the same from-to path in the current layer
+                            const layerTransitionIds = new Set(newValue.layers?.[this._selectedLayer]?.transitions || []);
                             const remainingTransitions = Object.entries(newValue.transitions || {})
-                            .filter(([_, t]: [string, { from: number; to: number }]) => t.from === deletedTransition.from && t.to === deletedTransition.to
-                            );
+                                .filter(([id, t]: [string, { from: number; to: number }]) =>
+                                    layerTransitionIds.has(Number(id)) &&
+                                    t.from === deletedTransition.from &&
+                                    t.to === deletedTransition.to
+                                );
 
                             if (remainingTransitions.length > 0) {
                                 // Re-create remaining edges to force adjustVertices to recalculate positions
