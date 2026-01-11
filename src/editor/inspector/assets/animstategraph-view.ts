@@ -497,9 +497,8 @@ class AnimstategraphView {
 
                             // Find remaining transitions on the same from-to path
                             const remainingTransitions = Object.entries(newValue.transitions || {})
-                                .filter(([_, t]: [string, { from: number; to: number }]) =>
-                                    t.from === deletedTransition.from && t.to === deletedTransition.to
-                                );
+                            .filter(([_, t]: [string, { from: number; to: number }]) => t.from === deletedTransition.from && t.to === deletedTransition.to
+                            );
 
                             if (remainingTransitions.length > 0) {
                                 // Re-create remaining edges to force adjustVertices to recalculate positions
