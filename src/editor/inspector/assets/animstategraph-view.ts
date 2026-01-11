@@ -490,10 +490,28 @@ class AnimstategraphView {
                         }
                         if (transitionKey.includes('__deleted')) {
                             const key = transitionKey.replace('__deleted', '');
+                            const deletedTransition = updates.transitions[transitionKey];
+
+                            // Always delete the specific edge from the graph
                             this._graph.deleteEdge(key, true);
-                            const actualTransition = updates.transitions[transitionKey];
-                            if (this._parent._transitionsContainer._edge === `${actualTransition.from}-${actualTransition.to}`) {
-                                this._parent._transitionsContainer.unlink();
+
+                            // Find remaining transitions on the same from-to path
+                            const remainingTransitions = Object.entries(newValue.transitions || {})
+                                .filter(([_, t]: [string, { from: number; to: number }]) =>
+                                    t.from === deletedTransition.from && t.to === deletedTransition.to
+                                );
+
+                            if (remainingTransitions.length > 0) {
+                                // Re-create remaining edges to force adjustVertices to recalculate positions
+                                remainingTransitions.forEach(([id, t]) => {
+                                    this._graph.deleteEdge(id, true);
+                                    this._graph.createEdge(t, id, true);
+                                });
+                            } else {
+                                // Only unlink if no remaining transitions exist on this path
+                                if (this._parent._transitionsContainer._edge === `${deletedTransition.from}-${deletedTransition.to}`) {
+                                    this._parent._transitionsContainer.unlink();
+                                }
                             }
                         }
                         const transition = updates.transitions[transitionKey];
