@@ -550,6 +550,11 @@ class AssetInspector extends Container {
             this._licenseTypes = await editor.call('picker:store:licenses');
         }
 
+        // Re-check after async operation since unlink() could have been called
+        if (!this._assets) {
+            return;
+        }
+
         const licenses = this._assets.map((asset) => {
             return asset.get('license') &&  this._buildLicenseHtml(asset.get('license.id'));
         });
