@@ -156,7 +156,8 @@ class RelayServer extends Events {
         try {
             msg = JSON.parse(raw.data);
         } catch (ex) {
-            this._onerror(new Error(`Failed to parse relay message: ${ex.message} (preview: ${raw.data.slice(0, 100)})`));
+            const preview = String(raw?.data ?? '').slice(0, 100);
+            this._onerror(new Error(`Failed to parse relay message: ${ex.message} (preview: ${preview})`));
             return;
         }
 
