@@ -70,7 +70,7 @@ class RelayServer extends Events {
         this.socket = new WebSocket(this._url);
         this.socket.onopen = this._onopen.bind(this);
         this.socket.onmessage = this._onmessage.bind(this);
-        this.socket.onerror = this._onerror.bind(this);
+        this.socket.onerror = () => this._onerror(new Error('WebSocket error'));
         this.socket.onclose = this._onclose.bind(this);
     }
 
@@ -137,7 +137,7 @@ class RelayServer extends Events {
         this.reconnect();
     }
 
-    _onerror(error) {
+    _onerror(error: Error) {
         this._connecting = false;
         console.error(error);
         this.emit('error', error);
