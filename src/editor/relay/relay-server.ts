@@ -71,8 +71,7 @@ class RelayServer extends Events {
         this.socket.onopen = this._onopen.bind(this);
         this.socket.onmessage = this._onmessage.bind(this);
         this.socket.onerror = () => {
-            const state = this._connected ? 'connected' :
-                          this._connecting ? 'connecting' : 'disconnected';
+            const state = this._connected ? 'connected' : this._connecting ? 'connecting' : 'disconnected';
             this._onerror(new Error(`WebSocket error (state: ${state}, url: ${this._url}, attempts: ${this._connectAttempts})`));
         };
         this.socket.onclose = this._onclose.bind(this);
