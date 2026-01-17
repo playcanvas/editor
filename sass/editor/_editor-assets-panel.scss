@@ -28,30 +28,6 @@
             }
         }
     }
-
-    .pcui-container.progress-overlay {
-        z-index: 10;
-        position: absolute;
-        inset: 0;
-        background-color: $bcg-primary;
-        justify-content: center;
-        align-items: center;
-        flex-direction: row;
-        opacity: 1;
-        visibility: visible;
-        transition: visibility 100ms, opacity 100ms;
-
-        &.pcui-hidden {
-            display: inherit;
-            visibility: hidden;
-            opacity: 0;
-        }
-
-        > .ui-progress {
-            flex-basis: 128px;
-            height: 4px;
-        }
-    }
 }
 
 .pcui-asset-panel {
