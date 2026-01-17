@@ -98,13 +98,14 @@ editor.once('load', () => {
                 // If the asset is an ESM script, load its dependencies
                 if (importSubModules && asset.get('file.filename').endsWith('.mjs')) {
                     const importingAssetPath = editor.call('assets:virtualPath', asset);
+                    if (importingAssetPath) {
+                        // Return the immediate dependencies of the asset
+                        const deps = editor.call('utils:deps-from-string', content, importingAssetPath);
+                        const depsAsAsset = Array.from(deps).map(path => editor.call('assets:getByVirtualPath', path));
 
-                    // Return the immediate dependencies of the asset
-                    const deps = editor.call('utils:deps-from-string', content, importingAssetPath);
-                    const depsAsAsset = Array.from(deps).map(path => editor.call('assets:getByVirtualPath', path));
-
-                    // And load them, ensuring that Monaco can resolve dependencies
-                    depsAsAsset.forEach(asset => loadDocument(asset, false));
+                        // And load them, ensuring that Monaco can resolve dependencies
+                        depsAsAsset.forEach(asset => loadDocument(asset, false));
+                    }
                 }
 
                 const dirty = doc.data !== content;

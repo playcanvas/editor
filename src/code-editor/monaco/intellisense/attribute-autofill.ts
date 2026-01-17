@@ -169,7 +169,7 @@ const fetchModuleScripts = async (
     const deletedFiles = [];
 
     // loop over the file cache, remove any files that do no exist in the script assets
-    const assetPaths: string[] = assets.map(asset => editor.call('assets:virtualPath', asset));
+    const assetPaths: string[] = assets.map(asset => editor.call('assets:virtualPath', asset)).filter(Boolean);
     for (const filePath in cache) {
         if (!assetPaths.includes(filePath)) {
             deletedFiles.push(filePath);
@@ -185,7 +185,7 @@ const fetchModuleScripts = async (
 
         // skip filtered paths
         const path: string = editor.call('assets:virtualPath', asset);
-        if (filter.includes(path)) {
+        if (!path || filter.includes(path)) {
             return acc;
         }
 
@@ -486,7 +486,9 @@ editor.once('load', () => {
 
             // fetch scripts
             const asset = editor.call('view:asset', model.id);
+            if (!asset) return;
             const path = editor.call('assets:virtualPath', asset);
+            if (!path) return;
             const [scripts, deletedFiles] = await fetchModuleScripts(fileCache, [path]);
             scripts.push([path, value]);
             scripts.push(['/playcanvas.d.ts', types]);
@@ -697,13 +699,13 @@ editor.once('load', () => {
         /**
          * Initialize the request for a given model
          *
-         * @param {string} assetId - The asset id
+         * @param assetId - The asset id
          */
-        const init = async (assetId) => {
+        const init = async (assetId: string) => {
             if (!assetId) {
                 return;
             }
-            const model: Monaco.editor.ITextModel = (editor.call('views:get', assetId));
+            const model: Monaco.editor.ITextModel = editor.call('views:get', assetId);
             if (!model) {
                 // FIXME: View is not defined sometimes
                 console.warn('No view found with id:', assetId);
@@ -711,7 +713,9 @@ editor.once('load', () => {
             }
 
             // check if module
-            const name = editor.call('assets:get', assetId).get('name') ?? '';
+            const asset = editor.call('assets:get', assetId);
+            if (!asset) return;
+            const name = asset.get('name') ?? '';
             if (!/\.mjs$/.test(name)) {
                 return;
             }
