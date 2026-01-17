@@ -486,9 +486,13 @@ editor.once('load', () => {
 
             // fetch scripts
             const asset = editor.call('view:asset', model.id);
-            if (!asset) return;
+            if (!asset) {
+                return;
+            }
             const path = editor.call('assets:virtualPath', asset);
-            if (!path) return;
+            if (!path) {
+                return;
+            }
             const [scripts, deletedFiles] = await fetchModuleScripts(fileCache, [path]);
             scripts.push([path, value]);
             scripts.push(['/playcanvas.d.ts', types]);
@@ -714,7 +718,9 @@ editor.once('load', () => {
 
             // check if module
             const asset = editor.call('assets:get', assetId);
-            if (!asset) return;
+            if (!asset) {
+                return;
+            }
             const name = asset.get('name') ?? '';
             if (!/\.mjs$/.test(name)) {
                 return;

@@ -20,7 +20,9 @@ editor.on('assets:load', () => {
             }
 
             const path = editor.call('assets:virtualPath', asset);
-            if (!path) return;
+            if (!path) {
+                return;
+            }
 
             // Add the asset to the trie and update the asset path map
             assetPathMap.set(asset, path);

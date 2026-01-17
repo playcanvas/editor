@@ -319,7 +319,9 @@ editor.once('load', () => {
 
     editor.method('asset:update-dependencies', async (asset) => {
         const filePath = editor.call('assets:virtualPath', asset);
-        if (!filePath) return;
+        if (!filePath) {
+            return;
+        }
 
         // Fetch the dependencies for the asset
         const deps = await getDependenciesForAsset(asset);
