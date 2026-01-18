@@ -258,12 +258,10 @@ function copyEntities(entities: Entity[]) {
     };
 
     // build index
-    const selection: Record<string, Entity> = {};
-    const resourceIds = entities.map((entity) => {
-        const resourceId = entity.get('resource_id');
-        selection[resourceId] = entity;
-        return resourceId;
-    });
+    const selection: Record<string, Entity> = Object.fromEntries(
+        entities.map(entity => [entity.get('resource_id'), entity])
+    );
+    const resourceIds = Object.keys(selection);
 
     data.value = resourceIds.length === 1 ? resourceIds[0] : resourceIds;
 
