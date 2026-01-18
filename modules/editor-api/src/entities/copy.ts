@@ -254,13 +254,22 @@ function copyEntities(entities: Entity[]) {
         legacy_scripts: api.hasLegacyScripts,
         hierarchy: {},
         assets: {},
-        type: 'entity'
+        type: 'entity',
+        value: entities.length === 1 ? null : []
     };
 
     // build index
     const selection: Record<string, Entity> = {};
     for (let i = 0; i < entities.length; i++) {
-        selection[entities[i].get('resource_id')] = entities[i];
+        const resourceId = entities[i].get('resource_id');
+
+        selection[resourceId] = entities[i];
+
+        if (entities.length > 1) {
+            data.value.push(resourceId);
+        } else {
+            data.value = resourceId;
+        }
     }
 
     sortEntities(entities);
