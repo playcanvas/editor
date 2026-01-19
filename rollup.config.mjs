@@ -147,8 +147,12 @@ const PAGE_TARGETS = [
         output: {
             file: 'dist/js/launch.js',
             format: 'umd',
-            sourcemap
+            sourcemap,
+            globals: {
+                'playcanvas': 'pc'
+            }
         },
+        external: ['playcanvas'],
         plugins: plugins()
     }
 ];

@@ -1,12 +1,5 @@
-// Required for Editor blank page, where "pc" is not loaded.
-const pc = typeof window.pc !== 'undefined' ? window.pc : {
-    Layer: class {},
-    RenderTarget: class {},
-    LayerComposition: class {}
-};
-
 import { Observer } from '@playcanvas/observer';
-import type { GraphicsDevice } from 'playcanvas';
+import { type GraphicsDevice, Layer, LayerComposition, PIXELFORMAT_RGBA8, RenderTarget, Texture } from 'playcanvas';
 
 /**
  * Singleton Thumbnail Renderer
@@ -14,7 +7,7 @@ import type { GraphicsDevice } from 'playcanvas';
 class ThumbnailRenderer extends Observer {
     static renderTargets = new Map();
 
-    static _layer = new pc.Layer({
+    static _layer = new Layer({
         name: 'ThumbnailRendererLayer',
         id: -1,
         enabled: true,
@@ -30,14 +23,14 @@ class ThumbnailRenderer extends Observer {
         let target = ThumbnailRenderer.renderTargets.get(key);
 
         if (!target) {
-            const texture = new pc.Texture(device, {
+            const texture = new Texture(device, {
                 name: `ThumbnailRendererTexture-${key}`,
                 width: width,
                 height: height,
-                format: pc.PIXELFORMAT_RGBA8
+                format: PIXELFORMAT_RGBA8
             });
 
-            target = new pc.RenderTarget({
+            target = new RenderTarget({
                 colorBuffer: texture
             });
             ThumbnailRenderer.renderTargets.set(key, target);
@@ -56,7 +49,7 @@ class ThumbnailRenderer extends Observer {
 
     get layerComposition() {
         if (!ThumbnailRenderer._layerComposition) {
-            ThumbnailRenderer._layerComposition = new pc.LayerComposition('thumbnail-renderer');
+            ThumbnailRenderer._layerComposition = new LayerComposition('thumbnail-renderer');
             ThumbnailRenderer._layerComposition.push(ThumbnailRenderer._layer);
         }
         return ThumbnailRenderer._layerComposition;

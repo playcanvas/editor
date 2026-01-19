@@ -1,3 +1,5 @@
+import { Color, Mat4, PROJECTION_PERSPECTIVE, Vec3 } from 'playcanvas';
+
 editor.once('load', () => {
     let app;
     // selected entity gizmos
@@ -5,12 +7,12 @@ editor.once('load', () => {
     // pool of gizmos
     const pool = [];
     // colors
-    const colorBehind = new pc.Color(1, 1, 1, 0.15);
+    const colorBehind = new Color(1, 1, 1, 0.15);
     const colorsBehind = [];
     for (let i = 0; i < 24; i++) {
         colorsBehind.push(colorBehind);
     }
-    const colorPrimary = new pc.Color(1, 1, 1);
+    const colorPrimary = new Color(1, 1, 1);
     const colorsPrimary = [];
     for (let i = 0; i < 24; i++) {
         colorsPrimary.push(colorPrimary);
@@ -28,7 +30,7 @@ editor.once('load', () => {
 
         constructor() {
             for (let i = 0; i < 24; i++) {
-                this.lines.push(new pc.Vec3());
+                this.lines.push(new Vec3());
             }
         }
 
@@ -59,7 +61,7 @@ editor.once('load', () => {
             const aspectRatio = (device.width * rect.z) / (device.height * rect.w);
 
             let nx, ny, fx, fy;
-            if (projection === pc.PROJECTION_PERSPECTIVE) {
+            if (projection === PROJECTION_PERSPECTIVE) {
                 ny = Math.tan(fov / 2.0) * nearClip;
                 fy = Math.tan(fov / 2.0) * farClip;
                 nx = ny * aspectRatio;
@@ -100,7 +102,7 @@ editor.once('load', () => {
             this.lines[23].set(-fx, -fy, -farClip);
 
             // transform lines according to camera transform
-            const wtm = new pc.Mat4().setTRS(this._link.entity.getPosition(), this._link.entity.getRotation(), pc.Vec3.ONE);
+            const wtm = new Mat4().setTRS(this._link.entity.getPosition(), this._link.entity.getRotation(), Vec3.ONE);
             for (let i = 0; i < this.lines.length; i++) {
                 wtm.transformPoint(this.lines[i], this.lines[i]);
             }

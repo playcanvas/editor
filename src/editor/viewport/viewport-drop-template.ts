@@ -1,3 +1,5 @@
+import { Entity, Vec3 } from 'playcanvas';
+
 editor.once('load', () => {
     const canvas = editor.call('viewport:canvas');
     if (!canvas) {
@@ -88,7 +90,7 @@ editor.once('load', () => {
             })
             .then((entities) => {
                 const entityObservers = entities.map(e => e.observer);
-                const vec = new pc.Vec3();
+                const vec = new Vec3();
 
                 if (ctrlDown) {
                     // position entities in front of camera based on aabb
@@ -96,7 +98,7 @@ editor.once('load', () => {
                     vec.copy(cameraForward).mulScalar(aabb.halfExtents.length() * 2.2);
                     vec.add(cameraPos);
 
-                    const tmp = new pc.Entity();
+                    const tmp = new Entity();
                     parent.entity.addChild(tmp);
                     tmp.setPosition(vec);
                     vec.copy(tmp.getLocalPosition());

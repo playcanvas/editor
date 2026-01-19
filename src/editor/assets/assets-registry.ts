@@ -1,3 +1,5 @@
+import { Asset } from 'playcanvas';
+
 editor.once('load', () => {
     editor.method('assets:registry:bind', (assetRegistry, assetTypes) => {
         // add assets to asset registry
@@ -32,7 +34,7 @@ editor.once('load', () => {
             // add to registry
             // assetRegistry.createAndAddAsset(assetJson.id, data);
 
-            const newAsset = new pc.Asset(data.name, data.type, data.file, data.data);
+            const newAsset = new Asset(data.name, data.type, data.file, data.data);
             newAsset.id = parseInt(assetJson.id, 10);
 
             if (assetJson.i18n) {

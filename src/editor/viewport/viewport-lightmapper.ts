@@ -1,3 +1,5 @@
+import { SHADOWUPDATE_THISFRAME } from 'playcanvas';
+
 editor.once('load', () => {
     const app = editor.call('viewport:app');
     if (!app) {
@@ -83,7 +85,7 @@ editor.once('load', () => {
 
     editor.method('entities:shadows:update', () => {
         const entities = editor.call('entities:list').filter((e) => {
-            return e.get('components.light.castShadows') && e.get('components.light.shadowUpdateMode') === 1 && e.entity && e.entity.light && e.entity.light.shadowUpdateMode === pc.SHADOWUPDATE_THISFRAME;
+            return e.get('components.light.castShadows') && e.get('components.light.shadowUpdateMode') === 1 && e.entity && e.entity.light && e.entity.light.shadowUpdateMode === SHADOWUPDATE_THISFRAME;
         });
 
         if (!entities.length) {
@@ -91,7 +93,7 @@ editor.once('load', () => {
         }
 
         for (let i = 0; i < entities.length; i++) {
-            entities[i].entity.light.light.shadowUpdateMode = pc.SHADOWUPDATE_THISFRAME;
+            entities[i].entity.light.light.shadowUpdateMode = SHADOWUPDATE_THISFRAME;
         }
 
         editor.call('viewport:render');

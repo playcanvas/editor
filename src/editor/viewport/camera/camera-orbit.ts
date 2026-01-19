@@ -1,23 +1,25 @@
+import { PROJECTION_PERSPECTIVE, Quat, Vec2, Vec3 } from 'playcanvas';
+
 editor.once('viewport:load', (app) => {
     // Orbit camera with virtual point of focus
     // Zooming / Flying will not move virtual point forward/backwards
 
     let orbiting = false;
     let orbitCamera;
-    const pivot = new pc.Vec3();
+    const pivot = new Vec3();
     let distance = 1;
     const sensitivity = 0.2;
     let pitch = 0;
     let yaw = 0;
-    const vec2 = new pc.Vec2();
-    const vecA = new pc.Vec3();
-    const quat = new pc.Quat();
+    const vec2 = new Vec2();
+    const vecA = new Vec3();
+    const quat = new Quat();
 
 
     editor.on('viewport:update', (dt) => {
         const camera = editor.call('camera:current');
 
-        if (camera.camera.projection !== pc.PROJECTION_PERSPECTIVE) {
+        if (camera.camera.projection !== PROJECTION_PERSPECTIVE) {
             return;
         }
 
@@ -77,7 +79,7 @@ editor.once('viewport:load', (app) => {
 
         const camera = editor.call('camera:current');
 
-        if (camera.camera.projection === pc.PROJECTION_PERSPECTIVE) {
+        if (camera.camera.projection === PROJECTION_PERSPECTIVE) {
             orbiting = true;
 
             // disable history

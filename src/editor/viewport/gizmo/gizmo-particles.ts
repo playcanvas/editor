@@ -1,3 +1,22 @@
+import {
+    BlendState,
+    BLENDEQUATION_ADD,
+    BLENDMODE_ONE_MINUS_SRC_ALPHA,
+    BLENDMODE_SRC_ALPHA,
+    Color,
+    Entity,
+    GraphNode,
+    Mesh,
+    MeshInstance,
+    Model,
+    PRIMITIVE_LINES,
+    SEMANTIC_POSITION,
+    TYPE_FLOAT32,
+    VertexBuffer,
+    VertexFormat,
+    VertexIterator
+} from 'playcanvas';
+
 import { GIZMO_MASK } from '@/core/constants';
 
 import { createColorMaterial } from '../viewport-color-material';
@@ -9,13 +28,13 @@ editor.once('load', () => {
     // pool of gizmos
     const pool = [];
     // colors
-    const colorBehind = new pc.Color(1, 1, 1, 0.15);
-    const colorPrimary = new pc.Color(1, 1, 1);
+    const colorBehind = new Color(1, 1, 1, 0.15);
+    const colorPrimary = new Color(1, 1, 1);
     let container;
     let materialDefault;
     const materialBehind = createColorMaterial();
     materialBehind.color = colorBehind;
-    materialBehind.blendState = new pc.BlendState(true, pc.BLENDEQUATION_ADD, pc.BLENDMODE_SRC_ALPHA, pc.BLENDMODE_ONE_MINUS_SRC_ALPHA);
+    materialBehind.blendState = new BlendState(true, BLENDEQUATION_ADD, BLENDMODE_SRC_ALPHA, BLENDMODE_ONE_MINUS_SRC_ALPHA);
     materialBehind.depthTest = false;
     materialBehind.update();
     const models = { };
@@ -138,7 +157,7 @@ editor.once('load', () => {
                 self.unlink();
             }));
 
-            this.entity = new pc.Entity();
+            this.entity = new Entity();
             this.entity.addComponent('model', {
                 castShadows: false,
                 receiveShadows: false,
@@ -239,7 +258,7 @@ editor.once('load', () => {
         app = application;
         const device = app.graphicsDevice;
 
-        container = new pc.Entity(app);
+        container = new Entity(app);
         app.root.addChild(container);
 
         // material
@@ -248,89 +267,89 @@ editor.once('load', () => {
         materialDefault.update();
 
         let buffer, iterator, node, mesh, meshInstance, model;
-        const vertexFormat = new pc.VertexFormat(device, [
-            { semantic: pc.SEMANTIC_POSITION, components: 3, type: pc.TYPE_FLOAT32 }
+        const vertexFormat = new VertexFormat(device, [
+            { semantic: SEMANTIC_POSITION, components: 3, type: TYPE_FLOAT32 }
         ]);
         const rad = Math.PI / 180;
 
 
         // ================
         // box
-        buffer = new pc.VertexBuffer(device, vertexFormat, 12 * 2);
-        iterator = new pc.VertexIterator(buffer);
+        buffer = new VertexBuffer(device, vertexFormat, 12 * 2);
+        iterator = new VertexIterator(buffer);
         // top
-        iterator.element[pc.SEMANTIC_POSITION].set(1, 1, 1);
+        iterator.element[SEMANTIC_POSITION].set(1, 1, 1);
         iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(1, 1, -1);
+        iterator.element[SEMANTIC_POSITION].set(1, 1, -1);
         iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(1, 1, -1);
+        iterator.element[SEMANTIC_POSITION].set(1, 1, -1);
         iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(-1, 1, -1);
+        iterator.element[SEMANTIC_POSITION].set(-1, 1, -1);
         iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(-1, 1, -1);
+        iterator.element[SEMANTIC_POSITION].set(-1, 1, -1);
         iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(-1, 1, 1);
+        iterator.element[SEMANTIC_POSITION].set(-1, 1, 1);
         iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(-1, 1, 1);
+        iterator.element[SEMANTIC_POSITION].set(-1, 1, 1);
         iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(1, 1, 1);
+        iterator.element[SEMANTIC_POSITION].set(1, 1, 1);
         iterator.next();
         // bottom
-        iterator.element[pc.SEMANTIC_POSITION].set(1, -1, 1);
+        iterator.element[SEMANTIC_POSITION].set(1, -1, 1);
         iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(1, -1, -1);
+        iterator.element[SEMANTIC_POSITION].set(1, -1, -1);
         iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(1, -1, -1);
+        iterator.element[SEMANTIC_POSITION].set(1, -1, -1);
         iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(-1, -1, -1);
+        iterator.element[SEMANTIC_POSITION].set(-1, -1, -1);
         iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(-1, -1, -1);
+        iterator.element[SEMANTIC_POSITION].set(-1, -1, -1);
         iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(-1, -1, 1);
+        iterator.element[SEMANTIC_POSITION].set(-1, -1, 1);
         iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(-1, -1, 1);
+        iterator.element[SEMANTIC_POSITION].set(-1, -1, 1);
         iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(1, -1, 1);
+        iterator.element[SEMANTIC_POSITION].set(1, -1, 1);
         iterator.next();
         // sides
-        iterator.element[pc.SEMANTIC_POSITION].set(1, -1, 1);
+        iterator.element[SEMANTIC_POSITION].set(1, -1, 1);
         iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(1, 1, 1);
+        iterator.element[SEMANTIC_POSITION].set(1, 1, 1);
         iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(1, -1, -1);
+        iterator.element[SEMANTIC_POSITION].set(1, -1, -1);
         iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(1, 1, -1);
+        iterator.element[SEMANTIC_POSITION].set(1, 1, -1);
         iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(-1, -1, -1);
+        iterator.element[SEMANTIC_POSITION].set(-1, -1, -1);
         iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(-1, 1, -1);
+        iterator.element[SEMANTIC_POSITION].set(-1, 1, -1);
         iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(-1, -1, 1);
+        iterator.element[SEMANTIC_POSITION].set(-1, -1, 1);
         iterator.next();
-        iterator.element[pc.SEMANTIC_POSITION].set(-1, 1, 1);
+        iterator.element[SEMANTIC_POSITION].set(-1, 1, 1);
         iterator.next();
         iterator.end();
         // node
-        node = new pc.GraphNode();
+        node = new GraphNode();
         // mesh
-        mesh = new pc.Mesh(device);
+        mesh = new Mesh(device);
         mesh.vertexBuffer = buffer;
         mesh.indexBuffer[0] = null;
-        mesh.primitive[0].type = pc.PRIMITIVE_LINES;
+        mesh.primitive[0].type = PRIMITIVE_LINES;
         mesh.primitive[0].base = 0;
         mesh.primitive[0].count = buffer.getNumVertices();
         mesh.primitive[0].indexed = false;
         // meshInstance
-        meshInstance = new pc.MeshInstance(mesh, materialDefault, node);
+        meshInstance = new MeshInstance(mesh, materialDefault, node);
         meshInstance.mask = GIZMO_MASK;
         meshInstance.updateKey();
 
-        let meshInstanceBehind = new pc.MeshInstance(mesh, materialBehind, node);
+        let meshInstanceBehind = new MeshInstance(mesh, materialBehind, node);
         meshInstanceBehind.mask = GIZMO_MASK;
         meshInstanceBehind.__useFrontLayer = true;
 
         // model
-        model = new pc.Model();
+        model = new Model();
         model.graph = node;
         model.meshInstances = [meshInstance, meshInstanceBehind];
         models.box = model;
@@ -339,43 +358,43 @@ editor.once('load', () => {
         // ================
         // sphere
         const segments = 72;
-        buffer = new pc.VertexBuffer(device, vertexFormat, segments * 2 * 3);
-        iterator = new pc.VertexIterator(buffer);
+        buffer = new VertexBuffer(device, vertexFormat, segments * 2 * 3);
+        iterator = new VertexIterator(buffer);
         // circles
         for (let i = 0; i < segments; i++) {
-            iterator.element[pc.SEMANTIC_POSITION].set(Math.sin(360 / segments * i * rad), 0, Math.cos(360 / segments * i * rad));
+            iterator.element[SEMANTIC_POSITION].set(Math.sin(360 / segments * i * rad), 0, Math.cos(360 / segments * i * rad));
             iterator.next();
-            iterator.element[pc.SEMANTIC_POSITION].set(Math.sin(360 / segments * (i + 1) * rad), 0, Math.cos(360 / segments * (i + 1) * rad));
+            iterator.element[SEMANTIC_POSITION].set(Math.sin(360 / segments * (i + 1) * rad), 0, Math.cos(360 / segments * (i + 1) * rad));
             iterator.next();
-            iterator.element[pc.SEMANTIC_POSITION].set(Math.sin(360 / segments * i * rad), Math.cos(360 / segments * i * rad), 0);
+            iterator.element[SEMANTIC_POSITION].set(Math.sin(360 / segments * i * rad), Math.cos(360 / segments * i * rad), 0);
             iterator.next();
-            iterator.element[pc.SEMANTIC_POSITION].set(Math.sin(360 / segments * (i + 1) * rad), Math.cos(360 / segments * (i + 1) * rad), 0);
+            iterator.element[SEMANTIC_POSITION].set(Math.sin(360 / segments * (i + 1) * rad), Math.cos(360 / segments * (i + 1) * rad), 0);
             iterator.next();
-            iterator.element[pc.SEMANTIC_POSITION].set(0, Math.cos(360 / segments * i * rad), Math.sin(360 / segments * i * rad));
+            iterator.element[SEMANTIC_POSITION].set(0, Math.cos(360 / segments * i * rad), Math.sin(360 / segments * i * rad));
             iterator.next();
-            iterator.element[pc.SEMANTIC_POSITION].set(0, Math.cos(360 / segments * (i + 1) * rad), Math.sin(360 / segments * (i + 1) * rad));
+            iterator.element[SEMANTIC_POSITION].set(0, Math.cos(360 / segments * (i + 1) * rad), Math.sin(360 / segments * (i + 1) * rad));
             iterator.next();
         }
         iterator.end();
         // node
-        node = new pc.GraphNode();
+        node = new GraphNode();
         // mesh
-        mesh = new pc.Mesh(device);
+        mesh = new Mesh(device);
         mesh.vertexBuffer = buffer;
         mesh.indexBuffer[0] = null;
-        mesh.primitive[0].type = pc.PRIMITIVE_LINES;
+        mesh.primitive[0].type = PRIMITIVE_LINES;
         mesh.primitive[0].base = 0;
         mesh.primitive[0].count = buffer.getNumVertices();
         mesh.primitive[0].indexed = false;
         // meshInstance
-        meshInstance = new pc.MeshInstance(mesh, materialDefault, node);
+        meshInstance = new MeshInstance(mesh, materialDefault, node);
         meshInstance.updateKey();
 
-        meshInstanceBehind = new pc.MeshInstance(mesh, materialBehind, node);
+        meshInstanceBehind = new MeshInstance(mesh, materialBehind, node);
         meshInstanceBehind.__useFrontLayer = true;
 
         // model
-        model = new pc.Model();
+        model = new Model();
         model.graph = node;
         model.meshInstances = [meshInstance, meshInstanceBehind];
         models.sphere = model;

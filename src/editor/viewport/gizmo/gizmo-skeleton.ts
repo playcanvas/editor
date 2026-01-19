@@ -1,10 +1,12 @@
+import { Color } from 'playcanvas';
+
 editor.once('load', () => {
     let app = null;
     let entities = [];
     let visible = true;
 
-    const color = new pc.Color(1, 1, 1);
-    const colorBehind = new pc.Color(1, 1, 1, 0.5);
+    const color = new Color(1, 1, 1);
+    const colorBehind = new Color(1, 1, 1, 0.5);
 
     const renderBones = function (entities) {
         const immediateLayer = editor.call('gizmo:layers', 'Axis Gizmo Immediate');
