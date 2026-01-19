@@ -68,17 +68,19 @@ export const fields: AttributeReference[]  = [{
     name: 'asset:material:blendType',
     title: 'blendType',
     subTitle: '{pc.BLEND_*}',
-    description: `The type of blending for this material. Options are:
-        None {pc.BLEND_NONE}: The mesh is opaque. This is the default.
-        Normal {pc.BLEND_NORMAL}: The mesh is transparent, like stained glass. Called as Alpha Blend as well.
-        Additive {pc.BLEND_ADDITIVE}: The mesh color is added to whatever has already been rendered to the frame buffer.
-        Additive Alpha {pc.BLEND_ADDITIVEALPHA}: Same as Additive except source RGB is multiplied by the source alpha.
-        Screen {pc.BLEND_SCREEN}: Softer version of Additive.
-        Pre-multiply {pc.BLEND_PREMULTIPLIED}: Like 'Normal' blending except it is assumed that the color of the mesh being rendered with this material has already been modulated by its alpha value.
-        Multiply {pc.BLEND_MULTIPLICATIVE}: When rendered, the mesh color is multiplied by whatever has already been rendered to the frame buffer.
-        Modulate 2x {pc.BLEND_MULTIPLICATIVE2X}: Multiplies colors and doubles the result.
-        Min {pc.BLEND_MIN}: [Partial Support, check \`app.graphicsDevice.extBlendMinmax\` for support] Minimum color.
-        Max {pc.BLEND_MAX}: [Partial Support, check \`app.graphicsDevice.extBlendMinmax\` for support] Maximum color.`,
+    description: `Controls how transparent surfaces blend with the background.
+<ul>
+<li><b>None</b> (<code>pc.BLEND_NONE</code>): Opaque, no blending. Default.</li>
+<li><b>Alpha</b> (<code>pc.BLEND_NORMAL</code>): Standard transparency like stained glass.</li>
+<li><b>Additive</b> (<code>pc.BLEND_ADDITIVE</code>): Colors are added to the background.</li>
+<li><b>Additive Alpha</b> (<code>pc.BLEND_ADDITIVEALPHA</code>): Additive with source RGB multiplied by alpha.</li>
+<li><b>Screen</b> (<code>pc.BLEND_SCREEN</code>): Softer version of Additive.</li>
+<li><b>Premultiplied Alpha</b> (<code>pc.BLEND_PREMULTIPLIED</code>): Like Alpha, but assumes color is pre-multiplied by alpha.</li>
+<li><b>Multiply</b> (<code>pc.BLEND_MULTIPLICATIVE</code>): Colors are multiplied with the background.</li>
+<li><b>Modulate 2x</b> (<code>pc.BLEND_MULTIPLICATIVE2X</code>): Multiplies colors and doubles the result.</li>
+<li><b>Min (Partial Support)</b> (<code>pc.BLEND_MIN</code>): Minimum color. Check <code>app.graphicsDevice.extBlendMinmax</code>.</li>
+<li><b>Max (Partial Support)</b> (<code>pc.BLEND_MAX</code>): Maximum color. Check <code>app.graphicsDevice.extBlendMinmax</code>.</li>
+</ul>`,
     url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#blendtype'
 }, {
     name: 'asset:material:bumpiness',
@@ -102,7 +104,11 @@ export const fields: AttributeReference[]  = [{
     name: 'asset:material:cubeMapProjection',
     title: 'cubeMapProjection',
     subTitle: '{pc.CUBEPROJ_*}',
-    description: 'The type of projection applied to the cubeMap property, with available options: pc.CUBEPROJ_NONE and pc.CUBEPROJ_BOX. Set to Box to enable world-space axis-aligned projection of cubemap based on bounding box.',
+    description: `The type of projection applied to the cubeMap property.
+<ul>
+<li><b>Normal</b> (<code>pc.CUBEPROJ_NONE</code>): Standard cubemap reflection. Default.</li>
+<li><b>Box</b> (<code>pc.CUBEPROJ_BOX</code>): World-space axis-aligned box projection based on bounding box.</li>
+</ul>`,
     url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#cubemapprojection'
 }, {
     name: 'asset:material:cubeMapProjectionBoxCenter',
@@ -120,7 +126,12 @@ export const fields: AttributeReference[]  = [{
     name: 'asset:material:cull',
     title: 'cull',
     subTitle: '{pc.CULLFACE_*}',
-    description: 'Options are: None {pc.CULLFACE_NONE}: Both front faces and back faces are rendered. Front Faces {pc.CULLFACE_FRONT}: front faces are rendered and back faces are not. Back Faces {pc.CULLFACE_BACK}: back faces are rendered and front faces are not. This is the default. PlayCanvas dictates that a counter-clockwise vertex winding specifies a front face triangle. Note that backface culling is often good for performance because backface pixels are often overwritten (for convex meshes) which can result in redundant filling of pixels.'
+    description: `Controls which polygon faces are culled (not rendered). Counter-clockwise vertex winding specifies a front face.
+<ul>
+<li><b>None</b> (<code>pc.CULLFACE_NONE</code>): Both front and back faces are rendered.</li>
+<li><b>Back Faces</b> (<code>pc.CULLFACE_BACK</code>): Back faces are culled. Default. Good for performance on convex meshes.</li>
+<li><b>Front Faces</b> (<code>pc.CULLFACE_FRONT</code>): Front faces are culled.</li>
+</ul>`
 }, {
     name: 'asset:material:depthTest',
     title: 'depthTest',

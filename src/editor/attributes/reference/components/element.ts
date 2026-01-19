@@ -9,8 +9,13 @@ export const fields: AttributeReference[]  = [{
 }, {
     name: 'element:type',
     title: 'type',
-    subTitle: '{String}',
-    description: 'The type of the Element.',
+    subTitle: '{pc.ELEMENTTYPE_*}',
+    description: `The type of the Element.
+<ul>
+<li><b>Text</b> (<code>pc.ELEMENTTYPE_TEXT</code>): Renders text using a font asset.</li>
+<li><b>Image</b> (<code>pc.ELEMENTTYPE_IMAGE</code>): Renders an image using a texture or sprite asset.</li>
+<li><b>Group</b> (<code>pc.ELEMENTTYPE_GROUP</code>): A container for other elements. Does not render anything itself.</li>
+</ul>`,
     url: 'https://api.playcanvas.com/engine/classes/ElementComponent.html#type'
 }, {
     name: 'element:preset',

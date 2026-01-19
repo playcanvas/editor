@@ -52,5 +52,10 @@ export const fields: AttributeReference[]  = [{
     name: 'sound:distanceModel',
     title: 'distanceModel',
     subTitle: '{String}',
-    description: 'Determines which algorithm to use to reduce the volume of the audio as it moves away from the listener.'
+    description: `Determines which algorithm to use to reduce the volume of the audio as it moves away from the listener.
+<ul>
+<li><b>Linear</b> (<code>"linear"</code>): Volume decreases linearly between refDistance and maxDistance.</li>
+<li><b>Exponential</b> (<code>"exponential"</code>): Volume decreases exponentially with distance.</li>
+<li><b>Inverse</b> (<code>"inverse"</code>): Volume is inversely proportional to distance.</li>
+</ul>`
 }];

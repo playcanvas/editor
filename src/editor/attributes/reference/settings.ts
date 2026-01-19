@@ -38,16 +38,32 @@ editor.once('load', () => {
         description: 'Set the editor camera clear color. This does not affect the game.'
     }, {
         name: 'settings:cameraToneMapping',
-        description: 'Set the editor camera tone mapping. This setting does not affect the game.'
+        description: `Set the editor camera tone mapping. This setting does not affect the game.
+<ul>
+<li><b>Linear</b>: No tone mapping, simply scales by exposure.</li>
+<li><b>Filmic</b>: Attempt to model film stock for natural highlight roll-off.</li>
+<li><b>Hejl</b>: Attempt to model film stock with a slightly stronger contrast.</li>
+<li><b>ACES</b>: ACES curve for a filmic look with desaturated highlights.</li>
+<li><b>ACES2</b>: Updated ACES with improved color/contrast.</li>
+<li><b>Neutral</b>: No contrast or hue shift for minimal tonal shaping.</li>
+</ul>`
     }, {
         name: 'settings:cameraGammaCorrection',
-        description: 'Set the editor camera gamma correction. This setting does not affect the game.'
+        description: `Set the editor camera gamma correction. This setting does not affect the game.
+<ul>
+<li><b>1.0</b>: No gamma correction. Colors may appear overly saturated.</li>
+<li><b>2.2</b>: Standard sRGB gamma correction. Recommended for proper color after lighting.</li>
+</ul>`
     }, {
         name: 'settings:gizmoSize',
         description: 'Set the gizmo size in the editor viewport.'
     }, {
         name: 'settings:gizmoPreset',
-        description: 'Set the gizmo preset in the editor viewport. This affects the transform gizmos\'s style and interaction behavior.'
+        description: `Set the gizmo preset in the editor viewport. This affects the transform gizmos's style and interaction behavior.
+<ul>
+<li><b>Default</b>: Modern gizmo style with improved visual feedback.</li>
+<li><b>Classic</b>: Legacy gizmo style matching the original PlayCanvas Editor.</li>
+</ul>`
     }, {
         name: 'settings:showFog',
         description: 'Enable fog rendering in the viewport.'
@@ -108,7 +124,12 @@ editor.once('load', () => {
     }, {
         name: 'settings:skyType',
         title: 'Sky Type',
-        description: 'Select the projection used to render the skybox cubemap. Options: Infinite (rendered at infinity), Box (mapped to a box mesh), Dome (mapped to a hemispherical dome).'
+        description: `Select the projection used to render the skybox cubemap.
+<ul>
+<li><b>Infinite</b>: Skybox is rendered at infinity, appearing infinitely far away.</li>
+<li><b>Box</b>: Skybox is mapped to a box mesh with configurable position, rotation, and scale.</li>
+<li><b>Dome</b>: Skybox is mapped to a hemispherical dome mesh.</li>
+</ul>`
     }, {
         name: 'settings:skyMeshPosition',
         title: 'Sky Mesh Position',
@@ -164,7 +185,13 @@ editor.once('load', () => {
         name: 'settings:fog',
         title: 'fog',
         subTitle: '{pc.FOG_*}',
-        description: 'Controls an approximation of ambient fog in your scene. Types: None — fog disabled; Linear — fades in linearly between Fog Start and Fog End distances; Exp — fades in from the view position according to an exponential function; Exp2 — fades in from the view position according to an exponential squared function.',
+        description: `Controls an approximation of ambient fog in your scene.
+<ul>
+<li><b>None</b> (<code>pc.FOG_NONE</code>): Fog is disabled.</li>
+<li><b>Linear</b> (<code>pc.FOG_LINEAR</code>): Fog fades in linearly between Start and End distances.</li>
+<li><b>Exponential</b> (<code>pc.FOG_EXP</code>): Fog fades in exponentially based on density.</li>
+<li><b>Exponential Squared</b> (<code>pc.FOG_EXP2</code>): Fog fades in with exponential squared falloff.</li>
+</ul>`,
         url: 'https://api.playcanvas.com/engine/classes/Scene.html#fog'
     }, {
         name: 'settings:fogDensity',
@@ -220,11 +247,20 @@ editor.once('load', () => {
     }, {
         name: 'settings:project:fillMode',
         title: 'Fill Mode',
-        description: 'Fill Mode decides how the canvas fills the browser window.'
+        description: `Fill Mode decides how the canvas fills the browser window.
+<ul>
+<li><b>None</b>: Canvas uses the exact resolution specified.</li>
+<li><b>Keep aspect ratio</b>: Canvas fills the window while maintaining aspect ratio.</li>
+<li><b>Fill window</b>: Canvas fills the entire window, ignoring aspect ratio.</li>
+</ul>`
     }, {
         name: 'settings:project:resolutionMode',
         title: 'Resolution Mode',
-        description: 'Resolution Mode decides whether the canvas resolution will change when it is resized.'
+        description: `Resolution Mode decides whether the canvas resolution will change when it is resized.
+<ul>
+<li><b>Auto</b>: Canvas resolution automatically changes to match the canvas size.</li>
+<li><b>Fixed</b>: Canvas resolution stays fixed at the specified width and height.</li>
+</ul>`
     }, {
         name: 'settings:project:physics',
         description: 'When enabled, the physics library code is included in your app.'
@@ -247,7 +283,12 @@ editor.once('load', () => {
     }, {
         name: 'settings:project:powerPreference',
         title: 'Power Preference',
-        description: 'Provides a hint to WebGL regarding the preferred power mode: Default (browser decides), High Performance (prioritize rendering performance), or Low Power (prioritize power saving).'
+        description: `Provides a hint to WebGL regarding the preferred power mode.
+<ul>
+<li><b>Default</b>: Let the browser decide the optimal GPU.</li>
+<li><b>Low Power</b>: Prioritize power saving (e.g., integrated GPU).</li>
+<li><b>High Performance</b>: Prioritize rendering performance (e.g., discrete GPU).</li>
+</ul>`
     }, {
         name: 'settings:project:antiAlias',
         title: 'Anti-aliasing',
@@ -323,7 +364,11 @@ editor.once('load', () => {
     }, {
         name: 'settings:asset-import:meshCompression',
         title: 'Mesh Compression Type',
-        description: 'Specify the mesh compression to apply to imported models.'
+        description: `Specify the mesh compression to apply to imported models.
+<ul>
+<li><b>Disabled</b>: No mesh compression applied.</li>
+<li><b>Draco</b>: Compress meshes using Google Draco for smaller file sizes.</li>
+</ul>`
     }, {
         name: 'settings:asset-import:dracoDecodeSpeed',
         title: 'Draco Decode Speed',
@@ -350,8 +395,12 @@ editor.once('load', () => {
         description: 'Output cubic curves when they are encountered. Disable to convert all curves to linear segments.'
     }, {
         name: 'settings:asset-import:animUseFbxFilename',
-        title: 'Animation Naming Strategy (for GLB only)',
-        description: 'Choose the naming strategy for imported animations. Select \'Use Take Name\' to name the animation after the take name assigned in the FBX file. Select \'Use FBX Filename\' to name the animation after the FBX filename.'
+        title: 'Animation Naming Strategy',
+        description: `Choose how to name animations when converting FBX files to GLB format.
+<ul>
+<li><b>Use Take Name</b>: Name animations after their take names from the source FBX.</li>
+<li><b>Use FBX Filename</b>: Name animations after the source FBX filename.</li>
+</ul>`
     }, {
         name: 'settings:asset-import:unwrapUv',
         title: 'Unwrap UV',
@@ -407,8 +456,12 @@ editor.once('load', () => {
     }, {
         name: 'settings:lightmapMode',
         title: 'lightmapMode',
-        subTitle: '{Number}',
-        description: 'The lightmap baking mode. Color Only — a single color lightmap. Color and Direction — a color lightmap plus dominant light direction (used for bump/specular).',
+        subTitle: '{pc.BAKE_*}',
+        description: `The lightmap baking mode.
+<ul>
+<li><b>Color Only</b> (<code>pc.BAKE_COLOR</code>): Bakes a single color lightmap.</li>
+<li><b>Color and Direction</b> (<code>pc.BAKE_COLORDIR</code>): Bakes color plus dominant light direction for bump/specular.</li>
+</ul>`,
         url: 'https://api.playcanvas.com/engine/classes/Scene.html#lightmapmode'
     }, {
         name: 'settings:project:lightmapFilterEnabled',
@@ -487,7 +540,12 @@ editor.once('load', () => {
     }, {
         name: 'settings:lightingShadowType',
         title: 'lightingShadowType',
-        description: 'The type of shadow filtering used by all shadows.',
+        description: `The type of shadow filtering used by all shadows.
+<ul>
+<li><b>Shadow Map PCF 1x1</b>: Basic shadow mapping with no filtering.</li>
+<li><b>Shadow Map PCF 3x3</b>: Percentage-closer filtering with 3x3 kernel for softer shadows.</li>
+<li><b>Shadow Map PCF 5x5</b>: Percentage-closer filtering with 5x5 kernel for smoother shadows.</li>
+</ul>`,
         url: 'https://api.playcanvas.com/engine/classes/LightingParams.html#shadowtype'
     }, {
         name: 'settings:lightingCookiesEnabled',

@@ -52,7 +52,16 @@ export const fields: AttributeReference[]  = [{
     name: 'collision:type',
     title: 'type',
     subTitle: '{String}',
-    description: 'The type of collision primitive. Can be: box, sphere, capsule, cylinder, mesh.',
+    description: `The type of collision primitive.
+<ul>
+<li><b>Box</b> (<code>"box"</code>): Axis-aligned box shape defined by half extents.</li>
+<li><b>Sphere</b> (<code>"sphere"</code>): Sphere shape defined by radius.</li>
+<li><b>Capsule</b> (<code>"capsule"</code>): Capsule shape (cylinder with hemispherical ends) defined by radius and height.</li>
+<li><b>Cylinder</b> (<code>"cylinder"</code>): Cylinder shape defined by radius and height.</li>
+<li><b>Cone</b> (<code>"cone"</code>): Cone shape defined by radius and height.</li>
+<li><b>Mesh</b> (<code>"mesh"</code>): Arbitrary mesh shape from a model asset.</li>
+<li><b>Compound</b> (<code>"compound"</code>): Combines collision shapes from child entities.</li>
+</ul>`,
     url: 'https://api.playcanvas.com/engine/classes/CollisionComponent.html#type'
 }, {
     name: 'collision:linearOffset',

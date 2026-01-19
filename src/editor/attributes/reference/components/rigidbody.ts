@@ -57,7 +57,12 @@ export const fields: AttributeReference[]  = [{
 }, {
     name: 'rigidbody:type',
     title: 'type',
-    subTitle: '{pc.RIGIDBODY_TYPE_*}',
-    description: 'The type of RigidBody determines how it is simulated.',
+    subTitle: '{pc.BODYTYPE_*}',
+    description: `The type of RigidBody determines how it is simulated.
+<ul>
+<li><b>Static</b> (<code>pc.BODYTYPE_STATIC</code>): Never moves. Use for walls, floors, and other immovable objects.</li>
+<li><b>Dynamic</b> (<code>pc.BODYTYPE_DYNAMIC</code>): Fully simulated. Affected by gravity and collisions.</li>
+<li><b>Kinematic</b> (<code>pc.BODYTYPE_KINEMATIC</code>): Controlled by code. Not affected by physics but can push dynamic bodies.</li>
+</ul>`,
     url: 'https://api.playcanvas.com/engine/classes/RigidBodyComponent.html#type'
 }];

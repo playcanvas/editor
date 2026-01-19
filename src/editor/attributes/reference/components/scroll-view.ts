@@ -21,8 +21,13 @@ export const fields: AttributeReference[]  = [{
 }, {
     name: 'scrollview:scrollMode',
     title: 'scrollMode',
-    subTitle: '{pc.SCROLL_MODE}',
-    description: 'Specifies how the scroll view should behave when the user scrolls past the end of the content.',
+    subTitle: '{pc.SCROLL_MODE_*}',
+    description: `Specifies how the scroll view should behave when the user scrolls past the end of the content.
+<ul>
+<li><b>Clamp</b> (<code>pc.SCROLL_MODE_CLAMP</code>): Scrolling stops at content boundaries.</li>
+<li><b>Bounce</b> (<code>pc.SCROLL_MODE_BOUNCE</code>): Content bounces back when scrolling past boundaries.</li>
+<li><b>Infinite</b> (<code>pc.SCROLL_MODE_INFINITE</code>): Content can be scrolled indefinitely.</li>
+</ul>`,
     url: 'https://api.playcanvas.com/engine/classes/ScrollViewComponent.html#scrollmode'
 }, {
     name: 'scrollview:bounceAmount',
@@ -51,14 +56,22 @@ export const fields: AttributeReference[]  = [{
 }, {
     name: 'scrollview:horizontalScrollbarVisibility',
     title: 'horizontalScrollbarVisibility',
-    subTitle: '{pc.SCROLLBAR_VISIBILITY}',
-    description: 'Controls whether the horizontal scrollbar should be visible all the time, or only visible when the content exceeds the size of the viewport.',
+    subTitle: '{pc.SCROLLBAR_VISIBILITY_*}',
+    description: `Controls when the horizontal scrollbar is visible.
+<ul>
+<li><b>Show Always</b> (<code>pc.SCROLLBAR_VISIBILITY_SHOW_ALWAYS</code>): Scrollbar is always visible.</li>
+<li><b>Show When Required</b> (<code>pc.SCROLLBAR_VISIBILITY_SHOW_WHEN_REQUIRED</code>): Scrollbar only visible when content exceeds viewport.</li>
+</ul>`,
     url: 'https://api.playcanvas.com/engine/classes/ScrollViewComponent.html#horizontalscrollbarvisibility'
 }, {
     name: 'scrollview:verticalScrollbarVisibility',
     title: 'verticalScrollbarVisibility',
-    subTitle: '{pc.SCROLLBAR_VISIBILITY}',
-    description: 'Controls whether the vertical scrollbar should be visible all the time, or only visible when the content exceeds the size of the viewport.',
+    subTitle: '{pc.SCROLLBAR_VISIBILITY_*}',
+    description: `Controls when the vertical scrollbar is visible.
+<ul>
+<li><b>Show Always</b> (<code>pc.SCROLLBAR_VISIBILITY_SHOW_ALWAYS</code>): Scrollbar is always visible.</li>
+<li><b>Show When Required</b> (<code>pc.SCROLLBAR_VISIBILITY_SHOW_WHEN_REQUIRED</code>): Scrollbar only visible when content exceeds viewport.</li>
+</ul>`,
     url: 'https://api.playcanvas.com/engine/classes/ScrollViewComponent.html#verticalscrollbarvisibility'
 }, {
     name: 'scrollview:viewportEntity',

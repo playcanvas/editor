@@ -89,7 +89,12 @@ export const fields: AttributeReference[]  = [{
     name: 'particlesystem:blend',
     title: 'blend',
     subTitle: '{pc.BLEND_*}',
-    description: 'The blending mode determines how particles are composited when they are written to the frame buffer. Let\'s consider that Prgb is the RGB color of a particle\'s pixel, Pa is its alpha value, and Drgb is the RGB color already in the frame buffer.',
+    description: `The blending mode determines how particles are composited when written to the frame buffer.
+<ul>
+<li><b>Alpha</b> (<code>pc.BLEND_NORMAL</code>): Standard alpha blending for semi-transparent particles.</li>
+<li><b>Additive</b> (<code>pc.BLEND_ADDITIVE</code>): Adds particle color to the background. Good for fire, explosions, and glowing effects.</li>
+<li><b>Multiply</b> (<code>pc.BLEND_MULTIPLICATIVE</code>): Multiplies particle color with the background. Good for shadows and dark effects.</li>
+</ul>`,
     url: 'https://api.playcanvas.com/engine/classes/ParticleSystemComponent.html#blend'
 }, {
     name: 'particlesystem:colorGraph',
@@ -107,7 +112,12 @@ export const fields: AttributeReference[]  = [{
     name: 'particlesystem:orientation',
     title: 'orientation',
     subTitle: '{pc.PARTICLEORIENTATION_*}',
-    description: 'Orientation mode controls particle planes facing. The options are: Screen: Particles are facing camera. World Normal: User defines world space normal to set planes orientation. Emitter Normal: Similar to previous, but the normal is affected by emitter(entity) transformation.',
+    description: `Orientation mode controls how particle billboards face.
+<ul>
+<li><b>Screen</b> (<code>pc.PARTICLEORIENTATION_SCREEN</code>): Particles always face the camera (billboard).</li>
+<li><b>World Normal</b> (<code>pc.PARTICLEORIENTATION_WORLD</code>): Particles face along a fixed world-space direction defined by Particle Normal.</li>
+<li><b>Emitter Normal</b> (<code>pc.PARTICLEORIENTATION_EMITTER</code>): Particles face along a direction relative to the emitter entity's transform.</li>
+</ul>`,
     url: 'https://api.playcanvas.com/engine/classes/ParticleSystemComponent.html#orientation'
 }, {
     name: 'particlesystem:particleNormal',
@@ -155,7 +165,11 @@ export const fields: AttributeReference[]  = [{
     name: 'particlesystem:emitterShape',
     title: 'emitterShape',
     subTitle: '{pc.EMITTERSHAPE_*}',
-    description: 'Shape of the emitter. Can be: pc.EMITTERSHAPE_BOX, pc.EMITTERSHAPE_SPHERE.',
+    description: `Shape of the emitter volume from which particles spawn.
+<ul>
+<li><b>Box</b> (<code>pc.EMITTERSHAPE_BOX</code>): Particles spawn within a box-shaped volume defined by Emitter Extents.</li>
+<li><b>Sphere</b> (<code>pc.EMITTERSHAPE_SPHERE</code>): Particles spawn within a sphere-shaped volume defined by Emitter Radius.</li>
+</ul>`,
     url: 'https://api.playcanvas.com/engine/classes/ParticleSystemComponent.html#emittershape'
 }, {
     name: 'particlesystem:halfLambert',
@@ -269,7 +283,13 @@ export const fields: AttributeReference[]  = [{
     name: 'particlesystem:sort',
     title: 'sort',
     subTitle: '{pc.PARTICLESORT_*}',
-    description: 'Sorting mode gives you control over the order in which particles are rendered. The options are: None: Particles are rendered in arbitrary order. When this option is selected, the particle system is simulated on the GPU (if the underlying hardware supports floating point textures) and it is recommended you use this setting to get the best performance. Camera Distance: Particles are sorted on the CPU and rendered in back to front order (in terms of camera z depth). Newer First: Particles are sorted on the CPU and rendered in age order, youngest first. Older First: Particles are sorted on the CPU and rendered in age order, oldest first.',
+    description: `Sorting mode gives you control over the order in which particles are rendered.
+<ul>
+<li><b>None</b> (<code>pc.PARTICLESORT_NONE</code>): Particles are rendered in arbitrary order. Enables GPU simulation for best performance.</li>
+<li><b>Camera Distance</b> (<code>pc.PARTICLESORT_DISTANCE</code>): Particles are sorted on the CPU and rendered back to front by camera depth.</li>
+<li><b>Newest First</b> (<code>pc.PARTICLESORT_NEWER_FIRST</code>): Particles are sorted by age, youngest first.</li>
+<li><b>Oldest First</b> (<code>pc.PARTICLESORT_OLDER_FIRST</code>): Particles are sorted by age, oldest first.</li>
+</ul>`,
     url: 'https://api.playcanvas.com/engine/classes/ParticleSystemComponent.html#sort'
 }, {
     name: 'particlesystem:startAngle',
