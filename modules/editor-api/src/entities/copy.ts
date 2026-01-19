@@ -247,6 +247,12 @@ function copyEntities(entities: Entity[]) {
         throw new Error('No current scene loaded');
     }
 
+    // build index
+    const selection: Record<string, Entity> = Object.fromEntries(
+        entities.map(entity => [entity.get('resource_id'), entity])
+    );
+    const resourceIds = Object.keys(selection);
+
     const data: Record<string, any> = {
         project: api.projectId,
         scene: currentScene.uniqueId,
@@ -254,14 +260,9 @@ function copyEntities(entities: Entity[]) {
         legacy_scripts: api.hasLegacyScripts,
         hierarchy: {},
         assets: {},
-        type: 'entity'
+        type: 'entity',
+        value: resourceIds.length === 1 ? resourceIds[0] : resourceIds
     };
-
-    // build index
-    const selection: Record<string, Entity> = {};
-    for (let i = 0; i < entities.length; i++) {
-        selection[entities[i].get('resource_id')] = entities[i];
-    }
 
     sortEntities(entities);
 
