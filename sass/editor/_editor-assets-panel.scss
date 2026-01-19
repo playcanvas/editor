@@ -28,13 +28,6 @@
         flex-basis: auto;
     }
 
-    > .pcui-resizable-handle {
-        // make z-index higher than the
-        // details view z-index otherwise part
-        // of the handle will be hidden by the table
-        z-index: 2 !important;
-    }
-
     > .pcui-panel-content {
         height: 100%;
 
@@ -487,10 +480,6 @@
         .pcui-asset-panel-btn-store {
             margin-left: auto;
             color: white;
-        }
-
-        &:hover {
-            z-index: 2;
         }
     }
 }
