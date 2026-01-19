@@ -78,8 +78,8 @@ export const fields: AttributeReference[]  = [{
 <li><b>Premultiplied Alpha</b> (<code>pc.BLEND_PREMULTIPLIED</code>): Like Alpha, but assumes color is pre-multiplied by alpha.</li>
 <li><b>Multiply</b> (<code>pc.BLEND_MULTIPLICATIVE</code>): Colors are multiplied with the background.</li>
 <li><b>Modulate 2x</b> (<code>pc.BLEND_MULTIPLICATIVE2X</code>): Multiplies colors and doubles the result.</li>
-<li><b>Min (Partial Support)</b> (<code>pc.BLEND_MIN</code>): Minimum color. Check <code>app.graphicsDevice.extBlendMinmax</code>.</li>
-<li><b>Max (Partial Support)</b> (<code>pc.BLEND_MAX</code>): Maximum color. Check <code>app.graphicsDevice.extBlendMinmax</code>.</li>
+<li><b>Min</b> (<code>pc.BLEND_MIN</code>): Result is the minimum of source and destination colors.</li>
+<li><b>Max</b> (<code>pc.BLEND_MAX</code>): Result is the maximum of source and destination colors.</li>
 </ul>`,
     url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#blendtype'
 }, {
