@@ -178,7 +178,13 @@ editor.once('load', () => {
         if (!asset.get('file')?.filename) {
             return null;
         }
-        const pathSegments = asset.get('path').map(id => editor.call('assets:get', id).get('name'));
+        const assetPath = asset.get('path');
+        const pathAssets = assetPath.map(id => editor.call('assets:get', id));
+        if (pathAssets.some(a => !a)) {
+            // Parent folder(s) have been deleted
+            return null;
+        }
+        const pathSegments = pathAssets.map(a => a.get('name'));
         return `/${[...pathSegments, asset.get('file').filename].join('/')}`;
     };
     editor.method('assets:virtualPath', assetVirtualPath);

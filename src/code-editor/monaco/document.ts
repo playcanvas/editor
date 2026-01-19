@@ -120,7 +120,13 @@ editor.once('load', () => {
             mode = null;
         }
 
-        const pathSegments = asset.get('path').map(id => editor.call('assets:get', id).get('name'));
+        const assetPath = asset.get('path');
+        const pathAssets = assetPath.map(id => editor.call('assets:get', id));
+        if (pathAssets.some(a => !a)) {
+            // Parent folder(s) have been deleted, skip loading
+            return;
+        }
+        const pathSegments = pathAssets.map(a => a.get('name'));
         const path = [...pathSegments, asset.get('file').filename].join('/');
 
         const uri = monaco.Uri.parse(`${path}`);
@@ -298,6 +304,10 @@ editor.once('load', () => {
                 }
 
                 const importer = editor.call('assets:virtualPath', asset);
+                if (!importer) {
+                    resolve(new Set([]));
+                    return;
+                }
                 const deps = getDependenciesFromString(content, importer);
 
                 resolve(deps);
@@ -309,6 +319,9 @@ editor.once('load', () => {
 
     editor.method('asset:update-dependencies', async (asset) => {
         const filePath = editor.call('assets:virtualPath', asset);
+        if (!filePath) {
+            return;
+        }
 
         // Fetch the dependencies for the asset
         const deps = await getDependenciesForAsset(asset);

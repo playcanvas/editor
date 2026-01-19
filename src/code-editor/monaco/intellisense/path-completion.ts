@@ -20,6 +20,9 @@ editor.on('assets:load', () => {
             }
 
             const path = editor.call('assets:virtualPath', asset);
+            if (!path) {
+                return;
+            }
 
             // Add the asset to the trie and update the asset path map
             assetPathMap.set(asset, path);
@@ -41,7 +44,9 @@ editor.on('assets:load', () => {
     const onAssetRemoved = (asset) => {
         if (editor.call('assets:isModule', asset)) {
             const path = editor.call('assets:virtualPath', asset);
-            moduleTrie.remove(path);
+            if (path) {
+                moduleTrie.remove(path);
+            }
         }
     };
 
