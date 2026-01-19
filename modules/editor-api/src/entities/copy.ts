@@ -247,8 +247,6 @@ function copyEntities(entities: Entity[]) {
         throw new Error('No current scene loaded');
     }
 
-    sortEntities(entities);
-
     // build index
     const selection: Record<string, Entity> = Object.fromEntries(
         entities.map(entity => [entity.get('resource_id'), entity])
@@ -265,6 +263,8 @@ function copyEntities(entities: Entity[]) {
         type: 'entity',
         value: resourceIds.length === 1 ? resourceIds[0] : resourceIds
     };
+
+    sortEntities(entities);
 
     for (let i = 0; i < entities.length; i++) {
         const e = entities[i];
