@@ -25,6 +25,12 @@ export const fields: AttributeReference[]  = [{
     description: 'The minification mipmap filter to be applied to the texture.',
     url: 'https://api.playcanvas.com/engine/classes/Texture.html#mipfilter'
 }, {
+    name: 'asset:texture:mipmaps',
+    title: 'mipmaps',
+    subTitle: '{Boolean}',
+    description: 'Specifies whether the texture has mipmaps.',
+    url: 'https://api.playcanvas.com/engine/classes/Texture.html#mipmaps'
+}, {
     name: 'asset:texture:minFilter',
     title: 'minFilter',
     subTitle: '{pc.FILTER_*}',

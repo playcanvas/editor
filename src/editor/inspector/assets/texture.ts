@@ -74,8 +74,7 @@ const TEXTURE_ATTRIBUTES: Attribute[] = [
     {
         label: 'Mipmaps',
         path: 'data.mipmaps',
-        type: 'boolean',
-        reference: null
+        type: 'boolean'
     },
     {
         label: 'Filtering',
