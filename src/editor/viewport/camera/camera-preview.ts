@@ -64,7 +64,7 @@ editor.once('load', () => {
                 preRenderEvent = app.scene.on('prerender', (camera) => {
                     // the preview camera uses the scene fog settings
                     if (previewCamera === camera) {
-                        app.scene.fog.type = editor.call('sceneSettings').get('render.fog');
+                        app.scene.fog.type = editor.call('sceneSettings').get('render.fog') ?? pc.FOG_NONE;
                     }
                 });
 
