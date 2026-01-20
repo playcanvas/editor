@@ -49,9 +49,8 @@ editor.once('load', () => {
         return root;
     });
 
-    // variabled
-    // var updateInterval;
     let enabled = false;
+    let minimized = false;
 
     if (location.search && location.search.indexOf('profile=true') !== -1) {
         enabled = true;
@@ -109,6 +108,30 @@ editor.once('load', () => {
         editor.emit('tools:clear');
         editor.emit('tools:state', false);
         // clearInterval(updateInterval);
+    });
+
+    editor.method('tools:minimized', () => {
+        return minimized;
+    });
+
+    editor.method('tools:minimize', () => {
+        if (!enabled || minimized) {
+            return;
+        }
+
+        minimized = true;
+        root.classList.add('minimized');
+        editor.emit('tools:minimized', true);
+    });
+
+    editor.method('tools:maximize', () => {
+        if (!enabled || !minimized) {
+            return;
+        }
+
+        minimized = false;
+        root.classList.remove('minimized');
+        editor.emit('tools:minimized', false);
     });
 
     // methods to access view params
