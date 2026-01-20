@@ -59,7 +59,7 @@ editor.once('load', () => {
         description: 'Set the gizmo size in the editor viewport.'
     }, {
         name: 'settings:gizmoPreset',
-        description: `Set the gizmo preset in the editor viewport. This affects the transform gizmos's style and interaction behavior.
+        description: `Set the gizmo preset in the editor viewport. This affects the transform gizmo's style and interaction behavior.
 <ul>
 <li><b>Default</b>: Modern gizmo style with improved visual feedback.</li>
 <li><b>Classic</b>: Legacy gizmo style matching the original PlayCanvas Editor.</li>
