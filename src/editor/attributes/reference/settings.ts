@@ -247,19 +247,21 @@ editor.once('load', () => {
     }, {
         name: 'settings:project:fillMode',
         title: 'Fill Mode',
+        subTitle: '{pc.FILLMODE_*}',
         description: `Fill Mode decides how the canvas fills the browser window.
 <ul>
-<li><b>None</b>: Canvas uses the exact resolution specified.</li>
-<li><b>Keep aspect ratio</b>: Canvas fills the window while maintaining aspect ratio.</li>
-<li><b>Fill window</b>: Canvas fills the entire window, ignoring aspect ratio.</li>
+<li><b>None</b> (<code>pc.FILLMODE_NONE</code>): Canvas uses the exact resolution specified.</li>
+<li><b>Keep aspect ratio</b> (<code>pc.FILLMODE_KEEP_ASPECT</code>): Canvas fills the window while maintaining aspect ratio.</li>
+<li><b>Fill window</b> (<code>pc.FILLMODE_FILL_WINDOW</code>): Canvas fills the entire window, ignoring aspect ratio.</li>
 </ul>`
     }, {
         name: 'settings:project:resolutionMode',
         title: 'Resolution Mode',
+        subTitle: '{pc.RESOLUTION_*}',
         description: `Resolution Mode decides whether the canvas resolution will change when it is resized.
 <ul>
-<li><b>Auto</b>: Canvas resolution automatically changes to match the canvas size.</li>
-<li><b>Fixed</b>: Canvas resolution stays fixed at the specified width and height.</li>
+<li><b>Auto</b> (<code>pc.RESOLUTION_AUTO</code>): Canvas resolution automatically changes to match the canvas size.</li>
+<li><b>Fixed</b> (<code>pc.RESOLUTION_FIXED</code>): Canvas resolution stays fixed at the specified width and height.</li>
 </ul>`
     }, {
         name: 'settings:project:physics',
