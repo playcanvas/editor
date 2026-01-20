@@ -205,6 +205,15 @@ class DropManager extends Container {
             return;
         }
 
+        // Only activate for file drags when dropType is 'files'
+        // Text selection drags have types like 'text/plain' but not 'Files'
+        if (this._dropType === 'files') {
+            const types = evt.dataTransfer?.types;
+            if (!types || !Array.from(types).includes('Files')) {
+                return;
+            }
+        }
+
         this._dragEventCounter++;
         this.active = true;
     }
@@ -218,6 +227,15 @@ class DropManager extends Container {
 
         if (this.readOnly) {
             return;
+        }
+
+        // Only activate for file drags when dropType is 'files'
+        // Text selection drags have types like 'text/plain' but not 'Files'
+        if (this._dropType === 'files') {
+            const types = evt.dataTransfer?.types;
+            if (!types || !Array.from(types).includes('Files')) {
+                return;
+            }
         }
 
         evt.dataTransfer.dropEffect = 'move';
