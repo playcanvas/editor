@@ -52,6 +52,25 @@
             color: $text-primary;
             font-size: 12px;
             margin: 6px 0;
+
+            ul {
+                margin: 8px 0 0;
+                padding-left: 1.5em;
+                list-style-type: disc;
+            }
+
+            li {
+                margin: 4px 0;
+            }
+
+            code {
+                font-family: inconsolatamedium, monospace;
+                font-size: 11px;
+                color: $text-primary;
+                background-color: rgb(0 0 0 / 20%);
+                padding: 1px 4px;
+                border-radius: 2px;
+            }
         }
 
         &.webgl2 {
