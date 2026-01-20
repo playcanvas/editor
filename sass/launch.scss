@@ -339,23 +339,4 @@ body > #dev-tools {
             }
         }
     }
-
-    &.minimized {
-        width: 32px;
-        height: 32px;
-        left: auto;
-        border-top: none;
-
-        > .overview,
-        > .timeline,
-        > .frame {
-            display: none;
-        }
-
-        > .toolbar {
-            position: static;
-            width: 32px;
-            height: 32px;
-        }
-    }
 }
