@@ -82,7 +82,11 @@ export const fields: AttributeReference[]  = [{
     name: 'camera:projection',
     title: 'projection',
     subTitle: '{pc.PROJECTION_*}',
-    description: 'The projection type of the camera.',
+    description: `The projection type of the camera.
+<ul>
+<li><b>Perspective</b> (<code>pc.PROJECTION_PERSPECTIVE</code>): Objects appear smaller as they get further away. Used for most 3D scenes.</li>
+<li><b>Orthographic</b> (<code>pc.PROJECTION_ORTHOGRAPHIC</code>): No perspective distortion. Useful for 2D games and UI.</li>
+</ul>`,
     url: 'https://api.playcanvas.com/engine/classes/CameraComponent.html#projection'
 }, {
     name: 'camera:rect',
@@ -99,13 +103,25 @@ export const fields: AttributeReference[]  = [{
 }, {
     name: 'camera:toneMapping',
     title: 'toneMapping',
-    subTitle: '{Number}',
-    description: 'Tonemapping is the process of compressing High Dynamic Range (HDR) colors into limited Low Dynamic Range (e.g. into visible monitor output values). There are two options for tonemapping. Linear: imply scales HDR colors by exposure. Filmic: More sophisticated curve, good at softening overly bright spots, while preserving dark shades as well. Linear tonemapping is active by default, it\'s simply (color * exposure). You can tweak exposure to make quick changes to brightness. Note that it\'s not just simple brightness à la Photoshop because your input can be HDR. e.g. If you have a light source with intensity = 8, it will still be quite bright (4) after exposure = 0.5. So, all visible things won\'t just fade out linearly. Filmic tonemapping is a good choice in high-contrast environments, like scenes lit by bright Sun, or interiors with bright lights being close to walls/ceiling. It will nicely remap out-of-range super bright values to something more perceptually realistic (our eyes and film do tonemapping as well, we don\'t see physically linear values). Well, ask any photographer: nobody likes to leave extremely bright spots as well as pitch black spots on a photo. Filmic tonemapping gives you nice abilities to get rid of such spots.',
+    subTitle: '{pc.TONEMAP_*}',
+    description: `Tonemapping compresses High Dynamic Range (HDR) colors into visible monitor output values.
+<ul>
+<li><b>Linear</b> (<code>pc.TONEMAP_LINEAR</code>): Scales HDR colors by exposure. Simple but can clip bright areas.</li>
+<li><b>Filmic</b> (<code>pc.TONEMAP_FILMIC</code>): Softens bright spots while preserving dark shades. Good for high-contrast scenes.</li>
+<li><b>Hejl</b> (<code>pc.TONEMAP_HEJL</code>): Attempt to mimic film stock.</li>
+<li><b>ACES</b> (<code>pc.TONEMAP_ACES</code>): Industry standard filmic curve.</li>
+<li><b>ACES2</b> (<code>pc.TONEMAP_ACES2</code>): Updated ACES curve with improved color handling.</li>
+<li><b>Neutral</b> (<code>pc.TONEMAP_NEUTRAL</code>): Attempt to preserve original color while compressing brightness.</li>
+</ul>`,
     url: 'https://api.playcanvas.com/engine/classes/CameraComponent.html#tonemapping'
 }, {
     name: 'camera:gammaCorrection',
     title: 'gammaCorrection',
     subTitle: '{pc.GAMMA_*}',
-    description: 'Computer screens are set up to output not physically linear, but perceptually linear (sRGB) signal. However, for correct appearance when performing lighting calculations, color textures must be converted to physically linear space, and then the fully lit image must be fit again into sRGB. Rendering with gamma correction enabled reduces the number of ugly, overly saturated highlights and better preserves color after lighting, and it\'s generally recommended that this be enabled in your scene. The following image shows a simple scene with a sphere. On the left the scene has been gamma corrected while on the right, the scene is uncorrected.',
+    description: `Controls gamma correction for proper color rendering. Screens output perceptually linear (sRGB) signals, so lighting calculations must account for this.
+<ul>
+<li><b>1.0</b> (<code>pc.GAMMA_NONE</code>): No gamma correction. Colors may appear overly saturated.</li>
+<li><b>2.2</b> (<code>pc.GAMMA_SRGB</code>): Standard sRGB gamma correction. Recommended for proper color after lighting.</li>
+</ul>`,
     url: 'https://api.playcanvas.com/engine/classes/CameraComponent.html#gammacorrection'
 }];

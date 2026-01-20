@@ -40,13 +40,23 @@ export const fields: AttributeReference[]  = [{
     name: 'asset:texture:addressU',
     title: 'addressU',
     subTitle: '{pc.ADDRESS_*}',
-    description: 'The addressing mode to be applied to the texture.',
+    description: `The horizontal (U) addressing mode for texture coordinates outside 0-1.
+<ul>
+<li><b>Repeat</b> (<code>pc.ADDRESS_REPEAT</code>): Texture tiles/repeats infinitely.</li>
+<li><b>Clamp</b> (<code>pc.ADDRESS_CLAMP_TO_EDGE</code>): Texture edge pixels are stretched.</li>
+<li><b>Mirror Repeat</b> (<code>pc.ADDRESS_MIRRORED_REPEAT</code>): Texture tiles with alternating mirroring.</li>
+</ul>`,
     url: 'https://api.playcanvas.com/engine/classes/Texture.html#addressu'
 }, {
     name: 'asset:texture:addressV',
     title: 'addressV',
     subTitle: '{pc.ADDRESS_*}',
-    description: 'The addressing mode to be applied to the texture.',
+    description: `The vertical (V) addressing mode for texture coordinates outside 0-1.
+<ul>
+<li><b>Repeat</b> (<code>pc.ADDRESS_REPEAT</code>): Texture tiles/repeats infinitely.</li>
+<li><b>Clamp</b> (<code>pc.ADDRESS_CLAMP_TO_EDGE</code>): Texture edge pixels are stretched.</li>
+<li><b>Mirror Repeat</b> (<code>pc.ADDRESS_MIRRORED_REPEAT</code>): Texture tiles with alternating mirroring.</li>
+</ul>`,
     url: 'https://api.playcanvas.com/engine/classes/Texture.html#addressv'
 }, {
     name: 'asset:texture:anisotropy',
@@ -90,7 +100,11 @@ export const fields: AttributeReference[]  = [{
     name: 'asset:texture:filtering',
     title: 'filtering',
     subTitle: '{pc.FILTER_*}',
-    description: 'This property is exposed as minFilter and magFilter to specify how texture is filtered.',
+    description: `Controls how the texture is sampled when magnified or minified.
+<ul>
+<li><b>Point</b> (<code>pc.FILTER_NEAREST</code>): No filtering, nearest pixel is used. Sharp pixels, good for retro/pixel art.</li>
+<li><b>Linear</b> (<code>pc.FILTER_LINEAR</code>): Bilinear filtering, smooth interpolation between pixels.</li>
+</ul>`,
     url: 'https://api.playcanvas.com/engine/classes/Texture.html#magfilter'
 }, {
     name: 'asset:texture:compression',
@@ -127,9 +141,20 @@ export const fields: AttributeReference[]  = [{
 }, {
     name: 'asset:texture:compress:compressionMode',
     title: 'Compression Mode',
-    description: 'Set the compression mode for the texture. Selecting ETC will generate a significantly smaller Basis file than ASTC but will be of lower quality.'
+    description: `Set the compression mode for the Basis texture.
+<ul>
+<li><b>ETC (smaller size, lower quality)</b>: Generates a smaller Basis file but with lower visual quality.</li>
+<li><b>ASTC (larger size, higher quality)</b>: Generates a larger Basis file but with higher visual quality.</li>
+</ul>`
 }, {
     name: 'asset:texture:compress:quality',
     title: 'Compression Quality',
-    description: 'Set the compression quality for the texture. Higher quality compression will look better but will take longer to compress and generate a larger Basis file.'
+    description: `Set the compression quality for the Basis texture. Higher quality looks better but takes longer to compress and generates larger files.
+<ul>
+<li><b>Lowest</b>: Fastest compression, smallest file, lowest quality.</li>
+<li><b>Low</b>: Fast compression with low quality.</li>
+<li><b>Default</b>: Balanced compression time and quality.</li>
+<li><b>High</b>: Slower compression with higher quality.</li>
+<li><b>Highest</b>: Slowest compression, largest file, best quality.</li>
+</ul>`
 }];

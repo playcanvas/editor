@@ -51,6 +51,12 @@ export const fields: AttributeReference[]  = [{
 }, {
     name: 'sound:distanceModel',
     title: 'distanceModel',
-    subTitle: '{String}',
-    description: 'Determines which algorithm to use to reduce the volume of the audio as it moves away from the listener.'
+    subTitle: '{pc.DISTANCE_*}',
+    description: `Determines which algorithm to use to reduce the volume of the audio as it moves away from the listener.
+<ul>
+<li><b>Linear</b> (<code>pc.DISTANCE_LINEAR</code>): Volume decreases linearly between refDistance and maxDistance.</li>
+<li><b>Inverse</b> (<code>pc.DISTANCE_INVERSE</code>): Volume is inversely proportional to distance.</li>
+<li><b>Exponential</b> (<code>pc.DISTANCE_EXPONENTIAL</code>): Volume decreases exponentially with distance.</li>
+</ul>`,
+    url: 'https://api.playcanvas.com/engine/classes/SoundComponent.html#distancemodel'
 }];

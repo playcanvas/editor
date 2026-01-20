@@ -9,8 +9,12 @@ export const fields: AttributeReference[]  = [{
 }, {
     name: 'scrollbar:orientation',
     title: 'orientation',
-    subTitle: '{pc.ORIENTATION}',
-    description: 'Whether the scrollbar moves horizontally or vertically.',
+    subTitle: '{pc.ORIENTATION_*}',
+    description: `Whether the scrollbar moves horizontally or vertically.
+<ul>
+<li><b>Horizontal</b> (<code>pc.ORIENTATION_HORIZONTAL</code>): Scrollbar moves left/right.</li>
+<li><b>Vertical</b> (<code>pc.ORIENTATION_VERTICAL</code>): Scrollbar moves up/down.</li>
+</ul>`,
     url: 'https://api.playcanvas.com/engine/classes/ScrollbarComponent.html#orientation'
 }, {
     name: 'scrollbar:handleEntity',

@@ -9,8 +9,12 @@ export const fields: AttributeReference[]  = [{
 }, {
     name: 'layoutgroup:orientation',
     title: 'orientation',
-    subTitle: '{pc.ORIENTATION}',
-    description: 'Whether the layout should run horizontally or vertically.',
+    subTitle: '{pc.ORIENTATION_*}',
+    description: `Whether the layout should run horizontally or vertically.
+<ul>
+<li><b>Horizontal</b> (<code>pc.ORIENTATION_HORIZONTAL</code>): Child elements are arranged horizontally (left to right).</li>
+<li><b>Vertical</b> (<code>pc.ORIENTATION_VERTICAL</code>): Child elements are arranged vertically (top to bottom).</li>
+</ul>`,
     url: 'https://api.playcanvas.com/engine/classes/LayoutGroupComponent.html#orientation'
 }, {
     name: 'layoutgroup:reverseX',
@@ -45,14 +49,26 @@ export const fields: AttributeReference[]  = [{
 }, {
     name: 'layoutgroup:widthFitting',
     title: 'widthFitting',
-    subTitle: '{pc.FITTING}',
-    description: 'Fitting logic to be applied when positioning and scaling child elements.',
+    subTitle: '{pc.FITTING_*}',
+    description: `Fitting logic to be applied when positioning and scaling child elements horizontally.
+<ul>
+<li><b>None</b> (<code>pc.FITTING_NONE</code>): Child widths are not modified.</li>
+<li><b>Stretch</b> (<code>pc.FITTING_STRETCH</code>): Children are stretched to fill available space.</li>
+<li><b>Shrink</b> (<code>pc.FITTING_SHRINK</code>): Children are shrunk to fit within the container.</li>
+<li><b>Both</b> (<code>pc.FITTING_BOTH</code>): Children are both stretched and shrunk as needed.</li>
+</ul>`,
     url: 'https://api.playcanvas.com/engine/classes/LayoutGroupComponent.html#widthfitting'
 }, {
     name: 'layoutgroup:heightFitting',
     title: 'heightFitting',
-    subTitle: '{pc.FITTING}',
-    description: 'Fitting logic to be applied when positioning and scaling child elements.',
+    subTitle: '{pc.FITTING_*}',
+    description: `Fitting logic to be applied when positioning and scaling child elements vertically.
+<ul>
+<li><b>None</b> (<code>pc.FITTING_NONE</code>): Child heights are not modified.</li>
+<li><b>Stretch</b> (<code>pc.FITTING_STRETCH</code>): Children are stretched to fill available space.</li>
+<li><b>Shrink</b> (<code>pc.FITTING_SHRINK</code>): Children are shrunk to fit within the container.</li>
+<li><b>Both</b> (<code>pc.FITTING_BOTH</code>): Children are both stretched and shrunk as needed.</li>
+</ul>`,
     url: 'https://api.playcanvas.com/engine/classes/LayoutGroupComponent.html#heightfitting'
 }, {
     name: 'layoutgroup:wrap',
