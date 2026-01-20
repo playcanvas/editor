@@ -49,8 +49,6 @@ editor.once('load', () => {
         return root;
     });
 
-    // variabled
-    // var updateInterval;
     let enabled = false;
     let minimized = false;
 
