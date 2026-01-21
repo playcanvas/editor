@@ -10,7 +10,16 @@ export const fields: AttributeReference[]  = [{
     name: 'render:type',
     title: 'type',
     subTitle: '{String}',
-    description: 'The type of the Render Component.',
+    description: `The type of the Render Component.
+<ul>
+<li><b>Asset</b> (<code>"asset"</code>): Render a mesh from a render asset.</li>
+<li><b>Box</b> (<code>"box"</code>): Render a procedural box primitive.</li>
+<li><b>Capsule</b> (<code>"capsule"</code>): Render a procedural capsule primitive.</li>
+<li><b>Sphere</b> (<code>"sphere"</code>): Render a procedural sphere primitive.</li>
+<li><b>Cylinder</b> (<code>"cylinder"</code>): Render a procedural cylinder primitive.</li>
+<li><b>Cone</b> (<code>"cone"</code>): Render a procedural cone primitive.</li>
+<li><b>Plane</b> (<code>"plane"</code>): Render a procedural plane primitive.</li>
+</ul>`,
     url: 'https://api.playcanvas.com/engine/classes/RenderComponent.html#type'
 }, {
     name: 'render:asset',

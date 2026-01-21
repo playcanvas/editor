@@ -27,8 +27,12 @@ export const fields: AttributeReference[]  = [{
 }, {
     name: 'button:transitionMode',
     title: 'transitionMode',
-    subTitle: '{pc.BUTTON_TRANSITION_MODE}',
-    description: 'Controls how the button responds when the user hovers over it/presses it.',
+    subTitle: '{pc.BUTTON_TRANSITION_MODE_*}',
+    description: `Controls how the button responds when the user hovers over it/presses it.
+<ul>
+<li><b>Tint</b> (<code>pc.BUTTON_TRANSITION_MODE_TINT</code>): The button will tint the image with different colors for each state.</li>
+<li><b>Sprite Change</b> (<code>pc.BUTTON_TRANSITION_MODE_SPRITE_CHANGE</code>): The button will use different sprite frames for each state.</li>
+</ul>`,
     url: 'https://api.playcanvas.com/engine/classes/ButtonComponent.html#transitionmode'
 }, {
     name: 'button:hoverTint',

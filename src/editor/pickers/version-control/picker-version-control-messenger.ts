@@ -108,6 +108,8 @@ editor.once('load', () => {
         }
 
         config.self.branch.id = data.branch_id;
+        // Update API branch ID so refresh() checks if scene exists in the new branch
+        editor.api.globals.branchId = data.branch_id;
         overlayBranchSwitched.setTitle(`Switched to branch "${data.name}"`);
         overlayBranchSwitched.hidden = false;
         refresh();

@@ -28,7 +28,11 @@ export const fields: AttributeReference[]  = [{
     name: 'light:falloffMode',
     title: 'falloffMode',
     subTitle: '{pc.LIGHTFALLOFF_*}',
-    description: 'Controls the rate at which a light attenuates from its position.',
+    description: `Controls the rate at which a light attenuates from its position.
+<ul>
+<li><b>Linear</b> (<code>pc.LIGHTFALLOFF_LINEAR</code>): Light intensity decreases linearly with distance.</li>
+<li><b>Inverse Squared</b> (<code>pc.LIGHTFALLOFF_INVERSESQUARED</code>): Physically accurate falloff where intensity decreases with the square of distance.</li>
+</ul>`,
     url: 'https://api.playcanvas.com/engine/classes/LightComponent.html#falloffmode'
 }, {
     name: 'light:innerConeAngle',
@@ -106,7 +110,12 @@ export const fields: AttributeReference[]  = [{
     name: 'light:type',
     title: 'type',
     subTitle: '{String}',
-    description: 'The type of light. Can be: directional, point, spot.',
+    description: `The type of light.
+<ul>
+<li><b>Directional</b> (<code>"directional"</code>): Simulates sunlight. Casts parallel rays across the entire scene.</li>
+<li><b>Omni</b> (<code>"point"</code>): Emits light in all directions from a single point, like a light bulb.</li>
+<li><b>Spot</b> (<code>"spot"</code>): Emits light in a cone shape, like a flashlight or stage light.</li>
+</ul>`,
     url: 'https://api.playcanvas.com/engine/classes/LightComponent.html#type'
 }, {
     name: 'light:affectDynamic',

@@ -12,9 +12,6 @@ editor.once('load', () => {
 
     const projectUserSettings = editor.call('settings:projectUser');
 
-    // Passing the observer as the render settings are not available yet
-    const sceneSettingsObserver = editor.call('sceneSettings');
-
     // Allow anti-aliasing to be forcibly disabled - this is useful for Selenium tests in
     // order to ensure that the generated screenshots are consistent across different GPUs.
     const disableAntiAliasing = /disableAntiAliasing=true/.test(location.search);
@@ -29,8 +26,7 @@ editor.once('load', () => {
             graphicsDeviceOptions: {
                 antialias: !disableAntiAliasing,
                 alpha: true
-            },
-            sceneSettingsObserver: sceneSettingsObserver
+            }
         });
 
         // Depth layer is where the framebuffer is copied to a texture to be used in the following layers.

@@ -194,14 +194,29 @@ class DropManager extends Container {
         this.emit('deactivate');
     }
 
-    _onDragEnter(evt) {
+    /**
+     * Returns true if the drag event contains valid drop data.
+     * Text selection drags have types like 'text/plain' but not 'Files'.
+     *
+     * @param evt - The drag event to validate.
+     * @returns True if the drag contains valid data for the current dropType.
+     */
+    _isValidDrag(evt: DragEvent) {
+        if (this._dropType === 'files') {
+            const types = evt.dataTransfer?.types;
+            return types && Array.from(types).includes('Files');
+        }
+        return true;
+    }
+
+    _onDragEnter(evt: DragEvent) {
         if (!this.enabled) {
             return;
         }
 
         evt.preventDefault();
 
-        if (this.readOnly) {
+        if (this.readOnly || !this._isValidDrag(evt)) {
             return;
         }
 
@@ -209,14 +224,14 @@ class DropManager extends Container {
         this.active = true;
     }
 
-    _onDragOver(evt) {
+    _onDragOver(evt: DragEvent) {
         if (!this.enabled) {
             return;
         }
 
         evt.preventDefault();
 
-        if (this.readOnly) {
+        if (this.readOnly || !this._isValidDrag(evt)) {
             return;
         }
 
@@ -225,7 +240,7 @@ class DropManager extends Container {
         this.active = true;
     }
 
-    _onDragLeave(evt) {
+    _onDragLeave(evt: DragEvent) {
         if (!this.enabled) {
             return;
         }
@@ -244,7 +259,7 @@ class DropManager extends Container {
         }
     }
 
-    _onMouseUp(evt) {
+    _onMouseUp(evt: MouseEvent) {
         if (!this.enabled) {
             return;
         }
@@ -255,7 +270,7 @@ class DropManager extends Container {
         this.active = false;
     }
 
-    _onDrop(evt) {
+    _onDrop(evt: DragEvent) {
         if (!this.enabled) {
             return;
         }

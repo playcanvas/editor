@@ -448,7 +448,7 @@ editor.once('load', () => {
     // deselect tree item
     editor.on('documents:close', (id: string) => {
         const item = idToItem.get(id);
-        if (item) {
+        if (item && !item.destroyed) {
             item.selected = false;
             item.class.remove('dirty');
         }

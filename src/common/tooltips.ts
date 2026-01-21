@@ -54,7 +54,8 @@ export const tooltipRefItem = ({
     }));
     item.append(new Label({
         class: 'desc',
-        text: reference.description
+        text: reference.description,
+        unsafe: true
     }));
     item.append(new Label({
         class: 'webgl2',

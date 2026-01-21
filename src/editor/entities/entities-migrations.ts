@@ -61,7 +61,10 @@ editor.once('load', () => {
                 }
 
                 // affectLightmapped
-                if (!entity.has('components.light.affectLightmapped')) {
+                if (entity.has('components.light.affectLightMapped')) {
+                    entity.set('components.light.affectLightmapped', entity.get('components.light.affectLightMapped'));
+                    entity.unset('components.light.affectLightMapped');
+                } else if (!entity.has('components.light.affectLightmapped')) {
                     entity.set('components.light.affectLightmapped', false);
                 }
 

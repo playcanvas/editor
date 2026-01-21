@@ -9,8 +9,12 @@ export const fields: AttributeReference[]  = [{
 }, {
     name: 'sprite:type',
     title: 'type',
-    subTitle: '{Boolean}',
-    description: 'A Sprite Component can either be Simple or Animated. Simple Sprite Components only show a single frame of a Sprite Asset. Animated Sprite Components can play Sprite Animation Clips.',
+    subTitle: '{String}',
+    description: `The type of the Sprite Component.
+<ul>
+<li><b>Simple</b> (<code>pc.SPRITETYPE_SIMPLE</code>): Shows a single frame of a Sprite Asset.</li>
+<li><b>Animated</b> (<code>pc.SPRITETYPE_ANIMATED</code>): Can play Sprite Animation Clips.</li>
+</ul>`,
     url: 'https://api.playcanvas.com/engine/classes/SpriteComponent.html#type'
 }, {
     name: 'sprite:color',

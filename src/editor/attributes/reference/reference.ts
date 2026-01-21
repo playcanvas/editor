@@ -68,8 +68,18 @@ editor.once('load', () => {
         }
         if (attr.description) {
             let description = sanitize(attr.description);
-            description = description.replace(/\n/g, '<br />'); // new lines
             description = description.replace(/&lt;b&gt;/g, '<b>').replace(/&lt;\/b&gt;/g, '</b>'); // bold
+            description = description.replace(/&lt;ul&gt;/g, '<ul>').replace(/&lt;\/ul&gt;/g, '</ul>'); // lists
+            description = description.replace(/&lt;li&gt;/g, '<li>').replace(/&lt;\/li&gt;/g, '</li>'); // list items
+            description = description.replace(/&lt;code&gt;/g, '<code>').replace(/&lt;\/code&gt;/g, '</code>'); // code
+            description = description.replace(/\n/g, '<br />'); // new lines
+            // Clean up line breaks around list elements
+            description = description.replace(/<br \/>\s*<ul>/g, '<ul>');
+            description = description.replace(/<ul><br \/>/g, '<ul>');
+            description = description.replace(/<br \/>\s*<\/ul>/g, '</ul>');
+            description = description.replace(/<\/ul><br \/>/g, '</ul>');
+            description = description.replace(/<br \/>\s*<li>/g, '<li>');
+            description = description.replace(/<\/li><br \/>/g, '</li>');
             tooltip.html += `<p>${description}</p>`;
         }
         if (attr.url) {

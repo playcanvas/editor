@@ -11,7 +11,6 @@ class ViewportApplication extends pc.Application {
         }
 
         this.setEditorSettings(options.editorSettings);
-        this.sceneSettingsObserver = options.sceneSettingsObserver;
 
         // Draw immediately
         this.redraw = true;
@@ -42,7 +41,7 @@ class ViewportApplication extends pc.Application {
                 showFog = this.editorSettings.showFog;
             }
 
-            this.scene.fog.type = showFog ? this.sceneSettingsObserver.get('render.fog') : pc.FOG_NONE;
+            this.scene.fog.type = showFog ? (editor.call('sceneSettings')?.get('render.fog') ?? pc.FOG_NONE) : pc.FOG_NONE;
             cameraEntity.camera.rect = rect;
         }
 

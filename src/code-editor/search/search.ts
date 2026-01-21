@@ -21,6 +21,9 @@ editor.once('load', () => {
         }
 
         const path = editor.call('assets:virtualPath', asset);
+        if (!path) {
+            return true; // discard assets with invalid paths
+        }
 
         // if include is present, discard asset if there's no match to the include regex
         const includeMatch = path.match(includeRegex);

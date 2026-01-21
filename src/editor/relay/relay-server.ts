@@ -70,7 +70,10 @@ class RelayServer extends Events {
         this.socket = new WebSocket(this._url);
         this.socket.onopen = this._onopen.bind(this);
         this.socket.onmessage = this._onmessage.bind(this);
-        this.socket.onerror = this._onerror.bind(this);
+        this.socket.onerror = () => {
+            const state = this._connected ? 'connected' : this._connecting ? 'connecting' : 'disconnected';
+            this._onerror(new Error(`WebSocket error (state: ${state}, url: ${this._url}, attempts: ${this._connectAttempts})`));
+        };
         this.socket.onclose = this._onclose.bind(this);
     }
 
@@ -137,7 +140,7 @@ class RelayServer extends Events {
         this.reconnect();
     }
 
-    _onerror(error) {
+    _onerror(error: Error) {
         this._connecting = false;
         console.error(error);
         this.emit('error', error);
@@ -153,7 +156,8 @@ class RelayServer extends Events {
         try {
             msg = JSON.parse(raw.data);
         } catch (ex) {
-            this._onerror(new Error('could not parse message - is it JSON?'));
+            const preview = String(raw?.data ?? '').slice(0, 100);
+            this._onerror(new Error(`Failed to parse relay message: ${ex.message} (preview: ${preview})`));
             return;
         }
 

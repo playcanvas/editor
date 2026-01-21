@@ -1233,7 +1233,8 @@ describe('api.Entities tests', function () {
                 [e.get('resource_id')]: e.json()
             },
             assets: {},
-            type: 'entity'
+            type: 'entity',
+            value: e.get('resource_id')
         }));
     });
 
@@ -1259,7 +1260,8 @@ describe('api.Entities tests', function () {
                 [e2.get('resource_id')]: e2Json
             },
             assets: {},
-            type: 'entity'
+            type: 'entity',
+            value: [e.get('resource_id'), e2.get('resource_id')]
         }));
     });
 
@@ -1285,7 +1287,8 @@ describe('api.Entities tests', function () {
                 [e2.get('resource_id')]: e2Json
             },
             assets: {},
-            type: 'entity'
+            type: 'entity',
+            value: [e.get('resource_id'), e2.get('resource_id')]
         }));
     });
 
@@ -1345,7 +1348,8 @@ describe('api.Entities tests', function () {
                     type: assets[3].get('type')
                 }
             },
-            type: 'entity'
+            type: 'entity',
+            value: [e.get('resource_id'), e2.get('resource_id')]
         }));
     });
 
@@ -1397,7 +1401,8 @@ describe('api.Entities tests', function () {
                 [e.get('resource_id')]: e.json()
             },
             assets: {},
-            type: 'entity'
+            type: 'entity',
+            value: e.get('resource_id')
         };
 
         for (let i = 0; i < assets.length; i++) {
@@ -1451,7 +1456,8 @@ describe('api.Entities tests', function () {
                 [e.get('resource_id')]: e.json()
             },
             assets: {},
-            type: 'entity'
+            type: 'entity',
+            value: e.get('resource_id')
         };
 
         for (let i = 0; i < assets.length; i++) {

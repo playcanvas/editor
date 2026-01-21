@@ -28,7 +28,11 @@ export const fields: AttributeReference[]  = [{
     name: 'screen:scaleMode',
     title: 'scaleMode',
     subTitle: '{String}',
-    description: 'Controls how a screen-space screen is resized when the window size changes. Use Blend to have the screen adjust between the difference of the window resolution and the screen\'s reference resolution. Use None to make the screen always have a size equal to its resolution.',
+    description: `Controls how a screen-space screen is resized when the window size changes.
+<ul>
+<li><b>None</b> (<code>"none"</code>): Screen always has a size equal to its resolution.</li>
+<li><b>Blend</b> (<code>"blend"</code>): Screen adjusts between the window resolution and the reference resolution using Scale Blend.</li>
+</ul>`,
     url: 'https://api.playcanvas.com/engine/classes/ScreenComponent.html#scalemode'
 }, {
     name: 'screen:scaleBlend',
