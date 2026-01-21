@@ -1,4 +1,4 @@
-import { Container, ContainerArgs, Element } from '@playcanvas/pcui';
+import { Container, ContainerArgs } from '@playcanvas/pcui';
 
 import { DropTarget } from './element-drop-target';
 import { CLASS_HIDDEN } from '../constants';
