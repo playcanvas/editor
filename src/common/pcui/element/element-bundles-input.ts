@@ -1,14 +1,23 @@
-import { Element, SelectInput } from '@playcanvas/pcui';
+import type { Observer } from '@playcanvas/observer';
+import { Container, Element, SelectInput, SelectInputArgs } from '@playcanvas/pcui';
 
 const CLASS_ROOT = 'pcui-bundles-input';
 
+/**
+ * A select input for managing asset bundles.
+ */
 class BundlesInput extends SelectInput {
-    constructor(args = {}) {
-        args.options = [];
-        args.type = 'number';
-        args.multiSelect = true;
+    private _assets: Observer[];
 
-        super(args);
+    constructor(args: SelectInputArgs = {}) {
+        const selectArgs: SelectInputArgs = {
+            ...args,
+            options: [],
+            type: 'number',
+            multiSelect: true
+        };
+
+        super(selectArgs);
 
         this.class.add(CLASS_ROOT);
 
@@ -17,23 +26,24 @@ class BundlesInput extends SelectInput {
         this._updateOptions();
     }
 
-    _updateOptions() {
+    protected _updateOptions() {
         let options = editor.call('assets:bundles:list');
-        options = options.map((bundle) => {
+        options = options.map((bundle: Observer) => {
             return { v: bundle.get('id'), t: bundle.get('name') };
         });
         this.options = options;
     }
 
-    _addTag(bundleId) {
-        super._addTag(bundleId);
+    protected _addTag(bundleId: unknown): Container {
+        const container = super._addTag(bundleId);
         const bundleAsset = editor.call('assets:get', bundleId);
         if (bundleAsset && this._assets.length > 0) {
             editor.call('assets:bundles:addAssets', this._assets, bundleAsset);
         }
+        return container;
     }
 
-    _removeTag(tagElement, bundleId) {
+    protected _removeTag(tagElement: Container, bundleId: unknown) {
         super._removeTag(tagElement, bundleId);
         const bundleAsset = editor.call('assets:get', bundleId);
         if (bundleAsset && this._assets.length > 0) {
@@ -41,7 +51,7 @@ class BundlesInput extends SelectInput {
         }
     }
 
-    link(observers, paths) {
+    link(observers: Observer | Observer[], paths: string | string[]) {
         // order is important here
         // we have to update the options first
         // and then link because updating options
@@ -49,29 +59,30 @@ class BundlesInput extends SelectInput {
         this._updateOptions();
         super.link(observers, paths);
 
-        this._assets = observers.filter((observer) => {
+        const observerArray = Array.isArray(observers) ? observers : [observers];
+        this._assets = observerArray.filter((observer: Observer & { _type?: string }) => {
             return observer._type === 'asset';
         });
 
-        const selectedBundles = [];
-        this._containerTags.dom.childNodes.forEach((dom) => {
-            selectedBundles.push(dom.ui.value);
+        const selectedBundles: unknown[] = [];
+        this._containerTags.dom.childNodes.forEach((dom: ChildNode) => {
+            selectedBundles.push((dom as any).ui.value);
         });
 
         this._assets.forEach((asset) => {
             const assetBundles = editor.call('assets:bundles:listForAsset', asset);
-            assetBundles.forEach((assetBundle) => {
+            assetBundles.forEach((assetBundle: Observer) => {
                 if (!selectedBundles.includes(assetBundle.get('id'))) {
                     this._addTag(assetBundle.get('id'));
                 }
             });
         });
-        this._containerTags.dom.childNodes.forEach((dom) => {
-            const assetBundles = editor.call('assets:bundles:listForAsset', this._assets[0]).map((asset) => {
+        this._containerTags.dom.childNodes.forEach((dom: ChildNode) => {
+            const assetBundles = editor.call('assets:bundles:listForAsset', this._assets[0]).map((asset: Observer) => {
                 return asset.get('id');
             });
-            if (!assetBundles.includes(dom.ui.value)) {
-                this._removeTag(dom.ui, dom.ui.value);
+            if (!assetBundles.includes((dom as any).ui.value)) {
+                this._removeTag((dom as any).ui, (dom as any).ui.value);
             }
         });
     }

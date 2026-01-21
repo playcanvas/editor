@@ -1,5 +1,5 @@
 import type { Observer } from '@playcanvas/observer';
-import { Element, Container, Label } from '@playcanvas/pcui';
+import { Element, Container, ContainerArgs, Label } from '@playcanvas/pcui';
 
 import { TableCell } from './element-table-cell';
 import { TableRow } from './element-table-row';
@@ -20,40 +20,101 @@ const CLASS_RESIZING_VISIBLE = `${CLASS_RESIZING}-visible`;
 const CSS_PROPERTY_HEIGHT_BEFORE = '--resizing-before';
 const CSS_PROPERTY_HEIGHT_AFTER = '--resizing-after';
 
-type TableArgs = {
+/**
+ * Column definition for the Table.
+ */
+interface TableColumn {
+    /** The title displayed on the column */
+    title: string;
+    /** CSS width of the initial column width */
+    width?: number;
+    /** The minimum width of the column */
+    minWidth?: number;
+    /** The observer field with which to sort the table when the column is clicked */
+    sortKey?: string;
+    /** Overrides the sortKey method to sort the observers using this function instead */
+    sortFn?: (a: Observer, b: Observer, ascending: boolean) => number;
+}
+
+/**
+ * The arguments for the {@link Table} constructor.
+ */
+interface TableArgs extends ContainerArgs {
     /** A function like (observer) => TableRow that creates a TableRow from an observer. */
     createRowFn?: (observer: Observer) => TableRow;
     /** A function like (observer) => TableRow that returns an existing row from an observer. Used for faster sorting. */
     getRowFn?: (observer: Observer) => TableRow;
     /** A function like (TableRow) => boolean that hides the row if it returns false. */
     filterFn?: (row: TableRow) => boolean;
+    /** The columns of the table */
+    columns?: TableColumn[];
+    /** The default column index to sort by */
+    defaultSortColumn?: number;
+    /** Whether table rows will be focused on selection. Defaults to true. */
+    allowRowFocus?: boolean;
 }
 
 /**
  * Represents a table view with optional resizable and sortable columns.
- *
- * @property {object[]} columns The columns of the table. Each column has the following format:
- * - title: String - the title displayed on the column,
- * - width: CSS width of the initial column width,
- * - minWidth: Number - the minimum width of the column,
- * - sortKey: The observer field with which to sort the table when the column table is clicked.
- * Also serves as an identifier for the column.
- * - sortFn: Overrides the sortKey method to sort the observers using this function instead.
- * @property {Container} table The internal <table> container
- * @property {Container} head The internal <thead> container
- * @property {Container} body The internal <tbody> container
- * @property {TableRow[]} selected Gets the selected rows
- * @property {string} sortKey Gets the current sort key
- * @property {Function} sortFn Gets the current sort function
- * @property {boolean} isAscending Gets whether the current sort order is ascending (or descending)
- * @property {boolean} allowRowFocus Gets / sets whether table rows will be focused on selection.
- * Defaults to true.
  */
 class Table extends Container {
-    constructor(args: TableArgs) {
-        args = Object.assign({}, args);
+    private _containerTable: Container;
 
-        super(args);
+    private _containerHead: Container;
+
+    private _containerBody: Container;
+
+    private _createRowFn?: (observer: Observer) => TableRow;
+
+    private _getRowFn?: (observer: Observer) => TableRow;
+
+    private _filterFn?: (row: TableRow) => boolean;
+
+    private _filterCanceled: boolean;
+
+    private _filterAnimationFrame: number | null;
+
+    private _sort: {
+        ascending: boolean;
+        key: string | null;
+        fn: ((a: Observer, b: Observer, ascending: boolean) => number) | null;
+        sortKey?: string;
+    };
+
+    private _draggedColumn: number | null;
+
+    private _resizingVisibleRows: HTMLElement[];
+
+    private _didFreezeColumnWidth: boolean;
+
+    private _selectedRows: TableRow[];
+
+    private _lastRowFocused: TableRow | null;
+
+    private _allowRowFocus: boolean;
+
+    private _columns: TableColumn[];
+
+    private _observers: Observer[] | null;
+
+    private _onRowSelectHandler: (row: TableRow) => void;
+
+    private _onRowDeselectHandler: (row: TableRow) => void;
+
+    private _onRowFocusHandler: (row: TableRow) => void;
+
+    private _onRowBlurHandler: (row: TableRow) => void;
+
+    private _onRowKeyDownHandler: (evt: KeyboardEvent) => void;
+
+    private _domEvtWheel: (evt: WheelEvent) => void;
+
+    private _prevScrollTop: number;
+
+    constructor(args: TableArgs = {}) {
+        const containerArgs: TableArgs = { ...args };
+
+        super(containerArgs);
 
         this.class.add(CLASS_TABLE);
 
@@ -247,8 +308,9 @@ class Table extends Container {
 
             // deselect others
             this._containerBody.forEachChild((otherRow) => {
-                if (otherRow !== row && otherRow.selected) {
-                    otherRow.selected = false;
+                const tableRow = otherRow as TableRow;
+                if (tableRow !== row && tableRow.selected) {
+                    tableRow.selected = false;
                     othersSelected = true;
                 }
             });
@@ -313,7 +375,7 @@ class Table extends Container {
             // deselect others
             this._containerBody.forEachChild((otherRow) => {
                 if (otherRow !== next) {
-                    otherRow.selected = false;
+                    (otherRow as TableRow).selected = false;
                 }
             });
         }
@@ -331,14 +393,14 @@ class Table extends Container {
     // Executes specified function for each cell in the
     // specified column index for the specified TableRow container
     // The function has a signature of (Element) => {}
-    _forEachColumnCell(container, columnIndex, fn) {
+    _forEachColumnCell(container: Container, columnIndex: number, fn: (cell: TableCell) => void) {
         container.forEachChild((row) => {
             if (row instanceof TableRow) {
                 let index = columnIndex + 1;
                 for (let i = 0; i < row.dom.childNodes.length; i++) {
-                    const rowCell = row.dom.childNodes[i];
+                    const rowCell = row.dom.childNodes[i] as HTMLElement & { ui?: TableCell };
                     if (rowCell.ui && rowCell.ui instanceof TableCell) {
-                        index -= (rowCell.ui.colSpan || 1);
+                        index -= ((rowCell.ui as any).colSpan || 1);
                         if (index === 0) {
                             fn(rowCell.ui);
                         } else if (index < 0) {
@@ -390,7 +452,7 @@ class Table extends Container {
         // and store them in _resizingVisibleRows.
         // We will hide the rest.
         let foundFirst = false;
-        let row = this.body.dom.childNodes[0];
+        let row = this.body.dom.childNodes[0] as HTMLElement & { ui?: TableRow };
         while (row) {
             if (row.ui instanceof TableRow && !row.ui.hidden) {
                 const rowRect = row.getBoundingClientRect();
@@ -406,7 +468,7 @@ class Table extends Container {
                 }
             }
 
-            row = row.nextSibling;
+            row = row.nextSibling as HTMLElement & { ui?: TableRow };
         }
 
         if (visible.length) {
@@ -741,7 +803,7 @@ class Table extends Container {
 
         this._observers.splice(index, 1);
 
-        const row = this.body.dom.childNodes[index];
+        const row = this.body.dom.childNodes[index] as HTMLElement & { ui?: TableRow };
         if (row && row.ui) {
             row.ui.selected = false;
             row.ui.destroy();

@@ -1,4 +1,4 @@
-import { Container } from '@playcanvas/pcui';
+import { Container, ContainerArgs, Element } from '@playcanvas/pcui';
 
 import { DropTarget } from './element-drop-target';
 import { CLASS_HIDDEN } from '../constants';
@@ -15,13 +15,37 @@ const CLASS_DROP_MANAGER_ACTIVE = `${CLASS_DROP_MANAGER}-active`;
 
 /**
  * Handles drag and drop.
- *
- * @property {boolean} active True when we are currently dragging
- * @property {string} dropType The type of data that is being dropped
- * @property {Any} dropData The data being dropped
  */
 class DropManager extends Container {
-    constructor(args: object) {
+    private _domWallFull: HTMLDivElement;
+
+    private _domWallTop: HTMLDivElement;
+
+    private _domWallBottom: HTMLDivElement;
+
+    private _domWallLeft: HTMLDivElement;
+
+    private _domWallRight: HTMLDivElement;
+
+    private _domEventDragEnter: (evt: DragEvent) => void;
+
+    private _domEventDragOver: (evt: DragEvent) => void;
+
+    private _domEventDragLeave: (evt: DragEvent) => void;
+
+    private _domEventDrop: (evt: DragEvent) => void;
+
+    private _domEventMouseUp: (evt: MouseEvent) => void;
+
+    private _active: boolean;
+
+    private _dragEventCounter: number;
+
+    private _dropType: string;
+
+    private _dropData: any;
+
+    constructor(args: ContainerArgs = {}) {
         super(args);
 
         this.class.add(CLASS_DROP_MANAGER);
@@ -321,7 +345,7 @@ class DropManager extends Container {
         window.removeEventListener('dragover', this._domEventDragOver);
         window.removeEventListener('dragleave', this._domEventDragLeave);
         window.removeEventListener('drop', this._domEventDrop);
-        window.removeEventListener('mouesup', this._domEventMouseUp);
+        window.removeEventListener('mouseup', this._domEventMouseUp);
 
         super.destroy();
     }
