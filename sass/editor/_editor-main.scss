@@ -3746,30 +3746,24 @@ strong {
     }
 }
 
-.picker-script-create.center {
-    > .content {
+.pcui-overlay.picker-script-create {
+    .pcui-overlay-content {
         width: 288px;
-        height: auto;
-        left: calc(50% - 144px);
-        top: calc(50% - 32px);
         padding: 16px;
-        transition: none;
+        z-index: 0;
 
-        > .text {
-            display: block;
-            margin-top: 0;
+        > .pcui-label {
+            margin: 0 0 8px;
         }
 
-        > .ui-text-field {
-            display: block;
-            width: calc(100% - 8px);
+        > .pcui-input-element {
+            margin: 0;
+            width: 100%;
         }
 
         > .validate {
-            position: absolute;
-            top: 16px;
-            right: 16px;
-            margin: 0;
+            float: right;
+            margin: 2px 0 0;
             font-size: 12px;
             color: #f30;
         }

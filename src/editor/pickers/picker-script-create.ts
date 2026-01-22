@@ -1,86 +1,69 @@
+import { Label, Overlay, TextInput } from '@playcanvas/pcui';
+
 import { normalizeScriptName } from '@/common/script-names';
-import { LegacyLabel } from '@/common/ui/label';
-import { LegacyOverlay } from '@/common/ui/overlay';
-import { LegacyTextField } from '@/common/ui/text-field';
 
 editor.once('load', () => {
-    let callback = null;
+    let callback: ((name: string) => void) | null = null;
 
-    // overlay
-    const overlay = new LegacyOverlay();
-    overlay.class.add('picker-script-create');
-    overlay.hidden = true;
+    const overlay = new Overlay({
+        class: 'picker-script-create',
+        clickable: true,
+        hidden: true
+    });
 
-    // label
-    const label = new LegacyLabel();
-    label.text = 'Enter script filename:';
-    label.class.add('text');
+    const label = new Label({
+        text: 'Enter script filename:'
+    });
     overlay.append(label);
 
-    const input = new LegacyTextField();
-    input.blurOnEnter = false;
-    input.renderChanges = false;
-    overlay.append(input);
-
-    const validate = new LegacyLabel();
-    validate.text = 'Invalid filename';
-    validate.class.add('validate');
+    const validate = new Label({
+        class: 'validate',
+        text: 'Invalid filename'
+    });
     overlay.append(validate);
 
-    input.element.addEventListener('keydown', (evt) => {
+    const input = new TextInput({
+        blurOnEnter: false
+    });
+    overlay.append(input);
+
+    input.dom.addEventListener('keydown', (evt) => {
         if (overlay.hidden) {
             return;
         }
 
-        if (evt.keyCode === 13) {
-            // enter
-
+        if (evt.key === 'Enter') {
             const normalizedScriptName = normalizeScriptName(input.value);
-            const scriptNameValid = normalizedScriptName !== null;
-
-            if (!scriptNameValid) {
+            if (normalizedScriptName === null) {
                 validate.hidden = false;
             } else {
                 validate.hidden = true;
-
-                if (callback) {
-                    callback(normalizedScriptName);
-                }
-
+                callback?.(normalizedScriptName);
                 overlay.hidden = true;
             }
-        } else if (evt.keyCode === 27) {
-            // esc
+        } else if (evt.key === 'Escape') {
+            evt.stopPropagation();
             overlay.hidden = true;
         }
-    }, false);
+    });
 
     const root = editor.call('layout.root');
     root.append(overlay);
 
-
-    // on overlay hide
     overlay.on('hide', () => {
         editor.emit('picker:script-create:close');
     });
 
     editor.method('picker:script-create:validate', normalizeScriptName);
 
-    // call picker
     editor.method('picker:script-create', (fn, string) => {
         callback = fn || null;
-
-        // show overlay
         overlay.hidden = false;
         validate.hidden = true;
         input.value = string || '';
-
-        setTimeout(() => {
-            input.elementInput.focus();
-        }, 100);
+        input.focus(true);
     });
 
-    // close picker
     editor.method('picker:script-create:close', () => {
         overlay.hidden = true;
     });

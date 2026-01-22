@@ -1,18 +1,16 @@
-import { Overlay, Label, TextInput } from '@playcanvas/pcui';
+import { Label, Overlay, TextInput } from '@playcanvas/pcui';
 
 import { normalizeScriptName } from '@/common/script-names';
 
 editor.once('load', () => {
-    let callback = null;
+    let callback: ((name: string) => void) | null = null;
 
-    // overlay
     const overlay = new Overlay({
         class: 'picker-script-create',
         clickable: true,
         hidden: true
     });
 
-    // label
     const label = new Label({
         text: 'Enter script filename:'
     });
@@ -25,8 +23,7 @@ editor.once('load', () => {
     overlay.append(validate);
 
     const input = new TextInput({
-        blurOnEnter: false,
-        renderChanges: false
+        blurOnEnter: false
     });
     overlay.append(input);
 
@@ -35,53 +32,38 @@ editor.once('load', () => {
             return;
         }
 
-        if (evt.keyCode === 13) {
-            // enter
+        if (evt.key === 'Enter') {
             const normalizedScriptName = normalizeScriptName(input.value);
-            const scriptNameValid = normalizedScriptName !== null;
-
-            if (!scriptNameValid) {
+            if (normalizedScriptName === null) {
                 validate.hidden = false;
             } else {
                 validate.hidden = true;
-
-                if (callback) {
-                    callback(normalizedScriptName);
-                }
-
+                callback?.(normalizedScriptName);
                 overlay.hidden = true;
             }
-        } else if (evt.keyCode === 27) {
-            // esc
+        } else if (evt.key === 'Escape') {
             evt.stopPropagation();
             overlay.hidden = true;
         }
-    }, false);
+    });
 
     const root = editor.call('layout.root');
     root.append(overlay);
 
-
-    // on overlay hide
     overlay.on('hide', () => {
         editor.emit('picker:script-create:close');
     });
 
     editor.method('picker:script-create:validate', normalizeScriptName);
 
-    // call picker
     editor.method('picker:script-create', (fn, string) => {
         callback = fn || null;
-
-        // show overlay
         overlay.hidden = false;
         validate.hidden = true;
         input.value = string || '';
-
         input.focus(true);
     });
 
-    // close picker
     editor.method('picker:script-create:close', () => {
         overlay.hidden = true;
     });
