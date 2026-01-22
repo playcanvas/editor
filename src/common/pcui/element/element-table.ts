@@ -78,7 +78,6 @@ class Table extends Container {
         ascending: boolean;
         key: string | null;
         fn: ((a: Observer, b: Observer, ascending: boolean) => number) | null;
-        sortKey?: string;
     };
 
     private _draggedColumn: number | null;
@@ -870,7 +869,7 @@ class Table extends Container {
         }
 
         // toggle ascending
-        if (column.sortKey && this._sort.sortKey === column.sortKey ||
+        if (column.sortKey && this._sort.key === column.sortKey ||
             column.sortFn && this._sort.fn === column.sortFn) {
             this._sort.ascending = !this._sort.ascending;
         }
