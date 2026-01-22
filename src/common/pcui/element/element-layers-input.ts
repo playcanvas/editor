@@ -1,27 +1,48 @@
-import { Element, SelectInput } from '@playcanvas/pcui';
+import type { Observer } from '@playcanvas/observer';
+import { Element, SelectInput, SelectInputArgs } from '@playcanvas/pcui';
 
 const CLASS_ROOT = 'pcui-layers-input';
 
-class LayersInput extends SelectInput {
-    constructor(args = {}) {
-        args.multiSelect = true;
-        args.options = [];
-        args.type = 'number';
+/**
+ * The arguments for the {@link LayersInput} constructor.
+ */
+interface LayersInputArgs extends SelectInputArgs {
+    /** The project settings observer */
+    projectSettings?: Observer;
+    /** Layer IDs to exclude from the options */
+    excludeLayers?: number[];
+}
 
-        super(args);
+/**
+ * A select input for choosing layers.
+ */
+class LayersInput extends SelectInput {
+    private _projectSettings?: Observer;
+
+    private _excludeLayers: number[];
+
+    constructor(args: LayersInputArgs = {}) {
+        const selectArgs: LayersInputArgs = {
+            ...args,
+            multiSelect: true,
+            options: [],
+            type: 'number'
+        };
+
+        super(selectArgs);
 
         this.class.add(CLASS_ROOT);
 
         this._projectSettings = args.projectSettings;
 
-        this._excludeLayers = (args.excludeLayers ? args.excludeLayers.slice() : []);
+        this._excludeLayers = args.excludeLayers ? args.excludeLayers.slice() : [];
 
         this._updateOptions();
     }
 
-    _updateOptions() {
-        const options = [];
-        const layers = this._projectSettings.get('layers');
+    protected _updateOptions() {
+        const options: { v: number, t: string }[] = [];
+        const layers = this._projectSettings?.get('layers');
 
         if (layers) {
             this._excludeLayers.forEach((id) => {
@@ -35,11 +56,10 @@ class LayersInput extends SelectInput {
             }
         }
 
-
         this.options = options;
     }
 
-    link(observers, paths) {
+    link(observers: Observer | Observer[], paths: string | string[]) {
         // order is important here
         // we have to update the options first
         // and then link because updating options

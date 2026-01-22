@@ -1,4 +1,4 @@
-import { Element, Canvas } from '@playcanvas/pcui';
+import { Element, ElementArgs, Canvas } from '@playcanvas/pcui';
 
 import { CLASS_MULTIPLE_VALUES } from '../constants';
 
@@ -7,7 +7,7 @@ const REGEX_KEYS = /keys/;
 const REGEX_TYPE = /type/;
 const CLASS_GRADIENT = 'pcui-gradient';
 
-function createCheckerboardPattern(context) {
+function createCheckerboardPattern(context: CanvasRenderingContext2D) {
     // create checkerboard pattern
     const canvas = document.createElement('canvas');
     const size = 24;
@@ -15,7 +15,7 @@ function createCheckerboardPattern(context) {
     canvas.width = size;
     canvas.height = size;
 
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext('2d')!;
     ctx.fillStyle = '#';
     ctx.fillStyle = '#949a9c';
     ctx.fillRect(0, 0, halfSize, halfSize);
@@ -27,23 +27,47 @@ function createCheckerboardPattern(context) {
     return context.createPattern(canvas, 'repeat');
 }
 
-type GradientInputArgs = {
+/**
+ * The arguments for the {@link GradientInput} constructor.
+ */
+interface GradientInputArgs extends ElementArgs {
     /** The number of color channels. Between 1 and 4. */
     channels?: number;
+    /** The initial value */
+    value?: any;
+    /** If true the input will flash when changed */
+    renderChanges?: boolean;
 }
 
 /**
  * Shows a color gradient.
- *
- * @property {boolean} renderChanges If true the input will flash when changed.
  */
 class GradientInput extends Element {
-    constructor(args: GradientInputArgs) {
-        args = Object.assign({
-            tabIndex: 0
-        }, args);
+    private _canvas: Canvas;
 
-        super(args);
+    private _checkerboardPattern: CanvasPattern | null;
+
+    private _resizeInterval: ReturnType<typeof setInterval> | null;
+
+    private _domEventKeyDown: (evt: KeyboardEvent) => void;
+
+    private _domEventFocus: (evt: FocusEvent) => void;
+
+    private _domEventBlur: (evt: FocusEvent) => void;
+
+    private _channels: number;
+
+    private _value: any;
+
+    renderChanges: boolean;
+
+    constructor(args: GradientInputArgs = {}) {
+        const elementArgs: GradientInputArgs = {
+            tabIndex: 0,
+            ...args
+        };
+
+        super(elementArgs);
 
         this.class.add(CLASS_GRADIENT);
 
@@ -52,7 +76,7 @@ class GradientInput extends Element {
         this._canvas.parent = this;
         this._canvas.on('resize', this._renderGradient.bind(this));
 
-        this._checkerboardPattern = createCheckerboardPattern(this._canvas.dom.getContext('2d'));
+        this._checkerboardPattern = createCheckerboardPattern((this._canvas.dom as HTMLCanvasElement).getContext('2d')!);
 
         // make sure canvas is the same size as the container element
         // 20 times a second
@@ -172,7 +196,7 @@ class GradientInput extends Element {
     }
 
     _renderGradient() {
-        const canvas = this._canvas.dom;
+        const canvas = this._canvas.dom as HTMLCanvasElement;
         const context = canvas.getContext('2d');
 
         const width = this._canvas.width;

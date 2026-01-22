@@ -386,7 +386,7 @@ export class TemplateThumbnailRenderer extends ThumbnailRenderer {
         layer.addCamera(this.scene.cameraEntity.camera);
         layer.addLight(this.scene.lightEntity.light);
 
-        // TODO: Neutralise scene settings, FOG, AmbientLight, etc.
+        // TODO: Neutralize scene settings, FOG, AmbientLight, etc.
         this.app.renderComposition(layerComposition);
 
         const device = this.app.graphicsDevice as WebglGraphicsDevice;

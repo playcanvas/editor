@@ -1,41 +1,49 @@
-import { Container } from '@playcanvas/pcui';
+import { Container, ContainerArgs } from '@playcanvas/pcui';
+
+import type { Table } from './element-table';
 
 const CLASS_ROW = 'pcui-table-row';
 const CLASS_SELECTED_ROW = `${CLASS_ROW}-selected`;
 
-type TableRowArgs = {
+/**
+ * The arguments for the {@link TableRow} constructor.
+ */
+interface TableRowArgs extends ContainerArgs {
     /** If true then this is a header row */
     header?: boolean;
-};
+}
 
 /**
  * Represents the row of a Table.
- *
- * @property {boolean} selected Whether the row is selected
- * @property {TableRow} previousSibling Returns the previous visible sibling row
- * @property {TableRow} nextSibling Returns the next visible sibling row
- * @property {Table} table Gets / sets the table that this row belongs to
  */
 class TableRow extends Container {
+    private _header: boolean;
+
+    private _table: Table | null;
+
+    private _selected: boolean;
+
+    private _domEvtFocus?: () => void;
+
+    private _domEvtBlur?: () => void;
+
     /**
      * Creates new TableRow.
      *
-     * @param {TableRowArgs} args - The arguments.
+     * @param args - The arguments.
      */
-    constructor(args?: TableRowArgs) {
-        args = Object.assign({
-            tabIndex: args && args.header ? -1 : 0,
-            dom: document.createElement('tr')
-        }, args);
+    constructor(args: TableRowArgs = {}) {
+        const rowArgs: TableRowArgs = {
+            tabIndex: args.header ? -1 : 0,
+            dom: document.createElement('tr'),
+            ...args
+        };
 
-        super(args);
+        super(rowArgs);
 
         this.class.add(CLASS_ROW);
 
-        if (args.header) {
-            this._header = true;
-        }
-
+        this._header = !!args.header;
         this._table = null;
         this._selected = false;
 

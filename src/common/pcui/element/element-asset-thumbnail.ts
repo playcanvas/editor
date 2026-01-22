@@ -27,7 +27,7 @@ const CANVAS_TYPES = {
     'model': true,
     'sprite': true,
     'render': true,
-    'template': false // TODO: Change to true after testing with optimisations (GH Issue #783)
+    'template': false // TODO: Change to true after testing with optimizations (GH Issue #783)
 };
 
 type AssetThumbnailArgs = {

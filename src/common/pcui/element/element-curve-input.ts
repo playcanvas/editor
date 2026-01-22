@@ -1,4 +1,4 @@
-import { Element, Canvas } from '@playcanvas/pcui';
+import { Element, ElementArgs, Canvas } from '@playcanvas/pcui';
 
 import { deepCopy } from '../../utils';
 import { CLASS_MULTIPLE_VALUES } from '../constants';
@@ -6,7 +6,10 @@ import { CLASS_MULTIPLE_VALUES } from '../constants';
 
 const CLASS_CURVE = 'pcui-curve';
 
-type CurveInputArgs = {
+/**
+ * The arguments for the {@link CurveInput} constructor.
+ */
+interface CurveInputArgs extends ElementArgs {
     /** The width of the rendered lines in pixels. */
     lineWidth?: number;
     /** The minimum value that curves can take. */
@@ -17,20 +20,60 @@ type CurveInputArgs = {
     verticalValue?: number;
     /** Whether to hide the randomize button in the curve picker. */
     hideRandomize?: boolean;
+    /** The initial value */
+    value?: any;
+    /** If true the input will flash when changed */
+    renderChanges?: boolean;
+    /** The curves configuration */
+    curves?: any;
 }
 
 /**
  * Shows a curve or curveset.
- *
- * @property {boolean} renderChanges If true the input will flash when changed.
  */
 class CurveInput extends Element {
-    constructor(args: CurveInputArgs) {
-        args = Object.assign({
-            tabIndex: 0
-        }, args);
+    private _canvas: Canvas;
 
-        super(args);
+    private _pickerChanging: boolean;
+
+    private _combineHistory: boolean;
+
+    private _historyPostfix: string | null;
+
+    private _domEventKeyDown: (evt: KeyboardEvent) => void;
+
+    private _domEventFocus: (evt: FocusEvent) => void;
+
+    private _domEventBlur: (evt: FocusEvent) => void;
+
+    private _lineWidth: number;
+
+    private _min: number;
+
+    private _max: number;
+
+    private _value: any;
+
+    private _pickerArgs: {
+        min?: number;
+        max?: number;
+        verticalValue?: number;
+        curves?: any;
+        hideRandomize?: boolean;
+        keepZoom?: boolean;
+    };
+
+    private _resizeInterval: ReturnType<typeof setInterval> | null;
+
+    renderChanges: boolean;
+
+    constructor(args: CurveInputArgs = {}) {
+        const elementArgs: CurveInputArgs = {
+            tabIndex: 0,
+            ...args
+        };
+
+        super(elementArgs);
 
         this.class.add(CLASS_CURVE);
 
@@ -342,7 +385,7 @@ class CurveInput extends Element {
     }
 
     _renderCurves() {
-        const canvas = this._canvas.dom;
+        const canvas = this._canvas.dom as HTMLCanvasElement;
         const context = canvas.getContext('2d');
         const value = this.value;
 

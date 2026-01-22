@@ -1,24 +1,32 @@
 import type { Observer } from '@playcanvas/observer';
-import { Element, SelectInput } from '@playcanvas/pcui';
+import { Element, SelectInput, SelectInputArgs } from '@playcanvas/pcui';
 
-type BatchGroupInputArgs = {
+/**
+ * The arguments for the {@link BatchGroupInput} constructor.
+ */
+interface BatchGroupInputArgs extends SelectInputArgs {
     /** The project settings observer */
     projectSettings?: Observer;
-};
+}
 
 /**
  * A select input that holds batch group options.
  */
 class BatchGroupInput extends SelectInput {
-    constructor(args: BatchGroupInputArgs = {}) {
-        args.type = 'number';
-        args.allowNull = true;
-        args.allowInput = true;
-        args.allowCreate = true;
-        args.createLabelText = 'Create';
-        args.options = [];
+    protected _projectSettings?: Observer;
 
-        super(args);
+    constructor(args: BatchGroupInputArgs = {}) {
+        const selectArgs: BatchGroupInputArgs = {
+            ...args,
+            type: 'number',
+            allowNull: true,
+            allowInput: true,
+            allowCreate: true,
+            createLabelText: 'Create',
+            options: []
+        };
+
+        super(selectArgs);
 
         this._createFn = this._createGroup.bind(this);
 
@@ -27,12 +35,12 @@ class BatchGroupInput extends SelectInput {
         this._refreshOptions();
     }
 
-    _refreshOptions() {
-        const options = [{
+    protected _refreshOptions() {
+        const options: { v: number | null, t: string }[] = [{
             v: null, t: 'None'
         }];
 
-        const batchGroups = this._projectSettings.get('batchGroups');
+        const batchGroups = this._projectSettings?.get('batchGroups');
         if (batchGroups) {
             for (const key in batchGroups) {
                 options.push({
@@ -41,11 +49,10 @@ class BatchGroupInput extends SelectInput {
             }
         }
 
-
         this.options = options;
     }
 
-    _createGroup(name) {
+    protected _createGroup(name: string) {
         const group = editor.call('editorSettings:batchGroups:create', name);
         this._refreshOptions();
         this.value = group;
@@ -55,7 +62,7 @@ class BatchGroupInput extends SelectInput {
         });
     }
 
-    link(observers, paths) {
+    link(observers: Observer | Observer[], paths: string | string[]) {
         // order is important here
         // we have to refresh the options first
         // and then link because updating options

@@ -1,5 +1,5 @@
 import type { ObserverList } from '@playcanvas/observer';
-import { Element, Container, Button, Label, TextInput, BindingObserversToElement, type ElementArgs } from '@playcanvas/pcui';
+import { Element, ElementArgs, Container, Button, Label, TextInput, BindingObserversToElement } from '@playcanvas/pcui';
 
 const CLASS_ASSET_LIST = 'pcui-asset-list';
 const CLASS_ASSET_LIST_SELECTION_MODE = `${CLASS_ASSET_LIST}-selection-mode`;
@@ -13,18 +13,21 @@ const CLASS_CONTAINER_ASSETS = `${CLASS_ASSET_LIST}-assets`;
 const CLASS_ASSET_ITEM = `${CLASS_ASSET_LIST}-item`;
 const CLASS_ASSET_NOT_EVERYWHERE = `${CLASS_ASSET_LIST}-not-everywhere`;
 
-type AssetListArgs = {
+/**
+ * The arguments for the {@link AssetList} constructor.
+ */
+interface AssetListArgs extends ElementArgs {
     /** The assets list */
     assets?: ObserverList;
     /** An optional filter for a specific asset type. */
     assetType?: string;
     /** An optional filter function when determining which assets to show with the asset picker. */
     filterFn?: (asset: any) => boolean;
-    /** If true then this will enable drag and drop of assets on the input. The function takes an asset observer as an argument and returns true or false. */
+    /** If true then this will enable drag and drop of assets on the input. */
     allowDragDrop?: boolean;
     /** If true then this will enable rendering changes to the asset list. */
     renderChanges?: boolean;
-
+    /** The initial value (array of asset ids) */
     value?: number[];
 }
 
@@ -66,7 +69,7 @@ class AssetList extends Element {
 
     renderChanges: boolean;
 
-    constructor(args: ElementArgs & AssetListArgs = {}) {
+    constructor(args: AssetListArgs = {}) {
         const container = new Container({
             flex: true
         });
@@ -322,7 +325,7 @@ class AssetList extends Element {
             items.push([this._indexAssets[id].label.value, parseInt(id, 10)]);
         }
 
-        // TODO: use a class here instead of a global seach:items
+        // TODO: use a class here instead of a global search:items
         const results = editor.call('search:items', items, filter);
         for (const id in this._indexAssets) {
             if (results.indexOf(parseInt(id, 10)) === -1) {
