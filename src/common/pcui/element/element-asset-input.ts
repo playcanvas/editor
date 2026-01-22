@@ -1,5 +1,5 @@
 import type { EventHandle, ObserverList } from '@playcanvas/observer';
-import { Element, type ElementArgs, Label, Container, Button, BindingObserversToElement } from '@playcanvas/pcui';
+import { Element, ElementArgs, Label, Container, Button, BindingObserversToElement } from '@playcanvas/pcui';
 
 import { type AssetObserver } from '@playcanvas/editor-api';
 
@@ -14,12 +14,14 @@ const CLASS_ASSET_INPUT_ASSET = 'pcui-asset-input-asset';
 const CLASS_ASSET_INPUT_EDIT = 'pcui-asset-input-edit';
 const CLASS_ASSET_INPUT_REMOVE = 'pcui-asset-input-remove';
 
-type AssetInputArgs = {
+/**
+ * The arguments for the {@link AssetInput} constructor.
+ */
+interface AssetInputArgs extends ElementArgs {
     /** The assets observer list */
     assets?: ObserverList;
-
+    /** The initial value (asset id) */
     value?: number | null;
-
     /** The text on the top right of the field */
     text?: string;
     /** The type of assets that this input can display. Used when picking assets with the asset picker */
@@ -32,11 +34,11 @@ type AssetInputArgs = {
     selectAssetFn?: (assetId: number) => void;
     /** A function that validates whether an asset is selectable by this asset input */
     validateAssetFn?: (asset: AssetObserver) => boolean;
-
+    /** A function called when a drag enters the input */
     dragEnterFn?: (...args: any[]) => void;
-
+    /** A function called when a drag leaves the input */
     dragLeaveFn?: (...args: any[]) => void;
-
+    /** If true then the Element will flash when its value changes */
     renderChanges?: boolean;
 }
 
@@ -79,9 +81,7 @@ class AssetInput extends Element {
 
     private _renderChanges: boolean;
 
-    constructor(args: ElementArgs & AssetInputArgs = {}) {
-        args = Object.assign({}, args);
-
+    constructor(args: AssetInputArgs = {}) {
         super(args);
 
         this.class.add(CLASS_ASSET_INPUT);

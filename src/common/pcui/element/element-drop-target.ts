@@ -1,4 +1,4 @@
-import { Element } from '@playcanvas/pcui';
+import { Element, ElementArgs } from '@playcanvas/pcui';
 
 import type { DropManager } from './element-drop-manager';
 
@@ -8,7 +8,10 @@ const CLASS_DROP_TARGET_PASSTHROUGH = `${CLASS_DROP_TARGET}-passthrough`;
 const CLASS_DROP_TARGET_DRAG_OVER = `${CLASS_DROP_TARGET}-dragover`;
 const CLASS_DROP_TARGET_FRONT = `${CLASS_DROP_TARGET}-front`;
 
-type DropTargetArgs = {
+/**
+ * The arguments for the {@link DropTarget} constructor.
+ */
+interface DropTargetArgs extends ElementArgs {
     /** The type of data that is valid for this drop target. */
     dropType?: string;
     /** The drop manager. */
@@ -31,7 +34,31 @@ type DropTargetArgs = {
  * Defines an area where we can drag drop data.
  */
 class DropTarget extends Element {
-    constructor(targetElement: Element, args: DropTargetArgs = {}) {
+    private _onFilterFn?: ((type: string, data: any) => boolean) | null;
+
+    private _onDragEnterFn?: ((type: string, data: any) => void) | null;
+
+    private _onDragLeaveFn?: (() => void) | null;
+
+    private _onDropFn?: ((type: string, data: any) => void) | null;
+
+    private _domTargetElement: HTMLElement;
+
+    private _dropType: string | null;
+
+    private _dropManager: DropManager | null;
+
+    private _hole?: boolean;
+
+    private _passThrough?: boolean;
+
+    private _domEventDragEnter: (evt: Event) => void;
+
+    private _domEventDragLeave: (evt?: Event) => void;
+
+    private _domEventDrop: (evt: Event) => void;
+
+    constructor(targetElement: Element & { element?: HTMLElement }, args: DropTargetArgs = {}) {
         super(args);
 
         this.class.add(CLASS_DROP_TARGET);
@@ -46,7 +73,7 @@ class DropTarget extends Element {
             targetElement.once('destroy', this.destroy.bind(this));
         }
 
-        this._domTargetElement = targetElement.dom || targetElement.element || targetElement;
+        this._domTargetElement = (targetElement.dom || targetElement.element || targetElement) as HTMLElement;
 
         this._dropType = args.dropType || null;
 
@@ -83,7 +110,7 @@ class DropTarget extends Element {
         this.on('hide', this._onHide.bind(this));
     }
 
-    onFilter(type, data) {
+    onFilter(type: string, data: any) {
         if (!this._preDropFilter(type, data)) {
             return false;
         }
@@ -96,7 +123,7 @@ class DropTarget extends Element {
         return true;
     }
 
-    _preDropFilter(type, data) {
+    protected _preDropFilter(type: string, data: any) {
         // do not show if disabled or readonly
         if (!this.enabled || this.readOnly) {
             return false;
@@ -115,7 +142,7 @@ class DropTarget extends Element {
         return true;
     }
 
-    _onDragEnter(evt) {
+    protected _onDragEnter(evt: Event) {
         if (!this.enabled) {
             return;
         }
@@ -132,7 +159,7 @@ class DropTarget extends Element {
         }
     }
 
-    _onDragLeave(evt) {
+    protected _onDragLeave(evt?: Event) {
         if (!this.enabled) {
             return;
         }
@@ -158,7 +185,7 @@ class DropTarget extends Element {
         }
     }
 
-    _onDrop(evt) {
+    protected _onDrop(evt: Event) {
         this._onDragLeave();
 
         if (this._dropManager && this._onDropFn) {
@@ -188,14 +215,14 @@ class DropTarget extends Element {
         this._domTargetElement.classList.remove(CLASS_DROP_TARGET_FRONT);
     }
 
-    _isTargetElementVisible() {
+    protected _isTargetElementVisible() {
         const rect = this.rect;
         if (!rect.width || !rect.height) {
             return false;
         }
 
-        const parent = this._domTargetElement.parentNode;
-        if (!parent.offsetHeight) {
+        const parent = this._domTargetElement.parentNode as HTMLElement;
+        if (!parent?.offsetHeight) {
             return false;
         }
 

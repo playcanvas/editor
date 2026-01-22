@@ -1,23 +1,50 @@
-import { Element } from '@playcanvas/pcui';
+import { Element, ElementArgs } from '@playcanvas/pcui';
 
 import { CLASS_MULTIPLE_VALUES, CLASS_NOT_FLEXIBLE } from '../constants';
 
 const CLASS_COLOR_INPUT = 'pcui-color-input';
 
 /**
+ * The arguments for the {@link ColorInput} constructor.
+ */
+interface ColorInputArgs extends ElementArgs {
+    /** An array of 1 to 4 numbers that range from 0 to 1. */
+    value?: number[];
+    /** Number of channels. Can be 1 to 4. */
+    channels?: number;
+    /** If true the input will flash when changed. */
+    renderChanges?: boolean;
+}
+
+/**
  * Represents a color input. Clicking on the color input will open a color picker.
- *
- * @property {number[]} value An array of 1 to 4 numbers that range from 0 to 1. The length of the array depends on the number of channels.
- * @property {number} channels Can be 1 to 4.
- * @property {boolean} renderChanges If true the input will flash when changed.
  */
 class ColorInput extends Element {
-    constructor(args: object) {
-        args = Object.assign({
-            tabIndex: 0
-        }, args);
+    private _domColor: HTMLDivElement;
 
-        super(args);
+    private _domEventKeyDown: (evt: KeyboardEvent) => void;
+
+    private _domEventFocus: (evt: FocusEvent) => void;
+
+    private _domEventBlur: (evt: FocusEvent) => void;
+
+    private _historyCombine: boolean;
+
+    private _historyPostfix: string | null;
+
+    private _value: number[];
+
+    private _channels: number;
+
+    renderChanges: boolean;
+
+    constructor(args: ColorInputArgs = {}) {
+        const elementArgs: ColorInputArgs = {
+            tabIndex: 0,
+            ...args
+        };
+
+        super(elementArgs);
 
         this.class.add(CLASS_COLOR_INPUT);
         this.class.add(CLASS_NOT_FLEXIBLE);
@@ -48,8 +75,6 @@ class ColorInput extends Element {
         this._value = args.value || [0, 0, 0, 1];
         this._channels = args.channels || 3;
         this._setValue(this._value);
-
-        this._isColorPickerOpen = false;
 
         this.renderChanges = args.renderChanges || false;
 
@@ -96,7 +121,6 @@ class ColorInput extends Element {
     _openColorPicker() {
         // TODO - this needs to open the picker
         // without relying on the editor global methods
-        this._isColorPickerOpen = true;
 
         // open color picker
         editor.call('picker:color', this.value.map(c => Math.floor(c * 255)));
@@ -156,7 +180,6 @@ class ColorInput extends Element {
             evtColorPickEnd.unbind();
             evtColorPickEnd = null;
 
-            this._isColorPickerOpen = false;
             this.focus();
         });
     }

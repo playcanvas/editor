@@ -1,5 +1,5 @@
 import type { ObserverList } from '@playcanvas/observer';
-import { Element, Container, Label, Button, BindingObserversToElement } from '@playcanvas/pcui';
+import { Element, ElementArgs, Container, Label, Button, BindingObserversToElement } from '@playcanvas/pcui';
 
 import { CLASS_FOCUS, CLASS_MULTIPLE_VALUES } from '../constants';
 
@@ -7,31 +7,60 @@ import { CLASS_FOCUS, CLASS_MULTIPLE_VALUES } from '../constants';
 const CLASS_ENTITY_INPUT = 'pcui-entity-input';
 const CLASS_EMPTY = `${CLASS_ENTITY_INPUT}-empty`;
 
-type EntityInputArgs = {
+/**
+ * The arguments for the {@link EntityInput} constructor.
+ */
+interface EntityInputArgs extends ElementArgs {
     /** The entities list. */
     entities?: ObserverList;
     /** A function with signature (callback) => void. The function should allow the user to pick an Entity and then the function should call the callback passing the Entity's resource id as the argument. */
-    pickEntityFn?: (callback: (resourceId: string) => void) => void;
+    pickEntityFn?: (callback: (resourceId: string | null) => void) => void;
     /** A function that highlights an Entity with signature (string, boolean) => void. The first argument is the resource id of the Entity and the second argument signifies whether we should highlight the entity or not. */
     highlightEntityFn?: (resourceId: string, highlight: boolean) => void;
     /** If true then this will enable drag and drop of entities on the input. */
     allowDragDrop?: boolean;
+    /** The initial value (resource_id of entity) */
+    value?: string | null;
+    /** If true then the Element will flash when its value changes */
+    renderChanges?: boolean;
 }
 
 /**
  * An input that accepts an Entity.
- *
- * @property {boolean} renderChanges If true then the Element will flash when its value changes.
  */
 class EntityInput extends Element {
-    constructor(args: EntityInputArgs) {
+    private _entities?: ObserverList;
+
+    private _container: Container;
+
+    private _domEvtFocus: () => void;
+
+    private _domEvtBlur: () => void;
+
+    private _domEvtKeyDown: (evt: KeyboardEvent) => void;
+
+    private _label: Label;
+
+    private _buttonRemove: Button;
+
+    private _pickEntityFn: (callback: (resourceId: string | null) => void) => void;
+
+    private _highlightEntityFn: (resourceId: string, highlight: boolean) => void;
+
+    private _value: string | null;
+
+    renderChanges: boolean;
+
+    constructor(args: EntityInputArgs = {}) {
         const container = new Container();
 
-        args = Object.assign({
-            tabIndex: 0
-        }, args);
+        const elementArgs: EntityInputArgs = {
+            tabIndex: 0,
+            ...args,
+            dom: container.dom
+        };
 
-        super({ ...args, dom: container.dom });
+        super(elementArgs);
 
         this.class.add(CLASS_ENTITY_INPUT);
 
@@ -49,7 +78,7 @@ class EntityInput extends Element {
         this.dom.addEventListener('keydown', this._domEvtKeyDown);
 
         this._label = new Label({
-            flexGrow: 1,
+            flexGrow: '1',
             binding: new BindingObserversToElement()
         });
 
@@ -59,7 +88,7 @@ class EntityInput extends Element {
             icon: 'E132'
         });
         this._container.append(this._buttonRemove);
-        this._buttonRemove.on('click', (evt) => {
+        this._buttonRemove.on('click', (evt: MouseEvent) => {
             // don't propagate click to container
             // because it will open the entity picker
             evt.stopPropagation();
@@ -70,6 +99,7 @@ class EntityInput extends Element {
         this._pickEntityFn = args.pickEntityFn || this._pickEntity.bind(this);
         this._highlightEntityFn = args.highlightEntityFn || this._highlightEntity.bind(this);
 
+        this._value = null;
         this.value = args.value || null;
 
         this.renderChanges = args.renderChanges || false;
@@ -80,7 +110,7 @@ class EntityInput extends Element {
             }
         });
 
-        this.on('click', (evt) => {
+        this.on('click', () => {
             if (this.readOnly) {
                 return;
             }
