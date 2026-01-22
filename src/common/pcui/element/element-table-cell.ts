@@ -37,6 +37,17 @@ class TableCell extends Container {
 
         this.class.add(CLASS_CELL);
     }
+
+    /**
+     * The number of columns this cell spans.
+     */
+    set colSpan(value: number) {
+        (this.dom as HTMLTableCellElement).colSpan = value;
+    }
+
+    get colSpan(): number {
+        return (this.dom as HTMLTableCellElement).colSpan;
+    }
 }
 
 export { TableCell };

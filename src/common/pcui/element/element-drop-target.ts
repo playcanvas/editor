@@ -58,7 +58,7 @@ class DropTarget extends Element {
 
     private _domEventDrop: (evt: Event) => void;
 
-    constructor(targetElement: Element & { element?: HTMLElement }, args: DropTargetArgs = {}) {
+    constructor(targetElement: Element | HTMLElement, args: DropTargetArgs = {}) {
         super(args);
 
         this.class.add(CLASS_DROP_TARGET);
@@ -69,11 +69,11 @@ class DropTarget extends Element {
         this._onDropFn = args.onDrop;
 
         // destroy drop target if its target element gets destroyed
-        if (targetElement.once) {
+        if (targetElement instanceof Element) {
             targetElement.once('destroy', this.destroy.bind(this));
         }
 
-        this._domTargetElement = (targetElement.dom || targetElement.element || targetElement) as HTMLElement;
+        this._domTargetElement = targetElement instanceof HTMLElement ? targetElement : targetElement.dom;
 
         this._dropType = args.dropType || null;
 
