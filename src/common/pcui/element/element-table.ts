@@ -399,7 +399,7 @@ class Table extends Container {
                 for (let i = 0; i < row.dom.childNodes.length; i++) {
                     const rowCell = row.dom.childNodes[i] as HTMLElement & { ui?: TableCell };
                     if (rowCell.ui && rowCell.ui instanceof TableCell) {
-                        index -= (rowCell.ui.colSpan || 1);
+                        index -= ((rowCell.ui as any).colSpan || 1);
                         if (index === 0) {
                             fn(rowCell.ui);
                         } else if (index < 0) {
