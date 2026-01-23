@@ -1,86 +1,81 @@
+import { Label, Overlay, TextInput } from '@playcanvas/pcui';
+
 import { normalizeScriptName } from '@/common/script-names';
-import { LegacyLabel } from '@/common/ui/label';
-import { LegacyOverlay } from '@/common/ui/overlay';
-import { LegacyTextField } from '@/common/ui/text-field';
 
 editor.once('load', () => {
-    let callback = null;
+    let callback: ((name: string) => void) | null = null;
 
-    // overlay
-    const overlay = new LegacyOverlay();
-    overlay.class.add('picker-script-create');
-    overlay.hidden = true;
+    const overlay = new Overlay({
+        class: 'picker-script-create',
+        clickable: true,
+        hidden: true
+    });
 
-    // label
-    const label = new LegacyLabel();
-    label.text = 'Enter script filename:';
-    label.class.add('text');
+    const label = new Label({
+        text: 'Enter script filename:'
+    });
     overlay.append(label);
 
-    const input = new LegacyTextField();
-    input.blurOnEnter = false;
-    input.renderChanges = false;
-    overlay.append(input);
-
-    const validate = new LegacyLabel();
-    validate.text = 'Invalid filename';
-    validate.class.add('validate');
+    const validate = new Label({
+        class: 'validate',
+        text: 'Invalid filename',
+        hidden: true
+    });
     overlay.append(validate);
 
-    input.element.addEventListener('keydown', (evt) => {
-        if (overlay.hidden) {
-            return;
-        }
+    const input = new TextInput({
+        blurOnEnter: false,
+        keyChange: true
+    });
+    overlay.append(input);
 
-        if (evt.keyCode === 13) {
-            // enter
+    const onInputChange = () => {
+        validate.hidden = normalizeScriptName(input.value) !== null;
+    };
 
+    const onInputKeyDown = (evt: KeyboardEvent) => {
+        if (evt.key === 'Enter') {
             const normalizedScriptName = normalizeScriptName(input.value);
-            const scriptNameValid = normalizedScriptName !== null;
-
-            if (!scriptNameValid) {
-                validate.hidden = false;
-            } else {
-                validate.hidden = true;
-
-                if (callback) {
-                    callback(normalizedScriptName);
-                }
-
+            if (normalizedScriptName !== null) {
+                callback?.(normalizedScriptName);
                 overlay.hidden = true;
             }
-        } else if (evt.keyCode === 27) {
-            // esc
+        }
+    };
+
+    const onWindowKeyDown = (evt: KeyboardEvent) => {
+        if (evt.key === 'Escape') {
+            evt.stopPropagation();
             overlay.hidden = true;
         }
-    }, false);
+    };
 
     const root = editor.call('layout.root');
     root.append(overlay);
 
+    overlay.on('show', () => {
+        input.on('change', onInputChange);
+        input.on('keydown', onInputKeyDown);
+        window.addEventListener('keydown', onWindowKeyDown, true);
+    });
 
-    // on overlay hide
     overlay.on('hide', () => {
+        input.unbind('change', onInputChange);
+        input.unbind('keydown', onInputKeyDown);
+        window.removeEventListener('keydown', onWindowKeyDown, true);
         editor.emit('picker:script-create:close');
     });
 
     editor.method('picker:script-create:validate', normalizeScriptName);
 
-    // call picker
     editor.method('picker:script-create', (fn, string) => {
-        callback = fn || null;
-
-        // show overlay
+        callback = fn ?? null;
         overlay.hidden = false;
         validate.hidden = true;
-        input.value = string || '';
-
-        setTimeout(() => {
-            input.elementInput.focus();
-        }, 100);
+        input.value = string ?? '';
+        input.focus(true);
     });
 
-    // close picker
     editor.method('picker:script-create:close', () => {
         overlay.hidden = true;
     });
