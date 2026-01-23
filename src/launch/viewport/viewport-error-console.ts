@@ -116,15 +116,16 @@ editor.once('load', () => {
                             const filePath = editor.call('assets:virtualPath', asset);
                             target = `${ide}:${config.project.id}`;
                             codeEditorUrl = `${ide}://playcanvas.playcanvas/${projectName}${filePath}`;
+                            query = `?line=${line}&col=${col}&error=true`;
                             break;
                         }
                         default: {
                             target = `codeeditor:${config.project.id}`;
                             codeEditorUrl = `${config.url.home}/editor/code/${config.project.id}`;
+                            query = `?tabs=${assetId}&line=${line}&col=${col}&error=true`;
                             break;
                         }
                     }
-                    query = `?tabs=${assetId}&line=${line}&col=${col}&error=true`;
                 } else {
                     codeEditorUrl = url;
                 }
