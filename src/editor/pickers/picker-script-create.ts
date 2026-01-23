@@ -18,49 +18,61 @@ editor.once('load', () => {
 
     const validate = new Label({
         class: 'validate',
-        text: 'Invalid filename'
+        text: 'Invalid filename',
+        hidden: true
     });
     overlay.append(validate);
 
     const input = new TextInput({
-        blurOnEnter: false
+        blurOnEnter: false,
+        keyChange: true
     });
     overlay.append(input);
 
-    input.dom.addEventListener('keydown', (evt) => {
-        if (overlay.hidden) {
-            return;
-        }
+    const onInputChange = () => {
+        validate.hidden = normalizeScriptName(input.value) !== null;
+    };
 
+    const onInputKeyDown = (evt: KeyboardEvent) => {
         if (evt.key === 'Enter') {
             const normalizedScriptName = normalizeScriptName(input.value);
-            if (normalizedScriptName === null) {
-                validate.hidden = false;
-            } else {
-                validate.hidden = true;
+            if (normalizedScriptName !== null) {
                 callback?.(normalizedScriptName);
                 overlay.hidden = true;
             }
-        } else if (evt.key === 'Escape') {
+        }
+    };
+
+    const onWindowKeyDown = (evt: KeyboardEvent) => {
+        if (evt.key === 'Escape') {
             evt.stopPropagation();
             overlay.hidden = true;
         }
-    });
+    };
 
     const root = editor.call('layout.root');
     root.append(overlay);
 
+    overlay.on('show', () => {
+        input.on('change', onInputChange);
+        input.on('keydown', onInputKeyDown);
+        window.addEventListener('keydown', onWindowKeyDown, true);
+    });
+
     overlay.on('hide', () => {
+        input.unbind('change', onInputChange);
+        input.unbind('keydown', onInputKeyDown);
+        window.removeEventListener('keydown', onWindowKeyDown, true);
         editor.emit('picker:script-create:close');
     });
 
     editor.method('picker:script-create:validate', normalizeScriptName);
 
     editor.method('picker:script-create', (fn, string) => {
-        callback = fn || null;
+        callback = fn ?? null;
         overlay.hidden = false;
         validate.hidden = true;
-        input.value = string || '';
+        input.value = string ?? '';
         input.focus(true);
     });
 
