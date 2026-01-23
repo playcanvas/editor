@@ -84,4 +84,20 @@ editor.once('load', () => {
         return editor.call('assets:isScript', asset) &&
             asset.get('file.filename')?.endsWith('.mjs');
     });
+
+    // get asset virtual path
+    const assetVirtualPath = (asset) => {
+        if (!asset.get('file')?.filename) {
+            return null;
+        }
+        const assetPath = asset.get('path');
+        const pathAssets = assetPath.map(id => editor.call('assets:get', id));
+        if (pathAssets.some(a => !a)) {
+            // Parent folder(s) have been deleted
+            return null;
+        }
+        const pathSegments = pathAssets.map(a => a.get('name'));
+        return `/${[...pathSegments, asset.get('file').filename].join('/')}`;
+    };
+    editor.method('assets:virtualPath', assetVirtualPath);
 });
