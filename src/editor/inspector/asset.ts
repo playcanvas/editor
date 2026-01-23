@@ -322,7 +322,7 @@ editor.method('assets:open', (assets) => {
     }
 });
 
-type AssetInspectorArgs = {
+interface AssetInspectorArgs extends ContainerArgs {
     assets: ObserverList;
     entities: ObserverList;
     projectSettings: Observer;
@@ -330,7 +330,7 @@ type AssetInspectorArgs = {
     editableTypes: Record<string, number>;
     inspectorPanel: Container;
     inspectorPanelSecondary: Container;
-} & ContainerArgs;
+}
 
 class AssetInspector extends Container {
     _projectSettings: Observer;
