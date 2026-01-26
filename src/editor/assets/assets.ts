@@ -125,7 +125,8 @@ editor.once('load', () => {
     });
 
     // get asset ide path
-    editor.method('assets:idePath', (ide: 'cursor' | 'vscode', asset) => {
-        return `${ide}://playcanvas.playcanvas/project/${config.project.id}/asset/${asset.get('id')}`;
+    editor.method('assets:idePath', (ide: 'cursor' | 'vscode', asset?: AssetObserver) => {
+        const assetPath = asset ? `/asset/${asset.get('id')}` : '';
+        return `${ide}://playcanvas.playcanvas/project/${config.project.id}${assetPath}`;
     });
 });
