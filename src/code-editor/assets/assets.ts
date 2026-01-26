@@ -198,7 +198,8 @@ editor.once('load', () => {
     editor.method('assets:getByVirtualPath', (path: string) => assetToVirtualPath.get(path));
 
     // get asset ide path
-    editor.method('assets:idePath', (ide: 'cursor' | 'vscode', asset: Observer) => {
-        return `${ide}://playcanvas.playcanvas/project/${config.project.id}/asset/${asset.get('id')}`;
+    editor.method('assets:idePath', (ide: 'cursor' | 'vscode', asset?: Observer) => {
+        const assetPath = asset ? `/asset/${asset.get('id')}` : '';
+        return `${ide}://playcanvas.playcanvas/project/${config.project.id}${assetPath}`;
     });
 });
