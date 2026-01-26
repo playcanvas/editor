@@ -104,13 +104,14 @@ editor.once('load', () => {
             asset.get('file.filename')?.endsWith('.mjs');
     });
 
-    editor.method('assets:virtualPath', (asset: AssetObserver, useAssetName = false) => {
-        const name = useAssetName ? asset.get('name') : asset.get('file')?.filename;
-        if (!name) {
+    editor.method('assets:virtualPath', (asset: AssetObserver) => {
+        const filename = asset.get('file')?.filename;
+        if (!filename) {
             return null;
         }
-        const pathSegments = asset.get('path').map(id => editor.call('assets:get', id).get('name'));
-        return `/${[...pathSegments, name].join('/')}`;
+        const path = asset.get('path') || [];
+        const pathSegments = path.map(id => editor.call('assets:get', id).get('name'));
+        return `/${[...pathSegments, filename].join('/')}`;
     });
 
     editor.method('assets:realPath', (asset: AssetObserver) => {
@@ -118,7 +119,7 @@ editor.once('load', () => {
     });
 
     // get asset ide path
-    editor.method('assets:idePath', (ide: 'cursor' | 'vscode', asset) => {
+    editor.method('assets:idePath', (ide: 'cursor' | 'vscode', asset: AssetObserver) => {
         return `${ide}://playcanvas.playcanvas/project/${config.project.id}/asset/${asset.get('id')}`;
     });
 });
