@@ -25,9 +25,7 @@ editor.once('load', () => {
         switch (ide) {
             case 'vscode':
             case 'cursor': {
-                const projectName = `${config.project.name} (${config.project.id})`;
-                const filePath = editor.call('assets:virtualPath', asset, true);
-                window.open(`${ide}://playcanvas.playcanvas/${projectName}${filePath}`);
+                window.open(editor.call('assets:idePath', ide, asset));
                 return;
             }
         }

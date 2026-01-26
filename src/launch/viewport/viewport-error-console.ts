@@ -112,10 +112,8 @@ editor.once('load', () => {
                         case 'vscode':
                         case 'cursor': {
                             const asset = editor.call('assets:get', assetId);
-                            const projectName = `${config.project.name} (${config.project.id})`;
-                            const filePath = editor.call('assets:virtualPath', asset, true);
                             target = `${ide}:${config.project.id}`;
-                            codeEditorUrl = `${ide}://playcanvas.playcanvas/${projectName}${filePath}`;
+                            codeEditorUrl = editor.call('assets:idePath', ide, asset);
                             query = `?line=${line}&col=${col}&error=true`;
                             break;
                         }
