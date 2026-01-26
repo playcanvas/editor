@@ -180,7 +180,13 @@ editor.once('load', () => {
             return null;
         }
         const path = asset.get('path') || [];
-        const pathSegments = path.map(id => editor.call('assets:get', id).get('name'));
+        const pathSegments: string[] = path.reduce((segments, id) => {
+            const asset = editor.call('assets:get', id);
+            if (asset) {
+                segments.push(asset.get('name'));
+            }
+            return segments;
+        }, []);
         return `/${[...pathSegments, filename].join('/')}`;
     });
 
