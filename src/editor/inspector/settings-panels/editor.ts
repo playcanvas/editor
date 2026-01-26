@@ -270,7 +270,7 @@ const ATTRIBUTES: (Attribute | Divider)[] = [
                 },
                 {
                     v: 'vscode',
-                    t: 'VSCode'
+                    t: 'VS Code'
                 },
                 {
                     v: 'cursor',
