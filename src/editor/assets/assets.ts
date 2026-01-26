@@ -116,4 +116,9 @@ editor.once('load', () => {
     editor.method('assets:realPath', (asset: AssetObserver) => {
         return `/api/assets/${asset.get('id')}/file/${asset.get('name')}?branchId=${config.self.branch.id}`;
     });
+
+    // get asset ide path
+    editor.method('assets:idePath', (ide: 'cursor' | 'vscode', asset) => {
+        return `${ide}://playcanvas.playcanvas/project/${config.project.id}/asset/${asset.get('id')}`;
+    });
 });
