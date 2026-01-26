@@ -25,7 +25,7 @@ editor.once('load', () => {
         const ide = projectUserSettings.get('editor.codeEditor');
         if (asset && (ide === 'vscode' || ide === 'cursor')) {
             const projectName = `${config.project.name} (${config.project.id})`;
-            const filePath = editor.call('assets:virtualPath', asset);
+            const filePath = editor.call('assets:virtualPath', asset, true);
             window.open(`${ide}://playcanvas.playcanvas/${projectName}${filePath}`);
             return;
         }
