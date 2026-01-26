@@ -86,8 +86,9 @@ editor.once('load', () => {
     });
 
     // get asset virtual path
-    const assetVirtualPath = (asset) => {
-        if (!asset.get('file')?.filename) {
+    const assetVirtualPath = (asset, useAssetName = false) => {
+        const name = useAssetName ? asset.get('name') : asset.get('file').filename;
+        if (!name) {
             return null;
         }
         const assetPath = asset.get('path');
@@ -97,7 +98,7 @@ editor.once('load', () => {
             return null;
         }
         const pathSegments = pathAssets.map(a => a.get('name'));
-        return `/${[...pathSegments, asset.get('file').filename].join('/')}`;
+        return `/${[...pathSegments, name].join('/')}`;
     };
     editor.method('assets:virtualPath', assetVirtualPath);
 });
