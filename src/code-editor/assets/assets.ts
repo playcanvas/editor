@@ -174,21 +174,15 @@ editor.once('load', () => {
             asset.get('file.filename')?.endsWith('.mjs');
     });
 
-    const assetVirtualPath = (asset, useAssetName = false) => {
-        const name = useAssetName ? asset.get('name') : asset.get('file').filename;
-        if (!name) {
+    editor.method('assets:virtualPath', (asset) => {
+        const filename = asset.get('file').filename;
+        if (!filename) {
             return null;
         }
-        const assetPath = asset.get('path');
-        const pathAssets = assetPath.map(id => editor.call('assets:get', id));
-        if (pathAssets.some(a => !a)) {
-            // Parent folder(s) have been deleted
-            return null;
-        }
-        const pathSegments = pathAssets.map(a => a.get('name'));
-        return `/${[...pathSegments, name].join('/')}`;
-    };
-    editor.method('assets:virtualPath', assetVirtualPath);
+        const path = asset.get('path') || [];
+        const pathSegments = path.map(id => editor.call('assets:get', id).get('name'));
+        return `/${[...pathSegments, filename].join('/')}`;
+    });
 
     editor.method('assets:realPath', (asset) => {
         return `/api/assets/${asset.get('id')}/file/${asset.get('name')}?branchId=${config.self.branch.id}`;

@@ -104,13 +104,14 @@ editor.once('load', () => {
             asset.get('file.filename')?.endsWith('.mjs');
     });
 
-    editor.method('assets:virtualPath', (asset, useAssetName = false) => {
-        const name = useAssetName ? asset.get('name') : asset.get('file').filename;
-        if (!name) {
+    editor.method('assets:virtualPath', (asset) => {
+        const filename = asset.get('file').filename;
+        if (!filename) {
             return null;
         }
-        const pathSegments = asset.get('path').map(id => editor.call('assets:get', id).get('name'));
-        return `/${[...pathSegments, name].join('/')}`;
+        const path = asset.get('path') || [];
+        const pathSegments = path.map(id => editor.call('assets:get', id).get('name'));
+        return `/${[...pathSegments, filename].join('/')}`;
     });
 
     editor.method('assets:realPath', (asset) => {
