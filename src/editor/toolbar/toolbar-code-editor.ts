@@ -23,11 +23,13 @@ editor.once('load', () => {
     editor.method('picker:codeeditor', (asset?: Observer, options?: Record<string, unknown>, popup?: boolean) => {
         // open the code editor external editor
         const ide = projectUserSettings.get('editor.codeEditor');
-        if (asset && (ide === 'vscode' || ide === 'cursor')) {
-            const projectName = `${config.project.name} (${config.project.id})`;
-            const filePath = editor.call('assets:virtualPath', asset, true);
-            window.open(`${ide}://playcanvas.playcanvas/${projectName}${filePath}`);
-            return;
+        if (asset) {
+            switch (ide) {
+                case 'vscode':
+                case 'cursor':
+                    window.open(editor.call('assets:idePath', ide, asset));
+                    return;
+            }
         }
 
         // open the new code editor - try to focus existing tab if it exists

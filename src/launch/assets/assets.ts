@@ -85,20 +85,8 @@ editor.once('load', () => {
             asset.get('file.filename')?.endsWith('.mjs');
     });
 
-    // get asset virtual path
-    const assetVirtualPath = (asset, useAssetName = false) => {
-        const name = useAssetName ? asset.get('name') : asset.get('file').filename;
-        if (!name) {
-            return null;
-        }
-        const assetPath = asset.get('path');
-        const pathAssets = assetPath.map(id => editor.call('assets:get', id));
-        if (pathAssets.some(a => !a)) {
-            // Parent folder(s) have been deleted
-            return null;
-        }
-        const pathSegments = pathAssets.map(a => a.get('name'));
-        return `/${[...pathSegments, name].join('/')}`;
-    };
-    editor.method('assets:virtualPath', assetVirtualPath);
+    // get asset ide path
+    editor.method('assets:idePath', (ide: 'cursor' | 'vscode', asset) => {
+        return `${ide}://playcanvas.playcanvas/project/${config.project.id}/asset/${asset.get('id')}`;
+    });
 });
