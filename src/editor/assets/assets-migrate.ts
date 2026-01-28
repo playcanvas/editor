@@ -288,11 +288,11 @@ editor.once('load', () => {
         // remove shader since physical material is now the default
         if (asset.has('data.shader')) {
             const shader = asset.get('data.shader');
-            asset.set('data.shader', 'blinn');
+            asset.unset('data.shader');
             if (shader !== 'blinn') {
                 const msg = [
                     `The ${f.path('data.shader')} property of material ${f.asset(asset)} is no`,
-                    'longer supported by the Editor, and this has been switched to Physical'
+                    'longer supported by the Editor, and has been removed'
                 ].join(' ');
                 editor.call('console:log:asset', asset, msg);
             }
