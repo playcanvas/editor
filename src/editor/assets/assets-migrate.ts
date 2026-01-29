@@ -273,8 +273,8 @@ editor.once('load', () => {
             asset.set('data.clearCoatNormalMapOffset', [0, 0]);
         }
 
-        // remove shader since physical material is now the default
-        if (asset.has('data.shader')) {
+        // NOTE: set shader to blinn if it is not already for engine v1
+        if (asset.get('data.shader') !== 'blinn') {
             const shader = asset.get('data.shader');
             asset.set('data.shader', 'blinn');
             if (shader !== 'blinn') {
