@@ -127,34 +127,22 @@ editor.once('load', () => {
             asset.set('data.useSkybox', true);
         }
 
-        // FIXME: useGamma wrong migration so we need to keep it for now
-        if (asset.has('data.useGamma')) {
-            const tonemap = asset.get('data.useGamma') ?? true;
-            asset.set('data.useTonemap', tonemap);
-            asset.unset('data.useGamma');
-            const msg = [
-                `The ${f.path('data.useGamma')} property of material ${f.asset(asset)} is`,
-                `no longer supported by the Editor and this has been switched to ${f.path('data.useTonemap')}`
-            ].join(' ');
-            editor.call('console:log:asset', asset, msg);
-        }
-
-        // Set useTonemap from useGammaTonemap if its not defined
-        if (asset.has('data.useGammaTonemap') && !asset.has('data.useTonemap')) {
-            const tonemap = asset.get('data.useGammaTonemap') ?? true;
-            asset.set('data.useTonemap', tonemap);
-            const msg = [
-                `The ${f.path('data.useGammaTonemap')} property of material ${f.asset(asset)} is`,
-                `no longer supported by the Editor and this has been switched to ${f.path('data.useTonemap')}`
-            ].join(' ');
-            editor.call('console:log:asset', asset, msg);
-        }
-
-        // FIXME: Bind the useGammaTonemap to useTonemap
-        asset.set('data.useGammaTonemap', asset.get('data.useTonemap'));
+        // NOTE: useGammaTonemap is used by engine v1 so bind useTonemap to useGammaTonemap
         asset.on('data.useTonemap:set', (value) => {
             asset.set('data.useGammaTonemap', value);
         });
+
+        if (asset.has('data.useGamma')) {
+            const tonemap = asset.get('data.useGamma') ?? true;
+            tonemap.write = true;
+            asset.unset('data.useGamma');
+            asset.set('data.useTonemap', tonemap.value);
+            const msg = [
+                `The ${f.path('data.useGamma')} properties of material ${f.asset(asset)} is`,
+                `no longer supported by the Editor and this has been switched to ${f.path('data.useTonemap')}`
+            ].join(' ');
+            editor.call('console:log:asset', asset, msg);
+        }
 
         if (!asset.get('data.cubeMapProjectionBox')) {
             asset.set('data.cubeMapProjectionBox', { center: [0, 0, 0], halfExtents: [0.5, 0.5, 0.5] });

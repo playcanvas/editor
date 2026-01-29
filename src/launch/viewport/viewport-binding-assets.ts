@@ -178,6 +178,8 @@ editor.once('load', () => {
         asset.on('tags:remove', (tag) => {
             app.assets.get(asset.get('id')).tags.remove(tag);
         });
+
+        console.log(asset.get('name'), asset);
     };
 
     // after all initial assets are loaded...
