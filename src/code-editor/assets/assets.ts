@@ -40,7 +40,7 @@ editor.once('load', () => {
     });
 
     const updateAssetVirtualPath = (asset) => {
-        const virtualPath = assetVirtualPath(asset);
+        const virtualPath = editor.call('assets:virtualPath', asset);
         assetToVirtualPath.set(virtualPath, asset);
         virtualPathToAsset.set(asset, virtualPath);
     };
