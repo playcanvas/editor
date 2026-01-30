@@ -133,10 +133,9 @@ editor.once('load', () => {
         });
 
         if (asset.has('data.useGamma')) {
-            const tonemap = asset.get('data.useGamma') ?? true;
-            tonemap.write = true;
+            const tonemap: boolean = asset.get('data.useGamma') ?? true;
             asset.unset('data.useGamma');
-            asset.set('data.useTonemap', tonemap.value);
+            asset.set('data.useTonemap', tonemap);
             const msg = [
                 `The ${f.path('data.useGamma')} properties of material ${f.asset(asset)} is`,
                 `no longer supported by the Editor and this has been switched to ${f.path('data.useTonemap')}`
