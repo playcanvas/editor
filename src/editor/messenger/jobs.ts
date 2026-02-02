@@ -5,15 +5,18 @@ const { rest } = editor.api.globals;
 export const diffCreate = (args: Parameters<typeof rest.diff.diffCreate>[0]) => {
     const defer = new Defer<Awaited<ReturnType<ReturnType<typeof rest.diff.diffCreate>['promisify']>>>();
     const promise = new Promise((resolve, reject) => {
-        const diffComplete = editor.on('messenger:diff.diffComplete', async ({ merge_id }) => {
+        const jobUpdate = editor.on('messenger:job.update', async ({ job: jobData }) => {
             const job = await defer.promise;
-            if (merge_id !== job.data.merge_id) {
+            if (jobData.id !== job.id) {
                 return;
             }
-            diffComplete.unbind();
-            rest.merge.mergeGet({
-                mergeId: merge_id
-            }).promisify().then(resolve).catch(reject);
+            jobUpdate.unbind();
+            // Fetch the completed job and return its data (which now contains the diff result)
+            rest.jobs.jobGet({
+                jobId: job.id
+            }).promisify().then((completedJob) => {
+                resolve(completedJob.data);
+            }).catch(reject);
         });
     });
     rest.diff.diffCreate(args).promisify().then(defer.resolve).catch(defer.reject);
