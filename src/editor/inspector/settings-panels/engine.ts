@@ -58,6 +58,11 @@ class EngineSettingsPanel extends BaseSettingsPanel {
         });
 
         this._projectSettings.on('engineV2:set', (value, oldValue) => {
+            // check if user has write permissions
+            if (!editor.call('permissions:write')) {
+                return;
+            }
+
             // disable switch button if hidden
             if (switchEngine.hidden) {
                 return;
