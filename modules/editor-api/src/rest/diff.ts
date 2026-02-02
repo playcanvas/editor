@@ -1,6 +1,6 @@
 import { Ajax } from '../ajax';
 import { globals as api } from '../globals';
-import type { Diff } from '../models';
+import type { Job } from '../models';
 
 // args
 export type DiffCreateArgs = {
@@ -36,7 +36,21 @@ export type DiffCreateArgs = {
 };
 
 // responses
-export type DiffResponse = Diff;
+export type DiffResponse = {
+    merge_id: string;
+
+    project_id: number;
+
+    user_id: number;
+
+    src_branch_id: string;
+
+    dst_branch_id: string;
+
+    src_checkpoint_id?: string;
+
+    dst_checkpoint_id?: string;
+};
 
 /**
  * Creates a new diff
@@ -69,7 +83,7 @@ export const diffCreate = (args: DiffCreateArgs) => {
         data.vcHistItem = args.histItem;
     }
 
-    return Ajax.post<DiffResponse>({
+    return Ajax.post<Job<DiffResponse>>({
         url: `${api.apiUrl}/diff`,
         auth: true,
         data: {
