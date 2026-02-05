@@ -298,6 +298,10 @@ editor.once('load', () => {
                 materialBehind.opacityMap = texture;
                 materialBehind.update();
             };
+            img.onerror = (event) => {
+                // Log image loading errors so missing icons don't fail silently
+                console.error(`Failed to load entity icon texture "${textureName}" from`, img.src, event);
+            };
             img.src = `/editor/scene/img/entity-icons/${textureName}.png`;
         });
 
