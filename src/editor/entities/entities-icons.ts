@@ -174,7 +174,7 @@ editor.once('load', () => {
                 }
 
                 // Don't render icon until texture has loaded
-                if (!material.opacityMap) {
+                if (!material || !material.opacityMap) {
                     if (this.entity) {
                         this.entityDelete();
                     }
