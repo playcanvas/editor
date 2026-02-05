@@ -297,6 +297,7 @@ editor.once('load', () => {
                 material.update();
                 materialBehind.opacityMap = texture;
                 materialBehind.update();
+                editor.call('viewport:render');
             };
             img.onerror = (event) => {
                 // Log image loading errors so missing icons don't fail silently
