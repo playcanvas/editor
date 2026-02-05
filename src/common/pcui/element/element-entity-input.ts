@@ -100,7 +100,7 @@ class EntityInput extends Element {
         this._highlightEntityFn = args.highlightEntityFn || this._highlightEntity.bind(this);
 
         this._value = null;
-        this.value = args.value || null;
+        this._updateValue(args.value ?? null);
 
         this.renderChanges = args.renderChanges || false;
 
