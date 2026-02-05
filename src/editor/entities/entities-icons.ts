@@ -18,37 +18,17 @@ editor.once('load', () => {
             'components.light.type:set'
         ]
     };
-    const materials = { };
-    const materialsBehind = { };
-    const textures = { };
+    const materials = new Map();
+    const materialsBehind = new Map();
     let scale = 0.5;
     let selectedIds = { };
 
-    const ICON_TEXTURE_SIZE = 64;
     const ICON_ALPHA_TEST = 0.05;
     const ICON_BEHIND_OPACITY = 0.25;
 
-    const createIconTexture = (device, textureName) => {
-        const texture = new pc.Texture(device, {
-            width: ICON_TEXTURE_SIZE,
-            height: ICON_TEXTURE_SIZE
-        });
-        texture.addressU = pc.ADDRESS_CLAMP_TO_EDGE;
-        texture.addressV = pc.ADDRESS_CLAMP_TO_EDGE;
-        texture.minFilter = pc.FILTER_NEAREST;
-        texture.magFilter = pc.FILTER_NEAREST;
-
-        const img = new Image();
-        img.onload = () => texture.setSource(img);
-        img.src = `/editor/scene/img/entity-icons/${textureName}.png`;
-
-        return texture;
-    };
-
-    const createIconMaterial = (texture, options) => {
+    const createMaterial = (options) => {
         const material = new pc.StandardMaterial();
         material.emissive = pc.Color.WHITE;
-        material.opacityMap = texture;
         material.opacityMapChannel = 'b';
         material.alphaTest = ICON_ALPHA_TEST;
         Object.assign(material, options);
@@ -181,23 +161,34 @@ editor.once('load', () => {
             const component = components.find(c => this._link.has(`components.${c}`)) || '';
 
             if (component) {
-                if (!this.entity) {
-                    this.entityCreate();
-                }
-
-                this.entity.enabled = true;
-
                 let textureName = component;
                 if (component === 'light') {
                     textureName += `-${this._link.entity.light.type}`;
                 }
 
-                if (!textureName || !materials[textureName]) {
-                    textureName = 'unknown';
+                let material = materials.get(textureName);
+                let materialBehind = materialsBehind.get(textureName);
+                if (!material) {
+                    material = materials.get('unknown');
+                    materialBehind = materialsBehind.get('unknown');
                 }
 
-                this.entity.render.material = materials[textureName];
-                this.behind.render.material = materialsBehind[textureName];
+                // Don't render icon until texture has loaded
+                if (!material || !material.opacityMap) {
+                    if (this.entity) {
+                        this.entityDelete();
+                    }
+                    this.dirty = true;
+                    return;
+                }
+
+                if (!this.entity) {
+                    this.entityCreate();
+                }
+
+                this.entity.enabled = true;
+                this.entity.render.material = material;
+                this.behind.render.material = materialBehind;
 
                 // Update light color if needed
                 if (component === 'light') {
@@ -277,20 +268,42 @@ editor.once('load', () => {
         app.root.addChild(iconsEntity);
 
         textureNames.forEach((textureName) => {
-            textures[textureName] = createIconTexture(app.graphicsDevice, textureName);
-
-            materials[textureName] = createIconMaterial(textures[textureName], {
+            const material = createMaterial({
                 blendType: pc.BLEND_NONE,
                 depthTest: true,
                 depthWrite: true
             });
+            materials.set(textureName, material);
 
-            materialsBehind[textureName] = createIconMaterial(textures[textureName], {
+            const materialBehind = createMaterial({
                 opacity: ICON_BEHIND_OPACITY,
                 blendType: pc.BLEND_NORMAL,
                 depthTest: false,
                 depthWrite: false
             });
+            materialsBehind.set(textureName, materialBehind);
+
+            // Load texture and set opacityMap when ready
+            const img = new Image();
+            img.onload = () => {
+                const texture = new pc.Texture(app.graphicsDevice, {
+                    addressU: pc.ADDRESS_CLAMP_TO_EDGE,
+                    addressV: pc.ADDRESS_CLAMP_TO_EDGE,
+                    minFilter: pc.FILTER_NEAREST,
+                    magFilter: pc.FILTER_NEAREST
+                });
+                texture.setSource(img);
+                material.opacityMap = texture;
+                material.update();
+                materialBehind.opacityMap = texture;
+                materialBehind.update();
+                editor.call('viewport:render');
+            };
+            img.onerror = (event) => {
+                // Log image loading errors so missing icons don't fail silently
+                console.error(`Failed to load entity icon texture "${textureName}" from`, img.src, event);
+            };
+            img.src = `/editor/scene/img/entity-icons/${textureName}.png`;
         });
 
         editor.on('entities:add', (obj) => {
