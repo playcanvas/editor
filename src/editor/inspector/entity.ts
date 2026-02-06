@@ -244,15 +244,17 @@ class EntityInspector extends Container {
 
         btnAddComponent.on('click', this._onClickAddComponent.bind(this));
 
-        // cog button
-        const btnCog = new Button({
-            icon: 'E134'
+        // context menu button
+        const btnMenu = new Button({
+            icon: 'E235'
         });
-        btnCog.style.fontSize = '16px';
-        btnCog.style.marginLeft = '0';
-        containerComponentButtons.append(btnCog);
+        btnMenu.style.display = 'inline-flex';
+        btnMenu.style.alignItems = 'center';
+        btnMenu.style.fontSize = '16px';
+        btnMenu.style.marginLeft = '0';
+        containerComponentButtons.append(btnMenu);
 
-        this._menuCog = this._createCogMenu(btnCog);
+        this._menuContext = this._createContextMenu(btnMenu);
 
         // add component inspectors
         this._componentInspectors = {};
@@ -313,7 +315,7 @@ class EntityInspector extends Container {
         this._attributesInspector.getField('name').focus();
     }
 
-    _createCogMenu(target) {
+    _createContextMenu(target) {
         const menu = new Menu({
             items: [{
                 text: 'Paste Component',
@@ -760,7 +762,7 @@ class EntityInspector extends Container {
         }
 
         this._menuAddComponent.destroy();
-        this._menuCog.destroy();
+        this._menuContext.destroy();
         editor.call('hotkey:unregister', 'entities:rename:f2');
 
         super.destroy();
