@@ -88,15 +88,15 @@ class ComponentInspector extends Panel {
         });
         this.header.append(this._btnHelp);
 
-        // add cog button
-        this._btnCog = new Button({
-            icon: 'E134',
+        // add context menu button
+        this._btnMenu = new Button({
+            icon: 'E235',
             class: 'component-header-btn'
         });
-        this.header.append(this._btnCog);
+        this.header.append(this._btnMenu);
 
         this._localStorage = new LocalStorage();
-        this._contextMenu = this._createContextMenu(this._btnCog);
+        this._contextMenu = this._createContextMenu(this._btnMenu);
 
         this._templateOverridesInspector = args.templateOverridesInspector;
         if (this._templateOverridesInspector) {
