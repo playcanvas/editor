@@ -993,7 +993,15 @@ class ScriptComponentInspector extends ComponentInspector {
                 icon: 'E348',
                 onSelect: this._onPasteScript.bind(this),
                 onIsEnabled: () => {
-                    return this._localStorage.has('copy-script');
+                    if (!this._localStorage.has('copy-script') || !this._localStorage.has('copy-script-name')) {
+                        return false;
+                    }
+                    try {
+                        const data = JSON.parse(this._localStorage.get('copy-script') as string);
+                        return !!(data && typeof data === 'object');
+                    } catch (e) {
+                        return false;
+                    }
                 }
             }, {
                 text: 'Delete Component',
