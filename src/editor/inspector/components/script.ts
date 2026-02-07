@@ -498,9 +498,15 @@ class ScriptInspector extends Panel {
         }
 
         // check that at least one attribute name+type matches
-        const stored = JSON.parse(this._localStorage.get('copy-script-attributes') as string);
+        let stored;
+        try {
+            stored = JSON.parse(this._localStorage.get('copy-script-attributes') as string);
+        } catch (e) {
+            return false;
+        }
+
         const targetDefs = this._asset.get(`data.scripts.${this._scriptName}.attributes`);
-        if (!stored || !stored.types || !targetDefs) {
+        if (!stored || typeof stored !== 'object' || !stored.types || !targetDefs) {
             return false;
         }
 
@@ -556,8 +562,14 @@ class ScriptInspector extends Panel {
             return;
         }
 
-        const stored = JSON.parse(raw);
-        if (!stored || !stored.values || !stored.types) {
+        let stored;
+        try {
+            stored = JSON.parse(raw);
+        } catch (e) {
+            return;
+        }
+
+        if (!stored || typeof stored !== 'object' || !stored.values || !stored.types) {
             return;
         }
 
@@ -1007,9 +1019,15 @@ class ScriptComponentInspector extends ComponentInspector {
             return;
         }
 
-        const data = JSON.parse(raw);
+        let data;
+        try {
+            data = JSON.parse(raw);
+        } catch (e) {
+            return;
+        }
+
         const scriptName = this._localStorage.get('copy-script-name') as string;
-        if (!scriptName || !data) {
+        if (!scriptName || !data || typeof data !== 'object') {
             return;
         }
 
