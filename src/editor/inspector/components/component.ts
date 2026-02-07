@@ -1,3 +1,4 @@
+import type { EventHandle, Observer } from '@playcanvas/observer';
 import { BindingTwoWay, BooleanInput, Button, Container, Label, LabelGroup, Menu, Panel } from '@playcanvas/pcui';
 
 import { tooltip, tooltipRefItem } from '@/common/tooltips';
@@ -10,7 +11,25 @@ const CLASS_COMPONENT_ICON = 'component-icon';
 const CLASS_ENABLED = `${CLASS_ROOT}-enabled`;
 
 class ComponentInspector extends Panel {
+    _component: string;
+
+    _localStorage: LocalStorage;
+
+    _entities: Observer[] | null = null;
+
+    _entityEvents: EventHandle[] = [];
+
     private _templateOverridesInspector: TemplateOverrideInspector;
+
+    private _tooltipGroup: Container;
+
+    private _fieldEnable: BooleanInput;
+
+    private _btnHelp: Button;
+
+    private _btnMenu: Button;
+
+    private _contextMenu: Menu;
 
     constructor(args) {
         args = Object.assign({}, args);
@@ -103,9 +122,6 @@ class ComponentInspector extends Panel {
             this._templateOverridesInspector.registerElementForPath(`components.${this._component}`, this, this._tooltipGroup);
             this._templateOverridesInspector.registerElementForPath(`components.${this._component}.enabled`, enableGroup);
         }
-
-        this._entities = null;
-        this._entityEvents = [];
     }
 
     _createContextMenu(target) {
