@@ -939,7 +939,19 @@ class ScriptInspector extends Panel {
 }
 
 class ScriptComponentInspector extends ComponentInspector {
-    private _scriptPanels: Record<string, ScriptInspector>;
+    private _scriptPanels: Record<string, ScriptInspector> = {};
+
+    private _editorEvents: EventHandle[] = [];
+
+    private _containerScripts: Container;
+
+    private _selectScript: SelectInput;
+
+    private _dirtyScripts: Set<string> = new Set();
+
+    private _dirtyScriptsTimeout: number | null = null;
+
+    private _updateScriptsTimeout: ReturnType<typeof setTimeout> | null = null;
 
     constructor(args) {
         args = Object.assign({}, args);
@@ -947,12 +959,8 @@ class ScriptComponentInspector extends ComponentInspector {
 
         super(args);
 
-        this._scriptPanels = {};
-
         this._argsAssets = args.assets;
         this._argsEntities = args.entities;
-
-        this._editorEvents = [];
 
         this._selectScript = new SelectInput({
             placeholder: '+ ADD SCRIPT',
@@ -975,14 +983,9 @@ class ScriptComponentInspector extends ComponentInspector {
 
         this._containerScripts.on('child:dragend', this._onDragEnd.bind(this));
 
-        this._dirtyScripts = new Set();
-        this._dirtyScriptsTimeout = null;
-
         if (this._templateOverridesInspector) {
             this._templateOverridesInspector.registerElementForPath('components.script.order', this, this._tooltipGroup);
         }
-
-        this._updateScriptsTimeout = null;
     }
 
     _getContextMenuItems() {
@@ -1145,7 +1148,7 @@ class ScriptComponentInspector extends ComponentInspector {
         this._dirtyScripts = new Set();
     }
 
-    _updateScripts(filterScriptsSet) {
+    _updateScripts(filterScriptsSet?: Set<string>) {
         if (!this._entities) {
             return;
         }
@@ -1341,8 +1344,9 @@ class ScriptComponentInspector extends ComponentInspector {
         }
     }
 
-    onParseError(error, scriptName) {
-        if (!this._scriptPanels[scriptName]) {
+    onParseError(error: string, scriptName: string) {
+        const panel = this._scriptPanels[scriptName];
+        if (!panel) {
             return;
         }
 
@@ -1351,8 +1355,8 @@ class ScriptComponentInspector extends ComponentInspector {
             text: error
         });
 
-        this._scriptPanels[scriptName].containerErrors.append(label);
-        this._scriptPanels[scriptName].containerErrors.hidden = false;
+        panel.containerErrors.append(label);
+        panel.containerErrors.hidden = false;
     }
 
     clearValidationIssues(scriptName?: string) {
@@ -1487,7 +1491,7 @@ class ScriptComponentInspector extends ComponentInspector {
         }
     }
 
-    link(entities) {
+    link(entities: Observer[]) {
         super.link(entities);
 
         this._updateScripts();

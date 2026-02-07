@@ -19,9 +19,9 @@ class ComponentInspector extends Panel {
 
     _entityEvents: EventHandle[] = [];
 
-    private _templateOverridesInspector: TemplateOverrideInspector;
+    protected _templateOverridesInspector: TemplateOverrideInspector;
 
-    private _tooltipGroup: Container;
+    protected _tooltipGroup: Container;
 
     private _fieldEnable: BooleanInput;
 
@@ -147,7 +147,7 @@ class ComponentInspector extends Panel {
         }];
     }
 
-    _createContextMenu(target) {
+    _createContextMenu(target: Button) {
         const menu = new Menu({ items: this._getContextMenuItems() });
 
         editor.call('layout.root').append(menu);
@@ -235,7 +235,7 @@ class ComponentInspector extends Panel {
         }
     }
 
-    link(entities) {
+    link(entities: Observer[]) {
         this.unlink();
         this._entities = entities;
 
