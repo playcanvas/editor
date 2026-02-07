@@ -142,7 +142,7 @@ class ComponentInspector extends Panel {
                             this._localStorage.get('copy-component-name') === this._component;
                 }
             }, {
-                text: 'Delete',
+                text: 'Remove',
                 icon: 'E124',
                 onSelect: this._onClickDelete.bind(this)
             }]

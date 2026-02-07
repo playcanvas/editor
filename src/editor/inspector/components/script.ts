@@ -49,6 +49,21 @@ function getScriptContextMenu() {
 
     scriptContextMenu = new Menu({
         items: [{
+            text: 'Copy Script',
+            icon: 'E351',
+            onSelect: () => {
+                activeScriptInspector?._onCopyScript();
+            },
+            onIsEnabled: () => {
+                return activeScriptInspector?.canCopyScript() ?? false;
+            }
+        }, {
+            text: 'Remove Script',
+            icon: 'E124',
+            onSelect: () => {
+                activeScriptInspector?._onDeleteScript();
+            }
+        }, {
             text: 'Copy Attributes',
             icon: 'E351',
             onSelect: () => {
@@ -65,21 +80,6 @@ function getScriptContextMenu() {
             },
             onIsEnabled: () => {
                 return activeScriptInspector?.canPasteAttributes() ?? false;
-            }
-        }, {
-            text: 'Copy Script',
-            icon: 'E351',
-            onSelect: () => {
-                activeScriptInspector?._onCopyScript();
-            },
-            onIsEnabled: () => {
-                return activeScriptInspector?.canCopyScript() ?? false;
-            }
-        }, {
-            text: 'Delete Script',
-            icon: 'E124',
-            onSelect: () => {
-                activeScriptInspector?._onDeleteScript();
             }
         }]
     });
@@ -485,7 +485,12 @@ class ScriptInspector extends Panel {
     }
 
     canCopyAttributes() {
-        return !!(this._entities && this._entities.length === 1 && this._asset);
+        if (!this._entities || this._entities.length !== 1 || !this._asset) {
+            return false;
+        }
+
+        const definitions = this._asset.get(`data.scripts.${this._scriptName}.attributes`);
+        return !!(definitions && Object.keys(definitions).length);
     }
 
     canPasteAttributes() {
@@ -989,6 +994,10 @@ class ScriptComponentInspector extends ComponentInspector {
                     return !!(this._entities && this._entities.length === 1);
                 }
             }, {
+                text: 'Remove Component',
+                icon: 'E124',
+                onSelect: this._onClickDelete.bind(this)
+            }, {
                 text: 'Paste Script',
                 icon: 'E348',
                 onSelect: this._onPasteScript.bind(this),
@@ -1003,10 +1012,6 @@ class ScriptComponentInspector extends ComponentInspector {
                         return false;
                     }
                 }
-            }, {
-                text: 'Delete Component',
-                icon: 'E124',
-                onSelect: this._onClickDelete.bind(this)
             }]
         });
 
