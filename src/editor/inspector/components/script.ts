@@ -984,54 +984,23 @@ class ScriptComponentInspector extends ComponentInspector {
         this._updateScriptsTimeout = null;
     }
 
-    _createContextMenu(target) {
-        const menu = new Menu({
-            items: [{
-                text: 'Copy Component',
-                icon: 'E351',
-                onSelect: this._onClickCopy.bind(this),
-                onIsEnabled: () => {
-                    return !!(this._entities && this._entities.length === 1);
+    _getContextMenuItems() {
+        return [...super._getContextMenuItems(), {
+            text: 'Paste Script',
+            icon: 'E348',
+            onSelect: this._onPasteScript.bind(this),
+            onIsEnabled: () => {
+                if (!this._localStorage.has('copy-script') || !this._localStorage.has('copy-script-name')) {
+                    return false;
                 }
-            }, {
-                text: 'Paste Component',
-                icon: 'E348',
-                onSelect: this._onClickPaste.bind(this),
-                onIsEnabled: () => {
-                    return this._localStorage.has('copy-component') &&
-                            this._localStorage.get('copy-component-name') === this._component;
+                try {
+                    const data = JSON.parse(this._localStorage.get('copy-script') as string);
+                    return !!(data && typeof data === 'object');
+                } catch (e) {
+                    return false;
                 }
-            }, {
-                text: 'Remove Component',
-                icon: 'E124',
-                onSelect: this._onClickDelete.bind(this)
-            }, {
-                text: 'Paste Script',
-                icon: 'E348',
-                onSelect: this._onPasteScript.bind(this),
-                onIsEnabled: () => {
-                    if (!this._localStorage.has('copy-script') || !this._localStorage.has('copy-script-name')) {
-                        return false;
-                    }
-                    try {
-                        const data = JSON.parse(this._localStorage.get('copy-script') as string);
-                        return !!(data && typeof data === 'object');
-                    } catch (e) {
-                        return false;
-                    }
-                }
-            }]
-        });
-
-        editor.call('layout.root').append(menu);
-
-        target.on('click', () => {
-            const rect = target.dom.getBoundingClientRect();
-            menu.hidden = false;
-            menu.position(rect.right, rect.bottom);
-        });
-
-        return menu;
+            }
+        }];
     }
 
     _onPasteScript() {
