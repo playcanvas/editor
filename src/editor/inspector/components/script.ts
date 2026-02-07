@@ -232,9 +232,9 @@ class ScriptInspector extends Panel {
             });
         }
 
-        // add context menu button (replaces the Panel's built-in remove/trash button)
+        // add context menu button
         const btnMenu = new Button({
-            icon: 'E235',
+            icon: 'E235', // horizontal ellipsis
             class: 'component-header-btn'
         });
         this.header.append(btnMenu);
