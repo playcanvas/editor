@@ -94,7 +94,7 @@ class ScriptInspector extends Panel {
 
     private _localStorage: LocalStorage;
 
-    private _attributesInspector: AttributesInspector;
+    private _attributesInspector: AttributesInspector = null;
 
     private _scriptName: string;
 
@@ -145,8 +145,6 @@ class ScriptInspector extends Panel {
             class: CLASS_ERROR
         });
         this.append(this.containerErrors);
-
-        this._attributesInspector = null;
 
         this._history = args.history;
         this._argsAssets = args.assets;
@@ -1555,9 +1553,7 @@ class ScriptComponentInspector extends ComponentInspector {
             return;
         }
 
-        if (this._templateOverridesInspector) {
-            this._templateOverridesInspector.unregisterElementForPath('components.script.order');
-        }
+        this._templateOverridesInspector?.unregisterElementForPath('components.script.order');
 
         super.destroy();
     }
