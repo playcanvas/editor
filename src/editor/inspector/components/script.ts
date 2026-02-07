@@ -1,11 +1,11 @@
-import { Panel, Container, Button, BooleanInput, LabelGroup, Label, SelectInput, BindingTwoWay, ArrayInput } from '@playcanvas/pcui';
+import { Panel, Container, Button, BooleanInput, LabelGroup, Label, Menu, SelectInput, BindingTwoWay, ArrayInput } from '@playcanvas/pcui';
 
 import { CLASS_ERROR, DEFAULTS } from '@/common/pcui/constants';
 import { AssetInput } from '@/common/pcui/element/element-asset-input';
 import { tooltip, tooltipSimpleItem } from '@/common/tooltips';
 import { LegacyTooltip } from '@/common/ui/tooltip';
 import { deepCopy } from '@/common/utils';
-import type { AssetObserver } from '@playcanvas/editor-api';
+import { LocalStorage, type AssetObserver } from '@playcanvas/editor-api';
 
 import { ComponentInspector } from './component';
 import { evaluate } from '../../scripting/expr-eval/evaluate';
@@ -36,6 +36,8 @@ const ATTRIBUTE_SUBTITLES = {
     curve: '{pc.Curve}'
 };
 
+const localStorage = new LocalStorage();
+
 class ScriptInspector extends Panel {
     private _componentInspector: ScriptComponentInspector;
 
@@ -57,6 +59,8 @@ class ScriptInspector extends Panel {
      * and then the AST is cached for future evaluation.
      */
     private _astCache: Map<string, ASTNode> = new Map();
+
+    private _contextMenu: Menu;
 
     containerErrors: Container;
 
@@ -159,6 +163,14 @@ class ScriptInspector extends Panel {
                 this._templateOverridesInspector.unregisterElementForPath(`components.script.scripts.${this._scriptName}.enabled`);
             });
         }
+
+        // add context menu button (replaces the Panel's built-in remove/trash button)
+        const btnMenu = new Button({
+            icon: 'E235',
+            class: 'component-header-btn'
+        });
+        this.header.append(btnMenu);
+        this._contextMenu = this._createContextMenu(btnMenu);
 
         this._labelInvalid = new Label({
             text: '!',
@@ -403,9 +415,182 @@ class ScriptInspector extends Panel {
         }
     }
 
-    _onClickRemove(evt) {
-        super._onClickRemove(evt);
+    _createContextMenu(target) {
+        const menu = new Menu({
+            items: [{
+                text: 'Copy Attributes',
+                icon: 'E351',
+                onSelect: this._onCopyAttributes.bind(this),
+                onIsEnabled: () => {
+                    return !!(this._entities && this._entities.length === 1 && this._asset);
+                }
+            }, {
+                text: 'Paste Attributes',
+                icon: 'E348',
+                onSelect: this._onPasteAttributes.bind(this),
+                onIsEnabled: () => {
+                    if (!this._entities || !this._asset) {
+                        return false;
+                    }
 
+                    if (!localStorage.has('copy-script-attributes')) {
+                        return false;
+                    }
+
+                    // check that at least one attribute name+type matches
+                    const stored = JSON.parse(localStorage.get('copy-script-attributes') as string);
+                    const targetDefs = this._asset.get(`data.scripts.${this._scriptName}.attributes`);
+                    if (!stored || !stored.types || !targetDefs) {
+                        return false;
+                    }
+
+                    for (const name in targetDefs) {
+                        if (stored.types[name] && stored.types[name] === targetDefs[name].type) {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                }
+            }, {
+                text: 'Copy Script',
+                icon: 'E351',
+                onSelect: this._onCopyScript.bind(this),
+                onIsEnabled: () => {
+                    return !!(this._entities && this._entities.length === 1);
+                }
+            }, {
+                text: 'Delete Script',
+                icon: 'E124',
+                onSelect: this._onDeleteScript.bind(this)
+            }]
+        });
+
+        editor.call('layout.root').append(menu);
+
+        target.on('click', () => {
+            const rect = target.dom.getBoundingClientRect();
+            menu.hidden = false;
+            menu.position(rect.right, rect.bottom);
+        });
+
+        return menu;
+    }
+
+    _onCopyScript() {
+        if (!this._entities || !this._entities.length) {
+            return;
+        }
+
+        const data = this._entities[0].get(`components.script.scripts.${this._scriptName}`);
+        localStorage.set('copy-script', JSON.stringify(data));
+        localStorage.set('copy-script-name', this._scriptName);
+    }
+
+    _onCopyAttributes() {
+        if (!this._entities || !this._entities.length || !this._asset) {
+            return;
+        }
+
+        const values = this._entities[0].get(`components.script.scripts.${this._scriptName}.attributes`);
+        const definitions = this._asset.get(`data.scripts.${this._scriptName}.attributes`);
+
+        // build a type map from definitions
+        const types: Record<string, string> = {};
+        if (definitions) {
+            for (const name in definitions) {
+                types[name] = definitions[name].type;
+            }
+        }
+
+        localStorage.set('copy-script-attributes', JSON.stringify({ values, types }));
+    }
+
+    _onPasteAttributes() {
+        if (!this._entities || !this._entities.length || !this._asset) {
+            return;
+        }
+
+        const raw = localStorage.get('copy-script-attributes') as string;
+        if (!raw) {
+            return;
+        }
+
+        const stored = JSON.parse(raw);
+        if (!stored || !stored.values || !stored.types) {
+            return;
+        }
+
+        const targetDefs = this._asset.get(`data.scripts.${this._scriptName}.attributes`);
+        if (!targetDefs) {
+            return;
+        }
+
+        // find matching attributes (same name + same type)
+        const matchingValues: Record<string, any> = {};
+        for (const name in targetDefs) {
+            if (stored.types[name] && stored.types[name] === targetDefs[name].type && stored.values.hasOwnProperty(name)) {
+                matchingValues[name] = deepCopy(stored.values[name]);
+            }
+        }
+
+        if (!Object.keys(matchingValues).length) {
+            return;
+        }
+
+        const entities = this._entities.slice();
+        const path = `components.script.scripts.${this._scriptName}.attributes`;
+
+        const previous: Record<string, any> = {};
+
+        const redo = () => {
+            for (const entity of entities) {
+                const e = entity.latest();
+                if (!e) {
+                    continue;
+                }
+
+                previous[e.get('resource_id')] = deepCopy(e.get(path));
+
+                const history = e.history.enabled;
+                e.history.enabled = false;
+                for (const attrName in matchingValues) {
+                    e.set(`${path}.${attrName}`, matchingValues[attrName]);
+                }
+                e.history.enabled = history;
+            }
+        };
+
+        const undo = () => {
+            for (const entity of entities) {
+                const e = entity.latest();
+                if (!e) {
+                    continue;
+                }
+
+                const prev = previous[e.get('resource_id')];
+                if (!prev) {
+                    continue;
+                }
+
+                const history = e.history.enabled;
+                e.history.enabled = false;
+                e.set(path, prev);
+                e.history.enabled = history;
+            }
+        };
+
+        redo();
+
+        editor.api.globals.history.add({
+            name: `entities.paste[scripts.${this._scriptName}.attributes]`,
+            combine: false,
+            undo: undo,
+            redo: redo
+        });
+    }
+
+    _onDeleteScript() {
         if (!this._entities) {
             return;
         }
@@ -688,6 +873,8 @@ class ScriptInspector extends Panel {
             return;
         }
 
+        this._contextMenu.destroy();
+
         this._editorEvents.forEach(e => e.unbind());
         this._editorEvents.length = 0;
 
@@ -742,13 +929,131 @@ class ScriptComponentInspector extends ComponentInspector {
         this._updateScriptsTimeout = null;
     }
 
+    _createContextMenu(target) {
+        const menu = new Menu({
+            items: [{
+                text: 'Copy Component',
+                icon: 'E351',
+                onSelect: this._onClickCopy.bind(this),
+                onIsEnabled: () => {
+                    return !!(this._entities && this._entities.length === 1);
+                }
+            }, {
+                text: 'Paste Script',
+                icon: 'E348',
+                onSelect: this._onPasteScript.bind(this),
+                onIsEnabled: () => {
+                    return localStorage.has('copy-script');
+                }
+            }, {
+                text: 'Delete Component',
+                icon: 'E124',
+                onSelect: this._onClickDelete.bind(this)
+            }]
+        });
+
+        editor.call('layout.root').append(menu);
+
+        target.on('click', () => {
+            const rect = target.dom.getBoundingClientRect();
+            menu.hidden = false;
+            menu.position(rect.right, rect.bottom);
+        });
+
+        return menu;
+    }
+
+    _onPasteScript() {
+        const raw = localStorage.get('copy-script') as string;
+        if (!raw) {
+            return;
+        }
+
+        const data = JSON.parse(raw);
+        const scriptName = localStorage.get('copy-script-name') as string;
+        if (!scriptName || !data) {
+            return;
+        }
+
+        if (!this._entities || !this._entities.length) {
+            return;
+        }
+
+        const entities = this._entities.slice();
+
+        // separate entities that already have this script from those that don't
+        const entitiesWithScript = entities.filter(e => e.has(`components.script.scripts.${scriptName}`));
+        const entitiesWithoutScript = entities.filter(e => !e.has(`components.script.scripts.${scriptName}`));
+
+        // for entities that already have the script, set the data directly with undo/redo
+        if (entitiesWithScript.length) {
+            const path = `components.script.scripts.${scriptName}`;
+            const previous: Record<string, any> = {};
+
+            const redo = () => {
+                for (const entity of entitiesWithScript) {
+                    const e = entity.latest();
+                    if (!e) {
+                        continue;
+                    }
+
+                    previous[e.get('resource_id')] = deepCopy(e.get(path));
+
+                    const history = e.history.enabled;
+                    e.history.enabled = false;
+                    e.set(path, deepCopy(data));
+                    e.history.enabled = history;
+                }
+            };
+
+            const undo = () => {
+                for (const entity of entitiesWithScript) {
+                    const e = entity.latest();
+                    if (!e) {
+                        continue;
+                    }
+
+                    const prev = previous[e.get('resource_id')];
+                    if (!prev) {
+                        continue;
+                    }
+
+                    const history = e.history.enabled;
+                    e.history.enabled = false;
+                    e.set(path, prev);
+                    e.history.enabled = history;
+                }
+            };
+
+            redo();
+
+            editor.api.globals.history.add({
+                name: `entities.paste[scripts.${scriptName}]`,
+                combine: false,
+                undo: undo,
+                redo: redo
+            });
+        }
+
+        // for entities that don't have the script, add it via the API
+        if (entitiesWithoutScript.length) {
+            editor.api.globals.entities.addScript(
+                entitiesWithoutScript.map(e => e.apiEntity),
+                scriptName,
+                {
+                    enabled: data.enabled,
+                    attributes: data.attributes ? deepCopy(data.attributes) : {}
+                }
+            );
+        }
+    }
+
     _createScriptPanel(scriptName) {
         const panel = new ScriptInspector({
             componentInspector: this,
             scriptName: scriptName,
             flex: true,
             collapsible: true,
-            removable: true,
             assets: this._argsAssets,
             entities: this._argsEntities,
             templateOverridesInspector: this._templateOverridesInspector,
