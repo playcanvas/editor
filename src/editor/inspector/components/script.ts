@@ -129,6 +129,8 @@ class ScriptInspector extends Panel {
 
     private _editorEvents: EventHandle[] = [];
 
+    private _changedAttributes: Set<string> = new Set();
+
     containerErrors: Container;
 
     constructor(args) {
@@ -260,8 +262,6 @@ class ScriptInspector extends Panel {
             target: this._labelInvalid,
             horzAlignEl: this
         });
-
-        this._changedAttributes = {};
 
         this._editorEvents.push(editor.on(`assets:scripts[${this._scriptName}]:attribute:set`, this._onAddAttribute.bind(this)));
         this._editorEvents.push(editor.on(`assets:scripts[${this._scriptName}]:attribute:unset`, this._onRemoveAttribute.bind(this)));
@@ -843,7 +843,7 @@ class ScriptInspector extends Panel {
             return;
         }
 
-        this._changedAttributes[name] = true;
+        this._changedAttributes.add(name);
 
         if (this._timeoutChangeAttributes) {
             clearTimeout(this._timeoutChangeAttributes);
@@ -858,7 +858,7 @@ class ScriptInspector extends Panel {
 
             const order = this._asset.get(`data.scripts.${this._scriptName}.attributesOrder`);
 
-            for (const attr in this._changedAttributes) {
+            for (const attr of this._changedAttributes) {
                 const index = order.indexOf(attr);
                 if (index >= 0) {
                     this._onRemoveAttribute(asset, attr);
@@ -866,7 +866,7 @@ class ScriptInspector extends Panel {
                 }
             }
 
-            this._changedAttributes = {};
+            this._changedAttributes.clear();
         });
     }
 
@@ -923,7 +923,7 @@ class ScriptInspector extends Panel {
             this._timeoutChangeAttributes = null;
         }
 
-        this._changedAttributes = {};
+        this._changedAttributes.clear();
     }
 
     destroy() {
