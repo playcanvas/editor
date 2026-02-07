@@ -994,6 +994,14 @@ class ScriptComponentInspector extends ComponentInspector {
                     return !!(this._entities && this._entities.length === 1);
                 }
             }, {
+                text: 'Paste Component',
+                icon: 'E348',
+                onSelect: this._onClickPaste.bind(this),
+                onIsEnabled: () => {
+                    return this._localStorage.has('copy-component') &&
+                            this._localStorage.get('copy-component-name') === this._component;
+                }
+            }, {
                 text: 'Remove Component',
                 icon: 'E124',
                 onSelect: this._onClickDelete.bind(this)

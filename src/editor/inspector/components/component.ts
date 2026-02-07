@@ -127,14 +127,14 @@ class ComponentInspector extends Panel {
     _createContextMenu(target) {
         const menu = new Menu({
             items: [{
-                text: 'Copy',
+                text: 'Copy Component',
                 icon: 'E351',
                 onSelect: this._onClickCopy.bind(this),
                 onIsEnabled: () => {
                     return (this._entities && this._entities.length === 1);
                 }
             }, {
-                text: 'Paste',
+                text: 'Paste Component',
                 icon: 'E348',
                 onSelect: this._onClickPaste.bind(this),
                 onIsEnabled: () => {
@@ -142,7 +142,7 @@ class ComponentInspector extends Panel {
                             this._localStorage.get('copy-component-name') === this._component;
                 }
             }, {
-                text: 'Remove',
+                text: 'Remove Component',
                 icon: 'E124',
                 onSelect: this._onClickDelete.bind(this)
             }]
