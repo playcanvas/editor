@@ -1,3 +1,4 @@
+import type { EventHandle, Observer } from '@playcanvas/observer';
 import { Panel, Container, Button, BooleanInput, LabelGroup, Label, Menu, SelectInput, BindingTwoWay, ArrayInput } from '@playcanvas/pcui';
 
 import { CLASS_ERROR, DEFAULTS } from '@/common/pcui/constants';
@@ -5,7 +6,7 @@ import { AssetInput } from '@/common/pcui/element/element-asset-input';
 import { tooltip, tooltipSimpleItem } from '@/common/tooltips';
 import { LegacyTooltip } from '@/common/ui/tooltip';
 import { deepCopy } from '@/common/utils';
-import { LocalStorage, type AssetObserver } from '@playcanvas/editor-api';
+import type { AssetObserver, LocalStorage } from '@playcanvas/editor-api';
 
 import { ComponentInspector } from './component';
 import { evaluate } from '../../scripting/expr-eval/evaluate';
@@ -35,8 +36,6 @@ const ATTRIBUTE_SUBTITLES = {
     vec4: '{pc.Vec4}',
     curve: '{pc.Curve}'
 };
-
-const localStorage = new LocalStorage();
 
 // shared context menu for all ScriptInspector panels to avoid accumulating
 // hidden menus and listeners on entities with many scripts
@@ -93,6 +92,8 @@ function getScriptContextMenu() {
 class ScriptInspector extends Panel {
     private _componentInspector: ScriptComponentInspector;
 
+    private _localStorage: LocalStorage;
+
     private _attributesInspector: AttributesInspector;
 
     private _scriptName: string;
@@ -112,9 +113,21 @@ class ScriptInspector extends Panel {
      */
     private _astCache: Map<string, ASTNode> = new Map();
 
+    private _entities: Observer[] | null = null;
+
+    private _labelInvalid: Label;
+
+    private _tooltipInvalid: any;
+
+    private _fieldEnable: BooleanInput;
+
+    private _timeoutChangeAttributes: ReturnType<typeof setTimeout> | null = null;
+
     private _btnEdit: Button;
 
     private _btnParse: Button;
+
+    private _editorEvents: EventHandle[] = [];
 
     containerErrors: Container;
 
@@ -122,6 +135,7 @@ class ScriptInspector extends Panel {
         super(args);
 
         this._componentInspector = args.componentInspector;
+        this._localStorage = args.componentInspector._localStorage;
         this._scriptName = args.scriptName;
 
         this.containerErrors = new Container({
@@ -247,11 +261,6 @@ class ScriptInspector extends Panel {
             horzAlignEl: this
         });
 
-        this._entities = null;
-        this._entityEvents = [];
-        this._editorEvents = [];
-
-        this._timeoutChangeAttributes = null;
         this._changedAttributes = {};
 
         this._editorEvents.push(editor.on(`assets:scripts[${this._scriptName}]:attribute:set`, this._onAddAttribute.bind(this)));
@@ -484,12 +493,12 @@ class ScriptInspector extends Panel {
             return false;
         }
 
-        if (!localStorage.has('copy-script-attributes')) {
+        if (!this._localStorage.has('copy-script-attributes')) {
             return false;
         }
 
         // check that at least one attribute name+type matches
-        const stored = JSON.parse(localStorage.get('copy-script-attributes') as string);
+        const stored = JSON.parse(this._localStorage.get('copy-script-attributes') as string);
         const targetDefs = this._asset.get(`data.scripts.${this._scriptName}.attributes`);
         if (!stored || !stored.types || !targetDefs) {
             return false;
@@ -514,8 +523,8 @@ class ScriptInspector extends Panel {
         }
 
         const data = this._entities[0].get(`components.script.scripts.${this._scriptName}`);
-        localStorage.set('copy-script', JSON.stringify(data));
-        localStorage.set('copy-script-name', this._scriptName);
+        this._localStorage.set('copy-script', JSON.stringify(data));
+        this._localStorage.set('copy-script-name', this._scriptName);
     }
 
     _onCopyAttributes() {
@@ -534,7 +543,7 @@ class ScriptInspector extends Panel {
             }
         }
 
-        localStorage.set('copy-script-attributes', JSON.stringify({ values, types }));
+        this._localStorage.set('copy-script-attributes', JSON.stringify({ values, types }));
     }
 
     _onPasteAttributes() {
@@ -542,7 +551,7 @@ class ScriptInspector extends Panel {
             return;
         }
 
-        const raw = localStorage.get('copy-script-attributes') as string;
+        const raw = this._localStorage.get('copy-script-attributes') as string;
         if (!raw) {
             return;
         }
@@ -868,7 +877,7 @@ class ScriptInspector extends Panel {
         this._tooltipInvalid.description = this._getInvalidTooltipText();
     }
 
-    link(entities) {
+    link(entities: Observer[]) {
         this.unlink();
 
         this._entities = entities;
@@ -972,7 +981,7 @@ class ScriptComponentInspector extends ComponentInspector {
                 icon: 'E348',
                 onSelect: this._onPasteScript.bind(this),
                 onIsEnabled: () => {
-                    return localStorage.has('copy-script');
+                    return this._localStorage.has('copy-script');
                 }
             }, {
                 text: 'Delete Component',
@@ -993,13 +1002,13 @@ class ScriptComponentInspector extends ComponentInspector {
     }
 
     _onPasteScript() {
-        const raw = localStorage.get('copy-script') as string;
+        const raw = this._localStorage.get('copy-script') as string;
         if (!raw) {
             return;
         }
 
         const data = JSON.parse(raw);
-        const scriptName = localStorage.get('copy-script-name') as string;
+        const scriptName = this._localStorage.get('copy-script-name') as string;
         if (!scriptName || !data) {
             return;
         }
