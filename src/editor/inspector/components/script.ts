@@ -1060,10 +1060,11 @@ class ScriptComponentInspector extends ComponentInspector {
                         continue;
                     }
 
-                    const prev = previous[e.get('resource_id')];
-                    if (!prev) {
+                    if (!(e.get('resource_id') in previous)) {
                         continue;
                     }
+
+                    const prev = previous[e.get('resource_id')];
 
                     const history = e.history.enabled;
                     e.history.enabled = false;
