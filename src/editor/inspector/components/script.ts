@@ -38,6 +38,58 @@ const ATTRIBUTE_SUBTITLES = {
 
 const localStorage = new LocalStorage();
 
+// shared context menu for all ScriptInspector panels to avoid accumulating
+// hidden menus and listeners on entities with many scripts
+let scriptContextMenu: Menu = null;
+let activeScriptInspector: ScriptInspector = null;
+
+function getScriptContextMenu() {
+    if (scriptContextMenu) {
+        return scriptContextMenu;
+    }
+
+    scriptContextMenu = new Menu({
+        items: [{
+            text: 'Copy Attributes',
+            icon: 'E351',
+            onSelect: () => {
+                activeScriptInspector?._onCopyAttributes();
+            },
+            onIsEnabled: () => {
+                return activeScriptInspector?.canCopyAttributes() ?? false;
+            }
+        }, {
+            text: 'Paste Attributes',
+            icon: 'E348',
+            onSelect: () => {
+                activeScriptInspector?._onPasteAttributes();
+            },
+            onIsEnabled: () => {
+                return activeScriptInspector?.canPasteAttributes() ?? false;
+            }
+        }, {
+            text: 'Copy Script',
+            icon: 'E351',
+            onSelect: () => {
+                activeScriptInspector?._onCopyScript();
+            },
+            onIsEnabled: () => {
+                return activeScriptInspector?.canCopyScript() ?? false;
+            }
+        }, {
+            text: 'Delete Script',
+            icon: 'E124',
+            onSelect: () => {
+                activeScriptInspector?._onDeleteScript();
+            }
+        }]
+    });
+
+    editor.call('layout.root').append(scriptContextMenu);
+
+    return scriptContextMenu;
+}
+
 class ScriptInspector extends Panel {
     private _componentInspector: ScriptComponentInspector;
 
@@ -60,7 +112,9 @@ class ScriptInspector extends Panel {
      */
     private _astCache: Map<string, ASTNode> = new Map();
 
-    private _contextMenu: Menu;
+    private _btnEdit: Button;
+
+    private _btnParse: Button;
 
     containerErrors: Container;
 
@@ -170,7 +224,13 @@ class ScriptInspector extends Panel {
             class: 'component-header-btn'
         });
         this.header.append(btnMenu);
-        this._contextMenu = this._createContextMenu(btnMenu);
+        btnMenu.on('click', () => {
+            activeScriptInspector = this;
+            const menu = getScriptContextMenu();
+            const rect = btnMenu.dom.getBoundingClientRect();
+            menu.hidden = false;
+            menu.position(rect.right, rect.bottom);
+        });
 
         this._labelInvalid = new Label({
             text: '!',
@@ -415,66 +475,37 @@ class ScriptInspector extends Panel {
         }
     }
 
-    _createContextMenu(target) {
-        const menu = new Menu({
-            items: [{
-                text: 'Copy Attributes',
-                icon: 'E351',
-                onSelect: this._onCopyAttributes.bind(this),
-                onIsEnabled: () => {
-                    return !!(this._entities && this._entities.length === 1 && this._asset);
-                }
-            }, {
-                text: 'Paste Attributes',
-                icon: 'E348',
-                onSelect: this._onPasteAttributes.bind(this),
-                onIsEnabled: () => {
-                    if (!this._entities || !this._asset) {
-                        return false;
-                    }
+    canCopyAttributes() {
+        return !!(this._entities && this._entities.length === 1 && this._asset);
+    }
 
-                    if (!localStorage.has('copy-script-attributes')) {
-                        return false;
-                    }
+    canPasteAttributes() {
+        if (!this._entities || !this._asset) {
+            return false;
+        }
 
-                    // check that at least one attribute name+type matches
-                    const stored = JSON.parse(localStorage.get('copy-script-attributes') as string);
-                    const targetDefs = this._asset.get(`data.scripts.${this._scriptName}.attributes`);
-                    if (!stored || !stored.types || !targetDefs) {
-                        return false;
-                    }
+        if (!localStorage.has('copy-script-attributes')) {
+            return false;
+        }
 
-                    for (const name in targetDefs) {
-                        if (stored.types[name] && stored.types[name] === targetDefs[name].type) {
-                            return true;
-                        }
-                    }
+        // check that at least one attribute name+type matches
+        const stored = JSON.parse(localStorage.get('copy-script-attributes') as string);
+        const targetDefs = this._asset.get(`data.scripts.${this._scriptName}.attributes`);
+        if (!stored || !stored.types || !targetDefs) {
+            return false;
+        }
 
-                    return false;
-                }
-            }, {
-                text: 'Copy Script',
-                icon: 'E351',
-                onSelect: this._onCopyScript.bind(this),
-                onIsEnabled: () => {
-                    return !!(this._entities && this._entities.length === 1);
-                }
-            }, {
-                text: 'Delete Script',
-                icon: 'E124',
-                onSelect: this._onDeleteScript.bind(this)
-            }]
-        });
+        for (const name in targetDefs) {
+            if (stored.types[name] && stored.types[name] === targetDefs[name].type) {
+                return true;
+            }
+        }
 
-        editor.call('layout.root').append(menu);
+        return false;
+    }
 
-        target.on('click', () => {
-            const rect = target.dom.getBoundingClientRect();
-            menu.hidden = false;
-            menu.position(rect.right, rect.bottom);
-        });
-
-        return menu;
+    canCopyScript() {
+        return !!(this._entities && this._entities.length === 1);
     }
 
     _onCopyScript() {
@@ -872,8 +903,6 @@ class ScriptInspector extends Panel {
         if (this._destroyed) {
             return;
         }
-
-        this._contextMenu.destroy();
 
         this._editorEvents.forEach(e => e.unbind());
         this._editorEvents.length = 0;
