@@ -272,89 +272,97 @@ editor.once('load', () => {
         setMenuOpen(false);
     });
 
+    const showAllSuggestions = () => {
+        for (let i = suggestions.length - 1; i >= 0; i--) {
+            suggestions[i].menuItem.class.remove('hidden');
+            menu.dom.insertBefore(suggestions[i].menuItem.dom, menu.dom.firstChild);
+        }
+    };
+
     const filterSuggestions = (text?: string) => {
         // sort suggestions by title first
         suggestions.sort((a, b) => a.data.title.localeCompare(b.data.title));
 
-        if (text) {
-            // turn each word into a regex
-            const query = [];
-            for (const raw of text.split(' ')) {
-                const word = raw.replace(/\W/g, '');
-                if (!word) {
-                    continue;
+        if (!text) {
+            showAllSuggestions();
+            return;
+        }
+
+        // turn each word into a regex
+        const query = [];
+        for (const raw of text.split(' ')) {
+            const word = raw.replace(/\W/g, '');
+            if (!word) continue;
+            query.push(new RegExp(`(^|\\s)${word}`, 'i'));
+        }
+
+        // if no valid words remain after stripping, show all suggestions
+        if (query.length === 0) {
+            showAllSuggestions();
+            return;
+        }
+
+        let matched = suggestions.slice();
+        let foundSomeMatches = false;
+
+        // Score suggestions for each word in the text
+        // Each word filters the results more and more
+        query.forEach((q, index) => {
+            const stageMatches = [];
+
+            for (const suggestion of matched) {
+                // reset score and make menu item hidden
+                if (index === 0) {
+                    suggestion.score = 0;
+                    suggestion.menuItem.class.add('hidden');
                 }
-                query.push(new RegExp(`(^|\\s)${word}`, 'i'));
+
+                const { title, keywords } = suggestion.data;
+
+                let score = 0;
+
+                // match the title and increase score
+                // if match is closer to the start the score is bigger
+                let match = q.exec(title);
+                if (match) {
+                    score += 1 / (match.index || 0.1);
+                }
+
+                // add to the score for each matched keyword
+                for (const keyword of keywords) {
+                    match = q.exec(keyword);
+                    if (match) {
+                        score++;
+                    }
+                }
+
+                // add suggestion to this stage's matches
+                // each subsequent stage has less and less matches
+                if (score) {
+                    suggestion.score += score;
+                    stageMatches.push(suggestion);
+                }
             }
 
-            let matched = suggestions.slice();
-            let foundSomeMatches = false;
-
-            // Score suggestions for each word in the text
-            // Each word filters the results more and more
-            query.forEach((q, index) => {
-                const stageMatches = [];
-
-                for (const suggestion of matched) {
-                    // reset score and make menu item hidden
-                    if (index === 0) {
-                        suggestion.score = 0;
-                        suggestion.menuItem.class.add('hidden');
-                    }
-
-                    const { title, keywords } = suggestion.data;
-
-                    let score = 0;
-
-                    // match the title and increase score
-                    // if match is closer to the start the score is bigger
-                    let match = q.exec(title);
-                    if (match) {
-                        score += 1 / (match.index || 0.1);
-                    }
-
-                    // add to the score for each matched keyword
-                    for (const keyword of keywords) {
-                        match = q.exec(keyword);
-                        if (match) {
-                            score++;
-                        }
-                    }
-
-                    // add suggestion to this stage's matches
-                    // each subsequent stage has less and less matches
-                    if (score) {
-                        suggestion.score += score;
-                        stageMatches.push(suggestion);
-                    }
-                }
-
-                if (stageMatches.length === 0) {
-                    // if the first few words have no matches then
-                    // skip them until we find some matches first
-                    if (foundSomeMatches) {
-                        matched = stageMatches;
-                    }
-                } else {
-                    foundSomeMatches = true;
+            if (stageMatches.length === 0) {
+                // if the first few words have no matches then
+                // skip them until we find some matches first
+                if (foundSomeMatches) {
                     matched = stageMatches;
                 }
-            });
-
-            // sort matches by score
-            matched.sort((a, b) => b.score - a.score);
-
-            // show matches
-            for (let i = matched.length - 1; i >= 0; i--) {
-                matched[i].menuItem.class.remove('hidden');
-                menu.dom.insertBefore(matched[i].menuItem.dom, menu.dom.firstChild);
+            } else {
+                foundSomeMatches = true;
+                matched = stageMatches;
             }
-        } else {
-            // show all suggestions
-            for (let i = suggestions.length - 1; i >= 0; i--) {
-                suggestions[i].menuItem.class.remove('hidden');
-                menu.dom.insertBefore(suggestions[i].menuItem.dom, menu.dom.firstChild);
-            }
+        });
+
+        // sort matches by score
+        matched.sort((a, b) => b.score - a.score);
+
+        // show matches
+        for (let i = matched.length - 1; i >= 0; i--) {
+            matched[i].menuItem.class.remove('hidden');
+            menu.dom.insertBefore(matched[i].menuItem.dom, menu.dom.firstChild);
         }
     };
 
