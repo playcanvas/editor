@@ -1,7 +1,8 @@
+import { Container } from '@playcanvas/pcui';
+
 import { LegacyButton } from '@/common/ui/button';
 import { LegacyMenu } from '@/common/ui/menu';
 import { LegacyMenuItem } from '@/common/ui/menu-item';
-import { LegacyPanel } from '@/common/ui/panel';
 import { LegacyTextField } from '@/common/ui/text-field';
 
 editor.once('load', () => {
@@ -10,8 +11,7 @@ editor.once('load', () => {
     const settings = editor.call('settings:user');
 
     // create main panel
-    const panel = new LegacyPanel();
-    panel.class.add('help-howdoi');
+    const panel = new Container({ class: 'help-howdoi' });
     viewport.append(panel);
     panel.hidden = true;
 
@@ -448,7 +448,7 @@ editor.once('load', () => {
     const click = function (e) {
         let parent = e.target;
         while (parent) {
-            if (parent === panel.innerElement) {
+            if (parent === panel.dom) {
                 input.elementInput.focus();
                 return;
             }

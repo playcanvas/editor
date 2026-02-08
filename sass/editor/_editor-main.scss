@@ -3147,7 +3147,7 @@ strong {
     }
 }
 
-.ui-panel.help-howdoi {
+.pcui-container.help-howdoi:not(.pcui-overlay) {
     background-color: rgb(41 53 56 / 50%);
     padding: 0;
     height: 33px;
@@ -3156,106 +3156,104 @@ strong {
     position: absolute;
     top: 4px;
 
-    > .content {
-        > .ui-text-field {
+    > .ui-text-field {
+        background-color: transparent;
+        border: none;
+        padding: 0;
+        margin: 0;
+        width: 100%;
+        height: 100%;
+
+        &::before {
+            @extend .font-icon;
+
+            font-size: 14px;
+            content: '\E129';
+            line-height: 34px;
+            color: $text-primary;
+            opacity: 0.5;
+            vertical-align: top;
+            padding-left: 10px;
+        }
+
+        > input {
             background-color: transparent;
-            border: none;
-            padding: 0;
             margin: 0;
-            width: 100%;
-            height: 100%;
+            padding: 0 10px;
+            color: $text-primary;
+            width: calc(100% - 50px);
 
-            &::before {
-                @extend .font-icon;
+            @extend .font-regular;
 
-                font-size: 14px;
-                content: '\E129';
-                line-height: 34px;
+            &::placeholder {
                 color: $text-primary;
-                opacity: 0.5;
-                vertical-align: top;
-                padding-left: 10px;
+                opacity: 0.75;
             }
+        }
+
+        &.focus {
+            background-color: $bcg-darkest;
 
             > input {
-                background-color: transparent;
-                margin: 0;
-                padding: 0 10px;
-                color: $text-primary;
-                width: calc(100% - 50px);
-
-                @extend .font-regular;
-
-                &::placeholder {
-                    color: $text-primary;
-                    opacity: 0.75;
-                }
-            }
-
-            &.focus {
                 background-color: $bcg-darkest;
+            }
 
-                > input {
-                    background-color: $bcg-darkest;
+            border-bottom: 1px solid $text-active;
+        }
+    }
+
+    > .close {
+        position: absolute;
+        right: 18px;
+        top: 4px;
+        padding: 0;
+        margin: 0;
+        font-size: 12px;
+        background-color: transparent;
+        color: $text-primary;
+        border-color: transparent;
+        opacity: 0.5;
+
+        @extend .noSelect;
+
+        &:hover {
+            opacity: 1;
+        }
+
+        > .font-icon {
+            display: block;
+            position: absolute;
+            top: -1px;
+            right: -12px;
+        }
+    }
+
+    > .ui-menu {
+        position: initial;
+
+        > .inner {
+            position: initial;
+            width: 100%;
+            max-height: 6.5 * 33px;
+            overflow: hidden auto;
+
+            > .ui-menu-item {
+                width: 100%;
+
+                &:hover > .title {
+                    background-color: transparent;
                 }
 
-                border-bottom: 1px solid $text-active;
-            }
-        }
+                &.focused > .title {
+                    background-color: $text-darkest;
+                }
 
-        > .close {
-            position: absolute;
-            right: 18px;
-            top: 4px;
-            padding: 0;
-            margin: 0;
-            font-size: 12px;
-            background-color: transparent;
-            color: $text-primary;
-            border-color: transparent;
-            opacity: 0.5;
-
-            @extend .noSelect;
-
-            &:hover {
-                opacity: 1;
-            }
-
-            > .font-icon {
-                display: block;
-                position: absolute;
-                top: -1px;
-                right: -12px;
-            }
-        }
-
-        > .ui-menu {
-            position: initial;
-
-            > .inner {
-                position: initial;
-                width: 100%;
-                max-height: 6.5 * 33px;
-                overflow: hidden auto;
-
-                > .ui-menu-item {
+                > .title {
+                    font-size: 12px;
+                    color: $text-primary;
                     width: 100%;
-
-                    &:hover > .title {
-                        background-color: transparent;
-                    }
-
-                    &.focused > .title {
-                        background-color: $text-darkest;
-                    }
-
-                    > .title {
-                        font-size: 12px;
-                        color: $text-primary;
-                        width: 100%;
-                        overflow: hidden;
-                        text-overflow: ellipsis;
-                    }
+                    overflow: hidden;
+                    text-overflow: ellipsis;
                 }
             }
         }
