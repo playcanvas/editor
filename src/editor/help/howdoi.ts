@@ -146,7 +146,6 @@ editor.once('load', () => {
 
     let menuOpen = false;
     const setMenuOpen = (value: boolean) => {
-        value = !!value;
         if (menuOpen === value) return;
         menuOpen = value;
         menu.hidden = !value;
@@ -221,7 +220,7 @@ editor.once('load', () => {
         menuItem.dom.addEventListener('mouseleave', mouseLeave);
 
         // on enter open the popup
-        input.input.addEventListener('keydown', (e) => {
+        input.on('keydown', (e: KeyboardEvent) => {
             if (e.key === 'Enter' && focusedMenuItem === menuItem.dom) {
                 e.preventDefault();
                 e.stopPropagation();
@@ -231,7 +230,7 @@ editor.once('load', () => {
     });
 
     // on esc delete the input text or hide the widget if no text is there
-    input.input.addEventListener('keydown', (e) => {
+    input.on('keydown', (e: KeyboardEvent) => {
         if (e.key === 'Escape') {
             if (input.value) {
                 storeEvent(input.value);
@@ -246,7 +245,7 @@ editor.once('load', () => {
     let focusing = false;
 
     // on focus open the menu and then refocus the input field
-    input.input.addEventListener('focus', () => {
+    input.on('focus', () => {
         if (focusing) {
             return;
         }
@@ -261,7 +260,7 @@ editor.once('load', () => {
     });
 
     // on blur hide the menu
-    input.input.addEventListener('blur', () => {
+    input.on('blur', () => {
         if (focusing) {
             return;
         }
