@@ -268,6 +268,10 @@
     }
 }
 
+.pcui-container.picker-version-control > .pcui-container .branches .ui-list > .ui-list-item .pcui-label.selectable {
+    user-select: text;
+}
+
 .pcui-container.picker-version-control > .pcui-container .branches .ui-list > .ui-list-item .pcui-label.name.closed-branch {
     color: $text-secondary;
 }
