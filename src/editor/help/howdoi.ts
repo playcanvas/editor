@@ -292,7 +292,9 @@ editor.once('load', () => {
         const query = [];
         for (const raw of text.split(' ')) {
             const word = raw.replace(/\W/g, '');
-            if (!word) continue;
+            if (!word) {
+                continue;
+            }
             query.push(new RegExp(`(^|\\s)${word}`, 'i'));
         }
 
@@ -371,7 +373,11 @@ editor.once('load', () => {
 
     // Focus next or previous suggestion
     const focusNextSuggestion = (forward: boolean) => {
-        let next = forward ? menu.dom.firstChild as HTMLElement : menu.dom.lastChild as HTMLElement;
+        let next = (forward ? menu.dom.firstElementChild : menu.dom.lastElementChild) as HTMLElement;
+        if (!next) {
+            return false;
+        }
+
         if (focusedMenuItem) {
             focusedMenuItem.classList.remove('focused');
 
@@ -390,9 +396,9 @@ editor.once('load', () => {
 
         while (next.classList.contains('hidden')) {
             if (forward) {
-                next = (next.nextElementSibling || menu.dom.firstChild) as HTMLElement;
+                next = (next.nextElementSibling || menu.dom.firstElementChild) as HTMLElement;
             } else {
-                next = (next.previousElementSibling || menu.dom.lastChild) as HTMLElement;
+                next = (next.previousElementSibling || menu.dom.lastElementChild) as HTMLElement;
             }
 
             // avoid infinite loop
