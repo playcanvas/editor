@@ -21,10 +21,11 @@ editor.once('load', () => {
     let currentCheckpointId = null;
 
     // main panel
-    const panel = new Container();
-    panel.class.add('picker-version-control');
+    const panel = new Container({
+        class: 'picker-version-control',
+        flex: true
+    });
     editor.call('picker:project:registerMenu', 'version control', 'Version Control', panel);
-    panel.flex = true;
 
     // hide version control picker if we are not part of the team
     if (!editor.call('permissions:read')) {
@@ -35,10 +36,11 @@ editor.once('load', () => {
     });
 
     // branches container panel
-    const panelBranchesContainer = new Container();
-    panelBranchesContainer.class.add('branches-container');
+    const panelBranchesContainer = new Container({
+        class: 'branches-container',
+        flex: true
+    });
     panel.append(panelBranchesContainer);
-    panelBranchesContainer.flex = true;
 
     // branches top
     // var panelBranchesTop = new Panel();
@@ -47,9 +49,10 @@ editor.once('load', () => {
     // panelBranchesContainer.append(panelBranchesTop);
 
     // branches filter
-    const panelBranchesFilter = new Container();
-    panelBranchesFilter.class.add('branches-filter');
-    panelBranchesFilter.flex = true;
+    const panelBranchesFilter = new Container({
+        class: 'branches-filter',
+        flex: true
+    });
     panelBranchesContainer.append(panelBranchesFilter);
 
     // branches list
@@ -82,13 +85,13 @@ editor.once('load', () => {
     };
 
     const search = new TextInput({
-        placeholder: 'Search'
+        blurOnEnter: false,
+        class: ['search', 'version-control-search'],
+        keyChange: true,
+        placeholder: 'Search',
+        renderChanges: false
     });
-    search.blurOnEnter = false;
-    search.keyChange = true;
-    search.class.add('search');
-    search.class.add('version-control-search');
-    search.renderChanges = false;
+    search.flexGrow = '1';
     panel.prepend(search);
 
 
@@ -101,7 +104,6 @@ editor.once('load', () => {
         search.value = '';
     }, false);
 
-    search.flexGrow = 1;
     panelBranchesFilter.append(search);
 
     search.on('change', (value) => {
@@ -129,15 +131,16 @@ editor.once('load', () => {
             v: 'favorite', t: 'Favorite Branches'
         }, {
             v: 'closed', t: 'Closed Branches'
-        }]
+        }],
+        value: 'favorite'
     });
-    fieldBranchesFilter.value = 'favorite';
-    fieldBranchesFilter.flexGrow = 1;
+    fieldBranchesFilter.flexGrow = '1';
     panelBranchesFilter.append(fieldBranchesFilter);
 
     // branches main panel
-    const panelBranches = new Container();
-    panelBranches.class.add('branches');
+    const panelBranches = new Container({
+        class: 'branches'
+    });
     panelBranchesContainer.append(panelBranches);
     panelBranches.append(listBranches);
 
@@ -154,10 +157,11 @@ editor.once('load', () => {
     });
 
     // right side container panel
-    const panelRight = new Container();
-    panelRight.class.add('side-panel');
-    panelRight.flex = true;
-    panelRight.flexGrow = 1;
+    const panelRight = new Container({
+        class: 'side-panel',
+        flex: true,
+        flexGrow: '1'
+    });
     panel.append(panelRight);
 
     const showRightSidePanel = function (panel) {
@@ -602,8 +606,9 @@ editor.once('load', () => {
     let contextBranch = null;
 
     // branches context menu
-    const menuBranches = new Menu();
-    menuBranches.class.add('version-control');
+    const menuBranches = new Menu({
+        class: 'version-control'
+    });
 
     // when the branches context menu is closed 'unclick' dropdowns
     menuBranches.on('hide', () => {
