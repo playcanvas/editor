@@ -1,8 +1,5 @@
 import { Button, Container, TextInput } from '@playcanvas/pcui';
 
-import { LegacyMenu } from '@/common/ui/menu';
-import { LegacyMenuItem } from '@/common/ui/menu-item';
-
 editor.once('load', () => {
     const viewport = editor.call('layout.viewport');
     let focusedMenuItem = null;
@@ -139,10 +136,18 @@ editor.once('load', () => {
     });
 
     // menu with all the suggestions
-    const menu = new LegacyMenu();
-    menu.open = false;
+    const menu = new Container({ class: 'howdoi-menu' });
+    menu.hidden = true;
     panel.append(menu);
-    menu.elementOverlay.parentElement.removeChild(menu.elementOverlay);
+
+    let menuOpen = false;
+    const setMenuOpen = (value: boolean) => {
+        value = !!value;
+        if (menuOpen === value) return;
+        menuOpen = value;
+        menu.hidden = !value;
+        menu.emit('open', value);
+    };
 
     const suggestions = [];
 
@@ -159,9 +164,8 @@ editor.once('load', () => {
     editor.method('help:howdoi:register', (data) => {
 
         // create new menu item
-        const menuItem = new LegacyMenuItem({
-            text: data.title
-        });
+        const menuItem = new Container({ class: 'howdoi-menu-item' });
+        menuItem.dom.textContent = data.title;
 
         menu.append(menuItem);
 
@@ -182,49 +186,49 @@ editor.once('load', () => {
             input.value = '';
             input.blur();
             // hide menu
-            menu.open = false;
+            setMenuOpen(false);
         };
 
         // open popup on mousedown instead of 'click' because
         // for some reason the 'click' event doesn't always work here
-        menuItem.element.addEventListener('mousedown', (e) => {
+        menuItem.dom.addEventListener('mousedown', (e) => {
             e.stopPropagation();
             openPopup();
         });
 
         // focus element on mouse enter
         const mouseEnter = function () {
-            if (focusedMenuItem && focusedMenuItem !== menuItem.element) {
+            if (focusedMenuItem && focusedMenuItem !== menuItem.dom) {
                 focusedMenuItem.classList.remove('focused');
             }
 
-            focusedMenuItem = menuItem.element;
+            focusedMenuItem = menuItem.dom;
             focusedMenuItem.classList.add('focused');
 
             // remove mouseenter listener until mouseleave fires to prevent
             // an issue with Firefox
-            menuItem.element.removeEventListener('mouseenter', mouseEnter);
+            menuItem.dom.removeEventListener('mouseenter', mouseEnter);
         };
 
-        menuItem.element.addEventListener('mouseenter', mouseEnter);
+        menuItem.dom.addEventListener('mouseenter', mouseEnter);
 
         // unfocus element on mouse leave
         const mouseLeave = function () {
-            if (focusedMenuItem && focusedMenuItem === menuItem.element) {
+            if (focusedMenuItem && focusedMenuItem === menuItem.dom) {
                 focusedMenuItem.classList.remove('focused');
                 focusedMenuItem = null;
             }
 
-            menuItem.element.addEventListener('mouseenter', mouseEnter);
+            menuItem.dom.addEventListener('mouseenter', mouseEnter);
         };
 
-        menuItem.element.addEventListener('mouseleave', mouseLeave);
+        menuItem.dom.addEventListener('mouseleave', mouseLeave);
 
 
         // on enter open the popup
         input.input.addEventListener('keydown', (e) => {
             if (e.keyCode === 13) {
-                if (focusedMenuItem === menuItem.element) {
+                if (focusedMenuItem === menuItem.dom) {
                     e.preventDefault();
                     e.stopPropagation();
 
@@ -243,7 +247,7 @@ editor.once('load', () => {
                 input.value = '';
                 input.focus();
             } else {
-                menu.open = false;
+                setMenuOpen(false);
             }
         }
     });
@@ -258,7 +262,7 @@ editor.once('load', () => {
         }
 
         focusing = true;
-        menu.open = true;
+        setMenuOpen(true);
 
         if (blurTimeout) {
             clearTimeout(blurTimeout);
@@ -278,7 +282,7 @@ editor.once('load', () => {
             return;
         }
 
-        menu.open = false;
+        setMenuOpen(false);
     });
 
     const filterSuggestions = function (text) {
@@ -377,13 +381,13 @@ editor.once('load', () => {
             // show matches
             for (let i = matched.length - 1; i >= 0; i--) {
                 matched[i].menuItem.class.remove('hidden');
-                menu.innerElement.insertBefore(matched[i].menuItem.element, menu.innerElement.firstChild);
+                menu.dom.insertBefore(matched[i].menuItem.dom, menu.dom.firstChild);
             }
         } else {
             // show all suggestions
             for (let i = suggestions.length - 1; i >= 0; i--) {
                 suggestions[i].menuItem.class.remove('hidden');
-                menu.innerElement.insertBefore(suggestions[i].menuItem.element, menu.innerElement.firstChild);
+                menu.dom.insertBefore(suggestions[i].menuItem.dom, menu.dom.firstChild);
             }
 
         }
@@ -397,7 +401,7 @@ editor.once('load', () => {
 
     // Focus next or previous suggestion
     const focusNextSuggestion = function (forward) {
-        let next = forward ? menu.innerElement.firstChild : menu.innerElement.lastChild;
+        let next = forward ? menu.dom.firstChild : menu.dom.lastChild;
         if (focusedMenuItem) {
             focusedMenuItem.classList.remove('focused');
 
@@ -416,9 +420,9 @@ editor.once('load', () => {
 
         while (next.classList.contains('hidden')) {
             if (forward) {
-                next = next.nextSibling || menu.innerElement.firstChild;
+                next = next.nextSibling || menu.dom.firstChild;
             } else {
-                next =  next.previousSibling || menu.innerElement.lastChild;
+                next =  next.previousSibling || menu.dom.lastChild;
             }
 
             // avoid infinite loop
@@ -432,12 +436,12 @@ editor.once('load', () => {
 
         // scroll into view if needed
         const focusedRect = focusedMenuItem.getBoundingClientRect();
-        const menuRect = menu.innerElement.getBoundingClientRect();
+        const menuRect = menu.dom.getBoundingClientRect();
 
         if (focusedRect.bottom > menuRect.bottom) {
-            menu.innerElement.scrollTop += focusedRect.bottom - menuRect.bottom;
+            menu.dom.scrollTop += focusedRect.bottom - menuRect.bottom;
         } else if (focusedRect.top < menuRect.top) {
-            menu.innerElement.scrollTop -= menuRect.top - focusedRect.top;
+            menu.dom.scrollTop -= menuRect.top - focusedRect.top;
         }
 
         return true;
@@ -455,7 +459,7 @@ editor.once('load', () => {
             parent = parent.parentElement;
         }
 
-        menu.open = false;
+        setMenuOpen(false);
     };
 
     // handle arrow keys to focus next / previous suggestion
@@ -480,7 +484,7 @@ editor.once('load', () => {
             window.addEventListener('click', click);
             window.addEventListener('keydown', key);
             input.class.add('focus');
-            menu.innerElement.scrollTop = 0;
+            menu.dom.scrollTop = 0;
             close.hidden = true;
 
             filterSuggestions();
