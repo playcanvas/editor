@@ -272,6 +272,16 @@
     user-select: text;
 }
 
+.pcui-container.picker-version-control > .pcui-container .branches .ui-list > .ui-list-item .pcui-button.dropdown {
+    border-radius: 0;
+    box-shadow: none;
+
+    &:hover,
+    &:focus {
+        box-shadow: none;
+    }
+}
+
 .pcui-container.picker-version-control > .pcui-container .branches .ui-list > .ui-list-item .pcui-label.name.closed-branch {
     color: $text-secondary;
 }
