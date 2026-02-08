@@ -1,12 +1,7 @@
-import { LegacyButton } from '@/common/ui/button';
-import { LegacyLabel } from '@/common/ui/label';
+import { Button, Container, Label, Menu, MenuItem, SelectInput, TextInput } from '@playcanvas/pcui';
+
 import { LegacyList } from '@/common/ui/list';
 import { LegacyListItem } from '@/common/ui/list-item';
-import { LegacyMenu } from '@/common/ui/menu';
-import { LegacyMenuItem } from '@/common/ui/menu-item';
-import { LegacyPanel } from '@/common/ui/panel';
-import { LegacySelectField } from '@/common/ui/select-field';
-import { LegacyTextField } from '@/common/ui/text-field';
 import { handleCallback } from '@/common/utils';
 
 editor.once('load', () => {
@@ -26,7 +21,7 @@ editor.once('load', () => {
     let currentCheckpointId = null;
 
     // main panel
-    const panel = new LegacyPanel();
+    const panel = new Container();
     panel.class.add('picker-version-control');
     editor.call('picker:project:registerMenu', 'version control', 'Version Control', panel);
     panel.flex = true;
@@ -40,7 +35,7 @@ editor.once('load', () => {
     });
 
     // branches container panel
-    const panelBranchesContainer = new LegacyPanel();
+    const panelBranchesContainer = new Container();
     panelBranchesContainer.class.add('branches-container');
     panel.append(panelBranchesContainer);
     panelBranchesContainer.flex = true;
@@ -52,7 +47,7 @@ editor.once('load', () => {
     // panelBranchesContainer.append(panelBranchesTop);
 
     // branches filter
-    const panelBranchesFilter = new LegacyPanel();
+    const panelBranchesFilter = new Container();
     panelBranchesFilter.class.add('branches-filter');
     panelBranchesFilter.flex = true;
     panelBranchesContainer.append(panelBranchesFilter);
@@ -86,7 +81,7 @@ editor.once('load', () => {
         }
     };
 
-    const search = new LegacyTextField({
+    const search = new TextInput({
         placeholder: 'Search'
     });
     search.blurOnEnter = false;
@@ -127,7 +122,7 @@ editor.once('load', () => {
     });
 
     // filter
-    const fieldBranchesFilter = new LegacySelectField({
+    const fieldBranchesFilter = new SelectInput({
         options: [{
             v: 'open', t: 'Open Branches'
         }, {
@@ -141,7 +136,7 @@ editor.once('load', () => {
     panelBranchesFilter.append(fieldBranchesFilter);
 
     // branches main panel
-    const panelBranches = new LegacyPanel();
+    const panelBranches = new Container();
     panelBranches.class.add('branches');
     panelBranchesContainer.append(panelBranches);
     panelBranches.append(listBranches);
@@ -149,7 +144,7 @@ editor.once('load', () => {
     const loadMoreListItem = new LegacyListItem();
     loadMoreListItem.hidden = true;
     loadMoreListItem.class.add('load-more');
-    const btnLoadMoreBranches = new LegacyButton({
+    const btnLoadMoreBranches = new Button({
         text: 'LOAD MORE'
     });
     loadMoreListItem.element.append(btnLoadMoreBranches.element);
@@ -159,7 +154,7 @@ editor.once('load', () => {
     });
 
     // right side container panel
-    const panelRight = new LegacyPanel();
+    const panelRight = new Container();
     panelRight.class.add('side-panel');
     panelRight.flex = true;
     panelRight.flexGrow = 1;
@@ -607,12 +602,12 @@ editor.once('load', () => {
     let contextBranch = null;
 
     // branches context menu
-    const menuBranches = new LegacyMenu();
+    const menuBranches = new Menu();
     menuBranches.class.add('version-control');
 
     // when the branches context menu is closed 'unclick' dropdowns
-    menuBranches.on('open', (open) => {
-        if (open || !contextBranch) {
+    menuBranches.on('hide', () => {
+        if (!contextBranch) {
             return;
         }
 
@@ -627,18 +622,15 @@ editor.once('load', () => {
         }
 
         dropdown.classList.remove('clicked');
-        dropdown.innerHTML = '&#57689;';
+        dropdown.ui.icon = 'E159';
 
-        if (!open) {
-            contextBranch = null;
-            menuBranches.contextBranchIsFavorite = false;
-        }
+        contextBranch = null;
+        menuBranches.contextBranchIsFavorite = false;
     });
 
     // checkout branch
-    const menuBranchesSwitchTo = new LegacyMenuItem({
-        text: 'Switch To This Branch',
-        value: 'switch-branch'
+    const menuBranchesSwitchTo = new MenuItem({
+        text: 'Switch To This Branch'
     });
     menuBranches.append(menuBranchesSwitchTo);
 
@@ -660,9 +652,8 @@ editor.once('load', () => {
     });
 
     // favorite branch
-    const menuBranchesFavorite = new LegacyMenuItem({
-        text: 'Favorite This Branch',
-        value: 'favorite-branch'
+    const menuBranchesFavorite = new MenuItem({
+        text: 'Favorite This Branch'
     });
     menuBranches.append(menuBranchesFavorite);
 
@@ -682,9 +673,8 @@ editor.once('load', () => {
     });
 
     // merge branch
-    const menuBranchesMerge = new LegacyMenuItem({
-        text: 'Merge Into Current Branch',
-        value: 'merge-branch'
+    const menuBranchesMerge = new MenuItem({
+        text: 'Merge Into Current Branch'
     });
     menuBranches.append(menuBranchesMerge);
 
@@ -699,9 +689,8 @@ editor.once('load', () => {
 
 
     // close branch
-    const menuBranchesClose = new LegacyMenuItem({
-        text: 'Close This Branch',
-        value: 'close-branch'
+    const menuBranchesClose = new MenuItem({
+        text: 'Close This Branch'
     });
     menuBranches.append(menuBranchesClose);
 
@@ -714,9 +703,8 @@ editor.once('load', () => {
     });
 
     // open branch
-    const menuBranchesOpen = new LegacyMenuItem({
-        text: 'Re-Open This Branch',
-        value: 'open-branch'
+    const menuBranchesOpen = new MenuItem({
+        text: 'Re-Open This Branch'
     });
     menuBranches.append(menuBranchesOpen);
 
@@ -749,9 +737,8 @@ editor.once('load', () => {
     });
 
     // delete branch
-    const menuBranchesDelete = new LegacyMenuItem({
-        text: 'Delete This Branch',
-        value: 'delete-branch'
+    const menuBranchesDelete = new MenuItem({
+        text: 'Delete This Branch'
     });
     menuBranches.append(menuBranchesDelete);
 
@@ -763,9 +750,8 @@ editor.once('load', () => {
     });
 
     // vc graph
-    const menuVcGraph = new LegacyMenuItem({
-        text: 'Version Control Graph',
-        value: 'show-vc-graph'
+    const menuVcGraph = new MenuItem({
+        text: 'Version Control Graph'
     });
 
     menuBranches.append(menuVcGraph);
@@ -777,7 +763,7 @@ editor.once('load', () => {
     });
 
     // Filter context menu items
-    menuBranches.on('open', () => {
+    menuBranches.on('show', () => {
         const writeAccess = editor.call('permissions:write');
 
         menuBranchesFavorite.text = `${menuBranches.contextBranchIsFavorite ? 'Unf' : 'F'}avorite This Branch`;
@@ -809,10 +795,10 @@ editor.once('load', () => {
         item.branch = branch;
         item.element.id = `branch-${branch.id}`;
 
-        const panel = new LegacyPanel();
+        const panel = new Container();
         item.element.appendChild(panel.element);
 
-        const labelIcon = new LegacyLabel({
+        const labelIcon = new Label({
             text: '&#58208;',
             unsafe: true
         });
@@ -821,7 +807,7 @@ editor.once('load', () => {
         labelIcon.style.fontSize = '8px';
         panel.append(labelIcon);
 
-        const labelName = new LegacyLabel({
+        const labelName = new Label({
             text: branch.name
         });
         labelName.class.add('name', 'selectable');
@@ -830,15 +816,15 @@ editor.once('load', () => {
             labelName.class.add('closed-branch');
         }
 
-        const labelBranchId = new LegacyLabel({
+        const labelBranchId = new Label({
             text: branch.id
         });
         labelBranchId.class.add('branch-id', 'selectable');
         panel.append(labelBranchId);
 
         // dropdown
-        const dropdown = new LegacyButton({
-            text: '&#57689;'
+        const dropdown = new Button({
+            icon: 'E159'
         });
         dropdown.branch = branch;
         dropdown.class.add('dropdown');
@@ -872,11 +858,11 @@ editor.once('load', () => {
             }
 
             dropdown.class.add('clicked');
-            dropdown.element.innerHTML = '&#57687;';
+            dropdown.icon = 'E157';
 
             contextBranch = branch;
             menuBranches.contextBranchIsFavorite = item.isFavorite;
-            menuBranches.open = true;
+            menuBranches.hidden = false;
             const rect = dropdown.element.getBoundingClientRect();
             menuBranches.position(rect.right - menuBranches.innerElement.clientWidth, rect.bottom);
         });
