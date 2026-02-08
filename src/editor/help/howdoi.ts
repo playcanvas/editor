@@ -127,9 +127,9 @@ editor.once('load', () => {
 
     // close button
     const close = new Button({
-        unsafe: true,
+        class: 'close',
         text: 'Hide <span class="font-icon" style="position: absolute; top: 0">&#57650;</span>',
-        class: 'close'
+        unsafe: true
     });
     panel.append(close);
 
