@@ -1,8 +1,7 @@
-import { Button, Container } from '@playcanvas/pcui';
+import { Button, Container, TextInput } from '@playcanvas/pcui';
 
 import { LegacyMenu } from '@/common/ui/menu';
 import { LegacyMenuItem } from '@/common/ui/menu-item';
-import { LegacyTextField } from '@/common/ui/text-field';
 
 editor.once('load', () => {
     const viewport = editor.call('layout.viewport');
@@ -120,11 +119,11 @@ editor.once('load', () => {
     });
 
     // input field
-    const input = new LegacyTextField();
-    input.blurOnEnter = false;
-    input.renderChanges = false;
-    input.keyChange = true;
-    input.elementInput.placeholder = 'How do I...?';
+    const input = new TextInput({
+        blurOnEnter: false,
+        keyChange: true
+    });
+    input.input.placeholder = 'How do I...?';
     panel.append(input);
 
     // close button
@@ -181,7 +180,7 @@ editor.once('load', () => {
             editor.call('help:howdoi:popup', data);
             // reset input value and blur field
             input.value = '';
-            input.elementInput.blur();
+            input.blur();
             // hide menu
             menu.open = false;
         };
@@ -223,7 +222,7 @@ editor.once('load', () => {
 
 
         // on enter open the popup
-        input.elementInput.addEventListener('keydown', (e) => {
+        input.input.addEventListener('keydown', (e) => {
             if (e.keyCode === 13) {
                 if (focusedMenuItem === menuItem.element) {
                     e.preventDefault();
@@ -237,12 +236,12 @@ editor.once('load', () => {
     });
 
     // on esc delete the input text or hide the widget if no text is there
-    input.elementInput.addEventListener('keydown', (e) => {
+    input.input.addEventListener('keydown', (e) => {
         if (e.keyCode === 27) {
             if (input.value) {
                 storeEvent(input.value);
                 input.value = '';
-                input.elementInput.focus();
+                input.focus();
             } else {
                 menu.open = false;
             }
@@ -253,7 +252,7 @@ editor.once('load', () => {
     let focusing = false;
 
     // on focus open the menu and then refocus the input field
-    input.elementInput.addEventListener('focus', () => {
+    input.input.addEventListener('focus', () => {
         if (focusing) {
             return;
         }
@@ -267,14 +266,14 @@ editor.once('load', () => {
         }
 
         setTimeout(() => {
-            input.elementInput.focus();
+            input.focus();
             focusing = false;
         });
 
     });
 
     // on blur hide the menu
-    input.elementInput.addEventListener('blur', () => {
+    input.input.addEventListener('blur', () => {
         if (focusing) {
             return;
         }
@@ -449,7 +448,7 @@ editor.once('load', () => {
         let parent = e.target;
         while (parent) {
             if (parent === panel.dom) {
-                input.elementInput.focus();
+                input.focus();
                 return;
             }
 
@@ -508,7 +507,7 @@ editor.once('load', () => {
         panel.hidden = !toggle;
         if (toggle) {
             setTimeout(() => {
-                input.elementInput.focus();
+                input.focus();
             });
         }
     };

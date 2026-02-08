@@ -3156,19 +3156,25 @@ strong {
     position: absolute;
     top: 4px;
 
-    > .ui-text-field {
+    > .pcui-text-input {
         display: block;
         position: relative;
-        background-color: transparent;
+        background: transparent;
         border: none;
+        border-radius: 0;
         padding: 0;
         margin: 0;
         width: 100%;
         height: 100%;
+        min-height: 0;
+        box-shadow: none;
+        color: $text-primary;
+        transition: none;
 
         &::before {
             @extend .font-icon;
 
+            display: inline;
             font-size: 14px;
             content: '\E129';
             line-height: 34px;
@@ -3179,11 +3185,13 @@ strong {
         }
 
         > input {
-            background-color: transparent;
+            background: transparent;
             margin: 0;
             padding: 0 10px;
             color: $text-primary;
             width: calc(100% - 50px);
+            line-height: normal;
+            box-shadow: none;
 
             @extend .font-regular;
 
@@ -3193,22 +3201,35 @@ strong {
             }
         }
 
-        &.focus {
-            background-color: $bcg-darkest;
+        &.focus,
+        &.pcui-focus {
+            background: $bcg-darkest;
+            box-shadow: none;
 
             > input {
-                background-color: $bcg-darkest;
+                background: $bcg-darkest;
             }
+        }
 
-            &::after {
-                content: '';
-                position: absolute;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                height: 1px;
-                background-color: $text-active;
-            }
+        &.focus::after {
+            display: block;
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background-color: $text-active;
+        }
+
+        &:hover {
+            background: transparent;
+            box-shadow: none;
+        }
+
+        &.focus:hover,
+        &.pcui-focus:hover {
+            background: $bcg-darkest;
         }
     }
 
