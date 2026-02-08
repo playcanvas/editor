@@ -120,6 +120,7 @@
         width: 100%;
         max-height: 6.5 * 33px;
         overflow: hidden auto;
+        background-color: $bcg-darkest;
 
         @extend .noSelect;
 
@@ -129,7 +130,7 @@
             padding: 0 16px 0 8px;
             font-size: 12px;
             color: $text-primary;
-            background-color: #333;
+            background-color: $bcg-darkest;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
