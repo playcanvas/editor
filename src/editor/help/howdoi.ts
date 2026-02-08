@@ -6,9 +6,11 @@ editor.once('load', () => {
     const settings = editor.call('settings:user');
 
     // create main panel
-    const panel = new Container({ class: 'help-howdoi' });
+    const panel = new Container({
+        class: 'help-howdoi',
+        hidden: true
+    });
     viewport.append(panel);
-    panel.hidden = true;
 
     let settingsLoaded = false;
     let tipsLoaded = false;
@@ -136,8 +138,10 @@ editor.once('load', () => {
     });
 
     // menu with all the suggestions
-    const menu = new Container({ class: 'howdoi-menu' });
-    menu.hidden = true;
+    const menu = new Container({
+        class: 'howdoi-menu',
+        hidden: true
+    });
     panel.append(menu);
 
     let menuOpen = false;
