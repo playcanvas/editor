@@ -146,7 +146,9 @@ editor.once('load', () => {
 
     let menuOpen = false;
     const setMenuOpen = (value: boolean) => {
-        if (menuOpen === value) return;
+        if (menuOpen === value) {
+            return;
+        }
         menuOpen = value;
         menu.hidden = !value;
         menu.emit('open', value);
@@ -279,7 +281,9 @@ editor.once('load', () => {
             const query = [];
             for (const raw of text.split(' ')) {
                 const word = raw.replace(/\W/g, '');
-                if (!word) continue;
+                if (!word) {
+                    continue;
+                }
                 query.push(new RegExp(`(^|\\s)${word}`, 'i'));
             }
 
