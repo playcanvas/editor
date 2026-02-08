@@ -1,6 +1,5 @@
-import { Container } from '@playcanvas/pcui';
+import { Button, Container } from '@playcanvas/pcui';
 
-import { LegacyButton } from '@/common/ui/button';
 import { LegacyMenu } from '@/common/ui/menu';
 import { LegacyMenuItem } from '@/common/ui/menu-item';
 import { LegacyTextField } from '@/common/ui/text-field';
@@ -129,10 +128,11 @@ editor.once('load', () => {
     panel.append(input);
 
     // close button
-    const close = new LegacyButton({
-        text: 'Hide <span class="font-icon" style="position: absolute; top: 0">&#57650;</span>'
+    const close = new Button({
+        unsafe: true,
+        text: 'Hide <span class="font-icon" style="position: absolute; top: 0">&#57650;</span>',
+        class: 'close'
     });
-    close.class.add('close');
     panel.append(close);
 
     close.on('click', () => {

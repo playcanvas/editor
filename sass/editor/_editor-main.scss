@@ -3157,6 +3157,8 @@ strong {
     top: 4px;
 
     > .ui-text-field {
+        display: block;
+        position: relative;
         background-color: transparent;
         border: none;
         padding: 0;
@@ -3198,21 +3200,33 @@ strong {
                 background-color: $bcg-darkest;
             }
 
-            border-bottom: 1px solid $text-active;
+            &::after {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                height: 1px;
+                background-color: $text-active;
+            }
         }
     }
 
     > .close {
         position: absolute;
         right: 18px;
-        top: 4px;
+        top: 0;
+        appearance: none;
         padding: 0;
         margin: 0;
+        border: none;
+        height: 33px;
+        line-height: 33px;
         font-size: 12px;
         background-color: transparent;
         color: $text-primary;
-        border-color: transparent;
         opacity: 0.5;
+        overflow: visible;
 
         @extend .noSelect;
 
