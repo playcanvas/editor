@@ -167,7 +167,9 @@ editor.once('load', () => {
     editor.method('help:howdoi:register', (data) => {
 
         // create new menu item
-        const menuItem = new Container({ class: 'howdoi-menu-item' });
+        const menuItem = new Container({
+            class: 'howdoi-menu-item'
+        });
         menuItem.dom.textContent = data.title;
 
         menu.append(menuItem);
@@ -281,10 +283,6 @@ editor.once('load', () => {
                 query.push(new RegExp(`(^|\\s)${word}`, 'i'));
             }
 
-            for (const suggestion of suggestions) {
-                suggestion.score = 0;
-            }
-
             let matched = suggestions.slice();
             let foundSomeMatches = false;
 
@@ -300,8 +298,7 @@ editor.once('load', () => {
                         suggestion.menuItem.class.add('hidden');
                     }
 
-                    const { title } = suggestion.data;
-                    const { keywords } = suggestion.data;
+                    const { title, keywords } = suggestion.data;
 
                     let score = 0;
 
@@ -358,9 +355,7 @@ editor.once('load', () => {
     };
 
     // filter suggestions as the user types
-    input.on('change', (value) => {
-        filterSuggestions(value);
-    });
+    input.on('change', filterSuggestions);
 
     // Focus next or previous suggestion
     const focusNextSuggestion = (forward: boolean) => {
