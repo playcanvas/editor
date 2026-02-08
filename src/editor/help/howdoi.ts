@@ -2,7 +2,7 @@ import { Button, Container, TextInput } from '@playcanvas/pcui';
 
 editor.once('load', () => {
     const viewport = editor.call('layout.viewport');
-    let focusedMenuItem = null;
+    let focusedMenuItem: HTMLElement = null;
     const settings = editor.call('settings:user');
 
     // create main panel
@@ -13,7 +13,7 @@ editor.once('load', () => {
     let settingsLoaded = false;
     let tipsLoaded = false;
 
-    const checkShow = function () {
+    const checkShow = () => {
         if (tipsLoaded && settingsLoaded) {
             panel.hidden = !settings.get('editor.howdoi');
         }
@@ -30,7 +30,7 @@ editor.once('load', () => {
     });
 
     // position widget between top elements in viewport
-    const positionWidget = function () {
+    const positionWidget = () => {
         const canvas = editor.call('viewport:canvas');
         if (!canvas) {
             return;
@@ -77,8 +77,8 @@ editor.once('load', () => {
     });
 
     // bubble that appears after closing the widget for the first time
-    const bubble = function () {
-        const bubble = editor.call(
+    const bubble = () => {
+        const b = editor.call(
             'guide:bubble',
             'Get more help when you need it',
             'Click here to bring back the help widget whenever you want.',
@@ -88,9 +88,9 @@ editor.once('load', () => {
             editor.call('layout.toolbar')
         );
 
-        bubble.element.style.top = '';
-        bubble.element.style.bottom = '130px';
-        return bubble;
+        b.element.style.top = '';
+        b.element.style.bottom = '130px';
+        return b;
     };
 
     // events when panel is hidden
@@ -151,8 +151,8 @@ editor.once('load', () => {
 
     const suggestions = [];
 
-    // Store event for when viewing (or not viewing) a topic
-    const storeEvent = function (search, topic) {
+    // store analytics event for viewing (or not viewing) a topic
+    const storeEvent = (search: string, topic?: string) => {
         editor.api.globals.rest.home.homeSceneEvent(config.scene.id, {
             name: 'editor:help',
             title: topic,
@@ -170,22 +170,14 @@ editor.once('load', () => {
         menu.append(menuItem);
 
         // add suggestion
-        suggestions.push({
-            data: data,
-            menuItem: menuItem
-        });
+        suggestions.push({ data, menuItem });
 
         // method that opens the popup for this menu item
-        const openPopup = function () {
-            // store popup event
+        const openPopup = () => {
             storeEvent(input.value, data.title);
-
-            // open popup
             editor.call('help:howdoi:popup', data);
-            // reset input value and blur field
             input.value = '';
             input.blur();
-            // hide menu
             setMenuOpen(false);
         };
 
@@ -197,7 +189,7 @@ editor.once('load', () => {
         });
 
         // focus element on mouse enter
-        const mouseEnter = function () {
+        const mouseEnter = () => {
             if (focusedMenuItem && focusedMenuItem !== menuItem.dom) {
                 focusedMenuItem.classList.remove('focused');
             }
@@ -213,7 +205,7 @@ editor.once('load', () => {
         menuItem.dom.addEventListener('mouseenter', mouseEnter);
 
         // unfocus element on mouse leave
-        const mouseLeave = function () {
+        const mouseLeave = () => {
             if (focusedMenuItem && focusedMenuItem === menuItem.dom) {
                 focusedMenuItem.classList.remove('focused');
                 focusedMenuItem = null;
@@ -224,24 +216,19 @@ editor.once('load', () => {
 
         menuItem.dom.addEventListener('mouseleave', mouseLeave);
 
-
         // on enter open the popup
         input.input.addEventListener('keydown', (e) => {
-            if (e.keyCode === 13) {
-                if (focusedMenuItem === menuItem.dom) {
-                    e.preventDefault();
-                    e.stopPropagation();
-
-                    openPopup();
-                }
+            if (e.key === 'Enter' && focusedMenuItem === menuItem.dom) {
+                e.preventDefault();
+                e.stopPropagation();
+                openPopup();
             }
         });
-
     });
 
     // on esc delete the input text or hide the widget if no text is there
     input.input.addEventListener('keydown', (e) => {
-        if (e.keyCode === 27) {
+        if (e.key === 'Escape') {
             if (input.value) {
                 storeEvent(input.value);
                 input.value = '';
@@ -252,7 +239,6 @@ editor.once('load', () => {
         }
     });
 
-    let blurTimeout;
     let focusing = false;
 
     // on focus open the menu and then refocus the input field
@@ -264,16 +250,10 @@ editor.once('load', () => {
         focusing = true;
         setMenuOpen(true);
 
-        if (blurTimeout) {
-            clearTimeout(blurTimeout);
-            blurTimeout = null;
-        }
-
         setTimeout(() => {
             input.focus();
             focusing = false;
         });
-
     });
 
     // on blur hide the menu
@@ -285,38 +265,22 @@ editor.once('load', () => {
         setMenuOpen(false);
     });
 
-    const filterSuggestions = function (text) {
+    const filterSuggestions = (text?: string) => {
         // sort suggestions by title first
-        suggestions.sort((a, b) => {
-            if (a.data.title < b.data.title) {
-                return -1;
-            }
-
-            if (a.data.title > b.data.title) {
-                return 1;
-            }
-
-            return 0;
-        });
+        suggestions.sort((a, b) => a.data.title.localeCompare(b.data.title));
 
         if (text) {
+            // turn each word into a regex
             const query = [];
+            for (const raw of text.split(' ')) {
+                const word = raw.replace(/\W/g, '');
+                if (!word) continue;
+                query.push(new RegExp(`(^|\\s)${word}`, 'i'));
+            }
 
-            // turn each word in a regex
-            const words = text.split(' ');
-            words.forEach((word) => {
-                word = word.replace(/\W/g, ''); // remove invalid chars
-                if (!word.length) {
-                    return;
-                }
-
-                query.push(new RegExp(`(^|\\s)${word.replace(/\W/, '')}`, 'i'));
-            });
-
-
-            suggestions.forEach((suggestion) => {
+            for (const suggestion of suggestions) {
                 suggestion.score = 0;
-            });
+            }
 
             let matched = suggestions.slice();
             let foundSomeMatches = false;
@@ -326,15 +290,15 @@ editor.once('load', () => {
             query.forEach((q, index) => {
                 const stageMatches = [];
 
-                matched.forEach((suggestion) => {
+                for (const suggestion of matched) {
                     // reset score and make menu item hidden
                     if (index === 0) {
                         suggestion.score = 0;
                         suggestion.menuItem.class.add('hidden');
                     }
 
-                    const title = suggestion.data.title;
-                    const keywords = suggestion.data.keywords;
+                    const { title } = suggestion.data;
+                    const { keywords } = suggestion.data;
 
                     let score = 0;
 
@@ -346,8 +310,8 @@ editor.once('load', () => {
                     }
 
                     // add to the score for each matched keyword
-                    for (let i = 0, len = keywords.length; i < len; i++) {
-                        match = q.exec(keywords[i]);
+                    for (const keyword of keywords) {
+                        match = q.exec(keyword);
                         if (match) {
                             score++;
                         }
@@ -359,7 +323,7 @@ editor.once('load', () => {
                         suggestion.score += score;
                         stageMatches.push(suggestion);
                     }
-                });
+                }
 
                 if (stageMatches.length === 0) {
                     // if the first few words have no matches then
@@ -374,9 +338,7 @@ editor.once('load', () => {
             });
 
             // sort matches by score
-            matched.sort((a, b) => {
-                return b.score - a.score;
-            });
+            matched.sort((a, b) => b.score - a.score);
 
             // show matches
             for (let i = matched.length - 1; i >= 0; i--) {
@@ -389,9 +351,7 @@ editor.once('load', () => {
                 suggestions[i].menuItem.class.remove('hidden');
                 menu.dom.insertBefore(suggestions[i].menuItem.dom, menu.dom.firstChild);
             }
-
         }
-
     };
 
     // filter suggestions as the user types
@@ -400,18 +360,18 @@ editor.once('load', () => {
     });
 
     // Focus next or previous suggestion
-    const focusNextSuggestion = function (forward) {
-        let next = forward ? menu.dom.firstChild : menu.dom.lastChild;
+    const focusNextSuggestion = (forward: boolean) => {
+        let next = forward ? menu.dom.firstChild as HTMLElement : menu.dom.lastChild as HTMLElement;
         if (focusedMenuItem) {
             focusedMenuItem.classList.remove('focused');
 
             if (forward) {
-                if (focusedMenuItem.nextSibling) {
-                    next = focusedMenuItem.nextSibling;
+                if (focusedMenuItem.nextElementSibling) {
+                    next = focusedMenuItem.nextElementSibling as HTMLElement;
                 }
             } else {
-                if (focusedMenuItem.previousSibling) {
-                    next = focusedMenuItem.previousSibling;
+                if (focusedMenuItem.previousElementSibling) {
+                    next = focusedMenuItem.previousElementSibling as HTMLElement;
                 }
             }
         }
@@ -420,14 +380,14 @@ editor.once('load', () => {
 
         while (next.classList.contains('hidden')) {
             if (forward) {
-                next = next.nextSibling || menu.dom.firstChild;
+                next = (next.nextElementSibling || menu.dom.firstChild) as HTMLElement;
             } else {
-                next =  next.previousSibling || menu.dom.lastChild;
+                next = (next.previousElementSibling || menu.dom.lastChild) as HTMLElement;
             }
 
             // avoid infinite loop
             if (next === valueBeforeLoop) {
-                return;
+                return false;
             }
         }
 
@@ -448,8 +408,8 @@ editor.once('load', () => {
     };
 
     // handle clicking outside menu in order to close it
-    const click = function (e) {
-        let parent = e.target;
+    const onWindowClick = (e: MouseEvent) => {
+        let parent = e.target as HTMLElement;
         while (parent) {
             if (parent === panel.dom) {
                 input.focus();
@@ -463,16 +423,16 @@ editor.once('load', () => {
     };
 
     // handle arrow keys to focus next / previous suggestion
-    const key = function (e) {
-        let result;
+    const onWindowKeyDown = (e: KeyboardEvent) => {
+        let handled = false;
 
-        if (e.keyCode === 38) { // up arrow
-            result = focusNextSuggestion(false);
-        } else if (e.keyCode === 40) { // down arrow
-            result = focusNextSuggestion(true);
+        if (e.key === 'ArrowUp') {
+            handled = focusNextSuggestion(false);
+        } else if (e.key === 'ArrowDown') {
+            handled = focusNextSuggestion(true);
         }
 
-        if (result) {
+        if (handled) {
             e.preventDefault();
             e.stopPropagation();
         }
@@ -481,16 +441,16 @@ editor.once('load', () => {
     // handle open event
     menu.on('open', (open) => {
         if (open) {
-            window.addEventListener('click', click);
-            window.addEventListener('keydown', key);
+            window.addEventListener('click', onWindowClick);
+            window.addEventListener('keydown', onWindowKeyDown);
             input.class.add('focus');
             menu.dom.scrollTop = 0;
             close.hidden = true;
 
             filterSuggestions();
         } else {
-            window.removeEventListener('click', click);
-            window.removeEventListener('keydown', key);
+            window.removeEventListener('click', onWindowClick);
+            window.removeEventListener('keydown', onWindowKeyDown);
             input.class.remove('focus');
             if (focusedMenuItem) {
                 focusedMenuItem.classList.remove('focused');
@@ -504,10 +464,9 @@ editor.once('load', () => {
 
             input.value = '';
         }
-
     });
 
-    const toggleWidget = function (toggle) {
+    const toggleWidget = (toggle: boolean) => {
         panel.hidden = !toggle;
         if (toggle) {
             setTimeout(() => {
@@ -530,7 +489,7 @@ editor.once('load', () => {
     editor.call('hotkey:register', 'help:howdoi', {
         key: ' ',
         ctrl: true,
-        callback: function () {
+        callback: () => {
             if (editor.call('picker:isOpen:otherThan', 'curve')) {
                 return;
             }
