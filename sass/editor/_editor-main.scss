@@ -3147,226 +3147,6 @@ strong {
     }
 }
 
-.ui-panel.help-howdoi {
-    background-color: rgb(41 53 56 / 50%);
-    padding: 0;
-    height: 33px;
-    line-height: 33px;
-    margin: 0;
-    position: absolute;
-    top: 4px;
-
-    > .content {
-        > .ui-text-field {
-            background-color: transparent;
-            border: none;
-            padding: 0;
-            margin: 0;
-            width: 100%;
-            height: 100%;
-
-            &::before {
-                @extend .font-icon;
-
-                font-size: 14px;
-                content: '\E129';
-                line-height: 34px;
-                color: $text-primary;
-                opacity: 0.5;
-                vertical-align: top;
-                padding-left: 10px;
-            }
-
-            > input {
-                background-color: transparent;
-                margin: 0;
-                padding: 0 10px;
-                color: $text-primary;
-                width: calc(100% - 50px);
-
-                @extend .font-regular;
-
-                &::placeholder {
-                    color: $text-primary;
-                    opacity: 0.75;
-                }
-            }
-
-            &.focus {
-                background-color: $bcg-darkest;
-
-                > input {
-                    background-color: $bcg-darkest;
-                }
-
-                border-bottom: 1px solid $text-active;
-            }
-        }
-
-        > .close {
-            position: absolute;
-            right: 18px;
-            top: 4px;
-            padding: 0;
-            margin: 0;
-            font-size: 12px;
-            background-color: transparent;
-            color: $text-primary;
-            border-color: transparent;
-            opacity: 0.5;
-
-            @extend .noSelect;
-
-            &:hover {
-                opacity: 1;
-            }
-
-            > .font-icon {
-                display: block;
-                position: absolute;
-                top: -1px;
-                right: -12px;
-            }
-        }
-
-        > .ui-menu {
-            position: initial;
-
-            > .inner {
-                position: initial;
-                width: 100%;
-                max-height: 6.5 * 33px;
-                overflow: hidden auto;
-
-                > .ui-menu-item {
-                    width: 100%;
-
-                    &:hover > .title {
-                        background-color: transparent;
-                    }
-
-                    &.focused > .title {
-                        background-color: $text-darkest;
-                    }
-
-                    > .title {
-                        font-size: 12px;
-                        color: $text-primary;
-                        width: 100%;
-                        overflow: hidden;
-                        text-overflow: ellipsis;
-                    }
-                }
-            }
-        }
-    }
-}
-
-.pcui-overlay.help-howdoi {
-    > .pcui-overlay-content {
-        background-color: #fff;
-        position: relative;
-        width: 400px;
-
-        > .pcui-container {
-            padding: 20px;
-
-            > .pcui-label {
-                color: $text-darkest;
-                line-height: 22px;
-                margin: 0;
-                margin-bottom: 30px;
-                white-space: normal;
-
-                h2 {
-                    color: $text-active;
-
-                    @extend .font-bold;
-
-                    font-size: 16px;
-                    margin-top: 0;
-                    margin-bottom: 10px;
-                }
-
-                .font-icon {
-                    font-size: 16px;
-                }
-
-                img,
-                iframe {
-                    border: none;
-                    max-width: 100%;
-                }
-
-                button,
-                a.docs {
-                    position: absolute;
-                    bottom: 20px;
-
-                    @extend .font-bold;
-
-                    background-color: $bcg-darkest;
-                    border: none;
-                    color: $text-primary;
-                    height: 30px;
-                    line-height: 30px;
-                    font-size: 12px;
-                    padding: 0;
-                    margin: 0;
-                    cursor: pointer;
-
-                    &:active,
-                    &:focus {
-                        outline: none;
-                    }
-                }
-
-                .close {
-                    width: 80px;
-                    left: 20px;
-                    text-align: center;
-
-                    &:hover {
-                        background-color: $text-active;
-                        border-color: $text-active;
-                    }
-                }
-
-                a.docs {
-                    position: absolute;
-                    bottom: 20px;
-                    left: 118px;
-                    display: block;
-                    padding: 0 10px;
-                    text-decoration: none;
-                    background-color: $text-active;
-                    border-color: $text-active;
-
-                    &::after {
-                        display: inline-block;
-                        position: absolute;
-                        vertical-align: top;
-                        top: 0;
-                        left: 100%;
-                        width: 30px;
-                        height: 30px;
-                        text-align: center;
-                        content: '\E166';
-
-                        @extend .font-icon;
-
-                        font-size: 20px;
-                        background-color: color.adjust($text-active, $alpha: -0.5);
-                    }
-
-                    &:hover::after {
-                        background-color: $text-active;
-                    }
-                }
-            }
-        }
-    }
-}
 
 .pcui-overlay.help-controls {
     > .pcui-overlay-content {
@@ -7739,851 +7519,827 @@ strong {
     }
 }
 
-.ui-panel.picker-version-control {
+.pcui-container.picker-version-control {
     height: 100%;
+    overflow: hidden;
+    flex-direction: row;
 
-    > .content {
-        height: 100%;
-        overflow: hidden;
+    svg {
+        display: block;
 
-        svg {
-            display: block;
-
-            &.spin {
-                g {
-                    animation-name: spin;
-                    animation-duration: 500ms;
-                    animation-iteration-count: infinite;
-                    animation-timing-function: linear;
-                    transform-origin: center;
-                }
-            }
-
-            &.hidden {
-                display: none;
+        &.spin {
+            g {
+                animation-name: spin;
+                animation-duration: 500ms;
+                animation-iteration-count: infinite;
+                animation-timing-function: linear;
+                transform-origin: center;
             }
         }
 
-        > .ui-panel {
-            height: 100%;
+        &.hidden {
+            display: none;
+        }
+    }
 
-            > .content {
+    > .pcui-container,
+    > .ui-panel {
+        height: 100%;
+
+        &.branches-container {
+            min-width: 310px;
+            border-right: 1px solid $border-primary;
+            flex-direction: column;
+        }
+
+        &.side-panel {
+            overflow: hidden;
+            flex-flow: row wrap;
+            place-content: flex-start;
+
+            > .side-panel-widget {
+                flex-grow: 1;
                 height: 100%;
-            }
-
-            &.branches-container {
-                min-width: 310px;
-                border-right: 1px solid $border-primary;
 
                 > .content {
-                    flex-direction: column;
-                }
-            }
+                    height: 100%;
 
-            &.side-panel {
-                overflow: hidden;
-
-                > .content {
-                    flex-wrap: wrap;
-                    place-content: flex-start;
-
-                    > .side-panel-widget {
-                        flex-grow: 1;
-                        height: 100%;
+                    > .ui-panel {
+                        padding: 20px;
 
                         > .content {
-                            height: 100%;
+                            > .ui-label {
+                                display: block;
 
-                            > .ui-panel {
-                                padding: 20px;
-
-                                > .content {
-                                    > .ui-label {
-                                        display: block;
-
-                                        &.title {
-                                            font-size: 16px;
-                                            color: $text-primary;
-                                        }
-
-                                        &.note {
-                                            font-size: 13px;
-                                            line-height: 1.4;
-                                            color: $text-secondary;
-                                        }
-                                    }
-
-                                    .ui-label.small {
-                                        font-size: 12px;
-                                    }
-                                }
-
-                                &.main {
-                                    border-top: 1px solid $border-primary;
-                                    box-sizing: border-box;
-                                    overflow-y: auto;
-                                    background: $bcg-dark;
-                                }
-
-                                &.buttons {
-                                    border-top: 1px solid $border-primary;
-                                    border-bottom: 1px solid $border-primary;
-                                    height: 68px;
-                                    padding: 20px;
-                                    box-sizing: border-box;
-                                    position: absolute;
-                                    bottom: 0;
-                                    width: 100%;
-
-                                    .ui-button {
-                                        float: right;
-                                        height: 28px;
-                                        line-height: 28px;
-                                        text-align: center;
-                                        text-transform: uppercase;
-                                        min-width: 140px;
-                                        margin: 0;
-                                        margin-left: 10px;
-                                        font-size: 12px;
-
-                                        &.highlighted {
-                                            color: $text-primary;
-                                            background: color.adjust(#f60, $lightness: -7%);
-
-                                            &:hover {
-                                                background: color.adjust($text-active, $lightness: -10%);
-                                            }
-
-                                            &:active {
-                                                background: color.adjust(#f60, $lightness: -12%);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        .ui-panel.version-control-side-panel-box {
-                            margin-bottom: 20px;
-
-                            > .ui-header {
-                                @extend .allowSelect;
-
-                                color: $text-secondary;
-                                border: 1px solid $border-primary;
-
-                                &::before {
-                                    @extend .font-icon;
-
-                                    content: '\E399';
-                                    color: $text-active;
+                                &.title {
                                     font-size: 16px;
-                                    float: left;
-                                    margin-right: 5px;
-                                    margin-top: -1px;
+                                    color: $text-primary;
                                 }
 
-                                > .title {
-                                    max-width: 270px;
-                                    overflow: hidden;
-                                    text-overflow: ellipsis;
-                                }
-
-                                > .header-note {
-                                    float: right;
-                                    margin-top: 5px;
-                                    margin-right: 10px;
-                                    text-transform: none;
-                                    color: $text-darkest;
+                                &.note {
+                                    font-size: 13px;
+                                    line-height: 1.4;
+                                    color: $text-secondary;
                                 }
                             }
 
-                            &.no-icon > .ui-header::before {
-                                display: none;
-                            }
-
-                            > .content {
-                                border: 1px solid $border-primary;
-                                border-top: 0;
-                                flex-direction: column;
-
-                                > .ui-panel.checkpoint-widget {
-                                    margin: 10px;
-                                }
-
-                                > .ui-panel.checkpoint-checkbox {
-                                    font-size: 12px;
-                                    padding: 10px;
-                                    border-top: 1px solid $border-primary;
-
-                                    .ui-checkpoint {
-                                        margin-left: 10px;
-                                    }
-
-                                    .help {
-                                        @extend .font-icon;
-
-                                        cursor: pointer;
-                                        position: absolute;
-                                        right: 0;
-                                        font-size: 16px;
-                                    }
-                                }
-                            }
-                        }
-
-                        &.create-checkpoint {
-                            .ui-panel.main {
-                                > .content {
-                                    flex-direction: column;
-
-                                    .ui-textarea-field {
-                                        width: auto;
-                                        height: 100px;
-                                        background: $bcg-darkest;
-                                    }
-
-                                    .ui-button {
-                                        width: 140px;
-                                        text-transform: uppercase;
-                                        text-align: center;
-                                        align-self: center;
-                                        background: $bcg-primary;
-                                        font-size: 12px;
-                                        height: 28px;
-                                        line-height: 28px;
-                                    }
-                                }
-                            }
-                        }
-
-                        &.create-branch {
-                            .ui-panel.main {
-                                > .content {
-                                    flex-direction: column;
-
-                                    .ui-panel {
-                                        display: block;
-
-                                        .ui-label {
-                                            font-size: 12px;
-
-                                            &.left {
-                                                width: 120px;
-                                            }
-                                        }
-                                    }
-
-                                    .ui-label.branch-icon {
-                                        @extend .font-icon;
-
-                                        font-size: 32px;
-                                        color: $text-darkest;
-                                        margin: 5px auto 25px;
-                                    }
-                                }
-                            }
-                        }
-
-                        &.close-branch,
-                        &.hard-reset-checkpoint {
-                            .ui-panel.main {
-                                > .content {
-                                    flex-direction: column;
-
-                                    .ui-text-field {
-                                        width: auto;
-                                        margin-left: 15px;
-                                    }
-
-                                    .ui-label.close-icon {
-                                        @extend .font-icon;
-
-                                        font-size: 32px;
-                                        color: $text-darkest;
-                                        margin: 5px auto 25px;
-                                    }
-                                }
-                            }
-                        }
-
-                        &.merge-branches {
-                            .ui-panel.main {
-                                > .content {
-                                    flex-direction: column;
-
-                                    .ui-label.left {
-                                        font-size: 12px;
-                                        width: 120px;
-                                    }
-
-                                    .ui-label.right {
-                                        font-size: 12px;
-                                        font-family: inconsolatamedium;
-                                    }
-
-                                    > .ui-label.arrow {
-                                        @extend .font-icon;
-
-                                        font-size: 32px;
-                                        color: $text-darkest;
-                                        margin: -19px auto 10px;
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    .checkpoint-widget {
-                        img {
-                            width: 28px;
-                            height: 28px;
-                            margin-right: 15px;
-                        }
-
-                        .ui-panel.info {
-                            flex-grow: 1;
-                            margin-top: -7px;
-
-                            > .content {
-                                flex-direction: column;
-
-                                .ui-panel.top-row {
-                                    white-space: nowrap;
-
-                                    .ui-label.desc {
-                                        overflow: hidden;
-                                        max-width: 360px;
-                                        color: $text-primary;
-                                        font-size: 13px;
-
-                                        &.more {
-                                            white-space: normal;
-                                            word-break: break-word;
-                                        }
-                                    }
-
-                                    .ui-button {
-                                        position: absolute;
-                                        background: transparent;
-                                        border: 0;
-                                        margin: 0;
-                                        padding: 0;
-                                        font-size: 11px;
-                                        text-decoration: underline;
-                                        top: 1px;
-                                        right: 0;
-                                        z-index: 1;
-
-                                        &:hover {
-                                            color: $text-primary;
-                                        }
-                                    }
-                                }
-
-                                .ui-panel.bottom-row {
-                                    margin-top: -8px;
-
-                                    .ui-label {
-                                        &.info {
-                                            color: $text-dark;
-                                            font-size: 12px;
-                                            max-width: 320px;
-                                            overflow: hidden;
-                                            text-overflow: ellipsis;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    > .progress-widget {
-                        align-self: center;
-                        margin: auto;
-
-                        .ui-label {
-                            color: $text-primary;
-                            font-size: 16px;
-                            width: 100%;
-                            text-align: center;
-
-                            &.note {
-                                &:not(.hidden) {
-                                    display: block;
-                                }
-
-                                color: $text-secondary;
+                            .ui-label.small {
                                 font-size: 12px;
                             }
                         }
 
-                        svg {
-                            margin: 15px auto auto;
+                        &.main {
+                            border-top: 1px solid $border-primary;
+                            box-sizing: border-box;
+                            overflow-y: auto;
+                            background: $bcg-dark;
+                        }
+
+                        &.buttons {
+                            border-top: 1px solid $border-primary;
+                            border-bottom: 1px solid $border-primary;
+                            height: 68px;
+                            padding: 20px;
+                            box-sizing: border-box;
+                            position: absolute;
+                            bottom: 0;
+                            width: 100%;
+
+                            .ui-button {
+                                float: right;
+                                height: 28px;
+                                line-height: 28px;
+                                text-align: center;
+                                text-transform: uppercase;
+                                min-width: 140px;
+                                margin: 0;
+                                margin-left: 10px;
+                                font-size: 12px;
+
+                                &.highlighted {
+                                    color: $text-primary;
+                                    background: color.adjust(#f60, $lightness: -7%);
+
+                                    &:hover {
+                                        background: color.adjust($text-active, $lightness: -10%);
+                                    }
+
+                                    &:active {
+                                        background: color.adjust(#f60, $lightness: -12%);
+                                    }
+                                }
+                            }
                         }
                     }
                 }
 
-                &.align-center > .content {
-                    align-content: center;
-                }
-            }
+                .ui-panel.version-control-side-panel-box {
+                    margin-bottom: 20px;
 
-            .ui-panel.checkpoints-container {
-                flex-grow: 1;
-            }
+                    > .ui-header {
+                        @extend .allowSelect;
 
-            .branches-top,
-            .checkpoints-top {
-                height: 45px;
-                width: 100%;
-                padding: 10px;
-                box-sizing: border-box;
-                border-bottom: 1px solid $border-primary;
+                        color: $text-secondary;
+                        border: 1px solid $border-primary;
 
-                > .content {
-                    justify-content: space-between;
+                        &::before {
+                            @extend .font-icon;
 
-                    .ui-button {
-                        margin: 0;
+                            content: '\E399';
+                            color: $text-active;
+                            font-size: 16px;
+                            float: left;
+                            margin-right: 5px;
+                            margin-top: -1px;
+                        }
+
+                        > .title {
+                            max-width: 270px;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                        }
+
+                        > .header-note {
+                            float: right;
+                            margin-top: 5px;
+                            margin-right: 10px;
+                            text-transform: none;
+                            color: $text-darkest;
+                        }
+                    }
+
+                    &.no-icon > .ui-header::before {
+                        display: none;
+                    }
+
+                    > .content {
+                        border: 1px solid $border-primary;
+                        border-top: 0;
+                        flex-direction: column;
+
+                        > .ui-panel.checkpoint-widget {
+                            margin: 10px;
+                        }
+
+                        > .ui-panel.checkpoint-checkbox {
+                            font-size: 12px;
+                            padding: 10px;
+                            border-top: 1px solid $border-primary;
+
+                            .ui-checkpoint {
+                                margin-left: 10px;
+                            }
+
+                            .help {
+                                @extend .font-icon;
+
+                                cursor: pointer;
+                                position: absolute;
+                                right: 0;
+                                font-size: 16px;
+                            }
+                        }
                     }
                 }
-            }
 
-            .branches-filter {
-                height: 45px;
-                box-sizing: border-box;
-                border-bottom: 1px solid $border-primary;
-                padding: 7px 10px;
+                &.create-checkpoint {
+                    .ui-panel.main {
+                        > .content {
+                            flex-direction: column;
 
-                > .content {
-                    align-items: center;
-                    height: 100%;
+                            .ui-textarea-field {
+                                width: auto;
+                                height: 100px;
+                                background: $bcg-darkest;
+                            }
 
-                    .ui-select-field {
-                        margin: 0;
-                        height: 22px;
-                        line-height: 22px;
+                            .ui-button {
+                                width: 140px;
+                                text-transform: uppercase;
+                                text-align: center;
+                                align-self: center;
+                                background: $bcg-primary;
+                                font-size: 12px;
+                                height: 28px;
+                                line-height: 28px;
+                            }
+                        }
+                    }
+                }
 
-                        > .value {
-                            line-height: 21px;
+                &.create-branch {
+                    .ui-panel.main {
+                        > .content {
+                            flex-direction: column;
 
-                            &::after {
-                                line-height: 22px;
+                            .ui-panel {
+                                display: block;
+
+                                .ui-label {
+                                    font-size: 12px;
+
+                                    &.left {
+                                        width: 120px;
+                                    }
+                                }
+                            }
+
+                            .ui-label.branch-icon {
+                                @extend .font-icon;
+
+                                font-size: 32px;
+                                color: $text-darkest;
+                                margin: 5px auto 25px;
+                            }
+                        }
+                    }
+                }
+
+                &.close-branch,
+                &.hard-reset-checkpoint {
+                    .ui-panel.main {
+                        > .content {
+                            flex-direction: column;
+
+                            .ui-text-field {
+                                width: auto;
+                                margin-left: 15px;
+                            }
+
+                            .ui-label.close-icon {
+                                @extend .font-icon;
+
+                                font-size: 32px;
+                                color: $text-darkest;
+                                margin: 5px auto 25px;
+                            }
+                        }
+                    }
+                }
+
+                &.merge-branches {
+                    .ui-panel.main {
+                        > .content {
+                            flex-direction: column;
+
+                            .ui-label.left {
+                                font-size: 12px;
+                                width: 120px;
+                            }
+
+                            .ui-label.right {
+                                font-size: 12px;
+                                font-family: inconsolatamedium;
+                            }
+
+                            > .ui-label.arrow {
+                                @extend .font-icon;
+
+                                font-size: 32px;
+                                color: $text-darkest;
+                                margin: -19px auto 10px;
                             }
                         }
                     }
                 }
             }
 
-            .checkpoints-top {
-                .ui-label.branch-history {
-                    float: left;
-                    color: $text-primary;
-                    text-transform: uppercase;
-                    font-size: 12px;
-
-                    @extend .font-bold;
+            .checkpoint-widget {
+                img {
+                    width: 28px;
+                    height: 28px;
+                    margin-right: 15px;
                 }
 
-                .ui-label.info {
-                    color: $text-dark;
-                    font-size: 12px;
-                    margin-left: 6px;
-                }
+                .ui-panel.info {
+                    flex-grow: 1;
+                    margin-top: -7px;
 
-                .ui-button {
-                    width: 147px;
-                    float: right;
+                    > .content {
+                        flex-direction: column;
 
-                    &.diff {
-                        width: 105px;
-                        margin-right: 5px;
+                        .ui-panel.top-row {
+                            white-space: nowrap;
+
+                            .ui-label.desc {
+                                overflow: hidden;
+                                max-width: 360px;
+                                color: $text-primary;
+                                font-size: 13px;
+
+                                &.more {
+                                    white-space: normal;
+                                    word-break: break-word;
+                                }
+                            }
+
+                            .ui-button {
+                                position: absolute;
+                                background: transparent;
+                                border: 0;
+                                margin: 0;
+                                padding: 0;
+                                font-size: 11px;
+                                text-decoration: underline;
+                                top: 1px;
+                                right: 0;
+                                z-index: 1;
+
+                                &:hover {
+                                    color: $text-primary;
+                                }
+                            }
+                        }
+
+                        .ui-panel.bottom-row {
+                            margin-top: -8px;
+
+                            .ui-label {
+                                &.info {
+                                    color: $text-dark;
+                                    font-size: 12px;
+                                    max-width: 320px;
+                                    overflow: hidden;
+                                    text-overflow: ellipsis;
+                                }
+                            }
+                        }
                     }
-                }
-
-                .mini-spinner {
-                    position: relative;
-                    margin-left: auto;
-                    margin-right: 0;
-                    top: -32px;
                 }
             }
 
-            .ui-list {
-                margin: 0;
-                flex-grow: 1;
-                border: 0;
-                background: transparent;
+            > .progress-widget {
+                align-self: center;
+                margin: auto;
 
-                > .ui-list-item {
-                    box-sizing: border-box;
+                .ui-label {
+                    color: $text-primary;
+                    font-size: 16px;
+                    width: 100%;
+                    text-align: center;
 
-                    @extend .font-regular;
-
-                    &:last-child {
-                        border-bottom: 1px solid $border-primary;
-                    }
-
-                    &:hover {
-                        background: $bcg-dark;
-                        border-color: $border-primary;
-                        z-index: initial;
-                    }
-
-                    .ui-panel {
-                        background: transparent;
-                    }
-
-                    .ui-button.dropdown {
-                        @extend .font-icon;
-
+                    &.note {
                         &:not(.hidden) {
                             display: block;
                         }
 
-                        width: 16px;
-                        height: 16px;
-                        line-height: 16px;
-                        border: none;
-                        padding: 0;
-                        margin: 0;
-                        text-align: center;
+                        color: $text-secondary;
                         font-size: 12px;
-                        color: $bcg-darkest;
-                        background-color: $text-darkest;
-
-                        &:hover,
-                        &.clicked {
-                            color: $text-primary;
-                            background-color: $bcg-darkest;
-                        }
                     }
+                }
+
+                svg {
+                    margin: 15px auto auto;
                 }
             }
 
-            .branches,
-            .checkpoints {
-                overflow-y: auto;
+            &.align-center {
+                align-content: center;
+            }
+        }
 
-                .spinner {
-                    margin: 200px auto auto;
+        .ui-panel.checkpoints-container {
+            flex-grow: 1;
+        }
+
+        .branches-top,
+        .checkpoints-top {
+            height: 45px;
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border-bottom: 1px solid $border-primary;
+
+            > .content {
+                justify-content: space-between;
+
+                .ui-button {
+                    margin: 0;
+                }
+            }
+        }
+
+        .branches-filter {
+            flex-direction: row;
+            gap: 6px;
+            padding: 6px;
+            border-bottom: 1px solid $border-primary;
+
+            > * {
+                margin: 0;
+            }
+        }
+
+        .checkpoints-top {
+            .ui-label.branch-history {
+                float: left;
+                color: $text-primary;
+                text-transform: uppercase;
+                font-size: 12px;
+
+                @extend .font-bold;
+            }
+
+            .ui-label.info {
+                color: $text-dark;
+                font-size: 12px;
+                margin-left: 6px;
+            }
+
+            .ui-button {
+                width: 147px;
+                float: right;
+
+                &.diff {
+                    width: 105px;
+                    margin-right: 5px;
+                }
+            }
+
+            .mini-spinner {
+                position: relative;
+                margin-left: auto;
+                margin-right: 0;
+                top: -32px;
+            }
+        }
+
+        .ui-list {
+            margin: 0;
+            flex-grow: 1;
+            border: 0;
+            background: transparent;
+
+            > .ui-list-item {
+                box-sizing: border-box;
+
+                @extend .font-regular;
+
+                &:last-child {
+                    border-bottom: 1px solid $border-primary;
                 }
 
-                .ui-list {
-                    @extend .allowSelect;
+                &:hover {
+                    background: $bcg-dark;
+                    border-color: $border-primary;
+                    z-index: initial;
                 }
 
-                .ui-list > .ui-list-item.load-more {
-                    pointer-events: none;
+                .ui-panel,
+                .pcui-container {
+                    background: transparent;
+                }
 
+                .ui-button.dropdown,
+                .pcui-button.dropdown {
+                    @extend .font-icon;
+
+                    &:not(.hidden, .pcui-hidden) {
+                        display: block;
+                    }
+
+                    width: 16px;
+                    height: 16px;
+                    line-height: 16px;
+                    border: none;
+                    padding: 0;
+                    margin: 0;
+                    text-align: center;
+                    font-size: 12px;
+                    color: $bcg-darkest;
+                    background-color: $text-darkest;
+
+                    &:hover,
+                    &.clicked {
+                        color: $text-primary;
+                        background-color: $bcg-darkest;
+                    }
+                }
+            }
+        }
+
+        .branches,
+        .checkpoints {
+            overflow-y: auto;
+
+            .spinner {
+                margin: 200px auto auto;
+            }
+
+            .ui-list {
+                @extend .allowSelect;
+            }
+
+            .ui-list > .ui-list-item.load-more {
+                pointer-events: none;
+
+                &:hover {
+                    background: transparent;
+                }
+
+                .ui-button,
+                .pcui-button {
+                    width: 100%;
+                    margin: auto;
+                    text-align: center;
+                    height: 28px;
+                    font-size: 12px;
+                    line-height: 28px;
+                    pointer-events: all;
+                }
+            }
+        }
+
+        .branches {
+            .ui-list {
+                > .ui-list-item {
+                    height: 82px;
+                    padding: 20px 10px;
+
+                    .pcui-label {
+                        display: block;
+                        margin: 3px;
+
+                        &.icon {
+                            @extend .font-icon;
+
+                            float: left;
+                            font-size: 8px;
+                            margin-top: 8px;
+
+                            &.active {
+                                color: #4ae22b;
+                            }
+                        }
+
+                        &.name {
+                            color: $text-primary;
+                            margin-left: 25px;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
+                        }
+
+                        &.branch-id {
+                            margin-top: -5px;
+                            margin-left: 25px;
+                        }
+                    }
+
+                    .pcui-button.dropdown {
+                        position: absolute;
+                        right: 0;
+                        top: 8px;
+                    }
+                }
+            }
+        }
+
+        .checkpoints {
+            height: 496px; // for some reason percentages don't work
+
+            .ui-list {
+                > .ui-list-item {
+                    height: auto;
+                    padding: 25px 15px;
+                    border-bottom: 1px solid transparent;
+
+                    &.selected,
                     &:hover {
                         background: transparent;
+                        cursor: default;
                     }
 
-                    .ui-button {
-                        width: 100%;
-                        margin: auto;
-                        text-align: center;
-                        height: 28px;
-                        font-size: 12px;
-                        line-height: 28px;
-                        pointer-events: all;
+                    .ui-button.dropdown {
+                        margin-left: 15px;
+                        margin-top: 10px;
                     }
-                }
-            }
 
-            .branches {
-                .ui-list {
-                    > .ui-list-item {
-                        height: 82px;
-                        padding: 20px 10px;
+                    .ui-checkbox {
+                        display: none;
+                    }
+
+                    &.current-state {
+                        padding-top: 10px;
+                        padding-bottom: 10px;
 
                         .ui-label {
-                            display: block;
+                            width: 100%;
 
-                            &.icon {
+                            &::before {
+                                content: '\E326';
+
                                 @extend .font-icon;
 
-                                float: left;
-                                font-size: 8px;
-                                margin-top: 8px;
-
-                                &.active {
-                                    color: #4ae22b;
-                                }
-                            }
-
-                            &.name {
+                                margin-right: 20px;
+                                margin-left: 5px;
+                                font-size: 16px;
                                 color: $text-primary;
-                                margin-left: 25px;
-                                overflow: hidden;
-                                text-overflow: ellipsis;
-                                width: 210px;
-                            }
-
-                            &.branch-id {
-                                margin-top: -5px;
-                                margin-left: 25px;
                             }
                         }
 
-                        .ui-button.dropdown {
-                            position: absolute;
-                            right: 0;
-                            top: 8px;
+                        + .date {
+                            border-top: none;
                         }
                     }
+                }
+
+                > .date {
+                    background: $bcg-dark;
+                    color: $text-secondary;
+                    border-top: 1px solid $border-primary;
+                    border-bottom: 1px solid $border-primary;
+                    height: 35px;
+                    line-height: 35px;
+                    padding: 0 15px;
+                    text-transform: uppercase;
+
+                    &:first-child {
+                        border-top: 0;
+                    }
+                }
+
+                .ui-list-item + .ui-list-item {
+                    border-top: 1px solid $border-primary;
                 }
             }
+        }
 
-            .checkpoints {
-                height: 496px; // for some reason percentages don't work
+        &.diff-checkpoints {
+            position: absolute;
+            width: 100%;
+            bottom: 0;
+            background: $bcg-dark;
+            height: 130px;
+            overflow: hidden;
 
-                .ui-list {
-                    > .ui-list-item {
-                        height: auto;
-                        padding: 25px 15px;
-                        border-bottom: 1px solid transparent;
+            > .ui-header::before {
+                @extend .font-icon;
 
-                        &.selected,
-                        &:hover {
-                            background: transparent;
-                            cursor: default;
-                        }
-
-                        .ui-button.dropdown {
-                            margin-left: 15px;
-                            margin-top: 10px;
-                        }
-
-                        .ui-checkbox {
-                            display: none;
-                        }
-
-                        &.current-state {
-                            padding-top: 10px;
-                            padding-bottom: 10px;
-
-                            .ui-label {
-                                width: 100%;
-
-                                &::before {
-                                    content: '\E326';
-
-                                    @extend .font-icon;
-
-                                    margin-right: 20px;
-                                    margin-left: 5px;
-                                    font-size: 16px;
-                                    color: $text-primary;
-                                }
-                            }
-
-                            + .date {
-                                border-top: none;
-                            }
-                        }
-                    }
-
-                    > .date {
-                        background: $bcg-dark;
-                        color: $text-secondary;
-                        border-top: 1px solid $border-primary;
-                        border-bottom: 1px solid $border-primary;
-                        height: 35px;
-                        line-height: 35px;
-                        padding: 0 15px;
-                        text-transform: uppercase;
-
-                        &:first-child {
-                            border-top: 0;
-                        }
-                    }
-
-                    .ui-list-item + .ui-list-item {
-                        border-top: 1px solid $border-primary;
-                    }
-                }
+                content: '\E236';
+                font-size: 14px;
+                font-weight: 100;
+                float: left;
+                margin-right: 10px;
+                color: $text-active;
             }
 
-            &.diff-checkpoints {
-                position: absolute;
-                width: 100%;
-                bottom: 0;
-                background: $bcg-dark;
-                height: 130px;
-                overflow: hidden;
+            > .ui-header > .close {
+                @extend .font-icon;
 
-                > .ui-header::before {
-                    @extend .font-icon;
+                float: right;
+                background: transparent;
+                border: 0;
+            }
 
-                    content: '\E236';
-                    font-size: 14px;
-                    font-weight: 100;
-                    float: left;
-                    margin-right: 10px;
-                    color: $text-active;
-                }
+            > .content {
+                height: calc(100% - 35px);
 
-                > .ui-header > .close {
-                    @extend .font-icon;
+                > .checkpoint {
+                    position: absolute;
+                    top: 10px;
+                    width: 350px;
+                    height: 75px;
+                    z-index: 1;
+                    background: $bcg-darker;
+                    border: 1px solid $border-primary;
 
-                    float: right;
-                    background: transparent;
-                    border: 0;
-                }
-
-                > .content {
-                    height: calc(100% - 35px);
-
-                    > .checkpoint {
-                        position: absolute;
-                        top: 10px;
-                        width: 350px;
-                        height: 75px;
-                        z-index: 1;
-                        background: $bcg-darker;
-                        border: 1px solid $border-primary;
-
-                        &.empty {
-                            border: 1px dashed $text-active;
-
-                            > .content {
-                                > .ui-label.diff-info {
-                                    display: block;
-                                    margin-top: 27px;
-                                    text-align: center;
-                                    font-size: 12px;
-                                    font-weight: bold;
-                                }
-
-                                > .checkpoint-content {
-                                    display: none;
-                                }
-                            }
-
-                            & ~ .empty {
-                                border-color: $bcg-darkest;
-
-                                > .content > .ui-label.diff-info {
-                                    display: none;
-                                }
-                            }
-                        }
-
-                        &.checkpoint-left {
-                            left: 15px;
-                        }
-
-                        &.checkpoint-right {
-                            left: 405px;
-                        }
+                    &.empty {
+                        border: 1px dashed $text-active;
 
                         > .content {
-                            height: 100%;
-
                             > .ui-label.diff-info {
-                                display: none;
+                                display: block;
+                                margin-top: 27px;
+                                text-align: center;
+                                font-size: 12px;
+                                font-weight: bold;
                             }
 
                             > .checkpoint-content {
-                                height: 100%;
+                                display: none;
+                            }
+                        }
 
-                                > .ui-header {
-                                    padding: 0 15px;
-                                    height: 28px;
+                        & ~ .empty {
+                            border-color: $bcg-darkest;
+
+                            > .content > .ui-label.diff-info {
+                                display: none;
+                            }
+                        }
+                    }
+
+                    &.checkpoint-left {
+                        left: 15px;
+                    }
+
+                    &.checkpoint-right {
+                        left: 405px;
+                    }
+
+                    > .content {
+                        height: 100%;
+
+                        > .ui-label.diff-info {
+                            display: none;
+                        }
+
+                        > .checkpoint-content {
+                            height: 100%;
+
+                            > .ui-header {
+                                padding: 0 15px;
+                                height: 28px;
+                                background: transparent;
+                                border-bottom: 1px solid $border-primary;
+
+                                &::before {
+                                    content: '\E399';
+
+                                    @extend .font-icon;
+
+                                    margin-right: 5px;
+                                    float: left;
+                                    font-weight: 100;
+                                    font-size: 14px;
+                                }
+
+                                > .title {
+                                    max-width: 280px;
+                                    overflow: hidden;
+                                    text-overflow: ellipsis;
+                                }
+
+                                > .close {
+                                    @extend .font-icon;
+
                                     background: transparent;
-                                    border-bottom: 1px solid $border-primary;
-
-                                    &::before {
-                                        content: '\E399';
-
-                                        @extend .font-icon;
-
-                                        margin-right: 5px;
-                                        float: left;
-                                        font-weight: 100;
-                                        font-size: 14px;
-                                    }
-
-                                    > .title {
-                                        max-width: 280px;
-                                        overflow: hidden;
-                                        text-overflow: ellipsis;
-                                    }
-
-                                    > .close {
-                                        @extend .font-icon;
-
-                                        background: transparent;
-                                        border: 0;
-                                        position: absolute;
-                                        right: 0;
-                                    }
+                                    border: 0;
+                                    position: absolute;
+                                    right: 0;
                                 }
+                            }
 
-                                > .content {
-                                    padding: 8px 15px;
+                            > .content {
+                                padding: 8px 15px;
 
-                                    > .ui-label {
-                                        display: block;
-                                        line-height: 1;
-                                        font-size: 12px;
-                                        white-space: nowrap;
-                                        overflow: hidden;
-                                        text-overflow: ellipsis;
+                                > .ui-label {
+                                    display: block;
+                                    line-height: 1;
+                                    font-size: 12px;
+                                    white-space: nowrap;
+                                    overflow: hidden;
+                                    text-overflow: ellipsis;
 
-                                        &.title {
-                                            color: $text-primary;
-                                            font-weight: bold;
-                                        }
+                                    &.title {
+                                        color: $text-primary;
+                                        font-weight: bold;
+                                    }
 
-                                        &.desc {
-                                            font-size: 11px;
-                                            color: $text-dark;
-                                        }
+                                    &.desc {
+                                        font-size: 11px;
+                                        color: $text-dark;
                                     }
                                 }
                             }
                         }
                     }
+                }
 
-                    > .arrow {
-                        position: absolute;
-                        left: 375px;
-                        top: 35px;
-                        font-size: 18px;
+                > .arrow {
+                    position: absolute;
+                    left: 375px;
+                    top: 35px;
+                    font-size: 18px;
 
-                        @extend .font-icon;
+                    @extend .font-icon;
+                }
+
+                > .ui-button {
+                    position: absolute;
+                    width: 90px;
+                    right: 10px;
+                    font-size: 12px;
+                    line-height: 32px;
+                    height: 32px;
+                    text-align: center;
+                    background: $bcg-primary;
+                    border: 1px solid $border-primary;
+
+                    &.compare {
+                        top: 7px;
                     }
 
-                    > .ui-button {
-                        position: absolute;
-                        width: 90px;
-                        right: 10px;
-                        font-size: 12px;
-                        line-height: 32px;
-                        height: 32px;
-                        text-align: center;
-                        background: $bcg-primary;
-                        border: 1px solid $border-primary;
+                    &.switch {
+                        top: initial;
+                        bottom: 5px;
 
-                        &.compare {
-                            top: 7px;
-                        }
+                        &::before {
+                            content: '\E128';
 
-                        &.switch {
-                            top: initial;
-                            bottom: 5px;
+                            @extend .font-icon;
 
-                            &::before {
-                                content: '\E128';
-
-                                @extend .font-icon;
-
-                                margin-right: 5px;
-                            }
+                            margin-right: 5px;
                         }
                     }
                 }
@@ -8592,50 +8348,47 @@ strong {
     }
 
     &.diff-mode {
-        > .content {
-            .checkpoints {
-                height: 522px - 130px;
-            }
+        .checkpoints {
+            height: 522px - 130px;
+        }
 
-            .checkpoints,
-            .branches {
-                .ui-list {
-                    > .ui-list-item {
-                        .ui-button.dropdown {
+        .checkpoints,
+        .branches {
+            .ui-list {
+                > .ui-list-item {
+                    .ui-button.dropdown,
+                    .pcui-button.dropdown {
+                        display: none;
+                    }
+
+                    .ui-checkbox {
+                        display: inherit;
+                        margin-left: 15px;
+                    }
+
+                    &.current-state {
+                        + .date {
+                            border-top: 1px solid $border-primary;
+                        }
+
+                        .btn-view-changes {
                             display: none;
-                        }
-
-                        .ui-checkbox {
-                            display: inherit;
-                            margin-left: 15px;
-                        }
-
-                        &.current-state {
-                            + .date {
-                                border-top: 1px solid $border-primary;
-                            }
-
-                            .btn-view-changes {
-                                display: none;
-                            }
                         }
                     }
                 }
             }
+        }
 
-            .branches-container,
-            .side-panel {
-                height: calc(100% - 130px);
-            }
+        .branches-container,
+        .side-panel {
+            height: calc(100% - 130px);
         }
 
         &.diff-checkpoints-selected-2 {
-            > .content {
-                .checkpoints {
-                    .ui-list > .ui-list-item .ui-checkbox:not(.checked) {
-                        opacity: $disabled-opacity;
-                        pointer-events: none;
-                    }
+            .checkpoints {
+                .ui-list > .ui-list-item .ui-checkbox:not(.checked) {
+                    opacity: $disabled-opacity;
+                    pointer-events: none;
                 }
             }
         }

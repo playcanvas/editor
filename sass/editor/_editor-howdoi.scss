@@ -1,0 +1,247 @@
+@use "sass:color";
+
+.pcui-container.help-howdoi:not(.pcui-overlay) {
+    background-color: rgb(41 53 56 / 50%);
+    padding: 0;
+    height: 33px;
+    line-height: 33px;
+    margin: 0;
+    position: absolute;
+    top: 4px;
+
+    > .pcui-text-input {
+        display: block;
+        position: relative;
+        background: transparent;
+        border: none;
+        border-radius: 0;
+        padding: 0;
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        min-height: 0;
+        box-shadow: none;
+        color: $text-primary;
+        transition: none;
+
+        &::before {
+            @extend .font-icon;
+
+            display: inline;
+            font-size: 14px;
+            content: '\E129';
+            line-height: 34px;
+            opacity: 0.5;
+            vertical-align: top;
+            padding-left: 10px;
+        }
+
+        > input {
+            background: transparent;
+            margin: 0;
+            padding: 0 10px;
+            width: calc(100% - 50px);
+            line-height: normal;
+            box-shadow: none;
+
+            @extend .font-regular;
+
+            &::placeholder {
+                color: $text-primary;
+                opacity: 0.75;
+            }
+        }
+
+        &.focus,
+        &.pcui-focus {
+            background: $bcg-darkest;
+            box-shadow: none;
+
+            > input {
+                background: $bcg-darkest;
+            }
+        }
+
+        &.focus::after {
+            display: block;
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background-color: $text-active;
+        }
+
+        &:hover {
+            background: transparent;
+            box-shadow: none;
+        }
+
+        &.focus:hover,
+        &.pcui-focus:hover {
+            background: $bcg-darkest;
+        }
+    }
+
+    > .close {
+        position: absolute;
+        right: 18px;
+        top: 0;
+        appearance: none;
+        padding: 0;
+        margin: 0;
+        border: none;
+        height: 33px;
+        line-height: 33px;
+        font-size: 12px;
+        background-color: transparent;
+        color: $text-primary;
+        opacity: 0.5;
+        overflow: visible;
+
+        @extend .noSelect;
+
+        &:hover {
+            opacity: 1;
+        }
+
+        > .font-icon {
+            display: block;
+            position: absolute;
+            top: -1px;
+            right: -12px;
+        }
+    }
+
+    > .howdoi-menu {
+        width: 100%;
+        max-height: 6.5 * 33px;
+        overflow: hidden auto;
+        background-color: $bcg-darkest;
+        color: $text-primary;
+
+        @extend .noSelect;
+
+        > .howdoi-menu-item {
+            line-height: 32px;
+            padding: 0 16px 0 8px;
+            font-size: 12px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            cursor: pointer;
+
+            &.hidden {
+                display: none;
+            }
+
+            &.focused {
+                background-color: $text-darkest;
+            }
+        }
+    }
+}
+
+.pcui-overlay.help-howdoi {
+    > .pcui-overlay-content {
+        background-color: #fff;
+        position: relative;
+        width: 400px;
+
+        > .pcui-container {
+            padding: 20px;
+
+            > .pcui-label {
+                color: $text-darkest;
+                line-height: 22px;
+                margin: 0 0 30px;
+                white-space: normal;
+
+                h2 {
+                    color: $text-active;
+
+                    @extend .font-bold;
+
+                    font-size: 16px;
+                    margin-top: 0;
+                    margin-bottom: 10px;
+                }
+
+                .font-icon {
+                    font-size: 16px;
+                }
+
+                img,
+                iframe {
+                    border: none;
+                    max-width: 100%;
+                }
+
+                button,
+                a.docs {
+                    position: absolute;
+                    bottom: 20px;
+
+                    @extend .font-bold;
+
+                    background-color: $bcg-darkest;
+                    border: none;
+                    color: $text-primary;
+                    height: 30px;
+                    line-height: 30px;
+                    font-size: 12px;
+                    padding: 0;
+                    margin: 0;
+                    cursor: pointer;
+
+                    &:active,
+                    &:focus {
+                        outline: none;
+                    }
+                }
+
+                .close {
+                    width: 80px;
+                    left: 20px;
+                    text-align: center;
+
+                    &:hover {
+                        background-color: $text-active;
+                        border-color: $text-active;
+                    }
+                }
+
+                a.docs {
+                    left: 118px;
+                    display: block;
+                    padding: 0 10px;
+                    text-decoration: none;
+                    background-color: $text-active;
+                    border-color: $text-active;
+
+                    &::after {
+                        display: inline-block;
+                        position: absolute;
+                        vertical-align: top;
+                        top: 0;
+                        left: 100%;
+                        width: 30px;
+                        height: 30px;
+                        text-align: center;
+                        content: '\E166';
+
+                        @extend .font-icon;
+
+                        font-size: 20px;
+                        background-color: color.adjust($text-active, $alpha: -0.5);
+                    }
+
+                    &:hover::after {
+                        background-color: $text-active;
+                    }
+                }
+            }
+        }
+    }
+}
