@@ -104,7 +104,13 @@ editor.once('load', () => {
 
                 if (assetData.file.variants) {
                     for (key in assetData.file.variants) {
-                        assetData.file.variants[key].url = getFileUrl(assetData.path, assetData.id, assetData.revision, assetData.file.variants[key].filename);
+                        const variantSignedKey = `${assetData.id}:${key}`;
+                        if (config.signedUrls && config.signedUrls[variantSignedKey]) {
+                            assetData.file.variants[key].url = config.signedUrls[variantSignedKey];
+                            delete assetData.file.variants[key].hash;
+                        } else {
+                            assetData.file.variants[key].url = getFileUrl(assetData.path, assetData.id, assetData.revision, assetData.file.variants[key].filename);
+                        }
                     }
                 }
             }
