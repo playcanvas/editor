@@ -86,8 +86,6 @@ editor.once('load', () => {
         renderChanges: false
     });
     search.flexGrow = '1';
-    panel.prepend(search);
-
 
     const searchClear = document.createElement('div');
     searchClear.innerHTML = '&#57650;';
