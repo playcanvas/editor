@@ -158,16 +158,24 @@
     }
 }
 
-.ui-menu.version-control {
-    .ui-menu-item {
+.pcui-menu.version-control {
+    .pcui-menu-item {
         text-transform: uppercase;
         font-size: 12px;
     }
+
+    .pcui-menu-item-content {
+        line-height: 32px;
+
+        > .pcui-label {
+            margin: 0;
+            padding: 0 0 0 8px;
+        }
+    }
 }
 
-.ui-text-field.search.version-control-search {
+.pcui-text-input.search.version-control-search {
     height: 22px;
-    margin-right: 6px;
     border: none;
     background-color: $bcg-darker;
     position: sticky;
@@ -192,7 +200,7 @@
         }
     }
 
-    > input.field {
+    > input {
         line-height: 24px;
     }
 
@@ -228,7 +236,7 @@
     &.not-empty {
         background-color: $bcg-darkest;
 
-        > input.field {
+        > input {
             color: $text-active;
         }
 
@@ -259,6 +267,25 @@
     }
 }
 
-.ui-panel.picker-version-control > .content > .ui-panel .branches .ui-list > .ui-list-item .ui-label.name.closed-branch {
+.ui-panel.vc-graph-panel > .content {
+    height: 100%;
+    overflow: hidden;
+}
+
+.pcui-container.picker-version-control > .pcui-container .branches .ui-list > .ui-list-item .pcui-label.selectable {
+    user-select: text;
+}
+
+.pcui-container.picker-version-control > .pcui-container .branches .ui-list > .ui-list-item .pcui-button.dropdown {
+    border-radius: 0;
+    box-shadow: none;
+
+    &:hover,
+    &:focus {
+        box-shadow: none;
+    }
+}
+
+.pcui-container.picker-version-control > .pcui-container .branches .ui-list > .ui-list-item .pcui-label.name.closed-branch {
     color: $text-secondary;
 }

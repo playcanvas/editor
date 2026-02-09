@@ -1,12 +1,7 @@
-import { LegacyButton } from '@/common/ui/button';
-import { LegacyLabel } from '@/common/ui/label';
+import { Button, Container, Label, Menu, MenuItem, SelectInput, TextInput } from '@playcanvas/pcui';
+
 import { LegacyList } from '@/common/ui/list';
 import { LegacyListItem } from '@/common/ui/list-item';
-import { LegacyMenu } from '@/common/ui/menu';
-import { LegacyMenuItem } from '@/common/ui/menu-item';
-import { LegacyPanel } from '@/common/ui/panel';
-import { LegacySelectField } from '@/common/ui/select-field';
-import { LegacyTextField } from '@/common/ui/text-field';
 import { handleCallback } from '@/common/utils';
 
 editor.once('load', () => {
@@ -26,10 +21,11 @@ editor.once('load', () => {
     let currentCheckpointId = null;
 
     // main panel
-    const panel = new LegacyPanel();
-    panel.class.add('picker-version-control');
+    const panel = new Container({
+        class: 'picker-version-control',
+        flex: true
+    });
     editor.call('picker:project:registerMenu', 'version control', 'Version Control', panel);
-    panel.flex = true;
 
     // hide version control picker if we are not part of the team
     if (!editor.call('permissions:read')) {
@@ -40,21 +36,17 @@ editor.once('load', () => {
     });
 
     // branches container panel
-    const panelBranchesContainer = new LegacyPanel();
-    panelBranchesContainer.class.add('branches-container');
+    const panelBranchesContainer = new Container({
+        class: 'branches-container',
+        flex: true
+    });
     panel.append(panelBranchesContainer);
-    panelBranchesContainer.flex = true;
-
-    // branches top
-    // var panelBranchesTop = new Panel();
-    // panelBranchesTop.class.add('branches-top');
-    // panelBranchesTop.flex = true;
-    // panelBranchesContainer.append(panelBranchesTop);
 
     // branches filter
-    const panelBranchesFilter = new LegacyPanel();
-    panelBranchesFilter.class.add('branches-filter');
-    panelBranchesFilter.flex = true;
+    const panelBranchesFilter = new Container({
+        class: 'branches-filter',
+        flex: true
+    });
     panelBranchesContainer.append(panelBranchesFilter);
 
     // branches list
@@ -68,7 +60,7 @@ editor.once('load', () => {
         if (lastSearch === '') {
             return true;
         }
-        const result =  editor.call('search:items', [[branchName, branchName]], lastSearch);
+        const result = editor.call('search:items', [[branchName, branchName]], lastSearch);
         return result.length > 0;
     };
 
@@ -86,16 +78,14 @@ editor.once('load', () => {
         }
     };
 
-    const search = new LegacyTextField({
-        placeholder: 'Search'
+    const search = new TextInput({
+        blurOnEnter: false,
+        class: ['search', 'version-control-search'],
+        keyChange: true,
+        placeholder: 'Search',
+        renderChanges: false
     });
-    search.blurOnEnter = false;
-    search.keyChange = true;
-    search.class.add('search');
-    search.class.add('version-control-search');
-    search.renderChanges = false;
-    panel.prepend(search);
-
+    search.flexGrow = '1';
 
     const searchClear = document.createElement('div');
     searchClear.innerHTML = '&#57650;';
@@ -106,7 +96,6 @@ editor.once('load', () => {
         search.value = '';
     }, false);
 
-    search.flexGrow = 1;
     panelBranchesFilter.append(search);
 
     search.on('change', (value) => {
@@ -127,29 +116,30 @@ editor.once('load', () => {
     });
 
     // filter
-    const fieldBranchesFilter = new LegacySelectField({
+    const fieldBranchesFilter = new SelectInput({
         options: [{
             v: 'open', t: 'Open Branches'
         }, {
             v: 'favorite', t: 'Favorite Branches'
         }, {
             v: 'closed', t: 'Closed Branches'
-        }]
+        }],
+        value: 'favorite'
     });
-    fieldBranchesFilter.value = 'favorite';
-    fieldBranchesFilter.flexGrow = 1;
+    fieldBranchesFilter.flexGrow = '1';
     panelBranchesFilter.append(fieldBranchesFilter);
 
     // branches main panel
-    const panelBranches = new LegacyPanel();
-    panelBranches.class.add('branches');
+    const panelBranches = new Container({
+        class: 'branches'
+    });
     panelBranchesContainer.append(panelBranches);
     panelBranches.append(listBranches);
 
     const loadMoreListItem = new LegacyListItem();
     loadMoreListItem.hidden = true;
     loadMoreListItem.class.add('load-more');
-    const btnLoadMoreBranches = new LegacyButton({
+    const btnLoadMoreBranches = new Button({
         text: 'LOAD MORE'
     });
     loadMoreListItem.element.append(btnLoadMoreBranches.element);
@@ -159,10 +149,11 @@ editor.once('load', () => {
     });
 
     // right side container panel
-    const panelRight = new LegacyPanel();
-    panelRight.class.add('side-panel');
-    panelRight.flex = true;
-    panelRight.flexGrow = 1;
+    const panelRight = new Container({
+        class: 'side-panel',
+        flex: true,
+        flexGrow: '1'
+    });
     panel.append(panelRight);
 
     const showRightSidePanel = function (panel) {
@@ -242,7 +233,7 @@ editor.once('load', () => {
     });
 
     // new checkpoint panel
-    var panelCreateCheckpoint = editor.call('picker:versioncontrol:widget:createCheckpoint');
+    const panelCreateCheckpoint = editor.call('picker:versioncontrol:widget:createCheckpoint');
     panelCreateCheckpoint.hidden = true;
     panelRight.append(panelCreateCheckpoint);
 
@@ -265,7 +256,7 @@ editor.once('load', () => {
     panelRight.append(panelGenerateDiffProgress);
 
     // new branch panel
-    var panelCreateBranch = editor.call('picker:versioncontrol:widget:createBranch');
+    const panelCreateBranch = editor.call('picker:versioncontrol:widget:createBranch');
     panelCreateBranch.hidden = true;
     panelRight.append(panelCreateBranch);
 
@@ -296,7 +287,6 @@ editor.once('load', () => {
     const togglePanels = function (enabled) {
         editor.call('picker:project:setClosable', enabled && config.scene.id);
         editor.call('picker:project:toggleLeftPanel', enabled);
-        // panelBranchesTop.disabled = !enabled;
         panelBranches.disabled = !enabled;
         panelBranchesFilter.disabled = !enabled;
     };
@@ -507,7 +497,7 @@ editor.once('load', () => {
     });
 
     // restore checkpoint panel
-    var panelRestoreCheckpoint = editor.call('picker:versioncontrol:widget:restoreCheckpoint');
+    const panelRestoreCheckpoint = editor.call('picker:versioncontrol:widget:restoreCheckpoint');
     panelRestoreCheckpoint.hidden = true;
     panelRight.append(panelRestoreCheckpoint);
 
@@ -551,7 +541,7 @@ editor.once('load', () => {
         }
     });
 
-    var panelHardResetCheckpoint = editor.call('picker:versioncontrol:widget:hardResetCheckpoint');
+    const panelHardResetCheckpoint = editor.call('picker:versioncontrol:widget:hardResetCheckpoint');
     panelHardResetCheckpoint.hidden = true;
     panelRight.append(panelHardResetCheckpoint);
 
@@ -595,24 +585,17 @@ editor.once('load', () => {
     panelSwitchBranchProgress.hidden = true;
     panelRight.append(panelSwitchBranchProgress);
 
-    // new branch button
-    // var btnNewBranch = new Button({
-    //     text: 'NEW BRANCH'
-    // });
-    // btnNewBranch.flexGrow = 1;
-    // btnNewBranch.class.add('icon', 'create');
-    // panelBranchesTop.append(btnNewBranch);
-
     // branch for which context menu is open
     let contextBranch = null;
 
     // branches context menu
-    const menuBranches = new LegacyMenu();
-    menuBranches.class.add('version-control');
+    const menuBranches = new Menu({
+        class: 'version-control'
+    });
 
     // when the branches context menu is closed 'unclick' dropdowns
-    menuBranches.on('open', (open) => {
-        if (open || !contextBranch) {
+    menuBranches.on('hide', () => {
+        if (!contextBranch) {
             return;
         }
 
@@ -627,22 +610,18 @@ editor.once('load', () => {
         }
 
         dropdown.classList.remove('clicked');
-        dropdown.innerHTML = '&#57689;';
+        dropdown.ui.icon = 'E159';
 
-        if (!open) {
-            contextBranch = null;
-            menuBranches.contextBranchIsFavorite = false;
-        }
+        contextBranch = null;
+        menuBranches.contextBranchIsFavorite = false;
     });
 
     // checkout branch
-    const menuBranchesSwitchTo = new LegacyMenuItem({
-        text: 'Switch To This Branch',
-        value: 'switch-branch'
+    const menuBranchesSwitchTo = new MenuItem({
+        text: 'Switch To This Branch'
     });
     menuBranches.append(menuBranchesSwitchTo);
 
-    // switch to branch
     menuBranchesSwitchTo.on('select', () => {
         if (contextBranch) {
             togglePanels(false);
@@ -660,13 +639,11 @@ editor.once('load', () => {
     });
 
     // favorite branch
-    const menuBranchesFavorite = new LegacyMenuItem({
-        text: 'Favorite This Branch',
-        value: 'favorite-branch'
+    const menuBranchesFavorite = new MenuItem({
+        text: 'Favorite This Branch'
     });
     menuBranches.append(menuBranchesFavorite);
 
-    // favorite branch
     menuBranchesFavorite.on('select', () => {
         if (!contextBranch) {
             return;
@@ -682,13 +659,11 @@ editor.once('load', () => {
     });
 
     // merge branch
-    const menuBranchesMerge = new LegacyMenuItem({
-        text: 'Merge Into Current Branch',
-        value: 'merge-branch'
+    const menuBranchesMerge = new MenuItem({
+        text: 'Merge Into Current Branch'
     });
     menuBranches.append(menuBranchesMerge);
 
-    // merge branch
     menuBranchesMerge.on('select', () => {
         if (contextBranch) {
             showRightSidePanel(panelMergeBranches);
@@ -697,15 +672,12 @@ editor.once('load', () => {
         }
     });
 
-
     // close branch
-    const menuBranchesClose = new LegacyMenuItem({
-        text: 'Close This Branch',
-        value: 'close-branch'
+    const menuBranchesClose = new MenuItem({
+        text: 'Close This Branch'
     });
     menuBranches.append(menuBranchesClose);
 
-    // close branch
     menuBranchesClose.on('select', () => {
         if (contextBranch) {
             showRightSidePanel(panelCloseBranch);
@@ -714,13 +686,11 @@ editor.once('load', () => {
     });
 
     // open branch
-    const menuBranchesOpen = new LegacyMenuItem({
-        text: 'Re-Open This Branch',
-        value: 'open-branch'
+    const menuBranchesOpen = new MenuItem({
+        text: 'Re-Open This Branch'
     });
     menuBranches.append(menuBranchesOpen);
 
-    // open branch
     menuBranchesOpen.on('select', () => {
         if (!contextBranch) {
             return;
@@ -749,9 +719,8 @@ editor.once('load', () => {
     });
 
     // delete branch
-    const menuBranchesDelete = new LegacyMenuItem({
-        text: 'Delete This Branch',
-        value: 'delete-branch'
+    const menuBranchesDelete = new MenuItem({
+        text: 'Delete This Branch'
     });
     menuBranches.append(menuBranchesDelete);
 
@@ -763,9 +732,8 @@ editor.once('load', () => {
     });
 
     // vc graph
-    const menuVcGraph = new LegacyMenuItem({
-        text: 'Version Control Graph',
-        value: 'show-vc-graph'
+    const menuVcGraph = new MenuItem({
+        text: 'Version Control Graph'
     });
 
     menuBranches.append(menuVcGraph);
@@ -777,7 +745,7 @@ editor.once('load', () => {
     });
 
     // Filter context menu items
-    menuBranches.on('open', () => {
+    menuBranches.on('show', () => {
         const writeAccess = editor.call('permissions:write');
 
         menuBranchesFavorite.text = `${menuBranches.contextBranchIsFavorite ? 'Unf' : 'F'}avorite This Branch`;
@@ -809,39 +777,39 @@ editor.once('load', () => {
         item.branch = branch;
         item.element.id = `branch-${branch.id}`;
 
-        const panel = new LegacyPanel();
+        const panel = new Container();
         item.element.appendChild(panel.element);
 
-        const labelIcon = new LegacyLabel({
+        const labelIcon = new Label({
+            class: 'icon',
             text: '&#58208;',
             unsafe: true
         });
-        labelIcon.class.add('icon');
         // TODO: should this be a css class? feels bad to made another class just for this fontSize change
         labelIcon.style.fontSize = '8px';
         panel.append(labelIcon);
 
-        const labelName = new LegacyLabel({
+        const labelName = new Label({
+            class: ['name', 'selectable'],
             text: branch.name
         });
-        labelName.class.add('name', 'selectable');
         panel.append(labelName);
         if (branch.closed) {
             labelName.class.add('closed-branch');
         }
 
-        const labelBranchId = new LegacyLabel({
+        const labelBranchId = new Label({
+            class: ['branch-id', 'selectable'],
             text: branch.id
         });
-        labelBranchId.class.add('branch-id', 'selectable');
         panel.append(labelBranchId);
 
         // dropdown
-        const dropdown = new LegacyButton({
-            text: '&#57689;'
+        const dropdown = new Button({
+            class: 'dropdown',
+            icon: 'E159'
         });
         dropdown.branch = branch;
-        dropdown.class.add('dropdown');
         panel.append(dropdown);
 
         Object.defineProperty(item, 'isFavorite', {
@@ -872,11 +840,11 @@ editor.once('load', () => {
             }
 
             dropdown.class.add('clicked');
-            dropdown.element.innerHTML = '&#57687;';
+            dropdown.icon = 'E157';
 
             contextBranch = branch;
             menuBranches.contextBranchIsFavorite = item.isFavorite;
-            menuBranches.open = true;
+            menuBranches.hidden = false;
             const rect = dropdown.element.getBoundingClientRect();
             menuBranches.position(rect.right - menuBranches.innerElement.clientWidth, rect.bottom);
         });
@@ -916,7 +884,7 @@ editor.once('load', () => {
     };
 
     // Get the list item for a branch
-    var getBranchListItem = function (branchId) {
+    const getBranchListItem = function (branchId) {
         const item = document.getElementById(`branch-${branchId}`);
         return item && item.ui;
     };
@@ -984,21 +952,12 @@ editor.once('load', () => {
     panelCheckpoints.on('diff', viewDiffFromShowCheckpoints);
     panelCreateCheckpoint.on('diff', viewDiffFromCreateCheckpoint);
 
-    // show create branch panel
-    // btnNewBranch.on('click', function () {
-    //     showRightSidePanel(panelCreateBranch);
-    //     panelCreateBranch.setSourceBranch(config.self.branch);
-    //     if (config.self.branch.latestCheckpointId) {
-    //         panelCreateBranch.setCheckpointId(config.self.branch.latestCheckpointId);
-    //     }
-    // });
-
     // Create checkpoint
     panelCreateCheckpoint.on('cancel', () => {
         // we need to load the checkpoints if we cancel creating checkpoints
         // because initially we might have opened this picker by showing the create checkpoint
         // panel without having a chance to load the checkpoints first
-        if (!panelCheckpoints.checkpoints)  {
+        if (!panelCheckpoints.checkpoints) {
             selectBranch(selectedBranch);
         } else {
             showCheckpoints();
@@ -1074,7 +1033,7 @@ editor.once('load', () => {
         }
     }));
 
-    var loadBranches = function () {
+    const loadBranches = function () {
         // change status of loading button
         btnLoadMoreBranches.disabled = true;
         btnLoadMoreBranches.text = 'LOADING...';
