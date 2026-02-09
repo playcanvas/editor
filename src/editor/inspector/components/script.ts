@@ -1,11 +1,12 @@
-import { Panel, Container, Button, BooleanInput, LabelGroup, Label, SelectInput, BindingTwoWay, ArrayInput } from '@playcanvas/pcui';
+import type { EventHandle, Observer } from '@playcanvas/observer';
+import { Panel, Container, Button, BooleanInput, LabelGroup, Label, Menu, SelectInput, BindingTwoWay, ArrayInput } from '@playcanvas/pcui';
 
 import { CLASS_ERROR, DEFAULTS } from '@/common/pcui/constants';
 import { AssetInput } from '@/common/pcui/element/element-asset-input';
 import { tooltip, tooltipSimpleItem } from '@/common/tooltips';
 import { LegacyTooltip } from '@/common/ui/tooltip';
 import { deepCopy } from '@/common/utils';
-import type { AssetObserver } from '@playcanvas/editor-api';
+import type { AssetObserver, LocalStorage } from '@playcanvas/editor-api';
 
 import { ComponentInspector } from './component';
 import { evaluate } from '../../scripting/expr-eval/evaluate';
@@ -36,10 +37,64 @@ const ATTRIBUTE_SUBTITLES = {
     curve: '{pc.Curve}'
 };
 
+// shared context menu for all ScriptInspector panels to avoid accumulating
+// hidden menus and listeners on entities with many scripts
+let scriptContextMenu: Menu = null;
+let activeScriptInspector: ScriptInspector = null;
+
+function getScriptContextMenu() {
+    if (scriptContextMenu) {
+        return scriptContextMenu;
+    }
+
+    scriptContextMenu = new Menu({
+        items: [{
+            text: 'Copy Script',
+            icon: 'E351',
+            onSelect: () => {
+                activeScriptInspector?._onCopyScript();
+            },
+            onIsEnabled: () => {
+                return activeScriptInspector?.canCopyScript() ?? false;
+            }
+        }, {
+            text: 'Remove Script',
+            icon: 'E124',
+            onSelect: () => {
+                activeScriptInspector?._onDeleteScript();
+            }
+        }, {
+            text: 'Copy Attributes',
+            icon: 'E351',
+            onSelect: () => {
+                activeScriptInspector?._onCopyAttributes();
+            },
+            onIsEnabled: () => {
+                return activeScriptInspector?.canCopyAttributes() ?? false;
+            }
+        }, {
+            text: 'Paste Attributes',
+            icon: 'E348',
+            onSelect: () => {
+                activeScriptInspector?._onPasteAttributes();
+            },
+            onIsEnabled: () => {
+                return activeScriptInspector?.canPasteAttributes() ?? false;
+            }
+        }]
+    });
+
+    editor.call('layout.root').append(scriptContextMenu);
+
+    return scriptContextMenu;
+}
+
 class ScriptInspector extends Panel {
     private _componentInspector: ScriptComponentInspector;
 
-    private _attributesInspector: AttributesInspector;
+    private _localStorage: LocalStorage;
+
+    private _attributesInspector: AttributesInspector = null;
 
     private _scriptName: string;
 
@@ -58,12 +113,31 @@ class ScriptInspector extends Panel {
      */
     private _astCache: Map<string, ASTNode> = new Map();
 
+    private _entities: Observer[] | null = null;
+
+    private _labelInvalid: Label;
+
+    private _tooltipInvalid: any;
+
+    private _fieldEnable: BooleanInput;
+
+    private _timeoutChangeAttributes: ReturnType<typeof setTimeout> | null = null;
+
+    private _btnEdit: Button;
+
+    private _btnParse: Button;
+
+    private _editorEvents: EventHandle[] = [];
+
+    private _changedAttributes: Set<string> = new Set();
+
     containerErrors: Container;
 
     constructor(args) {
         super(args);
 
         this._componentInspector = args.componentInspector;
+        this._localStorage = args.componentInspector._localStorage;
         this._scriptName = args.scriptName;
 
         this.containerErrors = new Container({
@@ -71,8 +145,6 @@ class ScriptInspector extends Panel {
             class: CLASS_ERROR
         });
         this.append(this.containerErrors);
-
-        this._attributesInspector = null;
 
         this._history = args.history;
         this._argsAssets = args.assets;
@@ -160,6 +232,20 @@ class ScriptInspector extends Panel {
             });
         }
 
+        // add context menu button
+        const btnMenu = new Button({
+            icon: 'E235', // horizontal ellipsis
+            class: 'component-header-btn'
+        });
+        this.header.append(btnMenu);
+        btnMenu.on('click', () => {
+            activeScriptInspector = this;
+            const menu = getScriptContextMenu();
+            const rect = btnMenu.dom.getBoundingClientRect();
+            menu.hidden = false;
+            menu.position(rect.right, rect.bottom);
+        });
+
         this._labelInvalid = new Label({
             text: '!',
             class: CLASS_SCRIPT_INVALID
@@ -174,13 +260,6 @@ class ScriptInspector extends Panel {
             target: this._labelInvalid,
             horzAlignEl: this
         });
-
-        this._entities = null;
-        this._entityEvents = [];
-        this._editorEvents = [];
-
-        this._timeoutChangeAttributes = null;
-        this._changedAttributes = {};
 
         this._editorEvents.push(editor.on(`assets:scripts[${this._scriptName}]:attribute:set`, this._onAddAttribute.bind(this)));
         this._editorEvents.push(editor.on(`assets:scripts[${this._scriptName}]:attribute:unset`, this._onRemoveAttribute.bind(this)));
@@ -403,9 +482,171 @@ class ScriptInspector extends Panel {
         }
     }
 
-    _onClickRemove(evt) {
-        super._onClickRemove(evt);
+    canCopyAttributes() {
+        if (!this._entities || this._entities.length !== 1 || !this._asset) {
+            return false;
+        }
 
+        const definitions = this._asset.get(`data.scripts.${this._scriptName}.attributes`);
+        return !!(definitions && Object.keys(definitions).length);
+    }
+
+    canPasteAttributes() {
+        if (!this._entities || !this._asset) {
+            return false;
+        }
+
+        if (!this._localStorage.has('copy-script-attributes')) {
+            return false;
+        }
+
+        // check that at least one attribute name+type matches
+        let stored;
+        try {
+            stored = JSON.parse(this._localStorage.get('copy-script-attributes') as string);
+        } catch (e) {
+            return false;
+        }
+
+        const targetDefs = this._asset.get(`data.scripts.${this._scriptName}.attributes`);
+        if (!stored || typeof stored !== 'object' || !stored.types || !targetDefs) {
+            return false;
+        }
+
+        for (const name in targetDefs) {
+            if (stored.types[name] && stored.types[name] === targetDefs[name].type) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    canCopyScript() {
+        return !!(this._entities && this._entities.length === 1);
+    }
+
+    _onCopyScript() {
+        if (!this._entities || !this._entities.length) {
+            return;
+        }
+
+        const data = this._entities[0].get(`components.script.scripts.${this._scriptName}`);
+        this._localStorage.set('copy-script', JSON.stringify(data));
+        this._localStorage.set('copy-script-name', this._scriptName);
+    }
+
+    _onCopyAttributes() {
+        if (!this._entities || !this._entities.length || !this._asset) {
+            return;
+        }
+
+        const values = this._entities[0].get(`components.script.scripts.${this._scriptName}.attributes`);
+        const definitions = this._asset.get(`data.scripts.${this._scriptName}.attributes`);
+
+        // build a type map from definitions
+        const types: Record<string, string> = {};
+        if (definitions) {
+            for (const name in definitions) {
+                types[name] = definitions[name].type;
+            }
+        }
+
+        this._localStorage.set('copy-script-attributes', JSON.stringify({ values, types }));
+    }
+
+    _onPasteAttributes() {
+        if (!this._entities || !this._entities.length || !this._asset) {
+            return;
+        }
+
+        const raw = this._localStorage.get('copy-script-attributes') as string;
+        if (!raw) {
+            return;
+        }
+
+        let stored;
+        try {
+            stored = JSON.parse(raw);
+        } catch (e) {
+            return;
+        }
+
+        if (!stored || typeof stored !== 'object' || !stored.values || !stored.types) {
+            return;
+        }
+
+        const targetDefs = this._asset.get(`data.scripts.${this._scriptName}.attributes`);
+        if (!targetDefs) {
+            return;
+        }
+
+        // find matching attributes (same name + same type)
+        const matchingValues: Record<string, any> = {};
+        for (const name in targetDefs) {
+            if (stored.types[name] && stored.types[name] === targetDefs[name].type && stored.values.hasOwnProperty(name)) {
+                matchingValues[name] = deepCopy(stored.values[name]);
+            }
+        }
+
+        if (!Object.keys(matchingValues).length) {
+            return;
+        }
+
+        const entities = this._entities.slice();
+        const path = `components.script.scripts.${this._scriptName}.attributes`;
+
+        const previous: Record<string, any> = {};
+
+        const redo = () => {
+            for (const entity of entities) {
+                const e = entity.latest();
+                if (!e) {
+                    continue;
+                }
+
+                previous[e.get('resource_id')] = deepCopy(e.get(path));
+
+                const history = e.history.enabled;
+                e.history.enabled = false;
+                for (const attrName in matchingValues) {
+                    e.set(`${path}.${attrName}`, matchingValues[attrName]);
+                }
+                e.history.enabled = history;
+            }
+        };
+
+        const undo = () => {
+            for (const entity of entities) {
+                const e = entity.latest();
+                if (!e) {
+                    continue;
+                }
+
+                if (!(e.get('resource_id') in previous)) {
+                    continue;
+                }
+
+                const prev = previous[e.get('resource_id')];
+
+                const history = e.history.enabled;
+                e.history.enabled = false;
+                e.set(path, prev);
+                e.history.enabled = history;
+            }
+        };
+
+        redo();
+
+        editor.api.globals.history.add({
+            name: `entities.paste[scripts.${this._scriptName}.attributes]`,
+            combine: false,
+            undo: undo,
+            redo: redo
+        });
+    }
+
+    _onDeleteScript() {
         if (!this._entities) {
             return;
         }
@@ -600,7 +841,7 @@ class ScriptInspector extends Panel {
             return;
         }
 
-        this._changedAttributes[name] = true;
+        this._changedAttributes.add(name);
 
         if (this._timeoutChangeAttributes) {
             clearTimeout(this._timeoutChangeAttributes);
@@ -615,7 +856,7 @@ class ScriptInspector extends Panel {
 
             const order = this._asset.get(`data.scripts.${this._scriptName}.attributesOrder`);
 
-            for (const attr in this._changedAttributes) {
+            for (const attr of this._changedAttributes) {
                 const index = order.indexOf(attr);
                 if (index >= 0) {
                     this._onRemoveAttribute(asset, attr);
@@ -623,7 +864,7 @@ class ScriptInspector extends Panel {
                 }
             }
 
-            this._changedAttributes = {};
+            this._changedAttributes.clear();
         });
     }
 
@@ -652,7 +893,7 @@ class ScriptInspector extends Panel {
         this._tooltipInvalid.description = this._getInvalidTooltipText();
     }
 
-    link(entities) {
+    link(entities: Observer[]) {
         this.unlink();
 
         this._entities = entities;
@@ -680,7 +921,7 @@ class ScriptInspector extends Panel {
             this._timeoutChangeAttributes = null;
         }
 
-        this._changedAttributes = {};
+        this._changedAttributes.clear();
     }
 
     destroy() {
@@ -696,7 +937,19 @@ class ScriptInspector extends Panel {
 }
 
 class ScriptComponentInspector extends ComponentInspector {
-    private _scriptPanels: Record<string, ScriptInspector>;
+    private _scriptPanels: Record<string, ScriptInspector> = {};
+
+    private _editorEvents: EventHandle[] = [];
+
+    private _containerScripts: Container;
+
+    private _selectScript: SelectInput;
+
+    private _dirtyScripts: Set<string> = new Set();
+
+    private _dirtyScriptsTimeout: number | null = null;
+
+    private _updateScriptsTimeout: ReturnType<typeof setTimeout> | null = null;
 
     constructor(args) {
         args = Object.assign({}, args);
@@ -704,12 +957,8 @@ class ScriptComponentInspector extends ComponentInspector {
 
         super(args);
 
-        this._scriptPanels = {};
-
         this._argsAssets = args.assets;
         this._argsEntities = args.entities;
-
-        this._editorEvents = [];
 
         this._selectScript = new SelectInput({
             placeholder: '+ ADD SCRIPT',
@@ -732,14 +981,120 @@ class ScriptComponentInspector extends ComponentInspector {
 
         this._containerScripts.on('child:dragend', this._onDragEnd.bind(this));
 
-        this._dirtyScripts = new Set();
-        this._dirtyScriptsTimeout = null;
-
         if (this._templateOverridesInspector) {
             this._templateOverridesInspector.registerElementForPath('components.script.order', this, this._tooltipGroup);
         }
+    }
 
-        this._updateScriptsTimeout = null;
+    _getContextMenuItems() {
+        return [...super._getContextMenuItems(), {
+            text: 'Paste Script',
+            icon: 'E348',
+            onSelect: this._onPasteScript.bind(this),
+            onIsEnabled: () => {
+                if (!this._localStorage.has('copy-script') || !this._localStorage.has('copy-script-name')) {
+                    return false;
+                }
+                try {
+                    const data = JSON.parse(this._localStorage.get('copy-script') as string);
+                    return !!(data && typeof data === 'object');
+                } catch (e) {
+                    return false;
+                }
+            }
+        }];
+    }
+
+    _onPasteScript() {
+        const raw = this._localStorage.get('copy-script') as string;
+        if (!raw) {
+            return;
+        }
+
+        let data;
+        try {
+            data = JSON.parse(raw);
+        } catch (e) {
+            return;
+        }
+
+        const scriptName = this._localStorage.get('copy-script-name') as string;
+        if (!scriptName || !data || typeof data !== 'object') {
+            return;
+        }
+
+        if (!this._entities || !this._entities.length) {
+            return;
+        }
+
+        const entities = this._entities.slice();
+
+        // separate entities that already have this script from those that don't
+        const entitiesWithScript = entities.filter(e => e.has(`components.script.scripts.${scriptName}`));
+        const entitiesWithoutScript = entities.filter(e => !e.has(`components.script.scripts.${scriptName}`));
+
+        // for entities that already have the script, set the data directly with undo/redo
+        if (entitiesWithScript.length) {
+            const path = `components.script.scripts.${scriptName}`;
+            const previous: Record<string, any> = {};
+
+            const redo = () => {
+                for (const entity of entitiesWithScript) {
+                    const e = entity.latest();
+                    if (!e) {
+                        continue;
+                    }
+
+                    previous[e.get('resource_id')] = deepCopy(e.get(path));
+
+                    const history = e.history.enabled;
+                    e.history.enabled = false;
+                    e.set(path, deepCopy(data));
+                    e.history.enabled = history;
+                }
+            };
+
+            const undo = () => {
+                for (const entity of entitiesWithScript) {
+                    const e = entity.latest();
+                    if (!e) {
+                        continue;
+                    }
+
+                    if (!(e.get('resource_id') in previous)) {
+                        continue;
+                    }
+
+                    const prev = previous[e.get('resource_id')];
+
+                    const history = e.history.enabled;
+                    e.history.enabled = false;
+                    e.set(path, prev);
+                    e.history.enabled = history;
+                }
+            };
+
+            redo();
+
+            editor.api.globals.history.add({
+                name: `entities.paste[scripts.${scriptName}]`,
+                combine: false,
+                undo: undo,
+                redo: redo
+            });
+        }
+
+        // for entities that don't have the script, add it via the API
+        if (entitiesWithoutScript.length) {
+            editor.api.globals.entities.addScript(
+                entitiesWithoutScript.map(e => e.apiEntity),
+                scriptName,
+                {
+                    enabled: data.enabled,
+                    attributes: data.attributes ? deepCopy(data.attributes) : {}
+                }
+            );
+        }
     }
 
     _createScriptPanel(scriptName) {
@@ -748,7 +1103,6 @@ class ScriptComponentInspector extends ComponentInspector {
             scriptName: scriptName,
             flex: true,
             collapsible: true,
-            removable: true,
             assets: this._argsAssets,
             entities: this._argsEntities,
             templateOverridesInspector: this._templateOverridesInspector,
@@ -792,7 +1146,7 @@ class ScriptComponentInspector extends ComponentInspector {
         this._dirtyScripts = new Set();
     }
 
-    _updateScripts(filterScriptsSet) {
+    _updateScripts(filterScriptsSet?: Set<string>) {
         if (!this._entities) {
             return;
         }
@@ -988,8 +1342,9 @@ class ScriptComponentInspector extends ComponentInspector {
         }
     }
 
-    onParseError(error, scriptName) {
-        if (!this._scriptPanels[scriptName]) {
+    onParseError(error: string, scriptName: string) {
+        const panel = this._scriptPanels[scriptName];
+        if (!panel) {
             return;
         }
 
@@ -998,8 +1353,8 @@ class ScriptComponentInspector extends ComponentInspector {
             text: error
         });
 
-        this._scriptPanels[scriptName].containerErrors.append(label);
-        this._scriptPanels[scriptName].containerErrors.hidden = false;
+        panel.containerErrors.append(label);
+        panel.containerErrors.hidden = false;
     }
 
     clearValidationIssues(scriptName?: string) {
@@ -1134,7 +1489,7 @@ class ScriptComponentInspector extends ComponentInspector {
         }
     }
 
-    link(entities) {
+    link(entities: Observer[]) {
         super.link(entities);
 
         this._updateScripts();
@@ -1198,9 +1553,7 @@ class ScriptComponentInspector extends ComponentInspector {
             return;
         }
 
-        if (this._templateOverridesInspector) {
-            this._templateOverridesInspector.unregisterElementForPath('components.script.order');
-        }
+        this._templateOverridesInspector?.unregisterElementForPath('components.script.order');
 
         super.destroy();
     }

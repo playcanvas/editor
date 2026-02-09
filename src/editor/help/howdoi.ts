@@ -1,24 +1,21 @@
-import { LegacyButton } from '@/common/ui/button';
-import { LegacyMenu } from '@/common/ui/menu';
-import { LegacyMenuItem } from '@/common/ui/menu-item';
-import { LegacyPanel } from '@/common/ui/panel';
-import { LegacyTextField } from '@/common/ui/text-field';
+import { Button, Container, TextInput } from '@playcanvas/pcui';
 
 editor.once('load', () => {
     const viewport = editor.call('layout.viewport');
-    let focusedMenuItem = null;
+    let focusedMenuItem: HTMLElement = null;
     const settings = editor.call('settings:user');
 
     // create main panel
-    const panel = new LegacyPanel();
-    panel.class.add('help-howdoi');
+    const panel = new Container({
+        class: 'help-howdoi',
+        hidden: true
+    });
     viewport.append(panel);
-    panel.hidden = true;
 
     let settingsLoaded = false;
     let tipsLoaded = false;
 
-    const checkShow = function () {
+    const checkShow = () => {
         if (tipsLoaded && settingsLoaded) {
             panel.hidden = !settings.get('editor.howdoi');
         }
@@ -35,7 +32,7 @@ editor.once('load', () => {
     });
 
     // position widget between top elements in viewport
-    const positionWidget = function () {
+    const positionWidget = () => {
         const canvas = editor.call('viewport:canvas');
         if (!canvas) {
             return;
@@ -82,8 +79,8 @@ editor.once('load', () => {
     });
 
     // bubble that appears after closing the widget for the first time
-    const bubble = function () {
-        const bubble = editor.call(
+    const bubble = () => {
+        const b = editor.call(
             'guide:bubble',
             'Get more help when you need it',
             'Click here to bring back the help widget whenever you want.',
@@ -93,9 +90,9 @@ editor.once('load', () => {
             editor.call('layout.toolbar')
         );
 
-        bubble.element.style.top = '';
-        bubble.element.style.bottom = '130px';
-        return bubble;
+        b.element.style.top = '';
+        b.element.style.bottom = '130px';
+        return b;
     };
 
     // events when panel is hidden
@@ -121,18 +118,19 @@ editor.once('load', () => {
     });
 
     // input field
-    const input = new LegacyTextField();
-    input.blurOnEnter = false;
-    input.renderChanges = false;
-    input.keyChange = true;
-    input.elementInput.placeholder = 'How do I...?';
+    const input = new TextInput({
+        blurOnEnter: false,
+        keyChange: true
+    });
+    input.input.placeholder = 'How do I...?';
     panel.append(input);
 
     // close button
-    const close = new LegacyButton({
-        text: 'Hide <span class="font-icon" style="position: absolute; top: 0">&#57650;</span>'
+    const close = new Button({
+        class: 'close',
+        text: 'Hide <span class="font-icon" style="position: absolute; top: 0">&#57650;</span>',
+        unsafe: true
     });
-    close.class.add('close');
     panel.append(close);
 
     close.on('click', () => {
@@ -140,15 +138,26 @@ editor.once('load', () => {
     });
 
     // menu with all the suggestions
-    const menu = new LegacyMenu();
-    menu.open = false;
+    const menu = new Container({
+        class: 'howdoi-menu',
+        hidden: true
+    });
     panel.append(menu);
-    menu.elementOverlay.parentElement.removeChild(menu.elementOverlay);
+
+    let menuOpen = false;
+    const setMenuOpen = (value: boolean) => {
+        if (menuOpen === value) {
+            return;
+        }
+        menuOpen = value;
+        menu.hidden = !value;
+        menu.emit('open', value);
+    };
 
     const suggestions = [];
 
-    // Store event for when viewing (or not viewing) a topic
-    const storeEvent = function (search, topic) {
+    // store analytics event for viewing (or not viewing) a topic
+    const storeEvent = (search: string, topic?: string) => {
         editor.api.globals.rest.home.homeSceneEvent(config.scene.id, {
             name: 'editor:help',
             title: topic,
@@ -160,255 +169,225 @@ editor.once('load', () => {
     editor.method('help:howdoi:register', (data) => {
 
         // create new menu item
-        const menuItem = new LegacyMenuItem({
-            text: data.title
+        const menuItem = new Container({
+            class: 'howdoi-menu-item'
         });
+        menuItem.dom.textContent = data.title;
 
         menu.append(menuItem);
 
         // add suggestion
-        suggestions.push({
-            data: data,
-            menuItem: menuItem
-        });
+        suggestions.push({ data, menuItem });
 
         // method that opens the popup for this menu item
-        const openPopup = function () {
-            // store popup event
+        const openPopup = () => {
             storeEvent(input.value, data.title);
-
-            // open popup
             editor.call('help:howdoi:popup', data);
-            // reset input value and blur field
             input.value = '';
-            input.elementInput.blur();
-            // hide menu
-            menu.open = false;
+            input.blur();
+            setMenuOpen(false);
         };
 
         // open popup on mousedown instead of 'click' because
         // for some reason the 'click' event doesn't always work here
-        menuItem.element.addEventListener('mousedown', (e) => {
+        menuItem.dom.addEventListener('mousedown', (e) => {
             e.stopPropagation();
             openPopup();
         });
 
         // focus element on mouse enter
-        const mouseEnter = function () {
-            if (focusedMenuItem && focusedMenuItem !== menuItem.element) {
+        const mouseEnter = () => {
+            if (focusedMenuItem && focusedMenuItem !== menuItem.dom) {
                 focusedMenuItem.classList.remove('focused');
             }
 
-            focusedMenuItem = menuItem.element;
+            focusedMenuItem = menuItem.dom;
             focusedMenuItem.classList.add('focused');
 
             // remove mouseenter listener until mouseleave fires to prevent
             // an issue with Firefox
-            menuItem.element.removeEventListener('mouseenter', mouseEnter);
+            menuItem.dom.removeEventListener('mouseenter', mouseEnter);
         };
 
-        menuItem.element.addEventListener('mouseenter', mouseEnter);
+        menuItem.dom.addEventListener('mouseenter', mouseEnter);
 
         // unfocus element on mouse leave
-        const mouseLeave = function () {
-            if (focusedMenuItem && focusedMenuItem === menuItem.element) {
+        const mouseLeave = () => {
+            if (focusedMenuItem && focusedMenuItem === menuItem.dom) {
                 focusedMenuItem.classList.remove('focused');
                 focusedMenuItem = null;
             }
 
-            menuItem.element.addEventListener('mouseenter', mouseEnter);
+            menuItem.dom.addEventListener('mouseenter', mouseEnter);
         };
 
-        menuItem.element.addEventListener('mouseleave', mouseLeave);
-
+        menuItem.dom.addEventListener('mouseleave', mouseLeave);
 
         // on enter open the popup
-        input.elementInput.addEventListener('keydown', (e) => {
-            if (e.keyCode === 13) {
-                if (focusedMenuItem === menuItem.element) {
-                    e.preventDefault();
-                    e.stopPropagation();
-
-                    openPopup();
-                }
+        input.on('keydown', (e: KeyboardEvent) => {
+            if (e.key === 'Enter' && focusedMenuItem === menuItem.dom) {
+                e.preventDefault();
+                e.stopPropagation();
+                openPopup();
             }
         });
-
     });
 
     // on esc delete the input text or hide the widget if no text is there
-    input.elementInput.addEventListener('keydown', (e) => {
-        if (e.keyCode === 27) {
+    input.on('keydown', (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
             if (input.value) {
                 storeEvent(input.value);
                 input.value = '';
-                input.elementInput.focus();
+                input.focus();
             } else {
-                menu.open = false;
+                setMenuOpen(false);
             }
         }
     });
 
-    let blurTimeout;
     let focusing = false;
 
     // on focus open the menu and then refocus the input field
-    input.elementInput.addEventListener('focus', () => {
+    input.on('focus', () => {
         if (focusing) {
             return;
         }
 
         focusing = true;
-        menu.open = true;
-
-        if (blurTimeout) {
-            clearTimeout(blurTimeout);
-            blurTimeout = null;
-        }
+        setMenuOpen(true);
 
         setTimeout(() => {
-            input.elementInput.focus();
+            input.focus();
             focusing = false;
         });
-
     });
 
     // on blur hide the menu
-    input.elementInput.addEventListener('blur', () => {
+    input.on('blur', () => {
         if (focusing) {
             return;
         }
 
-        menu.open = false;
+        setMenuOpen(false);
     });
 
-    const filterSuggestions = function (text) {
+    const showAllSuggestions = () => {
+        for (let i = suggestions.length - 1; i >= 0; i--) {
+            suggestions[i].menuItem.class.remove('hidden');
+            menu.dom.insertBefore(suggestions[i].menuItem.dom, menu.dom.firstChild);
+        }
+    };
+
+    const filterSuggestions = (text?: string) => {
         // sort suggestions by title first
-        suggestions.sort((a, b) => {
-            if (a.data.title < b.data.title) {
-                return -1;
-            }
+        suggestions.sort((a, b) => a.data.title.localeCompare(b.data.title));
 
-            if (a.data.title > b.data.title) {
-                return 1;
-            }
-
-            return 0;
-        });
-
-        if (text) {
-            const query = [];
-
-            // turn each word in a regex
-            const words = text.split(' ');
-            words.forEach((word) => {
-                word = word.replace(/\W/g, ''); // remove invalid chars
-                if (!word.length) {
-                    return;
-                }
-
-                query.push(new RegExp(`(^|\\s)${word.replace(/\W/, '')}`, 'i'));
-            });
-
-
-            suggestions.forEach((suggestion) => {
-                suggestion.score = 0;
-            });
-
-            let matched = suggestions.slice();
-            let foundSomeMatches = false;
-
-            // Score suggestions for each word in the text
-            // Each word filters the results more and more
-            query.forEach((q, index) => {
-                const stageMatches = [];
-
-                matched.forEach((suggestion) => {
-                    // reset score and make menu item hidden
-                    if (index === 0) {
-                        suggestion.score = 0;
-                        suggestion.menuItem.class.add('hidden');
-                    }
-
-                    const title = suggestion.data.title;
-                    const keywords = suggestion.data.keywords;
-
-                    let score = 0;
-
-                    // match the title and increase score
-                    // if match is closer to the start the score is bigger
-                    let match = q.exec(title);
-                    if (match) {
-                        score += 1 / (match.index || 0.1);
-                    }
-
-                    // add to the score for each matched keyword
-                    for (let i = 0, len = keywords.length; i < len; i++) {
-                        match = q.exec(keywords[i]);
-                        if (match) {
-                            score++;
-                        }
-                    }
-
-                    // add suggestion to this stage's matches
-                    // each subsequent stage has less and less matches
-                    if (score) {
-                        suggestion.score += score;
-                        stageMatches.push(suggestion);
-                    }
-                });
-
-                if (stageMatches.length === 0) {
-                    // if the first few words have no matches then
-                    // skip them until we find some matches first
-                    if (foundSomeMatches) {
-                        matched = stageMatches;
-                    }
-                } else {
-                    foundSomeMatches = true;
-                    matched = stageMatches;
-                }
-            });
-
-            // sort matches by score
-            matched.sort((a, b) => {
-                return b.score - a.score;
-            });
-
-            // show matches
-            for (let i = matched.length - 1; i >= 0; i--) {
-                matched[i].menuItem.class.remove('hidden');
-                menu.innerElement.insertBefore(matched[i].menuItem.element, menu.innerElement.firstChild);
-            }
-        } else {
-            // show all suggestions
-            for (let i = suggestions.length - 1; i >= 0; i--) {
-                suggestions[i].menuItem.class.remove('hidden');
-                menu.innerElement.insertBefore(suggestions[i].menuItem.element, menu.innerElement.firstChild);
-            }
-
+        if (!text) {
+            showAllSuggestions();
+            return;
         }
 
+        // turn each word into a regex
+        const query = [];
+        for (const raw of text.split(' ')) {
+            const word = raw.replace(/\W/g, '');
+            if (!word) {
+                continue;
+            }
+            query.push(new RegExp(`(^|\\s)${word}`, 'i'));
+        }
+
+        // if no valid words remain after stripping, show all suggestions
+        if (query.length === 0) {
+            showAllSuggestions();
+            return;
+        }
+
+        let matched = suggestions.slice();
+        let foundSomeMatches = false;
+
+        // Score suggestions for each word in the text
+        // Each word filters the results more and more
+        query.forEach((q, index) => {
+            const stageMatches = [];
+
+            for (const suggestion of matched) {
+                // reset score and make menu item hidden
+                if (index === 0) {
+                    suggestion.score = 0;
+                    suggestion.menuItem.class.add('hidden');
+                }
+
+                const { title, keywords } = suggestion.data;
+
+                let score = 0;
+
+                // match the title and increase score
+                // if match is closer to the start the score is bigger
+                let match = q.exec(title);
+                if (match) {
+                    score += 1 / (match.index || 0.1);
+                }
+
+                // add to the score for each matched keyword
+                for (const keyword of keywords) {
+                    match = q.exec(keyword);
+                    if (match) {
+                        score++;
+                    }
+                }
+
+                // add suggestion to this stage's matches
+                // each subsequent stage has less and less matches
+                if (score) {
+                    suggestion.score += score;
+                    stageMatches.push(suggestion);
+                }
+            }
+
+            if (stageMatches.length === 0) {
+                // if the first few words have no matches then
+                // skip them until we find some matches first
+                if (foundSomeMatches) {
+                    matched = stageMatches;
+                }
+            } else {
+                foundSomeMatches = true;
+                matched = stageMatches;
+            }
+        });
+
+        // sort matches by score
+        matched.sort((a, b) => b.score - a.score);
+
+        // show matches
+        for (let i = matched.length - 1; i >= 0; i--) {
+            matched[i].menuItem.class.remove('hidden');
+            menu.dom.insertBefore(matched[i].menuItem.dom, menu.dom.firstChild);
+        }
     };
 
     // filter suggestions as the user types
-    input.on('change', (value) => {
-        filterSuggestions(value);
-    });
+    input.on('change', filterSuggestions);
 
     // Focus next or previous suggestion
-    const focusNextSuggestion = function (forward) {
-        let next = forward ? menu.innerElement.firstChild : menu.innerElement.lastChild;
+    const focusNextSuggestion = (forward: boolean) => {
+        let next = (forward ? menu.dom.firstElementChild : menu.dom.lastElementChild) as HTMLElement;
+        if (!next) {
+            return false;
+        }
+
         if (focusedMenuItem) {
             focusedMenuItem.classList.remove('focused');
 
             if (forward) {
-                if (focusedMenuItem.nextSibling) {
-                    next = focusedMenuItem.nextSibling;
+                if (focusedMenuItem.nextElementSibling) {
+                    next = focusedMenuItem.nextElementSibling as HTMLElement;
                 }
             } else {
-                if (focusedMenuItem.previousSibling) {
-                    next = focusedMenuItem.previousSibling;
+                if (focusedMenuItem.previousElementSibling) {
+                    next = focusedMenuItem.previousElementSibling as HTMLElement;
                 }
             }
         }
@@ -417,14 +396,14 @@ editor.once('load', () => {
 
         while (next.classList.contains('hidden')) {
             if (forward) {
-                next = next.nextSibling || menu.innerElement.firstChild;
+                next = (next.nextElementSibling || menu.dom.firstElementChild) as HTMLElement;
             } else {
-                next =  next.previousSibling || menu.innerElement.lastChild;
+                next = (next.previousElementSibling || menu.dom.lastElementChild) as HTMLElement;
             }
 
             // avoid infinite loop
             if (next === valueBeforeLoop) {
-                return;
+                return false;
             }
         }
 
@@ -433,43 +412,43 @@ editor.once('load', () => {
 
         // scroll into view if needed
         const focusedRect = focusedMenuItem.getBoundingClientRect();
-        const menuRect = menu.innerElement.getBoundingClientRect();
+        const menuRect = menu.dom.getBoundingClientRect();
 
         if (focusedRect.bottom > menuRect.bottom) {
-            menu.innerElement.scrollTop += focusedRect.bottom - menuRect.bottom;
+            menu.dom.scrollTop += focusedRect.bottom - menuRect.bottom;
         } else if (focusedRect.top < menuRect.top) {
-            menu.innerElement.scrollTop -= menuRect.top - focusedRect.top;
+            menu.dom.scrollTop -= menuRect.top - focusedRect.top;
         }
 
         return true;
     };
 
     // handle clicking outside menu in order to close it
-    const click = function (e) {
-        let parent = e.target;
+    const onWindowClick = (e: MouseEvent) => {
+        let parent = e.target as HTMLElement;
         while (parent) {
-            if (parent === panel.innerElement) {
-                input.elementInput.focus();
+            if (parent === panel.dom) {
+                input.focus();
                 return;
             }
 
             parent = parent.parentElement;
         }
 
-        menu.open = false;
+        setMenuOpen(false);
     };
 
     // handle arrow keys to focus next / previous suggestion
-    const key = function (e) {
-        let result;
+    const onWindowKeyDown = (e: KeyboardEvent) => {
+        let handled = false;
 
-        if (e.keyCode === 38) { // up arrow
-            result = focusNextSuggestion(false);
-        } else if (e.keyCode === 40) { // down arrow
-            result = focusNextSuggestion(true);
+        if (e.key === 'ArrowUp') {
+            handled = focusNextSuggestion(false);
+        } else if (e.key === 'ArrowDown') {
+            handled = focusNextSuggestion(true);
         }
 
-        if (result) {
+        if (handled) {
             e.preventDefault();
             e.stopPropagation();
         }
@@ -478,16 +457,16 @@ editor.once('load', () => {
     // handle open event
     menu.on('open', (open) => {
         if (open) {
-            window.addEventListener('click', click);
-            window.addEventListener('keydown', key);
+            window.addEventListener('click', onWindowClick);
+            window.addEventListener('keydown', onWindowKeyDown);
             input.class.add('focus');
-            menu.innerElement.scrollTop = 0;
+            menu.dom.scrollTop = 0;
             close.hidden = true;
 
             filterSuggestions();
         } else {
-            window.removeEventListener('click', click);
-            window.removeEventListener('keydown', key);
+            window.removeEventListener('click', onWindowClick);
+            window.removeEventListener('keydown', onWindowKeyDown);
             input.class.remove('focus');
             if (focusedMenuItem) {
                 focusedMenuItem.classList.remove('focused');
@@ -501,14 +480,13 @@ editor.once('load', () => {
 
             input.value = '';
         }
-
     });
 
-    const toggleWidget = function (toggle) {
+    const toggleWidget = (toggle: boolean) => {
         panel.hidden = !toggle;
         if (toggle) {
             setTimeout(() => {
-                input.elementInput.focus();
+                input.focus();
             });
         }
     };
@@ -527,7 +505,7 @@ editor.once('load', () => {
     editor.call('hotkey:register', 'help:howdoi', {
         key: ' ',
         ctrl: true,
-        callback: function () {
+        callback: () => {
             if (editor.call('picker:isOpen:otherThan', 'curve')) {
                 return;
             }
