@@ -1,3 +1,4 @@
+import type { EventHandle, Observer } from '@playcanvas/observer';
 import { BindingTwoWay, BooleanInput, Button, Container, Label, LabelGroup, Menu, Panel } from '@playcanvas/pcui';
 
 import { tooltip, tooltipRefItem } from '@/common/tooltips';
@@ -10,7 +11,25 @@ const CLASS_COMPONENT_ICON = 'component-icon';
 const CLASS_ENABLED = `${CLASS_ROOT}-enabled`;
 
 class ComponentInspector extends Panel {
-    private _templateOverridesInspector: TemplateOverrideInspector;
+    _component: string;
+
+    _localStorage: LocalStorage;
+
+    _entities: Observer[] | null = null;
+
+    _entityEvents: EventHandle[] = [];
+
+    protected _templateOverridesInspector: TemplateOverrideInspector;
+
+    protected _tooltipGroup: Container;
+
+    private _fieldEnable: BooleanInput;
+
+    private _btnHelp: Button;
+
+    private _btnMenu: Button;
+
+    private _contextMenu: Menu;
 
     constructor(args) {
         args = Object.assign({}, args);
@@ -103,34 +122,33 @@ class ComponentInspector extends Panel {
             this._templateOverridesInspector.registerElementForPath(`components.${this._component}`, this, this._tooltipGroup);
             this._templateOverridesInspector.registerElementForPath(`components.${this._component}.enabled`, enableGroup);
         }
-
-        this._entities = null;
-        this._entityEvents = [];
     }
 
-    _createContextMenu(target) {
-        const menu = new Menu({
-            items: [{
-                text: 'Copy',
-                icon: 'E351',
-                onSelect: this._onClickCopy.bind(this),
-                onIsEnabled: () => {
-                    return (this._entities && this._entities.length === 1);
-                }
-            }, {
-                text: 'Paste',
-                icon: 'E348',
-                onSelect: this._onClickPaste.bind(this),
-                onIsEnabled: () => {
-                    return this._localStorage.has('copy-component') &&
-                            this._localStorage.get('copy-component-name') === this._component;
-                }
-            }, {
-                text: 'Delete',
-                icon: 'E124',
-                onSelect: this._onClickDelete.bind(this)
-            }]
-        });
+    _getContextMenuItems() {
+        return [{
+            text: 'Copy Component',
+            icon: 'E351',
+            onSelect: this._onClickCopy.bind(this),
+            onIsEnabled: () => {
+                return (this._entities && this._entities.length === 1);
+            }
+        }, {
+            text: 'Paste Component',
+            icon: 'E348',
+            onSelect: this._onClickPaste.bind(this),
+            onIsEnabled: () => {
+                return this._localStorage.has('copy-component') &&
+                        this._localStorage.get('copy-component-name') === this._component;
+            }
+        }, {
+            text: 'Remove Component',
+            icon: 'E124',
+            onSelect: this._onClickDelete.bind(this)
+        }];
+    }
+
+    _createContextMenu(target: Button) {
+        const menu = new Menu({ items: this._getContextMenuItems() });
 
         editor.call('layout.root').append(menu);
 
@@ -217,7 +235,7 @@ class ComponentInspector extends Panel {
         }
     }
 
-    link(entities) {
+    link(entities: Observer[]) {
         this.unlink();
         this._entities = entities;
 

@@ -327,7 +327,7 @@ class EntityInspector extends Container {
                     return this._localStorage.has('copy-component');
                 }
             }, {
-                text: 'Delete All Components',
+                text: 'Remove All Components',
                 icon: 'E124',
                 onSelect: () => {
                     this._onClickRemoveComponents();
