@@ -95,9 +95,9 @@ editor.once('load', () => {
                 if (concatenateScripts && assetData.type === 'script' && assetData.file.filename.endsWith('.js') && assetData.preload && !assetData.data.loadingType) {
                     assetData.file.url = concatenatedScriptsUrl;
                 } else if (config.signedUrls && config.signedUrls[assetData.id]) {
-                    // Use pre-signed CloudFront URL (bypasses Lambda@Edge permission check)
+                    // Use pre-signed CloudFront URL
                     assetData.file.url = config.signedUrls[assetData.id];
-                    delete assetData.file.hash; 
+                    delete assetData.file.hash;
                 } else {
                     assetData.file.url = getFileUrl(assetData.path, assetData.id, assetData.revision, assetData.file.filename);
                 }
