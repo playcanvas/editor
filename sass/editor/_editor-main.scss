@@ -7923,6 +7923,7 @@ strong {
             flex-direction: row;
             gap: 6px;
             padding: 6px;
+            border-bottom: 1px solid $border-primary;
 
             > * {
                 margin: 0;
