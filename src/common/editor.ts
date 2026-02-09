@@ -29,7 +29,7 @@ class Editor<T extends EditorMethods> extends Caller<T> {
     /**
      * Whether the Editor project is using engine v2.
      */
-    projectEngineV2: boolean = config.project?.settings?.engineV2 ?? false;
+    projectEngineV2: boolean = config.project?.settings?.engineV2 ?? true;
 
     /**
      * Editor API history global
