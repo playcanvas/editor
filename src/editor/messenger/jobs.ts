@@ -11,12 +11,21 @@ export const diffCreate = (args: Parameters<typeof rest.diff.diffCreate>[0]) => 
                 return;
             }
             jobUpdate.unbind();
-            // Fetch the completed job and return its data (which now contains the diff result)
-            rest.jobs.jobGet({
-                jobId: job.id
-            }).promisify().then((completedJob) => {
-                resolve(completedJob.data);
-            }).catch(reject);
+
+            try {
+                // Verify the job completed successfully
+                const completedJob = await rest.jobs.jobGet({ jobId: job.id }).promisify();
+                if (completedJob.status === 'error') {
+                    throw new Error(completedJob.messages?.[0] ?? 'Checkpoint diff failed');
+                }
+
+                // Fetch the full diff payload from S3 (the job document only
+                // stores summary metadata to stay under the MongoDB 16MB limit).
+                const diff = await rest.diff.diffGet({ id: job.data.merge_id }).promisify();
+                resolve(diff);
+            } catch (err) {
+                reject(err);
+            }
         });
     });
     rest.diff.diffCreate(args).promisify().then(defer.resolve).catch(defer.reject);
