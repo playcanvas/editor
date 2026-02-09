@@ -7920,29 +7920,12 @@ strong {
         }
 
         .branches-filter {
-            height: 45px;
-            box-sizing: border-box;
-            border-bottom: 1px solid $border-primary;
-            padding: 7px 10px;
             flex-direction: row;
-            align-items: center;
+            gap: 6px;
+            padding: 6px;
 
-            .pcui-select-input {
+            > * {
                 margin: 0;
-                height: 22px;
-                line-height: 22px;
-
-                .pcui-select-input-value {
-                    @extend .fieldFont;
-                }
-
-                > .value {
-                    line-height: 21px;
-
-                    &::after {
-                        line-height: 22px;
-                    }
-                }
             }
         }
 
@@ -8093,7 +8076,6 @@ strong {
                             margin-left: 25px;
                             overflow: hidden;
                             text-overflow: ellipsis;
-                            width: 210px;
                         }
 
                         &.branch-id {
