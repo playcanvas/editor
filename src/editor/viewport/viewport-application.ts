@@ -43,7 +43,7 @@ class ViewportApplication extends Application {
                 showFog = this.editorSettings.showFog;
             }
 
-            this.scene.fog.type = showFog ? (editor.call('sceneSettings')?.get('render.fog') ?? pc.FOG_NONE) : pc.FOG_NONE;
+            this.scene.fog.type = showFog ? (editor.call('sceneSettings')?.get('render.fog') ?? FOG_NONE) : FOG_NONE;
             cameraEntity.camera.rect = rect;
         }
 
