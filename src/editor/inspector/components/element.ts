@@ -1,5 +1,5 @@
 import { BindingTwoWay, BindingElementToObservers } from '@playcanvas/pcui';
-import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from 'playcanvas';
+import { FITMODE_CONTAIN, FITMODE_COVER, FITMODE_STRETCH, LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from 'playcanvas';
 
 import { CLASS_MULTIPLE_VALUES } from '@/common/pcui/constants';
 import { tooltip, tooltipRefItem } from '@/common/tooltips';
@@ -339,11 +339,11 @@ const ATTRIBUTES: (Attribute | Divider)[] = [{
     args: {
         type: 'string',
         options: [{
-            v: pc.FITMODE_STRETCH, t: 'Stretch'
+            v: FITMODE_STRETCH, t: 'Stretch'
         }, {
-            v: pc.FITMODE_CONTAIN, t: 'Contain'
+            v: FITMODE_CONTAIN, t: 'Contain'
         }, {
-            v: pc.FITMODE_COVER, t: 'Cover'
+            v: FITMODE_COVER, t: 'Cover'
         }]
     }
 }, {

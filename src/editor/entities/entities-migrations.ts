@@ -1,5 +1,5 @@
 import type { Observer } from '@playcanvas/observer';
-import { LAYERID_WORLD, LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE, LAYERID_UI } from 'playcanvas';
+import { FITMODE_STRETCH, LAYERID_WORLD, LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE, LAYERID_UI, SHADOW_VSM16, SHADOWUPDATE_REALTIME } from 'playcanvas';
 
 import { formatter as f } from '@/common/utils';
 
@@ -76,7 +76,7 @@ editor.once('load', () => {
                 // shadowUpdateMode
                 const shadowUpdateMode = entity.get('components.light.shadowUpdateMode');
                 if (shadowUpdateMode === null || isNaN(shadowUpdateMode)) {
-                    entity.set('components.light.shadowUpdateMode', pc.SHADOWUPDATE_REALTIME);
+                    entity.set('components.light.shadowUpdateMode', SHADOWUPDATE_REALTIME);
                 }
 
                 // shape
@@ -90,11 +90,11 @@ editor.once('load', () => {
                 }
                 const SHADOW_VSM8 = 1;
                 if (entity.get('components.light.shadowType') === SHADOW_VSM8) {
-                    entity.set('components.light.shadowType', pc.SHADOW_VSM16);
+                    entity.set('components.light.shadowType', SHADOW_VSM16);
                     const msg = [
                         `The ${f.path('components.light.shadowType')} property value`,
                         `${f.const('SHADOW_VSM8', SHADOW_VSM8)} on ${f.entity(entity)} is deprecated.`,
-                        `Setting value to ${f.const('SHADOW_VSM16', pc.SHADOW_VSM16)} instead.`
+                        `Setting value to ${f.const('SHADOW_VSM16', SHADOW_VSM16)} instead.`
                     ].join(' ');
                     editor.call('console:log:entity', entity, msg);
                 }
@@ -223,7 +223,7 @@ editor.once('load', () => {
                 }
 
                 if (!entity.has('components.element.fitMode')) {
-                    entity.set('components.element.fitMode', pc.FITMODE_STRETCH);
+                    entity.set('components.element.fitMode', FITMODE_STRETCH);
                 }
 
                 if (!entity.has('components.element.autoWidth')) {

@@ -10,7 +10,7 @@ import { LegacySelectField } from '@/common/ui/select-field';
 import { LegacyTextField } from '@/common/ui/text-field';
 import { LegacyTooltip } from '@/common/ui/tooltip';
 import { assignEvents } from '@/common/utils';
-import { CURVE_LINEAR, CURVE_SPLINE, CURVE_STEP } from 'playcanvas';
+import { Curve, CURVE_LINEAR, CURVE_SPLINE, CURVE_STEP, math } from 'playcanvas';
 
 import { hexStr, hsv2rgb, normalizedCoord, rgb2hsv, rgbaStr, toHsva, toRgba } from '@/core/color';
 
@@ -238,16 +238,16 @@ class ColorPicker extends Events {
         let newhsva;
         if (this._dragMode === 1) {
             const m = normalizedCoord(this.colorRect, evt.pageX, evt.pageY);
-            const s = pc.math.clamp(m[0], 0, 1);
-            const v = pc.math.clamp(m[1], 0, 1);
+            const s = math.clamp(m[0], 0, 1);
+            const v = math.clamp(m[1], 0, 1);
             newhsva = [this.hsva[0], s, 1 - v, this._hsva[3]];
         } else if (this._dragMode === 2) {
             const m = normalizedCoord(this.hueRect, evt.pageX, evt.pageY);
-            const h = pc.math.clamp(m[1], 0, 1);
+            const h = math.clamp(m[1], 0, 1);
             newhsva = [h, this.hsva[1], this.hsva[2], this.hsva[3]];
         } else {
             const m = normalizedCoord(this.alphaRect, evt.pageX, evt.pageY);
-            const a = pc.math.clamp(m[1], 0, 1);
+            const a = math.clamp(m[1], 0, 1);
             newhsva = [this.hsva[0], this.hsva[1], this.hsva[2], 1 - a];
         }
         if (newhsva[0] !== this._hsva[0] ||
@@ -641,7 +641,7 @@ editor.once('load', () => {
             getClientRect(UI.anchors.element));
 
         if (UI.draggingAnchor) {
-            dragUpdate(pc.math.clamp(coord[0], 0, 1));
+            dragUpdate(math.clamp(coord[0], 0, 1));
         } else if (coord[0] >= 0 &&
                    coord[0] <= 1 &&
                    coord[1] >= 0 &&
@@ -920,7 +920,7 @@ editor.once('load', () => {
         // store the curves
         STATE.curves = [];
         value[0].keys.forEach((keys) => {
-            const curve = new pc.Curve(keys);
+            const curve = new Curve(keys);
             curve.type = value[0].type;
             STATE.curves.push(curve);
         });
@@ -932,7 +932,7 @@ editor.once('load', () => {
         if (STATE.anchors.length === 0) {
             selectAnchor(-1);
         } else {
-            selectAnchor(pc.math.clamp(STATE.selectedAnchor, 0, STATE.anchors.length - 1));
+            selectAnchor(math.clamp(STATE.selectedAnchor, 0, STATE.anchors.length - 1));
         }
 
         UI.colorPicker.editAlpha = STATE.curves.length > 3;

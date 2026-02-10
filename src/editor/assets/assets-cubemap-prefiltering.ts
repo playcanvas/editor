@@ -1,4 +1,13 @@
 import {
+    ADDRESS_CLAMP_TO_EDGE,
+    EnvLighting,
+    PIXELFORMAT_RGBA8,
+    reprojectTexture,
+    Texture,
+    TEXTURETYPE_RGBM
+} from 'playcanvas';
+
+import {
     readGPUPixels,
     pixelsToPngBlob
 } from './assets-utils';
@@ -15,25 +24,25 @@ editor.once('load', () => {
         const device = cubemap.device;
 
         // generate a 128x128 cubemap with mipmaps to act as lighting source
-        const lightingSource = pc.EnvLighting.generateLightingSource(cubemap);
+        const lightingSource = EnvLighting.generateLightingSource(cubemap);
 
         // generate prefiltered lighting data
         const specPower = [undefined, 512, 128, 32, 8, 2, 1, 1];
         const levels = [];
         for (let i = 0; i < specPower.length; ++i) {
-            const level = new pc.Texture(device, {
+            const level = new Texture(device, {
                 cubemap: true,
                 name: `skyboxPrefilter${i}`,
                 width: 128 >> i,
                 height: 128 >> i,
                 type: cubemap.type,
-                addressU: pc.ADDRESS_CLAMP_TO_EDGE,
-                addressV: pc.ADDRESS_CLAMP_TO_EDGE,
+                addressU: ADDRESS_CLAMP_TO_EDGE,
+                addressV: ADDRESS_CLAMP_TO_EDGE,
                 fixCubemapSeams: true,
                 mipmaps: false
             });
 
-            pc.reprojectTexture(lightingSource, level, {
+            reprojectTexture(lightingSource, level, {
                 distribution: i === 0 ? 'none' : 'ggx',
                 specularPower: specPower[i],
                 numSamples: i === 0 ? 1 : 2048
@@ -50,14 +59,14 @@ editor.once('load', () => {
 
         lightingSource.destroy();
 
-        return new pc.Texture(device, {
+        return new Texture(device, {
             cubemap: true,
             name: 'filteredCubemap',
             width: 128,
             height: 128,
             type: cubemap.type,
-            addressU: pc.ADDRESS_CLAMP_TO_EDGE,
-            addressV: pc.ADDRESS_CLAMP_TO_EDGE,
+            addressU: ADDRESS_CLAMP_TO_EDGE,
+            addressV: ADDRESS_CLAMP_TO_EDGE,
             fixCubemapSeams: true,
             levels: levels
         });
@@ -71,7 +80,7 @@ editor.once('load', () => {
      * @ignore
      */
     function getDds(texture) {
-        if (texture.format !== pc.PIXELFORMAT_RGBA8) {
+        if (texture.format !== PIXELFORMAT_RGBA8) {
             console.error('Only RGBA8 textures are supported');
             return undefined;
         }
@@ -188,7 +197,7 @@ editor.once('load', () => {
         const texture = generatePrefilteredCubemap(cubemap);
         const blob = new Blob([getDds(texture)], { type: 'image/dds' });
         texture.destroy();
-        cubemapAsset.set('data.rgbm', cubemap.type === pc.TEXTURETYPE_RGBM);
+        cubemapAsset.set('data.rgbm', cubemap.type === TEXTURETYPE_RGBM);
 
         return Promise.resolve({
             blob: blob,
@@ -199,11 +208,11 @@ editor.once('load', () => {
     // given a cubemap with mipmaps, generate a prefiltered atlas
     const generatePrefilteredAtlas = (cubemap) => {
         const device = cubemap.device;
-        const lighting = pc.EnvLighting.generateLightingSource(cubemap, {
+        const lighting = EnvLighting.generateLightingSource(cubemap, {
             size: 256
         });
         lighting.anisotropy = device.maxAnisotropy;
-        const result = pc.EnvLighting.generateAtlas(lighting);
+        const result = EnvLighting.generateAtlas(lighting);
         lighting.destroy();
         return result;
     };

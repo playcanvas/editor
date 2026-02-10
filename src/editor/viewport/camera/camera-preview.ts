@@ -1,5 +1,5 @@
 import { Button } from '@playcanvas/pcui';
-import { FOG_NONE, Vec4 } from 'playcanvas';
+import { FOG_NONE, type FogType, Vec4 } from 'playcanvas';
 
 editor.once('load', () => {
 
@@ -65,7 +65,7 @@ editor.once('load', () => {
                 preRenderEvent = app.scene.on('prerender', (camera) => {
                     // the preview camera uses the scene fog settings
                     if (previewCamera === camera) {
-                        app.scene.fog.type = editor.call('sceneSettings')?.get('render.fog') ?? pc.FOG_NONE;
+                        app.scene.fog.type = (editor.call('sceneSettings')?.get('render.fog') ?? FOG_NONE) as FogType;
                     }
                 });
 

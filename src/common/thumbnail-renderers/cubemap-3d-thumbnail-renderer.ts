@@ -1,4 +1,4 @@
-import { LAYERID_SKYBOX } from 'playcanvas';
+import { Application, Entity, LAYERID_SKYBOX, Layer, LayerComposition, Scene } from 'playcanvas';
 
 import { ThumbnailRenderer } from './thumbnail-renderer';
 
@@ -14,19 +14,19 @@ const scene = {
 let sceneInitialized = false;
 
 function initializeScene(graphicsDevice) {
-    scene.layer = new pc.Layer({
+    scene.layer = new Layer({
         id: LAYERID_SKYBOX,
         enabled: true,
         opaqueSortMode: 0
     });
 
-    scene.layerComposition = new pc.LayerComposition('cubemap-thumbnail-renderer');
+    scene.layerComposition = new LayerComposition('cubemap-thumbnail-renderer');
     scene.layerComposition.push(scene.layer);
 
-    scene.scene = new pc.Scene(graphicsDevice);
+    scene.scene = new Scene(graphicsDevice);
     scene.scene.layers = scene.layerComposition;
 
-    scene.cameraEntity = new pc.Entity();
+    scene.cameraEntity = new Entity();
     scene.cameraEntity.setLocalPosition(0, 0, 0);
     scene.cameraEntity.addComponent('camera', {
         nearClip: 1,
@@ -37,12 +37,12 @@ function initializeScene(graphicsDevice) {
         layers: []
     });
 
-    scene.lightEntity = new pc.Entity();
+    scene.lightEntity = new Entity();
     scene.lightEntity.addComponent('light', {
         type: 'directional'
     });
 
-    scene.previewRoot = new pc.Entity();
+    scene.previewRoot = new Entity();
     scene.previewRoot.enabled = true;
     scene.previewRoot.addChild(scene.cameraEntity);
     scene.previewRoot.addChild(scene.lightEntity);
@@ -99,7 +99,7 @@ class Cubemap3dThumbnailRenderer extends ThumbnailRenderer {
             return;
         }
 
-        const app = pc.Application.getApplication();
+        const app = Application.getApplication();
         const device = app.graphicsDevice;
 
         if (!sceneInitialized) {
