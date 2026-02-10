@@ -14,6 +14,8 @@ import {
     MERGE_STATUS_READY_FOR_REVIEW
 } from '@/core/constants';
 
+import { diffCreate } from '../../messenger/jobs';
+
 editor.once('load', () => {
     const LAYOUT_NONE = 0;
     const LAYOUT_FIELDS_ONLY = 1;
@@ -644,22 +646,21 @@ editor.once('load', () => {
     // Called when the merge progress status changes to ready for review
     const onReadyForReview = function () {
         showMainProgress(spinnerIcon, 'Loading changes...');
-        handleCallback(editor.api.globals.rest.diff.diffCreate({
+        diffCreate({
             srcBranchId: config.self.branch.merge.sourceBranchId,
             dstBranchId: config.self.branch.merge.destinationBranchId,
             dstCheckpointId: config.self.branch.merge.destinationCheckpointId,
             mergeId: config.self.branch.merge.id
-        }), (err, data) => {
+        }).then((data) => {
             toggleDiffMode(true);
-            if (err) {
-                return showMainProgress(errorIcon, err);
-            }
-
             btnReview.disabled = false;
             btnReview.hidden = true;
             btnComplete.disabled = false;
             btnComplete.hidden = false;
             onMergeDataLoaded(data);
+        }).catch((err) => {
+            toggleDiffMode(true);
+            showMainProgress(errorIcon, err);
         });
     };
 
@@ -680,17 +681,15 @@ editor.once('load', () => {
     // Load changes of current merge
     const loadDiff = function () {
         showMainProgress(spinnerIcon, 'Loading changes...');
-        handleCallback(editor.api.globals.rest.diff.diffCreate({
+        diffCreate({
             srcBranchId: config.self.branch.merge.sourceBranchId,
             dstBranchId: config.self.branch.merge.destinationBranchId,
             dstCheckpointId: config.self.branch.merge.destinationCheckpointId,
             mergeId: config.self.branch.merge.id
-        }), (err, data) => {
-            if (err) {
-                return showMainProgress(errorIcon, err);
-            }
-
+        }).then((data) => {
             onMergeDataLoaded(data);
+        }).catch((err) => {
+            showMainProgress(errorIcon, err);
         });
     };
 
