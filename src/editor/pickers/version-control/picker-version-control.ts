@@ -4,6 +4,8 @@ import { LegacyList } from '@/common/ui/list';
 import { LegacyListItem } from '@/common/ui/list-item';
 import { handleCallback } from '@/common/utils';
 
+import { diffCreate } from '../../messenger/jobs';
+
 editor.once('load', () => {
     if (config.project.settings.useLegacyScripts) {
         return;
@@ -901,18 +903,18 @@ editor.once('load', () => {
         togglePanels(false);
         showRightSidePanel(panelGenerateDiffProgress);
 
-        handleCallback(editor.api.globals.rest.diff.diffCreate({
+        diffCreate({
             srcBranchId: srcBranchId,
             srcCheckpointId: srcCheckpointId,
             dstBranchId: dstBranchId,
             dstCheckpointId: dstCheckpointId,
             histItem: histItem
-        }), (err, diff) => {
-            panelGenerateDiffProgress.finish(err);
+        }).then((diff) => {
+            panelGenerateDiffProgress.finish();
 
             togglePanels(true);
 
-            if (!err) {
+            if (diff) {
                 const hasChanges = diff.numConflicts !== 0;
 
                 if (hasChanges) {
@@ -931,6 +933,9 @@ editor.once('load', () => {
                     onShowDiffCallback(hasChanges);
                 }
             }
+        }).catch((err) => {
+            panelGenerateDiffProgress.finish(err);
+            togglePanels(true);
         });
     }
 

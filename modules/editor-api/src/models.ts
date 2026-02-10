@@ -444,6 +444,11 @@ export type Job<T extends object> = {
     status: 'complete' | 'running' | 'error';
 
     /**
+     * Status messages associated with the job.
+     */
+    messages?: string[];
+
+    /**
      * The job data.
      */
     data: T;
