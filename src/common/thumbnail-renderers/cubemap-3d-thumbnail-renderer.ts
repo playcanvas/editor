@@ -1,4 +1,4 @@
-import { LAYERID_SKYBOX } from '@/core/constants';
+import { LAYERID_SKYBOX } from 'playcanvas';
 
 import { ThumbnailRenderer } from './thumbnail-renderer';
 

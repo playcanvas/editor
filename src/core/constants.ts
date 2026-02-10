@@ -1,37 +1,3 @@
-// Re-export engine constants for backward compatibility
-export {
-    // Layer IDs
-    LAYERID_WORLD,
-    LAYERID_DEPTH,
-    LAYERID_SKYBOX,
-    LAYERID_IMMEDIATE,
-    LAYERID_UI,
-    // Gamma correction modes
-    GAMMA_NONE,
-    GAMMA_SRGB,
-    // Curve types
-    CURVE_LINEAR,
-    CURVE_SMOOTHSTEP,
-    CURVE_SPLINE,
-    CURVE_STEP,
-    // Anim constants
-    ANIM_INTERRUPTION_NONE,
-    ANIM_INTERRUPTION_PREV,
-    ANIM_INTERRUPTION_NEXT,
-    ANIM_INTERRUPTION_PREV_NEXT,
-    ANIM_INTERRUPTION_NEXT_PREV,
-    ANIM_GREATER_THAN,
-    ANIM_LESS_THAN,
-    ANIM_GREATER_THAN_EQUAL_TO,
-    ANIM_LESS_THAN_EQUAL_TO,
-    ANIM_EQUAL_TO,
-    ANIM_NOT_EQUAL_TO,
-    ANIM_PARAMETER_INTEGER,
-    ANIM_PARAMETER_FLOAT,
-    ANIM_PARAMETER_BOOLEAN,
-    ANIM_PARAMETER_TRIGGER
-} from 'playcanvas';
-
 // Gizmo mask
 export const GIZMO_MASK = 8;
 

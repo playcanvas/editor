@@ -1,5 +1,8 @@
 import { Button } from '@playcanvas/pcui';
 import {
+    LAYERID_DEPTH,
+    LAYERID_SKYBOX,
+    LAYERID_IMMEDIATE,
     SHADOW_PCF1_32F,
     SHADOW_PCF3_32F,
     SHADOW_PCF5_32F,
@@ -10,7 +13,6 @@ import {
 } from 'playcanvas';
 
 import { LegacyTooltip } from '@/common/ui/tooltip';
-import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from '@/core/constants';
 
 import { ComponentInspector } from './component';
 import type { Attribute, Divider } from '../attribute.type.d';

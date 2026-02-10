@@ -1,8 +1,7 @@
 import { ObserverHistory } from '@playcanvas/observer';
-import { DEVICETYPE_WEBGL2, DEVICETYPE_WEBGPU, script } from 'playcanvas';
+import { DEVICETYPE_WEBGL2, DEVICETYPE_WEBGPU, LAYERID_WORLD, LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE, LAYERID_UI, script } from 'playcanvas';
 
 import { deepCopy, formatter as f, insert, remove, set, unset } from '@/common/utils';
-import { LAYERID_WORLD, LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE, LAYERID_UI } from '@/core/constants';
 
 
 editor.once('load', () => {
