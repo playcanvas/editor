@@ -94,13 +94,23 @@ editor.once('load', () => {
             if (assetData.file) {
                 if (concatenateScripts && assetData.type === 'script' && assetData.file.filename.endsWith('.js') && assetData.preload && !assetData.data.loadingType) {
                     assetData.file.url = concatenatedScriptsUrl;
+                } else if (config.signedUrls && config.signedUrls[assetData.id]) {
+                    // Use pre-signed CloudFront URL
+                    assetData.file.url = config.signedUrls[assetData.id];
+                    delete assetData.file.hash;
                 } else {
                     assetData.file.url = getFileUrl(assetData.path, assetData.id, assetData.revision, assetData.file.filename);
                 }
 
                 if (assetData.file.variants) {
                     for (key in assetData.file.variants) {
-                        assetData.file.variants[key].url = getFileUrl(assetData.path, assetData.id, assetData.revision, assetData.file.variants[key].filename);
+                        const variantSignedKey = `${assetData.id}:${key}`;
+                        if (config.signedUrls && config.signedUrls[variantSignedKey]) {
+                            assetData.file.variants[key].url = config.signedUrls[variantSignedKey];
+                            delete assetData.file.variants[key].hash;
+                        } else {
+                            assetData.file.variants[key].url = getFileUrl(assetData.path, assetData.id, assetData.revision, assetData.file.variants[key].filename);
+                        }
                     }
                 }
             }
