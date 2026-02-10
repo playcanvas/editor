@@ -1,5 +1,5 @@
 // playcanvas engine (exposes window.pc for plugins)
-import './pc-global';
+import './expose';
 
 // extensions
 import '@/common/extensions';
