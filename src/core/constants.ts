@@ -1,5 +1,3 @@
-import { version } from 'playcanvas';
-
 // Re-export engine constants for backward compatibility
 export {
     // Layer IDs
@@ -33,9 +31,6 @@ export {
     ANIM_PARAMETER_BOOLEAN,
     ANIM_PARAMETER_TRIGGER
 } from 'playcanvas';
-
-// Editor Engine version
-export const ENGINE_VERSION = version;
 
 // Gizmo mask
 export const GIZMO_MASK = 8;
