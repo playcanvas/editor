@@ -174,6 +174,8 @@ editor.once('load', () => {
             checkJs: true,
             allowNonTsExtensions: true,
             esModuleInterop: true,
+            target: monaco.languages.typescript.ScriptTarget.ES2020,
+            lib: ['es2020', 'dom'],
             paths: {
                 'playcanvas': ['playcanvas.d.ts'],
                 ...monacoImportPaths
