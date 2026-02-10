@@ -1,3 +1,5 @@
+import { Application, BoundingBox, Color, Entity, FOG_NONE, StandardMaterial } from 'playcanvas';
+
 import { ThumbnailRenderer } from './thumbnail-renderer';
 
 let sceneInitialized = false;
@@ -15,21 +17,21 @@ const scene = {
 
 function initializeScene() {
     // material
-    scene.material = new pc.StandardMaterial();
+    scene.material = new StandardMaterial();
     scene.material.useSkybox = false;
     scene.material.useFog = false;
 
-    scene.aabb = new pc.BoundingBox();
+    scene.aabb = new BoundingBox();
 
     // render entity
     // don't set rootBone, this renders the mesh without skinning (and does not need the hierarchy)
-    scene.renderEntity = new pc.Entity('previewRenderEntity');
+    scene.renderEntity = new Entity('previewRenderEntity');
     scene.renderEntity.addComponent('render', {
         type: 'asset'
     });
 
     // light
-    scene.lightEntity = new pc.Entity();
+    scene.lightEntity = new Entity();
     scene.lightEntity.addComponent('light', {
         type: 'directional',
         layers: []
@@ -38,13 +40,13 @@ function initializeScene() {
 
 
     // camera
-    scene.cameraOrigin = new pc.Entity();
+    scene.cameraOrigin = new Entity();
 
-    scene.cameraEntity = new pc.Entity();
+    scene.cameraEntity = new Entity();
     scene.cameraEntity.addComponent('camera', {
         nearClip: 0.01,
         farClip: 32,
-        clearColor: new pc.Color(41 / 255, 53 / 255, 56 / 255, 0.0),
+        clearColor: new Color(41 / 255, 53 / 255, 56 / 255, 0.0),
         frustumCulling: false,
         layers: []
     });
@@ -52,7 +54,7 @@ function initializeScene() {
     scene.cameraOrigin.addChild(scene.cameraEntity);
 
     // All preview objects live under this root
-    scene.previewRoot = new pc.Entity();
+    scene.previewRoot = new Entity();
     scene.previewRoot.enabled = true;
     scene.previewRoot.addChild(scene.renderEntity);
     scene.previewRoot.addChild(scene.lightEntity);
@@ -89,7 +91,7 @@ class RenderThumbnailRenderer extends ThumbnailRenderer {
     }
 
     _watchMaterials() {
-        const app = pc.Application.getApplication();
+        const app = Application.getApplication();
 
         let containerAssetId;
         let containerAsset;
@@ -205,7 +207,7 @@ class RenderThumbnailRenderer extends ThumbnailRenderer {
             return;
         }
 
-        const app = pc.Application.getApplication();
+        const app = Application.getApplication();
         const renderAsset = app.assets.get(this._asset.get('id'));
         if (!renderAsset) {
             return;
@@ -295,7 +297,7 @@ class RenderThumbnailRenderer extends ThumbnailRenderer {
 
         // disable fog
         const backupFogType = app.scene.fog.type;
-        app.scene.fog.type = pc.FOG_NONE;
+        app.scene.fog.type = FOG_NONE;
 
         app.renderComposition(layerComposition);
 

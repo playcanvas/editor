@@ -1,31 +1,33 @@
+import { BoundingBox, Color, EMITTERSHAPE_BOX, EMITTERSHAPE_SPHERE, Entity, Mat4, Vec3 } from 'playcanvas';
+
 editor.once('load', () => {
     let app = null;
     let entities = [];
 
-    const BOUNDING_BOX_MIN_EXTENTS = new pc.Vec3(0.01, 0.01, 0.01);
+    const BOUNDING_BOX_MIN_EXTENTS = new Vec3(0.01, 0.01, 0.01);
 
     let visible = true;
 
-    const color = new pc.Color(1, 1, 1);
-    const colorBehind = new pc.Color(1, 1, 1, 0.2);
+    const color = new Color(1, 1, 1);
+    const colorBehind = new Color(1, 1, 1, 0.2);
 
     const points = [];
     for (let c = 0; c < 32; c++) {
-        points[c] = new pc.Vec3();
+        points[c] = new Vec3();
     }
 
     // temp variables for getBoundingBoxForHierarchy
-    const _entityResultBB = new pc.BoundingBox();
+    const _entityResultBB = new BoundingBox();
 
     // temp variables for getBoundingBoxForEntity
-    const _tmpBB = new pc.BoundingBox();
-    const _matA = new pc.Mat4();
+    const _tmpBB = new BoundingBox();
+    const _matA = new Mat4();
 
     // temp variables for entities:getBoundingBoxForEntity
-    const _resultBB = new pc.BoundingBox();
+    const _resultBB = new BoundingBox();
 
     // tmp variable used to render bounding box
-    const _selectionBB = new pc.BoundingBox();
+    const _selectionBB = new BoundingBox();
 
     editor.on('selector:change', (type, items) => {
         if (type === 'entity') {
@@ -217,13 +219,13 @@ editor.once('load', () => {
                 resultBB.setFromTransformedAabb(_tmpBB, entity.getWorldTransform());
                 return resultBB;
             }
-            if (entity.particlesystem.emitterShape === pc.EMITTERSHAPE_BOX) {
+            if (entity.particlesystem.emitterShape === EMITTERSHAPE_BOX) {
                 _tmpBB.center.set(0, 0, 0);
                 _tmpBB.halfExtents.copy(entity.particlesystem.emitterExtents).mulScalar(0.5);
                 resultBB.setFromTransformedAabb(_tmpBB, entity.getWorldTransform());
                 return resultBB;
             }
-            if (entity.particlesystem.emitterShape === pc.EMITTERSHAPE_SPHERE) {
+            if (entity.particlesystem.emitterShape === EMITTERSHAPE_SPHERE) {
                 resultBB.center.copy(entity.getPosition());
                 resultBB.halfExtents.set(entity.particlesystem.emitterRadius, entity.particlesystem.emitterRadius, entity.particlesystem.emitterRadius);
                 return resultBB;
@@ -235,7 +237,7 @@ editor.once('load', () => {
             _tmpBB.halfExtents.copy(entity.zone.size).mulScalar(0.5);
             const position = entity.getPosition();
             const rotation = entity.getRotation();
-            _matA.setTRS(position, rotation, pc.Vec3.ONE);
+            _matA.setTRS(position, rotation, Vec3.ONE);
             resultBB.setFromTransformedAabb(_tmpBB, _matA);
             return resultBB;
         }
@@ -247,13 +249,13 @@ editor.once('load', () => {
     };
 
     // Get the bounding box the encloses a hierarchy of entities
-    // {pc.Entity} root - the root entity of the hierarchy
+    // {Entity} root - the root entity of the hierarchy
     const getBoundingBoxForHierarchy = function (root, hierarchyBB) {
         const bb = getBoundingBoxForEntity(root, _entityResultBB);
 
         // first time through we initialize with the new boundingbox
         if (!hierarchyBB) {
-            hierarchyBB = new pc.BoundingBox();
+            hierarchyBB = new BoundingBox();
             hierarchyBB.copy(bb);
         } else {
             hierarchyBB.add(bb);
@@ -261,7 +263,7 @@ editor.once('load', () => {
 
         const children = root.children;
         for (let i = 0; i < children.length; i++) {
-            if (children[i].__editor || !(children[i] instanceof pc.Entity)) {
+            if (children[i].__editor || !(children[i] instanceof Entity)) {
                 continue;
             }
 

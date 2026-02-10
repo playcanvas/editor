@@ -1,4 +1,4 @@
-import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from '@/core/constants';
+import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from 'playcanvas';
 
 import { BaseSettingsPanel } from './base';
 import type { Attribute } from '../attribute.type.d';

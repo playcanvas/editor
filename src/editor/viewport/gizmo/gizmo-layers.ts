@@ -1,3 +1,5 @@
+import { Layer, SORTMODE_BACK2FRONT, SORTMODE_NONE } from 'playcanvas';
+
 editor.once('load', () => {
     // holds all layers that are to be added in the beginning of the composition
     const layerIndexBefore = {};
@@ -25,15 +27,15 @@ editor.once('load', () => {
         data.name = `Editor Layer ${name}`;
 
         if (data.opaqueSortMode === undefined) {
-            data.opaqueSortMode = pc.SORTMODE_NONE;
+            data.opaqueSortMode = SORTMODE_NONE;
         }
         if (data.transparentSortMode === undefined) {
-            data.transparentSortMode = pc.SORTMODE_BACK2FRONT;
+            data.transparentSortMode = SORTMODE_BACK2FRONT;
         }
 
         const index = insertToBeginning ? layerIndexBefore : layerIndexAfter;
 
-        index[data.id] = new pc.Layer(data);
+        index[data.id] = new Layer(data);
         nameIndex[name] = index[data.id];
 
         layerRenderable.set(name, renderable);
@@ -121,16 +123,16 @@ editor.once('load', () => {
         passThrough: true,
         overrideClear: true,
         clearDepthBuffer: true,
-        opaqueSortMode: pc.SORTMODE_NONE,
-        transparentSortMode: pc.SORTMODE_NONE
+        opaqueSortMode: SORTMODE_NONE,
+        transparentSortMode: SORTMODE_NONE
     });
 
     editor.call('gizmo:layers:register', 'Axis Rotate Gizmo Immediate', false, {
         passThrough: true,
         overrideClear: true,
         clearDepthBuffer: true,
-        opaqueSortMode: pc.SORTMODE_NONE,
-        transparentSortMode: pc.SORTMODE_NONE
+        opaqueSortMode: SORTMODE_NONE,
+        transparentSortMode: SORTMODE_NONE
     });
 
     editor.call('gizmo:layers:register', 'Axis Gizmo', false, {

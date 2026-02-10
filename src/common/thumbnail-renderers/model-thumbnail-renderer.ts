@@ -1,3 +1,5 @@
+import { Application, BoundingBox, Color, Entity, FOG_NONE, GraphNode, Mesh, MeshInstance, Model, SphereGeometry, StandardMaterial } from 'playcanvas';
+
 import { ThumbnailRenderer } from './thumbnail-renderer';
 
 let sceneInitialized = false;
@@ -13,30 +15,30 @@ const scene = {
 };
 
 function initializeScene() {
-    const app = pc.Application.getApplication();
+    const app = Application.getApplication();
 
     // material
-    scene.material = new pc.StandardMaterial();
+    scene.material = new StandardMaterial();
     scene.material.useSkybox = false;
     scene.material.useFog = false;
 
-    scene.aabb = new pc.BoundingBox();
+    scene.aabb = new BoundingBox();
 
     // model
-    const modelNode = new pc.GraphNode();
+    const modelNode = new GraphNode();
 
-    const meshSphere = pc.Mesh.fromGeometry(app.graphicsDevice, new pc.SphereGeometry({
+    const meshSphere = Mesh.fromGeometry(app.graphicsDevice, new SphereGeometry({
         radius: 0,
         latitudeBands: 2,
         longitudeBands: 2
     }));
 
-    scene.modelPlaceholder = new pc.Model();
+    scene.modelPlaceholder = new Model();
     scene.modelPlaceholder.node = modelNode;
-    scene.modelPlaceholder.meshInstances = [new pc.MeshInstance(meshSphere, scene.material, modelNode)];
+    scene.modelPlaceholder.meshInstances = [new MeshInstance(meshSphere, scene.material, modelNode)];
 
     // light
-    scene.lightEntity = new pc.Entity();
+    scene.lightEntity = new Entity();
     scene.lightEntity.addComponent('light', {
         type: 'directional',
         layers: []
@@ -45,13 +47,13 @@ function initializeScene() {
 
 
     // camera
-    scene.cameraOrigin = new pc.Entity();
+    scene.cameraOrigin = new Entity();
 
-    scene.cameraEntity = new pc.Entity();
+    scene.cameraEntity = new Entity();
     scene.cameraEntity.addComponent('camera', {
         nearClip: 0.01,
         farClip: 32,
-        clearColor: new pc.Color(41 / 255, 53 / 255, 56 / 255, 0.0),
+        clearColor: new Color(41 / 255, 53 / 255, 56 / 255, 0.0),
         frustumCulling: false,
         layers: []
     });
@@ -59,7 +61,7 @@ function initializeScene() {
     scene.cameraOrigin.addChild(scene.cameraEntity);
 
     // All preview objects live under this root
-    scene.previewRoot = new pc.Entity();
+    scene.previewRoot = new Entity();
     scene.previewRoot.enabled = true;
     scene.previewRoot.addChild(modelNode);
     scene.previewRoot.addChild(scene.lightEntity);
@@ -171,7 +173,7 @@ class ModelThumbnailRenderer extends ThumbnailRenderer {
             return;
         }
 
-        const app = pc.Application.getApplication();
+        const app = Application.getApplication();
         const modelAsset = app.assets.get(this._asset.get('id'));
         if (!modelAsset) {
             return;
@@ -292,7 +294,7 @@ class ModelThumbnailRenderer extends ThumbnailRenderer {
 
         // disable fog
         const backupFogType = app.scene.fog.type;
-        app.scene.fog.type = pc.FOG_NONE;
+        app.scene.fog.type = FOG_NONE;
 
         app.renderComposition(layerComposition);
 

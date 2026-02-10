@@ -1,3 +1,5 @@
+import { GraphNode, Mesh, MeshInstance, PRIMITIVE_LINES } from 'playcanvas';
+
 import { createColorMaterial } from './viewport-color-material';
 
 editor.once('viewport:load', (app) => {
@@ -5,7 +7,7 @@ editor.once('viewport:load', (app) => {
     const material = createColorMaterial(true);
     material.name = 'GridMaterial';
 
-    const node = new pc.GraphNode('grid');
+    const node = new GraphNode('grid');
 
     let meshInstance;
 
@@ -43,13 +45,13 @@ editor.once('viewport:load', (app) => {
                 col.push(...color);
             }
 
-            const mesh = new pc.Mesh(app.graphicsDevice);
+            const mesh = new Mesh(app.graphicsDevice);
             mesh.setPositions(pos);
             mesh.setColors32(col);
             mesh.setNormals(pos);            // normals (unused, by standard material requires it)
-            mesh.update(pc.PRIMITIVE_LINES, true);
+            mesh.update(PRIMITIVE_LINES, true);
 
-            meshInstance = new pc.MeshInstance(mesh, material, node);
+            meshInstance = new MeshInstance(mesh, material, node);
             meshInstance.pick = false;
 
             layer.addMeshInstances([meshInstance]);

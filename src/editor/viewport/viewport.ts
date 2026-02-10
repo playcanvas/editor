@@ -1,4 +1,5 @@
 import { Canvas } from '@playcanvas/pcui';
+import { LAYERID_DEPTH, Mouse, TouchDevice, WasmModule } from 'playcanvas';
 
 import { ViewportApplication } from './viewport-application';
 
@@ -20,8 +21,8 @@ editor.once('load', () => {
     let app;
     try {
         app = new ViewportApplication(canvas.element, {
-            mouse: new pc.Mouse(canvas.element),
-            touch: 'ontouchstart' in window ? new pc.TouchDevice(canvas.element) : null,
+            mouse: new Mouse(canvas.element),
+            touch: 'ontouchstart' in window ? new TouchDevice(canvas.element) : null,
             editorSettings: projectUserSettings.json().editor,
             graphicsDeviceOptions: {
                 antialias: !disableAntiAliasing,
@@ -31,7 +32,7 @@ editor.once('load', () => {
 
         // Depth layer is where the framebuffer is copied to a texture to be used in the following layers.
         // Move the depth layer to take place after World and Skydome layers, to capture both of them.
-        const depthLayer = app.scene.layers.getLayerById(pc.LAYERID_DEPTH);
+        const depthLayer = app.scene.layers.getLayerById(LAYERID_DEPTH);
         app.scene.layers.remove(depthLayer);
         app.scene.layers.insertOpaque(depthLayer, 2);
 
@@ -49,7 +50,7 @@ editor.once('load', () => {
 
     // set module configs
     config.wasmModules.forEach((m) => {
-        pc.WasmModule.setConfig(m.moduleName, {
+        WasmModule.setConfig(m.moduleName, {
             glueUrl: m.glueUrl,
             wasmUrl: m.wasmUrl,
             fallbackUrl: m.fallbackUrl

@@ -1,4 +1,19 @@
 import { Container, Label, RadioButton, BooleanInput } from '@playcanvas/pcui';
+import {
+    RENDERSTYLE_SOLID,
+    RENDERSTYLE_WIREFRAME,
+    SHADERPASS_ALBEDO,
+    SHADERPASS_AO,
+    SHADERPASS_EMISSION,
+    SHADERPASS_FORWARD,
+    SHADERPASS_GLOSS,
+    SHADERPASS_LIGHTING,
+    SHADERPASS_METALNESS,
+    SHADERPASS_OPACITY,
+    SHADERPASS_SPECULARITY,
+    SHADERPASS_UV0,
+    SHADERPASS_WORLDNORMAL
+} from 'playcanvas';
 
 editor.once('viewport:load', (app) => {
     const controls = editor.call('layout.toolbar.launch');
@@ -93,7 +108,7 @@ editor.once('viewport:load', (app) => {
             renderLabel.dom.classList.remove('wireframe');
         }
 
-        const renderStyle = state ? pc.RENDERSTYLE_WIREFRAME : pc.RENDERSTYLE_SOLID;
+        const renderStyle = state ? RENDERSTYLE_WIREFRAME : RENDERSTYLE_SOLID;
         const sceneLayers = app.scene.layers.layerList;
         const gizmoLayers = editor.call('gizmo:layers:list');
         for (let i = 0; i < sceneLayers.length; i++) {
@@ -117,17 +132,17 @@ editor.once('viewport:load', (app) => {
 
     // Shader Passes
     const shaderPassMap = {
-        'Standard': pc.SHADERPASS_FORWARD,
-        'Albedo': pc.SHADERPASS_ALBEDO,
-        'Opacity': pc.SHADERPASS_OPACITY,
-        'World Normal': pc.SHADERPASS_WORLDNORMAL,
-        'Specularity': pc.SHADERPASS_SPECULARITY,
-        'Gloss': pc.SHADERPASS_GLOSS,
-        'Metalness': pc.SHADERPASS_METALNESS,
-        'AO': pc.SHADERPASS_AO,
-        'Emission': pc.SHADERPASS_EMISSION,
-        'Lighting': pc.SHADERPASS_LIGHTING,
-        'UV0': pc.SHADERPASS_UV0
+        'Standard': SHADERPASS_FORWARD,
+        'Albedo': SHADERPASS_ALBEDO,
+        'Opacity': SHADERPASS_OPACITY,
+        'World Normal': SHADERPASS_WORLDNORMAL,
+        'Specularity': SHADERPASS_SPECULARITY,
+        'Gloss': SHADERPASS_GLOSS,
+        'Metalness': SHADERPASS_METALNESS,
+        'AO': SHADERPASS_AO,
+        'Emission': SHADERPASS_EMISSION,
+        'Lighting': SHADERPASS_LIGHTING,
+        'UV0': SHADERPASS_UV0
     };
     for (const name in shaderPassMap) {
         createShaderOption(name, name === 'Standard', () => {

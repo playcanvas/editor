@@ -1,3 +1,5 @@
+import { PROJECTION_ORTHOGRAPHIC } from 'playcanvas';
+
 editor.once('load', () => {
     editor.on('userdata:load', (userdata) => {
         if (!editor.call('permissions:read')) {
@@ -27,7 +29,7 @@ editor.once('load', () => {
                     camera.setEulerAngles(data.rotation[0], data.rotation[1], data.rotation[2]);
                 }
 
-                if (data.orthoHeight && camera.camera.projection === pc.PROJECTION_ORTHOGRAPHIC) {
+                if (data.orthoHeight && camera.camera.projection === PROJECTION_ORTHOGRAPHIC) {
                     camera.camera.orthoHeight = parseInt(data.orthoHeight, 10);
                 }
 

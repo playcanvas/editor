@@ -1,5 +1,6 @@
+import { version } from 'playcanvas';
+
 import { formatter as f } from '@/common/utils';
-import { ENGINE_VERSION } from '@/core/constants';
 import { WorkerClient } from '@/core/worker/worker-client';
 
 editor.on('load', () => {
@@ -156,9 +157,9 @@ editor.on('load', () => {
         });
     });
 
-    const engineMsg = `Powered by PlayCanvas Engine v${ENGINE_VERSION}`;
+    const engineMsg = `Powered by PlayCanvas Engine v${version}`;
     const engineLink = () => {
-        window.open(`https://github.com/playcanvas/engine/releases/tag/v${ENGINE_VERSION}`, '_blank');
+        window.open(`https://github.com/playcanvas/engine/releases/tag/v${version}`, '_blank');
     };
     if (editor.call('permissions:write')) {
         // log editor start
