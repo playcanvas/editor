@@ -472,12 +472,12 @@ export const handleCallback = <T extends { on: (event: string, handler: (status:
 
 
 /**
+ * @param obj - The object to check the path in.
  * @param path - The path to check in the engine.
- * @returns Whether the engine has the property.
+ * @returns Whether the path exists in the object.
  */
-export const validateEnginePath = (path: string) => {
+export const pathExists = (obj: Record<string, any>, path: string): boolean => {
     const parts = path.split('.');
-    let obj: any = pc;
     for (let i = 0; i < parts.length; i++) {
         if (!(parts[i] in obj) && obj[parts[i]] === undefined) {
             return false;
