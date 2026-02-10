@@ -127,7 +127,7 @@ const PAGE_TARGETS = [
         input: 'src/code-editor/index.ts',
         output: {
             file: 'dist/js/code-editor.js',
-            format: 'umd',
+            format: 'es',
             sourcemap
         },
         plugins: plugins().concat([
