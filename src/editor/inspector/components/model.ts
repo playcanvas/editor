@@ -1,5 +1,4 @@
 import { Label, Container, Button, BindingTwoWay, BindingElementToObservers } from '@playcanvas/pcui';
-
 import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from 'playcanvas';
 
 import { CLASS_ERROR } from '@/common/pcui/constants';
