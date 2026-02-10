@@ -6574,23 +6574,6 @@ strong {
     }
 }
 
-.ui-panel.vc-graph-panel {
-    .joint-element {
-        cursor: pointer;
-    }
-
-    .v-line {
-        font-family: Arial, sans-serif;
-        font-size: 12px;
-    }
-}
-
-.pcui-menu.vc-node-menu {
-    .pcui-menu-item {
-        background-color: #293234;
-    }
-}
-
 .ui-overlay.picker-conflict-manager {
     z-index: 300; // larger than drop-area's
 

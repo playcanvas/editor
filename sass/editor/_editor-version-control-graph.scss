@@ -1,0 +1,41 @@
+.pcui-container.vc-graph-panel {
+    position: fixed;
+    z-index: 301;
+    height: 95%;
+    width: 95%;
+    transform: translate(-50%, -50%);
+    left: 50%;
+    top: 50%;
+    overflow: hidden;
+
+    &.vc-graph-background {
+        z-index: 299;
+    }
+
+    .joint-element {
+        cursor: pointer;
+    }
+
+    .v-line {
+        font-family: Arial, sans-serif;
+        font-size: 12px;
+    }
+
+    > .vc-graph-container {
+        width: 100%;
+        height: 100%;
+        background-color: #293234;
+    }
+
+    .vc-graph-close-btn {
+        position: absolute;
+        top: 6px;
+        right: 5px;
+    }
+}
+
+.pcui-menu.vc-node-menu {
+    .pcui-menu-item {
+        background-color: #293234;
+    }
+}
