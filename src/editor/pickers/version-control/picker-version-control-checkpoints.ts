@@ -15,8 +15,6 @@ import { convertDatetime, handleCallback } from '@/common/utils';
 editor.once('load', () => {
     const events = [];
 
-    const VC_GRAPH_ZINDEX = { inForeground: 301, inBackground: 299 };
-
     const projectUserSettings = editor.call('settings:projectUser');
 
     let diffMode = false;
@@ -592,20 +590,11 @@ editor.once('load', () => {
         currentStateListItem.class.add('current-state');
     };
 
-    const vcGraphPanel = new LegacyPanel();
-    vcGraphPanel.class.add('picker-version-control');
-    vcGraphPanel.class.add('vc-graph-panel');
-    vcGraphPanel.flex = true;
-    vcGraphPanel.hidden = true;
-    vcGraphPanel.dom.setAttribute('style', `
-        position: fixed;
-        z-index: ${VC_GRAPH_ZINDEX.inForeground};
-        height: 95%;
-        width: 95%;
-        transform: translate(-50%, -50%);
-        left: 50%;
-        top: 50%;
-    `);
+    const vcGraphPanel = new Container({
+        class: ['picker-version-control', 'vc-graph-panel'],
+        flex: true,
+        hidden: true
+    });
 
     editor.call('layout.root').append(vcGraphPanel);
 
@@ -623,11 +612,11 @@ editor.once('load', () => {
     });
 
     editor.method('vcgraph:moveToBackground', () => {
-        vcGraphPanel.style.zIndex = VC_GRAPH_ZINDEX.inBackground;
+        vcGraphPanel.class.add('vc-graph-background');
     });
 
     editor.method('vcgraph:moveToForeground', () => {
-        vcGraphPanel.style.zIndex = VC_GRAPH_ZINDEX.inForeground;
+        vcGraphPanel.class.remove('vc-graph-background');
     });
 
     editor.method('vcgraph:isHidden', () => {
@@ -636,13 +625,13 @@ editor.once('load', () => {
 
     editor.method('vcgraph:showGraphPanel', (h) => {
         vcGraphPanel.hidden = !vcGraphPanel.hidden;
-        const vcGraphContainer = new Container();
-        const vcGraphCloseBtn = new Button({ text: 'CLOSE' });
-        vcGraphCloseBtn.dom.setAttribute('style', `
-            position: absolute;
-            top: 6px;
-            right: 5px;
-        `);
+        const vcGraphContainer = new Container({
+            class: 'vc-graph-container'
+        });
+        const vcGraphCloseBtn = new Button({
+            text: 'CLOSE',
+            class: 'vc-graph-close-btn'
+        });
 
         vcGraphCloseBtn.on('click', () => {
             editor.call('vcgraph:closeGraphPanel');
@@ -653,11 +642,6 @@ editor.once('load', () => {
         });
 
         vcGraphPanel.append(vcGraphContainer);
-        vcGraphContainer.dom.setAttribute('style', `
-            width: 100%;
-            height: 100%;
-            background-color: #293234;
-        `);
 
         Object.assign(h, {
             vcGraphContainer,
