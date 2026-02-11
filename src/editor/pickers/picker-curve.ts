@@ -1,3 +1,5 @@
+import { Curve, CurveSet, math } from 'playcanvas';
+
 import { LegacyButton } from '@/common/ui/button';
 import { LegacyCanvas } from '@/common/ui/canvas';
 import { LegacyCheckbox } from '@/common/ui/checkbox';
@@ -450,7 +452,7 @@ editor.once('load', () => {
                     }
                 }
 
-                curves[i] = new pc.Curve(keys);
+                curves[i] = new Curve(keys);
                 curves[i].type = curveType;
 
                 paths.push(getKeysPath(curves[i]));
@@ -607,12 +609,12 @@ editor.once('load', () => {
         curves.length = 0;
         value.forEach((data) => {
             if (numCurves === 1) {
-                const c = new pc.Curve(data.keys);
+                const c = new Curve(data.keys);
                 c.type = curveType;
                 curves.push(c);
             } else {
                 data.keys.forEach((keys) => {
-                    const c = new pc.Curve(keys);
+                    const c = new Curve(keys);
                     c.type = curveType;
                     curves.push(c);
                 });
@@ -928,7 +930,7 @@ editor.once('load', () => {
             keys.push(ka);
         }
 
-        const curveset = new pc.CurveSet(keys);
+        const curveset = new CurveSet(keys);
         curveset.type = curveType;
 
         ctx.fillStyle = checkerboardPattern;
@@ -956,12 +958,12 @@ editor.once('load', () => {
         const top = gridTop();
         const height = gridHeight();
 
-        return pc.math.lerp(verticalTopValue, verticalBottomValue, (coords[1] - top) / height);
+        return math.lerp(verticalTopValue, verticalBottomValue, (coords[1] - top) / height);
     }
 
     // Calculate the anchor time based on the specified coordinates
     function calculateAnchorTime(coords) {
-        return pc.math.clamp((coords[0] - gridLeft()) / gridWidth(), 0, 1);
+        return math.clamp((coords[0] - gridLeft()) / gridWidth(), 0, 1);
     }
 
     // zoom in - out based on delta
@@ -1500,8 +1502,8 @@ editor.once('load', () => {
         // if we are dragging the selected anchor
         if (selectedAnchor && dragging) {
             // clamp coords to grid
-            coords[0] = pc.math.clamp(coords[0], gridLeft(), gridRight());
-            coords[1] = pc.math.clamp(coords[1], gridTop(), gridBottom());
+            coords[0] = math.clamp(coords[0], gridLeft(), gridRight());
+            coords[1] = math.clamp(coords[1], gridTop(), gridBottom());
 
             const time = calculateAnchorTime(coords);
             let value = calculateAnchorValue(coords);

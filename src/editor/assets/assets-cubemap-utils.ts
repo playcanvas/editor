@@ -1,3 +1,5 @@
+import { ADDRESS_CLAMP_TO_EDGE, ADDRESS_REPEAT, reprojectTexture, Texture } from 'playcanvas';
+
 import {
     readGPUPixels,
     pixelsToPngBlob
@@ -32,7 +34,7 @@ editor.method('assets:textureToCubemap', (textureAsset, callback) => {
     // reproject the given equirect texture to a cubemap and compress each face to a png blob
     const createFaceBlobs = (sourceTexture) => {
         // create target cubemap texture
-        const targetCubemap = new pc.Texture(app.graphicsDevice, {
+        const targetCubemap = new Texture(app.graphicsDevice, {
             cubemap: true,
             width: sourceTexture.height / 2,
             height: sourceTexture.height / 2,
@@ -42,12 +44,12 @@ editor.method('assets:textureToCubemap', (textureAsset, callback) => {
         });
 
         // set required render state settings on source texture
-        sourceTexture.addressU = pc.ADDRESS_REPEAT;
-        sourceTexture.addressV = pc.ADDRESS_CLAMP_TO_EDGE;
+        sourceTexture.addressU = ADDRESS_REPEAT;
+        sourceTexture.addressV = ADDRESS_CLAMP_TO_EDGE;
         sourceTexture.anisotropy = app.graphicsDevice.maxAnisotropy;
 
         // perform reproject
-        pc.reprojectTexture(sourceTexture, targetCubemap, {
+        reprojectTexture(sourceTexture, targetCubemap, {
             numSamples: 1
         });
 

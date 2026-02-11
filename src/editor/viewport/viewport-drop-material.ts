@@ -1,3 +1,5 @@
+import { MeshInstance } from 'playcanvas';
+
 editor.once('load', () => {
     const app = editor.call('viewport:app');
     if (!app) {
@@ -118,7 +120,7 @@ editor.once('load', () => {
             return;
         }
 
-        if (picked instanceof pc.MeshInstance) {
+        if (picked instanceof MeshInstance) {
             meshInstance = picked;
         }
 

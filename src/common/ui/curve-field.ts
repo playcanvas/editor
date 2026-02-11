@@ -1,3 +1,5 @@
+import { Curve, CurveSet } from 'playcanvas';
+
 import { LegacyCanvas } from './canvas';
 import { LegacyElement } from './element';
 
@@ -252,7 +254,7 @@ class LegacyCurveField extends LegacyElement {
         if (value && value.keys && value.keys.length) {
             const rgb = [];
 
-            const curve = this.curveNames && this.curveNames.length === 1 ? new pc.CurveSet([value.keys]) : new pc.CurveSet(value.keys);
+            const curve = this.curveNames && this.curveNames.length === 1 ? new CurveSet([value.keys]) : new CurveSet(value.keys);
             curve.type = value.type;
 
             const precision = 2;
@@ -344,12 +346,12 @@ class LegacyCurveField extends LegacyElement {
             let curve;
             if (value.keys[0].length !== undefined) {
                 value.keys.forEach((data, index) => {
-                    curve = new pc.Curve(data);
+                    curve = new Curve(data);
                     curve.type = value.type;
                     curves.push(curve);
                 });
             } else {
-                curve = new pc.Curve(value.keys);
+                curve = new Curve(value.keys);
                 curve.type = value.type;
                 curves.push(curve);
             }

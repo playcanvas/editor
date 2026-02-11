@@ -1,3 +1,5 @@
+import { ADDRESS_CLAMP_TO_EDGE, BLEND_NONE, BLEND_NORMAL, Color, Entity, FILTER_NEAREST, StandardMaterial, Texture } from 'playcanvas';
+
 editor.once('load', () => {
     let app;
     let iconsEntity;
@@ -27,8 +29,8 @@ editor.once('load', () => {
     const ICON_BEHIND_OPACITY = 0.25;
 
     const createMaterial = (options) => {
-        const material = new pc.StandardMaterial();
-        material.emissive = pc.Color.WHITE;
+        const material = new StandardMaterial();
+        material.emissive = Color.WHITE;
         material.opacityMapChannel = 'b';
         material.alphaTest = ICON_ALPHA_TEST;
         Object.assign(material, options);
@@ -60,7 +62,7 @@ editor.once('load', () => {
                 return;
             }
 
-            this.entity = new pc.Entity('front', app);
+            this.entity = new Entity('front', app);
             this.entity._icon = true;
             this.entity._getEntity = () => {
                 return this._link && this._link.entity || null;
@@ -86,7 +88,7 @@ editor.once('load', () => {
             this.entity.setRotation(editor.call('camera:current').getRotation());
             this.entity.rotateLocal(90, 0, 0);
 
-            this.behind = new pc.Entity('behind', app);
+            this.behind = new Entity('behind', app);
             this.behind._icon = true;
             this.behind._getEntity = this.entity._getEntity;
             this.entity.addChild(this.behind);
@@ -264,12 +266,12 @@ editor.once('load', () => {
     editor.once('viewport:load', (application) => {
         app = application;
 
-        iconsEntity = new pc.Entity(app);
+        iconsEntity = new Entity(app);
         app.root.addChild(iconsEntity);
 
         textureNames.forEach((textureName) => {
             const material = createMaterial({
-                blendType: pc.BLEND_NONE,
+                blendType: BLEND_NONE,
                 depthTest: true,
                 depthWrite: true
             });
@@ -277,7 +279,7 @@ editor.once('load', () => {
 
             const materialBehind = createMaterial({
                 opacity: ICON_BEHIND_OPACITY,
-                blendType: pc.BLEND_NORMAL,
+                blendType: BLEND_NORMAL,
                 depthTest: false,
                 depthWrite: false
             });
@@ -286,11 +288,11 @@ editor.once('load', () => {
             // Load texture and set opacityMap when ready
             const img = new Image();
             img.onload = () => {
-                const texture = new pc.Texture(app.graphicsDevice, {
-                    addressU: pc.ADDRESS_CLAMP_TO_EDGE,
-                    addressV: pc.ADDRESS_CLAMP_TO_EDGE,
-                    minFilter: pc.FILTER_NEAREST,
-                    magFilter: pc.FILTER_NEAREST
+                const texture = new Texture(app.graphicsDevice, {
+                    addressU: ADDRESS_CLAMP_TO_EDGE,
+                    addressV: ADDRESS_CLAMP_TO_EDGE,
+                    minFilter: FILTER_NEAREST,
+                    magFilter: FILTER_NEAREST
                 });
                 texture.setSource(img);
                 material.opacityMap = texture;

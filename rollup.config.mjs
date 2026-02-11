@@ -130,7 +130,18 @@ const PAGE_TARGETS = [
             format: 'es',
             sourcemap
         },
-        plugins: plugins().concat([
+        plugins: [
+            // @playcanvas/pcui's GradientPicker transitively bundles the PlayCanvas engine.
+            // The engine uses import.meta.url which is invalid when loaded via a regular
+            // <script> tag (code-editor.mustache). Switching to <script type="module">
+            // would fix the syntax error but breaks Monaco's AMD loader and script ordering.
+            // Since the engine is unused at runtime, we replace import.meta.url instead.
+            replace({
+                'import.meta.url': 'undefined',
+                preventAssignment: false,
+                delimiters: ['', '']
+            }),
+            ...plugins(),
             copy({
                 targets: [
                     { src: 'node_modules/monaco-editor/min/vs/*', dest: 'dist/js/monaco-editor/min/vs' },
@@ -140,15 +151,19 @@ const PAGE_TARGETS = [
                     { src: 'static/img/*', dest: 'dist/static/img' }
                 ]
             })
-        ])
+        ]
     },
     {
         input: 'src/launch/index.ts',
         output: {
             file: 'dist/js/launch.js',
             format: 'umd',
-            sourcemap
+            sourcemap,
+            globals: {
+                'playcanvas': 'pc'
+            }
         },
+        external: ['playcanvas'],
         plugins: plugins()
     }
 ];

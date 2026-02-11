@@ -1,3 +1,5 @@
+import { Entity, PROJECTION_ORTHOGRAPHIC, PROJECTION_PERSPECTIVE, SHADOWUPDATE_THISFRAME, Vec3 } from 'playcanvas';
+
 editor.once('load', () => {
     editor.once('viewport:load', (app) => {
         const camerasIndex = { };
@@ -139,8 +141,8 @@ editor.once('load', () => {
 
             // Update shadow maps for lights with Shadow Update Mode set to "Once"
             editor.call('entities:list').forEach((e) => {
-                if (e.get('components.light.shadowUpdateMode') === pc.SHADOWUPDATE_THISFRAME && e.entity?.light) {
-                    e.entity.light.shadowUpdateMode = pc.SHADOWUPDATE_THISFRAME;
+                if (e.get('components.light.shadowUpdateMode') === SHADOWUPDATE_THISFRAME && e.entity?.light) {
+                    e.entity.light.shadowUpdateMode = SHADOWUPDATE_THISFRAME;
                 }
             });
 
@@ -189,63 +191,63 @@ editor.once('load', () => {
             name: 'perspective',
             title: 'Perspective',
             className: 'viewport-camera-perspective',
-            position: new pc.Vec3(9.2, 6, 9),
-            rotation: new pc.Vec3(-25, 45, 0),
+            position: new Vec3(9.2, 6, 9),
+            rotation: new Vec3(-25, 45, 0),
             default: true
         }, {
             name: 'top',
             title: 'Top',
             className: 'viewport-camera-top',
-            position: new pc.Vec3(0, 1000, 0),
-            rotation: new pc.Vec3(-90, 0, 0),
+            position: new Vec3(0, 1000, 0),
+            rotation: new Vec3(-90, 0, 0),
             ortho: true
         }, {
             name: 'bottom',
             title: 'Bottom',
             className: 'viewport-camera-bottom',
-            position: new pc.Vec3(0, -1000, 0),
-            rotation: new pc.Vec3(90, 0, 0),
+            position: new Vec3(0, -1000, 0),
+            rotation: new Vec3(90, 0, 0),
             ortho: true
         }, {
             name: 'front',
             title: 'Front',
             className: 'viewport-camera-front',
-            position: new pc.Vec3(0, 0, 1000),
-            rotation: new pc.Vec3(0, 0, 0),
+            position: new Vec3(0, 0, 1000),
+            rotation: new Vec3(0, 0, 0),
             ortho: true
         }, {
             name: 'back',
             title: 'Back',
             className: 'viewport-camera-back',
-            position: new pc.Vec3(0, 0, -1000),
-            rotation: new pc.Vec3(0, 180, 0),
+            position: new Vec3(0, 0, -1000),
+            rotation: new Vec3(0, 180, 0),
             ortho: true
         }, {
             name: 'left',
             title: 'Left',
             className: 'viewport-camera-left',
-            position: new pc.Vec3(-1000, 0, 0),
-            rotation: new pc.Vec3(0, -90, 0),
+            position: new Vec3(-1000, 0, 0),
+            rotation: new Vec3(0, -90, 0),
             ortho: true
         }, {
             name: 'right',
             title: 'Right',
             className: 'viewport-camera-right',
-            position: new pc.Vec3(1000, 0, 0),
-            rotation: new pc.Vec3(0, 90, 0),
+            position: new Vec3(1000, 0, 0),
+            rotation: new Vec3(0, 90, 0),
             ortho: true
         }];
 
 
         const createCamera = function (args) {
-            const entity = new pc.Entity();
+            const entity = new Entity();
             entity.__editorCamera = true;
             entity.__editorName = args.name;
             entity.name = args.title;
             entity.className = args.className;
             entity.setPosition(args.position);
             entity.setEulerAngles(args.rotation);
-            entity.focus = new pc.Vec3();
+            entity.focus = new Vec3();
 
             editorCameras[args.name] = entity;
 
@@ -266,10 +268,10 @@ editor.once('load', () => {
             }
 
             if (args.ortho) {
-                params.projection = pc.PROJECTION_ORTHOGRAPHIC;
+                params.projection = PROJECTION_ORTHOGRAPHIC;
                 params.orthoHeight = 5;
             } else {
-                params.projection = pc.PROJECTION_PERSPECTIVE;
+                params.projection = PROJECTION_PERSPECTIVE;
                 params.fov = 45;
             }
 

@@ -1,3 +1,5 @@
+import { Color, OutlineRenderer } from 'playcanvas';
+
 editor.once('load', () => {
     const app = editor.call('viewport:app');
     if (!app) {
@@ -11,7 +13,7 @@ editor.once('load', () => {
     // create outline renderer
     // internally an existing Viewport Outline layer is used to render outlines
     const outlineLayer = editor.call('gizmo:layers', 'Viewport Outline');
-    const outlineRenderer = new pc.OutlineRenderer(app, outlineLayer);
+    const outlineRenderer = new OutlineRenderer(app, outlineLayer);
 
     const isSelectableEntity = function (item) {
 
@@ -42,7 +44,7 @@ editor.once('load', () => {
                 [1, 1, 1] :                                 // local user
                 editor.call('users:color', id, 'data');     // remote user
 
-            color = new pc.Color(data[0], data[1], data[2]);
+            color = new Color(data[0], data[1], data[2]);
         }
 
         return color;

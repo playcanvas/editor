@@ -1,4 +1,5 @@
 import { Element, ElementArgs, Canvas } from '@playcanvas/pcui';
+import { CurveSet } from 'playcanvas';
 
 import { CLASS_MULTIPLE_VALUES } from '../constants';
 
@@ -214,7 +215,7 @@ class GradientInput extends Element {
 
         const rgba = [];
 
-        const curve = this.channels === 1 ? new pc.CurveSet([this.value.keys]) : new pc.CurveSet(this.value.keys);
+        const curve = this.channels === 1 ? new CurveSet([this.value.keys]) : new CurveSet(this.value.keys);
         curve.type = this.value.type;
 
         const precision = 2;

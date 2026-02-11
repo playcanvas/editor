@@ -1,7 +1,7 @@
 import { Panel, Container, Button } from '@playcanvas/pcui';
+import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from 'playcanvas';
 
 import { deepCopy } from '@/common/utils';
-import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from '@/core/constants';
 
 import { ComponentInspector } from './component';
 import type { Attribute } from '../attribute.type.d';

@@ -81,8 +81,9 @@ editor.once('load', () => {
             query.push('ministats=true');
         }
 
-        if (config.url.useCustomEngine) {
-            query.push(`use_local_engine=${config.url.engine}`);
+        const params = new URLSearchParams(location.search);
+        if (params.has('use_local_engine')) {
+            query.push(`use_local_engine=${params.get('use_local_engine')}`);
         } else if (releaseCandidate && launchOptions.releaseCandidate) {
             query.push(`version=${releaseCandidate}`);
         } else if (launchOptions.force) {

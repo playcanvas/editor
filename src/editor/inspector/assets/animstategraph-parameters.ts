@@ -1,4 +1,5 @@
 import { Panel, Button } from '@playcanvas/pcui';
+import { ANIM_EQUAL_TO, ANIM_PARAMETER_BOOLEAN, ANIM_PARAMETER_FLOAT, ANIM_PARAMETER_INTEGER, ANIM_PARAMETER_TRIGGER } from 'playcanvas';
 
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
@@ -26,12 +27,12 @@ class AnimstategraphParameters extends Panel {
     _createParamAttributesInspector(paramId, param) {
         let valueType;
         switch (param.type) {
-            case pc.ANIM_PARAMETER_BOOLEAN:
-            case pc.ANIM_PARAMETER_TRIGGER:
+            case ANIM_PARAMETER_BOOLEAN:
+            case ANIM_PARAMETER_TRIGGER:
                 valueType = 'boolean';
                 break;
-            case pc.ANIM_PARAMETER_INTEGER:
-            case pc.ANIM_PARAMETER_FLOAT:
+            case ANIM_PARAMETER_INTEGER:
+            case ANIM_PARAMETER_FLOAT:
             default:
                 valueType = 'number';
                 break;
@@ -51,19 +52,19 @@ class AnimstategraphParameters extends Panel {
                     type: 'string',
                     options: [
                         {
-                            v: pc.ANIM_PARAMETER_INTEGER,
+                            v: ANIM_PARAMETER_INTEGER,
                             t: 'Integer'
                         },
                         {
-                            v: pc.ANIM_PARAMETER_FLOAT,
+                            v: ANIM_PARAMETER_FLOAT,
                             t: 'Float'
                         },
                         {
-                            v: pc.ANIM_PARAMETER_BOOLEAN,
+                            v: ANIM_PARAMETER_BOOLEAN,
                             t: 'Boolean'
                         },
                         {
-                            v: pc.ANIM_PARAMETER_TRIGGER,
+                            v: ANIM_PARAMETER_TRIGGER,
                             t: 'Trigger'
                         }
                     ]
@@ -74,7 +75,7 @@ class AnimstategraphParameters extends Panel {
                 path: `data.parameters.${paramId}.value`,
                 type: valueType,
                 args: {
-                    precision: param.type === pc.ANIM_PARAMETER_INTEGER ? 0 : undefined,
+                    precision: param.type === ANIM_PARAMETER_INTEGER ? 0 : undefined,
                     hideSlider: true
                 }
             }
@@ -112,19 +113,19 @@ class AnimstategraphParameters extends Panel {
                             if (condition.parameterName === asset.get(`data.parameters.${paramId}.name`)) {
                                 let updatedValue;
                                 switch (value) {
-                                    case pc.ANIM_PARAMETER_INTEGER:
-                                    case pc.ANIM_PARAMETER_FLOAT:
+                                    case ANIM_PARAMETER_INTEGER:
+                                    case ANIM_PARAMETER_FLOAT:
                                         updatedValue = 0;
                                         break;
-                                    case pc.ANIM_PARAMETER_BOOLEAN:
-                                    case pc.ANIM_PARAMETER_TRIGGER:
+                                    case ANIM_PARAMETER_BOOLEAN:
+                                    case ANIM_PARAMETER_TRIGGER:
                                         updatedValue = true;
                                         prevConditionPredicates.push({
                                             transition: transitionKey,
                                             condition: conditionKey,
                                             value: asset.get(`data.transitions.${transitionKey}.conditions.${conditionKey}.predicate`)
                                         });
-                                        asset.set(`data.transitions.${transitionKey}.conditions.${conditionKey}.predicate`, pc.ANIM_EQUAL_TO);
+                                        asset.set(`data.transitions.${transitionKey}.conditions.${conditionKey}.predicate`, ANIM_EQUAL_TO);
                                         break;
                                 }
                                 prevConditionValues.push({
@@ -138,7 +139,7 @@ class AnimstategraphParameters extends Panel {
                     }
                 });
 
-                if ([pc.ANIM_PARAMETER_BOOLEAN, pc.ANIM_PARAMETER_TRIGGER].includes(value)) {
+                if ([ANIM_PARAMETER_BOOLEAN, ANIM_PARAMETER_TRIGGER].includes(value)) {
                     this._assets[0].set(`data.parameters.${paramId}.value`, !!param.value);
                 }
 
@@ -164,7 +165,7 @@ class AnimstategraphParameters extends Panel {
                     asset.set(`data.transitions.${transition}.conditions.${condition}.predicate`, value);
                 });
 
-                if ([pc.ANIM_PARAMETER_BOOLEAN, pc.ANIM_PARAMETER_TRIGGER].includes(value)) {
+                if ([ANIM_PARAMETER_BOOLEAN, ANIM_PARAMETER_TRIGGER].includes(value)) {
                     this._assets[0].set(`data.parameters.${paramId}.value`, param.value);
                 }
 
@@ -353,7 +354,7 @@ class AnimstategraphParameters extends Panel {
         this._suppressAddParamEvent = true;
         this._assets[0].set(`data.parameters.${key}`, {
             name: `New Parameter ${key}`,
-            type: pc.ANIM_PARAMETER_INTEGER,
+            type: ANIM_PARAMETER_INTEGER,
             value: 0.0
         });
         this._suppressAddParamEvent = false;

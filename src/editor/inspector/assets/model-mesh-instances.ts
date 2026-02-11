@@ -64,7 +64,8 @@ class ModelAssetInspectorMeshInstances extends Container {
 
     _dragEnterFn(ind) {
         return (dropType, dropData) => {
-            this._engineAsset = pc.app.assets.get(this._assets[0].get('id'));
+            const app = editor.call('viewport:app');
+            this._engineAsset = app.assets.get(this._assets[0].get('id'));
             this._valueBefore = this._assets[0].get(`data.mapping.${ind}.material`) || null;
             if (this._engineAsset) {
                 this._engineAsset.data.mapping[ind].material = parseInt(dropData.id, 10);

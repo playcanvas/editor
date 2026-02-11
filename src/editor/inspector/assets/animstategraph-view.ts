@@ -1,4 +1,5 @@
 import { default as PCUIGraph } from '@playcanvas/pcui-graph';
+import { ANIM_INTERRUPTION_NONE } from 'playcanvas';
 
 import { AnimstategraphState } from './animstategraph-state';
 
@@ -671,7 +672,7 @@ class AnimstategraphView {
         }
         data.transitions[edgeId] = Object.assign({
             exitTime: 0,
-            interruptionSource: pc.ANIM_INTERRUPTION_NONE
+            interruptionSource: ANIM_INTERRUPTION_NONE
         }, edge);
         this._assets[0].set('data', data);
     }

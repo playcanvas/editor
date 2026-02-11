@@ -1,15 +1,17 @@
+import { Color, ElementInput, Vec3 } from 'playcanvas';
+
 editor.once('load', () => {
     let corners = [];
     for (let i = 0; i < 4; i++) {
-        corners.push(new pc.Vec3());
+        corners.push(new Vec3());
     }
 
     const positions = [];
     for (let i = 0; i < 8; i++) {
-        positions.push(new pc.Vec3());
+        positions.push(new Vec3());
     }
 
-    const color = new pc.Color(0, 1, 0, 0.9);
+    const color = new Color(0, 1, 0, 0.9);
     const colors = [];
     for (let i = 0; i < 8; i++) {
         colors.push(color);
@@ -44,8 +46,8 @@ editor.once('load', () => {
 
                 // Add the padding to the existing world corners
                 // We are always in world space in the Editor
-                const elementScale = pc.ElementInput.calculateScaleToWorld(entity.element);
-                corners = pc.ElementInput.buildHitCorners(entity.element, corners, elementScale);
+                const elementScale = ElementInput.calculateScaleToWorld(entity.element);
+                corners = ElementInput.buildHitCorners(entity.element, corners, elementScale);
 
                 positions[0].copy(corners[0]);
                 positions[1].copy(corners[1]);

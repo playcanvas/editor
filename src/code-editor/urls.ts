@@ -30,10 +30,6 @@ editor.once('load', () => {
         if (params.has('use_local_frontend')) {
             query.push('use_local_frontend');
         }
-        if (params.has('use_local_engine')) {
-            query.push(`use_local_engine=${params.get('use_local_engine')}`);
-        }
-
         url += `?${query.join('&')}`;
 
         window.history.replaceState('', '', url);

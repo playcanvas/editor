@@ -1,7 +1,18 @@
 import { Button } from '@playcanvas/pcui';
+import {
+    LAYERID_DEPTH,
+    LAYERID_SKYBOX,
+    LAYERID_IMMEDIATE,
+    SHADOW_PCF1_32F,
+    SHADOW_PCF3_32F,
+    SHADOW_PCF5_32F,
+    SHADOW_VSM_16F,
+    SHADOW_VSM_32F,
+    SHADOWUPDATE_REALTIME,
+    SHADOWUPDATE_THISFRAME
+} from 'playcanvas';
 
 import { LegacyTooltip } from '@/common/ui/tooltip';
-import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from '@/core/constants';
 
 import { ComponentInspector } from './component';
 import type { Attribute, Divider } from '../attribute.type.d';
@@ -168,9 +179,9 @@ const ATTRIBUTES: (Attribute | Divider)[] = [{
     args: {
         type: 'number',
         options: [{
-            v: pc.SHADOWUPDATE_THISFRAME, t: 'Once'
+            v: SHADOWUPDATE_THISFRAME, t: 'Once'
         }, {
-            v: pc.SHADOWUPDATE_REALTIME, t: 'Realtime'
+            v: SHADOWUPDATE_REALTIME, t: 'Realtime'
         }]
     }
 }, {
@@ -257,15 +268,15 @@ const ATTRIBUTES: (Attribute | Divider)[] = [{
     args: {
         type: 'number',
         options: [{
-            v: pc.SHADOW_PCF1, t: 'Shadow Map PCF 1x1'
+            v: SHADOW_PCF1_32F, t: 'Shadow Map PCF 1x1'
         }, {
-            v: pc.SHADOW_PCF3, t: 'Shadow Map PCF 3x3'
+            v: SHADOW_PCF3_32F, t: 'Shadow Map PCF 3x3'
         }, {
-            v: pc.SHADOW_PCF5, t: 'Shadow Map PCF 5x5'
+            v: SHADOW_PCF5_32F, t: 'Shadow Map PCF 5x5'
         }, {
-            v: pc.SHADOW_VSM16, t: 'Variance Shadow Map (16bit)'
+            v: SHADOW_VSM_16F, t: 'Variance Shadow Map (16bit)'
         }, {
-            v: pc.SHADOW_VSM32, t: 'Variance Shadow Map (32bit)'
+            v: SHADOW_VSM_32F, t: 'Variance Shadow Map (32bit)'
         }]
     }
 }, {
@@ -482,8 +493,7 @@ class LightComponentInspector extends ComponentInspector {
         const isPoint = type === 'point';
         const castShadows = this._field('castShadows').value;
         const shadowType = this._field('shadowType').value;
-        let shadowTypeVsm = shadowType === pc.SHADOW_VSM8 || shadowType === pc.SHADOW_VSM16 ||
-            shadowType === pc.SHADOW_VSM32;
+        let shadowTypeVsm = shadowType === SHADOW_VSM_16F || shadowType === SHADOW_VSM_32F;
         const cookie = this._field('cookieAsset').value;
         const numCascades = this._field('numCascades').value;
         const isCLustered = editor.call('sceneSettings').get('render.clusteredLightingEnabled') && !isDirectional;
@@ -493,7 +503,7 @@ class LightComponentInspector extends ComponentInspector {
 
         // engine does not support point VSM shadows and drops it to PCF3, update UI to match
         if (isPoint && shadowTypeVsm) {
-            this._field('shadowType').value = pc.SHADOW_PCF3;
+            this._field('shadowType').value = SHADOW_PCF3_32F;
         }
 
         const areaEnabled = editor.call('sceneSettings').get('render.lightingAreaLightsEnabled');
@@ -579,13 +589,13 @@ class LightComponentInspector extends ComponentInspector {
             this._field(field).parent.hidden = !castShadows || shadowTypeVsm;
         });
 
-        this._btnUpdateShadow.hidden = this._field('shadowUpdateMode').value !== pc.SHADOWUPDATE_THISFRAME;
+        this._btnUpdateShadow.hidden = this._field('shadowUpdateMode').value !== SHADOWUPDATE_THISFRAME;
     }
 
     _updateShadows(entities) {
         for (let i = 0; i < entities.length; i++) {
-            if (entities[i].entity && entities[i].entity.light && entities[i].entity.light.shadowUpdateMode === pc.SHADOWUPDATE_THISFRAME) {
-                entities[i].entity.light.light.shadowUpdateMode = pc.SHADOWUPDATE_THISFRAME;
+            if (entities[i].entity && entities[i].entity.light && entities[i].entity.light.shadowUpdateMode === SHADOWUPDATE_THISFRAME) {
+                entities[i].entity.light.light.shadowUpdateMode = SHADOWUPDATE_THISFRAME;
             }
         }
         editor.call('viewport:render');

@@ -1,4 +1,5 @@
 import { Element, ElementArgs, Canvas } from '@playcanvas/pcui';
+import { Curve } from 'playcanvas';
 
 import { deepCopy } from '../../utils';
 import { CLASS_MULTIPLE_VALUES } from '../constants';
@@ -373,13 +374,13 @@ class CurveInput extends Element {
 
         if (value.keys[0].length !== undefined) {
             return value.keys.map((data) => {
-                const curve = new pc.Curve(data);
+                const curve = new Curve(data);
                 curve.type = value.type;
                 return curve;
             });
         }
 
-        const curve = new pc.Curve(value.keys);
+        const curve = new Curve(value.keys);
         curve.type = value.type;
         return [curve];
     }
