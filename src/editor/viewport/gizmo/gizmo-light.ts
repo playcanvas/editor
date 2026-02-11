@@ -1,3 +1,25 @@
+import {
+    BlendState,
+    BLENDEQUATION_ADD,
+    BLENDMODE_ONE_MINUS_SRC_ALPHA,
+    BLENDMODE_SRC_ALPHA,
+    Color,
+    Entity,
+    GraphNode,
+    LIGHTSHAPE_DISK,
+    LIGHTSHAPE_PUNCTUAL,
+    LIGHTSHAPE_RECT,
+    LIGHTSHAPE_SPHERE,
+    math,
+    Mesh,
+    MeshInstance,
+    Model,
+    PRIMITIVE_LINES,
+    SEMANTIC_ATTR15,
+    ShaderMaterial,
+    Vec3
+} from 'playcanvas';
+
 import { GIZMO_MASK } from '@/core/constants';
 
 import { createColorMaterial } from '../viewport-color-material';
@@ -12,10 +34,10 @@ editor.once('load', () => {
     const _circleSegments = 72;
 
     // colors
-    const colorBehind = new pc.Color(1, 1, 1, 0.8);
-    const colorPrimary = new pc.Color(1, 1, 1);
+    const colorBehind = new Color(1, 1, 1, 0.8);
+    const colorPrimary = new Color(1, 1, 1);
     let container;
-    const vec = new pc.Vec3();
+    const vec = new Vec3();
     let material, materialBehind, materialSpot, materialSpotBehind;
     const models = { };
     const poolModels = { 'directional': [], 'point': [], 'pointclose': [], 'spot': [], 'rectangle': [], 'disk': [], 'sphere': [] };
@@ -74,15 +96,15 @@ editor.once('load', () => {
             }
 
             // area lights
-            if (light.shape !== pc.LIGHTSHAPE_PUNCTUAL) {
+            if (light.shape !== LIGHTSHAPE_PUNCTUAL) {
                 switch (light.shape) {
-                    case pc.LIGHTSHAPE_RECT:
+                    case LIGHTSHAPE_RECT:
                         type = 'rectangle';
                         break;
-                    case pc.LIGHTSHAPE_DISK:
+                    case LIGHTSHAPE_DISK:
                         type = 'disk';
                         break;
-                    case pc.LIGHTSHAPE_SPHERE:
+                    case LIGHTSHAPE_SPHERE:
                         type = 'sphere';
                         break;
                 }
@@ -170,7 +192,7 @@ editor.once('load', () => {
                 self.unlink();
             }));
 
-            this.entity = new pc.Entity();
+            this.entity = new Entity();
             this.entity.addComponent('model', {
                 castShadows: false,
                 receiveShadows: false,
@@ -223,7 +245,7 @@ editor.once('load', () => {
             // materialBehind
             materialBehind = createColorMaterial();
             materialBehind.color = colorBehind;
-            materialBehind.blendState = new pc.BlendState(true, pc.BLENDEQUATION_ADD, pc.BLENDMODE_SRC_ALPHA, pc.BLENDMODE_ONE_MINUS_SRC_ALPHA);
+            materialBehind.blendState = new BlendState(true, BLENDEQUATION_ADD, BLENDMODE_SRC_ALPHA, BLENDMODE_ONE_MINUS_SRC_ALPHA);
             materialBehind.depthTest = false;
             materialBehind.update();
 
@@ -266,20 +288,20 @@ editor.once('load', () => {
                 }
             };
 
-            materialSpot = new pc.ShaderMaterial(shaderSpotDesc);
+            materialSpot = new ShaderMaterial(shaderSpotDesc);
             materialSpot.setParameter('uColorSpot', new Float32Array([colorPrimary.r, colorPrimary.g, colorPrimary.b, colorPrimary.a]));
             materialSpot.update();
 
-            materialSpotBehind = new pc.ShaderMaterial(shaderSpotDesc);
+            materialSpotBehind = new ShaderMaterial(shaderSpotDesc);
             materialSpot.setParameter('uColorSpot', new Float32Array([colorBehind.r, colorBehind.g, colorBehind.b, colorBehind.a]));
-            materialSpotBehind.blendState = new pc.BlendState(true, pc.BLENDEQUATION_ADD, pc.BLENDMODE_SRC_ALPHA, pc.BLENDMODE_ONE_MINUS_SRC_ALPHA);
+            materialSpotBehind.blendState = new BlendState(true, BLENDEQUATION_ADD, BLENDMODE_SRC_ALPHA, BLENDMODE_ONE_MINUS_SRC_ALPHA);
             materialSpotBehind.depthTest = false;
             materialSpotBehind.update();
         }
 
         static createDirectional(device) {
 
-            const rad = pc.math.DEG_TO_RAD;
+            const rad = math.DEG_TO_RAD;
             const size = 0.2;
             const length = -(2 - size * 2);
             const positions = [
@@ -310,7 +332,7 @@ editor.once('load', () => {
 
             // xz axis
             const positions = [];
-            const factor = 360 / _circleSegments * pc.math.DEG_TO_RAD;
+            const factor = 360 / _circleSegments * math.DEG_TO_RAD;
             for (let i = 0; i < _circleSegments; i++) {
                 positions.push(Math.sin(factor * i), Math.cos(factor * i), 0);
                 positions.push(Math.sin(factor * (i + 1)), Math.cos(factor * (i + 1)), 0);
@@ -323,7 +345,7 @@ editor.once('load', () => {
 
             // circles
             const positions = [];
-            const factor = 360 / _circleSegments * pc.math.DEG_TO_RAD;
+            const factor = 360 / _circleSegments * math.DEG_TO_RAD;
             for (let i = 0; i < _circleSegments; i++) {
                 positions.push(Math.sin(factor * i), 0, Math.cos(factor * i));
                 positions.push(Math.sin(factor * (i + 1)), 0, Math.cos(factor * (i + 1)));
@@ -350,7 +372,7 @@ editor.once('load', () => {
             outers.push(1, 1);
 
             // circles
-            const factor = 360 / _circleSegments * pc.math.DEG_TO_RAD;
+            const factor = 360 / _circleSegments * math.DEG_TO_RAD;
             for (let i = 0; i < _circleSegments; i++) {
 
                 // inner
@@ -383,7 +405,7 @@ editor.once('load', () => {
         static createDisk(device) {
 
             const positions = [];
-            const factor = 360 / _circleSegments * pc.math.DEG_TO_RAD;
+            const factor = 360 / _circleSegments * math.DEG_TO_RAD;
 
             for (let i = 0; i < _circleSegments; i++) {
                 positions.push(0.5 * Math.sin(factor * i), 0, 0.5 * Math.cos(factor * i));
@@ -397,7 +419,7 @@ editor.once('load', () => {
 
             // circles
             const positions = [];
-            const factor = 360 / _circleSegments * pc.math.DEG_TO_RAD;
+            const factor = 360 / _circleSegments * math.DEG_TO_RAD;
             for (let i = 0; i < _circleSegments; i++) {
                 positions.push(0.5 * Math.sin(factor * i), 0, 0.5 * Math.cos(factor * i));
                 positions.push(0.5 * Math.sin(factor * (i + 1)), 0, 0.5 * Math.cos(factor * (i + 1)));
@@ -413,32 +435,32 @@ editor.once('load', () => {
         static createModel(device, positions, outers, materialFront, materialBack) {
 
             // node
-            const node = new pc.GraphNode();
+            const node = new GraphNode();
 
             // mesh
-            const mesh = new pc.Mesh(device);
+            const mesh = new Mesh(device);
             mesh.setPositions(positions);
 
             // normals (unused, by standard material requires it)
             mesh.setNormals(positions);
 
             if (outers) {
-                mesh.setVertexStream(pc.SEMANTIC_ATTR15, outers, 1);
+                mesh.setVertexStream(SEMANTIC_ATTR15, outers, 1);
             }
-            mesh.update(pc.PRIMITIVE_LINES);
+            mesh.update(PRIMITIVE_LINES);
 
             // meshInstances
-            const meshInstance = new pc.MeshInstance(mesh, materialFront, node);
+            const meshInstance = new MeshInstance(mesh, materialFront, node);
             meshInstance.mask = GIZMO_MASK;
             meshInstance.pick = false;
 
-            const meshInstanceBehind = new pc.MeshInstance(mesh, materialBack, node);
+            const meshInstanceBehind = new MeshInstance(mesh, materialBack, node);
             meshInstanceBehind.__useFrontLayer = true;
             meshInstanceBehind.mask = GIZMO_MASK;
             meshInstanceBehind.pick = false;
 
             // model
-            const model = new pc.Model();
+            const model = new Model();
             model.graph = node;
             model.meshInstances = [meshInstance, meshInstanceBehind];
 
@@ -503,7 +525,7 @@ editor.once('load', () => {
         app = application;
         const device = app.graphicsDevice;
 
-        container = new pc.Entity(app);
+        container = new Entity(app);
         app.root.addChild(container);
 
         Gizmo.createMaterials();

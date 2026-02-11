@@ -1,4 +1,5 @@
 import { Panel } from '@playcanvas/pcui';
+import { Entity } from 'playcanvas';
 
 import { AnimViewer } from './anim-viewer';
 import { AssetInspectorPreviewBase } from './asset-preview-base';
@@ -113,7 +114,7 @@ class AnimationAssetInspectorPreview extends AssetInspectorPreviewBase {
     }
 
     loadWithModel(modelAsset) {
-        const entity = new pc.Entity('entity');
+        const entity = new Entity('entity');
         entity.addComponent('model', {
             type: 'asset'
         });

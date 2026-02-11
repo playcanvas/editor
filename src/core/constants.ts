@@ -1,22 +1,8 @@
-// Editor Engine version
-export const ENGINE_VERSION = typeof pc !== 'undefined' ? `${pc.version}` : '0.0.0';
-
 // Gizmo mask
 export const GIZMO_MASK = 8;
 
 // Picker force pick tag
 export const FORCE_PICK_TAG = 'force-pick';
-
-// Layer ids
-export const LAYERID_WORLD = 0;
-export const LAYERID_DEPTH = 1;
-export const LAYERID_SKYBOX = 2;
-export const LAYERID_IMMEDIATE = 3;
-export const LAYERID_UI = 4;
-
-// Gamma correction modes
-export const GAMMA_NONE = 0;
-export const GAMMA_SRGB = 1;
 
 // Tonemapping modes
 export const TONEMAPPING = [
@@ -49,36 +35,15 @@ export const SCROLLBAR_VISIBILITY_SHOW_ALWAYS = 0;
 export const SCROLLBAR_VISIBILITY_SHOW_WHEN_REQUIRED = 1;
 
 
-export const CURVE_LINEAR = 0;
-export const CURVE_SMOOTHSTEP = 1;
+// Editor-specific curve types (not in engine)
 export const CURVE_CATMULL = 2;
 export const CURVE_CARDINAL = 3;
-export const CURVE_SPLINE = 4;
-export const CURVE_STEP = 5;
 
 // Script Loading Type
 export const LOAD_SCRIPT_AS_ASSET = 0;
 export const LOAD_SCRIPT_BEFORE_ENGINE = 1;
 export const LOAD_SCRIPT_AFTER_ENGINE = 2;
 
-// Anim system constants
-export const ANIM_INTERRUPTION_NONE = 'NONE';
-export const ANIM_INTERRUPTION_PREV = 'PREV_STATE';
-export const ANIM_INTERRUPTION_NEXT = 'NEXT_STATE';
-export const ANIM_INTERRUPTION_PREV_NEXT = 'PREV_STATE_NEXT_STATE';
-export const ANIM_INTERRUPTION_NEXT_PREV = 'NEXT_STATE_PREV_STATE';
-
-export const ANIM_GREATER_THAN = 'GREATER_THAN';
-export const ANIM_LESS_THAN = 'LESS_THAN';
-export const ANIM_GREATER_THAN_EQUAL_TO = 'GREATER_THAN_EQUAL_TO';
-export const ANIM_LESS_THAN_EQUAL_TO = 'LESS_THAN_EQUAL_TO';
-export const ANIM_EQUAL_TO = 'EQUAL_TO';
-export const ANIM_NOT_EQUAL_TO = 'NOT_EQUAL_TO';
-
-export const ANIM_PARAMETER_INTEGER = 'INTEGER';
-export const ANIM_PARAMETER_FLOAT = 'FLOAT';
-export const ANIM_PARAMETER_BOOLEAN = 'BOOLEAN';
-export const ANIM_PARAMETER_TRIGGER = 'TRIGGER';
 
 // VERSION CONTROL
 export const MERGE_STATUS_AUTO_STARTED = 'merge_auto_started';

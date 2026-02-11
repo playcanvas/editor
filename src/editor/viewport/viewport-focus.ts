@@ -1,19 +1,21 @@
+import { BoundingBox, Entity, Vec3 } from 'playcanvas';
+
 editor.once('load', () => {
     const app = editor.call('viewport:app');
     if (!app) {
         return;
     } // webgl not available
 
-    const defaultSizeSmall = new pc.Vec3(0.2, 0.2, 0.2);
-    const aabb = new pc.BoundingBox();
-    const aabbA = new pc.BoundingBox();
+    const defaultSizeSmall = new Vec3(0.2, 0.2, 0.2);
+    const aabb = new BoundingBox();
+    const aabbA = new BoundingBox();
 
     const calculateChildAABB = function (entity) {
         aabbA.add(editor.call('entities:getBoundingBoxForEntity', entity));
 
         const children = entity.children;
         for (let i = 0; i < children.length; i++) {
-            if (!(children[i] instanceof pc.Entity) || children[i].__editor) {
+            if (!(children[i] instanceof Entity) || children[i].__editor) {
                 continue;
             }
 

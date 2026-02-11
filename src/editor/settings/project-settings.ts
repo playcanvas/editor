@@ -1,7 +1,7 @@
 import { ObserverHistory } from '@playcanvas/observer';
+import { DEVICETYPE_WEBGL2, DEVICETYPE_WEBGPU, LAYERID_WORLD, LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE, LAYERID_UI, script } from 'playcanvas';
 
 import { deepCopy, formatter as f, insert, remove, set, unset } from '@/common/utils';
-import { LAYERID_WORLD, LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE, LAYERID_UI } from '@/core/constants';
 
 
 editor.once('load', () => {
@@ -14,7 +14,7 @@ editor.once('load', () => {
         data: projectSettings
     });
 
-    pc.script.legacy = !!settings.get('useLegacyScripts');
+    script.legacy = !!settings.get('useLegacyScripts');
 
     // add history
     settings.history = new ObserverHistory({
@@ -45,7 +45,7 @@ editor.once('load', () => {
         settings.sync.enabled = editor.call('permissions:write');
 
         if (!config.project.settings.hasOwnProperty('engineV2')) {
-            settings.set('engineV2', true);
+            settings.set('engineV2', false);
         }
 
         if (config.project.settings.hasOwnProperty('useLegacyScripts')) {
@@ -77,14 +77,14 @@ editor.once('load', () => {
             let msg = `The ${f.path('deviceTypes')} project setting has been removed`;
 
             if (deviceTypes.length) {
-                const enableWebGpu = deviceTypes[0] === pc.DEVICETYPE_WEBGPU;
+                const enableWebGpu = deviceTypes[0] === DEVICETYPE_WEBGPU;
                 const oldEnableWebGpu = settings.get('enableWebGpu');
                 settings.set('enableWebGpu', enableWebGpu);
                 if (oldEnableWebGpu !== enableWebGpu) {
                     msg += `. Setting project setting ${f.path('enableWebGpu')} from ${f.value(oldEnableWebGpu)} to ${f.value(enableWebGpu)}`;
                 }
 
-                const enableWebGl2 = deviceTypes[0] === pc.DEVICETYPE_WEBGL2;
+                const enableWebGl2 = deviceTypes[0] === DEVICETYPE_WEBGL2;
                 const oldEnableWebGl2 = settings.get('enableWebGl2');
                 settings.set('enableWebGl2', enableWebGl2);
                 if (oldEnableWebGl2 !== enableWebGl2) {

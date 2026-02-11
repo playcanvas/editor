@@ -1,20 +1,22 @@
+import { Color, Vec2, Vec3 } from 'playcanvas';
+
 editor.once('load', () => {
-    const left = new pc.Vec3();
-    const right = new pc.Vec3();
-    const top = new pc.Vec3();
-    const bottom = new pc.Vec3();
+    const left = new Vec3();
+    const right = new Vec3();
+    const top = new Vec3();
+    const bottom = new Vec3();
 
     const positions = [];
     const colors = [];
     let visible = true;
 
-    const vecA = new pc.Vec2();
+    const vecA = new Vec2();
 
     const projectSettings = editor.call('settings:project');
 
     for (let i = 0; i < 8; i++) {
-        positions.push(new pc.Vec3());
-        colors.push(pc.Color.WHITE);
+        positions.push(new Vec3());
+        colors.push(Color.WHITE);
     }
 
     editor.once('viewport:load', (app) => {

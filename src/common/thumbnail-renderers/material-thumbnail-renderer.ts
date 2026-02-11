@@ -1,4 +1,9 @@
+import { Application, Color, Entity, GraphNode, JsonStandardMaterialParser, StandardMaterial } from 'playcanvas';
+
 import { ThumbnailRenderer } from './thumbnail-renderer';
+
+// Legacy engine constant (removed from engine exports)
+const SPECULAR_PHONG = 1;
 
 const PREFILTERED_CUBEMAP_PROPERTIES = [
     'prefilteredCubeMap128',
@@ -14,13 +19,13 @@ let sceneInitialized = false;
 
 function initializeScene() {
     // material parser
-    materialParser = new pc.JsonStandardMaterialParser();
+    materialParser = new JsonStandardMaterialParser();
 
     // material
-    material = new pc.StandardMaterial();
+    material = new StandardMaterial();
 
     // sphere
-    sphere = new pc.Entity();
+    sphere = new Entity();
     sphere.addComponent('model', {
         type: 'sphere',
         layers: []
@@ -28,7 +33,7 @@ function initializeScene() {
     sphere.model.material = material;
 
     // box
-    box = new pc.Entity();
+    box = new Entity();
     box.addComponent('model', {
         type: 'box',
         layers: []
@@ -37,7 +42,7 @@ function initializeScene() {
     box.model.material = material;
 
     // light
-    lightEntity = new pc.Entity();
+    lightEntity = new Entity();
     lightEntity.addComponent('light', {
         type: 'directional',
         layers: []
@@ -45,13 +50,13 @@ function initializeScene() {
     lightEntity.setLocalEulerAngles(45, 45, 0);
 
     // camera
-    cameraOrigin = new pc.GraphNode();
+    cameraOrigin = new GraphNode();
 
-    cameraEntity = new pc.Entity();
+    cameraEntity = new Entity();
     cameraEntity.addComponent('camera', {
         nearClip: 0.1,
         farClip: 32,
-        clearColor: new pc.Color(41 / 255, 53 / 255, 56 / 255, 0.0),
+        clearColor: new Color(41 / 255, 53 / 255, 56 / 255, 0.0),
         frustumCulling: false,
         layers: []
     });
@@ -59,7 +64,7 @@ function initializeScene() {
     cameraOrigin.addChild(cameraEntity);
 
     // All preview objects live under this root
-    previewRoot = new pc.Entity();
+    previewRoot = new Entity();
     previewRoot.enabled = true;
     previewRoot.addChild(box);
     previewRoot.addChild(sphere);
@@ -189,7 +194,7 @@ class MaterialThumbnailRenderer extends ThumbnailRenderer {
             initializeScene();
         }
 
-        const app = pc.Application.getApplication();
+        const app = Application.getApplication();
         const layerComposition = this.layerComposition;
         const layer = this.layer;
 
@@ -228,8 +233,8 @@ class MaterialThumbnailRenderer extends ThumbnailRenderer {
         // convert asset references to engine resources
 
         // first handle texture assets
-        for (let i = 0; i < pc.StandardMaterial.TEXTURE_PARAMETERS.length; i++) {
-            const name = pc.StandardMaterial.TEXTURE_PARAMETERS[i];
+        for (let i = 0; i < StandardMaterial.TEXTURE_PARAMETERS.length; i++) {
+            const name = StandardMaterial.TEXTURE_PARAMETERS[i];
             if (!migrated.hasOwnProperty(name) || !migrated[name]) {
                 continue;
             }
@@ -246,8 +251,8 @@ class MaterialThumbnailRenderer extends ThumbnailRenderer {
         }
 
         // then handle cubemap assets
-        for (let i = 0; i < pc.StandardMaterial.CUBEMAP_PARAMETERS.length; i++) {
-            const name = pc.StandardMaterial.CUBEMAP_PARAMETERS[i];
+        for (let i = 0; i < StandardMaterial.CUBEMAP_PARAMETERS.length; i++) {
+            const name = StandardMaterial.CUBEMAP_PARAMETERS[i];
             if (!migrated.hasOwnProperty(name) || !migrated[name]) {
                 continue;
             }
@@ -265,7 +270,7 @@ class MaterialThumbnailRenderer extends ThumbnailRenderer {
                     }
                 }
 
-                if (migrated.shadingModel === pc.SPECULAR_PHONG) {
+                if (migrated.shadingModel === SPECULAR_PHONG) {
                     // phong based - so ensure we load individual faces
                     engineAsset.loadFaces = true;
                     app.assets.load(engineAsset);

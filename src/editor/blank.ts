@@ -1,3 +1,6 @@
+// playcanvas engine (exposes window.pc for plugins)
+import './expose';
+
 // extensions
 import '@/common/extensions';
 

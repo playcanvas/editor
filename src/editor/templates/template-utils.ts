@@ -1,3 +1,5 @@
+import { guid } from 'playcanvas';
+
 editor.once('load', () => {
     const IGNORE_ROOT_PATHS_FOR_OVERRIDES = {
         parent: 1,
@@ -218,7 +220,7 @@ editor.once('load', () => {
             const a = Object.keys(h1);
 
             a.forEach((k1) => {
-                const k2 = srcToDst[k1] || pc.guid.create();
+                const k2 = srcToDst[k1] || guid.create();
 
                 h2[k2] = h1[k1];
             });

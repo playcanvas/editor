@@ -1,6 +1,7 @@
+import { GAMMA_NONE, GAMMA_SRGB } from 'playcanvas';
+
 import { ObserverSync } from '@/common/observer-sync';
 import { formatter as f } from '@/common/utils';
-import { GAMMA_NONE, GAMMA_SRGB } from '@/core/constants';
 
 
 editor.once('load', () => {
