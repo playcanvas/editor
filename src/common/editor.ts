@@ -1,6 +1,6 @@
 import * as observer from '@playcanvas/observer';
 
-import * as api from '@playcanvas/editor-api';
+import * as api from '@/editor-api';
 
 import { Caller } from './caller';
 

@@ -11,7 +11,7 @@ import {
 } from 'playcanvas';
 
 import { Defer } from '@/common/defer';
-import { type EntityObserver } from '@playcanvas/editor-api';
+import { type EntityObserver } from '@/editor-api';
 
 type GizmoNodeTransform = {
     position: number[];

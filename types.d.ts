@@ -1,8 +1,8 @@
 // config type (injected into HTML)
-declare var config: import('@playcanvas/editor-api').EditorBlankConfig & 
-    import('@playcanvas/editor-api').EditorConfig & 
-    import('@playcanvas/editor-api').CodeEditorConfig &
-    import('@playcanvas/editor-api').LaunchConfig;
+declare var config: import('./src/editor-api').EditorBlankConfig & 
+    import('./src/editor-api').EditorConfig & 
+    import('./src/editor-api').CodeEditorConfig &
+    import('./src/editor-api').LaunchConfig;
 
 // editor
 declare var editor: import('./src/common/editor').Editor<import('./src/common/editor').EditorMethods>;

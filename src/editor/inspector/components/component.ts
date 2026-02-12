@@ -2,7 +2,7 @@ import type { EventHandle, Observer } from '@playcanvas/observer';
 import { BindingTwoWay, BooleanInput, Button, Container, Label, LabelGroup, Menu, Panel } from '@playcanvas/pcui';
 
 import { tooltip, tooltipRefItem } from '@/common/tooltips';
-import { LocalStorage } from '@playcanvas/editor-api';
+import { LocalStorage } from '@/editor-api';
 
 import type { TemplateOverrideInspector } from '../../templates/templates-override-inspector.js';
 
