@@ -1,6 +1,7 @@
 import { default as PCUIGraph } from '@playcanvas/pcui-graph';
 import { ANIM_INTERRUPTION_NONE } from 'playcanvas';
 
+import { diff } from '@/common/diff';
 import { AnimstategraphState } from './animstategraph-state';
 
 const GRAPH_ACTIONS = {
@@ -453,8 +454,7 @@ class AnimstategraphView {
     _handleIncomingUpdates(path, newValue, oldValue) {
         if (!this._suppressGraphDataEvents) {
             if (path === 'data') {
-                // FIXME: window.diff comes from pcui/diff.js
-                const updates = window.diff.default(oldValue, newValue);
+                const updates = diff(oldValue, newValue);
                 if (updates.states) {
                     Object.keys(updates.states).forEach((stateKey) => {
                         if (stateKey.includes('__added')) {

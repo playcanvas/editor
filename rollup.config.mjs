@@ -287,20 +287,6 @@ const WORKER_TARGETS = fs.readdirSync('src/workers').map((file) => {
 
 const MODULE_TARGETS = [
     {
-        input: 'modules/pcui-diff.ts',
-        output: {
-            file: 'dist/js/pcui-diff.js',
-            format: 'esm'
-        },
-        plugins: [
-            swc({
-                swc: {
-                    minify: production
-                }
-            })
-        ]
-    },
-    {
         input: 'modules/texture-convert/src/index.ts',
         output: {
             dir: 'dist/js/texture-convert',
