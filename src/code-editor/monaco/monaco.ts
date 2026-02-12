@@ -11,6 +11,9 @@ editor.once('load', () => {
             panel.domContent.classList.remove('invisible');
         } else {
             panel.domContent.classList.add('invisible');
+            if (panel.domContent.contains(document.activeElement)) {
+                (document.activeElement as HTMLElement).blur();
+            }
         }
     };
 
