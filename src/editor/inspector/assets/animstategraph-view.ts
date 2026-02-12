@@ -2,6 +2,7 @@ import { default as PCUIGraph } from '@playcanvas/pcui-graph';
 import { ANIM_INTERRUPTION_NONE } from 'playcanvas';
 
 import { diff } from '@/common/diff';
+
 import { AnimstategraphState } from './animstategraph-state';
 
 const GRAPH_ACTIONS = {
