@@ -334,8 +334,9 @@ editor.once('load', () => {
         // this needs to be done *before* we open/switch to 'find in files' tab
         let customSearchValue = null;
         const model = monacoEditor.getModel();
-        if (model && !monacoEditor.getSelection().isEmpty()) {
-            customSearchValue = model.getValueInRange(monacoEditor.getSelection());
+        const selection = monacoEditor.getSelection();
+        if (model && selection && !selection.isEmpty()) {
+            customSearchValue = model.getValueInRange(selection);
         }
 
         editor.emit('editor:search:openTab');
