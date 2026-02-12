@@ -428,7 +428,9 @@ editor.once('load', () => {
 
         // If the document was already loaded (e.g. as a dependency of another
         // ESM script), documents:load won't fire again. Hide progress immediately.
-        if (isNew && editor.call('documents:get', id) && !editor.call('documents:isLoading', id)) {
+        const doc = editor.call('documents:get', id);
+        const isLoading = editor.call('documents:isLoading', id);
+        if (isNew && doc && !isLoading) {
             toggleProgress(id, false);
         }
     });
