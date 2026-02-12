@@ -42,11 +42,6 @@ declare interface Array {
 }
 
 declare interface Window {
-    // diff (injected into HTML)
-    diff: {
-        default: (t: any, e: any, n: any) => any;
-    };
-
     // global variables
     config: typeof config;
     editor: typeof editor;
