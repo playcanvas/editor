@@ -12,7 +12,6 @@
  *  - No difference: `undefined`
  */
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type JsonValue = any;
 
 interface DiffOptions {
@@ -22,10 +21,16 @@ interface DiffOptions {
 
 /**
  * Extended typeof that distinguishes arrays and null from plain objects.
+ *
+ * @param value - The value to inspect.
  */
 function extendedTypeOf(value: JsonValue): string {
-    if (value == null) return 'null';
-    if (typeof value === 'object' && Array.isArray(value)) return 'array';
+    if (value == null) {
+        return 'null';
+    }
+    if (typeof value === 'object' && Array.isArray(value)) {
+        return 'array';
+    }
     return typeof value;
 }
 
@@ -34,6 +39,10 @@ function extendedTypeOf(value: JsonValue): string {
  *
  * The score is used internally for ranking (e.g. during array element matching in the
  * original json-diff); only the diff portion is exposed to consumers.
+ *
+ * @param oldVal - The original value.
+ * @param newVal - The new value.
+ * @param options - Diff options.
  */
 function diffValue(oldVal: JsonValue, newVal: JsonValue, options: DiffOptions): [number, JsonValue] {
     const oldType = extendedTypeOf(oldVal);
@@ -61,6 +70,10 @@ function diffValue(oldVal: JsonValue, newVal: JsonValue, options: DiffOptions): 
 /**
  * Diff two plain objects. Produces `key__added`, `key__deleted` entries for
  * structural changes and recursively diffs shared keys.
+ *
+ * @param oldObj - The original object.
+ * @param newObj - The new object.
+ * @param options - Diff options.
  */
 function objectDiff(
     oldObj: Record<string, JsonValue>,
@@ -114,6 +127,10 @@ function objectDiff(
  * sufficient for the editor's use case (object-keyed data, not reorderable arrays).
  *
  * Output format: array of `[op]` or `[op, value]` tuples where op is `" "`, `"+"`, or `"-"`.
+ *
+ * @param oldArr - The original array.
+ * @param newArr - The new array.
+ * @param options - Diff options.
  */
 function arrayDiff(oldArr: JsonValue[], newArr: JsonValue[], options: DiffOptions): [number, JsonValue] {
     const result: [string, JsonValue?][] = [];
@@ -123,7 +140,7 @@ function arrayDiff(oldArr: JsonValue[], newArr: JsonValue[], options: DiffOption
     const minLen = Math.min(oldArr.length, newArr.length);
 
     for (let i = 0; i < minLen; i++) {
-        const [childScore, childDiff] = diffValue(oldArr[i], newArr[i], options);
+        const [, childDiff] = diffValue(oldArr[i], newArr[i], options);
         if (childDiff) {
             if (options.keysOnly) {
                 result.push(['~', childDiff]);
