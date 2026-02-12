@@ -1,4 +1,4 @@
-import type { EntityObserver } from '@playcanvas/editor-api';
+import type { EntityObserver } from '@/editor-api';
 
 type SnapshotEntry = {
     entityId: any;

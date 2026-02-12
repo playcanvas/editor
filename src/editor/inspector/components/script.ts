@@ -6,7 +6,7 @@ import { AssetInput } from '@/common/pcui/element/element-asset-input';
 import { tooltip, tooltipSimpleItem } from '@/common/tooltips';
 import { LegacyTooltip } from '@/common/ui/tooltip';
 import { deepCopy } from '@/common/utils';
-import type { AssetObserver, LocalStorage } from '@playcanvas/editor-api';
+import type { AssetObserver, LocalStorage } from '@/editor-api';
 
 import { ComponentInspector } from './component';
 import { evaluate } from '../../scripting/expr-eval/evaluate';

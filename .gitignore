@@ -7,5 +7,5 @@ dist
 .npmrc
 /.vscode
 /.cursor
-modules/editor-api/types
+test/editor-api/dist
 /test-results

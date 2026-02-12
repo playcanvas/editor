@@ -1,7 +1,7 @@
 module.exports = function (config) {
     config.set({
         // base path that will be used to resolve all patterns (eg. files, exclude)
-        basePath: '..',
+        basePath: '../..',
 
         client: {
             args: process.argv
@@ -11,26 +11,31 @@ module.exports = function (config) {
         files: [
             // libraries
             'node_modules/sinon/pkg/sinon.js',
-            'node_modules/chai/chai.js',
-            'test/lib/schema.js',
-            '../../node_modules/@playcanvas/observer/dist/index.js',
+            {
+                pattern: 'node_modules/chai/**/*.js',
+                type: 'module',
+                included: false,
+                served: true
+            },
+            'test/editor-api/lib/schema.js',
+            'node_modules/@playcanvas/observer/dist/index.js',
 
             // source files
             {
-                pattern: 'dist/index.js',
+                pattern: 'test/editor-api/dist/index.js',
                 type: 'module',
                 nocache: true
             },
 
             // setup file
             {
-                pattern: 'test/setup.js',
+                pattern: 'test/editor-api/setup.js',
                 type: 'module',
                 nocache: true
             },
 
             // test files - change this to a specific file in order to run a single suite
-            'test/**/test-*.js'
+            'test/editor-api/**/test-*.js'
         ],
 
         // list of files / patterns to exclude

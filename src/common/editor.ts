@@ -1,6 +1,6 @@
 import * as observer from '@playcanvas/observer';
 
-import * as api from '@playcanvas/editor-api';
+import * as api from '@/editor-api';
 
 import { Caller } from './caller';
 
@@ -133,7 +133,6 @@ class Editor<T extends EditorMethods> extends Caller<T> {
      */
     protected _registerApi() {
         // Initialize API globals - order matters
-        console.log(`PlayCanvas Editor API v${api.version} revision ${api.revision}`);
         api.globals.accessToken = config.accessToken;
         api.globals.projectId = config.project.id;
         api.globals.branchId = config.self.branch.id;

@@ -9,10 +9,10 @@
  * @module Editor
  */
 // types
-export type * from '../external/types/config';
-export type * from '../external/types/asset';
-export type * from '../external/types/entity';
-export type * from '../external/types/scene-settings';
+export type * from './external-types/config';
+export type * from './external-types/asset';
+export type * from './external-types/entity';
+export type * from './external-types/scene-settings';
 
 // core
 import './polyfills';
@@ -43,13 +43,3 @@ export * from './jobs';
 export * from './localstorage';
 export * from './clipboard';
 export * from './rest';
-
-/**
- * The version of the Editor API library. This is a string in semantic version format of `major.minor.patch`.
- */
-export const version = '0.0.0';
-
-/**
- * The git revision of the Editor API library. This is a string of the git commit hash.
- */
-export const revision = 'unknown';

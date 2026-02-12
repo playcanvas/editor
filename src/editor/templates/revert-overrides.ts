@@ -1,4 +1,4 @@
-import type { AssetObserver, EntityObserver } from '@playcanvas/editor-api';
+import type { AssetObserver, EntityObserver } from '@/editor-api';
 
 editor.once('load', () => {
     const REGEX_SCRIPT_NAME = /^components\.script\.scripts\.([^.]+)$/;

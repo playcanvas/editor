@@ -1,7 +1,7 @@
 import { Container, Button } from '@playcanvas/pcui';
 
 import { LegacyTooltip } from '@/common/ui/tooltip';
-import type { Asset } from '@playcanvas/editor-api';
+import type { Asset } from '@/editor-api';
 
 import { BaseSettingsPanel } from './base';
 import type { Attribute } from '../attribute.type.d';
