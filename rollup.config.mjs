@@ -285,32 +285,6 @@ const WORKER_TARGETS = fs.readdirSync('src/workers').map((file) => {
     }
 });
 
-const MODULE_TARGETS = [
-    {
-        input: 'modules/texture-convert/src/index.ts',
-        output: {
-            dir: 'dist/js/texture-convert',
-            format: 'esm'
-        },
-        plugins: [
-            commonjs(),
-            tsconfigPaths(),
-            resolve({
-                extensions: ['.ts', '.js', '.json'],
-                browser: true
-            }),
-            copy({
-                targets: [{ src: 'src/wasm/codecs', dest: 'dist/wasm' }]
-            }),
-            swc({
-                swc: {
-                    minify: production
-                }
-            })
-        ]
-    }
-];
-
 const SERVICE_WORKER_TARGETS = fs.readdirSync('src/sw').map((file) => {
     return {
         input: `src/sw/${file}`,
@@ -338,6 +312,28 @@ export default [
     ...PAGE_TARGETS,
     ...PLUGIN_TARGETS,
     ...WORKER_TARGETS,
-    ...MODULE_TARGETS,
-    ...SERVICE_WORKER_TARGETS
+    ...SERVICE_WORKER_TARGETS,
+    {
+        input: 'src/texture-convert/index.ts',
+        output: {
+            dir: 'dist/js/texture-convert',
+            format: 'esm'
+        },
+        plugins: [
+            commonjs(),
+            tsconfigPaths(),
+            resolve({
+                extensions: ['.ts', '.js', '.json'],
+                browser: true
+            }),
+            copy({
+                targets: [{ src: 'src/wasm/codecs', dest: 'dist/wasm' }]
+            }),
+            swc({
+                swc: {
+                    minify: production
+                }
+            })
+        ]
+    }
 ];
