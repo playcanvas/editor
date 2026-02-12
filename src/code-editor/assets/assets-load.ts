@@ -148,6 +148,7 @@ editor.once('load', () => {
         editor.api.globals.rest.projects.projectAssets('codeeditor')
         .on('load', (status, res) => {
             if (!res.length) {
+                editor.emit('assets:load:progress', 1);
                 editor.emit('assets:load');
                 editor.call('status:clear');
                 return;
