@@ -144,11 +144,6 @@ editor.once('load', () => {
         title.textContent = `Switch to Engine V${engineV2 ? '2' : '1'}?`;
         root.appendChild(title);
 
-        const important = document.createElement('div');
-        important.classList.add('important');
-        important.textContent = 'It is recommended to create a checkpoint before switching engines.';
-        root.appendChild(important);
-
         root.appendChild(createHeader('Engine V1'));
 
         const changesV1 = document.createElement('div');
