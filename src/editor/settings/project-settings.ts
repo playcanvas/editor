@@ -45,7 +45,7 @@ editor.once('load', () => {
         settings.sync.enabled = editor.call('permissions:write');
 
         if (!config.project.settings.hasOwnProperty('engineV2')) {
-            settings.set('engineV2', false);
+            settings.set('engineV2', false, undefined, undefined, true);
         }
 
         if (config.project.settings.hasOwnProperty('useLegacyScripts')) {
