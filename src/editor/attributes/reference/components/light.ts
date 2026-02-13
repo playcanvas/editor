@@ -232,6 +232,12 @@ export const fields: AttributeReference[]  = [{
     description: 'Spotlight cookie scale.',
     url: 'https://api.playcanvas.com/engine/classes/LightComponent.html#cookiescale'
 }, {
+    name: 'light:penumbraSize',
+    title: 'penumbraSize',
+    subTitle: '{Number}',
+    description: 'The size of the penumbra for PCSS (Percentage Closer Soft Shadows). A larger value produces softer shadow edges. Only applies when shadows are enabled.',
+    url: 'https://api.playcanvas.com/engine/classes/LightComponent.html#penumbrasize'
+}, {
     name: 'light:layers',
     title: 'layers',
     subTitle: '{Number[]}',

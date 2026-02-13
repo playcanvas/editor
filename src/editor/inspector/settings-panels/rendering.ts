@@ -144,6 +144,13 @@ const ATTRIBUTES: (Attribute | Divider)[] = [
         }
     },
     {
+        observer: 'sceneSettings',
+        label: 'Sky Depth Write',
+        path: 'render.skyDepthWrite',
+        reference: 'settings:skyDepthWrite',
+        type: 'boolean'
+    },
+    {
         type: 'divider'
     },
     {

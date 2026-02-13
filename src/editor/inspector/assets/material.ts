@@ -883,6 +883,11 @@ const OTHER_ATTRIBUTES: (Attribute | Divider)[] = [{
     },
     reference: 'asset:material:cull'
 }, {
+    label: 'Two Sided Lighting',
+    path: 'data.twoSidedLighting',
+    type: 'boolean',
+    reference: 'asset:material:twoSidedLighting'
+}, {
     label: 'Use Fog',
     path: 'data.useFog',
     type: 'boolean',

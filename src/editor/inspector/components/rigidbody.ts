@@ -97,6 +97,16 @@ const ATTRIBUTES: Attribute[] = [{
         min: 0,
         max: 1
     }
+}, {
+    label: 'Rolling Friction',
+    path: 'components.rigidbody.rollingFriction',
+    reference: 'rigidbody:rollingFriction',
+    type: 'number',
+    args: {
+        precision: 2,
+        step: 0.01,
+        min: 0
+    }
 }];
 
 class RigidbodyComponentInspector extends ComponentInspector {
