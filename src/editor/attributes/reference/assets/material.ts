@@ -1321,4 +1321,88 @@ export const fields: AttributeReference[]  = [{
     subTitle: '{Number}',
     description: 'Use alphaFade to fade out materials that do not use opacity to fade specular (opacityFadesSpecular is false).',
     url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#alphafade'
+}, {
+    name: 'asset:material:diffuseDetailMap',
+    title: 'diffuseDetailMap',
+    subTitle: '{pc.Texture}',
+    description: 'A detail map that is blended with the diffuse color of the material.',
+    url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#diffusedetailmap'
+}, {
+    name: 'asset:material:diffuseDetailMapUv',
+    title: 'diffuseDetailMapUv',
+    subTitle: '{Number}',
+    description: 'The UV channel for the diffuse detail map.',
+    url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#diffusedetailmapuv'
+}, {
+    name: 'asset:material:diffuseDetailMapChannel',
+    title: 'diffuseDetailMapChannel',
+    subTitle: '{String}',
+    description: 'Color channel of the diffuse detail map to use.',
+    url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#diffusedetailmapchannel'
+}, {
+    name: 'asset:material:diffuseDetailMapOffset',
+    title: 'diffuseDetailMapOffset',
+    subTitle: '{pc.Vec2}',
+    description: 'Controls the 2D offset of the diffuse detail map. Each component is between 0 and 1.',
+    url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#diffusedetailmapoffset'
+}, {
+    name: 'asset:material:diffuseDetailMapTiling',
+    title: 'diffuseDetailMapTiling',
+    subTitle: '{pc.Vec2}',
+    description: 'Controls the 2D tiling of the diffuse detail map.',
+    url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#diffusedetailmaptiling'
+}, {
+    name: 'asset:material:diffuseDetailMapRotation',
+    title: 'diffuseDetailMapRotation',
+    subTitle: '{Number}',
+    description: 'Controls the 2D rotation (in degrees) of the diffuse detail map.',
+    url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#diffusedetailmaprotation'
+}, {
+    name: 'asset:material:diffuseDetailMode',
+    title: 'diffuseDetailMode',
+    subTitle: '{String}',
+    description: 'Determines how the diffuse detail map is blended with the diffuse map. Can be: mul, add, screen, overlay, min, max.',
+    url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#diffusedetailmode'
+}, {
+    name: 'asset:material:normalDetailMap',
+    title: 'normalDetailMap',
+    subTitle: '{pc.Texture}',
+    description: 'A detail normal map that is blended with the main normal map of the material.',
+    url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#normaldetailmap'
+}, {
+    name: 'asset:material:normalDetailMapUv',
+    title: 'normalDetailMapUv',
+    subTitle: '{Number}',
+    description: 'The UV channel for the normal detail map.',
+    url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#normaldetailmapuv'
+}, {
+    name: 'asset:material:normalDetailMapOffset',
+    title: 'normalDetailMapOffset',
+    subTitle: '{pc.Vec2}',
+    description: 'Controls the 2D offset of the normal detail map.',
+    url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#normaldetailmapoffset'
+}, {
+    name: 'asset:material:normalDetailMapTiling',
+    title: 'normalDetailMapTiling',
+    subTitle: '{pc.Vec2}',
+    description: 'Controls the 2D tiling of the normal detail map.',
+    url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#normaldetailmaptiling'
+}, {
+    name: 'asset:material:normalDetailMapRotation',
+    title: 'normalDetailMapRotation',
+    subTitle: '{Number}',
+    description: 'Controls the 2D rotation (in degrees) of the normal detail map.',
+    url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#normaldetailmaprotation'
+}, {
+    name: 'asset:material:normalDetailMapBumpiness',
+    title: 'normalDetailMapBumpiness',
+    subTitle: '{Number}',
+    description: 'The bumpiness of the normal detail map. This value scales the impact of the normal detail map on the surface.',
+    url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#normaldetailmapbumpiness'
+}, {
+    name: 'asset:material:twoSidedLighting',
+    title: 'twoSidedLighting',
+    subTitle: '{Boolean}',
+    description: 'Calculate proper normals on the backface. When cull mode is set to None, this enables lighting to be calculated for the backside of the mesh.',
+    url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#twosidedlighting'
 }];

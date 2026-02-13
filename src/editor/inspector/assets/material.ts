@@ -790,6 +790,45 @@ const IRIDESCENCE_ATTRIBUTES: (Attribute | Divider)[] = [{
     }
 }];
 
+const DETAIL_ATTRIBUTES: (Attribute | Divider)[] = [
+    ...createTextureAttribute('Diffuse Detail', 'diffuseDetail', TextureTypes.Color), {
+        label: 'Diffuse Detail Mode',
+        path: 'data.diffuseDetailMode',
+        type: 'select',
+        args: {
+            type: 'string',
+            options: [{
+                v: 'mul', t: 'Multiply'
+            }, {
+                v: 'add', t: 'Add'
+            }, {
+                v: 'screen', t: 'Screen'
+            }, {
+                v: 'overlay', t: 'Overlay'
+            }, {
+                v: 'min', t: 'Min'
+            }, {
+                v: 'max', t: 'Max'
+            }]
+        },
+        reference: 'asset:material:diffuseDetailMode'
+    }, {
+        type: 'divider'
+    },
+    ...createTextureAttribute('Normal Detail', 'normalDetail', TextureTypes.Normal), {
+        label: 'Normal Detail Map Bump',
+        path: 'data.normalDetailMapBumpiness',
+        type: 'slider',
+        args: {
+            precision: 3,
+            step: 0.01,
+            min: 0,
+            max: 2
+        },
+        reference: 'asset:material:normalDetailMapBumpiness'
+    }
+];
+
 const ENVIRONMENT_ATTRIBUTES: (Attribute | Divider)[] = [{
     label: 'Sphere Map',
     path: 'data.sphereMap',
@@ -882,6 +921,11 @@ const OTHER_ATTRIBUTES: (Attribute | Divider)[] = [{
         }]
     },
     reference: 'asset:material:cull'
+}, {
+    label: 'Two Sided Lighting',
+    path: 'data.twoSidedLighting',
+    type: 'boolean',
+    reference: 'asset:material:twoSidedLighting'
 }, {
     label: 'Use Fog',
     path: 'data.useFog',
@@ -1062,6 +1106,21 @@ const DOM = parent => [{
     }]
 }, {
     root: {
+        detailPanel: new Panel({
+            headerText: 'DETAIL',
+            collapsible: true,
+            collapsed: true
+        })
+    },
+    children: [{
+        detailInspector: new AttributesInspector({
+            assets: parent._args.assets,
+            history: parent._args.history,
+            attributes: DETAIL_ATTRIBUTES
+        })
+    }]
+}, {
+    root: {
         clearCoatPanel: new Panel({
             headerText: 'CLEARCOAT',
             collapsible: true,
@@ -1205,7 +1264,9 @@ const MAPS = {
     'refraction': ['refractionInspector'],
     'thickness': ['refractionInspector'],
     'iridescence': ['iridescenceInspector'],
-    'iridescenceThickness': ['iridescenceInspector']
+    'iridescenceThickness': ['iridescenceInspector'],
+    'diffuseDetail': ['detailInspector'],
+    'normalDetail': ['detailInspector']
 };
 
 const COLLAPSED_PANEL_DEPENDENCIES = {
@@ -1220,7 +1281,8 @@ const COLLAPSED_PANEL_DEPENDENCIES = {
     '_normalsPanel': ['normalMap'],
     '_parallaxPanel': ['heightMap'],
     '_envPanel': ['sphereMap', 'cubeMap'],
-    '_lightmapPanel': ['lightMap']
+    '_lightmapPanel': ['lightMap'],
+    '_detailPanel': ['diffuseDetailMap', 'normalDetailMap']
 };
 
 const BULK_SLOTS = {
@@ -1243,7 +1305,9 @@ const BULK_SLOTS = {
     'opacity': ['o', 't', 'opacity', 'alpha', 'transparency', 'gmat', 'gmao', 'gmaa', 'rgba', 'rmat', 'rmao', 'rmaa'],
     'normal': ['n', 'norm', 'normal', 'normals'],
     'height': ['p', 'h', 'height', 'parallax', 'bump'],
-    'light': ['l', 'lm', 'light', 'lightmap']
+    'light': ['l', 'lm', 'light', 'lightmap'],
+    'diffuseDetail': ['dd', 'diffusedetail', 'detaildiffuse'],
+    'normalDetail': ['nd', 'normaldetail', 'detailnormal']
 };
 
 const POSTFIX_TO_BULK_SLOT = {};
@@ -1283,6 +1347,8 @@ class MaterialAssetInspector extends Container {
         this._opacityInspector.getField('data.opacityShadowDither').parent.hidden = !pathExists(pc, 'StandardMaterial.prototype.opacityShadowDither');
         this._refractionInspector.getField('data.dispersion').parent.hidden = !pathExists(pc, 'StandardMaterial.prototype.dispersion');
         this._ambientInspector.getField('data.aoIntensity').parent.hidden = !pathExists(pc, 'StandardMaterial.prototype.aoIntensity');
+        this._detailInspector.getField('data.diffuseDetailMap').hidden = !pathExists(pc, 'StandardMaterial.prototype.diffuseDetailMap');
+        this._detailInspector.getField('data.normalDetailMap').hidden = !pathExists(pc, 'StandardMaterial.prototype.normalDetailMap');
 
         // separated out because it needs more work before release
         if (!editor.call('users:hasFlag', 'hasAnisoGGXSpec')) {
@@ -2176,6 +2242,7 @@ class MaterialAssetInspector extends Container {
         this._opacityInspector.link(assets);
         this._normalsInspector.link(assets);
         this._parallaxInspector.link(assets);
+        this._detailInspector.link(assets);
         this._envInspector.link(assets);
         this._lightmapInspector.link(assets);
         this._otherInspector.link(assets);
@@ -2302,6 +2369,7 @@ class MaterialAssetInspector extends Container {
         this._opacityInspector.unlink();
         this._normalsInspector.unlink();
         this._parallaxInspector.unlink();
+        this._detailInspector.unlink();
         this._envInspector.unlink();
         this._lightmapInspector.unlink();
         this._otherInspector.unlink();

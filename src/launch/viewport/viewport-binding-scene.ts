@@ -12,6 +12,12 @@ editor.once('load', () => {
             updating = false;
 
             app.applySceneSettings(sceneSettings.json());
+
+            // apply sky depth write (not yet handled by engine's applySettings)
+            const skyDepthWrite = sceneSettings.get('render.skyDepthWrite');
+            if (skyDepthWrite !== undefined) {
+                app.scene.sky.depthWrite = skyDepthWrite;
+            }
         };
 
         // queue settings apply

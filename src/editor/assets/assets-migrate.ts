@@ -151,6 +151,18 @@ editor.once('load', () => {
             asset.set('data.alphaToCoverage', false);
         }
 
+        if (!asset.has('data.twoSidedLighting')) {
+            asset.set('data.twoSidedLighting', false);
+        }
+
+        if (!asset.has('data.diffuseDetailMode')) {
+            asset.set('data.diffuseDetailMode', 'mul');
+        }
+
+        if (!asset.has('data.normalDetailMapBumpiness')) {
+            asset.set('data.normalDetailMapBumpiness', 1);
+        }
+
         if (!asset.has('data.opacityFadesSpecular')) {
             asset.set('data.opacityFadesSpecular', true);
         }

@@ -124,6 +124,11 @@ editor.once('load', () => {
                     entity.set('components.light.vsmBias', 0.01 * 0.25);
                 }
 
+                // penumbraSize
+                if (!entity.has('components.light.penumbraSize')) {
+                    entity.set('components.light.penumbraSize', 1);
+                }
+
                 // cookieAsset
                 if (!entity.has('components.light.cookieAsset')) {
                     entity.set('components.light.cookieAsset', null);
@@ -168,6 +173,22 @@ editor.once('load', () => {
                 // shadow intensity
                 if (!entity.has('components.light.shadowIntensity')) {
                     entity.set('components.light.shadowIntensity', 1.0);
+                }
+            }
+
+            // rigidbody
+            if (entity.has('components.rigidbody')) {
+                // rollingFriction
+                if (!entity.has('components.rigidbody.rollingFriction')) {
+                    entity.set('components.rigidbody.rollingFriction', 0);
+                }
+            }
+
+            // gsplat
+            if (entity.has('components.gsplat')) {
+                // unified
+                if (!entity.has('components.gsplat.unified')) {
+                    entity.set('components.gsplat.unified', false);
                 }
             }
 

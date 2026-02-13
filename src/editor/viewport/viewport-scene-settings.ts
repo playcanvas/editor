@@ -20,6 +20,12 @@ editor.once('load', () => {
         // apply scene settings
         app.applySceneSettings(sceneSettings.json());
 
+        // apply sky depth write (not yet handled by engine's applySettings)
+        const skyDepthWrite = sceneSettings.get('render.skyDepthWrite');
+        if (skyDepthWrite !== undefined) {
+            app.scene.sky.depthWrite = skyDepthWrite;
+        }
+
         // need to update all materials on scene settings change
         app.assets.filter((asset) => {
             return asset.type === 'material' && asset.resource;

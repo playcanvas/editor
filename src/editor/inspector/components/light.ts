@@ -337,6 +337,16 @@ const ATTRIBUTES: (Attribute | Divider)[] = [{
         step: 0.001
     }
 }, {
+    label: 'Penumbra Size',
+    path: 'components.light.penumbraSize',
+    reference: 'light:penumbraSize',
+    type: 'number',
+    args: {
+        precision: 2,
+        step: 0.1,
+        min: 0
+    }
+}, {
     type: 'divider',
     alias: 'components.light.cookieDivider'
 }, {
@@ -588,6 +598,8 @@ class LightComponentInspector extends ComponentInspector {
         ].forEach((field) => {
             this._field(field).parent.hidden = !castShadows || shadowTypeVsm;
         });
+
+        this._field('penumbraSize').parent.hidden = !castShadows;
 
         this._btnUpdateShadow.hidden = this._field('shadowUpdateMode').value !== SHADOWUPDATE_THISFRAME;
     }
