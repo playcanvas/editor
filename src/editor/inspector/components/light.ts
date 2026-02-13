@@ -278,6 +278,8 @@ const ATTRIBUTES: (Attribute | Divider)[] = [{
             v: SHADOW_VSM_16F, t: 'Variance Shadow Map (16bit)'
         }, {
             v: SHADOW_VSM_32F, t: 'Variance Shadow Map (32bit)'
+        }, {
+            v: SHADOW_PCSS_32F, t: 'PCSS (Soft Shadows)'
         }]
     }
 }, {
@@ -341,6 +343,16 @@ const ATTRIBUTES: (Attribute | Divider)[] = [{
     label: 'Penumbra Size',
     path: 'components.light.penumbraSize',
     reference: 'light:penumbraSize',
+    type: 'number',
+    args: {
+        precision: 2,
+        step: 0.1,
+        min: 0
+    }
+}, {
+    label: 'Penumbra Falloff',
+    path: 'components.light.penumbraFalloff',
+    reference: 'light:penumbraFalloff',
     type: 'number',
     args: {
         precision: 2,
@@ -600,7 +612,9 @@ class LightComponentInspector extends ComponentInspector {
             this._field(field).parent.hidden = !castShadows || shadowTypeVsm;
         });
 
-        this._field('penumbraSize').parent.hidden = !castShadows || shadowType !== SHADOW_PCSS_32F;
+        const shadowTypePcss = shadowType === SHADOW_PCSS_32F;
+        this._field('penumbraSize').parent.hidden = !castShadows || !shadowTypePcss;
+        this._field('penumbraFalloff').parent.hidden = !castShadows || !shadowTypePcss;
 
         this._btnUpdateShadow.hidden = this._field('shadowUpdateMode').value !== SHADOWUPDATE_THISFRAME;
     }

@@ -238,6 +238,12 @@ export const fields: AttributeReference[]  = [{
     description: 'The size of the penumbra for PCSS (Percentage Closer Soft Shadows). A larger value produces softer shadow edges. Only applies when shadows are enabled.',
     url: 'https://api.playcanvas.com/engine/classes/LightComponent.html#penumbrasize'
 }, {
+    name: 'light:penumbraFalloff',
+    title: 'penumbraFalloff',
+    subTitle: '{Number}',
+    description: 'The falloff rate for shadow penumbra for PCSS (Percentage Closer Soft Shadows). Controls how quickly the shadow edge transitions from hard to soft. Only applies when shadow type is PCSS.',
+    url: 'https://api.playcanvas.com/engine/classes/LightComponent.html#penumbrafalloff'
+}, {
     name: 'light:layers',
     title: 'layers',
     subTitle: '{Number[]}',
