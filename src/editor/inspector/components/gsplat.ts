@@ -1,6 +1,5 @@
 import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from 'playcanvas';
 
-import { pathExists } from '@/common/utils';
 import { ComponentInspector } from './component';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
@@ -26,11 +25,6 @@ const ATTRIBUTES: Attribute[] = [{
             LAYERID_IMMEDIATE
         ]
     }
-}, {
-    label: 'Unified',
-    path: 'components.gsplat.unified',
-    reference: 'gsplat:unified',
-    type: 'boolean'
 }];
 
 class GSplatComponentInspector extends ComponentInspector {
@@ -51,8 +45,6 @@ class GSplatComponentInspector extends ComponentInspector {
             templateOverridesInspector: this._templateOverridesInspector
         });
         this.append(this._attributesInspector);
-
-        this._field('unified').parent.hidden = !pathExists(pc, 'GSplatComponent.prototype.unified');
     }
 
     _field(name) {

@@ -184,14 +184,6 @@ editor.once('load', () => {
                 }
             }
 
-            // gsplat
-            if (entity.has('components.gsplat')) {
-                // unified
-                if (!entity.has('components.gsplat.unified')) {
-                    entity.set('components.gsplat.unified', false);
-                }
-            }
-
             // model
             if (entity.has('components.model')) {
                 // isStatic

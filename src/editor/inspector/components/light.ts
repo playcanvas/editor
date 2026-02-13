@@ -6,6 +6,7 @@ import {
     SHADOW_PCF1_32F,
     SHADOW_PCF3_32F,
     SHADOW_PCF5_32F,
+    SHADOW_PCSS_32F,
     SHADOW_VSM_16F,
     SHADOW_VSM_32F,
     SHADOWUPDATE_REALTIME,
@@ -599,7 +600,7 @@ class LightComponentInspector extends ComponentInspector {
             this._field(field).parent.hidden = !castShadows || shadowTypeVsm;
         });
 
-        this._field('penumbraSize').parent.hidden = !castShadows;
+        this._field('penumbraSize').parent.hidden = !castShadows || shadowType !== SHADOW_PCSS_32F;
 
         this._btnUpdateShadow.hidden = this._field('shadowUpdateMode').value !== SHADOWUPDATE_THISFRAME;
     }
