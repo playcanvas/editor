@@ -129,6 +129,11 @@ editor.once('load', () => {
                     entity.set('components.light.penumbraSize', 1);
                 }
 
+                // penumbraFalloff
+                if (!entity.has('components.light.penumbraFalloff')) {
+                    entity.set('components.light.penumbraFalloff', 1);
+                }
+
                 // cookieAsset
                 if (!entity.has('components.light.cookieAsset')) {
                     entity.set('components.light.cookieAsset', null);
