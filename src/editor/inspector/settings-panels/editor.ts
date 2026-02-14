@@ -230,6 +230,34 @@ const ATTRIBUTES: (Attribute | Divider)[] = [
         reference: 'settings:lightmapperAutoBake',
         label: 'Lightmapper Auto Bake',
         type: 'boolean'
+    },
+    {
+        alias: 'divider:3',
+        type: 'divider'
+    },
+    {
+        observer: 'settings',
+        path: 'editor.codeEditor',
+        reference: 'settings:codeEditor',
+        label: 'Code Editor',
+        type: 'select',
+        args: {
+            type: 'string',
+            options: [
+                {
+                    v: 'web',
+                    t: 'Web'
+                },
+                {
+                    v: 'vscode',
+                    t: 'VS Code'
+                },
+                {
+                    v: 'cursor',
+                    t: 'Cursor'
+                }
+            ]
+        }
     }
 ];
 
