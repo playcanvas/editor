@@ -78,8 +78,11 @@ function rememberPrevious(entities: any[]) {
  * @param entities - The entities
  * @param options.history - Whether to record a history action. Defaults to true.
  * @param options.waitSubmitted - Whether to wait till ops submitted.
+ * @param options.preserveEntityReferences - Whether to skip nullifying entity references
+ * when entities are removed. Useful when entities are immediately re-created with the same
+ * resource_id (e.g. during template revert). Defaults to false.
  */
-async function deleteEntities(entities: Entity[] | Entity, options: { history?: boolean; waitSubmitted?: boolean } = {}) {
+async function deleteEntities(entities: Entity[] | Entity, options: { history?: boolean; waitSubmitted?: boolean; preserveEntityReferences?: boolean } = {}) {
     if (options.history === undefined) {
         options.history = true;
     }
@@ -139,8 +142,9 @@ async function deleteEntities(entities: Entity[] | Entity, options: { history?: 
         previous = rememberPrevious(entities);
     }
 
-    // find entity references
-    const entityReferences = findEntityReferencesInComponents(api.entities.root);
+    // find entity references (skip when preserveEntityReferences is true,
+    // e.g. during template revert where entities are immediately re-created with same IDs)
+    const entityReferences = options.preserveEntityReferences ? null : findEntityReferencesInComponents(api.entities.root);
 
     entities.forEach((entity) => {
         api.entities.remove(entity, entityReferences);
