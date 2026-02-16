@@ -1,5 +1,5 @@
 import { Observer } from '@playcanvas/observer';
-import type { EventHandle } from '@playcanvas/observer/types/event-handle';
+import type { EventHandle } from '@playcanvas/observer';
 
 import { Entity } from '../entity';
 import { globals as api } from '../globals';

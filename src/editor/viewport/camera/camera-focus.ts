@@ -1,14 +1,16 @@
+import { PROJECTION_ORTHOGRAPHIC, Vec3 } from 'playcanvas';
+
 editor.once('viewport:load', (app) => {
     // Focusing on a point and a distance
 
-    const focusTarget = new pc.Vec3();
-    const focusPoint = new pc.Vec3();
+    const focusTarget = new Vec3();
+    const focusPoint = new Vec3();
     let focusOrthoHeight = 0;
     let focusCamera;
     let focusing = false;
     let firstUpdate = false;
     const flySpeed = 0.25;
-    const vecA = new pc.Vec3();
+    const vecA = new Vec3();
 
     editor.method('camera:focus', (point, distance) => {
         const camera = editor.call('camera:current');
@@ -21,7 +23,7 @@ editor.once('viewport:load', (app) => {
         focusing = true;
         firstUpdate = true;
 
-        if (camera.camera.projection === pc.PROJECTION_ORTHOGRAPHIC) {
+        if (camera.camera.projection === PROJECTION_ORTHOGRAPHIC) {
             focusOrthoHeight = distance / 2;
             distance = (camera.camera.farClip - (camera.camera.nearClip || 0.0001)) / 2 + (camera.camera.nearClip || 0.0001);
         }
@@ -58,7 +60,7 @@ editor.once('viewport:load', (app) => {
                 vecA.copy(pos).lerp(pos, focusPoint, speed);
                 camera.setPosition(vecA);
 
-                if (camera.camera.projection === pc.PROJECTION_ORTHOGRAPHIC) {
+                if (camera.camera.projection === PROJECTION_ORTHOGRAPHIC) {
                     let orthoHeight = camera.camera.orthoHeight;
                     orthoHeight += (focusOrthoHeight - orthoHeight) * Math.min(1.0, flySpeed * ((firstUpdate ? 1 / 60 : dt) / (1 / 60)));
                     camera.camera.orthoHeight = orthoHeight;
@@ -67,7 +69,7 @@ editor.once('viewport:load', (app) => {
                 editor.call('viewport:render');
             } else {
                 camera.setPosition(focusPoint);
-                if (camera.camera.projection === pc.PROJECTION_ORTHOGRAPHIC) {
+                if (camera.camera.projection === PROJECTION_ORTHOGRAPHIC) {
                     camera.camera.orthoHeight = focusOrthoHeight;
                 }
 

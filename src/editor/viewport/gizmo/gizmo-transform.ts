@@ -1,15 +1,17 @@
 import {
+    Color,
+    Gizmo,
     type Entity,
     type MeshInstance,
-    type TransformGizmo,
-    type TranslateGizmo,
-    type RotateGizmo,
-    type ScaleGizmo,
-    type Layer
+    type Layer,
+    RotateGizmo,
+    ScaleGizmo,
+    TransformGizmo,
+    TranslateGizmo
 } from 'playcanvas';
 
 import { Defer } from '@/common/defer';
-import { type EntityObserver } from '@playcanvas/editor-api';
+import { type EntityObserver } from '@/editor-api';
 
 type GizmoNodeTransform = {
     position: number[];
@@ -69,26 +71,26 @@ const loaded = new Defer<void>();
 
 const CLASSIC_THEME: GizmoTheme = {
     shapeBase: {
-        x: pc.Color.RED,
-        y: pc.Color.GREEN,
-        z: pc.Color.BLUE,
-        xyz: new pc.Color(1, 1, 1, 0.35),
-        f: new pc.Color(1, 1, 1, 0.35)
+        x: Color.RED,
+        y: Color.GREEN,
+        z: Color.BLUE,
+        xyz: new Color(1, 1, 1, 0.35),
+        f: new Color(1, 1, 1, 0.35)
     },
     shapeHover: {
-        x: pc.Color.WHITE,
-        y: pc.Color.WHITE,
-        z: pc.Color.WHITE,
-        xyz: pc.Color.WHITE,
-        f: pc.Color.WHITE
+        x: Color.WHITE,
+        y: Color.WHITE,
+        z: Color.WHITE,
+        xyz: Color.WHITE,
+        f: Color.WHITE
     },
     guideBase: {
-        x: pc.Color.WHITE,
-        y: pc.Color.WHITE,
-        z: pc.Color.WHITE
+        x: Color.WHITE,
+        y: Color.WHITE,
+        z: Color.WHITE
     },
     guideOcclusion: 0.9,
-    disabled: new pc.Color(0, 0, 0, 0)
+    disabled: new Color(0, 0, 0, 0)
 };
 const CLASSIC_PRESET: GizmoPreset = {
     translate: {
@@ -185,23 +187,23 @@ const initGizmo = <T extends TransformGizmo>(gizmo: T) => {
     gizmo.mouseButtons[2] = false; // right
 
     // enable orbit rotation for rotate gizmo
-    if (gizmo instanceof pc.RotateGizmo) {
+    if (gizmo instanceof RotateGizmo) {
         gizmo.rotationMode = 'orbit';
     }
 
     // enable uniform scaling for scale gizmo
-    if (gizmo instanceof pc.ScaleGizmo) {
+    if (gizmo instanceof ScaleGizmo) {
         gizmo.uniform = true;
     }
 
     // call viewport render when gizmo fires update
-    gizmo.on(pc.Gizmo.EVENT_RENDERUPDATE, () => {
+    gizmo.on(Gizmo.EVENT_RENDERUPDATE, () => {
         editor.call('viewport:render');
     });
 
     // track hover state and cursor position
     let hovering = false;
-    gizmo.on(pc.Gizmo.EVENT_POINTERMOVE, (x: number, y: number, meshInstance: MeshInstance) => {
+    gizmo.on(Gizmo.EVENT_POINTERMOVE, (x: number, y: number, meshInstance: MeshInstance) => {
         cursor[0] = x;
         cursor[1] = y;
         if (hovering === !!meshInstance) {
@@ -210,7 +212,7 @@ const initGizmo = <T extends TransformGizmo>(gizmo: T) => {
         hovering = !!meshInstance;
         editor.emit('gizmo:transform:hover', hovering);
     });
-    gizmo.on(pc.Gizmo.EVENT_NODESDETACH, () => {
+    gizmo.on(Gizmo.EVENT_NODESDETACH, () => {
         if (hovering) {
             hovering = false;
             editor.emit('gizmo:transform:hover', false);
@@ -219,7 +221,7 @@ const initGizmo = <T extends TransformGizmo>(gizmo: T) => {
 
     // track history
     const cache: GizmoNodeTransform[] = [];
-    gizmo.on(pc.TransformGizmo.EVENT_TRANSFORMSTART, () => {
+    gizmo.on(TransformGizmo.EVENT_TRANSFORMSTART, () => {
         const observers = selection();
         if (!observers.length) {
             return;
@@ -234,7 +236,7 @@ const initGizmo = <T extends TransformGizmo>(gizmo: T) => {
 
         editor.emit('gizmo:transform:drag', true);
     });
-    gizmo.on(pc.TransformGizmo.EVENT_TRANSFORMMOVE, () => {
+    gizmo.on(TransformGizmo.EVENT_TRANSFORMMOVE, () => {
         const observers = selection();
         if (!observers.length) {
             return;
@@ -243,7 +245,7 @@ const initGizmo = <T extends TransformGizmo>(gizmo: T) => {
             getTRS(observers[i]);
         }
     });
-    gizmo.on(pc.TransformGizmo.EVENT_TRANSFORMEND, () => {
+    gizmo.on(TransformGizmo.EVENT_TRANSFORMEND, () => {
         const observers = selection();
         if (!observers.length) {
             return;
@@ -291,13 +293,13 @@ editor.on('scene:load', () => {
     const layer: Layer = editor.call('gizmo:layers', 'Axis Gizmo Immediate');
 
     if (!translate) {
-        translate = initGizmo(new pc.TranslateGizmo(camera.camera, layer));
+        translate = initGizmo(new TranslateGizmo(camera.camera, layer));
     }
     if (!rotate) {
-        rotate = initGizmo(new pc.RotateGizmo(camera.camera, layer));
+        rotate = initGizmo(new RotateGizmo(camera.camera, layer));
     }
     if (!scale) {
-        scale = initGizmo(new pc.ScaleGizmo(camera.camera, layer));
+        scale = initGizmo(new ScaleGizmo(camera.camera, layer));
     }
 
     // save default preset if not already set
@@ -382,9 +384,9 @@ editor.on('gizmo:carry', () => {
 
     // manual fire pointer move to update gizmo position
     // TODO: add carry functionality to engine
-    translate.fire(pc.Gizmo.EVENT_POINTERMOVE, cursor[0], cursor[1], null);
-    rotate.fire(pc.Gizmo.EVENT_POINTERMOVE, cursor[0], cursor[1], null);
-    scale.fire(pc.Gizmo.EVENT_POINTERMOVE, cursor[0], cursor[1], null);
+    translate.fire(Gizmo.EVENT_POINTERMOVE, cursor[0], cursor[1], null);
+    rotate.fire(Gizmo.EVENT_POINTERMOVE, cursor[0], cursor[1], null);
+    scale.fire(Gizmo.EVENT_POINTERMOVE, cursor[0], cursor[1], null);
 });
 
 const reflow = () => {

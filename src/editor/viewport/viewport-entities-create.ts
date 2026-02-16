@@ -1,4 +1,6 @@
-import type { EntityObserver } from '@playcanvas/editor-api';
+import { Entity } from 'playcanvas';
+
+import type { EntityObserver } from '@/editor-api';
 
 editor.once('load', () => {
     const app = editor.call('viewport:app');
@@ -26,7 +28,7 @@ editor.once('load', () => {
     };
 
     const createEntity = function (obj) {
-        const entity = new pc.Entity();
+        const entity = new Entity();
 
         entitiesIndex[obj.get('resource_id')] = entity;
 
@@ -52,7 +54,7 @@ editor.once('load', () => {
         // try to insert the node at the right index
         for (let i = 0, len = parent._children.length; i < len; i++) {
             const child = parent._children[i];
-            if (child instanceof pc.Entity && childIndex[child.getGuid()]) {
+            if (child instanceof Entity && childIndex[child.getGuid()]) {
                 // if our index is less than this child's index
                 // then put the item here
                 if (index < childIndex[child.getGuid()].index) {
@@ -144,7 +146,7 @@ editor.once('load', () => {
     // Pending entities awaiting component creation
     // This batching ensures all entities are created before components are added,
     // allowing GUID references (like rootBone) to resolve correctly
-    const pendingEntities: { entity: pc.Entity; observer: EntityObserver }[] = [];
+    const pendingEntities: { entity: Entity; observer: EntityObserver }[] = [];
     let awaitingComponentCreation = false;
 
     const processPendingComponents = function () {

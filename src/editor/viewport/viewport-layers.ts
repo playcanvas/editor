@@ -1,3 +1,5 @@
+import { Layer, LayerComposition } from 'playcanvas';
+
 editor.once('load', () => {
     const app = editor.call('viewport:app');
     if (!app) {
@@ -12,7 +14,7 @@ editor.once('load', () => {
 
     const createLayer = function (id, data) {
         id = parseInt(id, 10);
-        return new pc.Layer({
+        return new Layer({
             id: id,
             enabled: true, // disable depth layer - it will be enabled by the engine as needed
             name: data.name,
@@ -165,7 +167,7 @@ editor.once('load', () => {
         }
 
         let i, len;
-        const composition = new pc.LayerComposition('viewport-layers');
+        const composition = new LayerComposition('viewport-layers');
 
         for (const key in layers) {
             layerIndex[key] = createLayer(key, layers[key]);

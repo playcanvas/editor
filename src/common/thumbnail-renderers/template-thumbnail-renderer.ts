@@ -1,12 +1,12 @@
 import { Observer } from '@playcanvas/observer';
-import type { Entity, Layer, Template, Asset, AppBase, WebglGraphicsDevice, MeshInstance, RenderComponent, BoundingBox, AssetReference } from 'playcanvas';
+import { Application, Asset, type AppBase, BoundingBox, Color, Entity, type Layer, type MeshInstance, type RenderComponent, StandardMaterial, type Template, type WebglGraphicsDevice, type AssetReference } from 'playcanvas';
 
-import { Asset as EditorAsset } from '@playcanvas/editor-api';
+import { Asset as EditorAsset } from '@/editor-api';
 
 import { ThumbnailRenderer } from './thumbnail-renderer';
 
 function calculateBoundingBoxOfMeshInstances(meshInstances: MeshInstance[]): BoundingBox {
-    const aabb = new pc.BoundingBox();
+    const aabb = new BoundingBox();
     let first = true;
     for (const meshInstance of meshInstances) {
         if (first) {
@@ -52,7 +52,7 @@ class TemplatePreviewScene extends Observer {
 
     materialAssetIds: number[] = [];
 
-    aabb: BoundingBox = new pc.BoundingBox();
+    aabb: BoundingBox = new BoundingBox();
 
     requiredAssetLoadCount = 0;
 
@@ -83,19 +83,19 @@ class TemplatePreviewScene extends Observer {
 
     initializePlaceholderScene() {
         // Camera
-        this.cameraEntity = new pc.Entity();
-        this.cameraOrigin = new pc.Entity();
+        this.cameraEntity = new Entity();
+        this.cameraOrigin = new Entity();
         this.cameraEntity.addComponent('camera', {
             nearClip: 0.1,
             farClip: 32,
-            clearColor: new pc.Color(41 / 255, 53 / 255, 56 / 255, 0.0),
+            clearColor: new Color(41 / 255, 53 / 255, 56 / 255, 0.0),
             frustumCulling: false,
             layers: []
         });
         this.cameraEntity.setLocalPosition(0, 0, 1.35);
         this.cameraOrigin.addChild(this.cameraEntity);
         // Light
-        this.lightEntity = new pc.Entity();
+        this.lightEntity = new Entity();
         this.lightEntity.addComponent('light', {
             type: 'directional',
             layers: []
@@ -103,10 +103,10 @@ class TemplatePreviewScene extends Observer {
         this.lightEntity.setLocalEulerAngles(45, 135, 0);
 
         // Just a placeholder for the template origin
-        this.templateOrigin = new pc.Entity();
+        this.templateOrigin = new Entity();
 
         // Root for calculating the transformation etc.
-        this.sceneRoot = new pc.Entity();
+        this.sceneRoot = new Entity();
         this.sceneRoot.addChild(this.cameraOrigin);
         this.sceneRoot.addChild(this.lightEntity);
         this.sceneRoot.addChild(this.templateOrigin);
@@ -199,11 +199,11 @@ class TemplatePreviewScene extends Observer {
 
         if (asset.type === 'material') {
             const material = asset.resource;
-            if (material instanceof pc.StandardMaterial) {
+            if (material instanceof StandardMaterial) {
                 for (const key in material._assetReferences) {
                     const value = material._assetReferences[key] as AssetReference;
                     const asset = value.asset;
-                    if (asset instanceof pc.Asset) {
+                    if (asset instanceof Asset) {
                         this.queueAssetLoad(asset.id);
                     }
                 }
@@ -256,7 +256,7 @@ export class TemplateThumbnailRenderer extends ThumbnailRenderer {
     constructor(editorAsset: EditorAsset,
                 private canvas: HTMLCanvasElement) {
         super();
-        this.app = pc.Application.getApplication();
+        this.app = Application.getApplication();
 
         this.scene = new TemplatePreviewScene(this.app);
         this.scene.initializePlaceholderScene();

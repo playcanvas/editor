@@ -1,10 +1,18 @@
-import { getReservedScriptNames } from 'playcanvas';
-
 // Should not start with a number and then should not contain invalid chars
 const sanityRegex = /^[^0-9.#<>$+%!`&='{}@\\/:*?"|\n][^#<>$+%!`&='{}@\\/:*?"|\n]*$/;
 
 // Some reserved names (e.g. "data", "move", "swap", ...) can not be used and would lead to some issues.
-const reservedScriptNames = getReservedScriptNames();
+// Inlined from playcanvas engine (src/framework/script/script-create.js) to avoid bundling the entire engine.
+const reservedScriptNames = new Set([
+    'system', 'entity', 'create', 'destroy', 'swap', 'move', 'data',
+    'scripts', '_scripts', '_scriptsIndex', '_scriptsData',
+    'enabled', '_oldState', 'onEnable', 'onDisable', 'onPostStateChange',
+    '_onSetEnabled', '_checkState', '_onBeforeRemove',
+    '_onInitializeAttributes', '_onInitialize', '_onPostInitialize',
+    '_onUpdate', '_onPostUpdate',
+    '_callbacks', '_callbackActive', 'has', 'get', 'on', 'off', 'fire', 'once', 'hasEvent',
+    'worker'
+]);
 
 export function normalizeScriptName(filename: string): null | string {
     filename = filename.trim();

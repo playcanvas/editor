@@ -151,6 +151,10 @@ editor.once('load', () => {
             asset.set('data.alphaToCoverage', false);
         }
 
+        if (!asset.has('data.twoSidedLighting')) {
+            asset.set('data.twoSidedLighting', false);
+        }
+
         if (!asset.has('data.opacityFadesSpecular')) {
             asset.set('data.opacityFadesSpecular', true);
         }

@@ -65,4 +65,10 @@ export const fields: AttributeReference[]  = [{
 <li><b>Kinematic</b> (<code>pc.BODYTYPE_KINEMATIC</code>): Controlled by code. Not affected by physics but can push dynamic bodies.</li>
 </ul>`,
     url: 'https://api.playcanvas.com/engine/classes/RigidBodyComponent.html#type'
+}, {
+    name: 'rigidbody:rollingFriction',
+    title: 'rollingFriction',
+    subTitle: '{Number}',
+    description: 'Sets a torsional friction orthogonal to the contact point. This prevents round objects (spheres, cylinders) from rolling indefinitely.',
+    url: 'https://api.playcanvas.com/engine/classes/RigidBodyComponent.html#rollingfriction'
 }];

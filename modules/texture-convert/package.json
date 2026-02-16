@@ -1,5 +1,0 @@
-{
-  "name": "texture-convert",
-  "type": "module",
-  "main": "src/index.js"
-}

@@ -1,8 +1,8 @@
 // config type (injected into HTML)
-declare var config: import('@playcanvas/editor-api').EditorBlankConfig & 
-    import('@playcanvas/editor-api').EditorConfig & 
-    import('@playcanvas/editor-api').CodeEditorConfig &
-    import('@playcanvas/editor-api').LaunchConfig;
+declare var config: import('./src/editor-api').EditorBlankConfig & 
+    import('./src/editor-api').EditorConfig & 
+    import('./src/editor-api').CodeEditorConfig &
+    import('./src/editor-api').LaunchConfig;
 
 // editor
 declare var editor: import('./src/common/editor').Editor<import('./src/common/editor').EditorMethods>;
@@ -20,7 +20,7 @@ declare var metrics: {
 // monaco
 declare var monaco: typeof import('monaco-editor');
 
-// pc (loaded in HTML)
+// pc (bundled in editor, injected in HTML for launch page)
 declare var pc: typeof import('playcanvas');
 
 // pcui
@@ -42,11 +42,6 @@ declare interface Array {
 }
 
 declare interface Window {
-    // diff (injected into HTML)
-    diff: {
-        default: (t: any, e: any, n: any) => any;
-    };
-
     // global variables
     config: typeof config;
     editor: typeof editor;

@@ -1,5 +1,4 @@
 import { Container, SelectInput, NumericInput, BooleanInput, Button } from '@playcanvas/pcui';
-
 import {
     ANIM_EQUAL_TO,
     ANIM_NOT_EQUAL_TO,
@@ -11,7 +10,7 @@ import {
     ANIM_PARAMETER_FLOAT,
     ANIM_PARAMETER_BOOLEAN,
     ANIM_PARAMETER_TRIGGER
-} from '@/core/constants';
+} from 'playcanvas';
 
 const CLASS_ROOT = 'pcui-animstategraph-condition';
 

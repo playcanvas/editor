@@ -1,5 +1,4 @@
 import { Container, Button, Panel, Label } from '@playcanvas/pcui';
-
 import {
     ANIM_EQUAL_TO,
     ANIM_INTERRUPTION_NONE,
@@ -7,7 +6,7 @@ import {
     ANIM_INTERRUPTION_PREV,
     ANIM_INTERRUPTION_NEXT_PREV,
     ANIM_INTERRUPTION_PREV_NEXT
-} from '@/core/constants';
+} from 'playcanvas';
 
 import { AnimstategraphCondition } from './animstategraph-condition';
 import type { Attribute, Divider } from '../attribute.type.d';

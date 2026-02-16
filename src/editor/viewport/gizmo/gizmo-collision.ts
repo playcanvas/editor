@@ -1,3 +1,33 @@
+import {
+    BlendState,
+    BLENDEQUATION_ADD,
+    BLENDMODE_ONE_MINUS_SRC_ALPHA,
+    BLENDMODE_SRC_ALPHA,
+    BoxGeometry,
+    Color,
+    ConeGeometry,
+    CylinderGeometry,
+    Entity,
+    GraphNode,
+    INDEXFORMAT_UINT16,
+    IndexBuffer,
+    Mesh,
+    MeshInstance,
+    Model,
+    PRIMITIVE_TRIANGLES,
+    SEMANTIC_ATTR15,
+    SEMANTIC_NORMAL,
+    SEMANTIC_POSITION,
+    SHADER_FORWARD,
+    SHADER_PICK,
+    Shader,
+    SphereGeometry,
+    TYPE_FLOAT32,
+    Vec3,
+    VertexBuffer,
+    VertexFormat
+} from 'playcanvas';
+
 import { GIZMO_MASK } from '@/core/constants';
 
 import { cloneColorMaterial, createColorMaterial } from '../viewport-color-material';
@@ -12,21 +42,21 @@ editor.once('load', () => {
 
     const alphaFront = 0.6;
     const alphaBehind = 0.2;
-    const colorBehind = new pc.Color(1, 1, 1, 0.05);
-    const colorPrimary = new pc.Color(1, 1, 1);
-    const colorOccluder = new pc.Color(1, 1, 1, 1);
+    const colorBehind = new Color(1, 1, 1, 0.05);
+    const colorPrimary = new Color(1, 1, 1);
+    const colorOccluder = new Color(1, 1, 1, 1);
     const colorDefault = [1, 1, 1];
 
     const materialDefault = createColorMaterial();
     materialDefault.name = 'collision';
     materialDefault.color = colorPrimary;
-    materialDefault.blendState = new pc.BlendState(true, pc.BLENDEQUATION_ADD, pc.BLENDMODE_SRC_ALPHA, pc.BLENDMODE_ONE_MINUS_SRC_ALPHA);
+    materialDefault.blendState = new BlendState(true, BLENDEQUATION_ADD, BLENDMODE_SRC_ALPHA, BLENDMODE_ONE_MINUS_SRC_ALPHA);
     materialDefault.update();
 
     const materialBehind = createColorMaterial();
     materialBehind.name = 'collision behind';
     materialBehind.color = colorBehind;
-    materialBehind.blendState = new pc.BlendState(true, pc.BLENDEQUATION_ADD, pc.BLENDMODE_SRC_ALPHA, pc.BLENDMODE_ONE_MINUS_SRC_ALPHA);
+    materialBehind.blendState = new BlendState(true, BLENDEQUATION_ADD, BLENDMODE_SRC_ALPHA, BLENDMODE_ONE_MINUS_SRC_ALPHA);
     materialBehind.depthWrite = false;
     materialBehind.depthTest = true;
     materialBehind.update();
@@ -310,7 +340,7 @@ editor.once('load', () => {
                 layerFront.addMeshInstances(backMeshInstances);
             };
 
-            this.entity = new pc.Entity();
+            this.entity = new Entity();
             this.entity.__editor = true;
 
             // model component
@@ -445,7 +475,7 @@ editor.once('load', () => {
     editor.once('viewport:load', (application) => {
         app = application;
 
-        container = new pc.Entity(app);
+        container = new Entity(app);
         app.root.addChild(container);
 
         // material
@@ -492,12 +522,12 @@ void main(void)
         const origFunc = materialDefault.getShaderVariant;
 
         materialDefault.getShaderVariant = function (params) {
-            if (params.pass === pc.SHADER_FORWARD) {
+            if (params.pass === SHADER_FORWARD) {
                 if (!shaderDefault) {
-                    shaderDefault = new pc.Shader(params.device, {
+                    shaderDefault = new Shader(params.device, {
                         attributes: {
-                            aPosition: pc.SEMANTIC_POSITION,
-                            aNormal: pc.SEMANTIC_NORMAL
+                            aPosition: SEMANTIC_POSITION,
+                            aNormal: SEMANTIC_NORMAL
                         },
                         vshader: defaultVShader,
                         fshader: defaultFShader
@@ -585,13 +615,13 @@ void main(void)
         const matCapsule = cloneColorMaterial(materialDefault);
         const _getCapsuleShaderVariant = matCapsule.getShaderVariant;
         matCapsule.getShaderVariant = function (params) {
-            if (params.pass === pc.SHADER_FORWARD) {
+            if (params.pass === SHADER_FORWARD) {
                 if (!shaderCapsuleForward) {
-                    shaderCapsuleForward = new pc.Shader(params.device, {
+                    shaderCapsuleForward = new Shader(params.device, {
                         attributes: {
-                            aPosition: pc.SEMANTIC_POSITION,
-                            aNormal: pc.SEMANTIC_NORMAL,
-                            aSide: pc.SEMANTIC_ATTR15
+                            aPosition: SEMANTIC_POSITION,
+                            aNormal: SEMANTIC_NORMAL,
+                            aSide: SEMANTIC_ATTR15
                         },
                         vshader: capsuleVShader,
                         fshader: defaultFShader
@@ -599,12 +629,12 @@ void main(void)
                 }
                 return shaderCapsuleForward;
             }
-            if (params.pass === pc.SHADER_PICK) {
+            if (params.pass === SHADER_PICK) {
                 if (!shaderCapsulePick) {
-                    shaderCapsulePick = new pc.Shader(params.device, {
+                    shaderCapsulePick = new Shader(params.device, {
                         attributes: {
-                            aPosition: pc.SEMANTIC_POSITION,
-                            aSide: pc.SEMANTIC_ATTR15
+                            aPosition: SEMANTIC_POSITION,
+                            aSide: SEMANTIC_ATTR15
                         },
                         vshader: capsuleVShaderPick,
                         fshader: capsuleFShaderPick
@@ -625,24 +655,24 @@ void main(void)
         matCapsuleOccluder.update();
 
         const createModel = (mesh) => {
-            const node = new pc.GraphNode();
+            const node = new GraphNode();
 
-            const meshInstance = new pc.MeshInstance(mesh, materialDefault, node);
+            const meshInstance = new MeshInstance(mesh, materialDefault, node);
             meshInstance.__editor = true;
             meshInstance.__collision = true;
             meshInstance.receiveShadow = false;
 
-            const meshInstanceBehind = new pc.MeshInstance(mesh, materialBehind, node);
+            const meshInstanceBehind = new MeshInstance(mesh, materialBehind, node);
             meshInstanceBehind.__editor = true;
             meshInstanceBehind.pick = false;
             meshInstanceBehind.receiveShadow = false;
 
-            const meshInstanceOccluder = new pc.MeshInstance(mesh, materialOccluder, node);
+            const meshInstanceOccluder = new MeshInstance(mesh, materialOccluder, node);
             meshInstanceOccluder.__editor = true;
             meshInstanceOccluder.pick = false;
             meshInstanceOccluder.receiveShadow = false;
 
-            const model = new pc.Model();
+            const model = new Model();
             model.graph = node;
             model.meshInstances = [meshInstance, meshInstanceBehind, meshInstanceOccluder];
 
@@ -651,13 +681,13 @@ void main(void)
 
         // ================
         // box
-        models.box = createModel(pc.Mesh.fromGeometry(app.graphicsDevice, new pc.BoxGeometry({
-            halfExtents: new pc.Vec3(1, 1, 1)
+        models.box = createModel(Mesh.fromGeometry(app.graphicsDevice, new BoxGeometry({
+            halfExtents: new Vec3(1, 1, 1)
         })));
 
         // ================
         // sphere
-        models.sphere = createModel(pc.Mesh.fromGeometry(app.graphicsDevice, new pc.SphereGeometry({
+        models.sphere = createModel(Mesh.fromGeometry(app.graphicsDevice, new SphereGeometry({
             radius: 1,
             latitudeBands: 32,
             longitudeBands: 64
@@ -665,7 +695,7 @@ void main(void)
 
         // ================
         // cones (shared mesh, rotation handles axis)
-        const coneMesh = pc.Mesh.fromGeometry(app.graphicsDevice, new pc.ConeGeometry());
+        const coneMesh = Mesh.fromGeometry(app.graphicsDevice, new ConeGeometry());
         models['cone-x'] = createModel(coneMesh);
         models['cone-x'].graph.setLocalEulerAngles(0, 0, -90);
         models['cone-x'].graph.setLocalScale(2, 1, 2);
@@ -677,7 +707,7 @@ void main(void)
 
         // ================
         // cylinders (shared mesh, rotation handles axis)
-        const cylinderMesh = pc.Mesh.fromGeometry(app.graphicsDevice, new pc.CylinderGeometry({ radius: 1, height: 1, capSegments: 72 }));
+        const cylinderMesh = Mesh.fromGeometry(app.graphicsDevice, new CylinderGeometry({ radius: 1, height: 1, capSegments: 72 }));
         models['cylinder-x'] = createModel(cylinderMesh);
         models['cylinder-x'].graph.setLocalEulerAngles(0, 0, -90);
         models['cylinder-y'] = createModel(cylinderMesh);
@@ -823,16 +853,16 @@ void main(void)
             }
 
             // Create the mesh with custom aSide attribute
-            const mesh = new pc.Mesh(app.graphicsDevice);
+            const mesh = new Mesh(app.graphicsDevice);
 
-            const vertexFormat = new pc.VertexFormat(app.graphicsDevice, [
-                { semantic: pc.SEMANTIC_POSITION, components: 3, type: pc.TYPE_FLOAT32 },
-                { semantic: pc.SEMANTIC_NORMAL, components: 3, type: pc.TYPE_FLOAT32 },
-                { semantic: pc.SEMANTIC_ATTR15, components: 1, type: pc.TYPE_FLOAT32 }
+            const vertexFormat = new VertexFormat(app.graphicsDevice, [
+                { semantic: SEMANTIC_POSITION, components: 3, type: TYPE_FLOAT32 },
+                { semantic: SEMANTIC_NORMAL, components: 3, type: TYPE_FLOAT32 },
+                { semantic: SEMANTIC_ATTR15, components: 1, type: TYPE_FLOAT32 }
             ]);
 
             const vertexCount = positions.length / 3;
-            const vertexBuffer = new pc.VertexBuffer(app.graphicsDevice, vertexFormat, vertexCount);
+            const vertexBuffer = new VertexBuffer(app.graphicsDevice, vertexFormat, vertexCount);
             const vertexData = new Float32Array(vertexBuffer.lock());
 
             for (let i = 0; i < vertexCount; i++) {
@@ -849,13 +879,13 @@ void main(void)
             vertexBuffer.unlock();
             mesh.vertexBuffer = vertexBuffer;
 
-            const indexBuffer = new pc.IndexBuffer(app.graphicsDevice, pc.INDEXFORMAT_UINT16, indices.length);
+            const indexBuffer = new IndexBuffer(app.graphicsDevice, INDEXFORMAT_UINT16, indices.length);
             const indexData = new Uint16Array(indexBuffer.lock());
             indexData.set(indices);
             indexBuffer.unlock();
 
             mesh.indexBuffer[0] = indexBuffer;
-            mesh.primitive[0].type = pc.PRIMITIVE_TRIANGLES;
+            mesh.primitive[0].type = PRIMITIVE_TRIANGLES;
             mesh.primitive[0].base = 0;
             mesh.primitive[0].count = indices.length;
             mesh.primitive[0].indexed = true;
@@ -868,24 +898,24 @@ void main(void)
 
         // Create capsule model with shared mesh and materials
         const createCapsuleModel = () => {
-            const node = new pc.GraphNode();
+            const node = new GraphNode();
 
-            const meshInstance = new pc.MeshInstance(capsuleMesh, matCapsule, node);
+            const meshInstance = new MeshInstance(capsuleMesh, matCapsule, node);
             meshInstance.__editor = true;
             meshInstance.__collision = true;
             meshInstance.receiveShadow = false;
 
-            const meshInstanceBehind = new pc.MeshInstance(capsuleMesh, matCapsuleBehind, node);
+            const meshInstanceBehind = new MeshInstance(capsuleMesh, matCapsuleBehind, node);
             meshInstanceBehind.__editor = true;
             meshInstanceBehind.pick = false;
             meshInstanceBehind.receiveShadow = false;
 
-            const meshInstanceOccluder = new pc.MeshInstance(capsuleMesh, matCapsuleOccluder, node);
+            const meshInstanceOccluder = new MeshInstance(capsuleMesh, matCapsuleOccluder, node);
             meshInstanceOccluder.__editor = true;
             meshInstanceOccluder.pick = false;
             meshInstanceOccluder.receiveShadow = false;
 
-            const model = new pc.Model();
+            const model = new Model();
             model.graph = node;
             model.meshInstances = [meshInstance, meshInstanceBehind, meshInstanceOccluder];
 
@@ -910,7 +940,7 @@ void main(void)
             // clone original instance and set it up
             mi.material = cloneColorMaterial(materialDefault);
             mi.material.getShaderVariant = materialDefault.getShaderVariant;
-            mi.material.color = new pc.Color(color[0], color[1], color[2], alphaFront);
+            mi.material.color = new Color(color[0], color[1], color[2], alphaFront);
             mi.material.update();
             mi.__editor = true;
             mi.__collision = true;
@@ -921,9 +951,9 @@ void main(void)
             const { node, mesh } = mi;
 
             // additional instance for behind the mesh
-            const meshInstanceBehind = new pc.MeshInstance(mesh, cloneColorMaterial(materialBehind), node);
+            const meshInstanceBehind = new MeshInstance(mesh, cloneColorMaterial(materialBehind), node);
             meshInstanceBehind.material.getShaderVariant = materialBehind.getShaderVariant;
-            meshInstanceBehind.material.color = new pc.Color(color[0], color[1], color[2], alphaBehind);
+            meshInstanceBehind.material.color = new Color(color[0], color[1], color[2], alphaBehind);
             meshInstanceBehind.material.update();
             meshInstanceBehind.setParameter('offset', 0);
             meshInstanceBehind.__editor = true;
@@ -932,7 +962,7 @@ void main(void)
             meshInstanceBehind.__useFrontLayer = true;
 
             // additional instance for meshInstanceOccluder
-            const meshInstanceOccluder = new pc.MeshInstance(mesh, materialOccluder, node);
+            const meshInstanceOccluder = new MeshInstance(mesh, materialOccluder, node);
             meshInstanceOccluder.setParameter('offset', 0);
             meshInstanceOccluder.__editor = true;
             meshInstanceOccluder.pick = false;
@@ -947,7 +977,7 @@ void main(void)
     // returns an array of meshInstances
     const createRenderCopy = (resource, color) => {
         let meshInstances = resource.meshes.map((mesh) => {
-            return new pc.MeshInstance(mesh, cloneColorMaterial(materialDefault));
+            return new MeshInstance(mesh, cloneColorMaterial(materialDefault));
         });
         meshInstances = prepareMeshInstances(meshInstances, color);
         return meshInstances;

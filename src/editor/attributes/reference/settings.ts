@@ -162,6 +162,12 @@ editor.once('load', () => {
         description: 'Mip level of the prefiltered skybox. Higher values select lower-resolution, more prefiltered (blurred) mips.',
         url: 'https://api.playcanvas.com/engine/classes/Scene.html#skyboxmip'
     }, {
+        name: 'settings:skyDepthWrite',
+        title: 'skyDepthWrite',
+        subTitle: '{Boolean}',
+        description: 'Whether the sky writes to the depth buffer. Disable to allow 3D geometry to render on top of the sky.',
+        url: 'https://api.playcanvas.com/engine/classes/Scene.html#sky'
+    }, {
         name: 'settings:skyboxRotation',
         title: 'skyboxRotation',
         description: 'Rotation of the skybox.',

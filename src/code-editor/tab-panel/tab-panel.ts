@@ -425,6 +425,14 @@ editor.once('load', () => {
             temporaryTab = tabsIndex[id];
             temporaryTab.tab.class.add('temporary');
         }
+
+        // If the document was already loaded (e.g. as a dependency of another
+        // ESM script), documents:load won't fire again. Hide progress immediately.
+        const doc = editor.call('documents:get', id);
+        const isLoading = editor.call('documents:isLoading', id);
+        if (isNew && doc && !isLoading) {
+            toggleProgress(id, false);
+        }
     });
 
     // hide progress when document is loaded

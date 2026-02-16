@@ -1,5 +1,5 @@
 import { Events, History as apiHistory } from '@playcanvas/observer';
-import type { HistoryAction } from '@playcanvas/observer/types/history';
+import type { HistoryAction } from '@playcanvas/observer';
 
 /**
  * The history API responsible for undo / redo.

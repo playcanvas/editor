@@ -1321,4 +1321,10 @@ export const fields: AttributeReference[]  = [{
     subTitle: '{Number}',
     description: 'Use alphaFade to fade out materials that do not use opacity to fade specular (opacityFadesSpecular is false).',
     url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#alphafade'
+}, {
+    name: 'asset:material:twoSidedLighting',
+    title: 'twoSidedLighting',
+    subTitle: '{Boolean}',
+    description: 'Calculate proper normals on the backface. When cull mode is set to None, this enables lighting to be calculated for the backside of the mesh.',
+    url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#twosidedlighting'
 }];

@@ -1,3 +1,5 @@
+import { RenderPassPrepass } from 'playcanvas';
+
 editor.once('viewport:load', (app) => {
     const scene = app.scene;
     const renderer = app.renderer;
@@ -24,7 +26,7 @@ editor.once('viewport:load', (app) => {
         }
 
         if (!prePass) {
-            prePass = new pc.RenderPassPrepass(device, scene, renderer, camera, {
+            prePass = new RenderPassPrepass(device, scene, renderer, camera, {
                 resizeSource: null  // automatically match its size with the backbuffer
             });
         }

@@ -317,7 +317,7 @@ class Entities extends Events {
      * await editor.entities.delete([entity1, entity2]);
      * ```
      */
-    async delete(entities: Entity[] | Entity, options: { history?: boolean } = {}) {
+    async delete(entities: Entity[] | Entity, options: { history?: boolean; preserveEntityReferences?: boolean } = {}) {
         await deleteEntities(entities, options);
     }
 

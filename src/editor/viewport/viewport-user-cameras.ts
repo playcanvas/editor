@@ -1,3 +1,17 @@
+import {
+    BlendState,
+    BLENDEQUATION_ADD,
+    BLENDMODE_ONE_MINUS_SRC_ALPHA,
+    BLENDMODE_SRC_ALPHA,
+    Color,
+    CULLFACE_NONE,
+    Entity,
+    Mesh,
+    MeshInstance,
+    PRIMITIVE_LINES,
+    Vec3
+} from 'playcanvas';
+
 import { createColorMaterial } from './viewport-color-material';
 
 editor.once('load', () => {
@@ -6,7 +20,7 @@ editor.once('load', () => {
         return;
     } // webgl not available
 
-    const container = new pc.Entity(app);
+    const container = new Entity(app);
     app.root.addChild(container);
 
     let cameraMesh = null;
@@ -17,20 +31,20 @@ editor.once('load', () => {
 
     // material default
     const materialDefault = createColorMaterial();
-    materialDefault.color = new pc.Color(1, 1, 1, 1);
+    materialDefault.color = new Color(1, 1, 1, 1);
     materialDefault.update();
 
     // material quad
     const materialQuad = createColorMaterial();
-    materialQuad.color = new pc.Color(1, 1, 1, 0.25);
-    materialQuad.cull = pc.CULLFACE_NONE;
-    materialQuad.blendState = new pc.BlendState(true, pc.BLENDEQUATION_ADD, pc.BLENDMODE_SRC_ALPHA, pc.BLENDMODE_ONE_MINUS_SRC_ALPHA);
+    materialQuad.color = new Color(1, 1, 1, 0.25);
+    materialQuad.cull = CULLFACE_NONE;
+    materialQuad.blendState = new BlendState(true, BLENDEQUATION_ADD, BLENDMODE_SRC_ALPHA, BLENDMODE_ONE_MINUS_SRC_ALPHA);
     materialQuad.update();
 
     // material behind
     const materialBehind = createColorMaterial();
-    materialBehind.color = new pc.Color(1, 1, 1, 0.15);
-    materialBehind.blendState = new pc.BlendState(true, pc.BLENDEQUATION_ADD, pc.BLENDMODE_SRC_ALPHA, pc.BLENDMODE_ONE_MINUS_SRC_ALPHA);
+    materialBehind.color = new Color(1, 1, 1, 0.15);
+    materialBehind.blendState = new BlendState(true, BLENDEQUATION_ADD, BLENDMODE_SRC_ALPHA, BLENDMODE_ONE_MINUS_SRC_ALPHA);
     materialBehind.depthTest = false;
     materialBehind.update();
 
@@ -101,13 +115,13 @@ editor.once('load', () => {
             -close * horiz, close * vert, 0
         ];
 
-        const mesh = new pc.Mesh(app.graphicsDevice);
+        const mesh = new Mesh(app.graphicsDevice);
         mesh.setPositions(positions);
-        mesh.update(pc.PRIMITIVE_LINES, true);
+        mesh.update(PRIMITIVE_LINES, true);
 
         // Create a dummy mesh instance here or the mesh will be destroyed when the number
         // of user cameras falls to zero
-        cameraMeshInstance = new pc.MeshInstance(mesh, materialDefault);
+        cameraMeshInstance = new MeshInstance(mesh, materialDefault);
 
         return mesh;
     };
@@ -119,25 +133,25 @@ editor.once('load', () => {
         }
 
         // add user camera
-        const camera = cameras[userId] = new pc.Entity();
+        const camera = cameras[userId] = new Entity();
         camera.addComponent('render', {
             castShadows: false,
             castShadowsLightmap: false,
-            meshInstances: [new pc.MeshInstance(cameraMesh, materialDefault)],
+            meshInstances: [new MeshInstance(cameraMesh, materialDefault)],
             receiveShadows: false
         });
         container.addChild(camera);
 
-        const cameraInner = new pc.Entity();
+        const cameraInner = new Entity();
         cameraInner.addComponent('render', {
             castShadows: false,
             castShadowsLightmap: false,
-            meshInstances: [new pc.MeshInstance(cameraMesh, materialBehind)],
+            meshInstances: [new MeshInstance(cameraMesh, materialBehind)],
             receiveShadows: false
         });
         camera.addChild(cameraInner);
 
-        const cameraQuad = new pc.Entity();
+        const cameraQuad = new Entity();
         cameraQuad.addComponent('render', {
             type: 'plane',
             castShadows: false,
@@ -249,8 +263,8 @@ editor.once('load', () => {
         editor.unbind(`permissions:set:${userId}`);
     });
 
-    const vecA = new pc.Vec3();
-    const vecB = new pc.Vec3();
+    const vecA = new Vec3();
+    const vecB = new Vec3();
 
     editor.on('viewport:update', (dt) => {
         let render = false;

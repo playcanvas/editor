@@ -158,9 +158,7 @@ export default [
             '**/dist/**',
             'src/realtime/share.uncompressed.js', // added when serving
             'src/wasm/**/*.js',
-            'modules/pcui-diff.ts',
-            'modules/editor-api/test',
-            'modules/editor-api/types'
+            'test/editor-api'
         ]
     }
 ];

@@ -1,4 +1,4 @@
-import { LocalStorage } from '@playcanvas/editor-api';
+import { LocalStorage } from '@/editor-api';
 
 editor.once('load', () => {
     const ls = new LocalStorage();

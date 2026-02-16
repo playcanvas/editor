@@ -44,17 +44,8 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      - name: Install Editor API Module Dependencies
-        run: npm ci --prefix modules/editor-api
-
-      - name: Build Editor API Module
-        run: npm run build --prefix modules/editor-api
-
       - name: Run ESLint
         run: npm run lint
-
-      - name: Run typecheck for Editor API module
-        run: npm run type:check:api
 
   test:
     name: Test
@@ -72,9 +63,6 @@ jobs:
 
       - name: Install Dependencies
         run: npm ci
-
-      - name: Install Editor API Module Dependencies
-        run: npm ci --prefix modules/editor-api
 
       - name: Run Editor Tests
         run: npm test

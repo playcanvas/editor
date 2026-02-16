@@ -1,3 +1,5 @@
+import { ABSOLUTE_URL } from 'playcanvas';
+
 import { buildQueryUrl } from '@/common/utils';
 
 editor.once('load', () => {
@@ -21,7 +23,7 @@ editor.once('load', () => {
         if (file && file.url) {
             url = file.url;
 
-            if (app.assets.prefix && !pc.ABSOLUTE_URL.test(url)) {
+            if (app.assets.prefix && !ABSOLUTE_URL.test(url)) {
                 url = app.assets.prefix + url;
             }
 

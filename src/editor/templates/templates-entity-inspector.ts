@@ -2,7 +2,7 @@ import { EventHandle, type ObserverList } from '@playcanvas/observer';
 import { Container, Label, Button, BindingObserversToElement, type ContainerArgs, type Element } from '@playcanvas/pcui';
 
 import { LegacyLabel } from '@/common/ui/label';
-import { type EntityObserver } from '@playcanvas/editor-api';
+import { type EntityObserver } from '@/editor-api';
 
 import { type TemplateOverridesView } from './templates-override-panel';
 

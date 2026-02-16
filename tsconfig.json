@@ -17,7 +17,6 @@
     },
     "include": [
         "src",
-        "modules",
         "test",
         "eslint.config.mjs",
         "rollup.config.mjs",
@@ -25,7 +24,6 @@
     ],
     "exclude": [
         "src/wasm",
-        "modules/pcui-diff.ts",
-        "modules/editor-api"
+        "test/editor-api"
     ]
 }

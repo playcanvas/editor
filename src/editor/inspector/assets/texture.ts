@@ -1,4 +1,5 @@
 import { Panel, Container, Button, InfoBox, Divider, Label, BindingTwoWay, BindingObserversToElement, BindingElementToObservers } from '@playcanvas/pcui';
+import { PIXELFORMAT_DXT1, PIXELFORMAT_DXT5, Texture, TextureUtils } from 'playcanvas';
 
 import { tooltip, tooltipRefItem } from '@/common/tooltips';
 import { bytesToHuman } from '@/common/utils';
@@ -623,12 +624,12 @@ class TextureAssetInspector extends Container {
                     const width = assets[i].get('meta.width');
                     const height = assets[i].get('meta.height');
                     const alpha = assets[i].get('meta.alpha');
-                    const pixelFormat = alpha ? pc.PIXELFORMAT_DXT5 : pc.PIXELFORMAT_DXT1;
+                    const pixelFormat = alpha ? PIXELFORMAT_DXT5 : PIXELFORMAT_DXT1;
                     const mipmaps = assets[i].get('data.mipmaps');
                     const depth = 1;
                     const cubemap = false;
-                    vram = pc.Texture.calcGpuSize?.(width, height, depth, pixelFormat, mipmaps, cubemap) ??
-                           pc.TextureUtils?.calcGpuSize?.(width, height, depth, pixelFormat, mipmaps, cubemap) ??
+                    vram = (Texture as any).calcGpuSize?.(width, height, depth, pixelFormat, mipmaps, cubemap) ??
+                           TextureUtils?.calcGpuSize?.(width, height, depth, pixelFormat, mipmaps, cubemap) ??
                            0;
                 } else {
                     vram = size - 128;

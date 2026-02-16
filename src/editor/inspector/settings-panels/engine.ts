@@ -63,6 +63,11 @@ class EngineSettingsPanel extends BaseSettingsPanel {
                 return;
             }
 
+            // check if value is changing
+            if (value === oldValue) {
+                return;
+            }
+
             // disable switch button if hidden
             if (switchEngine.hidden) {
                 return;
