@@ -3,7 +3,7 @@ import { Events } from '@playcanvas/observer';
 import { LegacyLabel } from '@/common/ui/label';
 import { LegacyPanel } from '@/common/ui/panel';
 
-import { ConflictSectionRow } from './conflict-section-row';
+import { ConflictSectionRow, type ConflictSectionRowArgs } from './conflict-section-row';
 
 // A section contains multiple conflicts and it's meant to group
 // conflicts into meaningful categories
@@ -103,7 +103,7 @@ class ConflictSection extends Events {
      *
      * @param args - The field options
      */
-    appendField(args: ConflictSectionFieldArgs) {
+    appendField(args: ConflictSectionRowArgs) {
         const row = new ConflictSectionRow(this._resolver, args);
         this._rows.push(row);
 

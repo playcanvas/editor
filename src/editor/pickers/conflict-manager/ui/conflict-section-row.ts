@@ -13,7 +13,7 @@ import {
     ConflictFieldNotRenderable
 } from './conflict-field';
 
-interface ConflictSectionRowArgs {
+export interface ConflictSectionRowArgs {
     /** The name of the field */
     name?: string;
     /** If true then this field has no path (which means the whole object is considered to be a conflict e.g. a whole asset) */

@@ -1,3 +1,4 @@
+import type { Observer } from '@playcanvas/observer';
 import {
     ADDRESS_CLAMP_TO_EDGE,
     EnvLighting,
@@ -7,7 +8,6 @@ import {
     TEXTURETYPE_RGBM
 } from 'playcanvas';
 
-import type { Observer } from '@playcanvas/observer';
 
 import {
     readGPUPixels,

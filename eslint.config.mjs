@@ -41,6 +41,7 @@ const coreConfig = {
     rules: {
         'accessor-pairs': ['error', { setWithoutGet: false, getWithoutSet: false }],
         'curly': ['error', 'all'],
+        'jsdoc/require-param': ['error', { checkDestructured: false }],
         'jsdoc/require-param-type': 'off',
         'jsdoc/require-returns-type': 'off',
         'jsdoc/require-returns': 'off',
@@ -61,6 +62,7 @@ const workersConfig =     {
     rules: {
         'accessor-pairs': ['error', { setWithoutGet: false, getWithoutSet: false }],
         'curly': ['error', 'all'],
+        'jsdoc/require-param': ['error', { checkDestructured: false }],
         'jsdoc/require-param-type': 'off',
         'jsdoc/require-returns-type': 'off',
         'jsdoc/require-returns': 'off',
@@ -80,6 +82,7 @@ const serviceWorkersConfig = {
     rules: {
         'accessor-pairs': ['error', { setWithoutGet: false, getWithoutSet: false }],
         'curly': ['error', 'all'],
+        'jsdoc/require-param': ['error', { checkDestructured: false }],
         'jsdoc/require-param-type': 'off',
         'jsdoc/require-returns-type': 'off',
         'jsdoc/require-returns': 'off',
