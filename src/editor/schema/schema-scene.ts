@@ -2,10 +2,10 @@ editor.once('load', () => {
     /**
      * Gets the type of a path in the scene schema
      *
-     * @param {string} path - The path in the schema separated by dots
-     * @returns {string} The type
+     * @param path - The path in the schema separated by dots
+     * @returns The type
      */
-    editor.method('schema:scene:getType', (path) => {
+    editor.method('schema:scene:getType', (path: string): string => {
         return editor.call('schema:getTypeForPath', config.schema.scene, path);
     });
 });

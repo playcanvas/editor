@@ -7,6 +7,8 @@ import {
     TEXTURETYPE_RGBM
 } from 'playcanvas';
 
+import type { Observer } from '@playcanvas/observer';
+
 import {
     readGPUPixels,
     pixelsToPngBlob
@@ -20,7 +22,7 @@ editor.once('load', () => {
         app = application;
     });
 
-    function generatePrefilteredCubemap(cubemap) {
+    function generatePrefilteredCubemap(cubemap: Texture) {
         const device = cubemap.device;
 
         // generate a 128x128 cubemap with mipmaps to act as lighting source
@@ -76,10 +78,10 @@ editor.once('load', () => {
      * Generate an in-memory DDS representation of this texture. Only works on RGBA8 textures.
      * Currently, only used by the Editor to write prefiltered cubemaps to DDS format.
      *
-     * @returns {ArrayBuffer} Buffer containing the DDS data.
+     * @returns Buffer containing the DDS data.
      * @ignore
      */
-    function getDds(texture) {
+    function getDds(texture: Texture): ArrayBuffer | undefined {
         if (texture.format !== PIXELFORMAT_RGBA8) {
             console.error('Only RGBA8 textures are supported');
             return undefined;
@@ -193,7 +195,7 @@ editor.once('load', () => {
         return buff;
     }
 
-    const generateCubemap = (cubemapAsset, cubemap) => {
+    const generateCubemap = (cubemapAsset: Observer, cubemap: Texture) => {
         const texture = generatePrefilteredCubemap(cubemap);
         const blob = new Blob([getDds(texture)], { type: 'image/dds' });
         texture.destroy();
@@ -206,7 +208,7 @@ editor.once('load', () => {
     };
 
     // given a cubemap with mipmaps, generate a prefiltered atlas
-    const generatePrefilteredAtlas = (cubemap) => {
+    const generatePrefilteredAtlas = (cubemap: Texture) => {
         const device = cubemap.device;
         const lighting = EnvLighting.generateLightingSource(cubemap, {
             size: 256
@@ -217,7 +219,7 @@ editor.once('load', () => {
         return result;
     };
 
-    const generateEnvAtlas = async (cubemapAsset, cubemap) => {
+    const generateEnvAtlas = async (cubemapAsset: Observer, cubemap: Texture) => {
         // generate env atlas
         const envAtlas = generatePrefilteredAtlas(cubemap);
 
@@ -236,14 +238,14 @@ editor.once('load', () => {
         };
     };
 
-    editor.method('assets:cubemaps:prefilter', (cubemapAsset, generateLegacyCubemap, callback) => {
+    editor.method('assets:cubemaps:prefilter', (cubemapAsset: Observer, generateLegacyCubemap: boolean, callback: (err: Error | null, data?: unknown) => void) => {
         if (!app) {
             // webgl not available
             callback(new Error('webgl not available'));
             return;
         }
 
-        const onLoaded = (cubemap) => {
+        const onLoaded = (cubemap: Texture) => {
             (generateLegacyCubemap ? generateCubemap : generateEnvAtlas)(cubemapAsset, cubemap)
             .then((result) => {
                 // upload blob as dds
@@ -291,7 +293,7 @@ editor.once('load', () => {
             asset.set('file', null);
         };
 
-        const watchTexture = function (ind, id) {
+        const watchTexture = function (ind: number, id: string | number) {
             if (asset._textures[ind]) {
                 asset._textures[ind].unbind();
             }

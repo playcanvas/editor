@@ -13,6 +13,25 @@ import {
     ConflictFieldNotRenderable
 } from './conflict-field';
 
+interface ConflictSectionRowArgs {
+    /** The name of the field */
+    name?: string;
+    /** If true then this field has no path (which means the whole object is considered to be a conflict e.g. a whole asset) */
+    noPath?: boolean;
+    /** The type of the field (if same type for base, source and destination values) */
+    type?: string;
+    /** The type of the base value */
+    baseType?: string;
+    /** The type of the source value */
+    sourceType?: string;
+    /** The type of the destination value */
+    destType?: string;
+    /** The conflict object */
+    conflict: Record<string, unknown>;
+    /** If true the name will be prettified */
+    prettify?: boolean;
+}
+
 const BASE_PANEL = 0;
 const DEST_PANEL = 1;
 const SOURCE_PANEL = 2;
@@ -24,18 +43,10 @@ class ConflictSectionRow extends Events {
     /**
      * Creates a new ConflictSectionRow.
      *
-     * @param {object} resolver - The conflict resolver object
-     * @param {object} args - The arguments
-     * @param {string} args.name - The name of the field
-     * @param {boolean} args.noPath - If true then this field has no path (which means the whole object is considered to be a conflict e.g. a whole asset)
-     * @param {string} args.type - The type of the field (if same type for base, source and destination values)
-     * @param {string} args.baseType - The type of the base value
-     * @param {string} args.sourceType - The type of the source value
-     * @param {string} args.destType - The type of the destination value
-     * @param {object} args.conflict - The conflict object
-     * @param {boolean} args.prettify - If true the name will be prettified
+     * @param resolver - The conflict resolver object
+     * @param args - The arguments
      */
-    constructor(resolver, args) {
+    constructor(resolver: Record<string, unknown>, args: ConflictSectionRowArgs) {
         super();
 
         const self = this;
@@ -152,7 +163,7 @@ class ConflictSectionRow extends Events {
         }
     }
 
-    _wasMissing(side, conflict, isDiff) {
+    _wasMissing(side: number, conflict: Record<string, unknown>, isDiff: boolean): boolean {
         if (side === BASE_PANEL && conflict.missingInBase) {
             return true;
         }
@@ -173,7 +184,7 @@ class ConflictSectionRow extends Events {
         return false;
     }
 
-    _wasDeleted(side, conflict, isDiff) {
+    _wasDeleted(side: number, conflict: Record<string, unknown>, isDiff: boolean): boolean {
         if (side === SOURCE_PANEL) {
             if (conflict.missingInSrc) {
                 if (isDiff) {
@@ -194,7 +205,7 @@ class ConflictSectionRow extends Events {
         return false;
     }
 
-    _wasCreated(side, conflict, isDiff) {
+    _wasCreated(side: number, conflict: Record<string, unknown>, isDiff: boolean): boolean {
         if (side === SOURCE_PANEL) {
             if (!conflict.missingInSrc) {
                 if (isDiff) {
@@ -215,7 +226,7 @@ class ConflictSectionRow extends Events {
         return false;
     }
 
-    _wasEdited(side, conflict, isDiff) {
+    _wasEdited(side: number, conflict: Record<string, unknown>, isDiff: boolean): boolean {
         if (side === SOURCE_PANEL) {
             if (!conflict.missingInSrc) {
                 if (isDiff) {
@@ -238,7 +249,7 @@ class ConflictSectionRow extends Events {
 
     // Returns an array of the 3 values (base, source, dest) after it converts
     // those values from IDs to names (if necessary)
-    _convertValues(conflict) {
+    _convertValues(conflict: Record<string, unknown>): unknown[] {
         const self = this;
 
         let base = conflict.baseValue;
@@ -361,7 +372,7 @@ class ConflictSectionRow extends Events {
         return result;
     }
 
-    _convertIdToName(id, index, alternativeIndex) {
+    _convertIdToName(id: unknown, index: Record<string, string>, alternativeIndex?: Record<string, string>) {
         if (id === null || id === undefined) {
             return id;
         }
@@ -383,7 +394,7 @@ class ConflictSectionRow extends Events {
         return result;
     }
 
-    _convertSublayer(sublayer, index, alternativeIndex) {
+    _convertSublayer(sublayer: { layer: unknown }, index: Record<string, string>, alternativeIndex?: Record<string, string>) {
         const layer = this._convertIdToName(sublayer.layer, index, alternativeIndex);
         sublayer.layer = (layer.name || layer.id);
     }
@@ -415,7 +426,7 @@ class ConflictSectionRow extends Events {
     }
 
     // Converts values like so: thisIsSomeValue to this: This Is Some Value
-    _prettifyName(name) {
+    _prettifyName(name: string): string {
         const firstLetter = name[0];
         const rest = name.slice(1);
         return firstLetter.toUpperCase() +
@@ -475,7 +486,7 @@ class ConflictSectionRow extends Events {
     }
 
     // Appends all row panels to parent panels
-    appendToParents(parents) {
+    appendToParents(parents: LegacyPanel[]) {
         for (let i = 0; i < parents.length; i++) {
             parents[i].append(this._panels[i]);
         }

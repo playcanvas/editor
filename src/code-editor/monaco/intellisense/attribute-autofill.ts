@@ -70,18 +70,18 @@ class JSDocUtils {
 
     /**
      * Get indentation from a line
-     * @param {string} line - The line to get the indentation from
-     * @returns {string} - The indentation
+     * @param line - The line to get the indentation from
+     * @returns The indentation
      */
-    static getIndent(line: string) {
+    static getIndent(line: string): string {
         return line.match(/^(\s*)/)?.[0] || '';
     }
 
     /**
      * Create JSDoc block with specified tags
-     * @param {string} indent - The indentation to use
-     * @param {string[]} tags - The tags to add to the JSDoc block
-     * @returns {string} - The JSDoc block
+     * @param indent - The indentation to use
+     * @param tags - The tags to add to the JSDoc block
+     * @returns The JSDoc block
      */
     static createJSDoc(indent: string, tags: string[]) : string {
         const tagLines = tags.map(tag => `${indent} * ${tag}`).join('\n');
@@ -90,10 +90,10 @@ class JSDocUtils {
 
     /**
      * Remove attribute tags from single-line JSDoc
-     * @param {string} content - The content to clean
-     * @returns {string} - The cleaned content
+     * @param content - The content to clean
+     * @returns The cleaned content
      */
-    static cleanSingleLineJSDoc(content: string) {
+    static cleanSingleLineJSDoc(content: string): string {
         let cleaned = content;
         JSDocUtils.ATTRIBUTE_TAGS.forEach((tag) => {
             cleaned = cleaned.replace(new RegExp(`\\s*\\*?\\s*${tag}\\s*`, 'g'), '');
@@ -103,10 +103,10 @@ class JSDocUtils {
 
     /**
      * Find lines containing attribute tags
-     * @param {string[]} lines - The lines to search
-     * @param {number} startLine - The start line number
-     * @param {number} endLine - The end line number
-     * @returns {number[]} - The lines containing attribute tags
+     * @param lines - The lines to search
+     * @param startLine - The start line number
+     * @param endLine - The end line number
+     * @returns The lines containing attribute tags
      */
     static findAttributeLines(lines: string[], startLine: number, endLine: number) : number[] {
         const linesToRemove = [];
@@ -122,11 +122,11 @@ class JSDocUtils {
 
     /**
      * Check if a specific tag exists in the JSDoc block
-     * @param {Monaco.editor.ITextModel} model - The text model
-     * @param {number} startLine - The start line of the JSDoc block
-     * @param {number} endLine - The end line of the JSDoc block
-     * @param {string} tag - The tag to check for (e.g., '@range', '@attribute')
-     * @returns {boolean} - Whether the tag exists in the JSDoc block
+     * @param model - The text model
+     * @param startLine - The start line of the JSDoc block
+     * @param endLine - The end line of the JSDoc block
+     * @param tag - The tag to check for (e.g., '@range', '@attribute')
+     * @returns Whether the tag exists in the JSDoc block
      */
     static hasTagInJSDoc(model: Monaco.editor.ITextModel, startLine: number, endLine: number, tag: string) : boolean {
         const lines = model.getLinesContent();
@@ -141,8 +141,8 @@ class JSDocUtils {
 
     /**
      * Apply multiple edits in reverse order to maintain line numbers
-     * @param {Monaco.editor.ITextModel} model - The text model to apply edits to
-     * @param {Monaco.editor.IIdentifiedSingleEditOperation[]} edits - The edits to apply
+     * @param model - The text model to apply edits to
+     * @param edits - The edits to apply
      */
     static applyEditsReverse(
         model: Monaco.editor.ITextModel,
@@ -155,9 +155,9 @@ class JSDocUtils {
 /**
  * Fetches all ESM scripts
  *
- * @param {Map<string, string>} cache - The file cache
- * @param {string[]} filter - The paths to filter
- * @returns {Promise<[[string, string][], string[]]>} - The scripts and deleted files
+ * @param cache - The file cache
+ * @param filter - The paths to filter
+ * @returns The scripts and deleted files
  */
 const fetchModuleScripts = async (
     cache: Map<string, string>,
@@ -215,10 +215,10 @@ const fetchModuleScripts = async (
 
 /**
  * Generic function to modify JSDoc attributes
- * @param {Monaco.editor.ITextModel} model - The text model
- * @param {number} lineNumber - The line number of the member
- * @param {ParseAttribute | null} attribute - The attribute object with JSDoc positioning
- * @param {'add' | 'addSlider' | 'remove'} action - The action to perform
+ * @param model - The text model
+ * @param lineNumber - The line number of the member
+ * @param attribute - The attribute object with JSDoc positioning
+ * @param action - The action to perform
  */
 const modifyJSDocAttribute = (
     model: Monaco.editor.ITextModel,
@@ -354,10 +354,9 @@ const JSDocActions = {
 
 /**
  * Add @attribute tag to a member using JSDoc position information
- * @param {Monaco.editor.ITextModel} model - The text model
- * @param {number} lineNumber - The line number of the member
- * @param {string} memberName - The name of the member
- * @param {ParseAttribute} attribute - The attribute object with JSDoc positioning
+ * @param model - The text model
+ * @param lineNumber - The line number of the member
+ * @param attribute - The attribute object with JSDoc positioning
  */
 const addAttributeToMember = (
     model: Monaco.editor.ITextModel,
@@ -369,10 +368,9 @@ const addAttributeToMember = (
 
 /**
  * Add `@attribute` and `@range` tags to a member for slider functionality
- * @param {Monaco.editor.ITextModel} model - The text model
- * @param {number} lineNumber - The line number of the member
- * @param {string} memberName - The name of the member
- * @param {ParseAttribute} attribute - The attribute object with JSDoc positioning
+ * @param model - The text model
+ * @param lineNumber - The line number of the member
+ * @param attribute - The attribute object with JSDoc positioning
  */
 const addSliderAttributeToMember = (
     model: Monaco.editor.ITextModel,
@@ -384,10 +382,9 @@ const addSliderAttributeToMember = (
 
 /**
  * Remove `@attribute` tag from a member using JSDoc position information
- * @param {Monaco.editor.ITextModel} model - The text model
- * @param {number} lineNumber - The line number of the member
- * @param {string} memberName - The name of the member
- * @param {ParseAttribute} attribute - The attribute object with JSDoc positioning
+ * @param model - The text model
+ * @param lineNumber - The line number of the member
+ * @param attribute - The attribute object with JSDoc positioning
  */
 const removeAttributeFromMember = (
     model: Monaco.editor.ITextModel,
@@ -473,9 +470,9 @@ editor.once('load', () => {
         /**
          * Send a request to fetch attributes for a given model
          *
-         * @param {Monaco.editor.IModel} model - The model
+         * @param model - The model
          */
-        const fetchAttributes = async (model) => {
+        const fetchAttributes = async (model: Monaco.editor.IModel) => {
             if (model.isDisposed()) {
                 return;
             }

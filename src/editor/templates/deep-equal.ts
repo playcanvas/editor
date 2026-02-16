@@ -72,11 +72,11 @@ editor.once('load', () => {
      * Perform a deep comparison of two nodes consisting of
      * objects, arrays and scalar values.
      *
-     * @param {object} node1 - First object to compare
-     * @param {object} node2 - Second object to compare
-     * @returns {boolean} True if the nodes are deep-equal
+     * @param node1 - First object to compare
+     * @param node2 - Second object to compare
+     * @returns True if the nodes are deep-equal
      */
-    editor.method('assets:isDeepEqual', (node1, node2) => {
+    editor.method('assets:isDeepEqual', (node1: unknown, node2: unknown): boolean => {
         return new DeepEqual(node1, node2).run();
     });
 });

@@ -395,13 +395,13 @@ class ScriptInspector extends Panel {
      * Updates the status of attribute fields based on the current state of the script. This allows
      * for fields to be hidden or disabled based on the current state of the script.
      *
-     * @param {Attribute} attr - The attribute data
-     * @param {*} state - The current state of the script
-     * @param {string} [path] - The path to the attribute in the state
-     * @param {AttributesInspector} [inspector] - The Attribute Inspector associated with the attribute
-     * @param {Set<string, ASTNode>} [unusedKeys] - Captures all AST nodes that are not used in the current state
+     * @param attr - The attribute data
+     * @param state - The current state of the script
+     * @param path - The path to the attribute in the state
+     * @param inspector - The Attribute Inspector associated with the attribute
+     * @param unusedKeys - Captures all AST nodes that are not used in the current state
      */
-    _updateAttributeStatus(attr, state, path = `components.script.scripts.${this._scriptName}.attributes`, inspector = this._attributesInspector, unusedKeys = null) {
+    _updateAttributeStatus(attr: Record<string, { visibleif?: string; enabledif?: string; name: string; type: string; array?: boolean; schema?: Record<string, unknown> }>, state: Record<string, unknown>, path = `components.script.scripts.${this._scriptName}.attributes`, inspector: AttributesInspector | null = this._attributesInspector, unusedKeys: Set<string> | null = null) {
 
         const firstRecursion = !unusedKeys;
 

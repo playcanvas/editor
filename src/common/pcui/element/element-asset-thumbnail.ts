@@ -180,11 +180,9 @@ class AssetThumbnail extends Element {
      * create a new canvas and render a thumbnail, otherwise an exception will be raised because we
      * will be trying to create a canvas with 0 width / height.
      *
-     * @param {Observer} asset - The asset to render.
-     *
-     * @private
+     * @param asset - The asset to render.
      */
-    _renderCanvasThumbnailWhenReady(asset) {
+    private _renderCanvasThumbnailWhenReady(asset: Observer) {
         this._canvasDirty = true;
 
         if (this._renderCanvasTimeout) {

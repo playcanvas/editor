@@ -3,10 +3,10 @@ editor.once('load', () => {
      * Given asset and instance entity data, and the guid of the instance root,
      * return data about the instance's overrides.
      *
-     * @param {object} asset - Asset data
-     * @param {object} instance - Instance data
-     * @param {string} instRootId - The guid of the instance root
-     * @returns {object} An object with fields 'conflicts',
+     * @param asset - Asset data
+     * @param instance - Instance data
+     * @param instRootId - The guid of the instance root
+     * @returns An object with fields 'conflicts',
      * 'addedEntities' and 'deletedEntities'
      */
     class FindInstanceOverrides {
@@ -145,16 +145,17 @@ editor.once('load', () => {
      * the key 'entities' (so that the format is consistent with
      * template asset data).
      *
-     * @param {object} root - The root entity of a template instance
-     * @returns {object} Instance data
+     * @param root - The root entity of a template instance
+     * @param root.get - Method to get property values by key
+     * @returns Instance data
      */
-    const getInstanceData = function (root) {
+    const getInstanceData = function (root: { get: (key: string) => unknown }): Record<string, unknown> {
         const ents = editor.call('template:utils', 'getAllEntitiesInSubtree', root, []);
 
         const h = { entities: {} };
 
         ents.forEach((ent) => {
-            const id = ent.get('resource_id');
+            const id = ent.get('resource_id') as string;
 
             h.entities[id] = ent.json();
         });
@@ -167,11 +168,11 @@ editor.once('load', () => {
      * and return data about its overrides by comparing it
      * with the corresponding template asset.
      *
-     * @param {object} root - The root entity of a template instance
-     * @returns {object} An object with fields 'conflicts',
+     * @param root - The root entity of a template instance
+     * @returns An object with fields 'conflicts',
      * 'addedEntities' and 'deletedEntities'. Return null if template asset not found.
      */
-    editor.method('templates:computeOverrides', (root) => {
+    editor.method('templates:computeOverrides', (root: { get: (key: string) => unknown }): Record<string, unknown> | null => {
         const templateId = root.get('template_id');
 
         const asset = getAssetData(templateId);

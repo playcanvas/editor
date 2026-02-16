@@ -1,12 +1,13 @@
-import { parse } from './parser';
+import { parse, type ASTNode } from './parser';
+
 /**
  * Takes an expression as an AST and evaluates it.
  *
- * @param {import('./parser.js').ASTNode} node - The root node of the expression to evaluate
- * @param {{}} context - The variables used in the expression
- * @returns {*} The evaluated expression
+ * @param node - The root node of the expression to evaluate
+ * @param context - The variables used in the expression
+ * @returns The evaluated expression
  */
-function evaluateAST(node, context = {}) {
+function evaluateAST(node: ASTNode, context: Record<string, unknown> = {}): any {
 
     /**
      * Expand the context to include null and undefined.
@@ -94,7 +95,7 @@ function evaluateAST(node, context = {}) {
 }
 
 
-const evaluate = (expression, context = {}) => {
+const evaluate = (expression: string | ASTNode, context: Record<string, unknown> = {}): any => {
 
     // If the expression is a string, parse it first
     const ast = typeof expression === 'string' ?

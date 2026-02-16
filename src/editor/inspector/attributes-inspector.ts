@@ -109,7 +109,7 @@ class AttributesInspector extends Container {
         return null;
     }
 
-    private _createTooltipGroup(target, tooltipData) {
+    private _createTooltipGroup(target: LabelGroup | AssetInput | Element, tooltipData?: { warnings?: string[] }) {
         let actualTarget = target;
         if (target instanceof LabelGroup) {
             actualTarget = target.label;
@@ -157,10 +157,10 @@ class AttributesInspector extends Container {
 
     /**
      * Creates a field for the given attribute
-     * @param {Attribute} attr - The attribute data
-     * @returns {Element} - The created field
+     * @param attr - The attribute data
+     * @returns The created field
      */
-    createFieldForAttribute(attr) {
+    createFieldForAttribute(attr: Attribute): Element {
         const fieldArgs = Object.assign({
             binding: new BindingTwoWay({
                 history: this._history
@@ -504,7 +504,7 @@ class AttributesInspector extends Container {
         }
     }
 
-    removeAttribute(path) {
+    removeAttribute(path: string) {
         if (this._fields[path]) {
             if (this._fields[path] instanceof AssetInput) {
                 this._fields[path].destroy();
@@ -517,7 +517,7 @@ class AttributesInspector extends Container {
         delete this._fieldAttributes[path];
     }
 
-    moveAttribute(path, index) {
+    moveAttribute(path: string, index: number) {
         let field = this._fields[path];
         if (!field) {
             return;
@@ -568,7 +568,7 @@ class AttributesInspector extends Container {
         }
     }
 
-    getField(path) {
+    getField(path: string): Element | undefined {
         return this._fields[path];
     }
 

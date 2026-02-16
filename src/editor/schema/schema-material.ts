@@ -4,10 +4,10 @@ editor.once('load', () => {
     /**
      * Returns a JSON object that contains all of the default material data.
      *
-     * @param {object} existingData - If a field already exists in this object
+     * @param existingData - If a field already exists in this object
      * then use that instead of the default value.
      */
-    editor.method('schema:material:getDefaultData', (existingData) => {
+    editor.method('schema:material:getDefaultData', (existingData?: object) => {
         const result = {};
         const schema = config.schema.materialData;
 
@@ -31,10 +31,10 @@ editor.once('load', () => {
     /**
      * Gets the default value of a specific field from the material schema
      *
-     * @param {string} fieldName - The name of the field
-     * @returns {*} The default value or undefined
+     * @param fieldName - The name of the field
+     * @returns The default value or undefined
      */
-    editor.method('schema:material:getDefaultValueForField', (fieldName) => {
+    editor.method('schema:material:getDefaultValueForField', (fieldName: string): unknown => {
         const field = config.schema.materialData[fieldName];
 
         if (field && field.hasOwnProperty('$default')) {
@@ -47,9 +47,10 @@ editor.once('load', () => {
     /**
      * Returns the type of a data field
      *
-     * @param {string} fieldName - The name of the field
+     * @param fieldName - The name of the field
+     * @returns The type of the field
      */
-    editor.method('schema:material:getType', (fieldName) => {
+    editor.method('schema:material:getType', (fieldName: string): string => {
         return editor.call('schema:getTypeForPath', config.schema.materialData, fieldName);
     });
 });

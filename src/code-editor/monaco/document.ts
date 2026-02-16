@@ -28,10 +28,10 @@ editor.once('load', () => {
     /**
      * Converts an import entry to a Monaco-compatible path.
      *
-     * @param {string[]} entry - The import entry (key, path).
-     * @returns {[string, string[]]} The adjusted key and an array containing the file:// path.
+     * @param entry - The import entry (key, path).
+     * @returns The adjusted key and an array containing the file:// path.
      */
-    function importEntryToMonacoPath([key, entry]) {
+    function importEntryToMonacoPath([key, entry]: [string, unknown]): [string, string[]] {
         const suffix = key.endsWith('/') ? '*' : '';
         const newKey = key + suffix;
         const path = `file://${entry}${suffix}`;
@@ -47,10 +47,10 @@ editor.once('load', () => {
      * // =? ['declare module "external-lib" { const Module: any; export default Module; export = Module; }']
      * ```
      *
-     * @param {[string, string][]} importEntries - The import entries (key, path).
-     * @returns {string[]} The module declarations.
+     * @param importEntries - The import entries (key, path).
+     * @returns The module declarations.
      */
-    function createModuleDeclarations(importEntries) {
+    function createModuleDeclarations(importEntries: [string, unknown][]): string[] {
         const httpImports = importEntries
         .filter(([_, path]) => path.startsWith('http://') || path.startsWith('https://'))
         .map(([key]) => key);

@@ -1,6 +1,8 @@
 import type { Observer, ObserverList } from '@playcanvas/observer';
 import { Element, TreeView, TreeViewItem, Container } from '@playcanvas/pcui';
 
+import type { DropTarget } from '@/common/pcui/element/element-drop-target';
+
 import { getMap, searchItems } from '../search/search-advanced';
 
 
@@ -603,10 +605,10 @@ class EntitiesTreeView extends TreeView {
     /**
      * Returns whether any parent in the entity's hierarchy is disabled.
      *
-     * @param {Observer} entity - The entity to check.
-     * @returns {boolean} True if a parent is disabled, false otherwise.
+     * @param entity - The entity to check.
+     * @returns True if a parent is disabled, false otherwise.
      */
-    _isParentDisabled(entity) {
+    _isParentDisabled(entity: Observer): boolean {
         let parentId = entity.get('parent');
         while (parentId) {
             const parent = this._entities.get(parentId);
@@ -626,12 +628,12 @@ class EntitiesTreeView extends TreeView {
      * The visual state reflects whether the entity is effectively enabled in the hierarchy
      * (its own enabled flag AND all parents being enabled).
      *
-     * @param {Observer} entity - The entity whose tree item to update.
-     * @param {boolean} [parentDisabled] - Whether a parent in the hierarchy is disabled.
+     * @param entity - The entity whose tree item to update.
+     * @param parentDisabled - Whether a parent in the hierarchy is disabled.
      * If not provided, it will be calculated.
-     * @param {boolean} [recurse] - Whether to recursively update descendants.
+     * @param recurse - Whether to recursively update descendants.
      */
-    _updateTreeItemEnabledState(entity, parentDisabled, recurse = false) {
+    _updateTreeItemEnabledState(entity: Observer, parentDisabled?: boolean, recurse = false): void {
         const item = this.getTreeItemForEntity(entity.get('resource_id'));
         if (!item) {
             return;
@@ -886,10 +888,10 @@ class EntitiesTreeView extends TreeView {
     /**
      * Gets the tree view item that displays the entity with the specified id.
      *
-     * @param {string} resourceId - The entity resource id.
-     * @returns {TreeViewItem} The tree view item.
+     * @param resourceId - The entity resource id.
+     * @returns The tree view item.
      */
-    getTreeItemForEntity(resourceId) {
+    getTreeItemForEntity(resourceId: string): TreeViewItem | null {
         const item = this._treeItemIndex[resourceId];
         return item && !item.destroyed ? item : null;
     }
@@ -897,9 +899,9 @@ class EntitiesTreeView extends TreeView {
     /**
      * Highlight the tree view item for the entity with the specified id.
      *
-     * @param {string} resourceId - The entity resource id.
+     * @param resourceId - The entity resource id.
      */
-    highlightEntity(resourceId) {
+    highlightEntity(resourceId: string): void {
         const item = this.getTreeItemForEntity(resourceId);
         if (item) {
             item.class.add(CLASS_HIGHLIGHT);
@@ -909,9 +911,9 @@ class EntitiesTreeView extends TreeView {
     /**
      * Unhighlight the tree view item for the entity with the specified id.
      *
-     * @param {string} resourceId - The entity resource id.
+     * @param resourceId - The entity resource id.
      */
-    unhighlightEntity(resourceId) {
+    unhighlightEntity(resourceId: string): void {
         const item = this.getTreeItemForEntity(resourceId);
         if (item) {
             item.class.remove(CLASS_HIGHLIGHT);
@@ -921,10 +923,10 @@ class EntitiesTreeView extends TreeView {
     /**
      * Creates a drop target for the tree view.
      *
-     * @param {Element} targetElement - The element that activates the drop target.
-     * @returns {DropTarget} The drop target.
+     * @param targetElement - The element that activates the drop target.
+     * @returns The drop target.
      */
-    createDropTarget(targetElement) {
+    createDropTarget(targetElement: Element): DropTarget {
         const dropTarget = editor.call('drop:target', {
             ref: targetElement,
             filter: (dropType, dropData) => {
@@ -975,9 +977,9 @@ class EntitiesTreeView extends TreeView {
     /**
      * Restores the expanded state of an entity and its children.
      *
-     * @param {object} state - The expanded state returned from getExpandedState()
+     * @param state - The expanded state returned from getExpandedState()
      */
-    restoreExpandedState(state) {
+    restoreExpandedState(state: Record<string, boolean>): void {
         for (const resourceId in state) {
             const item = this.getTreeItemForEntity(resourceId);
             if (item) {

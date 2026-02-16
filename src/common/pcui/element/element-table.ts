@@ -679,10 +679,10 @@ class Table extends Container {
      * - filter:delay - When an animation frame is requested to process another batch.
      * - filter:cancel - When filtering is canceled.
      *
-     * @param {number} batchLimit - The maximum number of rows to show
+     * @param batchLimit - The maximum number of rows to show
      * before requesting another animation frame.
      */
-    filterAsync(batchLimit) {
+    filterAsync(batchLimit: number) {
         let i = 0;
         batchLimit = batchLimit || 100;
         const children = this._containerBody.dom.childNodes;
@@ -769,9 +769,9 @@ class Table extends Container {
      * Adds a single observer to display. Note that if you are adding multiple observers you should
      * use {@link link} instead.
      *
-     * @param {Observer} observer - The observer.
+     * @param observer - The observer.
      */
-    addObserver(observer) {
+    addObserver(observer: Observer) {
         if (!this._observers) {
             this._observers = [];
         }
@@ -788,9 +788,9 @@ class Table extends Container {
     /**
      * Removes a single observer.
      *
-     * @param {Observer} observer - The observer.
+     * @param observer - The observer.
      */
-    removeObserver(observer) {
+    removeObserver(observer: Observer) {
         if (!this._observers) {
             return;
         }
@@ -812,9 +812,9 @@ class Table extends Container {
     /**
      * Sorts the observers again but only moves the row that corresponds to the specified observer.
      *
-     * @param {Observer} observer - The observer.
+     * @param observer - The observer.
      */
-    sortObserver(observer) {
+    sortObserver(observer: Observer) {
         if (!this._observers) {
             return;
         }
@@ -852,9 +852,9 @@ class Table extends Container {
     /**
      * Sort table entries by the column at the specified index.
      *
-     * @param {number} index - The column index.
+     * @param index - The column index.
      */
-    sortByColumnIndex(index) {
+    sortByColumnIndex(index: number) {
         const column = this._columns[index];
         if (!column) {
             return;

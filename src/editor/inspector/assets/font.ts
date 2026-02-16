@@ -47,9 +47,9 @@ const LOCALIZATION_ATTRIBUTES: Attribute[] = [{
 }];
 
 /**
- * @param {Attribute[]} attributes - The attributes to add references to
+ * @param attributes - The attributes to add references to
  */
-const addReferences = (attributes) => {
+const addReferences = (attributes: Attribute[]) => {
     attributes.forEach((attr) => {
         const path = attr.alias || attr.path;
         if (!path) {
@@ -334,7 +334,7 @@ class FontAssetInspector extends Container {
         }
     }
 
-    _getCharacterRange(range) {
+    _getCharacterRange(range: { from: number; to: number }): string {
         const chars = [];
         for (let i = range.from; i <= range.to; i++) {
             chars.push(String.fromCharCode(i));
@@ -342,7 +342,7 @@ class FontAssetInspector extends Container {
         return chars.join('');
     }
 
-    _onClickPresetButton(charRange) {
+    _onClickPresetButton(charRange: { from: number; to: number }) {
         this._characterRangeStart.value = `0x${charRange.from.toString(16)}`;
         this._characterRangeEnd.value = `0x${charRange.to.toString(16)}`;
         this._fontAttributes.getField('characters').values = this._assets.map(() => {
@@ -404,7 +404,7 @@ class FontAssetInspector extends Container {
         });
     }
 
-    _toggleProcessFontButton(asset) {
+    _toggleProcessFontButton(asset: import('@playcanvas/observer').Observer) {
         this._processFontButton.disabled = asset.get('task') === 'running';
     }
 
@@ -448,7 +448,7 @@ class FontAssetInspector extends Container {
         });
     }
 
-    _addLocalization(locale) {
+    _addLocalization(locale: string) {
         if (locale === '') {
             this._localizationAttributes.getField('localization').class.remove(CLASS_ERROR);
             return;
@@ -462,14 +462,14 @@ class FontAssetInspector extends Container {
         }
     }
 
-    _removeLocalization(locale) {
+    _removeLocalization(locale: string) {
         const localizationAssetPanel = this._localizations[locale];
         localizationAssetPanel._localizationAsset.unlink();
         this._localizationPanel.remove(localizationAssetPanel);
         delete this._localizations[locale];
     }
 
-    link(assets) {
+    link(assets: import('@playcanvas/observer').Observer[]) {
         this.unlink();
         this._assets = assets;
 

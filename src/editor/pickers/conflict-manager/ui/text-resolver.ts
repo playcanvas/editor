@@ -15,10 +15,10 @@ class TextResolver extends Events {
     /**
      * Create a new TextResolver.
      *
-     * @param {object} conflict - The conflict group
-     * @param {object} mergeObject - The merge object
+     * @param conflict - The conflict group
+     * @param mergeObject - The merge object
      */
-    constructor(conflict, mergeObject) {
+    constructor(conflict: Record<string, unknown>, mergeObject: Record<string, unknown>) {
         super();
 
         this._mergeId = mergeObject.id;
@@ -138,7 +138,7 @@ class TextResolver extends Events {
         this._unresolvedFile = null;
     }
 
-    appendToParent(parent) {
+    appendToParent(parent: { append: (el: unknown) => void }) {
         parent.append(this._panelTop);
         parent.append(this._iframe);
     }

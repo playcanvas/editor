@@ -1,3 +1,5 @@
+import type { Observer } from '@playcanvas/observer';
+
 editor.once('load', () => {
     /**
      * Given the root entity of the intended template,
@@ -5,9 +7,9 @@ editor.once('load', () => {
      * Set template-specific fields on the root to mark
      * it as a template instance.
      *
-     * @param {object} root - The root entity
+     * @param root - The root entity
      */
-    editor.method('assets:create:template', (root) => {
+    editor.method('assets:create:template', (root: Observer) => {
         if (!editor.call('permissions:write')) {
             return;
         }

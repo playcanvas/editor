@@ -94,7 +94,7 @@ class VersionControlSidePanelBox extends Events {
         }
     }
 
-    _createCheckbox(msg, tooltipMsg) {
+    _createCheckbox(msg: string, tooltipMsg?: string): [LegacyPanel, LegacyCheckbox] {
         const panel = new LegacyPanel();
         panel.flexGrow = 1;
         const label = new LegacyLabel({
@@ -131,9 +131,9 @@ class VersionControlSidePanelBox extends Events {
     /**
      * Adds specified panel to the box
      *
-     * @param {LegacyPanel} panel - The panel
+     * @param panel - The panel
      */
-    append(panel) {
+    append(panel: LegacyPanel) {
         // make sure we remove the checkpoint panels first
         // because they are meant to be added to the end
         if (this.panelTargetCheckpoint) {
@@ -164,9 +164,9 @@ class VersionControlSidePanelBox extends Events {
     /**
      * Creates a panel to show info for the specified checkpoint and adds this panel to the box
      *
-     * @param {object} checkpoint - The checkpoint
+     * @param checkpoint - The checkpoint
      */
-    setCheckpoint(checkpoint) {
+    setCheckpoint(checkpoint: Record<string, unknown> | null) {
         // create panel to show checkpoint info
         if (checkpoint) {
             const panel = editor.call('picker:versioncontrol:widget:checkpoint', checkpoint);

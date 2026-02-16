@@ -50,9 +50,7 @@ type UploadCompleteData = {
  * Start upload process
  *
  * @param data - The data for the upload
- * @param data.filename - The name of the file to upload
- * @returns {Promise<{ uploadId: string, key: string }>} - A promise that resolves with the upload
- * ID and s3 key
+ * @returns A promise that resolves with the upload ID and s3 key
  */
 export const uploadStart = (data: UploadStartData): Promise<{ uploadId: string, key: string }> => {
     return fetch(`${api.apiUrl}/upload/start-upload`, {
@@ -69,10 +67,7 @@ export const uploadStart = (data: UploadStartData): Promise<{ uploadId: string, 
  * Upload a file and get signed URLs
  *
  * @param data - The data for the upload
- * @param data.uploadId - The ID of the upload
- * @param data.parts - The number of parts to upload
- * @param data.key - The s3 key of the file
- * @returns {Promise<{ signedUrls: string[] }>} - A promise that resolves with the signed URLs
+ * @returns A promise that resolves with the signed URLs
  */
 export const uploadUrls = (data: UploadUrlsData): Promise<{ signedUrls: string[] }> => {
     return fetch(`${api.apiUrl}/upload/signed-urls`, {
@@ -89,10 +84,7 @@ export const uploadUrls = (data: UploadUrlsData): Promise<{ signedUrls: string[]
  * Complete the upload process
  *
  * @param data - The data for the upload
- * @param data.uploadId - The ID of the upload
- * @param {{ PartNumber: number, ETag: string }[]} data.parts - The parts of the file to upload
- * @param data.key - The s3 key of the file
- * @returns {Promise<Response>} - A promise that resolves when the upload is complete
+ * @returns A promise that resolves when the upload is complete
  */
 export const uploadComplete = (data: UploadCompleteData): Promise<Response> => {
     return fetch(`${api.apiUrl}/upload/complete-upload`, {

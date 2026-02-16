@@ -81,8 +81,8 @@ editor.once('load', () => {
      * 'makeRecursiveCalls' method, unless a conflict or deep equality of nodes has been found
      * here, in which case the traversal's 'addCurPathToKnown' methods is called.
      *
-     * @param {object} data - Traversal state data.
-     * @param {object} traversal - A NodeTraversal instance.
+     * @param data - Traversal state data.
+     * @param traversal - A NodeTraversal instance.
      */
     class DiffTemplateNode {
         constructor(data, traversal) {
@@ -277,9 +277,9 @@ editor.once('load', () => {
      * 'NodeTraversal' calls the 'handleNode' method of a handler instance, which in turn calls the
      * 'makeRecursiveCalls' or 'addCurPathToKnown' of 'NodeTraversal'.
      *
-     * @param {object} data - Traversal state data with fields: typeToRoot, conflicts, path, type1.
+     * @param data - Traversal state data with fields: typeToRoot, conflicts, path, type1.
      */
-    editor.method('assets:templateNodeTraversal', (data) => {
+    editor.method('assets:templateNodeTraversal', (data: { typeToRoot: Record<string, unknown>; conflicts: unknown[]; path: string[]; type1: string }) => {
         new NodeTraversal(data).run();
     });
 });

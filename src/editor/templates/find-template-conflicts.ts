@@ -172,14 +172,14 @@ editor.once('load', () => {
      * Find template instance overrides via recursive traversal,
      * given data representing the instance and the template asset.
      *
-     * @param {object} typeToInstData - A map from type (src or dst)
+     * @param typeToInstData - A map from type (src or dst)
      * to an object with the fields: entities, templIdToEntity, templIdToEntId
-     * @param {object} typeToIdToTempl - A map from type to a map from
+     * @param typeToIdToTempl - A map from type to a map from
      * instance id to template id.
-     * @returns {object} An object with fields 'conflicts',
+     * @returns An object with fields 'conflicts',
      * 'addedEntities' and 'deletedEntities'
      */
-    editor.method('template:findConflicts', (typeToInstData, typeToIdToTempl, scriptAttrs) => {
+    editor.method('template:findConflicts', (typeToInstData: Record<string, unknown>, typeToIdToTempl: Record<string, unknown>, scriptAttrs: Record<string, unknown>): Record<string, unknown> => {
         return new FindTemplateConflicts(typeToInstData, typeToIdToTempl, scriptAttrs).run();
     });
 });

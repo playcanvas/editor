@@ -2468,18 +2468,18 @@ class AssetPanel extends Panel {
     /**
      * Selects the specified asset in the asset panel
      *
-     * @param {Observer} asset - The asset
+     * @param asset - The asset
      */
-    select(asset) {
+    select(asset: AssetObserver): void {
         this._setAssetSelected(asset, true);
     }
 
     /**
      * Deselects the specified asset in the asset panel
      *
-     * @param {Observer} asset - The asset
+     * @param asset - The asset
      */
-    deselect(asset) {
+    deselect(asset: AssetObserver): void {
         this._setAssetSelected(asset, false);
     }
 

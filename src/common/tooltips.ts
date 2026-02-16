@@ -8,15 +8,16 @@ export const tooltip = (): Tooltip => editor.call('layout.tooltip');
 /**
  * Creates a new simple tooltip item
  *
- * @param {object} args - The arguments.
- * @param {string} args.text - The description.
- * @param {string[]} [args.classNames] - The class names.
- * @returns {Container} The tooltip.
+ * @param args - The arguments.
+ * @returns The tooltip.
  */
 export const tooltipSimpleItem = ({
     text,
     classNames = []
-}) => {
+}: {
+    text: string;
+    classNames?: string[];
+}): Container => {
     const item = new Container({
         class: ['tooltip-simple', ...classNames]
     });
@@ -32,13 +33,14 @@ export const tooltipSimpleItem = ({
 /**
  * Creates a new API reference tooltip item
  *
- * @param {object} args - The arguments.
- * @param {object} args.reference - The reference data.
- * @returns {Container} The tooltip.
+ * @param args - The arguments.
+ * @returns The tooltip.
  */
 export const tooltipRefItem = ({
     reference
-}) => {
+}: {
+    reference: { title: string; subTitle: string; description: string; webgl2?: boolean; code?: string; url?: string };
+}): Container => {
     const item = new Container({
         class: ['tooltip-reference'],
         flex: true

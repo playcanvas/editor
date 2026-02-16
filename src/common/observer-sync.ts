@@ -158,15 +158,9 @@ class ObserverSync extends Events {
     /**
      * Write operation to the item based on the sharedb operation
      *
-     * @param {object} op - The sharedb operation
-     * @param {any[]} op.p - The path of the operation
-     * @param {object} op.oi - The inserted object
-     * @param {object} op.od - The deleted object
-     * @param {object} op.li - The inserted array item
-     * @param {object} op.ld - The deleted array item
-     * @param {number} op.lm - The moved array item
+     * @param op - The sharedb operation
      */
-    write(op) {
+    write(op: { p: any[]; oi?: any; od?: any; li?: any; ld?: any; lm?: number }) {
         // disable history if available
         let historyReEnable = false;
         if (this.item.history && this.item.history.enabled) {

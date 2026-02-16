@@ -3,11 +3,11 @@ editor.once('load', () => {
      * Gets the schema object that corresponds to the specified dot separated
      * path from the specified schema object.
      *
-     * @param {string} path - The path separated by dots
-     * @param {object} schema - The schema object
-     * @returns {object} The sub schema
+     * @param path - The path separated by dots
+     * @param schema - The schema object
+     * @returns The sub schema
      */
-    const pathToSchema = function (path, schema) {
+    const pathToSchema = function (path: string | number, schema: object): object | null {
         if (typeof path === 'string') {
             path = path.split('.');
         }
@@ -36,11 +36,11 @@ editor.once('load', () => {
     /**
      * Converts the specified schema object to a type recursively.
      *
-     * @param {object} schema - The schema object or field of a parent schema object.
-     * @param {boolean} fixedLength - Whether the specified schema field has a fixed length if it's an array type.
-     * @returns {string} The type
+     * @param schema - The schema object or field of a parent schema object.
+     * @param fixedLength - Whether the specified schema field has a fixed length if it's an array type.
+     * @returns The type
      */
-    const schemaToType = function (schema, fixedLength) {
+    const schemaToType = function (schema: object | string | unknown[], fixedLength?: number): string {
         if (typeof schema === 'string') {
             if (schema === 'map' || schema === 'mixed') {
                 schema = 'object';
@@ -79,22 +79,22 @@ editor.once('load', () => {
     /**
      * Gets the type of the specified schema object,
      *
-     * @param {object} schemaField - A field of the schema
-     * @param {boolean} fixedLength - Whether this field has a fixed length if it's an array type
-     * @returns {string} The type
+     * @param schemaField - A field of the schema
+     * @param fixedLength - Whether this field has a fixed length if it's an array type
+     * @returns The type
      */
-    editor.method('schema:getType', (schemaField, fixedLength) => {
+    editor.method('schema:getType', (schemaField: object, fixedLength?: number): string => {
         return schemaToType(schemaField, fixedLength);
     });
 
     /**
      * Gets the type of the specified path from the specified schema
      *
-     * @param {object} schema - The schema object
-     * @param {string} path - A path separated by dots
-     * @param {string} The - type
+     * @param schema - The schema object
+     * @param path - A path separated by dots
+     * @returns The type
      */
-    editor.method('schema:getTypeForPath', (schema, path) => {
+    editor.method('schema:getTypeForPath', (schema: object, path: string): string => {
         const subSchema = pathToSchema(path, schema);
         let type = subSchema && schemaToType(subSchema);
 
@@ -106,9 +106,16 @@ editor.once('load', () => {
         return type;
     });
 
-    editor.method('schema:getMergeMethodForPath', (schema, path) => {
+    /**
+     * Gets the merge method for the specified path from the specified schema
+     *
+     * @param schema - The schema object
+     * @param path - A path separated by dots
+     * @returns The merge method for the path, or undefined
+     */
+    editor.method('schema:getMergeMethodForPath', (schema: object, path: string): string | undefined => {
         const h = pathToSchema(path, schema);
 
-        return h && h.$mergeMethod;
+        return h && (h as { $mergeMethod?: string }).$mergeMethod;
     });
 });
