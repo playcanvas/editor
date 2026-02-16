@@ -499,7 +499,7 @@ class Entity extends Events {
      * ```
      *
      */
-    delete(options: { history?: boolean } = {}) {
+    delete(options: { history?: boolean; preserveEntityReferences?: boolean } = {}) {
         return api.entities.delete([this], options);
     }
 

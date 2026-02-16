@@ -593,7 +593,7 @@ editor.once('load', () => {
             }
 
             if (entityObserver) {
-                await entityObserver.apiEntity.delete({ history: false });
+                await entityObserver.apiEntity.delete({ history: false, preserveEntityReferences: true });
 
                 const entity = editor.api.globals.entities.create(prev, { history: false, index: childIndex, select: true });
                 entityObserver = entity.observer;
@@ -614,7 +614,7 @@ editor.once('load', () => {
             // use waitSubmitted to wait for scene operational transforms to be submitted to ShareDB -
             // delete() prepares Operations Transforms on the frontend but instantiateTemplate()
             // bakes them on the backend and we should wait till everything submitted after delete
-            await entityObserver.apiEntity.delete({ history: false, waitSubmitted: true });
+            await entityObserver.apiEntity.delete({ history: false, waitSubmitted: true, preserveEntityReferences: true });
 
             const newEntity = await asset.apiAsset.instantiateTemplate(parent.apiEntity, {
                 history: false,
