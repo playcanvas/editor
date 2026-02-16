@@ -298,11 +298,11 @@ class RelayServer extends Events {
             return;
         }
 
-        const opts = args || {};
-        const code = opts.code ?? 1000; // 1000 - CLOSE_NORMAL
-        const reason = opts.reason ?? 'unknown';
+        args = args || {};
+        args.code = args.code || 1000; // 1000 - CLOSE_NORMAL
+        args.reason = args.reason || 'unknown';
 
-        this.socket.close(code, reason);
+        this.socket.close(args.code, args.reason);
 
         if (this._connected) {
             // call _onclose to clear up our current state in case
