@@ -206,14 +206,13 @@ class Messenger extends Events {
         });
     }
 
-    send(msg: string | { name: string; [key: string]: unknown }) {
+    send(msg: { name: string; [key: string]: unknown }) {
         if (!this._connected) {
             return;
         }
 
-        const msgName = typeof msg === 'string' ? msg : msg.name;
-        if (MESSENGER_RESERVED_NAMES.indexOf(msgName) !== -1) {
-            this._onerror(new Error(`could not send message - name is reserved: ${msgName}`));
+        if (MESSENGER_RESERVED_NAMES.indexOf(msg.name) !== -1) {
+            this._onerror(new Error(`could not send message - name is reserved: ${msg.name}`));
             return;
         }
         this.socket.send(JSON.stringify(msg));

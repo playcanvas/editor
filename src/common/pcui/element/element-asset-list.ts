@@ -386,7 +386,7 @@ class AssetList extends Element {
             class: CLASS_ASSET_ITEM
         });
 
-        container.dom.setAttribute('data-asset-id', String(assetId));
+        container.dom.setAttribute('data-asset-id', assetId as any);
 
         const type = asset ? asset.get('type') : this._assetType;
         // add asset type class
