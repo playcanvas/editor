@@ -6097,7 +6097,6 @@ strong {
                     background: transparent;
                 }
 
-                .ui-button.dropdown,
                 .pcui-button.dropdown {
                     @extend .font-icon;
 
@@ -6109,17 +6108,24 @@ strong {
                     height: 16px;
                     line-height: 16px;
                     border: none;
+                    border-radius: 0;
                     padding: 0;
                     margin: 0;
                     text-align: center;
                     font-size: 12px;
                     color: $bcg-darkest;
                     background-color: $text-darkest;
+                    box-shadow: none;
 
                     &:hover,
                     &.clicked {
                         color: $text-primary;
                         background-color: $bcg-darkest;
+                        box-shadow: none;
+                    }
+
+                    &:focus {
+                        box-shadow: none;
                     }
                 }
             }
@@ -6155,6 +6161,10 @@ strong {
                     pointer-events: all;
                 }
             }
+        }
+
+        .checkpoints .ui-list > .ui-list-item .pcui-button.dropdown {
+            margin: 10px 0 0 15px;
         }
 
         .branches {

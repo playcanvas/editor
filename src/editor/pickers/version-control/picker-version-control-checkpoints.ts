@@ -460,10 +460,10 @@ editor.once('load', () => {
         item.element.appendChild(panelListItem.element);
 
         // dropdown
-        const dropdown = new LegacyButton({
-            text: '&#57689;'
+        const dropdown = new Button({
+            class: 'dropdown',
+            icon: 'E159'
         });
-        dropdown.class.add('dropdown');
         panelListItem.append(dropdown);
 
         if (!editor.call('permissions:write') || diffMode) {
@@ -476,10 +476,10 @@ editor.once('load', () => {
             currentCheckpoint = checkpoint;
 
             dropdown.class.add('clicked');
-            dropdown.element.innerHTML = '&#57687;';
+            dropdown.icon = 'E157';
 
             menuCheckpoints.hidden = false;
-            const rect = dropdown.element.getBoundingClientRect();
+            const rect = dropdown.dom.getBoundingClientRect();
             menuCheckpoints.position(rect.right - menuCheckpoints.domContent.clientWidth, rect.bottom);
         });
 
@@ -523,7 +523,6 @@ editor.once('load', () => {
     const createCurrentStateListItem = function () {
         const item = new LegacyListItem();
         const panelItem = new LegacyPanel();
-        // panelItem.class.add('checkpoint-widget');
         panelItem.flex = true;
 
         const label = new LegacyLabel({
@@ -764,7 +763,7 @@ editor.once('load', () => {
         }
 
         dropdown.classList.remove('clicked');
-        dropdown.innerHTML = '&#57689;';
+        dropdown.ui.icon = 'E159';
     });
 
     panel.on('show', () => {
