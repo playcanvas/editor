@@ -6507,69 +6507,31 @@ strong {
     }
 
     .branch-actions {
+        flex-direction: row;
         border-bottom: 1px solid $border-primary;
     }
 
-    .ui-button.icon {
-        background-color: $bcg-dark;
+    .pcui-button.icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex: 1 0 0;
+        border: none;
+        border-radius: 0;
+        height: 26px;
+        margin: 0;
 
         &:hover {
             background-color: $bcg-darkest;
+            box-shadow: none;
 
             &::before {
                 color: $text-active;
             }
         }
 
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex: 1 0 0;
-        font-size: 12px;
-        border: none;
-        position: relative;
-        height: 26px;
-        line-height: 26px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        margin: 0;
-
-        &.hidden {
-            display: none;
-        }
-
         &:not(:last-of-type) {
             border-right: 1px solid $border-primary;
-        }
-
-        &::before {
-            @extend .font-icon;
-
-            font-size: 14px;
-            line-height: inherit;
-            margin-right: 8px;
-            font-weight: 100;
-        }
-
-        &.create::before {
-            content: '\E120';
-        }
-
-        &.diff::before {
-            content: '\E236';
-        }
-
-        // TODO: remove unicode star hack once a star has been added to the icon font
-        &.favorite::before {
-            content: '\2605';
-            font-family: none;
-            font-size: 12px;
-            line-height: 1.1;
-        }
-
-        &.vc-graph::before {
-            content: '\E399';
         }
     }
 }

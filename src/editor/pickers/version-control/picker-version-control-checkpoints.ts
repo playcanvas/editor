@@ -45,37 +45,42 @@ editor.once('load', () => {
     labelBranchCheckpoints.class.add('info');
     panelCheckpointsTop.append(labelBranchCheckpoints);
 
-    const panelBranchActions = new LegacyPanel();
-    panelBranchActions.class.add('branch-actions', 'flex');
+    const panelBranchActions = new Container({
+        class: 'branch-actions',
+        flex: true
+    });
     panel.append(panelBranchActions);
 
     // add branch to favorites
-    const btnFavorite = new LegacyButton({
+    const btnFavorite = new Button({
+        class: 'icon',
+        icon: 'E244',
         text: 'Favorite'
     });
-    btnFavorite.class.add('icon', 'favorite');
     panelBranchActions.append(btnFavorite);
 
     // open diff checkpoints panel
-    const btnDiff = new LegacyButton({
+    const btnDiff = new Button({
+        class: 'icon',
+        icon: 'E236',
         text: 'View Diff'
     });
-    btnDiff.class.add('icon', 'diff');
     panelBranchActions.append(btnDiff);
 
     // version control graph
-    const btnVcGraph = new LegacyButton({
+    const btnVcGraph = new Button({
+        class: 'icon',
+        icon: 'E399',
         text: 'Graph'
     });
-    btnVcGraph.class.add('icon', 'vc-graph');
-
     panelBranchActions.append(btnVcGraph);
 
     // new checkpoint button
-    const btnNewCheckpoint = new LegacyButton({
+    const btnNewCheckpoint = new Button({
+        class: 'icon',
+        icon: 'E120',
         text: 'Checkpoint'
     });
-    btnNewCheckpoint.class.add('icon', 'create');
     panelBranchActions.append(btnNewCheckpoint);
 
     const toggleTopButtons = function () {
