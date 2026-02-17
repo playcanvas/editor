@@ -354,7 +354,7 @@ editor.once('load', () => {
                 success(deferred.promise);
             }
         })
-        .on('error', (_status: number, _response: unknown) => {
+        .on('error', (status: number, response: unknown) => {
             if (status > 0) {
                 deferred.reject(`${status}: ${response}`);
             }

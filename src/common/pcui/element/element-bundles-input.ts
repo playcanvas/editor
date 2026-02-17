@@ -65,7 +65,7 @@ class BundlesInput extends SelectInput {
         });
 
         const selectedBundles: unknown[] = [];
-        this._containerTags.dom.childNodes.forEach((dom: ChildNode) => {
+        this._containerTags.dom.childNodes.forEach((dom) => {
             selectedBundles.push((dom as any).ui.value);
         });
 
@@ -77,7 +77,7 @@ class BundlesInput extends SelectInput {
                 }
             });
         });
-        this._containerTags.dom.childNodes.forEach((dom: ChildNode) => {
+        this._containerTags.dom.childNodes.forEach((dom) => {
             const assetBundles = editor.call('assets:bundles:listForAsset', this._assets[0]).map((asset: Observer) => {
                 return asset.get('id');
             });

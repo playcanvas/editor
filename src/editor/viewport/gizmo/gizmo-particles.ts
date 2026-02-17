@@ -18,6 +18,7 @@ import {
 } from 'playcanvas';
 
 import { GIZMO_MASK } from '@/core/constants';
+import { type EntityObserver } from '@/editor-api';
 
 import { createColorMaterial } from '../viewport-color-material';
 

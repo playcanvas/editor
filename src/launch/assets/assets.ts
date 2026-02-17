@@ -1,5 +1,4 @@
-import type { Observer } from '@playcanvas/observer';
-import { ObserverList } from '@playcanvas/observer';
+import { ObserverList, type Observer } from '@playcanvas/observer';
 
 editor.once('load', () => {
     let uniqueIdToItemId: Record<string | number, number> = {};

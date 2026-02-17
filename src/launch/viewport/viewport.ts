@@ -1,3 +1,4 @@
+import type { Observer } from '@playcanvas/observer';
 import { LAYERID_DEPTH } from 'playcanvas';
 
 editor.once('load', () => {
@@ -612,7 +613,7 @@ editor.once('load', () => {
     });
 
     if (legacyScripts) {
-        editor.on('sourcefiles:load', (_scripts: string[]) => {
+        editor.on('sourcefiles:load', (scripts: string[]) => {
 
             scriptList = scripts;
             sourcefiles = true;

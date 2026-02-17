@@ -1,5 +1,7 @@
 import { Entity } from 'playcanvas';
 
+import { type EntityObserver } from '@/editor-api';
+
 editor.once('load', () => {
     const app = editor.call('viewport:app');
 

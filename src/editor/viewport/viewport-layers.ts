@@ -14,9 +14,8 @@ editor.once('load', () => {
     const events = [];
 
     const createLayer = function (id: string, data: { name?: string; opaqueSortMode?: number; transparentSortMode?: number; id?: number }): Layer {
-        const numId = parseInt(id, 10);
         return new Layer({
-            id: id,
+            id: parseInt(id, 10),
             enabled: true, // disable depth layer - it will be enabled by the engine as needed
             name: data.name,
             opaqueSortMode: data.opaqueSortMode,

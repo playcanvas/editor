@@ -18,7 +18,7 @@ editor.once('load', () => {
         }
 
         if (Notification.permission !== 'denied') {
-            Notification.requestPermission((permission: NotificationPermission) => {
+            Notification.requestPermission((permission) => {
                 editor.emit('notify:permission', permission);
                 if (fn) {
                     fn();
@@ -78,7 +78,7 @@ editor.once('load', () => {
             notify();
         } else if (Notification.permission !== 'denied') {
             // ask for permission
-            editor.call('notify:permission', (permission: NotificationPermission) => {
+            editor.call('notify:permission', (permission: string) => {
                 if (permission === 'granted') {
                     notify();
                 }

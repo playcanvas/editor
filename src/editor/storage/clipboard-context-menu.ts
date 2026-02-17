@@ -129,6 +129,7 @@ const convertStringToColor = (string: string, valueOld: number[]) => {
 
 // list of conversion methods,
 // it uses new value (n) and optionally an old value (o)
+// eslint-disable-next-line func-call-spacing
 const convertTypes = new Map<string, (n: unknown, o: unknown) => unknown>([
     [
         'boolean-string',

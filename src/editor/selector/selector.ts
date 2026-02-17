@@ -1,5 +1,4 @@
-import type { Observer } from '@playcanvas/observer';
-import { ObserverList } from '@playcanvas/observer';
+import { ObserverList, type Observer } from '@playcanvas/observer';
 
 import { Asset, Entity } from '@/editor-api';
 
