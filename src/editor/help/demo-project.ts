@@ -1,5 +1,7 @@
 import { Button, Container, Label, Overlay } from '@playcanvas/pcui';
 
+import { config } from '@/editor/config';
+
 // When loading the Tutorial Rolling Ball project for the first time,
 // show a splash screen with some simple instructions
 editor.once('load', () => {

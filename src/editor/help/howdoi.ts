@@ -1,5 +1,7 @@
 import { Button, Container, TextInput } from '@playcanvas/pcui';
 
+import { config } from '@/editor/config';
+
 editor.once('load', () => {
     const viewport = editor.call('layout.viewport');
     let focusedMenuItem: HTMLElement = null;

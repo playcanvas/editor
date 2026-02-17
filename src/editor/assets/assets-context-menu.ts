@@ -1,6 +1,7 @@
 import type { Observer } from '@playcanvas/observer';
 import { Menu, MenuItem } from '@playcanvas/pcui';
 
+import { config } from '@/editor/config';
 import { Asset, Entity, type AssetObserver } from '@/editor-api';
 
 import { formatShortcut } from '../../common/utils';

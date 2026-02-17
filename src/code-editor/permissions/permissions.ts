@@ -1,3 +1,5 @@
+import { config } from '@/code-editor/config';
+
 editor.once('load', () => {
     const permissions = { };
 

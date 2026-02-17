@@ -1,3 +1,5 @@
+import { config } from '@/editor/config';
+
 editor.once('load', () => {
     const projectSettings = editor.call('settings:project');
     const projectUserSettings = editor.call('settings:projectUser');

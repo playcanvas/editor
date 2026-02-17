@@ -1,4 +1,4 @@
-import { Button, Container } from '@playcanvas/pcui';
+import { Button, Container, Label, Menu, MenuItem } from '@playcanvas/pcui';
 
 import * as SVG from '@/common/svg';
 import { LegacyButton } from '@/common/ui/button';
@@ -6,8 +6,6 @@ import { LegacyCheckbox } from '@/common/ui/checkbox';
 import { LegacyLabel } from '@/common/ui/label';
 import { LegacyList } from '@/common/ui/list';
 import { LegacyListItem } from '@/common/ui/list-item';
-import { LegacyMenu } from '@/common/ui/menu';
-import { LegacyMenuItem } from '@/common/ui/menu-item';
 import { LegacyPanel } from '@/common/ui/panel';
 import { LegacyTooltip } from '@/common/ui/tooltip';
 import { convertDatetime, handleCallback } from '@/common/utils';
@@ -19,63 +17,68 @@ editor.once('load', () => {
 
     let diffMode = false;
 
-    const panel = new LegacyPanel();
-    panel.class.add('checkpoints-container');
+    const panel = new Container({
+        flexGrow: '1'
+    });
 
     // checkpoints top
-    const panelCheckpointsTop = new LegacyPanel();
-    panelCheckpointsTop.class.add('checkpoints-top');
+    const panelCheckpointsTop = new Container({
+        class: 'checkpoints-top'
+    });
     panel.append(panelCheckpointsTop);
 
     // current branch being viewed
     panel.currentBranch = null;
 
     // current branch history
-    const labelBranchName = new LegacyLabel({
+    const labelBranchName = new Label({
+        class: ['branch-history', 'selectable'],
         text: 'Branch'
     });
-    labelBranchName.renderChanges = false;
-    labelBranchName.class.add('branch-history', 'selectable');
     panelCheckpointsTop.append(labelBranchName);
 
-    const labelBranchCheckpoints = new LegacyLabel({
+    const labelBranchCheckpoints = new Label({
+        class: 'info',
         text: 'Checkpoints'
     });
-    labelBranchCheckpoints.renderChanges = false;
-    labelBranchCheckpoints.class.add('info');
     panelCheckpointsTop.append(labelBranchCheckpoints);
 
-    const panelBranchActions = new LegacyPanel();
-    panelBranchActions.class.add('branch-actions', 'flex');
+    const panelBranchActions = new Container({
+        class: 'branch-actions',
+        flex: true
+    });
     panel.append(panelBranchActions);
 
     // add branch to favorites
-    const btnFavorite = new LegacyButton({
+    const btnFavorite = new Button({
+        class: 'icon',
+        icon: 'E244',
         text: 'Favorite'
     });
-    btnFavorite.class.add('icon', 'favorite');
     panelBranchActions.append(btnFavorite);
 
     // open diff checkpoints panel
-    const btnDiff = new LegacyButton({
+    const btnDiff = new Button({
+        class: 'icon',
+        icon: 'E236',
         text: 'View Diff'
     });
-    btnDiff.class.add('icon', 'diff');
     panelBranchActions.append(btnDiff);
 
     // version control graph
-    const btnVcGraph = new LegacyButton({
+    const btnVcGraph = new Button({
+        class: 'icon',
+        icon: 'E399',
         text: 'Graph'
     });
-    btnVcGraph.class.add('icon', 'vc-graph');
-
     panelBranchActions.append(btnVcGraph);
 
     // new checkpoint button
-    const btnNewCheckpoint = new LegacyButton({
+    const btnNewCheckpoint = new Button({
+        class: 'icon',
+        icon: 'E120',
         text: 'Checkpoint'
     });
-    btnNewCheckpoint.class.add('icon', 'create');
     panelBranchActions.append(btnNewCheckpoint);
 
     const toggleTopButtons = function () {
@@ -86,8 +89,9 @@ editor.once('load', () => {
     toggleTopButtons();
 
     // checkpoints main panel
-    const panelCheckpoints = new LegacyPanel();
-    panelCheckpoints.class.add('checkpoints');
+    const panelCheckpoints = new Container({
+        class: 'checkpoints'
+    });
     panel.append(panelCheckpoints);
 
     // checkpoints list
@@ -115,60 +119,57 @@ editor.once('load', () => {
     const savedCheckpointList = {};
 
     // checkpoints context menu
-    const menuCheckpoints = new LegacyMenu();
-    menuCheckpoints.class.add('version-control');
+    const menuCheckpoints = new Menu({
+        class: 'version-control'
+    });
 
     // view changes between this checkpoint and previous
-    const menuCheckpointsViewChanges = new LegacyMenuItem({
-        text: 'View Changes',
-        value: 'view-changes'
+    const menuCheckpointsViewChanges = new MenuItem({
+        text: 'View Changes'
     });
     menuCheckpoints.append(menuCheckpointsViewChanges);
 
     LegacyTooltip.attach({
-        target: menuCheckpointsViewChanges.element,
+        target: menuCheckpointsViewChanges.dom,
         text: 'View changes between this checkpoint and the previous checkpoint.',
         align: 'right',
         root: editor.call('layout.root')
     });
 
     // branch from checkpoint
-    const menuCheckpointsBranch = new LegacyMenuItem({
-        text: 'New Branch',
-        value: 'new-branch'
+    const menuCheckpointsBranch = new MenuItem({
+        text: 'New Branch'
     });
     menuCheckpoints.append(menuCheckpointsBranch);
 
     LegacyTooltip.attach({
-        target: menuCheckpointsBranch.element,
+        target: menuCheckpointsBranch.dom,
         text: 'Create a new branch from this checkpoint.',
         align: 'right',
         root: editor.call('layout.root')
     });
 
     // restore checkpoint
-    const menuCheckpointsRestore = new LegacyMenuItem({
-        text: 'Restore',
-        value: 'restore-checkpoint'
+    const menuCheckpointsRestore = new MenuItem({
+        text: 'Restore'
     });
     menuCheckpoints.append(menuCheckpointsRestore);
 
     LegacyTooltip.attach({
-        target: menuCheckpointsRestore.element,
+        target: menuCheckpointsRestore.dom,
         text: 'Change the current state of project to be the same as this checkpoint.',
         align: 'right',
         root: editor.call('layout.root')
     });
 
     // hard reset to checkpoint
-    const menuCheckpointsHardReset = new LegacyMenuItem({
-        text: 'Hard Reset',
-        value: 'hard-reset-checkpoint'
+    const menuCheckpointsHardReset = new MenuItem({
+        text: 'Hard Reset'
     });
     menuCheckpoints.append(menuCheckpointsHardReset);
 
     LegacyTooltip.attach({
-        target: menuCheckpointsHardReset.element,
+        target: menuCheckpointsHardReset.dom,
         text: 'Deletes all checkpoints and changes after this checkpoint. Useful if you want to undo a merge.',
         align: 'right',
         root: editor.call('layout.root')
@@ -180,7 +181,7 @@ editor.once('load', () => {
     const spinner = SVG.spinner(64);
     spinner.classList.add('hidden');
     spinner.classList.add('spinner');
-    panelCheckpoints.innerElement.appendChild(spinner);
+    panelCheckpoints.dom.appendChild(spinner);
 
     const miniSpinner = SVG.spinner(32);
     miniSpinner.classList.add('hidden');
@@ -198,7 +199,7 @@ editor.once('load', () => {
         }
 
         if (panel.branch != null && branch != null) {
-            panel.scrollTopMap[panel.branch.id] = panelCheckpoints.element.scrollTop;
+            panel.scrollTopMap[panel.branch.id] = panelCheckpoints.dom.scrollTop;
         }
 
         // make sure we don't have any running checkpoint:list requests
@@ -242,7 +243,7 @@ editor.once('load', () => {
 
         listCheckpoints.append(listItemLoadMore);
 
-        panelCheckpoints.element.scrollTop = scrollTop;
+        panelCheckpoints.dom.scrollTop = scrollTop;
     };
 
     // Show button to load more checkpoints or not
@@ -459,10 +460,10 @@ editor.once('load', () => {
         item.element.appendChild(panelListItem.element);
 
         // dropdown
-        const dropdown = new LegacyButton({
-            text: '&#57689;'
+        const dropdown = new Button({
+            class: 'dropdown',
+            icon: 'E159'
         });
-        dropdown.class.add('dropdown');
         panelListItem.append(dropdown);
 
         if (!editor.call('permissions:write') || diffMode) {
@@ -475,11 +476,11 @@ editor.once('load', () => {
             currentCheckpoint = checkpoint;
 
             dropdown.class.add('clicked');
-            dropdown.element.innerHTML = '&#57687;';
+            dropdown.icon = 'E157';
 
-            menuCheckpoints.open = true;
-            const rect = dropdown.element.getBoundingClientRect();
-            menuCheckpoints.position(rect.right - menuCheckpoints.innerElement.clientWidth, rect.bottom);
+            menuCheckpoints.hidden = false;
+            const rect = dropdown.dom.getBoundingClientRect();
+            menuCheckpoints.position(rect.right - menuCheckpoints.domContent.clientWidth, rect.bottom);
         });
 
         // select
@@ -491,7 +492,7 @@ editor.once('load', () => {
         let suppressCheckboxEvents = false;
         checkboxSelect.on('change', (value: boolean) => {
             if (panel.branch != null) {
-                panel.scrollTopMap[panel.branch.id] = panelCheckpoints.element.scrollTop;
+                panel.scrollTopMap[panel.branch.id] = panelCheckpoints.dom.scrollTop;
             }
             if (suppressCheckboxEvents) {
                 return;
@@ -522,7 +523,6 @@ editor.once('load', () => {
     const createCurrentStateListItem = function () {
         const item = new LegacyListItem();
         const panelItem = new LegacyPanel();
-        // panelItem.class.add('checkpoint-widget');
         panelItem.flex = true;
 
         const label = new LegacyLabel({
@@ -540,7 +540,7 @@ editor.once('load', () => {
         panelItem.append(btnViewChanges);
         btnViewChanges.on('click', () => {
             if (panel.branch != null) {
-                panel.scrollTopMap[panel.branch.id] = panelCheckpoints.element.scrollTop;
+                panel.scrollTopMap[panel.branch.id] = panelCheckpoints.dom.scrollTop;
             }
             panel.emit('diff',
                 panel.branch.id,
@@ -679,7 +679,7 @@ editor.once('load', () => {
     // load more button
     btnLoadMore.on('click', () => {
         if (panel.branch != null) {
-            panel.scrollTopMap[panel.branch.id] = panelCheckpoints.element.scrollTop;
+            panel.scrollTopMap[panel.branch.id] = panelCheckpoints.dom.scrollTop;
         }
         panel.loadCheckpoints(true);
     });
@@ -712,7 +712,7 @@ editor.once('load', () => {
         }
 
         if (panel.branch != null) {
-            panel.scrollTopMap[panel.branch.id] = panelCheckpoints.element.scrollTop;
+            panel.scrollTopMap[panel.branch.id] = panelCheckpoints.dom.scrollTop;
         }
 
         if (previousCheckpoint) {
@@ -727,41 +727,43 @@ editor.once('load', () => {
         }
     });
 
-    menuCheckpoints.on('open', (open: boolean) => {
+    menuCheckpoints.on('show', () => {
         if (!currentCheckpoint) {
             return;
         }
 
         // filter menu options
-        if (open) {
-            menuCheckpointsRestore.hidden = panel.branch.id !== config.self.branch.id || !editor.call('permissions:write');
-            menuCheckpointsHardReset.hidden = menuCheckpointsRestore.hidden;
-            menuCheckpointsBranch.hidden = !editor.call('permissions:write');
+        menuCheckpointsRestore.hidden = panel.branch.id !== config.self.branch.id || !editor.call('permissions:write');
+        menuCheckpointsHardReset.hidden = menuCheckpointsRestore.hidden;
+        menuCheckpointsBranch.hidden = !editor.call('permissions:write');
 
-            // Don't show view changes if this is the last checkpoint in the list
-            // because we can't get the previous checkpoint id until the user loads
-            // more checkpoints and this also protects us trying to view changes from
-            // the first checkpoint in a branch
-            const lastPanelCheckpoint = panel.checkpoints[panel.checkpoints.length - 1];
-            menuCheckpointsViewChanges.hidden = currentCheckpoint.id === lastPanelCheckpoint.id;
+        // Don't show view changes if this is the last checkpoint in the list
+        // because we can't get the previous checkpoint id until the user loads
+        // more checkpoints and this also protects us trying to view changes from
+        // the first checkpoint in a branch
+        const lastPanelCheckpoint = panel.checkpoints[panel.checkpoints.length - 1];
+        menuCheckpointsViewChanges.hidden = currentCheckpoint.id === lastPanelCheckpoint.id;
+    });
+
+    // when the checkpoints context menu is closed 'unclick' dropdowns
+    menuCheckpoints.on('hide', () => {
+        if (!currentCheckpoint) {
+            return;
         }
 
-        // when the checkpoints context menu is closed 'unclick' dropdowns
-        if (!open) {
-            const item = document.getElementById(`checkpoint-${currentCheckpoint.id}`);
-            currentCheckpoint = null;
-            if (!item) {
-                return;
-            }
-
-            const dropdown = item.querySelector('.clicked');
-            if (!dropdown) {
-                return;
-            }
-
-            dropdown.classList.remove('clicked');
-            dropdown.innerHTML = '&#57689;';
+        const item = document.getElementById(`checkpoint-${currentCheckpoint.id}`);
+        currentCheckpoint = null;
+        if (!item) {
+            return;
         }
+
+        const dropdown = item.querySelector('.clicked');
+        if (!dropdown) {
+            return;
+        }
+
+        dropdown.classList.remove('clicked');
+        dropdown.ui.icon = 'E159';
     });
 
     panel.on('show', () => {

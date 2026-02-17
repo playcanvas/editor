@@ -5,6 +5,7 @@ import { tooltip, tooltipSimpleItem } from '@/common/tooltips';
 import { LegacyList } from '@/common/ui/list';
 import { LegacyListItem } from '@/common/ui/list-item';
 import { convertDatetime } from '@/common/utils';
+import { config } from '@/editor/config';
 
 editor.once('load', () => {
     const legacyScripts = editor.call('settings:project').get('useLegacyScripts');

@@ -6,6 +6,7 @@ import { LegacyListItem } from '@/common/ui/list-item';
 import { LegacyOverlay } from '@/common/ui/overlay';
 import { LegacyPanel } from '@/common/ui/panel';
 import { bytesToHuman } from '@/common/utils';
+import { config } from '@/editor/config';
 
 editor.once('load', () => {
     // GLOBAL VARIABLES

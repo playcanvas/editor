@@ -1,3 +1,5 @@
+import { config } from '@/editor/config';
+
 editor.once('load', () => {
     let uploadJobs = 0;
     const projectUserSettings = editor.call('settings:projectUser');

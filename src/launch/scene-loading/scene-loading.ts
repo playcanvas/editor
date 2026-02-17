@@ -1,3 +1,5 @@
+import { config } from '@/launch/config';
+
 editor.once('load', () => {
     // cache
     const loaded = {};

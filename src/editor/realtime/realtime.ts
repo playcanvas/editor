@@ -1,3 +1,5 @@
+import { config } from '@/editor/config';
+
 editor.once('start', () => {
     const realtime = editor.api.globals.realtime;
     realtime.on('cannotConnect', () => {
