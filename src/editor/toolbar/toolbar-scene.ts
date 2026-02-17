@@ -1,4 +1,4 @@
-import { Container, Label } from '@playcanvas/pcui';
+import { Button, Container } from '@playcanvas/pcui';
 
 import { LegacyTooltip } from '@/common/ui/tooltip';
 import { config } from '@/editor/config';
@@ -8,7 +8,7 @@ editor.once('load', () => {
     const viewport = editor.call('layout.viewport');
 
     const panel = new Container({
-        class: 'widget-title'
+        class: ['control-strip', 'top-left']
     });
     viewport.append(panel);
 
@@ -16,44 +16,44 @@ editor.once('load', () => {
         return panel;
     });
 
-    const projectName = new Label({
-        class: 'project-name'
+    const homeButton = new Button({
+        icon: 'E140'
     });
-    panel.append(projectName);
+    panel.append(homeButton);
 
-    projectName.on('click', () => {
+    homeButton.on('click', () => {
         window.open(`/project/${config.project.id}`, '_blank');
     });
 
     LegacyTooltip.attach({
-        target: projectName.dom,
+        target: homeButton.dom,
         text: 'Home',
         align: 'top',
         root: root
     });
 
-    const sceneName = new Label({
-        class: 'scene-name'
+    const settingsButton = new Button({
+        icon: 'E134'
     });
-    panel.append(sceneName);
+    panel.append(settingsButton);
 
     LegacyTooltip.attach({
-        target: sceneName.dom,
+        target: settingsButton.dom,
         text: 'Settings',
         align: 'top',
         root: root
     });
 
-    sceneName.on('click', () => {
+    settingsButton.on('click', () => {
         editor.call('selector:set', 'editorSettings', [editor.call('settings:projectUser')]);
     });
 
     editor.on('attributes:clear', () => {
-        sceneName.class.remove('active');
+        settingsButton.class.remove('active');
     });
 
     editor.on('attributes:inspect[editorSettings]', () => {
-        sceneName.class.add('active');
+        settingsButton.class.add('active');
     });
 
     if (!config.project.settings.useLegacyScripts) {
@@ -61,18 +61,18 @@ editor.once('load', () => {
         if (name.length > 33) {
             name = `${name.substring(0, 30)}...`;
         }
-        const branchButton = new Label({
-            class: 'branch-name',
+        const versionControlButton = new Button({
+            icon: 'E399',
             text: name
         });
-        panel.append(branchButton);
+        panel.append(versionControlButton);
 
-        branchButton.on('click', () => {
+        versionControlButton.on('click', () => {
             editor.call('picker:versioncontrol');
         });
 
         LegacyTooltip.attach({
-            target: branchButton.dom,
+            target: versionControlButton.dom,
             text: 'Version Control',
             align: 'top',
             root: root
@@ -80,38 +80,38 @@ editor.once('load', () => {
 
         // hide version control picker if we are not part of the team
         if (!editor.call('permissions:read')) {
-            branchButton.hidden = true;
+            versionControlButton.hidden = true;
         }
         editor.on('permissions:set', () => {
-            branchButton.hidden = !editor.call('permissions:read');
+            versionControlButton.hidden = !editor.call('permissions:read');
         });
     }
 
-    const sceneList = new Label({
-        class: 'scene-list'
+    const scenesButton = new Button({
+        icon: 'E147'
     });
-    panel.append(sceneList);
+    panel.append(scenesButton);
 
     editor.on('scene:name', (name) => {
-        sceneList.text = name;
+        scenesButton.text = name;
     });
 
     LegacyTooltip.attach({
-        target: sceneList.dom,
+        target: scenesButton.dom,
         text: 'Manage Scenes',
         align: 'top',
         root: root
     });
 
-    sceneList.on('click', () => {
+    scenesButton.on('click', () => {
         editor.call('picker:scene');
     });
 
     editor.on('picker:scene:open', () => {
-        sceneList.class.add('active');
+        scenesButton.class.add('active');
     });
 
     editor.on('picker:scene:close', () => {
-        sceneList.class.remove('active');
+        scenesButton.class.remove('active');
     });
 });

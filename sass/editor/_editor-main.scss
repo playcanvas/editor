@@ -511,307 +511,188 @@ strong {
     }
 }
 
-.pcui-container.top-controls {
+.control-strip {
     position: absolute;
-    top: 4px;
-    right: 4px;
-    background-color: transparent;
+    display: flex;
+    gap: 2px;
 
-    > .pcui-button.expand {
-        float: right;
-        width: 33px;
+    > .pcui-button,
+    > .render > .pcui-button,
+    > .camera > .pcui-button,
+    > .launch > .pcui-button {
         height: 33px;
-        line-height: 33px;
-        margin: 0 2px 0 0;
-        padding: 0;
+        margin: 0;
         border: none;
         border-radius: 0;
-
-        @extend .font-icon;
-
-        font-size: 16px;
-        text-align: center;
         color: rgba($text-primary, 0.75);
         background-color: rgba($bcg-darker, 0.5);
 
-        &:hover {
+        &:hover,
+        &.active {
             color: $text-primary;
             background-color: rgba($bcg-darker, 0.75);
             box-shadow: none;
         }
 
-        &.icon.active {
-            color: $text-primary;
-            background-color: $text-active;
-        }
-    }
-
-    > .pcui-container.render {
-        justify-content: center;
-        float: right;
-        height: 33px;
-        margin: 0 2px 0 0;
-        font-size: 12px;
-        background-color: rgba($bcg-darker, 0.5);
-        cursor: pointer;
-
-        &:hover {
-            background-color: rgba($bcg-darker, 0.75);
-
-            > .pcui-label {
-                color: $text-primary;
-            }
+        &::before {
+            font-size: 14px;
         }
 
-        > .pcui-label {
-            line-height: 33px;
-            margin: 0 2px 0 0;
+        &:empty {
+            width: 33px;
+            padding: 0;
+        }
+
+        &:not(:empty) {
             padding: 0 10px;
-            max-width: 200px;
-            width: fit-content;
-            color: rgba($text-primary, 0.75);
-
-            &::before {
-                float: left;
-
-                @extend .font-icon;
-
-                content: '\E188';
-                margin-right: 7px;
-                font-size: 14px;
-            }
-
-            &.wireframe::before {
-                content: '\E187';
-            }
-        }
-
-        > .pcui-container.render-options {
-            position: absolute;
-            padding: 10px;
-            top: 33px;
-            right: 0;
-            text-align: start;
-            min-width: 150px;
-            max-height: 300px;
-            overflow: hidden auto;
-            background-color: rgba($bcg-darker, .75);
-
-            .pcui-container {
-                flex-direction: row;
-                line-height: 22px;
-                width: 100%;
-                background: transparent;
-
-                .pcui-boolean-input {
-                    margin: 7px 3px 3px;
-                    vertical-align: text-bottom;
-                }
-
-                .pcui-radio-button {
-                    align-self: center;
-                    height: 16px;
-                    margin: 0 3px 0 2px;
-                    width: 16px;
-                    flex-shrink: 0;
-                }
-
-                .pcui-label {
-                    margin: 3px;
-                    max-width: 200px;
-                    min-height: 20px;
-                    word-wrap: break-word;
-                    white-space: pre-wrap;
-                    vertical-align: bottom;
-                }
-            }
-
-            .divider {
-                height: 3px;
-                background-color: rgba($bcg-darker, .75);
-                margin: 5px 0;
-            }
         }
     }
 
-    > .pcui-container.camera {
-        justify-content: center;
-        float: right;
-        height: 33px;
-        margin: 0 2px 0 0;
-        font-size: 12px;
-        background-color: rgba($bcg-darker, 0.5);
-        cursor: pointer;
-
-        &:hover {
-            background-color: rgba($bcg-darker, 0.75);
-
-            > .pcui-label {
-                color: $text-primary;
-            }
-        }
-
-        > .pcui-label {
-            line-height: 33px;
-            margin: 0 2px 0 0;
-            padding: 0 10px;
-            max-width: 200px;
-            width: fit-content;
-            color: rgba($text-primary, 0.75);
-
-            &::before {
-                float: left;
-
-                @extend .font-icon;
-
-                content: '\E212';
-                margin-right: 7px;
-                font-size: 14px;
-            }
-        }
-
-        > .pcui-container.camera-options {
-            position: absolute;
-            padding: 10px;
-            top: 33px;
-            right: 0;
-            text-align: start;
-            min-width: 150px;
-            max-height: 300px;
-            overflow: hidden auto;
-            background-color: rgba($bcg-darker, .75);
-
-            .pcui-container {
-                flex-direction: row;
-                line-height: 22px;
-                width: 100%;
-                background: transparent;
-
-                .pcui-boolean-input {
-                    margin: 7px 3px 3px;
-                    vertical-align: text-bottom;
-                }
-
-                .pcui-radio-button {
-                    align-self: center;
-                    height: 16px;
-                    margin: 0 3px 0 2px;
-                    width: 16px;
-                    flex-shrink: 0;
-                }
-
-                .pcui-label {
-                    margin: 3px;
-                    max-width: 200px;
-                    min-height: 20px;
-                    word-wrap: break-word;
-                    white-space: pre-wrap;
-                    vertical-align: bottom;
-                }
-            }
-
-            .divider {
-                height: 3px;
-                background-color: rgba($bcg-darker, .75);
-                margin: 5px 0;
-            }
-        }
+    &.top-left {
+        top: 4px;
+        left: 4px;
     }
 
-    > .launch {
-        float: right;
-        position: relative;
-        background-color: transparent;
+    &.top-right {
+        top: 4px;
+        right: 4px;
 
-        &:not(.disabled):hover {
-            > .pcui-button {
-                color: $text-primary;
+        > .pcui-button.expand {
+            &::before {
+                font-size: 16px;
+            }
+
+            &.active {
                 background-color: $text-active;
             }
         }
 
-        > .pcui-button {
-            width: 83px;
-            height: 33px;
-            line-height: 33px;
-            margin: 0;
-            padding: 0;
-            border: none;
-            border-radius: 0;
+        > .pcui-container.render,
+        > .pcui-container.camera {
+            position: relative;
 
-            @extend .font-icon;
+            &:hover > .pcui-button {
+                color: $text-primary;
+                background-color: rgba($bcg-darker, 0.75);
+            }
 
-            font-size: 20px;
-            text-align: center;
-            color: rgba($text-primary, 0.75);
-            background-color: rgba($bcg-darker, 0.5);
-            display: flex;
-            align-items: center;
-            padding-left: 8px;
+            > .render-options,
+            > .camera-options {
+                position: absolute;
+                padding: 10px;
+                top: 33px;
+                right: 0;
+                text-align: start;
+                min-width: 150px;
+                max-height: 300px;
+                overflow: hidden auto;
+                background-color: rgba($bcg-darker, .75);
 
-            > span {
-                font-family: 'Proxima Nova Regular';
-                font-size: 12px;
+                .pcui-container {
+                    flex-direction: row;
+                    line-height: 22px;
+                    width: 100%;
+                    background: transparent;
+
+                    .pcui-boolean-input {
+                        margin: 7px 3px 3px;
+                        vertical-align: text-bottom;
+                    }
+
+                    .pcui-radio-button {
+                        align-self: center;
+                        height: 16px;
+                        margin: 0 3px 0 2px;
+                        width: 16px;
+                        flex-shrink: 0;
+                    }
+
+                    .pcui-label {
+                        margin: 3px;
+                        max-width: 200px;
+                        min-height: 20px;
+                        font-size: 12px;
+                        word-wrap: break-word;
+                        white-space: pre-wrap;
+                        vertical-align: bottom;
+                    }
+                }
+
+                .divider {
+                    height: 3px;
+                    background-color: rgba($bcg-darker, .75);
+                    margin: 5px 0;
+                }
             }
         }
 
-        .pcui-container.options {
-            position: absolute;
-            top: 33px;
-            right: 0;
-            margin: 0;
-            padding: 5px;
-            list-style: none;
-            background-color: rgba($bcg-darker, 0.75);
+        > .launch {
+            position: relative;
 
-            .pcui-boolean-input:not(.pcui-boolean-input-ticked) {
-                background-color: #20292b;
+            &:not(.disabled):hover {
+                > .pcui-button {
+                    background-color: $text-active;
+                }
             }
 
-            .pcui-label {
-                vertical-align: top;
-                font-size: 12px;
+            > .pcui-button {
+                &::before {
+                    font-size: 20px;
+                }
             }
 
-            .pcui-container {
-                @extend .noSelect;
+            .pcui-container.options {
+                position: absolute;
+                top: 33px;
+                right: 0;
+                margin: 0;
+                padding: 5px;
+                list-style: none;
+                background-color: rgba($bcg-darker, 0.75);
 
-                background: transparent;
-                width: 200px;
-                cursor: pointer;
-                margin: 2px 0;
+                .pcui-boolean-input:not(.pcui-boolean-input-ticked) {
+                    background-color: #20292b;
+                }
 
-                &:has(.pcui-button):hover {
-                    .pcui-button {
-                        color: $text-active;
+                .pcui-label {
+                    vertical-align: top;
+                    font-size: 12px;
+                }
+
+                .pcui-container {
+                    @extend .noSelect;
+
+                    background: transparent;
+                    width: 200px;
+                    cursor: pointer;
+                    margin: 2px 0;
+
+                    &:has(.pcui-button):hover {
+                        .pcui-button {
+                            color: $text-active;
+                        }
                     }
                 }
-            }
 
-
-            .pcui-button {
-                width: 100%;
-                border: 0;
-                padding: 0;
-                margin: 0;
-                margin-left: 5px;
-                background-color: transparent;
-                font-size: 20px;
-                text-align: left;
-
-                > span {
-                    font-family: 'Proxima Nova Regular';
+                .pcui-button {
+                    width: 100%;
+                    border: 0;
+                    padding: 0;
+                    margin: 0;
+                    margin-left: 5px;
+                    background-color: transparent;
                     font-size: 12px;
-                    vertical-align: middle;
-                }
+                    text-align: left;
 
-                &:hover {
-                    box-shadow: none;
-                }
-            }
+                    &::before {
+                        font-size: 20px;
+                        vertical-align: middle;
+                    }
 
-            .pcui-divider {
-                cursor: default;
+                    &:hover {
+                        box-shadow: none;
+                    }
+                }
             }
         }
     }
@@ -1111,62 +992,6 @@ strong {
                 cursor: pointer;
             }
         }
-    }
-}
-
-.pcui-container.widget-title {
-    position: absolute;
-    top: 4px;
-    left: 4px;
-    padding: 0;
-    background-color: transparent;
-
-    > .project-name,
-    > .scene-name,
-    > .branch-name,
-    > .scene-list {
-        height: 33px;
-        min-height: 33px;
-        line-height: 34px;
-        padding: 0 10px;
-        font-size: 12px;
-        margin: 0 2px 0 0;
-        color: rgba(#fff, 0.75);
-        background-color: rgb(41 53 56 / 50%);
-        cursor: pointer;
-
-        &:hover,
-        &.active {
-            background-color: rgb(41 53 56 / 75%);
-            color: #fff;
-        }
-
-        &::before {
-            @extend .font-icon;
-
-            font-size: 14px;
-            margin-right: 7px;
-            float: left;
-            line-height: 34px;
-        }
-    }
-
-    > .project-name::before {
-        content: '\E140';
-        margin-right: 0;
-    }
-
-    > .scene-name::before {
-        content: '\E134';
-        margin-right: 0;
-    }
-
-    > .branch-name::before {
-        content: '\E399';
-    }
-
-    > .scene-list::before {
-        content: '\E147';
     }
 }
 

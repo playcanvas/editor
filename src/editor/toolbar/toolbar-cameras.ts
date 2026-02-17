@@ -1,4 +1,4 @@
-import { BooleanInput, Container, Label, RadioButton } from '@playcanvas/pcui';
+import { BooleanInput, Button, Container, Label, RadioButton } from '@playcanvas/pcui';
 
 editor.once('viewport:load', (app) => {
     const controls = editor.call('layout.toolbar.launch');
@@ -16,12 +16,12 @@ editor.once('viewport:load', (app) => {
     const cameraPanel = new Container({
         class: 'camera'
     });
-    controls.append(cameraPanel);
+    controls.prepend(cameraPanel);
 
-    const cameraSelected = new Label({
-        class: 'viewport-camera'
+    const cameraButton = new Button({
+        icon: 'E212'
     });
-    cameraPanel.append(cameraSelected);
+    cameraPanel.append(cameraButton);
 
     const cameraOptions = new Container({
         class: 'camera-options',
@@ -169,7 +169,7 @@ editor.once('viewport:load', (app) => {
                 refreshOptions();
 
                 if (viewportCamera.active === guid) {
-                    cameraSelected.text = value;
+                    cameraButton.text = value;
                 }
             });
         }
@@ -194,7 +194,7 @@ editor.once('viewport:load', (app) => {
         viewportCamera.active = guid;
         clearRadioButtons();
         viewportCamera.optionElements[viewportCamera.active].value = true;
-        cameraSelected.text = viewportCamera.optionTitles[guid];
+        cameraButton.text = viewportCamera.optionTitles[guid];
     });
 
     // UI interactions

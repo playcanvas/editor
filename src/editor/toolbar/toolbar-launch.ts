@@ -14,7 +14,7 @@ editor.once('load', () => {
 
     // panel
     const panel = new Container({
-        class: 'top-controls'
+        class: ['control-strip', 'top-right']
     });
     viewport.append(panel);
 
@@ -27,8 +27,6 @@ editor.once('load', () => {
         class: 'launch',
         enabled: false
     });
-    panel.append(launch);
-
     editor.on('scene:load', () => {
         launch.enabled = true;
     });
@@ -37,14 +35,9 @@ editor.once('load', () => {
     });
 
     const buttonLaunch = new Button({
-        class: 'icon',
-        icon: 'E131'
+        icon: 'E131',
+        text: 'Launch'
     });
-
-    const launchText = document.createElement('span');
-    launchText.innerText = 'Launch';
-    buttonLaunch.dom.append(launchText);
-
     launch.append(buttonLaunch);
 
     const launchOptions = { };
@@ -132,14 +125,9 @@ editor.once('load', () => {
         });
 
         const button = new Button({
-            class: 'icon',
-            icon: 'E131'
+            icon: 'E131',
+            text: title
         });
-
-        const text = document.createElement('span');
-        text.innerText = title;
-        button.dom.append(text);
-
         launch.append(button);
 
         const divider = new Divider();
@@ -380,10 +368,11 @@ editor.once('load', () => {
 
     // fullscreen
     const buttonExpand = new Button({
-        class: ['icon', 'expand'],
+        class: 'expand',
         icon: 'E127'
     });
     panel.append(buttonExpand);
+    panel.append(launch);
 
     buttonExpand.on('click', () => {
         editor.call('viewport:expand');
@@ -414,4 +403,49 @@ editor.once('load', () => {
         launchWithWebGL2.parent.hidden = !enableWebGpu && enableWebGl2;
         launchWithWebGL1.parent.hidden = editor.projectEngineV2 || (!enableWebGpu && !enableWebGl2);
     });
+
+    // collapse button text to icon-only when the viewport is too narrow
+    const topLeft = document.querySelector('.control-strip.top-left');
+    const minGap = 20;
+
+    const buttonSelector = [
+        '.control-strip > .pcui-button',
+        '.control-strip > .render > .pcui-button',
+        '.control-strip > .camera > .pcui-button',
+        '.control-strip > .launch > .pcui-button'
+    ].join(', ');
+
+    const restoreButtonText = () => {
+        document.querySelectorAll(buttonSelector).forEach((btn) => {
+            const text = btn.getAttribute('data-full-text');
+            if (text !== null) {
+                btn.textContent = text;
+                btn.removeAttribute('data-full-text');
+            }
+        });
+    };
+
+    const clearButtonText = () => {
+        document.querySelectorAll(buttonSelector).forEach((btn) => {
+            if (btn.textContent) {
+                btn.setAttribute('data-full-text', btn.textContent);
+                btn.textContent = '';
+            }
+        });
+    };
+
+    const updateCompact = () => {
+        // restore text to measure full width
+        restoreButtonText();
+
+        const leftRect = topLeft.getBoundingClientRect();
+        const rightRect = panel.dom.getBoundingClientRect();
+
+        if (leftRect.right + minGap > rightRect.left) {
+            clearButtonText();
+        }
+    };
+
+    editor.on('viewport:resize', updateCompact);
+    editor.on('scene:name', updateCompact);
 });
