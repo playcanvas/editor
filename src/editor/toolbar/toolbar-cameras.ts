@@ -16,7 +16,7 @@ editor.once('viewport:load', (app) => {
     const cameraPanel = new Container({
         class: 'camera'
     });
-    controls.append(cameraPanel);
+    controls.prepend(cameraPanel);
 
     const cameraSelected = new Label({
         class: 'viewport-camera'

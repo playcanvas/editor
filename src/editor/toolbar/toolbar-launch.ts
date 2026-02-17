@@ -26,8 +26,6 @@ editor.once('load', () => {
         class: 'launch',
         enabled: false
     });
-    panel.append(launch);
-
     editor.on('scene:load', () => {
         launch.enabled = true;
     });
@@ -383,6 +381,7 @@ editor.once('load', () => {
         icon: 'E127'
     });
     panel.append(buttonExpand);
+    panel.append(launch);
 
     buttonExpand.on('click', () => {
         editor.call('viewport:expand');

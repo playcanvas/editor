@@ -22,7 +22,7 @@ editor.once('viewport:load', (app) => {
     const renderContainer = new Container({
         class: 'render'
     });
-    controls.append(renderContainer);
+    controls.prepend(renderContainer);
 
     const renderLabel = new Label({
         class: 'render-label',
