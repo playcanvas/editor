@@ -4,6 +4,7 @@ import { Button, Container, Element, Label, Menu, Progress, TextInput } from '@p
 import { LegacyList } from '@/common/ui/list';
 import { LegacyListItem } from '@/common/ui/list-item';
 import { convertDatetime } from '@/common/utils';
+import { config } from '@/editor/config';
 
 interface Scene {
     id: number | string;

@@ -1,3 +1,5 @@
+import { config } from '@/code-editor/config';
+
 editor.once('load', () => {
 
     // Update url with new tab order
@@ -57,5 +59,5 @@ editor.once('load', () => {
 
     config.tabs.forEach(tab => editor.call('integration:selectWhenReady', tab));
 
-    editor.call('integration:selectWhenReady', focusedAssetId, window.config.file);
+    editor.call('integration:selectWhenReady', focusedAssetId, config.file);
 });

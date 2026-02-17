@@ -1,6 +1,8 @@
 import type { Observer } from '@playcanvas/observer';
 import { LAYERID_DEPTH } from 'playcanvas';
 
+import { config } from '@/launch/config';
+
 editor.once('load', () => {
     // Wait for assets, hierarchy and settings to load before initializing application and starting.
     let done = false;

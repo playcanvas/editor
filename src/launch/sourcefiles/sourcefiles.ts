@@ -1,4 +1,6 @@
 // TODO: Remove this file when the legacy scripts are removed
+import { config } from '@/launch/config';
+
 editor.once('load', () => {
     if (!editor.call('settings:project').get('useLegacyScripts')) {
         return;
@@ -8,7 +10,7 @@ editor.once('load', () => {
     fetch(`${config.url.home}${(config.project as { repositoryUrl: string }).repositoryUrl}`, {
         credentials: 'include',
         headers: {
-            'Authorization': `Bearer ${config.accessToken}`,
+            'Authorization': `Bearer ${'accessToken' in window.config ? (window.config as { accessToken: string }).accessToken : ''}`,
             'Content-Type': 'application/json'
         }
     }).then(res => res.json()).then((data: { result: Array<{ filename: string }> }) => {
