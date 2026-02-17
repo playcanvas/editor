@@ -544,14 +544,15 @@ strong {
     position: absolute;
     top: 4px;
     right: 4px;
-    background-color: transparent;
+    display: flex;
+    flex-direction: row-reverse;
+    gap: 2px;
 
     > .pcui-button.expand {
-        float: right;
         width: 33px;
         height: 33px;
         line-height: 33px;
-        margin: 0 2px 0 0;
+        margin: 0;
         padding: 0;
         border: none;
         border-radius: 0;
@@ -577,9 +578,8 @@ strong {
 
     > .pcui-container.render {
         justify-content: center;
-        float: right;
         height: 33px;
-        margin: 0 2px 0 0;
+        margin: 0;
         font-size: 12px;
         background-color: rgba($bcg-darker, 0.5);
         cursor: pointer;
@@ -665,9 +665,8 @@ strong {
 
     > .pcui-container.camera {
         justify-content: center;
-        float: right;
         height: 33px;
-        margin: 0 2px 0 0;
+        margin: 0;
         font-size: 12px;
         background-color: rgba($bcg-darker, 0.5);
         cursor: pointer;
@@ -748,7 +747,6 @@ strong {
     }
 
     > .launch {
-        float: right;
         position: relative;
         background-color: transparent;
 
