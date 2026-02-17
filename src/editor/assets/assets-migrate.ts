@@ -35,7 +35,7 @@ editor.once('load', () => {
      * @param asset - The asset to migrate
      */
     const removeMaterialTintFlags = (asset: Observer) => {
-        const resetNeutral = (path: string, defaultVal: any, tintPath: string) => {
+        const resetNeutral = (path: string, defaultVal: unknown, tintPath: string) => {
             const oldVal = asset.get(path) ?? defaultVal;
             asset.set(path, defaultVal);
             if (!deepEqual(oldVal, defaultVal)) {
@@ -108,9 +108,9 @@ editor.once('load', () => {
     /**
      * Migration for material assets
      *
-     * @param {Observer} asset - The material asset to migrate
+     * @param asset - The material asset to migrate
      */
-    const migrateMaterial = (asset) => {
+    const migrateMaterial = (asset: Observer) => {
         if (!asset.get('data')) {
             return;
         }
@@ -128,7 +128,7 @@ editor.once('load', () => {
         }
 
         // NOTE: useGammaTonemap is used by engine v1 so bind useTonemap to useGammaTonemap
-        asset.on('data.useTonemap:set', (value) => {
+        asset.on('data.useTonemap:set', (value: boolean) => {
             asset.set('data.useGammaTonemap', value);
         });
 
@@ -176,14 +176,14 @@ editor.once('load', () => {
         }
 
         // FIXME: bind the anisotropyIntensity and anisotropyRotation to anisotropy
-        const anisotropyLegacyConvert = (intensity, rotation) => {
+        const anisotropyLegacyConvert = (intensity: number, rotation: number): number => {
             return intensity * Math.sign(Math.cos(rotation * 2 * Math.PI / 180));
         };
-        asset.on('data.anisotropyIntensity:set', (intensity) => {
+        asset.on('data.anisotropyIntensity:set', (intensity: number) => {
             const rotation = asset.get('data.anisotropyRotation') ?? 0;
             asset.set('data.anisotropy', anisotropyLegacyConvert(intensity, rotation));
         });
-        asset.on('data.anisotropyRotation:set', (rotation) => {
+        asset.on('data.anisotropyRotation:set', (rotation: number) => {
             const intensity = asset.get('data.anisotropyIntensity') ?? 0;
             asset.set('data.anisotropy', anisotropyLegacyConvert(intensity, rotation));
         });
@@ -309,9 +309,9 @@ editor.once('load', () => {
     /**
      * Migration for texture assets
      *
-     * @param {Observer} asset - The texture asset to migrate
+     * @param asset - The texture asset to migrate
      */
-    const migrateTexture = (asset) => {
+    const migrateTexture = (asset: Observer) => {
         if (asset.get('source')) {
             return;
         }
@@ -383,9 +383,9 @@ editor.once('load', () => {
     /**
      * Migration for font assets
      *
-     * @param {Observer} asset - The font asset to migrate
+     * @param asset - The font asset to migrate
      */
-    const migrateFont = (asset) => {
+    const migrateFont = (asset: Observer) => {
         if (asset.get('source')) {
             return;
         }
@@ -401,9 +401,9 @@ editor.once('load', () => {
     /**
      * Migration for script assets
      *
-     * @param {Observer} asset - The script asset to migrate
+     * @param asset - The script asset to migrate
      */
-    const migrateScript = (asset) => {
+    const migrateScript = (asset: Observer) => {
         if (!asset.get('data')) {
             return;
         }
@@ -416,9 +416,9 @@ editor.once('load', () => {
     /**
      * Migrate an asset
      *
-     * @param {Observer} asset - The asset to migrate
+     * @param asset - The asset to migrate
      */
-    const migrate = (asset) => {
+    const migrate = (asset: Observer) => {
         asset.history.enabled = false;
 
         const type = asset.get('type');

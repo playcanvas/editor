@@ -6,7 +6,7 @@
  */
 editor.once('load', () => {
     class SyncHistGraph {
-        constructor(newGraph, data) {
+        constructor(newGraph: Record<string, Record<string, unknown>>, data: { idToNode: Record<string, Record<string, unknown>> }) {
             this.newGraph = newGraph;
 
             this.oldGraph = data.idToNode;
@@ -30,7 +30,7 @@ editor.once('load', () => {
             this.newNodes = Object.values(this.newGraph);
         }
 
-        handleOld(h1) {
+        handleOld(h1: Record<string, unknown>) {
             const h2 = this.newGraph[h1.id];
 
             const keep = h2 && editor.call('vcgraph:utils', 'equalHistNodes', h1, h2);
@@ -40,7 +40,7 @@ editor.once('load', () => {
             }
         }
 
-        handleNew(h) {
+        handleNew(h: Record<string, unknown>) {
             const id = h.id;
 
             if (this.oldGraph[id]) {
@@ -53,7 +53,7 @@ editor.once('load', () => {
             }
         }
 
-        addEdgesToOld(h1, type1, type2) {
+        addEdgesToOld(h1: Record<string, unknown>, type1: 'parent' | 'child', type2: 'parent' | 'child') {
             h1[type1].forEach((edge) => {
                 const id2 = edge[type1];
 
@@ -65,7 +65,7 @@ editor.once('load', () => {
             });
         }
 
-        addOneEdge(dst, edge) {
+        addOneEdge(dst: Array<Record<string, unknown>>, edge: Record<string, unknown>) {
             edge = editor.call('template:utils', 'deepClone', edge);
 
             dst.push(edge);

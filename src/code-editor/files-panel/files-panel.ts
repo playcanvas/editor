@@ -1,3 +1,4 @@
+import type { Observer } from '@playcanvas/observer';
 import { Progress, TreeView, TreeViewItem, Panel } from '@playcanvas/pcui';
 
 editor.once('load', () => {
@@ -30,7 +31,7 @@ editor.once('load', () => {
     const progressBar = new Progress();
     panel.append(progressBar);
 
-    editor.on('assets:load:progress', (progress) => {
+    editor.on('assets:load:progress', (progress: number) => {
         progressBar.hidden = progress >= 1;
         progressBar.value = progress * 100;
     });
@@ -73,9 +74,9 @@ editor.once('load', () => {
      * Override TreeViewItem's default click handler and modify its behavior to not deselect
      * the item if it's already selected or if there's more than one item selected.
      *
-     * @param {MouseEvent} evt - Mouse event.
+     * @param evt - Mouse event.
      */
-    const onItemClick = function (evt) {
+    const onItemClick = function (evt: MouseEvent) {
         const item: TreeViewItem = this.ui.parent;
 
         if (!item.allowSelect || evt.button !== 0) {
@@ -95,7 +96,7 @@ editor.once('load', () => {
             if (evt.altKey) {
                 // apply to all children as well
                 const open = item.open;
-                item._dfs((item) => {
+                item._dfs((item: TreeViewItem) => {
                     item.open = open;
                 });
             }
@@ -108,9 +109,9 @@ editor.once('load', () => {
     /**
      * On double click make this tab stay open and subsequent file selections will open a new tab.
      *
-     * @param {MouseEvent} evt - Mouse event.
+     * @param evt - Mouse event.
      */
-    const onItemDblClick = function (evt) {
+    const onItemDblClick = function (evt: MouseEvent) {
         const item: TreeViewItem = this.ui.parent;
 
         if (evt.button !== 0) {
@@ -133,10 +134,10 @@ editor.once('load', () => {
     /**
      * Append item to parent keeping order alphabetical. Puts folders first.
      *
-     * @param {TreeViewItem} item - Item to append.
-     * @param {TreeViewItem} parent - Parent item.
+     * @param item - Item to append.
+     * @param parent - Parent item.
      */
-    const appendAlphabetically = (item, parent) => {
+    const appendAlphabetically = (item: TreeViewItem, parent: TreeViewItem) => {
         const children = Array.from(parent.dom.childNodes).slice(1);
         if (!children.length) {
             parent.append(item);
@@ -191,10 +192,10 @@ editor.once('load', () => {
      * Append item to parent in alphabetical order. If item is a folder also append any other items
      * that were waiting for this folder to be added.
      *
-     * @param {TreeViewItem} item - Item to append.
-     * @param {TreeViewItem} parent - Parent item.
+     * @param item - Item to append.
+     * @param parent - Parent item.
      */
-    const append = (item, parent) => {
+    const append = (item: TreeViewItem, parent: TreeViewItem) => {
         appendAlphabetically(item, parent);
 
         const id = item._assetId;
@@ -209,7 +210,7 @@ editor.once('load', () => {
     };
 
     // Create tree nodes for each asset
-    const addAsset = function (asset) {
+    const addAsset = function (asset: Observer) {
         const id: string = asset.get('id');
         const name: string = asset.get('name');
         const path: number[] = asset.get('path');
@@ -247,10 +248,10 @@ editor.once('load', () => {
         });
 
         /**
-         * @param {TreeViewItem} item - Item to add.
-         * @param {number[]} path - Path to item.
+         * @param item - Item to add.
+         * @param path - Path to item.
          */
-        const addItem = (item, path) => {
+        const addItem = (item: TreeViewItem, path: number[]) => {
             const length = path.length;
             if (!length) {
                 append(item, treeRoot);
@@ -269,7 +270,7 @@ editor.once('load', () => {
         addItem(item, path);
 
         // handle path changes
-        asset.on('path:set', (path, oldPath) => {
+        asset.on('path:set', (path: string[], oldPath?: string[]) => {
             // remove item from old folder
             if (item.parent) {
                 item.parent.remove(item);
@@ -314,7 +315,7 @@ editor.once('load', () => {
     });
 
     // Delete tree node for removed assets
-    editor.on('assets:remove', (asset) => {
+    editor.on('assets:remove', (asset: Observer) => {
         const id: string = asset.get('id');
         const item = idToItem.get(id);
         if (item) {
@@ -431,12 +432,12 @@ editor.once('load', () => {
     });
 
     // handle reparenting
-    tree.on('reparent', (reparented) => {
+    tree.on('reparent', (reparented: Array<{ item: { _assetId: string }; newParent: { _assetId: string } }>) => {
         if (!reparented.length) {
             return;
         }
 
-        const assets = reparented.map((node) => {
+        const assets = reparented.map((node: { item: { _assetId: string }; newParent: { _assetId: string } }) => {
             return editor.call('assets:get', node.item._assetId);
         });
 

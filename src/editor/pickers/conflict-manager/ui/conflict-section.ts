@@ -3,12 +3,12 @@ import { Events } from '@playcanvas/observer';
 import { LegacyLabel } from '@/common/ui/label';
 import { LegacyPanel } from '@/common/ui/panel';
 
-import { ConflictSectionRow } from './conflict-section-row';
+import { ConflictSectionRow, type ConflictSectionRowArgs } from './conflict-section-row';
 
 // A section contains multiple conflicts and it's meant to group
 // conflicts into meaningful categories
 class ConflictSection extends Events {
-    constructor(resolver, title, foldable, allowCloaking) {
+    constructor(resolver: Record<string, unknown>, title: string, foldable: boolean, allowCloaking: boolean) {
         super();
 
         this._resolver = resolver;
@@ -77,7 +77,7 @@ class ConflictSection extends Events {
     }
 
     // Adds a title that spans all 3 panels
-    appendTitle(title, light) {
+    appendTitle(title: string, light?: boolean) {
         let label;
 
         const startIndex = this._resolver.isDiff ? 1 : 0;
@@ -101,16 +101,9 @@ class ConflictSection extends Events {
      * Append a new field to the section. This will create
      * a new field on all 3 panels (base, source, destination);
      *
-     * @param {object} args - The field options
-     * @param {string} args.name - The name of the field
-     * @param {boolean} args.prettify - If true the name will be 'prettified'
-     * @param {string} args.type - The type of the field if it's the same for all base, source and destination values
-     * @param {string} args.baseType - The type of the base value
-     * @param {string} args.sourceType - The type of the source value
-     * @param {string} args.destType - The type of the destination value
-     * @param {object} args.conflict - The conflict object
+     * @param args - The field options
      */
-    appendField(args) {
+    appendField(args: ConflictSectionRowArgs) {
         const row = new ConflictSectionRow(this._resolver, args);
         this._rows.push(row);
 
@@ -129,7 +122,7 @@ class ConflictSection extends Events {
         }
     }
 
-    appendAllFields(args) {
+    appendAllFields(args: { fields: Record<string, { path?: string } & Record<string, unknown>>; title?: string; except?: string[]; schema: string }) {
         const fields = args.fields;
         const title = args.title;
         const except = args.except;
@@ -174,12 +167,12 @@ class ConflictSection extends Events {
         }
     }
 
-    onConflictResolved(conflictId, data) {
+    onConflictResolved(conflictId: string, data: Record<string, unknown>) {
         this.numResolvedConflicts++;
         this.emit('resolve', conflictId, data);
     }
 
-    onConflictUnresolved(conflictId) {
+    onConflictUnresolved(conflictId: string) {
         this.numResolvedConflicts--;
         this.emit('unresolve', conflictId);
     }
@@ -250,7 +243,7 @@ class ConflictSection extends Events {
         this._rows.length = 0;
     }
 
-    set numConflicts(value) {
+    set numConflicts(value: number) {
         this._numConflicts = value;
         this._labelNumConflicts.text = `${this._numResolvedConflicts}/${this._numConflicts}`;
     }
@@ -259,7 +252,7 @@ class ConflictSection extends Events {
         return this._numConflicts;
     }
 
-    set numResolvedConflicts(value) {
+    set numResolvedConflicts(value: number) {
         this._numResolvedConflicts = value;
         this._labelNumConflicts.text = `${this._numResolvedConflicts}/${this._numConflicts}`;
     }

@@ -1,5 +1,7 @@
+import type { Observer } from '@playcanvas/observer';
+
 editor.once('load', () => {
-    editor.on('sceneSettings:load', (sceneSettings) => {
+    editor.on('sceneSettings:load', (sceneSettings: Observer) => {
         const app = editor.call('viewport:app');
         if (!app) {
             return;

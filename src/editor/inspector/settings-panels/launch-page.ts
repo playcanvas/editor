@@ -16,7 +16,7 @@ const ATTRIBUTES: Attribute[] = [
 ];
 
 class LaunchPageSettingsPanel extends BaseSettingsPanel {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.headerText = 'LAUNCH PAGE';
         args.attributes = ATTRIBUTES;

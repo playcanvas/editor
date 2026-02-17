@@ -35,7 +35,7 @@ editor.once('load', () => {
     let lastY = 0;
 
     // move tooltip
-    const onMove = function (evt) {
+    const onMove = function (evt: MouseEvent) {
         lastX = evt.clientX;
         lastY = evt.clientY;
 

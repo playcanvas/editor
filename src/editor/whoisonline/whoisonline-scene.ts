@@ -18,7 +18,7 @@ editor.once('load', () => {
         }
     });
 
-    editor.on('relay:room:join', (data) => {
+    editor.on('relay:room:join', (data: { name: string; users?: string[]; userId?: string }) => {
         if (!data.name.startsWith('scene-')) {
             return;
         }
@@ -39,7 +39,7 @@ editor.once('load', () => {
         }
     });
 
-    editor.on('relay:room:leave', (data) => {
+    editor.on('relay:room:leave', (data: { name: string; userId: string }) => {
         if (!data.name.startsWith('scene-')) {
             return;
         }
@@ -55,7 +55,7 @@ editor.once('load', () => {
         }
     });
 
-    function onSceneLoad(uniqueId) {
+    function onSceneLoad(uniqueId: string) {
         if (!relayEnabled) {
             return;
         }
@@ -67,7 +67,7 @@ editor.once('load', () => {
         editor.call('relay:joinRoom', `scene-${uniqueId}`);
     }
 
-    function onSceneUnload(uniqueId) {
+    function onSceneUnload(uniqueId: string) {
         editor.call('relay:leaveRoom', `scene-${uniqueId}`);
         if (currentRoom === uniqueId) {
             currentRoom = null;
@@ -89,7 +89,7 @@ editor.once('load', () => {
         }
     });
 
-    editor.method('whoisonline:scene:enabled', (enabled) => {
+    editor.method('whoisonline:scene:enabled', (enabled: boolean) => {
         relayEnabled = enabled;
     });
 });

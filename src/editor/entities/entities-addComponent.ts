@@ -1,18 +1,20 @@
+import type { EntityObserver } from '@/editor-api';
+
 editor.once('load', () => {
     /**
      * Adds the specified component to the specified entities.
      *
-     * @param {Observer[]} entities - The entities
-     * @param {string} component - The name of the component
-     * @param {object} componentData - The object containing additional parameters used to build new component
+     * @param entities - The entities
+     * @param component - The name of the component
+     * @param componentData - The object containing additional parameters used to build new component
      */
-    editor.method('entities:addComponent', (entities, component, componentData = {}) => {
+    editor.method('entities:addComponent', (entities: EntityObserver[], component: string, componentData: Record<string, unknown> = {}) => {
         let previousChildrenLayouts = {};
 
         function redo() {
             previousChildrenLayouts = {};
 
-            entities = entities.map(e => e.latest()).filter(e => !!e && !e.has(`components.${component}`));
+            entities = entities.map(e => e.latest()).filter(e => !!e && !e.has(`components.${component}`)) as EntityObserver[];
             entities.forEach((e) => {
                 const history = e.history.enabled;
                 e.history.enabled = false;
@@ -39,7 +41,7 @@ editor.once('load', () => {
 
         function undo() {
             entities.forEach((e) => {
-                e = e.latest();
+                e = e.latest() as EntityObserver;
                 if (!e) {
                     return;
                 }

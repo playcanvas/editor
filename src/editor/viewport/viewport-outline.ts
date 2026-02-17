@@ -15,7 +15,7 @@ editor.once('load', () => {
     const outlineLayer = editor.call('gizmo:layers', 'Viewport Outline');
     const outlineRenderer = new OutlineRenderer(app, outlineLayer);
 
-    const isSelectableEntity = function (item) {
+    const isSelectableEntity = function (item: import('@/editor-api').EntityObserver | null): boolean {
 
         if (item && item.entity) {
 
@@ -35,7 +35,7 @@ editor.once('load', () => {
         return false;
     };
 
-    const getUserSelectionColor = (user) => {
+    const getUserSelectionColor = (user: number | string) => {
 
         let color = userColors.get(user);
         if (!color) {
@@ -51,7 +51,7 @@ editor.once('load', () => {
     };
 
     // request rendering of entities for a user
-    const setUserSelection = (id, entities) => {
+    const setUserSelection = (id: number | string, entities: import('playcanvas').Entity[]): void => {
 
         // remove existing entities
         const existingEntities = userSelections.get(id);
@@ -72,7 +72,7 @@ editor.once('load', () => {
     };
 
     // local user selection changed
-    editor.on('selector:change', (type, items) => {
+    editor.on('selector:change', (type: string, items: import('@/editor-api').EntityObserver[]) => {
 
         const entities = [];
 
@@ -88,7 +88,7 @@ editor.once('load', () => {
     });
 
     // remote user selection changed
-    editor.on('selector:sync', (user, data) => {
+    editor.on('selector:sync', (user: number | string, data: { type: string; ids: string[] }) => {
 
         const entities = [];
 
@@ -105,14 +105,14 @@ editor.once('load', () => {
     });
 
     // entity was removed from selection (for example deleted)
-    editor.on('selector:remove', (item, type) => {
+    editor.on('selector:remove', (item: import('@/editor-api').EntityObserver, type: string) => {
         if (type === 'entity') {
             outlineRenderer.removeEntity(item.entity, false);
         }
     });
 
     // remote user leave
-    editor.on('whoisonline:remove', (user) => {
+    editor.on('whoisonline:remove', (user: number | string) => {
         setUserSelection(user, []);
     });
 

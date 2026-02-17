@@ -31,7 +31,11 @@ class ComponentInspector extends Panel {
 
     private _contextMenu: Menu;
 
-    constructor(args) {
+    constructor(args: {
+        component: string;
+        history: import('@/editor-api').History;
+        templateOverridesInspector?: TemplateOverrideInspector;
+    } & Record<string, unknown>) {
         args = Object.assign({}, args);
         args.flex = true;
         args.collapsible = true;

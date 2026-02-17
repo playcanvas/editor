@@ -1,3 +1,4 @@
+import type { Observer } from '@playcanvas/observer';
 import { version } from 'playcanvas';
 
 import { formatter as f } from '@/common/utils';
@@ -10,7 +11,7 @@ editor.on('load', () => {
     let pendingHistory = false;
 
     workerClient.once('init', () => {
-        workerClient.on('prune', (progress) => {
+        workerClient.on('prune', (progress: number) => {
             if (pendingHistory) {
                 return;
             }
@@ -50,13 +51,13 @@ editor.on('load', () => {
     };
 
     /**
-     * @param {'info' | 'warn' | 'error'} type - Log type
-     * @param {string} msg - Log message
-     * @param {string | (() => void)} [verboseMsg] - Verbose log message
-     * @param {() => void} [onclick] - Click handler
-     * @returns {Promise<void>}
+     * @param type - Log type
+     * @param msg - Log message
+     * @param verboseMsg - Verbose log message
+     * @param onclick - Click handler
+     * @returns A promise that resolves when the log is added
      */
-    const addLog = (type, msg, verboseMsg, onclick) => {
+    const addLog = (type: 'info' | 'warn' | 'error', msg: string, verboseMsg?: string | (() => void), onclick?: () => void): Promise<void> => {
         if (typeof verboseMsg === 'function') {
             onclick = verboseMsg;
             verboseMsg = undefined;
@@ -75,7 +76,7 @@ editor.on('load', () => {
             editor.call('layout:console:add', data.ts, type, msg, onclick);
         }
 
-        const submit = (resolve) => {
+        const submit = (resolve: (value: void) => void) => {
             workerClient.once('log', resolve);
             workerClient.send('log', data);
         };
@@ -93,19 +94,19 @@ editor.on('load', () => {
             submit(resolve);
         });
     };
-    editor.method('console:log', async (msg, verboseMsg, onclick) => {
+    editor.method('console:log', async (msg?: string, verboseMsg?: string | (() => void), onclick?: () => void) => {
         if (!editor.call('permissions:write')) {
             return;
         }
         await addLog('info', msg, verboseMsg, onclick);
     });
-    editor.method('console:warn', async (msg, verboseMsg, onclick) => {
+    editor.method('console:warn', async (msg?: string, verboseMsg?: string | (() => void), onclick?: () => void) => {
         if (!editor.call('permissions:write')) {
             return;
         }
         await addLog('warn', msg, verboseMsg, onclick);
     });
-    editor.method('console:error', async (msg, verboseMsg, onclick) => {
+    editor.method('console:error', async (msg?: string, verboseMsg?: string | (() => void), onclick?: () => void) => {
         if (!editor.call('permissions:write')) {
             return;
         }
@@ -114,8 +115,8 @@ editor.on('load', () => {
     editor.method('console:history', () => {
         pendingHistory = true;
         editor.call('status:text', 'Opening console history');
-        const submit = (resolve) => {
-            workerClient.once('history', (url) => {
+        const submit = (resolve: (value: string) => void) => {
+            workerClient.once('history', (url: string) => {
                 pendingHistory = false;
                 editor.call('status:text', '');
                 window.open(url, '_blank');
@@ -138,19 +139,19 @@ editor.on('load', () => {
     });
 
     // helper methods
-    editor.method('console:log:asset', (asset, msg, silent = false) => {
+    editor.method('console:log:asset', (asset: Observer, msg: string, silent = false) => {
         const [uiMsg, verboseMsg] = f.parse(msg);
         editor.call('console:log', silent ? undefined : uiMsg, verboseMsg, () => {
             editor.call('selector:set', 'asset', [asset]);
         });
     });
-    editor.method('console:log:entity', (entity, msg, silent = false) => {
+    editor.method('console:log:entity', (entity: Observer, msg: string, silent = false) => {
         const [uiMsg, verboseMsg] = f.parse(msg);
         editor.call('console:log', silent ? undefined : uiMsg, verboseMsg, () => {
             editor.call('selector:set', 'entity', [entity]);
         });
     });
-    editor.method('console:log:settings', (settings, msg, silent = false) => {
+    editor.method('console:log:settings', (settings: Observer, msg: string, silent = false) => {
         const [uiMsg, verboseMsg] = f.parse(msg);
         editor.call('console:log', silent ? undefined : uiMsg, verboseMsg, () => {
             editor.call('selector:set', 'editorSettings', [settings]);

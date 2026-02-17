@@ -36,7 +36,7 @@ class ObserverSync extends Events {
      */
     _initialize() {
         // object/array set
-        this.item.on('*:set', (path, value, valueOld) => {
+        this.item.on('*:set', (path: string, value: any, valueOld: any) => {
             if (!this._enabled) {
                 return;
             }
@@ -84,7 +84,7 @@ class ObserverSync extends Events {
                 });
             } else {
                 // emit operation: object item set
-                const obj = {
+                const obj: { p: any[]; oi: any; od?: any } = {
                     p: p,
                     oi: value
                 };
@@ -98,7 +98,7 @@ class ObserverSync extends Events {
         });
 
         // unset
-        this.item.on('*:unset', (path, value) => {
+        this.item.on('*:unset', (path: string, value: any) => {
             if (!this._enabled) {
                 return;
             }
@@ -110,7 +110,7 @@ class ObserverSync extends Events {
         });
 
         // list move
-        this.item.on('*:move', (path, value, ind, indOld) => {
+        this.item.on('*:move', (path: string, value: any, ind: number, indOld: number) => {
             if (!this._enabled) {
                 return;
             }
@@ -121,7 +121,7 @@ class ObserverSync extends Events {
         });
 
         // list remove
-        this.item.on('*:remove', (path, value, ind) => {
+        this.item.on('*:remove', (path: string, value: any, ind: number) => {
             if (!this._enabled) {
                 return;
             }
@@ -158,15 +158,9 @@ class ObserverSync extends Events {
     /**
      * Write operation to the item based on the sharedb operation
      *
-     * @param {object} op - The sharedb operation
-     * @param {any[]} op.p - The path of the operation
-     * @param {object} op.oi - The inserted object
-     * @param {object} op.od - The deleted object
-     * @param {object} op.li - The inserted array item
-     * @param {object} op.ld - The deleted array item
-     * @param {number} op.lm - The moved array item
+     * @param op - The sharedb operation
      */
-    write(op) {
+    write(op: { p: any[]; oi?: any; od?: any; li?: any; ld?: any; lm?: number }) {
         // disable history if available
         let historyReEnable = false;
         if (this.item.history && this.item.history.enabled) {
@@ -243,7 +237,7 @@ class ObserverSync extends Events {
         this.emit('sync', op);
     }
 
-    set enabled(value) {
+    set enabled(value: boolean) {
         this._enabled = !!value;
     }
 

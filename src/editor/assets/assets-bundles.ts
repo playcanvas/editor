@@ -1,3 +1,5 @@
+import type { Observer } from '@playcanvas/observer';
+
 editor.once('load', () => {
     const INVALID_TYPES = ['script', 'folder', 'bundle'];
 
@@ -8,7 +10,7 @@ editor.once('load', () => {
     // stores all bundle assets
     const bundleAssets = [];
 
-    const addToIndex = function (assetIds, bundleAsset) {
+    const addToIndex = function (assetIds: (string | number)[] | undefined, bundleAsset: Observer) {
         if (!assetIds) {
             return;
         }
@@ -27,7 +29,7 @@ editor.once('load', () => {
     };
 
     // fill bundlesIndex when a new bundle asset is added
-    editor.on('assets:add', (asset) => {
+    editor.on('assets:add', (asset: Observer) => {
         if (asset.get('type') !== 'bundle') {
             return;
         }
@@ -35,15 +37,15 @@ editor.once('load', () => {
         bundleAssets.push(asset);
         addToIndex(asset.get('data.assets'), asset);
 
-        asset.on('data.assets:set', (assetIds) => {
+        asset.on('data.assets:set', (assetIds: (string | number)[] | undefined) => {
             addToIndex(assetIds, asset);
         });
 
-        asset.on('data.assets:insert', (assetId) => {
+        asset.on('data.assets:insert', (assetId: string | number) => {
             addToIndex([assetId], asset);
         });
 
-        asset.on('data.assets:remove', (assetId) => {
+        asset.on('data.assets:remove', (assetId: string | number) => {
             if (!bundlesIndex[assetId]) {
                 return;
             }
@@ -60,7 +62,7 @@ editor.once('load', () => {
 
     // remove bundle asset from bundlesIndex when a bundle asset is
     // removed
-    editor.on('assets:remove', (asset) => {
+    editor.on('assets:remove', (asset: Observer) => {
         if (asset.get('type') !== 'bundle') {
             return;
         }
@@ -86,32 +88,33 @@ editor.once('load', () => {
     /**
      * Returns all of the bundle assets for the specified asset
      *
-     * @param {Observer} asset - The asset
-     * @returns {Observer[]} The bundles for the asset or an empty array.
+     * @param asset - The asset
+     * @returns The bundles for the asset or an empty array.
      */
-    editor.method('assets:bundles:listForAsset', (asset) => {
+    editor.method('assets:bundles:listForAsset', (asset: Observer): Observer[] => {
         return bundlesIndex[asset.get('id')] || [];
     });
 
     /**
      * Returns a list of all the bundle assets
      *
-     * @returns {Observer[]} The bundle assets
+     * @returns The bundle assets
      */
-    editor.method('assets:bundles:list', () => {
+    editor.method('assets:bundles:list', (): Observer[] => {
         return bundleAssets.slice();
     });
 
     /**
      * Returns true if the specified asset id is in a bundle
      *
-     * @returns {boolean} True of false
+     * @param assetId - The asset id
+     * @returns True or false
      */
-    editor.method('assets:bundles:containAsset', (assetId) => {
+    editor.method('assets:bundles:containAsset', (assetId: string | number): boolean => {
         return !!bundlesIndex[assetId];
     });
 
-    const isAssetValid = function (asset, bundleAsset) {
+    const isAssetValid = function (asset: Observer, bundleAsset?: Observer): boolean {
         const id = asset.get('id');
         if (asset.get('source')) {
             return false;
@@ -140,11 +143,11 @@ editor.once('load', () => {
      * Adds assets to the bundle asset. Does not add already existing
      * assets or assets with invalid types.
      *
-     * @param {Observer[]} assets - The assets to add to the bundle
-     * @param {Observer} bundleAsset - The bundle asset
+     * @param assets - The assets to add to the bundle
+     * @param bundleAsset - The bundle asset
      */
-    editor.method('assets:bundles:addAssets', (assets, bundleAsset) => {
-        const validAssets = assets.filter((asset) => {
+    editor.method('assets:bundles:addAssets', (assets: Observer[], bundleAsset: Observer) => {
+        const validAssets = assets.filter((asset: Observer) => {
             return isAssetValid(asset, bundleAsset);
         });
 
@@ -198,10 +201,10 @@ editor.once('load', () => {
     /**
      * Removes the specified assets from the specified bundle asset
      *
-     * @param {Observer[]} assets - The assets to remove
-     * @param {Observer} bundleAsset - The bundle asset
+     * @param assets - The assets to remove
+     * @param bundleAsset - The bundle asset
      */
-    editor.method('assets:bundles:removeAssets', (assets, bundleAsset) => {
+    editor.method('assets:bundles:removeAssets', (assets: Observer[], bundleAsset: Observer) => {
         const redo = function () {
             const asset = editor.call('assets:get', bundleAsset.get('id'));
             if (!asset) {
@@ -246,10 +249,10 @@ editor.once('load', () => {
      * Calculates the file size of a bundle Asset by adding up the file
      * sizes of all the assets it references.
      *
-     * @param {Observer} The - bundle asset
-     * @returns {number} The file size
+     * @param bundleAsset - The bundle asset
+     * @returns The file size
      */
-    editor.method('assets:bundles:calculateSize', (bundleAsset) => {
+    editor.method('assets:bundles:calculateSize', (bundleAsset: Observer): number => {
         let size = 0;
         const assets = bundleAsset.get('data.assets');
         for (let i = 0; i < assets.length; i++) {

@@ -9,13 +9,13 @@ const createDivider = () => {
     const divider = new Divider({
         class: 'divider'
     });
-    divider.on('click', (e) => {
+    divider.on('click', (e: MouseEvent) => {
         e.stopPropagation();
     });
     return divider;
 };
 
-const createTooltip = (target, text) => {
+const createTooltip = (target: HTMLElement, text: string) => {
     tooltip().attach({
         container: tooltipSimpleItem({
             text
@@ -25,7 +25,7 @@ const createTooltip = (target, text) => {
     });
 };
 
-const createCounters = (consolePanel) => {
+const createCounters = (consolePanel: { collapsed: boolean }) => {
     const counters: Record<string, { tooltip: string, el: Label }> = {
         info: {
             tooltip: 'Toggle info console messages'
@@ -47,7 +47,7 @@ const createCounters = (consolePanel) => {
         });
 
         // label
-        label.on('click', (e) => {
+        label.on('click', (_e: MouseEvent) => {
             if (consolePanel.collapsed) {
                 consolePanel.collapsed = false;
                 return;
@@ -116,7 +116,7 @@ const createActiveJobs = () => {
         editor.call('status:job', id, 1);
     });
 
-    editor.api.globals.jobs.on('finish', (id) => {
+    editor.api.globals.jobs.on('finish', (id: string) => {
         editor.call('status:job', id);
     });
 
@@ -159,13 +159,13 @@ const createStatus = () => {
     });
 
     // status text
-    editor.method('status:text', (text) => {
+    editor.method('status:text', (text: string) => {
         status.text = text;
         status.class.remove('error');
     });
 
     // status error
-    editor.method('status:error', (text) => {
+    editor.method('status:error', (text: string) => {
         status.text = text;
         status.class.add('error');
         console.error(text);
@@ -311,7 +311,7 @@ export const createConsolePanel = () => {
     });
     consolePanel.append(consoleBody);
 
-    const updateCounterIcons = (counts) => {
+    const updateCounterIcons = (counts: Record<string, number>) => {
         for (const key in counters) {
             const el = counters[key].el;
             const val = counts[key];
@@ -363,7 +363,7 @@ export const createConsolePanel = () => {
             timeEl
         };
     };
-    const setItemType = (el, type) => {
+    const setItemType = (el: Container, type: string) => {
         if (el.class.contains(type)) {
             return;
         }
@@ -408,7 +408,7 @@ export const createConsolePanel = () => {
         class: 'console-show'
     });
     consoleBody.append(showLabel);
-    const setShowLabel = (showing, total) => {
+    const setShowLabel = (showing: number, total: number) => {
         showLabel.text = `Showing ${showing} of ${total} messages`;
     };
     setShowLabel(0, 0);
@@ -542,7 +542,7 @@ export const createConsolePanel = () => {
     });
 
     // error
-    window.addEventListener('error', (evt) => {
+    window.addEventListener('error', (evt: ErrorEvent) => {
         editor.call('status:error', evt.message);
     }, false);
 

@@ -12,7 +12,7 @@ editor.once('load', () => {
         const data = connection.get('user_data', `${sceneId}_${userId}`);
 
         // error
-        data.on('error', (err) => {
+        data.on('error', (err: unknown) => {
             editor.emit('realtime:userdata:error', err);
         });
 
@@ -46,7 +46,7 @@ editor.once('load', () => {
     });
 
     // write userdata operations
-    editor.method('realtime:userdata:op', (op) => {
+    editor.method('realtime:userdata:op', (op: unknown) => {
         if (!editor.call('permissions:read') || !userData) {
             return;
         }

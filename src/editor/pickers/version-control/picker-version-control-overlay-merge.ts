@@ -74,7 +74,7 @@ editor.once('load', () => {
 
     // load 100 branches
     let branches = [];
-    const loadBranches = function (skip, fn) {
+    const loadBranches = function (skip: string | number | null, fn: () => void) {
         const params = {};
         if (skip) {
             params.skip = skip;

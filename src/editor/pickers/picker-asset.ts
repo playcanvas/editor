@@ -1,3 +1,5 @@
+import type { Observer } from '@playcanvas/observer';
+
 import { LegacyOverlay } from '@/common/ui/overlay';
 
 editor.once('load', () => {
@@ -38,7 +40,7 @@ editor.once('load', () => {
     });
 
     // picked asset
-    assetsPanel.on('select', (asset) => {
+    assetsPanel.on('select', (asset: Observer) => {
         if (overlay.hidden) {
             return;
         }
@@ -74,7 +76,7 @@ editor.once('load', () => {
         }
     });
 
-    assetsPanel.on('deselect', (asset) => {
+    assetsPanel.on('deselect', (asset: Observer) => {
         if (overlay.hidden || !asset) {
             return;
         }
@@ -121,7 +123,7 @@ editor.once('load', () => {
         }
 
         // deselect selected assets
-        assetSelection.forEach((asset) => {
+        assetSelection.forEach((asset: Observer) => {
             assetsPanel.deselect(asset);
         });
 
@@ -139,12 +141,9 @@ editor.once('load', () => {
      * Opens the asset picker. To get the selected asset(s) listen for the 'picker:asset' event or
      * the 'picker:assets' event if args.multi is true.
      *
-     * @param {object} args - Arguments
-     * @param {string} [args.type] - The asset type that this picker can pick. Can also be '*' for all
-     * @param {boolean} [args.multi] - Allows selection of multiple assets
-     * @param {Observer} [args.currentAsset] - The currently selected asset
+     * @param args - Arguments
      */
-    editor.method('picker:asset', (args) => {
+    editor.method('picker:asset', (args: { type?: string; multi?: boolean; currentAsset?: import('@playcanvas/observer').Observer; validateAssetsFn?: (asset: import('@playcanvas/observer').Observer) => boolean }) => {
         const type = args.type;
 
         allowMultiSelection = !!args.multi;

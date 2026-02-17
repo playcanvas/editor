@@ -1,3 +1,4 @@
+import type { Observer } from '@playcanvas/observer';
 import { Panel, Container, Button, SelectInput } from '@playcanvas/pcui';
 
 import type { Attribute } from '../attribute.type.d';
@@ -24,7 +25,7 @@ const ANIM_SCHEMA = {
 };
 
 class AnimstategraphLayers extends Panel {
-    constructor(parent, args) {
+    constructor(parent: Panel, args: Record<string, unknown>) {
         args = Object.assign({ enabled: !parent.readOnly }, args);
         super(args);
         this._parent = parent;
@@ -89,7 +90,7 @@ class AnimstategraphLayers extends Panel {
         });
     }
 
-    _addNewLayer(name) {
+    _addNewLayer(name?: string) {
 
         const data = this._assets[0].get('data');
         const prevData = Object.assign({}, data);
@@ -183,7 +184,7 @@ class AnimstategraphLayers extends Panel {
         this.collapsed = false;
     }
 
-    _deleteLayer(layerId) {
+    _deleteLayer(layerId: string) {
         const layers = this._assets[0].get('data.layers');
         const prevLayers = Object.assign({}, layers);
         const viewingDeletedLayer = this._parent._view._selectedLayer === Number(layerId);
@@ -215,7 +216,7 @@ class AnimstategraphLayers extends Panel {
         redo();
     }
 
-    _updateLayerSelect(ignoreHistory) {
+    _updateLayerSelect(ignoreHistory?: boolean) {
         const layers = this._assets[0].get('data.layers');
         this._layerSelect.options = Object.keys(layers).map((layerKey) => {
             return {
@@ -228,7 +229,7 @@ class AnimstategraphLayers extends Panel {
         this._suppressLayerSelectChange = false;
     }
 
-    _updateDefaultStateSelect(defaultStateSelect, layerKey) {
+    _updateDefaultStateSelect(defaultStateSelect: SelectInput, layerKey: string) {
         const states = this._assets[0].get(`data.layers.${layerKey}.states`);
         if (!states) {
             return;
@@ -251,7 +252,7 @@ class AnimstategraphLayers extends Panel {
         });
     }
 
-    _onDragEnd(inspector, sortedNewId, sortedOldId) {
+    _onDragEnd(inspector: unknown, sortedNewId: number, sortedOldId: number) {
         if (sortedNewId === sortedOldId) {
             return;
         }
@@ -305,7 +306,7 @@ class AnimstategraphLayers extends Panel {
         redo();
     }
 
-    link(assets) {
+    link(assets: Observer[]) {
         this.unlink();
         this._assets = assets;
 

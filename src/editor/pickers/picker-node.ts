@@ -46,7 +46,7 @@ editor.once('load', () => {
         currentAsset = null;
     });
 
-    const addMapping = function (index, assetId) {
+    const addMapping = function (index: number, assetId: string) {
         const resourceIds = [];
         const actions = [];
 
@@ -127,7 +127,7 @@ editor.once('load', () => {
         });
     };
 
-    const isAlreadyOverridden = function (index) {
+    const isAlreadyOverridden = function (index: number) {
         const len = currentEntities.length;
         let overrideCount = 0;
         for (let i = 0; i < len; i++) {

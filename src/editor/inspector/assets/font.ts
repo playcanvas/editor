@@ -47,9 +47,9 @@ const LOCALIZATION_ATTRIBUTES: Attribute[] = [{
 }];
 
 /**
- * @param {Attribute[]} attributes - The attributes to add references to
+ * @param attributes - The attributes to add references to
  */
-const addReferences = (attributes) => {
+const addReferences = (attributes: Attribute[]) => {
     attributes.forEach((attr) => {
         const path = attr.alias || attr.path;
         if (!path) {
@@ -181,8 +181,8 @@ const DOM = parent => [
                             width: '50%'
                         }],
                         defaultSortColumn: 0,
-                        createRowFn: (observer) => {
-                            const copyToClipboard = (str) => {
+                        createRowFn: (observer: Observer) => {
+                            const copyToClipboard = (str: string) => {
                                 const el = document.createElement('textarea');
                                 el.value = str;
                                 document.body.appendChild(el);
@@ -223,7 +223,7 @@ const DOM = parent => [
                             root.append(characterMenu);
                             parent._contextMenus.push(characterMenu);
 
-                            characterCell.dom.addEventListener('contextmenu', (e) => {
+                            characterCell.dom.addEventListener('contextmenu', (e: MouseEvent) => {
                                 e.preventDefault();
                                 e.stopPropagation();
                                 characterMenu.position(e.clientX, e.clientY);
@@ -242,7 +242,7 @@ const DOM = parent => [
                             root.append(unicodeMenu);
                             parent._contextMenus.push(unicodeMenu);
 
-                            unicodeCell.dom.addEventListener('contextmenu', (e) => {
+                            unicodeCell.dom.addEventListener('contextmenu', (e: MouseEvent) => {
                                 e.preventDefault();
                                 e.stopPropagation();
                                 unicodeMenu.position(e.clientX, e.clientY);
@@ -280,8 +280,13 @@ const CHARACTER_PRESETS = {
     GREEK: { from: 0x370, to: 0x3FF }
 };
 
+type FontAssetInspectorArgs = {
+    assets?: Observer[];
+    history?: import('@/editor-api').History;
+} & Record<string, unknown>;
+
 class FontAssetInspector extends Container {
-    constructor(args) {
+    constructor(args: FontAssetInspectorArgs = {} as FontAssetInspectorArgs) {
         args = Object.assign({}, args);
 
         super(args);
@@ -334,7 +339,7 @@ class FontAssetInspector extends Container {
         }
     }
 
-    _getCharacterRange(range) {
+    _getCharacterRange(range: { from: number; to: number }): string {
         const chars = [];
         for (let i = range.from; i <= range.to; i++) {
             chars.push(String.fromCharCode(i));
@@ -342,7 +347,7 @@ class FontAssetInspector extends Container {
         return chars.join('');
     }
 
-    _onClickPresetButton(charRange) {
+    _onClickPresetButton(charRange: { from: number; to: number }) {
         this._characterRangeStart.value = `0x${charRange.from.toString(16)}`;
         this._characterRangeEnd.value = `0x${charRange.to.toString(16)}`;
         this._fontAttributes.getField('characters').values = this._assets.map(() => {
@@ -404,7 +409,7 @@ class FontAssetInspector extends Container {
         });
     }
 
-    _toggleProcessFontButton(asset) {
+    _toggleProcessFontButton(asset: import('@playcanvas/observer').Observer) {
         this._processFontButton.disabled = asset.get('task') === 'running';
     }
 
@@ -448,7 +453,7 @@ class FontAssetInspector extends Container {
         });
     }
 
-    _addLocalization(locale) {
+    _addLocalization(locale: string) {
         if (locale === '') {
             this._localizationAttributes.getField('localization').class.remove(CLASS_ERROR);
             return;
@@ -462,14 +467,14 @@ class FontAssetInspector extends Container {
         }
     }
 
-    _removeLocalization(locale) {
+    _removeLocalization(locale: string) {
         const localizationAssetPanel = this._localizations[locale];
         localizationAssetPanel._localizationAsset.unlink();
         this._localizationPanel.remove(localizationAssetPanel);
         delete this._localizations[locale];
     }
 
-    link(assets) {
+    link(assets: import('@playcanvas/observer').Observer[]) {
         this.unlink();
         this._assets = assets;
 

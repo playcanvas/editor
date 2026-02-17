@@ -1,7 +1,7 @@
 import { LegacyElement } from './element';
 
 class LegacyLabel extends LegacyElement {
-    constructor(args = {}) {
+    constructor(args: Record<string, any> = {}) {
         super();
         this._text = args.text || '';
         this._unsafe = !!args.unsafe;
@@ -20,7 +20,7 @@ class LegacyLabel extends LegacyElement {
         }
     }
 
-    set text(value) {
+    set text(value: string) {
         if (this._link) {
             if (!this._link.set(this.path, value)) {
                 value = this._link.get(this.path);
@@ -48,7 +48,7 @@ class LegacyLabel extends LegacyElement {
         return this._text;
     }
 
-    set value(value) {
+    set value(value: string) {
         this.text = value;
     }
 
@@ -56,7 +56,7 @@ class LegacyLabel extends LegacyElement {
         return this.text;
     }
 
-    set placeholder(value) {
+    set placeholder(value: string) {
         this._element.setAttribute('placeholder', value);
     }
 
@@ -64,7 +64,7 @@ class LegacyLabel extends LegacyElement {
         return this._element.getAttribute('placeholder');
     }
 
-    _setText(text) {
+    _setText(text: string) {
         if (this._unsafe) {
             this._element.innerHTML = text;
         } else {
@@ -80,7 +80,7 @@ class LegacyLabel extends LegacyElement {
         this.flash();
     }
 
-    _onLinkChange(value) {
+    _onLinkChange(value: string) {
         this.text = value;
         this.emit('change', value);
     }

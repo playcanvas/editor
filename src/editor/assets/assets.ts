@@ -37,7 +37,7 @@ editor.once('load', () => {
         editor.emit('assets:move', asset, pos);
     });
 
-    editor.api.globals.assets.on('load:progress', (progress) => {
+    editor.api.globals.assets.on('load:progress', (progress: number) => {
         editor.call('assets:progress', progress);
     });
 
@@ -66,28 +66,28 @@ editor.once('load', () => {
     });
 
     // get asset by id
-    editor.method('assets:get', (id) => {
+    editor.method('assets:get', (id: string | number) => {
         const asset = editor.api.globals.assets.get(id);
         return asset ? asset.observer : null;
     });
 
     // get asset by unique id
-    editor.method('assets:getUnique', (uniqueId) => {
+    editor.method('assets:getUnique', (uniqueId: string) => {
         const asset = editor.api.globals.assets.getUnique(uniqueId);
         return asset ? asset.observer : null;
     });
 
     // find assets by function
-    editor.method('assets:find', (fn) => {
+    editor.method('assets:find', (fn: (asset: Asset) => boolean) => {
         return assets.find(fn);
     });
 
     // find one asset by function
-    editor.method('assets:findOne', (fn) => {
+    editor.method('assets:findOne', (fn: (asset: Asset) => boolean) => {
         return assets.findOne(fn);
     });
 
-    editor.method('assets:map', (fn) => {
+    editor.method('assets:map', (fn: (asset: Asset) => void) => {
         assets.map(fn);
     });
 
@@ -95,16 +95,16 @@ editor.once('load', () => {
         return assets.array();
     });
 
-    editor.method('assets:isScript', (asset) => {
+    editor.method('assets:isScript', (asset: AssetObserver) => {
         return asset.get('type') === 'script';
     });
 
-    editor.method('assets:isModule', (asset) => {
+    editor.method('assets:isModule', (asset: AssetObserver) => {
         return editor.call('assets:isScript', asset) &&
             asset.get('file.filename')?.endsWith('.mjs');
     });
 
-    editor.method('assets:virtualPath', (asset) => {
+    editor.method('assets:virtualPath', (asset: AssetObserver) => {
         const filename = asset.get('file').filename;
         if (!filename) {
             return null;
@@ -120,7 +120,7 @@ editor.once('load', () => {
         return `/${[...pathSegments, filename].join('/')}`;
     });
 
-    editor.method('assets:realPath', (asset) => {
+    editor.method('assets:realPath', (asset: AssetObserver) => {
         return `/api/assets/${asset.get('id')}/file/${asset.get('name')}?branchId=${config.self.branch.id}`;
     });
 

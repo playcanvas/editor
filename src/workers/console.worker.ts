@@ -92,7 +92,7 @@ workerServer.on('init', async ({ projectId, branchId, legacyLogs }) => {
 
     // queue log addition
     const queue: Log[] = [];
-    workerServer.on('log', (data) => {
+    workerServer.on('log', (data: Log) => {
         queue.push(data);
     });
     let addPromise = Promise.resolve();
@@ -136,7 +136,7 @@ workerServer.on('init', async ({ projectId, branchId, legacyLogs }) => {
 
     // history blob generation
     let historyUrl = null;
-    workerServer.on('history', async (projectName, branchName) => {
+    workerServer.on('history', async (projectName: string, branchName: string) => {
         // N.B. Faster to load all logs and filter in memory
         const all = await db.logs.toArray();
 

@@ -15,12 +15,12 @@ editor.once('load', () => {
         editor.emit('chat:typing', typing, typers);
     };
 
-    editor.on('relay:room:join', (data) => {
+    editor.on('relay:room:join', (data: { name: string; users?: string[]; userId?: string }) => {
         if (data.name !== `project-${config.project.id}`) {
             return;
         }
 
-        function addUser(id) {
+        function addUser(id: string) {
             if (users[id]) {
                 return;
             }
@@ -31,7 +31,7 @@ editor.once('load', () => {
                 username: ''
             };
 
-            editor.call('users:loadOne', id, (user) => {
+            editor.call('users:loadOne', id, (user: { id: string; username: string }) => {
                 if (!users[id]) {
                     return;
                 }
@@ -65,7 +65,7 @@ editor.once('load', () => {
         delete users[id];
     });
 
-    editor.method('chat:sync:typing', (data) => {
+    editor.method('chat:sync:typing', (data: { from: string; d: boolean | number }) => {
         if (!users[data.from] || data.from === config.self.id || users[data.from].typing === data.d) {
             return;
         }
@@ -81,14 +81,14 @@ editor.once('load', () => {
         notifyTypers();
     });
 
-    editor.method('chat:typing', (state) => {
+    editor.method('chat:typing', (state: boolean) => {
         editor.call('relay:broadcast', `project-${config.project.id}`, {
             chat: 'typing',
             d: state ? 1 : 0
         });
     });
 
-    editor.on('relay:room:msg', (data) => {
+    editor.on('relay:room:msg', (data: { msg: { chat?: string; d?: number }; from: string }) => {
         if (data.msg.chat === 'typing') {
             editor.call('chat:sync:typing', {
                 from: data.from,

@@ -1,12 +1,12 @@
 class AnimstategraphAnimComponent {
-    constructor(args, view) {
+    constructor(args: Record<string, unknown>, view: { _selectedLayer: number; link: (assets: import('@playcanvas/observer').Observer[], layer: number) => void }) {
         this._args = args;
         this._view = view;
         this._entities = args.entities;
         this._asset = null;
     }
 
-    link(assets) {
+    link(assets: import('@playcanvas/observer').Observer[]) {
         this.unlink();
         this._asset = assets[0];
         this._onSetStateNameEvent = this._asset.on('*:set', (path, value, prevValue) => {

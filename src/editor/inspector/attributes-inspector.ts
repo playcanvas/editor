@@ -10,7 +10,7 @@ import type { Attribute } from './attribute.type.d';
 import '../storage/clipboard-context-menu';
 import type { TemplateOverrideInspector } from '../templates/templates-override-inspector.js';
 
-const isEnabledAttribute = ({ label, type }) => label === 'enabled' && type === 'boolean';
+const isEnabledAttribute = ({ label, type }: { label?: string; type?: string }) => label === 'enabled' && type === 'boolean';
 
 const CLASS_ROOT = 'pcui-inspector';
 
@@ -109,7 +109,7 @@ class AttributesInspector extends Container {
         return null;
     }
 
-    private _createTooltipGroup(target, tooltipData) {
+    private _createTooltipGroup(target: LabelGroup | AssetInput | Element, tooltipData?: { warnings?: string[] }) {
         let actualTarget = target;
         if (target instanceof LabelGroup) {
             actualTarget = target.label;
@@ -157,10 +157,10 @@ class AttributesInspector extends Container {
 
     /**
      * Creates a field for the given attribute
-     * @param {Attribute} attr - The attribute data
-     * @returns {Element} - The created field
+     * @param attr - The attribute data
+     * @returns The created field
      */
-    createFieldForAttribute(attr) {
+    createFieldForAttribute(attr: Attribute): Element {
         const fieldArgs = Object.assign({
             binding: new BindingTwoWay({
                 history: this._history
@@ -211,7 +211,7 @@ class AttributesInspector extends Container {
                     }
 
                     // try to bring context menu
-                    const onContextMenu = (evt) => {
+                    const onContextMenu = (evt: MouseEvent) => {
                         // do not interfere with inputs and buttons
                         if (evt.target.tagName === 'BUTTON' ||
                             evt.target.tagName === 'INPUT') {
@@ -470,7 +470,7 @@ class AttributesInspector extends Container {
                         const pathsIndex: Record<number, { path: string, element: Element }> = {};
 
                         // register each array element for template overrides
-                        field.on('linkElement', (element, index, path) => {
+                        field.on('linkElement', (element: Element, index: number, path: string) => {
                             const arrayElementPanel = element.parent;
                             pathsIndex[index] = { path, element: arrayElementPanel };
                             this._templateOverridesInspector.registerElementForPath(path, arrayElementPanel);
@@ -483,7 +483,7 @@ class AttributesInspector extends Container {
                             });
                         });
 
-                        field.on('unlinkElement', (element, index) => {
+                        field.on('unlinkElement', (element: Element, index: number) => {
                             if (pathsIndex[index]) {
                                 this._templateOverridesInspector.unregisterElementForPath(pathsIndex[index].path, pathsIndex[index].element);
                                 delete pathsIndex[index];
@@ -504,7 +504,7 @@ class AttributesInspector extends Container {
         }
     }
 
-    removeAttribute(path) {
+    removeAttribute(path: string) {
         if (this._fields[path]) {
             if (this._fields[path] instanceof AssetInput) {
                 this._fields[path].destroy();
@@ -517,7 +517,7 @@ class AttributesInspector extends Container {
         delete this._fieldAttributes[path];
     }
 
-    moveAttribute(path, index) {
+    moveAttribute(path: string, index: number) {
         let field = this._fields[path];
         if (!field) {
             return;
@@ -530,7 +530,7 @@ class AttributesInspector extends Container {
         this.move(field, index);
     }
 
-    private _linkObservers(key) {
+    private _linkObservers(key: string) {
         const field = this.getField(key);
         const attr = this._fieldAttributes[key];
         if (attr.observer) {
@@ -545,7 +545,7 @@ class AttributesInspector extends Container {
         }
     }
 
-    link(observers) {
+    link(observers: Observer[]) {
         this.unlink();
 
         this._observers = observers;
@@ -568,7 +568,7 @@ class AttributesInspector extends Container {
         }
     }
 
-    getField(path) {
+    getField(path: string): Element | undefined {
         return this._fields[path];
     }
 
@@ -599,7 +599,7 @@ class AttributesInspector extends Container {
         super.destroy();
     }
 
-    set value(value) {
+    set value(value: Record<string, unknown>) {
         if (!value) {
             return;
         }
@@ -631,7 +631,7 @@ class AttributesInspector extends Container {
         return result;
     }
 
-    set values(values) {
+    set values(values: Record<string, unknown>[]) {
         const suspend = this._suspendChangeEvt;
         this._suspendChangeEvt = false;
 

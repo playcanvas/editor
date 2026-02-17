@@ -73,8 +73,17 @@ editor.once('load', () => {
 
     const CLOSED_BRANCH_SUFFIX = ' [x]';
 
+    interface VcGraphData {
+        idToNode: Record<string, Record<string, unknown>>;
+        branches: Record<string, Record<string, unknown>>;
+        graph: Record<string, unknown>;
+        renderedEdges: Record<string, boolean>;
+        vcNodeMenu?: unknown;
+        vcHistItem?: unknown;
+    }
+
     const VcUtils = {
-        renderVcNode: function (h, data) {
+        renderVcNode: function (h: Record<string, unknown>, data: VcGraphData) {
             if (h.isNodeRendered) {
                 VcUtils.updateRenderedPosition(h, data);
             } else {
@@ -84,7 +93,7 @@ editor.once('load', () => {
             h.hasNewCoords = false;
         },
 
-        updateRenderedPosition: function (h, data) {
+        updateRenderedPosition: function (h: Record<string, unknown>, data: VcGraphData) {
             if (h.hasNewCoords) {
                 data.graph.updateNodePosition(h.id, {
                     x: VcUtils.transformCoord(h, 'x'),
@@ -93,7 +102,7 @@ editor.once('load', () => {
             }
         },
 
-        renderNewNode: function (h, data) {
+        renderNewNode: function (h: Record<string, unknown>, data: VcGraphData) {
             data.graph.createNode({
                 id: h.id,
                 name: VcUtils.vcNodeText(h, data),
@@ -106,7 +115,7 @@ editor.once('load', () => {
             h.isNodeRendered = true;
         },
 
-        placeSelectedMark: function (graph, nodeCoords) {
+        placeSelectedMark: function (graph: Record<string, unknown>, nodeCoords: { x: number; y: number }) {
             const markCoords = {
                 coords: {
                     x: nodeCoords.x + SELECTED_MARK.offset.x,
@@ -125,11 +134,11 @@ editor.once('load', () => {
             graph.createNode(h);
         },
 
-        rmSelectedMark: function (graph) {
+        rmSelectedMark: function (graph: Record<string, unknown>) {
             graph.deleteNode(SELECTED_MARK.id);
         },
 
-        vcNodeText: function (node, data) {
+        vcNodeText: function (node: Record<string, unknown>, data: VcGraphData) {
             const lines = VcUtils.descriptionLines(node, data);
 
             const info = VcUtils.infoLine(node);
@@ -141,7 +150,7 @@ editor.once('load', () => {
             return lines.join('\n');
         },
 
-        descriptionLines: function (node, data) {
+        descriptionLines: function (node: Record<string, unknown>, data: VcGraphData) {
             let descr = node.checkpointData.description;
 
             descr = VcUtils.descriptionCleanUp(descr);
@@ -160,7 +169,7 @@ editor.once('load', () => {
             return lines.slice(0, DESCRIPTION_LINES);
         },
 
-        addHistPrefix: function (descr, h) {
+        addHistPrefix: function (descr: string, h: Record<string, unknown>) {
             let pref = VcUtils.calcHistPrefix(h.histGraphData);
 
             pref = pref ? `[${pref}] ` : '';
@@ -168,7 +177,7 @@ editor.once('load', () => {
             return pref + descr;
         },
 
-        calcHistPrefix: function (h) {
+        calcHistPrefix: function (h: Record<string, unknown>) {
             if (h.vcNoHistData) {
                 return 'no hist';
             }
@@ -189,7 +198,7 @@ editor.once('load', () => {
             }
         },
 
-        descriptionCleanUp: function (s) {
+        descriptionCleanUp: function (s: string) {
             s = s.replace(/\('[a-z0-9]{7}'\)/g, '');
 
             s = s.replace(/\[[a-z0-9]{7}\]/g, '');
@@ -205,7 +214,7 @@ editor.once('load', () => {
             return s.replace(/\s+/g, ' ');
         },
 
-        infoLine: function (node) {
+        infoLine: function (node: Record<string, unknown>) {
             const id = node.id.substring(0, NUM_ID_CHARS);
 
             const h = node.checkpointData;
@@ -223,7 +232,7 @@ editor.once('load', () => {
             return VcUtils.truncateLine(s, CHARS_PER_LINE);
         },
 
-        branchDescription: function (node, data) {
+        branchDescription: function (node: Record<string, unknown>, data: VcGraphData) {
             const h = data.branches[node.branchId];
 
             const closed = h.closed ? CLOSED_BRANCH_SUFFIX : '';
@@ -235,23 +244,23 @@ editor.once('load', () => {
             return name + closed;
         },
 
-        truncateLine: function (s, limit) {
+        truncateLine: function (s: string, limit: number) {
             s = s.substring(0, limit);
 
             return s.trim();
         },
 
-        epochToStr: function (n) {
+        epochToStr: function (n: number) {
             const d = new Date(n);
 
             return d.toLocaleDateString();
         },
 
-        nodeToColorType: function (h, data) {
+        nodeToColorType: function (h: Record<string, unknown>, data: VcGraphData) {
             return data.branches[h.branchId].vcBranchColor;
         },
 
-        renderAllVcEdges: async function (data) {
+        renderAllVcEdges: async function (data: VcGraphData) {
             const nodes = Object.values(data.idToNode);
 
             const edges = [];
@@ -265,13 +274,13 @@ editor.once('load', () => {
             }
         },
 
-        waitMs: function (n) {
+        waitMs: function (n: number) {
             return new Promise((resolve) => {
                 setTimeout(resolve, n);
             });
         },
 
-        renderAllVcNodes: function (data) {
+        renderAllVcNodes: function (data: VcGraphData) {
             let a = Object.values(data.idToNode);
 
             a = a.filter(VcUtils.nodeNeedsRender);
@@ -279,15 +288,15 @@ editor.once('load', () => {
             a.forEach(h => VcUtils.renderVcNode(h, data));
         },
 
-        nodeNeedsRender: function (h) {
+        nodeNeedsRender: function (h: Record<string, unknown>) {
             return !h.isNodeRendered || h.hasNewCoords;
         },
 
-        transformCoord: function (h, field) {
+        transformCoord: function (h: Record<string, unknown>, field: 'x' | 'y') {
             return COORD_COEFS[field] * h.coords[field] + COORD_OFFSETS[field];
         },
 
-        addEdgeToRender: function (data, h, res) {
+        addEdgeToRender: function (data: VcGraphData, h: Record<string, unknown>, res: Record<string, unknown>[]) {
             h.vcEdgeId = VcUtils.makeEdgeId(h);
 
             const ch1 = data.idToNode[h.parent];
@@ -302,7 +311,7 @@ editor.once('load', () => {
             }
         },
 
-        renderOneEdge: function (data, h) {
+        renderOneEdge: function (data: VcGraphData, h: Record<string, unknown>) {
             data.renderedEdges[h.vcEdgeId] = true;
 
             const type = VcUtils.nodeToColorType(data.idToNode[h.parent], data);
@@ -316,7 +325,7 @@ editor.once('load', () => {
             data.graph.createEdge(params, h.vcEdgeId);
         },
 
-        handleAllCorners: function (data) {
+        handleAllCorners: function (data: VcGraphData) {
             const a = Object.values(data.idToNode);
 
             a.forEach((h) => {
@@ -332,11 +341,11 @@ editor.once('load', () => {
             });
         },
 
-        makeEdgeId: function (h) {
+        makeEdgeId: function (h: Record<string, unknown>) {
             return `${h.parent}-${h.child}`;
         },
 
-        rmEdgesForNode: function (node, renderedEdges, graph) {
+        rmEdgesForNode: function (node: Record<string, unknown>, renderedEdges: Record<string, boolean>, graph: Record<string, unknown>) {
             VcUtils.iterAllEdges(node, (n, edge, type) => {
                 graph.deleteEdge(edge.vcEdgeId);
 
@@ -344,13 +353,13 @@ editor.once('load', () => {
             });
         },
 
-        edgesToRenderForNode: function (h, data, res) {
+        edgesToRenderForNode: function (h: Record<string, unknown>, data: VcGraphData, res: Record<string, unknown>[]) {
             VcUtils.iterAllEdges(h, (node, edge, type) => {
                 VcUtils.addEdgeToRender(data, edge, res);
             });
         },
 
-        isNodeExpandable: function (h, idToNode) {
+        isNodeExpandable: function (h: Record<string, unknown>, idToNode: Record<string, Record<string, unknown>>) {
             let res = false;
 
             VcUtils.iterAllEdges(h, (node, edge, type) => {
@@ -360,7 +369,7 @@ editor.once('load', () => {
             return res;
         },
 
-        tmpRmNode: function (h, data) {
+        tmpRmNode: function (h: Record<string, unknown>, data: VcGraphData) {
             VcUtils.rmEdgesForNode(h, data.renderedEdges, data.graph);
 
             data.graph.deleteNode(h.id);
@@ -370,7 +379,7 @@ editor.once('load', () => {
             h.wasRendered = true;
         },
 
-        permRmNode: function (h, data) {
+        permRmNode: function (h: Record<string, unknown>, data: VcGraphData) {
             VcUtils.rmEdgesForNode(h, data.renderedEdges, data.graph);
 
             data.graph.deleteNode(h.id);
@@ -382,7 +391,7 @@ editor.once('load', () => {
             delete data.idToNode[h.id];
         },
 
-        rmAllEdges: function (h1, type1, type2, data) {
+        rmAllEdges: function (h1: Record<string, unknown>, type1: 'parent' | 'child', type2: 'parent' | 'child', data: VcGraphData) {
             h1[type1].forEach((edge) => {
                 const h2 = data.idToNode[edge[type1]];
 
@@ -392,13 +401,13 @@ editor.once('load', () => {
             });
         },
 
-        rmOneEdge: function (h, type, id) {
+        rmOneEdge: function (h: Record<string, unknown>, type: 'parent' | 'child', id: string) {
             h[type] = h[type].filter((edge) => {
                 return edge[type] !== id;
             });
         },
 
-        initVcGraph: function (container, closeBtn) {
+        initVcGraph: function (container: { dom: HTMLElement }, closeBtn: { dom: HTMLElement }) {
             VcUtils.branchCount = 0;
 
             const h = {
@@ -432,7 +441,7 @@ editor.once('load', () => {
             return res;
         },
 
-        makeEdgeDefaults: function (n) {
+        makeEdgeDefaults: function (n: number) {
             const a = VcUtils.makeIntArray(n);
 
             const h = {
@@ -443,7 +452,7 @@ editor.once('load', () => {
             return Object.assign(h, EDGE_DEFAULTS);
         },
 
-        makeIntArray: function (n) {
+        makeIntArray: function (n: number) {
             const a = [];
 
             for (let i = 0; i < n; i++) {
@@ -453,7 +462,7 @@ editor.once('load', () => {
             return a;
         },
 
-        vcNodeSchema: function (fill, stroke, i) {
+        vcNodeSchema: function (fill: string, stroke: string, i: number) {
             const h = {
                 fill: fill,
                 stroke: stroke,
@@ -466,7 +475,7 @@ editor.once('load', () => {
             return Object.assign(h, def);
         },
 
-        vcEdgeSchema: function (stroke, defaults) {
+        vcEdgeSchema: function (stroke: string, defaults: Record<string, unknown>) {
             const h = {
                 stroke: stroke
             };
@@ -474,23 +483,23 @@ editor.once('load', () => {
             return Object.assign(h, defaults);
         },
 
-        pushArToAr: function (a1, a2) {
+        pushArToAr: function (a1: unknown[], a2: unknown[]) {
             Array.prototype.push.apply(a1, a2);
         },
 
-        forAllEdgeTypes: function (node, callback) {
+        forAllEdgeTypes: function (node: Record<string, unknown>, callback: (node: Record<string, unknown>, edges: unknown[], type: string) => void) {
             VC_EDGE_TYPES.forEach((type) => {
                 callback(node, node[type], type);
             });
         },
 
-        iterAllEdges: function (node, callback) {
+        iterAllEdges: function (node: Record<string, unknown>, callback: (node: Record<string, unknown>, edge: Record<string, unknown>, type: string) => void) {
             VcUtils.forAllEdgeTypes(node, (node, edges, type) => {
                 VcUtils.iterEdgeType(node, edges, type, callback);
             });
         },
 
-        iterEdgeType: function (node, edges, type, callback) {
+        iterEdgeType: function (node: Record<string, unknown>, edges: unknown[], type: string, callback: (node: Record<string, unknown>, edge: Record<string, unknown>, type: string) => void) {
             edges.forEach((edge) => {
                 callback(node, edge, type);
             });
@@ -500,7 +509,7 @@ editor.once('load', () => {
             return VcUtils.branchCount++;
         },
 
-        assignBranchColors: function (data) {
+        assignBranchColors: function (data: VcGraphData) {
             let a = Object.values(data.branches);
 
             a = a.filter(h => h.vcBranchColor === undefined);
@@ -510,13 +519,13 @@ editor.once('load', () => {
             a.forEach(VcUtils.setColorForBranch);
         },
 
-        sortByIntField: function (ar, field) {
+        sortByIntField: function (ar: Record<string, unknown>[], field: string) {
             ar.sort((a, b) => {
                 return a[field] - b[field];
             });
         },
 
-        setColorForBranch: function (h) {
+        setColorForBranch: function (h: Record<string, unknown>) {
             let n = VcUtils.strToHashCode(h.name);
 
             n %= editor.call('vcgraph:numStyles');
@@ -524,7 +533,7 @@ editor.once('load', () => {
             h.vcBranchColor = Math.max(1, n); // 0 is the special marker node
         },
 
-        groupByPath: function (a, path) {
+        groupByPath: function (a: Record<string, unknown>[], path: string[]) {
             const res = {};
 
             a.forEach((h) => {
@@ -536,13 +545,13 @@ editor.once('load', () => {
             return res;
         },
 
-        addToArrayField: function (dst, field, val) {
+        addToArrayField: function (dst: Record<string, unknown[]>, field: string, val: unknown) {
             const a = VcUtils.setArrayField(dst, field);
 
             a.push(val);
         },
 
-        setArrayField: function (h, field) {
+        setArrayField: function (h: Record<string, unknown>, field: string) {
             const a = h[field] || [];
 
             h[field] = a;
@@ -550,7 +559,7 @@ editor.once('load', () => {
             return a;
         },
 
-        sortGroupsByY: function (groups) {
+        sortGroupsByY: function (groups: Record<string, unknown>[][]) {
             const idToMinY = {};
 
             groups.forEach((a) => {
@@ -562,7 +571,7 @@ editor.once('load', () => {
             });
         },
 
-        sortObjsByPath: function (ar, path, isDesc) {
+        sortObjsByPath: function (ar: Record<string, unknown>[], path: string[], isDesc: boolean) {
             const sign = isDesc ? -1 : 1;
 
             return ar.sort((a, b) => {
@@ -574,7 +583,7 @@ editor.once('load', () => {
             });
         },
 
-        minByPath: function (a, path) {
+        minByPath: function (a: Record<string, unknown>[], path: string[]) {
             let res;
 
             a.forEach((h) => {
@@ -588,7 +597,7 @@ editor.once('load', () => {
             return res;
         },
 
-        findMaxKey: function (h) {
+        findMaxKey: function (h: Record<string, unknown>) {
             let a = Object.keys(h);
 
             a = a.map(s => parseInt(s, 10));
@@ -596,7 +605,7 @@ editor.once('load', () => {
             return Math.max(...a);
         },
 
-        findLimitNodes: function (a) {
+        findLimitNodes: function (a: Record<string, unknown>[]) {
             const res = {
                 minYNode: a[0],
                 maxYNode: a[0]
@@ -617,7 +626,7 @@ editor.once('load', () => {
             return res;
         },
 
-        allIndexes: function (lastInd) {
+        allIndexes: function (lastInd: number) {
             const a = [];
 
             for (let i = 0; i <= lastInd; i++) {
@@ -628,7 +637,7 @@ editor.once('load', () => {
         },
 
         // Top left coords and width/height of the box rel to screen
-        nodeToScreenCoords: function (node, graph) {
+        nodeToScreenCoords: function (node: Record<string, unknown>, graph: Record<string, unknown>) {
             const scale = graph.getGraphScale();
 
             const grPos = graph.getGraphPosition();
@@ -651,7 +660,7 @@ editor.once('load', () => {
             return MIN_BETWEEN_NODES;
         },
 
-        strToHashCode: function (s) {
+        strToHashCode: function (s: string) {
             let hash = 0;
 
             for (let i = 0; i < s.length; i++) {
@@ -665,7 +674,7 @@ editor.once('load', () => {
             return Math.abs(hash);
         },
 
-        vcNodeClick: function (id, expandCallback, data) {
+        vcNodeClick: function (id: string, expandCallback: (err: unknown, data: unknown) => void, data: VcGraphData) {
             const node = data.idToNode[id];
 
             const coords = VcUtils.nodeToScreenCoords(node, data.graph);
@@ -681,7 +690,7 @@ editor.once('load', () => {
             editor.call('vcgraph:showNodeMenu', data.vcNodeMenu, h, data, coords);
         },
 
-        expandVcNode: function (node, histItem, callback) {
+        expandVcNode: function (node: Record<string, unknown>, histItem: unknown, callback: (err: unknown, data: unknown) => void) {
             const h = {
                 branchId: node.branchId,
                 graphStartId: node.id,
@@ -691,7 +700,7 @@ editor.once('load', () => {
             VcUtils.backendGraphTask(h, callback);
         },
 
-        backendGraphTask: function (h, callback) {
+        backendGraphTask: function (h: Record<string, unknown>, callback: (err: unknown, data: unknown) => void) {
             h.task_type = 'vc_graph_for_branch';
 
             h.branch = h.branchId;
@@ -704,7 +713,7 @@ editor.once('load', () => {
             }), callback);
         },
 
-        launchItemHist: function (type, id) {
+        launchItemHist: function (type: string, id: string) {
             const h = {
                 vcHistItem: `${type}-${id}`,
                 closeVcPicker: true,
@@ -716,7 +725,7 @@ editor.once('load', () => {
             editor.call('vcgraph:showGraphPanel', h);
         },
 
-        equalHistNodes: function (h1, h2) {
+        equalHistNodes: function (h1: Record<string, unknown>, h2: Record<string, unknown>) {
             h1 = VcUtils.cleanHistNode(h1);
 
             h2 = VcUtils.cleanHistNode(h2);
@@ -724,7 +733,7 @@ editor.once('load', () => {
             return editor.call('assets:isDeepEqual', h1, h2);
         },
 
-        cleanHistNode: function (h) {
+        cleanHistNode: function (h: Record<string, unknown>) {
             const res = { parent: [], child: [] };
 
             ['parent', 'child'].forEach(s => VcUtils.cleanEdges(res, h, s));
@@ -732,13 +741,13 @@ editor.once('load', () => {
             return res;
         },
 
-        cleanEdges: function (res, h, field) {
+        cleanEdges: function (res: Record<string, unknown[]>, h: Record<string, unknown>, field: string) {
             res[field] = h[field].map((edge) => {
                 return VcUtils.fieldsFromHash(edge, ['parent', 'child', 'branch_id']);
             });
         },
 
-        fieldsFromHash: function (h, a) {
+        fieldsFromHash: function (h: Record<string, unknown>, a: string[]) {
             const res = {};
 
             a.forEach((s) => {
@@ -749,9 +758,8 @@ editor.once('load', () => {
         }
     };
 
-    editor.method('vcgraph:utils', function () {
-        const a = Array.from(arguments);
-
-        return editor.call('utils:callMethod', VcUtils, a);
+    // eslint-disable-next-line prefer-arrow-callback -- needs function for callMethod binding
+    editor.method('vcgraph:utils', function (...args: unknown[]) {
+        return editor.call('utils:callMethod', VcUtils, args);
     });
 });

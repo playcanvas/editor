@@ -23,7 +23,7 @@ editor.once('load', () => {
         chatPanel.style.transition = 'height 100ms, width 100ms';
     }, 100);
 
-    editor.on('permissions:set', (level) => {
+    editor.on('permissions:set', (level: string | number | null) => {
         chatPanel.hidden = !level || editor.call('viewport:expand:state');
     });
 
@@ -41,7 +41,7 @@ editor.once('load', () => {
         return chatPanel;
     });
 
-    editor.on('viewport:expand', (state) => {
+    editor.on('viewport:expand', (state: boolean) => {
         chatPanel.hidden = state;
     });
 
@@ -145,7 +145,7 @@ editor.once('load', () => {
     typersMultiple.appendChild(document.createTextNode(' users are typing...'));
 
 
-    editor.on('chat:typing', (count, ids) => {
+    editor.on('chat:typing', (count: number, ids: string[]) => {
         let color;
         if (count === 0) {
             if (typersLast) {
@@ -202,7 +202,7 @@ editor.once('load', () => {
 
     let lastMessage = null;
 
-    editor.on('chat:post', (type, msg, element) => {
+    editor.on('chat:post', (type: string | number, msg: string, element: HTMLElement) => {
         if (!chatPanel.collapsed) {
             lastMessage = element;
         }
@@ -220,7 +220,7 @@ editor.once('load', () => {
         }
     });
 
-    editor.on('chat:typing', (typing, ids) => {
+    editor.on('chat:typing', (typing: number, ids: string[]) => {
         if (!chatPanel.collapsed) {
             return;
         }
@@ -249,7 +249,7 @@ editor.once('load', () => {
     });
     chatPanel.append(messages);
 
-    messages.innerElement.addEventListener('contextmenu', (evt) => {
+    messages.innerElement.addEventListener('contextmenu', (evt: MouseEvent) => {
         if (evt.target.tagName !== 'A') {
             return;
         }
@@ -325,7 +325,7 @@ editor.once('load', () => {
         onTypingEnd();
     }, false);
 
-    input.on('change', (value) => {
+    input.on('change', (value: string) => {
         value = value.trim();
 
         if (value.length > 1024) {
@@ -352,7 +352,7 @@ editor.once('load', () => {
         }
     });
 
-    input.element.addEventListener('keydown', (evt) => {
+    input.element.addEventListener('keydown', (evt: KeyboardEvent) => {
         if (evt.keyCode === 27) {
             // esc
             input.value = '';

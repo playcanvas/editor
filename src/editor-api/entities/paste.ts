@@ -227,9 +227,9 @@ function remapEntitiesAndAssets(entity: Entity, parent: Entity, data: Record<str
         if (!ASSET_PATHS) {
             // get asset paths for all components
             ASSET_PATHS = [];
-            api.schema.components.list().forEach((component) => {
+            api.schema.components.list().forEach((component: string) => {
                 const paths = api.schema.components.getFieldsOfType(component, 'asset');
-                paths.forEach((path) => {
+                paths.forEach((path: string) => {
                     ASSET_PATHS.push(`components.${component}.${path}`);
                 });
             });
@@ -351,10 +351,10 @@ function remapEntitiesAndAssets(entity: Entity, parent: Entity, data: Record<str
 
     // remap entity references in components
     const components = entity.get('components');
-    Object.keys(components).forEach((componentName) => {
+    Object.keys(components).forEach((componentName: string) => {
         const entityFields = api.schema.components.getFieldsOfType(componentName, 'entity');
 
-        entityFields.forEach((fieldName) => {
+        entityFields.forEach((fieldName: string) => {
             const path = `components.${componentName}.${fieldName}`;
             remapField(entity, path, entityMapping, sameProject);
         });
@@ -384,7 +384,7 @@ function pasteInBackend(data: Record<string, any>, parent: Entity, options: { hi
     });
 
     if (!evtMessenger)  {
-        evtMessenger = api.messenger.on('entity.copy', (data) => {
+        evtMessenger = api.messenger.on('entity.copy', (data: any) => {
             const callback = api.jobs.finish(data.job_id);
             if (!callback) {
                 return;
@@ -402,7 +402,7 @@ function pasteInBackend(data: Record<string, any>, parent: Entity, options: { hi
         }
 
         const jobId = api.jobs.start((newEntityIds: string[]) => {
-            const cancel = api.entities.waitToExist(newEntityIds, TIME_WAIT_ENTITIES, (newEntities) => {
+            const cancel = api.entities.waitToExist(newEntityIds, TIME_WAIT_ENTITIES, (newEntities: Entity[]) => {
                 entities = newEntities;
 
                 api.selection.set(newEntities, { history: false });
@@ -432,10 +432,10 @@ function pasteInBackend(data: Record<string, any>, parent: Entity, options: { hi
             children: children,
             childIndex: children.length,
             entities: Object.keys(data.hierarchy)
-            .filter((id) => {
+            .filter((id: string) => {
                 return data.hierarchy[id].parent === null;
             })
-            .map((id) => {
+            .map((id: string) => {
                 return {
                     id: id
                 };
@@ -599,7 +599,7 @@ async function pasteEntities(parent: Entity, options: { history?: boolean } = {}
 
                 if (deletedHierarchy.length) {
                     api.entities.delete(
-                        deletedHierarchy.map(data => api.entities.get(data.resource_id)), {
+                        deletedHierarchy.map((data: any) => api.entities.get(data.resource_id)), {
                             history: false
                         }
                     );
@@ -620,8 +620,8 @@ async function pasteEntities(parent: Entity, options: { history?: boolean } = {}
 
                 // restore selection
                 previousSelection = previousSelection
-                .map(item => item.latest())
-                .filter(item => !!item);
+                .map((item: any) => item.latest())
+                .filter((item: any) => !!item);
 
                 api.selection.set(previousSelection, { history: false });
 

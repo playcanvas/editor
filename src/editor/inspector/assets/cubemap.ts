@@ -120,7 +120,7 @@ const DOM = (parent, args) => [
 ];
 
 class CubemapAssetInspector extends Container {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
 
         super(args);
@@ -222,7 +222,7 @@ class CubemapAssetInspector extends Container {
         return false;
     }
 
-    _updateFilteringForAssets(filterValue) {
+    _updateFilteringForAssets(filterValue: string) {
         const currFilterValues = this._assets.map((asset) => {
             return {
                 minFilter: asset.get('data.minFilter'),
@@ -265,7 +265,7 @@ class CubemapAssetInspector extends Container {
         });
     }
 
-    _onFilteringSelectChange(filterValue) {
+    _onFilteringSelectChange(filterValue: string) {
         if (['nearest', 'linear'].includes(filterValue)) {
             let hasDiveredFromAssets = false;
             this._assets.forEach((asset) => {
@@ -314,7 +314,7 @@ class CubemapAssetInspector extends Container {
         this._prefilteringContainer.hidden = this._assets.length > 1;
     }
 
-    link(assets) {
+    link(assets: import('@playcanvas/observer').Observer[]) {
         this.unlink();
         this._assets = assets;
         this._cubemapAttributesInspector.link(assets);

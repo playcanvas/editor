@@ -241,7 +241,7 @@ const ATTRIBUTES: Attribute[] = [
 ];
 
 class AssetImportSettingsPanel extends BaseSettingsPanel {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.headerText = 'ASSET IMPORT';
         args.attributes = ATTRIBUTES;
@@ -298,13 +298,13 @@ class AssetImportSettingsPanel extends BaseSettingsPanel {
         });
     }
 
-    _appendSection(title, attributeElement) {
+    _appendSection(title: string, attributeElement: import('@playcanvas/pcui').Element) {
         const section = new Panel({ headerText: title, class: CLASS_SECTION });
         attributeElement.parent.parent.appendAfter(section, attributeElement.parent);
         return section;
     }
 
-    _setupDracoImportButton(previousField, moduleStoreName, wasmFilename) {
+    _setupDracoImportButton(previousField: import('@playcanvas/pcui').Element, moduleStoreName: string, wasmFilename: string) {
         this._containerImportDraco = new Container({
             class: 'pcui-subpanel',
             flex: true,

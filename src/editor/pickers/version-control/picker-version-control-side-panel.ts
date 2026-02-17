@@ -43,7 +43,7 @@ editor.once('load', () => {
         panelButtons.class.add('buttons');
         panel.append(panelButtons);
 
-        const getButtonOption = function (button, name) {
+        const getButtonOption = function (button: string, name: string) {
             return args.buttons && args.buttons[button] && args.buttons[button][name];
         };
 
@@ -97,7 +97,7 @@ editor.once('load', () => {
             // Register Enter hotkey to click the highlighted button
             editor.call('hotkey:register', enterHotkeyAction, {
                 key: 'Enter',
-                callback: function (e) {
+                callback: function (e: KeyboardEvent) {
                     if (btnCancel.class.contains('highlighted')) {
                         if (btnCancel.disabled) {
                             return;

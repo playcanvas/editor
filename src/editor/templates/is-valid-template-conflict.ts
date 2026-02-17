@@ -6,7 +6,7 @@ editor.once('load', () => {
     const templIdsReg = /^template_ent_ids/;
 
     class IsValidTemplateConflict {
-        constructor(conflict, rootId, srcToDst, scriptAttrs) {
+        constructor(conflict: object, rootId: string, srcToDst: object, scriptAttrs: object) {
             this.conflict = conflict;
 
             this.isRoot = conflict.resource_id === rootId;
@@ -66,13 +66,13 @@ editor.once('load', () => {
             return [this.src_value, this.dst_value].every(Array.isArray);
         }
 
-        isArrayDifferent(srcAr, dstAr) {
+        isArrayDifferent(srcAr: unknown[], dstAr: unknown[]): boolean {
             const diffLen = srcAr.length !== dstAr.length;
 
             return diffLen || this.isSomeValueDifferent(srcAr, dstAr);
         }
 
-        isSomeValueDifferent(srcAr, dstAr) {
+        isSomeValueDifferent(srcAr: unknown[], dstAr: unknown[]): boolean {
             return srcAr.some((src, index) => {
 
                 const dst = dstAr[index];
@@ -82,7 +82,7 @@ editor.once('load', () => {
         }
 
         // external entity references are stored as null in asset
-        isValueDifferent(src, dst) {
+        isValueDifferent(src: unknown, dst: unknown): boolean {
             const oneTrue = src || dst;
 
             const diffMapped = this.srcToDst[src] !== dst;
@@ -96,13 +96,13 @@ editor.once('load', () => {
      * should be reported as an override or ignored. This takes into account that entity id's are
      * expected to be different. The 'srcToDst' argument provides the expected id mapping.
      *
-     * @param {object} conflict - The conflict.
-     * @param {string} rootId - The guid of the root entity to determine if this conflict involves
+     * @param conflict - The conflict.
+     * @param rootId - The guid of the root entity to determine if this conflict involves
      * the root entity.
-     * @param {object} srcToDst - The guid mapping.
-     * @returns {boolean} True if the conflict should be reported as an override.
+     * @param srcToDst - The guid mapping.
+     * @returns True if the conflict should be reported as an override.
      */
-    editor.method('template:isValidTemplateConflict', (conflict, rootId, srcToDst, scriptAttrs) => {
+    editor.method('template:isValidTemplateConflict', (conflict: object, rootId: string, srcToDst: object, scriptAttrs: object): boolean => {
         return new IsValidTemplateConflict(conflict, rootId, srcToDst, scriptAttrs).run();
     });
 });

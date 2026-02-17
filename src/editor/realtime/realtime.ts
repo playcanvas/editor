@@ -4,11 +4,11 @@ editor.once('start', () => {
         editor.emit('realtime:cannotConnect');
     });
 
-    realtime.on('connecting', (attempts) => {
+    realtime.on('connecting', (attempts: number) => {
         editor.emit('realtime:connecting', attempts);
     });
 
-    realtime.on('nextAttempt', (interval) => {
+    realtime.on('nextAttempt', (interval: number) => {
         editor.emit('realtime:nextAttempt', interval);
     });
 
@@ -17,24 +17,24 @@ editor.once('start', () => {
         editor.emit('realtime:connected');
     });
 
-    realtime.on('error', (err) => {
+    realtime.on('error', (err: unknown) => {
         console.error('realtime error', err);
         editor.emit('realtime:error', err);
     });
 
-    realtime.on('error:bs', (err) => {
+    realtime.on('error:bs', (err: string) => {
         editor.call('status:error', err);
     });
 
-    realtime.on('error:scene', (err) => {
+    realtime.on('error:scene', (err: unknown) => {
         editor.emit('realtime:scene:error', err);
     });
 
-    realtime.on('error:asset', (err) => {
+    realtime.on('error:asset', (err: unknown) => {
         editor.emit('realtime:asset:error', err);
     });
 
-    realtime.on('disconnect', (reason) => {
+    realtime.on('disconnect', (reason: string) => {
         console.log('realtime disconnected', reason);
         editor.emit('realtime:disconnected', reason);
     });
@@ -47,35 +47,35 @@ editor.once('start', () => {
         }
     });
 
-    realtime.on('whoisonline', (op, data) => {
+    realtime.on('whoisonline', (op: string, data: unknown) => {
         editor.call(`whoisonline:${op}`, data);
     });
 
-    realtime.on('chat:typing', (data) => {
+    realtime.on('chat:typing', (data: unknown) => {
         editor.call('chat:sync:typing', data);
     });
 
-    realtime.on('chat:msg', (data) => {
+    realtime.on('chat:msg', (data: unknown) => {
         editor.call('chat:sync:msg', data);
     });
 
-    realtime.on('selection', (data) => {
+    realtime.on('selection', (data: unknown) => {
         editor.emit('selector:sync:raw', data);
     });
 
-    realtime.on('fs:paths', (data) => {
+    realtime.on('fs:paths', (data: unknown) => {
         editor.call('assets:fs:paths:patch', data);
     });
 
-    realtime.on('scene:op', (path, op) => {
+    realtime.on('scene:op', (path: string, op: unknown) => {
         editor.emit(`realtime:scene:op:${path}`, op);
     });
 
-    realtime.on('asset:op', (op, uniqueId) => {
+    realtime.on('asset:op', (op: unknown, uniqueId: string) => {
         editor.emit('realtime:op:assets', op, uniqueId);
     });
 
-    realtime.on('load:scene', (scene) => {
+    realtime.on('load:scene', (scene: { id: string; uniqueId: string; data: unknown }) => {
         editor.emit('scene:load', scene.id, scene.uniqueId);
         editor.emit('scene:raw', scene.data);
     });
@@ -84,12 +84,12 @@ editor.once('start', () => {
         return realtime.connection.sharedb;
     });
 
-    editor.method('realtime:loadScene', (uniqueId) => {
+    editor.method('realtime:loadScene', (uniqueId: string) => {
         realtime.scenes.load(uniqueId);
     });
 
     // write scene operations
-    editor.method('realtime:scene:op', (op) => {
+    editor.method('realtime:scene:op', (op: unknown) => {
         if (!editor.call('permissions:write') || !realtime.scenes.current) {
             return;
         }
@@ -97,7 +97,7 @@ editor.once('start', () => {
         realtime.scenes.current.submitOp(op);
     });
 
-    editor.method('realtime:send', (name, data) => {
+    editor.method('realtime:send', (name: string, data: unknown) => {
         realtime.connection.sendMessage(name, data);
     });
 
@@ -113,7 +113,7 @@ editor.once('start', () => {
         editor.emit('permissions:writeState', editor.call('permissions:write'));
     });
 
-    editor.on('scene:unload', (id, uniqueId) => {
+    editor.on('scene:unload', (_id: string, uniqueId: string) => {
         realtime.scenes.unload(uniqueId);
     });
 

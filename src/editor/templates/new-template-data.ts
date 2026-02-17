@@ -2,7 +2,19 @@ import { guid } from 'playcanvas';
 
 editor.once('load', () => {
     class NewTemplateData {
-        constructor(root, srcEnts) {
+        root: { get: (key: string) => unknown };
+
+        srcEnts: { get: (key: string) => unknown }[];
+
+        dstEnts: Record<string, unknown>[];
+
+        srcToDst: Record<string, string>;
+
+        rootId: string;
+
+        scriptAttrs: Record<string, unknown>;
+
+        constructor(root: { get: (key: string) => unknown }, srcEnts: { get: (key: string) => unknown }[]) {
             this.root = root;
 
             this.srcEnts = srcEnts;
@@ -28,7 +40,7 @@ editor.once('load', () => {
             this.srcEnts.forEach(this.handleSrcEnt, this);
         }
 
-        handleSrcEnt(srcEnt) {
+        handleSrcEnt(srcEnt: { get: (key: string) => unknown; json: () => Record<string, unknown> }): void {
             const srcId = srcEnt.get('resource_id');
 
             const dstId = guid.create();
@@ -55,7 +67,7 @@ editor.once('load', () => {
                 'template:getScriptAttributes', this.dstEnts);
         }
 
-        remapIds(ent) {
+        remapIds(ent: Record<string, unknown>): void {
             editor.call(
                 'template:remapEntityIds',
                 ent,
@@ -82,13 +94,13 @@ editor.once('load', () => {
      * Given the root entity of an intended template, create a json copy of it with new guids. All
      * entity references inside are updated to match new guids.
      *
-     * @param {object} root - The root entity.
-     * @param {object[]} sceneEnts - All entities descending from the root.
-     * @returns {object} An object with fields 'assetData' (for storing as data of the new template
+     * @param root - The root entity.
+     * @param sceneEnts - All entities descending from the root.
+     * @returns An object with fields 'assetData' (for storing as data of the new template
      * asset, it has the format { entities: <guid to entity map> }), and 'srcToDst' (a map from
      * original to new guids).
      */
-    editor.method('template:newTemplateData', (root, sceneEnts) => {
+    editor.method('template:newTemplateData', (root: unknown, sceneEnts: unknown[]): { assetData: { entities: Record<string, unknown> }; srcToDst: Record<string, string> } => {
         return new NewTemplateData(root, sceneEnts).run();
     });
 });

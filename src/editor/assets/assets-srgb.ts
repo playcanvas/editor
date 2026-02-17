@@ -190,9 +190,9 @@ const startChecker = () => {
     /**
      * Set the srgb flag for a texture asset based on its usage
      *
-     * @param {Observer} asset - The texture asset to migrate
+     * @param asset - The texture asset to migrate
      */
-    const setSrgb = (asset) => {
+    const setSrgb = (asset: Observer) => {
         const updateAsset = () => {
             // Ensure data object exists
             if (!asset.get('data')) {
@@ -263,9 +263,9 @@ const startChecker = () => {
     /**
      * Check for texture usages in assets and entities
      *
-     * @param {Observer} asset - The asset to check for texture usages
+     * @param asset - The asset to check for texture usages
      */
-    const checkTextureUsage = (asset) => {
+    const checkTextureUsage = (asset: Observer) => {
         const assetId = asset.get('id');
 
         // find all usages of the texture asset
@@ -377,16 +377,16 @@ const startChecker = () => {
     /**
      * Check for texture usages in assets
      *
-     * @param {Observer} asset - The asset to check for texture usages
+     * @param asset - The asset to check for texture usages
      */
-    const checkAsset = (asset) => {
+    const checkAsset = (asset: Observer) => {
         switch (asset.get('type')) {
             case 'texture':
             case 'textureatlas': {
                 checkTextureUsage(asset);
 
                 // listen for changes to the srgb flag
-                asset.on('*:set', (path) => {
+                asset.on('*:set', (path: string) => {
                     if (!SRGB_PATH_MAP.texture.hasOwnProperty(path)) {
                         return;
                     }
@@ -401,7 +401,7 @@ const startChecker = () => {
             }
             case 'sprite': {
                 // listen for changes to sprite assets
-                asset.on('*:set', (path, value, oldValue) => {
+                asset.on('*:set', (path: string, value: string | number, oldValue: string | number) => {
                     if (path === 'data.textureAtlasAsset') {
                         const textureAtlasAsset = editor.call('assets:get', value || oldValue);
                         if (!textureAtlasAsset) {
@@ -482,9 +482,9 @@ const startChecker = () => {
     /**
      * Check for texture usages in entities
      *
-     * @param {Observer} entity - The entity to check for texture usages
+     * @param entity - The entity to check for texture usages
      */
-    const checkEntity = (entity) => {
+    const checkEntity = (entity: Observer) => {
         // listen for changes to entities
         entity.on('*:set', (path, value, oldValue) => {
             if (!SRGB_PATH_MAP.entity.hasOwnProperty(path)) {
@@ -586,7 +586,7 @@ const startChecker = () => {
 
     // subscribe to add and remove
     editor.on('assets:add', checkAsset);
-    editor.on('assets:remove', (asset) => {
+    editor.on('assets:remove', (asset: Observer) => {
         const assetId = asset.get('id');
         textureUsages.delete(assetId);
         textureFixes.delete(assetId);

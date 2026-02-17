@@ -1,7 +1,7 @@
 import { LegacyElement } from './element';
 
 class LegacySelectField extends LegacyElement {
-    constructor(args = {}) {
+    constructor(args: Record<string, any> = {}) {
         super();
         this.options = args.options || {};
         this.optionsKeys = [];
@@ -35,13 +35,13 @@ class LegacySelectField extends LegacyElement {
         this.evtTouchId = null;
         this.evtTouchSecond = false;
         this.evtMouseDist = [0, 0];
-        this.evtMouseUp = (evt) => {
+        this.evtMouseUp = (evt: MouseEvent) => {
             evt.preventDefault();
             evt.stopPropagation();
             this._onHoldSelect(evt.target, evt.pageX, evt.pageY);
         };
 
-        this.evtTouchEnd = (evt) => {
+        this.evtTouchEnd = (evt: TouchEvent) => {
             for (let i = 0; i < evt.changedTouches.length; i++) {
                 const touch = evt.changedTouches[i];
                 if (touch.identifier !== this.evtTouchId) {
@@ -92,7 +92,7 @@ class LegacySelectField extends LegacyElement {
         }
     }
 
-    set value(raw) {
+    set value(raw: string | number | null) {
         let value = this.valueToType(raw);
 
         if (this._link) {
@@ -139,7 +139,7 @@ class LegacySelectField extends LegacyElement {
         return this._value;
     }
 
-    set placeholder(value) {
+    set placeholder(value: string) {
         if (!value) {
             this.elementValue.removeAttribute('placeholder');
         } else {
@@ -151,7 +151,7 @@ class LegacySelectField extends LegacyElement {
         return this.elementValue.getAttribute('placeholder');
     }
 
-    _onHoldSelect(target, x, y) {
+    _onHoldSelect(target: any, x: number, y: number) {
         if (target && target.uiElement && target.uiElement === this && target.classList.contains('selected')) {
             return;
         }
@@ -167,7 +167,7 @@ class LegacySelectField extends LegacyElement {
         this.close();
     }
 
-    _onMouseDown(evt) {
+    _onMouseDown(evt: MouseEvent) {
         if (this.disabled && !this.disabledClick) {
             return;
         }
@@ -185,7 +185,7 @@ class LegacySelectField extends LegacyElement {
         }
     }
 
-    _onTouchStart(evt) {
+    _onTouchStart(evt: TouchEvent) {
         if (this.disabled && !this.disabledClick) {
             return;
         }
@@ -221,7 +221,7 @@ class LegacySelectField extends LegacyElement {
         }
     }
 
-    _onLink(path) {
+    _onLink(path: string) {
         if (this._link.schema && this._link.schema.has(path)) {
             const field = this._link.schema.get(path);
             const options = field.options || {};
@@ -237,7 +237,7 @@ class LegacySelectField extends LegacyElement {
         this.flash();
     }
 
-    _onKeyDown(evt) {
+    _onKeyDown(evt: KeyboardEvent) {
         if (evt.keyCode === 27) {
             this.close();
             this._element.blur();
@@ -267,7 +267,7 @@ class LegacySelectField extends LegacyElement {
         this.value = keys[ind + y];
     }
 
-    valueToType(value) {
+    valueToType(value: any) {
         switch (this._type) {
             case 'boolean':
                 return !!value;
@@ -365,7 +365,7 @@ class LegacySelectField extends LegacyElement {
         }
     }
 
-    _updateOptions(options) {
+    _updateOptions(options?: any) {
         if (options !== undefined) {
             if (options instanceof Array) {
                 this.options = {};
@@ -417,7 +417,7 @@ class LegacySelectField extends LegacyElement {
         this.classList.remove('hover');
     }
 
-    _onLinkChange(value) {
+    _onLinkChange(value: any) {
         if (this.optionElements[value] === undefined) {
             return;
         }

@@ -36,7 +36,7 @@ editor.once('load', () => {
     };
 
     let timeout;
-    const deferredUpdate = function (tab) {
+    const deferredUpdate = function (tab: { asset?: unknown }) {
         if (!tab.asset) {
             return;
         }

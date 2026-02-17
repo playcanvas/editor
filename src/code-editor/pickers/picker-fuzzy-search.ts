@@ -76,7 +76,7 @@ editor.once('load', () => {
 
     // when an asset is selected
     // put it on the front of the stack
-    editor.on('select:asset', (asset) => {
+    editor.on('select:asset', (asset: Observer) => {
         if (asset.get('type') === 'folder') {
             return;
         }
@@ -90,7 +90,7 @@ editor.once('load', () => {
         selectionStack.push(id);
     });
 
-    editor.on('tabs:focus', (tab) => {
+    editor.on('tabs:focus', (tab: { id: string; asset?: Observer }) => {
         const id = tab.id;
         if (id !== FIND_RESULTS) {
             return;
@@ -114,7 +114,7 @@ editor.once('load', () => {
         selectionStack.push(id);
     });
 
-    editor.on('tabs:close', (tab) => {
+    editor.on('tabs:close', (tab: { id: string }) => {
         if (tab.id === FIND_RESULTS) {
             // clear fake asset if the find results tab is closed
             findInFilesFakeAsset = null;
@@ -122,7 +122,7 @@ editor.once('load', () => {
     });
 
     // when a document is closed remove it from the stack
-    editor.on('documents:close', (id) => {
+    editor.on('documents:close', (id: string) => {
         const idx = selectionStack.indexOf(id);
         if (idx !== -1) {
             selectionStack.splice(idx, 1);
@@ -131,13 +131,13 @@ editor.once('load', () => {
 
     // when a document if focused steal focus
     // if we are open
-    editor.on('documents:focus', (id) => {
+    editor.on('documents:focus', (id: string) => {
         if (!panel.hidden) {
             fieldSearch.focus();
         }
     });
 
-    const pick = (assetId) => {
+    const pick = (assetId: string) => {
         if (assetId === FIND_RESULTS) {
             editor.call('tabs:findInFiles:focus');
             return;
@@ -164,7 +164,7 @@ editor.once('load', () => {
         pick(selected.ui._assetId);
     };
 
-    const selectIndex = (index) => {
+    const selectIndex = (index: number) => {
         const children = menuResults.innerElement.childNodes;
         if (!children.length) {
             return;
@@ -209,8 +209,8 @@ editor.once('load', () => {
         selectedIndex = index;
     };
 
-    /** @param {KeyboardEvent} e - The keyboard event */
-    const onKeyDown = (e) => {
+    /** @param e - The keyboard event */
+    const onKeyDown = (e: KeyboardEvent) => {
         switch (e.key) {
             case 'Enter':
             case 'Escape':
@@ -231,7 +231,7 @@ editor.once('load', () => {
         }
     };
 
-    const createResultItem = (asset) => {
+    const createResultItem = (asset: Observer) => {
         const item = new MenuItem({
             onSelect: () => {
                 pick(asset.get('id'));
@@ -258,7 +258,7 @@ editor.once('load', () => {
         return item;
     };
 
-    const refreshResults = (results) => {
+    const refreshResults = (results: Observer[]) => {
         menuResults.clear();
 
         for (const asset of results) {
@@ -269,7 +269,7 @@ editor.once('load', () => {
 
     // calculate score:
     // Higher score for more matches close to the beginning
-    const calculateScore = (name, pattern, patternLength) => {
+    const calculateScore = (name: string, pattern: string, patternLength: number) => {
         let score = 0;
         const nameLength = name.length;
         let n = 0;
@@ -302,7 +302,7 @@ editor.once('load', () => {
     };
 
     // Sorts search results by score
-    const sortByScore = (a, b) => {
+    const sortByScore = (a: Observer, b: Observer) => {
         const aid = a.get('id');
         const bid = b.get('id');
         if (scoreIndex[aid] !== undefined && scoreIndex[bid] !== undefined) {
@@ -321,7 +321,7 @@ editor.once('load', () => {
     };
 
     // Sorts by case insensitive name
-    const sortByName = (a, b) => {
+    const sortByName = (a: Observer, b: Observer) => {
         const aname = a.get('name').toLowerCase();
         const bname = b.get('name').toLowerCase();
         if (aname < bname) {
@@ -342,7 +342,7 @@ editor.once('load', () => {
         scoreIndex = {};
         const results = [];
 
-        const process = (asset) => {
+        const process = (asset: Observer) => {
             if (asset.get('type') === 'folder') {
                 return;
             }
@@ -438,7 +438,7 @@ editor.once('load', () => {
     };
 
     // Handle input
-    fieldSearch.input.addEventListener('input', (e) => {
+    fieldSearch.input.addEventListener('input', (_e: Event) => {
         if (panel.hidden) {
             return;
         }

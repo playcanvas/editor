@@ -1,3 +1,4 @@
+import type { Observer } from '@playcanvas/observer';
 import { MenuItem } from '@playcanvas/pcui';
 
 import * as api from '@/editor-api';
@@ -93,25 +94,25 @@ editor.once('load', () => {
     });
 
 
-    editor.method('editor:command:can:create', (folder) => {
+    editor.method('editor:command:can:create', (folder?: Observer) => {
         return !editor.call('editor:resolveConflictMode') &&
                 editor.call('permissions:write') &&
                (!folder || folder.get('type') === 'folder') &&
                !editor.call('errors:hasRealtime');
     });
 
-    editor.method('editor:command:create', (type, folder) => {
+    editor.method('editor:command:create', (type: string, folder?: Observer) => {
         folder = folder || editor.call('assets:selected:folder');
         if (!editor.call('editor:command:can:create', folder)) {
             return;
         }
 
         if (type === 'script') {
-            editor.call('picker:script-create', (filename) => {
+            editor.call('picker:script-create', (filename: string) => {
                 editor.call('assets:create:script', {
                     filename: filename,
                     parent: folder
-                }, (_asset) => {
+                }, (_asset: Observer) => {
                     // refresh the asset data
                     const asset = editor.call('assets:get', _asset.get('id'));
 
@@ -129,7 +130,7 @@ editor.once('load', () => {
                             asset.set('file.variants', variants);
                         }
 
-                        editor.call('scripts:parse', asset, (err) => {
+                        editor.call('scripts:parse', asset, (err: unknown) => {
                             if (err) {
                                 editor.call('status:error', err);
                             }

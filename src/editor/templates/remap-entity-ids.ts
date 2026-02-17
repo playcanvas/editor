@@ -1,6 +1,6 @@
 editor.once('load', () => {
     class RemapEntityIds {
-        constructor(entity, scriptAttrs, srcToDst) {
+        constructor(entity: import('@playcanvas/observer').Observer, scriptAttrs: Record<string, unknown>, srcToDst: Record<string, string>) {
             this.entity = entity;
 
             this.scriptAttrs = scriptAttrs;
@@ -35,7 +35,7 @@ editor.once('load', () => {
             );
         }
 
-        remapAtPath(path) {
+        remapAtPath(path: string) {
             editor.call(
                 'template:utils',
                 'remapEntAtPath',

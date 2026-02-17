@@ -218,7 +218,7 @@ editor.once('load', () => {
             }
         }
 
-        link(obj) {
+        link(obj: import('@playcanvas/observer').Observer) {
             this.unlink();
 
             this._link = obj;

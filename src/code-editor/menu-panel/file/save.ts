@@ -1,3 +1,4 @@
+import type { Observer } from '@playcanvas/observer';
 import { MenuItem } from '@playcanvas/pcui';
 
 import { formatShortcut } from '../../../common/utils';
@@ -83,7 +84,7 @@ editor.once('load', () => {
     const pendingSave: Set<string> = new Set();
 
     // Returns true if we can save
-    editor.method('editor:command:can:save', (id) => {
+    editor.method('editor:command:can:save', (id?: string) => {
         if (editor.call('permissions:write') && editor.call('realtime:isConnected') && !editor.call('errors:hasRealtime')) {
             const focused = id || editor.call('documents:getFocused');
 
@@ -104,7 +105,7 @@ editor.once('load', () => {
     }
 
     // Save document
-    const save = function (id) {
+    const save = function (id: string) {
         beforeSave();
 
         saving.add(id);
@@ -122,7 +123,7 @@ editor.once('load', () => {
             }
 
             // check if file is different first
-            editor.call('assets:contents:get', asset, (err, content) => {
+            editor.call('assets:contents:get', asset, (err: unknown, content: string) => {
                 if (err) {
                     console.error(err);
                     editor.emit('documents:save:error', uniqueId);
@@ -150,7 +151,7 @@ editor.once('load', () => {
     };
 
     // Save
-    editor.method('editor:command:save', (id) => {
+    editor.method('editor:command:save', (id?: string) => {
         const docId = id || editor.call('documents:getFocused');
 
         // If a save is already in progress for this document, mark it as pending
@@ -247,13 +248,13 @@ editor.once('load', () => {
         }
     }
 
-    editor.on('documents:save:success', (uniqueId) => {
+    editor.on('documents:save:success', (uniqueId: string) => {
         const asset = editor.call('assets:getUnique', uniqueId);
         editor.call('status:log', `Saved "${asset.get('name')}"`);
         onSaveComplete(asset.get('id'));
     });
 
-    editor.on('documents:save:error', (uniqueId) => {
+    editor.on('documents:save:error', (uniqueId: string) => {
         const asset = editor.call('assets:getUnique', uniqueId);
         editor.call('status:error', `Could not save "${asset.get('name')}"`);
         onSaveComplete(asset.get('id'));
@@ -262,7 +263,7 @@ editor.once('load', () => {
     // When a document is marked as clean
     // we should delete any saving locks since it's fine
     // to re-save
-    editor.on('documents:dirty', (id, dirty) => {
+    editor.on('documents:dirty', (id: string, dirty: boolean) => {
         if (!dirty) {
             if (saving.has(id)) {
                 saving.delete(id);
@@ -276,7 +277,7 @@ editor.once('load', () => {
     // if a document is loaded it either means it's loaded for the first time
     // or it's reloaded. In either case make sure we can save the document again
     // if we got disconnected in the meantime
-    editor.on('documents:load', (doc, asset, docEntry) => {
+    editor.on('documents:load', (_doc: unknown, asset: Observer, _docEntry?: unknown) => {
         const id = asset.get('id');
         if (saving.has(id)) {
             saving.delete(id);
@@ -287,7 +288,7 @@ editor.once('load', () => {
     });
 
     // when we close a document remove its saving status
-    editor.on('documents:close', (id) => {
+    editor.on('documents:close', (id: string) => {
         if (saving.has(id)) {
             saving.delete(id);
             editor.call('status:clear');
@@ -295,7 +296,7 @@ editor.once('load', () => {
         pendingSave.delete(id);
     });
 
-    editor.on('editor:command:save:start', (id) => {
+    editor.on('editor:command:save:start', (id: string) => {
         const asset = editor.call('assets:get', id);
         editor.call('status:log', `Saving "${asset.get('name')}"...`);
     });

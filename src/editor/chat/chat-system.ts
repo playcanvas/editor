@@ -12,7 +12,7 @@ editor.once('load', () => {
     const regexUrl = /[a-z]+:\/\/[-\w@:%.+~#=]{2,256}\.[a-z]{2,6}\b[-\w@:%+.~#?&/=]*/g;
     const regexEmail = /[-\w:%.+~]{1,256}@[-\w@:%.+~#=]{1,256}\.[a-z]{2,16}/g;
 
-    const stringToElements = function (args) {
+    const stringToElements = function (args: { string: string; regex: RegExp; filter: (match: string) => HTMLAnchorElement }) {
         const items = [];
 
         const bits = args.string.match(args.regex);
@@ -33,7 +33,7 @@ editor.once('load', () => {
         return items;
     };
 
-    const parseMessageFilterLink = function (string) {
+    const parseMessageFilterLink = function (string: string) {
         const link = document.createElement('a');
         link.target = '_blank';
         link.href = string;
@@ -41,14 +41,14 @@ editor.once('load', () => {
         return link;
     };
 
-    const parseMessageFilterEmail = function (string) {
+    const parseMessageFilterEmail = function (string: string) {
         const link = document.createElement('a');
         link.href = `mailto:${string}`;
         link.textContent = string;
         return link;
     };
 
-    const parseMessage = function (message) {
+    const parseMessage = function (message: string) {
         const items = stringToElements({
             string: message,
             regex: regexUrl,
@@ -87,7 +87,7 @@ editor.once('load', () => {
         return items;
     };
 
-    editor.method('chat:post', (type, string) => {
+    editor.method('chat:post', (type: 'system' | number, string: string) => {
         if (type !== 'system' && typeof type !== 'number') {
             return;
         }
@@ -167,7 +167,7 @@ editor.once('load', () => {
         return element;
     });
 
-    editor.method('chat:sync:msg', (data) => {
+    editor.method('chat:sync:msg', (data: { from: number; d: string }) => {
         editor.call('chat:post', data.from, data.d);
     });
 
@@ -183,7 +183,7 @@ editor.once('load', () => {
         });
     });
 
-    editor.on('relay:room:leave', (data) => {
+    editor.on('relay:room:leave', (data: { name: string; userId: number }) => {
         if (data.name !== `project-${config.project.id}`) {
             return;
         }
@@ -194,7 +194,7 @@ editor.once('load', () => {
         }
     });
 
-    editor.on('relay:room:msg', (data) => {
+    editor.on('relay:room:msg', (data: { msg: { chat?: string; d?: string }; from: number }) => {
         if (data.msg.chat === 'msg') {
             editor.call('chat:sync:msg', {
                 from: data.from,

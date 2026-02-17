@@ -49,7 +49,7 @@ editor.once('load', () => {
     materialBehind.update();
 
     // Subscribes to user data of specified user
-    const addUser = function (userId) {
+    const addUser = function (userId: string): void {
         editor.once(`userdata:${userId}:raw`, (data) => {
             loadUserData(userId, data);
         });
@@ -58,7 +58,7 @@ editor.once('load', () => {
     };
 
     // Removes user camera and unsubscribes from userdata
-    const removeUser = function (userId) {
+    const removeUser = function (userId: string) {
         if (userId === config.self.id) {
             return;
         }
@@ -127,7 +127,7 @@ editor.once('load', () => {
     };
 
     // Creates user camera and binds to real time events
-    const loadUserData = function (userId, data) {
+    const loadUserData = function (userId: string, data: { cameras: { perspective: { position?: number[]; rotation?: number[] } } }) {
         if (!cameraMesh) {
             cameraMesh = createCameraMesh();
         }
@@ -254,7 +254,7 @@ editor.once('load', () => {
     });
 
     // Remove user who goes offline
-    editor.on('whoisonline:remove', (userId) => {
+    editor.on('whoisonline:remove', (userId: string) => {
         if (userId === config.self.id) {
             return;
         }
@@ -266,7 +266,7 @@ editor.once('load', () => {
     const vecA = new Vec3();
     const vecB = new Vec3();
 
-    editor.on('viewport:update', (dt) => {
+    editor.on('viewport:update', (dt: number) => {
         let render = false;
 
         for (const id in cameras) {

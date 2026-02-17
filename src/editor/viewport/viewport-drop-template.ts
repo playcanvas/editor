@@ -13,7 +13,7 @@ editor.once('load', () => {
 
     editor.call('drop:target', {
         ref: canvas,
-        filter: (type, data) => {
+        filter: (type: string, data: { id: string | number } | { ids: string[] }): boolean => {
             if (type === 'asset.template') {
                 const asset = app.assets.get(data.id);
                 if (asset) {
@@ -39,7 +39,7 @@ editor.once('load', () => {
                 return true;
             }
         },
-        drop: function (type, data) {
+        drop: function (type: string, data: { id: string } | { ids: string[] }) {
             if (!config.scene.id) {
                 return;
             }

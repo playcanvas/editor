@@ -3,7 +3,7 @@ import { ORIENTATION_HORIZONTAL, ORIENTATION_VERTICAL } from '@/core/constants';
 editor.once('load', () => {
     const events = [];
 
-    editor.on('attributes:inspect[entity]', (entities) => {
+    editor.on('attributes:inspect[entity]', (entities: import('@/editor-api').EntityObserver[]) => {
         if (events.length) {
             clear();
         }
@@ -14,14 +14,14 @@ editor.once('load', () => {
         }
     });
 
-    const fixed = function (value) {
+    const fixed = function (value: number): number {
         return +value.toFixed(3);
     };
 
     // update entities stored properties with whatever the realtime element
     // has - that's because depending on the screen size an element might not have
     // the correct properties when inspected so make sure these are right
-    var updateElementProperties = function (entity) {
+    var updateElementProperties = function (entity: import('@/editor-api').EntityObserver): void {
         if (!entity.entity || !entity.has('components.element')) {
             return;
         }
@@ -44,7 +44,7 @@ editor.once('load', () => {
         entity.history.enabled = history;
     };
 
-    const applyProperties = function (entity, pathPrefix, properties) {
+    const applyProperties = function (entity: import('@/editor-api').EntityObserver, pathPrefix: string, properties: Record<string, unknown>): void {
         Object.keys(properties).forEach((key) => {
             const value = properties[key];
             const path = `${pathPrefix}.${key}`;
@@ -56,9 +56,18 @@ editor.once('load', () => {
         });
     };
 
-    var addEvents = function (entity) {
-        const setting = {
-            pos: false,
+    var addEvents = function (entity: import('@/editor-api').EntityObserver): void {
+        const setting: {
+            position?: boolean;
+            anchor?: boolean;
+            pivot?: boolean;
+            size?: boolean;
+            margin?: boolean;
+            text?: boolean;
+            autoWidth?: boolean;
+            autoHeight?: boolean;
+        } = {
+            position: false,
             anchor: false,
             pivot: false,
             size: false,
@@ -68,7 +77,7 @@ editor.once('load', () => {
             autoHeight: false
         };
 
-        events.push(entity.on('*:set', (path, value, valueOld, remote) => {
+        events.push(entity.on('*:set', (path: string, value: unknown, valueOld: unknown, remote?: boolean) => {
             if (remote || !entity.entity || !entity.has('components.element')) {
                 return;
             }
@@ -340,7 +349,7 @@ editor.once('load', () => {
         }));
     };
 
-    var clear = function () {
+    var clear = function (): void {
         for (let i = 0, len = events.length; i < len; i++) {
             events[i].unbind();
         }

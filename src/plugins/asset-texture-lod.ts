@@ -1,3 +1,5 @@
+import type { Observer } from '@playcanvas/observer';
+
 editor.once('plugins:load:asset-texture-lod', () => {
     const app = editor.call('viewport:app');
     if (!app) {
@@ -8,7 +10,7 @@ editor.once('plugins:load:asset-texture-lod', () => {
 
     const slots = ['aoMap', 'diffuseMap', 'emissiveMap', 'glossMap', 'clearCoatMap', 'clearCoatGlossMap', 'clearCoatNormalMap', 'lightMap', 'metalnessMap', 'opacityMap', 'specularMap', 'normalMap'];
 
-    const convertFilter = function (current) {
+    const convertFilter = function (current: Observer) {
         if (!current) {
             return false;
         }
@@ -38,7 +40,7 @@ editor.once('plugins:load:asset-texture-lod', () => {
         items: [{
             text: 'Convert (x2, x4)',
             icon: 'E201',
-            onSelect: function (current) {
+            onSelect: function (current: Observer) {
                 let items = [current];
 
                 if (editor.call('selector:type') === 'asset' && editor.call('selector:items').indexOf(current) !== -1) {
@@ -57,7 +59,7 @@ editor.once('plugins:load:asset-texture-lod', () => {
         }, {
             text: 'Convert (x4, x8)',
             icon: 'E201',
-            onSelect: function (current) {
+            onSelect: function (current: Observer) {
                 let items = [current];
 
                 if (editor.call('selector:type') === 'asset' && editor.call('selector:items').indexOf(current) !== -1) {
@@ -318,7 +320,7 @@ editor.once('plugins:load:asset-texture-lod', () => {
                     return asset.get('type') === 'folder' && asset.get('name') === options.name && asset.get('path').equals(path);
                 });
 
-                const onFolderAvailable = function (folderId) {
+                const onFolderAvailable = function (folderId: number) {
                     let target = editor.call('assets:findOne', (asset) => {
                         const path = asset.get('path');
 
@@ -334,7 +336,7 @@ editor.once('plugins:load:asset-texture-lod', () => {
 
                     let evtTargetAvailable;
 
-                    const onTargetAvailable = function (target) {
+                    const onTargetAvailable = function (target: Observer) {
                         if (evtTargetAvailable) {
                             evtTargetAvailable.unbind();
                             evtTargetAvailable = null;
@@ -359,7 +361,7 @@ editor.once('plugins:load:asset-texture-lod', () => {
 
                         editor.call('status:text', `texture-lod: converting '${name}-${options.name}.${ext}' asset`);
 
-                        const onFileSet = function (value) {
+                        const onFileSet = function (value: unknown) {
                             if (!value) {
                                 return;
                             }

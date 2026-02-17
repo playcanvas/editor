@@ -2,7 +2,7 @@ editor.once('load', () => {
     //  Try to place branches above or below each other
     //  when possible, to save horizontal space
     class CompactBranches {
-        constructor(data) {
+        constructor(data: { idToNode: Record<string, Record<string, unknown>>; branches: Record<string, Record<string, unknown>> }) {
             this.allNodes = Object.values(data.idToNode);
 
             this.branches = data.branches;
@@ -33,7 +33,7 @@ editor.once('load', () => {
             a.forEach(this.handleSrcX, this);
         }
 
-        handleSrcX(src) {
+        handleSrcX(src: number) {
             for (let dst = 1; dst < src; dst++) {
                 if (this.xToLimits[src]) {
                     this.handleSrcDst(src, dst);
@@ -41,7 +41,7 @@ editor.once('load', () => {
             }
         }
 
-        handleSrcDst(src, dst) {
+        handleSrcDst(src: number, dst: number) {
             const h = this.helper('groupByPath', this.xToNodes[src], ['branchId']);
 
             const a = Object.values(h);
@@ -53,7 +53,7 @@ editor.once('load', () => {
             });
         }
 
-        canMove(branch, dst) {
+        canMove(branch: Record<string, unknown>[], dst: number) {
             const rendered = branch.find(h => h.isNodeRendered || h.wasRendered);
 
             if (rendered) {
@@ -66,7 +66,7 @@ editor.once('load', () => {
 
         }
 
-        branchFits(branch, dstLim) {
+        branchFits(branch: Record<string, unknown>[], dstLim: { minYNode: Record<string, unknown>; maxYNode: Record<string, unknown> }) {
             const diff = this.helper('minBetweenNodes').large;
 
             const brLim = this.helper('findLimitNodes', branch);
@@ -85,7 +85,7 @@ editor.once('load', () => {
             );
         }
 
-        moveBranch(branch, dst) {
+        moveBranch(branch: Record<string, unknown>[], dst: number) {
             branch.forEach((h) => {
                 h.hasNewCoords = true;
 
@@ -97,18 +97,18 @@ editor.once('load', () => {
             throw { name: 'CompactIterDone' }; // eslint-disable-line no-throw-literal
         }
 
-        setXToLimit(x) {
+        setXToLimit(x: number) {
             const a = this.xToNodes[x];
 
             this.xToLimits[x] = a && a.length && this.helper('findLimitNodes', a);
         }
 
-        helper(...args) {
+        helper(...args: unknown[]) {
             return editor.call('vcgraph:utils', ...args);
         }
     }
 
-    editor.method('vcgraph:compactBranches', (data) => {
+    editor.method('vcgraph:compactBranches', (data: unknown) => {
         return new CompactBranches(data).run();
     });
 });

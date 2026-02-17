@@ -16,7 +16,7 @@ editor.once('load', () => {
         'components'
     ];
 
-    function addObserverSync(entity) {
+    function addObserverSync(entity: import('@playcanvas/observer').Observer) {
         if (entity.sync) {
             return;
         }

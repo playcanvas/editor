@@ -130,7 +130,7 @@ const ATTRIBUTES: (Attribute | Divider)[] = [{
 }];
 
 class ScrollviewComponentInspector extends ComponentInspector {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.component = 'scrollview';
 
@@ -159,7 +159,7 @@ class ScrollviewComponentInspector extends ComponentInspector {
         this._suppressToggleFields = false;
     }
 
-    _field(name) {
+    _field(name: string) {
         return this._attributesInspector.getField(`components.scrollview.${name}`);
     }
 
@@ -181,7 +181,7 @@ class ScrollviewComponentInspector extends ComponentInspector {
         this._field('horizontalScrollbarVisibility').parent.hidden = !horizontalScrollingEnabled;
     }
 
-    link(entities) {
+    link(entities: import('@playcanvas/observer').Observer[]) {
         super.link(entities);
         this._suppressToggleFields = true;
         this._attributesInspector.link(entities);

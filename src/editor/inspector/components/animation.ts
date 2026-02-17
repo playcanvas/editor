@@ -39,7 +39,7 @@ const ATTRIBUTES: Attribute[] = [{
 const CLASS_BUTTON_PLAY = 'animation-component-inspector-play';
 
 class AnimationComponentInspector extends ComponentInspector {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.component = 'animation';
 
@@ -56,14 +56,14 @@ class AnimationComponentInspector extends ComponentInspector {
         this.append(this._attributesInspector);
     }
 
-    _refreshPlayButtons(entities, assetList) {
+    _refreshPlayButtons(entities: import('@playcanvas/observer').Observer[], assetList: { listItems: { assetId: string; element: import('@playcanvas/pcui').Element }[] }) {
         const listItems = assetList.listItems;
         listItems.forEach((item) => {
             this._addPlayButtonForAnimation(entities, item.assetId, item.element);
         });
     }
 
-    _addPlayButtonForAnimation(entities, assetId, listItem) {
+    _addPlayButtonForAnimation(entities: import('@playcanvas/observer').Observer[], assetId: string, listItem: import('@playcanvas/pcui').Element) {
         // destroy existing button
         const existing = listItem.dom.querySelector(`.${CLASS_BUTTON_PLAY}`);
         if (existing) {
@@ -94,7 +94,7 @@ class AnimationComponentInspector extends ComponentInspector {
         listItem.appendAfter(btn, label);
     }
 
-    _playAnimation(entities, assetId) {
+    _playAnimation(entities: import('@playcanvas/observer').Observer[], assetId: string | number) {
         assetId = parseInt(assetId, 10);
 
         for (let i = 0; i < entities.length; i++) {
@@ -116,7 +116,7 @@ class AnimationComponentInspector extends ComponentInspector {
         }
     }
 
-    _stopAnimation(entities) {
+    _stopAnimation(entities: import('@playcanvas/observer').Observer[]) {
         for (let i = 0; i < entities.length; i++) {
             if (!entities[i].entity || !entities[i].entity.animation) {
                 continue;
@@ -126,7 +126,7 @@ class AnimationComponentInspector extends ComponentInspector {
         }
     }
 
-    link(entities) {
+    link(entities: import('@playcanvas/observer').Observer[]) {
         super.link(entities);
 
         this._attributesInspector.link(entities);

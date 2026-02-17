@@ -1,5 +1,5 @@
 editor.once('load', () => {
-    editor.method('assets:delete:picker', (items) => {
+    editor.method('assets:delete:picker', (items: unknown[]) => {
         if (!editor.call('permissions:write')) {
             return;
         }

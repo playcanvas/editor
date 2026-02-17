@@ -13,11 +13,11 @@ editor.once('load', () => {
     const root = editor.call('layout.attributes');
 
     // get the right path from args
-    const pathAt = function (args, index) {
+    const pathAt = function (args: { path?: string; paths?: string[] }, index: number) {
         return args.paths ? args.paths[index] : args.path;
     };
 
-    const historyState = function (item, state) {
+    const historyState = function (item: Observer, state: boolean) {
         if (item.history !== undefined) {
             if (typeof item.history === 'boolean') {
                 item.history = state;
@@ -174,7 +174,7 @@ editor.once('load', () => {
         });
 
         // Adds asset ids to the list
-        const addAssets = function (assetIds) {
+        const addAssets = function (assetIds: number[]) {
             const records = [];
 
             for (let i = 0; i < link.length; i++) {
@@ -231,7 +231,7 @@ editor.once('load', () => {
         };
 
         // Removes asset id from the list
-        const removeAsset = function (assetId) {
+        const removeAsset = function (assetId: number) {
             const records = [];
 
             for (let i = 0; i < link.length; i++) {
@@ -284,7 +284,7 @@ editor.once('load', () => {
         };
 
         // add asset list item to the list
-        const addAssetListItem = function (assetId, after) {
+        const addAssetListItem = function (assetId: number | string, after: LegacyListItem | null) {
             assetId = parseInt(assetId, 10);
 
             let item = assetIndex[assetId];
@@ -339,7 +339,7 @@ editor.once('load', () => {
         };
 
         // Removes list item for the specified asset id
-        const removeAssetListItem = function (assetId) {
+        const removeAssetListItem = function (assetId: number) {
             const item = assetIndex[assetId];
 
             if (!item) {
@@ -366,7 +366,7 @@ editor.once('load', () => {
         var dropRef = editor.call('drop:target', {
             ref: panelWidget,
             type: `asset.${assetType}`,
-            filter: function (type, data) {
+            filter: function (type: string, data: { id: string }) {
                 // type
                 if ((assetType && assetType !== '*' && type !== `asset.${assetType}`) || !type.startsWith('asset') || editor.call('assets:get', parseInt(data.id, 10)).get('source')) {
                     return false;
@@ -397,7 +397,7 @@ editor.once('load', () => {
 
                 return false;
             },
-            drop: function (type, data) {
+            drop: function (type: string, data: { id: string }) {
                 if ((assetType && assetType !== '*' && type !== `asset.${assetType}`) || !type.startsWith('asset') || editor.call('assets:get', parseInt(data.id, 10)).get('source')) {
                     return;
                 }
@@ -462,9 +462,9 @@ editor.once('load', () => {
             }
         });
 
-        const createInsertHandler = function (index) {
+        const createInsertHandler = function (index: number) {
             const path = pathAt(args, index);
-            return link[index].on(`${path}:insert`, function (assetId, ind) {
+            return link[index].on(`${path}:insert`, function (assetId: number, ind: number) {
                 let before;
                 if (ind === 0) {
                     before = null;
@@ -508,7 +508,7 @@ editor.once('load', () => {
             events.push(link[i].on(`${pathAt(args, i)}:remove`, removeAssetListItem));
         }
 
-        const filterAssets = function (filter) {
+        const filterAssets = function (filter: string) {
             let id;
 
             if (!filter) {

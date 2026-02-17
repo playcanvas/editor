@@ -21,10 +21,10 @@ export type ASTNode = {
 
 /**
  * Tokenizes a string based on the grammar rules below
- * @param {string} str - The expression to tokenize
- * @returns {string[]} An array of tokens
+ * @param str - The expression to tokenize
+ * @returns An array of tokens
  */
-const tokenize = (str) => {
+const tokenize = (str: string): string[] => {
     // This regex captures:
     // - numbers (int or float)
     // - parentheses, punctuation ( ( ) [ ] . )
@@ -47,33 +47,33 @@ const NUM_REGEXP = /^(?:\d*\.\d+|\d+\.\d*|\d+)$/;
 const IDENTIFIER_REGEXP = /^[A-Z_$][\w$]*$/i;
 
 /**
- * @param {string} token - Checks if the token is a number
- * @returns {boolean} true if the token is a number, otherwise false
+ * @param token - Checks if the token is a number
+ * @returns true if the token is a number, otherwise false
  */
-const isNumber = token => NUM_REGEXP.test(token);
+const isNumber = (token: string): boolean => NUM_REGEXP.test(token);
 
 /**
- * @param {string} token - Checks if the token is a string
- * @returns {boolean} true if the token is a string, false otherwise
+ * @param token - Checks if the token is a string
+ * @returns true if the token is a string, false otherwise
  */
-const isString = token => (
+const isString = (token: string): boolean => (
     (token.startsWith('"') && token.endsWith('"')) ||
     (token.startsWith('\'') && token.endsWith('\''))
 );
 
 /**
  * Assumes string has quotation marks, and removes them
- * @param {string} token - The string to parse
- * @returns {string} returns the string without quotes
+ * @param token - The string to parse
+ * @returns the string without quotes
  */
-const parseString = token => token.slice(1, -1);
+const parseString = (token: string): string => token.slice(1, -1);
 
 /**
  * Checks if the token is a identifier, such as a variable
- * @param {string} token - The token to check
- * @returns {boolean} returns true if the token is a identifier, false otherwise
+ * @param token - The token to check
+ * @returns true if the token is a identifier, false otherwise
  */
-const isIdentifier = token => IDENTIFIER_REGEXP.test(token);
+const isIdentifier = (token: string): boolean => IDENTIFIER_REGEXP.test(token);
 
 /**
  * Parses an array of tokens into an AST.
@@ -91,10 +91,10 @@ const isIdentifier = token => IDENTIFIER_REGEXP.test(token);
  * member     -> primary ("." identifier | "[" expression "]")*
  * primary    -> NUMBER | STRING | true | false | identifier | "(" expression ")"
  *
- * @param {string[]} tokens - The array of tokens to parse
- * @returns {ASTNode} - The parsed AST
+ * @param tokens - The array of tokens to parse
+ * @returns The parsed AST
  */
-const parseTokens = (tokens) => {
+const parseTokens = (tokens: string[]): ASTNode => {
 
     let position = 0;
 
@@ -104,7 +104,7 @@ const parseTokens = (tokens) => {
     const peek = () => tokens[position];
     const isAtEnd = () => position >= tokens.length;
 
-    const match = (...expected) => {
+    const match = (...expected: string[]) => {  // rest params in arrow - typedef applies to function expressions
         if (!isAtEnd() && expected.includes(peek())) {
             position++;
             return true;
@@ -185,14 +185,14 @@ const parseTokens = (tokens) => {
         return parseMember();
     }
 
-    function consume(expected, errorMsg) {
+    function consume(expected: string, errorMsg: string) {
         if (check(expected)) {
             return advance();
         }
         throw new Error(`${errorMsg} (found '${peek() ?? 'EOF'}')`);
     }
 
-    function consumeIdentifier(msg) {
+    function consumeIdentifier(msg: string) {
         const t = peek();
         if (isIdentifier(t)) {
             advance();
@@ -201,7 +201,7 @@ const parseTokens = (tokens) => {
         throw new Error(`${msg} (found '${t ?? 'EOF'}')`);
     }
 
-    function check(tokenVal) {
+    function check(tokenVal: string) {
         if (isAtEnd()) {
             return false;
         }

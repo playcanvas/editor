@@ -1,8 +1,9 @@
 import type { Observer, ObserverList } from '@playcanvas/observer';
 import { Element, TreeView, TreeViewItem, Container } from '@playcanvas/pcui';
 
-import { getMap, searchItems } from '../search/search-advanced';
+import type { DropTarget } from '@/common/pcui/element/element-drop-target';
 
+import { getMap, searchItems } from '../search/search-advanced';
 
 const CLASS_ROOT = 'entities-treeview';
 const CLASS_COMPONENT_ICON = 'component-icon-postfix';
@@ -18,7 +19,7 @@ const CLASS_FILTER_RESULT = `${CLASS_FILTERING}-result`;
  * Represents the Entity TreeView that shows the Scene hierarchy.
  */
 class EntitiesTreeView extends TreeView {
-    constructor(args) {
+    constructor(args?: Record<string, unknown>) {
         if (!args) {
             args = {};
         }
@@ -81,13 +82,13 @@ class EntitiesTreeView extends TreeView {
         this.writePermissions = !!args.writePermissions;
     }
 
-    _onRename(item, name) {
+    _onRename(item: TreeViewItem & { entity?: Observer }, name: string) {
         if (item.entity) {
             item.entity.set('name', name);
         }
     }
 
-    _onReparent(reparentedItems) {
+    _onReparent(reparentedItems: Array<{ item: TreeViewItem & { entity: Observer }; newParent: TreeViewItem & { entity: Observer }; newChildIndex: number }>) {
         // do not allow entities part of a template to be dragged out
         // of the template root
         const newParentTemplates = {};
@@ -138,7 +139,7 @@ class EntitiesTreeView extends TreeView {
         editor.call('viewport:render');
     }
 
-    _onStartDrag(dragItems) {
+    _onStartDrag(dragItems: Array<TreeViewItem & { entity: Observer }>) {
         // activate the drop manager when we start dragging an entity
         editor.call('drop:set', 'entity', {
             resource_id: dragItems[0].entity.get('resource_id')
@@ -152,7 +153,7 @@ class EntitiesTreeView extends TreeView {
         editor.call('drop:set');
     }
 
-    _onSelectEntityItem(item) {
+    _onSelectEntityItem(item: TreeViewItem & { entity: Observer }) {
         if (this._suspendSelectionEvents) {
             return;
         }
@@ -161,7 +162,7 @@ class EntitiesTreeView extends TreeView {
         editor.call('selector:add', 'entity', item.entity);
     }
 
-    _onDeselectEntityItem(item) {
+    _onDeselectEntityItem(item: TreeViewItem & { entity: Observer }) {
         if (this._suspendSelectionEvents) {
             return;
         }
@@ -170,7 +171,7 @@ class EntitiesTreeView extends TreeView {
         editor.call('selector:remove', item.entity);
     }
 
-    _onSelectorChange(type, entities) {
+    _onSelectorChange(type: string, entities: Observer[]) {
         if (type !== 'entity') {
             this._suspendSelectionEvents = true;
             this.deselect();
@@ -210,7 +211,7 @@ class EntitiesTreeView extends TreeView {
     }
 
     // Called when we receive the selection of a remote user
-    _onSelectorSync(user, data) {
+    _onSelectorSync(user: string, data: { type?: string; ids?: string[] }) {
         // remove existing selection markers for user
         if (this._userSelectionMarkers[user]) {
             this._userSelectionMarkers[user].markers.forEach((marker) => {
@@ -259,7 +260,7 @@ class EntitiesTreeView extends TreeView {
         });
     }
 
-    _onUserOffline(userId) {
+    _onUserOffline(userId: string) {
         if (!this._userSelectionMarkers[userId]) {
             return;
         }
@@ -289,7 +290,7 @@ class EntitiesTreeView extends TreeView {
         this.dom.removeEventListener('mouseleave', this._domEvtEntitiesMouseLeave);
     }
 
-    _onEntitiesMouseEnter(evt) {
+    _onEntitiesMouseEnter(evt: MouseEvent) {
         this._dropType = this._dropManager.dropType;
         this._dropData = this._dropManager.dropData;
         if (!this._isDraggingValidAssetType(this._dropType, this._dropData)) {
@@ -303,7 +304,7 @@ class EntitiesTreeView extends TreeView {
         }
     }
 
-    _onEntitiesMouseUp(evt) {
+    _onEntitiesMouseUp(evt: MouseEvent) {
         window.removeEventListener('mouseup', this._domEvtEntitiesMouseUp);
 
         if (!this.isDragging) {
@@ -335,7 +336,7 @@ class EntitiesTreeView extends TreeView {
         this._instantiateDraggedAssets(dragOverItem, dragArea, dropType, dropData);
     }
 
-    _selectEntitiesById(entityIds) {
+    _selectEntitiesById(entityIds: string[]) {
         const entities = entityIds.map(id => this._entities.get(id)).filter(entity => entity);
         if (entities.length) {
             editor.call('selector:history', false);
@@ -346,14 +347,14 @@ class EntitiesTreeView extends TreeView {
         }
     }
 
-    _getSearchFilterMap(searchArr, key) {
+    _getSearchFilterMap(searchArr: [string, TreeViewItem][], key: string) {
         this.searchFilterMap[key] = getMap(searchArr, key);
 
         return this.searchFilterMap[key];
     }
 
     // Override PCUI function
-    _searchItems(rawArray: TreeViewItem[], filter) {
+    _searchItems(rawArray: TreeViewItem[], filter: string) {
         const searchArr = rawArray.map(item => [item.text, item]);
 
         let results = [];
@@ -378,19 +379,19 @@ class EntitiesTreeView extends TreeView {
         });
     }
 
-    setFilter(key, value) {
+    setFilter(key: string, value: boolean) {
         this.searchFilters[key] = value;
     }
 
-    setFuzzy(value) {
+    setFuzzy(value: boolean) {
         this.fuzzy = value;
     }
 
-    getFilter(key) {
+    getFilter(key: string) {
         return this.searchFilters[key];
     }
 
-    _instantiateDraggedAssets(dragOverItem, dragArea, dropType, dropData) {
+    _instantiateDraggedAssets(dragOverItem: TreeViewItem & { entity: Observer; parent: TreeViewItem & { entity: Observer }; dom: HTMLElement }, dragArea: string, dropType: string, dropData: { id?: string; ids?: string[] }) {
         let parent = dragOverItem.entity;
         let childIndex;
 
@@ -489,7 +490,7 @@ class EntitiesTreeView extends TreeView {
         redo();
     }
 
-    _instantiateDraggedTemplateAssets(assets, parentEntity, childIndex, callback) {
+    _instantiateDraggedTemplateAssets(assets: Observer[], parentEntity: Observer, childIndex: number | undefined, callback: (entityIds: string[]) => void) {
         if (childIndex === null || childIndex === undefined) {
             childIndex = parentEntity.get('children').length;
         }
@@ -503,7 +504,7 @@ class EntitiesTreeView extends TreeView {
         });
     }
 
-    _instantiateDraggedModelAsset(asset, parentEntity, childIndex) {
+    _instantiateDraggedModelAsset(asset: Observer, parentEntity: Observer, childIndex: number) {
         const component = editor.call('components:getDefault', 'model');
         component.type = 'asset';
         component.asset = parseInt(asset.get('id'), 10);
@@ -531,7 +532,7 @@ class EntitiesTreeView extends TreeView {
         return newEntity.get('resource_id');
     }
 
-    _instantiateDraggedSpriteAsset(asset, parentEntity, childIndex) {
+    _instantiateDraggedSpriteAsset(asset: Observer, parentEntity: Observer, childIndex: number) {
         const component = editor.call('components:getDefault', 'sprite');
         const name = asset.get('name') || 'Untitled';
 
@@ -566,7 +567,7 @@ class EntitiesTreeView extends TreeView {
         return newEntity.get('resource_id');
     }
 
-    _onEntitiesMouseLeave(evt) {
+    _onEntitiesMouseLeave(evt: MouseEvent) {
         window.removeEventListener('mouseup', this._domEvtEntitiesMouseUp);
 
         const dropType = this._dropType;
@@ -578,7 +579,7 @@ class EntitiesTreeView extends TreeView {
         }
     }
 
-    _isDraggingValidAssetType(dropType, dropData) {
+    _isDraggingValidAssetType(dropType: string, dropData: { id?: string; ids?: string[] }) {
         if (!this._writePermissions) {
             return false;
         }
@@ -603,10 +604,10 @@ class EntitiesTreeView extends TreeView {
     /**
      * Returns whether any parent in the entity's hierarchy is disabled.
      *
-     * @param {Observer} entity - The entity to check.
-     * @returns {boolean} True if a parent is disabled, false otherwise.
+     * @param entity - The entity to check.
+     * @returns True if a parent is disabled, false otherwise.
      */
-    _isParentDisabled(entity) {
+    _isParentDisabled(entity: Observer): boolean {
         let parentId = entity.get('parent');
         while (parentId) {
             const parent = this._entities.get(parentId);
@@ -626,12 +627,12 @@ class EntitiesTreeView extends TreeView {
      * The visual state reflects whether the entity is effectively enabled in the hierarchy
      * (its own enabled flag AND all parents being enabled).
      *
-     * @param {Observer} entity - The entity whose tree item to update.
-     * @param {boolean} [parentDisabled] - Whether a parent in the hierarchy is disabled.
+     * @param entity - The entity whose tree item to update.
+     * @param parentDisabled - Whether a parent in the hierarchy is disabled.
      * If not provided, it will be calculated.
-     * @param {boolean} [recurse] - Whether to recursively update descendants.
+     * @param recurse - Whether to recursively update descendants.
      */
-    _updateTreeItemEnabledState(entity, parentDisabled, recurse = false) {
+    _updateTreeItemEnabledState(entity: Observer, parentDisabled?: boolean, recurse: boolean = false): void {
         const item = this.getTreeItemForEntity(entity.get('resource_id'));
         if (!item) {
             return;
@@ -651,7 +652,7 @@ class EntitiesTreeView extends TreeView {
         }
     }
 
-    _onAddEntity(entity) {
+    _onAddEntity(entity: Observer) {
         const resourceId = entity.get('resource_id');
         if (this._treeItemIndex[resourceId]) {
             return this._treeItemIndex[resourceId];
@@ -821,7 +822,7 @@ class EntitiesTreeView extends TreeView {
         return treeViewItem;
     }
 
-    _resetTemplateIcons(entity) {
+    _resetTemplateIcons(entity: Observer) {
         const item = this.getTreeItemForEntity(entity.get('resource_id'));
 
         if (item) {
@@ -850,7 +851,7 @@ class EntitiesTreeView extends TreeView {
         }
     }
 
-    _onRemoveEntity(entity) {
+    _onRemoveEntity(entity: Observer) {
         const resourceId = entity.get('resource_id');
         const events = this._eventsEntity[resourceId];
         if (events) {
@@ -886,10 +887,10 @@ class EntitiesTreeView extends TreeView {
     /**
      * Gets the tree view item that displays the entity with the specified id.
      *
-     * @param {string} resourceId - The entity resource id.
-     * @returns {TreeViewItem} The tree view item.
+     * @param resourceId - The entity resource id.
+     * @returns The tree view item.
      */
-    getTreeItemForEntity(resourceId) {
+    getTreeItemForEntity(resourceId: string): TreeViewItem | null {
         const item = this._treeItemIndex[resourceId];
         return item && !item.destroyed ? item : null;
     }
@@ -897,9 +898,9 @@ class EntitiesTreeView extends TreeView {
     /**
      * Highlight the tree view item for the entity with the specified id.
      *
-     * @param {string} resourceId - The entity resource id.
+     * @param resourceId - The entity resource id.
      */
-    highlightEntity(resourceId) {
+    highlightEntity(resourceId: string): void {
         const item = this.getTreeItemForEntity(resourceId);
         if (item) {
             item.class.add(CLASS_HIGHLIGHT);
@@ -909,9 +910,9 @@ class EntitiesTreeView extends TreeView {
     /**
      * Unhighlight the tree view item for the entity with the specified id.
      *
-     * @param {string} resourceId - The entity resource id.
+     * @param resourceId - The entity resource id.
      */
-    unhighlightEntity(resourceId) {
+    unhighlightEntity(resourceId: string): void {
         const item = this.getTreeItemForEntity(resourceId);
         if (item) {
             item.class.remove(CLASS_HIGHLIGHT);
@@ -921,10 +922,10 @@ class EntitiesTreeView extends TreeView {
     /**
      * Creates a drop target for the tree view.
      *
-     * @param {Element} targetElement - The element that activates the drop target.
-     * @returns {DropTarget} The drop target.
+     * @param targetElement - The element that activates the drop target.
+     * @returns The drop target.
      */
-    createDropTarget(targetElement) {
+    createDropTarget(targetElement: Element): DropTarget {
         const dropTarget = editor.call('drop:target', {
             ref: targetElement,
             filter: (dropType, dropData) => {
@@ -975,9 +976,9 @@ class EntitiesTreeView extends TreeView {
     /**
      * Restores the expanded state of an entity and its children.
      *
-     * @param {object} state - The expanded state returned from getExpandedState()
+     * @param state - The expanded state returned from getExpandedState()
      */
-    restoreExpandedState(state) {
+    restoreExpandedState(state: Record<string, boolean>): void {
         for (const resourceId in state) {
             const item = this.getTreeItemForEntity(resourceId);
             if (item) {
@@ -1033,7 +1034,7 @@ class EntitiesTreeView extends TreeView {
         return this._entities;
     }
 
-    set writePermissions(value) {
+    set writePermissions(value: boolean) {
         if (this._writePermissions === value) {
             return;
         }

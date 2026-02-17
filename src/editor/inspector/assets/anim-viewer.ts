@@ -1,5 +1,7 @@
 import { Container, Canvas, Label, Button, SliderInput } from '@playcanvas/pcui';
 import {
+    type AnimTrack,
+    type Application,
     BLEND_NORMAL,
     BoundingBox,
     BUFFER_DYNAMIC,
@@ -50,7 +52,7 @@ class Skeleton {
         [-0.5, 0.3, 0], [0, 0.3, -0.5]
     ];
 
-    constructor(app, entity, color) {
+    constructor(app: Application, entity: Entity, color?: Color) {
         const device = app.graphicsDevice;
         this._app = app;
         this._entity = entity;
@@ -83,7 +85,7 @@ class Skeleton {
         this._boundingBox = new BoundingBox(new Vec3(), new Vec3(0.1, 0.1, 0.1));
     }
 
-    setColor(color) {
+    setColor(color: Color) {
         this._material.color = color;
         this._material.update();
     }
@@ -96,7 +98,7 @@ class Skeleton {
         return this._boundingBox;
     }
 
-    _createBone(v0, v1) {
+    _createBone(v0: Vec3, v1: Vec3) {
         // Check if adding this bone would exceed the vertex buffer capacity
         const verticesPerBone = Skeleton._unitBone.length;
         if (this._vertexCount + verticesPerBone > this._maxVertexCount) {
@@ -155,7 +157,7 @@ class Skeleton {
         }
     }
 
-    _createSkeleton(entity) {
+    _createSkeleton(entity: Entity) {
         entity.children.forEach((c) => {
             if (![entity.name, c.name].includes('RootNode')) {
                 this._createBone(entity.getPosition(), c.getPosition());
@@ -166,7 +168,7 @@ class Skeleton {
 }
 
 class AnimViewer extends Container {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         super(args);
 
         this._shownError = false;
@@ -267,7 +269,7 @@ class AnimViewer extends Container {
         });
     }
 
-    displayMessage(text) {
+    displayMessage(text: string) {
         this.clearView();
         this._messageLabel.text = text;
         this._messageLabel.hidden = false;
@@ -289,7 +291,7 @@ class AnimViewer extends Container {
         this._playButton.text = 'Play';
     }
 
-    set showSkeleton(value) {
+    set showSkeleton(value: boolean) {
         this._showSkeleton = value;
         if (!this._playing) {
             this.render(0);
@@ -300,7 +302,7 @@ class AnimViewer extends Container {
         return this._showSkeleton;
     }
 
-    set showModel(value) {
+    set showModel(value: boolean) {
         this._showModel = value;
         if (!this._playing) {
             this.render(0);
@@ -399,7 +401,7 @@ class AnimViewer extends Container {
         this.hideMessage();
     }
 
-    loadView(animTrack, entity) {
+    loadView(animTrack: AnimTrack, entity: Entity) {
         this.clearView();
         if (!animTrack) {
             this.displayMessage('No animation track provided.');
@@ -525,7 +527,7 @@ class AnimViewer extends Container {
         requestAnimationFrame(renderStep);
     }
 
-    render(dt) {
+    render(dt: number) {
         if (this._entity) {
             this._entity.anim.layers[0].update(dt);
         }

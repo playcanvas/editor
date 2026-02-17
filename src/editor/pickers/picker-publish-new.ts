@@ -71,7 +71,7 @@ editor.once('load', () => {
         }
     };
 
-    const setAppImage = function (url) {
+    const setAppImage = function (url: string) {
         imageField.classList.remove('progress');
         imageField.classList.remove('blank');
         imageField.style.backgroundImage = `url("${url}")`;
@@ -628,7 +628,7 @@ editor.once('load', () => {
         btnWebDownload.disabled = disabled;
     };
 
-    const createSceneItem = function (scene) {
+    const createSceneItem = function (scene: Record<string, unknown>) {
         const row = new LegacyListItem();
         row.element.id = `picker-scene-${scene.id}`;
         row.sceneId = scene.id;

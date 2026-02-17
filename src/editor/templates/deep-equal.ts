@@ -1,6 +1,12 @@
 editor.once('load', () => {
     class DeepEqual {
-        constructor(node1, node2) {
+        node1: unknown;
+
+        node2: unknown;
+
+        bothNodes: unknown[];
+
+        constructor(node1: unknown, node2: unknown) {
             this.node1 = node1;
 
             this.node2 = node2;
@@ -35,7 +41,7 @@ editor.once('load', () => {
             return sameLen && this.compareMapsRecursively(keys1);
         }
 
-        compareMapsRecursively(keys1) {
+        compareMapsRecursively(keys1: string[]): boolean {
             return keys1.every((k1) => {
                 return this.node2.hasOwnProperty(k1) &&
                     new DeepEqual(this.node1[k1], this.node2[k1]).run();
@@ -57,7 +63,7 @@ editor.once('load', () => {
             });
         }
 
-        areBothMaps() {
+        areBothMaps(): boolean {
             return this.bothNodes.every((h) => {
                 return editor.call('template:utils', 'isMapObj', h);
             });
@@ -72,11 +78,11 @@ editor.once('load', () => {
      * Perform a deep comparison of two nodes consisting of
      * objects, arrays and scalar values.
      *
-     * @param {object} node1 - First object to compare
-     * @param {object} node2 - Second object to compare
-     * @returns {boolean} True if the nodes are deep-equal
+     * @param node1 - First object to compare
+     * @param node2 - Second object to compare
+     * @returns True if the nodes are deep-equal
      */
-    editor.method('assets:isDeepEqual', (node1, node2) => {
+    editor.method('assets:isDeepEqual', (node1: unknown, node2: unknown): boolean => {
         return new DeepEqual(node1, node2).run();
     });
 });

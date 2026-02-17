@@ -60,9 +60,9 @@ function gatherDependencies(entity: Entity, data: Record<string, any>) {
     if (!ASSET_PATHS) {
         // get asset paths for all components
         ASSET_PATHS = [];
-        api.schema.components.list().forEach((component) => {
+        api.schema.components.list().forEach((component: string) => {
             const paths = api.schema.components.getFieldsOfType(component, 'asset');
-            paths.forEach((path) => {
+            paths.forEach((path: string) => {
                 ASSET_PATHS.push(`components.${component}.${path}`);
             });
         });
@@ -206,7 +206,7 @@ function gatherDependencies(entity: Entity, data: Record<string, any>) {
 
 // Sorts entities by their index in their parent's children list
 function sortEntities(entities: Entity[]) {
-    entities.sort((a, b) => {
+    entities.sort((a: Entity, b: Entity) => {
         let parentA = a.get('parent');
         if (!parentA) {
             return -1;
@@ -249,7 +249,7 @@ function copyEntities(entities: Entity[]) {
 
     // build index
     const selection: Record<string, Entity> = Object.fromEntries(
-        entities.map(entity => [entity.get('resource_id'), entity])
+        entities.map((entity: Entity) => [entity.get('resource_id'), entity])
     );
     const resourceIds = Object.keys(selection);
 

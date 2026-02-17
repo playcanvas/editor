@@ -19,10 +19,7 @@ class Tooltip extends Container {
     /**
      * Creates new tooltip.
      *
-     * @param {object} [args] - The arguments.
-     * @param {string} [args.id] - The element id.
-     * @param {number} [args.delay] - The delay in milliseconds before the tooltip is shown.
-     * @param {number} [args.margin] - The margin in pixels between the tooltip and the target element.
+     * @param args - The arguments.
      */
     constructor({ id, delay, margin }: { id?: string, delay?: number, margin?: number } = {}) {
         super({
@@ -57,15 +54,13 @@ class Tooltip extends Container {
     }
 
     /**
-     * @param {'top'|'bottom'|'left'|'right'} align - The side of the tooltip that is aligned to the
-     * target element.
-     * @param {Element} horzAlignEl - The tooltip will use this element to align itself horizontally
+     * @param align - The side of the tooltip that is aligned to the target element.
+     * @param horzAlignEl - The tooltip will use this element to align itself horizontally
      * depending on the {@link Tooltip#align } property.
-     * @param {Element} vertAlignEl - The tooltip will use this element to align itself vertically
+     * @param vertAlignEl - The tooltip will use this element to align itself vertically
      * depending on the {@link Tooltip#align} property.
-     * @private
      */
-    _realign(align, horzAlignEl, vertAlignEl) {
+    private _realign(align: 'top' | 'bottom' | 'left' | 'right', horzAlignEl: Element, vertAlignEl: Element) {
         if (!horzAlignEl || horzAlignEl.destroyed) {
             return;
         }
@@ -131,14 +126,8 @@ class Tooltip extends Container {
     /**
      * Attaches the tooltip to a target element.
      *
-     * @param {object} args - The arguments
-     * @param {Container} args.container - The tooltip element.
-     * @param {Element} args.target - The target element.
-     * @param {Element} [args.horzAlignEl] - The tooltip will use this element to
-     * align itself horizontally depending on the Tooltip#align property.
-     * @param {Element} [args.vertAlignEl] - The tooltip will use this element to align
-     * @param {'top'|'bottom'|'left'|'right'} [args.align] - The side of the tooltip that is aligned to the target element.
-     * @returns {Tooltip} The tooltip.
+     * @param args - The arguments
+     * @returns The tooltip.
      */
     attach({
         container,
@@ -218,17 +207,17 @@ class Tooltip extends Container {
     /**
      * Detaches the tooltip from a target element.
      *
-     * @param {Element} target - The target element.
-     * @returns {Tooltip} The tooltip.
+     * @param target - The target element.
+     * @returns The tooltip.
      */
-    detach(target) {
+    detach(target: Element): Tooltip {
         const data = this._targets.get(target);
         if (!data) {
             return this;
         }
         const { container, arrow, events }  = data;
 
-        events.forEach(evt => evt.unbind());
+        events.forEach((evt: EventHandle) => evt.unbind());
         arrow.remove();
         this.remove(container);
         this._targets.delete(target);

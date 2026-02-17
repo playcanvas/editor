@@ -10,7 +10,7 @@ const CLASS_BUTTON_PLAYING = `${CLASS_ROOT}-button-playing`;
 const CLASS_CANVAS = 'pcui-asset-preview-canvas';
 
 class SpriteAssetInspectorPreview extends AssetInspectorPreviewBase {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         super(args);
 
         this.class.add(CLASS_ROOT);
@@ -85,7 +85,7 @@ class SpriteAssetInspectorPreview extends AssetInspectorPreviewBase {
         }
     }
 
-    link(assets) {
+    link(assets: import('@playcanvas/observer').Observer[]) {
         super.link(assets);
         this._previewRenderer = new SpriteThumbnailRenderer(assets[0], this._preview.dom, editor.call('assets:raw'));
         this._spriteFrames = assets[0].get('data.frameKeys').length;

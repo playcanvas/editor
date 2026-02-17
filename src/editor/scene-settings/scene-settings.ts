@@ -49,7 +49,7 @@ editor.once('load', () => {
 
         // migrate entities
         // NOTE: Defaults are set so we need to force the update
-        const migrateEntity = (entity) => {
+        const migrateEntity = (entity: import('@playcanvas/observer').Observer) => {
             // Defeer the migration to the next frame to ensure entity document has been created
             setTimeout(() => {
                 entity.history.enabled = false;
@@ -107,7 +107,7 @@ editor.once('load', () => {
         settings.on('render.tonemapping:set', migrateCameraSettings);
     }
 
-    editor.on('sceneSettings:load', (settings) => {
+    editor.on('sceneSettings:load', (settings: import('@playcanvas/observer').Observer) => {
         // sync scene settings
         if (!settings.sync) {
             settings.sync = new ObserverSync({
@@ -116,12 +116,12 @@ editor.once('load', () => {
             });
 
             // client > server
-            settings.sync.on('op', (op) => {
+            settings.sync.on('op', (op: unknown) => {
                 editor.call('realtime:scene:op', op);
             });
 
             // server > client
-            editor.on('realtime:scene:op:settings', (op) => {
+            editor.on('realtime:scene:op:settings', (op: unknown) => {
                 settings.sync.write(op);
             });
         }

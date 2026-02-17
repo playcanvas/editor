@@ -18,7 +18,7 @@ const ATTRIBUTES: Attribute[] = [{
 }];
 
 class BatchGroupsSettingsPanel extends BaseSettingsPanel {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.headerText = 'BATCH GROUPS';
         args.attributes = ATTRIBUTES;
@@ -68,7 +68,7 @@ class BatchGroupsSettingsPanel extends BaseSettingsPanel {
         });
     }
 
-    removeItem(groupId) {
+    removeItem(groupId: string) {
         let projectSettings = this._projectSettings;
         const oldValue = projectSettings.get(`batchGroups.${groupId}`);
         const affectedModels = [];
@@ -153,7 +153,7 @@ class BatchGroupsSettingsPanel extends BaseSettingsPanel {
         this._items = [];
     }
 
-    _loadItems(initialLoad = false) {
+    _loadItems(initialLoad: boolean = false) {
         const batchGroups = this._projectSettings.get('batchGroups') || {};
         // remove batch group panel items that are no longer in project settings
         const keepItems = [];

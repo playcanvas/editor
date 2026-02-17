@@ -16,7 +16,7 @@ editor.once('load', () => {
     const regexI18n = /^i18n\.[^.]+$/;
 
     // add assets to asset registry
-    editor.on('assets:add', (asset) => {
+    editor.on('assets:add', (asset: import('@playcanvas/observer').Observer) => {
         // do only for target assets
         if (asset.get('source')) {
             return;
@@ -33,7 +33,7 @@ editor.once('load', () => {
         });
 
         // when data is changed
-        asset.on('*:set', (path, value) => {
+        asset.on('*:set', (path: string, value: unknown) => {
 
             // handle i18n changes
             if (regexI18n.test(path)) {
@@ -69,7 +69,7 @@ editor.once('load', () => {
             editor.call('viewport:render');
         });
 
-        asset.on('*:unset', (path) => {
+        asset.on('*:unset', (path: string) => {
             if (regexI18n.test(path)) {
                 const parts = path.split('.');
                 assetEngine.removeLocalizedAssetId(parts[1]);
@@ -115,14 +115,14 @@ editor.once('load', () => {
     });
 
     // remove assets from asset registry
-    editor.on('assets:remove', (asset) => {
+    editor.on('assets:remove', (_asset: import('@playcanvas/observer').Observer) => {
         // re-render
         editor.call('viewport:render');
     });
 
     // patch update for materials to re-render the viewport
-    const update = StandardMaterial.prototype.update;
-    StandardMaterial.prototype.update = function () {
+    const update = StandardMaterial.prototype.update as (this: import('playcanvas').StandardMaterial) => void;
+    StandardMaterial.prototype.update = function (this: import('playcanvas').StandardMaterial): void {
         update.call(this);
         editor.call('viewport:render');
     };

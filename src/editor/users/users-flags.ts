@@ -16,7 +16,7 @@ editor.once('load', () => {
         return (config.self && config.self.flags.superUser);
     });
 
-    editor.method('users:hasFlag', (flag) => {
+    editor.method('users:hasFlag', (flag: string) => {
         if (WHITELISTED_FOR_EVERYONE[flag]) {
             return true;
         }

@@ -97,7 +97,7 @@ const createAttributesPanel = () => {
     return attributesPanel;
 };
 
-const createSecondaryAttributesPanel = (hierarchyPanel) => {
+const createSecondaryAttributesPanel = (hierarchyPanel: { width: number }) => {
     const attributesSecondaryPanel = new Panel({
         headerText: 'INSPECTOR',
         id: 'layout-attributes-secondary',
@@ -134,7 +134,7 @@ editor.on('load', () => {
     const ignoreElements = /input|textarea/i;
 
     // don't prevent for certain cases
-    const shouldNotPrevent = (ignoreClasses, evt) => {
+    const shouldNotPrevent = (ignoreClasses: RegExp, evt: MouseEvent) => {
         if (evt.target) {
             if (ignoreClasses.test(evt.target.className)) {
                 return true;
@@ -151,7 +151,7 @@ editor.on('load', () => {
     };
 
     // prevent drag'n'select
-    window.addEventListener('mousedown', (evt) => {
+    window.addEventListener('mousedown', (evt: MouseEvent) => {
         if (shouldNotPrevent(ignoreMouseDownClasses, evt)) {
             return;
         }
@@ -174,7 +174,7 @@ editor.on('load', () => {
 
 
     // prevent default context menu
-    window.addEventListener('contextmenu', (evt) => {
+    window.addEventListener('contextmenu', (evt: MouseEvent) => {
         if (shouldNotPrevent(ignoreContextMenuClasses, evt)) {
             return;
         }
@@ -242,7 +242,7 @@ editor.on('load', () => {
     editor.method('layout.attributes', () => {
         return attributesPanel;
     });
-    editor.on('permissions:writeState', (state) => {
+    editor.on('permissions:writeState', (state: boolean) => {
         attributesPanel.enabled = state;
     });
 

@@ -51,7 +51,7 @@ editor.on('load', () => {
     const root = editor.call('layout.root');
     root.append(overlay);
 
-    const keyDown = (evt) => {
+    const keyDown = (evt: KeyboardEvent) => {
         if (overlay.hidden) {
             return;
         }
@@ -98,11 +98,11 @@ editor.on('load', () => {
     });
 
     /**
-     * @param {Set<number>} fixes - Set of asset ids that have sRGB fixable issues
-     * @param {Set<number>} conflicts - Set of asset ids that have sRGB conflicts
-     * @returns {HTMLElement} - UI element
+     * @param fixes - Set of asset ids that have sRGB fixable issues
+     * @param conflicts - Set of asset ids that have sRGB conflicts
+     * @returns UI element
      */
-    const textureUI = (fixes, conflicts) => {
+    const textureUI = (fixes: Set<number>, conflicts: Set<number>): HTMLElement => {
         const root = document.createElement('div');
 
         const title = document.createElement('div');

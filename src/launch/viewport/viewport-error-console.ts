@@ -7,10 +7,10 @@ editor.once('load', () => {
 
     let errorCount = 0;
 
-    panel.addEventListener('mousedown', (evt) => {
+    panel.addEventListener('mousedown', (evt: MouseEvent) => {
         evt.stopPropagation();
     }, false);
-    panel.addEventListener('click', (evt) => {
+    panel.addEventListener('click', (evt: MouseEvent) => {
         evt.stopPropagation();
     }, false);
 
@@ -32,13 +32,13 @@ editor.once('load', () => {
     let stopLogs = false;
 
     // open the code editor external editor
-    const idePromise = new Promise((resolve) => {
+    const idePromise = new Promise<string>((resolve) => {
         editor.on('settings:projectUser:load', (data) => {
             resolve(data.editor.codeEditor);
         });
     });
 
-    const append = function (msg, cls) {
+    const append = function (msg: string, cls?: string) {
         if (stopLogs) {
             return;
         }
@@ -80,7 +80,7 @@ editor.once('load', () => {
         return element;
     };
 
-    const onError = async function (msg, url, line, col, e) {
+    const onError = async function (msg: string, url: string | undefined, line: number, col: number, e?: Error) {
         const ide = await idePromise;
         if (url) {
             // check if this is a playcanvas script
@@ -139,7 +139,7 @@ editor.once('load', () => {
 
             if (assetId) {
                 const link = document.getElementById(`error-${errorCount}`);
-                link.addEventListener('click', (e) => {
+                link.addEventListener('click', (e: MouseEvent) => {
                     // if the IDE is vscode or cursor, open the code editor in a new tab
                     switch (ide) {
                         case 'vscode':
@@ -194,11 +194,11 @@ editor.once('load', () => {
 
     // redirect console.error to the in-game console
     const consoleError = console.error;
-    console.error = function (...args) {
+    console.error = function (...args: unknown[]) {
         let errorPassed = false;
         consoleError(...args);
 
-        args.forEach((item) => {
+        args.forEach((item: unknown) => {
             if (item instanceof Error && item.stack) {
                 const msg = item.message;
                 const lines = item.stack.split('\n');

@@ -1,6 +1,6 @@
 import { WorkerServer } from '@/core/worker/worker-server';
 
-const search = (id, text, query) => {
+const search = (id: string, text: string, query: RegExp) => {
     const results = {
         id,
         matches: []
@@ -77,7 +77,7 @@ const search = (id, text, query) => {
 };
 
 const workerServer = new WorkerServer(self);
-workerServer.on('search', (id, text, query) => {
+workerServer.on('search', (id: string, text: string, query: RegExp) => {
     if (!id || !text || !query) {
         return;
     }

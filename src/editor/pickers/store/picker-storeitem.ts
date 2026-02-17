@@ -94,11 +94,11 @@ editor.once('load', () => {
     };
 
     // Remove script tags from the URL
-    function removeScript(url) {
+    function removeScript(url: string) {
         return url.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
     }
 
-    function escapeString(str) {
+    function escapeString(str: string) {
         const escaped = str.replace(/[&<>'"]/g, tag => ({
             '&': '&amp;',
             '<': '&lt;',
@@ -533,7 +533,7 @@ editor.once('load', () => {
         bottomPanel.append(itemData);
 
         // ESC key should close popup
-        const onKeyDown = function (e) {
+        const onKeyDown = function (e: KeyboardEvent) {
             if (e.target && /input|textarea/i.test(e.target.tagName)) {
                 return;
             }
@@ -564,7 +564,7 @@ editor.once('load', () => {
         return panel;
     };
 
-    const loadStoreItem = async function (item) {
+    const loadStoreItem = async function (item: { load: (item: unknown) => Promise<unknown> }) {
         storeItem = await item.load(item);
     };
 

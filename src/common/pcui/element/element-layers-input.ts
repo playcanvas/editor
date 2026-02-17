@@ -45,7 +45,7 @@ class LayersInput extends SelectInput {
         const layers = this._projectSettings?.get('layers');
 
         if (layers) {
-            this._excludeLayers.forEach((id) => {
+            this._excludeLayers.forEach((id: number) => {
                 delete layers[id];
             });
 

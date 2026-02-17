@@ -1,7 +1,7 @@
 import { LegacyElement } from './element';
 
 class LegacySlider extends LegacyElement {
-    constructor(args = {}) {
+    constructor(args: { precision?: number; min?: number; max?: number } = {}) {
         super();
         this._value = 0;
         this._lastValue = 0;
@@ -27,12 +27,12 @@ class LegacySlider extends LegacyElement {
         this.element.addEventListener('mousedown', this._onMouseDown.bind(this), false);
         this.element.addEventListener('touchstart', this._onTouchStart.bind(this), false);
 
-        this.evtMouseMove = (evt) => {
+        this.evtMouseMove = (evt: MouseEvent) => {
             evt.stopPropagation();
             evt.preventDefault();
             this._onSlideMove(evt.pageX);
         };
-        this.evtMouseUp = (evt) => {
+        this.evtMouseUp = (evt: MouseEvent) => {
             evt.stopPropagation();
             evt.preventDefault();
             this._onSlideEnd(evt.pageX);
@@ -40,7 +40,7 @@ class LegacySlider extends LegacyElement {
 
         this.evtTouchId = null;
 
-        this.evtTouchMove = (evt) => {
+        this.evtTouchMove = (evt: TouchEvent) => {
             for (let i = 0; i < evt.changedTouches.length; i++) {
                 const touch = evt.changedTouches[i];
 
@@ -55,7 +55,7 @@ class LegacySlider extends LegacyElement {
                 break;
             }
         };
-        this.evtTouchEnd = (evt) => {
+        this.evtTouchEnd = (evt: TouchEvent) => {
             for (let i = 0; i < evt.changedTouches.length; i++) {
                 const touch = evt.changedTouches[i];
 
@@ -77,7 +77,7 @@ class LegacySlider extends LegacyElement {
         this.element.addEventListener('keydown', this._onKeyDown.bind(this), false);
     }
 
-    set min(value) {
+    set min(value: number) {
         if (this._min === value) {
             return;
         }
@@ -90,7 +90,7 @@ class LegacySlider extends LegacyElement {
         return this._min;
     }
 
-    set max(value) {
+    set max(value: number) {
         if (this._max === value) {
             return;
         }
@@ -103,7 +103,7 @@ class LegacySlider extends LegacyElement {
         return this._max;
     }
 
-    set value(value) {
+    set value(value: number | null) {
         if (this._link) {
             if (!this._link.set(this.path, value)) {
                 this._updateHandle(this._link.get(this.path));
@@ -153,7 +153,7 @@ class LegacySlider extends LegacyElement {
         this.flash();
     }
 
-    _onKeyDown(evt) {
+    _onKeyDown(evt: KeyboardEvent) {
         if (evt.keyCode === 27) {
             return this.element.blur();
         }
@@ -182,17 +182,17 @@ class LegacySlider extends LegacyElement {
         this.renderChanges = true;
     }
 
-    _onLinkChange(value) {
+    _onLinkChange(value: any) {
         this._updateHandle(value);
         this._value = value;
         this.emit('change', value || 0);
     }
 
-    _updateHandle(value) {
+    _updateHandle(value: number) {
         this.elementHandle.style.left = `${Math.max(0, Math.min(1, ((value || 0) - this._min) / (this._max - this._min))) * 100}%`;
     }
 
-    _onMouseDown(evt) {
+    _onMouseDown(evt: MouseEvent) {
         if (evt.button !== 0 || this.disabled) {
             return;
         }
@@ -200,7 +200,7 @@ class LegacySlider extends LegacyElement {
         this._onSlideStart(evt.pageX);
     }
 
-    _onTouchStart(evt) {
+    _onTouchStart(evt: TouchEvent) {
         if (this.disabled) {
             return;
         }
@@ -217,7 +217,7 @@ class LegacySlider extends LegacyElement {
         }
     }
 
-    _onSlideStart(pageX) {
+    _onSlideStart(pageX: number) {
         this.elementHandle.focus();
 
         this.renderChanges = false;
@@ -241,7 +241,7 @@ class LegacySlider extends LegacyElement {
         }
     }
 
-    _onSlideMove(pageX) {
+    _onSlideMove(pageX: number) {
         const rect = this.element.getBoundingClientRect();
         const x = Math.max(0, Math.min(1, (pageX - rect.left) / rect.width));
 
@@ -253,7 +253,7 @@ class LegacySlider extends LegacyElement {
         this.value = value;
     }
 
-    _onSlideEnd(pageX) {
+    _onSlideEnd(pageX: number) {
         this._onSlideMove(pageX);
 
         this.renderChanges = true;

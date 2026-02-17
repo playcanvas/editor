@@ -47,7 +47,7 @@ editor.once('load', () => {
     const root = editor.call('layout.root');
     root.append(overlay);
 
-    const keyDown = (evt) => {
+    const keyDown = (evt: KeyboardEvent) => {
         if (overlay.hidden) {
             return;
         }

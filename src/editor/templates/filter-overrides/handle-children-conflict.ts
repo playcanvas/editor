@@ -1,6 +1,14 @@
 editor.once('load', () => {
     class HandleChildrenConflict {
-        constructor(conflict, overrides) {
+        conflict: Record<string, unknown>;
+
+        overrides: Record<string, unknown>;
+
+        addedIds: Record<string, unknown>;
+
+        dstToSrc: Record<string, string>;
+
+        constructor(conflict: Record<string, unknown>, overrides: Record<string, unknown>) {
             this.conflict = conflict;
 
             this.overrides = overrides;

@@ -3,7 +3,7 @@ editor.once('load', () => {
     let inViewport = false;
 
     // mouse hovering state on viewport
-    editor.on('viewport:hover', (hover) => {
+    editor.on('viewport:hover', (hover: boolean) => {
         if (inViewport === hover) {
             return;
         }
@@ -19,7 +19,7 @@ editor.once('load', () => {
         }
     });
 
-    const checkPicked = function (node, picked) {
+    const checkPicked = function (node: import('playcanvas').Entity | null, picked: import('playcanvas').MeshInstance | { node: { name: string } } | null): void {
         let hover = false;
 
         // if mouse in viewport && entity model has an asset

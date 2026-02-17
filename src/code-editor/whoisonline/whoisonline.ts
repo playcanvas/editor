@@ -67,7 +67,7 @@ editor.once('load', () => {
         }
     });
 
-    editor.on('relay:room:join', (data) => {
+    editor.on('relay:room:join', (data: { name: string; users?: string[]; userId?: string }) => {
         if (!data.name.startsWith('document-')) {
             return;
         }
@@ -85,7 +85,7 @@ editor.once('load', () => {
         }
     });
 
-    editor.on('relay:room:leave', (data) => {
+    editor.on('relay:room:leave', (data: { name: string; userId: string }) => {
         if (!data.name.startsWith('document-')) {
             return;
         }
@@ -110,7 +110,7 @@ editor.once('load', () => {
         onOpenDocument(asset.get('id'));
     });
 
-    function onOpenDocument(id) {
+    function onOpenDocument(id: string) {
         if (whoisonline[id]) {
             return;
         }
@@ -123,7 +123,7 @@ editor.once('load', () => {
         editor.call('relay:joinRoom', `document-${asset.get('uniqueId')}`);
     }
 
-    function onCloseDocument(id) {
+    function onCloseDocument(id: string) {
         const asset = editor.call('assets:get', id);
         if (asset) {
             editor.call('relay:leaveRoom', `document-${asset.get('uniqueId')}`);

@@ -10,23 +10,41 @@ const PLAYCANVAS_ATTRIBUTE_DOCS_URL = {
 };
 
 export type SerializableParsingError = {
+    name: string;
     message: string;
-    attributeName: string;
     file: string;
+    fileName: string;
     type: string;
-    start: number;
+    startLineNumber: number;
     startColumn: number;
+    endLineNumber: number;
+    endColumn: number;
     severity: 8 | 4;
-    code: string | null;
+    code: { target: string; value: string } | string | null;
     fix: Fix | null;
 };
 
+/** Parsing error from the JSDoc attribute parser */
+interface ParsingErrorLike {
+    node?: {
+        getSourceFile(): { fileName: string; getLineAndCharacterOfPosition(pos: number): { line: number; character: number } };
+        getStart(): number;
+        getEnd(): number;
+        getText(): string;
+        comment?: string;
+    };
+    attributeName: string;
+    type: string;
+    message: string;
+    fix: Fix | null;
+}
+
 /**
  * Convert an error to a serializable error
- * @param {ParsingError} error - The error to convert
- * @returns {SerializableParsingError | null} The serializable error
+ * @param error - The error to convert
+ * @returns The serializable error
  */
-const toSerializableError = (error) => {
+const toSerializableError = (error: ParsingErrorLike): SerializableParsingError | null => {
     if (!error.node) {
         return null;
     }

@@ -7,7 +7,7 @@ editor.once('load', () => {
 
     const LOADING_MSG_DELAY = 70;
 
-    editor.method('vcgraph:makeNodeMenu', (mainPanel) => {
+    editor.method('vcgraph:makeNodeMenu', (mainPanel: HTMLElement) => {
         const m = new Menu({
             items: [
                 {
@@ -83,7 +83,7 @@ editor.once('load', () => {
     });
 
     const VcMenuUtils = {
-        newBranchMenuTask: function (menu) {
+        newBranchMenuTask: function (menu: Menu & { node: Record<string, unknown>; vcGraphState: Record<string, unknown>; vcMainPanel: { emit: (name: string, ...args: unknown[]) => void } }) {
             const branchId = menu.node.branchId;
 
             const h = {
@@ -94,12 +94,12 @@ editor.once('load', () => {
             VcMenuUtils.curCheckpointTask(menu, 'checkpoint:branch', h);
         },
 
-        branchEditOk: function (menu) {
+        branchEditOk: function (menu: Menu & { node: Record<string, unknown>; vcGraphState: Record<string, unknown> }) {
             return menu.node.branchId === config.self.branch.id &&
                 editor.call('permissions:write');
         },
 
-        copyDataStr: function (menu) {
+        copyDataStr: function (menu: Menu & { node: Record<string, unknown>; vcGraphState: Record<string, unknown> }) {
             const h = menu.node;
 
             const d = new Date(h.checkpointData.created_at);
@@ -118,13 +118,13 @@ editor.once('load', () => {
             navigator.clipboard.writeText(s);
         },
 
-        compareTask: function (menu) {
+        compareTask: function (menu: Menu & { node: Record<string, unknown>; vcGraphState: Record<string, unknown> }) {
             const h1 = menu.vcGraphState.graph.selectedForCompare;
 
             VcMenuUtils.startDiffTask(menu, h1, menu.node, menu.vcGraphState.vcHistItem);
         },
 
-        viewChangesTask: function (menu) {
+        viewChangesTask: function (menu: Menu & { node: Record<string, unknown>; vcGraphState: Record<string, unknown> }) {
             VcMenuUtils.selectForCompare(menu);
 
             const h2 = VcMenuUtils.parentForCompare(menu);
@@ -132,13 +132,13 @@ editor.once('load', () => {
             VcMenuUtils.startDiffTask(menu, menu.node, h2, menu.vcGraphState.vcHistItem);
         },
 
-        fullCommitForHistTask: function (menu) {
+        fullCommitForHistTask: function (menu: Menu & { node: Record<string, unknown>; vcGraphState: Record<string, unknown> }) {
             VcMenuUtils.selectForCompare(menu);
 
             VcMenuUtils.startDiffTask(menu, menu.node, menu.node.histParentNode, null);
         },
 
-        startDiffTask: function (menu, h1, h2, histItem) {
+        startDiffTask: function (menu: Menu & { vcMainPanel: { emit: (name: string, ...args: unknown[]) => void } }, h1: Record<string, unknown>, h2: Record<string, unknown> | null, histItem: unknown) {
             editor.call('vcgraph:moveToBackground');
 
             menu.vcMainPanel.emit(
@@ -151,7 +151,7 @@ editor.once('load', () => {
             );
         },
 
-        parentForCompare: function (menu) {
+        parentForCompare: function (menu: Menu & { node: Record<string, unknown>; vcGraphState: Record<string, unknown> }) {
             const p = menu.node.parent || [];
 
             if (p && p.length) {
@@ -165,7 +165,7 @@ editor.once('load', () => {
 
         },
 
-        selectForCompare: function (menu) {
+        selectForCompare: function (menu: Menu & { node: Record<string, unknown>; vcGraphState: Record<string, unknown> }) {
             const graph = menu.vcGraphState.graph;
 
             if (graph.selectedForCompare) {
@@ -177,7 +177,7 @@ editor.once('load', () => {
             editor.call('vcgraph:utils', 'placeSelectedMark', graph, menu.node.coords);
         },
 
-        deselectCompare: function (menu) {
+        deselectCompare: function (menu: Menu & { vcGraphState: Record<string, unknown> }) {
             const graph = menu.vcGraphState.graph;
 
             graph.selectedForCompare = null;
@@ -185,13 +185,13 @@ editor.once('load', () => {
             editor.call('vcgraph:utils', 'rmSelectedMark', graph);
         },
 
-        isCurSelected: function (menu) {
+        isCurSelected: function (menu: Menu & { node: Record<string, unknown>; vcGraphState: Record<string, unknown> }) {
             const sel = menu.vcGraphState.graph.selectedForCompare;
 
             return sel && sel.id === menu.node.id;
         },
 
-        handleExpand: function (menu) {
+        handleExpand: function (menu: Menu & { node: Record<string, unknown>; vcGraphState: Record<string, unknown> }) {
             menu.vcGraphState.graph.isGraphLoading = true;
 
             menu.node.onExpandSelect();
@@ -199,13 +199,13 @@ editor.once('load', () => {
             setTimeout(() => VcMenuUtils.delayedLoadingMsg(menu), LOADING_MSG_DELAY);
         },
 
-        delayedLoadingMsg: function (menu) {
+        delayedLoadingMsg: function (menu: Menu & { vcGraphState: Record<string, unknown>; menuCoords: { x: number; y: number; w?: number } }) {
             if (menu.vcGraphState.graph.isGraphLoading) {
                 VcMenuUtils.showNodeMenu(menu, null, null, menu.menuCoords);
             }
         },
 
-        showNodeMenu: function (menu, h, graphState, coords) {
+        showNodeMenu: function (menu: Menu & { node?: unknown; vcGraphState?: unknown; menuCoords?: { x: number; y: number; w?: number }; position: (x: number, y: number) => void }, h: Record<string, unknown> | null, graphState: Record<string, unknown> | null, coords: { x: number; y: number; w?: number } | null) {
             menu.node = h;
 
             menu.vcGraphState = graphState;
@@ -222,7 +222,7 @@ editor.once('load', () => {
             );
         },
 
-        curCheckpointTask: function (menu, method, ...args) {
+        curCheckpointTask: function (menu: Menu & { node: Record<string, unknown>; vcMainPanel: { emit: (name: string, ...args: unknown[]) => void } }, method: string, ...args: unknown[]) {
             editor.call('vcgraph:closeGraphPanel');
 
             const h = editor.call(

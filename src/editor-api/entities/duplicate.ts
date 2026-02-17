@@ -169,7 +169,7 @@ function duplicateInBackend(entities: Entity[], options: { history?: boolean } =
     });
 
     if (!evtMessenger) {
-        evtMessenger = api.messenger.on('entity.copy', (data) => {
+        evtMessenger = api.messenger.on('entity.copy', (data: any) => {
             const callback = api.jobs.finish(data.job_id);
             if (!callback) {
                 return;
@@ -182,7 +182,7 @@ function duplicateInBackend(entities: Entity[], options: { history?: boolean } =
 
     function redo() {
         const jobId = api.jobs.start((newEntityIds: string[]) => {
-            const cancel = api.entities.waitToExist(newEntityIds, TIME_WAIT_ENTITIES, (newEntities) => {
+            const cancel = api.entities.waitToExist(newEntityIds, TIME_WAIT_ENTITIES, (newEntities: Entity[]) => {
                 entities = newEntities;
 
                 if (deferred) {
@@ -207,7 +207,7 @@ function duplicateInBackend(entities: Entity[], options: { history?: boolean } =
                 branchId: api.branchId,
                 sceneId: api.realtime.scenes.current.uniqueId,
                 jobId: jobId,
-                entities: originalEntities.map(e => e.get('resource_id'))
+                entities: originalEntities.map((e: Entity) => e.get('resource_id'))
             }
         });
     }
@@ -264,7 +264,7 @@ async function duplicateEntities(entities: Entity[], options: { history?: boolea
 
     // build index
     const records: Record<string, { entity: Entity; index: number }> = {};
-    entities.forEach((entity) => {
+    entities.forEach((entity: Entity) => {
         const id = entity.get('resource_id');
         records[id] = {
             entity: entity,
@@ -293,16 +293,16 @@ async function duplicateEntities(entities: Entity[], options: { history?: boolea
     // original order passed by the user because when we duplicate
     // we change the order of the entities to their order within their parent
     const originalOrder: Record<string, [number, number]> = {};
-    entities.forEach((e, i) => {
+    entities.forEach((e: Entity, i: number) => {
         originalOrder[e.get('resource_id')] = [i, null];
     });
 
     // sort by order within parent
-    entities.sort((a, b) => {
+    entities.sort((a: Entity, b: Entity) => {
         return records[b.get('resource_id')].index - records[a.get('resource_id')].index;
     });
 
-    entities.forEach((e, i) => {
+    entities.forEach((e: Entity, i: number) => {
         originalOrder[e.get('resource_id')][1] = i;
     });
 
@@ -319,7 +319,7 @@ async function duplicateEntities(entities: Entity[], options: { history?: boolea
         }
 
         // duplicate
-        entities.forEach((entity) => {
+        entities.forEach((entity: Entity) => {
             const duplicatedIdsMap = {};
 
             const newEntity = duplicateEntity(
@@ -368,7 +368,7 @@ async function duplicateEntities(entities: Entity[], options: { history?: boolea
                 redo: () => {
                     function recreateEntityData(data: { children: any[]; }) {
                         data = Object.assign({}, data);
-                        data.children = data.children.map(id => recreateEntityData(previous[id]));
+                        data.children = data.children.map((id: string) => recreateEntityData(previous[id]));
                         return data;
                     }
 

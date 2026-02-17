@@ -1,6 +1,19 @@
 import playcanvasConfig from '@playcanvas/eslint-config';
+import tsPlugin from '@typescript-eslint/eslint-plugin';
 import typescriptParser from '@typescript-eslint/parser';
 import globals from 'globals';
+
+const tsTypeRules = {
+    plugins: {
+        '@typescript-eslint': tsPlugin
+    },
+    rules: {
+        '@typescript-eslint/typedef': ['error', {
+            parameter: true,
+            arrowParameter: false
+        }]
+    }
+};
 
 const importConfig = {
     settings: {
@@ -24,6 +37,7 @@ const coreConfig = {
         'src/launch/**/*.ts',
         'src/plugins/**/*.ts'
     ],
+    plugins: tsTypeRules.plugins,
     languageOptions: {
         parser: typescriptParser,
         globals: {
@@ -39,8 +53,10 @@ const coreConfig = {
         }
     },
     rules: {
+        ...tsTypeRules.rules,
         'accessor-pairs': ['error', { setWithoutGet: false, getWithoutSet: false }],
         'curly': ['error', 'all'],
+        'jsdoc/require-param': ['error', { checkDestructured: false }],
         'jsdoc/require-param-type': 'off',
         'jsdoc/require-returns-type': 'off',
         'jsdoc/require-returns': 'off',
@@ -49,8 +65,9 @@ const coreConfig = {
     }
 };
 
-const workersConfig =     {
+const workersConfig = {
     files: ['src/workers/*.ts'],
+    plugins: tsTypeRules.plugins,
     languageOptions: {
         parser: typescriptParser,
         globals: {
@@ -59,8 +76,10 @@ const workersConfig =     {
         }
     },
     rules: {
+        ...tsTypeRules.rules,
         'accessor-pairs': ['error', { setWithoutGet: false, getWithoutSet: false }],
         'curly': ['error', 'all'],
+        'jsdoc/require-param': ['error', { checkDestructured: false }],
         'jsdoc/require-param-type': 'off',
         'jsdoc/require-returns-type': 'off',
         'jsdoc/require-returns': 'off',
@@ -71,6 +90,7 @@ const workersConfig =     {
 
 const serviceWorkersConfig = {
     files: ['src/sw/*.ts'],
+    plugins: tsTypeRules.plugins,
     languageOptions: {
         parser: typescriptParser,
         globals: {
@@ -78,8 +98,10 @@ const serviceWorkersConfig = {
         }
     },
     rules: {
+        ...tsTypeRules.rules,
         'accessor-pairs': ['error', { setWithoutGet: false, getWithoutSet: false }],
         'curly': ['error', 'all'],
+        'jsdoc/require-param': ['error', { checkDestructured: false }],
         'jsdoc/require-param-type': 'off',
         'jsdoc/require-returns-type': 'off',
         'jsdoc/require-returns': 'off',
@@ -90,6 +112,7 @@ const serviceWorkersConfig = {
 
 const modulesConfig = {
     files: ['modules/**/*.ts'],
+    plugins: tsTypeRules.plugins,
     languageOptions: {
         parser: typescriptParser,
         globals: {
@@ -97,6 +120,7 @@ const modulesConfig = {
         }
     },
     rules: {
+        ...tsTypeRules.rules,
         'accessor-pairs': ['error', { setWithoutGet: false, getWithoutSet: false }],
         'curly': ['error', 'all'],
         'jsdoc/require-jsdoc': 'off',
@@ -111,6 +135,7 @@ const modulesConfig = {
 
 const testConfig = {
     files: ['test/**/*.ts'],
+    plugins: tsTypeRules.plugins,
     languageOptions: {
         parser: typescriptParser,
         globals: {
@@ -118,6 +143,7 @@ const testConfig = {
         }
     },
     rules: {
+        ...tsTypeRules.rules,
         'accessor-pairs': ['error', { setWithoutGet: false, getWithoutSet: false }],
         'curly': ['error', 'all'],
         'no-unused-expressions': 'off',

@@ -1,9 +1,9 @@
 import { Asset } from 'playcanvas';
 
 editor.once('load', () => {
-    editor.method('assets:registry:bind', (assetRegistry, assetTypes) => {
+    editor.method('assets:registry:bind', (assetRegistry: { get: (id: number) => { unload: () => void }; add: (asset: Asset) => void; remove: (asset: Asset) => void }, assetTypes: string[] | undefined) => {
         // add assets to asset registry
-        editor.on('assets:add', (asset) => {
+        editor.on('assets:add', (asset: import('@/editor-api').AssetObserver) => {
             // do only for target assets
             if (asset.get('source')) {
                 return;
@@ -62,7 +62,7 @@ editor.once('load', () => {
             };
 
             const checkPath = /^(data|file)\b/;
-            const onUpdate = function (path, value) {
+            const onUpdate = function (path: string, _value: unknown) {
                 const match = path.match(checkPath);
                 if (!match) {
                     return;
@@ -92,7 +92,7 @@ editor.once('load', () => {
         });
 
         // remove assets from asset registry
-        editor.on('assets:remove', (asset) => {
+        editor.on('assets:remove', (asset: import('@/editor-api').AssetObserver) => {
             const item = assetRegistry.get(asset.get('id'));
             if (item) {
                 item.unload();

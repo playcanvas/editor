@@ -1,3 +1,4 @@
+import type { Observer } from '@playcanvas/observer';
 import type * as Monaco from 'monaco-editor';
 
 // TODO: Types
@@ -28,10 +29,10 @@ editor.once('load', () => {
     /**
      * Converts an import entry to a Monaco-compatible path.
      *
-     * @param {string[]} entry - The import entry (key, path).
-     * @returns {[string, string[]]} The adjusted key and an array containing the file:// path.
+     * @param entry - The import entry (key, path).
+     * @returns The adjusted key and an array containing the file:// path.
      */
-    function importEntryToMonacoPath([key, entry]) {
+    function importEntryToMonacoPath([key, entry]: [string, unknown]): [string, string[]] {
         const suffix = key.endsWith('/') ? '*' : '';
         const newKey = key + suffix;
         const path = `file://${entry}${suffix}`;
@@ -47,15 +48,15 @@ editor.once('load', () => {
      * // =? ['declare module "external-lib" { const Module: any; export default Module; export = Module; }']
      * ```
      *
-     * @param {[string, string][]} importEntries - The import entries (key, path).
-     * @returns {string[]} The module declarations.
+     * @param importEntries - The import entries (key, path).
+     * @returns The module declarations.
      */
-    function createModuleDeclarations(importEntries) {
+    function createModuleDeclarations(importEntries: [string, unknown][]): string[] {
         const httpImports = importEntries
         .filter(([_, path]) => path.startsWith('http://') || path.startsWith('https://'))
         .map(([key]) => key);
 
-        const httpImportToTypeDeclaration = key => (
+        const httpImportToTypeDeclaration = (key: string) => (
             `declare module '${key}' {\nconst Module: any;\nexport default Module;\nexport = Module;\n}`
         );
 
@@ -82,7 +83,7 @@ editor.once('load', () => {
         if (!asset) {
             resolve({ imports: {} });
         } else {
-            editor.call('assets:contents:get', asset, (err, content) => {
+            editor.call('assets:contents:get', asset, (err: unknown, content: string) => {
                 if (err) {
                     reject(err);
                 }
@@ -94,7 +95,7 @@ editor.once('load', () => {
     // when we select an asset
     // if the asset is not loaded hide
     // the code panel until it's loaded
-    editor.on('select:asset', (asset) => {
+    editor.on('select:asset', (asset: Observer) => {
         if (asset.get('type') === 'folder') {
             return;
         }
@@ -106,7 +107,7 @@ editor.once('load', () => {
 
     // When document is loaded create document
     // and add entry to index
-    editor.on('documents:load', async (doc, asset) => {
+    editor.on('documents:load', async (doc: { data: string }, asset: Observer) => {
         const id = asset.get('id');
         if (viewIndex[id]) {
             return;
@@ -145,7 +146,7 @@ editor.once('load', () => {
         };
 
         // emit change event
-        entry.view.onDidChangeContent((evt) => {
+        entry.view.onDidChangeContent((evt: Monaco.editor.IModelContentChangedEvent) => {
             if (entry.suppressChanges) {
                 return;
             }
@@ -184,7 +185,7 @@ editor.once('load', () => {
     });
 
     // Focus document
-    editor.on('documents:focus', (id) => {
+    editor.on('documents:focus', (id: string) => {
         if (!viewIndex[id]) {
             // This happens on some rare occasions not sure why yet...
             console.warn('Requested to focus document that has no view yet', `Document ${id}`);
@@ -252,7 +253,7 @@ editor.once('load', () => {
     });
 
     // Close document
-    editor.on('documents:close', (id) => {
+    editor.on('documents:close', (id: string) => {
         if (focusedView === viewIndex[id]) {
             // clear code
             // but suppress changes to the doc
@@ -274,7 +275,7 @@ editor.once('load', () => {
     });
 
     // Returns the dependencies of an ESM Script Asset
-    const getDependenciesFromString = (content, importer = './') => {
+    const getDependenciesFromString = (content: string, importer = './') => {
         const importRegex = /import\s[\w\s{},*]+\sfrom\s+['"]([^'"]+)['"]/g;
         let match;
         const paths: Set<string> = new Set();
@@ -294,9 +295,9 @@ editor.once('load', () => {
 
     editor.method('utils:deps-from-string', getDependenciesFromString);
 
-    const getDependenciesForAsset = (asset): Promise<Set<string>> => {
+    const getDependenciesForAsset = (asset: Observer): Promise<Set<string>> => {
         return new Promise((resolve, reject) => {
-            editor.call('assets:contents:get', asset, (err, content) => {
+            editor.call('assets:contents:get', asset, (err: unknown, content: string) => {
                 if (err) {
                     reject(err);
                 }
@@ -317,9 +318,9 @@ editor.once('load', () => {
         });
     };
 
-    editor.method('utils:deps-from-asset', asset => getDependenciesForAsset(asset));
+    editor.method('utils:deps-from-asset', (asset: Observer) => getDependenciesForAsset(asset));
 
-    editor.method('asset:update-dependencies', async (asset) => {
+    editor.method('asset:update-dependencies', async (asset: Observer) => {
         const filePath = editor.call('assets:virtualPath', asset);
         if (!filePath) {
             return;
@@ -350,7 +351,7 @@ editor.once('load', () => {
         const openTabs = editor.call('tabs:list').map(tab => editor.call('assets:virtualPath', tab.asset)).filter(Boolean);
 
         // Remove the views for the files that are no longer dependencies
-        filesToRemove.forEach((filePath) => {
+        filesToRemove.forEach((filePath: string) => {
             // Don't remove the file if it's open in a tab
             if (openTabs.includes(filePath)) {
                 return;
@@ -362,7 +363,7 @@ editor.once('load', () => {
         });
 
         // Find the associated asset for the file path, and load it
-        newFiles.forEach((file) => {
+        newFiles.forEach((file: string) => {
             const asset = editor.call('assets:getByVirtualPath', file);
             if (asset) {
                 editor.call('load:asset', asset, false);
@@ -415,12 +416,12 @@ editor.once('load', () => {
     editor.on('permissions:writeState', refreshReadonly);
 
     // Returns the monaco view for an id
-    editor.method('views:get', (id) => {
+    editor.method('views:get', (id: string) => {
         const entry = viewIndex[id];
         return entry ? entry.view : null;
     });
 
-    editor.method('view:asset', (modelId) => {
+    editor.method('view:asset', (modelId: string) => {
         for (const key in viewIndex) {
             if (viewIndex[key].view.id === modelId) {
                 return viewIndex[key].asset;

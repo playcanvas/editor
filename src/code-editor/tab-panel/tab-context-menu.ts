@@ -15,7 +15,7 @@ editor.once('load', () => {
 
     // show context menu for a tab
     editor.method('tabs:contextmenu:attach', (tab) => {
-        const showMenu = function (e) {
+        const showMenu = function (e: MouseEvent) {
             e.stopPropagation();
             e.preventDefault();
 

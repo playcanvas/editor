@@ -1,4 +1,4 @@
-import type { ObserverList } from '@playcanvas/observer';
+import type { Observer, ObserverList } from '@playcanvas/observer';
 import { Element, ElementArgs, Container, Label, Button, BindingObserversToElement } from '@playcanvas/pcui';
 
 import { CLASS_FOCUS, CLASS_MULTIPLE_VALUES } from '../constants';
@@ -117,7 +117,7 @@ class EntityInput extends Element {
 
             this.focus();
 
-            this._pickEntity((resourceId) => {
+            this._pickEntity((resourceId: string) => {
                 this.value = resourceId;
             });
         });
@@ -148,17 +148,17 @@ class EntityInput extends Element {
     _initializeDropTarget() {
         editor.call('drop:target', {
             ref: this,
-            filter: (type, dropData) => {
+            filter: (type: string, dropData: any) => {
                 return (dropData.resource_id && dropData.resource_id !== this.value && type === 'entity');
             },
-            drop: (type, dropData) => {
+            drop: (type: string, dropData: any) => {
                 this.value = dropData.resource_id;
             }
         });
     }
 
-    _pickEntity(callback) {
-        let evtEntityPick = editor.once('picker:entity', (entity) => {
+    _pickEntity(callback: (resourceId: string | null) => void) {
+        let evtEntityPick = editor.once('picker:entity', (entity: Observer) => {
             callback(entity ? entity.get('resource_id') : null);
             evtEntityPick = null;
         });
@@ -173,11 +173,11 @@ class EntityInput extends Element {
         });
     }
 
-    _highlightEntity(resourceId, highlight) {
+    _highlightEntity(resourceId: string, highlight: boolean) {
         editor.call('entities:panel:highlight', resourceId, highlight);
     }
 
-    _updateValue(value) {
+    _updateValue(value: string | null) {
         if (this._value) {
             this._highlightEntityFn(this._value, false);
         }
@@ -214,7 +214,7 @@ class EntityInput extends Element {
         this.emit('blur');
     }
 
-    _onKeyDown(evt) {
+    _onKeyDown(evt: KeyboardEvent) {
         // blur on esc
         if (evt.keyCode === 27) {
             evt.stopPropagation();
@@ -232,7 +232,7 @@ class EntityInput extends Element {
 
         evt.stopPropagation();
 
-        this._pickEntityFn((resourceId) => {
+        this._pickEntityFn((resourceId: string | null) => {
             this.value = resourceId;
             this.focus();
         });
@@ -257,7 +257,7 @@ class EntityInput extends Element {
         super.destroy();
     }
 
-    set value(value) {
+    set value(value: string | null) {
         if (this._value === value) {
             return;
         }
@@ -272,7 +272,7 @@ class EntityInput extends Element {
         return this._value;
     }
 
-    set values(values) {
+    set values(values: (string | null)[]) {
         let different = false;
         const value = values[0];
         for (let i = 1; i < values.length; i++) {

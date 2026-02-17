@@ -1,7 +1,7 @@
 import { COMPONENT_LOGOS } from '@/core/constants';
 
 editor.once('load', () => {
-    const getSubMenu = function (key) {
+    const getSubMenu = function (key: string) {
         if (['audiolistener', 'sound'].indexOf(key) >= 0) {
             return 'audio-sub-menu';
         }
@@ -34,7 +34,7 @@ editor.once('load', () => {
 
     };
 
-    const makeAddComponentMenuItem = function (key, components, logos) {
+    const makeAddComponentMenuItem = function (key: string, components: Record<string, { $title: string }>, logos: Record<string, string>) {
         let title = components[key].$title;
         if (title === 'Model' || title === 'Animation') {
             title += ' (legacy)';

@@ -9,6 +9,8 @@ const CLASS_OVERRIDE = 'template-inspector-override';
  * Handles highlighting template overrides on various elements and showing relevant tooltips.
  */
 class TemplateOverrideInspector {
+    private _entities: ObserverList;
+
     private _overrides: Record<string, { element: Element, tooltipItem: Container }> = {};
 
     private _registeredElements: Record<string, { element: Element, tooltipGroup: Container }> = {};
@@ -19,13 +21,13 @@ class TemplateOverrideInspector {
 
     private _entity: Observer | null = null;
 
-    constructor(args: ObserverList) {
+    constructor(args: { entities: ObserverList }) {
         this._entities = args.entities;
 
         this._evtMessenger = editor.on('messenger:template.apply', this._onTemplateApply.bind(this));
     }
 
-    _onTemplateApply(data) {
+    _onTemplateApply(data: { entity_id: string }): void {
         // if current entity is part of this template
         // then refresh overrides
         if (!this._entity) {
@@ -44,7 +46,7 @@ class TemplateOverrideInspector {
         this._deferRefreshOverrides();
     }
 
-    _getOverrideKey(override) {
+    _getOverrideKey(override: Record<string, unknown>): string {
         return `${override.override_type}${override.resource_id}${override.path}`;
     }
 
@@ -64,7 +66,7 @@ class TemplateOverrideInspector {
         this._entityEvents.length = 0;
     }
 
-    _addOverride(override, templateRoot) {
+    _addOverride(override: Record<string, unknown>, templateRoot: Observer): void {
         const registered = this._registeredElements[override.path];
         if (!registered) {
             return;
@@ -150,12 +152,12 @@ class TemplateOverrideInspector {
      * has a template override the provided element will have a CSS class applied to it and a
      * tooltip will be created for that override.
      *
-     * @param {string} path - The observer path for the override.
-     * @param {Element} element - The element that we will highlight when an override appears.
-     * @param {Container} [tooltipGroup] - An optional tooltip group to use for the override
+     * @param path - The observer path for the override.
+     * @param element - The element that we will highlight when an override appears.
+     * @param tooltipGroup - An optional tooltip group to use for the override
      * tooltip. If one is not provided then the tooltip will be attached to the element itself.
      */
-    registerElementForPath(path, element, tooltipGroup) {
+    registerElementForPath(path: string, element: Element, tooltipGroup?: Container) {
         this._registeredElements[path] = {
             element,
             tooltipGroup
@@ -179,12 +181,12 @@ class TemplateOverrideInspector {
     /**
      * Unregister the specified override path.
      *
-     * @param {string} path - The override path.
-     * @param {Element} [element] - Optional element to match. If provided, only unregisters
+     * @param path - The override path.
+     * @param element - Optional element to match. If provided, only unregisters
      * if the currently registered element matches. This prevents a destroyed inspector from
      * unregistering elements that a new inspector just registered for the same path.
      */
-    unregisterElementForPath(path, element?) {
+    unregisterElementForPath(path: string, element?: Element) {
         if (element && this._registeredElements[path]?.element !== element) {
             return;
         }

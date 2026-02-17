@@ -1,3 +1,6 @@
+import type { Observer } from '@playcanvas/observer';
+import type { TreeViewItem } from '@playcanvas/pcui';
+
 import { EntitiesTreeView } from './entities-treeview';
 
 editor.once('load', () => {
@@ -10,7 +13,7 @@ editor.once('load', () => {
         history: editor.api.globals.history,
         assets: editor.call('assets:raw'),
         dragScrollElement: panel.content,
-        onContextMenu: function (evt, item) {
+        onContextMenu: function (evt: MouseEvent, item: TreeViewItem & { entity?: Observer }) {
             const open = editor.call('entities:contextmenu:open', item.entity, evt.clientX, evt.clientY);
 
             if (open) {

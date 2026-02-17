@@ -2,7 +2,7 @@ import { LegacyContainer } from './container';
 import { LegacyMenuItem } from './menu-item';
 
 class LegacyMenu extends LegacyContainer {
-    constructor(args = {}) {
+    constructor(args: Record<string, any> = {}) {
         super();
         this.element = document.createElement('div');
         this._element.tabIndex = 1;
@@ -30,7 +30,7 @@ class LegacyMenu extends LegacyContainer {
         this.on('open', this._onOpen.bind(this));
     }
 
-    set open(value) {
+    set open(value: boolean) {
         if (this.class.contains('open') === !!value) {
             return;
         }
@@ -57,13 +57,13 @@ class LegacyMenu extends LegacyContainer {
         this.open = false;
     }
 
-    _onKeyDown(evt) {
+    _onKeyDown(evt: KeyboardEvent) {
         if (this.open && evt.keyCode === 27) {
             this.open = false;
         }
     }
 
-    _onSelectPropagate(path, selectedItemHasChildren, mouseEvent) {
+    _onSelectPropagate(path: string[], selectedItemHasChildren: boolean, mouseEvent: MouseEvent) {
         if (this._clickableSubmenus && selectedItemHasChildren) {
             this._updatePath(path);
         } else {
@@ -73,10 +73,10 @@ class LegacyMenu extends LegacyContainer {
         }
     }
 
-    _onAppend(item) {
+    _onAppend(item: any) {
         this._index[item._value] = item;
 
-        item.on('value', (value, valueOld) => {
+        item.on('value', (value: any, valueOld: any) => {
             delete this._index[valueOld];
             this._index[value] = item;
         });
@@ -85,18 +85,18 @@ class LegacyMenu extends LegacyContainer {
         });
     }
 
-    _onOver(path) {
+    _onOver(path: string[]) {
         this._updatePath(path);
     }
 
-    _onOpen(state) {
+    _onOpen(state: boolean) {
         if (state) {
             return;
         }
         this._updatePath([]);
     }
 
-    findByPath(path) {
+    findByPath(path: string | string[]) {
         if (!(path instanceof Array)) {
             path = path.split('.');
         }
@@ -113,7 +113,7 @@ class LegacyMenu extends LegacyContainer {
         return item;
     }
 
-    _updatePath(path) {
+    _updatePath(path: string[]) {
         let node = this;
 
         for (let i = 0; i < this._hovered.length; i++) {
@@ -156,7 +156,7 @@ class LegacyMenu extends LegacyContainer {
         }
     }
 
-    position(x, y) {
+    position(x: number, y: number) {
         this._element.style.display = 'block';
 
         const rect = this.innerElement.getBoundingClientRect();
@@ -181,7 +181,7 @@ class LegacyMenu extends LegacyContainer {
         this._element.style.display = '';
     }
 
-    createItem(key, data) {
+    createItem(key: string, data: Record<string, any>) {
         const item = new LegacyMenuItem({
             text: data.title || key,
             className: data.className || null,
@@ -210,10 +210,10 @@ class LegacyMenu extends LegacyContainer {
         return item;
     }
 
-    static fromData(data, args) {
+    static fromData(data: Record<string, any>, args: Record<string, any>) {
         const menu = new LegacyMenu(args);
 
-        const listItems = function (data, parent) {
+        const listItems = function (data: Record<string, any>, parent: LegacyMenu | LegacyMenuItem) {
             for (const key in data) {
                 const item = menu.createItem(key, data[key]);
                 parent.append(item);

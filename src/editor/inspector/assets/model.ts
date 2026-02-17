@@ -164,7 +164,7 @@ const DOM = parent => [
 ];
 
 class ModelAssetInspector extends Container {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
 
         super(args);
@@ -222,7 +222,7 @@ class ModelAssetInspector extends Container {
         this._unwrapAttributesInspector.getField('progress').value = 0;
     }
 
-    _formatMetaAttribute(attribute) {
+    _formatMetaAttribute(attribute: string) {
         const total = this._assets.map(asset => asset.get(attribute)).reduce((a, b) => a + b, 0);
         const formattedTotal = total.toLocaleString();
         this._metaAttributesInspector.getField(attribute).values = this._assets.map((asset) => {
@@ -276,7 +276,7 @@ class ModelAssetInspector extends Container {
         });
     }
 
-    link(assets) {
+    link(assets: import('@playcanvas/observer').Observer[]) {
         this.unlink();
         this._assets = assets;
         this._metaAttributesInspector.link(assets);

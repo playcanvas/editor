@@ -55,7 +55,7 @@ editor.once('load', () => {
     });
 
     // When scene is loaded
-    editor.on('scene:load', (id, uniqueId) => {
+    editor.on('scene:load', (id: number | string, uniqueId: number | string) => {
         // set config
         config.scene.id = id.toString();
         config.scene.uniqueId = uniqueId.toString();
@@ -93,7 +93,7 @@ editor.once('load', () => {
 
     // When history state changes make sure we load the
     // correct scene based on the new URL
-    window.addEventListener('popstate', (e) => {
+    window.addEventListener('popstate', (_e: PopStateEvent) => {
         const location = window.location.href;
 
         // close scene picker
@@ -115,7 +115,7 @@ editor.once('load', () => {
                         editor.call('scene:unload');
                     }
                     // get scene from the API to get the unique id
-                    editor.call('scenes:get', sceneId, (err, scene) => {
+                    editor.call('scenes:get', sceneId, (err: unknown, scene?: { uniqueId: string }) => {
                         if (err) {
                             goToProject();
                         } else {
@@ -135,7 +135,7 @@ editor.once('load', () => {
     });
 
     // subscribe to messenger scene.delete
-    editor.on('messenger:scene.delete', (data) => {
+    editor.on('messenger:scene.delete', (data: { scene: { id: string; branchId: string } }) => {
         if (data.scene.branchId !== config.self.branch.id) {
             return;
         }

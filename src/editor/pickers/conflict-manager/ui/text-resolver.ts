@@ -15,10 +15,10 @@ class TextResolver extends Events {
     /**
      * Create a new TextResolver.
      *
-     * @param {object} conflict - The conflict group
-     * @param {object} mergeObject - The merge object
+     * @param conflict - The conflict group
+     * @param mergeObject - The merge object
      */
-    constructor(conflict, mergeObject) {
+    constructor(conflict: Record<string, unknown>, mergeObject: Record<string, unknown>) {
         super();
 
         this._mergeId = mergeObject.id;
@@ -138,7 +138,7 @@ class TextResolver extends Events {
         this._unresolvedFile = null;
     }
 
-    appendToParent(parent) {
+    appendToParent(parent: { append: (el: unknown) => void }) {
         parent.append(this._panelTop);
         parent.append(this._iframe);
     }
@@ -153,7 +153,7 @@ class TextResolver extends Events {
         this._iframe = null;
     }
 
-    _codeEditorMethod(method, arg1, arg2, arg3, arg4) {
+    _codeEditorMethod(method: string, arg1?: unknown, arg2?: unknown, arg3?: unknown, arg4?: unknown) {
         return this._iframe.contentWindow.editor.call(method, arg1, arg2, arg3, arg4);
     }
 
@@ -195,7 +195,7 @@ class TextResolver extends Events {
         });
     }
 
-    _toggleButtons(toggle) {
+    _toggleButtons(toggle: boolean) {
         this._btnGoBack.disabled = !toggle;
         this._btnMarkResolved.disabled = !toggle;
         this._btnUseAllFrom.disabled = !toggle;

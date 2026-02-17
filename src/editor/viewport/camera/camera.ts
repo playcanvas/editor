@@ -14,7 +14,7 @@ editor.once('load', () => {
         const projectSettings = editor.call('settings:project');
         const projectUserSettings = editor.call('settings:projectUser');
 
-        editor.method('camera:get', (name) => {
+        editor.method('camera:get', (name: string) => {
             return editorCameras[name] || null;
         });
 
@@ -26,7 +26,7 @@ editor.once('load', () => {
             return currentCamera;
         });
 
-        const addGizmoLayers = function (camera, layers) {
+        const addGizmoLayers = function (camera: import('playcanvas').CameraComponent, layers: import('playcanvas').Layer[]): void {
             for (let i = 0; i < layers.length; i++) {
                 const layer = layers[i];
                 const idx = camera.layers.indexOf(layer.id);
@@ -38,7 +38,7 @@ editor.once('load', () => {
             camera.layers = camera.layers; // force update
         };
 
-        const removeGizmoLayers = function (camera, layers) {
+        const removeGizmoLayers = function (camera: import('playcanvas').CameraComponent, layers: import('playcanvas').Layer[]): void {
             for (let i = 0; i < layers.length; i++) {
                 const layer = layers[i];
                 const idx = camera.layers.indexOf(layer.id);
@@ -51,7 +51,7 @@ editor.once('load', () => {
             camera.layers = camera.layers; // force update
         };
 
-        editor.method('camera:set', (entity) => {
+        editor.method('camera:set', (entity?: import('playcanvas').Entity) => {
             if (!entity) {
                 entity = defaultCamera;
             }
@@ -149,7 +149,7 @@ editor.once('load', () => {
             editor.call('viewport:render');
         });
 
-        editor.method('camera:add', (entity) => {
+        editor.method('camera:add', (entity: import('playcanvas').Entity) => {
             if (camerasIndex[entity.getGuid()]) {
                 return;
             }
@@ -164,7 +164,7 @@ editor.once('load', () => {
             editor.emit('camera:add', entity);
         });
 
-        editor.method('camera:remove', (entity) => {
+        editor.method('camera:remove', (entity: import('playcanvas').Entity) => {
             if (!camerasIndex[entity.getGuid()]) {
                 return;
             }
@@ -178,7 +178,7 @@ editor.once('load', () => {
             editor.emit('camera:remove', entity);
         });
 
-        editor.on('permissions:writeState', (state) => {
+        editor.on('permissions:writeState', (state: boolean) => {
             if (state || currentCamera.__editorCamera) {
                 return;
             }
@@ -239,7 +239,7 @@ editor.once('load', () => {
         }];
 
 
-        const createCamera = function (args) {
+        const createCamera = function (args: { name: string; title: string; className: string; position: import('playcanvas').Vec3; rotation: import('playcanvas').Vec3; default?: boolean; ortho?: boolean }) {
             const entity = new Entity();
             entity.__editorCamera = true;
             entity.__editorName = args.name;
@@ -296,7 +296,7 @@ editor.once('load', () => {
         }
 
         // when layers change make sure that our Editor cameras have them
-        projectSettings.on('layerOrder:insert', (value) => {
+        projectSettings.on('layerOrder:insert', (value: import('@playcanvas/observer').Observer) => {
             const id = parseInt(value.get('layer'), 10);
             for (const key in editorCameras) {
                 const entity = editorCameras[key];
@@ -311,7 +311,7 @@ editor.once('load', () => {
             editor.call('viewport:render');
         });
 
-        projectSettings.on('layerOrder:remove', (value) => {
+        projectSettings.on('layerOrder:remove', (value: import('@playcanvas/observer').Observer) => {
             const id = parseInt(value.get('layer'), 10);
             for (const key in editorCameras) {
                 const entity = editorCameras[key];
@@ -326,7 +326,7 @@ editor.once('load', () => {
             editor.call('viewport:render');
         });
 
-        editor.on('camera:shader:pass', (shaderPass: string) => {
+        editor.on('camera:shader:pass', (shaderPass: string): void => {
             for (const key in camerasIndex) {
                 const entity = camerasIndex[key];
                 entity.camera.setShaderPass(shaderPass);
@@ -334,7 +334,7 @@ editor.once('load', () => {
             editor.call('viewport:render');
         });
 
-        const requestSceneColorMap = function (enabled) {
+        const requestSceneColorMap = function (enabled: boolean): void {
             for (const key in editorCameras) {
                 const entity = editorCameras[key];
                 entity.camera.requestSceneColorMap(enabled);
@@ -342,7 +342,7 @@ editor.once('load', () => {
             editor.call('viewport:render');
         };
 
-        const requestSceneDepthMap = function (enabled) {
+        const requestSceneDepthMap = function (enabled: boolean): void {
             for (const key in editorCameras) {
                 const entity = editorCameras[key];
                 entity.camera.requestSceneDepthMap(enabled);
@@ -359,11 +359,11 @@ editor.once('load', () => {
                 requestSceneColorMap(true);
             }
 
-            projectUserSettings.on('editor.cameraGrabDepth:set', (value) => {
+            projectUserSettings.on('editor.cameraGrabDepth:set', (value: boolean) => {
                 requestSceneDepthMap(value);
             });
 
-            projectUserSettings.on('editor.cameraGrabColor:set', (value) => {
+            projectUserSettings.on('editor.cameraGrabColor:set', (value: boolean) => {
                 requestSceneColorMap(value);
             });
         });

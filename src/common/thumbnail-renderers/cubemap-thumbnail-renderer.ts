@@ -1,3 +1,5 @@
+import type { Observer } from '@playcanvas/observer';
+
 import { buildQueryUrl } from '../utils';
 
 const POSITIONS = [
@@ -12,7 +14,7 @@ const POSITIONS = [
 const GRID_SIZE = 15 / 64;
 
 class CubemapThumbnailRenderer {
-    constructor(asset, canvas, assetsList) {
+    constructor(asset: Observer, canvas: HTMLCanvasElement, assetsList: any) {
         this._asset = asset;
         this._assets = assetsList;
         this._canvas = canvas;

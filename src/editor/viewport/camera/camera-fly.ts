@@ -1,6 +1,6 @@
 import { PROJECTION_ORTHOGRAPHIC, Vec3 } from 'playcanvas';
 
-editor.once('viewport:load', (app) => {
+editor.once('viewport:load', (app: import('playcanvas').Application) => {
 
     // Variables
     let flying = false;
@@ -42,9 +42,9 @@ editor.once('viewport:load', (app) => {
     ]);
 
     // Helper functions
-    const isInputOrTextarea = target => /input|textarea/i.test(target.tagName);
+    const isInputOrTextarea = (target: EventTarget) => /input|textarea/i.test((target as HTMLElement).tagName);
 
-    const setKeyState = (key, state) => {
+    const setKeyState = (key: string, state: boolean): void => {
         const action = keyMappings.get(key);
         if (action) {
             keys[action] = state;
@@ -72,7 +72,7 @@ editor.once('viewport:load', (app) => {
     };
 
     // Event handlers
-    window.addEventListener('keydown', (evt) => {
+    window.addEventListener('keydown', (evt: KeyboardEvent) => {
         if (isInputOrTextarea(evt.target) || evt.ctrlKey || evt.metaKey || evt.altKey) {
             return;
         }
@@ -96,7 +96,7 @@ editor.once('viewport:load', (app) => {
         editor.call('viewport:render');
     }, false);
 
-    window.addEventListener('keyup', (evt) => {
+    window.addEventListener('keyup', (evt: KeyboardEvent) => {
         if (!flying || isInputOrTextarea(evt.target) || evt.ctrlKey || evt.metaKey || evt.altKey) {
             return;
         }
@@ -112,7 +112,7 @@ editor.once('viewport:load', (app) => {
     window.addEventListener('blur', endFly);
     document.addEventListener('visibilitychange', endFly);
 
-    editor.on('viewport:update', (dt) => {
+    editor.on('viewport:update', (dt: number) => {
         let camera;
         let speed = 0;
 
@@ -156,7 +156,7 @@ editor.once('viewport:load', (app) => {
         }
     });
 
-    editor.on('hotkey:shift', (state) => {
+    editor.on('hotkey:shift', (state: boolean) => {
         shiftKey = state;
     });
 

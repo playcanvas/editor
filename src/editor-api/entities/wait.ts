@@ -18,7 +18,7 @@ function wait(entityIds: string[], timeoutMs: number, callback: Function) {
     const index: Record<string, any> = {};
     let earlyOut = true;
 
-    entityIds.forEach((id) => {
+    entityIds.forEach((id: string) => {
         index[id] = api.entities.get(id);
         if (!index[id]) {
             earlyOut = false;
@@ -26,14 +26,14 @@ function wait(entityIds: string[], timeoutMs: number, callback: Function) {
     });
 
     if (earlyOut) {
-        callback(entityIds.map(id => index[id]));
+        callback(entityIds.map((id: string) => index[id]));
         return () => { };
     }
 
     let timeout: ReturnType<typeof setTimeout>;
 
     const checkAllThere = () => {
-        return entityIds.filter(id => !index[id]).length === 0;
+        return entityIds.filter((id: string) => !index[id]).length === 0;
     };
 
     let evtAdd: EventHandle;
@@ -60,7 +60,7 @@ function wait(entityIds: string[], timeoutMs: number, callback: Function) {
 
         if (checkAllThere()) {
             cancel();
-            callback(entityIds.map(id => index[id]));
+            callback(entityIds.map((id: string) => index[id]));
         }
     };
 

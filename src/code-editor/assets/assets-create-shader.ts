@@ -1,5 +1,5 @@
 editor.once('load', () => {
-    editor.method('assets:create:shader', (args) => {
+    editor.method('assets:create:shader', (args?: { parent?: unknown }) => {
         if (!editor.call('permissions:write')) {
             return;
         }

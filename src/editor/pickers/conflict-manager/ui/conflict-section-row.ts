@@ -13,6 +13,25 @@ import {
     ConflictFieldNotRenderable
 } from './conflict-field';
 
+export interface ConflictSectionRowArgs {
+    /** The name of the field */
+    name?: string;
+    /** If true then this field has no path (which means the whole object is considered to be a conflict e.g. a whole asset) */
+    noPath?: boolean;
+    /** The type of the field (if same type for base, source and destination values) */
+    type?: string;
+    /** The type of the base value */
+    baseType?: string;
+    /** The type of the source value */
+    sourceType?: string;
+    /** The type of the destination value */
+    destType?: string;
+    /** The conflict object */
+    conflict: Record<string, unknown>;
+    /** If true the name will be prettified */
+    prettify?: boolean;
+}
+
 const BASE_PANEL = 0;
 const DEST_PANEL = 1;
 const SOURCE_PANEL = 2;
@@ -24,18 +43,10 @@ class ConflictSectionRow extends Events {
     /**
      * Creates a new ConflictSectionRow.
      *
-     * @param {object} resolver - The conflict resolver object
-     * @param {object} args - The arguments
-     * @param {string} args.name - The name of the field
-     * @param {boolean} args.noPath - If true then this field has no path (which means the whole object is considered to be a conflict e.g. a whole asset)
-     * @param {string} args.type - The type of the field (if same type for base, source and destination values)
-     * @param {string} args.baseType - The type of the base value
-     * @param {string} args.sourceType - The type of the source value
-     * @param {string} args.destType - The type of the destination value
-     * @param {object} args.conflict - The conflict object
-     * @param {boolean} args.prettify - If true the name will be prettified
+     * @param resolver - The conflict resolver object
+     * @param args - The arguments
      */
-    constructor(resolver, args) {
+    constructor(resolver: Record<string, unknown>, args: ConflictSectionRowArgs) {
         super();
 
         const self = this;
@@ -152,7 +163,7 @@ class ConflictSectionRow extends Events {
         }
     }
 
-    _wasMissing(side, conflict, isDiff) {
+    _wasMissing(side: number, conflict: Record<string, unknown>, isDiff: boolean): boolean {
         if (side === BASE_PANEL && conflict.missingInBase) {
             return true;
         }
@@ -173,7 +184,7 @@ class ConflictSectionRow extends Events {
         return false;
     }
 
-    _wasDeleted(side, conflict, isDiff) {
+    _wasDeleted(side: number, conflict: Record<string, unknown>, isDiff: boolean): boolean {
         if (side === SOURCE_PANEL) {
             if (conflict.missingInSrc) {
                 if (isDiff) {
@@ -194,7 +205,7 @@ class ConflictSectionRow extends Events {
         return false;
     }
 
-    _wasCreated(side, conflict, isDiff) {
+    _wasCreated(side: number, conflict: Record<string, unknown>, isDiff: boolean): boolean {
         if (side === SOURCE_PANEL) {
             if (!conflict.missingInSrc) {
                 if (isDiff) {
@@ -215,7 +226,7 @@ class ConflictSectionRow extends Events {
         return false;
     }
 
-    _wasEdited(side, conflict, isDiff) {
+    _wasEdited(side: number, conflict: Record<string, unknown>, isDiff: boolean): boolean {
         if (side === SOURCE_PANEL) {
             if (!conflict.missingInSrc) {
                 if (isDiff) {
@@ -238,7 +249,7 @@ class ConflictSectionRow extends Events {
 
     // Returns an array of the 3 values (base, source, dest) after it converts
     // those values from IDs to names (if necessary)
-    _convertValues(conflict) {
+    _convertValues(conflict: Record<string, unknown>): unknown[] {
         const self = this;
 
         let base = conflict.baseValue;
@@ -302,7 +313,7 @@ class ConflictSectionRow extends Events {
 
                 } else if (srcType === `array:${type}`) {
                     if (Array.isArray(src)) {
-                        src = src.map((id) => {
+                        src = src.map((id: unknown) => {
                             return self._convertIdToName(id, indexes[type][0]);
                         });
                     }
@@ -314,7 +325,7 @@ class ConflictSectionRow extends Events {
 
             // special handling for sublayers - use the 'layer' field as the id for the field
             if (!handled && srcType === 'array:sublayer' && src) {
-                src.forEach((sublayer) => {
+                src.forEach((sublayer: { layer: unknown }) => {
                     self._convertSublayer(sublayer, indexes.layer[0]);
                 });
             }
@@ -338,7 +349,7 @@ class ConflictSectionRow extends Events {
                     //     }
                     // }
                 } else if (dstType === `array:${type}`) {
-                    dst = dst.map((id) => {
+                    dst = dst.map((id: unknown) => {
                         return self._convertIdToName(id, indexes[type][1]);
                     });
                     handled = true;
@@ -348,7 +359,7 @@ class ConflictSectionRow extends Events {
 
             // special handling for sublayers - use the 'layer' field as the id for the field
             if (!handled && dstType === 'array:sublayer' && dst) {
-                dst.forEach((sublayer) => {
+                dst.forEach((sublayer: { layer: unknown }) => {
                     self._convertSublayer(sublayer, indexes.layer[1]);
                 });
             }
@@ -361,7 +372,7 @@ class ConflictSectionRow extends Events {
         return result;
     }
 
-    _convertIdToName(id, index, alternativeIndex) {
+    _convertIdToName(id: unknown, index: Record<string, string>, alternativeIndex?: Record<string, string>) {
         if (id === null || id === undefined) {
             return id;
         }
@@ -383,7 +394,7 @@ class ConflictSectionRow extends Events {
         return result;
     }
 
-    _convertSublayer(sublayer, index, alternativeIndex) {
+    _convertSublayer(sublayer: { layer: unknown }, index: Record<string, string>, alternativeIndex?: Record<string, string>) {
         const layer = this._convertIdToName(sublayer.layer, index, alternativeIndex);
         sublayer.layer = (layer.name || layer.id);
     }
@@ -415,7 +426,7 @@ class ConflictSectionRow extends Events {
     }
 
     // Converts values like so: thisIsSomeValue to this: This Is Some Value
-    _prettifyName(name) {
+    _prettifyName(name: string): string {
         const firstLetter = name[0];
         const rest = name.slice(1);
         return firstLetter.toUpperCase() +
@@ -423,7 +434,7 @@ class ConflictSectionRow extends Events {
         // insert a space before all caps and numbers
         .replace(/([A-Z0-9])/g, ' $1')
         // replace special characters with spaces
-        .replace(/[^a-z0-9](.)/gi, (match, group) => {
+        .replace(/[^a-z0-9](.)/gi, (match: string, group: string) => {
             return ` ${group.toUpperCase()}`;
         });
     }
@@ -475,7 +486,7 @@ class ConflictSectionRow extends Events {
     }
 
     // Appends all row panels to parent panels
-    appendToParents(parents) {
+    appendToParents(parents: LegacyPanel[]) {
         for (let i = 0; i < parents.length; i++) {
             parents[i].append(this._panels[i]);
         }

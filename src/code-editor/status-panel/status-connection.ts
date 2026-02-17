@@ -21,7 +21,7 @@ editor.once('load', () => {
         }
     };
 
-    editor.on('realtime:nextAttempt', (seconds) => {
+    editor.on('realtime:nextAttempt', (seconds: number) => {
         remainingTime = seconds;
         retry(seconds);
     });

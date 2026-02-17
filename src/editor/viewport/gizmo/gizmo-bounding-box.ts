@@ -29,7 +29,7 @@ editor.once('load', () => {
     // tmp variable used to render bounding box
     const _selectionBB = new BoundingBox();
 
-    editor.on('selector:change', (type, items) => {
+    editor.on('selector:change', (type: string, items: { entity: Entity }[]) => {
         if (type === 'entity') {
             entities = items.map((item) => {
                 return item.entity;
@@ -39,14 +39,14 @@ editor.once('load', () => {
         }
     });
 
-    editor.method('gizmo:boundingbox:visible', (state) => {
+    editor.method('gizmo:boundingbox:visible', (state: boolean) => {
         if (state !== visible) {
             visible = state;
             editor.call('viewport:render');
         }
     });
 
-    editor.method('viewport:render:aabb', (aabb) => {
+    editor.method('viewport:render:aabb', (aabb: BoundingBox) => {
         if (!app) {
             return;
         } // webgl not available
@@ -94,7 +94,7 @@ editor.once('load', () => {
     // calculate the bounding box for a single entity and return it
     // bounding box is calculated from one of the components
     // attached to the entity in a priority order
-    const getBoundingBoxForEntity = function (entity, resultBB) {
+    const getBoundingBoxForEntity = function (entity: Entity, resultBB: BoundingBox): BoundingBox {
 
         // clear result box
         resultBB.center.set(0, 0, 0);
@@ -194,7 +194,7 @@ editor.once('load', () => {
         // then element component
         if (entity.element) {
             resultBB.center.copy(entity.getPosition());
-            entity.element.worldCorners.forEach((corner) => {
+            entity.element.worldCorners.forEach((corner: Vec3) => {
                 _tmpBB.center.copy(corner);
                 _tmpBB.halfExtents.set(0, 0, 0);
                 resultBB.add(_tmpBB);
@@ -250,7 +250,7 @@ editor.once('load', () => {
 
     // Get the bounding box the encloses a hierarchy of entities
     // {Entity} root - the root entity of the hierarchy
-    const getBoundingBoxForHierarchy = function (root, hierarchyBB) {
+    const getBoundingBoxForHierarchy = function (root: Entity, hierarchyBB?: BoundingBox | null): BoundingBox {
         const bb = getBoundingBoxForEntity(root, _entityResultBB);
 
         // first time through we initialize with the new boundingbox
@@ -274,11 +274,11 @@ editor.once('load', () => {
         return hierarchyBB;
     };
 
-    editor.method('entities:getBoundingBoxForEntity', (entity) => {
+    editor.method('entities:getBoundingBoxForEntity', (entity: Entity) => {
         return getBoundingBoxForEntity(entity, _resultBB);
     });
 
-    editor.once('viewport:load', (application) => {
+    editor.once('viewport:load', (application: import('playcanvas').AppBase) => {
         app = application;
 
         editor.on('viewport:postUpdate', () => {

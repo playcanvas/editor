@@ -19,12 +19,12 @@ editor.on('load', async () => {
     /**
      * Sends a message to the service worker and waits for a response
      *
-     * @param {string} message - The message to send to the service worker
-     * @param {any} data - The data to send to the service worker
-     * @returns {Promise<void>} - A promise that resolves when the service worker responds to the message
+     * @param message - The message to send to the service worker
+     * @param data - The data to send to the service worker
+     * @returns A promise that resolves when the service worker responds to the message
      */
-    const send = (message, data) => new Promise((resolve, reject) => {
-        const onMessage = (event) => {
+    const send = (message: string, data?: unknown): Promise<void> => new Promise((resolve, reject) => {
+        const onMessage = (event: MessageEvent) => {
             navigator.serviceWorker.removeEventListener('message', onMessage);
             switch (event.data.message) {
                 case `${message}:success`: {
@@ -44,10 +44,10 @@ editor.on('load', async () => {
     /**
      * Watches an asset for changes to its name and path
      *
-     * @param {string} assetId - The id of the asset to watch
-     * @param {function(): void} callback - The callback to call when the asset changes;
+     * @param assetId - The id of the asset to watch
+     * @param callback - The callback to call when the asset changes;
      */
-    const watchAsset = (assetId, callback) => {
+    const watchAsset = (assetId: string, callback: () => void) => {
         const asset = editor.call('assets:get', assetId);
         if (!asset) {
             return;
@@ -60,10 +60,10 @@ editor.on('load', async () => {
     /**
      * Unwatches an asset for changes to its name and path
      *
-     * @param {string} assetId - The id of the asset to unwatch
-     * @param {function(): void} callback - The callback to remove from the asset
+     * @param assetId - The id of the asset to unwatch
+     * @param callback - The callback to remove from the asset
      */
-    const unwatchAsset = (assetId, callback) => {
+    const unwatchAsset = (assetId: string, callback: () => void) => {
         const asset = editor.call('assets:get', assetId);
         if (!asset) {
             return;
@@ -117,7 +117,7 @@ editor.on('load', async () => {
      * This method assumes that the asset list has been constructed
      */
     editor.method('sw:initialize', () => {
-        const registerAsset = (asset) => {
+        const registerAsset = (asset: Observer) => {
             // ignore non ESM script assets
             if (!editor.call('assets:isModule', asset)) {
                 return Promise.resolve();

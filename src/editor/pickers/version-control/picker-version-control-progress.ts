@@ -50,7 +50,7 @@ editor.once('load', () => {
         error.classList.add('hidden');
 
         // Call this when the asynchronous action is finished
-        panel.finish = function (err) {
+        panel.finish = function (err: string | null) {
             if (err) {
                 panel.setMessage(args.errorText);
                 panel.setNote(err);
@@ -65,11 +65,11 @@ editor.once('load', () => {
             spinner.classList.add('hidden');
         };
 
-        panel.setMessage = function (text) {
+        panel.setMessage = function (text: string) {
             labelMessage.text = text;
         };
 
-        panel.setNote = function (text) {
+        panel.setNote = function (text: string) {
             labelNote.text = text;
             labelNote.hidden = !text;
         };

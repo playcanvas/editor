@@ -185,7 +185,7 @@ editor.once('load', () => {
         return bubble;
     };
 
-    const showBubble = function (name, bubbleFn, delay, force, callback) {
+    const showBubble = function (name: string, bubbleFn: () => { on: (event: string, cb: () => void) => void; destroy: () => void }, delay: number, force?: boolean, callback?: () => void) {
         if (!force && config.self.flags.tips[name] !== false) {
             return false;
         }
@@ -218,13 +218,13 @@ editor.once('load', () => {
         return true;
     };
 
-    editor.method('guide:bubble:show', (name, bubbleFn, delay, force, callback) => {
+    editor.method('guide:bubble:show', (name: string, bubbleFn: () => { on: (event: string, cb: () => void) => void; destroy: () => void }, delay: number, force?: boolean, callback?: () => void) => {
         showBubble(name, bubbleFn, delay, force, callback);
     });
 
 
     let selectEvents = null;
-    const showBubbles = function (initialDelay) {
+    const showBubbles = function (initialDelay: number) {
         let delay = initialDelay;
 
         if (showBubble('mainMenu', bubbleMenu, delay)) {
@@ -258,7 +258,7 @@ editor.once('load', () => {
 
         // entity bubble on select entity
         if (config.self.flags.tips.entityInspector === false) {
-            var evtEntitySelect = editor.on('selector:change', (type, items) => {
+            var evtEntitySelect = editor.on('selector:change', (type: string | null, items: import('@playcanvas/observer').Observer[]) => {
                 if (type !== 'entity') {
                     return;
                 }
@@ -271,10 +271,10 @@ editor.once('load', () => {
 
         // sound component bubble
         if (!config.self.flags.tips.soundComponent) {
-            var evtEntityWithSoundSelect = editor.on('selector:change', (type, items) => {
+            var evtEntityWithSoundSelect = editor.on('selector:change', (type: string | null, items: import('@playcanvas/observer').Observer[]) => {
 
                 if (selectEvents) {
-                    selectEvents.forEach((evt) => {
+                    selectEvents.forEach((evt: { unbind: () => void }) => {
                         evt.unbind();
                     });
                     selectEvents = null;

@@ -1,4 +1,4 @@
-function warn(view, condition, message, owner, severity = monaco.MarkerSeverity.Warning) {
+function warn(view: monaco.editor.ITextModel, condition: (view: monaco.editor.ITextModel, code: string) => Iterable<RegExpMatchArray> | null, message: string, owner: string, severity: number = monaco.MarkerSeverity.Warning) {
     const code = view.getValue();
     const markers = [];
     const matches = condition(view, code);

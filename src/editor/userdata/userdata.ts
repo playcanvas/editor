@@ -5,7 +5,7 @@ import { ObserverSync } from '@/common/observer-sync';
 editor.once('load', () => {
     const userdata = new Observer();
 
-    editor.on(`userdata:${config.self.id}:raw`, (data) => {
+    editor.on(`userdata:${config.self.id}:raw`, (data: unknown) => {
 
         if (!userdata.sync) {
             userdata.sync = new ObserverSync({
@@ -14,7 +14,7 @@ editor.once('load', () => {
             });
 
             // client > server
-            userdata.sync.on('op', (op) => {
+            userdata.sync.on('op', (op: unknown) => {
                 if (op.oi === null) {
                     log.error('Tried to send invalid userdata op', op);
                     return;

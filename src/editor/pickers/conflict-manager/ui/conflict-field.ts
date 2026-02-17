@@ -19,7 +19,7 @@ class ConflictField {
     }
 
     // Gets / sets the height of the field
-    set height(value) {
+    set height(value: number) {
         this.element.parent.style.height = `${value}px`;
     }
 
@@ -30,7 +30,7 @@ class ConflictField {
 
 // A String field
 class ConflictFieldString extends ConflictField {
-    constructor(value) {
+    constructor(value: unknown) {
         super();
 
         this.element = new LegacyLabel({
@@ -42,7 +42,7 @@ class ConflictFieldString extends ConflictField {
 
 // A Vector field
 class ConflictFieldVector extends ConflictField {
-    constructor(value) {
+    constructor(value: number[]) {
         super();
 
         const panel = new LegacyPanel();
@@ -62,11 +62,11 @@ class ConflictFieldVector extends ConflictField {
 
 // A Color field
 class ConflictFieldColor extends ConflictField {
-    constructor(value) {
+    constructor(value: number[]) {
         super();
 
         this.element = new LegacyColorField();
-        this.element.value = value.map((c) => {
+        this.element.value = value.map((c: number) => {
             return c * 255;
         });
         this.element.class.add('field-color');
@@ -75,7 +75,7 @@ class ConflictFieldColor extends ConflictField {
 
 // A Curve field
 class ConflictFieldCurve extends ConflictField {
-    constructor(value) {
+    constructor(value: unknown) {
         super();
 
         this.element = new LegacyCurveField({
@@ -88,7 +88,7 @@ class ConflictFieldCurve extends ConflictField {
 
 // An Asset field
 class ConflictFieldAsset extends ConflictField {
-    constructor(value) {
+    constructor(value: { id?: unknown; name?: string } | null) {
         super();
 
         this.element = new LegacyPanel();
@@ -112,7 +112,7 @@ class ConflictFieldAsset extends ConflictField {
 
 // An Entity field
 class ConflictFieldEntity extends ConflictField {
-    constructor(value) {
+    constructor(value: { id?: unknown; name?: string; deleted?: boolean } | null) {
         super();
 
         this.element = new LegacyPanel();
@@ -146,7 +146,7 @@ class ConflictFieldEntity extends ConflictField {
 
 // A Layer field
 class ConflictFieldLayer extends ConflictField {
-    constructor(value) {
+    constructor(value: { id?: unknown; name?: string } | null) {
         super();
 
         this.element = new LegacyLabel({
@@ -158,7 +158,7 @@ class ConflictFieldLayer extends ConflictField {
 
 // A sublayer field
 class ConflictFieldSublayer extends ConflictField {
-    constructor(value) {
+    constructor(value: { layer?: unknown; transparent?: boolean } | null) {
         super();
 
         this.element = new LegacyLabel({
@@ -170,7 +170,7 @@ class ConflictFieldSublayer extends ConflictField {
 
 // for JSON just stringify and show value
 class ConflictFieldJson extends ConflictField {
-    constructor(value) {
+    constructor(value: unknown) {
         super();
 
         this.element = new TextAreaInput({
@@ -179,7 +179,7 @@ class ConflictFieldJson extends ConflictField {
             height: 100
         });
         this.element.input.style.lineHeight = 1.1;
-        this.element.on('click', (evt) => {
+        this.element.on('click', (evt: MouseEvent) => {
             evt.stopPropagation();
         });
         this.element.class.add('field-json', 'selectable');
@@ -275,7 +275,7 @@ class ConflictFieldNotRenderable extends ConflictField {
 
 // An array field is a list of other fields
 class ConflictArrayField extends ConflictField {
-    constructor(type, value) {
+    constructor(type: string, value: unknown[]) {
         super();
 
         this._size = value.length;
@@ -307,7 +307,7 @@ class ConflictArrayField extends ConflictField {
 }
 
 // Creates a field with the specified value based on the specified type
-ConflictField.create = function (type, value) {
+ConflictField.create = function (type: string, value: unknown) {
     switch (type) {
         case 'asset':
             return new ConflictFieldAsset(value);

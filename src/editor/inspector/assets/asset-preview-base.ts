@@ -14,7 +14,7 @@ class AssetInspectorPreviewBase extends Container {
 
     private _hasPreview: boolean = false;
 
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         super(args);
         this.class.add(CLASS_CONTAINER);
 
@@ -37,7 +37,7 @@ class AssetInspectorPreviewBase extends Container {
         this.class.remove(CLASS_CONTAINER_LARGE);
     }
 
-    _onMouseDown(evt) {
+    _onMouseDown(evt: MouseEvent) {
         if (evt.button !== 0) {
             return;
         }
@@ -48,7 +48,7 @@ class AssetInspectorPreviewBase extends Container {
         this._mouseDown = true;
     }
 
-    _onMouseMove(evt) {
+    _onMouseMove(evt: MouseEvent) {
         if (!this._mouseDown) {
             return;
         }
@@ -56,7 +56,7 @@ class AssetInspectorPreviewBase extends Container {
         this._dragging = true;
     }
 
-    _onMouseUp(evt) {
+    _onMouseUp(evt: MouseEvent) {
         if (evt.button !== 0) {
             return;
         }

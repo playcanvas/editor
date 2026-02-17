@@ -1,7 +1,7 @@
 import { LegacyContainer } from './container';
 
 class LegacyMenuItem extends LegacyContainer {
-    constructor(args = {}) {
+    constructor(args: Record<string, any> = {}) {
         super();
         this._value = args.value || '';
         this._hasChildren = args.hasChildren;
@@ -47,7 +47,7 @@ class LegacyMenuItem extends LegacyContainer {
         }
     }
 
-    set value(value) {
+    set value(value: string) {
         if (this._value === value) {
             return;
         }
@@ -61,7 +61,7 @@ class LegacyMenuItem extends LegacyContainer {
         return this._value;
     }
 
-    set text(value) {
+    set text(value: string) {
         if (this.elementText.textContent === value) {
             return;
         }
@@ -73,7 +73,7 @@ class LegacyMenuItem extends LegacyContainer {
         return this.elementText.textContent;
     }
 
-    set icon(value) {
+    set icon(value: string | null) {
         if ((!value && !this.elementIcon) || (this.elementIcon && this.elementIcon.textContent === value)) {
             return;
         }
@@ -96,14 +96,14 @@ class LegacyMenuItem extends LegacyContainer {
         return this.elementIcon ? this.elementIcon.textContent : null;
     }
 
-    _onMouseEnter(evt) {
+    _onMouseEnter(evt: MouseEvent) {
         evt.stopPropagation();
         evt.preventDefault();
 
         this.parent.emit('over', [this._value]);
     }
 
-    _onOver(path) {
+    _onOver(path: string[]) {
         if (!this.parent) {
             return;
         }
@@ -113,7 +113,7 @@ class LegacyMenuItem extends LegacyContainer {
         this.parent.emit('over', path);
     }
 
-    _onClick(evt) {
+    _onClick(evt: MouseEvent) {
         if (!this.parent || this.disabled) {
             return;
         }
@@ -126,7 +126,7 @@ class LegacyMenuItem extends LegacyContainer {
         }
     }
 
-    _onTouchStart(evt) {
+    _onTouchStart(evt: TouchEvent) {
         if (!this.parent || this.disabled) {
             return;
         }
@@ -140,7 +140,7 @@ class LegacyMenuItem extends LegacyContainer {
         }
     }
 
-    _onTouchEnd(evt) {
+    _onTouchEnd(evt: TouchEvent) {
         if (!this.parent || this.disabled) {
             return;
         }
@@ -149,7 +149,7 @@ class LegacyMenuItem extends LegacyContainer {
         evt.stopPropagation();
     }
 
-    _onSelectPropagate(path, selectedItemHasChildren, mouseEvent) {
+    _onSelectPropagate(path: string[], selectedItemHasChildren: boolean, mouseEvent: MouseEvent) {
         if (!this.parent) {
             return;
         }
@@ -163,13 +163,13 @@ class LegacyMenuItem extends LegacyContainer {
         }
     }
 
-    _onAppend(item) {
+    _onAppend(item: any) {
         this._container = true;
         this.class.add('container');
 
         this._index[item._value] = item;
 
-        item.on('value', (value, valueOld) => {
+        item.on('value', (value: any, valueOld: any) => {
             delete this._index[valueOld];
             this._index[value] = item;
         });

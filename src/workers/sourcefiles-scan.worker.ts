@@ -4,7 +4,7 @@ self.pc = {
         name: '',
 
         // allows users to define attributes like so: pc.script.attribute(name, type, defaultValue [, options]);
-        attribute: function (name, type, defaultValue, options) {
+        attribute: function (name: string, type: string, defaultValue: unknown, options?: Record<string, unknown>) {
             this.attributes.push({
                 name: name,
                 type: type,
@@ -20,11 +20,11 @@ self.pc = {
 
 
     // mock methods that might appear outside of script definitions
-    extend: function (obj, other) {
+    extend: function (obj: Record<string, unknown>, other: Record<string, unknown>) {
         return obj;
     },
 
-    inherits: function (obj, parent) {
+    inherits: function (obj: Record<string, unknown>, parent: new (...args: unknown[]) => unknown) {
         return obj;
     },
 
@@ -33,7 +33,7 @@ self.pc = {
     }
 };
 
-function onReadyStateChange(method, url, xhr, success, error) {
+function onReadyStateChange(method: string, url: string, xhr: XMLHttpRequest, success: () => void, error: (methodOrErr: string | Error, url?: string, xhr?: XMLHttpRequest) => void) {
     if (xhr.readyState === 4) {
         switch (xhr.status) {
             case 0: {
@@ -56,7 +56,7 @@ function onReadyStateChange(method, url, xhr, success, error) {
     }
 }
 
-function onSuccess(method, url, xhr, success, error) {
+function onSuccess(method: string, url: string, xhr: XMLHttpRequest, success: () => void, error: (methodOrErr: string | Error, url?: string, xhr?: XMLHttpRequest) => void) {
     const type = xhr.getResponseHeader('Content-Type');
     if (type && (type.indexOf('application/javascript') >= 0 || type.indexOf('application/x-javascript') >= 0)) {
         try {
@@ -71,7 +71,7 @@ function onSuccess(method, url, xhr, success, error) {
     }
 }
 
-function request(method, url, success, error) {
+function request(method: string, url: string, success: () => void, error: (methodOrErr: string | Error, url?: string, xhr?: XMLHttpRequest) => void) {
     const xhr = new XMLHttpRequest();
 
     xhr.open(method, url, false);
@@ -87,7 +87,7 @@ function request(method, url, success, error) {
     xhr.send();
 }
 
-onmessage = function (event) {
+onmessage = function (event: MessageEvent) {
     const data = event.data;
 
     if (data.url) {

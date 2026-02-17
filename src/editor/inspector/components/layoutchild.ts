@@ -41,7 +41,7 @@ const ATTRIBUTES: Attribute[] = [{
 }];
 
 class LayoutchildComponentInspector extends ComponentInspector {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.component = 'layoutchild';
 
@@ -55,7 +55,7 @@ class LayoutchildComponentInspector extends ComponentInspector {
         this.append(this._attributesInspector);
     }
 
-    link(entities) {
+    link(entities: import('@playcanvas/observer').Observer[]) {
         super.link(entities);
         this._attributesInspector.link(entities);
     }

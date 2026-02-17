@@ -2,11 +2,11 @@ editor.once('load', () => {
     // used if localStorage doesn't work
     const memoryCache = {};
 
-    const getKey = function (asset) {
+    const getKey = function (asset: { get: (key: string) => unknown }) {
         return `codeeditor:assets:${asset.get('id')}`;
     };
 
-    const store = function (asset, contents) {
+    const store = function (asset: { get: (key: string) => unknown }, contents: string) {
         const data = {
             hash: asset.get('file.hash'),
             contents: contents
@@ -17,7 +17,7 @@ editor.once('load', () => {
         memoryCache[key] = data;
     };
 
-    const load = function (asset) {
+    const load = function (asset: { get: (key: string) => unknown }) {
         const key = getKey(asset);
 
         return memoryCache[key];

@@ -1,20 +1,27 @@
+interface TrieNode {
+    name?: string;
+    children: Map<string, TrieNode>;
+    isEndOfPath: boolean;
+    parent: TrieNode | null;
+}
+
 /**
  * A Trie is an ordered tree-like data structure that is used for locating specific keys
  * from within a set.
  */
 class Trie {
-    root = {
+    root: TrieNode = {
         children: new Map(),
         isEndOfPath: false,
         parent: null
     };
 
     /**
-     * @param {string} path - The path to insert into the trie
+     * @param path - The path to insert into the trie
      */
-    insert(path) {
+    insert(path: string) {
         const pathSegments = path.split('/').filter(Boolean);
-        let node = this.root;
+        let node: TrieNode = this.root;
 
         for (const pathSegment of pathSegments) {
             if (!node.children.has(pathSegment)) {
@@ -27,13 +34,13 @@ class Trie {
     }
 
     /**
-     * @param {string} path - The path to find in the trie
-     * @param {boolean} matchPartialPaths - Whether to return the node if the path is not found
-     * @returns {object} - The node that matches the path
+     * @param path - The path to find in the trie
+     * @param matchPartialPaths - Whether to return the node if the path is not found
+     * @returns The node that matches the path
      */
-    find(path, matchPartialPaths = false) {
+    find(path: string, matchPartialPaths: boolean = false): TrieNode | null {
         const pathSegments = path.split('/').filter(Boolean);
-        let node = this.root;
+        let node: TrieNode = this.root;
 
         for (const pathSegment of pathSegments) {
             // early out if we have an invalid path
@@ -48,10 +55,10 @@ class Trie {
     }
 
     /**
-     * @param {string} path - The path to remove from the trie
-     * @returns {boolean} - True if the path was removed, false otherwise
+     * @param path - The path to remove from the trie
+     * @returns True if the path was removed, false otherwise
      */
-    remove(path) {
+    remove(path: string): boolean {
         let node = this.find(path);
         if (!node || node.children.size > 0) {
             return false;
@@ -66,10 +73,10 @@ class Trie {
     }
 
     /**
-     * @param {string} path - The path to search for
-     * @returns {object[]} - A list of nodes that match the search path
+     * @param path - The path to search for
+     * @returns A list of nodes that match the search path
      */
-    search(path) {
+    search(path: string): TrieNode[] {
 
         const hasTrailingSlash = path.endsWith('/');
         const lastPathSegment = path.split('/').filter(Boolean).pop();
@@ -84,7 +91,7 @@ class Trie {
         }
 
         // If we don't have a trailing slash then return a list of children that start with the last path segment
-        return paths.filter(({ name }) => name.startsWith(lastPathSegment));
+        return paths.filter(({ name }: TrieNode) => name.startsWith(lastPathSegment));
 
     }
 }

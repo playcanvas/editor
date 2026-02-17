@@ -1,7 +1,7 @@
 self.window = self;
 self.global = self;
 
-onmessage = (evt) => {
+onmessage = (evt: MessageEvent) => {
     const { url, engine } = evt.data ?? {};
 
     // import engine
@@ -21,7 +21,7 @@ onmessage = (evt) => {
     };
 
     // implement pc.createScript
-    pc.createScript = function (name, app, script) {
+    pc.createScript = function (name: string | undefined, app: unknown, script: unknown) {
         let valid = true;
 
         if (script) {
@@ -64,7 +64,7 @@ onmessage = (evt) => {
         // name
         obj[name].name = name;
 
-        function validateEnum(args) {
+        function validateEnum(args: { enum: unknown[]; type: string }) {
             if (!(args.enum instanceof Array)) {
                 return 'must be an array';
             }
@@ -108,7 +108,7 @@ onmessage = (evt) => {
             }
         }
 
-        function validateDefaultValue(args) {
+        function validateDefaultValue(args: { array?: boolean; default: unknown; type: string; schema?: unknown[] }) {
             if (args.array) {
                 if (!(args.default instanceof Array)) {
                     return 'invalid default value - needs to be an array';
@@ -134,7 +134,7 @@ onmessage = (evt) => {
 
         // attributes
         obj[name].attributes = {
-            add: function (attr, args) {
+            add: function (attr: string, args: Record<string, unknown>) {
                 if (!valid) {
                     return;
                 }
@@ -301,55 +301,55 @@ onmessage = (evt) => {
         }
 
         defaultValidators = {
-            vec2: function (value) {
+            vec2: function (value: unknown) {
                 if (!(value instanceof Array) || value.length !== 2) {
                     return 'needs to be an array of 2 numbers';
                 }
                 return null;
             },
-            vec3: function (value) {
+            vec3: function (value: unknown) {
                 if (!(value instanceof Array) || value.length !== 3) {
                     return 'needs to be an array of 3 numbers';
                 }
                 return null;
             },
-            vec4: function (value) {
+            vec4: function (value: unknown) {
                 if (!(value instanceof Array) || value.length !== 4) {
                     return 'needs to be an array of 4 numbers';
                 }
                 return null;
             },
-            rgb: function (value) {
+            rgb: function (value: unknown) {
                 if (!(value instanceof Array) || value.length !== 3) {
                     return 'needs to be an array of 3 numbers';
                 }
                 return null;
             },
-            rgba: function (value) {
+            rgba: function (value: unknown) {
                 if (!(value instanceof Array) || value.length !== 4) {
                     return 'needs to be an array of 4 numbers';
                 }
                 return null;
             },
-            number: function (value) {
+            number: function (value: unknown) {
                 if (typeof value !== 'number') {
                     return 'needs to be a number';
                 }
                 return null;
             },
-            boolean: function (value) {
+            boolean: function (value: unknown) {
                 if (value !== true && value !== false) {
                     return 'needs to be a boolean';
                 }
                 return null;
             },
-            string: function (value) {
+            string: function (value: unknown) {
                 if (typeof value !== 'string') {
                     return 'needs to be a string';
                 }
                 return null;
             },
-            json: function (value, schema) {
+            json: function (value: unknown, schema: Array<{ name: string; type: string }>) {
                 if (typeof value !== 'object') {
                     return 'needs to be valid JSON';
                 }
@@ -387,7 +387,7 @@ onmessage = (evt) => {
         };
 
         // extend
-        obj[name].extend = function (methods) {
+        obj[name].extend = function (methods: Record<string, unknown>) {
             for (const key in methods) {
                 if (!methods.hasOwnProperty(key)) {
                     continue;
@@ -410,7 +410,7 @@ onmessage = (evt) => {
     };
 
     // implement pc.registerScript
-    pc.registerScript = function (script, name, app) {
+    pc.registerScript = function (script: unknown, name: string, app: unknown) {
         if (typeof script === 'function' && script.prototype instanceof pc.ScriptType) {
             name = name || script.__name || pc.ScriptType.__getScriptName(script);
         }
@@ -421,7 +421,7 @@ onmessage = (evt) => {
     // override ScriptAttributes#add to throw an error
     // which will happen if users try to call this method before calling
     // registerScript
-    pc.ScriptAttributes.prototype.add = function (name) {
+    pc.ScriptAttributes.prototype.add = function (name: string) {
         __results.scriptsInvalid.push(`script \`${this.scriptType.name}\` you have to call pc.registerScript or pc.createScript before declaring script attributes.`);
     };
 

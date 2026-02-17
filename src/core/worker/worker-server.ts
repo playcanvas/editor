@@ -5,7 +5,7 @@ class WorkerServer {
 
     worker: globalThis.DedicatedWorkerGlobalScope;
 
-    constructor(worker) {
+    constructor(worker: globalThis.DedicatedWorkerGlobalScope) {
         this.worker = worker;
         this.worker.onmessage = this._onMessage.bind(this);
         this.worker.onerror = this._onError.bind(this);
@@ -15,11 +15,10 @@ class WorkerServer {
 
 
     /**
-     * @param {string} type - The type of the message.
-     * @param {...any} args - The arguments of the message.
-     * @private
+     * @param type - The type of the message.
+     * @param args - The arguments of the message.
      */
-    _fireCallback(type, ...args) {
+    private _fireCallback(type: string, ...args: any[]) {
         if (!this._callbacks.has(type)) {
             return;
         }
@@ -29,19 +28,17 @@ class WorkerServer {
     }
 
     /**
-     * @param {MessageEvent} event - The message event.
-     * @private
+     * @param event - The message event.
      */
-    _onMessage(event) {
+    private _onMessage(event: MessageEvent) {
         const { type, data } = event.data;
         this._fireCallback(type, ...data);
     }
 
     /**
-     * @param {ErrorEvent} event - The error event.
-     * @private
+     * @param event - The error event.
      */
-    _onError(event) {
+    private _onError(event: ErrorEvent) {
         this._fireCallback('error', event.message);
     }
 
@@ -63,10 +60,10 @@ class WorkerServer {
     /**
      * Send a message to the worker.
      *
-     * @param {string} type - The type of the message.
-     * @param {...any} args - The arguments of the message.
+     * @param type - The type of the message.
+     * @param args - The arguments of the message.
      */
-    send(type, ...args) {
+    send(type: string, ...args: any[]) {
         this.worker.postMessage({ type, data: args }, this._transfer);
         this._transfer = [];
     }
@@ -74,10 +71,10 @@ class WorkerServer {
     /**
      * Add transferable objects to the worker.
      *
-     * @param {(ArrayBuffer | MessagePort | ImageBitmap)[]} transfer - The transferable objects.
-     * @returns {WorkerServer} - The instance of the worker client.
+     * @param transfer - The transferable objects.
+     * @returns The instance of the worker client.
      */
-    with(transfer) {
+    with(transfer: (ArrayBuffer | MessagePort | ImageBitmap)[]): WorkerServer {
         if (!this.worker) {
             return this;
         }
@@ -88,10 +85,10 @@ class WorkerServer {
     /**
      * Add a callback to the worker.
      *
-     * @param {string} type - The type of the message.
-     * @param {Function} callback - The callback function.
+     * @param type - The type of the message.
+     * @param callback - The callback function.
      */
-    on(type, callback) {
+    on(type: string, callback: Function) {
         if (!this._callbacks.has(type)) {
             this._callbacks.set(type, []);
         }
@@ -101,11 +98,11 @@ class WorkerServer {
     /**
      * Add a callback to the worker that will only be called once.
      *
-     * @param {string} type - The type of the message.
-     * @param {Function} callback - The callback function.
+     * @param type - The type of the message.
+     * @param callback - The callback function.
      */
-    once(type, callback) {
-        const onceCallback = (...args) => {
+    once(type: string, callback: Function) {
+        const onceCallback = (...args: unknown[]) => {
             this.off(type, onceCallback);
             callback(...args);
         };
@@ -115,10 +112,10 @@ class WorkerServer {
     /**
      * Remove a callback from the worker.
      *
-     * @param {string} type - The type of the message.
-     * @param {Function} callback - The callback function.
+     * @param type - The type of the message.
+     * @param callback - The callback function.
      */
-    off(type, callback) {
+    off(type: string, callback: Function) {
         if (!this._callbacks.has(type)) {
             return;
         }

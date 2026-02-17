@@ -24,7 +24,7 @@ editor.once('load', () => {
     });
     container.append(docs);
 
-    const keyDown = (e) => {
+    const keyDown = (e: KeyboardEvent) => {
         if (e.key === 'Escape') {
             overlay.hidden = true;
         }
