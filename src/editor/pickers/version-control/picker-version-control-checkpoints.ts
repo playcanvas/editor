@@ -17,8 +17,9 @@ editor.once('load', () => {
 
     let diffMode = false;
 
-    const panel = new LegacyPanel();
-    panel.class.add('checkpoints-container');
+    const panel = new Container({
+        flexGrow: '1'
+    });
 
     // checkpoints top
     const panelCheckpointsTop = new Container({
