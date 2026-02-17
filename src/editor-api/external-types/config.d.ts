@@ -201,7 +201,7 @@ export type CodeEditorConfig = {
 
 export type LaunchConfig = {
     self: {
-        id: string;
+        id: number;
         username: string;
         branch: {
             id: string,

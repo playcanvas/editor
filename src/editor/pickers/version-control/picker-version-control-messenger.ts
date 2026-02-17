@@ -1,6 +1,7 @@
 import * as SVG from '@/common/svg';
 import { handleCallback } from '@/common/utils';
 import { MERGE_STATUS_APPLY_ENDED } from '@/core/constants';
+import { config } from '@/editor/config';
 
 editor.once('load', () => {
     let currentCheckpointBeingCreated = null;

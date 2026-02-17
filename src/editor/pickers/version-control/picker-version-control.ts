@@ -5,6 +5,7 @@ import { LegacyListItem } from '@/common/ui/list-item';
 import { handleCallback } from '@/common/utils';
 
 import { diffCreate } from '../../messenger/jobs';
+import { config } from '@/editor/config';
 
 editor.once('load', () => {
     if (config.project.settings.useLegacyScripts) {

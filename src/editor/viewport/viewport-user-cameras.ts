@@ -13,6 +13,7 @@ import {
 } from 'playcanvas';
 
 import { createColorMaterial } from './viewport-color-material';
+import { config } from '@/editor/config';
 
 editor.once('load', () => {
     const app = editor.call('viewport:app');

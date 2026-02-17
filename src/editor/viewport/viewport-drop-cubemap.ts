@@ -1,4 +1,5 @@
 import { MeshInstance } from 'playcanvas';
+import { config } from '@/editor/config';
 
 editor.once('load', () => {
     const app = editor.call('viewport:app');

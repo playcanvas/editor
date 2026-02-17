@@ -1,4 +1,5 @@
 import { LegacyOverlay } from '@/common/ui/overlay';
+import { config } from '@/editor/config';
 
 editor.once('load', () => {
     let timeout;

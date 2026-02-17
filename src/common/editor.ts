@@ -29,7 +29,7 @@ class Editor<T extends EditorMethods> extends Caller<T> {
     /**
      * Whether the Editor project is using engine v2.
      */
-    projectEngineV2: boolean = config.project?.settings?.engineV2 ?? false;
+    projectEngineV2: boolean = ('settings' in config.project) ? (config.project.settings as Record<string, any>)?.engineV2 ?? false : false;
 
     /**
      * Editor API history global
@@ -133,7 +133,7 @@ class Editor<T extends EditorMethods> extends Caller<T> {
      */
     protected _registerApi() {
         // Initialize API globals - order matters
-        api.globals.accessToken = config.accessToken;
+        api.globals.accessToken = 'accessToken' in config ? config.accessToken : '';
         api.globals.projectId = config.project.id;
         api.globals.branchId = config.self.branch.id;
         api.globals.apiUrl = config.url.api;

@@ -1,4 +1,5 @@
 import { Container, Label, Button } from '@playcanvas/pcui';
+import { config } from '@/editor/config';
 
 editor.once('load', () => {
     const LOCALSTORAGE_KEY = 'playcanvas-editor-latest-release-notes';

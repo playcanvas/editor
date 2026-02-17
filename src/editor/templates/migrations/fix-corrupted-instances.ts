@@ -1,3 +1,5 @@
+import { config } from '@/editor/config';
+
 editor.once('load', () => {
     if (!editor.call('users:hasFlag', 'hasFixCorruptedTemplates')) {
         return;
