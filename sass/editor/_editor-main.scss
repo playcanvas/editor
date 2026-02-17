@@ -6031,6 +6031,12 @@ strong {
             }
         }
 
+        .checkpoints-top {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
+
         .branches-filter {
             flex-direction: row;
             gap: 6px;
@@ -6063,10 +6069,8 @@ strong {
             }
 
             .mini-spinner {
-                position: relative;
                 margin-left: auto;
                 margin-right: 0;
-                top: -32px;
             }
         }
 

@@ -1,4 +1,4 @@
-import { Button, Container, Label } from '@playcanvas/pcui';
+import { Button, Container, Label, Menu, MenuItem } from '@playcanvas/pcui';
 
 import * as SVG from '@/common/svg';
 import { LegacyButton } from '@/common/ui/button';
@@ -6,8 +6,6 @@ import { LegacyCheckbox } from '@/common/ui/checkbox';
 import { LegacyLabel } from '@/common/ui/label';
 import { LegacyList } from '@/common/ui/list';
 import { LegacyListItem } from '@/common/ui/list-item';
-import { LegacyMenu } from '@/common/ui/menu';
-import { LegacyMenuItem } from '@/common/ui/menu-item';
 import { LegacyPanel } from '@/common/ui/panel';
 import { LegacyTooltip } from '@/common/ui/tooltip';
 import { convertDatetime, handleCallback } from '@/common/utils';
@@ -119,60 +117,57 @@ editor.once('load', () => {
     const savedCheckpointList = {};
 
     // checkpoints context menu
-    const menuCheckpoints = new LegacyMenu();
-    menuCheckpoints.class.add('version-control');
+    const menuCheckpoints = new Menu({
+        class: 'version-control'
+    });
 
     // view changes between this checkpoint and previous
-    const menuCheckpointsViewChanges = new LegacyMenuItem({
-        text: 'View Changes',
-        value: 'view-changes'
+    const menuCheckpointsViewChanges = new MenuItem({
+        text: 'View Changes'
     });
     menuCheckpoints.append(menuCheckpointsViewChanges);
 
     LegacyTooltip.attach({
-        target: menuCheckpointsViewChanges.element,
+        target: menuCheckpointsViewChanges.dom,
         text: 'View changes between this checkpoint and the previous checkpoint.',
         align: 'right',
         root: editor.call('layout.root')
     });
 
     // branch from checkpoint
-    const menuCheckpointsBranch = new LegacyMenuItem({
-        text: 'New Branch',
-        value: 'new-branch'
+    const menuCheckpointsBranch = new MenuItem({
+        text: 'New Branch'
     });
     menuCheckpoints.append(menuCheckpointsBranch);
 
     LegacyTooltip.attach({
-        target: menuCheckpointsBranch.element,
+        target: menuCheckpointsBranch.dom,
         text: 'Create a new branch from this checkpoint.',
         align: 'right',
         root: editor.call('layout.root')
     });
 
     // restore checkpoint
-    const menuCheckpointsRestore = new LegacyMenuItem({
-        text: 'Restore',
-        value: 'restore-checkpoint'
+    const menuCheckpointsRestore = new MenuItem({
+        text: 'Restore'
     });
     menuCheckpoints.append(menuCheckpointsRestore);
 
     LegacyTooltip.attach({
-        target: menuCheckpointsRestore.element,
+        target: menuCheckpointsRestore.dom,
         text: 'Change the current state of project to be the same as this checkpoint.',
         align: 'right',
         root: editor.call('layout.root')
     });
 
     // hard reset to checkpoint
-    const menuCheckpointsHardReset = new LegacyMenuItem({
-        text: 'Hard Reset',
-        value: 'hard-reset-checkpoint'
+    const menuCheckpointsHardReset = new MenuItem({
+        text: 'Hard Reset'
     });
     menuCheckpoints.append(menuCheckpointsHardReset);
 
     LegacyTooltip.attach({
-        target: menuCheckpointsHardReset.element,
+        target: menuCheckpointsHardReset.dom,
         text: 'Deletes all checkpoints and changes after this checkpoint. Useful if you want to undo a merge.',
         align: 'right',
         root: editor.call('layout.root')
@@ -481,9 +476,9 @@ editor.once('load', () => {
             dropdown.class.add('clicked');
             dropdown.element.innerHTML = '&#57687;';
 
-            menuCheckpoints.open = true;
+            menuCheckpoints.hidden = false;
             const rect = dropdown.element.getBoundingClientRect();
-            menuCheckpoints.position(rect.right - menuCheckpoints.innerElement.clientWidth, rect.bottom);
+            menuCheckpoints.position(rect.right - menuCheckpoints.domContent.clientWidth, rect.bottom);
         });
 
         // select
@@ -731,41 +726,43 @@ editor.once('load', () => {
         }
     });
 
-    menuCheckpoints.on('open', (open) => {
+    menuCheckpoints.on('show', () => {
         if (!currentCheckpoint) {
             return;
         }
 
         // filter menu options
-        if (open) {
-            menuCheckpointsRestore.hidden = panel.branch.id !== config.self.branch.id || !editor.call('permissions:write');
-            menuCheckpointsHardReset.hidden = menuCheckpointsRestore.hidden;
-            menuCheckpointsBranch.hidden = !editor.call('permissions:write');
+        menuCheckpointsRestore.hidden = panel.branch.id !== config.self.branch.id || !editor.call('permissions:write');
+        menuCheckpointsHardReset.hidden = menuCheckpointsRestore.hidden;
+        menuCheckpointsBranch.hidden = !editor.call('permissions:write');
 
-            // Don't show view changes if this is the last checkpoint in the list
-            // because we can't get the previous checkpoint id until the user loads
-            // more checkpoints and this also protects us trying to view changes from
-            // the first checkpoint in a branch
-            const lastPanelCheckpoint = panel.checkpoints[panel.checkpoints.length - 1];
-            menuCheckpointsViewChanges.hidden = currentCheckpoint.id === lastPanelCheckpoint.id;
+        // Don't show view changes if this is the last checkpoint in the list
+        // because we can't get the previous checkpoint id until the user loads
+        // more checkpoints and this also protects us trying to view changes from
+        // the first checkpoint in a branch
+        const lastPanelCheckpoint = panel.checkpoints[panel.checkpoints.length - 1];
+        menuCheckpointsViewChanges.hidden = currentCheckpoint.id === lastPanelCheckpoint.id;
+    });
+
+    // when the checkpoints context menu is closed 'unclick' dropdowns
+    menuCheckpoints.on('hide', () => {
+        if (!currentCheckpoint) {
+            return;
         }
 
-        // when the checkpoints context menu is closed 'unclick' dropdowns
-        if (!open) {
-            const item = document.getElementById(`checkpoint-${currentCheckpoint.id}`);
-            currentCheckpoint = null;
-            if (!item) {
-                return;
-            }
-
-            const dropdown = item.querySelector('.clicked');
-            if (!dropdown) {
-                return;
-            }
-
-            dropdown.classList.remove('clicked');
-            dropdown.innerHTML = '&#57689;';
+        const item = document.getElementById(`checkpoint-${currentCheckpoint.id}`);
+        currentCheckpoint = null;
+        if (!item) {
+            return;
         }
+
+        const dropdown = item.querySelector('.clicked');
+        if (!dropdown) {
+            return;
+        }
+
+        dropdown.classList.remove('clicked');
+        dropdown.innerHTML = '&#57689;';
     });
 
     panel.on('show', () => {
