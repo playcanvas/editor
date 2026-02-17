@@ -3,9 +3,9 @@ import { Button, Container, Label, Menu, MenuItem, SelectInput, TextInput } from
 import { LegacyList } from '@/common/ui/list';
 import { LegacyListItem } from '@/common/ui/list-item';
 import { handleCallback } from '@/common/utils';
+import { config } from '@/editor/config';
 
 import { diffCreate } from '../../messenger/jobs';
-import { config } from '@/editor/config';
 
 editor.once('load', () => {
     if (config.project.settings.useLegacyScripts) {

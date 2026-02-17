@@ -1,4 +1,5 @@
 import { Entity, Vec3 } from 'playcanvas';
+
 import { config } from '@/editor/config';
 
 editor.once('load', () => {

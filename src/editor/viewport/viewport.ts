@@ -1,8 +1,9 @@
 import { Canvas } from '@playcanvas/pcui';
 import { LAYERID_DEPTH, Mouse, TouchDevice, WasmModule } from 'playcanvas';
 
-import { ViewportApplication } from './viewport-application';
 import { config } from '@/editor/config';
+
+import { ViewportApplication } from './viewport-application';
 
 editor.once('load', () => {
     const canvas = new Canvas({

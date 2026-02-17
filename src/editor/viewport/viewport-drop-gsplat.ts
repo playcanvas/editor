@@ -1,7 +1,7 @@
 import { BoundingBox, Entity as PcEntity, Vec3 } from 'playcanvas';
 
-import { Entity } from '@/editor-api';
 import { config } from '@/editor/config';
+import { Entity } from '@/editor-api';
 
 editor.once('load', () => {
     const canvas = editor.call('viewport:canvas');

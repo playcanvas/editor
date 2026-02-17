@@ -12,8 +12,9 @@ import {
     Vec3
 } from 'playcanvas';
 
-import { createColorMaterial } from './viewport-color-material';
 import { config } from '@/editor/config';
+
+import { createColorMaterial } from './viewport-color-material';
 
 editor.once('load', () => {
     const app = editor.call('viewport:app');

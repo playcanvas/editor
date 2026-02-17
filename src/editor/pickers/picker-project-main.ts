@@ -1,4 +1,5 @@
 import { Element, Container, Label, Button, TextInput, TextAreaInput, BooleanInput } from '@playcanvas/pcui';
+
 import { config } from '@/editor/config';
 
 editor.once('load', () => {
