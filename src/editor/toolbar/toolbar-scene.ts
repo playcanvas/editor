@@ -1,4 +1,4 @@
-import { Container, Label } from '@playcanvas/pcui';
+import { Button, Container } from '@playcanvas/pcui';
 
 import { LegacyTooltip } from '@/common/ui/tooltip';
 
@@ -15,8 +15,9 @@ editor.once('load', () => {
         return panel;
     });
 
-    const projectName = new Label({
-        class: 'project-name'
+    const projectName = new Button({
+        class: 'project-name',
+        icon: 'E140'
     });
     panel.append(projectName);
 
@@ -31,8 +32,9 @@ editor.once('load', () => {
         root: root
     });
 
-    const sceneName = new Label({
-        class: 'scene-name'
+    const sceneName = new Button({
+        class: 'scene-name',
+        icon: 'E134'
     });
     panel.append(sceneName);
 
@@ -60,8 +62,9 @@ editor.once('load', () => {
         if (name.length > 33) {
             name = `${name.substring(0, 30)}...`;
         }
-        const branchButton = new Label({
+        const branchButton = new Button({
             class: 'branch-name',
+            icon: 'E399',
             text: name
         });
         panel.append(branchButton);
@@ -86,8 +89,9 @@ editor.once('load', () => {
         });
     }
 
-    const sceneList = new Label({
-        class: 'scene-list'
+    const sceneList = new Button({
+        class: 'scene-list',
+        icon: 'E147'
     });
     panel.append(sceneList);
 
