@@ -557,7 +557,7 @@ strong {
     right: 4px;
 
     > .pcui-button.expand {
-        &.icon.active {
+        &.active {
             background-color: $text-active;
         }
     }
@@ -734,7 +734,6 @@ strong {
 
     > .launch {
         position: relative;
-        background-color: transparent;
 
         &:not(.disabled):hover {
             > .pcui-button {
@@ -746,25 +745,16 @@ strong {
         > .pcui-button {
             width: 83px;
             height: 33px;
-            line-height: 33px;
             margin: 0;
-            padding: 0;
             border: none;
             border-radius: 0;
-
-            @extend .font-icon;
-
-            font-size: 20px;
-            text-align: center;
             color: rgba($text-primary, 0.75);
             background-color: rgba($bcg-darker, 0.5);
             display: flex;
             align-items: center;
-            padding-left: 8px;
 
-            > span {
-                font-family: 'Proxima Nova Regular';
-                font-size: 12px;
+            &::before {
+                font-size: 20px;
             }
         }
 
@@ -801,7 +791,6 @@ strong {
                 }
             }
 
-
             .pcui-button {
                 width: 100%;
                 border: 0;
@@ -809,12 +798,12 @@ strong {
                 margin: 0;
                 margin-left: 5px;
                 background-color: transparent;
-                font-size: 20px;
+                font-family: 'Proxima Nova Regular';
+                font-size: 12px;
                 text-align: left;
 
-                > span {
-                    font-family: 'Proxima Nova Regular';
-                    font-size: 12px;
+                &::before {
+                    font-size: 20px;
                     vertical-align: middle;
                 }
 
@@ -823,9 +812,6 @@ strong {
                 }
             }
 
-            .pcui-divider {
-                cursor: default;
-            }
         }
     }
 }

@@ -34,14 +34,9 @@ editor.once('load', () => {
     });
 
     const buttonLaunch = new Button({
-        class: 'icon',
-        icon: 'E131'
+        icon: 'E131',
+        text: 'Launch'
     });
-
-    const launchText = document.createElement('span');
-    launchText.innerText = 'Launch';
-    buttonLaunch.dom.append(launchText);
-
     launch.append(buttonLaunch);
 
     const launchOptions = { };
@@ -129,14 +124,9 @@ editor.once('load', () => {
         });
 
         const button = new Button({
-            class: 'icon',
-            icon: 'E131'
+            icon: 'E131',
+            text: title
         });
-
-        const text = document.createElement('span');
-        text.innerText = title;
-        button.dom.append(text);
-
         launch.append(button);
 
         const divider = new Divider();
@@ -377,7 +367,7 @@ editor.once('load', () => {
 
     // fullscreen
     const buttonExpand = new Button({
-        class: ['icon', 'expand'],
+        class: 'expand',
         icon: 'E127'
     });
     panel.append(buttonExpand);
