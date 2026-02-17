@@ -89,8 +89,9 @@ editor.once('load', () => {
     toggleTopButtons();
 
     // checkpoints main panel
-    const panelCheckpoints = new LegacyPanel();
-    panelCheckpoints.class.add('checkpoints');
+    const panelCheckpoints = new Container({
+        class: 'checkpoints'
+    });
     panel.append(panelCheckpoints);
 
     // checkpoints list
@@ -180,7 +181,7 @@ editor.once('load', () => {
     const spinner = SVG.spinner(64);
     spinner.classList.add('hidden');
     spinner.classList.add('spinner');
-    panelCheckpoints.innerElement.appendChild(spinner);
+    panelCheckpoints.dom.appendChild(spinner);
 
     const miniSpinner = SVG.spinner(32);
     miniSpinner.classList.add('hidden');
@@ -198,7 +199,7 @@ editor.once('load', () => {
         }
 
         if (panel.branch != null && branch != null) {
-            panel.scrollTopMap[panel.branch.id] = panelCheckpoints.element.scrollTop;
+            panel.scrollTopMap[panel.branch.id] = panelCheckpoints.dom.scrollTop;
         }
 
         // make sure we don't have any running checkpoint:list requests
@@ -221,7 +222,7 @@ editor.once('load', () => {
 
     // Set the checkpoints to be displayed
     panel.setCheckpoints = function (checkpoints) {
-        const scrollTop = panel.branch != null && panel.scrollTopMap[panel.branch.id] != null ? panel.scrollTopMap[panel.branch.id] : panelCheckpoints.element.scrollTop;
+        const scrollTop = panel.branch != null && panel.scrollTopMap[panel.branch.id] != null ? panel.scrollTopMap[panel.branch.id] : panelCheckpoints.dom.scrollTop;
 
         listCheckpoints.clear();
         lastCheckpointDateDisplayed = null;
@@ -242,7 +243,7 @@ editor.once('load', () => {
 
         listCheckpoints.append(listItemLoadMore);
 
-        panelCheckpoints.element.scrollTop = scrollTop;
+        panelCheckpoints.dom.scrollTop = scrollTop;
     };
 
     // Show button to load more checkpoints or not
@@ -491,7 +492,7 @@ editor.once('load', () => {
         let suppressCheckboxEvents = false;
         checkboxSelect.on('change', (value) => {
             if (panel.branch != null) {
-                panel.scrollTopMap[panel.branch.id] = panelCheckpoints.element.scrollTop;
+                panel.scrollTopMap[panel.branch.id] = panelCheckpoints.dom.scrollTop;
             }
             if (suppressCheckboxEvents) {
                 return;
@@ -540,7 +541,7 @@ editor.once('load', () => {
         panelItem.append(btnViewChanges);
         btnViewChanges.on('click', () => {
             if (panel.branch != null) {
-                panel.scrollTopMap[panel.branch.id] = panelCheckpoints.element.scrollTop;
+                panel.scrollTopMap[panel.branch.id] = panelCheckpoints.dom.scrollTop;
             }
             panel.emit('diff',
                 panel.branch.id,
@@ -679,7 +680,7 @@ editor.once('load', () => {
     // load more button
     btnLoadMore.on('click', () => {
         if (panel.branch != null) {
-            panel.scrollTopMap[panel.branch.id] = panelCheckpoints.element.scrollTop;
+            panel.scrollTopMap[panel.branch.id] = panelCheckpoints.dom.scrollTop;
         }
         panel.loadCheckpoints(true);
     });
@@ -712,7 +713,7 @@ editor.once('load', () => {
         }
 
         if (panel.branch != null) {
-            panel.scrollTopMap[panel.branch.id] = panelCheckpoints.element.scrollTop;
+            panel.scrollTopMap[panel.branch.id] = panelCheckpoints.dom.scrollTop;
         }
 
         if (previousCheckpoint) {
