@@ -5,6 +5,7 @@ import { LegacyListItem } from '@/common/ui/list-item';
 import { LegacyMenu } from '@/common/ui/menu';
 import { LegacyTooltip } from '@/common/ui/tooltip';
 import { bytesToHuman, convertDatetime } from '@/common/utils';
+import { config } from '@/editor/config';
 
 const APP_LIMIT = 16;
 

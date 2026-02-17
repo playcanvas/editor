@@ -1,5 +1,7 @@
 import { MenuItem } from '@playcanvas/pcui';
 
+import { config } from '@/code-editor/config';
+
 editor.once('load', () => {
     const menu = editor.call('menu:project');
 

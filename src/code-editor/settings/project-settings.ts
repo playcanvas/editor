@@ -1,3 +1,4 @@
+import { config } from '@/code-editor/config';
 import { deepCopy, insert, remove, set, unset } from '@/common/utils';
 
 editor.once('load', () => {
