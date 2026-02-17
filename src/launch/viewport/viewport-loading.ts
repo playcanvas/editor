@@ -1,6 +1,6 @@
 editor.once('load', () => {
     editor.method('viewport:loadingScreen', () => {
-        pc.script.createLoadingScreen((app) => {
+        pc.script.createLoadingScreen((app: pc.AppBase) => {
             const createCss = () => {
                 const css = `
                     body {
@@ -79,7 +79,7 @@ editor.once('load', () => {
                 container.appendChild(bar);
             };
 
-            const setProgress = (value) => {
+            const setProgress = (value: number) => {
                 const bar = document.getElementById('progress-bar');
                 if (bar) {
                     value = Math.min(1, Math.max(0, value));

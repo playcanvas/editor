@@ -1,3 +1,5 @@
+import type { Observer } from '@playcanvas/observer';
+
 editor.once('load', () => {
     // Indexes all entities with scripts
     // When primary script is set, update attributes on entities components
@@ -6,7 +8,7 @@ editor.once('load', () => {
         _index: any = {};
 
         // Returns a list of entities that have the specified script name
-        listEntitiesByScript(script) {
+        listEntitiesByScript(script: string) {
             const result = [];
             const entry = this._index[script];
             if (entry) {
@@ -20,7 +22,7 @@ editor.once('load', () => {
 
         // Adds an entry into the index when the specified
         // script name has been added to the specified entity.
-        add(entity, script) {
+        add(entity: Observer, script: string) {
             const index = this._index;
 
             if (!index[script]) {
@@ -40,7 +42,7 @@ editor.once('load', () => {
 
         // When the specified script is removed from the specified entity
         // remove it from the index
-        remove(entity, script) {
+        remove(entity: Observer, script: string) {
             const index = this._index;
 
             if (!index[script]) {
@@ -66,7 +68,7 @@ editor.once('load', () => {
 
         // Called when a new entity is added. Adds the entity to the index
         // and subscribes to component script events
-        onEntityAdd(entity) {
+        onEntityAdd(entity: Observer) {
             const self = this;
 
             const scripts = entity.get('components.script.order');
@@ -96,7 +98,7 @@ editor.once('load', () => {
         }
 
         // Called when an entity is removed to remove the entity from the index
-        onEntityRemove(entity) {
+        onEntityRemove(entity: Observer) {
             const scripts = entity.get('components.script.order');
             if (scripts) {
                 let i = scripts.length;

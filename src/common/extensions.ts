@@ -5,7 +5,7 @@ if (!Array.prototype.equals) {
     // eslint-disable-next-line no-extend-native
     Object.defineProperty(Array.prototype, 'equals', {
         enumerable: false,
-        value: function (array) {
+        value: function (array: any) {
             if (!array) {
                 return false;
             }

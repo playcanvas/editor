@@ -4,7 +4,7 @@ import { LegacyCanvas } from './canvas';
 import { LegacyElement } from './element';
 
 class LegacyCurveField extends LegacyElement {
-    constructor(args = {}) {
+    constructor(args: Record<string, any> = {}) {
         super();
         this.element = document.createElement('div');
         this._element.classList.add('ui-curve-field');
@@ -44,7 +44,7 @@ class LegacyCurveField extends LegacyElement {
         this.max = args.max !== undefined ? args.max : (args.verticalValue !== undefined ? args.verticalValue : 1);
     }
 
-    set value(value) {
+    set value(value: any) {
         this._setValue(value);
     }
 
@@ -52,7 +52,7 @@ class LegacyCurveField extends LegacyElement {
         return this._value;
     }
 
-    _onKeyDown(evt) {
+    _onKeyDown(evt: KeyboardEvent) {
         if (evt.keyCode === 27) {
             return this._element.blur();
         }
@@ -66,14 +66,14 @@ class LegacyCurveField extends LegacyElement {
         this.emit('click');
     }
 
-    _resize(width, height) {
+    _resize(width: number, height: number) {
         if (this.canvas.width !== width || this.canvas.height !== height) {
             this.canvas.resize(width, height);
             this._render();
         }
     }
 
-    link(link, paths) {
+    link(link: any, paths: string[]) {
         if (this._link) {
             this.unlink();
         }
@@ -94,7 +94,7 @@ class LegacyCurveField extends LegacyElement {
         if (this._onLinkChange) {
             const renderChanges = this.renderChanges;
             this.renderChanges = false;
-            this._linkSetHandlers.push(this._link.on('*:set', (path) => {
+            this._linkSetHandlers.push(this._link.on('*:set', (path: string) => {
                 const paths = this._paths;
                 const len = paths.length;
                 for (let i = 0; i < len; i++) {
@@ -118,7 +118,7 @@ class LegacyCurveField extends LegacyElement {
 
         this.emit('unlink', this._paths);
 
-        this._linkSetHandlers.forEach((handler) => {
+        this._linkSetHandlers.forEach((handler: any) => {
             handler.unbind();
         });
 
@@ -146,7 +146,7 @@ class LegacyCurveField extends LegacyElement {
         this._setValue(values);
     }
 
-    _setValue(value) {
+    _setValue(value: any) {
         this._value = value;
         this._render();
         this.emit('change', value);
@@ -160,7 +160,7 @@ class LegacyCurveField extends LegacyElement {
         }
     }
 
-    _clampEdge(val, min, max) {
+    _clampEdge(val: number, min: number, max: number) {
         if (val < min && val > min - 2) {
             return min;
         }
@@ -281,7 +281,7 @@ class LegacyCurveField extends LegacyElement {
         }
     }
 
-    _getMinMaxValues(curves) {
+    _getMinMaxValues(curves: any) {
         let minValue = Infinity;
         let maxValue = -Infinity;
 
@@ -290,10 +290,10 @@ class LegacyCurveField extends LegacyElement {
                 curves = [curves];
             }
 
-            curves.forEach((value) => {
+            curves.forEach((value: any) => {
                 if (value && value.keys && value.keys.length) {
                     if (value.keys[0].length !== undefined) {
-                        value.keys.forEach((data) => {
+                        value.keys.forEach((data: number[]) => {
                             for (let i = 1, len = data.length; i < len; i += 2) {
                                 if (data[i] > maxValue) {
                                     maxValue = data[i];
@@ -338,14 +338,14 @@ class LegacyCurveField extends LegacyElement {
         return [minValue, maxValue];
     }
 
-    _valueToCurves(value) {
+    _valueToCurves(value: any) {
         let curves = null;
 
         if (value && value.keys && value.keys.length) {
             curves = [];
             let curve;
             if (value.keys[0].length !== undefined) {
-                value.keys.forEach((data, index) => {
+                value.keys.forEach((data: number[], index: number) => {
                     curve = new Curve(data);
                     curve.type = value.type;
                     curves.push(curve);

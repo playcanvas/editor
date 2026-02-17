@@ -130,7 +130,7 @@ editor.once('load', () => {
         eventsIndex = { };
     });
 
-    editor.on('tools:timeline:add', (item) => {
+    editor.on('tools:timeline:add', (item: { i: number; t: number; t2: number | null; k: string }) => {
         let found = false;
 
         // check if can extend existing event
@@ -155,7 +155,7 @@ editor.once('load', () => {
         }
     });
 
-    editor.on('tools:timeline:update', (item) => {
+    editor.on('tools:timeline:update', (item: { i: number; t2: number }) => {
         if (!enabled || !eventsIndex[item.i]) {
             return;
         }

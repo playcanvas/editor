@@ -4,7 +4,7 @@ editor.once('load', () => {
     const DEFAULT_THICKNESS = 20;
     const DEFAULT_LENGTH = 100;
 
-    editor.method('components:scrollbar:getContainerElementDefaultsForOrientation', (orientation) => {
+    editor.method('components:scrollbar:getContainerElementDefaultsForOrientation', (orientation: number) => {
         switch (orientation) {
             case ORIENTATION_VERTICAL:
                 return {
@@ -28,7 +28,7 @@ editor.once('load', () => {
         }
     });
 
-    editor.method('components:scrollbar:getHandleElementDefaultsForOrientation', (orientation) => {
+    editor.method('components:scrollbar:getHandleElementDefaultsForOrientation', (orientation: number) => {
         switch (orientation) {
             case ORIENTATION_VERTICAL:
                 return {

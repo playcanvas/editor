@@ -62,7 +62,7 @@ const ICONS = {
 };
 
 class OverrideGroup extends Container {
-    constructor(args) {
+    constructor(args: { mode?: string; name?: string }) {
         super(args);
 
         this.class.add(CLASS_OVERRIDE_GROUP);
@@ -108,7 +108,7 @@ class OverrideGroup extends Container {
         }
     }
 
-    set icon(value) {
+    set icon(value: string) {
         if (this._icon) {
             this._icon.text = value;
         }
@@ -116,7 +116,7 @@ class OverrideGroup extends Container {
 }
 
 class TemplateOverridesView extends Container {
-    constructor(args) {
+    constructor(args: { assets: ObserverList; entities: ObserverList; projectSettings: Observer }) {
         super(args);
 
         this.class.add(CLASS_ROOT);
@@ -192,7 +192,7 @@ class TemplateOverridesView extends Container {
         });
     }
 
-    _onWindowClick(e) {
+    _onWindowClick(e: MouseEvent): void {
         if (this._dropdownMarker && this._dropdownMarker.dom.contains(e.target)) {
             return;
         }
@@ -200,17 +200,17 @@ class TemplateOverridesView extends Container {
         this._dropdownMenu.hidden = true;
     }
 
-    _appendLeft(panel, element) {
+    _appendLeft(panel: Panel, element: Element) {
         element.class.add(CLASS_COLUMN_LEFT);
         panel.append(element);
     }
 
-    _appendRight(panel, element) {
+    _appendRight(panel: Panel, element: Element): void {
         element.class.add(CLASS_COLUMN_RIGHT);
         panel.append(element);
     }
 
-    _appendMarker(panel, element) {
+    _appendMarker(panel: Panel, element: Element): void {
         const container = new Container({
             class: CLASS_COLUMN_APPLY,
             flex: true
@@ -219,15 +219,15 @@ class TemplateOverridesView extends Container {
         panel.append(container);
     }
 
-    _layerName(id) {
+    _layerName(id: string): string {
         return this._projectSettings.get(`layers.${id}.name`) || id;
     }
 
-    _batchGroupName(id) {
+    _batchGroupName(id: string): string {
         return this._projectSettings.get(`batchGroups.${id}.name`) || id;
     }
 
-    _createLabelGroup(name, type, value, isArray, entities) {
+    _createLabelGroup(name: string, type: string, value: unknown, isArray: boolean, entities?: ObserverList): Element {
         let field;
 
         if (type.startsWith('array:') && type !== 'array:asset' && type !== 'array:layer') {
@@ -437,7 +437,7 @@ class TemplateOverridesView extends Container {
     }
 
     // Converts values like so: thisIsSomeValue to this: This Is Some Value
-    _prettifyName(name) {
+    _prettifyName(name: string) {
         const firstLetter = name[0];
         const rest = name.slice(1);
         return firstLetter.toUpperCase() +
@@ -450,7 +450,7 @@ class TemplateOverridesView extends Container {
         });
     }
 
-    _createOverrideMarker(override, type) {
+    _createOverrideMarker(override: Record<string, unknown> | null, type?: string): LegacyLabel {
         const label = new LegacyLabel({
             text: override ? '&#58208;' : '',
             unsafe: true
@@ -527,7 +527,7 @@ class TemplateOverridesView extends Container {
         return label;
     }
 
-    _positionDropdown(e) {
+    _positionDropdown(e: MouseEvent): void {
         const parentRect = this.dom.getBoundingClientRect();
         this._dropdownMenu.style.top = `${e.clientY - parentRect.top}px`;
         this._dropdownMenu.style.right = '20px';
@@ -536,7 +536,7 @@ class TemplateOverridesView extends Container {
     // Creates 2 label groups one for the left side (template asset) and
     // one for the right side (template instance). Also creates an override marker
     // on the 3rd column
-    _createGridLine(name, type, override, isArray) {
+    _createGridLine(name: string, type: string, override: Record<string, unknown>, isArray: boolean) {
         let dstValue = override.dst_value;
         let srcValue = override.src_value;
 
@@ -556,7 +556,7 @@ class TemplateOverridesView extends Container {
     }
 
     // Creates an override group for the left and right sides
-    _handleOverrideGroup(name, override, result) {
+    _handleOverrideGroup(name: string, override: Record<string, unknown>, result: OverrideGroup[]) {
         let markerOverride = override;
 
         if (override.missing_in_dst) {
@@ -591,7 +591,7 @@ class TemplateOverridesView extends Container {
         result.push(this._createOverrideMarker(markerOverride));
     }
 
-    _handleScriptComponent(result, override, pathParts) {
+    _handleScriptComponent(result: Record<string, unknown>, override: Record<string, unknown>, pathParts: string[]): void {
         if (pathParts[2] === 'scripts') {
             const scriptName = pathParts[3];
             if (!result.overrideGroups) {
@@ -662,7 +662,7 @@ class TemplateOverridesView extends Container {
         }
     }
 
-    _handleSoundComponent(result, override, pathParts) {
+    _handleSoundComponent(result: Record<string, unknown>, override: Record<string, unknown>, pathParts: string[]): void {
         let soundSlotName;
         if (pathParts.length === 4) {
             if (override.dst_value) {
@@ -711,7 +711,7 @@ class TemplateOverridesView extends Container {
         }
     }
 
-    _handleSpriteComponent(result, override, pathParts) {
+    _handleSpriteComponent(result: Record<string, unknown>, override: Record<string, unknown>, pathParts: string[]): void {
         let clipName;
         if (pathParts.length === 4) {
             if (override.dst_value) {
@@ -761,7 +761,7 @@ class TemplateOverridesView extends Container {
 
     }
 
-    _handleModelComponent(result, override, pathParts) {
+    _handleModelComponent(result: Record<string, unknown>, override: Record<string, unknown>, pathParts: string[]): void {
         if (pathParts[2] !== 'mapping') {
             return;
         }
@@ -819,7 +819,7 @@ class TemplateOverridesView extends Container {
         const resourceIds = {};
         const result = [];
 
-        function getEntry(resourceId, name) {
+        function getEntry(resourceId: string, name: string) {
             let entry = resourceIds[resourceId];
             if (!entry) {
                 entry = {
@@ -880,7 +880,7 @@ class TemplateOverridesView extends Container {
         return result;
     }
 
-    _showAddedEntity(entityOverride) {
+    _showAddedEntity(entityOverride: Record<string, unknown>): void {
         const panel = new Panel({
             class: CLASS_ENTITY,
             grid: true,
@@ -903,7 +903,7 @@ class TemplateOverridesView extends Container {
         this._containerOverrides.append(panel);
     }
 
-    _showDeletedEntity(entityOverride) {
+    _showDeletedEntity(entityOverride: Record<string, unknown>): void {
         const panel = new Panel({
             class: CLASS_ENTITY,
             grid: true,
@@ -926,7 +926,7 @@ class TemplateOverridesView extends Container {
         this._containerOverrides.append(panel);
     }
 
-    _showConflicts(resourceId, conflicts) {
+    _showConflicts(resourceId: string, conflicts: Record<string, unknown>[]): void {
         const entity = this._entities.get(resourceId);
 
         const fields = {
@@ -1010,13 +1010,13 @@ class TemplateOverridesView extends Container {
         this._containerOverrides.append(panel);
     }
 
-    _handleDefaultComponent(override, pathParts, dst) {
+    _handleDefaultComponent(override: Record<string, unknown>, pathParts: string[], dst: Element[]): void {
         const name = pathParts.slice(2).join('.');
         const elements = this._createGridLine(name, 'string', override, false);
         dst.push(...elements);
     }
 
-    _appendFields(fields, panel) {
+    _appendFields(fields: Record<string, unknown>, panel: Panel): void {
         let props = fields.properties;
 
         for (let i = 0; i < props.length; i += 3) {
@@ -1111,7 +1111,7 @@ class TemplateOverridesView extends Container {
         }
     }
 
-    showOverrides(overrides, templateAsset, templateInstance) {
+    showOverrides(overrides: Record<string, unknown>, templateAsset: { get: (key: string) => unknown }, templateInstance: Observer): void {
         this._overrides = overrides;
         console.log(overrides);
         this._templateAsset = templateAsset;

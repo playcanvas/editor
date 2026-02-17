@@ -15,7 +15,7 @@ function reparentEntities(data: ReparentArguments[], options: { preserveTransfor
         options.history = true;
     }
 
-    const records = data.map((entry) => {
+    const records = data.map((entry: any) => {
         const parentOld = entry.entity.parent;
         const indexOld = parentOld.get('children').indexOf(entry.entity.get('resource_id'));
         const record: Record<string, any> = {
@@ -38,7 +38,7 @@ function reparentEntities(data: ReparentArguments[], options: { preserveTransfor
 
     // sort records by a field
     const sortRecords = (by: string) => {
-        records.sort((a, b) => {
+        records.sort((a: any, b: any) => {
             return a[by] - b[by];
         });
     };
@@ -139,7 +139,7 @@ function reparentEntities(data: ReparentArguments[], options: { preserveTransfor
         };
 
         const validRecords: any[] = [];
-        records.forEach((record, i) => {
+        records.forEach((record: any, i: number) => {
             const data = latest(record);
             if (!data) {
                 return;
@@ -164,7 +164,7 @@ function reparentEntities(data: ReparentArguments[], options: { preserveTransfor
         }
 
         // remove all children from old parents
-        validRecords.forEach((record) => {
+        validRecords.forEach((record: any) => {
             const parentOld = record.entity.latest().parent;
             const history = parentOld.history.enabled;
             parentOld.history.enabled = false;
@@ -173,7 +173,7 @@ function reparentEntities(data: ReparentArguments[], options: { preserveTransfor
         });
 
         // reparent
-        validRecords.forEach((record) => {
+        validRecords.forEach((record: any) => {
             const data = latest(record);
 
             doReparent(
@@ -221,7 +221,7 @@ function reparentEntities(data: ReparentArguments[], options: { preserveTransfor
 
             const validRecords: any[] = [];
 
-            records.forEach((record) => {
+            records.forEach((record: any) => {
                 const data = latest(record);
                 if (!data) {
                     return;
@@ -246,7 +246,7 @@ function reparentEntities(data: ReparentArguments[], options: { preserveTransfor
             }
 
             // remove all children from parents
-            validRecords.forEach((record) => {
+            validRecords.forEach((record: any) => {
                 const parent = record.entity.latest().parent;
                 const history = parent.history.enabled;
                 parent.history.enabled = false;
@@ -255,7 +255,7 @@ function reparentEntities(data: ReparentArguments[], options: { preserveTransfor
             });
 
             // reparent
-            validRecords.forEach((record) => {
+            validRecords.forEach((record: any) => {
                 const data = latest(record);
 
                 doReparent(

@@ -101,7 +101,7 @@ editor.once('plugins:load:entities-to-obj', () => {
         editor.call('entities:contextmenu:add', {
             text: 'Export to OBJ',
             icon: 'E228',
-            onSelect: function (selection) {
+            onSelect: function (selection: Array<{ entity?: pc.Entity }>) {
                 const obj = editor.call('plugins:entities-to-obj', selection);
                 if (!obj) {
                     return;
@@ -115,7 +115,7 @@ editor.once('plugins:load:entities-to-obj', () => {
                 element.click();
                 document.body.removeChild(element);
             },
-            onIsEnabled: function (selection) {
+            onIsEnabled: function (selection: Array<{ entity?: pc.Entity }>) {
                 for (let i = 0; i < selection.length; i++) {
                     if (selection[i].entity && selection[i].entity.model) {
                         return true;

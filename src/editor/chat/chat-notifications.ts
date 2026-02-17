@@ -2,7 +2,7 @@ editor.once('load', () => {
     const panel = editor.call('chat:panel');
     let number = 0;
 
-    editor.on('visibility', (state) => {
+    editor.on('visibility', (state: boolean) => {
         if (state) {
             number = 0;
             editor.call('notify:title', `${config.project.name} | Editor`);
@@ -14,7 +14,7 @@ editor.once('load', () => {
         }
     });
 
-    editor.on('chat:post', (type, msg, element) => {
+    editor.on('chat:post', (type: string | number, msg: string, element: HTMLElement) => {
         editor.call('notify:permission');
 
         const granted = editor.call('localStorage:get', 'editor:notifications:chat');

@@ -267,7 +267,7 @@ class DropTarget extends Element {
         return this._passThrough;
     }
 
-    set dropManager(value) {
+    set dropManager(value: DropManager | null) {
         this._dropManager = value;
     }
 

@@ -1,4 +1,6 @@
-import { Color } from 'playcanvas';
+import { Color, Entity } from 'playcanvas';
+
+import type { EntityObserver } from '@/editor-api';
 
 editor.once('load', () => {
     let app = null;
@@ -8,18 +10,18 @@ editor.once('load', () => {
     const color = new Color(1, 1, 1);
     const colorBehind = new Color(1, 1, 1, 0.5);
 
-    const renderBones = function (entities) {
+    const renderBones = function (entities: Entity[]) {
         const immediateLayer = editor.call('gizmo:layers', 'Axis Gizmo Immediate');
         const brightLayer = editor.call('gizmo:layers', 'Bright Gizmo');
 
-        const renderBone = function (parent, child) {
+        const renderBone = function (parent: import('playcanvas').GraphNode, child: import('playcanvas').GraphNode) {
             const start = parent.getPosition();
             const end = child.getPosition();
             app.drawLine(start, end, colorBehind, true, immediateLayer);
             app.drawLine(start, end, color, true, brightLayer);
         };
 
-        const renderBoneHierarchy = function (node) {
+        const renderBoneHierarchy = function (node: import('playcanvas').GraphNode) {
             // render node join
             if (!node.enabled) {
                 return;
@@ -55,20 +57,20 @@ editor.once('load', () => {
         return visible;
     });
 
-    editor.on('selector:change', (type, items) => {
+    editor.on('selector:change', (type: string, items: EntityObserver[]) => {
         if (type === 'entity') {
-            entities = items.map(item => item.entity);
+            entities = items.map((item: EntityObserver) => item.entity);
         } else {
             entities = [];
         }
     });
 
-    editor.once('viewport:load', (application) => {
+    editor.once('viewport:load', (application: import('playcanvas').AppBase) => {
         app = application;
 
         // hook up changes to editor.showSkeleton
         const settings = editor.call('settings:user');
-        settings.on('editor.showSkeleton:set', (enabled) => {
+        settings.on('editor.showSkeleton:set', (enabled: boolean) => {
             visible = enabled;
         });
         visible = settings.get('editor.showSkeleton');

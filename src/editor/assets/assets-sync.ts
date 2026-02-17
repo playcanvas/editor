@@ -84,7 +84,7 @@ editor.once('load', () => {
 
     editor.call('assets:progress', 0.1);
 
-    const onAssetSelect = function (asset) {
+    const onAssetSelect = function (asset: { apiAsset: unknown; get: (path: string) => unknown }) {
         editor.api.globals.selection.set([asset.apiAsset]);
 
         // navigate to folder too

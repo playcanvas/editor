@@ -11,7 +11,7 @@ editor.once('load', () => {
 
     const referenceIndex: Record<string, AttributeReference> = {};
 
-    const sanitize = function (str) {
+    const sanitize = function (str: string) {
         return str.replace(/</g, '&lt;').replace(/>/g, '&gt;');
     };
 

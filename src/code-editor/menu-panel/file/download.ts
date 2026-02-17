@@ -30,7 +30,7 @@ editor.once('load', () => {
     }));
 
     // Download asset
-    editor.method('editor:command:download', (id) => {
+    editor.method('editor:command:download', (id?: string) => {
         id = id || editor.call('documents:getFocused');
         if (id) {
             window.open(`/api/assets/${id}/download?branchId=${config.self.branch.id}`);

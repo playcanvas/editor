@@ -26,7 +26,7 @@ editor.once('load', () => {
         return panel;
     });
 
-    panel.setCheckpoint = function (checkpoint) {
+    panel.setCheckpoint = function (checkpoint: Record<string, unknown>) {
         panel.checkpoint = checkpoint;
         boxRestore.setCheckpoint(checkpoint);
         panel.labelTitle.text = `Restore checkpoint "${checkpoint.id.substring(0, 7)}" ?`;

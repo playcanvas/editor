@@ -18,7 +18,7 @@ editor.once('load', () => {
 
     let app = null;
 
-    editor.once('viewport:load', (application) => {
+    editor.once('viewport:load', (application: import('playcanvas').AppBase) => {
         app = application;
     });
 
@@ -267,7 +267,7 @@ editor.once('load', () => {
             if (asset.resource) {
                 onLoaded(asset.resource);
             } else {
-                asset.once('load', (asset) => {
+                asset.once('load', () => {
                     onLoaded(asset.resource);
                 });
                 app.assets.load(asset);
@@ -277,7 +277,7 @@ editor.once('load', () => {
 
     // invalidate prefiltering data on cubemaps
     // when one of face textures file is changed
-    editor.on('assets:add', (asset) => {
+    editor.on('assets:add', (asset: Observer) => {
         if (asset.get('type') !== 'cubemap') {
             return;
         }
@@ -316,9 +316,9 @@ editor.once('load', () => {
             }
         };
 
-        const watchFace = function (ind) {
+        const watchFace = function (ind: number) {
             // update watching on face change
-            asset.on(`data.textures.${ind}:set`, (id) => {
+            asset.on(`data.textures.${ind}:set`, (id: string | number) => {
                 watchTexture(ind, id);
             });
             // start watching

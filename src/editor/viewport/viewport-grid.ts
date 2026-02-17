@@ -2,7 +2,7 @@ import { GraphNode, Mesh, MeshInstance, PRIMITIVE_LINES } from 'playcanvas';
 
 import { createColorMaterial } from './viewport-color-material';
 
-editor.once('viewport:load', (app) => {
+editor.once('viewport:load', (app: import('playcanvas').Application) => {
 
     const material = createColorMaterial(true);
     material.name = 'GridMaterial';

@@ -34,7 +34,7 @@ editor.once('load', () => {
         });
 
 
-        button.on('click', (e) => {
+        button.on('click', (e: MouseEvent) => {
             e.stopPropagation();
             menu.hidden = !menu.hidden;
         });
@@ -45,7 +45,7 @@ editor.once('load', () => {
     });
 
     // close menus when we click on the background
-    panel.on('click', (e) => {
+    panel.on('click', (e: MouseEvent) => {
         for (const key in menus) {
             menus[key].hidden = true;
         }

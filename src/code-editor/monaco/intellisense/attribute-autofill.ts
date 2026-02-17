@@ -521,7 +521,7 @@ editor.once('load', () => {
         monaco.languages.registerCodeLensProvider('javascript', {
             // @ts-ignore - Monaco types are overly strict about IEvent<CodeLensProvider>
             onDidChange: codeLensChangeEmitter.event,
-            provideCodeLenses: (model, _token) => {
+            provideCodeLenses: (model: Monaco.editor.ITextModel, _token: Monaco.CancellationToken) => {
 
                 // While busy analyzing, keep previous lenses visible (as inactive) to avoid flicker
                 if (busy) {
@@ -661,7 +661,7 @@ editor.once('load', () => {
          * Register a code action provider for error fixes
          */
         monaco.languages.registerCodeActionProvider('javascript', {
-            provideCodeActions: (model) => {
+            provideCodeActions: (model: Monaco.editor.ITextModel) => {
 
                 const actions = [];
 

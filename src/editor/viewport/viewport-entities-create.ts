@@ -1,6 +1,6 @@
 import { Entity } from 'playcanvas';
 
-import type { EntityObserver } from '@/editor-api';
+import { type EntityObserver } from '@/editor-api';
 
 editor.once('load', () => {
     const app = editor.call('viewport:app');
@@ -27,7 +27,7 @@ editor.once('load', () => {
         editor.call('viewport:render');
     };
 
-    const createEntity = function (obj) {
+    const createEntity = function (obj: any): Entity {
         const entity = new Entity();
 
         entitiesIndex[obj.get('resource_id')] = entity;
@@ -50,7 +50,7 @@ editor.once('load', () => {
         return entity;
     };
 
-    const insertChild = function (parent, node, index) {
+    const insertChild = function (parent: Entity, node: Entity, index: number): void {
         // try to insert the node at the right index
         for (let i = 0, len = parent._children.length; i < len; i++) {
             const child = parent._children[i];
@@ -103,7 +103,7 @@ editor.once('load', () => {
         return entity;
     };
 
-    const processEntityComponents = function (entity, obj: EntityObserver) {
+    const processEntityComponents = function (entity: Entity | null, obj: EntityObserver): void {
 
         if (!entity) {
             return;
@@ -177,7 +177,7 @@ editor.once('load', () => {
         });
 
         // clear entitiesIndex and childIndex
-        editor.on('entities:remove', (obj) => {
+        editor.on('entities:remove', (obj: any) => {
             delete entitiesIndex[obj.get('resource_id')];
             const children = obj.get('children');
             for (let i = 0; i < children.length; i++) {

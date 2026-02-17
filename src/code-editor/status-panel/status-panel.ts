@@ -30,7 +30,7 @@ editor.once('load', () => {
     // if true then do not clear the errors
     let permanentError = false;
 
-    editor.method('status:log', (msg) => {
+    editor.method('status:log', (msg: string) => {
         if (permanentError) {
             console.log(msg);
             return;
@@ -41,7 +41,7 @@ editor.once('load', () => {
         label.text = msg;
     });
 
-    editor.method('status:warning', (msg) => {
+    editor.method('status:warning', (msg: string) => {
         if (permanentError) {
             console.warn(msg);
             return;
@@ -53,14 +53,14 @@ editor.once('load', () => {
         console.warn(msg);
     });
 
-    editor.method('status:error', (msg) => {
+    editor.method('status:error', (msg: string) => {
         label.class.add('error');
         label.class.remove('warning');
         label.text = msg;
         console.error(msg);
     });
 
-    editor.method('status:permanentError', (msg) => {
+    editor.method('status:permanentError', (msg: string) => {
         editor.call('status:error', msg);
         permanentError = true;
     });
@@ -70,12 +70,12 @@ editor.once('load', () => {
     });
 
     // connection status
-    editor.method('status:connection', (text) => {
+    editor.method('status:connection', (text: string) => {
         connection.text = text;
         connection.class.remove('error');
     });
 
-    editor.method('status:connection:error', (text) => {
+    editor.method('status:connection:error', (text: string) => {
         connection.text = text;
         connection.class.add('error');
     });

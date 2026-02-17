@@ -7,22 +7,22 @@ editor.once('load', () => {
     const watching = { };
     const slots = ['aoMap', 'diffuseMap', 'emissiveMap', 'glossMap', 'lightMap', 'metalnessMap', 'opacityMap', 'specularMap', 'normalMap', 'cubeMap', 'sphereMap'];
 
-    const trigger = function (watch, slot) {
+    const trigger = function (watch: { callbacks: Record<string | number, { callback: (slot?: string | null) => void }> }, slot?: string | null) {
         for (const key in watch.callbacks) {
             watch.callbacks[key].callback(slot);
         }
     };
 
-    function onMaterialLoad() {
+    function onMaterialLoad(this: { callbacks: Record<string | number, unknown> }) {
         trigger(this);
     }
 
-    function onMaterialAdd(asset) {
+    function onMaterialAdd(asset: { on: (event: string, fn: () => void, context?: unknown) => void }) {
         asset.on('load', onMaterialLoad, this);
         app.assets.load(asset);
     }
 
-    const addTextureWatch = function (watch, slot, id) {
+    const addTextureWatch = function (watch: { textures: Record<string, { id: string | number; fn: () => void; addFn: () => void }>; asset: { get: (path: string) => string | number }; callbacks: Record<string | number, unknown>; autoLoad: number }, slot: string, id: string | number) {
         watch.textures[slot] = {
             id: id,
             fn: function () {
@@ -55,7 +55,7 @@ editor.once('load', () => {
         }
     };
 
-    const removeTextureWatch = function (watch, slot) {
+    const removeTextureWatch = function (watch: { textures: Record<string, { id: string | number; fn: () => void; addFn: () => void }> }, slot: string) {
         if (!watch.textures[slot]) {
             return;
         }
@@ -71,7 +71,7 @@ editor.once('load', () => {
         delete watch.textures[slot];
     };
 
-    const addSlotWatch = function (watch, slot) {
+    const addSlotWatch = function (watch: { asset: { get: (path: string) => string | number }; textures: Record<string, unknown>; watching: Record<string, { unbind: () => void }> }, slot: string) {
         watch.watching[slot] = watch.asset.on(`data.${slot}:set`, (value) => {
             if (watch.textures[slot]) {
                 if (value !== watch.textures[slot].id) {
@@ -86,7 +86,7 @@ editor.once('load', () => {
         });
     };
 
-    const subscribe = function (watch) {
+    const subscribe = function (watch: { asset: { get: (path: string) => string | number }; textures: Record<string, unknown>; watching: Record<string, { unbind: () => void }> }) {
         for (let i = 0; i < slots.length; i++) {
             const textureId = watch.asset.get(`data.${slots[i]}`);
             if (textureId) {
@@ -131,7 +131,7 @@ editor.once('load', () => {
         }
     };
 
-    const unsubscribe = function (watch) {
+    const unsubscribe = function (watch: { textures: Record<string, unknown>; watching: Record<string, { unbind: () => void }> }) {
         for (const key in watch.textures) {
             removeTextureWatch(watch, key);
         }

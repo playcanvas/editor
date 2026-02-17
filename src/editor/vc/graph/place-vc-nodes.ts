@@ -2,7 +2,7 @@ editor.once('load', () => {
     // Set the 'coords' field of every checkpoint node. The coords
     // are set relative to the previous node of our bfs traversal
     class PlaceVcNodes {
-        constructor(data) {
+        constructor(data: { idToNode: Record<string, Record<string, unknown>>; branches: Record<string, Record<string, unknown>>; startNode: Record<string, unknown> }) {
             this.idToNode = data.idToNode;
 
             this.branches = data.branches;
@@ -37,7 +37,7 @@ editor.once('load', () => {
             }
         }
 
-        handleEdge(node1, edge, type) {
+        handleEdge(node1: Record<string, unknown>, edge: Record<string, unknown>, type: 'parent' | 'child') {
             const id = edge[type];
 
             const node2 = !this.visited[id] && this.idToNode[id];
@@ -49,7 +49,7 @@ editor.once('load', () => {
             }
         }
 
-        handleNeighbor(h, prev, type) {
+        handleNeighbor(h: Record<string, unknown>, prev: Record<string, unknown>, type: 'parent' | 'child') {
             if (!h.coords) {
                 this.setCoords(h, prev, type);
             }
@@ -59,7 +59,7 @@ editor.once('load', () => {
             dst.push(h);
         }
 
-        setCoords(h, prev, type) {
+        setCoords(h: Record<string, unknown>, prev: Record<string, unknown>, type: 'parent' | 'child') {
             const x = this.xCoordForNode(h);
 
             const y = prev.coords.y + (type === 'parent' ? 1 : -1);
@@ -67,7 +67,7 @@ editor.once('load', () => {
             h.coords = { x: x, y: y };
         }
 
-        xCoordForNode(node) {
+        xCoordForNode(node: Record<string, unknown>) {
             const h = this.branches[node.branchId];
 
             if (h.branchXCoord === undefined) {
@@ -101,7 +101,7 @@ editor.once('load', () => {
         }
     }
 
-    editor.method('vcgraph:placeVcNodes', (data) => {
+    editor.method('vcgraph:placeVcNodes', (data: unknown) => {
         new PlaceVcNodes(data).run();
     });
 });

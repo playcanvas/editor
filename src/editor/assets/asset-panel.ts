@@ -2,6 +2,7 @@ import { Observer, type ObserverList, type EventHandle } from '@playcanvas/obser
 import {
     Element,
     GridViewItem,
+    type GridViewItemArgs,
     Container,
     Progress,
     Panel,
@@ -147,7 +148,7 @@ class AssetGridViewItem extends GridViewItem {
 
     private _evtName: EventHandle;
 
-    constructor(args) {
+    constructor(args: GridViewItemArgs & { assets: ObserverList }) {
         super(args);
 
         this.class.add(CLASS_ASSET_GRID_ITEM);
@@ -200,7 +201,7 @@ class AssetGridViewItem extends GridViewItem {
         }
     }
 
-    link(asset) {
+    link(asset: AssetObserver) {
         super.link(asset, 'name');
 
         this._asset = asset;
@@ -443,7 +444,7 @@ class AssetPanel extends Panel {
         this.header.append(this._containerControls);
         // stop click events so that the asset panel is only collapsed when you
         // click on the title
-        this._containerControls.on('click', evt => evt.stopPropagation());
+        this._containerControls.on('click', (evt: MouseEvent) => evt.stopPropagation());
 
         this._tooltips = [];
 
@@ -551,8 +552,8 @@ class AssetPanel extends Panel {
 
         // asset type dropdown filter
         const dropdownTypeOptions = Object.keys(TYPES)
-        .filter(type => type !== 'bundle' || editor.call('users:hasFlag', 'hasBundles'))
-        .map((type) => {
+        .filter((type: string) => type !== 'bundle' || editor.call('users:hasFlag', 'hasBundles'))
+        .map((type: string) => {
             return {
                 v: type,
                 t: TYPES[type]
@@ -679,7 +680,7 @@ class AssetPanel extends Panel {
             flexDirection: 'row'
         });
         this._progressBar = new Progress();
-        this._progressBar.on('change', (value) => {
+        this._progressBar.on('change', (value: number) => {
             if (value >= 100) {
                 // update view mode to show
                 // the appropriate panels and hide the
@@ -850,12 +851,12 @@ class AssetPanel extends Panel {
     }
 
     // Sorts assets to have folders above and other files below
-    _sortByFolder(a, b) {
+    _sortByFolder(a: AssetObserver | Observer, b: AssetObserver | Observer) {
         return +(b.get('type') === 'folder') - +(a.get('type') === 'folder');
     }
 
     // Sorts assets by name (case insensitive). Keeps legacy scripts folder on top always.
-    _sortByName(a, b, ascending) {
+    _sortByName(a: AssetObserver | Observer, b: AssetObserver | Observer, ascending: boolean) {
         // keep legacy script folder on top
         if (a === LEGACY_SCRIPTS_FOLDER_ASSET) {
             return -1;
@@ -877,7 +878,7 @@ class AssetPanel extends Panel {
 
 
     // Sorts assets by type. Keeps legacy scripts folder on top always.
-    _sortByType(a, b, ascending) {
+    _sortByType(a: AssetObserver | Observer, b: AssetObserver | Observer, ascending: boolean) {
         // keep legacy script folder on top
         if (a === LEGACY_SCRIPTS_FOLDER_ASSET) {
             return -1;
@@ -904,7 +905,7 @@ class AssetPanel extends Panel {
     }
 
     // Sorts assets by file size. Keeps legacy scripts folder on top always.
-    _sortByFileSize(a, b, ascending) {
+    _sortByFileSize(a: AssetObserver | Observer, b: AssetObserver | Observer, ascending: boolean) {
         // keep legacy script folder on top
         if (a === LEGACY_SCRIPTS_FOLDER_ASSET) {
             return -1;
@@ -987,7 +988,7 @@ class AssetPanel extends Panel {
 
     // Convert string in form "tag1, tag2" to an array
     // of strings like so: "tag1", "tag2"
-    _processTagsString(str) {
+    _processTagsString(str: string) {
         return str.trim().split(',').map(s => s.trim());
     }
 
@@ -1011,7 +1012,7 @@ class AssetPanel extends Panel {
         this._suspendFiltering = suspendFiltering;
     }
 
-    _parseSearchTags(searchQuery) {
+    _parseSearchTags(searchQuery: string) {
         let tags = searchQuery.match(REGEX_TAGS);
         if (!tags) {
             return;
@@ -1035,7 +1036,7 @@ class AssetPanel extends Panel {
     }
 
     // Analyzes tags first and then re-filters assets
-    _onSearchInputChange(value) {
+    _onSearchInputChange(value: string) {
         this._searchTags = null;
         value = value.trim();
 
@@ -1079,7 +1080,7 @@ class AssetPanel extends Panel {
     }
 
     // Handle double click of asset element
-    _onAssetDblClick(evt, asset) {
+    _onAssetDblClick(evt: MouseEvent, asset: AssetObserver) {
         evt.stopPropagation();
         evt.preventDefault();
 
@@ -1121,7 +1122,7 @@ class AssetPanel extends Panel {
     }
 
     // Creates drop target for one asset dropped upon another
-    _createAssetDropTarget(target) {
+    _createAssetDropTarget(target: Element | HTMLElement) {
         const dropTarget = new DropTarget(target, {
             hole: true,
             passThrough: true,
@@ -1136,7 +1137,7 @@ class AssetPanel extends Panel {
     }
 
     // Returns true if the dragged type and data are valid assets
-    _onAssetDropFilter(type, data) {
+    _onAssetDropFilter(type: string, data: { id?: string; ids?: string[] }) {
         // check if type is asset and if it's a valid int id (legacy scripts have string ids)
         if (type.startsWith('asset') && this._writePermissions) {
             if (data.id) {
@@ -1151,7 +1152,7 @@ class AssetPanel extends Panel {
     }
 
     // Called when we drop an asset on a drop target.
-    _onAssetDrop(type, data) {
+    _onAssetDrop(type: string, data: { id?: string; ids?: string[] }) {
         if (this._hoveredAsset === undefined || !type || !type.startsWith('asset') || !this._writePermissions) {
             return;
         }
@@ -1191,7 +1192,7 @@ class AssetPanel extends Panel {
     }
 
     // Called when we start dragging an asset element
-    _onAssetDragStart(evt, asset) {
+    _onAssetDragStart(evt: DragEvent | null, asset: AssetObserver) {
         if (evt) {
             evt.preventDefault();
             evt.stopPropagation();
@@ -1268,7 +1269,7 @@ class AssetPanel extends Panel {
         }
     }
 
-    _onAssetHover(asset) {
+    _onAssetHover(asset: AssetObserver) {
         if (this._hoveredAsset === asset) {
             return;
         }
@@ -1345,7 +1346,7 @@ class AssetPanel extends Panel {
     }
 
     // Update the hovered asset
-    _setHoveredAsset(asset) {
+    _setHoveredAsset(asset: AssetObserver | null | undefined) {
         if (this._hoveredAsset === asset) {
             return;
         }
@@ -1395,14 +1396,14 @@ class AssetPanel extends Panel {
         }
     }
 
-    _onAssetHoverEnd(asset) {
+    _onAssetHoverEnd(asset: AssetObserver) {
         if (this._hoveredAsset === asset) {
             this._setHoveredAsset(undefined);
         }
     }
 
     // Creates a table row for the details view for the specified asset.
-    _createDetailsViewRow(asset) {
+    _createDetailsViewRow(asset: AssetObserver) {
         const row = new TableRow();
 
         // store asset in row for reference
@@ -1424,7 +1425,7 @@ class AssetPanel extends Panel {
 
         // folder dbl click
         if (DBL_CLICKABLES[asset.get('type')]) {
-            domDblClick = evt => this._onAssetDblClick(evt, asset);
+            domDblClick = (evt: MouseEvent) => this._onAssetDblClick(evt, asset);
             row.dom.addEventListener('dblclick', domDblClick);
         }
 
@@ -1447,7 +1448,7 @@ class AssetPanel extends Panel {
             onMouseDown = evt => evt.stopPropagation();
             row.dom.addEventListener('mousedown', onMouseDown);
 
-            onDragStart = evt => this._onAssetDragStart(evt, asset);
+            onDragStart = (evt: DragEvent) => this._onAssetDragStart(evt, asset);
             row.dom.addEventListener('dragstart', onDragStart);
         }
 
@@ -1468,7 +1469,7 @@ class AssetPanel extends Panel {
         row.dom.addEventListener('contextmenu', onContextMenu);
 
         // clean up
-        row.on('destroy', (dom) => {
+        row.on('destroy', (dom: HTMLElement) => {
             delete this._rowsIndex[asset.get('id')];
             dom.removeEventListener('contextmenu', onContextMenu);
             if (onMouseDown) {
@@ -1611,12 +1612,12 @@ class AssetPanel extends Panel {
     }
 
     // Returns row in details view for this asset
-    _getDetailsViewRow(asset) {
+    _getDetailsViewRow(asset: AssetObserver) {
         return this._rowsIndex[asset.get('id')];
     }
 
     // Applies specified function to all elements for that asset
-    _applyFnToAssetElements(asset, fn) {
+    _applyFnToAssetElements(asset: AssetObserver, fn: (element: TreeViewItem | AssetGridViewItem | TableRow) => void) {
         const id = asset.get('id');
 
         // do folders first so that they will not be focused
@@ -1637,7 +1638,7 @@ class AssetPanel extends Panel {
         }
     }
 
-    _setAssetSelected(asset, selected) {
+    _setAssetSelected(asset: AssetObserver, selected: boolean) {
         this._applyFnToAssetElements(asset, (element) => {
             if (element.selected !== selected) {
                 element.selected = selected;
@@ -1646,7 +1647,7 @@ class AssetPanel extends Panel {
     }
 
     // update element based on asset task status
-    _setElementTaskStatus(element, asset) {
+    _setElementTaskStatus(element: TreeViewItem | TableRow | AssetGridViewItem, asset: AssetObserver) {
         element.class.remove(CLASS_TASK_RUNNING);
         element.class.remove(CLASS_TASK_FAILED);
 
@@ -1675,7 +1676,7 @@ class AssetPanel extends Panel {
         }
     }
 
-    _onSelectAssetElement(element) {
+    _onSelectAssetElement(element: TableRow | AssetGridViewItem) {
         if (this._suspendSelectEvents) {
             return;
         }
@@ -1687,7 +1688,7 @@ class AssetPanel extends Panel {
         this.emit('select', element.asset.legacyScript || element.asset);
     }
 
-    _onDeselectAssetElement(element) {
+    _onDeselectAssetElement(element: TableRow | AssetGridViewItem) {
         if (this._suspendSelectEvents) {
             return;
         }
@@ -1699,7 +1700,7 @@ class AssetPanel extends Panel {
         this.emit('deselect', element.asset.legacyScript || element.asset);
     }
 
-    _onSelectorChange(type, assets) {
+    _onSelectorChange(type: string, assets: AssetObserver[]) {
         this._prevSelectorType = this._selectorType;
         this._prevSelectorItems = this._selectorItems;
         this._selectorType = type;
@@ -1710,7 +1711,7 @@ class AssetPanel extends Panel {
         this._suspendSelectEvents = false;
     }
 
-    _createUserIndicator(userId, userEntry, container) {
+    _createUserIndicator(userId: string, userEntry: { elements: Element[]; color: string }, container: Container) {
         const indicator = new Element({
             class: CLASS_USER_INDICATOR
         });
@@ -1730,7 +1731,7 @@ class AssetPanel extends Panel {
     }
 
     // Called when we receive remote users' selector state
-    _onSelectorSync(userId, data) {
+    _onSelectorSync(userId: string, data: { type: string; ids?: (string | number)[] }) {
         let userEntry = this._usersIndex[userId];
         if (userEntry) {
             let i = userEntry.elements.length;
@@ -1749,7 +1750,7 @@ class AssetPanel extends Panel {
         };
         this._usersIndex[userId] = userEntry;
 
-        data.ids.forEach((assetId) => {
+        data.ids.forEach((assetId: string | number) => {
             const gridItem = this._gridIndex[assetId];
             if (gridItem) {
                 this._createUserIndicator(userId, userEntry, gridItem.containerUsers);
@@ -1762,7 +1763,7 @@ class AssetPanel extends Panel {
         });
     }
 
-    _onAddLegacyScript(script) {
+    _onAddLegacyScript(script: Observer) {
         script.set('type', 'script'); // this seems to be needed for the inspector to work
 
         let fakeAsset = this._legacyScriptsIndex[script.get('filename')];
@@ -1782,7 +1783,7 @@ class AssetPanel extends Panel {
         this._addAsset(fakeAsset, -1, true);
     }
 
-    _onRemoveLegacyScript(script) {
+    _onRemoveLegacyScript(script: Observer) {
         const asset = this._legacyScriptsIndex[script.get('filename')];
         if (asset) {
             this._removeAsset(asset);
@@ -1791,7 +1792,7 @@ class AssetPanel extends Panel {
         delete this._legacyScriptsIndex[script.get('filename')];
     }
 
-    _addAsset(asset, index, addToDetailsView) {
+    _addAsset(asset: AssetObserver, index: number, addToDetailsView: boolean) {
         const id = asset.get('id');
 
         // init events
@@ -1830,7 +1831,7 @@ class AssetPanel extends Panel {
         }
     }
 
-    _addGridItem(asset, index) {
+    _addGridItem(asset: AssetObserver, index: number) {
         const item = new AssetGridViewItem({
             assets: this._assets
         });
@@ -1851,7 +1852,7 @@ class AssetPanel extends Panel {
 
         // folder dbl click
         if (DBL_CLICKABLES[asset.get('type')]) {
-            domDblClick = evt => this._onAssetDblClick(evt, asset);
+            domDblClick = (evt: MouseEvent) => this._onAssetDblClick(evt, asset);
             item.dom.addEventListener('dblclick', domDblClick);
         }
 
@@ -1874,13 +1875,13 @@ class AssetPanel extends Panel {
             });
 
             // this allows dragging that gets disabled by layout.js
-            onMouseDown = (evt) => {
+            onMouseDown = (evt: MouseEvent) => {
                 evt.stopPropagation();
             };
 
             item.dom.addEventListener('mousedown', onMouseDown);
 
-            onDragStart = evt => this._onAssetDragStart(evt, asset);
+            onDragStart = (evt: DragEvent) => this._onAssetDragStart(evt, asset);
             item.dom.addEventListener('dragstart', onDragStart);
         }
 
@@ -1912,7 +1913,7 @@ class AssetPanel extends Panel {
         return item;
     }
 
-    _removeAsset(asset) {
+    _removeAsset(asset: AssetObserver) {
         const id = asset.get('id');
         if (this._assetEvents[id]) {
             this._assetEvents[id].forEach(evt => evt.unbind());
@@ -1958,7 +1959,7 @@ class AssetPanel extends Panel {
         }
     }
 
-    _moveAsset(asset, index) {
+    _moveAsset(asset: AssetObserver, index: number) {
         const suspendEvents = this._suspendSelectEvents;
         this._suspendSelectEvents = true;
 
@@ -1988,7 +1989,7 @@ class AssetPanel extends Panel {
         this._suspendSelectEvents = suspendEvents;
     }
 
-    _onAssetPathChange(asset, path, oldPath) {
+    _onAssetPathChange(asset: AssetObserver, path: number[], oldPath: number[]) {
         // show or hide based on filters
         const row = this._rowsIndex[asset.get('id')];
         if (row) {
@@ -2034,13 +2035,13 @@ class AssetPanel extends Panel {
         }
     }
 
-    _onAssetTaskChange(asset) {
+    _onAssetTaskChange(asset: AssetObserver) {
         this._applyFnToAssetElements(asset, (element) => {
             this._setElementTaskStatus(element, asset);
         });
     }
 
-    _addFolder(asset) {
+    _addFolder(asset: AssetObserver) {
         const id = asset.get('id');
 
         // find parent
@@ -2095,7 +2096,7 @@ class AssetPanel extends Panel {
             this._assetEvents[id] = [];
         }
 
-        let evtName = asset.on('name:set', (value) => {
+        let evtName = asset.on('name:set', (value: string) => {
             treeItem.text = value;
         });
 
@@ -2110,7 +2111,7 @@ class AssetPanel extends Panel {
 
         // add child folders
         if (this._foldersWaitingParent[id]) {
-            this._foldersWaitingParent[id].forEach((childId) => {
+            this._foldersWaitingParent[id].forEach((childId: number) => {
                 const childAsset = this._assets.get(childId);
                 if (childAsset) {
                     this._addFolder(childAsset);
@@ -2123,7 +2124,7 @@ class AssetPanel extends Panel {
         return treeItem;
     }
 
-    _queueAssetToWaitForParent(assetId, parentId) {
+    _queueAssetToWaitForParent(assetId: number, parentId: number | string) {
         if (!this._foldersWaitingParent[parentId]) {
             this._foldersWaitingParent[parentId] = new Set();
         }
@@ -2131,7 +2132,7 @@ class AssetPanel extends Panel {
         this._foldersWaitingParent[parentId].add(assetId);
     }
 
-    _insertTreeItemAlphabetically(parentTreeItem, treeItem) {
+    _insertTreeItemAlphabetically(parentTreeItem: TreeViewItem, treeItem: TreeViewItem) {
         // ensure the legacy scripts folder remains at the top
         const legacyFolder = this._foldersIndex[LEGACY_SCRIPTS_ID];
 
@@ -2171,7 +2172,7 @@ class AssetPanel extends Panel {
         }
     }
 
-    _removeFolder(asset) {
+    _removeFolder(asset: AssetObserver) {
         const id = asset.get('id');
 
         if (this._foldersIndex[id]) {
@@ -2184,7 +2185,7 @@ class AssetPanel extends Panel {
         }
     }
 
-    _onFolderTreeReparent(reparentedItems) {
+    _onFolderTreeReparent(reparentedItems: Array<{ item: TreeViewItem & { asset: AssetObserver | null }; newParent: TreeViewItem & { asset: AssetObserver | null }; newChildIndex: number }>) {
         const assets = reparentedItems.map((reparented) => {
             return reparented.item.asset;
         });
@@ -2192,7 +2193,7 @@ class AssetPanel extends Panel {
         editor.call('assets:fs:move', assets, reparentedItems[0].newParent.asset || null);
     }
 
-    _onFolderTreeSelect(item) {
+    _onFolderTreeSelect(item: TreeViewItem) {
         if (this._suspendSelectEvents) {
             return;
         }
@@ -2220,7 +2221,7 @@ class AssetPanel extends Panel {
         }
     }
 
-    _onFolderTreeDeselect(item) {
+    _onFolderTreeDeselect(item: TreeViewItem) {
         if (this._suspendSelectEvents) {
             return;
         }
@@ -2238,12 +2239,12 @@ class AssetPanel extends Panel {
         }
     }
 
-    _onFolderTreeDragStart(items) {
+    _onFolderTreeDragStart(items: TreeViewItem[]) {
         this._onAssetDragStart(null, items[0].asset);
     }
 
     // Perform AND operation between tags
-    _tagsAND(tagGroup, assetTags) {
+    _tagsAND(tagGroup: (string | string[])[], assetTags: string[]) {
         for (let i = 0; i < tagGroup.length; i++) {
             if (assetTags.indexOf(tagGroup[i]) === -1) {
                 return false;
@@ -2254,7 +2255,7 @@ class AssetPanel extends Panel {
     }
 
     // Perform OR operation between tags or groups of subtags
-    _tagsOR(tagGroup, assetTags) {
+    _tagsOR(tagGroup: (string | string[])[], assetTags: string[]) {
         for (let i = 0; i < tagGroup.length; i++) {
             if (Array.isArray(tagGroup[i])) {
                 if (this._tagsAND(tagGroup[i], assetTags)) {
@@ -2269,7 +2270,7 @@ class AssetPanel extends Panel {
     }
 
     // Show or hide an element based on the current filters
-    _filterAssetElement(element) {
+    _filterAssetElement(element: TableRow | AssetGridViewItem) {
         if (!element.asset) {
             return false;
         }
@@ -2354,7 +2355,7 @@ class AssetPanel extends Panel {
         return path[path.length - 1] === parseInt(this._currentFolder.get('id'), 10);
     }
 
-    _onWhoIsOnlineRemove(userId) {
+    _onWhoIsOnlineRemove(userId: string) {
         const userEntry = this._usersIndex[userId];
         if (!userEntry) {
             return;
@@ -2366,7 +2367,7 @@ class AssetPanel extends Panel {
         }
     }
 
-    _onAssetUsedChange(asset, used) {
+    _onAssetUsedChange(asset: AssetObserver, used: boolean) {
         this._applyFnToAssetElements(asset, (element) => {
             if (used) {
                 element.class.remove(CLASS_ASSET_NOT_REFERENCED);
@@ -2381,7 +2382,7 @@ class AssetPanel extends Panel {
         this._gridView.hidden = !this._detailsView.hidden;
     }
 
-    _filterView(view) {
+    _filterView(view: Table | GridView) {
         view.hidden = false;
         this._containerProgress.hidden = true;
 
@@ -2552,7 +2553,7 @@ class AssetPanel extends Panel {
         this._assetListEvents.push(this._assets.on('remove', (asset) => {
             this._removeAsset(asset);
         }));
-        this._assetListEvents.push(this._assets.on('move', (asset, index) => {
+        this._assetListEvents.push(this._assets.on('move', (asset: AssetObserver, index: number) => {
             this._moveAsset(asset, index);
         }));
 
@@ -2620,7 +2621,7 @@ class AssetPanel extends Panel {
         return this._currentFolder;
     }
 
-    set dropManager(value) {
+    set dropManager(value: DropManager | null) {
         if (this._dropManager === value) {
             return;
         }
@@ -2670,7 +2671,7 @@ class AssetPanel extends Panel {
         return this._gridView;
     }
 
-    set viewMode(value) {
+    set viewMode(value: string) {
         if (this._viewMode === value) {
             return;
         }
@@ -2779,7 +2780,7 @@ class AssetPanel extends Panel {
         return result;
     }
 
-    set showSourceAssets(value) {
+    set showSourceAssets(value: boolean) {
         if (this._showSourceAssets === value) {
             return;
         }
@@ -2795,7 +2796,7 @@ class AssetPanel extends Panel {
         return this._showSourceAssets;
     }
 
-    set suspendSelectionEvents(value) {
+    set suspendSelectionEvents(value: boolean) {
         this._suspendSelectEvents = value;
     }
 
@@ -2803,7 +2804,7 @@ class AssetPanel extends Panel {
         return this._suspendSelectEvents;
     }
 
-    set suspendFiltering(value) {
+    set suspendFiltering(value: boolean) {
         this._suspendFiltering = value;
     }
 
@@ -2811,7 +2812,7 @@ class AssetPanel extends Panel {
         return this._suspendFiltering;
     }
 
-    set writePermissions(value) {
+    set writePermissions(value: boolean) {
         if (this._writePermissions === value) {
             return;
         }

@@ -65,7 +65,7 @@ editor.once('camera:load', () => {
         }
     });
 
-    editor.on('camera:change', (cameraNew) => {
+    editor.on('camera:change', (cameraNew: import('playcanvas').Entity) => {
         camera = cameraNew;
     });
 });

@@ -26,7 +26,7 @@ editor.once('load', () => {
         });
     });
 
-    editor.method('users:get', (id) => {
+    editor.method('users:get', (id: string) => {
         return users[id] || null;
     });
 });

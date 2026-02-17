@@ -31,7 +31,7 @@ export class TemplateAssetInspectorPreview extends AssetInspectorPreviewBase {
 
     private _ny = 0;
 
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         super(args);
 
         this._preview = new Canvas();

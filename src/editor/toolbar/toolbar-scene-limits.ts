@@ -25,7 +25,7 @@ editor.once('load', () => {
         container.hidden = true;
     });
 
-    const onSceneLoaded = function (data) {
+    const onSceneLoaded = function (data: unknown) {
 
         const size = JSON.stringify(data).length;
         if (size > SCENE_SIZE_LIMIT) {

@@ -217,7 +217,7 @@ class Tooltip extends Container {
         }
         const { container, arrow, events }  = data;
 
-        events.forEach(evt => evt.unbind());
+        events.forEach((evt: EventHandle) => evt.unbind());
         arrow.remove();
         this.remove(container);
         this._targets.delete(target);

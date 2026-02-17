@@ -9,22 +9,22 @@ editor.once('load', () => {
     });
 
     // Get a key from the local storage
-    editor.method('localStorage:get', (key) => {
+    editor.method('localStorage:get', (key: string) => {
         return ls.get(key);
     });
 
     // Set a key-value pair in localStorage
-    editor.method('localStorage:set', (key, value) => {
+    editor.method('localStorage:set', (key: string, value: unknown) => {
         return ls.set(key, value);
     });
 
     // Remove a key from the local storage
-    editor.method('localStorage:unset', (key) => {
+    editor.method('localStorage:unset', (key: string) => {
         return ls.unset(key);
     });
 
     // Returns true if the key exists in the local storage
-    editor.method('localStorage:has', (key) => {
+    editor.method('localStorage:has', (key: string) => {
         return ls.has(key);
     });
 });

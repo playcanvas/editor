@@ -71,7 +71,7 @@ const DOM = args => [
 ];
 
 class SceneSourceAssetInspector extends Container {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
 
         super(args);
@@ -85,11 +85,11 @@ class SceneSourceAssetInspector extends Container {
         this._contentAttributes.getField('scene').parent.labelAlignTop = true;
     }
 
-    _getContainer(name) {
+    _getContainer(name: string) {
         return this._contentAttributes.getField(name).parent.field;
     }
 
-    _createSmallLabel(text) {
+    _createSmallLabel(text: string) {
         const label = new Label({
             text: text
         });
@@ -99,12 +99,12 @@ class SceneSourceAssetInspector extends Container {
         return label;
     }
 
-    _animationCheck(available) {
+    _animationCheck(available: boolean) {
         this._getContainer('animation').clear();
         this._getContainer('animation').append(this._createSmallLabel(available ? 'yes' : 'no'));
     }
 
-    _addTextures(textures) {
+    _addTextures(textures?: Array<{ name: string }>) {
         if (textures && textures.length > 0) {
             textures.forEach((texture) => {
                 const textureLabel = new Label({ text: texture.name, class: CLASS_ASSET });
@@ -119,7 +119,7 @@ class SceneSourceAssetInspector extends Container {
         this._getContainer('textures').clear();
     }
 
-    _addMaterials(materials) {
+    _addMaterials(materials?: Array<{ name: string }>) {
         if (materials && materials.length > 0) {
             materials.forEach((material) => {
                 const materialLabel = new Label({ text: material.name, class: CLASS_ASSET });
@@ -134,7 +134,7 @@ class SceneSourceAssetInspector extends Container {
         this._getContainer('materials').clear();
     }
 
-    _addScene(scene) {
+    _addScene(scene?: unknown) {
         if (scene) {
             this._getContainer('scene').append(this._createSmallLabel('yes'));
         } else {
@@ -146,7 +146,7 @@ class SceneSourceAssetInspector extends Container {
         this._getContainer('scene').clear();
     }
 
-    link(assets) {
+    link(assets: import('@playcanvas/observer').Observer[]) {
         this.unlink();
         this._contentAttributes.link(assets);
         this._relatedAssetsInspector.link(assets);

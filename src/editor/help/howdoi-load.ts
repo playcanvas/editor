@@ -1,5 +1,5 @@
 editor.once('load', () => {
-    fetch(`${config.url.frontend}static/json/howdoi.json`).then(res => res.json()).then((data) => {
+    fetch(`${config.url.frontend}static/json/howdoi.json`).then(res => res.json()).then((data: { title: string; html: string; keywords?: string[] }[]) => {
         if (!data || !data.length) {
             return;
         }

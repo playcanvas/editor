@@ -4,14 +4,14 @@ editor.once('load', () => {
     const dropRef = editor.call('drop:target', {
         ref: assetsPanel,
         type: 'files',
-        filter: (type) => {
+        filter: (type: string) => {
             if (type !== 'files' || !editor.call('permissions:write')) {
                 return false;
             }
 
             return true;
         },
-        drop: (type, data) => {
+        drop: (type: string, data: FileList | File[]) => {
             if (type !== 'files' || !editor.call('permissions:write')) {
                 return;
             }

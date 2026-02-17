@@ -1,7 +1,7 @@
 import { LegacyContainer } from './container';
 
 class LegacyOverlay extends LegacyContainer {
-    constructor(args = {}) {
+    constructor(args: Record<string, any> = {}) {
         super();
         this.element = document.createElement('div');
         this._element.classList.add('ui-overlay', 'center');
@@ -18,7 +18,7 @@ class LegacyOverlay extends LegacyContainer {
         this._element.appendChild(this.innerElement);
     }
 
-    set center(value) {
+    set center(value: boolean) {
         if (value) {
             this._element.classList.add('center');
             this.innerElement.style.left = '';
@@ -32,7 +32,7 @@ class LegacyOverlay extends LegacyContainer {
         return this._element.classList.contains('center');
     }
 
-    set transparent(value) {
+    set transparent(value: boolean) {
         if (value) {
             this._element.classList.add('transparent');
         } else {
@@ -44,7 +44,7 @@ class LegacyOverlay extends LegacyContainer {
         return this._element.classList.contains('transparent');
     }
 
-    set clickable(value) {
+    set clickable(value: boolean) {
         if (value) {
             this.elementOverlay.classList.add('clickable');
         } else {
@@ -60,11 +60,11 @@ class LegacyOverlay extends LegacyContainer {
         return this.innerElement.getBoundingClientRect();
     }
 
-    setCloseCallback(callback) {
+    setCloseCallback(callback: () => boolean) {
         this._closeCallback = callback;
     }
 
-    _onMouseDown(evt) {
+    _onMouseDown(evt: MouseEvent) {
         if (this._closeCallback && !this._closeCallback()) {
             return false;
         }
@@ -82,7 +82,7 @@ class LegacyOverlay extends LegacyContainer {
         evt.preventDefault();
     }
 
-    position(x, y) {
+    position(x: number, y: number) {
         const area = this.elementOverlay.getBoundingClientRect();
         const rect = this.innerElement.getBoundingClientRect();
 

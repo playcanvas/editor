@@ -71,7 +71,7 @@ editor.once('load', () => {
         setTimeout(checkForRecompress, 1000);
     });
 
-    function recompress(toRecompress) {
+    function recompress(toRecompress: unknown[]) {
         TextureCompressor.compress(toRecompress, variants);
     }
 });

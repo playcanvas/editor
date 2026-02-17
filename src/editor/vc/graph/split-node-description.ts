@@ -2,7 +2,7 @@ editor.once('load', () => {
     // Split description into lines of up to 'maxPerLine' characters,
     // only breaking up tokens of length > 'maxPerToken'
     class SplitNodeDescription {
-        constructor(orig, maxPerLine, maxPerToken) {
+        constructor(orig: string, maxPerLine: number, maxPerToken: number) {
             this.orig = orig;
 
             this.maxPerLine = maxPerLine;
@@ -26,7 +26,7 @@ editor.once('load', () => {
             return this.lines;
         }
 
-        handleToken(s) {
+        handleToken(s: string) {
             const afterAdd = this.curLength + this.spaceBefore() + s.length;
 
             if (afterAdd > this.maxPerLine) {
@@ -36,7 +36,7 @@ editor.once('load', () => {
             }
         }
 
-        splitIfNeeded(s) {
+        splitIfNeeded(s: string) {
             if (s.length > this.maxPerToken) {
                 this.splitTransition(s);
 
@@ -59,7 +59,7 @@ editor.once('load', () => {
             }
         }
 
-        splitTransition(s) {
+        splitTransition(s: string) {
             const n = this.maxPerLine - this.curLength - this.spaceBefore();
 
             const s1 = s.substring(0, n);
@@ -73,7 +73,7 @@ editor.once('load', () => {
             this.handleToken(s2);
         }
 
-        addToCur(s) {
+        addToCur(s: string) {
             if (s) {
                 this.curTokens.push(s);
 

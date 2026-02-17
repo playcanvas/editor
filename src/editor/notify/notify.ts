@@ -12,7 +12,7 @@ editor.once('load', () => {
         return Notification.permission;
     });
 
-    editor.method('notify:permission', (fn) => {
+    editor.method('notify:permission', (fn?: () => void) => {
         if (!window.Notification) {
             return;
         }
@@ -27,14 +27,14 @@ editor.once('load', () => {
         }
     });
 
-    editor.method('notify', (args = {}) => {
+    editor.method('notify', (args: { title?: string; body?: string; icon?: string; timeout?: number; click?: (evt: Event) => void } = {}) => {
         // no supported
         if (!window.Notification || !args.title || document.visibilityState === 'visible') {
             return;
         }
 
         let timeout;
-        const queueClose = function (item) {
+        const queueClose = function (item: Notification) {
             setTimeout(() => {
                 item.close();
             }, TIMEOUT_OVERLAP);
@@ -54,7 +54,7 @@ editor.once('load', () => {
                 notification.close();
             }, args.timeout || TIMEOUT);
 
-            notification.onclick = function (evt) {
+            notification.onclick = function (evt: Event) {
                 evt.preventDefault();
                 notification.close();
 
@@ -63,7 +63,7 @@ editor.once('load', () => {
                 }
             };
 
-            notification.onclose = function (evt) {
+            notification.onclose = function (_evt: Event) {
                 clearTimeout(timeout);
                 timeout = null;
 
@@ -78,7 +78,7 @@ editor.once('load', () => {
             notify();
         } else if (Notification.permission !== 'denied') {
             // ask for permission
-            editor.call('notify:permission', (permission) => {
+            editor.call('notify:permission', (permission: string) => {
                 if (permission === 'granted') {
                     notify();
                 }
@@ -88,7 +88,7 @@ editor.once('load', () => {
         }
     });
 
-    editor.method('notify:title', (title) => {
+    editor.method('notify:title', (title: string) => {
         document.title = title;
     });
 });

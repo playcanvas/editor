@@ -24,7 +24,7 @@ editor.once('load', () => {
         }
     });
 
-    const keydownHandler = function (evt) {
+    const keydownHandler = function (evt: KeyboardEvent) {
         if (overlay.hidden) {
             return;
         }

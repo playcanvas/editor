@@ -104,7 +104,7 @@ const parseTokens = (tokens: string[]): ASTNode => {
     const peek = () => tokens[position];
     const isAtEnd = () => position >= tokens.length;
 
-    const match = (...expected) => {
+    const match = (...expected: string[]) => {  // rest params in arrow - typedef applies to function expressions
         if (!isAtEnd() && expected.includes(peek())) {
             position++;
             return true;
@@ -185,14 +185,14 @@ const parseTokens = (tokens: string[]): ASTNode => {
         return parseMember();
     }
 
-    function consume(expected, errorMsg) {
+    function consume(expected: string, errorMsg: string) {
         if (check(expected)) {
             return advance();
         }
         throw new Error(`${errorMsg} (found '${peek() ?? 'EOF'}')`);
     }
 
-    function consumeIdentifier(msg) {
+    function consumeIdentifier(msg: string) {
         const t = peek();
         if (isIdentifier(t)) {
             advance();
@@ -201,7 +201,7 @@ const parseTokens = (tokens: string[]): ASTNode => {
         throw new Error(`${msg} (found '${t ?? 'EOF'}')`);
     }
 
-    function check(tokenVal) {
+    function check(tokenVal: string) {
         if (isAtEnd()) {
             return false;
         }

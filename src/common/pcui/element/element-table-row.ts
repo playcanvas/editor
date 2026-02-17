@@ -93,7 +93,7 @@ class TableRow extends Container {
         super.destroy();
     }
 
-    set selected(value) {
+    set selected(value: boolean) {
         if (this._header) {
             return;
         }
@@ -149,7 +149,7 @@ class TableRow extends Container {
         return null;
     }
 
-    set table(value) {
+    set table(value: Table | null) {
         this._table = value;
     }
 

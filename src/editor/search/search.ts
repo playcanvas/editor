@@ -65,7 +65,7 @@ editor.once('load', () => {
 
 
     // tokenize string into array of tokens
-    editor.method('search:stringTokenize', (name) => {
+    editor.method('search:stringTokenize', (name: string) => {
         const tokens = [];
 
         // camelCase
@@ -89,7 +89,7 @@ editor.once('load', () => {
     });
 
 
-    const searchItems = function (items, search, args) {
+    const searchItems = function (items: { subFull?: number; edits?: number; sub?: number; name?: string; item?: unknown }[], search: string, args: Record<string, unknown>) {
         const results = [];
 
         for (let i = 0; i < items.length; i++) {

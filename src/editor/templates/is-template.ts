@@ -1,7 +1,7 @@
 editor.once('load', () => {
     // Checks if the entity is part of a template and if so returns the template
     // root or null otherwise
-    editor.method('templates:isTemplateChild', (entity, entities) => {
+    editor.method('templates:isTemplateChild', (entity: { get: (key: string) => unknown }, entities: { get: (id: string) => unknown } | null) => {
         const templateEntIdsPath = `template_ent_ids.${entity.get('resource_id')}`;
 
         let current = entity;

@@ -3,7 +3,7 @@ import { RenderTarget } from 'playcanvas';
 import { WorkerClient } from '@/core/worker/worker-client';
 
 // read the pixel data of the given texture face
-const readGPUPixels = (texture, face) => {
+const readGPUPixels = (texture: import('playcanvas').Texture, face: number) => {
     const rt = new RenderTarget({
         name: 'ReadPrefilteredCubemapRT',
         colorBuffer: texture,
@@ -28,13 +28,13 @@ const workerQueue = [];
 
 let esn = 0;
 
-const enqueueExport = (pixels, width, height, resolve) => {
+const enqueueExport = (pixels: Uint8ClampedArray, width: number, height: number, resolve: (blob: Blob) => void) => {
     const currEsn = ++esn;
     exportState.set(currEsn, resolve);
     worker.send('export', currEsn, pixels, width, height);
 };
 
-const pixelsToPngBlob = (pixels, width, height) => {
+const pixelsToPngBlob = (pixels: Uint8ClampedArray, width: number, height: number) => {
     return new Promise((resolve) => {
         if (!workerReady) {
             workerQueue.push({ pixels, width, height, resolve });
@@ -45,7 +45,7 @@ const pixelsToPngBlob = (pixels, width, height) => {
 };
 
 worker.once('init', () => {
-    worker.on('export', (esn, data) => {
+    worker.on('export', (esn: number, data: ArrayBuffer) => {
         const resolve = exportState.get(esn);
         resolve(new Blob([data], { type: 'image/png' }));
     });

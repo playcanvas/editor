@@ -4,10 +4,10 @@ editor.once('load', () => {
     const whoisonline = new ObserverList();
 
     // Set whoisonline
-    editor.method('whoisonline:set', (data) => {
+    editor.method('whoisonline:set', (data: string[]) => {
         whoisonline.clear();
         if (data) {
-            data.forEach((id) => {
+            data.forEach((id: string) => {
                 whoisonline.add(id);
             });
         }
@@ -19,22 +19,22 @@ editor.once('load', () => {
     });
 
     // Add to whoiseonline
-    editor.method('whoisonline:add', (id) => {
+    editor.method('whoisonline:add', (id: string) => {
         whoisonline.add(id);
     });
 
     // Remove from whoisonline
-    editor.method('whoisonline:remove', (id) => {
+    editor.method('whoisonline:remove', (id: string) => {
         whoisonline.remove(id);
     });
 
     // Returns true if specified user id is online
-    editor.method('whoisonline:find', (id) => {
+    editor.method('whoisonline:find', (id: string) => {
         return whoisonline.indexOf(id) >= 0;
     });
 
     // 'add' event
-    whoisonline.on('add', (id) => {
+    whoisonline.on('add', (id: string) => {
         editor.emit('whoisonline:add', id);
     });
 

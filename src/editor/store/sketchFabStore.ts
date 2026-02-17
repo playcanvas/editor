@@ -8,7 +8,7 @@ import { BaseStore, EMPTY_THUMBNAIL_IMAGE_LARGE, STORE_ITEM_PAGE_SIZE } from './
 const md = Markdown({});
 
 class SketchFabStore extends BaseStore {
-    constructor(args) {
+    constructor(args?: unknown) {
         super();
         this.sortPolicy = 'viewCount';
     }
@@ -17,7 +17,7 @@ class SketchFabStore extends BaseStore {
         return 'sketchfabStore';
     }
 
-    async load(selectedFilter, searchString, tags, sortDescending) {
+    async load(selectedFilter: { text: string }, searchString: string, tags: string[], sortDescending: boolean) {
         this.totalCount = 0;
         this.startItem = 0;
 
@@ -33,7 +33,7 @@ class SketchFabStore extends BaseStore {
         return this.prepareItems(this.searchResults.results);
     }
 
-    async loadMore(selectedFilter, searchString, tags, sortDescending) {
+    async loadMore(selectedFilter: { text: string }, searchString: string, tags: string[], sortDescending: boolean) {
         // sketchfab store - get the list of items
         this.searchResults = await editor.call('store:sketchfab:list',
             searchString,
@@ -53,12 +53,12 @@ class SketchFabStore extends BaseStore {
         return this.searchResults.next;
     }
 
-    async cloneItem(storeItem) {
+    async cloneItem(storeItem: { id: string; name: string; license: string }) {
         // use invoke to handle exceptions
         await editor.invoke('store:clone:sketchfab', storeItem.id, filenamify(storeItem.name), storeItem.license, config.project.id);
     }
 
-    buildSorting(sortingDropdown, sortCallback) {
+    buildSorting(sortingDropdown: import('@playcanvas/pcui').Container, sortCallback: () => void) {
         this.buildSortingMenuItem(sortingDropdown, 'Sort By Created', 'publishedAt');
         this.buildSortingMenuItem(sortingDropdown, 'Sort By Views', 'viewCount', true);
         this.buildSortingMenuItem(sortingDropdown, 'Sort By Likes', 'likeCount');
@@ -67,7 +67,7 @@ class SketchFabStore extends BaseStore {
     }
 
     // Calculate the thumbnail image with the closest dimensions to the specified width and height
-    _closestThumbnailImage(images, width, height) {
+    _closestThumbnailImage(images: { width: number; height: number; url: string }[], width: number, height: number) {
         // Calculate the difference between each thumbnail's dimensions and 480p
         let closestThumbnail = null;
         let closestDifference = Infinity;
@@ -84,7 +84,7 @@ class SketchFabStore extends BaseStore {
 
     // prepare sketchfab assets for the items details view
     // extract glb data from the sketchfab item
-    _prepareAssets(item) {
+    _prepareAssets(item: { archives?: { glb?: { size: number } } }) {
         if (item.archives && item.archives.glb) {
             return [{
                 name: 'model.glb',
@@ -95,7 +95,7 @@ class SketchFabStore extends BaseStore {
     }
 
     // prepare sketchfab item for the items details view
-    _prepareItem(item, assets) {
+    _prepareItem(item: { thumbnails: { images: { url: string }[] }; description: string; tags: { name: string; slug: string }[]; uid: string; name: string; viewCount: number; vertexCount: number; textureCount: number; animationCount: number; downloadCount: number; likeCount: number; updatedAt: string; viewerUrl: string; license: { slug: string }; user: { displayName: string; profileUrl: string } }, assets: { name: string; size: string; type: string }[] | undefined) {
 
         let thumbnail = EMPTY_THUMBNAIL_IMAGE_LARGE;
 
@@ -136,7 +136,7 @@ class SketchFabStore extends BaseStore {
     }
 
     // prepare sketchfab item for the list view
-    prepareItems(items) {
+    prepareItems(items: { thumbnails: { images: { url: string }[] }; uid: string; name: string; description: string; viewCount: number; likeCount: number; archives?: { glb?: { size: number } }; createdAt: string; license?: string; assets?: unknown }[]) {
         const newItems = [];
 
         if (!items) {
@@ -144,7 +144,7 @@ class SketchFabStore extends BaseStore {
         }
 
         const self = this;
-        const load = async function (item) {
+        const load = async function (item: { id: string; thumbnails: { images: { url: string }[] }; assets?: unknown }) {
             const url = `https://api.sketchfab.com/v3/models/${item.id}`;
             const response = await fetch(url);
             return self._prepareItem(await response.json(), item.assets);

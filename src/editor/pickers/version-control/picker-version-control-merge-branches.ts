@@ -70,7 +70,7 @@ editor.once('load', () => {
         checkpointRequests.length = 0;
     });
 
-    const setBranchInfo = function (branch, isSourceBranch) {
+    const setBranchInfo = function (branch: Record<string, unknown> | null, isSourceBranch: boolean) {
         const panelField = isSourceBranch ? 'sourceBranch' : 'destinationBranch';
         panel[panelField] = branch;
 
@@ -101,10 +101,10 @@ editor.once('load', () => {
         checkpointRequests.push(request);
     };
 
-    panel.setSourceBranch = function (sourceBranch) {
+    panel.setSourceBranch = function (sourceBranch: Record<string, unknown> | null) {
         setBranchInfo(sourceBranch, true);
     };
-    panel.setDestinationBranch = function (destinationBranch) {
+    panel.setDestinationBranch = function (destinationBranch: Record<string, unknown> | null) {
         setBranchInfo(destinationBranch, false);
     };
 

@@ -17,7 +17,7 @@ editor.once('load', () => {
     let events = [];  // holds events that need to be destroyed
 
     // disables / enables field depending on permissions
-    const handlePermissions = function (field) {
+    const handlePermissions = function (field: { disabled: boolean }) {
         field.disabled = !editor.call('permissions:write');
         return editor.on(`permissions:set:${config.self.id}`, (accessLevel) => {
             if (accessLevel === 'write' || accessLevel === 'admin') {
@@ -245,7 +245,7 @@ editor.once('load', () => {
 
     // UI
 
-    const toggleProgress = function (toggle) {
+    const toggleProgress = function (toggle: boolean) {
         loading.hidden = !toggle;
         progressBar.hidden = !toggle;
         container.hidden = toggle || apps.length === 0;
@@ -254,7 +254,7 @@ editor.once('load', () => {
     };
 
     // create UI for single app
-    const createAppItem = function (app) {
+    const createAppItem = function (app: Record<string, unknown>) {
         const item = new LegacyListItem();
         item.element.id = `app-${app.id}`;
 
@@ -494,7 +494,7 @@ editor.once('load', () => {
     };
 
     // removes an app from the UI
-    const removeApp = function (app) {
+    const removeApp = function (app: { id: string }) {
         const item = document.getElementById(`app-${app.id}`);
         if (item) {
             item.remove();
@@ -531,7 +531,7 @@ editor.once('load', () => {
     // LOCAL UTILS
 
     // hoists primary app to the top of the list
-    const hoistPrimaryBuild = function (apps) {
+    const hoistPrimaryBuild = function (apps: { id: string }[]) {
         return apps.sort((a, b) => {
             if (config.project.primaryApp === a.id) {
                 return -1;
@@ -544,7 +544,7 @@ editor.once('load', () => {
     };
 
     // adds commas every 3 decimals
-    const numberWithCommas = function (number) {
+    const numberWithCommas = function (number: number) {
         const parts = number.toString().split('.');
         parts[0] = parts[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, ',');
         return parts.join('.');

@@ -1,8 +1,10 @@
+import type { Observer } from '@playcanvas/observer';
 import { BindingTwoWay, BindingElementToObservers } from '@playcanvas/pcui';
 import { FITMODE_CONTAIN, FITMODE_COVER, FITMODE_STRETCH, LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from 'playcanvas';
 
 import { CLASS_MULTIPLE_VALUES } from '@/common/pcui/constants';
 import { tooltip, tooltipRefItem } from '@/common/tooltips';
+import type { Assets } from '@/editor-api';
 
 import { ComponentInspector } from './component';
 import type { Attribute, Divider } from '../attribute.type.d';
@@ -372,7 +374,7 @@ const ATTRIBUTES: (Attribute | Divider)[] = [{
     }
 }];
 
-function getSpriteDimensions(id, frame, assets) {
+function getSpriteDimensions(id: number, frame: number, assets: Assets) {
     const spriteAsset = assets.get(id);
     // renderMode has three states: 0 = Simple, 1 = Slices, 2 = Tiled. Only Simple should set the element width / height.
     if (!spriteAsset || spriteAsset.get('data.renderMode') !== 0) {
@@ -397,7 +399,7 @@ function getSpriteDimensions(id, frame, assets) {
     };
 }
 
-function getTextureDimensions(id, assets) {
+function getTextureDimensions(id: number, assets: Assets) {
     const asset = assets.get(id);
     const width = asset && asset.get('meta.width') || 0;
     const height = asset && asset.get('meta.height') || 0;
@@ -410,7 +412,7 @@ function getTextureDimensions(id, assets) {
 // Custom binding from element -> observers for texture and sprite assets which
 // resizes an Image Element when the asset is first assigned
 class ImageAssetElementToObserversBinding extends BindingElementToObservers {
-    constructor(assets, args) {
+    constructor(assets: Assets, args: Record<string, unknown>) {
         super(args);
         this._assets = assets;
     }
@@ -425,7 +427,7 @@ class ImageAssetElementToObserversBinding extends BindingElementToObservers {
         });
     }
 
-    _hasSplitAnchor(entity) {
+    _hasSplitAnchor(entity: Observer) {
         const anchor = entity.get('components.element.anchor');
         return !anchor ||
                 Math.abs(anchor[0] - anchor[2]) > 0.01 ||
@@ -433,7 +435,7 @@ class ImageAssetElementToObserversBinding extends BindingElementToObservers {
     }
 
     // Override setValue to set additional fields
-    setValue(value) {
+    setValue(value: number | null) {
         if (this.applyingChange) {
             return;
         }
@@ -448,7 +450,7 @@ class ImageAssetElementToObserversBinding extends BindingElementToObservers {
         const observers = this._observers.slice();
         const paths = this._paths.slice();
 
-        let previous = {};
+        let previous: Record<string, { value: number | null; width?: number; height?: number; margin?: number[] }> = {};
 
         const undo = () => {
             for (let i = 0; i < observers.length; i++) {
@@ -564,7 +566,7 @@ class ImageAssetElementToObserversBinding extends BindingElementToObservers {
 }
 class SpriteFrameElementToObserversBinding extends ImageAssetElementToObserversBinding {
     // Override setValue to set additional fields
-    setValue(value) {
+    setValue(value: number) {
         if (this.applyingChange) {
             return;
         }
@@ -670,7 +672,7 @@ class SpriteFrameElementToObserversBinding extends ImageAssetElementToObserversB
 }
 
 class ElementComponentInspector extends ComponentInspector {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.component = 'element';
 
@@ -760,7 +762,7 @@ class ElementComponentInspector extends ComponentInspector {
         this._suppressToggleFields = false;
     }
 
-    _field(name) {
+    _field(name: string) {
         return this._attributesInspector.getField(`components.element.${name}`);
     }
 
@@ -834,7 +836,7 @@ class ElementComponentInspector extends ComponentInspector {
         margins[3].disabled = margins[1].disabled;
     }
 
-    _toggleAutoFitWidth(value) {
+    _toggleAutoFitWidth(value: boolean) {
         if (value) {
             // autoFitWidth is ignored by the engine if autoWidth is true, so set it to false
             this._field('autoWidth').value = false;
@@ -843,7 +845,7 @@ class ElementComponentInspector extends ComponentInspector {
         this._toggleFields();
     }
 
-    _toggleAutoFitHeight(value) {
+    _toggleAutoFitHeight(value: boolean) {
         if (value) {
             // autoFitHeight is ignored by the engine if autoHeight is true, so set it to false
             this._field('autoHeight').value = false;
@@ -852,7 +854,7 @@ class ElementComponentInspector extends ComponentInspector {
         this._toggleFields();
     }
 
-    _onFieldPresetChange(value) {
+    _onFieldPresetChange(value: string) {
         if (!value || value === 'custom' || this._suppressPresetEvents) {
             return;
         }
@@ -950,7 +952,7 @@ class ElementComponentInspector extends ComponentInspector {
         this._suppressPresetEvents = false;
     }
 
-    _onFieldKeyChange(value) {
+    _onFieldKeyChange(value: string | null) {
         this._suppressLocalizedEvents = true;
         if (this._field('key').class.contains(CLASS_MULTIPLE_VALUES)) {
             // set multiple values state
@@ -964,7 +966,7 @@ class ElementComponentInspector extends ComponentInspector {
         this._suppressLocalizedEvents = false;
     }
 
-    _onFieldLocalizedChange(value) {
+    _onFieldLocalizedChange(value: boolean) {
         if (this._suppressLocalizedEvents) {
             return;
         }
@@ -1041,7 +1043,7 @@ class ElementComponentInspector extends ComponentInspector {
         }
     }
 
-    _onFieldAnchorChange(value) {
+    _onFieldAnchorChange(value: number[]) {
         if (!this._suppressPresetEvents) {
             this._suppressPresetEvents = true;
             this._updatePreset();
@@ -1050,7 +1052,7 @@ class ElementComponentInspector extends ComponentInspector {
         this._toggleFields();
     }
 
-    _onFieldPivotChange(value) {
+    _onFieldPivotChange(value: number[]) {
         if (!this._suppressPresetEvents) {
             this._suppressPresetEvents = true;
             this._updatePreset();
@@ -1059,7 +1061,7 @@ class ElementComponentInspector extends ComponentInspector {
         this._toggleFields();
     }
 
-    _onFieldFontAssetChange(value) {
+    _onFieldFontAssetChange(value: number | null) {
         if (value) {
             editor.call('settings:projectUser').set('editor.lastSelectedFontId', value);
         }
@@ -1087,7 +1089,7 @@ class ElementComponentInspector extends ComponentInspector {
         this._field('preset').value = this._getCurrentPresetValue();
     }
 
-    _onClickResetSize(assets) {
+    _onClickResetSize(assets: Assets) {
         if (!this._entities) {
             return;
         }
@@ -1096,7 +1098,7 @@ class ElementComponentInspector extends ComponentInspector {
 
         const entities = this._entities.slice();
 
-        function resetSize(entity, width, height) {
+        function resetSize(entity: Observer, width: number, height: number) {
             const history = entity.history.enabled;
             entity.history.enabled = false;
             entity.set('components.element.width', width);
@@ -1168,7 +1170,7 @@ class ElementComponentInspector extends ComponentInspector {
         }
     }
 
-    link(entities) {
+    link(entities: Observer[]) {
         super.link(entities);
 
         this._suppressToggleFields = true;

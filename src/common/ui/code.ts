@@ -7,7 +7,7 @@ class LegacyCode extends LegacyContainer {
         this._element.classList.add('ui-code');
     }
 
-    set text(value) {
+    set text(value: string) {
         this._element.textContent = value;
     }
 

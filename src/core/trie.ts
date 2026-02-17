@@ -38,7 +38,7 @@ class Trie {
      * @param matchPartialPaths - Whether to return the node if the path is not found
      * @returns The node that matches the path
      */
-    find(path: string, matchPartialPaths = false): TrieNode | null {
+    find(path: string, matchPartialPaths: boolean = false): TrieNode | null {
         const pathSegments = path.split('/').filter(Boolean);
         let node: TrieNode = this.root;
 
@@ -91,7 +91,7 @@ class Trie {
         }
 
         // If we don't have a trailing slash then return a list of children that start with the last path segment
-        return paths.filter(({ name }) => name.startsWith(lastPathSegment));
+        return paths.filter(({ name }: TrieNode) => name.startsWith(lastPathSegment));
 
     }
 }

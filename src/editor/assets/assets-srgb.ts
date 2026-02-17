@@ -386,7 +386,7 @@ const startChecker = () => {
                 checkTextureUsage(asset);
 
                 // listen for changes to the srgb flag
-                asset.on('*:set', (path) => {
+                asset.on('*:set', (path: string) => {
                     if (!SRGB_PATH_MAP.texture.hasOwnProperty(path)) {
                         return;
                     }
@@ -401,7 +401,7 @@ const startChecker = () => {
             }
             case 'sprite': {
                 // listen for changes to sprite assets
-                asset.on('*:set', (path, value, oldValue) => {
+                asset.on('*:set', (path: string, value: string | number, oldValue: string | number) => {
                     if (path === 'data.textureAtlasAsset') {
                         const textureAtlasAsset = editor.call('assets:get', value || oldValue);
                         if (!textureAtlasAsset) {
@@ -586,7 +586,7 @@ const startChecker = () => {
 
     // subscribe to add and remove
     editor.on('assets:add', checkAsset);
-    editor.on('assets:remove', (asset) => {
+    editor.on('assets:remove', (asset: Observer) => {
         const assetId = asset.get('id');
         textureUsages.delete(assetId);
         textureFixes.delete(assetId);

@@ -65,7 +65,7 @@ const DOM = parent => [
 ];
 
 class SettingsPanel extends Container {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         if (!args) {
             args = {};
         }

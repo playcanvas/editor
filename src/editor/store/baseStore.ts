@@ -7,7 +7,7 @@ const STORE_ITEM_PAGE_SIZE = 24;
 const EMPTY_THUMBNAIL_IMAGE_LARGE = 'https://playcanvas.com/static-assets/images/store-default-thumbnail.jpg';
 
 class BaseStore {
-    constructor(args) {
+    constructor(args?: unknown) {
         this.searchResults = [];
         this.items = [];
         this.startItem = 0;
@@ -16,13 +16,13 @@ class BaseStore {
         this.sortCallback = null;
     }
 
-    setItems(items) {
+    setItems(items: unknown[]) {
         this.items = items;
     }
 
     // prepare playcanvas store assets for the items details view
     // extract glb data from the sketchfab item
-    prepareStoreAssets(items) {
+    prepareStoreAssets(items: { file?: { filename: string; size: number }; name: string; type: string; id: string }[]) {
         const newItems = [];
         if (!items) {
             return newItems;
@@ -40,12 +40,12 @@ class BaseStore {
         return newItems;
     }
 
-    refreshStore(startItem) {
+    refreshStore(startItem: number) {
         // refresh the store
     }
 
     // build sorting menu item
-    buildSortingMenuItem(root, label, sortPolicy, selected) {
+    buildSortingMenuItem(root: import('@playcanvas/pcui').Container, label: string, sortPolicy: string, selected?: boolean) {
         const sortingMenuItem = new Container({ class: 'sorting-menu-item' });
         root.append(sortingMenuItem);
 

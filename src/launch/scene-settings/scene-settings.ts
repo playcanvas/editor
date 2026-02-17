@@ -9,13 +9,13 @@ editor.once('load', () => {
         return settings;
     });
 
-    editor.once('scene:raw', (data) => {
+    editor.once('scene:raw', (data: { settings: unknown }) => {
         settings.patch(data.settings);
 
         editor.emit('sceneSettings:load', settings);
     });
 
-    editor.on('sceneSettings:load', (settings) => {
+    editor.on('sceneSettings:load', (settings: Observer) => {
         if (settings.sync) {
             return;
         }
@@ -26,12 +26,12 @@ editor.once('load', () => {
         });
 
         // client > server
-        settings.sync.on('op', (op) => {
+        settings.sync.on('op', (op: unknown) => {
             editor.call('realtime:op', op);
         });
 
         // server > client
-        editor.on('realtime:op:settings', (op) => {
+        editor.on('realtime:op:settings', (op: unknown) => {
             settings.sync.write(op);
         });
     });

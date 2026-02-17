@@ -43,7 +43,7 @@ editor.once('load', () => {
     const root = editor.call('layout.root');
     root.append(overlay);
 
-    const keyDown = (evt) => {
+    const keyDown = (evt: KeyboardEvent) => {
         if (overlay.hidden) {
             return;
         }
@@ -91,7 +91,7 @@ editor.once('load', () => {
         window.removeEventListener('keydown', keyDown, true);
     });
 
-    const switchRemoteContainer = (engineV2) => {
+    const switchRemoteContainer = (engineV2: boolean) => {
         const root = document.createElement('div');
         root.id = 'switch-engine';
         root.classList.add('remote');
@@ -109,21 +109,21 @@ editor.once('load', () => {
         return root;
     };
 
-    const switchLocalContainer = (engineV2) => {
-        const createHeader = (text) => {
+    const switchLocalContainer = (engineV2: boolean) => {
+        const createHeader = (text: string) => {
             const header = document.createElement('div');
             header.classList.add('header');
             header.textContent = text;
             return header;
         };
 
-        const createBullet = (text) => {
+        const createBullet = (text: string) => {
             const bullet = document.createElement('div');
             bullet.textContent = `• ${text}`;
             return bullet;
         };
 
-        const createLink = ({ name, url }) => {
+        const createLink = ({ name, url }: { name: string; url: string }) => {
             const div = document.createElement('div');
 
             const link = document.createElement('a');
@@ -195,7 +195,7 @@ editor.once('load', () => {
     };
 
     // call picker
-    editor.method('picker:engine', (remote, engineV2, fn) => {
+    editor.method('picker:engine', (remote: boolean, engineV2: boolean, fn?: () => void) => {
         if (remote) {
             container.clear();
             container.append(switchRemoteContainer(engineV2));

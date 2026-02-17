@@ -68,7 +68,7 @@ editor.once('load', () => {
 
     editor.method('picker:script-create:validate', normalizeScriptName);
 
-    editor.method('picker:script-create', (fn, string) => {
+    editor.method('picker:script-create', (fn: ((name: string) => void) | null, string?: string) => {
         callback = fn ?? null;
         overlay.hidden = false;
         validate.hidden = true;

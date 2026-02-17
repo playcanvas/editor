@@ -26,7 +26,7 @@ async function instantiateTemplates(assets: Asset[], parent: any, options: { ind
         // resolve promise
         if (msg.status === 'success') {
             const newEntityIds = msg.multTaskResults.map((d: any) => d.newRootId);
-            api.entities.waitToExist(newEntityIds, 5000, (entities) => {
+            api.entities.waitToExist(newEntityIds, 5000, (entities: any[]) => {
                 deferred.resolve(entities);
             });
         } else {
@@ -36,7 +36,7 @@ async function instantiateTemplates(assets: Asset[], parent: any, options: { ind
 
     // subscribe to messenger for backend response
     if (!evtMessenger) {
-        evtMessenger = api.messenger.on('template.instance', (msg) => {
+        evtMessenger = api.messenger.on('template.instance', (msg: any) => {
             const callback = api.jobs.finish(msg.job_id);
             if (callback) {
                 callback(msg);
@@ -55,7 +55,7 @@ async function instantiateTemplates(assets: Asset[], parent: any, options: { ind
             jobId: jobId,
             children: parent.get('children'),
             childIndex: options.index,
-            templates: assets.map((asset) => {
+            templates: assets.map((asset: any) => {
                 return {
                     id: parseInt(asset.get('uniqueId'), 10),
                     opts: options.extraData

@@ -13,7 +13,7 @@ const getPreviewUrl = (asset) => {
 };
 
 class TextureAssetInspectorPreview extends AssetInspectorPreviewBase {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         super(args);
         this._assets = null;
         this._assetEvents = [];
@@ -72,7 +72,7 @@ class TextureAssetInspectorPreview extends AssetInspectorPreviewBase {
         }
     }
 
-    link(assets) {
+    link(assets: import('@playcanvas/observer').Observer[]) {
         this.unlink();
         super.link();
         this._assets = assets;

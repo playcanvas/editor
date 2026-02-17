@@ -1,17 +1,28 @@
+interface Vec3 { x: number; y: number; z: number }
+interface Vec4 { x: number; y: number; z: number; w: number }
+
 class Unwrap {
     now = (!performance.now || !performance.timing) ? Date.now : () => performance.now();
 
-    progress = null;
+    progress: ((percent: number) => void) | null = null;
 
     cancel = false;
 
-    swap(arr, dest, src) {
+    resolution = 1024;
+
+    padding = 0;
+
+    paddingUv = 0;
+
+    fillHoles = false;
+
+    swap(arr: number[], dest: number, src: number) {
         const tmp = arr[dest];
         arr[dest] = arr[src];
         arr[src] = tmp;
     }
 
-    crossNormalize(p, q) {
+    crossNormalize(p: Vec3, q: Vec3) {
         let crossX = p.y * q.z - p.z * q.y;
         let crossY = p.z * q.x - p.x * q.z;
         let crossZ = p.x * q.y - p.y * q.x;
@@ -24,7 +35,7 @@ class Unwrap {
         return { x: crossX, y: crossY, z: crossZ };
     }
 
-    triNormal(ax, ay, az, bx, by, bz, cx, cy, cz) {
+    triNormal(ax: number, ay: number, az: number, bx: number, by: number, bz: number, cx: number, cy: number, cz: number) {
         const px = ax - bx;
         const py = ay - by;
         const pz = az - bz;
@@ -45,7 +56,7 @@ class Unwrap {
         return { x: crossX, y: crossY, z: crossZ };
     }
 
-    cubeFaceFromNormal(n) {
+    cubeFaceFromNormal(n: Vec3) {
         const ax = Math.abs(n.x);
         const ay = Math.abs(n.y);
         const az = Math.abs(n.z);
@@ -61,7 +72,7 @@ class Unwrap {
     // (in/out) ib: index buffer
     // (in/out) positions: float3 vertex positions
     // return value: {append: indices of vertices, whose attributes to copy at the end, uv: generated overlapping UVs}
-    boxUnwrap(ib, positions) {
+    boxUnwrap(ib: number[], positions: number[]) {
         let vertCount = positions.length / 3;
         let p0x, p0y, p0z;
         let p1x, p1y, p1z;
@@ -174,7 +185,7 @@ class Unwrap {
 
     // (in/out) ib: index buffer
     // return value: array of triangle counts in each consequent chart
-    findCharts(ib) {
+    findCharts(ib: number[]) {
 
         let i, j, v0i, v0j;
         const charts = [];
@@ -223,7 +234,7 @@ class Unwrap {
     }
 
 
-    triangleArea(Ax, Ay, Az, Bx, By, Bz, Cx, Cy, Cz) {
+    triangleArea(Ax: number, Ay: number, Az: number, Bx: number, By: number, Bz: number, Cx: number, Cy: number, Cz: number) {
         Bx -= Ax;
         By -= Ay;
         Bz -= Az;
@@ -245,7 +256,7 @@ class Unwrap {
     // (in) positions: float3 vertex positions
     // (in) uv: float2 vertex uvs
     // return value: {areas: array of chart world-space areas, areasT: array of chart UV-space areas, totalArea: total world-space area, aabbs: AABBs of charts}
-    calculateChartArea(ib, charts, positions, uv) {
+    calculateChartArea(ib: number[], charts: number[], positions: number[], uv: number[]) {
         let i, j, chartTris, tri, v0, v1, v2;
         let p0x, p0y, p0z;
         let p1x, p1y, p1z;
@@ -356,11 +367,11 @@ class Unwrap {
             totalAreaT += areaT;
             areasT.push(areaT);
         }
-        return { areas: areas, areasT: areasT, totalArea: totalArea, totalAreaT: totalAreaT, aabbs: aabbs };
+        return { areas: areas, areasT: areasT, totalArea: totalArea, totalAreaT: totalAreaT, aabbs: aabbs } as { areas: number[]; areasT: number[]; totalArea: number; totalAreaT: number; aabbs: Vec4[]; usedArea?: number; notFitted?: number; maxWidth?: number; maxHeight?: number; minWidth?: number };
     }
 
 
-    normalizeCharts(ib, charts, areasObj, uv, aabbs, mult) {
+    normalizeCharts(ib: number[], charts: number[], areasObj: { areas: number[]; areasT: number[]; totalArea: number; aabbs: Vec4[] }, uv: number[], aabbs?: Vec4[], _mult?: number) {
         let i, scale;
 
         const areas = areasObj.areas;
@@ -389,15 +400,15 @@ class Unwrap {
     }
 
 
-    fits(what, where) {
+    fits(what: Vec4, where: Vec4) {
         return (what.z <= where.z && what.w <= where.w);
     }
 
-    fitsExactly(what, where) {
+    fitsExactly(what: Vec4, where: Vec4) {
         return (what.z === where.z && what.w === where.w);
     }
 
-    findHoles(node, id, aabb, uv, charts, ib, aabbs, scale) {
+    findHoles(node: { aabb: Vec4 }, id: number, aabb: Vec4, uv: number[], charts: number[], ib: number[], aabbs: Vec4[], scale: number) {
         let i;
         const tilePixelSize = 4;
         const gridPixelWidth = Math.floor((node.aabb.z * this.resolution - this.padding * 2) / tilePixelSize);
@@ -651,7 +662,7 @@ class Unwrap {
         return rects;
     }
 
-    insertToAtlas(node, id, aabb, uv, charts, ib, aabbs, scale) {
+    insertToAtlas(node: { aabb: Vec4; leaf: boolean; id: number; child: any[] }, id: number, aabb: Vec4, uv: number[], charts: number[], ib: number[], aabbs: Vec4[], scale: number) {
         if (node.leaf) {
             if (node.id >= 0) {
                 return null;
@@ -713,13 +724,13 @@ class Unwrap {
 
     }
 
-    transformUv(uv, tform) {
+    transformUv(uv: { x: number; y: number }, tform: Vec4) {
         uv.x = uv.x * tform.x + tform.z;
         uv.y = uv.y * tform.y + tform.w;
     }
 
 
-    packCharts(ib, charts, aabbs, areasObj, uv, scales, globalScale) {
+    packCharts(ib: number[], charts: number[], aabbs: Vec4[], areasObj: { areas: number[]; areasT: number[]; totalArea: number; totalAreaT: number; aabbs: Vec4[]; usedArea?: number; notFitted?: number; maxWidth?: number; maxHeight?: number; minWidth?: number }, uv: number[], scales: number[], globalScale: number) {
         let i;
         const root = { aabb: { x: 0, y: 0, z: 1, w: 1 }, id: -1, child: [], leaf: true, test: false };
         const packedAabbs = [];
@@ -805,13 +816,13 @@ class Unwrap {
         return { scaleOffset: scaleOffset, packedAabbs: packedAabbs, fit: true };
     }
 
-    transformUv2(p, scale, scale2, scaleOffset) {
+    transformUv2(p: { x: number; y: number }, scale: number, scale2: number, scaleOffset: Vec4) {
         p.x *= scale * scale2;
         p.y *= scale * scale2;
         return this.transformUv(p, scaleOffset);
     }
 
-    finalTransformUv(ib, charts, uv, scales, globalScale, packedScaleOffset) {
+    finalTransformUv(ib: number[], charts: number[], uv: number[], scales: number[], globalScale: number, packedScaleOffset: Vec4[]) {
         let i, j, tri, v0, v1, v2;
         const p0 = { x: 0, y: 0 };
         const p1 = { x: 0, y: 0 };
@@ -862,7 +873,7 @@ class Unwrap {
         }
     }
 
-    totalObjectScale(model, nodeId) {
+    totalObjectScale(model: { nodes: { scale: number[] }[]; parents: number[] }, nodeId: number) {
         const scale = model.nodes[nodeId].scale;
         let sx = scale[0];
         let sy = scale[1];
@@ -880,7 +891,7 @@ class Unwrap {
     }
 
 
-    unwrapJsonModel(data, forceFromScratch, padding, fillHoles) {
+    unwrapJsonModel(data: any, forceFromScratch: boolean, padding: number, fillHoles: boolean) {
 
         this.resolution = 1024;
         this.padding = padding;
@@ -1085,7 +1096,7 @@ class Unwrap {
         return { packedAabbs: packResult.packedAabbs, totalArea: areasObj.totalArea };
     }
 
-    calculateAreaOfJsonModel(data) {
+    calculateAreaOfJsonModel(data: any) {
         let i, j, tri;
         let meshId, nodeId, vbId, ib, attribs, positions, _positions, objectScale, numTris, numVerts;
         let v0, v1, v2;
@@ -1137,7 +1148,7 @@ class Unwrap {
         return totalArea;
     }
 
-    calculateUv1AreaOfJsonModel(data) {
+    calculateUv1AreaOfJsonModel(data: any) {
         let i, tri;
         let meshId, vbId, ib, attribs, _positions, numTris;
         let v0, v1, v2;
@@ -1175,7 +1186,7 @@ class Unwrap {
         return totalArea;
     }
 
-    calculateMultiAreaOfJsonModel(data) {
+    calculateMultiAreaOfJsonModel(data: any) {
         let i, j, tri;
         let meshId, nodeId, vbId, ib, attribs, positions, _positions, objectScale, numTris, numVerts;
         let v0, v1, v2;

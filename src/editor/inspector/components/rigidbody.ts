@@ -110,7 +110,7 @@ const ATTRIBUTES: Attribute[] = [{
 }];
 
 class RigidbodyComponentInspector extends ComponentInspector {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.component = 'rigidbody';
 
@@ -140,7 +140,7 @@ class RigidbodyComponentInspector extends ComponentInspector {
         });
     }
 
-    _field(name) {
+    _field(name: string) {
         return this._attributesInspector.getField(`components.rigidbody.${name}`);
     }
 
@@ -162,7 +162,7 @@ class RigidbodyComponentInspector extends ComponentInspector {
         });
     }
 
-    link(entities) {
+    link(entities: import('@playcanvas/observer').Observer[]) {
         super.link(entities);
         this._suppressToggleFields = true;
         this._attributesInspector.link(entities);

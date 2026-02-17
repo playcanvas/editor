@@ -1,3 +1,5 @@
+import type { Observer } from '@playcanvas/observer';
+
 import { LegacyOverlay } from '@/common/ui/overlay';
 
 editor.once('load', () => {
@@ -38,7 +40,7 @@ editor.once('load', () => {
     });
 
     // picked asset
-    assetsPanel.on('select', (asset) => {
+    assetsPanel.on('select', (asset: Observer) => {
         if (overlay.hidden) {
             return;
         }
@@ -74,7 +76,7 @@ editor.once('load', () => {
         }
     });
 
-    assetsPanel.on('deselect', (asset) => {
+    assetsPanel.on('deselect', (asset: Observer) => {
         if (overlay.hidden || !asset) {
             return;
         }
@@ -121,7 +123,7 @@ editor.once('load', () => {
         }
 
         // deselect selected assets
-        assetSelection.forEach((asset) => {
+        assetSelection.forEach((asset: Observer) => {
             assetsPanel.deselect(asset);
         });
 

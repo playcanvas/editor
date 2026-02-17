@@ -1,7 +1,7 @@
 import { LegacyElement } from './element';
 
 class LegacyColorField extends LegacyElement {
-    constructor(args = {}) {
+    constructor(args: Record<string, any> = {}) {
         super();
         this.element = document.createElement('div');
         this._element.tabIndex = 0;
@@ -22,7 +22,7 @@ class LegacyColorField extends LegacyElement {
         this.on('unlink', this._onUnlink.bind(this));
     }
 
-    set value(value) {
+    set value(value: number[] | null) {
         if (!value) {
             this.class.add('null');
             return;
@@ -43,7 +43,7 @@ class LegacyColorField extends LegacyElement {
         return this._values.slice(0, this._channels);
     }
 
-    set channels(value) {
+    set channels(value: number) {
         if (this._channels === value) {
             return;
         }
@@ -56,7 +56,7 @@ class LegacyColorField extends LegacyElement {
         return this._channels;
     }
 
-    set r(value) {
+    set r(value: number) {
         value = Math.min(0, Math.max(255, value));
 
         if (this._values[0] === value) {
@@ -75,7 +75,7 @@ class LegacyColorField extends LegacyElement {
         return this._values[0];
     }
 
-    set g(value) {
+    set g(value: number) {
         value = Math.min(0, Math.max(255, value));
 
         if (this._values[1] === value) {
@@ -97,7 +97,7 @@ class LegacyColorField extends LegacyElement {
         return this._values[1];
     }
 
-    set b(value) {
+    set b(value: number) {
         value = Math.min(0, Math.max(255, value));
 
         if (this._values[2] === value) {
@@ -119,7 +119,7 @@ class LegacyColorField extends LegacyElement {
         return this._values[2];
     }
 
-    set a(value) {
+    set a(value: number) {
         value = Math.min(0, Math.max(255, value));
 
         if (this._values[3] === value) {
@@ -141,7 +141,7 @@ class LegacyColorField extends LegacyElement {
         return this._values[3];
     }
 
-    set hex(value) {
+    set hex(value: string) {
         console.log('todo');
     }
 
@@ -159,7 +159,7 @@ class LegacyColorField extends LegacyElement {
         return hex;
     }
 
-    _onKeyDown(evt) {
+    _onKeyDown(evt: KeyboardEvent) {
         if (evt.keyCode === 27) {
             return this._element.blur();
         }
@@ -173,7 +173,7 @@ class LegacyColorField extends LegacyElement {
         this.emit('click');
     }
 
-    _onChange(color) {
+    _onChange(color: number[]) {
         if (this._channels === 1) {
             this.elementColor.style.backgroundColor = `rgb(${[this.r, this.r, this.r].join(',')})`;
         } else if (this._channels === 3) {
@@ -203,7 +203,7 @@ class LegacyColorField extends LegacyElement {
         this.evtLinkChannels = [];
     }
 
-    _onLinkChange(value) {
+    _onLinkChange(value: number[]) {
         if (!value) {
             return;
         }
@@ -211,7 +211,7 @@ class LegacyColorField extends LegacyElement {
         this._setValue(value);
     }
 
-    _setValue(value) {
+    _setValue(value: number[]) {
         let changed = false;
 
         if (!value) {

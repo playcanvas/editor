@@ -192,7 +192,7 @@ editor.once('load', () => {
     panel.scrollTopMap = {};
 
     // Set the current branch of the panel
-    panel.setBranch = function (branch) {
+    panel.setBranch = function (branch: { id?: string; name?: string; closed?: boolean } | null) {
 
         if (branch != null) {
             panel.currentBranch = branch;
@@ -221,8 +221,8 @@ editor.once('load', () => {
     };
 
     // Set the checkpoints to be displayed
-    panel.setCheckpoints = function (checkpoints) {
-        const scrollTop = panel.branch != null && panel.scrollTopMap[panel.branch.id] != null ? panel.scrollTopMap[panel.branch.id] : panelCheckpoints.dom.scrollTop;
+    panel.setCheckpoints = function (checkpoints: { id: string; createdAt?: string }[] | null) {
+        const scrollTop = panel.branch != null && panel.scrollTopMap[panel.branch.id] != null ? panel.scrollTopMap[panel.branch.id] : panelCheckpoints.element.scrollTop;
 
         listCheckpoints.clear();
         lastCheckpointDateDisplayed = null;
@@ -247,11 +247,11 @@ editor.once('load', () => {
     };
 
     // Show button to load more checkpoints or not
-    panel.toggleLoadMore = function (toggle) {
+    panel.toggleLoadMore = function (toggle: boolean) {
         listItemLoadMore.hidden = !toggle;
     };
 
-    panel.loadCheckpoints = function (refresh) {
+    panel.loadCheckpoints = function (refresh?: boolean) {
 
         // if not cached load checkpoints fresh
         // else load checkpoints from cache and perform request to check for new checkpoints
@@ -354,7 +354,7 @@ editor.once('load', () => {
         currentCheckpointListRequest = request;
     };
 
-    const createCheckpointWidget = function (checkpoint) {
+    const createCheckpointWidget = function (checkpoint: { id: string; user: { id: string; fullName?: string }; description: string; createdAt: string }) {
         const panelWidget = new LegacyPanel();
         panelWidget.class.add('checkpoint-widget');
         panelWidget.flex = true;
@@ -430,7 +430,7 @@ editor.once('load', () => {
         return panelWidget;
     };
 
-    const createCheckpointSectionHeader = function (title) {
+    const createCheckpointSectionHeader = function (title: string) {
         const header = document.createElement('div');
         header.classList.add('date');
         header.classList.add('selectable');
@@ -439,7 +439,7 @@ editor.once('load', () => {
         return header;
     };
 
-    var createCheckpointListItem = function (checkpoint) {
+    var createCheckpointListItem = function (checkpoint: { id: string; user: { id: string; fullName?: string }; description: string; createdAt: string }) {
         // add current date if necessary
         const date = (new Date(checkpoint.createdAt)).toDateString();
         if (lastCheckpointDateDisplayed !== date) {
@@ -470,7 +470,7 @@ editor.once('load', () => {
             dropdown.hidden = true;
         }
 
-        dropdown.on('click', (e) => {
+        dropdown.on('click', (e: MouseEvent) => {
             e.stopPropagation();
 
             currentCheckpoint = checkpoint;
@@ -490,7 +490,7 @@ editor.once('load', () => {
         checkboxSelect.value = editor.call('picker:versioncontrol:widget:diffCheckpoints:isCheckpointSelected', panel.branch, checkpoint);
 
         let suppressCheckboxEvents = false;
-        checkboxSelect.on('change', (value) => {
+        checkboxSelect.on('change', (value: boolean) => {
             if (panel.branch != null) {
                 panel.scrollTopMap[panel.branch.id] = panelCheckpoints.dom.scrollTop;
             }
@@ -504,7 +504,7 @@ editor.once('load', () => {
             }
         });
 
-        events.push(editor.on('checkpoint:diff:deselect', (deselectedBranch, deselectedCheckpoint) => {
+        events.push(editor.on('checkpoint:diff:deselect', (deselectedBranch: { id?: string } | null, deselectedCheckpoint: { id: string } | null) => {
             if (deselectedCheckpoint && deselectedCheckpoint.id === checkpoint.id) {
                 suppressCheckboxEvents = true;
                 checkboxSelect.value = false;
@@ -557,7 +557,7 @@ editor.once('load', () => {
         checkboxSelect.value = editor.call('picker:versioncontrol:widget:diffCheckpoints:isCheckpointSelected', panel.branch, null);
 
         let suppressCheckboxEvents = false;
-        checkboxSelect.on('change', (value) => {
+        checkboxSelect.on('change', (value: boolean) => {
             if (suppressCheckboxEvents) {
                 return;
             }
@@ -568,7 +568,7 @@ editor.once('load', () => {
             }
         });
 
-        events.push(editor.on('checkpoint:diff:deselect', (deselectedBranch, deselectedCheckpoint) => {
+        events.push(editor.on('checkpoint:diff:deselect', (deselectedBranch: { id?: string } | null, deselectedCheckpoint: { id: string } | null) => {
             if (!deselectedCheckpoint && deselectedBranch && deselectedBranch.id === panel.branch.id) {
                 suppressCheckboxEvents = true;
                 checkboxSelect.value = false;
@@ -623,7 +623,7 @@ editor.once('load', () => {
         return vcGraphPanel.hidden;
     });
 
-    editor.method('vcgraph:showGraphPanel', (h) => {
+    editor.method('vcgraph:showGraphPanel', (h: { closeVcPicker?: boolean; vcGraphContainer?: unknown; vcGraphCloseBtn?: unknown; vcNodeMenu?: unknown }) => {
         vcGraphPanel.hidden = !vcGraphPanel.hidden;
         const vcGraphContainer = new Container({
             class: 'vc-graph-container'
@@ -769,9 +769,9 @@ editor.once('load', () => {
     panel.on('show', () => {
         toggleTopButtons();
 
-        events.push(editor.on('permissions:writeState', (writeEnabled) => {
+        events.push(editor.on('permissions:writeState', (writeEnabled: boolean) => {
             // hide all dropdowns if we no longer have write access
-            panel.innerElement.querySelectorAll('.dropdown').forEach((dropdown) => {
+            panel.innerElement.querySelectorAll('.dropdown').forEach((dropdown: Element & { ui?: { hidden: boolean } }) => {
                 dropdown.ui.hidden = !writeEnabled;
             });
 
@@ -807,14 +807,14 @@ editor.once('load', () => {
         spinner.classList.add('hidden');
         miniSpinner.classList.add('hidden');
 
-        events.forEach((evt) => {
+        events.forEach((evt: { unbind: () => void }) => {
             evt.unbind();
         });
         events.length = 0;
     });
 
     // Toggles diff mode for the checkpoint view.
-    panel.toggleDiffMode = function (enabled) {
+    panel.toggleDiffMode = function (enabled: boolean) {
         diffMode = enabled;
         btnFavorite.disabled = enabled;
         btnNewCheckpoint.disabled = enabled;

@@ -102,7 +102,7 @@ class WorkerServer {
      * @param callback - The callback function.
      */
     once(type: string, callback: Function) {
-        const onceCallback = (...args) => {
+        const onceCallback = (...args: unknown[]) => {
             this.off(type, onceCallback);
             callback(...args);
         };

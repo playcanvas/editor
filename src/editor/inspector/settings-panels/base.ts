@@ -5,7 +5,7 @@ import { tooltip, tooltipRefItem } from '@/common/tooltips';
 import { AttributesInspector } from '../attributes-inspector';
 
 class BaseSettingsPanel extends Panel {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.collapsible = true;
 
@@ -48,7 +48,7 @@ class BaseSettingsPanel extends Panel {
         }
     }
 
-    _addTooltip(tooltipReference, userOnlySettings) {
+    _addTooltip(tooltipReference: string, userOnlySettings?: boolean) {
         let ref = editor.call('attributes:reference:get', tooltipReference);
         if (!ref) {
             ref = {};

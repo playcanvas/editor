@@ -83,7 +83,7 @@ editor.once('load', () => {
         }
     });
 
-    panel.setBranch = function (branch) {
+    panel.setBranch = function (branch: Record<string, unknown>) {
         panel.branch = branch;
         boxBranch.header = branch.name;
 

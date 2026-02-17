@@ -49,7 +49,7 @@ const ATTRIBUTES: Attribute[] = [{
 }];
 
 class ScrollbarComponentInspector extends ComponentInspector {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.component = 'scrollbar';
 
@@ -72,7 +72,7 @@ class ScrollbarComponentInspector extends ComponentInspector {
         this.append(this._attributesInspector);
     }
 
-    link(entities) {
+    link(entities: import('@playcanvas/observer').Observer[]) {
         super.link(entities);
         this._attributesInspector.link(entities);
     }

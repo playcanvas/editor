@@ -1,3 +1,5 @@
+import type { Observer } from '@playcanvas/observer';
+
 import { ThumbnailRenderer } from './thumbnail-renderer';
 
 const scene = {
@@ -61,7 +63,7 @@ function initializeScene() {
     const indices = [];
 
     // creates text mesh
-    function createMesh(length) {
+    function createMesh(length: number) {
         scene.positions.length = 0;
         normals.length = 0;
         scene.uvs.length = 0;
@@ -119,7 +121,7 @@ function initializeScene() {
     sceneInitialized = true;
 }
 
-function hasChars(chars, font) {
+function hasChars(chars: string, font: any) {
     for (let i = 0; i < chars.length; i++) {
         if (!font.data.chars[chars[i]]) {
             return false;
@@ -130,7 +132,7 @@ function hasChars(chars, font) {
 }
 
 // updates mesh scene.positions and scene.uvs based on the font and the character specified
-function updateMeshes(text, font) {
+function updateMeshes(text: string, font: any) {
     const height = 1;
     let maxScale = -1;
     let maxYOffset = 1;
@@ -233,7 +235,7 @@ function updateMeshes(text, font) {
 }
 
 class FontThumbnailRenderer extends ThumbnailRenderer {
-    constructor(asset, canvas) {
+    constructor(asset: Observer, canvas: HTMLCanvasElement) {
         super();
 
         this._asset = asset;

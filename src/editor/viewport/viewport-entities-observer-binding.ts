@@ -6,9 +6,9 @@ editor.once('load', () => {
         return;
     } // webgl not available
 
-    editor.on('entities:add', (obj) => {
+    editor.on('entities:add', (obj: import('@/editor-api').EntityObserver) => {
         // subscribe to changes
-        obj.on('*:set', (path, value) => {
+        obj.on('*:set', (path: string, value: unknown) => {
             const entity = obj.entity;
             if (!entity) {
                 return;
@@ -50,7 +50,7 @@ editor.once('load', () => {
             editor.call('viewport:render');
         });
 
-        const reparent = function (child, index) {
+        const reparent = function (child: string, index: number): void {
             const childEntity = editor.call('entities:get', child);
             if (childEntity && childEntity.entity && obj.entity) {
                 const oldParent = childEntity.entity.parent;
@@ -94,7 +94,7 @@ editor.once('load', () => {
         });
     });
 
-    editor.on('entities:remove', (obj) => {
+    editor.on('entities:remove', (obj: import('@/editor-api').EntityObserver) => {
         const entity = obj.entity;
         if (!entity) {
             return;

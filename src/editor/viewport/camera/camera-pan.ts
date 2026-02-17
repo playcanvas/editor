@@ -1,6 +1,8 @@
 import { PROJECTION_PERSPECTIVE, Vec2, Vec3 } from 'playcanvas';
 
-editor.once('viewport:load', (app) => {
+import type { ViewportTap } from '../viewport-tap';
+
+editor.once('viewport:load', (app: import('playcanvas').Application) => {
     // Panning with left mouse button while shift key is down
 
     let panning = false;
@@ -14,11 +16,11 @@ editor.once('viewport:load', (app) => {
     let grabbed = false;
     let panButton = 0;
 
-    editor.on('hotkey:shift', (state) => {
+    editor.on('hotkey:shift', (state: boolean) => {
         shiftKey = state;
     });
 
-    editor.on('viewport:update', (dt) => {
+    editor.on('viewport:update', (dt: number) => {
         if (!panning) {
             return;
         }
@@ -53,7 +55,7 @@ editor.once('viewport:load', (app) => {
         editor.call('viewport:render');
     });
 
-    const onPanStart = function (tap) {
+    const onPanStart = function (tap: ViewportTap): void {
         if (panning) {
             return;
         }
@@ -107,7 +109,7 @@ editor.once('viewport:load', (app) => {
     };
     editor.method('camera:pan:start', onPanStart);
 
-    editor.on('viewport:tap:start', (tap) => {
+    editor.on('viewport:tap:start', (tap: ViewportTap) => {
         if (panning || ((tap.button !== 0 || !shiftKey) && tap.button !== 1)) {
             return;
         }
@@ -115,7 +117,7 @@ editor.once('viewport:load', (app) => {
         onPanStart(tap);
     });
 
-    editor.on('viewport:tap:end', (tap) => {
+    editor.on('viewport:tap:end', (tap: ViewportTap) => {
         if (!panning || tap.button !== panButton) {
             return;
         }
@@ -124,7 +126,7 @@ editor.once('viewport:load', (app) => {
         editor.call('camera:history:stop', panCamera);
     });
 
-    editor.on('viewport:tap:move', (tap) => {
+    editor.on('viewport:tap:move', (tap: ViewportTap) => {
         if (!panning) {
             return;
         }
@@ -135,7 +137,7 @@ editor.once('viewport:load', (app) => {
         editor.call('viewport:render');
     });
 
-    editor.on('camera:toggle', (state) => {
+    editor.on('camera:toggle', (state: boolean) => {
         if (!state && panning) {
             panning = false;
             editor.call('camera:history:stop', panCamera);

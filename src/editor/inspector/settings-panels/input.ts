@@ -37,7 +37,7 @@ const ATTRIBUTES: Attribute[] = [
 ];
 
 class InputSettingsPanel extends BaseSettingsPanel {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.headerText = 'INPUT';
         args.attributes = ATTRIBUTES;

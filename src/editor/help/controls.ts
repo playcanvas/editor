@@ -191,7 +191,7 @@ editor.once('load', () => {
         overlay.hidden = false;
     });
 
-    const onKey = function (e) {
+    const onKey = function (e: KeyboardEvent) {
         if (e.keyCode === 27) {
             overlay.hidden = true;
         }

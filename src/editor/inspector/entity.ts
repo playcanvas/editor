@@ -1,3 +1,4 @@
+import type { Observer } from '@playcanvas/observer';
 import { Container, Button, Menu } from '@playcanvas/pcui';
 
 import { COMPONENT_LOGOS } from '@/core/constants';
@@ -98,7 +99,7 @@ const additionalComponents = {
     ]
 };
 
-const getSubMenu = function (key) {
+const getSubMenu = function (key: string) {
 
     switch (key) {
         case 'sprite': return '2d-sub-menu';
@@ -189,8 +190,16 @@ const ATTRIBUTES: Attribute[] = [{
     }
 }];
 
+type EntityInspectorArgs = {
+    history?: import('@/editor-api').History;
+    projectSettings?: Observer;
+    assets?: import('@playcanvas/observer').ObserverList;
+    entities?: import('@playcanvas/observer').ObserverList;
+    templateOverridesDiffView?: unknown;
+} & Record<string, unknown>;
+
 class EntityInspector extends Container {
-    constructor(args) {
+    constructor(args: EntityInspectorArgs = {} as EntityInspectorArgs) {
         if (!args) {
             args = {};
         }
@@ -296,7 +305,7 @@ class EntityInspector extends Container {
         });
     }
 
-    _makeAddComponentMenuItem(component, title, logos, logoName = '', dataComponent = {}) {
+    _makeAddComponentMenuItem(component: string, title: string, logos: Record<string, string>, logoName: string = '', dataComponent: Record<string, unknown> = {}) {
         const data = {
             text: title,
             icon: logoName.length > 0 ? logos[logoName] : logos[component],
@@ -315,7 +324,7 @@ class EntityInspector extends Container {
         this._attributesInspector.getField('name').focus();
     }
 
-    _createContextMenu(target) {
+    _createContextMenu(target: Button) {
         const menu = new Menu({
             items: [{
                 text: 'Paste Component',
@@ -566,7 +575,7 @@ class EntityInspector extends Container {
         });
     }
 
-    _onClickAddComponent(evt) {
+    _onClickAddComponent(evt: MouseEvent) {
         if (this.readOnly) {
             return;
         }
@@ -580,7 +589,7 @@ class EntityInspector extends Container {
         );
     }
 
-    _onSetComponent(component) {
+    _onSetComponent(component: string) {
         if (!this._componentInspectors[component]) {
             return;
         }
@@ -594,7 +603,7 @@ class EntityInspector extends Container {
         this.class.remove(CLASS_NO_COMPONENTS);
     }
 
-    _onUnsetComponent(component) {
+    _onUnsetComponent(component: string) {
         if (!this._componentInspectors[component]) {
             return;
         }
@@ -654,7 +663,7 @@ class EntityInspector extends Container {
         }
     }
 
-    _doAllEntitiesHaveComponent(entities, component) {
+    _doAllEntitiesHaveComponent(entities: Observer[], component: string) {
         let result = true;
         for (let i = 0; i < entities.length; i++) {
             if (!entities[i].has(`components.${component}`)) {
@@ -666,7 +675,7 @@ class EntityInspector extends Container {
         return result;
     }
 
-    link(entities) {
+    link(entities: Observer[]) {
         this.unlink();
 
         if (!entities || !entities.length) {

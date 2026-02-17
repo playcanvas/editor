@@ -29,7 +29,7 @@ editor.once('load', () => {
     };
 
     // fill bundlesIndex when a new bundle asset is added
-    editor.on('assets:add', (asset) => {
+    editor.on('assets:add', (asset: Observer) => {
         if (asset.get('type') !== 'bundle') {
             return;
         }
@@ -37,15 +37,15 @@ editor.once('load', () => {
         bundleAssets.push(asset);
         addToIndex(asset.get('data.assets'), asset);
 
-        asset.on('data.assets:set', (assetIds) => {
+        asset.on('data.assets:set', (assetIds: (string | number)[] | undefined) => {
             addToIndex(assetIds, asset);
         });
 
-        asset.on('data.assets:insert', (assetId) => {
+        asset.on('data.assets:insert', (assetId: string | number) => {
             addToIndex([assetId], asset);
         });
 
-        asset.on('data.assets:remove', (assetId) => {
+        asset.on('data.assets:remove', (assetId: string | number) => {
             if (!bundlesIndex[assetId]) {
                 return;
             }
@@ -62,7 +62,7 @@ editor.once('load', () => {
 
     // remove bundle asset from bundlesIndex when a bundle asset is
     // removed
-    editor.on('assets:remove', (asset) => {
+    editor.on('assets:remove', (asset: Observer) => {
         if (asset.get('type') !== 'bundle') {
             return;
         }
@@ -147,7 +147,7 @@ editor.once('load', () => {
      * @param bundleAsset - The bundle asset
      */
     editor.method('assets:bundles:addAssets', (assets: Observer[], bundleAsset: Observer) => {
-        const validAssets = assets.filter((asset) => {
+        const validAssets = assets.filter((asset: Observer) => {
             return isAssetValid(asset, bundleAsset);
         });
 

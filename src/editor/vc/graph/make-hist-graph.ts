@@ -21,7 +21,7 @@
  */
 editor.once('load', () => {
     class MakeHistGraph {
-        constructor(fullGraph, startId) {
+        constructor(fullGraph: Record<string, Record<string, unknown>>, startId: string) {
             this.fullGraph = fullGraph;
 
             this.startId = startId;
@@ -59,13 +59,13 @@ editor.once('load', () => {
             this.visited[this.startId] = true;
         }
 
-        handleCheckpoint(h) {
+        handleCheckpoint(h: Record<string, unknown>) {
             const logic = this.makeLogic(h.histGraphData);
 
             this.handleLogic(logic, h);
         }
 
-        makeLogic(h) {
+        makeLogic(h: Record<string, unknown>) {
             if (h.vcNoHistData) {
                 return {};
 
@@ -94,7 +94,7 @@ editor.once('load', () => {
 
         }
 
-        handleLogic(logic, h) {
+        handleLogic(logic: Record<string, unknown>, h: Record<string, unknown>) {
             if (!logic.dontInclude) {
                 this.includeInRes[h.id] = true;
             }
@@ -106,8 +106,8 @@ editor.once('load', () => {
             this.recursCall('otherBranch', parents, logic);
         }
 
-        recursCall(type, parents, logic) {
-            const h = logic.recursion && logic.recursion[type] && parents[type];
+        recursCall(type: string, parents: Record<string, Record<string, unknown> | undefined>, logic: Record<string, unknown>) {
+            const h: Record<string, unknown> | undefined = logic.recursion && logic.recursion[type] && parents[type];
 
             const need = h && !this.visited[h.id];
 
@@ -118,7 +118,7 @@ editor.once('load', () => {
             }
         }
 
-        handleParents(h) {
+        handleParents(h: Record<string, unknown>) {
             const res = {};
 
             h.parent.forEach((e) => {
@@ -142,7 +142,7 @@ editor.once('load', () => {
             this.resetResNodes();
         }
 
-        rmUnvisited(h) {
+        rmUnvisited(h: Record<string, unknown>) {
             if (!this.visited[h.id]) {
                 this.rmNode(h);
             }
@@ -151,7 +151,7 @@ editor.once('load', () => {
         // Remove a node not representing any hist change,
         // if it has a single parent and child, both of the
         // same branch. Parent and child are then connected by a new edge.
-        rmNodeWithoutChanges(h) {
+        rmNodeWithoutChanges(h: Record<string, unknown>) {
             const bId = h.branchId;
 
             const h1 = this.singleNeighbor(h, 'parent', bId);
@@ -171,7 +171,7 @@ editor.once('load', () => {
 
         // Find a neighbor node of 'h1' of 'type' child or parent,
         // if it has no siblings and is from the same branch 'branchId'
-        singleNeighbor(h1, type, branchId) {
+        singleNeighbor(h1: Record<string, unknown>, type: 'parent' | 'child', branchId: string) {
             const edges = h1[type];
 
             const id = edges.length === 1 && edges[0][type];
@@ -183,7 +183,7 @@ editor.once('load', () => {
             return branchOk && h2;
         }
 
-        connectNodes(h1, h2, branchId) {
+        connectNodes(h1: Record<string, unknown> | undefined, h2: Record<string, unknown> | undefined, branchId: string) {
             if (h1 && h2) {
                 this.addEdge(h1.child, h1.id, h2.id, branchId);
 
@@ -191,7 +191,7 @@ editor.once('load', () => {
             }
         }
 
-        rmNode(h) {
+        rmNode(h: Record<string, unknown>) {
             delete this.resGraph[h.id];
 
             this.rmAllEdges(h, 'parent', 'child');
@@ -199,7 +199,7 @@ editor.once('load', () => {
             this.rmAllEdges(h, 'child', 'parent');
         }
 
-        rmAllEdges(h1, type1, type2) {
+        rmAllEdges(h1: Record<string, unknown>, type1: 'parent' | 'child', type2: 'parent' | 'child') {
             h1[type1].forEach((edge) => {
                 const h2 = this.resGraph[edge[type1]];
 
@@ -209,13 +209,13 @@ editor.once('load', () => {
             });
         }
 
-        rmEdge(h, type, id) {
+        rmEdge(h: Record<string, unknown>, type: 'parent' | 'child', id: string) {
             h[type] = h[type].filter((edge) => {
                 return edge[type] !== id;
             });
         }
 
-        addEdge(dst, parent, child, branch_id) {
+        addEdge(dst: Array<{ parent: string; child: string; branch_id: string }>, parent: string, child: string, branch_id: string) {
             const edge = {
                 parent,
                 child,
@@ -225,11 +225,11 @@ editor.once('load', () => {
             dst.push(edge);
         }
 
-        addHistParent(h) {
+        addHistParent(h: Record<string, unknown>) {
             h.histParentNode = this.histParents[h.id];
         }
 
-        rmExternalChildren(h) {
+        rmExternalChildren(h: Record<string, unknown>) {
             h.child = h.child.filter((edge) => {
                 return this.fullGraph[edge.child];
             });
@@ -239,7 +239,7 @@ editor.once('load', () => {
             this.resNodes = Object.values(this.resGraph);
         }
 
-        isFirstInProj(h) {
+        isFirstInProj(h: Record<string, unknown>) {
             const orig = this.fullGraph[h.id];
 
             return !orig.parent.length;

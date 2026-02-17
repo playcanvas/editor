@@ -95,7 +95,7 @@ export const deepEqual = (a: any, b: any): boolean => {
  */
 export const naturalCompare = (a: string, b: string): number => {
     const regex = /(\d+|\D+)/g;
-    const split = str => str.match(regex);
+    const split = (str: string) => str.match(regex);
 
     const aParts = split(a) ?? [];
     const bParts = split(b) ?? [];
@@ -306,7 +306,7 @@ export const fileNameDate = (): string => {
  * @returns The converted string
  */
 export const camelCaseToTitle = (str: string): string => {
-    return str.replace(/([0-9A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase());
+    return str.replace(/([0-9A-Z])/g, ' $1').replace(/^./, (s: string) => s.toUpperCase());
 };
 
 /**
@@ -320,7 +320,7 @@ export const toCleanStr = (val: any, depth: number = 0): string => {
         if (depth > 1) {
             return '[array]';
         }
-        return `(${val.map(v => toCleanStr(v, depth + 1)).join(', ')})`;
+        return `(${val.map((v: any) => toCleanStr(v, depth + 1)).join(', ')})`;
     }
 
     if (val === null || val === undefined) {
@@ -407,7 +407,7 @@ export const formatter = {
  */
 export const throttler = (fn: Function, delay: number = 0): Function => {
     let timeout = null;
-    return (...args) => {
+    return (...args: any[]) => {
         if (timeout) {
             clearTimeout(timeout);
         }
@@ -425,7 +425,7 @@ export const throttler = (fn: Function, delay: number = 0): Function => {
  */
 export const frameLimiter = (fn: Function): Function => {
     let called = false;
-    return (...args) => {
+    return (...args: any[]) => {
         if (called) {
             return;
         }
@@ -465,8 +465,8 @@ export const handleCallback = <T extends { on: (event: string, handler: (status:
     ajax: T,
     callback: (err?: string, data?: any) => void
 ): T => {
-    ajax.on('load', (status, data) => callback(null, data));
-    ajax.on('error', (status, err) => callback(err));
+    ajax.on('load', (status: any, data: any) => callback(null, data));
+    ajax.on('error', (status: any, err: any) => callback(err));
     return ajax;
 };
 

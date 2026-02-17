@@ -49,7 +49,7 @@ editor.once('load', () => {
     }
 
     // set module configs
-    config.wasmModules.forEach((m) => {
+    config.wasmModules.forEach((m: { moduleName: string; glueUrl: string; wasmUrl: string; fallbackUrl: string }) => {
         WasmModule.setConfig(m.moduleName, {
             glueUrl: m.glueUrl,
             wasmUrl: m.wasmUrl,
@@ -57,7 +57,7 @@ editor.once('load', () => {
         });
     });
 
-    projectUserSettings.on('*:set', () => {
+    projectUserSettings.on('*:set', (): void => {
         app.setEditorSettings(projectUserSettings.json().editor);
     });
 
@@ -81,7 +81,7 @@ editor.once('load', () => {
     });
 
     // returns true if the viewport should continuously render
-    editor.method('viewport:keepRendering', (value) => {
+    editor.method('viewport:keepRendering', (value?: boolean) => {
         if (typeof value === 'boolean') {
             keepRendering = value;
         }

@@ -133,7 +133,7 @@ class AssetThumbnail extends Element {
         });
     }
 
-    _enableFontIcons(asset) {
+    _enableFontIcons(asset: Observer) {
         this._previousAssetType = `type-${asset.get('type')}`;
         this.class.add(CLASS_ASSET_PREFIX);
         this.class.add(this._previousAssetType);
@@ -151,7 +151,7 @@ class AssetThumbnail extends Element {
         }
     }
 
-    _showImageThumbnail(asset) {
+    _showImageThumbnail(asset: Observer | null) {
         this._destroyCanvas();
         this._createImage();
 
@@ -207,7 +207,7 @@ class AssetThumbnail extends Element {
         this._renderCanvasThumbnail(asset);
     }
 
-    _renderCanvasThumbnail(asset) {
+    _renderCanvasThumbnail(asset: Observer) {
         if (this._renderCanvasTimeout) {
             clearTimeout(this._renderCanvasTimeout);
             this._renderCanvasTimeout = null;
@@ -315,7 +315,7 @@ class AssetThumbnail extends Element {
         this._domCanvas = null;
     }
 
-    _updateValue(value) {
+    _updateValue(value: any) {
         this.class.remove(CLASS_MULTIPLE_VALUES);
 
         if (this._value === value) {
@@ -335,7 +335,7 @@ class AssetThumbnail extends Element {
         return true;
     }
 
-    _onChange(value) {
+    _onChange(value: number | Observer | null) {
         if (this._evtThumbnailSet) {
             this._evtThumbnailSet.unbind();
             this._evtThumbnailSet = null;
@@ -379,7 +379,7 @@ class AssetThumbnail extends Element {
             this._showImageThumbnail(null);
 
             const id = (value instanceof Observer ? value.get('id') : value);
-            this._evtAdd = this._assets.once(`add[${id}]`, (asset) => {
+            this._evtAdd = this._assets.once(`add[${id}]`, (asset: Observer) => {
                 this._onChange(asset);
             });
 
@@ -400,11 +400,11 @@ class AssetThumbnail extends Element {
         }
     }
 
-    _getAsset(value) {
+    _getAsset(value: any) {
         return value instanceof Observer ? value : this._assets.get(value);
     }
 
-    _shouldRenderCanvasThumbnailForAsset(asset) {
+    _shouldRenderCanvasThumbnailForAsset(asset: Observer | null) {
         return asset && !asset.get('source') && CANVAS_TYPES[asset.get('type')];
     }
 
@@ -441,7 +441,7 @@ class AssetThumbnail extends Element {
         super.destroy();
     }
 
-    set value(value) {
+    set value(value: number | null) {
         const changed = this._updateValue(value);
 
         if (changed && this._binding) {
@@ -456,7 +456,7 @@ class AssetThumbnail extends Element {
         return this._value;
     }
 
-    set values(values) {
+    set values(values: (number | null)[]) {
         let different = false;
         const value = values[0];
         for (let i = 1; i < values.length; i++) {

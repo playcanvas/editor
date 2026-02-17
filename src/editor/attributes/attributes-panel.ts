@@ -1,3 +1,5 @@
+import type { Observer } from '@playcanvas/observer';
+
 import { CubemapThumbnailRenderer } from '@/common/thumbnail-renderers/cubemap-thumbnail-renderer';
 import { FontThumbnailRenderer } from '@/common/thumbnail-renderers/font-thumbnail-renderer';
 import { MaterialThumbnailRenderer } from '@/common/thumbnail-renderers/material-thumbnail-renderer';
@@ -58,7 +60,7 @@ editor.once('load', () => {
         return panel;
     });
 
-    const historyState = function (item, state) {
+    const historyState = function (item: Observer, state: boolean) {
         if (item.history !== undefined) {
             if (typeof item.history === 'boolean') {
                 item.history = state;
@@ -73,7 +75,7 @@ editor.once('load', () => {
     };
 
     // get the right path from args
-    const pathAt = function (args, index) {
+    const pathAt = function (args: { path?: string; paths?: string[] }, index: number) {
         return args.paths ? args.paths[index] : args.path;
     };
 
@@ -202,7 +204,7 @@ editor.once('load', () => {
             }
         };
 
-        changeField = function (value) {
+        changeField = function (value: unknown) {
             if (args.field._changing) {
                 return;
             }
@@ -343,7 +345,7 @@ editor.once('load', () => {
                 return items;
             };
 
-            historyEnd = function (items, value) {
+            historyEnd = function (items: Array<{ item: Observer; value: unknown }>, value: unknown) {
                 // history
                 editor.api.globals.history.add({
                     name: pathAt(args, 0),
@@ -519,7 +521,7 @@ editor.once('load', () => {
 
         const linkField = args.linkField = function () {
             if (args.link) {
-                const link = function (field, path) {
+                const link = function (field: LegacyNumberField | LegacyTextField | LegacyCheckbox | LegacySelectField | LegacySlider | LegacyColorField | LegacyImageField | LegacyLabel, path: string | string[]) {
                     const data = {
                         field: field,
                         type: args.type,
@@ -673,7 +675,7 @@ editor.once('load', () => {
                     removeTag(this.tag);
                 };
 
-                var removeTag = function (tag) {
+                var removeTag = function (tag: string | number) {
                     if (tagType === 'string' && !tag) {
                         return;
                     }
@@ -736,7 +738,7 @@ editor.once('load', () => {
                     }
                 };
 
-                var addTag = function (tag) {
+                var addTag = function (tag: string) {
                     const records = [];
 
                     // convert to number if needed
@@ -796,7 +798,7 @@ editor.once('load', () => {
                     }
                 };
 
-                var onInsert = function (tag) {
+                var onInsert = function (tag: string | number) {
                     if (!tagIndex.hasOwnProperty(tag)) {
                         tagIndex[tag] = 0;
                         tagList.push(tag);
@@ -806,7 +808,7 @@ editor.once('load', () => {
                     insertElement(tag);
                 };
 
-                var onRemove = function (tag) {
+                var onRemove = function (tag: string | number) {
                     if (!tagIndex[tag]) {
                         return;
                     }
@@ -832,7 +834,7 @@ editor.once('load', () => {
                 };
 
                 // when tag field is initialized
-                var onSet = function (values, oldValues) {
+                var onSet = function (values: (string | number)[], oldValues?: (string | number)[]) {
                     if (oldValues) {
                         for (let i = 0; i < oldValues.length; i++) {
                             onRemove(oldValues[i]);
@@ -862,7 +864,7 @@ editor.once('load', () => {
                     });
                 };
 
-                var insertElement = function (tag) {
+                var insertElement = function (tag: string | number) {
                     if (!tagItems[tag]) {
                         sortTags();
 
@@ -1268,7 +1270,7 @@ editor.once('load', () => {
                 var queueRender;
 
                 var evtThumbnailChange;
-                var updateThumbnail = function (empty) {
+                var updateThumbnail = function (empty?: boolean) {
                     const asset = editor.call('assets:get', field.value);
 
                     if (previewRenderer) {
@@ -1402,12 +1404,12 @@ editor.once('load', () => {
 
                 var assetDropRef = editor.call('drop:target', {
                     ref: panel,
-                    filter: function (type, data) {
+                    filter: function (type: string, data: { id?: string }) {
                         const rectA = root.innerElement.getBoundingClientRect();
                         const rectB = panel.element.getBoundingClientRect();
                         return data.id && (args.kind === '*' || type === `asset.${args.kind}`) && parseInt(data.id, 10) !== field.value && !editor.call('assets:get', parseInt(data.id, 10)).get('source') && rectB.top > rectA.top && rectB.bottom < rectA.bottom;
                     },
-                    drop: function (type, data) {
+                    drop: function (type: string, data: { id?: string }) {
                         if ((args.kind !== '*' && type !== `asset.${args.kind}`) || editor.call('assets:get', parseInt(data.id, 10)).get('source')) {
                             return;
                         }
@@ -1438,7 +1440,7 @@ editor.once('load', () => {
                             }
                         }
                     },
-                    over: function (type, data) {
+                    over: function (type: string, data: { id?: string }) {
                         if (args.over) {
                             args.over(type, data);
                         }
@@ -1588,19 +1590,19 @@ editor.once('load', () => {
 
                 editor.call('drop:target', {
                     ref: field,
-                    filter: function (type, data) {
+                    filter: function (type: string, data: { resource_id?: string }) {
                         const rectA = root.innerElement.getBoundingClientRect();
                         const rectB = field.element.getBoundingClientRect();
                         return type === 'entity' && data.resource_id !== field.value && rectB.top > rectA.top && rectB.bottom < rectA.bottom;
                     },
-                    drop: function (type, data) {
+                    drop: function (type: string, data: { resource_id?: string }) {
                         if (type !== 'entity') {
                             return;
                         }
 
                         field.value = data.resource_id;
                     },
-                    over: function (type, data) {
+                    over: function (type: string, data: { resource_id?: string }) {
                         if (args.over) {
                             args.over(type, data);
                         }
