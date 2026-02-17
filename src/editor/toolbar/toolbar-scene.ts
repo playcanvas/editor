@@ -7,7 +7,7 @@ editor.once('load', () => {
     const viewport = editor.call('layout.viewport');
 
     const panel = new Container({
-        class: 'controls-top-left'
+        class: ['control-strip', 'top-left']
     });
     viewport.append(panel);
 

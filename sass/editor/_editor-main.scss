@@ -511,67 +511,54 @@ strong {
     }
 }
 
-.pcui-container.controls-top-left {
-    position: absolute;
-    top: 4px;
-    left: 4px;
+.control-strip {
     display: flex;
     gap: 2px;
 
     > .pcui-button {
         height: 33px;
-        padding: 0 10px;
         margin: 0;
-        color: rgba(#fff, 0.75);
-        background-color: rgb(41 53 56 / 50%);
         border: none;
         border-radius: 0;
+        color: rgba($text-primary, 0.75);
+        background-color: rgba($bcg-darker, 0.5);
 
         &:hover,
         &.active {
-            color: #fff;
-            background-color: rgb(41 53 56 / 75%);
+            color: $text-primary;
+            background-color: rgba($bcg-darker, 0.75);
             box-shadow: none;
         }
 
         &::before {
             font-size: 14px;
         }
+
+        &:empty {
+            width: 33px;
+            padding: 0;
+        }
+
+        &:not(:empty) {
+            padding: 0 10px;
+        }
+    }
+
+    &.top-left {
+        position: absolute;
+        top: 4px;
+        left: 4px;
     }
 }
 
-.pcui-container.controls-top-right {
+.pcui-container.top-right {
     position: absolute;
     top: 4px;
     right: 4px;
-    display: flex;
     flex-direction: row-reverse;
-    gap: 2px;
 
     > .pcui-button.expand {
-        width: 33px;
-        height: 33px;
-        line-height: 33px;
-        margin: 0;
-        padding: 0;
-        border: none;
-        border-radius: 0;
-
-        @extend .font-icon;
-
-        font-size: 16px;
-        text-align: center;
-        color: rgba($text-primary, 0.75);
-        background-color: rgba($bcg-darker, 0.5);
-
-        &:hover {
-            color: $text-primary;
-            background-color: rgba($bcg-darker, 0.75);
-            box-shadow: none;
-        }
-
         &.icon.active {
-            color: $text-primary;
             background-color: $text-active;
         }
     }
