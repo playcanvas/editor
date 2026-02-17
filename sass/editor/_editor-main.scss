@@ -512,6 +512,7 @@ strong {
 }
 
 .control-strip {
+    position: absolute;
     display: flex;
     gap: 2px;
 
@@ -548,151 +549,149 @@ strong {
     }
 
     &.top-left {
-        position: absolute;
         top: 4px;
         left: 4px;
     }
-}
 
-.pcui-container.top-right {
-    position: absolute;
-    top: 4px;
-    right: 4px;
+    &.top-right {
+        top: 4px;
+        right: 4px;
 
-    > .pcui-button.expand {
-        &::before {
-            font-size: 16px;
-        }
-
-        &.active {
-            background-color: $text-active;
-        }
-    }
-
-    > .pcui-container.render,
-    > .pcui-container.camera {
-        position: relative;
-
-        &:hover > .pcui-button {
-            color: $text-primary;
-            background-color: rgba($bcg-darker, 0.75);
-        }
-
-        > .render-options,
-        > .camera-options {
-            position: absolute;
-            padding: 10px;
-            top: 33px;
-            right: 0;
-            text-align: start;
-            min-width: 150px;
-            max-height: 300px;
-            overflow: hidden auto;
-            background-color: rgba($bcg-darker, .75);
-
-            .pcui-container {
-                flex-direction: row;
-                line-height: 22px;
-                width: 100%;
-                background: transparent;
-
-                .pcui-boolean-input {
-                    margin: 7px 3px 3px;
-                    vertical-align: text-bottom;
-                }
-
-                .pcui-radio-button {
-                    align-self: center;
-                    height: 16px;
-                    margin: 0 3px 0 2px;
-                    width: 16px;
-                    flex-shrink: 0;
-                }
-
-                .pcui-label {
-                    margin: 3px;
-                    max-width: 200px;
-                    min-height: 20px;
-                    word-wrap: break-word;
-                    white-space: pre-wrap;
-                    vertical-align: bottom;
-                }
+        > .pcui-button.expand {
+            &::before {
+                font-size: 16px;
             }
 
-            .divider {
-                height: 3px;
-                background-color: rgba($bcg-darker, .75);
-                margin: 5px 0;
-            }
-        }
-    }
-
-    > .launch {
-        position: relative;
-
-        &:not(.disabled):hover {
-            > .pcui-button {
+            &.active {
                 background-color: $text-active;
             }
         }
 
-        > .pcui-button {
-            &::before {
-                font-size: 20px;
+        > .pcui-container.render,
+        > .pcui-container.camera {
+            position: relative;
+
+            &:hover > .pcui-button {
+                color: $text-primary;
+                background-color: rgba($bcg-darker, 0.75);
+            }
+
+            > .render-options,
+            > .camera-options {
+                position: absolute;
+                padding: 10px;
+                top: 33px;
+                right: 0;
+                text-align: start;
+                min-width: 150px;
+                max-height: 300px;
+                overflow: hidden auto;
+                background-color: rgba($bcg-darker, .75);
+
+                .pcui-container {
+                    flex-direction: row;
+                    line-height: 22px;
+                    width: 100%;
+                    background: transparent;
+
+                    .pcui-boolean-input {
+                        margin: 7px 3px 3px;
+                        vertical-align: text-bottom;
+                    }
+
+                    .pcui-radio-button {
+                        align-self: center;
+                        height: 16px;
+                        margin: 0 3px 0 2px;
+                        width: 16px;
+                        flex-shrink: 0;
+                    }
+
+                    .pcui-label {
+                        margin: 3px;
+                        max-width: 200px;
+                        min-height: 20px;
+                        word-wrap: break-word;
+                        white-space: pre-wrap;
+                        vertical-align: bottom;
+                    }
+                }
+
+                .divider {
+                    height: 3px;
+                    background-color: rgba($bcg-darker, .75);
+                    margin: 5px 0;
+                }
             }
         }
 
-        .pcui-container.options {
-            position: absolute;
-            top: 33px;
-            right: 0;
-            margin: 0;
-            padding: 5px;
-            list-style: none;
-            background-color: rgba($bcg-darker, 0.75);
+        > .launch {
+            position: relative;
 
-            .pcui-boolean-input:not(.pcui-boolean-input-ticked) {
-                background-color: #20292b;
-            }
-
-            .pcui-label {
-                vertical-align: top;
-                font-size: 12px;
-            }
-
-            .pcui-container {
-                @extend .noSelect;
-
-                background: transparent;
-                width: 200px;
-                cursor: pointer;
-                margin: 2px 0;
-
-                &:has(.pcui-button):hover {
-                    .pcui-button {
-                        color: $text-active;
-                    }
+            &:not(.disabled):hover {
+                > .pcui-button {
+                    background-color: $text-active;
                 }
             }
 
-            .pcui-button {
-                width: 100%;
-                border: 0;
-                padding: 0;
-                margin: 0;
-                margin-left: 5px;
-                background-color: transparent;
-                font-family: 'Proxima Nova Regular';
-                font-size: 12px;
-                text-align: left;
-
+            > .pcui-button {
                 &::before {
                     font-size: 20px;
-                    vertical-align: middle;
+                }
+            }
+
+            .pcui-container.options {
+                position: absolute;
+                top: 33px;
+                right: 0;
+                margin: 0;
+                padding: 5px;
+                list-style: none;
+                background-color: rgba($bcg-darker, 0.75);
+
+                .pcui-boolean-input:not(.pcui-boolean-input-ticked) {
+                    background-color: #20292b;
                 }
 
-                &:hover {
-                    box-shadow: none;
+                .pcui-label {
+                    vertical-align: top;
+                    font-size: 12px;
+                }
+
+                .pcui-container {
+                    @extend .noSelect;
+
+                    background: transparent;
+                    width: 200px;
+                    cursor: pointer;
+                    margin: 2px 0;
+
+                    &:has(.pcui-button):hover {
+                        .pcui-button {
+                            color: $text-active;
+                        }
+                    }
+                }
+
+                .pcui-button {
+                    width: 100%;
+                    border: 0;
+                    padding: 0;
+                    margin: 0;
+                    margin-left: 5px;
+                    background-color: transparent;
+                    font-family: 'Proxima Nova Regular';
+                    font-size: 12px;
+                    text-align: left;
+
+                    &::before {
+                        font-size: 20px;
+                        vertical-align: middle;
+                    }
+
+                    &:hover {
+                        box-shadow: none;
+                    }
                 }
             }
         }
