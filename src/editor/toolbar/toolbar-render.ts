@@ -1,4 +1,4 @@
-import { Container, Label, RadioButton, BooleanInput } from '@playcanvas/pcui';
+import { BooleanInput, Button, Container, Label, RadioButton } from '@playcanvas/pcui';
 import {
     RENDERSTYLE_SOLID,
     RENDERSTYLE_WIREFRAME,
@@ -24,11 +24,11 @@ editor.once('viewport:load', (app) => {
     });
     controls.prepend(renderContainer);
 
-    const renderLabel = new Label({
-        class: 'render-label',
+    const renderButton = new Button({
+        icon: 'E188',
         text: 'Render'
     });
-    renderContainer.append(renderLabel);
+    renderContainer.append(renderButton);
 
     const renderOptions = new Container({
         class: 'render-options',
@@ -80,12 +80,12 @@ editor.once('viewport:load', (app) => {
         renderOption.append(renderOptionRadio);
         renderRadioOptions.push(renderOptionRadio);
         if (state) {
-            renderLabel.text = name;
+            renderButton.text = name;
         }
 
         // Listen for radio button clicks
         renderOption.dom.addEventListener('click', () => {
-            renderLabel.text = name;
+            renderButton.text = name;
             for (let i = 0; i < renderRadioOptions.length; i++) {
                 renderRadioOptions[i].value = false;
             }
@@ -102,11 +102,7 @@ editor.once('viewport:load', (app) => {
 
     // Wireframe
     createCheckbox('Wireframe', (state) => {
-        if (state) {
-            renderLabel.dom.classList.add('wireframe');
-        } else {
-            renderLabel.dom.classList.remove('wireframe');
-        }
+        renderButton.icon = state ? 'E187' : 'E188';
 
         const renderStyle = state ? RENDERSTYLE_WIREFRAME : RENDERSTYLE_SOLID;
         const sceneLayers = app.scene.layers.layerList;
