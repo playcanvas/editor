@@ -1,6 +1,7 @@
 import { Entity, GraphNode, Picker, Vec2 } from 'playcanvas';
 
 import { FORCE_PICK_TAG } from '@/core/constants';
+
 import type { ViewportTap } from './viewport-tap';
 
 editor.once('load', () => {

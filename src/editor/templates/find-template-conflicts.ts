@@ -49,8 +49,11 @@ editor.once('load', () => {
 
     class TemplateTraversal {
         ent: Record<string, unknown>;
+
         typeToNode: Record<string, unknown>;
+
         scriptAttrs: Record<string, unknown>;
+
         conflicts: Record<string, unknown>[];
 
         constructor(ent: Record<string, unknown>, typeToNode: Record<string, unknown>, scriptAttrs: Record<string, unknown>) {
@@ -87,9 +90,13 @@ editor.once('load', () => {
 
     class FindTemplateConflicts {
         typeToInstData: Record<string, unknown>;
+
         typeToIdToTempl: Record<string, unknown>;
+
         scriptAttrs: Record<string, unknown>;
+
         visitedIds: Record<string, number>;
+
         result: Record<string, unknown>;
 
         constructor(typeToInstData: Record<string, unknown>, typeToIdToTempl: Record<string, unknown>, scriptAttrs: Record<string, unknown>) {

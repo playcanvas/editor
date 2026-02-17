@@ -11,11 +11,17 @@ editor.once('load', () => {
      */
     class FindInstanceOverrides {
         asset: Record<string, unknown>;
+
         instance: Record<string, unknown>;
+
         instRootId: string;
+
         overrides: Record<string, unknown>;
+
         srcToDst: Record<string, string>;
+
         typeToInstData: Record<string, unknown>;
+
         assetIdentity: Record<string, string>;
 
         constructor(asset: Record<string, unknown>, instance: Record<string, unknown>, instRootId: string) {

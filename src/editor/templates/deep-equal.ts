@@ -1,7 +1,9 @@
 editor.once('load', () => {
     class DeepEqual {
         node1: unknown;
+
         node2: unknown;
+
         bothNodes: unknown[];
 
         constructor(node1: unknown, node2: unknown) {

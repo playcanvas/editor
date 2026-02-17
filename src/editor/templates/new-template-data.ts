@@ -3,10 +3,15 @@ import { guid } from 'playcanvas';
 editor.once('load', () => {
     class NewTemplateData {
         root: { get: (key: string) => unknown };
+
         srcEnts: { get: (key: string) => unknown }[];
+
         dstEnts: Record<string, unknown>[];
+
         srcToDst: Record<string, string>;
+
         rootId: string;
+
         scriptAttrs: Record<string, unknown>;
 
         constructor(root: { get: (key: string) => unknown }, srcEnts: { get: (key: string) => unknown }[]) {

@@ -1,4 +1,5 @@
 import type { Observer } from '@playcanvas/observer';
+
 import { Trie } from '@/core/trie';
 
 editor.on('assets:load', () => {

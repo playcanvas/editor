@@ -1,4 +1,5 @@
 import type { Observer } from '@playcanvas/observer';
+
 import { WorkerClient } from '@/core/worker/worker-client';
 
 editor.once('load', () => {

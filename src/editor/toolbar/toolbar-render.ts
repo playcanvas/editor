@@ -1,5 +1,5 @@
-import type { Application } from 'playcanvas';
 import { Container, Label, RadioButton, BooleanInput } from '@playcanvas/pcui';
+import type { Application } from 'playcanvas';
 import {
     RENDERSTYLE_SOLID,
     RENDERSTYLE_WIREFRAME,

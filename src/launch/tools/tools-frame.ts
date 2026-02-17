@@ -1,4 +1,5 @@
 import type { Observer } from '@playcanvas/observer';
+
 import { bytesToHuman } from '@/common/utils';
 
 editor.once('load', () => {

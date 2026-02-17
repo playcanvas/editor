@@ -1,7 +1,9 @@
 editor.once('load', () => {
     class SetReparentPath {
         conflict: Record<string, unknown>;
+
         overrides: Record<string, unknown>;
+
         path_data: { src: { ids: string[]; names: string[] }; dst: { ids: string[]; names: string[] } };
 
         constructor(conflict: Record<string, unknown>, overrides: Record<string, unknown>) {

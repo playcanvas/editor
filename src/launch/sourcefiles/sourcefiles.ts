@@ -5,7 +5,7 @@ editor.once('load', () => {
     }
 
     // load scripts
-        fetch(`${config.url.home}${(config.project as { repositoryUrl: string }).repositoryUrl}`, {
+    fetch(`${config.url.home}${(config.project as { repositoryUrl: string }).repositoryUrl}`, {
         credentials: 'include',
         headers: {
             'Authorization': `Bearer ${config.accessToken}`,

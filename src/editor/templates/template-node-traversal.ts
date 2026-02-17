@@ -5,6 +5,7 @@ editor.once('load', () => {
 
     class MakeBasicConflict {
         typeToNode: Record<string, unknown>;
+
         result: Record<string, unknown>;
 
         constructor(typeToNode: Record<string, unknown>) {
@@ -40,7 +41,9 @@ editor.once('load', () => {
 
     class MakeNodeConflict {
         data: Record<string, unknown>;
+
         typeToNode: Record<string, unknown>;
+
         conflict: Record<string, unknown>;
 
         constructor(data: Record<string, unknown>) {
@@ -93,7 +96,9 @@ editor.once('load', () => {
      */
     class DiffTemplateNode {
         data: Record<string, unknown>;
+
         traversal: NodeTraversal;
+
         fullPath: string[];
 
         constructor(data: Record<string, unknown>, traversal: NodeTraversal) {
@@ -181,6 +186,7 @@ editor.once('load', () => {
 
     class NodeTraversal {
         data: Record<string, unknown>;
+
         nodeHandler!: DiffTemplateNode;
 
         constructor(data: Record<string, unknown>) {

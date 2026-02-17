@@ -41,7 +41,7 @@ const area = async (id: number | string, filename: string) => {
 
 const workerServer = new WorkerServer(self);
 workerServer.on('start', async (id: number | string, filename: string, padding: number) => {
-        const progress = (val: number) => {
+    const progress = (val: number) => {
         workerServer.send('progress', val);
     };
     const [data, a] = await start(id, filename, padding, progress);

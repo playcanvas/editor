@@ -1,4 +1,5 @@
 import { PROJECTION_PERSPECTIVE, Vec2, Vec3 } from 'playcanvas';
+
 import type { ViewportTap } from '../viewport-tap';
 
 editor.once('viewport:load', (app: import('playcanvas').Application) => {

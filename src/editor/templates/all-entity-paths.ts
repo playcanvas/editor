@@ -18,7 +18,9 @@ editor.once('load', () => {
      */
     class ComponentEntityPaths {
         entity: Record<string, unknown>;
+
         result: string[][];
+
         compNames: string[];
 
         constructor(entity: Record<string, unknown>) {
@@ -67,9 +69,13 @@ editor.once('load', () => {
      */
     class ScriptAttrEntityPaths {
         entity: Record<string, unknown>;
+
         scriptAttrs: Record<string, unknown>;
+
         result: string[][];
+
         scripts: Record<string, unknown>;
+
         scriptNames: string[];
 
         constructor(entity: Record<string, unknown>, scriptAttrs: Record<string, unknown>) {
