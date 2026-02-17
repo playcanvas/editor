@@ -1,6 +1,6 @@
 import { ObserverList, type Observer } from '@playcanvas/observer';
 
-import type { AssetObserver } from '@playcanvas/editor-api';
+import type { AssetObserver } from '@/editor-api';
 
 
 editor.once('load', () => {
