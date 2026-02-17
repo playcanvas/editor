@@ -1,3 +1,5 @@
+import { config } from '@/editor/config';
+
 editor.once('load', () => {
     const panel = editor.call('chat:panel');
     let number = 0;

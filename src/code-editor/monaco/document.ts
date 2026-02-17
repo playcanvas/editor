@@ -1,6 +1,8 @@
 import type { Observer } from '@playcanvas/observer';
 import type * as Monaco from 'monaco-editor';
 
+import { config } from '@/code-editor/config';
+
 // TODO: Types
 type ViewEntry = {
     doc: any;

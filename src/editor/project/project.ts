@@ -1,4 +1,5 @@
 import { Defer } from '@/common/defer';
+import { config } from '@/editor/config';
 
 editor.once('load', () => {
     // Create a project from data

@@ -1,5 +1,7 @@
 import { ObserverHistory } from '@playcanvas/observer';
 
+import { config } from '@/editor/config';
+
 editor.once('load', () => {
     // this used to have facebook settings
     // but we removed those so leaving this here in case
