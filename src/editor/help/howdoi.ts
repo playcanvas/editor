@@ -40,7 +40,7 @@ editor.once('load', () => {
 
         const canvasRect = canvas.element.getBoundingClientRect();
 
-        const titleWidget = document.querySelector('.widget-title');
+        const titleWidget = document.querySelector('.controls-top-left');
         const titleWidgetRect = titleWidget ? titleWidget.getBoundingClientRect() : null;
 
         const topLeftWidth = titleWidgetRect ? titleWidgetRect.right - canvasRect.left : 0;

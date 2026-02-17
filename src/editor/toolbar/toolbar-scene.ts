@@ -7,7 +7,7 @@ editor.once('load', () => {
     const viewport = editor.call('layout.viewport');
 
     const panel = new Container({
-        class: 'widget-title'
+        class: 'controls-top-left'
     });
     viewport.append(panel);
 
