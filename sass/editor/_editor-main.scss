@@ -515,7 +515,8 @@ strong {
     display: flex;
     gap: 2px;
 
-    > .pcui-button {
+    > .pcui-button,
+    > .launch > .pcui-button {
         height: 33px;
         margin: 0;
         border: none;
@@ -557,6 +558,10 @@ strong {
     right: 4px;
 
     > .pcui-button.expand {
+        &::before {
+            font-size: 16px;
+        }
+
         &.active {
             background-color: $text-active;
         }
@@ -737,22 +742,11 @@ strong {
 
         &:not(.disabled):hover {
             > .pcui-button {
-                color: $text-primary;
                 background-color: $text-active;
             }
         }
 
         > .pcui-button {
-            width: 83px;
-            height: 33px;
-            margin: 0;
-            border: none;
-            border-radius: 0;
-            color: rgba($text-primary, 0.75);
-            background-color: rgba($bcg-darker, 0.5);
-            display: flex;
-            align-items: center;
-
             &::before {
                 font-size: 20px;
             }
@@ -811,7 +805,6 @@ strong {
                     box-shadow: none;
                 }
             }
-
         }
     }
 }
