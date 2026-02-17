@@ -279,7 +279,7 @@ editor.once('load', () => {
     var resolver = null;
 
     // Returns true if the conflict group has any file conflicts
-    const hasFileConflicts = function (group) {
+    const hasFileConflicts = function (group: { data: { isTextualMerge?: boolean }[] }) {
         for (let i = 0; i < group.data.length; i++) {
             if (group.data[i].isTextualMerge) {
                 return true;
@@ -290,7 +290,7 @@ editor.once('load', () => {
     };
 
     // Returns true if the conflict group has any regular data conflicts
-    const hasDataConflicts = function (group) {
+    const hasDataConflicts = function (group: { data: { isTextualMerge?: boolean }[] }) {
         for (let i = 0; i < group.data.length; i++) {
             if (!group.data[i].isTextualMerge) {
                 return true;
@@ -302,7 +302,7 @@ editor.once('load', () => {
 
     // Returns true if all of the conflicts of a group (a group has a unique itemId)
     // have been resolved
-    const isConflictGroupResolved = function (group) {
+    const isConflictGroupResolved = function (group: { data: { useSrc?: boolean; useDst?: boolean; useMergedFile?: boolean }[] }) {
         let resolved = true;
         for (let i = 0; i < group.data.length; i++) {
             if (!group.data[i].useSrc && !group.data[i].useDst && !group.data[i].useMergedFile) {
@@ -327,7 +327,7 @@ editor.once('load', () => {
     };
 
     // Creates a list item for the list on the left panel
-    const createLeftListItem = function (conflictGroup) {
+    const createLeftListItem = function (conflictGroup: Record<string, unknown>) {
         const item = new LegacyListItem();
 
         // add some links between the item and the data
@@ -426,7 +426,7 @@ editor.once('load', () => {
 
     // Enables / disables the appropriate panels for the right
     // side depending on the specified mode
-    var setLayoutMode = function (mode) {
+    var setLayoutMode = function (mode: number) {
         layoutMode = mode;
 
         // turn off all right panel children first
@@ -700,13 +700,13 @@ editor.once('load', () => {
         // FIXME: Refresh handled by messenger
     };
 
-    var onMergeError = function (err) {
+    var onMergeError = function (err: string) {
         // if there was an error show it in the UI
         showMainProgress(errorIcon, err);
     };
 
     // Called when we get a merge progress status message from the messenger
-    const onMsgMergeProgress = function (data) {
+    const onMsgMergeProgress = function (data: { dst_branch_id?: string; status?: string; task_failed?: boolean }) {
         if (data.dst_branch_id !== config.self.branch.id) {
             return;
         }
@@ -728,7 +728,7 @@ editor.once('load', () => {
     };
 
     // Called when we load the merge object from the server
-    var onMergeDataLoaded = function (data) {
+    var onMergeDataLoaded = function (data: Record<string, unknown>) {
         listItems.clear();
         currentMergeObject = data;
 
@@ -766,7 +766,7 @@ editor.once('load', () => {
     };
 
     // Enables / Disables diff mode
-    var toggleDiffMode = function (toggle) {
+    var toggleDiffMode = function (toggle: boolean) {
         diffMode = toggle;
         if (diffMode) {
             overlay.class.add('diff');

@@ -50,7 +50,7 @@ class RenderAssetInspectorPreview extends AssetInspectorPreviewBase {
         );
     }
 
-    _onMouseDown(evt) {
+    _onMouseDown(evt: MouseEvent) {
         super._onMouseDown(evt);
 
         if (this._mouseDown) {
@@ -59,7 +59,7 @@ class RenderAssetInspectorPreview extends AssetInspectorPreviewBase {
         }
     }
 
-    _onMouseMove(evt) {
+    _onMouseMove(evt: MouseEvent) {
         super._onMouseMove(evt);
 
         if (this._dragging) {
@@ -72,7 +72,7 @@ class RenderAssetInspectorPreview extends AssetInspectorPreviewBase {
         }
     }
 
-    _onMouseUp(evt) {
+    _onMouseUp(evt: MouseEvent) {
         if (this._dragging) {
             if ((Math.abs(this._sx - this._x) + Math.abs(this._sy - this._y)) < 8) {
                 this._preview.dom.height = this.height;
@@ -97,7 +97,7 @@ class RenderAssetInspectorPreview extends AssetInspectorPreviewBase {
         this._queueRender();
     }
 
-    link(assets) {
+    link(assets: import('@playcanvas/observer').Observer[]) {
         this.unlink();
         super.link();
 

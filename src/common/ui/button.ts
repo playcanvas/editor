@@ -24,7 +24,7 @@ class LegacyButton extends LegacyElement {
         };
     }
 
-    set text(value) {
+    set text(value: string) {
         if (this._text === value) {
             return;
         }

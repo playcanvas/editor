@@ -289,7 +289,7 @@ editor.once('load', () => {
         });
 
 
-        const onShaderStart = function (evt) {
+        const onShaderStart = function (evt: { timestamp: number; target: unknown }) {
             if (!enabled) {
                 return;
             }
@@ -309,7 +309,7 @@ editor.once('load', () => {
             cacheShaderCompileEvents[cacheShaderCompile.length - 1] = item;
         };
 
-        const onShaderEnd = function (evt) {
+        const onShaderEnd = function (evt: { timestamp: number; target: unknown }) {
             if (!enabled) {
                 return;
             }
@@ -330,7 +330,7 @@ editor.once('load', () => {
             cacheShaderCompileEvents.splice(ind, 1);
         };
 
-        const onLightmapperStart = function (evt) {
+        const onLightmapperStart = function (evt: { timestamp: number; target: unknown }) {
             if (!enabled) {
                 return;
             }
@@ -350,7 +350,7 @@ editor.once('load', () => {
             cacheLightmapperEvent = item;
         };
 
-        const onLightmapperEnd = function (evt) {
+        const onLightmapperEnd = function (evt: { timestamp: number; target: unknown }) {
             if (!enabled) {
                 return;
             }

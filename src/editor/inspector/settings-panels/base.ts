@@ -48,7 +48,7 @@ class BaseSettingsPanel extends Panel {
         }
     }
 
-    _addTooltip(tooltipReference, userOnlySettings) {
+    _addTooltip(tooltipReference: string, userOnlySettings?: boolean) {
         let ref = editor.call('attributes:reference:get', tooltipReference);
         if (!ref) {
             ref = {};

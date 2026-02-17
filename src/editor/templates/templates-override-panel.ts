@@ -108,7 +108,7 @@ class OverrideGroup extends Container {
         }
     }
 
-    set icon(value) {
+    set icon(value: string) {
         if (this._icon) {
             this._icon.text = value;
         }
@@ -200,7 +200,7 @@ class TemplateOverridesView extends Container {
         this._dropdownMenu.hidden = true;
     }
 
-    _appendLeft(panel, element) {
+    _appendLeft(panel: Panel, element: Element) {
         element.class.add(CLASS_COLUMN_LEFT);
         panel.append(element);
     }
@@ -437,7 +437,7 @@ class TemplateOverridesView extends Container {
     }
 
     // Converts values like so: thisIsSomeValue to this: This Is Some Value
-    _prettifyName(name) {
+    _prettifyName(name: string) {
         const firstLetter = name[0];
         const rest = name.slice(1);
         return firstLetter.toUpperCase() +
@@ -536,7 +536,7 @@ class TemplateOverridesView extends Container {
     // Creates 2 label groups one for the left side (template asset) and
     // one for the right side (template instance). Also creates an override marker
     // on the 3rd column
-    _createGridLine(name, type, override, isArray) {
+    _createGridLine(name: string, type: string, override: Record<string, unknown>, isArray: boolean) {
         let dstValue = override.dst_value;
         let srcValue = override.src_value;
 
@@ -556,7 +556,7 @@ class TemplateOverridesView extends Container {
     }
 
     // Creates an override group for the left and right sides
-    _handleOverrideGroup(name, override, result) {
+    _handleOverrideGroup(name: string, override: Record<string, unknown>, result: OverrideGroup[]) {
         let markerOverride = override;
 
         if (override.missing_in_dst) {
@@ -819,7 +819,7 @@ class TemplateOverridesView extends Container {
         const resourceIds = {};
         const result = [];
 
-        function getEntry(resourceId, name) {
+        function getEntry(resourceId: string, name: string) {
             let entry = resourceIds[resourceId];
             if (!entry) {
                 entry = {

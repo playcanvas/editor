@@ -348,11 +348,11 @@ editor.once('load', () => {
             return AttrUtils.checkScriptAttr(data, { needMaps: true });
         },
 
-        isJsonArrayNode: function (data) {
+        isJsonArrayNode: function (data: Record<string, unknown>) {
             return AttrUtils.checkScriptAttr(data, { needArrays: true });
         },
 
-        checkScriptAttr: function (data, opts) {
+        checkScriptAttr: function (data: Record<string, unknown>, opts: { needArrays?: boolean; needMaps?: boolean }) {
             const h = AttrUtils.findAttrObj(data);
 
             return h &&
@@ -362,7 +362,7 @@ editor.once('load', () => {
                 (!opts.needMaps || AttrUtils.areBothNodesMapObjs(data));
         },
 
-        findAttrObj: function (data) {
+        findAttrObj: function (data: Record<string, unknown>) {
             const scriptName = data.path[AttrUtils.INDEXES_IN_PATH.ENTITY_SCRIPT_NAME];
 
             const attrName = data.path[AttrUtils.INDEXES_IN_PATH.ENTITY_SCRIPT_ATTR_NAME];
@@ -372,7 +372,7 @@ editor.once('load', () => {
             return h && h[attrName];
         },
 
-        jsonAttrPropertyData: function (attrObj, path) {
+        jsonAttrPropertyData: function (attrObj: Record<string, unknown>, path: string[]) {
             const ind = AttrUtils.isArrayAttr(attrObj) ?
                 AttrUtils.INDEXES_IN_PATH.JSON_ARRAY_ATTR_PROPERTY :
                 AttrUtils.INDEXES_IN_PATH.JSON_NON_ARRAY_ATTR_PROPERTY;
@@ -384,13 +384,13 @@ editor.once('load', () => {
                 AttrUtils.findInAttrSchema(attrObj, name);
         },
 
-        findInAttrSchema: function (attrObj, name) {
+        findInAttrSchema: function (attrObj: Record<string, unknown>, name: string) {
             const a = attrObj.schema || [];
 
             return a.find(h => h.name === name);
         },
 
-        isJsonScriptAttr: function (attrObj) {
+        isJsonScriptAttr: function (attrObj: Record<string, unknown>) {
             return attrObj.type === 'json' &&
                 attrObj.schema;
         },
@@ -403,7 +403,7 @@ editor.once('load', () => {
             return a.map((elt, ind) => ind.toString());
         },
 
-        objIntKeys: function (h: unknown): string[] | false {
+        objIntKeys: function (h: Record<string, unknown> | unknown): string[] | false {
             const a = TemplateUtils.isMapObj(h) && Object.keys(h);
 
             const allDigits = a && a.every(s => TemplateUtils.ALL_DIGITS_REG.test(s));

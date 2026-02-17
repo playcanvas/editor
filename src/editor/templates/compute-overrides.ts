@@ -143,7 +143,7 @@ editor.once('load', () => {
         }
     }
 
-    const getAssetData = function (id) {
+    const getAssetData = function (id: number) {
         const asset = editor.call('assets:get', id);
         return asset && asset.get('data');
     };

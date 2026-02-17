@@ -1,4 +1,4 @@
-import { Container, ContainerArgs } from '@playcanvas/pcui';
+import { Container, ContainerArgs, Element } from '@playcanvas/pcui';
 
 import { DropTarget } from './element-drop-target';
 import { CLASS_HIDDEN } from '../constants';
@@ -309,7 +309,7 @@ class DropManager extends Container {
         this.active = false;
     }
 
-    _onAppendChild(element: any) {
+    _onAppendChild(element: Element) {
         super._onAppendChild(element);
         if (!(element instanceof DropTarget)) {
             return;
@@ -319,7 +319,7 @@ class DropManager extends Container {
         element.hidden = true;
     }
 
-    _onRemoveChild(element: any) {
+    _onRemoveChild(element: Element) {
         super._onRemoveChild(element);
         if (!(element instanceof DropTarget)) {
             return;
@@ -351,7 +351,7 @@ class DropManager extends Container {
         super.destroy();
     }
 
-    set active(value) {
+    set active(value: boolean) {
         if (this._active === value) {
             return;
         }
@@ -367,7 +367,7 @@ class DropManager extends Container {
         return this._active;
     }
 
-    set dropType(value) {
+    set dropType(value: string | null) {
         if (this._dropType === value) {
             return;
         }
@@ -379,7 +379,7 @@ class DropManager extends Container {
         return this._dropType;
     }
 
-    set dropData(value) {
+    set dropData(value: any) {
         if (this._dropData === value) {
             return;
         }

@@ -34,7 +34,7 @@ editor.once('viewport:load', (app) => {
 
     const layer = editor.call('gizmo:layers', 'Axis Gizmo');
 
-    const pickPlane = function (x, y) {
+    const pickPlane = function (x: number, y: number) {
         const camera = editor.call('camera:current');
         const mouseWPos = camera.camera.screenToWorld(x, y, 1);
         const posGizmo = vecE.copy(dragPoint.position);
@@ -78,7 +78,7 @@ editor.once('viewport:load', (app) => {
         return pickedPos;
     };
 
-    const onTapStart = function (tap) {
+    const onTapStart = function (tap: { button: number; x: number; y: number }) {
         if (tap.button !== 0 || !hoverPoint) {
             return;
         }
@@ -96,7 +96,7 @@ editor.once('viewport:load', (app) => {
         editor.call('viewport:pick:state', false);
     };
 
-    const onTapMove = function (tap) {
+    const onTapMove = function (tap: { x: number; y: number }) {
         if (!dragPoint) {
             return;
         }
@@ -138,7 +138,7 @@ editor.once('viewport:load', (app) => {
 
         scale: any;
 
-        constructor(axis, dir) {
+        constructor(axis: string | undefined, dir: number | undefined) {
             super();
             assignEvents(this);
             this.axis = axis || 'y';
@@ -170,7 +170,7 @@ editor.once('viewport:load', (app) => {
             this.entity.setLocalScale(vecA);
         }
 
-        set enabled(value) {
+        set enabled(value: boolean) {
             if (!!value === !!this.entity) {
                 return;
             }
@@ -210,7 +210,7 @@ editor.once('viewport:load', (app) => {
         item.axis = axis || 'y';
         item.dir = dir === undefined ? 1 : dir;
         if (position) {
-            axis.position.copy(position);
+            item.position.copy(position);
         }
         item.enabled = true;
         points.push(item.entity);

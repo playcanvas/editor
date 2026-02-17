@@ -10,13 +10,13 @@ editor.once('load', () => {
 
     const watching = { };
 
-    const trigger = function (watch) {
+    const trigger = function (watch: { callbacks: Record<string | number, { callback: () => void }> }) {
         for (const key in watch.callbacks) {
             watch.callbacks[key].callback();
         }
     };
 
-    const loadModel = function (watch, asset, reload) {
+    const loadModel = function (watch: { asset: { get: (path: string) => unknown }; callbacks: Record<string | number, unknown> }, asset: { _editorPreviewModel?: unknown; type: string }, reload?: boolean) {
         let url;
         const file = watch.asset.get('file');
 
@@ -45,7 +45,7 @@ editor.once('load', () => {
         }
     };
 
-    const subscribe = function (watch) {
+    const subscribe = function (watch: { asset: { get: (path: string) => string | number }; engineAsset: unknown; onAdd: ((asset: unknown) => void) | null; onLoad: (() => void) | null; watching: Record<string, { unbind: () => void }> }) {
         const onChange = function () {
             loadModel(watch, watch.engineAsset, true);
         };
@@ -58,7 +58,7 @@ editor.once('load', () => {
             setTimeout(onChange, 0);
         });
 
-        watch.onAdd = function (asset) {
+        watch.onAdd = function (asset: unknown) {
             app.assets.off(`add:${watch.asset.get('id')}`, watch.onAdd);
             watch.engineAsset = asset;
             watch.onAdd = null;
@@ -76,7 +76,7 @@ editor.once('load', () => {
         }
     };
 
-    const unsubscribe = function (watch) {
+    const unsubscribe = function (watch: { engineAsset: { off: (event: string, fn: () => void) => void } | null; onAdd: (() => void) | null; watching: Record<string, { unbind: () => void }> }) {
         if (watch.engineAsset) {
             watch.engineAsset.off('load', watch.onLoad);
         }

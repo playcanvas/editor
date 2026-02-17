@@ -119,7 +119,7 @@ class LayoutgroupComponentInspector extends ComponentInspector {
         this.append(this._attributesInspector);
     }
 
-    link(entities) {
+    link(entities: import('@playcanvas/observer').Observer[]) {
         super.link(entities);
         this._attributesInspector.link(entities);
     }

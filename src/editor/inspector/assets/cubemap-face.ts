@@ -120,7 +120,7 @@ class CubemapFace extends Container {
         });
     }
 
-    _onClickDeleteFace(evt) {
+    _onClickDeleteFace(evt: MouseEvent) {
         if (!editor.call('permissions:write')) {
             return;
         }
@@ -279,7 +279,7 @@ class CubemapFace extends Container {
         });
     }
 
-    link(asset, path) {
+    link(asset: import('@playcanvas/observer').Observer, path: string) {
         this._asset = asset;
         this.unlink();
         this._thumbnail.link(asset, path);

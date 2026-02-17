@@ -18,7 +18,7 @@ editor.once('load', () => {
         });
     }
 
-    function injectCursorMarker(code, position) {
+    function injectCursorMarker(code: string, position: { lineNumber: number; column: number }) {
         const lines = code.split('\n');
         const line = lines[position.lineNumber - 1];
         lines[position.lineNumber - 1] = `${line.slice(0, position.column - 1)}<|CURSOR|>${line.slice(position.column - 1)}`;

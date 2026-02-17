@@ -139,7 +139,7 @@ editor.once('load', () => {
         panelScripts.class.add('components-scripts');
         panel.append(panelScripts);
 
-        var addScript = function (url) {
+        var addScript = function (url: string) {
             let scriptAdded = false;
             const records = [];
             let requestScript = false;
@@ -261,7 +261,7 @@ editor.once('load', () => {
             return scriptAdded;
         };
 
-        var refreshScriptAttributes = function (url) {
+        var refreshScriptAttributes = function (url: string) {
             if (!editor.call('permissions:write')) {
                 return;
             }
@@ -353,7 +353,7 @@ editor.once('load', () => {
             });
         };
 
-        const updateAttributeFields = function (script, parent) {
+        const updateAttributeFields = function (script: Observer, parent: LegacyPanel) {
             const attributes = script.get('attributesOrder');
             const children = parent.innerElement.childNodes;
             const list = [];
@@ -416,7 +416,7 @@ editor.once('load', () => {
             }
         };
 
-        var createAttributeField = function (script, attribute, parent) {
+        var createAttributeField = function (script: Observer, attribute: string, parent: LegacyPanel) {
             let choices = null;
             attribute = script.get(`attributes.${attribute}`);
 
@@ -519,7 +519,7 @@ editor.once('load', () => {
 
                     const scriptIndex = firstEntity.getRaw('components.script.scripts').indexOf(scripts[0]);
 
-                    const setCurvePickerArgs = function (options) {
+                    const setCurvePickerArgs = function (options: { curves?: string[]; min?: number; max?: number; type?: string }) {
                         if (attribute.type === 'curve') {
                             args.curves = options.curves;
                             args.min = options.min;
@@ -717,7 +717,7 @@ editor.once('load', () => {
             return fieldParent;
         };
 
-        const createScriptPanel = function (script) {
+        const createScriptPanel = function (script: Observer) {
             let panelScript = scriptsIndex[script.get('url')];
             if (panelScript) {
                 panelScript.count++;
@@ -932,7 +932,7 @@ editor.once('load', () => {
         };
 
         // Converts URL to script name
-        var getFilenameFromUrl = function (url) {
+        var getFilenameFromUrl = function (url: string) {
             let filename = url;
 
             if (jsRegex.test(filename)) {
@@ -947,7 +947,7 @@ editor.once('load', () => {
             return filename;
         };
 
-        const addScriptPanel = function (script, ind) {
+        const addScriptPanel = function (script: Observer, ind?: number) {
             const panelScript = createScriptPanel(script);
             if (!panelScript) {
                 return;
@@ -988,7 +988,7 @@ editor.once('load', () => {
                 addScriptPanel(script, ind);
             }));
 
-            events.push(entities[i].on('components.script.scripts:move', function (value, indNew, indOld) {
+            events.push(entities[i].on('components.script.scripts:move', function (value: Observer, indNew: number, indOld: number) {
                 const elementOld = scriptsIndex[this.get(`components.script.scripts.${indOld}.url`)];
                 const elementNew = scriptsIndex[value.get('url')];
 
@@ -1026,7 +1026,7 @@ editor.once('load', () => {
         // drag drop
         editor.call('drop:target', {
             ref: panel,
-            filter: function (type, data) {
+            filter: function (type: string, data: { filename?: string }) {
                 if (type !== 'asset.script') {
                     return false;
                 }
@@ -1050,7 +1050,7 @@ editor.once('load', () => {
                 return false;
 
             },
-            drop: function (type, data) {
+            drop: function (type: string, data: { filename?: string }) {
                 if (type !== 'asset.script') {
                     return;
                 }

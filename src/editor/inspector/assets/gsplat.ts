@@ -58,7 +58,7 @@ class GSplatAssetInspector extends Container {
         this.buildDom(DOM(this));
     }
 
-    link(assets) {
+    link(assets: import('@playcanvas/observer').Observer[]) {
         this.unlink();
         this._metaAttributesInspector.link(assets);
 

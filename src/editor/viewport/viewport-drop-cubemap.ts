@@ -118,7 +118,7 @@ editor.once('load', () => {
         ref: canvas,
         type: 'asset.cubemap',
         hole: true,
-        drop: function (type, data) {
+        drop: function (type: string, data: { id: string }) {
             if (!config.scene.id) {
                 return;
             }
@@ -163,7 +163,7 @@ editor.once('load', () => {
                 editor.call('viewport:render');
             }
         },
-        over: function (type, data) {
+        over: function (type: string, data: { id: string }) {
             if (!config.scene.id) {
                 return;
             }

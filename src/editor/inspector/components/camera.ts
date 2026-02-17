@@ -176,7 +176,7 @@ class CameraComponentInspector extends ComponentInspector {
         this._field('gammaCorrection').parent.hidden = !editor.projectEngineV2;
     }
 
-    _field(name) {
+    _field(name: string) {
         return this._attributesInspector.getField(`components.camera.${name}`);
     }
 
@@ -192,7 +192,7 @@ class CameraComponentInspector extends ComponentInspector {
         this._field('orthoHeight').parent.hidden = fieldProjection.value !== 1;
     }
 
-    link(entities) {
+    link(entities: import('@playcanvas/observer').Observer[]) {
         super.link(entities);
         this._suppressToggleFields = true;
         this._attributesInspector.link(entities);

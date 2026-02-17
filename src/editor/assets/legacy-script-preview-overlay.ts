@@ -5,7 +5,7 @@ import javascript from 'highlight.js/lib/languages/javascript';
 hljs.registerLanguage('javascript', javascript);
 
 class LegacyScriptPreviewOverlay extends Overlay {
-    constructor(args) {
+    constructor(args: { class?: string; clickable?: boolean; name: string; code: string }) {
         args.class = 'preview-legacy-script-overlay';
         args.clickable = true;
 

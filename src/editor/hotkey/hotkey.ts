@@ -13,7 +13,7 @@ editor.once('load', () => {
     const isMac = /Mac/.test(navigator.platform);
 
     // Convert a hotkey registration into a consistent internal format
-    function normalizeHotkeyDefinition(definition) {
+    function normalizeHotkeyDefinition(definition: { key: string; ctrl?: boolean; shift?: boolean; alt?: boolean; callback?: (evt: KeyboardEvent) => void; skipPreventDefault?: boolean }) {
         if (!definition.key) {
             throw new Error('Hotkey must specify key');
         }
@@ -29,7 +29,7 @@ editor.once('load', () => {
     }
 
     // Generate a unique key for the hotkey combination
-    function getHotkeyId(definition) {
+    function getHotkeyId(definition: { key: string; ctrl?: boolean; shift?: boolean; alt?: boolean }) {
         return [
             definition.ctrl ? 1 : 0,
             definition.alt ? 1 : 0,

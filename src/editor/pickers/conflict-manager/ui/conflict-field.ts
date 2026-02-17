@@ -19,7 +19,7 @@ class ConflictField {
     }
 
     // Gets / sets the height of the field
-    set height(value) {
+    set height(value: number) {
         this.element.parent.style.height = `${value}px`;
     }
 

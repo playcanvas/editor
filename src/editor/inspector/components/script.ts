@@ -12,9 +12,9 @@ import { ComponentInspector } from './component';
 import { evaluate } from '../../scripting/expr-eval/evaluate';
 import { parse } from '../../scripting/expr-eval/parser';
 import type { ASTNode } from '../../scripting/expr-eval/parser.js';
+import type { TemplateOverrideInspector } from '../../templates/templates-override-inspector.js';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
-import type { TemplateOverrideInspector } from '../../templates/templates-override-inspector.js';
 
 
 const CLASS_SCRIPT_CONTAINER = 'script-component-inspector-scripts';
@@ -361,7 +361,7 @@ class ScriptInspector extends Panel {
         }
     }
 
-    _onClickParse(evt) {
+    _onClickParse(evt: MouseEvent) {
         if (!this._asset) {
             return;
         }
@@ -409,7 +409,7 @@ class ScriptInspector extends Panel {
      * @param inspector - The Attribute Inspector associated with the attribute
      * @param unusedKeys - Captures all AST nodes that are not used in the current state
      */
-    _updateAttributeStatus(attr: Record<string, { visibleif?: string; enabledif?: string; name: string; type: string; array?: boolean; schema?: Record<string, unknown> }>, state: Record<string, unknown>, path = `components.script.scripts.${this._scriptName}.attributes`, inspector: AttributesInspector | null = this._attributesInspector, unusedKeys: Set<string> | null = null) {
+    _updateAttributeStatus(attr: Record<string, { visibleif?: string; enabledif?: string; name: string; type: string; array?: boolean; schema?: Record<string, unknown> }>, state: Record<string, unknown>, path: string = `components.script.scripts.${this._scriptName}.attributes`, inspector: AttributesInspector | null = this._attributesInspector, unusedKeys: Set<string> | null = null) {
 
         const firstRecursion = !unusedKeys;
 
@@ -471,7 +471,7 @@ class ScriptInspector extends Panel {
 
     }
 
-    _evaluateCondition(name, tag, expression, state) {
+    _evaluateCondition(name: string, tag: string, expression: string | undefined, state: Record<string, unknown>) {
 
         if (!expression) {
             return true;
@@ -662,7 +662,7 @@ class ScriptInspector extends Panel {
         editor.api.globals.entities.removeScript(this._entities.map(e => e.apiEntity), this._scriptName);
     }
 
-    _convertAttributeDataToInspectorData(attributeName, attributePath, attributeData) {
+    _convertAttributeDataToInspectorData(attributeName: string, attributePath: string, attributeData: Record<string, unknown>) {
         let type = attributeData.type;
 
         let fieldArgs = {};
@@ -1234,7 +1234,7 @@ class ScriptComponentInspector extends ComponentInspector {
         });
     }
 
-    _parseUnparsedScripts(assets) {
+    _parseUnparsedScripts(assets: import('@playcanvas/observer').Observer[]) {
         assets.forEach(a => editor.call('scripts:parse', a, (err) => {
             a.set('data.lastParsedHash', a.get('file.hash'));
         }));

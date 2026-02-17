@@ -21,7 +21,7 @@ class LegacyCanvas extends LegacyElement {
         this._element.onselectstart = this.onselectstart;
     }
 
-    set width(value) {
+    set width(value: number) {
         if (this._width === value) {
             return;
         }
@@ -36,7 +36,7 @@ class LegacyCanvas extends LegacyElement {
         return this._width;
     }
 
-    set height(value) {
+    set height(value: number) {
         if (this._height === value) {
             return;
         }
@@ -67,7 +67,7 @@ class LegacyCanvas extends LegacyElement {
         return false;
     }
 
-    resize(width, height) {
+    resize(width: number, height: number) {
         if (this._width === width && this._height === height) {
             return;
         }

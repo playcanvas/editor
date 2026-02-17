@@ -243,7 +243,7 @@ class ConflictSection extends Events {
         this._rows.length = 0;
     }
 
-    set numConflicts(value) {
+    set numConflicts(value: number) {
         this._numConflicts = value;
         this._labelNumConflicts.text = `${this._numResolvedConflicts}/${this._numConflicts}`;
     }
@@ -252,7 +252,7 @@ class ConflictSection extends Events {
         return this._numConflicts;
     }
 
-    set numResolvedConflicts(value) {
+    set numResolvedConflicts(value: number) {
         this._numResolvedConflicts = value;
         this._labelNumConflicts.text = `${this._numResolvedConflicts}/${this._numConflicts}`;
     }

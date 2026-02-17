@@ -6,7 +6,7 @@ editor.once('load', () => {
     const settings = editor.call('editor:settings');
 
     const panel = editor.call('layout.code');
-    panel.toggleCode = function (toggle) {
+    panel.toggleCode = function (toggle: boolean) {
         if (toggle) {
             panel.domContent.classList.remove('invisible');
         } else {
@@ -41,7 +41,7 @@ editor.once('load', () => {
 
     // register editor opener to handle custom types
     monaco.editor.registerEditorOpener({
-        openCodeEditor(_, resource) {
+        openCodeEditor(_: unknown, resource: { path: string }) {
             const uri = monaco.Uri.parse(resource.path);
             const model = monaco.editor.getModel(uri);
             const asset = model && editor.call('view:asset', model.id);

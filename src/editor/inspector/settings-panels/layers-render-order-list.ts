@@ -52,7 +52,7 @@ class LayersSettingsPanelRenderOrderList extends Container {
         });
     }
 
-    _createLayerElement(layer, name) {
+    _createLayerElement(layer: { layer: number; transparent: boolean; enabled?: boolean }, name: string) {
         const transparent = layer.transparent;
         const layerPanel = new Panel({
             headerText: name,
@@ -140,7 +140,7 @@ class LayersSettingsPanelRenderOrderList extends Container {
         return layerPanel;
     }
 
-    _onLayerInsert(value, index) {
+    _onLayerInsert(value: import('@playcanvas/observer').Observer | { layer: number; transparent: boolean }, index: number) {
         if (value instanceof Observer) {
             value = value.json();
         }
@@ -153,7 +153,7 @@ class LayersSettingsPanelRenderOrderList extends Container {
         this._layerListContainer.appendBefore(layerPanel, beforeElement && beforeElement.ui);
     }
 
-    _onLayerRemove(value, index) {
+    _onLayerRemove(value: unknown, index: number) {
         const layerPanel = this._layerList[index];
         if (layerPanel) {
             layerPanel.destroy();
@@ -161,7 +161,7 @@ class LayersSettingsPanelRenderOrderList extends Container {
         }
     }
 
-    _onLayerMove(value, newIndex, oldIndex) {
+    _onLayerMove(value: unknown, newIndex: number, oldIndex: number) {
         const layerPanel = this._layerList[oldIndex];
         if (layerPanel) {
             this._layerListContainer.remove(layerPanel);
@@ -172,7 +172,7 @@ class LayersSettingsPanelRenderOrderList extends Container {
         }
     }
 
-    _onUpdateProjectSettings(path, value) {
+    _onUpdateProjectSettings(path: string, value: unknown) {
         if (this._suspendLayerEvents) {
             return;
         }

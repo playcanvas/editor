@@ -49,7 +49,7 @@ class LocalizationSettingsPanel extends BaseSettingsPanel {
         });
     }
 
-    link(observers) {
+    link(observers: import('@playcanvas/observer').Observer[]) {
         super.link(observers);
         if (!this._createAssetTooltip) {
             this._createAssetTooltip = editor.call('attributes:reference:attach', 'settings:localization:createAsset', this._attributesInspector.getField('createAsset'));

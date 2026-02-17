@@ -431,7 +431,7 @@ editor.once('load', () => {
         curveType = data.curveType;
         betweenCurves = data.betweenCurves && !fieldRandomize.hidden;
 
-        const copyKeys = function (i, data) {
+        const copyKeys = function (i: number, data: number[]) {
             if (data && curves[i]) {
                 let keys = data;
 
@@ -537,7 +537,7 @@ editor.once('load', () => {
         canvas.element.removeEventListener('wheel', onMouseWheel);
     }
 
-    function resetCurve(curve) {
+    function resetCurve(curve: Curve) {
         const suspend = suspendEvents;
         suspendEvents = true;
 
@@ -568,7 +568,7 @@ editor.once('load', () => {
     }
 
     // Sets value for the picker and render it
-    function setValue(value, args) {
+    function setValue(value: { keys: number[][]; betweenCurves?: boolean; type?: number }[], args: { gradient?: boolean; hideRandomize?: boolean; max?: number; min?: number; curves?: string[]; keepZoom?: boolean; verticalValue?: number }) {
         // sanity checks mostly for script 'curve' attributes
         if (!(value instanceof Array) || value.length === 0 || value[0].keys === undefined) {
             return;
@@ -716,7 +716,7 @@ editor.once('load', () => {
         return gridTop() + gridHeight();
     }
 
-    function drawLine(start, end, color) {
+    function drawLine(start: number[], end: number[], color: string) {
         context.beginPath();
         context.moveTo(start[0], start[1]);
         context.lineTo(end[0], end[1]);
@@ -725,7 +725,7 @@ editor.once('load', () => {
     }
 
     // Draws text at the specified coordinates
-    function drawText(text, x, y) {
+    function drawText(text: string | number, x: number, y: number) {
         context.font = `${textSize}px Verdana`;
         context.fillStyle = colors.text;
         context.fillText(text.toString(), x, y);
@@ -762,7 +762,7 @@ editor.once('load', () => {
 
     // If the specified curve is the primary returns the secondary
     // otherwise if the specified curve is the secondary returns the primary
-    function getOtherCurve(curve) {
+    function getOtherCurve(curve: Curve) {
         const ind = curves.indexOf(curve);
         if (ind < numCurves) {
             return curves[numCurves + ind];
@@ -773,7 +773,7 @@ editor.once('load', () => {
 
     // Draws a pair of curves with their in-between filling. If the second
     // curve is null then only the first curve will be rendered
-    function drawCurvePair(curve1, curve2) {
+    function drawCurvePair(curve1: Curve, curve2: Curve | null) {
         const colorIndex = swizzle[curves.indexOf(curve1) % numCurves];
 
         context.strokeStyle = colors.curves[colorIndex];
@@ -812,7 +812,7 @@ editor.once('load', () => {
     }
 
     // Returns the coordinates of the specified anchor on this grid
-    function calculateAnchorCoords(anchor) {
+    function calculateAnchorCoords(anchor: number[]) {
         const time = anchor[0];
         const value = anchor[1];
 
@@ -954,7 +954,7 @@ editor.once('load', () => {
     }
 
     // Calculate the anchor value based on the specified coordinates
-    function calculateAnchorValue(coords) {
+    function calculateAnchorValue(coords: number[]) {
         const top = gridTop();
         const height = gridHeight();
 
@@ -962,12 +962,12 @@ editor.once('load', () => {
     }
 
     // Calculate the anchor time based on the specified coordinates
-    function calculateAnchorTime(coords) {
+    function calculateAnchorTime(coords: number[]) {
         return math.clamp((coords[0] - gridLeft()) / gridWidth(), 0, 1);
     }
 
     // zoom in - out based on delta
-    function adjustZoom(delta) {
+    function adjustZoom(delta: number) {
         const maxDelta = 1;
         if (delta > maxDelta) {
             delta = maxDelta;
@@ -1036,7 +1036,7 @@ editor.once('load', () => {
         return oldVerticalTop !== verticalTopValue || oldVerticalBottom !== verticalBottomValue;
     }
 
-    function scroll(delta) {
+    function scroll(delta: number) {
         const range = verticalTopValue - verticalBottomValue;
         const fraction = delta / gridHeight();
         let diff = range * fraction;
@@ -1103,7 +1103,7 @@ editor.once('load', () => {
     }
 
     // Returns true if the specified coordinates are within the grid bounds
-    function areCoordsInGrid(coords) {
+    function areCoordsInGrid(coords: number[]) {
         return coords[0] >= gridLeft() &&
                coords[0] <= gridRight() &&
                coords[1] >= gridTop() &&
@@ -1173,7 +1173,7 @@ editor.once('load', () => {
     }
 
     // Creates and returns an anchor and fires change event
-    function createAnchor(curve, time, value) {
+    function createAnchor(curve: Curve, time: number, value: number) {
         const anchor = curve.add(time, value);
 
         if (!suspendEvents) {
@@ -1184,7 +1184,7 @@ editor.once('load', () => {
     }
 
     // Updates the time / value of an anchor and fires change event
-    function updateAnchor(curve, anchor, time, value) {
+    function updateAnchor(curve: Curve, anchor: number[], time: number, value: number) {
         anchor[0] = time;
         anchor[1] = value;
         curve.sort();
@@ -1201,7 +1201,7 @@ editor.once('load', () => {
     }
 
     // Deletes an anchor from the curve and fires change event
-    function deleteAnchor(curve, anchor) {
+    function deleteAnchor(curve: Curve, anchor: number[]) {
         const index = curve.keys.indexOf(anchor);
         if (index >= 0) {
             curve.keys.splice(index, 1);
@@ -1217,7 +1217,7 @@ editor.once('load', () => {
         }
     }
 
-    function getKeysPath(curve) {
+    function getKeysPath(curve: Curve) {
         const curveIndex = curves.indexOf(curve);
         if (numCurves > 1) {
             return curveIndex >= numCurves ? `1.keys.${curveIndex - numCurves}` : `0.keys.${curveIndex}`;
@@ -1226,7 +1226,7 @@ editor.once('load', () => {
 
     }
 
-    function serializeCurveKeys(curve) {
+    function serializeCurveKeys(curve: Curve) {
         const result = [];
         curve.keys.forEach((k: number[]) => {
             result.push(k[0], k[1]);
@@ -1234,7 +1234,7 @@ editor.once('load', () => {
         return result;
     }
 
-    function onCurveKeysChanged(curve) {
+    function onCurveKeysChanged(curve: Curve) {
         const paths = [getKeysPath(curve)];
         const values = [serializeCurveKeys(curve)];
 
@@ -1251,7 +1251,7 @@ editor.once('load', () => {
     }
 
     // Make the specified curve appear in front of the others
-    function sendCurveToFront(curve) {
+    function sendCurveToFront(curve: Curve) {
         const index = enabledCurves.indexOf(curve);
         if (index >= 0) {
             enabledCurves.splice(index, 1);
@@ -1261,7 +1261,7 @@ editor.once('load', () => {
     }
 
     // Sets the hovered graph and anchor
-    function setHovered(curve, anchor) {
+    function setHovered(curve: Curve | null, anchor: number[] | null) {
         hoveredCurve = curve;
         hoveredAnchor = anchor;
 
@@ -1276,7 +1276,7 @@ editor.once('load', () => {
     }
 
     // Sets the selected anchor and curve
-    function setSelected(curve, anchor) {
+    function setSelected(curve: Curve | null, anchor: number[] | null) {
         selectedCurve = curve;
         selectedAnchor = anchor;
 
@@ -1307,7 +1307,7 @@ editor.once('load', () => {
     }
 
     // Return the hovered anchor and graph
-    function getHoveredAnchor(coords) {
+    function getHoveredAnchor(coords: number[]) {
         const result = {
             graph: null,
             anchor: null
@@ -1349,7 +1349,7 @@ editor.once('load', () => {
     }
 
     // Enables / disables a curve
-    function toggleCurve(curve, toggle) {
+    function toggleCurve(curve: Curve, toggle: boolean) {
         if (toggle) {
             // when we enable a curve make it the selected one
             setSelected(curve, null);
@@ -1420,7 +1420,7 @@ editor.once('load', () => {
         return false;
     }
 
-    function toggleTextSelection(enable) {
+    function toggleTextSelection(enable: boolean) {
         if (enable) {
             document.body.classList.remove('noSelect');
         } else {

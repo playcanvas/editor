@@ -55,7 +55,7 @@ editor.once('load', () => {
         }
     });
 
-    function onSceneLoad(uniqueId) {
+    function onSceneLoad(uniqueId: string) {
         if (!relayEnabled) {
             return;
         }
@@ -67,7 +67,7 @@ editor.once('load', () => {
         editor.call('relay:joinRoom', `scene-${uniqueId}`);
     }
 
-    function onSceneUnload(uniqueId) {
+    function onSceneUnload(uniqueId: string) {
         editor.call('relay:leaveRoom', `scene-${uniqueId}`);
         if (currentRoom === uniqueId) {
             currentRoom = null;

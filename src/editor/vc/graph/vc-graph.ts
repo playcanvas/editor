@@ -6,7 +6,7 @@ editor.once('load', () => {
      * when possible to save horizontal space (compact branches).
      */
     class VcGraphLogic {
-        constructor(initData, params) {
+        constructor(initData: Record<string, unknown>, params: { vcGraphContainer: { dom: HTMLElement }; vcGraphCloseBtn: { dom: HTMLElement }; vcNodeMenu: unknown; vcHistItem: unknown }) {
             this.initData = initData;
 
             this.container = params.vcGraphContainer;
@@ -39,7 +39,7 @@ editor.once('load', () => {
             this.handleNewData(this.initData);
         }
 
-        handleNewData(data) {
+        handleNewData(data: Record<string, unknown>) {
             this.setVars(data);
 
             this.helper('vcgraph:placeVcNodes');
@@ -55,7 +55,7 @@ editor.once('load', () => {
             this.helper('vcgraph:utils', 'renderAllVcEdges');
         }
 
-        setVars(data) {
+        setVars(data: Record<string, unknown>) {
             this.isGraphLoading = false;
 
             if (this.vcHistItem) {
@@ -74,7 +74,7 @@ editor.once('load', () => {
             this.vcNodeMenu.hidden = true;
         }
 
-        prepForHist(data) {
+        prepForHist(data: Record<string, unknown>) {
             if (!this.origStartId) {
                 this.origStartId = data.graphStartId;
             }
@@ -86,13 +86,13 @@ editor.once('load', () => {
             data.idToData = this.helper('vcgraph:syncHistGraph', h);
         }
 
-        addToFull(h) {
+        addToFull(h: Record<string, Record<string, unknown>>) {
             h = editor.call('template:utils', 'deepClone', h);
 
             Object.assign(this.fullGraph, h);
         }
 
-        handleClick(id) {
+        handleClick(id: string) {
             this.helper(
                 'vcgraph:utils',
                 'vcNodeClick',
@@ -101,7 +101,7 @@ editor.once('load', () => {
             );
         }
 
-        helper(...args) {
+        helper(...args: unknown[]) {
             const h = {
                 graph: this.graph,
                 renderedEdges: this.renderedEdges,

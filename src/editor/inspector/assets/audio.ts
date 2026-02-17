@@ -71,7 +71,7 @@ class AudioAssetInspector extends Panel {
         };
     }
 
-    _onClickAudioButton(evt) {
+    _onClickAudioButton(evt: MouseEvent) {
         if (this._audio.paused) {
             this._audio.play();
         } else {
@@ -80,16 +80,16 @@ class AudioAssetInspector extends Panel {
         }
     }
 
-    _audioDurationChange(evt) {
+    _audioDurationChange(evt: Event) {
         this._attributesInspector.getField('duration').value = `${this._audio.duration.toFixed(2)}s`;
     }
 
-    _audioCanPlay(evt) {
+    _audioCanPlay(evt: Event) {
         this._audioButton.disabled = false;
         this._audioTimeline.value = 0;
     }
 
-    _audioPlayed(evt) {
+    _audioPlayed(evt: Event) {
         this._audioButton.class.add('active');
         if (this._playing) {
             return;
@@ -97,7 +97,7 @@ class AudioAssetInspector extends Panel {
         this._playing = setInterval(this._updateTimeline.bind(this), 1000 / 60);
     }
 
-    _audioPaused(evt) {
+    _audioPaused(evt: Event) {
         this._audio.pause();
         this._audioTimeline.value = 0;
         this._audioButton.class.remove('active');
@@ -109,7 +109,7 @@ class AudioAssetInspector extends Panel {
         this._audioTimeline.value = this._audio.currentTime / this._audio.duration * 100;
     }
 
-    link(assets) {
+    link(assets: import('@playcanvas/observer').Observer[]) {
         this.unlink();
         if (assets.length > 1) {
             return;

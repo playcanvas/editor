@@ -95,7 +95,7 @@ class RenderAssetInspector extends Container {
         this.buildDom(DOM(this));
     }
 
-    link(assets) {
+    link(assets: import('@playcanvas/observer').Observer[]) {
         this.unlink();
         this._metaAttributesInspector.link(assets);
         this._attributesInspector.link(assets);
@@ -109,7 +109,7 @@ class RenderAssetInspector extends Container {
         this._metaAttributesInspector.unlink();
     }
 
-    _formatMetaAttribute(assets) {
+    _formatMetaAttribute(assets: import('@playcanvas/observer').Observer[]) {
         const metaAttributes = {};
         assets.forEach((asset) => {
             const currMetaAttributes = asset.get('meta.attributes');
@@ -124,7 +124,7 @@ class RenderAssetInspector extends Container {
         field.parent.class.add(CLASS_META_ATTRIBUTES);
     }
 
-    _formatMetaMeshCompression(assets) {
+    _formatMetaMeshCompression(assets: import('@playcanvas/observer').Observer[]) {
         const attribute = 'meta.meshCompression';
         const names = {
             none: 'Disabled',

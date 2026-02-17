@@ -20,7 +20,7 @@ editor.once('load', () => {
             return;
         }
 
-        function addUser(id) {
+        function addUser(id: string) {
             if (users[id]) {
                 return;
             }

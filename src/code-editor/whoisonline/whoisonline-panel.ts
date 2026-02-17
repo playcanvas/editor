@@ -13,7 +13,7 @@ editor.once('load', () => {
     const itemsIndex = {};
     const tooltips = {};
 
-    const createItem = function (id) {
+    const createItem = function (id: string) {
         const link = document.createElement('a');
         link.href = `/${id}`;
         link.target = '_blank';

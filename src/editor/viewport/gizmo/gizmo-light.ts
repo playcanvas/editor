@@ -21,6 +21,7 @@ import {
 } from 'playcanvas';
 
 import { GIZMO_MASK } from '@/core/constants';
+import type { EntityObserver } from '@/editor-api';
 
 import { createColorMaterial } from '../viewport-color-material';
 
@@ -299,7 +300,7 @@ editor.once('load', () => {
             materialSpotBehind.update();
         }
 
-        static createDirectional(device) {
+        static createDirectional(device: import('playcanvas').GraphicsDevice) {
 
             const rad = math.DEG_TO_RAD;
             const size = 0.2;
@@ -328,7 +329,7 @@ editor.once('load', () => {
             return Gizmo.createModel(device, positions, null, material, materialBehind);
         }
 
-        static createPoint(device) {
+        static createPoint(device: import('playcanvas').GraphicsDevice) {
 
             // xz axis
             const positions = [];

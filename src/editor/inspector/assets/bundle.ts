@@ -24,7 +24,7 @@ class BundleAssetInspector extends Panel {
         this.buildDom(DOM(this));
     }
 
-    link(assets) {
+    link(assets: import('@playcanvas/observer').Observer[]) {
         this.unlink();
         this._assetList.link(assets, 'data.assets');
     }

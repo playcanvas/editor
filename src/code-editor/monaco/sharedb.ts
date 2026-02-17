@@ -1,3 +1,17 @@
+type SharedbDocumentEntry = {
+    id: string;
+    doc: { data: string; type: { transform: (a: unknown, b: unknown, p: string) => unknown; compose: (a: unknown, b: unknown) => unknown; semanticInvert: (s: string, o: unknown) => unknown; api: (get: () => string, submit: (c: unknown, o: unknown, cb: (err?: unknown) => void) => void) => unknown }; submitOp: (op: unknown, cb: (err?: unknown) => void) => void };
+    context: { get: () => string; remove: (pos: number, len: number) => void; insert: (pos: number, text: string) => void; _onOp: (ops: unknown) => void; onInsert?: (pos: number, text: string) => void; onRemove?: (pos: number, length: number) => void };
+    view: monaco.editor.ITextModel;
+    undo: Array<{ op: unknown; time: number; isWhiteSpace?: boolean; isNewLine?: boolean }>;
+    redo: Array<{ op: unknown; time: number; isWhiteSpace?: boolean; isNewLine?: boolean }>;
+    lastEditTime: number;
+    forceConcatenate: boolean;
+    lastChangedLine: number | null;
+    changedLine: number | null;
+    ignoreLocalChanges: boolean;
+};
+
 editor.once('load', () => {
     if (editor.call('editor:resolveConflictMode')) {
         return;
@@ -21,12 +35,12 @@ editor.once('load', () => {
     }
 
     // Creates local copy of insert op
-    function createInsertOp(pos, text) {
+    function createInsertOp(pos: number | undefined, text: string) {
         return customOp(pos ? [pos, text] : [text]);
     }
 
     // Creates local copy of remove operation
-    function createRemoveOp(pos, length, text) {
+    function createRemoveOp(pos: number | undefined, length: number, text?: string) {
         const result = customOp(
             pos ? [pos, { d: length }] : [{ d: length }]
         );
@@ -47,12 +61,12 @@ editor.once('load', () => {
 
     // transform first operation against second operation
     // priority is either 'left' or 'right' to break ties
-    function transform(op1, op2, priority, entry) {
+    function transform(op1: unknown, op2: unknown, priority: 'left' | 'right', entry: SharedbDocumentEntry) {
         return entry.doc.type.transform(op1, op2, priority);
     }
 
     // transform undo and redo operations against the new remote operation
-    function transformStacks(remoteOp, entry) {
+    function transformStacks(remoteOp: { op: unknown }, entry: SharedbDocumentEntry) {
         const undo = entry.undo;
         const redo = entry.redo;
 
@@ -89,7 +103,7 @@ editor.once('load', () => {
     }
 
     // transform dummy ops with remote op
-    function transformCursorOps(ops, remoteOp, entry) {
+    function transformCursorOps(ops: Array<Array<{ op: unknown }> | { op: unknown }>, remoteOp: { op: unknown }, entry: SharedbDocumentEntry) {
         for (let i = 0, len = ops.length; i < len; i++) {
             const data = ops[i];
             if (data.length) {
@@ -103,7 +117,7 @@ editor.once('load', () => {
     }
 
     // concatenate two ops
-    function concat(prev, next, entry) {
+    function concat(prev: { isWhiteSpace: boolean; isNewLine: boolean; op: unknown }, next: { isWhiteSpace?: boolean; isNewLine?: boolean; op: unknown }, entry: SharedbDocumentEntry) {
         if (!next.isWhiteSpace) {
             prev.isWhiteSpace = false;
             prev.isNewLine = false;
@@ -117,7 +131,7 @@ editor.once('load', () => {
     }
 
     // returns true if the two operations can be concatenated
-    function canConcatOps(prev, next, entry) {
+    function canConcatOps(prev: { op: unknown; isWhiteSpace?: boolean; isNewLine?: boolean }, next: { op: unknown; isWhiteSpace?: boolean; isNewLine?: boolean }, entry: SharedbDocumentEntry) {
         if (entry.forceConcatenate) {
             return true;
         }
@@ -175,12 +189,12 @@ editor.once('load', () => {
     }
 
     // invert an op an return the result
-    function invert(op, snapshot, entry) {
+    function invert(op: unknown, snapshot: string, entry: SharedbDocumentEntry) {
         return entry.doc.type.semanticInvert(snapshot, op);
     }
 
     // add local op to undo history
-    function addToHistory(localOp, entry) {
+    function addToHistory(localOp: { time: number; op: unknown; isWhiteSpace?: boolean; isNewLine?: boolean }, entry: SharedbDocumentEntry) {
         // try to concatenate new op with latest op in the undo stack
         const timeSinceLastEdit = localOp.time - entry.lastEditTime;
         if (timeSinceLastEdit <= MERGE_EDITS_DELAY || entry.forceConcatenate) {
@@ -204,7 +218,7 @@ editor.once('load', () => {
     }
 
     // Convert a monaco change into an op understood by sharedb
-    function applyToShareDb(change, entry) {
+    function applyToShareDb(change: { rangeOffset: number; rangeLength: number; range: { isEmpty: () => boolean; startLineNumber: number }; text?: string }, entry: SharedbDocumentEntry) {
         const startPos = change.rangeOffset;
         let text;
         let op;
@@ -251,7 +265,7 @@ editor.once('load', () => {
 
     // Applies an operation to the sharedb document
     // and sets the result to the document view
-    function applyCustomOp(op, entry) {
+    function applyCustomOp(op: unknown, entry: SharedbDocumentEntry) {
         entry.doc.submitOp(op, (err: unknown) => {
             if (err) {
                 editor.emit('documents:error', entry.id, err);
@@ -440,7 +454,7 @@ editor.once('load', () => {
         focusedDocument = null;
     });
 
-    editor.on('documents:close', (id) => {
+    editor.on('documents:close', (id: string) => {
         if (focusedDocument === documentIndex[id]) {
             focusedDocument = null;
         }

@@ -6,7 +6,7 @@ import { ConflictSection } from './conflict-section';
 
 // Shows all the conflicts for an item
 class ConflictResolver extends Events {
-    constructor(conflicts, mergeObject) {
+    constructor(conflicts: Record<string, unknown>, mergeObject: Record<string, unknown>) {
         super();
 
         // holds conflict UI elements
@@ -40,7 +40,7 @@ class ConflictResolver extends Events {
 
     // When a conflict is resolved add it to the pending resolved conflicts
     // So that it's saved to the server after a frame
-    onConflictResolved(conflictId, data) {
+    onConflictResolved(conflictId: string, data: Record<string, unknown>) {
         delete this._pendingRevertedConflicts[conflictId];
         this._pendingResolvedConflicts[conflictId] = data;
         if (this._timeoutSave) {
@@ -53,7 +53,7 @@ class ConflictResolver extends Events {
 
     // When a conflict is unresolved add it to the pending unresolved conflicts
     // so that it's saved to the server after a frame
-    onConflictUnresolved(conflictId) {
+    onConflictUnresolved(conflictId: string) {
         delete this._pendingResolvedConflicts[conflictId];
         this._pendingRevertedConflicts[conflictId] = true;
         if (this._timeoutSave) {

@@ -46,11 +46,11 @@ editor.once('load', () => {
         panelRight.append(labelMessage);
 
         // public methods
-        overlay.setMessage = function (msg) {
+        overlay.setMessage = function (msg: string) {
             labelMessage.text = msg;
         };
 
-        overlay.setTitle = function (title) {
+        overlay.setTitle = function (title: string) {
             labelTitle.text = title;
         };
 

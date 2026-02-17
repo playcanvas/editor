@@ -40,7 +40,7 @@ class ScriptsSettingsPanel extends BaseSettingsPanel {
         this._onScriptsSet(this._projectSettings.get('scripts'));
     }
 
-    _getAsset(id) {
+    _getAsset(id: number) {
         const assets = this._args.assets;
         const asset = assets.get(id);
         return new Promise((resolve) => {
@@ -54,7 +54,7 @@ class ScriptsSettingsPanel extends BaseSettingsPanel {
         });
     }
 
-    async _insertScript(assetId, index) {
+    async _insertScript(assetId: number, index: number) {
         const asset = await this._getAsset(assetId);
         if (!asset) {
             return;
@@ -83,7 +83,7 @@ class ScriptsSettingsPanel extends BaseSettingsPanel {
 
     }
 
-    _onScriptInsert(assetId, index) {
+    _onScriptInsert(assetId: number, index: number) {
         if (!this._insertPromise) {
             this._insertPromise = this._insertScript(assetId, index);
             return;
@@ -92,7 +92,7 @@ class ScriptsSettingsPanel extends BaseSettingsPanel {
         this._insertPromise = this._insertPromise.then(() => this._insertScript(assetId, index));
     }
 
-    _onScriptRemove(assetId, index) {
+    _onScriptRemove(assetId: number, index: number) {
         const panel = this._scriptList[index];
         if (panel) {
             this._scriptList.splice(index, 1);
@@ -104,7 +104,7 @@ class ScriptsSettingsPanel extends BaseSettingsPanel {
         }
     }
 
-    _onScriptMove(assetId, newIndex, oldIndex) {
+    _onScriptMove(assetId: number, newIndex: number, oldIndex: number) {
         const panel = this._scriptList[oldIndex];
         if (panel) {
             this._scriptList.splice(oldIndex, 1);
@@ -119,7 +119,7 @@ class ScriptsSettingsPanel extends BaseSettingsPanel {
         }
     }
 
-    _onScriptsSet(list) {
+    _onScriptsSet(list: number[]) {
         this._scriptList.length = 0;
         this._scriptListContainer.clear();
 

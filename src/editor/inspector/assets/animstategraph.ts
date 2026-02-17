@@ -1,3 +1,4 @@
+import type { Observer } from '@playcanvas/observer';
 import { Button, Container } from '@playcanvas/pcui';
 
 
@@ -86,7 +87,7 @@ class AnimstategraphAssetInspector extends Container {
         editor.method('animstategraph:editor:open', () => this._openEditorButton.hidden);
     }
 
-    selectAnimStateGraph(asset, selectedItem) {
+    selectAnimStateGraph(asset: Observer, selectedItem?: unknown) {
         this._openInFullscreen = true;
         editor.call('selector:history', false);
         editor.call('selector:add', 'asset', asset);
@@ -107,7 +108,7 @@ class AnimstategraphAssetInspector extends Container {
         });
     }
 
-    closeAsset(asset) {
+    closeAsset(asset: Observer) {
         const layer = this._view._selectedLayer;
         const selectedItem = this._view.selectedItem;
         const redo = () => {
@@ -127,7 +128,7 @@ class AnimstategraphAssetInspector extends Container {
         redo();
     }
 
-    openAsset(asset) {
+    openAsset(asset: Observer) {
         const redo = () => {
             this.selectAnimStateGraph(asset);
         };
@@ -213,7 +214,7 @@ class AnimstategraphAssetInspector extends Container {
         }
     }
 
-    link(assets) {
+    link(assets: Observer[]) {
         this.unlink();
         this._selectedLayer = this._openWithLayer ? this._openWithLayer : 0;
         delete this._openWithLayer;

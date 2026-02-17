@@ -183,7 +183,7 @@ editor.once('load', () => {
     }
 
     // Checks if template_ent_ids are invalid
-    function areTemplateEntIdsCorrupted(entityId, templateEntIds) {
+    function areTemplateEntIdsCorrupted(entityId: string, templateEntIds: Record<string, string>) {
         // entity must be in template_ent_ids
         if (!templateEntIds[entityId]) {
             return true;
@@ -201,7 +201,7 @@ editor.once('load', () => {
     }
 
     // Checks if entity has invalid template ent ids
-    function isCorruptedTemplateInstance(entity) {
+    function isCorruptedTemplateInstance(entity: import('@playcanvas/observer').Observer) {
         const templateEntIds = entity.get('template_ent_ids');
         if (!templateEntIds) {
             return false;
@@ -214,7 +214,7 @@ editor.once('load', () => {
     }
 
     // Checks if asset has corrupted nested templates
-    function isCorruptedTemplateAsset(asset) {
+    function isCorruptedTemplateAsset(asset: import('@playcanvas/observer').Observer) {
         const entities = asset.get('data.entities');
         if (!entities) {
             return;

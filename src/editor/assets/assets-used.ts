@@ -77,7 +77,7 @@ editor.once('load', () => {
     };
 
     const pathsCache = {};
-    function splitPath(path) {
+    function splitPath(path: string) {
         if (!pathsCache[path]) {
             pathsCache[path] = path.split('.');
         }
@@ -173,21 +173,21 @@ editor.once('load', () => {
     };
 
     const onSetMethods = {
-        'cubemap': function (path, value, valueOld) {
+        'cubemap': function (path: string, value: unknown, valueOld: unknown) {
             if (!keys.cubemap[path]) {
                 return;
             }
 
             updateAsset(this.get('id'), 'asset', valueOld, value);
         },
-        'material': function (path, value, valueOld) {
+        'material': function (path: string, value: unknown, valueOld: unknown) {
             if (!keys.material[path]) {
                 return;
             }
 
             updateAsset(this.get('id'), 'asset', valueOld, value);
         },
-        'model': function (path, value, valueOld) {
+        'model': function (path: string, value: unknown, valueOld: unknown) {
             if (path.startsWith('data.mapping.') && path.slice(-8) === 'material') {
                 updateAsset(this.get('id'), 'asset', valueOld, value);
             }
@@ -198,35 +198,35 @@ editor.once('load', () => {
 
             updateAsset(this.get('id'), 'asset', valueOld, value);
         },
-        'model-insert': function (path, value) {
+        'model-insert': function (path: string, value: unknown) {
             if (!path.startsWith('data.mapping.')) {
                 return;
             }
 
             updateAsset(this.get('id'), 'asset', null, value);
         },
-        'model-remove': function (path, value) {
+        'model-remove': function (path: string, value: unknown) {
             if (!path.startsWith('data.mapping.')) {
                 return;
             }
 
             updateAsset(this.get('id'), 'asset', value);
         },
-        'sprite': function (path, value, valueOld) {
+        'sprite': function (path: string, value: unknown, valueOld: unknown) {
             if (!keys.sprite[path]) {
                 return;
             }
 
             updateAsset(this.get('id'), 'asset', valueOld, value);
         },
-        'render': function (path, value, valueOld) {
+        'render': function (path: string, value: unknown, valueOld: unknown) {
             if (!path.startsWith('data.containerAsset')) {
                 return;
             }
 
             updateAsset(this.get('id'), 'asset', valueOld, value);
         },
-        'font': function (path, value, valueOld) {
+        'font': function (path: string, value: unknown, valueOld: unknown) {
             if (!path.startsWith('i18n')) {
                 return;
             }
@@ -235,7 +235,7 @@ editor.once('load', () => {
                 updateAsset(this.get('id'), 'asset', valueOld, value);
             }
         },
-        'entity': function (path, value, valueOld) {
+        'entity': function (path: string, value: unknown, valueOld: unknown) {
             if (path.startsWith('components.animation.assets.')) {
                 const parts = splitPath(path);
                 if (parts.length !== 4) {
@@ -315,7 +315,7 @@ editor.once('load', () => {
                 updateAsset(this.get('resource_id'), 'entity', valueOld, value);
             }
         },
-        'entity-unset': function (path, value) {
+        'entity-unset': function (path: string, value: unknown) {
             if (path.startsWith('components.model.mapping.')) {
                 const parts = splitPath(path);
                 if (parts.length !== 4) {
@@ -398,7 +398,7 @@ editor.once('load', () => {
                 updateAsset(this.get('resource_id'), 'entity', value, null);
             }
         },
-        'entity-insert': function (path, value) {
+        'entity-insert': function (path: string, value: unknown) {
             if (legacyScripts && path.startsWith('components.script.scripts.')) {
                 const parts = splitPath(path);
                 if (parts.length !== 7 || parts[4] !== 'attributes' || parts[6] !== 'value' || this.get(`${parts.slice(0, 6).join('.')}.type`) !== 'asset') {
@@ -431,7 +431,7 @@ editor.once('load', () => {
                 updateAsset(this.get('resource_id'), 'entity', null, value);
             }
         },
-        'entity-remove': function (path, value) {
+        'entity-remove': function (path: string, value: unknown) {
             if (legacyScripts && path.startsWith('components.script.scripts.')) {
                 const parts = splitPath(path);
                 if (parts.length !== 7 || parts[4] !== 'attributes' || parts[6] !== 'value' || this.get(`${parts.slice(0, 6).join('.')}.type`) !== 'asset') {

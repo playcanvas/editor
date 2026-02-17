@@ -58,7 +58,7 @@ editor.once('load', () => {
     };
 
     // Removes user camera and unsubscribes from userdata
-    const removeUser = function (userId) {
+    const removeUser = function (userId: string) {
         if (userId === config.self.id) {
             return;
         }
@@ -127,7 +127,7 @@ editor.once('load', () => {
     };
 
     // Creates user camera and binds to real time events
-    const loadUserData = function (userId, data) {
+    const loadUserData = function (userId: string, data: { cameras: { perspective: { position?: number[]; rotation?: number[] } } }) {
         if (!cameraMesh) {
             cameraMesh = createCameraMesh();
         }

@@ -185,7 +185,7 @@ editor.once('load', () => {
         return bubble;
     };
 
-    const showBubble = function (name, bubbleFn, delay, force, callback) {
+    const showBubble = function (name: string, bubbleFn: () => { on: (event: string, cb: () => void) => void; destroy: () => void }, delay: number, force?: boolean, callback?: () => void) {
         if (!force && config.self.flags.tips[name] !== false) {
             return false;
         }

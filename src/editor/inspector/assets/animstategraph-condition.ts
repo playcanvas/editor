@@ -26,7 +26,7 @@ class AnimstategraphCondition extends Container {
         this.class.add(CLASS_ROOT);
     }
 
-    link(assets, path) {
+    link(assets: import('@playcanvas/observer').Observer[], path: string) {
         if (!assets[0].get(path)) {
             return;
         }

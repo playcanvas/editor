@@ -163,7 +163,7 @@ editor.once('load', () => {
 
     // redirect console.error to the in-game console
     const consoleError = console.error;
-    console.error = function (...args) {
+    console.error = function (...args: unknown[]) {
         let errorPassed = false;
         consoleError(...args);
 

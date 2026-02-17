@@ -85,7 +85,7 @@ class SpriteAssetInspectorPreview extends AssetInspectorPreviewBase {
         }
     }
 
-    link(assets) {
+    link(assets: import('@playcanvas/observer').Observer[]) {
         super.link(assets);
         this._previewRenderer = new SpriteThumbnailRenderer(assets[0], this._preview.dom, editor.call('assets:raw'));
         this._spriteFrames = assets[0].get('data.frameKeys').length;

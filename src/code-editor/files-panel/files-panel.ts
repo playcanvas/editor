@@ -210,7 +210,7 @@ editor.once('load', () => {
     };
 
     // Create tree nodes for each asset
-    const addAsset = function (asset) {
+    const addAsset = function (asset: Observer) {
         const id: string = asset.get('id');
         const name: string = asset.get('name');
         const path: number[] = asset.get('path');

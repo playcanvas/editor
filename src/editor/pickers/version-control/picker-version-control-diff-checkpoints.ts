@@ -142,7 +142,7 @@ editor.once('load', () => {
         setRightCheckpoint(tempBranch, tempCheckpoint);
     });
 
-    const setCheckpointContent = function (panel, panelCheckpoint, labelCheckpoint, labelDesc, branch, checkpoint) {
+    const setCheckpointContent = function (panel: Record<string, unknown>, panelCheckpoint: Record<string, unknown>, labelCheckpoint: Record<string, unknown>, labelDesc: Record<string, unknown>, branch: Record<string, unknown> | null, checkpoint: Record<string, unknown> | null) {
         if (branch) {
             panelCheckpoint.header = branch.name;
         }
@@ -164,34 +164,34 @@ editor.once('load', () => {
         }
     };
 
-    var setLeftCheckpoint = function (branch, checkpoint) {
+    var setLeftCheckpoint = function (branch: Record<string, unknown> | null, checkpoint: Record<string, unknown> | null) {
         leftBranch = branch;
         leftCheckpoint = checkpoint;
         setCheckpointContent(panelLeft, panelLeftContent, labelLeftCheckpoint, labelLeftDesc, branch, checkpoint);
 
     };
 
-    var setRightCheckpoint = function (branch, checkpoint) {
+    var setRightCheckpoint = function (branch: Record<string, unknown> | null, checkpoint: Record<string, unknown> | null) {
         rightBranch = branch;
         rightCheckpoint = checkpoint;
         setCheckpointContent(panelRight, panelRightContent, labelRightCheckpoint, labelRightDesc, branch, checkpoint);
     };
 
-    const isLeft = function (branch, checkpoint) {
+    const isLeft = function (branch: Record<string, unknown>, checkpoint: Record<string, unknown> | null) {
         if (leftBranch && branch.id === leftBranch.id) {
             return (checkpoint && leftCheckpoint && checkpoint.id === leftCheckpoint.id) ||
                    (!checkpoint && !leftCheckpoint);
         }
     };
 
-    const isRight = function (branch, checkpoint) {
+    const isRight = function (branch: Record<string, unknown>, checkpoint: Record<string, unknown> | null) {
         if (rightBranch && branch.id === rightBranch.id) {
             return (checkpoint && rightCheckpoint && checkpoint.id === rightCheckpoint.id) ||
                    (!checkpoint && !rightCheckpoint);
         }
     };
 
-    panel.onCheckpointSelected = function (branch, checkpoint) {
+    panel.onCheckpointSelected = function (branch: Record<string, unknown>, checkpoint: Record<string, unknown> | null) {
         if (!leftCheckpoint && !leftBranch) {
             setLeftCheckpoint(branch, checkpoint);
         } else {
@@ -204,7 +204,7 @@ editor.once('load', () => {
         }
     };
 
-    panel.onCheckpointDeselected = function (branch, checkpoint) {
+    panel.onCheckpointDeselected = function (branch: Record<string, unknown>, checkpoint: Record<string, unknown> | null) {
         if (isLeft(branch, checkpoint)) {
             setLeftCheckpoint(null, null);
         } else if (isRight(branch, checkpoint)) {

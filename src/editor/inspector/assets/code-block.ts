@@ -101,7 +101,7 @@ class CodeBlockAssetInspector extends Container {
         });
     }
 
-    link(assets) {
+    link(assets: import('@playcanvas/observer').Observer[]) {
         this.unlink();
         this._assets = assets;
         if (assets[0].has('file.url')) {

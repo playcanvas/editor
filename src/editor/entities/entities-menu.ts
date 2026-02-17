@@ -67,7 +67,7 @@ editor.once('load', () => {
             // only known post-creation. Defining these as a post-creation callback
             // means that they'll also be correctly resolved if the user undoes the
             // button creation and then redoes it.
-            postCreationCallback: function (button) {
+            postCreationCallback: function (button: import('@playcanvas/observer').Observer) {
                 const history = button.history.enabled;
                 button.history.enabled = false;
                 button.set('components.button.imageEntity', button.get('resource_id'));
@@ -97,7 +97,7 @@ editor.once('load', () => {
                 scrollbar: scrollbarComponentData,
                 element: containerData
             },
-            postCreationCallback: function (scrollbar) {
+            postCreationCallback: function (scrollbar: import('@playcanvas/observer').Observer) {
                 const history = scrollbar.history.enabled;
                 scrollbar.history.enabled = false;
                 scrollbar.set('components.scrollbar.handleEntity', scrollbar.findByName('Handle').get('resource_id'));
@@ -556,7 +556,7 @@ editor.once('load', () => {
                                 pivot: [0, 1]
                             })
                         },
-                        postCreationCallback: function (scrollView) {
+                        postCreationCallback: function (scrollView: import('@playcanvas/observer').Observer) {
                             const history = scrollView.history.enabled;
                             scrollView.history.enabled = false;
                             scrollView.set('components.scrollview.viewportEntity', scrollView.findByName('Viewport').get('resource_id'));

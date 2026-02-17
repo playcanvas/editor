@@ -62,7 +62,7 @@ class ModelAssetInspectorMeshInstances extends Container {
         this._errorLoadingDetailedDataLabel.class.add(CLASS_ERROR);
     }
 
-    _dragEnterFn(ind) {
+    _dragEnterFn(ind: number) {
         return (dropType, dropData) => {
             const app = editor.call('viewport:app');
             this._engineAsset = app.assets.get(this._assets[0].get('id'));
@@ -75,7 +75,7 @@ class ModelAssetInspectorMeshInstances extends Container {
         };
     }
 
-    _dragLeaveFn(ind) {
+    _dragLeaveFn(ind: number) {
         return (dropType, dropData) => {
             this._engineAsset.data.mapping[ind].material = this._valueBefore;
             this._engineAsset.fire('change', this._engineAsset, 'data', this._engineAsset.data, this._engineAsset.data);
@@ -141,7 +141,7 @@ class ModelAssetInspectorMeshInstances extends Container {
         }
     }
 
-    link(assets) {
+    link(assets: import('@playcanvas/observer').Observer[]) {
         this.unlink();
         this._assets = assets;
         this._assets[0].get('data.mapping').forEach((_, ind) => {

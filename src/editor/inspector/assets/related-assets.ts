@@ -23,11 +23,11 @@ class RelatedAssetsInspector extends Container {
         this.buildDom(DOM(args.headerText || 'RELATED ASSETS'));
     }
 
-    _isAssetRelated(asset, sourceAssetId) {
+    _isAssetRelated(asset: import('@playcanvas/observer').Observer, sourceAssetId: number) {
         return parseInt(asset.get('source_asset_id'), 10) === sourceAssetId;
     }
 
-    _loadRelatedAssets(sourceAsset) {
+    _loadRelatedAssets(sourceAsset: import('@playcanvas/observer').Observer) {
         const sourceId = parseInt(sourceAsset.get('id'), 10);
         const relatedAssets = this._args.assets.data.filter(asset => this._relatedFn(asset, sourceId));
         this._relatedAssets = [];
@@ -48,7 +48,7 @@ class RelatedAssetsInspector extends Container {
         });
     }
 
-    _onClickRelatedAsset(assetId) {
+    _onClickRelatedAsset(assetId: number) {
         const asset = editor.call('assets:get', assetId);
         if (!asset) {
             return;
@@ -56,7 +56,7 @@ class RelatedAssetsInspector extends Container {
         editor.call('selector:set', 'asset', [asset]);
     }
 
-    link(assets) {
+    link(assets: import('@playcanvas/observer').Observer[]) {
         this.unlink();
         this._loadRelatedAssets(assets[0]);
     }

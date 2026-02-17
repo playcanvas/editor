@@ -67,7 +67,7 @@ class AnimationAssetInspector extends Panel {
         this._assets[0].set('data', { events });
     }
 
-    removeEvent(eventKey) {
+    removeEvent(eventKey: string) {
         const events = this._assets[0].get('data.events');
         delete events[eventKey];
         this._assets[0].set('data', { events });
@@ -131,7 +131,7 @@ class AnimationAssetInspector extends Panel {
         });
     }
 
-    link(assets) {
+    link(assets: import('@playcanvas/observer').Observer[]) {
         this.unlink();
         this._assets = assets;
         this._attributesInspector.link(assets);

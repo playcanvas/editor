@@ -32,7 +32,7 @@ editor.once('load', () => {
 
     // show context menu for tree item
     editor.method('files:contextmenu:attach', (treeItem: TreeViewItem) => {
-        const showMenu = function (e) {
+        const showMenu = function (e: MouseEvent) {
             e.stopPropagation();
             e.preventDefault();
 

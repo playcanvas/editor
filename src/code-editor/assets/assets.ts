@@ -1,5 +1,4 @@
-import type { Observer } from '@playcanvas/observer';
-import { ObserverList } from '@playcanvas/observer';
+import { ObserverList, type Observer } from '@playcanvas/observer';
 
 editor.once('load', () => {
     const uniqueIdToItemId = {};
@@ -8,7 +7,7 @@ editor.once('load', () => {
 
     const assets = new ObserverList({
         index: 'id',
-        sorted: function (a, b) {
+        sorted: function (a: { _data: { type: string; name: string } }, b: { _data: { type: string; name: string } }) {
             const f = (b._data.type === 'folder') - (a._data.type === 'folder');
 
             if (f !== 0) {
@@ -77,7 +76,7 @@ editor.once('load', () => {
             return;
         }
 
-        asset.on('name:set', function (name, nameOld) {
+        asset.on('name:set', function (name: string, nameOld: string) {
             name = name.toLowerCase();
             nameOld = nameOld.toLowerCase();
 

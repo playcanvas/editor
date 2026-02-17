@@ -1,10 +1,10 @@
 editor.once('load', () => {
-    const getLayoutGroup = function (entityId) {
+    const getLayoutGroup = function (entityId: string) {
         const entity = editor.call('entities:get', entityId);
         return entity && entity.entity && entity.entity.layoutgroup;
     };
 
-    function forceSet(entity, path, value) {
+    function forceSet(entity: import('@playcanvas/observer').Observer, path: string, value: unknown) {
         entity.set(path, value, false, false, true);
     }
 

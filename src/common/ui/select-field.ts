@@ -92,7 +92,7 @@ class LegacySelectField extends LegacyElement {
         }
     }
 
-    set value(raw) {
+    set value(raw: string | number | null) {
         let value = this.valueToType(raw);
 
         if (this._link) {
@@ -139,7 +139,7 @@ class LegacySelectField extends LegacyElement {
         return this._value;
     }
 
-    set placeholder(value) {
+    set placeholder(value: string) {
         if (!value) {
             this.elementValue.removeAttribute('placeholder');
         } else {

@@ -259,7 +259,7 @@ class GradientInput extends Element {
         super.destroy();
     }
 
-    set channels(value) {
+    set channels(value: number) {
         if (this._channels === value) {
             return;
         }
@@ -276,7 +276,7 @@ class GradientInput extends Element {
         return this._channels;
     }
 
-    set value(value) {
+    set value(value: any) {
         // TODO: maybe we should check for equality
         // but since this value will almost always be set using
         // the picker it's not worth the effort
@@ -297,7 +297,7 @@ class GradientInput extends Element {
         return this._value;
     }
 
-    set values(values) {
+    set values(values: any[]) {
         // we do not support multiple values so just
         // add the multiple values class which essentially disables
         // the input

@@ -1,3 +1,4 @@
+import type { Observer } from '@playcanvas/observer';
 import { Container, Button, BindingObserversToElement } from '@playcanvas/pcui';
 
 
@@ -464,23 +465,23 @@ class AssetInspector extends Container {
         this._assetEvents = [];
     }
 
-    _onClickDownloadAsset(evt) {
+    _onClickDownloadAsset(evt: MouseEvent) {
         editor.call('assets:download', this._assets[0]);
     }
 
-    _onClickOpenInViewer(evt) {
+    _onClickOpenInViewer(evt: MouseEvent) {
         editor.call('assets:open', this._assets);
     }
 
-    _onClickEditAsset(evt) {
+    _onClickEditAsset(evt: MouseEvent) {
         editor.call('assets:edit', this._assets[0]);
     }
 
-    _onClickEditSprite(evt) {
+    _onClickEditSprite(evt: MouseEvent) {
         editor.call('picker:sprites', this._assets[0]);
     }
 
-    _onClickSourceAsset(evt) {
+    _onClickSourceAsset(evt: MouseEvent) {
         const sourceId = this._assets[0].get('source_asset_id');
         if (!sourceId) {
             return;
@@ -502,7 +503,7 @@ class AssetInspector extends Container {
         }, 0);
     }
 
-    _updateFileSize(assets) {
+    _updateFileSize(path?: string) {
         if (!this._assets) {
             return;
         }
@@ -518,7 +519,7 @@ class AssetInspector extends Container {
         });
     }
 
-    _updateDates(assets) {
+    _updateDates(path?: string) {
         if (!this._assets) {
             return;
         }
@@ -528,7 +529,7 @@ class AssetInspector extends Container {
         });
     }
 
-    _buildLicenseHtml(licenseId) {
+    _buildLicenseHtml(licenseId: string) {
 
         const licenseData = this._licenseTypes.find(el => el.id === licenseId);
         if (!licenseData) {
@@ -537,11 +538,11 @@ class AssetInspector extends Container {
         return `<a href="${licenseData.url}" target="_blank" rel="noopener noreferrer">${licenseData.name}</a>`;
     }
 
-    _buildAuthorHtml(author, authorUrl) {
+    _buildAuthorHtml(author: string, authorUrl: string) {
         return `<a href="${authorUrl}" target="_blank" rel="noopener noreferrer">${author}</a>`;
     }
 
-    async _updateLicense(assets) {
+    async _updateLicense(path?: string) {
         if (!this._assets) {
             return;
         }
@@ -631,14 +632,14 @@ class AssetInspector extends Container {
         });
     }
 
-    _updateAssetName(value) {
+    _updateAssetName(value: string) {
         if (!value) {
             return;
         }
         editor.call('assets:rename', this._assets[0], value);
     }
 
-    link(assets) {
+    link(assets: Observer[]) {
         this.unlink();
 
         if (!assets || !assets.length) {
@@ -777,7 +778,7 @@ class AssetInspector extends Container {
         this.hidden = false;
     }
 
-    _toggleAssetField(attribute) {
+    _toggleAssetField(attribute: string) {
         const legacyScripts = this._projectSettings.get('useLegacyScripts');
 
         const hiddenField = HIDDEN_FIELDS[attribute];

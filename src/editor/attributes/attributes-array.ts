@@ -21,7 +21,7 @@ editor.once('load', () => {
 
     // Returns path at index of args.paths if that field exists otherwise
     // returns args.path
-    const pathAt = function (args, index) {
+    const pathAt = function (args: { path?: string; paths?: string[] }, index: number) {
         return args.paths ? args.paths[index] : args.path;
     };
 
@@ -128,7 +128,7 @@ editor.once('load', () => {
             let row = -1;
             let rowExistsEverywhere = true;
 
-            const createRow = function (row) {
+            const createRow = function (row: number) {
                 const paths = args.link.map((link, i) => {
                     return `${pathAt(args, i)}.${row}`;
                 });
@@ -317,7 +317,7 @@ editor.once('load', () => {
         });
 
         // Undoable action - change the size of the array of each link
-        var changeArraySize = function (size) {
+        var changeArraySize = function (size: number) {
             let prev;
 
             const redo = function () {
@@ -436,7 +436,7 @@ editor.once('load', () => {
 
     // Returns the default value for a new array element
     // based on the args provided
-    var getDefaultValue = function (args) {
+    var getDefaultValue = function (args: { type?: string; color?: unknown[]; curves?: unknown[] }) {
         let result = null;
 
         if (defaults[args.type] !== undefined) {

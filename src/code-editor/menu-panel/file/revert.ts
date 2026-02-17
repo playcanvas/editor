@@ -38,7 +38,7 @@ editor.once('load', () => {
         }
     }));
 
-    const revert = function (id) {
+    const revert = function (id: string) {
         const asset = editor.call('assets:get', id);
         if (!asset) {
             return;

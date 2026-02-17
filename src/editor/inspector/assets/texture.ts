@@ -356,7 +356,7 @@ const DOM = parent => [
 // this has been kept as agnostic as possible to hopefully
 // maybe work back into BindingElementToObservers
 class MultiPathBindingElementToObservers extends BindingElementToObservers {
-    constructor({ formatters, ...args }) {
+    constructor({ formatters, ...args }: { formatters?: Record<string, (v: unknown) => unknown> } & Record<string, unknown>) {
         super(args);
         this._valueFormatters = formatters;
     }
@@ -372,7 +372,7 @@ class MultiPathBindingElementToObservers extends BindingElementToObservers {
         });
     }
 
-    _formatValue(value, path) {
+    _formatValue(value: unknown, path: string) {
         if (typeof this._valueFormatters[path] === 'function') {
             return this._valueFormatters[path](value);
         }
@@ -380,7 +380,7 @@ class MultiPathBindingElementToObservers extends BindingElementToObservers {
         return value;
     }
 
-    _latestHasPaths(latest, paths) {
+    _latestHasPaths(latest: import('@playcanvas/observer').Observer, paths: string[]) {
         if (!latest) {
             return false;
         }
@@ -395,7 +395,7 @@ class MultiPathBindingElementToObservers extends BindingElementToObservers {
     }
 
     // Override setValue to set additional fields
-    setValue(value) {
+    setValue(value: unknown) {
         if (this.applyingChange) {
             return;
         }
@@ -478,7 +478,7 @@ class MultiPathBindingElementToObservers extends BindingElementToObservers {
 }
 
 class SizeLabel extends Label {
-    constructor({ format, ...args }) {
+    constructor({ format, ...args }: { format: { size?: number; vram?: number }; [key: string]: unknown }) {
         super(args);
         this._format = format;
         this.class.add('pcui-size-label');
@@ -596,7 +596,7 @@ class TextureAssetInspector extends Container {
         this._btnGetMeta.hidden = !visible;
     }
 
-    _calculateSize(format) {
+    _calculateSize(format: string) {
         const assets = this._assets;
         const formats = this._compressionFormats;
 
@@ -649,7 +649,7 @@ class TextureAssetInspector extends Container {
         }
     }
 
-    _queueSizeCalculate(format) {
+    _queueSizeCalculate(format: string) {
         const formats = this._compressionFormats;
         if (formats[format].timeout) {
             return;
@@ -796,7 +796,7 @@ class TextureAssetInspector extends Container {
         this._updatePvrWarning();
     }
 
-    _handleAssetChangeCompression(path) {
+    _handleAssetChangeCompression(path: string) {
         if (this._compressionChangeTicking ||
             (path !== 'task' &&
                 !path.startsWith('meta') &&
@@ -846,7 +846,7 @@ class TextureAssetInspector extends Container {
         this._btnGetMeta.enabled = false;
     }
 
-    _handleCompress(formats) {
+    _handleCompress(formats: string[]) {
         const assets = this._assets;
         if (!Array.isArray(assets) || !assets.length) {
             return;
@@ -855,7 +855,7 @@ class TextureAssetInspector extends Container {
         TextureCompressor.compress(assets, formats);
     }
 
-    _handleAssetChangeWebGl1PotWarnings(path) {
+    _handleAssetChangeWebGl1PotWarnings(path: string) {
         if (path !== 'task' &&
             !path.startsWith('meta.width') &&
             !path.startsWith('meta.height') &&
@@ -889,7 +889,7 @@ class TextureAssetInspector extends Container {
 
     }
 
-    _setupImportButton(panel, moduleStoreName, wasmFilename) {
+    _setupImportButton(panel: import('@playcanvas/pcui').Container, moduleStoreName: string, wasmFilename: string) {
         if (!this._containerImportBasis) {
             this._containerImportBasis = new Container({
                 flex: true,
@@ -1054,7 +1054,7 @@ class TextureAssetInspector extends Container {
         }
     }
 
-    _showHideLegacyUi(show) {
+    _showHideLegacyUi(show: boolean) {
         this._compressionLegacyAttributesInspector.getField('meta.compress.alpha').parent.hidden = !show;
         this._compressionLegacyAttributesInspector.getField('meta.compress.dxt').parent.hidden = !show;
         this._compressionLegacyAttributesInspector.getField('meta.compress.etc1').parent.hidden = !show;
@@ -1116,7 +1116,7 @@ class TextureAssetInspector extends Container {
         }
     }
 
-    link(assets) {
+    link(assets: import('@playcanvas/observer').Observer[]) {
         this.unlink();
         this._assets = assets;
 

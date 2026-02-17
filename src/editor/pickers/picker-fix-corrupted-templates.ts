@@ -84,7 +84,7 @@ editor.once('load', () => {
 
     let report = null;
 
-    function downloadReport(title) {
+    function downloadReport(title: string) {
         if (!report) {
             return;
         }
@@ -121,7 +121,7 @@ editor.once('load', () => {
     content.append(progressButtons);
 
     let currentState = null;
-    function setState(state, data) {
+    function setState(state: number, data?: Record<string, unknown>) {
         if (currentState === state) {
             return;
         }

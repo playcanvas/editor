@@ -171,17 +171,17 @@ class RenderComponentInspector extends ComponentInspector {
         this._changeMaterialsOnChange(this._field('type'));
     }
 
-    _field(name) {
+    _field(name: string) {
         return this._attributesInspector.getField(`components.render.${name}`);
     }
 
-    _onMaterialsChange(value) {
+    _onMaterialsChange(value: unknown) {
         this._field('materialAssets').forEachArrayElement((assetInput, index) => {
             assetInput.label.text = `Material #${index}`;
         });
     }
 
-    _getNewMaterials(numInstances, previousMaterials) {
+    _getNewMaterials(numInstances: number, previousMaterials: (number | null)[]) {
         const result = new Array(numInstances).fill(null);
         for (let i = 0; i < previousMaterials.length && i < result.length; i++) {
             result[i] = previousMaterials[i];
@@ -192,7 +192,7 @@ class RenderComponentInspector extends ComponentInspector {
 
     // when the render type or the render asset change,
     // also change the materialAssets to the correct length
-    _changeMaterialsOnChange(field) {
+    _changeMaterialsOnChange(field: import('@playcanvas/pcui').Element) {
         const binding = field.binding;
         if (!binding) {
             return;
@@ -352,7 +352,7 @@ class RenderComponentInspector extends ComponentInspector {
 
     }
 
-    _onCustomAabbChange(value) {
+    _onCustomAabbChange(value: boolean) {
         if (!this._entities) {
             return;
         }
@@ -451,7 +451,7 @@ class RenderComponentInspector extends ComponentInspector {
         this._toggleFields();
     }
 
-    link(entities) {
+    link(entities: import('@playcanvas/observer').Observer[]) {
         super.link(entities);
 
         this._suppressToggleFields = true;

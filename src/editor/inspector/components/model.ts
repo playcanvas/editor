@@ -132,7 +132,7 @@ const REGEX_MAPPING = /^components.model.mapping.(\d+)$/;
 // Custom binding for asset field so that when we change the asset we
 // reset the model's mapping
 class AssetElementToObserversBinding extends BindingElementToObservers {
-    constructor(assets, args) {
+    constructor(assets: import('@/editor-api').Assets, args: Record<string, unknown>) {
         super(args);
         this._assets = assets;
     }
@@ -148,7 +148,7 @@ class AssetElementToObserversBinding extends BindingElementToObservers {
     }
 
     // Override setValue to set additional fields
-    setValue(value) {
+    setValue(value: number | null) {
         if (this.applyingChange) {
             return;
         }
@@ -328,7 +328,7 @@ class ModelComponentInspector extends ComponentInspector {
         });
     }
 
-    _field(name) {
+    _field(name: string) {
         return this._attributesInspector.getField(`components.model.${name}`);
     }
 
@@ -373,7 +373,7 @@ class ModelComponentInspector extends ComponentInspector {
         return result;
     }
 
-    _getMeshInstanceName(index, entities) {
+    _getMeshInstanceName(index: number, entities: import('@playcanvas/observer').Observer[]) {
         // get name of meshinstance from engine
         let meshInstanceName;
         for (let i = 0; i < entities.length; i++) {
@@ -395,7 +395,7 @@ class ModelComponentInspector extends ComponentInspector {
         return meshInstanceName;
     }
 
-    _createMappingInspector(key, entities) {
+    _createMappingInspector(key: string, entities: import('@playcanvas/observer').Observer[]) {
         const index = parseInt(key, 10);
 
         if (this._mappingInspectors[key]) {
@@ -495,7 +495,7 @@ class ModelComponentInspector extends ComponentInspector {
         return container;
     }
 
-    _refreshMappings(dirtyMappings) {
+    _refreshMappings(dirtyMappings?: Record<string, import('@playcanvas/observer').Observer[]>) {
         if (this._timeoutRefreshMappings) {
             cancelAnimationFrame(this._timeoutRefreshMappings);
         }
@@ -628,7 +628,7 @@ class ModelComponentInspector extends ComponentInspector {
         this._field('aabbHalfExtents').parent.hidden = !customAabb;
     }
 
-    _onCustomAabbChange(value) {
+    _onCustomAabbChange(value: boolean) {
         if (!this._entities) {
             return;
         }
@@ -709,7 +709,7 @@ class ModelComponentInspector extends ComponentInspector {
         }
     }
 
-    link(entities) {
+    link(entities: import('@playcanvas/observer').Observer[]) {
         super.link(entities);
 
         this._suppressToggleFields = true;

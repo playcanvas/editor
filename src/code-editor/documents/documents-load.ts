@@ -49,7 +49,7 @@ editor.once('load', () => {
     let lastFocusedId = null;
 
     // Loads the editable document that corresponds to the specified asset id
-    const loadDocument = function (asset: Observer, importSubModules = true) {
+    const loadDocument = function (asset: Observer, importSubModules: boolean = true) {
         const id = asset.get('id').toString();
         const uniqueId = asset.get('uniqueId').toString();
         const connection = editor.call('realtime:connection');

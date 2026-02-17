@@ -321,7 +321,7 @@ class AssetInput extends Element {
         return true;
     }
 
-    link(observers: any, paths?: string[]) {
+    link(observers: Observer | ObserverList, paths?: string[]) {
         super.link(observers, paths);
         this._thumbnail.link(observers, paths);
     }
@@ -352,7 +352,7 @@ class AssetInput extends Element {
         return this._validateAssetFn ? this._validateAssetFn(asset as AssetObserver) : true;
     }
 
-    set text(value) {
+    set text(value: string) {
         this._label.value = value;
     }
 
@@ -364,7 +364,7 @@ class AssetInput extends Element {
         return this._label;
     }
 
-    set assetType(value) {
+    set assetType(value: string) {
         this._assetType = value;
     }
 
@@ -372,7 +372,7 @@ class AssetInput extends Element {
         return this._assetType;
     }
 
-    set dragEnterFn(value) {
+    set dragEnterFn(value: ((...args: any[]) => void) | undefined) {
         this._dragEnterFn = value;
     }
 
@@ -380,7 +380,7 @@ class AssetInput extends Element {
         return this._dragEnterFn;
     }
 
-    set dragLeaveFn(value) {
+    set dragLeaveFn(value: ((...args: any[]) => void) | undefined) {
         this._dragLeaveFn = value;
     }
 
@@ -388,7 +388,7 @@ class AssetInput extends Element {
         return this._dragLeaveFn;
     }
 
-    set value(value) {
+    set value(value: number | null) {
         const forceUpdate = !this._labelVarious.hidden && value === null;
         const changed = this._updateValue(value, forceUpdate);
 
@@ -401,7 +401,7 @@ class AssetInput extends Element {
         return this._value;
     }
 
-    set values(values) {
+    set values(values: (number | null)[]) {
         let different = false;
         const value = values[0];
         for (let i = 1; i < values.length; i++) {
@@ -421,7 +421,7 @@ class AssetInput extends Element {
         }
     }
 
-    set renderChanges(value) {
+    set renderChanges(value: boolean) {
         this._renderChanges = value;
         this._thumbnail.renderChanges = value;
     }

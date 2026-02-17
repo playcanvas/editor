@@ -207,7 +207,7 @@ class AssetThumbnail extends Element {
         this._renderCanvasThumbnail(asset);
     }
 
-    _renderCanvasThumbnail(asset: any) {
+    _renderCanvasThumbnail(asset: Observer) {
         if (this._renderCanvasTimeout) {
             clearTimeout(this._renderCanvasTimeout);
             this._renderCanvasTimeout = null;
@@ -335,7 +335,7 @@ class AssetThumbnail extends Element {
         return true;
     }
 
-    _onChange(value: any) {
+    _onChange(value: number | Observer | null) {
         if (this._evtThumbnailSet) {
             this._evtThumbnailSet.unbind();
             this._evtThumbnailSet = null;
@@ -441,7 +441,7 @@ class AssetThumbnail extends Element {
         super.destroy();
     }
 
-    set value(value) {
+    set value(value: number | null) {
         const changed = this._updateValue(value);
 
         if (changed && this._binding) {
@@ -456,7 +456,7 @@ class AssetThumbnail extends Element {
         return this._value;
     }
 
-    set values(values) {
+    set values(values: (number | null)[]) {
         let different = false;
         const value = values[0];
         for (let i = 1; i < values.length; i++) {

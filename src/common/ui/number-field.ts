@@ -50,7 +50,7 @@ class LegacyNumberField extends LegacyElement {
         }
     }
 
-    set value(value) {
+    set value(value: number | null) {
         if (this._link) {
             if (!this._link.set(this.path, value)) {
                 this.elementInput.value = this._link.get(this.path);
@@ -89,7 +89,7 @@ class LegacyNumberField extends LegacyElement {
         return this.elementInput.value !== '' ? parseFloat(this.elementInput.value) : null;
     }
 
-    set placeholder(value) {
+    set placeholder(value: string) {
         if (!value) {
             this._element.removeAttribute('placeholder');
         } else {
@@ -101,7 +101,7 @@ class LegacyNumberField extends LegacyElement {
         return this._element.getAttribute('placeholder');
     }
 
-    set proxy(value) {
+    set proxy(value: string) {
         if (!value) {
             this._element.removeAttribute('proxy');
         } else {
@@ -113,7 +113,7 @@ class LegacyNumberField extends LegacyElement {
         return this._element.getAttribute('proxy');
     }
 
-    _onLinkChange(value) {
+    _onLinkChange(value: number | null) {
         this.elementInput.value = value || 0;
         this.emit('change', value || 0);
     }
@@ -133,7 +133,7 @@ class LegacyNumberField extends LegacyElement {
         }
     }
 
-    focus(select) {
+    focus(select: boolean) {
         this.elementInput.focus();
         if (select) {
             this.elementInput.select();
@@ -148,7 +148,7 @@ class LegacyNumberField extends LegacyElement {
         this.class.remove('focus');
     }
 
-    _onKeyDown(evt) {
+    _onKeyDown(evt: KeyboardEvent) {
         if (evt.keyCode === 27) {
             return this.elementInput.blur();
         }

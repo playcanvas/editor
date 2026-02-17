@@ -58,13 +58,13 @@ class ColorPicker extends Events {
 
     _changing: boolean = false;
 
-    constructor(parent) {
+    constructor(parent: HTMLElement) {
         super();
         assignEvents(this);
 
         // capture this for the event handler
-        function genEvtHandler(self, func) {
-            return function (evt) {
+        function genEvtHandler(self: ColorPicker, func: (evt: MouseEvent) => void) {
+            return function (evt: MouseEvent) {
                 func.apply(self, [evt]);
             };
         }
@@ -113,7 +113,7 @@ class ColorPicker extends Events {
         this.moveHandler = genEvtHandler(this, this._onMouseMove);
         this.upHandler = genEvtHandler(this, this._onMouseUp);
 
-        function numberField(label) {
+        function numberField(label: string) {
             const field = new LegacyNumberField({
                 precision: 1,
                 step: 1,
@@ -147,7 +147,7 @@ class ColorPicker extends Events {
         this._generateAlpha(this.alphaRect);
     }
 
-    _generateHue(canvas) {
+    _generateHue(canvas: LegacyCanvas) {
         const ctx = canvas.element.getContext('2d');
         const w = canvas.pixelWidth;
         const h = canvas.pixelHeight;
@@ -159,7 +159,7 @@ class ColorPicker extends Events {
         ctx.fillRect(0, 0, w, h);
     }
 
-    _generateAlpha(canvas) {
+    _generateAlpha(canvas: LegacyCanvas) {
         const ctx = canvas.element.getContext('2d');
         const w = canvas.pixelWidth;
         const h = canvas.pixelHeight;
@@ -170,7 +170,7 @@ class ColorPicker extends Events {
         ctx.fillRect(0, 0, w, h);
     }
 
-    _generateGradient(canvas, clr) {
+    _generateGradient(canvas: LegacyCanvas, clr: number[]) {
         const ctx = canvas.element.getContext('2d');
         const w = canvas.pixelWidth;
         const h = canvas.pixelHeight;
@@ -233,7 +233,7 @@ class ColorPicker extends Events {
         window.addEventListener('mouseup', this.upHandler);
     }
 
-    _onMouseMove(evt) {
+    _onMouseMove(evt: MouseEvent) {
         let newhsva;
         if (this._dragMode === 1) {
             const m = normalizedCoord(this.colorRect, evt.pageX, evt.pageY);
@@ -258,7 +258,7 @@ class ColorPicker extends Events {
         }
     }
 
-    _onMouseUp(evt) {
+    _onMouseUp(evt: MouseEvent) {
         window.removeEventListener('mousemove', this.moveHandler);
         window.removeEventListener('mouseup', this.upHandler);
 
@@ -270,7 +270,7 @@ class ColorPicker extends Events {
         }
     }
 
-    set hsva(hsva) {
+    set hsva(hsva: number[]) {
         const rgb = hsv2rgb(hsva);
         const hueRgb = hsv2rgb([hsva[0], 1, 1]);
 
@@ -311,7 +311,7 @@ class ColorPicker extends Events {
         return this._hsva;
     }
 
-    set color(clr) {
+    set color(clr: number[]) {
         const hsva = toHsva(clr);
         if (hsva[0] === 0 && hsva[1] === 0 && this._hsva[0] !== -1) {
             // if the incoming RGB is a shade of grey (without hue),
@@ -325,7 +325,7 @@ class ColorPicker extends Events {
         return toRgba(this._hsva);
     }
 
-    set editAlpha(editAlpha) {
+    set editAlpha(editAlpha: boolean) {
         if (editAlpha) {
             this.alphaRect.element.style.display = 'inline';
             this.alphaHandle.style.display = 'block';
@@ -422,7 +422,7 @@ editor.once('load', () => {
         }
     }
 
-    function onTypeChanged(value) {
+    function onTypeChanged(value: number) {
         value = STATE.typeMap[value];
         const paths = [];
         const values = [];
@@ -513,7 +513,7 @@ editor.once('load', () => {
         }
     }
 
-    function renderAnchor(ctx, time, type) {
+    function renderAnchor(ctx: CanvasRenderingContext2D, time: number, type?: string) {
         const coords = [time * UI.anchors.width, UI.anchors.height / 2];
         const radius = (type === 'selected' ? CONST.selectedRadius : CONST.anchorRadius);
 
@@ -556,7 +556,7 @@ editor.once('load', () => {
         ctx.fill();
     }
 
-    function evaluateGradient(time, alphaOverride) {
+    function evaluateGradient(time: number, alphaOverride?: number) {
         const result = [];
         for (let i = 0; i < 3; ++i) {
             result.push(STATE.curves[i].value(time));
@@ -594,13 +594,13 @@ editor.once('load', () => {
 
     // helper function for calculating the normalized coordinate
     // x,y relative to rect
-    function calcNormalizedCoord(x, y, rect) {
+    function calcNormalizedCoord(x: number, y: number, rect: DOMRect) {
         return [(x - rect.left) / rect.width,
             (y - rect.top) / rect.height];
     }
 
     // get the bounding client rect minus padding
-    function getClientRect(element) {
+    function getClientRect(element: HTMLElement) {
         const styles = window.getComputedStyle(element);
 
         const paddingTop = parseFloat(styles.paddingTop);
@@ -616,7 +616,7 @@ editor.once('load', () => {
             rect.height - paddingTop - paddingBottom);
     }
 
-    function anchorsOnMouseDown(e) {
+    function anchorsOnMouseDown(e: MouseEvent) {
         if (STATE.hoveredAnchor === -1) {
             // user clicked in empty space, create new anchor and select it
             const coord = calcNormalizedCoord(e.clientX,
@@ -634,7 +634,7 @@ editor.once('load', () => {
         UI.draggingAnchor = true;
     }
 
-    function anchorsOnMouseMove(e) {
+    function anchorsOnMouseMove(e: MouseEvent) {
         const coord = calcNormalizedCoord(e.clientX,
             e.clientY,
             getClientRect(UI.anchors.element));
@@ -666,7 +666,7 @@ editor.once('load', () => {
         }
     }
 
-    function anchorsOnMouseUp(e) {
+    function anchorsOnMouseUp(e: MouseEvent) {
         if (UI.draggingAnchor) {
             dragEnd();
             UI.draggingAnchor = false;
@@ -780,7 +780,7 @@ editor.once('load', () => {
         emitCurveChange();
     }
 
-    function moveSelectedAnchor(time) {
+    function moveSelectedAnchor(time: number) {
         if (STATE.selectedAnchor !== -1) {
             dragStart();
             dragUpdate(time);

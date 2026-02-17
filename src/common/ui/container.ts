@@ -21,7 +21,7 @@ class LegacyContainer extends LegacyElement {
         });
     }
 
-    set innerElement(value) {
+    set innerElement(value: HTMLElement) {
         if (this._innerElement) {
             this._observer.disconnect();
         }
@@ -34,7 +34,7 @@ class LegacyContainer extends LegacyElement {
         return this._innerElement;
     }
 
-    set flexible(value) {
+    set flexible(value: boolean) {
         if (this._element.classList.contains('flexible') === !!value) {
             return;
         }
@@ -50,7 +50,7 @@ class LegacyContainer extends LegacyElement {
         return this._element.classList.contains('flexible');
     }
 
-    set flex(value) {
+    set flex(value: boolean) {
         if (this._element.classList.contains('flex') === !!value) {
             return;
         }
@@ -66,7 +66,7 @@ class LegacyContainer extends LegacyElement {
         return this._element.classList.contains('flex');
     }
 
-    set flexDirection(value) {
+    set flexDirection(value: string) {
         this._innerElement.style.flexDirection = value;
         this._innerElement.style.WebkitFlexDirection = value;
     }
@@ -75,7 +75,7 @@ class LegacyContainer extends LegacyElement {
         return this._innerElement.style.flexDirection;
     }
 
-    set flexWrap(value) {
+    set flexWrap(value: string) {
         this.flex = true;
         this._innerElement.style.flexWrap = value;
         this._innerElement.style.WebkitFlexWrap = value;
@@ -85,7 +85,7 @@ class LegacyContainer extends LegacyElement {
         return this._innerElement.style.flexWrap;
     }
 
-    set flexGrow(value) {
+    set flexGrow(value: boolean) {
         if (value) {
             this.flex = true;
         }
@@ -100,7 +100,7 @@ class LegacyContainer extends LegacyElement {
         return this._element.style.flexGrow === 1;
     }
 
-    set flexShrink(value) {
+    set flexShrink(value: boolean) {
         if (value) {
             this.flex = true;
         }
@@ -115,7 +115,7 @@ class LegacyContainer extends LegacyElement {
         return this._element.style.flexShrink === 1;
     }
 
-    set scroll(value) {
+    set scroll(value: boolean) {
         this.class.add('scrollable');
     }
 
@@ -123,7 +123,7 @@ class LegacyContainer extends LegacyElement {
         return this.class.contains('scrollable');
     }
 
-    append(element) {
+    append(element: HTMLElement | LegacyElement) {
         const html = (element instanceof HTMLElement);
         const node = html ? element : element.element;
 
@@ -135,7 +135,7 @@ class LegacyContainer extends LegacyElement {
         }
     }
 
-    appendBefore(element, reference) {
+    appendBefore(element: HTMLElement | LegacyElement, reference: HTMLElement | LegacyElement) {
         const html = (element instanceof HTMLElement);
         const node = html ? element : element.element;
 
@@ -151,7 +151,7 @@ class LegacyContainer extends LegacyElement {
         }
     }
 
-    appendAfter(element, reference) {
+    appendAfter(element: HTMLElement | LegacyElement, reference: HTMLElement | LegacyElement) {
         const html = (element instanceof HTMLElement);
         const node = html ? element : element.element;
 
@@ -173,7 +173,7 @@ class LegacyContainer extends LegacyElement {
         }
     }
 
-    prepend(element) {
+    prepend(element: HTMLElement | LegacyElement) {
         const first = this._innerElement.firstChild;
         const html = (element instanceof HTMLElement);
         const node = html ? element : element.element;
@@ -190,7 +190,7 @@ class LegacyContainer extends LegacyElement {
         }
     }
 
-    remove(element) {
+    remove(element: HTMLElement | LegacyElement) {
         const html = (element instanceof HTMLElement);
         const node = html ? element : element.element;
 

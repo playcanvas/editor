@@ -23,7 +23,7 @@ class LegacyProgress extends LegacyElement {
         this._animateHandler = this._animate.bind(this);
     }
 
-    set progress(value) {
+    set progress(value: number) {
         value = Math.max(0, Math.min(1, value));
 
         if (this._targetProgress === value) {
@@ -51,7 +51,7 @@ class LegacyProgress extends LegacyElement {
         return this._progress;
     }
 
-    set speed(value) {
+    set speed(value: number) {
         this._speed = Math.max(0, Math.min(1, value));
     }
 
@@ -59,7 +59,7 @@ class LegacyProgress extends LegacyElement {
         return this._speed;
     }
 
-    set failed(value) {
+    set failed(value: boolean) {
         this._failed = !!value;
 
         if (this._failed) {

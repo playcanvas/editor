@@ -49,7 +49,7 @@ editor.once('load', () => {
             });
         }
 
-        createOverlay(className, branchName, startPos, endPos, reverse) {
+        createOverlay(className: string, branchName: string, startPos: monaco.Position, endPos: monaco.Position, reverse?: boolean) {
             this.overlays.push({
                 pos: this.model.getOffsetAt({
                     lineNumber: startPos.lineNumber,
@@ -201,7 +201,7 @@ editor.once('load', () => {
         }
 
         // Moves cursor to the next conflict. Wraps around if needed
-        goToNextConflict(stayInCurrentConflictIfPossible) {
+        goToNextConflict(stayInCurrentConflictIfPossible?: boolean) {
             this.monacoEditor.focus();
 
             const len = this.overlayGroups.length;

@@ -153,7 +153,7 @@ class EntitiesTreeView extends TreeView {
         editor.call('drop:set');
     }
 
-    _onSelectEntityItem(item) {
+    _onSelectEntityItem(item: TreeViewItem & { entity: Observer }) {
         if (this._suspendSelectionEvents) {
             return;
         }
@@ -162,7 +162,7 @@ class EntitiesTreeView extends TreeView {
         editor.call('selector:add', 'entity', item.entity);
     }
 
-    _onDeselectEntityItem(item) {
+    _onDeselectEntityItem(item: TreeViewItem & { entity: Observer }) {
         if (this._suspendSelectionEvents) {
             return;
         }
@@ -171,7 +171,7 @@ class EntitiesTreeView extends TreeView {
         editor.call('selector:remove', item.entity);
     }
 
-    _onSelectorChange(type, entities) {
+    _onSelectorChange(type: string, entities: Observer[]) {
         if (type !== 'entity') {
             this._suspendSelectionEvents = true;
             this.deselect();
@@ -211,7 +211,7 @@ class EntitiesTreeView extends TreeView {
     }
 
     // Called when we receive the selection of a remote user
-    _onSelectorSync(user, data) {
+    _onSelectorSync(user: string, data: { type?: string; ids?: string[] }) {
         // remove existing selection markers for user
         if (this._userSelectionMarkers[user]) {
             this._userSelectionMarkers[user].markers.forEach((marker) => {
@@ -260,7 +260,7 @@ class EntitiesTreeView extends TreeView {
         });
     }
 
-    _onUserOffline(userId) {
+    _onUserOffline(userId: string) {
         if (!this._userSelectionMarkers[userId]) {
             return;
         }
@@ -290,7 +290,7 @@ class EntitiesTreeView extends TreeView {
         this.dom.removeEventListener('mouseleave', this._domEvtEntitiesMouseLeave);
     }
 
-    _onEntitiesMouseEnter(evt) {
+    _onEntitiesMouseEnter(evt: MouseEvent) {
         this._dropType = this._dropManager.dropType;
         this._dropData = this._dropManager.dropData;
         if (!this._isDraggingValidAssetType(this._dropType, this._dropData)) {
@@ -304,7 +304,7 @@ class EntitiesTreeView extends TreeView {
         }
     }
 
-    _onEntitiesMouseUp(evt) {
+    _onEntitiesMouseUp(evt: MouseEvent) {
         window.removeEventListener('mouseup', this._domEvtEntitiesMouseUp);
 
         if (!this.isDragging) {
@@ -347,7 +347,7 @@ class EntitiesTreeView extends TreeView {
         }
     }
 
-    _getSearchFilterMap(searchArr, key) {
+    _getSearchFilterMap(searchArr: [string, TreeViewItem][], key: string) {
         this.searchFilterMap[key] = getMap(searchArr, key);
 
         return this.searchFilterMap[key];
@@ -383,15 +383,15 @@ class EntitiesTreeView extends TreeView {
         this.searchFilters[key] = value;
     }
 
-    setFuzzy(value) {
+    setFuzzy(value: boolean) {
         this.fuzzy = value;
     }
 
-    getFilter(key) {
+    getFilter(key: string) {
         return this.searchFilters[key];
     }
 
-    _instantiateDraggedAssets(dragOverItem, dragArea, dropType, dropData) {
+    _instantiateDraggedAssets(dragOverItem: TreeViewItem & { entity: Observer; parent: TreeViewItem & { entity: Observer }; dom: HTMLElement }, dragArea: string, dropType: string, dropData: { id?: string; ids?: string[] }) {
         let parent = dragOverItem.entity;
         let childIndex;
 
@@ -490,7 +490,7 @@ class EntitiesTreeView extends TreeView {
         redo();
     }
 
-    _instantiateDraggedTemplateAssets(assets, parentEntity, childIndex, callback) {
+    _instantiateDraggedTemplateAssets(assets: Observer[], parentEntity: Observer, childIndex: number | undefined, callback: (entityIds: string[]) => void) {
         if (childIndex === null || childIndex === undefined) {
             childIndex = parentEntity.get('children').length;
         }
@@ -504,7 +504,7 @@ class EntitiesTreeView extends TreeView {
         });
     }
 
-    _instantiateDraggedModelAsset(asset, parentEntity, childIndex) {
+    _instantiateDraggedModelAsset(asset: Observer, parentEntity: Observer, childIndex: number) {
         const component = editor.call('components:getDefault', 'model');
         component.type = 'asset';
         component.asset = parseInt(asset.get('id'), 10);
@@ -567,7 +567,7 @@ class EntitiesTreeView extends TreeView {
         return newEntity.get('resource_id');
     }
 
-    _onEntitiesMouseLeave(evt) {
+    _onEntitiesMouseLeave(evt: MouseEvent) {
         window.removeEventListener('mouseup', this._domEvtEntitiesMouseUp);
 
         const dropType = this._dropType;
@@ -579,7 +579,7 @@ class EntitiesTreeView extends TreeView {
         }
     }
 
-    _isDraggingValidAssetType(dropType, dropData) {
+    _isDraggingValidAssetType(dropType: string, dropData: { id?: string; ids?: string[] }) {
         if (!this._writePermissions) {
             return false;
         }
@@ -632,7 +632,7 @@ class EntitiesTreeView extends TreeView {
      * If not provided, it will be calculated.
      * @param recurse - Whether to recursively update descendants.
      */
-    _updateTreeItemEnabledState(entity: Observer, parentDisabled?: boolean, recurse = false): void {
+    _updateTreeItemEnabledState(entity: Observer, parentDisabled?: boolean, recurse: boolean = false): void {
         const item = this.getTreeItemForEntity(entity.get('resource_id'));
         if (!item) {
             return;
@@ -652,7 +652,7 @@ class EntitiesTreeView extends TreeView {
         }
     }
 
-    _onAddEntity(entity) {
+    _onAddEntity(entity: Observer) {
         const resourceId = entity.get('resource_id');
         if (this._treeItemIndex[resourceId]) {
             return this._treeItemIndex[resourceId];
@@ -822,7 +822,7 @@ class EntitiesTreeView extends TreeView {
         return treeViewItem;
     }
 
-    _resetTemplateIcons(entity) {
+    _resetTemplateIcons(entity: Observer) {
         const item = this.getTreeItemForEntity(entity.get('resource_id'));
 
         if (item) {
@@ -1034,7 +1034,7 @@ class EntitiesTreeView extends TreeView {
         return this._entities;
     }
 
-    set writePermissions(value) {
+    set writePermissions(value: boolean) {
         if (this._writePermissions === value) {
             return;
         }

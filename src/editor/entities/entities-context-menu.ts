@@ -23,7 +23,7 @@ editor.once('load', () => {
 
     };
 
-    const setField = function (field, value) {
+    const setField = function (field: string, value: boolean) {
         const records = [];
 
         for (let i = 0; i < items.length; i++) {

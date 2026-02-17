@@ -1,3 +1,4 @@
+import { type Observer } from '@playcanvas/observer';
 import { Button, Container, Label, Progress } from '@playcanvas/pcui';
 
 editor.once('load', () => {
@@ -37,7 +38,7 @@ editor.once('load', () => {
     // pseudo-id of find in files tab
     const FIND_IN_FILES = 'Find in Files';
 
-    const updateDirty = function (id, dirty) {
+    const updateDirty = function (id: string, dirty: boolean) {
         const entry = tabsIndex[id];
         if (entry) {
             if (dirty) {
@@ -50,7 +51,7 @@ editor.once('load', () => {
     };
 
     // focus a tab
-    const focusTab = function (id) {
+    const focusTab = function (id: string) {
         const entry = tabsIndex[id];
         if (focusedTab === entry) {
             return;
@@ -119,7 +120,7 @@ editor.once('load', () => {
         }
     };
 
-    const moveTab = function (e) {
+    const moveTab = function (e: MouseEvent) {
         e.preventDefault();
         e.stopPropagation();
 
@@ -203,7 +204,7 @@ editor.once('load', () => {
         tabPositions.length = 0;
     };
 
-    const grabTab = function (tab, e) {
+    const grabTab = function (tab: { id: string; tab: { dom: HTMLElement; style: { left: string }; class: { add: (s: string) => void; remove: (s: string) => void } }; asset?: Observer }, e: MouseEvent) {
         grabbedTab = tab;
 
         grabbedMouseX = e.clientX;
@@ -248,7 +249,7 @@ editor.once('load', () => {
     };
 
     // creates a tab
-    const createTab = function (id, asset) {
+    const createTab = function (id: string, asset: Observer | null) {
         const tabName = asset ? asset.get('name') : id;
 
         const tab = new Container({
@@ -329,7 +330,7 @@ editor.once('load', () => {
             close();
         });
 
-        const onGrab = function (e) {
+        const onGrab = function (e: MouseEvent) {
             if (e.target === btnClose.dom) {
                 return;
             }
@@ -352,11 +353,11 @@ editor.once('load', () => {
             }
         };
 
-        const onMouseEnter = function (e) {
+        const onMouseEnter = function (_e: MouseEvent) {
             tab.class.add('hovered');
         };
 
-        const onMouseLeave = function (e) {
+        const onMouseLeave = function (_e: MouseEvent) {
             tab.class.remove('hovered');
         };
 

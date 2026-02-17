@@ -37,7 +37,7 @@ class Bubble extends Element {
         this.emit('deactivate');
     }
 
-    position(x = 0, y = 0) {
+    position(x: number | string = 0, y: number | string = 0) {
         this.style.left = (typeof x === 'number') ? `${x}px` : x;
         this.style.top = (typeof y === 'number') ? `${y}px` : y;
     }

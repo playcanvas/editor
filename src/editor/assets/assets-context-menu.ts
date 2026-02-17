@@ -952,7 +952,7 @@ editor.once('load', () => {
         });
     });
 
-    function createCustomContextMenu(data, parent) {
+    function createCustomContextMenu(data: { text: string; icon?: string; onIsVisible?: (asset: AssetObserver | null) => boolean; onSelect?: (asset: AssetObserver | null) => void; items?: Array<{ text: string; icon?: string; onIsVisible?: (asset: AssetObserver | null) => boolean; onSelect?: (asset: AssetObserver | null) => void; items?: unknown[] }> }, parent: Menu | MenuItem) {
         const item = new MenuItem({
             text: data.text,
             icon: data.icon,

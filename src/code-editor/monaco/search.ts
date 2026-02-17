@@ -53,7 +53,7 @@ editor.once('load', () => {
         }
     }
 
-    function onMatchDblClick(assetId, match) {
+    function onMatchDblClick(assetId: string, match: { line: number; char: number; length: number; text: string }) {
         // save state in order to restore later
         previousTabState = monacoEditor.saveViewState();
 

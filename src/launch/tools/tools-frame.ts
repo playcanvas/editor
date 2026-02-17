@@ -55,7 +55,7 @@ editor.once('load', () => {
 
 
         Object.defineProperty(row, 'value', {
-            set: function (value) {
+            set: function (value: string | undefined) {
                 this._field.textContent = value !== undefined ? value : '';
             }
         });
@@ -436,7 +436,7 @@ editor.once('load', () => {
         key: ['vram', 'tex'],
         title: 'Textures Other',
         panel: panelVram,
-        format: function (bytes) {
+        format: function (bytes: number) {
             return bytesToHuman(bytes - (app.stats.vram.texLightmap + app.stats.vram.texShadow + app.stats.vram.texAsset));
         }
     }, {

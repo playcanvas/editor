@@ -5,7 +5,7 @@ editor.once('load', () => {
         return hex.length === 1 ? `0${hex}` : hex;
     }
 
-    function rgbaToHex(r, g, b, a = 1) {
+    function rgbaToHex(r: number, g: number, b: number, a: number = 1) {
         // Check if alpha is necessary to include
         const alphaHex = a < 1 ? componentToHex(a) : '';
         return `#${componentToHex(r)}${componentToHex(g)}${componentToHex(b)}${alphaHex}`;
@@ -40,7 +40,7 @@ editor.once('load', () => {
             }];
         },
 
-        provideDocumentColors(model) {
+        provideDocumentColors(model: monaco.editor.ITextModel) {
             const colorInfos = [];
             const regex = /(["'`])#([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})\1/gi;
             let match;

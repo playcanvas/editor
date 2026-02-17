@@ -330,7 +330,7 @@ export class TemplateThumbnailRenderer extends ThumbnailRenderer {
         }));
     }
 
-    render(rotationX = 0, rotationY = 0) {
+    render(rotationX: number = 0, rotationY: number = 0) {
         this.requestFrameId = null;
 
         // Save the rotation settings in case we need to queue it again

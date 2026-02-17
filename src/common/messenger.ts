@@ -124,14 +124,14 @@ class Messenger extends Events {
     }
 
 
-    _onerror(error) {
+    _onerror(error: Event | Error) {
         this._connecting = false;
         console.error(error);
         this.emit('error', error);
     }
 
 
-    _onmessage(raw) {
+    _onmessage(raw: MessageEvent) {
         if (raw.data === 'pong') {
             this._onPong();
             return;
@@ -194,7 +194,7 @@ class Messenger extends Events {
         this._ping();
     }
 
-    authenticate(accessToken, type) {
+    authenticate(accessToken: string, type: string) {
         if (!this._connected) {
             return;
         }
@@ -206,20 +206,21 @@ class Messenger extends Events {
         });
     }
 
-    send(msg) {
+    send(msg: string | { name: string; [key: string]: unknown }) {
         if (!this._connected) {
             return;
         }
 
-        if (MESSENGER_RESERVED_NAMES.indexOf(msg.name) !== -1) {
-            this._onerror(new Error(`could not send message - name is reserved: ${msg.name}`));
+        const msgName = typeof msg === 'string' ? msg : msg.name;
+        if (MESSENGER_RESERVED_NAMES.indexOf(msgName) !== -1) {
+            this._onerror(new Error(`could not send message - name is reserved: ${msgName}`));
             return;
         }
         this.socket.send(JSON.stringify(msg));
     }
 
 
-    close(args) {
+    close(args?: { code?: number; reason?: string }) {
         if (!this._connected) {
             return;
         }
@@ -239,7 +240,7 @@ class Messenger extends Events {
 
 
     // start watching project
-    projectWatch(id) {
+    projectWatch(id: string) {
         this.send({
             name: 'project.watch',
             target: {
@@ -251,7 +252,7 @@ class Messenger extends Events {
     }
 
     // stop watching project
-    projectUnwatch(id) {
+    projectUnwatch(id: string) {
         this.send({
             name: 'project.unwatch',
             target: {
@@ -263,7 +264,7 @@ class Messenger extends Events {
     }
 
     // start watching organization
-    organizationWatch(id) {
+    organizationWatch(id: string) {
         this.send({
             name: 'organization.watch',
             target: {
@@ -275,7 +276,7 @@ class Messenger extends Events {
     }
 
     // stop watching organization
-    organizationUnwatch(id) {
+    organizationUnwatch(id: string) {
         this.send({
             name: 'organization.unwatch',
             target: {

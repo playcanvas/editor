@@ -143,7 +143,7 @@ class MaterialThumbnailRenderer extends ThumbnailRenderer {
         }
     }
 
-    _watchSkybox(id) {
+    _watchSkybox(id: number) {
         const asset = editor.call('assets:get', id);
         if (asset) {
             this._skybox = asset;
@@ -175,7 +175,7 @@ class MaterialThumbnailRenderer extends ThumbnailRenderer {
         });
     }
 
-    render(rotationX = 0, rotationY = 0, model = 'sphere') {
+    render(rotationX: number = 0, rotationY: number = 0, model: 'sphere' | 'box' = 'sphere') {
         this._queuedRender = false;
 
         if (!this._asset) {

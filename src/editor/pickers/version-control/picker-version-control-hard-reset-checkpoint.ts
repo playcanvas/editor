@@ -58,7 +58,7 @@ editor.once('load', () => {
         return panel;
     });
 
-    panel.setCheckpoint = function (checkpoint) {
+    panel.setCheckpoint = function (checkpoint: Record<string, unknown>) {
         textField.value = '';
         panel.checkpoint = checkpoint;
         boxRestore.setCheckpoint(checkpoint);

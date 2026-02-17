@@ -41,12 +41,12 @@ class ImageCache {
     }
 
     // return true if key exists
-    has(key) {
+    has(key: string) {
         return !!this._items[key];
     }
 
     // return the ImageCacheEntry at key
-    get(key) {
+    get(key: string) {
         if (this.has(key)) {
             return this._items[key];
         }
@@ -55,7 +55,7 @@ class ImageCache {
 
     // Insert an Image element into the cache
     // Returns the new ImageCacheEntry
-    insert(key, image) {
+    insert(key: string, image: HTMLImageElement) {
         const entry = new ImageCacheEntry(image);
         this._items[key] = entry;
 
@@ -160,7 +160,7 @@ class SpriteThumbnailRenderer {
         });
     }
 
-    render(frame = 0, animating = false) {
+    render(frame: number = 0, animating: boolean = false) {
         this._queuedRender = false;
         this._frameRequest = null;
 

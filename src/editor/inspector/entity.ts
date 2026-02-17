@@ -305,7 +305,7 @@ class EntityInspector extends Container {
         });
     }
 
-    _makeAddComponentMenuItem(component: string, title: string, logos: Record<string, string>, logoName = '', dataComponent: Record<string, unknown> = {}) {
+    _makeAddComponentMenuItem(component: string, title: string, logos: Record<string, string>, logoName: string = '', dataComponent: Record<string, unknown> = {}) {
         const data = {
             text: title,
             icon: logoName.length > 0 ? logos[logoName] : logos[component],

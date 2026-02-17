@@ -199,7 +199,7 @@ editor.once('load', () => {
 
     // Updates our regular expression.
     // Optionally pass override options for the regexp
-    const updateQuery = function (overrides = {}) {
+    const updateQuery = function (overrides: { isRegex?: boolean; matchWholeWords?: boolean; caseSensitive?: boolean } = {}) {
         queryDirty = true;
 
         let pattern = searchField.value;
@@ -235,7 +235,7 @@ editor.once('load', () => {
         }
     };
 
-    const updateFilterRegex = function (filter) {
+    const updateFilterRegex = function (filter: { pattern: string; textField: { value: string }; regexp: RegExp | null; doFilter: boolean; filterButton: { class: { remove: (s: string) => void; add: (s: string) => void } }; storageKey: string }) {
         queryDirty = true;
 
         filter.pattern = filter.textField.value.trim();
@@ -303,7 +303,7 @@ editor.once('load', () => {
         };
     };
 
-    const openPicker = function (defaultSearchValue) {
+    const openPicker = function (defaultSearchValue?: string) {
         if (!open) {
             open = true;
             panel.hidden = false;
@@ -411,7 +411,7 @@ editor.once('load', () => {
         }
     };
 
-    const search = function (reverse) {
+    const search = function (reverse?: boolean) {
         cancelDelayedSearch();
 
         if (queryDirty) {

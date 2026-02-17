@@ -530,7 +530,7 @@ class AttributesInspector extends Container {
         this.move(field, index);
     }
 
-    private _linkObservers(key) {
+    private _linkObservers(key: string) {
         const field = this.getField(key);
         const attr = this._fieldAttributes[key];
         if (attr.observer) {
@@ -599,7 +599,7 @@ class AttributesInspector extends Container {
         super.destroy();
     }
 
-    set value(value) {
+    set value(value: Record<string, unknown>) {
         if (!value) {
             return;
         }

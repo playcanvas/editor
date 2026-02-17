@@ -77,7 +77,7 @@ class LegacySlider extends LegacyElement {
         this.element.addEventListener('keydown', this._onKeyDown.bind(this), false);
     }
 
-    set min(value) {
+    set min(value: number) {
         if (this._min === value) {
             return;
         }
@@ -90,7 +90,7 @@ class LegacySlider extends LegacyElement {
         return this._min;
     }
 
-    set max(value) {
+    set max(value: number) {
         if (this._max === value) {
             return;
         }
@@ -103,7 +103,7 @@ class LegacySlider extends LegacyElement {
         return this._max;
     }
 
-    set value(value) {
+    set value(value: number | null) {
         if (this._link) {
             if (!this._link.set(this.path, value)) {
                 this._updateHandle(this._link.get(this.path));

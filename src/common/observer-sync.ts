@@ -237,7 +237,7 @@ class ObserverSync extends Events {
         this.emit('sync', op);
     }
 
-    set enabled(value) {
+    set enabled(value: boolean) {
         this._enabled = !!value;
     }
 

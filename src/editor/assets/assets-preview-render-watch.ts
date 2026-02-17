@@ -6,13 +6,13 @@ editor.once('load', () => {
 
     const watching = { };
 
-    const trigger = function (watch) {
+    const trigger = function (watch: { callbacks: Record<string | number, { callback: () => void }> }) {
         for (const key in watch.callbacks) {
             watch.callbacks[key].callback();
         }
     };
 
-    const load = function (watch, asset, reload) {
+    const load = function (watch: { callbacks: Record<string | number, unknown> }, asset: { unload?: () => void; ready: (fn: () => void) => void }, reload?: boolean) {
         if (reload && asset) {
             asset.unload();
         }
@@ -23,7 +23,7 @@ editor.once('load', () => {
         app.assets.load(asset);
     };
 
-    const unwatchContainer = function (watch, container) {
+    const unwatchContainer = function (watch: { onContainerLoad?: () => void; onContainerAdd?: () => void; evtContainerRemove?: { unbind: () => void }; evtContainerFileSet?: { unbind: () => void }; evtContainerFileUnset?: { unbind: () => void } }, container: string | number | null) {
         if (watch.onContainerLoad && container) {
             app.assets.off(`load:${container}`, watch.onContainerLoad);
             delete watch.onContainerLoad;
@@ -48,10 +48,10 @@ editor.once('load', () => {
         }
     };
 
-    const subscribe = function (watch) {
+    const subscribe = function (watch: { asset: { get: (path: string) => string | number | null }; engineAsset: { resource?: { off: (event: string, fn: () => void) => void; on: (event: string, fn: () => void) => void; meshes?: unknown }; off: (event: string, fn: () => void) => void; on: (event: string, fn: () => void) => void } | null; onChange: ((asset: unknown, name: string, value: unknown) => void) | null; onAdd: ((asset: unknown) => void) | null; onLoad: ((asset: { resource?: { off: (event: string, fn: () => void) => void; on: (event: string, fn: () => void) => void; meshes?: unknown }; resource?: unknown }) => void) | null; onSetMeshes: (() => void) | null; watching: Record<string, { unbind: () => void }> }) {
         let currentContainer = null;
 
-        watch.onChange = function (asset, name, value) {
+        watch.onChange = function (_asset: unknown, name: string, _value: unknown) {
             if (name === 'data') {
                 trigger(watch);
             }
@@ -106,7 +106,7 @@ editor.once('load', () => {
             watchContainer();
         });
 
-        watch.onAdd = function (asset) {
+        watch.onAdd = function (asset: { off: (event: string, fn: () => void) => void; on: (event: string, fn: () => void) => void; resource?: unknown }) {
             app.assets.off(`add:${watch.asset.get('id')}`, watch.onAdd);
             watch.onAdd = null;
             watch.engineAsset = asset;
@@ -122,7 +122,7 @@ editor.once('load', () => {
             }
         };
 
-        watch.onLoad = function (asset) {
+        watch.onLoad = function (asset: { resource?: { off: (event: string, fn: () => void) => void; on: (event: string, fn: () => void) => void; meshes?: unknown }; resource?: unknown }) {
             if (!asset.resource) {
                 return;
             }
@@ -134,7 +134,7 @@ editor.once('load', () => {
             }
         };
 
-        watch.onSetMeshes = function () {
+        watch.onSetMeshes = function (): void {
             trigger(watch);
         };
 
@@ -147,7 +147,7 @@ editor.once('load', () => {
         }
     };
 
-    const unsubscribe = function (watch) {
+    const unsubscribe = function (watch: { asset: { get: (path: string) => string | number | null }; engineAsset: { resource?: { off: (event: string, fn: () => void) => void }; off: (event: string, fn: () => void) => void } | null; onAdd: (() => void) | null; watching: Record<string, { unbind: () => void }> }) {
         const container = watch.asset.get('data.containerAsset');
         unwatchContainer(watch, container);
 

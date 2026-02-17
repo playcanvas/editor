@@ -286,7 +286,7 @@ editor.once('load', () => {
     panelRight.append(panelCloseBranchProgress);
 
     // Enable or disable the clickable parts of this picker
-    const togglePanels = function (enabled) {
+    const togglePanels = function (enabled: boolean) {
         editor.call('picker:project:setClosable', enabled && config.scene.id);
         editor.call('picker:project:toggleLeftPanel', enabled);
         panelBranches.disabled = !enabled;
@@ -294,7 +294,7 @@ editor.once('load', () => {
     };
 
     const checkpointCallbackQueue = [];
-    const createCheckpoint = function (branchId, description, callback) {
+    const createCheckpoint = function (branchId: string, description: string, callback: () => void) {
         togglePanels(false);
         showRightSidePanel(panelCreateCheckpointProgress);
 
@@ -474,7 +474,7 @@ editor.once('load', () => {
             });
         };
 
-        const checkpointDescription = function (srcBranch, dstBranch) {
+        const checkpointDescription = function (srcBranch: Record<string, unknown>, dstBranch: Record<string, unknown>) {
             return `Checkpoint before merging branch "${srcBranch.name}" [${srcBranch.latestCheckpointId.substring(0, 7)}] into "${dstBranch.name}" [${dstBranch.latestCheckpointId.substring(0, 7)}]`;
         };
 
@@ -764,7 +764,7 @@ editor.once('load', () => {
     editor.call('layout.root').append(menuBranches);
 
     // Select specified branch and show its checkpoints
-    const selectBranch = function (branch) {
+    const selectBranch = function (branch: Record<string, unknown>) {
         selectedBranch = branch;
         showCheckpoints();
 
@@ -818,7 +818,7 @@ editor.once('load', () => {
             get: function () {
                 return this._isFavorite;
             },
-            set: function (value) {
+            set: function (value: boolean) {
                 if (value !== this._isFavorite) {
                     this._isFavorite = Boolean(value);
                     labelIcon.text = this._isFavorite ? '&#9733;' : branch.closed ? '&#57650;' : '&#58208;';
@@ -939,7 +939,7 @@ editor.once('load', () => {
         });
     }
 
-    function viewDiffFromShowCheckpoints(srcBranchId, srcCheckpointId, dstBranchId, dstCheckpointId) {
+    function viewDiffFromShowCheckpoints(srcBranchId: string, srcCheckpointId: string | null, dstBranchId: string, dstCheckpointId: string | null) {
         viewDiff(srcBranchId, srcCheckpointId, dstBranchId, dstCheckpointId);
     }
 
@@ -1401,7 +1401,7 @@ editor.once('load', () => {
     editor.call('hotkey:register', 'new-checkpoint', {
         key: 's',
         ctrl: true,
-        callback: function (e) {
+        callback: function (e: KeyboardEvent) {
             if (!editor.call('permissions:write')) {
                 return;
             }

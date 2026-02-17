@@ -257,7 +257,7 @@ class EntityInput extends Element {
         super.destroy();
     }
 
-    set value(value) {
+    set value(value: string | null) {
         if (this._value === value) {
             return;
         }
@@ -272,7 +272,7 @@ class EntityInput extends Element {
         return this._value;
     }
 
-    set values(values) {
+    set values(values: (string | null)[]) {
         let different = false;
         const value = values[0];
         for (let i = 1; i < values.length; i++) {

@@ -12,7 +12,7 @@ editor.once('load', () => {
     const regexUrl = /[a-z]+:\/\/[-\w@:%.+~#=]{2,256}\.[a-z]{2,6}\b[-\w@:%+.~#?&/=]*/g;
     const regexEmail = /[-\w:%.+~]{1,256}@[-\w@:%.+~#=]{1,256}\.[a-z]{2,16}/g;
 
-    const stringToElements = function (args) {
+    const stringToElements = function (args: { string: string; regex: RegExp; filter: (match: string) => HTMLAnchorElement }) {
         const items = [];
 
         const bits = args.string.match(args.regex);
@@ -33,7 +33,7 @@ editor.once('load', () => {
         return items;
     };
 
-    const parseMessageFilterLink = function (string) {
+    const parseMessageFilterLink = function (string: string) {
         const link = document.createElement('a');
         link.target = '_blank';
         link.href = string;
@@ -41,7 +41,7 @@ editor.once('load', () => {
         return link;
     };
 
-    const parseMessageFilterEmail = function (string) {
+    const parseMessageFilterEmail = function (string: string) {
         const link = document.createElement('a');
         link.href = `mailto:${string}`;
         link.textContent = string;

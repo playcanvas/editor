@@ -235,7 +235,7 @@ class ColorInput extends Element {
         super.destroy();
     }
 
-    set value(value) {
+    set value(value: number[] | null) {
         value = value || [0, 0, 0, 0];
         const changed = this._updateValue(value);
 
@@ -248,7 +248,7 @@ class ColorInput extends Element {
         return this._value.slice(0, this._channels);
     }
 
-    set values(values) {
+    set values(values: number[][]) {
         let different = false;
         const value = values[0];
         for (let i = 1; i < values.length; i++) {
@@ -273,7 +273,7 @@ class ColorInput extends Element {
         }
     }
 
-    set channels(value) {
+    set channels(value: number) {
         if (this._channels === value) {
             return;
         }

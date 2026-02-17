@@ -26,7 +26,7 @@ class ContainerAssetInspector extends Container {
         this.buildDom(DOM(args));
     }
 
-    link(assets) {
+    link(assets: import('@playcanvas/observer').Observer[]) {
         this.unlink();
         this._relatedAssetsInspector.link(assets);
     }

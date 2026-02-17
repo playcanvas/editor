@@ -72,7 +72,7 @@ class TextureAssetInspectorPreview extends AssetInspectorPreviewBase {
         }
     }
 
-    link(assets) {
+    link(assets: import('@playcanvas/observer').Observer[]) {
         this.unlink();
         super.link();
         this._assets = assets;

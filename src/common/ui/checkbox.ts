@@ -15,7 +15,7 @@ class LegacyCheckbox extends LegacyElement {
         this.on('change', this._onChange.bind(this));
     }
 
-    set value(value) {
+    set value(value: boolean | null) {
         if (this._link) {
             this._link.set(this.path, value);
         } else {
@@ -44,7 +44,7 @@ class LegacyCheckbox extends LegacyElement {
         this.flash();
     }
 
-    _onKeyDown(evt) {
+    _onKeyDown(evt: KeyboardEvent) {
         if (evt.keyCode === 27) {
             return this._element.blur();
         }
@@ -58,7 +58,7 @@ class LegacyCheckbox extends LegacyElement {
         this.value = !this.value;
     }
 
-    _onLinkChange(value) {
+    _onLinkChange(value: boolean | null) {
         if (value === null) {
             this._element.classList.remove('checked');
             this._element.classList.add('null');

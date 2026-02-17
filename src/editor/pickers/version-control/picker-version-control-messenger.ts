@@ -65,7 +65,7 @@ editor.once('load', () => {
     });
 
     // don't let the user's full name be too big
-    const truncateFullName = function (fullName) {
+    const truncateFullName = function (fullName: string) {
         return fullName.length > 36 ? `${fullName.substring(0, 33)}...` : fullName;
     };
 

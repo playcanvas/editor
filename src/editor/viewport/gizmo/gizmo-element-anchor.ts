@@ -102,7 +102,7 @@ editor.once('load', () => {
         return obj;
     };
 
-        const createMaterial = function (color: Color) {
+    const createMaterial = function (color: Color) {
         const mat = createColorMaterial();
         mat.color = color;
         if (color.a !== 1) {
@@ -112,7 +112,7 @@ editor.once('load', () => {
         return mat;
     };
 
-        const setModelMaterial = function (entity: Entity, material: import('playcanvas').Material) {
+    const setModelMaterial = function (entity: Entity, material: import('playcanvas').Material) {
         if (entity.model.meshInstances[0].material !== material) {
             entity.model.meshInstances[0].material = material;
         }
@@ -138,11 +138,11 @@ editor.once('load', () => {
             }
         });
 
-        const isAnchorSplit = function (anchor) { // eslint-disable-line no-unused-vars
+        const isAnchorSplit = function (anchor: number[]) { // eslint-disable-line no-unused-vars
             return Math.abs(anchor[0] - anchor[2] > 0.001 || Math.abs(anchor[1] - anchor[3]) > 0.001);
         };
 
-        const clamp = function (value, min, max) { // eslint-disable-line no-unused-vars
+        const clamp = function (value: number, min: number, max: number) { // eslint-disable-line no-unused-vars
             return Math.min(Math.max(value, min), max);
         };
 

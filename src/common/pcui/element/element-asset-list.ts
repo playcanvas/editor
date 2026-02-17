@@ -1,4 +1,4 @@
-import type { ObserverList } from '@playcanvas/observer';
+import type { Observer, ObserverList } from '@playcanvas/observer';
 import { Element, ElementArgs, Container, Button, Label, TextInput, BindingObserversToElement } from '@playcanvas/pcui';
 
 const CLASS_ASSET_LIST = 'pcui-asset-list';
@@ -279,8 +279,8 @@ class AssetList extends Element {
         this._searchInput.value = '';
 
         // pick assets and filter them
-        this._pickAssets((assets: any[]) => {
-            this._selectedAssets = assets.filter((asset: any) => {
+        this._pickAssets((assets) => {
+            this._selectedAssets = assets.filter((asset) => {
                 if (this._filterFn) {
                     return this._filterFn(asset);
                 }
@@ -338,7 +338,7 @@ class AssetList extends Element {
     }
 
     // Opens asset picker and allows asset selection
-    _pickAssets(callback: (assets: any[]) => void) {
+    _pickAssets(callback: (assets: Observer[]) => void) {
         editor.call('picker:asset', {
             type: this._assetType || '*',
             multi: true
@@ -354,7 +354,7 @@ class AssetList extends Element {
     }
 
     // Selects the specified asset
-    _selectAsset(asset: any) {
+    _selectAsset(asset: Observer) {
         editor.call('selector:set', 'asset', [asset]);
 
         let folder = null;
@@ -542,7 +542,7 @@ class AssetList extends Element {
         return newValue;
     }
 
-    set value(value) {
+    set value(value: number | null) {
         if (!value) {
             value = null;
         }
@@ -579,7 +579,7 @@ class AssetList extends Element {
         return result;
     }
 
-    set values(values) {
+    set values(values: (number | null)[]) {
         if (this._values.equals(values)) {
             return;
         }

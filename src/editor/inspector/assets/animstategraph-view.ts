@@ -245,7 +245,7 @@ class AnimstategraphView {
         }
     }
 
-    _keyboardListener(e) {
+    _keyboardListener(e: KeyboardEvent) {
         if (e.keyCode === 27) {
             // esc
             if (this._graph.selectedItem) {
@@ -577,7 +577,7 @@ class AnimstategraphView {
         this._suppressGraphDataEvents = false;
     }
 
-    _onAddNode({ node }) {
+    _onAddNode({ node }: { node: { id: number; attributes: Record<string, unknown> } }) {
         const data = this._assets[0].get('data');
         data.states[node.id] = Object.assign({}, node, node.attributes);
         delete data.states[node.id].attributes;
@@ -587,7 +587,7 @@ class AnimstategraphView {
         this._assets[0].set('data', data);
     }
 
-    _onDeleteNode({ node, edges }) {
+    _onDeleteNode({ node, edges }: { node: { id: number; attributes: { name: string } }; edges: number[] }) {
         const data = this._assets[0].get('data');
         if (data.layers[this._selectedLayer].states.includes(node.id)) {
             data.layers[this._selectedLayer].states.splice(data.layers[this._selectedLayer].states.indexOf(node.id), 1);

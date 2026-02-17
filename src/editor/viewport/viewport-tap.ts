@@ -47,7 +47,7 @@ editor.once('load', () => {
             this.mouse = !!mouse;
         }
 
-        update(evt, rect) {
+        update(evt: MouseEvent, rect: DOMRect) {
             const x = evt.clientX - rect.left;
             const y = evt.clientY - rect.top;
 
@@ -78,7 +78,7 @@ editor.once('load', () => {
         return inViewport;
     });
 
-    const evtMouseMove = function (evt) {
+    const evtMouseMove = function (evt: MouseEvent) {
         const rect = canvas.element.getBoundingClientRect();
         for (let i = 0; i < taps.length; i++) {
             if (!taps[i].mouse) {
@@ -116,7 +116,7 @@ editor.once('load', () => {
     });
     const gizmoCapture = (evt: MouseEvent) => gizmoDragging && evt.button === 0;
 
-    const evtMouseUp = function (evt) {
+    const evtMouseUp = function (evt: MouseEvent) {
         if (gizmoCapture(evt)) {
             return;
         }

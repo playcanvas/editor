@@ -5,7 +5,7 @@ import { bytesToHuman } from '@/common/utils';
 import { BaseStore, EMPTY_THUMBNAIL_IMAGE, EMPTY_THUMBNAIL_IMAGE_LARGE, STORE_ITEM_PAGE_SIZE } from './baseStore';
 
 class MyAssetsStore extends BaseStore {
-    constructor(args) {
+    constructor(args?: unknown) {
         super();
         this.sortPolicy = 'createdAt';
     }
@@ -14,7 +14,7 @@ class MyAssetsStore extends BaseStore {
         return 'myAssetsStore';
     }
 
-    async load(selectedFilter, searchString, tags, sortDescending) {
+    async load(selectedFilter: { text: string }, searchString: string, tags: string[], sortDescending: boolean) {
         this.totalCount = 0;
         this.startItem = 0;
         this.searchResults = await editor.call('store:assets:list',
@@ -30,7 +30,7 @@ class MyAssetsStore extends BaseStore {
         return this.prepareItems(this.searchResults.result);
     }
 
-    async loadMore(selectedFilter, searchString, tags, sortDescending) {
+    async loadMore(selectedFilter: { text: string }, searchString: string, tags: string[], sortDescending: boolean) {
         // sketchfab store - get the list of items
         const searchResults = await editor.call('store:assets:list',
             searchString,
@@ -50,12 +50,12 @@ class MyAssetsStore extends BaseStore {
         return this.items.length < this.totalCount;
     }
 
-    async cloneItem(asset) {
+    async cloneItem(asset: { id: string; name: string }) {
         // use invoke to handle exceptions
         await editor.call('myassets:clone', asset.id, filenamify(asset.name), config.project.id);
     }
 
-    buildSorting(sortingDropdown, sortCallback) {
+    buildSorting(sortingDropdown: import('@playcanvas/pcui').Container, sortCallback: () => void) {
         this.buildSortingMenuItem(sortingDropdown, 'Sort By Name', 'name', false);
         this.buildSortingMenuItem(sortingDropdown, 'Sort By Created', 'created', true);
         this.buildSortingMenuItem(sortingDropdown, 'Sort By Size', 'size');
@@ -63,12 +63,12 @@ class MyAssetsStore extends BaseStore {
         this.sortCallback = sortCallback;
     }
 
-    _getThumbnailUrl(id) {
+    _getThumbnailUrl(id: string) {
         return `/api/assets/${id}/thumbnail/large`;
     }
 
     // prepare users assets for the list view
-    prepareItems(items) {
+    prepareItems(items: { id: string; name: string; hasThumbnail?: boolean; file?: { size: number }; createdAt?: string; modifiedAt?: string }[]) {
         const newItems = [];
 
         if (!items) {
@@ -76,7 +76,7 @@ class MyAssetsStore extends BaseStore {
         }
 
         const self = this;
-        const load = async function (item) {
+        const load = async function (item: { id: string }) {
             return self._prepareItem(await editor.api.globals.rest.assets.assetGet(item.id).promisify());
         };
 
@@ -105,13 +105,13 @@ class MyAssetsStore extends BaseStore {
         return newItems;
     }
 
-    _prepareViewerUrl(asset) {
+    _prepareViewerUrl(asset: { id: string; file: { filename: string } }) {
         // model viewer with the splat
         const splatUrl = encodeURIComponent(`/api/assets/${asset.id}/file/${asset.file.filename}`);
         return `/viewer?load=${splatUrl}`;
     }
 
-    _prepareItem(asset) {
+    _prepareItem(asset: { id: string; hasThumbnail?: boolean; file?: { filename: string; size: number }; tags: string[]; name: string; modifiedAt?: string }) {
 
         let thumbnail = EMPTY_THUMBNAIL_IMAGE_LARGE;
         if (asset.hasThumbnail) {

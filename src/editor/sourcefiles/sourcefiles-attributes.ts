@@ -1,3 +1,15 @@
+interface ScriptAttribute {
+    name: string;
+    type?: string;
+    defaultValue: unknown;
+    options?: { displayName?: string; description?: string; type?: unknown };
+}
+
+interface ScriptAttributesData {
+    name: string;
+    values: ScriptAttribute[];
+}
+
 editor.once('load', () => {
 
     const typeofs = ['undefined', 'number', 'string', 'boolean'];
@@ -53,7 +65,7 @@ editor.once('load', () => {
     const REGEX_GUID = /^[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}$/i;
     const REGEX_COLOR_CURVE = /^(?:r(?:gba?)?|[gba])$/; // r or g or b or rgb or rgba
 
-    const attributeErrorMsg = function (url, attribute, error) {
+    const attributeErrorMsg = function (url: string, attribute: ScriptAttribute, error: string) {
         return pc.string.format('Attribute \'{0}\' of script {1} is invalid: {2}', attribute.name, url, error);
     };
 
@@ -466,7 +478,7 @@ editor.once('load', () => {
             url: url
         });
 
-        worker.onmessage = function (e) {
+        worker.onmessage = function (e: MessageEvent) {
             if (e.data) {
                 if (typeof e.data.error !== 'undefined') {
                     editor.call('status:error', pc.string.format('Could not parse {0} - {1}', url, e.data.error));

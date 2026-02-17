@@ -53,7 +53,7 @@ class FontAssetInspectorPreview extends AssetInspectorPreviewBase {
         this._queueRender();
     }
 
-    link(assets) {
+    link(assets: import('@playcanvas/observer').Observer[]) {
         super.link(assets);
         this._previewRenderer = new FontThumbnailRenderer(assets[0], this._preview.dom);
         this._queueRender();

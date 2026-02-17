@@ -48,11 +48,11 @@ editor.once('load', () => {
                 }
             },
 
-            open: function (url, data) {
+            open: function (url: string, data: unknown) {
                 return this._handler.open(url, data);
             },
 
-            patch: function (asset, assets) {
+            patch: function (asset: unknown, assets: unknown) {
                 return this._handler.patch(asset, assets);
             }
         };
@@ -89,23 +89,23 @@ editor.once('load', () => {
                 }
             },
 
-            open: function (url, data) {
+            open: function (url: string, data: unknown) {
                 return this._handler.open(url, data);
             },
 
-            patch: function (asset, assets) {
+            patch: function (asset: unknown, assets: unknown) {
                 return this._handler.patch(asset, assets);
             }
         };
         app.loader.addHandler('hierarchy', new SharedHierarchyHandler(app, new pc.HierarchyHandler(app)));
 
-        const SharedSceneSettingsHandler = function (app, handler) {
+        const SharedSceneSettingsHandler = function (app: pc.AppBase, handler: pc.SceneSettingsHandler) {
             this._app = app;
             this._handler = handler;
         };
 
         SharedSceneSettingsHandler.prototype = {
-            load: function (url, callback) {
+            load: function (url: string | { load: string; original: string }, callback: (err: Error | null, scene?: unknown) => void) {
                 if (typeof url === 'string') {
                     url = {
                         load: url,

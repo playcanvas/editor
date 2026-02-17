@@ -122,7 +122,7 @@ class ModelThumbnailRenderer extends ThumbnailRenderer {
         }
     }
 
-    _watchMaterial(id) {
+    _watchMaterial(id: number) {
         const material = editor.call('assets:get', id);
         if (material) {
             this._materialWatches[id] = editor.call('assets:material:watch', {
@@ -134,7 +134,7 @@ class ModelThumbnailRenderer extends ThumbnailRenderer {
         }
     }
 
-    _unwatchMaterial(id) {
+    _unwatchMaterial(id: number) {
         const material = editor.call('assets:get', id);
         if (material) {
             editor.call('assets:material:unwatch', material, this._materialWatches[id]);
@@ -162,7 +162,7 @@ class ModelThumbnailRenderer extends ThumbnailRenderer {
         });
     }
 
-    render(rotationX = -15, rotationY = 45) {
+    render(rotationX: number = -15, rotationY: number = 45) {
         this._queuedRender = false;
 
         if (!this._asset) {

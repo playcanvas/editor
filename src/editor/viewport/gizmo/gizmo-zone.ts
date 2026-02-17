@@ -18,6 +18,7 @@ import {
 } from 'playcanvas';
 
 import { GIZMO_MASK } from '@/core/constants';
+import type { EntityObserver } from '@/editor-api';
 
 import { createColorMaterial } from '../viewport-color-material';
 
@@ -28,7 +29,7 @@ editor.once('load', () => {
     const layerFront = editor.call('gizmo:layers', 'Bright Collision');
     const layerBack = editor.call('gizmo:layers', 'Dim Gizmo');
 
-    const filterPicker = function (drawCall) {
+    const filterPicker = function (drawCall: { command?: unknown; __editor?: boolean; __zone?: boolean; layer?: number }) {
         if (drawCall.command) {
             return true;
         }

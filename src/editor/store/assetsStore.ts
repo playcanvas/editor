@@ -5,7 +5,7 @@ import { bytesToHuman } from '@/common/utils';
 import { BaseStore, EMPTY_THUMBNAIL_IMAGE, EMPTY_THUMBNAIL_IMAGE_LARGE, STORE_ITEM_PAGE_SIZE } from './baseStore';
 
 class AssetsStore extends BaseStore {
-    constructor(args) {
+    constructor(args?: unknown) {
         super();
         this.searchResults = [];
         this.sortPolicy = 'created';
@@ -15,7 +15,7 @@ class AssetsStore extends BaseStore {
         return 'playcanvasStore';
     }
 
-    async load(selectedFilter, searchString, tags, sortDescending) {
+    async load(selectedFilter: { text: string }, searchString: string, tags: string[], sortDescending: boolean) {
         this.totalCount = 0;
         this.startItem = 0;
 
@@ -33,7 +33,7 @@ class AssetsStore extends BaseStore {
         return this.prepareItems(this.searchResults.result);
     }
 
-    async loadMore(selectedFilter, searchString, tags, sortDescending) {
+    async loadMore(selectedFilter: { text: string }, searchString: string, tags: string[], sortDescending: boolean) {
         const values = await editor.call('store:list',
             searchString,
             this.items.length,
@@ -55,12 +55,12 @@ class AssetsStore extends BaseStore {
         return this.items.length < this.totalCount;
     }
 
-    async cloneItem(storeItem) {
+    async cloneItem(storeItem: { id: string; name: string; license: string }) {
         // use invoke to handle exceptions
         await editor.call('store:clone', storeItem.id, filenamify(storeItem.name), storeItem.license, config.project.id);
     }
 
-    buildSorting(sortingDropdown, sortCallback) {
+    buildSorting(sortingDropdown: import('@playcanvas/pcui').Container, sortCallback: () => void) {
         this.buildSortingMenuItem(sortingDropdown, 'Sort By Name', 'name');
         this.buildSortingMenuItem(sortingDropdown, 'Sort By Created', 'created', true);
         this.buildSortingMenuItem(sortingDropdown, 'Sort By Size', 'size');
@@ -72,7 +72,7 @@ class AssetsStore extends BaseStore {
 
     // prepare playcanvas store assets for the items details view
     // extract glb data from the sketchfab item
-    _prepareAssets(items) {
+    _prepareAssets(items: { file?: { filename: string; size: number }; name: string; type: string; id: string }[]) {
         const newItems = [];
         if (!items) {
             return newItems;
@@ -90,22 +90,22 @@ class AssetsStore extends BaseStore {
         return newItems;
     }
 
-    async _loadAssets(id) {
+    async _loadAssets(id: string) {
         const results =  await editor.api.globals.rest.store.storeAssets(id).promisify();
         return results.result;
     }
 
-    _isModelAsset(asset) {
+    _isModelAsset(asset: { file?: { filename: string }; type: string }) {
         const filename = asset.file ? asset.file.filename : null;
         return (filename && String(filename).match(/\.glb$/) !== null) || (asset.type === 'gsplat');
     }
 
-    _isTextureAsset(asset) {
+    _isTextureAsset(asset: { type: string }) {
         const type = asset.type;
         return ['texture', 'textureatlas'].includes(type);
     }
 
-    _prepareViewerUrl(item, assets) {
+    _prepareViewerUrl(item: { id: string }, assets: { file?: { filename: string }; id: string; type: string }[]) {
 
         // model viewer with the first asset in the list
         const hostname = window.location.hostname;
@@ -138,7 +138,7 @@ class AssetsStore extends BaseStore {
         }
     }
 
-    async _prepareItem(item) {
+    async _prepareItem(item: { id: string; pictures: string[]; tags: string[]; name: string; size: string; modified: string; views: number; downloads: number; description: string; license: string }) {
 
         let thumbnail = EMPTY_THUMBNAIL_IMAGE_LARGE;
         if (item.pictures.length) {
@@ -175,7 +175,7 @@ class AssetsStore extends BaseStore {
         };
     }
 
-    prepareItems(items) {
+    prepareItems(items: { id: string; name: string; description: string; pictures: string[]; views: number; size: string; downloads: number; created: string; license: string }[]) {
         const newItems = [];
 
         if (!items) {
@@ -183,7 +183,7 @@ class AssetsStore extends BaseStore {
         }
 
         const self = this;
-        const load = async function (item) {
+        const load = async function (item: { id: string }) {
             return self._prepareItem(await editor.api.globals.rest.store.storeGet(item.id).promisify());
         };
 

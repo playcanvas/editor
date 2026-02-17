@@ -44,7 +44,7 @@ class LegacyCurveField extends LegacyElement {
         this.max = args.max !== undefined ? args.max : (args.verticalValue !== undefined ? args.verticalValue : 1);
     }
 
-    set value(value) {
+    set value(value: any) {
         this._setValue(value);
     }
 
@@ -52,7 +52,7 @@ class LegacyCurveField extends LegacyElement {
         return this._value;
     }
 
-    _onKeyDown(evt) {
+    _onKeyDown(evt: KeyboardEvent) {
         if (evt.keyCode === 27) {
             return this._element.blur();
         }
@@ -146,7 +146,7 @@ class LegacyCurveField extends LegacyElement {
         this._setValue(values);
     }
 
-    _setValue(value) {
+    _setValue(value: any) {
         this._value = value;
         this._render();
         this.emit('change', value);
@@ -338,7 +338,7 @@ class LegacyCurveField extends LegacyElement {
         return [minValue, maxValue];
     }
 
-    _valueToCurves(value) {
+    _valueToCurves(value: any) {
         let curves = null;
 
         if (value && value.keys && value.keys.length) {

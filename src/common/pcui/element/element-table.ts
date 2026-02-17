@@ -939,7 +939,7 @@ class Table extends Container {
         super.destroy();
     }
 
-    set columns(value) {
+    set columns(value: TableColumn[]) {
         this._columns = value.slice();
         this._refreshLayout();
     }
@@ -976,7 +976,7 @@ class Table extends Container {
         return this._sort.ascending;
     }
 
-    set allowRowFocus(value) {
+    set allowRowFocus(value: boolean) {
         this._allowRowFocus = value;
     }
 

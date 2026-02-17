@@ -501,7 +501,7 @@ class LightComponentInspector extends ComponentInspector {
         this._skipToggleFields = false;
     }
 
-    _field(name) {
+    _field(name: string) {
         return this._attributesInspector.getField(`components.light.${name}`);
     }
 
@@ -619,7 +619,7 @@ class LightComponentInspector extends ComponentInspector {
         this._btnUpdateShadow.hidden = this._field('shadowUpdateMode').value !== SHADOWUPDATE_THISFRAME;
     }
 
-    _updateShadows(entities) {
+    _updateShadows(entities: import('@playcanvas/observer').Observer[]) {
         for (let i = 0; i < entities.length; i++) {
             if (entities[i].entity && entities[i].entity.light && entities[i].entity.light.shadowUpdateMode === SHADOWUPDATE_THISFRAME) {
                 entities[i].entity.light.light.shadowUpdateMode = SHADOWUPDATE_THISFRAME;
@@ -632,7 +632,7 @@ class LightComponentInspector extends ComponentInspector {
         this._field('innerConeAngle').max = this._field('outerConeAngle').value;
     }
 
-    link(entities) {
+    link(entities: import('@playcanvas/observer').Observer[]) {
         super.link(entities);
 
         this._skipToggleFields = true;

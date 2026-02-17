@@ -109,7 +109,7 @@ class ImportMapSettingsPanel extends BaseSettingsPanel {
         }
     }
 
-    _setImportMap(asset) {
+    _setImportMap(asset: { get: (path: string) => unknown } | null) {
         const id = asset && asset.get ? asset.get('id') : null;
         if (id) {
             this._projectSettings.set('importMap', id.toString());

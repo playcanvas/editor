@@ -88,7 +88,7 @@ class LegacyPanel extends LegacyContainer {
         this.headerSize = 0;
     }
 
-    set header(value) {
+    set header(value: string) {
         if (!this.headerElement && value) {
             this.headerElement = document.createElement('header');
             this.headerElement.classList.add('ui-header');
@@ -129,7 +129,7 @@ class LegacyPanel extends LegacyContainer {
         return (this.headerElement && this.headerElementTitle.textContent) || '';
     }
 
-    set foldable(value) {
+    set foldable(value: boolean) {
         if (value) {
             this.class.add('foldable');
 
@@ -151,7 +151,7 @@ class LegacyPanel extends LegacyContainer {
         return this.class.contains('foldable');
     }
 
-    set folded(value) {
+    set folded(value: boolean) {
         if (this.hidden) {
             return;
         }
@@ -185,7 +185,7 @@ class LegacyPanel extends LegacyContainer {
         return this.class.contains('foldable') && this.class.contains('folded');
     }
 
-    set horizontal(value) {
+    set horizontal(value: boolean) {
         if (value) {
             this.class.add('horizontal');
         } else {
@@ -198,7 +198,7 @@ class LegacyPanel extends LegacyContainer {
         return this.class.contains('horizontal');
     }
 
-    set resizable(value) {
+    set resizable(value: string | null) {
         if (this._handle === value) {
             return;
         }
@@ -232,7 +232,7 @@ class LegacyPanel extends LegacyContainer {
         return this._handle;
     }
 
-    set resizeMin(value) {
+    set resizeMin(value: number) {
         this._resizeLimits.min = Math.max(0, Math.min(this._resizeLimits.max, value));
     }
 
@@ -240,7 +240,7 @@ class LegacyPanel extends LegacyContainer {
         return this._resizeLimits.min;
     }
 
-    set resizeMax(value) {
+    set resizeMax(value: number) {
         this._resizeLimits.max = Math.max(this._resizeLimits.min, value);
     }
 

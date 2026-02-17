@@ -39,7 +39,7 @@ editor.once('load', () => {
             });
         }
 
-        createLineOverlay(line, cls) {
+        createLineOverlay(line: number, cls: string) {
             return {
                 range: new monaco.Range(line, 1, line, 1),
                 options: {
@@ -49,7 +49,7 @@ editor.once('load', () => {
             };
         }
 
-        createLineNumber(cmLine, codeLine) {
+        createLineNumber(cmLine: number, codeLine: number) {
             this.lineNumbers[cmLine + 1] = codeLine;
         }
 

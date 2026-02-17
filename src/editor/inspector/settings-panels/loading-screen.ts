@@ -110,7 +110,7 @@ class LoadingScreenSettingsPanel extends BaseSettingsPanel {
         }
     }
 
-    _setLoadingScreen(asset) {
+    _setLoadingScreen(asset: { get: (path: string) => unknown } | null) {
         const id = asset && asset.get ? asset.get('id') : null;
         if (id) {
             this._projectSettings.set('loadingScreenScript', id.toString());

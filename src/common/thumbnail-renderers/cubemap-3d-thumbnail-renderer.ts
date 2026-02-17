@@ -93,7 +93,7 @@ class Cubemap3dThumbnailRenderer extends ThumbnailRenderer {
         });
     }
 
-    render(rotationX = 0, rotationY = 0, mipLevel = 0) {
+    render(rotationX: number = 0, rotationY: number = 0, mipLevel: number = 0) {
         this._queuedRender = false;
 
         if (!this._asset) {

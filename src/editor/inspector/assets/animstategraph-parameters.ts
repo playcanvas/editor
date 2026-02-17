@@ -1,3 +1,4 @@
+import type { Observer } from '@playcanvas/observer';
 import { Panel, Button } from '@playcanvas/pcui';
 import { ANIM_EQUAL_TO, ANIM_PARAMETER_BOOLEAN, ANIM_PARAMETER_FLOAT, ANIM_PARAMETER_INTEGER, ANIM_PARAMETER_TRIGGER } from 'playcanvas';
 
@@ -24,7 +25,7 @@ class AnimstategraphParameters extends Panel {
         this.header.append(this._addNewParameterButton);
     }
 
-    _createParamAttributesInspector(paramId, param) {
+    _createParamAttributesInspector(paramId: string, param: { name: string; type: number; value: number | boolean }) {
         let valueType;
         switch (param.type) {
             case ANIM_PARAMETER_BOOLEAN:
@@ -261,7 +262,7 @@ class AnimstategraphParameters extends Panel {
         return attributesInspector;
     }
 
-    _addParamPanel(paramId) {
+    _addParamPanel(paramId: string) {
         const param = this._assets[0].get(`data.parameters.${paramId}`);
         const paramPanel = new Panel({
             headerText: param.name,
@@ -296,7 +297,7 @@ class AnimstategraphParameters extends Panel {
         }
     }
 
-    _deleteParameter(paramId) {
+    _deleteParameter(paramId: string) {
         const param = this._assets[0].get(`data.parameters.${paramId}`);
         const conditions = {
         };
@@ -369,7 +370,7 @@ class AnimstategraphParameters extends Panel {
         this._parameterPanels = {};
     }
 
-    link(assets) {
+    link(assets: Observer[]) {
         this.unlink();
 
         this._assets = assets;

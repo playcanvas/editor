@@ -23,7 +23,7 @@ editor.once('load', () => {
     };
 
     // rect drag
-    const pickRectMouseMove = function (evt) {
+    const pickRectMouseMove = function (evt: MouseEvent) {
         changing = true;
         const rect = pickRect.getBoundingClientRect();
         const x = Math.max(0, Math.min(size, Math.floor(evt.clientX - rect.left)));
@@ -54,7 +54,7 @@ editor.once('load', () => {
     };
 
     // hue drag
-    const pickHueMouseMove = function (evt) {
+    const pickHueMouseMove = function (evt: MouseEvent) {
         changing = true;
         const rect = pickHue.getBoundingClientRect();
         const y = Math.max(0, Math.min(size, Math.floor(evt.clientY - rect.top)));
@@ -82,7 +82,7 @@ editor.once('load', () => {
     };
 
     // opacity drag
-    const pickOpacityMouseMove = function (evt) {
+    const pickOpacityMouseMove = function (evt: MouseEvent) {
         changing = true;
         const rect = pickHue.getBoundingClientRect();
         const y = Math.max(0, Math.min(size, Math.floor(evt.clientY - rect.top)));
@@ -166,7 +166,7 @@ editor.once('load', () => {
     };
 
     // update alpha handle
-    const updateRectAlpha = function (value) {
+    const updateRectAlpha = function (value: number) {
         if (channelsNumber !== 4) {
             return;
         }

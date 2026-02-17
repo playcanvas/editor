@@ -17,7 +17,7 @@ class LegacyListItem extends LegacyElement {
         this.on('click', this._onClick.bind(this));
     }
 
-    set text(value) {
+    set text(value: string) {
         if (this._text === value) {
             return;
         }
@@ -29,7 +29,7 @@ class LegacyListItem extends LegacyElement {
         return this._text;
     }
 
-    set selected(value) {
+    set selected(value: boolean) {
         if (this._selected === value) {
             return;
         }

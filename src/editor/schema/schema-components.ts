@@ -89,7 +89,7 @@ editor.once('load', () => {
     // Paths in components that represent assets.
     // Does not include asset script attributes.
     const assetPaths = [];
-    const gatherAssetPathsRecursively = function (schemaField, path) {
+    const gatherAssetPathsRecursively = function (schemaField: Record<string, unknown>, path: string) {
         if (schemaField.$editorType === 'asset' || schemaField.$editorType === 'array:asset') {
             // this is for cases like components.model.mapping
             assetPaths.push(path);
@@ -139,7 +139,7 @@ editor.once('load', () => {
 
     list = list.filter(item => !item.startsWith('$'));
 
-    editor.method('components:convertValue', (component, property, value) => {
+    editor.method('components:convertValue', (component: string, property: string, value: unknown) => {
         let result = value;
 
         if (value) {
@@ -226,7 +226,7 @@ editor.once('load', () => {
         return result;
     });
 
-    function resolveLazyDefaults(defaults) {
+    function resolveLazyDefaults(defaults: Record<string, unknown>) {
         // Any functions in the default property set are used to provide
         // lazy resolution, to handle cases where the values are not known
         // at startup time.

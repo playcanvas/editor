@@ -7,12 +7,12 @@ editor.once('load', () => {
         return guid.create().substring(0, 8);
     }
 
-    function addJob(jobId, callback) {
+    function addJob(jobId: string, callback: (result: unknown) => void) {
         jobsInProgress[jobId] = callback;
         editor.call('status:job', jobId, 1);
     }
 
-    function removeJob(jobId, result) {
+    function removeJob(jobId: string, result?: unknown) {
         if (jobsInProgress.hasOwnProperty(jobId)) {
             editor.call('status:job', jobId);
 

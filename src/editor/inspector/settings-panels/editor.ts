@@ -262,7 +262,7 @@ class EditorSettingsPanel extends BaseSettingsPanel {
         });
     }
 
-    _field(name) {
+    _field(name: string) {
         return this._attributesInspector.getField(`editor.${name}`);
     }
 
