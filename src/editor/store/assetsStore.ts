@@ -1,6 +1,7 @@
 import filenamify from 'filenamify/browser';
 
 import { bytesToHuman } from '@/common/utils';
+import { config } from '@/editor/config';
 
 import { BaseStore, EMPTY_THUMBNAIL_IMAGE, EMPTY_THUMBNAIL_IMAGE_LARGE, STORE_ITEM_PAGE_SIZE } from './baseStore';
 

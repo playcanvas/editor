@@ -1,3 +1,5 @@
+import { config } from '@/editor/config';
+
 import { AssetPanel } from './asset-panel';
 
 editor.once('load', () => {

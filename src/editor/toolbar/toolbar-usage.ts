@@ -1,5 +1,7 @@
 import { Container, Label, Button } from '@playcanvas/pcui';
 
+import { config } from '@/editor/config';
+
 editor.once('load', () => {
     if (config.owner.plan.type !== 'free') {
         return;

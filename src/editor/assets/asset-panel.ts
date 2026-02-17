@@ -28,6 +28,7 @@ import { TableRow } from '@/common/pcui/element/element-table-row';
 import { type Tooltip } from '@/common/pcui/element/element-tooltip';
 import { LegacyTooltip } from '@/common/ui/tooltip';
 import { bytesToHuman, naturalCompare } from '@/common/utils';
+import { config } from '@/editor/config';
 import { type AssetObserver } from '@/editor-api';
 
 const CLASS_ROOT = 'pcui-asset-panel';

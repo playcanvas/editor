@@ -8,6 +8,51 @@ type Plan = {
     type: string,
 };
 
+type ProjectSettings = {
+    engineV2: boolean,
+    antiAlias: boolean,
+    fillMode: string,
+    resolutionMode: string,
+    width: number,
+    height: number,
+    use3dPhysics: boolean,
+    enableWebGpu: boolean,
+    enableWebGl2: boolean,
+    powerPreference: string,
+    preserveDrawingBuffer: boolean,
+    transparentCanvas: boolean,
+    useDevicePixelRatio: boolean,
+    useLegacyScripts: boolean,
+    loadingScreenScript: string | null,
+    importMap: string | null,
+    externalScripts: string[],
+    scripts: number[],
+    batchGroups: Record<string, {
+        id: number,
+        name: string,
+        maxAabbSize: number,
+        dynamic: boolean,
+        layers: number[]
+    }>,
+    layers: Record<string, {
+        name: string,
+        opaqueSortMode: number,
+        transparentSortMode: number
+    }>,
+    layerOrder: { layer: number, transparent: boolean, enabled: boolean }[],
+    i18nAssets: number[],
+    useLegacyAmmoPhysics: boolean,
+    enableSharedArrayBuffer: boolean,
+    plugins: string[],
+    vr: boolean,
+    useKeyboard: boolean,
+    useMouse: boolean,
+    useTouch: boolean,
+    useGamepads: boolean,
+    maxAssetRetries: number,
+    [key: string]: unknown
+};
+
 type Project = {
     id: number,
     name: string,
@@ -19,7 +64,7 @@ type Project = {
     private: boolean,
     primaryApp: number,
     playUrl: string,
-    settings: object
+    settings: ProjectSettings
 };
 
 type Scene = {
@@ -201,7 +246,7 @@ export type CodeEditorConfig = {
 
 export type LaunchConfig = {
     self: {
-        id: string;
+        id: number;
         username: string;
         branch: {
             id: string,

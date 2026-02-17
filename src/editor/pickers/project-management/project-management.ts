@@ -5,6 +5,8 @@
  * the project management pickers exposed as hooks.
  */
 
+import { config } from '@/editor/config';
+
 editor.once('load', () => {
 
     const model = {

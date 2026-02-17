@@ -1,7 +1,7 @@
 // config type (injected into HTML)
-declare var config: import('./src/editor-api').EditorBlankConfig & 
-    import('./src/editor-api').EditorConfig & 
-    import('./src/editor-api').CodeEditorConfig &
+declare var config: import('./src/editor-api').EditorBlankConfig |
+    import('./src/editor-api').EditorConfig |
+    import('./src/editor-api').CodeEditorConfig |
     import('./src/editor-api').LaunchConfig;
 
 // editor

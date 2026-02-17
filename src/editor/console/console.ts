@@ -3,6 +3,7 @@ import { version } from 'playcanvas';
 
 import { formatter as f } from '@/common/utils';
 import { WorkerClient } from '@/core/worker/worker-client';
+import { config } from '@/editor/config';
 
 editor.on('load', () => {
     // create worker

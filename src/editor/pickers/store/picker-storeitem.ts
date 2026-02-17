@@ -5,6 +5,7 @@ import hljs from 'highlight.js/lib/core';
 import javascript from 'highlight.js/lib/languages/javascript';
 
 import { bytesToHuman } from '@/common/utils';
+import { config } from '@/editor/config';
 
 hljs.registerLanguage('javascript', javascript);
 

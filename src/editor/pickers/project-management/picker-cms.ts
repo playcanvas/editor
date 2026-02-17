@@ -4,6 +4,7 @@ import * as SVG from '@/common/svg';
 import { LegacyMenu } from '@/common/ui/menu';
 import { LegacyOverlay } from '@/common/ui/overlay';
 import { bytesToHuman } from '@/common/utils';
+import { config } from '@/editor/config';
 
 editor.once('load', () => {
 
