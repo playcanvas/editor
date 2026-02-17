@@ -1,3 +1,4 @@
+import type { Observer } from '@playcanvas/observer';
 import { ObserverList } from '@playcanvas/observer';
 
 import { Asset, Entity } from '@/editor-api';
@@ -11,7 +12,7 @@ editor.once('load', () => {
 
     const index = { };
 
-    const keyByType = function (type) {
+    const keyByType = function (type: string) {
         switch (type) {
             case 'entity':
                 return 'resource_id';
@@ -21,7 +22,7 @@ editor.once('load', () => {
         return null;
     };
 
-    const setIndex = function (type, item) {
+    const setIndex = function (type: string, item: Observer) {
         const key = keyByType(type);
         if (!key) {
             return;
@@ -31,14 +32,14 @@ editor.once('load', () => {
             index[type] = { };
         }
 
-        index[type][item.get[key]] = item.once('destroy', () => {
+        index[type][item.get(key)] = item.once('destroy', () => {
             const state = editor.call('selector:history');
             if (state) {
                 editor.call('selector:history', false);
             }
 
             selector.remove(item);
-            delete index[type][item.get[key]];
+            delete index[type][item.get(key)];
 
             if (state) {
                 editor.call('selector:history', true);
@@ -46,7 +47,7 @@ editor.once('load', () => {
         });
     };
 
-    const removeIndex = function (type, item) {
+    const removeIndex = function (type: string, item: Observer) {
         if (!index[type]) {
             return;
         }
@@ -56,7 +57,7 @@ editor.once('load', () => {
             return;
         }
 
-        const ind = index[type][item.get[key]];
+        const ind = index[type][item.get(key)];
         if (!ind) {
             return;
         }
@@ -71,7 +72,7 @@ editor.once('load', () => {
     };
 
     // adding
-    selector.on('add', function (item) {
+    selector.on('add', function (this: typeof selector, item: Observer) {
         // add index
         setIndex(this.type, item);
 
@@ -96,7 +97,7 @@ editor.once('load', () => {
     });
 
     // removing
-    selector.on('remove', function (item) {
+    selector.on('remove', function (this: typeof selector, item: Observer) {
         editor.emit('selector:remove', item, this.type);
 
         // remove index
@@ -114,7 +115,7 @@ editor.once('load', () => {
 
 
     // selecting item (toggle)
-    editor.method('selector:toggle', (type, item) => {
+    editor.method('selector:toggle', (type: string, item: Observer) => {
         if (item.apiEntity) {
             selection.toggle(item.apiEntity);
             return;
@@ -143,7 +144,7 @@ editor.once('load', () => {
 
 
     // selecting list of items
-    editor.method('selector:set', (type, items) => {
+    editor.method('selector:set', (type: string, items: Observer[]) => {
         if (type === 'entity') {
             selection.set(items.map(item => item.apiEntity));
             return;
@@ -182,7 +183,7 @@ editor.once('load', () => {
 
 
     // selecting item
-    editor.method('selector:add', (type, item) => {
+    editor.method('selector:add', (type: string, item: Observer) => {
         if (item.apiEntity) {
             selection.add(item.apiEntity);
             return;
@@ -211,7 +212,7 @@ editor.once('load', () => {
 
 
     // deselecting item
-    editor.method('selector:remove', (item) => {
+    editor.method('selector:remove', (item: Observer) => {
         if (item.apiEntity) {
             selection.remove(item.apiEntity);
             return;
@@ -235,7 +236,7 @@ editor.once('load', () => {
 
 
     // deselecting
-    editor.method('selector:clear', (item) => {
+    editor.method('selector:clear', (_item?: unknown) => {
         selection.clear();
 
         if (!enabled) {
@@ -274,12 +275,12 @@ editor.once('load', () => {
     });
 
     // return if it has item
-    editor.method('selector:has', (item) => {
+    editor.method('selector:has', (item: Observer) => {
         return selection.has(item.apiEntity) || selection.has(item.apiAsset) || selector.has(item);
     });
 
 
-    editor.method('selector:enabled', (state) => {
+    editor.method('selector:enabled', (state: boolean) => {
         selection.enabled = state;
         enabled = state;
     });

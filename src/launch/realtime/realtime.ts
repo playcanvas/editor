@@ -25,7 +25,7 @@ editor.once('load', () => {
 
         const shareDbMessage = connection.socket.onmessage;
 
-        connection.socket.onmessage = function (msg) {
+        connection.socket.onmessage = function (msg: MessageEvent) {
             try {
                 if (msg.data.startsWith('auth')) {
                     if (!auth) {
@@ -44,7 +44,7 @@ editor.once('load', () => {
 
         };
 
-        connection.on('connected', function () {
+        connection.on('connected', function (this: { socket: WebSocket }) {
             reconnectAttempts = 0;
             reconnectInterval = 1;
 
@@ -55,12 +55,12 @@ editor.once('load', () => {
             editor.emit('realtime:connected');
         });
 
-        connection.on('error', (msg) => {
+        connection.on('error', (msg: unknown) => {
             editor.emit('realtime:error', msg);
         });
 
         const onConnectionClosed = connection.socket.onclose;
-        connection.socket.onclose = function (reason) {
+        connection.socket.onclose = function (reason: CloseEvent | unknown) {
             auth = false;
 
             editor.emit('realtime:disconnected', reason);

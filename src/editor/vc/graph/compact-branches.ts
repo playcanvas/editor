@@ -108,7 +108,7 @@ editor.once('load', () => {
         }
     }
 
-    editor.method('vcgraph:compactBranches', (data) => {
+    editor.method('vcgraph:compactBranches', (data: unknown) => {
         return new CompactBranches(data).run();
     });
 });

@@ -1,7 +1,7 @@
 editor.once('load', () => {
     // method if the Engine Asset is included in the project
-    editor.method('project:engineAsset:getEngineAsset', (assetName) => {
-        const engineAssets = editor.call('assets:find', (item) => {
+    editor.method('project:engineAsset:getEngineAsset', (assetName: string) => {
+        const engineAssets = editor.call('assets:find', (item: import('@playcanvas/observer').Observer) => {
             const name = item.get('name');
             const type = item.get('type');
             return name.indexOf(assetName) >= 0 && type === 'binary';
@@ -10,22 +10,22 @@ editor.once('load', () => {
     });
 
     // add Engine Asset to the project
-    editor.method('project:engineAsset:addEngineAsset', (storeName, assetName) => {
+    editor.method('project:engineAsset:addEngineAsset', (storeName: string, assetName: string) => {
         function addAssetToProject() {
-            editor.api.globals.rest.store.storeList({ search: storeName }).on('load', (status, data) => {
+            editor.api.globals.rest.store.storeList({ search: storeName }).on('load', (_status: number, data: { result: { id: string }[] }) => {
                 if (data.result && data.result.length === 1) {
                     editor.api.globals.rest.store.storeClone(data.result[0].id, {
                         scope: {
                             type: 'project', id: config.project.id
                         }
-                    }).on('load', (status, data) => {
+                    }).on('load', (_status: number, _data: unknown) => {
                         editor.call('status:text', 'Engine Asset successfully imported');
                         editor.emit('engineAssetImported', assetName);
-                    }).on('error', (err) => {
+                    }).on('error', (_err: unknown) => {
                         editor.call('status:error', `Failed to import Engine Asset ${storeName}`);
                     });
                 }
-            }).on('error', (err) => {
+            }).on('error', (_err: unknown) => {
                 editor.call('status:error', `Failed to import Engine Asset ${storeName}`);
             });
         }

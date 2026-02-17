@@ -191,7 +191,7 @@ class AssetList extends Element {
     _initializeDropTarget() {
         editor.call('drop:target', {
             ref: this,
-            filter: (type, dropData) => {
+            filter: (type: string, dropData: any) => {
                 if (dropData.id && type.startsWith('asset') &&
                     (!this._assetType || type === `asset.${this._assetType}`) &&
                     !this.value.includes(parseInt(dropData.id, 10))) {
@@ -212,7 +212,7 @@ class AssetList extends Element {
 
                 return false;
             },
-            drop: (type, dropData) => {
+            drop: (type: string, dropData: any) => {
                 this._addAssets([parseInt(dropData.id, 10)]);
             }
         });
@@ -232,10 +232,10 @@ class AssetList extends Element {
         this._selectedAssets.length = 0;
     }
 
-    _addAssets(assets) {
+    _addAssets(assets: number[]) {
         this._btnDone.text = 'DONE';
 
-        assets.forEach((assetId) => {
+        assets.forEach((assetId: number) => {
             const entry = this._indexAssets[assetId] || this._createAssetItem(assetId);
             entry.count = this._values.length;
             entry.element.class.remove(CLASS_ASSET_NOT_EVERYWHERE);
@@ -244,7 +244,7 @@ class AssetList extends Element {
             }
 
             // add to all values
-            this._values.forEach((array) => {
+            this._values.forEach((array: number[] | undefined) => {
                 if (!array) {
                     return;
                 }
@@ -279,8 +279,8 @@ class AssetList extends Element {
         this._searchInput.value = '';
 
         // pick assets and filter them
-        this._pickAssets((assets) => {
-            this._selectedAssets = assets.filter((asset) => {
+        this._pickAssets((assets: any[]) => {
+            this._selectedAssets = assets.filter((asset: any) => {
                 if (this._filterFn) {
                     return this._filterFn(asset);
                 }
@@ -312,7 +312,7 @@ class AssetList extends Element {
     }
 
     // Use search filter to filter which assets are visible or hidden
-    _onSearchChange(filter) {
+    _onSearchChange(filter: string) {
         if (!filter) {
             for (const id in this._indexAssets) {
                 this._indexAssets[id].element.hidden = false;
@@ -338,7 +338,7 @@ class AssetList extends Element {
     }
 
     // Opens asset picker and allows asset selection
-    _pickAssets(callback) {
+    _pickAssets(callback: (assets: any[]) => void) {
         editor.call('picker:asset', {
             type: this._assetType || '*',
             multi: true
@@ -354,7 +354,7 @@ class AssetList extends Element {
     }
 
     // Selects the specified asset
-    _selectAsset(asset) {
+    _selectAsset(asset: any) {
         editor.call('selector:set', 'asset', [asset]);
 
         let folder = null;
@@ -376,7 +376,7 @@ class AssetList extends Element {
     }
 
     // Creates a new element for the specified asset id
-    _createAssetItem(assetId) {
+    _createAssetItem(assetId: number) {
         let asset = this._assets.get(assetId);
 
         const container = new Container({
@@ -386,7 +386,7 @@ class AssetList extends Element {
             class: CLASS_ASSET_ITEM
         });
 
-        container.dom.setAttribute('data-asset-id', assetId);
+        container.dom.setAttribute('data-asset-id', String(assetId));
 
         const type = asset ? asset.get('type') : this._assetType;
         // add asset type class
@@ -431,7 +431,7 @@ class AssetList extends Element {
 
         let evtAssetAdd = null;
         if (!asset) {
-            evtAssetAdd = this._assets.on('add', (item) => {
+            evtAssetAdd = this._assets.on('add', (item: any) => {
                 if (item.get('id') !== assetId) {
                     return;
                 }
@@ -467,7 +467,7 @@ class AssetList extends Element {
         return entry;
     }
 
-    _removeAssetItem(assetId) {
+    _removeAssetItem(assetId: number) {
         const entry = this._indexAssets[assetId];
         if (!entry) {
             return;
@@ -477,7 +477,7 @@ class AssetList extends Element {
         this._btnDone.text = 'DONE';
 
         // remove from all values
-        this._values.forEach((array) => {
+        this._values.forEach((array: number[] | undefined) => {
             if (!array) {
                 return;
             }
@@ -494,7 +494,7 @@ class AssetList extends Element {
         }
     }
 
-    _updateValues(values) {
+    _updateValues(values: number[][]) {
         this._values = values;
 
         // zero counts of all existing asset items
@@ -507,11 +507,11 @@ class AssetList extends Element {
 
         // for every array in values add all
         // assets to the list
-        values.forEach((array) => {
+        values.forEach((array: number[] | undefined) => {
             if (!array) {
                 return;
             }
-            array.forEach((assetId) => {
+            array.forEach((assetId: number) => {
                 const entry = this._indexAssets[assetId] || this._createAssetItem(assetId);
                 entry.count++;
                 if (!appendedIndex[assetId]) {

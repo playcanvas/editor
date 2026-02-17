@@ -92,7 +92,7 @@ class DropManager extends Container {
         this.on('disable', () => {
             this.active = false;
         });
-        this.on('readOnly', (readOnly) => {
+        this.on('readOnly', (readOnly: boolean) => {
             if (!readOnly) {
                 this.active = false;
             }
@@ -309,7 +309,7 @@ class DropManager extends Container {
         this.active = false;
     }
 
-    _onAppendChild(element) {
+    _onAppendChild(element: any) {
         super._onAppendChild(element);
         if (!(element instanceof DropTarget)) {
             return;
@@ -319,7 +319,7 @@ class DropManager extends Container {
         element.hidden = true;
     }
 
-    _onRemoveChild(element) {
+    _onRemoveChild(element: any) {
         super._onRemoveChild(element);
         if (!(element instanceof DropTarget)) {
             return;
@@ -328,10 +328,11 @@ class DropManager extends Container {
         element.dropManager = null;
     }
 
-    getDropData(evt) {
+    getDropData(evt: Event) {
         let data = this.dropData;
-        if (this.dropType === 'files' && evt.dataTransfer && evt.dataTransfer.files) {
-            data = evt.dataTransfer.files;
+        const dragEvt = evt as DragEvent;
+        if (this.dropType === 'files' && dragEvt.dataTransfer && dragEvt.dataTransfer.files) {
+            data = dragEvt.dataTransfer.files;
         }
 
         return data;

@@ -16,7 +16,7 @@ editor.once('load', () => {
     filterPanel.style.height = '0px';
     parent.append(filterPanel);
 
-    const createFilter = function (text, storageKey) {
+    const createFilter = function (text: string, storageKey: string) {
         const filterButton = new Button({
             class: 'option',
             text: text,
@@ -181,7 +181,7 @@ editor.once('load', () => {
 
     let onTransitionEnd;
 
-    panel.dom.addEventListener('transitionend', (e) => {
+    panel.dom.addEventListener('transitionend', (_e: TransitionEvent) => {
         if (onTransitionEnd) {
             onTransitionEnd();
             onTransitionEnd = null;
@@ -190,7 +190,7 @@ editor.once('load', () => {
 
     let onFilterPanelTransitionEnd;
 
-    filterPanel.dom.addEventListener('transitionend', (e) => {
+    filterPanel.dom.addEventListener('transitionend', (_e: TransitionEvent) => {
         if (onFilterPanelTransitionEnd) {
             onFilterPanelTransitionEnd();
             onFilterPanelTransitionEnd = null;
@@ -267,14 +267,14 @@ editor.once('load', () => {
         }
     };
 
-    function onKeyDown(evt) {
+    function onKeyDown(evt: KeyboardEvent) {
         // close picker on esc
         if (evt.keyCode === 27) {
             editor.call('picker:search:close');
         }
     }
 
-    function onInputKeyDown(evt) {
+    function onInputKeyDown(evt: KeyboardEvent) {
         // select input text on ctrl + shift + f
         if (evt.ctrlKey || evt.metaKey) {
             if (evt.shiftKey && evt.keyCode === 70) {
@@ -327,7 +327,7 @@ editor.once('load', () => {
         window.addEventListener('keydown', onKeyDown);
     };
 
-    editor.method('picker:search:open', (instantToggleMode) => {
+    editor.method('picker:search:open', (_instantToggleMode?: boolean) => {
         onTransitionEnd = null;
 
         // if there's a code selection, use that as search value
@@ -373,7 +373,7 @@ editor.once('load', () => {
     editor.call('hotkey:register', 'search-close', {
         key: 'Escape',
         stopPropagation: true,
-        callback: function (e) {
+        callback: function (_e: KeyboardEvent) {
             if (open) {
                 editor.call('picker:search:close');
                 return true;
@@ -429,7 +429,7 @@ editor.once('load', () => {
     };
 
     // execute search
-    searchField.on('change', (value) => {
+    searchField.on('change', (value: string) => {
         if (suspendChangeEvt) {
             return;
         }
@@ -441,7 +441,7 @@ editor.once('load', () => {
         }
     });
 
-    includeFilter.textField.on('change', (value) => {
+    includeFilter.textField.on('change', (value: string) => {
         if (suspendChangeEvt) {
             return;
         }
@@ -452,7 +452,7 @@ editor.once('load', () => {
             cancelDelayedSearch();
         }
     });
-    excludeFilter.textField.on('change', (value) => {
+    excludeFilter.textField.on('change', (value: string) => {
         if (suspendChangeEvt) {
             return;
         }

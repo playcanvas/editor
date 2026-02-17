@@ -1,13 +1,14 @@
+import type { Observer } from '@playcanvas/observer';
 import { ObserverList } from '@playcanvas/observer';
 
 editor.once('load', () => {
-    let uniqueIdToItemId = {};
+    let uniqueIdToItemId: Record<string | number, number> = {};
 
     const assets = new ObserverList({
         index: 'id'
     });
 
-    function createLatestFn(id) {
+    function createLatestFn(id: string) {
         // function to get latest version of asset observer
         return function () {
             return assets.get(id);
@@ -53,34 +54,34 @@ editor.once('load', () => {
     });
 
     // find assets by function
-    editor.method('assets:find', (fn) => {
+    editor.method('assets:find', (fn: (asset: Observer) => boolean) => {
         return assets.find(fn);
     });
 
     // find one asset by function
-    editor.method('assets:findOne', (fn) => {
+    editor.method('assets:findOne', (fn: (asset: Observer) => boolean) => {
         return assets.findOne(fn);
     });
 
     // publish added asset
-    assets.on('add', (asset) => {
+    assets.on('add', (asset: Observer) => {
         editor.emit(`assets:add[${asset.get('id')}]`, asset);
         editor.emit('assets:add', asset);
     });
 
     // publish remove asset
-    assets.on('remove', (asset) => {
+    assets.on('remove', (asset: Observer) => {
         editor.emit('assets:remove', asset);
         delete uniqueIdToItemId[asset.get('id')];
     });
 
     // check if asset is a script
-    editor.method('assets:isScript', (asset) => {
+    editor.method('assets:isScript', (asset: Observer) => {
         return asset.get('type') === 'script';
     });
 
     // check if asset is a module
-    editor.method('assets:isModule', (asset) => {
+    editor.method('assets:isModule', (asset: Observer) => {
         return editor.call('assets:isScript', asset) &&
             asset.get('file.filename')?.endsWith('.mjs');
     });

@@ -48,7 +48,7 @@ editor.once('load', () => {
         return link;
     };
 
-    const parseMessage = function (message) {
+    const parseMessage = function (message: string) {
         const items = stringToElements({
             string: message,
             regex: regexUrl,
@@ -87,7 +87,7 @@ editor.once('load', () => {
         return items;
     };
 
-    editor.method('chat:post', (type, string) => {
+    editor.method('chat:post', (type: 'system' | number, string: string) => {
         if (type !== 'system' && typeof type !== 'number') {
             return;
         }
@@ -167,7 +167,7 @@ editor.once('load', () => {
         return element;
     });
 
-    editor.method('chat:sync:msg', (data) => {
+    editor.method('chat:sync:msg', (data: { from: number; d: string }) => {
         editor.call('chat:post', data.from, data.d);
     });
 
@@ -183,7 +183,7 @@ editor.once('load', () => {
         });
     });
 
-    editor.on('relay:room:leave', (data) => {
+    editor.on('relay:room:leave', (data: { name: string; userId: number }) => {
         if (data.name !== `project-${config.project.id}`) {
             return;
         }
@@ -194,7 +194,7 @@ editor.once('load', () => {
         }
     });
 
-    editor.on('relay:room:msg', (data) => {
+    editor.on('relay:room:msg', (data: { msg: { chat?: string; d?: string }; from: number }) => {
         if (data.msg.chat === 'msg') {
             editor.call('chat:sync:msg', {
                 from: data.from,

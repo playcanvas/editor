@@ -12,7 +12,7 @@ let evtMessenger: EventHandle = null;
 function getTotalEntityCount(entities: any[]) {
     let count = 0;
 
-    entities.forEach((entity) => {
+    entities.forEach((entity: Entity) => {
         entity.depthFirst(() => count++);
     });
 
@@ -35,7 +35,7 @@ function deleteInBackend(entities: any[]) {
     });
 
     if (!evtMessenger) {
-        evtMessenger = api.messenger.on('entity.delete', (data) => {
+        evtMessenger = api.messenger.on('entity.delete', (data: any) => {
             const callback = api.jobs.finish(data.job_id);
             if (callback) {
                 callback();
@@ -50,7 +50,7 @@ function deleteInBackend(entities: any[]) {
             branchId: api.branchId,
             sceneId: api.realtime.scenes.current.uniqueId,
             jobId: jobId,
-            entities: entities.map(e => e.get('resource_id'))
+            entities: entities.map((e: Entity) => e.get('resource_id'))
         }
     });
 
@@ -59,7 +59,7 @@ function deleteInBackend(entities: any[]) {
 
 function rememberPrevious(entities: any[]) {
     const previous: { entity: any; index: any; }[] = [];
-    entities.forEach((entity) => {
+    entities.forEach((entity: Entity) => {
         previous.push({
             entity: entity.jsonHierarchy(),
             index: entity.parent.get('children').indexOf(entity.get('resource_id'))
@@ -68,7 +68,7 @@ function rememberPrevious(entities: any[]) {
 
     // sort previous records by index so that entities
     // are added in the correct order in undo
-    previous.sort((a, b) => a.index - b.index);
+    previous.sort((a: any, b: any) => a.index - b.index);
     return previous;
 }
 
@@ -92,7 +92,7 @@ async function deleteEntities(entities: Entity[] | Entity, options: { history?: 
     }
 
     // make sure we are not deleting root
-    entities.forEach((e) => {
+    entities.forEach((e: Entity) => {
         if (e === api.entities.root) {
             throw new Error(`Cannot delete root entity ${e.get('resource_id')}`);
         }
@@ -100,9 +100,9 @@ async function deleteEntities(entities: Entity[] | Entity, options: { history?: 
 
     // first only gather top level entities
     const ids = new Set();
-    entities.forEach(entity => ids.add(entity.get('resource_id')));
+    entities.forEach((entity: Entity) => ids.add(entity.get('resource_id')));
 
-    entities = entities.filter((entity) => {
+    entities = entities.filter((entity: Entity) => {
         entity = entity.latest();
         if (!entity) {
             return false;
@@ -146,7 +146,7 @@ async function deleteEntities(entities: Entity[] | Entity, options: { history?: 
     // e.g. during template revert where entities are immediately re-created with same IDs)
     const entityReferences = options.preserveEntityReferences ? null : findEntityReferencesInComponents(api.entities.root);
 
-    entities.forEach((entity) => {
+    entities.forEach((entity: Entity) => {
         api.entities.remove(entity, entityReferences);
     });
 
@@ -155,14 +155,14 @@ async function deleteEntities(entities: Entity[] | Entity, options: { history?: 
             name: 'delete entities',
             combine: false,
             undo: () => {
-                entities = previous.map((data, i) => {
+                entities = previous.map((data: any, i: number) => {
                     return api.entities.create(data.entity, {
                         history: false,
                         index: data.index
                     });
                 });
 
-                entities.forEach((entity) => {
+                entities.forEach((entity: Entity) => {
                     entity.depthFirst((e: Entity) => {
                         updateReferences(entityReferences, e.get('resource_id'), e.get('resource_id'));
                     });
@@ -177,7 +177,7 @@ async function deleteEntities(entities: Entity[] | Entity, options: { history?: 
                 previous = null;
             },
             redo: () => {
-                entities = (entities as Entity[]).map(e => e.latest()).filter(e => !!e);
+                entities = (entities as Entity[]).map((e: Entity) => e.latest()).filter((e: Entity) => !!e);
                 previous = rememberPrevious(entities);
 
                 api.entities.delete(entities, {

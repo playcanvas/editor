@@ -8,7 +8,7 @@ const CLASS_CANVAS = 'pcui-asset-preview-canvas';
 const CLASS_CANVAS_FLIP = 'pcui-asset-preview-canvas-flip';
 
 class MaterialAssetInspectorPreview extends AssetInspectorPreviewBase {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         super(args);
 
         this._preview = new Canvas();

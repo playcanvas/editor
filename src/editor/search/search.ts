@@ -65,7 +65,7 @@ editor.once('load', () => {
 
 
     // tokenize string into array of tokens
-    editor.method('search:stringTokenize', (name) => {
+    editor.method('search:stringTokenize', (name: string) => {
         const tokens = [];
 
         // camelCase

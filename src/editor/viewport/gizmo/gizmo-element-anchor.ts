@@ -1,6 +1,7 @@
 import { BlendState, BLENDEQUATION_ADD, BLENDMODE_ONE_MINUS_SRC_ALPHA, BLENDMODE_SRC_ALPHA, Color, Entity, math, PROJECTION_PERSPECTIVE, Quat, Vec3 } from 'playcanvas';
 
 import { FORCE_PICK_TAG, GIZMO_MASK } from '@/core/constants';
+import type { EntityObserver } from '@/editor-api';
 
 import { createColorMaterial } from '../viewport-color-material';
 
@@ -56,7 +57,7 @@ editor.once('load', () => {
 
         const layer = editor.call('gizmo:layers', 'Axis Gizmo');
 
-        const createCone = function (angle) {
+        const createCone = function (angle: number) {
             const result = createEntity();
             result.setLocalEulerAngles(0, 0, angle);
             obj.root.addChild(result);
@@ -101,7 +102,7 @@ editor.once('load', () => {
         return obj;
     };
 
-    const createMaterial = function (color) {
+        const createMaterial = function (color: Color) {
         const mat = createColorMaterial();
         mat.color = color;
         if (color.a !== 1) {
@@ -111,17 +112,17 @@ editor.once('load', () => {
         return mat;
     };
 
-    const setModelMaterial = function (entity, material) {
+        const setModelMaterial = function (entity: Entity, material: import('playcanvas').Material) {
         if (entity.model.meshInstances[0].material !== material) {
             entity.model.meshInstances[0].material = material;
         }
     };
 
-    editor.once('viewport:load', (app) => {
+    editor.once('viewport:load', (app: import('playcanvas').AppBase) => {
         const gizmoAnchor = createAnchorGizmo();
         app.root.addChild(gizmoAnchor.root);
 
-        editor.on('selector:add', (item, type) => {
+        editor.on('selector:add', (item: EntityObserver, type: string) => {
             if (type !== 'entity') {
                 return;
             }
@@ -131,7 +132,7 @@ editor.once('load', () => {
             }
         });
 
-        editor.on('selector:remove', (item, type) => {
+        editor.on('selector:remove', (item: EntityObserver, type: string) => {
             if (selectedEntity === item) {
                 selectedEntity = null;
             }
@@ -145,7 +146,7 @@ editor.once('load', () => {
             return Math.min(Math.max(value, min), max);
         };
 
-        const offsetAnchor = function (value, offset, min, max, snap) {
+        const offsetAnchor = function (value: number, offset: number, min: number, max: number, snap: number): number {
             if (!isFinite(offset)) {
                 return value;
             }
@@ -173,7 +174,7 @@ editor.once('load', () => {
                 selectedEntity.entity.element.screen;
         };
 
-        editor.method('gizmo:anchor:visible', (state) => {
+        editor.method('gizmo:anchor:visible', (state: boolean) => {
             if (visible !== state) {
                 visible = state;
 
@@ -181,7 +182,7 @@ editor.once('load', () => {
             }
         });
 
-        editor.on('viewport:gizmoUpdate', (dt) => {
+        editor.on('viewport:gizmoUpdate', (dt: number) => {
             gizmoAnchor.root.enabled = gizmoEnabled();
             if (!gizmoAnchor.root.enabled) {
                 return;
@@ -296,7 +297,7 @@ editor.once('load', () => {
             // gizmoAnchor.handles.center.setLocalPosition(resX * (pc.math.lerp(anchor.x,anchor.z,0.5) - 0.5), resY * (pc.math.lerp(anchor.y,anchor.w,0.5) - 0.5), 0, 0.1);
         });
 
-        editor.on('viewport:pick:hover', (node, picked) => {
+        editor.on('viewport:pick:hover', (node: Entity | null, picked: { node: import('playcanvas').GraphNode } | null) => {
             if (!node || !node.handle) {
                 if (gizmoAnchor.handle) {
                     gizmoAnchor.handle = null;
@@ -327,7 +328,7 @@ editor.once('load', () => {
             }
         });
 
-        var onTapStart = function (tap) {
+        var onTapStart = function (tap: { button: number; x: number; y: number }) {
             if (moving || tap.button !== 0) {
                 return;
             }
@@ -350,7 +351,7 @@ editor.once('load', () => {
             }
         };
 
-        const onTapMove = function (tap) {
+        const onTapMove = function (tap: { button?: number; x: number; y: number }) {
             if (!moving) {
                 return;
             }
@@ -359,7 +360,7 @@ editor.once('load', () => {
             mouseTapMoved = true;
         };
 
-        const onTapEnd = function (tap) {
+        const onTapEnd = function (tap: { button: number; x: number; y: number }) {
             if (tap.button !== 0) {
                 return;
             }
@@ -414,7 +415,7 @@ editor.once('load', () => {
             }
         };
 
-        var pickPlane = function (x, y) {
+        var pickPlane = function (x: number, y: number): Vec3 {
             const camera = editor.call('camera:current');
 
             const mouseWPos = camera.camera.screenToWorld(x, y, camera.camera.farClip);

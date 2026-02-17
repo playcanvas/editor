@@ -8,7 +8,7 @@ import { ConflictSectionRow, type ConflictSectionRowArgs } from './conflict-sect
 // A section contains multiple conflicts and it's meant to group
 // conflicts into meaningful categories
 class ConflictSection extends Events {
-    constructor(resolver, title, foldable, allowCloaking) {
+    constructor(resolver: Record<string, unknown>, title: string, foldable: boolean, allowCloaking: boolean) {
         super();
 
         this._resolver = resolver;

@@ -140,13 +140,13 @@ class TemplatePreviewScene extends Observer {
         // TODO: Start a timer and probably just abandon if it's taking too long to load.
         this.assetLoadedCount = this.requiredAssetLoadCount = 0;
 
-        this._renderComponents.forEach((component) => {
+        this._renderComponents.forEach((component: any) => {
             // Some components do not have an asset (e.g. spheres)
             if (component.asset) {
                 this.queueAssetLoad(component.asset);
             }
             if (component.materialAssets) {
-                component.materialAssets.forEach((assetId) => {
+                component.materialAssets.forEach((assetId: number) => {
                     if (assetId) {
                         this.materialAssetIds.push(assetId);
                         this.queueAssetLoad(assetId);
@@ -221,7 +221,7 @@ class TemplatePreviewScene extends Observer {
     initializeMeshInstances() {
         this.meshInstances = [];
         // We need to load the materials and render assets in case it is not here
-        this._renderComponents.forEach((renderComponent) => {
+        this._renderComponents.forEach((renderComponent: any) => {
             // Detach this component from the app.scene.layers
             // If we don't do this, we have "ghost" mesh instances lingering in app.scene.layers
             renderComponent.layers = [];
@@ -308,7 +308,7 @@ export class TemplateThumbnailRenderer extends ThumbnailRenderer {
     }
 
     private unwatchDependencies() {
-        this.materialWatches.forEach((handle, id) => {
+        this.materialWatches.forEach((handle: any, id: number) => {
             const asset = editor.call('assets:get', id) as EditorAsset;
             if (asset && handle) {
                 editor.call('assets:material:unwatch', asset, handle);

@@ -1,7 +1,7 @@
 import { LegacyElement } from './element';
 
 class LegacyCheckbox extends LegacyElement {
-    constructor(args = {}) {
+    constructor(args: Record<string, any> = {}) {
         super();
         this._text = args.text || '';
 

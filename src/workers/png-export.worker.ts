@@ -1,6 +1,6 @@
 import { WorkerServer } from '@/core/worker/worker-server';
 
-const compress = (codec, pixels, width, height) => {
+const compress = (codec: { _malloc: (n: number) => number; _free: (p: number) => void; HEAPU32: Uint32Array; HEAPU8: Uint8Array; _lodepng_encode32: (a: number, b: number, c: number, d: number, e: number) => void }, pixels: Uint8ClampedArray, width: number, height: number) => {
     const resultDataPtrPtr = codec._malloc(4);
     const resultSizePtr = codec._malloc(4);
     const imageData = codec._malloc(width * height * 4);
@@ -27,12 +27,12 @@ const compress = (codec, pixels, width, height) => {
 };
 
 const workerServer = new WorkerServer(self);
-workerServer.on('init', async (glueUrl, wasmUrl) => {
+workerServer.on('init', async (glueUrl: string, wasmUrl: string) => {
     importScripts(glueUrl);
     // @ts-ignore
     const codec = await self.lodepng({ locateFile: () => wasmUrl });
 
-    workerServer.on('export', (esn, pixels, width, height) => {
+    workerServer.on('export', (esn: string, pixels: Uint8ClampedArray, width: number, height: number) => {
         const result = compress(codec, pixels, width, height);
         workerServer.with([result.buffer]).send('export', esn, result);
     });

@@ -1,7 +1,7 @@
 editor.once('load', () => {
     const parentChildren = ['parent', 'children'];
 
-    const addIfPresent = function (entity, field, result) {
+    const addIfPresent = function (entity: Record<string, unknown>, field: string, result: string[][]): void {
         if (entity[field]) {
             const path = [field];
 
@@ -17,7 +17,11 @@ editor.once('load', () => {
      * @returns An array of paths
      */
     class ComponentEntityPaths {
-        constructor(entity) {
+        entity: Record<string, unknown>;
+        result: string[][];
+        compNames: string[];
+
+        constructor(entity: Record<string, unknown>) {
             this.entity = entity;
 
             this.result = [];
@@ -35,13 +39,13 @@ editor.once('load', () => {
             this.compNames = Object.keys(this.entity.components);
         }
 
-        handleCompName(compName) {
+        handleCompName(compName: string): void {
             const fields = editor.call('components:getFieldsOfType', compName, 'entity');
 
             fields.forEach(field => this.addPathToRes(compName, field));
         }
 
-        addPathToRes(compName, field) {
+        addPathToRes(compName: string, field: string): void {
             const path = [
                 'components',
                 compName,
@@ -62,7 +66,13 @@ editor.once('load', () => {
      * @returns An array of paths
      */
     class ScriptAttrEntityPaths {
-        constructor(entity, scriptAttrs) {
+        entity: Record<string, unknown>;
+        scriptAttrs: Record<string, unknown>;
+        result: string[][];
+        scripts: Record<string, unknown>;
+        scriptNames: string[];
+
+        constructor(entity: Record<string, unknown>, scriptAttrs: Record<string, unknown>) {
             this.entity = entity;
 
             this.scriptAttrs = scriptAttrs;
@@ -86,7 +96,7 @@ editor.once('load', () => {
             this.scriptNames = Object.keys(this.scripts);
         }
 
-        handleScriptName(scrName) {
+        handleScriptName(scrName: string): void {
             const data = this.scripts[scrName] || {};
 
             const attrs = data.attributes || {};
@@ -96,7 +106,7 @@ editor.once('load', () => {
             attrNames.forEach(attrName => this.handleAttr(attrName, scrName, attrs[attrName]));
         }
 
-        handleAttr(attrName, scrName, attrInEnt) {
+        handleAttr(attrName: string, scrName: string, attrInEnt: unknown): void {
             let h = this.scriptAttrs[scrName] || {};
 
             h = h[attrName] || {};
@@ -109,13 +119,13 @@ editor.once('load', () => {
             }
         }
 
-        addRegularPath(scrName, attrName) {
+        addRegularPath(scrName: string, attrName: string): void {
             const a = this.makeRegularPath(scrName, attrName);
 
             this.result.push(a);
         }
 
-        addJsonPaths(scrName, attrName, attrObj, attrInEnt) {
+        addJsonPaths(scrName: string, attrName: string, attrObj: Record<string, unknown>, attrInEnt: unknown): void {
             const pref = this.makeRegularPath(scrName, attrName);
 
             editor.call(
@@ -128,7 +138,7 @@ editor.once('load', () => {
             );
         }
 
-        makeRegularPath(scrName, attrName) {
+        makeRegularPath(scrName: string, attrName: string): string[] {
             return [
                 'components',
                 'script',

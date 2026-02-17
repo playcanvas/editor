@@ -10,7 +10,7 @@ import { AttributesInspector } from '../attributes-inspector';
 const CLASS_ROOT = 'pcui-asset-animation-inspector-preview';
 
 class AnimationAssetInspectorPreview extends AssetInspectorPreviewBase {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.headerText = 'META';
         args.class = CLASS_ROOT;

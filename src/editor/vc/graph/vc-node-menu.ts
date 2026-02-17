@@ -7,7 +7,7 @@ editor.once('load', () => {
 
     const LOADING_MSG_DELAY = 70;
 
-    editor.method('vcgraph:makeNodeMenu', (mainPanel) => {
+    editor.method('vcgraph:makeNodeMenu', (mainPanel: HTMLElement) => {
         const m = new Menu({
             items: [
                 {

@@ -159,7 +159,7 @@ async function uploadFile(data: Record<string, any>, settings: object = null, on
             onError(xhr.status, evt);
         });
 
-        xhr.addEventListener('abort', (evt) => {
+        xhr.addEventListener('abort', (evt: ProgressEvent) => {
             onError(xhr.status, evt);
         });
 

@@ -66,13 +66,13 @@ editor.once('load', () => {
             return [this.src_value, this.dst_value].every(Array.isArray);
         }
 
-        isArrayDifferent(srcAr, dstAr) {
+        isArrayDifferent(srcAr: unknown[], dstAr: unknown[]): boolean {
             const diffLen = srcAr.length !== dstAr.length;
 
             return diffLen || this.isSomeValueDifferent(srcAr, dstAr);
         }
 
-        isSomeValueDifferent(srcAr, dstAr) {
+        isSomeValueDifferent(srcAr: unknown[], dstAr: unknown[]): boolean {
             return srcAr.some((src, index) => {
 
                 const dst = dstAr[index];
@@ -82,7 +82,7 @@ editor.once('load', () => {
         }
 
         // external entity references are stored as null in asset
-        isValueDifferent(src, dst) {
+        isValueDifferent(src: unknown, dst: unknown): boolean {
             const oneTrue = src || dst;
 
             const diffMapped = this.srcToDst[src] !== dst;

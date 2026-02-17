@@ -496,7 +496,7 @@ class Assets extends Events {
             asset.load().then(() => {
                 this.add(asset);
                 onProgress();
-            }).catch((err) => {
+            }).catch((err: unknown) => {
                 onProgress();
             });
         }
@@ -552,7 +552,7 @@ class Assets extends Events {
                 asset.loadAndSubscribe().then(() => {
                     this.add(asset);
                     onProgress();
-                }).catch((err) => {
+                }).catch((err: unknown) => {
                     onProgress();
                 });
             }
@@ -600,7 +600,7 @@ class Assets extends Events {
             let asset = this.get(result.id);
             if (!asset) {
                 asset = await new Promise((resolve) => {
-                    this.once(`add[${result.id}]`, (a) => {
+                    this.once(`add[${result.id}]`, (a: any) => {
                         resolve(a);
                     });
                 });
@@ -1015,7 +1015,7 @@ class Assets extends Events {
     async delete(assets: Asset[]) {
         const response = await fetch('/api/assets', {
             body: JSON.stringify({
-                assets: assets.map(a => a.get('id')),
+                assets: assets.map((a: any) => a.get('id')),
                 branchId: api.branchId
             }),
             method: 'DELETE',
@@ -1028,7 +1028,7 @@ class Assets extends Events {
             throw new Error(`${response.status}: ${response.statusText}`);
         }
 
-        assets.forEach(a => this.remove(a));
+        assets.forEach((a: any) => this.remove(a));
     }
 
     /**

@@ -103,7 +103,7 @@ class ConflictResolver extends Events {
     }
 
     // Creates a section that has a title and can be foldable. Sections contain conflicts
-    createSection(title, foldable, cloakIfNecessary) {
+    createSection(title: string, foldable: boolean, cloakIfNecessary: boolean) {
         const section = new ConflictSection(this, title, foldable, cloakIfNecessary);
         section.on('resolve', this.onConflictResolved.bind(this));
         section.on('unresolve', this.onConflictUnresolved.bind(this));
@@ -112,7 +112,7 @@ class ConflictResolver extends Events {
     }
 
     // Creates a separator which is a title that spans all conflict panels
-    createSeparator(title) {
+    createSeparator(title: string) {
         const label = new LegacyLabel({
             text: title
         });
@@ -122,7 +122,7 @@ class ConflictResolver extends Events {
     }
 
     // Append the resolver to a parent
-    appendToParent(parent) {
+    appendToParent(parent: { append: (el: unknown) => void; element: HTMLElement }) {
         this._parent = parent;
 
         for (let i = 0, len = this.elements.length; i < len; i++) {

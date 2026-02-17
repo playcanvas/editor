@@ -449,7 +449,7 @@ const ATTRIBUTES: (Attribute | Divider)[] = [{
 }];
 
 class LightComponentInspector extends ComponentInspector {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.component = 'light';
 

@@ -40,7 +40,7 @@ const DOM = parent => [
 ];
 
 class ModelAssetInspectorMeshInstances extends Container {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
 
         super(args);

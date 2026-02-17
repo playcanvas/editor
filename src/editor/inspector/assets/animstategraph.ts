@@ -40,7 +40,7 @@ const DOM = parent => [
 ];
 
 class AnimstategraphAssetInspector extends Container {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({
             class: CLASS_ANIMSTATEGRAPH
         }, args);

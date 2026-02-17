@@ -88,7 +88,7 @@ class VersionControlSidePanelBox extends Events {
             this.panelSourceClose.style.paddingTop = '0';
             this.panelSourceClose.style.borderTop = '0';
 
-            this.checkboxSourceClose.on('change', (value) => {
+            this.checkboxSourceClose.on('change', (value: boolean) => {
                 this.emit('closeSourceBranch', value);
             });
         }
@@ -207,7 +207,7 @@ class VersionControlSidePanelBox extends Events {
             this.checkboxSourceClose.value = false;
         }
 
-        this.children.forEach((child) => {
+        this.children.forEach((child: LegacyPanel) => {
             child.destroy();
         });
     }

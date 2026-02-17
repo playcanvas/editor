@@ -1,3 +1,4 @@
+import type { Observer } from '@playcanvas/observer';
 import { Application, BoundingBox, Color, Entity, FOG_NONE, GraphNode, Mesh, MeshInstance, Model, SphereGeometry, StandardMaterial } from 'playcanvas';
 
 import { ThumbnailRenderer } from './thumbnail-renderer';
@@ -73,7 +74,7 @@ function initializeScene() {
 }
 
 class ModelThumbnailRenderer extends ThumbnailRenderer {
-    constructor(asset, canvas) {
+    constructor(asset: Observer, canvas: HTMLCanvasElement) {
         super();
 
         this._asset = asset;
@@ -98,7 +99,7 @@ class ModelThumbnailRenderer extends ThumbnailRenderer {
         this._materialWatches = {};
 
         // when any of the mesh instance material mappings change, reload the materials
-        this._evts.setMaterialMappingsEvent = this._asset.on('*:set', (path) => {
+        this._evts.setMaterialMappingsEvent = this._asset.on('*:set', (path: string) => {
             if (path.startsWith('data.mapping')) {
                 this.queueRender();
             }

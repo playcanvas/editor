@@ -150,7 +150,7 @@ const ATTRIBUTES: (Attribute | Divider)[] = [{
 }];
 
 class CameraComponentInspector extends ComponentInspector {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.component = 'camera';
 

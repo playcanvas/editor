@@ -7,10 +7,10 @@ editor.once('load', () => {
 
     let errorCount = 0;
 
-    panel.addEventListener('mousedown', (evt) => {
+    panel.addEventListener('mousedown', (evt: MouseEvent) => {
         evt.stopPropagation();
     }, false);
-    panel.addEventListener('click', (evt) => {
+    panel.addEventListener('click', (evt: MouseEvent) => {
         evt.stopPropagation();
     }, false);
 
@@ -31,7 +31,7 @@ editor.once('load', () => {
     let logTimestamp = null;
     let stopLogs = false;
 
-    const append = function (msg, cls) {
+    const append = function (msg: string, cls?: string) {
         if (stopLogs) {
             return;
         }
@@ -73,7 +73,7 @@ editor.once('load', () => {
         return element;
     };
 
-    const onError = function (msg, url, line, col, e) {
+    const onError = function (msg: string, url: string | undefined, line: number, col: number, e?: Error) {
         if (url) {
             // check if this is a playcanvas script
             let codeEditorUrl = '';
@@ -118,7 +118,7 @@ editor.once('load', () => {
 
             if (assetId) {
                 const link = document.getElementById(`error-${errorCount}`);
-                link.addEventListener('click', (e) => {
+                link.addEventListener('click', (e: MouseEvent) => {
                     const existing = window.open('', target);
                     try {
                         if (existing) {
@@ -167,7 +167,7 @@ editor.once('load', () => {
         let errorPassed = false;
         consoleError(...args);
 
-        args.forEach((item) => {
+        args.forEach((item: unknown) => {
             if (item instanceof Error && item.stack) {
                 const msg = item.message;
                 const lines = item.stack.split('\n');

@@ -195,7 +195,7 @@ class ColorPicker extends Events {
                 this.gField.value,
                 this.bField.value,
                 this.aField.value
-            ].map((v) => {
+            ].map((v: number) => {
                 return v / 255;
             });
             this.hsva = toHsva(rgba);
@@ -216,7 +216,7 @@ class ColorPicker extends Events {
         }
     }
 
-    _onMouseDown(evt) {
+    _onMouseDown(evt: MouseEvent) {
         if (evt.currentTarget === this.colorRect.element) {
             this._dragMode = 1;     // drag color
         } else if (evt.currentTarget === this.hueRect.element) {
@@ -673,12 +673,12 @@ editor.once('load', () => {
         }
     }
 
-    function selectHovered(index) {
+    function selectHovered(index: number) {
         STATE.hoveredAnchor = index;
         UI.anchors.element.style.cursor = (index === -1 ? '' : 'pointer');
     }
 
-    function selectAnchor(index) {
+    function selectAnchor(index: number) {
         STATE.selectedAnchor = index;
         STATE.changing = true;
         if (index === -1) {
@@ -703,7 +703,7 @@ editor.once('load', () => {
         STATE.keystore = [];
         for (let i = 0; i < STATE.curves.length; ++i) {
             const keys = [];
-            STATE.curves[i].keys.forEach((element) => {
+            STATE.curves[i].keys.forEach((element: [number, number]) => {
                 if (element[0] !== time) {
                     keys.push([element[0], element[1]]);
                 }
@@ -712,7 +712,7 @@ editor.once('load', () => {
         }
     }
 
-    function dragUpdate(time) {
+    function dragUpdate(time: number) {
         if (STATE.selectedAnchor === -1) {
             return;
         }
@@ -722,10 +722,10 @@ editor.once('load', () => {
 
             // merge keystore with the drag anchor (ignoring existing anchors at
             // the current anchor location)
-            curve.keys = keystore.map((element) => {
+            curve.keys = keystore.map((element: [number, number]) => {
                 return [element[0], element[1]];
             })
-            .filter((element) => {
+            .filter((element: [number, number]) => {
                 return element[0] !== time;
             });
             curve.keys.push([time, STATE.selectedValue[i]]);
@@ -743,7 +743,7 @@ editor.once('load', () => {
     }
 
     // insert an anchor at the given time with the given color
-    function insertAnchor(time, color) {
+    function insertAnchor(time: number, color: number[]) {
         for (let i = 0; i < STATE.curves.length; ++i) {
             const keys = STATE.curves[i].keys;
 
@@ -765,7 +765,7 @@ editor.once('load', () => {
     }
 
     // delete the anchor(s) at the given time
-    function deleteAnchor(time) {
+    function deleteAnchor(time: number) {
         for (let i = 0; i < STATE.curves.length; ++i) {
             const curve = STATE.curves[i];
 
@@ -788,7 +788,7 @@ editor.once('load', () => {
         }
     }
 
-    function colorSelectedAnchor(clr, dragging) {
+    function colorSelectedAnchor(clr: number[], dragging: boolean) {
         if (STATE.selectedAnchor !== -1) {
             const time = STATE.anchors[STATE.selectedAnchor];
 
@@ -841,7 +841,7 @@ editor.once('load', () => {
     function doCopy() {
         const data = {
             type: STATE.curves[0].type,
-            keys: STATE.curves.map((c) => {
+            keys: STATE.curves.map((c: { keys: [number, number][] }) => {
                 // eslint-disable-next-line prefer-spread
                 return [].concat.apply([], c.keys);
             })
@@ -886,7 +886,7 @@ editor.once('load', () => {
         return ctx.createPattern(canvas.element, 'repeat');
     }
 
-    function setValue(value, args) {
+    function setValue(value: Array<{ keys?: number[][]; type?: number }>, args?: unknown) {
         // sanity checks mostly for script 'curve' attributes
         if (!(value instanceof Array) ||
             value.length !== 1 ||
@@ -918,7 +918,7 @@ editor.once('load', () => {
 
         // store the curves
         STATE.curves = [];
-        value[0].keys.forEach((keys) => {
+        value[0].keys.forEach((keys: number[]) => {
             const curve = new Curve(keys);
             curve.type = value[0].type;
             STATE.curves.push(curve);
@@ -982,7 +982,7 @@ editor.once('load', () => {
     UI.footer.append(UI.positionEdit);
     UI.positionEdit.style.width = '40px';
     UI.positionEdit.renderChanges = false;
-    UI.positionEdit.on('change', (value) => {
+    UI.positionEdit.on('change', (value: number) => {
         if (!STATE.changing) {
             moveSelectedAnchor(value / 100);
         }
@@ -1018,7 +1018,7 @@ editor.once('load', () => {
     // construct the color picker
     UI.colorPicker = new ColorPicker(UI.panel);
     UI.colorPicker.on('change', colorSelectedAnchor);
-    UI.colorPicker.on('changing', (color) => {
+    UI.colorPicker.on('changing', (color: number[]) => {
         colorSelectedAnchor(color, true);
     });
 

@@ -14,7 +14,7 @@ class AssetInspectorPreviewBase extends Container {
 
     private _hasPreview: boolean = false;
 
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         super(args);
         this.class.add(CLASS_CONTAINER);
 

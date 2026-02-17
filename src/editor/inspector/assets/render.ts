@@ -86,7 +86,7 @@ const DOM = parent => [
 ];
 
 class RenderAssetInspector extends Container {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.headerText = 'RENDER';
 

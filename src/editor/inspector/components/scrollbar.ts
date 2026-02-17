@@ -49,7 +49,7 @@ const ATTRIBUTES: Attribute[] = [{
 }];
 
 class ScrollbarComponentInspector extends ComponentInspector {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.component = 'scrollbar';
 

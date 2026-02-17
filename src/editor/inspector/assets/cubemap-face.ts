@@ -62,7 +62,7 @@ const FACE_SORT = {
 };
 
 class CubemapFace extends Container {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
 
         super(args);

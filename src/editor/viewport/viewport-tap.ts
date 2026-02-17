@@ -1,3 +1,14 @@
+/** Tap/pointer state passed to viewport:tap:* and viewport:mouse:move handlers */
+export interface ViewportTap {
+    x: number;
+    y: number;
+    lx?: number;
+    ly?: number;
+    button: number;
+    mouse?: boolean;
+    move?: boolean;
+}
+
 editor.once('load', () => {
     const canvas = editor.call('viewport:canvas');
     if (!canvas) {
@@ -29,7 +40,7 @@ editor.once('load', () => {
 
         mouse: boolean;
 
-        constructor(evt, rect, mouse) {
+        constructor(evt: MouseEvent, rect: DOMRect, mouse: boolean) {
             this.x = this.lx = this.sx = evt.clientX - rect.left;
             this.y = this.ly = this.sy = evt.clientY - rect.top;
             this.button = evt.button;

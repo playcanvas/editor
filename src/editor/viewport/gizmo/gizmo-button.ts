@@ -19,8 +19,8 @@ editor.once('load', () => {
 
     let visible = true;
 
-    editor.once('viewport:load', (app) => {
-        editor.method('gizmo:button:visible', (state) => {
+    editor.once('viewport:load', (app: import('playcanvas').AppBase) => {
+        editor.method('gizmo:button:visible', (state: boolean) => {
             if (visible !== state) {
                 visible = state;
 
@@ -28,7 +28,7 @@ editor.once('load', () => {
             }
         });
 
-        editor.on('viewport:gizmoUpdate', (dt) => {
+        editor.on('viewport:gizmoUpdate', (dt: number) => {
             if (!visible) {
                 return;
             }

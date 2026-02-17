@@ -498,7 +498,7 @@ class SizeLabel extends Label {
 }
 
 class TextureAssetInspector extends Container {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         super(args);
 
         this.class.add(CLASS_ROOT);

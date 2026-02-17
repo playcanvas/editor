@@ -37,7 +37,7 @@ class Messenger extends Events {
         this._pingTimeout = null;
         this._pongTimeout = null;
 
-        this.on('welcome', (msg) => {
+        this.on('welcome', (msg: any) => {
             this._authenticated = true;
             this._ping();
         });
@@ -57,7 +57,7 @@ class Messenger extends Events {
         return this._authenticated;
     }
 
-    connect(url) {
+    connect(url: string) {
         if (this._connecting) {
             return;
         }

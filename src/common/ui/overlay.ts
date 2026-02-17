@@ -1,7 +1,7 @@
 import { LegacyContainer } from './container';
 
 class LegacyOverlay extends LegacyContainer {
-    constructor(args = {}) {
+    constructor(args: Record<string, any> = {}) {
         super();
         this.element = document.createElement('div');
         this._element.classList.add('ui-overlay', 'center');

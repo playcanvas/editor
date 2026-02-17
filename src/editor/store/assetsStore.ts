@@ -109,7 +109,7 @@ class AssetsStore extends BaseStore {
 
         // model viewer with the first asset in the list
         const hostname = window.location.hostname;
-        const encodeUrl = (url) => {
+        const encodeUrl = (url: string) => {
             return encodeURIComponent(`https://${hostname}${url}`);
         };
 

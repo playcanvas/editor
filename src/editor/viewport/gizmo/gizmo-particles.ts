@@ -47,11 +47,11 @@ editor.once('load', () => {
     // hack: override addModelToLayers to selectively put some
     // mesh instances to the front and others to the back layer depending
     // on the __useFrontLayer property
-    const addModelToLayers = function () {
-        const frontMeshInstances = this.meshInstances.filter((mi) => {
+    const addModelToLayers = function (this: Model) {
+        const frontMeshInstances = this.meshInstances.filter((mi: MeshInstance) => {
             return mi.__useFrontLayer;
         });
-        const backMeshInstances = this.meshInstances.filter((mi) => {
+        const backMeshInstances = this.meshInstances.filter((mi: MeshInstance) => {
             return !mi.__useFrontLayer;
         });
 
@@ -121,7 +121,7 @@ editor.once('load', () => {
                     // set to model
                     this.entity.model.model = model;
                     // mask meshinstance from camera preview
-                    model.meshInstances.forEach((mi) => {
+                    model.meshInstances.forEach((mi: MeshInstance) => {
                         mi.mask = GIZMO_MASK;
                     });
                     this.entity.setLocalScale(1, 1, 1);
@@ -143,7 +143,7 @@ editor.once('load', () => {
         }
 
         // link to entity
-        link(obj) {
+        link(obj: EntityObserver) {
             if (!app) {
                 return;
             } // webgl not available
@@ -202,7 +202,7 @@ editor.once('load', () => {
         }
     }
 
-    editor.on('selector:change', (type, items) => {
+    editor.on('selector:change', (type: string, items: EntityObserver[]) => {
         // clear gizmos
         if (type !== 'entity') {
             for (const key in entities) {
@@ -254,7 +254,7 @@ editor.once('load', () => {
         }
     });
 
-    editor.once('viewport:load', (application) => {
+    editor.once('viewport:load', (application: import('playcanvas').AppBase) => {
         app = application;
         const device = app.graphicsDevice;
 
@@ -400,7 +400,7 @@ editor.once('load', () => {
         models.sphere = model;
     });
 
-    editor.on('viewport:gizmoUpdate', (dt) => {
+    editor.on('viewport:gizmoUpdate', (dt: number) => {
         for (const key in entities) {
 
             // mark particle system when running inside Editor - allow it to render screenspace particles in world space

@@ -120,7 +120,7 @@ const DOM = (parent, args) => [
 ];
 
 class CubemapAssetInspector extends Container {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
 
         super(args);

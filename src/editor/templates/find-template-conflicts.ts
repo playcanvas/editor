@@ -1,34 +1,38 @@
 editor.once('load', () => {
     class MergePathStore {
+        store: Record<string, number>;
+
         constructor() {
             this.store = {};
         }
 
-        add(path) {
+        add(path: string[]): void {
             const key = editor.call('template:utils', 'pathToStr', path);
 
             this.store[key] = 1;
         }
 
-        includes(path) {
+        includes(path: string[]): boolean {
             const key = editor.call('template:utils', 'pathToStr', path);
 
-            return this.store[key];
+            return !!this.store[key];
         }
     }
 
     class StartRecursiveTraversal {
-        constructor(data) {
+        data: Record<string, unknown>;
+
+        constructor(data: Record<string, unknown>) {
             this.data = data;
         }
 
-        run() {
+        run(): void {
             this.knownResultPaths = new MergePathStore();
 
             ['src', 'dst'].forEach(this.handleType, this);
         }
 
-        handleType(type) {
+        handleType(type: string): void {
             const h = {
                 type1: type,
 
@@ -44,7 +48,12 @@ editor.once('load', () => {
     }
 
     class TemplateTraversal {
-        constructor(ent, typeToNode, scriptAttrs) {
+        ent: Record<string, unknown>;
+        typeToNode: Record<string, unknown>;
+        scriptAttrs: Record<string, unknown>;
+        conflicts: Record<string, unknown>[];
+
+        constructor(ent: Record<string, unknown>, typeToNode: Record<string, unknown>, scriptAttrs: Record<string, unknown>) {
             this.ent = ent;
 
             this.typeToNode = typeToNode;
@@ -54,7 +63,7 @@ editor.once('load', () => {
             this.conflicts = [];
         }
 
-        run() { // ent is always from src
+        run(): Record<string, unknown>[] { // ent is always from src
             this.runTraversal();
 
             this.conflicts.forEach((h) => {
@@ -64,7 +73,7 @@ editor.once('load', () => {
             return this.conflicts;
         }
 
-        runTraversal() {
+        runTraversal(): void {
             const h = {
                 typeToRoot: this.typeToNode,
                 conflicts: this.conflicts,
@@ -77,7 +86,13 @@ editor.once('load', () => {
     }
 
     class FindTemplateConflicts {
-        constructor(typeToInstData, typeToIdToTempl, scriptAttrs) {
+        typeToInstData: Record<string, unknown>;
+        typeToIdToTempl: Record<string, unknown>;
+        scriptAttrs: Record<string, unknown>;
+        visitedIds: Record<string, number>;
+        result: Record<string, unknown>;
+
+        constructor(typeToInstData: Record<string, unknown>, typeToIdToTempl: Record<string, unknown>, scriptAttrs: Record<string, unknown>) {
             this.typeToInstData = typeToInstData;
 
             this.typeToIdToTempl = typeToIdToTempl;
@@ -101,13 +116,13 @@ editor.once('load', () => {
             return this.result;
         }
 
-        handleAllEnts(type) {
+        handleAllEnts(type: string): void {
             const a = this.typeToInstData[type].entities;
 
             a.forEach(ent => this.handleEntity(type, ent));
         }
 
-        handleEntity(type, ent) {
+        handleEntity(type: string, ent: Record<string, unknown>): void {
             const id = this.getTemplId(type, ent);
 
             if (!this.visitedIds[id]) {
@@ -117,7 +132,7 @@ editor.once('load', () => {
             }
         }
 
-        handleUnvisited(type, ent) {
+        handleUnvisited(type: string, ent: Record<string, unknown>): void {
             const typeToNode = this.makeTypeToNode(type, ent);
 
             if (typeToNode.dst && typeToNode.src) {
@@ -131,7 +146,7 @@ editor.once('load', () => {
             }
         }
 
-        makeTypeToNode(type1, ent) {
+        makeTypeToNode(type1: string, ent: Record<string, unknown>): Record<string, unknown> {
             const h = {};
 
             h[type1] = ent;
@@ -143,25 +158,25 @@ editor.once('load', () => {
             return h;
         }
 
-        findMatchingEnt(type1, type2, ent) {
+        findMatchingEnt(type1: string, type2: string, ent: Record<string, unknown>): Record<string, unknown> | undefined {
             const id = this.getTemplId(type1, ent);
 
             return this.typeToInstData[type2].templIdToEntity[id];
         }
 
-        getTemplId(type, ent) {
+        getTemplId(type: string, ent: Record<string, unknown>): string {
             const id = ent.resource_id;
 
             return this.typeToIdToTempl[type][id] || id;
         }
 
-        useTraversal(ent, typeToNode) { // ent is always from src
+        useTraversal(ent: Record<string, unknown>, typeToNode: Record<string, unknown>): void { // ent is always from src
             const conflicts = new TemplateTraversal(ent, typeToNode, this.scriptAttrs).run();
 
             Array.prototype.push.apply(this.result.conflicts, conflicts);
         }
 
-        handleWholeEnt(ent, overrideType, resField) {
+        handleWholeEnt(ent: Record<string, unknown>, overrideType: string, resField: string): void {
             ent.override_type = overrideType;
 
             this.result[resField].push(ent);

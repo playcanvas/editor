@@ -29,7 +29,7 @@ editor.once('load', () => {
         return timeHover;
     });
 
-    editor.method('tools:time:toHuman', (ms, precision) => {
+    editor.method('tools:time:toHuman', (ms: number, precision?: number) => {
         let s = ms / 1000;
         const m = (`00${Math.floor(s / 60)}`).slice(-2);
         if (precision) {
@@ -148,7 +148,7 @@ editor.once('load', () => {
     let width = 0;
     let height = 0;
     // resizing
-    resize = function () {
+    resize = function (): void {
         const rect = root.getBoundingClientRect();
 
         if (width === rect.width && height === rect.height) {
@@ -254,7 +254,7 @@ editor.once('load', () => {
         flushMouse();
     };
 
-    root.addEventListener('mousemove', (evt) => {
+    root.addEventListener('mousemove', (evt: MouseEvent) => {
         evt.stopPropagation();
 
         const rect = root.getBoundingClientRect();
@@ -268,7 +268,7 @@ editor.once('load', () => {
         }
     }, false);
 
-    root.addEventListener('mousedown', (evt) => {
+    root.addEventListener('mousedown', (evt: MouseEvent) => {
         evt.stopPropagation();
         evt.preventDefault();
 
@@ -279,7 +279,7 @@ editor.once('load', () => {
         mouse.click = true;
     }, false);
 
-    root.addEventListener('mouseup', (evt) => {
+    root.addEventListener('mouseup', (evt: MouseEvent) => {
         evt.stopPropagation();
 
         if (evt.button !== 0 || !mouse.down) {
@@ -290,7 +290,7 @@ editor.once('load', () => {
         mouse.up = true;
     }, false);
 
-    root.addEventListener('mouseleave', (evt) => {
+    root.addEventListener('mouseleave', (_evt: MouseEvent) => {
         mouse.hover = false;
         timeHover = 0;
         if (!mouse.down) {
@@ -301,7 +301,7 @@ editor.once('load', () => {
         mouse.up = true;
     }, false);
 
-    root.addEventListener('mousewheel', (evt) => {
+    root.addEventListener('mousewheel', (evt: WheelEvent) => {
         evt.stopPropagation();
 
         if (!mouse.hover) {
@@ -317,7 +317,7 @@ editor.once('load', () => {
     }, false);
 
     // alt + t
-    window.addEventListener('keydown', (evt) => {
+    window.addEventListener('keydown', (evt: KeyboardEvent) => {
         if (evt.keyCode === 84 && evt.altKey) {
             if (enabled) {
                 editor.call('tools:disable');

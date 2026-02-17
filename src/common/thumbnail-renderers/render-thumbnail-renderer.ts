@@ -1,3 +1,4 @@
+import type { Observer } from '@playcanvas/observer';
 import { Application, BoundingBox, Color, Entity, FOG_NONE, StandardMaterial } from 'playcanvas';
 
 import { ThumbnailRenderer } from './thumbnail-renderer';
@@ -66,7 +67,7 @@ function initializeScene() {
 }
 
 class RenderThumbnailRenderer extends ThumbnailRenderer {
-    constructor(asset, canvas) {
+    constructor(asset: Observer, canvas: HTMLCanvasElement) {
         super();
 
         this._asset = asset;
@@ -123,10 +124,10 @@ class RenderThumbnailRenderer extends ThumbnailRenderer {
         const firstMeshInstanceIndex = model.meshInstances.findIndex(a => a.node.name === this._asset.get('name'));
         const meshInstanceCount = this._asset.get('meta.meshInstances');
         const meshInstanceMaterialMappings = materialMappings.slice(firstMeshInstanceIndex, firstMeshInstanceIndex + meshInstanceCount);
-        const materialAssets = meshInstanceMaterialMappings.map((m, i) => {
+        const materialAssets = meshInstanceMaterialMappings.map((m: any, i: number) => {
             // TODO we shouldn't rely on a material having a specific name here. Ideally we'd have access to material id's here
             const materialName = containerObserver.get(`meta.materials.${m}.name`);
-            const materialObserverResult = editor.call('assets:find', (a) => {
+            const materialObserverResult = editor.call('assets:find', (a: any) => {
                 return a.get('source_asset_id') === containerObserver.get('id').toString() &&
                     a.get('name') === materialName &&
                     a.get('type') === 'material';
@@ -148,7 +149,7 @@ class RenderThumbnailRenderer extends ThumbnailRenderer {
             }
         }
 
-        materialAssets.forEach((asset) => {
+        materialAssets.forEach((asset: Observer) => {
             if (asset === scene.material) {
                 return;
             }

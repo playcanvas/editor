@@ -145,7 +145,7 @@ class RelayServer extends Events {
 
         // emit room:leave events for all users in rooms
         for (const name in this._rooms) {
-            this._rooms[name].forEach((id) => {
+            this._rooms[name].forEach((id: number) => {
                 this._emitRoomLeave(name, id);
             });
         }
@@ -162,7 +162,7 @@ class RelayServer extends Events {
         this.emit('error', error);
     }
 
-    _onmessage(raw) {
+    _onmessage(raw: MessageEvent) {
         if (raw.data === 'pong') {
             this._onPong();
             return;
@@ -193,7 +193,7 @@ class RelayServer extends Events {
         }
     }
 
-    _handleRoomJoin(msg) {
+    _handleRoomJoin(msg: { t: string; name: string; users?: number[]; userId?: number }) {
         if (msg.users) {
             this._rooms[msg.name] = new Set(msg.users);
         } else if (msg.userId) {
@@ -204,11 +204,11 @@ class RelayServer extends Events {
         }
     }
 
-    _handleRoomLeave(msg) {
+    _handleRoomLeave(msg: { t: string; name: string; userId?: number }) {
         if (this._rooms[msg.name]) {
             if (msg.userId === this._userId) {
                 // emit room leave for all the other users
-                this._rooms[msg.name].forEach((id) => {
+                this._rooms[msg.name].forEach((id: number) => {
                     if (id !== this._userId) {
                         this._rooms[msg.name].delete(id);
                         this._emitRoomLeave(msg.name, id);
@@ -223,7 +223,7 @@ class RelayServer extends Events {
         }
     }
 
-    _emitRoomLeave(name, userId) {
+    _emitRoomLeave(name: string, userId: number) {
         const msg = {
             t: 'room:leave',
             name: name,

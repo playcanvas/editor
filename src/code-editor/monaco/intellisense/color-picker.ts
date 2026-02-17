@@ -1,6 +1,6 @@
 editor.once('load', () => {
 
-    function componentToHex(c) {
+    function componentToHex(c: number) {
         const hex = Math.round(c * 255).toString(16);
         return hex.length === 1 ? `0${hex}` : hex;
     }
@@ -11,7 +11,7 @@ editor.once('load', () => {
         return `#${componentToHex(r)}${componentToHex(g)}${componentToHex(b)}${alphaHex}`;
     }
 
-    function parseHex(hex) {
+    function parseHex(hex: string) {
         if (hex.length === 3 || hex.length === 4) {
             // Convert shorthand hex to full hex
             hex = hex.split('').map(c => c + c).join('');

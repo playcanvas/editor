@@ -39,7 +39,7 @@ const DOM = parent => [
 ];
 
 class CodeBlockAssetInspector extends Container {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
 
         super(args);

@@ -241,7 +241,7 @@ const ATTRIBUTES: Attribute[] = [
 ];
 
 class AssetImportSettingsPanel extends BaseSettingsPanel {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.headerText = 'ASSET IMPORT';
         args.attributes = ATTRIBUTES;

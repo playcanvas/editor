@@ -1,3 +1,4 @@
+import type { Observer } from '@playcanvas/observer';
 import { bytesToHuman } from '@/common/utils';
 
 editor.once('load', () => {
@@ -7,7 +8,7 @@ editor.once('load', () => {
         return;
     } // webgl not available
 
-    editor.on('tools:state', (state) => {
+    editor.on('tools:state', (state: boolean) => {
         enabled = state;
     });
 
@@ -17,8 +18,8 @@ editor.once('load', () => {
     panel.classList.add('frame');
     editor.call('tools:root').appendChild(panel);
 
-    const addPanel = function (args) {
-        const element = document.createElement('div');
+    const addPanel = function (args: { title: string }) {
+        const element = document.createElement('div') as HTMLDivElement & { _header: HTMLDivElement };
         element.classList.add('panel');
         panel.appendChild(element);
 
@@ -38,8 +39,8 @@ editor.once('load', () => {
         return element;
     };
 
-    const addField = function (args) {
-        const row = document.createElement('div');
+    const addField = function (args: { title?: string; value?: string }) {
+        const row = document.createElement('div') as HTMLDivElement & { _title: HTMLDivElement; _field: HTMLDivElement; value: string };
         row.classList.add('row');
 
         row._title = document.createElement('div');
@@ -64,7 +65,7 @@ editor.once('load', () => {
 
     var panelApp;
 
-    editor.method('tools:frame:field:add', (name, title, value) => {
+    editor.method('tools:frame:field:add', (name: string, title: string, value: string) => {
         const field = addField({
             title: title,
             value: value
@@ -73,7 +74,7 @@ editor.once('load', () => {
         panelApp.appendChild(field);
     });
 
-    editor.method('tools:frame:field:value', (name, value) => {
+    editor.method('tools:frame:field:value', (name: string, value: string) => {
         if (!fieldsCustom[name]) {
             return;
         }
@@ -128,7 +129,7 @@ editor.once('load', () => {
         key: ['frame', 'ms'],
         panel: panelFrame,
         title: 'MS',
-        format: function (value) {
+        format: function (value: number) {
             return value.toFixed(2);
         }
     }, {
@@ -139,14 +140,14 @@ editor.once('load', () => {
         key: ['frame', 'cullTime'],
         title: 'Cull Time',
         panel: panelFrame,
-        format: function (value) {
+        format: function (value: number) {
             return value.toFixed(3);
         }
     }, {
         key: ['frame', 'sortTime'],
         title: 'Sort Time',
         panel: panelFrame,
-        format: function (value) {
+        format: function (value: number) {
             return value.toFixed(3);
         }
     }, {
@@ -161,7 +162,7 @@ editor.once('load', () => {
         key: ['frame', 'triangles'],
         title: 'Triangles',
         panel: panelFrame,
-        format: function (value) {
+        format: function (value: number) {
             return value.toLocaleString();
         }
     }, {
@@ -176,35 +177,35 @@ editor.once('load', () => {
         key: ['frame', 'shadowMapTime'],
         title: 'ShadowMaps Time',
         panel: panelFrame,
-        format: function (value) {
+        format: function (value: number) {
             return value.toFixed(2);
         }
     }, {
         key: ['frame', 'updateTime'],
         title: 'Update Time',
         panel: panelFrame,
-        format: function (value) {
+        format: function (value: number) {
             return value.toFixed(2);
         }
     }, {
         key: ['frame', 'physicsTime'],
         title: 'Physics Time',
         panel: panelFrame,
-        format: function (value) {
+        format: function (value: number) {
             return value.toFixed(2);
         }
     }, {
         key: ['frame', 'renderTime'],
         title: 'Render Time',
         panel: panelFrame,
-        format: function (value) {
+        format: function (value: number) {
             return value.toFixed(2);
         }
     }, {
         key: ['frame', 'forwardTime'],
         title: 'Forward Time',
         panel: panelFrame,
-        format: function (value) {
+        format: function (value: number) {
             return value.toFixed(2);
         }
     }, {
@@ -231,77 +232,77 @@ editor.once('load', () => {
         key: ['drawCalls', 'total'],
         title: 'Total',
         panel: panelDrawCalls,
-        format: function (value) {
+        format: function (value: number) {
             return value.toLocaleString();
         }
     }, {
         key: ['drawCalls', 'forward'],
         title: 'Forward',
         panel: panelDrawCalls,
-        format: function (value) {
+        format: function (value: number) {
             return value.toLocaleString();
         }
     }, {
         key: ['drawCalls', 'skinned'],
         title: 'Skinned',
         panel: panelDrawCalls,
-        format: function (value) {
+        format: function (value: number) {
             return value.toLocaleString();
         }
     }, {
         key: ['drawCalls', 'shadow'],
         title: 'Shadow',
         panel: panelDrawCalls,
-        format: function (value) {
+        format: function (value: number) {
             return value.toLocaleString();
         }
     }, {
         key: ['drawCalls', 'depth'],
         title: 'Depth',
         panel: panelDrawCalls,
-        format: function (value) {
+        format: function (value: number) {
             return value.toLocaleString();
         }
     }, {
         key: ['drawCalls', 'instanced'],
         title: 'Instanced',
         panel: panelDrawCalls,
-        format: function (value) {
+        format: function (value: number) {
             return value.toLocaleString();
         }
     }, {
         key: ['drawCalls', 'removedByInstancing'],
         title: 'Instancing Benefit',
         panel: panelDrawCalls,
-        format: function (value) {
+        format: function (value: number) {
             return `-${value.toLocaleString()}`;
         }
     }, {
         key: ['drawCalls', 'immediate'],
         title: 'Immediate',
         panel: panelDrawCalls,
-        format: function (value) {
+        format: function (value: number) {
             return value.toLocaleString();
         }
     }, {
         key: ['drawCalls', 'misc'],
         title: 'Misc',
         panel: panelDrawCalls,
-        format: function (value) {
+        format: function (value: number) {
             return value.toLocaleString();
         }
     }, {
         key: ['batcher', 'createTime'],
         title: 'Create Time',
         panel: panelBatching,
-        format: function (value) {
+        format: function (value: number) {
             return value.toFixed(2);
         }
     }, {
         key: ['batcher', 'updateLastFrameTime'],
         title: 'Update Last Frame Time',
         panel: panelBatching,
-        format: function (value) {
+        format: function (value: number) {
             return value.toFixed(2);
         }
     }, {
@@ -312,98 +313,98 @@ editor.once('load', () => {
         key: ['particles', 'frameTime'],
         title: 'Update Time',
         panel: panelParticles,
-        format: function (value) {
+        format: function (value: number) {
             return value.toLocaleString();
         }
     }, {
         key: ['shaders', 'linked'],
         title: 'Linked',
         panel: panelShaders,
-        format: function (value) {
+        format: function (value: number) {
             return value.toLocaleString();
         }
     }, {
         key: ['shaders', 'vsCompiled'],
         title: 'Compiled VS',
         panel: panelShaders,
-        format: function (value) {
+        format: function (value: number) {
             return value.toLocaleString();
         }
     }, {
         key: ['shaders', 'fsCompiled'],
         title: 'Compiled FS',
         panel: panelShaders,
-        format: function (value) {
+        format: function (value: number) {
             return value.toLocaleString();
         }
     }, {
         key: ['shaders', 'materialShaders'],
         title: 'Materials',
         panel: panelShaders,
-        format: function (value) {
+        format: function (value: number) {
             return value.toLocaleString();
         }
     }, {
         key: ['shaders', 'compileTime'],
         title: 'Compile Time',
         panel: panelShaders,
-        format: function (value) {
+        format: function (value: number) {
             return value.toFixed(3);
         }
     }, {
         key: ['lightmapper', 'renderPasses'],
         title: 'Render Passes',
         panel: panelLightmap,
-        format: function (value) {
+        format: function (value: number) {
             return value.toLocaleString();
         }
     }, {
         key: ['lightmapper', 'lightmapCount'],
         title: 'Textures',
         panel: panelLightmap,
-        format: function (value) {
+        format: function (value: number) {
             return value.toLocaleString();
         }
     }, {
         key: ['lightmapper', 'shadersLinked'],
         title: 'Shaders Linked',
         panel: panelLightmap,
-        format: function (value) {
+        format: function (value: number) {
             return value.toLocaleString();
         }
     }, {
         key: ['lightmapper', 'totalRenderTime'],
         title: 'Total Render Time',
         panel: panelLightmap,
-        format: function (value) {
+        format: function (value: number) {
             return value.toFixed(3);
         }
     }, {
         key: ['lightmapper', 'forwardTime'],
         title: 'Forward Time',
         panel: panelLightmap,
-        format: function (value) {
+        format: function (value: number) {
             return value.toFixed(3);
         }
     }, {
         key: ['lightmapper', 'fboTime'],
         title: 'FBO Time',
         panel: panelLightmap,
-        format: function (value) {
+        format: function (value: number) {
             return value.toFixed(3);
         }
     }, {
         key: ['lightmapper', 'shadowMapTime'],
         title: 'ShadowMap Time',
         panel: panelLightmap,
-        format: function (value) {
+        format: function (value: number) {
             return value.toFixed(3);
         }
     }, {
         key: ['lightmapper', 'compileTime'],
         title: 'Shader Compile Time',
         panel: panelLightmap,
-        format: function (value) {
+        format: function (value: number) {
             return value.toFixed(3);
         }
     }, {
@@ -451,14 +452,16 @@ editor.once('load', () => {
     }];
 
     // create fields
+    type FieldItem = { key: string[]; panel: HTMLDivElement; title?: string; update?: boolean; format?: (v: number) => string; custom?: string; field?: HTMLDivElement & { _title: HTMLDivElement; _field: HTMLDivElement; value: string } };
     for (let i = 0; i < fields.length; i++) {
-        fields[i].field = addField({
-            title: fields[i].title || fields[i].key[1]
+        const item = fields[i] as FieldItem;
+        item.field = addField({
+            title: item.title || item.key[1]
         });
-        fields[i].panel.appendChild(fields[i].field);
+        item.panel.appendChild(item.field);
 
-        if (fields[i].custom) {
-            fieldsCustom[fields[i].custom] = fields[i].field;
+        if (item.custom) {
+            fieldsCustom[item.custom] = item.field;
         }
     }
 
@@ -480,7 +483,7 @@ editor.once('load', () => {
     const cameras = document.createElement('select');
     cameras.classList.add('cameras');
     row.appendChild(cameras);
-    cameras.addEventListener('mousedown', (evt) => {
+    cameras.addEventListener('mousedown', (evt: MouseEvent) => {
         evt.stopPropagation();
     });
     cameras.addEventListener('change', () => {
@@ -546,13 +549,13 @@ editor.once('load', () => {
     cameraSkipFrames.type = 'text';
     cameraSkipFrames.value = '0';
     rowCameraSkip.appendChild(cameraSkipFrames);
-    cameraSkipFrames.addEventListener('mousedown', (evt) => {
+    cameraSkipFrames.addEventListener('mousedown', (evt: MouseEvent) => {
         evt.stopPropagation();
     });
     cameraSkipFrames.addEventListener('change', () => {
         pc.ForwardRenderer.skipRenderAfter = parseInt(cameraSkipFrames.value, 10) || 0;
     }, false);
-    cameraSkipFrames.addEventListener('keydown', (evt) => {
+    cameraSkipFrames.addEventListener('keydown', (evt: KeyboardEvent) => {
         let inc = 0;
 
         if (evt.keyCode === 38) {
@@ -591,7 +594,7 @@ editor.once('load', () => {
     rowCameraSkip.appendChild(cameraSkipFramesRight10);
 
 
-    const cameraAdd = function (id) {
+    const cameraAdd = function (id: string) {
         if (cameraAddQueue) {
             cameraAddQueue.push(id);
             return;
@@ -613,7 +616,7 @@ editor.once('load', () => {
         cameras.appendChild(option);
     };
 
-    const cameraRemove = function (id) {
+    const cameraRemove = function (id: string) {
         if (!cameraIndex[id]) {
             return;
         }
@@ -626,7 +629,7 @@ editor.once('load', () => {
         delete cameraIndex[id];
     };
 
-    editor.on('entities:add', (obj) => {
+    editor.on('entities:add', (obj: Observer) => {
         const id = obj.get('resource_id');
 
         obj.on('components.camera:set', () => {
@@ -635,7 +638,7 @@ editor.once('load', () => {
         obj.on('components.camera:unset', () => {
             cameraRemove(id);
         });
-        obj.on('name:set', (value) => {
+        obj.on('name:set', (value: string) => {
             if (!cameraIndex[id]) {
                 return;
             }
@@ -670,18 +673,19 @@ editor.once('load', () => {
                 continue;
             }
 
-            const key0 = fields[i].key[0];
-            const key1 = fields[i].key[1];
+            const item = fields[i] as FieldItem;
+            const key0 = item.key[0];
+            const key1 = item.key[1];
 
             if (app.stats && key0 in app.stats && app.stats[key0] && key1 in app.stats[key0]) {
 
                 let value = app.stats[key0][key1];
 
-                if (fields[i].format) {
-                    value = fields[i].format(value);
+                if (item.format) {
+                    value = item.format(value);
                 }
 
-                fields[i].field.value = value;
+                item.field!.value = value;
             }
         }
     });

@@ -84,7 +84,7 @@ editor.once('load', () => {
 
 
     // True if you can revert
-    editor.method('editor:command:can:revert', (id) => {
+    editor.method('editor:command:can:revert', (id?: string) => {
         if (editor.call('editor:command:can:save', id)) {
             const focused = id || editor.call('documents:getFocused');
             if (editor.call('assets:get', focused) && editor.call('views:get', focused)) {

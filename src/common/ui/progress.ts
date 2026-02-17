@@ -1,7 +1,7 @@
 import { LegacyElement } from './element';
 
 class LegacyProgress extends LegacyElement {
-    constructor(args = {}) {
+    constructor(args: Record<string, any> = {}) {
         super();
         this._progress = args.progress ? Math.max(0, Math.min(1, args.progress)) : 0;
         this._targetProgress = this._progress;

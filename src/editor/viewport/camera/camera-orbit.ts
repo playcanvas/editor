@@ -1,6 +1,7 @@
 import { PROJECTION_PERSPECTIVE, Quat, Vec2, Vec3 } from 'playcanvas';
+import type { ViewportTap } from '../viewport-tap';
 
-editor.once('viewport:load', (app) => {
+editor.once('viewport:load', (app: import('playcanvas').Application) => {
     // Orbit camera with virtual point of focus
     // Zooming / Flying will not move virtual point forward/backwards
 
@@ -16,7 +17,7 @@ editor.once('viewport:load', (app) => {
     const quat = new Quat();
 
 
-    editor.on('viewport:update', (dt) => {
+    editor.on('viewport:update', (dt: number) => {
         const camera = editor.call('camera:current');
 
         if (camera.camera.projection !== PROJECTION_PERSPECTIVE) {
@@ -43,7 +44,7 @@ editor.once('viewport:load', (app) => {
         }
     });
 
-    editor.on('camera:change', (camera) => {
+    editor.on('camera:change', (camera: { focus?: Vec3 }) => {
         if (!camera.focus) {
             return;
         }
@@ -51,7 +52,7 @@ editor.once('viewport:load', (app) => {
         pivot.copy(camera.focus);
     });
 
-    editor.on('camera:focus', (point) => {
+    editor.on('camera:focus', (point: Vec3) => {
         pivot.copy(point);
 
         const camera = editor.call('camera:current');
@@ -60,7 +61,7 @@ editor.once('viewport:load', (app) => {
         }
     });
 
-    editor.on('camera:focus:end', (point, value) => {
+    editor.on('camera:focus:end', (_point: Vec3, value: number) => {
         const camera = editor.call('camera:current');
         distance = value;
         pivot.copy(camera.forward).mulScalar(distance).add(camera.getPosition());
@@ -110,7 +111,7 @@ editor.once('viewport:load', (app) => {
         editor.call('camera:history:stop', orbitCamera);
     });
 
-    editor.on('viewport:tap:move', (tap) => {
+    editor.on('viewport:tap:move', (tap: ViewportTap) => {
         if (!orbiting || tap.button !== 0) {
             return;
         }
@@ -121,7 +122,7 @@ editor.once('viewport:load', (app) => {
         editor.call('viewport:render');
     });
 
-    editor.on('camera:toggle', (state) => {
+    editor.on('camera:toggle', (state: boolean) => {
         if (!state && orbiting) {
             orbiting = false;
             editor.call('camera:history:stop', orbitCamera);

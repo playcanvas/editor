@@ -1,4 +1,8 @@
+import type { ObserverList } from '@playcanvas/observer';
+
 import type { AssetObserver, EntityObserver } from '@/editor-api';
+
+type TemplateOverride = Record<string, unknown>;
 
 editor.once('load', () => {
     const REGEX_SCRIPT_NAME = /^components\.script\.scripts\.([^.]+)$/;
@@ -6,11 +10,11 @@ editor.once('load', () => {
 
     const IGNORE_PATHS = editor.call('template:utils', 'ignoreRootPathsForRevert');
 
-    function rememberEntitiesPanelState(entity) {
+    function rememberEntitiesPanelState(entity: EntityObserver): unknown {
         return editor.call('entities:panel:getExpandedState', entity);
     }
 
-    function restoreEntitiesPanelState(state) {
+    function restoreEntitiesPanelState(state: unknown): void {
         editor.call('entities:panel:restoreExpandedState', state);
     }
 
@@ -83,7 +87,7 @@ editor.once('load', () => {
         });
     });
 
-    function revertNewScript(entity, override, scriptName) {
+    function revertNewScript(entity: EntityObserver, override: TemplateOverride, scriptName: string): void {
         let previousIndex;
 
         // handle new script
@@ -132,7 +136,7 @@ editor.once('load', () => {
         });
     }
 
-    function revertNewJsonScriptAttributeArrayElement(entity, override, index) {
+    function revertNewJsonScriptAttributeArrayElement(entity: EntityObserver, override: TemplateOverride, index: number): void {
         const prev = entity.get(override.path);
         const path = override.path.substring(0, override.path.lastIndexOf('.'));
 
@@ -171,7 +175,7 @@ editor.once('load', () => {
         });
     }
 
-    function revertDeletedJsonScriptAttributeArrayElement(entity, override) {
+    function revertDeletedJsonScriptAttributeArrayElement(entity: EntityObserver, override: TemplateOverride): void {
         const idx = override.path.lastIndexOf('.');
         const path = override.path.substring(0, idx);
         const index = parseInt(override.path.substring(idx + 1), 10);
@@ -213,7 +217,7 @@ editor.once('load', () => {
         });
     }
 
-    function revertDeletedScript(entity, override, scriptName) {
+    function revertDeletedScript(entity: EntityObserver, override: TemplateOverride, scriptName: string): void {
         if (!override.missing_in_src) {
             return;
         }
@@ -292,11 +296,11 @@ editor.once('load', () => {
         });
     }
 
-    function revertNewTemplateId(entity, override) {
+    function revertNewTemplateId(entity: EntityObserver, override: TemplateOverride): void {
         editor.call('templates:unlink', entity);
     }
 
-    function revertReparenting(entity, override, entities) {
+    function revertReparenting(entity: EntityObserver, override: TemplateOverride, entities: ObserverList): void {
         let oldParent;
         for (const key in override.srcToDst) {
             if (override.srcToDst[key] === override.dst_value) {
@@ -350,7 +354,7 @@ editor.once('load', () => {
         }]);
     }
 
-    function revertChildrenReordering(entity, override) {
+    function revertChildrenReordering(entity: EntityObserver, override: TemplateOverride): void {
         let oldChildren;
 
         function undo() {
@@ -442,7 +446,7 @@ editor.once('load', () => {
         });
     }
 
-    function revertScriptOrder(entity, override) {
+    function revertScriptOrder(entity: EntityObserver, override: TemplateOverride): void {
         // handle script order
         let oldOrder;
 
@@ -501,7 +505,7 @@ editor.once('load', () => {
         });
     }
 
-    function afterAddInstance(entity, entitiesPanelState, ignorePathValues) {
+    function afterAddInstance(entity: EntityObserver, entitiesPanelState: unknown, ignorePathValues: unknown[]): void {
         entity.history.enabled = false;
         IGNORE_PATHS.forEach((path, i) => {
             entity.set(path, ignorePathValues[i]);
@@ -644,7 +648,7 @@ editor.once('load', () => {
     });
     /* eslint-enable require-atomic-updates */
 
-    function setRemappedDstVal(override, entity) {
+    function setRemappedDstVal(override: TemplateOverride, entity: EntityObserver): void {
         const v = override.entity_ref_paths ?
             editor.call('template:attrUtils', 'remapDstForRevert', override) :
             override.dst_value;

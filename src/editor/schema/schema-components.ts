@@ -78,7 +78,7 @@ editor.once('load', () => {
             }
 
             // Otherwise, select the first available font in the library
-            const firstAvailableFont = editor.call('assets:findOne', (asset) => {
+            const firstAvailableFont = editor.call('assets:findOne', (asset: import('@playcanvas/observer').Observer) => {
                 return !asset.get('source') && asset.get('type') === 'font';
             });
 
@@ -209,7 +209,7 @@ editor.once('load', () => {
         return schema;
     });
 
-    editor.method('components:getDefault', (component) => {
+    editor.method('components:getDefault', (component: string) => {
         const result = {};
         for (const fieldName in schema[component]) {
             if (fieldName.startsWith('$')) {
@@ -230,7 +230,7 @@ editor.once('load', () => {
         // Any functions in the default property set are used to provide
         // lazy resolution, to handle cases where the values are not known
         // at startup time.
-        Object.keys(defaults).forEach((key) => {
+        Object.keys(defaults).forEach((key: string) => {
             const value = defaults[key];
 
             if (typeof value === 'function') {

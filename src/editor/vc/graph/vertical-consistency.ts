@@ -81,7 +81,7 @@ editor.once('load', () => {
         }
     }
 
-    editor.method('vcgraph:verticalConsistency', (data) => {
+    editor.method('vcgraph:verticalConsistency', (data: unknown) => {
         new VerticalConsistency(data.idToNode).run();
     });
 });

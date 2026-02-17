@@ -6,7 +6,7 @@ import { AssetInput } from '@/common/pcui/element/element-asset-input';
 import { tooltip, tooltipSimpleItem } from '@/common/tooltips';
 import { LegacyTooltip } from '@/common/ui/tooltip';
 import { deepCopy } from '@/common/utils';
-import type { AssetObserver, LocalStorage } from '@/editor-api';
+import type { AssetObserver, History, LocalStorage } from '@/editor-api';
 
 import { ComponentInspector } from './component';
 import { evaluate } from '../../scripting/expr-eval/evaluate';
@@ -14,6 +14,7 @@ import { parse } from '../../scripting/expr-eval/parser';
 import type { ASTNode } from '../../scripting/expr-eval/parser.js';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
+import type { TemplateOverrideInspector } from '../../templates/templates-override-inspector.js';
 
 
 const CLASS_SCRIPT_CONTAINER = 'script-component-inspector-scripts';
@@ -133,7 +134,14 @@ class ScriptInspector extends Panel {
 
     containerErrors: Container;
 
-    constructor(args) {
+    constructor(args: {
+        componentInspector: ScriptComponentInspector;
+        scriptName: string;
+        history: History;
+        assets: Observer[];
+        entities: Observer[];
+        templateOverridesInspector?: TemplateOverrideInspector;
+    } & Record<string, unknown>) {
         super(args);
 
         this._componentInspector = args.componentInspector;
@@ -330,7 +338,7 @@ class ScriptInspector extends Panel {
         return '';
     }
 
-    _onClickTitle(evt) {
+    _onClickTitle(evt: MouseEvent) {
         evt.stopPropagation();
         evt.preventDefault();
 
@@ -347,7 +355,7 @@ class ScriptInspector extends Panel {
         }
     }
 
-    _onClickEdit(evt) {
+    _onClickEdit(evt: MouseEvent) {
         if (this._asset) {
             editor.call('assets:edit', this._asset);
         }
@@ -794,7 +802,7 @@ class ScriptInspector extends Panel {
         return data;
     }
 
-    _getAttributeSubtitle(attributeData) {
+    _getAttributeSubtitle(attributeData: Record<string, unknown>) {
         let subTitle = ATTRIBUTE_SUBTITLES[attributeData.type];
 
         if (attributeData.type === 'curve') {
@@ -814,7 +822,7 @@ class ScriptInspector extends Panel {
         return subTitle;
     }
 
-    _onAddAttribute(asset, name, index) {
+    _onAddAttribute(asset: AssetObserver, name: string, index: number) {
         if (this._asset !== asset || !this._asset) {
             return;
         }
@@ -828,7 +836,7 @@ class ScriptInspector extends Panel {
         this._attributesInspector.addAttribute(inspectorData, index);
     }
 
-    _onRemoveAttribute(asset, name) {
+    _onRemoveAttribute(asset: AssetObserver, name: string) {
         if (this._asset !== asset || !this._asset) {
             return;
         }
@@ -836,7 +844,7 @@ class ScriptInspector extends Panel {
         this._attributesInspector.removeAttribute(`components.script.scripts.${this._scriptName}.attributes.${name}`);
     }
 
-    _onChangeAttribute(asset, name) {
+    _onChangeAttribute(asset: AssetObserver, name: string) {
         if (this._asset !== asset || !this._asset) {
             return;
         }
@@ -868,7 +876,7 @@ class ScriptInspector extends Panel {
         });
     }
 
-    _onMoveAttribute(asset, name, index) {
+    _onMoveAttribute(asset: AssetObserver, name: string, index: number) {
         if (this._asset !== asset || !this._asset) {
             return;
         }
@@ -876,7 +884,7 @@ class ScriptInspector extends Panel {
         this._attributesInspector.moveAttribute(`components.script.scripts.${this._scriptName}.attributes.${name}`, index);
     }
 
-    _onPrimaryScriptSet(asset) {
+    _onPrimaryScriptSet(asset: AssetObserver) {
         this._asset = asset;
         this.class.remove(CLASS_SCRIPT_INVALID);
         this._initializeScriptAttributes();
@@ -951,7 +959,13 @@ class ScriptComponentInspector extends ComponentInspector {
 
     private _updateScriptsTimeout: ReturnType<typeof setTimeout> | null = null;
 
-    constructor(args) {
+    constructor(args: {
+        component?: string;
+        assets?: Observer[];
+        entities?: Observer[];
+        templateOverridesInspector?: TemplateOverrideInspector;
+        history?: History;
+    } & Record<string, unknown>) {
         args = Object.assign({}, args);
         args.component = 'script';
 
@@ -1097,7 +1111,7 @@ class ScriptComponentInspector extends ComponentInspector {
         }
     }
 
-    _createScriptPanel(scriptName) {
+    _createScriptPanel(scriptName: string) {
         const panel = new ScriptInspector({
             componentInspector: this,
             scriptName: scriptName,
@@ -1273,7 +1287,7 @@ class ScriptComponentInspector extends ComponentInspector {
         return result;
     }
 
-    _onSelectScript(script) {
+    _onSelectScript(script: string) {
         if (!script) {
             return;
         }
@@ -1285,7 +1299,7 @@ class ScriptComponentInspector extends ComponentInspector {
         editor.api.globals.entities.addScript(this._entities.map(e => e.apiEntity), script);
     }
 
-    _onCreateScript(script) {
+    _onCreateScript(script: string) {
         this._selectScript.blur();
 
         const filename = editor.call('picker:script-create:validate', script);
@@ -1316,7 +1330,7 @@ class ScriptComponentInspector extends ComponentInspector {
         }
     }
 
-    _onDragEnd(scriptInspector, newIndex, oldIndex) {
+    _onDragEnd(scriptInspector: ScriptInspector, newIndex: number, oldIndex: number) {
         if (!this._entities || this._entities.length !== 1 || newIndex === oldIndex) {
             return;
         }

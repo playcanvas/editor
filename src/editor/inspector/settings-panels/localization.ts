@@ -25,7 +25,7 @@ const ATTRIBUTES: Attribute[] = [
 ];
 
 class LocalizationSettingsPanel extends BaseSettingsPanel {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.headerText = 'LOCALIZATION';
         args.attributes = ATTRIBUTES;

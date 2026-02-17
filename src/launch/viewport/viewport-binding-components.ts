@@ -1,3 +1,5 @@
+import type { Observer } from '@playcanvas/observer';
+
 editor.once('load', () => {
     const app = editor.call('viewport:app');
     if (!app) {
@@ -7,7 +9,7 @@ editor.once('load', () => {
     const assignAttributesToScript = pc.ScriptAttributes.assignAttributesToScript;
 
     // converts the data to runtime types
-    const runtimeComponentData = function (component, data) {
+    const runtimeComponentData = function (component: string, data: Record<string, unknown>) {
         const result = {};
         for (const key in data) {
             if (data.hasOwnProperty(key)) {
@@ -18,9 +20,9 @@ editor.once('load', () => {
         return result;
     };
 
-    editor.on('entities:add', (obj) => {
+    editor.on('entities:add', (obj: Observer) => {
 
-        function onSetProperty(entity, component, property, parts, value) {
+        function onSetProperty(entity: pc.Entity, component: string, property: string, parts: string[], value: unknown) {
             // edit component property
             if (component === 'script' && property === 'scripts' && !editor.call('settings:project').get('useLegacyScripts')) {
                 /* eslint-disable-next-line no-empty */
@@ -100,7 +102,7 @@ editor.once('load', () => {
         }
 
         // subscribe to changes
-        obj.on('*:set', (path, value) => {
+        obj.on('*:set', (path: string, value: unknown) => {
             if (obj._silent || !path.startsWith('components')) {
                 return;
             }
@@ -133,7 +135,7 @@ editor.once('load', () => {
         });
 
 
-        obj.on('*:unset', (path) => {
+        obj.on('*:unset', (path: string) => {
             if (obj._silent || !path.startsWith('components')) {
                 return;
             }
@@ -182,7 +184,7 @@ editor.once('load', () => {
             }
         });
 
-        const setComponentProperty = function (path, value, ind) {
+        const setComponentProperty = function (path: string, value: unknown, ind: number) {
             if (obj._silent || !path.startsWith('components')) {
                 return;
             }

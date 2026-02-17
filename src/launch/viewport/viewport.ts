@@ -18,7 +18,7 @@ editor.once('load', () => {
     var app;
     var scriptPrefix;
 
-    const layerIndex = {};
+    const layerIndex: Record<string, pc.Layer> = {};
 
     // try to start preload and initialization of application after load event
     const init = function () {
@@ -33,9 +33,9 @@ editor.once('load', () => {
             }
 
             // load assets that are in the preload set
-            app.preload((err) => {
+            app.preload((err: Error | null) => {
                 // load scripts that are in the scene data
-                app._preloadScripts(sceneData, (err) => {
+                app._preloadScripts(sceneData, (err: Error | null) => {
                     if (err) {
                         log.error(err);
                     }
@@ -98,7 +98,7 @@ editor.once('load', () => {
         }
     };
 
-    const createLayer = function (key, data) {
+    const createLayer = function (key: string, data: { name: string; opaqueSortMode: number; transparentSortMode: number }) {
         const id = parseInt(key, 10);
         return new pc.Layer({
             id: id,
@@ -337,7 +337,7 @@ editor.once('load', () => {
         }
 
         editor.call('wasm:load', config.wasmModules, '', () => {
-            app._loadLibraries(libraryUrls, (err) => {
+            app._loadLibraries(libraryUrls, (err: Error | null) => {
                 libraries = true;
                 if (err) {
                     log.error(err);
@@ -408,7 +408,7 @@ editor.once('load', () => {
             refreshResolutionProperties();
         });
 
-        projectSettings.on('resolutionMode:set', (value) => {
+        projectSettings.on('resolutionMode:set', (value: number) => {
             config.project.settings.resolutionMode = value;
             refreshResolutionProperties();
         });
@@ -422,23 +422,23 @@ editor.once('load', () => {
             config.project.settings.deviceTypes = value;
         });
 
-        projectSettings.on('powerPreference:set', (value) => {
+        projectSettings.on('powerPreference:set', (value: string) => {
             config.project.settings.powerPreference = value;
         });
 
-        projectSettings.on('i18nAssets:set', (value) => {
+        projectSettings.on('i18nAssets:set', (value: number[]) => {
             app.i18n.assets = value;
         });
 
-        projectSettings.on('i18nAssets:insert', (value) => {
+        projectSettings.on('i18nAssets:insert', (_value: unknown) => {
             app.i18n.assets = projectSettings.get('i18nAssets');
         });
 
-        projectSettings.on('i18nAssets:remove', (value) => {
+        projectSettings.on('i18nAssets:remove', (_value: unknown) => {
             app.i18n.assets = projectSettings.get('i18nAssets');
         });
 
-        projectSettings.on('maxAssetRetries:set', (value) => {
+        projectSettings.on('maxAssetRetries:set', (value: number) => {
             if (value > 0) {
                 app.loader.enableRetry(value);
             } else {
@@ -447,13 +447,13 @@ editor.once('load', () => {
         });
 
         // locale change
-        projectUserSettings.on('editor.locale:set', (value) => {
+        projectUserSettings.on('editor.locale:set', (value: string) => {
             if (value) {
                 app.i18n.locale = value;
             }
         });
 
-        projectSettings.on('*:set', (path, value) => {
+        projectSettings.on('*:set', (path: string, value: unknown) => {
             let parts;
 
             if (path.startsWith('batchGroups')) {
@@ -511,7 +511,7 @@ editor.once('load', () => {
             }
         });
 
-        projectSettings.on('*:unset', (path, value) => {
+        projectSettings.on('*:unset', (path: string, _value: unknown) => {
             if (path.startsWith('batchGroups')) {
                 const propNameParts = path.split('.')[1];
                 if (propNameParts.length === 2) {
@@ -530,7 +530,7 @@ editor.once('load', () => {
             }
         });
 
-        projectSettings.on('layerOrder:insert', (value, index) => {
+        projectSettings.on('layerOrder:insert', (value: Observer, index: number) => {
             const id = value.get('layer');
             const layer = layerIndex[id];
             if (!layer) {
@@ -546,7 +546,7 @@ editor.once('load', () => {
             }
         });
 
-        projectSettings.on('layerOrder:remove', (value) => {
+        projectSettings.on('layerOrder:remove', (value: Observer) => {
             const id = value.get('layer');
             const layer = layerIndex[id];
             if (!layer) {
@@ -562,7 +562,7 @@ editor.once('load', () => {
             }
         });
 
-        projectSettings.on('layerOrder:move', (value, indNew, indOld) => {
+        projectSettings.on('layerOrder:move', (value: Observer, indNew: number, indOld: number) => {
             const id = value.get('layer');
             const layer = layerIndex[id];
             if (!layer) {
@@ -594,7 +594,7 @@ editor.once('load', () => {
         return app;
     });
 
-    editor.on('entities:load', (data) => {
+    editor.on('entities:load', (data: unknown) => {
         hierarchy = true;
         sceneData = data;
         init();
@@ -605,14 +605,14 @@ editor.once('load', () => {
         init();
     });
 
-    editor.on('sceneSettings:load', (data) => {
+    editor.on('sceneSettings:load', (data: Observer) => {
         settings = true;
         sceneSettings = data.json();
         init();
     });
 
     if (legacyScripts) {
-        editor.on('sourcefiles:load', (scripts) => {
+        editor.on('sourcefiles:load', (_scripts: string[]) => {
 
             scriptList = scripts;
             sourcefiles = true;

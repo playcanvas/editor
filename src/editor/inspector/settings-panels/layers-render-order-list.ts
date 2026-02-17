@@ -12,7 +12,7 @@ const CLASS_RENDER_ORDER_LIST_ITEM_TRANSPARENT = `${CLASS_RENDER_ORDER_LIST_ITEM
 const REGEX_LAYER_ENABLED = /^layerOrder\.(\d+)\.enabled$/;
 
 class LayersSettingsPanelRenderOrderList extends Container {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
 
         super(args);

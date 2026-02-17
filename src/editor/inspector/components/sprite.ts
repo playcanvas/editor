@@ -181,7 +181,7 @@ function getCommonClips(entities) {
 }
 
 class SpriteClipInspector extends Panel {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({
             collapsible: true,
             headerText: args.clipName
@@ -346,7 +346,7 @@ class SpriteClipInspector extends Panel {
 }
 
 class SpriteComponentInspector extends ComponentInspector {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.component = 'sprite';
 

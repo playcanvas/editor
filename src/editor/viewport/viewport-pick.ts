@@ -1,6 +1,7 @@
-import { Entity, Picker, Vec2 } from 'playcanvas';
+import { Entity, GraphNode, Picker, Vec2 } from 'playcanvas';
 
 import { FORCE_PICK_TAG } from '@/core/constants';
+import type { ViewportTap } from './viewport-tap';
 
 editor.once('load', () => {
     const app = editor.call('viewport:app');
@@ -26,18 +27,18 @@ editor.once('load', () => {
     let rectStartY = 0;
 
     // Traverses up the node hierarchy to find the parent Entity
-    const findParentEntity = (node) => {
+    const findParentEntity = (node: GraphNode | null): Entity | null => {
         while (node && !(node instanceof Entity) && node.parent) {
             node = node.parent;
         }
         return (node instanceof Entity) ? node : null;
     };
 
-    editor.on('gizmo:transform:hover', (state) => {
+    editor.on('gizmo:transform:hover', (state: boolean) => {
         gizmoHover = state;
     });
 
-    editor.method('viewport:pick:filter', (fn) => {
+    editor.method('viewport:pick:filter', (fn: ((node: GraphNode) => boolean) | null) => {
         if (filter === fn) {
             return;
         }
@@ -45,7 +46,7 @@ editor.once('load', () => {
         filter = fn;
     });
 
-    editor.method('viewport:pick:state', (state) => {
+    editor.method('viewport:pick:state', (state: boolean) => {
         picking = state;
     });
 
@@ -61,7 +62,7 @@ editor.once('load', () => {
         }
 
         // pick
-        editor.call('viewport:pick', mouseCoords.x, mouseCoords.y, (node, picked) => {
+        editor.call('viewport:pick', mouseCoords.x, mouseCoords.y, (node: Entity | null, picked: { node: GraphNode } | null) => {
             if (gizmoHover && !node?.tags.has(FORCE_PICK_TAG)) {
                 node = null;
                 picked = null;
@@ -75,15 +76,15 @@ editor.once('load', () => {
         });
     });
 
-    editor.on('viewport:hover', (hover) => {
+    editor.on('viewport:hover', (hover: boolean) => {
         inViewport = hover;
     });
 
-    editor.on('viewport:resize', (width, height) => {
+    editor.on('viewport:resize', (width: number, height: number) => {
         picker.resize(width, height);
     });
 
-    editor.method('viewport:pick', (x, y, fn) => {
+    editor.method('viewport:pick', (x: number, y: number, fn: (node: Entity | null, picked: { node: GraphNode } | null) => void) => {
         const scene = app.scene;
 
         // if (filter) {
@@ -111,7 +112,7 @@ editor.once('load', () => {
     });
 
     // Rectangle pick method - returns array of unique entities in the rectangle
-    editor.method('viewport:pick:rect', (x, y, width, height, fn) => {
+    editor.method('viewport:pick:rect', (x: number, y: number, width: number, height: number, fn: (entities: Entity[]) => void) => {
         const scene = app.scene;
 
         // prepare picker
@@ -125,11 +126,11 @@ editor.once('load', () => {
         const seenGuids = new Set<string>();
 
         for (const meshInstance of picked) {
-            if (!meshInstance || !meshInstance.node) {
+            if (!meshInstance || !(meshInstance as { node?: GraphNode }).node) {
                 continue;
             }
 
-            const entity = findParentEntity(meshInstance.node);
+            const entity = findParentEntity((meshInstance as { node: GraphNode }).node);
             if (!entity) {
                 continue;
             }
@@ -144,7 +145,7 @@ editor.once('load', () => {
         fn(entities);
     });
 
-    editor.on('viewport:tap:start', (tap, evt) => {
+    editor.on('viewport:tap:start', (tap: ViewportTap, evt: MouseEvent) => {
         if (!tap.mouse) {
             return;
         }
@@ -160,14 +161,14 @@ editor.once('load', () => {
         }
     });
 
-    editor.on('viewport:tap:move', (tap) => {
+    editor.on('viewport:tap:move', (tap: ViewportTap) => {
         // Update rect selection visual
         if (rectSelecting && tap.button === 0) {
             editor.emit('viewport:pick:rect:move', rectStartX, rectStartY, tap.x, tap.y);
         }
     });
 
-    editor.on('viewport:tap:end', (tap) => {
+    editor.on('viewport:tap:end', (tap: ViewportTap) => {
         if (!tap.mouse) {
             return;
         }
@@ -202,12 +203,12 @@ editor.once('load', () => {
         }
     });
 
-    editor.on('viewport:mouse:move', (tap) => {
+    editor.on('viewport:mouse:move', (tap: ViewportTap) => {
         mouseCoords.x = tap.x;
         mouseCoords.y = tap.y;
     });
 
-    editor.on('viewport:tap:click', (tap) => {
+    editor.on('viewport:tap:click', (tap: ViewportTap) => {
         if (!inViewport || (tap.mouse && tap.button !== 0)) {
             return;
         }
@@ -215,7 +216,7 @@ editor.once('load', () => {
         if (pickedData.node) {
             editor.emit('viewport:pick:node', pickedData.node, pickedData.picked);
         } else {
-            editor.call('viewport:pick', tap.x, tap.y, (node, picked) => {
+            editor.call('viewport:pick', tap.x, tap.y, (node: Entity | null, picked: { node: GraphNode } | null) => {
                 if (gizmoHover && !node?.tags.has(FORCE_PICK_TAG)) {
                     node = null;
                     picked = null;

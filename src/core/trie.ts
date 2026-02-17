@@ -91,7 +91,7 @@ class Trie {
         }
 
         // If we don't have a trailing slash then return a list of children that start with the last path segment
-        return paths.filter(({ name }) => name.startsWith(lastPathSegment));
+        return paths.filter(({ name }: TrieNode) => name.startsWith(lastPathSegment));
 
     }
 }

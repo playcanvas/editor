@@ -6,7 +6,7 @@ editor.once('load', () => {
     let nodeLast = null;
     const delay = 500;
 
-    editor.on('viewport:hover', (state) => {
+    editor.on('viewport:hover', (state: boolean) => {
         inViewport = state;
 
         if (!inViewport) {
@@ -22,7 +22,7 @@ editor.once('load', () => {
         editor.call('cursor:text', nameLast);
     };
 
-    const checkPicked = function (node, picked) {
+    const checkPicked = function (node: import('playcanvas').Entity | null, picked: import('playcanvas').MeshInstance | { node: { name: string } } | null): void {
         let name = '';
 
         if (inViewport && node) {

@@ -65,11 +65,11 @@ class BundlesInput extends SelectInput {
         });
 
         const selectedBundles: unknown[] = [];
-        this._containerTags.dom.childNodes.forEach((dom) => {
+        this._containerTags.dom.childNodes.forEach((dom: ChildNode) => {
             selectedBundles.push((dom as any).ui.value);
         });
 
-        this._assets.forEach((asset) => {
+        this._assets.forEach((asset: Observer) => {
             const assetBundles = editor.call('assets:bundles:listForAsset', asset);
             assetBundles.forEach((assetBundle: Observer) => {
                 if (!selectedBundles.includes(assetBundle.get('id'))) {
@@ -77,7 +77,7 @@ class BundlesInput extends SelectInput {
                 }
             });
         });
-        this._containerTags.dom.childNodes.forEach((dom) => {
+        this._containerTags.dom.childNodes.forEach((dom: ChildNode) => {
             const assetBundles = editor.call('assets:bundles:listForAsset', this._assets[0]).map((asset: Observer) => {
                 return asset.get('id');
             });

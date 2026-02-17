@@ -166,7 +166,7 @@ class Skeleton {
 }
 
 class AnimViewer extends Container {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         super(args);
 
         this._shownError = false;

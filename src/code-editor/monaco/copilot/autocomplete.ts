@@ -4,7 +4,7 @@ editor.once('load', () => {
     const MAX_DELAY = 2000;
     const DEFAULT_DELAY = 500;
 
-    function isCommentLine(lineContent) {
+    function isCommentLine(lineContent: string) {
         return /^\s*\/\//.test(lineContent);
     }
 
@@ -12,7 +12,7 @@ editor.once('load', () => {
     let lastAcceptedLineNumber = null;
 
     // Utility function to pause execution for a given duration
-    function waitMs(ms) {
+    function waitMs(ms: number) {
         return new Promise((resolve) => {
             setTimeout(resolve, ms);
         });
@@ -113,7 +113,7 @@ editor.once('load', () => {
             };
         },
 
-        freeInlineCompletions: (completions) => {
+        freeInlineCompletions: (_completions: unknown) => {
             // Clean up if needed (e.g., release server-side resources)
         }
     });

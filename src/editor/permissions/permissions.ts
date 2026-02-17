@@ -2,8 +2,8 @@ editor.once('load', () => {
     const permissions = { };
 
     // cache permissions in a dictionary
-    ['read', 'write', 'admin'].forEach((access) => {
-        config.project.permissions[access].forEach((id) => {
+    ['read', 'write', 'admin'].forEach((access: 'read' | 'write' | 'admin') => {
+        config.project.permissions[access].forEach((id: string) => {
             permissions[id] = access;
         });
     });
@@ -12,14 +12,14 @@ editor.once('load', () => {
         return config.project.permissions;
     });
 
-    editor.method('permissions:read', (userId) => {
+    editor.method('permissions:read', (userId?: string) => {
         if (!userId) {
             userId = config.self.id;
         }
         return permissions.hasOwnProperty(userId);
     });
 
-    editor.method('permissions:write', (userId) => {
+    editor.method('permissions:write', (userId?: string) => {
         if (!userId) {
             userId = config.self.id;
         }
@@ -27,7 +27,7 @@ editor.once('load', () => {
         return permissions[userId] === 'write' || permissions[userId] === 'admin';
     });
 
-    editor.method('permissions:admin', (userId) => {
+    editor.method('permissions:admin', (userId?: string) => {
         if (!userId) {
             userId = config.self.id;
         }
@@ -36,7 +36,7 @@ editor.once('load', () => {
     });
 
     // subscribe to messenger
-    editor.on('messenger:project.permissions', (msg) => {
+    editor.on('messenger:project.permissions', (msg: { user: { id: string; permission?: string } }) => {
         const userId = msg.user.id;
 
         // remove from read
@@ -79,7 +79,7 @@ editor.once('load', () => {
     });
 
     // subscribe to project private changes
-    editor.on('messenger:project.private', (msg) => {
+    editor.on('messenger:project.private', (msg: { project: { id: string; private: boolean } }) => {
         const projectId = msg.project.id;
         if (config.project.id !== projectId) {
             return;
@@ -93,13 +93,13 @@ editor.once('load', () => {
         }
     });
 
-    editor.on('messenger:user.logout', (msg) => {
+    editor.on('messenger:user.logout', (msg: { user: { id: string } }) => {
         if (msg.user.id === config.self.id) {
             window.location.reload();
         }
     });
 
-    editor.on(`permissions:set:${config.self.id}`, (accessLevel) => {
+    editor.on(`permissions:set:${config.self.id}`, (accessLevel: string | null) => {
         const connection = editor.call('realtime:connection');
         editor.emit('permissions:writeState', connection && connection.state === 'connected' && (accessLevel === 'write' || accessLevel === 'admin'));
     });

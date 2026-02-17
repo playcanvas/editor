@@ -1,8 +1,8 @@
-import { BoundingBox, Vec3 } from 'playcanvas';
+import { Application, BoundingBox, Entity, Vec3 } from 'playcanvas';
 
 editor.once('load', () => {
     // converts the data to runtime types
-    const runtimeComponentData = function (component, data) {
+    const runtimeComponentData = function (component: string, data: Record<string, unknown>): Record<string, unknown> {
         const result = {};
         for (const key in data) {
             if (data.hasOwnProperty(key)) {
@@ -13,14 +13,14 @@ editor.once('load', () => {
         return result;
     };
 
-    const approxEqual = function (a, b) {
+    const approxEqual = function (a: number, b: number): boolean {
         return Math.abs(a - b) < 1e-4;
     };
 
-    editor.on('entities:add', (obj) => {
-        let app;
+    editor.on('entities:add', (obj: any) => {
+        let app: Application | undefined;
 
-        function setProperty(entity, component, property, value) {
+        function setProperty(entity: Entity, component: string, property: string, value?: unknown): void {
             let callSetter = true;
             // edit component property
             value = obj.get(`components.${component}.${property}`);
@@ -93,7 +93,7 @@ editor.once('load', () => {
         }
 
         // subscribe to changes
-        obj.on('*:set', (path, value) => {
+        obj.on('*:set', (path: string, value: unknown) => {
             if (obj._silent || !path.startsWith('components')) {
                 return;
             }
@@ -143,7 +143,7 @@ editor.once('load', () => {
             }
         });
 
-        const onInsertOrRemove = function (path, value) {
+        const onInsertOrRemove = function (path: string, value: unknown): void {
             if (obj._silent || !path.startsWith('components')) {
                 return;
             }
@@ -175,7 +175,7 @@ editor.once('load', () => {
         obj.on('*:insert', onInsertOrRemove);
         obj.on('*:remove', onInsertOrRemove);
 
-        obj.on('*:unset', (path) => {
+        obj.on('*:unset', (path: string) => {
             if (obj._silent || !path.startsWith('components')) {
                 return;
             }
@@ -218,7 +218,7 @@ editor.once('load', () => {
         });
     });
 
-    function resolveEntityReference(app, entity, component, field) {
+    function resolveEntityReference(app: Application, entity: Entity, component: string, field: string): void {
         if (!entity[component]) {
             return;
         }
@@ -230,7 +230,7 @@ editor.once('load', () => {
         }
     }
 
-    function recurseFindGuids(entity, result) {
+    function recurseFindGuids(entity: any, result: Record<string, boolean>): void {
         result[entity.get('resource_id')] = true;
         const children = entity.getRaw('children');
         children.forEach((child) => {
@@ -245,7 +245,7 @@ editor.once('load', () => {
         });
     }
 
-    editor.method('viewport:resolveEntityReferences', (entity) => {
+    editor.method('viewport:resolveEntityReferences', (entity: any) => {
         const app = editor.call('viewport:app');
         if (!app) {
             return;
@@ -257,11 +257,11 @@ editor.once('load', () => {
         }
 
         const components = editor.call('components:list');
-        components.forEach((component) => {
+        components.forEach((component: string) => {
             const store = app.systems[component]?.store;
             if (store) {
                 const entityFields = editor.call('components:getFieldsOfType', component, 'entity');
-                entityFields.forEach((field) => {
+                entityFields.forEach((field: string) => {
                     if (entity) {
                         for (const id in guids) {
                             if (!store[id]) {

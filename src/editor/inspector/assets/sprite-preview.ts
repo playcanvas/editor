@@ -10,7 +10,7 @@ const CLASS_BUTTON_PLAYING = `${CLASS_ROOT}-button-playing`;
 const CLASS_CANVAS = 'pcui-asset-preview-canvas';
 
 class SpriteAssetInspectorPreview extends AssetInspectorPreviewBase {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         super(args);
 
         this.class.add(CLASS_ROOT);

@@ -5,18 +5,18 @@ editor.once('load', () => {
         index: 'resource_id'
     });
 
-    function createLatestFn(resourceId) {
+    function createLatestFn(resourceId: string) {
         return function () {
             return entities.get(resourceId);
         };
     }
 
     // on adding
-    entities.on('add', (obj) => {
+    entities.on('add', (obj: Observer) => {
         editor.emit('entities:add', obj);
     });
 
-    editor.method('entities:add', (obj) => {
+    editor.method('entities:add', (obj: Observer) => {
         entities.add(obj);
 
         // function to get latest version of entity observer
@@ -24,11 +24,11 @@ editor.once('load', () => {
     });
 
     // on removing
-    entities.on('remove', (obj) => {
+    entities.on('remove', (obj: Observer) => {
         editor.emit('entities:remove', obj);
     });
 
-    editor.method('entities:remove', (obj) => {
+    editor.method('entities:remove', (obj: Observer) => {
         entities.remove(obj);
     });
 
@@ -38,13 +38,13 @@ editor.once('load', () => {
     });
 
     // Get entity by resource id
-    editor.method('entities:get', (resourceId) => {
+    editor.method('entities:get', (resourceId: string) => {
         return entities.get(resourceId);
     });
 
-    editor.on('scene:raw', (data) => {
+    editor.on('scene:raw', (data: { entities: Record<string, unknown> }) => {
         for (const key in data.entities) {
-            entities.add(new Observer(data.entities[key]));
+            entities.add(new Observer(data.entities[key] as object));
         }
 
         editor.emit('entities:load', data);

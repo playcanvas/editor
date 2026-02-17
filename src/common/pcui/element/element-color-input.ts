@@ -93,7 +93,7 @@ class ColorInput extends Element {
         this.dom.blur();
     }
 
-    _onKeyDown(evt) {
+    _onKeyDown(evt: KeyboardEvent) {
         // escape blurs the field
         if (evt.keyCode === 27) {
             this.blur();
@@ -110,11 +110,11 @@ class ColorInput extends Element {
         this._openColorPicker();
     }
 
-    _onFocus(evt) {
+    _onFocus(evt: FocusEvent) {
         this.emit('focus');
     }
 
-    _onBlur(evt) {
+    _onBlur(evt: FocusEvent) {
         this.emit('blur');
     }
 
@@ -126,7 +126,7 @@ class ColorInput extends Element {
         editor.call('picker:color', this.value.map(c => Math.floor(c * 255)));
 
         // picked color
-        let evtColorPick = editor.on('picker:color', (color) => {
+        let evtColorPick = editor.on('picker:color', (color: any) => {
             this.value = color.map(c => c / 255);
         });
 
@@ -184,13 +184,13 @@ class ColorInput extends Element {
         });
     }
 
-    _valueToColor(value) {
+    _valueToColor(value: number) {
         value = Math.floor(value * 255);
         return Math.max(0, Math.min(value, 255));
 
     }
 
-    _setValue(value) {
+    _setValue(value: number[]) {
         const r = this._valueToColor(value[0]);
         const g = this._valueToColor(value[1]);
         const b = this._valueToColor(value[2]);
@@ -205,7 +205,7 @@ class ColorInput extends Element {
         }
     }
 
-    _updateValue(value) {
+    _updateValue(value: number[]) {
         let dirty = false;
         for (let i = 0; i < value.length; i++) {
             if (this._value[i] !== value[i]) {

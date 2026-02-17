@@ -33,7 +33,7 @@ const ATTRIBUTES: Attribute[] = [
 
 
 class EngineSettingsPanel extends BaseSettingsPanel {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({
             collapsed: false
         }, args);

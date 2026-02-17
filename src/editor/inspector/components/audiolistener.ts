@@ -6,7 +6,7 @@ import { AttributesInspector } from '../attributes-inspector';
 const ATTRIBUTES: Attribute[] = [];
 
 class AudiolistenerComponentInspector extends ComponentInspector {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.component = 'audiolistener';
 

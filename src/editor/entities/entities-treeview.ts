@@ -5,7 +5,6 @@ import type { DropTarget } from '@/common/pcui/element/element-drop-target';
 
 import { getMap, searchItems } from '../search/search-advanced';
 
-
 const CLASS_ROOT = 'entities-treeview';
 const CLASS_COMPONENT_ICON = 'component-icon-postfix';
 const CLASS_TEMPLATE_INSTANCE = 'template-instance';
@@ -20,7 +19,7 @@ const CLASS_FILTER_RESULT = `${CLASS_FILTERING}-result`;
  * Represents the Entity TreeView that shows the Scene hierarchy.
  */
 class EntitiesTreeView extends TreeView {
-    constructor(args) {
+    constructor(args?: Record<string, unknown>) {
         if (!args) {
             args = {};
         }
@@ -83,13 +82,13 @@ class EntitiesTreeView extends TreeView {
         this.writePermissions = !!args.writePermissions;
     }
 
-    _onRename(item, name) {
+    _onRename(item: TreeViewItem & { entity?: Observer }, name: string) {
         if (item.entity) {
             item.entity.set('name', name);
         }
     }
 
-    _onReparent(reparentedItems) {
+    _onReparent(reparentedItems: Array<{ item: TreeViewItem & { entity: Observer }; newParent: TreeViewItem & { entity: Observer }; newChildIndex: number }>) {
         // do not allow entities part of a template to be dragged out
         // of the template root
         const newParentTemplates = {};
@@ -140,7 +139,7 @@ class EntitiesTreeView extends TreeView {
         editor.call('viewport:render');
     }
 
-    _onStartDrag(dragItems) {
+    _onStartDrag(dragItems: Array<TreeViewItem & { entity: Observer }>) {
         // activate the drop manager when we start dragging an entity
         editor.call('drop:set', 'entity', {
             resource_id: dragItems[0].entity.get('resource_id')
@@ -337,7 +336,7 @@ class EntitiesTreeView extends TreeView {
         this._instantiateDraggedAssets(dragOverItem, dragArea, dropType, dropData);
     }
 
-    _selectEntitiesById(entityIds) {
+    _selectEntitiesById(entityIds: string[]) {
         const entities = entityIds.map(id => this._entities.get(id)).filter(entity => entity);
         if (entities.length) {
             editor.call('selector:history', false);
@@ -355,7 +354,7 @@ class EntitiesTreeView extends TreeView {
     }
 
     // Override PCUI function
-    _searchItems(rawArray: TreeViewItem[], filter) {
+    _searchItems(rawArray: TreeViewItem[], filter: string) {
         const searchArr = rawArray.map(item => [item.text, item]);
 
         let results = [];
@@ -380,7 +379,7 @@ class EntitiesTreeView extends TreeView {
         });
     }
 
-    setFilter(key, value) {
+    setFilter(key: string, value: boolean) {
         this.searchFilters[key] = value;
     }
 
@@ -533,7 +532,7 @@ class EntitiesTreeView extends TreeView {
         return newEntity.get('resource_id');
     }
 
-    _instantiateDraggedSpriteAsset(asset, parentEntity, childIndex) {
+    _instantiateDraggedSpriteAsset(asset: Observer, parentEntity: Observer, childIndex: number) {
         const component = editor.call('components:getDefault', 'sprite');
         const name = asset.get('name') || 'Untitled';
 
@@ -852,7 +851,7 @@ class EntitiesTreeView extends TreeView {
         }
     }
 
-    _onRemoveEntity(entity) {
+    _onRemoveEntity(entity: Observer) {
         const resourceId = entity.get('resource_id');
         const events = this._eventsEntity[resourceId];
         if (events) {

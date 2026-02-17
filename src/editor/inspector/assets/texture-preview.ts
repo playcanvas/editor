@@ -13,7 +13,7 @@ const getPreviewUrl = (asset) => {
 };
 
 class TextureAssetInspectorPreview extends AssetInspectorPreviewBase {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         super(args);
         this._assets = null;
         this._assetEvents = [];

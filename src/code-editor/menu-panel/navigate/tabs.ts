@@ -93,7 +93,7 @@ editor.once('load', () => {
         editor.call('files:select', next.id);
     });
 
-    editor.method('editor:command:selectTab', (index) => {
+    editor.method('editor:command:selectTab', (index: number) => {
         const tabs = editor.call('tabs:list');
         const select = tabs[index];
         if (!select) {

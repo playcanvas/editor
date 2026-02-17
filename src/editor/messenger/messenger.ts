@@ -10,7 +10,7 @@ editor.on('start', () => {
         editor.emit('messenger:connected');
     });
 
-    messenger.on('message', (name, data) => {
+    messenger.on('message', (name: string, data: unknown) => {
         editor.emit(`messenger:${name}`, data);
     });
 

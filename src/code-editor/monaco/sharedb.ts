@@ -16,7 +16,7 @@ editor.once('load', () => {
     // Returns an object that represents an operation
     // result.op - the operation
     // result.time - the time when the operation was created (used to concatenate adjacent operations)
-    function customOp(op) {
+    function customOp(op: unknown) {
         return { op: op, time: Date.now(), isWhiteSpace: false, isNewLine: false };
     }
 
@@ -252,7 +252,7 @@ editor.once('load', () => {
     // Applies an operation to the sharedb document
     // and sets the result to the document view
     function applyCustomOp(op, entry) {
-        entry.doc.submitOp(op, (err) => {
+        entry.doc.submitOp(op, (err: unknown) => {
             if (err) {
                 editor.emit('documents:error', entry.id, err);
             }
@@ -432,7 +432,7 @@ editor.once('load', () => {
         entry.redo.length = 0;
     });
 
-    editor.on('documents:focus', (id) => {
+    editor.on('documents:focus', (id: string) => {
         focusedDocument = documentIndex[id];
     });
 

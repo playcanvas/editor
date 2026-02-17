@@ -1,7 +1,7 @@
 import { LegacyElement } from './element';
 
 class LegacyColorField extends LegacyElement {
-    constructor(args = {}) {
+    constructor(args: Record<string, any> = {}) {
         super();
         this.element = document.createElement('div');
         this._element.tabIndex = 0;

@@ -110,7 +110,7 @@ const ATTRIBUTES: Attribute[] = [{
 }];
 
 class RigidbodyComponentInspector extends ComponentInspector {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.component = 'rigidbody';
 

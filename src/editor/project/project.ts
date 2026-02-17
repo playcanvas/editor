@@ -2,21 +2,21 @@ import { Defer } from '@/common/defer';
 
 editor.once('load', () => {
     // Create a project from data
-    editor.method('projects:create', (data, success, errorFn) => {
+    editor.method('projects:create', (data: Record<string, unknown>, success?: (response: unknown) => void, errorFn?: (err: unknown) => void) => {
         // Prepare project data for API call
         const keys = ['name', 'description', 'private', 'private_assets', 'fork_from', 'owner', 'settings'];
         const apiData: any = ({});
-        keys.forEach((key) => {
+        keys.forEach((key: string) => {
             apiData[key] = data[key];
         });
 
         editor.api.globals.rest.projects.projectCreate(apiData)
-        .on('load', (status, response) => {
+        .on('load', (_status: number, response: unknown) => {
             if (success) {
                 success(response);
             }
         })
-        .on('error', (status, err) => {
+        .on('error', (_status: number, err: unknown) => {
             if (errorFn) {
                 errorFn(err);
             }
@@ -24,14 +24,14 @@ editor.once('load', () => {
     });
 
     // Load a single project from id
-    editor.method('projects:getOne', (projectId, success, errorFn) => {
+    editor.method('projects:getOne', (projectId: string, success?: (data: unknown) => void, errorFn?: (err: unknown) => void) => {
         const request = editor.api.globals.rest.projects.projectGet({ projectId })
-        .on('load', (status, data) => {
+        .on('load', (_status: number, data: unknown) => {
             if (success) {
                 success(data);
             }
         })
-        .on('error', (status, err) => {
+        .on('error', (_status: number, err: unknown) => {
             if (errorFn) {
                 errorFn(err);
             }
@@ -41,9 +41,9 @@ editor.once('load', () => {
     });
 
     // Load current project
-    editor.method('projects:getCurrent', (success) => {
+    editor.method('projects:getCurrent', (success?: (data: unknown) => void) => {
         editor.api.globals.rest.projects.projectGet({ projectId: config.project.id })
-        .on('load', (status, data) => {
+        .on('load', (_status: number, data: unknown) => {
             if (success) {
                 success(data);
             }
@@ -51,22 +51,22 @@ editor.once('load', () => {
     });
 
     // Loads all the user's projects
-    editor.method('projects:list', (id, view, success) => {
+    editor.method('projects:list', (id: string, view: string) => {
         return new Promise((resolve, reject) => {
             editor.api.globals.rest.users.userProjects(id, view)
-            .on('load', (status, response) => {
+            .on('load', (_status: number, response: unknown) => {
                 resolve(response);
             })
-            .on('error', (status, error) => {
+            .on('error', (_status: number, error: unknown) => {
                 reject(error);
             });
         });
     });
 
     // Loads all the starter kits
-    editor.method('projects:listStarterKits', (success) => {
+    editor.method('projects:listStarterKits', (success?: (data: unknown) => void) => {
         editor.api.globals.rest.apps.appList('starterkit')
-        .on('load', (status, data) => {
+        .on('load', (_status: number, data: { result: unknown }) => {
             if (success) {
                 success(data.result);
             }
@@ -74,18 +74,18 @@ editor.once('load', () => {
     });
 
     // Save a specified project
-    editor.method('projects:saveSettings', (project, success, errorFn) => {
+    editor.method('projects:saveSettings', (project: { id: string; [key: string]: unknown }, success?: (response: unknown) => void, errorFn?: (error: unknown) => void) => {
         const { id, ...data } = project;
         editor.api.globals.rest.projects.projectUpdate({
             projectId: id,
             ...data
         })
-        .on('load', (status, response) => {
+        .on('load', (_status: number, response: unknown) => {
             if (success) {
                 success(response);
             }
         })
-        .on('error', (status, error) => {
+        .on('error', (_status: number, error: unknown) => {
             if (errorFn) {
                 errorFn(error);
             }
@@ -103,20 +103,20 @@ editor.once('load', () => {
     });
 
     // get job status
-    editor.method('projects:getJobStatus', (jobId) => {
+    editor.method('projects:getJobStatus', (jobId: string) => {
         return new Promise((resolve, reject) => {
             editor.api.globals.rest.jobs.jobGet({ jobId })
-            .on('load', (status, response) => {
+            .on('load', (_status: number, response: unknown) => {
                 resolve(response);
             })
-            .on('error', (status, error) => {
+            .on('error', (_status: number, error: unknown) => {
                 reject(error);
             });
         });
     });
 
     // Export specified project
-    editor.method('projects:export', (projectId, success, errorFn) => {
+    editor.method('projects:export', (projectId: string, success?: (result: unknown) => void, errorFn?: (error: unknown) => void) => {
         editor.api.globals.rest.projects.projectExport({ projectId })
         .on('load', (status, result) => {
             if (success) {
@@ -209,10 +209,10 @@ editor.once('load', () => {
                 export_url: exportUrl,
                 owner: ownerId
             })
-            .on('load', (status, response) => {
+            .on('load', (_status: number, response: unknown) => {
                 resolve(response);
             })
-            .on('error', (status, error) => {
+            .on('error', (_status: number, error: unknown) => {
                 reject(error);
             });
         });
@@ -226,7 +226,7 @@ editor.once('load', () => {
                 success();
             }
         })
-        .on('error', (status, err) => {
+        .on('error', (_status: number, err: unknown) => {
             if (errorFn) {
                 errorFn(err);
             }
@@ -239,32 +239,32 @@ editor.once('load', () => {
             editor.api.globals.rest.projects.projectTransfer(projectId, {
                 owner_id: newOwnerId
             })
-            .on('load', (status, response) => {
+            .on('load', (_status: number, response: unknown) => {
                 resolve(response);
             })
-            .on('error', (status, error) => {
+            .on('error', (_status: number, error: unknown) => {
                 reject(error);
             });
         });
     });
 
     // Accepts transferred project
-    editor.method('projects:acceptTransfer', (projectId) => {
+    editor.method('projects:acceptTransfer', (projectId: string) => {
         return new Promise((resolve, reject) => {
             editor.api.globals.rest.projects.projectAcceptTransfer(projectId)
-            .on('load', (status, response) => {
+            .on('load', (_status: number, response: unknown) => {
                 resolve(response);
             })
-            .on('error', (status, error) => {
+            .on('error', (_status: number, error: unknown) => {
                 reject(error);
             });
         });
     });
 
     // Decline transferred project
-    editor.method('projects:declineTransfer', (projectId, success, errorFn) => {
+    editor.method('projects:declineTransfer', (projectId: string, success?: (response: unknown) => void, errorFn?: (err: unknown) => void) => {
         editor.api.globals.rest.projects.projectDeclineTransfer(projectId)
-        .on('load', (status, response) => {
+        .on('load', (_status: number, response: unknown) => {
             if (success) {
                 success(response);
             }
@@ -277,14 +277,14 @@ editor.once('load', () => {
     });
 
     // Watches a particular project
-    editor.method('projects:watch', (projectId, success, errorFn) => {
+    editor.method('projects:watch', (projectId: string, success?: (response: unknown) => void, errorFn?: (err: unknown) => void) => {
         editor.api.globals.rest.watch.watchCreate({
             scope: {
                 type: 'project',
                 id: projectId
             }
         })
-        .on('load', (status, response) => {
+        .on('load', (_status: number, response: unknown) => {
             if (success) {
                 success(response);
             }
@@ -297,9 +297,9 @@ editor.once('load', () => {
     });
 
     // Unwatches a particular project
-    editor.method('projects:unwatch', (watchId, success, errorFn) => {
+    editor.method('projects:unwatch', (watchId: string, success?: (response: unknown) => void, errorFn?: (err: unknown) => void) => {
         editor.api.globals.rest.watch.watchDelete(watchId)
-        .on('load', (status, response) => {
+        .on('load', (_status: number, response: unknown) => {
             if (success) {
                 success(response);
             }
@@ -312,11 +312,11 @@ editor.once('load', () => {
     });
 
     // Stars a particular project
-    editor.method('projects:star', (starType, projectId, success, errorFn) => {
+    editor.method('projects:star', (starType: string, projectId: string, success?: (response: unknown) => void, errorFn?: (err: unknown) => void) => {
         editor.api.globals.rest.star.starCreate({
             scope: { type: starType, id: projectId }
         })
-        .on('load', (status, response) => {
+        .on('load', (_status: number, response: unknown) => {
             if (success) {
                 success(response);
             }
@@ -329,9 +329,9 @@ editor.once('load', () => {
     });
 
     // Unstars a particular project
-    editor.method('projects:unstar', (starId, success, errorFn) => {
+    editor.method('projects:unstar', (starId: string, success?: (response: unknown) => void, errorFn?: (err: unknown) => void) => {
         editor.api.globals.rest.star.starDelete(starId)
-        .on('load', (status, response) => {
+        .on('load', (_status: number, response: unknown) => {
             if (success) {
                 success(response);
             }
@@ -344,17 +344,17 @@ editor.once('load', () => {
     });
 
     // Fork project
-    editor.method('projects:fork', (data, success, errorFn) => {
+    editor.method('projects:fork', (data: Record<string, unknown>, success?: (promise: Promise<unknown>) => void, errorFn?: (promise: Promise<unknown>) => void) => {
         const deferred = new Defer();
 
         editor.api.globals.rest.projects.projectCreate(data)
-        .on('load', (status, response) => {
+        .on('load', (_status: number, response: unknown) => {
             deferred.resolve(response);
             if (success) {
                 success(deferred.promise);
             }
         })
-        .on('error', (status, response) => {
+        .on('error', (_status: number, _response: unknown) => {
             if (status > 0) {
                 deferred.reject(`${status}: ${response}`);
             }
@@ -367,12 +367,12 @@ editor.once('load', () => {
     // Get project activity
     editor.method('projects:activity', (projectId, success, errorFn) => {
         editor.api.globals.rest.projects.projectActivity(projectId)
-        .on('load', (status, data) => {
+        .on('load', (_status: number, data: unknown) => {
             if (success) {
                 success(data);
             }
         })
-        .on('error', (err) => {
+        .on('error', (err: unknown) => {
             if (errorFn) {
                 errorFn(err);
             }
@@ -380,17 +380,17 @@ editor.once('load', () => {
     });
 
     // Saves specified data to server
-    editor.method('projects:save', (project, data, success, errorFn) => {
+    editor.method('projects:save', (project: { id: string }, data: Record<string, unknown>, success?: (response: unknown) => void, errorFn?: (err: unknown) => void) => {
         editor.api.globals.rest.projects.projectUpdate({
             projectId: project.id,
             ...data
         })
-        .on('load', (status, response) => {
+        .on('load', (_status: number, response: unknown) => {
             if (success) {
                 success(response);
             }
         })
-        .on('error', (status, err) => {
+        .on('error', (_status: number, err: unknown) => {
             if (errorFn) {
                 errorFn(err);
             }
@@ -398,14 +398,14 @@ editor.once('load', () => {
     });
 
     // Gets list of project collaborators
-    editor.method('projects:getCollaborators', (project, success, errorFn) => {
+    editor.method('projects:getCollaborators', (project: { id: string }, success?: (result: unknown) => void, errorFn?: (status: number, error: unknown) => void) => {
         editor.api.globals.rest.projects.projectCollabList(project.id)
-        .on('load', (status, data) => {
+        .on('load', (_status: number, data: unknown) => {
             if (success) {
                 success(data.result);
             }
         })
-        .on('error', (status, error) => {
+        .on('error', (status: number, error: unknown) => {
             if (errorFn) {
                 errorFn(status, error);
             }
@@ -413,14 +413,14 @@ editor.once('load', () => {
     });
 
     // Gets list of invitations to a project
-    editor.method('projects:invitations', (options, success, errorFn) => {
+    editor.method('projects:invitations', (options: Record<string, unknown>, success?: (result: unknown) => void, errorFn?: (error: unknown) => void) => {
         editor.api.globals.rest.invitations.invitationList(options)
-        .on('load', (status, data) => {
+        .on('load', (_status: number, data: unknown) => {
             if (success) {
                 success(data.result);
             }
         })
-        .on('error', (status, error) => {
+        .on('error', (_status: number, error: unknown) => {
             if (errorFn) {
                 errorFn(error);
             }
@@ -428,19 +428,19 @@ editor.once('load', () => {
     });
 
     // Creates invitation for project
-    editor.method('projects:createInvitation', (project, email, permission, success, errorFn) => {
+    editor.method('projects:createInvitation', (project: { owner: string; name: string }, email: string, permission: string, success?: (data: unknown) => void, errorFn?: (error: unknown) => void) => {
         editor.api.globals.rest.invitations.invitationCreate({
             project_owner: project.owner,
             project_name: project.name,
             email: email,
             permission: permission
         })
-        .on('load', (status, data) => {
+        .on('load', (_status: number, data: unknown) => {
             if (success) {
                 success(data);
             }
         })
-        .on('error', (status, error) => {
+        .on('error', (_status: number, error: unknown) => {
             if (errorFn) {
                 errorFn(error);
             }
@@ -448,7 +448,7 @@ editor.once('load', () => {
     });
 
     // Deletes invitation for project
-    editor.method('projects:deleteInvitation', (invitation, success, errorFn) => {
+    editor.method('projects:deleteInvitation', (invitation: { key: string }, success?: () => void, errorFn?: () => void) => {
         editor.api.globals.rest.invitations.invitationDelete(invitation.key)
         .on('load', () => {
             if (success) {
@@ -462,7 +462,7 @@ editor.once('load', () => {
         });
     });
 
-    editor.method('projects:setPrimaryApp', (appId, success, errorFn) => {
+    editor.method('projects:setPrimaryApp', (appId: string, success?: (response: unknown) => void, errorFn?: (err: unknown) => void) => {
         const prevPrimary = config.project.primaryApp;
         config.project.primaryApp = parseInt(appId, 10);
         editor.call('projects:save', config.project, {

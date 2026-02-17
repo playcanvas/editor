@@ -1,6 +1,8 @@
 editor.once('load', () => {
     class HandleScriptOrderConflict {
-        constructor(conflict) {
+        conflict: Record<string, unknown>;
+
+        constructor(conflict: Record<string, unknown>) {
             this.conflict = conflict;
         }
 

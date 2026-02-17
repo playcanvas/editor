@@ -39,7 +39,7 @@ const ATTRIBUTES: Attribute[] = [{
 const CLASS_BUTTON_PLAY = 'animation-component-inspector-play';
 
 class AnimationComponentInspector extends ComponentInspector {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.component = 'animation';
 

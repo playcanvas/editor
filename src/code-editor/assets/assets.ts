@@ -1,3 +1,4 @@
+import type { Observer } from '@playcanvas/observer';
 import { ObserverList } from '@playcanvas/observer';
 
 editor.once('load', () => {
@@ -24,7 +25,7 @@ editor.once('load', () => {
         }
     });
 
-    function createLatestFn(id) {
+    function createLatestFn(id: string) {
         // function to get latest version of asset observer
         return function () {
             return assets.get(id);
@@ -36,7 +37,7 @@ editor.once('load', () => {
         return assets;
     });
 
-    const updateAssetVirtualPath = (asset) => {
+    const updateAssetVirtualPath = (asset: Observer) => {
         const virtualPath = assetVirtualPath(asset);
         assetToVirtualPath.set(virtualPath, asset);
         virtualPathToAsset.set(asset, virtualPath);
@@ -64,7 +65,7 @@ editor.once('load', () => {
     });
 
     // allow adding assets
-    editor.method('assets:add', (asset) => {
+    editor.method('assets:add', (asset: Observer) => {
         uniqueIdToItemId[asset.get('uniqueId')] = asset.get('id');
 
         // function to get latest version of asset observer
@@ -119,7 +120,7 @@ editor.once('load', () => {
     });
 
     // allow removing assets
-    editor.method('assets:remove', (asset) => {
+    editor.method('assets:remove', (asset: Observer) => {
         assets.remove(asset);
     });
 
@@ -130,27 +131,27 @@ editor.once('load', () => {
     });
 
     // get asset by id
-    editor.method('assets:get', (id) => {
+    editor.method('assets:get', (id: string) => {
         return assets.get(id);
     });
 
     // get asset by unique id
-    editor.method('assets:getUnique', (uniqueId) => {
+    editor.method('assets:getUnique', (uniqueId: string) => {
         const id = uniqueIdToItemId[uniqueId];
         return id ? assets.get(id) : null;
     });
 
     // find assets by function
-    editor.method('assets:find', (fn) => {
+    editor.method('assets:find', (fn: (asset: Observer) => boolean) => {
         return assets.find(fn);
     });
 
     // find one asset by function
-    editor.method('assets:findOne', (fn) => {
+    editor.method('assets:findOne', (fn: (asset: Observer) => boolean) => {
         return assets.findOne(fn);
     });
 
-    editor.method('assets:map', (fn) => {
+    editor.method('assets:map', (fn: (asset: Observer) => unknown) => {
         assets.map(fn);
     });
 
@@ -159,22 +160,22 @@ editor.once('load', () => {
     });
 
     // publish remove asset
-    assets.on('remove', (asset) => {
+    assets.on('remove', (asset: Observer) => {
         asset.destroy();
         editor.emit('assets:remove', asset);
         delete uniqueIdToItemId[asset.get('uniqueId')];
     });
 
-    editor.method('assets:isScript', (asset) => {
+    editor.method('assets:isScript', (asset: Observer) => {
         return asset.get('type') === 'script';
     });
 
-    editor.method('assets:isModule', (asset) => {
+    editor.method('assets:isModule', (asset: Observer) => {
         return editor.call('assets:isScript', asset) &&
             asset.get('file.filename')?.endsWith('.mjs');
     });
 
-    const assetVirtualPath = (asset) => {
+    const assetVirtualPath = (asset: Observer) => {
         if (!asset.get('file')?.filename) {
             return null;
         }
@@ -189,9 +190,9 @@ editor.once('load', () => {
     };
     editor.method('assets:virtualPath', assetVirtualPath);
 
-    editor.method('assets:realPath', (asset) => {
+    editor.method('assets:realPath', (asset: Observer) => {
         return `/api/assets/${asset.get('id')}/file/${asset.get('name')}?branchId=${config.self.branch.id}`;
     });
 
-    editor.method('assets:getByVirtualPath', path => assetToVirtualPath.get(path));
+    editor.method('assets:getByVirtualPath', (path: string) => assetToVirtualPath.get(path));
 });

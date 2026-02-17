@@ -1,7 +1,7 @@
 import { LegacyContainer } from './container';
 
 class LegacyMenuItem extends LegacyContainer {
-    constructor(args = {}) {
+    constructor(args: Record<string, any> = {}) {
         super();
         this._value = args.value || '';
         this._hasChildren = args.hasChildren;
@@ -163,13 +163,13 @@ class LegacyMenuItem extends LegacyContainer {
         }
     }
 
-    _onAppend(item) {
+    _onAppend(item: any) {
         this._container = true;
         this.class.add('container');
 
         this._index[item._value] = item;
 
-        item.on('value', (value, valueOld) => {
+        item.on('value', (value: any, valueOld: any) => {
             delete this._index[valueOld];
             this._index[value] = item;
         });

@@ -16,10 +16,10 @@ editor.once('load', () => {
     });
 
     // sync settings with config
-    settings.on('*:set', (path, value) => {
+    settings.on('*:set', (path: string, value: unknown) => {
         set(config.project.settings, path, typeof value === 'object' ? deepCopy(value) : value);
     });
-    settings.on('*:unset', (path) => {
+    settings.on('*:unset', (path: string) => {
         unset(config.project.settings, path);
     });
     settings.on('*:insert', (path, value, index) => {

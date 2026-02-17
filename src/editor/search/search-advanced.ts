@@ -87,38 +87,40 @@ export const searchStringTokenize = function (name) {
     return tokens;
 };
 
-export const getMap = function (items, key) {
+export const getMap = function (items: unknown[], key: string) {
     switch (key) {
         case 'Name':
             return items;
 
         case 'Component Type': {
             const componentItems = [];
-            items.forEach((item) => {
-                item[1].entity._data.components._keys.forEach(component => componentItems.push([component.toLowerCase(), item[1]]));
+            items.forEach((item: [string, unknown]) => {
+                (item[1] as { entity: { _data: { components: { _keys: string[] } } } }).entity._data.components._keys.forEach((component: string) => componentItems.push([component.toLowerCase(), item[1]]));
             });
             return componentItems;
         }
         case 'Script Name': {
             const scriptItems = [];
-            items.forEach((item) => {
-                if (item[1].entity._data.components._data.script) {
-                    item[1].entity._data.components._data.script._data.order.forEach(script => scriptItems.push([script.toLowerCase(), item[1]]));
+            items.forEach((item: [string, unknown]) => {
+                const entry = item[1] as any;
+                const entityData = entry?.entity?._data;
+                if (entityData?.components?._data?.script) {
+                    entityData.components._data.script._data.order.forEach((script: string) => scriptItems.push([script.toLowerCase(), item[1]]));
                 }
             });
             return scriptItems;
         }
         case 'Tags': {
             const tagItems = [];
-            items.forEach((item) => {
-                item[1].entity._data.tags.forEach(tag => tagItems.push([tag.toLowerCase(), item[1]]));
+            items.forEach((item: [string, unknown]) => {
+                (item[1] as { entity: { _data: { tags: string[] } } }).entity._data.tags.forEach((tag: string) => tagItems.push([tag.toLowerCase(), item[1]]));
             });
             return tagItems;
         }
     }
 };
 
-const _searchExact = function (items, search) {
+const _searchExact = function (items: { name: string }[], search: string) {
 
     const results = [];
 

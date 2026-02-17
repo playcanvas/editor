@@ -56,7 +56,7 @@ editor.once('load', () => {
         });
     });
 
-    editor.method('users:get', (id) => {
+    editor.method('users:get', (id: string) => {
         return users[id] || null;
     });
 
@@ -124,7 +124,7 @@ editor.once('load', () => {
     editor.method('users:updateSubscription', (owner, data, success, errorFn) => {
 
         const options = {};
-        Array.from(['token', 'promo', 'seats']).forEach((field) => {
+        Array.from(['token', 'promo', 'seats']).forEach((field: string) => {
             if (data[field]) {
                 options[field] = data[field];
             }

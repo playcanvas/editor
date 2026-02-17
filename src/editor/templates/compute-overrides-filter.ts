@@ -1,5 +1,5 @@
 editor.once('load', () => {
-    editor.method('templates:computeFilteredOverrides', (root) => {
+    editor.method('templates:computeFilteredOverrides', (root: { get: (key: string) => unknown }) => {
         const overrides = editor.call('templates:computeOverrides', root);
         if (!overrides) {
             return overrides;
@@ -25,7 +25,7 @@ editor.once('load', () => {
 
     });
 
-    function filterRemovableConflicts(overrides, path, method) {
+    function filterRemovableConflicts(overrides: Record<string, unknown>, path: string, method: string): void {
         const a = overrides.conflicts.map((h) => {
             return h.path === path ?
                 editor.call(method, h, overrides) :
@@ -35,7 +35,7 @@ editor.once('load', () => {
         overrides.conflicts = editor.call('template:utils', 'rmFalsey', a);
     }
 
-    function setAllReparentPaths(overrides) {
+    function setAllReparentPaths(overrides: Record<string, unknown>): void {
         overrides.conflicts.forEach((h) => {
             if (h.path === 'parent') {
                 editor.call('templates:setReparentPath', h, overrides);
@@ -43,7 +43,7 @@ editor.once('load', () => {
         });
     }
 
-    function keepOnePerSubtree(overrides, type) {
+    function keepOnePerSubtree(overrides: Record<string, unknown>, type: string): void {
         const a = overrides[type];
 
         const h = editor.call('template:utils', 'entArrayToMap', a);
@@ -51,7 +51,7 @@ editor.once('load', () => {
         overrides[type] = a.filter(ent => !h[ent.parent]);
     }
 
-    function setNumOverrides(overrides) {
+    function setNumOverrides(overrides: Record<string, unknown>): void {
         overrides.totalOverrides = 0;
 
         ['conflicts', 'addedEntities', 'deletedEntities'].forEach((k) => {

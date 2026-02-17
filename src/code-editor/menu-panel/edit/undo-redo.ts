@@ -26,7 +26,7 @@ editor.once('load', () => {
         key: 'z',
         ctrl: true,
         skipPreventDefault: true,
-        callback: function (e) {
+        callback: function (e: KeyboardEvent) {
             if (codePanel.dom.contains(e.target) || e.target.tagName.toLowerCase() === 'input') {
                 return;
             }
@@ -53,7 +53,7 @@ editor.once('load', () => {
         key: 'y',
         ctrl: true,
         skipPreventDefault: true,
-        callback: function (e) {
+        callback: function (e: KeyboardEvent) {
             if (codePanel.dom.contains(e.target) || e.target.tagName.toLowerCase() === 'input') {
                 return;
             }
@@ -68,7 +68,7 @@ editor.once('load', () => {
         ctrl: true,
         shift: true,
         skipPreventDefault: true,
-        callback: function (e) {
+        callback: function (e: KeyboardEvent) {
             if (codePanel.dom.contains(e.target) || e.target.tagName.toLowerCase() === 'input') {
                 return;
             }

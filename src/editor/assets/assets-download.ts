@@ -4,7 +4,7 @@ editor.once('load', () => {
         'animstategraph'
     ]);
 
-    editor.method('assets:download', (asset) => {
+    editor.method('assets:download', (asset: import('@/editor-api').AssetObserver) => {
         if (dataOnlyAssets.has(asset.get('type'))) {
             // Data-only assets need client-side JSON serialization
             const data = asset.get('data');

@@ -8,7 +8,7 @@ const DOM = title => [{
 }];
 
 class RelatedAssetsInspector extends Container {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
 
         super(args);

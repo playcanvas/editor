@@ -130,7 +130,7 @@ const ATTRIBUTES: Attribute[] = [{
 }];
 
 class RenderComponentInspector extends ComponentInspector {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.component = 'render';
 

@@ -4,7 +4,7 @@ editor.once('load', () => {
         'model', 'render', 'scene', 'script', 'sprite', 'text', 'texture', 'textureatlas'
     ]);
 
-    const create = (data) => {
+    const create = (data: { asset: { id: number; source?: boolean; type: string; status?: string } }) => {
         const { asset } = data;
 
         // ignore if not a runtime asset, or source asset, or not yet complete
@@ -24,7 +24,7 @@ editor.once('load', () => {
     editor.on('messenger:asset.new', create);
 
     // remove
-    editor.on('messenger:asset.delete', (data) => {
+    editor.on('messenger:asset.delete', (data: { asset: { id: number } }) => {
         const asset = editor.call('assets:getUnique', data.asset.id);
         if (asset) {
             editor.call('assets:remove', asset);
@@ -32,8 +32,8 @@ editor.once('load', () => {
     });
 
     // remove multiple
-    editor.on('messenger:assets.delete', (data) => {
-        data.assets.forEach((id) => {
+    editor.on('messenger:assets.delete', (data: { assets: Array<string | number> }) => {
+        data.assets.forEach((id: string | number) => {
             const asset = editor.call('assets:getUnique', Number(id));
             if (asset) {
                 editor.call('assets:remove', asset);

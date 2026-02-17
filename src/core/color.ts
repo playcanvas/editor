@@ -1,10 +1,10 @@
-export const rgb2hsv = (rgb) => {
+export const rgb2hsv = (rgb: number[]) => {
     const r = rgb[0] / 255;
     const g = rgb[1] / 255;
     const b = rgb[2] / 255;
     const v = Math.max(r, g, b);
     const diff = v - Math.min(r, g, b);
-    const diffc = (c) => {
+    const diffc = (c: number) => {
         return (v - c) / 6 / diff + 1 / 2;
     };
 
@@ -33,15 +33,16 @@ export const rgb2hsv = (rgb) => {
     return [h, s, v];
 };
 
-export const hsv2rgb = (hsv) => {
+export const hsv2rgb = (hsv: number[]) => {
     let h = hsv[0];
     let s = hsv[1];
     let v = hsv[2];
     let r, g, b;
     if (h && s === undefined && v === undefined) {
-        s = h.s;
-        v = h.v;
-        h = h.h;
+        const hObj = h as unknown as { h: number; s: number; v: number };
+        s = hObj.s;
+        v = hObj.v;
+        h = hObj.h;
     }
     const i = Math.floor(h * 6);
     const f = h * 6 - i;
@@ -83,11 +84,11 @@ export const hsv2rgb = (hsv) => {
     return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
 };
 
-export const rgbaStr = (color, scale) => {
+export const rgbaStr = (color: number[], scale?: number) => {
     if (!scale) {
         scale = 1;
     }
-    let rgba = color.map((element, index) => {
+    let rgba = color.map((element: number, index: number) => {
         return index < 3 ? Math.round(element * scale) : element;
     }).join(',');
     for (let i = color.length; i < 4; ++i) {
@@ -96,15 +97,15 @@ export const rgbaStr = (color, scale) => {
     return `rgba(${rgba})`;
 };
 
-export const hexStr = (clr) => {
-    return clr.map((v) => {
+export const hexStr = (clr: number[]) => {
+    return clr.map((v: number) => {
         return (`00${v.toString(16)}`).slice(-2).toUpperCase();
     }).join('');
 };
 
 // rgb(a) -> hsva
-export const toHsva = (rgba) => {
-    const hsva = rgb2hsv(rgba.map((v) => {
+export const toHsva = (rgba: number[]) => {
+    const hsva = rgb2hsv(rgba.map((v: number) => {
         return v * 255;
     }));
     hsva.push(rgba.length > 3 ? rgba[3] : 1);
@@ -112,8 +113,8 @@ export const toHsva = (rgba) => {
 };
 
 // hsv(1) -> rgba
-export const toRgba = (hsva) => {
-    const rgba = hsv2rgb(hsva).map((v) => {
+export const toRgba = (hsva: number[]) => {
+    const rgba = hsv2rgb(hsva).map((v: number) => {
         return v / 255;
     });
     rgba.push(hsva.length > 3 ? hsva[3] : 1);
@@ -121,7 +122,7 @@ export const toRgba = (hsva) => {
 };
 
 // calculate the normalized coordinate [x,y] relative to rect
-export const normalizedCoord = (widget, x, y) => {
+export const normalizedCoord = (widget: { element: HTMLElement }, x: number, y: number) => {
     const rect = widget.element.getBoundingClientRect();
     return [
         (x - rect.left) / rect.width,

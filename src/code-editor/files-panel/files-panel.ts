@@ -1,3 +1,4 @@
+import type { Observer } from '@playcanvas/observer';
 import { Progress, TreeView, TreeViewItem, Panel } from '@playcanvas/pcui';
 
 editor.once('load', () => {
@@ -30,7 +31,7 @@ editor.once('load', () => {
     const progressBar = new Progress();
     panel.append(progressBar);
 
-    editor.on('assets:load:progress', (progress) => {
+    editor.on('assets:load:progress', (progress: number) => {
         progressBar.hidden = progress >= 1;
         progressBar.value = progress * 100;
     });
@@ -95,7 +96,7 @@ editor.once('load', () => {
             if (evt.altKey) {
                 // apply to all children as well
                 const open = item.open;
-                item._dfs((item) => {
+                item._dfs((item: TreeViewItem) => {
                     item.open = open;
                 });
             }
@@ -269,7 +270,7 @@ editor.once('load', () => {
         addItem(item, path);
 
         // handle path changes
-        asset.on('path:set', (path, oldPath) => {
+        asset.on('path:set', (path: string[], oldPath?: string[]) => {
             // remove item from old folder
             if (item.parent) {
                 item.parent.remove(item);
@@ -314,7 +315,7 @@ editor.once('load', () => {
     });
 
     // Delete tree node for removed assets
-    editor.on('assets:remove', (asset) => {
+    editor.on('assets:remove', (asset: Observer) => {
         const id: string = asset.get('id');
         const item = idToItem.get(id);
         if (item) {
@@ -431,12 +432,12 @@ editor.once('load', () => {
     });
 
     // handle reparenting
-    tree.on('reparent', (reparented) => {
+    tree.on('reparent', (reparented: Array<{ item: { _assetId: string }; newParent: { _assetId: string } }>) => {
         if (!reparented.length) {
             return;
         }
 
-        const assets = reparented.map((node) => {
+        const assets = reparented.map((node: { item: { _assetId: string }; newParent: { _assetId: string } }) => {
             return editor.call('assets:get', node.item._assetId);
         });
 

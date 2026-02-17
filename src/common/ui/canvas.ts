@@ -1,7 +1,7 @@
 import { LegacyElement } from './element';
 
 class LegacyCanvas extends LegacyElement {
-    constructor(args = {}) {
+    constructor(args: Record<string, any> = {}) {
         super();
         this.element = document.createElement('canvas');
         this._element.classList.add('ui-canvas');

@@ -1,7 +1,7 @@
 import { LegacyElement } from './element';
 
 class LegacyNumberField extends LegacyElement {
-    constructor(args = {}) {
+    constructor(args: Record<string, any> = {}) {
         super();
         this.precision = (args.precision != null) ? args.precision : null;
         this.step = (args.step != null) ? args.step : ((args.precision != null) ? 1 / Math.pow(10, args.precision) : 1);

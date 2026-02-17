@@ -129,35 +129,35 @@ const convertStringToColor = (string: string, valueOld: number[]) => {
 
 // list of conversion methods,
 // it uses new value (n) and optionally an old value (o)
-const convertTypes = new Map([
+const convertTypes = new Map<string, (n: unknown, o: unknown) => unknown>([
     [
         'boolean-string',
-        (n, o) => {
+        (n: unknown, _o: unknown) => {
             return n ? 'true' : 'false';
         }
     ], [
         'boolean-text',
-        (n, o) => {
+        (n: unknown, o: unknown) => {
             return n ? 'true' : 'false';
         }
     ], [
         'boolean-number',
-        (n, o) => {
+        (n: unknown, o: unknown) => {
             return n ? 1 : 0;
         }
     ], [
         'boolean-slider',
-        (n, o) => {
+        (n: unknown, o: unknown) => {
             return n ? 1 : 0;
         }
     ], [
         'string-text',
-        (n, o) => {
+        (n: unknown, o: unknown) => {
             return n;
         }
     ], [
         'string-array:string',
-        (n, o) => {
+        (n: unknown, o: unknown) => {
             const items = [];
             const data = n.split(',');
 
@@ -172,7 +172,7 @@ const convertTypes = new Map([
         }
     ], [
         'string-tags',
-        (n, o) => {
+        (n: unknown, o: unknown) => {
             const set = new Set();
             const items = n.split(',');
             for (let i = 0; i < items.length; i++) {
@@ -189,7 +189,7 @@ const convertTypes = new Map([
         }
     ], [
         'string-number',
-        (n, o) => {
+        (n: unknown, o: unknown) => {
             const number = parseFloat(n);
             if (isNaN(number)) {
                 return 0;
@@ -198,7 +198,7 @@ const convertTypes = new Map([
         }
     ], [
         'string-slider',
-        (n, o) => {
+        (n: unknown, o: unknown) => {
             const number = parseFloat(n);
             if (isNaN(number)) {
                 return 0;
@@ -222,17 +222,17 @@ const convertTypes = new Map([
         convertStringToColor
     ], [
         'array:string-string',
-        (n, o) => {
+        (n: unknown, _o: unknown) => {
             return n.join(', ');
         }
     ], [
         'array:string-text',
-        (n, o) => {
+        (n: unknown, _o: unknown) => {
             return n.join('\n');
         }
     ], [
         'array:string-tags',
-        (n, o) => {
+        (n: unknown, _o: unknown) => {
             const set = new Set();
             for (let i = 0; i < n.length; i++) {
                 if (!n[i]) {
@@ -247,12 +247,12 @@ const convertTypes = new Map([
         }
     ], [
         'text-string',
-        (n, o) => {
+        (n: unknown, _o: unknown) => {
             return n;
         }
     ], [
         'text-array:string',
-        (n, o) => {
+        (n: unknown, _o: unknown) => {
             const items = n.split('\n');
             if (items.length === 1 && items[0] === '') {
                 return [];
@@ -261,7 +261,7 @@ const convertTypes = new Map([
         }
     ], [
         'text-tags',
-        (n, o) => {
+        (n: unknown, _o: unknown) => {
             const set = new Set();
             const items = n.split('\n');
             for (let i = 0; i < items.length; i++) {
@@ -278,67 +278,67 @@ const convertTypes = new Map([
         }
     ], [
         'tags-string',
-        (n, o) => {
+        (n: unknown, _o: unknown) => {
             return n.join(', ');
         }
     ], [
         'tags-array:string',
-        (n, o) => {
+        (n: unknown, _o: unknown) => {
             return n;
         }
     ], [
         'tags-text',
-        (n, o) => {
+        (n: unknown, _o: unknown) => {
             return n.join('\n');
         }
     ], [
         'number-boolean',
-        (n, o) => {
+        (n: unknown, _o: unknown) => {
             return !!n;
         }
     ], [
         'number-string',
-        (n, o) => {
+        (n: unknown, _o: unknown) => {
             return `${n}`;
         }
     ], [
         'number-text',
-        (n, o) => {
+        (n: unknown, _o: unknown) => {
             return `${n}`;
         }
     ], [
         'number-slider',
-        (n, o) => {
+        (n: unknown, _o: unknown) => {
             return n;
         }
     ], [
         'number-vec2',
-        (n, o) => {
-            return [n, o[1]];
+        (n: unknown, o: unknown) => {
+            return [n, (o as number[])[1]];
         }
     ], [
         'number-vec3',
-        (n, o) => {
-            return [n, o[1], o[2]];
+        (n: unknown, o: unknown) => {
+            return [n, (o as number[])[1], (o as number[])[2]];
         }
     ], [
         'number-vec4',
-        (n, o) => {
+        (n: unknown, o: unknown) => {
             return [n, o[1], o[2], o[3]];
         }
     ], [
         'number-rgb',
-        (n, o) => {
-            return [n, o[1], o[2]];
+        (n: unknown, o: unknown) => {
+            return [n, (o as number[])[1], (o as number[])[2]];
         }
     ], [
         'number-rgba',
-        (n, o) => {
-            return [n, o[1], o[2], o[3]];
+        (n: unknown, o: unknown) => {
+            return [n, (o as number[])[1], (o as number[])[2], (o as number[])[3]];
         }
     ], [
         'number-asset',
-        (n, o) => {
+        (n: unknown, o: unknown) => {
             if (!n) {
                 return o;
             }
@@ -350,157 +350,157 @@ const convertTypes = new Map([
         }
     ], [
         'vec2-string',
-        (n, o) => {
+        (n: unknown, o: unknown) => {
             return JSON.stringify(n);
         }
     ], [
         'vec2-text',
-        (n, o) => {
+        (n: unknown, o: unknown) => {
             return JSON.stringify(n);
         }
     ], [
         'vec2-vec3',
-        (n, o) => {
+        (n: unknown, o: unknown) => {
             return [n[0], n[1], o[2]];
         }
     ], [
         'vec2-vec4',
-        (n, o) => {
+        (n: unknown, o: unknown) => {
             return [n[0], n[1], o[2], o[3]];
         }
     ], [
         'vec2-rgb',
-        (n, o) => {
+        (n: unknown, o: unknown) => {
             return [n[0], n[1], o[2]];
         }
     ], [
         'vec2-rgba',
-        (n, o) => {
+        (n: unknown, o: unknown) => {
             return [n[0], n[1], o[2], o[3]];
         }
     ], [
         'vec3-string',
-        (n, o) => {
+        (n: unknown, o: unknown) => {
             return JSON.stringify(n);
         }
     ], [
         'vec3-text',
-        (n, o) => {
+        (n: unknown, o: unknown) => {
             return JSON.stringify(n);
         }
     ], [
         'vec3-vec2',
-        (n, o) => {
+        (n: unknown, o: unknown) => {
             return [n[0], n[1]];
         }
     ], [
         'vec3-vec4',
-        (n, o) => {
+        (n: unknown, o: unknown) => {
             return [n[0], n[1], n[2], o[3]];
         }
     ], [
         'vec3-rgb',
-        (n, o) => {
+        (n: unknown, o: unknown) => {
             return [n[0], n[1], n[2]];
         }
     ], [
         'vec3-rgba',
-        (n, o) => {
+        (n: unknown, o: unknown) => {
             return [n[0], n[1], n[2], o[3]];
         }
     ], [
         'vec4-string',
-        (n, o) => {
+        (n: unknown, o: unknown) => {
             return JSON.stringify(n);
         }
     ], [
         'vec4-text',
-        (n, o) => {
+        (n: unknown, o: unknown) => {
             return JSON.stringify(n);
         }
     ], [
         'vec4-vec2',
-        (n, o) => {
+        (n: unknown, o: unknown) => {
             return [n[0], n[1]];
         }
     ], [
         'vec4-vec3',
-        (n, o) => {
+        (n: unknown, o: unknown) => {
             return [n[0], n[1], n[2]];
         }
     ], [
         'vec4-rgb',
-        (n, o) => {
+        (n: unknown, o: unknown) => {
             return [n[0], n[1], n[2]];
         }
     ], [
         'vec4-rgba',
-        (n, o) => {
+        (n: unknown, o: unknown) => {
             return [n[0], n[1], n[2], n[3]];
         }
     ], [
         'rgb-string',
-        (n, o) => {
+        (n: unknown, o: unknown) => {
             return colorA.fromArray(n).toString(false).toUpperCase();
         }
     ], [
         'rgb-text',
-        (n, o) => {
+        (n: unknown, o: unknown) => {
             return colorA.fromArray(n).toString(false).toUpperCase();
         }
     ], [
         'rgb-vec2',
-        (n, o) => {
+        (n: unknown, o: unknown) => {
             return [n[0], n[1]];
         }
     ], [
         'rgb-vec3',
-        (n, o) => {
+        (n: unknown, o: unknown) => {
             return [n[0], n[1], n[2]];
         }
     ], [
         'rgb-vec4',
-        (n, o) => {
+        (n: unknown, o: unknown) => {
             return [n[0], n[1], n[2], o[3]];
         }
     ], [
         'rgb-rgba',
-        (n, o) => {
+        (n: unknown, o: unknown) => {
             return [n[0], n[1], n[2], o[3]];
         }
     ], [
         'rgba-string',
-        (n, o) => {
+        (n: unknown, o: unknown) => {
             return colorA.fromArray(n).toString(true).toUpperCase();
         }
     ], [
         'rgba-text',
-        (n, o) => {
+        (n: unknown, o: unknown) => {
             return colorA.fromArray(n).toString(true).toUpperCase();
         }
     ], [
         'rgba-vec2',
-        (n, o) => {
+        (n: unknown, o: unknown) => {
             return [n[0], n[1]];
         }
     ], [
         'rgba-vec3',
-        (n, o) => {
+        (n: unknown, o: unknown) => {
             return [n[0], n[1], n[2]];
         }
     ], [
         'rgba-vec4',
-        (n, o) => {
+        (n: unknown, o: unknown) => {
             return [n[0], n[1], n[2], n[3]];
         }
     ], [
         'rgba-rgb',
-        (n, o) => {
+        (n: unknown, o: unknown) => {
             return [n[0], n[1], n[2]];
         }
     ], [
         'entity-array:entity',
-        (n, o) => {
+        (n: unknown, o: unknown) => {
             if (Array.isArray(n)) {
                 return n;
             } else if (n) {
@@ -510,7 +510,7 @@ const convertTypes = new Map([
         }
     ], [
         'array:entity-entity',
-        (n, o) => {
+        (n: unknown, o: unknown) => {
             if (n.length) {
                 return n[0];
             }
@@ -519,7 +519,7 @@ const convertTypes = new Map([
         }
     ], [
         'asset-array:asset',
-        (n, o) => {
+        (n: unknown, o: unknown) => {
             if (Array.isArray(n)) {
                 return n;
             } else if (n) {
@@ -534,11 +534,11 @@ const convertTypes = new Map([
 
 // additional assets conversions
 for (const type of assetTypes) {
-    convertTypes.set(`asset:${type}-asset`, (n, o) => {
+    convertTypes.set(`asset:${type}-asset`, (n: unknown, o: unknown) => {
         return n;
     });
 
-    convertTypes.set(`asset-asset:${type}`, (n, o) => {
+    convertTypes.set(`asset-asset:${type}`, (n: unknown, o: unknown) => {
         if (!n) {
             return null;
         }
@@ -555,7 +555,7 @@ for (const type of assetTypes) {
         return o;
     });
 
-    convertTypes.set(`asset-array:asset:${type}`, (n, o) => {
+    convertTypes.set(`asset-array:asset:${type}`, (n: unknown, o: unknown) => {
         if (!n) {
             return [];
         }
@@ -595,11 +595,11 @@ for (const type of assetTypes) {
         return o;
     });
 
-    convertTypes.set(`array:asset:${type}-array:asset`, (n, o) => {
+    convertTypes.set(`array:asset:${type}-array:asset`, (n: unknown, o: unknown) => {
         return n;
     });
 
-    convertTypes.set(`number-asset:${type}`, (n, o) => {
+    convertTypes.set(`number-asset:${type}`, (n: unknown, o: unknown) => {
         if (!n) {
             return o;
         }
@@ -653,7 +653,7 @@ editor.once('load', () => {
 
 
     // check if in clipboard we have a valid object
-    const isValidClipboardObject = (value) => {
+    const isValidClipboardObject = (value: unknown): value is { type: string; value: unknown } => {
         return value &&
             (typeof value) === 'object' &&
             !Array.isArray(value) &&
@@ -773,7 +773,7 @@ editor.once('load', () => {
 
 
     // check if path and type are valid to be pasted in the current selection
-    editor.method('clipboard:validPaste', (path: string, type: string, options: object[] | null) => {
+    editor.method('clipboard:validPaste', (path: string, type: string, options: Array<{ v: unknown }> | null) => {
         if (!path || !type) {
             return false;
         }
@@ -845,7 +845,7 @@ editor.once('load', () => {
 
 
     // method to open context menu
-    editor.method('clipboard:contextmenu:open', (x: number, y: number, newPath: string, type: string, options: object[] | null, element: Element, canPaste: boolean = true) => {
+    editor.method('clipboard:contextmenu:open', (x: number, y: number, newPath: string, type: string, options: Array<{ v: unknown }> | null, element: HTMLElement, canPaste: boolean = true) => {
         // it might not have a path
         if (!newPath) {
             schemaType = null;
@@ -918,7 +918,7 @@ editor.once('load', () => {
         return true;
     });
 
-    editor.method('clipboard:paste', (path: string, type: string, options: object[] | null) => {
+    editor.method('clipboard:paste', (path: string, type: string, options: Array<{ v: unknown }> | null) => {
         if (!editor.call('clipboard:validPaste', path, type, options)) {
             return false;
         }
@@ -1006,7 +1006,7 @@ editor.once('load', () => {
     });
 
     // flash dom element when copied/pasted
-    editor.method('clipboard:flashElement', (domElement: Element) => {
+    editor.method('clipboard:flashElement', (domElement: HTMLElement) => {
         domElement.classList.add('pcui-highlight-flash');
         setTimeout(() => {
             domElement.classList.remove('pcui-highlight-flash');

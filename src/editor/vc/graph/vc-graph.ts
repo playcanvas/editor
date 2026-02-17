@@ -116,7 +116,7 @@ editor.once('load', () => {
         }
     }
 
-    editor.method('vcgraph:showInitial', (h) => {
+    editor.method('vcgraph:showInitial', (h: unknown) => {
         editor.call('vcgraph:showNodeMenu', h.vcNodeMenu);
 
         editor.call('vcgraph:utils', 'backendGraphTask', h, (err, data) => {

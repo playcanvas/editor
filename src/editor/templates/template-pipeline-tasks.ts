@@ -28,7 +28,7 @@ editor.once('load', () => {
         removeJob(data.job_id);
     });
 
-    function checkCircularReferences(entity, templateIds) {
+    function checkCircularReferences(entity: { get: (key: string) => unknown }, templateIds: Record<string, boolean>): boolean {
         const templateId = entity.get('template_id');
 
         if (templateId) {
@@ -54,7 +54,7 @@ editor.once('load', () => {
         return false;
     }
 
-    function checkCircularReferencesSingleOverride(root, override) {
+    function checkCircularReferencesSingleOverride(root: { get: (key: string) => unknown }, override: Record<string, unknown>): boolean {
         let entity = editor.call('entities:get', override.resource_id);
 
         const templateIds = {};
@@ -79,7 +79,7 @@ editor.once('load', () => {
         return false;
     }
 
-    function checkIfReparentedUnderNewEntity(root, override) {
+    function checkIfReparentedUnderNewEntity(root: { get: (key: string) => unknown }, override: Record<string, unknown>): { get: (key: string) => unknown } | undefined {
         const templateEntIds = root.get('template_ent_ids');
         if (!templateEntIds) {
             return;
@@ -99,7 +99,7 @@ editor.once('load', () => {
         }
     }
 
-    editor.method('templates:apply', (root) => {
+    editor.method('templates:apply', (root: { get: (key: string) => unknown }) => {
         if (!editor.call('permissions:write')) {
             return;
         }
@@ -143,7 +143,7 @@ editor.once('load', () => {
         return true;
     });
 
-    editor.method('templates:applyOverride', (root, override) => {
+    editor.method('templates:applyOverride', (root: { get: (key: string) => unknown }, override: Record<string, unknown>) => {
         if (!editor.call('permissions:write')) {
             return;
         }

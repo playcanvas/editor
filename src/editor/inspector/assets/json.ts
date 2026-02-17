@@ -1,7 +1,7 @@
 import { CodeBlockAssetInspector } from './code-block';
 
 class JsonAssetInspector extends CodeBlockAssetInspector {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.assetType = 'json';
         args.dataFormatter = data => JSON.stringify(data, null, 4);

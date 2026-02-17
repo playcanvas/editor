@@ -1,3 +1,5 @@
+import type { Observer } from '@playcanvas/observer';
+
 editor.once('load', () => {
     const app = editor.call('viewport:app');
     if (!app) {
@@ -8,7 +10,7 @@ editor.once('load', () => {
     const regexFrameRemove = /^data\.frames\.(\d+)$/;
     const regexI18n = /^i18n\.[^.]+$/;
 
-    const attachSetHandler = function (asset) {
+    const attachSetHandler = function (asset: Observer) {
         // do only for target assets
         if (asset.get('source')) {
             return;
@@ -17,7 +19,7 @@ editor.once('load', () => {
         let timeout;
         const updatedFields = { };
 
-        const onChange = function (path, value) {
+        const onChange = function (path: string, value: unknown) {
             const realtimeAsset = app.assets.get(asset.get('id'));
             const parts = path.split('.');
 
@@ -59,7 +61,7 @@ editor.once('load', () => {
         };
 
         // attach update handler
-        asset.on('*:set', (path, value) => {
+        asset.on('*:set', (path: string, value: unknown) => {
             let realtimeAsset;
 
             // handle i18n changes
@@ -77,7 +79,7 @@ editor.once('load', () => {
                     }
 
                     realtimeAsset.tags.clear();
-                    value.forEach((tag) => {
+                    value.forEach((tag: string) => {
                         realtimeAsset.tags.add(tag);
                     });
                 }
@@ -113,7 +115,7 @@ editor.once('load', () => {
                 onChange(path, value);
             }
         });
-        asset.on('*:unset', (path, value) => {
+        asset.on('*:unset', (path: string, value: unknown) => {
             let realtimeAsset;
 
             // handle deleting i18n
@@ -171,11 +173,11 @@ editor.once('load', () => {
         }
 
         // tags add
-        asset.on('tags:insert', (tag) => {
+        asset.on('tags:insert', (tag: string) => {
             app.assets.get(asset.get('id')).tags.add(tag);
         });
         // tags remove
-        asset.on('tags:remove', (tag) => {
+        asset.on('tags:remove', (tag: string) => {
             app.assets.get(asset.get('id')).tags.remove(tag);
         });
     };
@@ -186,7 +188,7 @@ editor.once('load', () => {
         assets.forEach(attachSetHandler);
 
         // add assets to asset registry
-        editor.on('assets:add', (asset) => {
+        editor.on('assets:add', (asset: Observer) => {
             // do only for target assets
             if (asset.get('source')) {
                 return;
@@ -230,7 +232,7 @@ editor.once('load', () => {
         });
 
         // remove assets from asset registry
-        editor.on('assets:remove', (asset) => {
+        editor.on('assets:remove', (asset: Observer) => {
             const realtimeAsset = app.assets.get(asset.get('id'));
             if (realtimeAsset) {
                 app.assets.remove(realtimeAsset);

@@ -1,3 +1,4 @@
+import type { Observer } from '@playcanvas/observer';
 import { Application, Entity, LAYERID_SKYBOX, Layer, LayerComposition, Scene } from 'playcanvas';
 
 import { ThumbnailRenderer } from './thumbnail-renderer';
@@ -13,7 +14,7 @@ const scene = {
 
 let sceneInitialized = false;
 
-function initializeScene(graphicsDevice) {
+function initializeScene(graphicsDevice: any) {
     scene.layer = new Layer({
         id: LAYERID_SKYBOX,
         enabled: true,
@@ -53,7 +54,7 @@ function initializeScene(graphicsDevice) {
 }
 
 class Cubemap3dThumbnailRenderer extends ThumbnailRenderer {
-    constructor(asset, canvas, sceneSettings) {
+    constructor(asset: Observer, canvas: HTMLCanvasElement, sceneSettings?: Observer) {
         super();
 
         this._asset = asset;

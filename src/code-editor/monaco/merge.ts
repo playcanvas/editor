@@ -280,7 +280,7 @@ editor.once('load', () => {
                 conflictId: config.self.branch.merge.conflict.id,
                 fileName: config.self.branch.merge.conflict.mergedFilePath,
                 resolved: isResolved
-            }), (err, contents) => {
+            }), (err: unknown, contents: string) => {
                 if (err) {
                     log.error(err);
                     editor.call('status:error', err);
@@ -331,7 +331,7 @@ editor.once('load', () => {
     /**
      * Sets the current content of the code editor
      */
-    editor.method('editor:merge:setContent', (value) => {
+    editor.method('editor:merge:setContent', (value: string) => {
         return mergeFileEditor.monacoEditor.setValue(value);
     });
 

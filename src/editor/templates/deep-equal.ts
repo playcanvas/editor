@@ -1,6 +1,10 @@
 editor.once('load', () => {
     class DeepEqual {
-        constructor(node1, node2) {
+        node1: unknown;
+        node2: unknown;
+        bothNodes: unknown[];
+
+        constructor(node1: unknown, node2: unknown) {
             this.node1 = node1;
 
             this.node2 = node2;
@@ -35,7 +39,7 @@ editor.once('load', () => {
             return sameLen && this.compareMapsRecursively(keys1);
         }
 
-        compareMapsRecursively(keys1) {
+        compareMapsRecursively(keys1: string[]): boolean {
             return keys1.every((k1) => {
                 return this.node2.hasOwnProperty(k1) &&
                     new DeepEqual(this.node1[k1], this.node2[k1]).run();
@@ -57,7 +61,7 @@ editor.once('load', () => {
             });
         }
 
-        areBothMaps() {
+        areBothMaps(): boolean {
             return this.bothNodes.every((h) => {
                 return editor.call('template:utils', 'isMapObj', h);
             });

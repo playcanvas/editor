@@ -6,7 +6,7 @@ editor.once('load', () => {
     // TODO: Would be nice if we could figure out if we really
     // need to do this but the errors could literally be anything
     // from socket errors to sharedb errors
-    editor.on('realtime:error', (err) => {
+    editor.on('realtime:error', (err: unknown) => {
         hasError = true;
         log.error(err);
         editor.call('status:permanentError', 'There was a realtime error that the Code Editor could not recover from. Please refresh the Code Editor.');

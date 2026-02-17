@@ -89,7 +89,7 @@ editor.once('load', () => {
     };
 
     // show overlay when branch ended
-    editor.on('messenger:branch.createEnded', (data) => {
+    editor.on('messenger:branch.createEnded', (data: Record<string, unknown>) => {
         if (data.status === 'error' || data.user_id !== config.self.id) {
             return;
         }
@@ -102,7 +102,7 @@ editor.once('load', () => {
     });
 
     // show overlay when the branch of this user has been changed
-    editor.on('messenger:branch.switch', (data) => {
+    editor.on('messenger:branch.switch', (data: Record<string, unknown>) => {
         if (data.project_id !== config.project.id) {
             return;
         }
@@ -116,7 +116,7 @@ editor.once('load', () => {
     });
 
     // Show overlay when checkpoint started being created
-    editor.on('messenger:checkpoint.createStarted', (data) => {
+    editor.on('messenger:checkpoint.createStarted', (data: Record<string, unknown>) => {
         if (data.branch_id !== config.self.branch.id) {
             return;
         }

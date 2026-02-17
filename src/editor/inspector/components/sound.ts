@@ -154,7 +154,7 @@ const SLOT_ATTRIBUTES: Attribute[] = [{
 const CLASS_SLOT = 'sound-component-inspector-slot';
 
 class SoundSlotInspector extends Panel {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({
             headerText: args.slot.name || 'New Slot',
             collapsible: true
@@ -260,7 +260,7 @@ class SoundSlotInspector extends Panel {
 }
 
 class SoundComponentInspector extends ComponentInspector {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.component = 'sound';
 

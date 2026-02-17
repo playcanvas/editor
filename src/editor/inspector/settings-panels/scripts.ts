@@ -10,7 +10,7 @@ const CLASS_SCRIPTS_LIST_ITEM = `${CLASS_SCRIPTS_LIST}-item`;
 class ScriptsSettingsPanel extends BaseSettingsPanel {
     _insertPromise = null;
 
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.headerText = 'SCRIPTS LOADING ORDER';
         args._tooltipReference = 'settings:scripts';

@@ -1,7 +1,7 @@
 import { LegacyContainer } from './container';
 
 class LegacyPanel extends LegacyContainer {
-    constructor(header) {
+    constructor(header?: string) {
         super();
         this.element = document.createElement('div');
         this._element.classList.add('ui-panel', 'noHeader', 'noAnimation');
@@ -22,19 +22,19 @@ class LegacyPanel extends LegacyContainer {
 
         this.innerElement.addEventListener('scroll', this._onScroll.bind(this), false);
 
-        this._resizeEvtMove = (evt) => {
+        this._resizeEvtMove = (evt: MouseEvent) => {
             evt.preventDefault();
             evt.stopPropagation();
             this._resizeMove(evt.clientX, evt.clientY);
         };
 
-        this._resizeEvtEnd = (evt) => {
+        this._resizeEvtEnd = (evt: MouseEvent) => {
             evt.preventDefault();
             evt.stopPropagation();
             this._resizeEnd();
         };
 
-        this._resizeEvtTouchMove = (evt) => {
+        this._resizeEvtTouchMove = (evt: TouchEvent) => {
             for (let i = 0; i < evt.changedTouches.length; i++) {
                 const touch = evt.changedTouches[i];
 
@@ -50,7 +50,7 @@ class LegacyPanel extends LegacyContainer {
             }
         };
 
-        this._resizeEvtTouchEnd = (evt) => {
+        this._resizeEvtTouchEnd = (evt: TouchEvent) => {
             for (let i = 0; i < evt.changedTouches.length; i++) {
                 const touch = evt.changedTouches[i];
 
@@ -248,7 +248,7 @@ class LegacyPanel extends LegacyContainer {
         return this._resizeLimits.max;
     }
 
-    headerAppend(element) {
+    headerAppend(element: HTMLElement | { element: HTMLElement; parent: any }) {
         if (!this.headerElement) {
             return;
         }
@@ -297,11 +297,11 @@ class LegacyPanel extends LegacyContainer {
         setTimeout(this._reflow.bind(this));
     }
 
-    _onScroll(evt) {
+    _onScroll(evt: Event) {
         this.emit('scroll', evt);
     }
 
-    _resizeStart(evt) {
+    _resizeStart(evt: MouseEvent | TouchEvent) {
         if (!this._handle) {
             return;
         }
@@ -330,7 +330,7 @@ class LegacyPanel extends LegacyContainer {
         evt.stopPropagation();
     }
 
-    _resizeMove(x, y) {
+    _resizeMove(x: number, y: number) {
         if (!this._resizeData) {
             this._resizeData = {
                 x: x,
@@ -367,7 +367,7 @@ class LegacyPanel extends LegacyContainer {
         this.emit('resize');
     }
 
-    _resizeEnd(evt) {
+    _resizeEnd(evt?: Event) {
         window.removeEventListener('mousemove', this._resizeEvtMove, false);
         window.removeEventListener('mouseup', this._resizeEvtEnd, false);
 

@@ -1,7 +1,7 @@
 import { Color, SHADERLANGUAGE_GLSL, StandardMaterial } from 'playcanvas';
 
 // Creates an instance of standard material setup to use vertex colors or a single color.
-const createColorMaterial = (useVertexColor) => {
+const createColorMaterial = (useVertexColor?: boolean) => {
     const material = new StandardMaterial();
     material.useLighting = false;
     material.useTonemap = false;
@@ -18,7 +18,7 @@ const createColorMaterial = (useVertexColor) => {
     return material;
 };
 
-const addColorProperty = (material) => {
+const addColorProperty = (material: StandardMaterial): void => {
     Object.defineProperty(material, 'color', {
         set: function (value) {
 
@@ -37,7 +37,7 @@ const addColorProperty = (material) => {
     });
 };
 
-const cloneColorMaterial = (material) => {
+const cloneColorMaterial = (material: StandardMaterial) => {
     const clone = material.clone();
 
     addColorProperty(clone);

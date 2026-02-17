@@ -1,3 +1,4 @@
+import type { Observer } from '@playcanvas/observer';
 import { Application, Color, Entity, GraphNode, JsonStandardMaterialParser, StandardMaterial } from 'playcanvas';
 
 import { ThumbnailRenderer } from './thumbnail-renderer';
@@ -77,7 +78,7 @@ function initializeScene() {
 }
 
 class MaterialThumbnailRenderer extends ThumbnailRenderer {
-    constructor(asset, canvas, sceneSettings) {
+    constructor(asset: Observer, canvas: HTMLCanvasElement, sceneSettings?: Observer) {
         super();
 
         this._asset = asset;
@@ -110,7 +111,7 @@ class MaterialThumbnailRenderer extends ThumbnailRenderer {
         }
 
         if (sceneSettings) {
-            this._evtChangeSkybox = sceneSettings.on('render.skybox:set', (value) => {
+            this._evtChangeSkybox = sceneSettings.on('render.skybox:set', (value: any) => {
                 this._unwatchSkybox();
 
                 if (value) {

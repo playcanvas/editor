@@ -101,7 +101,7 @@ editor.once('load', () => {
         }
     }
 
-    editor.method('vcgraph:placeVcNodes', (data) => {
+    editor.method('vcgraph:placeVcNodes', (data: unknown) => {
         new PlaceVcNodes(data).run();
     });
 });

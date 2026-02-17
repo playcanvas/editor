@@ -52,7 +52,7 @@ const DOM = parent => [
 ];
 
 class AudioAssetInspector extends Panel {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.headerText = 'AUDIO';
 

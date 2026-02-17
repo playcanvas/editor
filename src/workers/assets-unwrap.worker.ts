@@ -1,7 +1,7 @@
 import { Unwrap } from '@/common/unwrap';
 import { WorkerServer } from '@/core/worker/worker-server';
 
-const loadFile = (id, filename) => {
+const loadFile = (id: number | string, filename: string) => {
     return new Promise((resolve, reject) => {
         const xhr = new XMLHttpRequest();
 
@@ -19,7 +19,7 @@ const loadFile = (id, filename) => {
     });
 };
 
-const start = async (id, filename, padding, progress) => {
+const start = async (id: number | string, filename: string, padding: number, progress: (val: number) => void) => {
     const data = await loadFile(id, filename);
     const unwrap = new Unwrap();
     unwrap.progress = progress;
@@ -30,7 +30,7 @@ const start = async (id, filename, padding, progress) => {
     return [data, a];
 };
 
-const area = async (id, filename) => {
+const area = async (id: number | string, filename: string) => {
     const data = await loadFile(id, filename);
     const unwrap = new Unwrap();
     const a = unwrap.calculateMultiAreaOfJsonModel(data);
@@ -40,14 +40,14 @@ const area = async (id, filename) => {
 };
 
 const workerServer = new WorkerServer(self);
-workerServer.on('start', async (id, filename, padding) => {
-    const progress = (val) => {
+workerServer.on('start', async (id: number | string, filename: string, padding: number) => {
+        const progress = (val: number) => {
         workerServer.send('progress', val);
     };
     const [data, a] = await start(id, filename, padding, progress);
     workerServer.send('start', data, a);
 });
-workerServer.on('area', async (id, filename) => {
+workerServer.on('area', async (id: number | string, filename: string) => {
     const [data, a] = await area(id, filename);
     workerServer.send('area', data, a);
 });

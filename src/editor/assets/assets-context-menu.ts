@@ -1,6 +1,7 @@
+import type { Observer } from '@playcanvas/observer';
 import { Menu, MenuItem } from '@playcanvas/pcui';
 
-import { Asset, Entity } from '@/editor-api';
+import { Asset, Entity, type AssetObserver } from '@/editor-api';
 
 import { formatShortcut } from '../../common/utils';
 
@@ -13,12 +14,12 @@ editor.once('load', () => {
 
     const LEGACY_SCRIPTS_ID = 'legacyScripts';
 
-    const isModelAsset = (asset) => {
+    const isModelAsset = (asset: Asset) => {
         const filename = asset.get('file.filename');
         return (filename && String(filename).match(/\.glb$/) !== null) || (asset.get('type') === 'gsplat');
     };
 
-    const isTextureAsset = (asset) => {
+    const isTextureAsset = (asset: Asset) => {
         const type = asset.get('type');
         return type && ['texture', 'textureatlas'].indexOf(type) !== -1;
     };
@@ -45,7 +46,7 @@ editor.once('load', () => {
             editor.call('picker:script-create', (filename) => {
                 editor.call('assets:create:script', {
                     filename: filename
-                }, (asset) => {
+                }, (asset: Asset) => {
                     editor.api.globals.selection.set([asset]);
                 });
             });
@@ -156,7 +157,7 @@ editor.once('load', () => {
         return editor.call('assets:panel:currentFolder') === 'scripts';
     }
 
-    const addNewMenuConvertItem = function (menu, format, title) {
+    const addNewMenuConvertItem = function (menu: Menu, format: string, title: string) {
         const item = new MenuItem({
             text: title,
             value: conversionFormats[format],
@@ -171,7 +172,7 @@ editor.once('load', () => {
                     assets = [currentAsset];
                 }
 
-                assets.forEach((asset) => {
+                assets.forEach((asset: Asset) => {
 
                     const type = asset.get('type');
                     const meta = asset.get('meta');
@@ -198,7 +199,7 @@ editor.once('load', () => {
         menu.append(item);
     };
 
-    const addNewMenuItem = function (menu, key, title) {
+    const addNewMenuItem = function (menu: MenuItem, key: string, title: string) {
         // new folder
         const item = new MenuItem({
             text: title,
@@ -227,7 +228,7 @@ editor.once('load', () => {
                     editor.api.globals.selection.once('change', () => {
                         selectionChanged = true;
                     });
-                    return (asset) => {
+                    return (asset: Asset) => {
                         const isFocusedOnEntity = editor.api.globals.selection.items.some(item => item instanceof Entity);
 
                         // Reason for skipping the selection can be read here: https://github.com/playcanvas/editor/issues/1063
@@ -754,9 +755,9 @@ editor.once('load', () => {
 
                     const menuItems = [];
 
-                    const addReferenceItem = function (type, id) {
+                    const addReferenceItem = function (type: string, id: string) {
                         const menuItem = new MenuItem();
-                        let item = null;
+                        let item: Observer | null = null;
 
                         if (type === 'editorSettings') {
                             menuItem.text = 'Scene Settings';
@@ -880,14 +881,14 @@ editor.once('load', () => {
 
 
     // for each asset added
-    editor.on('assets:add', (asset) => {
+    editor.on('assets:add', (asset: AssetObserver) => {
         // get grid item
         const item = editor.call('assets:panel:get', asset.get('id'));
         if (!item) {
             return;
         }
 
-        const contextMenuHandler = function (evt) {
+        const contextMenuHandler = function (evt: MouseEvent) {
             evt.stopPropagation();
             evt.preventDefault();
 
@@ -905,8 +906,8 @@ editor.once('load', () => {
         }
     });
 
-    editor.method('assets:contextmenu:attach', (element, asset) => {
-        const contextMenuHandler = function (evt) {
+    editor.method('assets:contextmenu:attach', (element: { dom: HTMLElement; on: (event: string, callback: (dom: HTMLElement) => void) => void }, asset: Asset) => {
+        const contextMenuHandler = function (evt: MouseEvent) {
             evt.stopPropagation();
             evt.preventDefault();
 
@@ -923,7 +924,7 @@ editor.once('load', () => {
     });
 
     // Show the context menu for a given asset at the specified position
-    editor.method('assets:contextmenu:show', (asset, x, y) => {
+    editor.method('assets:contextmenu:show', (asset: Asset, x: number, y: number) => {
         currentAsset = asset;
         menu.hidden = false;
         menu.position(x + 1, y);
@@ -933,7 +934,7 @@ editor.once('load', () => {
         return menuCreate;
     });
 
-    editor.on('sourcefiles:add', (asset) => {
+    editor.on('sourcefiles:add', (asset: Observer) => {
         // get grid item
         const item = editor.call('assets:panel:get', asset.get('filename'));
         if (!item) {
@@ -970,7 +971,7 @@ editor.once('load', () => {
         });
 
         if (data.items) {
-            data.items.forEach(child => createCustomContextMenu(child, item));
+            data.items.forEach((child: { text: string; icon?: string; onIsVisible?: (asset: AssetObserver | null) => boolean; onSelect?: (asset: AssetObserver | null) => void; items?: unknown[] }) => createCustomContextMenu(child, item));
         }
 
         parent.append(item);
@@ -978,7 +979,13 @@ editor.once('load', () => {
         return item;
     }
 
-    editor.method('assets:contextmenu:add', (data) => {
+    editor.method('assets:contextmenu:add', (data: {
+        text: string;
+        icon?: string;
+        items?: Array<{ text: string; icon?: string; onIsVisible?: (asset: AssetObserver | null) => boolean; onSelect?: (asset: AssetObserver | null) => void; items?: unknown[] }>;
+        onIsVisible?: (asset: AssetObserver | null) => boolean;
+        onSelect?: (asset: AssetObserver | null) => void;
+    }) => {
         return createCustomContextMenu(data, menu);
     });
 });

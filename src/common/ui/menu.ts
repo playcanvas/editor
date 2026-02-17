@@ -2,7 +2,7 @@ import { LegacyContainer } from './container';
 import { LegacyMenuItem } from './menu-item';
 
 class LegacyMenu extends LegacyContainer {
-    constructor(args = {}) {
+    constructor(args: Record<string, any> = {}) {
         super();
         this.element = document.createElement('div');
         this._element.tabIndex = 1;
@@ -73,10 +73,10 @@ class LegacyMenu extends LegacyContainer {
         }
     }
 
-    _onAppend(item) {
+    _onAppend(item: any) {
         this._index[item._value] = item;
 
-        item.on('value', (value, valueOld) => {
+        item.on('value', (value: any, valueOld: any) => {
             delete this._index[valueOld];
             this._index[value] = item;
         });

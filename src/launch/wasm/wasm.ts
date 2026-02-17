@@ -1,5 +1,5 @@
 editor.once('load', () => {
-    editor.method('wasm:load', (modules, urlPrefix, doneCallback) => {
+    editor.method('wasm:load', (modules: Array<{ moduleName: string; glueUrl: string; wasmUrl: string; fallbackUrl: string; preload?: boolean }>, urlPrefix: string, doneCallback: () => void) => {
         if (typeof modules === 'undefined' || modules.length === 0) {
             // caller may depend on callback behavior being async
             setTimeout(doneCallback);
@@ -11,7 +11,7 @@ editor.once('load', () => {
                 }
             };
 
-            modules.forEach((m) => {
+            modules.forEach((m: { moduleName: string; glueUrl: string; wasmUrl: string; fallbackUrl: string; preload?: boolean }) => {
                 pc.WasmModule.setConfig(m.moduleName, {
                     glueUrl: urlPrefix + m.glueUrl,
                     wasmUrl: urlPrefix + m.wasmUrl,

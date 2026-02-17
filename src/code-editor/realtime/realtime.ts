@@ -156,7 +156,7 @@ editor.once('load', () => {
     };
 
     // Raw socket send
-    editor.method('realtime:send', (name, data) => {
+    editor.method('realtime:send', (name: string, data: unknown) => {
         if (isConnected) {
             socket.send(name + JSON.stringify(data));
         }

@@ -17,7 +17,7 @@ editor.once('load', () => {
     // Load repositories
     editor.once('start', () => {
         editor.api.globals.rest.projects.projectRepoList()
-        .on('load', (status, data) => {
+        .on('load', (_status: number, data: Record<string, unknown>) => {
             const response = data;
             for (const key in response) {
                 if (response.hasOwnProperty(key)) {

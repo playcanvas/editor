@@ -1,3 +1,4 @@
+import type { Observer } from '@playcanvas/observer';
 import { Layer, LayerComposition } from 'playcanvas';
 
 editor.once('load', () => {
@@ -12,8 +13,8 @@ editor.once('load', () => {
 
     const events = [];
 
-    const createLayer = function (id, data) {
-        id = parseInt(id, 10);
+    const createLayer = function (id: string, data: { name?: string; opaqueSortMode?: number; transparentSortMode?: number; id?: number }): Layer {
+        const numId = parseInt(id, 10);
         return new Layer({
             id: id,
             enabled: true, // disable depth layer - it will be enabled by the engine as needed
@@ -30,7 +31,7 @@ editor.once('load', () => {
         events.length = 0;
 
         // on settings change
-        events.push(projectSettings.on('*:set', (path, value) => {
+        events.push(projectSettings.on('*:set', (path: string, value: { id?: number; name?: string; opaqueSortMode?: number; transparentSortMode?: number }) => {
             let parts, id;
 
             if (path.startsWith('layers.')) {
@@ -38,7 +39,7 @@ editor.once('load', () => {
 
                 if (parts.length === 2) {
                     id = parseInt(parts[1], 10);
-                    const layer = createLayer(id, value);
+                    const layer = createLayer(parts[1], value);
                     layerIndex[layer.id] = layer;
 
                     const existing = app.scene.layers.getLayerById(value.id);
@@ -71,7 +72,7 @@ editor.once('load', () => {
             }
         }));
 
-        events.push(projectSettings.on('*:unset', (path) => {
+        events.push(projectSettings.on('*:unset', (path: string) => {
             if (path.startsWith('layers.')) {
                 const parts = path.split('.');
                 // remove layer
@@ -88,7 +89,7 @@ editor.once('load', () => {
             }
         }));
 
-        events.push(projectSettings.on('layerOrder:insert', (value, index) => {
+        events.push(projectSettings.on('layerOrder:insert', (value: Observer, index: number) => {
             const id = value.get('layer');
             const layer = layerIndex[id];
             if (!layer) {
@@ -111,7 +112,7 @@ editor.once('load', () => {
             editor.call('viewport:render');
         }));
 
-        events.push(projectSettings.on('layerOrder:remove', (value) => {
+        events.push(projectSettings.on('layerOrder:remove', (value: Observer) => {
             const id = value.get('layer');
             const layer = layerIndex[id];
             if (!layer) {
@@ -133,7 +134,7 @@ editor.once('load', () => {
             editor.call('viewport:render');
         }));
 
-        events.push(projectSettings.on('layerOrder:move', (value, indNew, indOld) => {
+        events.push(projectSettings.on('layerOrder:move', (value: Observer, indNew: number, _indOld: number) => {
             const id = value.get('layer');
             const layer = layerIndex[id];
             if (!layer) {

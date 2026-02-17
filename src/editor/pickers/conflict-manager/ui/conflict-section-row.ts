@@ -313,7 +313,7 @@ class ConflictSectionRow extends Events {
 
                 } else if (srcType === `array:${type}`) {
                     if (Array.isArray(src)) {
-                        src = src.map((id) => {
+                        src = src.map((id: unknown) => {
                             return self._convertIdToName(id, indexes[type][0]);
                         });
                     }
@@ -325,7 +325,7 @@ class ConflictSectionRow extends Events {
 
             // special handling for sublayers - use the 'layer' field as the id for the field
             if (!handled && srcType === 'array:sublayer' && src) {
-                src.forEach((sublayer) => {
+                src.forEach((sublayer: { layer: unknown }) => {
                     self._convertSublayer(sublayer, indexes.layer[0]);
                 });
             }
@@ -349,7 +349,7 @@ class ConflictSectionRow extends Events {
                     //     }
                     // }
                 } else if (dstType === `array:${type}`) {
-                    dst = dst.map((id) => {
+                    dst = dst.map((id: unknown) => {
                         return self._convertIdToName(id, indexes[type][1]);
                     });
                     handled = true;
@@ -359,7 +359,7 @@ class ConflictSectionRow extends Events {
 
             // special handling for sublayers - use the 'layer' field as the id for the field
             if (!handled && dstType === 'array:sublayer' && dst) {
-                dst.forEach((sublayer) => {
+                dst.forEach((sublayer: { layer: unknown }) => {
                     self._convertSublayer(sublayer, indexes.layer[1]);
                 });
             }
@@ -434,7 +434,7 @@ class ConflictSectionRow extends Events {
         // insert a space before all caps and numbers
         .replace(/([A-Z0-9])/g, ' $1')
         // replace special characters with spaces
-        .replace(/[^a-z0-9](.)/gi, (match, group) => {
+        .replace(/[^a-z0-9](.)/gi, (match: string, group: string) => {
             return ` ${group.toUpperCase()}`;
         });
     }

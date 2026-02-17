@@ -104,7 +104,7 @@ editor.once('viewport:load', (app) => {
         mouseTap = tap;
     };
 
-    const onTapEnd = function (tap) {
+    const onTapEnd = function (tap: { button: number }) {
         if (tap.button !== 0) {
             return;
         }
@@ -201,7 +201,7 @@ editor.once('viewport:load', (app) => {
         }
     }
 
-    editor.method('gizmo:point:create', (axis, position, dir) => {
+    editor.method('gizmo:point:create', (axis: string | undefined, position: Vec3 | null, dir: number | undefined) => {
         let item = pool.shift();
         if (!item) {
             item = new Gizmo();
@@ -234,7 +234,7 @@ editor.once('viewport:load', (app) => {
     });
 
     // on picker hover
-    editor.on('viewport:pick:hover', (node, picked) => {
+    editor.on('viewport:pick:hover', (node: Entity | null, picked: unknown) => {
         let match = false;
         if (node && node.__editor && node.point) {
             match = points.indexOf(node) !== -1;

@@ -49,7 +49,7 @@ const DOM = parent => [
 ];
 
 class GSplatAssetInspector extends Container {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.headerText = 'GAUSSIAN SPLAT';
 

@@ -5,7 +5,7 @@ import { tooltip, tooltipRefItem } from '@/common/tooltips';
 import { AttributesInspector } from '../attributes-inspector';
 
 class BaseSettingsPanel extends Panel {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.collapsible = true;
 

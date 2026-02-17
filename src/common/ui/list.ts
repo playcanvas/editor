@@ -1,7 +1,7 @@
 import { LegacyContainer } from './container';
 
 class LegacyList extends LegacyContainer {
-    constructor(args = {}) {
+    constructor(args: Record<string, any> = {}) {
         super();
         this.element = document.createElement('ul');
         this._element.classList.add('ui-list');

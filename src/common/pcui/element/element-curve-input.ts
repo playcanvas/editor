@@ -167,7 +167,7 @@ class CurveInput extends Element {
         }
     }
 
-    _onKeyDown(evt) {
+    _onKeyDown(evt: KeyboardEvent) {
         // escape blurs the field
         if (evt.keyCode === 27) {
             this.blur();
@@ -184,11 +184,11 @@ class CurveInput extends Element {
         this._openCurvePicker();
     }
 
-    _onFocus(evt) {
+    _onFocus(evt: FocusEvent) {
         this.emit('focus');
     }
 
-    _onBlur(evt) {
+    _onBlur(evt: FocusEvent) {
         this.emit('blur');
     }
 
@@ -245,7 +245,7 @@ class CurveInput extends Element {
 
         let evtPickerChanged = editor.on('picker:curve:change', this._onPickerChange.bind(this));
 
-        let evtRefreshPicker = this.on('change', (value) => {
+        let evtRefreshPicker = this.on('change', (value: any) => {
             const args = Object.assign({
                 keepZoom: true
             }, this._pickerArgs);
@@ -265,7 +265,7 @@ class CurveInput extends Element {
         });
     }
 
-    _onPickerChange(paths, values) {
+    _onPickerChange(paths: string[], values: any) {
         if (!this.value) {
             return;
         }
@@ -293,7 +293,7 @@ class CurveInput extends Element {
         this.value = value;
     }
 
-    _getMinMaxValues(value) {
+    _getMinMaxValues(value: any) {
         let minValue = Infinity;
         let maxValue = -Infinity;
 
@@ -302,13 +302,13 @@ class CurveInput extends Element {
                 value = [value];
             }
 
-            value.forEach((value) => {
+            value.forEach((value: any) => {
                 if (!value || !value.keys || !value.keys.length) {
                     return;
                 }
 
                 if (Array.isArray(value.keys[0])) {
-                    value.keys.forEach((data) => {
+                    value.keys.forEach((data: number[]) => {
                         for (let i = 1; i < data.length; i += 2) {
                             if (data[i] > maxValue) {
                                 maxValue = data[i];
@@ -357,7 +357,7 @@ class CurveInput extends Element {
     // clamp val between min and max only if it's less / above them but close to them
     // this is mostly to allow splines to go over the limit but if they are too close to
     // the edge then they will avoid rendering half-height lines
-    _clampEdge(val, min, max) {
+    _clampEdge(val: number, min: number, max: number) {
         if (val < min && val > min - 2) {
             return min;
         }
@@ -373,7 +373,7 @@ class CurveInput extends Element {
         }
 
         if (value.keys[0].length !== undefined) {
-            return value.keys.map((data) => {
+            return value.keys.map((data: number[]) => {
                 const curve = new Curve(data);
                 curve.type = value.type;
                 return curve;

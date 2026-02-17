@@ -192,7 +192,7 @@ editor.once('load', () => {
     };
 
     // resize
-    editor.on('tools:resize', (width, height) => {
+    editor.on('tools:resize', (width: number, height: number) => {
         canvas.width = width - 300 - 32;
         canvas.height = 275;
         scale = canvas.width / editor.call('tools:time:capacity');
@@ -215,12 +215,12 @@ editor.once('load', () => {
         enabled = state;
     });
 
-    editor.method('tools:timeline:color', (kind) => {
+    editor.method('tools:timeline:color', (kind: string) => {
         return kindColorsOverview[kind] || '#fff';
     });
 
     // add event to history
-    const addEvent = function (args) {
+    const addEvent = function (args: { time: number; time2?: number; name?: string; kind?: string }) {
         if (!enabled) {
             return;
         }
@@ -278,7 +278,7 @@ editor.once('load', () => {
         });
 
         // subscribe to asset loading end
-        app.assets.on('load', (asset) => {
+        app.assets.on('load', (asset: pc.Asset) => {
             if (!enabled || !cacheAssetLoading[asset.id]) {
                 return;
             }

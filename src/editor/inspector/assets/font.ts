@@ -181,8 +181,8 @@ const DOM = parent => [
                             width: '50%'
                         }],
                         defaultSortColumn: 0,
-                        createRowFn: (observer) => {
-                            const copyToClipboard = (str) => {
+                        createRowFn: (observer: Observer) => {
+                            const copyToClipboard = (str: string) => {
                                 const el = document.createElement('textarea');
                                 el.value = str;
                                 document.body.appendChild(el);
@@ -223,7 +223,7 @@ const DOM = parent => [
                             root.append(characterMenu);
                             parent._contextMenus.push(characterMenu);
 
-                            characterCell.dom.addEventListener('contextmenu', (e) => {
+                            characterCell.dom.addEventListener('contextmenu', (e: MouseEvent) => {
                                 e.preventDefault();
                                 e.stopPropagation();
                                 characterMenu.position(e.clientX, e.clientY);
@@ -242,7 +242,7 @@ const DOM = parent => [
                             root.append(unicodeMenu);
                             parent._contextMenus.push(unicodeMenu);
 
-                            unicodeCell.dom.addEventListener('contextmenu', (e) => {
+                            unicodeCell.dom.addEventListener('contextmenu', (e: MouseEvent) => {
                                 e.preventDefault();
                                 e.stopPropagation();
                                 unicodeMenu.position(e.clientX, e.clientY);
@@ -280,8 +280,13 @@ const CHARACTER_PRESETS = {
     GREEK: { from: 0x370, to: 0x3FF }
 };
 
+type FontAssetInspectorArgs = {
+    assets?: Observer[];
+    history?: import('@/editor-api').History;
+} & Record<string, unknown>;
+
 class FontAssetInspector extends Container {
-    constructor(args) {
+    constructor(args: FontAssetInspectorArgs = {} as FontAssetInspectorArgs) {
         args = Object.assign({}, args);
 
         super(args);

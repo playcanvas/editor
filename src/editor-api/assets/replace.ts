@@ -51,7 +51,7 @@ function replaceAssetRefs(oldAsset: Asset, newAsset: Asset) {
         // get paths and add i18n as well
         const paths = pathsByType[type].concat(['i18n.*']);
         paths.forEach((path: string) => {
-            utils.expandPath(asset, path, (asset, path) => {
+            utils.expandPath(asset, path, (asset: any, path: string) => {
                 const value = asset.get(path);
                 if (Array.isArray(value)) {
                     if (!value.includes(oldId)) {

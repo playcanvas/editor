@@ -1,7 +1,7 @@
 import { LegacyElement } from './element';
 
 class LegacyTextField extends LegacyElement {
-    constructor(args = {}) {
+    constructor(args: Record<string, any> = {}) {
         super();
         this.element = document.createElement('div');
         this._element.classList.add('ui-text-field');

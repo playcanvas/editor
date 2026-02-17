@@ -114,7 +114,7 @@ editor.once('load', () => {
         frameRequest = requestAnimationFrame(updateCameraState);
     };
 
-    btnPin.on('click', (evt) => {
+    btnPin.on('click', (evt: MouseEvent) => {
         evt.stopPropagation();
 
         if (pinnedCamera) {
@@ -139,11 +139,11 @@ editor.once('load', () => {
         editor.call('camera:set', obj.entity);
     }, false);
 
-    editor.once('viewport:load', (application) => {
+    editor.once('viewport:load', (application: import('playcanvas').Application) => {
         app = application;
     });
 
-    editor.on('permissions:writeState', (state) => {
+    editor.on('permissions:writeState', (state: boolean) => {
         if (state) {
             cameraPreviewBorder.classList.add('clickable');
         } else {
@@ -151,7 +151,7 @@ editor.once('load', () => {
         }
     });
 
-    editor.on('viewport:resize', (width, height) => {
+    editor.on('viewport:resize', (width: number, height: number) => {
         rect.x = 6.0 / width;
         rect.y = 1.0 - ((43.0 + 196.0) / (height || 1.0));
         rect.z = 258.0 / width;
@@ -160,7 +160,7 @@ editor.once('load', () => {
         updateCameraState();
     });
 
-    editor.on('camera:change', (camera) => {
+    editor.on('camera:change', (camera: import('playcanvas').Entity | null) => {
         if (camera && !camera.__editorCamera) {
             currentCamera = camera;
         } else {
@@ -170,7 +170,7 @@ editor.once('load', () => {
         updateCameraState();
     });
 
-    editor.on('selector:change', (type, items) => {
+    editor.on('selector:change', (type: string, items: import('@/editor-api').EntityObserver[]) => {
         if (events.length) {
             for (let i = 0; i < events.length; i++) {
                 events[i].unbind();

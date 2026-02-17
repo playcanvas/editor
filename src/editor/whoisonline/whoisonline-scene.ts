@@ -18,7 +18,7 @@ editor.once('load', () => {
         }
     });
 
-    editor.on('relay:room:join', (data) => {
+    editor.on('relay:room:join', (data: { name: string; users?: string[]; userId?: string }) => {
         if (!data.name.startsWith('scene-')) {
             return;
         }
@@ -39,7 +39,7 @@ editor.once('load', () => {
         }
     });
 
-    editor.on('relay:room:leave', (data) => {
+    editor.on('relay:room:leave', (data: { name: string; userId: string }) => {
         if (!data.name.startsWith('scene-')) {
             return;
         }
@@ -89,7 +89,7 @@ editor.once('load', () => {
         }
     });
 
-    editor.method('whoisonline:scene:enabled', (enabled) => {
+    editor.method('whoisonline:scene:enabled', (enabled: boolean) => {
         relayEnabled = enabled;
     });
 });

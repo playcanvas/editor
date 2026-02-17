@@ -1,5 +1,5 @@
 editor.once('load', () => {
-    editor.method('images:upload', (file, project, callback, error) => {
+    editor.method('images:upload', (file: File, project: { id: string }, callback?: (data: unknown) => void, error?: (status: number, data: unknown) => void) => {
         if (!file || !file.size) {
             return;
         }

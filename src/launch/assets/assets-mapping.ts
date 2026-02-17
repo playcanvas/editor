@@ -24,7 +24,7 @@ editor.on('load', async () => {
      * @returns A promise that resolves when the service worker responds to the message
      */
     const send = (message: string, data?: unknown): Promise<void> => new Promise((resolve, reject) => {
-        const onMessage = (event) => {
+        const onMessage = (event: MessageEvent) => {
             navigator.serviceWorker.removeEventListener('message', onMessage);
             switch (event.data.message) {
                 case `${message}:success`: {
@@ -117,7 +117,7 @@ editor.on('load', async () => {
      * This method assumes that the asset list has been constructed
      */
     editor.method('sw:initialize', () => {
-        const registerAsset = (asset) => {
+        const registerAsset = (asset: Observer) => {
             // ignore non ESM script assets
             if (!editor.call('assets:isModule', asset)) {
                 return Promise.resolve();

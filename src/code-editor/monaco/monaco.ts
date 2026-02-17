@@ -60,7 +60,7 @@ editor.once('load', () => {
     });
 
     // Setup Themes
-    const setMonacoTheme = async (themeName) => {
+    const setMonacoTheme = async (themeName: string) => {
         // fetch theme data and load to monaco
         let data;
         try {
@@ -133,7 +133,7 @@ editor.once('load', () => {
         });
     });
 
-    settings.on('ide.minimapMode:set', (value) => {
+    settings.on('ide.minimapMode:set', (value: string) => {
         monacoEditor.updateOptions({
             minimap: {
                 enabled: value !== 'none',
@@ -142,19 +142,19 @@ editor.once('load', () => {
         });
     });
 
-    settings.on('ide.autoCloseBrackets:set', (value) => {
+    settings.on('ide.autoCloseBrackets:set', (value: boolean) => {
         monacoEditor.updateOptions({
             autoClosingBrackets: !!value
         });
     });
 
-    settings.on('ide.highlightBrackets:set', (value) => {
+    settings.on('ide.highlightBrackets:set', (value: boolean) => {
         monacoEditor.updateOptions({
             matchBrackets: value ? 'always' : 'never'
         });
     });
 
-    settings.on('ide.theme:set', (value) => {
+    settings.on('ide.theme:set', (value: string) => {
         setMonacoTheme(value);
     });
 
@@ -164,7 +164,7 @@ editor.once('load', () => {
         });
     });
 
-    settings.on('ide.bracketPairColorization:set', (value) => {
+    settings.on('ide.bracketPairColorization:set', (value: boolean) => {
         // Using quotes in the object looks odd but is considered the official way to set the options
         // https://github.com/microsoft/monaco-editor/blob/main/CHANGELOG.md#0280-22092021
 

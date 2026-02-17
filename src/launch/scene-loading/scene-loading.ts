@@ -2,7 +2,7 @@ editor.once('load', () => {
     // cache
     const loaded = {};
     let sceneLoadingCount = 0;
-    const loadScene = function (id, callback, settingsOnly) {
+    const loadScene = function (id: string, callback?: (err: Error | null, data?: { uniqueId?: number }) => void, settingsOnly?: boolean) {
         if (loaded[id]) {
             if (callback) {
                 callback(null, loaded[id].data);
@@ -17,7 +17,7 @@ editor.once('load', () => {
         const scene = connection.get('scenes', `${id}`);
 
         // error
-        scene.on('error', (err) => {
+        scene.on('error', (err: unknown) => {
             if (callback) {
                 callback(new Error(err));
             }
@@ -31,7 +31,7 @@ editor.once('load', () => {
             loaded[id] = scene;
 
             // notify of operations
-            scene.on('op', (ops, local) => {
+            scene.on('op', (ops: Array<{ p: string[] }>, local: boolean) => {
                 if (local) {
                     return;
                 }

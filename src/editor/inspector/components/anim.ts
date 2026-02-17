@@ -66,7 +66,7 @@ const CLASS_MASK_INSPECTOR_ADD_ALL_BUTTON = `${CLASS_MASK_INSPECTOR}-add-all-but
 const CLASS_MASK_INSPECTOR_REMOVE_ALL_BUTTON = `${CLASS_MASK_INSPECTOR}-remove-all-button`;
 
 class AnimComponentInspector extends ComponentInspector {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.component = 'anim';
 

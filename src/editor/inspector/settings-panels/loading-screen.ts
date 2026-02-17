@@ -46,7 +46,7 @@ const DOM = () => [
 ];
 
 class LoadingScreenSettingsPanel extends BaseSettingsPanel {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.headerText = 'LOADING SCREEN';
         args.attributes = ATTRIBUTES;

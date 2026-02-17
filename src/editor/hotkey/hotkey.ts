@@ -39,7 +39,7 @@ editor.once('load', () => {
     }
 
     // Register a new hotkey
-    editor.method('hotkey:register', (name, definition) => {
+    editor.method('hotkey:register', (name: string, definition: { key: string; ctrl?: boolean; shift?: boolean; alt?: boolean; callback?: (evt: KeyboardEvent) => void; skipPreventDefault?: boolean }) => {
         const normalized = normalizeHotkeyDefinition(definition);
         const id = getHotkeyId(normalized);
 
@@ -50,7 +50,7 @@ editor.once('load', () => {
     });
 
     // Unregister a hotkey
-    editor.method('hotkey:unregister', (name) => {
+    editor.method('hotkey:unregister', (name: string) => {
         for (const [id, bindings] of hotkeys) {
             if (bindings.delete(name) && bindings.size === 0) {
                 hotkeys.delete(id);
@@ -59,7 +59,7 @@ editor.once('load', () => {
     });
 
     // Update modifier state and emit events
-    function updateModifierState(evt) {
+    function updateModifierState(evt: KeyboardEvent | MouseEvent) {
         const newState = {
             ctrl: evt.ctrlKey || (isMac && evt.metaKey),
             shift: evt.shiftKey,
@@ -75,7 +75,7 @@ editor.once('load', () => {
     }
 
     // Handle keydown events
-    function handleKeydown(evt) {
+    function handleKeydown(evt: KeyboardEvent) {
         // Ignore if target is input/textarea without hotkeys class
         if (evt.target &&
             /^(?:input|textarea)$/i.test(evt.target.tagName) &&
@@ -119,7 +119,7 @@ editor.once('load', () => {
     window.addEventListener('keydown', handleKeydown, false);
 
     // Update modifier state on various events
-    ['keyup', 'mousedown', 'mouseup', 'click'].forEach((eventName) => {
+    ['keyup', 'mousedown', 'mouseup', 'click'].forEach((eventName: string) => {
         window.addEventListener(eventName, updateModifierState, false);
     });
 

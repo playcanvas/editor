@@ -28,7 +28,7 @@ const DOM = parent => [
 ];
 
 class ScriptAssetInspector extends Panel {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.headerText = 'SCRIPTS';
 

@@ -58,7 +58,7 @@ editor.once('load', () => {
     // search
     let lastSearch = '';
 
-    const branchNameValid = function (branchName) {
+    const branchNameValid = function (branchName: string) {
         if (lastSearch === '') {
             return true;
         }
@@ -68,7 +68,7 @@ editor.once('load', () => {
 
     const performSearch = function () {
         branchesSkip = null;
-        Object.values(branches).forEach((branch) => {
+        Object.values(branches).forEach((branch: { id: string; name?: string }) => {
             getBranchListItem(branch.id).hidden = !branchNameValid(branch.name);
         });
 
@@ -100,7 +100,7 @@ editor.once('load', () => {
 
     panelBranchesFilter.append(search);
 
-    search.on('change', (value) => {
+    search.on('change', (value: string) => {
         value = value.trim();
 
         if (lastSearch === value) {
@@ -145,7 +145,7 @@ editor.once('load', () => {
         text: 'LOAD MORE'
     });
     loadMoreListItem.element.append(btnLoadMoreBranches.element);
-    btnLoadMoreBranches.on('click', (e) => {
+    btnLoadMoreBranches.on('click', (e: MouseEvent) => {
         e.stopPropagation(); // do not select parent list item on click
         loadBranches();
     });
@@ -158,7 +158,7 @@ editor.once('load', () => {
     });
     panel.append(panelRight);
 
-    const showRightSidePanel = function (panel) {
+    const showRightSidePanel = function (panel: { hidden?: boolean } | null) {
         // hide all right side panels first
         let p = panelRight.innerElement.firstChild;
         while (p && p.ui) {
@@ -184,12 +184,12 @@ editor.once('load', () => {
         showRightSidePanel(panelCreateCheckpoint);
     });
 
-    panelCheckpoints.on('checkpoint:restore', (checkpoint) => {
+    panelCheckpoints.on('checkpoint:restore', (checkpoint: Record<string, unknown> | null) => {
         showRightSidePanel(panelRestoreCheckpoint);
         panelRestoreCheckpoint.setCheckpoint(checkpoint);
     });
 
-    panelCheckpoints.on('checkpoint:hardReset', (checkpoint) => {
+    panelCheckpoints.on('checkpoint:hardReset', (checkpoint: Record<string, unknown> | null) => {
         showRightSidePanel(panelHardResetCheckpoint);
         panelHardResetCheckpoint.setCheckpoint(checkpoint);
     });
@@ -318,7 +318,7 @@ editor.once('load', () => {
     panelCloseBranch.on('cancel', () => {
         showCheckpoints();
     });
-    panelCloseBranch.on('confirm', (data) => {
+    panelCloseBranch.on('confirm', (data: Record<string, unknown>) => {
         togglePanels(false);
 
         const close = function () {
@@ -772,7 +772,7 @@ editor.once('load', () => {
         panelCheckpoints.loadCheckpoints();
     };
 
-    const createBranchListItem = function (branch) {
+    const createBranchListItem = function (branch: { id: string; name?: string; closed?: boolean; latestCheckpointId?: string }) {
         const item = new LegacyListItem({
             allowDeselect: false
         });
@@ -886,19 +886,19 @@ editor.once('load', () => {
     };
 
     // Get the list item for a branch
-    const getBranchListItem = function (branchId) {
+    const getBranchListItem = function (branchId: string) {
         const item = document.getElementById(`branch-${branchId}`);
         return item && item.ui;
     };
 
-    const updateBranchFavorite = function (branchId) {
+    const updateBranchFavorite = function (branchId: string) {
         const item = getBranchListItem(branchId);
         if (item) {
             item.isFavorite = projectUserSettings.get('favoriteBranches').includes(item.branch.id);
         }
     };
 
-    function viewDiff(srcBranchId, srcCheckpointId, dstBranchId, dstCheckpointId, histItem, onShowDiffCallback) {
+    function viewDiff(srcBranchId: string, srcCheckpointId: string | null, dstBranchId: string, dstCheckpointId: string | null, histItem: unknown, onShowDiffCallback?: (diff: Record<string, unknown> | null) => void) {
         panelDiffCheckpoints.hidden = true;
         togglePanels(false);
         showRightSidePanel(panelGenerateDiffProgress);
@@ -909,7 +909,7 @@ editor.once('load', () => {
             dstBranchId: dstBranchId,
             dstCheckpointId: dstCheckpointId,
             histItem: histItem
-        }).then((diff) => {
+        }).then((diff: Record<string, unknown> | null) => {
             panelGenerateDiffProgress.finish();
 
             togglePanels(true);
@@ -933,7 +933,7 @@ editor.once('load', () => {
                     onShowDiffCallback(hasChanges);
                 }
             }
-        }).catch((err) => {
+        }).catch((err: unknown) => {
             panelGenerateDiffProgress.finish(err);
             togglePanels(true);
         });
@@ -945,7 +945,7 @@ editor.once('load', () => {
 
     function viewDiffFromCreateCheckpoint() {
         const branch = config.self.branch;
-        viewDiff(branch.id, null, branch.id, branch.latestCheckpointId, null, (shownDiff) => {
+        viewDiff(branch.id, null, branch.id, branch.latestCheckpointId, null, (shownDiff: Record<string, unknown> | null) => {
             // Only show the create new checkpoint panel on if we've shown a diff window
             if (shownDiff) {
                 showNewCheckpointOnLoad = true;
@@ -968,8 +968,8 @@ editor.once('load', () => {
             showCheckpoints();
         }
     });
-    panelCreateCheckpoint.on('confirm', (data) => {
-        createCheckpoint(config.self.branch.id, data.description, (checkpoint) => {
+    panelCreateCheckpoint.on('confirm', (data: { description: string }) => {
+        createCheckpoint(config.self.branch.id, data.description, (checkpoint: Record<string, unknown>) => {
             setTimeout(() => {
                 togglePanels(true);
 
@@ -986,7 +986,7 @@ editor.once('load', () => {
 
     // Create branch
     panelCreateBranch.on('cancel', showCheckpoints);
-    panelCreateBranch.on('confirm', (data) => {
+    panelCreateBranch.on('confirm', (data: Record<string, unknown>) => {
         togglePanels(false);
         showRightSidePanel(panelCreateBranchProgress);
 
@@ -1025,7 +1025,7 @@ editor.once('load', () => {
     });
 
     // show overlay when branch creation ended
-    events.push(editor.on('messenger:branch.createEnded', (data) => {
+    events.push(editor.on('messenger:branch.createEnded', (data: Record<string, unknown>) => {
         if (data.user_id !== config.self.id) {
             return;
         }
@@ -1089,7 +1089,7 @@ editor.once('load', () => {
             }
 
             // convert array to dict
-            branches = data.result.reduce((map, branch) => {
+            branches = data.result.reduce((map: Record<string, unknown>, branch: { id: string }) => {
                 map[branch.id] = branch;
                 return map;
             }, branches);
@@ -1097,7 +1097,7 @@ editor.once('load', () => {
             selected = selectedBranch;
 
             // create list items for each branch
-            data.result.forEach((branch) => {
+            data.result.forEach((branch: { id: string; name?: string }) => {
                 // skip the current branch as we've already
                 // created that first
                 if (branch.id !== config.self.branch.id) {
@@ -1151,19 +1151,19 @@ editor.once('load', () => {
         selectedBranch = null;
         loadBranches();
 
-        events.push(editor.on('permissions:writeState', (writeEnabled) => {
+        events.push(editor.on('permissions:writeState', (writeEnabled: boolean) => {
             // hide all dropdowns if we no longer have write access
-            panelBranches.innerElement.querySelectorAll('.dropdown').forEach((dropdown) => {
+            panelBranches.innerElement.querySelectorAll('.dropdown').forEach((dropdown: Element & { ui?: { hidden: boolean; branch?: { id: string } } }) => {
                 dropdown.ui.hidden = !writeEnabled || dropdown.ui.branch.id === config.self.branch.id;
             });
         }));
 
-        events.push(editor.on('messenger:checkpoint.createStarted', (data) => {
+        events.push(editor.on('messenger:checkpoint.createStarted', (data: Record<string, unknown>) => {
             currentCheckpointId = data.checkpoint_id;
         }));
 
         // when a checkpoint is created add it to the list
-        events.push(editor.on('messenger:checkpoint.createEnded', (data) => {
+        events.push(editor.on('messenger:checkpoint.createEnded', (data: Record<string, unknown>) => {
 
             if (currentCheckpointId === data.checkpoint_id) {
                 const err = data.status === 'error' ? data.message : null;
@@ -1201,7 +1201,7 @@ editor.once('load', () => {
         }));
 
         // when a branch is unfavorited remove it from the list and select the next one
-        events.push(projectUserSettings.on('favoriteBranches:remove', (branchId) => {
+        events.push(projectUserSettings.on('favoriteBranches:remove', (branchId: string) => {
             // only handle when viewing favorites and when branch isn't current branch
             if (fieldBranchesFilter.value !== 'favorite' || config.self.branch.id === branchId) {
                 return;
@@ -1233,7 +1233,7 @@ editor.once('load', () => {
             }
         }));
 
-        function removeBranchAndSelectNext(branchId, delay) {
+        function removeBranchAndSelectNext(branchId: string, delay: number) {
             const item = getBranchListItem(branchId);
             if (!item) {
                 return;
@@ -1266,7 +1266,7 @@ editor.once('load', () => {
         }
 
         // when a branch is closed remove it from the list and select the next one
-        events.push(editor.on('messenger:branch.close', (data) => {
+        events.push(editor.on('messenger:branch.close', (data: Record<string, unknown>) => {
             if (fieldBranchesFilter.value === 'closed') {
                 return;
             }
@@ -1282,7 +1282,7 @@ editor.once('load', () => {
         }));
 
         // when a branch is deleted remove it from the list and select the next one
-        events.push(editor.on('messenger:branch.delete', (data) => {
+        events.push(editor.on('messenger:branch.delete', (data: Record<string, unknown>) => {
             // if the progress panel is open it means we are the ones
             // deleting the branch (or some other branch..) - so wait a bit
             // so that we can show the progress end message before selecting another branch
@@ -1291,7 +1291,7 @@ editor.once('load', () => {
             removeBranchAndSelectNext(data.branch_id, delay);
         }));
 
-        events.push(editor.on('messenger:branch.open', (data) => {
+        events.push(editor.on('messenger:branch.open', (data: Record<string, unknown>) => {
             if (fieldBranchesFilter.value === 'open') {
                 return;
             }
@@ -1361,7 +1361,7 @@ editor.once('load', () => {
 
         showNewCheckpointOnLoad = false;
 
-        events.forEach((evt) => {
+        events.forEach((evt: { unbind: () => void }) => {
             evt.unbind();
         });
         events.length = 0;
@@ -1372,7 +1372,7 @@ editor.once('load', () => {
     });
 
     // Prevent viewport hovering when the picker is shown
-    editor.on('viewport:hover', (state) => {
+    editor.on('viewport:hover', (state: boolean) => {
         if (state && !panel.hidden) {
             setTimeout(() => {
                 editor.emit('viewport:hover', false);
@@ -1385,7 +1385,7 @@ editor.once('load', () => {
         editor.call('picker:project', 'version control');
     });
 
-    editor.method('picker:versioncontrol:transformCheckpointData', (data) => {
+    editor.method('picker:versioncontrol:transformCheckpointData', (data: Record<string, unknown>) => {
         return {
             id: data.checkpoint_id,
             user: {

@@ -31,7 +31,7 @@ editor.once('load', () => {
             return TemplateUtils.SCRIPT_NAME_REG;
         },
 
-        isIgnoreRootOverride: function (path) {
+        isIgnoreRootOverride: function (path: string): boolean {
             return IGNORE_ROOT_PATHS_FOR_OVERRIDES[path];
         },
 
@@ -39,7 +39,7 @@ editor.once('load', () => {
             return IGNORE_ROOT_PATHS_FOR_REVERT;
         },
 
-        makeInstanceData: function (ents, idToTemplEntId) {
+        makeInstanceData: function (ents: Record<string, Record<string, unknown>>, idToTemplEntId: Record<string, string>): Record<string, unknown> {
             const h = {
                 entIdToEntity: ents,
 
@@ -55,7 +55,7 @@ editor.once('load', () => {
             return h;
         },
 
-        updateIdMaps: function (h, instEnt, idToTemplEntId) {
+        updateIdMaps: function (h: Record<string, unknown>, instEnt: Record<string, unknown>, idToTemplEntId: Record<string, string>): void {
             const instId = instEnt.resource_id;
 
             const templId = idToTemplEntId[instId] || instId;
@@ -65,7 +65,7 @@ editor.once('load', () => {
             h.templIdToEntId[templId] = instId;
         },
 
-        makeIdToIdMap: function (orig) {
+        makeIdToIdMap: function (orig: Record<string, unknown>): Record<string, string> {
             const h = {};
 
             const a = Object.keys(orig);
@@ -77,11 +77,11 @@ editor.once('load', () => {
             return h;
         },
 
-        getOtherType: function (type1) {
+        getOtherType: function (type1: string): string {
             return type1 === 'src' ? 'dst' : 'src';
         },
 
-        getNodeAtPath(node, path) {
+        getNodeAtPath(node: unknown, path: string[]): unknown {
             path.forEach((k) => {
                 const useKey = TemplateUtils.isMapObj(node) ||
                     TemplateUtils.isArIndex(node, k);
@@ -96,13 +96,13 @@ editor.once('load', () => {
             return node;
         },
 
-        getParentAtPath: function (node, path) {
+        getParentAtPath: function (node: unknown, path: string[]): unknown {
             path = path.slice(0, path.length - 1);
 
             return TemplateUtils.getNodeAtPath(node, path);
         },
 
-        insertAtPath: function (node, path, val) {
+        insertAtPath: function (node: Record<string, unknown>, path: string[], val: unknown): void {
             const lastIndex = path.length - 1;
 
             const lastKey = path[lastIndex];
@@ -118,12 +118,12 @@ editor.once('load', () => {
             node[lastKey] = val;
         },
 
-        isArIndex: function (node, k) {
+        isArIndex: function (node: unknown, k: string): boolean {
             return Array.isArray(node) &&
                 TemplateUtils.ALL_DIGITS_REG.test(k);
         },
 
-        isMapObj: function (obj) {
+        isMapObj: function (obj: unknown): boolean {
             const isObj = typeof obj === 'object';
 
             const isNull = obj === null;
@@ -131,15 +131,15 @@ editor.once('load', () => {
             return isObj && !isNull && !Array.isArray(obj);
         },
 
-        pathToStr: function (path) {
+        pathToStr: function (path: string[]): string {
             return path.join('.');
         },
 
-        strToPath: function (s) {
+        strToPath: function (s: string): string[] {
             return s.split('.');
         },
 
-        setEntReferenceIfNeeded: function (conflict, scriptAttrs) {
+        setEntReferenceIfNeeded: function (conflict: Record<string, unknown>, scriptAttrs: Record<string, unknown>): void {
             const entity = TemplateUtils.makeTmpEntity(conflict, 'src_value');
 
             const entPaths = editor.call(
@@ -151,16 +151,16 @@ editor.once('load', () => {
             conflict.entity_ref_paths = entPaths.length && entPaths;
         },
 
-        isValidEntRef: function (v) {
+        isValidEntRef: function (v: unknown): boolean {
             return TemplateUtils.isSimpleValidEntRef(v) ||
                 (Array.isArray(v) && v.every(TemplateUtils.isSimpleValidEntRef));
         },
 
-        isSimpleValidEntRef: function (v) {
+        isSimpleValidEntRef: function (v: unknown): boolean {
             return v === null || v === undefined || typeof v === 'string';
         },
 
-        makeTmpEntity: function (conflict, field) {
+        makeTmpEntity: function (conflict: Record<string, unknown>, field: string): Record<string, unknown> {
             const entity = {
                 components: {}
             };
@@ -172,7 +172,7 @@ editor.once('load', () => {
             return entity;
         },
 
-        getAllEntitiesInSubtree: function (entity, result) {
+        getAllEntitiesInSubtree: function (entity: { get: (key: string) => unknown }, result: { get: (key: string) => unknown }[]): void {
             result.push(entity);
 
             const children = TemplateUtils.getChildEntities(entity);
@@ -182,7 +182,7 @@ editor.once('load', () => {
             return result;
         },
 
-        getChildEntities: function (entity) {
+        getChildEntities: function (entity: { get: (key: string) => unknown }): { get: (key: string) => unknown }[] {
             const ids = entity.get('children');
 
             return ids.map((id) => {
@@ -190,7 +190,7 @@ editor.once('load', () => {
             });
         },
 
-        remapEntAtPath: function (h, path, srcToDst) {
+        remapEntAtPath: function (h: Record<string, unknown>, path: string[], srcToDst: Record<string, string>): void {
             const v1 = TemplateUtils.getNodeAtPath(h, path);
 
             if (v1) {
@@ -200,21 +200,21 @@ editor.once('load', () => {
             }
         },
 
-        remapEntVal: function (v, srcToDst) {
+        remapEntVal: function (v: unknown, srcToDst: Record<string, string>): unknown {
             return Array.isArray(v) ?
                 TemplateUtils.remapEntArray(v, srcToDst) :
                 TemplateUtils.remapEntStr(v, srcToDst);
         },
 
-        remapEntArray: function (a, srcToDst) {
+        remapEntArray: function (a: unknown[], srcToDst: Record<string, string>): unknown[] {
             return a.map(v => TemplateUtils.remapEntStr(v, srcToDst));
         },
 
-        remapEntStr: function (v, srcToDst) {
+        remapEntStr: function (v: string, srcToDst: Record<string, string>): string | null {
             return srcToDst[v] || null;
         },
 
-        remapOrAssignKeys: function (h1, srcToDst) {
+        remapOrAssignKeys: function (h1: Record<string, unknown>, srcToDst: Record<string, string>): Record<string, unknown> {
             const h2 = {};
 
             const a = Object.keys(h1);
@@ -228,7 +228,7 @@ editor.once('load', () => {
             return h2;
         },
 
-        entArrayToMap: function (ents) {
+        entArrayToMap: function (ents: Record<string, unknown>[]): Record<string, unknown> {
             const h = {};
 
             ents.forEach((e) => {
@@ -238,7 +238,7 @@ editor.once('load', () => {
             return h;
         },
 
-        strArrayToMap: function (a) {
+        strArrayToMap: function (a: string[]): Record<string, number> {
             const h = {};
 
             a.forEach((s) => {
@@ -248,7 +248,7 @@ editor.once('load', () => {
             return h;
         },
 
-        isPathInSchema: function (path, method) {
+        isPathInSchema: function (path: string[], method: string): boolean {
             path = path.slice(0, TemplateUtils.MAX_SCHEMA_QRY_PATH_LENGTH);
 
             const s = TemplateUtils.pathToStr(path);
@@ -258,11 +258,11 @@ editor.once('load', () => {
             return m === method;
         },
 
-        deepClone: function (obj) {
+        deepClone: function (obj: unknown): unknown {
             return JSON.parse(JSON.stringify(obj));
         },
 
-        cloneWithId: function (ent, id) {
+        cloneWithId: function (ent: Record<string, unknown>, id: string): Record<string, unknown> {
             const h = TemplateUtils.deepClone(ent);
 
             h.resource_id = id;
@@ -270,7 +270,7 @@ editor.once('load', () => {
             return h;
         },
 
-        invertMap: function (h1) {
+        invertMap: function (h1: Record<string, string>): Record<string, string> {
             const h2 = {};
 
             Object.keys(h1).forEach((k) => {
@@ -282,23 +282,23 @@ editor.once('load', () => {
             return h2;
         },
 
-        rmFalsey: function (a) {
+        rmFalsey: function (a: unknown[]): unknown[] {
             return a.filter(v => v);
         },
 
-        selectPresentInSecond: function (a1, a2) {
+        selectPresentInSecond: function (a1: string[], a2: string[]): string[] {
             const h = TemplateUtils.strArrayToMap(a2);
 
             return a1.filter(s => h[s]);
         },
 
-        matchFromRegex: function (s, r) {
+        matchFromRegex: function (s: string, r: RegExp): string | null {
             const match = r.exec(s);
 
             return match ? match[1] : match;
         },
 
-        markAddRmScriptConflicts: function (overrides) {
+        markAddRmScriptConflicts: function (overrides: Record<string, unknown>): void {
             overrides.conflicts.forEach(TemplateUtils.setScriptName);
 
             const a = overrides.conflicts.filter(h => h.script_name);
@@ -315,7 +315,7 @@ editor.once('load', () => {
             });
         },
 
-        setScriptName: function (h) {
+        setScriptName: function (h: Record<string, unknown>): void {
             const s = TemplateUtils.matchFromRegex(h.path, TemplateUtils.getScriptNameReg());
 
             if (s) {
@@ -323,7 +323,7 @@ editor.once('load', () => {
             }
         },
 
-        addScriptIndex(h, overrides) {
+        addScriptIndex(h: Record<string, unknown>, overrides: Record<string, unknown>): void {
             const dstId = overrides.srcToDst[h.resource_id];
 
             const ent = overrides.typeToInstData.dst.entIdToEntity[dstId];
@@ -344,7 +344,7 @@ editor.once('load', () => {
             JSON_ARRAY_ATTR_PROPERTY: 7
         },
 
-        isJsonMapNode: function (data) {
+        isJsonMapNode: function (data: Record<string, unknown>): boolean {
             return AttrUtils.checkScriptAttr(data, { needMaps: true });
         },
 
@@ -395,15 +395,15 @@ editor.once('load', () => {
                 attrObj.schema;
         },
 
-        isArrayAttr: function (h) {
+        isArrayAttr: function (h: Record<string, unknown>): boolean {
             return h.array === true;
         },
 
-        arrayToIndexStrs: function (a) {
+        arrayToIndexStrs: function (a: unknown[]): string[] {
             return a.map((elt, ind) => ind.toString());
         },
 
-        objIntKeys: function (h) {
+        objIntKeys: function (h: unknown): string[] | false {
             const a = TemplateUtils.isMapObj(h) && Object.keys(h);
 
             const allDigits = a && a.every(s => TemplateUtils.ALL_DIGITS_REG.test(s));
@@ -411,7 +411,7 @@ editor.once('load', () => {
             return allDigits && a;
         },
 
-        addAllJsonEntPaths: function (dst, attrObj, pref, attrInEnt) {
+        addAllJsonEntPaths: function (dst: string[][], attrObj: Record<string, unknown>, pref: string[], attrInEnt: unknown): void {
             const names = AttrUtils.allJsonEntNames(attrObj.schema);
 
             const inds = AttrUtils.arrayIndsFromAttr(attrInEnt);
@@ -423,18 +423,18 @@ editor.once('load', () => {
             }
         },
 
-        arrayIndsFromAttr: function (attrInEnt) {
+        arrayIndsFromAttr: function (attrInEnt: unknown): string[] | undefined {
             return (Array.isArray(attrInEnt) && AttrUtils.arrayToIndexStrs(attrInEnt)) ||
                 AttrUtils.objIntKeys(attrInEnt);
         },
 
-        addPathsForJsonAr: function (dst, names, pref, inds) {
+        addPathsForJsonAr: function (dst: string[][], names: string[], pref: string[], inds: string[]): void {
             inds.forEach((i) => {
                 AttrUtils.addEntNamePaths(dst, names, pref, i);
             });
         },
 
-        addEntNamePaths: function (dst, names, pref, index) {
+        addEntNamePaths: function (dst: string[][], names: string[], pref: string[], index: string | null): void {
             names.forEach((n) => {
                 const a = index === null ? [n] : [index, n];
 
@@ -444,13 +444,13 @@ editor.once('load', () => {
             });
         },
 
-        allJsonEntNames: function (schema) {
+        allJsonEntNames: function (schema: Record<string, unknown>[]): string[] {
             const a = schema.filter(h => h.type === 'entity');
 
             return a.map(h => h.name);
         },
 
-        valsEqualAfterRemap: function (h, srcToDst, scriptAttrs) {
+        valsEqualAfterRemap: function (h: Record<string, unknown>, srcToDst: Record<string, string>, scriptAttrs: Record<string, unknown>): boolean {
             let srcEnt = TemplateUtils.makeTmpEntity(h, 'src_value');
 
             srcEnt = TemplateUtils.deepClone(srcEnt);
@@ -467,7 +467,7 @@ editor.once('load', () => {
             return editor.call('assets:isDeepEqual', srcEnt, dstEnt);
         },
 
-        remapDstForRevert: function (h) { // conflict
+        remapDstForRevert: function (h: Record<string, unknown>): unknown { // conflict
             const dstToSrc = TemplateUtils.invertMap(h.srcToDst);
 
             let dstEnt = TemplateUtils.makeTmpEntity(h, 'dst_value');
@@ -483,13 +483,13 @@ editor.once('load', () => {
             return TemplateUtils.getNodeAtPath(dstEnt, path);
         },
 
-        remapNestedIdMap: function (override) {
+        remapNestedIdMap: function (override: Record<string, unknown>): Record<string, string> {
             const dstToSrc = TemplateUtils.invertMap(override.srcToDst);
 
             return TemplateUtils.remapOrAssignKeys(override.idMapInAsset, dstToSrc);
         },
 
-        insideArrayAtMissingIndex: function (data) {
+        insideArrayAtMissingIndex: function (data: Record<string, unknown>): boolean {
             const p1 = data.parent1;
 
             const p2 = data.parent2;
@@ -501,23 +501,23 @@ editor.once('load', () => {
                 AttrUtils.indexOutOfBounds(i, p1.length, p2.length);
         },
 
-        lastArrayElt: function (a) {
+        lastArrayElt: function (a: string[]): string {
             return a[a.length - 1];
         },
 
-        indexOutOfBounds: function (i, len1, len2) {
+        indexOutOfBounds: function (i: number, len1: number, len2: number): boolean {
             const lastInd = Math.min(len1, len2) - 1;
 
             return i > lastInd;
         },
 
-        conflictFieldsForAttr: function (data) {
+        conflictFieldsForAttr: function (data: Record<string, unknown>): Record<string, unknown> {
             const h = AttrUtils.findAttrObj(data);
 
             return h ? AttrUtils.makeAttrFields(h, data.path) : {};
         },
 
-        makeAttrFields: function (attrObj, path) {
+        makeAttrFields: function (attrObj: Record<string, unknown>, path: string[]): Record<string, unknown> {
             const h = {};
 
             ['src', 'dst'].forEach((type) => {
@@ -529,7 +529,7 @@ editor.once('load', () => {
             return h;
         },
 
-        attrToTypeStr: function (attrObj, path) {
+        attrToTypeStr: function (attrObj: Record<string, unknown>, path: string[]): string {
             const h = AttrUtils.jsonAttrPropertyData(attrObj, path) || attrObj;
 
             const pref = AttrUtils.isArrayAttr(h) ? 'array:' : '';
@@ -537,18 +537,18 @@ editor.once('load', () => {
             return pref + h.type;
         },
 
-        areBothNodesMapObjs: function (data) {
+        areBothNodesMapObjs: function (data: Record<string, unknown>): boolean {
             return TemplateUtils.isMapObj(data.node1) &&
                 TemplateUtils.isMapObj(data.node2);
         },
 
-        areBothNodesArs: function (data) {
+        areBothNodesArs: function (data: Record<string, unknown>): boolean {
             return Array.isArray(data.node1) &&
                 Array.isArray(data.node2);
         }
     };
 
-    editor.method('utils:callMethod', (klass, args) => {
+    editor.method('utils:callMethod', (klass: Record<string, (...args: unknown[]) => unknown>, args: unknown[]) => {
         const method = args[0];
 
         const rest = args.slice(1);

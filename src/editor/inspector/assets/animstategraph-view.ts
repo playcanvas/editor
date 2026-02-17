@@ -1,3 +1,4 @@
+import type { Observer } from '@playcanvas/observer';
 import { default as PCUIGraph } from '@playcanvas/pcui-graph';
 import { ANIM_INTERRUPTION_NONE } from 'playcanvas';
 
@@ -34,14 +35,14 @@ const ANIM_SCHEMA = {
     }
 };
 
-const updateNodeHeaderText = (attributes, nodeId, asset) => {
+const updateNodeHeaderText = (attributes: Record<string, unknown>, nodeId: number, asset: Observer) => {
     if (AnimstategraphState.validateStateName(nodeId, attributes.name, asset)) {
         return attributes.name;
     }
     return null;
 };
 
-const animSchema = asset => ({
+const animSchema = (asset: Observer) => ({
     nodes: {
         [ANIM_SCHEMA.NODE.STATE]: {
             name: 'state',
@@ -49,7 +50,7 @@ const animSchema = asset => ({
             stroke: '#20292b',
             icon: '',
             iconColor: '#FFFFFF',
-            headerTextFormatter: (attributes, nodeId) => updateNodeHeaderText(attributes, nodeId, asset),
+            headerTextFormatter: (attributes: Record<string, unknown>, nodeId: number) => updateNodeHeaderText(attributes, nodeId, asset),
             contextMenuItems: [
                 {
                     text: 'Add transition',
@@ -82,7 +83,7 @@ const animSchema = asset => ({
             stroke: '#20292b',
             icon: '',
             iconColor: '#FFFFFF',
-            headerTextFormatter: (attributes, nodeId) => updateNodeHeaderText(attributes, nodeId, asset),
+            headerTextFormatter: (attributes: Record<string, unknown>, nodeId: number) => updateNodeHeaderText(attributes, nodeId, asset),
             contextMenuItems: [
                 {
                     text: 'Add transition',
@@ -199,7 +200,7 @@ const animContextMenuItems = [
 ];
 
 class AnimstategraphView {
-    constructor(parent, args) {
+    constructor(parent: { closeAsset: (asset: Observer) => void; readOnly?: boolean; _stateContainer?: { _stateName?: string; unlink: () => void }; _transitionsContainer?: { _edge?: string; unlink: () => void } }, args: Record<string, unknown>) {
         this._parent = parent;
         this._args = args;
         this._assets = null;
@@ -227,7 +228,7 @@ class AnimstategraphView {
         return this._graph.selectedItem;
     }
 
-    selectItem(item) {
+    selectItem(item: { type: string; id?: number; edgeId?: number }) {
         switch (item.type) {
             case 'NODE': {
                 const node = this._assets[0].get(`data.states.${item.id}`);
@@ -279,7 +280,7 @@ class AnimstategraphView {
         }
     }
 
-    _generateGraphData(layer) {
+    _generateGraphData(layer: number) {
         const historyEnabled = this._assets[0].history.enabled;
         this._assets[0].history.enabled = false;
         const data = this._assets[0].get('data');
@@ -452,7 +453,7 @@ class AnimstategraphView {
         return graphData;
     }
 
-    _handleIncomingUpdates(path, newValue, oldValue) {
+    _handleIncomingUpdates(path: string, newValue: Record<string, unknown>, oldValue: Record<string, unknown>) {
         if (!this._suppressGraphDataEvents) {
             if (path === 'data') {
                 const updates = diff(oldValue, newValue);
@@ -570,7 +571,7 @@ class AnimstategraphView {
         }
     }
 
-    _suppressGraphEvents(func) {
+    _suppressGraphEvents(func: () => void) {
         this._suppressGraphDataEvents = true;
         func();
         this._suppressGraphDataEvents = false;
@@ -612,14 +613,14 @@ class AnimstategraphView {
         }
     }
 
-    _onUpdateNodePosition({ node }) {
+    _onUpdateNodePosition({ node }: { node: Record<string, unknown> }) {
         const state = this._assets[0].get(`data.states.${node.id}`);
         state.posX = node.posX;
         state.posY = node.posY;
         this._assets[0].set(`data.states.${node.id}`, state);
     }
 
-    _onUpdateNodeAttribute({ node, attribute }) {
+    _onUpdateNodeAttribute({ node, attribute }: { node: Record<string, unknown>; attribute: string }) {
         const state = this._assets[0].get(`data.states.${node.id}`);
         if (attribute === 'name') {
             if (!AnimstategraphState.validateStateName(node.id, node.attributes.name, this._assets[0])) {
@@ -665,7 +666,7 @@ class AnimstategraphView {
         this._assets[0].set(`data.states.${node.id}`, state);
     }
 
-    _onAddEdge({ edge, edgeId }) {
+    _onAddEdge({ edge, edgeId }: { edge: Record<string, unknown>; edgeId: string }) {
         edgeId = Number(edgeId);
         const data = this._assets[0].get('data');
         if (!data.layers[this._selectedLayer].transitions.includes(edgeId)) {
@@ -678,7 +679,7 @@ class AnimstategraphView {
         this._assets[0].set('data', data);
     }
 
-    _onDeleteEdge({ edgeId }) {
+    _onDeleteEdge({ edgeId }: { edgeId: string }) {
         edgeId = Number(edgeId);
         const data = this._assets[0].get('data');
 
@@ -689,7 +690,7 @@ class AnimstategraphView {
         this._assets[0].set('data', data);
     }
 
-    _onSelectNode({ node }) {
+    _onSelectNode({ node }: { node: Record<string, unknown> }) {
         if (!node) {
             return;
         }
@@ -699,7 +700,7 @@ class AnimstategraphView {
         this._parent._stateContainer.hidden = false;
     }
 
-    onSelectEdge({ edge }) {
+    onSelectEdge({ edge }: { edge: Record<string, unknown> }) {
         this._parent._stateContainer.unlink();
         this._parent._stateContainer.hidden = true;
         this._parent._transitionsContainer.link(this._assets, this._selectedLayer, edge);
@@ -713,7 +714,7 @@ class AnimstategraphView {
         this._parent._transitionsContainer.hidden = true;
     }
 
-    selectEdgeEvent(edge, edgeId) {
+    selectEdgeEvent(edge: Record<string, unknown>, edgeId: string) {
         if (this._suppressGraphDataEvents) {
             return;
         }
@@ -736,7 +737,7 @@ class AnimstategraphView {
         this.onSelectEdge({ edge });
     }
 
-    link(assets, layer) {
+    link(assets: Observer[], layer: number) {
         this.unlink();
         this._assets = assets;
         this._selectedLayer = layer;
@@ -864,7 +865,7 @@ class AnimstategraphView {
             return graphSettings;
         };
 
-        const updateGraphSettings = (graphSettings) => {
+        const updateGraphSettings = (graphSettings: Record<string, unknown>) => {
             sessionStorage.setItem(`graph-${this._assets[0].get('id')}-${this._selectedLayer}`, JSON.stringify(graphSettings));
         };
 

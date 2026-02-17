@@ -52,7 +52,7 @@ editor.once('load', () => {
         editor.call('viewport:render');
     };
 
-    const onHover = function (entity, meshInstance) {
+    const onHover = function (entity: import('playcanvas').Entity | null, meshInstance: import('playcanvas').MeshInstance | null): void {
         if (entity === hoverEntity && meshInstance === hoverMeshInstance) {
             return;
         }
@@ -108,7 +108,7 @@ editor.once('load', () => {
         }
     };
 
-    const onPick = function (node, picked) {
+    const onPick = function (node: import('playcanvas').Entity | null, picked: import('playcanvas').MeshInstance | unknown): void {
         let meshInstance = null;
 
         if (node && node._icon) {
@@ -131,7 +131,7 @@ editor.once('load', () => {
         }
     };
 
-    editor.on('viewport:pick:hover', (node, picked) => {
+    editor.on('viewport:pick:hover', (node: import('playcanvas').Entity | null, picked: import('playcanvas').MeshInstance | null) => {
         hoverNode = node;
         hoverPicked = picked;
 
@@ -144,7 +144,7 @@ editor.once('load', () => {
         ref: canvas,
         type: 'asset.material',
         hole: true,
-        drop: function (type, data) {
+        drop: function (type: string, data: { id: string }) {
             if (!config.scene.id) {
                 return;
             }
@@ -363,7 +363,7 @@ editor.once('load', () => {
                 });
             }
         },
-        over: function (type, data) {
+        over: function (type: string, data: { id: string }) {
             if (!config.scene.id) {
                 return;
             }
@@ -382,7 +382,7 @@ editor.once('load', () => {
 
             onPick(hoverNode, hoverPicked);
         },
-        leave: function () {
+        leave: function (): void {
             if (!config.scene.id) {
                 return;
             }

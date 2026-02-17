@@ -3,7 +3,7 @@ import { Element } from '@playcanvas/pcui';
 const CLASS_ROOT = 'pcui-bubble';
 
 class Bubble extends Element {
-    constructor(args = {}) {
+    constructor(args: any = {}) {
         super(args);
 
         this.class.add(CLASS_ROOT);

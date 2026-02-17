@@ -63,7 +63,7 @@ const ATTRIBUTES: Attribute[] = [{
     }
 }];
 class ScreenComponentInspector extends ComponentInspector {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.component = 'screen';
 

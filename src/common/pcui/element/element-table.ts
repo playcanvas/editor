@@ -186,7 +186,7 @@ class Table extends Container {
                 header: true
             });
 
-            this._columns.forEach((column, colIndex) => {
+            this._columns.forEach((column: TableColumn, colIndex: number) => {
                 const cell = new TableCell({
                     header: true
                 });
@@ -229,13 +229,13 @@ class Table extends Container {
 
         this._sortObservers();
 
-        this._observers.forEach((observer) => {
+        this._observers.forEach((observer: Observer) => {
             const row = this._createRow(observer);
             this.body.append(row);
         });
     }
 
-    _createRow(observer) {
+    _createRow(observer: Observer) {
         const row = this._createRowFn(observer);
         row.table = this;
         row.on('click', evt => this._onRowClick(evt, row));
@@ -246,7 +246,7 @@ class Table extends Container {
 
         row.dom.addEventListener('keydown', this._onRowKeyDownHandler);
 
-        row.on('destroy', (dom) => {
+        row.on('destroy', (dom: HTMLElement) => {
             const idx = this._selectedRows.indexOf(row);
             if (idx !== -1) {
                 this._selectedRows.splice(idx, 1);
@@ -261,7 +261,7 @@ class Table extends Container {
         return row;
     }
 
-    _onRowClick(evt, row) {
+    _onRowClick(evt: MouseEvent, row: any) {
         if (evt.ctrlKey || evt.metaKey)  {
             // toggle selection
             row.selected = !row.selected;
@@ -306,7 +306,7 @@ class Table extends Container {
             let othersSelected = false;
 
             // deselect others
-            this._containerBody.forEachChild((otherRow) => {
+            this._containerBody.forEachChild((otherRow: any) => {
                 const tableRow = otherRow as TableRow;
                 if (tableRow !== row && tableRow.selected) {
                     tableRow.selected = false;
@@ -322,12 +322,12 @@ class Table extends Container {
         }
     }
 
-    _onRowSelect(row) {
+    _onRowSelect(row: any) {
         this._selectedRows.push(row);
         this.emit('select', row);
     }
 
-    _onRowDeselect(row) {
+    _onRowDeselect(row: any) {
         const idx = this._selectedRows.indexOf(row);
         if (idx !== -1) {
             this._selectedRows.splice(idx, 1);
@@ -336,22 +336,22 @@ class Table extends Container {
         this.emit('deselect', row);
     }
 
-    _onRowFocus(row) {
+    _onRowFocus(row: any) {
         this._lastRowFocused = row;
     }
 
-    _onRowBlur(row) {
+    _onRowBlur(row: any) {
         if (this._lastRowFocused === row) {
             this._lastRowFocused = null;
         }
     }
 
-    _onRowKeyDown(evt) {
+    _onRowKeyDown(evt: KeyboardEvent) {
         if (!this._selectedRows.length) {
             return;
         }
 
-        if (evt.target.tagName.toLowerCase() === 'input') {
+        if ((evt.target as HTMLElement).tagName?.toLowerCase() === 'input') {
             return;
         }
 
@@ -372,7 +372,7 @@ class Table extends Container {
 
         if (!evt.ctrlKey && !evt.metaKey && !evt.shiftKey) {
             // deselect others
-            this._containerBody.forEachChild((otherRow) => {
+            this._containerBody.forEachChild((otherRow: any) => {
                 if (otherRow !== next) {
                     (otherRow as TableRow).selected = false;
                 }
@@ -384,7 +384,7 @@ class Table extends Container {
 
     // prevent scroll wheel while resizing
     // to avoid showing our 'clever' hacks
-    _onWheelWhileResizing(evt) {
+    _onWheelWhileResizing(evt: WheelEvent) {
         evt.preventDefault();
         evt.stopPropagation();
     }
@@ -393,7 +393,7 @@ class Table extends Container {
     // specified column index for the specified TableRow container
     // The function has a signature of (Element) => {}
     _forEachColumnCell(container: Container, columnIndex: number, fn: (cell: TableCell) => void) {
-        container.forEachChild((row) => {
+        container.forEachChild((row: any) => {
             if (row instanceof TableRow) {
                 let index = columnIndex + 1;
                 for (let i = 0; i < row.dom.childNodes.length; i++) {
@@ -414,11 +414,11 @@ class Table extends Container {
     // Executes specified function for each cell in the
     // specified row index for the specified TableRow container
     // The function has a signature of (Element, cellIndex) => {}
-    _forEachRowCell(container, rowIndex, fn) {
+    _forEachRowCell(container: any, rowIndex: number, fn: (cell: any, index: number) => void) {
         const row = container.dom.childNodes[rowIndex];
         if (row.ui instanceof TableRow) {
             let index = -1;
-            row.childNodes.forEach((child) => {
+            row.childNodes.forEach((child: any) => {
                 if (child.ui instanceof TableCell) {
                     index++;
                     fn(child.ui, index);
@@ -429,7 +429,7 @@ class Table extends Container {
 
     // Set the current width of each column to its style.width property
     _freezeColumnWidth() {
-        this._forEachRowCell(this._containerHead, 0, (cell, columnIndex) => {
+        this._forEachRowCell(this._containerHead, 0, (cell: any, columnIndex: number) => {
             const width = cell.width; // get current numeric width
             cell.width = width; // set width to style.width
             this._columns[columnIndex].width = cell.width; // fetch real width again and store it
@@ -491,7 +491,7 @@ class Table extends Container {
                 // should not see any movement or changes to the scrollview that way.
                 this.body.style.setProperty(CSS_PROPERTY_HEIGHT_BEFORE, `${beforeHeight}px`);
                 this.body.style.setProperty(CSS_PROPERTY_HEIGHT_AFTER, `${afterHeight}px`);
-                visible.forEach(dom => dom.classList.add(CLASS_RESIZING_VISIBLE));
+                visible.forEach((dom: HTMLElement) => dom.classList.add(CLASS_RESIZING_VISIBLE));
                 this.dom.scrollTop = scrollTop;
             });
         }
@@ -501,13 +501,13 @@ class Table extends Container {
     _restoreRowsOutOfView() {
         this.body.style.removeProperty(CSS_PROPERTY_HEIGHT_BEFORE);
         this.body.style.removeProperty(CSS_PROPERTY_HEIGHT_AFTER);
-        this._resizingVisibleRows.forEach(dom => dom.classList.remove(CLASS_RESIZING_VISIBLE));
+        this._resizingVisibleRows.forEach((dom: HTMLElement) => dom.classList.remove(CLASS_RESIZING_VISIBLE));
         this._resizingVisibleRows.length = 0;
         this.dom.scrollTop = this._prevScrollTop;
     }
 
     // Adds handle to resize column
-    _addResizeHandle(cell, colIndex) {
+    _addResizeHandle(cell: any, colIndex: number) {
         // add resize handle
         const handle = new Element({
             class: CLASS_CELL_HANDLE
@@ -516,7 +516,7 @@ class Table extends Container {
 
         handle.on('hover', () => {
             if (this._draggedColumn === null) {
-                this._forEachColumnCell(this._containerHead, colIndex, (cell) => {
+                this._forEachColumnCell(this._containerHead, colIndex, (cell: any) => {
                     cell.class.add(CLASS_CELL_ACTIVE);
                 });
             }
@@ -524,7 +524,7 @@ class Table extends Container {
 
         handle.on('hoverend', () => {
             if (this._draggedColumn === null) {
-                this._forEachColumnCell(this._containerHead, colIndex, (cell) => {
+                this._forEachColumnCell(this._containerHead, colIndex, (cell: any) => {
                     cell.class.remove(CLASS_CELL_ACTIVE);
                 });
             }
@@ -533,7 +533,7 @@ class Table extends Container {
         let pageX;
         let width;
 
-        const onMouseUp = (evt) => {
+        const onMouseUp = (evt: MouseEvent) => {
             if (evt.button !== 0) {
                 return;
             }
@@ -544,7 +544,7 @@ class Table extends Container {
             cleanUp();
         };
 
-        const onMouseMove = (evt) => {
+        const onMouseMove = (evt: MouseEvent) => {
             evt.stopPropagation();
 
             const column = this._columns[colIndex];
@@ -553,7 +553,7 @@ class Table extends Container {
             cell.width = newWidth;
         };
 
-        const onMouseDown = (evt) => {
+        const onMouseDown = (evt: MouseEvent) => {
             if (evt.button !== 0) {
                 return;
             }
@@ -597,7 +597,7 @@ class Table extends Container {
             }
 
             this.class.remove(CLASS_RESIZING);
-            this._forEachColumnCell(this._containerHead, colIndex, (cell) => {
+            this._forEachColumnCell(this._containerHead, colIndex, (cell: any) => {
                 cell.class.remove(CLASS_CELL_ACTIVE);
             });
 
@@ -613,7 +613,7 @@ class Table extends Container {
 
         handle.dom.addEventListener('mousedown', onMouseDown, true);
 
-        handle.on('destroy', (dom) => {
+        handle.on('destroy', (dom: HTMLElement) => {
             dom.removeEventListener('mousedown', onMouseDown, true);
             cleanUp();
         });
@@ -623,12 +623,12 @@ class Table extends Container {
         const observers = this._observers;
         // sort.fn is provided sort with that
         if (this._sort.fn) {
-            observers.sort((a, b) => {
+            observers.sort((a: Observer, b: Observer) => {
                 return this._sort.fn(a, b, this._sort.ascending);
             });
         } else if (this._sort.key) {
             // if sort.key provided sort with that
-            observers.sort((a, b) => {
+            observers.sort((a: Observer, b: Observer) => {
                 let result = 0;
                 if (!a.has(this._sort.key)) {
                     if (b.has(this._sort.key)) {
@@ -736,7 +736,7 @@ class Table extends Container {
         }
     }
 
-    link(observers) {
+    link(observers: Observer[] | null) {
         this.unlink();
 
         this._observers = observers;
@@ -879,7 +879,7 @@ class Table extends Container {
 
         if (this._getRowFn && this._observers) {
             const colIndex = this._columns.indexOf(column);
-            this._forEachRowCell(this._containerHead, 0, (cell, index) => {
+            this._forEachRowCell(this._containerHead, 0, (cell: any, index: number) => {
                 if (index === colIndex) {
                     cell.class.add(CLASS_SORT_CELL);
                     if (!this._sort.ascending) {
@@ -896,7 +896,7 @@ class Table extends Container {
             requestAnimationFrame(() => {
                 this._sortObservers();
 
-                this._observers.forEach((observer, index) => {
+                this._observers.forEach((observer: Observer, index: number) => {
                     const row = this._getRowFn(observer);
                     if (row) {
                         const rowSiblings = row.parent.dom.childNodes;

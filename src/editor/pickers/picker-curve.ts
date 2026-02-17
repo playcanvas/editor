@@ -159,7 +159,7 @@ editor.once('load', () => {
 
     const fieldRandomize = new LegacyCheckbox();
     fieldRandomize.class.add('component-toggle');
-    fieldRandomize.on('change', (value) => {
+    fieldRandomize.on('change', (value: boolean) => {
         let i;
 
         changing = true;
@@ -607,13 +607,13 @@ editor.once('load', () => {
         }
 
         curves.length = 0;
-        value.forEach((data) => {
+        value.forEach((data: { keys: number[][] }) => {
             if (numCurves === 1) {
                 const c = new Curve(data.keys);
                 c.type = curveType;
                 curves.push(c);
             } else {
-                data.keys.forEach((keys) => {
+                data.keys.forEach((keys: number[]) => {
                     const c = new Curve(keys);
                     c.type = curveType;
                     curves.push(c);
@@ -826,9 +826,9 @@ editor.once('load', () => {
     }
 
     // Draws the anchors for the specified curve
-    function drawCurveAnchors(curve) {
+    function drawCurveAnchors(curve: { keys: number[][]; [key: string]: unknown }) {
         const colorIndex = swizzle[curves.indexOf(curve) % numCurves];
-        curve.keys.forEach((anchor) => {
+        curve.keys.forEach((anchor: number[]) => {
             if (anchor !== hoveredAnchor && anchor !== selectedAnchor) {
                 const color = colors.anchors[colorIndex];
                 const lineColor = colors.curves[colorIndex];
@@ -838,7 +838,7 @@ editor.once('load', () => {
     }
 
     // Draws an anchor point at the specified coordinates
-    function drawAnchor(coords, fillColor, lineColor) {
+    function drawAnchor(coords: number[], fillColor: string, lineColor: string) {
         context.beginPath();
         context.arc(coords[0], coords[1], anchorRadius, 0, 2 * Math.PI, false);
         context.fillStyle = fillColor;
@@ -1058,12 +1058,12 @@ editor.once('load', () => {
         render();
     }
 
-    function getCurvesMinMax(curves) {
+    function getCurvesMinMax(curves: { keys: number[][] }[]) {
         let maxValue = -Infinity;
         let minValue = Infinity;
 
-        curves.forEach((curve) => {
-            curve.keys.forEach((anchor) => {
+        curves.forEach((curve: { keys: number[][] }) => {
+            curve.keys.forEach((anchor: number[]) => {
                 const value = anchor[1];
                 if (value > maxValue) {
                     maxValue = value;
@@ -1086,7 +1086,7 @@ editor.once('load', () => {
         return [minValue, maxValue];
     }
 
-    function updateFields(anchor) {
+    function updateFields(anchor: number[] | null) {
         const suspend = suspendEvents;
         suspendEvents = true;
         fieldTime.value = anchor ? +anchor[0].toFixed(3) : 0;
@@ -1094,7 +1094,7 @@ editor.once('load', () => {
         suspendEvents = suspend;
     }
 
-    function getTargetCoords(e) {
+    function getTargetCoords(e: MouseEvent) {
         const rect = canvas.element.getBoundingClientRect();
         const left = Math.floor(rect.left);
         const top = Math.floor(rect.top);
@@ -1110,7 +1110,7 @@ editor.once('load', () => {
                coords[1] <= gridBottom();
     }
 
-    function areCoordsClose(coords1, coords2, range) {
+    function areCoordsClose(coords1: number[], coords2: number[], range: number) {
         return Math.abs(coords1[0] - coords2[0]) <= range &&
                Math.abs(coords1[1] - coords2[1]) <= range;
     }
@@ -1125,7 +1125,7 @@ editor.once('load', () => {
             values = [];
         }
 
-        enabledCurves.forEach((curve) => {
+        enabledCurves.forEach((curve: { keys: number[][] }) => {
             for (let i = curve.keys.length - 1; i > 0; i--) {
                 const key = curve.keys[i];
                 const prevKey = curve.keys[i - 1];
@@ -1228,7 +1228,7 @@ editor.once('load', () => {
 
     function serializeCurveKeys(curve) {
         const result = [];
-        curve.keys.forEach((k) => {
+        curve.keys.forEach((k: number[]) => {
             result.push(k[0], k[1]);
         });
         return result;
@@ -1431,7 +1431,7 @@ editor.once('load', () => {
     }
 
     // Handles mouse down
-    canvas.element.addEventListener('mousedown', (e) => {
+    canvas.element.addEventListener('mousedown', (e: MouseEvent) => {
         if (e.target !== canvas.element) {
             return;
         }
@@ -1496,7 +1496,7 @@ editor.once('load', () => {
     });
 
     // Handles mouse move
-    var onMouseMove = function (e) {
+    var onMouseMove = function (e: MouseEvent) {
         const coords = getTargetCoords(e);
 
         // if we are dragging the selected anchor
@@ -1541,7 +1541,7 @@ editor.once('load', () => {
     };
 
     // Handles mouse up
-    var onMouseUp = function (e) {
+    var onMouseUp = function (e: MouseEvent) {
         toggleTextSelection(true);
 
         if (e.button === 0) {
@@ -1579,7 +1579,7 @@ editor.once('load', () => {
     };
 
     // Handle mouse wheel
-    var onMouseWheel = function (e) {
+    var onMouseWheel = function (e: WheelEvent) {
         e.stopPropagation();
         if (e.deltaY > 0) {
             adjustZoom(-0.3);
@@ -1589,13 +1589,13 @@ editor.once('load', () => {
     };
 
     // call picker
-    editor.method('picker:curve', (value, args) => {
+    editor.method('picker:curve', (value: { keys: number[][] }[], args?: Record<string, unknown>) => {
         // show overlay
         overlay.hidden = false;
 
         const suspend = suspendEvents;
         suspendEvents = true;
-        curveToggles.forEach((toggle) => {
+        curveToggles.forEach((toggle: { class: { add: (c: string) => void } }) => {
             toggle.class.add('active');
         });
         suspendEvents = suspend;
@@ -1619,7 +1619,7 @@ editor.once('load', () => {
     });
 
     // position picker
-    editor.method('picker:curve:position', (x, y) => {
+    editor.method('picker:curve:position', (x: number, y: number) => {
         // limit to bottom of screen
         if (y + panel.clientHeight > window.innerHeight) {
             y = window.innerHeight - panel.clientHeight;

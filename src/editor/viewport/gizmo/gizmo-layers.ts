@@ -13,7 +13,7 @@ editor.once('load', () => {
 
     let id = 1000000000;
 
-    editor.method('gizmo:layers:register', (name, insertToBeginning, data, renderable = true) => {
+    editor.method('gizmo:layers:register', (name: string, insertToBeginning: boolean, data: Record<string, unknown> | null, renderable = true) => {
         if (nameIndex[name]) {
             console.warn(`Layer with name ${name} already exists.`);
         }
@@ -34,16 +34,18 @@ editor.once('load', () => {
         }
 
         const index = insertToBeginning ? layerIndexBefore : layerIndexAfter;
+        const layerId = data.id as number;
+        const layer = new Layer(data as ConstructorParameters<typeof Layer>[0]);
 
-        index[data.id] = new Layer(data);
-        nameIndex[name] = index[data.id];
+        (index as Record<number, Layer>)[layerId] = layer;
+        nameIndex[name] = layer;
 
         layerRenderable.set(name, renderable);
 
-        return index[data.id];
+        return layer;
     });
 
-    editor.method('gizmo:layers', (name) => {
+    editor.method('gizmo:layers', (name: string) => {
         return nameIndex[name];
     });
 
@@ -58,7 +60,7 @@ editor.once('load', () => {
         return result;
     });
 
-    editor.method('gizmo:layers:removeFromComposition', (composition) => {
+    editor.method('gizmo:layers:removeFromComposition', (composition: import('playcanvas').LayerComposition | null) => {
         if (!composition) {
             const app = editor.call('viewport:app');
             if (!app) {
@@ -76,7 +78,7 @@ editor.once('load', () => {
         }
     });
 
-    editor.method('gizmo:layers:addToComposition', (composition) => {
+    editor.method('gizmo:layers:addToComposition', (composition?: import('playcanvas').LayerComposition) => {
         if (!composition) {
             const app = editor.call('viewport:app');
             if (!app) {

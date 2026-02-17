@@ -50,7 +50,7 @@ const DOM = args => [
 ];
 
 class LayersSettingsPanel extends BaseSettingsPanel {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.headerText = 'LAYERS';
         args.attributes = ATTRIBUTES;

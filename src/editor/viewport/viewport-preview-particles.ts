@@ -9,7 +9,7 @@ editor.once('load', () => {
         }
     });
 
-    const checkState = function (item, remove) {
+    const checkState = function (item: { entity: import('@/editor-api').EntityObserver; active: boolean; entity?: { entity?: { particlesystem?: { enabled: boolean } }; get: (path: string) => unknown } }, remove?: boolean): void {
         if (remove || !item.entity.entity || !item.entity.entity.particlesystem) {
             if (item.active) {
                 render--;
@@ -38,7 +38,7 @@ editor.once('load', () => {
         }
     };
 
-    const add = function (entity) {
+    const add = function (entity: import('@/editor-api').EntityObserver): void {
         const id = entity.get('resource_id');
 
         if (index[id]) {
@@ -63,7 +63,7 @@ editor.once('load', () => {
         checkState(item);
     };
 
-    const remove = function (item) {
+    const remove = function (item: { id: string; evtEnable: { unbind: () => void }; evtSet: { unbind: () => void }; evtUnset: { unbind: () => void } }): void {
         checkState(item, true);
 
         item.evtEnable.unbind();
@@ -82,7 +82,7 @@ editor.once('load', () => {
     };
 
 
-    editor.on('selector:change', (type, items) => {
+    editor.on('selector:change', (type: string, items: import('@/editor-api').EntityObserver[]) => {
         clear();
 
         if (type !== 'entity') {

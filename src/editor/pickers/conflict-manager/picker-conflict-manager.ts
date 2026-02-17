@@ -450,8 +450,8 @@ editor.once('load', () => {
     };
 
     // Hide conflicts and show a progress icon
-    var showMainProgress = function (icon, text) {
-        [spinnerIcon, completedIcon, errorIcon].forEach((i) => {
+    var showMainProgress = function (icon: Element, text: string) {
+        [spinnerIcon, completedIcon, errorIcon].forEach((i: Element) => {
             if (icon === i) {
                 i.classList.remove('hidden');
             } else {
@@ -464,7 +464,7 @@ editor.once('load', () => {
     };
 
     // Shows the conflicts of a group
-    var showConflicts = function (group, forceLayoutMode) {
+    var showConflicts = function (group: Record<string, unknown>, forceLayoutMode?: number) {
         // destroy the current resolver
         if (resolver) {
             resolver.destroy();
@@ -871,7 +871,7 @@ editor.once('load', () => {
     });
 
     // Prevent viewport hovering when the picker is shown
-    editor.on('viewport:hover', (state) => {
+    editor.on('viewport:hover', (state: boolean) => {
         if (state && !overlay.hidden) {
             setTimeout(() => {
                 editor.emit('viewport:hover', false);
@@ -880,7 +880,7 @@ editor.once('load', () => {
     });
 
     // show conflict manager
-    editor.method('picker:conflictManager', (data) => {
+    editor.method('picker:conflictManager', (data: Record<string, unknown>) => {
         toggleDiffMode(false);
         currentMergeObject = data;
         overlay.hidden = false;
@@ -896,7 +896,7 @@ editor.once('load', () => {
     });
 
     // shows diff manager which is the conflict manager in a different mode
-    editor.method('picker:diffManager', (diff) => {
+    editor.method('picker:diffManager', (diff: Record<string, unknown>) => {
         toggleDiffMode(true);
         currentMergeObject = diff;
         overlay.hidden = false;

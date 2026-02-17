@@ -17,7 +17,7 @@ editor.once('load', () => {
 
     const codePanel = editor.call('layout.code');
 
-    function onMouseDown(evt) {
+    function onMouseDown(evt: MouseEvent) {
         const line = evt.target.range.startLineNumber;
 
         let sameLine = true;
@@ -44,7 +44,7 @@ editor.once('load', () => {
     }
 
     // Open asset on double click
-    function onDblClick(position) {
+    function onDblClick(position: monaco.Position) {
         for (const clickable of clickableRanges) {
             if (clickable.range.containsPosition(position)) {
                 clickable.onDblClick();
@@ -130,7 +130,7 @@ editor.once('load', () => {
 
     // check if the focused tab was closed in which case
     // cancel search
-    editor.on('tabs:close', (t) => {
+    editor.on('tabs:close', (t: { id: string }) => {
         if (tab && tab === t) {
             if (model) {
                 model.dispose();
@@ -153,7 +153,7 @@ editor.once('load', () => {
 
     // if we focus on the search tab then
     // show results again
-    editor.on('tabs:focus', (t) => {
+    editor.on('tabs:focus', (t: { id: string }) => {
         if (t === tab && model) {
             setModel();
             if (previousTabState) {

@@ -1,7 +1,7 @@
 import { LegacyElement } from './element';
 
 class LegacyListItem extends LegacyElement {
-    constructor(args = {}) {
+    constructor(args: Record<string, any> = {}) {
         super();
         this._text = args.text || '';
         this._selected = args.selected || false;

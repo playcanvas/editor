@@ -4,7 +4,10 @@ editor.once('load', () => {
     const bothTypes = ['src', 'dst'];
 
     class MakeBasicConflict {
-        constructor(typeToNode) {
+        typeToNode: Record<string, unknown>;
+        result: Record<string, unknown>;
+
+        constructor(typeToNode: Record<string, unknown>) {
             this.typeToNode = typeToNode;
         }
 
@@ -26,7 +29,7 @@ editor.once('load', () => {
             };
         }
 
-        missingFlagForField(type) {
+        missingFlagForField(type: string): void {
             if (this.typeToNode[type] === undefined) {
                 const missingField = `missing_in_${type}`;
 
@@ -36,7 +39,11 @@ editor.once('load', () => {
     }
 
     class MakeNodeConflict {
-        constructor(data) {
+        data: Record<string, unknown>;
+        typeToNode: Record<string, unknown>;
+        conflict: Record<string, unknown>;
+
+        constructor(data: Record<string, unknown>) {
             this.data = data;
 
             this.typeToNode = this.data.typeToNode || this.data.typeToRoot;
@@ -62,7 +69,7 @@ editor.once('load', () => {
             this.conflict = new MakeBasicConflict(this.typeToNode).run();
         }
 
-        checkAndSetValueField(type) {
+        checkAndSetValueField(type: string): void {
             const node = this.typeToNode[type];
 
             if (node !== undefined) {
@@ -85,7 +92,11 @@ editor.once('load', () => {
      * @param traversal - A NodeTraversal instance.
      */
     class DiffTemplateNode {
-        constructor(data, traversal) {
+        data: Record<string, unknown>;
+        traversal: NodeTraversal;
+        fullPath: string[];
+
+        constructor(data: Record<string, unknown>, traversal: NodeTraversal) {
             this.data = data;
 
             this.traversal = traversal;
@@ -157,7 +168,7 @@ editor.once('load', () => {
             );
         }
 
-        reportDiff(extraFields = {}) {
+        reportDiff(extraFields: Record<string, unknown> = {}): void {
             const h = new MakeNodeConflict(this.data).run();
 
             Object.assign(h, extraFields);
@@ -169,7 +180,10 @@ editor.once('load', () => {
     }
 
     class NodeTraversal {
-        constructor(data) {
+        data: Record<string, unknown>;
+        nodeHandler!: DiffTemplateNode;
+
+        constructor(data: Record<string, unknown>) {
             this.data = data;
         }
 
@@ -239,7 +253,7 @@ editor.once('load', () => {
             this.data.typeToNode = h;
         }
 
-        recursiveCallForKey(key) {
+        recursiveCallForKey(key: string): void {
             const h = Object.assign({}, this.data); // copy
 
             h.path = this.data.path.slice(0); // copy
@@ -249,14 +263,14 @@ editor.once('load', () => {
             new NodeTraversal(h).run();
         }
 
-        nodeFromRoot(type) {
+        nodeFromRoot(type: string): unknown {
             const root = this.data.typeToRoot[type];
 
             return editor.call(
                 'template:utils', 'getNodeAtPath', root, this.data.path);
         }
 
-        parentFromRoot(type) {
+        parentFromRoot(type: string): unknown {
             const root = this.data.typeToRoot[type];
 
             return editor.call(

@@ -1,7 +1,7 @@
 import { LegacyElement } from './element';
 
 class LegacyLabel extends LegacyElement {
-    constructor(args = {}) {
+    constructor(args: Record<string, any> = {}) {
         super();
         this._text = args.text || '';
         this._unsafe = !!args.unsafe;

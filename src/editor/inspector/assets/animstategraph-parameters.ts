@@ -9,7 +9,7 @@ const CLASS_ANIMSTATEGRAPH = 'asset-animstategraph-inspector';
 const CLASS_ANIMSTATEGRAPH_PARAMETER = `${CLASS_ANIMSTATEGRAPH}-parameter`;
 
 class AnimstategraphParameters extends Panel {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         super(args);
         this._args = args;

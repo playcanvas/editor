@@ -166,7 +166,7 @@ editor.once('load', () => {
     };
 
     // method to register new suggestions
-    editor.method('help:howdoi:register', (data) => {
+    editor.method('help:howdoi:register', (data: { title: string; keywords?: string[] }) => {
 
         // create new menu item
         const menuItem = new Container({
@@ -190,7 +190,7 @@ editor.once('load', () => {
 
         // open popup on mousedown instead of 'click' because
         // for some reason the 'click' event doesn't always work here
-        menuItem.dom.addEventListener('mousedown', (e) => {
+        menuItem.dom.addEventListener('mousedown', (e: MouseEvent) => {
             e.stopPropagation();
             openPopup();
         });

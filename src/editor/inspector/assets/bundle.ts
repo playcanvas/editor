@@ -14,7 +14,7 @@ const DOM = parent => [
 ];
 
 class BundleAssetInspector extends Panel {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.headerText = 'ASSETS';
 
