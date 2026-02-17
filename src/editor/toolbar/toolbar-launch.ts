@@ -13,7 +13,7 @@ editor.once('load', () => {
 
     // panel
     const panel = new Container({
-        class: 'top-controls'
+        class: 'controls-top-right'
     });
     viewport.append(panel);
 
