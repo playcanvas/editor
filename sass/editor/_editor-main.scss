@@ -6043,28 +6043,22 @@ strong {
         }
 
         .checkpoints-top {
-            .ui-label.branch-history {
-                float: left;
-                color: $text-primary;
-                text-transform: uppercase;
+            .pcui-label {
                 font-size: 12px;
+                margin: 3px;
 
-                @extend .font-bold;
-            }
+                &.branch-history {
+                    float: left;
+                    color: $text-primary;
+                    text-transform: uppercase;
+                    user-select: text;
 
-            .ui-label.info {
-                color: $text-dark;
-                font-size: 12px;
-                margin-left: 6px;
-            }
+                    @extend .font-bold;
+                }
 
-            .ui-button {
-                width: 147px;
-                float: right;
-
-                &.diff {
-                    width: 105px;
-                    margin-right: 5px;
+                &.info {
+                    color: $text-dark;
+                    margin-left: 6px;
                 }
             }
 

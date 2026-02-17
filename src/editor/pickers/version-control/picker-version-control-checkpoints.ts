@@ -1,4 +1,4 @@
-import { Button, Container } from '@playcanvas/pcui';
+import { Button, Container, Label } from '@playcanvas/pcui';
 
 import * as SVG from '@/common/svg';
 import { LegacyButton } from '@/common/ui/button';
@@ -23,26 +23,25 @@ editor.once('load', () => {
     panel.class.add('checkpoints-container');
 
     // checkpoints top
-    const panelCheckpointsTop = new LegacyPanel();
-    panelCheckpointsTop.class.add('checkpoints-top');
+    const panelCheckpointsTop = new Container({
+        class: 'checkpoints-top'
+    });
     panel.append(panelCheckpointsTop);
 
     // current branch being viewed
     panel.currentBranch = null;
 
     // current branch history
-    const labelBranchName = new LegacyLabel({
+    const labelBranchName = new Label({
+        class: ['branch-history', 'selectable'],
         text: 'Branch'
     });
-    labelBranchName.renderChanges = false;
-    labelBranchName.class.add('branch-history', 'selectable');
     panelCheckpointsTop.append(labelBranchName);
 
-    const labelBranchCheckpoints = new LegacyLabel({
+    const labelBranchCheckpoints = new Label({
+        class: 'info',
         text: 'Checkpoints'
     });
-    labelBranchCheckpoints.renderChanges = false;
-    labelBranchCheckpoints.class.add('info');
     panelCheckpointsTop.append(labelBranchCheckpoints);
 
     const panelBranchActions = new Container({
