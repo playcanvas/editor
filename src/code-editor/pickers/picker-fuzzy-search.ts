@@ -209,8 +209,8 @@ editor.once('load', () => {
         selectedIndex = index;
     };
 
-    /** @param {KeyboardEvent} e - The keyboard event */
-    const onKeyDown = (e) => {
+    /** @param e - The keyboard event */
+    const onKeyDown = (e: KeyboardEvent) => {
         switch (e.key) {
             case 'Enter':
             case 'Escape':

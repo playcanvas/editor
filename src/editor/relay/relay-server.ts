@@ -4,13 +4,29 @@ const RELAY_RECONNECT_DELAY = 1000;
 const RELAY_PING_DELAY = 10000;
 const RELAY_PONG_DELAY = 5000;
 
+/** Disconnection arguments for closing the WebSocket connection */
+interface CloseArgs {
+    /** The disconnection code. Defaults to 1000. */
+    code?: number;
+    /** The reason for the disconnection. Defaults to 'unknown'. */
+    reason?: string;
+}
+
+/** Authentication options when joining a room */
+interface RoomAuthentication {
+    /** The authentication type. Currently only 'project' is supported. */
+    type: string;
+    /** If authentication.type is 'project' then this would be the project id. */
+    id: number | string;
+}
+
 /**
  * Relay server client library
  */
 class RelayServer extends Events {
     private _url: string;
 
-    private _reconnectDelay: number | null;
+    private _reconnectDelay: ReturnType<typeof setTimeout> | null;
 
     private _connecting: boolean;
 
@@ -18,9 +34,9 @@ class RelayServer extends Events {
 
     private _connected: boolean;
 
-    private _pingTimeout: number | null;
+    private _pingTimeout: ReturnType<typeof setTimeout> | null;
 
-    private _pongTimeout: number | null;
+    private _pongTimeout: ReturnType<typeof setTimeout> | null;
 
     private _rooms: Record<string, Set<number>>;
 
@@ -55,9 +71,9 @@ class RelayServer extends Events {
     /**
      * Connects to the relay server
      *
-     * @param {string} url - The server URL
+     * @param url - The server URL
      */
-    connect(url) {
+    connect(url: string) {
         if (this._connected || this._connecting) {
             return;
         }
@@ -262,9 +278,9 @@ class RelayServer extends Events {
     /**
      * Sends a message to the server
      *
-     * @param {object} msg - The message data
+     * @param msg - The message data
      */
-    send(msg) {
+    send(msg: string | object) {
         if (!this._connected) {
             return;
         }
@@ -275,16 +291,14 @@ class RelayServer extends Events {
     /**
      * Disconnects from the server
      *
-     * @param {object} args - The disconnection arguments.
-     * @param {number} args.code - The disconnection code. Defaults to 1000.
-     * @param {string} args.reason - The reason for the disconnection. Defaults to 'unknown'.
+     * @param args - The disconnection arguments.
      */
-    close(args) {
+    close(args?: CloseArgs) {
         if (!this._connected) {
             return;
         }
 
-        args = args || { };
+        args = args || {};
         args.code = args.code || 1000; // 1000 - CLOSE_NORMAL
         args.reason = args.reason || 'unknown';
 
@@ -301,13 +315,10 @@ class RelayServer extends Events {
      * Joins a room. If the room does not exist
      * it will be created first.
      *
-     * @param {string} name - The room name. Must be globally unique.
-     * @param {object} authentication - The authentication handling of the room.
-     * @param {string} authentication.type - The authentication type. Currently only 'project' is supported.
-     * @param {number|string} authentication.id - The authentication handling of the room. If authentication.type is 'project'
-     * then this would be the project id.
+     * @param name - The room name. Must be globally unique.
+     * @param authentication - The authentication handling of the room.
      */
-    joinRoom(name, authentication) {
+    joinRoom(name: string, authentication: RoomAuthentication) {
         this.send({
             t: 'room:join',
             name: name,
@@ -318,9 +329,9 @@ class RelayServer extends Events {
     /**
      * Leaves a room.
      *
-     * @param {string} name - The room name
+     * @param name - The room name
      */
-    leaveRoom(name) {
+    leaveRoom(name: string) {
         this.send({
             t: 'room:leave',
             name: name
@@ -330,10 +341,10 @@ class RelayServer extends Events {
     /**
      * Sends a message to all the users in the room.
      *
-     * @param {string} roomName - The name
-     * @param {object} msg - The message to send
+     * @param roomName - The name
+     * @param msg - The message to send
      */
-    broadcast(roomName, msg) {
+    broadcast(roomName: string, msg: object) {
         this.send({
             t: 'room:msg',
             msg: msg,
@@ -345,11 +356,11 @@ class RelayServer extends Events {
     /**
      * Sends a direct message to a specific user in the room.
      *
-     * @param {string} roomName - The room name
-     * @param {object} msg - The message to send
-     * @param {number} recipientId - The recipient's user id
+     * @param roomName - The room name
+     * @param msg - The message to send
+     * @param recipientId - The recipient's user id
      */
-    dm(roomName, msg, recipientId) {
+    dm(roomName: string, msg: object, recipientId: number) {
         this.send({
             t: 'room:msg',
             msg: msg,

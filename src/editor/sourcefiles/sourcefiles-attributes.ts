@@ -13,10 +13,10 @@ editor.once('load', () => {
     /**
      * Extended typeof() function, returns the type of the object.
      *
-     * @param {object} obj - The object to get the type of.
-     * @returns {string} The type string: "null", "undefined", "number", "string", "boolean", "array", "object", "function", "date", "regexp" or "float32array".
+     * @param obj - The object to get the type of.
+     * @returns The type string: "null", "undefined", "number", "string", "boolean", "array", "object", "function", "date", "regexp" or "float32array".
      */
-    function type(obj) {
+    function type(obj: unknown): string {
         if (obj === null) {
             return 'null';
         }

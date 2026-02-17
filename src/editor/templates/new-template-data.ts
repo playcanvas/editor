@@ -82,13 +82,13 @@ editor.once('load', () => {
      * Given the root entity of an intended template, create a json copy of it with new guids. All
      * entity references inside are updated to match new guids.
      *
-     * @param {object} root - The root entity.
-     * @param {object[]} sceneEnts - All entities descending from the root.
-     * @returns {object} An object with fields 'assetData' (for storing as data of the new template
+     * @param root - The root entity.
+     * @param sceneEnts - All entities descending from the root.
+     * @returns An object with fields 'assetData' (for storing as data of the new template
      * asset, it has the format { entities: <guid to entity map> }), and 'srcToDst' (a map from
      * original to new guids).
      */
-    editor.method('template:newTemplateData', (root, sceneEnts) => {
+    editor.method('template:newTemplateData', (root: unknown, sceneEnts: unknown[]): { assetData: { entities: Record<string, unknown> }; srcToDst: Record<string, string> } => {
         return new NewTemplateData(root, sceneEnts).run();
     });
 });

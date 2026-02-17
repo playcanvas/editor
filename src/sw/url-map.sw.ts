@@ -51,10 +51,10 @@ const requestOriginatesFromSupportedFile = (request) => {
  * beneficial when the request originates from a worker, which _may_ have a different client id
  * to the originating browser context
  *
- * @param {string} id - The client id
- * @returns {Promise<Cache>} - The cache storage for the given client.
+ * @param id - The client id
+ * @returns The cache storage for the given client.
  */
-const getCacheStorage = async (id) => {
+const getCacheStorage = async (id: string): Promise<Cache | undefined> => {
     let hasCache = await caches.has(id);
     if (hasCache) {
         return caches.open(id);
@@ -76,10 +76,10 @@ const getCacheStorage = async (id) => {
 
 /**
  * Given a Request object, maps the import to the actual file
- * @param {FetchEvent} event - The fetch event that contains the Request object
- * @returns {Promise<Response>} The response containing the mapped response
+ * @param event - The fetch event that contains the Request object
+ * @returns The response containing the mapped response
  */
-const mapImport = async (event) => {
+const mapImport = async (event: FetchEvent): Promise<Response> => {
     try {
         const [url] = event.request.url.split('?');
 

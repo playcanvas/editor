@@ -15,12 +15,12 @@ const TextureTypes = {
 };
 
 /**
- * @param {string} label - The label of the attribute
- * @param {string} attributeName - The name of the attribute in the material data
- * @param {string} type - The type of the texture
- * @returns {Attribute[]} - The attributes for the texture
+ * @param label - The label of the attribute
+ * @param attributeName - The name of the attribute in the material data
+ * @param type - The type of the texture
+ * @returns The attributes for the texture
  */
-const createTextureAttribute = (label, attributeName, type): Attribute[] => {
+const createTextureAttribute = (label: string, attributeName: string, type: string): Attribute[] => {
     const scalarColorChannel: Attribute = {
         label: 'Color Channel',
         path: `data.${attributeName}MapChannel`,

@@ -50,13 +50,13 @@ editor.on('load', () => {
     };
 
     /**
-     * @param {'info' | 'warn' | 'error'} type - Log type
-     * @param {string} msg - Log message
-     * @param {string | (() => void)} [verboseMsg] - Verbose log message
-     * @param {() => void} [onclick] - Click handler
-     * @returns {Promise<void>}
+     * @param type - Log type
+     * @param msg - Log message
+     * @param verboseMsg - Verbose log message
+     * @param onclick - Click handler
+     * @returns A promise that resolves when the log is added
      */
-    const addLog = (type, msg, verboseMsg, onclick) => {
+    const addLog = (type: 'info' | 'warn' | 'error', msg: string, verboseMsg?: string | (() => void), onclick?: () => void): Promise<void> => {
         if (typeof verboseMsg === 'function') {
             onclick = verboseMsg;
             verboseMsg = undefined;

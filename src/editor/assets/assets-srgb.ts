@@ -190,9 +190,9 @@ const startChecker = () => {
     /**
      * Set the srgb flag for a texture asset based on its usage
      *
-     * @param {Observer} asset - The texture asset to migrate
+     * @param asset - The texture asset to migrate
      */
-    const setSrgb = (asset) => {
+    const setSrgb = (asset: Observer) => {
         const updateAsset = () => {
             // Ensure data object exists
             if (!asset.get('data')) {
@@ -263,9 +263,9 @@ const startChecker = () => {
     /**
      * Check for texture usages in assets and entities
      *
-     * @param {Observer} asset - The asset to check for texture usages
+     * @param asset - The asset to check for texture usages
      */
-    const checkTextureUsage = (asset) => {
+    const checkTextureUsage = (asset: Observer) => {
         const assetId = asset.get('id');
 
         // find all usages of the texture asset
@@ -377,9 +377,9 @@ const startChecker = () => {
     /**
      * Check for texture usages in assets
      *
-     * @param {Observer} asset - The asset to check for texture usages
+     * @param asset - The asset to check for texture usages
      */
-    const checkAsset = (asset) => {
+    const checkAsset = (asset: Observer) => {
         switch (asset.get('type')) {
             case 'texture':
             case 'textureatlas': {
@@ -482,9 +482,9 @@ const startChecker = () => {
     /**
      * Check for texture usages in entities
      *
-     * @param {Observer} entity - The entity to check for texture usages
+     * @param entity - The entity to check for texture usages
      */
-    const checkEntity = (entity) => {
+    const checkEntity = (entity: Observer) => {
         // listen for changes to entities
         entity.on('*:set', (path, value, oldValue) => {
             if (!SRGB_PATH_MAP.entity.hasOwnProperty(path)) {

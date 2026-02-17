@@ -13,8 +13,8 @@ editor.once('load', () => {
      * Given an entity, return an array of paths to all entity references inside
      * its components, other than script attributes.
      *
-     * @param {object} entity - The entity
-     * @returns {object[]} An array of paths
+     * @param entity - The entity
+     * @returns An array of paths
      */
     class ComponentEntityPaths {
         constructor(entity) {
@@ -57,9 +57,9 @@ editor.once('load', () => {
      * (by script name), return an array of paths to all entity references,
      * which are values of script attributes.
      *
-     * @param {object} entity - The entity
-     * @param {object} scriptAttrs - Data about script attributes by script name
-     * @returns {object[]} An array of paths
+     * @param entity - The entity
+     * @param scriptAttrs - Data about script attributes by script name
+     * @returns An array of paths
      */
     class ScriptAttrEntityPaths {
         constructor(entity, scriptAttrs) {
@@ -145,11 +145,11 @@ editor.once('load', () => {
      * (by script name), return an array of paths to all entity references
      * inside the provided entity.
      *
-     * @param {object} entity - The entity
-     * @param {object} scriptAttrs - Data about script attributes by script name
-     * @returns {object[]} An array of paths
+     * @param entity - The entity
+     * @param scriptAttrs - Data about script attributes by script name
+     * @returns An array of paths
      */
-    editor.method('template:allEntityPaths', (entity, scriptAttrs) => {
+    editor.method('template:allEntityPaths', (entity: unknown, scriptAttrs: Record<string, unknown>): unknown[] => {
         const paths1 = new ComponentEntityPaths(entity).run();
 
         const paths2 = new ScriptAttrEntityPaths(entity, scriptAttrs).run();

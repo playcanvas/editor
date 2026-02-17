@@ -1,6 +1,6 @@
 editor.once('load', () => {
     class AttributesFromScriptAssets {
-        constructor(assets) {
+        constructor(assets: object[]) {
             this.assets = assets;
 
             this.scriptNameToAttributes = {};
@@ -28,7 +28,7 @@ editor.once('load', () => {
     }
 
     class GetScriptAttributes {
-        constructor(entities) {
+        constructor(entities: object[]) {
             this.entities = entities;
 
             this.assets = [];
@@ -65,10 +65,10 @@ editor.once('load', () => {
      * Given an array of entities, return data about all their
      * script attributes by script name
      *
-     * @param {object[]} entities - The entities
-     * @returns {object} Data about script attributes by script name
+     * @param entities - The entities
+     * @returns Data about script attributes by script name
      */
-    editor.method('template:getScriptAttributes', (entities) => {
+    editor.method('template:getScriptAttributes', (entities: unknown[]): Record<string, unknown> => {
         return new GetScriptAttributes(entities).run();
     });
 });
