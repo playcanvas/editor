@@ -1,4 +1,4 @@
-import { Container, ContainerArgs } from '@playcanvas/pcui';
+import { Container, ContainerArgs, Element } from '@playcanvas/pcui';
 
 import { DropTarget } from './element-drop-target';
 import { CLASS_HIDDEN } from '../constants';
@@ -92,7 +92,7 @@ class DropManager extends Container {
         this.on('disable', () => {
             this.active = false;
         });
-        this.on('readOnly', (readOnly) => {
+        this.on('readOnly', (readOnly: boolean) => {
             if (!readOnly) {
                 this.active = false;
             }
@@ -309,7 +309,7 @@ class DropManager extends Container {
         this.active = false;
     }
 
-    _onAppendChild(element) {
+    _onAppendChild(element: Element) {
         super._onAppendChild(element);
         if (!(element instanceof DropTarget)) {
             return;
@@ -319,7 +319,7 @@ class DropManager extends Container {
         element.hidden = true;
     }
 
-    _onRemoveChild(element) {
+    _onRemoveChild(element: Element) {
         super._onRemoveChild(element);
         if (!(element instanceof DropTarget)) {
             return;
@@ -328,10 +328,11 @@ class DropManager extends Container {
         element.dropManager = null;
     }
 
-    getDropData(evt) {
+    getDropData(evt: Event) {
         let data = this.dropData;
-        if (this.dropType === 'files' && evt.dataTransfer && evt.dataTransfer.files) {
-            data = evt.dataTransfer.files;
+        const dragEvt = evt as DragEvent;
+        if (this.dropType === 'files' && dragEvt.dataTransfer && dragEvt.dataTransfer.files) {
+            data = dragEvt.dataTransfer.files;
         }
 
         return data;
@@ -350,7 +351,7 @@ class DropManager extends Container {
         super.destroy();
     }
 
-    set active(value) {
+    set active(value: boolean) {
         if (this._active === value) {
             return;
         }
@@ -366,7 +367,7 @@ class DropManager extends Container {
         return this._active;
     }
 
-    set dropType(value) {
+    set dropType(value: string | null) {
         if (this._dropType === value) {
             return;
         }
@@ -378,7 +379,7 @@ class DropManager extends Container {
         return this._dropType;
     }
 
-    set dropData(value) {
+    set dropData(value: any) {
         if (this._dropData === value) {
             return;
         }

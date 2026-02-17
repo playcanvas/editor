@@ -71,13 +71,13 @@ class utils {
 
             if (Array.isArray(data)) {
                 // if data is an array then process all of its array items
-                data.forEach((item, index) => {
+                data.forEach((item: any, index: number) => {
                     process(item, index);
                 });
             } else {
                 // if data is a JSON object then process all of its keys
                 const keys = Object.keys(data);
-                keys.forEach((key) => {
+                keys.forEach((key: string) => {
                     process(data[key], key);
                 });
             }

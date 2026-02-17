@@ -10,7 +10,7 @@ editor.once('load', () => {
 
 
     // bake
-    editor.method('lightmapper:bake', (entities) => {
+    editor.method('lightmapper:bake', (entities?: import('@/editor-api').EntityObserver[]) => {
         if (!entities) {
             entities = editor.call('entities:list').filter((e) => {
                 return e.get('components.model.lightmapped');
@@ -28,8 +28,8 @@ editor.once('load', () => {
         };
 
         // validate lightmapped entities
-        for (let i = 0; i < entities.length; i++) {
-            const obj = entities[i];
+        for (let i = 0; i < entities!.length; i++) {
+            const obj = entities![i];
 
             // might be primitive
             if (obj.get('components.model.type') !== 'asset') {
@@ -65,7 +65,7 @@ editor.once('load', () => {
                 // recalculate area
                 areaJobs[assetId] = asset;
                 jobs++;
-                editor.call('assets:model:area', asset, () => { // eslint-disable-line no-loop-func
+                editor.call('assets:model:area', asset, (): void => { // eslint-disable-line no-loop-func
                     jobs--;
 
                     if (jobs === 0) {

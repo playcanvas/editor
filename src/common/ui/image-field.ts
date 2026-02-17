@@ -1,7 +1,7 @@
 import { LegacyElement } from './element';
 
 class LegacyImageField extends LegacyElement {
-    constructor(args = {}) {
+    constructor(args: Record<string, any> = {}) {
         super();
         this.element = document.createElement('div');
         this._element.classList.add('ui-image-field', 'empty');
@@ -26,7 +26,7 @@ class LegacyImageField extends LegacyElement {
         this._element.addEventListener('keydown', this._onKeyDown.bind(this), false);
     }
 
-    set image(value) {
+    set image(value: string) {
         if (this.elementImage.src === value) {
             return;
         }
@@ -38,7 +38,7 @@ class LegacyImageField extends LegacyElement {
         return this.elementImage.src;
     }
 
-    set empty(value) {
+    set empty(value: boolean) {
         if (this.class.contains('empty') === !!value) {
             return;
         }
@@ -55,8 +55,8 @@ class LegacyImageField extends LegacyElement {
         return this.class.contains('empty');
     }
 
-    set value(value) {
-        value = value && parseInt(value, 10) || null;
+    set value(value: string | number | null) {
+        value = value && parseInt(value as string, 10) || null;
 
         if (this._link) {
             if (!this._link.set(this.path, value)) {
@@ -79,7 +79,7 @@ class LegacyImageField extends LegacyElement {
         return this._value;
     }
 
-    _onClick(evt) {
+    _onClick(evt: MouseEvent) {
         this.emit('click', evt);
     }
 
@@ -91,7 +91,7 @@ class LegacyImageField extends LegacyElement {
         this.flash();
     }
 
-    _onKeyDown(evt) {
+    _onKeyDown(evt: KeyboardEvent) {
         if (evt.keyCode === 27) {
             return this._element.blur();
         }
@@ -105,7 +105,7 @@ class LegacyImageField extends LegacyElement {
         this.emit('pick');
     }
 
-    _onLinkChange(value) {
+    _onLinkChange(value: string | number | null) {
         this._value = value;
         this.emit('change', value);
     }

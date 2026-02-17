@@ -1,4 +1,5 @@
 import { InfoBox, Container, TreeView, TreeViewItem, BooleanInput, Menu, Button, Panel, BindingTwoWay } from '@playcanvas/pcui';
+import type { Entity } from 'playcanvas';
 
 import { AssetInput } from '@/common/pcui/element/element-asset-input';
 
@@ -66,7 +67,7 @@ const CLASS_MASK_INSPECTOR_ADD_ALL_BUTTON = `${CLASS_MASK_INSPECTOR}-add-all-but
 const CLASS_MASK_INSPECTOR_REMOVE_ALL_BUTTON = `${CLASS_MASK_INSPECTOR}-remove-all-button`;
 
 class AnimComponentInspector extends ComponentInspector {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.component = 'anim';
 
@@ -109,7 +110,7 @@ class AnimComponentInspector extends ComponentInspector {
         this._normalizeWeightsMessage.dom.children[1].appendChild(normalizeWeightsLink);
     }
 
-    _createMask(rootEntity) {
+    _createMask(rootEntity: Entity) {
         const mask = {};
 
         const addEntityAndChildPaths = (entity) => {
@@ -124,7 +125,7 @@ class AnimComponentInspector extends ComponentInspector {
         return mask;
     }
 
-    _addMaskInspector(layerId, layerName) {
+    _addMaskInspector(layerId: string, layerName: string) {
         const root = editor.call('layout.root');
 
         if (this._maskInspector) {
@@ -544,7 +545,7 @@ class AnimComponentInspector extends ComponentInspector {
         }
     }
 
-    link(entities) {
+    link(entities: import('@playcanvas/observer').Observer[]) {
         this.unlink();
         super.link(entities);
         this._entities = entities;

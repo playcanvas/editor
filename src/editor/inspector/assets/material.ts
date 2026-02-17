@@ -1,3 +1,4 @@
+import type { Observer } from '@playcanvas/observer';
 import { Panel, Container } from '@playcanvas/pcui';
 import * as pc from 'playcanvas';
 
@@ -1268,8 +1269,12 @@ const TextureTransformTypes = {
     Rotation: 'MapRotation'
 };
 
+type MaterialAssetInspectorArgs = {
+    history?: import('@/editor-api').History;
+} & Record<string, unknown>;
+
 class MaterialAssetInspector extends Container {
-    constructor(args) {
+    constructor(args: MaterialAssetInspectorArgs = {} as MaterialAssetInspectorArgs) {
         args = Object.assign({}, args);
 
         super(args);
@@ -1531,7 +1536,7 @@ class MaterialAssetInspector extends Container {
         return true;
     }
 
-    _onChangeApplyToAll(value) {
+    _onChangeApplyToAll(value: boolean) {
         if (!this._assets) {
             return;
         }
@@ -1623,7 +1628,7 @@ class MaterialAssetInspector extends Container {
     }
 
 
-    _updateAllOffsetsTilingsOrRotationUiState(renderChanges) {
+    _updateAllOffsetsTilingsOrRotationUiState(renderChanges: boolean) {
         if (!this._assets) {
             return;
         }
@@ -1672,7 +1677,7 @@ class MaterialAssetInspector extends Container {
     }
 
 
-    _updateAllOffsetsTilingsAndRotations(value, transform) {
+    _updateAllOffsetsTilingsAndRotations(value: number | number[], transform: string) {
         if (value === null || !this._assets) {
             return;
         }
@@ -1748,7 +1753,7 @@ class MaterialAssetInspector extends Container {
 
     }
 
-    _onChangeOffset(value) {
+    _onChangeOffset(value: number | number[]) {
         if (this._suppressOffsetTilingAndRotationFields) {
             return;
         }
@@ -1757,7 +1762,7 @@ class MaterialAssetInspector extends Container {
         }
     }
 
-    _onChangeTiling(value) {
+    _onChangeTiling(value: number | number[]) {
         if (this._suppressOffsetTilingAndRotationFields) {
             return;
         }
@@ -1766,7 +1771,7 @@ class MaterialAssetInspector extends Container {
         }
     }
 
-    _onChangeRotation(value) {
+    _onChangeRotation(value: number | number[]) {
         if (this._suppressOffsetTilingAndRotationFields) {
             return;
         }
@@ -1775,7 +1780,7 @@ class MaterialAssetInspector extends Container {
         }
     }
 
-    _onTextureChange(name, value) {
+    _onTextureChange(name: string, value: unknown) {
         if (this._suppressToggleFields) {
             return;
         }
@@ -2017,7 +2022,7 @@ class MaterialAssetInspector extends Container {
         }
     }
 
-    _tokenizeFilename(filename) {
+    _tokenizeFilename(filename: string) {
         filename = filename.trim().toLowerCase();
 
         if (!filename) {
@@ -2059,7 +2064,7 @@ class MaterialAssetInspector extends Container {
         return [left, right];
     }
 
-    _onTextureDragEnter(path, type, dropData) {
+    _onTextureDragEnter(path: string, type: string, dropData: { id: number }) {
         const app = editor.call('viewport:app');
         if (!app) {
             return;
@@ -2118,7 +2123,7 @@ class MaterialAssetInspector extends Container {
         editor.call('viewport:render');
     }
 
-    _onTextureDragLeave(path) {
+    _onTextureDragLeave(path: string) {
         const app = editor.call('viewport:app');
         if (!app) {
             return;
@@ -2153,7 +2158,7 @@ class MaterialAssetInspector extends Container {
         editor.call('viewport:render');
     }
 
-    link(assets) {
+    link(assets: Observer[]) {
         this.unlink();
 
         this._assets = assets;

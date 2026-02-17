@@ -23,7 +23,7 @@ function findReferencesInComponents(entity: Entity, refType: string) {
             return;
         }
         if (attributeDefinition.array) {
-            attributeValue.forEach((id, i) => {
+            attributeValue.forEach((id: any, i: number) => {
                 if (id) {
                     addReference(entity, `${path}.${i}`, id);
                 }
@@ -41,7 +41,7 @@ function findReferencesInComponents(entity: Entity, refType: string) {
             return;
         }
         if (Array.isArray(value)) {
-            value.forEach((id, i) => {
+            value.forEach((id: any, i: number) => {
                 if (id) {
                     addReference(entity, `${path}.${i}`, id);
                 }

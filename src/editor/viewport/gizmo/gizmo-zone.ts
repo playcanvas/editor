@@ -18,6 +18,7 @@ import {
 } from 'playcanvas';
 
 import { GIZMO_MASK } from '@/core/constants';
+import type { EntityObserver } from '@/editor-api';
 
 import { createColorMaterial } from '../viewport-color-material';
 
@@ -28,7 +29,7 @@ editor.once('load', () => {
     const layerFront = editor.call('gizmo:layers', 'Bright Collision');
     const layerBack = editor.call('gizmo:layers', 'Dim Gizmo');
 
-    const filterPicker = function (drawCall) {
+    const filterPicker = function (drawCall: { command?: unknown; __editor?: boolean; __zone?: boolean; layer?: number }) {
         if (drawCall.command) {
             return true;
         }
@@ -47,7 +48,7 @@ editor.once('load', () => {
         layerFront.addMeshInstances(backMeshInstances);
     };
 
-    editor.method('gizmo:zone:visible', (state) => {
+    editor.method('gizmo:zone:visible', (state: boolean | undefined) => {
         if (state === undefined) {
             return visible;
         }
@@ -69,7 +70,7 @@ editor.once('load', () => {
         editor.call('viewport:render');
     });
 
-    editor.once('viewport:load', (application) => {
+    editor.once('viewport:load', (application: import('playcanvas').AppBase) => {
         app = application;
 
         const container = new Entity();
@@ -366,7 +367,7 @@ editor.once('load', () => {
             }
 
             // link to entity
-            link(obj) {
+            link(obj: EntityObserver) {
                 this.unlink();
                 this._link = obj;
 
@@ -513,7 +514,7 @@ editor.once('load', () => {
             });
         };
 
-        const onPointDragMove = function (length) {
+        const onPointDragMove = function (length: number) {
             const size = Math.max(0.000000001, dragLength + length);
             lastZone._link.set(`components.zone.size.${axesInd[dragPoint.axis]}`, size);
 
@@ -551,7 +552,7 @@ editor.once('load', () => {
             editor.call('viewport:render');
         };
 
-        editor.on('permissions:writeState', (state) => {
+        editor.on('permissions:writeState', (state: boolean) => {
             if (!points || !points.length) {
                 return;
             }
@@ -639,7 +640,7 @@ editor.once('load', () => {
             }
         };
 
-        editor.on('entities:add', (entity) => {
+        editor.on('entities:add', (entity: EntityObserver) => {
             const key = entity.get('resource_id');
 
             const addGizmo = function () {
@@ -682,7 +683,7 @@ editor.once('load', () => {
             });
         });
 
-        editor.on('selector:change', (type, items) => {
+        editor.on('selector:change', (type: string, items: EntityObserver[] | undefined) => {
             selected = { };
             if (items) {
                 for (let i = 0; i < items.length; i++) {
@@ -693,7 +694,7 @@ editor.once('load', () => {
             editor.call('viewport:render');
         });
 
-        editor.on('viewport:gizmoUpdate', (dt) => {
+        editor.on('viewport:gizmoUpdate', (dt: number) => {
             zones = 0;
 
             for (const key in entities) {

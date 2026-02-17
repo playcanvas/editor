@@ -6,7 +6,7 @@ editor.on('load', () => {
 
     messenger.connect(config.url.messenger.ws);
 
-    messenger.on('message', (name, data) => {
+    messenger.on('message', (name: string, data: unknown) => {
         editor.emit(`messenger:${name}`, data);
     });
 });

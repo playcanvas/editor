@@ -5,13 +5,13 @@ editor.once('load', () => {
     } // webgl not available
     const watching = { };
 
-    const trigger = function (watch) {
+    const trigger = function (watch: { callbacks: Record<string | number, { callback: () => void }> }) {
         for (const key in watch.callbacks) {
             watch.callbacks[key].callback();
         }
     };
 
-    const loadFont = function (watch, asset, reload) {
+    const loadFont = function (watch: { callbacks: Record<string | number, unknown> }, asset: { unload?: () => void; ready: (fn: () => void) => void }, reload?: boolean) {
         if (reload && asset) {
             asset.unload();
         }
@@ -22,14 +22,14 @@ editor.once('load', () => {
         app.assets.load(asset);
     };
 
-    const subscribe = function (watch) {
-        watch.onChange = function (asset, name, value) {
+    const subscribe = function (watch: { asset: { get: (path: string) => string | number }; engineAsset: { off: (event: string, fn: () => void) => void; on: (event: string, fn: () => void) => void } | null; onAdd: ((asset: unknown) => void) | null; onLoad: (() => void) | null; onChange: ((asset: unknown, name: string, value: unknown) => void) | null; autoLoad: number; watching: Record<string, { unbind: () => void }> }) {
+        watch.onChange = function (_asset: unknown, name: string, _value: unknown) {
             if (name === 'data') {
                 trigger(watch);
             }
         };
 
-        watch.onAdd = function (asset) {
+        watch.onAdd = function (asset: { off: (event: string, fn: () => void) => void; on: (event: string, fn: () => void) => void }) {
             app.assets.off(`add:${watch.asset.get('id')}`, watch.onAdd);
             watch.onAdd = null;
             watch.engineAsset = asset;
@@ -42,7 +42,7 @@ editor.once('load', () => {
             }
         };
 
-        watch.onLoad = function (asset) {
+        watch.onLoad = function (_asset: unknown) {
             trigger(watch);
         };
 
@@ -55,7 +55,7 @@ editor.once('load', () => {
         }
     };
 
-    const unsubscribe = function (watch) {
+    const unsubscribe = function (watch: { engineAsset: { off: (event: string, fn: () => void) => void } | null; onAdd: (() => void) | null; watching: Record<string, { unbind: () => void }> }) {
         if (watch.engineAsset) {
             watch.engineAsset.off('load', watch.onLoad);
             watch.engineAsset.off('change', watch.onChange);

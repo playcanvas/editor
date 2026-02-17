@@ -69,7 +69,7 @@ class BundlesInput extends SelectInput {
             selectedBundles.push((dom as any).ui.value);
         });
 
-        this._assets.forEach((asset) => {
+        this._assets.forEach((asset: Observer) => {
             const assetBundles = editor.call('assets:bundles:listForAsset', asset);
             assetBundles.forEach((assetBundle: Observer) => {
                 if (!selectedBundles.includes(assetBundle.get('id'))) {

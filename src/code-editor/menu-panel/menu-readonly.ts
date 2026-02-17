@@ -11,7 +11,7 @@ editor.once('load', () => {
     });
     panel.append(readonly);
 
-    editor.on('editor:readonly:change', (isReadonly) => {
+    editor.on('editor:readonly:change', (isReadonly: boolean) => {
         readonly.hidden = !isReadonly;
     });
 });

@@ -115,7 +115,7 @@ class GradientInput extends Element {
         });
     }
 
-    _onKeyDown(evt) {
+    _onKeyDown(evt: KeyboardEvent) {
         // escape blurs the field
         if (evt.keyCode === 27) {
             this.blur();
@@ -132,11 +132,11 @@ class GradientInput extends Element {
         this._openGradientPicker();
     }
 
-    _onFocus(evt) {
+    _onFocus(evt: FocusEvent) {
         this.emit('focus');
     }
 
-    _onBlur(evt) {
+    _onBlur(evt: FocusEvent) {
         this.emit('blur');
     }
 
@@ -161,7 +161,7 @@ class GradientInput extends Element {
         let evtPickerChanged = editor.on('picker:curve:change', this._onPickerChange.bind(this));
 
         // refreshing the value resets the picker
-        let evtRefreshPicker = this.on('change', (value) => {
+        let evtRefreshPicker = this.on('change', (value: any) => {
             editor.call('picker:gradient:set', [value]);
         });
 
@@ -174,7 +174,7 @@ class GradientInput extends Element {
         });
     }
 
-    _onPickerChange(paths, values) {
+    _onPickerChange(paths: string[], values: any) {
         const value = this.value || this._getDefaultValue();
 
         // TODO: this is all kinda hacky. We need to clear up
@@ -259,7 +259,7 @@ class GradientInput extends Element {
         super.destroy();
     }
 
-    set channels(value) {
+    set channels(value: number) {
         if (this._channels === value) {
             return;
         }
@@ -276,7 +276,7 @@ class GradientInput extends Element {
         return this._channels;
     }
 
-    set value(value) {
+    set value(value: any) {
         // TODO: maybe we should check for equality
         // but since this value will almost always be set using
         // the picker it's not worth the effort
@@ -297,7 +297,7 @@ class GradientInput extends Element {
         return this._value;
     }
 
-    set values(values) {
+    set values(values: any[]) {
         // we do not support multiple values so just
         // add the multiple values class which essentially disables
         // the input

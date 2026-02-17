@@ -29,7 +29,7 @@ const DOM = parent => [
 ];
 
 class WasmAssetInspector extends Panel {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.headerText = 'WASM MODULE';
 
@@ -38,7 +38,7 @@ class WasmAssetInspector extends Panel {
         this.buildDom(DOM(this));
     }
 
-    link(assets) {
+    link(assets: import('@playcanvas/observer').Observer[]) {
         this.unlink();
         this._attributesInspector.link(assets);
     }

@@ -12,7 +12,7 @@ editor.once('load', () => {
             return this.scriptNameToAttributes;
         }
 
-        handleScriptData(asset) {
+        handleScriptData(asset: { get: (path: string) => unknown }): void {
             const data = asset.get('data') || {};
 
             const scripts = data.scripts || {};
@@ -40,7 +40,7 @@ editor.once('load', () => {
             return new AttributesFromScriptAssets(this.assets).run();
         }
 
-        handleEntity(ent) {
+        handleEntity(ent: Record<string, unknown>): void {
             const path = ['components', 'script'];
 
             const comp = editor.call('template:utils', 'getNodeAtPath', ent, path);
@@ -52,7 +52,7 @@ editor.once('load', () => {
             }
         }
 
-        handleCompName(name) {
+        handleCompName(name: string): void {
             const asset = editor.call('assets:scripts:assetByScript', name);
 
             if (asset) {

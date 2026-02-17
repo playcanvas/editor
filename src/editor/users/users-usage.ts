@@ -1,5 +1,5 @@
 editor.once('load', () => {
-    editor.on('messenger:user.usage', (data) => {
+    editor.on('messenger:user.usage', (data: unknown) => {
         if (data.user !== config.owner.id) {
             return;
         }

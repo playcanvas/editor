@@ -9,7 +9,7 @@ editor.once('load', () => {
     const refreshI18nAssets = function () {
         assetIndex = {};
         const assets = projectSettings.get('i18nAssets') || [];
-        assets.forEach((id) => {
+        assets.forEach((id: number) => {
             assetIndex[id] = true;
 
             const engineAsset = app.assets.get(id);
@@ -25,7 +25,7 @@ editor.once('load', () => {
     projectSettings.on('i18nAssets:insert', refreshI18nAssets);
     projectSettings.on('i18nAssets:remove', refreshI18nAssets);
 
-    projectUserSettings.on('editor.locale:set', (value) => {
+    projectUserSettings.on('editor.locale:set', (value: string) => {
         if (value) {
             app.i18n.locale = value;
             editor.call('viewport:render');
@@ -49,7 +49,7 @@ editor.once('load', () => {
 
     // make sure all localization assets are loaded
     // regardless of their preload flag
-    editor.on('assets:add', (asset) => {
+    editor.on('assets:add', (asset: import('@playcanvas/observer').Observer) => {
         const id = asset.get('id');
         if (assetIndex[id]) {
             const engineAsset = app.assets.get(id);

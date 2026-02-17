@@ -135,7 +135,7 @@ editor.once('load', () => {
         });
     });
 
-    function getPathFromFolder(folder) {
+    function getPathFromFolder(folder: { get: (path: string) => number[] | string } | null) {
         let path = [];
         if (folder && folder.get) {
             path = folder.get('path').concat(parseInt(folder.get('id'), 10));
@@ -143,7 +143,7 @@ editor.once('load', () => {
         return path;
     }
 
-    function createFolder(currentFolder, name, callback) {
+    function createFolder(currentFolder: { get: (path: string) => unknown } | null, name: string, callback: (folder: unknown) => void) {
         editor.call('assets:create', {
             name: name,
             type: 'folder',
@@ -171,7 +171,7 @@ editor.once('load', () => {
         });
     }
 
-    function uploadFile(currentFolder, file, multipleFiles) {
+    function uploadFile(currentFolder: { get: (path: string) => unknown } | null, file: File, multipleFiles: boolean) {
         const path = getPathFromFolder(currentFolder);
 
         let ext = file.name.split('.');
@@ -281,7 +281,7 @@ editor.once('load', () => {
                     return;
                 }
 
-                const onceAssetLoad = function (asset) {
+                const onceAssetLoad = function (asset: { get: (path: string) => string | undefined; once: (event: string, fn: () => void) => void }) {
                     const url = asset.get('file.url');
                     if (url) {
                         editor.call('scripts:parse', asset);

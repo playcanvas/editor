@@ -153,7 +153,7 @@ class TextResolver extends Events {
         this._iframe = null;
     }
 
-    _codeEditorMethod(method, arg1, arg2, arg3, arg4) {
+    _codeEditorMethod(method: string, arg1?: unknown, arg2?: unknown, arg3?: unknown, arg4?: unknown) {
         return this._iframe.contentWindow.editor.call(method, arg1, arg2, arg3, arg4);
     }
 
@@ -195,7 +195,7 @@ class TextResolver extends Events {
         });
     }
 
-    _toggleButtons(toggle) {
+    _toggleButtons(toggle: boolean) {
         this._btnGoBack.disabled = !toggle;
         this._btnMarkResolved.disabled = !toggle;
         this._btnUseAllFrom.disabled = !toggle;

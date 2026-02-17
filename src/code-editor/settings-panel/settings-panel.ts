@@ -52,13 +52,13 @@ editor.once('load', () => {
 
         let suspendChange = false;
 
-        settings.on(`${path}:set`, (value) => {
+        settings.on(`${path}:set`, (value: unknown) => {
             suspendChange = true;
             field.value = value;
             suspendChange = false;
         });
 
-        field.on('change', (value) => {
+        field.on('change', (value: unknown) => {
             if (suspendChange) {
                 return;
             }

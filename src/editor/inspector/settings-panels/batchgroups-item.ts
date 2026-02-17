@@ -51,7 +51,7 @@ const ATTRIBUTES = (args: object): Attribute[] => [
 ];
 
 class BatchGroupsSettingsPanelItem extends BaseSettingsPanel {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.attributes = ATTRIBUTES(args);
         args.removable = true;

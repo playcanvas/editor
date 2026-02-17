@@ -30,7 +30,7 @@ const ATTRIBUTES: Attribute[] = [
 ];
 
 class LayersSettingsPanelRenderOrderPanel extends BaseSettingsPanel {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.attributes = ATTRIBUTES;
         args.headerText = 'RENDER ORDER';

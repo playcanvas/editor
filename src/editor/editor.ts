@@ -46,7 +46,7 @@ class MainEditor extends Editor<EditorMethods> {
             } else {
                 if (config.scene && !config.scene.id) {
                     // if no scene is loaded
-                    this.call('scenes:list', (items) => {
+                    this.call('scenes:list', (items: Array<{ uniqueId: string }>) => {
                         if (items.length === 1) {
                             this.call('scene:load', items[0].uniqueId);
                         } else {
@@ -95,22 +95,22 @@ class MainEditor extends Editor<EditorMethods> {
         };
 
         // asset upload completed callback (clear progress)
-        this.api.globals.assets.defaultUploadCompletedCallback = (uploadId, asset) => {
+        this.api.globals.assets.defaultUploadCompletedCallback = (uploadId: string, _asset: unknown) => {
             this.call('status:job', `asset-upload:${uploadId}`);
         };
         // asset upload progress callback
-        this.api.globals.assets.defaultUploadProgressCallback = (uploadId, progress) => {
+        this.api.globals.assets.defaultUploadProgressCallback = (uploadId: string, progress: number) => {
             this.call('status:job', `asset-upload:${uploadId}`, progress);
         };
         // asset upload error callback (clear progress)
-        this.api.globals.assets.defaultUploadErrorCallback = (uploadId, err) => {
+        this.api.globals.assets.defaultUploadErrorCallback = (uploadId: number, _err: Error) => {
             this.call('status:job', `asset-upload:${uploadId}`);
         };
 
         // set parse script callback
-        this.api.globals.assets.parseScriptCallback = (asset) => {
+        this.api.globals.assets.parseScriptCallback = (asset: { observer: unknown }) => {
             return new Promise((resolve, reject) => {
-                this.call('scripts:parse', asset.observer, (err, result) => {
+                this.call('scripts:parse', asset.observer, (err: unknown, result: { scripts?: Record<string, unknown> }) => {
                     if (err) {
                         reject(err);
                     } else {

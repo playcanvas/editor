@@ -45,7 +45,7 @@ const DOM = () => [
 ];
 
 class ImportMapSettingsPanel extends BaseSettingsPanel {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.headerText = 'IMPORT MAP';
         args.attributes = ATTRIBUTES;
@@ -109,7 +109,7 @@ class ImportMapSettingsPanel extends BaseSettingsPanel {
         }
     }
 
-    _setImportMap(asset) {
+    _setImportMap(asset: { get: (path: string) => unknown } | null) {
         const id = asset && asset.get ? asset.get('id') : null;
         if (id) {
             this._projectSettings.set('importMap', id.toString());

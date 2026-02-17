@@ -552,7 +552,7 @@ const ATTRIBUTES: (Attribute | Divider)[] = [
 ];
 
 class RenderingSettingsPanel extends BaseSettingsPanel {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.headerText = 'RENDERING';
         args.attributes = ATTRIBUTES;

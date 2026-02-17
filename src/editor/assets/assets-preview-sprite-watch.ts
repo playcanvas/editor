@@ -6,13 +6,13 @@ editor.once('load', () => {
 
     const watching = { };
 
-    const trigger = function (watch) {
+    const trigger = function (watch: { callbacks: Record<string | number, { callback: () => void }> }) {
         for (const key in watch.callbacks) {
             watch.callbacks[key].callback();
         }
     };
 
-    const unwatchAtlas = function (watch, atlas) {
+    const unwatchAtlas = function (watch: { events: Record<string, (() => void) | { unbind: () => void } | undefined> }, atlas: string | number | null) {
         if (!atlas) {
             return;
         }
@@ -49,7 +49,7 @@ editor.once('load', () => {
         }
     };
 
-    const subscribe = function (watch) {
+    const subscribe = function (watch: { asset: { get: (path: string) => string | number | null }; events: Record<string, (() => void) | { unbind: () => void } | undefined> }) {
         const onChange = function () {
             trigger(watch);
         };
@@ -113,7 +113,7 @@ editor.once('load', () => {
         });
     };
 
-    const unsubscribe = function (watch) {
+    const unsubscribe = function (watch: { asset: { get: (path: string) => string | number | null }; events: Record<string, (() => void) | { unbind: () => void } | undefined> }) {
         const atlas = watch.asset.get('data.textureAtlasAsset');
         unwatchAtlas(watch, atlas);
         if (watch.events.onSetAtlas) {

@@ -20,7 +20,7 @@ const CLASS_ANIMSTATEGRAPH_TRANSITION_CONDITIONS_NOTE = `${CLASS_ANIMSTATEGRAPH_
 
 // This helper function moves the the position of an item in the given array from the supplied old_index position to the new_index position.
 // Used by the AnimstategraphTransitions class to update the transitions order when the _onDragEnd event is fired.
-function arrayMove(arr, old_index, new_index) {
+function arrayMove<T>(arr: T[], old_index: number, new_index: number): T[] {
     if (new_index >= arr.length) {
         let k = new_index - arr.length + 1;
         while (k--) {
@@ -41,7 +41,7 @@ class TransitionInspector extends AttributesInspector {
 }
 
 class AnimstategraphTransitions extends Container {
-    constructor(args, view) {
+    constructor(args: Record<string, unknown>, view: Record<string, unknown>) {
         super({
             args: Object.assign({}, args),
             class: CLASS_ANIMSTATEGRAPH_TRANSITIONS,
@@ -79,7 +79,7 @@ class AnimstategraphTransitions extends Container {
         this._transitionsContainer.on('child:dragend', this._onDragEnd.bind(this));
     }
 
-    _onDragEnd(_, newIndex, oldIndex) {
+    _onDragEnd(_inspector: unknown, newIndex: number, oldIndex: number) {
         let transitions = this._assets[0].get(`data.layers.${this._selectedLayer}.transitions`).filter((transitionId) => {
             const transition = this._assets[0].get(`data.transitions.${transitionId}`);
             return this._edge === `${transition.from}-${transition.to}`;
@@ -104,13 +104,13 @@ class AnimstategraphTransitions extends Container {
         this._assets[0].set('data', data);
     }
 
-    _deleteCondition(transitionId, conditionId) {
+    _deleteCondition(transitionId: number, conditionId: string) {
         const conditions = this._assets[0].get(`data.transitions.${transitionId}.conditions`);
         delete conditions[conditionId];
         this._assets[0].set(`data.transitions.${transitionId}.conditions`, conditions);
     }
 
-    _addNewCondition(transitionId) {
+    _addNewCondition(transitionId: number) {
         const conditions = this._assets[0].get(`data.transitions.${transitionId}.conditions`);
         const maxKey = Math.max(...Object.keys(conditions));
         const key = Number.isFinite(maxKey) ? maxKey + 1 : 0;
@@ -122,7 +122,7 @@ class AnimstategraphTransitions extends Container {
         this._assets[0].set(`data.transitions.${transitionId}.conditions`, conditions);
     }
 
-    link(assets, layer, edge) {
+    link(assets: import('@playcanvas/observer').Observer[], layer: number, edge: { from: number; to: number }) {
         this.unlink();
         this._assets = assets;
         this._selectedLayer = layer;

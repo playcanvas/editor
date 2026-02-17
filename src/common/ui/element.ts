@@ -105,7 +105,7 @@ class LegacyElement extends Events {
         };
     }
 
-    set element(value) {
+    set element(value: HTMLElement) {
         if (this._element) {
             return;
         }
@@ -114,7 +114,7 @@ class LegacyElement extends Events {
         this._element.ui = this;
 
         const self = this;
-        this._evtClick = function (evt) {
+        this._evtClick = function (evt: Event) {
             if (self.disabled && !self.disabledClick) {
                 return;
             }
@@ -122,12 +122,12 @@ class LegacyElement extends Events {
         };
         this._element.addEventListener('click', this._evtClick, false);
 
-        this._evtHover = function (evt) {
+        this._evtHover = function (evt: Event) {
             self.emit('hover', evt);
         };
         this._element.addEventListener('mouseover', this._evtHover, false);
 
-        this._evtBlur = function (evt) {
+        this._evtBlur = function (evt: Event) {
             self.emit('blur', evt);
         };
         this._element.addEventListener('mouseout', this._evtBlur, false);
@@ -141,7 +141,7 @@ class LegacyElement extends Events {
         return this._element;
     }
 
-    set parent(value) {
+    set parent(value: LegacyElement | null) {
         if (this._parent) {
             this._parent = null;
             this._evtParentDestroy.unbind();
@@ -175,7 +175,7 @@ class LegacyElement extends Events {
         return this._parent;
     }
 
-    set disabled(value) {
+    set disabled(value: boolean) {
         if (this._disabled === value) {
             return;
         }
@@ -198,7 +198,7 @@ class LegacyElement extends Events {
         return this._disabled;
     }
 
-    set enabled(value) {
+    set enabled(value: boolean) {
         this.disabled = !value;
     }
 
@@ -206,7 +206,7 @@ class LegacyElement extends Events {
         return !this._disabled;
     }
 
-    set value(value) {
+    set value(value: any) {
         if (!this._link) {
             return;
         }
@@ -220,7 +220,7 @@ class LegacyElement extends Events {
         return this._link.get(this.path);
     }
 
-    set hidden(value) {
+    set hidden(value: boolean) {
         if (this._element.classList.contains('hidden') === !!value) {
             return;
         }
@@ -246,7 +246,7 @@ class LegacyElement extends Events {
         return this._element.classList;
     }
 
-    set flexGrow(value) {
+    set flexGrow(value: string | number) {
         this._element.style.flexGrow = value;
         this._element.style.webkitFlexGrow = value;
     }
@@ -255,7 +255,7 @@ class LegacyElement extends Events {
         return this._element.style.flexGrow;
     }
 
-    set flexShrink(value) {
+    set flexShrink(value: string | number) {
         this._element.style.flexShrink = value;
         this._element.style.webkitFlexShrink = value;
     }

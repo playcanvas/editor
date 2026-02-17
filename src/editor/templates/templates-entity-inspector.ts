@@ -235,7 +235,7 @@ class TemplatesEntityInspector extends Container {
         this._dismissEntityDropdownMenu();
     }
 
-    _onClickWindow(e) {
+    _onClickWindow(e: MouseEvent): void {
         if (this._entityDropdownMenu.dom.contains(e.target)) {
             return;
         }
@@ -266,7 +266,7 @@ class TemplatesEntityInspector extends Container {
         return this._overrides ? this._overrides.totalOverrides : 0;
     }
 
-    _createEntityListItem(data) {
+    _createEntityListItem(data: { name: string; resourceId?: string; overrides?: unknown[]; added?: unknown; removed?: unknown }): { item: Container; name: string } {
         const container = new Container({
             flex: true,
             flexDirection: 'row'
@@ -508,7 +508,7 @@ class TemplatesEntityInspector extends Container {
         }
     }
 
-    _onTemplateApply(data) {
+    _onTemplateApply(data: { entity_id: string }): void {
         if (this.hidden) {
             return;
         }
@@ -520,7 +520,7 @@ class TemplatesEntityInspector extends Container {
         this._deferRefresh();
     }
 
-    _isDescendant(entity, parent) {
+    _isDescendant(entity: EntityObserver, parent: EntityObserver): boolean {
         while (true) {
             if (!entity || !entity.get('parent')) {
                 break;
@@ -538,7 +538,7 @@ class TemplatesEntityInspector extends Container {
         return false;
     }
 
-    _onEntityAdd(entity) {
+    _onEntityAdd(entity: EntityObserver): void {
         if (!this._entity) {
             return;
         }
@@ -548,11 +548,11 @@ class TemplatesEntityInspector extends Container {
         }
     }
 
-    _onEntityRemove(entity) {
+    _onEntityRemove(entity: EntityObserver): void {
         this._unbindEntityEvents(entity);
     }
 
-    _bindEntityEvents(entity) {
+    _bindEntityEvents(entity: EntityObserver): void {
         if (this._entityEvents[entity.get('resource_id')]) {
             return;
         }
@@ -581,7 +581,7 @@ class TemplatesEntityInspector extends Container {
         entry.push(entity.on('*:move', this._deferRefresh));
     }
 
-    _bindEntityEventsRecursively(entity) {
+    _bindEntityEventsRecursively(entity: EntityObserver): void {
         this._bindEntityEvents(entity);
 
         if (entity === this._entity && !entity.get('template_id')) {

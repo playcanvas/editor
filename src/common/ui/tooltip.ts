@@ -64,7 +64,7 @@ class LegacyTooltip extends LegacyContainer {
         });
     }
 
-    set align(value) {
+    set align(value: 'top' | 'right' | 'bottom' | 'left') {
         if (this._align === value) {
             return;
         }
@@ -80,7 +80,7 @@ class LegacyTooltip extends LegacyContainer {
         return this._align;
     }
 
-    set flip(value) {
+    set flip(value: boolean) {
         if (this.class.contains('flip') === value) {
             return;
         }
@@ -98,7 +98,7 @@ class LegacyTooltip extends LegacyContainer {
         return this.class.contains('flip');
     }
 
-    set text(value) {
+    set text(value: string) {
         if (this.innerElement.textContent === value) {
             return;
         }
@@ -110,7 +110,7 @@ class LegacyTooltip extends LegacyContainer {
         return this.innerElement.textContent;
     }
 
-    set html(value) {
+    set html(value: string) {
         if (this.innerElement.innerHTML === value) {
             return;
         }
@@ -122,7 +122,7 @@ class LegacyTooltip extends LegacyContainer {
         return this.innerElement.innerHTML;
     }
 
-    _onMouseOver(evt) {
+    _onMouseOver(evt: MouseEvent) {
         if (!this.hoverable) {
             return;
         }
@@ -207,7 +207,7 @@ class LegacyTooltip extends LegacyContainer {
         this._element.style.display = '';
     }
 
-    position(x, y) {
+    position(x: number, y: number) {
         x = Math.floor(x);
         y = Math.floor(y);
 

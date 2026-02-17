@@ -8,7 +8,7 @@ const CLASS_CANVAS = 'pcui-asset-preview-canvas';
 const CLASS_CANVAS_FLIP = 'pcui-asset-preview-canvas-flip';
 
 class FontAssetInspectorPreview extends AssetInspectorPreviewBase {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         super(args);
 
         this._preview = new Canvas({
@@ -53,7 +53,7 @@ class FontAssetInspectorPreview extends AssetInspectorPreviewBase {
         this._queueRender();
     }
 
-    link(assets) {
+    link(assets: import('@playcanvas/observer').Observer[]) {
         super.link(assets);
         this._previewRenderer = new FontThumbnailRenderer(assets[0], this._preview.dom);
         this._queueRender();

@@ -10,7 +10,7 @@ editor.once('load', () => {
     let isConnected = false;
     let isAuthenticated = false;
 
-    const onError = function (err) {
+    const onError = function (err: unknown) {
         editor.emit('realtime:error', err);
     };
 
@@ -27,7 +27,7 @@ editor.once('load', () => {
         };
 
         // If socket is closed try to reconnect
-        const onClose = function (reason) {
+        const onClose = function (reason: CloseEvent) {
             isConnected = false;
             isAuthenticated = false;
 
@@ -64,7 +64,7 @@ editor.once('load', () => {
             const onShareDbMessage = connection.socket.onmessage;
 
             // Message handler
-            connection.socket.onmessage = function (msg) {
+            connection.socket.onmessage = function (msg: MessageEvent) {
                 try {
                     if (msg.data.startsWith('auth')) {
                         if (!isAuthenticated) {
@@ -115,9 +115,9 @@ editor.once('load', () => {
 
             // Close handler
             const onConnectionClosed = connection.socket.onclose;
-            connection.socket.onclose = function (reason) {
-                onConnectionClosed(reason);
-                onClose(reason);
+            connection.socket.onclose = function (ev: CloseEvent) {
+                onConnectionClosed(ev);
+                onClose(ev);
             };
 
             // pass any buffered messages that came before
@@ -129,7 +129,7 @@ editor.once('load', () => {
         };
 
         // Handle initial messages until we are authenticated
-        const onMessage = function (msg) {
+        const onMessage = function (msg: MessageEvent) {
             // put any irrelevant messages in the buffer
             if (!msg.data.startsWith('auth')) {
                 msgBuffer.push(msg);
@@ -156,7 +156,7 @@ editor.once('load', () => {
     };
 
     // Raw socket send
-    editor.method('realtime:send', (name, data) => {
+    editor.method('realtime:send', (name: string, data: unknown) => {
         if (isConnected) {
             socket.send(name + JSON.stringify(data));
         }

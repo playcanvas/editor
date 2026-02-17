@@ -66,7 +66,7 @@ editor.once('viewport:load', (app) => {
     };
 
     const renderRadioOptions = [];
-    const createShaderOption = (name, state = false, callback = () => {}) => {
+    const createShaderOption = (name: string, state = false, callback: () => void = () => {}) => {
         // Create UI Panel
         const renderOption = new Container({
             flex: true

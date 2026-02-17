@@ -1,3 +1,5 @@
+import type { Observer } from '@playcanvas/observer';
+
 import { Trie } from '@/core/trie';
 
 editor.on('assets:load', () => {
@@ -11,7 +13,7 @@ editor.on('assets:load', () => {
     const assetPathMap = new Map();
 
     // Handle
-    const onAssetAdded = (asset) => {
+    const onAssetAdded = (asset: Observer) => {
         if (editor.call('assets:isModule', asset)) {
 
             // If this asset has already been added, then remove it's old path
@@ -41,7 +43,7 @@ editor.on('assets:load', () => {
     };
 
     // Listener for when an asset has been removed, remove the asset from the trie
-    const onAssetRemoved = (asset) => {
+    const onAssetRemoved = (asset: Observer) => {
         if (editor.call('assets:isModule', asset)) {
             const path = editor.call('assets:virtualPath', asset);
             if (path) {
@@ -62,7 +64,7 @@ editor.on('assets:load', () => {
 
         triggerCharacters: ['/', '.', '-', '_'],
 
-        provideCompletionItems: (model, position) => {
+        provideCompletionItems: (model: monaco.editor.ITextModel, position: monaco.Position) => {
 
             // Get the text until the current position
             const textUntilPosition = model.getValueInRange({

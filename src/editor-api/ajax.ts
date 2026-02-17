@@ -223,10 +223,10 @@ class Ajax<T> extends Events {
             this.on('progress', onprogress);
         }
         return new Promise<T>((resolve, reject) => {
-            this.once('load', (_status, response: T) => {
+            this.once('load', (_status: number, response: T) => {
                 resolve(response);
             });
-            this.once('error', (_status, error) => {
+            this.once('error', (_status: number, error: unknown) => {
                 reject(error);
             });
         });

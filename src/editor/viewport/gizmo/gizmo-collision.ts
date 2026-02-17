@@ -29,6 +29,7 @@ import {
 } from 'playcanvas';
 
 import { GIZMO_MASK } from '@/core/constants';
+import type { EntityObserver } from '@/editor-api';
 
 import { cloneColorMaterial, createColorMaterial } from '../viewport-color-material';
 
@@ -92,7 +93,7 @@ editor.once('load', () => {
     const layerBack = editor.call('gizmo:layers', 'Dim Gizmo');
 
     let visible = false;
-    editor.method('gizmo:collision:visible', (state) => {
+    editor.method('gizmo:collision:visible', (state: boolean | undefined) => {
         if (state === undefined) {
             return visible;
         }
@@ -316,7 +317,7 @@ editor.once('load', () => {
         }
 
         // link to entity
-        link(obj) {
+        link(obj: EntityObserver) {
             if (!app) {
                 return;
             }
@@ -332,9 +333,9 @@ editor.once('load', () => {
 
             // override addModelToLayers to selectively put some mesh instances
             // to the front and others to the back layer depending on __useFrontLayer
-            const customAddMeshInstancesToLayers = function () {
-                const frontMeshInstances = this.meshInstances.filter(mi => mi.__useFrontLayer);
-                const backMeshInstances = this.meshInstances.filter(mi => !mi.__useFrontLayer);
+            const customAddMeshInstancesToLayers = function (this: Model) {
+                const frontMeshInstances = this.meshInstances.filter((mi: MeshInstance) => mi.__useFrontLayer);
+                const backMeshInstances = this.meshInstances.filter((mi: MeshInstance) => !mi.__useFrontLayer);
 
                 layerBack.addMeshInstances(frontMeshInstances);
                 layerFront.addMeshInstances(backMeshInstances);
@@ -394,7 +395,7 @@ editor.once('load', () => {
             this.entity.destroy();
         }
 
-        createWireframe(assetId, isRender) {
+        createWireframe(assetId: number, isRender: boolean) {
             if (!app) {
                 return;
             }
@@ -411,7 +412,7 @@ editor.once('load', () => {
                     this.entity.model.model = createModelCopy(asset.resource, this.color);
                 }
             } else {
-                this.events.push(asset.once('load', (loadedAsset) => {
+                this.events.push(asset.once('load', (loadedAsset: import('playcanvas').Asset) => {
                     if (this.asset !== loadedAsset.id) {
                         return;
                     }
@@ -426,7 +427,7 @@ editor.once('load', () => {
         }
     }
 
-    editor.on('entities:add', (entity) => {
+    editor.on('entities:add', (entity: EntityObserver) => {
         const key = entity.get('resource_id');
 
         const addGizmo = () => {
@@ -472,7 +473,7 @@ editor.once('load', () => {
         }
     });
 
-    editor.once('viewport:load', (application) => {
+    editor.once('viewport:load', (application: import('playcanvas').AppBase) => {
         app = application;
 
         container = new Entity(app);
@@ -521,7 +522,7 @@ void main(void)
 
         const origFunc = materialDefault.getShaderVariant;
 
-        materialDefault.getShaderVariant = function (params) {
+        materialDefault.getShaderVariant = function (params: { device: import('playcanvas').GraphicsDevice; pass: number }) {
             if (params.pass === SHADER_FORWARD) {
                 if (!shaderDefault) {
                     shaderDefault = new Shader(params.device, {
@@ -614,7 +615,7 @@ void main(void)
 
         const matCapsule = cloneColorMaterial(materialDefault);
         const _getCapsuleShaderVariant = matCapsule.getShaderVariant;
-        matCapsule.getShaderVariant = function (params) {
+        matCapsule.getShaderVariant = function (params: { device: import('playcanvas').GraphicsDevice; pass: number }) {
             if (params.pass === SHADER_FORWARD) {
                 if (!shaderCapsuleForward) {
                     shaderCapsuleForward = new Shader(params.device, {
@@ -654,7 +655,7 @@ void main(void)
         matCapsuleOccluder.getShaderVariant = matCapsule.getShaderVariant;
         matCapsuleOccluder.update();
 
-        const createModel = (mesh) => {
+        const createModel = (mesh: Mesh) => {
             const node = new GraphNode();
 
             const meshInstance = new MeshInstance(mesh, materialDefault, node);
@@ -933,7 +934,7 @@ void main(void)
     });
 
     // prepares mesh instances to be rendered as collision meshes
-    const prepareMeshInstances = (meshInstances, color) => {
+    const prepareMeshInstances = (meshInstances: MeshInstance[], color: number[]) => {
         const meshesExtra = [];
 
         for (const mi of meshInstances) {
@@ -975,15 +976,15 @@ void main(void)
     };
 
     // returns an array of meshInstances
-    const createRenderCopy = (resource, color) => {
-        let meshInstances = resource.meshes.map((mesh) => {
+    const createRenderCopy = (resource: { meshes: Mesh[] }, color: number[]) => {
+        let meshInstances = resource.meshes.map((mesh: Mesh) => {
             return new MeshInstance(mesh, cloneColorMaterial(materialDefault));
         });
         meshInstances = prepareMeshInstances(meshInstances, color);
         return meshInstances;
     };
 
-    const createModelCopy = (resource, color) => {
+    const createModelCopy = (resource: { clone: () => Model; meshInstances: MeshInstance[] }, color: number[]) => {
         const model = resource.clone();
         model.meshInstances = prepareMeshInstances(model.meshInstances, color);
         return model;

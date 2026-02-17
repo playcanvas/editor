@@ -140,7 +140,7 @@ const ATTRIBUTES: (Attribute | Divider)[] = [
 ];
 
 class LightmappingSettingsPanel extends BaseSettingsPanel {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.headerText = 'LIGHTMAPPING';
         args.attributes = ATTRIBUTES;

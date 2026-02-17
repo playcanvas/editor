@@ -119,7 +119,7 @@ const ATTRIBUTES: Attribute[] = [{
 }];
 
 class CollisionComponentInspector extends ComponentInspector {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.component = 'collision';
 
@@ -170,11 +170,11 @@ class CollisionComponentInspector extends ComponentInspector {
         }
     }
 
-    _field(name) {
+    _field(name: string) {
         return this._attributesInspector.getField(`components.collision.${name}`);
     }
 
-    _handleTypeChange(fieldType) {
+    _handleTypeChange(fieldType: { value: string; binding: { on: (event: string, callback: (context: { prevHeights?: number[]; observers: import('@playcanvas/observer').Observer[] }) => void) => void } }) {
         // when the type changes we need to change the height of the collision
         // component to 2 if it's a capsule or 1 if it's a cylinder or cone.
         fieldType.binding.on('history:init', (context) => {
@@ -251,7 +251,7 @@ class CollisionComponentInspector extends ComponentInspector {
         this._field('renderAsset').hidden = fieldType.value !== 'mesh' || !!modelAsset;
     }
 
-    link(entities) {
+    link(entities: import('@playcanvas/observer').Observer[]) {
         super.link(entities);
         this._entities = entities;
         this._suppressToggleFields = true;

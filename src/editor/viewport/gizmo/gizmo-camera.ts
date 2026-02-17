@@ -1,5 +1,7 @@
 import { Color, Mat4, PROJECTION_PERSPECTIVE, Vec3 } from 'playcanvas';
 
+import type { EntityObserver } from '@/editor-api';
+
 editor.once('load', () => {
     let app;
     // selected entity gizmos
@@ -128,7 +130,7 @@ editor.once('load', () => {
         }
 
         // link to entity
-        link(obj) {
+        link(obj: EntityObserver) {
             this.unlink();
             this._link = obj;
 
@@ -155,7 +157,7 @@ editor.once('load', () => {
         }
     }
 
-    editor.on('selector:change', (type, items) => {
+    editor.on('selector:change', (type: string, items: EntityObserver[]) => {
         // clear gizmos
         if (type !== 'entity') {
             for (const key in entities) {
@@ -207,11 +209,11 @@ editor.once('load', () => {
         }
     });
 
-    editor.once('viewport:load', (application) => {
+    editor.once('viewport:load', (application: import('playcanvas').AppBase) => {
         app = application;
     });
 
-    editor.on('viewport:gizmoUpdate', (dt) => {
+    editor.on('viewport:gizmoUpdate', (dt: number) => {
         for (const key in entities) {
             entities[key].update();
             entities[key].render();

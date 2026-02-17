@@ -1,3 +1,5 @@
+import type { Observer } from '@playcanvas/observer';
+
 editor.once('load', () => {
     const app = editor.call('viewport:app');
     if (!app) {
@@ -17,7 +19,7 @@ editor.once('load', () => {
         app.root.syncHierarchy();
     };
 
-    const createEntity = function (obj) {
+    const createEntity = function (obj: Observer) {
         const entity = new pc.Entity(obj.get('name'));
 
         entity.setGuid(obj.get('resource_id'));
@@ -27,13 +29,13 @@ editor.once('load', () => {
         entity._enabled = obj.has('enabled') ? obj.get('enabled') : true;
 
         if (obj.has('labels')) {
-            obj.get('labels').forEach((label) => {
+            obj.get('labels').forEach((label: string) => {
                 entity.addLabel(label);
             });
         }
 
         if (obj.has('tags')) {
-            obj.get('tags').forEach((tag) => {
+            obj.get('tags').forEach((tag: string) => {
                 entity.tags.add(tag);
             });
         }
@@ -43,7 +45,7 @@ editor.once('load', () => {
         return entity;
     };
 
-    const createEntityHierarchy = function (obj) {
+    const createEntityHierarchy = function (obj: Observer) {
         // create entity
         const entity = createEntity(obj);
 
@@ -88,7 +90,7 @@ editor.once('load', () => {
         return entity;
     };
 
-    const addEntityComponents = function (entity, obj) {
+    const addEntityComponents = function (entity: pc.Entity, obj: Observer) {
         // add components
         const components = obj.json().components;
         for (const key in components) {
@@ -121,7 +123,7 @@ editor.once('load', () => {
         pendingEntities.length = 0;
     };
 
-    editor.on('entities:add', (obj) => {
+    editor.on('entities:add', (obj: Observer) => {
         const sceneLoading = editor.call('isLoadingScene');
         if (!app.root.findByGuid(obj.get('resource_id')) && !sceneLoading) {
             // create entity if it does not exist and all initial entities have loaded
@@ -139,7 +141,7 @@ editor.once('load', () => {
             }
         }
 
-        const resetPhysics = function (entity) {
+        const resetPhysics = function (entity: pc.Entity) {
             const pos = obj.get('position');
             const rot = obj.get('rotation');
             const scale = obj.get('scale');
@@ -169,7 +171,7 @@ editor.once('load', () => {
         };
 
         // subscribe to changes
-        obj.on('*:set', (path, value) => {
+        obj.on('*:set', (path: string, value: unknown) => {
             const entity = app.root.findByGuid(obj.get('resource_id'));
             if (!entity) {
                 return;
@@ -215,21 +217,21 @@ editor.once('load', () => {
             }
         });
 
-        obj.on('tags:insert', (value) => {
+        obj.on('tags:insert', (value: string) => {
             const entity = app.root.findByGuid(obj.get('resource_id'));
             if (entity) {
                 entity.tags.add(value);
             }
         });
 
-        obj.on('tags:remove', (value) => {
+        obj.on('tags:remove', (value: string) => {
             const entity = app.root.findByGuid(obj.get('resource_id'));
             if (entity) {
                 entity.tags.remove(value);
             }
         });
 
-        const reparent = function (child, index) {
+        const reparent = function (child: Observer, index: number) {
             let childEntity = editor.call('entities:get', child);
             if (!childEntity) {
                 return;
@@ -265,7 +267,7 @@ editor.once('load', () => {
         obj.on('children:move', reparent);
     });
 
-    editor.on('entities:remove', (obj) => {
+    editor.on('entities:remove', (obj: Observer) => {
         const entity = app.root.findByGuid(obj.get('resource_id'));
         if (entity) {
             entity.destroy();

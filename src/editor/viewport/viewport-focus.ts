@@ -10,7 +10,7 @@ editor.once('load', () => {
     const aabb = new BoundingBox();
     const aabbA = new BoundingBox();
 
-    const calculateChildAABB = function (entity) {
+    const calculateChildAABB = function (entity: import('playcanvas').Entity): void {
         aabbA.add(editor.call('entities:getBoundingBoxForEntity', entity));
 
         const children = entity.children;
@@ -31,7 +31,7 @@ editor.once('load', () => {
         return editor.call('entities:aabb', editor.call('selector:items'));
     });
 
-    editor.method('entities:aabb', (items) => {
+    editor.method('entities:aabb', (items: import('@/editor-api').EntityObserver | import('@/editor-api').EntityObserver[] | null) => {
         if (!items) {
             return null;
         }

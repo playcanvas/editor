@@ -74,7 +74,7 @@ editor.once('load', () => {
         }
     };
 
-    const onHover = function (entity, meshInstance) {
+    const onHover = function (entity: import('playcanvas').Entity | null, meshInstance: import('playcanvas').MeshInstance | null): void {
         if (entity === hoverEntity && meshInstance === hoverMeshInstance) {
             return;
         }
@@ -87,7 +87,7 @@ editor.once('load', () => {
         setCubemap();
     };
 
-    const onPickHover = function (node, picked) {
+    const onPickHover = function (node: import('playcanvas').Entity | null, picked: import('playcanvas').MeshInstance | unknown): void {
         let meshInstance = null;
 
         if (node && node._icon) {
@@ -118,7 +118,7 @@ editor.once('load', () => {
         ref: canvas,
         type: 'asset.cubemap',
         hole: true,
-        drop: function (type, data) {
+        drop: function (type: string, data: { id: string }) {
             if (!config.scene.id) {
                 return;
             }
@@ -163,7 +163,7 @@ editor.once('load', () => {
                 editor.call('viewport:render');
             }
         },
-        over: function (type, data) {
+        over: function (type: string, data: { id: string }) {
             if (!config.scene.id) {
                 return;
             }

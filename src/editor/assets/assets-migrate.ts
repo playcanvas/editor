@@ -35,7 +35,7 @@ editor.once('load', () => {
      * @param asset - The asset to migrate
      */
     const removeMaterialTintFlags = (asset: Observer) => {
-        const resetNeutral = (path: string, defaultVal: any, tintPath: string) => {
+        const resetNeutral = (path: string, defaultVal: unknown, tintPath: string) => {
             const oldVal = asset.get(path) ?? defaultVal;
             asset.set(path, defaultVal);
             if (!deepEqual(oldVal, defaultVal)) {
@@ -128,7 +128,7 @@ editor.once('load', () => {
         }
 
         // NOTE: useGammaTonemap is used by engine v1 so bind useTonemap to useGammaTonemap
-        asset.on('data.useTonemap:set', (value) => {
+        asset.on('data.useTonemap:set', (value: boolean) => {
             asset.set('data.useGammaTonemap', value);
         });
 
@@ -179,11 +179,11 @@ editor.once('load', () => {
         const anisotropyLegacyConvert = (intensity: number, rotation: number): number => {
             return intensity * Math.sign(Math.cos(rotation * 2 * Math.PI / 180));
         };
-        asset.on('data.anisotropyIntensity:set', (intensity) => {
+        asset.on('data.anisotropyIntensity:set', (intensity: number) => {
             const rotation = asset.get('data.anisotropyRotation') ?? 0;
             asset.set('data.anisotropy', anisotropyLegacyConvert(intensity, rotation));
         });
-        asset.on('data.anisotropyRotation:set', (rotation) => {
+        asset.on('data.anisotropyRotation:set', (rotation: number) => {
             const intensity = asset.get('data.anisotropyIntensity') ?? 0;
             asset.set('data.anisotropy', anisotropyLegacyConvert(intensity, rotation));
         });

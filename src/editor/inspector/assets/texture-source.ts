@@ -1,7 +1,7 @@
 import { RelatedAssetsInspector } from './related-assets';
 
 class TextureSourceAssetInspector extends RelatedAssetsInspector {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
 
         super(args);

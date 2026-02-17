@@ -31,7 +31,7 @@ editor.once('load', () => {
     // UI
 
     // displays or hides the loading bar in the CMS main panel based on parameter
-    const toggleProgress = function (toggle, progress = 100, label = '') {
+    const toggleProgress = function (toggle: boolean, progress: number = 100, label: string = '') {
         progressBar.value = progress;
         progressBar.hidden = !toggle;
         if (label !== '') {

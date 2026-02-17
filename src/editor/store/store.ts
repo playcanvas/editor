@@ -28,7 +28,7 @@ editor.once('load', () => {
     });
 
 
-    const sortQuery = function (sortPolicy, sortDescending) {
+    const sortQuery = function (sortPolicy: string, sortDescending: boolean) {
         if (sortPolicy) {
             if (sortDescending) {
                 return '&sort_by=-'.concat(sortPolicy);
@@ -39,12 +39,12 @@ editor.once('load', () => {
 
     // Loads all the store's items
     editor.method('store:sketchfab:list', async (
-        search,
-        skip,
-        limit,
-        tags,
-        sortPolicy,
-        sortDescending) => {
+        search: string,
+        skip: string,
+        limit: number,
+        tags: string[],
+        sortPolicy: string,
+        sortDescending: boolean) => {
 
         // Calculate the date from a week ago
         const weekAgoDate = new Date();
@@ -80,12 +80,12 @@ editor.once('load', () => {
 
     // Loads all the store's items
     editor.method('store:assets:list', (
-        search,
-        skip,
-        limit,
-        tags,
-        sortPolicy,
-        sortDescending) => {
+        search: string,
+        skip: number,
+        limit: number,
+        tags: string[],
+        sortPolicy: string,
+        sortDescending: boolean) => {
 
         const searchTags = tags || [];
         return editor.api.globals.rest.assets.assetsList({
@@ -100,7 +100,7 @@ editor.once('load', () => {
     });
 
     // clone store item to the scene
-    editor.method('store:clone', (storeItemId, name, license, projectId) => {
+    editor.method('store:clone', (storeItemId: string, name: string, license: string, projectId: string) => {
         return new Promise((resolve, reject) => {
 
             // get selected folder in assets panel
@@ -114,10 +114,10 @@ editor.once('load', () => {
                 targetFolderId: selectedFolder ? selectedFolder._data.id : null,
                 license: license
             })
-            .on('load', (status, response) => {
+            .on('load', (_status: number, response: unknown) => {
                 resolve(response);
             })
-            .on('error', (status, error) => {
+            .on('error', (_status: number, error: unknown) => {
                 reject(error);
             });
         });
@@ -125,7 +125,7 @@ editor.once('load', () => {
 
 
     // clone user-scoped asset to the scene
-    editor.method('myassets:clone', (assetId, name, projectId) => {
+    editor.method('myassets:clone', (assetId: string, name: string, projectId: string) => {
         return new Promise((resolve, reject) => {
 
             // get selected folder in assets panel
@@ -139,17 +139,17 @@ editor.once('load', () => {
                 targetFolderId: selectedFolder ? selectedFolder._data.id : null,
                 license: ''
             })
-            .on('load', (status, response) => {
+            .on('load', (_status: number, response: unknown) => {
                 resolve(response);
             })
-            .on('error', (status, error) => {
+            .on('error', (_status: number, error: unknown) => {
                 reject(error);
             });
         });
     });
 
     // clone store item to the scene
-    editor.method('store:clone:sketchfab', (storeItemId, name, license, projectId) => {
+    editor.method('store:clone:sketchfab', (storeItemId: string, name: string, license: string, projectId: string) => {
         return new Promise((resolve, reject) => {
 
             // get selected folder in assets panel
@@ -164,34 +164,34 @@ editor.once('load', () => {
                 targetFolderId: selectedFolder ? selectedFolder._data.id : null,
                 license: license
             })
-            .on('load', (status, response) => {
+            .on('load', (_status: number, response: unknown) => {
                 resolve(response);
             })
-            .on('error', (status, error) => {
+            .on('error', (_status: number, error: unknown) => {
                 reject(error);
             });
         });
     });
 
     // Load asset file contents and call callback
-    editor.method('store:loadAsset', (asset) => {
+    editor.method('store:loadAsset', (asset: { id: string; name: string }) => {
         return editor.api.globals.rest.store.storeAssetFile(asset.id, asset.name).promisify();
     });
 
     // Upload specified export
-    editor.method('store:uploadStoreItems', (file, progressHandler) => {
+    editor.method('store:uploadStoreItems', (file: File, progressHandler?: (progress: unknown) => void) => {
 
         return new Promise((resolve, reject) => {
             editor.api.globals.rest.store.storeUpload(file, 'multipart/form-data')
-            .on('progress', (progress) => {
+            .on('progress', (progress: unknown) => {
                 if (progressHandler) {
                     progressHandler(progress);
                 }
             })
-            .on('load', (status, response) => {
+            .on('load', (_status: number, response: unknown) => {
                 resolve(response);
             })
-            .on('error', (status, error) => {
+            .on('error', (_status: number, error: unknown) => {
                 reject(error);
             });
         });

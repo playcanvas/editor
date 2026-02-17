@@ -389,7 +389,7 @@ const ATTRIBUTES: Attribute[] = [{
 }];
 
 class ParticlesystemComponentInspector extends ComponentInspector {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.component = 'particlesystem';
 
@@ -474,7 +474,7 @@ class ParticlesystemComponentInspector extends ComponentInspector {
         this._attributesInspector.prepend(controls);
     }
 
-    _field(name) {
+    _field(name: string) {
         return this._attributesInspector.getField(`components.particlesystem.${name}`);
     }
 
@@ -585,7 +585,7 @@ class ParticlesystemComponentInspector extends ComponentInspector {
         });
     }
 
-    link(entities) {
+    link(entities: import('@playcanvas/observer').Observer[]) {
         super.link(entities);
 
         this._suppressToggleFields = true;

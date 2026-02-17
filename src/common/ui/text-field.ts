@@ -1,7 +1,7 @@
 import { LegacyElement } from './element';
 
 class LegacyTextField extends LegacyElement {
-    constructor(args = {}) {
+    constructor(args: Record<string, any> = {}) {
         super();
         this.element = document.createElement('div');
         this._element.classList.add('ui-text-field');
@@ -37,7 +37,7 @@ class LegacyTextField extends LegacyElement {
         }
     }
 
-    set value(value) {
+    set value(value: string) {
         if (this._link) {
             if (!this._link.set(this.path, value)) {
                 this.elementInput.value = this._link.get(this.path);
@@ -59,7 +59,7 @@ class LegacyTextField extends LegacyElement {
         return this.elementInput.value;
     }
 
-    set placeholder(value) {
+    set placeholder(value: string) {
         if (!value) {
             this._element.removeAttribute('placeholder');
         } else {
@@ -71,7 +71,7 @@ class LegacyTextField extends LegacyElement {
         return this._element.getAttribute('placeholder');
     }
 
-    set proxy(value) {
+    set proxy(value: string) {
         if (!value) {
             this._element.removeAttribute('proxy');
         } else {
@@ -83,7 +83,7 @@ class LegacyTextField extends LegacyElement {
         return this._element.getAttribute('proxy');
     }
 
-    set keyChange(value) {
+    set keyChange(value: boolean) {
         if (!!this.evtKeyChange === !!value) {
             return;
         }
@@ -99,7 +99,7 @@ class LegacyTextField extends LegacyElement {
         return !!this.evtKeyChange;
     }
 
-    _onLinkChange(value) {
+    _onLinkChange(value: string) {
         this.elementInput.value = value;
         this.emit('change', value);
     }
@@ -116,7 +116,7 @@ class LegacyTextField extends LegacyElement {
         }
     }
 
-    _onKeyDown(evt) {
+    _onKeyDown(evt: KeyboardEvent) {
         if (evt.keyCode === 27) {
             this.elementInput.blur();
         } else if (this.blurOnEnter && evt.keyCode === 13) {
@@ -143,7 +143,7 @@ class LegacyTextField extends LegacyElement {
         this.elementInput.select();
     }
 
-    focus(select) {
+    focus(select: boolean) {
         this.elementInput.focus();
         if (select) {
             this.elementInput.select();

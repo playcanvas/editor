@@ -9,16 +9,16 @@ editor.once('load', () => {
     } // webgl not available
 
     const settings = editor.call('settings:project');
-    const docs = { };
+    const docs: Record<string, { unsubscribe: () => void; destroy: () => void }> = { };
 
-    const assetNames = { };
+    const assetNames: Record<string, string> = { };
 
-    const queryParams = (new pc.URI(window.location.href)).getQuery();
+    const queryParams = (new pc.URI(window.location.href)).getQuery() as Record<string, string>;
     const concatenateScripts = (queryParams.concatenateScripts === 'true');
-    const concatenatedScriptsUrl = `projects/${config.project.id}/concatenated-scripts/scripts.js?branchId=${config.self.branch.id}`;
+    const concatenatedScriptsUrl = `projects/${(config.project as { id: string }).id}/concatenated-scripts/scripts.js?branchId=${(config.self as { branch: { id: string } }).branch.id}`;
     const useBundles = (queryParams.useBundles !== 'false');
 
-    const getFileUrl = function (folders, id, revision, filename, useBundles) {
+    const getFileUrl = function (folders: string[], id: string | number, revision: string | number, filename: string, useBundles?: boolean) {
         if (useBundles) {
             // if we are using bundles then this URL should be the URL
             // in the tar archive
@@ -34,10 +34,10 @@ editor.once('load', () => {
                 path += `${encodeURIComponent(assetNames[folders[i]] || 'unknown')}/`;
             }
         }
-        return `assets/files/${path}${encodeURIComponent(filename)}?id=${id}&branchId=${config.self.branch.id}`;
+        return `assets/files/${path}${encodeURIComponent(filename)}?id=${id}&branchId=${(config.self as { branch: { id: string } }).branch.id}`;
     };
 
-    editor.method('loadAsset', (uniqueId, callback) => {
+    editor.method('loadAsset', (uniqueId: string, callback?: (asset?: Observer) => void) => {
         const connection = editor.call('realtime:connection');
 
         const doc = connection.get('assets', `${uniqueId}`);
@@ -45,7 +45,7 @@ editor.once('load', () => {
         docs[uniqueId] = doc;
 
         // error
-        doc.on('error', (err) => {
+        doc.on('error', (err: unknown) => {
             if (connection.state === 'connected') {
                 console.log(err);
                 return;
@@ -63,11 +63,11 @@ editor.once('load', () => {
                 log.error(`Could not load asset: ${uniqueId}`);
                 doc.unsubscribe();
                 doc.destroy();
-                return callback && callback();
+                return callback?.();
             }
 
             // notify of operations
-            doc.on('op', (ops, local) => {
+            doc.on('op', (ops: unknown[], local: boolean) => {
                 if (local) {
                     return;
                 }
@@ -150,7 +150,7 @@ editor.once('load', () => {
         doc.subscribe();
     });
 
-    const createEngineAsset = function (asset, wasmAssetIds) {
+    const createEngineAsset = function (asset: Observer, wasmAssetIds: Record<string, number>) {
         let sync;
 
         // if engine asset already exists return
@@ -165,10 +165,10 @@ editor.once('load', () => {
 
             // get the assets in this bundle
             // that have a file
-            const assetsInBundle = asset.get('data.assets').map((id) => {
+            const assetsInBundle = asset.get('data.assets').map((id: number) => {
                 return editor.call('assets:get', id);
-            }).filter((asset) => {
-                return asset && asset.has('file.filename');
+            }).filter((a: Observer | undefined) => {
+                return a && a.has('file.filename');
             });
 
             if (assetsInBundle.length) {
@@ -178,11 +178,11 @@ editor.once('load', () => {
                 asset.set('file.url', getFileUrl(asset.get('path'), asset.get('id'), asset.get('revision'), asset.get('file.filename')));
 
                 // find assets with variants
-                const assetsWithVariants = assetsInBundle.filter((asset) => {
+                const assetsWithVariants = assetsInBundle.filter((a: Observer) => {
                     return asset.has('file.variants');
                 });
 
-                ['dxt', 'etc1', 'etc2', 'pvr', 'basis'].forEach((variant) => {
+                ['dxt', 'etc1', 'etc2', 'pvr', 'basis'].forEach((variant: string) => {
                     // search for assets with the specified variants and if some
                     // exist then generate the variant file
                     for (let i = 0, len = assetsWithVariants.length; i < len; i++) {
@@ -228,7 +228,7 @@ editor.once('load', () => {
 
         // create the engine asset
         const assetData = asset.json();
-        const engineAsset = asset.asset = new pc.Asset(assetData.name, assetData.type, assetData.file, assetData.data);
+        const engineAsset = (asset as Observer & { asset?: pc.Asset }).asset = new pc.Asset(assetData.name, assetData.type, assetData.file, assetData.data);
         engineAsset.id = parseInt(assetData.id, 10);
         engineAsset.preload = assetData.preload ? assetData.preload : false;
         if (assetData.type === 'script' &&
@@ -255,7 +255,7 @@ editor.once('load', () => {
         app.assets.add(engineAsset);
     };
 
-    const onLoad = function (data) {
+    const onLoad = function (data: Array<{ id: string; uniqueId: string; name?: string }>) {
         editor.call('assets:progress', 0.5);
 
         const total = data.length;
@@ -272,11 +272,11 @@ editor.once('load', () => {
         // get the set of wasm asset ids i.e. the wasm module ids and linked glue/fallback
         // script ids. the list is used to suppress the asset system from the loading
         // the scripts again.
-        const getWasmAssetIds = function () {
-            const result = { };
+        const getWasmAssetIds = function (): Record<string, number> {
+            const result: Record<string, number> = { };
             editor.call('assets:list')
-            .forEach((a) => {
-                const asset = a.asset;
+            .forEach((a: Observer) => {
+                const asset = (a as Observer & { asset?: pc.Asset }).asset;
                 if (asset.type !== 'wasm' || !asset.data) {
                     return;
                 }
@@ -291,7 +291,7 @@ editor.once('load', () => {
             return result;
         };
 
-        const loadScripts = function (wasmAssetIds) {
+        const loadScripts = function (wasmAssetIds: Record<string, number>) {
             const order = settings.get('scripts');
 
             for (let i = 0; i < order.length; i++) {
@@ -306,8 +306,8 @@ editor.once('load', () => {
             }
         };
 
-        const load = function (uniqueId) {
-            editor.call('loadAsset', uniqueId, async (asset) => {
+        const load = function (uniqueId: string) {
+            editor.call('loadAsset', uniqueId, async (asset: Observer) => {
                 count++;
                 editor.call('assets:progress', (count / total) * 0.5 + 0.5);
 
@@ -327,7 +327,7 @@ editor.once('load', () => {
 
                     // sort assets by script first and then by bundle
                     const assets = editor.call('assets:list');
-                    assets.sort((a, b) => {
+                    assets.sort((a: Observer, b: Observer) => {
                         const typeA = a.get('type');
                         const typeB = b.get('type');
                         if (typeA === 'script' && typeB !== 'script') {
@@ -346,7 +346,7 @@ editor.once('load', () => {
                     });
 
                     // create runtime asset for every asset observer
-                    assets.forEach((a) => {
+                    assets.forEach((a: Observer) => {
                         createEngineAsset(a, wasmAssetIds);
                     });
 
@@ -379,30 +379,31 @@ editor.once('load', () => {
     // load all assets
     editor.on('realtime:authenticated', () => {
         editor.api.globals.rest.projects.projectAssets('launcher', true)
-        .on('load', (status, data) => {
+        .on('load', (_status: number, data: Array<{ id: string; uniqueId: string; name?: string }>) => {
             onLoad(data);
         })
-        .on('progress', (progress) => {
+        .on('progress', (progress: number) => {
             editor.call('assets:progress', 0.1 + progress * 0.4);
         })
-        .on('error', (status, evt) => {
+        .on('error', (status: number, evt: unknown) => {
             console.log(status, evt);
         });
     });
 
     editor.call('assets:progress', 0.1);
 
-    editor.on('assets:remove', (asset) => {
+    editor.on('assets:remove', (asset: Observer) => {
         const id = asset.get('uniqueId');
-        if (docs[id]) {
-            docs[id].unsubscribe();
-            docs[id].destroy();
+        const doc = docs[id];
+        if (doc) {
+            doc.unsubscribe();
+            doc.destroy();
             delete docs[id];
         }
     });
 
     // hook sync to new assets
-    editor.on('assets:add', (asset) => {
+    editor.on('assets:add', (asset: Observer) => {
         if (asset.sync) {
             return;
         }
@@ -413,7 +414,7 @@ editor.once('load', () => {
 
         let setting = false;
 
-        asset.on('*:set', (path, value) => {
+        asset.on('*:set', (path: string, value: unknown) => {
             if (setting || !path.startsWith('file') || path.endsWith('.url') || !asset.get('file')) {
                 return;
             }
@@ -436,7 +437,7 @@ editor.once('load', () => {
     });
 
     // server > client
-    editor.on('realtime:op:assets', (op, uniqueId) => {
+    editor.on('realtime:op:assets', (op: { p: unknown[] }, uniqueId: string) => {
         const asset = editor.call('assets:getUnique', uniqueId);
         if (asset) {
             asset.sync.write(op);

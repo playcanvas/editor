@@ -1,3 +1,4 @@
+import type { Observer } from '@playcanvas/observer';
 import { Button } from '@playcanvas/pcui';
 
 import { LegacyTooltip } from '@/common/ui/tooltip';
@@ -17,7 +18,7 @@ editor.once('load', () => {
         editor.call('picker:codeeditor');
     });
 
-    editor.method('picker:codeeditor', (asset, options) => {
+    editor.method('picker:codeeditor', (asset?: Observer, options?: Record<string, unknown>) => {
         // open the new code editor - try to focus existing tab if it exists
 
         const projectId = config.project?.id;
@@ -54,7 +55,7 @@ editor.once('load', () => {
             // if the window is not open or does not have the code editor loaded, set the location
             // and wait for the code editor to mark itself as ready
             if (asset) {
-                const onmessage = (event) => {
+                const onmessage = (event: MessageEvent) => {
                     if (event.data !== 'ready') {
                         return;
                     }

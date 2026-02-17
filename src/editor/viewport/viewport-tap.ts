@@ -1,3 +1,14 @@
+/** Tap/pointer state passed to viewport:tap:* and viewport:mouse:move handlers */
+export interface ViewportTap {
+    x: number;
+    y: number;
+    lx?: number;
+    ly?: number;
+    button: number;
+    mouse?: boolean;
+    move?: boolean;
+}
+
 editor.once('load', () => {
     const canvas = editor.call('viewport:canvas');
     if (!canvas) {
@@ -29,14 +40,14 @@ editor.once('load', () => {
 
         mouse: boolean;
 
-        constructor(evt, rect, mouse) {
+        constructor(evt: MouseEvent, rect: DOMRect, mouse: boolean) {
             this.x = this.lx = this.sx = evt.clientX - rect.left;
             this.y = this.ly = this.sy = evt.clientY - rect.top;
             this.button = evt.button;
             this.mouse = !!mouse;
         }
 
-        update(evt, rect) {
+        update(evt: MouseEvent, rect: DOMRect) {
             const x = evt.clientX - rect.left;
             const y = evt.clientY - rect.top;
 
@@ -67,7 +78,7 @@ editor.once('load', () => {
         return inViewport;
     });
 
-    const evtMouseMove = function (evt) {
+    const evtMouseMove = function (evt: MouseEvent) {
         const rect = canvas.element.getBoundingClientRect();
         for (let i = 0; i < taps.length; i++) {
             if (!taps[i].mouse) {
@@ -105,7 +116,7 @@ editor.once('load', () => {
     });
     const gizmoCapture = (evt: MouseEvent) => gizmoDragging && evt.button === 0;
 
-    const evtMouseUp = function (evt) {
+    const evtMouseUp = function (evt: MouseEvent) {
         if (gizmoCapture(evt)) {
             return;
         }

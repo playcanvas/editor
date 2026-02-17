@@ -10,7 +10,21 @@ editor.once('load', () => {
      * 'addedEntities' and 'deletedEntities'
      */
     class FindInstanceOverrides {
-        constructor(asset, instance, instRootId) {
+        asset: Record<string, unknown>;
+
+        instance: Record<string, unknown>;
+
+        instRootId: string;
+
+        overrides: Record<string, unknown>;
+
+        srcToDst: Record<string, string>;
+
+        typeToInstData: Record<string, unknown>;
+
+        assetIdentity: Record<string, string>;
+
+        constructor(asset: Record<string, unknown>, instance: Record<string, unknown>, instRootId: string) {
             this.asset = asset;
 
             this.instance = instance;
@@ -111,7 +125,7 @@ editor.once('load', () => {
             });
         }
 
-        markEntityReference(conflict) {
+        markEntityReference(conflict: Record<string, unknown>): void {
             editor.call(
                 'template:utils',
                 'setEntReferenceIfNeeded',
@@ -135,7 +149,7 @@ editor.once('load', () => {
         }
     }
 
-    const getAssetData = function (id) {
+    const getAssetData = function (id: number) {
         const asset = editor.call('assets:get', id);
         return asset && asset.get('data');
     };

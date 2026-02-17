@@ -2,7 +2,19 @@ import { guid } from 'playcanvas';
 
 editor.once('load', () => {
     class NewTemplateData {
-        constructor(root, srcEnts) {
+        root: { get: (key: string) => unknown };
+
+        srcEnts: { get: (key: string) => unknown }[];
+
+        dstEnts: Record<string, unknown>[];
+
+        srcToDst: Record<string, string>;
+
+        rootId: string;
+
+        scriptAttrs: Record<string, unknown>;
+
+        constructor(root: { get: (key: string) => unknown }, srcEnts: { get: (key: string) => unknown }[]) {
             this.root = root;
 
             this.srcEnts = srcEnts;
@@ -28,7 +40,7 @@ editor.once('load', () => {
             this.srcEnts.forEach(this.handleSrcEnt, this);
         }
 
-        handleSrcEnt(srcEnt) {
+        handleSrcEnt(srcEnt: { get: (key: string) => unknown; json: () => Record<string, unknown> }): void {
             const srcId = srcEnt.get('resource_id');
 
             const dstId = guid.create();
@@ -55,7 +67,7 @@ editor.once('load', () => {
                 'template:getScriptAttributes', this.dstEnts);
         }
 
-        remapIds(ent) {
+        remapIds(ent: Record<string, unknown>): void {
             editor.call(
                 'template:remapEntityIds',
                 ent,

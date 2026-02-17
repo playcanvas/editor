@@ -279,7 +279,7 @@ editor.once('load', () => {
 
     let uploadingImage = false;
 
-    const uploadProjectImage = function (file) {
+    const uploadProjectImage = function (file: File) {
         if ((!IS_EMPTY_STATE && !editor.call('permissions:write')) || uploadingImage || currentProject.access_level !== 'admin') {
             return;
         }
@@ -311,13 +311,13 @@ editor.once('load', () => {
 
     const dropRef = editor.call('drop:target', {
         ref: projectImg,
-        filter: function (type, data) {
+        filter: function (type: string, data: File[]) {
             return editor.call('permissions:write') &&
                    !leftPanel.disabled &&
                    !uploadingImage &&
                    type === 'files';
         },
-        drop: function (type, data) {
+        drop: function (type: string, data: File[]) {
             if (type !== 'files') {
                 return;
             }
@@ -490,7 +490,7 @@ editor.once('load', () => {
     };
 
     // activate menu option
-    const select = function (name) {
+    const select = function (name: string) {
         if (!name) {
             return;
         }
@@ -523,7 +523,7 @@ editor.once('load', () => {
     };
 
     // ESC key should close popup
-    const onKeyDown = function (e) {
+    const onKeyDown = function (e: KeyboardEvent) {
         if (e.target && /input|textarea/i.test(e.target.tagName)) {
             return;
         }

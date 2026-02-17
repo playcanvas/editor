@@ -40,7 +40,7 @@ editor.once('load', () => {
     });
 
     editor.on('realtime:nextAttempt', (time) => {
-        function setText(remaining) {
+        function setText(remaining: number) {
             content.innerHTML = `Disconnected. Reconnecting in ${remaining} seconds...`;
         }
 
@@ -80,7 +80,7 @@ editor.once('load', () => {
         content.innerHTML = 'Cannot connect to the server. Please try again later.';
     });
 
-    const onError = function (err) {
+    const onError = function (err: unknown) {
         console.log(err);
         console.trace();
         content.innerHTML = 'Error while saving changes. Please refresh the editor.';

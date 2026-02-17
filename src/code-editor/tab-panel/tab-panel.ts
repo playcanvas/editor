@@ -1,3 +1,4 @@
+import { type Observer } from '@playcanvas/observer';
 import { Button, Container, Label, Progress } from '@playcanvas/pcui';
 
 editor.once('load', () => {
@@ -37,7 +38,7 @@ editor.once('load', () => {
     // pseudo-id of find in files tab
     const FIND_IN_FILES = 'Find in Files';
 
-    const updateDirty = function (id, dirty) {
+    const updateDirty = function (id: string, dirty: boolean) {
         const entry = tabsIndex[id];
         if (entry) {
             if (dirty) {
@@ -50,7 +51,7 @@ editor.once('load', () => {
     };
 
     // focus a tab
-    const focusTab = function (id) {
+    const focusTab = function (id: string) {
         const entry = tabsIndex[id];
         if (focusedTab === entry) {
             return;
@@ -77,7 +78,7 @@ editor.once('load', () => {
     };
 
     // Closes a tab
-    const closeTab = function (id) {
+    const closeTab = function (id: string) {
         const tab = tabsIndex[id];
         if (!tab) {
             return;
@@ -119,7 +120,7 @@ editor.once('load', () => {
         }
     };
 
-    const moveTab = function (e) {
+    const moveTab = function (e: MouseEvent) {
         e.preventDefault();
         e.stopPropagation();
 
@@ -203,7 +204,7 @@ editor.once('load', () => {
         tabPositions.length = 0;
     };
 
-    const grabTab = function (tab, e) {
+    const grabTab = function (tab: { id: string; tab: { dom: HTMLElement; style: { left: string }; class: { add: (s: string) => void; remove: (s: string) => void } }; asset?: Observer }, e: MouseEvent) {
         grabbedTab = tab;
 
         grabbedMouseX = e.clientX;
@@ -248,7 +249,7 @@ editor.once('load', () => {
     };
 
     // creates a tab
-    const createTab = function (id, asset) {
+    const createTab = function (id: string, asset: Observer | null) {
         const tabName = asset ? asset.get('name') : id;
 
         const tab = new Container({
@@ -324,12 +325,12 @@ editor.once('load', () => {
         };
 
         // close tab button
-        btnClose.on('click', (e) => {
+        btnClose.on('click', (e: MouseEvent) => {
             e.stopPropagation();
             close();
         });
 
-        const onGrab = function (e) {
+        const onGrab = function (e: MouseEvent) {
             if (e.target === btnClose.dom) {
                 return;
             }
@@ -352,11 +353,11 @@ editor.once('load', () => {
             }
         };
 
-        const onMouseEnter = function (e) {
+        const onMouseEnter = function (_e: MouseEvent) {
             tab.class.add('hovered');
         };
 
-        const onMouseLeave = function (e) {
+        const onMouseLeave = function (_e: MouseEvent) {
             tab.class.remove('hovered');
         };
 
@@ -371,7 +372,7 @@ editor.once('load', () => {
 
         tab.dom.addEventListener('mouseleave', onMouseLeave);
 
-        tab.on('destroy', (dom) => {
+        tab.on('destroy', (dom: HTMLElement) => {
             dom.removeEventListener('mousedown', onGrab);
             dom.removeEventListener('mouseenter', onMouseEnter);
             dom.removeEventListener('mouseleave', onMouseLeave);
@@ -384,7 +385,7 @@ editor.once('load', () => {
         editor.emit('tabs:open', entry);
     };
 
-    const toggleProgress = function (id, toggle) {
+    const toggleProgress = function (id: string, toggle: boolean) {
         const tab = tabsIndex[id];
         if (tab && tab.progress) {
             tab.progress.hidden = !toggle;
@@ -394,7 +395,7 @@ editor.once('load', () => {
     // unhide tabs panel when asset
     // is selected and create tab for asset
     // or focus existing tab
-    editor.on('select:asset', (asset) => {
+    editor.on('select:asset', (asset: Observer) => {
         if (asset.get('type') === 'folder') {
             return;
         }
@@ -436,7 +437,7 @@ editor.once('load', () => {
     });
 
     // hide progress when document is loaded
-    editor.on('documents:load', (doc, asset, docEntry) => {
+    editor.on('documents:load', (_doc: unknown, asset: Observer, _docEntry?: unknown) => {
         toggleProgress(asset.get('id'), false);
     });
 
@@ -458,7 +459,7 @@ editor.once('load', () => {
     });
 
     // change title on dirty doc
-    editor.on('documents:dirty', (id, dirty) => {
+    editor.on('documents:dirty', (id: string, dirty: boolean) => {
         updateDirty(id, dirty);
 
         // hide saving progress
@@ -471,7 +472,7 @@ editor.once('load', () => {
     });
 
     // when the user edits a document locally then make the tab permanent
-    editor.on('documents:dirtyLocal', (id, dirty) => {
+    editor.on('documents:dirtyLocal', (id: string, dirty: boolean) => {
         // if this is the temporary tab make it permanent
         if (dirty && temporaryTab && temporaryTab === tabsIndex[id]) {
             editor.call('tabs:temp:stick');
@@ -482,18 +483,18 @@ editor.once('load', () => {
     editor.on('documents:close', closeTab);
 
     // show progress while saving
-    editor.on('editor:command:save:start', (id) => {
+    editor.on('editor:command:save:start', (id: string) => {
         toggleProgress(id, true);
     });
 
-    editor.on('documents:save:success', (uniqueId) => {
+    editor.on('documents:save:success', (uniqueId: string) => {
         const asset = editor.call('assets:getUnique', uniqueId);
         if (asset) {
             toggleProgress(asset.get('id'), false);
         }
     });
 
-    editor.on('documents:save:error', (uniqueId) => {
+    editor.on('documents:save:error', (uniqueId: string) => {
         const asset = editor.call('assets:getUnique', uniqueId);
         if (asset) {
             toggleProgress(asset.get('id'), false);
@@ -511,7 +512,7 @@ editor.once('load', () => {
     });
 
     // returns true if the asset id is shown in the temporary tab
-    editor.method('tabs:isTemp', (id) => {
+    editor.method('tabs:isTemp', (id: string) => {
         return temporaryTab && temporaryTab === tabsIndex[id];
     });
 
@@ -544,7 +545,7 @@ editor.once('load', () => {
     });
 
     // close tab
-    editor.method('tabs:close', (id) => {
+    editor.method('tabs:close', (id: string) => {
         const entry = tabsIndex[id];
         if (!entry) {
             return;
@@ -558,8 +559,8 @@ editor.once('load', () => {
     });
 
     // handle asset name changes
-    editor.on('assets:add', (asset) => {
-        asset.on('name:set', (name) => {
+    editor.on('assets:add', (asset: Observer) => {
+        asset.on('name:set', (name: string) => {
             const entry = tabsIndex[asset.get('id')];
             if (entry) {
                 entry.name.text = name;
@@ -568,7 +569,7 @@ editor.once('load', () => {
     });
 
     // Mark errored tab
-    editor.on('documents:error', (id) => {
+    editor.on('documents:error', (id: string) => {
         const entry = tabsIndex[id];
         if (entry) {
             entry.tab.class.add('error');

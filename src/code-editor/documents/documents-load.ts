@@ -34,6 +34,8 @@
 // };
 
 
+import type { Observer } from '@playcanvas/observer';
+
 editor.once('load', () => {
     const documentsIndex = {};
 
@@ -47,7 +49,7 @@ editor.once('load', () => {
     let lastFocusedId = null;
 
     // Loads the editable document that corresponds to the specified asset id
-    const loadDocument = function (asset, importSubModules = true) {
+    const loadDocument = function (asset: Observer, importSubModules: boolean = true) {
         const id = asset.get('id').toString();
         const uniqueId = asset.get('uniqueId').toString();
         const connection = editor.call('realtime:connection');
@@ -67,7 +69,7 @@ editor.once('load', () => {
         documentsIndex[id] = entry;
 
         // handle errors
-        doc.on('error', (err) => {
+        doc.on('error', (err: unknown) => {
             editor.emit('documents:error', id, err);
         });
 
@@ -89,7 +91,7 @@ editor.once('load', () => {
             }
 
             // check if it's dirty
-            editor.call('assets:contents:get', asset, (err, content) => {
+            editor.call('assets:contents:get', asset, (err: unknown, content: string) => {
                 // re-check if we haven't closed the file
                 if (!documentsIndex[id] || err) {
                     return;
@@ -125,7 +127,7 @@ editor.once('load', () => {
 
     // Load document for the specified asset if not loaded already
     // and focus it
-    editor.on('select:asset', (asset) => {
+    editor.on('select:asset', (asset: Observer) => {
         if (asset.get('type') === 'folder') {
             return;
         }
@@ -164,7 +166,7 @@ editor.once('load', () => {
     });
 
     // Unload document
-    editor.on('documents:close', (id) => {
+    editor.on('documents:close', (id: string) => {
         const entry = documentsIndex[id];
         if (entry) {
             entry.doc.unsubscribe();
@@ -193,12 +195,12 @@ editor.once('load', () => {
     });
 
     // unload document if asset is removed
-    editor.on('assets:remove', (asset) => {
+    editor.on('assets:remove', (asset: Observer) => {
         editor.emit('documents:close', asset.get('id'));
     });
 
     // Document error
-    editor.on('documents:error', (id, err) => {
+    editor.on('documents:error', (id: string, err: unknown) => {
         log.error(err);
 
         const entry = documentsIndex[id];
@@ -212,13 +214,13 @@ editor.once('load', () => {
     });
 
     // Check if document content differs from asset file contents
-    editor.method('documents:isDirty', (id) => {
+    editor.method('documents:isDirty', (id: string) => {
         const entry = documentsIndex[id];
         return entry ? entry.isDirty : false;
     });
 
     // Update dirty status
-    editor.on('documents:dirty', (id, dirty) => {
+    editor.on('documents:dirty', (id: string, dirty: boolean) => {
         const entry = documentsIndex[id];
         if (entry) {
             entry.isDirty = dirty;
@@ -226,7 +228,7 @@ editor.once('load', () => {
     });
 
     // Returns true if the document hasn't finished loading yet
-    editor.method('documents:isLoading', (id) => {
+    editor.method('documents:isLoading', (id: string) => {
         const entry = documentsIndex[id];
         return entry ? entry.isLoading : false;
     });
@@ -276,12 +278,12 @@ editor.once('load', () => {
     });
 
     // get a sharejs document
-    editor.method('documents:get', (id) => {
+    editor.method('documents:get', (id: string) => {
         return documentsIndex[id] ? documentsIndex[id].doc : null;
     });
 
     // returns true if the document has an error
-    editor.method('documents:hasError', (id) => {
+    editor.method('documents:hasError', (id: string) => {
         return documentsIndex[id] && !!documentsIndex[id].error;
     });
 });

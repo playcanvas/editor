@@ -48,7 +48,7 @@ editor.once('load', () => {
 
     const launchOptions = { };
 
-    const launchApp = (deviceOptions) => {
+    const launchApp = (deviceOptions?: { webgpu?: boolean; webgl2?: boolean; webgl1?: boolean; [key: string]: boolean | undefined }) => {
         let url = config.url.launch + config.scene.id;
 
         const query = [];
@@ -142,7 +142,7 @@ editor.once('load', () => {
         launch.append(button);
 
         const divider = new Divider();
-        divider.on('click', e => e.stopPropagation());
+        divider.on('click', (e: MouseEvent) => e.stopPropagation());
 
         launch.append(divider);
         launch.on('click', () => launchApp({ [name]: true }));
@@ -150,7 +150,7 @@ editor.once('load', () => {
         return button;
     };
 
-    const createOption = (name, title) => {
+    const createOption = (name: string, title: string) => {
         const panel = new Container();
         panelOptions.append(panel);
 
@@ -161,7 +161,7 @@ editor.once('load', () => {
         option.style.marginTop = '6px';
         panel.append(option);
 
-        option.on('click', (e) => {
+        option.on('click', (e: MouseEvent) => {
             e.stopPropagation();
         });
 
@@ -175,7 +175,7 @@ editor.once('load', () => {
         });
 
         launchOptions[name] = false;
-        option.on('change', (value) => {
+        option.on('change', (value: boolean) => {
             launchOptions[name] = value;
         });
 
@@ -223,12 +223,12 @@ editor.once('load', () => {
 
     let suspendDebug = false;
     optionDebug.value = settings.get('editor.launchDebug');
-    settings.on('editor.launchDebug:set', (value) => {
+    settings.on('editor.launchDebug:set', (value: boolean) => {
         suspendDebug = true;
         optionDebug.value = value;
         suspendDebug = false;
     });
-    optionDebug.on('change', (value) => {
+    optionDebug.on('change', (value: boolean) => {
         if (suspendDebug) {
             return;
         }
@@ -269,12 +269,12 @@ editor.once('load', () => {
     // mini-stats
     const optionMiniStats = createOption('ministats', 'Mini stats');
     optionMiniStats.value = settings.get('editor.launchMinistats');
-    settings.on('editor.launchMinistats:set', (value) => {
+    settings.on('editor.launchMinistats:set', (value: boolean) => {
         if (value !== optionMiniStats.value) {
             optionMiniStats.value = value;
         }
     });
-    optionMiniStats.on('change', (value) => {
+    optionMiniStats.on('change', (value: boolean) => {
         settings.set('editor.launchMinistats', value);
     });
     LegacyTooltip.attach({
@@ -299,12 +299,12 @@ editor.once('load', () => {
     if (releaseCandidate) {
         const optionReleaseCandidate = createOption('releaseCandidate', 'Use Release Candidate');
         optionReleaseCandidate.value = settings.get('editor.launchReleaseCandidate');
-        settings.on('editor.launchReleaseCandidate:set', (value) => {
+        settings.on('editor.launchReleaseCandidate:set', (value: boolean) => {
             if (value !== optionReleaseCandidate.value) {
                 optionReleaseCandidate.value = value;
             }
         });
-        optionReleaseCandidate.on('change', (value) => {
+        optionReleaseCandidate.on('change', (value: boolean) => {
             settings.set('editor.launchReleaseCandidate', value);
         });
         LegacyTooltip.attach({
@@ -395,7 +395,7 @@ editor.once('load', () => {
         root: root
     });
 
-    editor.on('viewport:expand', (state) => {
+    editor.on('viewport:expand', (state: boolean) => {
         if (state) {
             tooltipExpand.text = 'Show Panels';
             buttonExpand.class.add('active');

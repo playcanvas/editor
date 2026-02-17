@@ -27,7 +27,7 @@ class TemplateOverrideInspector {
         this._evtMessenger = editor.on('messenger:template.apply', this._onTemplateApply.bind(this));
     }
 
-    _onTemplateApply(data) {
+    _onTemplateApply(data: { entity_id: string }): void {
         // if current entity is part of this template
         // then refresh overrides
         if (!this._entity) {
@@ -46,7 +46,7 @@ class TemplateOverrideInspector {
         this._deferRefreshOverrides();
     }
 
-    _getOverrideKey(override) {
+    _getOverrideKey(override: Record<string, unknown>): string {
         return `${override.override_type}${override.resource_id}${override.path}`;
     }
 
@@ -66,7 +66,7 @@ class TemplateOverrideInspector {
         this._entityEvents.length = 0;
     }
 
-    _addOverride(override, templateRoot) {
+    _addOverride(override: Record<string, unknown>, templateRoot: Observer): void {
         const registered = this._registeredElements[override.path];
         if (!registered) {
             return;

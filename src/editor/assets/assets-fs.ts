@@ -1,5 +1,5 @@
 editor.once('load', () => {
-    const getIds = function (assets) {
+    const getIds = function (assets: { get: (path: string) => string | number } | Array<{ get: (path: string) => string | number }>) {
         if (!(assets instanceof Array)) {
             assets = [assets];
         }

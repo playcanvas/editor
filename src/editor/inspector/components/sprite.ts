@@ -144,7 +144,7 @@ const CLASS_CLIP = 'sprite-component-inspector-clip';
 const REGEX_CLIP = /^components.sprite.clips.\d+$/;
 const REGEX_CLIP_NAME = /^components.sprite.clips.\d+\.name$/;
 
-function getClipsGroupedByName(entities) {
+function getClipsGroupedByName(entities: import('@playcanvas/observer').Observer[]) {
     const result = {};
 
     // first group clips by name
@@ -167,7 +167,7 @@ function getClipsGroupedByName(entities) {
     return result;
 }
 
-function getCommonClips(entities) {
+function getCommonClips(entities: import('@playcanvas/observer').Observer[]) {
     const result = getClipsGroupedByName(entities);
 
     // then remove all clips who are not shared across all entities
@@ -181,7 +181,7 @@ function getCommonClips(entities) {
 }
 
 class SpriteClipInspector extends Panel {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({
             collapsible: true,
             headerText: args.clipName
@@ -222,18 +222,18 @@ class SpriteClipInspector extends Panel {
         fieldName.on('change', this._onClipNameChange.bind(this));
     }
 
-    _getPathTo(field) {
+    _getPathTo(field: string) {
         return `components.sprite.clips.${this._clipKeys[0]}.${field}`;
     }
 
-    _onClipNameChange(value) {
+    _onClipNameChange(value: string) {
         this.headerText = value;
     }
 
-    _onClickRemove(evt) {
+    _onClickRemove(evt: MouseEvent) {
         super._onClickRemove(evt);
 
-        let prev = {};
+        let prev: Record<string, Record<string, unknown>> = {};
 
         // copy for redo / undo
         const clipKeys = this._clipKeys.slice();
@@ -303,7 +303,7 @@ class SpriteClipInspector extends Panel {
         redo();
     }
 
-    link(entities) {
+    link(entities: import('@playcanvas/observer').Observer[]) {
         this.unlink();
 
         this._entities = entities;
@@ -313,7 +313,7 @@ class SpriteClipInspector extends Panel {
         const fieldName = this._inspector.getField(this._getPathTo('name'));
 
         // if the name already exists show error
-        fieldName.onValidate = (value) => {
+        fieldName.onValidate = (value: string) => {
             if (!value) {
                 return false;
             }
@@ -346,7 +346,7 @@ class SpriteClipInspector extends Panel {
 }
 
 class SpriteComponentInspector extends ComponentInspector {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.component = 'sprite';
 
@@ -484,7 +484,7 @@ class SpriteComponentInspector extends ComponentInspector {
         redo();
     }
 
-    _createClipInspector(entities, clipName, clipKeys, insertBeforeElement) {
+    _createClipInspector(entities: import('@playcanvas/observer').Observer[], clipName: string, clipKeys: string[], insertBeforeElement?: Element) {
         const inspector = new SpriteClipInspector({
             clipName: clipName,
             clipKeys: clipKeys,
@@ -507,11 +507,11 @@ class SpriteComponentInspector extends ComponentInspector {
         return inspector;
     }
 
-    _field(name) {
+    _field(name: string) {
         return this._attributesInspector.getField(`components.sprite.${name}`);
     }
 
-    _onSetClip(clipName) {
+    _onSetClip(clipName: string) {
         const existing = this._clipInspectors[clipName];
         if (existing) {
             existing.destroy();
@@ -533,7 +533,7 @@ class SpriteComponentInspector extends ComponentInspector {
         this._updateAutoPlayOptions(commonClips);
     }
 
-    _onUnsetClip(clipName) {
+    _onUnsetClip(clipName: string) {
         const inspector = this._clipInspectors[clipName];
         if (inspector) {
             inspector.destroy();
@@ -543,7 +543,7 @@ class SpriteComponentInspector extends ComponentInspector {
         this._updateAutoPlayOptions();
     }
 
-    _onSetClipName(entity, name, oldName) {
+    _onSetClipName(entity: import('@playcanvas/observer').Observer, name: string, oldName: string) {
         // update autoPlayClip
         if (entity.get('components.sprite.autoPlayClip') === oldName) {
             const history = entity.history.enabled;
@@ -590,7 +590,7 @@ class SpriteComponentInspector extends ComponentInspector {
         this._updateAutoPlayOptions(commonClips);
     }
 
-    _updateAutoPlayOptions(commonClips) {
+    _updateAutoPlayOptions(commonClips?: Record<string, string[]>) {
         commonClips = commonClips || getCommonClips(this._entities);
 
         // fill auto play enum with clip names
@@ -638,7 +638,7 @@ class SpriteComponentInspector extends ComponentInspector {
         this._field('height').parent.hidden = hideSizeFields;
     }
 
-    link(entities) {
+    link(entities: import('@playcanvas/observer').Observer[]) {
         super.link(entities);
 
         this._suppressToggleFields = true;

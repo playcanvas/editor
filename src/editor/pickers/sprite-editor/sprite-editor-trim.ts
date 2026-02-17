@@ -1,5 +1,5 @@
 editor.once('load', () => {
-    function isPixelEmpty(x, y, width, imageData) {
+    function isPixelEmpty(x: number, y: number, width: number, imageData: ImageData) {
         const alpha = y * (width * 4) + x * 4 + 3;
         return imageData.data[alpha] === 0;
     }

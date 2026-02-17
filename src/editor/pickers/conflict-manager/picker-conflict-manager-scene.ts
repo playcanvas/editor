@@ -1,9 +1,10 @@
 import { ConflictResolver } from './ui/conflict-resolver';
+import type { ConflictSection } from './ui/conflict-section';
 
 editor.once('load', () => {
     const componentSchema = config.schema.scene.entities.$of.components;
 
-    function appendScriptAttribute(attribute, attributeName, section) {
+    function appendScriptAttribute(attribute: Record<string, unknown>, attributeName: string, section: ConflictSection) {
         // if id and mergeId fields exist then this is probably
         // the data of a script attribute conflict, otherwise
         // this is probably a JSON script attribute

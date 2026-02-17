@@ -10,7 +10,7 @@ editor.once('load', () => {
     // Handle scrolling on the attributes panel while drop targets are active.
     // In this case the wheel/scroll events will not pass through to the attributes panel
     // so do manual scrolling with javascript
-    dropManager.dom.addEventListener('wheel', (e) => {
+    dropManager.dom.addEventListener('wheel', (e: WheelEvent) => {
         if (attributesPanel.hidden || attributesPanel.collapsed) {
             return;
         }
@@ -45,19 +45,19 @@ editor.once('load', () => {
             dropType: obj.type,
             hole: obj.hole,
             passThrough: obj.passThrough,
-            onFilter: (type, data) => {
+            onFilter: (type: string, data: unknown) => {
                 if (obj.filter) {
                     return obj.filter(type, data);
                 }
 
                 return true;
             },
-            onDrop: (type, data) => {
+            onDrop: (type: string, data: unknown) => {
                 if (obj.drop) {
                     return obj.drop(type, data);
                 }
             },
-            onDragEnter: (type, data) => {
+            onDragEnter: (type: string, data: unknown) => {
                 if (obj.over) {
                     return obj.over(type, data);
                 }
@@ -75,14 +75,14 @@ editor.once('load', () => {
     });
 
 
-    editor.method('drop:item', (args) => {
+    editor.method('drop:item', (args: { element: HTMLElement; type: string; data: unknown }) => {
         args.element.draggable = true;
 
-        args.element.addEventListener('mousedown', (evt) => {
+        args.element.addEventListener('mousedown', (evt: MouseEvent) => {
             evt.stopPropagation();
         }, false);
 
-        args.element.addEventListener('dragstart', (evt) => {
+        args.element.addEventListener('dragstart', (evt: DragEvent) => {
             evt.preventDefault();
             evt.stopPropagation();
 
@@ -97,7 +97,7 @@ editor.once('load', () => {
     });
 
 
-    editor.method('drop:set', (type, data) => {
+    editor.method('drop:set', (type: string, data: unknown) => {
         dropManager.dropType = type;
         dropManager.dropData = data;
     });
@@ -106,7 +106,7 @@ editor.once('load', () => {
         return dropManager;
     });
 
-    editor.method('drop:activate', (active) => {
+    editor.method('drop:activate', (active: boolean) => {
         dropManager.active = active;
     });
     editor.method('drop:active', () => {
@@ -121,7 +121,7 @@ editor.once('load', () => {
         editor.emit('drop:active', false);
     });
 
-    dropManager.on('dropData', (dropData) => {
+    dropManager.on('dropData', (_dropData: unknown) => {
         editor.emit('drop:set', dropManager.dropType, dropManager.dropData || {});
     });
 });

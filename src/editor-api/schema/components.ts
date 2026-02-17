@@ -24,7 +24,7 @@ class ComponentSchema {
         // Any functions in the default property set are used to provide
         // lazy resolution, to handle cases where the values are not known
         // at startup time.
-        Object.keys(defaults).forEach((key) => {
+        Object.keys(defaults).forEach((key: string) => {
             const value = defaults[key];
 
             if (typeof value === 'function') {

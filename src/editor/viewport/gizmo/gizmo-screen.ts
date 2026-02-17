@@ -1,5 +1,7 @@
 import { Color, Vec2, Vec3 } from 'playcanvas';
 
+import type { EntityObserver } from '@/editor-api';
+
 editor.once('load', () => {
     const left = new Vec3();
     const right = new Vec3();
@@ -19,26 +21,26 @@ editor.once('load', () => {
         colors.push(Color.WHITE);
     }
 
-    editor.once('viewport:load', (app) => {
+    editor.once('viewport:load', (app: import('playcanvas').AppBase) => {
         const entities = {};
 
         // remember selected entities
         const selectedEntities = {};
 
-        editor.on('selector:add', (item, type) => {
+        editor.on('selector:add', (item: EntityObserver, type: string) => {
             if (type === 'entity') {
                 selectedEntities[item.get('resource_id')] = true;
             }
         });
 
-        editor.on('selector:remove', (item, type) => {
+        editor.on('selector:remove', (item: EntityObserver, type: string) => {
             if (type === 'entity') {
                 delete selectedEntities[item.get('resource_id')];
             }
         });
 
         // Returns true if a child of the entity is selected
-        const isChildSelected = function (entity) {
+        const isChildSelected = function (entity: EntityObserver): boolean {
             const children = entity.get('children');
             for (let i = 0, len = children.length; i < len; i++) {
                 if (selectedEntities[children[i]]) {
@@ -56,7 +58,7 @@ editor.once('load', () => {
             return false;
         };
 
-        editor.method('gizmo:screen:visible', (state) => {
+        editor.method('gizmo:screen:visible', (state: boolean) => {
             if (visible !== state) {
                 visible = state;
 
@@ -64,7 +66,7 @@ editor.once('load', () => {
             }
         });
 
-        editor.on('entities:add', (entity) => {
+        editor.on('entities:add', (entity: EntityObserver) => {
             const key = entity.get('resource_id');
 
             const addGizmo = function () {
@@ -112,7 +114,7 @@ editor.once('load', () => {
             });
         });
 
-        editor.on('viewport:gizmoUpdate', (dt) => {
+        editor.on('viewport:gizmoUpdate', (dt: number) => {
             if (!visible) {
                 return;
             }

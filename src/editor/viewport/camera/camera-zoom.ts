@@ -1,6 +1,8 @@
 import { BoundingBox, PROJECTION_PERSPECTIVE, Vec2, Vec3 } from 'playcanvas';
 
-editor.once('viewport:load', (app) => {
+import type { ViewportTap } from '../viewport-tap';
+
+editor.once('viewport:load', (app: import('playcanvas').Application) => {
     // Moving towards mouse point in world using mouse wheel
     // Speed is relative to distance of point in world
 
@@ -11,7 +13,7 @@ editor.once('viewport:load', (app) => {
 
     let zoomSpeed = settings.get('editor.zoomSensitivity') / 100;
     let zoomSpeedFast = zoomSpeed * 5;
-    settings.on('editor.zoomSensitivity:set', (sensitivity) => {
+    settings.on('editor.zoomSensitivity:set', (sensitivity: number) => {
         zoomSpeed = sensitivity / 100;
         zoomSpeedFast = zoomSpeed * 5;
     });
@@ -33,18 +35,18 @@ editor.once('viewport:load', (app) => {
     const aabbRoot = new BoundingBox();
     let aabbRootLast = 0;
 
-    editor.on('viewport:hover', (state) => {
+    editor.on('viewport:hover', (state: boolean) => {
         hovering = state;
     });
 
-    editor.on('selector:change', (type) => {
+    editor.on('selector:change', (type: string) => {
         if (selectorLastType !== type || type === 'entity') {
             selectorLastType = type;
             aabbSelectionLast = 0;
         }
     });
 
-    editor.on('viewport:update', (dt) => {
+    editor.on('viewport:update', (dt: number) => {
         if (zoomTarget !== zoom) {
             let diff = zoom;
             zoom += (zoomTarget - zoom) * Math.min(1.0, zoomEasing * ((firstUpdate === 1 ? 1 / 60 : dt) / (1 / 60)));
@@ -145,7 +147,7 @@ editor.once('viewport:load', (app) => {
         }
     });
 
-    const onMouseWheel = function (evt) {
+    const onMouseWheel = function (evt: WheelEvent): void {
         if (!hovering) {
             return;
         }
@@ -173,14 +175,14 @@ editor.once('viewport:load', (app) => {
         }
     };
 
-    const onFocus = function (point, dist) {
+    const onFocus = function (_point: import('playcanvas').Vec3, dist: number): void {
         distance = Math.max(1, Math.min(zoomMax, dist));
     };
 
     editor.on('camera:focus', onFocus);
     editor.on('camera:focus:end', onFocus);
 
-    editor.on('viewport:mouse:move', (tap) => {
+    editor.on('viewport:mouse:move', (tap: ViewportTap) => {
         mouseCoords.x = tap.x;
         mouseCoords.y = tap.y;
     });

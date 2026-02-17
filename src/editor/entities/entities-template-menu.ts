@@ -20,7 +20,7 @@ editor.once('load', () => {
         return selection;
     }
 
-    function selectEntity(entity) { // eslint-disable-line no-unused-vars
+    function selectEntity(entity: import('@playcanvas/observer').Observer) { // eslint-disable-line no-unused-vars
         // timeout because there is a chance the selector will be disabled
         // when the entity picker is enabled
         setTimeout(() => {

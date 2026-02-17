@@ -8,7 +8,7 @@ import { ConflictSectionRow, type ConflictSectionRowArgs } from './conflict-sect
 // A section contains multiple conflicts and it's meant to group
 // conflicts into meaningful categories
 class ConflictSection extends Events {
-    constructor(resolver, title, foldable, allowCloaking) {
+    constructor(resolver: Record<string, unknown>, title: string, foldable: boolean, allowCloaking: boolean) {
         super();
 
         this._resolver = resolver;
@@ -243,7 +243,7 @@ class ConflictSection extends Events {
         this._rows.length = 0;
     }
 
-    set numConflicts(value) {
+    set numConflicts(value: number) {
         this._numConflicts = value;
         this._labelNumConflicts.text = `${this._numResolvedConflicts}/${this._numConflicts}`;
     }
@@ -252,7 +252,7 @@ class ConflictSection extends Events {
         return this._numConflicts;
     }
 
-    set numResolvedConflicts(value) {
+    set numResolvedConflicts(value: number) {
         this._numResolvedConflicts = value;
         this._labelNumConflicts.text = `${this._numResolvedConflicts}/${this._numConflicts}`;
     }

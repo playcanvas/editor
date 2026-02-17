@@ -25,7 +25,7 @@ editor.once('load', () => {
     const docIndex = {};
 
     // Load asset from C3 and call callback
-    editor.method('assets:loadOne', (uniqueId, callback) => {
+    editor.method('assets:loadOne', (uniqueId: string | number, callback?: (asset: Observer) => void) => {
         uniqueId = uniqueId.toString(); // ensure id is string
         const connection = editor.call('realtime:connection');
         const assetDoc = connection.get('assets', uniqueId);
@@ -34,7 +34,7 @@ editor.once('load', () => {
         let asset;
 
         // handle errors
-        assetDoc.on('error', (err) => {
+        assetDoc.on('error', (err: unknown) => {
             log.error(err);
             editor.emit('assets:error', err);
             editor.call('status:error', `Realtime error for asset "${asset ? asset.get('name') : uniqueId}": ${err}`);
@@ -58,7 +58,7 @@ editor.once('load', () => {
             });
 
             // client -> server
-            asset.sync.on('op', (op) => {
+            asset.sync.on('op', (op: { p: string[] }) => {
                 if (!editor.call('permissions:write')) {
                     return;
                 }
@@ -72,7 +72,7 @@ editor.once('load', () => {
             });
 
             // server -> client
-            assetDoc.on('op', (ops, local) => {
+            assetDoc.on('op', (ops: Array<{ p: string[]; oi?: unknown; od?: unknown }>, local: boolean) => {
                 if (local) {
                     return;
                 }
@@ -108,7 +108,7 @@ editor.once('load', () => {
 
 
     // Handle asset path changes
-    editor.method('assets:fs:paths:patch', (data) => {
+    editor.method('assets:fs:paths:patch', (data: Array<{ uniqueId: string; id: string; path: string[] }>) => {
         const connection = editor.call('realtime:connection');
         const assets = connection.collections.assets;
 
@@ -133,7 +133,7 @@ editor.once('load', () => {
     });
 
     // destroy documents if assets are deleted
-    editor.on('assets:remove', (asset) => {
+    editor.on('assets:remove', (asset: Observer) => {
         const doc = docIndex[asset.get('uniqueId')];
         if (doc) {
             doc.unsubscribe();
@@ -146,7 +146,7 @@ editor.once('load', () => {
         editor.call('assets:load:progress', 0);
 
         editor.api.globals.rest.projects.projectAssets('codeeditor')
-        .on('load', (status, res) => {
+        .on('load', (_status: unknown, res: Array<{ uniqueId: string }>) => {
             if (!res.length) {
                 editor.emit('assets:load:progress', 1);
                 editor.emit('assets:load');
@@ -183,7 +183,7 @@ editor.once('load', () => {
                 startBatch += batchSize;
             }
         })
-        .on('error', (status, error) => {
+        .on('error', (status: number, error?: string) => {
             if (error) {
                 editor.call('status:error', `Error: ${error}(Status: ${status})`);
             } else {

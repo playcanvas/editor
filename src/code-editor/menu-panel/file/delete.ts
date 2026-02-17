@@ -31,8 +31,8 @@ editor.once('load', () => {
     editor.call('hotkey:register', 'delete-files', {
         key: 'Delete',
         skipPreventDefault: true,
-        callback: function (e) {
-            if (leftPanel.dom.contains(e.target) && e.target.tagName.toLowerCase() !== 'input') {
+        callback: function (e: Event) {
+            if (leftPanel.dom.contains(e.target as Node) && (e.target as HTMLElement).tagName.toLowerCase() !== 'input') {
                 e.preventDefault();
                 editor.call('editor:command:deleteSelected');
             }
@@ -43,8 +43,8 @@ editor.once('load', () => {
         key: 'Backspace',
         ctrl: true,
         skipPreventDefault: true,
-        callback: function (e) {
-            if (leftPanel.dom.contains(e.target) && e.target.tagName.toLowerCase() !== 'input') {
+        callback: function (e: Event) {
+            if (leftPanel.dom.contains(e.target as Node) && (e.target as HTMLElement).tagName.toLowerCase() !== 'input') {
                 e.preventDefault();
                 editor.call('editor:command:deleteSelected');
             }

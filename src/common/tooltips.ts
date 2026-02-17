@@ -129,7 +129,7 @@ export const tooltipOverrideItem = ({
     }));
 
     const templates = editor.call('templates:findApplyCandidatesForOverride', override, entities, templateRoot);
-    templates.forEach((template) => {
+    templates.forEach((template: Observer) => {
         // button to apply override
         const apply = new Button({
             class: 'apply',

@@ -19,7 +19,7 @@ editor.once('load', () => {
                 timeoutId = null;
             });
 
-            return (entities) => {
+            return (entities?: import('@/editor-api').EntityObserver[]) => {
                 // collect entities
                 if (entities) {
                     entities.forEach(e => entSet.add(e));
@@ -55,7 +55,7 @@ editor.once('load', () => {
         };
 
         editor.methodRemove('lightmapper:auto');
-        editor.method('lightmapper:auto', (value) => {
+        editor.method('lightmapper:auto', (value?: boolean) => {
             value = !!value;
 
             if (value !== autoBake) {
@@ -69,7 +69,7 @@ editor.once('load', () => {
         editor.emit('lightmapper:auto', autoBake);
 
         // bake once all assets are loaded on first time-load
-        app.assets.on('load', (asset) => {
+        app.assets.on('load', (_asset: unknown) => {
             evtRebakeScene();
         });
 
@@ -128,7 +128,7 @@ editor.once('load', () => {
             'components.render.castShadowsLightmap'
         ];
 
-        editor.on('entities:add', (entity) => {
+        editor.on('entities:add', (entity: import('@playcanvas/observer').Observer) => {
             // model
             for (let i = 0; i < fieldsLocal.length; i++) {
                 entity.on(`${fieldsLocal[i]}:set`, evtRebakeEntity);

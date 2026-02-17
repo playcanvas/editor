@@ -5,7 +5,7 @@ editor.once('load', () => {
     const projectSettings = editor.call('settings:project');
 
 
-    editor.method('plugins:load', (name, fn) => {
+    editor.method('plugins:load', (name: string, fn?: (err: Error | null) => void) => {
         if (!name || !pluginNameCheck.test(name)) {
             if (fn) {
                 fn(new Error('invalid plugin name'));
@@ -23,7 +23,7 @@ editor.once('load', () => {
         const element = document.createElement('script');
         element.async = false;
 
-        element.addEventListener('error', (err) => {
+        element.addEventListener('error', (err: Event) => {
             if (loaded) {
                 return;
             }
@@ -68,7 +68,7 @@ editor.once('load', () => {
         editor.emit('plugins:loading', name);
     });
 
-    editor.method('plugins:unload', (name) => {
+    editor.method('plugins:unload', (name: string) => {
         if (!plugins[name]) {
             return;
         }

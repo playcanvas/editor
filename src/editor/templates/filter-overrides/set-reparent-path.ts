@@ -1,6 +1,12 @@
 editor.once('load', () => {
     class SetReparentPath {
-        constructor(conflict, overrides) {
+        conflict: Record<string, unknown>;
+
+        overrides: Record<string, unknown>;
+
+        path_data: { src: { ids: string[]; names: string[] }; dst: { ids: string[]; names: string[] } };
+
+        constructor(conflict: Record<string, unknown>, overrides: Record<string, unknown>) {
             this.conflict = conflict;
 
             this.overrides = overrides;
@@ -29,13 +35,13 @@ editor.once('load', () => {
             this.findPathFromId('dst', dstId);
         }
 
-        findPathFromId(type, id) {
+        findPathFromId(type: 'src' | 'dst', id: string): void {
             const ent = this.findEnt(type, id);
 
             this.findPathFromEnt(type, ent);
         }
 
-        findPathFromEnt(type, ent) {
+        findPathFromEnt(type: 'src' | 'dst', ent: Record<string, unknown>): void {
             this.path_data[type].ids.unshift(ent.resource_id);
 
             this.path_data[type].names.unshift(ent.name);
@@ -47,7 +53,7 @@ editor.once('load', () => {
             }
         }
 
-        findEnt(type, id) {
+        findEnt(type: 'src' | 'dst', id: string): Record<string, unknown> {
             return this.overrides.typeToInstData[type].entIdToEntity[id];
         }
     }

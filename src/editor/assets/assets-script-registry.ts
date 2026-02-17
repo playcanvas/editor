@@ -18,7 +18,7 @@ editor.once('load', () => {
     const scriptsPrimary = {};
 
 
-    const primaryScriptSet = function (asset, script) {
+    const primaryScriptSet = function (asset: { get: (path: string) => unknown } | null, script: string) {
         if (asset === null && scriptsPrimary[script]) {
             // unset
             asset = scriptsPrimary[script];
@@ -37,7 +37,7 @@ editor.once('load', () => {
         }
     };
 
-    const checkCollisions = function (asset, script) {
+    const checkCollisions = function (asset: { get: (path: string) => unknown } | null, script: string) {
         const collides = [];
 
         if (collisionScripts[script]) {
@@ -99,7 +99,7 @@ editor.once('load', () => {
         }
     };
 
-    const addScript = function (asset, script) {
+    const addScript = function (asset: { get: (path: string) => string | unknown }, script: string) {
         const assetId = asset.get('id');
 
         if (!assetToScripts[assetId]) {
@@ -148,7 +148,7 @@ editor.once('load', () => {
         }
     };
 
-    const removeScript = function (asset, script) {
+    const removeScript = function (asset: { get: (path: string) => string | unknown }, script: string) {
         const assetId = asset.get('id');
 
         if (!assetToScripts[assetId] || !assetToScripts[assetId][script] || !scripts[script]) {
@@ -203,7 +203,7 @@ editor.once('load', () => {
         }
 
         // subscribe to changes
-        asset.on('*:set', function (path, value, old) {
+        asset.on('*:set', function (path: string, value: unknown, old: unknown) {
             if (path === 'preload') {
                 const scripts = Object.keys(this.get('data.scripts'));
                 for (let i = 0; i < scripts.length; i++) {

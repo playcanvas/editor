@@ -17,7 +17,7 @@ editor.once('load', () => {
     ];
 
 
-    editor.on('entities:add', (entity) => {
+    editor.on('entities:add', (entity: Observer) => {
         if (entity.sync) {
             return;
         }
@@ -31,7 +31,7 @@ editor.once('load', () => {
 
 
     // server > client
-    editor.on('realtime:op:entities', (op) => {
+    editor.on('realtime:op:entities', (op: { p: unknown[]; od?: unknown; oi?: unknown }) => {
         let entity = null;
         if (op.p[1]) {
             entity = editor.call('entities:get', op.p[1]);
@@ -47,7 +47,7 @@ editor.once('load', () => {
                 }
             } else if (op.hasOwnProperty('oi')) {
                 // new entity
-                editor.call('entities:add', new Observer(op.oi));
+                editor.call('entities:add', new Observer(op.oi as object));
             } else {
                 console.log('unknown operation', op);
             }

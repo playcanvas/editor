@@ -49,7 +49,7 @@ const DOM = parent => [
 ];
 
 class GSplatAssetInspector extends Container {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.headerText = 'GAUSSIAN SPLAT';
 
@@ -58,7 +58,7 @@ class GSplatAssetInspector extends Container {
         this.buildDom(DOM(this));
     }
 
-    link(assets) {
+    link(assets: import('@playcanvas/observer').Observer[]) {
         this.unlink();
         this._metaAttributesInspector.link(assets);
 

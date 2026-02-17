@@ -17,7 +17,7 @@ editor.once('load', () => {
         [283, 0.44, 0.47]
     ];
 
-    const hue2rgb = function hue2rgb(p, q, t) {
+    const hue2rgb = function hue2rgb(p: number, q: number, t: number) {
         if (t < 0) {
             t += 1;
         }
@@ -36,7 +36,7 @@ editor.once('load', () => {
         return p;
     };
 
-    const hslToRgb = function (h, s, l) {
+    const hslToRgb = function (h: number, s: number, l: number) {
         let r, g, b;
 
         if (s === 0) {
@@ -54,7 +54,7 @@ editor.once('load', () => {
 
     editor.method('color:hsl2rgb', hslToRgb);
 
-    const rgbToHex = function (r, g, b) {
+    const rgbToHex = function (r: number, g: number, b: number) {
         return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
     };
 
@@ -70,7 +70,7 @@ editor.once('load', () => {
     };
 
 
-    function addUser(id) {
+    function addUser(id: number) {
         let hash = id % 14;
         if (Math.floor(hash / 2) !== hash / 2) {
             hash = (hash + Math.floor(palette.length / 2)) % 14;

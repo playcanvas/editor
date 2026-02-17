@@ -1,6 +1,6 @@
 import { PROJECTION_ORTHOGRAPHIC, Vec3 } from 'playcanvas';
 
-editor.once('viewport:load', (app) => {
+editor.once('viewport:load', (app: import('playcanvas').Application) => {
     // Focusing on a point and a distance
 
     const focusTarget = new Vec3();
@@ -49,7 +49,7 @@ editor.once('viewport:load', (app) => {
         });
     });
 
-    editor.on('viewport:update', (dt) => {
+    editor.on('viewport:update', (dt: number) => {
         if (focusing) {
             const camera = editor.call('camera:current');
 

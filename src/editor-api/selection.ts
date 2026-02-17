@@ -299,13 +299,13 @@ class Selection extends Events {
         }
         this._history.wrapAction('modify selection', () => {
             // remove items no longer selected
-            const removed = this._items.filter(item => !items.includes(item));
-            removed.forEach((item) => {
+            const removed = this._items.filter((item: any) => !items.includes(item));
+            removed.forEach((item: any) => {
                 this.remove(item);
             });
 
             // add new items
-            items.forEach(item => this.add(item));
+            items.forEach((item: any) => this.add(item));
         });
         this._history.enabled = history;
     }

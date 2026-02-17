@@ -28,7 +28,7 @@ const DOM = parent => [
 ];
 
 class ScriptAssetInspector extends Panel {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.headerText = 'SCRIPTS';
 
@@ -44,7 +44,7 @@ class ScriptAssetInspector extends Panel {
         this.header.append(this._parseButton);
     }
 
-    _displayScriptAttributes(scripts) {
+    _displayScriptAttributes(scripts: Record<string, { attributes: Record<string, unknown>; attributesInvalid?: Array<{ name: string; severity?: number }> }>) {
         this._scriptAttributeContainer = new Container({ class: CLASS_CONTAINER });
         let hasScripts = false;
 
@@ -305,7 +305,7 @@ class ScriptAssetInspector extends Panel {
         });
     }
 
-    link(assets) {
+    link(assets: import('@playcanvas/observer').Observer[]) {
         this.unlink();
         this._asset = assets[0];
         this._displayScriptAttributes(this._asset.get('data.scripts'));

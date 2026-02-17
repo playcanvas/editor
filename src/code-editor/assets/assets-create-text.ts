@@ -1,5 +1,5 @@
 editor.once('load', () => {
-    editor.method('assets:create:text', (args) => {
+    editor.method('assets:create:text', (args?: { parent?: unknown }) => {
         if (!editor.call('permissions:write')) {
             return;
         }

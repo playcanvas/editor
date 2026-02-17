@@ -19,12 +19,12 @@ class LegacyButton extends LegacyElement {
         this._element.addEventListener('keydown', this._onKeyDown.bind(this), false);
         this.on('click', this._onClick.bind(this));
 
-        this._onLinkChange = (value) => {
+        this._onLinkChange = (value: any) => {
             (this._element as any).value = value;
         };
     }
 
-    set text(value) {
+    set text(value: string) {
         if (this._text === value) {
             return;
         }
@@ -36,7 +36,7 @@ class LegacyButton extends LegacyElement {
         return this._text;
     }
 
-    _onKeyDown(evt) {
+    _onKeyDown(evt: KeyboardEvent) {
         if (evt.keyCode === 27) {
             return this._element.blur();
         }

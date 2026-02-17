@@ -51,7 +51,7 @@ const DOM = parent => [
 ];
 
 class SpriteAssetInspector extends Panel {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.headerText = 'SPRITE';
 
@@ -60,7 +60,7 @@ class SpriteAssetInspector extends Panel {
         this.buildDom(DOM(this));
     }
 
-    link(assets) {
+    link(assets: import('@playcanvas/observer').Observer[]) {  // Observer[] for asset observers
         this.unlink();
         this._attributesInspector.link(assets);
         this._assetInput.link(assets, 'data.textureAtlasAsset');

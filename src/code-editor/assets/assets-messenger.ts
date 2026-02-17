@@ -10,7 +10,7 @@ editor.once('load', () => {
     ];
 
     // create new asset
-    editor.on('messenger:asset.new', (data) => {
+    editor.on('messenger:asset.new', (data: unknown) => {
         if (data.asset.branchId !== config.self.branch.id) {
             return;
         }
@@ -32,7 +32,7 @@ editor.once('load', () => {
     });
 
     // remove
-    editor.on('messenger:asset.delete', (data) => {
+    editor.on('messenger:asset.delete', (data: unknown) => {
         const asset = editor.call('assets:getUnique', data.asset.id);
         if (!asset) {
             return;
@@ -41,7 +41,7 @@ editor.once('load', () => {
     });
 
     // remove multiple
-    editor.on('messenger:assets.delete', (data) => {
+    editor.on('messenger:assets.delete', (data: unknown) => {
         for (let i = 0; i < data.assets.length; i++) {
             const asset = editor.call('assets:getUnique', parseInt(data.assets[i], 10));
             if (!asset) {

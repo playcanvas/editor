@@ -1,3 +1,5 @@
+import type { Observer } from '@playcanvas/observer';
+
 editor.once('load', () => {
     editor.method('assets:uploadFile', (args, fn) => {
         editor.api.globals.rest.assets.assetCreate(args)
@@ -19,7 +21,7 @@ editor.once('load', () => {
     });
 
 
-    const onAssetSelect = function (asset) {
+    const onAssetSelect = function (asset: Observer) {
         // do this in a timeout to give the asset a frame
         // to be added to the tree
         setTimeout(() => {

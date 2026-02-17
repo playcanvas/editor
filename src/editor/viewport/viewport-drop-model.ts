@@ -20,7 +20,7 @@ editor.once('load', () => {
 
     editor.call('drop:target', {
         ref: canvas,
-        filter: function (type, data) {
+        filter: function (type: string, data: { id: string | number } | { ids: string[] }): boolean {
             if (type === 'asset.model') {
                 const asset = app.assets.get(data.id);
                 if (asset) {
@@ -52,7 +52,7 @@ editor.once('load', () => {
                 return true;
             }
         },
-        drop: function (type, data) {
+        drop: function (type: string, data: { id: string } | { ids: string[] }) {
             if (!config.scene.id) {
                 return;
             }

@@ -1,4 +1,4 @@
-import { Events } from '@playcanvas/observer';
+import { Events, type Observer } from '@playcanvas/observer';
 
 import { buildQueryUrl } from '../utils';
 
@@ -20,7 +20,7 @@ const CENTER_PIVOT = [0.5, 0.5];
 // an item in the ImageCache
 // fires 'loaded' event if the Image element loads after being created
 class ImageCacheEntry extends Events {
-    constructor(image) {
+    constructor(image: HTMLImageElement) {
         super();
 
         this.value = image;
@@ -41,12 +41,12 @@ class ImageCache {
     }
 
     // return true if key exists
-    has(key) {
+    has(key: string) {
         return !!this._items[key];
     }
 
     // return the ImageCacheEntry at key
-    get(key) {
+    get(key: string) {
         if (this.has(key)) {
             return this._items[key];
         }
@@ -55,7 +55,7 @@ class ImageCache {
 
     // Insert an Image element into the cache
     // Returns the new ImageCacheEntry
-    insert(key, image) {
+    insert(key: string, image: HTMLImageElement) {
         const entry = new ImageCacheEntry(image);
         this._items[key] = entry;
 
@@ -124,7 +124,7 @@ function initializeScene() {
 }
 
 class SpriteThumbnailRenderer {
-    constructor(asset, canvas, assetsList) {
+    constructor(asset: Observer, canvas: HTMLCanvasElement, assetsList: any) {
         this._asset = asset;
         this._canvas = canvas;
         this._assets = assetsList;
@@ -160,7 +160,7 @@ class SpriteThumbnailRenderer {
         });
     }
 
-    render(frame = 0, animating = false) {
+    render(frame: number = 0, animating: boolean = false) {
         this._queuedRender = false;
         this._frameRequest = null;
 
@@ -285,7 +285,7 @@ class SpriteThumbnailRenderer {
             if (entry.status === 'loaded') {
                 img = entry.value;
             } else {
-                this._events.push(entry.once('loaded', (entry) => {
+                this._events.push(entry.once('loaded', (entry: any) => {
                     editor.call('assets:sprite:watch:trigger', this._asset);
                 }));
             }
@@ -299,7 +299,7 @@ class SpriteThumbnailRenderer {
 
             // insert image into cache which fires an event when the image is loaded
             entry = imageCache.insert(atlas.get('file.hash'), img);
-            this._events.push(entry.once('loaded', (entry) => {
+            this._events.push(entry.once('loaded', (entry: any) => {
                 editor.call('assets:sprite:watch:trigger', this._asset);
             }));
         }

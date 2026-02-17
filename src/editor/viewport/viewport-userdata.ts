@@ -1,7 +1,7 @@
 import { PROJECTION_ORTHOGRAPHIC } from 'playcanvas';
 
 editor.once('load', () => {
-    editor.on('userdata:load', (userdata) => {
+    editor.on('userdata:load', (userdata: import('@playcanvas/observer').Observer) => {
         if (!editor.call('permissions:read')) {
             return;
         }

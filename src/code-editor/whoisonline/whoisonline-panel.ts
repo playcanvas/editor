@@ -13,7 +13,7 @@ editor.once('load', () => {
     const itemsIndex = {};
     const tooltips = {};
 
-    const createItem = function (id) {
+    const createItem = function (id: string) {
         const link = document.createElement('a');
         link.href = `/${id}`;
         link.target = '_blank';
@@ -33,7 +33,7 @@ editor.once('load', () => {
 
         wioPanel.append(item);
 
-        editor.call('users:loadOne', id, (user) => {
+        editor.call('users:loadOne', id, (user: { id: string; name: string; color: string }) => {
             link.href = `/user/${user.username}`;
 
             tooltips[id] = tooltipSimpleItem({
@@ -48,7 +48,7 @@ editor.once('load', () => {
     };
 
 
-    editor.on('whoisonline:add', (assetId, userId) => {
+    editor.on('whoisonline:add', (assetId: string, userId: string) => {
         // check if this is the focused document
         if (editor.call('documents:getFocused') !== assetId || itemsIndex[userId]) {
             return;
@@ -57,7 +57,7 @@ editor.once('load', () => {
         createItem(userId);
     });
 
-    editor.on('whoisonline:remove', (assetId, userId) => {
+    editor.on('whoisonline:remove', (assetId: string, userId: string) => {
         // check if this is the focused document
         const focused = editor.call('documents:getFocused');
         if (focused && focused !== assetId) {
@@ -77,7 +77,7 @@ editor.once('load', () => {
     });
 
     // when we change documents reset whoisonline panel
-    editor.on('documents:focus', (id) => {
+    editor.on('documents:focus', (id: string) => {
         const whoisonline = editor.call('whoisonline:get', id);
 
         // clear old

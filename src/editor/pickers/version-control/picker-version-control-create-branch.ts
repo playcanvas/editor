@@ -35,7 +35,7 @@ editor.once('load', () => {
     panelName.append(fieldBranchName);
 
     // blur on enter
-    fieldBranchName.elementInput.addEventListener('keydown', function (e) {
+    fieldBranchName.elementInput.addEventListener('keydown', function (e: KeyboardEvent) {
         if (e.keyCode === 13) {
             this.blur();
             createBranch();
@@ -88,12 +88,12 @@ editor.once('load', () => {
         boxNewBranch.header = value || ' ';
     });
 
-    panel.setSourceBranch = function (branch) {
+    panel.setSourceBranch = function (branch: Record<string, unknown>) {
         panel.sourceBranch = branch;
         boxFrom.header = branch.name;
     };
 
-    panel.setCheckpoint = function (checkpoint) {
+    panel.setCheckpoint = function (checkpoint: Record<string, unknown>) {
         panel.checkpoint = checkpoint;
         boxFrom.setCheckpoint(checkpoint);
     };

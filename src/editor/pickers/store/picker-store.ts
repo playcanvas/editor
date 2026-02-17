@@ -669,7 +669,7 @@ editor.once('load', () => {
     // EVENTS
 
     // ESC key should close popup
-    const onKeyDown = function (e) {
+    const onKeyDown = function (e: KeyboardEvent) {
         if (e.target && /input|textarea/i.test(e.target.tagName)) {
             return;
         }

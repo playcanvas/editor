@@ -1,4 +1,4 @@
-import type { EventHandle, ObserverList } from '@playcanvas/observer';
+import type { EventHandle, Observer, ObserverList } from '@playcanvas/observer';
 import { Element, ElementArgs, Label, Container, Button, BindingObserversToElement } from '@playcanvas/pcui';
 
 import { type AssetObserver } from '@/editor-api';
@@ -175,7 +175,7 @@ class AssetInput extends Element {
     _initializeDropTarget() {
         editor.call('drop:target', {
             ref: this,
-            filter: (type, dropData) => {
+            filter: (type: string, dropData: any) => {
                 if (dropData.id && type.startsWith('asset') &&
                     (!this._assetType || type === `asset.${this._assetType}`) &&
                     parseInt(dropData.id, 10) !== this.value) {
@@ -184,10 +184,10 @@ class AssetInput extends Element {
                     return !!asset && !asset.get('source') && this.validateAsset(asset);
                 }
             },
-            drop: (type, dropData) => {
+            drop: (type: string, dropData: any) => {
                 this.value = parseInt(dropData.id, 10);
             },
-            over: (type, dropData) => {
+            over: (type: string, dropData: any) => {
                 if (this._dragEnterFn) {
                     this._dragEnterFn(type, dropData);
                 }
@@ -202,7 +202,7 @@ class AssetInput extends Element {
 
     // Fired when edit button is clicked
     _onClickEdit() {
-        this._pickAssetFn((pickedAssetId) => {
+        this._pickAssetFn((pickedAssetId: number) => {
             this.value = pickedAssetId;
         });
     }
@@ -226,7 +226,7 @@ class AssetInput extends Element {
             validateAssetsFn: this._validateAssetFn
         });
 
-        let evt = editor.once('picker:asset', (asset) => {
+        let evt = editor.once('picker:asset', (asset: Observer) => {
             evt = null;
             callback(asset.get('id'));
         });
@@ -266,7 +266,7 @@ class AssetInput extends Element {
         editor.call('assets:panel:currentFolder', folder);
     }
 
-    _updateValue(value, force: boolean = false) {
+    _updateValue(value: any, force: boolean = false) {
         if (this._value === value && !force) {
             return false;
         }
@@ -293,7 +293,7 @@ class AssetInput extends Element {
                     this._labelAsset.unlink();
                     this._labelAsset.text = 'Missing';
 
-                    this._evtAdd = this._assets.once(`add[${value}]`, (asset) => {
+                    this._evtAdd = this._assets.once(`add[${value}]`, (asset: Observer) => {
                         this._evtAdd = null;
                         this._labelAsset.link(asset, 'name');
                     });
@@ -321,7 +321,7 @@ class AssetInput extends Element {
         return true;
     }
 
-    link(observers, paths) {
+    link(observers: Observer | ObserverList, paths?: string[]) {
         super.link(observers, paths);
         this._thumbnail.link(observers, paths);
     }
@@ -348,11 +348,11 @@ class AssetInput extends Element {
         super.destroy();
     }
 
-    validateAsset(asset) {
-        return this._validateAssetFn ? this._validateAssetFn(asset) : true;
+    validateAsset(asset: Observer) {
+        return this._validateAssetFn ? this._validateAssetFn(asset as AssetObserver) : true;
     }
 
-    set text(value) {
+    set text(value: string) {
         this._label.value = value;
     }
 
@@ -364,7 +364,7 @@ class AssetInput extends Element {
         return this._label;
     }
 
-    set assetType(value) {
+    set assetType(value: string) {
         this._assetType = value;
     }
 
@@ -372,7 +372,7 @@ class AssetInput extends Element {
         return this._assetType;
     }
 
-    set dragEnterFn(value) {
+    set dragEnterFn(value: ((...args: any[]) => void) | undefined) {
         this._dragEnterFn = value;
     }
 
@@ -380,7 +380,7 @@ class AssetInput extends Element {
         return this._dragEnterFn;
     }
 
-    set dragLeaveFn(value) {
+    set dragLeaveFn(value: ((...args: any[]) => void) | undefined) {
         this._dragLeaveFn = value;
     }
 
@@ -388,7 +388,7 @@ class AssetInput extends Element {
         return this._dragLeaveFn;
     }
 
-    set value(value) {
+    set value(value: number | null) {
         const forceUpdate = !this._labelVarious.hidden && value === null;
         const changed = this._updateValue(value, forceUpdate);
 
@@ -401,7 +401,7 @@ class AssetInput extends Element {
         return this._value;
     }
 
-    set values(values) {
+    set values(values: (number | null)[]) {
         let different = false;
         const value = values[0];
         for (let i = 1; i < values.length; i++) {
@@ -421,7 +421,7 @@ class AssetInput extends Element {
         }
     }
 
-    set renderChanges(value) {
+    set renderChanges(value: boolean) {
         this._renderChanges = value;
         this._thumbnail.renderChanges = value;
     }

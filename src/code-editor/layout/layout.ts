@@ -142,7 +142,7 @@ editor.on('load', () => {
     });
 
     // disable context menu for everything but the code view
-    root.dom.addEventListener('contextmenu', (e) => {
+    root.dom.addEventListener('contextmenu', (e: MouseEvent) => {
         if (!code.domContent.contains(e.target)) {
             e.preventDefault();
         }

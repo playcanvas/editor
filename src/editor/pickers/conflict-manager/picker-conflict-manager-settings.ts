@@ -1,7 +1,7 @@
 import { ConflictResolver } from './ui/conflict-resolver';
 
 editor.once('load', () => {
-    const getLayerName = function (id, mergeObject) {
+    const getLayerName = function (id: string, mergeObject: { dstCheckpoint: { settings: { layers: Record<string, string> } }; srcCheckpoint: { settings: { layers: Record<string, string> } } }) {
         // try to get layer name from destination checkpoint first and if not
         // available try the source checkpoint
         return mergeObject.dstCheckpoint.settings.layers[id] ||
@@ -9,7 +9,7 @@ editor.once('load', () => {
                id;
     };
 
-    const getBatchGroupName = function (id, mergeObject) {
+    const getBatchGroupName = function (id: string, mergeObject: { dstCheckpoint: { settings: { batchGroups: Record<string, string> } }; srcCheckpoint: { settings: { batchGroups: Record<string, string> } } }) {
         // try to get batch group name from destination checkpoint first and if not
         // available try the source checkpoint
         return mergeObject.dstCheckpoint.settings.batchGroups[id] ||

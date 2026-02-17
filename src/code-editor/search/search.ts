@@ -1,3 +1,5 @@
+import type { Observer } from '@playcanvas/observer';
+
 import { WorkerClient } from '@/core/worker/worker-client';
 
 editor.once('load', () => {
@@ -15,7 +17,7 @@ editor.once('load', () => {
         editor.emit('editor:search:files:end');
     };
 
-    const checkCanDiscard = (asset, includeRegex, excludeRegex) => {
+    const checkCanDiscard = (asset: Observer, includeRegex: RegExp | null, excludeRegex: RegExp | null) => {
         if (!includeRegex && !excludeRegex) {
             return false;
         }

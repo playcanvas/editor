@@ -39,7 +39,7 @@ const DOM = parent => [
 ];
 
 class CodeBlockAssetInspector extends Container {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
 
         super(args);
@@ -101,7 +101,7 @@ class CodeBlockAssetInspector extends Container {
         });
     }
 
-    link(assets) {
+    link(assets: import('@playcanvas/observer').Observer[]) {
         this.unlink();
         this._assets = assets;
         if (assets[0].has('file.url')) {

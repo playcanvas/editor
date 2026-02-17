@@ -1,6 +1,7 @@
 import { BlendState, BLENDEQUATION_ADD, BLENDMODE_ONE_MINUS_SRC_ALPHA, BLENDMODE_SRC_ALPHA, Color, Entity, Mat4, math, PROJECTION_PERSPECTIVE, Vec3 } from 'playcanvas';
 
 import { GIZMO_MASK } from '@/core/constants';
+import type { EntityObserver } from '@/editor-api';
 
 import { createColorMaterial } from '../viewport-color-material';
 
@@ -44,7 +45,7 @@ editor.once('load', () => {
         obj.root = new Entity();
         obj.root.enabled = false;
 
-        const createMaterial = function (color) {
+        const createMaterial = function (color: Color) {
             const mat = createColorMaterial();
             mat.color = color;
             if (color.a !== 1) {
@@ -89,11 +90,11 @@ editor.once('load', () => {
         return false;
     };
 
-    editor.once('viewport:load', (app) => {
+    editor.once('viewport:load', (app: import('playcanvas').AppBase) => {
         const gizmo = createGizmo();
         app.root.addChild(gizmo.root);
 
-        const pickPlane = function (x, y) {
+        const pickPlane = function (x: number, y: number): Vec3 {
             const camera = editor.call('camera:current');
             const entity = selectedEntity.entity;
 
@@ -120,7 +121,7 @@ editor.once('load', () => {
             return pickedPos;
         };
 
-        editor.on('selector:add', (item, type) => {
+        editor.on('selector:add', (item: EntityObserver, type: string) => {
             if (type !== 'entity') {
                 return;
             }
@@ -130,13 +131,13 @@ editor.once('load', () => {
             }
         });
 
-        editor.on('selector:remove', (item, type) => {
+        editor.on('selector:remove', (item: EntityObserver, type: string) => {
             if (selectedEntity === item) {
                 selectedEntity = null;
             }
         });
 
-        editor.on('viewport:gizmoUpdate', (dt) => {
+        editor.on('viewport:gizmoUpdate', (dt: number) => {
             gizmo.root.enabled = gizmoEnabled();
             if (!gizmo.root.enabled) {
                 return;
@@ -233,7 +234,7 @@ editor.once('load', () => {
 
         });
 
-        const onTapStart = function (tap) {
+        const onTapStart = function (tap: { button: number; x: number; y: number }) {
             if (moving || tap.button !== 0) {
                 return;
             }
@@ -267,7 +268,7 @@ editor.once('load', () => {
             editor.emit('gizmo:transform:visible', false);
         };
 
-        const onTapMove = function (tap) {
+        const onTapMove = function (tap: { x: number; y: number }) {
             if (!moving) {
                 return;
             }
@@ -276,7 +277,7 @@ editor.once('load', () => {
             mouseTapMoved = true;
         };
 
-        const onTapEnd = function (tap) {
+        const onTapEnd = function (tap: { button: number }) {
             if (tap.button !== 0) {
                 return;
             }
@@ -337,7 +338,7 @@ editor.once('load', () => {
             }
         };
 
-        editor.on('viewport:pick:hover', (node, picked) => {
+        editor.on('viewport:pick:hover', (node: Entity | null, picked: unknown) => {
             if (!node || gizmo.handles.indexOf(node) === -1) {
                 if (gizmo.handle) {
                     gizmo.handle = null;

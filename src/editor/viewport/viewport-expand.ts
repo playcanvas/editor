@@ -7,7 +7,7 @@ editor.once('load', () => {
     let expanded = false;
 
 
-    editor.method('viewport:expand', (state) => {
+    editor.method('viewport:expand', (state?: boolean) => {
         if (state === undefined) {
             state = !expanded;
         }

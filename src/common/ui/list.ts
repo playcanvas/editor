@@ -1,7 +1,8 @@
 import { LegacyContainer } from './container';
+import { LegacyListItem } from './list-item';
 
 class LegacyList extends LegacyContainer {
-    constructor(args = {}) {
+    constructor(args: Record<string, any> = {}) {
         super();
         this.element = document.createElement('ul');
         this._element.classList.add('ui-list');
@@ -15,7 +16,7 @@ class LegacyList extends LegacyContainer {
         this.on('append', this._onAppend.bind(this));
     }
 
-    set selectable(value) {
+    set selectable(value: boolean) {
         if (this._selectable === !!value) {
             return;
         }
@@ -33,7 +34,7 @@ class LegacyList extends LegacyContainer {
         return this._selectable;
     }
 
-    set selected(value) {
+    set selected(value: LegacyListItem[]) {
         this._changing = true;
 
         const items = this.selected;
@@ -56,7 +57,7 @@ class LegacyList extends LegacyContainer {
         return this._selected.slice(0);
     }
 
-    _onSelect(item) {
+    _onSelect(item: LegacyListItem) {
         const ind = this._selected.indexOf(item);
         if (ind === -1) {
             this._selected.push(item);
@@ -91,7 +92,7 @@ class LegacyList extends LegacyContainer {
         this.emit('change');
     }
 
-    _onDeselect(item) {
+    _onDeselect(item: LegacyListItem) {
         const ind = this._selected.indexOf(item);
         if (ind !== -1) {
             this._selected.splice(ind, 1);
@@ -122,7 +123,7 @@ class LegacyList extends LegacyContainer {
         this.emit('change');
     }
 
-    _onAppend(item) {
+    _onAppend(item: LegacyListItem) {
         if (!item.selected) {
             return;
         }

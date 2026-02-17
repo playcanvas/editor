@@ -63,7 +63,7 @@ const ATTRIBUTES: Attribute[] = [{
     }
 }];
 class ScreenComponentInspector extends ComponentInspector {
-    constructor(args) {
+    constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.component = 'screen';
 
@@ -82,7 +82,7 @@ class ScreenComponentInspector extends ComponentInspector {
         this._suppressToggleFields = false;
     }
 
-    _field(name) {
+    _field(name: string) {
         return this._attributesInspector.getField(`components.screen.${name}`);
     }
 
@@ -100,7 +100,7 @@ class ScreenComponentInspector extends ComponentInspector {
         this._field('scaleBlend').parent.hidden = scaleMode !== 'blend' || !screenSpace;
     }
 
-    link(entities) {
+    link(entities: import('@playcanvas/observer').Observer[]) {
         super.link(entities);
         this._suppressToggleFields = true;
         this._attributesInspector.link(entities);

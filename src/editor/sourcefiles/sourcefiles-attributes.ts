@@ -1,3 +1,15 @@
+interface ScriptAttribute {
+    name: string;
+    type?: string;
+    defaultValue: unknown;
+    options?: { displayName?: string; description?: string; type?: unknown };
+}
+
+interface ScriptAttributesData {
+    name: string;
+    values: ScriptAttribute[];
+}
+
 editor.once('load', () => {
 
     const typeofs = ['undefined', 'number', 'string', 'boolean'];
@@ -53,20 +65,20 @@ editor.once('load', () => {
     const REGEX_GUID = /^[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}$/i;
     const REGEX_COLOR_CURVE = /^(?:r(?:gba?)?|[gba])$/; // r or g or b or rgb or rgba
 
-    const attributeErrorMsg = function (url, attribute, error) {
+    const attributeErrorMsg = function (url: string, attribute: ScriptAttribute, error: string) {
         return pc.string.format('Attribute \'{0}\' of script {1} is invalid: {2}', attribute.name, url, error);
     };
 
-    const validateValue = function (url, attribute, correctType, valueIfUndefined) {
-        var type = type(attribute.defaultValue);
-        if (type === 'undefined' || type === 'null') {
+    const validateValue = function (url: string, attribute: ScriptAttribute, correctType: string, valueIfUndefined: unknown) {
+        const attrType = type(attribute.defaultValue);
+        if (attrType === 'undefined' || attrType === 'null') {
             attribute.defaultValue = valueIfUndefined;
-        } else if (type !== correctType) {
+        } else if (attrType !== correctType) {
             throw attributeErrorMsg(url, attribute, `Value is not of type ${correctType}`);
         }
     };
 
-    const validateArrayValue = function (url, attribute, valueIfUndefined, correctLength, typeofElements) {
+    const validateArrayValue = function (url: string, attribute: ScriptAttribute, valueIfUndefined: unknown[], correctLength: number, typeofElements: string) {
         validateValue(url, attribute, 'array', valueIfUndefined);
 
         if (correctLength >= 0 && attribute.defaultValue.length !== correctLength) {
@@ -81,11 +93,11 @@ editor.once('load', () => {
     };
 
     const validators = {
-        'number': function (url, attribute) {
+        'number': function (url: string, attribute: ScriptAttribute) {
             validateValue(url, attribute, 'number', 0);
         },
 
-        'string': function (url, attribute) {
+        'string': function (url: string, attribute: ScriptAttribute) {
             validateValue(url, attribute, 'string', '');
 
             if (attribute.defaultValue.length > 512) {
@@ -93,40 +105,40 @@ editor.once('load', () => {
             }
         },
 
-        'boolean': function (url, attribute) {
+        'boolean': function (url: string, attribute: ScriptAttribute) {
             validateValue(url, attribute, 'boolean', false);
         },
 
-        'asset': function (url, attribute) {
+        'asset': function (url: string, attribute: ScriptAttribute) {
             // TODO check max array length
             validateArrayValue(url, attribute, [], -1, 'number');
         },
 
-        'vector': function (url, attribute) {
+        'vector': function (url: string, attribute: ScriptAttribute) {
             validateArrayValue(url, attribute, [0, 0, 0], 3, 'number');
         },
 
-        'vec2': function (url, attribute) {
+        'vec2': function (url: string, attribute: ScriptAttribute) {
             validateArrayValue(url, attribute, [0, 0], 2, 'number');
         },
 
-        'vec3': function (url, attribute) {
+        'vec3': function (url: string, attribute: ScriptAttribute) {
             validateArrayValue(url, attribute, [0, 0, 0], 3, 'number');
         },
 
-        'vec4': function (url, attribute) {
+        'vec4': function (url: string, attribute: ScriptAttribute) {
             validateArrayValue(url, attribute, [0, 0, 0, 0], 4, 'number');
         },
 
-        'rgb': function (url, attribute) {
+        'rgb': function (url: string, attribute: ScriptAttribute) {
             validateArrayValue(url, attribute, [0, 0, 0], 3, 'number');
         },
 
-        'rgba': function (url, attribute) {
+        'rgba': function (url: string, attribute: ScriptAttribute) {
             validateArrayValue(url, attribute, [0, 0, 0, 1], 4, 'number');
         },
 
-        'enumeration': function (url, attribute) {
+        'enumeration': function (url: string, attribute: ScriptAttribute) {
             if (attribute.options &&
                 attribute.options.enumerations &&
                 type(attribute.options.enumerations) === 'array' &&
@@ -174,7 +186,7 @@ editor.once('load', () => {
             }
         },
 
-        'entity': function (url, attribute) {
+        'entity': function (url: string, attribute: ScriptAttribute) {
             validateValue(url, attribute, 'string', null);
 
             if (attribute.defaultValue && !REGEX_GUID.test(attribute.defaultValue)) {
@@ -182,7 +194,7 @@ editor.once('load', () => {
             }
         },
 
-        'curve': function (url, attribute) {
+        'curve': function (url: string, attribute: ScriptAttribute) {
             if (!attribute.options) {
                 attribute.options = {};
             }
@@ -269,7 +281,7 @@ editor.once('load', () => {
             }
         },
 
-        'colorcurve': function (url, attribute) {
+        'colorcurve': function (url: string, attribute: ScriptAttribute) {
             if (!attribute.options) {
                 attribute.options = {};
             }
@@ -355,7 +367,7 @@ editor.once('load', () => {
         }
     };
 
-    const validateScriptAttributes = function (url, data) {
+    const validateScriptAttributes = function (url: string, data: ScriptAttributesData) {
         let hasErrors = false;
         let validated = {
             name: data.name,
@@ -363,7 +375,7 @@ editor.once('load', () => {
             attributesOrder: []
         };
 
-        data.values.forEach((attr) => {
+        data.values.forEach((attr: ScriptAttribute) => {
             try {
                 // check if name is valid
                 if (typeof attr.name !== 'string' || !attr.name) {
@@ -466,7 +478,7 @@ editor.once('load', () => {
             url: url
         });
 
-        worker.onmessage = function (e) {
+        worker.onmessage = function (e: MessageEvent) {
             if (e.data) {
                 if (typeof e.data.error !== 'undefined') {
                     editor.call('status:error', pc.string.format('Could not parse {0} - {1}', url, e.data.error));
