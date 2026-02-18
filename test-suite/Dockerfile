@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/playwright:v1.56.1-noble AS base
+FROM mcr.microsoft.com/playwright:v1.58.2-noble AS base
 LABEL org.opencontainers.image.source=https://github.com/playcanvas/editor
 WORKDIR /usr/src/test
 
