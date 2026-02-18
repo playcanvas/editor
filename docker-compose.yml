@@ -1,4 +1,13 @@
 services:
+  test-suite:
+    build: ./test-suite
+    image: playcanvas/editor-test:latest
+    container_name: test-suite
+    env_file:
+      - .env
+    volumes:
+      - ./test-suite/.auth:/usr/src/test/.auth
+
   playcanvas-editor:
     build: .
     container_name: playcanvas-editor

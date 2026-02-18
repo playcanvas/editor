@@ -1,4 +1,4 @@
-FROM ghcr.io/playcanvas/editor-test:latest AS base
+FROM ghcr.io/playcanvas/editor/test:latest AS base
 WORKDIR /usr/src/app
 
 FROM base AS install
