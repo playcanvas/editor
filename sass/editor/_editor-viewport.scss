@@ -266,6 +266,7 @@
 
         &::before {
             @extend .font-icon;
+
             content: '\E132';
             font-size: 10px;
         }
