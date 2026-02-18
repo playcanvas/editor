@@ -294,6 +294,7 @@ import './toolbar/toolbar-publish';
 import './toolbar/toolbar-code-editor';
 import './toolbar/toolbar-scene';
 import './toolbar/toolbar-launch';
+import './toolbar/toolbar-whats-new';
 import './toolbar/toolbar-cameras';
 import './toolbar/toolbar-whois';
 import './toolbar/toolbar-connection';
@@ -363,7 +364,6 @@ import './pickers/picker-gradient';
 import './pickers/picker-text-input';
 import './pickers/picker-legacy-scripts';
 import './pickers/picker-recompress-textures';
-import './pickers/picker-release-notes';
 import './pickers/picker-fix-corrupted-templates';
 
 // team management picker
