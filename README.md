@@ -75,3 +75,70 @@ To test the integration of these libraries, use [npm link](https://docs.npmjs.co
     cd editor
     npm link <library>
     ```
+
+## Test Suite
+
+The test suite for the PlayCanvas Editor uses [Playwright](https://playwright.dev/) for end-to-end testing.
+
+![Playwright](./test-suite/images/playwright.png)
+
+### Tests
+
+Tests are split into two categories:
+
+- `test-suite/test/api` - tests for the Editor API behavior
+- `test-suite/test/ui` - tests for the Editor UI behavior
+
+### Running Tests
+
+To run the test suite ensure you have [Docker](https://www.docker.com/) installed. Follow these steps:
+
+1. Create a `.env` file based on the [template](.env.template)
+
+    ```env
+    PC_HOST=playcanvas.com
+    PC_LOGIN_HOST=login.playcanvas.com
+    PC_LAUNCH_HOST=launch.playcanvas.com
+    PC_LOCAL_FRONTEND=<true|false>
+    PC_COOKIE_NAME=pc_auth
+    PC_COOKIE_VALUE=<playcanvas-cookie>
+    ```
+
+> [!IMPORTANT]
+> The account used must be an existing account. Create one [here](https://login.playcanvas.com)
+
+2. Run the container with Docker compose
+
+    ```sh
+    docker compose up
+    ```
+
+3. Stop the container with Docker compose
+
+    ```sh
+    docker compose down --remove-orphans
+    ```
+
+> [!NOTE]
+> To build the image from source instead of pulling from the registry append the `--build` flag
+
+### Test Suite Local Development
+
+To create new tests, ensure you have [Node.js](https://nodejs.org/) 18 or later installed. Follow these steps:
+
+1. Install dependencies:
+
+   ```sh
+   cd test-suite
+   npx playwright install --with-deps
+   npm install
+   ```
+
+2. Create tests and put them into the respective folders. For dynamic recording of tests run this command:
+
+    ```sh
+    npm run codegen
+    ```
+
+> [!NOTE]
+> Run `npm run` for the full list of npm scripts

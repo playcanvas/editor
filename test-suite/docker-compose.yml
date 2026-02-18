@@ -1,0 +1,9 @@
+services:
+  editor-test:
+    build: .
+    image: playcanvas/editor-test:latest
+    container_name: editor-test
+    env_file:
+      - .env
+    volumes:
+      - ./.auth:/usr/src/test/.auth
