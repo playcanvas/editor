@@ -1,4 +1,4 @@
-import { Container } from '@playcanvas/pcui';
+import { Button, Container } from '@playcanvas/pcui';
 
 import { LegacyTooltip } from '@/common/ui/tooltip';
 
@@ -7,98 +7,67 @@ editor.once('load', () => {
     const viewport = editor.call('layout.viewport');
 
     const panel = new Container({
-        class: 'whoisonline'
+        class: ['control-strip', 'bottom-left']
     });
     viewport.append(panel);
 
-    editor.on('viewport:expand', (state) => {
-        if (state) {
-            panel.class.add('expanded');
-        } else {
-            panel.class.remove('expanded');
-        }
-    });
+    const chatWidget = editor.call('chat:panel');
+    if (chatWidget) {
+        panel.append(chatWidget);
+    }
 
     const assetPanel = editor.call('layout.assets');
 
     const adjustPosition = () => {
-        panel.style.bottom = assetPanel.collapsed ? '34px' : '2px';
+        panel.style.bottom = assetPanel.collapsed ? '36px' : '4px';
     };
 
     adjustPosition();
     assetPanel.on('collapse', adjustPosition);
     assetPanel.on('expand', adjustPosition);
 
-    editor.on('whoisonline:add', (id) => {
-        for (const childNode of panel.innerElement.childNodes) {
-            if (childNode.userId === id) {
-                return;
-            }
+    const userMap = new Map<number, { button: Button; tooltip: LegacyTooltip }>();
+
+    editor.on('whoisonline:add', (id: number) => {
+        if (userMap.has(id)) {
+            return;
         }
 
-        const link = document.createElement('a');
-        link.userId = id;
-        link.href = `/${id}`;
-        link.target = '_blank';
-        panel.append(link);
+        const button = new Button({
+            class: ['control-strip-btn', 'whoisonline-user']
+        });
+        button.style.backgroundImage = `url(/api/users/${id}/thumbnail?size=28)`;
+        panel.append(button);
 
-        const img = document.createElement('img');
-        img.src = `/api/users/${id}/thumbnail?size=28`;
-        link.appendChild(img);
+        let clickHandle = button.on('click', () => window.open(`/${id}`, '_blank'));
 
-        link.tooltip = LegacyTooltip.attach({
-            target: link,
+        const tooltip = LegacyTooltip.attach({
+            target: button.dom,
             text: '',
             align: 'bottom',
             root: root
         });
 
-        editor.call('users:loadOne', id, (user) => {
-            link.href = `/user/${user.username}`;
-            link.tooltip.text = user.username;
-            link.style.backgroundColor = editor.call('users:color', user.id, 'hex');
+        userMap.set(id, { button, tooltip });
+
+        editor.call('users:loadOne', id, (user: { username: string; id: number }) => {
+            clickHandle.unbind();
+            clickHandle = button.on('click', () => window.open(`/user/${user.username}`, '_blank'));
+            tooltip.text = user.username;
+            button.style.backgroundColor = editor.call('users:color', user.id, 'hex');
         });
     });
 
-
-    editor.on('whoisonline:remove', (id, index) => {
-        for (const childNode of panel.innerElement.childNodes) {
-            if (childNode.userId === id) {
-                if (childNode.tooltip) {
-                    childNode.tooltip.destroy();
-                }
-                panel.innerElement.removeChild(childNode);
-                return;
-            }
+    editor.on('whoisonline:remove', (id: number) => {
+        const entry = userMap.get(id);
+        if (entry) {
+            entry.tooltip.destroy();
+            entry.button.destroy();
+            userMap.delete(id);
         }
     });
-
 
     editor.method('whoisonline:panel', () => {
         return panel;
-    });
-
-    const chatWidget = editor.call('chat:panel');
-    if (chatWidget) {
-        panel.class.add('chat-minified');
-
-        chatWidget.on('collapse', () => {
-            panel.class.add('chat-minified');
-        });
-        chatWidget.on('expand', () => {
-            panel.class.remove('chat-minified');
-        });
-
-        if (!editor.call('permissions:read')) {
-            panel.class.add('no-chat');
-        }
-    }
-
-    editor.on('permissions:set', (level) => {
-        if (level) {
-            panel.class.remove('no-chat');
-        } else {
-            panel.class.add('no-chat');
-        }
     });
 });

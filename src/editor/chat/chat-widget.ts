@@ -11,7 +11,7 @@ editor.once('load', () => {
         collapsed: true,
         collapsible: true,
         headerText: 'CHAT',
-        hidden: !editor.call('permissions:read') || editor.call('viewport:expand:state')
+        hidden: !editor.call('permissions:read')
     });
     viewport.append(chatPanel);
 
@@ -24,25 +24,11 @@ editor.once('load', () => {
     }, 100);
 
     editor.on('permissions:set', (level: string | number | null) => {
-        chatPanel.hidden = !level || editor.call('viewport:expand:state');
+        chatPanel.hidden = !level;
     });
-
-    const assetPanel = editor.call('layout.assets');
-
-    const adjustPosition = () => {
-        chatPanel.style.bottom = assetPanel.collapsed ? '36px' : '4px';
-    };
-
-    adjustPosition();
-    assetPanel.on('collapse', adjustPosition);
-    assetPanel.on('expand', adjustPosition);
 
     editor.method('chat:panel', () => {
         return chatPanel;
-    });
-
-    editor.on('viewport:expand', (state: boolean) => {
-        chatPanel.hidden = state;
     });
 
     chatPanel.element.addEventListener('mouseover', () => {

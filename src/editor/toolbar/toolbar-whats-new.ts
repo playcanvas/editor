@@ -18,7 +18,7 @@ editor.once('load', () => {
     viewport.append(container);
 
     const btn = new Button({
-        class: 'whats-new',
+        class: ['control-strip-btn', 'whats-new'],
         icon: 'E259',
         text: 'What\'s New'
     });

@@ -17,6 +17,7 @@ editor.once('load', () => {
     });
 
     const homeButton = new Button({
+        class: 'control-strip-btn',
         icon: 'E140'
     });
     panel.append(homeButton);
@@ -33,6 +34,7 @@ editor.once('load', () => {
     });
 
     const settingsButton = new Button({
+        class: 'control-strip-btn',
         icon: 'E134'
     });
     panel.append(settingsButton);
@@ -62,6 +64,7 @@ editor.once('load', () => {
             name = `${name.substring(0, 30)}...`;
         }
         const versionControlButton = new Button({
+            class: 'control-strip-btn',
             icon: 'E399',
             text: name
         });
@@ -88,6 +91,7 @@ editor.once('load', () => {
     }
 
     const scenesButton = new Button({
+        class: 'control-strip-btn',
         icon: 'E147'
     });
     panel.append(scenesButton);
