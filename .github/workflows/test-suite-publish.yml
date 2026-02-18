@@ -3,12 +3,6 @@ name: Test Suite / Publish
 on:
   push:
     branches: [main]
-    paths:
-      - 'test-suite/**'
-      - '.github/workflows/test-suite-ci.yml'
-      - '.github/workflows/test-suite-publish.yml'
-      - '.github/workflows/test-suite-run.yml'
-  workflow_dispatch:
 
 permissions:
   contents: read
