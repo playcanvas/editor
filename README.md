@@ -1,6 +1,6 @@
 # PlayCanvas Editor
 
-[![Status](https://img.shields.io/github/actions/workflow/status/playcanvas/editor/.github%2Fworkflows%2Ftest.yml?label=test%20suite)](https://github.com/playcanvas/editor/actions/workflows/test-suite-run.yml)
+[![Status](https://img.shields.io/github/actions/workflow/status/playcanvas/editor/.github%2Fworkflows%2Ftest-suite-run.yml?label=test%20suite)](https://github.com/playcanvas/editor/actions/workflows/test-suite-run.yml)
 [![Github Release](https://img.shields.io/github/v/release/playcanvas/editor)](https://github.com/playcanvas/editor/releases)
 [![License](https://img.shields.io/github/license/playcanvas/editor)](https://github.com/playcanvas/editor/blob/main/LICENSE)
 [![Discord](https://img.shields.io/badge/Discord-5865F2?style=flat&logo=discord&logoColor=white&color=black)](https://discord.gg/RSaMRzg)
