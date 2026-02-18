@@ -1,4 +1,5 @@
 .env*
+!.env.template
 .auth
 node_modules
 /cache
