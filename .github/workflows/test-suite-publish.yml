@@ -6,6 +6,10 @@ on:
     paths:
       - 'test-suite/**'
 
+permissions:
+  contents: read
+  packages: write
+
 concurrency:
   group: publish-test
   cancel-in-progress: true
