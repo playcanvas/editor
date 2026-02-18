@@ -408,11 +408,12 @@ editor.once('load', () => {
     const topLeft = document.querySelector('.control-strip.top-left');
     const minGap = 20;
 
+    const topStripPrefix = '.control-strip.top-left, .control-strip.top-right';
     const buttonSelector = [
-        '.control-strip > .pcui-button',
-        '.control-strip > .render > .pcui-button',
-        '.control-strip > .camera > .pcui-button',
-        '.control-strip > .launch > .pcui-button'
+        ':is(' + topStripPrefix + ') > .pcui-button',
+        ':is(' + topStripPrefix + ') > .render > .pcui-button',
+        ':is(' + topStripPrefix + ') > .camera > .pcui-button',
+        ':is(' + topStripPrefix + ') > .launch > .pcui-button'
     ].join(', ');
 
     const restoreButtonText = () => {

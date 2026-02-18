@@ -39,7 +39,7 @@ editor.once('load', () => {
     const dismissIcon = document.createElement('span');
     dismissIcon.classList.add('dismiss-icon');
     btn.dom.appendChild(dismissIcon);
-    dismissIcon.addEventListener('click', (evt) => {
+    dismissIcon.addEventListener('click', (evt: MouseEvent) => {
         evt.stopPropagation();
         dismiss();
     });
