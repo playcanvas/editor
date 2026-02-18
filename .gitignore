@@ -18,6 +18,10 @@ test/editor-api/dist
 !/test-suite/.env.template
 /test-suite/.auth
 /test-suite/node_modules
+/test-suite/cache
 /test-suite/out
+/test-suite/test/fixtures/projects/basic
 /test-suite/test-results
 /test-suite/playwright-report
+/test-suite/blob-report
+/test-suite/playwright/.cache
