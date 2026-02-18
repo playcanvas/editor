@@ -1,4 +1,4 @@
-name: CI / Test Suite
+name: Test Suite / CI
 
 on:
   push:

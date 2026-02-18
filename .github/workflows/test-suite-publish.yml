@@ -1,4 +1,4 @@
-name: Publish Test Image
+name: Test Suite / Publish
 
 on:
   push:
