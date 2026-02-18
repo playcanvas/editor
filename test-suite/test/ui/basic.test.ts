@@ -215,7 +215,7 @@ test.describe('navigation', () => {
                         }
 
                         // select type
-                        const launch = await page.getByRole('button', { name: ' Launch' });
+                        const launch = page.locator('.control-strip.top-right > .launch > .pcui-button').first();
                         const debug = await page.locator('div').filter({ hasText: /^Debug$/ }).locator('div');
                         const profiler = await page.locator('div').filter({ hasText: /^Profiler$/ }).locator('div');
                         await launch.hover();
