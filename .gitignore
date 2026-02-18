@@ -1,4 +1,6 @@
-.env*
+.env
+.env.*
+!.env.template
 node_modules
 .sass-cache
 /.idea
@@ -11,7 +13,9 @@ test/editor-api/dist
 /test-results
 
 # test-suite
-/test-suite/.env*
+/test-suite/.env
+/test-suite/.env.*
+!/test-suite/.env.template
 /test-suite/.auth
 /test-suite/node_modules
 /test-suite/out
