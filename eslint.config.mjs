@@ -184,7 +184,8 @@ export default [
             '**/dist/**',
             'src/realtime/share.uncompressed.js', // added when serving
             'src/wasm/**/*.js',
-            'test/editor-api'
+            'test/editor-api',
+            'test-suite'
         ]
     }
 ];
