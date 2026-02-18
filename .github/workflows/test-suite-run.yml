@@ -34,16 +34,19 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build test image
+      - name: Build test-suite base image
         uses: docker/build-push-action@v6
         with:
-          context: .
+          context: ./test-suite
           cache-from: type=gha
           cache-to: type=gha,mode=max
           load: true
-          tags: playcanvas/editor:latest
+          tags: ghcr.io/playcanvas/editor/test:latest
         env:
           DOCKER_BUILD_SUMMARY: false
+
+      - name: Build editor image
+        run: docker build --pull=false --tag playcanvas/editor:latest .
 
       - name: Run tests
         run: |
