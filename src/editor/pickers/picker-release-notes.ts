@@ -1,42 +1,46 @@
-import { Container, Label, Button } from '@playcanvas/pcui';
+import { Button, Container } from '@playcanvas/pcui';
 
 import { config } from '@/editor/config';
 
 editor.once('load', () => {
     const LOCALSTORAGE_KEY = 'playcanvas-editor-latest-release-notes';
     const latestVersionSeen = localStorage.getItem(LOCALSTORAGE_KEY);
+
     if (latestVersionSeen === config.version) {
         return;
     }
 
-    const popup = new Container({
-        class: 'popup-release-notes',
-        flex: true,
-        flexDirection: 'row'
-    });
-    const label = new Label({
-        text: 'WHAT\'S NEW'
-    });
-    popup.append(label);
+    const viewport = editor.call('layout.viewport');
 
-    function dismiss() {
+    const container = new Container({
+        class: ['control-strip', 'bottom-right']
+    });
+    viewport.append(container);
+
+    const btn = new Button({
+        class: 'whats-new',
+        icon: 'E259',
+        text: "What's New"
+    });
+    container.append(btn);
+
+    const dismiss = () => {
         localStorage.setItem(LOCALSTORAGE_KEY, config.version);
-        popup.destroy();
-    }
+        container.destroy();
+    };
 
-    popup.on('click', () => {
+    btn.on('click', () => {
         dismiss();
         window.open(`https://github.com/playcanvas/editor/releases/tag/v${config.version}`);
     });
 
-    const btnDismiss = new Button({
-        icon: 'E132'
-    });
-    popup.append(btnDismiss);
-    btnDismiss.on('click', (evt) => {
+    // Dismiss icon: a real <span> inside the button DOM
+    // (pseudo-elements cannot receive their own click events)
+    const dismissIcon = document.createElement('span');
+    dismissIcon.classList.add('dismiss-icon');
+    btn.dom.appendChild(dismissIcon);
+    dismissIcon.addEventListener('click', (evt) => {
         evt.stopPropagation();
         dismiss();
     });
-
-    editor.call('layout.viewport').append(popup);
 });
