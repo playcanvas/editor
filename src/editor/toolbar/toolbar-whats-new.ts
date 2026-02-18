@@ -20,7 +20,7 @@ editor.once('load', () => {
     const btn = new Button({
         class: 'whats-new',
         icon: 'E259',
-        text: "What's New"
+        text: 'What\'s New'
     });
     container.append(btn);
 
