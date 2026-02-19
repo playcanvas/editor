@@ -179,7 +179,7 @@ editor.once('load', () => {
 
                 // find assets with variants
                 const assetsWithVariants = assetsInBundle.filter((a: Observer) => {
-                    return asset.has('file.variants');
+                    return a.has('file.variants');
                 });
 
                 ['dxt', 'etc1', 'etc2', 'pvr', 'basis'].forEach((variant: string) => {
