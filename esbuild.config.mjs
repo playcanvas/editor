@@ -82,19 +82,12 @@ const watchLogPlugin = (input, output) => ({
     name: 'watch-log',
     setup(build) {
         let buildStart;
-        let buildCount = 0;
 
         build.onStart(() => {
             buildStart = performance.now();
-            buildCount++;
-            if (buildCount > 2) {
-                console.log(cyan(`${bold(input)} \u2192 ${bold(output)}...`));
-            }
+            console.log(cyan(`${bold(input)} \u2192 ${bold(output)}...`));
         });
         build.onEnd((result) => {
-            if (buildCount <= 2) {
-                return;
-            }
             const time = formatTime(performance.now() - buildStart);
             if (result.errors.length) {
                 console.log(
@@ -216,16 +209,16 @@ async function buildTarget(config) {
     const existing = config.plugins || [];
     const cfg = watch ? { ...config, plugins: [...existing, watchLogPlugin(input, output)] } : config;
 
-    console.log(cyan(`${bold(input)} \u2192 ${bold(output)}...`));
-    const t0 = performance.now();
     const ctx = await context(cfg);
     if (watch) {
         await ctx.watch();
     } else {
+        console.log(cyan(`${bold(input)} \u2192 ${bold(output)}...`));
+        const t0 = performance.now();
         await ctx.rebuild();
         await ctx.dispose();
+        console.log(green(`created ${bold(output)} in ${bold(formatTime(performance.now() - t0))}`));
     }
-    console.log(green(`created ${bold(output)} in ${bold(formatTime(performance.now() - t0))}`));
     return ctx;
 }
 
