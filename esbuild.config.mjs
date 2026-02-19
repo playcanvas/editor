@@ -44,7 +44,11 @@ const replacePlugin = () => ({
 const globalExternalsPlugin = globals => ({
     name: 'global-externals',
     setup(build) {
-        const filter = new RegExp(`^(${Object.keys(globals).map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})$`);
+        const filter = new RegExp(
+            `^(${Object.keys(globals)
+            .map(k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+            .join('|')})$`
+        );
         build.onResolve({ filter }, args => ({
             path: args.path,
             namespace: 'global-external'
@@ -74,25 +78,28 @@ const bold = s => `\x1b[1m${s}\x1b[22m`;
 const cyan = s => `\x1b[36m${s}\x1b[39m`;
 const green = s => `\x1b[32m${s}\x1b[39m`;
 
-let initialBuildDone = false;
-
 const watchLogPlugin = (input, output) => ({
     name: 'watch-log',
     setup(build) {
         let buildStart;
+        let buildCount = 0;
+
         build.onStart(() => {
             buildStart = performance.now();
-            if (initialBuildDone) {
+            buildCount++;
+            if (buildCount > 2) {
                 console.log(cyan(`${bold(input)} \u2192 ${bold(output)}...`));
             }
         });
         build.onEnd((result) => {
-            if (!initialBuildDone) {
+            if (buildCount <= 2) {
                 return;
             }
             const time = formatTime(performance.now() - buildStart);
             if (result.errors.length) {
-                console.log(`\x1b[31m\u2718 ${bold(output)} rebuild failed with ${result.errors.length} error(s)\x1b[39m`);
+                console.log(
+                    `\x1b[31m\u2718 ${bold(output)} rebuild failed with ${result.errors.length} error(s)\x1b[39m`
+                );
             } else {
                 console.log(green(`created ${bold(output)} in ${bold(time)}`));
             }
@@ -102,11 +109,7 @@ const watchLogPlugin = (input, output) => ({
 
 const stubNodeBuiltins = emptyNodeModulesPlugin(['worker_threads', 'path', 'fs']);
 
-const pagePlugins = [
-    stubNodeBuiltins,
-    replacePlugin(),
-    polyfillNode()
-];
+const pagePlugins = [stubNodeBuiltins, replacePlugin(), polyfillNode()];
 
 const workers = fs.readdirSync('src/workers').map(file => ({
     ...shared,
@@ -203,10 +206,7 @@ function copyStaticAssets() {
     copyDir('static/img', 'dist/static/img');
     copyDir('src/wasm/lodepng', 'dist/wasm/lodepng');
     copyDir('src/wasm/codecs', 'dist/wasm/codecs');
-    copyFile(
-        'node_modules/@playcanvas/attribute-parser/dist/libs.d.ts',
-        'dist/types/libs.d.ts'
-    );
+    copyFile('node_modules/@playcanvas/attribute-parser/dist/libs.d.ts', 'dist/types/libs.d.ts');
     console.log(`Copied static assets in ${(performance.now() - t0).toFixed(0)}ms`);
 }
 
@@ -214,7 +214,8 @@ async function buildTarget(config) {
     const input = config.entryPoints[0];
     const output = config.outfile || config.outdir;
     const existing = config.plugins || [];
-    const cfg = { ...config, plugins: [...existing, watchLogPlugin(input, output)] };
+    const cfg = watch ? { ...config, plugins: [...existing, watchLogPlugin(input, output)] } : config;
+
     console.log(cyan(`${bold(input)} \u2192 ${bold(output)}...`));
     const t0 = performance.now();
     const ctx = await context(cfg);
@@ -235,7 +236,6 @@ async function main() {
     await Promise.all(configs.map(c => buildTarget(c)));
 
     if (watch) {
-        initialBuildDone = true;
         console.log(`\nInitial build in ${formatTime(performance.now() - t0)} \u2014 watching for changes\u2026`);
     } else {
         console.log(`\nBuild completed in ${formatTime(performance.now() - t0)}`);
