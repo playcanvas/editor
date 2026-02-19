@@ -105,11 +105,28 @@ editor.once('load', () => {
     });
 
     editor.method('assets:virtualPath', (asset: AssetObserver) => {
-        const pathSegments = asset.get('path').map(id => editor.call('assets:get', id).get('name'));
-        return `/${[...pathSegments, asset.get('file').filename].join('/')}`;
+        const filename = asset.get('file').filename;
+        if (!filename) {
+            return null;
+        }
+        const path = asset.get('path') || [];
+        const pathSegments: string[] = path.reduce((segments, id) => {
+            const asset = editor.call('assets:get', id);
+            if (asset) {
+                segments.push(asset.get('name'));
+            }
+            return segments;
+        }, []);
+        return `/${[...pathSegments, filename].join('/')}`;
     });
 
     editor.method('assets:realPath', (asset: AssetObserver) => {
         return `/api/assets/${asset.get('id')}/file/${asset.get('name')}?branchId=${config.self.branch.id}`;
+    });
+
+    // get asset ide path
+    editor.method('assets:idePath', (ide: 'cursor' | 'vscode', asset?: AssetObserver) => {
+        const assetPath = asset ? `/asset/${asset.get('id')}` : '';
+        return `${ide}://playcanvas.playcanvas/project/${config.project.id}${assetPath}`;
     });
 });

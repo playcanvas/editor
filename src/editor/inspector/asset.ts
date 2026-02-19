@@ -1,5 +1,5 @@
-import type { Observer } from '@playcanvas/observer';
-import { Container, Button, BindingObserversToElement } from '@playcanvas/pcui';
+import type { Observer, ObserverList } from '@playcanvas/observer';
+import { Container, Button, BindingObserversToElement, ContainerArgs } from '@playcanvas/pcui';
 
 
 import { bytesToHuman, convertDatetime } from '@/common/utils';
@@ -322,11 +322,50 @@ editor.method('assets:open', (assets) => {
     }
 });
 
+interface AssetInspectorArgs extends ContainerArgs {
+    assets: ObserverList;
+    entities: ObserverList;
+    projectSettings: Observer;
+    history: typeof editor.api.globals.history;
+    editableTypes: Record<string, number>;
+    inspectorPanel: Container;
+    inspectorPanelSecondary: Container;
+}
+
 class AssetInspector extends Container {
-    constructor(args: Record<string, unknown>) {
-        if (!args) {
-            args = {};
-        }
+    _projectSettings: Observer;
+
+    _editableTypes: Record<string, number>;
+
+    _assetTypes: string[];
+
+    _licenseTypes: Array<{id: string; name: string; url: string}> | null;
+
+    _attributesInspector: AttributesInspector;
+
+    _containerButtons: Container;
+
+    _btnDownloadAsset: Button;
+
+    _btnOpenInViewer: Button;
+
+    _btnEditAsset: Button;
+
+    _btnEditAssetInVSCode: Button;
+
+    _btnEditSprite: Button;
+
+    _typedAssetInspectors: Array<any>;
+
+    _typedAssetPreviews: Array<any>;
+
+    _assetsList: ObserverList[];
+
+    _assets: Observer[] | null;
+
+    args: AssetInspectorArgs;
+
+    constructor(args: AssetInspectorArgs) {
         args.flex = true;
 
         super(args);
@@ -358,7 +397,7 @@ class AssetInspector extends Container {
             icon: 'E228',
             ignoreParent: true
         });
-        this._btnDownloadAsset.style.flex = 1;
+        this._btnDownloadAsset.style.flex = '1';
 
         this._containerButtons.append(this._btnDownloadAsset);
 
@@ -370,20 +409,19 @@ class AssetInspector extends Container {
             icon: 'E117',
             ignoreParent: true
         });
-        this._btnOpenInViewer.style.flex = 1;
+        this._btnOpenInViewer.style.flex = '1';
 
         this._containerButtons.append(this._btnOpenInViewer);
 
         this._btnOpenInViewer.on('click', this._onClickOpenInViewer.bind(this));
 
         // add edit button
-
         this._btnEditAsset = new Button({
             text: editor.call('permissions:write') ? 'EDIT' : 'VIEW',
             icon: 'E130',
             ignoreParent: true
         });
-        this._btnEditAsset.style.flex = 1;
+        this._btnEditAsset.style.flex = '1';
         const evtBtnEditPermissions = editor.on('permissions:writeState', (state) => {
             this._btnEditAsset.text = state ? 'EDIT' : 'VIEW';
         });
@@ -398,7 +436,7 @@ class AssetInspector extends Container {
             text: 'SPRITE EDITOR',
             icon: 'E413'
         });
-        this._btnEditSprite.style.flex = 1;
+        this._btnEditSprite.style.flex = '1';
         this._btnEditSprite.on('click', this._onClickEditSprite.bind(this));
         this._containerButtons.append(this._btnEditSprite);
 

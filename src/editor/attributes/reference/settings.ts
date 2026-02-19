@@ -82,6 +82,9 @@ editor.once('load', () => {
     }, {
         name: 'settings:lightmapperAutoBake',
         description: 'Enable or disable automatic lightmap baking.'
+    }, {
+        name: 'settings:codeEditor',
+        description: 'The code editor to use when you edit scripts.'
     },
     {
         name: 'settings:physics',

@@ -31,6 +31,13 @@ editor.once('load', () => {
     let logTimestamp = null;
     let stopLogs = false;
 
+    // open the code editor external editor
+    const idePromise = new Promise<string>((resolve) => {
+        editor.on('settings:projectUser:load', (data) => {
+            resolve(data.editor.codeEditor);
+        });
+    });
+
     const append = function (msg: string, cls?: string) {
         if (stopLogs) {
             return;
@@ -73,7 +80,8 @@ editor.once('load', () => {
         return element;
     };
 
-    const onError = function (msg: string, url: string | undefined, line: number, col: number, e?: Error) {
+    const onError = async function (msg: string, url: string | undefined, line: number, col: number, e?: Error) {
+        const ide = await idePromise;
         if (url) {
             // check if this is a playcanvas script
             let codeEditorUrl = '';
@@ -100,9 +108,22 @@ editor.once('load', () => {
                 const match = url.match(/\/api\/assets\/files\/.+?id=(\d+)/);
                 if (match) {
                     assetId = parseInt(match[1], 10);
-                    target = `codeeditor:${config.project.id}`;
-                    codeEditorUrl = `${config.url.home}/editor/code/${config.project.id}`;
-                    query = `?tabs=${assetId}&line=${line}&col=${col}&error=true`;
+                    switch (ide) {
+                        case 'vscode':
+                        case 'cursor': {
+                            const asset = editor.call('assets:get', assetId);
+                            target = `${ide}:${config.project.id}`;
+                            codeEditorUrl = editor.call('assets:idePath', ide, asset);
+                            query = `?line=${line}&col=${col}&error=true`;
+                            break;
+                        }
+                        default: {
+                            target = `codeeditor:${config.project.id}`;
+                            codeEditorUrl = `${config.url.home}/editor/code/${config.project.id}`;
+                            query = `?tabs=${assetId}&line=${line}&col=${col}&error=true`;
+                            break;
+                        }
+                    }
                 } else {
                     codeEditorUrl = url;
                 }
@@ -119,6 +140,16 @@ editor.once('load', () => {
             if (assetId) {
                 const link = document.getElementById(`error-${errorCount}`);
                 link.addEventListener('click', (e: MouseEvent) => {
+                    // if the IDE is vscode or cursor, open the code editor in a new tab
+                    switch (ide) {
+                        case 'vscode':
+                        case 'cursor': {
+                            window.open(codeEditorUrl + query, target);
+                            return;
+                        }
+                    }
+
+                    // handle default case
                     const existing = window.open('', target);
                     try {
                         if (existing) {
