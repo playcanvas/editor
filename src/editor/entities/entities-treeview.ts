@@ -1,5 +1,5 @@
 import type { Observer, ObserverList } from '@playcanvas/observer';
-import { Element, TreeView, TreeViewItem, Container } from '@playcanvas/pcui';
+import { Button, Element, TreeView, TreeViewItem, Container } from '@playcanvas/pcui';
 
 import type { DropTarget } from '@/common/pcui/element/element-drop-target';
 
@@ -12,6 +12,7 @@ const CLASS_TEMPLATE_INSTANCE_CHILD = `${CLASS_TEMPLATE_INSTANCE}-child`;
 const CLASS_HIGHLIGHT = `${CLASS_ROOT}-highlight`;
 const CLASS_USER_SELECTION_MARKER = `${CLASS_ROOT}-user-marker`;
 const CLASS_USER_SELECTION_MARKER_CONTAINER = `${CLASS_USER_SELECTION_MARKER}-container`;
+const CLASS_VISIBILITY_TOGGLE = `${CLASS_ROOT}-visibility-toggle`;
 const CLASS_FILTERING = 'pcui-treeview-filtering';
 const CLASS_FILTER_RESULT = `${CLASS_FILTERING}-result`;
 
@@ -812,6 +813,22 @@ class EntitiesTreeView extends TreeView {
                 }
             }
         });
+
+        // visibility toggle
+        const visibilityBtn = new Button({
+            class: CLASS_VISIBILITY_TOGGLE,
+            icon: entity.get('enabled') ? 'E133' : 'E132'
+        });
+        visibilityBtn.dom.addEventListener('click', (evt) => {
+            evt.stopPropagation();
+            if (!editor.call('permissions:write')) return;
+            const newEnabled = !entity.get('enabled');
+            entity.set('enabled', newEnabled);
+        });
+        events.push(entity.on('enabled:set', (value) => {
+            visibilityBtn.icon = value ? 'E133' : 'E132';
+        }));
+        treeViewItem._containerContents.append(visibilityBtn);
 
         // container for user selection markers
         treeViewItem._containerUsers = new Container({

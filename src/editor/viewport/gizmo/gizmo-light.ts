@@ -96,8 +96,9 @@ editor.once('load', () => {
                 type += 'close';
             }
 
-            // area lights
-            if (light.shape !== LIGHTSHAPE_PUNCTUAL) {
+            // area lights (only show shape gizmo when area lights are enabled in project settings)
+            const areaLightsEnabled = editor.call('sceneSettings')?.get('render.lightingAreaLightsEnabled');
+            if (areaLightsEnabled && light.shape !== LIGHTSHAPE_PUNCTUAL) {
                 switch (light.shape) {
                     case LIGHTSHAPE_RECT:
                         type = 'rectangle';

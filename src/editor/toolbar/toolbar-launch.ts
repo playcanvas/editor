@@ -255,6 +255,25 @@ editor.once('load', () => {
         tooltipBundles.class.add('launch-tooltip');
     }
 
+    // SharedArrayBuffer
+    const projectSettings = editor.call('settings:project');
+    const optionSAB = createOption('sab', 'SharedArrayBuffer');
+    optionSAB.value = !!projectSettings.get('enableSharedArrayBuffer');
+    projectSettings.on('enableSharedArrayBuffer:set', (value: boolean) => {
+        if (value !== optionSAB.value) {
+            optionSAB.value = value;
+        }
+    });
+    optionSAB.on('change', (value: boolean) => {
+        projectSettings.set('enableSharedArrayBuffer', value);
+    });
+    LegacyTooltip.attach({
+        target: optionSAB.parent.element,
+        text: 'Enable SharedArrayBuffer for the launched application.',
+        align: 'right',
+        root: root
+    }).class.add('launch-tooltip');
+
     // mini-stats
     const optionMiniStats = createOption('ministats', 'Mini stats');
     optionMiniStats.value = settings.get('editor.launchMinistats');

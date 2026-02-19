@@ -554,6 +554,13 @@ editor.once('load', () => {
         formInputs.legacy = currentUser.flags.hasLegacyScripts ? false : null;
         buildSidebar();
         overlay.hidden = false;
+        const nameInput = formContent.dom.querySelector('input[type="text"]') as HTMLInputElement;
+        if (nameInput) {
+            setTimeout(() => {
+                nameInput.focus();
+                nameInput.select();
+            }, 0);
+        }
     });
 
 });

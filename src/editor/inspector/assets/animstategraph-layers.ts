@@ -90,6 +90,18 @@ class AnimstategraphLayers extends Panel {
         });
     }
 
+    _getUniqueLayerName(baseName: string): string {
+        const layers = this._assets[0].get('data.layers');
+        const existingNames = new Set(Object.values(layers).map((l: Record<string, unknown>) => l.name));
+        let candidate = baseName;
+        let suffix = 0;
+        while (existingNames.has(candidate)) {
+            suffix++;
+            candidate = `${baseName} ${suffix}`;
+        }
+        return candidate;
+    }
+
     _addNewLayer(name?: string) {
 
         const data = this._assets[0].get('data');
@@ -153,7 +165,7 @@ class AnimstategraphLayers extends Panel {
         const maxKey = Math.max(...Object.keys(layers));
         const key = Number.isFinite(maxKey) ? maxKey + 1 : 0;
         layers[key] = {
-            name: name || 'New Layer',
+            name: name || this._getUniqueLayerName('New Layer'),
             states: [startStateId, anyStateId, endStateId, stateId],
             transitions: [transitionId],
             blendType: 'OVERWRITE',
@@ -379,6 +391,19 @@ class AnimstategraphLayers extends Panel {
             });
 
             attributesInspector.getField(`data.layers.${layerKey}.name`).enabled = i > 0;
+
+            if (i > 0) {
+                const nameField = attributesInspector.getField(`data.layers.${layerKey}.name`);
+                nameField.onValidate = (value: string) => {
+                    const layers = this._assets[0].get('data.layers');
+                    for (const otherKey of Object.keys(layers)) {
+                        if (otherKey !== String(layerKey) && layers[otherKey].name === value) {
+                            return false;
+                        }
+                    }
+                    return true;
+                };
+            }
 
             this._assetEvents = [];
             this._assetEvents.push(

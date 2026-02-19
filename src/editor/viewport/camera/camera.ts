@@ -295,6 +295,19 @@ editor.once('load', () => {
             }
         }
 
+        // restore persisted camera mode
+        const storedMode = editor.call('localStorage:get', 'editor:camera:mode');
+        if (storedMode && editorCameras[storedMode]) {
+            editor.call('camera:set', editorCameras[storedMode]);
+        }
+
+        // persist camera mode on change
+        editor.on('camera:change', (camera: import('playcanvas').Entity) => {
+            if (camera?.__editorCamera && camera.__editorName) {
+                editor.call('localStorage:set', 'editor:camera:mode', camera.__editorName);
+            }
+        });
+
         // when layers change make sure that our Editor cameras have them
         projectSettings.on('layerOrder:insert', (value: import('@playcanvas/observer').Observer) => {
             const id = parseInt(value.get('layer'), 10);

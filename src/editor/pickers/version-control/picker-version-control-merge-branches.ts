@@ -41,7 +41,7 @@ editor.once('load', () => {
         }
     });
     panel.createTargetCheckpoint = true;
-    panel.createSourceCheckpoint = false;
+    panel.createSourceCheckpoint = true;
     panel.class.add('merge-branches');
 
     boxFrom.on('createSourceCheckpoint', (value) => {

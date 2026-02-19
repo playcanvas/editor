@@ -87,6 +87,7 @@ import './monaco/actions';
 import './monaco/search';
 import './monaco/merge';
 import './monaco/diff';
+import './monaco/markdown-preview';
 
 // tab panel
 import './tab-panel/tab-context-menu';
@@ -121,6 +122,7 @@ import './menu-panel/edit/undo-redo';
 import './menu-panel/edit/find-replace';
 import './menu-panel/edit/comment';
 import './menu-panel/edit/preferences';
+import './menu-panel/edit/theme-switch';
 import './menu-panel/selection/menu';
 import './menu-panel/selection/selectAll';
 import './menu-panel/selection/expand-shrink';

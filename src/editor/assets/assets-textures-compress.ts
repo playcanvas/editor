@@ -32,12 +32,6 @@ class TextureCompressor {
             return false;
         }
 
-        // FIXME: for some reason we disallow rgbm to be compressed
-        const rgbm = asset.get('data.rgbm');
-        if (rgbm) {
-            return false;
-        }
-
         return true;
     }
 

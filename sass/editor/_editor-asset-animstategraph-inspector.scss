@@ -156,3 +156,10 @@
 .asset-animstategraph-inspector-state-view-button.active:hover {
     color: $text-active;
 }
+
+#layout-viewport .pcui-graph {
+    .graph-node-input {
+        position: relative;
+        z-index: 2;
+    }
+}

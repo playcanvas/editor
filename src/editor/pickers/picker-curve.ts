@@ -690,6 +690,12 @@ editor.once('load', () => {
             const x = gridLeft() + gridWidth() * i / 10;
             drawLine([x, gridTop()], [x, gridBottom()], colors.gridLines);
         }
+
+        // draw zero reference line when visible
+        if (verticalTopValue > 0 && verticalBottomValue < 0) {
+            const zeroY = gridTop() + gridHeight() * (0 - verticalTopValue) / (verticalBottomValue - verticalTopValue);
+            drawLine([gridLeft(), zeroY], [gridRight(), zeroY], colors.highlightedLine);
+        }
     }
 
     function gridWidth() {

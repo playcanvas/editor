@@ -802,6 +802,9 @@ class ElementComponentInspector extends ComponentInspector {
         });
 
         this._field('fontAsset').hidden = !isText;
+        if (!isText && this._field('fontAsset').value) {
+            this._field('fontAsset').value = null;
+        }
         this._field('maxLines').parent.hidden = !isText || !this._field('wrapLines').value;
         this._field('localized').parent.hidden = !isText;
         this._field('text').parent.hidden = !isText || this._field('localized').value || this._field('localized').class.contains(CLASS_MULTIPLE_VALUES);

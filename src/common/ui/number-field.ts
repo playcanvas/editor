@@ -86,7 +86,7 @@ class LegacyNumberField extends LegacyElement {
         if (this._link) {
             return this._link.get(this.path);
         }
-        return this.elementInput.value !== '' ? parseFloat(this.elementInput.value) : null;
+        return this.elementInput.value !== '' ? parseFloat(this.elementInput.value.replace(/,/g, '.')) : null;
     }
 
     set placeholder(value: string) {
@@ -119,7 +119,28 @@ class LegacyNumberField extends LegacyElement {
     }
 
     _onChange() {
-        const value = parseFloat(this.elementInput.value);
+        const raw = this.elementInput.value.replace(/,/g, '.').trim();
+        let value: number;
+
+        // support relative math expressions: +N, -N, *N, /N
+        const relativeMatch = raw.match(/^([+\-*/])(.+)$/);
+        if (relativeMatch && this._lastValue != null) {
+            const op = relativeMatch[1];
+            const operand = parseFloat(relativeMatch[2]);
+            if (!isNaN(operand)) {
+                switch (op) {
+                    case '+': value = this._lastValue + operand; break;
+                    case '-': value = this._lastValue - operand; break;
+                    case '*': value = this._lastValue * operand; break;
+                    case '/': value = operand !== 0 ? this._lastValue / operand : this._lastValue; break;
+                }
+            } else {
+                value = NaN;
+            }
+        } else {
+            value = parseFloat(raw);
+        }
+
         if (isNaN(value)) {
             if (this.allowNull) {
                 this.value = null;

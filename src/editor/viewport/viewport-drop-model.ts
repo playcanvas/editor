@@ -14,6 +14,13 @@ editor.once('load', () => {
         return;
     } // webgl not available
 
+    let lastSelectedEntity: InstanceType<typeof Entity> | null = null;
+    editor.on('selector:change', (type: string, items: unknown[]) => {
+        if (type === 'entity' && items.length) {
+            lastSelectedEntity = items[0] as InstanceType<typeof Entity>;
+        }
+    });
+
     const aabb = new BoundingBox();
     const vecA = new Vec3();
     const vecB = new Vec3();
@@ -78,10 +85,12 @@ editor.once('load', () => {
                 return;
             }
 
-            // parent
+            // parent: use current entity selection, or fall back to last selected entity
             let parent = null;
             if (editor.api.globals.selection.items[0] instanceof Entity) {
                 parent = editor.api.globals.selection.items[0];
+            } else if (lastSelectedEntity) {
+                parent = lastSelectedEntity;
             } else {
                 parent = editor.api.globals.entities.root;
             }

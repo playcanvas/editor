@@ -117,8 +117,11 @@ editor.once('load', () => {
 
         let mode;
         const type = asset.get('type');
+        const filename = asset.get('file.filename') || '';
         if (modes[type]) {
             mode = modes[type];
+        } else if (filename.endsWith('.md')) {
+            mode = 'markdown';
         } else {
             mode = null;
         }

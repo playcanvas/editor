@@ -187,6 +187,7 @@ class CubemapAssetInspector extends Container {
 
         let width = 0;
         let height = 0;
+        let format: string | null = null;
 
         for (let i = 0; i < 6; i++) {
             const asset = editor.call('assets:get', faces[i]);
@@ -212,9 +213,15 @@ class CubemapAssetInspector extends Container {
             if (i === 0) {
                 width = w;
                 height = h;
+                format = asset.get('meta.type') || null;
             } else {
                 if (width !== w || height !== h) {
                     return 'face textures should have same resolution';
+                }
+
+                const faceFormat = asset.get('meta.type') || null;
+                if (format && faceFormat && format !== faceFormat) {
+                    return 'face textures should have the same pixel format';
                 }
             }
         }

@@ -734,6 +734,19 @@ editor.once('load', () => {
         }
     });
 
+    // copy branch id
+    const menuBranchesCopyId = new MenuItem({
+        text: 'Copy Branch ID'
+    });
+    menuBranches.append(menuBranchesCopyId);
+
+    menuBranchesCopyId.on('select', () => {
+        if (contextBranch) {
+            navigator.clipboard.writeText(contextBranch.id);
+            editor.call('status:text', 'Branch ID copied to clipboard');
+        }
+    });
+
     // vc graph
     const menuVcGraph = new MenuItem({
         text: 'Version Control Graph'

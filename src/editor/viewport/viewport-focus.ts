@@ -71,6 +71,23 @@ editor.once('load', () => {
             return;
         }
 
+        // expand collapsed parents in hierarchy so focused entities are visible
+        const items = editor.call('selector:items');
+        if (items) {
+            const list = items instanceof Array ? items : [items];
+            for (const item of list) {
+                let parentId = item.get?.('parent');
+                while (parentId) {
+                    const treeItem = editor.call('entities:panel:get', parentId);
+                    if (treeItem && !treeItem.open) {
+                        treeItem.open = true;
+                    }
+                    const parentEntity = editor.call('entities:get', parentId);
+                    parentId = parentEntity?.get('parent');
+                }
+            }
+        }
+
         const camera = editor.call('camera:current');
 
         // aabb

@@ -275,6 +275,14 @@ class ScriptInspector extends Panel {
         this._editorEvents.push(editor.on(`assets:scripts[${this._scriptName}]:attribute:move`, this._onMoveAttribute.bind(this)));
         this._editorEvents.push(editor.on(`assets:scripts[${this._scriptName}]:primary:set`, this._onPrimaryScriptSet.bind(this)));
         this._editorEvents.push(editor.on(`assets:scripts[${this._scriptName}]:primary:unset`, this._onPrimaryScriptUnset.bind(this)));
+
+        if (this._asset) {
+            this._editorEvents.push(this._asset.on('name:set', (name: string) => {
+                if (name && this._labelTitle) {
+                    this._labelTitle.text = name;
+                }
+            }));
+        }
     }
 
     _initializeScriptAttributes() {

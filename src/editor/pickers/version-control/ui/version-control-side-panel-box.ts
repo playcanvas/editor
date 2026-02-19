@@ -74,6 +74,7 @@ class VersionControlSidePanelBox extends Events {
                 'Create checkpoint first?',
                 args.sourceCheckpointHelp
             );
+            this.checkboxSourceCheckpoint.value = true;
 
             this.checkboxSourceCheckpoint.on('change', (value) => {
                 this.emit('createSourceCheckpoint', value);
@@ -200,7 +201,7 @@ class VersionControlSidePanelBox extends Events {
         }
         if (this.panelSourceCheckpoint) {
             panel.remove(this.panelSourceCheckpoint);
-            this.checkboxSourceCheckpoint.value = false;
+            this.checkboxSourceCheckpoint.value = true;
         }
         if (this.panelSourceClose) {
             panel.remove(this.panelSourceClose);

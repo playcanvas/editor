@@ -1,5 +1,7 @@
 import { BooleanInput, Button, Container, Label, RadioButton } from '@playcanvas/pcui';
 import {
+    CULLFACE_BACK,
+    CULLFACE_NONE,
     RENDERSTYLE_SOLID,
     RENDERSTYLE_WIREFRAME,
     SHADERPASS_ALBEDO,
@@ -115,6 +117,25 @@ editor.once('viewport:load', (app) => {
             for (let j = 0; j < layer.meshInstances.length; j++) {
                 const meshInstance = layer.meshInstances[j];
                 meshInstance.renderStyle = renderStyle;
+            }
+        }
+        editor.call('viewport:render');
+    });
+
+    // Backface Culling
+    let cullBackfaces = true;
+    createCheckbox('Cull Backfaces', (state) => {
+        cullBackfaces = !state;
+        const cull = cullBackfaces ? CULLFACE_BACK : CULLFACE_NONE;
+        const sceneLayers = app.scene.layers.layerList;
+        const gizmoLayers = editor.call('gizmo:layers:list');
+        for (let i = 0; i < sceneLayers.length; i++) {
+            const layer = sceneLayers[i];
+            if (gizmoLayers.some(gizmoLayer => gizmoLayer.id === layer.id)) {
+                continue;
+            }
+            for (let j = 0; j < layer.meshInstances.length; j++) {
+                layer.meshInstances[j].material.cull = cull;
             }
         }
         editor.call('viewport:render');

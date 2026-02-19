@@ -371,6 +371,8 @@ class AttributesInspector extends Container {
                         labelAlignTop: attr.type === 'assets' || attr.type.startsWith('array') || attr.type === 'layers' || attr.type === 'json'
                     });
 
+                    labelGroup.label.dom.title = attr.label;
+
                     // If the attribute is a boolean named 'enabled' it will be added as as toggle field to the header, so we ignore it here
                     if (!isEnabledAttribute(attr)) {
                         this.append(labelGroup);
@@ -382,6 +384,11 @@ class AttributesInspector extends Container {
                     let tooltipData;
                     if (attr.reference) {
                         tooltipData = editor.call('attributes:reference:get', attr.reference);
+                        if (tooltipData && attr.label && tooltipData.title !== attr.label) {
+                            tooltipData = Object.assign({}, tooltipData, {
+                                subTitle: tooltipData.subTitle ? `${attr.label} — ${tooltipData.subTitle}` : attr.label
+                            });
+                        }
                     } else if (attr.tooltip) {
                         tooltipData = attr.tooltip;
                     }

@@ -1241,7 +1241,7 @@ const BULK_SLOTS = {
     'iridescence': ['ir', 'iridescence'],
     'iridescenceThickness': ['irth', 'iridescenceThickness'],
     'metalness': ['m', 'met', 'metal', 'metalness', 'gma', 'gmat', 'gmao', 'gmaa', 'rma', 'rmat', 'rmao', 'rmaa'],
-    'gloss': ['g', 'gloss', 'glossiness', 'gma', 'gmat', 'gmao', 'gmaa', 'rma', 'rmat', 'rmao', 'rmaa'],
+    'gloss': ['g', 'gloss', 'glossiness', 'rough', 'roughness', 'gma', 'gmat', 'gmao', 'gmaa', 'rma', 'rmat', 'rmao', 'rmaa'],
     'clearCoat': ['cc', 'clearcoat'],
     'clearCoatGloss': ['ccg', 'clearcoatgloss'],
     'clearCoatNormal': ['ccn', 'clearcoatnormal'],

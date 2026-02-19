@@ -121,7 +121,9 @@ editor.once('load', () => {
         const component = 'render';
         data.components[component] = editor.call('components:getDefault', component);
         data.components[component].type = type;
-        data.components.render.materialAssets = [null];
+        const defaultMaterialId = editor.call('localStorage:get', 'editor:defaultPrimitiveMaterialId');
+        const materialExists = defaultMaterialId && editor.call('assets:get', defaultMaterialId);
+        data.components.render.materialAssets = [materialExists ? parseInt(defaultMaterialId, 10) : null];
 
         applyAdditions(data, additions);
 

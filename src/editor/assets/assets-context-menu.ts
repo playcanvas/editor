@@ -593,6 +593,19 @@ editor.once('load', () => {
         menu.append(menuItemDelete);
     }
 
+    // set as default primitive material
+    const menuItemSetDefaultMaterial = new MenuItem({
+        text: 'Set as Default Primitive Material',
+        icon: 'E315',
+        onSelect: () => {
+            if (currentAsset && currentAsset.get('type') === 'material') {
+                editor.call('localStorage:set', 'editor:defaultPrimitiveMaterialId', currentAsset.get('id'));
+                editor.call('status:text', 'Default primitive material set');
+            }
+        }
+    });
+    menu.append(menuItemSetDefaultMaterial);
+
     // move-to-store
     const menuItemMoveToStore = new MenuItem({
         text: 'Move To Store',
@@ -696,6 +709,9 @@ editor.once('load', () => {
             } else {
                 menuItemDuplicate.hidden = true;
             }
+
+            // default primitive material
+            menuItemSetDefaultMaterial.hidden = currentAsset.get('type') !== 'material';
 
             // edit
             if (!currentAsset.get('source') && ['html', 'css', 'json', 'text', 'script', 'shader'].indexOf(currentAsset.get('type')) !== -1) {
@@ -877,6 +893,7 @@ editor.once('load', () => {
             menuItemCreateSlicedSprite.hidden = true;
             menuItemMoveToStore.hidden = true;
             menuItemOpenInViewer.hidden = true;
+            menuItemSetDefaultMaterial.hidden = true;
         }
     });
 

@@ -1910,6 +1910,10 @@
     }
 }
 
+#layout-attributes .pcui-select-input.pcui-open {
+    z-index: 2;
+}
+
 .pcui-container.inspector-controls {
     overflow: hidden;
 

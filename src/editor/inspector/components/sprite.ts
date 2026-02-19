@@ -220,6 +220,18 @@ class SpriteClipInspector extends Panel {
 
         const fieldName = this._inspector.getField(this._getPathTo('name'));
         fieldName.on('change', this._onClipNameChange.bind(this));
+
+        const fieldSpriteAsset = this._inspector.getField(this._getPathTo('spriteAsset'));
+        if (fieldSpriteAsset) {
+            fieldSpriteAsset.on('change', (value: number) => {
+                if (value && !fieldName.value) {
+                    const asset = editor.call('assets:get', value);
+                    if (asset) {
+                        fieldName.value = asset.get('name');
+                    }
+                }
+            });
+        }
     }
 
     _getPathTo(field: string) {

@@ -63,7 +63,11 @@ editor.once('load', () => {
                 options: {
                     isWholeLine: true,
                     className: className,
-                    inlineClassName: className
+                    inlineClassName: className,
+                    before: {
+                        content: ` ${branchName} `,
+                        inlineClassName: `${className}-label`
+                    }
                 }
             };
         }

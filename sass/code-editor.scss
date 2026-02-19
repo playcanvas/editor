@@ -14,6 +14,7 @@ $muted-yellow: #f4a62a;
 $status-error: $bright-red;
 $status-warning: $bright-yellow;
 $status-log: #ccc;
+$link-color: #63b3ed;
 
 html {
     height: 100%;
@@ -618,6 +619,16 @@ strong {
     }
 }
 
+.dst-branch-label {
+    background: rgba(#0b3b76, 0.8);
+    color: #8dbfff;
+    font-size: 11px;
+    font-style: italic;
+    padding: 1px 6px;
+    border-radius: 2px;
+    margin-right: 8px;
+}
+
 .src-branch {
     background: rgba(#15515e, 0.5);
 
@@ -625,6 +636,16 @@ strong {
         background: #1d6d7f;
         border: 1px solid #20292b;
     }
+}
+
+.src-branch-label {
+    background: rgba(#15515e, 0.8);
+    color: #8dd8e5;
+    font-size: 11px;
+    font-style: italic;
+    padding: 1px 6px;
+    border-radius: 2px;
+    margin-right: 8px;
 }
 
 .diff-overlay-hunk {
@@ -646,6 +667,91 @@ strong {
 
 .pcui-tooltip-desc {
     margin: 0;
+}
+
+.markdown-preview {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 50%;
+    height: 100%;
+    overflow-y: auto;
+    padding: 16px 24px;
+    box-sizing: border-box;
+    background: $bcg-primary;
+    color: $text-primary;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    z-index: 5;
+    border-left: 1px solid $bcg-dark;
+
+    &.invisible {
+        display: none;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        color: $text-primary;
+        margin: 16px 0 8px;
+        font-weight: 600;
+    }
+
+    h1 { font-size: 24px; border-bottom: 1px solid $bcg-dark; padding-bottom: 8px; }
+    h2 { font-size: 20px; border-bottom: 1px solid $bcg-dark; padding-bottom: 6px; }
+    h3 { font-size: 16px; }
+
+    p { margin: 8px 0; }
+
+    code {
+        background: $bcg-dark;
+        padding: 2px 5px;
+        border-radius: 3px;
+        font-family: 'Courier New', monospace;
+        font-size: 13px;
+    }
+
+    pre {
+        background: $bcg-dark;
+        padding: 12px;
+        border-radius: 4px;
+        overflow-x: auto;
+
+        code {
+            padding: 0;
+            background: none;
+        }
+    }
+
+    blockquote {
+        border-left: 3px solid $text-dark;
+        margin: 8px 0;
+        padding: 4px 12px;
+        color: $text-dark;
+    }
+
+    a { color: $link-color; }
+
+    ul, ol { padding-left: 24px; }
+
+    table {
+        border-collapse: collapse;
+        margin: 8px 0;
+
+        th, td {
+            border: 1px solid $bcg-dark;
+            padding: 6px 12px;
+        }
+
+        th { background: $bcg-dark; font-weight: 600; }
+    }
+
+    img { max-width: 100%; }
+
+    hr {
+        border: none;
+        border-top: 1px solid $bcg-dark;
+        margin: 16px 0;
+    }
 }
 
 @import 'common/ui-common';

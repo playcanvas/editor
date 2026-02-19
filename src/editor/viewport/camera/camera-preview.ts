@@ -120,9 +120,13 @@ editor.once('load', () => {
         if (pinnedCamera) {
             pinnedCamera = null;
             btnPin.class.remove('active');
+            editor.call('localStorage:set', 'editor:camera:pinnedEntity', null);
         } else {
             pinnedCamera = selectedEntity;
             btnPin.class.add('active');
+            if (selectedEntity) {
+                editor.call('localStorage:set', 'editor:camera:pinnedEntity', selectedEntity.get('resource_id'));
+            }
         }
 
         updateCameraState();
@@ -141,6 +145,17 @@ editor.once('load', () => {
 
     editor.once('viewport:load', (application: import('playcanvas').Application) => {
         app = application;
+
+        // restore pinned camera from previous session
+        const pinnedEntityId = editor.call('localStorage:get', 'editor:camera:pinnedEntity');
+        if (pinnedEntityId) {
+            const entity = editor.call('entities:get', pinnedEntityId);
+            if (entity && entity.has('components.camera')) {
+                pinnedCamera = entity;
+                btnPin.class.add('active');
+                updateCameraState();
+            }
+        }
     });
 
     editor.on('permissions:writeState', (state: boolean) => {
