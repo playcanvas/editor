@@ -26,7 +26,7 @@ const replacePlugin = () => ({
     name: 'replace',
     setup(build) {
         build.onLoad({ filter: /\.[jt]sx?$/ }, async (args) => {
-            if (args.path.includes('node_modules')) {
+            if (args.path.includes('node_modules') || args.path.includes('/workers/') || args.path.includes('/plugins/') || args.path.includes('/sw/')) {
                 return;
             }
             const src = await fs.promises.readFile(args.path, 'utf8');
@@ -62,7 +62,7 @@ const globalExternalsPlugin = globals => ({
 
 const shared = {
     bundle: true,
-    sourcemap: production ? true : 'inline',
+    sourcemap: production ? true : 'linked',
     minify: production,
     target: production ? 'chrome63' : undefined,
     tsconfig: 'tsconfig.json',
