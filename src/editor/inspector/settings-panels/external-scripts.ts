@@ -4,7 +4,7 @@ import type { Attribute } from '../attribute.type.d';
 const ATTRIBUTES: Attribute[] = [
     {
         observer: 'projectSettings',
-        label: 'URLs',
+        label: 'Number of URLs',
         type: 'array:select',
         path: 'externalScripts',
         alias: 'project.externalScripts',
