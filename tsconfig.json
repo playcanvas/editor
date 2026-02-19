@@ -8,6 +8,7 @@
         "skipLibCheck": true,
         "noEmit": true,
         "target": "esnext",
+        "useDefineForClassFields": false,
         "moduleResolution": "bundler",
         "outDir": "dist",
         "lib": ["es6", "dom", "webworker"],

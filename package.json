@@ -50,6 +50,8 @@
     "concurrently": "9.2.1",
     "cross-env": "7.0.3",
     "dexie": "4.3.0",
+    "esbuild": "^0.27.3",
+    "esbuild-plugin-polyfill-node": "^0.3.0",
     "eslint": "9.39.2",
     "eslint-import-resolver-typescript": "4.4.4",
     "eslint-plugin-import": "2.32.0",
@@ -98,7 +100,8 @@
     "type:check": "tsc",
     "watch": "concurrently --kill-others \"npm run watch:css\" \"npm run watch:js\"",
     "watch:css": "nodemon compile-sass.mjs -w sass -e .scss -q",
-    "watch:js": "rollup -c -w"
+    "build:js:dev": "node esbuild-dev.mjs",
+    "watch:js": "node esbuild-dev.mjs --watch"
   },
   "engines": {
     "node": "22.22.0"
