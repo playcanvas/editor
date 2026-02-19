@@ -88,7 +88,7 @@
   "scripts": {
     "build": "npm run build:css && npm run build:js",
     "build:css": "node compile-sass.mjs",
-    "build:js": "cross-env NODE_ENV=production rollup -c",
+    "build:js": "cross-env NODE_ENV=production node esbuild.config.mjs",
     "develop": "concurrently --kill-others \"npm run watch:css\" \"npm run watch:js\" \"npm run serve\"",
     "lint": "npm run lint:css && npm run lint:js",
     "lint:css": "stylelint sass",
@@ -100,8 +100,8 @@
     "type:check": "tsc",
     "watch": "concurrently --kill-others \"npm run watch:css\" \"npm run watch:js\"",
     "watch:css": "nodemon compile-sass.mjs -w sass -e .scss -q",
-    "build:js:dev": "node esbuild-dev.mjs",
-    "watch:js": "node esbuild-dev.mjs --watch"
+    "build:js:dev": "node esbuild.config.mjs",
+    "watch:js": "node esbuild.config.mjs --watch"
   },
   "engines": {
     "node": "22.22.0"

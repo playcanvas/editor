@@ -5,6 +5,7 @@ import { context } from 'esbuild';
 import { polyfillNode } from 'esbuild-plugin-polyfill-node';
 
 const watch = process.argv.includes('--watch');
+const production = process.env.NODE_ENV === 'production';
 
 const emptyNodeModulesPlugin = modules => ({
     name: 'empty-node-modules',
@@ -57,9 +58,11 @@ const globalExternalsPlugin = globals => ({
 
 const shared = {
     bundle: true,
-    sourcemap: 'inline',
+    sourcemap: production ? true : 'inline',
+    minify: production,
+    target: production ? 'chrome63' : undefined,
     tsconfig: 'tsconfig.json',
-    define: { 'process.env.NODE_ENV': '"development"' },
+    define: { 'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development') },
     logLevel: 'warning'
 };
 
@@ -97,8 +100,10 @@ const watchLogPlugin = (input, output) => ({
     }
 });
 
+const stubNodeBuiltins = emptyNodeModulesPlugin(['worker_threads', 'path', 'fs']);
+
 const pagePlugins = [
-    emptyNodeModulesPlugin(['worker_threads']),
+    stubNodeBuiltins,
     replacePlugin(),
     polyfillNode()
 ];
@@ -107,7 +112,8 @@ const workers = fs.readdirSync('src/workers').map(file => ({
     ...shared,
     entryPoints: [`src/workers/${file}`],
     outfile: `dist/js/${file.replace(/\.ts$/, '.js')}`,
-    format: 'esm'
+    format: 'esm',
+    plugins: [stubNodeBuiltins]
 }));
 
 const plugins = fs.readdirSync('src/plugins').map(file => ({
@@ -115,14 +121,15 @@ const plugins = fs.readdirSync('src/plugins').map(file => ({
     entryPoints: [`src/plugins/${file}`],
     outfile: `dist/js/plugins/${file.replace(/\.ts$/, '.js')}`,
     format: 'iife',
-    plugins: []
+    plugins: [stubNodeBuiltins]
 }));
 
 const serviceWorkers = fs.readdirSync('src/sw').map(file => ({
     ...shared,
     entryPoints: [`src/sw/${file}`],
     outfile: `dist/js/${file.replace(/\.ts$/, '.js')}`,
-    format: 'esm'
+    format: 'esm',
+    plugins: [stubNodeBuiltins]
 }));
 
 const configs = [
@@ -166,7 +173,8 @@ const configs = [
         entryPoints: ['src/texture-convert/index.ts'],
         outdir: 'dist/js/texture-convert',
         format: 'esm',
-        splitting: true
+        splitting: true,
+        plugins: [stubNodeBuiltins]
     }
 ];
 
