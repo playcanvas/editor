@@ -35,6 +35,7 @@ editor.once('load', () => {
     });
 
     const buttonLaunch = new Button({
+        class: 'control-strip-btn',
         icon: 'E131',
         text: 'Launch'
     });
@@ -368,7 +369,7 @@ editor.once('load', () => {
 
     // fullscreen
     const buttonExpand = new Button({
-        class: 'expand',
+        class: ['control-strip-btn', 'expand'],
         icon: 'E127'
     });
     panel.append(buttonExpand);

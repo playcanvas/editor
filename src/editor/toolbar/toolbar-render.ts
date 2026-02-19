@@ -25,6 +25,7 @@ editor.once('viewport:load', (app) => {
     controls.prepend(renderContainer);
 
     const renderButton = new Button({
+        class: 'control-strip-btn',
         icon: 'E188',
         text: 'Render'
     });

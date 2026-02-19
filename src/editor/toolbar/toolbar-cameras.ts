@@ -19,6 +19,7 @@ editor.once('viewport:load', (app) => {
     controls.prepend(cameraPanel);
 
     const cameraButton = new Button({
+        class: 'control-strip-btn',
         icon: 'E212'
     });
     cameraPanel.append(cameraButton);

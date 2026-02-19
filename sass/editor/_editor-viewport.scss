@@ -1,13 +1,17 @@
 @use 'sass:color';
 
+$control-strip-inset: 4px;
+$control-strip-height: 32px;
+$control-strip-gap: 2px;
+
 .viewport {
     @extend .noSelect;
 
     > .camera-preview {
         display: none;
         position: absolute;
-        top: 41px;
-        left: 4px;
+        top: 2 * $control-strip-inset + $control-strip-height;
+        left: $control-strip-inset;
         width: 256px;
         height: 196px;
         border: 2px solid $text-primary;
@@ -58,13 +62,10 @@
 .control-strip {
     position: absolute;
     display: flex;
-    gap: 2px;
+    gap: $control-strip-gap;
 
-    > .pcui-button,
-    > .render > .pcui-button,
-    > .camera > .pcui-button,
-    > .launch > .pcui-button {
-        height: 33px;
+    .control-strip-btn {
+        height: $control-strip-height;
         margin: 0;
         border: none;
         border-radius: 0;
@@ -83,7 +84,7 @@
         }
 
         &:empty {
-            width: 33px;
+            width: $control-strip-height;
             padding: 0;
         }
 
@@ -93,155 +94,161 @@
     }
 
     &.top-left {
-        top: 4px;
-        left: 4px;
-    }
-
-    &.bottom-right {
-        bottom: 4px;
-        right: 4px;
+        top: $control-strip-inset;
+        left: $control-strip-inset;
     }
 
     &.top-right {
-        top: 4px;
-        right: 4px;
+        top: $control-strip-inset;
+        right: $control-strip-inset;
+    }
 
-        > .pcui-button.expand {
-            &::before {
-                font-size: 16px;
+    &.bottom-left {
+        bottom: $control-strip-inset;
+        left: $control-strip-inset;
+        align-items: flex-end;
+    }
+
+    &.bottom-right {
+        bottom: $control-strip-inset;
+        right: $control-strip-inset;
+    }
+}
+
+.control-strip > .pcui-button.expand {
+    &::before {
+        font-size: 16px;
+    }
+
+    &.active {
+        background-color: $text-active;
+    }
+}
+
+.control-strip > .pcui-container.render,
+.control-strip > .pcui-container.camera {
+    position: relative;
+
+    &:hover > .pcui-button {
+        color: $text-primary;
+        background-color: rgba($bcg-darker, 0.75);
+    }
+
+    > .render-options,
+    > .camera-options {
+        position: absolute;
+        padding: 10px;
+        top: $control-strip-height;
+        right: 0;
+        text-align: start;
+        min-width: 150px;
+        max-height: 300px;
+        overflow: hidden auto;
+        background-color: rgba($bcg-darker, .75);
+
+        .pcui-container {
+            flex-direction: row;
+            line-height: 22px;
+            width: 100%;
+            background: transparent;
+
+            .pcui-boolean-input {
+                margin: 7px 3px 3px;
+                vertical-align: text-bottom;
             }
 
-            &.active {
-                background-color: $text-active;
+            .pcui-radio-button {
+                align-self: center;
+                height: 16px;
+                margin: 0 3px 0 2px;
+                width: 16px;
+                flex-shrink: 0;
+            }
+
+            .pcui-label {
+                margin: 3px;
+                max-width: 200px;
+                min-height: 20px;
+                font-size: 12px;
+                word-wrap: break-word;
+                white-space: pre-wrap;
+                vertical-align: bottom;
             }
         }
 
-        > .pcui-container.render,
-        > .pcui-container.camera {
-            position: relative;
+        .divider {
+            height: 3px;
+            background-color: rgba($bcg-darker, .75);
+            margin: 5px 0;
+        }
+    }
+}
 
-            &:hover > .pcui-button {
-                color: $text-primary;
-                background-color: rgba($bcg-darker, 0.75);
-            }
+.control-strip > .launch {
+    position: relative;
 
-            > .render-options,
-            > .camera-options {
-                position: absolute;
-                padding: 10px;
-                top: 33px;
-                right: 0;
-                text-align: start;
-                min-width: 150px;
-                max-height: 300px;
-                overflow: hidden auto;
-                background-color: rgba($bcg-darker, .75);
+    &:not(.disabled):hover {
+        > .pcui-button {
+            background-color: $text-active;
+        }
+    }
 
-                .pcui-container {
-                    flex-direction: row;
-                    line-height: 22px;
-                    width: 100%;
-                    background: transparent;
+    > .pcui-button {
+        &::before {
+            font-size: 20px;
+        }
+    }
 
-                    .pcui-boolean-input {
-                        margin: 7px 3px 3px;
-                        vertical-align: text-bottom;
-                    }
+    .pcui-container.options {
+        position: absolute;
+        top: $control-strip-height;
+        right: 0;
+        margin: 0;
+        padding: 5px;
+        list-style: none;
+        background-color: rgba($bcg-darker, 0.75);
 
-                    .pcui-radio-button {
-                        align-self: center;
-                        height: 16px;
-                        margin: 0 3px 0 2px;
-                        width: 16px;
-                        flex-shrink: 0;
-                    }
-
-                    .pcui-label {
-                        margin: 3px;
-                        max-width: 200px;
-                        min-height: 20px;
-                        font-size: 12px;
-                        word-wrap: break-word;
-                        white-space: pre-wrap;
-                        vertical-align: bottom;
-                    }
-                }
-
-                .divider {
-                    height: 3px;
-                    background-color: rgba($bcg-darker, .75);
-                    margin: 5px 0;
-                }
-            }
+        .pcui-boolean-input:not(.pcui-boolean-input-ticked) {
+            background-color: #20292b;
         }
 
-        > .launch {
-            position: relative;
+        .pcui-label {
+            vertical-align: top;
+            font-size: 12px;
+        }
 
-            &:not(.disabled):hover {
-                > .pcui-button {
-                    background-color: $text-active;
-                }
-            }
+        .pcui-container {
+            @extend .noSelect;
 
-            > .pcui-button {
-                &::before {
-                    font-size: 20px;
-                }
-            }
+            background: transparent;
+            width: 200px;
+            cursor: pointer;
+            margin: 2px 0;
 
-            .pcui-container.options {
-                position: absolute;
-                top: 33px;
-                right: 0;
-                margin: 0;
-                padding: 5px;
-                list-style: none;
-                background-color: rgba($bcg-darker, 0.75);
-
-                .pcui-boolean-input:not(.pcui-boolean-input-ticked) {
-                    background-color: #20292b;
-                }
-
-                .pcui-label {
-                    vertical-align: top;
-                    font-size: 12px;
-                }
-
-                .pcui-container {
-                    @extend .noSelect;
-
-                    background: transparent;
-                    width: 200px;
-                    cursor: pointer;
-                    margin: 2px 0;
-
-                    &:has(.pcui-button):hover {
-                        .pcui-button {
-                            color: $text-active;
-                        }
-                    }
-                }
-
+            &:has(.pcui-button):hover {
                 .pcui-button {
-                    width: 100%;
-                    border: 0;
-                    padding: 0;
-                    margin: 0;
-                    margin-left: 5px;
-                    background-color: transparent;
-                    font-size: 12px;
-                    text-align: left;
-
-                    &::before {
-                        font-size: 20px;
-                        vertical-align: middle;
-                    }
-
-                    &:hover {
-                        box-shadow: none;
-                    }
+                    color: $text-active;
                 }
+            }
+        }
+
+        .pcui-button {
+            width: 100%;
+            border: 0;
+            padding: 0;
+            margin: 0;
+            margin-left: 5px;
+            background-color: transparent;
+            font-size: 12px;
+            text-align: left;
+
+            &::before {
+                font-size: 20px;
+                vertical-align: middle;
+            }
+
+            &:hover {
+                box-shadow: none;
             }
         }
     }
@@ -277,58 +284,23 @@
     }
 }
 
-.pcui-container.whoisonline {
-    position: absolute;
-    bottom: 34px;
-    left: 246px;
-    background-color: transparent;
-    padding: 2px;
-    transition: left 100ms;
+.control-strip > .pcui-button.whoisonline-user {
+    background-size: 28px 28px;
+    background-position: center;
+    background-repeat: no-repeat;
 
-    &.chat-minified {
-        left: 106px;
-    }
-
-    &.no-chat {
-        left: 2px;
-    }
-
-    &.expanded {
+    &::after {
+        content: '\00a0';
+        position: absolute;
+        right: 2px;
         bottom: 2px;
-        left: 2px;
-        transition: none;
-    }
-
-    > a {
-        position: relative;
-        display: block;
-        margin-right: 4px;
-        float: left;
-        background-color: $bcg-darkest;
-
-        > img {
-            display: block;
-            width: 28px;
-            height: 28px;
-            margin: 2px;
-        }
-
-        &::after {
-            content: '\00a0';
-            position: absolute;
-            right: 2px;
-            bottom: 2px;
-            width: 6px;
-            height: 6px;
-            background: inherit;
-        }
+        width: 6px;
+        height: 6px;
+        background-color: inherit;
     }
 }
 
 .pcui-panel.chat-widget {
-    position: absolute;
-    bottom: 36px;
-    left: 4px;
     width: 240px;
     height: 192px;
 
