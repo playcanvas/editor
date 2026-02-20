@@ -102,7 +102,7 @@ export type ProjectExportArgs = {
     projectId: number;
 
     /**
-     * The ID of the branch to export. If not provided, the main branch is exported.
+     * The ID of the branch to export. If not provided, the project's default branch is exported.
      */
     branchId?: string;
 };
