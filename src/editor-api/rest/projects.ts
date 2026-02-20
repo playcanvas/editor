@@ -100,6 +100,11 @@ export type ProjectExportArgs = {
      * The ID of the project to export
      */
     projectId: number;
+
+    /**
+     * The ID of the branch to export. If not provided, the project's default branch is exported.
+     */
+    branchId?: string;
 };
 
 // TODO: Migrate to more structured args format
@@ -249,9 +254,14 @@ export const projectImport = (args: ProjectImportArgs) => {
  * Exports a project by ID
  */
 export const projectExport = (args: ProjectExportArgs) => {
+    const data: Record<string, string> = {};
+    if (args.branchId) {
+        data.branch_id = args.branchId;
+    }
     return Ajax.post<ProjectExportResponse>({
         url: `${api.apiUrl}/projects/${args.projectId}/export`,
-        auth: true
+        auth: true,
+        data: Object.keys(data).length ? data : undefined
     });
 };
 

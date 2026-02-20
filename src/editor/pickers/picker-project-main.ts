@@ -19,6 +19,15 @@ editor.once('load', () => {
 
     // UI
 
+    const getExportButtonText = () => {
+        const isCurrentProject = currentProject && currentProject.id === config.project.id;
+        const hasVersionControl = isCurrentProject && !config.project.settings.useLegacyScripts;
+        if (hasVersionControl) {
+            return `EXPORT PROJECT (${config.self.branch.name})`;
+        }
+        return 'EXPORT PROJECT';
+    };
+
     // displays or hides the AJAX loader UI when exporting project
     const toggleLoader = (toggle) => {
         if (toggle) {
@@ -27,7 +36,7 @@ editor.once('load', () => {
             loader.dom.style.display = 'block';
         } else {
             loader.dom.style.display = 'none';
-            exportProjectButton.text = 'EXPORT PROJECT';
+            exportProjectButton.text = getExportButtonText();
             exportProjectButton.icon = 'E228';
         }
     };
@@ -221,7 +230,7 @@ editor.once('load', () => {
     const exportProjectButton = new Button({
         class: 'full-width-button',
         icon: 'E228',
-        text: 'EXPORT PROJECT'
+        text: getExportButtonText()
     });
     exportProjectButtonContainer.append(exportProjectButton);
 
@@ -297,7 +306,11 @@ editor.once('load', () => {
         let downloadURL;
         let exportError;
 
-        editor.call('projects:export', currentProject.id, (job) => {
+        const isCurrentProject = currentProject && currentProject.id === config.project.id;
+        const hasVersionControl = isCurrentProject && !config.project.settings.useLegacyScripts;
+        const branchId = hasVersionControl ? config.self.branch.id : undefined;
+
+        editor.call('projects:export', currentProject.id, branchId, (job) => {
             jobId = job.id;
 
             // when job is updated get the job
@@ -467,6 +480,7 @@ editor.once('load', () => {
         privateToggle.value = currentProject.private;
 
         exportProjectButton.enabled = !exportDisabled();
+        exportProjectButton.text = getExportButtonText();
 
         initialLoad = false;  // once initial load happens, reset flag
     });
