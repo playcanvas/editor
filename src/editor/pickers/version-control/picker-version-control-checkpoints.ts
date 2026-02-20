@@ -530,14 +530,14 @@ editor.once('load', () => {
         });
         panelItem.append(label);
 
-        const btnViewChanges = new Button({
+        const btnCompare = new Button({
             text: 'COMPARE',
             size: 'small',
             class: 'btn-view-changes'
         });
-        btnViewChanges.style.width = '110px';
-        panelItem.append(btnViewChanges);
-        btnViewChanges.on('click', () => {
+        btnCompare.style.width = '110px';
+        panelItem.append(btnCompare);
+        btnCompare.on('click', () => {
             if (panel.branch != null) {
                 panel.scrollTopMap[panel.branch.id] = panelCheckpoints.dom.scrollTop;
             }
