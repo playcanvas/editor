@@ -1,8 +1,11 @@
 import fs from 'fs';
 import path from 'path';
 
+import autoprefixer from 'autoprefixer';
 import { context } from 'esbuild';
 import { polyfillNode } from 'esbuild-plugin-polyfill-node';
+import postcss from 'postcss';
+import * as sass from 'sass-embedded';
 import { defineConfig } from 'vite';
 
 /** @import { BuildOptions } from 'esbuild' */
@@ -78,6 +81,33 @@ const copy = (assets) => {
             fs.cpSync(src, dest, { recursive: true });
         }
     }
+};
+
+const SASS_DIR = 'sass';
+const SASS_OUT_DIR = 'dist/css';
+
+/**
+ * Compiles all top-level .scss files in SASS_DIR through sass-embedded + postcss/autoprefixer.
+ */
+const compileSass = async () => {
+    const files = fs.readdirSync(SASS_DIR).filter(f => f.endsWith('.scss'));
+    const processor = postcss([autoprefixer]);
+
+    await Promise.all(files.map(async (file) => {
+        const src = `${SASS_DIR}/${file}`;
+        const dest = `${SASS_OUT_DIR}/${file.replace('.scss', '.css')}`;
+
+        console.log(color.cyan(`${color.bold(src)} \u2192 ${color.bold(dest)}...`));
+        const t0 = performance.now();
+
+        const compiled = await sass.compileAsync(src, { style: 'compressed', logger: sass.Logger.silent });
+        const result = await processor.process(compiled.css, { from: undefined });
+
+        fs.mkdirSync(SASS_OUT_DIR, { recursive: true });
+        fs.writeFileSync(dest, result.css);
+
+        console.log(color.green(`created ${color.bold(dest)} in ${color.bold(ts(performance.now() - t0))}`));
+    }));
 };
 
 /**
@@ -311,6 +341,8 @@ const virtualEmptyPlugin = () => ({
 const esbuildBundlePlugin = () => {
     let isWatch = false;
     const contexts = [];
+    /** @type {fs.FSWatcher | null} */
+    let sassWatcher = null;
 
     return {
         name: 'esbuild-bundle',
@@ -330,6 +362,9 @@ const esbuildBundlePlugin = () => {
             copy(STATIC_ASSETS);
 
             const t0 = performance.now();
+
+            // compile sass in parallel with esbuild contexts
+            const sassPromise = compileSass();
 
             // each watch context gets a promise that resolves when its first build completes,
             // so we can print the summary after all initial builds are done
@@ -374,21 +409,35 @@ const esbuildBundlePlugin = () => {
                 return ctx;
             }));
 
-            // wait for all initial watch builds before printing summary
+            // wait for sass + all initial watch builds before printing summary
             if (isWatch) {
-                await Promise.all(firstBuildDone);
+                await Promise.all([sassPromise, ...firstBuildDone]);
+            } else {
+                await sassPromise;
             }
 
             contexts.push(...results);
 
             if (isWatch) {
                 console.log(`\nInitial build in ${ts(performance.now() - t0)} \u2014 watching for changes\u2026`);
+
+                // watch sass/ for changes and recompile on save
+                let debounce = null;
+                sassWatcher = fs.watch(SASS_DIR, { recursive: true }, (_event, filename) => {
+                    if (!filename?.endsWith('.scss')) {
+                        return;
+                    }
+                    clearTimeout(debounce);
+                    debounce = setTimeout(() => compileSass(), 100);
+                });
             } else {
                 console.log(`\nBuild completed in ${ts(performance.now() - t0)}`);
             }
         },
 
         closeWatcher() {
+            sassWatcher?.close();
+            sassWatcher = null;
             for (const ctx of contexts) {
                 ctx.dispose?.();
             }

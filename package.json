@@ -63,7 +63,6 @@
     "mocha": "11.7.5",
     "monaco-editor": "0.47.0",
     "monaco-themes": "0.4.8",
-    "nodemon": "3.1.11",
     "ot-text": "github:playcanvas/ot-text",
     "playcanvas": "2.16.1",
     "postcss": "8.5.6",
@@ -83,19 +82,15 @@
     "@playcanvas/attribute-parser": "^1.10.1"
   },
   "scripts": {
-    "build": "npm run build:css && npm run build:js",
-    "build:css": "node compile-sass.mjs",
-    "build:js": "cross-env NODE_ENV=production vite build",
-    "develop": "concurrently --kill-others \"npm run watch:css\" \"npm run watch:js\" \"npm run serve\"",
+    "build": "cross-env NODE_ENV=production vite build",
+    "develop": "concurrently --kill-others \"npm run watch\" \"npm run serve\"",
     "lint": "stylelint sass && eslint",
     "lint:fix": "stylelint sass --fix && eslint --fix",
     "serve": "serve dist -p 3487 --cors",
     "test": "mocha",
     "test:api": "rollup -c test/editor-api/rollup.test.config.mjs && karma start test/editor-api/karma.conf.cjs --single-run",
     "type:check": "tsc",
-    "watch": "concurrently --kill-others \"npm run watch:css\" \"npm run watch:js\"",
-    "watch:css": "nodemon compile-sass.mjs -w sass -e .scss -q",
-    "watch:js": "cross-env NODE_ENV=development vite build --watch"
+    "watch": "cross-env NODE_ENV=development vite build --watch"
   },
   "engines": {
     "node": "22.22.0"
