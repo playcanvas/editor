@@ -5579,10 +5579,6 @@ strong {
                         margin-left: 15px;
                     }
 
-                    .btn-compare {
-                        flex-shrink: 0;
-                    }
-
                     &.current-state {
                         + .date {
                             border-top: 1px solid $border-primary;
