@@ -526,19 +526,18 @@ editor.once('load', () => {
         panelItem.flex = true;
 
         const label = new LegacyLabel({
-            text: 'Changes made since the last checkpoint'
+            text: 'Current working state of the branch'
         });
         panelItem.append(label);
 
-        // shortcut button to view changes
-        const btnViewChanges = new Button({
-            text: 'VIEW CHANGES',
+        const btnCompare = new Button({
+            text: 'COMPARE',
             size: 'small',
-            class: 'btn-view-changes'
+            class: 'btn-compare',
+            width: 110
         });
-        btnViewChanges.style.width = '110px';
-        panelItem.append(btnViewChanges);
-        btnViewChanges.on('click', () => {
+        panelItem.append(btnCompare);
+        btnCompare.on('click', () => {
             if (panel.branch != null) {
                 panel.scrollTopMap[panel.branch.id] = panelCheckpoints.dom.scrollTop;
             }
