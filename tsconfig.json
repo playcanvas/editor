@@ -11,7 +11,7 @@
         "useDefineForClassFields": false,
         "moduleResolution": "bundler",
         "outDir": "dist",
-        "lib": ["es6", "dom", "webworker"],
+        "lib": ["es2021", "dom", "webworker"],
         "paths": {
             "@/*": ["./src/*"]
         }
@@ -20,7 +20,7 @@
         "src",
         "test",
         "eslint.config.mjs",
-        "rollup.config.mjs",
+        "vite.config.mjs",
         "types.d.ts"
     ],
     "exclude": [

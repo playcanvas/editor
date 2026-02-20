@@ -80,7 +80,8 @@
     "stylelint": "16.26.1",
     "stylelint-config-standard-scss": "13.1.0",
     "ts-node": "10.9.2",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "vite": "^7.3.1"
   },
   "dependencies": {
     "@playcanvas/attribute-parser": "^1.10.1"
@@ -88,7 +89,7 @@
   "scripts": {
     "build": "npm run build:css && npm run build:js",
     "build:css": "node compile-sass.mjs",
-    "build:js": "cross-env NODE_ENV=production node esbuild.config.mjs",
+    "build:js": "cross-env NODE_ENV=production vite build",
     "develop": "concurrently --kill-others \"npm run watch:css\" \"npm run watch:js\" \"npm run serve\"",
     "lint": "npm run lint:css && npm run lint:js",
     "lint:css": "stylelint sass",
@@ -100,8 +101,8 @@
     "type:check": "tsc",
     "watch": "concurrently --kill-others \"npm run watch:css\" \"npm run watch:js\"",
     "watch:css": "nodemon compile-sass.mjs -w sass -e .scss -q",
-    "build:js:dev": "node esbuild.config.mjs",
-    "watch:js": "node esbuild.config.mjs --watch"
+    "build:js:dev": "vite build",
+    "watch:js": "vite build --watch"
   },
   "engines": {
     "node": "22.22.0"
