@@ -526,13 +526,12 @@ editor.once('load', () => {
         panelItem.flex = true;
 
         const label = new LegacyLabel({
-            text: 'Changes made since the last checkpoint'
+            text: 'Current working state of the branch'
         });
         panelItem.append(label);
 
-        // shortcut button to view changes
         const btnViewChanges = new Button({
-            text: 'VIEW CHANGES',
+            text: 'COMPARE',
             size: 'small',
             class: 'btn-view-changes'
         });
