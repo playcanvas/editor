@@ -5580,7 +5580,7 @@ strong {
                     }
 
                     .btn-compare {
-                        width: 110px;
+                        flex-shrink: 0;
                     }
 
                     &.current-state {

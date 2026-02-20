@@ -533,7 +533,8 @@ editor.once('load', () => {
         const btnCompare = new Button({
             text: 'COMPARE',
             size: 'small',
-            class: 'btn-compare'
+            class: 'btn-compare',
+            width: 110
         });
         panelItem.append(btnCompare);
         btnCompare.on('click', () => {
