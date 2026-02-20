@@ -15,17 +15,6 @@ const VIRTUAL_INPUT = 'virtual:empty';
 const VIRTUAL_RESOLVED = '\0virtual:empty';
 const NOOP_OUTPUT = '.noop.js';
 
-/** @type {BuildOptions} */
-const shared = {
-    bundle: true,
-    sourcemap: production ? true : 'linked', // 'linked' avoids inlining maps for faster dev rebuilds
-    minify: production,
-    target: production ? 'chrome63' : undefined,
-    tsconfig: 'tsconfig.json',
-    define: { 'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development') },
-    logLevel: 'warning'
-};
-
 const STATIC_ASSETS = [
     { src: 'node_modules/monaco-editor/min/vs', dest: 'dist/js/monaco-editor/min/vs' },
     { src: 'node_modules/monaco-themes/themes', dest: 'dist/json/monaco-themes' },
@@ -196,6 +185,17 @@ const watchLogPlugin = (input, output) => ({
 const stubNodeBuiltins = emptyNodeModulesPlugin(STUBBED_NODE_MODULES);
 
 const pagePlugins = [stubNodeBuiltins, replacePlugin(), polyfillNode()];
+
+/** @type {BuildOptions} */
+const shared = {
+    bundle: true,
+    sourcemap: production ? true : 'linked', // 'linked' avoids inlining maps for faster dev rebuilds
+    minify: production,
+    target: production ? 'chrome63' : undefined,
+    tsconfig: 'tsconfig.json',
+    define: { 'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development') },
+    logLevel: 'warning'
+};
 
 /** @type {BuildOptions[]} */
 const PAGE_TARGETS = [
