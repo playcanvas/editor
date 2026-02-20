@@ -535,7 +535,6 @@ editor.once('load', () => {
             size: 'small',
             class: 'btn-view-changes'
         });
-        btnCompare.style.width = '110px';
         panelItem.append(btnCompare);
         btnCompare.on('click', () => {
             if (panel.branch != null) {

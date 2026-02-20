@@ -5579,6 +5579,10 @@ strong {
                         margin-left: 15px;
                     }
 
+                    .btn-view-changes {
+                        width: 110px;
+                    }
+
                     &.current-state {
                         + .date {
                             border-top: 1px solid $border-primary;
