@@ -117,8 +117,8 @@ editor.once('load', () => {
     });
 
     // Export specified project
-    editor.method('projects:export', (projectId: string, success?: (result: unknown) => void, errorFn?: (error: unknown) => void) => {
-        editor.api.globals.rest.projects.projectExport({ projectId })
+    editor.method('projects:export', (projectId: string, branchId?: string, success?: (result: unknown) => void, errorFn?: (error: unknown) => void) => {
+        editor.api.globals.rest.projects.projectExport({ projectId, branchId })
         .on('load', (status, result) => {
             if (success) {
                 success(result);
