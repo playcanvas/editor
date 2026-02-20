@@ -14,11 +14,11 @@ editor.once('load', () => {
     const publishButton = toolbar.dom.querySelector('.publish-download');
     toolbar.appendBefore(button, publishButton);
 
-    button.on('click', () => {
-        editor.call('picker:codeeditor');
+    button.on('click', (e: MouseEvent) => {
+        editor.call('picker:codeeditor', undefined, undefined, e.shiftKey);
     });
 
-    editor.method('picker:codeeditor', (asset?: Observer, options?: Record<string, unknown>) => {
+    editor.method('picker:codeeditor', (asset?: Observer, options?: Record<string, unknown>, popup?: boolean) => {
         // open the new code editor - try to focus existing tab if it exists
 
         const projectId = config.project?.id;
@@ -40,8 +40,9 @@ editor.once('load', () => {
         }
 
         const name = `codeeditor:${projectId}`;
+        const features = popup ? 'popup' : undefined;
 
-        const wnd = window.open('', name);
+        const wnd = window.open('', name, features);
         try {
             // check if the window is already open and if it has the code editor loaded
             if (wnd?.editor?.isCodeEditor) {
@@ -68,7 +69,7 @@ editor.once('load', () => {
             wnd?.focus();
         } catch (ex) {
             // accessing wnd will throw an exception if it is at a different domain
-            const newWnd = window.open(url, name);
+            const newWnd = window.open(url, name, features);
             newWnd?.focus();
         }
     });

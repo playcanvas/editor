@@ -43,7 +43,7 @@ editor.once('load', () => {
 
     const launchOptions = { };
 
-    const launchApp = (deviceOptions?: { webgpu?: boolean; webgl2?: boolean; webgl1?: boolean; [key: string]: boolean | undefined }) => {
+    const launchApp = (deviceOptions?: { webgpu?: boolean; webgl2?: boolean; webgl1?: boolean; [key: string]: boolean | undefined }, popup?: boolean) => {
         let url = config.url.launch + config.scene.id;
 
         const query = [];
@@ -98,12 +98,13 @@ editor.once('load', () => {
             url += `?${query.join('&')}`;
         }
 
-        const launcher = window.open();
+        const features = popup ? 'popup' : undefined;
+        const launcher = window.open('', '_blank', features);
         launcher.opener = null;
         launcher.location = url;
     };
 
-    buttonLaunch.on('click', launchApp);
+    buttonLaunch.on('click', (e: MouseEvent) => launchApp({}, e.shiftKey));
 
     const panelOptions = new Container({
         class: 'options',
@@ -135,7 +136,7 @@ editor.once('load', () => {
         divider.on('click', (e: MouseEvent) => e.stopPropagation());
 
         launch.append(divider);
-        launch.on('click', () => launchApp({ [name]: true }));
+        launch.on('click', (e: MouseEvent) => launchApp({ [name]: true }, e.shiftKey));
 
         return button;
     };
@@ -172,10 +173,39 @@ editor.once('load', () => {
         return option;
     };
 
+    const launchPopupContainer = new Container({
+        class: 'launch',
+        enabled: false
+    });
+    panelOptions.append(launchPopupContainer);
+
+    editor.on('scene:load', () => {
+        launchPopupContainer.enabled = true;
+    });
+    editor.on('scene:unload', () => {
+        launchPopupContainer.enabled = false;
+    });
+
+    const launchPopupButton = new Button({
+        icon: 'E131',
+        text: 'Launch in Popup'
+    });
+    launchPopupContainer.append(launchPopupButton);
+
+    launchPopupContainer.on('click', () => launchApp({}, true));
+
+    LegacyTooltip.attach({
+        target: launchPopupContainer.element,
+        text: 'Launch the scene in a popup window with minimal browser chrome (or Shift-click Launch).',
+        align: 'right',
+        root: root
+    }).class.add('launch-tooltip');
+
     const launchWithWebGpu = createButton('webgpu', `Launch with WebGPU${editor.projectEngineV2 ? '' : ' (beta)'}`);
+
     const tooltipPreferWebGpu = LegacyTooltip.attach({
         target: launchWithWebGpu.parent.element,
-        text: `Launch the application using WebGPU${editor.projectEngineV2 ? '' : ' (beta)'}.`,
+        text: `Launch the scene using WebGPU${editor.projectEngineV2 ? '' : ' (beta)'}.`,
         align: 'right',
         root: root
     });
