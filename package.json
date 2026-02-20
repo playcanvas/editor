@@ -87,18 +87,15 @@
     "build:css": "node compile-sass.mjs",
     "build:js": "cross-env NODE_ENV=production vite build",
     "develop": "concurrently --kill-others \"npm run watch:css\" \"npm run watch:js\" \"npm run serve\"",
-    "lint": "npm run lint:css && npm run lint:js",
-    "lint:css": "stylelint sass",
-    "lint:js": "eslint",
-    "lint:js:fix": "eslint --fix",
+    "lint": "stylelint sass && eslint",
+    "lint:fix": "stylelint sass --fix && eslint --fix",
     "serve": "serve dist -p 3487 --cors",
     "test": "mocha",
     "test:api": "rollup -c test/editor-api/rollup.test.config.mjs && karma start test/editor-api/karma.conf.cjs --single-run",
     "type:check": "tsc",
     "watch": "concurrently --kill-others \"npm run watch:css\" \"npm run watch:js\"",
     "watch:css": "nodemon compile-sass.mjs -w sass -e .scss -q",
-    "build:js:dev": "vite build",
-    "watch:js": "vite build --watch"
+    "watch:js": "cross-env NODE_ENV=development vite build --watch"
   },
   "engines": {
     "node": "22.22.0"
