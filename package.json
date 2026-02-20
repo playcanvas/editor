@@ -37,9 +37,7 @@
     "@playcanvas/pcui": "5.5.0",
     "@playcanvas/pcui-graph": "5.0.0",
     "@rollup/plugin-commonjs": "28.0.9",
-    "@rollup/plugin-json": "6.1.0",
     "@rollup/plugin-node-resolve": "15.3.1",
-    "@rollup/plugin-replace": "6.0.3",
     "@rollup/plugin-swc": "0.4.0",
     "@swc/core": "1.15.11",
     "@types/sharedb": "3.3.13",
@@ -50,6 +48,8 @@
     "concurrently": "9.2.1",
     "cross-env": "7.0.3",
     "dexie": "4.3.0",
+    "esbuild": "^0.27.3",
+    "esbuild-plugin-polyfill-node": "^0.3.0",
     "eslint": "9.39.2",
     "eslint-import-resolver-typescript": "4.4.4",
     "eslint-plugin-import": "2.32.0",
@@ -63,14 +63,11 @@
     "mocha": "11.7.5",
     "monaco-editor": "0.47.0",
     "monaco-themes": "0.4.8",
-    "nodemon": "3.1.11",
     "ot-text": "github:playcanvas/ot-text",
     "playcanvas": "2.16.1",
     "postcss": "8.5.6",
     "rollup": "4.57.1",
-    "rollup-plugin-copy": "3.5.0",
     "rollup-plugin-polyfill-node": "0.13.0",
-    "rollup-plugin-tsconfig-paths": "1.5.2",
     "sass-embedded": "1.97.3",
     "serve": "14.2.5",
     "sharedb": "3.3.2",
@@ -78,27 +75,22 @@
     "stylelint": "16.26.1",
     "stylelint-config-standard-scss": "13.1.0",
     "ts-node": "10.9.2",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "vite": "^7.3.1"
   },
   "dependencies": {
     "@playcanvas/attribute-parser": "^1.10.1"
   },
   "scripts": {
-    "build": "npm run build:css && npm run build:js",
-    "build:css": "node compile-sass.mjs",
-    "build:js": "cross-env NODE_ENV=production rollup -c",
-    "develop": "concurrently --kill-others \"npm run watch:css\" \"npm run watch:js\" \"npm run serve\"",
-    "lint": "npm run lint:css && npm run lint:js",
-    "lint:css": "stylelint sass",
-    "lint:js": "eslint",
-    "lint:js:fix": "eslint --fix",
+    "build": "cross-env NODE_ENV=production vite build",
+    "develop": "concurrently --kill-others \"npm run watch\" \"npm run serve\"",
+    "lint": "stylelint sass && eslint",
+    "lint:fix": "stylelint sass --fix && eslint --fix",
     "serve": "serve dist -p 3487 --cors",
     "test": "mocha",
     "test:api": "rollup -c test/editor-api/rollup.test.config.mjs && karma start test/editor-api/karma.conf.cjs --single-run",
     "type:check": "tsc",
-    "watch": "concurrently --kill-others \"npm run watch:css\" \"npm run watch:js\"",
-    "watch:css": "nodemon compile-sass.mjs -w sass -e .scss -q",
-    "watch:js": "rollup -c -w"
+    "watch": "cross-env NODE_ENV=development vite build --watch"
   },
   "engines": {
     "node": "22.22.0"

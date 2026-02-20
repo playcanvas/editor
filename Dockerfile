@@ -10,18 +10,14 @@ FROM base AS builder
 COPY --from=install /temp/dev/package.json /temp/dev/package-lock.json ./
 COPY --from=install /temp/dev/node_modules ./node_modules
 
-# build css
-COPY compile-sass.mjs ./
-COPY sass ./sass
-RUN npm run build:css
-
-# build js
+# build js + css
 COPY src ./src
+COPY sass ./sass
 COPY static ./static
 COPY types.d.ts ./
 COPY tsconfig.json ./
-COPY rollup.config.mjs ./
-RUN npm run build:js
+COPY vite.config.mjs ./
+RUN npm run build
 
 FROM base AS run
 COPY --from=install /temp/dev/package.json /temp/dev/package-lock.json ./
