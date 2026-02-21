@@ -43,7 +43,7 @@ editor.once('load', () => {
 
     const launchOptions = { };
 
-    const launchApp = (deviceOptions?: { webgpu?: boolean; webgl2?: boolean; webgl1?: boolean; [key: string]: boolean | undefined }, popup?: boolean) => {
+    const launchApp = (deviceOptions: { webgpu?: boolean; webgl2?: boolean; webgl1?: boolean; [key: string]: boolean | undefined } = {}, popup?: boolean) => {
         let url = config.url.launch + config.scene.id;
 
         const query = [];
