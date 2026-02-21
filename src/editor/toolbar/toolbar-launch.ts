@@ -214,7 +214,7 @@ editor.once('load', () => {
     const launchWithWebGL2 = createButton('webgl2', 'Launch with WebGL 2.0');
     const tooltipPreferWebGl2 = LegacyTooltip.attach({
         target: launchWithWebGL2.parent.element,
-        text: 'Launch the application using WebGL 2.0.',
+        text: 'Launch the scene using WebGL 2.0.',
         align: 'right',
         root: root
     });
@@ -223,7 +223,7 @@ editor.once('load', () => {
     const launchWithWebGL1 = createButton('webgl1', 'Launch with WebGL 1.0');
     const tooltipPreferWebGl1 = LegacyTooltip.attach({
         target: launchWithWebGL1.parent.element,
-        text: 'Launch the application using WebGL 1.0.',
+        text: 'Launch the scene using WebGL 1.0.',
         align: 'right',
         root: root
     });
@@ -329,7 +329,7 @@ editor.once('load', () => {
         });
         LegacyTooltip.attach({
             target: optionReleaseCandidate.parent.element,
-            text: `Launch the application using the engine release candidate (version ${releaseCandidate}).`,
+            text: `Launch the scene using the engine release candidate (version ${releaseCandidate}).`,
             align: 'right',
             root: root
         }).class.add('launch-tooltip');
