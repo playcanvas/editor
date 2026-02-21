@@ -41,9 +41,18 @@ editor.once('load', () => {
     });
     launch.append(buttonLaunch);
 
+    const tooltipLaunch = LegacyTooltip.attach({
+        target: buttonLaunch.dom,
+        text: 'Launch the scene (Shift-click to open in popup)',
+        align: 'right',
+        root: root
+    });
+    // Prevent the tooltip from intercepting mouse events when moving to adjacent buttons
+    tooltipLaunch.style.pointerEvents = 'none';
+
     const launchOptions = { };
 
-    const launchApp = (deviceOptions?: { webgpu?: boolean; webgl2?: boolean; webgl1?: boolean; [key: string]: boolean | undefined }) => {
+    const launchApp = (deviceOptions: { webgpu?: boolean; webgl2?: boolean; webgl1?: boolean; [key: string]: boolean | undefined } = {}, popup?: boolean) => {
         let url = config.url.launch + config.scene.id;
 
         const query = [];
@@ -98,12 +107,15 @@ editor.once('load', () => {
             url += `?${query.join('&')}`;
         }
 
-        const launcher = window.open();
-        launcher.opener = null;
-        launcher.location = url;
+        const features = popup ? 'popup' : undefined;
+        const launcher = window.open('', '_blank', features);
+        if (launcher) {
+            launcher.opener = null;
+            launcher.location = url;
+        }
     };
 
-    buttonLaunch.on('click', launchApp);
+    buttonLaunch.on('click', (e: MouseEvent) => launchApp({}, e.shiftKey));
 
     const panelOptions = new Container({
         class: 'options',
@@ -135,7 +147,7 @@ editor.once('load', () => {
         divider.on('click', (e: MouseEvent) => e.stopPropagation());
 
         launch.append(divider);
-        launch.on('click', () => launchApp({ [name]: true }));
+        launch.on('click', (e: MouseEvent) => launchApp({ [name]: true }, e.shiftKey));
 
         return button;
     };
@@ -173,9 +185,10 @@ editor.once('load', () => {
     };
 
     const launchWithWebGpu = createButton('webgpu', `Launch with WebGPU${editor.projectEngineV2 ? '' : ' (beta)'}`);
+
     const tooltipPreferWebGpu = LegacyTooltip.attach({
         target: launchWithWebGpu.parent.element,
-        text: `Launch the application using WebGPU${editor.projectEngineV2 ? '' : ' (beta)'}.`,
+        text: `Launch the scene using WebGPU${editor.projectEngineV2 ? '' : ' (beta)'}.`,
         align: 'right',
         root: root
     });
@@ -184,7 +197,7 @@ editor.once('load', () => {
     const launchWithWebGL2 = createButton('webgl2', 'Launch with WebGL 2.0');
     const tooltipPreferWebGl2 = LegacyTooltip.attach({
         target: launchWithWebGL2.parent.element,
-        text: 'Launch the application using WebGL 2.0.',
+        text: 'Launch the scene using WebGL 2.0.',
         align: 'right',
         root: root
     });
@@ -193,7 +206,7 @@ editor.once('load', () => {
     const launchWithWebGL1 = createButton('webgl1', 'Launch with WebGL 1.0');
     const tooltipPreferWebGl1 = LegacyTooltip.attach({
         target: launchWithWebGL1.parent.element,
-        text: 'Launch the application using WebGL 1.0.',
+        text: 'Launch the scene using WebGL 1.0.',
         align: 'right',
         root: root
     });
@@ -299,7 +312,7 @@ editor.once('load', () => {
         });
         LegacyTooltip.attach({
             target: optionReleaseCandidate.parent.element,
-            text: `Launch the application using the engine release candidate (version ${releaseCandidate}).`,
+            text: `Launch the scene using the engine release candidate (version ${releaseCandidate}).`,
             align: 'right',
             root: root
         }).class.add('launch-tooltip');
