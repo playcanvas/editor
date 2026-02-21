@@ -76,7 +76,7 @@ editor.once('load', () => {
 
     LegacyTooltip.attach({
         target: button.dom,
-        text: 'Code Editor',
+        text: 'Code Editor (Shift-click to open in popup)',
         align: 'left',
         root: editor.call('layout.root')
     });
