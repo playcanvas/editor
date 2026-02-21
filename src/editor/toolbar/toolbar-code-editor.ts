@@ -39,7 +39,8 @@ editor.once('load', () => {
             url += `?${query.join('&')}`;
         }
 
-        const name = `codeeditor:${projectId}`;
+        const baseName = `codeeditor:${projectId}`;
+        const name = popup ? `${baseName}:popup` : baseName;
         const features = popup ? 'popup' : undefined;
 
         const wnd = window.open('', name, features);
