@@ -100,8 +100,10 @@ editor.once('load', () => {
 
         const features = popup ? 'popup' : undefined;
         const launcher = window.open('', '_blank', features);
-        launcher.opener = null;
-        launcher.location = url;
+        if (launcher) {
+            launcher.opener = null;
+            launcher.location = url;
+        }
     };
 
     buttonLaunch.on('click', (e: MouseEvent) => launchApp({}, e.shiftKey));
