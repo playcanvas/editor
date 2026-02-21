@@ -41,7 +41,7 @@ editor.once('load', () => {
     });
     launch.append(buttonLaunch);
 
-    LegacyTooltip.attach({
+    const tooltipLaunch = LegacyTooltip.attach({
         target: buttonLaunch.dom,
         text: 'Launch the scene (Shift-click to open in popup)',
         align: 'right',
@@ -338,6 +338,7 @@ editor.once('load', () => {
             return;
         }
 
+        tooltipLaunch.hidden = true;
         panelOptions.hidden = false;
         if (timeout) {
             clearTimeout(timeout);
