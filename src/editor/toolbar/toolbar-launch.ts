@@ -44,7 +44,7 @@ editor.once('load', () => {
     LegacyTooltip.attach({
         target: buttonLaunch.dom,
         text: 'Launch the scene (Shift-click to open in popup)',
-        align: 'top',
+        align: 'left',
         root: root
     });
 
