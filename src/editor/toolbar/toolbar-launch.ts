@@ -47,6 +47,8 @@ editor.once('load', () => {
         align: 'right',
         root: root
     });
+    // Prevent the tooltip from intercepting mouse events when moving to adjacent buttons
+    tooltipLaunch.style.pointerEvents = 'none';
 
     const launchOptions = { };
 
@@ -338,7 +340,6 @@ editor.once('load', () => {
             return;
         }
 
-        tooltipLaunch.hidden = true;
         panelOptions.hidden = false;
         if (timeout) {
             clearTimeout(timeout);
