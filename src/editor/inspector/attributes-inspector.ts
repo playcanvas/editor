@@ -44,6 +44,8 @@ class AttributesInspector extends Container {
 
     private _clipboardTypes: Set<string> | null;
 
+    private _skipEnabledInBody: boolean;
+
     private _suspendChangeEvt: boolean;
 
     private _onAttributeChangeHandler: () => void;
@@ -59,6 +61,7 @@ class AttributesInspector extends Container {
         sessionSettings?: Observer;
         attributes?: Attribute[];
         templateOverridesInspector?: TemplateOverrideInspector;
+        _skipEnabledInBody?: boolean;
     } & ContainerArgs = {}) {
         args = Object.assign({
             flex: true
@@ -83,6 +86,8 @@ class AttributesInspector extends Container {
         this._fieldAttributes = {};
 
         this._templateOverridesInspector = args.templateOverridesInspector;
+
+        this._skipEnabledInBody = args._skipEnabledInBody || false;
 
         this._suspendChangeEvt = false;
         this._onAttributeChangeHandler = this._onAttributeChange.bind(this);
@@ -356,8 +361,12 @@ class AttributesInspector extends Container {
     addAttribute(attr: Attribute, index?: number) {
         try {
 
-            // If the attribute is a boolean and has an 'enabled' sub-attribute, add a toggle field to the header
+            // If the attribute has an 'enabled' boolean sub-attribute, promote it to the panel header as a toggle
             const enabledSubAttribute = attr.args?.attributes?.find(isEnabledAttribute);
+
+            if (enabledSubAttribute) {
+                attr = { ...attr, args: { ...attr.args, _skipEnabledInBody: true } };
+            }
 
             const field = this.createFieldForAttribute(attr);
 
@@ -371,8 +380,7 @@ class AttributesInspector extends Container {
                         labelAlignTop: attr.type === 'assets' || attr.type.startsWith('array') || attr.type === 'layers' || attr.type === 'json'
                     });
 
-                    // If the attribute is a boolean named 'enabled' it will be added as as toggle field to the header, so we ignore it here
-                    if (!isEnabledAttribute(attr)) {
+                    if (!(isEnabledAttribute(attr) && this._skipEnabledInBody)) {
                         this.append(labelGroup);
                         if (index >= 0) {
                             this.move(labelGroup, index);
