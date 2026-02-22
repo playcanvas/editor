@@ -32,17 +32,14 @@ async function addScript(entities: Entity[], scriptName: string, options: { enab
 
     let promise: Promise<unknown> = Promise.resolve();
 
-    // Only request default attribute values from the backend if the script asset still exists.
-    // The asset may have been deleted (e.g. when undoing a script removal after asset deletion).
-    if (api.assets.getAssetForScript(scriptName)) {
+    // Only request default attribute values from the backend if the script asset still exists
+    // and there is an active scene. The asset may have been deleted (e.g. when undoing a script
+    // removal after asset deletion), and the scene is required for the pipeline message.
+    if (api.assets.getAssetForScript(scriptName) && api.realtime.scenes.current) {
         // wait for scene script ops to finish before starting backend
         // for default attributes values
         await new Promise<void>((resolve) => {
-            if (api.realtime.scenes.current) {
-                api.realtime.scenes.current.whenNothingPending(resolve);
-            } else {
-                resolve();
-            }
+            api.realtime.scenes.current.whenNothingPending(resolve);
         });
 
         // setup promise
