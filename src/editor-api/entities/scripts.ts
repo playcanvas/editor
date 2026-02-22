@@ -30,7 +30,7 @@ async function addScript(entities: Entity[], scriptName: string, options: { enab
         entity.history.enabled = historyEnabled;
     });
 
-    let promise: Promise<unknown> = Promise.resolve();
+    let promise: Promise<void> = Promise.resolve();
 
     // Only request default attribute values from the backend if the script asset still exists
     // and there is an active scene. The asset may have been deleted (e.g. when undoing a script
@@ -48,7 +48,7 @@ async function addScript(entities: Entity[], scriptName: string, options: { enab
             reject: null
         };
 
-        promise = new Promise((resolve, reject) => {
+        promise = new Promise<void>((resolve, reject) => {
             deferred.resolve = resolve;
             deferred.reject = reject;
         });
