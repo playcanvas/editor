@@ -30,54 +30,57 @@ async function addScript(entities: Entity[], scriptName: string, options: { enab
         entity.history.enabled = historyEnabled;
     });
 
-    // wait for scene script ops to finish before starting backend
-    // for default attributes values
-    await new Promise<void>((resolve) => {
-        if (api.realtime.scenes.current) {
+    let promise: Promise<void> = Promise.resolve();
+
+    // Only request default attribute values from the backend if the script asset still exists
+    // and there is an active scene. The asset may have been deleted (e.g. when undoing a script
+    // removal after asset deletion), and the scene is required for the pipeline message.
+    if (api.assets.getAssetForScript(scriptName) && api.realtime.scenes.current) {
+        // wait for scene script ops to finish before starting backend
+        // for default attributes values
+        await new Promise<void>((resolve) => {
             api.realtime.scenes.current.whenNothingPending(resolve);
-        } else {
-            resolve();
-        }
-    });
+        });
 
-    // setup promise
-    const deferred: any = {
-        resolve: null,
-        reject: null
-    };
+        // setup promise
+        const deferred: any = {
+            resolve: null,
+            reject: null
+        };
 
-    const promise = new Promise((resolve, reject) => {
-        deferred.resolve = resolve;
-        deferred.reject = reject;
-    });
+        promise = new Promise<void>((resolve, reject) => {
+            deferred.resolve = resolve;
+            deferred.reject = reject;
+        });
 
-    // start job
-    const jobId = api.jobs.start((result: { status: string; }) => {
-        if (result.status === 'success') {
-            deferred.resolve();
-        } else {
-            deferred.reject();
-        }
-    });
+        // start job
+        const jobId = api.jobs.start((result: { status: string; }) => {
+            if (result.status === 'success') {
+                deferred.resolve();
+            } else {
+                deferred.reject();
+            }
+        });
 
-    // send backend message to set script attribute defaults
-    api.realtime.connection.sendMessage('pipeline', {
-        name: 'script-attributes',
-        data: {
-            script_task_type: 'set_entity_defaults',
-            job_id: jobId,
-            project_id: api.projectId,
-            branch_id: api.branchId,
-            script_added_to_ent: scriptName,
-            dst_scene_id: api.realtime.scenes.current.id,
-            dst_ent_ids: entities.map((e: Entity) => e.get('resource_id'))
-        }
-    });
+        // send backend message to set script attribute defaults
+        api.realtime.connection.sendMessage('pipeline', {
+            name: 'script-attributes',
+            data: {
+                script_task_type: 'set_entity_defaults',
+                job_id: jobId,
+                project_id: api.projectId,
+                branch_id: api.branchId,
+                script_added_to_ent: scriptName,
+                dst_scene_id: api.realtime.scenes.current.id,
+                dst_ent_ids: entities.map((e: Entity) => e.get('resource_id'))
+            }
+        });
 
-    // wait for messenger response
-    api.messenger.once(`scriptAttrsFinished:${jobId}`, (msg: any) => {
-        api.jobs.finish(jobId)(msg);
-    });
+        // wait for messenger response
+        api.messenger.once(`scriptAttrsFinished:${jobId}`, (msg: any) => {
+            api.jobs.finish(jobId)(msg);
+        });
+    }
 
     // add history action
     if (api.history && (options.history || options.history === undefined)) {
