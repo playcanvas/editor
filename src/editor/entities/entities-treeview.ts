@@ -1,5 +1,5 @@
 import type { Observer, ObserverList } from '@playcanvas/observer';
-import { Element, TreeView, TreeViewItem, Container } from '@playcanvas/pcui';
+import { Button, Element, TreeView, TreeViewItem, Container } from '@playcanvas/pcui';
 
 import type { DropTarget } from '@/common/pcui/element/element-drop-target';
 
@@ -12,6 +12,8 @@ const CLASS_TEMPLATE_INSTANCE_CHILD = `${CLASS_TEMPLATE_INSTANCE}-child`;
 const CLASS_HIGHLIGHT = `${CLASS_ROOT}-highlight`;
 const CLASS_USER_SELECTION_MARKER = `${CLASS_ROOT}-user-marker`;
 const CLASS_USER_SELECTION_MARKER_CONTAINER = `${CLASS_USER_SELECTION_MARKER}-container`;
+const CLASS_VISIBILITY_TOGGLE = `${CLASS_ROOT}-visibility-toggle`;
+const CLASS_VISIBILITY_HIDDEN = `${CLASS_ROOT}-visibility-hidden`;
 const CLASS_FILTERING = 'pcui-treeview-filtering';
 const CLASS_FILTER_RESULT = `${CLASS_FILTERING}-result`;
 
@@ -812,6 +814,27 @@ class EntitiesTreeView extends TreeView {
                 }
             }
         });
+
+        // visibility toggle button
+        const visibilityToggle = new Button({
+            icon: 'E117',
+            class: CLASS_VISIBILITY_TOGGLE,
+            ignoreParent: true
+        });
+        visibilityToggle.on('click', (evt: MouseEvent) => {
+            evt.stopPropagation();
+            editor.call('entities:visibility:toggle', resourceId);
+        });
+        events.push(editor.on('entities:visibility:changed', (changedId: string, hidden: boolean) => {
+            if (changedId === resourceId) {
+                if (hidden) {
+                    visibilityToggle.class.add(CLASS_VISIBILITY_HIDDEN);
+                } else {
+                    visibilityToggle.class.remove(CLASS_VISIBILITY_HIDDEN);
+                }
+            }
+        }));
+        treeViewItem._containerContents.append(visibilityToggle);
 
         // container for user selection markers
         treeViewItem._containerUsers = new Container({

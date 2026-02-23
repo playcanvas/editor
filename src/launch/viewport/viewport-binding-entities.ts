@@ -26,7 +26,9 @@ editor.once('load', () => {
         entity.setLocalPosition(obj.get('position.0'), obj.get('position.1'), obj.get('position.2'));
         entity.setLocalEulerAngles(obj.get('rotation.0'), obj.get('rotation.1'), obj.get('rotation.2'));
         entity.setLocalScale(obj.get('scale.0'), obj.get('scale.1'), obj.get('scale.2'));
-        entity._enabled = obj.has('enabled') ? obj.get('enabled') : true;
+        const observerEnabled = obj.has('enabled') ? obj.get('enabled') : true;
+        const viewportHidden = editor.call('entities:visibility:isHidden', obj.get('resource_id'));
+        entity._enabled = observerEnabled && !viewportHidden;
 
         if (obj.has('labels')) {
             obj.get('labels').forEach((label: string) => {
@@ -190,7 +192,8 @@ editor.once('load', () => {
                 resetPhysics(entity);
 
             } else if (path.startsWith('enabled')) {
-                entity.enabled = obj.get('enabled');
+                const hidden = editor.call('entities:visibility:isHidden', obj.get('resource_id'));
+                entity.enabled = obj.get('enabled') && !hidden;
 
             } else if (path.startsWith('parent')) {
                 const parent = editor.call('entities:get', obj.get('parent'));

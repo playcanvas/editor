@@ -2,6 +2,14 @@
 
 .entities-treeview {
     height: 100%;
+    min-width: 0;
+
+    .pcui-treeview-item-text {
+        flex-shrink: 1;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 
     // template instance icon
     .pcui-treeview-item.template-instance {
@@ -43,8 +51,54 @@
     }
 }
 
-.entities-treeview-user-marker-container {
+.entities-treeview-visibility-toggle {
+    display: inline-block;
+    flex-shrink: 0;
+    width: 20px;
+    height: 100%;
+    line-height: inherit;
+    text-align: center;
+    font-size: 14px;
+    cursor: pointer;
+    opacity: 0;
+    color: $text-darkest;
+    pointer-events: all;
+    border: none;
+    background: none;
+    padding: 0;
+    margin: 0;
     margin-left: auto;
+    box-shadow: none;
+
+    &:hover,
+    &:focus {
+        opacity: 1 !important;
+        color: $text-primary;
+        background: none !important;
+        box-shadow: none !important;
+        outline: none;
+    }
+
+    &.entities-treeview-visibility-hidden {
+        opacity: 0.7;
+        color: $text-darkest;
+        text-decoration: line-through;
+
+        &:hover {
+            opacity: 1;
+            color: $text-primary;
+        }
+    }
+
+}
+
+.pcui-treeview-item > .pcui-treeview-item-contents:hover > .entities-treeview-visibility-toggle:not(.entities-treeview-visibility-hidden) {
+    opacity: 0.3;
+    color: $text-primary;
+}
+
+.entities-treeview-user-marker-container {
+    flex-shrink: 0;
 }
 
 .entities-treeview-user-marker {
