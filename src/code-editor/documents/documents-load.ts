@@ -137,7 +137,9 @@ editor.once('load', () => {
 
         // if already loaded just focus it
         if (documentsIndex[id]) {
-            editor.emit('documents:focus', id);
+            if (!documentsIndex[id].isLoading) {
+                editor.emit('documents:focus', id);
+            }
             return;
         }
 
