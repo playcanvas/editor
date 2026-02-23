@@ -57,6 +57,8 @@ jobs:
             -e PC_LOCAL_FRONTEND=true \
             -e PC_COOKIE_NAME=${{ secrets.PC_COOKIE_NAME }} \
             -e PC_COOKIE_VALUE=${{ secrets.PC_COOKIE_VALUE }} \
+            -e PC_HEADER_NAME=${{ secrets.PC_HEADER_NAME }} \
+            -e PC_HEADER_VALUE=${{ secrets.PC_HEADER_VALUE }} \
             -v ${{ github.workspace }}/test-results:/usr/src/test/test-results \
             playcanvas/editor:latest
 
