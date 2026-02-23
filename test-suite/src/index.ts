@@ -1,11 +1,11 @@
 import { chromium } from '@playwright/test';
 
-import { AUTH_STATE, HOST } from '../lib/config';
+import { AUTH_STATES, HOST } from '../lib/config';
 
 const browser = await chromium.launch({
     headless: false
 });
-const context = await browser.newContext({ storageState: AUTH_STATE });
+const context = await browser.newContext({ storageState: AUTH_STATES[0] });
 const page = await context.newPage();
 page.on('close', async () => {
     await browser.close();
