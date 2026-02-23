@@ -1,10 +1,11 @@
 import { type BrowserContext } from '@playwright/test';
 import Bottleneck from 'bottleneck';
 
+import { HEADER_NAME, HEADER_VALUE } from './config';
+
 const MAX_CONCURRENT = 10;
 const ONE_MINUTE = 60 * 1000;
 const RPM = {
-    cloudfront: 480,
     api: {
         normal: 120,
         strict: 5,
@@ -14,12 +15,6 @@ const RPM = {
 };
 
 const limiters = {
-    cloudfront: new Bottleneck({
-        maxConcurrent: MAX_CONCURRENT,
-        reservoir: RPM.cloudfront,
-        reservoirRefreshAmount: RPM.cloudfront,
-        reservoirRefreshInterval: ONE_MINUTE
-    }),
     api: {
         normal: new Bottleneck({
             maxConcurrent: MAX_CONCURRENT,
@@ -75,34 +70,33 @@ export const middleware = async (context: BrowserContext) => {
         });
     });
 
+    // cloudfront header injection
     await context.route(/playcanvas\.com/, (route, request) => {
-        return limiters.cloudfront.schedule(() => route.continue());
+        return route.continue({
+            headers: {
+                ...request.headers(),
+                [HEADER_NAME]: HEADER_VALUE
+            }
+        });
     });
 
+    // rate limit API requests
     await context.route(/playcanvas\.com\/api/, (route, request) => {
         const url = new URL(request.url());
         const method = request.method();
 
         if (STRICT_ROUTES.some(re => re.test(url.pathname))) {
-            return limiters.cloudfront.schedule(() => {
-                return limiters.api.strict.schedule(() => route.continue());
-            });
+            return limiters.api.strict.schedule(() => route.continue());
         }
 
         if (ASSET_ROUTES.some(re => re.test(url.pathname))) {
-            return limiters.cloudfront.schedule(() => {
-                return limiters.api.assets.schedule(() => route.continue());
-            });
+            return limiters.api.assets.schedule(() => route.continue());
         }
 
         if (method === 'POST') {
-            return limiters.cloudfront.schedule(() => {
-                return limiters.api.post.schedule(() => route.continue());
-            });
+            return limiters.api.post.schedule(() => route.continue());
         }
 
-        return limiters.cloudfront.schedule(() => {
-            return limiters.api.normal.schedule(() => route.continue());
-        });
+        return limiters.api.normal.schedule(() => route.continue());
     });
 };

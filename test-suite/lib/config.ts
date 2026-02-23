@@ -7,25 +7,30 @@ export const HOST = process.env.PC_HOST ?? 'playcanvas.com';
 export const LOGIN_HOST = process.env.PC_LOGIN_HOST ?? 'login.playcanvas.com';
 export const LAUNCH_HOST = process.env.PC_LAUNCH_HOST ?? 'launch.playcanvas.com';
 export const LOCAL_FRONTEND = process.env.PC_LOCAL_FRONTEND === 'true';
+export const HEADER_NAME = process.env.PC_HEADER_NAME ?? '';
+export const HEADER_VALUE = process.env.PC_HEADER_VALUE ?? '';
 
-export const AUTH_STATE: BrowserContextOptions['storageState'] = (() => {
+export const AUTH_STATES: BrowserContextOptions['storageState'][] = (() => {
     const parts = HOST.split('.');
     if (parts.length < 2) {
         throw new Error(`Invalid HOST: ${HOST}`);
     }
-    return {
-        cookies: [{
-            name: process.env.PC_COOKIE_NAME ?? 'pc_auth',
-            value: process.env.PC_COOKIE_VALUE ?? '',
-            domain: `.${parts.slice(-2).join('.')}`,
-            path: '/',
-            expires: -1,
-            httpOnly: true,
-            secure: true,
-            sameSite: 'Lax'
-        }],
-        origins: []
-    };
+    const cookies = (process.env.PC_COOKIE_VALUE ?? '').split(',');
+    return cookies.map((value) => {
+        return {
+            cookies: [{
+                name: process.env.PC_COOKIE_NAME ?? 'pc_auth',
+                value,
+                domain: `.${parts.slice(-2).join('.')}`,
+                path: '/',
+                expires: -1,
+                httpOnly: true,
+                secure: true,
+                sameSite: 'Lax'
+            }],
+            origins: []
+        };
+    });
 })();
 
 const queryString = (params: SearchParams) => {

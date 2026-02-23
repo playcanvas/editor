@@ -5,5 +5,3 @@ services:
     container_name: editor-test
     env_file:
       - .env
-    volumes:
-      - ./.auth:/usr/src/test/.auth

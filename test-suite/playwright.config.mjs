@@ -1,6 +1,13 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig } from '@playwright/test';
 
-import { AUTH_STATE } from './lib/config';
+import { AUTH_STATES } from './lib/config';
+
+const CHROME_ARGS = [
+    '--disable-web-security',
+    '--ignore-gpu-blocklist',
+    '--use-gl=angle',
+    '--use-angle=default'
+];
 
 /**
  * @see https://playwright.dev/docs/test-configuration
@@ -21,12 +28,10 @@ export default defineConfig({
             name: 'auth',
             testMatch: /auth\.setup\.ts/,
             use: {
-                ...devices['Desktop Chrome'],
-                storageState: AUTH_STATE,
+                browserName: 'chromium',
+                storageState: AUTH_STATES[0],
                 launchOptions: {
-                    args: [
-                        '--disable-web-security'
-                    ]
+                    args: CHROME_ARGS
                 }
             }
         },
@@ -34,25 +39,21 @@ export default defineConfig({
             name: 'clean',
             testMatch: /clean\.setup\.ts/,
             use: {
-                ...devices['Desktop Chrome'],
-                storageState: AUTH_STATE,
+                browserName: 'chromium',
+                storageState: AUTH_STATES[0],
                 launchOptions: {
-                    args: [
-                        '--disable-web-security'
-                    ]
+                    args: CHROME_ARGS
                 }
             },
             dependencies: ['auth']
         },
         {
-            name: 'chrome',
+            name: 'suite',
             use: {
-                ...devices['Desktop Chrome'],
-                storageState: AUTH_STATE,
+                browserName: 'chromium',
+                storageState: AUTH_STATES[0],
                 launchOptions: {
-                    args: [
-                        '--disable-web-security'
-                    ]
+                    args: CHROME_ARGS
                 }
             },
             dependencies: ['clean']
