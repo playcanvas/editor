@@ -3,6 +3,7 @@ import { defineConfig } from '@playwright/test';
 import { AUTH_STATES } from './lib/config';
 
 const CHROME_ARGS = [
+    '--disable-web-security',
     '--ignore-gpu-blocklist',
     '--use-gl=angle',
     '--use-angle=default'
