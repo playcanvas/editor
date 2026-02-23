@@ -54,7 +54,7 @@ editor.once('load', () => {
     // Select tabs when ready
     const focusedParam = new URLSearchParams(window.location.search).get('focused');
     const focusedAssetId = focusedParam && config.tabs.includes(parseInt(focusedParam, 10)) ?
-        focusedParam :
+        parseInt(focusedParam, 10) :
         config.tabs[config.tabs.length - 1];
 
     config.tabs.forEach(tab => editor.call('integration:selectWhenReady', tab));
