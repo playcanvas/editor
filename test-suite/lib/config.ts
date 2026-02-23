@@ -15,7 +15,7 @@ export const AUTH_STATES: BrowserContextOptions['storageState'][] = (() => {
     if (parts.length < 2) {
         throw new Error(`Invalid HOST: ${HOST}`);
     }
-    const cookies = (process.env.PC_COOKIE_VALUES ?? '').split(',');
+    const cookies = (process.env.PC_COOKIE_VALUE ?? '').split(',');
     return cookies.map((value) => {
         return {
             cookies: [{
