@@ -19,6 +19,7 @@ user_invocable: true
 ## 3. Create PR
 - **Title:** `[TYPE] Short description` (under 70 chars)
 - **Body:** Follow `.github/PULL_REQUEST_TEMPLATE.md` if present, otherwise use concise bullet points
+- Do NOT add "Generated with Claude Code" or any AI attribution to the PR body
 - Base branch: `main`
 
 ## 4. Return PR URL

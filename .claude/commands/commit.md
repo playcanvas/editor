@@ -16,5 +16,6 @@ user_invocable: true
 
 ## 3. Commit
 Format: `type: concise message`
+- Do NOT add `Co-Authored-By` or any AI attribution to the commit message
 
 Types: `fix`, `feat`, `refactor`, `docs`, `test`, `chore`, `perf`, `style`, `ci`, `build`
