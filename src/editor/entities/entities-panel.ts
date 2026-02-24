@@ -11,7 +11,7 @@ const CLASS_ROW_HOVERED = 'entities-treeview-row-hovered';
 
 interface EyeEntry {
     button: Button;
-    tooltip: { text: string; style: CSSStyleDeclaration };
+    tooltip: LegacyTooltip;
 }
 
 editor.once('load', () => {
