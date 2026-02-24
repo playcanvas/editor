@@ -56,19 +56,16 @@
     flex-shrink: 0;
     width: 20px;
     height: 100%;
-    margin: 0;
-    margin-left: auto;
+    margin: 0 0 0 auto;
     padding: 0;
+    font-size: 14px;
+    line-height: inherit;
+    color: $text-darkest;
     border: none;
     background: none !important;
     box-shadow: none !important;
     outline: none;
-    font-size: 14px;
-    text-align: center;
-    line-height: inherit;
-    cursor: pointer;
     opacity: 0;
-    color: $text-darkest;
 
     &:hover,
     &:focus {
