@@ -80,9 +80,21 @@
     }
 
     &.entities-treeview-visibility-hidden {
-        opacity: 0.7;
-        color: $text-darkest;
-        text-decoration: line-through;
+        opacity: 1;
+        color: $text-secondary;
+        position: relative;
+
+        &::after {
+            content: '';
+            position: absolute;
+            left: 3px;
+            right: 3px;
+            top: 50%;
+            height: 1px;
+            background: currentColor;
+            transform: rotate(-45deg);
+            pointer-events: none;
+        }
 
         &:hover {
             opacity: 1;
@@ -93,7 +105,7 @@
 }
 
 .pcui-treeview-item > .pcui-treeview-item-contents:hover > .entities-treeview-visibility-toggle:not(.entities-treeview-visibility-hidden) {
-    opacity: 0.3;
+    opacity: 0.7;
     color: $text-primary;
 }
 
