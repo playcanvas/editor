@@ -98,6 +98,7 @@ import './entities/entities-copy';
 import './entities/entities-paste';
 import './entities/entities-reparent';
 import './entities/entities-panel';
+import './entities/entities-viewport-visibility';
 import './entities/entities-menu';
 import './entities/entities-control';
 import './entities/entities-fuzzy-search';
