@@ -80,10 +80,10 @@
         &::after {
             content: '';
             position: absolute;
-            left: 3px;
-            right: 3px;
-            top: 50%;
-            height: 1px;
+            left: 2px;
+            right: 2px;
+            top: calc(50% - 1px);
+            height: 2px;
             background: currentColor;
             transform: rotate(-45deg);
             pointer-events: none;
