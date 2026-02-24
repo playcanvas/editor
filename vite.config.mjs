@@ -224,7 +224,7 @@ const shared = {
     target: production ? 'chrome63' : undefined,
     tsconfig: 'tsconfig.json',
     define: {
-        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
+        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development')
     },
     logLevel: 'warning'
 };
