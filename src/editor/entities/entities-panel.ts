@@ -12,6 +12,9 @@ const CLASS_ROW_HOVERED = 'entities-treeview-row-hovered';
 interface EyeEntry {
     button: Button;
     tooltip: LegacyTooltip;
+    onMouseEnter: () => void;
+    onMouseLeave: () => void;
+    contentsRow: HTMLElement;
 }
 
 editor.once('load', () => {
@@ -77,14 +80,12 @@ editor.once('load', () => {
         });
 
         // Bridge hover: show eye icon when hovering the tree row
-        contentsRow.addEventListener('mouseenter', () => {
-            button.class.add(CLASS_ROW_HOVERED);
-        });
-        contentsRow.addEventListener('mouseleave', () => {
-            button.class.remove(CLASS_ROW_HOVERED);
-        });
+        const onMouseEnter = () => button.class.add(CLASS_ROW_HOVERED);
+        const onMouseLeave = () => button.class.remove(CLASS_ROW_HOVERED);
+        contentsRow.addEventListener('mouseenter', onMouseEnter);
+        contentsRow.addEventListener('mouseleave', onMouseLeave);
 
-        const entry: EyeEntry = { button, tooltip };
+        const entry: EyeEntry = { button, tooltip, onMouseEnter, onMouseLeave, contentsRow };
         eyeEntries.set(resourceId, entry);
         visibilityColumn.append(button);
         return entry;
@@ -93,6 +94,9 @@ editor.once('load', () => {
     const destroyEyeIcon = (resourceId: string) => {
         const entry = eyeEntries.get(resourceId);
         if (entry) {
+            entry.contentsRow.removeEventListener('mouseenter', entry.onMouseEnter);
+            entry.contentsRow.removeEventListener('mouseleave', entry.onMouseLeave);
+            entry.tooltip.destroy();
             entry.button.destroy();
             eyeEntries.delete(resourceId);
         }
@@ -186,7 +190,12 @@ editor.once('load', () => {
         if (treeView) {
             treeView.entities = null;
         }
-        eyeEntries.forEach(({ button }) => button.destroy());
+        eyeEntries.forEach((entry) => {
+            entry.contentsRow.removeEventListener('mouseenter', entry.onMouseEnter);
+            entry.contentsRow.removeEventListener('mouseleave', entry.onMouseLeave);
+            entry.tooltip.destroy();
+            entry.button.destroy();
+        });
         eyeEntries.clear();
     });
 
