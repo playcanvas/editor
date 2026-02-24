@@ -2,6 +2,7 @@ import type { Observer, ObserverList } from '@playcanvas/observer';
 import { Button, Element, TreeView, TreeViewItem, Container } from '@playcanvas/pcui';
 
 import type { DropTarget } from '@/common/pcui/element/element-drop-target';
+import { LegacyTooltip } from '@/common/ui/tooltip';
 
 import { getMap, searchItems } from '../search/search-advanced';
 
@@ -821,6 +822,13 @@ class EntitiesTreeView extends TreeView {
             class: CLASS_VISIBILITY_TOGGLE,
             ignoreParent: true
         });
+        const visibilityTooltip = LegacyTooltip.attach({
+            target: visibilityToggle.dom,
+            text: 'Hide in viewport',
+            align: 'left',
+            root: editor.call('layout.root')
+        });
+        visibilityTooltip.style.pointerEvents = 'none';
         visibilityToggle.on('click', (evt: MouseEvent) => {
             evt.stopPropagation();
             editor.call('entities:visibility:toggle', resourceId);
@@ -829,8 +837,10 @@ class EntitiesTreeView extends TreeView {
             if (changedId === resourceId) {
                 if (hidden) {
                     visibilityToggle.class.add(CLASS_VISIBILITY_HIDDEN);
+                    visibilityTooltip.text = 'Show in viewport';
                 } else {
                     visibilityToggle.class.remove(CLASS_VISIBILITY_HIDDEN);
+                    visibilityTooltip.text = 'Hide in viewport';
                 }
             }
         }));

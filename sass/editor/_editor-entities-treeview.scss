@@ -52,37 +52,33 @@
 }
 
 .entities-treeview-visibility-toggle {
-    display: inline-block;
+    position: relative;
     flex-shrink: 0;
     width: 20px;
     height: 100%;
-    line-height: inherit;
-    text-align: center;
+    margin: 0;
+    margin-left: auto;
+    padding: 0;
+    border: none;
+    background: none !important;
+    box-shadow: none !important;
+    outline: none;
     font-size: 14px;
+    text-align: center;
+    line-height: inherit;
     cursor: pointer;
     opacity: 0;
     color: $text-darkest;
-    pointer-events: all;
-    border: none;
-    background: none;
-    padding: 0;
-    margin: 0;
-    margin-left: auto;
-    box-shadow: none;
 
     &:hover,
     &:focus {
         opacity: 1 !important;
         color: $text-primary;
-        background: none !important;
-        box-shadow: none !important;
-        outline: none;
     }
 
     &.entities-treeview-visibility-hidden {
         opacity: 1;
         color: $text-secondary;
-        position: relative;
 
         &::after {
             content: '';
@@ -97,11 +93,9 @@
         }
 
         &:hover {
-            opacity: 1;
             color: $text-primary;
         }
     }
-
 }
 
 .pcui-treeview-item > .pcui-treeview-item-contents:hover > .entities-treeview-visibility-toggle:not(.entities-treeview-visibility-hidden) {
