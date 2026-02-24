@@ -126,7 +126,7 @@ editor.once('load', () => {
     wrapper.dom.addEventListener('scroll', scheduleReposition);
     new ResizeObserver(scheduleReposition).observe(wrapper.dom);
 
-    new MutationObserver(scheduleReposition).observe(wrapper.dom, {
+    new MutationObserver(scheduleReposition).observe(treeView.dom, {
         childList: true,
         subtree: true,
         attributes: true,
