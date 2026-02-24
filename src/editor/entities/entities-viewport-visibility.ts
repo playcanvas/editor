@@ -44,4 +44,8 @@ editor.once('load', () => {
     editor.on('entities:clear', () => {
         hiddenEntities.clear();
     });
+
+    editor.on('entities:remove', (resourceId: string) => {
+        hiddenEntities.delete(resourceId);
+    });
 });
