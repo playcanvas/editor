@@ -223,7 +223,9 @@ const shared = {
     minify: production,
     target: production ? 'chrome63' : undefined,
     tsconfig: 'tsconfig.json',
-    define: { 'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development') },
+    define: {
+        'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
+    },
     logLevel: 'warning'
 };
 
@@ -234,14 +236,22 @@ const PAGE_TARGETS = [
         entryPoints: ['src/editor/index.ts'],
         outfile: 'dist/js/editor.js',
         format: 'iife',
-        plugins: pagePlugins
+        plugins: pagePlugins,
+        define: {
+            ...shared.define,
+            'import.meta.url': 'undefined' // import.meta not supported in iife
+        }
     },
     {
         ...shared,
         entryPoints: ['src/editor/blank.ts'],
         outfile: 'dist/js/editor-empty.js',
         format: 'iife',
-        plugins: pagePlugins
+        plugins: pagePlugins,
+        define: {
+            ...shared.define,
+            'import.meta.url': 'undefined' // import.meta not supported in iife
+        }
     },
     {
         ...shared,
@@ -251,7 +261,7 @@ const PAGE_TARGETS = [
         plugins: pagePlugins,
         define: {
             ...shared.define,
-            'import.meta.url': 'undefined'
+            'import.meta.url': 'undefined' // loaded as UMD in backend, so import.meta is unavailable
         }
     },
     {
