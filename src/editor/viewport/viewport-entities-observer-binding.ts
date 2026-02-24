@@ -27,7 +27,8 @@ editor.once('load', () => {
                 entity.setLocalScale(obj.get('scale.0'), obj.get('scale.1'), obj.get('scale.2'));
 
             } else if (path.startsWith('enabled')) {
-                entity.enabled = obj.get('enabled');
+                const hidden = editor.call('entities:visibility:isHidden', obj.get('resource_id'));
+                entity.enabled = obj.get('enabled') && !hidden;
 
             } else if (path.startsWith('parent')) {
                 const parent = editor.call('entities:get', obj.get('parent'));
