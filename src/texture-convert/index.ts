@@ -32,8 +32,14 @@ export const convert = async (frontendURL, buffer, sourceFormat, targetFormat): 
     const encodeBinary = await WebAssembly.compileStreaming(fetch(`${frontendURL}wasm/codecs/${targetFormat}/enc.wasm`));
     const decodeBinary = await WebAssembly.compileStreaming(fetch(`${frontendURL}wasm/codecs/${sourceFormat}/dec.wasm`));
 
-    await initEncode(encodeBinary);
-    await initDecode(decodeBinary);
+    // Provide locateFile to prevent Emscripten codecs from calling
+    // new URL("xxx.wasm", import.meta.url), which fails in the bundled worker context.
+    // The URL is unused since we supply a pre-compiled WebAssembly.Module via instantiateWasm,
+    // but without locateFile the new URL() call still executes and throws.
+    // For the PNG codec (wasm-bindgen), the second argument is harmlessly ignored.
+    const moduleOverrides = { locateFile: (path: string) => path };
+    await initEncode(encodeBinary, moduleOverrides);
+    await initDecode(decodeBinary, moduleOverrides);
 
     const decoded = await decode(buffer);
     const encoded = await encode(decoded) as any;
