@@ -37,9 +37,14 @@ export const convert = async (frontendURL, buffer, sourceFormat, targetFormat): 
     // The URL is unused since we supply a pre-compiled WebAssembly.Module via instantiateWasm,
     // but without locateFile the new URL() call still executes and throws.
     // For the PNG codec (wasm-bindgen), the second argument is harmlessly ignored.
-    const moduleOverrides = { locateFile: (path: string) => path };
-    await initEncode(encodeBinary, moduleOverrides);
-    await initDecode(decodeBinary, moduleOverrides);
+    const encodeOverrides = {
+        locateFile: (path: string) => `${frontendURL}wasm/codecs/${targetFormat}/${path}`,
+    };
+    const decodeOverrides = {
+        locateFile: (path: string) => `${frontendURL}wasm/codecs/${sourceFormat}/${path}`,
+    };
+    await initEncode(encodeBinary, encodeOverrides);
+    await initDecode(decodeBinary, decodeOverrides);
 
     const decoded = await decode(buffer);
     const encoded = await encode(decoded) as any;
