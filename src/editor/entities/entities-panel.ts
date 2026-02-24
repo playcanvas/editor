@@ -136,7 +136,9 @@ editor.once('load', () => {
     // Update eye icon appearance when visibility state changes
     editor.on('entities:visibility:changed', (changedId: string, hidden: boolean) => {
         const entry = eyeEntries.get(changedId);
-        if (!entry) return;
+        if (!entry) {
+            return;
+        }
 
         if (hidden) {
             entry.button.class.add(CLASS_VISIBILITY_HIDDEN);
