@@ -17,6 +17,7 @@ user_invocable: true
 `git push -u origin <branch>` if needed.
 
 ## 3. Create PR
+- Prefix all `gh` commands with `GIT_SSL_NO_VERIFY=1` to work around TLS certificate issues
 - **Title:** `[TYPE] Short description` (under 70 chars)
 - **Body:** Follow `.github/PULL_REQUEST_TEMPLATE.md` if present, otherwise use concise bullet points
 - Do NOT add "Generated with Claude Code" or any AI attribution to the PR body
