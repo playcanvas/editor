@@ -499,6 +499,7 @@ class AssetInspector extends Container {
     _onClickLoadingOrder() {
         editor.call('selector:set', 'editorSettings', [editor.call('settings:projectUser')]);
         setTimeout(() => {
+            editor.call('editorSettings:panel:foldAll');
             editor.call('editorSettings:panel:unfold', 'scripts-order');
         }, 0);
     }
