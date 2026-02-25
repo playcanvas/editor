@@ -107,17 +107,30 @@ editor.once('load', () => {
     const repositionEyeIcons = () => {
         repositionScheduled = false;
         const columnRect = visibilityColumn.dom.getBoundingClientRect();
+
+        // Phase 1: Read all geometry (no writes — single layout recalc)
+        const updates: Array<{ button: Button; top: number; visible: boolean }> = [];
         eyeEntries.forEach(({ button }, resourceId) => {
             const treeItem = treeView.getTreeItemForEntity(resourceId);
             if (!treeItem) {
-                button.hidden = true;
+                updates.push({ button, top: 0, visible: false });
                 return;
             }
             const contentsEl = (treeItem as TreeViewItem & { _containerContents: Container })._containerContents.dom;
             const rect = contentsEl.getBoundingClientRect();
-            button.dom.style.top = `${rect.top - columnRect.top}px`;
-            button.hidden = !contentsEl.offsetParent;
+            const visible = !!contentsEl.offsetParent;
+            updates.push({ button, top: rect.top - columnRect.top, visible });
         });
+
+        // Phase 2: Write all positions (no reads — no forced recalcs)
+        for (const { button, top, visible } of updates) {
+            if (visible) {
+                button.hidden = false;
+                button.dom.style.top = `${top}px`;
+            } else {
+                button.hidden = true;
+            }
+        }
     };
 
     const scheduleReposition = () => {
@@ -130,12 +143,16 @@ editor.once('load', () => {
     wrapper.dom.addEventListener('scroll', scheduleReposition);
     new ResizeObserver(scheduleReposition).observe(wrapper.dom);
 
-    new MutationObserver(scheduleReposition).observe(treeView.dom, {
-        childList: true,
-        subtree: true,
-        attributes: true,
-        attributeFilter: ['class']
-    });
+    const treeObserver = new MutationObserver(scheduleReposition);
+    const observeTree = () => {
+        treeObserver.observe(treeView.dom, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['class']
+        });
+    };
+    observeTree();
 
     // Update eye icon appearance when visibility state changes
     editor.on('entities:visibility:changed', (changedId: string, hidden: boolean) => {
@@ -187,6 +204,7 @@ editor.once('load', () => {
     });
 
     editor.on('entities:clear', () => {
+        treeObserver.disconnect();
         if (treeView) {
             treeView.entities = null;
         }
@@ -201,6 +219,7 @@ editor.once('load', () => {
 
     editor.on('entities:load', () => {
         treeView.entities = editor.call('entities:raw');
+        observeTree();
         scheduleReposition();
     });
 
