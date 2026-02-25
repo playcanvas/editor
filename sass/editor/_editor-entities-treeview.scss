@@ -102,6 +102,24 @@
     }
 }
 
+.entities-context-menu-hide {
+    .pcui-menu-item-content > .pcui-label:not(.pcui-menu-item-shortcut)[data-icon] {
+        position: relative;
+
+        &::after {
+            content: '';
+            position: absolute;
+            left: -2px;
+            width: calc(1em + 4px);
+            top: calc(50% - 2px);
+            height: 2px;
+            background: currentcolor;
+            transform: rotate(-45deg);
+            pointer-events: none;
+        }
+    }
+}
+
 .entities-treeview-user-marker-container {
     flex-shrink: 0;
 }
