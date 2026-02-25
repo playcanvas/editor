@@ -559,6 +559,9 @@ class RenderingSettingsPanel extends BaseSettingsPanel {
         args._tooltipReference = 'settings:rendering';
 
         super(args);
+
+        this.class.add('rendering');
+
         const fogAttribute = this._attributesInspector.getField('render.fog');
         const fogChangeEvt = fogAttribute.on('change', (value) => {
             switch (value) {
