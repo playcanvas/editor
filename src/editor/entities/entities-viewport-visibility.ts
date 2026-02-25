@@ -10,12 +10,7 @@ editor.once('load', () => {
         return hiddenEntities.has(resourceId);
     });
 
-    editor.method('entities:visibility:set', (resourceId: string, hidden: boolean) => {
-        const wasHidden = hiddenEntities.has(resourceId);
-        if (wasHidden === hidden) {
-            return;
-        }
-
+    const applyOne = (resourceId: string, hidden: boolean) => {
         if (hidden) {
             hiddenEntities.add(resourceId);
         } else {
@@ -33,6 +28,42 @@ editor.once('load', () => {
         }
 
         editor.emit('entities:visibility:changed', resourceId, hidden);
+    };
+
+    editor.method('entities:visibility:set', (resourceIds: string | string[], hidden: boolean, history: boolean = true) => {
+        const ids = Array.isArray(resourceIds) ? resourceIds : [resourceIds];
+        const changed: string[] = [];
+        for (const id of ids) {
+            if (hiddenEntities.has(id) !== hidden) {
+                changed.push(id);
+            }
+        }
+        if (!changed.length) {
+            return;
+        }
+
+        if (history) {
+            editor.api.globals.history.add({
+                name: 'entities.visibility',
+                combine: false,
+                undo: () => {
+                    for (const id of changed) {
+                        applyOne(id, !hidden);
+                    }
+                    editor.call('viewport:render');
+                },
+                redo: () => {
+                    for (const id of changed) {
+                        applyOne(id, hidden);
+                    }
+                    editor.call('viewport:render');
+                }
+            });
+        }
+
+        for (const id of changed) {
+            applyOne(id, hidden);
+        }
         editor.call('viewport:render');
     });
 
