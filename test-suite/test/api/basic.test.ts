@@ -5,6 +5,7 @@ import { expect, test, type Page } from '@playwright/test';
 import { capture } from '../../lib/capture';
 import {
     checkCookieAccept,
+    createEsmScript,
     createProject,
     deleteApp,
     deleteProject,
@@ -249,29 +250,39 @@ test.describe('publish/download', () => {
         })).toStrictEqual([]);
     });
 
-    test('download app', async () => {
-        test.setTimeout(4 * 60 * 1000);
-        expect(await capture('download-project', page, async () => {
-            // download app
-            const job = await downloadApp(page, sceneId);
+    for (const scripts of ['classic', 'esm'] as const) {
+        if (scripts === 'esm') {
+            test('create ESM script', async () => {
+                expect(await capture('create-esm-script', page, async () => {
+                    await createEsmScript(page, 'test-esm.mjs');
+                })).toStrictEqual([]);
+            });
+        }
 
-            // check download URL
-            expect(job.download_url).toBeDefined();
-        })).toStrictEqual([]);
-    });
+        test(`download app (scripts: ${scripts})`, async () => {
+            test.setTimeout(4 * 60 * 1000);
+            expect(await capture(`download-project-${scripts}`, page, async () => {
+                // download app
+                const job = await downloadApp(page, sceneId);
 
-    test('publish app', async () => {
-        test.setTimeout(4 * 60 * 1000);
-        expect(await capture('publish-project', page, async () => {
-            // publish app
-            const app = await publishApp(page, sceneId);
+                // check download URL
+                expect(job.download_url).toBeDefined();
+            })).toStrictEqual([]);
+        });
 
-            // launch app
-            await page.goto(app.url, { waitUntil: 'networkidle' });
+        test(`publish app (scripts: ${scripts})`, async () => {
+            test.setTimeout(4 * 60 * 1000);
+            expect(await capture(`publish-project-${scripts}`, page, async () => {
+                // publish app
+                const app = await publishApp(page, sceneId);
 
-            // delete app
-            await page.goto(editorSceneUrl(sceneId), { waitUntil: 'networkidle' });
-            await deleteApp(page, app.id);
-        })).toStrictEqual([]);
-    });
+                // launch app
+                await page.goto(app.url, { waitUntil: 'networkidle' });
+
+                // delete app
+                await page.goto(editorSceneUrl(sceneId), { waitUntil: 'networkidle' });
+                await deleteApp(page, app.id);
+            })).toStrictEqual([]);
+        });
+    }
 });

@@ -5,6 +5,7 @@ import { expect, test, type Page } from '@playwright/test';
 import { capture } from '../../lib/capture';
 import {
     checkCookieAccept,
+    createEsmScript,
     createProject,
     deleteProject
 } from '../../lib/common';
@@ -302,53 +303,67 @@ test.describe('publish/download', () => {
         })).toStrictEqual([]);
     });
 
-    test('download app', async () => {
-        test.setTimeout(4 * 60 * 1000);
-        expect(await capture('download-project', page, async () => {
-            // open publish dialog
-            await page.getByRole('button', { name: '' }).click();
+    for (const scripts of ['classic', 'esm'] as const) {
+        if (scripts === 'esm') {
+            test('create ESM script', async () => {
+                expect(await capture('create-esm-script', page, async () => {
+                    // navigate to editor to ensure clean state
+                    await page.goto(editorUrl(projectId), { waitUntil: 'networkidle' });
 
-            // download app
-            const scenesList = page.waitForResponse(/playcanvas.com\/api\/projects\/\d+\/scenes/);
-            await page.getByRole('button', { name: 'Download .zip' }).click();
-            await scenesList;
-            await page.getByText('Download', { exact: true }).nth(1).click();
+                    // create ESM script
+                    await createEsmScript(page, 'test-esm.mjs');
+                })).toStrictEqual([]);
+            });
+        }
 
-            // download link
-            const downloadPagePromise = page.waitForEvent('popup');
-            const downloadPromise = page.waitForEvent('download');
-            await page.waitForSelector('.picker-publish-new > .web-download.pcui-button:not(.pcui-disabled)', { timeout: 3 * 60 * 1000 });
-            await page.getByText('Download', { exact: true }).nth(2).click();
-            await downloadPagePromise;
-            await downloadPromise;
-        })).toStrictEqual([]);
-    });
+        test(`download app (scripts: ${scripts})`, async () => {
+            test.setTimeout(4 * 60 * 1000);
+            expect(await capture(`download-project-${scripts}`, page, async () => {
+                // open publish dialog
+                await page.getByRole('button', { name: '' }).click();
 
-    test('publish app', async () => {
-        test.setTimeout(4 * 60 * 1000);
-        expect(await capture('publish-project', page, async () => {
-            // open publish dialog
-            await page.getByRole('button', { name: '' }).click();
+                // download app
+                const scenesList = page.waitForResponse(/playcanvas.com\/api\/projects\/\d+\/scenes/);
+                await page.getByRole('button', { name: 'Download .zip' }).click();
+                await scenesList;
+                await page.getByText('Download', { exact: true }).nth(1).click();
 
-            // publish app
-            const scenesList = page.waitForResponse(/playcanvas.com\/api\/projects\/\d+\/scenes/);
-            await page.getByRole('button', { name: 'Publish To PlayCanvas' }).click();
-            await scenesList;
-            await page.waitForSelector('.picker-publish-new > .publish.pcui-button:not(.pcui-disabled)');
-            await page.getByText('Publish Now').click();
-            await page.waitForSelector('.ui-list-item.complete', { timeout: 3 * 60 * 1000 });
+                // download link
+                const downloadPagePromise = page.waitForEvent('popup');
+                const downloadPromise = page.waitForEvent('download');
+                await page.waitForSelector('.picker-publish-new > .web-download.pcui-button:not(.pcui-disabled)', { timeout: 3 * 60 * 1000 });
+                await page.getByText('Download', { exact: true }).nth(2).click();
+                await downloadPagePromise;
+                await downloadPromise;
+            })).toStrictEqual([]);
+        });
 
-            // launch app
-            const appPagePromise = page.waitForEvent('popup');
-            await page.getByText(projectName, { exact: true }).click();
-            const appPage = await appPagePromise;
-            await appPage.waitForURL('**/b/**', { waitUntil: 'networkidle' });
-            await appPage.close();
+        test(`publish app (scripts: ${scripts})`, async () => {
+            test.setTimeout(4 * 60 * 1000);
+            expect(await capture(`publish-project-${scripts}`, page, async () => {
+                // open publish dialog
+                await page.getByRole('button', { name: '' }).click();
 
-            // delete app
-            await page.getByRole('button', { name: '' }).click();
-            await page.locator('.ui-menu.open > .inner > .ui-menu-item > .title').click();
-            await page.getByRole('button', { name: 'Yes' }).click();
-        })).toStrictEqual([]);
-    });
+                // publish app
+                const scenesList = page.waitForResponse(/playcanvas.com\/api\/projects\/\d+\/scenes/);
+                await page.getByRole('button', { name: 'Publish To PlayCanvas' }).click();
+                await scenesList;
+                await page.waitForSelector('.picker-publish-new > .publish.pcui-button:not(.pcui-disabled)');
+                await page.getByText('Publish Now').click();
+                await page.waitForSelector('.ui-list-item.complete', { timeout: 3 * 60 * 1000 });
+
+                // launch app
+                const appPagePromise = page.waitForEvent('popup');
+                await page.getByText(projectName, { exact: true }).click();
+                const appPage = await appPagePromise;
+                await appPage.waitForURL('**/b/**', { waitUntil: 'networkidle' });
+                await appPage.close();
+
+                // delete app
+                await page.getByRole('button', { name: '' }).click();
+                await page.locator('.ui-menu.open > .inner > .ui-menu-item > .title').click();
+                await page.getByRole('button', { name: 'Yes' }).click();
+            })).toStrictEqual([]);
+        });
+    }
 });
