@@ -93,6 +93,13 @@ editor.once('load', () => {
     });
     controls.append(btnMore);
 
+    LegacyTooltip.attach({
+        target: btnMore.element,
+        text: 'More Options',
+        align: 'top',
+        root: root
+    });
+
     const treeView = editor.call('entities:hierarchy') as any;
     const menuMore = new Menu({
         items: [{
