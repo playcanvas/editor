@@ -21,9 +21,9 @@
         }
 
         >.advanced-search-filter-container {
-            border-bottom: 1px solid #20292b;
-            border-top: 1px solid #20292b;
-            background-color: #20292b;
+            border-bottom: 1px solid $bcg-darkest;
+            border-top: 1px solid $bcg-darkest;
+            background-color: $bcg-darkest;
             padding-bottom: 7px;
 
             >.advanced-search-label-toggle {
@@ -37,7 +37,7 @@
                     opacity: 0;
                     width: 140px;
                     background-color: $bcg-primary;
-                    color: #fff;
+                    color: $text-primary;
                     text-align: center;
                     border-radius: 5px;
                     padding: 5px 0;
@@ -54,14 +54,13 @@
                 }
 
                 >.advanced-search-label-toggle-text {
-                    color: #fff;
-                    font-style: normal;
-                    font-weight: 700;
+                    color: $text-primary;
                     font-size: 12px;
                     line-height: 12px;
-                    font-family: 'Proxima Nova Bold';
                     letter-spacing: 0.2px;
                     text-transform: capitalize;
+
+                    @extend .font-bold;
                 }
             }
 
@@ -73,7 +72,7 @@
                 cursor: pointer;
 
                 >.advanced-search-label-filter-text {
-                    color: #fff;
+                    color: $text-primary;
                     font-style: normal;
                     font-weight: 400;
                     font-size: 12px;
@@ -87,7 +86,7 @@
                     box-shadow: none;
 
                     &.checked {
-                        background-color: #fff;
+                        background-color: $text-primary;
                     }
                 }
             }
@@ -96,14 +95,13 @@
                 height: 30px;
 
                 .advanced-search-search-by-text {
-                    color: #fff;
-                    font-style: normal;
-                    font-weight: 700;
+                    color: $text-primary;
                     font-size: 12px;
                     line-height: 16px;
-                    font-family: 'Proxima Nova Bold';
                     letter-spacing: 0.2px;
                     text-transform: capitalize;
+
+                    @extend .font-bold;
                 }
 
                 >.advanced-search-select-all-button {
@@ -120,7 +118,7 @@
                     &:hover,
                     &:focus,
                     &.focus {
-                        color: aliceblue;
+                        color: $text-primary;
                     }
                 }
             }
@@ -130,17 +128,13 @@
             display: flex;
             flex-direction: row;
             min-height: 30px;
-            background-color: #293538;
-            border-top: 1px solid #364346;
+            background-color: $bcg-darker;
+            border-top: 1px solid $bcg-primary;
 
-            &:hover {
-                background-color: #20292b;
-                border-top: 1px solid #293538;
-            }
-
+            &:hover,
             &.activated {
-                background-color: #20292b;
-                border-top: 1px solid #293538;
+                background-color: $bcg-darkest;
+                border-top: 1px solid $bcg-darker;
             }
 
             >.pcui-input-element.search {
@@ -168,12 +162,11 @@
                 }
 
                 > input {
-                    font-style: normal;
-                    font-weight: 400;
                     font-size: 14px;
                     line-height: 14px;
-                    font-family: 'Proxima Nova Regular';
                     padding: 0;
+
+                    @extend .font-regular;
                 }
 
                 &::before {
@@ -184,7 +177,7 @@
                     font-size: 14px;
                     line-height: 14px;
                     padding: 8px 0;
-                    color: #9ba1a3;
+                    color: $text-dark;
                 }
 
                 &.not-empty::before {
@@ -213,7 +206,7 @@
                     right: 17px;
                     width: 8px;
                     height: 8px;
-                    color: #fff;
+                    color: $text-primary;
 
                     @extend .font-icon;
 
@@ -233,17 +226,14 @@
 
                 font-size: 18px;
                 cursor: pointer;
-                color: #b1b8ba;
+                color: $text-secondary;
 
                 &.active,
                 &:hover,
                 &:focus,
-                &.focus {
-                    color: white;
-                }
-
+                &.focus,
                 &.showing {
-                    color: white;
+                    color: $text-primary;
                 }
 
                 &::before {
