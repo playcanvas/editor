@@ -800,9 +800,10 @@ editor.once('load', () => {
                                 editor.call('assets:panel:currentFolder', folder);
                             }
 
-                            // unfold rendering tab
+                            // fold all settings panels then unfold rendering
                             if (type === 'editorSettings') {
                                 setTimeout(() => {
+                                    editor.call('editorSettings:panel:foldAll');
                                     editor.call('editorSettings:panel:unfold', 'rendering');
                                 }, 0);
                             }

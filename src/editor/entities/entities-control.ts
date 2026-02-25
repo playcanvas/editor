@@ -16,19 +16,17 @@ editor.once('load', () => {
         class: 'hierarchy-controls',
         flex: true,
         flexDirection: 'row',
-        alignItems: 'center',
-        hidden: !editor.call('permissions:write')
-    });
-
-    editor.on('permissions:writeState', (state) => {
-        controls.hidden = !state;
+        alignItems: 'center'
     });
 
     panel.header.append(controls);
 
+    const writePermission = editor.call('permissions:write');
+
     // controls add
     const btnAdd = new Button({
-        icon: 'E287'
+        icon: 'E287',
+        hidden: !writePermission
     });
     btnAdd.on('click', () => {
         menuEntities.hidden = false;
@@ -46,7 +44,8 @@ editor.once('load', () => {
 
     // controls duplicate
     const btnDuplicate = new Button({
-        icon: 'E288'
+        icon: 'E288',
+        hidden: !writePermission
     });
     btnDuplicate.on('click', () => {
         const type = editor.call('selector:type');
@@ -67,7 +66,8 @@ editor.once('load', () => {
 
     // controls delete
     const btnDelete = new Button({
-        icon: 'E289'
+        icon: 'E289',
+        hidden: !writePermission
     });
     btnDelete.on('click', () => {
         const type = editor.call('selector:type');
@@ -85,6 +85,12 @@ editor.once('load', () => {
         text: 'Delete Entity',
         align: 'top',
         root: root
+    });
+
+    editor.on('permissions:writeState', (canWrite: boolean) => {
+        btnAdd.hidden = !canWrite;
+        btnDuplicate.hidden = !canWrite;
+        btnDelete.hidden = !canWrite;
     });
 
     // controls more options
