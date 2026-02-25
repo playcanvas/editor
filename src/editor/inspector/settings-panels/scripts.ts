@@ -18,6 +18,8 @@ class ScriptsSettingsPanel extends BaseSettingsPanel {
         super(args);
         this._args = args;
 
+        this.class.add('scripts-order');
+
         this._scriptList = [];
         this._scriptEvents = [];
 
