@@ -100,6 +100,8 @@ editor.once('load', () => {
         root: root
     });
 
+    // TODO: replace _treeItemIndex/_rootItem access with TreeView.expandAll()/collapseAll()
+    // once that API is added to PCUI
     const treeView = editor.call('entities:hierarchy') as any;
     const menuMore = new Menu({
         items: [{
@@ -143,7 +145,7 @@ editor.once('load', () => {
     btnMore.on('click', () => {
         const btnRect = btnMore.dom.getBoundingClientRect();
         menuMore.hidden = false;
-        const menuRect = (menuMore as any)._containerMenuItems.dom.getBoundingClientRect();
+        const menuRect = menuMore.dom.querySelector('.pcui-menu-items').getBoundingClientRect();
         menuMore.position(btnRect.right - menuRect.width, btnRect.bottom);
     });
 
