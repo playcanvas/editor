@@ -193,9 +193,7 @@ editor.once('load', () => {
                 return false;
             },
             onSelect: function () {
-                for (let i = 0; i < items.length; i++) {
-                    editor.call('entities:visibility:set', items[i].get('resource_id'), false);
-                }
+                editor.call('entities:visibility:set', items.map((item: any) => item.get('resource_id')), false);
             }
         });
 
@@ -212,9 +210,7 @@ editor.once('load', () => {
                 return false;
             },
             onSelect: function () {
-                for (let i = 0; i < items.length; i++) {
-                    editor.call('entities:visibility:set', items[i].get('resource_id'), true);
-                }
+                editor.call('entities:visibility:set', items.map((item: any) => item.get('resource_id')), true);
             }
         });
 
