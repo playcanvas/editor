@@ -182,6 +182,43 @@ editor.once('load', () => {
         });
 
         menuData.push({
+            text: 'Show',
+            icon: 'E117',
+            onIsVisible: function () {
+                for (let i = 0; i < items.length; i++) {
+                    if (editor.call('entities:visibility:isHidden', items[i].get('resource_id'))) {
+                        return true;
+                    }
+                }
+                return false;
+            },
+            onSelect: function () {
+                for (let i = 0; i < items.length; i++) {
+                    editor.call('entities:visibility:set', items[i].get('resource_id'), false);
+                }
+            }
+        });
+
+        menuData.push({
+            text: 'Hide',
+            icon: 'E117',
+            class: 'entities-context-menu-hide',
+            onIsVisible: function () {
+                for (let i = 0; i < items.length; i++) {
+                    if (!editor.call('entities:visibility:isHidden', items[i].get('resource_id'))) {
+                        return true;
+                    }
+                }
+                return false;
+            },
+            onSelect: function () {
+                for (let i = 0; i < items.length; i++) {
+                    editor.call('entities:visibility:set', items[i].get('resource_id'), true);
+                }
+            }
+        });
+
+        menuData.push({
             text: 'Copy',
             icon: 'E351',
             shortcut: formatShortcut(`${ctrl}+C`),
