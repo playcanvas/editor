@@ -412,6 +412,26 @@
     }
 }
 
+.pcui-container.hierarchy-content-wrapper {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    isolation: isolate;
+}
+
+.pcui-container.hierarchy-visibility-column {
+    position: sticky;
+    top: 0;
+    right: 0;
+    z-index: 1;
+    flex-shrink: 0;
+    align-self: flex-start;
+    width: 26px;
+    height: 100%;
+    background-color: $bcg-primary;
+    box-shadow: -1px 0 0 $bcg-primary;
+}
+
 .pcui-container.hierarchy-controls {
     > .pcui-button {
         width: 28px;
