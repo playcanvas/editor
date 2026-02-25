@@ -67,6 +67,10 @@ editor.once('load', () => {
         editor.call('viewport:render');
     });
 
+    editor.method('entities:visibility:getHidden', (): string[] => {
+        return [...hiddenEntities];
+    });
+
     editor.method('entities:visibility:toggle', (resourceId: string) => {
         const hidden = !hiddenEntities.has(resourceId);
         editor.call('entities:visibility:set', resourceId, hidden);

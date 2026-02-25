@@ -87,6 +87,59 @@ editor.once('load', () => {
         root: root
     });
 
+    // controls more options
+    const btnMore = new Button({
+        icon: 'E235'
+    });
+    controls.append(btnMore);
+
+    const treeView = editor.call('entities:hierarchy') as any;
+    const menuMore = new Menu({
+        items: [{
+            text: 'Expand All',
+            icon: 'E386',
+            onSelect: () => {
+                for (const id in treeView._treeItemIndex) {
+                    const item = treeView._treeItemIndex[id];
+                    if (item && !item.destroyed) {
+                        item.open = true;
+                    }
+                }
+            }
+        }, {
+            text: 'Collapse All',
+            icon: 'E385',
+            onSelect: () => {
+                for (const id in treeView._treeItemIndex) {
+                    const item = treeView._treeItemIndex[id];
+                    if (item && !item.destroyed && item !== treeView._rootItem) {
+                        item.open = false;
+                    }
+                }
+            }
+        }, {
+            text: 'Show All',
+            icon: 'E117',
+            onSelect: () => {
+                const hidden: string[] = editor.call('entities:visibility:getHidden');
+                if (hidden.length) {
+                    editor.call('entities:visibility:set', hidden, false);
+                }
+            },
+            onIsEnabled: () => {
+                return editor.call('entities:visibility:getHidden').length > 0;
+            }
+        }]
+    });
+    root.append(menuMore);
+
+    btnMore.on('click', () => {
+        const btnRect = btnMore.dom.getBoundingClientRect();
+        menuMore.hidden = false;
+        const menuRect = (menuMore as any)._containerMenuItems.dom.getBoundingClientRect();
+        menuMore.position(btnRect.right - menuRect.width, btnRect.bottom);
+    });
+
     const onEntitySelected = (enabled) => {
         const op = enabled ? 'remove' : 'add';
         btnDelete.enabled = enabled;
