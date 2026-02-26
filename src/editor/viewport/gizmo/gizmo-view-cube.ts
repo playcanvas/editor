@@ -1,152 +1,147 @@
-import { PROJECTION_PERSPECTIVE, Quat, Vec3, Vec4, ViewCube } from 'playcanvas';
+import { type Entity, PROJECTION_PERSPECTIVE, Quat, Vec3, Vec4, ViewCube } from 'playcanvas';
+
+// editor camera entity with dynamic properties added by camera.ts
+type EditorCamera = Entity & { focus?: Vec3; __editorCamera?: boolean };
+
+const FIXED_DT = 1 / 60;
 
 editor.once('viewport:load', () => {
-    // Create ViewCube anchored bottom-right (Vec4: top, right, bottom, left)
-    const viewCube = new ViewCube(new Vec4(0, 1, 1, 0));
+    const vc = new ViewCube(new Vec4(0, 1, 1, 0));
 
-    // Move DOM from document.body into viewport container
+    // move dom into viewport container
     const viewport = editor.call('layout.viewport');
-    viewport.dom.appendChild(viewCube.dom);
-    viewCube.dom.style.margin = '16px';
+    viewport.dom.appendChild(vc.dom);
+    vc.dom.style.margin = '16px';
 
-    // Prevent pointer events from reaching viewport orbit/pan controls
-    viewCube.dom.addEventListener('pointerdown', (evt: PointerEvent) => {
+    // block pointer events from reaching orbit/pan controls
+    vc.dom.addEventListener('pointerdown', (evt: PointerEvent) => {
         evt.stopPropagation();
     });
 
-    // Hide ViewCube for orthographic editor cameras (Top, Bottom, Left, Right, Front, Back)
-    const updateVisibility = (camera: any) => {
-        const visible = !camera.__editorCamera || camera.camera.projection === PROJECTION_PERSPECTIVE;
-        viewCube.dom.style.display = visible ? '' : 'none';
+    // hide for orthographic editor cameras
+    const setVisible = (camera: EditorCamera) => {
+        const show = !camera.__editorCamera || camera.camera.projection === PROJECTION_PERSPECTIVE;
+        vc.dom.style.display = show ? '' : 'none';
     };
+    editor.on('camera:change', (camera: EditorCamera) => setVisible(camera));
 
-    editor.on('camera:change', (camera: any) => {
-        updateVisibility(camera);
-    });
-
-    const initialCamera = editor.call('camera:current');
-    if (initialCamera) {
-        updateVisibility(initialCamera);
+    const initCam = editor.call('camera:current');
+    if (initCam) {
+        setVisible(initCam);
     }
 
-    // Temp vectors/quats for calculations
+    // temp math
     const vecA = new Vec3();
     const quatA = new Quat();
 
-    // Animation state
-    let animating = false;
-    let firstUpdate = false;
+    // animation state
+    let active = false;
+    let first = false;
     const flySpeed = 0.25;
     const targetPos = new Vec3();
     const targetRot = new Quat();
-    const animPivot = new Vec3();
-    let animDistance = 0;
-    let animCamera: any;
+    const pivot = new Vec3();
+    let distance = 0;
+    let cam: EditorCamera | null = null;
 
-    // Handle face click — rotate camera to face the clicked direction
-    viewCube.on(ViewCube.EVENT_CAMERAALIGN, (face: Vec3) => {
+    // face click — orbit camera to clicked direction
+    vc.on(ViewCube.EVENT_CAMERAALIGN, (face: Vec3) => {
         const camera = editor.call('camera:current');
         if (!camera) {
             return;
         }
 
-        // If already animating, snap to current target and finish previous animation
-        if (animating) {
-            animCamera.setPosition(targetPos);
-            animCamera.setRotation(targetRot);
-            if (animCamera.focus) {
-                animCamera.focus.copy(animPivot);
+        // snap previous animation
+        if (active) {
+            cam.setPosition(targetPos);
+            cam.setRotation(targetRot);
+            if (cam.focus) {
+                cam.focus.copy(pivot);
             }
-            editor.emit('camera:focus', animPivot, animDistance);
-            animating = false;
-            editor.call('camera:history:stop', animCamera);
+            editor.emit('camera:focus', pivot, distance);
+            active = false;
+            editor.call('camera:history:stop', cam);
         }
 
-        // Determine pivot (the point camera orbits around)
-        animPivot.set(0, 0, 0);
+        // determine pivot
+        pivot.set(0, 0, 0);
         if (camera.focus) {
-            animPivot.copy(camera.focus);
+            pivot.copy(camera.focus);
         } else {
-            animPivot.copy(camera.forward).mulScalar(10).add(camera.getPosition());
+            pivot.copy(camera.forward).mulScalar(10).add(camera.getPosition());
         }
 
-        // Distance from camera to pivot
-        const distance = vecA.copy(camera.getPosition()).sub(animPivot).length();
-        animDistance = distance;
+        // distance from camera to pivot
+        distance = vecA.copy(camera.getPosition()).sub(pivot).length();
 
-        // Compute target position: pivot + faceDirection * distance
-        targetPos.copy(face).mulScalar(distance).add(animPivot);
+        // target position and rotation
+        targetPos.copy(face).mulScalar(distance).add(pivot);
 
-        // Compute target rotation without visually moving the camera
-        const startPos = new Vec3().copy(camera.getPosition());
-        const startRot = new Quat().copy(camera.getRotation());
+        const sPos = new Vec3().copy(camera.getPosition());
+        const sRot = new Quat().copy(camera.getRotation());
         camera.setPosition(targetPos);
         if (Math.abs(face.y) === 1) {
-            camera.lookAt(animPivot, face.y > 0 ? Vec3.FORWARD : Vec3.BACK);
+            camera.lookAt(pivot, face.y > 0 ? Vec3.FORWARD : Vec3.BACK);
         } else {
-            camera.lookAt(animPivot);
+            camera.lookAt(pivot);
         }
         targetRot.copy(camera.getRotation());
-        camera.setPosition(startPos);
-        camera.setRotation(startRot);
+        camera.setPosition(sPos);
+        camera.setRotation(sRot);
 
         editor.call('camera:focus:stop');
         editor.call('camera:history:start', camera);
 
-        animCamera = camera;
-        animating = true;
-        firstUpdate = true;
+        cam = camera;
+        active = true;
+        first = true;
         editor.call('viewport:render');
     });
 
-    // Animation update loop
+    // animation loop
     editor.on('viewport:update', (dt: number) => {
-        if (!animating) {
+        if (!active) {
             return;
         }
 
-        const camera = animCamera;
+        const camera = cam;
         const pos = camera.getPosition();
         const rot = camera.getRotation();
 
-        const dist = vecA.copy(pos).sub(targetPos).length();
-        if (dist > 0.01) {
-            const speed = Math.min(1.0, flySpeed * ((firstUpdate ? 1 / 60 : dt) / (1 / 60)));
+        const d = vecA.copy(pos).sub(targetPos).length();
+        if (d > 0.01) {
+            const t = Math.min(1.0, flySpeed * ((first ? FIXED_DT : dt) / FIXED_DT));
 
-            // Slerp rotation only
-            quatA.copy(rot).slerp(rot, targetRot, speed);
+            // slerp rotation, derive position from pivot
+            quatA.copy(rot).slerp(rot, targetRot, t);
             camera.setRotation(quatA);
-
-            // Derive position: pivot + (-forward * distance)
-            vecA.copy(camera.forward).mulScalar(-animDistance).add(animPivot);
+            vecA.copy(camera.forward).mulScalar(-distance).add(pivot);
             camera.setPosition(vecA);
 
             editor.call('viewport:render');
         } else {
-            // Snap to final values
+            // snap to final values
             camera.setPosition(targetPos);
             camera.setRotation(targetRot);
-
             if (camera.focus) {
-                camera.focus.copy(animPivot);
+                camera.focus.copy(pivot);
             }
-            editor.emit('camera:focus', animPivot, animDistance);
+            editor.emit('camera:focus', pivot, distance);
 
-            animating = false;
-
+            active = false;
             editor.once('viewport:postUpdate', () => {
-                editor.call('camera:history:stop', animCamera);
+                editor.call('camera:history:stop', cam);
             });
         }
 
-        firstUpdate = false;
+        first = false;
     });
 
-    // Update ViewCube orientation every frame
+    // update orientation every frame
     editor.on('viewport:gizmoUpdate', () => {
         const camera = editor.call('camera:current');
         if (camera) {
-            viewCube.update(camera.getWorldTransform());
+            vc.update(camera.getWorldTransform());
         }
     });
 });
