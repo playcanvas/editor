@@ -18,9 +18,11 @@ editor.once('viewport:load', () => {
         evt.stopPropagation();
     });
 
-    // hide for orthographic editor cameras
+    // hide for orthographic editor cameras or when disabled via settings
+    let enabled = true;
+
     const setVisible = (camera: EditorCamera) => {
-        const show = !camera.__editorCamera || camera.camera.projection === PROJECTION_PERSPECTIVE;
+        const show = enabled && (!camera.__editorCamera || camera.camera.projection === PROJECTION_PERSPECTIVE);
         vc.dom.style.display = show ? '' : 'none';
     };
     editor.on('camera:change', (camera: EditorCamera) => setVisible(camera));
@@ -29,6 +31,21 @@ editor.once('viewport:load', () => {
     if (initCam) {
         setVisible(initCam);
     }
+
+    editor.once('settings:user:load', () => {
+        const settings = editor.call('settings:user');
+        const bind = (path: string, cb: (v: boolean) => void) => {
+            settings.on(`${path}:set`, cb);
+            settings.emit(`${path}:set`, settings.get(path));
+        };
+        bind('editor.showViewCube', (value: boolean) => {
+            enabled = value ?? true;
+            const camera = editor.call('camera:current');
+            if (camera) {
+                setVisible(camera);
+            }
+        });
+    });
 
     // temp math
     const vecA = new Vec3();

@@ -95,6 +95,14 @@ const ATTRIBUTES: (Attribute | Divider)[] = [
         }
     },
     {
+        observer: 'userSettings',
+        label: 'Show View Cube',
+        path: 'editor.showViewCube',
+        alias: 'showViewCube',
+        reference: 'settings:showViewCube',
+        type: 'boolean'
+    },
+    {
         alias: 'divider:1',
         type: 'divider'
     },
