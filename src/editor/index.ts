@@ -133,6 +133,7 @@ import './viewport/gizmo/gizmo-element';
 import './viewport/gizmo/gizmo-element-anchor';
 import './viewport/gizmo/gizmo-element-size';
 import './viewport/gizmo/gizmo-button';
+import './viewport/gizmo/gizmo-view-cube';
 
 // assets
 import './assets/assets-registry';

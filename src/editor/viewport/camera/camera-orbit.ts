@@ -35,7 +35,7 @@ editor.once('viewport:load', (app: import('playcanvas').Application) => {
             vecA.add(pivot);
 
             camera.setPosition(vecA);
-            camera.lookAt(pivot);
+            camera.setRotation(quat);
 
             editor.call('viewport:render');
         }
@@ -62,10 +62,10 @@ editor.once('viewport:load', (app: import('playcanvas').Application) => {
         }
     });
 
-    editor.on('camera:focus:end', (_point: Vec3, value: number) => {
+    editor.on('camera:focus:end', (point: Vec3, value: number) => {
         const camera = editor.call('camera:current');
         distance = value;
-        pivot.copy(camera.forward).mulScalar(distance).add(camera.getPosition());
+        pivot.copy(point);
 
         if (camera.focus) {
             camera.focus.copy(pivot);
@@ -93,9 +93,13 @@ editor.once('viewport:load', (app: import('playcanvas').Application) => {
             vec2.set(x, camera.forward.y).normalize();
             pitch =  Math.max(-89.99, Math.min(89.99, Math.atan2(vec2.y, vec2.x) / (Math.PI / 180)));
 
-            // yaw
-            vec2.set(camera.forward.x, -camera.forward.z).normalize();
-            yaw = -Math.atan2(vec2.x, vec2.y) / (Math.PI / 180);
+            // yaw — use right vector to avoid NaN when forward is near-vertical (±Y poles)
+            if (camera.forward.x * camera.forward.x + camera.forward.z * camera.forward.z > 0.001) {
+                vec2.set(camera.forward.x, -camera.forward.z).normalize();
+                yaw = -Math.atan2(vec2.x, vec2.y) / (Math.PI / 180);
+            } else {
+                yaw = Math.atan2(-camera.right.z, camera.right.x) / (Math.PI / 180);
+            }
 
             editor.call('viewport:render');
         } else {

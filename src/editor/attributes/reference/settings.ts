@@ -65,6 +65,9 @@ editor.once('load', () => {
 <li><b>Classic</b>: Legacy gizmo style matching the original PlayCanvas Editor.</li>
 </ul>`
     }, {
+        name: 'settings:showViewCube',
+        description: 'Show or hide the View Cube orientation gizmo in the viewport.'
+    }, {
         name: 'settings:showFog',
         description: 'Enable fog rendering in the viewport.'
     }, {
