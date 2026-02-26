@@ -93,6 +93,6 @@
     "watch": "cross-env NODE_ENV=development vite build --watch"
   },
   "engines": {
-    "node": "22.22.0"
+    "node": ">=22.22.0"
   }
 }
