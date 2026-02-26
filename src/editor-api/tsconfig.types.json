@@ -1,0 +1,11 @@
+{
+    "extends": "../../tsconfig.json",
+    "compilerOptions": {
+        "declaration": true,
+        "emitDeclarationOnly": true,
+        "noEmit": false,
+        "rootDir": ".",
+        "outDir": "../../test-suite/.editor-api-types"
+    },
+    "include": ["."]
+}
