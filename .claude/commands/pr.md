@@ -7,21 +7,23 @@ user_invocable: true
 # Create PR
 
 ## 1. Gather context (parallel)
-- `git status` (no `-uall`)
-- `git diff` (staged + unstaged — commit remaining changes first)
+- `git status`
+- `git diff`
 - `git log --oneline -10`
-- `git diff main...HEAD` (full branch diff)
-- Check if branch tracks remote and is up to date
+- `git diff main...HEAD`
+- Check tracking status
 
 ## 2. Push
-`git push -u origin <branch>` if needed.
+- `git push -u origin <branch>`
 
 ## 3. Create PR
-- Prefix all `gh` commands with `GIT_SSL_NO_VERIFY=1` to work around TLS certificate issues
-- **Title:** `[TYPE] Short description` (under 70 chars)
-- **Body:** Follow `.github/PULL_REQUEST_TEMPLATE.md` if present, otherwise use concise bullet points
-- Do NOT add "Generated with Claude Code" or any AI attribution to the PR body
-- Assign the current GitHub user as the PR assignee (`--assignee @me`)
-- Base branch: `main`
+- **Command Prefix:** `GIT_SSL_NO_VERIFY=1`
+- **Title:** `[TYPE] Short description`
+- **Body Construction:** - Use `.github/PULL_REQUEST_TEMPLATE.md` or concise bullet points.
+    - **CRITICAL:** The `--body` flag content must be passed as a clean string. 
+    - **POST-PROCESSING:** Use `sed` to explicitly remove the attribution string if the model persists in adding it:
+      `gh pr create --body "$(echo "$BODY" | sed '/Generated with Claude Code/d')"`
+- **Assignee:** `--assignee @me`
+- **Base:** `main`
 
 ## 4. Return PR URL
