@@ -25,3 +25,4 @@ test/editor-api/dist
 /test-suite/playwright-report
 /test-suite/blob-report
 /test-suite/playwright/.cache
+/test-suite/.editor-api-types
