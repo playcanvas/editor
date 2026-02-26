@@ -155,10 +155,19 @@ $status-warn: $bright-yellow;
             padding-right: 5px;
             pointer-events: none;
             user-select: none;
-    
+
             &.error {
                 color: $status-error;
             }
+        }
+
+        > .version {
+            font-size: 12px;
+            color: #aaa;
+            padding: 0 8px;
+            pointer-events: none;
+            user-select: none;
+            white-space: nowrap;
         }
     }
 

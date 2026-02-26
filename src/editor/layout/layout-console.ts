@@ -2,6 +2,7 @@ import { Button, Container, Divider, Label, Panel, Progress, TextInput } from '@
 
 import { tooltip, tooltipSimpleItem } from '@/common/tooltips';
 import { countToHuman, frameLimiter } from '@/common/utils';
+import { config } from '@/editor/config';
 
 const INITIAL_ITEM_COUNT = 1000;
 
@@ -300,6 +301,13 @@ export const createConsolePanel = () => {
 
     // status
     statusBar.append(createStatus());
+
+    // version
+    statusBar.append(createDivider());
+    statusBar.append(new Label({
+        class: 'version',
+        text: `v${config.version}`
+    }));
 
     // header
     consolePanel.append(createHeader());
