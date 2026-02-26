@@ -106,31 +106,19 @@ editor.once('load', () => {
         root: root
     });
 
-    // TODO: replace _treeItemIndex/_rootItem access with TreeView.expandAll()/collapseAll()
-    // once that API is added to PCUI
-    const treeView = editor.call('entities:hierarchy') as any;
+    const treeView = editor.call('entities:hierarchy');
     const menuMore = new Menu({
         items: [{
             text: 'Expand All',
             icon: 'E386',
             onSelect: () => {
-                for (const id in treeView._treeItemIndex) {
-                    const item = treeView._treeItemIndex[id];
-                    if (item && !item.destroyed) {
-                        item.open = true;
-                    }
-                }
+                treeView.expandAll();
             }
         }, {
             text: 'Collapse All',
             icon: 'E385',
             onSelect: () => {
-                for (const id in treeView._treeItemIndex) {
-                    const item = treeView._treeItemIndex[id];
-                    if (item && !item.destroyed && item !== treeView._rootItem) {
-                        item.open = false;
-                    }
-                }
+                treeView.collapseAll();
             }
         }, {
             text: 'Show All',

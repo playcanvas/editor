@@ -6,7 +6,6 @@
   "license": "MIT",
   "type": "module",
   "devDependencies": {
-    "@playcanvas/editor-api": "^1.1.28",
     "@playcanvas/eslint-config": "2.1.0",
     "@playcanvas/observer": "1.7.1",
     "@playwright/test": "^1.58.2",
@@ -35,7 +34,8 @@
     "test:debug": "playwright test --debug ",
     "test:headed": "playwright test --headed",
     "test:ui": "playwright test --ui",
-    "type:check": "tsc --declaration --emitDeclarationOnly"
+    "build:types": "tsc -p ../src/editor-api/tsconfig.types.json --noCheck",
+    "type:check": "npm run build:types && tsc --declaration --emitDeclarationOnly"
   },
   "engines": {
     "node": ">=22.0.0"
