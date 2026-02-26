@@ -8,7 +8,9 @@ editor.once('load', () => {
     const searchBar = new Container();
 
     let lastSearch = '';
-    const search = new TextInput();
+    const search = new TextInput({
+        placeholder: 'Search'
+    });
     search.blurOnEnter = false;
     search.keyChange = true;
     search.class.add('search');
@@ -123,7 +125,7 @@ editor.once('load', () => {
 
     // Search by
 
-    var searchByField = new Element();
+    const searchByField = new Element();
     searchByField.dom.innerHTML = 'Select All';
     searchByField.class.add('advanced-search-select-all-button');
 
