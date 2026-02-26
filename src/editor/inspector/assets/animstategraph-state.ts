@@ -88,7 +88,7 @@ class AnimstategraphState extends Panel {
     }
 
     static validateStateName(stateId: number, value: string, asset: Observer) {
-        if (!value.match('^[A-Za-z0-9 ]*$')) {
+        if (!value.match('^[A-Za-z0-9 _-]*$')) {
             return false;
         }
         if (value === '') {
