@@ -1895,7 +1895,7 @@ class AssetPanel extends Panel {
                 dom.removeEventListener('mousedown', onMouseDown);
             }
             if (onDragStart) {
-                dom.removeEventListener('dragStart', onDragStart);
+                dom.removeEventListener('dragstart', onDragStart);
             }
 
             delete this._gridIndex[asset.get('id')];
