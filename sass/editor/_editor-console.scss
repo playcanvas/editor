@@ -155,9 +155,29 @@ $status-warn: $bright-yellow;
             padding-right: 5px;
             pointer-events: none;
             user-select: none;
-    
+
             &.error {
                 color: $status-error;
+            }
+        }
+
+        > .version {
+            border-radius: 0;
+            margin: 0;
+            height: 32px;
+            white-space: nowrap;
+
+            &:hover {
+                background-color: $bcg-darkest;
+                box-shadow: none;
+            }
+
+            &.updated {
+                color: $text-active;
+
+                &:hover {
+                    color: color.adjust($text-active, $lightness: 10%);
+                }
             }
         }
     }
