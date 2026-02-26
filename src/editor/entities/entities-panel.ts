@@ -116,7 +116,7 @@ editor.once('load', () => {
                 updates.push({ button, top: 0, visible: false });
                 return;
             }
-            const contentsEl = (treeItem as TreeViewItem & { _containerContents: Container })._containerContents.dom;
+            const contentsEl = treeItem.content.dom;
             const rect = contentsEl.getBoundingClientRect();
             const visible = !!contentsEl.offsetParent;
             updates.push({ button, top: rect.top - columnRect.top, visible });
@@ -176,7 +176,7 @@ editor.once('load', () => {
         const item = origOnAddEntity(entity);
         const resourceId = entity.get('resource_id');
         if (!eyeEntries.has(resourceId)) {
-            const contentsRow = (item as TreeViewItem & { _containerContents: Container })._containerContents.dom;
+            const contentsRow = item.content.dom;
             const entry = createEyeIcon(resourceId, contentsRow);
 
             if (editor.call('entities:visibility:isHidden', resourceId)) {
