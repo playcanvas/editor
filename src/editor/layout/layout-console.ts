@@ -201,7 +201,12 @@ const createVersion = () => {
         window.open('https://github.com/playcanvas/editor/releases');
     });
 
-    createTooltip(btnVersion, 'View release notes');
+    tooltip().attach({
+        container: tooltipSimpleItem({ text: 'View release notes' }),
+        target: btnVersion,
+        align: 'bottom',
+        arrowAlign: 'end'
+    });
 
     return btnVersion;
 };

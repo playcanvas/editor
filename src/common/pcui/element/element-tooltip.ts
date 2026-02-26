@@ -134,13 +134,15 @@ class Tooltip extends Container {
         target,
         horzAlignEl,
         vertAlignEl,
-        align = 'right'
+        align = 'right',
+        arrowAlign
     }: {
         container: Container,
         target: Element,
         horzAlignEl?: Element,
         vertAlignEl?: Element,
-        align?: 'top' | 'bottom' | 'left' | 'right'
+        align?: 'top' | 'bottom' | 'left' | 'right',
+        arrowAlign?: 'start' | 'end'
     }) {
         const horz = horzAlignEl ?? target;
         const vert = vertAlignEl ?? target;
@@ -192,6 +194,9 @@ class Tooltip extends Container {
 
         const arrow = document.createElement('div');
         arrow.classList.add('arrow', align);
+        if (arrowAlign) {
+            arrow.classList.add(`arrow-${arrowAlign}`);
+        }
         container.append(arrow);
 
         this._targets.set(target, {

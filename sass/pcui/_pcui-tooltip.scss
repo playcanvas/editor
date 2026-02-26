@@ -42,5 +42,18 @@
             transform: translateX(-50%);
             border-top-color: $bcg-darkest;
         }
+
+        &.top.arrow-start,
+        &.bottom.arrow-start {
+            left: 10px;
+            transform: none;
+        }
+
+        &.top.arrow-end,
+        &.bottom.arrow-end {
+            left: auto;
+            right: 10px;
+            transform: none;
+        }
     }
 }
