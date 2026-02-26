@@ -147,20 +147,6 @@
                 background-color: inherit;
                 transition: none;
 
-                &.active,
-                &:hover,
-                &:focus,
-                &.focus {
-                    &::before {
-                        content: '';
-                        padding: 0;
-                    }
-
-                    &::after {
-                        content: '';
-                    }
-                }
-
                 > input {
                     font-size: 14px;
                     line-height: 14px;
@@ -169,20 +155,15 @@
                     @extend .font-regular;
                 }
 
-                &::before {
-                    content: 'Search';
-                    position: absolute;
-                    font-style: normal;
+                &::after {
+                    left: 0;
+                    right: auto;
                     font-weight: 400;
                     font-size: 14px;
                     line-height: 14px;
                     padding: 8px 0;
                     color: $text-dark;
-                }
-
-                &.not-empty::before {
-                    padding: 0;
-                    content: '';
+                    background-color: transparent;
                 }
 
                 &.not-empty {

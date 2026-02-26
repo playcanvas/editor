@@ -8,7 +8,9 @@ editor.once('load', () => {
     const searchBar = new Container();
 
     let lastSearch = '';
-    const search = new TextInput();
+    const search = new TextInput({
+        placeholder: 'Search'
+    });
     search.blurOnEnter = false;
     search.keyChange = true;
     search.class.add('search');
