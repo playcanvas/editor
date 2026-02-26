@@ -125,7 +125,7 @@ editor.once('load', () => {
 
     // Search by
 
-    const searchByField = new Element();
+    var searchByField = new Element();
     searchByField.dom.innerHTML = 'Select All';
     searchByField.class.add('advanced-search-select-all-button');
 
