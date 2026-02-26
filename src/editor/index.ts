@@ -295,7 +295,6 @@ import './toolbar/toolbar-publish';
 import './toolbar/toolbar-code-editor';
 import './toolbar/toolbar-scene';
 import './toolbar/toolbar-launch';
-import './toolbar/toolbar-whats-new';
 import './toolbar/toolbar-cameras';
 import './toolbar/toolbar-whois';
 import './toolbar/toolbar-connection';

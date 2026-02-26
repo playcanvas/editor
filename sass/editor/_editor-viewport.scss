@@ -270,36 +270,6 @@ $control-strip-gap: 2px;
     }
 }
 
-.control-strip > .pcui-button.whats-new {
-    color: $text-primary;
-    background-color: color.adjust($text-active, $lightness: -5%);
-    padding-right: 0;
-    text-transform: uppercase;
-
-    &:hover {
-        background-color: $text-active;
-    }
-
-    .dismiss-icon {
-        display: inline-block;
-        padding: 0 10px;
-        cursor: pointer;
-        color: rgba($text-primary, 0.5);
-        transition: none;
-
-        &::before {
-            @extend .font-icon;
-
-            content: '\E132';
-            font-size: 10px;
-        }
-
-        &:hover {
-            color: $text-primary;
-        }
-    }
-}
-
 .control-strip > .pcui-button.whoisonline-user {
     background-size: 28px 28px;
     background-position: center;

@@ -162,12 +162,23 @@ $status-warn: $bright-yellow;
         }
 
         > .version {
-            font-size: 12px;
-            color: #aaa;
-            padding: 0 8px;
-            pointer-events: none;
-            user-select: none;
+            border-radius: 0;
+            margin: 0;
+            height: 32px;
             white-space: nowrap;
+
+            &:hover {
+                background-color: $bcg-darkest;
+                box-shadow: none;
+            }
+
+            &.updated {
+                color: $text-active;
+
+                &:hover {
+                    color: color.adjust($text-active, $lightness: 10%);
+                }
+            }
         }
     }
 

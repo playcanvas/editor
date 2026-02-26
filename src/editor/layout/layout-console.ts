@@ -4,6 +4,8 @@ import { tooltip, tooltipSimpleItem } from '@/common/tooltips';
 import { countToHuman, frameLimiter } from '@/common/utils';
 import { config } from '@/editor/config';
 
+const LOCALSTORAGE_KEY = 'playcanvas-editor-latest-release-notes';
+
 const INITIAL_ITEM_COUNT = 1000;
 
 const createDivider = () => {
@@ -181,6 +183,29 @@ const createStatus = () => {
     return status;
 };
 
+const createVersion = () => {
+    const btnVersion = new Button({
+        text: `v${config.version}`,
+        class: 'version',
+        icon: 'E259'
+    });
+
+    const latestVersionSeen = localStorage.getItem(LOCALSTORAGE_KEY);
+    if (latestVersionSeen !== config.version) {
+        btnVersion.class.add('updated');
+    }
+
+    btnVersion.on('click', () => {
+        btnVersion.class.remove('updated');
+        localStorage.setItem(LOCALSTORAGE_KEY, config.version);
+        window.open('https://github.com/playcanvas/editor/releases');
+    });
+
+    createTooltip(btnVersion, 'View release notes');
+
+    return btnVersion;
+};
+
 const createHeader = () => {
     const consoleHeader = new Container({
         class: 'console-header',
@@ -304,10 +329,7 @@ export const createConsolePanel = () => {
 
     // version
     statusBar.append(createDivider());
-    statusBar.append(new Label({
-        class: 'version',
-        text: `v${config.version}`
-    }));
+    statusBar.append(createVersion());
 
     // header
     consolePanel.append(createHeader());
