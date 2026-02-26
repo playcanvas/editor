@@ -1,5 +1,12 @@
 import { type Page } from '@playwright/test';
 
+export interface EsmBuildOptions {
+    scripts_concatenate?: boolean;
+    scripts_minify?: boolean;
+    scripts_sourcemaps?: boolean;
+    optimize_scene_format?: boolean;
+}
+
 /**
  * Check if the "Accept All Cookies" button is present and click it.
  * This is necessary to ensure that the test can proceed without being blocked by cookie consent banners.
@@ -293,10 +300,11 @@ export const exportProject = async (page: Page, projectId: number) => {
  *
  * @param page - The page.
  * @param sceneId - The scene id.
+ * @param esmOptions - Optional ESM build options.
  * @returns The errors.
  */
-export const downloadApp = async (page: Page, sceneId: number): Promise<{ download_url: string }> => {
-    const job = await page.evaluate(async (sceneId) => {
+export const downloadApp = async (page: Page, sceneId: number, esmOptions?: EsmBuildOptions): Promise<{ download_url: string }> => {
+    const job = await page.evaluate(async ({ sceneId, esmOptions }) => {
         // order scenes so that the scene with the given id is first
         const { result: scenes = [] } = await window.editor.api.globals.rest.projects.projectScenes().promisify() as any;
         if (!scenes.length) {
@@ -312,13 +320,15 @@ export const downloadApp = async (page: Page, sceneId: number): Promise<{ downlo
         }, []);
 
         // start download
-        const job: any = await window.editor.api.globals.rest.apps.appDownload({
+        const data: Record<string, any> = {
             name: 'TEST',
             project_id: window.config.project.id,
             branch_id: window.config.self.branch.id,
             scenes: sceneIds,
             engine_version: window.config.engineVersions.current.version
-        }).promisify();
+        };
+        if (esmOptions) Object.assign(data, esmOptions);
+        const job: any = await window.editor.api.globals.rest.apps.appDownload(data).promisify();
 
         // wait for job to complete
         return await new Promise<any>((resolve) => {
@@ -329,7 +339,7 @@ export const downloadApp = async (page: Page, sceneId: number): Promise<{ downlo
                 }
             });
         });
-    }, sceneId);
+    }, { sceneId, esmOptions });
     if (job.error) {
         throw new Error(`Download error: ${job.error}`);
     }
@@ -343,10 +353,11 @@ export const downloadApp = async (page: Page, sceneId: number): Promise<{ downlo
  *
  * @param page - The page.
  * @param sceneId - The scene id.
+ * @param esmOptions - Optional ESM build options.
  * @returns The errors.
  */
-export const publishApp = async (page: Page, sceneId: number): Promise<{ id: number; url: string }> => {
-    const app: any = await page.evaluate(async (sceneId) => {
+export const publishApp = async (page: Page, sceneId: number, esmOptions?: EsmBuildOptions): Promise<{ id: number; url: string }> => {
+    const app: any = await page.evaluate(async ({ sceneId, esmOptions }) => {
         // order scenes so that the scene with the given id is first
         const { result: scenes = [] } = await window.editor.api.globals.rest.projects.projectScenes().promisify() as any;
         if (!scenes.length) {
@@ -362,13 +373,15 @@ export const publishApp = async (page: Page, sceneId: number): Promise<{ id: num
         }, []);
 
         // start publish
-        const app: any = await window.editor.api.globals.rest.apps.appCreate({
+        const data: Record<string, any> = {
             name: 'TEST',
             project_id: window.config.project.id,
             branch_id: window.config.self.branch.id,
             scenes: sceneIds,
             engine_version: window.config.engineVersions.current.version
-        }).promisify();
+        };
+        if (esmOptions) Object.assign(data, esmOptions);
+        const app: any = await window.editor.api.globals.rest.apps.appCreate(data).promisify();
 
         // wait for app to complete
         return await new Promise<any>((resolve) => {
@@ -379,7 +392,7 @@ export const publishApp = async (page: Page, sceneId: number): Promise<{ id: num
                 }
             });
         });
-    }, sceneId);
+    }, { sceneId, esmOptions });
     if (app.task.error) {
         throw new Error(`Publish error: ${app.task.error}`);
     }
@@ -403,4 +416,26 @@ export const deleteApp = async (page: Page, appId: number) => {
     if (job.error) {
         throw new Error(`Delete error: ${job.error}`);
     }
+};
+
+/**
+ * Create an ESM script asset.
+ *
+ * @param page - The page.
+ * @param filename - The script filename (e.g. 'test-esm.mjs').
+ * @returns The asset id.
+ */
+export const createEsmScript = async (page: Page, filename: string): Promise<number> => {
+    return await page.evaluate(async (filename) => {
+        const asset = await window.editor.api.globals.assets.createScript({ filename });
+
+        // wait for the server-side upload pipeline to complete
+        if (!asset.get('file')) {
+            await new Promise<void>((resolve) => {
+                asset.once('file:set', () => resolve());
+            });
+        }
+
+        return asset.get('id') as number;
+    }, filename);
 };
