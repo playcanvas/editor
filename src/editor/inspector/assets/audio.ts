@@ -45,7 +45,7 @@ const DOM = parent => [
             },
             {
                 audioTimeline: new Progress({
-                    flexGrow: 1
+                    flexGrow: '1'
                 })
             }
         ]
@@ -114,7 +114,7 @@ class AudioAssetInspector extends Panel {
         this._playing = setInterval(this._updateTimeline.bind(this), 1000 / 60);
     }
 
-    _audioPaused(evt: Event) {
+    _audioPaused() {
         this._audio.pause();
         this._audioTimeline.value = 0;
         this._audioButton.class.remove('active');
