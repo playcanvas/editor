@@ -1,10 +1,10 @@
 import { Panel } from '@playcanvas/pcui';
 import { Entity } from 'playcanvas';
 
-import { AnimViewer } from './anim-viewer';
-import { AssetInspectorPreviewBase } from './asset-preview-base';
+import { AnimViewer } from '../../animstategraph/anim-viewer';
 import type { Attribute } from '../attribute.type';
 import { AttributesInspector } from '../attributes-inspector';
+import { AssetInspectorPreviewBase } from './asset-preview-base';
 
 
 const CLASS_ROOT = 'pcui-asset-animation-inspector-preview';

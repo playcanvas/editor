@@ -3,8 +3,8 @@ import { Panel, Label, Button, BindingTwoWay } from '@playcanvas/pcui';
 
 import { AssetInput } from '@/common/pcui/element/element-asset-input';
 
-import type { Attribute } from '../attribute.type.d';
-import { AttributesInspector } from '../attributes-inspector';
+import type { Attribute } from '../inspector/attribute.type.d';
+import { AttributesInspector } from '../inspector/attributes-inspector';
 
 
 const CLASS_ANIMSTATEGRAPH = 'asset-animstategraph-inspector';

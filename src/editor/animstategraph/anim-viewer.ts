@@ -28,7 +28,7 @@ import {
     VertexFormat
 } from 'playcanvas';
 
-import { createColorMaterial } from '../../viewport/viewport-color-material';
+import { createColorMaterial } from '../viewport/viewport-color-material';
 
 class Skeleton {
     static _boneVertex = new Vec3();

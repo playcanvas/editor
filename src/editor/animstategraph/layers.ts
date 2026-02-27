@@ -1,8 +1,8 @@
 import type { Observer } from '@playcanvas/observer';
 import { Panel, Container, Button, SelectInput } from '@playcanvas/pcui';
 
-import type { Attribute } from '../attribute.type.d';
-import { AttributesInspector } from '../attributes-inspector';
+import type { Attribute } from '../inspector/attribute.type.d';
+import { AttributesInspector } from '../inspector/attributes-inspector';
 
 
 const CLASS_ANIMSTATEGRAPH = 'asset-animstategraph-inspector';

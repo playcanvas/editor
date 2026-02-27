@@ -4,7 +4,7 @@ import { ANIM_INTERRUPTION_NONE } from 'playcanvas';
 
 import { diff } from '@/common/diff';
 
-import { AnimstategraphState } from './animstategraph-state';
+import { AnimstategraphState } from './state';
 
 const GRAPH_ACTIONS = {
     ADD_NODE: 'EVENT_ADD_NODE',

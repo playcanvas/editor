@@ -8,9 +8,9 @@ import {
     ANIM_INTERRUPTION_PREV_NEXT
 } from 'playcanvas';
 
-import { AnimstategraphCondition } from './animstategraph-condition';
-import type { Attribute, Divider } from '../attribute.type.d';
-import { AttributesInspector } from '../attributes-inspector';
+import { AnimstategraphCondition } from './condition';
+import type { Attribute, Divider } from '../inspector/attribute.type.d';
+import { AttributesInspector } from '../inspector/attributes-inspector';
 
 
 const CLASS_ANIMSTATEGRAPH = 'asset-animstategraph-inspector';
