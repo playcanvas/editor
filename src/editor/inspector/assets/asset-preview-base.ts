@@ -1,3 +1,4 @@
+import type { Observer } from '@playcanvas/observer';
 import { Container, Button, Label } from '@playcanvas/pcui';
 
 const CLASS_ROOT = 'pcui-asset-preview';
@@ -84,7 +85,7 @@ class AssetInspectorPreviewBase extends Container {
         this.class.toggle(CLASS_CONTAINER_LARGE);
     }
 
-    link() {
+    link(_assets?: Observer[]) {
         this.unlink();
 
         this.dom.addEventListener('mousedown', this._domEvtMouseDown);

@@ -253,7 +253,7 @@ export class TemplateThumbnailRenderer extends ThumbnailRenderer {
 
     private readonly handleTemplateAssetChange: (asset: Asset) => void;
 
-    constructor(editorAsset: EditorAsset,
+    constructor(editorAsset: Observer,
                 private canvas: HTMLCanvasElement) {
         super();
         this.app = Application.getApplication();

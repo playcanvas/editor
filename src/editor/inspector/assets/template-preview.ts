@@ -1,7 +1,7 @@
+import type { Observer } from '@playcanvas/observer';
 import { Canvas } from '@playcanvas/pcui';
 
 import { TemplateThumbnailRenderer } from '@/common/thumbnail-renderers/template-thumbnail-renderer';
-import { Assets } from '@/editor-api';
 
 import { AssetInspectorPreviewBase } from './asset-preview-base';
 
@@ -10,10 +10,10 @@ const CLASS_CANVAS_FLIP = 'pcui-asset-preview-canvas-flip';
 
 const ROTATION_SPEED = 0.5;
 
-export class TemplateAssetInspectorPreview extends AssetInspectorPreviewBase {
+class TemplateAssetInspectorPreview extends AssetInspectorPreviewBase {
     _preview: Canvas;
 
-    _renderFrame: number | null;
+    _renderFrame: number | null = null;
 
     _previewRenderer?: TemplateThumbnailRenderer;
 
@@ -27,21 +27,18 @@ export class TemplateAssetInspectorPreview extends AssetInspectorPreviewBase {
 
     private _y = 0;
 
-    private _nx = 0;
-
-    private _ny = 0;
-
     constructor(args: Record<string, unknown>) {
         super(args);
 
-        this._preview = new Canvas();
-        this._preview.class.add(CLASS_CANVAS, CLASS_CANVAS_FLIP);
+        this._preview = new Canvas({
+            class: [CLASS_CANVAS, CLASS_CANVAS_FLIP],
+            useDevicePixelRatio: true
+        });
+        this._preview.resize(320, 144);
         this.append(this._preview);
-
-        this._renderFrame = null;
     }
 
-    link(assets: Assets) {
+    link(assets: Observer[]) {
         this.unlink();
         super.link();
 
@@ -72,19 +69,19 @@ export class TemplateAssetInspectorPreview extends AssetInspectorPreviewBase {
         }
     }
 
-    private _toggleSize() {
+    _toggleSize() {
         super._toggleSize();
         this._queueRender();
     }
 
-    private _queueRender() {
+    _queueRender() {
         if (this._renderFrame || !this._previewRenderer) {
             return;
         }
         this._renderFrame = requestAnimationFrame(this._renderPreview.bind(this));
     }
 
-    private _renderPreview() {
+    _renderPreview() {
         if (this._renderFrame) {
             cancelAnimationFrame(this._renderFrame);
             this._renderFrame = null;
@@ -100,7 +97,7 @@ export class TemplateAssetInspectorPreview extends AssetInspectorPreviewBase {
         );
     }
 
-    private _onMouseDown(evt: MouseEvent) {
+    _onMouseDown(evt: MouseEvent) {
         super._onMouseDown(evt);
         if (this._mouseDown) {
             this._sx = this._x = evt.clientX;
@@ -108,11 +105,9 @@ export class TemplateAssetInspectorPreview extends AssetInspectorPreviewBase {
         }
     }
 
-    private _onMouseMove(evt: MouseEvent) {
+    _onMouseMove(evt: MouseEvent) {
         super._onMouseMove(evt);
         if (this._dragging) {
-            this._nx = this._x - evt.clientX;
-            this._ny = this._y - evt.clientY;
             this._x = evt.clientX;
             this._y = evt.clientY;
 
@@ -120,7 +115,7 @@ export class TemplateAssetInspectorPreview extends AssetInspectorPreviewBase {
         }
     }
 
-    private _onMouseUp(evt: MouseEvent) {
+    _onMouseUp(evt: MouseEvent) {
         if (this._dragging) {
             if ((Math.abs(this._sx - this._x) + Math.abs(this._sy - this._y)) < 8) {
                 this._preview.height = this.height;
@@ -136,3 +131,5 @@ export class TemplateAssetInspectorPreview extends AssetInspectorPreviewBase {
         super._onMouseUp(evt);
     }
 }
+
+export { TemplateAssetInspectorPreview };

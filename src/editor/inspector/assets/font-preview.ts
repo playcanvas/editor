@@ -11,7 +11,7 @@ const CLASS_CANVAS_FLIP = 'pcui-asset-preview-canvas-flip';
 class FontAssetInspectorPreview extends AssetInspectorPreviewBase {
     _preview: Canvas;
 
-    _renderFrame: number | null;
+    _renderFrame: number | null = null;
 
     _previewRenderer: FontThumbnailRenderer;
 
@@ -23,10 +23,7 @@ class FontAssetInspectorPreview extends AssetInspectorPreviewBase {
             useDevicePixelRatio: true
         });
         this._preview.resize(320, 144);
-
         this.append(this._preview);
-
-        this._renderFrame = null;
     }
 
     // queue up the rendering to prevent too often renders
@@ -59,8 +56,9 @@ class FontAssetInspectorPreview extends AssetInspectorPreviewBase {
     }
 
     link(assets: Observer[]) {
-        super.link(assets);
-        this._previewRenderer = new FontThumbnailRenderer(assets[0], this._preview.dom);
+        this.unlink();
+        super.link();
+        this._previewRenderer = new FontThumbnailRenderer(assets[0], this._preview.dom as HTMLCanvasElement);
         this._queueRender();
     }
 
