@@ -132,6 +132,19 @@ editor.once('viewport:load', () => {
         editor.call('viewport:render');
     });
 
+    // stop animation in place when user interacts with the viewport
+    editor.method('camera:viewcube:stop', () => {
+        if (!active) {
+            return;
+        }
+        active = false;
+        if (cam.focus) {
+            cam.focus.copy(pivot);
+        }
+        editor.emit('camera:focus', pivot, distance);
+        editor.call('camera:history:stop', cam);
+    });
+
     // animation loop
     editor.on('viewport:update', (dt: number) => {
         if (!active) {
