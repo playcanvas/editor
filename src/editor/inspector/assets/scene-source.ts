@@ -92,8 +92,8 @@ class SceneSourceAssetInspector extends Container {
         (this._contentAttributes.getField('scene').parent as LabelGroup).labelAlignTop = true;
     }
 
-    _getContainer(name: string) {
-        return (this._contentAttributes.getField(name).parent as LabelGroup).field;
+    _getContainer(name: string): Container {
+        return (this._contentAttributes.getField(name).parent as LabelGroup).field as Container;
     }
 
     _createSmallLabel(text: string) {
