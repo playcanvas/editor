@@ -1913,7 +1913,7 @@ class MaterialAssetInspector extends Container {
 
             const candidates = {};
             let hasCandidates = false;
-            texturesInSamePath.forEach((entry: any) => {
+            texturesInSamePath.forEach((entry: [string | number, Observer]) => {
                 const t = this._tokenizeFilename(entry[1].get('name'));
 
                 if (!t || t[0] !== tokens[0] || !POSTFIX_TO_BULK_SLOT[t[1]]) {
