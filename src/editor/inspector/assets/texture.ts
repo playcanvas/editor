@@ -628,8 +628,8 @@ class TextureAssetInspector extends Container {
         const addressVField = this._textureAttributesInspector.getField('data.addressv');
         (addressVField.parent.parent as Container).appendAfter(this._webgl1NonPotWithoutAddressClampWarning.dom, addressVField.parent.dom);
 
-        const srgbField = this._textureAttributesInspector.getField('data.srgb') as any;
-        const rgbmField = this._textureAttributesInspector.getField('data.rgbm') as any;
+        const srgbField = this._textureAttributesInspector.getField('data.srgb');
+        const rgbmField = this._textureAttributesInspector.getField('data.rgbm');
 
         // Ensure that the sRGB and RGBM fields are mutually exclusive
         rgbmField.on('change', (value) => {
