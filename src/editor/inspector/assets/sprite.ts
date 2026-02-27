@@ -67,7 +67,7 @@ class SpriteAssetInspector extends Panel {
         this.buildDom(DOM(this));
     }
 
-    link(assets: Observer[]) {  // Observer[] for asset observers
+    link(assets: Observer[]) {
         this.unlink();
         this._attributesInspector.link(assets);
         this._assetInput.link(assets, 'data.textureAtlasAsset');
