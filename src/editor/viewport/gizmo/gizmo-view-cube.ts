@@ -18,11 +18,12 @@ editor.once('viewport:load', () => {
         evt.stopPropagation();
     });
 
-    // hide for orthographic editor cameras or when disabled via settings
+    // hide for orthographic editor cameras, when disabled via settings, or in fullscreen mode
     let enabled = true;
+    let fullscreen = false;
 
     const setVisible = (camera: EditorCamera) => {
-        const show = enabled && (!camera.__editorCamera || camera.camera.projection === PROJECTION_PERSPECTIVE);
+        const show = enabled && !fullscreen && (!camera.__editorCamera || camera.camera.projection === PROJECTION_PERSPECTIVE);
         vc.dom.style.display = show ? '' : 'none';
     };
     editor.on('camera:change', (camera: EditorCamera) => setVisible(camera));
@@ -31,6 +32,14 @@ editor.once('viewport:load', () => {
     if (initCam) {
         setVisible(initCam);
     }
+
+    editor.on('viewport:fullscreenMode', (on: boolean) => {
+        fullscreen = on;
+        const camera = editor.call('camera:current');
+        if (camera) {
+            setVisible(camera);
+        }
+    });
 
     editor.once('settings:user:load', () => {
         const settings = editor.call('settings:user');
