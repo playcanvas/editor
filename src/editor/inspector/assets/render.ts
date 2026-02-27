@@ -126,7 +126,7 @@ class RenderAssetInspector extends Container {
         });
 
         const text = Object.keys(metaAttributes).join(', ');
-        const field = this._metaAttributesInspector.getField('meta.attributes') as any;
+        const field = this._metaAttributesInspector.getField('meta.attributes');
         field.values = assets.map(asset => text);
         field.parent.class.add(CLASS_META_ATTRIBUTES);
     }
@@ -141,7 +141,7 @@ class RenderAssetInspector extends Container {
             Array.from(new Set(assets.map(asset => asset.get(attribute))))
             .map(v => names[v] || v)
             .join(', ');
-        const field = this._metaAttributesInspector.getField(attribute) as any;
+        const field = this._metaAttributesInspector.getField(attribute);
         field.values = assets.map(asset => text);
     }
 }

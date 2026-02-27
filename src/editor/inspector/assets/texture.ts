@@ -1130,7 +1130,7 @@ class TextureAssetInspector extends Container {
 
     _updatePvrWarning() {
         const assets = this._assets;
-        const fieldPvr = this._compressionLegacyAttributesInspector.getField('meta.compress.pvr') as any;
+        const fieldPvr = this._compressionLegacyAttributesInspector.getField('meta.compress.pvr');
 
         // only show pvr warning if any selected texture is non-square and pvr is ticked
         let hidden = true;
