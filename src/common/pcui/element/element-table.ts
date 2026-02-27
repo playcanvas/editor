@@ -371,7 +371,7 @@ class Table extends Container {
         }
 
         // handle up and down arrow keys
-        if ([38, 40].indexOf(evt.keyCode) === -1) {
+        if (evt.key !== 'ArrowUp' && evt.key !== 'ArrowDown') {
             return;
         }
 
@@ -380,7 +380,7 @@ class Table extends Container {
 
         const lastRow = this._lastRowFocused || this._selectedRows[this._selectedRows.length - 1];
 
-        const next = evt.keyCode === 40 ? lastRow.nextSibling : lastRow.previousSibling;
+        const next = evt.key === 'ArrowDown' ? lastRow.nextSibling : lastRow.previousSibling;
         if (!next) {
             return;
         }
