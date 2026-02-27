@@ -43,16 +43,24 @@ editor.once('viewport:load', () => {
 
     editor.once('settings:user:load', () => {
         const settings = editor.call('settings:user');
-        const bind = (path: string, cb: (v: boolean) => void) => {
+        const bind = <T>(path: string, cb: (v: T) => void) => {
             settings.on(`${path}:set`, cb);
             settings.emit(`${path}:set`, settings.get(path));
         };
-        bind('editor.showViewCube', (value: boolean) => {
+        bind<boolean>('editor.showViewCube', (value: boolean) => {
             enabled = value ?? true;
             const camera = editor.call('camera:current');
             if (camera) {
                 setVisible(camera);
             }
+        });
+        bind<number>('editor.viewCubeSize', (value: number) => {
+            const scale = value ?? 1;
+            vc.radius = 10 * scale;
+            vc.textSize = 10 * scale;
+            vc.lineThickness = 2 * scale;
+            vc.lineLength = 40 * scale;
+            editor.call('viewport:render');
         });
     });
 

@@ -103,6 +103,18 @@ const ATTRIBUTES: (Attribute | Divider)[] = [
         type: 'boolean'
     },
     {
+        observer: 'userSettings',
+        label: 'View Cube Size',
+        type: 'slider',
+        reference: 'settings:viewCubeSize',
+        path: 'editor.viewCubeSize',
+        args: {
+            min: 0.5,
+            max: 2,
+            step: 0.1
+        }
+    },
+    {
         alias: 'divider:1',
         type: 'divider'
     },
