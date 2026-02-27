@@ -1030,7 +1030,7 @@ class TextureAssetInspector extends Container {
                         }
                     }
 
-                    (element as any).value = value;
+                    element.value = value;
                 },
                 history: args.history
             })
