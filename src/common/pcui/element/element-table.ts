@@ -108,6 +108,8 @@ class Table extends Container {
 
     private _domEvtWheel: (evt: WheelEvent) => void;
 
+    private _onDblClickHandler: (evt: MouseEvent) => void;
+
     private _prevScrollTop: number;
 
     constructor(args: TableArgs = {}) {
@@ -171,6 +173,9 @@ class Table extends Container {
         this._onRowKeyDownHandler = this._onRowKeyDown.bind(this);
 
         this._domEvtWheel = this._onWheelWhileResizing.bind(this);
+
+        this._onDblClickHandler = this._onDblClick.bind(this);
+        this._containerBody.dom.addEventListener('dblclick', this._onDblClickHandler);
     }
 
     // Recreates the table rows
@@ -355,6 +360,16 @@ class Table extends Container {
             return;
         }
 
+        if (evt.key === 'Enter') {
+            evt.preventDefault();
+            evt.stopPropagation();
+            const row = this._lastRowFocused || this._selectedRows[this._selectedRows.length - 1];
+            if (row) {
+                this.emit('activate', row);
+            }
+            return;
+        }
+
         // handle up and down arrow keys
         if ([38, 40].indexOf(evt.keyCode) === -1) {
             return;
@@ -391,6 +406,22 @@ class Table extends Container {
             this.dom.scrollTop -= (containerRect.top + headerHeight - rowRect.top);
         } else if (rowRect.bottom > containerRect.bottom) {
             this.dom.scrollTop += (rowRect.bottom - containerRect.bottom);
+        }
+    }
+
+    _onDblClick(evt: MouseEvent) {
+        let target = evt.target as HTMLElement;
+        while (target && target !== this._containerBody.dom) {
+            if ((target as any).ui instanceof TableRow) {
+                const row = (target as any).ui as TableRow;
+                if (!row.hidden) {
+                    evt.preventDefault();
+                    evt.stopPropagation();
+                    this.emit('activate', row);
+                }
+                return;
+            }
+            target = target.parentElement;
         }
     }
 
