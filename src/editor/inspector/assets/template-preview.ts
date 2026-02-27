@@ -91,8 +91,7 @@ export class TemplateAssetInspectorPreview extends AssetInspectorPreviewBase {
         }
 
         if (this.dom.offsetWidth !== 0 && this.dom.offsetHeight !== 0) {
-            (this._preview.dom as HTMLCanvasElement).width = this.dom.offsetWidth;
-            (this._preview.dom as HTMLCanvasElement).height = this.dom.offsetHeight;
+            this._preview.resize(this.dom.offsetWidth, this.dom.offsetHeight);
         }
 
         this._previewRenderer.render(
@@ -124,7 +123,7 @@ export class TemplateAssetInspectorPreview extends AssetInspectorPreviewBase {
     private _onMouseUp(evt: MouseEvent) {
         if (this._dragging) {
             if ((Math.abs(this._sx - this._x) + Math.abs(this._sy - this._y)) < 8) {
-                (this._preview.dom as HTMLCanvasElement).height = this.height;
+                this._preview.height = this.height;
             }
 
             this._previewRotation[0] += (this._sy - this._y) * ROTATION_SPEED;
