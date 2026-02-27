@@ -17,6 +17,7 @@ editor.once('viewport:load', (app) => {
         }
 
         editor.call('camera:focus:stop');
+        editor.call('camera:viewcube:stop');
         const camera = editor.call('camera:current');
 
         if (camera.camera.projection === PROJECTION_PERSPECTIVE) {

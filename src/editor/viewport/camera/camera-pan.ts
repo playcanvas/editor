@@ -63,6 +63,7 @@ editor.once('viewport:load', (app: import('playcanvas').Application) => {
         panButton = tap.button;
 
         editor.call('camera:focus:stop');
+        editor.call('camera:viewcube:stop');
         panning = true;
 
         const camera = editor.call('camera:current');

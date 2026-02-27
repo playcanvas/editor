@@ -78,6 +78,7 @@ editor.once('viewport:load', (app: import('playcanvas').Application) => {
         }
 
         editor.call('camera:focus:stop');
+        editor.call('camera:viewcube:stop');
 
         const camera = editor.call('camera:current');
 
