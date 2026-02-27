@@ -1038,7 +1038,7 @@ class TextureAssetInspector extends Container {
     }
 
     _setupLegacy() {
-        const fieldLegacy = this._compressionLegacyAttributesInspector.getField('compress.legacy') as any;
+        const fieldLegacy = this._compressionLegacyAttributesInspector.getField('compress.legacy');
         const dirty = !this._btnCompressLegacy.disabled;
         this._showHideLegacyUi(this._hasLegacy || dirty);
         fieldLegacy.value = this._hasLegacy || dirty;
