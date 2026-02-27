@@ -184,7 +184,7 @@ class ScriptAssetInspector extends Panel {
                     }
                 }
 
-                const attributeData = attributes[attributeName];
+                const attributeData = attributes[attributeName] as Record<string, unknown>;
 
                 const warningsForThisAttribute = scriptWarnings
                 .filter(w => w.name === attributeName)
@@ -207,7 +207,7 @@ class ScriptAssetInspector extends Panel {
                 }));
                 tooltipContainer.append(new Label({
                     class: 'desc',
-                    text: ((attributeData as any).description || (attributeData as any).title || '')
+                    text: ((attributeData.description || attributeData.title || '') as string)
                 }));
                 tooltipContainer.append(new Label({
                     class: 'code',
