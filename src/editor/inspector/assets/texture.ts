@@ -842,7 +842,7 @@ class TextureAssetInspector extends Container {
         // we enable the compression option if any one of the selected textures are allowed
         // to be compressed
         const alphaField = this._compressionLegacyAttributesInspector.getField('meta.compress.alpha');
-        const fieldOriginal = this._compressionLegacyAttributesInspector.getField('compress.original') as any;
+        const fieldOriginal = this._compressionLegacyAttributesInspector.getField('compress.original');
         const fieldDxt = this._compressionLegacyAttributesInspector.getField('meta.compress.dxt');
         const fieldPvr = this._compressionLegacyAttributesInspector.getField('meta.compress.pvr');
         const fieldPvrBpp = this._compressionLegacyAttributesInspector.getField('meta.compress.pvrBpp');
