@@ -1,5 +1,5 @@
 import type { EventHandle, Observer } from '@playcanvas/observer';
-import { Panel, Container, Label } from '@playcanvas/pcui';
+import { Panel, Container, Label, LabelGroup } from '@playcanvas/pcui';
 
 import { RelatedAssetsInspector } from './related-assets';
 import type { Attribute } from '../attribute.type.d';
@@ -86,14 +86,14 @@ class SceneSourceAssetInspector extends Container {
 
         this.buildDom(DOM(args));
 
-        (this._contentAttributes.getField('textures').parent as any).labelAlignTop = true;
-        (this._contentAttributes.getField('materials').parent as any).labelAlignTop = true;
-        (this._contentAttributes.getField('animation').parent as any).labelAlignTop = true;
-        (this._contentAttributes.getField('scene').parent as any).labelAlignTop = true;
+        (this._contentAttributes.getField('textures').parent as LabelGroup).labelAlignTop = true;
+        (this._contentAttributes.getField('materials').parent as LabelGroup).labelAlignTop = true;
+        (this._contentAttributes.getField('animation').parent as LabelGroup).labelAlignTop = true;
+        (this._contentAttributes.getField('scene').parent as LabelGroup).labelAlignTop = true;
     }
 
     _getContainer(name: string) {
-        return (this._contentAttributes.getField(name).parent as any).field;
+        return (this._contentAttributes.getField(name).parent as LabelGroup).field;
     }
 
     _createSmallLabel(text: string) {
