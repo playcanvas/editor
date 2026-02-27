@@ -1,6 +1,6 @@
 import type { Observer } from '@playcanvas/observer';
 import { Panel } from '@playcanvas/pcui';
-import { AnimTrack, Asset, Entity, Template } from 'playcanvas';
+import { AnimTrack, AppBase, Asset, Entity, Template } from 'playcanvas';
 
 import { AnimViewer } from '../../animstategraph/anim-viewer';
 import type { Attribute } from '../attribute.type';
@@ -11,7 +11,7 @@ import { AssetInspectorPreviewBase } from './asset-preview-base';
 const CLASS_ROOT = 'pcui-asset-animation-inspector-preview';
 
 class AnimationAssetInspectorPreview extends AssetInspectorPreviewBase {
-    _app: any;
+    _app: AppBase;
 
     _animViewer: AnimViewer;
 
