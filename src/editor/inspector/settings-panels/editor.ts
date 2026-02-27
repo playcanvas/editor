@@ -263,6 +263,13 @@ class EditorSettingsPanel extends BaseSettingsPanel {
 
         super(args);
 
+        const fieldShowViewCube = this._field('showViewCube');
+        const fieldViewCubeSize = this._field('viewCubeSize');
+        fieldViewCubeSize.parent.hidden = !fieldShowViewCube.value;
+        fieldShowViewCube.on('change', (value: boolean) => {
+            fieldViewCubeSize.parent.hidden = !value;
+        });
+
         const evtPermission = editor.on('notify:permission', this._checkChatNotificationState.bind(this));
         const evtChatNotifyState = editor.on('chat:notify', this._checkChatNotificationState.bind(this));
         const fieldChatNotification = this._attributesInspector.getField('chatNotification');
