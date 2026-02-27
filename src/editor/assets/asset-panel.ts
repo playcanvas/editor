@@ -93,7 +93,7 @@ const TYPES = {
 };
 
 // types of assets that can be double clicked
-const DBL_CLICKABLES = {
+const OPENABLE_TYPES = {
     folder: true,
     css: true,
     json: true,
@@ -144,6 +144,8 @@ class AssetGridViewItem extends GridViewItem {
     containerUsers: Container;
 
     progress: Progress;
+
+    asset: AssetObserver;
 
     private _asset: AssetObserver;
 
@@ -753,9 +755,21 @@ class AssetPanel extends Panel {
 
         this._detailsView.on('select', this._onSelectAssetElement.bind(this));
         this._detailsView.on('deselect', this._onDeselectAssetElement.bind(this));
+        this._detailsView.on('activate', (row: TableRow) => {
+            const asset = (row as any).asset;
+            if (asset && OPENABLE_TYPES[asset.get('type')]) {
+                this._openAsset(asset);
+            }
+        });
 
         this._gridView.on('select', this._onSelectAssetElement.bind(this));
         this._gridView.on('deselect', this._onDeselectAssetElement.bind(this));
+        this._gridView.on('activate', (item: GridViewItem) => {
+            const asset = (item as AssetGridViewItem).asset;
+            if (asset && OPENABLE_TYPES[asset.get('type')]) {
+                this._openAsset(asset);
+            }
+        });
 
         this._eventsEditor = [];
         this._eventsEditor.push(editor.on('selector:change', this._onSelectorChange.bind(this)));
@@ -1080,22 +1094,38 @@ class AssetPanel extends Panel {
         }
     }
 
-    // Handle double click of asset element
-    _onAssetDblClick(evt: MouseEvent, asset: AssetObserver) {
-        evt.stopPropagation();
-        evt.preventDefault();
+    _focusFirstVisibleItem() {
+        if (this._viewMode === AssetPanel.VIEW_DETAILS) {
+            const row = this._detailsView.dom.querySelector('tbody > tr[tabindex]') as HTMLElement;
+            if (row) {
+                row.focus();
+            }
+        } else {
+            const children = this._gridView.dom.childNodes;
+            for (let i = 0; i < children.length; i++) {
+                const el = children[i] as any;
+                if (el.ui instanceof AssetGridViewItem && !el.ui.hidden) {
+                    el.focus();
+                    return;
+                }
+            }
+        }
+    }
 
+    // Open / activate an asset based on its type
+    _openAsset(asset: AssetObserver) {
         const type = asset.get('type');
         if (type === 'folder') {
+            const view = this._viewMode === AssetPanel.VIEW_DETAILS ? this._detailsView : this._gridView;
+            view.once('filter:end', () => this._focusFirstVisibleItem());
+
             this.currentFolder = asset;
 
-            // restore previous selection after
-            // double clicking into a folder
+            // restore previous selection after navigating into a folder
             if (this._prevSelectorItems) {
                 editor.call('selector:set', this._prevSelectorType, this._prevSelectorItems);
             }
         } else if (type === 'sprite' || type === 'textureatlas') {
-            // show sprite editor
             editor.call('picker:sprites', asset);
         } else if (type === 'css' ||
                     type === 'html' ||
@@ -1104,7 +1134,6 @@ class AssetPanel extends Panel {
                     type === 'shader' ||
                     type === 'text') {
 
-            // show code editor
             if (type === 'script' && config.project.settings.useLegacyScripts) {
                 editor.call('assets:edit', asset);
             } else {
@@ -1422,14 +1451,6 @@ class AssetPanel extends Panel {
             row.class.add(CLASS_ASSET_NOT_REFERENCED);
         }
 
-        let domDblClick;
-
-        // folder dbl click
-        if (DBL_CLICKABLES[asset.get('type')]) {
-            domDblClick = (evt: MouseEvent) => this._onAssetDblClick(evt, asset);
-            row.dom.addEventListener('dblclick', domDblClick);
-        }
-
         let onMouseDown;
         let onDragStart;
 
@@ -1478,9 +1499,6 @@ class AssetPanel extends Panel {
             }
             if (onDragStart) {
                 dom.removeEventListener('dragstart', onDragStart);
-            }
-            if (domDblClick) {
-                dom.removeEventListener('dblclick', domDblClick);
             }
         });
 
@@ -1847,14 +1865,6 @@ class AssetPanel extends Panel {
 
         this._gridIndex[asset.get('id')] = item;
 
-        let domDblClick;
-
-        // folder dbl click
-        if (DBL_CLICKABLES[asset.get('type')]) {
-            domDblClick = (evt: MouseEvent) => this._onAssetDblClick(evt, asset);
-            item.dom.addEventListener('dblclick', domDblClick);
-        }
-
         // context menu
         editor.call('assets:contextmenu:attach', item, asset.legacyScript || asset);
 
@@ -1885,10 +1895,6 @@ class AssetPanel extends Panel {
         }
 
         item.on('destroy', (dom) => {
-            if (domDblClick) {
-                dom.removeEventListener('dblclick', domDblClick);
-            }
-
             if (onMouseDown) {
                 dom.removeEventListener('mousedown', onMouseDown);
             }
