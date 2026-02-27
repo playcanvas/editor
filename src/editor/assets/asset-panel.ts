@@ -1641,9 +1641,7 @@ class AssetPanel extends Panel {
 
     _setAssetSelected(asset: AssetObserver, selected: boolean) {
         this._applyFnToAssetElements(asset, (element) => {
-            if (element.selected !== selected) {
-                element.selected = selected;
-            }
+            element.selected = selected;
         });
     }
 
