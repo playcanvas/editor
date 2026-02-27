@@ -190,7 +190,9 @@ class AnimstategraphAssetInspector extends Container {
 
 
     closeFullscreenMode() {
-        if (!this._closeButton) return;
+        if (!this._closeButton) {
+            return;
+        }
 
         this._view.unlink();
         this._stateContainer.unlink();
