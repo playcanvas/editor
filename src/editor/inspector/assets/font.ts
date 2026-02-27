@@ -294,6 +294,8 @@ class FontAssetInspector extends Container {
 
     _localizations: Record<string, Panel>;
 
+    _localizationAssets: Record<string, AssetInput>;
+
     _contextMenus: Menu[];
 
     _characterPresetsPanel: Panel;
@@ -338,6 +340,7 @@ class FontAssetInspector extends Container {
         this._assets = null;
         this._assetEvents = [];
         this._localizations = {};
+        this._localizationAssets = {};
         this._contextMenus = [];
 
         this.buildDom(DOM(this));
@@ -482,7 +485,7 @@ class FontAssetInspector extends Container {
             this._assetEvents.push(localizationAssetPanel.on('click:remove', () => {
                 this._assets[0].unset(`i18n.${locale}`);
             }));
-            (localizationAssetPanel as any)._localizationAsset = new AssetInput({
+            const localizationAsset = new AssetInput({
                 assetType: 'font',
                 assets: this._args.assets,
                 flexGrow: 1,
@@ -492,8 +495,9 @@ class FontAssetInspector extends Container {
                 }),
                 allowDragDrop: true
             });
-            (localizationAssetPanel as any)._localizationAsset.link(this._assets, `i18n.${locale}`);
-            localizationAssetPanel.append((localizationAssetPanel as any)._localizationAsset);
+            localizationAsset.link(this._assets, `i18n.${locale}`);
+            localizationAssetPanel.append(localizationAsset);
+            this._localizationAssets[locale] = localizationAsset;
             this._localizationPanel.append(localizationAssetPanel);
             this._localizations[locale] = localizationAssetPanel;
         });
@@ -514,9 +518,9 @@ class FontAssetInspector extends Container {
     }
 
     _removeLocalization(locale: string) {
-        const localizationAssetPanel = this._localizations[locale];
-        (localizationAssetPanel as any)._localizationAsset.unlink();
-        this._localizationPanel.remove(localizationAssetPanel);
+        this._localizationAssets[locale]?.unlink();
+        delete this._localizationAssets[locale];
+        this._localizationPanel.remove(this._localizations[locale]);
         delete this._localizations[locale];
     }
 
