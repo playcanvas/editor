@@ -1,3 +1,4 @@
+import type { EventHandle, Observer } from '@playcanvas/observer';
 import { Button, Label, Container, BindingTwoWay } from '@playcanvas/pcui';
 
 import { AssetThumbnail } from '@/common/pcui/element/element-asset-thumbnail';
@@ -62,6 +63,18 @@ const FACE_SORT = {
 };
 
 class CubemapFace extends Container {
+    _args: Record<string, unknown>;
+
+    _asset: Observer | null;
+
+    _assetEvents: EventHandle[];
+
+    _dropTarget: { destroy(): void } | null;
+
+    _thumbnail: AssetThumbnail;
+
+    _deleteButton: Button;
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
 
@@ -136,7 +149,7 @@ class CubemapFace extends Container {
                 if (dropData.id && type.startsWith('asset') &&
                     (type === 'asset.texture') &&
                     parseInt(dropData.id, 10) !== this._asset.get(`data.textures.${this._args.face}`)) {
-                    const asset = this._args.assets.get(dropData.id);
+                    const asset = (this._args.assets as any).get(dropData.id);
                     return !!asset && !asset.get('source');
                 }
             },
@@ -257,7 +270,7 @@ class CubemapFace extends Container {
                                 };
 
                                 if (this._args.history) {
-                                    this._args.history.add({
+                                    (this._args.history as any).add({
                                         name: 'cubemap.autofill',
                                         undo,
                                         redo
@@ -279,7 +292,7 @@ class CubemapFace extends Container {
         });
     }
 
-    link(asset: import('@playcanvas/observer').Observer, path: string) {
+    link(asset: Observer, path: string) {
         this._asset = asset;
         this.unlink();
         this._thumbnail.link(asset, path);

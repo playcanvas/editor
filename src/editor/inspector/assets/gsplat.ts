@@ -1,3 +1,4 @@
+import type { Observer } from '@playcanvas/observer';
 import { Container, Panel } from '@playcanvas/pcui';
 
 import type { Attribute } from '../attribute.type.d';
@@ -49,6 +50,10 @@ const DOM = parent => [
 ];
 
 class GSplatAssetInspector extends Container {
+    _args: Record<string, unknown>;
+
+    _metaAttributesInspector: AttributesInspector;
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.headerText = 'GAUSSIAN SPLAT';
@@ -58,7 +63,7 @@ class GSplatAssetInspector extends Container {
         this.buildDom(DOM(this));
     }
 
-    link(assets: import('@playcanvas/observer').Observer[]) {
+    link(assets: Observer[]) {
         this.unlink();
         this._metaAttributesInspector.link(assets);
 

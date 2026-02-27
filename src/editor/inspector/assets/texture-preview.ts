@@ -1,3 +1,5 @@
+import type { EventHandle, Observer } from '@playcanvas/observer';
+
 import { buildQueryUrl } from '@/common/utils';
 
 import { AssetInspectorPreviewBase } from './asset-preview-base';
@@ -13,6 +15,12 @@ const getPreviewUrl = (asset) => {
 };
 
 class TextureAssetInspectorPreview extends AssetInspectorPreviewBase {
+    _assets: Observer[] | null;
+
+    _assetEvents: EventHandle[];
+
+    _preview: HTMLDivElement;
+
     constructor(args: Record<string, unknown>) {
         super(args);
         this._assets = null;
@@ -72,7 +80,7 @@ class TextureAssetInspectorPreview extends AssetInspectorPreviewBase {
         }
     }
 
-    link(assets: import('@playcanvas/observer').Observer[]) {
+    link(assets: Observer[]) {
         this.unlink();
         super.link();
         this._assets = assets;

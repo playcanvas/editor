@@ -1,3 +1,4 @@
+import type { Observer } from '@playcanvas/observer';
 import { Canvas } from '@playcanvas/pcui';
 
 import { Cubemap3dThumbnailRenderer } from '@/common/thumbnail-renderers/cubemap-3d-thumbnail-renderer';
@@ -8,6 +9,26 @@ const CLASS_CANVAS = 'pcui-asset-preview-canvas';
 const CLASS_CANVAS_FLIP = 'pcui-asset-preview-canvas-flip';
 
 class CubemapAssetInspectorPreview extends AssetInspectorPreviewBase {
+    _preview: Canvas;
+
+    _renderFrame: number | null;
+
+    _previewRenderer: Cubemap3dThumbnailRenderer | null;
+
+    _previewRotation: [number, number];
+
+    private _sx = 0;
+
+    private _sy = 0;
+
+    private _x = 0;
+
+    private _y = 0;
+
+    private _nx = 0;
+
+    private _ny = 0;
+
     constructor(args: Record<string, unknown>) {
         super(args);
 
@@ -46,8 +67,7 @@ class CubemapAssetInspectorPreview extends AssetInspectorPreviewBase {
         }
 
         if (this.dom.offsetWidth !== 0 && this.dom.offsetHeight !== 0) {
-            this._preview.dom.width = this.dom.offsetWidth;
-            this._preview.dom.height = this.dom.offsetHeight;
+            this._preview.resize(this.dom.offsetWidth, this.dom.offsetHeight);
         }
         this._previewRenderer.render(
             Math.max(-90, Math.min(90, this._previewRotation[0] + (this._sy - this._y) * 0.3)),
@@ -80,7 +100,7 @@ class CubemapAssetInspectorPreview extends AssetInspectorPreviewBase {
     _onMouseUp(evt: MouseEvent) {
         if (this._dragging) {
             if ((Math.abs(this._sx - this._x) + Math.abs(this._sy - this._y)) < 8) {
-                this._preview.dom.height = this.height;
+                (this._preview.dom as HTMLCanvasElement).height = this.height;
             }
 
             this._previewRotation[0] = Math.max(-90, Math.min(90, this._previewRotation[0] + ((this._sy - this._y) * 0.3)));
@@ -102,7 +122,7 @@ class CubemapAssetInspectorPreview extends AssetInspectorPreviewBase {
         this._queueRender();
     }
 
-    link(assets: import('@playcanvas/observer').Observer[]) {
+    link(assets: Observer[]) {
         super.link(assets);
         this._previewRenderer = new Cubemap3dThumbnailRenderer(assets[0], this._preview.dom);
         this._queueRender();

@@ -1,4 +1,5 @@
-import { Panel, Container, Label } from '@playcanvas/pcui';
+import type { EventHandle, Observer } from '@playcanvas/observer';
+import { Panel, Container, Label, LabelGroup } from '@playcanvas/pcui';
 
 import { RelatedAssetsInspector } from './related-assets';
 import type { Attribute } from '../attribute.type.d';
@@ -71,6 +72,12 @@ const DOM = args => [
 ];
 
 class SceneSourceAssetInspector extends Container {
+    _assetEvents: EventHandle[];
+
+    _contentAttributes: AttributesInspector;
+
+    _relatedAssetsInspector: RelatedAssetsInspector;
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
 
@@ -79,14 +86,14 @@ class SceneSourceAssetInspector extends Container {
 
         this.buildDom(DOM(args));
 
-        this._contentAttributes.getField('textures').parent.labelAlignTop = true;
-        this._contentAttributes.getField('materials').parent.labelAlignTop = true;
-        this._contentAttributes.getField('animation').parent.labelAlignTop = true;
-        this._contentAttributes.getField('scene').parent.labelAlignTop = true;
+        (this._contentAttributes.getField('textures').parent as LabelGroup).labelAlignTop = true;
+        (this._contentAttributes.getField('materials').parent as LabelGroup).labelAlignTop = true;
+        (this._contentAttributes.getField('animation').parent as LabelGroup).labelAlignTop = true;
+        (this._contentAttributes.getField('scene').parent as LabelGroup).labelAlignTop = true;
     }
 
-    _getContainer(name: string) {
-        return this._contentAttributes.getField(name).parent.field;
+    _getContainer(name: string): Container {
+        return (this._contentAttributes.getField(name).parent as LabelGroup).field as Container;
     }
 
     _createSmallLabel(text: string) {
@@ -146,7 +153,7 @@ class SceneSourceAssetInspector extends Container {
         this._getContainer('scene').clear();
     }
 
-    link(assets: import('@playcanvas/observer').Observer[]) {
+    link(assets: Observer[]) {
         this.unlink();
         this._contentAttributes.link(assets);
         this._relatedAssetsInspector.link(assets);

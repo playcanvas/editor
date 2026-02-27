@@ -1,3 +1,4 @@
+import type { EventHandle, Observer } from '@playcanvas/observer';
 import { Panel, Container, Label, BooleanInput, Button } from '@playcanvas/pcui';
 
 import { CLASS_ERROR } from '@/common/pcui/constants';
@@ -120,6 +121,36 @@ const DOM = (parent, args) => [
 ];
 
 class CubemapAssetInspector extends Container {
+    _args: Record<string, unknown>;
+
+    _assets: Observer[] | null;
+
+    _assetEvents: EventHandle[];
+
+    _faces: CubemapFace[];
+
+    _facesPanel: Panel;
+
+    _cubemapPanel: Panel;
+
+    _cubemapAttributesInspector: AttributesInspector;
+
+    _prefilterGenerateCubemapLabel: Label;
+
+    _prefilterGenerateCubemap: BooleanInput;
+
+    _prefilterButton: Button;
+
+    _deletePrefilterButton: Button;
+
+    _errorLabel: Label;
+
+    _prefilteringPanel: Panel;
+
+    _prefilterGenerateCubemapContainer: Container;
+
+    _prefilteringContainer: Container;
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
 
@@ -236,7 +267,7 @@ class CubemapAssetInspector extends Container {
             asset.history.enabled = true;
             return asset;
         });
-        this._args.history.add({
+        (this._args.history as any).add({
             name: 'assets.filtering',
             undo: () => {
                 assets.forEach((asset, i) => {
@@ -314,7 +345,7 @@ class CubemapAssetInspector extends Container {
         this._prefilteringContainer.hidden = this._assets.length > 1;
     }
 
-    link(assets: import('@playcanvas/observer').Observer[]) {
+    link(assets: Observer[]) {
         this.unlink();
         this._assets = assets;
         this._cubemapAttributesInspector.link(assets);

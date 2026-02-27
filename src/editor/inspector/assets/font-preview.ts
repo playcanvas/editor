@@ -1,3 +1,4 @@
+import type { Observer } from '@playcanvas/observer';
 import { Canvas } from '@playcanvas/pcui';
 
 import { FontThumbnailRenderer } from '@/common/thumbnail-renderers/font-thumbnail-renderer';
@@ -8,15 +9,20 @@ const CLASS_CANVAS = 'pcui-asset-preview-canvas';
 const CLASS_CANVAS_FLIP = 'pcui-asset-preview-canvas-flip';
 
 class FontAssetInspectorPreview extends AssetInspectorPreviewBase {
+    _preview: Canvas;
+
+    _renderFrame: number | null;
+
+    _previewRenderer: FontThumbnailRenderer;
+
     constructor(args: Record<string, unknown>) {
         super(args);
 
         this._preview = new Canvas({
-            canvasWidth: 320,
-            canvasHeight: 144,
             class: [CLASS_CANVAS, CLASS_CANVAS_FLIP],
             useDevicePixelRatio: true
         });
+        this._preview.resize(320, 144);
 
         this.append(this._preview);
 
@@ -38,8 +44,7 @@ class FontAssetInspectorPreview extends AssetInspectorPreviewBase {
         }
 
         if (this.dom.offsetWidth !== 0 && this.dom.offsetHeight !== 0) {
-            this._preview.dom.width = this.dom.offsetWidth;
-            this._preview.dom.height = this.dom.offsetHeight;
+            this._preview.resize(this.dom.offsetWidth, this.dom.offsetHeight);
         }
         this._previewRenderer.render();
     }
@@ -53,7 +58,7 @@ class FontAssetInspectorPreview extends AssetInspectorPreviewBase {
         this._queueRender();
     }
 
-    link(assets: import('@playcanvas/observer').Observer[]) {
+    link(assets: Observer[]) {
         super.link(assets);
         this._previewRenderer = new FontThumbnailRenderer(assets[0], this._preview.dom);
         this._queueRender();

@@ -1,3 +1,4 @@
+import type { EventHandle, Observer } from '@playcanvas/observer';
 import { Panel, Container, Button } from '@playcanvas/pcui';
 
 import { ModelAssetInspectorMeshInstances } from './model-mesh-instances';
@@ -164,6 +165,36 @@ const DOM = parent => [
 ];
 
 class ModelAssetInspector extends Container {
+    _args: Record<string, unknown>;
+
+    _assets: Observer[] | null;
+
+    _assetEvents: EventHandle[];
+
+    _unwrapProgress: number[];
+
+    _hasVisited: boolean;
+
+    _metaPanel: Panel;
+
+    _metaAttributesInspector: AttributesInspector;
+
+    _pipelinePanel: Panel;
+
+    _pipelineAttributesInspector: AttributesInspector;
+
+    _unwrapContainer: Container;
+
+    _unwrapAttributesInspector: AttributesInspector;
+
+    _btnAutoUnwrap: Button;
+
+    _btnCancelAutoUnwrap: Button;
+
+    _meshInstancesPanel: Panel;
+
+    _meshInstances: ModelAssetInspectorMeshInstances;
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
 
@@ -276,7 +307,7 @@ class ModelAssetInspector extends Container {
         });
     }
 
-    link(assets: import('@playcanvas/observer').Observer[]) {
+    link(assets: Observer[]) {
         this.unlink();
         this._assets = assets;
         this._metaAttributesInspector.link(assets);

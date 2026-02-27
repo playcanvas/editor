@@ -14,6 +14,12 @@ class AssetInspectorPreviewBase extends Container {
 
     private _hasPreview: boolean = false;
 
+    private _domEvtMouseDown: (evt: MouseEvent) => void;
+
+    private _domEvtMouseMove: (evt: MouseEvent) => void;
+
+    private _domEvtMouseUp: (evt: MouseEvent) => void;
+
     constructor(args: Record<string, unknown>) {
         super(args);
         this.class.add(CLASS_CONTAINER);
@@ -61,7 +67,7 @@ class AssetInspectorPreviewBase extends Container {
             return;
         }
 
-        if (this._mouseDown && !this._dragging && this.dom.contains(evt.target) && !(evt.target.ui instanceof Button)) {
+        if (this._mouseDown && !this._dragging && this.dom.contains(evt.target as Node) && !((evt.target as any).ui instanceof Button)) {
             this._toggleSize();
         }
 

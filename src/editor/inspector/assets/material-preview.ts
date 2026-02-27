@@ -1,3 +1,4 @@
+import type { Observer } from '@playcanvas/observer';
 import { Canvas } from '@playcanvas/pcui';
 
 import { MaterialThumbnailRenderer } from '@/common/thumbnail-renderers/material-thumbnail-renderer';
@@ -8,12 +9,33 @@ const CLASS_CANVAS = 'pcui-asset-preview-canvas';
 const CLASS_CANVAS_FLIP = 'pcui-asset-preview-canvas-flip';
 
 class MaterialAssetInspectorPreview extends AssetInspectorPreviewBase {
+    _preview: Canvas;
+
+    _previewModel: string;
+
+    _previewRenderer: MaterialThumbnailRenderer | null;
+
+    _renderFrame: number | null;
+
+    private _previewRotation: [number, number];
+
+    private _sx = 0;
+
+    private _sy = 0;
+
+    private _x = 0;
+
+    private _y = 0;
+
+    private _nx = 0;
+
+    private _ny = 0;
+
     constructor(args: Record<string, unknown>) {
         super(args);
 
         this._preview = new Canvas();
-        this._preview.dom.width = 320;
-        this._preview.dom.height = 144;
+        this._preview.resize(320, 144);
         this._preview.class.add(CLASS_CANVAS, CLASS_CANVAS_FLIP);
         this.append(this._preview);
 
@@ -45,8 +67,7 @@ class MaterialAssetInspectorPreview extends AssetInspectorPreviewBase {
         }
 
         if (this.dom.offsetWidth !== 0 && this.dom.offsetHeight !== 0) {
-            this._preview.dom.width = this.dom.offsetWidth;
-            this._preview.dom.height = this.dom.offsetHeight;
+            this._preview.resize(this.dom.offsetWidth, this.dom.offsetHeight);
         }
 
         this._previewRenderer.render(
@@ -81,7 +102,7 @@ class MaterialAssetInspectorPreview extends AssetInspectorPreviewBase {
     _onMouseUp(evt: MouseEvent) {
         if (this._dragging) {
             if ((Math.abs(this._sx - this._x) + Math.abs(this._sy - this._y)) < 8) {
-                this._preview.dom.height = this.height;
+                this._preview.height = this.height;
             }
 
             this._previewRotation[0] = Math.max(-90, Math.min(90, this._previewRotation[0] + ((this._sy - this._y) * 0.3)));
@@ -103,7 +124,7 @@ class MaterialAssetInspectorPreview extends AssetInspectorPreviewBase {
         this._queueRender();
     }
 
-    link(assets: import('@playcanvas/observer').Observer[]) {
+    link(assets: Observer[]) {
         this.unlink();
         super.link();
 

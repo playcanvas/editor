@@ -1,3 +1,4 @@
+import type { Observer } from '@playcanvas/observer';
 import { Panel, BindingTwoWay } from '@playcanvas/pcui';
 
 import { AssetList } from '@/common/pcui/element/element-asset-list';
@@ -14,6 +15,10 @@ const DOM = parent => [
 ];
 
 class BundleAssetInspector extends Panel {
+    _args: Record<string, unknown>;
+
+    _assetList: AssetList;
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.headerText = 'ASSETS';
@@ -24,7 +29,7 @@ class BundleAssetInspector extends Panel {
         this.buildDom(DOM(this));
     }
 
-    link(assets: import('@playcanvas/observer').Observer[]) {
+    link(assets: Observer[]) {
         this.unlink();
         this._assetList.link(assets, 'data.assets');
     }

@@ -1,3 +1,4 @@
+import type { Observer } from '@playcanvas/observer';
 import { Panel, Container } from '@playcanvas/pcui';
 
 import type { Attribute } from '../attribute.type.d';
@@ -86,6 +87,12 @@ const DOM = parent => [
 ];
 
 class RenderAssetInspector extends Container {
+    _args: Record<string, unknown>;
+
+    _metaAttributesInspector: AttributesInspector;
+
+    _attributesInspector: AttributesInspector;
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.headerText = 'RENDER';
@@ -95,7 +102,7 @@ class RenderAssetInspector extends Container {
         this.buildDom(DOM(this));
     }
 
-    link(assets: import('@playcanvas/observer').Observer[]) {
+    link(assets: Observer[]) {
         this.unlink();
         this._metaAttributesInspector.link(assets);
         this._attributesInspector.link(assets);
@@ -109,7 +116,7 @@ class RenderAssetInspector extends Container {
         this._metaAttributesInspector.unlink();
     }
 
-    _formatMetaAttribute(assets: import('@playcanvas/observer').Observer[]) {
+    _formatMetaAttribute(assets: Observer[]) {
         const metaAttributes = {};
         assets.forEach((asset) => {
             const currMetaAttributes = asset.get('meta.attributes');
@@ -124,7 +131,7 @@ class RenderAssetInspector extends Container {
         field.parent.class.add(CLASS_META_ATTRIBUTES);
     }
 
-    _formatMetaMeshCompression(assets: import('@playcanvas/observer').Observer[]) {
+    _formatMetaMeshCompression(assets: Observer[]) {
         const attribute = 'meta.meshCompression';
         const names = {
             none: 'Disabled',

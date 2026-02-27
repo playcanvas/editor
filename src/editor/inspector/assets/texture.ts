@@ -1,3 +1,4 @@
+import type { EventHandle, Observer } from '@playcanvas/observer';
 import { Panel, Container, Button, InfoBox, Divider, Label, BindingTwoWay, BindingObserversToElement, BindingElementToObservers } from '@playcanvas/pcui';
 import { PIXELFORMAT_DXT1, PIXELFORMAT_DXT5, Texture, TextureUtils } from 'playcanvas';
 
@@ -356,6 +357,8 @@ const DOM = parent => [
 // this has been kept as agnostic as possible to hopefully
 // maybe work back into BindingElementToObservers
 class MultiPathBindingElementToObservers extends BindingElementToObservers {
+    _valueFormatters: Record<string, (v: unknown) => unknown> | undefined;
+
     constructor({ formatters, ...args }: { formatters?: Record<string, (v: unknown) => unknown> } & Record<string, unknown>) {
         super(args);
         this._valueFormatters = formatters;
@@ -380,7 +383,7 @@ class MultiPathBindingElementToObservers extends BindingElementToObservers {
         return value;
     }
 
-    _latestHasPaths(latest: import('@playcanvas/observer').Observer, paths: string[]) {
+    _latestHasPaths(latest: Observer, paths: string[]) {
         if (!latest) {
             return false;
         }
@@ -478,6 +481,8 @@ class MultiPathBindingElementToObservers extends BindingElementToObservers {
 }
 
 class SizeLabel extends Label {
+    _format: { size?: number; vram?: number };
+
     constructor({ format, ...args }: { format: { size?: number; vram?: number }; [key: string]: unknown }) {
         super(args);
         this._format = format;
@@ -498,6 +503,64 @@ class SizeLabel extends Label {
 }
 
 class TextureAssetInspector extends Container {
+    _args: Record<string, unknown>;
+
+    _assets: Observer[] | null;
+
+    _assetEvents: EventHandle[];
+
+    _compressionChangeTicking: boolean;
+
+    _compressionChangeTimeout: ReturnType<typeof setTimeout> | null;
+
+    _hasLegacy: boolean;
+
+    _compressionFormats: Record<string, { size: number; vram: number; timeout?: boolean; label?: SizeLabel | undefined }>;
+
+    _webgl1NonPotWithMipmapsWarning: InfoBox;
+
+    _webgl1NonPotWithoutAddressClampWarning: InfoBox;
+
+    _containerImportBasis: Container;
+
+    _labelImportBasis: Label;
+
+    _btnImportBasis: Button;
+
+    _pvrWarningLabel: Label;
+
+    _texturePanel: Panel;
+
+    _btnContainerGetMeta: Container;
+
+    _btnGetMeta: Button;
+
+    _textureAttributesInspector: AttributesInspector;
+
+    _compressionPanel: Panel;
+
+    _recompressWarning: InfoBox;
+
+    _compressionBasisContainer: Container;
+
+    _compressionBasisAttributesInspector: AttributesInspector;
+
+    _compressionBasisPvrWarning: InfoBox;
+
+    _compressBasisBtnContainer: Container;
+
+    _btnCompressBasis: Button;
+
+    _basisDivider: Divider;
+
+    _compressionLegacyContainer: Container;
+
+    _compressionLegacyAttributesInspector: AttributesInspector;
+
+    _compressLegacyBtnContainer: Container;
+
+    _btnCompressLegacy: Button;
+
     constructor(args: Record<string, unknown>) {
         super(args);
 
@@ -553,7 +616,7 @@ class TextureAssetInspector extends Container {
         });
 
         const mipmapsField = this._textureAttributesInspector.getField('data.mipmaps');
-        mipmapsField.parent.parent.appendAfter(this._webgl1NonPotWithMipmapsWarning.dom, mipmapsField.parent.dom);
+        (mipmapsField.parent.parent as Container).appendAfter(this._webgl1NonPotWithMipmapsWarning.dom, mipmapsField.parent.dom);
 
         this._webgl1NonPotWithoutAddressClampWarning = new InfoBox({
             icon: 'E218',
@@ -563,7 +626,7 @@ class TextureAssetInspector extends Container {
         });
 
         const addressVField = this._textureAttributesInspector.getField('data.addressv');
-        addressVField.parent.parent.appendAfter(this._webgl1NonPotWithoutAddressClampWarning.dom, addressVField.parent.dom);
+        (addressVField.parent.parent as Container).appendAfter(this._webgl1NonPotWithoutAddressClampWarning.dom, addressVField.parent.dom);
 
         const srgbField = this._textureAttributesInspector.getField('data.srgb');
         const rgbmField = this._textureAttributesInspector.getField('data.rgbm');
@@ -712,8 +775,8 @@ class TextureAssetInspector extends Container {
         let showBasisPvrWarning = false;
 
         const compressionFormats = ['dxt', 'pvr', 'etc1', 'etc2', 'basis'];
-        const allowed = {};
-        const selected = {};
+        const allowed: Record<string, boolean> = {};
+        const selected: Record<string, boolean> = {};
 
         for (let i = 0; i < assets.length; i++) {
             const asset = assets[i];
@@ -1021,7 +1084,7 @@ class TextureAssetInspector extends Container {
         this._pvrWarningLabel.class.add('pcui-pvr-warning');
         this._pvrWarningLabel.hidden = true;
 
-        fieldPvr.parent.parent.appendAfter(this._pvrWarningLabel, fieldPvrBpp.parent);
+        (fieldPvr.parent.parent as Container).appendAfter(this._pvrWarningLabel, fieldPvrBpp.parent);
         this._assetEvents.push(fieldPvr.on('change', this._updatePvrWarning));
     }
 
@@ -1049,7 +1112,7 @@ class TextureAssetInspector extends Container {
 
                 this._compressionFormats[key].label = sizeLabel;
 
-                field.parent.append(sizeLabel);
+                (field.parent as Container).append(sizeLabel);
             }
         }
     }
@@ -1116,7 +1179,7 @@ class TextureAssetInspector extends Container {
         }
     }
 
-    link(assets: import('@playcanvas/observer').Observer[]) {
+    link(assets: Observer[]) {
         this.unlink();
         this._assets = assets;
 

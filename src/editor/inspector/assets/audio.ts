@@ -1,3 +1,4 @@
+import type { Observer } from '@playcanvas/observer';
 import { Container, Button, Progress, Panel } from '@playcanvas/pcui';
 
 import type { Attribute } from '../attribute.type.d';
@@ -19,8 +20,8 @@ const ATTRIBUTES: Attribute[] = [{
 const DOM = parent => [
     {
         attributesInspector: new AttributesInspector({
-            assets: parent.args.assets,
-            history: parent.args.history,
+            assets: parent._args.assets,
+            history: parent._args.history,
             attributes: ATTRIBUTES
         })
     },
@@ -44,7 +45,7 @@ const DOM = parent => [
             },
             {
                 audioTimeline: new Progress({
-                    flexGrow: 1
+                    flexGrow: '1'
                 })
             }
         ]
@@ -52,12 +53,28 @@ const DOM = parent => [
 ];
 
 class AudioAssetInspector extends Panel {
+    _args: Record<string, unknown>;
+
+    _playing: ReturnType<typeof setInterval> | null;
+
+    _assetEvents: Record<string, any>;
+
+    _audio: HTMLAudioElement | null;
+
+    _attributesInspector: AttributesInspector;
+
+    _audioButton: Button;
+
+    _audioTimeline: Progress;
+
+    _audioContainer: Container;
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.headerText = 'AUDIO';
 
         super(args);
-        this.args = args;
+        this._args = args;
 
         this.class.add(CLASS_ROOT);
 
@@ -97,7 +114,7 @@ class AudioAssetInspector extends Panel {
         this._playing = setInterval(this._updateTimeline.bind(this), 1000 / 60);
     }
 
-    _audioPaused(evt: Event) {
+    _audioPaused() {
         this._audio.pause();
         this._audioTimeline.value = 0;
         this._audioButton.class.remove('active');
@@ -109,7 +126,7 @@ class AudioAssetInspector extends Panel {
         this._audioTimeline.value = this._audio.currentTime / this._audio.duration * 100;
     }
 
-    link(assets: import('@playcanvas/observer').Observer[]) {
+    link(assets: Observer[]) {
         this.unlink();
         if (assets.length > 1) {
             return;

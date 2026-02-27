@@ -1,4 +1,4 @@
-import { Observer } from '@playcanvas/observer';
+import { Observer, type EventHandle } from '@playcanvas/observer';
 import { Panel, Button, Container, Label, TextInput, Menu, BindingTwoWay } from '@playcanvas/pcui';
 
 import { CLASS_ERROR } from '@/common/pcui/constants';
@@ -286,6 +286,52 @@ type FontAssetInspectorArgs = {
 } & Record<string, unknown>;
 
 class FontAssetInspector extends Container {
+    _args: FontAssetInspectorArgs;
+
+    _assets: Observer[] | null;
+
+    _assetEvents: EventHandle[];
+
+    _localizations: Record<string, Panel>;
+
+    _localizationAssets: Record<string, AssetInput>;
+
+    _contextMenus: Menu[];
+
+    _characterPresetsPanel: Panel;
+
+    _characterRangePanel: Panel;
+
+    _characterRangeStart: TextInput;
+
+    _characterRangeEnd: TextInput;
+
+    _fontPanel: Panel;
+
+    _fontAttributes: AttributesInspector;
+
+    _processFontButton: Button;
+
+    _processFontWarningContainer: Container;
+
+    _processFontWarningItems: Table;
+
+    _localizationPanel: Panel;
+
+    _localizationAttributes: AttributesInspector;
+
+    _latinButton: Button;
+
+    _latinSupplementButton: Button;
+
+    _cyrillicButton: Button;
+
+    _greekButton: Button;
+
+    _characterRangeButton: Button;
+
+    _propertiesAttributes: AttributesInspector;
+
     constructor(args: FontAssetInspectorArgs = {} as FontAssetInspectorArgs) {
         args = Object.assign({}, args);
 
@@ -294,6 +340,7 @@ class FontAssetInspector extends Container {
         this._assets = null;
         this._assetEvents = [];
         this._localizations = {};
+        this._localizationAssets = {};
         this._contextMenus = [];
 
         this.buildDom(DOM(this));
@@ -350,16 +397,18 @@ class FontAssetInspector extends Container {
     _onClickPresetButton(charRange: { from: number; to: number }) {
         this._characterRangeStart.value = `0x${charRange.from.toString(16)}`;
         this._characterRangeEnd.value = `0x${charRange.to.toString(16)}`;
-        this._fontAttributes.getField('characters').values = this._assets.map(() => {
-            return this._fontAttributes.getField('characters').value + this._getCharacterRange(charRange);
+        const charactersField = this._fontAttributes.getField('characters');
+        charactersField.values = this._assets.map(() => {
+            return charactersField.value + this._getCharacterRange(charRange);
         });
     }
 
     _onClickCharacterRangeButton() {
         const from = this._characterRangeStart.value;
         const to = this._characterRangeEnd.value;
-        this._fontAttributes.getField('characters').values = this._assets.map(() => {
-            return this._fontAttributes.getField('characters').value + this._getCharacterRange({ from, to });
+        const charactersField = this._fontAttributes.getField('characters');
+        charactersField.values = this._assets.map(() => {
+            return charactersField.value + this._getCharacterRange({ from, to });
         });
     }
 
@@ -409,7 +458,7 @@ class FontAssetInspector extends Container {
         });
     }
 
-    _toggleProcessFontButton(asset: import('@playcanvas/observer').Observer) {
+    _toggleProcessFontButton(asset: Observer) {
         this._processFontButton.disabled = asset.get('task') === 'running';
     }
 
@@ -436,7 +485,7 @@ class FontAssetInspector extends Container {
             this._assetEvents.push(localizationAssetPanel.on('click:remove', () => {
                 this._assets[0].unset(`i18n.${locale}`);
             }));
-            localizationAssetPanel._localizationAsset = new AssetInput({
+            const localizationAsset = new AssetInput({
                 assetType: 'font',
                 assets: this._args.assets,
                 flexGrow: 1,
@@ -446,8 +495,9 @@ class FontAssetInspector extends Container {
                 }),
                 allowDragDrop: true
             });
-            localizationAssetPanel._localizationAsset.link(this._assets, `i18n.${locale}`);
-            localizationAssetPanel.append(localizationAssetPanel._localizationAsset);
+            localizationAsset.link(this._assets, `i18n.${locale}`);
+            localizationAssetPanel.append(localizationAsset);
+            this._localizationAssets[locale] = localizationAsset;
             this._localizationPanel.append(localizationAssetPanel);
             this._localizations[locale] = localizationAssetPanel;
         });
@@ -468,13 +518,13 @@ class FontAssetInspector extends Container {
     }
 
     _removeLocalization(locale: string) {
-        const localizationAssetPanel = this._localizations[locale];
-        localizationAssetPanel._localizationAsset.unlink();
-        this._localizationPanel.remove(localizationAssetPanel);
+        this._localizationAssets[locale]?.unlink();
+        delete this._localizationAssets[locale];
+        this._localizationPanel.remove(this._localizations[locale]);
         delete this._localizations[locale];
     }
 
-    link(assets: import('@playcanvas/observer').Observer[]) {
+    link(assets: Observer[]) {
         this.unlink();
         this._assets = assets;
 

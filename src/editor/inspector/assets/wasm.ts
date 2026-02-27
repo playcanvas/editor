@@ -1,3 +1,4 @@
+import type { Observer } from '@playcanvas/observer';
 import { Panel } from '@playcanvas/pcui';
 
 import type { Attribute } from '../attribute.type.d';
@@ -29,6 +30,10 @@ const DOM = parent => [
 ];
 
 class WasmAssetInspector extends Panel {
+    _args: Record<string, unknown>;
+
+    _attributesInspector: AttributesInspector;
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.headerText = 'WASM MODULE';
@@ -38,7 +43,7 @@ class WasmAssetInspector extends Panel {
         this.buildDom(DOM(this));
     }
 
-    link(assets: import('@playcanvas/observer').Observer[]) {
+    link(assets: Observer[]) {
         this.unlink();
         this._attributesInspector.link(assets);
     }
