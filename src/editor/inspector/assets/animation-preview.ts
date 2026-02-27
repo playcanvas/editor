@@ -1,6 +1,6 @@
 import type { Observer } from '@playcanvas/observer';
 import { Panel } from '@playcanvas/pcui';
-import { Entity } from 'playcanvas';
+import { AnimTrack, Asset, Entity, Template } from 'playcanvas';
 
 import { AnimViewer } from '../../animstategraph/anim-viewer';
 import type { Attribute } from '../attribute.type';
@@ -21,7 +21,7 @@ class AnimationAssetInspectorPreview extends AssetInspectorPreviewBase {
 
     _asset: Observer | null;
 
-    _animTrackAsset: any;
+    _animTrackAsset: Asset | null;
 
     _endPreviewPanel: Panel;
 
@@ -115,9 +115,9 @@ class AnimationAssetInspectorPreview extends AssetInspectorPreviewBase {
         }, 50);
     }
 
-    createAssetPromise(asset: Observer) {
+    createAssetPromise(asset: Asset) {
         return new Promise((resolve) => {
-            if ((asset as any).loaded) {
+            if (asset.loaded) {
                 resolve(true);
                 return;
             }
@@ -128,7 +128,7 @@ class AnimationAssetInspectorPreview extends AssetInspectorPreviewBase {
         });
     }
 
-    loadWithModel(modelAsset: Observer) {
+    loadWithModel(modelAsset: Asset) {
         const entity = new Entity('entity');
         entity.addComponent('model', {
             type: 'asset'
@@ -136,16 +136,16 @@ class AnimationAssetInspectorPreview extends AssetInspectorPreviewBase {
         Promise.all([this._animTrackAsset, modelAsset].map((asset) => {
             return this.createAssetPromise(asset);
         })).then(() => {
-            entity.model.asset = (modelAsset as any).id;
-            this._animViewer.loadView((this._animTrackAsset as any).resource, entity);
+            entity.model.asset = modelAsset.id;
+            this._animViewer.loadView(this._animTrackAsset!.resource as AnimTrack, entity);
         });
     }
 
-    loadWithTemplate(templateAsset: Observer) {
+    loadWithTemplate(templateAsset: Asset) {
         Promise.all([this._animTrackAsset, templateAsset].map((asset) => {
             return this.createAssetPromise(asset);
         })).then(() => {
-            this._animViewer.loadView((this._animTrackAsset as any).resource, (templateAsset as any).resource.instantiate());
+            this._animViewer.loadView(this._animTrackAsset!.resource as AnimTrack, (templateAsset.resource as Template).instantiate());
         });
     }
 
@@ -153,7 +153,7 @@ class AnimationAssetInspectorPreview extends AssetInspectorPreviewBase {
         Promise.all([this._animTrackAsset].map((asset) => {
             return this.createAssetPromise(asset);
         })).then(() => {
-            this._animViewer.loadView((this._animTrackAsset as any).resource, entity.clone());
+            this._animViewer.loadView(this._animTrackAsset!.resource as AnimTrack, entity.clone());
         });
     }
 
