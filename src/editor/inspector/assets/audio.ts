@@ -20,8 +20,8 @@ const ATTRIBUTES: Attribute[] = [{
 const DOM = parent => [
     {
         attributesInspector: new AttributesInspector({
-            assets: parent.args.assets,
-            history: parent.args.history,
+            assets: parent._args.assets,
+            history: parent._args.history,
             attributes: ATTRIBUTES
         })
     },
@@ -53,7 +53,7 @@ const DOM = parent => [
 ];
 
 class AudioAssetInspector extends Panel {
-    args: Record<string, unknown>;
+    _args: Record<string, unknown>;
 
     _playing: ReturnType<typeof setInterval> | null;
 
@@ -74,7 +74,7 @@ class AudioAssetInspector extends Panel {
         args.headerText = 'AUDIO';
 
         super(args);
-        this.args = args;
+        this._args = args;
 
         this.class.add(CLASS_ROOT);
 
