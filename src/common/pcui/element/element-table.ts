@@ -380,6 +380,18 @@ class Table extends Container {
         }
 
         next.selected = true;
+
+        // Manually scroll the focused row into view, accounting for the sticky header
+        const headerRow = this._containerHead.dom.firstElementChild as HTMLElement;
+        const headerHeight = headerRow ? headerRow.offsetHeight : 0;
+        const containerRect = this.dom.getBoundingClientRect();
+        const rowRect = next.dom.getBoundingClientRect();
+
+        if (rowRect.top < containerRect.top + headerHeight) {
+            this.dom.scrollTop -= (containerRect.top + headerHeight - rowRect.top);
+        } else if (rowRect.bottom > containerRect.bottom) {
+            this.dom.scrollTop += (rowRect.bottom - containerRect.bottom);
+        }
     }
 
     // prevent scroll wheel while resizing

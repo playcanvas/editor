@@ -68,7 +68,7 @@ class TableRow extends Container {
         if (this._header) {
             return;
         }
-        this.dom.focus();
+        this.dom.focus({ preventScroll: true });
     }
 
     blur() {
