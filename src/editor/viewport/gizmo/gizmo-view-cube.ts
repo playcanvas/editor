@@ -134,7 +134,9 @@ editor.once('viewport:load', () => {
 
     // stop animation in place when user interacts with the viewport
     editor.method('camera:viewcube:stop', () => {
-        if (!active) return;
+        if (!active) {
+            return;
+        }
         active = false;
         if (cam.focus) {
             cam.focus.copy(pivot);
