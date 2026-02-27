@@ -515,7 +515,7 @@ class TextureAssetInspector extends Container {
 
     _hasLegacy: boolean;
 
-    _compressionFormats: Record<string, { size: number; vram: number; timeout?: boolean; label?: any }>;
+    _compressionFormats: Record<string, { size: number; vram: number; timeout?: boolean; label?: SizeLabel | undefined }>;
 
     _webgl1NonPotWithMipmapsWarning: InfoBox;
 
