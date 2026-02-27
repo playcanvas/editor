@@ -67,8 +67,7 @@ class CubemapAssetInspectorPreview extends AssetInspectorPreviewBase {
         }
 
         if (this.dom.offsetWidth !== 0 && this.dom.offsetHeight !== 0) {
-            (this._preview.dom as HTMLCanvasElement).width = this.dom.offsetWidth;
-            (this._preview.dom as HTMLCanvasElement).height = this.dom.offsetHeight;
+            this._preview.resize(this.dom.offsetWidth, this.dom.offsetHeight);
         }
         this._previewRenderer.render(
             Math.max(-90, Math.min(90, this._previewRotation[0] + (this._sy - this._y) * 0.3)),
