@@ -1,3 +1,4 @@
+import type { Observer } from '@playcanvas/observer';
 import { Canvas } from '@playcanvas/pcui';
 
 import { RenderThumbnailRenderer } from '@/common/thumbnail-renderers/render-thumbnail-renderer';
@@ -8,6 +9,26 @@ const CLASS_CANVAS = 'pcui-asset-preview-canvas';
 const CLASS_CANVAS_FLIP = 'pcui-asset-preview-canvas-flip';
 
 class RenderAssetInspectorPreview extends AssetInspectorPreviewBase {
+    _preview: Canvas;
+
+    _renderFrame: number | null;
+
+    _previewRenderer: RenderThumbnailRenderer;
+
+    private _previewRotation: [number, number];
+
+    private _sx = 0;
+
+    private _sy = 0;
+
+    private _x = 0;
+
+    private _y = 0;
+
+    private _nx = 0;
+
+    private _ny = 0;
+
     constructor(args: Record<string, unknown>) {
         super(args);
 
@@ -75,7 +96,7 @@ class RenderAssetInspectorPreview extends AssetInspectorPreviewBase {
     _onMouseUp(evt: MouseEvent) {
         if (this._dragging) {
             if ((Math.abs(this._sx - this._x) + Math.abs(this._sy - this._y)) < 8) {
-                this._preview.dom.height = this.height;
+                (this._preview.dom as HTMLCanvasElement).height = this.height;
             }
 
             this._previewRotation[0] = Math.max(-90, Math.min(90, this._previewRotation[0] + ((this._sy - this._y) * 0.3)));
@@ -97,7 +118,7 @@ class RenderAssetInspectorPreview extends AssetInspectorPreviewBase {
         this._queueRender();
     }
 
-    link(assets: import('@playcanvas/observer').Observer[]) {
+    link(assets: Observer[]) {
         this.unlink();
         super.link();
 

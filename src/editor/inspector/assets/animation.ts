@@ -1,3 +1,4 @@
+import type { EventHandle, Observer } from '@playcanvas/observer';
 import { Panel, Button } from '@playcanvas/pcui';
 
 import type { Attribute } from '../attribute.type.d';
@@ -32,6 +33,20 @@ const DOM = () => [
 ];
 
 class AnimationAssetInspector extends Panel {
+    _args: Record<string, unknown>;
+
+    _attributesInspector: AttributesInspector;
+
+    _addEventButton: Button;
+
+    _eventsPanel: Panel;
+
+    _eventPanels: Record<string, Panel>;
+
+    _evts: EventHandle[];
+
+    _assets: Observer[];
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.headerText = 'META';
@@ -131,7 +146,7 @@ class AnimationAssetInspector extends Panel {
         });
     }
 
-    link(assets: import('@playcanvas/observer').Observer[]) {
+    link(assets: Observer[]) {
         this.unlink();
         this._assets = assets;
         this._attributesInspector.link(assets);

@@ -1,4 +1,4 @@
-import type { Observer } from '@playcanvas/observer';
+import type { EventHandle, Observer } from '@playcanvas/observer';
 import { Button, Container } from '@playcanvas/pcui';
 
 
@@ -41,6 +41,40 @@ const DOM = parent => [
 ];
 
 class AnimstategraphAssetInspector extends Container {
+    _args: Record<string, unknown>;
+
+    _assets: Observer[] | null;
+
+    history: any;
+
+    _view: AnimstategraphView;
+
+    _animComponentListener: AnimstategraphAnimComponent;
+
+    _stateContainer: AnimstategraphState;
+
+    _transitionsContainer: AnimstategraphTransitions;
+
+    _app: any;
+
+    _animViewer: AnimViewer;
+
+    _openEditorButton: Button;
+
+    _layersPanel: AnimstategraphLayers;
+
+    _parametersPanel: AnimstategraphParameters;
+
+    _assetEvents: EventHandle[];
+
+    _closeButton: Button | undefined;
+
+    _selectedLayer: number;
+
+    _openWithLayer: number | undefined;
+
+    _openInFullscreen: boolean;
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({
             class: CLASS_ANIMSTATEGRAPH
@@ -56,18 +90,18 @@ class AnimstategraphAssetInspector extends Container {
         this.buildDom(DOM(this));
 
         this._stateContainer = new AnimstategraphState(args, this._view);
-        args.inspectorPanelSecondary.append(this._stateContainer);
+        (args.inspectorPanelSecondary as any).append(this._stateContainer);
         this._transitionsContainer = new AnimstategraphTransitions(args, this._view);
-        args.inspectorPanelSecondary.append(this._transitionsContainer);
+        (args.inspectorPanelSecondary as any).append(this._transitionsContainer);
         setTimeout(() => {
             this._app = editor.call('viewport:app');
             this._animViewer = new AnimViewer({
                 app: this._app,
                 class: 'animstategraph-view-anim-viewer'
             });
-            args.inspectorPanelSecondary.prepend(this._animViewer);
-            args.inspectorPanelSecondary.on('resize', () => {
-                this._animViewer._canvas.width = args.inspectorPanelSecondary.dom.offsetWidth - 1;
+            (args.inspectorPanelSecondary as any).prepend(this._animViewer);
+            (args.inspectorPanelSecondary as any).on('resize', () => {
+                (this._animViewer as any)._canvas.width = (args.inspectorPanelSecondary as any).dom.offsetWidth - 1;
             });
         }, 50);
         this._openEditorButton.on('click', () => {
@@ -110,7 +144,7 @@ class AnimstategraphAssetInspector extends Container {
     }
 
     closeAsset(asset: Observer) {
-        const layer = this._view._selectedLayer;
+        const layer = (this._view as any)._selectedLayer;
         const selectedItem = this._view.selectedItem;
         const redo = () => {
             this.deselectAnimStateGraph();

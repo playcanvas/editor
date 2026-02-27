@@ -1,3 +1,4 @@
+import type { Observer } from '@playcanvas/observer';
 import { Canvas, Button } from '@playcanvas/pcui';
 
 import { SpriteThumbnailRenderer } from '@/common/thumbnail-renderers/sprite-thumbnail-renderer';
@@ -10,6 +11,20 @@ const CLASS_BUTTON_PLAYING = `${CLASS_ROOT}-button-playing`;
 const CLASS_CANVAS = 'pcui-asset-preview-canvas';
 
 class SpriteAssetInspectorPreview extends AssetInspectorPreviewBase {
+    _preview: Canvas;
+
+    _playButton: Button;
+
+    _renderFrame: number | false | null;
+
+    _previewRenderer: SpriteThumbnailRenderer | null;
+
+    private _fps: number;
+
+    private _playStartTime: number | null;
+
+    private _spriteFrames: number | null;
+
     constructor(args: Record<string, unknown>) {
         super(args);
 
@@ -48,11 +63,11 @@ class SpriteAssetInspectorPreview extends AssetInspectorPreviewBase {
         }
 
         if (this.dom.offsetWidth !== 0 && this.dom.offsetHeight !== 0) {
-            this._preview.dom.width = this.dom.offsetWidth;
-            this._preview.dom.height = this.dom.offsetHeight;
+            (this._preview.dom as HTMLCanvasElement).width = this.dom.offsetWidth;
+            (this._preview.dom as HTMLCanvasElement).height = this.dom.offsetHeight;
         } else {
-            this._preview.dom.width = 320;
-            this._preview.dom.height = 144;
+            (this._preview.dom as HTMLCanvasElement).width = 320;
+            (this._preview.dom as HTMLCanvasElement).height = 144;
         }
         if (this._playStartTime !== null) {
             const lapsedTime = Date.now() - this._playStartTime;
@@ -85,7 +100,7 @@ class SpriteAssetInspectorPreview extends AssetInspectorPreviewBase {
         }
     }
 
-    link(assets: import('@playcanvas/observer').Observer[]) {
+    link(assets: Observer[]) {
         super.link(assets);
         this._previewRenderer = new SpriteThumbnailRenderer(assets[0], this._preview.dom, editor.call('assets:raw'));
         this._spriteFrames = assets[0].get('data.frameKeys').length;

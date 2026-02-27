@@ -1,3 +1,4 @@
+import type { Observer } from '@playcanvas/observer';
 import { Container, Button, Progress, Panel } from '@playcanvas/pcui';
 
 import type { Attribute } from '../attribute.type.d';
@@ -52,6 +53,22 @@ const DOM = parent => [
 ];
 
 class AudioAssetInspector extends Panel {
+    args: Record<string, unknown>;
+
+    _playing: ReturnType<typeof setInterval> | null;
+
+    _assetEvents: Record<string, any>;
+
+    _audio: HTMLAudioElement | null;
+
+    _attributesInspector: AttributesInspector;
+
+    _audioButton: Button;
+
+    _audioTimeline: Progress;
+
+    _audioContainer: Container;
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.headerText = 'AUDIO';
@@ -109,7 +126,7 @@ class AudioAssetInspector extends Panel {
         this._audioTimeline.value = this._audio.currentTime / this._audio.duration * 100;
     }
 
-    link(assets: import('@playcanvas/observer').Observer[]) {
+    link(assets: Observer[]) {
         this.unlink();
         if (assets.length > 1) {
             return;

@@ -1,3 +1,4 @@
+import type { Observer } from '@playcanvas/observer';
 import { Panel } from '@playcanvas/pcui';
 import { Entity } from 'playcanvas';
 
@@ -10,6 +11,20 @@ import { AssetInspectorPreviewBase } from './asset-preview-base';
 const CLASS_ROOT = 'pcui-asset-animation-inspector-preview';
 
 class AnimationAssetInspectorPreview extends AssetInspectorPreviewBase {
+    _app: any;
+
+    _animViewer: AnimViewer;
+
+    _controlsContainer: Panel;
+
+    _attributesInspector: AttributesInspector;
+
+    _asset: Observer | null;
+
+    _animTrackAsset: any;
+
+    _endPreviewPanel: Panel;
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.headerText = 'META';
@@ -31,7 +46,7 @@ class AnimationAssetInspectorPreview extends AssetInspectorPreviewBase {
             });
             const layoutAttributes = editor.call('layout.attributes');
             layoutAttributes.on('resize', () => {
-                this._animViewer._canvas.width = layoutAttributes.dom.offsetWidth - 8;
+                (this._animViewer as any)._canvas.width = layoutAttributes.dom.offsetWidth - 8;
             });
             this.append(this._controlsContainer);
 
@@ -100,9 +115,9 @@ class AnimationAssetInspectorPreview extends AssetInspectorPreviewBase {
         }, 50);
     }
 
-    createAssetPromise(asset: import('@playcanvas/observer').Observer) {
+    createAssetPromise(asset: Observer) {
         return new Promise((resolve) => {
-            if (asset.loaded) {
+            if ((asset as any).loaded) {
                 resolve(true);
                 return;
             }
@@ -113,7 +128,7 @@ class AnimationAssetInspectorPreview extends AssetInspectorPreviewBase {
         });
     }
 
-    loadWithModel(modelAsset: import('@playcanvas/observer').Observer) {
+    loadWithModel(modelAsset: Observer) {
         const entity = new Entity('entity');
         entity.addComponent('model', {
             type: 'asset'
@@ -121,16 +136,16 @@ class AnimationAssetInspectorPreview extends AssetInspectorPreviewBase {
         Promise.all([this._animTrackAsset, modelAsset].map((asset) => {
             return this.createAssetPromise(asset);
         })).then(() => {
-            entity.model.asset = modelAsset.id;
-            this._animViewer.loadView(this._animTrackAsset.resource, entity);
+            entity.model.asset = (modelAsset as any).id;
+            this._animViewer.loadView((this._animTrackAsset as any).resource, entity);
         });
     }
 
-    loadWithTemplate(templateAsset: import('@playcanvas/observer').Observer) {
+    loadWithTemplate(templateAsset: Observer) {
         Promise.all([this._animTrackAsset, templateAsset].map((asset) => {
             return this.createAssetPromise(asset);
         })).then(() => {
-            this._animViewer.loadView(this._animTrackAsset.resource, templateAsset.resource.instantiate());
+            this._animViewer.loadView((this._animTrackAsset as any).resource, (templateAsset as any).resource.instantiate());
         });
     }
 
@@ -138,11 +153,11 @@ class AnimationAssetInspectorPreview extends AssetInspectorPreviewBase {
         Promise.all([this._animTrackAsset].map((asset) => {
             return this.createAssetPromise(asset);
         })).then(() => {
-            this._animViewer.loadView(this._animTrackAsset.resource, entity.clone());
+            this._animViewer.loadView((this._animTrackAsset as any).resource, entity.clone());
         });
     }
 
-    link(assets: import('@playcanvas/observer').Observer[]) {
+    link(assets: Observer[]) {
         this.unlink();
         this._asset = assets[0];
         const animTrackAsset = this._app.assets.get(this._asset.get('id'));

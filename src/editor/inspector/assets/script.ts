@@ -1,3 +1,4 @@
+import type { EventHandle, Observer } from '@playcanvas/observer';
 import { Container, Label, Panel, Button } from '@playcanvas/pcui';
 
 import { CLASS_ERROR } from '@/common/pcui/constants';
@@ -28,6 +29,20 @@ const DOM = parent => [
 ];
 
 class ScriptAssetInspector extends Panel {
+    _asset: Observer | null;
+
+    _assetEvents: EventHandle[];
+
+    _tooltips: Container[];
+
+    _parseButton: Button;
+
+    _scriptAttributeContainer: Container | null;
+
+    _errorContainer: Container;
+
+    _noScriptsMessageContainer: Container;
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.headerText = 'SCRIPTS';
@@ -44,7 +59,7 @@ class ScriptAssetInspector extends Panel {
         this.header.append(this._parseButton);
     }
 
-    _displayScriptAttributes(scripts: Record<string, { attributes: Record<string, unknown>; attributesInvalid?: Array<{ name: string; severity?: number }> }>) {
+    _displayScriptAttributes(scripts: Record<string, { attributes: Record<string, unknown>; attributesInvalid?: Array<{ name: string; severity?: number; fileName?: string; startLineNumber?: number; startColumn?: number; message?: string }>; attributesOrder?: string[] }>) {
         this._scriptAttributeContainer = new Container({ class: CLASS_CONTAINER });
         let hasScripts = false;
 
@@ -140,7 +155,7 @@ class ScriptAssetInspector extends Panel {
                 this._scriptAttributeContainer[`_${scriptName}Container`].append(errorContainer);
             }
 
-            scriptData.attributesOrder.forEach((attributeName) => {
+            (scriptData.attributesOrder ?? []).forEach((attributeName) => {
                 // Skip error attributes - they should not appear in the list
                 if (errorAttributeNames.includes(attributeName)) {
                     return;
@@ -192,7 +207,7 @@ class ScriptAssetInspector extends Panel {
                 }));
                 tooltipContainer.append(new Label({
                     class: 'desc',
-                    text: (attributeData.description || attributeData.title || '')
+                    text: ((attributeData as any).description || (attributeData as any).title || '')
                 }));
                 tooltipContainer.append(new Label({
                     class: 'code',
@@ -305,7 +320,7 @@ class ScriptAssetInspector extends Panel {
         });
     }
 
-    link(assets: import('@playcanvas/observer').Observer[]) {
+    link(assets: Observer[]) {
         this.unlink();
         this._asset = assets[0];
         this._displayScriptAttributes(this._asset.get('data.scripts'));

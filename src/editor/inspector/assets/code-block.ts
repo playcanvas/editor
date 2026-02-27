@@ -1,3 +1,4 @@
+import type { Observer } from '@playcanvas/observer';
 import { Panel, Code, Container, Label, Progress } from '@playcanvas/pcui';
 
 import { CLASS_ERROR } from '@/common/pcui/constants';
@@ -39,6 +40,26 @@ const DOM = parent => [
 ];
 
 class CodeBlockAssetInspector extends Container {
+    _assetType: string;
+
+    _dataFormatter: ((data: any) => string) | undefined;
+
+    _assets: Observer[] | null;
+
+    _loading: boolean;
+
+    _errorLoadingDataContainer: Container;
+
+    _errorLoadingDataLabel: Label;
+
+    _panel: Panel;
+
+    _progress: Progress;
+
+    _code: Code;
+
+    _request: any;
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
 
@@ -101,7 +122,7 @@ class CodeBlockAssetInspector extends Container {
         });
     }
 
-    link(assets: import('@playcanvas/observer').Observer[]) {
+    link(assets: Observer[]) {
         this.unlink();
         this._assets = assets;
         if (assets[0].has('file.url')) {

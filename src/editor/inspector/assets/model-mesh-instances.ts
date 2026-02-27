@@ -1,3 +1,4 @@
+import type { Observer } from '@playcanvas/observer';
 import { Progress, Label, Container, BindingTwoWay } from '@playcanvas/pcui';
 
 import { CLASS_ERROR } from '@/common/pcui/constants';
@@ -40,6 +41,34 @@ const DOM = parent => [
 ];
 
 class ModelAssetInspectorMeshInstances extends Container {
+    _args: Record<string, unknown>;
+
+    _assets: Observer[];
+
+    _assetElements: AssetInput[];
+
+    _errorLoadingDetailedDataContainer: Container;
+
+    _errorLoadingDetailedDataLabel: Label;
+
+    _progress: Progress;
+
+    _pickerLabel: Label;
+
+    _meshInstancesContainer: Container;
+
+    _engineAsset: any;
+
+    _valueBefore: number | null;
+
+    _hash: string;
+
+    _loading: number;
+
+    _nodes: string[] | null;
+
+    _request: any;
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
 
@@ -120,7 +149,7 @@ class ModelAssetInspectorMeshInstances extends Container {
 
     _updateJsonMeshInstances() {
         if (this._nodes) {
-            this.parent.headerText = `MESH INSTANCES [${this._nodes.length}]`;
+            (this.parent as any).headerText = `MESH INSTANCES [${this._nodes.length}]`;
             this._assetElements.forEach((assetElement, ind) => {
                 assetElement.text = `[${ind}] ${this._nodes[ind]}`;
             });
@@ -133,7 +162,7 @@ class ModelAssetInspectorMeshInstances extends Container {
             this._progress.value = 1;
             this._progress.hidden = true;
             if (this.parent) {
-                this.parent.headerText = `MESH INSTANCES [${meshNames.length}]`;
+                (this.parent as any).headerText = `MESH INSTANCES [${meshNames.length}]`;
             }
             this._assetElements.forEach((assetElement, ind) => {
                 assetElement.text = `[${ind}] ${meshNames[ind] || 'node'}`;
@@ -141,7 +170,7 @@ class ModelAssetInspectorMeshInstances extends Container {
         }
     }
 
-    link(assets: import('@playcanvas/observer').Observer[]) {
+    link(assets: Observer[]) {
         this.unlink();
         this._assets = assets;
         this._assets[0].get('data.mapping').forEach((_, ind) => {
@@ -235,7 +264,7 @@ class ModelAssetInspectorMeshInstances extends Container {
         if (this._args.mode === 'picker') {
             this._progress.hidden = true;
             this._pickerLabel.hidden = false;
-            this._pickerLabel.text = `<h5>SELECT MESH INSTANCE</h5>Choose a mesh instance to customize the material for ${this._args.entities.length > 1 ? 'these Entities.' : 'this Entity.'}`;
+            this._pickerLabel.text = `<h5>SELECT MESH INSTANCE</h5>Choose a mesh instance to customize the material for ${(this._args.entities as any).length > 1 ? 'these Entities.' : 'this Entity.'}`;
         } else {
             this._pickerLabel.hidden = true;
         }

@@ -1,4 +1,4 @@
-import type { Observer } from '@playcanvas/observer';
+import type { EventHandle, Observer } from '@playcanvas/observer';
 import { Panel, Container } from '@playcanvas/pcui';
 import * as pc from 'playcanvas';
 
@@ -1274,6 +1274,104 @@ type MaterialAssetInspectorArgs = {
 } & Record<string, unknown>;
 
 class MaterialAssetInspector extends Container {
+    _args: MaterialAssetInspectorArgs;
+
+    _assets: Observer[] | null;
+
+    _suppressToggleFields: boolean;
+
+    _suppressOffsetTilingAndRotationFields: boolean;
+
+    _suppressToggleFieldsTimeout: ReturnType<typeof setTimeout> | null;
+
+    _suppressUpdateAllOffsetAndTilingsTimeout: ReturnType<typeof setTimeout> | false | null;
+
+    _collapsedStates: Record<string, Record<string, boolean>>;
+
+    _collapseEvents: EventHandle[];
+
+    _texturesBeforeHover: Record<number, Record<string, unknown>>;
+
+    _hoverEvents: Array<{ asset: any; fn: () => void }>;
+
+    _assetEvents: EventHandle[];
+
+    _materialPanel: Panel;
+
+    _materialInspector: AttributesInspector;
+
+    _offsetTilingPanel: Panel;
+
+    _offsetTilingInspector: AttributesInspector;
+
+    _ambientPanel: Panel;
+
+    _ambientInspector: AttributesInspector;
+
+    _diffusePanel: Panel;
+
+    _diffuseInspector: AttributesInspector;
+
+    _specularPanel: Panel;
+
+    _specularInspector: AttributesInspector;
+
+    _metalnessWorkflowInspector: AttributesInspector;
+
+    _specularWorkflowInspector: AttributesInspector;
+
+    _glossInspector: AttributesInspector;
+
+    _emissivePanel: Panel;
+
+    _emissiveInspector: AttributesInspector;
+
+    _opacityPanel: Panel;
+
+    _opacityInspector: AttributesInspector;
+
+    _normalsPanel: Panel;
+
+    _normalsInspector: AttributesInspector;
+
+    _parallaxPanel: Panel;
+
+    _parallaxInspector: AttributesInspector;
+
+    _clearCoatPanel: Panel;
+
+    _clearCoatFactorInspector: AttributesInspector;
+
+    _clearCoatInspector: AttributesInspector;
+
+    _clearCoatGlossInspector: AttributesInspector;
+
+    _clearCoatNormalInspector: AttributesInspector;
+
+    _sheenPanel: Panel;
+
+    _sheenInspector: AttributesInspector;
+
+    _refractionPanel: Panel;
+
+    _refractionInspector: AttributesInspector;
+
+    _iridescencePanel: Panel;
+
+    _iridescenceInspector: AttributesInspector;
+
+    _envPanel: Panel;
+
+    _envInspector: AttributesInspector;
+
+    _lightmapPanel: Panel;
+
+    _lightmapInspector: AttributesInspector;
+
+    _otherPanel: Panel;
+
+    _otherInspector: AttributesInspector;
+
     constructor(args: MaterialAssetInspectorArgs = {} as MaterialAssetInspectorArgs) {
         args = Object.assign({}, args);
 
@@ -1792,7 +1890,7 @@ class MaterialAssetInspector extends Container {
         try {
             // depending on the filename of the texture being
             // set, see if we can set more properties as well
-            const asset = value ? this._args.assets.get(value) : null;
+            const asset = value ? (this._args.assets as any).get(value) : null;
             if (!asset) {
                 return;
             }
@@ -1807,7 +1905,7 @@ class MaterialAssetInspector extends Container {
 
             const path = asset.get('path');
 
-            const texturesInSamePath = this._args.assets.find((asset) => {
+            const texturesInSamePath = (this._args.assets as any).find((asset: any) => {
                 return asset.get('type') === 'texture' &&
                         !asset.get('source') &&
                         path.equals(asset.get('path'));
@@ -1815,7 +1913,7 @@ class MaterialAssetInspector extends Container {
 
             const candidates = {};
             let hasCandidates = false;
-            texturesInSamePath.forEach((entry) => {
+            texturesInSamePath.forEach((entry: any) => {
                 const t = this._tokenizeFilename(entry[1].get('name'));
 
                 if (!t || t[0] !== tokens[0] || !POSTFIX_TO_BULK_SLOT[t[1]]) {

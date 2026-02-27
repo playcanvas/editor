@@ -1,5 +1,5 @@
 import type { Observer, ObserverList } from '@playcanvas/observer';
-import { Element, Container, LabelGroup, Panel, Button, ArrayInput, BindingTwoWay, Label, type ContainerArgs } from '@playcanvas/pcui';
+import { Element, type IBindable, Container, LabelGroup, Panel, Button, ArrayInput, BindingTwoWay, Label, type ContainerArgs } from '@playcanvas/pcui';
 
 import { AssetInput } from '@/common/pcui/element/element-asset-input';
 import { tooltip, tooltipRefItem } from '@/common/tooltips';
@@ -36,7 +36,7 @@ class AttributesInspector extends Container {
 
     private _sessionSettings: Observer;
 
-    private _fields: Record<string, Element>;
+    private _fields: Record<string, Element & IBindable>;
 
     private _fieldAttributes: Record<string, Attribute>;
 
@@ -526,16 +526,12 @@ class AttributesInspector extends Container {
     }
 
     moveAttribute(path: string, index: number) {
-        let field = this._fields[path];
+        const field = this._fields[path];
         if (!field) {
             return;
         }
 
-        if (!(field instanceof AssetInput)) {
-            field = field.parent;
-        }
-
-        this.move(field, index);
+        this.move(field instanceof AssetInput ? field : field.parent, index);
     }
 
     private _linkObservers(key: string) {
@@ -576,7 +572,7 @@ class AttributesInspector extends Container {
         }
     }
 
-    getField(path: string): Element | undefined {
+    getField(path: string): (Element & IBindable) | undefined {
         return this._fields[path];
     }
 

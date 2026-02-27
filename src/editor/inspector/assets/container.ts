@@ -1,3 +1,4 @@
+import type { Observer } from '@playcanvas/observer';
 import { Container } from '@playcanvas/pcui';
 
 import { RelatedAssetsInspector } from './related-assets';
@@ -16,6 +17,8 @@ const DOM = args => [{
 }];
 
 class ContainerAssetInspector extends Container {
+    _relatedAssetsInspector: RelatedAssetsInspector;
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
 
@@ -26,7 +29,7 @@ class ContainerAssetInspector extends Container {
         this.buildDom(DOM(args));
     }
 
-    link(assets: import('@playcanvas/observer').Observer[]) {
+    link(assets: Observer[]) {
         this.unlink();
         this._relatedAssetsInspector.link(assets);
     }

@@ -1,3 +1,4 @@
+import type { Observer } from '@playcanvas/observer';
 import { Panel, BindingTwoWay } from '@playcanvas/pcui';
 
 import { AssetInput } from '@/common/pcui/element/element-asset-input';
@@ -51,6 +52,12 @@ const DOM = parent => [
 ];
 
 class SpriteAssetInspector extends Panel {
+    _args: Record<string, unknown>;
+
+    _attributesInspector: AttributesInspector;
+
+    _assetInput: AssetInput;
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.headerText = 'SPRITE';
@@ -60,7 +67,7 @@ class SpriteAssetInspector extends Panel {
         this.buildDom(DOM(this));
     }
 
-    link(assets: import('@playcanvas/observer').Observer[]) {  // Observer[] for asset observers
+    link(assets: Observer[]) {  // Observer[] for asset observers
         this.unlink();
         this._attributesInspector.link(assets);
         this._assetInput.link(assets, 'data.textureAtlasAsset');

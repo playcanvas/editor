@@ -1,3 +1,4 @@
+import type { Observer } from '@playcanvas/observer';
 import { Panel, Container } from '@playcanvas/pcui';
 
 import type { Attribute } from '../attribute.type.d';
@@ -86,6 +87,12 @@ const DOM = parent => [
 ];
 
 class RenderAssetInspector extends Container {
+    _args: Record<string, unknown>;
+
+    _metaAttributesInspector: AttributesInspector;
+
+    _attributesInspector: AttributesInspector;
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.headerText = 'RENDER';
@@ -95,7 +102,7 @@ class RenderAssetInspector extends Container {
         this.buildDom(DOM(this));
     }
 
-    link(assets: import('@playcanvas/observer').Observer[]) {
+    link(assets: Observer[]) {
         this.unlink();
         this._metaAttributesInspector.link(assets);
         this._attributesInspector.link(assets);
@@ -109,7 +116,7 @@ class RenderAssetInspector extends Container {
         this._metaAttributesInspector.unlink();
     }
 
-    _formatMetaAttribute(assets: import('@playcanvas/observer').Observer[]) {
+    _formatMetaAttribute(assets: Observer[]) {
         const metaAttributes = {};
         assets.forEach((asset) => {
             const currMetaAttributes = asset.get('meta.attributes');
@@ -119,12 +126,12 @@ class RenderAssetInspector extends Container {
         });
 
         const text = Object.keys(metaAttributes).join(', ');
-        const field = this._metaAttributesInspector.getField('meta.attributes');
+        const field = this._metaAttributesInspector.getField('meta.attributes') as any;
         field.values = assets.map(asset => text);
         field.parent.class.add(CLASS_META_ATTRIBUTES);
     }
 
-    _formatMetaMeshCompression(assets: import('@playcanvas/observer').Observer[]) {
+    _formatMetaMeshCompression(assets: Observer[]) {
         const attribute = 'meta.meshCompression';
         const names = {
             none: 'Disabled',
@@ -134,7 +141,7 @@ class RenderAssetInspector extends Container {
             Array.from(new Set(assets.map(asset => asset.get(attribute))))
             .map(v => names[v] || v)
             .join(', ');
-        const field = this._metaAttributesInspector.getField(attribute);
+        const field = this._metaAttributesInspector.getField(attribute) as any;
         field.values = assets.map(asset => text);
     }
 }

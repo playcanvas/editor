@@ -1,3 +1,4 @@
+import type { EventHandle, Observer } from '@playcanvas/observer';
 import { Panel, Container, Label } from '@playcanvas/pcui';
 
 const CLASS_ROOT = 'pcui-related-assets';
@@ -8,6 +9,16 @@ const DOM = title => [{
 }];
 
 class RelatedAssetsInspector extends Container {
+    _args: Record<string, unknown>;
+
+    _relatedAssets: Label[] | null;
+
+    _assetEvents: EventHandle[];
+
+    _relatedFn: (asset: Observer, sourceAssetId: number) => boolean;
+
+    _relatedAssetsPanel: Panel;
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
 
@@ -23,13 +34,13 @@ class RelatedAssetsInspector extends Container {
         this.buildDom(DOM(args.headerText || 'RELATED ASSETS'));
     }
 
-    _isAssetRelated(asset: import('@playcanvas/observer').Observer, sourceAssetId: number) {
+    _isAssetRelated(asset: Observer, sourceAssetId: number) {
         return parseInt(asset.get('source_asset_id'), 10) === sourceAssetId;
     }
 
-    _loadRelatedAssets(sourceAsset: import('@playcanvas/observer').Observer) {
+    _loadRelatedAssets(sourceAsset: Observer) {
         const sourceId = parseInt(sourceAsset.get('id'), 10);
-        const relatedAssets = this._args.assets.data.filter(asset => this._relatedFn(asset, sourceId));
+        const relatedAssets = (this._args.assets as any).data.filter(asset => this._relatedFn(asset, sourceId));
         this._relatedAssets = [];
         relatedAssets.forEach((asset) => {
             const relatedAssetLabel = new Label({
@@ -56,7 +67,7 @@ class RelatedAssetsInspector extends Container {
         editor.call('selector:set', 'asset', [asset]);
     }
 
-    link(assets: import('@playcanvas/observer').Observer[]) {
+    link(assets: Observer[]) {
         this.unlink();
         this._loadRelatedAssets(assets[0]);
     }
