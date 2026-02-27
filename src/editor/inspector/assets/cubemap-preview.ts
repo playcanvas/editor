@@ -11,11 +11,11 @@ const CLASS_CANVAS_FLIP = 'pcui-asset-preview-canvas-flip';
 class CubemapAssetInspectorPreview extends AssetInspectorPreviewBase {
     _preview: Canvas;
 
-    _renderFrame: number | null;
+    _renderFrame: number | null = null;
 
-    _previewRenderer: Cubemap3dThumbnailRenderer | null;
+    _previewRenderer: Cubemap3dThumbnailRenderer | null = null;
 
-    _previewRotation: [number, number];
+    private _previewRotation: [number, number] = [0, 0];
 
     private _sx = 0;
 
@@ -25,30 +25,15 @@ class CubemapAssetInspectorPreview extends AssetInspectorPreviewBase {
 
     private _y = 0;
 
-    private _nx = 0;
-
-    private _ny = 0;
-
     constructor(args: Record<string, unknown>) {
         super(args);
 
         this._preview = new Canvas({
-            canvasWidth: 320,
-            canvasHeight: 144,
-            class: [CLASS_CANVAS, CLASS_CANVAS_FLIP]
+            class: [CLASS_CANVAS, CLASS_CANVAS_FLIP],
+            useDevicePixelRatio: true
         });
-
+        this._preview.resize(320, 144);
         this.append(this._preview);
-
-        this._renderFrame = null;
-        this._previewRenderer = null;
-        this._previewRotation = [0, 0];
-        this._sx = 0;
-        this._sy = 0;
-        this._x = 0;
-        this._y = 0;
-        this._nx = 0;
-        this._ny = 0;
     }
 
     // queue up the rendering to prevent too often renders
@@ -58,7 +43,6 @@ class CubemapAssetInspectorPreview extends AssetInspectorPreviewBase {
         }
         this._renderFrame = requestAnimationFrame(this._renderPreview.bind(this));
     }
-
 
     _renderPreview() {
         if (this._renderFrame) {
@@ -88,8 +72,6 @@ class CubemapAssetInspectorPreview extends AssetInspectorPreviewBase {
         super._onMouseMove(evt);
 
         if (this._dragging) {
-            this._nx = this._x - evt.clientX;
-            this._ny = this._y - evt.clientY;
             this._x = evt.clientX;
             this._y = evt.clientY;
 
@@ -100,7 +82,7 @@ class CubemapAssetInspectorPreview extends AssetInspectorPreviewBase {
     _onMouseUp(evt: MouseEvent) {
         if (this._dragging) {
             if ((Math.abs(this._sx - this._x) + Math.abs(this._sy - this._y)) < 8) {
-                (this._preview.dom as HTMLCanvasElement).height = this.height;
+                this._preview.height = this.height;
             }
 
             this._previewRotation[0] = Math.max(-90, Math.min(90, this._previewRotation[0] + ((this._sy - this._y) * 0.3)));
@@ -123,8 +105,10 @@ class CubemapAssetInspectorPreview extends AssetInspectorPreviewBase {
     }
 
     link(assets: Observer[]) {
-        super.link(assets);
-        this._previewRenderer = new Cubemap3dThumbnailRenderer(assets[0], this._preview.dom);
+        this.unlink();
+        super.link();
+
+        this._previewRenderer = new Cubemap3dThumbnailRenderer(assets[0], this._preview.dom as HTMLCanvasElement);
         this._queueRender();
     }
 

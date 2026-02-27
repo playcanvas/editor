@@ -11,13 +11,13 @@ const CLASS_CANVAS_FLIP = 'pcui-asset-preview-canvas-flip';
 class MaterialAssetInspectorPreview extends AssetInspectorPreviewBase {
     _preview: Canvas;
 
-    _previewModel: string;
+    _previewModel: 'sphere' | 'box' = 'sphere';
 
-    _previewRenderer: MaterialThumbnailRenderer | null;
+    _previewRenderer: MaterialThumbnailRenderer | null = null;
 
-    _renderFrame: number | null;
+    _renderFrame: number | null = null;
 
-    private _previewRotation: [number, number];
+    private _previewRotation: [number, number] = [-15, 45];
 
     private _sx = 0;
 
@@ -27,29 +27,15 @@ class MaterialAssetInspectorPreview extends AssetInspectorPreviewBase {
 
     private _y = 0;
 
-    private _nx = 0;
-
-    private _ny = 0;
-
     constructor(args: Record<string, unknown>) {
         super(args);
 
-        this._preview = new Canvas();
+        this._preview = new Canvas({
+            class: [CLASS_CANVAS, CLASS_CANVAS_FLIP],
+            useDevicePixelRatio: true
+        });
         this._preview.resize(320, 144);
-        this._preview.class.add(CLASS_CANVAS, CLASS_CANVAS_FLIP);
         this.append(this._preview);
-
-        this._previewModel = 'sphere';
-        this._previewRenderer = null;
-
-        this._renderFrame = null;
-        this._previewRotation = [-15, 45];
-        this._sx = 0;
-        this._sy = 0;
-        this._x = 0;
-        this._y = 0;
-        this._nx = 0;
-        this._ny = 0;
     }
 
     // queue up the rendering to prevent too often renders
@@ -90,8 +76,6 @@ class MaterialAssetInspectorPreview extends AssetInspectorPreviewBase {
         super._onMouseMove(evt);
 
         if (this._dragging) {
-            this._nx = this._x - evt.clientX;
-            this._ny = this._y - evt.clientY;
             this._x = evt.clientX;
             this._y = evt.clientY;
 
@@ -128,7 +112,7 @@ class MaterialAssetInspectorPreview extends AssetInspectorPreviewBase {
         this.unlink();
         super.link();
 
-        this._previewRenderer = new MaterialThumbnailRenderer(assets[0], this._preview.dom);
+        this._previewRenderer = new MaterialThumbnailRenderer(assets[0], this._preview.dom as HTMLCanvasElement);
         this._queueRender();
     }
 
