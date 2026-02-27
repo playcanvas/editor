@@ -63,11 +63,9 @@ class SpriteAssetInspectorPreview extends AssetInspectorPreviewBase {
         }
 
         if (this.dom.offsetWidth !== 0 && this.dom.offsetHeight !== 0) {
-            (this._preview.dom as HTMLCanvasElement).width = this.dom.offsetWidth;
-            (this._preview.dom as HTMLCanvasElement).height = this.dom.offsetHeight;
+            this._preview.resize(this.dom.offsetWidth, this.dom.offsetHeight);
         } else {
-            (this._preview.dom as HTMLCanvasElement).width = 320;
-            (this._preview.dom as HTMLCanvasElement).height = 144;
+            this._preview.resize(320, 144);
         }
         if (this._playStartTime !== null) {
             const lapsedTime = Date.now() - this._playStartTime;
