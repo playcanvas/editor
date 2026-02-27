@@ -103,6 +103,18 @@ const ATTRIBUTES: (Attribute | Divider)[] = [
         type: 'boolean'
     },
     {
+        observer: 'userSettings',
+        label: 'View Cube Size',
+        type: 'slider',
+        reference: 'settings:viewCubeSize',
+        path: 'editor.viewCubeSize',
+        args: {
+            min: 0.5,
+            max: 2,
+            step: 0.1
+        }
+    },
+    {
         alias: 'divider:1',
         type: 'divider'
     },
@@ -250,6 +262,13 @@ class EditorSettingsPanel extends BaseSettingsPanel {
         args._tooltipReference = 'settings:editor';
 
         super(args);
+
+        const fieldShowViewCube = this._field('showViewCube');
+        const fieldViewCubeSize = this._field('viewCubeSize');
+        fieldViewCubeSize.parent.hidden = !fieldShowViewCube.value;
+        fieldShowViewCube.on('change', (value: boolean) => {
+            fieldViewCubeSize.parent.hidden = !value;
+        });
 
         const evtPermission = editor.on('notify:permission', this._checkChatNotificationState.bind(this));
         const evtChatNotifyState = editor.on('chat:notify', this._checkChatNotificationState.bind(this));

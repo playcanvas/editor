@@ -35,6 +35,7 @@ editor.once('load', () => {
         editor.call('viewport:canvas').hidden = true;
         editor.call('layout.attributes').class.add('layout-attributes-left');
         editor.call('layout.attributes').resizable = 'right';
+        editor.emit('viewport:fullscreenMode', true);
     });
 
     assetInspector.on('fullscreenMode:off', () => {
@@ -45,6 +46,7 @@ editor.once('load', () => {
         editor.call('viewport:canvas').hidden = false;
         editor.call('layout.attributes').class.remove('layout-attributes-left');
         editor.call('layout.attributes').resizable = 'left';
+        editor.emit('viewport:fullscreenMode', false);
     });
 
     assetInspector.on('updateSecondaryPanelHeader', (text) => {

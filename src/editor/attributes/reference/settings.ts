@@ -68,6 +68,9 @@ editor.once('load', () => {
         name: 'settings:showViewCube',
         description: 'Show or hide the View Cube orientation gizmo in the viewport.'
     }, {
+        name: 'settings:viewCubeSize',
+        description: 'Set the size of the View Cube orientation gizmo in the viewport.'
+    }, {
         name: 'settings:showFog',
         description: 'Enable fog rendering in the viewport.'
     }, {
