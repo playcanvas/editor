@@ -1,5 +1,5 @@
 import type { Observer } from '@playcanvas/observer';
-import { Progress, Label, Container, BindingTwoWay } from '@playcanvas/pcui';
+import { Progress, Label, Container, Panel, BindingTwoWay } from '@playcanvas/pcui';
 
 import { CLASS_ERROR } from '@/common/pcui/constants';
 import { AssetInput } from '@/common/pcui/element/element-asset-input';
@@ -149,7 +149,7 @@ class ModelAssetInspectorMeshInstances extends Container {
 
     _updateJsonMeshInstances() {
         if (this._nodes) {
-            (this.parent as any).headerText = `MESH INSTANCES [${this._nodes.length}]`;
+            (this.parent as Panel).headerText = `MESH INSTANCES [${this._nodes.length}]`;
             this._assetElements.forEach((assetElement, ind) => {
                 assetElement.text = `[${ind}] ${this._nodes[ind]}`;
             });
@@ -162,7 +162,7 @@ class ModelAssetInspectorMeshInstances extends Container {
             this._progress.value = 1;
             this._progress.hidden = true;
             if (this.parent) {
-                (this.parent as any).headerText = `MESH INSTANCES [${meshNames.length}]`;
+                (this.parent as Panel).headerText = `MESH INSTANCES [${meshNames.length}]`;
             }
             this._assetElements.forEach((assetElement, ind) => {
                 assetElement.text = `[${ind}] ${meshNames[ind] || 'node'}`;
