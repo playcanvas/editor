@@ -93,6 +93,7 @@ editor.once('viewport:load', (app: import('playcanvas').Application) => {
         flying = true;
         firstUpdate = true;
         editor.call('camera:focus:stop');
+        editor.call('camera:viewcube:stop');
         editor.call('viewport:render');
     }, false);
 
