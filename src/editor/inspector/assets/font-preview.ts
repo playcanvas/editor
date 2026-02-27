@@ -19,11 +19,10 @@ class FontAssetInspectorPreview extends AssetInspectorPreviewBase {
         super(args);
 
         this._preview = new Canvas({
-            canvasWidth: 320,
-            canvasHeight: 144,
             class: [CLASS_CANVAS, CLASS_CANVAS_FLIP],
             useDevicePixelRatio: true
         });
+        this._preview.resize(320, 144);
 
         this.append(this._preview);
 
@@ -45,8 +44,7 @@ class FontAssetInspectorPreview extends AssetInspectorPreviewBase {
         }
 
         if (this.dom.offsetWidth !== 0 && this.dom.offsetHeight !== 0) {
-            (this._preview.dom as HTMLCanvasElement).width = this.dom.offsetWidth;
-            (this._preview.dom as HTMLCanvasElement).height = this.dom.offsetHeight;
+            this._preview.resize(this.dom.offsetWidth, this.dom.offsetHeight);
         }
         this._previewRenderer.render();
     }
