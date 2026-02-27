@@ -75,6 +75,8 @@ class AnimstategraphAssetInspector extends Container {
 
     _openInFullscreen: boolean;
 
+    _inspectorPanelSecondary: Container;
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({
             class: CLASS_ANIMSTATEGRAPH
@@ -82,6 +84,7 @@ class AnimstategraphAssetInspector extends Container {
         super(args);
         this._args = args;
         this._assets = null;
+        this._inspectorPanelSecondary = args.inspectorPanelSecondary as Container;
         this.readOnly = !editor.call('permissions:write');
         this.history = args.history;
         this._view = new AnimstategraphView(this, args);
@@ -90,18 +93,18 @@ class AnimstategraphAssetInspector extends Container {
         this.buildDom(DOM(this));
 
         this._stateContainer = new AnimstategraphState(args, this._view);
-        (args.inspectorPanelSecondary as any).append(this._stateContainer);
+        this._inspectorPanelSecondary.append(this._stateContainer);
         this._transitionsContainer = new AnimstategraphTransitions(args, this._view);
-        (args.inspectorPanelSecondary as any).append(this._transitionsContainer);
+        this._inspectorPanelSecondary.append(this._transitionsContainer);
         setTimeout(() => {
             this._app = editor.call('viewport:app');
             this._animViewer = new AnimViewer({
                 app: this._app,
                 class: 'animstategraph-view-anim-viewer'
             });
-            (args.inspectorPanelSecondary as any).prepend(this._animViewer);
-            (args.inspectorPanelSecondary as any).on('resize', () => {
-                (this._animViewer as any)._canvas.width = (args.inspectorPanelSecondary as any).dom.offsetWidth - 1;
+            this._inspectorPanelSecondary.prepend(this._animViewer);
+            this._inspectorPanelSecondary.on('resize', () => {
+                (this._animViewer as any)._canvas.width = this._inspectorPanelSecondary.dom.offsetWidth - 1;
             });
         }, 50);
         this._openEditorButton.on('click', () => {
