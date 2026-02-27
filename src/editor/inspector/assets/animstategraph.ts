@@ -90,6 +90,7 @@ class AnimstategraphAssetInspector extends Container {
     selectAnimStateGraph(asset: Observer, selectedItem?: unknown) {
         this._openInFullscreen = true;
         editor.call('selector:history', false);
+        editor.call('selector:clear');
         editor.call('selector:add', 'asset', asset);
         editor.once('selector:change', () => {
             editor.call('selector:history', true);
@@ -189,6 +190,8 @@ class AnimstategraphAssetInspector extends Container {
 
 
     closeFullscreenMode() {
+        if (!this._closeButton) return;
+
         this._view.unlink();
         this._stateContainer.unlink();
         this._transitionsContainer.unlink();
@@ -208,10 +211,8 @@ class AnimstategraphAssetInspector extends Container {
         }
 
         this.parent.emit('fullscreenMode:off');
-        if (this._closeButton) {
-            document.getElementById('layout-viewport').removeChild(this._closeButton.dom);
-            delete this._closeButton;
-        }
+        document.getElementById('layout-viewport').removeChild(this._closeButton.dom);
+        delete this._closeButton;
     }
 
     link(assets: Observer[]) {
