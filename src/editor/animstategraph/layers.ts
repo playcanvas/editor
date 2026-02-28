@@ -1,4 +1,4 @@
-import type { Observer } from '@playcanvas/observer';
+import type { Observer, EventHandle } from '@playcanvas/observer';
 import { Panel, Container, Button, SelectInput } from '@playcanvas/pcui';
 
 import type { Attribute } from '../inspector/attribute.type.d';
@@ -25,13 +25,31 @@ const ANIM_SCHEMA = {
 };
 
 class AnimstategraphLayers extends Panel {
+    _args!: Record<string, unknown>;
+
+    _assets: Observer[] | null = null;
+
+    _assetEvents: EventHandle[] = [];
+
+    _addNewLayerButton: Button;
+
+    _layerBase!: Container;
+
+    _layerSort!: Container;
+
+    _layerSelectInputValue = '';
+
+    _layerSelect!: SelectInput;
+
+    _suppressLayerSelectChange = false;
+
+    _layerPanels: Panel[] = [];
+
     constructor(parent: Panel, args: Record<string, unknown>) {
         args = Object.assign({ enabled: !parent.readOnly }, args);
         super(args);
         this._parent = parent;
         this._args = args;
-        this._assets = null;
-        this._assetEvents = [];
 
         this._addNewLayerButton = new Button({ text: 'LAYER', icon: 'E120' });
         this._addNewLayerButton.on('click', () => {

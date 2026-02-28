@@ -20,6 +20,7 @@ import {
     RenderTarget,
     SEMANTIC_COLOR,
     SEMANTIC_POSITION,
+    StandardMaterial,
     Texture,
     TYPE_FLOAT32,
     TYPE_UINT8,
@@ -52,13 +53,28 @@ class Skeleton {
         [-0.5, 0.3, 0], [0, 0.3, -0.5]
     ];
 
+    _app: Application;
+
+    _entity: Entity;
+
+    _vertexCount = 0;
+
+    _maxVertexCount = 1024 * 2;
+
+    _vertexFormat: VertexFormat;
+
+    _mesh: Mesh;
+
+    _material: StandardMaterial;
+
+    _meshInstance: MeshInstance;
+
+    _boundingBox: BoundingBox;
+
     constructor(app: Application, entity: Entity, color?: Color) {
         const device = app.graphicsDevice;
         this._app = app;
         this._entity = entity;
-
-        this._vertexCount = 0;
-        this._maxVertexCount = 1024 * 2;
 
         this._vertexFormat = new VertexFormat(device, [
             { semantic: SEMANTIC_POSITION, components: 3, type: TYPE_FLOAT32 },
@@ -168,10 +184,68 @@ class Skeleton {
 }
 
 class AnimViewer extends Container {
+    _shownError = false;
+
+    _canvas!: Canvas;
+
+    _app!: Application;
+
+    _layer!: Layer;
+
+    _frontLayer!: Layer;
+
+    _layerComposition!: LayerComposition;
+
+    _entity: Entity | null = null;
+
+    _renderTarget: RenderTarget | null = null;
+
+    _showSkeleton = true;
+
+    _showModel = true;
+
+    _renderComponents: unknown[] = [];
+
+    _root!: Entity;
+
+    _cameraOrigin!: Entity;
+
+    _camera!: Entity;
+
+    _rotationX = -15;
+
+    _rotationY = 45;
+
+    _light!: Entity;
+
+    _playing = true;
+
+    _messageLabel!: Label;
+
+    _uiContainer!: Container;
+
+    _playButton!: Button;
+
+    _slider!: SliderInput;
+
+    _suppressSliderChange = false;
+
+    _width = 0;
+
+    _height = 0;
+
+    _animTrack: AnimTrack | null = null;
+
+    _skeleton: Skeleton | null = null;
+
+    _entityMeshInstances: MeshInstance[] = [];
+
+    _setupCamera = false;
+
+    _lastTime: number | null = null;
+
     constructor(args: Record<string, unknown>) {
         super(args);
-
-        this._shownError = false;
 
         this.dom.classList.add('anim-viewer');
 
@@ -197,12 +271,6 @@ class AnimViewer extends Container {
         this._layerComposition.push(this._layer);
         this._layerComposition.push(this._frontLayer);
 
-        this._entity = null;
-        this._renderTarget = null;
-        this._showSkeleton = true;
-        this._showModel = true;
-        this._renderComponents = [];
-
         this._root = new Entity('root');
         this._root._enabledInHierarchy = true;
         this._root.enabled = true;
@@ -217,8 +285,6 @@ class AnimViewer extends Container {
         this._camera.setPosition(0, 0, 3);
         this._cameraOrigin.addChild(this._camera);
         this._root.addChild(this._cameraOrigin);
-        this._rotationX = -15;
-        this._rotationY = 45;
 
         // create directional light entity
         this._light = new Entity('light');
@@ -232,8 +298,6 @@ class AnimViewer extends Container {
         // this._light.setEulerAngles(45, 0, 0);
 
         this._root.syncHierarchy();
-
-        this._playing = true;
 
         // create UI
         this.createUIContainer();

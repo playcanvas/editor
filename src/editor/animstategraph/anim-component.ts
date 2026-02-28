@@ -1,12 +1,23 @@
+import type { Observer, EventHandle } from '@playcanvas/observer';
+
 class AnimstategraphAnimComponent {
-    constructor(args: Record<string, unknown>, view: { _selectedLayer: number; link: (assets: import('@playcanvas/observer').Observer[], layer: number) => void }) {
+    _args: Record<string, unknown>;
+
+    _view: { _selectedLayer: number; link: (assets: Observer[], layer: number) => void };
+
+    _entities: Observer[];
+
+    _asset: Observer | null = null;
+
+    _onSetStateNameEvent: EventHandle | null = null;
+
+    constructor(args: Record<string, unknown>, view: { _selectedLayer: number; link: (assets: Observer[], layer: number) => void }) {
         this._args = args;
         this._view = view;
-        this._entities = args.entities;
-        this._asset = null;
+        this._entities = args.entities as Observer[];
     }
 
-    link(assets: import('@playcanvas/observer').Observer[]) {
+    link(assets: Observer[]) {
         this.unlink();
         this._asset = assets[0];
         this._onSetStateNameEvent = this._asset.on('*:set', (path, value, prevValue) => {
