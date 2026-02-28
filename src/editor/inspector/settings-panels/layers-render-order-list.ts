@@ -19,9 +19,9 @@ class LayersSettingsPanelRenderOrderList extends Container {
 
     _projectSettings: Observer;
 
-    _userSettings: unknown;
+    _userSettings: Observer;
 
-    _sceneSettings: unknown;
+    _sceneSettings: Observer;
 
     _suspendLayerEvents = false;
 
@@ -39,8 +39,8 @@ class LayersSettingsPanelRenderOrderList extends Container {
         this._args = args;
         this._settings = args.settings as Observer;
         this._projectSettings = args.projectSettings as Observer;
-        this._userSettings = args.userSettings;
-        this._sceneSettings = args.sceneSettings;
+        this._userSettings = args.userSettings as Observer;
+        this._sceneSettings = args.sceneSettings as Observer;
         this._suspendLayerEvents = false;
 
         this._layerListContainer = new Container();
