@@ -1,4 +1,4 @@
-import type { Observer } from '@playcanvas/observer';
+import type { Observer, EventHandle } from '@playcanvas/observer';
 import { Panel, Button } from '@playcanvas/pcui';
 import { ANIM_EQUAL_TO, ANIM_PARAMETER_BOOLEAN, ANIM_PARAMETER_FLOAT, ANIM_PARAMETER_INTEGER, ANIM_PARAMETER_TRIGGER } from 'playcanvas';
 
@@ -10,13 +10,22 @@ const CLASS_ANIMSTATEGRAPH = 'asset-animstategraph-inspector';
 const CLASS_ANIMSTATEGRAPH_PARAMETER = `${CLASS_ANIMSTATEGRAPH}-parameter`;
 
 class AnimstategraphParameters extends Panel {
+    _args!: Record<string, unknown>;
+
+    _assets: Observer[] | null = null;
+
+    _parameterPanels: Record<string, Panel> = {};
+
+    _addNewParameterButton: Button;
+
+    _suppressAddParamEvent = false;
+
+    _assetEvents: EventHandle[] = [];
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         super(args);
         this._args = args;
-        this._assets = null;
-
-        this._parameterPanels = {};
 
         this._addNewParameterButton = new Button({ text: 'PARAMETER', icon: 'E120' });
         this._addNewParameterButton.on('click', () => {

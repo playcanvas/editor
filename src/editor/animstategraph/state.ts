@@ -1,4 +1,4 @@
-import type { Observer } from '@playcanvas/observer';
+import type { Observer, EventHandle } from '@playcanvas/observer';
 import { Panel, Label, Button, BindingTwoWay } from '@playcanvas/pcui';
 
 import { AssetInput } from '@/common/pcui/element/element-asset-input';
@@ -13,14 +13,45 @@ const CLASS_ANIMSTATEGRAPH_STATE_VIEW_BUTTON = `${CLASS_ANIMSTATEGRAPH_STATE}-vi
 const CLASS_ANIMSTATEGRAPH_STATE_TRANSITION = `${CLASS_ANIMSTATEGRAPH_STATE}-transition`;
 
 class AnimstategraphState extends Panel {
-    constructor(args: Record<string, unknown>, view: { ANIM_SCHEMA: { NODE: { START_STATE: number; ANY_STATE: number; END_STATE: number } }; _parent: { _animViewer: { loadView: (anim: unknown, entity: import('playcanvas').Entity) => void; displayMessage: (msg: string) => void } }; selectEdgeEvent: (transition: unknown, id: number) => void }) {
+    _args!: Record<string, unknown>;
+
+    _view: { ANIM_SCHEMA: { NODE: { START_STATE: number; ANY_STATE: number; END_STATE: number } }; _parent: { _animViewer: { loadView: (anim: unknown, entity: import('playcanvas').Entity) => void; displayMessage: (msg: string) => void; hidden: boolean } }; selectEdgeEvent: (transition: unknown, id: number) => void; parent: { readOnly: boolean; history: { add: (action: unknown) => void } }; _selectedEntity: Observer | null; _selectedEntityViewButton: Button | null };
+
+    _assets: Observer[] | null = null;
+
+    _evts: EventHandle[] = [];
+
+    _suppressOnNameChange = false;
+
+    _transitionsPanel!: Panel;
+
+    _linkedEntitiesPanel!: Panel;
+
+    _layerName = '';
+
+    _stateName = '';
+
+    _layer = 0;
+
+    _path = '';
+
+    _stateInspector!: AttributesInspector;
+
+    _linkedEntitiesList: Panel[] = [];
+
+    _linkedEntities: Observer[] = [];
+
+    _linkedEntityAssets: unknown[] = [];
+
+    _linkEntitiesEvent: EventHandle | null = null;
+
+    _enabled = false;
+
+    constructor(args: Record<string, unknown>, view: { ANIM_SCHEMA: { NODE: { START_STATE: number; ANY_STATE: number; END_STATE: number } }; _parent: { _animViewer: { loadView: (anim: unknown, entity: import('playcanvas').Entity) => void; displayMessage: (msg: string) => void; hidden: boolean } }; selectEdgeEvent: (transition: unknown, id: number) => void; parent: { readOnly: boolean; history: { add: (action: unknown) => void } }; _selectedEntity: Observer | null; _selectedEntityViewButton: Button | null }) {
         args.headerText = 'STATE';
         super(args);
         this._args = args;
         this._view = view;
-        this._assets = null;
-        this._evts = [];
-        this._suppressOnNameChange = false;
 
         this._transitionsPanel = new Panel({
             headerText: 'TRANSITIONS',

@@ -1,3 +1,4 @@
+import type { Observer, EventHandle } from '@playcanvas/observer';
 import { Container, Button, Panel, Label } from '@playcanvas/pcui';
 import {
     ANIM_EQUAL_TO,
@@ -41,6 +42,28 @@ class TransitionInspector extends AttributesInspector {
 }
 
 class AnimstategraphTransitions extends Container {
+    _view: Record<string, unknown>;
+
+    _args: Record<string, unknown>;
+
+    _assets: Observer[] | null = null;
+
+    _newTransitionButton!: Button;
+
+    _edgeData!: { from: number; to: number };
+
+    _selectedLayer!: number;
+
+    _transitionsContainer!: Container;
+
+    _edge = '';
+
+    _transitionPanels: Panel[] = [];
+
+    _onAssetUpdateEvent: EventHandle | null = null;
+
+    _onParamDeleteEvent: EventHandle | null = null;
+
     constructor(args: Record<string, unknown>, view: Record<string, unknown>) {
         super({
             args: Object.assign({}, args),
@@ -49,7 +72,6 @@ class AnimstategraphTransitions extends Container {
         });
         this._view = view;
         this._args = args;
-        this._assets = null;
 
         this._newTransitionButton = new Button({
             text: 'NEW TRANSITION',

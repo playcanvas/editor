@@ -1,4 +1,4 @@
-import type { Observer } from '@playcanvas/observer';
+import type { Observer, EventHandle } from '@playcanvas/observer';
 import { default as PCUIGraph } from '@playcanvas/pcui-graph';
 import { ANIM_INTERRUPTION_NONE } from 'playcanvas';
 
@@ -200,11 +200,35 @@ const animContextMenuItems = [
 ];
 
 class AnimstategraphView {
-    constructor(parent: { closeAsset: (asset: Observer) => void; readOnly?: boolean; _stateContainer?: { _stateName?: string; unlink: () => void }; _transitionsContainer?: { _edge?: string; unlink: () => void } }, args: Record<string, unknown>) {
+    _parent: { closeAsset: (asset: Observer) => void; readOnly?: boolean; _stateContainer?: { _stateName?: string; unlink: () => void; hidden?: boolean; link?: (...args: unknown[]) => void }; _transitionsContainer?: { _edge?: string; unlink: () => void; hidden?: boolean; link?: (...args: unknown[]) => void } };
+
+    _args: Record<string, unknown>;
+
+    _assets: Observer[] | null = null;
+
+    ANIM_SCHEMA = ANIM_SCHEMA;
+
+    _graphElement!: HTMLDivElement;
+
+    _graph!: PCUIGraph;
+
+    _selectedLayer = 0;
+
+    _suppressGraphDataEvents = false;
+
+    _selectedEntity: Observer | null = null;
+
+    _selectedEntityViewButton: unknown = null;
+
+    _handleIncomingUpdatesEvent: EventHandle | null = null;
+
+    _viewportResizeEvent: EventHandle | null = null;
+
+    _keyboardListenerBound: ((e: KeyboardEvent) => void) | null = null;
+
+    constructor(parent: { closeAsset: (asset: Observer) => void; readOnly?: boolean; _stateContainer?: { _stateName?: string; unlink: () => void; hidden?: boolean; link?: (...args: unknown[]) => void }; _transitionsContainer?: { _edge?: string; unlink: () => void; hidden?: boolean; link?: (...args: unknown[]) => void } }, args: Record<string, unknown>) {
         this._parent = parent;
         this._args = args;
-        this._assets = null;
-        this.ANIM_SCHEMA = ANIM_SCHEMA;
 
         this._graphElement = document.createElement('div');
         this._graphElement.setAttribute('style', `

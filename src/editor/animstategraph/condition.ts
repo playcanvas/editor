@@ -15,13 +15,15 @@ import {
 const CLASS_ROOT = 'pcui-animstategraph-condition';
 
 class AnimstategraphCondition extends Container {
+    _args!: { parameters: string[]; onDelete: () => void };
+
     constructor(args: object) {
         args = Object.assign({
             class: CLASS_ROOT
         }, args);
 
         super(args);
-        this._args = args;
+        this._args = args as { parameters: string[]; onDelete: () => void };
 
         this.class.add(CLASS_ROOT);
     }
