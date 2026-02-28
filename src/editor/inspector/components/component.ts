@@ -2,7 +2,7 @@ import type { EventHandle, Observer } from '@playcanvas/observer';
 import { BindingTwoWay, BooleanInput, Button, Container, Label, LabelGroup, Menu, Panel } from '@playcanvas/pcui';
 
 import { tooltip, tooltipRefItem } from '@/common/tooltips';
-import { LocalStorage } from '@/editor-api';
+import { LocalStorage, type History } from '@/editor-api';
 
 import type { TemplateOverrideInspector } from '../../templates/templates-override-inspector.js';
 
@@ -18,6 +18,8 @@ class ComponentInspector extends Panel {
     _entities: Observer[] | null = null;
 
     _entityEvents: EventHandle[] = [];
+
+    protected _history: History;
 
     protected _templateOverridesInspector: TemplateOverrideInspector;
 

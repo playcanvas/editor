@@ -1,3 +1,4 @@
+import type { EventHandle } from '@playcanvas/observer';
 import { Button } from '@playcanvas/pcui';
 import {
     LAYERID_DEPTH,
@@ -449,6 +450,14 @@ const ATTRIBUTES: (Attribute | Divider)[] = [{
 }];
 
 class LightComponentInspector extends ComponentInspector {
+    _attributesInspector: AttributesInspector;
+
+    _btnUpdateShadow: Button;
+
+    _eventUpdateShadow: EventHandle | null = null;
+
+    _skipToggleFields = false;
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.component = 'light';
@@ -486,8 +495,6 @@ class LightComponentInspector extends ComponentInspector {
         });
         this._field('shadowUpdateMode').parent.append(this._btnUpdateShadow);
 
-        this._eventUpdateShadow = null;
-
         const tooltip = LegacyTooltip.attach({
             target: this._btnUpdateShadow.dom,
             text: 'Update Shadows',
@@ -497,8 +504,6 @@ class LightComponentInspector extends ComponentInspector {
         this._btnUpdateShadow.once('destroy', () => {
             tooltip.destroy();
         });
-
-        this._skipToggleFields = false;
     }
 
     _field(name: string) {

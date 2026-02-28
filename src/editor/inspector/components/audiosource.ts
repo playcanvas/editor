@@ -80,6 +80,10 @@ const ATTRIBUTES: Attribute[] = [{
 }];
 
 class AudiosourceComponentInspector extends ComponentInspector {
+    _attributesInspector: AttributesInspector;
+
+    _skipToggleFields = false;
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.component = 'audiosource';
@@ -95,8 +99,6 @@ class AudiosourceComponentInspector extends ComponentInspector {
         this.append(this._attributesInspector);
 
         this._field('3d').on('change', this._toggleFields.bind(this));
-
-        this._skipToggleFields = false;
 
         // disable all fields if engine is v2
         ATTRIBUTES.forEach((attribute) => {

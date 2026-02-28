@@ -1,3 +1,4 @@
+import type { ObserverList } from '@playcanvas/observer';
 import { Button } from '@playcanvas/pcui';
 
 import { ComponentInspector } from './component';
@@ -39,6 +40,10 @@ const ATTRIBUTES: Attribute[] = [{
 const CLASS_BUTTON_PLAY = 'animation-component-inspector-play';
 
 class AnimationComponentInspector extends ComponentInspector {
+    _assets: ObserverList;
+
+    _attributesInspector: AttributesInspector;
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.component = 'animation';

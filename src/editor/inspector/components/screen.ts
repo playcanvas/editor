@@ -62,7 +62,12 @@ const ATTRIBUTES: Attribute[] = [{
         step: 1
     }
 }];
+
 class ScreenComponentInspector extends ComponentInspector {
+    _attributesInspector: AttributesInspector;
+
+    _suppressToggleFields = false;
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.component = 'screen';
@@ -78,8 +83,6 @@ class ScreenComponentInspector extends ComponentInspector {
 
         this._field('scaleMode').on('change', this._toggleFields.bind(this));
         this._field('screenSpace').on('change', this._toggleFields.bind(this));
-
-        this._suppressToggleFields = false;
     }
 
     _field(name: string) {

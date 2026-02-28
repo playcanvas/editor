@@ -1,8 +1,10 @@
+import type { EventHandle, Observer, ObserverList } from '@playcanvas/observer';
 import { Panel, Container, Button } from '@playcanvas/pcui';
 
 import { deepCopy } from '@/common/utils';
 
 import { ComponentInspector } from './component';
+import type { TemplateOverrideInspector } from '../../templates/templates-override-inspector.js';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
@@ -154,6 +156,18 @@ const SLOT_ATTRIBUTES: Attribute[] = [{
 const CLASS_SLOT = 'sound-component-inspector-slot';
 
 class SoundSlotInspector extends Panel {
+    _entities: Observer[] | null = null;
+
+    _slotEvents: EventHandle[] = [];
+
+    _templateOverridesInspector: TemplateOverrideInspector;
+
+    _slotKey: string;
+
+    _attrs: Attribute[];
+
+    _inspector: AttributesInspector;
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({
             headerText: args.slot.name || 'New Slot',
@@ -163,9 +177,6 @@ class SoundSlotInspector extends Panel {
         super(args);
 
         this.class.add(CLASS_SLOT);
-
-        this._entities = null;
-        this._slotEvents = [];
 
         this._templateOverridesInspector = args.templateOverridesInspector;
 
@@ -260,6 +271,18 @@ class SoundSlotInspector extends Panel {
 }
 
 class SoundComponentInspector extends ComponentInspector {
+    _assets: ObserverList;
+
+    _attributesInspector: AttributesInspector;
+
+    _containerSlots: Container;
+
+    _slotInspectors: Record<string, SoundSlotInspector> = {};
+
+    _btnAddSlot: Button;
+
+    _suppressToggleFields = false;
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.component = 'sound';
@@ -281,8 +304,6 @@ class SoundComponentInspector extends ComponentInspector {
         });
         this.append(this._containerSlots);
 
-        this._slotInspectors = {};
-
         this._btnAddSlot = new Button({
             text: 'ADD SLOT',
             icon: 'E120',
@@ -292,8 +313,6 @@ class SoundComponentInspector extends ComponentInspector {
         this.append(this._btnAddSlot);
 
         this._field('positional').on('change', this._toggleFields.bind(this));
-
-        this._suppressToggleFields = false;
     }
 
     _field(name: string) {

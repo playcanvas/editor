@@ -150,6 +150,10 @@ const ATTRIBUTES: (Attribute | Divider)[] = [{
 }];
 
 class CameraComponentInspector extends ComponentInspector {
+    _attributesInspector: AttributesInspector;
+
+    _suppressToggleFields = false;
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.component = 'camera';
@@ -168,8 +172,6 @@ class CameraComponentInspector extends ComponentInspector {
         ['clearColorBuffer', 'projection'].forEach((field) => {
             this._field(field).on('change', this._toggleFields.bind(this));
         });
-
-        this._suppressToggleFields = false;
 
         this._attributesInspector.getField('divider:0').hidden = !editor.projectEngineV2;
         this._field('toneMapping').parent.hidden = !editor.projectEngineV2;

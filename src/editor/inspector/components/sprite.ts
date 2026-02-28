@@ -1,9 +1,11 @@
+import type { Observer, ObserverList } from '@playcanvas/observer';
 import { Panel, Container, Button } from '@playcanvas/pcui';
 import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from 'playcanvas';
 
 import { deepCopy } from '@/common/utils';
 
 import { ComponentInspector } from './component';
+import type { TemplateOverrideInspector } from '../../templates/templates-override-inspector.js';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
@@ -181,6 +183,18 @@ function getCommonClips(entities: import('@playcanvas/observer').Observer[]) {
 }
 
 class SpriteClipInspector extends Panel {
+    _entities: Observer[] | null = null;
+
+    _spriteInspector: SpriteComponentInspector;
+
+    _templateOverridesInspector: TemplateOverrideInspector;
+
+    _clipKeys: string[];
+
+    _attrs: Attribute[];
+
+    _inspector: AttributesInspector;
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({
             collapsible: true,
@@ -190,8 +204,6 @@ class SpriteClipInspector extends Panel {
         super(args);
 
         this.class.add(CLASS_CLIP);
-
-        this._entities = null;
 
         this._spriteInspector = args.spriteInspector;
         this._templateOverridesInspector = args.templateOverridesInspector;
@@ -346,6 +358,20 @@ class SpriteClipInspector extends Panel {
 }
 
 class SpriteComponentInspector extends ComponentInspector {
+    _assets: ObserverList;
+
+    _attributesInspector: AttributesInspector;
+
+    _containerClips: Container;
+
+    _clipInspectors: Record<string, SpriteClipInspector> = {};
+
+    _btnAddClip: Button;
+
+    _timeoutAfterClipNameChange: ReturnType<typeof setTimeout> | null = null;
+
+    _suppressToggleFields = false;
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.component = 'sprite';
@@ -368,8 +394,6 @@ class SpriteComponentInspector extends ComponentInspector {
         });
         this.append(this._containerClips);
 
-        this._clipInspectors = {};
-
         this._btnAddClip = new Button({
             text: 'ADD CLIP',
             icon: 'E120',
@@ -380,10 +404,6 @@ class SpriteComponentInspector extends ComponentInspector {
         this._btnAddClip.on('click', this._onClickAddClip.bind(this));
 
         this.append(this._btnAddClip);
-
-        this._timeoutAfterClipNameChange = null;
-
-        this._suppressToggleFields = false;
 
         ['type', 'spriteAsset'].forEach((field) => {
             this._field(field).on('change', this._toggleFields.bind(this));

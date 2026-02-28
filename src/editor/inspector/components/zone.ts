@@ -16,6 +16,8 @@ const ATTRIBUTES: Attribute[] = [{
 }];
 
 class ZoneComponentInspector extends ComponentInspector {
+    _attributesInspector: AttributesInspector;
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.component = 'zone';

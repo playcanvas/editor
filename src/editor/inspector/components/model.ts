@@ -1,8 +1,10 @@
+import type { ObserverList } from '@playcanvas/observer';
 import { Label, Container, Button, BindingTwoWay, BindingElementToObservers } from '@playcanvas/pcui';
 import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from 'playcanvas';
 
 import { CLASS_ERROR } from '@/common/pcui/constants';
 import { AssetInput } from '@/common/pcui/element/element-asset-input';
+import type { Assets } from '@/editor-api';
 
 import { ComponentInspector } from './component';
 import type { Attribute } from '../attribute.type.d';
@@ -132,7 +134,9 @@ const REGEX_MAPPING = /^components.model.mapping.(\d+)$/;
 // Custom binding for asset field so that when we change the asset we
 // reset the model's mapping
 class AssetElementToObserversBinding extends BindingElementToObservers {
-    constructor(assets: import('@/editor-api').Assets, args: Record<string, unknown>) {
+    _assets: Assets;
+
+    constructor(assets: Assets, args: Record<string, unknown>) {
         super(args);
         this._assets = assets;
     }
@@ -250,6 +254,28 @@ class AssetElementToObserversBinding extends BindingElementToObservers {
 }
 
 class ModelComponentInspector extends ComponentInspector {
+    _assets: ObserverList;
+
+    _attributesInspector: AttributesInspector;
+
+    _labelUv1Missing: Label;
+
+    _containerButtons: Container;
+
+    _containerMappings: Container;
+
+    _mappingInspectors: Record<string, any> = {};
+
+    _suppressToggleFields = false;
+
+    _suppressAssetChange = false;
+
+    _suppressCustomAabb = false;
+
+    _timeoutRefreshMappings: ReturnType<typeof setTimeout> | null;
+
+    _dirtyMappings: boolean;
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.component = 'model';
@@ -305,12 +331,6 @@ class ModelComponentInspector extends ComponentInspector {
             flex: true
         });
         this.append(this._containerMappings);
-
-        this._mappingInspectors = {};
-
-        this._suppressToggleFields = false;
-        this._suppressAssetChange = false;
-        this._suppressCustomAabb = false;
 
         ['type', 'asset', 'lightmapped', 'lightmapSizeMultiplier', 'customAabb'].forEach((field) => {
             this._field(field).on('change', this._toggleFields.bind(this));
