@@ -1,3 +1,4 @@
+import type { Observer } from '@playcanvas/observer';
 import { Panel, Label } from '@playcanvas/pcui';
 
 import { tooltip, tooltipRefItem } from '@/common/tooltips';
@@ -5,20 +6,36 @@ import { tooltip, tooltipRefItem } from '@/common/tooltips';
 import { AttributesInspector } from '../attributes-inspector';
 
 class BaseSettingsPanel extends Panel {
+    _args: Record<string, unknown>;
+
+    _entities: Observer[];
+
+    _settings: Observer;
+
+    _projectSettings: Observer;
+
+    _userSettings: Observer;
+
+    _sceneSettings: Observer;
+
+    _sessionSettings: Observer;
+
+    _attributesInspector: AttributesInspector;
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.collapsible = true;
 
         super(args);
         this._args = args;
-        this._entities = args.entities;
-        this._settings = args.settings;
-        this._projectSettings = args.projectSettings;
-        this._userSettings = args.userSettings;
-        this._sceneSettings = args.sceneSettings;
-        this._sessionSettings = args.sessionSettings;
+        this._entities = args.entities as Observer[];
+        this._settings = args.settings as Observer;
+        this._projectSettings = args.projectSettings as Observer;
+        this._userSettings = args.userSettings as Observer;
+        this._sceneSettings = args.sceneSettings as Observer;
+        this._sessionSettings = args.sessionSettings as Observer;
 
-        this.collapsed = args.collapsed ?? true;
+        this.collapsed = (args.collapsed ?? true) as boolean;
 
         if (args.attributes) {
             this._attributesInspector = new AttributesInspector({

@@ -1,3 +1,4 @@
+import type { EventHandle } from '@playcanvas/observer';
 import { Container, Panel, Label } from '@playcanvas/pcui';
 
 import { BaseSettingsPanel } from './base';
@@ -8,7 +9,15 @@ const CLASS_SCRIPTS_LIST_CONTAINER = `${CLASS_SCRIPTS_LIST}-container`;
 const CLASS_SCRIPTS_LIST_ITEM = `${CLASS_SCRIPTS_LIST}-item`;
 
 class ScriptsSettingsPanel extends BaseSettingsPanel {
-    _insertPromise = null;
+    _insertPromise: Promise<void> | null = null;
+
+    _scriptList: Panel[] = [];
+
+    _scriptEvents: EventHandle[] = [];
+
+    _scriptListContainer: Container;
+
+    _assetEvents: EventHandle[] = [];
 
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);

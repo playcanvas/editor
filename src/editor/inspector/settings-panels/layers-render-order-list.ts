@@ -1,4 +1,4 @@
-import { Observer } from '@playcanvas/observer';
+import { Observer, type EventHandle } from '@playcanvas/observer';
 import { Container, Panel, Label, BooleanInput } from '@playcanvas/pcui';
 
 import { LegacyTooltip } from '@/common/ui/tooltip';
@@ -12,17 +12,34 @@ const CLASS_RENDER_ORDER_LIST_ITEM_TRANSPARENT = `${CLASS_RENDER_ORDER_LIST_ITEM
 const REGEX_LAYER_ENABLED = /^layerOrder\.(\d+)\.enabled$/;
 
 class LayersSettingsPanelRenderOrderList extends Container {
+    _args: Record<string, unknown>;
+
+    _settings: Observer;
+
+    _projectSettings: Observer;
+
+    _userSettings: Observer;
+
+    _sceneSettings: Observer;
+
+    _suspendLayerEvents = false;
+
+    _layerListContainer: Container;
+
+    _layerList: Panel[] = [];
+
+    _settingsEvents: EventHandle[] = [];
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
 
         super(args);
 
         this._args = args;
-        this._settings = args.settings;
-        this._projectSettings = args.projectSettings;
-        this._userSettings = args.userSettings;
-        this._sceneSettings = args.sceneSettings;
-        this._suspendLayerEvents = false;
+        this._settings = args.settings as Observer;
+        this._projectSettings = args.projectSettings as Observer;
+        this._userSettings = args.userSettings as Observer;
+        this._sceneSettings = args.sceneSettings as Observer;
 
         this._layerListContainer = new Container();
         this.append(this._layerListContainer);
@@ -31,16 +48,12 @@ class LayersSettingsPanelRenderOrderList extends Container {
             this._projectSettings.move('layerOrder', oldIndex, newIndex);
         });
 
-        this._layerList = [];
-
         this.class.add(CLASS_RENDER_ORDER_LIST_CONTAINER);
 
-        this._settingsEvnts = [];
-
-        this._settingsEvnts.push(this._projectSettings.on('layerOrder:remove', this._onLayerRemove.bind(this)));
-        this._settingsEvnts.push(this._projectSettings.on('layerOrder:insert', this._onLayerInsert.bind(this)));
-        this._settingsEvnts.push(this._projectSettings.on('layerOrder:move', this._onLayerMove.bind(this)));
-        this._settingsEvnts.push(this._projectSettings.on('*:set', this._onUpdateProjectSettings.bind(this)));
+        this._settingsEvents.push(this._projectSettings.on('layerOrder:remove', this._onLayerRemove.bind(this)));
+        this._settingsEvents.push(this._projectSettings.on('layerOrder:insert', this._onLayerInsert.bind(this)));
+        this._settingsEvents.push(this._projectSettings.on('layerOrder:move', this._onLayerMove.bind(this)));
+        this._settingsEvents.push(this._projectSettings.on('*:set', this._onUpdateProjectSettings.bind(this)));
 
         const order = this._projectSettings.get('layerOrder');
         if (!order) {
@@ -140,13 +153,11 @@ class LayersSettingsPanelRenderOrderList extends Container {
         return layerPanel;
     }
 
-    _onLayerInsert(value: import('@playcanvas/observer').Observer | { layer: number; transparent: boolean }, index: number) {
-        if (value instanceof Observer) {
-            value = value.json();
-        }
+    _onLayerInsert(value: Observer | { layer: number; transparent: boolean }, index: number) {
+        const data = value instanceof Observer ? value.json() as { layer: number; transparent: boolean } : value;
 
-        const name = this._projectSettings.get(`layers.${value.layer}.name`);
-        const layerPanel = this._createLayerElement(value, name);
+        const name = this._projectSettings.get(`layers.${data.layer}.name`);
+        const layerPanel = this._createLayerElement(data, name);
 
         this._layerList.splice(index, 0, layerPanel);
         const beforeElement = this._layerListContainer.dom.childNodes[index];
@@ -202,8 +213,8 @@ class LayersSettingsPanelRenderOrderList extends Container {
 
         this._layerList.length = 0;
 
-        this._settingsEvnts.forEach(evt => evt.unbind());
-        this._settingsEvnts.length = 0;
+        this._settingsEvents.forEach(evt => evt.unbind());
+        this._settingsEvents.length = 0;
 
         super.destroy();
     }

@@ -696,7 +696,7 @@ class RenderingSettingsPanel extends BaseSettingsPanel {
         const enableWebGl2 = this._attributesInspector.getField('enableWebGl2');
 
         const onDeviceChange = () => {
-            deviceOrder.text = [
+            (deviceOrder as Label).text = [
                 enableWebGpu.value ? `WebGPU${editor.projectEngineV2 ? '' : ' (beta)'}` : '',
                 enableWebGl2.value ? 'WebGL 2.0' : '',
                 editor.projectEngineV2 ? '' : 'WebGL 1.0'

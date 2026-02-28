@@ -1,4 +1,7 @@
-import { Container } from '@playcanvas/pcui';
+import type { EventHandle } from '@playcanvas/observer';
+import { Container, type TextInput } from '@playcanvas/pcui';
+
+import type { History } from '@/editor-api';
 
 import { BaseSettingsPanel } from './base';
 import { BatchGroupsSettingsPanelItem } from './batchgroups-item';
@@ -18,6 +21,12 @@ const ATTRIBUTES: Attribute[] = [{
 }];
 
 class BatchGroupsSettingsPanel extends BaseSettingsPanel {
+    _items: BatchGroupsSettingsPanelItem[] = [];
+
+    _evts: EventHandle[] = [];
+
+    _itemsContainer: Container;
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.headerText = 'BATCH GROUPS';
@@ -25,9 +34,6 @@ class BatchGroupsSettingsPanel extends BaseSettingsPanel {
         args._tooltipReference = 'settings:batchGroups';
 
         super(args);
-
-        this._items = [];
-        this._evts = [];
 
         this._itemsContainer = new Container();
         this.prepend(this._itemsContainer);
@@ -138,10 +144,11 @@ class BatchGroupsSettingsPanel extends BaseSettingsPanel {
         };
 
         if (this._args.history) {
-            this._args.history.add({
+            (this._args.history as History).add({
                 name: `remove projectSettings.batchGroups.${groupId}`,
                 undo,
-                redo
+                redo,
+                combine: false
             });
         }
 
@@ -181,7 +188,7 @@ class BatchGroupsSettingsPanel extends BaseSettingsPanel {
                 if (!initialLoad) {
                     item.collapsed = false;
                     this.collapsed = false;
-                    item._attributesInspector.getField(`batchGroups.${batchGroupId}.name`).focus();
+                    (item._attributesInspector.getField(`batchGroups.${batchGroupId}.name`) as TextInput).focus();
                 }
                 item.id = batchGroupId;
                 this._items.push(item);

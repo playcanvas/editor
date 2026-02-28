@@ -1,6 +1,8 @@
+import type { EventHandle } from '@playcanvas/observer';
 import { Container } from '@playcanvas/pcui';
 
 import { CLASS_ERROR } from '@/common/pcui/constants';
+import type { History } from '@/editor-api';
 
 import { BaseSettingsPanel } from './base';
 import { LayersSettingsPanelLayerPanel } from './layers-layer-panel';
@@ -50,6 +52,12 @@ const DOM = args => [
 ];
 
 class LayersSettingsPanel extends BaseSettingsPanel {
+    _layerPanels: LayersSettingsPanelLayerPanel[] = [];
+
+    _layerEvents: EventHandle[] = [];
+
+    _layersContainer: Container;
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.headerText = 'LAYERS';
@@ -59,9 +67,6 @@ class LayersSettingsPanel extends BaseSettingsPanel {
         super(args);
 
         this.buildDom(DOM(args));
-
-        this._layerPanels = [];
-        this._layerEvents = [];
 
         this._attributesInspector.getField('addLayer').on('click', this._addLayer.bind(this));
 
@@ -124,10 +129,11 @@ class LayersSettingsPanel extends BaseSettingsPanel {
         };
 
         if (this._args.history) {
-            this._args.history.add({
+            (this._args.history as History).add({
                 name: 'new layer',
                 undo,
-                redo
+                redo,
+                combine: false
             });
         }
 
