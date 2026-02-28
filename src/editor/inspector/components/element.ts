@@ -412,6 +412,8 @@ function getTextureDimensions(id: number, assets: Assets) {
 // Custom binding from element -> observers for texture and sprite assets which
 // resizes an Image Element when the asset is first assigned
 class ImageAssetElementToObserversBinding extends BindingElementToObservers {
+    _assets: Assets;
+
     constructor(assets: Assets, args: Record<string, unknown>) {
         super(args);
         this._assets = assets;
@@ -672,6 +674,14 @@ class SpriteFrameElementToObserversBinding extends ImageAssetElementToObserversB
 }
 
 class ElementComponentInspector extends ComponentInspector {
+    _attributesInspector: AttributesInspector;
+
+    _suppressLocalizedEvents = false;
+
+    _suppressPresetEvents = false;
+
+    _suppressToggleFields = false;
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.component = 'element';
@@ -756,10 +766,6 @@ class ElementComponentInspector extends ComponentInspector {
         this._field('resetSize').on('click', () => {
             this._onClickResetSize(args.assets);
         });
-
-        this._suppressLocalizedEvents = false;
-        this._suppressPresetEvents = false;
-        this._suppressToggleFields = false;
     }
 
     _field(name: string) {

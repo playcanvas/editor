@@ -130,6 +130,10 @@ const ATTRIBUTES: (Attribute | Divider)[] = [{
 }];
 
 class ScrollviewComponentInspector extends ComponentInspector {
+    _attributesInspector: AttributesInspector;
+
+    _suppressToggleFields = false;
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.component = 'scrollview';
@@ -155,8 +159,6 @@ class ScrollviewComponentInspector extends ComponentInspector {
         ['scrollMode', 'useMouseWheel', 'vertical', 'horizontal'].forEach((field) => {
             this._field(field).on('change', this._toggleFields.bind(this));
         });
-
-        this._suppressToggleFields = false;
     }
 
     _field(name: string) {

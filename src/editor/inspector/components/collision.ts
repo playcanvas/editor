@@ -1,4 +1,5 @@
-import { InfoBox } from '@playcanvas/pcui';
+import type { EventHandle } from '@playcanvas/observer';
+import { InfoBox, LabelGroup } from '@playcanvas/pcui';
 import { CollisionComponent } from 'playcanvas';
 
 import { ComponentInspector } from './component';
@@ -119,6 +120,16 @@ const ATTRIBUTES: Attribute[] = [{
 }];
 
 class CollisionComponentInspector extends ComponentInspector {
+    _variedTransformScalesWarning: InfoBox;
+
+    _evts: EventHandle[] = [];
+
+    _attributesInspector: AttributesInspector;
+
+    _suppressToggleFields = false;
+
+    _importAmmoPanel: LabelGroup;
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.component = 'collision';
@@ -131,8 +142,6 @@ class CollisionComponentInspector extends ComponentInspector {
             text: 'This entity has a non-uniform scale. Mesh collision will not work as expected.'
         });
         this.append(this._variedTransformScalesWarning);
-
-        this._evts = [];
 
         this._attributesInspector = new AttributesInspector({
             assets: args.assets,
@@ -147,8 +156,6 @@ class CollisionComponentInspector extends ComponentInspector {
         this._field('renderAsset').on('change', this._toggleFields.bind(this));
 
         this._handleTypeChange(this._field('type'));
-
-        this._suppressToggleFields = false;
 
         this._importAmmoPanel = editor.call('attributes:appendImportAmmo', this);
         this._importAmmoPanel.hidden = true;

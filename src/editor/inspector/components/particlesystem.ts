@@ -389,6 +389,14 @@ const ATTRIBUTES: Attribute[] = [{
 }];
 
 class ParticlesystemComponentInspector extends ComponentInspector {
+    _attributesInspector: AttributesInspector;
+
+    _suppressToggleFields = false;
+
+    _btnPlay: Button;
+
+    _btnPause: Button;
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.component = 'particlesystem';
@@ -403,8 +411,6 @@ class ParticlesystemComponentInspector extends ComponentInspector {
             templateOverridesInspector: this._templateOverridesInspector
         });
         this.append(this._attributesInspector);
-
-        this._suppressToggleFields = false;
 
         [
             'loop',

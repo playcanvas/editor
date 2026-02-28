@@ -1,3 +1,4 @@
+import type { EventHandle } from '@playcanvas/observer';
 import { InfoBox } from '@playcanvas/pcui';
 
 import {
@@ -118,6 +119,14 @@ const ATTRIBUTES: Attribute[] = [{
 }];
 
 class ButtonComponentInspector extends ComponentInspector {
+    _inputWarning: InfoBox;
+
+    _evts: EventHandle[] = [];
+
+    _attributesInspector: AttributesInspector;
+
+    _suppressToggleFields = false;
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.component = 'button';
@@ -131,8 +140,6 @@ class ButtonComponentInspector extends ComponentInspector {
         });
         this.append(this._inputWarning);
 
-        this._evts = [];
-
         this._attributesInspector = new AttributesInspector({
             assets: args.assets,
             entities: args.entities,
@@ -143,8 +150,6 @@ class ButtonComponentInspector extends ComponentInspector {
         this.append(this._attributesInspector);
 
         this._field('transitionMode').on('change', this._toggleFields.bind(this));
-
-        this._suppressToggleFields = false;
     }
 
     _field(name: string) {

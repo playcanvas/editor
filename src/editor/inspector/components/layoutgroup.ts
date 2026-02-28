@@ -105,6 +105,8 @@ const ATTRIBUTES: Attribute[] = [{
 }];
 
 class LayoutgroupComponentInspector extends ComponentInspector {
+    _attributesInspector: AttributesInspector;
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.component = 'layoutgroup';

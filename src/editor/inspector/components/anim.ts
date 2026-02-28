@@ -1,3 +1,4 @@
+import type { EventHandle, Observer, ObserverList } from '@playcanvas/observer';
 import { InfoBox, Container, TreeView, TreeViewItem, BooleanInput, Menu, Button, Panel, BindingTwoWay } from '@playcanvas/pcui';
 import type { Entity } from 'playcanvas';
 
@@ -67,6 +68,28 @@ const CLASS_MASK_INSPECTOR_ADD_ALL_BUTTON = `${CLASS_MASK_INSPECTOR}-add-all-but
 const CLASS_MASK_INSPECTOR_REMOVE_ALL_BUTTON = `${CLASS_MASK_INSPECTOR}-remove-all-button`;
 
 class AnimComponentInspector extends ComponentInspector {
+    _args: Record<string, unknown>;
+
+    _assets: ObserverList;
+
+    _stateGraphAssetId: number | null = null;
+
+    _stateGraphAsset: Observer | null = null;
+
+    _maskInspector: Panel | null = null;
+
+    _contextMenus: Menu[] = [];
+
+    _evts: EventHandle[] = [];
+
+    _maskEvts: EventHandle[] = [];
+
+    _attributesInspector: AttributesInspector;
+
+    _normalizeWeightsMessage: InfoBox;
+
+    _layersContainer: Container;
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.component = 'anim';
@@ -76,15 +99,7 @@ class AnimComponentInspector extends ComponentInspector {
         this._args = args;
         this._assets = args.assets;
 
-        this._stateGraphAssetId = null;
-        this._stateGraphAsset = null;
         this._entities = null;
-
-        this._maskInspector = null;
-        this._contextMenus = [];
-
-        this._evts = [];
-        this._maskEvts = [];
 
         this._attributesInspector = new AttributesInspector({
             assets: args.assets,

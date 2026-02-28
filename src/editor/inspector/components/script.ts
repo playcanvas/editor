@@ -99,6 +99,16 @@ class ScriptInspector extends Panel {
 
     private _scriptName: string;
 
+    _history: History;
+
+    _argsAssets: Observer[];
+
+    _argsEntities: Observer[];
+
+    _templateOverridesInspector: TemplateOverrideInspector;
+
+    _attributes: Record<string, unknown>;
+
     private _asset: AssetObserver;
 
     private _attributeWarnings: Map<string, string[]> = new Map();
@@ -118,7 +128,7 @@ class ScriptInspector extends Panel {
 
     private _labelInvalid: Label;
 
-    private _tooltipInvalid: any;
+    private _tooltipInvalid: Container;
 
     private _fieldEnable: BooleanInput;
 
@@ -945,6 +955,10 @@ class ScriptInspector extends Panel {
 }
 
 class ScriptComponentInspector extends ComponentInspector {
+    _argsAssets: Observer[];
+
+    _argsEntities: Observer[];
+
     private _scriptPanels: Record<string, ScriptInspector> = {};
 
     private _editorEvents: EventHandle[] = [];

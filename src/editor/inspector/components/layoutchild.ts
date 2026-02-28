@@ -41,6 +41,8 @@ const ATTRIBUTES: Attribute[] = [{
 }];
 
 class LayoutchildComponentInspector extends ComponentInspector {
+    _attributesInspector: AttributesInspector;
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.component = 'layoutchild';

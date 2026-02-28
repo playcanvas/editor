@@ -1,3 +1,5 @@
+import { LabelGroup } from '@playcanvas/pcui';
+
 import { ComponentInspector } from './component';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
@@ -110,6 +112,12 @@ const ATTRIBUTES: Attribute[] = [{
 }];
 
 class RigidbodyComponentInspector extends ComponentInspector {
+    _attributesInspector: AttributesInspector;
+
+    _suppressToggleFields = false;
+
+    _importAmmoPanel: LabelGroup;
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.component = 'rigidbody';
@@ -125,8 +133,6 @@ class RigidbodyComponentInspector extends ComponentInspector {
         this.append(this._attributesInspector);
 
         this._field('type').on('change', this._toggleFields.bind(this));
-
-        this._suppressToggleFields = false;
 
         this._importAmmoPanel = editor.call('attributes:appendImportAmmo', this);
         this._importAmmoPanel.hidden = true;

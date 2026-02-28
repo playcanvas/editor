@@ -1,3 +1,4 @@
+import type { ObserverList } from '@playcanvas/observer';
 import { Label } from '@playcanvas/pcui';
 import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from 'playcanvas';
 
@@ -130,6 +131,18 @@ const ATTRIBUTES: Attribute[] = [{
 }];
 
 class RenderComponentInspector extends ComponentInspector {
+    _assets: ObserverList;
+
+    _attributesInspector: AttributesInspector;
+
+    _labelUv1Missing: Label;
+
+    _suppressToggleFields = false;
+
+    _suppressAssetChange = false;
+
+    _suppressCustomAabb = false;
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.component = 'render';
@@ -154,10 +167,6 @@ class RenderComponentInspector extends ComponentInspector {
         });
         this._labelUv1Missing.style.marginLeft = 'auto';
         this._field('lightmapped').parent.append(this._labelUv1Missing);
-
-        this._suppressToggleFields = false;
-        this._suppressAssetChange = false;
-        this._suppressCustomAabb = false;
 
         ['type', 'asset', 'lightmapped', 'lightmapSizeMultiplier', 'customAabb'].forEach((field) => {
             this._field(field).on('change', this._toggleFields.bind(this));
