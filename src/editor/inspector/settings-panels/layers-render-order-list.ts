@@ -29,7 +29,7 @@ class LayersSettingsPanelRenderOrderList extends Container {
 
     _layerList: Panel[] = [];
 
-    _settingsEvnts: EventHandle[] = [];
+    _settingsEvents: EventHandle[] = [];
 
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
@@ -51,10 +51,10 @@ class LayersSettingsPanelRenderOrderList extends Container {
 
         this.class.add(CLASS_RENDER_ORDER_LIST_CONTAINER);
 
-        this._settingsEvnts.push(this._projectSettings.on('layerOrder:remove', this._onLayerRemove.bind(this)));
-        this._settingsEvnts.push(this._projectSettings.on('layerOrder:insert', this._onLayerInsert.bind(this)));
-        this._settingsEvnts.push(this._projectSettings.on('layerOrder:move', this._onLayerMove.bind(this)));
-        this._settingsEvnts.push(this._projectSettings.on('*:set', this._onUpdateProjectSettings.bind(this)));
+        this._settingsEvents.push(this._projectSettings.on('layerOrder:remove', this._onLayerRemove.bind(this)));
+        this._settingsEvents.push(this._projectSettings.on('layerOrder:insert', this._onLayerInsert.bind(this)));
+        this._settingsEvents.push(this._projectSettings.on('layerOrder:move', this._onLayerMove.bind(this)));
+        this._settingsEvents.push(this._projectSettings.on('*:set', this._onUpdateProjectSettings.bind(this)));
 
         const order = this._projectSettings.get('layerOrder');
         if (!order) {
@@ -214,8 +214,8 @@ class LayersSettingsPanelRenderOrderList extends Container {
 
         this._layerList.length = 0;
 
-        this._settingsEvnts.forEach(evt => evt.unbind());
-        this._settingsEvnts.length = 0;
+        this._settingsEvents.forEach(evt => evt.unbind());
+        this._settingsEvents.length = 0;
 
         super.destroy();
     }
