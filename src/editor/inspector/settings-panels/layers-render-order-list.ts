@@ -1,3 +1,4 @@
+import type { EventHandle } from '@playcanvas/observer';
 import { Observer } from '@playcanvas/observer';
 import { Container, Panel, Label, BooleanInput } from '@playcanvas/pcui';
 
@@ -12,14 +13,32 @@ const CLASS_RENDER_ORDER_LIST_ITEM_TRANSPARENT = `${CLASS_RENDER_ORDER_LIST_ITEM
 const REGEX_LAYER_ENABLED = /^layerOrder\.(\d+)\.enabled$/;
 
 class LayersSettingsPanelRenderOrderList extends Container {
+    _args: Record<string, unknown>;
+
+    _settings: Observer;
+
+    _projectSettings: Observer;
+
+    _userSettings: unknown;
+
+    _sceneSettings: unknown;
+
+    _suspendLayerEvents = false;
+
+    _layerListContainer: Container;
+
+    _layerList: Panel[] = [];
+
+    _settingsEvnts: EventHandle[] = [];
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
 
         super(args);
 
         this._args = args;
-        this._settings = args.settings;
-        this._projectSettings = args.projectSettings;
+        this._settings = args.settings as Observer;
+        this._projectSettings = args.projectSettings as Observer;
         this._userSettings = args.userSettings;
         this._sceneSettings = args.sceneSettings;
         this._suspendLayerEvents = false;
@@ -140,13 +159,11 @@ class LayersSettingsPanelRenderOrderList extends Container {
         return layerPanel;
     }
 
-    _onLayerInsert(value: import('@playcanvas/observer').Observer | { layer: number; transparent: boolean }, index: number) {
-        if (value instanceof Observer) {
-            value = value.json();
-        }
+    _onLayerInsert(value: Observer | { layer: number; transparent: boolean }, index: number) {
+        const data = value instanceof Observer ? value.json() as { layer: number; transparent: boolean } : value;
 
-        const name = this._projectSettings.get(`layers.${value.layer}.name`);
-        const layerPanel = this._createLayerElement(value, name);
+        const name = this._projectSettings.get(`layers.${data.layer}.name`);
+        const layerPanel = this._createLayerElement(data, name);
 
         this._layerList.splice(index, 0, layerPanel);
         const beforeElement = this._layerListContainer.dom.childNodes[index];

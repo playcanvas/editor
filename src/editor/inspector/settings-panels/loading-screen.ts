@@ -46,6 +46,16 @@ const DOM = () => [
 ];
 
 class LoadingScreenSettingsPanel extends BaseSettingsPanel {
+    _selectExistingButton: Button;
+
+    _createDefaultButton: Button;
+
+    _buttonContainer: Container;
+
+    _selectExistingTooltip: LegacyTooltip;
+
+    _createDefaultTooltip: LegacyTooltip;
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.headerText = 'LOADING SCREEN';
@@ -99,7 +109,7 @@ class LoadingScreenSettingsPanel extends BaseSettingsPanel {
 
     _loadLayout() {
         const scriptId = this._projectSettings.get('loadingScreenScript');
-        const asset = this._args.assets.get(scriptId);
+        const asset = (this._args.assets as { get(id: unknown): unknown }).get(scriptId);
         if (scriptId && asset) {
             this._attributesInspector.getField('loadingScreenScript').hidden = false;
             this._buttonContainer.hidden = true;

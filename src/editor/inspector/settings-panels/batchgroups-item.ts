@@ -1,4 +1,6 @@
 import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from 'playcanvas';
+import type { EventHandle, Observer } from '@playcanvas/observer';
+import type { SelectInput } from '@playcanvas/pcui';
 
 import { BaseSettingsPanel } from './base';
 import type { Attribute } from '../attribute.type.d';
@@ -7,7 +9,7 @@ import type { Attribute } from '../attribute.type.d';
  * @param args - The attribute args
  * @returns - The attributes
  */
-const ATTRIBUTES = (args: object): Attribute[] => [
+const ATTRIBUTES = (args: { id: string | number }): Attribute[] => [
     {
         observer: 'projectSettings',
         label: 'Name',
@@ -51,17 +53,21 @@ const ATTRIBUTES = (args: object): Attribute[] => [
 ];
 
 class BatchGroupsSettingsPanelItem extends BaseSettingsPanel {
+    declare id: string;
+
+    _evts: EventHandle[] = [];
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
-        args.attributes = ATTRIBUTES(args);
+        args.attributes = ATTRIBUTES(args as { id: string | number });
         args.removable = true;
         args.hideIcon = true;
 
         super(args);
         this._args = args;
-        this._projectSettings = this._args.projectSettings;
+        this._projectSettings = this._args.projectSettings as Observer;
 
-        const evtRemove = this.on('click:remove', args.onRemove);
+        const evtRemove = this.on('click:remove', args.onRemove as () => void);
         this._evts = [];
 
         this.once('destroy', () => {
@@ -100,7 +106,7 @@ class BatchGroupsSettingsPanelItem extends BaseSettingsPanel {
                 });
             }
         }
-        this._attributesInspector.getField(`batchGroups.${this._args.id}.layers`).options = layerOptions;
+        (this._attributesInspector.getField(`batchGroups.${this._args.id}.layers`) as SelectInput).options = layerOptions;
     }
 }
 

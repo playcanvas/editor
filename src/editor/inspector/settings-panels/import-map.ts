@@ -45,6 +45,16 @@ const DOM = () => [
 ];
 
 class ImportMapSettingsPanel extends BaseSettingsPanel {
+    _selectExistingButton: Button;
+
+    _createDefaultButton: Button;
+
+    _buttonContainer: Container;
+
+    _selectExistingTooltip: LegacyTooltip;
+
+    _createDefaultTooltip: LegacyTooltip;
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.headerText = 'IMPORT MAP';
@@ -98,7 +108,7 @@ class ImportMapSettingsPanel extends BaseSettingsPanel {
 
     _loadLayout() {
         const id = this._projectSettings.get('importMap');
-        const asset = this._args.assets.get(id);
+        const asset = (this._args.assets as { get(id: unknown): unknown }).get(id);
         if (id && asset) {
             this._attributesInspector.getField('importMap').hidden = false;
             this._buttonContainer.hidden = true;

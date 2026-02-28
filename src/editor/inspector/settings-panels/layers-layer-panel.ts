@@ -1,3 +1,5 @@
+import type { History, Observer } from '@playcanvas/observer';
+
 import { CLASS_ERROR } from '@/common/pcui/constants';
 import { LegacyTooltip } from '@/common/ui/tooltip';
 
@@ -13,7 +15,7 @@ const htmlSymbols = ['\'', '\\', '/', '"', '<', '>', '&', '`', '='];
  * @param args - The attribute args
  * @returns - The attributes
  */
-const ATTRIBUTES = (args: object): Attribute[] => [
+const ATTRIBUTES = (args: { layerKey: string }): Attribute[] => [
     {
         observer: 'projectSettings',
         label: 'Name',
@@ -60,19 +62,21 @@ const ATTRIBUTES = (args: object): Attribute[] => [
 ];
 
 class LayersSettingsPanelLayerPanel extends BaseSettingsPanel {
+    layerKey: string;
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
-        args.attributes = ATTRIBUTES(args);
+        args.attributes = ATTRIBUTES(args as { layerKey: string });
         args.removable = true;
         args.hideIcon = true;
 
         super(args);
 
         this._args = args;
-        this._settings = args.settings;
-        this._projectSettings = args.projectSettings;
-        this._userSettings = args.userSettings;
-        this._sceneSettings = args.sceneSettings;
+        this._settings = args.settings as Observer;
+        this._projectSettings = args.projectSettings as Observer;
+        this._userSettings = args.userSettings as Observer;
+        this._sceneSettings = args.sceneSettings as Observer;
 
         this.class.add(CLASS_LAYER_PANEL);
 
@@ -170,10 +174,11 @@ class LayersSettingsPanelLayerPanel extends BaseSettingsPanel {
         };
 
         if (this._args.history) {
-            this._args.history.add({
+            (this._args.history as History).add({
                 name: 'delete layer',
                 undo,
-                redo
+                redo,
+                combine: false
             });
         }
 

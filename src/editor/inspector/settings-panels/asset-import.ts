@@ -1,4 +1,4 @@
-import { Panel, Button, Container, Label } from '@playcanvas/pcui';
+import { Panel, Button, Container, Label, type Element } from '@playcanvas/pcui';
 
 import { BaseSettingsPanel } from './base';
 import type { Attribute } from '../attribute.type.d';
@@ -241,6 +241,12 @@ const ATTRIBUTES: Attribute[] = [
 ];
 
 class AssetImportSettingsPanel extends BaseSettingsPanel {
+    _containerImportDraco: Container;
+
+    _labelImportDraco: Label;
+
+    _btnImportDraco: Button;
+
     constructor(args: Record<string, unknown>) {
         args = Object.assign({}, args);
         args.headerText = 'ASSET IMPORT';
@@ -298,13 +304,13 @@ class AssetImportSettingsPanel extends BaseSettingsPanel {
         });
     }
 
-    _appendSection(title: string, attributeElement: import('@playcanvas/pcui').Element) {
+    _appendSection(title: string, attributeElement: Element) {
         const section = new Panel({ headerText: title, class: CLASS_SECTION });
-        attributeElement.parent.parent.appendAfter(section, attributeElement.parent);
+        (attributeElement.parent.parent as Container).appendAfter(section, attributeElement.parent);
         return section;
     }
 
-    _setupDracoImportButton(previousField: import('@playcanvas/pcui').Element, moduleStoreName: string, wasmFilename: string) {
+    _setupDracoImportButton(previousField: Element, moduleStoreName: string, wasmFilename: string) {
         this._containerImportDraco = new Container({
             class: 'pcui-subpanel',
             flex: true,
@@ -327,7 +333,7 @@ class AssetImportSettingsPanel extends BaseSettingsPanel {
         });
         this._containerImportDraco.append(this._btnImportDraco);
 
-        previousField.parent.parent.appendAfter(this._containerImportDraco, previousField.parent);
+        (previousField.parent.parent as Container).appendAfter(this._containerImportDraco, previousField.parent);
 
         const events = [];
         const handleModuleImported = (name) => {
