@@ -1,7 +1,8 @@
-import type { EventHandle, History } from '@playcanvas/observer';
+import type { EventHandle } from '@playcanvas/observer';
 import { Container } from '@playcanvas/pcui';
 
 import { CLASS_ERROR } from '@/common/pcui/constants';
+import type { History } from '@/editor-api';
 
 import { BaseSettingsPanel } from './base';
 import { LayersSettingsPanelLayerPanel } from './layers-layer-panel';
