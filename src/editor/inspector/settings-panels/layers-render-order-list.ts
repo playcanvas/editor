@@ -1,5 +1,4 @@
-import type { EventHandle } from '@playcanvas/observer';
-import { Observer } from '@playcanvas/observer';
+import { Observer, type EventHandle } from '@playcanvas/observer';
 import { Container, Panel, Label, BooleanInput } from '@playcanvas/pcui';
 
 import { LegacyTooltip } from '@/common/ui/tooltip';

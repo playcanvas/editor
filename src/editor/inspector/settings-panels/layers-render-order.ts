@@ -1,4 +1,4 @@
-import type { EventHandle, History, Observer } from '@playcanvas/observer';
+import type { EventHandle, Observer } from '@playcanvas/observer';
 import type { Element as PcuiElement, SelectInput } from '@playcanvas/pcui';
 
 import { BaseSettingsPanel } from './base';

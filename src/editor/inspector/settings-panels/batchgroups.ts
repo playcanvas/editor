@@ -1,5 +1,5 @@
 import type { EventHandle, History } from '@playcanvas/observer';
-import { Container, type SelectInput, type TextInput } from '@playcanvas/pcui';
+import { Container, type TextInput } from '@playcanvas/pcui';
 
 import { BaseSettingsPanel } from './base';
 import { BatchGroupsSettingsPanelItem } from './batchgroups-item';
