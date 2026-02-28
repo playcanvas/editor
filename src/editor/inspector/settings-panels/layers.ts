@@ -67,9 +67,6 @@ class LayersSettingsPanel extends BaseSettingsPanel {
 
         this.buildDom(DOM(args));
 
-        this._layerPanels = [];
-        this._layerEvents = [];
-
         this._attributesInspector.getField('addLayer').on('click', this._addLayer.bind(this));
 
         this._loadLayers();

@@ -68,7 +68,6 @@ class BatchGroupsSettingsPanelItem extends BaseSettingsPanel {
         this._projectSettings = this._args.projectSettings as Observer;
 
         const evtRemove = this.on('click:remove', args.onRemove as () => void);
-        this._evts = [];
 
         this.once('destroy', () => {
             evtRemove.unbind();

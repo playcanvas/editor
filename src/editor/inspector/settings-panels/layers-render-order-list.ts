@@ -41,7 +41,6 @@ class LayersSettingsPanelRenderOrderList extends Container {
         this._projectSettings = args.projectSettings as Observer;
         this._userSettings = args.userSettings as Observer;
         this._sceneSettings = args.sceneSettings as Observer;
-        this._suspendLayerEvents = false;
 
         this._layerListContainer = new Container();
         this.append(this._layerListContainer);
@@ -50,11 +49,7 @@ class LayersSettingsPanelRenderOrderList extends Container {
             this._projectSettings.move('layerOrder', oldIndex, newIndex);
         });
 
-        this._layerList = [];
-
         this.class.add(CLASS_RENDER_ORDER_LIST_CONTAINER);
-
-        this._settingsEvnts = [];
 
         this._settingsEvnts.push(this._projectSettings.on('layerOrder:remove', this._onLayerRemove.bind(this)));
         this._settingsEvnts.push(this._projectSettings.on('layerOrder:insert', this._onLayerInsert.bind(this)));

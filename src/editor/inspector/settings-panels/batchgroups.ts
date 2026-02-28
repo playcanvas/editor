@@ -33,9 +33,6 @@ class BatchGroupsSettingsPanel extends BaseSettingsPanel {
 
         super(args);
 
-        this._items = [];
-        this._evts = [];
-
         this._itemsContainer = new Container();
         this.prepend(this._itemsContainer);
 
