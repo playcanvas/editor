@@ -572,8 +572,8 @@ class AttributesInspector extends Container {
         }
     }
 
-    getField<T extends Element = Element & IBindable>(path: string): T | undefined {
-        return this._fields[path] as unknown as T;
+    getField<T extends Element & IBindable = Element & IBindable>(path: string): T | undefined {
+        return this._fields[path] as T | undefined;
     }
 
     destroy() {
