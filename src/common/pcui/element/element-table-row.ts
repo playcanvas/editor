@@ -98,12 +98,6 @@ class TableRow extends Container {
             return;
         }
 
-        if (value) {
-            if (this.table && this.table.allowRowFocus) {
-                this.focus();
-            }
-        }
-
         if (this.selected === value) {
             return;
         }
