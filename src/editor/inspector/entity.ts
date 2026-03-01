@@ -672,12 +672,10 @@ class EntityInspector extends Container {
         positionField.inputs[0].enabled = !disablePositionXY;
         positionField.inputs[1].enabled = !disablePositionXY;
 
-        for (let i = 0; i < 3; i++) {
-            rotationField.inputs[i].enabled = !disableRotation;
-            rotationField.inputs[i].renderChanges = !disableRotation;
-            scaleField.inputs[i].enabled = !disableScale;
-            scaleField.inputs[i].renderChanges = !disableScale;
-        }
+        rotationField.enabled = !disableRotation;
+        rotationField.renderChanges = !disableRotation;
+        scaleField.enabled = !disableScale;
+        scaleField.renderChanges = !disableScale;
     }
 
     _doAllEntitiesHaveComponent(entities: Observer[], component: string) {
