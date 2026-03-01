@@ -596,7 +596,7 @@ class EntityInspector extends Container {
             return;
         }
 
-        const rect = evt.target.getBoundingClientRect();
+        const rect = (evt.target as HTMLElement).getBoundingClientRect();
 
         this._menuAddComponent.hidden = false;
         this._menuAddComponent.position(
