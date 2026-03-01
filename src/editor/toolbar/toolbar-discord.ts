@@ -36,7 +36,7 @@ editor.once('load', () => {
     // Append the discord svg to the button
     const color = '#9ba1a3';
     const hoverColor = '#ffffff';
-    const [icon, path] = discordSvg(color, 'margin-top: 14px');
+    const [icon, path] = discordSvg(color, 'margin-top: 9px');
     button.dom.append(icon);
 
     button.on('click', () => {

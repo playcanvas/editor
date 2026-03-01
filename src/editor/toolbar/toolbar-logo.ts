@@ -400,7 +400,7 @@ editor.once('load', () => {
             }]
         }]
     });
-    menu.position(45, 0);
+    menu.position(40, 0);
     root.append(menu);
 
     const tooltip = LegacyTooltip.attach({
