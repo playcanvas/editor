@@ -1,8 +1,9 @@
-import type { Observer } from '@playcanvas/observer';
-import { Container, Button, Menu } from '@playcanvas/pcui';
+import type { EventHandle, Observer } from '@playcanvas/observer';
+import { Container, Button, Menu, TextInput } from '@playcanvas/pcui';
 
 import { COMPONENT_LOGOS } from '@/core/constants';
 import { LocalStorage } from '@/editor-api';
+import type { History } from '@/editor-api';
 
 import type { Attribute } from './attribute.type.d';
 import { AttributesInspector } from './attributes-inspector';
@@ -199,10 +200,29 @@ type EntityInspectorArgs = {
 } & Record<string, unknown>;
 
 class EntityInspector extends Container {
+    private _history: History;
+
+    private _projectSettings: Observer;
+
+    private _templateInspector: TemplatesEntityInspector;
+
+    private _templateOverridesInspector: TemplateOverrideInspector;
+
+    private _attributesInspector: AttributesInspector;
+
+    private _componentInspectors: Record<string, any> = {};
+
+    private _entities: Observer[] | null = null;
+
+    private _entityEvents: EventHandle[] = [];
+
+    private _localStorage: LocalStorage;
+
+    private _menuAddComponent: Menu;
+
+    private _menuContext: Menu;
+
     constructor(args: EntityInspectorArgs = {} as EntityInspectorArgs) {
-        if (!args) {
-            args = {};
-        }
         args.flex = true;
 
         super(args);
@@ -265,8 +285,6 @@ class EntityInspector extends Container {
 
         this._menuContext = this._createContextMenu(btnMenu);
 
-        // add component inspectors
-        this._componentInspectors = {};
         const components = editor.call('components:list');
         components.forEach((component) => {
             if (component === 'script' && args.projectSettings.get('useLegacyScripts')) {
@@ -289,9 +307,6 @@ class EntityInspector extends Container {
                 this.append(inspector);
             }
         });
-
-        this._entities = null;
-        this._entityEvents = [];
 
         this._localStorage = new LocalStorage();
 
@@ -320,8 +335,9 @@ class EntityInspector extends Container {
         if (editor.call('picker:isOpen')) {
             return;
         }
-        this._attributesInspector.getField('name').flash();
-        this._attributesInspector.getField('name').focus();
+        const nameField = this._attributesInspector.getField('name') as unknown as TextInput;
+        nameField.flash();
+        nameField.focus();
     }
 
     _createContextMenu(target: Button) {

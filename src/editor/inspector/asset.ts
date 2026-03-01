@@ -1,4 +1,4 @@
-import type { Observer } from '@playcanvas/observer';
+import type { EventHandle, Observer, ObserverList } from '@playcanvas/observer';
 import { Container, Button, BindingObserversToElement } from '@playcanvas/pcui';
 
 
@@ -323,10 +323,39 @@ editor.method('assets:open', (assets) => {
 });
 
 class AssetInspector extends Container {
-    constructor(args: Record<string, unknown>) {
-        if (!args) {
-            args = {};
-        }
+    args: Record<string, unknown>;
+
+    private _projectSettings: Observer;
+
+    private _editableTypes: Record<string, boolean>;
+
+    private _assetTypes: string[];
+
+    private _licenseTypes: any[] | null = null;
+
+    private _attributesInspector: AttributesInspector;
+
+    private _containerButtons: Container;
+
+    private _btnDownloadAsset: Button;
+
+    private _btnOpenInViewer: Button;
+
+    private _btnEditAsset: Button;
+
+    private _btnEditSprite: Button;
+
+    private _typedAssetInspectors: Record<string, any> = {};
+
+    private _typedAssetPreviews: Record<string, any> = {};
+
+    private _assetsList: ObserverList;
+
+    private _assets: Observer[] | null = null;
+
+    private _assetEvents: EventHandle[] = [];
+
+    constructor(args: Record<string, unknown> = {}) {
         args.flex = true;
 
         super(args);
@@ -335,11 +364,10 @@ class AssetInspector extends Container {
 
         this.class.add(CLASS_ROOT);
 
-        this._projectSettings = args.projectSettings;
-        this._editableTypes = args.editableTypes;
+        this._projectSettings = args.projectSettings as Observer;
+        this._editableTypes = args.editableTypes as Record<string, boolean>;
 
         this._assetTypes = editor.call('schema:assets:list');
-        this._licenseTypes = null;
         this._attributesInspector = new AttributesInspector({
             history: args.history,
             attributes: ATTRIBUTES
@@ -410,10 +438,6 @@ class AssetInspector extends Container {
             history: args.history
         });
 
-        // add typed asset inspectors
-        this._typedAssetInspectors = [];
-        this._typedAssetPreviews = [];
-
         this._assetTypes.forEach((assetType) => {
             // check if class exists
             const cls = assetInspectors.get(assetType);
@@ -460,9 +484,7 @@ class AssetInspector extends Container {
             }
         });
 
-        this._assetsList = args.assets;
-        this._assets = null;
-        this._assetEvents = [];
+        this._assetsList = args.assets as ObserverList;
     }
 
     _onClickDownloadAsset(evt: MouseEvent) {
