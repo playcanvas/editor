@@ -1,3 +1,4 @@
+import type { EventHandle } from '@playcanvas/observer';
 import { Container } from '@playcanvas/pcui';
 
 import type { Attribute } from './attribute.type.d';
@@ -65,24 +66,26 @@ const DOM = parent => [
 ];
 
 class SettingsPanel extends Container {
-    constructor(args: Record<string, unknown>) {
-        if (!args) {
-            args = {};
-        }
+    private _args: Record<string, unknown>;
+
+    private _settingsEvents: EventHandle[] = [];
+
+    private _suspendSceneNameEvt = false;
+
+    private _sceneName = 'Untitled';
+
+    private _sceneAttributes: AttributesInspector;
+
+    constructor(args: Record<string, unknown> = {}) {
         args.flex = true;
 
         super(args);
         this._args = args;
-        this._settingsEvents = [];
 
         this.class.add(CLASS_ROOT);
 
         this.buildDom(DOM(this));
 
-        this._suspendSceneNameEvt = false;
-
-        // Setup Scene Name attribute
-        this._sceneName = 'Untitled';
         editor.on('scene:raw', (data) => {
             editor.emit('scene:name', data.name);
             this._sceneName = data.name;

@@ -1,8 +1,8 @@
-import type { Observer } from '@playcanvas/observer';
-import { Container, Button, Menu } from '@playcanvas/pcui';
+import type { EventHandle, Observer } from '@playcanvas/observer';
+import { Container, Button, Menu, TextInput, VectorInput } from '@playcanvas/pcui';
 
 import { COMPONENT_LOGOS } from '@/core/constants';
-import { LocalStorage } from '@/editor-api';
+import { LocalStorage, type History } from '@/editor-api';
 
 import type { Attribute } from './attribute.type.d';
 import { AttributesInspector } from './attributes-inspector';
@@ -13,6 +13,7 @@ import { AudiosourceComponentInspector } from './components/audiosource';
 import { ButtonComponentInspector } from './components/button';
 import { CameraComponentInspector } from './components/camera';
 import { CollisionComponentInspector } from './components/collision';
+import type { ComponentInspector } from './components/component';
 import { ElementComponentInspector } from './components/element';
 import { GSplatComponentInspector } from './components/gsplat';
 import { LayoutchildComponentInspector } from './components/layoutchild';
@@ -199,10 +200,29 @@ type EntityInspectorArgs = {
 } & Record<string, unknown>;
 
 class EntityInspector extends Container {
+    private _history: History;
+
+    private _projectSettings: Observer;
+
+    private _templateInspector: TemplatesEntityInspector;
+
+    private _templateOverridesInspector: TemplateOverrideInspector;
+
+    private _attributesInspector: AttributesInspector;
+
+    private _componentInspectors: Record<string, ComponentInspector> = {};
+
+    private _entities: Observer[] | null = null;
+
+    private _entityEvents: EventHandle[] = [];
+
+    private _localStorage: LocalStorage;
+
+    private _menuAddComponent: Menu;
+
+    private _menuContext: Menu;
+
     constructor(args: EntityInspectorArgs = {} as EntityInspectorArgs) {
-        if (!args) {
-            args = {};
-        }
         args.flex = true;
 
         super(args);
@@ -265,8 +285,6 @@ class EntityInspector extends Container {
 
         this._menuContext = this._createContextMenu(btnMenu);
 
-        // add component inspectors
-        this._componentInspectors = {};
         const components = editor.call('components:list');
         components.forEach((component) => {
             if (component === 'script' && args.projectSettings.get('useLegacyScripts')) {
@@ -289,9 +307,6 @@ class EntityInspector extends Container {
                 this.append(inspector);
             }
         });
-
-        this._entities = null;
-        this._entityEvents = [];
 
         this._localStorage = new LocalStorage();
 
@@ -320,8 +335,9 @@ class EntityInspector extends Container {
         if (editor.call('picker:isOpen')) {
             return;
         }
-        this._attributesInspector.getField('name').flash();
-        this._attributesInspector.getField('name').focus();
+        const nameField = this._attributesInspector.getField<TextInput>('name');
+        nameField.flash();
+        nameField.focus();
     }
 
     _createContextMenu(target: Button) {
@@ -580,7 +596,7 @@ class EntityInspector extends Container {
             return;
         }
 
-        const rect = evt.target.getBoundingClientRect();
+        const rect = (evt.target as HTMLElement).getBoundingClientRect();
 
         this._menuAddComponent.hidden = false;
         this._menuAddComponent.position(
@@ -649,18 +665,17 @@ class EntityInspector extends Container {
             }
         });
 
-        const positionInputs = this._attributesInspector.getField('position').inputs;
-        positionInputs[0].enabled = !disablePositionXY;
-        positionInputs[1].enabled = !disablePositionXY;
+        const positionField = this._attributesInspector.getField<VectorInput>('position');
+        const rotationField = this._attributesInspector.getField<VectorInput>('rotation');
+        const scaleField = this._attributesInspector.getField<VectorInput>('scale');
 
-        const rotationInputs = this._attributesInspector.getField('rotation').inputs;
-        const scaleInputs = this._attributesInspector.getField('scale').inputs;
-        for (let i = 0; i < 3; i++) {
-            rotationInputs[i].enabled = !disableRotation;
-            rotationInputs[i].renderChanges = !disableRotation;
-            scaleInputs[i].enabled = !disableScale;
-            scaleInputs[i].renderChanges = !disableScale;
-        }
+        positionField.inputs[0].enabled = !disablePositionXY;
+        positionField.inputs[1].enabled = !disablePositionXY;
+
+        rotationField.enabled = !disableRotation;
+        rotationField.renderChanges = !disableRotation;
+        scaleField.enabled = !disableScale;
+        scaleField.renderChanges = !disableScale;
     }
 
     _doAllEntitiesHaveComponent(entities: Observer[], component: string) {
