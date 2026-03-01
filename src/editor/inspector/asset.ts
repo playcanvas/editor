@@ -8,6 +8,7 @@ import { LOAD_SCRIPT_AS_ASSET, LOAD_SCRIPT_BEFORE_ENGINE, LOAD_SCRIPT_AFTER_ENGI
 import { AnimationAssetInspector } from './assets/animation';
 import { AnimationAssetInspectorPreview } from './assets/animation-preview';
 import { AnimstategraphAssetInspector } from './assets/animstategraph';
+import type { AssetInspectorPreviewBase } from './assets/asset-preview-base';
 import { AudioAssetInspector } from './assets/audio';
 import { BundleAssetInspector } from './assets/bundle';
 import { ContainerAssetInspector } from './assets/container';
@@ -347,7 +348,7 @@ class AssetInspector extends Container {
 
     private _typedAssetInspectors: Record<string, any> = {};
 
-    private _typedAssetPreviews: Record<string, any> = {};
+    private _typedAssetPreviews: Record<string, AssetInspectorPreviewBase & { updatePreview?(): void }> = {};
 
     private _assetsList: ObserverList;
 
