@@ -2,8 +2,7 @@ import type { EventHandle, Observer } from '@playcanvas/observer';
 import { Container, Button, Menu, TextInput, VectorInput } from '@playcanvas/pcui';
 
 import { COMPONENT_LOGOS } from '@/core/constants';
-import { LocalStorage } from '@/editor-api';
-import type { History } from '@/editor-api';
+import { LocalStorage, type History } from '@/editor-api';
 
 import type { Attribute } from './attribute.type.d';
 import { AttributesInspector } from './attributes-inspector';
@@ -14,6 +13,7 @@ import { AudiosourceComponentInspector } from './components/audiosource';
 import { ButtonComponentInspector } from './components/button';
 import { CameraComponentInspector } from './components/camera';
 import { CollisionComponentInspector } from './components/collision';
+import type { ComponentInspector } from './components/component';
 import { ElementComponentInspector } from './components/element';
 import { GSplatComponentInspector } from './components/gsplat';
 import { LayoutchildComponentInspector } from './components/layoutchild';
@@ -210,7 +210,7 @@ class EntityInspector extends Container {
 
     private _attributesInspector: AttributesInspector;
 
-    private _componentInspectors: Record<string, any> = {};
+    private _componentInspectors: Record<string, ComponentInspector> = {};
 
     private _entities: Observer[] | null = null;
 
