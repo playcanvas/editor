@@ -9,8 +9,8 @@
         border: none;
         border-radius: 0;
         margin: 0;
-        width: 45px;
-        height: 45px;
+        width: 40px;
+        height: 40px;
         flex-shrink: 0;
 
         &.hidden {
@@ -19,19 +19,19 @@
 
         &.logo {
             background-image: url('https://playcanvas.com/static-assets/images/editor_logo.png');
-            background-size: 92px 46px;
+            background-size: 80px 40px;
             background-repeat: no-repeat;
-            background-position: -1px -1px;
+            background-position: 0 0;
 
             &:hover {
-                background-position: -47px -1px;
+                background-position: -40px 0;
             }
         }
 
         &.icon,
         &.pc-icon {
             color: $text-dark;
-            line-height: 43px;
+            line-height: 38px;
             text-align: center;
             background-color: $bcg-primary;
 
@@ -123,4 +123,20 @@
 
 #layout-toolbar.hide-items > div {
     display: none;
+}
+
+@media (max-height: 760px) {
+    #layout-toolbar > .pcui-button {
+        &.github,
+        &.discord,
+        &.forum,
+        &.help-howdoi,
+        &.help-controls {
+            display: none;
+        }
+
+        &.editor-settings {
+            margin-top: auto;
+        }
+    }
 }
