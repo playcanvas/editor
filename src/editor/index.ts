@@ -294,15 +294,19 @@ import './toolbar/toolbar-history';
 import './toolbar/toolbar-lightmapper';
 import './toolbar/toolbar-publish';
 import './toolbar/toolbar-code-editor';
-import './toolbar/toolbar-scene';
-import './toolbar/toolbar-launch';
-import './toolbar/toolbar-cameras';
-import './toolbar/toolbar-whois';
-import './toolbar/toolbar-connection';
-import './toolbar/toolbar-usage';
-import './toolbar/toolbar-scene-limits';
-import './toolbar/toolbar-render';
-import './toolbar/toolbar-maintenance';
+
+// viewport controls
+import './viewport-controls/viewport-scene';
+import './viewport-controls/viewport-launch';
+import './viewport-controls/viewport-cameras';
+import './viewport-controls/viewport-render';
+import './viewport-controls/viewport-whois';
+
+// alerts
+import './alerts/alert-connection';
+import './alerts/alert-usage';
+import './alerts/alert-scene-limits';
+import './alerts/alert-maintenance';
 
 
 // pickers
