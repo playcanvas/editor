@@ -1014,7 +1014,6 @@ class Table extends Container {
     get isAscending() {
         return this._sort.ascending;
     }
-
 }
 
 export { Table };
