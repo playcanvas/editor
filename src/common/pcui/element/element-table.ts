@@ -50,8 +50,6 @@ interface TableArgs extends ContainerArgs {
     columns?: TableColumn[];
     /** The default column index to sort by */
     defaultSortColumn?: number;
-    /** Whether table rows will be focused on selection. Defaults to true. */
-    allowRowFocus?: boolean;
 }
 
 /**
@@ -89,8 +87,6 @@ class Table extends Container {
     private _selectedRows: TableRow[];
 
     private _lastRowFocused: TableRow | null;
-
-    private _allowRowFocus: boolean;
 
     private _columns: TableColumn[];
 
@@ -153,7 +149,6 @@ class Table extends Container {
 
         this._selectedRows = [];
         this._lastRowFocused = null;
-        this.allowRowFocus = (args.allowRowFocus !== undefined ? args.allowRowFocus : true);
 
         this._columns = [];
 
@@ -395,6 +390,7 @@ class Table extends Container {
         }
 
         next.selected = true;
+        next.focus();
 
         // Manually scroll the focused row into view, accounting for the sticky header
         const headerRow = this._containerHead.dom.firstElementChild as HTMLElement;
@@ -1019,13 +1015,6 @@ class Table extends Container {
         return this._sort.ascending;
     }
 
-    set allowRowFocus(value: boolean) {
-        this._allowRowFocus = value;
-    }
-
-    get allowRowFocus() {
-        return this._allowRowFocus;
-    }
 }
 
 export { Table };

@@ -1096,18 +1096,36 @@ class AssetPanel extends Panel {
 
     _focusFirstVisibleItem() {
         if (this._viewMode === AssetPanel.VIEW_DETAILS) {
-            const row = this._detailsView.dom.querySelector('tbody > tr[tabindex]') as HTMLElement;
-            if (row) {
-                row.focus();
+            const row = this._detailsView.dom.querySelector('tbody > tr[tabindex]:not(.pcui-hidden)') as HTMLElement;
+            if (row?.ui instanceof TableRow) {
+                row.ui.selected = true;
+                row.ui.focus();
             }
         } else {
             const children = this._gridView.dom.childNodes;
             for (let i = 0; i < children.length; i++) {
                 const el = children[i] as any;
                 if (el.ui instanceof AssetGridViewItem && !el.ui.hidden) {
-                    el.focus();
+                    el.ui.selected = true;
+                    el.ui.focus();
                     return;
                 }
+            }
+        }
+    }
+
+    _focusAssetItem(assetId: number) {
+        if (this._viewMode === AssetPanel.VIEW_DETAILS) {
+            const row = this._rowsIndex[assetId];
+            if (row && !row.hidden) {
+                row.selected = true;
+                row.focus();
+            }
+        } else {
+            const item = this._gridIndex[assetId];
+            if (item && !item.hidden) {
+                item.selected = true;
+                item.focus();
             }
         }
     }
@@ -2462,11 +2480,16 @@ class AssetPanel extends Panel {
             return;
         }
 
+        const prevFolderId = this.currentFolder.get('id');
+
         const path = this.currentFolder.get('path');
         let folder = null;
         if (path.length) {
             folder = this._assets.get(path[path.length - 1]);
         }
+
+        const view = this._viewMode === AssetPanel.VIEW_DETAILS ? this._detailsView : this._gridView;
+        view.once('filter:end', () => this._focusAssetItem(prevFolderId));
 
         this.currentFolder = folder;
     }
@@ -2749,21 +2772,14 @@ class AssetPanel extends Panel {
         this._selectedAssets = value.slice();
 
         if (value.length) {
-            // disable focusing for table because of performance issues
-            // when there are many rows
-            this._detailsView.allowRowFocus = false;
-
             value.forEach((asset) => {
                 this._setAssetSelected(asset, true);
             });
 
-            // restore table focus and focus last selected row
-            this._detailsView.allowRowFocus = true;
             const lastRow = this._rowsIndex[value[value.length - 1].get('id')];
             if (lastRow && lastRow.selected) {
                 lastRow.focus();
             }
-
         }
     }
 
