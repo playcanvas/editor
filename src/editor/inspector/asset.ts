@@ -386,7 +386,7 @@ class AssetInspector extends Container {
             icon: 'E228',
             ignoreParent: true
         });
-        this._btnDownloadAsset.style.flex = 1;
+        this._btnDownloadAsset.style.flex = '1';
 
         this._containerButtons.append(this._btnDownloadAsset);
 
@@ -398,7 +398,7 @@ class AssetInspector extends Container {
             icon: 'E117',
             ignoreParent: true
         });
-        this._btnOpenInViewer.style.flex = 1;
+        this._btnOpenInViewer.style.flex = '1';
 
         this._containerButtons.append(this._btnOpenInViewer);
 
@@ -411,7 +411,7 @@ class AssetInspector extends Container {
             icon: 'E130',
             ignoreParent: true
         });
-        this._btnEditAsset.style.flex = 1;
+        this._btnEditAsset.style.flex = '1';
         const evtBtnEditPermissions = editor.on('permissions:writeState', (state) => {
             this._btnEditAsset.text = state ? 'EDIT' : 'VIEW';
         });
@@ -426,7 +426,7 @@ class AssetInspector extends Container {
             text: 'SPRITE EDITOR',
             icon: 'E413'
         });
-        this._btnEditSprite.style.flex = 1;
+        this._btnEditSprite.style.flex = '1';
         this._btnEditSprite.on('click', this._onClickEditSprite.bind(this));
         this._containerButtons.append(this._btnEditSprite);
 
