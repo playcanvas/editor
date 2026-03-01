@@ -335,7 +335,7 @@ class EntityInspector extends Container {
         if (editor.call('picker:isOpen')) {
             return;
         }
-        const nameField = this._attributesInspector.getField('name') as unknown as TextInput;
+        const nameField = this._attributesInspector.getField<TextInput>('name');
         nameField.flash();
         nameField.focus();
     }
@@ -665,9 +665,9 @@ class EntityInspector extends Container {
             }
         });
 
-        const positionField = this._attributesInspector.getField('position') as unknown as VectorInput;
-        const rotationField = this._attributesInspector.getField('rotation') as unknown as VectorInput;
-        const scaleField = this._attributesInspector.getField('scale') as unknown as VectorInput;
+        const positionField = this._attributesInspector.getField<VectorInput>('position');
+        const rotationField = this._attributesInspector.getField<VectorInput>('rotation');
+        const scaleField = this._attributesInspector.getField<VectorInput>('scale');
 
         positionField.inputs[0].enabled = !disablePositionXY;
         positionField.inputs[1].enabled = !disablePositionXY;
