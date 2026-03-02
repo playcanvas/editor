@@ -808,11 +808,12 @@ class Table extends Container {
                 }
             }
 
+            this._validateActiveRow();
+
             if (i < len) {
                 this.emit('filter:delay');
                 this._filterAnimationFrame = requestAnimationFrame(next);
             } else {
-                this._validateActiveRow();
                 this.emit('filter:end');
             }
         };
