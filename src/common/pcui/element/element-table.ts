@@ -355,7 +355,9 @@ class Table extends Container {
     }
 
     _setActiveRow(row: TableRow) {
-        if (this._activeRow === row) return;
+        if (this._activeRow === row) {
+            return;
+        }
         if (this._activeRow) {
             this._activeRow.tabIndex = -1;
         }
