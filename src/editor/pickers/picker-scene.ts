@@ -64,7 +64,7 @@ editor.once('load', () => {
     toolbar.append(filter);
 
     const newScene = new Button({
-        text: 'Add new Scene',
+        text: 'Add New Scene',
         icon: 'E122',
         class: 'new'
     });
