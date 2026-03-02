@@ -50,7 +50,9 @@ test.describe('texture-convert', () => {
         // right-click the asset grid item
         const assetName = await page.evaluate((id) => {
             const asset = window.editor.api.globals.assets.get(id);
-            if (!asset) throw new Error(`Asset ${id} not found`);
+            if (!asset) {
+                throw new Error(`Asset ${id} not found`);
+            }
             return asset.get('name') as string;
         }, sourceAssetId);
         await page.locator('.pcui-asset-grid-view-item').filter({ hasText: assetName }).first().click({ button: 'right' });
@@ -103,7 +105,9 @@ test.describe('texture-convert', () => {
         await page.evaluate((id) => {
             return new Promise<void>((resolve) => {
                 const asset = window.editor.api.globals.assets.get(id);
-                if (!asset) throw new Error(`Asset ${id} not found`);
+                if (!asset) {
+                    throw new Error(`Asset ${id} not found`);
+                }
                 const meta = asset.get('meta');
                 if (meta && meta.format) {
                     resolve();
@@ -134,7 +138,9 @@ test.describe('texture-convert', () => {
 
         currentAssetId = await page.evaluate((name) => {
             const asset = window.editor.api.globals.assets.findOne((a: Asset) => (a.get('name') as string).startsWith(name));
-            if (!asset) throw new Error(`Asset "${name}" not found`);
+            if (!asset) {
+                throw new Error(`Asset "${name}" not found`);
+            }
             return asset.get('id') as number;
         }, TEXTURE_NAME);
 
@@ -157,7 +163,9 @@ test.describe('texture-convert', () => {
 
             const newAsset = await page.evaluate((id) => {
                 const asset = window.editor.api.globals.assets.get(id);
-                if (!asset) throw new Error(`Asset ${id} not found`);
+                if (!asset) {
+                    throw new Error(`Asset ${id} not found`);
+                }
                 return {
                     name: asset.get('name') as string,
                     type: asset.get('type') as string
