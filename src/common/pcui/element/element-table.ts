@@ -108,6 +108,8 @@ class Table extends Container {
 
     private _onDblClickHandler: (evt: MouseEvent) => void;
 
+    private _onFocusInHandler: (evt: FocusEvent) => void;
+
     private _prevScrollTop: number;
 
     constructor(args: TableArgs = {}) {
@@ -175,16 +177,8 @@ class Table extends Container {
         this._onDblClickHandler = this._onDblClick.bind(this);
         this._containerBody.dom.addEventListener('dblclick', this._onDblClickHandler);
 
-        this._containerBody.dom.addEventListener('focusin', (evt: FocusEvent) => {
-            let target = evt.target as HTMLElement;
-            while (target && target !== this._containerBody.dom) {
-                if ((target as any).ui instanceof TableRow && !(target as any).ui._header) {
-                    this._setActiveRow((target as any).ui);
-                    break;
-                }
-                target = target.parentElement;
-            }
-        });
+        this._onFocusInHandler = this._onFocusIn.bind(this);
+        this._containerBody.dom.addEventListener('focusin', this._onFocusInHandler);
     }
 
     // Recreates the table rows
@@ -253,9 +247,6 @@ class Table extends Container {
     _createRow(observer: Observer) {
         const row = this._createRowFn(observer);
         row.table = this;
-        if (!this._activeRow) {
-            this._setActiveRow(row);
-        }
         row.on('click', evt => this._onRowClick(evt, row));
         row.on('select', this._onRowSelectHandler);
         row.on('deselect', this._onRowDeselectHandler);
@@ -274,6 +265,10 @@ class Table extends Container {
 
         if (this._filterFn) {
             row.hidden = !this._filterFn(row);
+        }
+
+        if (!this._activeRow && !row.hidden) {
+            this._setActiveRow(row);
         }
 
         return row;
@@ -354,8 +349,19 @@ class Table extends Container {
         this.emit('deselect', row);
     }
 
+    _onFocusIn(evt: FocusEvent) {
+        let target = evt.target as HTMLElement;
+        while (target && target !== this._containerBody.dom) {
+            if ((target as any).ui instanceof TableRow && !(target as any).ui.header) {
+                this._setActiveRow((target as any).ui);
+                break;
+            }
+            target = target.parentElement;
+        }
+    }
+
     _setActiveRow(row: TableRow) {
-        if (this._activeRow === row) {
+        if (this._activeRow === row || row.hidden || row.destroyed) {
             return;
         }
         if (this._activeRow) {
@@ -363,6 +369,24 @@ class Table extends Container {
         }
         row.tabIndex = 0;
         this._activeRow = row;
+    }
+
+    _validateActiveRow() {
+        if (this._activeRow && !this._activeRow.hidden) {
+            return;
+        }
+        if (this._activeRow) {
+            this._activeRow.tabIndex = -1;
+            this._activeRow = null;
+        }
+        const children = this._containerBody.dom.childNodes;
+        for (let i = 0; i < children.length; i++) {
+            const row = (children[i] as any).ui;
+            if (row instanceof TableRow && !row.header && !row.hidden) {
+                this._setActiveRow(row);
+                return;
+            }
+        }
     }
 
     _onRowFocus(row: TableRow) {
@@ -737,6 +761,8 @@ class Table extends Container {
                 row.hidden = this._filterFn && !this._filterFn(row);
             }
         }
+
+        this._validateActiveRow();
     }
 
     /**
@@ -786,6 +812,7 @@ class Table extends Container {
                 this.emit('filter:delay');
                 this._filterAnimationFrame = requestAnimationFrame(next);
             } else {
+                this._validateActiveRow();
                 this.emit('filter:end');
             }
         };
@@ -874,11 +901,13 @@ class Table extends Container {
 
         const row = this.body.dom.childNodes[index] as HTMLElement & { ui?: TableRow };
         if (row && row.ui) {
-            if (this._activeRow === row.ui) {
-                this._activeRow = null;
-            }
+            const wasActive = this._activeRow === row.ui;
             row.ui.selected = false;
             row.ui.destroy();
+            if (wasActive) {
+                this._activeRow = null;
+                this._validateActiveRow();
+            }
         }
     }
 
@@ -1008,6 +1037,7 @@ class Table extends Container {
 
         this._resizingVisibleRows.length = 0;
         this.dom.addEventListener('wheel', this._domEvtWheel);
+        this._containerBody.dom.removeEventListener('focusin', this._onFocusInHandler);
 
         super.destroy();
     }

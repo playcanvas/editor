@@ -143,6 +143,10 @@ class TableRow extends Container {
         return null;
     }
 
+    get header() {
+        return this._header;
+    }
+
     set table(value: Table | null) {
         this._table = value;
     }
