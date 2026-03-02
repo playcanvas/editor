@@ -1,6 +1,7 @@
 import { Observer } from '@playcanvas/observer';
 
 import { ObserverSync } from '@/common/observer-sync';
+import type { LaunchConfig } from '@/editor-api/external-types/config';
 
 editor.once('load', () => {
     const app = editor.call('viewport:app');
@@ -8,6 +9,7 @@ editor.once('load', () => {
         return;
     } // webgl not available
 
+    const launchConfig = config as LaunchConfig;
     const settings = editor.call('settings:project');
     const docs: Record<string, { unsubscribe: () => void; destroy: () => void }> = { };
 
@@ -94,10 +96,10 @@ editor.once('load', () => {
             if (assetData.file) {
                 if (concatenateScripts && assetData.type === 'script' && assetData.file.filename.endsWith('.js') && assetData.preload && !assetData.data.loadingType) {
                     assetData.file.url = concatenatedScriptsUrl;
-                } else if (config.signedUrls && config.signedUrls[assetData.id]) {
+                } else if (launchConfig.signedUrls && launchConfig.signedUrls[assetData.id]) {
                     // Use pre-signed CloudFront URL
-                    assetData.file.url = config.signedUrls[assetData.id];
-                    delete assetData.file.hash;                    
+                    assetData.file.url = launchConfig.signedUrls[assetData.id];
+                    delete assetData.file.hash;
                 } else {
                     assetData.file.url = getFileUrl(assetData.path, assetData.id, assetData.revision, assetData.file.filename);
                 }
@@ -105,8 +107,8 @@ editor.once('load', () => {
                 if (assetData.file.variants) {
                     for (key in assetData.file.variants) {
                         const variantSignedKey = `${assetData.id}:${key}`;
-                        if (config.signedUrls && config.signedUrls[variantSignedKey]) {
-                            assetData.file.variants[key].url = config.signedUrls[variantSignedKey];
+                        if (launchConfig.signedUrls && launchConfig.signedUrls[variantSignedKey]) {
+                            assetData.file.variants[key].url = launchConfig.signedUrls[variantSignedKey];
                             delete assetData.file.variants[key].hash;
                         } else {
                             assetData.file.variants[key].url = getFileUrl(assetData.path, assetData.id, assetData.revision, assetData.file.variants[key].filename);
