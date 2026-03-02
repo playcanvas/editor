@@ -1,4 +1,3 @@
-import type { Observer } from '@playcanvas/observer';
 import { expect, test, type Page } from '@playwright/test';
 
 import { capture } from '../../lib/capture';
@@ -6,8 +5,10 @@ import { checkCookieAccept, deleteProject, importProject } from '../../lib/commo
 import { editorBlankUrl, editorUrl } from '../../lib/config';
 import { middleware } from '../../lib/middleware';
 
+type Asset = Exclude<ReturnType<typeof window.editor.api.globals.assets.get>, null>;
+
 const IN_PATH = 'test/fixtures/projects/texture-blank.zip';
-const TEXTURE_NAME = 'TEST_TEXTURE';
+const TEXTURE_NAME = 'TEST_TEXTURE.png';
 const FORMAT_LABELS: Record<string, string> = {
     webp: 'WebP',
     avif: 'AVIF',
@@ -46,30 +47,6 @@ test.describe('texture-convert', () => {
     });
 
     const convertTextureViaUI = async (sourceAssetId: number, targetFormat: string): Promise<number> => {
-        // listen for new source asset via messenger (set up before triggering conversion)
-        const newAssetPromise = page.evaluate(() => {
-            return new Promise<number>((resolve) => {
-                const handle = window.editor.api.globals.messenger.on('message', (name: string, data: any) => {
-                    if (name === 'asset.new' && data.asset.source) {
-                        handle.unbind();
-                        const newId = parseInt(data.asset.id, 10);
-
-                        // wait for asset to load into the local store
-                        if (window.editor.api.globals.assets.get(newId)) {
-                            resolve(newId);
-                            return;
-                        }
-                        const addHandle = window.editor.api.globals.assets.on('add', (asset) => {
-                            if (asset.get('id') === newId) {
-                                addHandle.unbind();
-                                resolve(newId);
-                            }
-                        });
-                    }
-                });
-            });
-        });
-
         // right-click the asset grid item
         const assetName = await page.evaluate((id) => {
             const asset = window.editor.api.globals.assets.get(id);
@@ -78,12 +55,76 @@ test.describe('texture-convert', () => {
         }, sourceAssetId);
         await page.locator('.pcui-asset-grid-view-item').filter({ hasText: assetName }).first().click({ button: 'right' });
 
-        // hover "Convert" to expand submenu, then click the target format
-        await page.locator('.ui-menu-item .text').filter({ hasText: /^Convert$/ }).hover();
-        const label = FORMAT_LABELS[targetFormat];
-        await page.locator('.ui-menu-item .text').filter({ hasText: new RegExp(`^${label}$`) }).click();
+        // creation promise — wait for the new asset to appear AND have its file set
+        // (meta.format is populated alongside file; without this the next convert silently exits)
+        const createPromise = page.evaluate(() => {
+            return new Promise<number>((resolve) => {
+                const handle = window.editor.api.globals.messenger.on('message', (name: string, data: any) => {
+                    if (name === 'asset.new') {
+                        handle.unbind();
+                        const newId = parseInt(data.asset.id, 10);
+                        console.log(`New asset created with ID: ${newId}`);
 
-        return await newAssetPromise;
+                        const waitForFile = (asset: Asset) => {
+                            if (asset.get('file')) {
+                                resolve(newId);
+                                return;
+                            }
+                            asset.once('file:set', () => resolve(newId));
+                        };
+
+                        // wait for asset to load into the local store, then wait for file
+                        const existing = window.editor.api.globals.assets.get(newId);
+                        if (existing) {
+                            waitForFile(existing);
+                            return;
+                        }
+                        const addHandle = window.editor.api.globals.assets.on('add', (asset) => {
+                            if (asset.get('id') === newId) {
+                                addHandle.unbind();
+                                waitForFile(asset);
+                            }
+                        });
+                    }
+                });
+            });
+        });
+
+        // hover "Convert" to expand submenu, then click the target format
+        await page.locator('.pcui-menu-item-content > .pcui-label').filter({ hasText: /^Convert$/ }).hover();
+        const label = FORMAT_LABELS[targetFormat];
+        await page.locator('.pcui-menu-item-content > .pcui-label').filter({ hasText: new RegExp(`^${label}$`) }).dispatchEvent('click');
+
+        // wait for new asset to be created (with file ready)
+        const assetId = await createPromise;
+
+        // wait for meta.format — this is the exact condition the convert handler
+        // checks before proceeding (assets-context-menu.ts:182)
+        await page.evaluate((id) => {
+            return new Promise<void>((resolve) => {
+                const asset = window.editor.api.globals.assets.get(id);
+                if (!asset) throw new Error(`Asset ${id} not found`);
+                const meta = asset.get('meta');
+                if (meta && meta.format) {
+                    resolve();
+                    return;
+                }
+                // meta.format could arrive as whole meta object or specific field —
+                // listen for both event patterns
+                const check = () => {
+                    const m = asset.get('meta');
+                    if (m && m.format) {
+                        asset.unbind('meta:set', check);
+                        asset.unbind('meta.format:set', check);
+                        resolve();
+                    }
+                };
+                asset.on('meta:set', check);
+                asset.on('meta.format:set', check);
+            });
+        }, assetId);
+
+        return assetId;
     };
 
     test('prepare project', async () => {
@@ -92,7 +133,7 @@ test.describe('texture-convert', () => {
         })).toStrictEqual([]);
 
         currentAssetId = await page.evaluate((name) => {
-            const asset = window.editor.api.globals.assets.findOne((a: Observer) => (a.get('name') as string).startsWith(name));
+            const asset = window.editor.api.globals.assets.findOne((a: Asset) => (a.get('name') as string).startsWith(name));
             if (!asset) throw new Error(`Asset "${name}" not found`);
             return asset.get('id') as number;
         }, TEXTURE_NAME);
