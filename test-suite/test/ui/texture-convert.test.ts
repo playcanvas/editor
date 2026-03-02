@@ -57,34 +57,44 @@ test.describe('texture-convert', () => {
         }, sourceAssetId);
         await page.locator('.pcui-asset-grid-view-item').filter({ hasText: assetName }).first().click({ button: 'right' });
 
-        // creation promise — wait for the new asset to appear AND have its file set
-        // (meta.format is populated alongside file; without this the next convert silently exits)
+        // creation promise — wait for the new asset to appear AND have meta.format set
         const createPromise = page.evaluate(() => {
             return new Promise<number>((resolve) => {
                 const handle = window.editor.api.globals.messenger.on('message', (name: string, data: any) => {
                     if (name === 'asset.new') {
                         handle.unbind();
                         const newId = parseInt(data.asset.id, 10);
-                        console.log(`New asset created with ID: ${newId}`);
 
-                        const waitForFile = (asset: Asset) => {
-                            if (asset.get('file')) {
+                        // wait for the new asset to have meta.format set, which indicates it's
+                        // ready for use by the convert handler
+                        const waitForMeta = (asset: Asset) => {
+                            const meta = asset.get('meta');
+                            if (meta && meta.format) {
                                 resolve(newId);
                                 return;
                             }
-                            asset.once('file:set', () => resolve(newId));
+                            const check = () => {
+                                const m = asset.get('meta');
+                                if (m && m.format) {
+                                    asset.unbind('meta:set', check);
+                                    asset.unbind('meta.format:set', check);
+                                    resolve(newId);
+                                }
+                            };
+                            asset.on('meta:set', check);
+                            asset.on('meta.format:set', check);
                         };
 
-                        // wait for asset to load into the local store, then wait for file
+                        // wait for asset to load into the local store, then wait for meta.format
                         const existing = window.editor.api.globals.assets.get(newId);
                         if (existing) {
-                            waitForFile(existing);
+                            waitForMeta(existing);
                             return;
                         }
                         const addHandle = window.editor.api.globals.assets.on('add', (asset) => {
                             if (asset.get('id') === newId) {
                                 addHandle.unbind();
-                                waitForFile(asset);
+                                waitForMeta(asset);
                             }
                         });
                     }
@@ -97,38 +107,8 @@ test.describe('texture-convert', () => {
         const label = FORMAT_LABELS[targetFormat];
         await page.locator('.pcui-menu-item-content > .pcui-label').filter({ hasText: new RegExp(`^${label}$`) }).dispatchEvent('click');
 
-        // wait for new asset to be created (with file ready)
-        const assetId = await createPromise;
-
-        // wait for meta.format — this is the exact condition the convert handler
-        // checks before proceeding (assets-context-menu.ts:182)
-        await page.evaluate((id) => {
-            return new Promise<void>((resolve) => {
-                const asset = window.editor.api.globals.assets.get(id);
-                if (!asset) {
-                    throw new Error(`Asset ${id} not found`);
-                }
-                const meta = asset.get('meta');
-                if (meta && meta.format) {
-                    resolve();
-                    return;
-                }
-                // meta.format could arrive as whole meta object or specific field —
-                // listen for both event patterns
-                const check = () => {
-                    const m = asset.get('meta');
-                    if (m && m.format) {
-                        asset.unbind('meta:set', check);
-                        asset.unbind('meta.format:set', check);
-                        resolve();
-                    }
-                };
-                asset.on('meta:set', check);
-                asset.on('meta.format:set', check);
-            });
-        }, assetId);
-
-        return assetId;
+        // wait for new asset to be created with meta.format ready
+        return await createPromise;
     };
 
     test('prepare project', async () => {
