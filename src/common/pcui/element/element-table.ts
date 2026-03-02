@@ -88,6 +88,8 @@ class Table extends Container {
 
     private _lastRowFocused: TableRow | null;
 
+    private _activeRow: TableRow | null;
+
     private _columns: TableColumn[];
 
     private _observers: Observer[] | null;
@@ -149,6 +151,7 @@ class Table extends Container {
 
         this._selectedRows = [];
         this._lastRowFocused = null;
+        this._activeRow = null;
 
         this._columns = [];
 
@@ -171,11 +174,23 @@ class Table extends Container {
 
         this._onDblClickHandler = this._onDblClick.bind(this);
         this._containerBody.dom.addEventListener('dblclick', this._onDblClickHandler);
+
+        this._containerBody.dom.addEventListener('focusin', (evt: FocusEvent) => {
+            let target = evt.target as HTMLElement;
+            while (target && target !== this._containerBody.dom) {
+                if ((target as any).ui instanceof TableRow && !(target as any).ui._header) {
+                    this._setActiveRow((target as any).ui);
+                    break;
+                }
+                target = target.parentElement;
+            }
+        });
     }
 
     // Recreates the table rows
     _refreshLayout() {
         this.deselect();
+        this._activeRow = null;
 
         this._containerHead.clear();
         this._containerBody.clear();
@@ -238,6 +253,9 @@ class Table extends Container {
     _createRow(observer: Observer) {
         const row = this._createRowFn(observer);
         row.table = this;
+        if (!this._activeRow) {
+            this._setActiveRow(row);
+        }
         row.on('click', evt => this._onRowClick(evt, row));
         row.on('select', this._onRowSelectHandler);
         row.on('deselect', this._onRowDeselectHandler);
@@ -336,8 +354,18 @@ class Table extends Container {
         this.emit('deselect', row);
     }
 
-    _onRowFocus(row: any) {
+    _setActiveRow(row: TableRow) {
+        if (this._activeRow === row) return;
+        if (this._activeRow) {
+            this._activeRow.tabIndex = -1;
+        }
+        row.tabIndex = 0;
+        this._activeRow = row;
+    }
+
+    _onRowFocus(row: TableRow) {
         this._lastRowFocused = row;
+        this._setActiveRow(row);
     }
 
     _onRowBlur(row: any) {
@@ -792,6 +820,7 @@ class Table extends Container {
         }
 
         this.deselect();
+        this._activeRow = null;
 
         this._observers = null;
 
@@ -843,6 +872,9 @@ class Table extends Container {
 
         const row = this.body.dom.childNodes[index] as HTMLElement & { ui?: TableRow };
         if (row && row.ui) {
+            if (this._activeRow === row.ui) {
+                this._activeRow = null;
+            }
             row.ui.selected = false;
             row.ui.destroy();
         }
