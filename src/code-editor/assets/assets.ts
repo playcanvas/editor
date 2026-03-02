@@ -8,7 +8,7 @@ editor.once('load', () => {
     const assets = new ObserverList({
         index: 'id',
         sorted: function (a: { _data: { type: string; name: string } }, b: { _data: { type: string; name: string } }) {
-            const f = (b._data.type === 'folder') - (a._data.type === 'folder');
+            const f = Number(b._data.type === 'folder') - Number(a._data.type === 'folder');
 
             if (f !== 0) {
                 return f;
@@ -82,7 +82,7 @@ editor.once('load', () => {
 
             const ind = assets.data.indexOf(this);
             let pos = assets.positionNextClosest(this, (a, b) => {
-                const f = (b._data.type === 'folder') - (a._data.type === 'folder');
+                const f = Number(b._data.type === 'folder') - Number(a._data.type === 'folder');
 
                 if (f !== 0) {
                     return f;

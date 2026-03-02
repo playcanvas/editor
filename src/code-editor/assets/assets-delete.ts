@@ -1,5 +1,7 @@
+import { type Observer } from '@playcanvas/observer';
+
 editor.once('load', () => {
-    editor.method('assets:delete:picker', (items: unknown[]) => {
+    editor.method('assets:delete:picker', (items: Observer[]) => {
         if (!editor.call('permissions:write')) {
             return;
         }
