@@ -39,8 +39,21 @@ editor.once('load', () => {
     progressBar.hidden = true;
     container.append(progressBar);
 
+    // disables / enables field depending on permissions
+    const handlePermissions = (field: Element) => {
+        field.enabled = editor.call('permissions:write');
+        return editor.on(`permissions:set:${config.self.id}`, (accessLevel) => {
+            field.enabled = accessLevel === 'write' || accessLevel === 'admin';
+        });
+    };
+
+    const toolbar = new Container({
+        class: 'toolbar'
+    });
+    container.append(toolbar);
+
     const filter = new TextInput({
-        placeholder: 'Filter scenes',
+        placeholder: 'Search',
         keyChange: true,
         renderChanges: false,
         class: 'filter'
@@ -48,7 +61,15 @@ editor.once('load', () => {
     filter.on('change', () => {
         refreshScenes();
     });
-    container.append(filter);
+    toolbar.append(filter);
+
+    const newScene = new Button({
+        text: 'Add new Scene',
+        icon: 'E122',
+        class: 'new'
+    });
+    handlePermissions(newScene);
+    toolbar.append(newScene);
 
     const sceneList = new LegacyList();
     sceneList.class.add('scene-list');
@@ -283,14 +304,6 @@ editor.once('load', () => {
 
     editor.call('layout.root').append(dropdownMenu);
 
-    // disables / enables field depending on permissions
-    const handlePermissions = (field: Element) => {
-        field.enabled = editor.call('permissions:write');
-        return editor.on(`permissions:set:${config.self.id}`, (accessLevel) => {
-            field.enabled = accessLevel === 'write' || accessLevel === 'admin';
-        });
-    };
-
     // on closing menu remove 'clicked' class from respective dropdown
     dropdownMenu.on('hide', () => {
         if (dropdownScene) {
@@ -304,16 +317,6 @@ editor.once('load', () => {
             }
         }
     });
-
-    // new scene button
-    const newScene = new Button({
-        text: 'Add new Scene',
-        class: 'new'
-    });
-
-    handlePermissions(newScene);
-
-    container.append(newScene);
 
     newScene.on('click', () => {
         if (!editor.call('permissions:write')) {
