@@ -3752,7 +3752,13 @@ strong {
 }
 
 .pcui-container.picker-scene-panel {
+    height: 100%;
     font-size: 14px;
+
+    &:not(.pcui-hidden) {
+        display: flex;
+        flex-direction: column;
+    }
 
     @extend .font-regular;
 
@@ -3760,41 +3766,41 @@ strong {
         padding-left: 10px;
     }
 
-    > .pcui-text-input {
-        margin: 10px;
-        width: calc(100% - 20px);
-    }
-
     > .pcui-progress {
         width: 100%;
     }
 
-    > .pcui-button.new {
-        margin: 15px 0 15px 10px;
-        padding: 0;
-        width: 165px;
-        height: 34px;
-        line-height: 34px;
-        font-size: 12px;
-        text-transform: uppercase;
-        text-align: left;
+    > .toolbar {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 10px;
+        padding: 10px;
+        flex-shrink: 0;
 
-        @extend .font-bold;
+        > .pcui-text-input {
+            flex: 1;
+            margin: 0;
+            width: auto;
+            height: 28px;
 
-        &::before {
-            @extend .font-icon;
-
-            font-size: 14px;
-            content: '\E122';
-            color: $text-secondary;
-            vertical-align: top;
-            padding-right: 10px;
-            padding-left: 20px;
+            &::after {
+                line-height: 26px;
+            }
         }
 
-        &:not(.disabled):hover::before {
-            color: $text-active;
+        > .pcui-button.new {
+            margin: 0;
+            text-transform: uppercase;
+
+            @extend .font-bold;
         }
+    }
+
+    > .ui-list.scene-list {
+        flex: 1;
+        overflow-y: auto;
+        min-height: 0;
     }
 }
 
