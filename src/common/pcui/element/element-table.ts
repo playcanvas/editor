@@ -1036,7 +1036,8 @@ class Table extends Container {
         }
 
         this._resizingVisibleRows.length = 0;
-        this.dom.addEventListener('wheel', this._domEvtWheel);
+        this.dom.removeEventListener('wheel', this._domEvtWheel);
+        this._containerBody.dom.removeEventListener('dblclick', this._onDblClickHandler);
         this._containerBody.dom.removeEventListener('focusin', this._onFocusInHandler);
 
         super.destroy();
