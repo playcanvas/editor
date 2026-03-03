@@ -99,8 +99,8 @@ editor.once('load', () => {
             }
         }
 
-        if (location.search.includes('use_local_frontend')) {
-            query.push('use_local_frontend');
+        if (params.has('use_local_frontend')) {
+            query.push(`use_local_frontend=${params.get('use_local_frontend')}`);
         }
 
         if (query.length) {
