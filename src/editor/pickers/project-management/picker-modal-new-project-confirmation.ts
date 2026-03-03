@@ -99,8 +99,9 @@ editor.once('load', () => {
     // method to display panel
     editor.method('picker:project:newProjectConfirmation', (projectId) => {
         projectURL = `/editor/project/${projectId}`;
-        if (location.search.includes('use_local_frontend')) {
-            projectURL += '?use_local_frontend';
+        const params = new URLSearchParams(location.search);
+        if (params.has('use_local_frontend')) {
+            projectURL += `?use_local_frontend=${params.get('use_local_frontend')}`;
         }
         overlay.hidden = false;
     });
