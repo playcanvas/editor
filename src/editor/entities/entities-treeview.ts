@@ -1,5 +1,5 @@
 import type { Observer, ObserverList, EventHandle } from '@playcanvas/observer';
-import { Element, TreeView, TreeViewItem, type TreeViewArgs, Container } from '@playcanvas/pcui';
+import { Element, TreeView, TreeViewItem, type TreeViewArgs, type ReparentedItem, Container } from '@playcanvas/pcui';
 
 import type { DropManager } from '@/common/pcui/element/element-drop-manager';
 import type { DropTarget } from '@/common/pcui/element/element-drop-target';
@@ -16,6 +16,9 @@ const CLASS_USER_SELECTION_MARKER = `${CLASS_ROOT}-user-marker`;
 const CLASS_USER_SELECTION_MARKER_CONTAINER = `${CLASS_USER_SELECTION_MARKER}-container`;
 const CLASS_FILTERING = 'pcui-treeview-filtering';
 const CLASS_FILTER_RESULT = `${CLASS_FILTERING}-result`;
+
+const DROPPABLE_ASSET_TYPES = new Set(['template', 'model', 'sprite']);
+const DROPPABLE_DROP_TYPES = new Set([...DROPPABLE_ASSET_TYPES].map(t => `asset.${t}`));
 
 interface EntityTreeViewItem extends TreeViewItem {
     entity: Observer;
@@ -42,7 +45,7 @@ class EntitiesTreeView extends TreeView {
 
     private _rootItem: EntityTreeViewItem | null = null;
 
-    private _treeItemIndex: Record<string, EntityTreeViewItem> = {};
+    private _treeItemIndex = new Map<string, EntityTreeViewItem>();
 
     private _userSelectionMarkers: Record<string, { color: string; markers: Element[]; pool: Element[] }> = {};
 
@@ -62,19 +65,13 @@ class EntitiesTreeView extends TreeView {
 
     private _dropData: any = null;
 
-    private _domEvtEntitiesMouseEnter: (evt: MouseEvent) => void;
-
-    private _domEvtEntitiesMouseLeave: (evt: MouseEvent) => void;
-
-    private _domEvtEntitiesMouseUp: (evt: MouseEvent) => void;
-
     private _writePermissions!: boolean;
 
-    searchFilters: Record<string, boolean> = {};
+    private _searchFilters = new Set<string>();
 
-    searchFilterMap: Record<string, any> = {};
+    private _searchFilterMap = new Map<string, any>();
 
-    fuzzy = true;
+    private _fuzzy = true;
 
     constructor(args: Readonly<EntitiesTreeViewArgs>) {
         super(args);
@@ -92,51 +89,48 @@ class EntitiesTreeView extends TreeView {
         this._history = args.history;
         this._dropManager = args.dropManager;
 
-        this.on('rename', this._onRename.bind(this));
+        this.on('rename', this._onRename);
 
-        this.on('dragstart', this._onStartDrag.bind(this));
-        this.on('dragend', this._onEndDrag.bind(this));
+        this.on('dragstart', this._onStartDrag);
+        this.on('dragend', this._onEndDrag);
 
-        this.on('select', this._onSelectEntityItem.bind(this));
-        this.on('deselect', this._onDeselectEntityItem.bind(this));
+        this.on('select', this._onSelectEntityItem);
+        this.on('deselect', this._onDeselectEntityItem);
 
-        this._onReparentFn = this._onReparent.bind(this);
+        this._onReparentFn = this._onReparent;
 
-        this._eventsEditor.push(editor.on('selector:change', this._onSelectorChange.bind(this)));
-        this._eventsEditor.push(editor.on('selector:sync', this._onSelectorSync.bind(this)));
-        this._eventsEditor.push(editor.on('whoisonline:remove', this._onUserOffline.bind(this)));
-
-        this._domEvtEntitiesMouseEnter = this._onEntitiesMouseEnter.bind(this);
-        this._domEvtEntitiesMouseLeave = this._onEntitiesMouseLeave.bind(this);
-        this._domEvtEntitiesMouseUp = this._onEntitiesMouseUp.bind(this);
+        this._eventsEditor.push(editor.on('selector:change', this._onSelectorChange));
+        this._eventsEditor.push(editor.on('selector:sync', this._onSelectorSync));
+        this._eventsEditor.push(editor.on('whoisonline:remove', this._onUserOffline));
 
         if (this._dropManager) {
-            this._eventsEditor.push(this._dropManager.on('activate', this._onActivateDropManager.bind(this)));
-            this._eventsEditor.push(this._dropManager.on('deactivate', this._onDeactivateDropManager.bind(this)));
+            this._eventsEditor.push(this._dropManager.on('activate', this._onActivateDropManager));
+            this._eventsEditor.push(this._dropManager.on('deactivate', this._onDeactivateDropManager));
         }
 
         this.writePermissions = !!args.writePermissions;
     }
 
-    _onRename(item: EntityTreeViewItem, name: string) {
+    _onRename = (item: EntityTreeViewItem, name: string) => {
         if (item.entity) {
             item.entity.set('name', name);
         }
-    }
+    };
 
-    _onReparent(reparentedItems: Array<{ item: EntityTreeViewItem; newParent: EntityTreeViewItem; newChildIndex: number }>) {
+    _onReparent = (reparentedItems: ReparentedItem[]) => {
         const newParentTemplates: Record<string, Observer> = {};
 
         for (let i = 0; i < reparentedItems.length; i++) {
-            const entry = reparentedItems[i];
-            const templateRoot = editor.call('templates:isTemplateChild', entry.item.entity, this._entities);
+            const item = reparentedItems[i].item as EntityTreeViewItem;
+            const newParent = reparentedItems[i].newParent as EntityTreeViewItem;
+            const templateRoot = editor.call('templates:isTemplateChild', item.entity, this._entities);
             if (templateRoot) {
-                const newParentId = entry.newParent.entity.get('resource_id');
+                const newParentId = newParent.entity.get('resource_id');
                 if (!newParentTemplates.hasOwnProperty(newParentId)) {
-                    if (entry.newParent.entity.get('template_id')) {
-                        newParentTemplates[newParentId] = entry.newParent.entity;
+                    if (newParent.entity.get('template_id')) {
+                        newParentTemplates[newParentId] = newParent.entity;
                     } else {
-                        newParentTemplates[newParentId] = editor.call('templates:isTemplateChild', entry.newParent.entity, this._entities);
+                        newParentTemplates[newParentId] = editor.call('templates:isTemplateChild', newParent.entity, this._entities);
                     }
                 }
 
@@ -162,8 +156,8 @@ class EntitiesTreeView extends TreeView {
         const items = reparentedItems
         .map((reparented) => {
             return {
-                entity: reparented.item.entity,
-                parent: reparented.newParent.entity,
+                entity: (reparented.item as EntityTreeViewItem).entity,
+                parent: (reparented.newParent as EntityTreeViewItem).entity,
                 index: reparented.newChildIndex
             };
         });
@@ -171,37 +165,37 @@ class EntitiesTreeView extends TreeView {
         editor.call('entities:reparent', items, preserveTransform);
 
         editor.call('viewport:render');
-    }
+    };
 
-    _onStartDrag(dragItems: EntityTreeViewItem[]) {
+    _onStartDrag = (dragItems: EntityTreeViewItem[]) => {
         editor.call('drop:set', 'entity', {
             resource_id: dragItems[0].entity.get('resource_id')
         });
         editor.call('drop:activate', true);
-    }
+    };
 
-    _onEndDrag() {
+    _onEndDrag = () => {
         editor.call('drop:activate', false);
         editor.call('drop:set');
-    }
+    };
 
-    _onSelectEntityItem(item: EntityTreeViewItem) {
+    _onSelectEntityItem = (item: EntityTreeViewItem) => {
         if (this._suspendSelectionEvents) {
             return;
         }
 
         editor.call('selector:add', 'entity', item.entity);
-    }
+    };
 
-    _onDeselectEntityItem(item: EntityTreeViewItem) {
+    _onDeselectEntityItem = (item: EntityTreeViewItem) => {
         if (this._suspendSelectionEvents) {
             return;
         }
 
         editor.call('selector:remove', item.entity);
-    }
+    };
 
-    _onSelectorChange(type: string, entities: Observer[]) {
+    _onSelectorChange = (type: string, entities: Observer[]) => {
         if (type !== 'entity') {
             this._suspendSelectionEvents = true;
             this.deselect();
@@ -211,10 +205,7 @@ class EntitiesTreeView extends TreeView {
 
         this._suspendSelectionEvents = true;
 
-        const index: Record<string, boolean> = {};
-        entities.forEach((entity) => {
-            index[entity.get('resource_id')] = true;
-        });
+        const selectedIds = new Set(entities.map(e => e.get('resource_id')));
 
         // deselect entities no longer in the new selection
         const selected = this._selectedItems as EntityTreeViewItem[];
@@ -223,7 +214,7 @@ class EntitiesTreeView extends TreeView {
             if (!selected[i]) {
                 continue;
             }
-            if (!index[selected[i].entity.get('resource_id')]) {
+            if (!selectedIds.has(selected[i].entity.get('resource_id'))) {
                 selected[i].selected = false;
             }
         }
@@ -245,9 +236,9 @@ class EntitiesTreeView extends TreeView {
         if (lastItem) {
             lastItem.content.dom.scrollIntoView({ block: 'nearest' });
         }
-    }
+    };
 
-    _onSelectorSync(user: string, data: { type?: string; ids?: string[] }) {
+    _onSelectorSync = (user: string, data: { type?: string; ids?: string[] }) => {
         if (this._userSelectionMarkers[user]) {
             this._userSelectionMarkers[user].markers.forEach((marker) => {
                 if (!marker.destroyed) {
@@ -293,9 +284,9 @@ class EntitiesTreeView extends TreeView {
             this._userSelectionMarkers[user].markers.push(marker);
             (item as EntityTreeViewItem)._containerUsers.append(marker);
         });
-    }
+    };
 
-    _onUserOffline(userId: string) {
+    _onUserOffline = (userId: string) => {
         if (!this._userSelectionMarkers[userId]) {
             return;
         }
@@ -305,26 +296,26 @@ class EntitiesTreeView extends TreeView {
         });
 
         delete this._userSelectionMarkers[userId];
-    }
+    };
 
-    _onActivateDropManager() {
+    _onActivateDropManager = () => {
         if (!this._writePermissions) {
             return;
         }
 
-        this.dom.removeEventListener('mouseenter', this._domEvtEntitiesMouseEnter);
-        this.dom.removeEventListener('mouseleave', this._domEvtEntitiesMouseLeave);
+        this.dom.removeEventListener('mouseenter', this._onEntitiesMouseEnter);
+        this.dom.removeEventListener('mouseleave', this._onEntitiesMouseLeave);
 
-        this.dom.addEventListener('mouseenter', this._domEvtEntitiesMouseEnter);
-        this.dom.addEventListener('mouseleave', this._domEvtEntitiesMouseLeave);
-    }
+        this.dom.addEventListener('mouseenter', this._onEntitiesMouseEnter);
+        this.dom.addEventListener('mouseleave', this._onEntitiesMouseLeave);
+    };
 
-    _onDeactivateDropManager() {
-        this.dom.removeEventListener('mouseenter', this._domEvtEntitiesMouseEnter);
-        this.dom.removeEventListener('mouseleave', this._domEvtEntitiesMouseLeave);
-    }
+    _onDeactivateDropManager = () => {
+        this.dom.removeEventListener('mouseenter', this._onEntitiesMouseEnter);
+        this.dom.removeEventListener('mouseleave', this._onEntitiesMouseLeave);
+    };
 
-    _onEntitiesMouseEnter(evt: MouseEvent) {
+    _onEntitiesMouseEnter = (evt: MouseEvent) => {
         this._dropType = this._dropManager!.dropType;
         this._dropData = this._dropManager!.dropData;
         if (!this._isDraggingValidAssetType(this._dropType, this._dropData)) {
@@ -333,13 +324,13 @@ class EntitiesTreeView extends TreeView {
 
         if (this._dropData) {
             this.isDragging = true;
-            window.removeEventListener('mouseup', this._domEvtEntitiesMouseUp);
-            window.addEventListener('mouseup', this._domEvtEntitiesMouseUp);
+            window.removeEventListener('mouseup', this._onEntitiesMouseUp);
+            window.addEventListener('mouseup', this._onEntitiesMouseUp);
         }
-    }
+    };
 
-    _onEntitiesMouseUp(evt: MouseEvent) {
-        window.removeEventListener('mouseup', this._domEvtEntitiesMouseUp);
+    _onEntitiesMouseUp = (evt: MouseEvent) => {
+        window.removeEventListener('mouseup', this._onEntitiesMouseUp);
 
         if (!this.isDragging) {
             return;
@@ -372,7 +363,7 @@ class EntitiesTreeView extends TreeView {
         }
 
         this._instantiateDraggedAssets(dragOverItem, dragArea, dropType, dropData);
-    }
+    };
 
     _selectEntitiesById(entityIds: string[]) {
         const entities = entityIds.map(id => this._entities.get(id)).filter(entity => entity);
@@ -386,9 +377,9 @@ class EntitiesTreeView extends TreeView {
     }
 
     _getSearchFilterMap(searchArr: [string, TreeViewItem][], key: string) {
-        this.searchFilterMap[key] = getMap(searchArr, key);
-
-        return this.searchFilterMap[key];
+        const map = getMap(searchArr, key);
+        this._searchFilterMap.set(key, map);
+        return map;
     }
 
     // Override PCUI function
@@ -396,17 +387,14 @@ class EntitiesTreeView extends TreeView {
         const searchArr: [string, TreeViewItem][] = rawArray.map(item => [item.text, item]);
 
         let results: TreeViewItem[] = [];
-        const filters = Object.keys(this.searchFilters).filter(key => this.searchFilters[key]);
 
-        Object.keys(this.searchFilters).forEach((key) => {
-            if (this.searchFilters[key]) {
-                if (filters.length === 1) {
-                    results = searchItems(this._getSearchFilterMap(searchArr, key), filter, { fuzzy: this.fuzzy });
-                } else {
-                    results = results.concat(searchItems(this._getSearchFilterMap(searchArr, key), filter, { fuzzy: this.fuzzy }));
-                }
+        for (const key of this._searchFilters) {
+            if (this._searchFilters.size === 1) {
+                results = searchItems(this._getSearchFilterMap(searchArr, key), filter, { fuzzy: this._fuzzy });
+            } else {
+                results = results.concat(searchItems(this._getSearchFilterMap(searchArr, key), filter, { fuzzy: this._fuzzy }));
             }
-        });
+        }
 
         if (!results.length) {
             return;
@@ -418,15 +406,19 @@ class EntitiesTreeView extends TreeView {
     }
 
     setFilter(key: string, value: boolean) {
-        this.searchFilters[key] = value;
+        if (value) {
+            this._searchFilters.add(key);
+        } else {
+            this._searchFilters.delete(key);
+        }
     }
 
     setFuzzy(value: boolean) {
-        this.fuzzy = value;
+        this._fuzzy = value;
     }
 
     getFilter(key: string) {
-        return this.searchFilters[key];
+        return this._searchFilters.has(key);
     }
 
     _instantiateDraggedAssets(dragOverItem: EntityTreeViewItem, dragArea: string, dropType: string, dropData: { id?: string; ids?: string[] }) {
@@ -451,15 +443,9 @@ class EntitiesTreeView extends TreeView {
             assets = dropData.ids
             .map(id => this._assets.get(id))
             .filter((asset): asset is Observer => {
-                if (!asset) {
-                    return false;
-                }
-                const type = asset.get('type');
-                return type === 'template' || type === 'sprite' || type === 'model';
+                return asset ? DROPPABLE_ASSET_TYPES.has(asset.get('type')) : false;
             });
-        } else if (dropType === 'asset.template' ||
-                    dropType === 'asset.sprite' ||
-                    dropType === 'asset.model') {
+        } else if (DROPPABLE_DROP_TYPES.has(dropType)) {
 
             const asset = this._assets.get(dropData.id);
             if (asset) {
@@ -553,12 +539,7 @@ class EntitiesTreeView extends TreeView {
         component.type = 'asset';
         component.asset = parseInt(asset.get('id'), 10);
 
-        let name = asset.get('name');
-        if (/\.json$/i.test(name)) {
-            name = name.slice(0, -5) || 'Untitled';
-        } else if (/\.glb$/i.test(name)) {
-            name = name.slice(0, -4) || 'Untitled';
-        }
+        const name = (asset.get('name') as string).replace(/\.(json|glb)$/i, '') || 'Untitled';
 
         const newEntity = editor.call('entities:new', {
             parent: parentEntity,
@@ -610,8 +591,8 @@ class EntitiesTreeView extends TreeView {
         return newEntity.get('resource_id');
     }
 
-    _onEntitiesMouseLeave(evt: MouseEvent) {
-        window.removeEventListener('mouseup', this._domEvtEntitiesMouseUp);
+    _onEntitiesMouseLeave = (evt: MouseEvent) => {
+        window.removeEventListener('mouseup', this._onEntitiesMouseUp);
 
         const dropType = this._dropType;
         const dropData = this._dropData;
@@ -620,7 +601,7 @@ class EntitiesTreeView extends TreeView {
         if (this._isDraggingValidAssetType(dropType, dropData)) {
             this.isDragging = false;
         }
-    }
+    };
 
     _isDraggingValidAssetType(dropType: string | null, dropData: { id?: string; ids?: string[] } | null) {
         if (!this._writePermissions) {
@@ -631,20 +612,12 @@ class EntitiesTreeView extends TreeView {
             if (!dropData?.ids) {
                 return false;
             }
-            const assets = dropData.ids.map(id => this._assets.get(id));
-            return assets.filter((asset) => {
-                if (!asset) {
-                    return false;
-                }
-                const type = asset.get('type');
-                return type === 'template' ||
-                        type === 'model' ||
-                        type === 'sprite';
-            }).length > 0;
+            return dropData.ids.some((id) => {
+                const asset = this._assets.get(id);
+                return asset && DROPPABLE_ASSET_TYPES.has(asset.get('type'));
+            });
         }
-        return dropType === 'asset.template' ||
-                dropType === 'asset.model' ||
-                dropType === 'asset.sprite';
+        return DROPPABLE_DROP_TYPES.has(dropType!);
     }
 
     /**
@@ -701,8 +674,8 @@ class EntitiesTreeView extends TreeView {
 
     _onAddEntity(entity: Observer) {
         const resourceId = entity.get('resource_id');
-        if (this._treeItemIndex[resourceId]) {
-            return this._treeItemIndex[resourceId];
+        if (this._treeItemIndex.has(resourceId)) {
+            return this._treeItemIndex.get(resourceId)!;
         }
 
         const parentDisabled = this._isParentDisabled(entity);
@@ -819,7 +792,7 @@ class EntitiesTreeView extends TreeView {
 
         this._eventsEntity[resourceId] = events;
 
-        this._treeItemIndex[resourceId] = treeViewItem;
+        this._treeItemIndex.set(resourceId, treeViewItem);
 
         const parent = entity.get('parent');
         if (!parent) {
@@ -891,7 +864,7 @@ class EntitiesTreeView extends TreeView {
 
         const item = this.getTreeItemForEntity(resourceId);
         if (item) {
-            delete this._treeItemIndex[resourceId];
+            this._treeItemIndex.delete(resourceId);
             item.destroy();
         }
     }
@@ -921,7 +894,7 @@ class EntitiesTreeView extends TreeView {
      * @returns The tree view item.
      */
     getTreeItemForEntity(resourceId: string): EntityTreeViewItem | null {
-        const item = this._treeItemIndex[resourceId];
+        const item = this._treeItemIndex.get(resourceId);
         return item && !item.destroyed ? item : null;
     }
 
@@ -1026,11 +999,11 @@ class EntitiesTreeView extends TreeView {
         this._unbindEntityEvents();
         this._unbindEditorEvents();
 
-        this.dom.removeEventListener('mouseenter', this._domEvtEntitiesMouseEnter);
-        this.dom.removeEventListener('mouseleave', this._domEvtEntitiesMouseLeave);
-        window.removeEventListener('mouseup', this._domEvtEntitiesMouseUp);
+        this.dom.removeEventListener('mouseenter', this._onEntitiesMouseEnter);
+        this.dom.removeEventListener('mouseleave', this._onEntitiesMouseLeave);
+        window.removeEventListener('mouseup', this._onEntitiesMouseUp);
 
-        this._treeItemIndex = {};
+        this._treeItemIndex.clear();
 
         super.destroy();
     }
@@ -1042,7 +1015,7 @@ class EntitiesTreeView extends TreeView {
         this.clearTreeItems();
 
         this._rootItem = null;
-        this._treeItemIndex = {};
+        this._treeItemIndex.clear();
         this._unbindEntityEvents();
         this._unbindObserverListEvents();
 
