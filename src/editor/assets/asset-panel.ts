@@ -2236,6 +2236,10 @@ class AssetPanel extends Panel {
                 } else {
                     item.selected = false;
                     this.currentFolder = item.asset;
+
+                    if (this._foldersView.pressedArrow) {
+                        editor.call('selector:set', 'asset', [item.asset]);
+                    }
                 }
             }
         } else {
