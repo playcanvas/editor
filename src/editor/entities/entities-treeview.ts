@@ -214,7 +214,7 @@ class EntitiesTreeView extends TreeView {
         this._suspendSelectionEvents = false;
 
         if (lastItem) {
-            (lastItem as TreeViewItem).content.dom.scrollIntoView({ block: 'nearest' });
+            lastItem.content.dom.scrollIntoView({ block: 'nearest' });
         }
     }
 
