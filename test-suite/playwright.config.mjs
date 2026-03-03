@@ -15,10 +15,10 @@ const CHROME_ARGS = [
 export default defineConfig({
     timeout: 2 * 60 * 1000,
     testDir: './test',
-    fullyParallel: false, // FIXME: Enable once account per worker is implemented
+    fullyParallel: false,
     forbidOnly: !!process.env.CI,
     retries: process.env.CI ? 2 : 0,
-    workers: 1, // FIXME: Enable once account per worker is implemented
+    workers: process.env.CI ? 2 : undefined,
     reporter: process.env.CI ? 'list' : 'html',
     use: {
         trace: 'on-first-retry'
