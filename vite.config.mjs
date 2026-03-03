@@ -458,8 +458,8 @@ const esbuildBundlePlugin = () => {
                         `<p>Redirecting to <a href="${redirectUrl}">${redirectUrl}</a>...</p>`,
                         '</body></html>'
                     ].join('\n');
-                    fs.writeFileSync(path.join('dist', 'index.html'), html);
-                    console.log(`Generated dist/index.html → ${redirectUrl}`);
+                    await fs.promises.writeFile(path.join('dist', 'index.html'), html);
+                    console.log(color.green(`created ${color.bold('dist/index.html')}`));
                 }
             }
         },
