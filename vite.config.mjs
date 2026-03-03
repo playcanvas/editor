@@ -442,6 +442,25 @@ const esbuildBundlePlugin = () => {
                 });
             } else {
                 console.log(`\nBuild completed in ${ts(performance.now() - t0)}`);
+
+                // On Vercel, generate a redirect index.html so visiting the
+                // deployment URL sends users to the editor with the correct
+                // use_local_frontend query parameter for this branch.
+                if (process.env.VERCEL) {
+                    const branch = process.env.VERCEL_GIT_COMMIT_REF || 'main';
+                    const redirectUrl = `https://playcanvas.com/editor?use_local_frontend=branch:${branch}`;
+                    const html = [
+                        '<!DOCTYPE html>',
+                        '<html><head>',
+                        `<meta http-equiv="refresh" content="0;url=${redirectUrl}">`,
+                        '</head><body>',
+                        `<script>window.location.replace("${redirectUrl}")</script>`,
+                        `<p>Redirecting to <a href="${redirectUrl}">${redirectUrl}</a>...</p>`,
+                        '</body></html>'
+                    ].join('\n');
+                    fs.writeFileSync(path.join('dist', 'index.html'), html);
+                    console.log(`Generated dist/index.html → ${redirectUrl}`);
+                }
             }
         },
 
