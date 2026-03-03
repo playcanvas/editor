@@ -179,6 +179,6 @@ editor.on('load', () => {
 
     // log frontend usage
     if (!config.url.frontend.startsWith('/editor/scene')) {
-        editor.call('console:log', `Using frontend ${config.url.frontend}`);
+        editor.call('console:log', 'Using local frontend');
     }
 });
