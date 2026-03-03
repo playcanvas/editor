@@ -69,8 +69,6 @@ class EntitiesTreeView extends TreeView {
 
     private _searchFilters = new Set<string>();
 
-    private _searchFilterMap = new Map<string, any>();
-
     private _fuzzy = true;
 
     constructor(args: Readonly<EntitiesTreeViewArgs>) {
@@ -377,9 +375,7 @@ class EntitiesTreeView extends TreeView {
     }
 
     _getSearchFilterMap(searchArr: [string, TreeViewItem][], key: string) {
-        const map = getMap(searchArr, key);
-        this._searchFilterMap.set(key, map);
-        return map;
+        return getMap(searchArr, key);
     }
 
     // Override PCUI function
