@@ -177,8 +177,8 @@ editor.on('load', () => {
         editor.call('layout:console:add', Date.now(), 'info', 'Viewing project in read-only mode');
     }
 
-    // log local frontend usage
+    // log frontend usage
     if (!config.url.frontend.startsWith('/editor/scene')) {
-        editor.call('console:log', `Using local frontend: ${config.url.frontend}`);
+        editor.call('console:log', `Using frontend ${config.url.frontend}`);
     }
 });
