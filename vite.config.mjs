@@ -443,7 +443,7 @@ const esbuildBundlePlugin = () => {
             } else {
                 console.log(`\nBuild completed in ${ts(performance.now() - t0)}`);
 
-                // On Vercel, generate a redirect index.html so visiting the
+                // on Vercel, generate a redirect index.html so visiting the
                 // deployment URL sends users to the editor with the correct
                 // use_local_frontend query parameter for this branch.
                 if (process.env.VERCEL) {
