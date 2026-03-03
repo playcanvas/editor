@@ -41,7 +41,7 @@ class EntitiesTreeView extends TreeView {
 
     private _eventsObserverList: EventHandle[] = [];
 
-    private _eventsEntity: Record<string, EventHandle[]> = {};
+    private _eventsEntity = new Map<string, EventHandle[]>();
 
     private _rootItem: EntityTreeViewItem | null = null;
 
@@ -790,7 +790,7 @@ class EntitiesTreeView extends TreeView {
             }
         }));
 
-        this._eventsEntity[resourceId] = events;
+        this._eventsEntity.set(resourceId, events);
 
         this._treeItemIndex.set(resourceId, treeViewItem);
 
@@ -856,10 +856,10 @@ class EntitiesTreeView extends TreeView {
 
     _onRemoveEntity(entity: Observer) {
         const resourceId = entity.get('resource_id');
-        const events = this._eventsEntity[resourceId];
+        const events = this._eventsEntity.get(resourceId);
         if (events) {
             events.forEach(e => e.unbind());
-            delete this._eventsEntity[resourceId];
+            this._eventsEntity.delete(resourceId);
         }
 
         const item = this.getTreeItemForEntity(resourceId);
@@ -875,11 +875,11 @@ class EntitiesTreeView extends TreeView {
     }
 
     _unbindEntityEvents() {
-        for (const key in this._eventsEntity) {
-            this._eventsEntity[key].forEach(e => e.unbind());
+        for (const events of this._eventsEntity.values()) {
+            events.forEach(e => e.unbind());
         }
 
-        this._eventsEntity = {};
+        this._eventsEntity.clear();
     }
 
     _unbindEditorEvents() {
