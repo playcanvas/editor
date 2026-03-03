@@ -200,14 +200,22 @@ class EntitiesTreeView extends TreeView {
         }
 
         // select entities in the new selection
+        let lastItem: TreeViewItem | null = null;
         entities.forEach((entity) => {
             const item = this.getTreeItemForEntity(entity.get('resource_id'));
-            if (item && !item.selected) {
-                item.selected = true;
+            if (item) {
+                if (!item.selected) {
+                    item.selected = true;
+                }
+                lastItem = item;
             }
         });
 
         this._suspendSelectionEvents = false;
+
+        if (lastItem) {
+            lastItem.content.dom.scrollIntoView({ block: 'nearest' });
+        }
     }
 
     // Called when we receive the selection of a remote user
