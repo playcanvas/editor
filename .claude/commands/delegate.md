@@ -40,7 +40,7 @@ All commands use absolute paths in worktree.
 
 6. PR: Follow /pr conventions. `git push -u origin {{BRANCH}}`. `GIT_SSL_NO_VERIFY=1 gh pr create` — title `[TYPE] Description`, `--assignee @me --base main`, `--label <type>` if exists. Capture PR URL.
 
-7. CLEANUP: `git worktree remove {{WORKTREE}}` (note if fails). Report: branch, PR URL, commit count, files changed, unresolved failures, cleanup status.
+7. CLEANUP: `git worktree remove {{WORKTREE}}`. Then remove any empty parent dirs under `.claude/worktrees/` (e.g. `rmdir -p` on the worktree path's parent). Note if removal fails. Report: branch, PR URL, commit count, files changed, unresolved failures, cleanup status.
 ```
 
 ## 3. Report
