@@ -25,6 +25,7 @@
 // secondary attributes panel
 #layout-attributes-secondary {
     grid-area: attributes;
+    z-index: 2; // above console so dropdown menus are not occluded
     min-width: 0;
     min-height: 0;
 
@@ -51,6 +52,7 @@
 // attributes inspector
 #layout-attributes {
     grid-area: attributes;
+    z-index: 2; // above console so dropdown menus are not occluded
     min-width: 0;
     min-height: 0;
 }
