@@ -233,6 +233,15 @@ class EntitiesTreeView extends TreeView {
 
         if (lastItem) {
             lastItem.content.dom.scrollIntoView({ block: 'nearest' });
+
+            const scrollContainer = this._dragScrollElement.dom;
+            const iconRect = lastItem.iconLabel.dom.getBoundingClientRect();
+            const containerRect = scrollContainer.getBoundingClientRect();
+            const SCROLL_PADDING = 4;
+
+            if (iconRect.left < containerRect.left || iconRect.right > containerRect.right) {
+                scrollContainer.scrollLeft += (iconRect.left - containerRect.left) - SCROLL_PADDING;
+            }
         }
     };
 
