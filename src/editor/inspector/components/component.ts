@@ -10,8 +10,8 @@ interface ComponentInspectorArgs extends PanelArgs {
     component: string;
     history: History;
     templateOverridesInspector?: TemplateOverrideInspector;
-    assets?: ObserverList;
-    entities?: ObserverList;
+    assets: ObserverList;
+    entities: ObserverList;
     projectSettings?: Observer;
 }
 
