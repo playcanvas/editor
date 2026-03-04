@@ -1,3 +1,5 @@
+import type { Observer } from '@playcanvas/observer';
+
 import { TONEMAPPING } from '@/core/constants';
 
 import { ComponentInspector } from './component';
@@ -194,7 +196,7 @@ class CameraComponentInspector extends ComponentInspector {
         this._field('orthoHeight').parent.hidden = fieldProjection.value !== 1;
     }
 
-    link(entities: import('@playcanvas/observer').Observer[]) {
+    link(entities: Observer[]) {
         super.link(entities);
         this._suppressToggleFields = true;
         this._attributesInspector.link(entities);

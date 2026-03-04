@@ -7,6 +7,7 @@ import { Table } from '@/common/pcui/element/element-table';
 import { TableCell } from '@/common/pcui/element/element-table-cell';
 import { TableRow } from '@/common/pcui/element/element-table-row';
 import { tooltip, tooltipRefItem } from '@/common/tooltips';
+import type { History } from '@/editor-api';
 
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
@@ -282,7 +283,7 @@ const CHARACTER_PRESETS = {
 
 type FontAssetInspectorArgs = {
     assets?: Observer[];
-    history?: import('@/editor-api').History;
+    history?: History;
 } & Record<string, unknown>;
 
 class FontAssetInspector extends Container {

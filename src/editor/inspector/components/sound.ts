@@ -218,7 +218,7 @@ class SoundSlotInspector extends Panel {
         }
     }
 
-    link(entities: import('@playcanvas/observer').Observer[]) {
+    link(entities: Observer[]) {
         this.unlink();
 
         this._entities = entities;
@@ -331,7 +331,7 @@ class SoundComponentInspector extends ComponentInspector {
         this._field('rollOffFactor').parent.hidden = !positional;
     }
 
-    _onClickAddSlot(entity: import('@playcanvas/observer').Observer) {
+    _onClickAddSlot(entity: Observer) {
         let keyName = 1;
         let count = 0;
         const idx = {};
@@ -362,7 +362,7 @@ class SoundComponentInspector extends ComponentInspector {
         });
     }
 
-    _createSlotInspector(entity: import('@playcanvas/observer').Observer, slotKey: string, slot: Record<string, unknown>) {
+    _createSlotInspector(entity: Observer, slotKey: string, slot: Record<string, unknown>) {
         const inspector = new SoundSlotInspector({
             slotKey: slotKey,
             slot: slot,
@@ -381,7 +381,7 @@ class SoundComponentInspector extends ComponentInspector {
         return inspector;
     }
 
-    link(entities: import('@playcanvas/observer').Observer[]) {
+    link(entities: Observer[]) {
         super.link(entities);
 
         this._suppressToggleFields = true;

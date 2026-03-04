@@ -1248,7 +1248,7 @@ class ScriptComponentInspector extends ComponentInspector {
         });
     }
 
-    _parseUnparsedScripts(assets: import('@playcanvas/observer').Observer[]) {
+    _parseUnparsedScripts(assets: Observer[]) {
         assets.forEach(a => editor.call('scripts:parse', a, (err) => {
             a.set('data.lastParsedHash', a.get('file.hash'));
         }));

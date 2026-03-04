@@ -1,3 +1,4 @@
+import type { Observer } from '@playcanvas/observer';
 import { LabelGroup } from '@playcanvas/pcui';
 
 import { ComponentInspector } from './component';
@@ -168,7 +169,7 @@ class RigidbodyComponentInspector extends ComponentInspector {
         });
     }
 
-    link(entities: import('@playcanvas/observer').Observer[]) {
+    link(entities: Observer[]) {
         super.link(entities);
         this._suppressToggleFields = true;
         this._attributesInspector.link(entities);

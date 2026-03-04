@@ -146,7 +146,7 @@ const CLASS_CLIP = 'sprite-component-inspector-clip';
 const REGEX_CLIP = /^components.sprite.clips.\d+$/;
 const REGEX_CLIP_NAME = /^components.sprite.clips.\d+\.name$/;
 
-function getClipsGroupedByName(entities: import('@playcanvas/observer').Observer[]) {
+function getClipsGroupedByName(entities: Observer[]) {
     const result = {};
 
     // first group clips by name
@@ -169,7 +169,7 @@ function getClipsGroupedByName(entities: import('@playcanvas/observer').Observer
     return result;
 }
 
-function getCommonClips(entities: import('@playcanvas/observer').Observer[]) {
+function getCommonClips(entities: Observer[]) {
     const result = getClipsGroupedByName(entities);
 
     // then remove all clips who are not shared across all entities
@@ -315,7 +315,7 @@ class SpriteClipInspector extends Panel {
         redo();
     }
 
-    link(entities: import('@playcanvas/observer').Observer[]) {
+    link(entities: Observer[]) {
         this.unlink();
 
         this._entities = entities;
@@ -504,7 +504,7 @@ class SpriteComponentInspector extends ComponentInspector {
         redo();
     }
 
-    _createClipInspector(entities: import('@playcanvas/observer').Observer[], clipName: string, clipKeys: string[], insertBeforeElement?: Element) {
+    _createClipInspector(entities: Observer[], clipName: string, clipKeys: string[], insertBeforeElement?: Element) {
         const inspector = new SpriteClipInspector({
             clipName: clipName,
             clipKeys: clipKeys,
@@ -563,7 +563,7 @@ class SpriteComponentInspector extends ComponentInspector {
         this._updateAutoPlayOptions();
     }
 
-    _onSetClipName(entity: import('@playcanvas/observer').Observer, name: string, oldName: string) {
+    _onSetClipName(entity: Observer, name: string, oldName: string) {
         // update autoPlayClip
         if (entity.get('components.sprite.autoPlayClip') === oldName) {
             const history = entity.history.enabled;
@@ -658,7 +658,7 @@ class SpriteComponentInspector extends ComponentInspector {
         this._field('height').parent.hidden = hideSizeFields;
     }
 
-    link(entities: import('@playcanvas/observer').Observer[]) {
+    link(entities: Observer[]) {
         super.link(entities);
 
         this._suppressToggleFields = true;

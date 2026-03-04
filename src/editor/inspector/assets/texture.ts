@@ -952,7 +952,7 @@ class TextureAssetInspector extends Container {
 
     }
 
-    _setupImportButton(panel: import('@playcanvas/pcui').Container, moduleStoreName: string, wasmFilename: string) {
+    _setupImportButton(panel: Container, moduleStoreName: string, wasmFilename: string) {
         if (!this._containerImportBasis) {
             this._containerImportBasis = new Container({
                 flex: true,

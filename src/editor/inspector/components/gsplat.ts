@@ -1,4 +1,4 @@
-import type { ObserverList } from '@playcanvas/observer';
+import type { Observer, ObserverList } from '@playcanvas/observer';
 import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from 'playcanvas';
 
 import { ComponentInspector } from './component';
@@ -56,7 +56,7 @@ class GSplatComponentInspector extends ComponentInspector {
         return this._attributesInspector.getField(`components.gsplat.${name}`);
     }
 
-    link(entities: import('@playcanvas/observer').Observer[]) {
+    link(entities: Observer[]) {
         super.link(entities);
         this._attributesInspector.link(entities);
     }

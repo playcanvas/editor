@@ -1,3 +1,5 @@
+import type { Observer } from '@playcanvas/observer';
+
 import { deepCopy } from '@/common/utils';
 import { ORIENTATION_HORIZONTAL, ORIENTATION_VERTICAL } from '@/core/constants';
 
@@ -74,7 +76,7 @@ class ScrollbarComponentInspector extends ComponentInspector {
         this.append(this._attributesInspector);
     }
 
-    link(entities: import('@playcanvas/observer').Observer[]) {
+    link(entities: Observer[]) {
         super.link(entities);
         this._attributesInspector.link(entities);
     }

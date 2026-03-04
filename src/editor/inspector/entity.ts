@@ -1,4 +1,4 @@
-import type { EventHandle, Observer } from '@playcanvas/observer';
+import type { EventHandle, Observer, ObserverList } from '@playcanvas/observer';
 import { Container, Button, Menu, TextInput, VectorInput } from '@playcanvas/pcui';
 
 import { COMPONENT_LOGOS } from '@/core/constants';
@@ -192,10 +192,10 @@ const ATTRIBUTES: Attribute[] = [{
 }];
 
 type EntityInspectorArgs = {
-    history?: import('@/editor-api').History;
+    history?: History;
     projectSettings?: Observer;
-    assets?: import('@playcanvas/observer').ObserverList;
-    entities?: import('@playcanvas/observer').ObserverList;
+    assets?: ObserverList;
+    entities?: ObserverList;
     templateOverridesDiffView?: unknown;
 } & Record<string, unknown>;
 

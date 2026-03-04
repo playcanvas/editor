@@ -558,7 +558,7 @@ class AnimComponentInspector extends ComponentInspector {
         }
     }
 
-    link(entities: import('@playcanvas/observer').Observer[]) {
+    link(entities: Observer[]) {
         this.unlink();
         super.link(entities);
         this._attributesInspector.link(entities);
