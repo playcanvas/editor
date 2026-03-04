@@ -34,7 +34,7 @@
     "@jsquash/webp": "1.5.0",
     "@playcanvas/eslint-config": "2.1.0",
     "@playcanvas/observer": "1.7.1",
-    "@playcanvas/pcui": "6.1.0",
+    "@playcanvas/pcui": "6.1.1",
     "@playcanvas/pcui-graph": "5.1.0",
     "@rollup/plugin-commonjs": "28.0.9",
     "@rollup/plugin-node-resolve": "15.3.1",
