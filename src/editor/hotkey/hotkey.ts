@@ -13,7 +13,7 @@ editor.once('load', () => {
     const isMac = /Mac/.test(navigator.platform);
 
     // Convert a hotkey registration into a consistent internal format
-    function normalizeHotkeyDefinition(definition: { key: string; ctrl?: boolean; shift?: boolean; alt?: boolean; callback?: (evt: KeyboardEvent) => void; skipPreventDefault?: boolean }) {
+    function normalizeHotkeyDefinition(definition: { key: string; ctrl?: boolean; shift?: boolean; alt?: boolean; numpadOnly?: boolean; callback?: (evt: KeyboardEvent) => void; skipPreventDefault?: boolean }) {
         if (!definition.key) {
             throw new Error('Hotkey must specify key');
         }
@@ -23,23 +23,25 @@ editor.once('load', () => {
             ctrl: !!definition.ctrl,
             shift: !!definition.shift,
             alt: !!definition.alt,
+            numpadOnly: !!definition.numpadOnly,
             callback: definition.callback,
             skipPreventDefault: !!definition.skipPreventDefault
         };
     }
 
     // Generate a unique key for the hotkey combination
-    function getHotkeyId(definition: { key: string; ctrl?: boolean; shift?: boolean; alt?: boolean }) {
+    function getHotkeyId(definition: { key: string; ctrl?: boolean; shift?: boolean; alt?: boolean; numpadOnly?: boolean }) {
         return [
             definition.ctrl ? 1 : 0,
             definition.alt ? 1 : 0,
             definition.shift ? 1 : 0,
+            definition.numpadOnly ? 1 : 0,
             definition.key
         ].join('+');
     }
 
     // Register a new hotkey
-    editor.method('hotkey:register', (name: string, definition: { key: string; ctrl?: boolean; shift?: boolean; alt?: boolean; callback?: (evt: KeyboardEvent) => void; skipPreventDefault?: boolean }) => {
+    editor.method('hotkey:register', (name: string, definition: { key: string; ctrl?: boolean; shift?: boolean; alt?: boolean; numpadOnly?: boolean; callback?: (evt: KeyboardEvent) => void; skipPreventDefault?: boolean }) => {
         const normalized = normalizeHotkeyDefinition(definition);
         const id = getHotkeyId(normalized);
 
@@ -84,6 +86,36 @@ editor.once('load', () => {
         }
 
         updateModifierState(evt);
+
+        const isNumpad = evt.code?.startsWith('Numpad');
+
+        // Try numpad-specific bindings first when the key comes from the numpad
+        if (isNumpad) {
+            const numpadId = getHotkeyId({
+                key: evt.key.toLowerCase(),
+                ctrl: modifierState.ctrl,
+                shift: modifierState.shift,
+                alt: modifierState.alt,
+                numpadOnly: true
+            });
+
+            const numpadBindings = hotkeys.get(numpadId);
+            if (numpadBindings) {
+                let shouldPreventDefault = true;
+
+                for (const [, hotkey] of numpadBindings) {
+                    if (hotkey.skipPreventDefault) {
+                        shouldPreventDefault = false;
+                    }
+                    hotkey.callback(evt);
+                }
+
+                if (shouldPreventDefault) {
+                    evt.preventDefault();
+                }
+                return;
+            }
+        }
 
         const id = getHotkeyId({
             key: evt.key.toLowerCase(),
