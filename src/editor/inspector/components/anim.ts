@@ -99,8 +99,6 @@ class AnimComponentInspector extends ComponentInspector {
         this._args = args;
         this._assets = args.assets;
 
-        this._entities = null;
-
         this._attributesInspector = new AttributesInspector({
             assets: args.assets,
             entities: args.entities,
@@ -563,7 +561,6 @@ class AnimComponentInspector extends ComponentInspector {
     link(entities: import('@playcanvas/observer').Observer[]) {
         this.unlink();
         super.link(entities);
-        this._entities = entities;
         this._attributesInspector.link(entities);
 
         const stateGraphAssetField = this._attributesInspector.getField('stateGraphAsset');
@@ -660,15 +657,9 @@ class AnimComponentInspector extends ComponentInspector {
 
     unlink() {
         super.unlink();
-        if (this._entities) {
-            this._entities = null;
-            this._stateGraphAssetId = null;
-            this._stateGraphAsset = null;
-            if (this._layersContainer) {
-                this.remove(this._layersContainer);
-            }
-            this._attributesInspector.unlink();
-        }
+        this._stateGraphAssetId = null;
+        this._stateGraphAsset = null;
+        this._attributesInspector.unlink();
         this._evts.forEach(e => e.unbind());
         this._evts.length = 0;
 

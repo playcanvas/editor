@@ -260,7 +260,6 @@ class CollisionComponentInspector extends ComponentInspector {
 
     link(entities: import('@playcanvas/observer').Observer[]) {
         super.link(entities);
-        this._entities = entities;
         this._suppressToggleFields = true;
         this._attributesInspector.link(entities);
 
@@ -306,11 +305,9 @@ class CollisionComponentInspector extends ComponentInspector {
 
     unlink() {
         super.unlink();
-        if (this._entities) {
-            this._attributesInspector.unlink();
-            this._evts.forEach(e => e.unbind());
-            this._evts = [];
-        }
+        this._attributesInspector.unlink();
+        this._evts.forEach(e => e.unbind());
+        this._evts = [];
     }
 }
 
