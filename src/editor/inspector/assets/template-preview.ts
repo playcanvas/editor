@@ -39,7 +39,6 @@ class TemplateAssetInspectorPreview extends AssetInspectorPreviewBase {
     }
 
     link(assets: Observer[]) {
-        this.unlink();
         super.link();
 
         this._previewRenderer = new TemplateThumbnailRenderer(

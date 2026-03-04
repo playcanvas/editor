@@ -559,7 +559,6 @@ class AnimComponentInspector extends ComponentInspector {
     }
 
     link(entities: Observer[]) {
-        this.unlink();
         super.link(entities);
         this._attributesInspector.link(entities);
 
