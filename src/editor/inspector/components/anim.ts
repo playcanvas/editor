@@ -76,7 +76,7 @@ class AnimComponentInspector extends ComponentInspector {
 
     _stateGraphAsset: Observer | null = null;
 
-    _maskInspector: Panel | null = null;
+    _maskInspector: Container | null = null;
 
     _contextMenus: Menu[] = [];
 
@@ -235,9 +235,9 @@ class AnimComponentInspector extends ComponentInspector {
                 suppressChanges = false;
             }));
 
-            item._containerContents.prepend(booleanInput);
+            item.content.prepend(booleanInput);
             const contextMenuDom = new Container();
-            item._containerContents.append(contextMenuDom);
+            item.content.append(contextMenuDom);
 
             const updateItemAndChildren = (item, value) => {
                 entityObserver.set(`components.anim.masks.${layerId}.mask.${item.path}.value`, value);
