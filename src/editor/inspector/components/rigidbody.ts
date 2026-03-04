@@ -1,7 +1,7 @@
 import type { Observer } from '@playcanvas/observer';
 import { LabelGroup } from '@playcanvas/pcui';
 
-import { ComponentInspector } from './component';
+import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
@@ -119,7 +119,7 @@ class RigidbodyComponentInspector extends ComponentInspector {
 
     _importAmmoPanel: LabelGroup;
 
-    constructor(args: Record<string, unknown>) {
+    constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
         args.component = 'rigidbody';
 

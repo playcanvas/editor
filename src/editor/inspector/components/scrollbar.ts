@@ -3,7 +3,7 @@ import type { Observer } from '@playcanvas/observer';
 import { deepCopy } from '@/common/utils';
 import { ORIENTATION_HORIZONTAL, ORIENTATION_VERTICAL } from '@/core/constants';
 
-import { ComponentInspector } from './component';
+import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
@@ -53,7 +53,7 @@ const ATTRIBUTES: Attribute[] = [{
 class ScrollbarComponentInspector extends ComponentInspector {
     _attributesInspector: AttributesInspector;
 
-    constructor(args: Record<string, unknown>) {
+    constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
         args.component = 'scrollbar';
 

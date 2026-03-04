@@ -4,7 +4,7 @@ import type { Entity } from 'playcanvas';
 
 import { AssetInput } from '@/common/pcui/element/element-asset-input';
 
-import { ComponentInspector } from './component';
+import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute, Divider } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
@@ -68,7 +68,7 @@ const CLASS_MASK_INSPECTOR_ADD_ALL_BUTTON = `${CLASS_MASK_INSPECTOR}-add-all-but
 const CLASS_MASK_INSPECTOR_REMOVE_ALL_BUTTON = `${CLASS_MASK_INSPECTOR}-remove-all-button`;
 
 class AnimComponentInspector extends ComponentInspector {
-    _args: Record<string, unknown>;
+    _args: ComponentInspectorArgs;
 
     _assets: ObserverList;
 
@@ -90,7 +90,7 @@ class AnimComponentInspector extends ComponentInspector {
 
     _layersContainer: Container;
 
-    constructor(args: Record<string, unknown>) {
+    constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
         args.component = 'anim';
 

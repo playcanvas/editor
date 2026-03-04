@@ -1,5 +1,5 @@
-import type { EventHandle, Observer } from '@playcanvas/observer';
-import { Panel, Container, Button, BooleanInput, LabelGroup, Label, Menu, SelectInput, BindingTwoWay, ArrayInput } from '@playcanvas/pcui';
+import type { EventHandle, Observer, ObserverList } from '@playcanvas/observer';
+import { Panel, Container, Button, BooleanInput, LabelGroup, Label, Menu, SelectInput, BindingTwoWay, ArrayInput, type PanelArgs } from '@playcanvas/pcui';
 
 import { CLASS_ERROR, DEFAULTS } from '@/common/pcui/constants';
 import { AssetInput } from '@/common/pcui/element/element-asset-input';
@@ -8,7 +8,7 @@ import { LegacyTooltip } from '@/common/ui/tooltip';
 import { deepCopy } from '@/common/utils';
 import type { AssetObserver, History, LocalStorage } from '@/editor-api';
 
-import { ComponentInspector } from './component';
+import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import { evaluate } from '../../scripting/expr-eval/evaluate';
 import { parse } from '../../scripting/expr-eval/parser';
 import type { ASTNode } from '../../scripting/expr-eval/parser.js';
@@ -90,6 +90,15 @@ function getScriptContextMenu() {
     return scriptContextMenu;
 }
 
+interface ScriptInspectorArgs extends PanelArgs {
+    componentInspector: ScriptComponentInspector;
+    scriptName: string;
+    history: History;
+    assets: ObserverList;
+    entities: ObserverList;
+    templateOverridesInspector?: TemplateOverrideInspector;
+}
+
 class ScriptInspector extends Panel {
     private _componentInspector: ScriptComponentInspector;
 
@@ -101,9 +110,9 @@ class ScriptInspector extends Panel {
 
     _history: History;
 
-    _argsAssets: Observer[];
+    _argsAssets: ObserverList;
 
-    _argsEntities: Observer[];
+    _argsEntities: ObserverList;
 
     _templateOverridesInspector: TemplateOverrideInspector;
 
@@ -144,14 +153,7 @@ class ScriptInspector extends Panel {
 
     containerErrors: Container;
 
-    constructor(args: {
-        componentInspector: ScriptComponentInspector;
-        scriptName: string;
-        history: History;
-        assets: Observer[];
-        entities: Observer[];
-        templateOverridesInspector?: TemplateOverrideInspector;
-    } & Record<string, unknown>) {
+    constructor(args: ScriptInspectorArgs) {
         super(args);
 
         this._componentInspector = args.componentInspector;
@@ -955,9 +957,9 @@ class ScriptInspector extends Panel {
 }
 
 class ScriptComponentInspector extends ComponentInspector {
-    _argsAssets: Observer[];
+    _argsAssets: ObserverList;
 
-    _argsEntities: Observer[];
+    _argsEntities: ObserverList;
 
     private _scriptPanels: Record<string, ScriptInspector> = {};
 
@@ -973,13 +975,7 @@ class ScriptComponentInspector extends ComponentInspector {
 
     private _updateScriptsTimeout: ReturnType<typeof setTimeout> | null = null;
 
-    constructor(args: {
-        component?: string;
-        assets?: Observer[];
-        entities?: Observer[];
-        templateOverridesInspector?: TemplateOverrideInspector;
-        history?: History;
-    } & Record<string, unknown>) {
+    constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
         args.component = 'script';
 

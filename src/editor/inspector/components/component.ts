@@ -1,10 +1,19 @@
-import type { EventHandle, Observer } from '@playcanvas/observer';
-import { BindingTwoWay, BooleanInput, Button, Container, Label, LabelGroup, Menu, Panel } from '@playcanvas/pcui';
+import type { EventHandle, Observer, ObserverList } from '@playcanvas/observer';
+import { BindingTwoWay, BooleanInput, Button, Container, Label, LabelGroup, Menu, Panel, type PanelArgs } from '@playcanvas/pcui';
 
 import { tooltip, tooltipRefItem } from '@/common/tooltips';
 import { LocalStorage, type History } from '@/editor-api';
 
 import type { TemplateOverrideInspector } from '../../templates/templates-override-inspector.js';
+
+interface ComponentInspectorArgs extends PanelArgs {
+    component?: string;
+    history: History;
+    templateOverridesInspector?: TemplateOverrideInspector;
+    assets: ObserverList;
+    entities: ObserverList;
+    projectSettings?: Observer;
+}
 
 const CLASS_ROOT = 'component-inspector';
 const CLASS_COMPONENT_ICON = 'component-icon';
@@ -33,11 +42,7 @@ class ComponentInspector extends Panel {
 
     private _contextMenu: Menu;
 
-    constructor(args: {
-        component: string;
-        history: History;
-        templateOverridesInspector?: TemplateOverrideInspector;
-    } & Record<string, unknown>) {
+    constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
         args.flex = true;
         args.collapsible = true;
@@ -273,4 +278,4 @@ class ComponentInspector extends Panel {
     }
 }
 
-export { ComponentInspector };
+export { ComponentInspector, type ComponentInspectorArgs };

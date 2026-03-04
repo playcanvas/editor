@@ -16,7 +16,7 @@ import {
 
 import { LegacyTooltip } from '@/common/ui/tooltip';
 
-import { ComponentInspector } from './component';
+import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute, Divider } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
@@ -458,7 +458,7 @@ class LightComponentInspector extends ComponentInspector {
 
     _skipToggleFields = false;
 
-    constructor(args: Record<string, unknown>) {
+    constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
         args.component = 'light';
 

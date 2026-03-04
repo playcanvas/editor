@@ -2,7 +2,7 @@ import type { Observer } from '@playcanvas/observer';
 import { Button, LabelGroup } from '@playcanvas/pcui';
 import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from 'playcanvas';
 
-import { ComponentInspector } from './component';
+import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
@@ -398,7 +398,7 @@ class ParticlesystemComponentInspector extends ComponentInspector {
 
     _btnPause: Button;
 
-    constructor(args: Record<string, unknown>) {
+    constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
         args.component = 'particlesystem';
 
