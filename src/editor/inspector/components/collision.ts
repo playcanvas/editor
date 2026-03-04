@@ -2,7 +2,7 @@ import type { EventHandle, Observer } from '@playcanvas/observer';
 import { InfoBox, LabelGroup } from '@playcanvas/pcui';
 import { CollisionComponent } from 'playcanvas';
 
-import { ComponentInspector } from './component';
+import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
@@ -130,7 +130,7 @@ class CollisionComponentInspector extends ComponentInspector {
 
     _importAmmoPanel: LabelGroup;
 
-    constructor(args: Record<string, unknown>) {
+    constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
         args.component = 'collision';
 

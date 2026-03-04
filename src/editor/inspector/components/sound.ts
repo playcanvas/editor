@@ -3,7 +3,7 @@ import { Panel, Container, Button } from '@playcanvas/pcui';
 
 import { deepCopy } from '@/common/utils';
 
-import { ComponentInspector } from './component';
+import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { TemplateOverrideInspector } from '../../templates/templates-override-inspector.js';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
@@ -283,7 +283,7 @@ class SoundComponentInspector extends ComponentInspector {
 
     _suppressToggleFields = false;
 
-    constructor(args: Record<string, unknown>) {
+    constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
         args.component = 'sound';
 

@@ -1,7 +1,7 @@
 import type { Observer, ObserverList } from '@playcanvas/observer';
 import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from 'playcanvas';
 
-import { ComponentInspector } from './component';
+import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
@@ -33,7 +33,7 @@ class GSplatComponentInspector extends ComponentInspector {
 
     _attributesInspector: AttributesInspector;
 
-    constructor(args: Record<string, unknown>) {
+    constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
         args.component = 'gsplat';
 

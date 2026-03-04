@@ -4,7 +4,7 @@ import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from 'playcanvas';
 
 import { CLASS_ERROR } from '@/common/pcui/constants';
 
-import { ComponentInspector } from './component';
+import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
@@ -143,7 +143,7 @@ class RenderComponentInspector extends ComponentInspector {
 
     _suppressCustomAabb = false;
 
-    constructor(args: Record<string, unknown>) {
+    constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
         args.component = 'render';
 

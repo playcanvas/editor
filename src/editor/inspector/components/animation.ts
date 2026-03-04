@@ -1,7 +1,7 @@
 import type { Observer, ObserverList } from '@playcanvas/observer';
 import { Button, type Element as PcuiElement } from '@playcanvas/pcui';
 
-import { ComponentInspector } from './component';
+import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
@@ -44,7 +44,7 @@ class AnimationComponentInspector extends ComponentInspector {
 
     _attributesInspector: AttributesInspector;
 
-    constructor(args: Record<string, unknown>) {
+    constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
         args.component = 'animation';
 

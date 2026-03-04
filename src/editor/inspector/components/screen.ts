@@ -2,7 +2,7 @@ import type { Observer } from '@playcanvas/observer';
 
 import { deepCopy } from '@/common/utils';
 
-import { ComponentInspector } from './component';
+import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
@@ -70,7 +70,7 @@ class ScreenComponentInspector extends ComponentInspector {
 
     _suppressToggleFields = false;
 
-    constructor(args: Record<string, unknown>) {
+    constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
         args.component = 'screen';
 

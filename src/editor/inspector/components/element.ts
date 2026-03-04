@@ -6,7 +6,7 @@ import { CLASS_MULTIPLE_VALUES } from '@/common/pcui/constants';
 import { tooltip, tooltipRefItem } from '@/common/tooltips';
 import type { Assets } from '@/editor-api';
 
-import { ComponentInspector } from './component';
+import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute, Divider } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
@@ -682,7 +682,7 @@ class ElementComponentInspector extends ComponentInspector {
 
     _suppressToggleFields = false;
 
-    constructor(args: Record<string, unknown>) {
+    constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
         args.component = 'element';
 

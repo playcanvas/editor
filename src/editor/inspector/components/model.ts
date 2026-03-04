@@ -6,7 +6,7 @@ import { CLASS_ERROR } from '@/common/pcui/constants';
 import { AssetInput } from '@/common/pcui/element/element-asset-input';
 import type { Assets } from '@/editor-api';
 
-import { ComponentInspector } from './component';
+import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
@@ -276,7 +276,7 @@ class ModelComponentInspector extends ComponentInspector {
 
     _dirtyMappings: boolean;
 
-    constructor(args: Record<string, unknown>) {
+    constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
         args.component = 'model';
 

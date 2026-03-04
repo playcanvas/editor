@@ -9,7 +9,7 @@ import {
     SCROLLBAR_VISIBILITY_SHOW_WHEN_REQUIRED
 } from '@/core/constants';
 
-import { ComponentInspector } from './component';
+import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute, Divider } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
@@ -136,7 +136,7 @@ class ScrollviewComponentInspector extends ComponentInspector {
 
     _suppressToggleFields = false;
 
-    constructor(args: Record<string, unknown>) {
+    constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
         args.component = 'scrollview';
 
