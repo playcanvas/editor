@@ -113,6 +113,26 @@ editor.once('load', () => {
             title: 'Toggle space: World / Local ',
             icons: ['&#57879;']
         }, {
+            buttons: ['Numpad 1', '$/', 'Ctrl', '$+', 'Numpad 1'],
+            title: 'Front / Back Camera',
+            icons: ['&#57874;']
+        }, {
+            buttons: ['Numpad 3', '$/', 'Ctrl', '$+', 'Numpad 3'],
+            title: 'Right / Left Camera',
+            icons: ['&#57874;']
+        }, {
+            buttons: ['Numpad 7', '$/', 'Ctrl', '$+', 'Numpad 7'],
+            title: 'Top / Bottom Camera',
+            icons: ['&#57874;']
+        }, {
+            buttons: ['Numpad 5'],
+            title: 'Toggle Perspective / Orthographic',
+            icons: ['&#57874;']
+        }, {
+            buttons: ['Numpad 0'],
+            title: 'Perspective Camera',
+            icons: ['&#57874;']
+        }, {
             buttons: ['Shift', '$+', '?'],
             title: 'Controls',
             icons: ['&#57654;']

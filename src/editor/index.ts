@@ -241,6 +241,7 @@ import './viewport/camera/camera-zoom';
 import './viewport/camera/camera-pan';
 import './viewport/camera/camera-look-around';
 import './viewport/camera/camera-preview';
+import './viewport/camera/camera-shortcuts';
 
 // whoisonline
 import './whoisonline/whoisonline';
