@@ -453,7 +453,7 @@ class AnimComponentInspector extends ComponentInspector {
         this._contextMenus.length = 0;
 
         document.querySelector('#layout-attributes').ui.headerText = 'ENTITY';
-        this._maskEvts.forEach(e => e.unbind);
+        this._maskEvts.forEach(e => e.unbind());
         this._maskEvts.length = 0;
     }
 

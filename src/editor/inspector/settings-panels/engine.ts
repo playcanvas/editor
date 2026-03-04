@@ -1,7 +1,7 @@
 import { config } from '@/editor/config';
 
 import { BaseSettingsPanel } from './base';
-import type { Attribute } from '../attribute.type.js';
+import type { Attribute } from '../attribute.type.d';
 
 const ATTRIBUTES: Attribute[] = [
     {
