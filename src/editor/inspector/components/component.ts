@@ -7,7 +7,7 @@ import { LocalStorage, type History } from '@/editor-api';
 import type { TemplateOverrideInspector } from '../../templates/templates-override-inspector.js';
 
 interface ComponentInspectorArgs extends PanelArgs {
-    component: string;
+    component?: string;
     history: History;
     templateOverridesInspector?: TemplateOverrideInspector;
     assets: ObserverList;
