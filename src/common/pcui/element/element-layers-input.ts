@@ -21,6 +21,8 @@ class LayersInput extends SelectInput {
 
     private _excludeLayers: number[];
 
+    private _selecting = false;
+
     constructor(args: LayersInputArgs = {}) {
         const selectArgs: LayersInputArgs = {
             ...args,
@@ -38,6 +40,24 @@ class LayersInput extends SelectInput {
         this._excludeLayers = args.excludeLayers ? args.excludeLayers.slice() : [];
 
         this._updateOptions();
+    }
+
+    protected _onSelectValue(value: any) {
+        this._selecting = true;
+        super._onSelectValue(value);
+        // Reset the flag asynchronously so it persists through the synchronous
+        // close() call that follows in the parent's click handler, but is
+        // cleared before the next event loop turn.
+        queueMicrotask(() => {
+            this._selecting = false;
+        });
+    }
+
+    close() {
+        if (this._selecting) {
+            return;
+        }
+        super.close();
     }
 
     protected _updateOptions() {
