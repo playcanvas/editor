@@ -1,5 +1,5 @@
-import type { ObserverList } from '@playcanvas/observer';
-import { Label } from '@playcanvas/pcui';
+import type { Observer, ObserverList } from '@playcanvas/observer';
+import { Label, type Element as PcuiElement } from '@playcanvas/pcui';
 import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from 'playcanvas';
 
 import { CLASS_ERROR } from '@/common/pcui/constants';
@@ -201,7 +201,7 @@ class RenderComponentInspector extends ComponentInspector {
 
     // when the render type or the render asset change,
     // also change the materialAssets to the correct length
-    _changeMaterialsOnChange(field: import('@playcanvas/pcui').Element) {
+    _changeMaterialsOnChange(field: PcuiElement) {
         const binding = field.binding;
         if (!binding) {
             return;
@@ -460,7 +460,7 @@ class RenderComponentInspector extends ComponentInspector {
         this._toggleFields();
     }
 
-    link(entities: import('@playcanvas/observer').Observer[]) {
+    link(entities: Observer[]) {
         super.link(entities);
 
         this._suppressToggleFields = true;

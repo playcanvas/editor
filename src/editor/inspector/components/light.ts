@@ -1,4 +1,4 @@
-import type { EventHandle } from '@playcanvas/observer';
+import type { EventHandle, Observer } from '@playcanvas/observer';
 import { Button } from '@playcanvas/pcui';
 import {
     LAYERID_DEPTH,
@@ -624,7 +624,7 @@ class LightComponentInspector extends ComponentInspector {
         this._btnUpdateShadow.hidden = this._field('shadowUpdateMode').value !== SHADOWUPDATE_THISFRAME;
     }
 
-    _updateShadows(entities: import('@playcanvas/observer').Observer[]) {
+    _updateShadows(entities: Observer[]) {
         for (let i = 0; i < entities.length; i++) {
             if (entities[i].entity && entities[i].entity.light && entities[i].entity.light.shadowUpdateMode === SHADOWUPDATE_THISFRAME) {
                 entities[i].entity.light.light.shadowUpdateMode = SHADOWUPDATE_THISFRAME;
@@ -637,7 +637,7 @@ class LightComponentInspector extends ComponentInspector {
         this._field('innerConeAngle').max = this._field('outerConeAngle').value;
     }
 
-    link(entities: import('@playcanvas/observer').Observer[]) {
+    link(entities: Observer[]) {
         super.link(entities);
 
         this._skipToggleFields = true;

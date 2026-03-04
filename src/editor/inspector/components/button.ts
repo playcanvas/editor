@@ -1,4 +1,4 @@
-import type { EventHandle } from '@playcanvas/observer';
+import type { EventHandle, Observer } from '@playcanvas/observer';
 import { InfoBox } from '@playcanvas/pcui';
 
 import {
@@ -191,7 +191,7 @@ class ButtonComponentInspector extends ComponentInspector {
         });
     }
 
-    link(entities: import('@playcanvas/observer').Observer[]) {
+    link(entities: Observer[]) {
         super.link(entities);
         this._suppressToggleFields = true;
         this._attributesInspector.link(entities);

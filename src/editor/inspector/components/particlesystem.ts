@@ -1,3 +1,4 @@
+import type { Observer } from '@playcanvas/observer';
 import { Button, LabelGroup } from '@playcanvas/pcui';
 import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from 'playcanvas';
 
@@ -591,7 +592,7 @@ class ParticlesystemComponentInspector extends ComponentInspector {
         });
     }
 
-    link(entities: import('@playcanvas/observer').Observer[]) {
+    link(entities: Observer[]) {
         super.link(entities);
 
         this._suppressToggleFields = true;

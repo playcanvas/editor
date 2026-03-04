@@ -35,7 +35,7 @@ class ComponentInspector extends Panel {
 
     constructor(args: {
         component: string;
-        history: import('@/editor-api').History;
+        history: History;
         templateOverridesInspector?: TemplateOverrideInspector;
     } & Record<string, unknown>) {
         args = Object.assign({}, args);

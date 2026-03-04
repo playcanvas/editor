@@ -1,4 +1,4 @@
-import type { ObserverList } from '@playcanvas/observer';
+import type { Observer, ObserverList } from '@playcanvas/observer';
 import { Label, Container, Button, BindingTwoWay, BindingElementToObservers } from '@playcanvas/pcui';
 import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from 'playcanvas';
 
@@ -393,7 +393,7 @@ class ModelComponentInspector extends ComponentInspector {
         return result;
     }
 
-    _getMeshInstanceName(index: number, entities: import('@playcanvas/observer').Observer[]) {
+    _getMeshInstanceName(index: number, entities: Observer[]) {
         // get name of meshinstance from engine
         let meshInstanceName;
         for (let i = 0; i < entities.length; i++) {
@@ -415,7 +415,7 @@ class ModelComponentInspector extends ComponentInspector {
         return meshInstanceName;
     }
 
-    _createMappingInspector(key: string, entities: import('@playcanvas/observer').Observer[]) {
+    _createMappingInspector(key: string, entities: Observer[]) {
         const index = parseInt(key, 10);
 
         if (this._mappingInspectors[key]) {
@@ -515,7 +515,7 @@ class ModelComponentInspector extends ComponentInspector {
         return container;
     }
 
-    _refreshMappings(dirtyMappings?: Record<string, import('@playcanvas/observer').Observer[]>) {
+    _refreshMappings(dirtyMappings?: Record<string, Observer[]>) {
         if (this._timeoutRefreshMappings) {
             cancelAnimationFrame(this._timeoutRefreshMappings);
         }
@@ -729,7 +729,7 @@ class ModelComponentInspector extends ComponentInspector {
         }
     }
 
-    link(entities: import('@playcanvas/observer').Observer[]) {
+    link(entities: Observer[]) {
         super.link(entities);
 
         this._suppressToggleFields = true;

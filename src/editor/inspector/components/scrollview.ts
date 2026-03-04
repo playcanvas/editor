@@ -1,3 +1,5 @@
+import type { Observer } from '@playcanvas/observer';
+
 import { deepCopy } from '@/common/utils';
 import {
     SCROLL_MODE_BOUNCE,
@@ -183,7 +185,7 @@ class ScrollviewComponentInspector extends ComponentInspector {
         this._field('horizontalScrollbarVisibility').parent.hidden = !horizontalScrollingEnabled;
     }
 
-    link(entities: import('@playcanvas/observer').Observer[]) {
+    link(entities: Observer[]) {
         super.link(entities);
         this._suppressToggleFields = true;
         this._attributesInspector.link(entities);
