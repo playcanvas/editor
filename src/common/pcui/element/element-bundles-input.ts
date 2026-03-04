@@ -1,12 +1,14 @@
 import type { Observer } from '@playcanvas/observer';
-import { Container, Element, SelectInput, SelectInputArgs } from '@playcanvas/pcui';
+import { Container, Element, SelectInputArgs } from '@playcanvas/pcui';
+
+import { MultiSelectInput } from './element-multi-select-input';
 
 const CLASS_ROOT = 'pcui-bundles-input';
 
 /**
  * A select input for managing asset bundles.
  */
-class BundlesInput extends SelectInput {
+class BundlesInput extends MultiSelectInput {
     private _assets: Observer[];
 
     constructor(args: SelectInputArgs = {}) {

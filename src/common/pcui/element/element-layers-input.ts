@@ -1,5 +1,7 @@
 import type { Observer } from '@playcanvas/observer';
-import { Element, SelectInput, SelectInputArgs } from '@playcanvas/pcui';
+import { Element, SelectInputArgs } from '@playcanvas/pcui';
+
+import { MultiSelectInput } from './element-multi-select-input';
 
 const CLASS_ROOT = 'pcui-layers-input';
 
@@ -16,7 +18,7 @@ interface LayersInputArgs extends SelectInputArgs {
 /**
  * A select input for choosing layers.
  */
-class LayersInput extends SelectInput {
+class LayersInput extends MultiSelectInput {
     private _projectSettings?: Observer;
 
     private _excludeLayers: number[];

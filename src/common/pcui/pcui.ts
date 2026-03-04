@@ -15,6 +15,7 @@ import { DropTarget } from './element/element-drop-target';
 import { EntityInput } from './element/element-entity-input';
 import { GradientInput } from './element/element-gradient-input';
 import { LayersInput } from './element/element-layers-input';
+import { MultiSelectInput } from './element/element-multi-select-input';
 import { Table } from './element/element-table';
 import { TableCell } from './element/element-table-cell';
 import { TableRow } from './element/element-table-row';
@@ -43,6 +44,7 @@ const customElements = {
     EntityInput,
     GradientInput,
     LayersInput,
+    MultiSelectInput,
     TableCell,
     TableRow,
     Table,
