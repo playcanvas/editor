@@ -387,7 +387,7 @@ const ATTRIBUTES: (Attribute | Divider)[] = [
     {
         observer: 'projectSettings',
         label: 'Resolution Height',
-        paths: 'height',
+        path: 'height',
         type: 'number',
         args: {
             min: 1
