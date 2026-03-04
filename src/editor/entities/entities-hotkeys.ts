@@ -148,4 +148,26 @@ editor.once('load', () => {
             }
         }
     });
+
+    // select all
+    // ctrl + a
+    editor.call('hotkey:register', 'entity:select-all', {
+        key: 'a',
+        ctrl: true,
+        callback: function () {
+            if (editor.call('picker:isOpen')) {
+                return;
+            }
+
+            const type = editor.call('selector:type');
+            if (type !== 'entity') {
+                return;
+            }
+
+            const entities = editor.call('entities:list');
+            if (entities.length) {
+                editor.call('selector:set', 'entity', entities);
+            }
+        }
+    });
 });

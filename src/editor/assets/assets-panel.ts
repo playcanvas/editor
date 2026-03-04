@@ -49,12 +49,16 @@ editor.once('load', () => {
         assetsPanel.progressBar.value = progress * 100;
     });
 
-    // // select all hotkey
-    // // ctrl + a
+    // select all hotkey
+    // ctrl + a
     editor.call('hotkey:register', 'asset:select-all', {
         key: 'a',
         ctrl: true,
         callback: () => {
+            if (editor.call('selector:type') !== 'asset') {
+                return;
+            }
+
             const assets = assetsPanel.visibleAssets;
 
             if (assets.length) {
