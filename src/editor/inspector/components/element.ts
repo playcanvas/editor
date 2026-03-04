@@ -738,18 +738,14 @@ class ElementComponentInspector extends ComponentInspector {
             history: args.history,
             bindingElementToObservers: new ImageAssetElementToObserversBinding(args.assets, {
                 history: args.history
-            },
-            this.entities
-            )
+            })
         });
         // update binding of spriteFrame field
         this._field('spriteFrame').binding = new BindingTwoWay({
             history: args.history,
             bindingElementToObservers: new SpriteFrameElementToObserversBinding(args.assets, {
                 history: args.history
-            },
-            this.entities
-            )
+            })
         });
 
         // reset size button tooltip
