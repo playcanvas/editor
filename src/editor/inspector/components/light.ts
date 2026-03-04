@@ -524,8 +524,8 @@ class LightComponentInspector extends ComponentInspector {
         let shadowTypeVsm = shadowType === SHADOW_VSM_16F || shadowType === SHADOW_VSM_32F;
         const cookie = this._field('cookieAsset').value;
         const numCascades = this._field('numCascades').value;
-        const isCLustered = editor.call('sceneSettings').get('render.clusteredLightingEnabled') && !isDirectional;
-        if (isCLustered) {
+        const isClustered = editor.call('sceneSettings').get('render.clusteredLightingEnabled') && !isDirectional;
+        if (isClustered) {
             shadowTypeVsm = false;
         }
 
@@ -578,7 +578,7 @@ class LightComponentInspector extends ComponentInspector {
             'cookieOffset',
             'cookieScale'
         ].forEach((field) => {
-            this._field(field).parent.hidden = isDirectional || isPoint || !cookie || isCLustered;
+            this._field(field).parent.hidden = isDirectional || isPoint || !cookie || isClustered;
         });
 
         this._field('cookieAsset').hidden = isDirectional;
@@ -590,10 +590,10 @@ class LightComponentInspector extends ComponentInspector {
             this._field('cookieAsset').text = isPoint ? 'Cookie (Cubemap)' : 'Cookie (Texture)';
         }
 
-        this._field('cookieFalloff').parent.hidden = !isSpot || !cookie || isCLustered;
+        this._field('cookieFalloff').parent.hidden = !isSpot || !cookie || isClustered;
 
-        this._field('shadowResolution').parent.hidden = !castShadows || isCLustered;
-        this._field('shadowType').parent.hidden = !castShadows || isCLustered;
+        this._field('shadowResolution').parent.hidden = !castShadows || isClustered;
+        this._field('shadowType').parent.hidden = !castShadows || isClustered;
         this._field('shadowDistance').parent.hidden = !castShadows;
         this._field('shadowIntensity').parent.hidden = !castShadows;
 
@@ -607,7 +607,7 @@ class LightComponentInspector extends ComponentInspector {
             'vsmBlurSize',
             'vsmBias'
         ].forEach((field) => {
-            this._field(field).parent.hidden = !castShadows || !shadowTypeVsm || isCLustered;
+            this._field(field).parent.hidden = !castShadows || !shadowTypeVsm || isClustered;
         });
 
         [
