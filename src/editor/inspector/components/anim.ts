@@ -83,7 +83,6 @@ class AnimComponentInspector extends ComponentInspector {
 
     _maskEvts: EventHandle[] = [];
 
-    _attributesInspector: AttributesInspector;
 
     _normalizeWeightsMessage: InfoBox;
 
@@ -559,7 +558,6 @@ class AnimComponentInspector extends ComponentInspector {
 
     link(entities: EntityObserver[]) {
         super.link(entities);
-        this._attributesInspector.link(entities);
 
         const stateGraphAssetField = this._attributesInspector.getField('stateGraphAsset');
         // handle multiselect
@@ -657,7 +655,6 @@ class AnimComponentInspector extends ComponentInspector {
         super.unlink();
         this._stateGraphAssetId = null;
         this._stateGraphAsset = null;
-        this._attributesInspector.unlink();
         this._clearAnimationSlots();
         this._clearMaskInspector();
     }

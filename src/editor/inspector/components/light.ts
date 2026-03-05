@@ -451,8 +451,6 @@ const ATTRIBUTES: (Attribute | Divider)[] = [{
 }];
 
 class LightComponentInspector extends ComponentInspector {
-    _attributesInspector: AttributesInspector;
-
     _btnUpdateShadow: Button;
 
     _eventUpdateShadow: EventHandle | null = null;
@@ -505,10 +503,6 @@ class LightComponentInspector extends ComponentInspector {
         this._btnUpdateShadow.once('destroy', () => {
             tooltip.destroy();
         });
-    }
-
-    _field(name: string) {
-        return this._attributesInspector.getField(`components.light.${name}`);
     }
 
     _toggleFields() {
@@ -639,23 +633,18 @@ class LightComponentInspector extends ComponentInspector {
     }
 
     link(entities: EntityObserver[]) {
-        super.link(entities);
-
         this._suppressToggleFields = true;
-        this._attributesInspector.link(entities);
+        super.link(entities);
+        this._suppressToggleFields = false;
+        this._toggleFields();
 
         this._eventUpdateShadow = this._btnUpdateShadow.on('click', () => {
             this._updateShadows(entities);
         });
-
-        this._suppressToggleFields = false;
-
-        this._toggleFields();
     }
 
     unlink() {
         super.unlink();
-        this._attributesInspector.unlink();
         if (this._eventUpdateShadow) {
             this._eventUpdateShadow.unbind();
             this._eventUpdateShadow = null;

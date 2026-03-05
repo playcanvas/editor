@@ -82,8 +82,6 @@ const ATTRIBUTES: Attribute[] = [{
 }];
 
 class AudiosourceComponentInspector extends ComponentInspector {
-    _attributesInspector: AttributesInspector;
-
     _suppressToggleFields = false;
 
     constructor(args: ComponentInspectorArgs) {
@@ -114,10 +112,6 @@ class AudiosourceComponentInspector extends ComponentInspector {
         });
     }
 
-    _field(name: string) {
-        return this._attributesInspector.getField(`components.audiosource.${name}`);
-    }
-
     _toggleFields() {
         if (this._suppressToggleFields) {
             return;
@@ -131,17 +125,10 @@ class AudiosourceComponentInspector extends ComponentInspector {
     }
 
     link(entities: EntityObserver[]) {
-        super.link(entities);
-
         this._suppressToggleFields = true;
-        this._attributesInspector.link(entities);
+        super.link(entities);
         this._suppressToggleFields = false;
         this._toggleFields();
-    }
-
-    unlink() {
-        super.unlink();
-        this._attributesInspector.unlink();
     }
 }
 

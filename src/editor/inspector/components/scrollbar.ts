@@ -1,6 +1,5 @@
 import { deepCopy } from '@/common/utils';
 import { ORIENTATION_HORIZONTAL, ORIENTATION_VERTICAL } from '@/core/constants';
-import type { EntityObserver } from '@/editor-api';
 
 import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute } from '../attribute.type.d';
@@ -50,8 +49,6 @@ const ATTRIBUTES: Attribute[] = [{
 }];
 
 class ScrollbarComponentInspector extends ComponentInspector {
-    _attributesInspector: AttributesInspector;
-
     constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
         args.component = 'scrollbar';
@@ -73,16 +70,6 @@ class ScrollbarComponentInspector extends ComponentInspector {
             templateOverridesInspector: this._templateOverridesInspector
         });
         this.append(this._attributesInspector);
-    }
-
-    link(entities: EntityObserver[]) {
-        super.link(entities);
-        this._attributesInspector.link(entities);
-    }
-
-    unlink() {
-        super.unlink();
-        this._attributesInspector.unlink();
     }
 }
 

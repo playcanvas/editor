@@ -126,7 +126,6 @@ class CollisionComponentInspector extends ComponentInspector {
 
     _evts: EventHandle[] = [];
 
-    _attributesInspector: AttributesInspector;
 
     _suppressToggleFields = false;
 
@@ -177,10 +176,6 @@ class CollisionComponentInspector extends ComponentInspector {
                 this._field('convexHull').parent.hidden = value !== 'mesh';
             });
         }
-    }
-
-    _field(name: string) {
-        return this._attributesInspector.getField(`components.collision.${name}`);
     }
 
     _handleTypeChange(fieldType: { value: string; binding: { on: (event: string, callback: (context: { prevHeights?: number[]; observers: Observer[] }) => void) => void } }) {
@@ -261,9 +256,10 @@ class CollisionComponentInspector extends ComponentInspector {
     }
 
     link(entities: EntityObserver[]) {
-        super.link(entities);
         this._suppressToggleFields = true;
-        this._attributesInspector.link(entities);
+        super.link(entities);
+        this._suppressToggleFields = false;
+        this._toggleFields();
 
         // Migration at the inspector level
         // We shouldn't need to do this but to allow creation of new
@@ -280,9 +276,6 @@ class CollisionComponentInspector extends ComponentInspector {
                 }
             }
         });
-
-        this._suppressToggleFields = false;
-        this._toggleFields();
 
         const updateVariedTransformScalesWarning = () => {
             if (entities.length !== 1 || entities[0].get('components.collision.type') !== 'mesh') {
@@ -307,7 +300,6 @@ class CollisionComponentInspector extends ComponentInspector {
 
     unlink() {
         super.unlink();
-        this._attributesInspector.unlink();
         this._evts.forEach(e => e.unbind());
         this._evts = [];
     }

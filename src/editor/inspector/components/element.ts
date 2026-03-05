@@ -672,8 +672,6 @@ class SpriteFrameElementToObserversBinding extends ImageAssetElementToObserversB
 }
 
 class ElementComponentInspector extends ComponentInspector {
-    _attributesInspector: AttributesInspector;
-
     _suppressLocalizedEvents = false;
 
     _suppressPresetEvents = false;
@@ -760,10 +758,6 @@ class ElementComponentInspector extends ComponentInspector {
         this._field('resetSize').on('click', () => {
             this._onClickResetSize(args.assets);
         });
-    }
-
-    _field(name: string) {
-        return this._attributesInspector.getField(`components.element.${name}`);
     }
 
     _toggleFields() {
@@ -1171,18 +1165,10 @@ class ElementComponentInspector extends ComponentInspector {
     }
 
     link(entities: EntityObserver[]) {
-        super.link(entities);
-
         this._suppressToggleFields = true;
-        this._attributesInspector.link(entities);
+        super.link(entities);
         this._suppressToggleFields = false;
-
         this._toggleFields();
-    }
-
-    unlink() {
-        super.unlink();
-        this._attributesInspector.unlink();
     }
 }
 

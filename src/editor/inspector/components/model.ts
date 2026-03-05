@@ -255,7 +255,6 @@ class AssetElementToObserversBinding extends BindingElementToObservers {
 class ModelComponentInspector extends ComponentInspector {
     _assets: ObserverList;
 
-    _attributesInspector: AttributesInspector;
 
     _labelUv1Missing: Label;
 
@@ -345,10 +344,6 @@ class ModelComponentInspector extends ComponentInspector {
                 history: this._history
             })
         });
-    }
-
-    _field(name: string) {
-        return this._attributesInspector.getField(`components.model.${name}`);
     }
 
     _onClickAssetMaterials() {
@@ -728,13 +723,11 @@ class ModelComponentInspector extends ComponentInspector {
     }
 
     link(entities: EntityObserver[]) {
-        super.link(entities);
-
         this._suppressToggleFields = true;
         this._suppressAssetChange = true;
         this._suppressCustomAabb = true;
 
-        this._attributesInspector.link(entities);
+        super.link(entities);
 
         const mappings = this._groupMappingsByKey();
         for (const key in mappings) {
@@ -791,7 +784,6 @@ class ModelComponentInspector extends ComponentInspector {
 
     unlink() {
         super.unlink();
-        this._attributesInspector.unlink();
         this._containerMappings.clear();
         this._mappingInspectors = {};
 

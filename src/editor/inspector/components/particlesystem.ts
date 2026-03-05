@@ -391,8 +391,6 @@ const ATTRIBUTES: Attribute[] = [{
 }];
 
 class ParticlesystemComponentInspector extends ComponentInspector {
-    _attributesInspector: AttributesInspector;
-
     _suppressToggleFields = false;
 
     _btnPlay: Button;
@@ -480,10 +478,6 @@ class ParticlesystemComponentInspector extends ComponentInspector {
         controls.append(btnReset);
 
         this._attributesInspector.prepend(controls);
-    }
-
-    _field(name: string) {
-        return this._attributesInspector.getField(`components.particlesystem.${name}`);
     }
 
     _toggleFields() {
@@ -593,21 +587,13 @@ class ParticlesystemComponentInspector extends ComponentInspector {
     }
 
     link(entities: EntityObserver[]) {
-        super.link(entities);
-
         this._suppressToggleFields = true;
-        this._attributesInspector.link(entities);
-
+        super.link(entities);
         this._suppressToggleFields = false;
         this._toggleFields();
 
         // play particles from the beginning
         this._onClickPlay();
-    }
-
-    unlink() {
-        super.unlink();
-        this._attributesInspector.unlink();
     }
 }
 

@@ -1,5 +1,3 @@
-import type { EntityObserver } from '@/editor-api';
-
 import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
@@ -8,8 +6,6 @@ import { AttributesInspector } from '../attributes-inspector';
 const ATTRIBUTES: Attribute[] = [];
 
 class AudiolistenerComponentInspector extends ComponentInspector {
-    _attributesInspector: AttributesInspector;
-
     constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
         args.component = 'audiolistener';
@@ -23,16 +19,6 @@ class AudiolistenerComponentInspector extends ComponentInspector {
             templateOverridesInspector: this._templateOverridesInspector
         });
         this.append(this._attributesInspector);
-    }
-
-    link(entities: EntityObserver[]) {
-        super.link(entities);
-        this._attributesInspector.link(entities);
-    }
-
-    unlink() {
-        super.unlink();
-        this._attributesInspector.unlink();
     }
 }
 

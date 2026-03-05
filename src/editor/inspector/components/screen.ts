@@ -65,8 +65,6 @@ const ATTRIBUTES: Attribute[] = [{
 }];
 
 class ScreenComponentInspector extends ComponentInspector {
-    _attributesInspector: AttributesInspector;
-
     _suppressToggleFields = false;
 
     constructor(args: ComponentInspectorArgs) {
@@ -86,10 +84,6 @@ class ScreenComponentInspector extends ComponentInspector {
         this._field('screenSpace').on('change', this._toggleFields.bind(this));
     }
 
-    _field(name: string) {
-        return this._attributesInspector.getField(`components.screen.${name}`);
-    }
-
     _toggleFields() {
         if (this._suppressToggleFields) {
             return;
@@ -105,16 +99,10 @@ class ScreenComponentInspector extends ComponentInspector {
     }
 
     link(entities: EntityObserver[]) {
-        super.link(entities);
         this._suppressToggleFields = true;
-        this._attributesInspector.link(entities);
+        super.link(entities);
         this._suppressToggleFields = false;
         this._toggleFields();
-    }
-
-    unlink() {
-        super.unlink();
-        this._attributesInspector.unlink();
     }
 }
 
