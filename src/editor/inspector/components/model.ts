@@ -271,7 +271,7 @@ class ModelComponentInspector extends ComponentInspector {
 
     _suppressCustomAabb = false;
 
-    _timeoutRefreshMappings: number | null = null;
+    _rafRefreshMappings: number | null = null;
 
     _dirtyMappings = new Set<string>();
 
@@ -512,12 +512,12 @@ class ModelComponentInspector extends ComponentInspector {
     }
 
     _refreshMappings(dirtyKeys?: Set<string>) {
-        if (this._timeoutRefreshMappings) {
-            cancelAnimationFrame(this._timeoutRefreshMappings);
+        if (this._rafRefreshMappings) {
+            cancelAnimationFrame(this._rafRefreshMappings);
         }
 
-        this._timeoutRefreshMappings = requestAnimationFrame(() => {
-            this._timeoutRefreshMappings = null;
+        this._rafRefreshMappings = requestAnimationFrame(() => {
+            this._rafRefreshMappings = null;
 
             const mappings = this._groupMappingsByKey();
             const keys = dirtyKeys ?? new Set(Object.keys(mappings));
@@ -795,9 +795,9 @@ class ModelComponentInspector extends ComponentInspector {
         this._containerMappings.clear();
         this._mappingInspectors = {};
 
-        if (this._timeoutRefreshMappings) {
-            cancelAnimationFrame(this._timeoutRefreshMappings);
-            this._timeoutRefreshMappings = null;
+        if (this._rafRefreshMappings) {
+            cancelAnimationFrame(this._rafRefreshMappings);
+            this._rafRefreshMappings = null;
         }
         this._dirtyMappings.clear();
     }

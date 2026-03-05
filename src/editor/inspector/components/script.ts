@@ -968,7 +968,7 @@ class ScriptComponentInspector extends ComponentInspector {
 
     private _dirtyScripts: Set<string> = new Set();
 
-    private _dirtyScriptsTimeout: number | null = null;
+    private _rafDirtyScripts: number | null = null;
 
     private _updateScriptsTimeout: ReturnType<typeof setTimeout> | null = null;
 
@@ -1146,19 +1146,19 @@ class ScriptComponentInspector extends ComponentInspector {
     }
 
     _deferUpdateDirtyScripts() {
-        if (this._dirtyScriptsTimeout) {
-            cancelAnimationFrame(this._dirtyScriptsTimeout);
+        if (this._rafDirtyScripts) {
+            cancelAnimationFrame(this._rafDirtyScripts);
         }
 
-        this._dirtyScriptsTimeout = requestAnimationFrame(this._updateDirtyScripts.bind(this));
+        this._rafDirtyScripts = requestAnimationFrame(this._updateDirtyScripts.bind(this));
     }
 
     _updateDirtyScripts() {
-        if (this._dirtyScriptsTimeout) {
-            cancelAnimationFrame(this._dirtyScriptsTimeout);
+        if (this._rafDirtyScripts) {
+            cancelAnimationFrame(this._rafDirtyScripts);
         }
 
-        this._dirtyScriptsTimeout = null;
+        this._rafDirtyScripts = null;
 
         if (this._dirtyScripts.size) {
             this._updateScripts(this._dirtyScripts);
@@ -1556,8 +1556,9 @@ class ScriptComponentInspector extends ComponentInspector {
         this._scriptPanels = {};
         this._dirtyScripts = new Set();
 
-        if (this._dirtyScriptsTimeout) {
-            cancelAnimationFrame(this._dirtyScriptsTimeout);
+        if (this._rafDirtyScripts) {
+            cancelAnimationFrame(this._rafDirtyScripts);
+            this._rafDirtyScripts = null;
         }
 
         if (this._updateScriptsTimeout) {
