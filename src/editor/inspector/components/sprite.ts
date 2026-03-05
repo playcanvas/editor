@@ -361,7 +361,6 @@ class SpriteClipInspector extends Panel {
 class SpriteComponentInspector extends ComponentInspector {
     _assets: ObserverList;
 
-    _attributesInspector: AttributesInspector;
 
     _containerClips: Container;
 
@@ -528,10 +527,6 @@ class SpriteComponentInspector extends ComponentInspector {
         return inspector;
     }
 
-    _field(name: string) {
-        return this._attributesInspector.getField(`components.sprite.${name}`);
-    }
-
     _onSetClip(clipName: string) {
         const existing = this._clipInspectors[clipName];
         if (existing) {
@@ -662,11 +657,8 @@ class SpriteComponentInspector extends ComponentInspector {
     }
 
     link(entities: EntityObserver[]) {
-        super.link(entities);
-
         this._suppressToggleFields = true;
-
-        this._attributesInspector.link(entities);
+        super.link(entities);
 
         this._btnAddClip.hidden = false;
 
@@ -708,7 +700,6 @@ class SpriteComponentInspector extends ComponentInspector {
 
     unlink() {
         super.unlink();
-        this._attributesInspector.unlink();
 
         if (this._rafClipNameChange) {
             cancelAnimationFrame(this._rafClipNameChange);

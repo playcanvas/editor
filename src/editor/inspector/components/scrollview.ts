@@ -131,8 +131,6 @@ const ATTRIBUTES: (Attribute | Divider)[] = [{
 }];
 
 class ScrollviewComponentInspector extends ComponentInspector {
-    _attributesInspector: AttributesInspector;
-
     _suppressToggleFields = false;
 
     constructor(args: ComponentInspectorArgs) {
@@ -162,10 +160,6 @@ class ScrollviewComponentInspector extends ComponentInspector {
         });
     }
 
-    _field(name: string) {
-        return this._attributesInspector.getField(`components.scrollview.${name}`);
-    }
-
     _toggleFields() {
         if (this._suppressToggleFields) {
             return;
@@ -185,16 +179,10 @@ class ScrollviewComponentInspector extends ComponentInspector {
     }
 
     link(entities: EntityObserver[]) {
-        super.link(entities);
         this._suppressToggleFields = true;
-        this._attributesInspector.link(entities);
+        super.link(entities);
         this._suppressToggleFields = false;
         this._toggleFields();
-    }
-
-    unlink() {
-        super.unlink();
-        this._attributesInspector.unlink();
     }
 }
 

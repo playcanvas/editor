@@ -124,7 +124,6 @@ class ButtonComponentInspector extends ComponentInspector {
 
     _evts: EventHandle[] = [];
 
-    _attributesInspector: AttributesInspector;
 
     _suppressToggleFields = false;
 
@@ -151,10 +150,6 @@ class ButtonComponentInspector extends ComponentInspector {
         this.append(this._attributesInspector);
 
         this._field('transitionMode').on('change', this._toggleFields.bind(this));
-    }
-
-    _field(name: string) {
-        return this._attributesInspector.getField(`components.button.${name}`);
     }
 
     _toggleFields() {
@@ -193,11 +188,9 @@ class ButtonComponentInspector extends ComponentInspector {
     }
 
     link(entities: EntityObserver[]) {
-        super.link(entities);
         this._suppressToggleFields = true;
-        this._attributesInspector.link(entities);
+        super.link(entities);
         this._suppressToggleFields = false;
-
         this._toggleFields();
 
         const updateInputWarning = () => {
@@ -210,7 +203,6 @@ class ButtonComponentInspector extends ComponentInspector {
 
     unlink() {
         super.unlink();
-        this._attributesInspector.unlink();
         this._evts.forEach(e => e.unbind());
         this._evts = [];
     }

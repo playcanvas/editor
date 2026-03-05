@@ -5,6 +5,7 @@ import { tooltip, tooltipRefItem } from '@/common/tooltips';
 import { LocalStorage, type EntityObserver, type History } from '@/editor-api';
 
 import type { TemplateOverrideInspector } from '../../templates/templates-override-inspector.js';
+import type { AttributesInspector } from '../attributes-inspector';
 
 interface ComponentInspectorArgs extends PanelArgs {
     component?: string;
@@ -27,6 +28,8 @@ class ComponentInspector extends Panel {
     _entities: EntityObserver[] | null = null;
 
     _entityEvents: EventHandle[] = [];
+
+    _attributesInspector: AttributesInspector | null = null;
 
     protected _history: History;
 
@@ -246,16 +249,22 @@ class ComponentInspector extends Panel {
         }
     }
 
+    _field(name: string) {
+        return this._attributesInspector!.getField(`components.${this._component}.${name}`);
+    }
+
     link(entities: EntityObserver[]) {
         this.unlink();
         this._entities = entities;
 
         const path = `components.${this._component}.enabled`;
         this._fieldEnable.link(entities, path);
+        this._attributesInspector?.link(entities);
     }
 
     unlink() {
         this._fieldEnable.unlink();
+        this._attributesInspector?.unlink();
 
         this._entityEvents.forEach(e => e.unbind());
         this._entityEvents.length = 0;

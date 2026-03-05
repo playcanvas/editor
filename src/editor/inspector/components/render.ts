@@ -134,7 +134,6 @@ const ATTRIBUTES: Attribute[] = [{
 class RenderComponentInspector extends ComponentInspector {
     _assets: ObserverList;
 
-    _attributesInspector: AttributesInspector;
 
     _labelUv1Missing: Label;
 
@@ -179,10 +178,6 @@ class RenderComponentInspector extends ComponentInspector {
 
         this._changeMaterialsOnChange(this._field('asset'));
         this._changeMaterialsOnChange(this._field('type'));
-    }
-
-    _field(name: string) {
-        return this._attributesInspector.getField(`components.render.${name}`);
     }
 
     _onMaterialsChange(value: unknown) {
@@ -459,16 +454,14 @@ class RenderComponentInspector extends ComponentInspector {
     }
 
     link(entities: EntityObserver[]) {
-        super.link(entities);
-
         this._suppressToggleFields = true;
         this._suppressAssetChange = true;
         this._suppressCustomAabb = true;
 
+        super.link(entities);
+
         const customAabbs = this._entities.map(e => e.has('components.render.aabbCenter'));
         this._field('customAabb').values = customAabbs;
-
-        this._attributesInspector.link(entities);
 
         entities.forEach((e) => {
             this._entityEvents.push(e.on('components.render.aabbCenter:set', this._refreshCustomAabb.bind(this)));
@@ -508,11 +501,6 @@ class RenderComponentInspector extends ComponentInspector {
         });
 
         this._toggleFields();
-    }
-
-    unlink() {
-        super.unlink();
-        this._attributesInspector.unlink();
     }
 }
 

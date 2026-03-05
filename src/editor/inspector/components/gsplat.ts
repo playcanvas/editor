@@ -1,8 +1,6 @@
 import type { ObserverList } from '@playcanvas/observer';
 import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from 'playcanvas';
 
-import type { EntityObserver } from '@/editor-api';
-
 import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
@@ -33,7 +31,6 @@ const ATTRIBUTES: Attribute[] = [{
 class GSplatComponentInspector extends ComponentInspector {
     _assets: ObserverList;
 
-    _attributesInspector: AttributesInspector;
 
     constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
@@ -52,20 +49,6 @@ class GSplatComponentInspector extends ComponentInspector {
             templateOverridesInspector: this._templateOverridesInspector
         });
         this.append(this._attributesInspector);
-    }
-
-    _field(name: string) {
-        return this._attributesInspector.getField(`components.gsplat.${name}`);
-    }
-
-    link(entities: EntityObserver[]) {
-        super.link(entities);
-        this._attributesInspector.link(entities);
-    }
-
-    unlink() {
-        super.unlink();
-        this._attributesInspector.unlink();
     }
 }
 

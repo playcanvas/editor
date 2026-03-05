@@ -151,8 +151,6 @@ const ATTRIBUTES: (Attribute | Divider)[] = [{
 }];
 
 class CameraComponentInspector extends ComponentInspector {
-    _attributesInspector: AttributesInspector;
-
     _suppressToggleFields = false;
 
     constructor(args: ComponentInspectorArgs) {
@@ -179,10 +177,6 @@ class CameraComponentInspector extends ComponentInspector {
         this._field('gammaCorrection').parent.hidden = !editor.projectEngineV2;
     }
 
-    _field(name: string) {
-        return this._attributesInspector.getField(`components.camera.${name}`);
-    }
-
     _toggleFields() {
         if (this._suppressToggleFields) {
             return;
@@ -196,16 +190,10 @@ class CameraComponentInspector extends ComponentInspector {
     }
 
     link(entities: EntityObserver[]) {
-        super.link(entities);
         this._suppressToggleFields = true;
-        this._attributesInspector.link(entities);
+        super.link(entities);
         this._suppressToggleFields = false;
         this._toggleFields();
-    }
-
-    unlink() {
-        super.unlink();
-        this._attributesInspector.unlink();
     }
 }
 

@@ -44,7 +44,6 @@ const CLASS_BUTTON_PLAY = 'animation-component-inspector-play';
 class AnimationComponentInspector extends ComponentInspector {
     _assets: ObserverList;
 
-    _attributesInspector: AttributesInspector;
 
     constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
@@ -136,8 +135,6 @@ class AnimationComponentInspector extends ComponentInspector {
     link(entities: EntityObserver[]) {
         super.link(entities);
 
-        this._attributesInspector.link(entities);
-
         const assetList = this._attributesInspector.getField('components.animation.assets');
         this._refreshPlayButtons(entities, assetList);
 
@@ -155,7 +152,6 @@ class AnimationComponentInspector extends ComponentInspector {
         }
 
         super.unlink();
-        this._attributesInspector.unlink();
     }
 }
 

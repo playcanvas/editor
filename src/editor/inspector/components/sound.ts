@@ -274,7 +274,6 @@ class SoundSlotInspector extends Panel {
 class SoundComponentInspector extends ComponentInspector {
     _assets: ObserverList;
 
-    _attributesInspector: AttributesInspector;
 
     _containerSlots: Container;
 
@@ -314,10 +313,6 @@ class SoundComponentInspector extends ComponentInspector {
         this.append(this._btnAddSlot);
 
         this._field('positional').on('change', this._toggleFields.bind(this));
-    }
-
-    _field(name: string) {
-        return this._attributesInspector.getField(`components.sound.${name}`);
     }
 
     _toggleFields() {
@@ -383,10 +378,8 @@ class SoundComponentInspector extends ComponentInspector {
     }
 
     link(entities: EntityObserver[]) {
-        super.link(entities);
-
         this._suppressToggleFields = true;
-        this._attributesInspector.link(entities);
+        super.link(entities);
         this._suppressToggleFields = false;
         this._toggleFields();
 
@@ -437,7 +430,6 @@ class SoundComponentInspector extends ComponentInspector {
 
     unlink() {
         super.unlink();
-        this._attributesInspector.unlink();
 
         for (const key in this._slotInspectors) {
             this._slotInspectors[key].destroy();

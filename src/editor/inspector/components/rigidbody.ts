@@ -114,8 +114,6 @@ const ATTRIBUTES: Attribute[] = [{
 }];
 
 class RigidbodyComponentInspector extends ComponentInspector {
-    _attributesInspector: AttributesInspector;
-
     _suppressToggleFields = false;
 
     _importAmmoPanel: LabelGroup;
@@ -148,10 +146,6 @@ class RigidbodyComponentInspector extends ComponentInspector {
         });
     }
 
-    _field(name: string) {
-        return this._attributesInspector.getField(`components.rigidbody.${name}`);
-    }
-
     _toggleFields() {
         if (this._suppressToggleFields) {
             return;
@@ -171,16 +165,10 @@ class RigidbodyComponentInspector extends ComponentInspector {
     }
 
     link(entities: EntityObserver[]) {
-        super.link(entities);
         this._suppressToggleFields = true;
-        this._attributesInspector.link(entities);
+        super.link(entities);
         this._suppressToggleFields = false;
         this._toggleFields();
-    }
-
-    unlink() {
-        super.unlink();
-        this._attributesInspector.unlink();
     }
 }
 
