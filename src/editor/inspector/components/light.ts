@@ -15,7 +15,6 @@ import {
 } from 'playcanvas';
 
 import { LegacyTooltip } from '@/common/ui/tooltip';
-
 import type { EntityObserver } from '@/editor-api';
 
 import { ComponentInspector, type ComponentInspectorArgs } from './component';

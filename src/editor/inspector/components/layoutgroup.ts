@@ -6,7 +6,6 @@ import {
     FITTING_SHRINK,
     FITTING_BOTH
 } from '@/core/constants';
-
 import type { EntityObserver } from '@/editor-api';
 
 import { ComponentInspector, type ComponentInspectorArgs } from './component';

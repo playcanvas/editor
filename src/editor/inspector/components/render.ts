@@ -3,7 +3,6 @@ import { Label, type Element as PcuiElement } from '@playcanvas/pcui';
 import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from 'playcanvas';
 
 import { CLASS_ERROR } from '@/common/pcui/constants';
-
 import type { EntityObserver } from '@/editor-api';
 
 import { ComponentInspector, type ComponentInspectorArgs } from './component';

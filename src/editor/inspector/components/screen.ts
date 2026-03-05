@@ -1,5 +1,4 @@
 import { deepCopy } from '@/common/utils';
-
 import type { EntityObserver } from '@/editor-api';
 
 import { ComponentInspector, type ComponentInspectorArgs } from './component';

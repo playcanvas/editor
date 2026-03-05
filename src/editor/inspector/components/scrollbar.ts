@@ -1,6 +1,5 @@
 import { deepCopy } from '@/common/utils';
 import { ORIENTATION_HORIZONTAL, ORIENTATION_VERTICAL } from '@/core/constants';
-
 import type { EntityObserver } from '@/editor-api';
 
 import { ComponentInspector, type ComponentInspectorArgs } from './component';

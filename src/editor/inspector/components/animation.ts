@@ -63,14 +63,14 @@ class AnimationComponentInspector extends ComponentInspector {
         this.append(this._attributesInspector);
     }
 
-    _refreshPlayButtons(entities: Observer[], assetList: { listItems: { assetId: string; element: PcuiElement }[] }) {
+    _refreshPlayButtons(entities: EntityObserver[], assetList: { listItems: { assetId: string; element: PcuiElement }[] }) {
         const listItems = assetList.listItems;
         listItems.forEach((item) => {
             this._addPlayButtonForAnimation(entities, item.assetId, item.element);
         });
     }
 
-    _addPlayButtonForAnimation(entities: Observer[], assetId: string, listItem: PcuiElement) {
+    _addPlayButtonForAnimation(entities: EntityObserver[], assetId: string, listItem: PcuiElement) {
         // destroy existing button
         const existing = listItem.dom.querySelector(`.${CLASS_BUTTON_PLAY}`);
         if (existing) {
@@ -101,7 +101,7 @@ class AnimationComponentInspector extends ComponentInspector {
         listItem.appendAfter(btn, label);
     }
 
-    _playAnimation(entities: Observer[], assetId: string | number) {
+    _playAnimation(entities: EntityObserver[], assetId: string | number) {
         assetId = parseInt(assetId, 10);
 
         for (let i = 0; i < entities.length; i++) {
@@ -123,7 +123,7 @@ class AnimationComponentInspector extends ComponentInspector {
         }
     }
 
-    _stopAnimation(entities: Observer[]) {
+    _stopAnimation(entities: EntityObserver[]) {
         for (let i = 0; i < entities.length; i++) {
             if (!entities[i].entity || !entities[i].entity.animation) {
                 continue;

@@ -2,7 +2,6 @@ import type { EventHandle, Observer, ObserverList } from '@playcanvas/observer';
 import { Panel, Container, Button } from '@playcanvas/pcui';
 
 import { deepCopy } from '@/common/utils';
-
 import type { EntityObserver } from '@/editor-api';
 
 import { ComponentInspector, type ComponentInspectorArgs } from './component';

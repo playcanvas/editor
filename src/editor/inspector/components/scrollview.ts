@@ -6,7 +6,6 @@ import {
     SCROLLBAR_VISIBILITY_SHOW_ALWAYS,
     SCROLLBAR_VISIBILITY_SHOW_WHEN_REQUIRED
 } from '@/core/constants';
-
 import type { EntityObserver } from '@/editor-api';
 
 import { ComponentInspector, type ComponentInspectorArgs } from './component';

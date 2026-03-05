@@ -5,7 +5,6 @@ import {
     BUTTON_TRANSITION_MODE_TINT,
     BUTTON_TRANSITION_MODE_SPRITE_CHANGE
 } from '@/core/constants';
-
 import type { EntityObserver } from '@/editor-api';
 
 import { ComponentInspector, type ComponentInspectorArgs } from './component';
