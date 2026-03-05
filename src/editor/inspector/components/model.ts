@@ -509,9 +509,6 @@ class ModelComponentInspector extends ComponentInspector {
 
         this._mappingInspectors[key] = container;
 
-        this._timeoutRefreshMappings = null;
-        this._dirtyMappings.clear();
-
         return container;
     }
 
@@ -542,6 +539,8 @@ class ModelComponentInspector extends ComponentInspector {
                     this._createMappingInspector(key, mappings[key]);
                 }
             }
+
+            this._dirtyMappings.clear();
         });
     }
 
