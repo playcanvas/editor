@@ -2,6 +2,14 @@ import { LegacyContainer } from './container';
 import { LegacyMenuItem } from './menu-item';
 
 class LegacyMenu extends LegacyContainer {
+    elementOverlay: HTMLDivElement & { ui: any };
+
+    _index: Record<string, any>;
+
+    _hovered: string[];
+
+    _clickableSubmenus: boolean;
+
     constructor(args: Record<string, any> = {}) {
         super();
         this.element = document.createElement('div');

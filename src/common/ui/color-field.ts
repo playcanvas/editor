@@ -1,6 +1,16 @@
+import type { EventHandle } from '@playcanvas/observer';
+
 import { LegacyElement } from './element';
 
 class LegacyColorField extends LegacyElement {
+    elementColor: HTMLSpanElement;
+
+    _channels: number;
+
+    _values: number[];
+
+    evtLinkChannels: EventHandle[];
+
     constructor(args: Record<string, any> = {}) {
         super();
         this.element = document.createElement('div');
@@ -164,7 +174,8 @@ class LegacyColorField extends LegacyElement {
             return this._element.blur();
         }
 
-        if (evt.keyCode !== 13 || this.ui.disabled) {
+        const self = this as LegacyColorField & { ui: { disabled: boolean } };
+        if (evt.keyCode !== 13 || self.ui.disabled) {
             return;
         }
 
