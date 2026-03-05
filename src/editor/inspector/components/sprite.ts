@@ -369,7 +369,7 @@ class SpriteComponentInspector extends ComponentInspector {
 
     _btnAddClip: Button;
 
-    _timeoutAfterClipNameChange: ReturnType<typeof setTimeout> | null = null;
+    _rafClipNameChange: number | null = null;
 
     _suppressToggleFields = false;
 
@@ -573,11 +573,11 @@ class SpriteComponentInspector extends ComponentInspector {
             entity.history.enabled = history;
         }
 
-        if (this._timeoutAfterClipNameChange) {
-            cancelAnimationFrame(this._timeoutAfterClipNameChange);
+        if (this._rafClipNameChange) {
+            cancelAnimationFrame(this._rafClipNameChange);
         }
 
-        this._timeoutAfterClipNameChange = requestAnimationFrame(this._onAfterClipNameChange.bind(this));
+        this._rafClipNameChange = requestAnimationFrame(this._onAfterClipNameChange.bind(this));
     }
 
     _onAfterClipNameChange() {
