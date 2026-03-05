@@ -104,7 +104,10 @@ class AudiosourceComponentInspector extends ComponentInspector {
 
         // disable all fields if engine is v2
         ATTRIBUTES.forEach((attribute) => {
-            const field = attribute.path && this._attributesInspector.getField(attribute.path);
+            if (!attribute.path) {
+                return;
+            }
+            const field = this._attributesInspector.getField(attribute.path);
             if (field) {
                 field.parent.enabled = false;
             }
