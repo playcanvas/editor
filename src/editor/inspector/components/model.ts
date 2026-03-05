@@ -255,7 +255,6 @@ class AssetElementToObserversBinding extends BindingElementToObservers {
 class ModelComponentInspector extends ComponentInspector {
     _assets: ObserverList;
 
-
     _labelUv1Missing: Label;
 
     _containerButtons: Container;
@@ -279,6 +278,8 @@ class ModelComponentInspector extends ComponentInspector {
         args.component = 'model';
 
         super(args);
+
+        this.headerText += ' (LEGACY)';
 
         this._assets = args.assets;
 

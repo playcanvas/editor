@@ -361,7 +361,6 @@ class SpriteClipInspector extends Panel {
 class SpriteComponentInspector extends ComponentInspector {
     _assets: ObserverList;
 
-
     _containerClips: Container;
 
     _clipInspectors: Record<string, SpriteClipInspector> = {};

@@ -31,7 +31,6 @@ const ATTRIBUTES: Attribute[] = [{
 class GSplatComponentInspector extends ComponentInspector {
     _assets: ObserverList;
 
-
     constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
         args.component = 'gsplat';

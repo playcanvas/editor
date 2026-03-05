@@ -90,6 +90,8 @@ class AudiosourceComponentInspector extends ComponentInspector {
 
         super(args);
 
+        this.headerText += editor.projectEngineV2 ? ' (REMOVED)' : ' (LEGACY)';
+
         this._attributesInspector = new AttributesInspector({
             assets: args.assets,
             history: args.history,

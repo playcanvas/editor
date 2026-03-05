@@ -62,15 +62,7 @@ class ComponentInspector extends Panel {
         });
         this.header.prepend(iconLabel);
 
-        let title = args.component.toUpperCase();
-        if (args.component === 'animation' ||
-            args.component === 'model') {
-            title += ' (LEGACY)';
-        }
-        if (args.component === 'audiosource') {
-            title += editor.projectEngineV2 ? ' (REMOVED)' : ' (LEGACY)';
-        }
-        this.headerText = title;
+        this.headerText = args.component.toUpperCase();
 
         this._history = args.history;
 

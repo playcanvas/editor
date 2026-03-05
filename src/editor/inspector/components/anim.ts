@@ -83,7 +83,6 @@ class AnimComponentInspector extends ComponentInspector {
 
     _maskEvts: EventHandle[] = [];
 
-
     _normalizeWeightsMessage: InfoBox;
 
     _layersContainer: Container;

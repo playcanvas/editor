@@ -134,7 +134,6 @@ const ATTRIBUTES: Attribute[] = [{
 class RenderComponentInspector extends ComponentInspector {
     _assets: ObserverList;
 
-
     _labelUv1Missing: Label;
 
     _suppressToggleFields = false;
