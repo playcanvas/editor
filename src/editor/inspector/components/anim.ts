@@ -3,6 +3,7 @@ import { InfoBox, Container, TreeView, TreeViewItem, BooleanInput, Menu, Button,
 import type { Entity } from 'playcanvas';
 
 import { AssetInput } from '@/common/pcui/element/element-asset-input';
+import type { EntityObserver } from '@/editor-api';
 
 import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute, Divider } from '../attribute.type.d';
@@ -556,7 +557,7 @@ class AnimComponentInspector extends ComponentInspector {
         }
     }
 
-    link(entities: Observer[]) {
+    link(entities: EntityObserver[]) {
         super.link(entities);
         this._attributesInspector.link(entities);
 

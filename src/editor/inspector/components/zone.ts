@@ -1,4 +1,4 @@
-import type { Observer } from '@playcanvas/observer';
+import type { EntityObserver } from '@/editor-api';
 
 import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute } from '../attribute.type.d';
@@ -35,7 +35,7 @@ class ZoneComponentInspector extends ComponentInspector {
         this.append(this._attributesInspector);
     }
 
-    link(entities: Observer[]) {
+    link(entities: EntityObserver[]) {
         super.link(entities);
         this._attributesInspector.link(entities);
     }

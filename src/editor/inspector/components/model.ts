@@ -1,10 +1,10 @@
-import type { Observer, ObserverList } from '@playcanvas/observer';
+import type { ObserverList } from '@playcanvas/observer';
 import { Label, Container, Button, BindingTwoWay, BindingElementToObservers } from '@playcanvas/pcui';
 import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from 'playcanvas';
 
 import { CLASS_ERROR } from '@/common/pcui/constants';
 import { AssetInput } from '@/common/pcui/element/element-asset-input';
-import type { Assets } from '@/editor-api';
+import type { Assets, EntityObserver } from '@/editor-api';
 
 import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute } from '../attribute.type.d';
@@ -392,7 +392,7 @@ class ModelComponentInspector extends ComponentInspector {
         return result;
     }
 
-    _getMeshInstanceName(index: number, entities: Observer[]) {
+    _getMeshInstanceName(index: number, entities: EntityObserver[]) {
         // get name of meshinstance from engine
         let meshInstanceName;
         for (let i = 0; i < entities.length; i++) {
@@ -414,7 +414,7 @@ class ModelComponentInspector extends ComponentInspector {
         return meshInstanceName;
     }
 
-    _createMappingInspector(key: string, entities: Observer[]) {
+    _createMappingInspector(key: string, entities: EntityObserver[]) {
         const index = parseInt(key, 10);
 
         if (this._mappingInspectors[key]) {
@@ -727,7 +727,7 @@ class ModelComponentInspector extends ComponentInspector {
         }
     }
 
-    link(entities: Observer[]) {
+    link(entities: EntityObserver[]) {
         super.link(entities);
 
         this._suppressToggleFields = true;
