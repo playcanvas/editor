@@ -102,16 +102,9 @@ class AudiosourceComponentInspector extends ComponentInspector {
 
         this._field('3d').on('change', this._toggleFields.bind(this));
 
-        // disable all fields if engine is v2
-        ATTRIBUTES.forEach((attribute) => {
-            if (!attribute.path) {
-                return;
-            }
-            const field = this._attributesInspector.getField(attribute.path);
-            if (field) {
-                field.parent.enabled = false;
-            }
-        });
+        if (editor.projectEngineV2) {
+            this._attributesInspector.enabled = false;
+        }
     }
 
     _toggleFields() {
