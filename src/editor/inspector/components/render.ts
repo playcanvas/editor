@@ -256,7 +256,7 @@ class RenderComponentInspector extends ComponentInspector {
                 if (type === 'asset') {
                     observer.set('components.render.asset', context.prevAssets[index]);
                     const asset = this._assets.get(observer.get('components.render.asset'));
-                    numInstances = asset && asset.get('meta.meshes') || asset.get('meta.meshInstances') || 0;
+                    numInstances = asset ? asset.get('meta.meshes') || asset.get('meta.meshInstances') || 0 : 0;
                 }
 
                 const newMaterials = this._getNewMaterials(numInstances, context.prevMaterials[index]);
