@@ -272,7 +272,7 @@ class ModelComponentInspector extends ComponentInspector {
 
     _suppressCustomAabb = false;
 
-    _timeoutRefreshMappings: number | null;
+    _timeoutRefreshMappings: number | null = null;
 
     _dirtyMappings = new Set<string>();
 
