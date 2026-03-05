@@ -80,7 +80,7 @@ class ModelThumbnailRenderer extends ThumbnailRenderer {
 
     _queueRenderHandler: () => void;
 
-    _watch: any;
+    _watch: unknown;
 
     _rotationX: number;
 
@@ -92,7 +92,7 @@ class ModelThumbnailRenderer extends ThumbnailRenderer {
 
     _evts: Record<string, EventHandle>;
 
-    _materialWatches: Record<string, any>;
+    _materialWatches: Record<string, unknown>;
 
     constructor(asset: Observer, canvas: HTMLCanvasElement) {
         super();

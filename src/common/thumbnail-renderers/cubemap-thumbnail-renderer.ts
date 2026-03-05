@@ -2,6 +2,10 @@ import type { Observer } from '@playcanvas/observer';
 
 import { buildQueryUrl } from '../utils';
 
+type AssetList = {
+    get: (id: number | string) => Observer | null;
+};
+
 const POSITIONS = [
     [30 / 64, 22 / 64],
     [0, 22 / 64],
@@ -16,7 +20,7 @@ const GRID_SIZE = 15 / 64;
 class CubemapThumbnailRenderer {
     _asset: Observer | null;
 
-    _assets: any;
+    _assets: AssetList | null;
 
     _canvas: HTMLCanvasElement | null;
 
@@ -26,13 +30,13 @@ class CubemapThumbnailRenderer {
 
     _onImageLoadHandler: () => void;
 
-    _watch: any;
+    _watch: unknown;
 
     _queuedRender: boolean;
 
     _frameRequest: number | null;
 
-    constructor(asset: Observer, canvas: HTMLCanvasElement, assetsList: any) {
+    constructor(asset: Observer, canvas: HTMLCanvasElement, assetsList: AssetList) {
         this._asset = asset;
         this._assets = assetsList;
         this._canvas = canvas;

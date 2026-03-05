@@ -2,6 +2,10 @@ import { Events, type EventHandle, type Observer } from '@playcanvas/observer';
 
 import { buildQueryUrl } from '../utils';
 
+type AssetList = {
+    get: (id: number | string) => Observer | null;
+};
+
 let sceneInitialized = false;
 
 const scene = {
@@ -134,11 +138,11 @@ class SpriteThumbnailRenderer {
 
     _canvas: HTMLCanvasElement | null;
 
-    _assets: any;
+    _assets: AssetList | null;
 
     _queueRenderHandler: () => void;
 
-    _watch: any;
+    _watch: unknown;
 
     _events: EventHandle[];
 
@@ -150,7 +154,7 @@ class SpriteThumbnailRenderer {
 
     _frameRequest: number | null;
 
-    constructor(asset: Observer, canvas: HTMLCanvasElement, assetsList: any) {
+    constructor(asset: Observer, canvas: HTMLCanvasElement, assetsList: AssetList) {
         this._asset = asset;
         this._canvas = canvas;
         this._assets = assetsList;

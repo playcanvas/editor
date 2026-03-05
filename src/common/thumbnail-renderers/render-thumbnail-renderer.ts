@@ -73,9 +73,9 @@ class RenderThumbnailRenderer extends ThumbnailRenderer {
 
     _queueRenderHandler: () => void;
 
-    _watch: any;
+    _watch: unknown;
 
-    _materialWatches: Record<string, any>;
+    _materialWatches: Record<string, unknown>;
 
     _rotationX: number;
 

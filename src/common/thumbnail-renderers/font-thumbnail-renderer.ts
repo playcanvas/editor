@@ -241,7 +241,7 @@ class FontThumbnailRenderer extends ThumbnailRenderer {
 
     _queueRenderHandler: () => void;
 
-    _watch: any;
+    _watch: unknown;
 
     _queuedRender: boolean;
 

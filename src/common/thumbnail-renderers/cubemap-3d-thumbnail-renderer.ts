@@ -66,7 +66,7 @@ class Cubemap3dThumbnailRenderer extends ThumbnailRenderer {
 
     _mipLevel: number;
 
-    _watch: any;
+    _watch: unknown;
 
     _sceneSettings: Observer | null;
 

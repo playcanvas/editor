@@ -84,9 +84,9 @@ class MaterialThumbnailRenderer extends ThumbnailRenderer {
 
     _queueRenderHandler: () => void;
 
-    _watch: any;
+    _watch: unknown;
 
-    _skyboxWatchHandle: any;
+    _skyboxWatchHandle: unknown;
 
     _queuedRender: boolean;
 
@@ -139,7 +139,7 @@ class MaterialThumbnailRenderer extends ThumbnailRenderer {
         }
 
         if (sceneSettings) {
-            this._evtChangeSkybox = sceneSettings.on('render.skybox:set', (value: any) => {
+            this._evtChangeSkybox = sceneSettings.on('render.skybox:set', (value: number | null) => {
                 this._unwatchSkybox();
 
                 if (value) {
