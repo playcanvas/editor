@@ -1,4 +1,3 @@
-import { deepCopy } from '@/common/utils';
 import type { EntityObserver } from '@/editor-api';
 
 import { ComponentInspector, type ComponentInspectorArgs } from './component';
@@ -75,7 +74,7 @@ class ScreenComponentInspector extends ComponentInspector {
 
         this._attributesInspector = new AttributesInspector({
             history: args.history,
-            attributes: deepCopy(ATTRIBUTES),
+            attributes: ATTRIBUTES,
             templateOverridesInspector: this._templateOverridesInspector
         });
         this.append(this._attributesInspector);
