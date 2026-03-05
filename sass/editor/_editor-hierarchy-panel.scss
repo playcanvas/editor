@@ -278,6 +278,13 @@
     box-shadow: -1px 0 0 $bcg-primary;
 }
 
+#layout-hierarchy.entity-picker-mode {
+    .pcui-container.hierarchy-visibility-column {
+        background-color: $bcg-primary;
+        box-shadow: -1px 0 0 $bcg-primary;
+    }
+}
+
 .pcui-container.hierarchy-controls {
     > .pcui-button {
         width: 28px;

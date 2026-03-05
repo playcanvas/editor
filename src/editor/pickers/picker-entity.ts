@@ -1,5 +1,7 @@
 import { LegacyOverlay } from '@/common/ui/overlay';
 
+const CLASS_ENTITY_PICKER_MODE = 'entity-picker-mode';
+
 editor.once('load', () => {
     const overlay = new LegacyOverlay();
     overlay.class.add('picker-entity');
@@ -15,7 +17,7 @@ editor.once('load', () => {
 
     // elements
     const hierarchy = editor.call('entities:hierarchy');
-    const hierarchyPanel = hierarchy.parent;
+    const hierarchyPanel = editor.call('layout.hierarchy');
     let hierarchyCollapsed = false;
 
     // esc to close
@@ -70,6 +72,7 @@ editor.once('load', () => {
         // emit event
         editor.emit('picker:entity:close');
         // styling
+        hierarchyPanel.class.remove(CLASS_ENTITY_PICKER_MODE);
         hierarchyPanel.style.zIndex = '';
         hierarchyPanel.style.overflow = '';
     });
@@ -104,6 +107,7 @@ editor.once('load', () => {
         }
 
         // show hierarchy panel in front
+        hierarchyPanel.class.add(CLASS_ENTITY_PICKER_MODE);
         hierarchyPanel.style.zIndex = 102;
         hierarchyPanel.style.overflow = 'visible';
         // if panel collapsed

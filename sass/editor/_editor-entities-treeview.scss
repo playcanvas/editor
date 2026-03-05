@@ -130,3 +130,27 @@
     width: 8px;
     height: 8px;
 }
+
+#layout-hierarchy.entity-picker-mode {
+    .entities-treeview-visibility-toggle {
+        &:hover,
+        &:focus {
+            color: rgba($text-primary, 0.8);
+        }
+
+        &.entities-treeview-row-hovered {
+            color: rgba($text-primary, 0.8);
+            background-color: $bcg-primary;
+        }
+
+        &.entities-treeview-visibility-hidden {
+            color: rgba($text-primary, 0.55);
+
+            &:hover,
+            &:focus,
+            &.entities-treeview-row-hovered {
+                color: rgba($text-primary, 0.8);
+            }
+        }
+    }
+}
