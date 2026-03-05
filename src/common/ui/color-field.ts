@@ -1,6 +1,14 @@
 import { LegacyElement } from './element';
 
 class LegacyColorField extends LegacyElement {
+    elementColor: HTMLSpanElement;
+
+    _channels: number;
+
+    _values: number[];
+
+    evtLinkChannels: any[];
+
     constructor(args: Record<string, any> = {}) {
         super();
         this.element = document.createElement('div');
@@ -164,7 +172,7 @@ class LegacyColorField extends LegacyElement {
             return this._element.blur();
         }
 
-        if (evt.keyCode !== 13 || this.ui.disabled) {
+        if (evt.keyCode !== 13 || this.disabled) {
             return;
         }
 

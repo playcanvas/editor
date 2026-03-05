@@ -1,6 +1,36 @@
 import { LegacyElement } from './element';
 
 class LegacySelectField extends LegacyElement {
+    options: Record<string, string>;
+
+    optionsKeys: string[];
+
+    elementValue: HTMLDivElement & { ui?: any };
+
+    elementOptions: HTMLUListElement;
+
+    optionElements: Record<string, HTMLLIElement>;
+
+    _oldValue: any;
+
+    _value: any;
+
+    _type: string;
+
+    _optionClassNamePrefix: string | null;
+
+    timerClickAway: ReturnType<typeof setTimeout> | null;
+
+    evtTouchId: number | null;
+
+    evtTouchSecond: boolean;
+
+    evtMouseDist: number[];
+
+    evtMouseUp: (evt: MouseEvent) => void;
+
+    evtTouchEnd: (evt: TouchEvent) => void;
+
     constructor(args: Record<string, any> = {}) {
         super();
         this.options = args.options || {};
@@ -199,7 +229,7 @@ class LegacySelectField extends LegacyElement {
             let touch;
 
             for (let i = 0; i < evt.changedTouches.length; i++) {
-                if (evt.changedTouches[i].target !== this) {
+                if (evt.changedTouches[i].target !== (this as any)) {
                     continue;
                 }
 
@@ -267,7 +297,7 @@ class LegacySelectField extends LegacyElement {
         this.value = keys[ind + y];
     }
 
-    valueToType(value: any) {
+    valueToType(value: any): any {
         switch (this._type) {
             case 'boolean':
                 return !!value;
@@ -388,7 +418,7 @@ class LegacySelectField extends LegacyElement {
                 continue;
             }
 
-            const element = document.createElement('li');
+            const element: any = document.createElement('li');
             element.textContent = this.options[this.optionsKeys[i]];
             element.uiElement = this;
             element.uiValue = this.optionsKeys[i];
@@ -405,15 +435,15 @@ class LegacySelectField extends LegacyElement {
         }
     }
 
-    _onOptionSelect() {
+    _onOptionSelect(this: any) {
         this.uiElement.value = this.uiValue;
     }
 
-    _onOptionHover() {
+    _onOptionHover(this: any) {
         this.classList.add('hover');
     }
 
-    _onOptionOut() {
+    _onOptionOut(this: any) {
         this.classList.remove('hover');
     }
 

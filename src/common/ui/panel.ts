@@ -1,6 +1,30 @@
 import { LegacyContainer } from './container';
 
 class LegacyPanel extends LegacyContainer {
+    headerElement: HTMLElement | null;
+
+    headerElementTitle: HTMLSpanElement | null;
+
+    _handle: string | null;
+
+    _handleElement: (HTMLDivElement & { ui: any }) | null;
+
+    _resizeTouchId: number | null;
+
+    _resizeData: { x: number; y: number; width: number; height: number } | null;
+
+    _resizeLimits: { min: number; max: number };
+
+    headerSize: number;
+
+    _resizeEvtMove: (evt: MouseEvent) => void;
+
+    _resizeEvtEnd: (evt: MouseEvent) => void;
+
+    _resizeEvtTouchMove: (evt: TouchEvent) => void;
+
+    _resizeEvtTouchEnd: (evt: TouchEvent) => void;
+
     constructor(header?: string) {
         super();
         this.element = document.createElement('div');
@@ -15,7 +39,7 @@ class LegacyPanel extends LegacyContainer {
 
         this.on('nodesChanged', this._onNodesChanged.bind(this));
 
-        this.innerElement = document.createElement('div');
+        this.innerElement = document.createElement('div') as any;
         this.innerElement.ui = this;
         this.innerElement.classList.add('content');
         this._element.appendChild(this.innerElement);
@@ -306,10 +330,10 @@ class LegacyPanel extends LegacyContainer {
             return;
         }
 
-        if (evt.changedTouches) {
-            for (let i = 0; i < evt.changedTouches.length; i++) {
-                const touch = evt.changedTouches[i];
-                if (touch.target !== this) {
+        if ((evt as TouchEvent).changedTouches) {
+            for (let i = 0; i < (evt as TouchEvent).changedTouches.length; i++) {
+                const touch = (evt as TouchEvent).changedTouches[i];
+                if (touch.target !== (this as any)) {
                     continue;
                 }
 

@@ -4,6 +4,32 @@ import { LegacyCanvas } from './canvas';
 import { LegacyElement } from './element';
 
 class LegacyCurveField extends LegacyElement {
+    canvas: LegacyCanvas;
+
+    _lineWidth: number;
+
+    checkerboardCanvas: LegacyCanvas;
+
+    checkerboard: CanvasPattern;
+
+    _value: any;
+
+    _paths: string[];
+
+    _linkSetHandlers: any[];
+
+    _resizeInterval: ReturnType<typeof setInterval> | null;
+
+    _name: string;
+
+    curveNames: string[];
+
+    gradient: boolean;
+
+    min: number;
+
+    max: number;
+
     constructor(args: Record<string, any> = {}) {
         super();
         this.element = document.createElement('div');
@@ -22,7 +48,7 @@ class LegacyCurveField extends LegacyElement {
         const halfSize = size / 2;
         this.checkerboardCanvas.width = size;
         this.checkerboardCanvas.height = size;
-        const ctx = this.checkerboardCanvas.element.getContext('2d');
+        const ctx = (this.checkerboardCanvas.element as any).getContext('2d');
         ctx.fillStyle = '#949a9c';
         ctx.fillRect(0, 0, halfSize, halfSize);
         ctx.fillRect(halfSize, halfSize, halfSize, halfSize);
@@ -30,7 +56,7 @@ class LegacyCurveField extends LegacyElement {
         ctx.fillRect(halfSize, 0, halfSize, halfSize);
         ctx.fillRect(0, halfSize, halfSize, halfSize);
 
-        this.checkerboard = this.canvas.element.getContext('2d').createPattern(this.checkerboardCanvas.element, 'repeat');
+        this.checkerboard = (this.canvas.element as any).getContext('2d').createPattern(this.checkerboardCanvas.element, 'repeat');
 
         this._value = null;
         this._paths = [];
@@ -73,7 +99,7 @@ class LegacyCurveField extends LegacyElement {
         }
     }
 
-    link(link: any, paths: string[]) {
+    link(link: any, paths: any) {
         if (this._link) {
             this.unlink();
         }
@@ -171,7 +197,7 @@ class LegacyCurveField extends LegacyElement {
     }
 
     _renderCurves() {
-        const canvas = this.canvas.element;
+        const canvas = this.canvas.element as any;
         const context = canvas.ctx = canvas.ctx || canvas.getContext('2d');
         const value = this.value;
 
@@ -233,7 +259,7 @@ class LegacyCurveField extends LegacyElement {
     }
 
     _renderGradient() {
-        const canvas = this.canvas.element;
+        const canvas = this.canvas.element as any;
         const context = canvas.ctx = canvas.ctx || canvas.getContext('2d');
         const value = this.value && this.value.length ? this.value[0] : null;
 

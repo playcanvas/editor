@@ -1,10 +1,24 @@
 import { LegacyElement } from './element';
 
 class LegacyContainer extends LegacyElement {
+    protected _observer: MutationObserver;
+
+    protected _observerChanged: boolean;
+
+    protected _observerOptions: Record<string, boolean>;
+
     constructor() {
         super();
         this._innerElement = null;
         this._observerChanged = false;
+        this._observerOptions = {
+            childList: true,
+            attributes: true,
+            characterData: false,
+            subtree: true,
+            attributeOldValue: false,
+            characterDataOldValue: false
+        };
 
         const observerTimeout = () => {
             this._observerChanged = false;
@@ -21,7 +35,7 @@ class LegacyContainer extends LegacyElement {
         });
     }
 
-    set innerElement(value: HTMLElement) {
+    set innerElement(value: (HTMLElement & { ui: any }) | null) {
         if (this._innerElement) {
             this._observer.disconnect();
         }
@@ -68,7 +82,7 @@ class LegacyContainer extends LegacyElement {
 
     set flexDirection(value: string) {
         this._innerElement.style.flexDirection = value;
-        this._innerElement.style.WebkitFlexDirection = value;
+        (this._innerElement.style as any).WebkitFlexDirection = value;
     }
 
     get flexDirection() {
@@ -78,41 +92,41 @@ class LegacyContainer extends LegacyElement {
     set flexWrap(value: string) {
         this.flex = true;
         this._innerElement.style.flexWrap = value;
-        this._innerElement.style.WebkitFlexWrap = value;
+        (this._innerElement.style as any).WebkitFlexWrap = value;
     }
 
     get flexWrap() {
         return this._innerElement.style.flexWrap;
     }
 
-    set flexGrow(value: boolean) {
+    set flexGrow(value: any) {
         if (value) {
             this.flex = true;
         }
 
-        this._element.style.flexGrow = value ? 1 : 0;
-        this._element.style.WebkitFlexGrow = value ? 1 : 0;
+        (this._element.style as any).flexGrow = value ? 1 : 0;
+        (this._element.style as any).WebkitFlexGrow = value ? 1 : 0;
         this._innerElement.style.flexGrow = this._element.style.flexGrow;
-        this._innerElement.style.WebkitFlexGrow = this._element.style.flexGrow;
+        (this._innerElement.style as any).WebkitFlexGrow = this._element.style.flexGrow;
     }
 
-    get flexGrow() {
-        return this._element.style.flexGrow === 1;
+    get flexGrow(): any {
+        return this._element.style.flexGrow === '1';
     }
 
-    set flexShrink(value: boolean) {
+    set flexShrink(value: any) {
         if (value) {
             this.flex = true;
         }
 
-        this._element.style.flexShrink = value ? 1 : 0;
-        this._element.style.WebkitFlexShrink = value ? 1 : 0;
+        (this._element.style as any).flexShrink = value ? 1 : 0;
+        (this._element.style as any).WebkitFlexShrink = value ? 1 : 0;
         this._innerElement.style.flexShrink = this._element.style.flexShrink;
-        this._innerElement.style.WebkitFlexShrink = this._element.style.flexShrink;
+        (this._innerElement.style as any).WebkitFlexShrink = this._element.style.flexShrink;
     }
 
-    get flexShrink() {
-        return this._element.style.flexShrink === 1;
+    get flexShrink(): any {
+        return this._element.style.flexShrink === '1';
     }
 
     set scroll(value: boolean) {
@@ -159,10 +173,10 @@ class LegacyContainer extends LegacyElement {
             reference = reference.element;
         }
 
-        reference = reference.nextSibling;
+        const next = reference.nextSibling;
 
-        if (reference) {
-            this._innerElement.insertBefore(node, reference);
+        if (next) {
+            this._innerElement.insertBefore(node, next);
         } else {
             this._innerElement.appendChild(node);
         }
@@ -226,14 +240,5 @@ class LegacyContainer extends LegacyElement {
         this._observer.observe(this._innerElement, this._observerOptions);
     }
 }
-
-LegacyContainer.prototype._observerOptions = {
-    childList: true,
-    attributes: true,
-    characterData: false,
-    subtree: true,
-    attributeOldValue: false,
-    characterDataOldValue: false
-};
 
 export { LegacyContainer };

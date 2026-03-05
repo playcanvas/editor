@@ -1,6 +1,14 @@
 import { LegacyElement } from './element';
 
 class LegacyListItem extends LegacyElement {
+    _text: string;
+
+    _selected: boolean;
+
+    _allowDeselect: boolean;
+
+    elementText: HTMLSpanElement;
+
     constructor(args: Record<string, any> = {}) {
         super();
         this._text = args.text || '';

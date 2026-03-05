@@ -1,6 +1,12 @@
 import { LegacyElement } from './element';
 
 class LegacyCanvas extends LegacyElement {
+    _width: number;
+
+    _height: number;
+
+    _ratio: number;
+
     constructor(args: Record<string, any> = {}) {
         super();
         this.element = document.createElement('canvas');
@@ -27,7 +33,7 @@ class LegacyCanvas extends LegacyElement {
         }
 
         this._width = value;
-        this._element.width = this.pixelWidth;
+        (this._element as any).width = this.pixelWidth;
         this._element.style.width = `${value}px`;
         this.emit('resize', this._width, this._height);
     }
@@ -42,7 +48,7 @@ class LegacyCanvas extends LegacyElement {
         }
 
         this._height = value;
-        this._element.height = this.pixelHeight;
+        (this._element as any).height = this.pixelHeight;
         this._element.style.height = `${value}px`;
         this.emit('resize', this._width, this._height);
     }
@@ -74,8 +80,8 @@ class LegacyCanvas extends LegacyElement {
 
         this._width = width;
         this._height = height;
-        this._element.width = this.pixelWidth;
-        this._element.height = this.pixelHeight;
+        (this._element as any).width = this.pixelWidth;
+        (this._element as any).height = this.pixelHeight;
         this._element.style.width = `${width}px`;
         this._element.style.height = `${height}px`;
         this.emit('resize', width, height);
