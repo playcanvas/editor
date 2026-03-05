@@ -157,7 +157,7 @@ const SLOT_ATTRIBUTES: Attribute[] = [{
 const CLASS_SLOT = 'sound-component-inspector-slot';
 
 class SoundSlotInspector extends Panel {
-    _entities: Observer[] | null = null;
+    _entities: EntityObserver[] | null = null;
 
     _slotEvents: EventHandle[] = [];
 
