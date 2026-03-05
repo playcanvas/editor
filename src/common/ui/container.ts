@@ -1,5 +1,14 @@
 import { LegacyElement } from './element';
 
+const OBSERVER_OPTIONS = {
+    childList: true,
+    attributes: true,
+    characterData: false,
+    subtree: true,
+    attributeOldValue: false,
+    characterDataOldValue: false
+};
+
 class LegacyContainer extends LegacyElement {
     protected _observer: MutationObserver;
 
@@ -11,14 +20,7 @@ class LegacyContainer extends LegacyElement {
         super();
         this._innerElement = null;
         this._observerChanged = false;
-        this._observerOptions = {
-            childList: true,
-            attributes: true,
-            characterData: false,
-            subtree: true,
-            attributeOldValue: false,
-            characterDataOldValue: false
-        };
+        this._observerOptions = OBSERVER_OPTIONS;
 
         const observerTimeout = () => {
             this._observerChanged = false;
@@ -41,7 +43,9 @@ class LegacyContainer extends LegacyElement {
         }
 
         this._innerElement = value;
-        this._observer.observe(this._innerElement, this._observerOptions);
+        if (this._innerElement) {
+            this._observer.observe(this._innerElement, this._observerOptions);
+        }
     }
 
     get innerElement() {
@@ -110,8 +114,8 @@ class LegacyContainer extends LegacyElement {
         (this._innerElement.style as any).WebkitFlexGrow = this._element.style.flexGrow;
     }
 
-    get flexGrow(): any {
-        return this._element.style.flexGrow === '1';
+    get flexGrow() {
+        return (this._element.style as any).flexGrow === 1;
     }
 
     set flexShrink(value: any) {
@@ -125,8 +129,8 @@ class LegacyContainer extends LegacyElement {
         (this._innerElement.style as any).WebkitFlexShrink = this._element.style.flexShrink;
     }
 
-    get flexShrink(): any {
-        return this._element.style.flexShrink === '1';
+    get flexShrink() {
+        return (this._element.style as any).flexShrink === 1;
     }
 
     set scroll(value: boolean) {

@@ -172,7 +172,7 @@ class LegacyColorField extends LegacyElement {
             return this._element.blur();
         }
 
-        if (evt.keyCode !== 13 || this.disabled) {
+        if (evt.keyCode !== 13 || (this as any).ui.disabled) {
             return;
         }
 

@@ -297,7 +297,7 @@ class LegacySelectField extends LegacyElement {
         this.value = keys[ind + y];
     }
 
-    valueToType(value: any): any {
+    valueToType(value: any) {
         switch (this._type) {
             case 'boolean':
                 return !!value;
