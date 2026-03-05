@@ -4,9 +4,9 @@ import { FITMODE_CONTAIN, FITMODE_COVER, FITMODE_STRETCH, LAYERID_DEPTH, LAYERID
 
 import { CLASS_MULTIPLE_VALUES } from '@/common/pcui/constants';
 import { tooltip, tooltipRefItem } from '@/common/tooltips';
-import type { Assets } from '@/editor-api';
+import type { Assets, EntityObserver } from '@/editor-api';
 
-import { ComponentInspector, type ComponentInspectorArgs, type EntityObserver } from './component';
+import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute, Divider } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 

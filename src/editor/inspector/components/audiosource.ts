@@ -1,4 +1,6 @@
-import { ComponentInspector, type ComponentInspectorArgs, type EntityObserver } from './component';
+import type { EntityObserver } from '@/editor-api';
+
+import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 

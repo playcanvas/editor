@@ -6,9 +6,9 @@ import { AssetInput } from '@/common/pcui/element/element-asset-input';
 import { tooltip, tooltipSimpleItem } from '@/common/tooltips';
 import { LegacyTooltip } from '@/common/ui/tooltip';
 import { deepCopy } from '@/common/utils';
-import type { AssetObserver, History, LocalStorage } from '@/editor-api';
+import type { AssetObserver, EntityObserver, History, LocalStorage } from '@/editor-api';
 
-import { ComponentInspector, type ComponentInspectorArgs, type EntityObserver } from './component';
+import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import { evaluate } from '../../scripting/expr-eval/evaluate';
 import { parse } from '../../scripting/expr-eval/parser';
 import type { ASTNode } from '../../scripting/expr-eval/parser.js';

@@ -278,4 +278,4 @@ class ComponentInspector extends Panel {
     }
 }
 
-export { ComponentInspector, type ComponentInspectorArgs, type EntityObserver };
+export { ComponentInspector, type ComponentInspectorArgs };

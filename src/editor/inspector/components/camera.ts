@@ -1,6 +1,8 @@
 import { TONEMAPPING } from '@/core/constants';
 
-import { ComponentInspector, type ComponentInspectorArgs, type EntityObserver } from './component';
+import type { EntityObserver } from '@/editor-api';
+
+import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute, Divider } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 

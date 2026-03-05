@@ -4,7 +4,9 @@ import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from 'playcanvas';
 
 import { CLASS_ERROR } from '@/common/pcui/constants';
 
-import { ComponentInspector, type ComponentInspectorArgs, type EntityObserver } from './component';
+import type { EntityObserver } from '@/editor-api';
+
+import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
