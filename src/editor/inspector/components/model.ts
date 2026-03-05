@@ -244,7 +244,6 @@ class AssetElementToObserversBinding extends BindingElementToObservers {
                 redo: redo,
                 undo: undo
             });
-
         }
 
         redo();

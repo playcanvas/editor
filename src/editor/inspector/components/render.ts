@@ -237,7 +237,6 @@ class RenderComponentInspector extends ComponentInspector {
                 observer.set('components.render.materialAssets', newMaterials);
 
                 observer.history.enabled = history;
-
             });
         });
 
@@ -263,7 +262,6 @@ class RenderComponentInspector extends ComponentInspector {
                 observer.set('components.render.materialAssets', newMaterials);
 
                 observer.history.enabled = history;
-
             });
         });
     }
@@ -358,7 +356,6 @@ class RenderComponentInspector extends ComponentInspector {
         const customAabb = this._field('customAabb').value;
         this._field('aabbCenter').parent.hidden = !customAabb;
         this._field('aabbHalfExtents').parent.hidden = !customAabb;
-
     }
 
     _onCustomAabbChange(value: boolean) {
@@ -510,7 +507,6 @@ class RenderComponentInspector extends ComponentInspector {
         });
 
         this._toggleFields();
-
     }
 
     unlink() {

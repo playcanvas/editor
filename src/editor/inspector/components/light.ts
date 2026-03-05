@@ -456,7 +456,7 @@ class LightComponentInspector extends ComponentInspector {
 
     _eventUpdateShadow: EventHandle | null = null;
 
-    _skipToggleFields = false;
+    _suppressToggleFields = false;
 
     constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
@@ -511,7 +511,7 @@ class LightComponentInspector extends ComponentInspector {
     }
 
     _toggleFields() {
-        if (this._skipToggleFields) {
+        if (this._suppressToggleFields) {
             return;
         }
 
@@ -640,14 +640,14 @@ class LightComponentInspector extends ComponentInspector {
     link(entities: Observer[]) {
         super.link(entities);
 
-        this._skipToggleFields = true;
+        this._suppressToggleFields = true;
         this._attributesInspector.link(entities);
 
         this._eventUpdateShadow = this._btnUpdateShadow.on('click', () => {
             this._updateShadows(entities);
         });
 
-        this._skipToggleFields = false;
+        this._suppressToggleFields = false;
 
         this._toggleFields();
     }
