@@ -80,8 +80,6 @@ class AnimComponentInspector extends ComponentInspector {
 
     _contextMenus: Menu[] = [];
 
-    _evts: EventHandle[] = [];
-
     _maskEvts: EventHandle[] = [];
 
     _attributesInspector: AttributesInspector;
@@ -498,7 +496,7 @@ class AnimComponentInspector extends ComponentInspector {
             deleteLayerMaskButton.hidden = !this._entities[0].get(`components.anim.masks.${layerId}.mask`);
             maskButtonsContainer.append(deleteLayerMaskButton);
 
-            this._evts.push(this._entities[0].on('*:set', (path) => {
+            this._entityEvents.push(this._entities[0].on('*:set', (path) => {
                 if (path.indexOf('components.anim.masks') === 0) {
                     layerMaskButton.text = this._entities[0].get(`components.anim.masks.${layerId}.mask`) ? 'EDIT MASK' : 'CREATE MASK';
                     deleteLayerMaskButton.hidden = !this._entities[0].get(`components.anim.masks.${layerId}.mask`);
@@ -659,9 +657,6 @@ class AnimComponentInspector extends ComponentInspector {
         this._stateGraphAssetId = null;
         this._stateGraphAsset = null;
         this._attributesInspector.unlink();
-        this._evts.forEach(e => e.unbind());
-        this._evts.length = 0;
-
         this._clearAnimationSlots();
         this._clearMaskInspector();
     }
