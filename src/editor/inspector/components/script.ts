@@ -6,7 +6,7 @@ import { AssetInput } from '@/common/pcui/element/element-asset-input';
 import { tooltip, tooltipSimpleItem } from '@/common/tooltips';
 import { LegacyTooltip } from '@/common/ui/tooltip';
 import { deepCopy } from '@/common/utils';
-import type { AssetObserver, History, LocalStorage } from '@/editor-api';
+import type { AssetObserver, EntityObserver, History, LocalStorage } from '@/editor-api';
 
 import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import { evaluate } from '../../scripting/expr-eval/evaluate';
@@ -133,7 +133,7 @@ class ScriptInspector extends Panel {
      */
     private _astCache: Map<string, ASTNode> = new Map();
 
-    private _entities: Observer[] | null = null;
+    private _entities: EntityObserver[] | null = null;
 
     private _labelInvalid: Label;
 
@@ -234,14 +234,14 @@ class ScriptInspector extends Panel {
         });
 
         const enableGroup = new LabelGroup({
-            text: 'On',
+            text: 'ON',
             class: CLASS_SCRIPT_ENABLED,
             field: this._fieldEnable
         });
         this.header.append(enableGroup);
 
         this._fieldEnable.on('change', (value) => {
-            enableGroup.text = value ? 'On' : 'Off';
+            enableGroup.text = value ? 'ON' : 'OFF';
         });
 
         if (this._templateOverridesInspector) {
@@ -480,7 +480,6 @@ class ScriptInspector extends Panel {
         if (firstRecursion) {
             unusedKeys.forEach(key => this._astCache.delete(key));
         }
-
     }
 
     _evaluateCondition(name: string, tag: string, expression: string | undefined, state: Record<string, unknown>) {
@@ -913,7 +912,7 @@ class ScriptInspector extends Panel {
         this._tooltipInvalid.description = this._getInvalidTooltipText();
     }
 
-    link(entities: Observer[]) {
+    link(entities: EntityObserver[]) {
         this.unlink();
 
         this._entities = entities;
@@ -962,8 +961,6 @@ class ScriptComponentInspector extends ComponentInspector {
     _argsEntities: ObserverList;
 
     private _scriptPanels: Record<string, ScriptInspector> = {};
-
-    private _editorEvents: EventHandle[] = [];
 
     private _containerScripts: Container;
 
@@ -1513,7 +1510,7 @@ class ScriptComponentInspector extends ComponentInspector {
         }
     }
 
-    link(entities: Observer[]) {
+    link(entities: EntityObserver[]) {
         super.link(entities);
 
         this._updateScripts();
@@ -1546,15 +1543,12 @@ class ScriptComponentInspector extends ComponentInspector {
             }));
         });
 
-        this._editorEvents.push(editor.on('assets:scripts:add', this._onScriptAddOrRemove.bind(this)));
-        this._editorEvents.push(editor.on('assets:scripts:remove', this._onScriptAddOrRemove.bind(this)));
+        this._entityEvents.push(editor.on('assets:scripts:add', this._onScriptAddOrRemove.bind(this)));
+        this._entityEvents.push(editor.on('assets:scripts:remove', this._onScriptAddOrRemove.bind(this)));
     }
 
     unlink() {
         super.unlink();
-
-        this._editorEvents.forEach(evt => evt.unbind());
-        this._editorEvents.length = 0;
 
         this._selectScript.close();
         this._selectScript.value = '';

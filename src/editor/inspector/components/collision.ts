@@ -2,6 +2,8 @@ import type { EventHandle, Observer } from '@playcanvas/observer';
 import { InfoBox, LabelGroup } from '@playcanvas/pcui';
 import { CollisionComponent } from 'playcanvas';
 
+import type { EntityObserver } from '@/editor-api';
+
 import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
@@ -258,7 +260,7 @@ class CollisionComponentInspector extends ComponentInspector {
         this._field('renderAsset').hidden = fieldType.value !== 'mesh' || !!modelAsset;
     }
 
-    link(entities: Observer[]) {
+    link(entities: EntityObserver[]) {
         super.link(entities);
         this._suppressToggleFields = true;
         this._attributesInspector.link(entities);

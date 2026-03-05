@@ -1,4 +1,4 @@
-import type { Observer } from '@playcanvas/observer';
+import type { EntityObserver } from '@/editor-api';
 
 import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute } from '../attribute.type.d';
@@ -84,7 +84,7 @@ const ATTRIBUTES: Attribute[] = [{
 class AudiosourceComponentInspector extends ComponentInspector {
     _attributesInspector: AttributesInspector;
 
-    _skipToggleFields = false;
+    _suppressToggleFields = false;
 
     constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
@@ -104,8 +104,13 @@ class AudiosourceComponentInspector extends ComponentInspector {
 
         // disable all fields if engine is v2
         ATTRIBUTES.forEach((attribute) => {
+            if (!attribute.path) {
+                return;
+            }
             const field = this._attributesInspector.getField(attribute.path);
-            field.parent.enabled = false;
+            if (field) {
+                field.parent.enabled = false;
+            }
         });
     }
 
@@ -114,7 +119,7 @@ class AudiosourceComponentInspector extends ComponentInspector {
     }
 
     _toggleFields() {
-        if (this._skipToggleFields) {
+        if (this._suppressToggleFields) {
             return;
         }
 
@@ -125,12 +130,12 @@ class AudiosourceComponentInspector extends ComponentInspector {
         this._field('rollOffFactor').parent.hidden = !is3d;
     }
 
-    link(entities: Observer[]) {
+    link(entities: EntityObserver[]) {
         super.link(entities);
 
-        this._skipToggleFields = true;
+        this._suppressToggleFields = true;
         this._attributesInspector.link(entities);
-        this._skipToggleFields = false;
+        this._suppressToggleFields = false;
         this._toggleFields();
     }
 

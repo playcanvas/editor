@@ -1,10 +1,10 @@
-import type { Observer, ObserverList } from '@playcanvas/observer';
+import type { ObserverList } from '@playcanvas/observer';
 import { Label, Container, Button, BindingTwoWay, BindingElementToObservers } from '@playcanvas/pcui';
 import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from 'playcanvas';
 
 import { CLASS_ERROR } from '@/common/pcui/constants';
 import { AssetInput } from '@/common/pcui/element/element-asset-input';
-import type { Assets } from '@/editor-api';
+import type { Assets, EntityObserver } from '@/editor-api';
 
 import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute } from '../attribute.type.d';
@@ -244,7 +244,6 @@ class AssetElementToObserversBinding extends BindingElementToObservers {
                 redo: redo,
                 undo: undo
             });
-
         }
 
         redo();
@@ -272,9 +271,9 @@ class ModelComponentInspector extends ComponentInspector {
 
     _suppressCustomAabb = false;
 
-    _timeoutRefreshMappings: ReturnType<typeof setTimeout> | null;
+    _timeoutRefreshMappings: number | null = null;
 
-    _dirtyMappings: boolean;
+    _dirtyMappings = new Set<string>();
 
     constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
@@ -393,7 +392,7 @@ class ModelComponentInspector extends ComponentInspector {
         return result;
     }
 
-    _getMeshInstanceName(index: number, entities: Observer[]) {
+    _getMeshInstanceName(index: number, entities: EntityObserver[]) {
         // get name of meshinstance from engine
         let meshInstanceName;
         for (let i = 0; i < entities.length; i++) {
@@ -415,7 +414,7 @@ class ModelComponentInspector extends ComponentInspector {
         return meshInstanceName;
     }
 
-    _createMappingInspector(key: string, entities: Observer[]) {
+    _createMappingInspector(key: string, entities: EntityObserver[]) {
         const index = parseInt(key, 10);
 
         if (this._mappingInspectors[key]) {
@@ -509,13 +508,10 @@ class ModelComponentInspector extends ComponentInspector {
 
         this._mappingInspectors[key] = container;
 
-        this._timeoutRefreshMappings = null;
-        this._dirtyMappings = {};
-
         return container;
     }
 
-    _refreshMappings(dirtyMappings?: Record<string, Observer[]>) {
+    _refreshMappings(dirtyKeys?: Set<string>) {
         if (this._timeoutRefreshMappings) {
             cancelAnimationFrame(this._timeoutRefreshMappings);
         }
@@ -524,7 +520,7 @@ class ModelComponentInspector extends ComponentInspector {
             this._timeoutRefreshMappings = null;
 
             const mappings = this._groupMappingsByKey();
-            dirtyMappings = dirtyMappings || mappings;
+            const keys = dirtyKeys ?? new Set(Object.keys(mappings));
 
             for (const key in this._mappingInspectors) {
                 if (!mappings[key]) {
@@ -536,12 +532,14 @@ class ModelComponentInspector extends ComponentInspector {
                 }
             }
 
-            for (const key in dirtyMappings) {
+            for (const key of keys) {
                 if (mappings[key]) {
                     // recreate dirty mappings
                     this._createMappingInspector(key, mappings[key]);
                 }
             }
+
+            this._dirtyMappings.clear();
         });
     }
 
@@ -729,7 +727,7 @@ class ModelComponentInspector extends ComponentInspector {
         }
     }
 
-    link(entities: Observer[]) {
+    link(entities: EntityObserver[]) {
         super.link(entities);
 
         this._suppressToggleFields = true;
@@ -752,7 +750,7 @@ class ModelComponentInspector extends ComponentInspector {
                     return;
                 }
 
-                this._dirtyMappings[match[1]] = true;
+                this._dirtyMappings.add(match[1]);
 
                 this._refreshMappings(this._dirtyMappings);
             }));
@@ -763,7 +761,7 @@ class ModelComponentInspector extends ComponentInspector {
                     return;
                 }
 
-                this._dirtyMappings[match[1]] = true;
+                this._dirtyMappings.add(match[1]);
 
                 this._refreshMappings(this._dirtyMappings);
             }));
@@ -801,7 +799,7 @@ class ModelComponentInspector extends ComponentInspector {
             cancelAnimationFrame(this._timeoutRefreshMappings);
             this._timeoutRefreshMappings = null;
         }
-        this._dirtyMappings = {};
+        this._dirtyMappings.clear();
     }
 }
 

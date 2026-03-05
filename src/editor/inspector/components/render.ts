@@ -1,8 +1,9 @@
-import type { Observer, ObserverList } from '@playcanvas/observer';
+import type { ObserverList } from '@playcanvas/observer';
 import { Label, type Element as PcuiElement } from '@playcanvas/pcui';
 import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from 'playcanvas';
 
 import { CLASS_ERROR } from '@/common/pcui/constants';
+import type { EntityObserver } from '@/editor-api';
 
 import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute } from '../attribute.type.d';
@@ -237,7 +238,6 @@ class RenderComponentInspector extends ComponentInspector {
                 observer.set('components.render.materialAssets', newMaterials);
 
                 observer.history.enabled = history;
-
             });
         });
 
@@ -256,14 +256,13 @@ class RenderComponentInspector extends ComponentInspector {
                 if (type === 'asset') {
                     observer.set('components.render.asset', context.prevAssets[index]);
                     const asset = this._assets.get(observer.get('components.render.asset'));
-                    numInstances = asset && asset.get('meta.meshes') || asset.get('meta.meshInstances') || 0;
+                    numInstances = asset ? asset.get('meta.meshes') || asset.get('meta.meshInstances') || 0 : 0;
                 }
 
                 const newMaterials = this._getNewMaterials(numInstances, context.prevMaterials[index]);
                 observer.set('components.render.materialAssets', newMaterials);
 
                 observer.history.enabled = history;
-
             });
         });
     }
@@ -358,7 +357,6 @@ class RenderComponentInspector extends ComponentInspector {
         const customAabb = this._field('customAabb').value;
         this._field('aabbCenter').parent.hidden = !customAabb;
         this._field('aabbHalfExtents').parent.hidden = !customAabb;
-
     }
 
     _onCustomAabbChange(value: boolean) {
@@ -460,7 +458,7 @@ class RenderComponentInspector extends ComponentInspector {
         this._toggleFields();
     }
 
-    link(entities: Observer[]) {
+    link(entities: EntityObserver[]) {
         super.link(entities);
 
         this._suppressToggleFields = true;
@@ -510,7 +508,6 @@ class RenderComponentInspector extends ComponentInspector {
         });
 
         this._toggleFields();
-
     }
 
     unlink() {

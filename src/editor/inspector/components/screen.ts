@@ -1,6 +1,5 @@
-import type { Observer } from '@playcanvas/observer';
-
 import { deepCopy } from '@/common/utils';
+import type { EntityObserver } from '@/editor-api';
 
 import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute } from '../attribute.type.d';
@@ -105,7 +104,7 @@ class ScreenComponentInspector extends ComponentInspector {
         this._field('scaleBlend').parent.hidden = scaleMode !== 'blend' || !screenSpace;
     }
 
-    link(entities: Observer[]) {
+    link(entities: EntityObserver[]) {
         super.link(entities);
         this._suppressToggleFields = true;
         this._attributesInspector.link(entities);

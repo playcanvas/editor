@@ -3,6 +3,7 @@ import { InfoBox, Container, TreeView, TreeViewItem, BooleanInput, Menu, Button,
 import type { Entity } from 'playcanvas';
 
 import { AssetInput } from '@/common/pcui/element/element-asset-input';
+import type { EntityObserver } from '@/editor-api';
 
 import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute, Divider } from '../attribute.type.d';
@@ -79,8 +80,6 @@ class AnimComponentInspector extends ComponentInspector {
     _maskInspector: Container | null = null;
 
     _contextMenus: Menu[] = [];
-
-    _evts: EventHandle[] = [];
 
     _maskEvts: EventHandle[] = [];
 
@@ -452,7 +451,7 @@ class AnimComponentInspector extends ComponentInspector {
         }
         this._contextMenus.length = 0;
 
-        document.querySelector('#layout-attributes').ui.headerText = 'ENTITY';
+        editor.call('layout.attributes').headerText = 'ENTITY';
         this._maskEvts.forEach(e => e.unbind());
         this._maskEvts.length = 0;
     }
@@ -498,7 +497,7 @@ class AnimComponentInspector extends ComponentInspector {
             deleteLayerMaskButton.hidden = !this._entities[0].get(`components.anim.masks.${layerId}.mask`);
             maskButtonsContainer.append(deleteLayerMaskButton);
 
-            this._evts.push(this._entities[0].on('*:set', (path) => {
+            this._entityEvents.push(this._entities[0].on('*:set', (path) => {
                 if (path.indexOf('components.anim.masks') === 0) {
                     layerMaskButton.text = this._entities[0].get(`components.anim.masks.${layerId}.mask`) ? 'EDIT MASK' : 'CREATE MASK';
                     deleteLayerMaskButton.hidden = !this._entities[0].get(`components.anim.masks.${layerId}.mask`);
@@ -558,7 +557,7 @@ class AnimComponentInspector extends ComponentInspector {
         }
     }
 
-    link(entities: Observer[]) {
+    link(entities: EntityObserver[]) {
         super.link(entities);
         this._attributesInspector.link(entities);
 
@@ -659,9 +658,6 @@ class AnimComponentInspector extends ComponentInspector {
         this._stateGraphAssetId = null;
         this._stateGraphAsset = null;
         this._attributesInspector.unlink();
-        this._evts.forEach(e => e.unbind());
-        this._evts.length = 0;
-
         this._clearAnimationSlots();
         this._clearMaskInspector();
     }

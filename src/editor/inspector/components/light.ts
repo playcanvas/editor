@@ -1,4 +1,4 @@
-import type { EventHandle, Observer } from '@playcanvas/observer';
+import type { EventHandle } from '@playcanvas/observer';
 import { Button } from '@playcanvas/pcui';
 import {
     LAYERID_DEPTH,
@@ -15,6 +15,7 @@ import {
 } from 'playcanvas';
 
 import { LegacyTooltip } from '@/common/ui/tooltip';
+import type { EntityObserver } from '@/editor-api';
 
 import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute, Divider } from '../attribute.type.d';
@@ -456,7 +457,7 @@ class LightComponentInspector extends ComponentInspector {
 
     _eventUpdateShadow: EventHandle | null = null;
 
-    _skipToggleFields = false;
+    _suppressToggleFields = false;
 
     constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
@@ -511,7 +512,7 @@ class LightComponentInspector extends ComponentInspector {
     }
 
     _toggleFields() {
-        if (this._skipToggleFields) {
+        if (this._suppressToggleFields) {
             return;
         }
 
@@ -624,7 +625,7 @@ class LightComponentInspector extends ComponentInspector {
         this._btnUpdateShadow.hidden = this._field('shadowUpdateMode').value !== SHADOWUPDATE_THISFRAME;
     }
 
-    _updateShadows(entities: Observer[]) {
+    _updateShadows(entities: EntityObserver[]) {
         for (let i = 0; i < entities.length; i++) {
             if (entities[i].entity && entities[i].entity.light && entities[i].entity.light.shadowUpdateMode === SHADOWUPDATE_THISFRAME) {
                 entities[i].entity.light.light.shadowUpdateMode = SHADOWUPDATE_THISFRAME;
@@ -637,17 +638,17 @@ class LightComponentInspector extends ComponentInspector {
         this._field('innerConeAngle').max = this._field('outerConeAngle').value;
     }
 
-    link(entities: Observer[]) {
+    link(entities: EntityObserver[]) {
         super.link(entities);
 
-        this._skipToggleFields = true;
+        this._suppressToggleFields = true;
         this._attributesInspector.link(entities);
 
         this._eventUpdateShadow = this._btnUpdateShadow.on('click', () => {
             this._updateShadows(entities);
         });
 
-        this._skipToggleFields = false;
+        this._suppressToggleFields = false;
 
         this._toggleFields();
     }

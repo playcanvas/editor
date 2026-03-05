@@ -1,6 +1,7 @@
-import type { Observer } from '@playcanvas/observer';
 import { Button, LabelGroup } from '@playcanvas/pcui';
 import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from 'playcanvas';
+
+import type { EntityObserver } from '@/editor-api';
 
 import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute } from '../attribute.type.d';
@@ -556,7 +557,6 @@ class ParticlesystemComponentInspector extends ComponentInspector {
 
             e.entity.particlesystem.pause();
         });
-
     }
 
     _onClickStop() {
@@ -592,7 +592,7 @@ class ParticlesystemComponentInspector extends ComponentInspector {
         });
     }
 
-    link(entities: Observer[]) {
+    link(entities: EntityObserver[]) {
         super.link(entities);
 
         this._suppressToggleFields = true;

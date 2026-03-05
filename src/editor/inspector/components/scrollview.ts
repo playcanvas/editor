@@ -1,5 +1,3 @@
-import type { Observer } from '@playcanvas/observer';
-
 import { deepCopy } from '@/common/utils';
 import {
     SCROLL_MODE_BOUNCE,
@@ -8,6 +6,7 @@ import {
     SCROLLBAR_VISIBILITY_SHOW_ALWAYS,
     SCROLLBAR_VISIBILITY_SHOW_WHEN_REQUIRED
 } from '@/core/constants';
+import type { EntityObserver } from '@/editor-api';
 
 import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute, Divider } from '../attribute.type.d';
@@ -185,7 +184,7 @@ class ScrollviewComponentInspector extends ComponentInspector {
         this._field('horizontalScrollbarVisibility').parent.hidden = !horizontalScrollingEnabled;
     }
 
-    link(entities: Observer[]) {
+    link(entities: EntityObserver[]) {
         super.link(entities);
         this._suppressToggleFields = true;
         this._attributesInspector.link(entities);
