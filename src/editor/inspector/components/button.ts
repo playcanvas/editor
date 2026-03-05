@@ -1,4 +1,3 @@
-import type { EventHandle } from '@playcanvas/observer';
 import { InfoBox } from '@playcanvas/pcui';
 
 import {
@@ -122,9 +121,6 @@ const ATTRIBUTES: Attribute[] = [{
 class ButtonComponentInspector extends ComponentInspector {
     _inputWarning: InfoBox;
 
-    _evts: EventHandle[] = [];
-
-
     _suppressToggleFields = false;
 
     constructor(args: ComponentInspectorArgs) {
@@ -196,15 +192,9 @@ class ButtonComponentInspector extends ComponentInspector {
         const updateInputWarning = () => {
             this._inputWarning.hidden = entities.length !== 1 || entities[0].get('components.element.useInput') || !entities[0].get('components.button.active');
         };
-        this._evts.push(entities[0].on('components.element.useInput:set', updateInputWarning));
-        this._evts.push(entities[0].on('components.button.active:set', updateInputWarning));
+        this._entityEvents.push(entities[0].on('components.element.useInput:set', updateInputWarning));
+        this._entityEvents.push(entities[0].on('components.button.active:set', updateInputWarning));
         updateInputWarning();
-    }
-
-    unlink() {
-        super.unlink();
-        this._evts.forEach(e => e.unbind());
-        this._evts = [];
     }
 }
 

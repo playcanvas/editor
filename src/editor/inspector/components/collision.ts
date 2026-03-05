@@ -1,4 +1,4 @@
-import type { EventHandle, Observer } from '@playcanvas/observer';
+import type { Observer } from '@playcanvas/observer';
 import { InfoBox, LabelGroup } from '@playcanvas/pcui';
 import { CollisionComponent } from 'playcanvas';
 
@@ -123,9 +123,6 @@ const ATTRIBUTES: Attribute[] = [{
 
 class CollisionComponentInspector extends ComponentInspector {
     _variedTransformScalesWarning: InfoBox;
-
-    _evts: EventHandle[] = [];
-
 
     _suppressToggleFields = false;
 
@@ -290,18 +287,12 @@ class CollisionComponentInspector extends ComponentInspector {
             }
             this._variedTransformScalesWarning.hidden = false;
         };
-        this._evts.push(entities[0].on('*:set', (path) => {
+        this._entityEvents.push(entities[0].on('*:set', (path) => {
             if (path === 'components.collision.type' || path.indexOf('scale.') === 0) {
                 updateVariedTransformScalesWarning();
             }
         }));
         updateVariedTransformScalesWarning();
-    }
-
-    unlink() {
-        super.unlink();
-        this._evts.forEach(e => e.unbind());
-        this._evts = [];
     }
 }
 
