@@ -1,5 +1,6 @@
+import { ORIENTATION_HORIZONTAL, ORIENTATION_VERTICAL } from 'playcanvas';
+
 import { deepCopy } from '@/common/utils';
-import { ORIENTATION_HORIZONTAL, ORIENTATION_VERTICAL } from '@/core/constants';
 
 import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute } from '../attribute.type.d';

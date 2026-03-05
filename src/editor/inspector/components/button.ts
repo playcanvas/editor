@@ -1,9 +1,9 @@
 import { InfoBox } from '@playcanvas/pcui';
-
 import {
     BUTTON_TRANSITION_MODE_TINT,
     BUTTON_TRANSITION_MODE_SPRITE_CHANGE
-} from '@/core/constants';
+} from 'playcanvas';
+
 import type { EntityObserver } from '@/editor-api';
 
 import { ComponentInspector, type ComponentInspectorArgs } from './component';

@@ -1,11 +1,12 @@
-import { deepCopy } from '@/common/utils';
 import {
     SCROLL_MODE_BOUNCE,
     SCROLL_MODE_CLAMP,
     SCROLL_MODE_INFINITE,
     SCROLLBAR_VISIBILITY_SHOW_ALWAYS,
     SCROLLBAR_VISIBILITY_SHOW_WHEN_REQUIRED
-} from '@/core/constants';
+} from 'playcanvas';
+
+import { deepCopy } from '@/common/utils';
 import type { EntityObserver } from '@/editor-api';
 
 import { ComponentInspector, type ComponentInspectorArgs } from './component';
