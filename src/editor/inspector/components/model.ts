@@ -272,9 +272,9 @@ class ModelComponentInspector extends ComponentInspector {
 
     _suppressCustomAabb = false;
 
-    _timeoutRefreshMappings: ReturnType<typeof setTimeout> | null;
+    _timeoutRefreshMappings: number | null = null;
 
-    _dirtyMappings: boolean;
+    _dirtyMappings = new Set<string>();
 
     constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
@@ -509,13 +509,10 @@ class ModelComponentInspector extends ComponentInspector {
 
         this._mappingInspectors[key] = container;
 
-        this._timeoutRefreshMappings = null;
-        this._dirtyMappings = {};
-
         return container;
     }
 
-    _refreshMappings(dirtyMappings?: Record<string, Observer[]>) {
+    _refreshMappings(dirtyKeys?: Set<string>) {
         if (this._timeoutRefreshMappings) {
             cancelAnimationFrame(this._timeoutRefreshMappings);
         }
@@ -524,7 +521,7 @@ class ModelComponentInspector extends ComponentInspector {
             this._timeoutRefreshMappings = null;
 
             const mappings = this._groupMappingsByKey();
-            dirtyMappings = dirtyMappings || mappings;
+            const keys = dirtyKeys ?? new Set(Object.keys(mappings));
 
             for (const key in this._mappingInspectors) {
                 if (!mappings[key]) {
@@ -536,12 +533,14 @@ class ModelComponentInspector extends ComponentInspector {
                 }
             }
 
-            for (const key in dirtyMappings) {
+            for (const key of keys) {
                 if (mappings[key]) {
                     // recreate dirty mappings
                     this._createMappingInspector(key, mappings[key]);
                 }
             }
+
+            this._dirtyMappings.clear();
         });
     }
 
@@ -752,7 +751,7 @@ class ModelComponentInspector extends ComponentInspector {
                     return;
                 }
 
-                this._dirtyMappings[match[1]] = true;
+                this._dirtyMappings.add(match[1]);
 
                 this._refreshMappings(this._dirtyMappings);
             }));
@@ -763,7 +762,7 @@ class ModelComponentInspector extends ComponentInspector {
                     return;
                 }
 
-                this._dirtyMappings[match[1]] = true;
+                this._dirtyMappings.add(match[1]);
 
                 this._refreshMappings(this._dirtyMappings);
             }));
@@ -801,7 +800,7 @@ class ModelComponentInspector extends ComponentInspector {
             cancelAnimationFrame(this._timeoutRefreshMappings);
             this._timeoutRefreshMappings = null;
         }
-        this._dirtyMappings = {};
+        this._dirtyMappings.clear();
     }
 }
 
