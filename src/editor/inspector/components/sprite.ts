@@ -147,7 +147,7 @@ const CLASS_CLIP = 'sprite-component-inspector-clip';
 const REGEX_CLIP = /^components.sprite.clips.\d+$/;
 const REGEX_CLIP_NAME = /^components.sprite.clips.\d+\.name$/;
 
-function getClipsGroupedByName(entities: Observer[]) {
+function getClipsGroupedByName(entities: EntityObserver[]) {
     const result = {};
 
     // first group clips by name
@@ -170,7 +170,7 @@ function getClipsGroupedByName(entities: Observer[]) {
     return result;
 }
 
-function getCommonClips(entities: Observer[]) {
+function getCommonClips(entities: EntityObserver[]) {
     const result = getClipsGroupedByName(entities);
 
     // then remove all clips who are not shared across all entities
@@ -505,7 +505,7 @@ class SpriteComponentInspector extends ComponentInspector {
         redo();
     }
 
-    _createClipInspector(entities: Observer[], clipName: string, clipKeys: string[], insertBeforeElement?: Element) {
+    _createClipInspector(entities: EntityObserver[], clipName: string, clipKeys: string[], insertBeforeElement?: Element) {
         const inspector = new SpriteClipInspector({
             clipName: clipName,
             clipKeys: clipKeys,
