@@ -5,7 +5,7 @@ import {
     FITTING_STRETCH,
     FITTING_SHRINK,
     FITTING_BOTH
-} from '@/core/constants';
+} from 'playcanvas';
 
 import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute } from '../attribute.type.d';

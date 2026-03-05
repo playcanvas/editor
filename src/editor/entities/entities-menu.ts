@@ -1,5 +1,7 @@
+import { ORIENTATION_HORIZONTAL, ORIENTATION_VERTICAL } from 'playcanvas';
+
 import { formatShortcut } from '@/common/utils';
-import { COMPONENT_LOGOS, ORIENTATION_HORIZONTAL, ORIENTATION_VERTICAL } from '@/core/constants';
+import { COMPONENT_LOGOS } from '@/core/constants';
 
 editor.once('load', () => {
     const applyAdditions = (object, additions?) => {

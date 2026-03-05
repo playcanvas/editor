@@ -14,36 +14,10 @@ export const TONEMAPPING = [
     'Neutral'
 ];
 
-// Layout groups
-export const ORIENTATION_HORIZONTAL = 0;
-export const ORIENTATION_VERTICAL = 1;
-export const FITTING_NONE = 0;
-export const FITTING_STRETCH = 1;
-export const FITTING_SHRINK = 2;
-export const FITTING_BOTH = 3;
-
-// Buttons
-export const BUTTON_TRANSITION_MODE_TINT = 0;
-export const BUTTON_TRANSITION_MODE_SPRITE_CHANGE = 1;
-
-// Scroll Views
-export const SCROLL_MODE_CLAMP = 0;
-export const SCROLL_MODE_BOUNCE = 1;
-export const SCROLL_MODE_INFINITE = 2;
-
-export const SCROLLBAR_VISIBILITY_SHOW_ALWAYS = 0;
-export const SCROLLBAR_VISIBILITY_SHOW_WHEN_REQUIRED = 1;
-
-
-// Editor-specific curve types (not in engine)
-export const CURVE_CATMULL = 2;
-export const CURVE_CARDINAL = 3;
-
 // Script Loading Type
 export const LOAD_SCRIPT_AS_ASSET = 0;
 export const LOAD_SCRIPT_BEFORE_ENGINE = 1;
 export const LOAD_SCRIPT_AFTER_ENGINE = 2;
-
 
 // VERSION CONTROL
 export const MERGE_STATUS_AUTO_STARTED = 'merge_auto_started';
