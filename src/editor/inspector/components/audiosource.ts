@@ -1,6 +1,4 @@
-import type { Observer } from '@playcanvas/observer';
-
-import { ComponentInspector, type ComponentInspectorArgs } from './component';
+import { ComponentInspector, type ComponentInspectorArgs, type EntityObserver } from './component';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
@@ -130,7 +128,7 @@ class AudiosourceComponentInspector extends ComponentInspector {
         this._field('rollOffFactor').parent.hidden = !is3d;
     }
 
-    link(entities: Observer[]) {
+    link(entities: EntityObserver[]) {
         super.link(entities);
 
         this._suppressToggleFields = true;

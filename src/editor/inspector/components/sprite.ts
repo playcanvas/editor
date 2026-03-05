@@ -4,7 +4,7 @@ import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from 'playcanvas';
 
 import { deepCopy } from '@/common/utils';
 
-import { ComponentInspector, type ComponentInspectorArgs } from './component';
+import { ComponentInspector, type ComponentInspectorArgs, type EntityObserver } from './component';
 import type { TemplateOverrideInspector } from '../../templates/templates-override-inspector.js';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
@@ -315,7 +315,7 @@ class SpriteClipInspector extends Panel {
         redo();
     }
 
-    link(entities: Observer[]) {
+    link(entities: EntityObserver[]) {
         this.unlink();
 
         this._entities = entities;
@@ -658,7 +658,7 @@ class SpriteComponentInspector extends ComponentInspector {
         this._field('height').parent.hidden = hideSizeFields;
     }
 
-    link(entities: Observer[]) {
+    link(entities: EntityObserver[]) {
         super.link(entities);
 
         this._suppressToggleFields = true;

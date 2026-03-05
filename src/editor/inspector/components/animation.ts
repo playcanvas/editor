@@ -1,7 +1,7 @@
-import type { Observer, ObserverList } from '@playcanvas/observer';
+import type { ObserverList } from '@playcanvas/observer';
 import { Button, type Element as PcuiElement } from '@playcanvas/pcui';
 
-import { ComponentInspector, type ComponentInspectorArgs } from './component';
+import { ComponentInspector, type ComponentInspectorArgs, type EntityObserver } from './component';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
@@ -131,7 +131,7 @@ class AnimationComponentInspector extends ComponentInspector {
         }
     }
 
-    link(entities: Observer[]) {
+    link(entities: EntityObserver[]) {
         super.link(entities);
 
         this._attributesInspector.link(entities);

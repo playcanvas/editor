@@ -8,7 +8,7 @@ import { LegacyTooltip } from '@/common/ui/tooltip';
 import { deepCopy } from '@/common/utils';
 import type { AssetObserver, History, LocalStorage } from '@/editor-api';
 
-import { ComponentInspector, type ComponentInspectorArgs } from './component';
+import { ComponentInspector, type ComponentInspectorArgs, type EntityObserver } from './component';
 import { evaluate } from '../../scripting/expr-eval/evaluate';
 import { parse } from '../../scripting/expr-eval/parser';
 import type { ASTNode } from '../../scripting/expr-eval/parser.js';
@@ -133,7 +133,7 @@ class ScriptInspector extends Panel {
      */
     private _astCache: Map<string, ASTNode> = new Map();
 
-    private _entities: Observer[] | null = null;
+    private _entities: EntityObserver[] | null = null;
 
     private _labelInvalid: Label;
 
@@ -912,7 +912,7 @@ class ScriptInspector extends Panel {
         this._tooltipInvalid.description = this._getInvalidTooltipText();
     }
 
-    link(entities: Observer[]) {
+    link(entities: EntityObserver[]) {
         this.unlink();
 
         this._entities = entities;
@@ -1510,7 +1510,7 @@ class ScriptComponentInspector extends ComponentInspector {
         }
     }
 
-    link(entities: Observer[]) {
+    link(entities: EntityObserver[]) {
         super.link(entities);
 
         this._updateScripts();

@@ -1,5 +1,3 @@
-import type { Observer } from '@playcanvas/observer';
-
 import {
     ORIENTATION_HORIZONTAL,
     ORIENTATION_VERTICAL,
@@ -9,7 +7,7 @@ import {
     FITTING_BOTH
 } from '@/core/constants';
 
-import { ComponentInspector, type ComponentInspectorArgs } from './component';
+import { ComponentInspector, type ComponentInspectorArgs, type EntityObserver } from './component';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
@@ -123,7 +121,7 @@ class LayoutgroupComponentInspector extends ComponentInspector {
         this.append(this._attributesInspector);
     }
 
-    link(entities: Observer[]) {
+    link(entities: EntityObserver[]) {
         super.link(entities);
         this._attributesInspector.link(entities);
     }

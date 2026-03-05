@@ -1,10 +1,10 @@
-import type { Observer, ObserverList } from '@playcanvas/observer';
+import type { ObserverList } from '@playcanvas/observer';
 import { Label, type Element as PcuiElement } from '@playcanvas/pcui';
 import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from 'playcanvas';
 
 import { CLASS_ERROR } from '@/common/pcui/constants';
 
-import { ComponentInspector, type ComponentInspectorArgs } from './component';
+import { ComponentInspector, type ComponentInspectorArgs, type EntityObserver } from './component';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
@@ -457,7 +457,7 @@ class RenderComponentInspector extends ComponentInspector {
         this._toggleFields();
     }
 
-    link(entities: Observer[]) {
+    link(entities: EntityObserver[]) {
         super.link(entities);
 
         this._suppressToggleFields = true;

@@ -6,7 +6,7 @@ import { CLASS_MULTIPLE_VALUES } from '@/common/pcui/constants';
 import { tooltip, tooltipRefItem } from '@/common/tooltips';
 import type { Assets } from '@/editor-api';
 
-import { ComponentInspector, type ComponentInspectorArgs } from './component';
+import { ComponentInspector, type ComponentInspectorArgs, type EntityObserver } from './component';
 import type { Attribute, Divider } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
@@ -1170,7 +1170,7 @@ class ElementComponentInspector extends ComponentInspector {
         }
     }
 
-    link(entities: Observer[]) {
+    link(entities: EntityObserver[]) {
         super.link(entities);
 
         this._suppressToggleFields = true;

@@ -3,7 +3,7 @@ import { Panel, Container, Button } from '@playcanvas/pcui';
 
 import { deepCopy } from '@/common/utils';
 
-import { ComponentInspector, type ComponentInspectorArgs } from './component';
+import { ComponentInspector, type ComponentInspectorArgs, type EntityObserver } from './component';
 import type { TemplateOverrideInspector } from '../../templates/templates-override-inspector.js';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
@@ -218,7 +218,7 @@ class SoundSlotInspector extends Panel {
         }
     }
 
-    link(entities: Observer[]) {
+    link(entities: EntityObserver[]) {
         this.unlink();
 
         this._entities = entities;
@@ -381,7 +381,7 @@ class SoundComponentInspector extends ComponentInspector {
         return inspector;
     }
 
-    link(entities: Observer[]) {
+    link(entities: EntityObserver[]) {
         super.link(entities);
 
         this._suppressToggleFields = true;

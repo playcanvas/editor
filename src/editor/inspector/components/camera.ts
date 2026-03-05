@@ -1,8 +1,6 @@
-import type { Observer } from '@playcanvas/observer';
-
 import { TONEMAPPING } from '@/core/constants';
 
-import { ComponentInspector, type ComponentInspectorArgs } from './component';
+import { ComponentInspector, type ComponentInspectorArgs, type EntityObserver } from './component';
 import type { Attribute, Divider } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
@@ -196,7 +194,7 @@ class CameraComponentInspector extends ComponentInspector {
         this._field('orthoHeight').parent.hidden = fieldProjection.value !== 1;
     }
 
-    link(entities: Observer[]) {
+    link(entities: EntityObserver[]) {
         super.link(entities);
         this._suppressToggleFields = true;
         this._attributesInspector.link(entities);
