@@ -37,15 +37,13 @@ class LegacyContainer extends LegacyElement {
         });
     }
 
-    set innerElement(value: (HTMLElement & { ui: any }) | null) {
+    set innerElement(value: HTMLElement & { ui: any }) {
         if (this._innerElement) {
             this._observer.disconnect();
         }
 
         this._innerElement = value;
-        if (this._innerElement) {
-            this._observer.observe(this._innerElement, this._observerOptions);
-        }
+        this._observer.observe(this._innerElement, this._observerOptions);
     }
 
     get innerElement() {

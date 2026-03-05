@@ -140,7 +140,7 @@ class LegacyElement extends Events {
         return this._element;
     }
 
-    set innerElement(value: (HTMLElement & { ui: any }) | null) {
+    set innerElement(value: HTMLElement & { ui: any }) {
         this._innerElement = value;
     }
 
@@ -282,7 +282,7 @@ class LegacyElement extends Events {
 
         this.emit('link', path);
 
-        if (this._onLinkChange) {
+        if (this._onLinkChange !== LegacyElement.prototype._onLinkChange) {
             const renderChanges = this.renderChanges;
             this.renderChanges = false;
             this._linkOnSet = this._link.on(`${this.path}:set`, (value) => {
