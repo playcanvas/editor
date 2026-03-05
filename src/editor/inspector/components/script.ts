@@ -963,8 +963,6 @@ class ScriptComponentInspector extends ComponentInspector {
 
     private _scriptPanels: Record<string, ScriptInspector> = {};
 
-    private _editorEvents: EventHandle[] = [];
-
     private _containerScripts: Container;
 
     private _selectScript: SelectInput;
@@ -1546,15 +1544,12 @@ class ScriptComponentInspector extends ComponentInspector {
             }));
         });
 
-        this._editorEvents.push(editor.on('assets:scripts:add', this._onScriptAddOrRemove.bind(this)));
-        this._editorEvents.push(editor.on('assets:scripts:remove', this._onScriptAddOrRemove.bind(this)));
+        this._entityEvents.push(editor.on('assets:scripts:add', this._onScriptAddOrRemove.bind(this)));
+        this._entityEvents.push(editor.on('assets:scripts:remove', this._onScriptAddOrRemove.bind(this)));
     }
 
     unlink() {
         super.unlink();
-
-        this._editorEvents.forEach(evt => evt.unbind());
-        this._editorEvents.length = 0;
 
         this._selectScript.close();
         this._selectScript.value = '';
