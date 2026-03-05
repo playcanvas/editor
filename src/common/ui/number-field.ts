@@ -11,7 +11,7 @@ class LegacyNumberField extends LegacyElement {
 
     allowNull: boolean;
 
-    elementInput: HTMLInputElement & { ui: any };
+    elementInput: HTMLInputElement & { ui: unknown };
 
     blurOnEnter: boolean;
 
@@ -100,7 +100,7 @@ class LegacyNumberField extends LegacyElement {
             const different = this._lastValue !== value;
 
             this._lastValue = value;
-            this.elementInput.value = value as any;
+            this.elementInput.value = `${value}`;
 
             if (different) {
                 this.emit('change', value);
@@ -140,7 +140,7 @@ class LegacyNumberField extends LegacyElement {
     }
 
     _onLinkChange(value: number | null) {
-        this.elementInput.value = (value || 0) as any;
+        this.elementInput.value = `${value || 0}`;
         this.emit('change', value || 0);
     }
 
@@ -150,11 +150,11 @@ class LegacyNumberField extends LegacyElement {
             if (this.allowNull) {
                 this.value = null;
             } else {
-                this.elementInput.value = 0 as any;
+                this.elementInput.value = '0';
                 this.value = 0;
             }
         } else {
-            this.elementInput.value = value as any;
+            this.elementInput.value = `${value}`;
             this.value = value;
         }
     }
@@ -182,7 +182,7 @@ class LegacyNumberField extends LegacyElement {
         if (this.blurOnEnter && evt.keyCode === 13) {
             let focused = false;
 
-            let parent: any = this.parent;
+            let parent: LegacyElement | null = this.parent;
             while (parent) {
                 if (parent.focus) {
                     parent.focus();

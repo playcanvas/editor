@@ -5,7 +5,7 @@ class LegacyElement extends Events {
 
     protected _destroyed: boolean;
 
-    protected _element: HTMLElement & { ui: any } | null;
+    protected _element: (HTMLElement & { ui: unknown }) | null;
 
     protected _link: Observer | null;
 
@@ -43,7 +43,7 @@ class LegacyElement extends Events {
 
     disabledClick: boolean;
 
-    protected _innerElement: (HTMLElement & { ui: any }) | null;
+    protected _innerElement: (HTMLElement & { ui: unknown }) | null;
 
     constructor() {
         super();
@@ -140,11 +140,11 @@ class LegacyElement extends Events {
         return this._element;
     }
 
-    set innerElement(value: HTMLElement & { ui: any }) {
+    set innerElement(value: HTMLElement & { ui: unknown }) {
         this._innerElement = value;
     }
 
-    get innerElement(): (HTMLElement & { ui: any }) | null {
+    get innerElement(): (HTMLElement & { ui: unknown }) | null {
         return this._innerElement;
     }
 
@@ -254,8 +254,8 @@ class LegacyElement extends Events {
     }
 
     set flexGrow(value: string | number) {
-        this._element.style.flexGrow = value as any;
-        this._element.style.webkitFlexGrow = value as any;
+        this._element.style.flexGrow = `${value}`;
+        this._element.style.webkitFlexGrow = `${value}`;
     }
 
     get flexGrow() {
@@ -263,8 +263,8 @@ class LegacyElement extends Events {
     }
 
     set flexShrink(value: string | number) {
-        this._element.style.flexShrink = value as any;
-        this._element.style.webkitFlexShrink = value as any;
+        this._element.style.flexShrink = `${value}`;
+        this._element.style.webkitFlexShrink = `${value}`;
     }
 
     get flexShrink() {

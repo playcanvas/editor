@@ -11,9 +11,9 @@ class LegacySlider extends LegacyElement {
 
     _max: number;
 
-    elementBar: HTMLDivElement & { ui: any };
+    elementBar: HTMLDivElement & { ui: unknown };
 
-    elementHandle: HTMLDivElement & { ui: any; tabIndex: number };
+    elementHandle: HTMLDivElement & { ui: unknown; tabIndex: number };
 
     evtMouseMove: (evt: MouseEvent) => void;
 
@@ -231,7 +231,8 @@ class LegacySlider extends LegacyElement {
 
         for (let i = 0; i < evt.changedTouches.length; i++) {
             const touch = evt.changedTouches[i];
-            if (!(touch.target as any).ui || (touch.target as any).ui !== this) {
+            const target = touch.target as (EventTarget & { ui?: LegacySlider }) | null;
+            if (!target?.ui || target.ui !== this) {
                 continue;
             }
 

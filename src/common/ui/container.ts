@@ -9,6 +9,13 @@ const OBSERVER_OPTIONS = {
     characterDataOldValue: false
 };
 
+type FlexStyle = CSSStyleDeclaration & {
+    WebkitFlexDirection: string;
+    WebkitFlexWrap: string;
+    WebkitFlexGrow: string;
+    WebkitFlexShrink: string;
+};
+
 class LegacyContainer extends LegacyElement {
     protected _observer: MutationObserver;
 
@@ -37,7 +44,7 @@ class LegacyContainer extends LegacyElement {
         });
     }
 
-    set innerElement(value: HTMLElement & { ui: any }) {
+    set innerElement(value: HTMLElement & { ui: unknown }) {
         if (this._innerElement) {
             this._observer.disconnect();
         }
@@ -84,7 +91,7 @@ class LegacyContainer extends LegacyElement {
 
     set flexDirection(value: string) {
         this._innerElement.style.flexDirection = value;
-        (this._innerElement.style as any).WebkitFlexDirection = value;
+        (this._innerElement.style as FlexStyle).WebkitFlexDirection = value;
     }
 
     get flexDirection() {
@@ -94,41 +101,41 @@ class LegacyContainer extends LegacyElement {
     set flexWrap(value: string) {
         this.flex = true;
         this._innerElement.style.flexWrap = value;
-        (this._innerElement.style as any).WebkitFlexWrap = value;
+        (this._innerElement.style as FlexStyle).WebkitFlexWrap = value;
     }
 
     get flexWrap() {
         return this._innerElement.style.flexWrap;
     }
 
-    set flexGrow(value: any) {
+    set flexGrow(value: boolean | number | string) {
         if (value) {
             this.flex = true;
         }
 
-        (this._element.style as any).flexGrow = value ? 1 : 0;
-        (this._element.style as any).WebkitFlexGrow = value ? 1 : 0;
+        this._element.style.flexGrow = value ? '1' : '0';
+        (this._element.style as FlexStyle).WebkitFlexGrow = value ? '1' : '0';
         this._innerElement.style.flexGrow = this._element.style.flexGrow;
-        (this._innerElement.style as any).WebkitFlexGrow = this._element.style.flexGrow;
+        (this._innerElement.style as FlexStyle).WebkitFlexGrow = this._element.style.flexGrow;
     }
 
     get flexGrow() {
-        return (this._element.style as any).flexGrow === 1;
+        return (this._element.style.flexGrow as unknown) === 1;
     }
 
-    set flexShrink(value: any) {
+    set flexShrink(value: boolean | number | string) {
         if (value) {
             this.flex = true;
         }
 
-        (this._element.style as any).flexShrink = value ? 1 : 0;
-        (this._element.style as any).WebkitFlexShrink = value ? 1 : 0;
+        this._element.style.flexShrink = value ? '1' : '0';
+        (this._element.style as FlexStyle).WebkitFlexShrink = value ? '1' : '0';
         this._innerElement.style.flexShrink = this._element.style.flexShrink;
-        (this._innerElement.style as any).WebkitFlexShrink = this._element.style.flexShrink;
+        (this._innerElement.style as FlexStyle).WebkitFlexShrink = this._element.style.flexShrink;
     }
 
     get flexShrink() {
-        return (this._element.style as any).flexShrink === 1;
+        return (this._element.style.flexShrink as unknown) === 1;
     }
 
     set scroll(value: boolean) {

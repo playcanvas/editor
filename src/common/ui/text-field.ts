@@ -1,7 +1,7 @@
 import { LegacyElement } from './element';
 
 class LegacyTextField extends LegacyElement {
-    elementInput: HTMLInputElement & { ui: any };
+    elementInput: HTMLInputElement & { ui: unknown };
 
     evtKeyChange: boolean;
 
@@ -132,7 +132,7 @@ class LegacyTextField extends LegacyElement {
         } else if (this.blurOnEnter && evt.keyCode === 13) {
             let focused = false;
 
-            let parent: any = this.parent;
+            let parent: LegacyElement | null = this.parent;
             while (parent) {
                 if (parent.focus) {
                     parent.focus();

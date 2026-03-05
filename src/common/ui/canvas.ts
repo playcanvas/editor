@@ -33,7 +33,8 @@ class LegacyCanvas extends LegacyElement {
         }
 
         this._width = value;
-        (this._element as any).width = this.pixelWidth;
+        const e = this._element as HTMLCanvasElement;
+        e.width = this.pixelWidth;
         this._element.style.width = `${value}px`;
         this.emit('resize', this._width, this._height);
     }
@@ -48,7 +49,8 @@ class LegacyCanvas extends LegacyElement {
         }
 
         this._height = value;
-        (this._element as any).height = this.pixelHeight;
+        const e = this._element as HTMLCanvasElement;
+        e.height = this.pixelHeight;
         this._element.style.height = `${value}px`;
         this.emit('resize', this._width, this._height);
     }
@@ -80,8 +82,9 @@ class LegacyCanvas extends LegacyElement {
 
         this._width = width;
         this._height = height;
-        (this._element as any).width = this.pixelWidth;
-        (this._element as any).height = this.pixelHeight;
+        const e = this._element as HTMLCanvasElement;
+        e.width = this.pixelWidth;
+        e.height = this.pixelHeight;
         this._element.style.width = `${width}px`;
         this._element.style.height = `${height}px`;
         this.emit('resize', width, height);

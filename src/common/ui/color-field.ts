@@ -1,3 +1,5 @@
+import type { EventHandle } from '@playcanvas/observer';
+
 import { LegacyElement } from './element';
 
 class LegacyColorField extends LegacyElement {
@@ -7,7 +9,7 @@ class LegacyColorField extends LegacyElement {
 
     _values: number[];
 
-    evtLinkChannels: any[];
+    evtLinkChannels: EventHandle[];
 
     constructor(args: Record<string, any> = {}) {
         super();
@@ -172,7 +174,8 @@ class LegacyColorField extends LegacyElement {
             return this._element.blur();
         }
 
-        if (evt.keyCode !== 13 || (this as any).ui.disabled) {
+        const self = this as LegacyColorField & { ui: { disabled: boolean } };
+        if (evt.keyCode !== 13 || self.ui.disabled) {
             return;
         }
 

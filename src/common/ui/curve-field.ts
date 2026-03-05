@@ -1,9 +1,15 @@
+import type { EventHandle, Observer } from '@playcanvas/observer';
 import { Curve, CurveSet } from 'playcanvas';
 
 import { LegacyCanvas } from './canvas';
 import { LegacyElement } from './element';
 
 class LegacyCurveField extends LegacyElement {
+    static _canvasContext(canvas: HTMLCanvasElement & { ctx?: CanvasRenderingContext2D | null }) {
+        canvas.ctx = canvas.ctx || canvas.getContext('2d');
+        return canvas.ctx!;
+    }
+
     canvas: LegacyCanvas;
 
     _lineWidth: number;
@@ -16,7 +22,7 @@ class LegacyCurveField extends LegacyElement {
 
     _paths: string[];
 
-    _linkSetHandlers: any[];
+    _linkSetHandlers: EventHandle[];
 
     _resizeInterval: ReturnType<typeof setInterval> | null;
 
@@ -48,7 +54,8 @@ class LegacyCurveField extends LegacyElement {
         const halfSize = size / 2;
         this.checkerboardCanvas.width = size;
         this.checkerboardCanvas.height = size;
-        const ctx = (this.checkerboardCanvas.element as any).getContext('2d');
+        const checkerboardCanvas = this.checkerboardCanvas.element as HTMLCanvasElement;
+        const ctx = checkerboardCanvas.getContext('2d');
         ctx.fillStyle = '#949a9c';
         ctx.fillRect(0, 0, halfSize, halfSize);
         ctx.fillRect(halfSize, halfSize, halfSize, halfSize);
@@ -56,7 +63,8 @@ class LegacyCurveField extends LegacyElement {
         ctx.fillRect(halfSize, 0, halfSize, halfSize);
         ctx.fillRect(0, halfSize, halfSize, halfSize);
 
-        this.checkerboard = (this.canvas.element as any).getContext('2d').createPattern(this.checkerboardCanvas.element, 'repeat');
+        const previewCanvas = this.canvas.element as HTMLCanvasElement;
+        this.checkerboard = previewCanvas.getContext('2d').createPattern(this.checkerboardCanvas.element, 'repeat');
 
         this._value = null;
         this._paths = [];
@@ -99,7 +107,7 @@ class LegacyCurveField extends LegacyElement {
         }
     }
 
-    link(link: any, paths: any) {
+    link(link: Observer, paths: string[]) {
         if (this._link) {
             this.unlink();
         }
@@ -144,7 +152,7 @@ class LegacyCurveField extends LegacyElement {
 
         this.emit('unlink', this._paths);
 
-        this._linkSetHandlers.forEach((handler: any) => {
+        this._linkSetHandlers.forEach((handler: EventHandle) => {
             handler.unbind();
         });
 
@@ -197,8 +205,8 @@ class LegacyCurveField extends LegacyElement {
     }
 
     _renderCurves() {
-        const canvas = this.canvas.element as any;
-        const context = canvas.ctx = canvas.ctx || canvas.getContext('2d');
+        const canvas = this.canvas.element as HTMLCanvasElement & { ctx?: CanvasRenderingContext2D | null };
+        const context = LegacyCurveField._canvasContext(canvas);
         const value = this.value;
 
         const width = this.canvas.pixelWidth;
@@ -259,8 +267,8 @@ class LegacyCurveField extends LegacyElement {
     }
 
     _renderGradient() {
-        const canvas = this.canvas.element as any;
-        const context = canvas.ctx = canvas.ctx || canvas.getContext('2d');
+        const canvas = this.canvas.element as HTMLCanvasElement & { ctx?: CanvasRenderingContext2D | null };
+        const context = LegacyCurveField._canvasContext(canvas);
         const value = this.value && this.value.length ? this.value[0] : null;
 
         context.fillStyle = this.checkerboard;

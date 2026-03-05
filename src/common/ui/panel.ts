@@ -7,7 +7,7 @@ class LegacyPanel extends LegacyContainer {
 
     _handle: string | null;
 
-    _handleElement: (HTMLDivElement & { ui: any }) | null;
+    _handleElement: (HTMLDivElement & { ui: unknown }) | null;
 
     _resizeTouchId: number | null;
 
@@ -39,7 +39,7 @@ class LegacyPanel extends LegacyContainer {
 
         this.on('nodesChanged', this._onNodesChanged.bind(this));
 
-        this.innerElement = document.createElement('div') as any;
+        this.innerElement = document.createElement('div') as HTMLDivElement & { ui: LegacyPanel };
         this.innerElement.ui = this;
         this.innerElement.classList.add('content');
         this._element.appendChild(this.innerElement);
@@ -333,7 +333,7 @@ class LegacyPanel extends LegacyContainer {
         if ((evt as TouchEvent).changedTouches) {
             for (let i = 0; i < (evt as TouchEvent).changedTouches.length; i++) {
                 const touch = (evt as TouchEvent).changedTouches[i];
-                if (touch.target !== (this as any)) {
+                if ((touch.target as unknown) !== this) {
                     continue;
                 }
 
