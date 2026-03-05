@@ -480,7 +480,6 @@ class ScriptInspector extends Panel {
         if (firstRecursion) {
             unusedKeys.forEach(key => this._astCache.delete(key));
         }
-
     }
 
     _evaluateCondition(name: string, tag: string, expression: string | undefined, state: Record<string, unknown>) {
