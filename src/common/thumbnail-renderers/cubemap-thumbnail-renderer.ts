@@ -14,6 +14,24 @@ const POSITIONS = [
 const GRID_SIZE = 15 / 64;
 
 class CubemapThumbnailRenderer {
+    _asset: Observer | null;
+
+    _assets: any;
+
+    _canvas: HTMLCanvasElement | null;
+
+    _images: (HTMLImageElement | null)[] | null;
+
+    _queueRenderHandler: () => void;
+
+    _onImageLoadHandler: () => void;
+
+    _watch: any;
+
+    _queuedRender: boolean;
+
+    _frameRequest: number | null;
+
     constructor(asset: Observer, canvas: HTMLCanvasElement, assetsList: any) {
         this._asset = asset;
         this._assets = assetsList;

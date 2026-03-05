@@ -235,6 +235,18 @@ function updateMeshes(text: string, font: any) {
 }
 
 class FontThumbnailRenderer extends ThumbnailRenderer {
+    _asset: Observer | null;
+
+    _canvas: HTMLCanvasElement | null;
+
+    _queueRenderHandler: () => void;
+
+    _watch: any;
+
+    _queuedRender: boolean;
+
+    _frameRequest: number | null;
+
     constructor(asset: Observer, canvas: HTMLCanvasElement) {
         super();
 

@@ -1,4 +1,4 @@
-import type { Observer } from '@playcanvas/observer';
+import type { EventHandle, Observer } from '@playcanvas/observer';
 import { Application, BoundingBox, Color, Entity, FOG_NONE, GraphNode, Mesh, MeshInstance, Model, SphereGeometry, StandardMaterial } from 'playcanvas';
 
 import { ThumbnailRenderer } from './thumbnail-renderer';
@@ -74,6 +74,26 @@ function initializeScene() {
 }
 
 class ModelThumbnailRenderer extends ThumbnailRenderer {
+    _asset: Observer | null;
+
+    _canvas: HTMLCanvasElement | null;
+
+    _queueRenderHandler: () => void;
+
+    _watch: any;
+
+    _rotationX: number;
+
+    _rotationY: number;
+
+    _queuedRender: boolean;
+
+    _frameRequest: number | null;
+
+    _evts: Record<string, EventHandle>;
+
+    _materialWatches: Record<string, any>;
+
     constructor(asset: Observer, canvas: HTMLCanvasElement) {
         super();
 

@@ -1,4 +1,4 @@
-import { Events, type Observer } from '@playcanvas/observer';
+import { Events, type EventHandle, type Observer } from '@playcanvas/observer';
 
 import { buildQueryUrl } from '../utils';
 
@@ -20,6 +20,10 @@ const CENTER_PIVOT = [0.5, 0.5];
 // an item in the ImageCache
 // fires 'loaded' event if the Image element loads after being created
 class ImageCacheEntry extends Events {
+    value: HTMLImageElement;
+
+    status: 'loading' | 'loaded';
+
     constructor(image: HTMLImageElement) {
         super();
 
@@ -36,6 +40,8 @@ class ImageCacheEntry extends Events {
 // ImageCache holds Image objects
 // cached with some key (asset.id)
 class ImageCache {
+    _items: Record<string, ImageCacheEntry>;
+
     constructor() {
         this._items = {};
     }
@@ -124,6 +130,26 @@ function initializeScene() {
 }
 
 class SpriteThumbnailRenderer {
+    _asset: Observer | null;
+
+    _canvas: HTMLCanvasElement | null;
+
+    _assets: any;
+
+    _queueRenderHandler: () => void;
+
+    _watch: any;
+
+    _events: EventHandle[];
+
+    _frame: number;
+
+    _animating: boolean;
+
+    _queuedRender: boolean;
+
+    _frameRequest: number | null;
+
     constructor(asset: Observer, canvas: HTMLCanvasElement, assetsList: any) {
         this._asset = asset;
         this._canvas = canvas;
