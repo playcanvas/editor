@@ -184,7 +184,7 @@ function getCommonClips(entities: Observer[]) {
 }
 
 class SpriteClipInspector extends Panel {
-    _entities: Observer[] | null = null;
+    _entities: EntityObserver[] | null = null;
 
     _spriteInspector: SpriteComponentInspector;
 
