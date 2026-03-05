@@ -1,4 +1,4 @@
-import type { Observer } from '@playcanvas/observer';
+import type { EventHandle, Observer } from '@playcanvas/observer';
 import { Application, Entity, LAYERID_SKYBOX, Layer, LayerComposition, Scene } from 'playcanvas';
 
 import { ThumbnailRenderer } from './thumbnail-renderer';
@@ -54,6 +54,28 @@ function initializeScene(graphicsDevice: any) {
 }
 
 class Cubemap3dThumbnailRenderer extends ThumbnailRenderer {
+    _asset: Observer | null;
+
+    _canvas: HTMLCanvasElement | null;
+
+    _queueRenderHandler: () => void;
+
+    _rotationX: number;
+
+    _rotationY: number;
+
+    _mipLevel: number;
+
+    _watch: unknown;
+
+    _sceneSettings: Observer | null;
+
+    _evtSceneSettings: EventHandle | null;
+
+    _queuedRender: boolean;
+
+    _frameRequest: number | null;
+
     constructor(asset: Observer, canvas: HTMLCanvasElement, sceneSettings?: Observer) {
         super();
 

@@ -67,6 +67,24 @@ function initializeScene() {
 }
 
 class RenderThumbnailRenderer extends ThumbnailRenderer {
+    _asset: Observer | null;
+
+    _canvas: HTMLCanvasElement | null;
+
+    _queueRenderHandler: () => void;
+
+    _watch: unknown;
+
+    _materialWatches: Record<string, unknown>;
+
+    _rotationX: number;
+
+    _rotationY: number;
+
+    _queuedRender: boolean;
+
+    _frameRequest: number | null;
+
     constructor(asset: Observer, canvas: HTMLCanvasElement) {
         super();
 
