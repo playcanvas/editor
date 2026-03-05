@@ -1,6 +1,10 @@
 import { LegacyElement } from './element';
 
 class LegacyImageField extends LegacyElement {
+    elementImage: any;
+
+    _value: string | number | null;
+
     constructor(args: Record<string, any> = {}) {
         super();
         this.element = document.createElement('div');

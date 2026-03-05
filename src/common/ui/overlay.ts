@@ -1,6 +1,10 @@
 import { LegacyContainer } from './container';
 
 class LegacyOverlay extends LegacyContainer {
+    elementOverlay: HTMLDivElement & { ui: any };
+
+    _closeCallback: (() => boolean) | null;
+
     constructor(args: Record<string, any> = {}) {
         super();
         this.element = document.createElement('div');

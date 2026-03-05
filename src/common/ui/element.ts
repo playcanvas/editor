@@ -5,7 +5,7 @@ class LegacyElement extends Events {
 
     protected _destroyed: boolean;
 
-    protected _element: HTMLElement & { ui: any } | null;
+    protected _element: (HTMLElement & { ui: unknown }) | null;
 
     protected _link: Observer | null;
 
@@ -37,15 +37,13 @@ class LegacyElement extends Events {
 
     protected _evtParentEnable: EventHandle | null;
 
-    protected _onLinkChange: (value: any) => void;
-
     path: string;
 
     renderChanges: boolean | null;
 
     disabledClick: boolean;
 
-    innerElement: HTMLElement & { ui: any } | null;
+    protected _innerElement: (HTMLElement & { ui: unknown }) | null;
 
     constructor() {
         super();
@@ -61,6 +59,7 @@ class LegacyElement extends Events {
         this.disabledClick = false;
         this._disabled = false;
         this._disabledParent = false;
+        this._innerElement = null;
         this._evtClick = null;
 
         const self = this;
@@ -139,6 +138,14 @@ class LegacyElement extends Events {
 
     get element() {
         return this._element;
+    }
+
+    set innerElement(value: HTMLElement & { ui: unknown }) {
+        this._innerElement = value;
+    }
+
+    get innerElement(): (HTMLElement & { ui: unknown }) | null {
+        return this._innerElement;
     }
 
     set parent(value: LegacyElement | null) {
@@ -247,8 +254,8 @@ class LegacyElement extends Events {
     }
 
     set flexGrow(value: string | number) {
-        this._element.style.flexGrow = value;
-        this._element.style.webkitFlexGrow = value;
+        this._element.style.flexGrow = `${value}`;
+        this._element.style.webkitFlexGrow = `${value}`;
     }
 
     get flexGrow() {
@@ -256,8 +263,8 @@ class LegacyElement extends Events {
     }
 
     set flexShrink(value: string | number) {
-        this._element.style.flexShrink = value;
-        this._element.style.webkitFlexShrink = value;
+        this._element.style.flexShrink = `${value}`;
+        this._element.style.webkitFlexShrink = `${value}`;
     }
 
     get flexShrink() {
@@ -275,7 +282,7 @@ class LegacyElement extends Events {
 
         this.emit('link', path);
 
-        if (this._onLinkChange) {
+        if (this._onLinkChange !== LegacyElement.prototype._onLinkChange) {
             const renderChanges = this.renderChanges;
             this.renderChanges = false;
             this._linkOnSet = this._link.on(`${this.path}:set`, (value) => {
@@ -331,6 +338,10 @@ class LegacyElement extends Events {
         this.emit('destroy');
 
         this.unbind();
+    }
+
+    protected _onLinkChange(_value: any) {
+        // overridden by subclasses
     }
 
     flash() {

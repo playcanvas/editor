@@ -1,6 +1,22 @@
 import { LegacyContainer } from './container';
 
 class LegacyMenuItem extends LegacyContainer {
+    _value: string;
+
+    _hasChildren: boolean;
+
+    _clickableSubmenus: boolean;
+
+    elementTitle: HTMLDivElement & { ui: any };
+
+    elementIcon: HTMLSpanElement | null;
+
+    elementText: HTMLSpanElement;
+
+    _index: Record<string, any>;
+
+    _container: boolean;
+
     constructor(args: Record<string, any> = {}) {
         super();
         this._value = args.value || '';

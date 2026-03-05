@@ -1,6 +1,24 @@
 import { LegacyElement } from './element';
 
 class LegacyProgress extends LegacyElement {
+    _progress: number;
+
+    _targetProgress: number;
+
+    _lastProgress: number;
+
+    _inner: HTMLDivElement;
+
+    _speed: number;
+
+    _now: number;
+
+    _animating: boolean;
+
+    _failed: boolean;
+
+    _animateHandler: () => void;
+
     constructor(args: Record<string, any> = {}) {
         super();
         this._progress = args.progress ? Math.max(0, Math.min(1, args.progress)) : 0;

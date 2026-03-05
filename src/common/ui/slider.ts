@@ -1,6 +1,30 @@
 import { LegacyElement } from './element';
 
 class LegacySlider extends LegacyElement {
+    _value: number;
+
+    _lastValue: number;
+
+    precision: number;
+
+    _min: number;
+
+    _max: number;
+
+    elementBar: HTMLDivElement & { ui: unknown };
+
+    elementHandle: HTMLDivElement & { ui: unknown; tabIndex: number };
+
+    evtMouseMove: (evt: MouseEvent) => void;
+
+    evtMouseUp: (evt: MouseEvent) => void;
+
+    evtTouchId: number | null;
+
+    evtTouchMove: (evt: TouchEvent) => void;
+
+    evtTouchEnd: (evt: TouchEvent) => void;
+
     constructor(args: { precision?: number; min?: number; max?: number } = {}) {
         super();
         this._value = 0;
@@ -207,7 +231,8 @@ class LegacySlider extends LegacyElement {
 
         for (let i = 0; i < evt.changedTouches.length; i++) {
             const touch = evt.changedTouches[i];
-            if (!touch.target.ui || touch.target.ui !== this) {
+            const target = touch.target as (EventTarget & { ui?: LegacySlider }) | null;
+            if (!target?.ui || target.ui !== this) {
                 continue;
             }
 
