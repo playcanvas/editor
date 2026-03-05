@@ -84,7 +84,7 @@ const ATTRIBUTES: Attribute[] = [{
 class AudiosourceComponentInspector extends ComponentInspector {
     _attributesInspector: AttributesInspector;
 
-    _skipToggleFields = false;
+    _suppressToggleFields = false;
 
     constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
@@ -119,7 +119,7 @@ class AudiosourceComponentInspector extends ComponentInspector {
     }
 
     _toggleFields() {
-        if (this._skipToggleFields) {
+        if (this._suppressToggleFields) {
             return;
         }
 
@@ -133,9 +133,9 @@ class AudiosourceComponentInspector extends ComponentInspector {
     link(entities: Observer[]) {
         super.link(entities);
 
-        this._skipToggleFields = true;
+        this._suppressToggleFields = true;
         this._attributesInspector.link(entities);
-        this._skipToggleFields = false;
+        this._suppressToggleFields = false;
         this._toggleFields();
     }
 

@@ -234,14 +234,14 @@ class ScriptInspector extends Panel {
         });
 
         const enableGroup = new LabelGroup({
-            text: 'On',
+            text: 'ON',
             class: CLASS_SCRIPT_ENABLED,
             field: this._fieldEnable
         });
         this.header.append(enableGroup);
 
         this._fieldEnable.on('change', (value) => {
-            enableGroup.text = value ? 'On' : 'Off';
+            enableGroup.text = value ? 'ON' : 'OFF';
         });
 
         if (this._templateOverridesInspector) {
@@ -480,7 +480,6 @@ class ScriptInspector extends Panel {
         if (firstRecursion) {
             unusedKeys.forEach(key => this._astCache.delete(key));
         }
-
     }
 
     _evaluateCondition(name: string, tag: string, expression: string | undefined, state: Record<string, unknown>) {

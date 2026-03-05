@@ -556,7 +556,6 @@ class ParticlesystemComponentInspector extends ComponentInspector {
 
             e.entity.particlesystem.pause();
         });
-
     }
 
     _onClickStop() {

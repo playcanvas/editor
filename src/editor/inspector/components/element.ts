@@ -558,7 +558,6 @@ class ImageAssetElementToObserversBinding extends BindingElementToObservers {
                 redo: redo,
                 undo: undo
             });
-
         }
 
         redo();
@@ -664,7 +663,6 @@ class SpriteFrameElementToObserversBinding extends ImageAssetElementToObserversB
                 redo: redo,
                 undo: undo
             });
-
         }
 
         redo();
