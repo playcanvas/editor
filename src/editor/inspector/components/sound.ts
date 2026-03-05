@@ -274,7 +274,6 @@ class SoundSlotInspector extends Panel {
 class SoundComponentInspector extends ComponentInspector {
     _assets: ObserverList;
 
-
     _containerSlots: Container;
 
     _slotInspectors: Record<string, SoundSlotInspector> = {};

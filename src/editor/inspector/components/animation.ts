@@ -44,12 +44,13 @@ const CLASS_BUTTON_PLAY = 'animation-component-inspector-play';
 class AnimationComponentInspector extends ComponentInspector {
     _assets: ObserverList;
 
-
     constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
         args.component = 'animation';
 
         super(args);
+
+        this.headerText += ' (LEGACY)';
 
         this._assets = args.assets;
 
