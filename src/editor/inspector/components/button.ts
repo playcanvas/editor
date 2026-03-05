@@ -1,10 +1,11 @@
-import type { EventHandle, Observer } from '@playcanvas/observer';
+import type { EventHandle } from '@playcanvas/observer';
 import { InfoBox } from '@playcanvas/pcui';
 
 import {
     BUTTON_TRANSITION_MODE_TINT,
     BUTTON_TRANSITION_MODE_SPRITE_CHANGE
 } from '@/core/constants';
+import type { EntityObserver } from '@/editor-api';
 
 import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute } from '../attribute.type.d';
@@ -191,7 +192,7 @@ class ButtonComponentInspector extends ComponentInspector {
         });
     }
 
-    link(entities: Observer[]) {
+    link(entities: EntityObserver[]) {
         super.link(entities);
         this._suppressToggleFields = true;
         this._attributesInspector.link(entities);

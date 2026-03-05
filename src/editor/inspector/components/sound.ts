@@ -1,7 +1,8 @@
-import type { EventHandle, Observer, ObserverList } from '@playcanvas/observer';
+import type { EventHandle, ObserverList } from '@playcanvas/observer';
 import { Panel, Container, Button } from '@playcanvas/pcui';
 
 import { deepCopy } from '@/common/utils';
+import type { EntityObserver } from '@/editor-api';
 
 import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { TemplateOverrideInspector } from '../../templates/templates-override-inspector.js';
@@ -156,7 +157,7 @@ const SLOT_ATTRIBUTES: Attribute[] = [{
 const CLASS_SLOT = 'sound-component-inspector-slot';
 
 class SoundSlotInspector extends Panel {
-    _entities: Observer[] | null = null;
+    _entities: EntityObserver[] | null = null;
 
     _slotEvents: EventHandle[] = [];
 
@@ -218,7 +219,7 @@ class SoundSlotInspector extends Panel {
         }
     }
 
-    link(entities: Observer[]) {
+    link(entities: EntityObserver[]) {
         this.unlink();
 
         this._entities = entities;
@@ -331,7 +332,7 @@ class SoundComponentInspector extends ComponentInspector {
         this._field('rollOffFactor').parent.hidden = !positional;
     }
 
-    _onClickAddSlot(entity: Observer) {
+    _onClickAddSlot(entity: EntityObserver) {
         let keyName = 1;
         let count = 0;
         const idx = {};
@@ -362,7 +363,7 @@ class SoundComponentInspector extends ComponentInspector {
         });
     }
 
-    _createSlotInspector(entity: Observer, slotKey: string, slot: Record<string, unknown>) {
+    _createSlotInspector(entity: EntityObserver, slotKey: string, slot: Record<string, unknown>) {
         const inspector = new SoundSlotInspector({
             slotKey: slotKey,
             slot: slot,
@@ -381,7 +382,7 @@ class SoundComponentInspector extends ComponentInspector {
         return inspector;
     }
 
-    link(entities: Observer[]) {
+    link(entities: EntityObserver[]) {
         super.link(entities);
 
         this._suppressToggleFields = true;
