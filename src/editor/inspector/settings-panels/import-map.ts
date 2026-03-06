@@ -2,7 +2,7 @@ import { Container, Button } from '@playcanvas/pcui';
 
 import { LegacyTooltip } from '@/common/ui/tooltip';
 
-import { BaseSettingsPanel } from './base';
+import { BaseSettingsPanel, type BaseSettingsPanelArgs } from './base';
 import type { Attribute } from '../attribute.type.d';
 
 const ATTRIBUTES: Attribute[] = [
@@ -55,7 +55,7 @@ class ImportMapSettingsPanel extends BaseSettingsPanel {
 
     _createDefaultTooltip: LegacyTooltip;
 
-    constructor(args: Record<string, unknown>) {
+    constructor(args: BaseSettingsPanelArgs) {
         args = Object.assign({}, args);
         args.headerText = 'IMPORT MAP';
         args.attributes = ATTRIBUTES;

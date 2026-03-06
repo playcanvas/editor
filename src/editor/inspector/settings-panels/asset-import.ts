@@ -1,6 +1,6 @@
 import { Panel, Button, Container, Label, type Element } from '@playcanvas/pcui';
 
-import { BaseSettingsPanel } from './base';
+import { BaseSettingsPanel, type BaseSettingsPanelArgs } from './base';
 import type { Attribute } from '../attribute.type.d';
 
 const CLASS_ROOT = 'asset-import-settings-panel';
@@ -247,7 +247,7 @@ class AssetImportSettingsPanel extends BaseSettingsPanel {
 
     _btnImportDraco: Button;
 
-    constructor(args: Record<string, unknown>) {
+    constructor(args: BaseSettingsPanelArgs) {
         args = Object.assign({}, args);
         args.headerText = 'ASSET IMPORT';
         args.attributes = ATTRIBUTES;

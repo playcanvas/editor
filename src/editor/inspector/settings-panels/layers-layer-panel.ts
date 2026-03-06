@@ -1,11 +1,12 @@
-import type { Observer } from '@playcanvas/observer';
-
 import { CLASS_ERROR } from '@/common/pcui/constants';
 import { LegacyTooltip } from '@/common/ui/tooltip';
-import type { History } from '@/editor-api';
 
-import { BaseSettingsPanel } from './base';
+import { BaseSettingsPanel, type BaseSettingsPanelArgs } from './base';
 import type { Attribute } from '../attribute.type.d';
+
+interface LayerPanelArgs extends BaseSettingsPanelArgs {
+    layerKey: string;
+}
 
 const CLASS_ROOT = 'layers-settings-panel';
 const CLASS_LAYER_PANEL = `${CLASS_ROOT}-layer-panel`;
@@ -65,19 +66,13 @@ const ATTRIBUTES = (args: { layerKey: string }): Attribute[] => [
 class LayersSettingsPanelLayerPanel extends BaseSettingsPanel {
     layerKey: string;
 
-    constructor(args: Record<string, unknown>) {
+    constructor(args: LayerPanelArgs) {
         args = Object.assign({}, args);
-        args.attributes = ATTRIBUTES(args as { layerKey: string });
+        args.attributes = ATTRIBUTES(args);
         args.removable = true;
         args.hideIcon = true;
 
         super(args);
-
-        this._args = args;
-        this._settings = args.settings as Observer;
-        this._projectSettings = args.projectSettings as Observer;
-        this._userSettings = args.userSettings as Observer;
-        this._sceneSettings = args.sceneSettings as Observer;
 
         this.class.add(CLASS_LAYER_PANEL);
 
@@ -175,7 +170,7 @@ class LayersSettingsPanelLayerPanel extends BaseSettingsPanel {
         };
 
         if (this._args.history) {
-            (this._args.history as History).add({
+            this._args.history.add({
                 name: 'delete layer',
                 undo,
                 redo,
