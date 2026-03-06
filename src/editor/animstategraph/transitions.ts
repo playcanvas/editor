@@ -75,7 +75,7 @@ class AnimstategraphTransitions extends Container {
     constructor(args: AnimstategraphTransitionsArgs, view: AnimstategraphView) {
         super({
             class: CLASS_ANIMSTATEGRAPH_TRANSITIONS,
-            enabled: !view._parent.readOnly
+            enabled: !view.parent.readOnly
         });
         this._view = view;
         this._args = args;
