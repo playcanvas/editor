@@ -25,6 +25,8 @@ class AssetInspectorPreviewBase extends Container {
 
     private _domEvtPointerUp = (evt: PointerEvent) => this._onPointerUp(evt);
 
+    private _domEvtPointerCancel = () => this._resetPointerState();
+
     constructor(args: Record<string, unknown>) {
         super(args);
         this.class.add(CLASS_CONTAINER);
@@ -78,6 +80,10 @@ class AssetInspectorPreviewBase extends Container {
             this._toggleSize();
         }
 
+        this._resetPointerState();
+    }
+
+    private _resetPointerState() {
         this._pointerDown = false;
         this._pointerId = -1;
         this._dragging = false;
@@ -100,6 +106,8 @@ class AssetInspectorPreviewBase extends Container {
         target.addEventListener('pointerdown', this._domEvtPointerDown);
         target.addEventListener('pointermove', this._domEvtPointerMove);
         target.addEventListener('pointerup', this._domEvtPointerUp);
+        target.addEventListener('pointercancel', this._domEvtPointerCancel);
+        target.addEventListener('lostpointercapture', this._domEvtPointerCancel);
     }
 
     unlink() {
@@ -109,6 +117,8 @@ class AssetInspectorPreviewBase extends Container {
         target.removeEventListener('pointerdown', this._domEvtPointerDown);
         target.removeEventListener('pointermove', this._domEvtPointerMove);
         target.removeEventListener('pointerup', this._domEvtPointerUp);
+        target.removeEventListener('pointercancel', this._domEvtPointerCancel);
+        target.removeEventListener('lostpointercapture', this._domEvtPointerCancel);
     }
 }
 
