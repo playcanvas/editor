@@ -4,10 +4,10 @@ import { Container, Panel, Label, BooleanInput, type ContainerArgs } from '@play
 import { LegacyTooltip } from '@/common/ui/tooltip';
 
 interface RenderOrderListArgs extends ContainerArgs {
-    settings?: Observer;
+    settings: Observer;
     projectSettings: Observer;
-    userSettings?: Observer;
-    sceneSettings?: Observer;
+    userSettings: Observer;
+    sceneSettings: Observer;
 }
 
 const CLASS_ROOT = 'layers-settings-panel';

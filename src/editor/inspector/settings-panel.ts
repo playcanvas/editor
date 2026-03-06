@@ -77,7 +77,7 @@ class SettingsPanel extends Container {
 
     private _sceneAttributes: AttributesInspector;
 
-    constructor(args: BaseSettingsPanelArgs = {}) {
+    constructor(args: BaseSettingsPanelArgs) {
         args.flex = true;
 
         super(args);
