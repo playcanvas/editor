@@ -1,8 +1,9 @@
-import type { EventHandle, Observer } from '@playcanvas/observer';
-import { Button, Container } from '@playcanvas/pcui';
-
+import type { EventHandle, Observer, ObserverList } from '@playcanvas/observer';
+import { Button, Container, type ContainerArgs } from '@playcanvas/pcui';
+import type { Application } from 'playcanvas';
 
 import { tooltip, tooltipSimpleItem } from '@/common/tooltips';
+import type { History } from '@/editor-api';
 
 import { AnimstategraphAnimComponent } from '../../animstategraph/anim-component';
 import { AnimViewer } from '../../animstategraph/anim-viewer';
@@ -40,12 +41,19 @@ const DOM = parent => [
     }
 ];
 
+interface AnimstategraphAssetInspectorArgs extends ContainerArgs {
+    assets?: ObserverList;
+    history?: History;
+    entities?: ObserverList;
+    inspectorPanelSecondary?: Container;
+}
+
 class AnimstategraphAssetInspector extends Container {
-    _args: Record<string, unknown>;
+    _args: AnimstategraphAssetInspectorArgs;
 
     _assets: Observer[] | null;
 
-    history: any;
+    history: History;
 
     _view: AnimstategraphView;
 
@@ -55,7 +63,7 @@ class AnimstategraphAssetInspector extends Container {
 
     _transitionsContainer: AnimstategraphTransitions;
 
-    _app: any;
+    _app: Application;
 
     _animViewer: AnimViewer;
 
@@ -77,14 +85,14 @@ class AnimstategraphAssetInspector extends Container {
 
     _inspectorPanelSecondary: Container;
 
-    constructor(args: Record<string, unknown>) {
+    constructor(args: AnimstategraphAssetInspectorArgs) {
         args = Object.assign({
             class: CLASS_ANIMSTATEGRAPH
         }, args);
         super(args);
         this._args = args;
         this._assets = null;
-        this._inspectorPanelSecondary = args.inspectorPanelSecondary as Container;
+        this._inspectorPanelSecondary = args.inspectorPanelSecondary;
         this.readOnly = !editor.call('permissions:write');
         this.history = args.history;
         this._view = new AnimstategraphView(this, args);

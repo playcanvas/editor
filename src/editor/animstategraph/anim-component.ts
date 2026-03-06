@@ -1,20 +1,25 @@
 import type { Observer, EventHandle } from '@playcanvas/observer';
 
+import type { EntityObserver } from '@/editor-api';
+
+import type { AnimstategraphView } from './view';
+
+interface AnimstategraphAnimComponentArgs {
+    entities?: EntityObserver[];
+}
+
 class AnimstategraphAnimComponent {
-    _args: Record<string, unknown>;
+    _view: AnimstategraphView;
 
-    _view: { _selectedLayer: number; link: (assets: Observer[], layer: number) => void };
-
-    _entities: Observer[];
+    _entities: EntityObserver[];
 
     _asset: Observer | null = null;
 
     _onSetStateNameEvent: EventHandle | null = null;
 
-    constructor(args: Record<string, unknown>, view: { _selectedLayer: number; link: (assets: Observer[], layer: number) => void }) {
-        this._args = args;
+    constructor(args: AnimstategraphAnimComponentArgs, view: AnimstategraphView) {
         this._view = view;
-        this._entities = args.entities as Observer[];
+        this._entities = args.entities ?? [];
     }
 
     link(assets: Observer[]) {
