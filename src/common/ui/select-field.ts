@@ -1,6 +1,41 @@
 import { LegacyElement } from './element';
 
+type SelectOptionElement = HTMLLIElement & {
+    uiElement: LegacySelectField;
+    uiValue: string;
+};
+
 class LegacySelectField extends LegacyElement {
+    options: Record<string, string>;
+
+    optionsKeys: string[];
+
+    elementValue: HTMLDivElement & { ui?: unknown };
+
+    elementOptions: HTMLUListElement;
+
+    optionElements: Record<string, HTMLLIElement>;
+
+    _oldValue: any;
+
+    _value: any;
+
+    _type: string;
+
+    _optionClassNamePrefix: string | null;
+
+    timerClickAway: ReturnType<typeof setTimeout> | null;
+
+    evtTouchId: number | null;
+
+    evtTouchSecond: boolean;
+
+    evtMouseDist: number[];
+
+    evtMouseUp: (evt: MouseEvent) => void;
+
+    evtTouchEnd: (evt: TouchEvent) => void;
+
     constructor(args: Record<string, any> = {}) {
         super();
         this.options = args.options || {};
@@ -38,7 +73,7 @@ class LegacySelectField extends LegacyElement {
         this.evtMouseUp = (evt: MouseEvent) => {
             evt.preventDefault();
             evt.stopPropagation();
-            this._onHoldSelect(evt.target, evt.pageX, evt.pageY);
+            this._onHoldSelect(evt.target as SelectOptionElement | null, evt.pageX, evt.pageY);
         };
 
         this.evtTouchEnd = (evt: TouchEvent) => {
@@ -53,7 +88,7 @@ class LegacySelectField extends LegacyElement {
                 evt.preventDefault();
                 evt.stopPropagation();
 
-                const target = document.elementFromPoint(touch.pageX, touch.pageY);
+                const target = document.elementFromPoint(touch.pageX, touch.pageY) as SelectOptionElement | null;
 
                 this._onHoldSelect(target, touch.pageX, touch.pageY);
             }
@@ -151,8 +186,8 @@ class LegacySelectField extends LegacyElement {
         return this.elementValue.getAttribute('placeholder');
     }
 
-    _onHoldSelect(target: any, x: number, y: number) {
-        if (target && target.uiElement && target.uiElement === this && target.classList.contains('selected')) {
+    _onHoldSelect(target: SelectOptionElement | null, x: number, y: number) {
+        if (target && target.uiElement === this && target.classList.contains('selected')) {
             return;
         }
 
@@ -160,7 +195,7 @@ class LegacySelectField extends LegacyElement {
             return;
         }
 
-        if (target && target.uiElement && target.uiElement === this) {
+        if (target && target.uiElement === this) {
             this._onOptionSelect.call(target);
         }
 
@@ -199,7 +234,7 @@ class LegacySelectField extends LegacyElement {
             let touch;
 
             for (let i = 0; i < evt.changedTouches.length; i++) {
-                if (evt.changedTouches[i].target !== this) {
+                if ((evt.changedTouches[i].target as unknown) !== this) {
                     continue;
                 }
 
@@ -388,7 +423,7 @@ class LegacySelectField extends LegacyElement {
                 continue;
             }
 
-            const element = document.createElement('li');
+            const element = document.createElement('li') as SelectOptionElement;
             element.textContent = this.options[this.optionsKeys[i]];
             element.uiElement = this;
             element.uiValue = this.optionsKeys[i];
@@ -405,15 +440,15 @@ class LegacySelectField extends LegacyElement {
         }
     }
 
-    _onOptionSelect() {
+    _onOptionSelect(this: SelectOptionElement) {
         this.uiElement.value = this.uiValue;
     }
 
-    _onOptionHover() {
+    _onOptionHover(this: SelectOptionElement) {
         this.classList.add('hover');
     }
 
-    _onOptionOut() {
+    _onOptionOut(this: SelectOptionElement) {
         this.classList.remove('hover');
     }
 

@@ -1,10 +1,11 @@
 import type { ObserverList } from '@playcanvas/observer';
-import { Label } from '@playcanvas/pcui';
+import { Label, type Element as PcuiElement } from '@playcanvas/pcui';
 import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from 'playcanvas';
 
 import { CLASS_ERROR } from '@/common/pcui/constants';
+import type { EntityObserver } from '@/editor-api';
 
-import { ComponentInspector } from './component';
+import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
@@ -133,8 +134,6 @@ const ATTRIBUTES: Attribute[] = [{
 class RenderComponentInspector extends ComponentInspector {
     _assets: ObserverList;
 
-    _attributesInspector: AttributesInspector;
-
     _labelUv1Missing: Label;
 
     _suppressToggleFields = false;
@@ -143,7 +142,7 @@ class RenderComponentInspector extends ComponentInspector {
 
     _suppressCustomAabb = false;
 
-    constructor(args: Record<string, unknown>) {
+    constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
         args.component = 'render';
 
@@ -180,10 +179,6 @@ class RenderComponentInspector extends ComponentInspector {
         this._changeMaterialsOnChange(this._field('type'));
     }
 
-    _field(name: string) {
-        return this._attributesInspector.getField(`components.render.${name}`);
-    }
-
     _onMaterialsChange(value: unknown) {
         this._field('materialAssets').forEachArrayElement((assetInput, index) => {
             assetInput.label.text = `Material #${index}`;
@@ -201,7 +196,7 @@ class RenderComponentInspector extends ComponentInspector {
 
     // when the render type or the render asset change,
     // also change the materialAssets to the correct length
-    _changeMaterialsOnChange(field: import('@playcanvas/pcui').Element) {
+    _changeMaterialsOnChange(field: PcuiElement) {
         const binding = field.binding;
         if (!binding) {
             return;
@@ -237,7 +232,6 @@ class RenderComponentInspector extends ComponentInspector {
                 observer.set('components.render.materialAssets', newMaterials);
 
                 observer.history.enabled = history;
-
             });
         });
 
@@ -256,14 +250,13 @@ class RenderComponentInspector extends ComponentInspector {
                 if (type === 'asset') {
                     observer.set('components.render.asset', context.prevAssets[index]);
                     const asset = this._assets.get(observer.get('components.render.asset'));
-                    numInstances = asset && asset.get('meta.meshes') || asset.get('meta.meshInstances') || 0;
+                    numInstances = asset ? asset.get('meta.meshes') || asset.get('meta.meshInstances') || 0 : 0;
                 }
 
                 const newMaterials = this._getNewMaterials(numInstances, context.prevMaterials[index]);
                 observer.set('components.render.materialAssets', newMaterials);
 
                 observer.history.enabled = history;
-
             });
         });
     }
@@ -358,7 +351,6 @@ class RenderComponentInspector extends ComponentInspector {
         const customAabb = this._field('customAabb').value;
         this._field('aabbCenter').parent.hidden = !customAabb;
         this._field('aabbHalfExtents').parent.hidden = !customAabb;
-
     }
 
     _onCustomAabbChange(value: boolean) {
@@ -460,17 +452,15 @@ class RenderComponentInspector extends ComponentInspector {
         this._toggleFields();
     }
 
-    link(entities: import('@playcanvas/observer').Observer[]) {
-        super.link(entities);
-
+    link(entities: EntityObserver[]) {
         this._suppressToggleFields = true;
         this._suppressAssetChange = true;
         this._suppressCustomAabb = true;
 
+        super.link(entities);
+
         const customAabbs = this._entities.map(e => e.has('components.render.aabbCenter'));
         this._field('customAabb').values = customAabbs;
-
-        this._attributesInspector.link(entities);
 
         entities.forEach((e) => {
             this._entityEvents.push(e.on('components.render.aabbCenter:set', this._refreshCustomAabb.bind(this)));
@@ -510,12 +500,6 @@ class RenderComponentInspector extends ComponentInspector {
         });
 
         this._toggleFields();
-
-    }
-
-    unlink() {
-        super.unlink();
-        this._attributesInspector.unlink();
     }
 }
 

@@ -1,4 +1,6 @@
-import { ComponentInspector } from './component';
+import type { EntityObserver } from '@/editor-api';
+
+import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
@@ -80,15 +82,15 @@ const ATTRIBUTES: Attribute[] = [{
 }];
 
 class AudiosourceComponentInspector extends ComponentInspector {
-    _attributesInspector: AttributesInspector;
+    _suppressToggleFields = false;
 
-    _skipToggleFields = false;
-
-    constructor(args: Record<string, unknown>) {
+    constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
         args.component = 'audiosource';
 
         super(args);
+
+        this.headerText += editor.projectEngineV2 ? ' (REMOVED)' : ' (LEGACY)';
 
         this._attributesInspector = new AttributesInspector({
             assets: args.assets,
@@ -100,19 +102,13 @@ class AudiosourceComponentInspector extends ComponentInspector {
 
         this._field('3d').on('change', this._toggleFields.bind(this));
 
-        // disable all fields if engine is v2
-        ATTRIBUTES.forEach((attribute) => {
-            const field = this._attributesInspector.getField(attribute.path);
-            field.parent.enabled = false;
-        });
-    }
-
-    _field(name: string) {
-        return this._attributesInspector.getField(`components.audiosource.${name}`);
+        if (editor.projectEngineV2) {
+            this._attributesInspector.enabled = false;
+        }
     }
 
     _toggleFields() {
-        if (this._skipToggleFields) {
+        if (this._suppressToggleFields) {
             return;
         }
 
@@ -123,18 +119,11 @@ class AudiosourceComponentInspector extends ComponentInspector {
         this._field('rollOffFactor').parent.hidden = !is3d;
     }
 
-    link(entities: import('@playcanvas/observer').Observer[]) {
+    link(entities: EntityObserver[]) {
+        this._suppressToggleFields = true;
         super.link(entities);
-
-        this._skipToggleFields = true;
-        this._attributesInspector.link(entities);
-        this._skipToggleFields = false;
+        this._suppressToggleFields = false;
         this._toggleFields();
-    }
-
-    unlink() {
-        super.unlink();
-        this._attributesInspector.unlink();
     }
 }
 

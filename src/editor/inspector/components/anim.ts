@@ -3,8 +3,9 @@ import { InfoBox, Container, TreeView, TreeViewItem, BooleanInput, Menu, Button,
 import type { Entity } from 'playcanvas';
 
 import { AssetInput } from '@/common/pcui/element/element-asset-input';
+import type { EntityObserver } from '@/editor-api';
 
-import { ComponentInspector } from './component';
+import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute, Divider } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
@@ -68,7 +69,7 @@ const CLASS_MASK_INSPECTOR_ADD_ALL_BUTTON = `${CLASS_MASK_INSPECTOR}-add-all-but
 const CLASS_MASK_INSPECTOR_REMOVE_ALL_BUTTON = `${CLASS_MASK_INSPECTOR}-remove-all-button`;
 
 class AnimComponentInspector extends ComponentInspector {
-    _args: Record<string, unknown>;
+    _args: ComponentInspectorArgs;
 
     _assets: ObserverList;
 
@@ -76,21 +77,17 @@ class AnimComponentInspector extends ComponentInspector {
 
     _stateGraphAsset: Observer | null = null;
 
-    _maskInspector: Panel | null = null;
+    _maskInspector: Container | null = null;
 
     _contextMenus: Menu[] = [];
 
-    _evts: EventHandle[] = [];
-
     _maskEvts: EventHandle[] = [];
-
-    _attributesInspector: AttributesInspector;
 
     _normalizeWeightsMessage: InfoBox;
 
     _layersContainer: Container;
 
-    constructor(args: Record<string, unknown>) {
+    constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
         args.component = 'anim';
 
@@ -98,8 +95,6 @@ class AnimComponentInspector extends ComponentInspector {
 
         this._args = args;
         this._assets = args.assets;
-
-        this._entities = null;
 
         this._attributesInspector = new AttributesInspector({
             assets: args.assets,
@@ -237,9 +232,9 @@ class AnimComponentInspector extends ComponentInspector {
                 suppressChanges = false;
             }));
 
-            item._containerContents.prepend(booleanInput);
+            item.content.prepend(booleanInput);
             const contextMenuDom = new Container();
-            item._containerContents.append(contextMenuDom);
+            item.content.append(contextMenuDom);
 
             const updateItemAndChildren = (item, value) => {
                 entityObserver.set(`components.anim.masks.${layerId}.mask.${item.path}.value`, value);
@@ -454,8 +449,8 @@ class AnimComponentInspector extends ComponentInspector {
         }
         this._contextMenus.length = 0;
 
-        document.querySelector('#layout-attributes').ui.headerText = 'ENTITY';
-        this._maskEvts.forEach(e => e.unbind);
+        editor.call('layout.attributes').headerText = 'ENTITY';
+        this._maskEvts.forEach(e => e.unbind());
         this._maskEvts.length = 0;
     }
 
@@ -500,7 +495,7 @@ class AnimComponentInspector extends ComponentInspector {
             deleteLayerMaskButton.hidden = !this._entities[0].get(`components.anim.masks.${layerId}.mask`);
             maskButtonsContainer.append(deleteLayerMaskButton);
 
-            this._evts.push(this._entities[0].on('*:set', (path) => {
+            this._entityEvents.push(this._entities[0].on('*:set', (path) => {
                 if (path.indexOf('components.anim.masks') === 0) {
                     layerMaskButton.text = this._entities[0].get(`components.anim.masks.${layerId}.mask`) ? 'EDIT MASK' : 'CREATE MASK';
                     deleteLayerMaskButton.hidden = !this._entities[0].get(`components.anim.masks.${layerId}.mask`);
@@ -560,11 +555,8 @@ class AnimComponentInspector extends ComponentInspector {
         }
     }
 
-    link(entities: import('@playcanvas/observer').Observer[]) {
-        this.unlink();
+    link(entities: EntityObserver[]) {
         super.link(entities);
-        this._entities = entities;
-        this._attributesInspector.link(entities);
 
         const stateGraphAssetField = this._attributesInspector.getField('stateGraphAsset');
         // handle multiselect
@@ -660,18 +652,8 @@ class AnimComponentInspector extends ComponentInspector {
 
     unlink() {
         super.unlink();
-        if (this._entities) {
-            this._entities = null;
-            this._stateGraphAssetId = null;
-            this._stateGraphAsset = null;
-            if (this._layersContainer) {
-                this.remove(this._layersContainer);
-            }
-            this._attributesInspector.unlink();
-        }
-        this._evts.forEach(e => e.unbind());
-        this._evts.length = 0;
-
+        this._stateGraphAssetId = null;
+        this._stateGraphAsset = null;
         this._clearAnimationSlots();
         this._clearMaskInspector();
     }

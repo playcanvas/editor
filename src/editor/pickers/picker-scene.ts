@@ -214,7 +214,12 @@ editor.once('load', () => {
         row.on('click', (event) => {
             // on middle click, open the scene in a new tab
             if (event.button === 1) {
-                window.open(`/editor/scene/${dropdownScene.id}`, '_blank');
+                let url = `/editor/scene/${dropdownScene.id}`;
+                const params = new URLSearchParams(location.search);
+                if (params.has('use_local_frontend')) {
+                    url += `?use_local_frontend=${params.get('use_local_frontend')}`;
+                }
+                window.open(url, '_blank');
             }
         });
 
@@ -296,7 +301,12 @@ editor.once('load', () => {
                 text: 'Open in New Tab',
                 onIsEnabled: () => editor.call('permissions:read'),
                 onSelect: () => {
-                    window.open(`/editor/scene/${dropdownScene.id}`, '_blank');
+                    let url = `/editor/scene/${dropdownScene.id}`;
+                    const params = new URLSearchParams(location.search);
+                    if (params.has('use_local_frontend')) {
+                        url += `?use_local_frontend=${params.get('use_local_frontend')}`;
+                    }
+                    window.open(url, '_blank');
                 }
             }
         ]

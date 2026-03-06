@@ -1,3 +1,5 @@
+import type { Observer } from '@playcanvas/observer';
+
 import { BaseSettingsPanel } from './base';
 import type { Attribute } from '../attribute.type.d';
 
@@ -51,7 +53,7 @@ class LocalizationSettingsPanel extends BaseSettingsPanel {
         });
     }
 
-    link(observers: import('@playcanvas/observer').Observer[]) {
+    link(observers: Observer[]) {
         super.link(observers);
         if (!this._createAssetTooltip) {
             this._createAssetTooltip = editor.call('attributes:reference:attach', 'settings:localization:createAsset', this._attributesInspector.getField('createAsset'));

@@ -1,6 +1,16 @@
 import { LegacyElement } from './element';
 
 class LegacyTextAreaField extends LegacyElement {
+    elementInput: HTMLTextAreaElement & { ui: unknown };
+
+    evtKeyChange: boolean;
+
+    ignoreChange: boolean;
+
+    blurOnEnter: boolean;
+
+    refocusable: boolean;
+
     constructor(args: Record<string, any> = {}) {
         super();
         this.element = document.createElement('div');
@@ -121,7 +131,7 @@ class LegacyTextAreaField extends LegacyElement {
         } else if (this.blurOnEnter && evt.keyCode === 13 && !evt.shiftKey) {
             let focused = false;
 
-            let parent = this.parent;
+            let parent: LegacyElement | null = this.parent;
             while (parent) {
                 if (parent.focus) {
                     parent.focus();

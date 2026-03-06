@@ -1,7 +1,8 @@
-import { deepCopy } from '@/common/utils';
-import { ORIENTATION_HORIZONTAL, ORIENTATION_VERTICAL } from '@/core/constants';
+import { ORIENTATION_HORIZONTAL, ORIENTATION_VERTICAL } from 'playcanvas';
 
-import { ComponentInspector } from './component';
+import { deepCopy } from '@/common/utils';
+
+import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
@@ -49,9 +50,7 @@ const ATTRIBUTES: Attribute[] = [{
 }];
 
 class ScrollbarComponentInspector extends ComponentInspector {
-    _attributesInspector: AttributesInspector;
-
-    constructor(args: Record<string, unknown>) {
+    constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
         args.component = 'scrollbar';
 
@@ -72,16 +71,6 @@ class ScrollbarComponentInspector extends ComponentInspector {
             templateOverridesInspector: this._templateOverridesInspector
         });
         this.append(this._attributesInspector);
-    }
-
-    link(entities: import('@playcanvas/observer').Observer[]) {
-        super.link(entities);
-        this._attributesInspector.link(entities);
-    }
-
-    unlink() {
-        super.unlink();
-        this._attributesInspector.unlink();
     }
 }
 

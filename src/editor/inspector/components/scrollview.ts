@@ -1,13 +1,15 @@
-import { deepCopy } from '@/common/utils';
 import {
     SCROLL_MODE_BOUNCE,
     SCROLL_MODE_CLAMP,
     SCROLL_MODE_INFINITE,
     SCROLLBAR_VISIBILITY_SHOW_ALWAYS,
     SCROLLBAR_VISIBILITY_SHOW_WHEN_REQUIRED
-} from '@/core/constants';
+} from 'playcanvas';
 
-import { ComponentInspector } from './component';
+import { deepCopy } from '@/common/utils';
+import type { EntityObserver } from '@/editor-api';
+
+import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute, Divider } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
@@ -130,11 +132,9 @@ const ATTRIBUTES: (Attribute | Divider)[] = [{
 }];
 
 class ScrollviewComponentInspector extends ComponentInspector {
-    _attributesInspector: AttributesInspector;
-
     _suppressToggleFields = false;
 
-    constructor(args: Record<string, unknown>) {
+    constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
         args.component = 'scrollview';
 
@@ -161,10 +161,6 @@ class ScrollviewComponentInspector extends ComponentInspector {
         });
     }
 
-    _field(name: string) {
-        return this._attributesInspector.getField(`components.scrollview.${name}`);
-    }
-
     _toggleFields() {
         if (this._suppressToggleFields) {
             return;
@@ -183,17 +179,11 @@ class ScrollviewComponentInspector extends ComponentInspector {
         this._field('horizontalScrollbarVisibility').parent.hidden = !horizontalScrollingEnabled;
     }
 
-    link(entities: import('@playcanvas/observer').Observer[]) {
-        super.link(entities);
+    link(entities: EntityObserver[]) {
         this._suppressToggleFields = true;
-        this._attributesInspector.link(entities);
+        super.link(entities);
         this._suppressToggleFields = false;
         this._toggleFields();
-    }
-
-    unlink() {
-        super.unlink();
-        this._attributesInspector.unlink();
     }
 }
 

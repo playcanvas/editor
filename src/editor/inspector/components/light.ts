@@ -15,8 +15,9 @@ import {
 } from 'playcanvas';
 
 import { LegacyTooltip } from '@/common/ui/tooltip';
+import type { EntityObserver } from '@/editor-api';
 
-import { ComponentInspector } from './component';
+import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute, Divider } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
@@ -450,15 +451,13 @@ const ATTRIBUTES: (Attribute | Divider)[] = [{
 }];
 
 class LightComponentInspector extends ComponentInspector {
-    _attributesInspector: AttributesInspector;
-
     _btnUpdateShadow: Button;
 
     _eventUpdateShadow: EventHandle | null = null;
 
-    _skipToggleFields = false;
+    _suppressToggleFields = false;
 
-    constructor(args: Record<string, unknown>) {
+    constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
         args.component = 'light';
 
@@ -506,12 +505,8 @@ class LightComponentInspector extends ComponentInspector {
         });
     }
 
-    _field(name: string) {
-        return this._attributesInspector.getField(`components.light.${name}`);
-    }
-
     _toggleFields() {
-        if (this._skipToggleFields) {
+        if (this._suppressToggleFields) {
             return;
         }
 
@@ -524,8 +519,8 @@ class LightComponentInspector extends ComponentInspector {
         let shadowTypeVsm = shadowType === SHADOW_VSM_16F || shadowType === SHADOW_VSM_32F;
         const cookie = this._field('cookieAsset').value;
         const numCascades = this._field('numCascades').value;
-        const isCLustered = editor.call('sceneSettings').get('render.clusteredLightingEnabled') && !isDirectional;
-        if (isCLustered) {
+        const isClustered = editor.call('sceneSettings').get('render.clusteredLightingEnabled') && !isDirectional;
+        if (isClustered) {
             shadowTypeVsm = false;
         }
 
@@ -578,7 +573,7 @@ class LightComponentInspector extends ComponentInspector {
             'cookieOffset',
             'cookieScale'
         ].forEach((field) => {
-            this._field(field).parent.hidden = isDirectional || isPoint || !cookie || isCLustered;
+            this._field(field).parent.hidden = isDirectional || isPoint || !cookie || isClustered;
         });
 
         this._field('cookieAsset').hidden = isDirectional;
@@ -590,10 +585,10 @@ class LightComponentInspector extends ComponentInspector {
             this._field('cookieAsset').text = isPoint ? 'Cookie (Cubemap)' : 'Cookie (Texture)';
         }
 
-        this._field('cookieFalloff').parent.hidden = !isSpot || !cookie || isCLustered;
+        this._field('cookieFalloff').parent.hidden = !isSpot || !cookie || isClustered;
 
-        this._field('shadowResolution').parent.hidden = !castShadows || isCLustered;
-        this._field('shadowType').parent.hidden = !castShadows || isCLustered;
+        this._field('shadowResolution').parent.hidden = !castShadows || isClustered;
+        this._field('shadowType').parent.hidden = !castShadows || isClustered;
         this._field('shadowDistance').parent.hidden = !castShadows;
         this._field('shadowIntensity').parent.hidden = !castShadows;
 
@@ -607,7 +602,7 @@ class LightComponentInspector extends ComponentInspector {
             'vsmBlurSize',
             'vsmBias'
         ].forEach((field) => {
-            this._field(field).parent.hidden = !castShadows || !shadowTypeVsm || isCLustered;
+            this._field(field).parent.hidden = !castShadows || !shadowTypeVsm || isClustered;
         });
 
         [
@@ -624,7 +619,7 @@ class LightComponentInspector extends ComponentInspector {
         this._btnUpdateShadow.hidden = this._field('shadowUpdateMode').value !== SHADOWUPDATE_THISFRAME;
     }
 
-    _updateShadows(entities: import('@playcanvas/observer').Observer[]) {
+    _updateShadows(entities: EntityObserver[]) {
         for (let i = 0; i < entities.length; i++) {
             if (entities[i].entity && entities[i].entity.light && entities[i].entity.light.shadowUpdateMode === SHADOWUPDATE_THISFRAME) {
                 entities[i].entity.light.light.shadowUpdateMode = SHADOWUPDATE_THISFRAME;
@@ -637,24 +632,19 @@ class LightComponentInspector extends ComponentInspector {
         this._field('innerConeAngle').max = this._field('outerConeAngle').value;
     }
 
-    link(entities: import('@playcanvas/observer').Observer[]) {
+    link(entities: EntityObserver[]) {
+        this._suppressToggleFields = true;
         super.link(entities);
-
-        this._skipToggleFields = true;
-        this._attributesInspector.link(entities);
+        this._suppressToggleFields = false;
+        this._toggleFields();
 
         this._eventUpdateShadow = this._btnUpdateShadow.on('click', () => {
             this._updateShadows(entities);
         });
-
-        this._skipToggleFields = false;
-
-        this._toggleFields();
     }
 
     unlink() {
         super.unlink();
-        this._attributesInspector.unlink();
         if (this._eventUpdateShadow) {
             this._eventUpdateShadow.unbind();
             this._eventUpdateShadow = null;

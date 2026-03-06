@@ -24,6 +24,7 @@ class FontAssetInspectorPreview extends AssetInspectorPreviewBase {
         });
         this._preview.resize(320, 144);
         this.append(this._preview);
+        this._previewElement = this._preview.dom as HTMLElement;
     }
 
     // queue up the rendering to prevent too often renders

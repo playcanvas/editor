@@ -1,4 +1,4 @@
-import { ORIENTATION_VERTICAL, ORIENTATION_HORIZONTAL } from '@/core/constants';
+import { ORIENTATION_VERTICAL, ORIENTATION_HORIZONTAL } from 'playcanvas';
 
 editor.once('load', () => {
     const DEFAULT_THICKNESS = 20;

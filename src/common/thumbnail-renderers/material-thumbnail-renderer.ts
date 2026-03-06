@@ -1,4 +1,4 @@
-import type { Observer } from '@playcanvas/observer';
+import type { EventHandle, Observer } from '@playcanvas/observer';
 import { Application, Color, Entity, GraphNode, JsonStandardMaterialParser, StandardMaterial } from 'playcanvas';
 
 import { ThumbnailRenderer } from './thumbnail-renderer';
@@ -78,6 +78,34 @@ function initializeScene() {
 }
 
 class MaterialThumbnailRenderer extends ThumbnailRenderer {
+    _asset: Observer | null;
+
+    _canvas: HTMLCanvasElement | null;
+
+    _queueRenderHandler: () => void;
+
+    _watch: unknown;
+
+    _skyboxWatchHandle: unknown;
+
+    _queuedRender: boolean;
+
+    _rotationX: number;
+
+    _rotationY: number;
+
+    _model: 'sphere' | 'box';
+
+    _evtSceneSettingsSet: EventHandle | null;
+
+    _skybox: Observer | null;
+
+    _evtAddSkybox: EventHandle | null;
+
+    _evtChangeSkybox: EventHandle | null;
+
+    _frameRequest: number | null;
+
     constructor(asset: Observer, canvas: HTMLCanvasElement, sceneSettings?: Observer) {
         super();
 
@@ -111,7 +139,7 @@ class MaterialThumbnailRenderer extends ThumbnailRenderer {
         }
 
         if (sceneSettings) {
-            this._evtChangeSkybox = sceneSettings.on('render.skybox:set', (value: any) => {
+            this._evtChangeSkybox = sceneSettings.on('render.skybox:set', (value: number | null) => {
                 this._unwatchSkybox();
 
                 if (value) {

@@ -4,6 +4,7 @@ import * as pc from 'playcanvas';
 
 import { CLASS_MULTIPLE_VALUES } from '@/common/pcui/constants';
 import { pathExists } from '@/common/utils';
+import type { History } from '@/editor-api';
 
 import type { Attribute, Divider } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
@@ -1270,7 +1271,7 @@ const TextureTransformTypes = {
 };
 
 type MaterialAssetInspectorArgs = {
-    history?: import('@/editor-api').History;
+    history?: History;
 } & Record<string, unknown>;
 
 class MaterialAssetInspector extends Container {

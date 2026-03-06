@@ -1,4 +1,4 @@
-import { ORIENTATION_HORIZONTAL, ORIENTATION_VERTICAL } from '@/core/constants';
+import { ORIENTATION_HORIZONTAL, ORIENTATION_VERTICAL } from 'playcanvas';
 
 editor.once('load', () => {
     const events = [];

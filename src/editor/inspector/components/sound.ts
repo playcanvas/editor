@@ -1,9 +1,10 @@
-import type { EventHandle, Observer, ObserverList } from '@playcanvas/observer';
+import type { EventHandle, ObserverList } from '@playcanvas/observer';
 import { Panel, Container, Button } from '@playcanvas/pcui';
 
 import { deepCopy } from '@/common/utils';
+import type { EntityObserver } from '@/editor-api';
 
-import { ComponentInspector } from './component';
+import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { TemplateOverrideInspector } from '../../templates/templates-override-inspector.js';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
@@ -156,7 +157,7 @@ const SLOT_ATTRIBUTES: Attribute[] = [{
 const CLASS_SLOT = 'sound-component-inspector-slot';
 
 class SoundSlotInspector extends Panel {
-    _entities: Observer[] | null = null;
+    _entities: EntityObserver[] | null = null;
 
     _slotEvents: EventHandle[] = [];
 
@@ -218,7 +219,7 @@ class SoundSlotInspector extends Panel {
         }
     }
 
-    link(entities: import('@playcanvas/observer').Observer[]) {
+    link(entities: EntityObserver[]) {
         this.unlink();
 
         this._entities = entities;
@@ -273,8 +274,6 @@ class SoundSlotInspector extends Panel {
 class SoundComponentInspector extends ComponentInspector {
     _assets: ObserverList;
 
-    _attributesInspector: AttributesInspector;
-
     _containerSlots: Container;
 
     _slotInspectors: Record<string, SoundSlotInspector> = {};
@@ -283,7 +282,7 @@ class SoundComponentInspector extends ComponentInspector {
 
     _suppressToggleFields = false;
 
-    constructor(args: Record<string, unknown>) {
+    constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
         args.component = 'sound';
 
@@ -315,10 +314,6 @@ class SoundComponentInspector extends ComponentInspector {
         this._field('positional').on('change', this._toggleFields.bind(this));
     }
 
-    _field(name: string) {
-        return this._attributesInspector.getField(`components.sound.${name}`);
-    }
-
     _toggleFields() {
         if (this._suppressToggleFields) {
             return;
@@ -331,7 +326,7 @@ class SoundComponentInspector extends ComponentInspector {
         this._field('rollOffFactor').parent.hidden = !positional;
     }
 
-    _onClickAddSlot(entity: import('@playcanvas/observer').Observer) {
+    _onClickAddSlot(entity: EntityObserver) {
         let keyName = 1;
         let count = 0;
         const idx = {};
@@ -362,7 +357,7 @@ class SoundComponentInspector extends ComponentInspector {
         });
     }
 
-    _createSlotInspector(entity: import('@playcanvas/observer').Observer, slotKey: string, slot: Record<string, unknown>) {
+    _createSlotInspector(entity: EntityObserver, slotKey: string, slot: Record<string, unknown>) {
         const inspector = new SoundSlotInspector({
             slotKey: slotKey,
             slot: slot,
@@ -381,11 +376,9 @@ class SoundComponentInspector extends ComponentInspector {
         return inspector;
     }
 
-    link(entities: import('@playcanvas/observer').Observer[]) {
-        super.link(entities);
-
+    link(entities: EntityObserver[]) {
         this._suppressToggleFields = true;
-        this._attributesInspector.link(entities);
+        super.link(entities);
         this._suppressToggleFields = false;
         this._toggleFields();
 
@@ -436,7 +429,6 @@ class SoundComponentInspector extends ComponentInspector {
 
     unlink() {
         super.unlink();
-        this._attributesInspector.unlink();
 
         for (const key in this._slotInspectors) {
             this._slotInspectors[key].destroy();

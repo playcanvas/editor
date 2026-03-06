@@ -1,7 +1,9 @@
 import type { ObserverList } from '@playcanvas/observer';
-import { Button } from '@playcanvas/pcui';
+import { Button, type Element as PcuiElement } from '@playcanvas/pcui';
 
-import { ComponentInspector } from './component';
+import type { EntityObserver } from '@/editor-api';
+
+import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
@@ -42,13 +44,13 @@ const CLASS_BUTTON_PLAY = 'animation-component-inspector-play';
 class AnimationComponentInspector extends ComponentInspector {
     _assets: ObserverList;
 
-    _attributesInspector: AttributesInspector;
-
-    constructor(args: Record<string, unknown>) {
+    constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
         args.component = 'animation';
 
         super(args);
+
+        this.headerText += ' (LEGACY)';
 
         this._assets = args.assets;
 
@@ -61,14 +63,14 @@ class AnimationComponentInspector extends ComponentInspector {
         this.append(this._attributesInspector);
     }
 
-    _refreshPlayButtons(entities: import('@playcanvas/observer').Observer[], assetList: { listItems: { assetId: string; element: import('@playcanvas/pcui').Element }[] }) {
+    _refreshPlayButtons(entities: EntityObserver[], assetList: { listItems: { assetId: string; element: PcuiElement }[] }) {
         const listItems = assetList.listItems;
         listItems.forEach((item) => {
             this._addPlayButtonForAnimation(entities, item.assetId, item.element);
         });
     }
 
-    _addPlayButtonForAnimation(entities: import('@playcanvas/observer').Observer[], assetId: string, listItem: import('@playcanvas/pcui').Element) {
+    _addPlayButtonForAnimation(entities: EntityObserver[], assetId: string, listItem: PcuiElement) {
         // destroy existing button
         const existing = listItem.dom.querySelector(`.${CLASS_BUTTON_PLAY}`);
         if (existing) {
@@ -99,7 +101,7 @@ class AnimationComponentInspector extends ComponentInspector {
         listItem.appendAfter(btn, label);
     }
 
-    _playAnimation(entities: import('@playcanvas/observer').Observer[], assetId: string | number) {
+    _playAnimation(entities: EntityObserver[], assetId: string | number) {
         assetId = parseInt(assetId, 10);
 
         for (let i = 0; i < entities.length; i++) {
@@ -121,7 +123,7 @@ class AnimationComponentInspector extends ComponentInspector {
         }
     }
 
-    _stopAnimation(entities: import('@playcanvas/observer').Observer[]) {
+    _stopAnimation(entities: EntityObserver[]) {
         for (let i = 0; i < entities.length; i++) {
             if (!entities[i].entity || !entities[i].entity.animation) {
                 continue;
@@ -131,10 +133,8 @@ class AnimationComponentInspector extends ComponentInspector {
         }
     }
 
-    link(entities: import('@playcanvas/observer').Observer[]) {
+    link(entities: EntityObserver[]) {
         super.link(entities);
-
-        this._attributesInspector.link(entities);
 
         const assetList = this._attributesInspector.getField('components.animation.assets');
         this._refreshPlayButtons(entities, assetList);
@@ -153,7 +153,6 @@ class AnimationComponentInspector extends ComponentInspector {
         }
 
         super.unlink();
-        this._attributesInspector.unlink();
     }
 }
 

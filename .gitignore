@@ -26,3 +26,6 @@ test/editor-api/dist
 /test-suite/blob-report
 /test-suite/playwright/.cache
 /test-suite/.editor-api-types
+
+# claude worktrees
+.claude/worktrees

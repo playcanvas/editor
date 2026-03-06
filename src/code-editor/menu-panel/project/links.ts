@@ -27,6 +27,10 @@ editor.once('load', () => {
     menu.append(item);
 
     editor.method('editor:command:openEditor', () => {
-        window.open(`/editor/project/${config.project.id}`);
+        let url = `/editor/project/${config.project.id}`;
+        if (location.search.includes('use_local_frontend')) {
+            url += `?use_local_frontend=${new URLSearchParams(location.search).get('use_local_frontend')}`;
+        }
+        window.open(url);
     });
 });

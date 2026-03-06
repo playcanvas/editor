@@ -1,6 +1,7 @@
 import { TONEMAPPING } from '@/core/constants';
+import type { EntityObserver } from '@/editor-api';
 
-import { ComponentInspector } from './component';
+import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute, Divider } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
@@ -150,11 +151,9 @@ const ATTRIBUTES: (Attribute | Divider)[] = [{
 }];
 
 class CameraComponentInspector extends ComponentInspector {
-    _attributesInspector: AttributesInspector;
-
     _suppressToggleFields = false;
 
-    constructor(args: Record<string, unknown>) {
+    constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
         args.component = 'camera';
 
@@ -178,10 +177,6 @@ class CameraComponentInspector extends ComponentInspector {
         this._field('gammaCorrection').parent.hidden = !editor.projectEngineV2;
     }
 
-    _field(name: string) {
-        return this._attributesInspector.getField(`components.camera.${name}`);
-    }
-
     _toggleFields() {
         if (this._suppressToggleFields) {
             return;
@@ -194,17 +189,11 @@ class CameraComponentInspector extends ComponentInspector {
         this._field('orthoHeight').parent.hidden = fieldProjection.value !== 1;
     }
 
-    link(entities: import('@playcanvas/observer').Observer[]) {
-        super.link(entities);
+    link(entities: EntityObserver[]) {
         this._suppressToggleFields = true;
-        this._attributesInspector.link(entities);
+        super.link(entities);
         this._suppressToggleFields = false;
         this._toggleFields();
-    }
-
-    unlink() {
-        super.unlink();
-        this._attributesInspector.unlink();
     }
 }
 

@@ -33,7 +33,7 @@ editor.once('load', () => {
             query.push('version');
         }
         if (params.has('use_local_frontend')) {
-            query.push('use_local_frontend');
+            query.push(`use_local_frontend=${params.get('use_local_frontend')}`);
         }
         if (query.length) {
             url += `?${query.join('&')}`;

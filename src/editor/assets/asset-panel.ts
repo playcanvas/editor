@@ -2236,6 +2236,10 @@ class AssetPanel extends Panel {
                 } else {
                     item.selected = false;
                     this.currentFolder = item.asset;
+
+                    if (this._foldersView.pressedArrow) {
+                        editor.call('selector:set', 'asset', [item.asset]);
+                    }
                 }
             }
         } else {
@@ -2489,7 +2493,11 @@ class AssetPanel extends Panel {
         }
 
         const view = this._viewMode === AssetPanel.VIEW_DETAILS ? this._detailsView : this._gridView;
-        view.once('filter:end', () => this._focusAssetItem(prevFolderId));
+        view.once('filter:end', () => {
+            this._suspendSelectEvents = true;
+            this._focusAssetItem(prevFolderId);
+            this._suspendSelectEvents = false;
+        });
 
         this.currentFolder = folder;
     }

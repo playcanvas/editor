@@ -1,14 +1,14 @@
-import type { EventHandle, Observer } from '@playcanvas/observer';
-import { Panel, Container, Button, BooleanInput, LabelGroup, Label, Menu, SelectInput, BindingTwoWay, ArrayInput } from '@playcanvas/pcui';
+import type { EventHandle, Observer, ObserverList } from '@playcanvas/observer';
+import { Panel, Container, Button, BooleanInput, LabelGroup, Label, Menu, SelectInput, BindingTwoWay, ArrayInput, type PanelArgs } from '@playcanvas/pcui';
 
 import { CLASS_ERROR, DEFAULTS } from '@/common/pcui/constants';
 import { AssetInput } from '@/common/pcui/element/element-asset-input';
 import { tooltip, tooltipSimpleItem } from '@/common/tooltips';
 import { LegacyTooltip } from '@/common/ui/tooltip';
 import { deepCopy } from '@/common/utils';
-import type { AssetObserver, History, LocalStorage } from '@/editor-api';
+import type { AssetObserver, EntityObserver, History, LocalStorage } from '@/editor-api';
 
-import { ComponentInspector } from './component';
+import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import { evaluate } from '../../scripting/expr-eval/evaluate';
 import { parse } from '../../scripting/expr-eval/parser';
 import type { ASTNode } from '../../scripting/expr-eval/parser.js';
@@ -90,6 +90,15 @@ function getScriptContextMenu() {
     return scriptContextMenu;
 }
 
+interface ScriptInspectorArgs extends PanelArgs {
+    componentInspector: ScriptComponentInspector;
+    scriptName: string;
+    history: History;
+    assets: ObserverList;
+    entities: ObserverList;
+    templateOverridesInspector?: TemplateOverrideInspector;
+}
+
 class ScriptInspector extends Panel {
     private _componentInspector: ScriptComponentInspector;
 
@@ -101,9 +110,9 @@ class ScriptInspector extends Panel {
 
     _history: History;
 
-    _argsAssets: Observer[];
+    _argsAssets: ObserverList;
 
-    _argsEntities: Observer[];
+    _argsEntities: ObserverList;
 
     _templateOverridesInspector: TemplateOverrideInspector;
 
@@ -124,7 +133,7 @@ class ScriptInspector extends Panel {
      */
     private _astCache: Map<string, ASTNode> = new Map();
 
-    private _entities: Observer[] | null = null;
+    private _entities: EntityObserver[] | null = null;
 
     private _labelInvalid: Label;
 
@@ -144,14 +153,7 @@ class ScriptInspector extends Panel {
 
     containerErrors: Container;
 
-    constructor(args: {
-        componentInspector: ScriptComponentInspector;
-        scriptName: string;
-        history: History;
-        assets: Observer[];
-        entities: Observer[];
-        templateOverridesInspector?: TemplateOverrideInspector;
-    } & Record<string, unknown>) {
+    constructor(args: ScriptInspectorArgs) {
         super(args);
 
         this._componentInspector = args.componentInspector;
@@ -232,14 +234,14 @@ class ScriptInspector extends Panel {
         });
 
         const enableGroup = new LabelGroup({
-            text: 'On',
+            text: 'ON',
             class: CLASS_SCRIPT_ENABLED,
             field: this._fieldEnable
         });
         this.header.append(enableGroup);
 
         this._fieldEnable.on('change', (value) => {
-            enableGroup.text = value ? 'On' : 'Off';
+            enableGroup.text = value ? 'ON' : 'OFF';
         });
 
         if (this._templateOverridesInspector) {
@@ -478,7 +480,6 @@ class ScriptInspector extends Panel {
         if (firstRecursion) {
             unusedKeys.forEach(key => this._astCache.delete(key));
         }
-
     }
 
     _evaluateCondition(name: string, tag: string, expression: string | undefined, state: Record<string, unknown>) {
@@ -911,7 +912,7 @@ class ScriptInspector extends Panel {
         this._tooltipInvalid.description = this._getInvalidTooltipText();
     }
 
-    link(entities: Observer[]) {
+    link(entities: EntityObserver[]) {
         this.unlink();
 
         this._entities = entities;
@@ -955,13 +956,11 @@ class ScriptInspector extends Panel {
 }
 
 class ScriptComponentInspector extends ComponentInspector {
-    _argsAssets: Observer[];
+    _argsAssets: ObserverList;
 
-    _argsEntities: Observer[];
+    _argsEntities: ObserverList;
 
     private _scriptPanels: Record<string, ScriptInspector> = {};
-
-    private _editorEvents: EventHandle[] = [];
 
     private _containerScripts: Container;
 
@@ -969,17 +968,11 @@ class ScriptComponentInspector extends ComponentInspector {
 
     private _dirtyScripts: Set<string> = new Set();
 
-    private _dirtyScriptsTimeout: number | null = null;
+    private _rafDirtyScripts: number | null = null;
 
     private _updateScriptsTimeout: ReturnType<typeof setTimeout> | null = null;
 
-    constructor(args: {
-        component?: string;
-        assets?: Observer[];
-        entities?: Observer[];
-        templateOverridesInspector?: TemplateOverrideInspector;
-        history?: History;
-    } & Record<string, unknown>) {
+    constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
         args.component = 'script';
 
@@ -1153,19 +1146,19 @@ class ScriptComponentInspector extends ComponentInspector {
     }
 
     _deferUpdateDirtyScripts() {
-        if (this._dirtyScriptsTimeout) {
-            cancelAnimationFrame(this._dirtyScriptsTimeout);
+        if (this._rafDirtyScripts) {
+            cancelAnimationFrame(this._rafDirtyScripts);
         }
 
-        this._dirtyScriptsTimeout = requestAnimationFrame(this._updateDirtyScripts.bind(this));
+        this._rafDirtyScripts = requestAnimationFrame(this._updateDirtyScripts.bind(this));
     }
 
     _updateDirtyScripts() {
-        if (this._dirtyScriptsTimeout) {
-            cancelAnimationFrame(this._dirtyScriptsTimeout);
+        if (this._rafDirtyScripts) {
+            cancelAnimationFrame(this._rafDirtyScripts);
         }
 
-        this._dirtyScriptsTimeout = null;
+        this._rafDirtyScripts = null;
 
         if (this._dirtyScripts.size) {
             this._updateScripts(this._dirtyScripts);
@@ -1248,7 +1241,7 @@ class ScriptComponentInspector extends ComponentInspector {
         });
     }
 
-    _parseUnparsedScripts(assets: import('@playcanvas/observer').Observer[]) {
+    _parseUnparsedScripts(assets: Observer[]) {
         assets.forEach(a => editor.call('scripts:parse', a, (err) => {
             a.set('data.lastParsedHash', a.get('file.hash'));
         }));
@@ -1517,7 +1510,7 @@ class ScriptComponentInspector extends ComponentInspector {
         }
     }
 
-    link(entities: Observer[]) {
+    link(entities: EntityObserver[]) {
         super.link(entities);
 
         this._updateScripts();
@@ -1550,15 +1543,12 @@ class ScriptComponentInspector extends ComponentInspector {
             }));
         });
 
-        this._editorEvents.push(editor.on('assets:scripts:add', this._onScriptAddOrRemove.bind(this)));
-        this._editorEvents.push(editor.on('assets:scripts:remove', this._onScriptAddOrRemove.bind(this)));
+        this._entityEvents.push(editor.on('assets:scripts:add', this._onScriptAddOrRemove.bind(this)));
+        this._entityEvents.push(editor.on('assets:scripts:remove', this._onScriptAddOrRemove.bind(this)));
     }
 
     unlink() {
         super.unlink();
-
-        this._editorEvents.forEach(evt => evt.unbind());
-        this._editorEvents.length = 0;
 
         this._selectScript.close();
         this._selectScript.value = '';
@@ -1566,8 +1556,9 @@ class ScriptComponentInspector extends ComponentInspector {
         this._scriptPanels = {};
         this._dirtyScripts = new Set();
 
-        if (this._dirtyScriptsTimeout) {
-            cancelAnimationFrame(this._dirtyScriptsTimeout);
+        if (this._rafDirtyScripts) {
+            cancelAnimationFrame(this._rafDirtyScripts);
+            this._rafDirtyScripts = null;
         }
 
         if (this._updateScriptsTimeout) {

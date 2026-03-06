@@ -2,6 +2,16 @@ import { LegacyContainer } from './container';
 import { LegacyListItem } from './list-item';
 
 class LegacyList extends LegacyContainer {
+    static _ctrl: (() => boolean) | null;
+
+    static _shift: (() => boolean) | null;
+
+    _changing: boolean;
+
+    _selected: LegacyListItem[];
+
+    _selectable: boolean;
+
     constructor(args: Record<string, any> = {}) {
         super();
         this.element = document.createElement('ul');

@@ -4,9 +4,9 @@ import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from 'playcanvas';
 
 import { CLASS_ERROR } from '@/common/pcui/constants';
 import { AssetInput } from '@/common/pcui/element/element-asset-input';
-import type { Assets } from '@/editor-api';
+import type { Assets, EntityObserver } from '@/editor-api';
 
-import { ComponentInspector } from './component';
+import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
@@ -244,7 +244,6 @@ class AssetElementToObserversBinding extends BindingElementToObservers {
                 redo: redo,
                 undo: undo
             });
-
         }
 
         redo();
@@ -255,8 +254,6 @@ class AssetElementToObserversBinding extends BindingElementToObservers {
 
 class ModelComponentInspector extends ComponentInspector {
     _assets: ObserverList;
-
-    _attributesInspector: AttributesInspector;
 
     _labelUv1Missing: Label;
 
@@ -272,15 +269,17 @@ class ModelComponentInspector extends ComponentInspector {
 
     _suppressCustomAabb = false;
 
-    _timeoutRefreshMappings: ReturnType<typeof setTimeout> | null;
+    _rafRefreshMappings: number | null = null;
 
-    _dirtyMappings: boolean;
+    _dirtyMappings = new Set<string>();
 
-    constructor(args: Record<string, unknown>) {
+    constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
         args.component = 'model';
 
         super(args);
+
+        this.headerText += ' (LEGACY)';
 
         this._assets = args.assets;
 
@@ -348,10 +347,6 @@ class ModelComponentInspector extends ComponentInspector {
         });
     }
 
-    _field(name: string) {
-        return this._attributesInspector.getField(`components.model.${name}`);
-    }
-
     _onClickAssetMaterials() {
         if (!this._entities) {
             return;
@@ -393,7 +388,7 @@ class ModelComponentInspector extends ComponentInspector {
         return result;
     }
 
-    _getMeshInstanceName(index: number, entities: import('@playcanvas/observer').Observer[]) {
+    _getMeshInstanceName(index: number, entities: EntityObserver[]) {
         // get name of meshinstance from engine
         let meshInstanceName;
         for (let i = 0; i < entities.length; i++) {
@@ -415,7 +410,7 @@ class ModelComponentInspector extends ComponentInspector {
         return meshInstanceName;
     }
 
-    _createMappingInspector(key: string, entities: import('@playcanvas/observer').Observer[]) {
+    _createMappingInspector(key: string, entities: EntityObserver[]) {
         const index = parseInt(key, 10);
 
         if (this._mappingInspectors[key]) {
@@ -509,22 +504,19 @@ class ModelComponentInspector extends ComponentInspector {
 
         this._mappingInspectors[key] = container;
 
-        this._timeoutRefreshMappings = null;
-        this._dirtyMappings = {};
-
         return container;
     }
 
-    _refreshMappings(dirtyMappings?: Record<string, import('@playcanvas/observer').Observer[]>) {
-        if (this._timeoutRefreshMappings) {
-            cancelAnimationFrame(this._timeoutRefreshMappings);
+    _refreshMappings(dirtyKeys?: Set<string>) {
+        if (this._rafRefreshMappings) {
+            cancelAnimationFrame(this._rafRefreshMappings);
         }
 
-        this._timeoutRefreshMappings = requestAnimationFrame(() => {
-            this._timeoutRefreshMappings = null;
+        this._rafRefreshMappings = requestAnimationFrame(() => {
+            this._rafRefreshMappings = null;
 
             const mappings = this._groupMappingsByKey();
-            dirtyMappings = dirtyMappings || mappings;
+            const keys = dirtyKeys ?? new Set(Object.keys(mappings));
 
             for (const key in this._mappingInspectors) {
                 if (!mappings[key]) {
@@ -536,12 +528,14 @@ class ModelComponentInspector extends ComponentInspector {
                 }
             }
 
-            for (const key in dirtyMappings) {
+            for (const key of keys) {
                 if (mappings[key]) {
                     // recreate dirty mappings
                     this._createMappingInspector(key, mappings[key]);
                 }
             }
+
+            this._dirtyMappings.clear();
         });
     }
 
@@ -729,14 +723,12 @@ class ModelComponentInspector extends ComponentInspector {
         }
     }
 
-    link(entities: import('@playcanvas/observer').Observer[]) {
-        super.link(entities);
-
+    link(entities: EntityObserver[]) {
         this._suppressToggleFields = true;
         this._suppressAssetChange = true;
         this._suppressCustomAabb = true;
 
-        this._attributesInspector.link(entities);
+        super.link(entities);
 
         const mappings = this._groupMappingsByKey();
         for (const key in mappings) {
@@ -752,7 +744,7 @@ class ModelComponentInspector extends ComponentInspector {
                     return;
                 }
 
-                this._dirtyMappings[match[1]] = true;
+                this._dirtyMappings.add(match[1]);
 
                 this._refreshMappings(this._dirtyMappings);
             }));
@@ -763,7 +755,7 @@ class ModelComponentInspector extends ComponentInspector {
                     return;
                 }
 
-                this._dirtyMappings[match[1]] = true;
+                this._dirtyMappings.add(match[1]);
 
                 this._refreshMappings(this._dirtyMappings);
             }));
@@ -793,15 +785,14 @@ class ModelComponentInspector extends ComponentInspector {
 
     unlink() {
         super.unlink();
-        this._attributesInspector.unlink();
         this._containerMappings.clear();
         this._mappingInspectors = {};
 
-        if (this._timeoutRefreshMappings) {
-            cancelAnimationFrame(this._timeoutRefreshMappings);
-            this._timeoutRefreshMappings = null;
+        if (this._rafRefreshMappings) {
+            cancelAnimationFrame(this._rafRefreshMappings);
+            this._rafRefreshMappings = null;
         }
-        this._dirtyMappings = {};
+        this._dirtyMappings.clear();
     }
 }
 

@@ -1,6 +1,6 @@
 {
   "name": "@playcanvas/editor",
-  "version": "2.18.1",
+  "version": "2.19.2",
   "author": "PlayCanvas <support@playcanvas.com>",
   "homepage": "https://playcanvas.com",
   "description": "The PlayCanvas Editor Frontend",
@@ -34,7 +34,7 @@
     "@jsquash/webp": "1.5.0",
     "@playcanvas/eslint-config": "2.1.0",
     "@playcanvas/observer": "1.7.1",
-    "@playcanvas/pcui": "6.0.0",
+    "@playcanvas/pcui": "6.1.1",
     "@playcanvas/pcui-graph": "5.1.0",
     "@rollup/plugin-commonjs": "28.0.9",
     "@rollup/plugin-node-resolve": "15.3.1",

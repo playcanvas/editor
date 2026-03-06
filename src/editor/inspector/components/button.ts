@@ -1,12 +1,12 @@
-import type { EventHandle } from '@playcanvas/observer';
 import { InfoBox } from '@playcanvas/pcui';
-
 import {
     BUTTON_TRANSITION_MODE_TINT,
     BUTTON_TRANSITION_MODE_SPRITE_CHANGE
-} from '@/core/constants';
+} from 'playcanvas';
 
-import { ComponentInspector } from './component';
+import type { EntityObserver } from '@/editor-api';
+
+import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
@@ -121,13 +121,9 @@ const ATTRIBUTES: Attribute[] = [{
 class ButtonComponentInspector extends ComponentInspector {
     _inputWarning: InfoBox;
 
-    _evts: EventHandle[] = [];
-
-    _attributesInspector: AttributesInspector;
-
     _suppressToggleFields = false;
 
-    constructor(args: Record<string, unknown>) {
+    constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
         args.component = 'button';
 
@@ -150,10 +146,6 @@ class ButtonComponentInspector extends ComponentInspector {
         this.append(this._attributesInspector);
 
         this._field('transitionMode').on('change', this._toggleFields.bind(this));
-    }
-
-    _field(name: string) {
-        return this._attributesInspector.getField(`components.button.${name}`);
     }
 
     _toggleFields() {
@@ -191,30 +183,18 @@ class ButtonComponentInspector extends ComponentInspector {
         });
     }
 
-    link(entities: import('@playcanvas/observer').Observer[]) {
-        super.link(entities);
-        this._entities = entities;
+    link(entities: EntityObserver[]) {
         this._suppressToggleFields = true;
-        this._attributesInspector.link(entities);
+        super.link(entities);
         this._suppressToggleFields = false;
-
         this._toggleFields();
 
         const updateInputWarning = () => {
             this._inputWarning.hidden = entities.length !== 1 || entities[0].get('components.element.useInput') || !entities[0].get('components.button.active');
         };
-        this._evts.push(entities[0].on('components.element.useInput:set', updateInputWarning));
-        this._evts.push(entities[0].on('components.button.active:set', updateInputWarning));
+        this._entityEvents.push(entities[0].on('components.element.useInput:set', updateInputWarning));
+        this._entityEvents.push(entities[0].on('components.button.active:set', updateInputWarning));
         updateInputWarning();
-    }
-
-    unlink() {
-        super.unlink();
-        if (this._entities) {
-            this._attributesInspector.unlink();
-            this._evts.forEach(e => e.unbind());
-            this._evts = [];
-        }
     }
 }
 

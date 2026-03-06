@@ -4,9 +4,9 @@ import { FITMODE_CONTAIN, FITMODE_COVER, FITMODE_STRETCH, LAYERID_DEPTH, LAYERID
 
 import { CLASS_MULTIPLE_VALUES } from '@/common/pcui/constants';
 import { tooltip, tooltipRefItem } from '@/common/tooltips';
-import type { Assets } from '@/editor-api';
+import type { Assets, EntityObserver } from '@/editor-api';
 
-import { ComponentInspector } from './component';
+import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute, Divider } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
@@ -558,7 +558,6 @@ class ImageAssetElementToObserversBinding extends BindingElementToObservers {
                 redo: redo,
                 undo: undo
             });
-
         }
 
         redo();
@@ -664,7 +663,6 @@ class SpriteFrameElementToObserversBinding extends ImageAssetElementToObserversB
                 redo: redo,
                 undo: undo
             });
-
         }
 
         redo();
@@ -674,15 +672,13 @@ class SpriteFrameElementToObserversBinding extends ImageAssetElementToObserversB
 }
 
 class ElementComponentInspector extends ComponentInspector {
-    _attributesInspector: AttributesInspector;
-
     _suppressLocalizedEvents = false;
 
     _suppressPresetEvents = false;
 
     _suppressToggleFields = false;
 
-    constructor(args: Record<string, unknown>) {
+    constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
         args.component = 'element';
 
@@ -738,18 +734,14 @@ class ElementComponentInspector extends ComponentInspector {
             history: args.history,
             bindingElementToObservers: new ImageAssetElementToObserversBinding(args.assets, {
                 history: args.history
-            },
-            this.entities
-            )
+            })
         });
         // update binding of spriteFrame field
         this._field('spriteFrame').binding = new BindingTwoWay({
             history: args.history,
             bindingElementToObservers: new SpriteFrameElementToObserversBinding(args.assets, {
                 history: args.history
-            },
-            this.entities
-            )
+            })
         });
 
         // reset size button tooltip
@@ -766,10 +758,6 @@ class ElementComponentInspector extends ComponentInspector {
         this._field('resetSize').on('click', () => {
             this._onClickResetSize(args.assets);
         });
-    }
-
-    _field(name: string) {
-        return this._attributesInspector.getField(`components.element.${name}`);
     }
 
     _toggleFields() {
@@ -1176,19 +1164,11 @@ class ElementComponentInspector extends ComponentInspector {
         }
     }
 
-    link(entities: Observer[]) {
-        super.link(entities);
-
+    link(entities: EntityObserver[]) {
         this._suppressToggleFields = true;
-        this._attributesInspector.link(entities);
+        super.link(entities);
         this._suppressToggleFields = false;
-
         this._toggleFields();
-    }
-
-    unlink() {
-        super.unlink();
-        this._attributesInspector.unlink();
     }
 }
 

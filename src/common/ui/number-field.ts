@@ -1,6 +1,32 @@
 import { LegacyElement } from './element';
 
 class LegacyNumberField extends LegacyElement {
+    precision: number | null;
+
+    step: number;
+
+    max: number | null;
+
+    min: number | null;
+
+    allowNull: boolean;
+
+    elementInput: HTMLInputElement & { ui: unknown };
+
+    blurOnEnter: boolean;
+
+    refocusable: boolean;
+
+    _lastValue: number | null;
+
+    _mouseMove: ((evt: MouseEvent) => void) | null;
+
+    _dragging: boolean;
+
+    _dragDiff: number;
+
+    _dragStart: number;
+
     constructor(args: Record<string, any> = {}) {
         super();
         this.precision = (args.precision != null) ? args.precision : null;
@@ -74,7 +100,7 @@ class LegacyNumberField extends LegacyElement {
             const different = this._lastValue !== value;
 
             this._lastValue = value;
-            this.elementInput.value = value;
+            this.elementInput.value = `${value}`;
 
             if (different) {
                 this.emit('change', value);
@@ -114,7 +140,7 @@ class LegacyNumberField extends LegacyElement {
     }
 
     _onLinkChange(value: number | null) {
-        this.elementInput.value = value || 0;
+        this.elementInput.value = `${value || 0}`;
         this.emit('change', value || 0);
     }
 
@@ -124,11 +150,11 @@ class LegacyNumberField extends LegacyElement {
             if (this.allowNull) {
                 this.value = null;
             } else {
-                this.elementInput.value = 0;
+                this.elementInput.value = '0';
                 this.value = 0;
             }
         } else {
-            this.elementInput.value = value;
+            this.elementInput.value = `${value}`;
             this.value = value;
         }
     }
@@ -156,7 +182,7 @@ class LegacyNumberField extends LegacyElement {
         if (this.blurOnEnter && evt.keyCode === 13) {
             let focused = false;
 
-            let parent = this.parent;
+            let parent: LegacyElement | null = this.parent;
             while (parent) {
                 if (parent.focus) {
                     parent.focus();

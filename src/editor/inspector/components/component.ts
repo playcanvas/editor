@@ -1,10 +1,20 @@
-import type { EventHandle, Observer } from '@playcanvas/observer';
-import { BindingTwoWay, BooleanInput, Button, Container, Label, LabelGroup, Menu, Panel } from '@playcanvas/pcui';
+import type { EventHandle, Observer, ObserverList } from '@playcanvas/observer';
+import { BindingTwoWay, BooleanInput, Button, Container, Label, LabelGroup, Menu, Panel, type PanelArgs } from '@playcanvas/pcui';
 
 import { tooltip, tooltipRefItem } from '@/common/tooltips';
-import { LocalStorage, type History } from '@/editor-api';
+import { LocalStorage, type EntityObserver, type History } from '@/editor-api';
 
 import type { TemplateOverrideInspector } from '../../templates/templates-override-inspector.js';
+import type { AttributesInspector } from '../attributes-inspector';
+
+interface ComponentInspectorArgs extends PanelArgs {
+    component?: string;
+    history: History;
+    templateOverridesInspector?: TemplateOverrideInspector;
+    assets: ObserverList;
+    entities: ObserverList;
+    projectSettings?: Observer;
+}
 
 const CLASS_ROOT = 'component-inspector';
 const CLASS_COMPONENT_ICON = 'component-icon';
@@ -15,9 +25,11 @@ class ComponentInspector extends Panel {
 
     _localStorage: LocalStorage;
 
-    _entities: Observer[] | null = null;
+    _entities: EntityObserver[] | null = null;
 
     _entityEvents: EventHandle[] = [];
+
+    _attributesInspector: AttributesInspector | null = null;
 
     protected _history: History;
 
@@ -33,11 +45,7 @@ class ComponentInspector extends Panel {
 
     private _contextMenu: Menu;
 
-    constructor(args: {
-        component: string;
-        history: import('@/editor-api').History;
-        templateOverridesInspector?: TemplateOverrideInspector;
-    } & Record<string, unknown>) {
+    constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
         args.flex = true;
         args.collapsible = true;
@@ -54,15 +62,7 @@ class ComponentInspector extends Panel {
         });
         this.header.prepend(iconLabel);
 
-        let title = args.component.toUpperCase();
-        if (args.component === 'animation' ||
-            args.component === 'model') {
-            title += ' (LEGACY)';
-        }
-        if (args.component === 'audiosource') {
-            title += editor.projectEngineV2 ? ' (REMOVED)' : ' (LEGACY)';
-        }
-        this.headerText = title;
+        this.headerText = args.component.toUpperCase();
 
         this._history = args.history;
 
@@ -241,16 +241,22 @@ class ComponentInspector extends Panel {
         }
     }
 
-    link(entities: Observer[]) {
+    _field(name: string) {
+        return this._attributesInspector!.getField(`components.${this._component}.${name}`);
+    }
+
+    link(entities: EntityObserver[]) {
         this.unlink();
         this._entities = entities;
 
         const path = `components.${this._component}.enabled`;
         this._fieldEnable.link(entities, path);
+        this._attributesInspector?.link(entities);
     }
 
     unlink() {
         this._fieldEnable.unlink();
+        this._attributesInspector?.unlink();
 
         this._entityEvents.forEach(e => e.unbind());
         this._entityEvents.length = 0;
@@ -273,4 +279,4 @@ class ComponentInspector extends Panel {
     }
 }
 
-export { ComponentInspector };
+export { ComponentInspector, type ComponentInspectorArgs };

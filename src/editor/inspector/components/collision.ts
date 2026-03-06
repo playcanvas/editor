@@ -1,8 +1,10 @@
-import type { EventHandle } from '@playcanvas/observer';
+import type { Observer } from '@playcanvas/observer';
 import { InfoBox, LabelGroup } from '@playcanvas/pcui';
 import { CollisionComponent } from 'playcanvas';
 
-import { ComponentInspector } from './component';
+import type { EntityObserver } from '@/editor-api';
+
+import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
@@ -122,15 +124,11 @@ const ATTRIBUTES: Attribute[] = [{
 class CollisionComponentInspector extends ComponentInspector {
     _variedTransformScalesWarning: InfoBox;
 
-    _evts: EventHandle[] = [];
-
-    _attributesInspector: AttributesInspector;
-
     _suppressToggleFields = false;
 
     _importAmmoPanel: LabelGroup;
 
-    constructor(args: Record<string, unknown>) {
+    constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
         args.component = 'collision';
 
@@ -177,11 +175,7 @@ class CollisionComponentInspector extends ComponentInspector {
         }
     }
 
-    _field(name: string) {
-        return this._attributesInspector.getField(`components.collision.${name}`);
-    }
-
-    _handleTypeChange(fieldType: { value: string; binding: { on: (event: string, callback: (context: { prevHeights?: number[]; observers: import('@playcanvas/observer').Observer[] }) => void) => void } }) {
+    _handleTypeChange(fieldType: { value: string; binding: { on: (event: string, callback: (context: { prevHeights?: number[]; observers: Observer[] }) => void) => void } }) {
         // when the type changes we need to change the height of the collision
         // component to 2 if it's a capsule or 1 if it's a cylinder or cone.
         fieldType.binding.on('history:init', (context) => {
@@ -258,11 +252,11 @@ class CollisionComponentInspector extends ComponentInspector {
         this._field('renderAsset').hidden = fieldType.value !== 'mesh' || !!modelAsset;
     }
 
-    link(entities: import('@playcanvas/observer').Observer[]) {
-        super.link(entities);
-        this._entities = entities;
+    link(entities: EntityObserver[]) {
         this._suppressToggleFields = true;
-        this._attributesInspector.link(entities);
+        super.link(entities);
+        this._suppressToggleFields = false;
+        this._toggleFields();
 
         // Migration at the inspector level
         // We shouldn't need to do this but to allow creation of new
@@ -280,9 +274,6 @@ class CollisionComponentInspector extends ComponentInspector {
             }
         });
 
-        this._suppressToggleFields = false;
-        this._toggleFields();
-
         const updateVariedTransformScalesWarning = () => {
             if (entities.length !== 1 || entities[0].get('components.collision.type') !== 'mesh') {
                 this._variedTransformScalesWarning.hidden = true;
@@ -296,21 +287,12 @@ class CollisionComponentInspector extends ComponentInspector {
             }
             this._variedTransformScalesWarning.hidden = false;
         };
-        this._evts.push(entities[0].on('*:set', (path) => {
+        this._entityEvents.push(entities[0].on('*:set', (path) => {
             if (path === 'components.collision.type' || path.indexOf('scale.') === 0) {
                 updateVariedTransformScalesWarning();
             }
         }));
         updateVariedTransformScalesWarning();
-    }
-
-    unlink() {
-        super.unlink();
-        if (this._entities) {
-            this._attributesInspector.unlink();
-            this._evts.forEach(e => e.unbind());
-            this._evts = [];
-        }
     }
 }
 

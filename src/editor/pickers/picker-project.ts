@@ -444,8 +444,9 @@ editor.once('load', () => {
         }  // If middle click, open in new tab
 
         let url = `${config.url.home}/editor/project/${currentProject.id}`;
-        if (location.search.includes('use_local_frontend')) {
-            url += '?use_local_frontend';
+        const params = new URLSearchParams(location.search);
+        if (params.has('use_local_frontend')) {
+            url += `?use_local_frontend=${params.get('use_local_frontend')}`;
         }
 
         window.open(url, target);

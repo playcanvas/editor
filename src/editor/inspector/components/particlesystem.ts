@@ -1,7 +1,9 @@
 import { Button, LabelGroup } from '@playcanvas/pcui';
 import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from 'playcanvas';
 
-import { ComponentInspector } from './component';
+import type { EntityObserver } from '@/editor-api';
+
+import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
@@ -389,15 +391,13 @@ const ATTRIBUTES: Attribute[] = [{
 }];
 
 class ParticlesystemComponentInspector extends ComponentInspector {
-    _attributesInspector: AttributesInspector;
-
     _suppressToggleFields = false;
 
     _btnPlay: Button;
 
     _btnPause: Button;
 
-    constructor(args: Record<string, unknown>) {
+    constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
         args.component = 'particlesystem';
 
@@ -480,10 +480,6 @@ class ParticlesystemComponentInspector extends ComponentInspector {
         this._attributesInspector.prepend(controls);
     }
 
-    _field(name: string) {
-        return this._attributesInspector.getField(`components.particlesystem.${name}`);
-    }
-
     _toggleFields() {
         if (this._suppressToggleFields) {
             return;
@@ -555,7 +551,6 @@ class ParticlesystemComponentInspector extends ComponentInspector {
 
             e.entity.particlesystem.pause();
         });
-
     }
 
     _onClickStop() {
@@ -591,22 +586,14 @@ class ParticlesystemComponentInspector extends ComponentInspector {
         });
     }
 
-    link(entities: import('@playcanvas/observer').Observer[]) {
-        super.link(entities);
-
+    link(entities: EntityObserver[]) {
         this._suppressToggleFields = true;
-        this._attributesInspector.link(entities);
-
+        super.link(entities);
         this._suppressToggleFields = false;
         this._toggleFields();
 
         // play particles from the beginning
         this._onClickPlay();
-    }
-
-    unlink() {
-        super.unlink();
-        this._attributesInspector.unlink();
     }
 }
 

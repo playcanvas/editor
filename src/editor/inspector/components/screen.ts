@@ -1,6 +1,6 @@
-import { deepCopy } from '@/common/utils';
+import type { EntityObserver } from '@/editor-api';
 
-import { ComponentInspector } from './component';
+import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
@@ -64,11 +64,9 @@ const ATTRIBUTES: Attribute[] = [{
 }];
 
 class ScreenComponentInspector extends ComponentInspector {
-    _attributesInspector: AttributesInspector;
-
     _suppressToggleFields = false;
 
-    constructor(args: Record<string, unknown>) {
+    constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
         args.component = 'screen';
 
@@ -76,17 +74,13 @@ class ScreenComponentInspector extends ComponentInspector {
 
         this._attributesInspector = new AttributesInspector({
             history: args.history,
-            attributes: deepCopy(ATTRIBUTES),
+            attributes: ATTRIBUTES,
             templateOverridesInspector: this._templateOverridesInspector
         });
         this.append(this._attributesInspector);
 
         this._field('scaleMode').on('change', this._toggleFields.bind(this));
         this._field('screenSpace').on('change', this._toggleFields.bind(this));
-    }
-
-    _field(name: string) {
-        return this._attributesInspector.getField(`components.screen.${name}`);
     }
 
     _toggleFields() {
@@ -103,17 +97,11 @@ class ScreenComponentInspector extends ComponentInspector {
         this._field('scaleBlend').parent.hidden = scaleMode !== 'blend' || !screenSpace;
     }
 
-    link(entities: import('@playcanvas/observer').Observer[]) {
-        super.link(entities);
+    link(entities: EntityObserver[]) {
         this._suppressToggleFields = true;
-        this._attributesInspector.link(entities);
+        super.link(entities);
         this._suppressToggleFields = false;
         this._toggleFields();
-    }
-
-    unlink() {
-        super.unlink();
-        this._attributesInspector.unlink();
     }
 }
 

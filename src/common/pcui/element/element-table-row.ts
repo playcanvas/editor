@@ -34,7 +34,7 @@ class TableRow extends Container {
      */
     constructor(args: TableRowArgs = {}) {
         const rowArgs: TableRowArgs = {
-            tabIndex: args.header ? -1 : 0,
+            tabIndex: -1,
             dom: document.createElement('tr'),
             ...args
         };
@@ -141,6 +141,10 @@ class TableRow extends Container {
         }
 
         return null;
+    }
+
+    get header() {
+        return this._header;
     }
 
     set table(value: Table | null) {

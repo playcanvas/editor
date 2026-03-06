@@ -1,6 +1,8 @@
 import { LabelGroup } from '@playcanvas/pcui';
 
-import { ComponentInspector } from './component';
+import type { EntityObserver } from '@/editor-api';
+
+import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
@@ -112,13 +114,11 @@ const ATTRIBUTES: Attribute[] = [{
 }];
 
 class RigidbodyComponentInspector extends ComponentInspector {
-    _attributesInspector: AttributesInspector;
-
     _suppressToggleFields = false;
 
     _importAmmoPanel: LabelGroup;
 
-    constructor(args: Record<string, unknown>) {
+    constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
         args.component = 'rigidbody';
 
@@ -146,10 +146,6 @@ class RigidbodyComponentInspector extends ComponentInspector {
         });
     }
 
-    _field(name: string) {
-        return this._attributesInspector.getField(`components.rigidbody.${name}`);
-    }
-
     _toggleFields() {
         if (this._suppressToggleFields) {
             return;
@@ -168,17 +164,11 @@ class RigidbodyComponentInspector extends ComponentInspector {
         });
     }
 
-    link(entities: import('@playcanvas/observer').Observer[]) {
-        super.link(entities);
+    link(entities: EntityObserver[]) {
         this._suppressToggleFields = true;
-        this._attributesInspector.link(entities);
+        super.link(entities);
         this._suppressToggleFields = false;
         this._toggleFields();
-    }
-
-    unlink() {
-        super.unlink();
-        this._attributesInspector.unlink();
     }
 }
 

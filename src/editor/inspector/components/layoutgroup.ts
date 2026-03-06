@@ -5,9 +5,9 @@ import {
     FITTING_STRETCH,
     FITTING_SHRINK,
     FITTING_BOTH
-} from '@/core/constants';
+} from 'playcanvas';
 
-import { ComponentInspector } from './component';
+import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
@@ -105,9 +105,7 @@ const ATTRIBUTES: Attribute[] = [{
 }];
 
 class LayoutgroupComponentInspector extends ComponentInspector {
-    _attributesInspector: AttributesInspector;
-
-    constructor(args: Record<string, unknown>) {
+    constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
         args.component = 'layoutgroup';
 
@@ -119,16 +117,6 @@ class LayoutgroupComponentInspector extends ComponentInspector {
             templateOverridesInspector: this._templateOverridesInspector
         });
         this.append(this._attributesInspector);
-    }
-
-    link(entities: import('@playcanvas/observer').Observer[]) {
-        super.link(entities);
-        this._attributesInspector.link(entities);
-    }
-
-    unlink() {
-        super.unlink();
-        this._attributesInspector.unlink();
     }
 }
 

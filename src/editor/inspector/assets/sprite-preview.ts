@@ -35,6 +35,7 @@ class SpriteAssetInspectorPreview extends AssetInspectorPreviewBase {
             useDevicePixelRatio: true
         });
         this.append(this._preview);
+        this._previewElement = this._preview.dom as HTMLElement;
 
         this._playButton = new Button({ icon: 'E286', class: CLASS_BUTTON });
         this.append(this._playButton);
@@ -99,7 +100,6 @@ class SpriteAssetInspectorPreview extends AssetInspectorPreviewBase {
     }
 
     link(assets: Observer[]) {
-        this.unlink();
         super.link();
         this._previewRenderer = new SpriteThumbnailRenderer(assets[0], this._preview.dom as HTMLCanvasElement, editor.call('assets:raw'));
         this._spriteFrames = assets[0].get('data.frameKeys').length;

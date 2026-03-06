@@ -1,10 +1,11 @@
-import type { Observer, ObserverList } from '@playcanvas/observer';
+import type { ObserverList } from '@playcanvas/observer';
 import { Panel, Container, Button } from '@playcanvas/pcui';
 import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from 'playcanvas';
 
 import { deepCopy } from '@/common/utils';
+import type { EntityObserver } from '@/editor-api';
 
-import { ComponentInspector } from './component';
+import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { TemplateOverrideInspector } from '../../templates/templates-override-inspector.js';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
@@ -146,7 +147,7 @@ const CLASS_CLIP = 'sprite-component-inspector-clip';
 const REGEX_CLIP = /^components.sprite.clips.\d+$/;
 const REGEX_CLIP_NAME = /^components.sprite.clips.\d+\.name$/;
 
-function getClipsGroupedByName(entities: import('@playcanvas/observer').Observer[]) {
+function getClipsGroupedByName(entities: EntityObserver[]) {
     const result = {};
 
     // first group clips by name
@@ -169,7 +170,7 @@ function getClipsGroupedByName(entities: import('@playcanvas/observer').Observer
     return result;
 }
 
-function getCommonClips(entities: import('@playcanvas/observer').Observer[]) {
+function getCommonClips(entities: EntityObserver[]) {
     const result = getClipsGroupedByName(entities);
 
     // then remove all clips who are not shared across all entities
@@ -183,7 +184,7 @@ function getCommonClips(entities: import('@playcanvas/observer').Observer[]) {
 }
 
 class SpriteClipInspector extends Panel {
-    _entities: Observer[] | null = null;
+    _entities: EntityObserver[] | null = null;
 
     _spriteInspector: SpriteComponentInspector;
 
@@ -315,7 +316,7 @@ class SpriteClipInspector extends Panel {
         redo();
     }
 
-    link(entities: import('@playcanvas/observer').Observer[]) {
+    link(entities: EntityObserver[]) {
         this.unlink();
 
         this._entities = entities;
@@ -360,19 +361,17 @@ class SpriteClipInspector extends Panel {
 class SpriteComponentInspector extends ComponentInspector {
     _assets: ObserverList;
 
-    _attributesInspector: AttributesInspector;
-
     _containerClips: Container;
 
     _clipInspectors: Record<string, SpriteClipInspector> = {};
 
     _btnAddClip: Button;
 
-    _timeoutAfterClipNameChange: ReturnType<typeof setTimeout> | null = null;
+    _rafClipNameChange: number | null = null;
 
     _suppressToggleFields = false;
 
-    constructor(args: Record<string, unknown>) {
+    constructor(args: ComponentInspectorArgs) {
         args = Object.assign({}, args);
         args.component = 'sprite';
 
@@ -504,7 +503,7 @@ class SpriteComponentInspector extends ComponentInspector {
         redo();
     }
 
-    _createClipInspector(entities: import('@playcanvas/observer').Observer[], clipName: string, clipKeys: string[], insertBeforeElement?: Element) {
+    _createClipInspector(entities: EntityObserver[], clipName: string, clipKeys: string[], insertBeforeElement?: Element) {
         const inspector = new SpriteClipInspector({
             clipName: clipName,
             clipKeys: clipKeys,
@@ -525,10 +524,6 @@ class SpriteComponentInspector extends ComponentInspector {
         inspector.link(entities);
 
         return inspector;
-    }
-
-    _field(name: string) {
-        return this._attributesInspector.getField(`components.sprite.${name}`);
     }
 
     _onSetClip(clipName: string) {
@@ -563,7 +558,7 @@ class SpriteComponentInspector extends ComponentInspector {
         this._updateAutoPlayOptions();
     }
 
-    _onSetClipName(entity: import('@playcanvas/observer').Observer, name: string, oldName: string) {
+    _onSetClipName(entity: EntityObserver, name: string, oldName: string) {
         // update autoPlayClip
         if (entity.get('components.sprite.autoPlayClip') === oldName) {
             const history = entity.history.enabled;
@@ -572,14 +567,16 @@ class SpriteComponentInspector extends ComponentInspector {
             entity.history.enabled = history;
         }
 
-        if (this._timeoutAfterClipNameChange) {
-            cancelAnimationFrame(this._timeoutAfterClipNameChange);
+        if (this._rafClipNameChange) {
+            cancelAnimationFrame(this._rafClipNameChange);
         }
 
-        this._timeoutAfterClipNameChange = requestAnimationFrame(this._onAfterClipNameChange.bind(this));
+        this._rafClipNameChange = requestAnimationFrame(this._onAfterClipNameChange.bind(this));
     }
 
     _onAfterClipNameChange() {
+        this._rafClipNameChange = null;
+
         if (!this._entities) {
             return;
         }
@@ -658,12 +655,9 @@ class SpriteComponentInspector extends ComponentInspector {
         this._field('height').parent.hidden = hideSizeFields;
     }
 
-    link(entities: import('@playcanvas/observer').Observer[]) {
-        super.link(entities);
-
+    link(entities: EntityObserver[]) {
         this._suppressToggleFields = true;
-
-        this._attributesInspector.link(entities);
+        super.link(entities);
 
         this._btnAddClip.hidden = false;
 
@@ -705,7 +699,11 @@ class SpriteComponentInspector extends ComponentInspector {
 
     unlink() {
         super.unlink();
-        this._attributesInspector.unlink();
+
+        if (this._rafClipNameChange) {
+            cancelAnimationFrame(this._rafClipNameChange);
+            this._rafClipNameChange = null;
+        }
 
         for (const key in this._clipInspectors) {
             this._clipInspectors[key].destroy();

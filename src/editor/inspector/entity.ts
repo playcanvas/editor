@@ -1,8 +1,8 @@
-import type { EventHandle, Observer } from '@playcanvas/observer';
+import type { EventHandle, Observer, ObserverList } from '@playcanvas/observer';
 import { Container, Button, Menu, TextInput, VectorInput } from '@playcanvas/pcui';
 
 import { COMPONENT_LOGOS } from '@/core/constants';
-import { LocalStorage, type History } from '@/editor-api';
+import { LocalStorage, type EntityObserver, type History } from '@/editor-api';
 
 import type { Attribute } from './attribute.type.d';
 import { AttributesInspector } from './attributes-inspector';
@@ -192,10 +192,10 @@ const ATTRIBUTES: Attribute[] = [{
 }];
 
 type EntityInspectorArgs = {
-    history?: import('@/editor-api').History;
+    history?: History;
     projectSettings?: Observer;
-    assets?: import('@playcanvas/observer').ObserverList;
-    entities?: import('@playcanvas/observer').ObserverList;
+    assets?: ObserverList;
+    entities?: ObserverList;
     templateOverridesDiffView?: unknown;
 } & Record<string, unknown>;
 
@@ -212,7 +212,7 @@ class EntityInspector extends Container {
 
     private _componentInspectors: Record<string, ComponentInspector> = {};
 
-    private _entities: Observer[] | null = null;
+    private _entities: EntityObserver[] | null = null;
 
     private _entityEvents: EventHandle[] = [];
 
@@ -678,7 +678,7 @@ class EntityInspector extends Container {
         scaleField.renderChanges = !disableScale;
     }
 
-    _doAllEntitiesHaveComponent(entities: Observer[], component: string) {
+    _doAllEntitiesHaveComponent(entities: EntityObserver[], component: string) {
         let result = true;
         for (let i = 0; i < entities.length; i++) {
             if (!entities[i].has(`components.${component}`)) {
@@ -690,7 +690,7 @@ class EntityInspector extends Container {
         return result;
     }
 
-    link(entities: Observer[]) {
+    link(entities: EntityObserver[]) {
         this.unlink();
 
         if (!entities || !entities.length) {
