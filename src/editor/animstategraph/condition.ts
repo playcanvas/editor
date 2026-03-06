@@ -1,4 +1,5 @@
-import { Container, SelectInput, NumericInput, BooleanInput, Button } from '@playcanvas/pcui';
+import type { Observer } from '@playcanvas/observer';
+import { Container, SelectInput, NumericInput, BooleanInput, Button, type ContainerArgs } from '@playcanvas/pcui';
 import {
     ANIM_EQUAL_TO,
     ANIM_NOT_EQUAL_TO,
@@ -14,21 +15,26 @@ import {
 
 const CLASS_ROOT = 'pcui-animstategraph-condition';
 
-class AnimstategraphCondition extends Container {
-    _args!: { parameters: string[]; onDelete: () => void };
+interface AnimstategraphConditionArgs extends ContainerArgs {
+    parameters: string[];
+    onDelete: () => void;
+}
 
-    constructor(args: object) {
+class AnimstategraphCondition extends Container {
+    _args!: AnimstategraphConditionArgs;
+
+    constructor(args: AnimstategraphConditionArgs) {
         args = Object.assign({
             class: CLASS_ROOT
         }, args);
 
         super(args);
-        this._args = args as { parameters: string[]; onDelete: () => void };
+        this._args = args;
 
         this.class.add(CLASS_ROOT);
     }
 
-    link(assets: import('@playcanvas/observer').Observer[], path: string) {
+    link(assets: Observer[], path: string) {
         if (!assets[0].get(path)) {
             return;
         }

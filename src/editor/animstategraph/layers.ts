@@ -1,5 +1,7 @@
-import type { Observer, EventHandle } from '@playcanvas/observer';
-import { Panel, Container, Button, SelectInput } from '@playcanvas/pcui';
+import type { Observer, ObserverList, EventHandle } from '@playcanvas/observer';
+import { Panel, Container, Button, SelectInput, type PanelArgs } from '@playcanvas/pcui';
+
+import type { History } from '@/editor-api';
 
 import type { Attribute } from '../inspector/attribute.type.d';
 import { AttributesInspector } from '../inspector/attributes-inspector';
@@ -24,8 +26,13 @@ const ANIM_SCHEMA = {
     }
 };
 
+interface AnimstategraphLayersArgs extends PanelArgs {
+    assets?: ObserverList;
+    history?: History;
+}
+
 class AnimstategraphLayers extends Panel {
-    _args!: Record<string, unknown>;
+    _args!: AnimstategraphLayersArgs;
 
     _assets: Observer[] | null = null;
 
@@ -45,7 +52,7 @@ class AnimstategraphLayers extends Panel {
 
     _layerPanels: Panel[] = [];
 
-    constructor(parent: Panel, args: Record<string, unknown>) {
+    constructor(parent: Panel, args: AnimstategraphLayersArgs) {
         args = Object.assign({ enabled: !parent.readOnly }, args);
         super(args);
         this._parent = parent;

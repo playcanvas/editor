@@ -1,5 +1,6 @@
 import type { Observer, EventHandle } from '@playcanvas/observer';
-import { default as PCUIGraph } from '@playcanvas/pcui-graph';
+import type { Button } from '@playcanvas/pcui';
+import Graph from '@playcanvas/pcui-graph';
 import { ANIM_INTERRUPTION_NONE } from 'playcanvas';
 
 import { diff } from '@/common/diff';
@@ -210,7 +211,7 @@ class AnimstategraphView {
 
     _graphElement!: HTMLDivElement;
 
-    _graph!: PCUIGraph;
+    _graph!: Graph;
 
     _selectedLayer = 0;
 
@@ -218,7 +219,7 @@ class AnimstategraphView {
 
     _selectedEntity: Observer | null = null;
 
-    _selectedEntityViewButton: unknown = null;
+    _selectedEntityViewButton: Button | null = null;
 
     _handleIncomingUpdatesEvent: EventHandle | null = null;
 
@@ -496,10 +497,10 @@ class AnimstategraphView {
                             delete state.speed;
                             state = Object.assign(state, { attributes: stateAttributes });
 
-                            this._graph.createNode(state, undefined, true);
+                            this._graph.createNode(state);
                         }
                         if (stateKey.includes('__deleted')) {
-                            this._graph.deleteNode(updates.states[stateKey].id, true);
+                            this._graph.deleteNode(updates.states[stateKey].id);
                             if (this._parent._stateContainer._stateName === updates.states[stateKey].name) {
                                 this._parent._stateContainer.unlink();
                             }
@@ -513,14 +514,14 @@ class AnimstategraphView {
                     Object.keys(updates.transitions).forEach((transitionKey) => {
                         if (transitionKey.includes('__added')) {
                             const key = transitionKey.replace('__added', '');
-                            this._graph.createEdge(updates.transitions[transitionKey], key, true);
+                            this._graph.createEdge(updates.transitions[transitionKey], key);
                         }
                         if (transitionKey.includes('__deleted')) {
                             const key = transitionKey.replace('__deleted', '');
                             const deletedTransition = updates.transitions[transitionKey];
 
                             // Always delete the specific edge from the graph
-                            this._graph.deleteEdge(key, true);
+                            this._graph.deleteEdge(key);
 
                             // Find remaining transitions on the same from-to path in the current layer
                             const layerTransitionIds = new Set(newValue.layers?.[this._selectedLayer]?.transitions || []);
@@ -533,8 +534,8 @@ class AnimstategraphView {
                             if (remainingTransitions.length > 0) {
                                 // Re-create remaining edges to force adjustVertices to recalculate positions
                                 remainingTransitions.forEach(([id, t]) => {
-                                    this._graph.deleteEdge(id, true);
-                                    this._graph.createEdge(t, id, true);
+                                    this._graph.deleteEdge(id);
+                                    this._graph.createEdge(t, id);
                                 });
                             } else {
                                 // Only unlink if no remaining transitions exist on this path
@@ -545,9 +546,9 @@ class AnimstategraphView {
                         }
                         const transition = updates.transitions[transitionKey];
                         if (transition.to && transition.to.__new) {
-                            this._graph.deleteEdge(transitionKey, true);
+                            this._graph.deleteEdge(transitionKey);
                             const updatedTransition = this._assets[0].get(`data.transitions.${transitionKey}`);
-                            this._graph.createEdge(updatedTransition, transitionKey, true);
+                            this._graph.createEdge(updatedTransition, transitionKey);
                         }
                     });
                 }
@@ -568,7 +569,7 @@ class AnimstategraphView {
     _createGraph() {
         this._graphElement.setAttribute('style', 'display: block;');
         const initialGraphData = this._generateGraphData(this._selectedLayer);
-        this._graph = new PCUIGraph(animSchema(this._assets[0]), {
+        this._graph = new Graph(animSchema(this._assets[0]), {
             dom: this._graphElement,
             initialData: initialGraphData,
             contextMenuItems: animContextMenuItems,

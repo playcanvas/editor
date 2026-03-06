@@ -1,8 +1,8 @@
-import type { Observer, EventHandle } from '@playcanvas/observer';
-import { Panel, Label, Button, BindingTwoWay } from '@playcanvas/pcui';
+import type { Observer, ObserverList, EventHandle } from '@playcanvas/observer';
+import { Panel, Label, Button, BindingTwoWay, type PanelArgs } from '@playcanvas/pcui';
 
 import { AssetInput } from '@/common/pcui/element/element-asset-input';
-import type { EntityObserver } from '@/editor-api';
+import type { EntityObserver, History } from '@/editor-api';
 
 import type { AnimstategraphView } from './view';
 import type { Attribute } from '../inspector/attribute.type.d';
@@ -14,8 +14,14 @@ const CLASS_ANIMSTATEGRAPH_STATE = `${CLASS_ANIMSTATEGRAPH}-state`;
 const CLASS_ANIMSTATEGRAPH_STATE_VIEW_BUTTON = `${CLASS_ANIMSTATEGRAPH_STATE}-view-button`;
 const CLASS_ANIMSTATEGRAPH_STATE_TRANSITION = `${CLASS_ANIMSTATEGRAPH_STATE}-transition`;
 
+interface AnimstategraphStateArgs extends PanelArgs {
+    assets?: ObserverList;
+    history?: History;
+    entities?: ObserverList;
+}
+
 class AnimstategraphState extends Panel {
-    _args!: Record<string, unknown>;
+    _args!: AnimstategraphStateArgs;
 
     _view: AnimstategraphView;
 
@@ -49,7 +55,7 @@ class AnimstategraphState extends Panel {
 
     _enabled = false;
 
-    constructor(args: Record<string, unknown>, view: AnimstategraphView) {
+    constructor(args: AnimstategraphStateArgs, view: AnimstategraphView) {
         args.headerText = 'STATE';
         super(args);
         this._args = args;
