@@ -1,17 +1,15 @@
-import type { Observer, EventHandle } from '@playcanvas/observer';
-
-import type { EntityObserver } from '@/editor-api';
+import type { Observer, ObserverList, EventHandle } from '@playcanvas/observer';
 
 import type { AnimstategraphView } from './view';
 
 interface AnimstategraphAnimComponentArgs {
-    entities?: EntityObserver[];
+    entities?: ObserverList;
 }
 
 class AnimstategraphAnimComponent {
     _view: AnimstategraphView;
 
-    _entities: EntityObserver[];
+    _entities: ObserverList | null;
 
     _asset: Observer | null = null;
 
@@ -19,7 +17,7 @@ class AnimstategraphAnimComponent {
 
     constructor(args: AnimstategraphAnimComponentArgs, view: AnimstategraphView) {
         this._view = view;
-        this._entities = args.entities ?? [];
+        this._entities = args.entities ?? null;
     }
 
     link(assets: Observer[]) {
@@ -28,7 +26,7 @@ class AnimstategraphAnimComponent {
         this._onSetStateNameEvent = this._asset.on('*:set', (path, value, prevValue) => {
             if (path.includes('data.states.') && path.includes('.name')) {
                 const layerName = this._asset.get(`data.layers.${this._view._selectedLayer}.name`);
-                this._entities.forEach((entity) => {
+                this._entities?.forEach((entity) => {
                     if (entity.entity.anim && entity.entity.anim.stateGraphAsset && entity.entity.anim.stateGraphAsset === this._asset.get('id')) {
                         const entityHistoryEnabled = entity.history.enabled;
                         entity.history.enabled = false;
