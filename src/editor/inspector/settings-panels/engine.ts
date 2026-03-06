@@ -1,6 +1,6 @@
 import { config } from '@/editor/config';
 
-import { BaseSettingsPanel } from './base';
+import { BaseSettingsPanel, type BaseSettingsPanelArgs } from './base';
 import type { Attribute } from '../attribute.type.d';
 
 const ATTRIBUTES: Attribute[] = [
@@ -35,7 +35,7 @@ const ATTRIBUTES: Attribute[] = [
 
 
 class EngineSettingsPanel extends BaseSettingsPanel {
-    constructor(args: Record<string, unknown>) {
+    constructor(args: BaseSettingsPanelArgs) {
         args = Object.assign({
             collapsed: false
         }, args);

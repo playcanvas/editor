@@ -1,4 +1,4 @@
-import { BaseSettingsPanel } from './base';
+import { BaseSettingsPanel, type BaseSettingsPanelArgs } from './base';
 import type { Attribute } from '../attribute.type.d';
 
 const CLASS_ROOT = 'launch-page-settings-panel';
@@ -16,7 +16,7 @@ const ATTRIBUTES: Attribute[] = [
 ];
 
 class LaunchPageSettingsPanel extends BaseSettingsPanel {
-    constructor(args: Record<string, unknown>) {
+    constructor(args: BaseSettingsPanelArgs) {
         args = Object.assign({}, args);
         args.headerText = 'LAUNCH PAGE';
         args.attributes = ATTRIBUTES;

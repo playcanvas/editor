@@ -6,9 +6,23 @@ import { tooltip, tooltipRefItem } from '@/common/tooltips';
 import { LegacyTooltip } from '@/common/ui/tooltip';
 import type { History } from '@/editor-api';
 
-import type { Attribute } from './attribute.type.d';
+import type { Attribute, Divider } from './attribute.type.d';
 import '../storage/clipboard-context-menu';
 import type { TemplateOverrideInspector } from '../templates/templates-override-inspector.js';
+
+interface AttributesInspectorArgs extends ContainerArgs {
+    history?: History;
+    assets?: ObserverList;
+    entities?: ObserverList;
+    settings?: Observer;
+    projectSettings?: Observer;
+    userSettings?: Observer;
+    sceneSettings?: Observer;
+    sessionSettings?: Observer;
+    attributes?: (Attribute | Divider)[];
+    templateOverridesInspector?: TemplateOverrideInspector;
+    _skipEnabledInBody?: boolean;
+}
 
 const isEnabledAttribute = ({ label, type }: { label?: string; type?: string }) => label === 'enabled' && type === 'boolean';
 
@@ -50,19 +64,7 @@ class AttributesInspector extends Container {
 
     private _onAttributeChangeHandler: () => void;
 
-    constructor(args: {
-        history?: History;
-        assets?: ObserverList;
-        entities?: ObserverList;
-        settings?: Observer;
-        projectSettings?: Observer;
-        userSettings?: Observer;
-        sceneSettings?: Observer;
-        sessionSettings?: Observer;
-        attributes?: Attribute[];
-        templateOverridesInspector?: TemplateOverrideInspector;
-        _skipEnabledInBody?: boolean;
-    } & ContainerArgs = {}) {
+    constructor(args: AttributesInspectorArgs = {}) {
         args = Object.assign({
             flex: true
         }, args);
@@ -96,7 +98,7 @@ class AttributesInspector extends Container {
 
         // entity attributes
         args.attributes.forEach((attr) => {
-            this.addAttribute(attr);
+            this.addAttribute(attr as Attribute);
         });
     }
 

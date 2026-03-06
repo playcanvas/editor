@@ -4,6 +4,7 @@ import { Container } from '@playcanvas/pcui';
 import type { Attribute } from './attribute.type.d';
 import { AttributesInspector } from './attributes-inspector';
 import { AssetImportSettingsPanel } from './settings-panels/asset-import';
+import type { BaseSettingsPanelArgs } from './settings-panels/base';
 import { BatchGroupsSettingsPanel } from './settings-panels/batchgroups';
 import { EditorSettingsPanel } from './settings-panels/editor';
 import { EngineSettingsPanel } from './settings-panels/engine';
@@ -66,7 +67,7 @@ const DOM = parent => [
 ];
 
 class SettingsPanel extends Container {
-    private _args: Record<string, unknown>;
+    private _args: BaseSettingsPanelArgs;
 
     private _settingsEvents: EventHandle[] = [];
 
@@ -76,7 +77,7 @@ class SettingsPanel extends Container {
 
     private _sceneAttributes: AttributesInspector;
 
-    constructor(args: Record<string, unknown> = {}) {
+    constructor(args: BaseSettingsPanelArgs = {}) {
         args.flex = true;
 
         super(args);

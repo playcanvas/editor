@@ -1,12 +1,29 @@
-import type { Observer } from '@playcanvas/observer';
-import { Panel, Label } from '@playcanvas/pcui';
+import type { Observer, ObserverList } from '@playcanvas/observer';
+import { Panel, Label, type PanelArgs } from '@playcanvas/pcui';
 
 import { tooltip, tooltipRefItem } from '@/common/tooltips';
+import type { History } from '@/editor-api';
 
+import type { Attribute, Divider } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
+interface BaseSettingsPanelArgs extends PanelArgs {
+    entities?: Observer[];
+    settings?: Observer;
+    projectSettings?: Observer;
+    userSettings?: Observer;
+    sceneSettings?: Observer;
+    sessionSettings?: Observer;
+    attributes?: (Attribute | Divider)[];
+    history?: History;
+    assets?: ObserverList;
+    hideIcon?: boolean;
+    _tooltipReference?: string;
+    userOnlySettings?: boolean;
+}
+
 class BaseSettingsPanel extends Panel {
-    _args: Record<string, unknown>;
+    _args: BaseSettingsPanelArgs;
 
     _entities: Observer[];
 
@@ -22,20 +39,20 @@ class BaseSettingsPanel extends Panel {
 
     _attributesInspector: AttributesInspector;
 
-    constructor(args: Record<string, unknown>) {
+    constructor(args: BaseSettingsPanelArgs) {
         args = Object.assign({}, args);
         args.collapsible = true;
 
         super(args);
         this._args = args;
-        this._entities = args.entities as Observer[];
-        this._settings = args.settings as Observer;
-        this._projectSettings = args.projectSettings as Observer;
-        this._userSettings = args.userSettings as Observer;
-        this._sceneSettings = args.sceneSettings as Observer;
-        this._sessionSettings = args.sessionSettings as Observer;
+        this._entities = args.entities;
+        this._settings = args.settings;
+        this._projectSettings = args.projectSettings;
+        this._userSettings = args.userSettings;
+        this._sceneSettings = args.sceneSettings;
+        this._sessionSettings = args.sessionSettings;
 
-        this.collapsed = (args.collapsed ?? true) as boolean;
+        this.collapsed = args.collapsed ?? true;
 
         if (args.attributes) {
             this._attributesInspector = new AttributesInspector({
@@ -94,4 +111,4 @@ class BaseSettingsPanel extends Panel {
     }
 }
 
-export { BaseSettingsPanel };
+export { BaseSettingsPanel, type BaseSettingsPanelArgs };

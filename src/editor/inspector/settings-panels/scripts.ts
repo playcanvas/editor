@@ -1,7 +1,7 @@
 import type { EventHandle } from '@playcanvas/observer';
 import { Container, Panel, Label } from '@playcanvas/pcui';
 
-import { BaseSettingsPanel } from './base';
+import { BaseSettingsPanel, type BaseSettingsPanelArgs } from './base';
 
 const CLASS_ROOT = 'scripts-settings-panel';
 const CLASS_SCRIPTS_LIST = `${CLASS_ROOT}-scripts-list`;
@@ -19,7 +19,7 @@ class ScriptsSettingsPanel extends BaseSettingsPanel {
 
     _assetEvents: EventHandle[] = [];
 
-    constructor(args: Record<string, unknown>) {
+    constructor(args: BaseSettingsPanelArgs) {
         args = Object.assign({}, args);
         args.headerText = 'SCRIPTS LOADING ORDER';
         args._tooltipReference = 'settings:scripts';
