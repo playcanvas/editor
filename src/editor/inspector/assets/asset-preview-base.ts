@@ -11,6 +11,8 @@ class AssetInspectorPreviewBase extends Container {
 
     protected _pointerDown = false;
 
+    protected _pointerId = -1;
+
     protected _previewElement: HTMLElement | null = null;
 
     private _noPreviewText: Label;
@@ -47,7 +49,7 @@ class AssetInspectorPreviewBase extends Container {
     }
 
     _onPointerDown(evt: PointerEvent) {
-        if (evt.button !== 0) {
+        if (evt.button !== 0 || this._pointerDown) {
             return;
         }
 
@@ -55,11 +57,12 @@ class AssetInspectorPreviewBase extends Container {
         evt.stopPropagation();
 
         this._pointerDown = true;
+        this._pointerId = evt.pointerId;
         (evt.currentTarget as HTMLElement).setPointerCapture(evt.pointerId);
     }
 
     _onPointerMove(evt: PointerEvent) {
-        if (!this._pointerDown) {
+        if (evt.pointerId !== this._pointerId) {
             return;
         }
 
@@ -67,15 +70,16 @@ class AssetInspectorPreviewBase extends Container {
     }
 
     _onPointerUp(evt: PointerEvent) {
-        if (evt.button !== 0) {
+        if (evt.pointerId !== this._pointerId) {
             return;
         }
 
-        if (this._pointerDown && !this._dragging) {
+        if (!this._dragging) {
             this._toggleSize();
         }
 
         this._pointerDown = false;
+        this._pointerId = -1;
         this._dragging = false;
     }
 

@@ -99,7 +99,7 @@ class TemplateAssetInspectorPreview extends AssetInspectorPreviewBase {
 
     _onPointerDown(evt: PointerEvent) {
         super._onPointerDown(evt);
-        if (this._pointerDown) {
+        if (this._pointerId === evt.pointerId) {
             this._sx = this._x = evt.clientX;
             this._sy = this._y = evt.clientY;
         }
@@ -107,7 +107,7 @@ class TemplateAssetInspectorPreview extends AssetInspectorPreviewBase {
 
     _onPointerMove(evt: PointerEvent) {
         super._onPointerMove(evt);
-        if (this._dragging) {
+        if (this._pointerId === evt.pointerId && this._dragging) {
             this._x = evt.clientX;
             this._y = evt.clientY;
 
@@ -116,7 +116,7 @@ class TemplateAssetInspectorPreview extends AssetInspectorPreviewBase {
     }
 
     _onPointerUp(evt: PointerEvent) {
-        if (this._dragging) {
+        if (this._pointerId === evt.pointerId && this._dragging) {
             if ((Math.abs(this._sx - this._x) + Math.abs(this._sy - this._y)) < 8) {
                 this._preview.height = this.height;
             }
