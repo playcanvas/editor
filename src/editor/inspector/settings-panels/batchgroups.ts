@@ -177,8 +177,7 @@ class BatchGroupsSettingsPanel extends BaseSettingsPanel {
             if (!item) {
                 // load new batch groups into this panel
                 item = new BatchGroupsSettingsPanelItem({
-                    history: this._args.history,
-                    projectSettings: this._args.projectSettings,
+                    ...this._args,
                     id: batchGroupId,
                     class: CLASS_ITEM,
                     onRemove: () => this.removeItem(batchGroupId)

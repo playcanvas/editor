@@ -160,11 +160,7 @@ class LayersSettingsPanel extends BaseSettingsPanel {
             let layerPanel = this._layerPanels.find(layerPanel => layerPanel.layerKey === layerKey);
             if (!layerPanel) {
                 layerPanel = new LayersSettingsPanelLayerPanel({
-                    history: this._args.history,
-                    settings: this._args.settings,
-                    projectSettings: this._args.projectSettings,
-                    userSettings: this._args.userSettings,
-                    sceneSettings: this._args.sceneSettings,
+                    ...this._args,
                     layerKey
                 });
                 layerPanel.layerKey = layerKey;
