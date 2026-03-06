@@ -2,7 +2,9 @@ import type { Observer, EventHandle } from '@playcanvas/observer';
 import { Panel, Label, Button, BindingTwoWay } from '@playcanvas/pcui';
 
 import { AssetInput } from '@/common/pcui/element/element-asset-input';
+import type { EntityObserver } from '@/editor-api';
 
+import type { AnimstategraphView } from './view';
 import type { Attribute } from '../inspector/attribute.type.d';
 import { AttributesInspector } from '../inspector/attributes-inspector';
 
@@ -15,7 +17,7 @@ const CLASS_ANIMSTATEGRAPH_STATE_TRANSITION = `${CLASS_ANIMSTATEGRAPH_STATE}-tra
 class AnimstategraphState extends Panel {
     _args!: Record<string, unknown>;
 
-    _view: { ANIM_SCHEMA: { NODE: { START_STATE: number; ANY_STATE: number; END_STATE: number } }; _parent: { _animViewer: { loadView: (anim: unknown, entity: import('playcanvas').Entity) => void; displayMessage: (msg: string) => void; hidden: boolean } }; selectEdgeEvent: (transition: unknown, id: number) => void; parent: { readOnly: boolean; history: { add: (action: unknown) => void } }; _selectedEntity: Observer | null; _selectedEntityViewButton: Button | null };
+    _view: AnimstategraphView;
 
     _assets: Observer[] | null = null;
 
@@ -47,7 +49,7 @@ class AnimstategraphState extends Panel {
 
     _enabled = false;
 
-    constructor(args: Record<string, unknown>, view: { ANIM_SCHEMA: { NODE: { START_STATE: number; ANY_STATE: number; END_STATE: number } }; _parent: { _animViewer: { loadView: (anim: unknown, entity: import('playcanvas').Entity) => void; displayMessage: (msg: string) => void; hidden: boolean } }; selectEdgeEvent: (transition: unknown, id: number) => void; parent: { readOnly: boolean; history: { add: (action: unknown) => void } }; _selectedEntity: Observer | null; _selectedEntityViewButton: Button | null }) {
+    constructor(args: Record<string, unknown>, view: AnimstategraphView) {
         args.headerText = 'STATE';
         super(args);
         this._args = args;
@@ -61,13 +63,12 @@ class AnimstategraphState extends Panel {
 
         this._linkedEntitiesPanel = new Panel({
             headerText: 'LINKED ENTITIES',
-            collapsible: true,
-            history: ''
+            collapsible: true
         });
         this.append(this._linkedEntitiesPanel);
     }
 
-    _previewEntity(entityObserver: Observer) {
+    _previewEntity(entityObserver: EntityObserver) {
         const animationAssetId = entityObserver.get(`components.anim.animationAssets.${this._layerName}:${this._stateName}.asset`);
         if (animationAssetId) {
             const app = editor.call('viewport:app');

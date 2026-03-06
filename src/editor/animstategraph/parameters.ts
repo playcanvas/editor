@@ -34,7 +34,7 @@ class AnimstategraphParameters extends Panel {
         this.header.append(this._addNewParameterButton);
     }
 
-    _createParamAttributesInspector(paramId: string, param: { name: string; type: number; value: number | boolean }) {
+    _createParamAttributesInspector(paramId: string, param: { name: string; type: string; value: number | boolean }) {
         let valueType;
         switch (param.type) {
             case ANIM_PARAMETER_BOOLEAN:
