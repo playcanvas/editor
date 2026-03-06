@@ -9,8 +9,6 @@ const CLASS_LABEL_NO_PREVIEW = `${CLASS_ROOT}-label-no-preview`;
 class AssetInspectorPreviewBase extends Container {
     protected _dragging = false;
 
-    protected _pointerDown = false;
-
     protected _pointerId = -1;
 
     protected _previewElement: HTMLElement | null = null;
@@ -51,14 +49,13 @@ class AssetInspectorPreviewBase extends Container {
     }
 
     _onPointerDown(evt: PointerEvent) {
-        if (evt.button !== 0 || this._pointerDown) {
+        if (evt.button !== 0 || this._pointerId !== -1) {
             return;
         }
 
         evt.preventDefault();
         evt.stopPropagation();
 
-        this._pointerDown = true;
         this._pointerId = evt.pointerId;
         (evt.currentTarget as HTMLElement).setPointerCapture(evt.pointerId);
     }
@@ -84,7 +81,6 @@ class AssetInspectorPreviewBase extends Container {
     }
 
     private _resetPointerState() {
-        this._pointerDown = false;
         this._pointerId = -1;
         this._dragging = false;
     }
@@ -114,7 +110,7 @@ class AssetInspectorPreviewBase extends Container {
         super.unlink();
 
         const target = this._eventTarget;
-        if (this._pointerDown) {
+        if (this._pointerId !== -1) {
             if (target.hasPointerCapture(this._pointerId)) {
                 target.releasePointerCapture(this._pointerId);
             }
