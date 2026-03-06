@@ -97,14 +97,8 @@ editor.once('load', () => {
                 if (concatenateScripts && assetData.type === 'script' && assetData.file.filename.endsWith('.js') && assetData.preload && !assetData.data.loadingType) {
                     assetData.file.url = concatenatedScriptsUrl;
                 } else if (launchConfig.signedUrls && launchConfig.signedUrls[assetData.id]) {
-                    if (assetData.type === 'script' && assetData.file.filename.endsWith('.mjs')) {
-                        // ESM modules must keep same-origin file.url for SW interception
-                        assetData.file.url = getFileUrl(assetData.path, assetData.id, assetData.revision, assetData.file.filename);
-                        assetData.file.signedUrl = launchConfig.signedUrls[assetData.id];
-                    } else {
-                        assetData.file.url = launchConfig.signedUrls[assetData.id];
-                        delete assetData.file.hash;
-                    }
+                    assetData.file.url = launchConfig.signedUrls[assetData.id];
+                    delete assetData.file.hash;
                 } else {
                     assetData.file.url = getFileUrl(assetData.path, assetData.id, assetData.revision, assetData.file.filename);
                 }

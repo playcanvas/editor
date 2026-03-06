@@ -148,17 +148,17 @@ const isValidUrlMapping = ({ url, mappedUrl }) => {
     const urlObj = new URL(url);
     const mappedUrlObj = new URL(mappedUrl);
 
-    // The intercepted url must be same-origin (SW can only intercept same-origin)
-    if (urlObj.origin !== worker.location.origin) {
+    // Ensure the mapped url is within the same origin
+    if (mappedUrlObj.origin !== worker.location.origin) {
         return false;
     }
 
-    // The intercepted url must be within scope
-    if (!isWithinScope(urlObj.pathname)) {
+    // ensure correct scope
+    if (!isWithinScope(urlObj.pathname) || !isWithinScope(mappedUrlObj.pathname)) {
         return false;
     }
 
-    // Both urls must reference a supported file type
+    // ensure correct file type
     if (!isSupportedFile(urlObj.pathname) || !isSupportedFile(mappedUrlObj.pathname)) {
         return false;
     }

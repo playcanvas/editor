@@ -80,13 +80,10 @@ editor.on('load', async () => {
      * @returns - The url mapping
      */
     const createUrlMapping = (scriptAsset: Observer): { url: string, mappedUrl: string } => {
-        const fileUrl = scriptAsset.get('file.url');
-        const signedUrl = scriptAsset.get('file.signedUrl');
-        const url = new URL(`${pc.app.assets.prefix}${fileUrl}`, location.origin);
-        const mapped = signedUrl ? new URL(signedUrl) : url;
+        const url = new URL(`${pc.app.assets.prefix}${scriptAsset.get('file.url')}`, location.origin);
         return {
             url: `${url.origin}${url.pathname}`,
-            mappedUrl: `${mapped}`
+            mappedUrl: `${url}`
         };
     };
 
