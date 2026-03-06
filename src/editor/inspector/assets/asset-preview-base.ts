@@ -76,7 +76,7 @@ class AssetInspectorPreviewBase extends Container {
             return;
         }
 
-        if (!this._dragging) {
+        if (!this._dragging && this._eventTarget.contains(document.elementFromPoint(evt.clientX, evt.clientY))) {
             this._toggleSize();
         }
 
