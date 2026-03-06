@@ -4,10 +4,10 @@ import { Container, Panel, Label, BooleanInput, type ContainerArgs } from '@play
 import { LegacyTooltip } from '@/common/ui/tooltip';
 
 interface RenderOrderListArgs extends ContainerArgs {
-    settings: Observer;
+    settings?: Observer;
     projectSettings: Observer;
-    userSettings: Observer;
-    sceneSettings: Observer;
+    userSettings?: Observer;
+    sceneSettings?: Observer;
 }
 
 const CLASS_ROOT = 'layers-settings-panel';
@@ -21,13 +21,13 @@ const REGEX_LAYER_ENABLED = /^layerOrder\.(\d+)\.enabled$/;
 class LayersSettingsPanelRenderOrderList extends Container {
     _args: RenderOrderListArgs;
 
-    _settings: Observer;
+    _settings: Observer | undefined;
 
     _projectSettings: Observer;
 
-    _userSettings: Observer;
+    _userSettings: Observer | undefined;
 
-    _sceneSettings: Observer;
+    _sceneSettings: Observer | undefined;
 
     _suspendLayerEvents = false;
 

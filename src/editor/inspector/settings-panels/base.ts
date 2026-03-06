@@ -8,14 +8,14 @@ import type { Attribute, Divider } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
 interface BaseSettingsPanelArgs extends PanelArgs {
-    entities: Observer[];
-    settings: Observer;
+    entities?: Observer[];
+    settings?: Observer;
     projectSettings: Observer;
-    userSettings: Observer;
-    sceneSettings: Observer;
-    sessionSettings: Observer;
+    userSettings?: Observer;
+    sceneSettings?: Observer;
+    sessionSettings?: Observer;
     history: History;
-    assets: ObserverList;
+    assets?: ObserverList;
     attributes?: (Attribute | Divider)[];
     hideIcon?: boolean;
     _tooltipReference?: string;
@@ -25,17 +25,17 @@ interface BaseSettingsPanelArgs extends PanelArgs {
 class BaseSettingsPanel extends Panel {
     _args: BaseSettingsPanelArgs;
 
-    _entities: Observer[];
+    _entities: Observer[] | undefined;
 
-    _settings: Observer;
+    _settings: Observer | undefined;
 
     _projectSettings: Observer;
 
-    _userSettings: Observer;
+    _userSettings: Observer | undefined;
 
-    _sceneSettings: Observer;
+    _sceneSettings: Observer | undefined;
 
-    _sessionSettings: Observer;
+    _sessionSettings: Observer | undefined;
 
     _attributesInspector: AttributesInspector;
 
