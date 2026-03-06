@@ -1,5 +1,5 @@
 import type { Observer } from '@playcanvas/observer';
-import { Container, Button, Label } from '@playcanvas/pcui';
+import { Container, Label } from '@playcanvas/pcui';
 
 const CLASS_ROOT = 'pcui-asset-preview';
 const CLASS_CONTAINER = `${CLASS_ROOT}-container`;
@@ -9,17 +9,19 @@ const CLASS_LABEL_NO_PREVIEW = `${CLASS_ROOT}-label-no-preview`;
 class AssetInspectorPreviewBase extends Container {
     protected _dragging = false;
 
-    protected _mouseDown = false;
+    protected _pointerDown = false;
+
+    protected _previewElement: HTMLElement | null = null;
 
     private _noPreviewText: Label;
 
     private _hasPreview: boolean = false;
 
-    private _domEvtMouseDown: (evt: MouseEvent) => void;
+    private _domEvtPointerDown = (evt: PointerEvent) => this._onPointerDown(evt);
 
-    private _domEvtMouseMove: (evt: MouseEvent) => void;
+    private _domEvtPointerMove = (evt: PointerEvent) => this._onPointerMove(evt);
 
-    private _domEvtMouseUp: (evt: MouseEvent) => void;
+    private _domEvtPointerUp = (evt: PointerEvent) => this._onPointerUp(evt);
 
     constructor(args: Record<string, unknown>) {
         super(args);
@@ -29,10 +31,10 @@ class AssetInspectorPreviewBase extends Container {
         this._noPreviewText = new Label({ text: 'No preview available', class: CLASS_LABEL_NO_PREVIEW });
         this._noPreviewText.hidden = true;
         this.append(this._noPreviewText);
+    }
 
-        this._domEvtMouseDown = this._onMouseDown.bind(this);
-        this._domEvtMouseMove = this._onMouseMove.bind(this);
-        this._domEvtMouseUp = this._onMouseUp.bind(this);
+    private get _eventTarget(): HTMLElement {
+        return this._previewElement ?? this.dom;
     }
 
     setHasPreview(hasPreview: boolean) {
@@ -44,7 +46,7 @@ class AssetInspectorPreviewBase extends Container {
         this.class.remove(CLASS_CONTAINER_LARGE);
     }
 
-    _onMouseDown(evt: MouseEvent) {
+    _onPointerDown(evt: PointerEvent) {
         if (evt.button !== 0) {
             return;
         }
@@ -52,27 +54,28 @@ class AssetInspectorPreviewBase extends Container {
         evt.preventDefault();
         evt.stopPropagation();
 
-        this._mouseDown = true;
+        this._pointerDown = true;
+        (evt.currentTarget as HTMLElement).setPointerCapture(evt.pointerId);
     }
 
-    _onMouseMove(evt: MouseEvent) {
-        if (!this._mouseDown) {
+    _onPointerMove(evt: PointerEvent) {
+        if (!this._pointerDown) {
             return;
         }
 
         this._dragging = true;
     }
 
-    _onMouseUp(evt: MouseEvent) {
+    _onPointerUp(evt: PointerEvent) {
         if (evt.button !== 0) {
             return;
         }
 
-        if (this._mouseDown && !this._dragging && this.dom.contains(evt.target as Node) && !((evt.target as any).ui instanceof Button)) {
+        if (this._pointerDown && !this._dragging) {
             this._toggleSize();
         }
 
-        this._mouseDown = false;
+        this._pointerDown = false;
         this._dragging = false;
     }
 
@@ -88,17 +91,20 @@ class AssetInspectorPreviewBase extends Container {
     link(_assets?: Observer[]) {
         this.unlink();
 
-        this.dom.addEventListener('mousedown', this._domEvtMouseDown);
-        window.addEventListener('mousemove', this._domEvtMouseMove);
-        window.addEventListener('mouseup', this._domEvtMouseUp);
+        const target = this._eventTarget;
+        target.style.touchAction = 'none';
+        target.addEventListener('pointerdown', this._domEvtPointerDown);
+        target.addEventListener('pointermove', this._domEvtPointerMove);
+        target.addEventListener('pointerup', this._domEvtPointerUp);
     }
 
     unlink() {
         super.unlink();
 
-        this.dom.removeEventListener('mousedown', this._domEvtMouseDown);
-        window.removeEventListener('mousemove', this._domEvtMouseMove);
-        window.removeEventListener('mouseup', this._domEvtMouseUp);
+        const target = this._eventTarget;
+        target.removeEventListener('pointerdown', this._domEvtPointerDown);
+        target.removeEventListener('pointermove', this._domEvtPointerMove);
+        target.removeEventListener('pointerup', this._domEvtPointerUp);
     }
 }
 

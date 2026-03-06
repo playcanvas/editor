@@ -29,6 +29,7 @@ class TextureAssetInspectorPreview extends AssetInspectorPreviewBase {
         this._preview = document.createElement('div');
         this._preview.classList.add('pcui-texture-asset-preview');
         this.append(this._preview);
+        this._previewElement = this._preview;
 
         this._updatePreview = this._updatePreview.bind(this);
     }
