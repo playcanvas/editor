@@ -98,7 +98,7 @@ class AttributesInspector extends Container {
 
         // entity attributes
         (args.attributes ?? []).forEach((attr) => {
-            this.addAttribute(attr as Attribute);
+            this.addAttribute(attr);
         });
     }
 
@@ -360,7 +360,7 @@ class AttributesInspector extends Container {
      * @param attr - Attribute data
      * @param index - Index to insert the attribute at
      */
-    addAttribute(attr: Attribute, index?: number) {
+    addAttribute(attr: Attribute | Divider, index?: number) {
         try {
 
             // If the attribute has an 'enabled' boolean sub-attribute, promote it to the panel header as a toggle
