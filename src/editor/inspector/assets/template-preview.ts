@@ -36,6 +36,7 @@ class TemplateAssetInspectorPreview extends AssetInspectorPreviewBase {
         });
         this._preview.resize(320, 144);
         this.append(this._preview);
+        this._previewElement = this._preview.dom as HTMLElement;
     }
 
     link(assets: Observer[]) {
@@ -96,17 +97,17 @@ class TemplateAssetInspectorPreview extends AssetInspectorPreviewBase {
         );
     }
 
-    _onMouseDown(evt: MouseEvent) {
-        super._onMouseDown(evt);
-        if (this._mouseDown) {
+    _onPointerDown(evt: PointerEvent) {
+        super._onPointerDown(evt);
+        if (this._pointerId === evt.pointerId) {
             this._sx = this._x = evt.clientX;
             this._sy = this._y = evt.clientY;
         }
     }
 
-    _onMouseMove(evt: MouseEvent) {
-        super._onMouseMove(evt);
-        if (this._dragging) {
+    _onPointerMove(evt: PointerEvent) {
+        super._onPointerMove(evt);
+        if (this._pointerId === evt.pointerId && this._dragging) {
             this._x = evt.clientX;
             this._y = evt.clientY;
 
@@ -114,8 +115,8 @@ class TemplateAssetInspectorPreview extends AssetInspectorPreviewBase {
         }
     }
 
-    _onMouseUp(evt: MouseEvent) {
-        if (this._dragging) {
+    _onPointerUp(evt: PointerEvent) {
+        if (this._pointerId === evt.pointerId && this._dragging) {
             if ((Math.abs(this._sx - this._x) + Math.abs(this._sy - this._y)) < 8) {
                 this._preview.height = this.height;
             }
@@ -127,7 +128,7 @@ class TemplateAssetInspectorPreview extends AssetInspectorPreviewBase {
             this._queueRender();
         }
 
-        super._onMouseUp(evt);
+        super._onPointerUp(evt);
     }
 }
 
