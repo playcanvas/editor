@@ -114,6 +114,10 @@ class AssetInspectorPreviewBase extends Container {
         super.unlink();
 
         const target = this._eventTarget;
+        if (this._pointerDown) {
+            target.releasePointerCapture(this._pointerId);
+            this._resetPointerState();
+        }
         target.removeEventListener('pointerdown', this._domEvtPointerDown);
         target.removeEventListener('pointermove', this._domEvtPointerMove);
         target.removeEventListener('pointerup', this._domEvtPointerUp);
