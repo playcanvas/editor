@@ -1,7 +1,14 @@
 import { Observer, type EventHandle } from '@playcanvas/observer';
-import { Container, Panel, Label, BooleanInput } from '@playcanvas/pcui';
+import { Container, Panel, Label, BooleanInput, type ContainerArgs } from '@playcanvas/pcui';
 
 import { LegacyTooltip } from '@/common/ui/tooltip';
+
+interface RenderOrderListArgs extends ContainerArgs {
+    settings?: Observer;
+    projectSettings: Observer;
+    userSettings?: Observer;
+    sceneSettings?: Observer;
+}
 
 const CLASS_ROOT = 'layers-settings-panel';
 const CLASS_RENDER_ORDER_LIST = `${CLASS_ROOT}-render-order-list`;
@@ -12,15 +19,15 @@ const CLASS_RENDER_ORDER_LIST_ITEM_TRANSPARENT = `${CLASS_RENDER_ORDER_LIST_ITEM
 const REGEX_LAYER_ENABLED = /^layerOrder\.(\d+)\.enabled$/;
 
 class LayersSettingsPanelRenderOrderList extends Container {
-    _args: Record<string, unknown>;
+    _args: RenderOrderListArgs;
 
-    _settings: Observer;
+    _settings: Observer | undefined;
 
     _projectSettings: Observer;
 
-    _userSettings: Observer;
+    _userSettings: Observer | undefined;
 
-    _sceneSettings: Observer;
+    _sceneSettings: Observer | undefined;
 
     _suspendLayerEvents = false;
 
@@ -30,16 +37,16 @@ class LayersSettingsPanelRenderOrderList extends Container {
 
     _settingsEvents: EventHandle[] = [];
 
-    constructor(args: Record<string, unknown>) {
+    constructor(args: RenderOrderListArgs) {
         args = Object.assign({}, args);
 
         super(args);
 
         this._args = args;
-        this._settings = args.settings as Observer;
-        this._projectSettings = args.projectSettings as Observer;
-        this._userSettings = args.userSettings as Observer;
-        this._sceneSettings = args.sceneSettings as Observer;
+        this._settings = args.settings;
+        this._projectSettings = args.projectSettings;
+        this._userSettings = args.userSettings;
+        this._sceneSettings = args.sceneSettings;
 
         this._layerListContainer = new Container();
         this.append(this._layerListContainer);

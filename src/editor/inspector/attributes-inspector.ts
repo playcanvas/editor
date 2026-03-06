@@ -6,9 +6,23 @@ import { tooltip, tooltipRefItem } from '@/common/tooltips';
 import { LegacyTooltip } from '@/common/ui/tooltip';
 import type { History } from '@/editor-api';
 
-import type { Attribute } from './attribute.type.d';
+import type { Attribute, Divider } from './attribute.type.d';
 import '../storage/clipboard-context-menu';
 import type { TemplateOverrideInspector } from '../templates/templates-override-inspector.js';
+
+interface AttributesInspectorArgs extends ContainerArgs {
+    history?: History;
+    assets?: ObserverList;
+    entities?: ObserverList;
+    settings?: Observer;
+    projectSettings?: Observer;
+    userSettings?: Observer;
+    sceneSettings?: Observer;
+    sessionSettings?: Observer;
+    attributes?: (Attribute | Divider)[];
+    templateOverridesInspector?: TemplateOverrideInspector;
+    _skipEnabledInBody?: boolean;
+}
 
 const isEnabledAttribute = ({ label, type }: { label?: string; type?: string }) => label === 'enabled' && type === 'boolean';
 
@@ -20,27 +34,27 @@ let tooltipPaste: LegacyTooltip | null = null;
 class AttributesInspector extends Container {
     private _observers: Observer[] | null;
 
-    private _history: History;
+    private _history: History | undefined;
 
-    private _assets: ObserverList;
+    private _assets: ObserverList | undefined;
 
-    private _entities: ObserverList;
+    private _entities: ObserverList | undefined;
 
-    private _settings: Observer;
+    private _settings: Observer | undefined;
 
-    private _projectSettings: Observer;
+    private _projectSettings: Observer | undefined;
 
-    private _userSettings: Observer;
+    private _userSettings: Observer | undefined;
 
-    private _sceneSettings: Observer;
+    private _sceneSettings: Observer | undefined;
 
-    private _sessionSettings: Observer;
+    private _sessionSettings: Observer | undefined;
 
     private _fields: Record<string, Element & IBindable>;
 
     private _fieldAttributes: Record<string, Attribute>;
 
-    private _templateOverridesInspector: TemplateOverrideInspector;
+    private _templateOverridesInspector: TemplateOverrideInspector | undefined;
 
     private _clipboardTypes: Set<string> | null;
 
@@ -50,19 +64,7 @@ class AttributesInspector extends Container {
 
     private _onAttributeChangeHandler: () => void;
 
-    constructor(args: {
-        history?: History;
-        assets?: ObserverList;
-        entities?: ObserverList;
-        settings?: Observer;
-        projectSettings?: Observer;
-        userSettings?: Observer;
-        sceneSettings?: Observer;
-        sessionSettings?: Observer;
-        attributes?: Attribute[];
-        templateOverridesInspector?: TemplateOverrideInspector;
-        _skipEnabledInBody?: boolean;
-    } & ContainerArgs = {}) {
+    constructor(args: AttributesInspectorArgs = {}) {
         args = Object.assign({
             flex: true
         }, args);
@@ -95,7 +97,7 @@ class AttributesInspector extends Container {
         this._clipboardTypes = editor.call('clipboard:types') ?? null;
 
         // entity attributes
-        args.attributes.forEach((attr) => {
+        (args.attributes ?? []).forEach((attr) => {
             this.addAttribute(attr);
         });
     }
@@ -358,7 +360,7 @@ class AttributesInspector extends Container {
      * @param attr - Attribute data
      * @param index - Index to insert the attribute at
      */
-    addAttribute(attr: Attribute, index?: number) {
+    addAttribute(attr: Attribute | Divider, index?: number) {
         try {
 
             // If the attribute has an 'enabled' boolean sub-attribute, promote it to the panel header as a toggle

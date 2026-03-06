@@ -2,7 +2,7 @@ import { Button, Label, Overlay } from '@playcanvas/pcui';
 
 import { TONEMAPPING } from '@/core/constants';
 
-import { BaseSettingsPanel } from './base';
+import { BaseSettingsPanel, type BaseSettingsPanelArgs } from './base';
 import type { Attribute, Divider } from '../attribute.type.d';
 
 const ATTRIBUTES: (Attribute | Divider)[] = [
@@ -552,7 +552,7 @@ const ATTRIBUTES: (Attribute | Divider)[] = [
 ];
 
 class RenderingSettingsPanel extends BaseSettingsPanel {
-    constructor(args: Record<string, unknown>) {
+    constructor(args: BaseSettingsPanelArgs) {
         args = Object.assign({}, args);
         args.headerText = 'RENDERING';
         args.attributes = ATTRIBUTES;

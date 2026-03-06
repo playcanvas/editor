@@ -1,9 +1,7 @@
 import type { EventHandle } from '@playcanvas/observer';
 import { Container, type TextInput } from '@playcanvas/pcui';
 
-import type { History } from '@/editor-api';
-
-import { BaseSettingsPanel } from './base';
+import { BaseSettingsPanel, type BaseSettingsPanelArgs } from './base';
 import { BatchGroupsSettingsPanelItem } from './batchgroups-item';
 import type { Attribute } from '../attribute.type.d';
 
@@ -27,7 +25,7 @@ class BatchGroupsSettingsPanel extends BaseSettingsPanel {
 
     _itemsContainer: Container;
 
-    constructor(args: Record<string, unknown>) {
+    constructor(args: BaseSettingsPanelArgs) {
         args = Object.assign({}, args);
         args.headerText = 'BATCH GROUPS';
         args.attributes = ATTRIBUTES;
@@ -144,7 +142,7 @@ class BatchGroupsSettingsPanel extends BaseSettingsPanel {
         };
 
         if (this._args.history) {
-            (this._args.history as History).add({
+            this._args.history.add({
                 name: `remove projectSettings.batchGroups.${groupId}`,
                 undo,
                 redo,

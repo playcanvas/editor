@@ -1,7 +1,7 @@
-import type { EventHandle, Observer } from '@playcanvas/observer';
+import type { EventHandle } from '@playcanvas/observer';
 import type { Element as PcuiElement, SelectInput } from '@playcanvas/pcui';
 
-import { BaseSettingsPanel } from './base';
+import { BaseSettingsPanel, type BaseSettingsPanelArgs } from './base';
 import { LayersSettingsPanelRenderOrderList } from './layers-render-order-list';
 import type { Attribute } from '../attribute.type.d';
 
@@ -41,19 +41,13 @@ class LayersSettingsPanelRenderOrderPanel extends BaseSettingsPanel {
 
     _layerUpdateEvts: EventHandle[] = [];
 
-    constructor(args: Record<string, unknown>) {
+    constructor(args: BaseSettingsPanelArgs) {
         args = Object.assign({}, args);
         args.attributes = ATTRIBUTES;
         args.headerText = 'RENDER ORDER';
         args.hideIcon = true;
 
         super(args);
-
-        this._args = args;
-        this._settings = args.settings as Observer;
-        this._projectSettings = args.projectSettings as Observer;
-        this._userSettings = args.userSettings as Observer;
-        this._sceneSettings = args.sceneSettings as Observer;
 
         this.class.add(CLASS_RENDER_ORDER_PANEL);
 
