@@ -34,27 +34,27 @@ let tooltipPaste: LegacyTooltip | null = null;
 class AttributesInspector extends Container {
     private _observers: Observer[] | null;
 
-    private _history: History;
+    private _history: History | undefined;
 
-    private _assets: ObserverList;
+    private _assets: ObserverList | undefined;
 
-    private _entities: ObserverList;
+    private _entities: ObserverList | undefined;
 
-    private _settings: Observer;
+    private _settings: Observer | undefined;
 
-    private _projectSettings: Observer;
+    private _projectSettings: Observer | undefined;
 
-    private _userSettings: Observer;
+    private _userSettings: Observer | undefined;
 
-    private _sceneSettings: Observer;
+    private _sceneSettings: Observer | undefined;
 
-    private _sessionSettings: Observer;
+    private _sessionSettings: Observer | undefined;
 
     private _fields: Record<string, Element & IBindable>;
 
     private _fieldAttributes: Record<string, Attribute>;
 
-    private _templateOverridesInspector: TemplateOverrideInspector;
+    private _templateOverridesInspector: TemplateOverrideInspector | undefined;
 
     private _clipboardTypes: Set<string> | null;
 
@@ -97,7 +97,7 @@ class AttributesInspector extends Container {
         this._clipboardTypes = editor.call('clipboard:types') ?? null;
 
         // entity attributes
-        args.attributes.forEach((attr) => {
+        (args.attributes ?? []).forEach((attr) => {
             this.addAttribute(attr as Attribute);
         });
     }
