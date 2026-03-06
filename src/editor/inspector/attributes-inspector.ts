@@ -50,7 +50,7 @@ class AttributesInspector extends Container {
 
     private _sessionSettings: Observer | undefined;
 
-    private _fields: Record<string, Element & IBindable>;
+    protected _fields: Record<string, Element & IBindable>;
 
     private _fieldAttributes: Record<string, Attribute>;
 

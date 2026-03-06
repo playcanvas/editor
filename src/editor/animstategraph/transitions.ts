@@ -144,7 +144,7 @@ class AnimstategraphTransitions extends Container {
         this._assets[0].set(`data.transitions.${transitionId}.conditions`, conditions);
     }
 
-    link(assets: import('@playcanvas/observer').Observer[], layer: number, edge: { from: number; to: number }) {
+    link(assets: Observer[], layer: number, edge: { from: number; to: number }) {
         this.unlink();
         this._assets = assets;
         this._selectedLayer = layer;
@@ -373,7 +373,7 @@ class AnimstategraphTransitions extends Container {
                         lastExitTimeValue = exitTime;
                     }
                 } else if (!path || path.includes('parameters') || path.includes(`transitions.${transitionId}`) && transition.conditions) {
-                    addConditions(path);
+                    addConditions();
                     conditionNote.hidden = hideConditionNote();
                 }
             });
