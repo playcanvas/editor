@@ -7,7 +7,7 @@ import { LOAD_SCRIPT_AS_ASSET, LOAD_SCRIPT_BEFORE_ENGINE, LOAD_SCRIPT_AFTER_ENGI
 
 import { AnimationAssetInspector } from './assets/animation';
 import { AnimationAssetInspectorPreview } from './assets/animation-preview';
-import { AnimstategraphAssetInspector } from './assets/animstategraph';
+import { AnimStateGraphAssetInspector } from './assets/animstategraph';
 import type { AssetInspectorPreviewBase } from './assets/asset-preview-base';
 import { AudioAssetInspector } from './assets/audio';
 import { BundleAssetInspector } from './assets/bundle';
@@ -44,7 +44,7 @@ import { AttributesInspector } from './attributes-inspector';
 
 const assetInspectors: Map<string, new (...args: any[]) => any> = new Map();
 assetInspectors.set('animation', AnimationAssetInspector);
-assetInspectors.set('animstategraph', AnimstategraphAssetInspector);
+assetInspectors.set('animstategraph', AnimStateGraphAssetInspector);
 assetInspectors.set('audio', AudioAssetInspector);
 assetInspectors.set('bundle', BundleAssetInspector);
 assetInspectors.set('container', ContainerAssetInspector);

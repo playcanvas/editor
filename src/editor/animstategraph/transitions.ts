@@ -11,8 +11,8 @@ import {
 
 import type { History } from '@/editor-api';
 
-import { AnimstategraphCondition } from './condition';
-import type { AnimstategraphView } from './view';
+import { AnimStateGraphCondition } from './condition';
+import type { AnimStateGraphView } from './view';
 import type { Attribute, Divider } from '../inspector/attribute.type.d';
 import { AttributesInspector } from '../inspector/attributes-inspector';
 
@@ -23,7 +23,7 @@ const CLASS_ANIMSTATEGRAPH_TRANSITIONS = `${CLASS_ANIMSTATEGRAPH}-transitions`;
 const CLASS_ANIMSTATEGRAPH_TRANSITION_CONDITIONS_NOTE = `${CLASS_ANIMSTATEGRAPH_TRANSITION}-conditions-note`;
 
 // This helper function moves the the position of an item in the given array from the supplied old_index position to the new_index position.
-// Used by the AnimstategraphTransitions class to update the transitions order when the _onDragEnd event is fired.
+// Used by the AnimStateGraphTransitions class to update the transitions order when the _onDragEnd event is fired.
 function arrayMove<T>(arr: T[], old_index: number, new_index: number): T[] {
     if (new_index >= arr.length) {
         let k = new_index - arr.length + 1;
@@ -44,15 +44,15 @@ class TransitionInspector extends AttributesInspector {
     }
 }
 
-interface AnimstategraphTransitionsArgs extends ContainerArgs {
+interface AnimStateGraphTransitionsArgs extends ContainerArgs {
     assets?: ObserverList;
     history?: History;
 }
 
-class AnimstategraphTransitions extends Container {
-    _view: AnimstategraphView;
+class AnimStateGraphTransitions extends Container {
+    _view: AnimStateGraphView;
 
-    _args: AnimstategraphTransitionsArgs;
+    _args: AnimStateGraphTransitionsArgs;
 
     _assets: Observer[] | null = null;
 
@@ -72,7 +72,7 @@ class AnimstategraphTransitions extends Container {
 
     _onParamDeleteEvent: EventHandle | null = null;
 
-    constructor(args: AnimstategraphTransitionsArgs, view: AnimstategraphView) {
+    constructor(args: AnimStateGraphTransitionsArgs, view: AnimStateGraphView) {
         super({
             class: CLASS_ANIMSTATEGRAPH_TRANSITIONS,
             enabled: !view.parent.readOnly
@@ -303,7 +303,7 @@ class AnimstategraphTransitions extends Container {
 
             transitionPanel.conditions = new Container();
             Object.keys(transition.conditions).forEach((conditionId) => {
-                const condition = new AnimstategraphCondition({
+                const condition = new AnimStateGraphCondition({
                     parameters: parameters,
                     onDelete: () => {
                         this._deleteCondition(transitionId, conditionId);
@@ -331,7 +331,7 @@ class AnimstategraphTransitions extends Container {
                 }
                 transitionPanel.conditions = new Container();
                 Object.keys(transition.conditions).forEach((conditionId) => {
-                    const condition = new AnimstategraphCondition({
+                    const condition = new AnimStateGraphCondition({
                         parameters: parameters,
                         onDelete: () => {
                             this._deleteCondition(transitionId, conditionId);
@@ -421,4 +421,4 @@ class AnimstategraphTransitions extends Container {
     }
 }
 
-export { AnimstategraphTransitions };
+export { AnimStateGraphTransitions };

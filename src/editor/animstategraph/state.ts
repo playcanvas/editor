@@ -4,7 +4,7 @@ import { Panel, Label, Button, BindingTwoWay, type PanelArgs } from '@playcanvas
 import { AssetInput } from '@/common/pcui/element/element-asset-input';
 import type { EntityObserver, History } from '@/editor-api';
 
-import type { AnimstategraphView } from './view';
+import type { AnimStateGraphView } from './view';
 import type { Attribute } from '../inspector/attribute.type.d';
 import { AttributesInspector } from '../inspector/attributes-inspector';
 
@@ -14,16 +14,16 @@ const CLASS_ANIMSTATEGRAPH_STATE = `${CLASS_ANIMSTATEGRAPH}-state`;
 const CLASS_ANIMSTATEGRAPH_STATE_VIEW_BUTTON = `${CLASS_ANIMSTATEGRAPH_STATE}-view-button`;
 const CLASS_ANIMSTATEGRAPH_STATE_TRANSITION = `${CLASS_ANIMSTATEGRAPH_STATE}-transition`;
 
-interface AnimstategraphStateArgs extends PanelArgs {
+interface AnimStateGraphStateArgs extends PanelArgs {
     assets?: ObserverList;
     history?: History;
     entities?: ObserverList;
 }
 
-class AnimstategraphState extends Panel {
-    _args!: AnimstategraphStateArgs;
+class AnimStateGraphState extends Panel {
+    _args!: AnimStateGraphStateArgs;
 
-    _view: AnimstategraphView;
+    _view: AnimStateGraphView;
 
     _assets: Observer[] | null = null;
 
@@ -55,7 +55,7 @@ class AnimstategraphState extends Panel {
 
     _enabled = false;
 
-    constructor(args: AnimstategraphStateArgs, view: AnimstategraphView) {
+    constructor(args: AnimStateGraphStateArgs, view: AnimStateGraphView) {
         args.headerText = 'STATE';
         super(args);
         this._args = args;
@@ -152,7 +152,7 @@ class AnimstategraphState extends Panel {
     }
 
     static updateAnimationAssetName(observer: Observer, layerName: string, prevState: string, newState: string) {
-        AnimstategraphState.createAnimationAsset(observer, layerName, prevState);
+        AnimStateGraphState.createAnimationAsset(observer, layerName, prevState);
         const historyEnabled = observer.history.enabled;
         observer.history.enabled = false;
         const prevAsset = observer.get(`components.anim.animationAssets.${layerName}:${prevState}`);
@@ -228,7 +228,7 @@ class AnimstategraphState extends Panel {
         this._stateInspector.link(this._assets);
 
         this._stateInspector.getField(`${path}.name`).onValidate = (value) => {
-            return AnimstategraphState.validateStateName(state.id, value, this._assets[0]);
+            return AnimStateGraphState.validateStateName(state.id, value, this._assets[0]);
         };
 
         this._loadTransitions();
@@ -304,7 +304,7 @@ class AnimstategraphState extends Panel {
                 entityAnimationAsset.link([entityObserver], `components.anim.animationAssets.${layerName}:${state.name}.asset`);
                 entityPanel.content.append(entityAnimationAsset);
 
-                AnimstategraphState.createAnimationAsset(entityObserver, layerName, state.name);
+                AnimStateGraphState.createAnimationAsset(entityObserver, layerName, state.name);
 
                 this._linkedEntities.push(entityObserver);
                 this._linkedEntityAssets.push(entityAnimationAsset);
@@ -348,7 +348,7 @@ class AnimstategraphState extends Panel {
             const action = {
                 redo: () => {
                     this._linkedEntities.forEach((entityObserver) => {
-                        AnimstategraphState.updateAnimationAssetName(entityObserver, this._layerName, prevName, newName);
+                        AnimStateGraphState.updateAnimationAssetName(entityObserver, this._layerName, prevName, newName);
                     });
                     const historyEnabled = this._assets[0].history.enabled;
                     this._assets[0].history.enabled = false;
@@ -358,7 +358,7 @@ class AnimstategraphState extends Panel {
                 },
                 undo: () => {
                     this._linkedEntities.forEach((entityObserver) => {
-                        AnimstategraphState.updateAnimationAssetName(entityObserver, this._layerName, newName, prevName);
+                        AnimStateGraphState.updateAnimationAssetName(entityObserver, this._layerName, newName, prevName);
                     });
                     const historyEnabled = this._assets[0].history.enabled;
                     this._assets[0].history.enabled = false;
@@ -411,4 +411,4 @@ class AnimstategraphState extends Panel {
     }
 }
 
-export { AnimstategraphState };
+export { AnimStateGraphState };

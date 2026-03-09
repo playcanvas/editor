@@ -11,13 +11,13 @@ import { AttributesInspector } from '../inspector/attributes-inspector';
 const CLASS_ANIMSTATEGRAPH = 'asset-animstategraph-inspector';
 const CLASS_ANIMSTATEGRAPH_PARAMETER = `${CLASS_ANIMSTATEGRAPH}-parameter`;
 
-interface AnimstategraphParametersArgs extends PanelArgs {
+interface AnimStateGraphParametersArgs extends PanelArgs {
     assets?: ObserverList;
     history?: History;
 }
 
-class AnimstategraphParameters extends Panel {
-    _args!: AnimstategraphParametersArgs;
+class AnimStateGraphParameters extends Panel {
+    _args!: AnimStateGraphParametersArgs;
 
     _assets: Observer[] | null = null;
 
@@ -29,7 +29,7 @@ class AnimstategraphParameters extends Panel {
 
     _assetEvents: EventHandle[] = [];
 
-    constructor(args: AnimstategraphParametersArgs) {
+    constructor(args: AnimStateGraphParametersArgs) {
         args = Object.assign({}, args);
         super(args);
         this._args = args;
@@ -427,4 +427,4 @@ class AnimstategraphParameters extends Panel {
     }
 }
 
-export { AnimstategraphParameters };
+export { AnimStateGraphParameters };
