@@ -6,6 +6,7 @@ import { ANIM_INTERRUPTION_NONE } from 'playcanvas';
 import { diff } from '@/common/diff';
 
 import { AnimStateGraphState } from './state';
+import type { AnimStateGraphAssetInspector } from '../inspector/assets/animstategraph';
 
 const GRAPH_ACTIONS = {
     ADD_NODE: 'EVENT_ADD_NODE',
@@ -201,7 +202,7 @@ const animContextMenuItems = [
 ];
 
 class AnimStateGraphView {
-    _parent: { closeAsset: (asset: Observer) => void; readOnly?: boolean; _stateContainer?: { _stateName?: string; unlink: () => void; hidden?: boolean; link?: (...args: unknown[]) => void }; _transitionsContainer?: { _edge?: string; unlink: () => void; hidden?: boolean; link?: (...args: unknown[]) => void } };
+    _parent: AnimStateGraphAssetInspector;
 
     _args: Record<string, unknown>;
 
@@ -221,13 +222,11 @@ class AnimStateGraphView {
 
     _selectedEntityViewButton: Button | null = null;
 
-    _handleIncomingUpdatesEvent: EventHandle | null = null;
-
-    _viewportResizeEvent: EventHandle | null = null;
+    _events: EventHandle[] = [];
 
     _keyboardListenerBound: ((e: KeyboardEvent) => void) | null = null;
 
-    constructor(parent: { closeAsset: (asset: Observer) => void; readOnly?: boolean; _stateContainer?: { _stateName?: string; unlink: () => void; hidden?: boolean; link?: (...args: unknown[]) => void }; _transitionsContainer?: { _edge?: string; unlink: () => void; hidden?: boolean; link?: (...args: unknown[]) => void } }, args: Record<string, unknown>) {
+    constructor(parent: AnimStateGraphAssetInspector, args: Record<string, unknown>) {
         this._parent = parent;
         this._args = args;
 
@@ -915,13 +914,13 @@ class AnimStateGraphView {
         this._graph.setGraphPosition(graphSettings.pos.x, graphSettings.pos.y);
         this._graph.setGraphScale(graphSettings.scale);
 
-        this._handleIncomingUpdatesEvent = this._assets[0].on('*:set', this._handleIncomingUpdates.bind(this));
+        this._events.push(this._assets[0].on('*:set', this._handleIncomingUpdates.bind(this)));
 
         const viewportCanvas = editor.call('viewport:canvas');
-        this._viewportResizeEvent = viewportCanvas.on('resize', () => {
+        this._events.push(viewportCanvas.on('resize', () => {
             this._graph.dom.style.width = viewportCanvas.style.width;
             this._graph.dom.style.height = viewportCanvas.style.height;
-        });
+        }));
 
         // add keyboard listener
         this._keyboardListenerBound = this._keyboardListener.bind(this);
@@ -930,12 +929,10 @@ class AnimStateGraphView {
 
     unlink() {
         this._destroyGraph();
-        if (this._viewportResizeEvent) {
-            this._viewportResizeEvent.unbind();
-        }
-        if (this._handleIncomingUpdatesEvent) {
-            this._handleIncomingUpdatesEvent.unbind();
-        }
+
+        this._events.forEach(e => e.unbind());
+        this._events.length = 0;
+
         // remove keyboard listener
         if (this._keyboardListenerBound) {
             window.removeEventListener('keydown', this._keyboardListenerBound);
