@@ -271,15 +271,13 @@ class AnimstategraphView {
     }
 
     _keyboardListener(e: KeyboardEvent) {
-        if (e.keyCode === 27) {
-            // esc
+        if (e.key === 'Escape') {
             if (this._graph.selectedItem) {
                 this._graph.deselectItem();
             } else {
                 this.parent.closeAsset(this._assets[0]);
             }
-        } else if (e.keyCode === 46 && this._graph.selectedItem && document.activeElement.constructor.name !== 'HTMLInputElement') {
-            // del
+        } else if (e.key === 'Delete' && this._graph.selectedItem && !(document.activeElement instanceof HTMLInputElement)) {
             const item = this._graph.selectedItem;
             switch (item.type) {
                 case 'NODE': {
@@ -290,14 +288,22 @@ class AnimstategraphView {
                         ANIM_SCHEMA.NODE.END_STATE,
                         ANIM_SCHEMA.NODE.ANY_STATE
                     ].includes(node.nodeType)) {
-                        this._graph.deleteNode(item.id);
+                        const data = this._assets[0].get('data');
+                        const edges = Object.keys(data.transitions).filter((key) => {
+                            const t = data.transitions[key];
+                            return t.from === item.id || t.to === item.id;
+                        });
+                        this._onDeleteNode({
+                            node: { id: item.id as number, attributes: { name: node.name } },
+                            edges: edges.map(Number)
+                        });
                     }
                     break;
                 }
                 case 'EDGE': {
                     const edge = this._assets[0].get(`data.transitions.${item.edgeId}`);
                     if (!edge.defaultTransition) {
-                        this._graph.deleteEdge(item.edgeId);
+                        this._onDeleteEdge({ edgeId: String(item.edgeId) });
                     }
                     break;
                 }
