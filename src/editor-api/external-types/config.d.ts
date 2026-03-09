@@ -276,5 +276,6 @@ export type LaunchConfig = {
     oneTrustDomainKey: string,
     schema: ModelSchema,
     engineVersions: EngineVersions,
-    wasmModules?: WasmModule[]
+    wasmModules?: WasmModule[],
+    signedUrls?: Record<string, string>
 };
