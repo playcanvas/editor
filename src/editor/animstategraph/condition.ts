@@ -15,15 +15,15 @@ import {
 
 const CLASS_ROOT = 'pcui-animstategraph-condition';
 
-interface AnimstategraphConditionArgs extends ContainerArgs {
+interface AnimStateGraphConditionArgs extends ContainerArgs {
     parameters: string[];
     onDelete: () => void;
 }
 
-class AnimstategraphCondition extends Container {
-    _args!: AnimstategraphConditionArgs;
+class AnimStateGraphCondition extends Container {
+    _args!: AnimStateGraphConditionArgs;
 
-    constructor(args: AnimstategraphConditionArgs) {
+    constructor(args: AnimStateGraphConditionArgs) {
         args = Object.assign({
             class: CLASS_ROOT
         }, args);
@@ -148,4 +148,4 @@ class AnimstategraphCondition extends Container {
     }
 }
 
-export { AnimstategraphCondition };
+export { AnimStateGraphCondition };

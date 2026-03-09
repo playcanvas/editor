@@ -625,7 +625,7 @@ class Assets extends Events {
      *
      * @param options.name - The asset name
      * @param options.preload - Whether to preload the asset. Defaults to true.
-     * @param options.data - The asset data. See {@link Asset} for Animstategraph data.
+     * @param options.data - The asset data. See {@link Asset} for AnimStateGraph data.
      * @param options.folder - The parent folder asset
      * @param options.onProgress - Function to report progress
      * @returns The new asset

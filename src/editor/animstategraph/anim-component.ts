@@ -1,13 +1,13 @@
 import type { Observer, ObserverList, EventHandle } from '@playcanvas/observer';
 
-import type { AnimstategraphView } from './view';
+import type { AnimStateGraphView } from './view';
 
-interface AnimstategraphAnimComponentArgs {
+interface AnimStateGraphAnimComponentArgs {
     entities?: ObserverList;
 }
 
-class AnimstategraphAnimComponent {
-    _view: AnimstategraphView;
+class AnimStateGraphAnimComponent {
+    _view: AnimStateGraphView;
 
     _entities: ObserverList | null;
 
@@ -15,7 +15,7 @@ class AnimstategraphAnimComponent {
 
     _onSetStateNameEvent: EventHandle | null = null;
 
-    constructor(args: AnimstategraphAnimComponentArgs, view: AnimstategraphView) {
+    constructor(args: AnimStateGraphAnimComponentArgs, view: AnimStateGraphView) {
         this._view = view;
         this._entities = args.entities ?? null;
     }
@@ -52,4 +52,4 @@ class AnimstategraphAnimComponent {
     }
 }
 
-export { AnimstategraphAnimComponent };
+export { AnimStateGraphAnimComponent };

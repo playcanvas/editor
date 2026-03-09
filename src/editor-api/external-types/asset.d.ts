@@ -109,7 +109,7 @@ export type AssetProps = {
  * Represents the data for an Asset.
  */
 export type AssetData = AnimationAssetData
-    | AnimstategraphAssetData
+    | AnimStateGraphAssetData
     | BundleAssetData
     | CubemapAssetData
     | FontAssetData
@@ -157,7 +157,7 @@ type AnimationAssetData = {
 /**
  * Represents the data for an AnimStateGraph asset.
  */
-type AnimstategraphAssetData = {
+type AnimStateGraphAssetData = {
     /**
      * A set of AnimStateGraph layers.
      */

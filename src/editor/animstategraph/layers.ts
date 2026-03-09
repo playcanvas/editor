@@ -26,13 +26,13 @@ const ANIM_SCHEMA = {
     }
 };
 
-interface AnimstategraphLayersArgs extends PanelArgs {
+interface AnimStateGraphLayersArgs extends PanelArgs {
     assets?: ObserverList;
     history?: History;
 }
 
-class AnimstategraphLayers extends Panel {
-    _args!: AnimstategraphLayersArgs;
+class AnimStateGraphLayers extends Panel {
+    _args!: AnimStateGraphLayersArgs;
 
     _assets: Observer[] | null = null;
 
@@ -52,7 +52,7 @@ class AnimstategraphLayers extends Panel {
 
     _layerPanels: Panel[] = [];
 
-    constructor(parent: Panel, args: AnimstategraphLayersArgs) {
+    constructor(parent: Panel, args: AnimStateGraphLayersArgs) {
         args = Object.assign({ enabled: !parent.readOnly }, args);
         super(args);
         this._parent = parent;
@@ -478,4 +478,4 @@ class AnimstategraphLayers extends Panel {
     }
 }
 
-export { AnimstategraphLayers };
+export { AnimStateGraphLayers };

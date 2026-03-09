@@ -5,7 +5,7 @@ import { ANIM_INTERRUPTION_NONE } from 'playcanvas';
 
 import { diff } from '@/common/diff';
 
-import { AnimstategraphState } from './state';
+import { AnimStateGraphState } from './state';
 
 const GRAPH_ACTIONS = {
     ADD_NODE: 'EVENT_ADD_NODE',
@@ -37,7 +37,7 @@ const ANIM_SCHEMA = {
 };
 
 const updateNodeHeaderText = (attributes: Record<string, unknown>, nodeId: number, asset: Observer) => {
-    if (AnimstategraphState.validateStateName(nodeId, attributes.name, asset)) {
+    if (AnimStateGraphState.validateStateName(nodeId, attributes.name, asset)) {
         return attributes.name;
     }
     return null;
@@ -200,7 +200,7 @@ const animContextMenuItems = [
     }
 ];
 
-class AnimstategraphView {
+class AnimStateGraphView {
     _parent: { closeAsset: (asset: Observer) => void; readOnly?: boolean; _stateContainer?: { _stateName?: string; unlink: () => void; hidden?: boolean; link?: (...args: unknown[]) => void }; _transitionsContainer?: { _edge?: string; unlink: () => void; hidden?: boolean; link?: (...args: unknown[]) => void } };
 
     _args: Record<string, unknown>;
@@ -242,7 +242,6 @@ class AnimstategraphView {
             display: none;
         `);
         document.getElementById('layout-viewport').prepend(this._graphElement);
-
     }
 
     get parent() {
@@ -654,7 +653,7 @@ class AnimstategraphView {
     _onUpdateNodeAttribute({ node, attribute }: { node: Record<string, unknown>; attribute: string }) {
         const state = this._assets[0].get(`data.states.${node.id}`);
         if (attribute === 'name') {
-            if (!AnimstategraphState.validateStateName(node.id, node.attributes.name, this._assets[0])) {
+            if (!AnimStateGraphState.validateStateName(node.id, node.attributes.name, this._assets[0])) {
                 this._graph.setNodeAttributeErrorState(node.id, attribute, true);
                 return;
             }
@@ -665,7 +664,7 @@ class AnimstategraphView {
                     const layerName = this._assets[0].get(`data.layers.${this._selectedLayer}.name`);
                     this._args.entities.forEach((entityObserver) => {
                         if (entityObserver.get('components.anim.stateGraphAsset') === this._assets[0].get('id')) {
-                            AnimstategraphState.updateAnimationAssetName(entityObserver, layerName, prevName, newName);
+                            AnimStateGraphState.updateAnimationAssetName(entityObserver, layerName, prevName, newName);
                         }
                     });
                     const historyEnabled = this._assets[0].history.enabled;
@@ -677,7 +676,7 @@ class AnimstategraphView {
                     const layerName = this._assets[0].get(`data.layers.${this._selectedLayer}.name`);
                     this._args.entities.forEach((entityObserver) => {
                         if (entityObserver.get('components.anim.stateGraphAsset') === this._assets[0].get('id')) {
-                            AnimstategraphState.updateAnimationAssetName(entityObserver, layerName, newName, prevName);
+                            AnimStateGraphState.updateAnimationAssetName(entityObserver, layerName, newName, prevName);
                         }
                     });
                     const historyEnabled = this._assets[0].history.enabled;
@@ -945,4 +944,4 @@ class AnimstategraphView {
     }
 }
 
-export { AnimstategraphView };
+export { AnimStateGraphView };
