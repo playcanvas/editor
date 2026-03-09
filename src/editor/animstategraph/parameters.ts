@@ -1,6 +1,8 @@
-import type { Observer, EventHandle } from '@playcanvas/observer';
-import { Panel, Button } from '@playcanvas/pcui';
+import type { Observer, ObserverList, EventHandle } from '@playcanvas/observer';
+import { Panel, Button, type PanelArgs } from '@playcanvas/pcui';
 import { ANIM_EQUAL_TO, ANIM_PARAMETER_BOOLEAN, ANIM_PARAMETER_FLOAT, ANIM_PARAMETER_INTEGER, ANIM_PARAMETER_TRIGGER } from 'playcanvas';
+
+import type { History } from '@/editor-api';
 
 import type { Attribute } from '../inspector/attribute.type.d';
 import { AttributesInspector } from '../inspector/attributes-inspector';
@@ -9,8 +11,13 @@ import { AttributesInspector } from '../inspector/attributes-inspector';
 const CLASS_ANIMSTATEGRAPH = 'asset-animstategraph-inspector';
 const CLASS_ANIMSTATEGRAPH_PARAMETER = `${CLASS_ANIMSTATEGRAPH}-parameter`;
 
+interface AnimstategraphParametersArgs extends PanelArgs {
+    assets?: ObserverList;
+    history?: History;
+}
+
 class AnimstategraphParameters extends Panel {
-    _args!: Record<string, unknown>;
+    _args!: AnimstategraphParametersArgs;
 
     _assets: Observer[] | null = null;
 
@@ -22,7 +29,7 @@ class AnimstategraphParameters extends Panel {
 
     _assetEvents: EventHandle[] = [];
 
-    constructor(args: Record<string, unknown>) {
+    constructor(args: AnimstategraphParametersArgs) {
         args = Object.assign({}, args);
         super(args);
         this._args = args;
@@ -34,7 +41,7 @@ class AnimstategraphParameters extends Panel {
         this.header.append(this._addNewParameterButton);
     }
 
-    _createParamAttributesInspector(paramId: string, param: { name: string; type: number; value: number | boolean }) {
+    _createParamAttributesInspector(paramId: string, param: { name: string; type: string; value: number | boolean }) {
         let valueType;
         switch (param.type) {
             case ANIM_PARAMETER_BOOLEAN:

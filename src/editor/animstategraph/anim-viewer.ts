@@ -1,4 +1,4 @@
-import { Container, Canvas, Label, Button, SliderInput } from '@playcanvas/pcui';
+import { Container, Canvas, Label, Button, SliderInput, type ContainerArgs } from '@playcanvas/pcui';
 import {
     type AnimTrack,
     type Application,
@@ -183,6 +183,10 @@ class Skeleton {
     }
 }
 
+interface AnimViewerArgs extends ContainerArgs {
+    app: Application;
+}
+
 class AnimViewer extends Container {
     _shownError = false;
 
@@ -244,7 +248,7 @@ class AnimViewer extends Container {
 
     _lastTime: number | null = null;
 
-    constructor(args: Record<string, unknown>) {
+    constructor(args: AnimViewerArgs) {
         super(args);
 
         this.dom.classList.add('anim-viewer');

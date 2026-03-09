@@ -1,5 +1,5 @@
-import type { Observer, EventHandle } from '@playcanvas/observer';
-import { Container, Button, Panel, Label } from '@playcanvas/pcui';
+import type { Observer, ObserverList, EventHandle } from '@playcanvas/observer';
+import { Container, Button, Panel, Label, type ContainerArgs } from '@playcanvas/pcui';
 import {
     ANIM_EQUAL_TO,
     ANIM_INTERRUPTION_NONE,
@@ -9,7 +9,10 @@ import {
     ANIM_INTERRUPTION_PREV_NEXT
 } from 'playcanvas';
 
+import type { History } from '@/editor-api';
+
 import { AnimstategraphCondition } from './condition';
+import type { AnimstategraphView } from './view';
 import type { Attribute, Divider } from '../inspector/attribute.type.d';
 import { AttributesInspector } from '../inspector/attributes-inspector';
 
@@ -41,10 +44,15 @@ class TransitionInspector extends AttributesInspector {
     }
 }
 
-class AnimstategraphTransitions extends Container {
-    _view: Record<string, unknown>;
+interface AnimstategraphTransitionsArgs extends ContainerArgs {
+    assets?: ObserverList;
+    history?: History;
+}
 
-    _args: Record<string, unknown>;
+class AnimstategraphTransitions extends Container {
+    _view: AnimstategraphView;
+
+    _args: AnimstategraphTransitionsArgs;
 
     _assets: Observer[] | null = null;
 
@@ -64,9 +72,8 @@ class AnimstategraphTransitions extends Container {
 
     _onParamDeleteEvent: EventHandle | null = null;
 
-    constructor(args: Record<string, unknown>, view: Record<string, unknown>) {
+    constructor(args: AnimstategraphTransitionsArgs, view: AnimstategraphView) {
         super({
-            args: Object.assign({}, args),
             class: CLASS_ANIMSTATEGRAPH_TRANSITIONS,
             enabled: !view.parent.readOnly
         });
@@ -144,7 +151,7 @@ class AnimstategraphTransitions extends Container {
         this._assets[0].set(`data.transitions.${transitionId}.conditions`, conditions);
     }
 
-    link(assets: import('@playcanvas/observer').Observer[], layer: number, edge: { from: number; to: number }) {
+    link(assets: Observer[], layer: number, edge: { from: number; to: number }) {
         this.unlink();
         this._assets = assets;
         this._selectedLayer = layer;
@@ -373,7 +380,7 @@ class AnimstategraphTransitions extends Container {
                         lastExitTimeValue = exitTime;
                     }
                 } else if (!path || path.includes('parameters') || path.includes(`transitions.${transitionId}`) && transition.conditions) {
-                    addConditions(path);
+                    addConditions();
                     conditionNote.hidden = hideConditionNote();
                 }
             });
