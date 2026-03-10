@@ -218,8 +218,7 @@ editor.once('load', () => {
         }
     };
 
-    const refreshDataUI = (root) => {
-
+    const refreshDataUI = () => {
         // cleanup
         itemData.clear();
 
@@ -535,7 +534,7 @@ editor.once('load', () => {
 
         // ESC key should close popup
         const onKeyDown = function (e: KeyboardEvent) {
-            if (e.target && /input|textarea/i.test(e.target.tagName)) {
+            if (e.target instanceof HTMLElement && /input|textarea/i.test(e.target.tagName)) {
                 return;
             }
 

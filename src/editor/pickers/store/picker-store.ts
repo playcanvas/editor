@@ -24,7 +24,7 @@ editor.once('load', () => {
     let licenses = null;
 
     // store object (AssetsStore, MyAssetsStore, SketchfabStore)
-    let store = new AssetsStore();
+    let store: AssetsStore | SketchFabStore | MyAssetsStore = new AssetsStore();
 
     // Create a new Intersection Observer to track visibility of Load More button
     const intersectionObserver = new IntersectionObserver((entries, observer) => {
@@ -132,7 +132,7 @@ editor.once('load', () => {
         await loadStore();
     };
 
-    const buildFiltersUI = (leftPanel) => {
+    const buildFiltersUI = (leftPanel: Container) => {
 
         if (filtersToggle) {
             leftPanel.remove(filtersToggle);
@@ -189,7 +189,7 @@ editor.once('load', () => {
     };
 
 
-    const buildStoreFiltersUI = (leftPanel) => {
+    const buildStoreFiltersUI = (leftPanel: Container) => {
 
         // storeItems toggle
         const filtersStores = new Panel({
@@ -199,7 +199,7 @@ editor.once('load', () => {
         leftPanel.append(filtersStores);
 
         // filter list
-        const filters = [
+        const filters: { name: string; icon: string; button?: Button }[] = [
             { name: 'PLAYCANVAS', icon: 'E268' },
             { name: 'SKETCHFAB', icon: 'E188' },
             { name: 'MY ASSETS', icon: 'E439' }
@@ -222,11 +222,11 @@ editor.once('load', () => {
 
 
     // builds each of the item CMS UI components
-    const buildStoreUI = (root, item) => {
+    const buildStoreUI = (root: Container, item: any) => {
         const gridItem = new Container({
-            class: 'grid-item'
+            class: 'grid-item',
+            hidden: true
         });
-        gridItem.hidden = true;
 
         const thumb = new Image();
         thumb.style.width = '100%';
@@ -235,13 +235,11 @@ editor.once('load', () => {
         thumb.style.objectFit = 'cover';
         thumb.style['max-height'] = isMyAssetsStore() ? '200px' : '100%';
 
-        root.append(gridItem);
-
-        gridItem.dom.loading = 'lazy';  // lazy loading of images
+        thumb.loading = 'lazy';
         thumb.src = item.pictures[0];
 
         thumb.addEventListener('load', () => {
-            gridItem.on('click', (evt) => {
+            gridItem.on('click', () => {
                 // editor.call('picker:store:cms:close');
                 sortingDropdown.hidden = true;
                 editor.call('picker:storeitem:open', panel, 'storeitem', item);
@@ -288,6 +286,7 @@ editor.once('load', () => {
         });
 
         gridItem.append(thumb);
+        root.append(gridItem);
     };
 
     // updates the current filter UI and triggers reloading
@@ -670,7 +669,7 @@ editor.once('load', () => {
 
     // ESC key should close popup
     const onKeyDown = function (e: KeyboardEvent) {
-        if (e.target && /input|textarea/i.test(e.target.tagName)) {
+        if (e.target instanceof HTMLElement && /input|textarea/i.test(e.target.tagName)) {
             return;
         }
 
