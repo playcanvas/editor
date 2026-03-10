@@ -1,4 +1,4 @@
-import { Layer, SORTMODE_BACK2FRONT, SORTMODE_NONE } from 'playcanvas';
+import { Layer, type LayerComposition, SORTMODE_BACK2FRONT, SORTMODE_NONE } from 'playcanvas';
 
 editor.once('load', () => {
     // holds all layers that are to be added in the beginning of the composition
@@ -60,7 +60,7 @@ editor.once('load', () => {
         return result;
     });
 
-    editor.method('gizmo:layers:removeFromComposition', (composition: import('playcanvas').LayerComposition | null) => {
+    editor.method('gizmo:layers:removeFromComposition', (composition: LayerComposition | null) => {
         if (!composition) {
             const app = editor.call('viewport:app');
             if (!app) {
@@ -78,7 +78,7 @@ editor.once('load', () => {
         }
     });
 
-    editor.method('gizmo:layers:addToComposition', (composition?: import('playcanvas').LayerComposition) => {
+    editor.method('gizmo:layers:addToComposition', (composition?: LayerComposition) => {
         if (!composition) {
             const app = editor.call('viewport:app');
             if (!app) {

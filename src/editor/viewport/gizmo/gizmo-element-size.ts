@@ -1,4 +1,4 @@
-import { BlendState, BLENDEQUATION_ADD, BLENDMODE_ONE_MINUS_SRC_ALPHA, BLENDMODE_SRC_ALPHA, Color, Entity, Mat4, math, PROJECTION_PERSPECTIVE, Vec3 } from 'playcanvas';
+import { type AppBase, BlendState, BLENDEQUATION_ADD, BLENDMODE_ONE_MINUS_SRC_ALPHA, BLENDMODE_SRC_ALPHA, Color, Entity, Mat4, math, PROJECTION_PERSPECTIVE, Vec3 } from 'playcanvas';
 
 import { GIZMO_MASK } from '@/core/constants';
 import type { EntityObserver } from '@/editor-api';
@@ -90,7 +90,7 @@ editor.once('load', () => {
         return false;
     };
 
-    editor.once('viewport:load', (app: import('playcanvas').AppBase) => {
+    editor.once('viewport:load', (app: AppBase) => {
         const gizmo = createGizmo();
         app.root.addChild(gizmo.root);
 

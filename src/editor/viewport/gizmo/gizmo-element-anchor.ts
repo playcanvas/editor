@@ -1,4 +1,4 @@
-import { BlendState, BLENDEQUATION_ADD, BLENDMODE_ONE_MINUS_SRC_ALPHA, BLENDMODE_SRC_ALPHA, Color, Entity, math, PROJECTION_PERSPECTIVE, Quat, Vec3 } from 'playcanvas';
+import { type AppBase, BlendState, BLENDEQUATION_ADD, BLENDMODE_ONE_MINUS_SRC_ALPHA, BLENDMODE_SRC_ALPHA, Color, Entity, type GraphNode, type Material, math, PROJECTION_PERSPECTIVE, Quat, Vec3 } from 'playcanvas';
 
 import { FORCE_PICK_TAG, GIZMO_MASK } from '@/core/constants';
 import type { EntityObserver } from '@/editor-api';
@@ -112,13 +112,13 @@ editor.once('load', () => {
         return mat;
     };
 
-    const setModelMaterial = function (entity: Entity, material: import('playcanvas').Material) {
+    const setModelMaterial = function (entity: Entity, material: Material) {
         if (entity.model.meshInstances[0].material !== material) {
             entity.model.meshInstances[0].material = material;
         }
     };
 
-    editor.once('viewport:load', (app: import('playcanvas').AppBase) => {
+    editor.once('viewport:load', (app: AppBase) => {
         const gizmoAnchor = createAnchorGizmo();
         app.root.addChild(gizmoAnchor.root);
 
@@ -297,7 +297,7 @@ editor.once('load', () => {
             // gizmoAnchor.handles.center.setLocalPosition(resX * (pc.math.lerp(anchor.x,anchor.z,0.5) - 0.5), resY * (pc.math.lerp(anchor.y,anchor.w,0.5) - 0.5), 0, 0.1);
         });
 
-        editor.on('viewport:pick:hover', (node: Entity | null, picked: { node: import('playcanvas').GraphNode } | null) => {
+        editor.on('viewport:pick:hover', (node: Entity | null, picked: { node: GraphNode } | null) => {
             if (!node || !node.handle) {
                 if (gizmoAnchor.handle) {
                     gizmoAnchor.handle = null;

@@ -121,8 +121,8 @@ editor.once('load', () => {
     });
 
     // patch update for materials to re-render the viewport
-    const update = StandardMaterial.prototype.update as (this: import('playcanvas').StandardMaterial) => void;
-    StandardMaterial.prototype.update = function (this: import('playcanvas').StandardMaterial): void {
+    const update = StandardMaterial.prototype.update as (this: StandardMaterial) => void;
+    StandardMaterial.prototype.update = function (this: StandardMaterial): void {
         update.call(this);
         editor.call('viewport:render');
     };

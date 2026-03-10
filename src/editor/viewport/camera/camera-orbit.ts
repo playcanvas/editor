@@ -1,8 +1,8 @@
-import { PROJECTION_PERSPECTIVE, Quat, Vec2, Vec3 } from 'playcanvas';
+import { type Application, PROJECTION_PERSPECTIVE, Quat, Vec2, Vec3 } from 'playcanvas';
 
 import type { ViewportTap } from '../viewport-tap';
 
-editor.once('viewport:load', (app: import('playcanvas').Application) => {
+editor.once('viewport:load', (app: Application) => {
     // Orbit camera with virtual point of focus
     // Zooming / Flying will not move virtual point forward/backwards
 

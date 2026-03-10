@@ -1,4 +1,4 @@
-import { Color, OutlineRenderer } from 'playcanvas';
+import { Color, type Entity, OutlineRenderer } from 'playcanvas';
 
 editor.once('load', () => {
     const app = editor.call('viewport:app');
@@ -51,7 +51,7 @@ editor.once('load', () => {
     };
 
     // request rendering of entities for a user
-    const setUserSelection = (id: number | string, entities: import('playcanvas').Entity[]): void => {
+    const setUserSelection = (id: number | string, entities: Entity[]): void => {
 
         // remove existing entities
         const existingEntities = userSelections.get(id);

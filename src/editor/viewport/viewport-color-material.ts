@@ -20,7 +20,7 @@ const createColorMaterial = (useVertexColor?: boolean) => {
 
 const addColorProperty = (material: StandardMaterial): void => {
     Object.defineProperty(material, 'color', {
-        set: function (value: import('playcanvas').Color) {
+        set: function (value: Color) {
 
             const linearColor = new Color();
             linearColor.linear(value);

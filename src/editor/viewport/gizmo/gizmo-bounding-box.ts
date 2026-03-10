@@ -1,4 +1,4 @@
-import { BoundingBox, Color, EMITTERSHAPE_BOX, EMITTERSHAPE_SPHERE, Entity, Mat4, Vec3 } from 'playcanvas';
+import { type AppBase, BoundingBox, Color, EMITTERSHAPE_BOX, EMITTERSHAPE_SPHERE, Entity, Mat4, Vec3 } from 'playcanvas';
 
 editor.once('load', () => {
     let app = null;
@@ -278,7 +278,7 @@ editor.once('load', () => {
         return getBoundingBoxForEntity(entity, _resultBB);
     });
 
-    editor.once('viewport:load', (application: import('playcanvas').AppBase) => {
+    editor.once('viewport:load', (application: AppBase) => {
         app = application;
 
         editor.on('viewport:postUpdate', () => {

@@ -1,8 +1,8 @@
-import { PROJECTION_PERSPECTIVE, Vec2, Vec3 } from 'playcanvas';
+import { type Application, PROJECTION_PERSPECTIVE, Vec2, Vec3 } from 'playcanvas';
 
 import type { ViewportTap } from '../viewport-tap';
 
-editor.once('viewport:load', (app: import('playcanvas').Application) => {
+editor.once('viewport:load', (app: Application) => {
     // Panning with left mouse button while shift key is down
 
     let panning = false;

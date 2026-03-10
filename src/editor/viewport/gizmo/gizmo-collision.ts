@@ -23,6 +23,9 @@ import {
     Shader,
     SphereGeometry,
     TYPE_FLOAT32,
+    type AppBase,
+    type Asset,
+    type GraphicsDevice,
     Vec3,
     VertexBuffer,
     VertexFormat
@@ -412,7 +415,7 @@ editor.once('load', () => {
                     this.entity.model.model = createModelCopy(asset.resource, this.color);
                 }
             } else {
-                this.events.push(asset.once('load', (loadedAsset: import('playcanvas').Asset) => {
+                this.events.push(asset.once('load', (loadedAsset: Asset) => {
                     if (this.asset !== loadedAsset.id) {
                         return;
                     }
@@ -473,7 +476,7 @@ editor.once('load', () => {
         }
     });
 
-    editor.once('viewport:load', (application: import('playcanvas').AppBase) => {
+    editor.once('viewport:load', (application: AppBase) => {
         app = application;
 
         container = new Entity(app);
@@ -522,7 +525,7 @@ void main(void)
 
         const origFunc = materialDefault.getShaderVariant;
 
-        materialDefault.getShaderVariant = function (params: { device: import('playcanvas').GraphicsDevice; pass: number }) {
+        materialDefault.getShaderVariant = function (params: { device: GraphicsDevice; pass: number }) {
             if (params.pass === SHADER_FORWARD) {
                 if (!shaderDefault) {
                     shaderDefault = new Shader(params.device, {
@@ -615,7 +618,7 @@ void main(void)
 
         const matCapsule = cloneColorMaterial(materialDefault);
         const _getCapsuleShaderVariant = matCapsule.getShaderVariant;
-        matCapsule.getShaderVariant = function (params: { device: import('playcanvas').GraphicsDevice; pass: number }) {
+        matCapsule.getShaderVariant = function (params: { device: GraphicsDevice; pass: number }) {
             if (params.pass === SHADER_FORWARD) {
                 if (!shaderCapsuleForward) {
                     shaderCapsuleForward = new Shader(params.device, {

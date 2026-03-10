@@ -1,6 +1,6 @@
-import { PROJECTION_ORTHOGRAPHIC, Vec3 } from 'playcanvas';
+import { type Application, PROJECTION_ORTHOGRAPHIC, Vec3 } from 'playcanvas';
 
-editor.once('viewport:load', (app: import('playcanvas').Application) => {
+editor.once('viewport:load', (app: Application) => {
 
     // Variables
     let flying = false;

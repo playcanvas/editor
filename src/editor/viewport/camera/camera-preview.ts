@@ -1,5 +1,5 @@
 import { Button } from '@playcanvas/pcui';
-import { FOG_NONE, type FogType, Vec4 } from 'playcanvas';
+import { type Application, type Entity, FOG_NONE, type FogType, Vec4 } from 'playcanvas';
 
 editor.once('load', () => {
 
@@ -139,7 +139,7 @@ editor.once('load', () => {
         editor.call('camera:set', obj.entity);
     }, false);
 
-    editor.once('viewport:load', (application: import('playcanvas').Application) => {
+    editor.once('viewport:load', (application: Application) => {
         app = application;
     });
 
@@ -160,7 +160,7 @@ editor.once('load', () => {
         updateCameraState();
     });
 
-    editor.on('camera:change', (camera: import('playcanvas').Entity | null) => {
+    editor.on('camera:change', (camera: Entity | null) => {
         if (camera && !camera.__editorCamera) {
             currentCamera = camera;
         } else {

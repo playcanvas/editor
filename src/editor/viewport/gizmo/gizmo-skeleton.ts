@@ -1,4 +1,4 @@
-import { Color, Entity } from 'playcanvas';
+import { type AppBase, Color, Entity, type GraphNode } from 'playcanvas';
 
 import type { EntityObserver } from '@/editor-api';
 
@@ -14,14 +14,14 @@ editor.once('load', () => {
         const immediateLayer = editor.call('gizmo:layers', 'Axis Gizmo Immediate');
         const brightLayer = editor.call('gizmo:layers', 'Bright Gizmo');
 
-        const renderBone = function (parent: import('playcanvas').GraphNode, child: import('playcanvas').GraphNode) {
+        const renderBone = function (parent: GraphNode, child: GraphNode) {
             const start = parent.getPosition();
             const end = child.getPosition();
             app.drawLine(start, end, colorBehind, true, immediateLayer);
             app.drawLine(start, end, color, true, brightLayer);
         };
 
-        const renderBoneHierarchy = function (node: import('playcanvas').GraphNode) {
+        const renderBoneHierarchy = function (node: GraphNode) {
             // render node join
             if (!node.enabled) {
                 return;
@@ -65,7 +65,7 @@ editor.once('load', () => {
         }
     });
 
-    editor.once('viewport:load', (application: import('playcanvas').AppBase) => {
+    editor.once('viewport:load', (application: AppBase) => {
         app = application;
 
         // hook up changes to editor.showSkeleton

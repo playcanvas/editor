@@ -10,7 +10,7 @@ editor.once('load', () => {
     const aabb = new BoundingBox();
     const aabbA = new BoundingBox();
 
-    const calculateChildAABB = function (entity: import('playcanvas').Entity): void {
+    const calculateChildAABB = function (entity: Entity): void {
         aabbA.add(editor.call('entities:getBoundingBoxForEntity', entity));
 
         const children = entity.children;

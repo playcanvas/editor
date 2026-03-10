@@ -14,6 +14,7 @@ import {
     Model,
     PRIMITIVE_LINES,
     Quat,
+    type AppBase,
     Vec3
 } from 'playcanvas';
 
@@ -70,7 +71,7 @@ editor.once('load', () => {
         editor.call('viewport:render');
     });
 
-    editor.once('viewport:load', (application: import('playcanvas').AppBase) => {
+    editor.once('viewport:load', (application: AppBase) => {
         app = application;
 
         const container = new Entity();

@@ -1,4 +1,4 @@
-import { Color, ElementInput, Vec3 } from 'playcanvas';
+import { type AppBase, Color, ElementInput, Vec3 } from 'playcanvas';
 
 editor.once('load', () => {
     let corners = [];
@@ -19,7 +19,7 @@ editor.once('load', () => {
 
     let visible = true;
 
-    editor.once('viewport:load', (app: import('playcanvas').AppBase) => {
+    editor.once('viewport:load', (app: AppBase) => {
         editor.method('gizmo:button:visible', (state: boolean) => {
             if (visible !== state) {
                 visible = state;
