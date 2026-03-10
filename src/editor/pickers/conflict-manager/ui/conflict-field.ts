@@ -9,9 +9,7 @@ import { LegacyPanel } from '@/common/ui/panel';
 
 // Base class for fields
 class ConflictField {
-    constructor() {
-        this.element = null;
-    }
+    element: any = null;
 
     onAddedToDom() {
         // reset height
@@ -25,6 +23,36 @@ class ConflictField {
 
     get height() {
         return this.element.parent.element.clientHeight;
+    }
+
+    static create(type: string, value: unknown): ConflictField {
+        switch (type) {
+            case 'asset':
+                return new ConflictFieldAsset(value);
+            case 'curve':
+            case 'curveset':
+                return new ConflictFieldCurve(value);
+            case 'entity':
+                return new ConflictFieldEntity(value);
+            case 'layer':
+            case 'batchGroup':
+                return new ConflictFieldLayer(value);
+            case 'sublayer':
+                return new ConflictFieldSublayer(value);
+            case 'vec2':
+            case 'vec3':
+            case 'vec4':
+                return new ConflictFieldVector(value);
+            case 'rgb':
+            case 'rgba':
+                return new ConflictFieldColor(value);
+            case 'json':
+                return new ConflictFieldJson(value);
+            case 'object':
+                return new ConflictFieldNotRenderable();
+            default:
+                return new ConflictFieldString(value);
+        }
     }
 }
 
@@ -194,13 +222,13 @@ class ConflictFieldDeleted extends ConflictField {
         this.element = new LegacyPanel();
         this.element.class.add('field-deleted');
 
-        let label =  new LegacyLabel({
+        let label = new LegacyLabel({
             text: 'DELETED'
         });
         label.class.add('title');
         this.element.append(label);
 
-        label =  new LegacyLabel({
+        label = new LegacyLabel({
             text: 'This item was deleted on this branch'
         });
         this.element.append(label);
@@ -215,13 +243,13 @@ class ConflictFieldCreated extends ConflictField {
         this.element = new LegacyPanel();
         this.element.class.add('field-edited');
 
-        let label =  new LegacyLabel({
+        let label = new LegacyLabel({
             text: 'CREATED'
         });
         label.class.add('title');
         this.element.append(label);
 
-        label =  new LegacyLabel({
+        label = new LegacyLabel({
             text: 'This item was created on this branch'
         });
         this.element.append(label);
@@ -236,13 +264,13 @@ class ConflictFieldEdited extends ConflictField {
         this.element = new LegacyPanel();
         this.element.class.add('field-edited');
 
-        let label =  new LegacyLabel({
+        let label = new LegacyLabel({
             text: 'EDITED'
         });
         label.class.add('title');
         this.element.append(label);
 
-        label =  new LegacyLabel({
+        label = new LegacyLabel({
             text: 'This item was edited on this branch'
         });
         this.element.append(label);
@@ -275,6 +303,12 @@ class ConflictFieldNotRenderable extends ConflictField {
 
 // An array field is a list of other fields
 class ConflictArrayField extends ConflictField {
+    private _size: number;
+
+    private _labelSize: LegacyLabel;
+
+    private _list: LegacyList;
+
     constructor(type: string, value: unknown[]) {
         super();
 
@@ -305,37 +339,6 @@ class ConflictArrayField extends ConflictField {
         return this._size;
     }
 }
-
-// Creates a field with the specified value based on the specified type
-ConflictField.create = function (type: string, value: unknown) {
-    switch (type) {
-        case 'asset':
-            return new ConflictFieldAsset(value);
-        case 'curve':
-        case 'curveset':
-            return new ConflictFieldCurve(value);
-        case 'entity':
-            return new ConflictFieldEntity(value);
-        case 'layer':
-        case 'batchGroup':
-            return new ConflictFieldLayer(value);
-        case 'sublayer':
-            return new ConflictFieldSublayer(value);
-        case 'vec2':
-        case 'vec3':
-        case 'vec4':
-            return new ConflictFieldVector(value);
-        case 'rgb':
-        case 'rgba':
-            return new ConflictFieldColor(value);
-        case 'json':
-            return new ConflictFieldJson(value);
-        case 'object':
-            return new ConflictFieldNotRenderable();
-        default:
-            return new ConflictFieldString(value);
-    }
-};
 
 export {
     ConflictArrayField,

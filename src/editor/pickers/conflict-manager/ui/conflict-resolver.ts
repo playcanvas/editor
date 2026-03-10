@@ -1,16 +1,44 @@
 import { Events } from '@playcanvas/observer';
 
 import { LegacyLabel } from '@/common/ui/label';
+import type { LegacyPanel } from '@/common/ui/panel';
 
 import { ConflictSection } from './conflict-section';
 
 // Shows all the conflicts for an item
 class ConflictResolver extends Events {
+    elements: (ConflictSection | LegacyLabel)[] = [];
+
+    private _conflicts: Record<string, unknown>;
+
+    private _mergeId: unknown;
+
+    isDiff: unknown;
+
+    srcAssetIndex: unknown;
+
+    dstAssetIndex: unknown;
+
+    srcEntityIndex: Record<string, unknown>;
+
+    dstEntityIndex: Record<string, unknown>;
+
+    srcSettingsIndex: Record<string, unknown>;
+
+    dstSettingsIndex: Record<string, unknown>;
+
+    private _pendingResolvedConflicts: Record<string, Record<string, unknown>> = {};
+
+    private _pendingRevertedConflicts: Record<string, boolean> = {};
+
+    private _timeoutSave: ReturnType<typeof setTimeout> | null = null;
+
+    private _parent: LegacyPanel | null = null;
+
+    private _scrollListener: () => void;
+
     constructor(conflicts: Record<string, unknown>, mergeObject: Record<string, unknown>) {
         super();
-
-        // holds conflict UI elements
-        this.elements = [];
 
         this._conflicts = conflicts;
         this._mergeId = mergeObject.id;
@@ -26,12 +54,6 @@ class ConflictResolver extends Events {
 
         this.srcSettingsIndex = mergeObject.srcCheckpoint.settings;
         this.dstSettingsIndex = mergeObject.dstCheckpoint.settings;
-
-        this._pendingResolvedConflicts = {};
-        this._pendingRevertedConflicts = {};
-        this._timeoutSave = null;
-
-        this._parent = null;
 
         this._scrollListener = () => {
             this.emit('scroll');
@@ -122,7 +144,7 @@ class ConflictResolver extends Events {
     }
 
     // Append the resolver to a parent
-    appendToParent(parent: { append: (el: unknown) => void; element: HTMLElement }) {
+    appendToParent(parent: LegacyPanel) {
         this._parent = parent;
 
         for (let i = 0, len = this.elements.length; i < len; i++) {

@@ -12,6 +12,48 @@ import { handleCallback } from '@/common/utils';
  * to resolve the merged file.
  */
 class TextResolver extends Events {
+    private _mergeId: unknown;
+
+    private _conflict: Record<string, unknown>;
+
+    private _sourceBranchId: unknown;
+
+    private _destBranchId: unknown;
+
+    private _isDiff: unknown;
+
+    private _panelTop: LegacyPanel;
+
+    private _labelName: LegacyLabel;
+
+    private _textualMergeConflict: Record<string, unknown> | null = null;
+
+    private _btnMarkResolved: LegacyButton;
+
+    private _btnUseAllFrom: LegacyButton;
+
+    private _btnRevert: LegacyButton;
+
+    private _menu: LegacyMenu;
+
+    private _btnUseSource: LegacyMenuItem;
+
+    private _btnUseDest: LegacyMenuItem;
+
+    private _btnNextConflict: LegacyButton;
+
+    private _btnPrevConflict: LegacyButton;
+
+    private _btnGoBack: LegacyButton;
+
+    private _iframe: HTMLIFrameElement;
+
+    private _sourceFile: string | null = null;
+
+    private _destFile: string | null = null;
+
+    private _unresolvedFile: string | null = null;
+
     /**
      * Create a new TextResolver.
      *
@@ -40,7 +82,6 @@ class TextResolver extends Events {
         this._panelTop.append(this._labelName);
 
         // find textual merge conflict
-        this._textualMergeConflict = null;
         for (let i = 0; i < conflict.data.length; i++) {
             if (conflict.data[i].isTextualMerge) {
                 this._textualMergeConflict = conflict.data[i];
@@ -132,10 +173,6 @@ class TextResolver extends Events {
         });
 
         this._iframe.src = `/editor/code/${config.project.id}?mergeId=${this._mergeId}&conflictId=${this._textualMergeConflict.id}&assetType=${this._conflict.assetType}&mergedFilePath=${this._textualMergeConflict.mergedFilePath}`;
-
-        this._sourceFile = null;
-        this._destFile = null;
-        this._unresolvedFile = null;
     }
 
     appendToParent(parent: { append: (el: unknown) => void }) {
