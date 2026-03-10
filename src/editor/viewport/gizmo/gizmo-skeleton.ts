@@ -38,16 +38,14 @@ editor.once('load', () => {
             const entity = entities[i];
             if (entity) {
                 const model = entity.model;
-                if (model) {
-                    if (model.model) {
-                        renderBoneHierarchy(model.model.graph);
-                    }
+                if (model?.model) {
+                    renderBoneHierarchy(model.model.graph);
                 }
 
                 // render skeleton if entity with render component that has rootBone set is selected
                 const render = entity.render;
-                if (render && render._rootBone && render._rootBone.entity) {
-                    renderBoneHierarchy(render._rootBone.entity);
+                if (render && render.rootBone) {
+                    renderBoneHierarchy(render.rootBone);
                 }
             }
         }
