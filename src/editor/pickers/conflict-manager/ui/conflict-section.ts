@@ -8,17 +8,42 @@ import { ConflictSectionRow, type ConflictSectionRowArgs } from './conflict-sect
 // A section contains multiple conflicts and it's meant to group
 // conflicts into meaningful categories
 class ConflictSection extends Events {
+    private _resolver: Record<string, unknown>;
+
+    private _numConflicts = 0;
+
+    private _numResolvedConflicts = 0;
+
+    private _indent = 0;
+
+    private _foldable: boolean;
+
+    private _allowCloaking: boolean;
+
+    private _cloaked = false;
+
+    private _cloakFn: () => void;
+
+    panel: LegacyPanel;
+
+    private _panelBase: LegacyPanel;
+
+    private _panelDest: LegacyPanel;
+
+    private _panelSource: LegacyPanel;
+
+    panels: LegacyPanel[];
+
+    private _labelNumConflicts: LegacyLabel;
+
+    private _rows: ConflictSectionRow[] = [];
+
     constructor(resolver: Record<string, unknown>, title: string, foldable: boolean, allowCloaking: boolean) {
         super();
 
         this._resolver = resolver;
-        this._numConflicts = 0;
-        this._numResolvedConflicts = 0;
-        this._indent = 0;
-
         this._foldable = foldable;
         this._allowCloaking = allowCloaking;
-        this._cloaked = false;
         this._cloakFn = this.cloakIfNecessary.bind(this);
 
         this.panel = new LegacyPanel(title);
@@ -64,8 +89,6 @@ class ConflictSection extends Events {
         this._labelNumConflicts.class.add('num-conflicts');
         this._labelNumConflicts.hidden = resolver.isDiff;
         this.panel.headerElement.appendChild(this._labelNumConflicts.element);
-
-        this._rows = [];
     }
 
     indent() {

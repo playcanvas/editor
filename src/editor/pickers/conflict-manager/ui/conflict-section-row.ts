@@ -40,6 +40,22 @@ const SOURCE_PANEL = 2;
  * A row that contains the base, source and destination fields.
  */
 class ConflictSectionRow extends Events {
+    private _resolver: Record<string, unknown>;
+
+    private _name: string | undefined;
+
+    private _types: string[];
+
+    private _conflict: Record<string, unknown>;
+
+    private _resolved = false;
+
+    private _indent = 0;
+
+    private _panels: LegacyPanel[] = [];
+
+    private _fields: ConflictField[] = [];
+
     /**
      * Creates a new ConflictSectionRow.
      *
@@ -58,12 +74,6 @@ class ConflictSectionRow extends Events {
             this._types = [args.baseType || '', args.destType || '', args.sourceType || ''];
         }
         this._conflict = args.conflict;
-        this._resolved = false;
-
-        this._indent = 0;
-
-        this._panels = [];
-        this._fields = [];
 
         const values = this._convertValues(self._conflict);
 
