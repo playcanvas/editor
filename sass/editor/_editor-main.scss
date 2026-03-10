@@ -1268,8 +1268,13 @@ strong {
     }
 }
 
-.ui-menu.organization-dropdown {
+.pcui-menu.organization-dropdown {
     z-index: 10001;
+
+    .pcui-menu-item:not(.pcui-menu-item-has-children):hover > .pcui-menu-item-children {
+        opacity: 0;
+        visibility: hidden;
+    }
 
     #organization-details {
         &::after {
@@ -1290,20 +1295,16 @@ strong {
     }
 
     #organization-delete {
-        &:hover {
+        > .pcui-menu-item-content:hover {
             background-color: #d34141;
-        }
-
-        & > .title:hover {
-            background-color: transparent;
         }
     }
 }
 
-.ui-overlay.picker-project-cms {
+.pcui-overlay.picker-project-cms {
     z-index: 10000;
 
-    & > .content {
+    & > .pcui-overlay-content {
         position: absolute;
         left: 0;
         top: 0;
@@ -2192,10 +2193,10 @@ strong {
     }
 }
 
-.ui-overlay.picker-new-organization {
+.pcui-overlay.picker-new-organization {
     z-index: 10000;
 
-    & > .content {
+    & > .pcui-overlay-content {
         position: absolute;
         left: 50%;
         top: 50%;
@@ -2273,10 +2274,10 @@ strong {
     }
 }
 
-.ui-overlay.picker-delete-organization {
+.pcui-overlay.picker-delete-organization {
     z-index: 10000;
 
-    & > .content {
+    & > .pcui-overlay-content {
         position: absolute;
         left: 50%;
         top: 50%;
@@ -2371,10 +2372,10 @@ strong {
     }
 }
 
-.ui-overlay.picker-delete-project {
+.pcui-overlay.picker-delete-project {
     z-index: 100000;
 
-    & > .content {
+    & > .pcui-overlay-content {
         position: absolute;
         left: 50%;
         top: 50%;
@@ -2782,10 +2783,10 @@ strong {
 
 .ui-overlay.picker-project.reduced-view { z-index: 100000; }
 
-.ui-overlay.picker-modal-confirmation {
+.pcui-overlay.picker-modal-confirmation {
     z-index: 100001;  // larger than CMS
 
-    > .content {
+    > .pcui-overlay-content {
         position: absolute;
         left: 50%;
         top: 50%;
@@ -2848,10 +2849,10 @@ strong {
     }
 }
 
-.ui-overlay.picker-project-new {
+.pcui-overlay.picker-project-new {
     z-index: 100000; // larger than drop-area's
 
-    > .content {
+    > .pcui-overlay-content {
         position: relative;
         width: 1060px;
         height: 600px;

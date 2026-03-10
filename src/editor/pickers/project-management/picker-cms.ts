@@ -1,8 +1,6 @@
-import { Element, Label, Button, Container, BooleanInput, RadioButton, Panel, Progress, TextInput } from '@playcanvas/pcui';
+import { BooleanInput, Button, Container, Element, Label, Menu, Overlay, Panel, Progress, RadioButton, TextInput } from '@playcanvas/pcui';
 
 import * as SVG from '@/common/svg';
-import { LegacyMenu } from '@/common/ui/menu';
-import { LegacyOverlay } from '@/common/ui/overlay';
 import { bytesToHuman } from '@/common/utils';
 import { config } from '@/editor/config';
 
@@ -150,13 +148,13 @@ editor.once('load', () => {
                         dropdown.icon = 'E157';  // change arrow
                         dropdownOrg = org;  // select current organization as dropdown organization
                         selectedDropdown = dropdown;  // select current organization dropdown as selected dropdown
-                        orgDropdownMenu.open = true;  // open menu
+                        orgDropdownMenu.hidden = false;
 
                         // position dropdown menu
                         const rect = dropdown.element.getBoundingClientRect();
                         orgDropdownMenu.position(rect.left, rect.bottom + 3);
                     } else {
-                        orgDropdownMenu.open = false;
+                        orgDropdownMenu.hidden = true;
                     }
                 } else if (filterClicks.has(e.target)) {
                     setSelectedFilter(organizationFilter);
@@ -392,32 +390,32 @@ editor.once('load', () => {
         buildUsageUI();
     };
 
-    const orgDropdownMenu = LegacyMenu.fromData({
-        'organization-details': {
-            title: 'Organization Details',
-            select: function () {
-                window.open(`${config.url.home}/user/${dropdownOrg.username}/account`, '_blank');
+    const orgDropdownMenu = new Menu({
+        class: 'organization-dropdown',
+        items: [
+            {
+                id: 'organization-details',
+                text: 'Organization Details',
+                onSelect: () => {
+                    window.open(`${config.url.home}/user/${dropdownOrg.username}/account`, '_blank');
+                }
+            },
+            {
+                id: 'organization-delete',
+                text: 'Delete Organization',
+                onSelect: () => {
+                    editor.call('picker:project:deleteOrganization', projects[dropdownOrg.id]);
+                }
             }
-        },
-        'organization-delete': {
-            title: 'Delete Organization',
-            select: function () {
-                editor.call('picker:project:deleteOrganization', projects[dropdownOrg.id]);
-            }
-        }
+        ]
     });
-    orgDropdownMenu.class.add('organization-dropdown');
-    const dropdownOrganizationDetailsMenuItem = orgDropdownMenu.dom.childNodes[1].childNodes[0];
-    dropdownOrganizationDetailsMenuItem.id = 'organization-details';
-    const dropdownDeleteOrganizationMenuItem = orgDropdownMenu.dom.childNodes[1].childNodes[1];
-    dropdownDeleteOrganizationMenuItem.id = 'organization-delete';
 
     // add menu
     editor.call('layout.root').append(orgDropdownMenu);
 
     // on closing menu remove 'clicked' class from respective dropdown
-    orgDropdownMenu.on('open', (open) => {
-        if (!open && selectedDropdown) {
+    orgDropdownMenu.on('hide', () => {
+        if (selectedDropdown) {
             const clicked = selectedDropdown.element.classList.contains('clicked');
             if (clicked) {
                 selectedDropdown.icon = 'E159';
@@ -443,10 +441,11 @@ editor.once('load', () => {
 
     // overlay
     const root = editor.call('layout.root');
-    const overlay = new LegacyOverlay();
-    overlay.clickable = false;
-    overlay.hidden = true;
-    overlay.class.add('picker-project-cms');
+    const overlay = new Overlay({
+        clickable: false,
+        class: 'picker-project-cms',
+        hidden: true
+    });
     root.append(overlay);
 
     // main panel
