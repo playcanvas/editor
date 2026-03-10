@@ -1,3 +1,6 @@
+import type { Button, Container, Menu } from '@playcanvas/pcui';
+import type Graph from '@playcanvas/pcui-graph';
+
 editor.once('load', () => {
     /**
      * Initialize and show the Version Control graph. Assign initial
@@ -6,24 +9,38 @@ editor.once('load', () => {
      * when possible to save horizontal space (compact branches).
      */
     class VcGraphLogic {
-        constructor(initData: Record<string, unknown>, params: { vcGraphContainer: { dom: HTMLElement }; vcGraphCloseBtn: { dom: HTMLElement }; vcNodeMenu: unknown; vcHistItem: unknown }) {
+        initData: Record<string, unknown>;
+
+        container: Container;
+
+        closeBtn: Button;
+
+        vcNodeMenu: Menu;
+
+        vcHistItem: unknown;
+
+        idToNode: Record<string, Record<string, unknown>> = {};
+
+        branches: Record<string, Record<string, unknown>> = {};
+
+        renderedEdges: Record<string, boolean> = {};
+
+        fullGraph: Record<string, Record<string, unknown>> = {};
+
+        graph!: Graph;
+
+        isGraphLoading = false;
+
+        startNode!: Record<string, unknown>;
+
+        origStartId?: string;
+
+        constructor(initData: Record<string, unknown>, params: { vcGraphContainer: Container; vcGraphCloseBtn: Button; vcNodeMenu: Menu; vcHistItem: unknown }) {
             this.initData = initData;
-
             this.container = params.vcGraphContainer;
-
             this.closeBtn = params.vcGraphCloseBtn;
-
             this.vcNodeMenu = params.vcNodeMenu;
-
             this.vcHistItem = params.vcHistItem;
-
-            this.idToNode = {};
-
-            this.branches = {};
-
-            this.renderedEdges = {};
-
-            this.fullGraph = {};
         }
 
         run() {

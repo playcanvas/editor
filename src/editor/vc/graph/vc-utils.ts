@@ -1,4 +1,5 @@
-import { default as PCUIGraph } from '@playcanvas/pcui-graph';
+import type { Button, Container, Menu } from '@playcanvas/pcui';
+import Graph from '@playcanvas/pcui-graph';
 
 import { handleCallback } from '@/common/utils';
 
@@ -73,12 +74,14 @@ editor.once('load', () => {
 
     const CLOSED_BRANCH_SUFFIX = ' [x]';
 
+    let branchCount = 0;
+
     interface VcGraphData {
         idToNode: Record<string, Record<string, unknown>>;
         branches: Record<string, Record<string, unknown>>;
-        graph: Record<string, unknown>;
+        graph: Graph;
         renderedEdges: Record<string, boolean>;
-        vcNodeMenu?: unknown;
+        vcNodeMenu?: Menu;
         vcHistItem?: unknown;
     }
 
@@ -115,7 +118,7 @@ editor.once('load', () => {
             h.isNodeRendered = true;
         },
 
-        placeSelectedMark: function (graph: Record<string, unknown>, nodeCoords: { x: number; y: number }) {
+        placeSelectedMark: function (graph: Graph, nodeCoords: { x: number; y: number }) {
             const markCoords = {
                 coords: {
                     x: nodeCoords.x + SELECTED_MARK.offset.x,
@@ -134,7 +137,7 @@ editor.once('load', () => {
             graph.createNode(h);
         },
 
-        rmSelectedMark: function (graph: Record<string, unknown>) {
+        rmSelectedMark: function (graph: Graph) {
             graph.deleteNode(SELECTED_MARK.id);
         },
 
@@ -345,7 +348,7 @@ editor.once('load', () => {
             return `${h.parent}-${h.child}`;
         },
 
-        rmEdgesForNode: function (node: Record<string, unknown>, renderedEdges: Record<string, boolean>, graph: Record<string, unknown>) {
+        rmEdgesForNode: function (node: Record<string, unknown>, renderedEdges: Record<string, boolean>, graph: Graph) {
             VcUtils.iterAllEdges(node, (n, edge, type) => {
                 graph.deleteEdge(edge.vcEdgeId);
 
@@ -407,8 +410,8 @@ editor.once('load', () => {
             });
         },
 
-        initVcGraph: function (container: { dom: HTMLElement }, closeBtn: { dom: HTMLElement }) {
-            VcUtils.branchCount = 0;
+        initVcGraph: function (container: Container, closeBtn: Button) {
+            branchCount = 0;
 
             const h = {
                 dom: container.dom
@@ -418,7 +421,7 @@ editor.once('load', () => {
 
             const schema = VcUtils.makeSchema();
 
-            const graph = new PCUIGraph(schema, h);
+            const graph = new Graph(schema, h);
 
             graph.dom.appendChild(closeBtn.dom);
 
@@ -506,7 +509,7 @@ editor.once('load', () => {
         },
 
         nextBranchCoordX: function () {
-            return VcUtils.branchCount++;
+            return branchCount++;
         },
 
         assignBranchColors: function (data: VcGraphData) {
@@ -637,7 +640,7 @@ editor.once('load', () => {
         },
 
         // Top left coords and width/height of the box rel to screen
-        nodeToScreenCoords: function (node: Record<string, unknown>, graph: Record<string, unknown>) {
+        nodeToScreenCoords: function (node: Record<string, unknown>, graph: Graph) {
             const scale = graph.getGraphScale();
 
             const grPos = graph.getGraphPosition();

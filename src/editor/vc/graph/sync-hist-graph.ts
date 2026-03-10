@@ -6,11 +6,19 @@
  */
 editor.once('load', () => {
     class SyncHistGraph {
+        newGraph: Record<string, Record<string, unknown>>;
+
+        oldGraph: Record<string, Record<string, unknown>>;
+
+        data: { idToNode: Record<string, Record<string, unknown>> };
+
+        oldNodes!: Record<string, unknown>[];
+
+        newNodes!: Record<string, unknown>[];
+
         constructor(newGraph: Record<string, Record<string, unknown>>, data: { idToNode: Record<string, Record<string, unknown>> }) {
             this.newGraph = newGraph;
-
             this.oldGraph = data.idToNode;
-
             this.data = data;
         }
 
