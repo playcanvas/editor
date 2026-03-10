@@ -2194,7 +2194,6 @@ strong {
     z-index: 10000;
 
     & > .pcui-overlay-content {
-        height: fit-content;
         width: 500px;
 
         & > .new-organization-panel {
@@ -2271,7 +2270,6 @@ strong {
     z-index: 10000;
 
     & > .pcui-overlay-content {
-        height: fit-content;
         width: 500px;
 
         & > .delete-organization-panel {
@@ -2365,7 +2363,6 @@ strong {
     z-index: 100000;
 
     & > .pcui-overlay-content {
-        height: fit-content;
         width: 500px;
 
         & > .delete-project-panel {
@@ -2772,7 +2769,6 @@ strong {
     z-index: 100001;  // larger than CMS
 
     > .pcui-overlay-content {
-        height: fit-content;
         width: 500px;
 
         & > .pcui-panel {
