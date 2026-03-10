@@ -1,6 +1,4 @@
-import { Container, Label, TextInput, Panel, Button } from '@playcanvas/pcui';
-
-import { LegacyOverlay } from '@/common/ui/overlay';
+import { Button, Container, Label, Overlay, Panel, TextInput } from '@playcanvas/pcui';
 
 editor.once('load', () => {
 
@@ -42,10 +40,11 @@ editor.once('load', () => {
 
     // overlay
     const root = editor.call('layout.root');
-    const overlay = new LegacyOverlay();
-    overlay.clickable = false;
-    overlay.hidden = true;
-    overlay.class.add('picker-new-organization');
+    const overlay = new Overlay({
+        clickable: false,
+        class: 'picker-new-organization',
+        hidden: true
+    });
     root.append(overlay);
 
     // main panel

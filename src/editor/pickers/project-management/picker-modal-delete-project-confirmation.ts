@@ -1,6 +1,4 @@
-import { Element, Panel, Button, Container, Label, TextInput } from '@playcanvas/pcui';
-
-import { LegacyOverlay } from '@/common/ui/overlay';
+import { Button, Container, Element, Label, Overlay, Panel, TextInput } from '@playcanvas/pcui';
 
 editor.once('load', () => {
 
@@ -22,10 +20,11 @@ editor.once('load', () => {
 
     // overlay
     const root = editor.call('layout.root');
-    const overlay = new LegacyOverlay();
-    overlay.clickable = false;
-    overlay.hidden = true;
-    overlay.class.add('picker-delete-project');
+    const overlay = new Overlay({
+        clickable: false,
+        class: 'picker-delete-project',
+        hidden: true
+    });
     root.append(overlay);
 
     // main panel

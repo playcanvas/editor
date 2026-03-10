@@ -1268,8 +1268,13 @@ strong {
     }
 }
 
-.ui-menu.organization-dropdown {
+.pcui-menu.organization-dropdown {
     z-index: 10001;
+
+    .pcui-menu-item:not(.pcui-menu-item-has-children):hover > .pcui-menu-item-children {
+        opacity: 0;
+        visibility: hidden;
+    }
 
     #organization-details {
         &::after {
@@ -1290,23 +1295,16 @@ strong {
     }
 
     #organization-delete {
-        &:hover {
+        > .pcui-menu-item-content:hover {
             background-color: #d34141;
-        }
-
-        & > .title:hover {
-            background-color: transparent;
         }
     }
 }
 
-.ui-overlay.picker-project-cms {
+.pcui-overlay.picker-project-cms {
     z-index: 10000;
 
-    & > .content {
-        position: absolute;
-        left: 0;
-        top: 0;
+    & > .pcui-overlay-content {
         height: 100vh;
         width: 100vw;
 
@@ -2192,15 +2190,10 @@ strong {
     }
 }
 
-.ui-overlay.picker-new-organization {
+.pcui-overlay.picker-new-organization {
     z-index: 10000;
 
-    & > .content {
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        height: fit-content;
+    & > .pcui-overlay-content {
         width: 500px;
 
         & > .new-organization-panel {
@@ -2273,15 +2266,10 @@ strong {
     }
 }
 
-.ui-overlay.picker-delete-organization {
+.pcui-overlay.picker-delete-organization {
     z-index: 10000;
 
-    & > .content {
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        height: fit-content;
+    & > .pcui-overlay-content {
         width: 500px;
 
         & > .delete-organization-panel {
@@ -2371,15 +2359,10 @@ strong {
     }
 }
 
-.ui-overlay.picker-delete-project {
+.pcui-overlay.picker-delete-project {
     z-index: 100000;
 
-    & > .content {
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        height: fit-content;
+    & > .pcui-overlay-content {
         width: 500px;
 
         & > .delete-project-panel {
@@ -2782,15 +2765,10 @@ strong {
 
 .ui-overlay.picker-project.reduced-view { z-index: 100000; }
 
-.ui-overlay.picker-modal-confirmation {
+.pcui-overlay.picker-modal-confirmation {
     z-index: 100001;  // larger than CMS
 
-    > .content {
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        height: fit-content;
+    > .pcui-overlay-content {
         width: 500px;
 
         & > .pcui-panel {
@@ -2848,15 +2826,12 @@ strong {
     }
 }
 
-.ui-overlay.picker-project-new {
+.pcui-overlay.picker-project-new {
     z-index: 100000; // larger than drop-area's
 
-    > .content {
-        position: relative;
+    > .pcui-overlay-content {
         width: 1060px;
         height: 600px;
-        left: calc(50% - 530px);
-        top: calc(50% - 300px);
 
         .ui-label:not(.selectable) {
             @extend .noSelect;
