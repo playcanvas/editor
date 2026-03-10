@@ -30,12 +30,6 @@ editor.once('load', () => {
         const viewportHidden = editor.call('entities:visibility:isHidden', obj.get('resource_id'));
         entity._enabled = observerEnabled && !viewportHidden;
 
-        if (obj.has('labels')) {
-            obj.get('labels').forEach((label: string) => {
-                entity.addLabel(label);
-            });
-        }
-
         if (obj.has('tags')) {
             obj.get('tags').forEach((tag: string) => {
                 entity.tags.add(tag);
