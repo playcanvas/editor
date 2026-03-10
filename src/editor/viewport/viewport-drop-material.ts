@@ -118,7 +118,7 @@ editor.once('load', () => {
         }
 
         if (!node || !editor.call('entities:get', node.getGuid())) {
-            onHover(null);
+            onHover(null, null);
             return;
         }
 
@@ -129,7 +129,7 @@ editor.once('load', () => {
         if (meshInstance && (!meshInstance.node._parent || !meshInstance.node._parent._icon) && (node.model || node.render)) {
             onHover(node, meshInstance);
         } else {
-            onHover(null);
+            onHover(null, null);
         }
     };
 

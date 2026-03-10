@@ -4,6 +4,10 @@ let time;
 const rect = new Vec4(0, 0, 1, 1);
 
 class ViewportApplication extends Application {
+    editorSettings!: Record<string, unknown>;
+
+    redraw = false;
+
     constructor(canvas: HTMLCanvasElement, options: { editorSettings?: Record<string, unknown> }) {
         super(canvas, options);
 

@@ -97,7 +97,7 @@ editor.once('load', () => {
         }
 
         if (!node) {
-            onHover(null);
+            onHover(null, null);
             return;
         }
 
@@ -108,7 +108,7 @@ editor.once('load', () => {
         if (node.model && meshInstance && (!meshInstance.node._parent || !meshInstance.node._parent._icon)) {
             onHover(node, meshInstance);
         } else {
-            onHover(null);
+            onHover(null, null);
         }
     };
 
