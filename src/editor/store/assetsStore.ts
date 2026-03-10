@@ -6,12 +6,6 @@ import { config } from '@/editor/config';
 import { BaseStore, EMPTY_THUMBNAIL_IMAGE, EMPTY_THUMBNAIL_IMAGE_LARGE, STORE_ITEM_PAGE_SIZE } from './baseStore';
 
 class AssetsStore extends BaseStore {
-    constructor(args?: unknown) {
-        super();
-        this.searchResults = [];
-        this.sortPolicy = 'created';
-    }
-
     get name() {
         return 'playcanvasStore';
     }

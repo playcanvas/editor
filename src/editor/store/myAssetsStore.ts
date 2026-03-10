@@ -5,10 +5,7 @@ import { bytesToHuman } from '@/common/utils';
 import { BaseStore, EMPTY_THUMBNAIL_IMAGE, EMPTY_THUMBNAIL_IMAGE_LARGE, STORE_ITEM_PAGE_SIZE } from './baseStore';
 
 class MyAssetsStore extends BaseStore {
-    constructor(args?: unknown) {
-        super();
-        this.sortPolicy = 'createdAt';
-    }
+    sortPolicy = 'createdAt';
 
     get name() {
         return 'myAssetsStore';
