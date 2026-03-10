@@ -1305,9 +1305,6 @@ strong {
     z-index: 10000;
 
     & > .pcui-overlay-content {
-        position: absolute;
-        left: 0;
-        top: 0;
         height: 100vh;
         width: 100vw;
 
@@ -2197,10 +2194,6 @@ strong {
     z-index: 10000;
 
     & > .pcui-overlay-content {
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
         height: fit-content;
         width: 500px;
 
@@ -2278,10 +2271,6 @@ strong {
     z-index: 10000;
 
     & > .pcui-overlay-content {
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
         height: fit-content;
         width: 500px;
 
@@ -2376,10 +2365,6 @@ strong {
     z-index: 100000;
 
     & > .pcui-overlay-content {
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
         height: fit-content;
         width: 500px;
 
@@ -2787,10 +2772,6 @@ strong {
     z-index: 100001;  // larger than CMS
 
     > .pcui-overlay-content {
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
         height: fit-content;
         width: 500px;
 
@@ -2853,11 +2834,8 @@ strong {
     z-index: 100000; // larger than drop-area's
 
     > .pcui-overlay-content {
-        position: relative;
         width: 1060px;
         height: 600px;
-        left: calc(50% - 530px);
-        top: calc(50% - 300px);
 
         .ui-label:not(.selectable) {
             @extend .noSelect;
