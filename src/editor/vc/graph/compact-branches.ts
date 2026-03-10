@@ -2,9 +2,18 @@ editor.once('load', () => {
     //  Try to place branches above or below each other
     //  when possible, to save horizontal space
     class CompactBranches {
+        allNodes: Record<string, unknown>[];
+
+        branches: Record<string, Record<string, unknown>>;
+
+        xToNodes!: Record<number, Record<string, unknown>[]>;
+
+        maxX!: number;
+
+        xToLimits: Record<number, unknown> = {};
+
         constructor(data: { idToNode: Record<string, Record<string, unknown>>; branches: Record<string, Record<string, unknown>> }) {
             this.allNodes = Object.values(data.idToNode);
-
             this.branches = data.branches;
         }
 

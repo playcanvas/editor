@@ -21,16 +21,25 @@
  */
 editor.once('load', () => {
     class MakeHistGraph {
+        fullGraph: Record<string, Record<string, unknown>>;
+
+        startId: string;
+
+        visited: Record<string, boolean> = {};
+
+        includeInRes: Record<string, boolean> = {};
+
+        histParents: Record<string, unknown> = {};
+
+        resGraph!: Record<string, Record<string, unknown>>;
+
+        resNodes!: Record<string, unknown>[];
+
+        startCh!: Record<string, unknown>;
+
         constructor(fullGraph: Record<string, Record<string, unknown>>, startId: string) {
             this.fullGraph = fullGraph;
-
             this.startId = startId;
-
-            this.visited = {};
-
-            this.includeInRes = {};
-
-            this.histParents = {};
         }
 
         run() {

@@ -2,18 +2,25 @@ editor.once('load', () => {
     // Set the 'coords' field of every checkpoint node. The coords
     // are set relative to the previous node of our bfs traversal
     class PlaceVcNodes {
+        idToNode: Record<string, Record<string, unknown>>;
+
+        branches: Record<string, Record<string, unknown>>;
+
+        startNode: Record<string, unknown>;
+
+        q1: Record<string, unknown>[] = [];
+
+        q2: Record<string, unknown>[];
+
+        visited: Record<string, boolean> = {};
+
+        curBranch?: string;
+
         constructor(data: { idToNode: Record<string, Record<string, unknown>>; branches: Record<string, Record<string, unknown>>; startNode: Record<string, unknown> }) {
             this.idToNode = data.idToNode;
-
             this.branches = data.branches;
-
             this.startNode = data.startNode;
-
-            this.q1 = [];
-
             this.q2 = [this.startNode];
-
-            this.visited = {};
         }
 
         run() {
