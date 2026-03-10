@@ -1,5 +1,5 @@
 import { Observer, ObserverList } from '@playcanvas/observer';
-import { Element, Container, Label, Button, ArrayInput, VectorInput, BooleanInput, NumericInput, TextInput, LabelGroup, Panel } from '@playcanvas/pcui';
+import { Element, Container, type ContainerArgs, Label, Button, ArrayInput, VectorInput, BooleanInput, NumericInput, TextInput, LabelGroup, Panel } from '@playcanvas/pcui';
 
 
 import { AssetInput } from '@/common/pcui/element/element-asset-input';
@@ -61,8 +61,15 @@ const ICONS = {
     model: '&#57749;'
 };
 
+interface OverrideGroupArgs extends ContainerArgs {
+    mode?: string;
+    name?: string;
+}
+
 class OverrideGroup extends Container {
-    constructor(args: { mode?: string; name?: string }) {
+    private _icon: Label | undefined;
+
+    constructor(args: OverrideGroupArgs) {
         super(args);
 
         this.class.add(CLASS_OVERRIDE_GROUP);
@@ -115,21 +122,48 @@ class OverrideGroup extends Container {
     }
 }
 
+interface TemplateOverridesViewArgs extends ContainerArgs {
+    assets: ObserverList;
+    entities: ObserverList;
+    projectSettings: Observer;
+}
+
 class TemplateOverridesView extends Container {
-    constructor(args: { assets: ObserverList; entities: ObserverList; projectSettings: Observer }) {
+    private _overrides: Record<string, unknown> | null = null;
+
+    private _templateAsset: { get: (key: string) => unknown } | null = null;
+
+    private _entity: Observer | null = null;
+
+    private _assets: ObserverList;
+
+    private _entities: ObserverList;
+
+    private _templateEntities = new ObserverList({ index: 'resource_id' });
+
+    private _projectSettings: Observer;
+
+    private _containerOverrides: Container;
+
+    private _dropdownMenu: Container;
+
+    private _dropdownMarker: LegacyLabel | null = null;
+
+    private _evtWindowClick = (e: MouseEvent) => {
+        if (this._dropdownMarker && this._dropdownMarker.dom.contains(e.target)) {
+            return;
+        }
+
+        this._dropdownMenu.hidden = true;
+    };
+
+    constructor(args: TemplateOverridesViewArgs) {
         super(args);
 
         this.class.add(CLASS_ROOT);
 
-        this._overrides = null;
-        this._templateAsset = null;
-        this._entity = null;
-
         this._assets = args.assets;
         this._entities = args.entities;
-        this._templateEntities = new ObserverList({
-            index: 'resource_id'
-        });
         this._projectSettings = args.projectSettings;
 
         // top header
@@ -171,8 +205,6 @@ class TemplateOverridesView extends Container {
 
         this.append(this._dropdownMenu);
 
-        this._dropdownMarker = null;
-
         this.on('show', () => {
             editor.call('picker:open', 'templates-override-panel');
         });
@@ -181,8 +213,6 @@ class TemplateOverridesView extends Container {
             editor.call('picker:close', 'templates-override-panel');
         });
 
-        this._evtWindowClick = this._onWindowClick.bind(this);
-
         this._dropdownMenu.on('show', () => {
             window.addEventListener('click', this._evtWindowClick);
         });
@@ -190,14 +220,6 @@ class TemplateOverridesView extends Container {
         this._dropdownMenu.on('hide', () => {
             window.removeEventListener('click', this._evtWindowClick);
         });
-    }
-
-    _onWindowClick(e: MouseEvent): void {
-        if (this._dropdownMarker && this._dropdownMarker.dom.contains(e.target)) {
-            return;
-        }
-
-        this._dropdownMenu.hidden = true;
     }
 
     _appendLeft(panel: Panel, element: Element) {
