@@ -30,7 +30,6 @@ editor.once('load', () => {
         name: blankProject.name,
         description: blankProject.description,
         private: false,
-        legacy: null,
         fork_from: null
     };
 
@@ -80,7 +79,6 @@ editor.once('load', () => {
             formInputs.name = starterKits[fork].name;
             formInputs.description = starterKits[fork].description;
             formInputs.private = false;
-            formInputs.legacy = null;
             formInputs.fork_from = starterKits[fork].fork_from;
 
             selectedKitElement.dom.classList.add('selected');
@@ -150,12 +148,6 @@ editor.once('load', () => {
             buildOrgDropdown(formContent);
         }
         const togglePrivate = buildFormGroup('toggle', allowPrivate() ? 'Private' : 'Private (Premium)', formContent);
-        if (formInputs.legacy !== null && currentUser.flags.hasLegacyScripts) {
-            const toggleLegacy = buildFormGroup('toggle', 'Legacy Scripts', formContent);
-            toggleLegacy.on('change', () => {
-                formInputs.legacy = toggleLegacy.value;
-            });
-        }
 
         textName.on('change', () => {
             formInputs.name = textName.value;
@@ -381,10 +373,6 @@ editor.once('load', () => {
         newKitData.name = formInputs.name;
         newKitData.description = formInputs.description;
         newKitData.private = formInputs.private;
-        newKitData.settings = {
-            useLegacyScripts: formInputs.legacy === null ? false : formInputs.legacy,
-            vr: false
-        };
         newKitData.fork_from = formInputs.fork_from;
         createNewProject();
     });
@@ -550,7 +538,6 @@ editor.once('load', () => {
         rootUser = editor.call('picker:project:cms:rootUser');
         currentUser = editor.call('picker:project:cms:currentUser');
         newProjectOwner = currentUser;
-        formInputs.legacy = currentUser.flags.hasLegacyScripts ? false : null;
         buildSidebar();
         overlay.hidden = false;
     });
