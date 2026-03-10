@@ -7,14 +7,19 @@ const STORE_ITEM_PAGE_SIZE = 24;
 const EMPTY_THUMBNAIL_IMAGE_LARGE = 'https://playcanvas.com/static-assets/images/store-default-thumbnail.jpg';
 
 class BaseStore {
-    constructor(args?: unknown) {
-        this.searchResults = [];
-        this.items = [];
-        this.startItem = 0;
-        this.selectedSortRadioButton = null;
-        this.sortPolicy = 'created';
-        this.sortCallback = null;
-    }
+    searchResults: any = [];
+
+    items: any[] = [];
+
+    startItem = 0;
+
+    totalCount = 0;
+
+    selectedSortRadioButton: RadioButton | null = null;
+
+    sortPolicy = 'created';
+
+    sortCallback: (() => void) | null = null;
 
     setItems(items: unknown[]) {
         this.items = items;

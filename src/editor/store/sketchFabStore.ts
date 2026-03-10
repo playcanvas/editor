@@ -8,10 +8,7 @@ import { BaseStore, EMPTY_THUMBNAIL_IMAGE_LARGE, STORE_ITEM_PAGE_SIZE } from './
 const md = Markdown({});
 
 class SketchFabStore extends BaseStore {
-    constructor(args?: unknown) {
-        super();
-        this.sortPolicy = 'viewCount';
-    }
+    sortPolicy = 'viewCount';
 
     get name() {
         return 'sketchfabStore';
