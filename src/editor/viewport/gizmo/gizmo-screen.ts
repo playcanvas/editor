@@ -1,4 +1,4 @@
-import { Color, Vec2, Vec3 } from 'playcanvas';
+import { type AppBase, Color, Vec2, Vec3 } from 'playcanvas';
 
 import type { EntityObserver } from '@/editor-api';
 
@@ -21,7 +21,7 @@ editor.once('load', () => {
         colors.push(Color.WHITE);
     }
 
-    editor.once('viewport:load', (app: import('playcanvas').AppBase) => {
+    editor.once('viewport:load', (app: AppBase) => {
         const entities = {};
 
         // remember selected entities

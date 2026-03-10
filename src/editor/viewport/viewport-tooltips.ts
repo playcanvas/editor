@@ -1,3 +1,5 @@
+import type { Entity, MeshInstance } from 'playcanvas';
+
 editor.once('load', () => {
     let inViewport = false;
     let nameLast = '';
@@ -22,7 +24,7 @@ editor.once('load', () => {
         editor.call('cursor:text', nameLast);
     };
 
-    const checkPicked = function (node: import('playcanvas').Entity | null, picked: import('playcanvas').MeshInstance | { node: { name: string } } | null): void {
+    const checkPicked = function (node: Entity | null, picked: MeshInstance | { node: { name: string } } | null): void {
         let name = '';
 
         if (inViewport && node) {

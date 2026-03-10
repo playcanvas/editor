@@ -1,8 +1,8 @@
-import { BoundingBox, PROJECTION_PERSPECTIVE, Vec2, Vec3 } from 'playcanvas';
+import { type Application, BoundingBox, PROJECTION_PERSPECTIVE, Vec2, Vec3 } from 'playcanvas';
 
 import type { ViewportTap } from '../viewport-tap';
 
-editor.once('viewport:load', (app: import('playcanvas').Application) => {
+editor.once('viewport:load', (app: Application) => {
     // Moving towards mouse point in world using mouse wheel
     // Speed is relative to distance of point in world
 
@@ -175,7 +175,7 @@ editor.once('viewport:load', (app: import('playcanvas').Application) => {
         }
     };
 
-    const onFocus = function (_point: import('playcanvas').Vec3, dist: number): void {
+    const onFocus = function (_point: Vec3, dist: number): void {
         distance = Math.max(1, Math.min(zoomMax, dist));
     };
 

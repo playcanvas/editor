@@ -1,9 +1,11 @@
+import type { Entity } from 'playcanvas';
+
 editor.once('load', () => {
     let camera;
     let overlapping = 0;
     let position, rotation, eulers, orthoHeight;
 
-    editor.method('camera:history:start', (entity: import('playcanvas').Entity) => {
+    editor.method('camera:history:start', (entity: Entity) => {
         if (entity === camera) {
             overlapping++;
             return;
@@ -27,7 +29,7 @@ editor.once('load', () => {
         obj.history.enabled = false;
     });
 
-    editor.method('camera:history:stop', (entity?: import('playcanvas').Entity) => {
+    editor.method('camera:history:stop', (entity?: Entity) => {
         if (!camera) {
             return;
         }

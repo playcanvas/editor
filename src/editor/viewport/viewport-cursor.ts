@@ -1,3 +1,5 @@
+import type { Entity, MeshInstance } from 'playcanvas';
+
 editor.once('load', () => {
     let state = false;
     let inViewport = false;
@@ -19,7 +21,7 @@ editor.once('load', () => {
         }
     });
 
-    const checkPicked = function (node: import('playcanvas').Entity | null, picked: import('playcanvas').MeshInstance | { node: { name: string } } | null): void {
+    const checkPicked = function (node: Entity | null, picked: MeshInstance | { node: { name: string } } | null): void {
         let hover = false;
 
         // if mouse in viewport && entity model has an asset

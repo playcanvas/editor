@@ -11,6 +11,7 @@ import {
     Model,
     PRIMITIVE_LINES,
     SEMANTIC_POSITION,
+    type AppBase,
     TYPE_FLOAT32,
     VertexBuffer,
     VertexFormat,
@@ -255,7 +256,7 @@ editor.once('load', () => {
         }
     });
 
-    editor.once('viewport:load', (application: import('playcanvas').AppBase) => {
+    editor.once('viewport:load', (application: AppBase) => {
         app = application;
         const device = app.graphicsDevice;
 

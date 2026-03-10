@@ -17,6 +17,9 @@ import {
     PRIMITIVE_LINES,
     SEMANTIC_ATTR15,
     ShaderMaterial,
+    type AppBase,
+    type GraphicsDevice,
+    type Material,
     Vec3
 } from 'playcanvas';
 
@@ -300,7 +303,7 @@ editor.once('load', () => {
             materialSpotBehind.update();
         }
 
-        static createDirectional(device: import('playcanvas').GraphicsDevice) {
+        static createDirectional(device: GraphicsDevice) {
 
             const rad = math.DEG_TO_RAD;
             const size = 0.2;
@@ -329,7 +332,7 @@ editor.once('load', () => {
             return Gizmo.createModel(device, positions, null, material, materialBehind);
         }
 
-        static createPoint(device: import('playcanvas').GraphicsDevice) {
+        static createPoint(device: GraphicsDevice) {
 
             // xz axis
             const positions = [];
@@ -342,7 +345,7 @@ editor.once('load', () => {
             return Gizmo.createModel(device, positions, null, material, materialBehind);
         }
 
-        static createPointClose(device: import('playcanvas').GraphicsDevice) {
+        static createPointClose(device: GraphicsDevice) {
 
             // circles
             const positions = [];
@@ -359,7 +362,7 @@ editor.once('load', () => {
             return Gizmo.createModel(device, positions, null, material, materialBehind);
         }
 
-        static createSpot(device: import('playcanvas').GraphicsDevice) {
+        static createSpot(device: GraphicsDevice) {
 
             const positions = [];
             const outers = [];
@@ -390,7 +393,7 @@ editor.once('load', () => {
             return Gizmo.createModel(device, positions, outers, materialSpot, materialSpotBehind);
         }
 
-        static createRectangle(device: import('playcanvas').GraphicsDevice) {
+        static createRectangle(device: GraphicsDevice) {
 
             // 4 lines
             const positions = [
@@ -403,7 +406,7 @@ editor.once('load', () => {
             return Gizmo.createModel(device, positions, null, material, materialBehind);
         }
 
-        static createDisk(device: import('playcanvas').GraphicsDevice) {
+        static createDisk(device: GraphicsDevice) {
 
             const positions = [];
             const factor = 360 / _circleSegments * math.DEG_TO_RAD;
@@ -416,7 +419,7 @@ editor.once('load', () => {
             return Gizmo.createModel(device, positions, null, material, materialBehind);
         }
 
-        static createSphere(device: import('playcanvas').GraphicsDevice) {
+        static createSphere(device: GraphicsDevice) {
 
             // circles
             const positions = [];
@@ -433,7 +436,7 @@ editor.once('load', () => {
             return Gizmo.createModel(device, positions, null, material, materialBehind);
         }
 
-        static createModel(device: import('playcanvas').GraphicsDevice, positions: number[], outers: number[] | null, materialFront: import('playcanvas').Material, materialBack: import('playcanvas').Material) {
+        static createModel(device: GraphicsDevice, positions: number[], outers: number[] | null, materialFront: Material, materialBack: Material) {
 
             // node
             const node = new GraphNode();
@@ -522,7 +525,7 @@ editor.once('load', () => {
         }
     });
 
-    editor.once('viewport:load', (application: import('playcanvas').AppBase) => {
+    editor.once('viewport:load', (application: AppBase) => {
         app = application;
         const device = app.graphicsDevice;
 

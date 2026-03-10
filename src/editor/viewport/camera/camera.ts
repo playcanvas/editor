@@ -1,4 +1,4 @@
-import { Entity, PROJECTION_ORTHOGRAPHIC, PROJECTION_PERSPECTIVE, SHADOWUPDATE_THISFRAME, Vec3 } from 'playcanvas';
+import { type CameraComponent, Entity, type Layer, PROJECTION_ORTHOGRAPHIC, PROJECTION_PERSPECTIVE, SHADOWUPDATE_THISFRAME, Vec3 } from 'playcanvas';
 
 editor.once('load', () => {
     editor.once('viewport:load', (app) => {
@@ -26,7 +26,7 @@ editor.once('load', () => {
             return currentCamera;
         });
 
-        const addGizmoLayers = function (camera: import('playcanvas').CameraComponent, layers: import('playcanvas').Layer[]): void {
+        const addGizmoLayers = function (camera: CameraComponent, layers: Layer[]): void {
             for (let i = 0; i < layers.length; i++) {
                 const layer = layers[i];
                 const idx = camera.layers.indexOf(layer.id);
@@ -38,7 +38,7 @@ editor.once('load', () => {
             camera.layers = camera.layers; // force update
         };
 
-        const removeGizmoLayers = function (camera: import('playcanvas').CameraComponent, layers: import('playcanvas').Layer[]): void {
+        const removeGizmoLayers = function (camera: CameraComponent, layers: Layer[]): void {
             for (let i = 0; i < layers.length; i++) {
                 const layer = layers[i];
                 const idx = camera.layers.indexOf(layer.id);
@@ -51,7 +51,7 @@ editor.once('load', () => {
             camera.layers = camera.layers; // force update
         };
 
-        editor.method('camera:set', (entity?: import('playcanvas').Entity) => {
+        editor.method('camera:set', (entity?: Entity) => {
             if (!entity) {
                 entity = defaultCamera;
             }
@@ -149,7 +149,7 @@ editor.once('load', () => {
             editor.call('viewport:render');
         });
 
-        editor.method('camera:add', (entity: import('playcanvas').Entity) => {
+        editor.method('camera:add', (entity: Entity) => {
             if (camerasIndex[entity.getGuid()]) {
                 return;
             }
@@ -164,7 +164,7 @@ editor.once('load', () => {
             editor.emit('camera:add', entity);
         });
 
-        editor.method('camera:remove', (entity: import('playcanvas').Entity) => {
+        editor.method('camera:remove', (entity: Entity) => {
             if (!camerasIndex[entity.getGuid()]) {
                 return;
             }
@@ -239,7 +239,7 @@ editor.once('load', () => {
         }];
 
 
-        const createCamera = function (args: { name: string; title: string; className: string; position: import('playcanvas').Vec3; rotation: import('playcanvas').Vec3; default?: boolean; ortho?: boolean }) {
+        const createCamera = function (args: { name: string; title: string; className: string; position: Vec3; rotation: Vec3; default?: boolean; ortho?: boolean }) {
             const entity = new Entity();
             entity.__editorCamera = true;
             entity.__editorName = args.name;

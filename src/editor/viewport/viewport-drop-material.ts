@@ -1,4 +1,4 @@
-import { MeshInstance } from 'playcanvas';
+import { type Entity, MeshInstance } from 'playcanvas';
 
 import { config } from '@/editor/config';
 
@@ -54,7 +54,7 @@ editor.once('load', () => {
         editor.call('viewport:render');
     };
 
-    const onHover = function (entity: import('playcanvas').Entity | null, meshInstance: import('playcanvas').MeshInstance | null): void {
+    const onHover = function (entity: Entity | null, meshInstance: MeshInstance | null): void {
         if (entity === hoverEntity && meshInstance === hoverMeshInstance) {
             return;
         }
@@ -110,7 +110,7 @@ editor.once('load', () => {
         }
     };
 
-    const onPick = function (node: import('playcanvas').Entity | null, picked: import('playcanvas').MeshInstance | unknown): void {
+    const onPick = function (node: Entity | null, picked: MeshInstance | unknown): void {
         let meshInstance = null;
 
         if (node && node._icon) {
@@ -133,7 +133,7 @@ editor.once('load', () => {
         }
     };
 
-    editor.on('viewport:pick:hover', (node: import('playcanvas').Entity | null, picked: import('playcanvas').MeshInstance | null) => {
+    editor.on('viewport:pick:hover', (node: Entity | null, picked: MeshInstance | null) => {
         hoverNode = node;
         hoverPicked = picked;
 

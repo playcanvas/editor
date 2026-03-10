@@ -1,4 +1,4 @@
-import { PROJECTION_ORTHOGRAPHIC, Quat } from 'playcanvas';
+import { type Entity, PROJECTION_ORTHOGRAPHIC, Quat } from 'playcanvas';
 
 editor.once('camera:load', () => {
     const userdata = editor.call('userdata');
@@ -65,7 +65,7 @@ editor.once('camera:load', () => {
         }
     });
 
-    editor.on('camera:change', (cameraNew: import('playcanvas').Entity) => {
+    editor.on('camera:change', (cameraNew: Entity) => {
         camera = cameraNew;
     });
 });
