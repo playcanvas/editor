@@ -1,7 +1,6 @@
 import { EventHandle, type ObserverList } from '@playcanvas/observer';
-import { Container, Label, Button, BindingObserversToElement, type ContainerArgs, type Element } from '@playcanvas/pcui';
+import { BindingObserversToElement, Button, Container, type ContainerArgs, type Element, Label } from '@playcanvas/pcui';
 
-import { LegacyLabel } from '@/common/ui/label';
 import { type EntityObserver } from '@/editor-api';
 
 import { type TemplateOverridesView } from './templates-override-panel';
@@ -278,19 +277,18 @@ class TemplatesEntityInspector extends Container {
         });
         container.append(label);
 
-        const icon = new LegacyLabel({
-            unsafe: true
+        const icon = new Label({
+            class: CLASS_ENTITY_LIST_ICON
         });
-        icon.class.add(CLASS_ENTITY_LIST_ICON);
 
         if (data.removed) {
-            icon.text = '&#58256;';
+            icon.text = '\uE374';
             icon.class.add(CLASS_ENTITY_LIST_ICON_FONT);
         } else if (data.added) {
-            icon.text = '&#58257;';
+            icon.text = '\uE375';
             icon.class.add(CLASS_ENTITY_LIST_ICON_FONT);
         } else {
-            icon.text = data.overrides.length;
+            icon.text = String(data.overrides?.length ?? 0);
         }
         container.append(icon);
 
