@@ -346,6 +346,8 @@ class AssetInspector extends Container {
 
     private _btnEditAssetInVSCode: Button;
 
+    private _btnEditAssetInCursor: Button;
+
     private _btnEditSprite: Button;
 
     private _typedAssetInspectors: Record<string, any> = {};
@@ -438,6 +440,23 @@ class AssetInspector extends Container {
         });
         this._btnEditAssetInVSCode.on('click', this._onClickEditAssetInVSCode.bind(this));
         this._containerButtons.append(this._btnEditAssetInVSCode);
+
+        // add edit in Cursor button
+        this._btnEditAssetInCursor = new Button({
+            text: editor.call('permissions:write') ? 'EDIT' : 'VIEW',
+            icon: 'E130',
+            ignoreParent: true
+        });
+        this._btnEditAssetInCursor.style.flex = '1';
+        const evtBtnEditInCursorPermissions = editor.on('permissions:writeState', (state) => {
+            this._btnEditAssetInCursor.text = `${state ? 'EDIT' : 'VIEW'} IN CURSOR`;
+        });
+        this._btnEditAssetInCursor.once('destroy', () => {
+            evtBtnEditInCursorPermissions.unbind();
+        });
+        this._btnEditAssetInCursor.on('click', this._onClickEditAssetInCursor.bind(this));
+        this._containerButtons.append(this._btnEditAssetInCursor);
+
         // add edit button
         this._btnEditSprite = new Button({
             text: 'SPRITE EDITOR',
@@ -517,9 +536,11 @@ class AssetInspector extends Container {
     }
 
     _onClickEditAssetInVSCode(evt: MouseEvent) {
-        const projectName = `${config.project.name} (${config.project.id})`;
-        const filePath = editor.call('assets:virtualPath', this._assets[0]);
-        window.open(`vscode://playcanvas.playcanvas/${projectName}${filePath}`);
+        window.open(editor.call('assets:idePath', 'vscode', this._assets[0]));
+    }
+
+    _onClickEditAssetInCursor(evt: MouseEvent) {
+        window.open(editor.call('assets:idePath', 'cursor', this._assets[0]));
     }
 
     _onClickEditSprite(evt: MouseEvent) {
@@ -787,6 +808,7 @@ class AssetInspector extends Container {
         // Determine if the Edit/View button should be displayed
         this._btnEditAsset.hidden = assets.length > 1 || !this._editableTypes[assets[0].get('type')];
         this._btnEditAssetInVSCode.hidden = this._btnEditAsset.hidden;
+        this._btnEditAssetInCursor.hidden = this._btnEditAsset.hidden;
 
         // Determine the Download button state
         this._updateDownloadButton();
