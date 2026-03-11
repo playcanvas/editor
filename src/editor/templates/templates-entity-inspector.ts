@@ -288,7 +288,7 @@ class TemplatesEntityInspector extends Container {
             icon.text = '\uE375';
             icon.class.add(CLASS_ENTITY_LIST_ICON_FONT);
         } else {
-            icon.text = String(data.overrides.length);
+            icon.text = String(data.overrides?.length ?? 0);
         }
         container.append(icon);
 
