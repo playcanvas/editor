@@ -43,12 +43,12 @@ type ProjectSettings = {
     i18nAssets: number[],
     useLegacyAmmoPhysics: boolean,
     enableSharedArrayBuffer: boolean,
-    plugins: string[],
+    plugins?: string[],
     vr: boolean,
-    useKeyboard: boolean,
-    useMouse: boolean,
-    useTouch: boolean,
-    useGamepads: boolean,
+    useKeyboard?: boolean,
+    useMouse?: boolean,
+    useTouch?: boolean,
+    useGamepads?: boolean,
     maxAssetRetries: number,
     [key: string]: unknown
 };
@@ -107,7 +107,7 @@ type Url = {
     },
     frontend: string,
     engine: string,
-    useCustomEngine: boolean,
+    useCustomEngine?: boolean,
 };
 
 type EngineVersions = {
