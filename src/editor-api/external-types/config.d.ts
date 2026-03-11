@@ -50,7 +50,6 @@ type ProjectSettings = {
     useTouch?: boolean,
     useGamepads?: boolean,
     maxAssetRetries: number,
-    [key: string]: unknown
 };
 
 type Project = {
