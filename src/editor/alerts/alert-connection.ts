@@ -1,17 +1,17 @@
-import { LegacyOverlay } from '@/common/ui/overlay';
+import { Overlay } from '@playcanvas/pcui';
+
 import { config } from '@/editor/config';
 
 editor.once('load', () => {
     let timeout;
     let viewportError = false;
 
-    // overlay
-    const overlay = new LegacyOverlay();
-    overlay.class.add('connection-overlay');
-    overlay.center = false;
-    overlay.transparent = false;
-    overlay.clickable = false;
-    overlay.hidden = true;
+    const overlay = new Overlay({
+        class: 'connection-overlay',
+        clickable: false,
+        transparent: false,
+        hidden: true
+    });
 
     const root = editor.call('layout.root');
     root.append(overlay);
@@ -20,12 +20,12 @@ editor.once('load', () => {
     const icon = document.createElement('div');
     icon.classList.add('connection-icon');
     icon.classList.add('error');
-    overlay.innerElement.appendChild(icon);
+    overlay.domContent.appendChild(icon);
 
     // content
     const content = document.createElement('div');
     content.classList.add('connection-content');
-    overlay.innerElement.appendChild(content);
+    overlay.domContent.appendChild(content);
 
     editor.on('realtime:connected', () => {
         if (viewportError) {

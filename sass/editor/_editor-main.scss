@@ -694,16 +694,19 @@ strong {
 }
 
 .connection-overlay {
-    > .content {
+    > .pcui-overlay-content {
+        z-index: 1;
         width: 400px;
         left: calc(50% - 200px);
         height: 64px;
         top: calc(50% - 32px);
+        background-color: $bcg-darkest;
 
         > .connection-icon {
             width: 64px;
             height: 64px;
             line-height: 64px;
+            color: $bcg-darkest;
 
             @extend .font-icon;
 
@@ -711,6 +714,10 @@ strong {
             font-weight: 100;
             text-align: center;
             display: inline-block;
+
+            &.error {
+                background-color: red;
+            }
 
             &.error::before {
                 content: '\E218';
@@ -722,6 +729,7 @@ strong {
             width: 400px - 64px - 20px;
             display: inline-block;
             vertical-align: super;
+            color: white;
         }
     }
 }
