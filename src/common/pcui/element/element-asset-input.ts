@@ -321,7 +321,7 @@ class AssetInput extends Element {
         return true;
     }
 
-    link(observers: Observer | ObserverList, paths?: string[]) {
+    link(observers: Observer | Observer[], paths: string | string[]) {
         super.link(observers, paths);
         this._thumbnail.link(observers, paths);
     }
