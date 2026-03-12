@@ -130,8 +130,7 @@ editor.once('load', () => {
             // dropdown
             const dropdown = new Button({
                 class: 'dropdown',
-                icon: 'E159',
-                renderChanges: true
+                icon: 'E159'
             });
             organizationFilter.append(dropdown.element);
 
@@ -755,8 +754,7 @@ editor.once('load', () => {
     const noProjectsButton = new Button({
         class: 'no-projects-button',
         icon: 'E370',
-        hidden: true,
-        renderChanges: true
+        hidden: true
     });
     rightPanel.dom.appendChild(noProjectsButton.element);
 

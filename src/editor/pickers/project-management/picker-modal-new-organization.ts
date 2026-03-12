@@ -81,8 +81,7 @@ editor.once('load', () => {
     const createButton = new Button({
         class: 'create-org-button',
         text: 'CREATE',
-        enabled: false,  // create button disabled on load
-        renderChanges: true
+        enabled: false
     });
     panel.append(createButton);
 
