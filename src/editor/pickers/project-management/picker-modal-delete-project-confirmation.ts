@@ -74,8 +74,7 @@ editor.once('load', () => {
     const deleteButton = new Button({
         class: 'delete-project-button',
         text: 'DELETE',
-        enabled: false,  // create button disabled on load
-        renderChanges: true
+        enabled: false
     });
     deleteButtonContainer.append(deleteButton);
 
