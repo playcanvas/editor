@@ -69,7 +69,7 @@
     "rollup": "4.59.0",
     "rollup-plugin-polyfill-node": "0.13.0",
     "sass-embedded": "1.97.3",
-    "serve": "14.2.5",
+    "serve": "14.2.6",
     "sharedb": "3.3.2",
     "sinon": "17.0.1",
     "stylelint": "16.26.1",
