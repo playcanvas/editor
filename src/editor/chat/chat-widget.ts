@@ -171,7 +171,7 @@ editor.once('load', () => {
             }
             typersLast = typersMultiple;
             typersMultiple.classList.add('active');
-            typersMultipleUsers.textContent = count;
+            typersMultipleUsers.textContent = String(count);
         }
     });
 
@@ -202,7 +202,7 @@ editor.once('load', () => {
         number.classList.add('notify');
 
         if (!number.classList.contains('typing')) {
-            number.textContent = messagesNumber;
+            number.textContent = String(messagesNumber);
         }
     });
 
@@ -222,7 +222,7 @@ editor.once('load', () => {
                 number.style.color = '';
             }
         } else {
-            number.textContent = messagesNumber;
+            number.textContent = String(messagesNumber);
             number.classList.remove('typing');
             number.style.color = '';
         }
@@ -236,7 +236,7 @@ editor.once('load', () => {
     chatPanel.append(messages);
 
     messages.innerElement.addEventListener('contextmenu', (evt: MouseEvent) => {
-        if (evt.target.tagName !== 'A') {
+        if (!(evt.target instanceof HTMLElement) || evt.target.tagName !== 'A') {
             return;
         }
 
