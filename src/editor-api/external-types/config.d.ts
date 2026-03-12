@@ -87,6 +87,7 @@ type ModelSchema = {
     scene: object,
     settings: object,
     asset: object,
+    [key: string]: object,
 };
 
 type Url = {
