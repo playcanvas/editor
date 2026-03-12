@@ -236,7 +236,7 @@ editor.once('load', () => {
     chatPanel.append(messages);
 
     messages.innerElement.addEventListener('contextmenu', (evt: MouseEvent) => {
-        if ((evt.target as HTMLElement).tagName !== 'A') {
+        if (!(evt.target instanceof HTMLElement) || evt.target.tagName !== 'A') {
             return;
         }
 
