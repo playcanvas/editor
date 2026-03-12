@@ -20,7 +20,6 @@ editor.once('load', () => {
         editor.api.globals.history.add({
             name: (items.length === 0) ? 'deselect' : (`select ${type}`),
             combine: false,
-            select: true,
             undo: function () {
                 const prev = selectorHistory;
                 selectorHistory = false;

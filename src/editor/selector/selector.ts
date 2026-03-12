@@ -2,10 +2,19 @@ import { ObserverList, type Observer } from '@playcanvas/observer';
 
 import { Asset, Entity } from '@/editor-api';
 
+type SelectorList = ObserverList & {
+    type: string | null;
+};
+
+type SelectableObserver = Observer & {
+    apiEntity?: Entity;
+    apiAsset?: Asset;
+};
+
 editor.once('load', () => {
     const selection = editor.api.globals.selection;
     let enabled = true;
-    const selector = new ObserverList();
+    const selector = new ObserverList() as SelectorList;
     selector.type = null;
 
 
@@ -114,7 +123,7 @@ editor.once('load', () => {
 
 
     // selecting item (toggle)
-    editor.method('selector:toggle', (type: string, item: Observer) => {
+    editor.method('selector:toggle', (type: string, item: SelectableObserver) => {
         if (item.apiEntity) {
             selection.toggle(item.apiEntity);
             return;
@@ -143,7 +152,7 @@ editor.once('load', () => {
 
 
     // selecting list of items
-    editor.method('selector:set', (type: string, items: Observer[]) => {
+    editor.method('selector:set', (type: string, items: SelectableObserver[]) => {
         if (type === 'entity') {
             selection.set(items.map(item => item.apiEntity));
             return;
@@ -182,7 +191,7 @@ editor.once('load', () => {
 
 
     // selecting item
-    editor.method('selector:add', (type: string, item: Observer) => {
+    editor.method('selector:add', (type: string, item: SelectableObserver) => {
         if (item.apiEntity) {
             selection.add(item.apiEntity);
             return;
@@ -211,7 +220,7 @@ editor.once('load', () => {
 
 
     // deselecting item
-    editor.method('selector:remove', (item: Observer) => {
+    editor.method('selector:remove', (item: SelectableObserver) => {
         if (item.apiEntity) {
             selection.remove(item.apiEntity);
             return;
@@ -235,7 +244,7 @@ editor.once('load', () => {
 
 
     // deselecting
-    editor.method('selector:clear', (_item?: unknown) => {
+    editor.method('selector:clear', () => {
         selection.clear();
 
         if (!enabled) {
@@ -274,7 +283,7 @@ editor.once('load', () => {
     });
 
     // return if it has item
-    editor.method('selector:has', (item: Observer) => {
+    editor.method('selector:has', (item: SelectableObserver) => {
         return selection.has(item.apiEntity) || selection.has(item.apiAsset) || selector.has(item);
     });
 
