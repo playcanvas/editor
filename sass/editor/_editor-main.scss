@@ -697,9 +697,7 @@ strong {
     > .pcui-overlay-content {
         z-index: 1;
         width: 400px;
-        left: calc(50% - 200px);
         height: 64px;
-        top: calc(50% - 32px);
         background-color: $bcg-darkest;
 
         > .connection-icon {
