@@ -264,7 +264,7 @@ editor.once('load', () => {
     };
 
     // helper method to toggle AJAX loader in create project button
-    const toggleLoader = (loading) => {
+    const toggleLoader = (loading: boolean) => {
         loader.hidden = !loading;
         createBtn.text = loading ? '' : 'CREATE';
     };
