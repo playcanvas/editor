@@ -137,13 +137,13 @@ editor.once('load', () => {
             formInputs.name = textName.value;
         });
         textName.on('focus', () => {
-            textName.element.childNodes[0].select();
+            textName.dom.childNodes[0].select();
         });
         textDescription.on('change', () => {
             formInputs.description = textDescription.value;
         });
         textDescription.on('focus', () => {
-            textDescription.element.childNodes[0].select();
+            textDescription.dom.childNodes[0].select();
         });
         togglePrivate.on('change', () => {
             formInputs.private = togglePrivate.value;
@@ -180,7 +180,7 @@ editor.once('load', () => {
                         renderChanges: true,
                         height: 100
                     });
-                    textInput.element.id = 'description';
+                    textInput.dom.id = 'description';
                 }
 
                 formGroup.append(textInput);
@@ -232,15 +232,15 @@ editor.once('load', () => {
         });
         ownerContainer.append(ownerDropdown);
 
-        const ownerDropdownContainer = ownerDropdown.element.querySelector('.pcui-select-input-container-value');
+        const ownerDropdownContainer = ownerDropdown.dom.querySelector('.pcui-select-input-container-value');
         const ownerDropdownSelectedProfile = new Element({
             dom: 'img',
             class: 'owner-profile'
         });
-        ownerDropdownSelectedProfile.element.src = `${config.url.api}/users/${newProjectOwner.id}/thumbnail?size=32`;
+        ownerDropdownSelectedProfile.dom.src = `${config.url.api}/users/${newProjectOwner.id}/thumbnail?size=32`;
         ownerDropdownContainer.appendChild(ownerDropdownSelectedProfile.dom);
 
-        const ownerDropdownList = ownerDropdown.element.querySelector('.pcui-select-input-container-value .pcui-select-input-list');
+        const ownerDropdownList = ownerDropdown.dom.querySelector('.pcui-select-input-container-value .pcui-select-input-list');
         let imageContainer;
         for (let i = 0; i < possibleOwners.length; i++) {
             const dropdownOption = ownerDropdownList.childNodes[i];
@@ -250,7 +250,7 @@ editor.once('load', () => {
                 class: 'owner-profile'
             });
             dropdownOption.appendChild(imageContainer.dom);
-            imageContainer.element.src = `${config.url.api}/users/${possibleOwners[i].id}/thumbnail?size=32`;
+            imageContainer.dom.src = `${config.url.api}/users/${possibleOwners[i].id}/thumbnail?size=32`;
         }
 
         ownerDropdown.on('change', () => {
