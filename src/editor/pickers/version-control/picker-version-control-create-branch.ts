@@ -1,6 +1,4 @@
-import { LegacyLabel } from '@/common/ui/label';
-import { LegacyPanel } from '@/common/ui/panel';
-import { LegacyTextField } from '@/common/ui/text-field';
+import { Container, Label, TextInput } from '@playcanvas/pcui';
 
 import { VersionControlSidePanelBox } from './ui/version-control-side-panel-box';
 
@@ -9,35 +7,33 @@ editor.once('load', () => {
         headerNote: 'Branching from'
     });
 
-    const labelIcon = new LegacyLabel({
-        text: '&#58265;',
-        unsafe: true
+    const labelIcon = new Label({
+        text: '\uE3A9',
+        class: 'branch-icon'
     });
-    labelIcon.class.add('branch-icon');
 
     const boxNewBranch = new VersionControlSidePanelBox({
         headerNote: 'New branch'
     });
 
-    const panelName = new LegacyPanel();
-    panelName.flex = true;
-    const label = new LegacyLabel({
-        text: 'New Branch Name'
+    const panelName = new Container({ flex: true });
+    const label = new Label({
+        text: 'New Branch Name',
+        class: 'left'
     });
-    label.class.add('left');
     panelName.append(label);
-    panelName.style.padding = '10px';
+    panelName.dom.style.padding = '10px';
 
-    const fieldBranchName = new LegacyTextField();
-    fieldBranchName.flexGrow = 1;
-    fieldBranchName.renderChanges = false;
-    fieldBranchName.keyChange = true;
+    const fieldBranchName = new TextInput({
+        keyChange: true,
+        renderChanges: false,
+        flexGrow: 1
+    });
     panelName.append(fieldBranchName);
 
-    // blur on enter
-    fieldBranchName.elementInput.addEventListener('keydown', function (e: KeyboardEvent) {
-        if (e.keyCode === 13) {
-            this.blur();
+    fieldBranchName.on('keydown', (e: KeyboardEvent) => {
+        if (e.key === 'Enter') {
+            fieldBranchName.blur();
             createBranch();
         }
     });
@@ -52,15 +48,13 @@ editor.once('load', () => {
             confirm: {
                 text: 'Create New Branch',
                 highlighted: true,
-                onClick: function () {
-                    createBranch();
-                }
+                onClick: () => createBranch()
             }
         }
     });
     panel.class.add('create-branch');
 
-    var createBranch = function () {
+    const createBranch = () => {
         if (panel.buttonConfirm.disabled) {
             return;
         }

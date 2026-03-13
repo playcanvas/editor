@@ -4916,10 +4916,10 @@ strong {
                         > .content {
                             flex-direction: column;
 
-                            .ui-panel {
+                            .pcui-container {
                                 display: block;
 
-                                .ui-label {
+                                .pcui-label {
                                     font-size: 12px;
 
                                     &.left {
@@ -4928,7 +4928,7 @@ strong {
                                 }
                             }
 
-                            .ui-label.branch-icon {
+                            .pcui-label.branch-icon {
                                 @extend .font-icon;
 
                                 font-size: 32px;
