@@ -1,21 +1,18 @@
-import { LegacyButton } from '@/common/ui/button';
-import { LegacyLabel } from '@/common/ui/label';
-import { LegacyTextAreaField } from '@/common/ui/textarea-field';
+import { Button, Label, TextAreaInput } from '@playcanvas/pcui';
 
 editor.once('load', () => {
-    const labelDesc = new LegacyLabel({
+    const labelDesc = new Label({
         text: 'Description:'
     });
-    labelDesc.class.add('small');
 
-    const fieldDescription = new LegacyTextAreaField({
-        blurOnEnter: false
+    const fieldDescription = new TextAreaInput({
+        blurOnEnter: false,
+        keyChange: true,
+        renderChanges: false,
+        flexGrow: 1
     });
-    fieldDescription.renderChanges = false;
-    fieldDescription.keyChange = true;
-    fieldDescription.flexGrow = 1;
 
-    const viewChangesButton = new LegacyButton({
+    const viewChangesButton = new Button({
         text: 'View Changes'
     });
 
@@ -23,14 +20,14 @@ editor.once('load', () => {
         panel.emit('diff');
     });
 
-    const create = function () {
+    const create = () => {
         panel.emit('confirm', {
             description: fieldDescription.value.trim()
         });
     };
 
-    fieldDescription.elementInput.addEventListener('keydown', (e) => {
-        if (e.keyCode === 13 && (e.ctrlKey || e.metaKey)) {
+    fieldDescription.on('keydown', (e: KeyboardEvent) => {
+        if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
             if (!panel.buttonConfirm.disabled) {
                 create();
             }
