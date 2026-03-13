@@ -261,6 +261,9 @@ editor.once('load', () => {
         if (closeCallback && !closeCallback()) {
             return;
         }
+        if ((evt.target as HTMLElement).closest('.pcui-menu')) {
+            return;
+        }
         originalOnPointerDown(evt);
     };
 
