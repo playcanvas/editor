@@ -1,5 +1,4 @@
 import { ObserverList, type Observer } from '@playcanvas/observer';
-
 editor.once('load', () => {
     const uniqueIdToItemId = {};
     const assetToVirtualPath = new Map();
@@ -37,7 +36,7 @@ editor.once('load', () => {
     });
 
     const updateAssetVirtualPath = (asset: Observer) => {
-        const virtualPath = assetVirtualPath(asset);
+        const virtualPath = editor.call('assets:virtualPath', asset);
         assetToVirtualPath.set(virtualPath, asset);
         virtualPathToAsset.set(asset, virtualPath);
     };
@@ -175,17 +174,19 @@ editor.once('load', () => {
     });
 
     const assetVirtualPath = (asset: Observer) => {
-        if (!asset.get('file')?.filename) {
+        const filename = asset.get('file')?.filename;
+        if (!filename) {
             return null;
         }
-        const assetPath = asset.get('path');
-        const pathAssets = assetPath.map(id => editor.call('assets:get', id));
-        if (pathAssets.some(a => !a)) {
-            // Parent folder(s) have been deleted
-            return null;
-        }
-        const pathSegments = pathAssets.map(a => a.get('name'));
-        return `/${[...pathSegments, asset.get('file').filename].join('/')}`;
+        const path = asset.get('path') || [];
+        const pathSegments: string[] = path.reduce((segments, id) => {
+            const asset = editor.call('assets:get', id);
+            if (asset) {
+                segments.push(asset.get('name'));
+            }
+            return segments;
+        }, []);
+        return `/${[...pathSegments, filename].join('/')}`;
     };
     editor.method('assets:virtualPath', assetVirtualPath);
 
@@ -194,4 +195,10 @@ editor.once('load', () => {
     });
 
     editor.method('assets:getByVirtualPath', (path: string) => assetToVirtualPath.get(path));
+
+    // get asset ide path
+    editor.method('assets:idePath', (ide: 'cursor' | 'vscode', asset?: Observer) => {
+        const assetPath = asset ? `/asset/${asset.get('id')}` : '';
+        return `${ide}://playcanvas.playcanvas/project/${config.project.id}${assetPath}`;
+    });
 });

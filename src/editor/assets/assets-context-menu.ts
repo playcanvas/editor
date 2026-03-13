@@ -540,6 +540,24 @@ editor.once('load', () => {
     });
     menu.append(menuItemEdit);
 
+    const menuItemEditInVSCode = new MenuItem({
+        text: editor.call('permissions:write') ? 'Edit in VSCode' : 'View in VSCode',
+        icon: ICONS.EDIT,
+        onSelect: () => {
+            window.open(editor.call('assets:idePath', 'vscode', currentAsset));
+        }
+    });
+    menu.append(menuItemEditInVSCode);
+
+    const menuItemEditInCursor = new MenuItem({
+        text: editor.call('permissions:write') ? 'Edit in Cursor' : 'View in Cursor',
+        icon: ICONS.EDIT,
+        onSelect: () => {
+            window.open(editor.call('assets:idePath', 'cursor', currentAsset));
+        }
+    });
+    menu.append(menuItemEditInCursor);
+
     // duplicate
     const menuItemDuplicate = new MenuItem({
         text: 'Duplicate',
@@ -702,11 +720,17 @@ editor.once('load', () => {
                 if (editor.call('selector:type') === 'asset') {
                     const items = editor.call('selector:items');
                     menuItemEdit.hidden = (items.length > 1 && items.indexOf(currentAsset) !== -1);
+                    menuItemEditInVSCode.hidden = menuItemEdit.hidden;
+                    menuItemEditInCursor.hidden = menuItemEdit.hidden;
                 } else {
                     menuItemEdit.hidden = false;
+                    menuItemEditInVSCode.hidden = false;
+                    menuItemEditInCursor.hidden = false;
                 }
             } else {
                 menuItemEdit.hidden = true;
+                menuItemEditInVSCode.hidden = true;
+                menuItemEditInCursor.hidden = true;
             }
 
             // create atlas

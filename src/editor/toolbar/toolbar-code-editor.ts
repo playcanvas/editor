@@ -4,6 +4,8 @@ import { Button } from '@playcanvas/pcui';
 import { LegacyTooltip } from '@/common/ui/tooltip';
 
 editor.once('load', () => {
+    const projectUserSettings = editor.call('settings:projectUser');
+
     const toolbar = editor.call('layout.toolbar');
 
     const button = new Button({
@@ -19,8 +21,18 @@ editor.once('load', () => {
     });
 
     editor.method('picker:codeeditor', (asset?: Observer, options?: Record<string, unknown>, popup?: boolean) => {
-        // open the new code editor - try to focus existing tab if it exists
+        // open the code editor external editor
+        const ide = projectUserSettings.get('editor.codeEditor');
+        if (asset) {
+            switch (ide) {
+                case 'vscode':
+                case 'cursor':
+                    window.open(editor.call('assets:idePath', ide, asset));
+                    return;
+            }
+        }
 
+        // open the new code editor - try to focus existing tab if it exists
         const projectId = config.project?.id;
         let url = `/editor/code/${projectId}`;
 
@@ -34,6 +46,9 @@ editor.once('load', () => {
         }
         if (params.has('use_local_frontend')) {
             query.push(`use_local_frontend=${params.get('use_local_frontend')}`);
+        }
+        if (params.has('use_local_engine')) {
+            query.push(`use_local_engine=${params.get('use_local_engine')}`);
         }
         if (query.length) {
             url += `?${query.join('&')}`;
