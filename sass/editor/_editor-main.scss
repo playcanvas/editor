@@ -4891,21 +4891,21 @@ strong {
                         > .content {
                             flex-direction: column;
 
-                            .ui-textarea-field {
-                                width: auto;
+                            .pcui-label {
+                                margin: 3px;
+                                font-size: 12px;
+                            }
+
+                            .pcui-text-area-input {
                                 height: 100px;
                                 background: $bcg-darkest;
                             }
 
-                            .ui-button {
+                            .pcui-button {
                                 width: 140px;
                                 text-transform: uppercase;
-                                text-align: center;
                                 align-self: center;
                                 background: $bcg-primary;
-                                font-size: 12px;
-                                height: 28px;
-                                line-height: 28px;
                             }
                         }
                     }
