@@ -1,10 +1,7 @@
-import { Element, Container, Label, Button } from '@playcanvas/pcui';
+import { Button, Container, Element, Label, Overlay, Panel } from '@playcanvas/pcui';
 
-import { LegacyButton } from '@/common/ui/button';
 import { LegacyList } from '@/common/ui/list';
 import { LegacyListItem } from '@/common/ui/list-item';
-import { LegacyOverlay } from '@/common/ui/overlay';
-import { LegacyPanel } from '@/common/ui/panel';
 import { bytesToHuman } from '@/common/utils';
 import { config } from '@/editor/config';
 
@@ -28,9 +25,9 @@ editor.once('load', () => {
     let statsContainer;
     const buildProjectStatsUI = () => {
         statsContainer = new Container({
+            id: 'project-stats',
             class: 'project-stats'
         });
-        statsContainer.element.id = 'project-stats';
         leftPanel.append(statsContainer);
 
         if (!noAdminView) {
@@ -65,13 +62,13 @@ editor.once('load', () => {
     };
 
     // helper method to build alert
-    const buildAlert = (root, alert, showButton = false, buttonText = '', funcParameters) => {
-        const alertContainer = new Element({
+    const buildAlert = (root: Container, alert: string, showButton = false, buttonText = '', funcParameters) => {
+        const alertContainer = new Container({
             class: 'alert'
         });
         root.dom.appendChild(alertContainer.dom);
 
-        const alertTextContainer = new Element({
+        const alertTextContainer = new Container({
             class: 'alert-text'
         });
         const alertInfo = new Element({
@@ -80,16 +77,16 @@ editor.once('load', () => {
         const alertText = new Label({
             text: alert
         });
-        alertContainer.dom.appendChild(alertTextContainer.dom);
-        alertTextContainer.dom.appendChild(alertInfo.dom);
-        alertTextContainer.dom.appendChild(alertText.element);
+        alertContainer.append(alertTextContainer);
+        alertTextContainer.append(alertInfo);
+        alertTextContainer.append(alertText);
 
         if (showButton && buttonText.length > 0) {
             const button = new Button({
                 class: 'btn',
                 text: buttonText
             });
-            alertContainer.dom.appendChild(button.element);
+            alertContainer.append(button);
 
             button.on('click', () => {
                 const callback = funcParameters.errorCallback;
@@ -114,7 +111,7 @@ editor.once('load', () => {
         const alertClose = new Button({
             class: 'alert-close'
         });
-        alertContainer.dom.appendChild(alertClose.element);
+        alertContainer.append(alertClose);
 
         alertClose.on('click', () => {
             alertContainer.dom.remove();
@@ -128,12 +125,12 @@ editor.once('load', () => {
         if (currentProject.thumbnails) {
             projectImg.style.backgroundImage = `url("${currentProject.thumbnails.m}")`;
             deleteButton.hidden = false;
-            replaceButton.element.style.marginRight = '0px';
+            replaceButton.dom.style.marginRight = '0px';
         } else {
             projectImg.style.backgroundImage = EMPTY_THUMBNAIL_IMAGE;
             // Disable delete thumbnail button if no thumbnails
             deleteButton.hidden = true;
-            replaceButton.element.style.marginRight = '6px';
+            replaceButton.dom.style.marginRight = '6px';
         }
 
         if (reducedView) {
@@ -244,7 +241,7 @@ editor.once('load', () => {
         }
 
         if (statsContainer) {
-            statsContainer.element.remove();
+            statsContainer.destroy();
         }
         editor.call('picker:project:main:refreshUI');
         editor.call('picker:team:management:refreshUI');
@@ -252,31 +249,43 @@ editor.once('load', () => {
     };
 
     // overlay
-    var overlay = new LegacyOverlay();
-    overlay.class.add('picker-project');
-    overlay.clickable = true;
-    overlay.hidden = true;
+    const overlay = new Overlay({
+        clickable: true,
+        hidden: true,
+        class: 'picker-project'
+    });
+
+    let closeCallback: (() => boolean) | null = null;
+    const originalOnPointerDown = (overlay as any)._onPointerDown;
+    (overlay as any)._onPointerDown = (evt: PointerEvent) => {
+        if (closeCallback && !closeCallback()) {
+            return;
+        }
+        originalOnPointerDown(evt);
+    };
 
     const root = editor.call('layout.root');
     root.append(overlay);
 
     // main panel
-    const panel = new LegacyPanel();
-    panel.class.add('project');
+    const panel = new Container({
+        class: 'project'
+    });
     overlay.append(panel);
 
     // left side panel
-    var leftPanel = new LegacyPanel();
+    const leftPanel = new Container({
+        class: 'left'
+    });
     panel.append(leftPanel);
-    leftPanel.class.add('left');
 
     // project image
-    var projectImg = document.createElement('div');
+    const projectImg = document.createElement('div');
     projectImg.classList.add('image');
     if (!IS_EMPTY_STATE) {
         projectImg.style.backgroundImage = config.project.thumbnails.m ? `url("${config.project.thumbnails.m}")` : EMPTY_THUMBNAIL_IMAGE;
     }
-    leftPanel.append(projectImg);
+    leftPanel.dom.appendChild(projectImg);
 
     let uploadingImage = false;
 
@@ -361,11 +370,11 @@ editor.once('load', () => {
 
         statsContainer.style.backgroundImage = 'linear-gradient(rgba(0, 0, 0, 0.8) 15%, transparent)';
         deleteButton.hidden = false;
-        replaceButton.element.style.marginRight = '0px';
+        replaceButton.dom.style.marginRight = '0px';
     });
 
     // store all panels for each menu option
-    var menuOptions = {};
+    const menuOptions = {};
     let defaultMenuOption = null;
 
     // thumbnail buttons
@@ -396,12 +405,12 @@ editor.once('load', () => {
         deleteThumbnail();
         // Hide delete button and adjust margin
         deleteButton.hidden = true;
-        replaceButton.element.style.marginRight = '6px';
+        replaceButton.dom.style.marginRight = '6px';
     });
 
     // menu
     const list = new LegacyList();
-    leftPanel.append(list);
+    leftPanel.dom.appendChild(list.element);
 
     // project CMS button
     const projectCMSButton = new Button({
@@ -437,7 +446,7 @@ editor.once('load', () => {
     });
     leftPanel.append(editorBtn);
 
-    editorBtn.element.addEventListener('mousedown', (e) => {
+    editorBtn.dom.addEventListener('mousedown', (e) => {
         let target = '_self';
         if (e.which === 2 || e.button === 4 || e.metaKey || e.ctrlKey) {
             target = '_blank';
@@ -467,21 +476,23 @@ editor.once('load', () => {
     });
 
     // right side panel
-    const rightPanel = new LegacyPanel('Project');
+    const rightPanel = new Panel({
+        headerText: 'Project',
+        class: 'right'
+    });
     panel.append(rightPanel);
-    rightPanel.class.add('right');
 
     // close button
-    const btnClose = new LegacyButton({
-        text: '&#57650;'
+    const btnClose = new Button({
+        icon: 'E132',
+        class: 'close'
     });
-    btnClose.class.add('close');
     btnClose.on('click', () => {
         if (currentSelection !== 'version control' || editor.call('vcgraph:isHidden')) {
             overlay.hidden = true;
         }
     });
-    rightPanel.headerElement.appendChild(btnClose.element);
+    rightPanel.header.append(btnClose);
 
     // LOCAL UTILS
 
@@ -520,8 +531,8 @@ editor.once('load', () => {
         // show desired option
         menuOptions[name].item.class.add('active');
         menuOptions[name].panel.hidden = false;
-        rightPanel.headerElementTitle.textContent = menuOptions[name].title;
-        rightPanel.innerElement.scrollTop = 0;
+        rightPanel.headerText = menuOptions[name].title;
+        rightPanel.content.dom.scrollTop = 0;
     };
 
     // ESC key should close popup
@@ -650,9 +661,9 @@ editor.once('load', () => {
         });
 
         if (option === 'version control') {
-            overlay.setCloseCallback(() => editor.call('vcgraph:isHidden'));
+            closeCallback = () => editor.call('vcgraph:isHidden');
         } else {
-            overlay.setCloseCallback(null);
+            closeCallback = null;
         }
 
         select(option || defaultMenuOption);
