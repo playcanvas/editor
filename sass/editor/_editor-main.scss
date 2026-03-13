@@ -2460,6 +2460,7 @@ strong {
         width: 100%;
         max-width: 1060px;
         height: 100%;
+        flex-shrink: 0;
         border: 1px solid $border-primary;
 
         @media (min-width: 1060px) {
