@@ -8,7 +8,7 @@ editor.once('load', () => {
     });
 
     const labelIcon = new Label({
-        text: '\uE3A9',
+        text: '\uE399',
         class: 'branch-icon'
     });
 

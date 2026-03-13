@@ -4912,15 +4912,44 @@ strong {
                 }
 
                 &.create-branch {
+                    .version-control-side-panel-box > .ui-header {
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+
+                        &::before {
+                            float: none;
+                            margin-top: 0;
+                        }
+
+                        > .title {
+                            font-size: 14px;
+                        }
+
+                        > .header-note {
+                            float: none;
+                        }
+                    }
+
                     .ui-panel.main {
                         > .content {
                             flex-direction: column;
 
-                            .pcui-container {
+                            .ui-panel {
                                 display: block;
+                            }
+
+                            .pcui-container {
+                                flex-direction: row;
+
+                                .pcui-label,
+                                .pcui-text-input {
+                                    margin: 3px;
+                                }
 
                                 .pcui-label {
                                     font-size: 12px;
+                                    line-height: 22px;
 
                                     &.left {
                                         width: 120px;
@@ -4932,6 +4961,8 @@ strong {
                                 @extend .font-icon;
 
                                 font-size: 32px;
+                                line-height: 22px;
+                                overflow: visible;
                                 color: $text-darkest;
                                 margin: 5px auto 25px;
                             }
