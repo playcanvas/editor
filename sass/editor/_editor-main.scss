@@ -2448,319 +2448,298 @@ strong {
     }
 }
 
-.ui-overlay.picker-project {
+.pcui-overlay.picker-project {
     z-index: 300; // larger than drop-area's
-    display: flex;
-    align-items: center;
-    justify-content: center;
 
     &.cmsView { z-index: 100000; }
     &.noAdminView { z-index: 100000; }
 
-    // make labels non-selectable - to make a label
-    // selectable add the 'selectable' class to it
-    .ui-label:not(.selectable),
-    .ui-header {
-        @extend .noSelect;
-    }
+    > .pcui-overlay-content {
+        @extend .font-regular;
 
-    &.center {
-        > .content {
-            @extend .font-regular;
+        width: 100%;
+        max-width: 1060px;
+        height: 100%;
+        border: 1px solid $border-primary;
 
-            top: auto;
-            left: auto;
-            width: 100%;
-            max-width: 1060px;
+        @media (min-width: 1060px) {
+            height: 600px;
+        }
+
+        .pcui-container.project {
             height: 100%;
-            border: 1px solid $border-primary;
+            display: flex;
 
-            @media (min-width: 1060px) {
-                height: 600px;
-            }
+            .pcui-container.left {
+                $c: &;
 
-            .ui-panel.project {
+                background-color: $bcg-dark;
+                margin: 0;
+                padding: 0;
+                flex: 0 0 188px;
+                width: 188px;
                 height: 100%;
+                border-right: 1px solid $border-primary;
+                position: relative;
 
-                > .content {
-                    display: flex;
-                    height: 100%;
+                .image {
+                    width: 187px;
+                    height: 187px;
+                    border-bottom: 1px solid $border-primary;
+                    background-color: $bcg-primary;
+                    background-size: 100%;
 
-                    .ui-panel.left {
-                        background-color: $bcg-dark;
-                        margin: 0;
-                        padding: 0;
-                        flex: 0 0 188px;
-                        width: 188px;
-                        height: 100%;
-                        border-right: 1px solid $border-primary;
+                    &.progress {
+                        background-size: 17%;
+                        background-position: 50%;
+                        background-repeat: no-repeat;
+                        background-color: $bcg-darkest;
+                    }
 
-                        > .content {
-                            $c: &;
-
-                            height: 100%;
-                            position: relative;
-
-                            .image {
-                                width: 187px;
-                                height: 187px;
-                                border-bottom: 1px solid $border-primary;
-                                background-color: $bcg-primary;
-                                background-size: 100%;
-
-                                &.progress {
-                                    background-size: 17%;
-                                    background-position: 50%;
-                                    background-repeat: no-repeat;
-                                    background-color: $bcg-darkest;
-                                }
-
-                                &:hover {
-                                    #{$c} .project-stats {
-                                        background: none !important;
-                                    }
-                                }
-
-                                &.hover:hover {
-                                    cursor: pointer;
-                                }
-                            }
-
-                            .project-stats {
-                                position: absolute;
-                                display: flex;
-                                padding-top: 3px;
-                                justify-content: flex-start;
-                                top: 0;
-                                left: 0;
-                                right: 0;
-                                height: 50px;
-                                font-size: 0.8em;
-                                color: $text-secondary;
-                                background-image: linear-gradient(rgb(0 0 0 / 80%) 15%, transparent);
-                                opacity: 1;
-                                transition: transform 0.4s ease-in-out, opacity 0.2s ease-in, background-image 0.4s ease-in-out;
-
-                                span {
-                                    @extend .font-regular;
-
-                                    &::before {
-                                        @extend .font-icon;
-
-                                        margin-right: 5px;
-                                    }
-                                }
-
-                                .forks-stat::before { content: '\E431'; }
-                                .views-stat::before { content: '\E117'; }
-                                .plays-stat::before { content: '\E180'; }
-
-                                .size-stat {
-                                    position: absolute;
-                                    top: 0;
-                                    right: 0;
-                                    padding-top: 3px;
-                                }
-                            }
-
-                            .thumbnail-buttons {
-                                position: absolute;
-                                top: 150px;
-                                width: 100%;
-                                display: flex;
-                                flex-direction: row;
-                                justify-content: center;
-                                transform: translate(0, 32px);
-                                pointer-events: none;
-                                transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out, z-index 0.25s ease-in-out;
-
-                                & > .thumbnail-replace {
-                                    flex: 9;
-                                    margin-right: 0;
-                                }
-
-                                & > .thumbnail-delete {
-                                    flex: 1;
-                                }
-                            }
-
-                            .project-cms-button {
-                                position: absolute;
-                                bottom: 10px;
-                                margin-left: 0;
-                                margin-right: 0;
-                                padding: 0;
-                                background-color: transparent;
-                                box-shadow: none;
-                                border: none;
-                                width: 100%;
-                            }
-
-                            .cms-editor-button,
-                            .cms-play-button {
-                                @extend .font-regular;
-
-                                position: absolute;
-                                left: 0;
-                                width: calc(100% - 10px);
-                                margin: 5px;
-                                border-radius: initial;
-                                box-shadow: none;
-
-                                &.pcui-disabled { cursor: not-allowed; }
-                            }
-
-                            .cms-editor-button {
-                                bottom: 40px;
-                                background-color: $text-active;
-                                color: $text-primary;
-
-                                &:hover {
-                                    color: $text-active;
-                                    background-color: $text-primary;
-                                }
-                            }
-
-                            .cms-play-button {
-                                bottom: 10px;
-                            }
-
-                            @keyframes slide-down {
-                                0% {
-                                    top: -50px;
-                                    opacity: 0;
-                                }
-
-                                100% {
-                                    top: 0;
-                                    opacity: 1;
-                                }
-                            }
-                        }
-
-                        .info {
-                            padding: 5px 10px;
-                            border-bottom: 1px solid $border-primary;
-
-                            .name {
-                                font-size: 14px;
-                                color: $text-primary;
-                                max-width: 100%;
-                                overflow: hidden;
-                                white-space: nowrap;
-                                text-overflow: ellipsis;
-                            }
-                        }
-
-                        ul {
-                            padding: 0;
-                            margin: 0;
-
-                            li {
-                                margin: 0;
-                                padding: 0 10px;
-                                height: 36px;
-                                line-height: 36px;
-                                border: none;
-                                border-bottom: 1px solid $border-primary;
-                                text-transform: uppercase;
-                                font-size: 12px;
-
-                                @extend .font-bold;
-
-                                &:hover,
-                                &.active {
-                                    color: $text-primary;
-                                    background-color: $bcg-primary;
-                                    cursor: pointer;
-                                    margin: 0;
-
-                                    &::before {
-                                        color: $text-active;
-                                    }
-                                }
-
-                                &::before {
-                                    @extend .font-icon;
-
-                                    font-size: 14px;
-                                    vertical-align: top;
-                                    padding-right: 10px;
-                                }
-
-                                &.project-main::before {
-                                    content: '\E283';
-                                }
-
-                                &.projects::before {
-                                    content: '\E267';
-                                }
-
-                                &.scenes::before {
-                                    content: '\E147';
-                                }
-
-                                &.builds-publish::before {
-                                    content: '\E226';
-                                }
-
-                                &.checkpoints::before {
-                                    content: '\E401';
-                                }
-
-                                &.version-control::before {
-                                    content: '\E399';
-                                }
-
-                                &.team::before {
-                                    content: '\E337';
-                                }
-                            }
+                    &:hover {
+                        #{$c} .project-stats {
+                            background: none !important;
                         }
                     }
 
-                    .ui-panel.right {
-                        flex: 1 1 auto;
-                        height: 100%;
-                        min-width: 0;
+                    &.hover:hover {
+                        cursor: pointer;
+                    }
+                }
 
-                        > .ui-header {
-                            border-bottom: 1px solid $border-primary;
+                .project-stats {
+                    position: absolute;
+                    display: flex;
+                    padding-top: 3px;
+                    justify-content: flex-start;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    height: 50px;
+                    font-size: 0.8em;
+                    color: $text-secondary;
+                    background-image: linear-gradient(rgb(0 0 0 / 80%) 15%, transparent);
+                    opacity: 1;
+                    transition: transform 0.4s ease-in-out, opacity 0.2s ease-in, background-image 0.4s ease-in-out;
 
-                            .title {
-                                font-size: 12px;
-                                text-transform: uppercase;
-                                padding-left: 5px;
-                            }
+                    span {
+                        @extend .font-regular;
 
-                            .close {
-                                @extend .font-icon;
+                        &::before {
+                            @extend .font-icon;
 
-                                font-size: 14px;
-                                position: absolute;
-                                top: 0;
-                                right: 0;
-                                color: $text-secondary;
-                                background-color: transparent;
-                                border-color: transparent;
+                            margin-right: 5px;
+                        }
+                    }
 
-                                &:hover {
-                                    color: $text-primary;
-                                }
+                    .forks-stat::before { content: '\E431'; }
+                    .views-stat::before { content: '\E117'; }
+                    .plays-stat::before { content: '\E180'; }
+
+                    .size-stat {
+                        position: absolute;
+                        top: 0;
+                        right: 0;
+                        padding-top: 3px;
+                    }
+                }
+
+                .thumbnail-buttons {
+                    position: absolute;
+                    top: 150px;
+                    width: 100%;
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: center;
+                    transform: translate(0, 32px);
+                    pointer-events: none;
+                    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out, z-index 0.25s ease-in-out;
+
+                    & > .thumbnail-replace {
+                        flex: 9;
+                        margin-right: 0;
+                    }
+
+                    & > .thumbnail-delete {
+                        flex: 1;
+                    }
+                }
+
+                .project-cms-button {
+                    position: absolute;
+                    bottom: 10px;
+                    margin-left: 0;
+                    margin-right: 0;
+                    padding: 0;
+                    background-color: transparent;
+                    box-shadow: none;
+                    border: none;
+                    width: 100%;
+                }
+
+                .cms-editor-button,
+                .cms-play-button {
+                    @extend .font-regular;
+
+                    position: absolute;
+                    left: 0;
+                    width: calc(100% - 10px);
+                    margin: 5px;
+                    border-radius: initial;
+                    box-shadow: none;
+
+                    &.pcui-disabled { cursor: not-allowed; }
+                }
+
+                .cms-editor-button {
+                    bottom: 40px;
+                    background-color: $text-active;
+                    color: $text-primary;
+
+                    &:hover {
+                        color: $text-active;
+                        background-color: $text-primary;
+                    }
+                }
+
+                .cms-play-button {
+                    bottom: 10px;
+                }
+
+                @keyframes slide-down {
+                    0% {
+                        top: -50px;
+                        opacity: 0;
+                    }
+
+                    100% {
+                        top: 0;
+                        opacity: 1;
+                    }
+                }
+
+                .info {
+                    padding: 5px 10px;
+                    border-bottom: 1px solid $border-primary;
+
+                    .name {
+                        font-size: 14px;
+                        color: $text-primary;
+                        max-width: 100%;
+                        overflow: hidden;
+                        white-space: nowrap;
+                        text-overflow: ellipsis;
+                    }
+                }
+
+                ul {
+                    padding: 0;
+                    margin: 0;
+
+                    li {
+                        margin: 0;
+                        padding: 0 10px;
+                        height: 36px;
+                        line-height: 36px;
+                        border: none;
+                        border-bottom: 1px solid $border-primary;
+                        text-transform: uppercase;
+                        font-size: 12px;
+
+                        @extend .font-bold;
+
+                        &:hover,
+                        &.active {
+                            color: $text-primary;
+                            background-color: $bcg-primary;
+                            cursor: pointer;
+                            margin: 0;
+
+                            &::before {
+                                color: $text-active;
                             }
                         }
 
-                        > .content {
-                            height: calc(100% - 33px);
-                            overflow: hidden;
-                            overflow-y: auto;
+                        &::before {
+                            @extend .font-icon;
 
-                            > .ui-panel {
-                                > .content {
-                                    padding: 0;
-                                }
-                            }
+                            font-size: 14px;
+                            vertical-align: top;
+                            padding-right: 10px;
                         }
+
+                        &.project-main::before {
+                            content: '\E283';
+                        }
+
+                        &.projects::before {
+                            content: '\E267';
+                        }
+
+                        &.scenes::before {
+                            content: '\E147';
+                        }
+
+                        &.builds-publish::before {
+                            content: '\E226';
+                        }
+
+                        &.checkpoints::before {
+                            content: '\E401';
+                        }
+
+                        &.version-control::before {
+                            content: '\E399';
+                        }
+
+                        &.team::before {
+                            content: '\E337';
+                        }
+                    }
+                }
+            }
+
+            .pcui-panel.right {
+                flex: 1 1 auto;
+                height: 100%;
+                min-width: 0;
+
+                > .pcui-panel-header {
+                    border-bottom: 1px solid $border-primary;
+
+                    .pcui-panel-header-title {
+                        flex: 1;
+                        text-align: center;
+                        text-transform: uppercase;
+                    }
+
+                    .close {
+                        @extend .font-bold;
+
+                        font-size: 14px;
+                        position: absolute;
+                        top: 0;
+                        right: 0;
+                        color: $text-secondary;
+                        background-color: transparent;
+                        border-color: transparent;
+
+                        &:hover,
+                        &:focus {
+                            color: $text-primary;
+                            background-color: transparent;
+                            box-shadow: none;
+                        }
+                    }
+                }
+
+                > .pcui-panel-content {
+                    height: calc(100% - 33px);
+                    overflow: hidden;
+                    overflow-y: auto;
+
+                    > .pcui-container {
+                        padding: 0;
                     }
                 }
             }
@@ -2768,7 +2747,7 @@ strong {
     }
 }
 
-.ui-overlay.picker-project.reduced-view { z-index: 100000; }
+.pcui-overlay.picker-project.reduced-view { z-index: 100000; }
 
 .pcui-overlay.picker-modal-confirmation {
     z-index: 100001;  // larger than CMS
