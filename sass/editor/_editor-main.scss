@@ -4842,6 +4842,8 @@ strong {
                         }
 
                         > .pcui-panel-header-title {
+                            flex: none;
+                            margin: 0;
                             font-size: 14px;
                             max-width: 270px;
                             overflow: hidden;
@@ -4869,6 +4871,10 @@ strong {
                         }
 
                         > .pcui-container.checkpoint-checkbox {
+                            display: flex;
+                            flex-direction: row;
+                            align-items: center;
+                            position: relative;
                             font-size: 12px;
                             padding: 10px;
                             border-top: 1px solid $border-primary;
@@ -4882,7 +4888,7 @@ strong {
 
                                 cursor: pointer;
                                 position: absolute;
-                                right: 0;
+                                right: 10px;
                                 font-size: 16px;
                                 overflow: visible;
                             }
@@ -4920,7 +4926,7 @@ strong {
                         > .content {
                             flex-direction: column;
 
-                            .pcui-container {
+                            .pcui-panel-content > .pcui-container:not(.checkpoint-checkbox) {
                                 flex-direction: row;
                                 padding: 10px;
 
@@ -4958,7 +4964,7 @@ strong {
                         > .content {
                             flex-direction: column;
 
-                            .pcui-container {
+                            .pcui-panel-content > .pcui-container:not(.checkpoint-checkbox) {
                                 flex-direction: row;
                                 padding: 10px;
 
