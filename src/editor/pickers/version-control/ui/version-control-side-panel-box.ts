@@ -28,6 +28,22 @@ type VersionControlSidePanelBoxArgs = {
  * Represents a box widget that is commonly used in version control side panels.
  */
 class VersionControlSidePanelBox extends Events {
+    panel: Panel;
+
+    children: any[];
+
+    panelTargetCheckpoint?: Container;
+
+    checkboxTargetCheckpoint?: BooleanInput;
+
+    panelSourceCheckpoint?: Container;
+
+    checkboxSourceCheckpoint?: BooleanInput;
+
+    panelSourceClose?: Container;
+
+    checkboxSourceClose?: BooleanInput;
+
     constructor(args: VersionControlSidePanelBoxArgs) {
         super();
 
@@ -100,23 +116,25 @@ class VersionControlSidePanelBox extends Events {
     }
 
     _createCheckbox(msg: string, tooltipMsg?: string): [Container, BooleanInput] {
-        const container = new Container();
-        container.flexGrow = 1;
+        const container = new Container({
+            flexGrow: 1,
+            class: 'checkpoint-checkbox'
+        });
         const label = new Label({
             text: msg
         });
         container.append(label);
-        container.class.add('checkpoint-checkbox');
 
-        const checkbox = new BooleanInput();
-        checkbox.class.add('tick');
+        const checkbox = new BooleanInput({
+            class: 'tick'
+        });
         container.append(checkbox);
 
         // add little help icon
         const labelHelp = new Label({
-            text: '\uE138'
+            text: '\uE138',
+            class: 'help'
         });
-        labelHelp.class.add('help');
         container.append(labelHelp);
 
         if (tooltipMsg) {
