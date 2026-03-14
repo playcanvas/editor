@@ -1,6 +1,4 @@
-import { LegacyLabel } from '@/common/ui/label';
-import { LegacyPanel } from '@/common/ui/panel';
-import { LegacyTextField } from '@/common/ui/text-field';
+import { Container, Label, TextInput } from '@playcanvas/pcui';
 
 import { VersionControlSidePanelBox } from './ui/version-control-side-panel-box';
 
@@ -14,20 +12,18 @@ editor.once('load', () => {
         noIcon: true
     });
 
-    const panelWriteConfirm = new LegacyPanel();
-    panelWriteConfirm.flex = true;
-    panelWriteConfirm.style.padding = '10px';
-
-    const label = new LegacyLabel({
-        text: 'Type "hard reset" to confirm'
+    const panelWriteConfirm = new Container({ flex: true });
+    const label = new Label({
+        text: 'Type "hard reset" to confirm',
+        class: 'small'
     });
-    label.class.add('small');
     panelWriteConfirm.append(label);
 
-    const textField = new LegacyTextField();
-    textField.renderChanges = false;
-    textField.flexGrow = 1;
-    textField.keyChange = true;
+    const textField = new TextInput({
+        renderChanges: false,
+        flexGrow: 1,
+        keyChange: true
+    });
     panelWriteConfirm.append(textField);
 
     boxConfirm.append(panelWriteConfirm);
@@ -48,8 +44,8 @@ editor.once('load', () => {
     panel.buttonConfirm.disabled = true;
     panel.class.add('hard-reset-checkpoint');
 
-    textField.elementInput.addEventListener('keydown', (e) => {
-        if (e.keyCode === 13 && !panel.buttonConfirm.disabled) {
+    textField.on('keydown', (e: KeyboardEvent) => {
+        if (e.key === 'Enter' && !panel.buttonConfirm.disabled) {
             panel.emit('confirm');
         }
     });
@@ -58,11 +54,11 @@ editor.once('load', () => {
         return panel;
     });
 
-    panel.setCheckpoint = function (checkpoint: Record<string, unknown>) {
+    panel.setCheckpoint = (checkpoint: Record<string, unknown>) => {
         textField.value = '';
         panel.checkpoint = checkpoint;
         boxRestore.setCheckpoint(checkpoint);
-        panel.labelTitle.text = `Hard reset to checkpoint "${checkpoint.id.substring(0, 7)}" ?`;
+        panel.labelTitle.text = `Hard reset to checkpoint "${(checkpoint.id as string).substring(0, 7)}" ?`;
     };
 
     textField.on('change', () => {

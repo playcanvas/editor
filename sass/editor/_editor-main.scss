@@ -4956,11 +4956,6 @@ strong {
                         > .content {
                             flex-direction: column;
 
-                            .ui-text-field {
-                                width: auto;
-                                margin-left: 15px;
-                            }
-
                             .pcui-container {
                                 flex-direction: row;
                                 padding: 10px;
@@ -4987,13 +4982,6 @@ strong {
                                 margin: 5px auto 25px;
                             }
 
-                            .ui-label.close-icon {
-                                @extend .font-icon;
-
-                                font-size: 32px;
-                                color: $text-darkest;
-                                margin: 5px auto 25px;
-                            }
                         }
                     }
                 }
