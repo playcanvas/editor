@@ -4829,6 +4829,7 @@ strong {
                         justify-content: center;
                         color: $text-secondary;
                         border: 1px solid $border-primary;
+                        padding: 0 8px;
 
                         &::before {
                             @extend .font-icon;
