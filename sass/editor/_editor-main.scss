@@ -4818,10 +4818,11 @@ strong {
                     }
                 }
 
-                .ui-panel.version-control-side-panel-box {
+                .pcui-panel.version-control-side-panel-box {
                     margin-bottom: 20px;
+                    flex-direction: column;
 
-                    > .ui-header {
+                    > .pcui-panel-header {
                         @extend .allowSelect;
 
                         display: flex;
@@ -4840,7 +4841,7 @@ strong {
                             margin-right: 5px;
                         }
 
-                        > .title {
+                        > .pcui-panel-header-title {
                             font-size: 14px;
                             max-width: 270px;
                             overflow: hidden;
@@ -4854,11 +4855,11 @@ strong {
                         }
                     }
 
-                    &.no-icon > .ui-header::before {
+                    &.no-icon > .pcui-panel-header::before {
                         display: none;
                     }
 
-                    > .content {
+                    > .pcui-panel-content {
                         border: 1px solid $border-primary;
                         border-top: 0;
                         flex-direction: column;
@@ -4867,22 +4868,23 @@ strong {
                             margin: 10px;
                         }
 
-                        > .ui-panel.checkpoint-checkbox {
+                        > .pcui-container.checkpoint-checkbox {
                             font-size: 12px;
                             padding: 10px;
                             border-top: 1px solid $border-primary;
 
-                            .ui-checkpoint {
+                            .pcui-boolean-input {
                                 margin-left: 10px;
                             }
 
-                            .help {
+                            .pcui-label.help {
                                 @extend .font-icon;
 
                                 cursor: pointer;
                                 position: absolute;
                                 right: 0;
                                 font-size: 16px;
+                                overflow: visible;
                             }
                         }
                     }
