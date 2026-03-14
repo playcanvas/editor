@@ -32,7 +32,6 @@ editor.once('load', () => {
 
     fieldBranchName.on('keydown', (e: KeyboardEvent) => {
         if (e.key === 'Enter') {
-            fieldBranchName.blur();
             createBranch();
         }
     });
