@@ -80,12 +80,12 @@ editor.once('load', () => {
         boxNewBranch.header = value || ' ';
     });
 
-    panel.setSourceBranch = function (branch: Record<string, unknown>) {
+    panel.setSourceBranch = (branch: Record<string, unknown>) => {
         panel.sourceBranch = branch;
         boxFrom.header = branch.name;
     };
 
-    panel.setCheckpoint = function (checkpoint: Record<string, unknown>) {
+    panel.setCheckpoint = (checkpoint: Record<string, unknown>) => {
         panel.checkpoint = checkpoint;
         boxFrom.setCheckpoint(checkpoint);
     };
