@@ -1,8 +1,6 @@
 import { Events } from '@playcanvas/observer';
+import { BooleanInput, Container, Label, Panel } from '@playcanvas/pcui';
 
-import { LegacyCheckbox } from '@/common/ui/checkbox';
-import { LegacyLabel } from '@/common/ui/label';
-import { LegacyPanel } from '@/common/ui/panel';
 import { LegacyTooltip } from '@/common/ui/tooltip';
 
 type VersionControlSidePanelBoxArgs = {
@@ -30,63 +28,77 @@ type VersionControlSidePanelBoxArgs = {
  * Represents a box widget that is commonly used in version control side panels.
  */
 class VersionControlSidePanelBox extends Events {
-    constructor(args: VersionControlSidePanelBoxArgs) {
+    panel: Panel;
+
+    children: any[] = [];
+
+    panelTargetCheckpoint?: Container;
+
+    checkboxTargetCheckpoint?: BooleanInput;
+
+    panelSourceCheckpoint?: Container;
+
+    checkboxSourceCheckpoint?: BooleanInput;
+
+    panelSourceClose?: Container;
+
+    checkboxSourceClose?: BooleanInput;
+
+    constructor(args: VersionControlSidePanelBoxArgs = {}) {
         super();
 
         // main box panel
-        this.panel = new LegacyPanel(args && args.header || ' ');
-        this.panel.headerElementTitle.classList.add('selectable');
+        this.panel = new Panel({
+            headerText: args.header || ' ',
+            flex: true,
+            flexGrow: 1,
+            class: args.noIcon ? ['version-control-side-panel-box', 'no-icon'] : 'version-control-side-panel-box'
+        });
 
-        if (args && args.noIcon) {
-            this.panel.class.add('no-icon');
+        const titleEl = this.panel.header.dom.querySelector('.pcui-panel-header-title');
+        if (titleEl) {
+            titleEl.classList.add('selectable');
         }
-
-        const panel = this.panel;
-        panel.flexGrow = 1;
-        panel.class.add('version-control-side-panel-box');
-
-        // holds child panels appended to the box with the `append` method
-        this.children = [];
 
         // add little note on the right of the header
-        if (args && args.headerNote) {
-            const labelHeader = new LegacyLabel({
-                text: args.headerNote
+        if (args.headerNote) {
+            const labelHeader = new Label({
+                text: args.headerNote,
+                class: 'header-note'
             });
-            labelHeader.class.add('header-note');
-            panel.headerElement.appendChild(labelHeader.element);
+            this.panel.header.append(labelHeader);
         }
 
-        if (args && args.createTargetCheckpoint) {
+        if (args.createTargetCheckpoint) {
             [this.panelTargetCheckpoint, this.checkboxTargetCheckpoint] = this._createCheckbox(
                 'Create checkpoint first?',
                 args.targetCheckpointHelp
             );
             this.checkboxTargetCheckpoint.value = true;
 
-            this.checkboxTargetCheckpoint.on('change', (value) => {
+            this.checkboxTargetCheckpoint.on('change', (value: boolean) => {
                 this.emit('createTargetCheckpoint', value);
             });
         }
 
-        if (args && args.createSourceCheckpoint) {
+        if (args.createSourceCheckpoint) {
             [this.panelSourceCheckpoint, this.checkboxSourceCheckpoint] = this._createCheckbox(
                 'Create checkpoint first?',
                 args.sourceCheckpointHelp
             );
 
-            this.checkboxSourceCheckpoint.on('change', (value) => {
+            this.checkboxSourceCheckpoint.on('change', (value: boolean) => {
                 this.emit('createSourceCheckpoint', value);
             });
         }
 
-        if (args && args.closeSourceBranch) {
+        if (args.closeSourceBranch) {
             [this.panelSourceClose, this.checkboxSourceClose] = this._createCheckbox(
                 'Close branch after merging?',
                 args.closeSourceBranchHelp
             );
-            this.panelSourceClose.style.paddingTop = '0';
-            this.panelSourceClose.style.borderTop = '0';
+            this.panelSourceClose.dom.style.paddingTop = '0';
+            this.panelSourceClose.dom.style.borderTop = '0';
 
             this.checkboxSourceClose.on('change', (value: boolean) => {
                 this.emit('closeSourceBranch', value);
@@ -94,30 +106,31 @@ class VersionControlSidePanelBox extends Events {
         }
     }
 
-    _createCheckbox(msg: string, tooltipMsg?: string): [LegacyPanel, LegacyCheckbox] {
-        const panel = new LegacyPanel();
-        panel.flexGrow = 1;
-        const label = new LegacyLabel({
+    _createCheckbox(msg: string, tooltipMsg?: string): [Container, BooleanInput] {
+        const container = new Container({
+            flexGrow: 1,
+            class: 'checkpoint-checkbox'
+        });
+        const label = new Label({
             text: msg
         });
-        panel.append(label);
-        panel.class.add('checkpoint-checkbox');
+        container.append(label);
 
-        const checkbox = new LegacyCheckbox();
-        checkbox.class.add('tick');
-        panel.append(checkbox);
+        const checkbox = new BooleanInput({
+            class: 'tick'
+        });
+        container.append(checkbox);
 
         // add little help icon
-        const labelHelp = new LegacyLabel({
-            text: '&#57656;',
-            unsafe: true
+        const labelHelp = new Label({
+            text: '\uE138',
+            class: 'help'
         });
-        labelHelp.class.add('help');
-        panel.append(labelHelp);
+        container.append(labelHelp);
 
         if (tooltipMsg) {
             const tooltip = LegacyTooltip.attach({
-                target: labelHelp.element,
+                target: labelHelp.dom,
                 text: tooltipMsg,
                 align: 'top',
                 root: editor.call('layout.root')
@@ -125,7 +138,7 @@ class VersionControlSidePanelBox extends Events {
             tooltip.class.add('version-control-checkbox-tooltip');
         }
 
-        return [panel, checkbox];
+        return [container, checkbox];
     }
 
     /**
@@ -133,31 +146,31 @@ class VersionControlSidePanelBox extends Events {
      *
      * @param panel - The panel
      */
-    append(panel: LegacyPanel) {
+    append(panel: any) {
         // make sure we remove the checkpoint panels first
         // because they are meant to be added to the end
         if (this.panelTargetCheckpoint) {
-            this.panel.remove(this.panelTargetCheckpoint);
+            this.panel.content.remove(this.panelTargetCheckpoint);
         }
         if (this.panelSourceCheckpoint) {
-            this.panel.remove(this.panelSourceCheckpoint);
+            this.panel.content.remove(this.panelSourceCheckpoint);
         }
         if (this.panelSourceClose) {
-            this.panel.remove(this.panelSourceClose);
+            this.panel.content.remove(this.panelSourceClose);
         }
 
-        this.panel.append(panel);
+        this.panel.content.append(panel);
         this.children.push(panel);
 
         // add checkpoint panels after the content
         if (this.panelTargetCheckpoint) {
-            this.panel.append(this.panelTargetCheckpoint);
+            this.panel.content.append(this.panelTargetCheckpoint);
         }
         if (this.panelSourceCheckpoint) {
-            this.panel.append(this.panelSourceCheckpoint);
+            this.panel.content.append(this.panelSourceCheckpoint);
         }
         if (this.panelSourceClose) {
-            this.panel.append(this.panelSourceClose);
+            this.panel.content.append(this.panelSourceClose);
         }
     }
 
@@ -177,13 +190,13 @@ class VersionControlSidePanelBox extends Events {
         } else {
             // add checkpoint panels after the content
             if (this.panelTargetCheckpoint && !this.panelTargetCheckpoint.parent) {
-                this.panel.append(this.panelTargetCheckpoint);
+                this.panel.content.append(this.panelTargetCheckpoint);
             }
             if (this.panelSourceCheckpoint && !this.panelSourceCheckpoint.parent) {
-                this.panel.append(this.panelSourceCheckpoint);
+                this.panel.content.append(this.panelSourceCheckpoint);
             }
             if (this.panelSourceClose && !this.panelSourceClose.parent) {
-                this.panel.append(this.panelSourceClose);
+                this.panel.content.append(this.panelSourceClose);
             }
         }
     }
@@ -192,38 +205,37 @@ class VersionControlSidePanelBox extends Events {
      * Clears the contents of the box
      */
     clear() {
-        const panel = this.panel;
-
         if (this.panelTargetCheckpoint) {
-            panel.remove(this.panelTargetCheckpoint);
+            this.panel.content.remove(this.panelTargetCheckpoint);
             this.checkboxTargetCheckpoint.value = true;
         }
         if (this.panelSourceCheckpoint) {
-            panel.remove(this.panelSourceCheckpoint);
+            this.panel.content.remove(this.panelSourceCheckpoint);
             this.checkboxSourceCheckpoint.value = false;
         }
         if (this.panelSourceClose) {
-            panel.remove(this.panelSourceClose);
+            this.panel.content.remove(this.panelSourceClose);
             this.checkboxSourceClose.value = false;
         }
 
-        this.children.forEach((child: LegacyPanel) => {
+        this.children.forEach((child: any) => {
             child.destroy();
         });
+        this.children.length = 0;
     }
 
     /**
      * Set the header text of the box.
      */
     set header(value: string) {
-        this.panel.header = value;
+        this.panel.headerText = value;
     }
 
     /**
      * Get the header text of the box.
      */
     get header() {
-        return this.panel.header;
+        return this.panel.headerText;
     }
 }
 
