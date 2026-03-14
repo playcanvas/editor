@@ -44,12 +44,12 @@ class VersionControlSidePanelBox extends Events {
 
     checkboxSourceClose?: BooleanInput;
 
-    constructor(args: VersionControlSidePanelBoxArgs) {
+    constructor(args: VersionControlSidePanelBoxArgs = {}) {
         super();
 
         // main box panel
         this.panel = new Panel({
-            headerText: args?.header || ' ',
+            headerText: args.header || ' ',
             flex: true
         });
 
@@ -58,7 +58,7 @@ class VersionControlSidePanelBox extends Events {
             titleEl.classList.add('selectable');
         }
 
-        if (args?.noIcon) {
+        if (args.noIcon) {
             this.panel.class.add('no-icon');
         }
 
@@ -70,7 +70,7 @@ class VersionControlSidePanelBox extends Events {
         this.children = [];
 
         // add little note on the right of the header
-        if (args?.headerNote) {
+        if (args.headerNote) {
             const labelHeader = new Label({
                 text: args.headerNote
             });
@@ -78,7 +78,7 @@ class VersionControlSidePanelBox extends Events {
             panel.header.append(labelHeader);
         }
 
-        if (args?.createTargetCheckpoint) {
+        if (args.createTargetCheckpoint) {
             [this.panelTargetCheckpoint, this.checkboxTargetCheckpoint] = this._createCheckbox(
                 'Create checkpoint first?',
                 args.targetCheckpointHelp
@@ -90,7 +90,7 @@ class VersionControlSidePanelBox extends Events {
             });
         }
 
-        if (args?.createSourceCheckpoint) {
+        if (args.createSourceCheckpoint) {
             [this.panelSourceCheckpoint, this.checkboxSourceCheckpoint] = this._createCheckbox(
                 'Create checkpoint first?',
                 args.sourceCheckpointHelp
@@ -101,7 +101,7 @@ class VersionControlSidePanelBox extends Events {
             });
         }
 
-        if (args?.closeSourceBranch) {
+        if (args.closeSourceBranch) {
             [this.panelSourceClose, this.checkboxSourceClose] = this._createCheckbox(
                 'Close branch after merging?',
                 args.closeSourceBranchHelp
