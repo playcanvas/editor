@@ -4918,11 +4918,18 @@ strong {
                         > .content {
                             flex-direction: column;
 
-                            .ui-panel {
-                                display: block;
+                            .pcui-container {
+                                flex-direction: row;
+                                padding: 10px;
 
-                                .ui-label {
+                                .pcui-label,
+                                .pcui-text-input {
+                                    margin: 3px;
+                                }
+
+                                .pcui-label {
                                     font-size: 12px;
+                                    line-height: 22px;
 
                                     &.left {
                                         width: 120px;
@@ -4930,10 +4937,12 @@ strong {
                                 }
                             }
 
-                            .ui-label.branch-icon {
+                            .pcui-label.branch-icon {
                                 @extend .font-icon;
 
                                 font-size: 32px;
+                                line-height: 22px;
+                                overflow: visible;
                                 color: $text-darkest;
                                 margin: 5px auto 25px;
                             }
