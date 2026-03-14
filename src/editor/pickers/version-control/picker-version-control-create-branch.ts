@@ -22,7 +22,6 @@ editor.once('load', () => {
         class: 'left'
     });
     panelName.append(label);
-    panelName.dom.style.padding = '10px';
 
     const fieldBranchName = new TextInput({
         keyChange: true,
