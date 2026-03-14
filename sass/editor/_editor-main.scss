@@ -4914,25 +4914,6 @@ strong {
                 }
 
                 &.create-branch {
-                    .version-control-side-panel-box > .ui-header {
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-
-                        &::before {
-                            float: none;
-                            margin-top: 0;
-                        }
-
-                        > .title {
-                            font-size: 14px;
-                        }
-
-                        > .header-note {
-                            float: none;
-                        }
-                    }
-
                     .ui-panel.main {
                         > .content {
                             flex-direction: column;
