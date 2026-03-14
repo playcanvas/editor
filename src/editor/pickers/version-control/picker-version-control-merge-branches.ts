@@ -1,4 +1,5 @@
-import { LegacyLabel } from '@/common/ui/label';
+import { Label } from '@playcanvas/pcui';
+
 import { handleCallback } from '@/common/utils';
 
 import { VersionControlSidePanelBox } from './ui/version-control-side-panel-box';
@@ -12,11 +13,10 @@ editor.once('load', () => {
         closeSourceBranchHelp: 'Tick to close the source branch after merging.'
     });
 
-    const labelArrow = new LegacyLabel({
-        text: '&#57704;',
-        unsafe: true
+    const labelArrow = new Label({
+        text: '\uE168',
+        class: 'arrow'
     });
-    labelArrow.class.add('arrow');
 
     const boxInto = new VersionControlSidePanelBox({
         headerNote: 'Merge to',
@@ -24,8 +24,7 @@ editor.once('load', () => {
         targetCheckpointHelp: 'Tick to create a checkpoint in the target branch before merging. If you leave this unticked any changes in the target branch will be discarded.'
     });
 
-    // holds pending requests to get checkpoints
-    const checkpointRequests = [];
+    const checkpointRequests: { abort: () => void }[] = [];
 
     const panel = editor.call('picker:versioncontrol:createSidePanel', {
         title: 'Merge branches',
@@ -63,14 +62,13 @@ editor.once('load', () => {
         boxFrom.clear();
         boxInto.clear();
 
-        // abort all pending requests
         checkpointRequests.forEach((request) => {
             request.abort();
         });
         checkpointRequests.length = 0;
     });
 
-    const setBranchInfo = function (branch: Record<string, unknown> | null, isSourceBranch: boolean) {
+    const setBranchInfo = (branch: Record<string, unknown> | null, isSourceBranch: boolean) => {
         const panelField = isSourceBranch ? 'sourceBranch' : 'destinationBranch';
         panel[panelField] = branch;
 
@@ -82,29 +80,25 @@ editor.once('load', () => {
         box.header = branch.name;
 
         if (isSourceBranch && box.panelSourceClose) {
-            // do not show close branch if branch is permanent (like master)
             box.panelSourceClose.hidden = branch.permanent;
         }
 
-        // get checkpoint from server
-        var request = handleCallback(editor.api.globals.rest.checkpoints.checkpointGet({
+        const request = handleCallback(editor.api.globals.rest.checkpoints.checkpointGet({
             checkpointId: branch.latestCheckpointId
         }), (err, checkpoint) => {
-            // remove request from pending array
             const idx = checkpointRequests.indexOf(request);
             checkpointRequests.splice(idx, 1);
 
             box.setCheckpoint(checkpoint);
         });
 
-        // add the request to the pending array
         checkpointRequests.push(request);
     };
 
-    panel.setSourceBranch = function (sourceBranch: Record<string, unknown> | null) {
+    panel.setSourceBranch = (sourceBranch: Record<string, unknown> | null) => {
         setBranchInfo(sourceBranch, true);
     };
-    panel.setDestinationBranch = function (destinationBranch: Record<string, unknown> | null) {
+    panel.setDestinationBranch = (destinationBranch: Record<string, unknown> | null) => {
         setBranchInfo(destinationBranch, false);
     };
 

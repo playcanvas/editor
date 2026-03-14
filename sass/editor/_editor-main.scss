@@ -4991,20 +4991,12 @@ strong {
                         > .content {
                             flex-direction: column;
 
-                            .ui-label.left {
-                                font-size: 12px;
-                                width: 120px;
-                            }
-
-                            .ui-label.right {
-                                font-size: 12px;
-                                font-family: inconsolatamedium;
-                            }
-
-                            > .ui-label.arrow {
+                            > .pcui-label.arrow {
                                 @extend .font-icon;
 
                                 font-size: 32px;
+                                line-height: 22px;
+                                overflow: visible;
                                 color: $text-darkest;
                                 margin: -19px auto 10px;
                             }
