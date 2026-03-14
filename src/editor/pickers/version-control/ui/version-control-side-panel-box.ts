@@ -232,6 +232,7 @@ class VersionControlSidePanelBox extends Events {
         this.children.forEach((child: any) => {
             child.destroy();
         });
+        this.children.length = 0;
     }
 
     /**
