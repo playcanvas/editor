@@ -1,6 +1,5 @@
-import { LegacyLabel } from '@/common/ui/label';
-import { LegacyPanel } from '@/common/ui/panel';
-import { LegacyTextField } from '@/common/ui/text-field';
+import { Container, Label, TextInput } from '@playcanvas/pcui';
+
 import { handleCallback } from '@/common/utils';
 
 import { VersionControlSidePanelBox } from './ui/version-control-side-panel-box';
@@ -8,44 +7,41 @@ import { VersionControlSidePanelBox } from './ui/version-control-side-panel-box'
 editor.once('load', () => {
     const boxBranch = new VersionControlSidePanelBox();
 
-    const labelIcon = new LegacyLabel({
-        text: '&#57686;',
-        unsafe: true
+    const labelIcon = new Label({
+        text: '\uE156',
+        class: 'close-icon'
     });
-    labelIcon.class.add('close-icon');
 
     const boxConfirm = new VersionControlSidePanelBox({
         header: 'ARE YOU SURE?',
         noIcon: true
     });
 
-    const panelTypeName = new LegacyPanel();
-    panelTypeName.flex = true;
-    panelTypeName.style.padding = '10px';
-
-    const label = new LegacyLabel({
-        text: 'Type branch name to confirm:'
+    const panelTypeName = new Container({ flex: true });
+    const label = new Label({
+        text: 'Type branch name to confirm:',
+        class: 'small'
     });
-    label.class.add('small');
     panelTypeName.append(label);
 
-    const fieldName = new LegacyTextField();
-    fieldName.renderChanges = false;
-    fieldName.flexGrow = 1;
-    fieldName.keyChange = true;
+    const fieldName = new TextInput({
+        renderChanges: false,
+        flexGrow: 1,
+        keyChange: true
+    });
     panelTypeName.append(fieldName);
 
-    fieldName.elementInput.addEventListener('keydown', (e) => {
-        if (e.keyCode === 13 && !panel.buttonConfirm.disabled) {
+    fieldName.on('keydown', (e: KeyboardEvent) => {
+        if (e.key === 'Enter' && !panel.buttonConfirm.disabled) {
             panel.emit('confirm');
         }
     });
 
     boxConfirm.append(panelTypeName);
 
-    let checkpointRequest = null;
+    let checkpointRequest: { abort: () => void } | null = null;
 
-    var panel = editor.call('picker:versioncontrol:createSidePanel', {
+    const panel = editor.call('picker:versioncontrol:createSidePanel', {
         title: 'Delete branch?',
         note: 'This action will delete all checkpoints and changes in this branch and cannot be undone!',
         mainContents: [boxConfirm.panel, labelIcon, boxBranch.panel],
@@ -83,7 +79,7 @@ editor.once('load', () => {
         }
     });
 
-    panel.setBranch = function (branch: Record<string, unknown>) {
+    panel.setBranch = (branch: Record<string, unknown>) => {
         panel.branch = branch;
         boxBranch.header = branch.name;
 
