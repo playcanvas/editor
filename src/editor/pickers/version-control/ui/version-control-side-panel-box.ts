@@ -30,7 +30,7 @@ type VersionControlSidePanelBoxArgs = {
 class VersionControlSidePanelBox extends Events {
     panel: Panel;
 
-    children: any[];
+    children: any[] = [];
 
     panelTargetCheckpoint?: Container;
 
@@ -50,7 +50,9 @@ class VersionControlSidePanelBox extends Events {
         // main box panel
         this.panel = new Panel({
             headerText: args.header || ' ',
-            flex: true
+            flex: true,
+            flexGrow: 1,
+            class: args.noIcon ? ['version-control-side-panel-box', 'no-icon'] : 'version-control-side-panel-box'
         });
 
         const titleEl = this.panel.header.dom.querySelector('.pcui-panel-header-title');
@@ -58,24 +60,13 @@ class VersionControlSidePanelBox extends Events {
             titleEl.classList.add('selectable');
         }
 
-        if (args.noIcon) {
-            this.panel.class.add('no-icon');
-        }
-
-        const panel = this.panel;
-        panel.flexGrow = 1;
-        panel.class.add('version-control-side-panel-box');
-
-        // holds child panels appended to the box with the `append` method
-        this.children = [];
-
         // add little note on the right of the header
         if (args.headerNote) {
             const labelHeader = new Label({
-                text: args.headerNote
+                text: args.headerNote,
+                class: 'header-note'
             });
-            labelHeader.class.add('header-note');
-            panel.header.append(labelHeader);
+            this.panel.header.append(labelHeader);
         }
 
         if (args.createTargetCheckpoint) {
@@ -214,18 +205,16 @@ class VersionControlSidePanelBox extends Events {
      * Clears the contents of the box
      */
     clear() {
-        const panel = this.panel;
-
         if (this.panelTargetCheckpoint) {
-            panel.content.remove(this.panelTargetCheckpoint);
+            this.panel.content.remove(this.panelTargetCheckpoint);
             this.checkboxTargetCheckpoint.value = true;
         }
         if (this.panelSourceCheckpoint) {
-            panel.content.remove(this.panelSourceCheckpoint);
+            this.panel.content.remove(this.panelSourceCheckpoint);
             this.checkboxSourceCheckpoint.value = false;
         }
         if (this.panelSourceClose) {
-            panel.content.remove(this.panelSourceClose);
+            this.panel.content.remove(this.panelSourceClose);
             this.checkboxSourceClose.value = false;
         }
 
