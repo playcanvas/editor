@@ -4789,14 +4789,10 @@ strong {
 
                         .pcui-button {
                             float: right;
-                            height: 28px;
-                            line-height: 28px;
-                            text-align: center;
                             text-transform: uppercase;
                             min-width: 140px;
                             margin: 0;
                             margin-left: 10px;
-                            font-size: 12px;
 
                             &.highlighted {
                                 color: $text-primary;
