@@ -1,53 +1,53 @@
-import { LegacyButton } from '@/common/ui/button';
-import { LegacyLabel } from '@/common/ui/label';
-import { LegacyPanel } from '@/common/ui/panel';
+import { Button, Container, Label } from '@playcanvas/pcui';
 
 editor.once('load', () => {
     let sidePanelIndex = 1;
 
     editor.method('picker:versioncontrol:createSidePanel', (args) => {
-        const panel = new LegacyPanel();
-        panel.class.add('side-panel-widget');
+        const panel = new Container({
+            class: 'side-panel-widget'
+        });
 
-        const panelTop = new LegacyPanel();
-        panelTop.class.add('top');
+        const panelTop = new Container({
+            class: 'top'
+        });
         panel.append(panelTop);
 
-        const labelTitle = new LegacyLabel({
-            text: args.title || ''
+        const labelTitle = new Label({
+            text: args.title || '',
+            class: ['title', 'selectable']
         });
-        labelTitle.renderChanges = false;
-        labelTitle.class.add('title', 'selectable');
         panelTop.append(labelTitle);
 
-        const labelNote = new LegacyLabel({
-            text: args.note || ''
+        const labelNote = new Label({
+            text: args.note || '',
+            class: ['note', 'selectable']
         });
-        labelNote.renderChanges = false;
-        labelNote.class.add('note', 'selectable');
         panelTop.append(labelNote);
 
         let panelMain;
         if (args.mainContents) {
-            panelMain = new LegacyPanel();
+            panelMain = new Container({
+                flex: true,
+                class: 'main'
+            });
             panel.append(panelMain);
-            panelMain.class.add('main');
-            panelMain.flex = true;
 
             for (let i = 0; i < args.mainContents.length; i++) {
                 panelMain.append(args.mainContents[i]);
             }
         }
 
-        const panelButtons = new LegacyPanel();
-        panelButtons.class.add('buttons');
+        const panelButtons = new Container({
+            class: 'buttons'
+        });
         panel.append(panelButtons);
 
         const getButtonOption = function (button: string, name: string) {
             return args.buttons && args.buttons[button] && args.buttons[button][name];
         };
 
-        const btnConfirm = new LegacyButton({
+        const btnConfirm = new Button({
             text: getButtonOption('confirm', 'text') || 'Confirm'
         });
         if (getButtonOption('confirm', 'highlighted')) {
@@ -64,7 +64,7 @@ editor.once('load', () => {
             }
         });
 
-        const btnCancel = new LegacyButton({
+        const btnCancel = new Button({
             text: getButtonOption('cancel', 'text') || 'Cancel'
         });
         if (getButtonOption('cancel', 'highlighted')) {
@@ -91,7 +91,7 @@ editor.once('load', () => {
         panel.on('show', () => {
             // make main panel cover all the height between the top and bottom sections
             if (panelMain) {
-                panelMain.element.style.height = `calc(100% - ${panelTop.element.offsetHeight + panelButtons.element.offsetHeight}px)`;
+                panelMain.style.height = `calc(100% - ${panelTop.dom.offsetHeight + panelButtons.dom.offsetHeight}px)`;
             }
 
             // Register Enter hotkey to click the highlighted button
