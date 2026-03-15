@@ -4866,7 +4866,7 @@ strong {
                         border-top: 0;
                         flex-direction: column;
 
-                        > .ui-panel.checkpoint-widget {
+                        > .pcui-container.checkpoint-widget {
                             margin: 10px;
                         }
 
@@ -4926,7 +4926,7 @@ strong {
                         > .content {
                             flex-direction: column;
 
-                            .pcui-panel-content > .pcui-container:not(.checkpoint-checkbox) {
+                            .pcui-panel-content > .pcui-container:not(.checkpoint-checkbox, .checkpoint-widget) {
                                 flex-direction: row;
                                 padding: 10px;
 
@@ -4964,7 +4964,7 @@ strong {
                         > .content {
                             flex-direction: column;
 
-                            .pcui-panel-content > .pcui-container:not(.checkpoint-checkbox) {
+                            .pcui-panel-content > .pcui-container:not(.checkpoint-checkbox, .checkpoint-widget) {
                                 flex-direction: row;
                                 padding: 10px;
 
@@ -5014,63 +5014,69 @@ strong {
             }
 
             .checkpoint-widget {
+                flex-direction: row;
+
                 img {
                     width: 28px;
                     height: 28px;
                     margin-right: 15px;
                 }
 
-                .ui-panel.info {
+                .pcui-container.info {
                     flex-grow: 1;
                     margin-top: -7px;
 
-                    > .content {
-                        flex-direction: column;
+                    .pcui-label {
+                        margin: 3px;
+                        line-height: 22px;
+                    }
 
-                        .ui-panel.top-row {
-                            white-space: nowrap;
+                    .pcui-container.top-row {
+                        white-space: nowrap;
 
-                            .ui-label.desc {
-                                overflow: hidden;
-                                max-width: 360px;
-                                color: $text-primary;
-                                font-size: 13px;
+                        .pcui-label.desc {
+                            overflow: hidden;
+                            max-width: 360px;
+                            color: $text-primary;
+                            font-size: 13px;
 
-                                &.more {
-                                    white-space: normal;
-                                    word-break: break-word;
-                                }
-                            }
-
-                            .ui-button {
-                                position: absolute;
-                                background: transparent;
-                                border: 0;
-                                margin: 0;
-                                padding: 0;
-                                font-size: 11px;
-                                text-decoration: underline;
-                                top: 1px;
-                                right: 0;
-                                z-index: 1;
-
-                                &:hover {
-                                    color: $text-primary;
-                                }
+                            &.more {
+                                white-space: normal;
+                                word-break: break-word;
                             }
                         }
 
-                        .ui-panel.bottom-row {
-                            margin-top: -8px;
+                        .pcui-button {
+                            position: absolute;
+                            background: transparent;
+                            border: 0;
+                            box-shadow: none;
+                            margin: 0;
+                            padding: 0;
+                            height: 24px;
+                            line-height: 24px;
+                            font-size: 11px;
+                            text-decoration: underline;
+                            top: 1px;
+                            right: 0;
+                            z-index: 1;
 
-                            .ui-label {
-                                &.info {
-                                    color: $text-dark;
-                                    font-size: 12px;
-                                    max-width: 320px;
-                                    overflow: hidden;
-                                    text-overflow: ellipsis;
-                                }
+                            &:hover {
+                                color: $text-primary;
+                            }
+                        }
+                    }
+
+                    .pcui-container.bottom-row {
+                        margin-top: -8px;
+
+                        .pcui-label {
+                            &.info {
+                                color: $text-dark;
+                                font-size: 12px;
+                                max-width: 320px;
+                                overflow: hidden;
+                                text-overflow: ellipsis;
                             }
                         }
                     }

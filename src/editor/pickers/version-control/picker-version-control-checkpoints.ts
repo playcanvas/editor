@@ -355,23 +355,26 @@ editor.once('load', () => {
     };
 
     const createCheckpointWidget = function (checkpoint: { id: string; user: { id: string; fullName?: string }; description: string; createdAt: string }) {
-        const panelWidget = new LegacyPanel();
-        panelWidget.class.add('checkpoint-widget');
-        panelWidget.flex = true;
+        const panelWidget = new Container({
+            flex: true,
+            class: 'checkpoint-widget'
+        });
 
         const imgUser = new Image();
         imgUser.src = `/api/users/${checkpoint.user.id}/thumbnail?size=28`;
         imgUser.classList.add('noSelect');
-        panelWidget.append(imgUser);
+        panelWidget.dom.appendChild(imgUser);
 
-        const panelInfo = new LegacyPanel();
-        panelInfo.class.add('info');
-        panelInfo.flex = true;
+        const panelInfo = new Container({
+            flex: true,
+            class: 'info'
+        });
         panelWidget.append(panelInfo);
 
-        const panelTopRow = new LegacyPanel();
-        panelTopRow.flexGrow = 1;
-        panelTopRow.class.add('top-row');
+        const panelTopRow = new Container({
+            flexGrow: 1,
+            class: 'top-row'
+        });
         panelInfo.append(panelTopRow);
 
         let descWithoutNewLine = checkpoint.description;
@@ -379,14 +382,13 @@ editor.once('load', () => {
         if (newLineIndex >= 0) {
             descWithoutNewLine = descWithoutNewLine.substring(0, newLineIndex);
         }
-        const labelDesc = new LegacyLabel({
-            text: descWithoutNewLine
+        const labelDesc = new Label({
+            text: descWithoutNewLine,
+            class: ['desc', 'selectable']
         });
-        labelDesc.renderChanges = false;
-        labelDesc.class.add('desc', 'selectable');
         panelTopRow.append(labelDesc);
 
-        const btnMore = new LegacyButton({
+        const btnMore = new Button({
             text: '...read more'
         });
         btnMore.on('click', () => {
@@ -405,12 +407,13 @@ editor.once('load', () => {
 
         panelTopRow.append(btnMore);
 
-        const panelBottomRow = new LegacyPanel();
-        panelBottomRow.flexGrow = 1;
-        panelBottomRow.class.add('bottom-row');
+        const panelBottomRow = new Container({
+            flexGrow: 1,
+            class: 'bottom-row'
+        });
         panelInfo.append(panelBottomRow);
 
-        const labelInfo = new LegacyLabel({
+        const labelInfo = new Label({
             text: `${convertDatetime(checkpoint.createdAt)
             } - ${
                 checkpoint.id.substring(0, 7)
@@ -419,12 +422,11 @@ editor.once('load', () => {
         labelInfo.class.add('info', 'selectable');
         panelBottomRow.append(labelInfo);
 
-
         // hide more button if necessary - do this here because the element
         // must exist in the DOM before scrollWidth / clientWidth are available,
         // Users of this widget need to call this function once the panel has been added to the DOM
         panelWidget.onAddedToDom = function () {
-            btnMore.hidden = labelDesc.element.scrollWidth <= labelDesc.element.clientWidth && newLineIndex < 0;
+            btnMore.hidden = labelDesc.dom.scrollWidth <= labelDesc.dom.clientWidth && newLineIndex < 0;
         };
 
         return panelWidget;
@@ -457,7 +459,7 @@ editor.once('load', () => {
         item.element.id = `checkpoint-${checkpoint.id}`;
 
         const panelListItem = createCheckpointWidget(checkpoint);
-        item.element.appendChild(panelListItem.element);
+        item.element.appendChild(panelListItem.dom);
 
         // dropdown
         const dropdown = new Button({
