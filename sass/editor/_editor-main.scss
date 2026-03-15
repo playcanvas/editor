@@ -4866,7 +4866,7 @@ strong {
                         border-top: 0;
                         flex-direction: column;
 
-                        > .ui-panel.checkpoint-widget {
+                        > .pcui-container.checkpoint-widget {
                             margin: 10px;
                         }
 
@@ -5014,63 +5014,61 @@ strong {
             }
 
             .checkpoint-widget {
+                flex-direction: row;
+
                 img {
                     width: 28px;
                     height: 28px;
                     margin-right: 15px;
                 }
 
-                .ui-panel.info {
+                .pcui-container.info {
                     flex-grow: 1;
                     margin-top: -7px;
 
-                    > .content {
-                        flex-direction: column;
+                    .pcui-container.top-row {
+                        white-space: nowrap;
 
-                        .ui-panel.top-row {
-                            white-space: nowrap;
+                        .pcui-label.desc {
+                            overflow: hidden;
+                            max-width: 360px;
+                            color: $text-primary;
+                            font-size: 13px;
 
-                            .ui-label.desc {
-                                overflow: hidden;
-                                max-width: 360px;
-                                color: $text-primary;
-                                font-size: 13px;
-
-                                &.more {
-                                    white-space: normal;
-                                    word-break: break-word;
-                                }
-                            }
-
-                            .ui-button {
-                                position: absolute;
-                                background: transparent;
-                                border: 0;
-                                margin: 0;
-                                padding: 0;
-                                font-size: 11px;
-                                text-decoration: underline;
-                                top: 1px;
-                                right: 0;
-                                z-index: 1;
-
-                                &:hover {
-                                    color: $text-primary;
-                                }
+                            &.more {
+                                white-space: normal;
+                                word-break: break-word;
                             }
                         }
 
-                        .ui-panel.bottom-row {
-                            margin-top: -8px;
+                        .pcui-button {
+                            position: absolute;
+                            background: transparent;
+                            border: 0;
+                            margin: 0;
+                            padding: 0;
+                            font-size: 11px;
+                            text-decoration: underline;
+                            top: 1px;
+                            right: 0;
+                            z-index: 1;
 
-                            .ui-label {
-                                &.info {
-                                    color: $text-dark;
-                                    font-size: 12px;
-                                    max-width: 320px;
-                                    overflow: hidden;
-                                    text-overflow: ellipsis;
-                                }
+                            &:hover {
+                                color: $text-primary;
+                            }
+                        }
+                    }
+
+                    .pcui-container.bottom-row {
+                        margin-top: -8px;
+
+                        .pcui-label {
+                            &.info {
+                                color: $text-dark;
+                                font-size: 12px;
+                                max-width: 320px;
+                                overflow: hidden;
+                                text-overflow: ellipsis;
                             }
                         }
                     }
