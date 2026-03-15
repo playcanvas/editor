@@ -4926,7 +4926,7 @@ strong {
                         > .content {
                             flex-direction: column;
 
-                            .pcui-panel-content > .pcui-container:not(.checkpoint-checkbox) {
+                            .pcui-panel-content > .pcui-container:not(.checkpoint-checkbox):not(.checkpoint-widget) {
                                 flex-direction: row;
                                 padding: 10px;
 
@@ -4964,7 +4964,7 @@ strong {
                         > .content {
                             flex-direction: column;
 
-                            .pcui-panel-content > .pcui-container:not(.checkpoint-checkbox) {
+                            .pcui-panel-content > .pcui-container:not(.checkpoint-checkbox):not(.checkpoint-widget) {
                                 flex-direction: row;
                                 padding: 10px;
 
