@@ -51,7 +51,6 @@ class VersionControlSidePanelBox extends Events {
         this.panel = new Panel({
             headerText: args.header || ' ',
             flex: true,
-            flexGrow: 1,
             class: args.noIcon ? ['version-control-side-panel-box', 'no-icon'] : 'version-control-side-panel-box'
         });
 

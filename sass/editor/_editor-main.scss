@@ -4746,72 +4746,64 @@ strong {
                 flex-grow: 1;
                 height: 100%;
 
-                > .content {
-                    height: 100%;
+                > .pcui-container {
+                    padding: 20px;
 
-                    > .ui-panel {
+                    > .pcui-label {
+                        display: block;
+                        margin: 3px;
+
+                        &.title {
+                            font-size: 16px;
+                            line-height: 22px;
+                            color: $text-primary;
+                        }
+
+                        &.note {
+                            font-size: 13px;
+                            line-height: 1.4;
+                            white-space: normal;
+                            overflow: visible;
+                            color: $text-secondary;
+                        }
+                    }
+
+                    .pcui-label.small {
+                        font-size: 12px;
+                    }
+
+                    &.main {
+                        border-top: 1px solid $border-primary;
+                        box-sizing: border-box;
+                        overflow-y: auto;
+                        background: $bcg-dark;
+                    }
+
+                    &.buttons {
+                        border-top: 1px solid $border-primary;
+                        border-bottom: 1px solid $border-primary;
+                        height: 68px;
                         padding: 20px;
+                        box-sizing: border-box;
+                        width: 100%;
 
-                        > .content {
-                            > .ui-label {
-                                display: block;
+                        .pcui-button {
+                            float: right;
+                            text-transform: uppercase;
+                            min-width: 140px;
+                            margin: 0;
+                            margin-left: 10px;
 
-                                &.title {
-                                    font-size: 16px;
-                                    color: $text-primary;
+                            &.highlighted {
+                                color: $text-primary;
+                                background: color.adjust(#f60, $lightness: -7%);
+
+                                &:hover {
+                                    background: color.adjust($text-active, $lightness: -10%);
                                 }
 
-                                &.note {
-                                    font-size: 13px;
-                                    line-height: 1.4;
-                                    color: $text-secondary;
-                                }
-                            }
-
-                            .ui-label.small {
-                                font-size: 12px;
-                            }
-                        }
-
-                        &.main {
-                            border-top: 1px solid $border-primary;
-                            box-sizing: border-box;
-                            overflow-y: auto;
-                            background: $bcg-dark;
-                        }
-
-                        &.buttons {
-                            border-top: 1px solid $border-primary;
-                            border-bottom: 1px solid $border-primary;
-                            height: 68px;
-                            padding: 20px;
-                            box-sizing: border-box;
-                            position: absolute;
-                            bottom: 0;
-                            width: 100%;
-
-                            .ui-button {
-                                float: right;
-                                height: 28px;
-                                line-height: 28px;
-                                text-align: center;
-                                text-transform: uppercase;
-                                min-width: 140px;
-                                margin: 0;
-                                margin-left: 10px;
-                                font-size: 12px;
-
-                                &.highlighted {
-                                    color: $text-primary;
-                                    background: color.adjust(#f60, $lightness: -7%);
-
-                                    &:hover {
-                                        background: color.adjust($text-active, $lightness: -10%);
-                                    }
-
-                                    &:active {
-                                        background: color.adjust(#f60, $lightness: -12%);
-                                    }
+                                &:active {
+                                    background: color.adjust(#f60, $lightness: -12%);
                                 }
                             }
                         }
@@ -4897,117 +4889,108 @@ strong {
                 }
 
                 &.create-checkpoint {
-                    .ui-panel.main {
-                        > .content {
-                            flex-direction: column;
+                    .pcui-container.main {
+                        flex-direction: column;
 
-                            .pcui-label {
-                                margin: 3px;
-                                font-size: 12px;
-                            }
+                        .pcui-label {
+                            margin: 3px;
+                            font-size: 12px;
+                        }
 
-                            .pcui-text-area-input {
-                                height: 100px;
-                                background: $bcg-darkest;
-                            }
+                        .pcui-text-area-input {
+                            height: 100px;
+                            background: $bcg-darkest;
+                        }
 
-                            .pcui-button {
-                                width: 140px;
-                                text-transform: uppercase;
-                                align-self: center;
-                                background: $bcg-primary;
-                            }
+                        .pcui-button {
+                            width: 140px;
+                            text-transform: uppercase;
+                            align-self: center;
+                            background: $bcg-primary;
                         }
                     }
                 }
 
                 &.create-branch {
-                    .ui-panel.main {
-                        > .content {
-                            flex-direction: column;
+                    .pcui-container.main {
+                        flex-direction: column;
 
-                            .pcui-panel-content > .pcui-container:not(.checkpoint-checkbox, .checkpoint-widget) {
-                                flex-direction: row;
-                                padding: 10px;
+                        .pcui-panel-content > .pcui-container:not(.checkpoint-checkbox, .checkpoint-widget) {
+                            flex-direction: row;
+                            padding: 10px;
 
-                                .pcui-label,
-                                .pcui-text-input {
-                                    margin: 3px;
-                                }
-
-                                .pcui-label {
-                                    font-size: 12px;
-                                    line-height: 22px;
-
-                                    &.left {
-                                        width: 120px;
-                                    }
-                                }
+                            .pcui-label,
+                            .pcui-text-input {
+                                margin: 3px;
                             }
 
-                            .pcui-label.branch-icon {
-                                @extend .font-icon;
-
-                                font-size: 32px;
+                            .pcui-label {
+                                font-size: 12px;
                                 line-height: 22px;
-                                overflow: visible;
-                                color: $text-darkest;
-                                margin: 5px auto 25px;
+
+                                &.left {
+                                    width: 120px;
+                                }
                             }
+                        }
+
+                        .pcui-label.branch-icon {
+                            @extend .font-icon;
+
+                            font-size: 32px;
+                            line-height: 22px;
+                            overflow: visible;
+                            color: $text-darkest;
+                            margin: 5px auto 25px;
                         }
                     }
                 }
 
                 &.close-branch,
                 &.hard-reset-checkpoint {
-                    .ui-panel.main {
-                        > .content {
-                            flex-direction: column;
+                    .pcui-container.main {
+                        flex-direction: column;
 
-                            .pcui-panel-content > .pcui-container:not(.checkpoint-checkbox, .checkpoint-widget) {
-                                flex-direction: row;
-                                padding: 10px;
+                        .pcui-panel-content > .pcui-container:not(.checkpoint-checkbox, .checkpoint-widget) {
+                            flex-direction: row;
+                            padding: 10px;
 
-                                .pcui-label {
-                                    margin: 3px;
-                                    font-size: 12px;
-                                    line-height: 22px;
-                                }
-
-                                .pcui-text-input {
-                                    margin: 3px;
-                                    margin-left: 15px;
-                                }
-                            }
-
-                            .pcui-label.close-icon {
-                                @extend .font-icon;
-
-                                font-size: 32px;
+                            .pcui-label {
+                                margin: 3px;
+                                font-size: 12px;
                                 line-height: 22px;
-                                overflow: visible;
-                                color: $text-darkest;
-                                margin: 5px auto 25px;
                             }
 
+                            .pcui-text-input {
+                                margin: 3px;
+                                margin-left: 15px;
+                            }
+                        }
+
+                        .pcui-label.close-icon {
+                            @extend .font-icon;
+
+                            font-size: 32px;
+                            line-height: 22px;
+                            overflow: visible;
+                            color: $text-darkest;
+                            margin: 5px auto 25px;
                         }
                     }
                 }
 
                 &.merge-branches {
-                    .ui-panel.main {
-                        > .content {
-                            flex-direction: column;
+                    .pcui-container.main {
+                        flex-direction: column;
 
-                            > .pcui-label.arrow {
-                                @extend .font-icon;
+                        > .pcui-label.arrow {
+                            @extend .font-icon;
 
-                                font-size: 32px;
-                                line-height: 22px;
-                                overflow: visible;
-                                color: $text-darkest;
-                                margin: -19px auto 10px;
-                            }
+                            font-size: 32px;
+                            line-height: 22px;
+                            overflow: visible;
+                            color: $text-darkest;
+                            margin: -19px auto 10px;
                         }
                     }
                 }
