@@ -4762,6 +4762,8 @@ strong {
                         &.note {
                             font-size: 13px;
                             line-height: 1.4;
+                            white-space: normal;
+                            overflow: visible;
                             color: $text-secondary;
                         }
                     }
