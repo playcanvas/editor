@@ -395,12 +395,12 @@ editor.once('load', () => {
             if (labelDesc.class.contains('more')) {
                 labelDesc.class.remove('more');
                 labelDesc.text = descWithoutNewLine;
-                labelDesc.dom.style.whiteSpace = '';
+                labelDesc.style.whiteSpace = '';
                 btnMore.text = '...read more';
             } else {
                 labelDesc.class.add('more');
                 labelDesc.text = checkpoint.description;
-                labelDesc.dom.style.whiteSpace = 'pre-wrap';
+                labelDesc.style.whiteSpace = 'pre-wrap';
                 btnMore.text = '...read less';
             }
         });
