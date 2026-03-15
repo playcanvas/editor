@@ -1,6 +1,5 @@
-import { LegacyButton } from '@/common/ui/button';
-import { LegacyLabel } from '@/common/ui/label';
-import { LegacyPanel } from '@/common/ui/panel';
+import { Button, Container, Label, Panel } from '@playcanvas/pcui';
+
 import { convertDatetime } from '@/common/utils';
 
 editor.once('load', () => {
@@ -9,112 +8,114 @@ editor.once('load', () => {
     let rightBranch = null;
     let rightCheckpoint = null;
 
-    const panel = new LegacyPanel('DIFF');
-    panel.class.add('diff-checkpoints');
+    const panel = new Panel({
+        headerText: 'DIFF',
+        class: 'diff-checkpoints'
+    });
 
     // close button
-    const btnClose = new LegacyButton({
-        text: '&#57650;'
+    const btnClose = new Button({
+        text: '\uE152',
+        class: 'close'
     });
-    btnClose.class.add('close');
     btnClose.on('click', () => {
         panel.hidden = true;
     });
-    panel.headerElement.appendChild(btnClose.element);
+    panel.header.dom.appendChild(btnClose.dom);
 
     // left checkpoint
-    const panelLeft = new LegacyPanel();
-    panelLeft.class.add('checkpoint', 'checkpoint-left', 'empty');
+    const panelLeft = new Container({
+        class: ['checkpoint', 'checkpoint-left', 'empty']
+    });
     panel.append(panelLeft);
 
-    const labelLeftInfo = new LegacyLabel({
-        text: 'Select a checkpoint or a branch\'s current state'
+    const labelLeftInfo = new Label({
+        text: 'Select a checkpoint or a branch\'s current state',
+        class: 'diff-info'
     });
-    labelLeftInfo.class.add('diff-info');
     panelLeft.append(labelLeftInfo);
 
-    const panelLeftContent = new LegacyPanel('title');
-    panelLeftContent.class.add('checkpoint-content');
+    const panelLeftContent = new Panel({
+        headerText: 'title',
+        class: 'checkpoint-content'
+    });
 
     // clear button
-    const btnClearLeft = new LegacyButton({
-        text: '&#57650;'
+    const btnClearLeft = new Button({
+        text: '\uE152',
+        class: 'close'
     });
-    btnClearLeft.class.add('close');
     btnClearLeft.on('click', () => {
         editor.emit('checkpoint:diff:deselect', leftBranch, leftCheckpoint);
     });
-    panelLeftContent.headerElement.appendChild(btnClearLeft.element);
+    panelLeftContent.header.dom.appendChild(btnClearLeft.dom);
 
-    const labelLeftCheckpoint = new LegacyLabel({
-        text: 'Left Checkpoint'
+    const labelLeftCheckpoint = new Label({
+        text: 'Left Checkpoint',
+        class: 'title'
     });
-    labelLeftCheckpoint.renderChanges = false;
-    labelLeftCheckpoint.class.add('title');
     panelLeftContent.append(labelLeftCheckpoint);
 
-    const labelLeftDesc = new LegacyLabel({
-        text: 'Description'
+    const labelLeftDesc = new Label({
+        text: 'Description',
+        class: 'desc'
     });
-    labelLeftDesc.renderChanges = false;
-    labelLeftDesc.class.add('desc');
     panelLeftContent.append(labelLeftDesc);
 
     panelLeft.append(panelLeftContent);
 
     // arrow
-    const labelArrow = new LegacyLabel({
-        text: '&#57702;',
-        unsafe: true
+    const labelArrow = new Label({
+        text: '\uE166',
+        class: 'arrow'
     });
-    labelArrow.class.add('arrow');
     panel.append(labelArrow);
 
     // right checkpoint
-    const panelRight = new LegacyPanel();
-    panelRight.class.add('checkpoint', 'checkpoint-right', 'empty');
+    const panelRight = new Container({
+        class: ['checkpoint', 'checkpoint-right', 'empty']
+    });
     panel.append(panelRight);
 
-    const labelRightInfo = new LegacyLabel({
-        text: 'Select a checkpoint or a branch\'s current state'
+    const labelRightInfo = new Label({
+        text: 'Select a checkpoint or a branch\'s current state',
+        class: 'diff-info'
     });
-    labelRightInfo.renderChanges = false;
-    labelRightInfo.class.add('diff-info');
     panelRight.append(labelRightInfo);
 
-    const panelRightContent = new LegacyPanel('title');
-    panelRightContent.class.add('checkpoint-content');
-    const labelRightCheckpoint = new LegacyLabel({
-        text: 'Right Checkpoint'
+    const panelRightContent = new Panel({
+        headerText: 'title',
+        class: 'checkpoint-content'
     });
-    labelRightCheckpoint.renderChanges = false;
-    labelRightCheckpoint.class.add('title');
+    const labelRightCheckpoint = new Label({
+        text: 'Right Checkpoint',
+        class: 'title'
+    });
     panelRightContent.append(labelRightCheckpoint);
 
     // clear button
-    const btnClearRight = new LegacyButton({
-        text: '&#57650;'
+    const btnClearRight = new Button({
+        text: '\uE152',
+        class: 'close'
     });
-    btnClearRight.class.add('close');
     btnClearRight.on('click', () => {
         editor.emit('checkpoint:diff:deselect', rightBranch, rightCheckpoint);
     });
-    panelRightContent.headerElement.appendChild(btnClearRight.element);
+    panelRightContent.header.dom.appendChild(btnClearRight.dom);
 
-    const labelRightDesc = new LegacyLabel({
-        text: 'Description'
+    const labelRightDesc = new Label({
+        text: 'Description',
+        class: 'desc'
     });
-    labelRightDesc.renderChanges = false;
-    labelRightDesc.class.add('desc');
     panelRightContent.append(labelRightDesc);
 
     panelRight.append(panelRightContent);
 
     // compare button
-    const btnCompare = new LegacyButton({
-        text: 'COMPARE'
+    const btnCompare = new Button({
+        text: 'COMPARE',
+        class: 'compare'
     });
-    btnCompare.class.add('compare');
     btnCompare.disabled = true;
     panel.append(btnCompare);
 
@@ -128,10 +129,10 @@ editor.once('load', () => {
     });
 
     // swap button
-    const btnSwitch = new LegacyButton({
-        text: 'SWAP'
+    const btnSwitch = new Button({
+        text: 'SWAP',
+        class: 'switch'
     });
-    btnSwitch.class.add('switch');
     btnSwitch.disabled = true;
     panel.append(btnSwitch);
 
@@ -144,7 +145,7 @@ editor.once('load', () => {
 
     const setCheckpointContent = function (panel: Record<string, unknown>, panelCheckpoint: Record<string, unknown>, labelCheckpoint: Record<string, unknown>, labelDesc: Record<string, unknown>, branch: Record<string, unknown> | null, checkpoint: Record<string, unknown> | null) {
         if (branch) {
-            panelCheckpoint.header = branch.name;
+            panelCheckpoint.headerText = branch.name;
         }
 
         if (checkpoint || branch) {
@@ -164,14 +165,14 @@ editor.once('load', () => {
         }
     };
 
-    var setLeftCheckpoint = function (branch: Record<string, unknown> | null, checkpoint: Record<string, unknown> | null) {
+    const setLeftCheckpoint = function (branch: Record<string, unknown> | null, checkpoint: Record<string, unknown> | null) {
         leftBranch = branch;
         leftCheckpoint = checkpoint;
         setCheckpointContent(panelLeft, panelLeftContent, labelLeftCheckpoint, labelLeftDesc, branch, checkpoint);
 
     };
 
-    var setRightCheckpoint = function (branch: Record<string, unknown> | null, checkpoint: Record<string, unknown> | null) {
+    const setRightCheckpoint = function (branch: Record<string, unknown> | null, checkpoint: Record<string, unknown> | null) {
         rightBranch = branch;
         rightCheckpoint = checkpoint;
         setCheckpointContent(panelRight, panelRightContent, labelRightCheckpoint, labelRightDesc, branch, checkpoint);

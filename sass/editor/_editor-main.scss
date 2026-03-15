@@ -5364,7 +5364,7 @@ strong {
             height: 130px;
             overflow: hidden;
 
-            > .ui-header::before {
+            > .pcui-panel-header::before {
                 @extend .font-icon;
 
                 content: '\E236';
@@ -5375,7 +5375,7 @@ strong {
                 color: $text-active;
             }
 
-            > .ui-header > .close {
+            > .pcui-panel-header > .close {
                 @extend .font-icon;
 
                 float: right;
@@ -5383,7 +5383,7 @@ strong {
                 border: 0;
             }
 
-            > .content {
+            > .pcui-panel-content {
                 height: calc(100% - 35px);
 
                 > .checkpoint {
@@ -5398,24 +5398,22 @@ strong {
                     &.empty {
                         border: 1px dashed $text-active;
 
-                        > .content {
-                            > .ui-label.diff-info {
-                                display: block;
-                                margin-top: 27px;
-                                text-align: center;
-                                font-size: 12px;
-                                font-weight: bold;
-                            }
+                        > .pcui-label.diff-info {
+                            display: block;
+                            margin-top: 27px;
+                            text-align: center;
+                            font-size: 12px;
+                            font-weight: bold;
+                        }
 
-                            > .checkpoint-content {
-                                display: none;
-                            }
+                        > .checkpoint-content {
+                            display: none;
                         }
 
                         & ~ .empty {
                             border-color: $bcg-darkest;
 
-                            > .content > .ui-label.diff-info {
+                            > .pcui-label.diff-info {
                                 display: none;
                             }
                         }
@@ -5429,69 +5427,65 @@ strong {
                         left: 405px;
                     }
 
-                    > .content {
+                    > .pcui-label.diff-info {
+                        display: none;
+                    }
+
+                    > .checkpoint-content {
                         height: 100%;
 
-                        > .ui-label.diff-info {
-                            display: none;
-                        }
+                        > .pcui-panel-header {
+                            padding: 0 15px;
+                            height: 28px;
+                            background: transparent;
+                            border-bottom: 1px solid $border-primary;
 
-                        > .checkpoint-content {
-                            height: 100%;
+                            &::before {
+                                content: '\E399';
 
-                            > .ui-header {
-                                padding: 0 15px;
-                                height: 28px;
-                                background: transparent;
-                                border-bottom: 1px solid $border-primary;
+                                @extend .font-icon;
 
-                                &::before {
-                                    content: '\E399';
-
-                                    @extend .font-icon;
-
-                                    margin-right: 5px;
-                                    float: left;
-                                    font-weight: 100;
-                                    font-size: 14px;
-                                }
-
-                                > .title {
-                                    max-width: 280px;
-                                    overflow: hidden;
-                                    text-overflow: ellipsis;
-                                }
-
-                                > .close {
-                                    @extend .font-icon;
-
-                                    background: transparent;
-                                    border: 0;
-                                    position: absolute;
-                                    right: 0;
-                                }
+                                margin-right: 5px;
+                                float: left;
+                                font-weight: 100;
+                                font-size: 14px;
                             }
 
-                            > .content {
-                                padding: 8px 15px;
+                            > .pcui-panel-header-title {
+                                max-width: 280px;
+                                overflow: hidden;
+                                text-overflow: ellipsis;
+                            }
 
-                                > .ui-label {
-                                    display: block;
-                                    line-height: 1;
-                                    font-size: 12px;
-                                    white-space: nowrap;
-                                    overflow: hidden;
-                                    text-overflow: ellipsis;
+                            > .close {
+                                @extend .font-icon;
 
-                                    &.title {
-                                        color: $text-primary;
-                                        font-weight: bold;
-                                    }
+                                background: transparent;
+                                border: 0;
+                                position: absolute;
+                                right: 0;
+                            }
+                        }
 
-                                    &.desc {
-                                        font-size: 11px;
-                                        color: $text-dark;
-                                    }
+                        > .pcui-panel-content {
+                            padding: 8px 15px;
+
+                            > .pcui-label {
+                                display: block;
+                                line-height: 1;
+                                font-size: 12px;
+                                white-space: nowrap;
+                                overflow: hidden;
+                                text-overflow: ellipsis;
+
+                                &.title {
+                                    color: $text-primary;
+                                    font-weight: bold;
+                                }
+
+                                &.desc {
+                                    font-size: 11px;
+                                    color: $text-dark;
                                 }
                             }
                         }
@@ -5507,7 +5501,7 @@ strong {
                     @extend .font-icon;
                 }
 
-                > .ui-button {
+                > .pcui-button {
                     position: absolute;
                     width: 90px;
                     right: 10px;
