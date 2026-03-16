@@ -5361,30 +5361,35 @@ strong {
             width: 100%;
             bottom: 0;
             background: $bcg-dark;
-            height: 130px;
+            height: 129px;
             overflow: hidden;
 
-            > .ui-header::before {
-                @extend .font-icon;
+            > .pcui-panel-header {
+                > .pcui-panel-header-title {
+                    text-align: center;
 
-                content: '\E236';
-                font-size: 14px;
-                font-weight: 100;
-                float: left;
-                margin-right: 10px;
-                color: $text-active;
+                    &::before {
+                        @extend .font-icon;
+
+                        content: '\E236';
+                        font-size: 14px;
+                        font-weight: 100;
+                        margin-right: 10px;
+                        color: $text-active;
+                    }
+                }
+
+                > .close {
+                    position: absolute;
+                    right: 0;
+                    background: transparent;
+                    border: 0;
+                    box-shadow: none;
+                }
             }
 
-            > .ui-header > .close {
-                @extend .font-icon;
-
-                float: right;
-                background: transparent;
-                border: 0;
-            }
-
-            > .content {
-                height: calc(100% - 35px);
+            > .pcui-panel-content {
+                height: calc(100% - 32px);
 
                 > .checkpoint {
                     position: absolute;
@@ -5397,25 +5402,25 @@ strong {
 
                     &.empty {
                         border: 1px dashed $text-active;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
 
-                        > .content {
-                            > .ui-label.diff-info {
-                                display: block;
-                                margin-top: 27px;
-                                text-align: center;
-                                font-size: 12px;
-                                font-weight: bold;
-                            }
+                        > .pcui-label.diff-info {
+                            display: block;
+                            text-align: center;
+                            font-size: 12px;
+                            font-weight: bold;
+                        }
 
-                            > .checkpoint-content {
-                                display: none;
-                            }
+                        > .checkpoint-content {
+                            display: none;
                         }
 
                         & ~ .empty {
                             border-color: $bcg-darkest;
 
-                            > .content > .ui-label.diff-info {
+                            > .pcui-label.diff-info {
                                 display: none;
                             }
                         }
@@ -5429,69 +5434,64 @@ strong {
                         left: 405px;
                     }
 
-                    > .content {
+                    > .pcui-label.diff-info {
+                        display: none;
+                    }
+
+                    > .checkpoint-content {
                         height: 100%;
 
-                        > .ui-label.diff-info {
-                            display: none;
-                        }
+                        > .pcui-panel-header {
+                            padding: 0 15px;
+                            height: 28px;
+                            background: transparent;
+                            border-bottom: 1px solid $border-primary;
 
-                        > .checkpoint-content {
-                            height: 100%;
-
-                            > .ui-header {
-                                padding: 0 15px;
-                                height: 28px;
-                                background: transparent;
-                                border-bottom: 1px solid $border-primary;
+                            > .pcui-panel-header-title {
+                                max-width: 280px;
+                                overflow: hidden;
+                                text-overflow: ellipsis;
+                                text-align: center;
 
                                 &::before {
+                                    @extend .font-icon;
+
                                     content: '\E399';
-
-                                    @extend .font-icon;
-
-                                    margin-right: 5px;
-                                    float: left;
-                                    font-weight: 100;
                                     font-size: 14px;
-                                }
-
-                                > .title {
-                                    max-width: 280px;
-                                    overflow: hidden;
-                                    text-overflow: ellipsis;
-                                }
-
-                                > .close {
-                                    @extend .font-icon;
-
-                                    background: transparent;
-                                    border: 0;
-                                    position: absolute;
-                                    right: 0;
+                                    font-weight: 100;
+                                    margin-right: 5px;
                                 }
                             }
 
-                            > .content {
-                                padding: 8px 15px;
+                            > .close {
+                                background: transparent;
+                                border: 0;
+                                box-shadow: none;
+                                position: absolute;
+                                right: 0;
+                            }
+                        }
 
-                                > .ui-label {
-                                    display: block;
-                                    line-height: 1;
-                                    font-size: 12px;
-                                    white-space: nowrap;
-                                    overflow: hidden;
-                                    text-overflow: ellipsis;
+                        > .pcui-panel-content {
+                            padding: 8px 15px;
 
-                                    &.title {
-                                        color: $text-primary;
-                                        font-weight: bold;
-                                    }
+                            > .pcui-label {
+                                display: block;
+                                margin: 3px;
+                                line-height: 1;
+                                font-size: 12px;
+                                white-space: nowrap;
+                                overflow: hidden;
+                                text-overflow: ellipsis;
 
-                                    &.desc {
-                                        font-size: 11px;
-                                        color: $text-dark;
-                                    }
+                                &.title {
+                                    color: $text-primary;
+                                    font-weight: bold;
+                                }
+
+                                &.desc {
+                                    font-size: 11px;
+                                    color: $text-dark;
                                 }
                             }
                         }
@@ -5502,15 +5502,17 @@ strong {
                     position: absolute;
                     left: 375px;
                     top: 35px;
+                    margin: 3px;
                     font-size: 18px;
 
                     @extend .font-icon;
                 }
 
-                > .ui-button {
+                > .pcui-button {
                     position: absolute;
                     width: 90px;
-                    right: 10px;
+                    right: 15px;
+                    margin: 0;
                     font-size: 12px;
                     line-height: 32px;
                     height: 32px;
@@ -5519,12 +5521,12 @@ strong {
                     border: 1px solid $border-primary;
 
                     &.compare {
-                        top: 7px;
+                        top: 10px;
                     }
 
                     &.switch {
                         top: initial;
-                        bottom: 5px;
+                        bottom: 10px;
 
                         &::before {
                             content: '\E128';
