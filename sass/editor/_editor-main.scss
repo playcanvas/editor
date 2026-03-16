@@ -5380,8 +5380,6 @@ strong {
                 }
 
                 > .close {
-                    @extend .font-icon;
-
                     position: absolute;
                     right: 0;
                     background: transparent;
@@ -5466,8 +5464,6 @@ strong {
                             }
 
                             > .close {
-                                @extend .font-icon;
-
                                 background: transparent;
                                 border: 0;
                                 box-shadow: none;
