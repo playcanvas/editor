@@ -24,24 +24,21 @@ editor.once('load', () => {
     panel.header.append(btnClose);
 
     // left checkpoint
-    const panelLeft = new Container({
+    const containerLeft = new Container({
         class: ['checkpoint', 'checkpoint-left', 'empty']
     });
-    panel.append(panelLeft);
+    panel.append(containerLeft);
 
     const labelLeftInfo = new Label({
         text: 'Select a checkpoint or a branch\'s current state',
         class: 'diff-info'
     });
-    panelLeft.append(labelLeftInfo);
+    containerLeft.append(labelLeftInfo);
 
     const panelLeftContent = new Panel({
         headerText: 'title',
         class: 'checkpoint-content'
     });
-    panelLeftContent.header.style.height = '28px';
-    panelLeftContent.header.style.lineHeight = '28px';
-
     // clear button
     const btnClearLeft = new Button({
         icon: 'E132',
@@ -64,7 +61,7 @@ editor.once('load', () => {
     });
     panelLeftContent.append(labelLeftDesc);
 
-    panelLeft.append(panelLeftContent);
+    containerLeft.append(panelLeftContent);
 
     // arrow
     const labelArrow = new Label({
@@ -74,24 +71,21 @@ editor.once('load', () => {
     panel.append(labelArrow);
 
     // right checkpoint
-    const panelRight = new Container({
+    const containerRight = new Container({
         class: ['checkpoint', 'checkpoint-right', 'empty']
     });
-    panel.append(panelRight);
+    panel.append(containerRight);
 
     const labelRightInfo = new Label({
         text: 'Select a checkpoint or a branch\'s current state',
         class: 'diff-info'
     });
-    panelRight.append(labelRightInfo);
+    containerRight.append(labelRightInfo);
 
     const panelRightContent = new Panel({
         headerText: 'title',
         class: 'checkpoint-content'
     });
-    panelRightContent.header.style.height = '28px';
-    panelRightContent.header.style.lineHeight = '28px';
-
     const labelRightCheckpoint = new Label({
         text: 'Right Checkpoint',
         class: 'title'
@@ -114,7 +108,7 @@ editor.once('load', () => {
     });
     panelRightContent.append(labelRightDesc);
 
-    panelRight.append(panelRightContent);
+    containerRight.append(panelRightContent);
 
     // compare button
     const btnCompare = new Button({
@@ -148,39 +142,40 @@ editor.once('load', () => {
         setRightCheckpoint(tempBranch, tempCheckpoint);
     });
 
-    const setCheckpointContent = function (panel: Record<string, unknown>, panelCheckpoint: Record<string, unknown>, labelCheckpoint: Record<string, unknown>, labelDesc: Record<string, unknown>, branch: Record<string, unknown> | null, checkpoint: Record<string, unknown> | null) {
+    const setCheckpointContent = function (container: Container, panelCheckpoint: Panel, labelCheckpoint: Label, labelDesc: Label, branch: Record<string, unknown> | null, checkpoint: Record<string, unknown> | null) {
         if (branch) {
-            panelCheckpoint.headerText = branch.name;
+            panelCheckpoint.headerText = branch.name as string;
         }
 
         if (checkpoint || branch) {
-            labelCheckpoint.text = checkpoint ? checkpoint.description : 'Current State';
+            labelCheckpoint.text = checkpoint ? checkpoint.description as string : 'Current State';
             let text;
             if (checkpoint) {
-                text = `${convertDatetime(checkpoint.createdAt)} - ${checkpoint.id.substring(0, 7)}${checkpoint.user.fullName ? ` by ${checkpoint.user.fullName}` : ''}`;
+                const user = checkpoint.user as Record<string, unknown>;
+                text = `${convertDatetime(checkpoint.createdAt as string)} - ${(checkpoint.id as string).substring(0, 7)}${user.fullName ? ` by ${user.fullName}` : ''}`;
             } else {
                 text = `As of ${convertDatetime(Date.now())}`;
             }
 
             labelDesc.text = text;
 
-            panel.class.remove('empty');
+            container.class.remove('empty');
         } else {
-            panel.class.add('empty');
+            container.class.add('empty');
         }
     };
 
     const setLeftCheckpoint = function (branch: Record<string, unknown> | null, checkpoint: Record<string, unknown> | null) {
         leftBranch = branch;
         leftCheckpoint = checkpoint;
-        setCheckpointContent(panelLeft, panelLeftContent, labelLeftCheckpoint, labelLeftDesc, branch, checkpoint);
+        setCheckpointContent(containerLeft, panelLeftContent, labelLeftCheckpoint, labelLeftDesc, branch, checkpoint);
 
     };
 
     const setRightCheckpoint = function (branch: Record<string, unknown> | null, checkpoint: Record<string, unknown> | null) {
         rightBranch = branch;
         rightCheckpoint = checkpoint;
-        setCheckpointContent(panelRight, panelRightContent, labelRightCheckpoint, labelRightDesc, branch, checkpoint);
+        setCheckpointContent(containerRight, panelRightContent, labelRightCheckpoint, labelRightDesc, branch, checkpoint);
     };
 
     const isLeft = function (branch: Record<string, unknown>, checkpoint: Record<string, unknown> | null) {

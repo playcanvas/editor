@@ -5443,7 +5443,8 @@ strong {
 
                         > .pcui-panel-header {
                             padding: 0 15px;
-                            height: 28px;
+                            height: 28px !important;
+                            line-height: 28px !important;
                             background: transparent;
                             border-bottom: 1px solid $border-primary;
 
