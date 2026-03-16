@@ -119,9 +119,9 @@ editor.once('load', () => {
     // compare button
     const btnCompare = new Button({
         text: 'COMPARE',
-        class: 'compare'
+        class: 'compare',
+        enabled: false
     });
-    btnCompare.disabled = true;
     panel.append(btnCompare);
 
     btnCompare.on('click', () => {
@@ -136,9 +136,9 @@ editor.once('load', () => {
     // swap button
     const btnSwitch = new Button({
         text: 'SWAP',
-        class: 'switch'
+        class: 'switch',
+        enabled: false
     });
-    btnSwitch.disabled = true;
     panel.append(btnSwitch);
 
     btnSwitch.on('click', () => {
@@ -205,8 +205,8 @@ editor.once('load', () => {
         }
 
         if (panel.getSelectedCount() === 2) {
-            btnCompare.disabled = false;
-            btnSwitch.disabled = false;
+            btnCompare.enabled = true;
+            btnSwitch.enabled = true;
         }
     };
 
@@ -218,8 +218,8 @@ editor.once('load', () => {
         }
 
         if (panel.getSelectedCount() !== 2) {
-            btnCompare.disabled = true;
-            btnSwitch.disabled = true;
+            btnCompare.enabled = false;
+            btnSwitch.enabled = false;
         }
     };
 
