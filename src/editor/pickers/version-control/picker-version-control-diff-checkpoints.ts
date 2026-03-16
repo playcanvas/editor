@@ -15,7 +15,7 @@ editor.once('load', () => {
 
     // close button
     const btnClose = new Button({
-        text: '\uE152',
+        text: '\uE132',
         class: 'close'
     });
     btnClose.on('click', () => {
@@ -39,10 +39,12 @@ editor.once('load', () => {
         headerText: 'title',
         class: 'checkpoint-content'
     });
+    panelLeftContent.header.style.height = '28px';
+    panelLeftContent.header.style.lineHeight = '28px';
 
     // clear button
     const btnClearLeft = new Button({
-        text: '\uE152',
+        text: '\uE132',
         class: 'close'
     });
     btnClearLeft.on('click', () => {
@@ -87,6 +89,9 @@ editor.once('load', () => {
         headerText: 'title',
         class: 'checkpoint-content'
     });
+    panelRightContent.header.style.height = '28px';
+    panelRightContent.header.style.lineHeight = '28px';
+
     const labelRightCheckpoint = new Label({
         text: 'Right Checkpoint',
         class: 'title'
@@ -95,7 +100,7 @@ editor.once('load', () => {
 
     // clear button
     const btnClearRight = new Button({
-        text: '\uE152',
+        text: '\uE132',
         class: 'close'
     });
     btnClearRight.on('click', () => {
