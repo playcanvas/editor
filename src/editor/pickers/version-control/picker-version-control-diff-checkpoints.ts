@@ -130,6 +130,7 @@ editor.once('load', () => {
     // swap button
     const btnSwitch = new Button({
         text: 'SWAP',
+        icon: 'E128',
         class: 'switch',
         enabled: false
     });
