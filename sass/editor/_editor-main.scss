@@ -5443,7 +5443,8 @@ strong {
 
                         > .pcui-panel-header {
                             padding: 0 15px;
-                            height: 28px;
+                            height: 28px !important;
+                            line-height: 28px !important;
                             background: transparent;
                             border-bottom: 1px solid $border-primary;
 
@@ -5513,12 +5514,8 @@ strong {
                     width: 90px;
                     right: 15px;
                     margin: 0;
-                    font-size: 12px;
-                    line-height: 32px;
                     height: 32px;
-                    text-align: center;
                     background: $bcg-primary;
-                    border: 1px solid $border-primary;
 
                     &.compare {
                         top: 10px;
@@ -5527,14 +5524,6 @@ strong {
                     &.switch {
                         top: initial;
                         bottom: 10px;
-
-                        &::before {
-                            content: '\E128';
-
-                            @extend .font-icon;
-
-                            margin-right: 5px;
-                        }
                     }
                 }
             }
