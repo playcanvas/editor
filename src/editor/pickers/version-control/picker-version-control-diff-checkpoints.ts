@@ -15,13 +15,13 @@ editor.once('load', () => {
 
     // close button
     const btnClose = new Button({
-        text: '\uE132',
+        icon: 'E132',
         class: 'close'
     });
     btnClose.on('click', () => {
         panel.hidden = true;
     });
-    panel.header.dom.appendChild(btnClose.dom);
+    panel.header.append(btnClose);
 
     // left checkpoint
     const panelLeft = new Container({
@@ -44,13 +44,13 @@ editor.once('load', () => {
 
     // clear button
     const btnClearLeft = new Button({
-        text: '\uE132',
+        icon: 'E132',
         class: 'close'
     });
     btnClearLeft.on('click', () => {
         editor.emit('checkpoint:diff:deselect', leftBranch, leftCheckpoint);
     });
-    panelLeftContent.header.dom.appendChild(btnClearLeft.dom);
+    panelLeftContent.header.append(btnClearLeft);
 
     const labelLeftCheckpoint = new Label({
         text: 'Left Checkpoint',
@@ -100,13 +100,13 @@ editor.once('load', () => {
 
     // clear button
     const btnClearRight = new Button({
-        text: '\uE132',
+        icon: 'E132',
         class: 'close'
     });
     btnClearRight.on('click', () => {
         editor.emit('checkpoint:diff:deselect', rightBranch, rightCheckpoint);
     });
-    panelRightContent.header.dom.appendChild(btnClearRight.dom);
+    panelRightContent.header.append(btnClearRight);
 
     const labelRightDesc = new Label({
         text: 'Description',
