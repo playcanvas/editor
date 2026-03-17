@@ -4777,6 +4777,10 @@ strong {
                         box-sizing: border-box;
                         overflow-y: auto;
                         background: $bcg-dark;
+
+                        > * {
+                            flex-shrink: 0;
+                        }
                     }
 
                     &.buttons {
