@@ -173,7 +173,7 @@ test.describe('branch/checkpoint/diff/merge', () => {
             await page.locator(`#checkpoint-${mainCheckpointId} .ui-checkbox.tick`).click();
 
             // compare
-            await page.locator('.ui-button.compare:not(.disabled)').click();
+            await page.locator('.pcui-button.compare:not(.pcui-disabled)').click();
 
             // wait for diff to load
             await page.waitForSelector('.picker-conflict-manager.diff');
@@ -207,10 +207,10 @@ test.describe('branch/checkpoint/diff/merge', () => {
             await page.getByText('Merge Into Current Branch').click();
 
             // uncheck checkpoint create
-            await page.locator('div:nth-child(3) > div > div:nth-child(2) > .content > .ui-checkbox').click();
+            await page.locator('.merge-branches .version-control-side-panel-box:last-child .checkpoint-checkbox .tick').click();
 
             // check close branch
-            await page.locator('div:nth-child(3) > .content > .ui-checkbox').first().click();
+            await page.locator('.merge-branches .checkpoint-checkbox').filter({ hasText: 'Close branch' }).locator('.tick').click();
 
             // create merge
             await page.getByText('START MERGE').click();
@@ -244,7 +244,7 @@ test.describe('branch/checkpoint/diff/merge', () => {
             await page.getByText('Merge Into Current Branch').click();
 
             // uncheck checkpoint create
-            await page.locator('div:nth-child(3) > div > div:nth-child(2) > .content > .ui-checkbox').click();
+            await page.locator('.merge-branches .version-control-side-panel-box:last-child .checkpoint-checkbox .tick').click();
 
             // create merge
             await page.getByText('START MERGE').click();
@@ -304,7 +304,7 @@ test.describe('branch/checkpoint/diff/merge', () => {
             await page.locator('.pcui-menu-item').filter({ hasText: /^Restore$/ }).first().click();
 
             // uncheck checkpoint create
-            await page.locator('.content > div:nth-child(2) > .content > .ui-checkbox').first().click();
+            await page.locator('.restore-checkpoint .checkpoint-checkbox .tick').click();
 
             // restore checkpoint
             await page.getByText('Restore Checkpoint', { exact: true }).click();
