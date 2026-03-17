@@ -39,18 +39,18 @@
     "@rollup/plugin-commonjs": "28.0.9",
     "@rollup/plugin-node-resolve": "15.3.1",
     "@rollup/plugin-swc": "0.4.0",
-    "@swc/core": "1.15.11",
+    "@swc/core": "1.15.18",
     "@types/sharedb": "3.3.13",
-    "@typescript-eslint/eslint-plugin": "^8.55.0",
-    "@typescript-eslint/parser": "^8.55.0",
-    "autoprefixer": "10.4.24",
+    "@typescript-eslint/eslint-plugin": "8.57.0",
+    "@typescript-eslint/parser": "8.57.0",
+    "autoprefixer": "10.4.27",
     "chai": "5.3.3",
     "concurrently": "9.2.1",
     "cross-env": "7.0.3",
     "dexie": "4.3.0",
-    "esbuild": "^0.27.3",
-    "esbuild-plugin-polyfill-node": "^0.3.0",
-    "eslint": "9.39.2",
+    "esbuild": "0.27.4",
+    "esbuild-plugin-polyfill-node": "0.3.0",
+    "eslint": "9.39.4",
     "eslint-import-resolver-typescript": "4.4.4",
     "eslint-plugin-import": "2.32.0",
     "filenamify": "6.0.0",
@@ -65,10 +65,10 @@
     "monaco-themes": "0.4.8",
     "ot-text": "github:playcanvas/ot-text",
     "playcanvas": "2.17.1",
-    "postcss": "8.5.6",
+    "postcss": "8.5.8",
     "rollup": "4.59.0",
     "rollup-plugin-polyfill-node": "0.13.0",
-    "sass-embedded": "1.97.3",
+    "sass-embedded": "1.98.0",
     "serve": "14.2.6",
     "sharedb": "3.3.2",
     "sinon": "17.0.1",
@@ -76,7 +76,7 @@
     "stylelint-config-standard-scss": "13.1.0",
     "ts-node": "10.9.2",
     "typescript": "5.9.3",
-    "vite": "^7.3.1"
+    "vite": "7.3.1"
   },
   "dependencies": {
     "@playcanvas/attribute-parser": "^1.10.1"
@@ -93,6 +93,6 @@
     "watch": "cross-env NODE_ENV=development vite build --watch"
   },
   "engines": {
-    "node": ">=22.22.0"
+    "node": "v25.8.1"
   }
 }
