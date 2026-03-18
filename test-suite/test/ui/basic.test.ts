@@ -111,7 +111,9 @@ test.describe('export/import', () => {
         test.setTimeout(4 * 60 * 1000);
         expect(await capture('import-project', page, async () => {
             // close project dialog
-            await page.getByText('').click();
+            const close = page.locator('.picker-project .close');
+            await close.waitFor({ state: 'visible' });
+            await close.click();
 
             // import project
             const fileChooserPromise = page.waitForEvent('filechooser');
@@ -335,6 +337,9 @@ test.describe('publish/download', () => {
                 await page.getByText('Download', { exact: true }).nth(2).click();
                 await downloadPagePromise;
                 await downloadPromise;
+
+                // dismiss dialog
+                await page.locator('.picker-project .close').first().click();
             })).toStrictEqual([]);
         });
 

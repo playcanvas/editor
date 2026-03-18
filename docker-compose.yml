@@ -1,17 +1,19 @@
 services:
   test-suite:
     build: ./test-suite
-    image: playcanvas/editor-test:latest
-    container_name: test-suite
-    env_file:
-      - .env
-    volumes:
-      - ./test-suite/.auth:/usr/src/test/.auth
+    image: ghcr.io/playcanvas/editor/test:latest
+    command: "true"
 
   playcanvas-editor:
     build: .
     container_name: playcanvas-editor
+    depends_on:
+      test-suite:
+        condition: service_completed_successfully
     env_file:
       - .env
+    environment:
+      - PC_LOCAL_FRONTEND=true
     volumes:
+      - ./test-suite/.auth:/usr/src/test/.auth
       - ./test-results:/usr/src/test/test-results
