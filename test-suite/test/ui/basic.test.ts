@@ -368,9 +368,6 @@ test.describe('publish/download', () => {
                 await page.getByRole('button', { name: '' }).click();
                 await page.locator('.ui-menu.open > .inner > .ui-menu-item > .title').click();
                 await page.getByRole('button', { name: 'Yes' }).click();
-
-                // dismiss dialog
-                await page.locator('.picker-project .close').first().click();
             })).toStrictEqual([]);
         });
     }
