@@ -28,6 +28,8 @@ editor.once('load', () => {
     overlay.domContent.appendChild(content);
 
     editor.on('realtime:connected', () => {
+        clearErrorGrace();
+
         if (viewportError) {
             return;
         }
@@ -67,6 +69,8 @@ editor.once('load', () => {
     });
 
     editor.on('realtime:connecting', (attempt) => {
+        clearErrorGrace();
+
         if (viewportError) {
             return;
         }
@@ -81,11 +85,37 @@ editor.once('load', () => {
         content.innerHTML = 'Cannot connect to the server. Please try again later.';
     });
 
+    const ERROR_GRACE_MS = 3000;
+    let errorGraceTimeout: ReturnType<typeof setTimeout> | null = null;
+
+    const clearErrorGrace = () => {
+        if (errorGraceTimeout) {
+            clearTimeout(errorGraceTimeout);
+            errorGraceTimeout = null;
+        }
+    };
+
     const onError = function (err: unknown) {
-        console.log(err);
-        console.trace();
-        content.innerHTML = 'Error while saving changes. Please refresh the editor.';
-        overlay.hidden = false;
+        console.warn('realtime error:', err);
+
+        // debounce — only one grace period at a time
+        if (errorGraceTimeout) {
+            return;
+        }
+
+        errorGraceTimeout = setTimeout(() => {
+            errorGraceTimeout = null;
+
+            // if connection recovered during grace period, skip the fatal overlay
+            const conn = editor.call('realtime:connection');
+            if (conn?.state === 'connected') {
+                console.warn('realtime error suppressed — connection recovered during grace period');
+                return;
+            }
+
+            content.innerHTML = 'Error while saving changes. Please refresh the editor.';
+            overlay.hidden = false;
+        }, ERROR_GRACE_MS);
     };
 
     editor.on('viewport:error', (err) => {
@@ -122,6 +152,8 @@ editor.once('load', () => {
     });
 
     editor.on('scene:unload', () => {
+        clearErrorGrace();
+
         if (viewportError) {
             return;
         }
