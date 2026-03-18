@@ -49,7 +49,7 @@ editor.once('load', () => {
         // error
         doc.on('error', (err: unknown) => {
             if (connection.state === 'connected') {
-                console.log(err);
+                console.warn('asset doc error while connected:', err);
                 return;
             }
 

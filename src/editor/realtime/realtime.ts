@@ -33,7 +33,7 @@ editor.once('start', () => {
     });
 
     realtime.on('error:asset', (err: unknown) => {
-        editor.emit('realtime:asset:error', err);
+        editor.emit('realtime:assets:error', err);
     });
 
     realtime.on('disconnect', (reason: string) => {

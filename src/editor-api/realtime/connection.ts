@@ -55,31 +55,33 @@ class RealtimeConnection extends Events {
         this._realtime = realtime;
         this._domEvtVisibilityChange = () => {
             if (document.hidden) {
+                // pause keep-alive while tab is hidden
+                if (this._alive) {
+                    clearInterval(this._alive);
+                    this._alive = null;
+                }
                 return;
             }
+
+            // tab became visible — check if socket is still alive
+            if (this._state === 'connected' && this._socket?.readyState !== WebSocket.OPEN) {
+                // socket died while tab was hidden but close event hasn't fired yet
+                this._socket?.close();
+                return;
+            }
+
+            // restart keep-alive if connected
+            if (this._state === 'connected' && !this._alive) {
+                this._startKeepAlive();
+            }
+
             if (this._state === 'disconnected' && this._url) {
                 this.connect(this._url);
             }
         };
     }
 
-    private _onauth(socket: WebSocket) {
-        if (this._sharedb) {
-            this._sharedb.bindToSocket(socket);
-        } else {
-            this._sharedb = new share.Connection(socket) as ShareDb;
-            this._sharedb.on('error', (err) => {
-                if (this._sharedb?.state === 'connected') {
-                    return;
-                }
-                this._realtime.emit('error', err);
-            });
-            this._sharedb.on('bs error' as any, (msg: any) => {
-                this._realtime.emit('error:bs', msg);
-            });
-        }
-
-        // reset keep alive
+    private _startKeepAlive() {
         if (this._alive) {
             clearInterval(this._alive);
         }
@@ -91,6 +93,26 @@ class RealtimeConnection extends Events {
                 this._sharedb.ping();
             }
         }, 1000);
+    }
+
+    private _onauth(socket: WebSocket) {
+        if (this._sharedb) {
+            this._sharedb.bindToSocket(socket);
+        } else {
+            this._sharedb = new share.Connection(socket) as ShareDb;
+            this._sharedb.on('error', (err) => {
+                if (this._sharedb?.state === 'connected') {
+                    console.warn('sharedb error while connected:', err);
+                    return;
+                }
+                this._realtime.emit('error', err);
+            });
+            this._sharedb.on('bs error' as any, (msg: any) => {
+                this._realtime.emit('error:bs', msg);
+            });
+        }
+
+        this._startKeepAlive();
 
         // intercept messages
         const onmessage = socket.onmessage;
