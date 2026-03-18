@@ -337,6 +337,9 @@ test.describe('publish/download', () => {
                 await page.getByText('Download', { exact: true }).nth(2).click();
                 await downloadPagePromise;
                 await downloadPromise;
+
+                // dismiss dialog
+                await page.locator('.picker-project .close').first().click();
             })).toStrictEqual([]);
         });
 
@@ -365,6 +368,9 @@ test.describe('publish/download', () => {
                 await page.getByRole('button', { name: '' }).click();
                 await page.locator('.ui-menu.open > .inner > .ui-menu-item > .title').click();
                 await page.getByRole('button', { name: 'Yes' }).click();
+
+                // dismiss dialog
+                await page.locator('.picker-project .close').first().click();
             })).toStrictEqual([]);
         });
     }
