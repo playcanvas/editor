@@ -20,15 +20,13 @@ editor.once('load', () => {
         editor.call('picker:codeeditor', undefined, undefined, e.shiftKey);
     });
 
-    editor.method('picker:codeeditor', (asset?: Observer, options?: Record<string, unknown>, popup?: boolean) => {
+    editor.method('picker:codeeditor', (asset?: Observer, options?: Record<string, unknown>, popup?: boolean, ideOverride?: string) => {
         // open the code editor external editor
-        const ide = projectUserSettings.get('editor.codeEditor');
-        if (asset) {
-            switch (ide) {
-                case 'vscode':
-                case 'cursor':
-                    window.open(editor.call('assets:idePath', ide, asset));
-                    return;
+        const ide = ideOverride || projectUserSettings.get('editor.codeEditor');
+        if (ide === 'vscode' || ide === 'cursor') {
+            if (asset) {
+                window.open(editor.call('assets:idePath', ide, asset));
+                return;
             }
         }
 

@@ -1,5 +1,5 @@
 import type { EventHandle, Observer, ObserverList } from '@playcanvas/observer';
-import { Container, Button, BindingObserversToElement } from '@playcanvas/pcui';
+import { Container, Button, Menu, BindingObserversToElement } from '@playcanvas/pcui';
 
 
 import { bytesToHuman, convertDatetime } from '@/common/utils';
@@ -344,9 +344,9 @@ class AssetInspector extends Container {
 
     private _btnEditAsset: Button;
 
-    private _btnEditAssetInVSCode: Button;
+    private _btnEditDropdown: Button;
 
-    private _btnEditAssetInCursor: Button;
+    private _menuEditAsset: Menu;
 
     private _btnEditSprite: Button;
 
@@ -425,37 +425,38 @@ class AssetInspector extends Container {
         this._btnEditAsset.on('click', this._onClickEditAsset.bind(this));
         this._containerButtons.append(this._btnEditAsset);
 
-        // add edit in VSCode button
-        this._btnEditAssetInVSCode = new Button({
-            text: editor.call('permissions:write') ? 'EDIT' : 'VIEW',
-            icon: 'E130',
+        // dropdown arrow to pick a specific editor
+        this._btnEditDropdown = new Button({
+            class: 'pc-icon',
+            icon: 'E235',
             ignoreParent: true
         });
-        this._btnEditAssetInVSCode.style.flex = '1';
-        const evtBtnEditInVSCodePermissions = editor.on('permissions:writeState', (state) => {
-            this._btnEditAssetInVSCode.text = `${state ? 'EDIT' : 'VIEW'} IN VSCODE`;
-        });
-        this._btnEditAssetInVSCode.once('destroy', () => {
-            evtBtnEditInVSCodePermissions.unbind();
-        });
-        this._btnEditAssetInVSCode.on('click', this._onClickEditAssetInVSCode.bind(this));
-        this._containerButtons.append(this._btnEditAssetInVSCode);
+        this._btnEditDropdown.style.flexShrink = '0';
+        this._containerButtons.append(this._btnEditDropdown);
 
-        // add edit in Cursor button
-        this._btnEditAssetInCursor = new Button({
-            text: editor.call('permissions:write') ? 'EDIT' : 'VIEW',
-            icon: 'E130',
-            ignoreParent: true
+        const writeLabel = editor.call('permissions:write') ? 'Edit' : 'View';
+        this._menuEditAsset = new Menu({
+            items: [{
+                text: `${writeLabel} in Web`,
+                icon: 'E130',
+                onSelect: () => editor.call('assets:edit', this._assets[0], 'web')
+            }, {
+                text: `${writeLabel} in VS Code`,
+                icon: 'E130',
+                onSelect: () => editor.call('assets:edit', this._assets[0], 'vscode')
+            }, {
+                text: `${writeLabel} in Cursor`,
+                icon: 'E130',
+                onSelect: () => editor.call('assets:edit', this._assets[0], 'cursor')
+            }]
         });
-        this._btnEditAssetInCursor.style.flex = '1';
-        const evtBtnEditInCursorPermissions = editor.on('permissions:writeState', (state) => {
-            this._btnEditAssetInCursor.text = `${state ? 'EDIT' : 'VIEW'} IN CURSOR`;
+        editor.call('layout.root').append(this._menuEditAsset);
+
+        this._btnEditDropdown.on('click', () => {
+            const rect = this._btnEditDropdown.dom.getBoundingClientRect();
+            this._menuEditAsset.hidden = false;
+            this._menuEditAsset.position(rect.right, rect.bottom);
         });
-        this._btnEditAssetInCursor.once('destroy', () => {
-            evtBtnEditInCursorPermissions.unbind();
-        });
-        this._btnEditAssetInCursor.on('click', this._onClickEditAssetInCursor.bind(this));
-        this._containerButtons.append(this._btnEditAssetInCursor);
 
         // add edit button
         this._btnEditSprite = new Button({
@@ -533,14 +534,6 @@ class AssetInspector extends Container {
 
     _onClickEditAsset(evt: MouseEvent) {
         editor.call('assets:edit', this._assets[0]);
-    }
-
-    _onClickEditAssetInVSCode(evt: MouseEvent) {
-        window.open(editor.call('assets:idePath', 'vscode', this._assets[0]));
-    }
-
-    _onClickEditAssetInCursor(evt: MouseEvent) {
-        window.open(editor.call('assets:idePath', 'cursor', this._assets[0]));
     }
 
     _onClickEditSprite(evt: MouseEvent) {
@@ -807,8 +800,7 @@ class AssetInspector extends Container {
 
         // Determine if the Edit/View button should be displayed
         this._btnEditAsset.hidden = assets.length > 1 || !this._editableTypes[assets[0].get('type')];
-        this._btnEditAssetInVSCode.hidden = this._btnEditAsset.hidden;
-        this._btnEditAssetInCursor.hidden = this._btnEditAsset.hidden;
+        this._btnEditDropdown.hidden = this._btnEditAsset.hidden;
 
         // Determine the Download button state
         this._updateDownloadButton();

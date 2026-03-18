@@ -3,7 +3,7 @@ import { LegacyScriptPreviewOverlay } from './legacy-script-preview-overlay';
 editor.once('load', () => {
     const types = new Set(['css', 'html', 'json', 'script', 'shader', 'text']);
 
-    editor.method('assets:edit', async (asset) => {
+    editor.method('assets:edit', async (asset, ide?: string) => {
         const type = asset.get('type');
         const useLegacyScripts = editor.call('settings:project').get('useLegacyScripts');
 
@@ -20,7 +20,7 @@ editor.once('load', () => {
                 console.error('Error fetching script:', error);
             }
         } else {
-            editor.call('picker:codeeditor', asset);
+            editor.call('picker:codeeditor', asset, undefined, undefined, ide);
         }
     });
 

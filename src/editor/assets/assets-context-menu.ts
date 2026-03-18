@@ -531,32 +531,34 @@ editor.once('load', () => {
     menu.append(menuItemDownload);
 
     // edit
-    const menuItemEdit = new MenuItem({
-        text: editor.call('permissions:write') ? 'Edit' : 'View',
-        icon: ICONS.EDIT,
-        onSelect: () => {
-            editor.call('assets:edit', currentAsset);
-        }
-    });
-    menu.append(menuItemEdit);
+    const writeLabel = editor.call('permissions:write') ? 'Edit' : 'View';
 
-    const menuItemEditInVSCode = new MenuItem({
-        text: editor.call('permissions:write') ? 'Edit in VSCode' : 'View in VSCode',
+    const menuItemEditWeb = new MenuItem({
+        text: `${writeLabel} in Web`,
         icon: ICONS.EDIT,
         onSelect: () => {
-            window.open(editor.call('assets:idePath', 'vscode', currentAsset));
+            editor.call('assets:edit', currentAsset, 'web');
         }
     });
-    menu.append(menuItemEditInVSCode);
+    menu.append(menuItemEditWeb);
 
-    const menuItemEditInCursor = new MenuItem({
-        text: editor.call('permissions:write') ? 'Edit in Cursor' : 'View in Cursor',
+    const menuItemEditVSCode = new MenuItem({
+        text: `${writeLabel} in VS Code`,
         icon: ICONS.EDIT,
         onSelect: () => {
-            window.open(editor.call('assets:idePath', 'cursor', currentAsset));
+            editor.call('assets:edit', currentAsset, 'vscode');
         }
     });
-    menu.append(menuItemEditInCursor);
+    menu.append(menuItemEditVSCode);
+
+    const menuItemEditCursor = new MenuItem({
+        text: `${writeLabel} in Cursor`,
+        icon: ICONS.EDIT,
+        onSelect: () => {
+            editor.call('assets:edit', currentAsset, 'cursor');
+        }
+    });
+    menu.append(menuItemEditCursor);
 
     // duplicate
     const menuItemDuplicate = new MenuItem({
@@ -704,7 +706,9 @@ editor.once('load', () => {
 
             // duplicate
             if (currentAsset.get('type') === 'material' || currentAsset.get('type') === 'sprite') {
-                menuItemEdit.hidden = true;
+                menuItemEditWeb.hidden = true;
+                menuItemEditVSCode.hidden = true;
+                menuItemEditCursor.hidden = true;
                 if (editor.call('selector:type') === 'asset') {
                     const items = editor.call('selector:items');
                     menuItemDuplicate.hidden = (items.length > 1 && items.indexOf(currentAsset) !== -1);
@@ -719,18 +723,19 @@ editor.once('load', () => {
             if (!currentAsset.get('source') && ['html', 'css', 'json', 'text', 'script', 'shader'].indexOf(currentAsset.get('type')) !== -1) {
                 if (editor.call('selector:type') === 'asset') {
                     const items = editor.call('selector:items');
-                    menuItemEdit.hidden = (items.length > 1 && items.indexOf(currentAsset) !== -1);
-                    menuItemEditInVSCode.hidden = menuItemEdit.hidden;
-                    menuItemEditInCursor.hidden = menuItemEdit.hidden;
+                    const editHidden = (items.length > 1 && items.indexOf(currentAsset) !== -1);
+                    menuItemEditWeb.hidden = editHidden;
+                    menuItemEditVSCode.hidden = editHidden;
+                    menuItemEditCursor.hidden = editHidden;
                 } else {
-                    menuItemEdit.hidden = false;
-                    menuItemEditInVSCode.hidden = false;
-                    menuItemEditInCursor.hidden = false;
+                    menuItemEditWeb.hidden = false;
+                    menuItemEditVSCode.hidden = false;
+                    menuItemEditCursor.hidden = false;
                 }
             } else {
-                menuItemEdit.hidden = true;
-                menuItemEditInVSCode.hidden = true;
-                menuItemEditInCursor.hidden = true;
+                menuItemEditWeb.hidden = true;
+                menuItemEditVSCode.hidden = true;
+                menuItemEditCursor.hidden = true;
             }
 
             // create atlas
@@ -891,7 +896,9 @@ editor.once('load', () => {
             menuItemReImport.hidden = true;
             menuItemDownload.hidden = true;
             menuItemDuplicate.hidden = true;
-            menuItemEdit.hidden = true;
+            menuItemEditWeb.hidden = true;
+            menuItemEditVSCode.hidden = true;
+            menuItemEditCursor.hidden = true;
             menuItemDelete.hidden = true;
             menuItemReferences.hidden = true;
             menuItemReplace.hidden = true;
