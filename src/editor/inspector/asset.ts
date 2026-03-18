@@ -432,6 +432,7 @@ class AssetInspector extends Container {
             ignoreParent: true
         });
         this._btnEditDropdown.style.flexShrink = '0';
+        this._btnEditDropdown.style.marginLeft = '-4px';
         this._containerButtons.append(this._btnEditDropdown);
 
         const writeLabel = editor.call('permissions:write') ? 'Edit' : 'View';
