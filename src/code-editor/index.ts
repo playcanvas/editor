@@ -149,6 +149,9 @@ import './monaco/integration';
 // urls
 import './urls';
 
+// alerts
+import './alerts/alert-vscode-extension';
+
 // version control pickers (from main editor)
 import '../editor/pickers/version-control/picker-version-control-overlay-message';
 import '../editor/pickers/version-control/picker-version-control-messenger';
