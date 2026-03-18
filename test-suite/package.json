@@ -38,6 +38,6 @@
     "type:check": "npm run build:types && tsc --declaration --emitDeclarationOnly"
   },
   "engines": {
-    "node": "v25.8.1"
+    "node": ">=22.0.0"
   }
 }
