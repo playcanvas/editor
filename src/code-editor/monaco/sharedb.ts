@@ -220,6 +220,15 @@ editor.once('load', () => {
     // Convert a monaco change into an op understood by sharedb
     function applyToShareDb(change: { rangeOffset: number; rangeLength: number; range: { isEmpty: () => boolean; startLineNumber: number }; text?: string }, entry: SharedbDocumentEntry) {
         const startPos = change.rangeOffset;
+        const docData = entry.doc.data;
+
+        // offset exceeds doc length — state is out of sync
+        if (docData === undefined || docData === null || startPos > docData.length) {
+            console.warn('applyToShareDb: offset', startPos, 'exceeds doc length', docData?.length);
+            editor.emit('documents:error', entry.id, 'Document state out of sync. Please reload.');
+            return;
+        }
+
         let text;
         let op;
 
@@ -384,6 +393,21 @@ editor.once('load', () => {
             }
         });
 
+        // resync monaco after a rollback+fetch cycle
+        doc.on('load', () => {
+            if (!entry.doc.type) {
+                return;
+            }
+
+            entry.ignoreLocalChanges = true;
+            entry.view.setValue(entry.doc.data || '');
+            entry.ignoreLocalChanges = false;
+
+            // stale undo/redo references pre-rollback state
+            entry.undo.length = 0;
+            entry.redo.length = 0;
+        });
+
         // add to index
         documentIndex[asset.get('id')] = entry;
 
@@ -452,6 +476,14 @@ editor.once('load', () => {
 
     editor.on('documents:unfocus', () => {
         focusedDocument = null;
+    });
+
+    // clear stale undo/redo on disconnect
+    editor.on('realtime:disconnected', () => {
+        for (const id in documentIndex) {
+            documentIndex[id].undo.length = 0;
+            documentIndex[id].redo.length = 0;
+        }
     });
 
     editor.on('documents:close', (id: string) => {
