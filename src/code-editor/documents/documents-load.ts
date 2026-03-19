@@ -248,11 +248,15 @@ editor.once('load', () => {
     // handle reconnections
     editor.on('realtime:authenticated', () => {
         // clear document errors so editor can exit read-only
+        let cleared = false;
         for (const id in documentsIndex) {
             if (documentsIndex[id].error) {
                 documentsIndex[id].error = null;
-                editor.emit('documents:error:cleared', id);
+                cleared = true;
             }
+        }
+        if (cleared) {
+            editor.emit('documents:error:cleared');
         }
 
         // resume docs

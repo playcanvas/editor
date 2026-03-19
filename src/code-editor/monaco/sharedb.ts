@@ -478,14 +478,6 @@ editor.once('load', () => {
         focusedDocument = null;
     });
 
-    // clear stale undo/redo on disconnect
-    editor.on('realtime:disconnected', () => {
-        for (const id in documentIndex) {
-            documentIndex[id].undo.length = 0;
-            documentIndex[id].redo.length = 0;
-        }
-    });
-
     editor.on('documents:close', (id: string) => {
         if (focusedDocument === documentIndex[id]) {
             focusedDocument = null;
