@@ -1,5 +1,5 @@
 import type { EventHandle, Observer, ObserverList } from '@playcanvas/observer';
-import { Container, Button, BindingObserversToElement } from '@playcanvas/pcui';
+import { Container, Button, Menu, BindingObserversToElement } from '@playcanvas/pcui';
 
 
 import { bytesToHuman, convertDatetime } from '@/common/utils';
@@ -344,6 +344,10 @@ class AssetInspector extends Container {
 
     private _btnEditAsset: Button;
 
+    private _btnEditDropdown: Button;
+
+    private _menuEditAsset: Menu;
+
     private _btnEditSprite: Button;
 
     private _typedAssetInspectors: Record<string, any> = {};
@@ -406,7 +410,6 @@ class AssetInspector extends Container {
         this._btnOpenInViewer.on('click', this._onClickOpenInViewer.bind(this));
 
         // add edit button
-
         this._btnEditAsset = new Button({
             text: editor.call('permissions:write') ? 'EDIT' : 'VIEW',
             icon: 'E130',
@@ -421,6 +424,40 @@ class AssetInspector extends Container {
         });
         this._btnEditAsset.on('click', this._onClickEditAsset.bind(this));
         this._containerButtons.append(this._btnEditAsset);
+
+        // dropdown arrow to pick a specific editor
+        this._btnEditDropdown = new Button({
+            class: 'pc-icon',
+            icon: 'E235',
+            ignoreParent: true
+        });
+        this._btnEditDropdown.style.flexShrink = '0';
+        this._btnEditDropdown.style.marginLeft = '-4px';
+        this._containerButtons.append(this._btnEditDropdown);
+
+        const writeLabel = editor.call('permissions:write') ? 'Edit' : 'View';
+        this._menuEditAsset = new Menu({
+            items: [{
+                text: `${writeLabel} in Web`,
+                icon: 'E130',
+                onSelect: () => editor.call('assets:edit', this._assets[0], 'web')
+            }, {
+                text: `${writeLabel} in VS Code`,
+                icon: 'E130',
+                onSelect: () => editor.call('assets:edit', this._assets[0], 'vscode')
+            }, {
+                text: `${writeLabel} in Cursor`,
+                icon: 'E130',
+                onSelect: () => editor.call('assets:edit', this._assets[0], 'cursor')
+            }]
+        });
+        editor.call('layout.root').append(this._menuEditAsset);
+
+        this._btnEditDropdown.on('click', () => {
+            const rect = this._btnEditDropdown.dom.getBoundingClientRect();
+            this._menuEditAsset.hidden = false;
+            this._menuEditAsset.position(rect.right, rect.bottom);
+        });
 
         // add edit button
         this._btnEditSprite = new Button({
@@ -764,6 +801,7 @@ class AssetInspector extends Container {
 
         // Determine if the Edit/View button should be displayed
         this._btnEditAsset.hidden = assets.length > 1 || !this._editableTypes[assets[0].get('type')];
+        this._btnEditDropdown.hidden = this._btnEditAsset.hidden;
 
         // Determine the Download button state
         this._updateDownloadButton();

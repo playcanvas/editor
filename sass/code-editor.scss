@@ -648,5 +648,88 @@ strong {
     margin: 0;
 }
 
+.vscode-ext-banner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    height: 34px;
+    flex-shrink: 0;
+    background-color: #f60;
+    color: white;
+    padding: 0 10px;
+    font-size: 13px;
+
+    > .pcui-label {
+        color: white;
+        margin: 0;
+    }
+
+    > .ide-icons {
+        display: inline-flex;
+        align-items: center;
+        overflow: visible;
+        margin: 0 8px;
+        width: 22px;
+        min-width: 22px;
+        height: 34px;
+        line-height: 34px;
+
+        svg {
+            display: block;
+            overflow: visible;
+        }
+    }
+
+    > .install {
+        background-color: transparent;
+        border: 1px solid white;
+        border-radius: 0;
+        color: white;
+        font-size: 12px;
+        height: 24px;
+        line-height: 22px;
+        padding: 0 12px;
+        margin: 0 8px;
+        cursor: pointer;
+
+        &:hover {
+            background-color: rgb(255 255 255 / 20%);
+            box-shadow: none;
+        }
+    }
+
+    > .close {
+        background-color: transparent;
+        color: white;
+        border: 0;
+        padding: 0;
+        margin: 0;
+        position: absolute;
+        right: 5px;
+        font-size: 14px;
+        width: 24px;
+        height: 24px;
+        line-height: 24px;
+        cursor: pointer;
+
+        &:hover {
+            background-color: rgb(255 255 255 / 20%);
+            color: white;
+            box-shadow: none;
+        }
+    }
+}
+
+#ui-root.has-ext-banner {
+    #ui-center {
+        height: calc(100vh - 98px);
+    }
+
+    &.file-only-mode .vscode-ext-banner {
+        display: none;
+    }
+}
+
 @import 'common/ui-common';
 @import 'common/version-control';

@@ -531,14 +531,34 @@ editor.once('load', () => {
     menu.append(menuItemDownload);
 
     // edit
-    const menuItemEdit = new MenuItem({
-        text: editor.call('permissions:write') ? 'Edit' : 'View',
+    const writeLabel = editor.call('permissions:write') ? 'Edit' : 'View';
+
+    const menuItemEditWeb = new MenuItem({
+        text: `${writeLabel} in Web`,
         icon: ICONS.EDIT,
         onSelect: () => {
-            editor.call('assets:edit', currentAsset);
+            editor.call('assets:edit', currentAsset, 'web');
         }
     });
-    menu.append(menuItemEdit);
+    menu.append(menuItemEditWeb);
+
+    const menuItemEditVSCode = new MenuItem({
+        text: `${writeLabel} in VS Code`,
+        icon: ICONS.EDIT,
+        onSelect: () => {
+            editor.call('assets:edit', currentAsset, 'vscode');
+        }
+    });
+    menu.append(menuItemEditVSCode);
+
+    const menuItemEditCursor = new MenuItem({
+        text: `${writeLabel} in Cursor`,
+        icon: ICONS.EDIT,
+        onSelect: () => {
+            editor.call('assets:edit', currentAsset, 'cursor');
+        }
+    });
+    menu.append(menuItemEditCursor);
 
     // duplicate
     const menuItemDuplicate = new MenuItem({
@@ -686,7 +706,9 @@ editor.once('load', () => {
 
             // duplicate
             if (currentAsset.get('type') === 'material' || currentAsset.get('type') === 'sprite') {
-                menuItemEdit.hidden = true;
+                menuItemEditWeb.hidden = true;
+                menuItemEditVSCode.hidden = true;
+                menuItemEditCursor.hidden = true;
                 if (editor.call('selector:type') === 'asset') {
                     const items = editor.call('selector:items');
                     menuItemDuplicate.hidden = (items.length > 1 && items.indexOf(currentAsset) !== -1);
@@ -701,12 +723,19 @@ editor.once('load', () => {
             if (!currentAsset.get('source') && ['html', 'css', 'json', 'text', 'script', 'shader'].indexOf(currentAsset.get('type')) !== -1) {
                 if (editor.call('selector:type') === 'asset') {
                     const items = editor.call('selector:items');
-                    menuItemEdit.hidden = (items.length > 1 && items.indexOf(currentAsset) !== -1);
+                    const editHidden = (items.length > 1 && items.indexOf(currentAsset) !== -1);
+                    menuItemEditWeb.hidden = editHidden;
+                    menuItemEditVSCode.hidden = editHidden;
+                    menuItemEditCursor.hidden = editHidden;
                 } else {
-                    menuItemEdit.hidden = false;
+                    menuItemEditWeb.hidden = false;
+                    menuItemEditVSCode.hidden = false;
+                    menuItemEditCursor.hidden = false;
                 }
             } else {
-                menuItemEdit.hidden = true;
+                menuItemEditWeb.hidden = true;
+                menuItemEditVSCode.hidden = true;
+                menuItemEditCursor.hidden = true;
             }
 
             // create atlas
@@ -867,7 +896,9 @@ editor.once('load', () => {
             menuItemReImport.hidden = true;
             menuItemDownload.hidden = true;
             menuItemDuplicate.hidden = true;
-            menuItemEdit.hidden = true;
+            menuItemEditWeb.hidden = true;
+            menuItemEditVSCode.hidden = true;
+            menuItemEditCursor.hidden = true;
             menuItemDelete.hidden = true;
             menuItemReferences.hidden = true;
             menuItemReplace.hidden = true;

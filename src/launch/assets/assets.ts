@@ -84,4 +84,9 @@ editor.once('load', () => {
         return editor.call('assets:isScript', asset) &&
             asset.get('file.filename')?.endsWith('.mjs');
     });
+
+    // get asset ide path
+    editor.method('assets:idePath', (ide: 'cursor' | 'vscode', asset) => {
+        return `${ide}://playcanvas.playcanvas/project/${config.project.id}/asset/${asset.get('id')}`;
+    });
 });
