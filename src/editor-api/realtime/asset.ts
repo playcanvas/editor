@@ -107,8 +107,11 @@ class RealtimeAsset extends Events {
     }
 
     _onError(err: string) {
-        console.warn('asset error:', this._uniqueId, err);
-        this._realtime.emit('error:asset', err, this._uniqueId);
+        if (this._connection.connected) {
+            console.log(err);
+        } else {
+            this._realtime.emit('error:asset', err, this._uniqueId);
+        }
     }
 
     _onLoad() {
