@@ -108,7 +108,7 @@ class RealtimeAsset extends Events {
 
     _onError(err: string) {
         if (this._connection.connected) {
-            console.log(err);
+            console.warn(err);
         } else {
             this._realtime.emit('error:asset', err, this._uniqueId);
         }
