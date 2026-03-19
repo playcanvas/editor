@@ -407,6 +407,10 @@ editor.once('load', () => {
         refreshReadonly();
     });
 
+    editor.on('documents:error:cleared', () => {
+        refreshReadonly();
+    });
+
     editor.method('editor:isReadOnly', () => {
         return !focusedView ||
                !editor.call('permissions:write') ||

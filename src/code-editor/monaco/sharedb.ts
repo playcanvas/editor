@@ -220,6 +220,15 @@ editor.once('load', () => {
     // Convert a monaco change into an op understood by sharedb
     function applyToShareDb(change: { rangeOffset: number; rangeLength: number; range: { isEmpty: () => boolean; startLineNumber: number }; text?: string }, entry: SharedbDocumentEntry) {
         const startPos = change.rangeOffset;
+        const docData = entry.doc.data;
+
+        // offset exceeds doc length — state is out of sync
+        if (docData === undefined || docData === null || startPos > docData.length) {
+            console.warn('applyToShareDb: offset', startPos, 'exceeds doc length', docData?.length);
+            editor.emit('documents:error', entry.id, 'Document state out of sync. Please reload.');
+            return;
+        }
+
         let text;
         let op;
 
@@ -382,6 +391,21 @@ editor.once('load', () => {
                 docEntry.hasLocalChanges = true;
                 editor.emit('documents:dirtyLocal', docEntry.id, true);
             }
+        });
+
+        // resync monaco after a rollback+fetch cycle
+        doc.on('load', () => {
+            if (!entry.doc.type) {
+                return;
+            }
+
+            entry.ignoreLocalChanges = true;
+            entry.view.setValue(entry.doc.data || '');
+            entry.ignoreLocalChanges = false;
+
+            // stale undo/redo references pre-rollback state
+            entry.undo.length = 0;
+            entry.redo.length = 0;
         });
 
         // add to index
