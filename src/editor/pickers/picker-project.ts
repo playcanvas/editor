@@ -264,6 +264,10 @@ editor.once('load', () => {
         if ((evt.target as HTMLElement).closest('.pcui-menu')) {
             return;
         }
+        const targetOverlay = (evt.target as HTMLElement).closest('.pcui-overlay');
+        if (targetOverlay && targetOverlay !== overlay.dom) {
+            return;
+        }
         originalOnPointerDown(evt);
     };
 
