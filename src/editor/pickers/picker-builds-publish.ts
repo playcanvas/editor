@@ -1,8 +1,7 @@
-import { Container, Label, Progress, Button } from '@playcanvas/pcui';
+import { Container, Label, Menu, Progress, Button } from '@playcanvas/pcui';
 
 import { LegacyList } from '@/common/ui/list';
 import { LegacyListItem } from '@/common/ui/list-item';
-import { LegacyMenu } from '@/common/ui/menu';
 import { LegacyTooltip } from '@/common/ui/tooltip';
 import { bytesToHuman, convertDatetime } from '@/common/utils';
 import { config } from '@/editor/config';
@@ -198,28 +197,26 @@ editor.once('load', () => {
         });
     });
 
-    const dropdownMenu = LegacyMenu.fromData({
-        'app-delete': {
-            title: 'Delete',
-            filter: function () {
-                return editor.call('permissions:write');
-            },
-            select: function () {
+    const dropdownMenu = new Menu({
+        class: 'picker-builds-menu',
+        items: [{
+            text: 'Delete',
+            onIsEnabled: () => editor.call('permissions:write'),
+            onSelect: () => {
                 editor.call('picker:confirm', 'Are you sure you want to delete this build?');
                 editor.once('picker:confirm:yes', () => {
                     removeApp(dropdownApp);
                     editor.api.globals.rest.apps.appDelete(dropdownApp.id);
                 });
             }
-        }
+        }]
     });
 
-    // add menu
     editor.call('layout.root').append(dropdownMenu);
 
     // on closing menu remove 'clicked' class from respective dropdown
-    dropdownMenu.on('open', (open) => {
-        if (!open && dropdownApp) {
+    dropdownMenu.on('hide', () => {
+        if (dropdownApp) {
             const item = document.getElementById(`app-${dropdownApp.id}`);
             if (item) {
                 const clicked = item.querySelector('.clicked');
@@ -414,11 +411,12 @@ editor.once('load', () => {
             dropdownApp = app;
 
             // open menu
-            dropdownMenu.open = true;
+            dropdownMenu.hidden = false;
 
             // position dropdown menu
             const rect = dropdown.element.getBoundingClientRect();
-            dropdownMenu.position(rect.right - dropdownMenu.innerElement.clientWidth, rect.bottom);
+            const menuItems = dropdownMenu.dom.querySelector('.pcui-menu-items') as HTMLElement;
+            dropdownMenu.position(rect.right - menuItems.clientWidth, rect.bottom);
         }));
 
         const more = new Button({
@@ -506,7 +504,7 @@ editor.once('load', () => {
             if (apps[i].id === app.id) {
                 // close dropdown menu if current app deleted
                 if (dropdownApp === apps[i]) {
-                    dropdownMenu.open = false;
+                    dropdownMenu.hidden = true;
                 }
 
                 apps.splice(i, 1);
@@ -519,7 +517,7 @@ editor.once('load', () => {
 
     // recreate app list UI
     const refreshApps = function () {
-        dropdownMenu.open = false;
+        dropdownMenu.hidden = true;
         destroyTooltips();
         destroyEvents();
         container.element.innerHTML = '';

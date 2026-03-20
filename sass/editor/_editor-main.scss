@@ -3765,6 +3765,25 @@ strong {
 }
 
 .pcui-menu.picker-scene-menu {
+    .pcui-menu-item:not(.pcui-menu-item-has-children):hover > .pcui-menu-item-children {
+        opacity: 0;
+        visibility: hidden;
+    }
+
+    .pcui-menu-item-content {
+        > .pcui-label {
+            line-height: 32px;
+            margin: 0 0 0 8px;
+        }
+    }
+}
+
+.pcui-menu.picker-builds-menu {
+    .pcui-menu-item:not(.pcui-menu-item-has-children):hover > .pcui-menu-item-children {
+        opacity: 0;
+        visibility: hidden;
+    }
+
     .pcui-menu-item-content {
         > .pcui-label {
             line-height: 32px;
