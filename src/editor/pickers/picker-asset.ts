@@ -45,34 +45,39 @@ editor.once('load', () => {
             return;
         }
 
-        // do not allow selecting source assets
-        if (asset.get('source')) {
+        // Do not allow selecting source assets or folders for the picker result
+        if (asset.get('source') || asset.get('type') === 'folder') {
             return;
         }
 
-        if (!parseInt(asset.get('id'), 10)) {
-            // probably a legacy script
-            if (overlay.hidden ||
-                (currentType !== '*' && !Array.isArray(currentType) && currentType !== 'script')) {
-                return;
-            }
-        } else if ((currentType !== '*' && !Array.isArray(currentType) && asset.get('type') !== currentType) || asset === currentAsset) {
-            return;
-        } else if (Array.isArray(currentType) && !currentType.includes(asset.get('type'))) {
-            return;
+        const assetType = asset.get('type');
+        const isLegacyScript = !parseInt(asset.get('id'), 10);
+
+        // Validate asset type
+        let isValidType = false;
+        if (currentType === '*') {
+            isValidType = true;
+        } else if (Array.isArray(currentType)) {
+            isValidType = currentType.includes(assetType);
+        } else if (assetType === currentType) {
+            isValidType = true;
+        } else if (isLegacyScript && currentType === 'script') {
+            isValidType = true; // Allow legacy scripts if 'script' type is expected
         }
 
-        assetSelection.push(asset);
+        if (!isValidType) {
+            return;
+        }
 
         if (allowMultiSelection) {
+            if (!assetSelection.includes(asset)) {
+                assetSelection.push(asset);
+            }
             editor.emit('picker:assets', assetSelection);
         } else {
-            editor.emit('picker:asset', asset);
-        }
-
-        if (!allowMultiSelection) {
-            // hide picker
-            overlay.hidden = true;
+            // For single selection, the 'select' event just updates the *potential* selection.
+            // The actual confirmation happens on double-click.
+            assetSelection = [asset];
         }
     });
 
@@ -81,17 +86,66 @@ editor.once('load', () => {
             return;
         }
 
-        if (asset === currentAsset) {
-            assetsPanel.selectedAssets = [asset];
-        } else {
-            if (allowMultiSelection) {
-                const idx = assetSelection.indexOf(asset);
-                if (idx !== -1) {
-                    assetSelection.splice(idx, 1);
-                    editor.emit('picker:assets', assetSelection);
-                }
+        if (allowMultiSelection) {
+            const idx = assetSelection.indexOf(asset);
+            if (idx !== -1) {
+                assetSelection.splice(idx, 1);
+                editor.emit('picker:assets', assetSelection);
             }
         }
+    });
+
+    assetsPanel.on('doubleclick', (asset: Observer) => {
+        if (overlay.hidden) {
+            return;
+        }
+
+        // If double-clicked asset is a folder, the assetsPanel itself will navigate.
+        // We don't want to select a folder as an asset for the picker.
+        if (asset.get('type') === 'folder') {
+            return;
+        }
+
+        // Do not allow selecting source assets
+        if (asset.get('source')) {
+            return;
+        }
+
+        const assetType = asset.get('type');
+        const isLegacyScript = !parseInt(asset.get('id'), 10);
+
+        // Validate asset type
+        let isValidType = false;
+        if (currentType === '*') {
+            isValidType = true;
+        } else if (Array.isArray(currentType)) {
+            isValidType = currentType.includes(assetType);
+        } else if (assetType === currentType) {
+            isValidType = true;
+        } else if (isLegacyScript && currentType === 'script') {
+            isValidType = true; // Allow legacy scripts if 'script' type is expected
+        }
+
+        if (!isValidType) {
+            return;
+        }
+
+        // If we reach here, the asset is valid and double-clicked. Confirm selection.
+        if (allowMultiSelection) {
+            // For multi-selection, double-clicking an asset confirms the *current* selection.
+            // Ensure the double-clicked asset is part of the selection.
+            if (!assetSelection.includes(asset)) {
+                assetSelection.push(asset);
+            }
+            editor.emit('picker:assets', assetSelection);
+        } else {
+            // For single selection, the double-clicked asset is the chosen one.
+            assetSelection = [asset]; // Ensure it's the only one
+            editor.emit('picker:asset', asset);
+        }
+
+        // Hide picker after confirmation
+        overlay.hidden = true;
     });
 
     // on close asset picker
@@ -121,11 +175,6 @@ editor.once('load', () => {
         if (allowMultiSelection) {
             editor.emit('picker:assets', assetSelection);
         }
-
-        // deselect selected assets
-        assetSelection.forEach((asset: Observer) => {
-            assetsPanel.deselect(asset);
-        });
 
         assetSelection = [];
 
