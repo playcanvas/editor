@@ -8,7 +8,23 @@ editor.once('load', () => {
      */
     editor.method('entities:copy', (entities: EntityObserver[]) => {
         try {
-            editor.api.globals.entities.copyToClipboard(entities.map(e => e.apiEntity));
+            // Collect script asset dependencies from entities
+            const scriptAssetIds = new Set<string>();
+            for (const entity of entities) {
+                const scriptComponent = entity.apiEntity.script;
+                if (scriptComponent && scriptComponent.scripts) {
+                    for (const script of Object.values(scriptComponent.scripts)) {
+                        if (script && script.asset) {
+                            scriptAssetIds.add(script.asset);
+                        }
+                    }
+                }
+            }
+
+            editor.api.globals.entities.copyToClipboard(
+                entities.map(e => e.apiEntity),
+                { assets: Array.from(scriptAssetIds) }
+            );
         } catch (err) {
             if (err.name === 'QuotaExceededError') {
                 editor.call('status:error', 'Cannot copy: Selection is too large');
