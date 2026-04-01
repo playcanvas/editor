@@ -21,4 +21,13 @@ export const middleware = async (context: BrowserContext) => {
             }
         });
     });
+
+    // mock consent cookie to prevent cookie popups interfering with tests
+    await context.route(/onetrust\/consent\.js$/, (route) => {
+        return route.fulfill({
+            status: 200,
+            contentType: 'application/javascript',
+            body: 'console.log(\'OneTrust consent mocked for testing\');'
+        });
+    });
 };
