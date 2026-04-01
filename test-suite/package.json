@@ -8,7 +8,7 @@
   "devDependencies": {
     "@playcanvas/eslint-config": "2.1.0",
     "@playcanvas/observer": "1.7.1",
-    "@playwright/test": "1.58.2",
+    "@playwright/test": "1.59.0",
     "@types/node": "22.5.0",
     "@typescript-eslint/parser": "8.47.0",
     "bottleneck": "2.19.5",
