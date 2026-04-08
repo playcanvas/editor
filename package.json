@@ -76,7 +76,7 @@
     "stylelint-config-standard-scss": "13.1.0",
     "ts-node": "10.9.2",
     "typescript": "5.9.3",
-    "vite": "7.3.1"
+    "vite": "7.3.2"
   },
   "dependencies": {
     "@playcanvas/attribute-parser": "^1.10.1"
