@@ -366,7 +366,7 @@ test.describe('publish/download', () => {
 
                 // delete app
                 await page.getByRole('button', { name: '' }).click();
-                await page.locator('.ui-menu.open > .inner > .ui-menu-item > .title').click();
+                await page.locator('.pcui-menu-item').filter({ hasText: /^Delete$/ }).first().click();
                 await page.getByRole('button', { name: 'Yes' }).click();
             })).toStrictEqual([]);
         });
