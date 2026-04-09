@@ -2,6 +2,8 @@
 
 $bright-red: #e74c3c;
 $bright-yellow: #f1c40f;
+$console-body-bg: color.mix($bcg-primary, $bcg-dark, 50%);
+$console-item-border: $border-primary;
 $status-info: #b1b8ba;
 $status-error: $bright-red;
 $status-warn: $bright-yellow;
@@ -69,10 +71,11 @@ $status-warn: $bright-yellow;
         min-height: 0;
         padding: 0;
         margin: 0;
+        background-color: $console-body-bg;
 
         .console-item {
             font-size: 14px;
-            border-bottom: 1px solid $bcg-dark;
+            border-bottom: 1px solid $console-item-border;
             justify-content: space-between;
 
             &.error {
