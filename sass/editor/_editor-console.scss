@@ -6,182 +6,8 @@ $status-info: #b1b8ba;
 $status-error: $bright-red;
 $status-warn: $bright-yellow;
 
-// bottom console
-#layout-console {
-    height: 200px;
-    border-top: 1px solid $border-primary;
-    border-left: 1px solid $border-primary;
-
-    .pcui-panel-header {
-        overflow: hidden;
-        align-items: center;
-
-        > .pcui-panel-header-title {
-            margin: 0 16px 0 0;
-            max-width: fit-content;
-        }
-
-        > .divider {
-            border: 0;
-            border-left: 1px solid $border-primary;
-            height: 100%;
-        }
-
-        > .count {
-            font-size: 12px;
-            text-align: center;
-            margin: 0;
-            padding: 0 8px;
-            color: $status-info;
-            background-color: $bcg-darkest;
-
-            &:hover {
-                color: #fff;
-                cursor: pointer;
-            }
-
-            &.disabled {
-                color: color.mix($text-darkest, $status-info, 50%);
-                background-color: $bcg-darker;
-            }
-
-            &::before {        
-                @extend .font-icon;
-
-                text-align: center;
-                margin-right: 5px;
-            }
-
-            &.info {
-                &::before {
-                    content: '\E400';
-                }
-            }
-
-            &.warn {
-                &::before {
-                    content: '\E218';
-                }
-
-                &.found {
-                    color: $status-warn;
-
-                    &.disabled {
-                        color: color.mix($text-darkest, $status-warn, 50%);
-                    }
-    
-                    &:hover {
-                        color: #fff;
-                    }
-                }
-            }
-
-            &.error {
-                &::before {
-                    content: '\E368';
-                }
-
-                &.found {
-                    color: $status-error;
-
-                    &.disabled {
-                        color: color.mix($text-darkest, $status-error, 50%);
-                    }
-    
-                    &:hover {
-                        color: #fff;
-                    }
-                }
-            }
-        }
-
-        > .jobs-count {
-            font-size: 12px;
-            color: #aaa;
-            margin: 0 8px;
-            pointer-events: none;
-
-            &::before {   
-                content: '\E304';
-                
-                @extend .font-icon;
-
-                text-align: center;
-                margin-right: 5px;
-            }
-        }
-    
-        > .jobs-progress {
-            width: 128px;
-            margin: 0 10px 0 0;
-            display: none;
-            transition: opacity 100ms, visibility 100ms;
-    
-            &.active {
-                display: block;
-            }
-        }
-
-        > .asset-auditor {
-            border-radius: 0;
-            margin: 0;
-            height: 32px;
-
-            &:hover {
-                background-color: $bcg-darkest;
-                box-shadow: none;
-            }
-
-            &.warn {
-                color: $status-warn;
-            }
-
-            &.error {
-                color: white;
-                background-color: $status-error;
-
-                &:hover {
-                    background-color: color.mix(black, $status-error, 25%);
-                }
-            }
-        }
-
-        > .status {
-            font-size: 12px;
-            color: #aaa;
-            border-left: 1px solid $border-primary;
-            margin-left: auto;
-            padding-left: 10px;
-            padding-right: 5px;
-            pointer-events: none;
-            user-select: none;
-
-            &.error {
-                color: $status-error;
-            }
-        }
-
-        > .version {
-            border-radius: 0;
-            margin: 0;
-            height: 32px;
-            white-space: nowrap;
-
-            &:hover {
-                background-color: $bcg-darkest;
-                box-shadow: none;
-            }
-
-            &.updated {
-                color: $text-active;
-
-                &:hover {
-                    color: color.adjust($text-active, $lightness: 10%);
-                }
-            }
-        }
-    }
-
+// console content (inside bottom panel)
+#layout-bottom-panel {
     .console-header {
         padding: 0;
         margin: 0;
@@ -200,9 +26,9 @@ $status-warn: $bright-yellow;
                 cursor: pointer;
             }
 
-            &::before {        
+            &::before {
                 @extend .font-icon;
-        
+
                 font-size: 14px;
                 text-align: center;
             }
@@ -239,6 +65,8 @@ $status-warn: $bright-yellow;
     }
 
     .console-body {
+        flex: 1;
+        min-height: 0;
         padding: 0;
         margin: 0;
 
@@ -246,11 +74,11 @@ $status-warn: $bright-yellow;
             font-size: 14px;
             border-bottom: 1px solid $bcg-dark;
             justify-content: space-between;
-    
+
             &.error {
                 .console-item-icon {
                     color: $status-error;
-    
+
                     &::before {
                         content: '\E368';
                     }
@@ -260,11 +88,11 @@ $status-warn: $bright-yellow;
                     color: $status-error;
                 }
             }
-    
+
             &.warn {
                 .console-item-icon {
                     color: $status-warn;
-    
+
                     &::before {
                         content: '\E218';
                     }
@@ -274,15 +102,15 @@ $status-warn: $bright-yellow;
                     color: $status-warn;
                 }
             }
-    
+
             .console-item-icon {
                 min-width: fit-content;
 
                 &::before {
                     content: '\E400';
-            
+
                     @extend .font-icon;
-            
+
                     font-size: 14px;
                     text-align: center;
                 }
@@ -315,7 +143,7 @@ $status-warn: $bright-yellow;
                     text-decoration: underline;
                 }
             }
-    
+
             .console-item-time {
                 font-size: 12px;
                 text-align: right;

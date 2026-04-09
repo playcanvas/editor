@@ -4,22 +4,9 @@
 #layout-assets {
     overflow: visible;
     background-color: $bcg-darker;
+    height: 100%;
 
     @extend .noSelect;
-
-    &.pcui-resizable {
-        &.pcui-resizable-top.pcui-scrollable > .pcui-panel-content {
-            top: 0;
-        }
-
-        &.pcui-collapsible.pcui-collapsed {
-            height: 0 !important;
-
-            > .pcui-panel-header {
-                width: 90px;
-            }
-        }
-    }
 }
 
 .pcui-asset-panel {

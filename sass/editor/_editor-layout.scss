@@ -4,8 +4,8 @@
     height: 100%;
     grid-template:
         'toolbar hierarchy viewport attributes' 1fr
-        'toolbar hierarchy assets attributes' auto
-        'toolbar console console console' auto / 40px auto 1fr auto;
+        'toolbar hierarchy bottom attributes' auto
+        'toolbar statusbar statusbar statusbar' auto / 40px auto 1fr auto;
 }
 
 // left toolbar
@@ -41,9 +41,17 @@
     background-color: black;
 }
 
-// assets panel
-#layout-assets {
-    grid-area: assets;
+// bottom panel (assets + console tabs)
+#layout-bottom-panel {
+    grid-area: bottom;
+    min-width: 0;
+    min-height: 0;
+}
+
+// status bar
+#layout-statusbar {
+    grid-area: statusbar;
+    z-index: 1;
     min-width: 0;
     min-height: 0;
 }
@@ -57,12 +65,4 @@
 
 #layout-attributes.layout-attributes-left {
     grid-area: hierarchy;
-}
-
-// console
-#layout-console {
-    grid-area: console;
-    z-index: 1; // bring status bar in front of possible overlays
-    min-width: 0;
-    min-height: 0;
 }
