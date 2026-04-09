@@ -15,6 +15,7 @@ export const createBottomPanel = (assetsPanel: AssetPanel) => {
     const bottomPanel = new Panel({
         id: 'layout-bottom-panel',
         headerText: '',
+        panelType: 'normal',
         height: editor.call('localStorage:get', STORAGE_HEIGHT) ?? editor.call('localStorage:get', 'editor:layout:assets:height') ?? 212,
         resizeMin: 106,
         resizeMax: 512,

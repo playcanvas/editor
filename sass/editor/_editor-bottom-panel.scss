@@ -53,8 +53,9 @@
 }
 
 .bottom-panel-tab {
+    @extend .font-bold;
+
     font-size: 12px;
-    font-weight: bold;
     padding: 0 14px;
     margin: 0;
     height: 100%;
