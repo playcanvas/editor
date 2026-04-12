@@ -1,3 +1,5 @@
+import type { Canvas } from '@playcanvas/pcui';
+
 /** Tap/pointer state passed to viewport:tap:* and viewport:mouse:move handlers */
 export interface ViewportTap {
     x: number;
@@ -10,7 +12,7 @@ export interface ViewportTap {
 }
 
 editor.once('load', () => {
-    const canvas = editor.call('viewport:canvas');
+    const canvas = editor.call('viewport:canvas') as Canvas | null;
     if (!canvas) {
         return;
     }
@@ -79,7 +81,7 @@ editor.once('load', () => {
     });
 
     const evtMouseMove = function (evt: MouseEvent) {
-        const rect = canvas.element.getBoundingClientRect();
+        const rect = canvas.dom.getBoundingClientRect();
         for (let i = 0; i < taps.length; i++) {
             if (!taps[i].mouse) {
                 continue;
@@ -129,7 +131,7 @@ editor.once('load', () => {
             }
 
             items[i].down = false;
-            items[i].update(evt, canvas.element.getBoundingClientRect());
+            items[i].update(evt, canvas.dom.getBoundingClientRect());
             editor.emit('viewport:tap:end', items[i], evt);
 
             if (!items[i].move) {
@@ -142,7 +144,7 @@ editor.once('load', () => {
             }
         }
 
-        const rect = canvas.element.getBoundingClientRect();
+        const rect = canvas.dom.getBoundingClientRect();
 
         editor.emit('viewport:mouse:move', {
             x: evt.clientX - rect.left,
@@ -151,11 +153,11 @@ editor.once('load', () => {
         });
     };
 
-    canvas.element.addEventListener('mousedown', (evt) => {
+    canvas.dom.addEventListener('mousedown', (evt) => {
         if (gizmoCapture(evt)) {
             return;
         }
-        const rect = canvas.element.getBoundingClientRect();
+        const rect = canvas.dom.getBoundingClientRect();
 
         editor.emit('viewport:mouse:move', {
             x: evt.clientX - rect.left,
@@ -169,20 +171,20 @@ editor.once('load', () => {
         editor.emit('viewport:tap:start', tap, evt);
 
         if (document.activeElement && document.activeElement.tagName.toLowerCase() === 'input') {
-            document.activeElement.blur();
+            (document.activeElement as HTMLElement).blur();
         }
 
         evt.preventDefault();
     }, false);
 
-    canvas.element.addEventListener('mouseover', () => {
+    canvas.dom.addEventListener('mouseover', () => {
         editor.emit('viewport:hover', true);
         editor.call('viewport:render');
     }, false);
 
-    canvas.element.addEventListener('mouseleave', (evt) => {
+    canvas.dom.addEventListener('mouseleave', (evt) => {
         // ignore tooltip
-        const target = evt.toElement || evt.relatedTarget;
+        const target = evt.relatedTarget as Element | null;
         if (target && target.classList.contains('cursor-tooltip')) {
             return;
         }
