@@ -8,7 +8,7 @@ class ViewportApplication extends Application {
 
     redraw = false;
 
-    constructor(canvas: HTMLCanvasElement, options: { editorSettings?: Record<string, unknown> }) {
+    constructor(canvas: HTMLCanvasElement, options: ConstructorParameters<typeof Application>[1] & { editorSettings?: Record<string, unknown> }) {
         super(canvas, options);
 
         this._inTools = true;
@@ -44,7 +44,7 @@ class ViewportApplication extends Application {
                     cameraEntity.camera.toneMapping = this.editorSettings.cameraToneMapping;
                     cameraEntity.camera.gammaCorrection = this.editorSettings.cameraGammaCorrection;
                 }
-                showFog = this.editorSettings.showFog;
+                showFog = this.editorSettings.showFog as boolean;
             }
 
             this.scene.fog.type = showFog ? (editor.call('sceneSettings')?.get('render.fog') ?? FOG_NONE) : FOG_NONE;
