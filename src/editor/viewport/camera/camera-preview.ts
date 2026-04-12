@@ -172,7 +172,7 @@ editor.once('load', () => {
         updateCameraState();
     });
 
-    editor.on('selector:change', (type: string, items: EntityObserver[]) => {
+    editor.on('selector:change', (type: string | null, items: EntityObserver[]) => {
         if (events.length) {
             for (let i = 0; i < events.length; i++) {
                 events[i].unbind();
