@@ -79,7 +79,7 @@ editor.once('load', () => {
     // Handle keydown events
     function handleKeydown(evt: KeyboardEvent) {
         // Ignore if target is input/textarea without hotkeys class
-        const target = evt.target as Element | null;
+        const target = evt.target instanceof Element ? evt.target : null;
         if (target &&
             /^(?:input|textarea)$/i.test(target.tagName) &&
             !target.classList.contains('hotkeys')) {
