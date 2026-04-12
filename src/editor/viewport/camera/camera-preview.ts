@@ -1,5 +1,7 @@
 import { Button } from '@playcanvas/pcui';
-import { type Application, type Entity, FOG_NONE, type FogType, Vec4 } from 'playcanvas';
+import { type Application, type Entity, FOG_NONE, Vec4 } from 'playcanvas';
+
+import type { EntityObserver } from '@/editor-api';
 
 editor.once('load', () => {
 
@@ -12,7 +14,7 @@ editor.once('load', () => {
     let postRenderEvent = null;
     let events = [];
     const rect = new Vec4(0, 0.8, 0.2, 0.2);
-    let app = null;
+    let app: Application | null = null;
     let previewCamera = null;
 
     const viewport = editor.call('layout.viewport');
@@ -27,9 +29,9 @@ editor.once('load', () => {
         class: 'lock',
         icon: 'E340'
     });
-    cameraPreviewBorder.appendChild(btnPin.element);
+    cameraPreviewBorder.appendChild(btnPin.dom);
 
-    const updateCameraState = function () {
+    const updateCameraState = () => {
         if (pinnedCamera) {
             if (currentCamera && currentCamera === pinnedCamera.entity) {
                 renderCamera = false;
@@ -65,7 +67,7 @@ editor.once('load', () => {
                 preRenderEvent = app.scene.on('prerender', (camera) => {
                     // the preview camera uses the scene fog settings
                     if (previewCamera === camera) {
-                        app.scene.fog.type = (editor.call('sceneSettings')?.get('render.fog') ?? FOG_NONE) as FogType;
+                        app.scene.fog.type = (editor.call('sceneSettings')?.get('render.fog') ?? FOG_NONE) as string;
                     }
                 });
 
@@ -76,7 +78,7 @@ editor.once('load', () => {
                 });
 
                 if (lastCamera && lastCamera !== camera) {
-                    if (lastCamera && lastCamera.entity && lastCamera.data && lastCamera.entity !== currentCamera) {
+                    if (lastCamera.entity && lastCamera.data && lastCamera.entity !== currentCamera) {
                         lastCamera.enabled = false;
                     }
                     lastCamera = null;
@@ -97,7 +99,7 @@ editor.once('load', () => {
 
             if (lastCamera) {
                 // ### DISABLE CAMERA ###
-                if (lastCamera && lastCamera.entity && lastCamera.data && lastCamera.entity !== currentCamera) {
+                if (lastCamera.entity && lastCamera.data && lastCamera.entity !== currentCamera) {
                     lastCamera.enabled = false;
                 }
                 lastCamera = null;
@@ -106,7 +108,7 @@ editor.once('load', () => {
     };
 
     let frameRequest = null;
-    const deferUpdate = function () {
+    const deferUpdate = () => {
         if (frameRequest) {
             cancelAnimationFrame(frameRequest);
         }
@@ -137,7 +139,7 @@ editor.once('load', () => {
         }
 
         editor.call('camera:set', obj.entity);
-    }, false);
+    });
 
     editor.once('viewport:load', (application: Application) => {
         app = application;
@@ -170,7 +172,7 @@ editor.once('load', () => {
         updateCameraState();
     });
 
-    editor.on('selector:change', (type: string, items: import('@/editor-api').EntityObserver[]) => {
+    editor.on('selector:change', (type: string, items: EntityObserver[]) => {
         if (events.length) {
             for (let i = 0; i < events.length; i++) {
                 events[i].unbind();
