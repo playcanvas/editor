@@ -1,6 +1,9 @@
 import { type EditorMethods, Editor } from '@/common/editor';
 import { Messenger } from '@/common/messenger';
+import { setSentryTags } from '@/common/sentry';
 import * as api from '@/editor-api';
+
+import { config } from './config';
 
 class LaunchEditor extends Editor<EditorMethods> {
     constructor() {
@@ -18,3 +21,9 @@ class LaunchEditor extends Editor<EditorMethods> {
 
 // editor
 window.editor = new LaunchEditor();
+
+setSentryTags({
+    project_id: config.project?.id,
+    scene_id: config.scene?.id,
+    branch_id: config.self?.branch?.id
+});
