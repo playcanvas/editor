@@ -1,5 +1,8 @@
 import { BrowserClient, defaultStackParser, makeFetchTransport, Scope } from '@sentry/browser';
 
+import type { FingerprintedError } from './error';
+import packageJson from '../../package.json';
+
 const SENTRY_DSN = 'https://0defef72baf64d99bf53b92a23d5bd14@sentry.sc-prod.net/87';
 
 const SANITIZE_KEYS = /password|token|secret|passwd|authorization|api_key|apikey|sentry_dsn|access_token|stripetoken|mysql_pwd|credentials/i;
@@ -58,15 +61,40 @@ if (sentryConfig.enabled) {
         transport: makeFetchTransport,
         stackParser: defaultStackParser,
         environment: sentryConfig.env,
-        release: sentryConfig.version,
+        release: packageJson.version,
         integrations: [],
-        beforeSend: (event) => {
+        beforeSend: (event, hint) => {
             // filter errors from user code (asset scripts)
             const frames = event.exception?.values?.[0]?.stacktrace?.frames;
             if (frames?.length) {
                 const last = frames[frames.length - 1];
                 if (last.filename && last.filename.includes('/api/assets/')) {
                     return null;
+                }
+            }
+
+            // set fingerprint for tagged template errors
+            const original = hint?.originalException;
+            if (original instanceof Error && 'fingerprint' in original) {
+                const fe = original as FingerprintedError;
+                event.fingerprint = [fe.fingerprint];
+                event.extra = {
+                    ...(event.extra || {}),
+                    metadata: { message: fe.message, context: fe.context }
+                };
+            }
+
+            // auto-categorize by source module from stack trace
+            if (frames?.length) {
+                const top = frames[frames.length - 1];
+                if (top.filename) {
+                    const m = top.filename.match(/\/(?:editor|code-editor|launch|common)\/(.+)\.[^.]+$/);
+                    if (m) {
+                        const parts = m[1].split('/');
+                        // use directory path for nested files, filename for top-level files
+                        const source = parts.length > 1 ? parts.slice(0, -1).join('/') : parts[0];
+                        event.tags = { ...event.tags, source };
+                    }
                 }
             }
 
@@ -85,13 +113,26 @@ if (sentryConfig.enabled) {
     client.init();
 
     // capture errors via sentry
+    // supports both normal calls and tagged templates:
+    //   log.error(err)                    — existing Error
+    //   log.error('message')              — string wrapped in Error
+    //   log.error`missing asset ${id}`    — fingerprinted Error for grouping
     window.log.error = (...args: any[]) => {
+        if (args[0]?.raw) {
+            const strings = args[0] as TemplateStringsArray;
+            const values = args.slice(1);
+            const e = new Error(String.raw(strings, ...values)) as FingerprintedError;
+            e.fingerprint = strings.join('{}');
+            e.context = values;
+            console.error(e);
+            captureException(e);
+            return;
+        }
         console.error(...args);
-
         if (args.length === 1 && args[0]?.stack) {
             captureException(args[0]);
         } else {
-            captureMessage(args.map(String).join(' '));
+            captureException(new Error(args.map(String).join(' ')));
         }
     };
 } else {

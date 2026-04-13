@@ -43,7 +43,7 @@ class ObserverSync extends Events {
 
             // if this happens it's a bug
             if (this.item.sync !== this) {
-                log.error('Garbage Observer Sync still pointing to item', this.item);
+                log.error`garbage observer sync still pointing to item: ${this.item}`;
             }
 
             // check if path is allowed

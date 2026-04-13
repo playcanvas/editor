@@ -52,6 +52,13 @@ type UploadCompleteData = {
  * @param data - The data for the upload
  * @returns A promise that resolves with the upload ID and s3 key
  */
+const check = (res: Response) => {
+    if (!res.ok) {
+        throw new Error(`upload error ${res.status}: ${res.statusText}`);
+    }
+    return res;
+};
+
 export const uploadStart = (data: UploadStartData): Promise<{ uploadId: string, key: string }> => {
     return fetch(`${api.apiUrl}/upload/start-upload`, {
         method: 'POST',
@@ -60,7 +67,7 @@ export const uploadStart = (data: UploadStartData): Promise<{ uploadId: string, 
             'Authorization': `Bearer ${api.accessToken}`,
             'Content-Type': 'application/json'
         }
-    }).then(res => res.json());
+    }).then(check).then(res => res.json());
 };
 
 /**
@@ -77,7 +84,7 @@ export const uploadUrls = (data: UploadUrlsData): Promise<{ signedUrls: string[]
             'Authorization': `Bearer ${api.accessToken}`,
             'Content-Type': 'application/json'
         }
-    }).then(res => res.json());
+    }).then(check).then(res => res.json());
 };
 
 /**
@@ -94,5 +101,5 @@ export const uploadComplete = (data: UploadCompleteData): Promise<Response> => {
             'Authorization': `Bearer ${api.accessToken}`,
             'Content-Type': 'application/json'
         }
-    });
+    }).then(check);
 };

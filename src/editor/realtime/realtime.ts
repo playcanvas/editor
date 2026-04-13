@@ -20,7 +20,7 @@ editor.once('start', () => {
     });
 
     realtime.on('error', (err: unknown) => {
-        console.error('realtime error', err);
+        log.error(err);
         editor.emit('realtime:error', err);
     });
 

@@ -82,6 +82,9 @@ editor.once('load', () => {
     reconnect = function () {
         // create new socket...
         socket = new WebSocket(config.url.realtime.http);
+        socket.onerror = () => {
+            log.error`launch websocket error (url: ${config.url.realtime.http})`;
+        };
         // ... and new sharedb connection
         connection = new share.Connection(socket);
         // connect again

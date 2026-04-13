@@ -199,7 +199,7 @@ editor.once('load', () => {
             // console.log(op);
             asset.sync.write(op);
         } else {
-            log.error(`realtime operation on missing asset: ${op.p[1]}`);
+            log.error`realtime operation on missing asset: ${op.p[1]}`;
         }
     });
 
