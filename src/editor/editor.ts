@@ -129,6 +129,7 @@ class MainEditor extends Editor<EditorMethods> {
 window.editor = new MainEditor();
 
 setSentryTags({
+    user_id: config.self?.id,
     project_id: config.project?.id,
     scene_id: config.scene?.id,
     branch_id: config.self?.branch?.id

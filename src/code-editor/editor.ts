@@ -42,6 +42,7 @@ class CodeEditor extends Editor<EditorMethods> {
 window.editor = new CodeEditor();
 
 setSentryTags({
+    user_id: config.self?.id,
     project_id: config.project?.id,
     branch_id: config.self?.branch?.id
 });
