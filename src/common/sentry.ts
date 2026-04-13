@@ -91,7 +91,7 @@ if (sentryConfig.enabled) {
         if (args.length === 1 && args[0]?.stack) {
             captureException(args[0]);
         } else {
-            captureMessage(args.map(String).join(' '));
+            captureException(new Error(args.map(String).join(' ')));
         }
     };
 } else {
