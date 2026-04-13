@@ -18,7 +18,7 @@ editor.once('load', () => {
             if (callback) {
                 callback(status);
             } else {
-                log.error('error', status, res);
+                log.error`sprite utils error ${status}: ${res}`;
             }
         });
     });

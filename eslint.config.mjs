@@ -179,6 +179,19 @@ export default [
     testConfig,
     esmJsConfig,
     {
+        files: [
+            'src/core/**/*.ts',
+            'src/common/**/*.ts',
+            'src/editor/**/*.ts',
+            'src/code-editor/**/*.ts',
+            'src/launch/**/*.ts',
+            'src/plugins/**/*.ts'
+        ],
+        rules: {
+            'no-unused-expressions': ['error', { allowTaggedTemplates: true }]
+        }
+    },
+    {
         ignores: [
             '**/node_modules/**',
             '**/dist/**',

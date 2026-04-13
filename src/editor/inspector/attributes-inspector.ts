@@ -544,7 +544,7 @@ class AttributesInspector extends Container {
             if (observer) {
                 field.link([observer], attr.path || attr.paths);
             } else {
-                log.error(`This attributes inspector does not contain a valid observer for attr: "${key}". attr.observer is currently: "${attr.observer}".`);
+                log.error`attributes inspector does not contain a valid observer for attr: ${key}. attr.observer is currently: ${attr.observer}`;
             }
         } else {
             field.link(this._observers, attr.path || attr.paths);

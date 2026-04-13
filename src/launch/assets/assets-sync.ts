@@ -62,7 +62,7 @@ editor.once('load', () => {
 
             const assetData = doc.data;
             if (!assetData) {
-                log.error(`Could not load asset: ${uniqueId}`);
+                log.error`could not load asset: ${uniqueId}`;
                 doc.unsubscribe();
                 doc.destroy();
                 return callback?.();
@@ -453,7 +453,7 @@ editor.once('load', () => {
         if (asset) {
             asset.sync.write(op);
         } else {
-            log.error(`realtime operation on missing asset: ${op.p[1]}`);
+            log.error`realtime operation on missing asset: ${op.p[1]}`;
         }
     });
 });
