@@ -1,9 +1,11 @@
-import { BrowserClient, defaultStackParser, makeFetchTransport, Scope } from '@sentry/browser';
+import { BrowserClient, defaultStackParser, getDefaultIntegrations, makeFetchTransport, Scope } from '@sentry/browser';
+import { getIntegrationsToSetup } from '@sentry/core';
 
 import type { FingerprintedError } from './error';
 import packageJson from '../../package.json';
 
 const SENTRY_DSN = 'https://0defef72baf64d99bf53b92a23d5bd14@sentry.sc-prod.net/87';
+const BREADCRUMBS_INTEGRATION = 'Breadcrumbs';
 
 const SANITIZE_KEYS = /password|token|secret|passwd|authorization|api_key|apikey|sentry_dsn|access_token|stripetoken|mysql_pwd|credentials/i;
 
@@ -20,6 +22,11 @@ type SentryConfig = {
 };
 
 let scope: Scope | null = null;
+
+const getSentryIntegrations = (disableBreadcrumbs: boolean) => getIntegrationsToSetup({
+    defaultIntegrations: getDefaultIntegrations({}).filter(i => !disableBreadcrumbs || i.name !== BREADCRUMBS_INTEGRATION),
+    integrations: []
+});
 
 const sanitize = (obj: unknown, memo = new WeakSet()): unknown => {
     if (Array.isArray(obj)) {
@@ -62,7 +69,9 @@ if (sentryConfig.enabled) {
         stackParser: defaultStackParser,
         environment: sentryConfig.env,
         release: packageJson.version,
-        integrations: [],
+        attachStacktrace: true,
+        sendDefaultPii: true,
+        integrations: getSentryIntegrations(sentryConfig.disable_breadcrumbs),
         beforeSend: (event, hint) => {
             // filter errors from user code (asset scripts)
             const frames = event.exception?.values?.[0]?.stacktrace?.frames;
