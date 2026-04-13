@@ -433,7 +433,8 @@ editor.once('load', () => {
 
         // main panel
         const panel = new Container({
-            class: 'storeitem-root-panel'
+            class: 'storeitem-root-panel',
+            hidden: true
         });
 
         root.append(panel);
@@ -584,6 +585,7 @@ editor.once('load', () => {
         if (!storeItemPanel) {
             storeItemPanel = createPanel();
             storePanel.append(storeItemPanel);
+            storeItemPanel.hidden = false;
             licenses = await editor.call('picker:store:licenses');
         } else {
             storeItemPanel.hidden = false;
