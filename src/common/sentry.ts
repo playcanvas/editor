@@ -84,6 +84,20 @@ if (sentryConfig.enabled) {
                 };
             }
 
+            // auto-categorize by source module from stack trace
+            if (frames?.length) {
+                const top = frames[frames.length - 1];
+                if (top.filename) {
+                    const m = top.filename.match(/\/(?:editor|code-editor|launch|common)\/(.+)\.[^.]+$/);
+                    if (m) {
+                        const parts = m[1].split('/');
+                        // use directory path for nested files, filename for top-level files
+                        const source = parts.length > 1 ? parts.slice(0, -1).join('/') : parts[0];
+                        event.tags = { ...event.tags, source };
+                    }
+                }
+            }
+
             // report error count to graphene metrics
             if (window.metrics) {
                 metrics.increment({ metricsName: `${sentryConfig.service}.frontend_errors.count.by_page.${sentryConfig.page}` });

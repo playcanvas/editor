@@ -74,6 +74,10 @@ editor.once('load', () => {
         url += sortQuery(sortPolicy, sortDescending);
 
         const response = await fetch(url);
+        if (!response.ok) {
+            log.error`store search failed ${response.status}: ${response.statusText}`;
+            return { result: [] };
+        }
         return response.json();
     });
 

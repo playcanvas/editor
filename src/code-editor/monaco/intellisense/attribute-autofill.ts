@@ -199,9 +199,12 @@ const fetchModuleScripts = async (
         try {
             const url = editor.call('assets:realPath', asset);
 
-            const promise: Promise<[string, string]> = fetch(url).then(res => res.text()).then((content) => {
+            const promise: Promise<[string, string] | null> = fetch(url).then(res => res.text()).then((content) => {
                 cache.set(path, hash);
-                return [path, content];
+                return [path, content] as [string, string];
+            }).catch((e) => {
+                log.error`failed to fetch esm script ${path}: ${e}`;
+                return null;
             });
             acc.push(promise);
         } catch (e) {
