@@ -20,7 +20,7 @@ editor.once('load', () => {
 
         editor.emit('sourcefiles:load', filenames);
     }).catch((err: unknown) => {
-        console.error(err);
+        log.error(err);
         editor.emit('sourcefiles:load', []);
     });
 });

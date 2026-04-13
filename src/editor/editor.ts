@@ -1,8 +1,10 @@
 import { type EditorMethods, Editor } from '@/common/editor';
 import { Messenger } from '@/common/messenger';
+import { setSentryTags } from '@/common/sentry';
 import { MERGE_STATUS_APPLY_STARTED, MERGE_STATUS_AUTO_STARTED, MERGE_STATUS_READY_FOR_REVIEW } from '@/core/constants';
-import { config } from '@/editor/config';
 import * as api from '@/editor-api';
+
+import { config } from './config';
 
 class MainEditor extends Editor<EditorMethods> {
     constructor() {
@@ -125,3 +127,10 @@ class MainEditor extends Editor<EditorMethods> {
 
 // editor
 window.editor = new MainEditor();
+
+setSentryTags({
+    user_id: config.self?.id,
+    project_id: config.project?.id,
+    scene_id: config.scene?.id,
+    branch_id: config.self?.branch?.id
+});

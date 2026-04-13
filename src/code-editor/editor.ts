@@ -1,7 +1,9 @@
 import { type EditorMethods, Editor } from '@/common/editor';
 import { Messenger } from '@/common/messenger';
+import { setSentryTags } from '@/common/sentry';
 import * as api from '@/editor-api';
 
+import { config } from './config';
 
 class CodeEditor extends Editor<EditorMethods> {
     isCodeEditor = true;
@@ -38,6 +40,12 @@ class CodeEditor extends Editor<EditorMethods> {
 }
 
 window.editor = new CodeEditor();
+
+setSentryTags({
+    user_id: config.self?.id,
+    project_id: config.project?.id,
+    branch_id: config.self?.branch?.id
+});
 
 // set window name if necessary
 if (!window.name) {

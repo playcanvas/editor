@@ -562,7 +562,7 @@ editor.once('load', () => {
             refreshButtonsState();
 
             // error
-            log.error(status, error);
+            log.error`publish error ${status}: ${error}`;
         });
     };
 

@@ -724,7 +724,7 @@ editor.once('load', () => {
                 previousCheckpoint.id
             );
         } else {
-            log.error(`Trying to view changes in checkpoint: '${currentCheckpoint.id}'. Cannot find previous checkpoint to diff against.`);
+            log.error`trying to view changes in checkpoint: ${currentCheckpoint.id}. cannot find previous checkpoint to diff against`;
         }
     });
 

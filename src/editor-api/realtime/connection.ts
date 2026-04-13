@@ -192,6 +192,10 @@ class RealtimeConnection extends Events {
         };
         socket.addEventListener('message', onmessage);
 
+        socket.addEventListener('error', () => {
+            log.error`websocket error (state: ${this._state}, url: ${url}, attempts: ${this._reconnectAttempts})`;
+        });
+
         // ! use event listener as sharedb overrides socket.on* handlers
         socket.addEventListener('close', (reason) => {
             // block sending messages

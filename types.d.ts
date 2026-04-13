@@ -9,7 +9,10 @@ declare var editor: import('./src/common/editor').Editor<import('./src/common/ed
 
 // log
 declare var log: {
-    error: (...args: any) => void;
+    error: {
+        (...args: any[]): void;
+        (strings: TemplateStringsArray, ...values: unknown[]): void;
+    };
 };
 
 // metrics

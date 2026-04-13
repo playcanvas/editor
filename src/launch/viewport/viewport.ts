@@ -89,7 +89,7 @@ editor.once('load', () => {
             };
 
             loadingScript.onerror = function () {
-                log.error(`Could not load loading screen script: ${config.project.settings.loadingScreenScript}`);
+                log.error`could not load loading screen script: ${config.project.settings.loadingScreenScript}`;
                 defaultLoadingScreen();
             };
 
