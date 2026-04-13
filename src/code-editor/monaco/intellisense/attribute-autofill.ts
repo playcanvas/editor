@@ -205,7 +205,7 @@ const fetchModuleScripts = async (
             });
             acc.push(promise);
         } catch (e) {
-            console.error(`Failed to fetch ESM script ${path}`, e);
+            log.error`failed to fetch esm script ${path}: ${e}`;
         }
         return acc;
     }, [] as Promise<[string, string]>[]));
