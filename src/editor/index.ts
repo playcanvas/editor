@@ -1,3 +1,6 @@
+// sentry
+import '@/common/sentry';
+
 // playcanvas engine (exposes window.pc for plugins)
 import './expose';
 

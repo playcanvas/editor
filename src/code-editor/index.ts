@@ -1,3 +1,6 @@
+// sentry
+import '@/common/sentry';
+
 // extensions
 import '@/common/extensions';
 
