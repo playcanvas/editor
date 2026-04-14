@@ -19,6 +19,8 @@ editor.once('load', () => {
     const IDLE_CHECK_DELAY = 2000;
     const IDLE_CHECK_SAFE_WINDOW = 10000;
 
+    const pendingOps = new Map();
+
     let lastIdleCheck = Date.now();
     let wasIdle = false;
     let timeoutLoad = null;
@@ -175,6 +177,15 @@ editor.once('load', () => {
             editor.call('realtime:assets:op', op, asset.get('uniqueId'));
         });
 
+        // replay buffered ops that arrived before this asset was registered
+        const uniqueId = asset.get('uniqueId');
+        const ops = pendingOps.get(uniqueId);
+        if (ops) {
+            pendingOps.delete(uniqueId);
+            for (const op of ops) {
+                asset.sync.write(op);
+            }
+        }
     });
 
     // write asset operations
@@ -195,11 +206,15 @@ editor.once('load', () => {
     editor.on('realtime:op:assets', (op, uniqueId) => {
         const asset = editor.call('assets:getUnique', uniqueId);
         if (asset) {
-            // console.log('in: ' + id + ' [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
-            // console.log(op);
             asset.sync.write(op);
         } else {
-            log.error`realtime operation on missing asset: ${op.p[1]}`;
+            // buffer ops for assets not yet registered (race between subscribe and add)
+            let ops = pendingOps.get(uniqueId);
+            if (!ops) {
+                ops = [];
+                pendingOps.set(uniqueId, ops);
+            }
+            ops.push(op);
         }
     });
 
@@ -223,5 +238,6 @@ editor.once('load', () => {
         }
 
         editor.call('assets:clear');
+        pendingOps.clear();
     });
 });
