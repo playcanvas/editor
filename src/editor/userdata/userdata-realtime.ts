@@ -18,22 +18,25 @@ editor.once('load', () => {
             editor.emit('realtime:userdata:error', err);
         });
 
+        // register op listener once (outside load to avoid duplicates on re-fetch)
+        data.on('op', (ops, local) => {
+            if (local) {
+                return;
+            }
+
+            for (let i = 0; i < ops.length; i++) {
+                if (ops[i].p[0]) {
+                    editor.emit(`realtime:userdata:${userId}:op:${ops[i].p[0]}`, ops[i]);
+                }
+            }
+        });
+
         // ready to sync
         data.on('load', () => {
-            // notify of operations
-            data.on('op', (ops, local) => {
-                if (local) {
-                    return;
-                }
+            if (!data.type) {
+                return;
+            }
 
-                for (let i = 0; i < ops.length; i++) {
-                    if (ops[i].p[0]) {
-                        editor.emit(`realtime:userdata:${userId}:op:${ops[i].p[0]}`, ops[i]);
-                    }
-                }
-            });
-
-            // notify of scene load
             editor.emit(`userdata:${userId}:raw`, data.data);
         });
 
@@ -49,13 +52,9 @@ editor.once('load', () => {
 
     // write userdata operations
     editor.method('realtime:userdata:op', (op: unknown) => {
-        if (!editor.call('permissions:read') || !userData) {
+        if (!editor.call('permissions:read') || !userData || !userData.type) {
             return;
         }
-
-        // console.trace();
-        // console.log('out: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
-        // console.log(op)
 
         userData.submitOp([op]);
     });
