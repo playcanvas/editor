@@ -131,6 +131,6 @@ window.editor = new MainEditor();
 setSentryTags({
     user_id: config.self?.id,
     project_id: config.project?.id,
-    scene_id: config.scene?.id,
+    scene_id: config.scene?.id || -1,
     branch_id: config.self?.branch?.id
 });
