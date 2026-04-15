@@ -810,7 +810,7 @@ class EntitiesTreeView extends TreeView {
                 if (child) {
                     treeViewItem.append(this._onAddEntity(child));
                 } else {
-                    log.error`cannot find child entity ${childId} of parent ${entity.get('name')} (${resourceId})`;
+                    console.warn(`cannot find child entity ${childId} of parent ${entity.get('name')} (${resourceId})`);
                     editor.call('status:error', `Cannot find child entity ${childId} of parent "${entity.get('name')}" (${resourceId})`);
                 }
             }

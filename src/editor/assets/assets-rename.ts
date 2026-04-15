@@ -2,7 +2,7 @@ editor.once('load', () => {
     const changeName = function (assetId: string | number, assetName: string) {
         editor.api.globals.rest.assets.assetUpdate(assetId, { name: assetName })
         .on('error', (err, data) => {
-            log.error`rename error: ${err} ${data}`;
+            console.warn(`rename error: ${err} ${data}`);
             editor.call('status:error', `Couldn't update the name: ${data}`);
         });
     };
