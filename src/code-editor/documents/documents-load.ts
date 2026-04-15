@@ -75,6 +75,10 @@ editor.once('load', () => {
 
         // ready to sync
         doc.on('load', () => {
+            if (!doc.type) {
+                return;
+            }
+
             // check if closed by the user
             if (!documentsIndex[id]) {
                 return;
