@@ -16,6 +16,7 @@ editor.once('load', () => {
 
     connect = function () {
         if (reconnectAttempts > 8) {
+            log.error`launch websocket failed to connect after 8 attempts (url: ${config.url.realtime.http})`;
             editor.emit('realtime:cannotConnect');
             return;
         }
@@ -83,7 +84,7 @@ editor.once('load', () => {
         // create new socket...
         socket = new WebSocket(config.url.realtime.http);
         socket.onerror = () => {
-            log.error`launch websocket error (url: ${config.url.realtime.http})`;
+            console.warn(`launch websocket error (url: ${config.url.realtime.http})`);
         };
         // ... and new sharedb connection
         connection = new share.Connection(socket);
