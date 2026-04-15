@@ -131,7 +131,7 @@ class RealtimeAsset extends Events {
     }
 
     _onOp(ops: any, local: boolean) {
-        if (local) {
+        if (local || !this._loaded) {
             return;
         }
 
