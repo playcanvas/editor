@@ -281,7 +281,7 @@ class RelayServer extends Events {
      * @param msg - The message data
      */
     send(msg: string | object) {
-        if (!this._connected) {
+        if (!this._connected || this.socket.readyState !== WebSocket.OPEN) {
             return;
         }
 
