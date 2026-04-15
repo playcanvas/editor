@@ -107,7 +107,7 @@ editor.once('load', () => {
                     if (importingAssetPath) {
                         // Return the immediate dependencies of the asset
                         const deps = editor.call('utils:deps-from-string', content, importingAssetPath);
-                        const depsAsAsset = Array.from(deps).map(path => editor.call('assets:getByVirtualPath', path));
+                        const depsAsAsset = Array.from(deps).map(path => editor.call('assets:getByVirtualPath', path)).filter(Boolean);
 
                         // And load them, ensuring that Monaco can resolve dependencies
                         depsAsAsset.forEach(asset => loadDocument(asset, false));
