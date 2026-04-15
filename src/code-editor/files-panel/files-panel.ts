@@ -376,7 +376,7 @@ editor.once('load', () => {
     // Select file by id (which can be passed as a string or number)
     editor.method('files:select', (id: number|string) => {
         const item = idToItem.get(String(id));
-        if (item) {
+        if (item && !item.destroyed) {
             tree.deselect();
             item.selected = true;
         }
