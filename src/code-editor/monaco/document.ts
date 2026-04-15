@@ -127,7 +127,9 @@ editor.once('load', () => {
         const pathSegments = [];
         for (const id of assetPath) {
             const a = editor.call('assets:get', id);
-            if (!a) return;
+            if (!a) {
+                return;
+            }
             pathSegments.push(a.get('name'));
         }
         const path = [...pathSegments, asset.get('file').filename].join('/');
