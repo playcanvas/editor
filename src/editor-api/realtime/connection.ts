@@ -163,6 +163,7 @@ class RealtimeConnection extends Events {
         this._state = 'connecting';
 
         if (this._reconnectAttempts > MAX_ATTEMPTS) {
+            log.error`websocket failed to connect after ${MAX_ATTEMPTS} attempts (url: ${url})`;
             this._realtime.emit('cannotConnect');
             return;
         }
@@ -191,6 +192,10 @@ class RealtimeConnection extends Events {
             }
         };
         socket.addEventListener('message', onmessage);
+
+        socket.addEventListener('error', () => {
+            console.warn(`websocket error (state: ${this._state}, url: ${url}, attempts: ${this._reconnectAttempts})`);
+        });
 
         // ! use event listener as sharedb overrides socket.on* handlers
         socket.addEventListener('close', (reason) => {

@@ -239,6 +239,10 @@ editor.once('load', () => {
         thumb.src = item.pictures[0];
 
         thumb.addEventListener('load', () => {
+            if (gridItem.destroyed) {
+                return;
+            }
+
             gridItem.on('click', () => {
                 // editor.call('picker:store:cms:close');
                 sortingDropdown.hidden = true;

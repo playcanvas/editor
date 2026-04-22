@@ -121,6 +121,8 @@ editor.once('load', () => {
                 monaco.languages.typescript.javascriptDefaults.addExtraLib(code, 'playcanvas.d.ts');
             });
         }
+    }).catch((err) => {
+        log.error`failed to fetch engine type definitions: ${typesURL}: ${err}`;
     });
 
     // hide initially

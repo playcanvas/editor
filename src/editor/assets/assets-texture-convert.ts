@@ -26,6 +26,10 @@ editor.once('load', () => {
 
             // FIXME: No way to use arrayBuffer with AJAX
             const response = await fetch(`/api/assets/${id}/download?branchId=${config.self.branch.id}`);
+            if (!response.ok) {
+                log.error`texture download failed ${response.status}: ${response.statusText}`;
+                return;
+            }
             const buffer = await response.arrayBuffer();
 
             // N.B. Update to use frontend URL

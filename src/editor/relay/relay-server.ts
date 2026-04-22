@@ -40,6 +40,8 @@ class RelayServer extends Events {
 
     private _rooms: Record<string, Set<number>>;
 
+    private _pendingRooms: Set<string>;
+
     private _userId: number | null;
 
     private socket: WebSocket;
@@ -54,6 +56,7 @@ class RelayServer extends Events {
         this._pingTimeout = null;
         this._pongTimeout = null;
         this._rooms = {};
+        this._pendingRooms = new Set();
         this._userId = null;
 
         this.on('welcome', (data) => {
@@ -150,6 +153,7 @@ class RelayServer extends Events {
             });
         }
         this._rooms = {};
+        this._pendingRooms.clear();
 
         this.emit('disconnect');
 
@@ -194,6 +198,8 @@ class RelayServer extends Events {
     }
 
     _handleRoomJoin(msg: { t: string; name: string; users?: number[]; userId?: number }) {
+        this._pendingRooms.delete(msg.name);
+
         if (msg.users) {
             this._rooms[msg.name] = new Set(msg.users);
         } else if (msg.userId) {
@@ -281,7 +287,7 @@ class RelayServer extends Events {
      * @param msg - The message data
      */
     send(msg: string | object) {
-        if (!this._connected) {
+        if (!this._connected || this.socket.readyState !== WebSocket.OPEN) {
             return;
         }
 
@@ -319,6 +325,11 @@ class RelayServer extends Events {
      * @param authentication - The authentication handling of the room.
      */
     joinRoom(name: string, authentication: RoomAuthentication) {
+        if (this._rooms[name] || this._pendingRooms.has(name)) {
+            return;
+        }
+
+        this._pendingRooms.add(name);
         this.send({
             t: 'room:join',
             name: name,

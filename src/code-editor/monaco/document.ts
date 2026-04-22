@@ -124,12 +124,14 @@ editor.once('load', () => {
         }
 
         const assetPath = asset.get('path');
-        const pathAssets = assetPath.map(id => editor.call('assets:get', id));
-        if (pathAssets.some(a => !a)) {
-            // Parent folder(s) have been deleted, skip loading
-            return;
+        const pathSegments = [];
+        for (const id of assetPath) {
+            const a = editor.call('assets:get', id);
+            if (!a) {
+                return;
+            }
+            pathSegments.push(a.get('name'));
         }
-        const pathSegments = pathAssets.map(a => a.get('name'));
         const path = [...pathSegments, asset.get('file').filename].join('/');
 
         const uri = monaco.Uri.parse(`${path}`);

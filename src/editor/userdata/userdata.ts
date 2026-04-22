@@ -16,7 +16,7 @@ editor.once('load', () => {
             // client > server
             userdata.sync.on('op', (op: unknown) => {
                 if (op.oi === null) {
-                    log.error('Tried to send invalid userdata op', op);
+                    log.error`tried to send invalid userdata op: ${op}`;
                     return;
                 }
 

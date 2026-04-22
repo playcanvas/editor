@@ -153,6 +153,9 @@ editor.once('load', () => {
         socket.onopen = onOpen;
         socket.onclose = onClose;
         socket.onmessage = onMessage;
+        socket.onerror = () => {
+            console.warn(`code-editor websocket error (url: ${config.url.realtime.http})`);
+        };
     };
 
     // Raw socket send

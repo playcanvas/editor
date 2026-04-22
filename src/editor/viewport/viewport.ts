@@ -20,11 +20,12 @@ editor.once('load', () => {
     const disableAntiAliasing = /disableAntiAliasing=true/.test(location.search);
 
     // create playcanvas application
-    let app;
+    let app: ViewportApplication;
     try {
-        app = new ViewportApplication(canvas.element, {
-            mouse: new Mouse(canvas.element),
-            touch: 'ontouchstart' in window ? new TouchDevice(canvas.element) : null,
+        const canvasElement = canvas.dom as HTMLCanvasElement;
+        app = new ViewportApplication(canvasElement, {
+            mouse: new Mouse(canvasElement),
+            touch: 'ontouchstart' in window ? new TouchDevice(canvasElement) : null,
             editorSettings: projectUserSettings.json().editor,
             graphicsDeviceOptions: {
                 antialias: !disableAntiAliasing,

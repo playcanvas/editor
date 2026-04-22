@@ -120,7 +120,7 @@ editor.once('load', () => {
 
     editor.on('viewport:error', (err) => {
         viewportError = true;
-        log.error(err);
+        console.error(err);
         console.trace();
         content.innerHTML = 'Failed creating WebGL Context.<br />Please check <a href="http://webglreport.com/" target="_blank">WebGL Report</a> and report to <a href="http://forum.playcanvas.com/" target="_blank">Forum</a>.';
         overlay.hidden = false;

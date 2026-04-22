@@ -144,6 +144,10 @@ class SketchFabStore extends BaseStore {
         const load = async function (item: { id: string; thumbnails: { images: { url: string }[] }; assets?: unknown }) {
             const url = `https://api.sketchfab.com/v3/models/${item.id}`;
             const response = await fetch(url);
+            if (!response.ok) {
+                log.error`sketchfab fetch failed ${response.status}: ${response.statusText}`;
+                return null;
+            }
             return self._prepareItem(await response.json(), item.assets);
         };
 

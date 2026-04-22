@@ -14,6 +14,7 @@ editor.once('load', () => {
     const docs: Record<string, { unsubscribe: () => void; destroy: () => void }> = { };
 
     const assetNames: Record<string, string> = { };
+    const pendingOps = new Map();
 
     const queryParams = (new pc.URI(window.location.href)).getQuery() as Record<string, string>;
     const concatenateScripts = (queryParams.concatenateScripts === 'true');
@@ -62,7 +63,7 @@ editor.once('load', () => {
 
             const assetData = doc.data;
             if (!assetData) {
-                log.error(`Could not load asset: ${uniqueId}`);
+                log.error`could not load asset: ${uniqueId}`;
                 doc.unsubscribe();
                 doc.destroy();
                 return callback?.();
@@ -389,6 +390,7 @@ editor.once('load', () => {
 
     // load all assets
     editor.on('realtime:authenticated', () => {
+        pendingOps.clear();
         editor.api.globals.rest.projects.projectAssets('launcher', true)
         .on('load', (_status: number, data: Array<{ id: string; uniqueId: string; name?: string }>) => {
             onLoad(data);
@@ -423,6 +425,16 @@ editor.once('load', () => {
             item: asset
         });
 
+        // replay buffered ops that arrived before this asset was registered
+        const uniqueId = asset.get('uniqueId');
+        const ops = pendingOps.get(uniqueId);
+        if (ops) {
+            pendingOps.delete(uniqueId);
+            for (const op of ops) {
+                asset.sync.write(op);
+            }
+        }
+
         let setting = false;
 
         asset.on('*:set', (path: string, value: unknown) => {
@@ -453,7 +465,13 @@ editor.once('load', () => {
         if (asset) {
             asset.sync.write(op);
         } else {
-            log.error(`realtime operation on missing asset: ${op.p[1]}`);
+            // buffer ops for assets not yet registered (race between subscribe and add)
+            let ops = pendingOps.get(uniqueId);
+            if (!ops) {
+                ops = [];
+                pendingOps.set(uniqueId, ops);
+            }
+            ops.push(op);
         }
     });
 });
