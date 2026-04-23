@@ -2,7 +2,7 @@ import { BrowserClient, defaultStackParser, getDefaultIntegrations, makeFetchTra
 import { getIntegrationsToSetup } from '@sentry/core';
 
 import type { FingerprintedError } from './error';
-import packageJson from '../../package.json';
+import { version } from '../../package.json';
 
 const SENTRY_DSN = 'https://0defef72baf64d99bf53b92a23d5bd14@sentry.sc-prod.net/87';
 const BREADCRUMBS_INTEGRATION = 'Breadcrumbs';
@@ -72,7 +72,7 @@ if (sentryConfig.enabled) {
         transport: makeFetchTransport,
         stackParser: defaultStackParser,
         environment: sentryConfig.env,
-        release: packageJson.version,
+        release: version,
         attachStacktrace: true,
         sendDefaultPii: true,
         integrations: getSentryIntegrations(sentryConfig.disable_breadcrumbs),
@@ -143,8 +143,9 @@ if (sentryConfig.enabled) {
             return;
         }
         console.error(...args);
-        if (args.length === 1 && args[0]?.stack) {
-            captureException(args[0]);
+        const err = args.find(a => a?.stack);
+        if (err) {
+            captureException(err);
         } else {
             captureException(new Error(args.map(String).join(' ')));
         }
