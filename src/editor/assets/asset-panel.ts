@@ -2753,6 +2753,10 @@ class AssetPanel extends Panel {
         return this._searchInput;
     }
 
+    get controlsContainer() {
+        return this._containerControls;
+    }
+
     set selectedAssets(value: AssetObserver[]) {
         if (!value) {
             value = [];

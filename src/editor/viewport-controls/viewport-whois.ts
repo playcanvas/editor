@@ -16,15 +16,15 @@ editor.once('load', () => {
         panel.append(chatWidget);
     }
 
-    const assetPanel = editor.call('layout.assets');
+    const bottomPanel = editor.call('layout.bottomPanel');
 
     const adjustPosition = () => {
-        panel.style.bottom = assetPanel.collapsed ? '36px' : '4px';
+        panel.style.bottom = bottomPanel.collapsed ? '36px' : '4px';
     };
 
     adjustPosition();
-    assetPanel.on('collapse', adjustPosition);
-    assetPanel.on('expand', adjustPosition);
+    bottomPanel.on('collapse', adjustPosition);
+    bottomPanel.on('expand', adjustPosition);
 
     const userMap = new Map<number, { button: Button; tooltip: LegacyTooltip }>();
 

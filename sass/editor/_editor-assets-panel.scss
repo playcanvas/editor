@@ -1,25 +1,16 @@
 @use 'sass:color';
 @use 'sass:map';
 
+$asset-content-bg: color.mix($bcg-primary, $bcg-dark, 50%);
+$asset-tree-bg: color.mix($asset-content-bg, $bcg-darker, 70%);
+$asset-content-border: $border-primary;
+
 #layout-assets {
     overflow: visible;
-    background-color: $bcg-darker;
+    background-color: $asset-content-bg;
+    height: 100%;
 
     @extend .noSelect;
-
-    &.pcui-resizable {
-        &.pcui-resizable-top.pcui-scrollable > .pcui-panel-content {
-            top: 0;
-        }
-
-        &.pcui-collapsible.pcui-collapsed {
-            height: 0 !important;
-
-            > .pcui-panel-header {
-                width: 90px;
-            }
-        }
-    }
 }
 
 .pcui-asset-panel {
@@ -35,10 +26,16 @@
             flex-shrink: 0;
             max-width: 100%;
             height: 100%;
+            background-color: $asset-tree-bg;
             border-top: 1px solid $border-primary;
 
             > .pcui-asset-panel-folders {
                 height: 100%;
+
+                .pcui-treeview-item::before,
+                .pcui-treeview-item-icon::before {
+                    background-color: $asset-content-border;
+                }
 
                 .pcui-treeview-item-icon::after {
                     content: '\E139';
@@ -54,8 +51,8 @@
 
         > .pcui-table {
             flex: 1;
-            border-left: 1px solid $border-primary;
-            background-color: $bcg-dark;
+            border-left: 1px solid $asset-content-border;
+            background-color: $asset-content-bg;
 
             > table > tbody {
                 // Apply hover/focus/selected background to cells only, not the entire row.
@@ -105,8 +102,8 @@
 
         > .pcui-gridview {
             flex: 1;
-            background-color: $bcg-dark;
-            border-left: 1px solid $border-primary;
+            background-color: $asset-content-bg;
+            border-left: 1px solid $asset-content-border;
             border-top: 1px solid $border-primary;
         }
     }
@@ -360,7 +357,7 @@
             flex-grow: 1;
             align-items: center;
             height: 32px;
-            border-left: 1px solid $bcg-darkest;
+            border-left: 1px solid $border-primary;
         }
 
         .pcui-asset-panel-btn-small {
@@ -375,7 +372,7 @@
 
             &:hover {
                 z-index: 1;
-                background-color: #20292b;
+                background-color: $bcg-darkest;
             }
         }
 
@@ -387,8 +384,8 @@
         .pcui-asset-panel-btn-container {
             align-items: center;
             flex-shrink: 0;
-            border-left: 1px solid $bcg-darkest;
-            border-right: 1px solid $bcg-darkest;
+            border-left: 1px solid $border-primary;
+            border-right: 1px solid $border-primary;
         }
 
         .pcui-select-input {
@@ -401,7 +398,7 @@
             }
 
             &.asset-filter-specific > .pcui-container > .pcui-select-input-value {
-                background-color: #20292b;
+                background-color: $bcg-darkest;
             }
 
             .pcui-select-input-value {
@@ -425,8 +422,8 @@
             line-height: 32px;
             margin: 0;
             border: 0;
-            border-left: 1px solid $bcg-darkest;
-            border-right: 1px solid $bcg-darkest;
+            border-left: 1px solid $border-primary;
+            border-right: 1px solid $border-primary;
 
             > input {
                 max-width: calc(100% - 24px);
@@ -451,7 +448,7 @@
 
             &:hover,
             &:not([placeholder]) {
-                background-color: #20292b;
+                background-color: $bcg-darkest;
             }
 
             // placeholder text
@@ -540,7 +537,7 @@
     align-items: center;
     justify-content: center;
     flex-direction: row;
-    background-color: $bcg-dark;
+    background-color: $asset-content-bg;
 
     .pcui-progress {
         flex-basis: 128px;

@@ -1,0 +1,251 @@
+@use 'sass:color';
+
+// tabbed bottom panel (assets + console)
+#layout-bottom-panel {
+    border: 1px solid $border-primary;
+    border-bottom: 0;
+
+    > .pcui-panel-header {
+        overflow: hidden;
+        align-items: center;
+    }
+
+    // asset panel inside bottom panel
+    #layout-assets {
+        border-top: 1px solid $border-primary;
+
+        > .pcui-panel-header {
+            padding-left: 0;
+
+            > .pcui-asset-panel-controls {
+                border-left: 0;
+            }
+        }
+    }
+
+    &.pcui-collapsible.pcui-collapsed {
+        height: 0 !important;
+        min-height: 0;
+        border: 0;
+        overflow: visible;
+
+        > .pcui-panel-header {
+            position: absolute;
+            top: -32px;
+            left: 0;
+            width: fit-content;
+            max-width: fit-content;
+        }
+
+        > .pcui-panel-content {
+            display: none;
+        }
+    }
+}
+
+// tab buttons
+.bottom-panel-tabs {
+    margin: 0;
+    padding: 0;
+    gap: 0;
+    height: 100%;
+    flex-shrink: 0;
+}
+
+.bottom-panel-tab {
+    @extend .font-bold;
+
+    font-size: 12px;
+    padding: 0 14px;
+    margin: 0;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    color: $text-secondary;
+    border-right: 1px solid $border-primary;
+    user-select: none;
+
+    &:hover {
+        color: #fff;
+        background-color: $bcg-darkest;
+    }
+
+    &.active {
+        color: #fff;
+        background-color: $bcg-dark;
+        border-bottom: 2px solid $text-active;
+    }
+}
+
+// status bar (separate row at bottom — Panel matching original #layout-console header)
+#layout-statusbar {
+    border-top: 1px solid $border-primary;
+    border-left: 1px solid $border-primary;
+
+    .pcui-panel-header {
+        overflow: hidden;
+        align-items: center;
+        padding-left: 0;
+
+        > .divider {
+            border: 0;
+            border-left: 1px solid $border-primary;
+            height: 100%;
+        }
+
+        > .count {
+            font-size: 12px;
+            text-align: center;
+            margin: 0;
+            padding: 0 8px;
+            color: #b1b8ba;
+            background-color: $bcg-darkest;
+
+            &:hover {
+                color: #fff;
+                cursor: pointer;
+            }
+
+            &.disabled {
+                color: color.mix($text-darkest, #b1b8ba, 50%);
+                background-color: $bcg-darker;
+            }
+
+            &::before {
+                @extend .font-icon;
+
+                text-align: center;
+                margin-right: 5px;
+            }
+
+            &.info {
+                &::before {
+                    content: '\E400';
+                }
+            }
+
+            &.warn {
+                &::before {
+                    content: '\E218';
+                }
+
+                &.found {
+                    color: #f1c40f;
+
+                    &.disabled {
+                        color: color.mix($text-darkest, #f1c40f, 50%);
+                    }
+
+                    &:hover {
+                        color: #fff;
+                    }
+                }
+            }
+
+            &.error {
+                &::before {
+                    content: '\E368';
+                }
+
+                &.found {
+                    color: #e74c3c;
+
+                    &.disabled {
+                        color: color.mix($text-darkest, #e74c3c, 50%);
+                    }
+
+                    &:hover {
+                        color: #fff;
+                    }
+                }
+            }
+        }
+
+        > .jobs-count {
+            font-size: 12px;
+            color: #aaa;
+            margin: 0 8px;
+            pointer-events: none;
+
+            &::before {
+                content: '\E304';
+
+                @extend .font-icon;
+
+                text-align: center;
+                margin-right: 5px;
+            }
+        }
+
+        > .jobs-progress {
+            width: 128px;
+            margin: 0 10px 0 0;
+            display: none;
+            transition: opacity 100ms, visibility 100ms;
+
+            &.active {
+                display: block;
+            }
+        }
+
+        > .asset-auditor {
+            border-radius: 0;
+            margin: 0;
+            height: 32px;
+
+            &:hover {
+                background-color: $bcg-darkest;
+                box-shadow: none;
+            }
+
+            &.warn {
+                color: #f1c40f;
+            }
+
+            &.error {
+                color: white;
+                background-color: #e74c3c;
+
+                &:hover {
+                    background-color: color.mix(black, #e74c3c, 25%);
+                }
+            }
+        }
+
+        > .status {
+            font-size: 12px;
+            color: #aaa;
+            border-left: 1px solid $border-primary;
+            margin-left: auto;
+            padding-left: 10px;
+            padding-right: 5px;
+            pointer-events: none;
+            user-select: none;
+
+            &.error {
+                color: #e74c3c;
+            }
+        }
+
+        > .version {
+            border-radius: 0;
+            margin: 0;
+            height: 32px;
+            white-space: nowrap;
+
+            &:hover {
+                background-color: $bcg-darkest;
+                box-shadow: none;
+            }
+
+            &.updated {
+                color: $text-active;
+
+                &:hover {
+                    color: color.adjust($text-active, $lightness: 10%);
+                }
+            }
+        }
+    }
+}

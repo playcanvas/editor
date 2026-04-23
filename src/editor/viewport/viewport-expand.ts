@@ -1,7 +1,7 @@
 editor.once('load', () => {
     const panels = [];
     panels.push(editor.call('layout.hierarchy'));
-    panels.push(editor.call('layout.assets'));
+    panels.push(editor.call('layout.bottomPanel'));
     panels.push(editor.call('layout.attributes'));
 
     let expanded = false;

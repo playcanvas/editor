@@ -2,7 +2,7 @@ import { Container, Panel } from '@playcanvas/pcui';
 
 import { Tooltip } from '@/common/pcui/element/element-tooltip';
 
-import { createConsolePanel } from './layout-console';
+import { createBottomPanel } from './layout-bottom-panel';
 import { AssetPanel } from '../assets/asset-panel';
 
 const createHierarchyPanel = () => {
@@ -40,28 +40,12 @@ const createAssetPanel = () => {
         id: 'layout-assets',
         class: 'assets',
         panelType: 'normal',
-        collapsible: true,
-        collapsed: editor.call('localStorage:get', 'editor:layout:assets:collapse') || window.innerHeight <= 480,
-        height: editor.call('localStorage:get', 'editor:layout:assets:height') || 212,
-        resizable: 'top',
-        resizeMin: 106,
-        resizeMax: 106 * 6,
+        collapsible: false,
         viewMode: editor.call('localStorage:get', 'editor:assets:viewMode')
     });
 
-    // save changes to viewmode to localStorage
     assetsPanel.on('viewMode', (value) => {
         editor.call('localStorage:set', 'editor:assets:viewMode', value);
-    });
-
-    assetsPanel.on('resize', () => {
-        editor.call('localStorage:set', 'editor:layout:assets:height', assetsPanel.height);
-    });
-    assetsPanel.on('collapse', () => {
-        editor.call('localStorage:set', 'editor:layout:assets:collapse', true);
-    });
-    assetsPanel.on('expand', () => {
-        editor.call('localStorage:set', 'editor:layout:assets:collapse', false);
     });
 
     return assetsPanel;
@@ -229,11 +213,19 @@ editor.on('load', () => {
         return viewport;
     });
 
-    // assets
+    // assets + console (tabbed bottom panel)
     const assetsPanel = createAssetPanel();
-    root.append(assetsPanel);
     editor.method('layout.assets', () => {
         return assetsPanel;
+    });
+
+    const { bottomPanel, statusBar } = createBottomPanel(assetsPanel);
+    root.append(bottomPanel);
+    editor.method('layout.bottomPanel', () => {
+        return bottomPanel;
+    });
+    editor.method('layout.console', () => {
+        return bottomPanel;
     });
 
     // attributes
@@ -253,11 +245,10 @@ editor.on('load', () => {
         return attributesSecondaryPanel;
     });
 
-    // console
-    const consolePanel = createConsolePanel();
-    root.append(consolePanel);
-    editor.method('layout.console', () => {
-        return consolePanel;
+    // status bar
+    root.append(statusBar);
+    editor.method('layout.statusBar', () => {
+        return statusBar;
     });
 
     // fold panels on small screens
