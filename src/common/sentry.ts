@@ -31,16 +31,20 @@ const getSentryIntegrations = (disableBreadcrumbs: boolean) => getIntegrationsTo
 const sanitize = (obj: unknown, memo = new WeakSet()): unknown => {
     if (Array.isArray(obj)) {
         if (memo.has(obj)) {
-            return obj;
+            return '[Circular]';
         }
         memo.add(obj);
         const result = obj.map(v => sanitize(v, memo));
         memo.delete(obj);
         return result;
     }
-    if (obj && typeof obj === 'object' && Object.getPrototypeOf(obj) === Object.prototype) {
-        if (memo.has(obj)) {
+    if (obj && typeof obj === 'object') {
+        const proto = Object.getPrototypeOf(obj);
+        if (proto !== Object.prototype && proto !== null) {
             return obj;
+        }
+        if (memo.has(obj)) {
+            return '[Circular]';
         }
         memo.add(obj);
         const record = obj as Record<string, unknown>;
@@ -127,8 +131,9 @@ if (sentryConfig.enabled) {
     //   log.error('message')              — string wrapped in Error
     //   log.error`missing asset ${id}`    — fingerprinted Error for grouping
     window.log.error = (...args: any[]) => {
-        if (args[0]?.raw) {
-            const strings = args[0] as TemplateStringsArray;
+        const first = args[0];
+        if (Array.isArray(first) && 'raw' in first) {
+            const strings = first as unknown as TemplateStringsArray;
             const values = args.slice(1);
             const e = new Error(String.raw(strings, ...values)) as FingerprintedError;
             e.fingerprint = strings.join('{}');
