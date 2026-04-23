@@ -91,9 +91,12 @@ if (sentryConfig.enabled) {
             if (original instanceof Error && 'fingerprint' in original) {
                 const fe = original as FingerprintedError;
                 event.fingerprint = [fe.fingerprint];
+                // stringify non-primitive context values so class instances don't
+                // bypass sanitize() and leak sensitive fields into event.extra
+                const context = (fe.context || []).map(v => (v !== null && typeof v === 'object' ? String(v) : v));
                 event.extra = {
                     ...(event.extra || {}),
-                    metadata: { message: fe.message, context: fe.context }
+                    metadata: { message: fe.message, context }
                 };
             }
 
