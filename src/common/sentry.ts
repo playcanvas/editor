@@ -2,7 +2,7 @@ import { BrowserClient, defaultStackParser, getDefaultIntegrations, makeFetchTra
 import { getIntegrationsToSetup } from '@sentry/core';
 
 import type { FingerprintedError } from './error';
-import packageJson from '../../package.json';
+import { version } from '../../package.json';
 
 const SENTRY_DSN = 'https://0defef72baf64d99bf53b92a23d5bd14@sentry.sc-prod.net/87';
 const BREADCRUMBS_INTEGRATION = 'Breadcrumbs';
@@ -31,16 +31,20 @@ const getSentryIntegrations = (disableBreadcrumbs: boolean) => getIntegrationsTo
 const sanitize = (obj: unknown, memo = new WeakSet()): unknown => {
     if (Array.isArray(obj)) {
         if (memo.has(obj)) {
-            return obj;
+            return '[Circular]';
         }
         memo.add(obj);
         const result = obj.map(v => sanitize(v, memo));
         memo.delete(obj);
         return result;
     }
-    if (obj && typeof obj === 'object' && Object.getPrototypeOf(obj) === Object.prototype) {
-        if (memo.has(obj)) {
+    if (obj && typeof obj === 'object') {
+        const proto = Object.getPrototypeOf(obj);
+        if (proto !== Object.prototype && proto !== null) {
             return obj;
+        }
+        if (memo.has(obj)) {
+            return '[Circular]';
         }
         memo.add(obj);
         const record = obj as Record<string, unknown>;
@@ -68,7 +72,7 @@ if (sentryConfig.enabled) {
         transport: makeFetchTransport,
         stackParser: defaultStackParser,
         environment: sentryConfig.env,
-        release: packageJson.version,
+        release: version,
         attachStacktrace: true,
         sendDefaultPii: true,
         integrations: getSentryIntegrations(sentryConfig.disable_breadcrumbs),
@@ -87,9 +91,12 @@ if (sentryConfig.enabled) {
             if (original instanceof Error && 'fingerprint' in original) {
                 const fe = original as FingerprintedError;
                 event.fingerprint = [fe.fingerprint];
+                // stringify non-primitive context values so class instances don't
+                // bypass sanitize() and leak sensitive fields into event.extra
+                const context = (fe.context || []).map(v => (v !== null && typeof v === 'object' ? String(v) : v));
                 event.extra = {
                     ...(event.extra || {}),
-                    metadata: { message: fe.message, context: fe.context }
+                    metadata: { message: fe.message, context }
                 };
             }
 
@@ -127,8 +134,9 @@ if (sentryConfig.enabled) {
     //   log.error('message')              — string wrapped in Error
     //   log.error`missing asset ${id}`    — fingerprinted Error for grouping
     window.log.error = (...args: any[]) => {
-        if (args[0]?.raw) {
-            const strings = args[0] as TemplateStringsArray;
+        const first = args[0];
+        if (Array.isArray(first) && 'raw' in first) {
+            const strings = first as unknown as TemplateStringsArray;
             const values = args.slice(1);
             const e = new Error(String.raw(strings, ...values)) as FingerprintedError;
             e.fingerprint = strings.join('{}');
@@ -138,8 +146,9 @@ if (sentryConfig.enabled) {
             return;
         }
         console.error(...args);
-        if (args.length === 1 && args[0]?.stack) {
-            captureException(args[0]);
+        const err = args.find(a => a?.stack);
+        if (err) {
+            captureException(err);
         } else {
             captureException(new Error(args.map(String).join(' ')));
         }
