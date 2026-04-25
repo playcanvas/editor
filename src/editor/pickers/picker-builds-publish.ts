@@ -17,13 +17,13 @@ editor.once('load', () => {
     let events = [];  // holds events that need to be destroyed
 
     // disables / enables field depending on permissions
-    const handlePermissions = function (field: { disabled: boolean }) {
-        field.disabled = !editor.call('permissions:write');
+    const handlePermissions = function (field: { enabled: boolean }) {
+        field.enabled = editor.call('permissions:write');
         return editor.on(`permissions:set:${config.self.id}`, (accessLevel) => {
             if (accessLevel === 'write' || accessLevel === 'admin') {
-                field.disabled = false;
+                field.enabled = true;
             } else {
-                field.disabled = true;
+                field.enabled = false;
             }
         });
     };
@@ -270,8 +270,8 @@ editor.once('load', () => {
             class: 'primary'
         });
         events.push(handlePermissions(primary));
-        if (!primary.disabled && app.task.status !== 'complete') {
-            primary.disabled = true;
+        if (primary.enabled && app.task.status !== 'complete') {
+            primary.enabled = false;
         }
         item.element.appendChild(primary.element);
 

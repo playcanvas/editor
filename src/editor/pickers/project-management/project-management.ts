@@ -15,12 +15,12 @@ editor.once('load', () => {
 
     // disables / enables field depending on permissions
     editor.method('project:management:handlePermissions', (field, success, errorFn) => {
-        field.disabled = !editor.call('permissions:write');
+        field.enabled = editor.call('permissions:write');
         return editor.on(`permissions:set:${config.self.id}`, (accessLevel) => {
             if (accessLevel === 'write' || accessLevel === 'admin') {
-                field.disabled = false;
+                field.enabled = true;
             } else {
-                field.disabled = true;
+                field.enabled = false;
             }
         });
     });

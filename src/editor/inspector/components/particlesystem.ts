@@ -507,7 +507,7 @@ class ParticlesystemComponentInspector extends ComponentInspector {
         this._field('animIndex').parent.hidden = hideAnimTiles;
         this._field('randomizeAnimIndex').parent.hidden = hideAnimTiles;
 
-        this._field('animIndex').disabled = this._field('randomizeAnimIndex').value;
+        this._field('animIndex').enabled = !this._field('randomizeAnimIndex').value;
 
         this._field('mesh').hidden = !!this._field('renderAsset').value;
         this._field('renderAsset').hidden = !!this._field('mesh').value;

@@ -811,23 +811,23 @@ class ElementComponentInspector extends ComponentInspector {
         this._field('mask').parent.hidden = !isImage;
         this._field('resetSize').parent.hidden = !isImage || (!sprite && !texture);
 
-        this._field('width').disabled = horizontalSplit || (this._field('autoWidth').value && isText);
-        this._field('height').disabled = verticalSplit || (this._field('autoHeight').value && isText);
-        this._field('autoWidth').disabled = horizontalSplit;
-        this._field('autoHeight').disabled = verticalSplit;
+        this._field('width').enabled = !(horizontalSplit || (this._field('autoWidth').value && isText));
+        this._field('height').enabled = !(verticalSplit || (this._field('autoHeight').value && isText));
+        this._field('autoWidth').enabled = !horizontalSplit;
+        this._field('autoHeight').enabled = !verticalSplit;
         this._field('fitMode').parent.hidden = !isImage || (!texture && !sprite) || material;
-        this._field('autoFitWidth').disabled = this._field('autoWidth').value && !this._field('autoWidth').disabled;
-        this._field('autoFitHeight').disabled = this._field('autoHeight').value && !this._field('autoHeight').disabled;
-        this._field('maxFontSize').parent.hidden = !isText || ((this._field('autoFitWidth').disabled || !this._field('autoFitWidth').value) && (this._field('autoFitHeight').disabled || !this._field('autoFitHeight').value));
+        this._field('autoFitWidth').enabled = !(this._field('autoWidth').value && this._field('autoWidth').enabled);
+        this._field('autoFitHeight').enabled = !(this._field('autoHeight').value && this._field('autoHeight').enabled);
+        this._field('maxFontSize').parent.hidden = !isText || ((!this._field('autoFitWidth').enabled || !this._field('autoFitWidth').value) && (!this._field('autoFitHeight').enabled || !this._field('autoFitHeight').value));
         this._field('minFontSize').parent.hidden = this._field('maxFontSize').parent.hidden;
         this._field('fontSize').parent.hidden = !isText || !this._field('maxFontSize').parent.hidden;
 
         const margins = this._field('margin').inputs;
-        margins[0].disabled = !horizontalSplit;
-        margins[2].disabled = margins[0].disabled;
+        margins[0].enabled = horizontalSplit;
+        margins[2].enabled = margins[0].enabled;
 
-        margins[1].disabled = !verticalSplit;
-        margins[3].disabled = margins[1].disabled;
+        margins[1].enabled = verticalSplit;
+        margins[3].enabled = margins[1].enabled;
     }
 
     _toggleAutoFitWidth(value: boolean) {

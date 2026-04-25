@@ -35,7 +35,7 @@ editor.once('load', () => {
     panelTypeName.append(fieldName);
 
     fieldName.on('keydown', (e: KeyboardEvent) => {
-        if (e.key === 'Enter' && !panel.buttonConfirm.disabled) {
+        if (e.key === 'Enter' && panel.buttonConfirm.enabled) {
             panel.emit('confirm');
         }
     });
@@ -59,13 +59,13 @@ editor.once('load', () => {
 
     panel.createTargetCheckpoint = true;
 
-    panel.buttonConfirm.disabled = true;
+    panel.buttonConfirm.enabled = false;
     fieldName.on('change', () => {
         if (!panel.branch) {
             return;
         }
 
-        panel.buttonConfirm.disabled = fieldName.value.toLowerCase() !== panel.branch.name.toLowerCase();
+        panel.buttonConfirm.enabled = fieldName.value.toLowerCase() === panel.branch.name.toLowerCase();
     });
 
     boxBranch.on('createTargetCheckpoint', (value) => {
@@ -78,7 +78,7 @@ editor.once('load', () => {
 
     panel.on('hide', () => {
         fieldName.value = '';
-        panel.buttonConfirm.disabled = true;
+        panel.buttonConfirm.enabled = false;
         boxBranch.clear();
         if (checkpointRequest) {
             checkpointRequest.abort();

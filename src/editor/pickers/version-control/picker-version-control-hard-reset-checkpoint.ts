@@ -41,11 +41,11 @@ editor.once('load', () => {
             }
         }
     });
-    panel.buttonConfirm.disabled = true;
+    panel.buttonConfirm.enabled = false;
     panel.class.add('hard-reset-checkpoint');
 
     textField.on('keydown', (e: KeyboardEvent) => {
-        if (e.key === 'Enter' && !panel.buttonConfirm.disabled) {
+        if (e.key === 'Enter' && panel.buttonConfirm.enabled) {
             panel.emit('confirm');
         }
     });
@@ -66,7 +66,7 @@ editor.once('load', () => {
             return;
         }
 
-        panel.buttonConfirm.disabled = (textField.value !== 'hard reset' && textField.value !== '"hard reset"');
+        panel.buttonConfirm.enabled = (textField.value === 'hard reset' || textField.value === '"hard reset"');
     });
 
     panel.on('hide', () => {

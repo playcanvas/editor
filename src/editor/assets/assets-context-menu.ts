@@ -273,7 +273,7 @@ editor.once('load', () => {
         if (key === 'script') {
             editor.on('repositories:load', (repositories) => {
                 if (repositories.get('current') !== 'directory') {
-                    item.disabled = true;
+                    item.enabled = false;
                 }
             });
         }
@@ -685,15 +685,15 @@ editor.once('load', () => {
 
         if (menuItemPaste) {
             if (!editor.call('permissions:write')) {
-                menuItemPaste.disabled = true;
+                menuItemPaste.enabled = false;
             } else if (currentAsset && currentAsset.get('type') !== 'folder') {
-                menuItemPaste.disabled = true;
+                menuItemPaste.enabled = false;
             } else {
                 const clipboard = editor.call('clipboard:get');
-                menuItemPaste.disabled = !clipboard || clipboard.type !== 'asset' || !clipboard.branchId || !clipboard.projectId;
+                menuItemPaste.enabled = clipboard?.type === 'asset' && !!clipboard.branchId && !!clipboard.projectId;
             }
 
-            menuItemCopy.disabled = !currentAsset;
+            menuItemCopy.enabled = !!currentAsset;
         }
 
         if (currentAsset) {

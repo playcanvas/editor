@@ -82,8 +82,9 @@ editor.once('load', () => {
     panelBranchActions.append(btnNewCheckpoint);
 
     const toggleTopButtons = function () {
-        btnFavorite.disabled = !panel.branch || panel.branch.closed || !editor.call('permissions:write');
-        btnNewCheckpoint.disabled = !editor.call('permissions:write') || !panel.branch || panel.branch.id !== config.self.branch.id;
+        const canWrite = editor.call('permissions:write');
+        btnFavorite.enabled = canWrite && !!panel.branch && !panel.branch.closed;
+        btnNewCheckpoint.enabled = canWrite && !!panel.branch && panel.branch.id === config.self.branch.id;
     };
 
     toggleTopButtons();
@@ -817,9 +818,9 @@ editor.once('load', () => {
     // Toggles diff mode for the checkpoint view.
     panel.toggleDiffMode = function (enabled: boolean) {
         diffMode = enabled;
-        btnFavorite.disabled = enabled;
-        btnNewCheckpoint.disabled = enabled;
-        btnDiff.disabled = enabled;
+        btnFavorite.enabled = !enabled;
+        btnNewCheckpoint.enabled = !enabled;
+        btnDiff.enabled = !enabled;
     };
 
     // Return checkpoints container panel

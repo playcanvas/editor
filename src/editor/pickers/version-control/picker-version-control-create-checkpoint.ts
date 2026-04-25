@@ -28,7 +28,7 @@ editor.once('load', () => {
 
     fieldDescription.on('keydown', (e: KeyboardEvent) => {
         if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
-            if (!panel.buttonConfirm.disabled) {
+            if (panel.buttonConfirm.enabled) {
                 create();
             }
         }
@@ -48,15 +48,15 @@ editor.once('load', () => {
     });
     panel.class.add('create-checkpoint');
 
-    panel.buttonConfirm.disabled = true;
+    panel.buttonConfirm.enabled = false;
 
     fieldDescription.on('change', (value) => {
-        panel.buttonConfirm.disabled = !value.trim();
+        panel.buttonConfirm.enabled = !!value.trim();
     });
 
     panel.on('hide', () => {
         fieldDescription.value = '';
-        panel.buttonConfirm.disabled = true;
+        panel.buttonConfirm.enabled = false;
     });
 
     panel.on('show', () => {

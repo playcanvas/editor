@@ -245,12 +245,12 @@ class AnimStateGraphState extends Panel {
         }));
 
         this._linkedEntitiesPanel.hidden = false;
-        this.disabled = false;
+        this.enabled = true;
         this.header.hidden = false;
 
         // disable editing for start, end and any states
         if (!enabled) {
-            this.disabled = true;
+            this.enabled = false;
             this._linkedEntitiesPanel.hidden = true;
             this.header.hidden = true;
             return;

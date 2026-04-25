@@ -290,8 +290,8 @@ editor.once('load', () => {
     const togglePanels = function (enabled: boolean) {
         editor.call('picker:project:setClosable', enabled && config.scene.id);
         editor.call('picker:project:toggleLeftPanel', enabled);
-        panelBranches.disabled = !enabled;
-        panelBranchesFilter.disabled = !enabled;
+        panelBranches.enabled = enabled;
+        panelBranchesFilter.enabled = enabled;
     };
 
     const checkpointCallbackQueue = [];
@@ -838,7 +838,7 @@ editor.once('load', () => {
                 showCheckpoints();
             }
 
-            if (panelBranches.disabled) {
+            if (!panelBranches.enabled) {
                 return;
             }
 
@@ -1041,7 +1041,7 @@ editor.once('load', () => {
 
     const loadBranches = function () {
         // change status of loading button
-        btnLoadMoreBranches.disabled = true;
+        btnLoadMoreBranches.enabled = false;
         btnLoadMoreBranches.text = 'LOADING...';
 
         // if we are reloading
@@ -1062,7 +1062,7 @@ editor.once('load', () => {
             }
 
             // change status of loading button
-            btnLoadMoreBranches.disabled = false;
+            btnLoadMoreBranches.enabled = true;
             btnLoadMoreBranches.text = 'LOAD MORE';
             loadMoreListItem.hidden = !data.pagination.hasMore;
 

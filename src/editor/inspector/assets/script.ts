@@ -248,7 +248,7 @@ class ScriptAssetInspector extends Panel {
     }
 
     _onClickParse() {
-        this._parseButton.disabled = true;
+        this._parseButton.enabled = false;
         this._errorContainer.hidden = true;
         this._errorContainer.clear();
         editor.call('scripts:parse', this._asset, (error, result) => {
@@ -256,7 +256,7 @@ class ScriptAssetInspector extends Panel {
                 this._scriptAttributeContainer.destroy();
             }
 
-            this._parseButton.disabled = false;
+            this._parseButton.enabled = true;
             if (error) {
                 this._errorContainer.hidden = false;
                 this._errorContainer.append(new Label({ text: error.message, class: [CLASS_SCRIPT, CLASS_ERROR] }));

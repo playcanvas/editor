@@ -63,10 +63,10 @@ editor.on('load', () => {
             btnCancel.emit('click');
         } else if (evt.key === 'Enter') { // click focused button
             if (document.activeElement === btnCancel.element) {
-                if (!btnCancel.disabled) {
+                if (btnCancel.enabled) {
                     btnCancel.emit('click');
                 }
-            } else if (!btnAction.disabled) {
+            } else if (btnAction.enabled) {
                 btnAction.emit('click');
             }
         } else if (evt.key === 'Tab') { // focus yes / no buttons

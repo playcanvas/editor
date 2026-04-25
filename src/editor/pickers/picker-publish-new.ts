@@ -616,17 +616,18 @@ editor.once('load', () => {
 
     const refreshButtonsState = function () {
         const selectedScenes = getSelectedScenes();
-        const disabled = !inputName.value ||
-                       !selectedScenes.length ||
-                       inputName.value.length > 1000 ||
-                       inputDescription.value.length > 10000 ||
-                       inputNotes.value.length > 10000 ||
-                       inputVersion.value.length > 20 ||
-                       isUploadingImage ||
-                       jobInProgress;
+        const enabled =
+            inputName.value.length > 0 &&
+            inputName.value.length <= 1000 &&
+            selectedScenes.length > 0 &&
+            inputDescription.value.length <= 10000 &&
+            inputNotes.value.length <= 10000 &&
+            inputVersion.value.length <= 20 &&
+            !isUploadingImage &&
+            !jobInProgress;
 
-        btnPublish.disabled = disabled;
-        btnWebDownload.disabled = disabled;
+        btnPublish.enabled = enabled;
+        btnWebDownload.enabled = enabled;
     };
 
     const createSceneItem = function (scene: Record<string, unknown>) {
