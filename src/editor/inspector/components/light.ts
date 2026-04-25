@@ -554,10 +554,10 @@ class LightComponentInspector extends ComponentInspector {
         const bakeEnabled = this._field('bake').value;
         const bakeDirEnabled = this._field('bakeDir').value;
 
-        this._field('bakeDir').parent.disabled = !bakeEnabled;
-        this._field('bakeNumSamples').parent.disabled = !bakeEnabled || bakeDirEnabled;
-        this._field('bakeArea').parent.disabled = !bakeEnabled || bakeDirEnabled;
-        this._field('affectLightmapped').parent.disabled = bakeEnabled;
+        this._field('bakeDir').parent.enabled = bakeEnabled;
+        this._field('bakeNumSamples').parent.enabled = bakeEnabled && !bakeDirEnabled;
+        this._field('bakeArea').parent.enabled = bakeEnabled && !bakeDirEnabled;
+        this._field('affectLightmapped').parent.enabled = !bakeEnabled;
 
         this._field('affectSpecularity').parent.hidden = !isDirectional;
 

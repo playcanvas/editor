@@ -112,7 +112,7 @@ editor.once('load', () => {
             }
 
             // update dropdown
-            btnSwitch.disabled = false;
+            btnSwitch.enabled = true;
             dropdownBranches.options = branches.map((branch) => {
                 return {
                     v: branch.id, t: branch.name
@@ -125,7 +125,7 @@ editor.once('load', () => {
     overlay.on('hide', () => {
         dropdownBranches.options = [];
         dropdownBranches.value = null;
-        btnSwitch.disabled = true;
+        btnSwitch.enabled = false;
     });
 
     editor.method('picker:versioncontrol:mergeOverlay', () => {

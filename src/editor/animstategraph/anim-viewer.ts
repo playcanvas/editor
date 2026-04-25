@@ -462,7 +462,7 @@ class AnimViewer extends Container {
         this._renderComponents = [];
         this._setPaused();
         if (this._uiContainer) {
-            this._uiContainer.disabled = true;
+            this._uiContainer.enabled = false;
             this._slider.value = 0;
             this._slider.sliderMax = 1;
         }
@@ -503,7 +503,7 @@ class AnimViewer extends Container {
         this._entity.enabled = true;
 
         if (this._uiContainer) {
-            this._uiContainer.disabled = false;
+            this._uiContainer.enabled = true;
             this._slider.value = 0;
             this._slider.max = animTrack.duration;
             this._slider.sliderMax = animTrack.duration;

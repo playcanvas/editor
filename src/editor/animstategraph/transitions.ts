@@ -271,7 +271,7 @@ class AnimStateGraphTransitions extends Container {
                 removable: !transition.defaultTransition,
                 sortable: true
             });
-            transitionPanel.disabled = transition.defaultTransition;
+            transitionPanel.enabled = !transition.defaultTransition;
 
             transitionPanel.on('click:remove', () => {
                 this._view._onDeleteEdge({ edgeId: transitionId });

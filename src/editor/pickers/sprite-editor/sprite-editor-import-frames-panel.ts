@@ -78,7 +78,7 @@ editor.once('load', () => {
 
         const resetButton = (): void => {
             btnImport.text = BUTTON_TEXT;
-            btnImport.disabled = false;
+            btnImport.enabled = true;
         };
 
         const showError = (message: string): void => {
@@ -106,7 +106,7 @@ editor.once('load', () => {
                 return;
             }
 
-            btnImport.disabled = true;
+            btnImport.enabled = false;
             btnImport.text = 'PROCESSING...';
 
             const reader = new FileReader();

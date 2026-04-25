@@ -88,14 +88,14 @@ class LayersSettingsPanelLayerPanel extends BaseSettingsPanel {
             }
         });
 
-        this.disabled = args.layerKey < 1000;
+        this.enabled = args.layerKey >= 1000;
         const removeLayerEvt = this.on('click:remove', () => {
             this._removeLayer();
         });
 
         let deleteTooltip;
 
-        if (this.disabled) {
+        if (!this.enabled) {
             deleteTooltip = LegacyTooltip.attach({
                 target: this._btnRemove.element,
                 text: 'You cannot delete a built-in layer',

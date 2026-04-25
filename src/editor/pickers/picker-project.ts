@@ -330,7 +330,7 @@ editor.once('load', () => {
         ref: projectImg,
         filter: function (type: string, data: File[]) {
             return editor.call('permissions:write') &&
-                   !leftPanel.disabled &&
+                   leftPanel.enabled &&
                    !uploadingImage &&
                    type === 'files';
         },
@@ -362,7 +362,7 @@ editor.once('load', () => {
     let currentSelection = null;
 
     projectImg.addEventListener('click', () => {
-        if (!editor.call('permissions:write') || leftPanel.disabled || currentProject.access_level !== 'admin' || currentProject.owner_id !== config.self.id) {
+        if (!editor.call('permissions:write') || !leftPanel.enabled || currentProject.access_level !== 'admin' || currentProject.owner_id !== config.self.id) {
             return;
         }
 
@@ -761,7 +761,7 @@ editor.once('load', () => {
 
     // disable / enable the state of the left panel
     editor.method('picker:project:toggleLeftPanel', (enabled) => {
-        leftPanel.disabled = !enabled;
+        leftPanel.enabled = enabled;
     });
 
     // disables / enables a menu option on the left

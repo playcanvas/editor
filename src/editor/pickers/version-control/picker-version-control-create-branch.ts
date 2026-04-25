@@ -53,7 +53,7 @@ editor.once('load', () => {
     panel.class.add('create-branch');
 
     const createBranch = () => {
-        if (panel.buttonConfirm.disabled) {
+        if (!panel.buttonConfirm.enabled) {
             return;
         }
         panel.emit('confirm', {
@@ -66,7 +66,7 @@ editor.once('load', () => {
         boxFrom.clear();
         boxNewBranch.header = ' ';
         fieldBranchName.value = '';
-        panel.buttonConfirm.disabled = true;
+        panel.buttonConfirm.enabled = false;
     });
 
     panel.on('show', () => {
@@ -76,7 +76,7 @@ editor.once('load', () => {
     });
 
     fieldBranchName.on('change', (value) => {
-        panel.buttonConfirm.disabled = !value;
+        panel.buttonConfirm.enabled = !!value;
         boxNewBranch.header = value || ' ';
     });
 

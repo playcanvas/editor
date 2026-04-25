@@ -602,10 +602,10 @@ class TextureAssetInspector extends Container {
         this._btnGetMeta.on('click', this._handleBtnGetMetaClick);
 
         this._btnCompressBasis.on('click', this._handleBtnCompressBasisClick);
-        this._btnCompressBasis.disabled = true;
+        this._btnCompressBasis.enabled = false;
 
         this._btnCompressLegacy.on('click', this._handleBtnCompressLegacyClick);
-        this._btnCompressLegacy.disabled = true;
+        this._btnCompressLegacy.enabled = false;
 
         // Add WebGL1 warnings below the relevant settings in the inspector
         this._webgl1NonPotWithMipmapsWarning = new InfoBox({
@@ -729,8 +729,8 @@ class TextureAssetInspector extends Container {
     _checkCompression() {
         const assets = this._assets;
         if (!editor.call('permissions:write') || !Array.isArray(assets) || !assets.length) {
-            this._btnCompressBasis.disabled = true;
-            this._btnCompressLegacy.disabled = true;
+            this._btnCompressBasis.enabled = false;
+            this._btnCompressLegacy.enabled = false;
             return;
         }
 
@@ -760,8 +760,8 @@ class TextureAssetInspector extends Container {
             }
         }
 
-        this._btnCompressBasis.disabled = !differentBasis;
-        this._btnCompressLegacy.disabled = !differentLegacy;
+        this._btnCompressBasis.enabled = differentBasis;
+        this._btnCompressLegacy.enabled = differentLegacy;
     }
 
     // set the enable state of the compression format checkboxes based on the selected textures
@@ -823,15 +823,15 @@ class TextureAssetInspector extends Container {
         this._hasLegacy = selected.dxt || selected.pvr || selected.etc1 || selected.etc2 || false;
 
         // enable/disable basis controls based on whether basis is enabled
-        const basisUiDisabled = !writeAccess || !selected.basis;
+        const basisUiEnabled = writeAccess && selected.basis;
         if (this._compressionBasisAttributesInspector) {
-            this._compressionBasisAttributesInspector.getField('meta.compress.normals').disabled = basisUiDisabled;
-            this._compressionBasisAttributesInspector.getField('meta.compress.compressionMode').disabled = basisUiDisabled;
-            this._compressionBasisAttributesInspector.getField('meta.compress.quality').disabled = basisUiDisabled;
+            this._compressionBasisAttributesInspector.getField('meta.compress.normals').enabled = basisUiEnabled;
+            this._compressionBasisAttributesInspector.getField('meta.compress.compressionMode').enabled = basisUiEnabled;
+            this._compressionBasisAttributesInspector.getField('meta.compress.quality').enabled = basisUiEnabled;
         }
 
         if (this._containerImportBasis) {
-            this._containerImportBasis.disabled = basisUiDisabled;
+            this._containerImportBasis.enabled = basisUiEnabled;
         }
 
         if (this._compressionBasisPvrWarning) {
@@ -849,12 +849,12 @@ class TextureAssetInspector extends Container {
         const fieldEtc1 = this._compressionLegacyAttributesInspector.getField('meta.compress.etc1');
         const fieldEtc2 = this._compressionLegacyAttributesInspector.getField('meta.compress.etc2');
 
-        alphaField.disabled = (hasAlpha === 0) && !selectedAlpha;
+        alphaField.enabled = (hasAlpha !== 0) || selectedAlpha;
         fieldOriginal.value = displayExt;
-        fieldDxt.disabled = !allowed.dxt && !selected.dxt;
-        fieldPvr.disabled = fieldPvrBpp.disabled = !allowed.pvr && !selected.pvr;
-        fieldEtc1.disabled = !allowed.etc1 && !selected.etc1;
-        fieldEtc2.disabled = !allowed.etc2 && !selected.etc2;
+        fieldDxt.enabled = allowed.dxt || selected.dxt;
+        fieldPvr.enabled = fieldPvrBpp.enabled = allowed.pvr || selected.pvr;
+        fieldEtc1.enabled = allowed.etc1 || selected.etc1;
+        fieldEtc2.enabled = allowed.etc2 || selected.etc2;
 
         this._updatePvrWarning();
     }
@@ -880,13 +880,13 @@ class TextureAssetInspector extends Container {
 
     _handleBtnCompressBasisClick() {
         this._handleCompress(['basis']);
-        this._btnCompressBasis.disabled = true;
+        this._btnCompressBasis.enabled = false;
     }
 
     _handleBtnCompressLegacyClick() {
         const { basis, ...rest } = this._compressionFormats; // eslint-disable-line no-unused-vars
         this._handleCompress(Object.keys(rest));
-        this._btnCompressLegacy.disabled = true;
+        this._btnCompressLegacy.enabled = false;
     }
 
     _handleBtnGetMetaClick() {
@@ -977,7 +977,7 @@ class TextureAssetInspector extends Container {
             this._containerImportBasis.append(this._btnImportBasis);
 
             panel.appendAfter(this._containerImportBasis, this._compressionBasisAttributesInspector);
-            this._containerImportBasis.disabled = true;
+            this._containerImportBasis.enabled = false;
 
             const events = [];
             const handleModuleImported = (name) => {
@@ -1039,17 +1039,17 @@ class TextureAssetInspector extends Container {
 
     _setupLegacy() {
         const fieldLegacy = this._compressionLegacyAttributesInspector.getField('compress.legacy');
-        const dirty = !this._btnCompressLegacy.disabled;
+        const dirty = this._btnCompressLegacy.enabled;
         this._showHideLegacyUi(this._hasLegacy || dirty);
         fieldLegacy.value = this._hasLegacy || dirty;
-        fieldLegacy.disabled = this._hasLegacy || dirty;
+        fieldLegacy.enabled = !(this._hasLegacy || dirty);
         this._assetEvents.push(fieldLegacy.on('change', this._showHideLegacyUi));
     }
 
     _updateLegacy() {
         const fieldLegacy = this._compressionLegacyAttributesInspector.getField('compress.legacy');
-        const dirty = !this._btnCompressLegacy.disabled;
-        fieldLegacy.disabled = this._hasLegacy || dirty;
+        const dirty = this._btnCompressLegacy.enabled;
+        fieldLegacy.enabled = !(this._hasLegacy || dirty);
     }
 
     _setupPanelReferences() {
@@ -1134,7 +1134,7 @@ class TextureAssetInspector extends Container {
 
         // only show pvr warning if any selected texture is non-square and pvr is ticked
         let hidden = true;
-        if (fieldPvr.value && !fieldPvr.disabled) {
+        if (fieldPvr.value && fieldPvr.enabled) {
             for (let i = 0; i < assets.length; i++) {
                 if (assets[i].get('meta.width') !== assets[i].get('meta.height')) {
                     hidden = false;

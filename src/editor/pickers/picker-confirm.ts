@@ -59,10 +59,10 @@ editor.once('load', () => {
             btnNo.emit('click');
         } else if (evt.key === 'Enter') { // click focused button
             if (document.activeElement === btnYes.element) {
-                if (!btnYes.disabled) {
+                if (btnYes.enabled) {
                     btnYes.emit('click');
                 }
-            } else if (!btnNo.disabled) {
+            } else if (btnNo.enabled) {
                 btnNo.emit('click');
             }
         } else if (evt.key === 'Tab') { // focus yes / no buttons

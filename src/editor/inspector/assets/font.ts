@@ -460,7 +460,7 @@ class FontAssetInspector extends Container {
     }
 
     _toggleProcessFontButton(asset: Observer) {
-        this._processFontButton.disabled = asset.get('task') === 'running';
+        this._processFontButton.enabled = asset.get('task') !== 'running';
     }
 
     _refreshLocalizationsForAsset() {

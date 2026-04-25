@@ -92,7 +92,7 @@ class LayersSettingsPanelRenderOrderList extends Container {
             layerPanel.class.add(CLASS_RENDER_ORDER_LIST_ITEM_TRANSPARENT);
         }
         if (layer.layer < 1000) {
-            layerPanel._btnRemove.disabled = true;
+            layerPanel._btnRemove.enabled = false;
         }
 
         layerPanel.header.append(

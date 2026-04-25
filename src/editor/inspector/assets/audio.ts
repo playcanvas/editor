@@ -102,7 +102,7 @@ class AudioAssetInspector extends Panel {
     }
 
     _audioCanPlay(evt: Event) {
-        this._audioButton.disabled = false;
+        this._audioButton.enabled = true;
         this._audioTimeline.value = 0;
     }
 
@@ -132,7 +132,7 @@ class AudioAssetInspector extends Panel {
             return;
         }
 
-        this._audioButton.disabled = true;
+        this._audioButton.enabled = false;
         this._audioTimeline.value = 100;
 
         this._assetEvents.click = (this._audioButton.on('click', this._onClickAudioButton.bind(this)));

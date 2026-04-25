@@ -680,7 +680,7 @@ class AssetInspector extends Container {
             }
         }
 
-        this._btnDownloadAsset.disabled = disabled;
+        this._btnDownloadAsset.enabled = !disabled;
         this._btnDownloadAsset.hidden = hidden;
     }
 

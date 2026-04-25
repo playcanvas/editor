@@ -492,10 +492,10 @@ class EntityInspector extends Container {
 
             for (let i = 0; i < components.length; i++) {
                 let different = false;
-                const disabled = entities[0].has(`components.${components[i]}`);
+                const hasComponent = entities[0].has(`components.${components[i]}`);
 
                 for (let n = 1; n < entities.length; n++) {
-                    if (disabled !== entities[n].has(`components.${components[i]}`)) {
+                    if (hasComponent !== entities[n].has(`components.${components[i]}`)) {
                         different = true;
                         break;
                     }
@@ -512,10 +512,10 @@ class EntityInspector extends Container {
                     });
 
                     if (!(abstractComponents.has(components[i])) && !(hiddenComponents.has(components[i]))) {
-                        items[submenu].items[index].disabled = different ? false : disabled;
+                        items[submenu].items[index].enabled = different ? true : !hasComponent;
                     }
                 } else {
-                    items[components[i]].disabled = different ? false : disabled;
+                    items[components[i]].enabled = different ? true : !hasComponent;
                 }
             }
         });

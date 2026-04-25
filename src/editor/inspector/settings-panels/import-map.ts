@@ -142,14 +142,14 @@ class ImportMapSettingsPanel extends BaseSettingsPanel {
     }
 
     _clickCreateDefault() {
-        this._createDefaultButton.disabled = true;
+        this._createDefaultButton.enabled = false;
         editor.call('assets:create:json', {
             name: 'Import Map',
             json: JSON.stringify({ imports: {} }, null, 2),
             spaces: 2,
             noSelect: true,
             callback: (err, id) => {
-                this._createDefaultButton.disabled = false;
+                this._createDefaultButton.enabled = true;
                 if (err) {
                     console.error(err);
                     return;
