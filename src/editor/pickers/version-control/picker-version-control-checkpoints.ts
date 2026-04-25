@@ -84,7 +84,7 @@ editor.once('load', () => {
     const toggleTopButtons = function () {
         const canWrite = editor.call('permissions:write');
         btnFavorite.enabled = canWrite && !!panel.branch && !panel.branch.closed;
-        btnNewCheckpoint.enabled = canWrite && panel.branch?.id === config.self.branch.id;
+        btnNewCheckpoint.enabled = canWrite && !!panel.branch && panel.branch.id === config.self.branch.id;
     };
 
     toggleTopButtons();
