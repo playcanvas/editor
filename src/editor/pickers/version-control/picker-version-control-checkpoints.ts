@@ -309,7 +309,7 @@ editor.once('load', () => {
             return;
         }
 
-        btnLoadMore.enabled = false;
+        btnLoadMore.disabled = true;
         btnLoadMore.text = 'LOADING...';
 
         // hide list of checkpoints and show spinner
@@ -328,7 +328,7 @@ editor.once('load', () => {
                 return;
             }
 
-            btnLoadMore.enabled = true;
+            btnLoadMore.disabled = false;
             btnLoadMore.text = 'LOAD MORE';
 
             // show list of checkpoints and hide spinner
@@ -803,7 +803,7 @@ editor.once('load', () => {
         }
 
         // restore state of buttons
-        btnLoadMore.enabled = true;
+        btnLoadMore.disabled = false;
         btnLoadMore.text = 'LOAD MORE';
         listCheckpoints.hidden = false;
         spinner.classList.add('hidden');
