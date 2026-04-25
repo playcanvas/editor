@@ -5,6 +5,7 @@ editor.once('load', () => {
 
     editor.method('picker:versioncontrol:createSidePanel', (args) => {
         const panel = new Container({
+            flex: true,
             class: 'side-panel-widget'
         });
 
