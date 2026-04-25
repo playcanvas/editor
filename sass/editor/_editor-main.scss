@@ -4762,6 +4762,8 @@ strong {
             place-content: flex-start;
 
             > .side-panel-widget {
+                display: flex;
+                flex-direction: column;
                 flex-grow: 1;
                 height: 100%;
 
@@ -4791,7 +4793,13 @@ strong {
                         font-size: 12px;
                     }
 
+                    &.top {
+                        flex: none;
+                    }
+
                     &.main {
+                        flex: 1 1 auto;
+                        min-height: 0;
                         border-top: 1px solid $border-primary;
                         box-sizing: border-box;
                         overflow-y: auto;
@@ -4803,6 +4811,7 @@ strong {
                     }
 
                     &.buttons {
+                        flex: none;
                         border-top: 1px solid $border-primary;
                         border-bottom: 1px solid $border-primary;
                         height: 68px;

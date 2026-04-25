@@ -89,14 +89,6 @@ editor.once('load', () => {
         const enterHotkeyAction = `version-control-enter-${sidePanelIndex++}`;
 
         panel.on('show', () => {
-            // Defer height calculation so callers can update title/note text
-            // before offsetHeight is read (empty labels have 0px height)
-            requestAnimationFrame(() => {
-                if (panelMain) {
-                    panelMain.style.height = `calc(100% - ${panelTop.dom.offsetHeight + panelButtons.dom.offsetHeight}px)`;
-                }
-            });
-
             // Register Enter hotkey to click the highlighted button
             editor.call('hotkey:register', enterHotkeyAction, {
                 key: 'Enter',
