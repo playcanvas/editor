@@ -92,8 +92,8 @@ editor.once('load', () => {
             editor.call('layout.toolbar')
         );
 
-        b.dom.style.top = '';
-        b.dom.style.bottom = '130px';
+        b.style.top = '';
+        b.style.bottom = '130px';
         return b;
     };
 

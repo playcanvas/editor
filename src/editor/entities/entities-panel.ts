@@ -126,7 +126,7 @@ editor.once('load', () => {
         for (const { button, top, visible } of updates) {
             if (visible) {
                 button.hidden = false;
-                button.dom.style.top = `${top}px`;
+                button.style.top = `${top}px`;
             } else {
                 button.hidden = true;
             }

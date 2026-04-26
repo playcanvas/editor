@@ -33,9 +33,9 @@ editor.once('load', () => {
         if (toggle) {
             exportProjectButton.text = '';
             exportProjectButton.dom.setAttribute('data-icon', '');
-            loader.dom.style.display = 'block';
+            loader.style.display = 'block';
         } else {
-            loader.dom.style.display = 'none';
+            loader.style.display = 'none';
             exportProjectButton.text = getExportButtonText();
             exportProjectButton.icon = 'E228';
         }
@@ -82,7 +82,7 @@ editor.once('load', () => {
         text: 'UNLOCK'
     });
     lockedContainer.append(unlockButton);
-    lockedContainer.dom.style.display = 'none';  // hide by default
+    lockedContainer.style.display = 'none';  // hide by default
 
     unlockButton.on('click', () => {
         editor.call('projects:unlockOne', currentProject.id, () => {
@@ -237,7 +237,7 @@ editor.once('load', () => {
     const loader = new Element({
         class: ['loader', 'xsmall', 'white']
     });
-    loader.dom.style.display = 'none';
+    loader.style.display = 'none';
     exportProjectButtonContainer.append(loader);
 
     exportProjectButton.on('click', () => {
@@ -457,12 +457,12 @@ editor.once('load', () => {
 
         // only show locked view if locked project
         if (currentProject.locked) {
-            lockedContainer.dom.style.display = 'flex';
-            settingsContainer.dom.style.display = 'none';
+            lockedContainer.style.display = 'flex';
+            settingsContainer.style.display = 'none';
         } else {
             // only show settings container if not locked project
-            settingsContainer.dom.style.display = 'flex';
-            lockedContainer.dom.style.display = 'none';
+            settingsContainer.style.display = 'flex';
+            lockedContainer.style.display = 'none';
         }
 
         // only show delete project button if not current project and admin

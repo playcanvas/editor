@@ -244,7 +244,7 @@ class AttributesInspector extends Container {
                     });
 
                     if (((target instanceof LabelGroup) || (target instanceof AssetInput)) && type !== 'label') {
-                        target.label.dom.style.position = 'relative';
+                        target.label.style.position = 'relative';
 
                         // paste button
                         const btnPaste = new Button({

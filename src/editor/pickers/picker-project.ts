@@ -125,12 +125,12 @@ editor.once('load', () => {
         if (currentProject.thumbnails) {
             projectImg.style.backgroundImage = `url("${currentProject.thumbnails.m}")`;
             deleteButton.hidden = false;
-            replaceButton.dom.style.marginRight = '0px';
+            replaceButton.style.marginRight = '0px';
         } else {
             projectImg.style.backgroundImage = EMPTY_THUMBNAIL_IMAGE;
             // Disable delete thumbnail button if no thumbnails
             deleteButton.hidden = true;
-            replaceButton.dom.style.marginRight = '6px';
+            replaceButton.style.marginRight = '6px';
         }
 
         if (reducedView) {
@@ -377,7 +377,7 @@ editor.once('load', () => {
 
         statsContainer.style.backgroundImage = 'linear-gradient(rgba(0, 0, 0, 0.8) 15%, transparent)';
         deleteButton.hidden = false;
-        replaceButton.dom.style.marginRight = '0px';
+        replaceButton.style.marginRight = '0px';
     });
 
     // store all panels for each menu option
@@ -412,7 +412,7 @@ editor.once('load', () => {
         deleteThumbnail();
         // Hide delete button and adjust margin
         deleteButton.hidden = true;
-        replaceButton.dom.style.marginRight = '6px';
+        replaceButton.style.marginRight = '6px';
     });
 
     // menu
@@ -807,7 +807,7 @@ editor.once('load', () => {
     // hook to hide all alerts
     editor.method('picker:project:hideAlerts', () => {
         alerts.forEach((alert) => {
-            alert.dom.style.display = 'none';
+            alert.style.display = 'none';
             alert.destroy();
         });
         alerts = [];

@@ -31,10 +31,10 @@ editor.once('load', () => {
     // collapses publish and download buttons
     const toggleCollapsingPublishButtons = (collapse = true) => {
         if (collapse) {
-            labelDownloadIcon.dom.style.display = 'none';
-            labelDownloadDesc.dom.style.display = 'none';
-            labelPublishDesc.dom.style.display = 'none';
-            labelPublishIcon.dom.style.display = 'none';
+            labelDownloadIcon.style.display = 'none';
+            labelDownloadDesc.style.display = 'none';
+            labelPublishDesc.style.display = 'none';
+            labelPublishIcon.style.display = 'none';
 
             btnPublish.class.add('collapsed');
             btnDownload.class.add('collapsed');
@@ -42,10 +42,10 @@ editor.once('load', () => {
             panelPlaycanvas.class.add('collapsed');
             panelSelfHost.class.add('collapsed');
         } else {
-            labelDownloadIcon.dom.style.display = 'block';
-            labelDownloadDesc.dom.style.display = 'block';
-            labelPublishDesc.dom.style.display = 'block';
-            labelPublishIcon.dom.style.display = 'block';
+            labelDownloadIcon.style.display = 'block';
+            labelDownloadDesc.style.display = 'block';
+            labelPublishDesc.style.display = 'block';
+            labelPublishIcon.style.display = 'block';
 
             btnPublish.class.remove('collapsed');
             btnDownload.class.remove('collapsed');

@@ -296,14 +296,14 @@ editor.once('load', () => {
 
     const ownerWidget = new Container({ class: 'collaborator-container' });
     ownerWidgetContainer.append(ownerWidget);
-    ownerWidget.dom.style.width = '307.6px';
+    ownerWidget.style.width = '307.6px';
 
     const ownerProfilePic = new Element({
         dom: 'img',
         class: 'collaborator-image'
     });
-    ownerProfilePic.dom.style.width = '62px';
-    ownerProfilePic.dom.style.height = '62px';
+    ownerProfilePic.style.width = '62px';
+    ownerProfilePic.style.height = '62px';
     ownerProfilePic.dom.loading = 'lazy';
     ownerWidget.dom.appendChild(ownerProfilePic.dom);
 
