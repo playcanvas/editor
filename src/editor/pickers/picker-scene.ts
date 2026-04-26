@@ -363,7 +363,7 @@ editor.once('load', () => {
             newScene.enabled = true;
         });
 
-        input.dom.addEventListener('keydown', (e) => {
+        input.on('keydown', (e: KeyboardEvent) => {
             if (e.key === 'Enter') {
                 if (!input.value) {
                     return;

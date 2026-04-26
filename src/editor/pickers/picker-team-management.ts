@@ -239,7 +239,7 @@ editor.once('load', () => {
     });
     inviteInputGroup.append(inviteInput);
 
-    inviteInput.dom.addEventListener('keypress', (evt) => {
+    inviteInput.on('keydown', (evt: KeyboardEvent) => {
         if (inviteInput.value !== '') {
             inviteInput.placeholder = '';
         }
