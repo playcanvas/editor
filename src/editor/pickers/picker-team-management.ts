@@ -72,7 +72,7 @@ editor.once('load', () => {
         if (collaborator.id === config.self.id) {
             parentContainer.dom.classList.add('user-collaborator');
         }
-        membersGrid.element.appendChild(parentContainer.dom);
+        membersGrid.dom.appendChild(parentContainer.dom);
 
         // image container (left)
         const image = new Element({
@@ -104,7 +104,7 @@ editor.once('load', () => {
         const collaboratorName = new Label({
             text: collaborator.inviter_id ? collaborator.email : collaborator.username
         });
-        firstRow.dom.appendChild(collaboratorName.element);
+        firstRow.dom.appendChild(collaboratorName.dom);
 
         const deleteCollaboratorBtn = new Button({ icon: 'E124' });
 
@@ -112,7 +112,7 @@ editor.once('load', () => {
             deleteCollaboratorBtn.enabled = currentProject.access_level === 'admin';  // only allow admins to remove collaborators
         } else {
             const configCollaboratorBtn = new Button({ icon: 'E134' });
-            firstRow.dom.appendChild(configCollaboratorBtn.element);
+            firstRow.dom.appendChild(configCollaboratorBtn.dom);
 
             deleteCollaboratorBtn.enabled = currentProject.owner !== config.self.username && currentProject.id !== config.project.id;
 
@@ -132,7 +132,7 @@ editor.once('load', () => {
             }
         });
 
-        firstRow.dom.appendChild(deleteCollaboratorBtn.element);
+        firstRow.dom.appendChild(deleteCollaboratorBtn.dom);
 
         // second row (dropdown menu or label)
         if (collaborator.inviter_id || currentUser && (currentUser.id === collaborator.id || currentProject.access_level !== 'admin')) {
@@ -162,7 +162,7 @@ editor.once('load', () => {
             const accessLevelLabel = new Label({
                 text: displayLabel
             });
-            collaboratorRightContainer.dom.appendChild(accessLevelLabel.element);
+            collaboratorRightContainer.dom.appendChild(accessLevelLabel.dom);
         } else {
             const accessLevelDropdown = new SelectInput({
                 options: [{
@@ -182,7 +182,7 @@ editor.once('load', () => {
                 updateCollaborator(collaborator, accessLevelDropdown.value);
             });
 
-            collaboratorRightContainer.dom.appendChild(accessLevelDropdown.element);
+            collaboratorRightContainer.dom.appendChild(accessLevelDropdown.dom);
         }
     };
 
@@ -239,7 +239,7 @@ editor.once('load', () => {
     });
     inviteInputGroup.append(inviteInput);
 
-    inviteInput.element.addEventListener('keypress', (evt) => {
+    inviteInput.dom.addEventListener('keypress', (evt) => {
         if (inviteInput.value !== '') {
             inviteInput.placeholder = '';
         }
@@ -305,7 +305,7 @@ editor.once('load', () => {
     ownerProfilePic.dom.style.width = '62px';
     ownerProfilePic.dom.style.height = '62px';
     ownerProfilePic.dom.loading = 'lazy';
-    ownerWidget.element.appendChild(ownerProfilePic.dom);
+    ownerWidget.dom.appendChild(ownerProfilePic.dom);
 
     const ownerWidgetRightContainer = new Container({ class: 'collaborator-right-container' });
     ownerWidget.append(ownerWidgetRightContainer);
@@ -578,7 +578,7 @@ editor.once('load', () => {
             }
 
             // Only populate first time around
-            if (currentProject.access_level !== 'none' && (membersGrid.element.childNodes.length === 0 || uiRefresh)) {
+            if (currentProject.access_level !== 'none' && (membersGrid.dom.childNodes.length === 0 || uiRefresh)) {
 
                 let currentUserIsCollaborator = false;
                 editor.call('projects:getCollaborators', currentProject, (data) => {

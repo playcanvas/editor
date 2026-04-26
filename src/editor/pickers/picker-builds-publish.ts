@@ -273,7 +273,7 @@ editor.once('load', () => {
         if (primary.enabled && app.task.status !== 'complete') {
             primary.enabled = false;
         }
-        item.element.appendChild(primary.element);
+        item.element.appendChild(primary.dom);
 
         // set primary app
         events.push(primary.on('click', () => {
@@ -296,7 +296,7 @@ editor.once('load', () => {
         // primary icon tooltip
         const tooltipText = config.project.primaryApp === app.id ? 'Primary build' : 'Change the projects\'s primary build';
         const tooltip = LegacyTooltip.attach({
-            target: primary.element,
+            target: primary.dom,
             text: tooltipText,
             align: 'right',
             root: editor.call('layout.root')
@@ -329,14 +329,14 @@ editor.once('load', () => {
             text: app.name,
             class: 'name'
         });
-        nameRow.appendChild(name.element);
+        nameRow.appendChild(name.dom);
 
         // app version
         const version = new Label({
             text: app.version,
             class: 'version'
         });
-        nameRow.appendChild(version.element);
+        nameRow.appendChild(version.dom);
 
         // row below name
         const info = document.createElement('div');
@@ -349,7 +349,7 @@ editor.once('load', () => {
             class: 'date',
             hidden: app.task.status === 'error'
         });
-        info.appendChild(date.element);
+        info.appendChild(date.dom);
 
         // views
         const views = new Label({
@@ -357,7 +357,7 @@ editor.once('load', () => {
             class: 'views',
             hidden: app.task.status !== 'complete'
         });
-        info.appendChild(views.element);
+        info.appendChild(views.dom);
 
         // size
         const size = new Label({
@@ -365,7 +365,7 @@ editor.once('load', () => {
             class: 'size',
             hidden: app.task.status !== 'complete'
         });
-        info.appendChild(size.element);
+        info.appendChild(size.dom);
 
         // branch
         const branch = new Label({
@@ -373,7 +373,7 @@ editor.once('load', () => {
             class: 'branch',
             hidden: app.task.status !== 'complete' || projectSettings.get('useLegacyScripts')
         });
-        info.appendChild(branch.element);
+        info.appendChild(branch.dom);
 
         // error message
         const error = new Label({
@@ -381,7 +381,7 @@ editor.once('load', () => {
             class: 'error',
             hidden: app.task.status !== 'error'
         });
-        item.element.appendChild(error.element);
+        item.element.appendChild(error.dom);
 
         // release notes
         let releaseNotes = app.release_notes || '';
@@ -395,26 +395,26 @@ editor.once('load', () => {
             hidden: !error.hidden,
             renderChanges: false
         });
-        item.element.appendChild(notes.element);
+        item.element.appendChild(notes.dom);
 
         // dropdown
         const dropdown = new Button({
             class: 'dropdown'
         });
-        dropdown.element.innerHTML = '&#57689;';
-        item.element.appendChild(dropdown.element);
+        dropdown.dom.innerHTML = '&#57689;';
+        item.element.appendChild(dropdown.dom);
 
         events.push(dropdown.on('click', () => {
             dropdown.class.add('clicked');
             // change arrow
-            dropdown.element.innerHTML = '&#57687;';
+            dropdown.dom.innerHTML = '&#57687;';
             dropdownApp = app;
 
             // open menu
             dropdownMenu.hidden = false;
 
             // position dropdown menu
-            const rect = dropdown.element.getBoundingClientRect();
+            const rect = dropdown.dom.getBoundingClientRect();
             const menuItems = dropdownMenu.dom.querySelector('.pcui-menu-items') as HTMLElement;
             dropdownMenu.position(rect.right - menuItems.clientWidth, rect.bottom);
         }));
@@ -424,7 +424,7 @@ editor.once('load', () => {
             class: 'more',
             hidden: true
         });
-        item.element.appendChild(more.element);
+        item.element.appendChild(more.dom);
 
         events.push(more.on('click', () => {
             if (notes.class.contains('no-wrap')) {
@@ -438,7 +438,7 @@ editor.once('load', () => {
             }
         }));
 
-        if (notes.element.clientHeight > 22) {
+        if (notes.dom.clientHeight > 22) {
             more.hidden = false;
             notes.class.add('no-wrap');
             notes.text = releaseNotes;
@@ -451,11 +451,11 @@ editor.once('load', () => {
                 img,
                 info,
                 item.element,
-                name.element,
-                date.element,
-                size.element,
-                views.element,
-                notes.element
+                name.dom,
+                date.dom,
+                size.dom,
+                views.dom,
+                notes.dom
             ];
 
             events.push(item.on('click', (e) => {
@@ -482,8 +482,8 @@ editor.once('load', () => {
             toggleProgress(false);
 
             if (apps.length > 0) {
-                panelPlaycanvas.element.classList.add('collapsed');
-                panelSelfHost.element.classList.add('collapsed');
+                panelPlaycanvas.dom.classList.add('collapsed');
+                panelSelfHost.dom.classList.add('collapsed');
             }
 
             toggleCollapsingPublishButtons(apps.length > 0);

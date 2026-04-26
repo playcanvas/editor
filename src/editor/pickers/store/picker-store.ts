@@ -120,7 +120,7 @@ editor.once('load', () => {
 
             // position dropdown menu
             const parent = overlay.domContent.getBoundingClientRect();
-            const rect = sortButton.element.getBoundingClientRect();
+            const rect = sortButton.dom.getBoundingClientRect();
             const sortingDropdownRect = sortingDropdown.dom.getBoundingClientRect();
             sortingDropdown.dom.style.left = `${rect.right - sortingDropdownRect.width - parent.left}px`;
             sortingDropdown.dom.style.top = `${rect.bottom + 3 - parent.top}px`;
@@ -547,7 +547,7 @@ editor.once('load', () => {
             class: 'load-more-button'
         });
         rightPanel.append(loadMoreButton);
-        intersectionObserver.observe(loadMoreButton.element);
+        intersectionObserver.observe(loadMoreButton.dom);
         loadMoreButton.on('click', () => {
             loadMoreStore();
         });

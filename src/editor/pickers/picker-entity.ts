@@ -126,7 +126,7 @@ editor.once('load', () => {
             if (selected.length) {
                 selected[0].focus();
             } else {
-                hierarchy.element.focus();
+                hierarchy.dom.focus();
             }
         }, 100);
     });

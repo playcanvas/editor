@@ -9,7 +9,7 @@ editor.once('load', () => {
         hidden: true
     });
 
-    overlay.element.addEventListener('mousewheel', (evt) => {
+    overlay.dom.addEventListener('mousewheel', (evt) => {
         evt.stopPropagation();
     }, { passive: true });
 

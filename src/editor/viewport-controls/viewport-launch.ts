@@ -187,7 +187,7 @@ editor.once('load', () => {
     const launchWithWebGpu = createButton('webgpu', `Launch with WebGPU${editor.projectEngineV2 ? '' : ' (beta)'}`);
 
     const tooltipPreferWebGpu = LegacyTooltip.attach({
-        target: launchWithWebGpu.parent.element,
+        target: launchWithWebGpu.parent.dom,
         text: `Launch the scene using WebGPU${editor.projectEngineV2 ? '' : ' (beta)'}.`,
         align: 'right',
         root: root
@@ -196,7 +196,7 @@ editor.once('load', () => {
 
     const launchWithWebGL2 = createButton('webgl2', 'Launch with WebGL 2.0');
     const tooltipPreferWebGl2 = LegacyTooltip.attach({
-        target: launchWithWebGL2.parent.element,
+        target: launchWithWebGL2.parent.dom,
         text: 'Launch the scene using WebGL 2.0.',
         align: 'right',
         root: root
@@ -205,7 +205,7 @@ editor.once('load', () => {
 
     const launchWithWebGL1 = createButton('webgl1', 'Launch with WebGL 1.0');
     const tooltipPreferWebGl1 = LegacyTooltip.attach({
-        target: launchWithWebGL1.parent.element,
+        target: launchWithWebGL1.parent.dom,
         text: 'Launch the scene using WebGL 1.0.',
         align: 'right',
         root: root
@@ -215,7 +215,7 @@ editor.once('load', () => {
 
     const optionProfiler = createOption('profiler', 'Profiler');
     const tooltipProfiler = LegacyTooltip.attach({
-        target: optionProfiler.parent.element,
+        target: optionProfiler.parent.dom,
         text: 'Enable the visual performance profiler in the launch page.',
         align: 'right',
         root: root
@@ -239,7 +239,7 @@ editor.once('load', () => {
     });
 
     const tooltipDebug = LegacyTooltip.attach({
-        target: optionDebug.parent.element,
+        target: optionDebug.parent.dom,
         text: 'Enable the logging of warning and error messages to the JavaScript console.',
         align: 'right',
         root: root
@@ -249,7 +249,7 @@ editor.once('load', () => {
     if (!legacyScripts) {
         const optionConcatenate = createOption('concatenate', 'Concatenate Scripts (Classic)');
         const tooltipConcatenate = LegacyTooltip.attach({
-            target: optionConcatenate.parent.element,
+            target: optionConcatenate.parent.dom,
             text: 'Concatenate Classic scripts on launch to reduce scene load time.',
             align: 'right',
             root: root
@@ -261,7 +261,7 @@ editor.once('load', () => {
         const optionDisableBundles = createOption('disableBundles', 'Disable Asset Bundles');
 
         const tooltipBundles = LegacyTooltip.attach({
-            target: optionDisableBundles.parent.element,
+            target: optionDisableBundles.parent.dom,
             text: 'Disable loading assets from Asset Bundles.',
             align: 'right',
             root: root
@@ -281,7 +281,7 @@ editor.once('load', () => {
         settings.set('editor.launchMinistats', value);
     });
     LegacyTooltip.attach({
-        target: optionMiniStats.parent.element,
+        target: optionMiniStats.parent.dom,
         text: 'Show the MiniStats in the launched application.',
         align: 'right',
         root: root
@@ -291,7 +291,7 @@ editor.once('load', () => {
     const force = config.engineVersions.force;
     const optionForce = createOption('force', `Force Engine V${force.version[0]}`);
     const tooltipForce = LegacyTooltip.attach({
-        target: optionForce.parent.element,
+        target: optionForce.parent.dom,
         text: `Force the launcher to use v${force.version}.`,
         align: 'right',
         root: root
@@ -311,7 +311,7 @@ editor.once('load', () => {
             settings.set('editor.launchReleaseCandidate', value);
         });
         LegacyTooltip.attach({
-            target: optionReleaseCandidate.parent.element,
+            target: optionReleaseCandidate.parent.dom,
             text: `Launch the scene using the engine release candidate (version ${releaseCandidate}).`,
             align: 'right',
             root: root

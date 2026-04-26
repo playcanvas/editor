@@ -93,7 +93,7 @@ editor.once('load', () => {
     const searchClear = document.createElement('div');
     searchClear.innerHTML = '&#57650;';
     searchClear.classList.add('clear');
-    search.element.appendChild(searchClear);
+    search.dom.appendChild(searchClear);
 
     searchClear.addEventListener('click', () => {
         search.value = '';
@@ -145,7 +145,7 @@ editor.once('load', () => {
     const btnLoadMoreBranches = new Button({
         text: 'LOAD MORE'
     });
-    loadMoreListItem.element.append(btnLoadMoreBranches.element);
+    loadMoreListItem.element.append(btnLoadMoreBranches.dom);
     btnLoadMoreBranches.on('click', (e: MouseEvent) => {
         e.stopPropagation(); // do not select parent list item on click
         loadBranches();
@@ -781,7 +781,7 @@ editor.once('load', () => {
         item.element.id = `branch-${branch.id}`;
 
         const panel = new Container();
-        item.element.appendChild(panel.element);
+        item.element.appendChild(panel.dom);
 
         const labelIcon = new Label({
             class: 'icon',
@@ -848,7 +848,7 @@ editor.once('load', () => {
             contextBranch = branch;
             menuBranches.contextBranchIsFavorite = item.isFavorite;
             menuBranches.hidden = false;
-            const rect = dropdown.element.getBoundingClientRect();
+            const rect = dropdown.dom.getBoundingClientRect();
             menuBranches.position(rect.right - menuBranches.innerElement.clientWidth, rect.bottom);
         });
 
@@ -1196,7 +1196,7 @@ editor.once('load', () => {
                     const h = editor.call('picker:versioncontrol:transformCheckpointData', data);
                     existingCheckpoints.unshift(h);
                     panelCheckpoints.setCheckpoints(existingCheckpoints);
-                    panelCheckpoints.element.scrollTop = 0;
+                    panelCheckpoints.dom.scrollTop = 0;
                 }
             }
         }));

@@ -97,7 +97,7 @@ class LayersSettingsPanelLayerPanel extends BaseSettingsPanel {
 
         if (!this.enabled) {
             deleteTooltip = LegacyTooltip.attach({
-                target: this._btnRemove.element,
+                target: this._btnRemove.dom,
                 text: 'You cannot delete a built-in layer',
                 align: 'bottom',
                 root: editor.call('layout.root')

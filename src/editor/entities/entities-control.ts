@@ -30,13 +30,13 @@ editor.once('load', () => {
     });
     btnAdd.on('click', () => {
         menuEntities.hidden = false;
-        const rect = btnAdd.element.getBoundingClientRect();
+        const rect = btnAdd.dom.getBoundingClientRect();
         menuEntities.position(rect.left, rect.top);
     });
     controls.append(btnAdd);
 
     LegacyTooltip.attach({
-        target: btnAdd.element,
+        target: btnAdd.dom,
         text: 'Add Entity',
         align: 'top',
         root: root
@@ -58,7 +58,7 @@ editor.once('load', () => {
     controls.append(btnDuplicate);
 
     const tooltipDuplicate = LegacyTooltip.attach({
-        target: btnDuplicate.element,
+        target: btnDuplicate.dom,
         text: 'Duplicate Entity',
         align: 'top',
         root: root
@@ -81,7 +81,7 @@ editor.once('load', () => {
     controls.append(btnDelete);
 
     const tooltipDelete = LegacyTooltip.attach({
-        target: btnDelete.element,
+        target: btnDelete.dom,
         text: 'Delete Entity',
         align: 'top',
         root: root
@@ -100,7 +100,7 @@ editor.once('load', () => {
     controls.append(btnMore);
 
     LegacyTooltip.attach({
-        target: btnMore.element,
+        target: btnMore.dom,
         text: 'More Options',
         align: 'top',
         root: root

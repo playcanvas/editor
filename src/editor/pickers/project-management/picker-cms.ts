@@ -61,12 +61,12 @@ editor.once('load', () => {
                 text: `${usage} / ${diskAllowance} Used`,
                 class: 'upgrade-label'
             });
-            upgradeContainer.dom.appendChild(usageLabel.element);
+            upgradeContainer.dom.appendChild(usageLabel.dom);
 
             const usageBarContainer = new Element({
                 class: 'usage-bar-container'
             });
-            upgradeContainer.dom.appendChild(usageBarContainer.element);
+            upgradeContainer.dom.appendChild(usageBarContainer.dom);
 
             const usageBar = new Element({
                 class: 'usage-bar'
@@ -79,7 +79,7 @@ editor.once('load', () => {
                 text: 'UPGRADE',
                 class: 'upgrade-button'
             });
-            upgradeContainer.dom.appendChild(upgradeButton.element);
+            upgradeContainer.dom.appendChild(upgradeButton.dom);
 
             upgradeButton.on('click', () => {
                 window.open(`${config.url.home}/upgrade?account=${currentUser.username}`);
@@ -89,7 +89,7 @@ editor.once('load', () => {
 
     // builds each of the organization dropdown menu items
     const buildOrganizationsUI = (selected = null) => {
-        organizationsToggle.element.childNodes[1].innerHTML = '';
+        organizationsToggle.dom.childNodes[1].innerHTML = '';
 
         // new organization button
         const newOrganizationBtn = new Button({
@@ -119,7 +119,8 @@ editor.once('load', () => {
                 dom: 'img',
                 class: 'organization-icon'
             });
-            organizationImage.element.src = `${config.url.api}/users/${org.id}/thumbnail?size=26`;
+            (organizationImage.dom as HTMLImageElement).src = `${config.url.api}/users/${org.id}/thumbnail?size=26`;
+
             organizationFilter.append(organizationImage);
 
             const organizationName = new Label({
@@ -132,13 +133,13 @@ editor.once('load', () => {
                 class: 'dropdown',
                 icon: 'E159'
             });
-            organizationFilter.append(dropdown.element);
+            organizationFilter.append(dropdown.dom);
 
             organizationFilter.on('click', (e) => {
                 const filterClicks = new Set([
-                    organizationFilter.element,
-                    organizationImage.element,
-                    organizationName.element
+                    organizationFilter.dom,
+                    organizationImage.dom,
+                    organizationName.dom
                 ]);
 
                 if (e.target === dropdown.dom) {
@@ -150,7 +151,7 @@ editor.once('load', () => {
                         orgDropdownMenu.hidden = false;
 
                         // position dropdown menu
-                        const rect = dropdown.element.getBoundingClientRect();
+                        const rect = dropdown.dom.getBoundingClientRect();
                         orgDropdownMenu.position(rect.left, rect.bottom + 3);
                     } else {
                         orgDropdownMenu.hidden = true;
@@ -230,7 +231,7 @@ editor.once('load', () => {
             sortProjects(sortPolicy);
         });
 
-        descendingItem.element.id = 'checkbox-menu-item';
+        descendingItem.dom.id = 'checkbox-menu-item';
 
         sortByModified.on('click', () => {
             updateRadioButtons(modifiedRadio);
@@ -276,7 +277,7 @@ editor.once('load', () => {
         const projectContainer = new Container({
             class: 'project-container'
         });
-        root.dom.appendChild(projectContainer.element);
+        root.dom.appendChild(projectContainer.dom);
 
         const projectThumbnailContainer = new Container({
             class: 'project-thumbnail-container'
@@ -309,7 +310,7 @@ editor.once('load', () => {
 
         // Add Editor settings button to currently open project
         if (!IS_EMPTY_STATE && project.id === currentProject.id) {
-            projectContainer.element.classList.add('currentlyOpen');
+            projectContainer.dom.classList.add('currentlyOpen');
 
             const extendedSettings = new Button({
                 class: 'extended-settings-button',
@@ -358,11 +359,11 @@ editor.once('load', () => {
 
         if (project.access_level !== 'none') {
             const forksLabel = new Label({ class: 'stat', text: `${project.fork_count ? project.fork_count : 0}` });  // forks
-            forksLabel.element.id = 'forks-stat';
+            forksLabel.dom.id = 'forks-stat';
             const viewsLabel = new Label({ class: 'stat', text: `${project.views}` });  // views
-            viewsLabel.element.id = 'views-stat';
+            viewsLabel.dom.id = 'views-stat';
             const playsLabel = new Label({ class: 'stat', text: project.primary_app_url ? `${project.plays}` : 'N/A' });  // plays
-            playsLabel.element.id = 'plays-stat';
+            playsLabel.dom.id = 'plays-stat';
 
             statsContainer.append(forksLabel);
             statsContainer.append(viewsLabel);
@@ -372,13 +373,13 @@ editor.once('load', () => {
         statsContainer.append(sizeLabel);
 
         if (project.disabled) {
-            projectContainer.element.classList.add('disabled');
+            projectContainer.dom.classList.add('disabled');
         }
         if (project.access_level === 'none') {
-            projectContainer.element.classList.add('noAccess');
+            projectContainer.dom.classList.add('noAccess');
         }
         if (project.locked) {
-            projectContainer.element.classList.add('locked');
+            projectContainer.dom.classList.add('locked');
         }
 
     };
@@ -415,10 +416,10 @@ editor.once('load', () => {
     // on closing menu remove 'clicked' class from respective dropdown
     orgDropdownMenu.on('hide', () => {
         if (selectedDropdown) {
-            const clicked = selectedDropdown.element.classList.contains('clicked');
+            const clicked = selectedDropdown.dom.classList.contains('clicked');
             if (clicked) {
                 selectedDropdown.icon = 'E159';
-                selectedDropdown.element.classList.remove('clicked');
+                selectedDropdown.dom.classList.remove('clicked');
             }
         }
     });
@@ -537,7 +538,7 @@ editor.once('load', () => {
         collapsible: true,
         headerText: 'PROJECTS'
     });
-    leftPanel.dom.appendChild(projectsToggle.element);
+    leftPanel.dom.appendChild(projectsToggle.dom);
 
     // filter list
     const allFilter = new Button({
@@ -589,13 +590,13 @@ editor.once('load', () => {
         collapsed: false,
         headerText: 'ORGANIZATIONS'
     });
-    leftPanel.dom.appendChild(organizationsToggle.element);
+    leftPanel.dom.appendChild(organizationsToggle.dom);
 
     const addOrganizationButton = new Button({
         class: 'organization-add',
         icon: 'E370'
     });
-    organizationsToggle.element.childNodes[0].appendChild(addOrganizationButton.element);
+    organizationsToggle.dom.childNodes[0].appendChild(addOrganizationButton.dom);
 
     addOrganizationButton.on('click', () => {
         editor.call('picker:project:newOrganization');
@@ -606,7 +607,7 @@ editor.once('load', () => {
         class: 'misc-container',
         flex: true
     });
-    leftPanel.dom.appendChild(miscContainer.element);
+    leftPanel.dom.appendChild(miscContainer.dom);
 
     // quick links container
     const quickLinksContainer = new Container({
@@ -685,7 +686,7 @@ editor.once('load', () => {
     const controlsContainer = new Container({
         class: 'list-project-controls'
     });
-    rightPanel.dom.appendChild(controlsContainer.element);
+    rightPanel.dom.appendChild(controlsContainer.dom);
 
     const searchBar = new TextInput({
         placeholder: 'Search',
@@ -724,17 +725,17 @@ editor.once('load', () => {
     sortButton.on('click', () => {
         sortingDropdown.hidden = !sortingDropdown.hidden;
 
-        if (sortButton.element.classList.contains('closed')) {
-            sortButton.element.classList.remove('closed');
-            sortButton.element.classList.add('open');
+        if (sortButton.dom.classList.contains('closed')) {
+            sortButton.dom.classList.remove('closed');
+            sortButton.dom.classList.add('open');
         } else {
-            sortButton.element.classList.remove('open');
-            sortButton.element.classList.add('closed');
+            sortButton.dom.classList.remove('open');
+            sortButton.dom.classList.add('closed');
         }
 
         // position dropdown menu
-        const rect = sortButton.element.getBoundingClientRect();
-        const sortingDropdownRect = sortingDropdown.element.getBoundingClientRect();
+        const rect = sortButton.dom.getBoundingClientRect();
+        const sortingDropdownRect = sortingDropdown.dom.getBoundingClientRect();
         sortingDropdown.dom.style.left = `${rect.right - sortingDropdownRect.width}px`;
         sortingDropdown.dom.style.top = `${rect.bottom + 3}px`;
     });
@@ -749,14 +750,14 @@ editor.once('load', () => {
     const projectsContainer = new Element({
         class: 'projects-container-grid'
     });
-    rightPanel.dom.appendChild(projectsContainer.element);
+    rightPanel.dom.appendChild(projectsContainer.dom);
 
     const noProjectsButton = new Button({
         class: 'no-projects-button',
         icon: 'E370',
         hidden: true
     });
-    rightPanel.dom.appendChild(noProjectsButton.element);
+    rightPanel.dom.appendChild(noProjectsButton.dom);
 
     noProjectsButton.on('click', () => {
         editor.call('picker:project:newProject');
@@ -885,7 +886,7 @@ editor.once('load', () => {
         projectsToSearch = [];  // reset projects in view
 
         if (!(currentUser.id in projects) || projects[currentUser.id].length === 0) {
-            projectsContainer.element.innerHTML = '';
+            projectsContainer.dom.innerHTML = '';
             noProjectsButton.hidden = false;
             projects[currentUser.id] = [];
         } else {
@@ -894,7 +895,7 @@ editor.once('load', () => {
             if (events.length > 0) {
                 destroyEvents();
             }
-            projectsContainer.element.innerHTML = '';
+            projectsContainer.dom.innerHTML = '';
             projectsContainer.hidden = projects.length === 0;
             projects[currentUser.id].forEach((proj) => {
                 projectsToSearch.push([proj.name, proj]);
@@ -956,7 +957,7 @@ editor.once('load', () => {
         }
 
         refreshProjects();
-        updateLastText(projectsContainer.element.childNodes, projects[currentUser.id], sorting_policy);
+        updateLastText(projectsContainer.dom.childNodes, projects[currentUser.id], sorting_policy);
     };
 
     // LOCAL UTILS
@@ -1057,8 +1058,8 @@ editor.once('load', () => {
 
         // reset sorting dropdown state
         sortingDropdown.hidden = true;
-        sortButton.element.classList.remove('open');
-        sortButton.element.classList.add('closed');
+        sortButton.dom.classList.remove('open');
+        sortButton.dom.classList.add('closed');
 
         // reset selected to 'All' filter
         setSelectedFilter(allFilter);
@@ -1106,7 +1107,7 @@ editor.once('load', () => {
 
     // hook to refresh list of organizations
     editor.method('picker:project:cms:refreshOrgs', (organization, deleteOrg = false) => {
-        const orgsList = organizationsToggle.element.childNodes[1];
+        const orgsList = organizationsToggle.dom.childNodes[1];
         orgsList.innerHTML = '';
         if (!deleteOrg) {
             rootUser.organizations.push(organization);
