@@ -313,7 +313,7 @@ editor.once('load', () => {
     const ownerWidgetFirstRow = new Container({ class: 'collaborator-first-row' });
     ownerWidgetRightContainer.append(ownerWidgetFirstRow);
 
-    const ownerWidgetName = new Label({ text: '' });
+    const ownerWidgetName = new Label();
     ownerWidgetFirstRow.append(ownerWidgetName);
 
     const ownerWidgetLabel = new Label({ text: 'Owner' });

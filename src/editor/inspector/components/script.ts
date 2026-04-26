@@ -188,7 +188,6 @@ class ScriptInspector extends Panel {
         this._btnEdit = new Button({
             icon: 'E130',
             class: CLASS_SCRIPT_VALID,
-            enabled: true,
             ignoreParent: true,
             tabIndex: -1
         });

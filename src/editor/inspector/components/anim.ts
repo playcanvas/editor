@@ -423,7 +423,6 @@ class AnimComponentInspector extends ComponentInspector {
         });
 
         const closeButton = new Button({
-            text: '',
             icon: 'E389',
             class: CLASS_MASK_INSPECTOR_CLOSE_BUTTON
         });
@@ -485,7 +484,6 @@ class AnimComponentInspector extends ComponentInspector {
             });
             maskButtonsContainer.append(layerMaskButton);
             const deleteLayerMaskButton = new Button({
-                text: '',
                 icon: 'E289',
                 class: CLASS_DELETE_MASK_BUTTON
             });

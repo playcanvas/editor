@@ -1735,7 +1735,6 @@ editor.once('load', () => {
                 resizable: 'left',
                 resizeMax: 512,
                 resizeMin: 256,
-                scrollable: false,
                 width: 320
             });
             panel.append(rightPanel);

@@ -213,7 +213,6 @@ class AnimStateGraphAssetInspector extends Container {
         this.parent.emit('fullscreenMode:on');
 
         this._closeButton = new Button({
-            text: '',
             icon: 'E389',
             class: CLASS_ANIMSTATEGRAPH_CLOSE_BUTTON
         });

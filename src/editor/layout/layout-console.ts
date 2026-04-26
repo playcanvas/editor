@@ -276,7 +276,6 @@ export const createConsolePanel = () => {
         resizable: 'top',
         flex: true,
         flexDirection: 'column',
-        scrollable: false,
         collapsible: true,
         collapsed: editor.call('localStorage:get', 'editor:layout:console:collapse') ?? true
     });
