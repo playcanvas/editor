@@ -70,7 +70,7 @@ editor.once('load', () => {
             class: 'collaborator-container'
         });
         if (collaborator.id === config.self.id) {
-            parentContainer.dom.classList.add('user-collaborator');
+            parentContainer.class.add('user-collaborator');
         }
         membersGrid.dom.appendChild(parentContainer.dom);
 

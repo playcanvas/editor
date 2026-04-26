@@ -210,9 +210,9 @@ editor.once('load', () => {
     projectURLButton.on('click', () => {
         navigator.clipboard.writeText(`${config.url.home}/editor/project/${currentProject.id}`);
 
-        copiedURLPopup.dom.classList.add('open');
+        copiedURLPopup.class.add('open');
         setTimeout(() => {
-            copiedURLPopup.dom.classList.remove('open');
+            copiedURLPopup.class.remove('open');
         }, 3000);
     });
 
@@ -410,7 +410,7 @@ editor.once('load', () => {
             editor.call('picker:project:cms:refreshProjects');
         }
 
-        copiedURLPopup.dom.classList.remove('open');  // close clipboard popup
+        copiedURLPopup.class.remove('open');  // close clipboard popup
 
         editor.call('picker:project:hideAlerts');
         editor.call('picker:project:hideThumbnailControls');

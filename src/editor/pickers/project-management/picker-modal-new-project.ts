@@ -52,20 +52,20 @@ editor.once('load', () => {
         // Blank project selected by default
         if (starterkit.name === 'Blank Project') {
             selectedKitElement = starterKit;
-            selectedKitElement.dom.classList.add('selected');
+            selectedKitElement.class.add('selected');
         }
 
         starterKit.dom.addEventListener('mouseenter', () => {
-            starterKit.dom.classList.add('hovered');
+            starterKit.class.add('hovered');
         });
 
         starterKit.dom.addEventListener('mouseleave', () => {
-            starterKit.dom.classList.remove('hovered');
+            starterKit.class.remove('hovered');
         });
 
         starterKit.dom.addEventListener('click', () => {
             if (selectedKitElement) {
-                selectedKitElement.dom.classList.remove('selected');
+                selectedKitElement.class.remove('selected');
             }
 
             selectedKitElement = starterKit;
@@ -74,7 +74,7 @@ editor.once('load', () => {
             formInputs.private = false;
             formInputs.fork_from = starterKits[fork].fork_from;
 
-            selectedKitElement.dom.classList.add('selected');
+            selectedKitElement.class.add('selected');
 
             buildSidebar();  // rebuild sidebar
         });
