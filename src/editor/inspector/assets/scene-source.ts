@@ -15,7 +15,6 @@ const ATTRIBUTES: Attribute[] = [{
     type: 'container',
     args: {
         flex: true,
-        flexDirection: 'row',
         flexWrap: 'wrap'
     }
 },
@@ -25,7 +24,6 @@ const ATTRIBUTES: Attribute[] = [{
     type: 'container',
     args: {
         flex: true,
-        flexDirection: 'row',
         flexWrap: 'wrap'
     }
 },
@@ -35,7 +33,6 @@ const ATTRIBUTES: Attribute[] = [{
     type: 'container',
     args: {
         flex: true,
-        flexDirection: 'row',
         flexWrap: 'wrap'
     }
 }, {
@@ -44,7 +41,6 @@ const ATTRIBUTES: Attribute[] = [{
     type: 'container',
     args: {
         flex: true,
-        flexDirection: 'row',
         flexWrap: 'wrap'
     }
 }];

@@ -29,7 +29,6 @@ editor.on('load', () => {
     const top = new Container({
         id: 'ui-top',
         flex: true,
-        flexDirection: 'row',
         flexWrap: 'nowrap',
         flexShrink: '0'
     });
@@ -43,7 +42,6 @@ editor.on('load', () => {
     const middle = new Container({
         id: 'ui-middle',
         flex: true,
-        flexDirection: 'row',
         flexGrow: '1'
     });
     root.append(middle);
@@ -93,7 +91,6 @@ editor.on('load', () => {
         class: 'invisible',
         id: 'ui-tabs',
         flex: true,
-        flexDirection: 'row',
         flexWrap: 'nowrap',
         flexShrink: '0'
     });

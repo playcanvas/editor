@@ -15,7 +15,6 @@ editor.once('load', () => {
     const controls = new Container({
         class: 'hierarchy-controls',
         flex: true,
-        flexDirection: 'row',
         alignItems: 'center'
     });
 

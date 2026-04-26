@@ -115,8 +115,7 @@ editor.once('load', () => {
 
     const leftRows = new Container({
         class: 'left-rows',
-        flex: true,
-        flexDirection: 'row'
+        flex: true
     });
     leftColumns.append(leftRows);
 
@@ -1735,7 +1734,6 @@ editor.once('load', () => {
                 resizable: 'left',
                 resizeMax: 512,
                 resizeMin: 256,
-                scrollable: false,
                 width: 320
             });
             panel.append(rightPanel);

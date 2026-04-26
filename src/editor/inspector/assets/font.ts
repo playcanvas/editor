@@ -109,7 +109,6 @@ const DOM = parent => [
                     flex: true,
                     justifyContent: 'center',
                     alignItems: 'center',
-                    flexDirection: 'row',
                     class: CLASS_CHARACTER_RANGE
                 })
             },

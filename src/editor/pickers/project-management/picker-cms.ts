@@ -585,7 +585,6 @@ editor.once('load', () => {
     const organizationsToggle = new Panel({
         class: 'organizations-toggle',
         collapsible: true,
-        collapsed: false,
         headerText: 'ORGANIZATIONS'
     });
     leftPanel.dom.appendChild(organizationsToggle.dom);

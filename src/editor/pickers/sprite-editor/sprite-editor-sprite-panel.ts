@@ -138,7 +138,6 @@ editor.once('load', () => {
 
         const containerEditButtons = new Container({
             flex: true,
-            flexDirection: 'row',
             hidden: true,
             class: 'edit-buttons'
         });

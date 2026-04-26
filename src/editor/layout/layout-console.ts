@@ -217,8 +217,7 @@ const createHeader = () => {
         flex: true,
         flexGrow: '0',
         flexShrink: '0',
-        flexBasis: 'auto',
-        flexDirection: 'row'
+        flexBasis: 'auto'
     });
 
     // clear button
@@ -276,7 +275,6 @@ export const createConsolePanel = () => {
         resizable: 'top',
         flex: true,
         flexDirection: 'column',
-        scrollable: false,
         collapsible: true,
         collapsed: editor.call('localStorage:get', 'editor:layout:console:collapse') ?? true
     });
@@ -363,7 +361,6 @@ export const createConsolePanel = () => {
         const el = new Container({
             class: 'console-item',
             flex: true,
-            flexDirection: 'row',
             hidden: true
         });
 

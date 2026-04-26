@@ -380,8 +380,7 @@ class AssetInspector extends Container {
         this.append(this._attributesInspector);
 
         this._containerButtons = new Container({
-            flex: true,
-            flexDirection: 'row'
+            flex: true
         });
         this.append(this._containerButtons);
 

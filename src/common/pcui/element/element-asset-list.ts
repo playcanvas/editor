@@ -108,7 +108,6 @@ class AssetList extends Element {
         this._containerButtons = new Container({
             class: CLASS_CONTAINER_BUTTONS,
             flex: true,
-            flexDirection: 'row',
             alignItems: 'center',
             hidden: true
         });
@@ -381,7 +380,6 @@ class AssetList extends Element {
 
         const container = new Container({
             flex: true,
-            flexDirection: 'row',
             alignItems: 'center',
             class: CLASS_ASSET_ITEM
         });

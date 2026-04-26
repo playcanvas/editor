@@ -24,7 +24,6 @@ editor.once('load', () => {
 
     const header = new Container({
         flex: true,
-        flexDirection: 'row',
         class: 'header'
     });
     overlay.append(header);
@@ -52,8 +51,7 @@ editor.once('load', () => {
 
     const containerButtons = new Container({
         flex: true,
-        class: 'buttons',
-        flexDirection: 'row'
+        class: 'buttons'
     });
     overlay.append(containerButtons);
 
@@ -114,8 +112,7 @@ editor.once('load', () => {
     content.append(spinner);
 
     const progressButtons = new Container({
-        flex: true,
-        flexDirection: 'row'
+        flex: true
     });
     progressButtons.style.justifyContent = 'center';
     content.append(progressButtons);
