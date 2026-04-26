@@ -45,7 +45,7 @@ editor.once('load', () => {
 
     // builds out the usage modal
     const buildUsageUI = () => {
-        upgradeContainer.dom.innerHTML = '';
+        upgradeContainer.clear();
         toggleSpinner(upgradeContainer, true);
 
         editor.call('users:getUsage', currentUser.id, (res) => {
@@ -61,25 +61,25 @@ editor.once('load', () => {
                 text: `${usage} / ${diskAllowance} Used`,
                 class: 'upgrade-label'
             });
-            upgradeContainer.dom.appendChild(usageLabel.dom);
+            upgradeContainer.append(usageLabel);
 
-            const usageBarContainer = new Element({
+            const usageBarContainer = new Container({
                 class: 'usage-bar-container'
             });
-            upgradeContainer.dom.appendChild(usageBarContainer.dom);
+            upgradeContainer.append(usageBarContainer);
 
             const usageBar = new Element({
                 class: 'usage-bar'
             });
             usageBar.dom.style.width = `${percentageUsed}%`;
-            usageBarContainer.dom.appendChild(usageBar.dom);
+            usageBarContainer.append(usageBar);
 
             // upgrade button
             const upgradeButton = new Button({
                 text: 'UPGRADE',
                 class: 'upgrade-button'
             });
-            upgradeContainer.dom.appendChild(upgradeButton.dom);
+            upgradeContainer.append(upgradeButton);
 
             upgradeButton.on('click', () => {
                 window.open(`${config.url.home}/upgrade?account=${currentUser.username}`);
@@ -425,17 +425,15 @@ editor.once('load', () => {
     });
 
     // spinner used to reload usage modal on project creation / deletion
-    const toggleSpinner = (root, toggle) => {
-        const spinnerIcon = SVG.spinner(32);
-        spinnerIcon.classList.add('progress-icon');
-        spinnerIcon.classList.add('spin');
-
-        if (toggle && !spinnerIcon.classList.contains('hidden')) {
-            root.dom.appendChild(spinnerIcon);
-            spinnerIcon.classList.remove('hidden');
+    const toggleSpinner = (root: Container, toggle: boolean) => {
+        if (toggle) {
+            const spinner = new Element({
+                dom: SVG.spinner(32) as unknown as HTMLElement,
+                class: ['progress-icon', 'spin']
+            });
+            root.append(spinner);
         } else {
-            spinnerIcon.classList.add('hidden');
-            root.dom.innerHTML = '';
+            root.clear();
         }
     };
 
@@ -662,7 +660,7 @@ editor.once('load', () => {
     quickLinksContainer.append(githubLink);
 
     // upgrade container
-    const upgradeContainer = new Element({
+    const upgradeContainer = new Container({
         class: 'upgrade-container'
     });
     miscContainer.append(upgradeContainer);
