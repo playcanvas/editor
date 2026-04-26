@@ -338,16 +338,14 @@ editor.once('load', () => {
         }
     });
 
-    input.dom.addEventListener('keydown', (evt: KeyboardEvent) => {
-        if (evt.keyCode === 27) {
-            // esc
+    input.on('keydown', (evt: KeyboardEvent) => {
+        if (evt.key === 'Escape') {
             input.value = '';
             onTypingEnd();
-        } else if (evt.keyCode === 13) {
-            // enter
+        } else if (evt.key === 'Enter') {
             editor.call('chat:send', input.value);
             input.value = '';
             onTypingEnd();
         }
-    }, false);
+    });
 });
