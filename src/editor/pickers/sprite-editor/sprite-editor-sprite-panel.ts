@@ -349,7 +349,7 @@ editor.once('load', () => {
 
         const onDragMove = (evt: MouseEvent): void => {
             const rect = panelFrames.innerElement.getBoundingClientRect();
-            const height = draggedPanel.element.offsetHeight;
+            const height = draggedPanel.dom.offsetHeight;
             const top = evt.clientY - rect.top - 6;
             const overPanelIndex = Math.floor(top / height);
             const overPanel = panels[overPanelIndex];
@@ -372,7 +372,7 @@ editor.once('load', () => {
             }
 
             const oldIndex = draggedIndex;
-            const newIndex = Array.prototype.indexOf.call(panelFrames.innerElement.childNodes, draggedPanel.element);
+            const newIndex = Array.prototype.indexOf.call(panelFrames.innerElement.childNodes, draggedPanel.dom);
 
             // change order in sprite asset
             if (oldIndex !== newIndex) {

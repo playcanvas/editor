@@ -223,7 +223,7 @@ editor.once('load', () => {
 
     // Set the checkpoints to be displayed
     panel.setCheckpoints = function (checkpoints: { id: string; createdAt?: string }[] | null) {
-        const scrollTop = panel.branch != null && panel.scrollTopMap[panel.branch.id] != null ? panel.scrollTopMap[panel.branch.id] : panelCheckpoints.element.scrollTop;
+        const scrollTop = panel.branch != null && panel.scrollTopMap[panel.branch.id] != null ? panel.scrollTopMap[panel.branch.id] : panelCheckpoints.dom.scrollTop;
 
         listCheckpoints.clear();
         lastCheckpointDateDisplayed = null;

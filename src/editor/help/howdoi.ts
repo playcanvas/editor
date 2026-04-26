@@ -40,7 +40,7 @@ editor.once('load', () => {
             return;
         }
 
-        const canvasRect = canvas.element.getBoundingClientRect();
+        const canvasRect = canvas.dom.getBoundingClientRect();
 
         const titleWidget = document.querySelector('.control-strip.top-left');
         const titleWidgetRect = titleWidget ? titleWidget.getBoundingClientRect() : null;
@@ -92,8 +92,8 @@ editor.once('load', () => {
             editor.call('layout.toolbar')
         );
 
-        b.element.style.top = '';
-        b.element.style.bottom = '130px';
+        b.dom.style.top = '';
+        b.dom.style.bottom = '130px';
         return b;
     };
 

@@ -58,7 +58,7 @@ editor.once('load', () => {
         if (evt.key === 'Escape') {
             btnNo.emit('click');
         } else if (evt.key === 'Enter') { // click focused button
-            if (document.activeElement === btnYes.element) {
+            if (document.activeElement === btnYes.dom) {
                 if (btnYes.enabled) {
                     btnYes.emit('click');
                 }
@@ -66,15 +66,15 @@ editor.once('load', () => {
                 btnNo.emit('click');
             }
         } else if (evt.key === 'Tab') { // focus yes / no buttons
-            if (document.activeElement === btnYes.element) {
-                btnNo.element.focus();
+            if (document.activeElement === btnYes.dom) {
+                btnNo.dom.focus();
             } else {
-                btnYes.element.focus();
+                btnYes.dom.focus();
             }
         } else if (evt.key === 'ArrowRight') { // focus right button (Yes)
-            btnYes.element.focus();
+            btnYes.dom.focus();
         } else if (evt.key === 'ArrowLeft') { // focus left button (No)
-            btnNo.element.focus();
+            btnNo.dom.focus();
         }
     };
 

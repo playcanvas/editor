@@ -144,7 +144,7 @@ class LayersSettingsPanelRenderOrderList extends Container {
 
         if (layer.layer < 1000) {
             deleteTooltip = LegacyTooltip.attach({
-                target: layerPanel._btnRemove.element,
+                target: layerPanel._btnRemove.dom,
                 text: 'You cannot delete a built-in layer',
                 align: 'bottom',
                 root: editor.call('layout.root')

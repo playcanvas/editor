@@ -82,7 +82,7 @@ editor.once('load', () => {
         text: 'UNLOCK'
     });
     lockedContainer.append(unlockButton);
-    lockedContainer.element.style.display = 'none';  // hide by default
+    lockedContainer.dom.style.display = 'none';  // hide by default
 
     unlockButton.on('click', () => {
         editor.call('projects:unlockOne', currentProject.id, () => {
@@ -110,7 +110,7 @@ editor.once('load', () => {
     const projectNameLabel = new Label({
         text: 'Name'
     });
-    projectNameGroup.append(projectNameLabel.element);
+    projectNameGroup.append(projectNameLabel.dom);
     const projectNameInput = new TextInput({
         enabled: isAdmin(),
         class: 'form-input',
@@ -118,7 +118,7 @@ editor.once('load', () => {
         renderChanges: true,
         keyChange: true
     });
-    projectNameGroup.append(projectNameInput.element);
+    projectNameGroup.append(projectNameInput.dom);
 
     projectNameInput.on('change', () => {
         const newValue = projectNameInput.value;
@@ -146,7 +146,7 @@ editor.once('load', () => {
     const projectDescLabel = new Label({
         text: 'Description'
     });
-    projectDescGroup.append(projectDescLabel.element);
+    projectDescGroup.append(projectDescLabel.dom);
     const projectDescInput = new TextAreaInput({
         enabled: isAdmin(),
         class: 'form-input',
@@ -162,8 +162,8 @@ editor.once('load', () => {
         saveProject({ description: descriptionBefore }, initialLoad);
     });
 
-    projectDescInput.element.id = 'description';
-    projectDescGroup.append(projectDescInput.element);
+    projectDescInput.dom.id = 'description';
+    projectDescGroup.append(projectDescInput.dom);
 
     // private settings container
     const privateSettings = new Element({
@@ -174,7 +174,7 @@ editor.once('load', () => {
     const privateLabel = new Label({
         text: 'Private Project'
     });
-    privateSettings.dom.appendChild(privateLabel.element);
+    privateSettings.dom.appendChild(privateLabel.dom);
 
     const privateToggle = new BooleanInput({
         enabled: isAdmin() && editor.call('users:allowPrivate', config.owner),
@@ -188,7 +188,7 @@ editor.once('load', () => {
         }
         editor.call('picker:project:changeVisibility', privateToggle.value ? 'Private' : 'Public');
     });
-    privateSettings.dom.appendChild(privateToggle.element);
+    privateSettings.dom.appendChild(privateToggle.dom);
 
     // project url
     const projectURLSettings = new Element({
@@ -199,13 +199,13 @@ editor.once('load', () => {
     const projectUrlLabel = new Label({
         text: 'Share Project'
     });
-    projectURLSettings.dom.appendChild(projectUrlLabel.element);
+    projectURLSettings.dom.appendChild(projectUrlLabel.dom);
 
     const projectURLButton = new Button({
         icon: 'E357',
         text: 'Copy URL'
     });
-    projectURLSettings.dom.appendChild(projectURLButton.element);
+    projectURLSettings.dom.appendChild(projectURLButton.dom);
 
     projectURLButton.on('click', () => {
         navigator.clipboard.writeText(`${config.url.home}/editor/project/${currentProject.id}`);
@@ -253,7 +253,7 @@ editor.once('load', () => {
         enabled: false,
         hidden: true
     });
-    deleteProjectButton.element.id = 'delete-project-button';
+    deleteProjectButton.dom.id = 'delete-project-button';
     actionButtonsContainer.append(deleteProjectButton);
 
     deleteProjectButton.on('click', () => {

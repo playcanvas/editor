@@ -75,14 +75,14 @@ class ImportMapSettingsPanel extends BaseSettingsPanel {
 
 
         this._selectExistingTooltip = LegacyTooltip.attach({
-            target: this._selectExistingButton.element,
+            target: this._selectExistingButton.dom,
             text: 'Select an existing Import Map',
             align: 'bottom',
             root: editor.call('layout.root')
         });
 
         this._createDefaultTooltip = LegacyTooltip.attach({
-            target: this._createDefaultButton.element,
+            target: this._createDefaultButton.dom,
             text: 'Create a default Import Map',
             align: 'bottom',
             root: editor.call('layout.root')

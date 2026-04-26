@@ -151,8 +151,8 @@ editor.once('load', () => {
             editor.call('layout.toolbar')
         );
 
-        bubble.element.style.top = '';
-        bubble.element.style.bottom = '119px';
+        bubble.dom.style.top = '';
+        bubble.dom.style.bottom = '119px';
         return bubble;
     };
 
@@ -167,8 +167,8 @@ editor.once('load', () => {
             editor.call('layout.viewport')
         );
 
-        bubble.element.style.left = '';
-        bubble.element.style.right = '6px';
+        bubble.dom.style.left = '';
+        bubble.dom.style.right = '6px';
 
         return bubble;
     };

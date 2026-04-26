@@ -122,7 +122,7 @@ editor.once('load', () => {
     };
 
     const tooltip = LegacyTooltip.attach({
-        target: btnBack.element,
+        target: btnBack.dom,
         text: '-',
         align: 'top',
         root: root

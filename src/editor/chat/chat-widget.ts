@@ -31,7 +31,7 @@ editor.once('load', () => {
         return chatPanel;
     });
 
-    chatPanel.element.addEventListener('mouseover', () => {
+    chatPanel.dom.addEventListener('mouseover', () => {
         editor.emit('viewport:hover', false);
     }, false);
 
@@ -43,7 +43,7 @@ editor.once('load', () => {
     chatPanel.header.append(notify);
 
     const tooltipNotify = LegacyTooltip.attach({
-        target: notify.element,
+        target: notify.dom,
         text: 'Notifications (enabled)',
         align: 'bottom',
         root: root
@@ -290,7 +290,7 @@ editor.once('load', () => {
     const clear = document.createElement('div');
     clear.innerHTML = '&#57650;';
     clear.classList.add('clear');
-    input.element.appendChild(clear);
+    input.dom.appendChild(clear);
 
     const onTypingEnd = function () {
         if (typingTimeout) {
@@ -338,7 +338,7 @@ editor.once('load', () => {
         }
     });
 
-    input.element.addEventListener('keydown', (evt: KeyboardEvent) => {
+    input.dom.addEventListener('keydown', (evt: KeyboardEvent) => {
         if (evt.keyCode === 27) {
             // esc
             input.value = '';

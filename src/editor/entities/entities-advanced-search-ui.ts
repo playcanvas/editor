@@ -20,7 +20,7 @@ editor.once('load', () => {
     const searchClear = new Element();
     searchClear.class.add('clear');
     searchClear.dom.innerHTML = '&#57650;';
-    search.element.appendChild(searchClear.dom);
+    search.dom.appendChild(searchClear.dom);
 
     // Button for showing filters
     const showFiltersButton = new Element();
@@ -121,7 +121,7 @@ editor.once('load', () => {
 
     smartSearchLabel.class.add('advanced-search-label-toggle');
     smartSearchLabel.label.class.add('advanced-search-label-toggle-text');
-    smartSearchLabel.element.setAttribute('text-hover', 'Toggle whether only exact matches are shown');
+    smartSearchLabel.dom.setAttribute('text-hover', 'Toggle whether only exact matches are shown');
 
     // Search by
 
