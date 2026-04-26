@@ -29,6 +29,7 @@ const DOM = parent => [
         root: {
             audioContainer: new Container({
                 flex: true,
+                flexDirection: 'row',
                 alignItems: 'center'
             })
         },

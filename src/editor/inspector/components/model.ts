@@ -300,7 +300,8 @@ class ModelComponentInspector extends ComponentInspector {
         this._field('lightmapped').parent.append(this._labelUv1Missing);
 
         this._containerButtons = new Container({
-            flex: true
+            flex: true,
+            flexDirection: 'row'
         });
 
         const btnAssetMaterials = new Button({
@@ -417,7 +418,8 @@ class ModelComponentInspector extends ComponentInspector {
         }
 
         const container = new Container({
-            flex: true
+            flex: true,
+            flexDirection: 'row'
         });
 
         let previousMappings;

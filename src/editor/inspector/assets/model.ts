@@ -117,6 +117,7 @@ const DOM = parent => [
                 root: {
                     unwrapContainer: new Container({
                         flex: true,
+                        flexDirection: 'row',
                         alignItems: 'center'
                     })
                 },

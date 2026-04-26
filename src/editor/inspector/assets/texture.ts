@@ -237,6 +237,7 @@ const DOM = parent => [
                 root: {
                     btnContainerGetMeta: new Container({
                         flex: true,
+                        flexDirection: 'row',
                         alignItems: 'center'
                     })
                 },
@@ -298,6 +299,7 @@ const DOM = parent => [
                         root: {
                             compressBasisBtnContainer: new Container({
                                 flex: true,
+                                flexDirection: 'row',
                                 alignItems: 'center'
                             })
                         },
@@ -331,6 +333,7 @@ const DOM = parent => [
                         root: {
                             compressLegacyBtnContainer: new Container({
                                 flex: true,
+                                flexDirection: 'row',
                                 alignItems: 'center'
                             })
                         },
@@ -953,6 +956,7 @@ class TextureAssetInspector extends Container {
         if (!this._containerImportBasis) {
             this._containerImportBasis = new Container({
                 flex: true,
+                flexDirection: 'row',
                 alignItems: 'center'
             });
             this._containerImportBasis.class.add('pcui-subpanel');

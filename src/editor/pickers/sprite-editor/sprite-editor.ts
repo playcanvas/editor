@@ -115,7 +115,8 @@ editor.once('load', () => {
 
     const leftRows = new Container({
         class: 'left-rows',
-        flex: true
+        flex: true,
+        flexDirection: 'row'
     });
     leftColumns.append(leftRows);
 

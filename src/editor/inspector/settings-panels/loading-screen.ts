@@ -22,7 +22,8 @@ const DOM = () => [
     {
         root: {
             buttonContainer: new Container({
-                flex: true
+                flex: true,
+                flexDirection: 'row'
             })
         },
         children: [

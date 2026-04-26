@@ -217,7 +217,8 @@ const createHeader = () => {
         flex: true,
         flexGrow: '0',
         flexShrink: '0',
-        flexBasis: 'auto'
+        flexBasis: 'auto',
+        flexDirection: 'row'
     });
 
     // clear button
@@ -361,6 +362,7 @@ export const createConsolePanel = () => {
         const el = new Container({
             class: 'console-item',
             flex: true,
+            flexDirection: 'row',
             hidden: true
         });
 

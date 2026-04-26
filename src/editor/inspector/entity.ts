@@ -257,7 +257,8 @@ class EntityInspector extends Container {
         this.append(this._attributesInspector);
 
         const containerComponentButtons = new Container({
-            flex: true
+            flex: true,
+            flexDirection: 'row'
         });
         this.append(containerComponentButtons);
 

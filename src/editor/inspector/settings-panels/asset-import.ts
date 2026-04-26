@@ -314,6 +314,7 @@ class AssetImportSettingsPanel extends BaseSettingsPanel {
         this._containerImportDraco = new Container({
             class: 'pcui-subpanel',
             flex: true,
+            flexDirection: 'row',
             alignItems: 'center'
         });
 

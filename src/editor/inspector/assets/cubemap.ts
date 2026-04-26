@@ -84,7 +84,8 @@ const DOM = (parent, args) => [
             children: [{
                 root: {
                     prefilterGenerateCubemapContainer: new Container({
-                        flex: true
+                        flex: true,
+                        flexDirection: 'row'
                     })
                 },
                 children: [{

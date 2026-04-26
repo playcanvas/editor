@@ -75,7 +75,8 @@ class OverrideGroup extends Container {
         this.class.add(CLASS_OVERRIDE_GROUP);
 
         const inner = new Container({
-            flex: true
+            flex: true,
+            flexDirection: 'row'
         });
 
         this.append(inner);

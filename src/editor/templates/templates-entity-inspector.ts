@@ -99,6 +99,7 @@ class TemplatesEntityInspector extends Container {
 
         const containerTop = new Container({
             flex: true,
+            flexDirection: 'row',
             class: CLASS_CONTAINER_TOP
         });
         this._innerContainer.append(containerTop);
@@ -118,6 +119,7 @@ class TemplatesEntityInspector extends Container {
 
         const containerMiddle = new Container({
             flex: true,
+            flexDirection: 'row',
             class: CLASS_CONTAINER_MIDDLE
         });
         this._innerContainer.append(containerMiddle);
@@ -265,7 +267,8 @@ class TemplatesEntityInspector extends Container {
 
     _createEntityListItem(data: { name: string; resourceId?: string; overrides?: unknown[]; added?: unknown; removed?: unknown }): { item: Container; name: string } {
         const container = new Container({
-            flex: true
+            flex: true,
+            flexDirection: 'row'
         });
 
         const label = new Label({

@@ -26,7 +26,8 @@ editor.once('load', () => {
     // vertically in sync with the tree.
     const wrapper = new Container({
         class: 'hierarchy-content-wrapper',
-        flex: true
+        flex: true,
+        flexDirection: 'row'
     });
 
     const visibilityColumn = new Container({

@@ -509,6 +509,7 @@ class AssetPanel extends Panel {
         // contains view mode buttons
         const containerBtn = new Container({
             flex: true,
+            flexDirection: 'row',
             class: [CLASS_BTN_CONTAINER, CLASS_HIDE_ON_COLLAPSE]
         });
         this._containerControls.append(containerBtn);
@@ -678,7 +679,8 @@ class AssetPanel extends Panel {
         // initial progress container
         this._containerProgress = new Container({
             class: CLASS_PROGRESS,
-            flex: true
+            flex: true,
+            flexDirection: 'row'
         });
         this._progressBar = new Progress();
         this._progressBar.on('change', (value: number) => {
