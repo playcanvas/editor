@@ -161,7 +161,7 @@ editor.once('load', () => {
         organization = editor.call('picker:project:cms:dropdownOrg');
         organizationProjects = projects;
         labelElement.text = `Type the organization name, "${organization.full_name}" in the text box to delete this organization permanently. This action cannot be undone!`;
-        projectsWarning.dom.style.display = organizationProjects.length === 0 ? 'none' : 'block';
+        projectsWarning.style.display = organizationProjects.length === 0 ? 'none' : 'block';
         overlay.hidden = false;
     });
 });

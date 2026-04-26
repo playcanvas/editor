@@ -71,7 +71,7 @@ editor.once('load', () => {
             const usageBar = new Element({
                 class: 'usage-bar'
             });
-            usageBar.dom.style.width = `${percentageUsed}%`;
+            usageBar.style.width = `${percentageUsed}%`;
             usageBarContainer.append(usageBar);
 
             // upgrade button
@@ -734,8 +734,8 @@ editor.once('load', () => {
         // position dropdown menu
         const rect = sortButton.dom.getBoundingClientRect();
         const sortingDropdownRect = sortingDropdown.dom.getBoundingClientRect();
-        sortingDropdown.dom.style.left = `${rect.right - sortingDropdownRect.width}px`;
-        sortingDropdown.dom.style.top = `${rect.bottom + 3}px`;
+        sortingDropdown.style.left = `${rect.right - sortingDropdownRect.width}px`;
+        sortingDropdown.style.top = `${rect.bottom + 3}px`;
     });
 
     const layoutButton = new Button({

@@ -96,8 +96,8 @@ class VersionControlSidePanelBox extends Events {
                 'Close branch after merging?',
                 args.closeSourceBranchHelp
             );
-            this.panelSourceClose.dom.style.paddingTop = '0';
-            this.panelSourceClose.dom.style.borderTop = '0';
+            this.panelSourceClose.style.paddingTop = '0';
+            this.panelSourceClose.style.borderTop = '0';
 
             this.checkboxSourceClose.on('change', (value: boolean) => {
                 this.emit('closeSourceBranch', value);

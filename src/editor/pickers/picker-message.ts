@@ -117,9 +117,9 @@ editor.once('load', () => {
         btnOK.text = okText || 'OK';
         if (cancelText) {
             btnCancel.text = cancelText;
-            btnCancel.dom.style.display = 'flex';
+            btnCancel.style.display = 'flex';
         } else {
-            btnCancel.dom.style.display = 'none';
+            btnCancel.style.display = 'none';
         }
         overlay.hidden = false;
     });

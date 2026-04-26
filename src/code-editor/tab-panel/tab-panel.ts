@@ -220,10 +220,10 @@ editor.once('load', () => {
         }
 
         for (let i = 0; i < tabOrder.length; i++) {
-            tabOrder[i].tab.dom.style.position = 'absolute';
-            tabOrder[i].tab.dom.style.left = `${tabPositions[i]}px`;
-            tabOrder[i].tab.dom.style.width = `${widths[i]}px`;
-            tabOrder[i].tab.dom.style.top = '0';
+            tabOrder[i].tab.style.position = 'absolute';
+            tabOrder[i].tab.style.left = `${tabPositions[i]}px`;
+            tabOrder[i].tab.style.width = `${widths[i]}px`;
+            tabOrder[i].tab.style.top = '0';
         }
 
         // add animated class to other tabs

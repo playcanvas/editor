@@ -122,8 +122,8 @@ editor.once('load', () => {
             const parent = overlay.domContent.getBoundingClientRect();
             const rect = sortButton.dom.getBoundingClientRect();
             const sortingDropdownRect = sortingDropdown.dom.getBoundingClientRect();
-            sortingDropdown.dom.style.left = `${rect.right - sortingDropdownRect.width - parent.left}px`;
-            sortingDropdown.dom.style.top = `${rect.bottom + 3 - parent.top}px`;
+            sortingDropdown.style.left = `${rect.right - sortingDropdownRect.width - parent.left}px`;
+            sortingDropdown.style.top = `${rect.bottom + 3 - parent.top}px`;
         });
     };
 

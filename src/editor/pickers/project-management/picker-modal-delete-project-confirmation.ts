@@ -11,9 +11,9 @@ editor.once('load', () => {
     const toggleLoader = (toggle) => {
         if (toggle) {
             deleteButton.text = '';
-            loader.dom.style.display = 'block';
+            loader.style.display = 'block';
         } else {
-            loader.dom.style.display = 'none';
+            loader.style.display = 'none';
             deleteButton.text = 'DELETE';
         }
     };
@@ -81,7 +81,7 @@ editor.once('load', () => {
     const loader = new Element({
         class: ['loader', 'small', 'white']
     });
-    loader.dom.style.display = 'none';
+    loader.style.display = 'none';
 
     deleteButtonContainer.append(loader);
 

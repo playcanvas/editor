@@ -918,8 +918,8 @@ class AnimStateGraphView {
 
         const viewportCanvas = editor.call('viewport:canvas');
         this._events.push(viewportCanvas.on('resize', () => {
-            this._graph.dom.style.width = viewportCanvas.style.width;
-            this._graph.dom.style.height = viewportCanvas.style.height;
+            this._graph.style.width = viewportCanvas.style.width;
+            this._graph.style.height = viewportCanvas.style.height;
         }));
 
         // add keyboard listener
