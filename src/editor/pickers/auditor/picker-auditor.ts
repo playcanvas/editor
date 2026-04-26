@@ -71,14 +71,14 @@ editor.on('load', () => {
             }
         } else if (evt.key === 'Tab') { // focus yes / no buttons
             if (document.activeElement === btnCancel.dom) {
-                btnAction.dom.focus();
+                btnAction.focus();
             } else {
-                btnCancel.dom.focus();
+                btnCancel.focus();
             }
         } else if (evt.key === 'ArrowRight') { // focus right button (Yes)
-            btnAction.dom.focus();
+            btnAction.focus();
         } else if (evt.key === 'ArrowLeft') { // focus left button (No)
-            btnCancel.dom.focus();
+            btnCancel.focus();
         }
     };
 
