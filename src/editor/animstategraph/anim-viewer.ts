@@ -251,7 +251,7 @@ class AnimViewer extends Container {
     constructor(args: AnimViewerArgs) {
         super(args);
 
-        this.dom.classList.add('anim-viewer');
+        this.class.add('anim-viewer');
 
         this._canvas = new Canvas({
             useDevicePixelRatio: true
@@ -341,12 +341,12 @@ class AnimViewer extends Container {
         this.clearView();
         this._messageLabel.text = text;
         this._messageLabel.hidden = false;
-        this.dom.classList.add('hide');
+        this.class.add('hide');
     }
 
     hideMessage() {
         this._messageLabel.hidden = true;
-        this.dom.classList.remove('hide');
+        this.class.remove('hide');
     }
 
     _setPlaying() {

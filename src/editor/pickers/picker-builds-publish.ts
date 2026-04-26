@@ -36,22 +36,22 @@ editor.once('load', () => {
             labelPublishDesc.dom.style.display = 'none';
             labelPublishIcon.dom.style.display = 'none';
 
-            btnPublish.dom.classList.add('collapsed');
-            btnDownload.dom.classList.add('collapsed');
+            btnPublish.class.add('collapsed');
+            btnDownload.class.add('collapsed');
 
-            panelPlaycanvas.dom.classList.add('collapsed');
-            panelSelfHost.dom.classList.add('collapsed');
+            panelPlaycanvas.class.add('collapsed');
+            panelSelfHost.class.add('collapsed');
         } else {
             labelDownloadIcon.dom.style.display = 'block';
             labelDownloadDesc.dom.style.display = 'block';
             labelPublishDesc.dom.style.display = 'block';
             labelPublishIcon.dom.style.display = 'block';
 
-            btnPublish.dom.classList.remove('collapsed');
-            btnDownload.dom.classList.remove('collapsed');
+            btnPublish.class.remove('collapsed');
+            btnDownload.class.remove('collapsed');
 
-            panelPlaycanvas.dom.classList.remove('collapsed');
-            panelSelfHost.dom.classList.remove('collapsed');
+            panelPlaycanvas.class.remove('collapsed');
+            panelSelfHost.class.remove('collapsed');
         }
     };
 
@@ -482,8 +482,8 @@ editor.once('load', () => {
             toggleProgress(false);
 
             if (apps.length > 0) {
-                panelPlaycanvas.dom.classList.add('collapsed');
-                panelSelfHost.dom.classList.add('collapsed');
+                panelPlaycanvas.class.add('collapsed');
+                panelSelfHost.class.add('collapsed');
             }
 
             toggleCollapsingPublishButtons(apps.length > 0);

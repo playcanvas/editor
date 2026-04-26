@@ -36,10 +36,10 @@ editor.once('load', () => {
         if (label !== '') {
             progressLabel.hidden = false;
             progressLabel.text = label;
-            progressBarContainer.dom.classList.add('progress-container-expand');
+            progressBarContainer.class.add('progress-container-expand');
         } else {
             progressLabel.hidden = true;
-            progressBarContainer.dom.classList.remove('progress-container-expand');
+            progressBarContainer.class.remove('progress-container-expand');
         }
     };
 
@@ -310,7 +310,7 @@ editor.once('load', () => {
 
         // Add Editor settings button to currently open project
         if (!IS_EMPTY_STATE && project.id === currentProject.id) {
-            projectContainer.dom.classList.add('currentlyOpen');
+            projectContainer.class.add('currentlyOpen');
 
             const extendedSettings = new Button({
                 class: 'extended-settings-button',
@@ -373,13 +373,13 @@ editor.once('load', () => {
         statsContainer.append(sizeLabel);
 
         if (project.disabled) {
-            projectContainer.dom.classList.add('disabled');
+            projectContainer.class.add('disabled');
         }
         if (project.access_level === 'none') {
-            projectContainer.dom.classList.add('noAccess');
+            projectContainer.class.add('noAccess');
         }
         if (project.locked) {
-            projectContainer.dom.classList.add('locked');
+            projectContainer.class.add('locked');
         }
 
     };
@@ -416,10 +416,10 @@ editor.once('load', () => {
     // on closing menu remove 'clicked' class from respective dropdown
     orgDropdownMenu.on('hide', () => {
         if (selectedDropdown) {
-            const clicked = selectedDropdown.dom.classList.contains('clicked');
+            const clicked = selectedDropdown.class.contains('clicked');
             if (clicked) {
                 selectedDropdown.icon = 'E159';
-                selectedDropdown.dom.classList.remove('clicked');
+                selectedDropdown.class.remove('clicked');
             }
         }
     });
@@ -723,12 +723,12 @@ editor.once('load', () => {
     sortButton.on('click', () => {
         sortingDropdown.hidden = !sortingDropdown.hidden;
 
-        if (sortButton.dom.classList.contains('closed')) {
-            sortButton.dom.classList.remove('closed');
-            sortButton.dom.classList.add('open');
+        if (sortButton.class.contains('closed')) {
+            sortButton.class.remove('closed');
+            sortButton.class.add('open');
         } else {
-            sortButton.dom.classList.remove('open');
-            sortButton.dom.classList.add('closed');
+            sortButton.class.remove('open');
+            sortButton.class.add('closed');
         }
 
         // position dropdown menu
@@ -762,13 +762,13 @@ editor.once('load', () => {
     });
 
     layoutButton.on('click', () => {
-        if (projectsContainer.dom.classList.contains('projects-container-grid')) {
-            projectsContainer.dom.classList.remove('projects-container-grid');
-            projectsContainer.dom.classList.add('projects-container-list');
+        if (projectsContainer.class.contains('projects-container-grid')) {
+            projectsContainer.class.remove('projects-container-grid');
+            projectsContainer.class.add('projects-container-list');
             layoutButton.icon = 'E332';
         } else {
-            projectsContainer.dom.classList.remove('projects-container-list');
-            projectsContainer.dom.classList.add('projects-container-grid');
+            projectsContainer.class.remove('projects-container-list');
+            projectsContainer.class.add('projects-container-grid');
             layoutButton.icon = 'E284';
         }
     });
@@ -1056,8 +1056,8 @@ editor.once('load', () => {
 
         // reset sorting dropdown state
         sortingDropdown.hidden = true;
-        sortButton.dom.classList.remove('open');
-        sortButton.dom.classList.add('closed');
+        sortButton.class.remove('open');
+        sortButton.class.add('closed');
 
         // reset selected to 'All' filter
         setSelectedFilter(allFilter);
