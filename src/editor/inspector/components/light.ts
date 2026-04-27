@@ -487,6 +487,8 @@ class LightComponentInspector extends ComponentInspector {
             this._field(field).on('change', this._toggleFields.bind(this));
         });
 
+        this._field('outerConeAngle').on('change', this._resetInnerConeAngleLimit.bind(this));
+
         // add update shadow button
         this._btnUpdateShadow = new Button({
             size: 'small',
@@ -547,9 +549,7 @@ class LightComponentInspector extends ComponentInspector {
             this._field(field).parent.hidden = !isSpot;
         });
 
-        // Avoid inner cone angle from being larger than outer cone angle
         this._resetInnerConeAngleLimit();
-        this._field('outerConeAngle').on('change', this._resetInnerConeAngleLimit.bind(this));
 
         const bakeEnabled = this._field('bake').value;
         const bakeDirEnabled = this._field('bakeDir').value;
