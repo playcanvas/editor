@@ -371,7 +371,7 @@ const startChecker = () => {
      * Update the audit button based on the number of texture issues
      */
     const updateAuditButton = () => {
-        editor.emit('assets:auditor:issues', textureFixes.size + textureConflicts.size, textureEnforce.size);
+        editor.call('assets:auditor:report', 'srgb', textureFixes.size + textureConflicts.size, textureEnforce.size);
     };
 
     /**
