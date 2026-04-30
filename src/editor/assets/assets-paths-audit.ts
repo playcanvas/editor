@@ -65,6 +65,7 @@ const startChecker = () => {
                 asset.set('path', oldPath);
                 asset.history.enabled = true;
                 pathFixes.add(id);
+                editor.call('console:log:asset', asset, `asset path was reverted to [${oldPath.join(', ')}]`);
             }
             previous.clear();
             editor.call('assets:auditor:report', 'paths', pathFixes.size, 0);
@@ -77,10 +78,12 @@ const startChecker = () => {
                     continue;
                 }
                 const oldPath = asset.get('path') || [];
+                const newPath = dedupePath(oldPath);
                 previous.set(id, oldPath.slice());
                 asset.history.enabled = false;
-                asset.set('path', dedupePath(oldPath));
+                asset.set('path', newPath);
                 asset.history.enabled = true;
+                editor.call('console:log:asset', asset, `asset path was deduped from [${oldPath.join(', ')}] to [${newPath.join(', ')}]`);
             }
             pathFixes.clear();
             editor.call('assets:auditor:report', 'paths', pathFixes.size, 0);

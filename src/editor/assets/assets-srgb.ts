@@ -536,6 +536,7 @@ const startChecker = () => {
 
                 // revert srgb flag
                 asset.set('data.srgb', srgb, true);
+                editor.call('console:log:asset', asset, `sRGB was reverted to ${srgb}`);
 
                 // add back to enforce list
                 if (enforced) {
