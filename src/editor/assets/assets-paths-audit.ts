@@ -31,10 +31,6 @@ const hasDuplicates = (path: (string | number)[] | null | undefined) => {
 const startChecker = () => {
     const pathFixes = new Set<string>();
 
-    const update = () => {
-        editor.call('assets:auditor:report', 'paths', pathFixes.size, 0);
-    };
-
     const checkAsset = (asset: Observer) => {
         const id = asset.get('id');
         if (hasDuplicates(asset.get('path'))) {
@@ -48,7 +44,7 @@ const startChecker = () => {
         checkAsset(asset);
         asset.on('path:set', () => {
             checkAsset(asset);
-            update();
+            editor.call('assets:auditor:report', 'paths', pathFixes.size, 0);
         });
     };
 
@@ -71,7 +67,7 @@ const startChecker = () => {
                 pathFixes.add(id);
             }
             previous.clear();
-            update();
+            editor.call('assets:auditor:report', 'paths', pathFixes.size, 0);
         };
 
         const redo = () => {
@@ -87,7 +83,7 @@ const startChecker = () => {
                 asset.history.enabled = true;
             }
             pathFixes.clear();
-            update();
+            editor.call('assets:auditor:report', 'paths', pathFixes.size, 0);
         };
 
         editor.api.globals.history.add({
@@ -101,12 +97,12 @@ const startChecker = () => {
     });
 
     editor.call('assets:list').forEach(watchAsset);
-    update();
+    editor.call('assets:auditor:report', 'paths', pathFixes.size, 0);
 
     editor.on('assets:add', watchAsset);
     editor.on('assets:remove', (asset: Observer) => {
         pathFixes.delete(asset.get('id'));
-        update();
+        editor.call('assets:auditor:report', 'paths', pathFixes.size, 0);
     });
 };
 
