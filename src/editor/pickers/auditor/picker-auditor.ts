@@ -1,6 +1,19 @@
 import { Overlay, Label, Button, Container } from '@playcanvas/pcui';
 
 editor.on('load', () => {
+    // badge-count aggregator: each audit source reports under a name; emit the combined total
+    const reports = new Map<string, { issues: number, errors: number }>();
+    editor.method('assets:auditor:report', (name: string, issues: number, errors: number) => {
+        reports.set(name, { issues, errors });
+        let totalIssues = 0;
+        let totalErrors = 0;
+        for (const r of reports.values()) {
+            totalIssues += r.issues;
+            totalErrors += r.errors;
+        }
+        editor.emit('assets:auditor:issues', totalIssues, totalErrors);
+    });
+
     const callbacks: Array<() => void> = [];
 
     // overlay
