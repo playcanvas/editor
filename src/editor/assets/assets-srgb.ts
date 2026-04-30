@@ -371,7 +371,7 @@ const startChecker = () => {
      * Update the audit button based on the number of texture issues
      */
     const updateAuditButton = () => {
-        editor.emit('assets:auditor:issues', textureFixes.size + textureConflicts.size, textureEnforce.size);
+        editor.call('assets:auditor:report', 'srgb', textureFixes.size + textureConflicts.size, textureEnforce.size);
     };
 
     /**
@@ -536,6 +536,7 @@ const startChecker = () => {
 
                 // revert srgb flag
                 asset.set('data.srgb', srgb, true);
+                editor.call('console:log:asset', asset, `sRGB was reverted to ${srgb}`);
 
                 // add back to enforce list
                 if (enforced) {

@@ -159,6 +159,7 @@ import './assets/assets-rename-select';
 import './assets/assets-history';
 import './assets/assets-migrate';
 import './assets/assets-srgb';
+import './assets/assets-paths-audit';
 import './assets/assets-create-folder';
 import './assets/assets-cubemap-utils';
 import './assets/assets-cubemap-prefiltering';
