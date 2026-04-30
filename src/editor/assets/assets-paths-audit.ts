@@ -65,7 +65,9 @@ const startChecker = () => {
                 if (!asset) {
                     continue;
                 }
+                asset.history.enabled = false;
                 asset.set('path', oldPath);
+                asset.history.enabled = true;
                 pathFixes.add(id);
             }
             previous.clear();
@@ -80,7 +82,9 @@ const startChecker = () => {
                 }
                 const oldPath = asset.get('path') || [];
                 previous.set(id, oldPath.slice());
+                asset.history.enabled = false;
                 asset.set('path', dedupePath(oldPath));
+                asset.history.enabled = true;
             }
             pathFixes.clear();
             update();
