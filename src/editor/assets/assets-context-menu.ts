@@ -44,13 +44,16 @@ editor.once('load', () => {
                 return;
             }
 
+            const folder = editor.call('assets:selected:folder');
+            const validate = (name: string) => editor.call('assets:script:checkCollision', name, folder);
             editor.call('picker:script-create', (filename) => {
                 editor.call('assets:create:script', {
-                    filename: filename
+                    filename: filename,
+                    parent: folder
                 }, (asset: Asset) => {
                     editor.api.globals.selection.set([asset]);
                 });
-            });
+            }, undefined, validate);
         }
     });
     if (editor.call('permissions:write')) {
@@ -247,12 +250,13 @@ editor.once('load', () => {
                     if (legacyScripts) {
                         editor.call('sourcefiles:new');
                     } else {
+                        const validate = (name: string) => editor.call('assets:script:checkCollision', name, folder);
                         editor.call('picker:script-create', (filename) => {
                             editor.call('assets:create:script', {
                                 filename: filename,
                                 parent: folder
                             }, selectAsset());
-                        });
+                        }, undefined, validate);
                     }
                 } else {
                     if (assetCreateCallback[key]) {

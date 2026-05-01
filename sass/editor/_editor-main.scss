@@ -913,10 +913,17 @@ strong {
         }
 
         > .validate {
-            float: right;
-            margin: 2px 0 0;
+            margin: 0 0 8px;
             font-size: 12px;
             color: #f30;
+            white-space: normal;
+            word-break: break-word;
+
+            // qualify with :not(.pcui-hidden) so PCUI's display:none keeps winning
+            // when the label is hidden (specificity wars with .pcui-element.pcui-hidden)
+            &:not(.pcui-hidden) {
+                display: block;
+            }
         }
     }
 }

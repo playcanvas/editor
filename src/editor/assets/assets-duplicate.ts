@@ -103,13 +103,14 @@ editor.once('load', () => {
             )
             .on('load', (_status: number, data: unknown) => {
                 const text = typeof data === 'string' ? data.replace(/\r\n?/g, '\n') : '';
+                const validate = (name: string) => editor.call('assets:script:checkCollision', name, parentObserver);
                 editor.call('picker:script-create', (newFilename: string) => {
                     editor.call('assets:create:script', {
                         filename: newFilename,
                         parent: parentObserver,
                         text
                     });
-                }, sourceFilename);
+                }, sourceFilename, validate);
             })
             .on('error', (_status: number, errData: unknown) => {
                 editor.call('status:error', errData ?? 'Could not duplicate script asset');
