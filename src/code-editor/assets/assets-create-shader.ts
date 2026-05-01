@@ -1,25 +1,14 @@
 editor.once('load', () => {
-    editor.method('assets:create:shader', (args?: { parent?: unknown }) => {
+    editor.method('assets:create:shader', (args?: { parent?: any }) => {
         if (!editor.call('permissions:write')) {
             return;
         }
+        args = args || {};
+        const parent = (args.parent !== undefined) ? args.parent : editor.call('assets:selected:folder');
+        const folder = parent?.apiAsset ?? parent ?? undefined;
 
-        args = args || { };
-
-        const asset = {
-            name: 'New Shader',
-            type: 'shader',
-            source: false,
-            preload: true,
-            parent: (args.parent !== undefined) ? args.parent : editor.call('assets:selected:folder'),
-            filename: 'asset.glsl',
-            file: new Blob(['\n'], { type: 'text/x-glsl' }),
-            scope: {
-                type: 'project',
-                id: config.project.id
-            }
-        };
-
-        editor.call('assets:create', asset);
+        editor.api.globals.assets.createShader({ folder }).catch((err: unknown) => {
+            editor.call('status:error', err);
+        });
     });
 });

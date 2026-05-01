@@ -4,6 +4,7 @@ import { Asset, AssetObserver } from './asset';
 import { createScript } from './assets/create-script';
 import { createTemplate } from './assets/create-template';
 import { instantiateTemplates } from './assets/instantiate-templates';
+import { getUniqueName, siblingNames } from './assets/unique-name';
 import { uploadFile } from './assets/upload';
 import { Entity } from './entity';
 import { globals as api } from './globals';
@@ -141,6 +142,8 @@ export type SceneImportSettings = {
      */
     animUseFbxFilename?: boolean;
 };
+
+export { getUniqueName, siblingNames } from './assets/unique-name';
 
 /**
  * The Assets Editor API
@@ -673,11 +676,13 @@ class Assets extends Events {
      * @returns The new asset
      */
     createCss(options: { name?: string; text?: string; folder?: Asset; preload?: boolean; onProgress?: Function; } = {}) {
+        const desired = options.name || 'new.css';
+        const name = getUniqueName(desired, siblingNames(this.list(), options.folder ?? null));
         return this.upload({
-            name: options.name || 'New Css',
+            name,
             type: 'css',
             folder: options.folder,
-            filename: 'asset.css',
+            filename: name,
             file: new Blob([options.text || '\n'], { type: 'text/css' }),
             preload: options.preload
         }, null, options.onProgress);
@@ -727,8 +732,10 @@ class Assets extends Events {
      * @returns The new asset
      */
     createFolder(options: { name?: string; folder?: Asset; onProgress?: Function; }) {
+        const desired = options.name || 'folder';
+        const name = getUniqueName(desired, siblingNames(this.list(), options.folder ?? null));
         return this.upload({
-            name: options.name || 'New Folder',
+            name,
             type: 'folder',
             folder: options.folder
         }, null, options.onProgress);
@@ -745,12 +752,14 @@ class Assets extends Events {
      * @returns The new asset
      */
     createHtml(options: { name?: string; text?: string; folder?: Asset; preload?: boolean; onProgress?: Function; } = {}) {
+        const desired = options.name || 'new.html';
+        const name = getUniqueName(desired, siblingNames(this.list(), options.folder ?? null));
         return this.upload({
-            name: options.name || 'New Html',
+            name,
             type: 'html',
             folder: options.folder,
             preload: options.preload,
-            filename: 'asset.html',
+            filename: name,
             file: new Blob([options.text || '\n'], { type: 'text/html' })
         }, null, options.onProgress);
     }
@@ -771,12 +780,14 @@ class Assets extends Events {
         const spaces = options.spaces ?? 0;
         const str = JSON.stringify(options.json || {}, null, spaces);
 
+        const desired = options.name || 'new.json';
+        const name = getUniqueName(desired, siblingNames(this.list(), options.folder ?? null));
         return this.upload({
-            name: options.name || 'New Json',
+            name,
             type: 'json',
             folder: options.folder,
             preload: options.preload,
-            filename: 'asset.json',
+            filename: name,
             file: new Blob([str], { type: 'application/json' })
         }, null, options.onProgress);
     }
@@ -916,12 +927,14 @@ class Assets extends Events {
      * @returns The new asset
      */
     createShader(options: { name?: string; text?: string; folder?: Asset; preload?: boolean; onProgress?: Function; } = {}) {
+        const desired = options.name || 'new.glsl';
+        const name = getUniqueName(desired, siblingNames(this.list(), options.folder ?? null));
         return this.upload({
-            name: options.name || 'New Shader',
+            name,
             type: 'shader',
             folder: options.folder,
             preload: options.preload,
-            filename: 'asset.glsl',
+            filename: name,
             file: new Blob([options.text || '\n'], { type: 'text/x-glsl' })
         }, null, options.onProgress);
     }
@@ -966,12 +979,14 @@ class Assets extends Events {
      * @returns The new asset
      */
     createText(options: { name?: string; text?: string; folder?: Asset; preload?: boolean; onProgress?: Function; } = {}) {
+        const desired = options.name || 'new.txt';
+        const name = getUniqueName(desired, siblingNames(this.list(), options.folder ?? null));
         return this.upload({
-            name: options.name || 'New Text',
+            name,
             type: 'text',
             folder: options.folder,
             preload: options.preload,
-            filename: 'asset.txt',
+            filename: name,
             file: new Blob([options.text || '\n'], { type: 'text/plain' })
         }, null, options.onProgress);
     }

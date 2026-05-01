@@ -4,19 +4,13 @@ editor.once('load', () => {
             return;
         }
 
-        const asset = {
-            name: 'New Html',
-            type: 'html',
-            source: false,
-            parent: (args.parent !== undefined) ? args.parent : editor.call('assets:panel:currentFolder'),
-            filename: 'asset.html',
-            file: new Blob(['\n'], { type: 'text/html' }),
-            scope: {
-                type: 'project',
-                id: config.project.id
-            }
-        };
+        const parent = (args.parent !== undefined) ? args.parent : editor.call('assets:panel:currentFolder');
+        const folder = parent?.apiAsset ?? parent ?? undefined;
 
-        editor.call('assets:create', asset);
+        editor.api.globals.assets.createHtml({
+            folder
+        }).catch((err) => {
+            editor.call('status:error', err);
+        });
     });
 });

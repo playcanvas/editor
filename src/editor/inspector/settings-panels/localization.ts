@@ -40,7 +40,7 @@ class LocalizationSettingsPanel extends BaseSettingsPanel {
         const createNewAssetEvt = this._attributesInspector.getField('createAsset').on('click', () => {
             const folder = editor.call('assets:panel:currentFolder');
             editor.api.globals.assets.createI18n({
-                name: 'Localization',
+                name: 'localization.json',
                 folder: folder && folder.apiAsset
             })
             .catch((err) => {

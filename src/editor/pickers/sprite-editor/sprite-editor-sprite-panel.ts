@@ -89,7 +89,11 @@ editor.once('load', () => {
             rootPanel.headerText = `SPRITE ASSET - ${value}`;
             if (value !== spriteAsset.get('name') && !suspendRenameEvt) {
                 suspendRenameEvt = true;
-                editor.call('assets:rename', spriteAsset, value);
+                const error = editor.call('assets:rename', spriteAsset, value);
+                if (error) {
+                    fieldName.value = spriteAsset.get('name');
+                    rootPanel.headerText = `SPRITE ASSET - ${spriteAsset.get('name')}`;
+                }
                 suspendRenameEvt = false;
             }
         }));
