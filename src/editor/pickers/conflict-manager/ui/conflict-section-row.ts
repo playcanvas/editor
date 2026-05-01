@@ -78,6 +78,13 @@ class ConflictSectionRow extends Events {
 
         // Create 3 panels for base, source and destination values
         for (let i = 0; i < 3; i++) {
+            // `isRoot: true` is required because this PCUI panel is currently
+            // appended into a legacy parent. Without it, `hiddenToRoot` stays
+            // true up the chain and child `showToRoot` events never fire,
+            // which in turn prevents CurveInput from sizing its canvas. As
+            // ancestors are migrated to PCUI, `isRoot: true` should move up
+            // to whichever PCUI element sits at the legacy/PCUI boundary,
+            // and can be removed entirely once the whole picker is PCUI.
             const panel = new Container({
                 class: 'conflict-field',
                 isRoot: true
