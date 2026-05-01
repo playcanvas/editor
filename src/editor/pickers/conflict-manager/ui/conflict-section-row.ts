@@ -78,7 +78,10 @@ class ConflictSectionRow extends Events {
 
         // Create 3 panels for base, source and destination values
         for (let i = 0; i < 3; i++) {
-            const panel = new Container({ class: 'conflict-field', isRoot: true });
+            const panel = new Container({
+                class: 'conflict-field',
+                isRoot: true
+            });
             const isArray = this._types[i].startsWith('array:');
             if (isArray) {
                 panel.class.add('field-array-container');
