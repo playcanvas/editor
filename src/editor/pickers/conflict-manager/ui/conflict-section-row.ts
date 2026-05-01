@@ -493,7 +493,7 @@ class ConflictSectionRow extends Events {
     // Appends all row panels to parent panels
     appendToParents(parents: LegacyPanel[]) {
         for (let i = 0; i < parents.length; i++) {
-            parents[i].append(this._panels[i].dom);
+            parents[i].append(this._panels[i]);
         }
     }
 
