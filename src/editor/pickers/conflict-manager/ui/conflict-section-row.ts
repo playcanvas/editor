@@ -514,22 +514,6 @@ class ConflictSectionRow extends Events {
 
     destroy() {
         this.unbind();
-
-        // Neither legacy nor PCUI parents cascade destroy to PCUI children:
-        // legacy parents emit a 'destroy' event that only legacy children
-        // subscribe to, and PCUI Container.destroy() does not iterate its
-        // children. Since this row owns the panels and fields, destroy them
-        // explicitly to release their resources (e.g. CurveInput's resize
-        // interval).
-        for (const field of this._fields) {
-            field.element?.destroy();
-        }
-        this._fields.length = 0;
-
-        for (const panel of this._panels) {
-            panel.destroy();
-        }
-        this._panels.length = 0;
     }
 
     get resolved() {
