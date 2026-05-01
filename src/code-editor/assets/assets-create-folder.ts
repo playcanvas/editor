@@ -1,24 +1,14 @@
 editor.once('load', () => {
-    editor.method('assets:create:folder', (args) => {
+    editor.method('assets:create:folder', (args?: { parent?: any }) => {
         if (!editor.call('permissions:write')) {
             return;
         }
+        args = args || {};
+        const parent = (args.parent !== undefined) ? args.parent : editor.call('assets:selected:folder');
+        const folder = parent?.apiAsset ?? parent ?? undefined;
 
-        args = args || { };
-
-        const asset = {
-            name: 'New Folder',
-            type: 'folder',
-            source: true,
-            preload: false,
-            data: null,
-            parent: (args.parent !== undefined) ? args.parent : editor.call('assets:selected:folder'),
-            scope: {
-                type: 'project',
-                id: config.project.id
-            }
-        };
-
-        editor.call('assets:create', asset);
+        editor.api.globals.assets.createFolder({ folder }).catch((err: unknown) => {
+            editor.call('status:error', err);
+        });
     });
 });

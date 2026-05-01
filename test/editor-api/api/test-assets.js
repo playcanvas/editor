@@ -301,13 +301,54 @@ ${className}.prototype.update = function(dt) {
         const data = requests[0].requestBody;
         expect(data.get('branchId')).to.equal('branch');
         expect(data.get('projectId')).to.equal('1');
-        expect(data.get('filename')).to.equal('asset.css');
+        expect(data.get('filename')).to.equal('name');
         expect(data.get('file') instanceof Blob).to.equal(true);
         expect(await data.get('file').text()).to.equal('text');
         expect(data.get('type')).to.equal('css');
         expect(data.get('name')).to.equal('name');
         expect(data.get('parent')).to.equal('10');
         expect(data.get('preload')).to.equal('true');
+    });
+
+    it('uses default name new.css when none supplied', function () {
+        const xhr = sandbox.useFakeXMLHttpRequest();
+        const requests = [];
+        xhr.onCreate = (fake) => {
+            requests.push(fake);
+        };
+
+        api.globals.branchId = 'branch';
+        api.globals.projectId = 1;
+
+        api.globals.assets.createCss({});
+
+        expect(requests.length).to.equal(1);
+        const data = requests[0].requestBody;
+        expect(data.get('name')).to.equal('new.css');
+        expect(data.get('filename')).to.equal('new.css');
+    });
+
+    it('suffixes css name when sibling exists', function () {
+        const xhr = sandbox.useFakeXMLHttpRequest();
+        const requests = [];
+        xhr.onCreate = (fake) => {
+            requests.push(fake);
+        };
+
+        api.globals.branchId = 'branch';
+        api.globals.projectId = 1;
+
+        const folder = new api.Asset({ id: 10 });
+        const sibling = new api.Asset({ id: 11, type: 'css', name: 'new.css', path: [10] });
+        api.globals.assets.add(folder);
+        api.globals.assets.add(sibling);
+
+        api.globals.assets.createCss({ folder });
+
+        expect(requests.length).to.equal(1);
+        const data = requests[0].requestBody;
+        expect(data.get('name')).to.equal('new (1).css');
+        expect(data.get('filename')).to.equal('new (1).css');
     });
 
     it('creates cubemap asset', function () {
@@ -406,7 +447,7 @@ ${className}.prototype.update = function(dt) {
         const data = requests[0].requestBody;
         expect(data.get('branchId')).to.equal('branch');
         expect(data.get('projectId')).to.equal('1');
-        expect(data.get('filename')).to.equal('asset.html');
+        expect(data.get('filename')).to.equal('name');
         expect(data.get('file') instanceof Blob).to.equal(true);
         expect(await data.get('file').text()).to.equal('text');
         expect(data.get('type')).to.equal('html');
@@ -437,7 +478,7 @@ ${className}.prototype.update = function(dt) {
         const data = requests[0].requestBody;
         expect(data.get('branchId')).to.equal('branch');
         expect(data.get('projectId')).to.equal('1');
-        expect(data.get('filename')).to.equal('asset.json');
+        expect(data.get('filename')).to.equal('name');
         expect(data.get('file') instanceof Blob).to.equal(true);
         expect(await data.get('file').text()).to.equal('{"test":1}');
         expect(data.get('type')).to.equal('json');
@@ -467,7 +508,7 @@ ${className}.prototype.update = function(dt) {
         const data = requests[0].requestBody;
         expect(data.get('branchId')).to.equal('branch');
         expect(data.get('projectId')).to.equal('1');
-        expect(data.get('filename')).to.equal('asset.json');
+        expect(data.get('filename')).to.equal('name');
         expect(data.get('file') instanceof Blob).to.equal(true);
         expect(await data.get('file').text()).to.equal(JSON.stringify({
             "header": {
@@ -542,7 +583,7 @@ ${className}.prototype.update = function(dt) {
         const data = requests[0].requestBody;
         expect(data.get('branchId')).to.equal('branch');
         expect(data.get('projectId')).to.equal('1');
-        expect(data.get('filename')).to.equal('asset.glsl');
+        expect(data.get('filename')).to.equal('name');
         expect(data.get('file') instanceof Blob).to.equal(true);
         expect(await data.get('file').text()).to.equal('text');
         expect(data.get('type')).to.equal('shader');
@@ -608,7 +649,7 @@ ${className}.prototype.update = function(dt) {
         const data = requests[0].requestBody;
         expect(data.get('branchId')).to.equal('branch');
         expect(data.get('projectId')).to.equal('1');
-        expect(data.get('filename')).to.equal('asset.txt');
+        expect(data.get('filename')).to.equal('name');
         expect(data.get('file') instanceof Blob).to.equal(true);
         expect(await data.get('file').text()).to.equal('text');
         expect(data.get('type')).to.equal('text');

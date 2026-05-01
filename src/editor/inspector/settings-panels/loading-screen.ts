@@ -144,6 +144,7 @@ class LoadingScreenSettingsPanel extends BaseSettingsPanel {
 
     _clickCreateDefault() {
         const folder = editor.call('sourcefiles:loadingScreen:skeleton');
+        const validate = (name: string) => editor.call('assets:script:checkCollision', name, folder && folder.apiAsset);
         editor.call('picker:script-create', (filename) => {
             editor.call('assets:create:script', {
                 filename: filename,
@@ -152,7 +153,7 @@ class LoadingScreenSettingsPanel extends BaseSettingsPanel {
             }, (asset: Asset) => {
                 this._setLoadingScreen(asset.observer);
             });
-        });
+        }, undefined, validate);
     }
 }
 

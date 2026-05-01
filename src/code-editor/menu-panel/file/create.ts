@@ -108,6 +108,7 @@ editor.once('load', () => {
         }
 
         if (type === 'script') {
+            const validate = (name: string) => editor.call('assets:script:checkCollision', name, folder);
             editor.call('picker:script-create', (filename: string) => {
                 editor.call('assets:create:script', {
                     filename: filename,
@@ -150,7 +151,7 @@ editor.once('load', () => {
                         asset.once('file.filename:set', parseScript);
                     }
                 });
-            });
+            }, undefined, validate);
         } else {
             editor.call(`assets:create:${type}`, {
                 parent: folder

@@ -1,25 +1,14 @@
 editor.once('load', () => {
-    editor.method('assets:create:json', (args) => {
+    editor.method('assets:create:json', (args?: { parent?: any }) => {
         if (!editor.call('permissions:write')) {
             return;
         }
+        args = args || {};
+        const parent = (args.parent !== undefined) ? args.parent : editor.call('assets:selected:folder');
+        const folder = parent?.apiAsset ?? parent ?? undefined;
 
-        args = args || { };
-
-        const asset = {
-            name: 'New Json',
-            type: 'json',
-            source: false,
-            preload: true,
-            parent: (args.parent !== undefined) ? args.parent : editor.call('assets:selected:folder'),
-            filename: 'asset.json',
-            file: new Blob(['{ }'], { type: 'application/json' }),
-            scope: {
-                type: 'project',
-                id: config.project.id
-            }
-        };
-
-        editor.call('assets:create', asset);
+        editor.api.globals.assets.createJson({ folder }).catch((err: unknown) => {
+            editor.call('status:error', err);
+        });
     });
 });
