@@ -1,15 +1,10 @@
-import { TextAreaInput } from '@playcanvas/pcui';
+import { ColorPicker, Container, type Element, Label, TextAreaInput } from '@playcanvas/pcui';
 
-import { LegacyColorField } from '@/common/ui/color-field';
-import { LegacyCurveField } from '@/common/ui/curve-field';
-import { LegacyLabel } from '@/common/ui/label';
-import { LegacyList } from '@/common/ui/list';
-import { LegacyListItem } from '@/common/ui/list-item';
-import { LegacyPanel } from '@/common/ui/panel';
+import { CurveInput } from '@/common/pcui/element/element-curve-input';
 
 // Base class for fields
 class ConflictField {
-    element: any = null;
+    element: Element = null;
 
     onAddedToDom() {
         // reset height
@@ -61,10 +56,10 @@ class ConflictFieldString extends ConflictField {
     constructor(value: unknown) {
         super();
 
-        this.element = new LegacyLabel({
+        this.element = new Label({
+            class: ['field-string', 'selectable'],
             text: `${value}`
         });
-        this.element.class.add('field-string', 'selectable');
     }
 }
 
@@ -73,18 +68,19 @@ class ConflictFieldVector extends ConflictField {
     constructor(value: number[]) {
         super();
 
-        const panel = new LegacyPanel();
+        const container = new Container({
+            class: 'field-vector'
+        });
         const vars = ['x: ', 'y: ', 'z: ', 'w: '];
         for (let i = 0; i < value.length; i++) {
-            const label = new LegacyLabel({
+            const label = new Label({
+                class: 'selectable',
                 text: `${vars[i] + value[i]}`
             });
-            label.class.add('selectable');
-            panel.append(label);
+            container.append(label);
         }
 
-        this.element = panel;
-        this.element.class.add('field-vector');
+        this.element = container;
     }
 }
 
@@ -93,11 +89,12 @@ class ConflictFieldColor extends ConflictField {
     constructor(value: number[]) {
         super();
 
-        this.element = new LegacyColorField();
-        this.element.value = value.map((c: number) => {
-            return c * 255;
+        this.element = new ColorPicker({
+            class: 'field-color',
+            value: value,
+            channels: value.length,
+            readOnly: true
         });
-        this.element.class.add('field-color');
     }
 }
 
@@ -106,11 +103,12 @@ class ConflictFieldCurve extends ConflictField {
     constructor(value: unknown) {
         super();
 
-        this.element = new LegacyCurveField({
-            lineWidth: 3
+        const curve = new CurveInput({
+            class: 'field-curve',
+            readOnly: true
         });
-        this.element.value = value ? [value] : null;
-        this.element.class.add('field-curve');
+        curve.value = value ? [value] : null;
+        this.element = curve;
     }
 }
 
@@ -119,22 +117,25 @@ class ConflictFieldAsset extends ConflictField {
     constructor(value: { id?: unknown; name?: string } | null) {
         super();
 
-        this.element = new LegacyPanel();
-        this.element.class.add('field-asset');
+        const container = new Container({
+            class: 'field-asset'
+        });
 
         if (value && value.name) {
-            const labelName = new LegacyLabel({
+            const labelName = new Label({
+                class: ['asset-name', 'selectable'],
                 text: value.name
             });
-            labelName.class.add('asset-name', 'selectable');
-            this.element.append(labelName);
+            container.append(labelName);
         }
 
-        const labelId = new LegacyLabel({
+        const labelId = new Label({
+            class: ['asset-id', 'selectable'],
             text: value ? `ID: ${value.id}` : `${value}`
         });
-        labelId.class.add('asset-id', 'selectable');
-        this.element.append(labelId);
+        container.append(labelId);
+
+        this.element = container;
     }
 }
 
@@ -143,32 +144,35 @@ class ConflictFieldEntity extends ConflictField {
     constructor(value: { id?: unknown; name?: string; deleted?: boolean } | null) {
         super();
 
-        this.element = new LegacyPanel();
-        this.element.class.add('field-entity');
+        const container = new Container({
+            class: 'field-entity'
+        });
 
         if (value) {
             if (value.deleted) {
-                const labelDeleted = new LegacyLabel({
+                const labelDeleted = new Label({
+                    class: 'deleted',
                     text: 'The following parent was deleted on this branch:'
                 });
-                labelDeleted.class.add('deleted');
-                this.element.append(labelDeleted);
+                container.append(labelDeleted);
             }
 
             if (value.name) {
-                const labelName = new LegacyLabel({
+                const labelName = new Label({
+                    class: ['entity-name', 'selectable'],
                     text: value.name
                 });
-                labelName.class.add('entity-name', 'selectable');
-                this.element.append(labelName);
+                container.append(labelName);
             }
         }
 
-        const labelId = new LegacyLabel({
+        const labelId = new Label({
+            class: ['entity-id', 'selectable'],
             text: value ? `GUID: ${value.id}` : `${value}`
         });
-        labelId.class.add('entity-id', 'selectable');
-        this.element.append(labelId);
+        container.append(labelId);
+
+        this.element = container;
     }
 }
 
@@ -177,10 +181,10 @@ class ConflictFieldLayer extends ConflictField {
     constructor(value: { id?: unknown; name?: string } | null) {
         super();
 
-        this.element = new LegacyLabel({
-            text: value !== null && value !== undefined ? (value.name || value.id) : `${value}`
+        this.element = new Label({
+            class: ['field-layer', 'selectable'],
+            text: value !== null && value !== undefined ? `${value.name || value.id}` : `${value}`
         });
-        this.element.class.add('field-layer', 'selectable');
     }
 }
 
@@ -189,10 +193,10 @@ class ConflictFieldSublayer extends ConflictField {
     constructor(value: { layer?: unknown; transparent?: boolean } | null) {
         super();
 
-        this.element = new LegacyLabel({
-            text: value ? `${value.layer} ${value.transparent ? 'Transparent' : 'Opaque'}` : value
+        this.element = new Label({
+            class: ['field-sublayer', 'selectable'],
+            text: value ? `${value.layer} ${value.transparent ? 'Transparent' : 'Opaque'}` : `${value}`
         });
-        this.element.class.add('field-sublayer', 'selectable');
     }
 }
 
@@ -201,16 +205,17 @@ class ConflictFieldJson extends ConflictField {
     constructor(value: unknown) {
         super();
 
-        this.element = new TextAreaInput({
+        const textarea = new TextAreaInput({
+            class: ['field-json', 'selectable'],
             readOnly: true,
             value: JSON.stringify(value, null, 2),
             height: 100
         });
-        this.element.input.style.lineHeight = 1.1;
-        this.element.on('click', (evt: MouseEvent) => {
+        textarea.input.style.lineHeight = '1.1';
+        textarea.on('click', (evt: MouseEvent) => {
             evt.stopPropagation();
         });
-        this.element.class.add('field-json', 'selectable');
+        this.element = textarea;
     }
 }
 
@@ -219,19 +224,22 @@ class ConflictFieldDeleted extends ConflictField {
     constructor() {
         super();
 
-        this.element = new LegacyPanel();
-        this.element.class.add('field-deleted');
+        const container = new Container({
+            class: 'field-deleted'
+        });
 
-        let label = new LegacyLabel({
+        const title = new Label({
+            class: 'title',
             text: 'DELETED'
         });
-        label.class.add('title');
-        this.element.append(label);
+        container.append(title);
 
-        label = new LegacyLabel({
+        const message = new Label({
             text: 'This item was deleted on this branch'
         });
-        this.element.append(label);
+        container.append(message);
+
+        this.element = container;
     }
 }
 
@@ -240,19 +248,22 @@ class ConflictFieldCreated extends ConflictField {
     constructor() {
         super();
 
-        this.element = new LegacyPanel();
-        this.element.class.add('field-edited');
+        const container = new Container({
+            class: 'field-edited'
+        });
 
-        let label = new LegacyLabel({
+        const title = new Label({
+            class: 'title',
             text: 'CREATED'
         });
-        label.class.add('title');
-        this.element.append(label);
+        container.append(title);
 
-        label = new LegacyLabel({
+        const message = new Label({
             text: 'This item was created on this branch'
         });
-        this.element.append(label);
+        container.append(message);
+
+        this.element = container;
     }
 }
 
@@ -261,19 +272,22 @@ class ConflictFieldEdited extends ConflictField {
     constructor() {
         super();
 
-        this.element = new LegacyPanel();
-        this.element.class.add('field-edited');
+        const container = new Container({
+            class: 'field-edited'
+        });
 
-        let label = new LegacyLabel({
+        const title = new Label({
+            class: 'title',
             text: 'EDITED'
         });
-        label.class.add('title');
-        this.element.append(label);
+        container.append(title);
 
-        label = new LegacyLabel({
+        const message = new Label({
             text: 'This item was edited on this branch'
         });
-        this.element.append(label);
+        container.append(message);
+
+        this.element = container;
     }
 }
 
@@ -282,10 +296,10 @@ class ConflictFieldNotAvailable extends ConflictField {
     constructor() {
         super();
 
-        this.element = new LegacyLabel({
+        this.element = new Label({
+            class: 'field-missing',
             text: 'Not available'
         });
-        this.element.class.add('field-missing');
     }
 }
 
@@ -294,10 +308,10 @@ class ConflictFieldNotRenderable extends ConflictField {
     constructor() {
         super();
 
-        this.element = new LegacyLabel({
+        this.element = new Label({
+            class: 'field-missing',
             text: 'No preview available'
         });
-        this.element.class.add('field-missing');
     }
 }
 
@@ -305,34 +319,42 @@ class ConflictFieldNotRenderable extends ConflictField {
 class ConflictArrayField extends ConflictField {
     private _size: number;
 
-    private _labelSize: LegacyLabel;
+    private _labelSize: Label;
 
-    private _list: LegacyList;
+    private _list: Container;
 
     constructor(type: string, value: unknown[]) {
         super();
 
         this._size = value.length;
 
-        this.element = new LegacyPanel();
-        this.element.class.add('field-array');
-        this._labelSize = new LegacyLabel({
+        const container = new Container({
+            class: 'field-array'
+        });
+
+        this._labelSize = new Label({
+            class: 'size',
             text: `Array Size: ${this._size}`
         });
-        this._labelSize.class.add('size');
-        this.element.append(this._labelSize);
+        container.append(this._labelSize);
 
-        this._list = new LegacyList();
+        this._list = new Container({
+            class: 'field-array-list'
+        });
 
         for (let i = 0; i < this._size; i++) {
-            const item = new LegacyListItem();
+            const item = new Container({
+                class: 'field-array-item'
+            });
             const field = ConflictField.create(type, value[i]);
             field.element.class.add(`array-${type}`);
-            item.element.appendChild(field.element.element);
+            item.append(field.element);
             this._list.append(item);
         }
 
-        this.element.append(this._list);
+        container.append(this._list);
+
+        this.element = container;
     }
 
     get size() {
