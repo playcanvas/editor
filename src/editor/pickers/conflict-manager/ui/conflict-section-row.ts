@@ -87,8 +87,8 @@ class ConflictSectionRow extends Events {
             this._panels.push(panel);
 
             if (!resolver.isDiff) {
-                panel.dom.addEventListener('mouseenter', this._onHover);
-                panel.dom.addEventListener('mouseleave', this._onUnHover);
+                panel.on('hover', this._onHover);
+                panel.on('hoverend', this._onUnHover);
             }
 
             // Add indentation to all panels
