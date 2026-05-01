@@ -5974,7 +5974,7 @@ strong {
                                                     &.indent-1 {
                                                         padding-left: 35px;
 
-                                                        .name {
+                                                        > .pcui-label.name {
                                                             width: $name-width - $indent-width;
                                                         }
 
