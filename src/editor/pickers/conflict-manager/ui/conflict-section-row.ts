@@ -1,7 +1,7 @@
 import { Events } from '@playcanvas/observer';
+import { Container, Label } from '@playcanvas/pcui';
 
-import { LegacyLabel } from '@/common/ui/label';
-import { LegacyPanel } from '@/common/ui/panel';
+import type { LegacyPanel } from '@/common/ui/panel';
 
 import {
     ConflictArrayField,
@@ -52,7 +52,7 @@ class ConflictSectionRow extends Events {
 
     private _indent = 0;
 
-    private _panels: LegacyPanel[] = [];
+    private _panels: Container[] = [];
 
     private _fields: ConflictField[] = [];
 
@@ -78,8 +78,17 @@ class ConflictSectionRow extends Events {
 
         // Create 3 panels for base, source and destination values
         for (let i = 0; i < 3; i++) {
-            const panel = new LegacyPanel();
-            panel.class.add('conflict-field');
+            // `isRoot: true` is required because this PCUI panel is currently
+            // appended into a legacy parent. Without it, `hiddenToRoot` stays
+            // true up the chain and child `showToRoot` events never fire,
+            // which in turn prevents CurveInput from sizing its canvas. As
+            // ancestors are migrated to PCUI, `isRoot: true` should move up
+            // to whichever PCUI element sits at the legacy/PCUI boundary,
+            // and can be removed entirely once the whole picker is PCUI.
+            const panel = new Container({
+                class: 'conflict-field',
+                isRoot: true
+            });
             const isArray = this._types[i].startsWith('array:');
             if (isArray) {
                 panel.class.add('field-array-container');
@@ -88,8 +97,8 @@ class ConflictSectionRow extends Events {
             this._panels.push(panel);
 
             if (!resolver.isDiff) {
-                panel.on('hover', this._onHover.bind(this));
-                panel.on('blur', this._onUnHover.bind(this));
+                panel.on('hover', this._onHover);
+                panel.on('hoverend', this._onUnHover);
             }
 
             // Add indentation to all panels
@@ -100,12 +109,11 @@ class ConflictSectionRow extends Events {
                 }
             }
 
-            let label = null;
             if (this._name) {
-                label = new LegacyLabel({
+                const label = new Label({
+                    class: 'name',
                     text: `${args.prettify ? this._prettifyName(this._name) : this._name}:`
                 });
-                label.class.add('name');
                 panel.append(label);
             }
 
@@ -406,17 +414,17 @@ class ConflictSectionRow extends Events {
         sublayer.layer = (layer.name || layer.id);
     }
 
-    _onHover() {
+    _onHover = () => {
         for (let i = 0; i < 3; i++) {
             this._panels[i].class.add('hovered');
         }
-    }
+    };
 
-    _onUnHover() {
+    _onUnHover = () => {
         for (let i = 0; i < 3; i++) {
             this._panels[i].class.remove('hovered');
         }
-    }
+    };
 
     indent() {
         this._panels[BASE_PANEL].class.remove(`indent-${this._indent}`);

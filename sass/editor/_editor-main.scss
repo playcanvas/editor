@@ -5963,65 +5963,60 @@ strong {
                                             box-sizing: border-box;
 
                                             > .content {
-                                                > .ui-panel.conflict-field {
+                                                > .pcui-container.conflict-field {
                                                     height: auto;
                                                     margin: 10px;
                                                     padding: 5px 15px 5px 25px;
                                                     box-sizing: border-box;
+                                                    white-space: nowrap;
+                                                    isolation: isolate;
 
                                                     &.indent-1 {
                                                         padding-left: 35px;
-                                                    }
 
-                                                    > .content {
-                                                        white-space: nowrap;
-
-                                                        .ui-label,
-                                                        .pcui-label {
-                                                            margin: 0;
-                                                            padding: 0;
-                                                            line-height: 22px;
-                                                            overflow: hidden;
-                                                            text-overflow: ellipsis;
-                                                        }
-
-                                                        > .ui-label {
-                                                            vertical-align: top;
-
-                                                            &.name {
-                                                                width: $name-width;
-                                                                margin-right: 10px;
-                                                                white-space: nowrap;
-                                                            }
-                                                        }
-
-                                                        .value {
-                                                            display: inline-block;
-                                                            max-width: $value-width;
-                                                            font-family: inconsolatamedium;
-                                                            white-space: normal;
-                                                            background: transparent;
-
-                                                            .pcui-label {
-                                                                font-family: inherit;
-                                                                white-space: normal;
-                                                            }
-                                                        }
-
-                                                        .pcui-label.selectable {
-                                                            user-select: text;
-                                                            pointer-events: auto;
-                                                        }
-                                                    }
-
-                                                    &.indent-1 > .content {
-                                                        .name {
+                                                        > .pcui-label.name {
                                                             width: $name-width - $indent-width;
                                                         }
 
                                                         .value {
                                                             max-width: $value-width - $indent-width;
                                                         }
+                                                    }
+
+                                                    .pcui-label {
+                                                        margin: 0;
+                                                        padding: 0;
+                                                        line-height: 22px;
+                                                        overflow: hidden;
+                                                        text-overflow: ellipsis;
+                                                    }
+
+                                                    > .pcui-label {
+                                                        vertical-align: top;
+
+                                                        &.name {
+                                                            width: $name-width;
+                                                            margin-right: 10px;
+                                                            white-space: nowrap;
+                                                        }
+                                                    }
+
+                                                    .value {
+                                                        display: inline-block;
+                                                        max-width: $value-width;
+                                                        font-family: inconsolatamedium;
+                                                        white-space: normal;
+                                                        background: transparent;
+
+                                                        .pcui-label {
+                                                            font-family: inherit;
+                                                            white-space: normal;
+                                                        }
+                                                    }
+
+                                                    .pcui-label.selectable {
+                                                        user-select: text;
+                                                        pointer-events: auto;
                                                     }
 
                                                     &::before {
@@ -6034,6 +6029,7 @@ strong {
                                                         background: $bcg-darkest;
                                                         opacity: 0;
                                                         transition: opacity 100ms;
+                                                        z-index: -1;
                                                     }
 
                                                     &.hovered::before {
@@ -6116,10 +6112,6 @@ strong {
                                                     }
 
                                                     &.field-array-container {
-                                                        > .content {
-                                                            height: 100%;
-                                                        }
-
                                                         .field-array {
                                                             display: block;
                                                             max-width: 100%;
@@ -6200,7 +6192,7 @@ strong {
                                             &.theirs,
                                             &.mine {
                                                 > .content {
-                                                    > .ui-panel.conflict-field {
+                                                    > .pcui-container.conflict-field {
                                                         $dis: &;
                                                         $selected-color: rgb(105 184 117);
 
@@ -6419,7 +6411,7 @@ strong {
                                         > .content {
                                             > .ui-panel {
                                                 > .content {
-                                                    > .ui-panel.conflict-field {
+                                                    > .pcui-container.conflict-field {
                                                         cursor: default;
 
                                                         &::after {
@@ -6438,21 +6430,17 @@ strong {
                                                             max-width: 100% !important;
                                                         }
 
-                                                        > .content {
-                                                            > .ui-label.name {
-                                                                white-space: normal;
-                                                                line-height: 1em;
-                                                            }
-
-                                                            .value {
-                                                                max-width: 270px;
-                                                            }
+                                                        > .pcui-label.name {
+                                                            white-space: normal;
+                                                            line-height: 1em;
                                                         }
 
-                                                        &.indent-1 > .content {
-                                                            .value {
-                                                                max-width: 260px;
-                                                            }
+                                                        .value {
+                                                            max-width: 270px;
+                                                        }
+
+                                                        &.indent-1 .value {
+                                                            max-width: 260px;
                                                         }
                                                     }
                                                 }
