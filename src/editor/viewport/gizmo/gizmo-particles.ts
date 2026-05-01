@@ -153,10 +153,8 @@ editor.once('load', () => {
             this.unlink();
             this._link = obj;
 
-            const self = this;
-
             this.events.push(this._link.once('destroy', () => {
-                self.unlink();
+                this.unlink();
             }));
 
             this.entity = new Entity();

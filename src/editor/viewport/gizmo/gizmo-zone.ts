@@ -372,10 +372,8 @@ editor.once('load', () => {
                 this.unlink();
                 this._link = obj;
 
-                const self = this;
-
                 this.events.push(this._link.once('destroy', () => {
-                    self.unlink();
+                    this.unlink();
                 }));
 
                 this.entity = new Entity();
@@ -386,9 +384,7 @@ editor.once('load', () => {
                     layers: [layerBack.id, layerFront.id]
                 });
                 this.entity.model.addModelToLayers = addModelToLayers;
-                this.entity._getEntity = function () {
-                    return self._link.entity;
-                };
+                this.entity._getEntity = () => this._link.entity;
                 this.entity.setLocalScale(1, 1, 1);
                 this.entity.__editor = true;
 
