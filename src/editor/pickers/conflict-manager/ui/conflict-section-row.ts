@@ -65,7 +65,6 @@ class ConflictSectionRow extends Events {
     constructor(resolver: Record<string, unknown>, args: ConflictSectionRowArgs) {
         super();
 
-        const self = this;
         this._resolver = resolver;
         this._name = args.name;
         if (args.type) {
@@ -75,16 +74,16 @@ class ConflictSectionRow extends Events {
         }
         this._conflict = args.conflict;
 
-        const values = this._convertValues(self._conflict);
+        const values = this._convertValues(this._conflict);
 
         // Create 3 panels for base, source and destination values
         for (let i = 0; i < 3; i++) {
             const panel = new LegacyPanel();
             panel.class.add('conflict-field');
-            const isArray = self._types[i].startsWith('array:');
+            const isArray = this._types[i].startsWith('array:');
             if (isArray) {
                 panel.class.add('field-array-container');
-                self._types[i] = self._types[i].slice('array:'.length);
+                this._types[i] = this._types[i].slice('array:'.length);
             }
             this._panels.push(panel);
 
@@ -102,9 +101,9 @@ class ConflictSectionRow extends Events {
             }
 
             let label = null;
-            if (self._name) {
+            if (this._name) {
                 label = new LegacyLabel({
-                    text: `${args.prettify ? this._prettifyName(self._name) : self._name}:`
+                    text: `${args.prettify ? this._prettifyName(this._name) : this._name}:`
                 });
                 label.class.add('name');
                 panel.append(label);
@@ -112,14 +111,14 @@ class ConflictSectionRow extends Events {
 
             let field = null;
 
-            if (this._wasMissing(i, self._conflict, resolver.isDiff)) {
+            if (this._wasMissing(i, this._conflict, resolver.isDiff)) {
                 field = new ConflictFieldNotAvailable();
-            } else if (this._wasDeleted(i, self._conflict, resolver.isDiff)) {
+            } else if (this._wasDeleted(i, this._conflict, resolver.isDiff)) {
                 field = new ConflictFieldDeleted();
-            } else if (this._wasCreated(i, self._conflict, resolver.isDiff)) {
+            } else if (this._wasCreated(i, this._conflict, resolver.isDiff)) {
                 field = new ConflictFieldCreated();
-            } else if (self._types[i].endsWith('object') || args.noPath) {
-                if (this._wasEdited(i, self._conflict, resolver.isDiff)) {
+            } else if (this._types[i].endsWith('object') || args.noPath) {
+                if (this._wasEdited(i, this._conflict, resolver.isDiff)) {
                     field = new ConflictFieldEdited();
                 } else {
                     field = new ConflictFieldNotRenderable();
@@ -134,9 +133,9 @@ class ConflictSectionRow extends Events {
 
             if (!field) {
                 if (isArray) {
-                    field = new ConflictArrayField(self._types[i], values[i]);
+                    field = new ConflictArrayField(this._types[i], values[i]);
                 } else {
-                    field = ConflictField.create(self._types[i], values[i]);
+                    field = ConflictField.create(this._types[i], values[i]);
                 }
             }
 
@@ -146,28 +145,28 @@ class ConflictSectionRow extends Events {
             panel.append(field.element);
         }
 
-        if (self._conflict.useSrc) {
+        if (this._conflict.useSrc) {
             this._panels[SOURCE_PANEL].class.add('selected');
             this._resolved = true;
-        } else if (self._conflict.useDst) {
+        } else if (this._conflict.useDst) {
             this._panels[DEST_PANEL].class.add('selected');
             this._resolved = true;
         }
 
         if (!resolver.isDiff) {
             this._panels[SOURCE_PANEL].on('click', () => {
-                if (self._conflict.useSrc) {
-                    self.unresolve();
+                if (this._conflict.useSrc) {
+                    this.unresolve();
                 } else {
-                    self.resolveUsingSource();
+                    this.resolveUsingSource();
                 }
             });
 
             this._panels[DEST_PANEL].on('click', () => {
-                if (self._conflict.useDst) {
-                    self.unresolve();
+                if (this._conflict.useDst) {
+                    this.unresolve();
                 } else {
-                    self.resolveUsingDestination();
+                    this.resolveUsingDestination();
                 }
             });
         }
@@ -260,21 +259,19 @@ class ConflictSectionRow extends Events {
     // Returns an array of the 3 values (base, source, dest) after it converts
     // those values from IDs to names (if necessary)
     _convertValues(conflict: Record<string, unknown>): unknown[] {
-        const self = this;
-
         let base = conflict.baseValue;
         let src = conflict.srcValue;
         let dst = conflict.dstValue;
 
-        const baseType = self._types[BASE_PANEL];
-        const srcType = self._types[SOURCE_PANEL];
-        const dstType = self._types[DEST_PANEL];
+        const baseType = this._types[BASE_PANEL];
+        const srcType = this._types[SOURCE_PANEL];
+        const dstType = this._types[DEST_PANEL];
 
         const indexes = {
-            'asset': [self._resolver.srcAssetIndex, self._resolver.dstAssetIndex],
-            'entity': [self._resolver.srcEntityIndex, self._resolver.dstEntityIndex],
-            'layer': [self._resolver.srcSettingsIndex.layers, self._resolver.dstSettingsIndex.layers],
-            'batchGroup': [self._resolver.srcSettingsIndex.batchGroups, self._resolver.dstSettingsIndex.batchGroups]
+            'asset': [this._resolver.srcAssetIndex, this._resolver.dstAssetIndex],
+            'entity': [this._resolver.srcEntityIndex, this._resolver.dstEntityIndex],
+            'layer': [this._resolver.srcSettingsIndex.layers, this._resolver.dstSettingsIndex.layers],
+            'batchGroup': [this._resolver.srcSettingsIndex.batchGroups, this._resolver.dstSettingsIndex.batchGroups]
         };
 
         // convert ids to names
@@ -283,12 +280,12 @@ class ConflictSectionRow extends Events {
             let handled = false;
             for (const type in indexes) {
                 if (baseType === type) {
-                    base = self._convertIdToName(base, indexes[type][0], indexes[type][1]);
+                    base = this._convertIdToName(base, indexes[type][0], indexes[type][1]);
                     handled = true;
                     break;
                 } else if (baseType === `array:${type}`) {
                     base = base.map((id) => {
-                        return self._convertIdToName(id, indexes[type][0], indexes[type][1]);
+                        return this._convertIdToName(id, indexes[type][0], indexes[type][1]);
                     });
                     handled = true;
                     break;
@@ -298,7 +295,7 @@ class ConflictSectionRow extends Events {
             // special handling for sublayers - use the 'layer' field as the id for the field
             if (!handled && baseType === 'array:sublayer' && base) {
                 base.forEach((sublayer) => {
-                    self._convertSublayer(sublayer, indexes.layer[0], indexes.layer[1]);
+                    this._convertSublayer(sublayer, indexes.layer[0], indexes.layer[1]);
                 });
             }
         }
@@ -307,7 +304,7 @@ class ConflictSectionRow extends Events {
             let handled = false;
             for (const type in indexes) {
                 if (srcType === type) {
-                    src = self._convertIdToName(src, indexes[type][0]);
+                    src = this._convertIdToName(src, indexes[type][0]);
                     handled = true;
                     break;
 
@@ -316,7 +313,7 @@ class ConflictSectionRow extends Events {
                     // be stored in the conflict object.
                     // if (type === 'entity' && conflict.path.endsWith('.parent')) {
                     //     // check if parent is deleted
-                    //     if (! self._resolver.dstEntityIndex[conflict.srcValue]) {
+                    //     if (! this._resolver.dstEntityIndex[conflict.srcValue]) {
                     //         src.deleted = true;
                     //     }
                     // }
@@ -324,7 +321,7 @@ class ConflictSectionRow extends Events {
                 } else if (srcType === `array:${type}`) {
                     if (Array.isArray(src)) {
                         src = src.map((id: unknown) => {
-                            return self._convertIdToName(id, indexes[type][0]);
+                            return this._convertIdToName(id, indexes[type][0]);
                         });
                     }
 
@@ -336,7 +333,7 @@ class ConflictSectionRow extends Events {
             // special handling for sublayers - use the 'layer' field as the id for the field
             if (!handled && srcType === 'array:sublayer' && src) {
                 src.forEach((sublayer: { layer: unknown }) => {
-                    self._convertSublayer(sublayer, indexes.layer[0]);
+                    this._convertSublayer(sublayer, indexes.layer[0]);
                 });
             }
         }
@@ -345,7 +342,7 @@ class ConflictSectionRow extends Events {
             let handled = false;
             for (const type in indexes) {
                 if (dstType === type) {
-                    dst = self._convertIdToName(dst, indexes[type][1]);
+                    dst = this._convertIdToName(dst, indexes[type][1]);
                     handled = true;
                     break;
 
@@ -354,13 +351,13 @@ class ConflictSectionRow extends Events {
                     // be stored in the conflict object.
                     // if (type === 'entity' && conflict.path.endsWith('.parent')) {
                     //     // check if parent is deleted
-                    //     if (! self._resolver.srcEntityIndex[conflict.dstValue]) {
+                    //     if (! this._resolver.srcEntityIndex[conflict.dstValue]) {
                     //         dst.deleted = true;
                     //     }
                     // }
                 } else if (dstType === `array:${type}`) {
                     dst = dst.map((id: unknown) => {
-                        return self._convertIdToName(id, indexes[type][1]);
+                        return this._convertIdToName(id, indexes[type][1]);
                     });
                     handled = true;
                     break;
@@ -370,7 +367,7 @@ class ConflictSectionRow extends Events {
             // special handling for sublayers - use the 'layer' field as the id for the field
             if (!handled && dstType === 'array:sublayer' && dst) {
                 dst.forEach((sublayer: { layer: unknown }) => {
-                    self._convertSublayer(sublayer, indexes.layer[1]);
+                    this._convertSublayer(sublayer, indexes.layer[1]);
                 });
             }
         }
