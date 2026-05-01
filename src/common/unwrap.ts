@@ -907,7 +907,6 @@ class Unwrap {
         const vertCount = [];
         let ibOffset = 0;
         let objectScale;
-        const self = this;
         let meshId, nodeId, vbId, attribs;
         const _uvs = [];
         const _scales = [];
@@ -961,7 +960,7 @@ class Unwrap {
 
             let unwrappedData = { uv: _uv, append: [] };
             if (!_uv) {
-                unwrappedData = self.boxUnwrap(_ib, _positions);
+                unwrappedData = this.boxUnwrap(_ib, _positions);
                 _uv = unwrappedData.uv;
             }
             const append = unwrappedData.append;
@@ -1024,15 +1023,15 @@ class Unwrap {
         }
 
 
-        const charts = self.findCharts(ib);
-        const areasObj = self.calculateChartArea(ib, charts, positions, uv);
-        const scales = self.normalizeCharts(ib, charts, areasObj, uv);
+        const charts = this.findCharts(ib);
+        const areasObj = this.calculateChartArea(ib, charts, positions, uv);
+        const scales = this.normalizeCharts(ib, charts, areasObj, uv);
         globalScale = 1;
 
         if (this.cancel) {
             return;
         }
-        packResult = self.packCharts(ib, charts, areasObj.aabbs, areasObj, uv, scales, globalScale);
+        packResult = this.packCharts(ib, charts, areasObj.aabbs, areasObj, uv, scales, globalScale);
 
         if (this.progress) {
             this.progress(30);
@@ -1043,7 +1042,7 @@ class Unwrap {
                 return;
             }
             globalScale /= 1 + areasObj.notFitted;
-            packResult = self.packCharts(ib, charts, areasObj.aabbs, areasObj, uv, scales, globalScale);
+            packResult = this.packCharts(ib, charts, areasObj.aabbs, areasObj, uv, scales, globalScale);
         }
         packedScaleOffset = packResult.scaleOffset;
 
@@ -1063,7 +1062,7 @@ class Unwrap {
                 break;
             } // float precision
 
-            packResult = self.packCharts(ib, charts, areasObj.aabbs, areasObj, uv, scales, globalScale);
+            packResult = this.packCharts(ib, charts, areasObj.aabbs, areasObj, uv, scales, globalScale);
             if (!packResult.fit) {
                 break;
             }
@@ -1074,10 +1073,10 @@ class Unwrap {
         }
 
         globalScale -= step;
-        packResult = self.packCharts(ib, charts, areasObj.aabbs, areasObj, uv, scales, globalScale);
+        packResult = this.packCharts(ib, charts, areasObj.aabbs, areasObj, uv, scales, globalScale);
         packedScaleOffset = packResult.scaleOffset;
 
-        self.finalTransformUv(ib, charts, uv, scales, globalScale, packedScaleOffset);
+        this.finalTransformUv(ib, charts, uv, scales, globalScale, packedScaleOffset);
 
 
         for (i = 0; i < data.model.vertices.length; i++) {

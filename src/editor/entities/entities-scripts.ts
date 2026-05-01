@@ -69,21 +69,19 @@ editor.once('load', () => {
         // Called when a new entity is added. Adds the entity to the index
         // and subscribes to component script events
         onEntityAdd(entity: Observer) {
-            const self = this;
-
             const scripts = entity.get('components.script.order');
             if (scripts) {
                 for (let i = 0; i < scripts.length; i++) {
-                    self.add(entity, scripts[i]);
+                    this.add(entity, scripts[i]);
                 }
             }
 
             entity.on('components.script.order:insert', (script, index, remote) => {
-                self.add(entity, script);
+                this.add(entity, script);
             });
 
             entity.on('components.script.order:remove', (script) => {
-                self.remove(entity, script);
+                this.remove(entity, script);
             });
 
             entity.on('components.script:unset', (scriptComponent) => {
@@ -91,7 +89,7 @@ editor.once('load', () => {
                 if (scriptOrder) {
                     let i = scriptOrder.length;
                     while (i--) {
-                        self.remove(entity, scriptOrder[i]);
+                        this.remove(entity, scriptOrder[i]);
                     }
                 }
             });

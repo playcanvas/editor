@@ -72,9 +72,8 @@ class MyAssetsStore extends BaseStore {
             return newItems;
         }
 
-        const self = this;
-        const load = async function (item: { id: string }) {
-            return self._prepareItem(await editor.api.globals.rest.assets.assetGet(item.id).promisify());
+        const load = async (item: { id: string }) => {
+            return this._prepareItem(await editor.api.globals.rest.assets.assetGet(item.id).promisify());
         };
 
         for (const item of items) {

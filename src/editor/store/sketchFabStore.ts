@@ -140,15 +140,14 @@ class SketchFabStore extends BaseStore {
             return newItems;
         }
 
-        const self = this;
-        const load = async function (item: { id: string; thumbnails: { images: { url: string }[] }; assets?: unknown }) {
+        const load = async (item: { id: string; thumbnails: { images: { url: string }[] }; assets?: unknown }) => {
             const url = `https://api.sketchfab.com/v3/models/${item.id}`;
             const response = await fetch(url);
             if (!response.ok) {
                 log.error`sketchfab fetch failed ${response.status}: ${response.statusText}`;
                 return null;
             }
-            return self._prepareItem(await response.json(), item.assets);
+            return this._prepareItem(await response.json(), item.assets);
         };
 
         for (const item of items) {
