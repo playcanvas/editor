@@ -4,19 +4,13 @@ editor.once('load', () => {
             return;
         }
 
-        const asset = {
-            name: 'New Text',
-            type: 'text',
-            source: false,
-            parent: (args.parent !== undefined) ? args.parent : editor.call('assets:panel:currentFolder'),
-            filename: 'asset.txt',
-            file: new Blob(['\n'], { type: 'text/plain' }),
-            scope: {
-                type: 'project',
-                id: config.project.id
-            }
-        };
+        const parent = (args.parent !== undefined) ? args.parent : editor.call('assets:panel:currentFolder');
+        const folder = parent?.apiAsset ?? parent ?? undefined;
 
-        editor.call('assets:create', asset);
+        editor.api.globals.assets.createText({
+            folder
+        }).catch((err) => {
+            editor.call('status:error', err);
+        });
     });
 });

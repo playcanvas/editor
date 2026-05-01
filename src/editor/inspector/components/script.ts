@@ -1332,7 +1332,8 @@ class ScriptComponentInspector extends ComponentInspector {
         if (filename) {
             onFilename(filename);
         } else {
-            editor.call('picker:script-create', onFilename, script);
+            const validate = (name: string) => editor.call('assets:script:checkCollision', name, folder && folder.apiAsset);
+            editor.call('picker:script-create', onFilename, script, validate);
         }
     }
 

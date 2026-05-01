@@ -24,7 +24,10 @@ editor.once('load', () => {
     // Handle tree item renaming via the context menu
     tree.on('rename', (item: TreeViewItem, name: string) => {
         const asset = editor.call('assets:get', item._assetId);
-        editor.call('assets:rename', asset, name);
+        const error = editor.call('assets:rename', asset, name);
+        if (error) {
+            item.text = asset.get('name');
+        }
     });
 
     // Loading progress bar (doesn't actually work since the UI never get a chance to update)

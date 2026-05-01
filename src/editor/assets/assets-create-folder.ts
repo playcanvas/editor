@@ -4,19 +4,24 @@ editor.once('load', () => {
             return;
         }
 
-        const asset = {
-            name: args.name || 'New Folder',
-            type: 'folder',
-            source: true,
-            preload: false,
-            data: null,
-            parent: (args.parent !== undefined) ? args.parent : editor.call('assets:panel:currentFolder'),
-            scope: {
-                type: 'project',
-                id: config.project.id
-            }
-        };
+        const parent = (args.parent !== undefined) ? args.parent : editor.call('assets:panel:currentFolder');
+        const folder = parent?.apiAsset ?? parent ?? undefined;
 
-        editor.call('assets:create', asset, args.fn, args.noSelect);
+        editor.api.globals.assets.createFolder({
+            name: args.name,
+            folder
+        }).then((asset) => {
+            if (!args.noSelect) {
+                editor.api.globals.selection.set([asset]);
+            }
+            if (args.fn) {
+                args.fn(null, asset.get('id'));
+            }
+        }).catch((err) => {
+            editor.call('status:error', err);
+            if (args.fn) {
+                args.fn(err);
+            }
+        });
     });
 });
