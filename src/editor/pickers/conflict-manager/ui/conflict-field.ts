@@ -1,4 +1,4 @@
-import { ColorPicker, Container, Element, Label, TextAreaInput } from '@playcanvas/pcui';
+import { ColorPicker, Container, type Element, Label, TextAreaInput } from '@playcanvas/pcui';
 
 import { CurveInput } from '@/common/pcui/element/element-curve-input';
 
