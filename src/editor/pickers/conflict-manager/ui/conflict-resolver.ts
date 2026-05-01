@@ -166,9 +166,8 @@ class ConflictResolver extends Events {
         // The problem is that if we don't wait then sometimes some elements will not report
         // the correct height, probably because of some animation or delayed layout calculation
         // somewhere...
-        const self = this;
         requestAnimationFrame(() => {
-            requestAnimationFrame(self.reflow.bind(self));
+            requestAnimationFrame(() => this.reflow());
         });
     }
 
