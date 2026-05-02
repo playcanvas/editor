@@ -1,3 +1,4 @@
+import type { EventHandle } from '@playcanvas/observer';
 import {
     BlendState,
     BLENDEQUATION_ADD,
@@ -5,7 +6,6 @@ import {
     BLENDMODE_SRC_ALPHA,
     Color,
     Entity,
-    GraphNode,
     LIGHTSHAPE_DISK,
     LIGHTSHAPE_PUNCTUAL,
     LIGHTSHAPE_RECT,
@@ -13,14 +13,12 @@ import {
     math,
     Mesh,
     MeshInstance,
-    Model,
     PRIMITIVE_LINES,
     SEMANTIC_ATTR15,
     ShaderMaterial,
     type AppBase,
     type GraphicsDevice,
-    type Material,
-    Vec3
+    type Material
 } from 'playcanvas';
 
 import { GIZMO_MASK } from '@/core/constants';
@@ -35,44 +33,85 @@ editor.once('load', () => {
     // pool of gizmos
     const pool = [];
 
-    const _circleSegments = 72;
+    const CIRCLE_SEGMENTS = 72;
 
     // colors
-    const colorBehind = new Color(1, 1, 1, 0.8);
+    const colorBehind = new Color(1, 1, 1, 0.5);
     const colorPrimary = new Color(1, 1, 1);
     let container;
-    const vec = new Vec3();
     let material, materialBehind, materialSpot, materialSpotBehind;
-    const models = { };
-    const poolModels = { 'directional': [], 'point': [], 'pointclose': [], 'spot': [], 'rectangle': [], 'disk': [], 'sphere': [] };
+
+    // per-type mesh + front/back material configuration
+    type MeshConfig = { mesh: Mesh; matFront: Material; matBack: Material };
+    const meshConfigs: Record<string, MeshConfig> = {};
 
     const layerFront = editor.call('gizmo:layers', 'Bright Gizmo');
     const layerBack = editor.call('gizmo:layers', 'Dim Gizmo');
 
-    // hack: override addModelToLayers to selectively put some
-    // mesh instances to the front and others to the back layer depending
-    // on the __useFrontLayer property
-    const addModelToLayers = function (this: Model) {
-        const frontMeshInstances = this.meshInstances.filter((mi: MeshInstance) => {
-            return mi.__useFrontLayer;
-        });
-        const backMeshInstances = this.meshInstances.filter((mi: MeshInstance) => {
-            return !mi.__useFrontLayer;
-        });
+    // appends CIRCLE_SEGMENTS line segments (2 vertices each) forming a circle in the
+    // selected plane to positions. The perpendicular axis can be offset by axisOffset.
+    // If outers is provided, outerValue is pushed twice per segment to match.
+    const pushCircle = (
+        positions: number[],
+        radius: number,
+        plane: 'xy' | 'xz' | 'yz',
+        axisOffset = 0,
+        outers: number[] | null = null,
+        outerValue = 0
+    ) => {
+        const factor = 360 / CIRCLE_SEGMENTS * math.DEG_TO_RAD;
+        for (let i = 0; i < CIRCLE_SEGMENTS; i++) {
+            const s0 = Math.sin(factor * i) * radius;
+            const c0 = Math.cos(factor * i) * radius;
+            const s1 = Math.sin(factor * (i + 1)) * radius;
+            const c1 = Math.cos(factor * (i + 1)) * radius;
+            switch (plane) {
+                case 'xy':
+                    positions.push(s0, c0, axisOffset, s1, c1, axisOffset);
+                    break;
+                case 'xz':
+                    positions.push(s0, axisOffset, c0, s1, axisOffset, c1);
+                    break;
+                case 'yz':
+                    positions.push(axisOffset, c0, s0, axisOffset, c1, s1);
+                    break;
+            }
+            if (outers) {
+                outers.push(outerValue, outerValue);
+            }
+        }
+    };
 
-        layerBack.addMeshInstances(frontMeshInstances);
-        layerFront.addMeshInstances(backMeshInstances);
+    // creates a fresh [front, behind] mesh instance pair for a given gizmo type
+    const createMeshInstancesForType = (type: string): [MeshInstance, MeshInstance] => {
+        const config = meshConfigs[type];
+
+        const front = new MeshInstance(config.mesh, config.matFront);
+        front.mask = GIZMO_MASK;
+        front.pick = false;
+
+        const behind = new MeshInstance(config.mesh, config.matBack);
+        behind.mask = GIZMO_MASK;
+        behind.pick = false;
+
+        return [front, behind];
     };
 
     // gizmo class
     class Gizmo {
-        constructor() {
-            this._link = null;
-            this.lines = [];
-            this.events = [];
-            this.type = '';
-            this.entity = null;
-        }
+        _link: EntityObserver | null = null;
+
+        events: EventHandle[] = [];
+
+        type = '';
+
+        // outer entity carrying the primary (bright) mesh instance, rendered
+        // into the 'Bright Gizmo' layer before scene geometry
+        entity: Entity | null = null;
+
+        // child entity carrying the behind (dim) mesh instance, rendered into
+        // the 'Dim Gizmo' layer after scene geometry with the depth buffer cleared
+        entityBehind: Entity | null = null;
 
         // update lines
         update() {
@@ -85,17 +124,19 @@ editor.once('load', () => {
             }
 
             const light = this._link.entity.light;
-            this.entity.enabled = this._link.entity.enabled && light && light.enabled;
+            this.entity.enabled = !!(light && light.enabled && this._link.entity.enabled);
             if (!this.entity.enabled) {
                 return;
             }
 
             this.entity.setPosition(this._link.entity.getPosition());
 
+            const cameraPos = editor.call('camera:current').getPosition();
+
             let type = light.type;
 
             // close point light, switch to triple circle
-            if (type === 'point' && vec.copy(this.entity.getPosition()).sub(editor.call('camera:current').getPosition()).length() < light.range) {
+            if (type === 'point' && this.entity.getPosition().distance(cameraPos) < light.range) {
                 type += 'close';
             }
 
@@ -117,36 +158,16 @@ editor.once('load', () => {
             if (this.type !== type) {
                 this.type = type;
 
-                // set new model based on type
-                if (models[this.type]) {
-                    // get current model
-                    let model = this.entity.model.model;
-                    if (model) {
-                        // put back in pool
-                        layerBack.removeMeshInstances(model.meshInstances);
-                        layerFront.removeMeshInstances(model.meshInstances);
-                        this.entity.removeChild(model.getGraph());
-                        poolModels[model._type].push(model);
-                    }
-                    // get from pool
-                    model = poolModels[this.type].shift();
-                    if (!model) {
-                        // no in pool
-                        model = models[this.type].clone();
-                        for (let i = 0; i < model.meshInstances.length; i++) {
-                            model.meshInstances[i].__useFrontLayer = models[this.type].meshInstances[i].__useFrontLayer;
-                        }
-                        model._type = this.type;
-                    }
-                    // set to model
-                    this.entity.model.model = model;
-                    model.meshInstances.forEach((mi: MeshInstance) => {
-                        mi.mask = GIZMO_MASK;
-                    });
+                // set new mesh instances based on type
+                if (meshConfigs[this.type]) {
+                    const [front, behind] = createMeshInstancesForType(this.type);
+                    this.entity.render.meshInstances = [front];
+                    this.entityBehind.render.meshInstances = [behind];
                     this.entity.setLocalScale(1, 1, 1);
                     this.entity.setEulerAngles(0, 0, 0);
                 } else {
-                    this.entity.model.model = null;
+                    this.entity.render.meshInstances = [];
+                    this.entityBehind.render.meshInstances = [];
                     this.entity.enabled = false;
                     return;
                 }
@@ -158,20 +179,23 @@ editor.once('load', () => {
                     break;
                 case 'point':
                     this.entity.setLocalScale(light.range, light.range, light.range);
-                    this.entity.lookAt(editor.call('camera:current').getPosition());
+                    this.entity.lookAt(cameraPos);
                     break;
                 case 'pointclose':
                     this.entity.setLocalScale(light.range, light.range, light.range);
                     break;
-                case 'spot':
+                case 'spot': {
                     this.entity.setRotation(this._link.entity.getRotation());
-                    this.entity.model.meshInstances[0].setParameter('range', light.range);
-                    this.entity.model.meshInstances[0].setParameter('innerAngle', light.innerConeAngle);
-                    this.entity.model.meshInstances[0].setParameter('outerAngle', light.outerConeAngle);
-                    this.entity.model.meshInstances[1].setParameter('range', light.range);
-                    this.entity.model.meshInstances[1].setParameter('innerAngle', light.innerConeAngle);
-                    this.entity.model.meshInstances[1].setParameter('outerAngle', light.outerConeAngle);
+                    const front = this.entity.render.meshInstances[0];
+                    const behind = this.entityBehind.render.meshInstances[0];
+                    front.setParameter('range', light.range);
+                    front.setParameter('innerAngle', light.innerConeAngle);
+                    front.setParameter('outerAngle', light.outerConeAngle);
+                    behind.setParameter('range', light.range);
+                    behind.setParameter('innerAngle', light.innerConeAngle);
+                    behind.setParameter('outerAngle', light.outerConeAngle);
                     break;
+                }
                 case 'rectangle':
                 case 'disk':
                 case 'sphere':
@@ -195,15 +219,18 @@ editor.once('load', () => {
             }));
 
             this.entity = new Entity();
-            this.entity.addComponent('model', {
+            this.entity.addComponent('render', {
                 castShadows: false,
-                receiveShadows: false,
-                castShadowsLightmap: false,
-                layers: [layerBack.id, layerFront.id]
+                layers: [layerFront.id]
             });
-            this.entity.model.addModelToLayers = addModelToLayers;
-
             container.addChild(this.entity);
+
+            this.entityBehind = new Entity();
+            this.entityBehind.addComponent('render', {
+                castShadows: false,
+                layers: [layerBack.id]
+            });
+            this.entity.addChild(this.entityBehind);
         }
 
         // unlink
@@ -216,29 +243,18 @@ editor.once('load', () => {
                 return;
             }
 
-            for (let i = 0; i < this.events.length; i++) {
-                this.events[i].unbind();
-            }
-
+            this.events.forEach(event => event.unbind());
             this.events = [];
+
             this._link = null;
             this.type = '';
 
-            const model = this.entity.model.model;
-            if (model) {
-                // put back in pool
-                layerBack.removeMeshInstances(model.meshInstances);
-                layerFront.removeMeshInstances(model.meshInstances);
-                this.entity.removeChild(model.getGraph());
-                poolModels[model._type].push(model);
-                this.entity.model.model = null;
-            }
-
             this.entity.destroy();
+            this.entity = null;
+            this.entityBehind = null;
         }
 
         static createMaterials() {
-
             // material
             material = createColorMaterial();
             material.color = colorPrimary;
@@ -263,12 +279,11 @@ editor.once('load', () => {
                 
                 void main(void)
                 {
-                    mat4 modelMatrix = matrix_model;
                     vec4 positionW = vec4(vertex_position, 1.0);
                     float radius = (outer * (sin(radians(outerAngle)) * range)) + ((1.0 - outer) * (sin(radians(innerAngle)) * range));
                     positionW.xz *= radius;
                     positionW.y *= range * ((outer * cos(radians(outerAngle))) + ((1.0 - outer) * cos(radians(innerAngle))));
-                    positionW = modelMatrix * positionW;
+                    positionW = matrix_model * positionW;
                     gl_Position = matrix_viewProjection * positionW;
                 }`;
 
@@ -295,14 +310,13 @@ editor.once('load', () => {
             materialSpot.update();
 
             materialSpotBehind = new ShaderMaterial(shaderSpotDesc);
-            materialSpot.setParameter('uColorSpot', new Float32Array([colorBehind.r, colorBehind.g, colorBehind.b, colorBehind.a]));
+            materialSpotBehind.setParameter('uColorSpot', new Float32Array([colorBehind.r, colorBehind.g, colorBehind.b, colorBehind.a]));
             materialSpotBehind.blendState = new BlendState(true, BLENDEQUATION_ADD, BLENDMODE_SRC_ALPHA, BLENDMODE_ONE_MINUS_SRC_ALPHA);
             materialSpotBehind.depthTest = false;
             materialSpotBehind.update();
         }
 
         static createDirectional(device: GraphicsDevice) {
-
             const rad = math.DEG_TO_RAD;
             const size = 0.2;
             const length = -(2 - size * 2);
@@ -327,72 +341,39 @@ editor.once('load', () => {
                 0, length - (size * 2), 0
             ];
 
-            return Gizmo.createModel(device, positions, null, material, materialBehind);
+            return Gizmo.createMesh(device, positions, null);
         }
 
         static createPoint(device: GraphicsDevice) {
-
-            // xz axis
-            const positions = [];
-            const factor = 360 / _circleSegments * math.DEG_TO_RAD;
-            for (let i = 0; i < _circleSegments; i++) {
-                positions.push(Math.sin(factor * i), Math.cos(factor * i), 0);
-                positions.push(Math.sin(factor * (i + 1)), Math.cos(factor * (i + 1)), 0);
-            }
-
-            return Gizmo.createModel(device, positions, null, material, materialBehind);
+            const positions: number[] = [];
+            pushCircle(positions, 1, 'xy');
+            return Gizmo.createMesh(device, positions, null);
         }
 
         static createPointClose(device: GraphicsDevice) {
-
-            // circles
-            const positions = [];
-            const factor = 360 / _circleSegments * math.DEG_TO_RAD;
-            for (let i = 0; i < _circleSegments; i++) {
-                positions.push(Math.sin(factor * i), 0, Math.cos(factor * i));
-                positions.push(Math.sin(factor * (i + 1)), 0, Math.cos(factor * (i + 1)));
-                positions.push(Math.sin(factor * i), Math.cos(factor * i), 0);
-                positions.push(Math.sin(factor * (i + 1)), Math.cos(factor * (i + 1)), 0);
-                positions.push(0, Math.cos(factor * i), Math.sin(factor * i));
-                positions.push(0, Math.cos(factor * (i + 1)), Math.sin(factor * (i + 1)));
-            }
-
-            return Gizmo.createModel(device, positions, null, material, materialBehind);
+            const positions: number[] = [];
+            pushCircle(positions, 1, 'xz');
+            pushCircle(positions, 1, 'xy');
+            pushCircle(positions, 1, 'yz');
+            return Gizmo.createMesh(device, positions, null);
         }
 
         static createSpot(device: GraphicsDevice) {
+            // two edge lines from apex down to the rim at y=-1
+            const positions: number[] = [
+                0, 0, 0, Math.sin(0), -1, Math.cos(0),
+                0, 0, 0, Math.sin(Math.PI), -1, Math.cos(Math.PI)
+            ];
+            const outers: number[] = [1, 1, 1, 1];
 
-            const positions = [];
-            const outers = [];
+            // inner cone ring (outer=0) and outer cone ring (outer=1)
+            pushCircle(positions, 1, 'xz', -1, outers, 0);
+            pushCircle(positions, 1, 'xz', -1, outers, 1);
 
-            // left line
-            positions.push(0, 0, 0, Math.sin(0), -1, Math.cos(0));
-            outers.push(1, 1);
-
-            // right line
-            positions.push(0, 0, 0, Math.sin(Math.PI), -1, Math.cos(Math.PI));
-            outers.push(1, 1);
-
-            // circles
-            const factor = 360 / _circleSegments * math.DEG_TO_RAD;
-            for (let i = 0; i < _circleSegments; i++) {
-
-                // inner
-                positions.push(Math.sin(factor * i), -1, Math.cos(factor * i));
-                positions.push(Math.sin(factor * (i + 1)), -1, Math.cos(factor * (i + 1)));
-                outers.push(0, 0);
-
-                // outer
-                positions.push(Math.sin(factor * i), -1, Math.cos(factor * i));
-                positions.push(Math.sin(factor * (i + 1)), -1, Math.cos(factor * (i + 1)));
-                outers.push(1, 1);
-            }
-
-            return Gizmo.createModel(device, positions, outers, materialSpot, materialSpotBehind);
+            return Gizmo.createMesh(device, positions, outers);
         }
 
         static createRectangle(device: GraphicsDevice) {
-
             // 4 lines
             const positions = [
                 -0.5, 0, -0.5, 0.5, 0, -0.5,
@@ -401,72 +382,38 @@ editor.once('load', () => {
                 0.5, 0, -0.5, 0.5, 0, 0.5
             ];
 
-            return Gizmo.createModel(device, positions, null, material, materialBehind);
+            return Gizmo.createMesh(device, positions, null);
         }
 
         static createDisk(device: GraphicsDevice) {
-
-            const positions = [];
-            const factor = 360 / _circleSegments * math.DEG_TO_RAD;
-
-            for (let i = 0; i < _circleSegments; i++) {
-                positions.push(0.5 * Math.sin(factor * i), 0, 0.5 * Math.cos(factor * i));
-                positions.push(0.5 * Math.sin(factor * (i + 1)), 0, 0.5 * Math.cos(factor * (i + 1)));
-            }
-
-            return Gizmo.createModel(device, positions, null, material, materialBehind);
+            const positions: number[] = [];
+            pushCircle(positions, 0.5, 'xz');
+            return Gizmo.createMesh(device, positions, null);
         }
 
         static createSphere(device: GraphicsDevice) {
-
-            // circles
-            const positions = [];
-            const factor = 360 / _circleSegments * math.DEG_TO_RAD;
-            for (let i = 0; i < _circleSegments; i++) {
-                positions.push(0.5 * Math.sin(factor * i), 0, 0.5 * Math.cos(factor * i));
-                positions.push(0.5 * Math.sin(factor * (i + 1)), 0, 0.5 * Math.cos(factor * (i + 1)));
-                positions.push(0.5 * Math.sin(factor * i), 0.5 * Math.cos(factor * i), 0);
-                positions.push(0.5 * Math.sin(factor * (i + 1)), 0.5 * Math.cos(factor * (i + 1)), 0);
-                positions.push(0, 0.5 * Math.cos(factor * i), 0.5 * Math.sin(factor * i));
-                positions.push(0, 0.5 * Math.cos(factor * (i + 1)), 0.5 * Math.sin(factor * (i + 1)));
-            }
-
-            return Gizmo.createModel(device, positions, null, material, materialBehind);
+            const positions: number[] = [];
+            pushCircle(positions, 0.5, 'xz');
+            pushCircle(positions, 0.5, 'xy');
+            pushCircle(positions, 0.5, 'yz');
+            return Gizmo.createMesh(device, positions, null);
         }
 
-        static createModel(device: GraphicsDevice, positions: number[], outers: number[] | null, materialFront: Material, materialBack: Material) {
-
-            // node
-            const node = new GraphNode();
-
+        static createMesh(device: GraphicsDevice, positions: number[], outers: number[] | null) {
             // mesh
             const mesh = new Mesh(device);
             mesh.setPositions(positions);
-
-            // normals (unused, by standard material requires it)
-            mesh.setNormals(positions);
 
             if (outers) {
                 mesh.setVertexStream(SEMANTIC_ATTR15, outers, 1);
             }
             mesh.update(PRIMITIVE_LINES);
 
-            // meshInstances
-            const meshInstance = new MeshInstance(mesh, materialFront, node);
-            meshInstance.mask = GIZMO_MASK;
-            meshInstance.pick = false;
+            // keep the mesh alive across mesh-instance destroys triggered by
+            // the render component's meshInstances setter when swapping types
+            mesh.incRefCount();
 
-            const meshInstanceBehind = new MeshInstance(mesh, materialBack, node);
-            meshInstanceBehind.__useFrontLayer = true;
-            meshInstanceBehind.mask = GIZMO_MASK;
-            meshInstanceBehind.pick = false;
-
-            // model
-            const model = new Model();
-            model.graph = node;
-            model.meshInstances = [meshInstance, meshInstanceBehind];
-
-            return model;
+            return mesh;
         }
     }
 
@@ -531,16 +478,17 @@ editor.once('load', () => {
         app.root.addChild(container);
 
         Gizmo.createMaterials();
-        models.directional = Gizmo.createDirectional(device);
-        models.point = Gizmo.createPoint(device);
-        models.pointclose = Gizmo.createPointClose(device);
-        models.spot = Gizmo.createSpot(device);
-        models.rectangle = Gizmo.createRectangle(device);
-        models.disk = Gizmo.createDisk(device);
-        models.sphere = Gizmo.createSphere(device);
+
+        meshConfigs.directional = { mesh: Gizmo.createDirectional(device), matFront: material, matBack: materialBehind };
+        meshConfigs.point = { mesh: Gizmo.createPoint(device), matFront: material, matBack: materialBehind };
+        meshConfigs.pointclose = { mesh: Gizmo.createPointClose(device), matFront: material, matBack: materialBehind };
+        meshConfigs.spot = { mesh: Gizmo.createSpot(device), matFront: materialSpot, matBack: materialSpotBehind };
+        meshConfigs.rectangle = { mesh: Gizmo.createRectangle(device), matFront: material, matBack: materialBehind };
+        meshConfigs.disk = { mesh: Gizmo.createDisk(device), matFront: material, matBack: materialBehind };
+        meshConfigs.sphere = { mesh: Gizmo.createSphere(device), matFront: material, matBack: materialBehind };
     });
 
-    editor.on('viewport:gizmoUpdate', (dt: number) => {
+    editor.on('viewport:gizmoUpdate', () => {
         for (const key in entities) {
             entities[key].update();
         }
