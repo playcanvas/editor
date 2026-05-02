@@ -122,6 +122,14 @@ editor.once('load', () => {
         behind.mask = GIZMO_MASK;
         behind.pick = false;
 
+        // the spot gizmo's geometry is stretched by range / angles in the
+        // vertex shader, so the CPU-side unit AABB underestimates its visible
+        // extent and causes premature frustum culling - disable culling for it
+        if (type === 'spot') {
+            front.cull = false;
+            behind.cull = false;
+        }
+
         return [front, behind];
     };
 
