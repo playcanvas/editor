@@ -48,6 +48,24 @@ editor.once('load', () => {
     const layerFront = editor.call('gizmo:layers', 'Bright Gizmo');
     const layerBack = editor.call('gizmo:layers', 'Dim Gizmo');
 
+    // map of area-light shape constants to gizmo type names
+    const areaShapeToType: Record<number, string> = {
+        [LIGHTSHAPE_RECT]: 'rectangle',
+        [LIGHTSHAPE_DISK]: 'disk',
+        [LIGHTSHAPE_SPHERE]: 'sphere'
+    };
+
+    // derive which gizmo mesh to draw for a given light at the current camera distance
+    const getGizmoType = (light: any, distanceToCamera: number): string => {
+        if (light.shape !== LIGHTSHAPE_PUNCTUAL) {
+            return areaShapeToType[light.shape] ?? light.type;
+        }
+        if (light.type === 'point' && distanceToCamera < light.range) {
+            return 'pointclose';
+        }
+        return light.type;
+    };
+
     // appends CIRCLE_SEGMENTS line segments (2 vertices each) forming a circle in the
     // selected plane to positions. The perpendicular axis can be offset by axisOffset.
     // If outers is provided, outerValue is pushed twice per segment to match.
@@ -80,6 +98,16 @@ editor.once('load', () => {
                 outers.push(outerValue, outerValue);
             }
         }
+    };
+
+    // creates an entity with a render component assigned to a single layer
+    const makeLayerEntity = (layerId: number): Entity => {
+        const entity = new Entity();
+        entity.addComponent('render', {
+            castShadows: false,
+            layers: [layerId]
+        });
+        return entity;
     };
 
     // creates a fresh [front, behind] mesh instance pair for a given gizmo type
@@ -132,28 +160,7 @@ editor.once('load', () => {
             this.entity.setPosition(this._link.entity.getPosition());
 
             const cameraPos = editor.call('camera:current').getPosition();
-
-            let type = light.type;
-
-            // close point light, switch to triple circle
-            if (type === 'point' && this.entity.getPosition().distance(cameraPos) < light.range) {
-                type += 'close';
-            }
-
-            // area lights
-            if (light.shape !== LIGHTSHAPE_PUNCTUAL) {
-                switch (light.shape) {
-                    case LIGHTSHAPE_RECT:
-                        type = 'rectangle';
-                        break;
-                    case LIGHTSHAPE_DISK:
-                        type = 'disk';
-                        break;
-                    case LIGHTSHAPE_SPHERE:
-                        type = 'sphere';
-                        break;
-                }
-            }
+            const type = getGizmoType(light, this.entity.getPosition().distance(cameraPos));
 
             if (this.type !== type) {
                 this.type = type;
@@ -218,18 +225,10 @@ editor.once('load', () => {
                 this.unlink();
             }));
 
-            this.entity = new Entity();
-            this.entity.addComponent('render', {
-                castShadows: false,
-                layers: [layerFront.id]
-            });
+            this.entity = makeLayerEntity(layerFront.id);
             container.addChild(this.entity);
 
-            this.entityBehind = new Entity();
-            this.entityBehind.addComponent('render', {
-                castShadows: false,
-                layers: [layerBack.id]
-            });
+            this.entityBehind = makeLayerEntity(layerBack.id);
             this.entity.addChild(this.entityBehind);
         }
 
@@ -479,13 +478,22 @@ editor.once('load', () => {
 
         Gizmo.createMaterials();
 
-        meshConfigs.directional = { mesh: Gizmo.createDirectional(device), matFront: material, matBack: materialBehind };
-        meshConfigs.point = { mesh: Gizmo.createPoint(device), matFront: material, matBack: materialBehind };
-        meshConfigs.pointclose = { mesh: Gizmo.createPointClose(device), matFront: material, matBack: materialBehind };
-        meshConfigs.spot = { mesh: Gizmo.createSpot(device), matFront: materialSpot, matBack: materialSpotBehind };
-        meshConfigs.rectangle = { mesh: Gizmo.createRectangle(device), matFront: material, matBack: materialBehind };
-        meshConfigs.disk = { mesh: Gizmo.createDisk(device), matFront: material, matBack: materialBehind };
-        meshConfigs.sphere = { mesh: Gizmo.createSphere(device), matFront: material, matBack: materialBehind };
+        const addConfig = (
+            type: string,
+            mesh: Mesh,
+            matFront: Material = material,
+            matBack: Material = materialBehind
+        ) => {
+            meshConfigs[type] = { mesh, matFront, matBack };
+        };
+
+        addConfig('directional', Gizmo.createDirectional(device));
+        addConfig('point', Gizmo.createPoint(device));
+        addConfig('pointclose', Gizmo.createPointClose(device));
+        addConfig('spot', Gizmo.createSpot(device), materialSpot, materialSpotBehind);
+        addConfig('rectangle', Gizmo.createRectangle(device));
+        addConfig('disk', Gizmo.createDisk(device));
+        addConfig('sphere', Gizmo.createSphere(device));
     });
 
     editor.on('viewport:gizmoUpdate', () => {
