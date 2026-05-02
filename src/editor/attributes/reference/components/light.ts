@@ -38,13 +38,13 @@ export const fields: AttributeReference[]  = [{
     name: 'light:innerConeAngle',
     title: 'innerConeAngle',
     subTitle: '{Number}',
-    description: 'The angle at which the spotlight cone starts to fade off. The angle is specified in degrees. Affects spot lights only.',
+    description: 'The half-angle (measured in degrees from the light\'s direction axis to the cone edge) at which the spotlight cone starts to fade off. The full inner beam angle is twice this value. Affects spot lights only.',
     url: 'https://api.playcanvas.com/engine/classes/LightComponent.html#innerconeangle'
 }, {
     name: 'light:outerConeAngle',
     title: 'outerConeAngle',
     subTitle: '{Number}',
-    description: 'The angle at which the spotlight cone has faded to nothing. The angle is specified in degrees. Affects spot lights only.',
+    description: 'The half-angle (measured in degrees from the light\'s direction axis to the cone edge) at which the spotlight cone has faded to nothing. The full outer beam angle is twice this value. Affects spot lights only.',
     url: 'https://api.playcanvas.com/engine/classes/LightComponent.html#outerconeangle'
 }, {
     name: 'light:shape',
