@@ -33,7 +33,6 @@ editor.once('load', () => {
 
             if (collision) {
                 const message = `An asset named "${newName}" already exists in this folder. Please choose a different name.`;
-                editor.call('status:error', message);
                 return message;
             }
         }
