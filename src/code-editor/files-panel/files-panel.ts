@@ -1,5 +1,13 @@
-import type { Observer } from '@playcanvas/observer';
-import { Progress, TreeView, TreeViewItem, Panel } from '@playcanvas/pcui';
+import type { EventHandle, Observer } from '@playcanvas/observer';
+import { Progress, TextInput, TreeView, TreeViewItem, Panel } from '@playcanvas/pcui';
+
+const TEXT_TYPES = new Set(['css', 'html', 'json', 'script', 'shader', 'text']);
+const RENAME_CLASS = 'pcui-treeview-item-rename';
+const POPUP_GAP = 4;
+
+type FileTreeItem = TreeViewItem & {
+    _assetId: string;
+};
 
 editor.once('load', () => {
     const icons: Map<string, string> = new Map();
@@ -21,9 +29,73 @@ editor.once('load', () => {
     });
     panel.append(tree);
 
+    const root = editor.call('layout.root');
+    const renamePopup = document.createElement('div');
+    renamePopup.className = 'files-rename-error-popup';
+    renamePopup.hidden = true;
+    root.dom.appendChild(renamePopup);
+
+    let activeRename: (() => void) | null = null;
+    let suspendRename = false;
+
+    const hideRenameError = () => {
+        renamePopup.hidden = true;
+        renamePopup.textContent = '';
+    };
+
+    const positionRenameError = (input: TextInput) => {
+        const rootRect = root.dom.getBoundingClientRect();
+        const inputRect = input.dom.getBoundingClientRect();
+        const popupRect = renamePopup.getBoundingClientRect();
+        const x = Math.max(4, Math.min(rootRect.width - popupRect.width - 4, inputRect.left - rootRect.left));
+        const y = Math.max(4, Math.min(rootRect.height - popupRect.height - 4, inputRect.bottom - rootRect.top + POPUP_GAP));
+
+        renamePopup.style.left = `${x}px`;
+        renamePopup.style.top = `${y}px`;
+    };
+
+    const showRenameError = (input: TextInput, text: string) => {
+        renamePopup.textContent = text;
+        renamePopup.hidden = false;
+        requestAnimationFrame(() => positionRenameError(input));
+    };
+
+    const getParent = (asset: Observer) => {
+        const path = asset.get('path');
+        return path && path.length ? path[path.length - 1] : null;
+    };
+
+    const getRenameError = (asset: Observer, name: string) => {
+        const type = asset.get('type');
+        if (!TEXT_TYPES.has(type) && type !== 'folder') {
+            return null;
+        }
+
+        const id = asset.get('id');
+        const parent = getParent(asset);
+        const target = name.toLowerCase();
+        const collision = (editor.call('assets:list') || []).some((item: Observer) => {
+            if (item.get('id') === id) {
+                return false;
+            }
+
+            return getParent(item) === parent && item.get('name').toLowerCase() === target;
+        });
+
+        return collision ? `An asset named "${name}" already exists in this folder. Please choose a different name.` : null;
+    };
+
+    const getItemAsset = (item: TreeViewItem) => {
+        return editor.call('assets:get', (item as FileTreeItem)._assetId);
+    };
+
     // Handle tree item renaming via the context menu
     tree.on('rename', (item: TreeViewItem, name: string) => {
-        const asset = editor.call('assets:get', item._assetId);
+        if (suspendRename) {
+            return;
+        }
+
+        const asset = getItemAsset(item);
         const error = editor.call('assets:rename', asset, name);
         if (error) {
             item.text = asset.get('name');
@@ -54,6 +126,126 @@ editor.once('load', () => {
     editor.on('permissions:writeState', refreshTreePermissions);
     editor.on('realtime:authenticated', refreshTreePermissions);
     editor.on('realtime:disconnected', refreshTreePermissions);
+
+    editor.method('files:rename:start', (item: TreeViewItem) => {
+        if (!editor.call('permissions:write')) {
+            return;
+        }
+
+        const asset = getItemAsset(item);
+        if (!asset) {
+            return;
+        }
+
+        if (activeRename) {
+            activeRename();
+        }
+
+        const contents = item.dom.childNodes[0] as HTMLElement & { ui: { append: (element: TextInput) => void } };
+        const input = new TextInput({
+            blurOnEnter: false,
+            blurOnEscape: false,
+            class: 'files-rename-input',
+            renderChanges: false,
+            value: asset.get('name')
+        });
+
+        let closing = false;
+        let destroyed = false;
+        let destroyEvt: EventHandle | null = null;
+
+        const close = () => {
+            if (closing) {
+                return;
+            }
+
+            closing = true;
+            if (activeRename === close) {
+                activeRename = null;
+            }
+
+            hideRenameError();
+            destroyEvt?.unbind();
+            if (!destroyed) {
+                input.input.removeEventListener('input', clearError);
+                item.class.remove(RENAME_CLASS);
+                input.destroy();
+                item.focus();
+            }
+        };
+
+        const fail = (text: string) => {
+            input.error = true;
+            showRenameError(input, text);
+            requestAnimationFrame(() => {
+                if (!closing) {
+                    input.focus();
+                }
+            });
+        };
+
+        const commit = () => {
+            const name = input.value.trim();
+            if (!name || name === asset.get('name')) {
+                close();
+                return true;
+            }
+
+            const error = getRenameError(asset, name) || editor.call('assets:rename', asset, name);
+            if (error) {
+                fail(error);
+                return false;
+            }
+
+            suspendRename = true;
+            item.text = name;
+            suspendRename = false;
+            close();
+            return true;
+        };
+
+        function clearError() {
+            input.error = false;
+            hideRenameError();
+        }
+
+        input.on('keydown', (evt: KeyboardEvent) => {
+            if (evt.key === 'Enter') {
+                evt.preventDefault();
+                evt.stopPropagation();
+                commit();
+            } else if (evt.key === 'Escape') {
+                evt.preventDefault();
+                evt.stopPropagation();
+                close();
+            }
+        });
+
+        input.on('blur', () => {
+            if (!closing && !commit()) {
+                requestAnimationFrame(() => {
+                    if (!closing) {
+                        input.focus();
+                    }
+                });
+            }
+        });
+
+        input.input.addEventListener('input', clearError);
+        destroyEvt = item.once('destroy', () => {
+            destroyed = true;
+            closing = true;
+            if (activeRename === close) {
+                activeRename = null;
+            }
+            hideRenameError();
+        });
+        activeRename = close;
+
+        item.class.add(RENAME_CLASS);
+        contents.ui.append(input);
+        input.focus(true);
+    });
 
     const treeRoot = new TreeViewItem({
         allowSelect: false,

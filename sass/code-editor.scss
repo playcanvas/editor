@@ -351,6 +351,12 @@ strong {
         font-size: 16px;
     }
 
+    .pcui-treeview-item.pcui-treeview-item-rename {
+        .files-rename-input.pcui-error {
+            border-bottom: 2px solid $status-error !important;
+        }
+    }
+
     .pcui-treeview-item.dirty {
         .pcui-treeview-item-contents:not(.pcui-treeview-item-selected) {
             color: color.adjust($muted-yellow, $alpha: -0.15);
@@ -359,6 +365,32 @@ strong {
         .pcui-treeview-item-contents.pcui-treeview-item-selected {
             color: $muted-yellow;
         }
+    }
+}
+
+.files-rename-error-popup {
+    position: absolute;
+    z-index: 10002;
+    max-width: 320px;
+    box-sizing: border-box;
+    padding: 6px 8px;
+    background: $status-error;
+    box-shadow: 0 4px 12px rgb(0 0 0 / 35%);
+    color: white;
+    font-size: 12px;
+    line-height: 16px;
+    pointer-events: none;
+    white-space: normal;
+    word-break: break-word;
+
+    &::before {
+        content: '';
+        position: absolute;
+        top: -4px;
+        left: 12px;
+        border-right: 4px solid transparent;
+        border-bottom: 4px solid $status-error;
+        border-left: 4px solid transparent;
     }
 }
 
