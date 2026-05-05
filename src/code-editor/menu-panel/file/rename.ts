@@ -24,7 +24,7 @@ editor.once('load', () => {
 
             const treeItem = editor.call('files:getTreeItem', selected[0].get('id'));
             if (treeItem) {
-                treeItem.rename();
+                editor.call('files:rename:start', treeItem);
             }
         }
     }));
