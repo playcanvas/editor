@@ -102,8 +102,6 @@ editor.once('load', () => {
                 suspendRenameEvt = true;
                 const error = editor.call('assets:rename', spriteAsset, value);
                 if (error) {
-                    fieldName.value = spriteAsset.get('name');
-                    rootPanel.headerText = `SPRITE ASSET - ${spriteAsset.get('name')}`;
                     setRenameError(error);
                 } else {
                     setRenameError();

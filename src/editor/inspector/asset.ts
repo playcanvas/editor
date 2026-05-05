@@ -360,8 +360,6 @@ class AssetInspector extends Container {
 
     private _assetEvents: EventHandle[] = [];
 
-    private _renameInFlight = false;
-
     private _renameError: Label | null = null;
 
     constructor(args: Record<string, unknown> = {}) {
@@ -705,19 +703,12 @@ class AssetInspector extends Container {
     }
 
     _updateAssetName(value: string) {
-        // ignore the change event fired by our own programmatic field revert below
-        if (this._renameInFlight) {
-            return;
-        }
         if (!value) {
             this._setRenameError();
             return;
         }
         const error = editor.call('assets:rename', this._assets[0], value);
         if (error) {
-            this._renameInFlight = true;
-            this._attributesInspector.getField('name').value = this._assets[0].get('name');
-            this._renameInFlight = false;
             this._setRenameError(error);
         } else {
             this._setRenameError();
