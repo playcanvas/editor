@@ -13,6 +13,21 @@
 
             min-width: 0;
         }
+
+        &.asset-rename-error-group {
+            flex-wrap: wrap;
+            align-items: flex-start;
+
+            > .pcui-label.asset-rename-error:not(:first-child) {
+                flex-basis: calc(65% - #{$element-margin});
+                margin: 3px 0 0 calc(35% + #{$element-margin});
+                color: #f30;
+                font-size: 12px;
+                line-height: 16px;
+                white-space: normal;
+                word-break: break-word;
+            }
+        }
     }
 
     > .pcui-asset-input {

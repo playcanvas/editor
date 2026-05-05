@@ -83,6 +83,17 @@ editor.once('load', () => {
         // Custom handling for Name field (rename asset)
         let suspendRenameEvt = false;
         const fieldName = inspector.getField('name') as TextInput;
+        const renameError = new Label({
+            class: 'asset-rename-error',
+            hidden: true
+        });
+        fieldName.parent.class.add('asset-rename-error-group');
+        fieldName.parent.append(renameError);
+        const setRenameError = (text = '') => {
+            fieldName.error = !!text;
+            renameError.text = text;
+            renameError.hidden = !text;
+        };
         fieldName.value = spriteAsset.get('name');
 
         events.push(fieldName.on('change', (value: string) => {
@@ -93,14 +104,20 @@ editor.once('load', () => {
                 if (error) {
                     fieldName.value = spriteAsset.get('name');
                     rootPanel.headerText = `SPRITE ASSET - ${spriteAsset.get('name')}`;
+                    setRenameError(error);
+                } else {
+                    setRenameError();
                 }
                 suspendRenameEvt = false;
+            } else if (!value) {
+                setRenameError();
             }
         }));
 
         events.push(spriteAsset.on('name:set', (value: string) => {
             suspendRenameEvt = true;
             fieldName.value = value;
+            setRenameError();
             suspendRenameEvt = false;
         }));
 

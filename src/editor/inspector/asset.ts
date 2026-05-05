@@ -1,5 +1,5 @@
 import type { EventHandle, Observer, ObserverList } from '@playcanvas/observer';
-import { Container, Button, Menu, BindingObserversToElement } from '@playcanvas/pcui';
+import { Container, Button, Menu, BindingObserversToElement, Label } from '@playcanvas/pcui';
 
 
 import { bytesToHuman, convertDatetime } from '@/common/utils';
@@ -362,6 +362,8 @@ class AssetInspector extends Container {
 
     private _renameInFlight = false;
 
+    private _renameError: Label | null = null;
+
     constructor(args: Record<string, unknown> = {}) {
         args.flex = true;
 
@@ -474,9 +476,16 @@ class AssetInspector extends Container {
 
         // one way binding from observers to element for name field
         // because the other way is handled by calling assets:rename
-        this._attributesInspector.getField('name').binding = new BindingObserversToElement({
+        const nameField = this._attributesInspector.getField('name');
+        nameField.binding = new BindingObserversToElement({
             history: args.history
         });
+        this._renameError = new Label({
+            class: 'asset-rename-error',
+            hidden: true
+        });
+        nameField.parent.class.add('asset-rename-error-group');
+        nameField.parent.append(this._renameError);
 
         this._assetTypes.forEach((assetType) => {
             // check if class exists
@@ -701,6 +710,7 @@ class AssetInspector extends Container {
             return;
         }
         if (!value) {
+            this._setRenameError();
             return;
         }
         const error = editor.call('assets:rename', this._assets[0], value);
@@ -708,6 +718,18 @@ class AssetInspector extends Container {
             this._renameInFlight = true;
             this._attributesInspector.getField('name').value = this._assets[0].get('name');
             this._renameInFlight = false;
+            this._setRenameError(error);
+        } else {
+            this._setRenameError();
+        }
+    }
+
+    _setRenameError(text: string = '') {
+        const field = this._attributesInspector.getField('name');
+        field.error = !!text;
+        if (this._renameError) {
+            this._renameError.text = text;
+            this._renameError.hidden = !text;
         }
     }
 
@@ -721,6 +743,7 @@ class AssetInspector extends Container {
         this._assets = assets;
 
         this._containerButtons.hidden = false;
+        this._setRenameError();
 
         const legacyScripts = this._projectSettings.get('useLegacyScripts');
 
@@ -745,6 +768,7 @@ class AssetInspector extends Container {
 
         assets.forEach((asset) => {
             this._assetEvents.push(asset.on('file.size:set', this._updateFileSize.bind(this)));
+            this._assetEvents.push(asset.on('name:set', () => this._setRenameError()));
         });
 
         this._attributesInspector.getField('source_asset_id').values = assets.map((asset) => {
@@ -897,6 +921,7 @@ class AssetInspector extends Container {
 
     unlink() {
         super.unlink();
+        this._setRenameError();
 
         if (!this._assets) {
             return;
