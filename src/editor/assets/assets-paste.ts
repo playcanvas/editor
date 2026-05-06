@@ -4,13 +4,20 @@ const TEXT_TYPES = new Set(['css', 'html', 'json', 'text', 'shader']);
 // types we can recreate client-side without re-uploading file blobs
 const CLIENT_PASTE_TYPES = new Set([...TEXT_TYPES, 'folder']);
 
+const sameId = (a: string | number | null | undefined, b: string | number | null | undefined) => {
+    if (a === null || a === undefined || b === null || b === undefined) {
+        return (a ?? null) === (b ?? null);
+    }
+    return `${a}` === `${b}`;
+};
+
 editor.once('load', () => {
     // get direct children of a folder (or root when folderId === null)
     const childrenOf = (folderId: string | number | null) => {
         return editor.call('assets:list').filter((a: any) => {
             const p = a.get('path');
             const par = p && p.length ? p[p.length - 1] : null;
-            return (par ?? null) === (folderId ?? null);
+            return sameId(par, folderId);
         });
     };
 
@@ -18,7 +25,7 @@ editor.once('load', () => {
     const takenIn = (folderId: string | number | null, exceptId?: string | number) => {
         const taken = new Set<string>();
         for (const a of childrenOf(folderId)) {
-            if (exceptId !== undefined && a.get('id') === exceptId) {
+            if (exceptId !== undefined && sameId(a.get('id'), exceptId)) {
                 continue;
             }
             taken.add(a.get('name'));
@@ -112,7 +119,7 @@ editor.once('load', () => {
     // file.filename for text-based files) if a sibling already uses it. used as
     // a fallback when we delegate to the server-side REST paste (cross-project,
     // binary types, etc.)
-    const ensureUniqueOnPaste = (assetId: string, targetFolderId: string | number | null) => {
+    const ensureUniqueOnPaste = (assetId: string | number, targetFolderId: string | number | null) => {
         const apply = () => {
             const asset = editor.call('assets:get', assetId);
             if (!asset) {
@@ -120,7 +127,7 @@ editor.once('load', () => {
             }
             const path = asset.get('path');
             const parentId = path && path.length ? path[path.length - 1] : null;
-            if ((parentId ?? null) !== (targetFolderId ?? null)) {
+            if (!sameId(parentId, targetFolderId)) {
                 return;
             }
             const type = asset.get('type');
@@ -139,7 +146,7 @@ editor.once('load', () => {
             if (asset.get('file.filename')) {
                 update.filename = newName;
             }
-            editor.api.globals.rest.assets.assetUpdate(assetId, update)
+            editor.api.globals.rest.assets.assetUpdate(String(assetId), update)
             .on('error', (_status: number, errData: unknown) => {
                 console.warn(`paste rename error: ${errData}`);
             });
@@ -229,7 +236,7 @@ editor.once('load', () => {
                     for (const item of response.result) {
                         const id = item?.id ?? item;
                         if (id !== undefined && id !== null) {
-                            ensureUniqueOnPaste(String(id), targetFolderId);
+                            ensureUniqueOnPaste(id, targetFolderId);
                         }
                     }
                 }
