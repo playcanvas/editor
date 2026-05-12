@@ -56,15 +56,38 @@ test.describe('branch/checkpoint/diff/merge', () => {
             await page.goto(editorUrl(projectId), { waitUntil: 'networkidle' });
 
             [materialId, mainBranchId, mainCheckpointId] = await page.evaluate(async () => {
+                const createCheckpoint = async (description: string) => {
+                    const jobDeferred: PromiseWithResolvers<any> = Promise.withResolvers();
+                    const checkpointPromise = new Promise<any>((resolve, reject) => {
+                        const handle = window.editor.api.globals.messenger.on('message', async (name: string, data: any) => {
+                            const job = await jobDeferred.promise;
+                            if (name !== 'job.update' || data.job.id !== job.id) {
+                                return;
+                            }
+                            handle.unbind();
+                            const completed = await window.editor.api.globals.rest.jobs.jobGet({ jobId: job.id }).promisify();
+                            if (completed.status === 'error') {
+                                reject(new Error(completed.messages?.[0] ?? 'Checkpoint create failed'));
+                                return;
+                            }
+                            resolve(completed.data);
+                        });
+                    });
+
+                    const job = await window.editor.api.globals.rest.checkpoints.checkpointCreate({
+                        projectId: window.editor.api.globals.projectId,
+                        branchId: window.editor.api.globals.branchId,
+                        description
+                    }).promisify();
+                    jobDeferred.resolve(job);
+                    return checkpointPromise;
+                };
+
                 // setup material
                 const material = await window.editor.api.globals.assets.createMaterial({ name: 'TEST_MATERIAL' });
 
                 // create checkpoint
-                const checkpoint = await window.editor.api.globals.rest.checkpoints.checkpointCreate({
-                    projectId: window.editor.api.globals.projectId,
-                    branchId: window.editor.api.globals.branchId,
-                    description: 'BASE'
-                }).promisify();
+                const checkpoint = await createCheckpoint('BASE');
 
                 return [
                     material.get('id'),

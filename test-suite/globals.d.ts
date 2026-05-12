@@ -11,11 +11,11 @@ interface DiffJobData {
     dst_branch_id: string;
 }
 
-interface DiffJob {
+interface Job<T = any> {
     id: number;
     status: 'complete' | 'running' | 'error';
     messages?: string[];
-    data: DiffJobData;
+    data: T;
 }
 
 interface DiffResult {
@@ -29,11 +29,11 @@ interface CheckpointListResponse {
 
 interface EditorRest extends Omit<OriginalRest, 'diff' | 'jobs' | 'branches'> {
     diff: Omit<OriginalRest['diff'], 'diffCreate'> & {
-        diffCreate(args: OriginalRest['diff']['DiffCreateArgs']): Promisifiable<DiffJob>;
+        diffCreate(args: OriginalRest['diff']['DiffCreateArgs']): Promisifiable<Job<DiffJobData>>;
         diffGet(args: { id: string }): Promisifiable<DiffResult>;
     };
     jobs: Omit<OriginalRest['jobs'], 'jobGet'> & {
-        jobGet(args: { jobId: number }): Promisifiable<DiffJob>;
+        jobGet(args: { jobId: number }): Promisifiable<Job>;
     };
     branches: Omit<OriginalRest['branches'], 'branchCheckpoints'> & {
         branchCheckpoints(args: OriginalRest['branches']['BranchCheckpointArgs']): Promisifiable<CheckpointListResponse>;
