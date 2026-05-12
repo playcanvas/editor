@@ -1,6 +1,6 @@
 import { Ajax } from '../ajax';
 import { globals as api } from '../globals';
-import type { Checkpoint, User } from '../models';
+import type { Checkpoint, Job, User } from '../models';
 
 // args
 export type CheckpointCreateArgs = {
@@ -55,12 +55,21 @@ export type CheckpointResponse = Pick<Checkpoint, 'id' | 'createdAt' | 'descript
 export type CheckpointUserResponse = Pick<Checkpoint, 'id' | 'createdAt' | 'description'> & {
     user: Pick<User, 'id' | 'fullName' | 'username'>;
 };
+export type CheckpointCreateJobData = Partial<CheckpointUserResponse> & {
+    type?: 'checkpoint_create';
+    project_id?: number;
+    branch_id?: string;
+    user_id?: number;
+    all_new_immutable?: string;
+    description: string;
+    user?: Pick<User, 'id' | 'fullName' | 'username'>;
+};
 
 /**
  * Creates a new checkpoint
  */
 export const checkpointCreate = (args: CheckpointCreateArgs) => {
-    return Ajax.post<CheckpointUserResponse>({
+    return Ajax.post<Job<CheckpointCreateJobData>>({
         url: `${api.apiUrl}/checkpoints`,
         auth: true,
         data: {

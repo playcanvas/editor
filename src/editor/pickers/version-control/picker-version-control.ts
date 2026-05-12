@@ -5,7 +5,7 @@ import { LegacyListItem } from '@/common/ui/list-item';
 import { handleCallback } from '@/common/utils';
 import { config } from '@/editor/config';
 
-import { diffCreate } from '../../messenger/jobs';
+import { checkpointCreate as checkpointCreateJob, diffCreate } from '../../messenger/jobs';
 
 editor.once('load', () => {
     if (config.project.settings.useLegacyScripts) {
@@ -20,8 +20,6 @@ editor.once('load', () => {
     let branchesSkip = null;
     let selectedBranch = null;
     let showNewCheckpointOnLoad = false;
-
-    let currentCheckpointId = null;
 
     // main panel
     const panel = new Container({
@@ -294,20 +292,20 @@ editor.once('load', () => {
         panelBranchesFilter.enabled = enabled;
     };
 
-    const checkpointCallbackQueue = [];
-    const createCheckpoint = function (branchId: string, description: string, callback: () => void) {
+    const createCheckpoint = function (branchId: string, description: string, callback: (checkpoint?: Record<string, unknown>) => void) {
         togglePanels(false);
         showRightSidePanel(panelCreateCheckpointProgress);
 
-        // push callback to queue
-        checkpointCallbackQueue.push(callback);
-
-        // NOTE: do not handle callback here in case checkpoint takes a while to create
-        // and request times out. Callback is handled through messenger event
-        editor.api.globals.rest.checkpoints.checkpointCreate({
+        checkpointCreateJob({
             projectId: config.project.id,
             branchId,
             description
+        }).then((checkpoint) => {
+            panelCreateCheckpointProgress.finish(null);
+            callback(checkpoint as Record<string, unknown>);
+        }).catch((err) => {
+            panelCreateCheckpointProgress.finish(err instanceof Error ? err.message : `${err}`);
+            togglePanels(true);
         });
     };
 
@@ -1159,24 +1157,8 @@ editor.once('load', () => {
             });
         }));
 
-        events.push(editor.on('messenger:checkpoint.createStarted', (data: Record<string, unknown>) => {
-            currentCheckpointId = data.checkpoint_id;
-        }));
-
         // when a checkpoint is created add it to the list
         events.push(editor.on('messenger:checkpoint.createEnded', (data: Record<string, unknown>) => {
-
-            if (currentCheckpointId === data.checkpoint_id) {
-                const err = data.status === 'error' ? data.message : null;
-                panelCreateCheckpointProgress.finish(err);
-                if (err) {
-                    return togglePanels(true);
-                }
-
-                // shift callback from front of queue and call it
-                checkpointCallbackQueue.shift()?.();
-            }
-
             if (data.status === 'error') {
                 return;
             }

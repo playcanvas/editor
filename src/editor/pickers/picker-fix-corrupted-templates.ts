@@ -1,5 +1,7 @@
 import { Overlay, Container, Label, Button, Spinner } from '@playcanvas/pcui';
 
+import { checkpointCreate } from '../messenger/jobs';
+
 editor.once('load', () => {
     if (!editor.call('users:hasFlag', 'hasFixCorruptedTemplates')) {
         return;
@@ -121,7 +123,7 @@ editor.once('load', () => {
     content.append(progressButtons);
 
     let currentState = null;
-    function setState(state: number, data?: Record<string, unknown>) {
+    function setState(state: number, data?: unknown) {
         if (currentState === state) {
             return;
         }
@@ -199,15 +201,15 @@ editor.once('load', () => {
 
         // take checkpoint
         progressText.text = 'Creating checkpoint...';
-        editor.api.globals.rest.checkpoints.checkpointCreate({
+        checkpointCreate({
             projectId: config.project.id,
             branchId: config.self.branch.id,
             description: `Checkpoint before executing corrupted templates migration in branch '${config.self.branch.name}'`
-        }).on('load', (status, data) => {
+        }).then(() => {
             progressText.text = 'Migrating...';
             editor.emit('picker:fixCorruptedTemplates:confirm');
-        }).on('error', (status, err) => {
-            setState(STATE_ERROR, err);
+        }).catch((err) => {
+            setState(STATE_ERROR, err instanceof Error ? err.message : `${err}`);
         });
     });
 
