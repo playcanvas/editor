@@ -2,16 +2,16 @@ import { Defer } from '@/common/defer';
 
 const { rest } = editor.api.globals;
 
-type JobStart = {
-    promisify: () => Promise<{ id: number }>;
+type JobStart<T extends object> = {
+    promisify: () => Promise<{ id: number; data: T }>;
 };
 
 type DiffJob = Awaited<ReturnType<ReturnType<typeof rest.diff.diffCreate>['promisify']>>;
 type Checkpoint = Awaited<ReturnType<ReturnType<typeof rest.checkpoints.checkpointGet>['promisify']>>;
 
-const waitForJob = <T extends object>(request: JobStart, message: string) => {
-    const defer = new Defer<{ id: number }>();
-    const promise = new Promise<T>((resolve, reject) => {
+const waitForJob = <T extends object>(request: JobStart<T>, message: string) => {
+    const defer = new Defer<{ id: number; data: T }>();
+    const promise = new Promise((resolve, reject) => {
         const jobUpdate = editor.on('messenger:job.update', ({ job: jobData }: { job: { id: number } }) => {
             defer.promise.then((job) => {
                 if (jobData.id !== job.id) {
@@ -24,7 +24,10 @@ const waitForJob = <T extends object>(request: JobStart, message: string) => {
                         reject(new Error(completedJob.messages?.[0] ?? message));
                         return;
                     }
-                    resolve(completedJob.data as T);
+                    resolve({
+                        job,
+                        completedJob
+                    });
                 }).catch(reject);
             }).catch(reject);
         });
@@ -38,11 +41,16 @@ const waitForJob = <T extends object>(request: JobStart, message: string) => {
 };
 
 export const checkpointCreate = (args: Parameters<typeof rest.checkpoints.checkpointCreate>[0]) => {
-    return waitForJob<Checkpoint>(rest.checkpoints.checkpointCreate(args), 'Checkpoint create failed');
+    return waitForJob(rest.checkpoints.checkpointCreate(args), 'Checkpoint create failed').then(({ completedJob }) => {
+        return completedJob.data as Checkpoint;
+    });
 };
 
 export const diffCreate = (args: Parameters<typeof rest.diff.diffCreate>[0]) => {
-    return waitForJob<DiffJob['data']>(rest.diff.diffCreate(args), 'Checkpoint diff failed').then((data) => {
-        return rest.diff.diffGet({ id: data.merge_id }).promisify();
+    return waitForJob<DiffJob['data']>(rest.diff.diffCreate(args), 'Checkpoint diff failed').then(({ job }) => {
+        if (!job.data.merge_id) {
+            return Promise.reject(new Error('Checkpoint diff missing merge id'));
+        }
+        return rest.diff.diffGet({ id: job.data.merge_id }).promisify();
     });
 };
