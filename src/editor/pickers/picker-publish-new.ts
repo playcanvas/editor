@@ -9,6 +9,7 @@ import { config } from '@/editor/config';
 
 const DOWNLOAD_FORMAT_STATIC = 'static';
 const DOWNLOAD_FORMAT_WEB_LENS = 'web_lens';
+const DOWNLOAD_FORMAT_NPM = 'npm';
 
 editor.once('load', () => {
     const legacyScripts = editor.call('settings:project').get('useLegacyScripts');
@@ -20,6 +21,7 @@ editor.once('load', () => {
     let events: EventHandle[] = [];
 
     let containerOptionsWebLens: Container | null = null;
+    let containerOptionsNpmProject: Container | null = null;
 
     // root container
     const container = new Container({
@@ -39,16 +41,29 @@ editor.once('load', () => {
         mode = 'publish';
         editor.call('picker:project', 'publish-new');
         container.class.remove('download-mode');
-        containerOptionsWebLens.hidden = true;
+        if (containerOptionsWebLens) {
+            containerOptionsWebLens.hidden = true;
+        }
+        if (containerOptionsNpmProject) {
+            containerOptionsNpmProject.hidden = true;
+        }
+        if (fieldOptionsNpmProject) {
+            fieldOptionsNpmProject.value = false;
+        }
+        refreshDownloadFormatOptions();
     });
 
     editor.method('picker:publish:download', () => {
         mode = 'download';
         editor.call('picker:project', 'publish-download');
         container.class.add('download-mode');
-        if (config.self.flags.superUser) {
+        if (config.self.flags.superUser && containerOptionsWebLens) {
             containerOptionsWebLens.hidden = false;
         }
+        if (containerOptionsNpmProject) {
+            containerOptionsNpmProject.hidden = false;
+        }
+        refreshDownloadFormatOptions();
     });
 
     // info panel
@@ -258,16 +273,29 @@ editor.once('load', () => {
     containerEngineVersion.append(engineVersionDropdown);
     container.append(containerEngineVersion);
 
-    let fieldOptionsConcat: BooleanInput;
-    let fieldOptionsMinify: BooleanInput;
-    let fieldOptionsSourcemaps: BooleanInput;
-    let fieldOptionsOptimizeSceneFormat: BooleanInput;
-    let fieldOptionsWebLens: BooleanInput;
+    let fieldOptionsConcat: BooleanInput | null = null;
+    let fieldOptionsMinify: BooleanInput | null = null;
+    let fieldOptionsSourcemaps: BooleanInput | null = null;
+    let fieldOptionsOptimizeSceneFormat: BooleanInput | null = null;
+    let fieldOptionsWebLens: BooleanInput | null = null;
+    let fieldOptionsNpmProject: BooleanInput | null = null;
+    let containerBuildOptions: Container | null = null;
+    let rowOptionsMinify: Container | null = null;
+    let rowOptionsSourcemaps: Container | null = null;
+    let optionsBeforeNpmProject: {
+        concatenate: boolean,
+        minify: boolean,
+        sourcemaps: boolean,
+        optimizeSceneFormat: boolean,
+        webLens: boolean
+    } | null = null;
+    let refreshingDownloadFormatOptions = false;
 
     if (!legacyScripts) {
         const containerOptions = new Container({
             class: 'options'
         });
+        containerBuildOptions = containerOptions;
         container.append(containerOptions);
 
         const labelOptions = new Label({
@@ -307,18 +335,127 @@ editor.once('load', () => {
         fieldOptionsSourcemaps = optSourcemaps.input;
         fieldOptionsOptimizeSceneFormat = optOptimizeFormat.input;
         fieldOptionsWebLens = optWebLens.input;
+        rowOptionsMinify = optMinify.row;
+        rowOptionsSourcemaps = optSourcemaps.row;
 
         containerOptionsWebLens = optWebLens.row;
         containerOptionsWebLens.hidden = true;
 
-        fieldOptionsConcat.on('change', (value: boolean) => {
-            optMinify.row.hidden = !value;
-            optSourcemaps.row.hidden = !fieldOptionsMinify.value || !value;
+        fieldOptionsConcat.on('change', () => {
+            refreshDownloadFormatOptions();
         });
 
-        fieldOptionsMinify.on('change', (value: boolean) => {
-            optSourcemaps.row.hidden = !value;
+        fieldOptionsMinify.on('change', () => {
+            refreshDownloadFormatOptions();
         });
+    }
+
+    const containerDownloadOptions = new Container({
+        class: 'options'
+    });
+    container.append(containerDownloadOptions);
+    containerOptionsNpmProject = containerDownloadOptions;
+    containerOptionsNpmProject.hidden = true;
+
+    const labelDownloadOptions = new Label({
+        text: 'Download Options',
+        class: 'field-label'
+    });
+    containerDownloadOptions.append(labelDownloadOptions);
+
+    const rowNpmProject = new Container({
+        class: 'field'
+    });
+    containerDownloadOptions.append(rowNpmProject);
+
+    fieldOptionsNpmProject = new BooleanInput({
+        value: false
+    });
+    rowNpmProject.append(fieldOptionsNpmProject);
+
+    const labelNpmProject = new Label({
+        text: 'Export as NPM Project'
+    });
+    rowNpmProject.append(labelNpmProject);
+
+    if (fieldOptionsWebLens) {
+        fieldOptionsWebLens.on('change', (value: boolean) => {
+            if (value && fieldOptionsNpmProject) {
+                fieldOptionsNpmProject.value = false;
+            }
+            refreshDownloadFormatOptions();
+        });
+    }
+
+    fieldOptionsNpmProject.on('change', () => {
+        refreshDownloadFormatOptions();
+    });
+
+    function refreshDownloadFormatOptions() {
+        if (refreshingDownloadFormatOptions) {
+            return;
+        }
+
+        refreshingDownloadFormatOptions = true;
+
+        const npmProject = !!(fieldOptionsNpmProject && fieldOptionsNpmProject.value);
+        if (fieldOptionsConcat && fieldOptionsMinify && fieldOptionsSourcemaps && fieldOptionsOptimizeSceneFormat) {
+            if (npmProject) {
+                if (!optionsBeforeNpmProject) {
+                    optionsBeforeNpmProject = {
+                        concatenate: fieldOptionsConcat.value,
+                        minify: fieldOptionsMinify.value,
+                        sourcemaps: fieldOptionsSourcemaps.value,
+                        optimizeSceneFormat: fieldOptionsOptimizeSceneFormat.value,
+                        webLens: fieldOptionsWebLens ? fieldOptionsWebLens.value : false
+                    };
+                }
+
+                fieldOptionsConcat.value = false;
+                fieldOptionsMinify.value = false;
+                fieldOptionsSourcemaps.value = false;
+                fieldOptionsOptimizeSceneFormat.value = false;
+                if (fieldOptionsWebLens) {
+                    fieldOptionsWebLens.value = false;
+                }
+            } else if (optionsBeforeNpmProject) {
+                fieldOptionsConcat.value = optionsBeforeNpmProject.concatenate;
+                fieldOptionsMinify.value = optionsBeforeNpmProject.minify;
+                fieldOptionsSourcemaps.value = optionsBeforeNpmProject.sourcemaps;
+                fieldOptionsOptimizeSceneFormat.value = optionsBeforeNpmProject.optimizeSceneFormat;
+                if (fieldOptionsWebLens) {
+                    fieldOptionsWebLens.value = optionsBeforeNpmProject.webLens;
+                }
+                optionsBeforeNpmProject = null;
+            }
+
+            fieldOptionsConcat.disabled = npmProject;
+            fieldOptionsMinify.disabled = npmProject;
+            fieldOptionsSourcemaps.disabled = npmProject;
+            fieldOptionsOptimizeSceneFormat.disabled = npmProject;
+            if (fieldOptionsWebLens) {
+                fieldOptionsWebLens.disabled = npmProject;
+            }
+        }
+
+        if (containerBuildOptions) {
+            containerBuildOptions.disabled = npmProject;
+            containerBuildOptions.hidden = npmProject;
+        }
+
+        if (!npmProject && fieldOptionsConcat && fieldOptionsMinify) {
+            if (rowOptionsMinify) {
+                rowOptionsMinify.hidden = !fieldOptionsConcat.value;
+            }
+            if (rowOptionsSourcemaps) {
+                rowOptionsSourcemaps.hidden = !fieldOptionsMinify.value || !fieldOptionsConcat.value;
+            }
+            if (containerOptionsWebLens) {
+                containerOptionsWebLens.hidden = mode !== 'download' || !config.self.flags.superUser;
+            }
+        }
+
+        refreshingDownloadFormatOptions = false;
     }
 
     // scenes
@@ -448,7 +585,7 @@ editor.once('load', () => {
         if (fieldOptionsMinify) {
             data.scripts_minify = fieldOptionsMinify.value;
 
-            if (fieldOptionsConcat.value && fieldOptionsMinify.value && fieldOptionsSourcemaps.value) {
+            if (fieldOptionsConcat?.value && fieldOptionsMinify.value && fieldOptionsSourcemaps?.value) {
                 data.scripts_sourcemaps = true;
             }
         }
@@ -488,17 +625,20 @@ editor.once('load', () => {
 
         refreshButtonsState();
 
+        const npmProject = fieldOptionsNpmProject ? fieldOptionsNpmProject.value : false;
+        const format = npmProject ? DOWNLOAD_FORMAT_NPM : fieldOptionsWebLens?.value ? DOWNLOAD_FORMAT_WEB_LENS : DOWNLOAD_FORMAT_STATIC;
+
         // post data
         const data = {
             name: inputName.value,
             project_id: config.project.id,
             branch_id: config.self.branch.id,
             scenes: getSelectedScenes(),
-            scripts_concatenate: fieldOptionsConcat ? fieldOptionsConcat.value : false,
-            scripts_minify: fieldOptionsMinify ? fieldOptionsMinify.value : false,
-            scripts_sourcemaps: fieldOptionsMinify && fieldOptionsMinify.value && fieldOptionsSourcemaps.value,
-            optimize_scene_format: fieldOptionsOptimizeSceneFormat ? fieldOptionsOptimizeSceneFormat.value : false,
-            format: fieldOptionsWebLens?.value ? DOWNLOAD_FORMAT_WEB_LENS : DOWNLOAD_FORMAT_STATIC
+            scripts_concatenate: !npmProject && !!fieldOptionsConcat?.value,
+            scripts_minify: !npmProject && !!fieldOptionsMinify?.value,
+            scripts_sourcemaps: !npmProject && !!fieldOptionsMinify?.value && !!fieldOptionsSourcemaps?.value,
+            optimize_scene_format: !npmProject && !!fieldOptionsOptimizeSceneFormat?.value,
+            format
         };
 
         data.engine_version = config.engineVersions[engineVersionDropdown.value].version;
