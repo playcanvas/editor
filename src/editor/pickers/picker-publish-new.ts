@@ -20,8 +20,7 @@ editor.once('load', () => {
     // holds events that need to be destroyed
     let events: EventHandle[] = [];
 
-    let containerOptionsWebLens: Container | null = null;
-    let containerOptionsNpmProject: Container | null = null;
+    let containerDownloadOptions: Container | null = null;
 
     // root container
     const container = new Container({
@@ -41,14 +40,11 @@ editor.once('load', () => {
         mode = 'publish';
         editor.call('picker:project', 'publish-new');
         container.class.remove('download-mode');
-        if (containerOptionsWebLens) {
-            containerOptionsWebLens.hidden = true;
+        if (containerDownloadOptions) {
+            containerDownloadOptions.hidden = true;
         }
-        if (containerOptionsNpmProject) {
-            containerOptionsNpmProject.hidden = true;
-        }
-        if (fieldOptionsNpmProject) {
-            fieldOptionsNpmProject.value = false;
+        if (fieldDownloadFormat) {
+            fieldDownloadFormat.value = DOWNLOAD_FORMAT_STATIC;
         }
         refreshDownloadFormatOptions();
     });
@@ -57,11 +53,8 @@ editor.once('load', () => {
         mode = 'download';
         editor.call('picker:project', 'publish-download');
         container.class.add('download-mode');
-        if (config.self.flags.superUser && containerOptionsWebLens) {
-            containerOptionsWebLens.hidden = false;
-        }
-        if (containerOptionsNpmProject) {
-            containerOptionsNpmProject.hidden = false;
+        if (containerDownloadOptions) {
+            containerDownloadOptions.hidden = false;
         }
         refreshDownloadFormatOptions();
     });
@@ -277,8 +270,7 @@ editor.once('load', () => {
     let fieldOptionsMinify: BooleanInput | null = null;
     let fieldOptionsSourcemaps: BooleanInput | null = null;
     let fieldOptionsOptimizeSceneFormat: BooleanInput | null = null;
-    let fieldOptionsWebLens: BooleanInput | null = null;
-    let fieldOptionsNpmProject: BooleanInput | null = null;
+    let fieldDownloadFormat: SelectInput | null = null;
     let containerBuildOptions: Container | null = null;
     let rowOptionsMinify: Container | null = null;
     let rowOptionsSourcemaps: Container | null = null;
@@ -286,8 +278,7 @@ editor.once('load', () => {
         concatenate: boolean,
         minify: boolean,
         sourcemaps: boolean,
-        optimizeSceneFormat: boolean,
-        webLens: boolean
+        optimizeSceneFormat: boolean
     } | null = null;
     let refreshingDownloadFormatOptions = false;
 
@@ -328,18 +319,13 @@ editor.once('load', () => {
         const optMinify = createOption('Minify Scripts', true);
         const optSourcemaps = createOption('Generate Source Maps', false);
         const optOptimizeFormat = createOption('Optimize Scene Format', false);
-        const optWebLens = createOption('Export to WebLens Format', false);
 
         fieldOptionsConcat = optConcat.input;
         fieldOptionsMinify = optMinify.input;
         fieldOptionsSourcemaps = optSourcemaps.input;
         fieldOptionsOptimizeSceneFormat = optOptimizeFormat.input;
-        fieldOptionsWebLens = optWebLens.input;
         rowOptionsMinify = optMinify.row;
         rowOptionsSourcemaps = optSourcemaps.row;
-
-        containerOptionsWebLens = optWebLens.row;
-        containerOptionsWebLens.hidden = true;
 
         fieldOptionsConcat.on('change', () => {
             refreshDownloadFormatOptions();
@@ -350,12 +336,11 @@ editor.once('load', () => {
         });
     }
 
-    const containerDownloadOptions = new Container({
+    containerDownloadOptions = new Container({
         class: 'options'
     });
     container.append(containerDownloadOptions);
-    containerOptionsNpmProject = containerDownloadOptions;
-    containerOptionsNpmProject.hidden = true;
+    containerDownloadOptions.hidden = true;
 
     const labelDownloadOptions = new Label({
         text: 'Download Options',
@@ -363,31 +348,29 @@ editor.once('load', () => {
     });
     containerDownloadOptions.append(labelDownloadOptions);
 
-    const rowNpmProject = new Container({
-        class: 'field'
-    });
-    containerDownloadOptions.append(rowNpmProject);
+    const downloadFormatOptions = [{
+        t: 'Static Website',
+        v: DOWNLOAD_FORMAT_STATIC
+    }, {
+        t: 'NPM + Vite Project (WIP)',
+        v: DOWNLOAD_FORMAT_NPM
+    }];
 
-    fieldOptionsNpmProject = new BooleanInput({
-        value: false
-    });
-    rowNpmProject.append(fieldOptionsNpmProject);
-
-    const labelNpmProject = new Label({
-        text: 'Export as NPM Project'
-    });
-    rowNpmProject.append(labelNpmProject);
-
-    if (fieldOptionsWebLens) {
-        fieldOptionsWebLens.on('change', (value: boolean) => {
-            if (value && fieldOptionsNpmProject) {
-                fieldOptionsNpmProject.value = false;
-            }
-            refreshDownloadFormatOptions();
+    if (config.self.flags.superUser) {
+        downloadFormatOptions.splice(1, 0, {
+            t: 'Snapchat Web Lens',
+            v: DOWNLOAD_FORMAT_WEB_LENS
         });
     }
 
-    fieldOptionsNpmProject.on('change', () => {
+    fieldDownloadFormat = new SelectInput({
+        class: 'download-format-dropdown',
+        value: DOWNLOAD_FORMAT_STATIC,
+        options: downloadFormatOptions
+    });
+    containerDownloadOptions.append(fieldDownloadFormat);
+
+    fieldDownloadFormat.on('change', () => {
         refreshDownloadFormatOptions();
     });
 
@@ -398,7 +381,7 @@ editor.once('load', () => {
 
         refreshingDownloadFormatOptions = true;
 
-        const npmProject = !!(fieldOptionsNpmProject && fieldOptionsNpmProject.value);
+        const npmProject = fieldDownloadFormat?.value === DOWNLOAD_FORMAT_NPM;
         if (fieldOptionsConcat && fieldOptionsMinify && fieldOptionsSourcemaps && fieldOptionsOptimizeSceneFormat) {
             if (npmProject) {
                 if (!optionsBeforeNpmProject) {
@@ -406,8 +389,7 @@ editor.once('load', () => {
                         concatenate: fieldOptionsConcat.value,
                         minify: fieldOptionsMinify.value,
                         sourcemaps: fieldOptionsSourcemaps.value,
-                        optimizeSceneFormat: fieldOptionsOptimizeSceneFormat.value,
-                        webLens: fieldOptionsWebLens ? fieldOptionsWebLens.value : false
+                        optimizeSceneFormat: fieldOptionsOptimizeSceneFormat.value
                     };
                 }
 
@@ -415,17 +397,11 @@ editor.once('load', () => {
                 fieldOptionsMinify.value = false;
                 fieldOptionsSourcemaps.value = false;
                 fieldOptionsOptimizeSceneFormat.value = false;
-                if (fieldOptionsWebLens) {
-                    fieldOptionsWebLens.value = false;
-                }
             } else if (optionsBeforeNpmProject) {
                 fieldOptionsConcat.value = optionsBeforeNpmProject.concatenate;
                 fieldOptionsMinify.value = optionsBeforeNpmProject.minify;
                 fieldOptionsSourcemaps.value = optionsBeforeNpmProject.sourcemaps;
                 fieldOptionsOptimizeSceneFormat.value = optionsBeforeNpmProject.optimizeSceneFormat;
-                if (fieldOptionsWebLens) {
-                    fieldOptionsWebLens.value = optionsBeforeNpmProject.webLens;
-                }
                 optionsBeforeNpmProject = null;
             }
 
@@ -433,9 +409,6 @@ editor.once('load', () => {
             fieldOptionsMinify.disabled = npmProject;
             fieldOptionsSourcemaps.disabled = npmProject;
             fieldOptionsOptimizeSceneFormat.disabled = npmProject;
-            if (fieldOptionsWebLens) {
-                fieldOptionsWebLens.disabled = npmProject;
-            }
         }
 
         if (containerBuildOptions) {
@@ -449,9 +422,6 @@ editor.once('load', () => {
             }
             if (rowOptionsSourcemaps) {
                 rowOptionsSourcemaps.hidden = !fieldOptionsMinify.value || !fieldOptionsConcat.value;
-            }
-            if (containerOptionsWebLens) {
-                containerOptionsWebLens.hidden = mode !== 'download' || !config.self.flags.superUser;
             }
         }
 
@@ -594,10 +564,6 @@ editor.once('load', () => {
             data.optimize_scene_format = fieldOptionsOptimizeSceneFormat.value;
         }
 
-        if (fieldOptionsWebLens) {
-            data.web_lens = fieldOptionsWebLens.value;
-        }
-
         data.engine_version = config.engineVersions[engineVersionDropdown.value].version;
 
         editor.api.globals.rest.apps.appCreate(data).on('load', () => {
@@ -625,8 +591,8 @@ editor.once('load', () => {
 
         refreshButtonsState();
 
-        const npmProject = fieldOptionsNpmProject ? fieldOptionsNpmProject.value : false;
-        const format = npmProject ? DOWNLOAD_FORMAT_NPM : fieldOptionsWebLens?.value ? DOWNLOAD_FORMAT_WEB_LENS : DOWNLOAD_FORMAT_STATIC;
+        const format = fieldDownloadFormat?.value ?? DOWNLOAD_FORMAT_STATIC;
+        const npmProject = format === DOWNLOAD_FORMAT_NPM;
 
         // post data
         const data = {
