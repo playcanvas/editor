@@ -7,6 +7,9 @@ import { LegacyListItem } from '@/common/ui/list-item';
 import { convertDatetime } from '@/common/utils';
 import { config } from '@/editor/config';
 
+const DOWNLOAD_FORMAT_STATIC = 'static';
+const DOWNLOAD_FORMAT_WEB_LENS = 'web_lens';
+
 editor.once('load', () => {
     const legacyScripts = editor.call('settings:project').get('useLegacyScripts');
 
@@ -495,7 +498,7 @@ editor.once('load', () => {
             scripts_minify: fieldOptionsMinify ? fieldOptionsMinify.value : false,
             scripts_sourcemaps: fieldOptionsMinify && fieldOptionsMinify.value && fieldOptionsSourcemaps.value,
             optimize_scene_format: fieldOptionsOptimizeSceneFormat ? fieldOptionsOptimizeSceneFormat.value : false,
-            web_lens: fieldOptionsWebLens ? fieldOptionsWebLens.value : false
+            format: fieldOptionsWebLens?.value ? DOWNLOAD_FORMAT_WEB_LENS : DOWNLOAD_FORMAT_STATIC
         };
 
         data.engine_version = config.engineVersions[engineVersionDropdown.value].version;
