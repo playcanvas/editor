@@ -5,6 +5,7 @@ export interface EsmBuildOptions {
     scripts_minify?: boolean;
     scripts_sourcemaps?: boolean;
     optimize_scene_format?: boolean;
+    format?: 'static' | 'npm' | 'web_lens';
 }
 
 /**
