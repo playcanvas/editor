@@ -343,7 +343,7 @@ editor.once('load', () => {
     containerDownloadOptions.hidden = true;
 
     const labelDownloadOptions = new Label({
-        text: 'Download Options',
+        text: 'Download Format',
         class: 'field-label'
     });
     containerDownloadOptions.append(labelDownloadOptions);
