@@ -3886,8 +3886,13 @@ strong {
         }
     }
 
-    .pcui-select-input.engine-version-dropdown {
+    .pcui-select-input.engine-version-dropdown,
+    .pcui-select-input.download-format-dropdown {
         margin: 0;
+    }
+
+    .pcui-select-input.download-format-dropdown {
+        width: 100%;
     }
 
     > .options > .pcui-container.field {
