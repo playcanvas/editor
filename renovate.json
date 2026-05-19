@@ -26,6 +26,21 @@
       ]
     },
     {
+      "matchManagers": [
+        "npm",
+        "dockerfile"
+      ],
+      "matchPackageNames": [
+        "@playwright/test",
+        "mcr.microsoft.com/playwright"
+      ],
+      "groupName": "playwright",
+      "minimumGroupSize": 2,
+      "schedule": [
+        "on monday at 10:00am"
+      ]
+    },
+    {
       "matchPackageNames": [
         "@playcanvas/attribute-parser",
         "@playcanvas/eslint-config",
