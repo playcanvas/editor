@@ -1424,6 +1424,8 @@ class MaterialAssetInspector extends Container {
         this._opacityInspector.getField('data.blendType').on('change', toggleFields);
         this._opacityInspector.getField('data.opacityVertexColor').on('change', toggleFields);
         this._opacityInspector.getField('data.opacityFadesSpecular').on('change', toggleFields);
+        this._opacityInspector.getField('data.opacityDither').on('change', toggleFields);
+        this._opacityInspector.getField('data.opacityShadowDither').on('change', toggleFields);
 
         this._clearCoatFactorInspector.getField('data.clearCoat').on('change', toggleFields);
 
@@ -1572,7 +1574,10 @@ class MaterialAssetInspector extends Container {
         this._clearCoatNormalInspector.hidden = clearCoat === 0.0;
 
         const blendType = this._opacityInspector.getField('data.blendType').value;
-        this._opacityInspector.getField('data.opacity').parent.hidden = ([2, 4, 6].indexOf(blendType) === -1);
+        const opacityDither = this._opacityInspector.getField('data.opacityDither').value ?? 'none';
+        const opacityShadowDither = this._opacityInspector.getField('data.opacityShadowDither').value ?? 'none';
+        const dithered = opacityDither !== 'none' || opacityShadowDither !== 'none';
+        this._opacityInspector.getField('data.opacity').parent.hidden = ([2, 4, 6].indexOf(blendType) === -1) && !dithered;
 
         const opacityMapField = this._opacityInspector.getField('data.opacityMap');
         const opacityVertexColorField = this._opacityInspector.getField('data.opacityVertexColor');
