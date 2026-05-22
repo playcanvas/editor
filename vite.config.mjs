@@ -449,8 +449,7 @@ const esbuildBundlePlugin = () => {
                 if (process.env.VERCEL) {
                     const owner = (process.env.VERCEL_GIT_REPO_OWNER || 'playcanvas').toLowerCase();
                     const branch = process.env.VERCEL_GIT_COMMIT_REF || 'main';
-                    const source = owner === 'playcanvas' ? 'main' : owner;
-                    const query = new URLSearchParams({ use_local_frontend: `${source}:${branch}` });
+                    const query = new URLSearchParams({ use_local_frontend: `${owner}:${branch}` });
                     const redirectUrl = `https://playcanvas.com/editor?${query}`;
                     const html = [
                         '<!DOCTYPE html>',
