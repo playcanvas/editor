@@ -447,8 +447,10 @@ const esbuildBundlePlugin = () => {
                 // deployment URL sends users to the editor with the correct
                 // use_local_frontend query parameter for this branch.
                 if (process.env.VERCEL) {
+                    const owner = (process.env.VERCEL_GIT_REPO_OWNER || 'playcanvas').toLowerCase();
                     const branch = process.env.VERCEL_GIT_COMMIT_REF || 'main';
-                    const redirectUrl = `https://playcanvas.com/editor?use_local_frontend=branch:${branch}`;
+                    const query = new URLSearchParams({ use_local_frontend: `${owner}:${branch}` });
+                    const redirectUrl = `https://playcanvas.com/editor?${query}`;
                     const html = [
                         '<!DOCTYPE html>',
                         '<html><head>',
