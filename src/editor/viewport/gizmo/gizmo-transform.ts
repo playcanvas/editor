@@ -203,16 +203,27 @@ const initGizmo = <T extends TransformGizmo>(gizmo: T) => {
 
     // track hover state and cursor position
     let hovering = false;
+    let hoverMesh: MeshInstance | null = null;
     gizmo.on(Gizmo.EVENT_POINTERMOVE, (x: number, y: number, meshInstance: MeshInstance) => {
         cursor[0] = x;
         cursor[1] = y;
-        if (hovering === !!meshInstance) {
+        const mesh = meshInstance || null;
+        if (hoverMesh === mesh) {
             return;
         }
-        hovering = !!meshInstance;
-        editor.emit('gizmo:transform:hover', hovering);
+        hoverMesh = mesh;
+        const nowHovering = !!mesh;
+        if (hovering !== nowHovering) {
+            hovering = nowHovering;
+            editor.emit('gizmo:transform:hover', hovering);
+        }
+        // the hovered handle changed: re-render so the highlight updates. the engine
+        // marks the gizmo dirty on hover but only repaints on a rendered frame, and
+        // nothing else renders on plain mouse movement now.
+        editor.call('viewport:render');
     });
     gizmo.on(Gizmo.EVENT_NODESDETACH, () => {
+        hoverMesh = null;
         if (hovering) {
             hovering = false;
             editor.emit('gizmo:transform:hover', false);

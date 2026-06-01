@@ -92,6 +92,13 @@ editor.once('load', () => {
         return keepRendering;
     });
 
+    // gsplat depth-sorting runs async on a worker; the sort for the resting camera
+    // can land just after the last frame. re-render once when a sort settles so the
+    // splat order is correct. self-terminating: a static camera skips the sort.
+    app.scene.on('gsplat:sorted', () => {
+        editor.call('viewport:render');
+    });
+
     app.start();
 
     editor.emit('viewport:load', app);

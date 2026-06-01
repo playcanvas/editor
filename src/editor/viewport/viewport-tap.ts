@@ -97,16 +97,21 @@ editor.once('load', () => {
             down: taps.length !== 0
         });
 
-        // render if mouse moved within viewport
+        // track hover state as the mouse moves
         if (evt.clientX >= rect.left && evt.clientX <= rect.right && evt.clientY >= rect.top && evt.clientY <= rect.bottom) {
             if (!inViewport) {
                 inViewport = true;
                 editor.emit('viewport:hover', true);
             }
-            editor.call('viewport:render');
         } else if (inViewport) {
             inViewport = false;
             editor.emit('viewport:hover', false);
+        }
+
+        // render only while actively dragging (a pointer is down): drags drive
+        // per-frame handlers (camera, gizmos) that must redraw as the mouse moves.
+        // plain hovering with no button must NOT render — costly for splats.
+        if (taps.length) {
             editor.call('viewport:render');
         }
     };
@@ -179,7 +184,6 @@ editor.once('load', () => {
 
     canvas.dom.addEventListener('mouseover', () => {
         editor.emit('viewport:hover', true);
-        editor.call('viewport:render');
     }, false);
 
     canvas.dom.addEventListener('mouseleave', (evt) => {
@@ -190,7 +194,6 @@ editor.once('load', () => {
         }
 
         editor.emit('viewport:hover', false);
-        editor.call('viewport:render');
     }, false);
 
     window.addEventListener('mousemove', evtMouseMove, false);
