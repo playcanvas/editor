@@ -6,6 +6,7 @@ editor.once('viewport:load', (app: Application) => {
     // Panning with left mouse button while shift key is down
 
     let panning = false;
+    let panDirty = false;
     let panCamera;
     let shiftKey = false;
     const vecA = new Vec2();
@@ -21,9 +22,12 @@ editor.once('viewport:load', (app: Application) => {
     });
 
     editor.on('viewport:update', (dt: number) => {
-        if (!panning) {
+        // only recompute + render when the pointer moved (set in tap:move / pan start),
+        // so holding the pan button without moving does not re-render every frame
+        if (!panning || !panDirty) {
             return;
         }
+        panDirty = false;
 
         const camera = editor.call('camera:current');
 
@@ -51,8 +55,6 @@ editor.once('viewport:load', (app: Application) => {
                 camera.setPosition(camera.getPosition().add(vecB));
             }
         }
-
-        editor.call('viewport:render');
     });
 
     const onPanStart = function (tap: ViewportTap): void {
@@ -106,6 +108,7 @@ editor.once('viewport:load', (app: Application) => {
             }
         }
 
+        panDirty = true;
         editor.call('viewport:render');
     };
     editor.method('camera:pan:start', onPanStart);
@@ -135,6 +138,7 @@ editor.once('viewport:load', (app: Application) => {
         vecA.x = tap.x;
         vecA.y = tap.y;
 
+        panDirty = true;
         editor.call('viewport:render');
     });
 

@@ -51,7 +51,7 @@ editor.once('load', () => {
     };
 
     // request rendering of entities for a user
-    const setUserSelection = (id: number | string, entities: Entity[]): void => {
+    const setUserSelection = (id: number | string, entities: Entity[], render = true): void => {
 
         // remove existing entities
         const existingEntities = userSelections.get(id);
@@ -68,7 +68,9 @@ editor.once('load', () => {
             outlineRenderer.addEntity(entities[i], color, false);
         }
 
-        editor.call('viewport:render');
+        if (render) {
+            editor.call('viewport:render');
+        }
     };
 
     // local user selection changed
@@ -126,7 +128,11 @@ editor.once('load', () => {
         outlineRenderer.removeAllEntities();
         const entities = userSelections.get(config.self.id);
         if (entities) {
-            setUserSelection(config.self.id, entities);
+            // re-add without forcing a render: this runs on every rendered frame,
+            // so requesting a render here would loop the viewport forever while a
+            // selection exists (the frameUpdate below draws the outline into the
+            // frame that is already rendering)
+            setUserSelection(config.self.id, entities, false);
         }
 
         // request outline rendering, which is then added to the scene at the start of the Immediate layer

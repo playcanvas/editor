@@ -283,7 +283,8 @@ editor.once('viewport:load', (app) => {
 
             dragPoint.emit('dragMove', length);
         }
-
-        editor.call('viewport:render');
+        // no viewport:render here: this runs every rendered frame while dragging, so
+        // it would loop forever when the mouse is held still. the active-drag render
+        // in viewport-tap drives the redraw as the mouse actually moves.
     });
 });

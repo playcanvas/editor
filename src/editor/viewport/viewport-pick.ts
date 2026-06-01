@@ -1,5 +1,6 @@
 import { Entity, GraphNode, Picker, Vec2 } from 'playcanvas';
 
+import { frameLimiter } from '@/common/utils';
 import { FORCE_PICK_TAG } from '@/core/constants';
 
 import type { ViewportTap } from './viewport-tap';
@@ -51,7 +52,7 @@ editor.once('load', () => {
         picking = state;
     });
 
-    editor.on('viewport:update', () => {
+    const runPick = () => {
         if (!mouseDown && !inViewport && pickedData.node) {
             pickedData.node = null;
             pickedData.picked = null;
@@ -75,7 +76,14 @@ editor.once('load', () => {
                 editor.emit('viewport:pick:hover', pickedData.node, pickedData.picked);
             }
         });
-    });
+    };
+
+    // run hover-picking on pointer movement, coalesced to once per frame; the picker
+    // renders to its own buffer, so this is decoupled from the main viewport render —
+    // hovering no longer forces a full (splat) re-render
+    const requestPick = frameLimiter(runPick);
+    editor.on('viewport:mouse:move', () => requestPick());
+    editor.on('viewport:hover', () => requestPick());
 
     editor.on('viewport:hover', (hover: boolean) => {
         inViewport = hover;
