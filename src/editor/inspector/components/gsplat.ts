@@ -14,6 +14,31 @@ const ATTRIBUTES: Attribute[] = [{
         assetType: 'gsplat'
     }
 }, {
+    label: 'Cast Shadows',
+    path: 'components.gsplat.castShadows',
+    reference: 'gsplat:castShadows',
+    type: 'boolean'
+}, {
+    label: 'LOD Base Distance',
+    path: 'components.gsplat.lodBaseDistance',
+    reference: 'gsplat:lodBaseDistance',
+    type: 'number',
+    args: {
+        min: 0.1,
+        step: 0.1,
+        precision: 2
+    }
+}, {
+    label: 'LOD Multiplier',
+    path: 'components.gsplat.lodMultiplier',
+    reference: 'gsplat:lodMultiplier',
+    type: 'number',
+    args: {
+        min: 1.2,
+        step: 0.1,
+        precision: 2
+    }
+}, {
     label: 'Layers',
     path: 'components.gsplat.layers',
     reference: 'gsplat:layers',
