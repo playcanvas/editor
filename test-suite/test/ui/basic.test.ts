@@ -41,8 +41,7 @@ test.describe('create/delete', () => {
 
             // create project
             await page.getByRole('button', { name: 'NEW PROJECT' }).click();
-            await page.locator('div').filter({ hasText: /^NameDescriptionPrivate \(Premium\)$/ })
-            .locator('input[type="text"]').fill(projectName);
+            await page.locator('.modal-new-project-form-content input[type="text"]').first().fill(projectName);
             await page.getByRole('button', { name: 'CREATE' }).click();
 
             // continue browsing
