@@ -181,4 +181,9 @@ editor.on('load', () => {
     if (!config.url.frontend.startsWith('/editor/scene')) {
         editor.call('console:log', 'Using local frontend');
     }
+
+    // log engine usage
+    if (!config.url.engine.startsWith('https://code.playcanvas.com/playcanvas-')) {
+        editor.call('console:log', 'Using local engine');
+    }
 });
