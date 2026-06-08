@@ -3786,6 +3786,8 @@ strong {
 }
 
 .pcui-menu.picker-builds-menu {
+    z-index: 100001;
+
     .pcui-menu-item:not(.pcui-menu-item-has-children):hover > .pcui-menu-item-children {
         opacity: 0;
         visibility: hidden;
@@ -4252,6 +4254,14 @@ strong {
             padding-top: 10px;
         }
 
+        &.primary-build-heading {
+            @extend .font-regular;
+
+            color: $text-primary;
+            padding-bottom: 10px;
+            padding-top: 10px;
+        }
+
         &.no-builds-label {
             width: 100%;
         }
@@ -4349,228 +4359,300 @@ strong {
         border: none;
         background: transparent;
 
+        &.primary-build-summary {
+            margin-bottom: 12px;
+        }
+
         > li {
             @extend .font-regular;
 
             height: auto;
-            line-height: initial;
-            padding: 0 15px 7px;
+            min-height: 72px;
+            line-height: normal;
+            padding: 0;
             position: relative;
             border-bottom: 1px solid $border-primary;
             background: transparent;
             cursor: default;
+            overflow: visible;
+            text-overflow: clip;
+            white-space: normal;
+            transition: background-color 100ms ease;
 
-            &.complete:hover {
-                background-color: #414f52;
+            &:hover {
+                background-color: #354144;
                 cursor: pointer;
+            }
+
+            > .build-row {
+                display: flex;
+                align-items: center;
+                gap: 14px;
+                min-height: 72px;
+                padding: 12px 14px;
+            }
+
+            > .build-row > .status {
+                flex: 0 0 24px;
+                width: 24px;
+                height: 24px;
+                border-radius: 50%;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 14px;
+                border: 1px solid $border-primary;
+                color: $text-dark;
+                background-color: $bcg-darkest;
+                box-sizing: border-box;
+                position: relative;
+            }
+
+            &.complete > .build-row > .status {
+                color: #6fd088;
+                border-color: #3e8c54;
+                background-color: rgb(46 160 67 / 12%);
+
+                &::before {
+                    content: '';
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    width: 9px;
+                    height: 5px;
+                    border-bottom: 2px solid currentcolor;
+                    border-left: 2px solid currentcolor;
+                    box-sizing: border-box;
+                    transform: translate(-50%, -60%) rotate(-45deg);
+                }
+            }
+
+            &.error > .build-row > .status {
+                color: #ff8a8a;
+                border-color: #a83d3d;
+                background-color: rgb(231 76 60 / 12%);
+
+                &::before {
+                    content: '';
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    width: 11px;
+                    height: 2px;
+                    background-color: currentcolor;
+                    transform: translate(-50%, -50%) rotate(45deg);
+                }
+
+                &::after {
+                    content: '';
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    width: 11px;
+                    height: 2px;
+                    background-color: currentcolor;
+                    transform: translate(-50%, -50%) rotate(-45deg);
+                }
+            }
+
+            &.running > .build-row > .status {
+                border-color: $text-dark;
+                background-color: transparent;
+
+                &::after {
+                    content: '';
+                    width: 12px;
+                    height: 12px;
+                    border: 2px solid $text-dark;
+                    border-top-color: $text-active;
+                    border-radius: 50%;
+                    animation: build-status-spin 800ms linear infinite;
+                }
+            }
+
+            > .build-row > .body {
+                min-width: 0;
+                flex: 1 1 auto;
+            }
+
+            > .build-row > .body > .name-row {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                min-width: 0;
+                line-height: 20px;
 
                 > .name {
-                    color: $text-active;
-                }
-            }
+                    @extend .font-bold;
 
-            &:not(.complete):hover {
-                background-color: transparent;
-            }
-
-            > .primary {
-                @extend .font-icon;
-
-                top: 15px;
-                left: 0;
-                line-height: 1;
-                height: 20px;
-                color: $text-darkest;
-                background: transparent;
-                border: none;
-                font-size: 16px;
-                position: absolute;
-
-                &:not(.disabled):hover {
-                    color: $text-dark;
-                    cursor: pointer;
-                }
-            }
-
-            &.primary > .primary {
-                color: $text-active;
-
-                &:hover {
-                    color: $text-active;
-                    cursor: default;
-                }
-            }
-
-            > .status {
-                width: 40px;
-                height: 40px;
-                line-height: 40px;
-                display: inline-block;
-                border: 1px solid $border-primary;
-                position: absolute;
-                text-align: center;
-                top: 16px;
-                left: 35px;
-                background-color: $bcg-darkest;
-            }
-
-            &.complete {
-                > .status > img {
-                    width: 40px;
-                    height: 40px;
-                }
-            }
-
-            &.running {
-                > .status > img {
-                    width: 25px;
-                    height: 25px;
-                    display: inline-block;
-                    vertical-align: middle;
-                }
-            }
-
-            &.error {
-                > .status {
-                    background-color: #e74c3c;
-
-                    &::after {
-                        color: $bcg-dark;
-
-                        @extend .font-icon;
-
-                        font-size: 24px;
-                        content: '\E132';
-                        display: inline-block;
-                        vertical-align: middle;
-                    }
-                }
-            }
-
-            > .name-row {
-                position: absolute;
-                left: 90px;
-                top: 15px;
-                line-height: 1;
-
-                > .name,
-                > .version {
+                    min-width: 0;
+                    max-width: 100%;
                     overflow: hidden;
                     text-overflow: ellipsis;
                     white-space: nowrap;
-                    margin-top: 0;
-                    vertical-align: top;
-                }
-
-                > .name {
                     font-size: 14px;
-                    max-width: 710px;
                     color: $text-primary;
+                    margin: 0;
                 }
 
-                > .version {
-                    max-width: 50px;
+                > .badge {
+                    flex: 0 0 auto;
+                    height: 18px;
+                    line-height: 18px;
+                    padding: 0 6px;
+                    border: 1px solid $border-primary;
+                    border-radius: 4px;
+                    color: $text-dark;
+                    background-color: rgb(0 0 0 / 14%);
+                    font-size: 11px;
+                    text-transform: uppercase;
+                    letter-spacing: 0;
+
+                    &.publish {
+                        color: #9dd4ff;
+                        border-color: rgb(110 170 220 / 45%);
+                    }
+
+                    &.download {
+                        color: #f3c16f;
+                        border-color: rgb(225 166 62 / 45%);
+                    }
+
+                    &.primary-badge {
+                        color: $text-active;
+                        border-color: rgb(255 122 35 / 50%);
+                    }
                 }
             }
 
-            > .info {
-                position: absolute;
-                top: 35px;
-                left: 90px;
+            > .build-row > .body > .meta {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 4px 12px;
+                min-width: 0;
+                margin-top: 5px;
+                color: $text-dark;
+                font-size: 12px;
 
-                > .size,
-                > .views,
-                > .date,
-                > .branch {
-                    padding-right: 10px;
+                > .meta-item {
+                    min-width: 0;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
 
-                    &::before {
-                        @extend .font-icon;
-
-                        font-size: 12px;
-                        padding-right: 6px;
-                        color: $text-darkest;
+                    &.state {
+                        color: $text-primary;
                     }
                 }
+            }
 
-                > .size::before {
-                    content: '\E216';
+            > .build-row > .actions {
+                display: flex;
+                align-items: center;
+                justify-content: flex-end;
+                gap: 6px;
+                flex: 0 0 auto;
+
+                > .pcui-button,
+                > .action-button {
+                    appearance: none;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 28px;
+                    height: 28px;
+                    line-height: 1;
+                    margin: 0;
+                    padding: 0;
+                    border: 1px solid $border-primary;
+                    border-radius: 4px;
+                    color: $text-dark;
+                    background-color: rgb(0 0 0 / 12%);
+                    text-align: center;
+                    box-sizing: border-box;
                 }
 
-                > .branch::before {
-                    content: '\E399';
+                > .pcui-button.primary {
+                    @extend .font-icon;
+
+                    color: $text-darkest;
                 }
 
-                > .views::before {
-                    content: '\E308';
+                > .action-button.dropdown,
+                > .action-button.expander {
+                    @extend .font-icon;
+                }
+
+                > .pcui-button.primary:not(.disabled):hover,
+                > .action-button.dropdown:hover,
+                > .action-button.expander:hover,
+                > .action-button.clicked {
+                    color: $text-primary;
+                    background-color: $bcg-darkest;
+                    cursor: pointer;
+                }
+
+                > .artifact {
+                    @extend .font-bold;
+
+                    height: 28px;
+                    line-height: 28px;
+                    padding: 0 10px;
+                    border: 1px solid $border-primary;
+                    border-radius: 4px;
+                    color: $text-primary;
+                    background-color: rgb(0 0 0 / 12%);
+                    text-decoration: none;
+
+                    &:hover {
+                        color: $text-active;
+                        background-color: $bcg-darkest;
+                    }
                 }
             }
 
             > .error {
                 color: #e74c3c;
-                margin-left: 80px;
+                margin: -8px 14px 12px 52px;
                 white-space: normal;
                 word-wrap: break-word;
-                margin-top: 40px;
-                width: calc(100% - 135px);
-            }
-
-            > .notes {
-                margin-top: 65px;
-                margin-left: 80px;
-                white-space: pre-wrap;
-                width: calc(100% - 135px);
-
-                &.no-wrap {
-                    white-space: nowrap;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                }
-            }
-
-            > .more {
-                background-color: transparent;
-                color: $text-dark;
-                cursor: pointer;
                 font-size: 12px;
-                border: none;
-                margin: 0;
-                padding: 0;
-                position: absolute;
-                top: 64px;
-                right: 10px;
-
-                &:hover {
-                    color: $text-primary;
-                }
             }
 
-            > .dropdown {
-                position: absolute;
-                top: 25px;
-                right: 15px;
-                width: 16px;
-                height: 16px;
-                line-height: 16px;
-                border: none;
-                padding: 0;
-                margin: 0;
-                text-align: center;
-                vertical-align: top;
+            > .details {
+                margin: -2px 14px 12px 52px;
+                padding: 10px 0 2px;
+                border-top: 1px solid rgb(255 255 255 / 6%);
+                color: $text-primary;
 
-                @extend .font-icon;
+                > .detail-row {
+                    display: flex;
+                    gap: 8px;
+                    padding-top: 4px;
+                    min-width: 0;
 
-                font-size: 12px;
-                color: $bcg-darkest;
-                background-color: $text-darkest;
+                    > .key {
+                        color: $text-dark;
+                        flex: 0 0 72px;
+                    }
 
-                &:hover,
-                &.clicked {
-                    color: $text-primary;
-                    background-color: $bcg-darkest;
+                    > .value {
+                        min-width: 0;
+                        overflow-wrap: anywhere;
+
+                        > a {
+                            color: $text-active;
+                        }
+                    }
                 }
             }
         }
+    }
+}
+
+@keyframes build-status-spin {
+    to {
+        transform: rotate(360deg);
     }
 }
 

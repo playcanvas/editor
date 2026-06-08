@@ -486,7 +486,7 @@ editor.once('load', () => {
     const getSelectedScenes = function () {
         const result = [];
 
-        const listItems = sceneList.innerElement.childNodes;
+        const listItems = sceneList.innerElement.childNodes as any;
         for (let i = 0; i < listItems.length; i++) {
             if (listItems[i].ui.isSelected()) {
                 result.push(listItems[i].ui.sceneId);
@@ -525,7 +525,7 @@ editor.once('load', () => {
 
         refreshButtonsState();
 
-        const data = {
+        const data: Record<string, any> = {
             name: inputName.value,
             project_id: config.project.id,
             branch_id: config.self.branch.id,
@@ -583,8 +583,6 @@ editor.once('load', () => {
     });
     container.append(btnWebDownload);
 
-    let urlToDownload: string | null = null;
-
     // download app
     const download = function () {
         jobInProgress = true;
@@ -595,7 +593,7 @@ editor.once('load', () => {
         const npmProject = format === DOWNLOAD_FORMAT_NPM;
 
         // post data
-        const data = {
+        const data: Record<string, any> = {
             name: inputName.value,
             project_id: config.project.id,
             branch_id: config.self.branch.id,
@@ -610,61 +608,9 @@ editor.once('load', () => {
         data.engine_version = config.engineVersions[engineVersionDropdown.value].version;
 
         // ajax call
-        editor.api.globals.rest.apps.appDownload(data).on('load', (status, job) => {
-            // show download progress
-            panelDownloadProgress.hidden = false;
-            btnDownloadReady.hidden = true;
-            downloadProgressIconWrapper.classList.remove('success');
-            downloadProgressIconWrapper.classList.remove('error');
-
-            downloadProgressTitle.class.remove('error');
-            downloadProgressTitle.text = 'Preparing build...';
-
-            // smoothly scroll to the bottom
-            panelDownloadProgress.scrollIntoView({
-                behavior: 'smooth',
-                block: 'end'
-            });
-
-            // when job is updated get the job and
-            // proceed depending on job status
-            const evt = editor.on('messenger:job.update', (msg) => {
-                if (msg.job.id === job.id) {
-                    evt.unbind();
-
-                    // get job
-                    editor.api.globals.rest.jobs.jobGet({ jobId: job.id })
-                    .on('load', (status, data) => {
-                        const job = data;
-                        // success ?
-                        if (job.status === 'complete') {
-                            downloadProgressIconWrapper.classList.add('success');
-                            downloadProgressTitle.text = 'Your build is ready';
-                            urlToDownload = job.data.download_url;
-                            btnDownloadReady.hidden = false;
-                            jobInProgress = false;
-
-                            refreshButtonsState();
-                        } else if (job.status === 'error') { // handle error
-                            downloadProgressIconWrapper.classList.add('error');
-                            downloadProgressTitle.class.add('error');
-                            downloadProgressTitle.text = job.messages[0];
-                            jobInProgress = false;
-
-                            refreshButtonsState();
-                        }
-                    }).on('error', () => {
-                        // error
-                        downloadProgressIconWrapper.classList.add('error');
-                        downloadProgressTitle.class.add('error');
-                        downloadProgressTitle.text = 'Error: Could not start download';
-                        jobInProgress = false;
-
-                        refreshButtonsState();
-                    });
-                }
-            });
-            events.push(evt);
+        editor.api.globals.rest.apps.appDownload(data).on('load', () => {
+            jobInProgress = false;
+            editor.call('picker:builds-publish');
         }).on('error', (status, error) => {
             jobInProgress = false;
 
@@ -683,46 +629,6 @@ editor.once('load', () => {
         download();
     });
 
-    // download progress
-    const panelDownloadProgress = document.createElement('div');
-    panelDownloadProgress.classList.add('progress');
-    panelDownloadProgress.classList.add('download');
-    container.append(panelDownloadProgress);
-
-    // icon
-    const downloadProgressIconWrapper = document.createElement('span');
-    downloadProgressIconWrapper.classList.add('icon');
-    panelDownloadProgress.appendChild(downloadProgressIconWrapper);
-
-    const downloadProgressImg = new Image();
-    downloadProgressIconWrapper.appendChild(downloadProgressImg);
-    downloadProgressImg.src = `${config.url.static}/platform/images/common/ajax-loader.gif`;
-
-    // progress info
-    const downloadProgressInfo = document.createElement('span');
-    downloadProgressInfo.classList.add('progress-info');
-    panelDownloadProgress.appendChild(downloadProgressInfo);
-
-    const downloadProgressTitle = new Label({
-        text: 'Preparing build',
-        class: 'progress-title'
-    });
-    downloadProgressInfo.appendChild(downloadProgressTitle.dom);
-
-    const btnDownloadReady = new Button({
-        text: 'Download',
-        class: 'ready'
-    });
-    downloadProgressInfo.appendChild(btnDownloadReady.dom);
-
-    btnDownloadReady.on('click', () => {
-        if (urlToDownload) {
-            window.open(urlToDownload);
-        }
-
-        editor.call('picker:publish');
-    });
-
     const refreshButtonsState = function () {
         const selectedScenes = getSelectedScenes();
         const enabled =
@@ -739,8 +645,8 @@ editor.once('load', () => {
         btnWebDownload.enabled = enabled;
     };
 
-    const createSceneItem = function (scene: Record<string, unknown>) {
-        const row = new LegacyListItem();
+    const createSceneItem = function (scene: any) {
+        const row: any = new LegacyListItem();
         row.element.id = `picker-scene-${scene.id}`;
         row.sceneId = scene.id;
 
@@ -883,7 +789,6 @@ editor.once('load', () => {
 
     // on show
     container.on('show', () => {
-        panelDownloadProgress.hidden = true;
         containerNoScenes.hidden = false;
         labelNoScenes.hidden = true;
         loadingScenes.hidden = false;
@@ -979,7 +884,6 @@ editor.once('load', () => {
         primaryScene = null;
         imageS3Key = null;
         isUploadingImage = false;
-        urlToDownload = null;
         jobInProgress = false;
         destroyTooltips();
         destroyEvents();

@@ -68,17 +68,22 @@ editor.once('load', () => {
     });
     panel.append(loading);
 
-    const progressBar = new Progress({ progress: 1 });
+    const progressBar = new Progress({ value: 100 });
     progressBar.hidden = true;
     panel.append(progressBar);
 
-    // published build section
-    const publishedBuild = new Label({
-        text: `Your primary build is available at <a href="${config.project.playUrl}" target="_blank">${config.project.playUrl}</a>.`,
-        unsafe: true
+    const primaryBuildHeading = new Label({
+        text: 'Primary build',
+        class: 'primary-build-heading',
+        hidden: true
     });
-    publishedBuild.class.add('build');
-    panel.append(publishedBuild);
+    panel.append(primaryBuildHeading);
+
+    const primaryBuild = new LegacyList();
+    primaryBuild.class.add('primary-build-summary');
+    primaryBuild.selectable = false;
+    primaryBuild.hidden = true;
+    panel.append(primaryBuild);
 
     // publish buttons container
     const publishButtons = new Container({
@@ -155,13 +160,13 @@ editor.once('load', () => {
 
     // Existing builds label
     const existingBuildsLabel = new Label({
-        text: 'Existing builds',
+        text: 'Build history',
         class: 'builds-list-heading'
     });
     panel.append(existingBuildsLabel);
 
     // no builds message
-    let noBuildsText = 'You have not published any builds.';
+    let noBuildsText = 'You have not created any builds.';
     if (!projectSettings.get('useLegacyScripts')) {
         noBuildsText += ' Click PUBLISH to create a new build.';
     }
@@ -175,6 +180,7 @@ editor.once('load', () => {
 
     // container for builds
     const container = new LegacyList();
+    container.selectable = false;
     panel.append(container);
 
     // load more builds button
@@ -186,8 +192,8 @@ editor.once('load', () => {
     handlePermissions(loadMore);
     let skip = 0;
     loadMore.on('click', () => {
-        editor.api.globals.rest.projects.projectApps(APP_LIMIT, skip += APP_LIMIT).on('load', (status, data) => {
-            const results = data.result;
+        editor.api.globals.rest.projects.projectBuilds(APP_LIMIT, skip += APP_LIMIT).on('load', (status, data) => {
+            const results = data.result.map(normalizeBuildJob);
             if (results.length === 0) {
                 loadMore.hidden = true;
                 return;
@@ -201,12 +207,16 @@ editor.once('load', () => {
         class: 'picker-builds-menu',
         items: [{
             text: 'Delete',
-            onIsEnabled: () => editor.call('permissions:write'),
+            onIsEnabled: () => editor.call('permissions:write') && !!dropdownApp?.build_job_id,
             onSelect: () => {
+                if (!dropdownApp?.build_job_id) {
+                    return;
+                }
+
                 editor.call('picker:confirm', 'Are you sure you want to delete this build?');
                 editor.once('picker:confirm:yes', () => {
                     removeApp(dropdownApp);
-                    editor.api.globals.rest.apps.appDelete(dropdownApp.id);
+                    editor.api.globals.rest.projects.projectBuildDelete(dropdownApp.build_job_id);
                 });
             }
         }]
@@ -247,135 +257,281 @@ editor.once('load', () => {
         loading.hidden = !toggle;
         progressBar.hidden = !toggle;
         container.hidden = toggle || apps.length === 0;
-        publishedBuild.hidden = toggle || !config.project.primaryApp;
+        primaryBuildHeading.hidden = true;
+        primaryBuild.hidden = true;
         noBuilds.hidden = toggle || apps.length > 0;
     };
 
+    const normalizeBuildJob = function (job: any) {
+        const settings = job.settings || {};
+        const artifacts = job.artifacts || [];
+        const artifact = artifacts[0];
+
+        return {
+            id: job.app_id || `job-${job.id}`,
+            app_id: job.app_id,
+            job_id: job.job_id,
+            build_job_id: job.id,
+            type: job.type,
+            actor: job.actor,
+            settings,
+            artifacts,
+            branch: job.branch,
+            name: settings.name || 'Untitled',
+            version: settings.version || settings.format,
+            release_notes: settings.release_notes || '',
+            created_at: job.created_at,
+            completed_at: job.completed_at,
+            duration_ms: job.duration_ms,
+            source: job.source,
+            size: artifact && artifact.bytes !== undefined ? artifact.bytes : null,
+            views: 0,
+            url: artifact && artifact.url,
+            task: {
+                status: job.status,
+                message: job.message || ''
+            }
+        };
+    };
+
+    const createDetails = function (app: any) {
+        const details = document.createElement('div');
+        details.classList.add('details');
+        details.hidden = true;
+
+        const add = function (label: string, value: any) {
+            if (value === undefined || value === null || value === '') {
+                return;
+            }
+
+            const row = document.createElement('div');
+            row.classList.add('detail-row');
+
+            const key = document.createElement('span');
+            key.classList.add('key');
+            key.textContent = label;
+            row.appendChild(key);
+
+            const val = document.createElement('span');
+            val.classList.add('value');
+            val.textContent = value;
+            row.appendChild(val);
+
+            details.appendChild(row);
+        };
+
+        const settings = app.settings || {};
+        add('Type', app.type === 'publish' ? 'Publish' : 'Download');
+        add('Format', settings.format);
+        add('Engine', settings.engine_version);
+        add('Branch', app.branch && app.branch.name);
+        add('Created by', app.actor && (app.actor.name || app.actor.username));
+        add('Source', app.source && app.source.type);
+        add('Duration', app.duration_ms ? `${Math.round(app.duration_ms / 1000)}s` : null);
+        add('Release notes', app.release_notes);
+
+        if (settings.scenes && settings.scenes.length) {
+            add('Scenes', settings.scenes.map(scene => `${scene.name} (${scene.id})`).join(', '));
+        }
+
+        const options = [];
+        if (settings.scripts_concatenate) {
+            options.push('Concatenate scripts');
+        }
+        if (settings.scripts_minify) {
+            options.push('Minify scripts');
+        }
+        if (settings.scripts_sourcemaps) {
+            options.push('Source maps');
+        }
+        if (settings.optimize_scene_format) {
+            options.push('Optimize scene format');
+        }
+        add('Options', options.length ? options.join(', ') : 'None');
+
+        if (app.artifacts && app.artifacts.length) {
+            app.artifacts.forEach((artifact) => {
+                const row = document.createElement('div');
+                row.classList.add('detail-row');
+
+                const key = document.createElement('span');
+                key.classList.add('key');
+                key.textContent = 'Artifact';
+                row.appendChild(key);
+
+                const val = document.createElement('span');
+                val.classList.add('value');
+                const link = document.createElement('a');
+                link.href = artifact.url;
+                link.target = '_blank';
+                link.rel = 'noopener';
+                link.textContent = artifact.type === 'app' ? 'Open app' : 'Download';
+                val.appendChild(link);
+
+                if (artifact.bytes !== null && artifact.bytes !== undefined) {
+                    const bytes = document.createTextNode(` (${bytesToHuman(artifact.bytes)})`);
+                    val.appendChild(bytes);
+                }
+
+                row.appendChild(val);
+                details.appendChild(row);
+            });
+        }
+
+        return details;
+    };
+
     // create UI for single app
-    const createAppItem = function (app: Record<string, unknown>) {
+    const createAppItem = function (app: any, list: LegacyList = container, options: any = {}) {
         const item = new LegacyListItem();
-        item.element.id = `app-${app.id}`;
+        item.element.id = options.summary ? `primary-app-${app.id}` : `app-${app.id}`;
 
-        container.append(item);
+        list.append(item);
 
-        if (config.project.primaryApp === app.id) {
+        const canPublish = !options.summary && app.type === 'publish' && !!app.app_id;
+        const canDelete = !options.summary && !!app.build_job_id;
+
+        if (config.project.primaryApp === app.app_id || config.project.primaryApp === app.id) {
             item.class.add('primary');
         }
 
         item.class.add(app.task.status);
+        item.class.add(app.type);
 
-        // primary app button
-        const primary = new Button({
-            icon: 'E223',
-            class: 'primary'
-        });
-        events.push(handlePermissions(primary));
-        if (primary.enabled && app.task.status !== 'complete') {
-            primary.enabled = false;
-        }
-        item.element.appendChild(primary.dom);
+        const row = document.createElement('div');
+        row.classList.add('build-row');
+        item.element.appendChild(row);
 
-        // set primary app
-        events.push(primary.on('click', () => {
-            if (config.project.primaryApp === app.id || app.task.status !== 'complete') {
-                return;
-            }
-
-            editor.call('projects:setPrimaryApp', app.id, null, () => {
-                // error - refresh apps again to go back to previous state
-                refreshApps();
-            });
-
-            // refresh apps instantly
-            refreshApps();
-
-            // collapse publish and download buttons
-            toggleCollapsingPublishButtons(true);
-        }));
-
-        // primary icon tooltip
-        const tooltipText = config.project.primaryApp === app.id ? 'Primary build' : 'Change the projects\'s primary build';
-        const tooltip = LegacyTooltip.attach({
-            target: primary.dom,
-            text: tooltipText,
-            align: 'right',
-            root: editor.call('layout.root')
-        });
-        tooltips.push(tooltip);
-
-        // status icon or image
         const status = document.createElement('span');
         status.classList.add('status');
-        item.element.appendChild(status);
-
-        let img;
-
+        status.classList.add(app.task.status);
         if (app.task.status === 'complete') {
-            img = new Image();
-            img.src = app.thumbnails ? app.thumbnails.s : (config.project.thumbnails.s || `${config.url.static}/platform/images/common/blank_project.png`);
-            status.appendChild(img);
-        } else if (app.task.status === 'running') {
-            img = new Image();
-            img.src = `${config.url.static}/platform/images/common/ajax-loader.gif`;
-            status.appendChild(img);
+            status.setAttribute('aria-label', 'Succeeded');
+        } else if (app.task.status === 'error') {
+            status.setAttribute('aria-label', 'Failed');
         }
+        row.appendChild(status);
+
+        const body = document.createElement('div');
+        body.classList.add('body');
+        row.appendChild(body);
 
         const nameRow = document.createElement('div');
         nameRow.classList.add('name-row');
-        item.element.appendChild(nameRow);
+        body.appendChild(nameRow);
 
-        // app name
         const name = new Label({
             text: app.name,
             class: 'name'
         });
         nameRow.appendChild(name.dom);
 
-        // app version
-        const version = new Label({
-            text: app.version,
-            class: 'version'
+        const type = document.createElement('span');
+        type.classList.add('badge');
+        type.classList.add(app.type);
+        type.textContent = app.type === 'publish' ? 'Publish' : 'Download';
+        nameRow.appendChild(type);
+
+        const format = document.createElement('span');
+        format.classList.add('badge');
+        format.textContent = app.settings && app.settings.format || app.version || app.type;
+        nameRow.appendChild(format);
+
+        if (config.project.primaryApp === app.app_id) {
+            const primaryBadge = document.createElement('span');
+            primaryBadge.classList.add('badge');
+            primaryBadge.classList.add('primary-badge');
+            primaryBadge.textContent = 'Primary';
+            nameRow.appendChild(primaryBadge);
+        }
+
+        const meta = document.createElement('div');
+        meta.classList.add('meta');
+        body.appendChild(meta);
+
+        const addMeta = function (value: any, cls?: string) {
+            if (value === undefined || value === null || value === '') {
+                return null;
+            }
+
+            const span = document.createElement('span');
+            span.classList.add('meta-item');
+            if (cls) {
+                span.classList.add(cls);
+            }
+            span.textContent = value;
+            meta.appendChild(span);
+            return span;
+        };
+
+        addMeta(app.task.status === 'complete' ? 'Succeeded' : (app.task.status === 'error' ? 'Failed' : 'In progress'), 'state');
+        addMeta(app.build_job_id ? `#${app.build_job_id}` : null, 'run');
+        addMeta(convertDatetime(app.created_at), 'date');
+        addMeta(app.actor && (app.actor.name || app.actor.username), 'actor');
+        addMeta(app.branch && app.branch.name || 'main', 'branch');
+        addMeta(app.duration_ms ? `${Math.round(app.duration_ms / 1000)}s` : null, 'duration');
+        addMeta(app.size === null ? null : bytesToHuman(app.size), 'size');
+
+        const actions = document.createElement('div');
+        actions.classList.add('actions');
+        const stopActions = function (e: MouseEvent) {
+            e.stopPropagation();
+        };
+        actions.addEventListener('click', stopActions);
+        events.push({
+            unbind: () => {
+                actions.removeEventListener('click', stopActions);
+            }
         });
-        nameRow.appendChild(version.dom);
+        row.appendChild(actions);
 
-        // row below name
-        const info = document.createElement('div');
-        info.classList.add('info');
-        item.element.appendChild(info);
-
-        // date
-        const date = new Label({
-            text: convertDatetime(app.created_at),
-            class: 'date',
-            hidden: app.task.status === 'error'
+        const primary = new Button({
+            icon: 'E223',
+            class: 'primary'
         });
-        info.appendChild(date.dom);
+        events.push(handlePermissions(primary));
+        primary.hidden = options.summary || !canPublish;
+        if (primary.enabled && (!canPublish || app.task.status !== 'complete')) {
+            primary.enabled = false;
+        }
+        actions.appendChild(primary.dom);
 
-        // views
-        const views = new Label({
-            text: numberWithCommas(app.views),
-            class: 'views',
-            hidden: app.task.status !== 'complete'
-        });
-        info.appendChild(views.dom);
+        events.push(primary.on('click', (e?: MouseEvent) => {
+            e?.stopPropagation();
 
-        // size
-        const size = new Label({
-            text: bytesToHuman(app.size),
-            class: 'size',
-            hidden: app.task.status !== 'complete'
-        });
-        info.appendChild(size.dom);
+            if (!canPublish || config.project.primaryApp === app.app_id || app.task.status !== 'complete') {
+                return;
+            }
 
-        // branch
-        const branch = new Label({
-            text: app.branch && app.branch.name || 'main',
-            class: 'branch',
-            hidden: app.task.status !== 'complete' || projectSettings.get('useLegacyScripts')
-        });
-        info.appendChild(branch.dom);
+            editor.call('projects:setPrimaryApp', app.app_id, null, () => {
+                refreshApps();
+            });
 
-        // error message
+            refreshApps();
+            toggleCollapsingPublishButtons(true);
+        }));
+
+        if (canPublish) {
+            const tooltipText = config.project.primaryApp === app.app_id ? 'Primary build' : 'Change the projects\'s primary build';
+            const tooltip = LegacyTooltip.attach({
+                target: primary.dom,
+                text: tooltipText,
+                align: 'right',
+                root: editor.call('layout.root')
+            });
+            tooltips.push(tooltip);
+        }
+
+        if (app.task.status === 'complete' && app.url) {
+            const artifact = document.createElement('a');
+            artifact.classList.add('artifact');
+            artifact.href = app.url;
+            artifact.target = '_blank';
+            artifact.rel = 'noopener';
+            artifact.textContent = app.type === 'publish' ? 'Open' : 'Download';
+            actions.appendChild(artifact);
+        }
+
         const error = new Label({
             text: app.task.message,
             class: 'error',
@@ -383,103 +539,87 @@ editor.once('load', () => {
         });
         item.element.appendChild(error.dom);
 
-        // release notes
-        let releaseNotes = app.release_notes || '';
-        const indexOfNewLine = releaseNotes.indexOf('\n');
-        if (indexOfNewLine !== -1) {
-            releaseNotes = releaseNotes.substring(0, indexOfNewLine);
-        }
-        const notes = new Label({
-            text: app.release_notes,
-            class: 'notes',
-            hidden: !error.hidden,
-            renderChanges: false
-        });
-        item.element.appendChild(notes.dom);
+        const dropdown = document.createElement('button');
+        dropdown.type = 'button';
+        dropdown.classList.add('action-button');
+        dropdown.classList.add('dropdown');
+        dropdown.innerHTML = '&#57689;';
+        dropdown.hidden = !canDelete;
+        dropdown.setAttribute('aria-label', 'Build actions');
+        actions.appendChild(dropdown);
 
-        // dropdown
-        const dropdown = new Button({
-            class: 'dropdown'
-        });
-        dropdown.dom.innerHTML = '&#57689;';
-        item.element.appendChild(dropdown.dom);
+        const openMenu = function (e: MouseEvent) {
+            e.preventDefault();
+            e.stopPropagation();
 
-        events.push(dropdown.on('click', () => {
-            dropdown.class.add('clicked');
-            // change arrow
-            dropdown.dom.innerHTML = '&#57687;';
+            dropdown.classList.add('clicked');
+            dropdown.innerHTML = '&#57687;';
             dropdownApp = app;
 
-            // open menu
             dropdownMenu.hidden = false;
 
-            // position dropdown menu
-            const rect = dropdown.dom.getBoundingClientRect();
+            const rect = dropdown.getBoundingClientRect();
             const menuItems = dropdownMenu.dom.querySelector('.pcui-menu-items') as HTMLElement;
             dropdownMenu.position(rect.right - menuItems.clientWidth, rect.bottom);
-        }));
-
-        const more = new Button({
-            text: 'more...',
-            class: 'more',
-            hidden: true
-        });
-        item.element.appendChild(more.dom);
-
-        events.push(more.on('click', () => {
-            if (notes.class.contains('no-wrap')) {
-                notes.text = app.release_notes;
-                notes.class.remove('no-wrap');
-                more.text = 'less...';
-            } else {
-                notes.class.add('no-wrap');
-                more.text = 'more...';
-                notes.text = releaseNotes;
+            dropdownMenu.focus();
+        };
+        dropdown.addEventListener('click', openMenu);
+        events.push({
+            unbind: () => {
+                dropdown.removeEventListener('click', openMenu);
             }
-        }));
+        });
 
-        if (notes.dom.clientHeight > 22) {
-            more.hidden = false;
-            notes.class.add('no-wrap');
-            notes.text = releaseNotes;
-        }
+        const details = createDetails(app);
+        item.element.appendChild(details);
 
-        if (app.task.status === 'complete') {
-            // handle row click
-            const validTargets = [
-                status,
-                img,
-                info,
-                item.element,
-                name.dom,
-                date.dom,
-                size.dom,
-                views.dom,
-                notes.dom
-            ];
+        const expand = document.createElement('button');
+        expand.type = 'button';
+        expand.classList.add('action-button');
+        expand.classList.add('expander');
+        expand.innerHTML = '&#57689;';
+        expand.setAttribute('aria-label', 'Show build details');
+        actions.appendChild(expand);
 
-            events.push(item.on('click', (e) => {
-                if (validTargets.indexOf(e.target) !== -1) {
-                    e.stopPropagation();
-                    window.open(app.url);
-                }
-            }));
-        }
+        const toggleDetails = function () {
+            details.hidden = !details.hidden;
+            expand.innerHTML = details.hidden ? '&#57689;' : '&#57687;';
+            expand.setAttribute('aria-label', details.hidden ? 'Show build details' : 'Hide build details');
+        };
 
+        events.push(item.on('click', toggleDetails));
+
+        const expandDetails = function (e: MouseEvent) {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleDetails();
+        };
+        expand.addEventListener('click', expandDetails);
+        events.push({
+            unbind: () => {
+                expand.removeEventListener('click', expandDetails);
+            }
+        });
 
         return item;
     };
 
     // CONTROLLERS
 
-    // load app list
-    const loadApps = function () {
-        toggleProgress(true);
+    // load build job list
+    const loadApps = function (showProgress: boolean = true) {
+        skip = 0;
 
-        editor.api.globals.rest.projects.projectApps().on('load', (status, data) => {
-            const results = data.result;
+        if (showProgress) {
+            toggleProgress(true);
+        }
+
+        editor.api.globals.rest.projects.projectBuilds().on('load', (status, data) => {
+            const results = data.result.map(normalizeBuildJob);
             apps = results;
-            toggleProgress(false);
+            if (showProgress) {
+                toggleProgress(false);
+            }
 
             if (apps.length > 0) {
                 panelPlaycanvas.class.add('collapsed');
@@ -493,7 +633,7 @@ editor.once('load', () => {
     };
 
     // removes an app from the UI
-    const removeApp = function (app: { id: string }) {
+    const removeApp = function (app: any) {
         const item = document.getElementById(`app-${app.id}`);
         if (item) {
             item.remove();
@@ -515,38 +655,38 @@ editor.once('load', () => {
         container.hidden = apps.length === 0;
     };
 
+    const removeBuildJob = function (id: number) {
+        const app = apps.find(item => item.build_job_id === id);
+        if (app) {
+            removeApp(app);
+        }
+    };
+
     // recreate app list UI
     const refreshApps = function () {
         dropdownMenu.hidden = true;
         destroyTooltips();
         destroyEvents();
+        primaryBuild.element.innerHTML = '';
         container.element.innerHTML = '';
-        hoistPrimaryBuild(apps);
+        renderPrimaryBuild();
         container.hidden = apps.length === 0;
         loadMore.hidden = apps.length === 0;
-        apps.forEach(createAppItem);
+        apps.forEach((app) => {
+            createAppItem(app);
+        });
     };
 
     // LOCAL UTILS
 
-    // hoists primary app to the top of the list
-    const hoistPrimaryBuild = function (apps: { id: string }[]) {
-        return apps.sort((a, b) => {
-            if (config.project.primaryApp === a.id) {
-                return -1;
-            }
-            if (config.project.primaryApp === b.id) {
-                return 1;
-            }
-            return 0;
-        });
-    };
+    const renderPrimaryBuild = function () {
+        const app = apps.find(item => item.type === 'publish' && item.app_id === config.project.primaryApp);
+        primaryBuildHeading.hidden = !app;
+        primaryBuild.hidden = !app;
 
-    // adds commas every 3 decimals
-    const numberWithCommas = function (number: number) {
-        const parts = number.toString().split('.');
-        parts[0] = parts[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, ',');
-        return parts.join('.');
+        if (app) {
+            createAppItem(app, primaryBuild, { summary: true });
+        }
     };
 
     const destroyTooltips = function () {
@@ -571,44 +711,16 @@ editor.once('load', () => {
             return;
         }
 
-        if (!newValue) {
-            publishedBuild.hidden = true;
-            return;
-        }
-
-        publishedBuild.hidden = false;
-
-        // check if we need to refresh UI
-        const currentPrimary = document.getElementById(`app-${newValue}`);
-        if (currentPrimary && currentPrimary.classList.contains('primary')) {
-            return;
-        }
-
         refreshApps();
     });
 
     // handle app created externally
-    editor.on('messenger:app.new', (data) => {
+    editor.on('messenger:app.new', () => {
         if (panel.hidden) {
             return;
         }
 
-        // get app from server
-        editor.api.globals.rest.apps.appGet(data.app.id).on('load', (status, app) => {
-            // add app if it's not already inside the apps array
-            let found = false;
-            for (let i = 0; i < apps.length; i++) {
-                if (apps[i].id === data.app.id) {
-                    found = true;
-                    break;
-                }
-            }
-
-            if (!found) {
-                apps.push(app);
-                refreshApps();
-            }
-        });
+        loadApps();
     });
 
     // handle external delete
@@ -620,21 +732,29 @@ editor.once('load', () => {
         removeApp(data.app);
     });
 
+    editor.on('messenger:build_job.delete', (data) => {
+        if (panel.hidden || !data.build_job) {
+            return;
+        }
+
+        removeBuildJob(Number(data.build_job.id));
+    });
+
     // handle external app updates
-    editor.on('messenger:app.update', (data) => {
+    editor.on('messenger:app.update', () => {
         if (panel.hidden) {
             return;
         }
 
-        // get app from server
-        editor.api.globals.rest.apps.appGet(data.app.id).on('load', (status, app) => {
-            for (let i = 0; i < apps.length; i++) {
-                if (apps[i].id === app.id) {
-                    apps[i] = app;
-                }
-            }
-            refreshApps();
-        });
+        loadApps();
+    });
+
+    editor.on('messenger:job.update', (msg: any) => {
+        if (panel.hidden || !msg.job || !apps.some(app => app.job_id === Number(msg.job.id))) {
+            return;
+        }
+
+        loadApps(false);
     });
 
     // open publishing popup

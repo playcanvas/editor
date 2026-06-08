@@ -1,5 +1,6 @@
 import { Ajax } from '../ajax';
 import { globals as api } from '../globals';
+import type { BuildJob } from '../models';
 
 type ProjectRequestArgs = {
     /**
@@ -481,6 +482,44 @@ export const projectApps = (limit = 0, skip = 0) => {
 
     return Ajax.get({
         url: `${api.apiUrl}/projects/${api.projectId}/apps?${params.join('&')}`,
+        auth: true
+    });
+};
+
+/**
+ * Fetches a list of durable build jobs for the current project
+ *
+ * @param limit - The maximum number of build jobs to return
+ * @param skip - The number of build jobs to skip
+ * @returns A request that responds with the list of build jobs
+ */
+export const projectBuilds = (limit = 0, skip = 0) => {
+    const params = [];
+    params.push(`limit=${limit}`);
+    params.push(`skip=${skip}`);
+
+    return Ajax.get<{
+        result: BuildJob[];
+        pagination: {
+            skip: number;
+            limit: number;
+            total: number;
+        };
+    }>({
+        url: `${api.apiUrl}/projects/${api.projectId}/builds?${params.join('&')}`,
+        auth: true
+    });
+};
+
+/**
+ * Deletes a durable build and its linked artifact
+ *
+ * @param buildJobId - The durable build job ID
+ * @returns A request that responds with the deleted build job
+ */
+export const projectBuildDelete = (buildJobId: number) => {
+    return Ajax.delete<BuildJob>({
+        url: `${api.apiUrl}/projects/${api.projectId}/builds/${buildJobId}`,
         auth: true
     });
 };
