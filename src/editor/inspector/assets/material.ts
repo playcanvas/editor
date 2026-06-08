@@ -463,6 +463,17 @@ const OPACITY_ATTRIBUTES: (Attribute | Divider)[] = [{
     },
     reference: 'asset:material:opacityShadowDither'
 }, {
+    label: 'Dither Intensity',
+    path: 'data.alphaDither',
+    type: 'slider',
+    args: {
+        precision: 3,
+        step: 0.05,
+        min: 0,
+        max: 1
+    },
+    reference: 'asset:material:alphaDither'
+}, {
     label: 'Alpha Fade',
     path: 'data.alphaFade',
     type: 'slider',
@@ -1390,6 +1401,7 @@ class MaterialAssetInspector extends Container {
 
         this._opacityInspector.getField('data.opacityDither').parent.hidden = !pathExists(pc, 'StandardMaterial.prototype.opacityDither');
         this._opacityInspector.getField('data.opacityShadowDither').parent.hidden = !pathExists(pc, 'StandardMaterial.prototype.opacityShadowDither');
+        this._opacityInspector.getField('data.alphaDither').parent.hidden = !pathExists(pc, 'StandardMaterial.prototype.alphaDither');
         this._refractionInspector.getField('data.dispersion').parent.hidden = !pathExists(pc, 'StandardMaterial.prototype.dispersion');
         this._ambientInspector.getField('data.aoIntensity').parent.hidden = !pathExists(pc, 'StandardMaterial.prototype.aoIntensity');
 
@@ -1577,7 +1589,9 @@ class MaterialAssetInspector extends Container {
         const opacityDither = this._opacityInspector.getField('data.opacityDither').value ?? 'none';
         const opacityShadowDither = this._opacityInspector.getField('data.opacityShadowDither').value ?? 'none';
         const dithered = opacityDither !== 'none' || opacityShadowDither !== 'none';
-        this._opacityInspector.getField('data.opacity').parent.hidden = ([2, 4, 6].indexOf(blendType) === -1) && !dithered;
+        const alphaDitherSupported = pathExists(pc, 'StandardMaterial.prototype.alphaDither');
+        this._opacityInspector.getField('data.opacity').parent.hidden = ([2, 4, 6].indexOf(blendType) === -1) && (alphaDitherSupported || !dithered);
+        this._opacityInspector.getField('data.alphaDither').parent.hidden = !dithered || !alphaDitherSupported;
 
         const opacityMapField = this._opacityInspector.getField('data.opacityMap');
         const opacityVertexColorField = this._opacityInspector.getField('data.opacityVertexColor');
