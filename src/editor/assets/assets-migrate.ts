@@ -163,6 +163,10 @@ editor.once('load', () => {
             asset.set('data.alphaFade', 1.0);
         }
 
+        if (!asset.has('data.alphaDither')) {
+            asset.set('data.alphaDither', asset.get('data.opacity') ?? 1.0);
+        }
+
         // migrate anisotropy to anisotropyIntensity and anisotropyRotation
         if (!asset.has('data.anisotropyIntensity') || !asset.has('data.anisotropyRotation')) {
             const anisotropy = asset.get('data.anisotropy') ?? 0;

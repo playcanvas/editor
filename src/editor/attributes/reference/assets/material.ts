@@ -1322,6 +1322,12 @@ export const fields: AttributeReference[]  = [{
     description: 'Use alphaFade to fade out materials that do not use opacity to fade specular (opacityFadesSpecular is false).',
     url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#alphafade'
 }, {
+    name: 'asset:material:alphaDither',
+    title: 'alphaDither',
+    subTitle: '{Number}',
+    description: 'Controls the strength of opacity dithering. Value is between 0 and 1.',
+    url: 'https://api.playcanvas.com/engine/classes/StandardMaterial.html#alphadither'
+}, {
     name: 'asset:material:twoSidedLighting',
     title: 'twoSidedLighting',
     subTitle: '{Boolean}',
