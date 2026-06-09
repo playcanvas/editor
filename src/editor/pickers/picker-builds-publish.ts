@@ -1,7 +1,5 @@
-import { Container, Label, Progress, Button } from '@playcanvas/pcui';
+import { Container, Label, Menu, Progress, Button } from '@playcanvas/pcui';
 
-import { LegacyList } from '@/common/ui/list';
-import { LegacyListItem } from '@/common/ui/list-item';
 import { bytesToHuman, convertDatetime } from '@/common/utils';
 import { config } from '@/editor/config';
 
@@ -11,6 +9,8 @@ editor.once('load', () => {
     // global variables
     const projectSettings = editor.call('settings:project');
     let detailApp = null;  // app whose detail page is currently open
+    let menuApp = null;  // app whose row action menu is open
+    let activeKebab = null;  // kebab button that opened the menu
     let apps = [];  // all loaded builds
     let tooltips = [];  // holds all tooltips
     let events = [];  // holds events that need to be destroyed
@@ -27,39 +27,34 @@ editor.once('load', () => {
         });
     };
 
-    // collapses publish and download buttons
-    const toggleCollapsingPublishButtons = (collapse = true) => {
-        if (collapse) {
-            labelDownloadIcon.style.display = 'none';
-            labelDownloadDesc.style.display = 'none';
-            labelPublishDesc.style.display = 'none';
-            labelPublishIcon.style.display = 'none';
-
-            btnPublish.class.add('collapsed');
-            btnDownload.class.add('collapsed');
-
-            panelPlaycanvas.class.add('collapsed');
-            panelSelfHost.class.add('collapsed');
-        } else {
-            labelDownloadIcon.style.display = 'block';
-            labelDownloadDesc.style.display = 'block';
-            labelPublishDesc.style.display = 'block';
-            labelPublishIcon.style.display = 'block';
-
-            btnPublish.class.remove('collapsed');
-            btnDownload.class.remove('collapsed');
-
-            panelPlaycanvas.class.remove('collapsed');
-            panelSelfHost.class.remove('collapsed');
-        }
-    };
-
     // main panel
     const panel = new Container({
         flex: true,
         class: 'picker-builds-publish'
     });
-    // panel.class.add('picker-builds-publish');
+
+    // top toolbar: publish (primary) + download (secondary)
+    const toolbar = new Container({
+        flex: true,
+        class: 'builds-toolbar'
+    });
+    panel.append(toolbar);
+
+    const btnDownload = new Button({
+        text: 'Download .zip',
+        class: 'download'
+    });
+    handlePermissions(btnDownload);
+    btnDownload.on('click', () => editor.call('picker:publish:download'));
+    toolbar.append(btnDownload);
+
+    const btnPublish = new Button({
+        text: 'Publish',
+        class: 'publish'
+    });
+    handlePermissions(btnPublish);
+    btnPublish.on('click', () => editor.call('picker:publish:new'));
+    toolbar.append(btnPublish);
 
     // progress bar and loading label
     const loading = new Label({
@@ -78,84 +73,10 @@ editor.once('load', () => {
     });
     panel.append(primaryBuildHeading);
 
-    const primaryBuild = new LegacyList();
+    const primaryBuild = new Container({ class: 'builds-list' });
     primaryBuild.class.add('primary-build-summary');
-    primaryBuild.selectable = false;
     primaryBuild.hidden = true;
     panel.append(primaryBuild);
-
-    // publish buttons container
-    const publishButtons = new Container({
-        flex: true,
-        class: 'publish-buttons-container'
-    });
-    panel.append(publishButtons);
-
-    // playcanv.as
-    const panelPlaycanvas = new Container({
-        flex: true,
-        class: 'buttons'
-    });
-    publishButtons.append(panelPlaycanvas);
-
-    const labelPublishIcon = new Label({
-        text: '&#57960;',
-        unsafe: true,
-        class: 'icon'
-    });
-    panelPlaycanvas.append(labelPublishIcon);
-
-    const labelPublishDesc = new Label({
-        text: 'Publish your project publicly on PlayCanvas.',
-        class: 'desc'
-    });
-    panelPlaycanvas.append(labelPublishDesc);
-
-    // publish button
-    const btnPublish = new Button({
-        text: 'Publish To PlayCanvas',
-        class: 'publish'
-    });
-    handlePermissions(btnPublish);
-    panelPlaycanvas.append(btnPublish);
-
-    handlePermissions(panelPlaycanvas);
-    panelPlaycanvas.on('click', () => {
-        editor.call('picker:publish:new');
-    });
-
-    // self host
-    const panelSelfHost = new Container({
-        flex: true,
-        class: 'buttons'
-    });
-    publishButtons.append(panelSelfHost);
-
-    const labelDownloadIcon = new Label({
-        text: '&#57925;',
-        class: 'icon',
-        unsafe: true
-    });
-    panelSelfHost.append(labelDownloadIcon);
-
-    const labelDownloadDesc = new Label({
-        text: 'Download build and host it on your own server.',
-        class: 'desc'
-    });
-    panelSelfHost.append(labelDownloadDesc);
-
-    // download button
-    const btnDownload = new Button({
-        text: 'Download .zip',
-        class: 'download'
-    });
-    handlePermissions(btnDownload);
-    panelSelfHost.append(btnDownload);
-
-    handlePermissions(panelSelfHost);
-    panelSelfHost.on('click', () => {
-        editor.call('picker:publish:download');
-    });
 
     // Existing builds label
     const existingBuildsLabel = new Label({
@@ -178,17 +99,8 @@ editor.once('load', () => {
     panel.append(noBuilds);
 
     // container for builds
-    const container = new LegacyList();
-    container.selectable = false;
+    const container = new Container({ class: 'builds-list' });
     panel.append(container);
-
-    // load more builds button
-    const loadMore = new Button({
-        text: 'Load More',
-        class: 'load-more'
-    });
-    panel.append(loadMore);
-    handlePermissions(loadMore);
 
     // detail "page" for a single build (hidden until a row is opened)
     const detailView = new Container({
@@ -199,20 +111,98 @@ editor.once('load', () => {
     panel.append(detailView);
 
     // list chrome that is hidden while the detail page is open
-    const listChrome = [primaryBuildHeading, primaryBuild, publishButtons, existingBuildsLabel, noBuilds, container, loadMore];
+    const listChrome = [toolbar, primaryBuildHeading, primaryBuild, existingBuildsLabel, noBuilds, container];
 
+    // pagination state for infinite scroll
     let skip = 0;
-    loadMore.on('click', () => {
-        editor.api.globals.rest.projects.projectBuilds(APP_LIMIT, skip += APP_LIMIT).on('load', (status, data) => {
+    let hasMore = true;
+    let loadingMore = false;
+    let scrollContainer: HTMLElement | null = null;
+
+    const loadMoreBuilds = function () {
+        if (loadingMore || !hasMore || panel.hidden || detailApp) {
+            return;
+        }
+        loadingMore = true;
+        skip += APP_LIMIT;
+        editor.api.globals.rest.projects.projectBuilds(APP_LIMIT, skip).on('load', (status, data) => {
+            loadingMore = false;
             const results = data.result.map(normalizeBuildJob);
-            if (results.length === 0) {
-                loadMore.hidden = true;
-                return;
-            }
             apps.push(...results);
             results.forEach(app => createAppItem(app));
+            hasMore = data.pagination ? apps.length < data.pagination.total : results.length === APP_LIMIT;
+            fillViewport();
         });
+    };
+
+    // keep loading until the list fills the scroll area, so scrolling can trigger more
+    const fillViewport = function () {
+        if (scrollContainer && hasMore && !loadingMore && !panel.hidden && !detailApp &&
+            scrollContainer.scrollHeight <= scrollContainer.clientHeight) {
+            loadMoreBuilds();
+        }
+    };
+
+    const onScroll = function () {
+        if (!scrollContainer || loadingMore || !hasMore || panel.hidden || detailApp) {
+            return;
+        }
+        if (scrollContainer.scrollHeight - scrollContainer.scrollTop - scrollContainer.clientHeight < 240) {
+            loadMoreBuilds();
+        }
+    };
+
+    // shared per-row action menu (opened from the kebab button on each row)
+    const rowMenu = new Menu({
+        class: 'picker-builds-menu',
+        items: [{
+            text: 'Open',
+            class: 'open',
+            onIsVisible: () => menuApp?.type === 'publish' && menuApp?.task.status === 'complete' && !!menuApp?.url,
+            onSelect: () => menuApp?.url && window.open(menuApp.url, '_blank', 'noopener')
+        }, {
+            text: 'Download',
+            class: 'download',
+            onIsVisible: () => menuApp?.type === 'download' && menuApp?.task.status === 'complete' && !!menuApp?.url,
+            onSelect: () => menuApp?.url && window.open(menuApp.url, '_blank', 'noopener')
+        }, {
+            text: 'View',
+            onSelect: () => menuApp && showDetail(menuApp)
+        }, {
+            text: 'Delete',
+            class: 'delete',
+            onIsEnabled: () => editor.call('permissions:write') && !!menuApp?.build_job_id,
+            onSelect: () => {
+                if (!menuApp?.build_job_id) {
+                    return;
+                }
+                const app = menuApp;
+                editor.call('picker:confirm', 'Are you sure you want to delete this build?');
+                editor.once('picker:confirm:yes', () => {
+                    editor.api.globals.rest.projects.projectBuildDelete(app.build_job_id);
+                    removeApp(app);
+                });
+            }
+        }]
     });
+    editor.call('layout.root').append(rowMenu);
+
+    rowMenu.on('hide', () => {
+        activeKebab?.classList.remove('active');
+        activeKebab = null;
+    });
+
+    const openRowMenu = function (app: any, kebab: HTMLElement) {
+        menuApp = app;
+        activeKebab = kebab;
+        kebab.classList.add('active');
+        rowMenu.hidden = false;
+
+        const rect = kebab.getBoundingClientRect();
+        const items = rowMenu.dom.querySelector('.pcui-menu-items') as HTMLElement;
+        rowMenu.position(rect.right - items.clientWidth, rect.bottom);
+        rowMenu.focus();
+    };
 
     // register panel with project popup
     editor.call('picker:project:registerMenu', 'builds-publish', 'Builds', panel, 'BUILDS & PUBLISH');
@@ -357,6 +347,26 @@ editor.once('load', () => {
         return details;
     };
 
+    // relative time for builds created today (just now / x minutes / x hours ago), absolute date otherwise
+    const formatBuildDate = function (value: any) {
+        const d = new Date(value);
+        const now = new Date();
+        const sameDay = d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
+        if (!sameDay) {
+            return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        const mins = Math.max(0, Math.floor((now.getTime() - d.getTime()) / 60000));
+        if (mins < 1) {
+            return 'just now';
+        }
+        if (mins < 60) {
+            return mins === 1 ? '1 minute ago' : `${mins} minutes ago`;
+        }
+        const hours = Math.floor(mins / 60);
+        return hours === 1 ? '1 hour ago' : `${hours} hours ago`;
+    };
+
     // build the detail "page" for a single build
     const renderDetail = function (app: any) {
         detailView.element.innerHTML = '';
@@ -448,7 +458,6 @@ editor.once('load', () => {
                     refreshApps();
                 });
                 refreshApps();
-                toggleCollapsingPublishButtons(true);
             }));
             actions.appendChild(primary.dom);
         }
@@ -485,9 +494,8 @@ editor.once('load', () => {
         detailView.element.innerHTML = '';
 
         existingBuildsLabel.hidden = false;
-        publishButtons.hidden = false;
+        toolbar.hidden = false;
         container.hidden = apps.length === 0;
-        loadMore.hidden = apps.length === 0;
         noBuilds.hidden = apps.length > 0;
 
         const primaryExists = apps.some(item => item.type === 'publish' && item.app_id === config.project.primaryApp);
@@ -506,22 +514,20 @@ editor.once('load', () => {
     };
 
     // create UI for single app
-    const createAppItem = function (app: any, list: LegacyList = container, options: any = {}) {
-        const item = new LegacyListItem();
-        item.element.id = options.summary ? `primary-app-${app.id}` : `app-${app.id}`;
-
-        list.append(item);
+    const createAppItem = function (app: any, list: Container = container, options: any = {}) {
+        const item = document.createElement('div');
+        item.classList.add('build-item', app.task.status, app.type);
+        item.id = options.summary ? `primary-app-${app.id}` : `app-${app.id}`;
 
         if (config.project.primaryApp === app.app_id || config.project.primaryApp === app.id) {
-            item.class.add('primary');
+            item.classList.add('primary');
         }
 
-        item.class.add(app.task.status);
-        item.class.add(app.type);
+        list.dom.appendChild(item);
 
         const row = document.createElement('div');
         row.classList.add('build-row');
-        item.element.appendChild(row);
+        item.appendChild(row);
 
         const status = document.createElement('span');
         status.classList.add('status', app.task.status);
@@ -585,7 +591,8 @@ editor.once('load', () => {
 
         const date = document.createElement('span');
         date.classList.add('date');
-        date.textContent = convertDatetime(app.created_at);
+        date.textContent = formatBuildDate(app.created_at);
+        date.title = convertDatetime(app.created_at);
         rightMeta.appendChild(date);
 
         if (app.duration_ms) {
@@ -597,7 +604,26 @@ editor.once('load', () => {
 
         row.appendChild(rightMeta);
 
-        events.push(item.on('click', () => showDetail(app)));
+        const kebab = document.createElement('button');
+        kebab.type = 'button';
+        kebab.classList.add('kebab');
+        kebab.setAttribute('aria-label', 'Build actions');
+        const openKebab = function (e: MouseEvent) {
+            e.preventDefault();
+            e.stopPropagation();
+            openRowMenu(app, kebab);
+        };
+        kebab.addEventListener('click', openKebab);
+        events.push({
+            unbind: () => kebab.removeEventListener('click', openKebab)
+        });
+        row.appendChild(kebab);
+
+        const onItemClick = () => showDetail(app);
+        item.addEventListener('click', onItemClick);
+        events.push({
+            unbind: () => item.removeEventListener('click', onItemClick)
+        });
 
         return item;
     };
@@ -607,26 +633,23 @@ editor.once('load', () => {
     // load build job list
     const loadApps = function (showProgress: boolean = true) {
         skip = 0;
+        hasMore = true;
+        loadingMore = false;
 
         if (showProgress) {
             toggleProgress(true);
         }
 
-        editor.api.globals.rest.projects.projectBuilds().on('load', (status, data) => {
-            const results = data.result.map(normalizeBuildJob);
-            apps = results;
+        editor.api.globals.rest.projects.projectBuilds(APP_LIMIT, 0).on('load', (status, data) => {
+            apps = data.result.map(normalizeBuildJob);
+            hasMore = data.pagination ? apps.length < data.pagination.total : data.result.length === APP_LIMIT;
+
             if (showProgress) {
                 toggleProgress(false);
             }
 
-            if (apps.length > 0) {
-                panelPlaycanvas.class.add('collapsed');
-                panelSelfHost.class.add('collapsed');
-            }
-
-            toggleCollapsingPublishButtons(apps.length > 0);
-
             refreshApps();
+            fillViewport();
         });
     };
 
@@ -641,6 +664,11 @@ editor.once('load', () => {
         }
 
         container.hidden = apps.length === 0;
+
+        // drop the primary-build summary if its build was the one removed
+        const primaryExists = apps.some(item => item.type === 'publish' && item.app_id === config.project.primaryApp);
+        primaryBuildHeading.hidden = !primaryExists;
+        primaryBuild.hidden = !primaryExists;
 
         // if the deleted build's detail page is open, return to the list
         if (detailApp && detailApp.id === app.id) {
@@ -659,11 +687,10 @@ editor.once('load', () => {
     const refreshApps = function () {
         destroyTooltips();
         destroyEvents();
-        primaryBuild.element.innerHTML = '';
-        container.element.innerHTML = '';
+        primaryBuild.dom.innerHTML = '';
+        container.dom.innerHTML = '';
         renderPrimaryBuild();
         container.hidden = apps.length === 0;
-        loadMore.hidden = apps.length === 0;
         apps.forEach((app) => {
             createAppItem(app);
         });
@@ -769,6 +796,10 @@ editor.once('load', () => {
         showList();
         loadApps();
 
+        // the picker scrolls its content panel; watch it for infinite scroll
+        scrollContainer = panel.dom.parentElement;
+        scrollContainer?.addEventListener('scroll', onScroll);
+
         if (editor.call('viewport:inViewport')) {
             editor.emit('viewport:hover', false);
         }
@@ -779,6 +810,8 @@ editor.once('load', () => {
         apps = [];
         detailApp = null;
         detailView.hidden = true;
+        scrollContainer?.removeEventListener('scroll', onScroll);
+        scrollContainer = null;
         destroyTooltips();
         destroyEvents();
 
