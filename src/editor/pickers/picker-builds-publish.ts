@@ -50,21 +50,6 @@ const STATUS_FILTERS = [{
     value: 'error',
     label: 'Failed'
 }];
-const DUMMY_LEGACY_APP = {
-    id: -1,
-    sample: true,
-    name: 'Legacy published app sample',
-    description: 'temporary manual legacy build description',
-    version: '1.0.0',
-    release_notes: 'temporary manual legacy build sample',
-    size: 7340032,
-    views: 42,
-    url: 'https://playcanv.as/b/legacy-sample',
-    task: { status: 'complete', message: '' },
-    created_at: new Date(Date.now() - 86400000).toISOString(),
-    completed_at: new Date(Date.now() - 86340000).toISOString(),
-    branch: { id: 'legacy', name: 'main' }
-};
 
 editor.once('load', () => {
     // global variables
@@ -80,7 +65,9 @@ editor.once('load', () => {
     let events = [];  // holds events that need to be destroyed
     let detailEvents = [];  // holds detail panel events
     let openingDetail = false;
+    let openingBuildForm = false;
     let openingBuilds = false;
+    let reloadOnNextShow = false;
     const filters: Record<string, string> = {};
     const filterButtons: Record<string, Button> = {};
     const filterMenus: Record<string, Menu> = {};
@@ -141,7 +128,11 @@ editor.once('load', () => {
         class: 'download'
     });
     handlePermissions(btnDownload);
-    btnDownload.on('click', () => editor.call('picker:publish:download'));
+    btnDownload.on('click', () => {
+        openingBuildForm = true;
+        editor.call('picker:publish:download');
+        openingBuildForm = false;
+    });
     toolbar.append(btnDownload);
 
     const btnPublish = new Button({
@@ -149,7 +140,11 @@ editor.once('load', () => {
         class: 'publish'
     });
     handlePermissions(btnPublish);
-    btnPublish.on('click', () => editor.call('picker:publish:new'));
+    btnPublish.on('click', () => {
+        openingBuildForm = true;
+        editor.call('picker:publish:new');
+        openingBuildForm = false;
+    });
     toolbar.append(btnPublish);
 
     const primaryBuild = new Container({ class: 'primary-build-summary' });
@@ -193,10 +188,10 @@ editor.once('load', () => {
         class: ['no-builds-label', 'no-filtered-builds-label'],
         hidden: true
     });
-    panel.append(noMatchingBuilds);
 
     // container for builds
     const container = new Container({ class: 'builds-list' });
+    container.dom.appendChild(noMatchingBuilds.dom);
     panel.append(container);
 
     const detailPanel = new Container({
@@ -261,17 +256,12 @@ editor.once('load', () => {
         return !!app && app.type === 'publish' && app.task.status === 'complete' && !!app.app_id && !isPrimaryBuild(app);
     };
 
-    const isSampleBuild = function (app: any) {
-        return app?.source?.sample === true;
-    };
-
     const canDeleteBuild = function (app: any) {
         if (!app) {
             return false;
         }
 
-        return !!app.build_job_id || isSampleBuild(app) ||
-            (app.type === 'publish' && Number(app.app_id) > 0);
+        return !!app.build_job_id || (app.type === 'publish' && Number(app.app_id) > 0);
     };
 
     const setPrimaryBuild = function (app: any) {
@@ -279,8 +269,8 @@ editor.once('load', () => {
             return;
         }
 
-        editor.call('projects:setPrimaryApp', String(app.app_id), undefined, refreshApps);
-        refreshApps();
+        editor.call('projects:setPrimaryApp', String(app.app_id), undefined, syncPrimaryBuildUi);
+        syncPrimaryBuildUi();
     };
 
     // shared per-row action menu (opened from the kebab button on each row)
@@ -361,12 +351,6 @@ editor.once('load', () => {
             appList.forEach((app) => {
                 appIndex[String(app.id)] = app;
             });
-            const sample = Object.assign({}, DUMMY_LEGACY_APP, {
-                id: config.project.primaryApp && !appIndex[String(config.project.primaryApp)] ?
-                    config.project.primaryApp :
-                    DUMMY_LEGACY_APP.id
-            });
-            appList.push(sample);
             loadedAppIndex = true;
             done();
         });
@@ -451,7 +435,7 @@ editor.once('load', () => {
             created_at: app.created_at,
             completed_at: app.completed_at,
             duration_ms: null,
-            source: { type: 'legacy', sample: app.sample === true },
+            source: { type: 'legacy' },
             size: bytes,
             views: app.views ?? 0,
             url,
@@ -622,8 +606,7 @@ editor.once('load', () => {
         filters[key] = value;
         updateFilterButtons();
         hideFilterMenus();
-        refreshApps();
-        fillViewport();
+        refreshFilterVisibility();
     };
 
     const resetBuildFilters = function () {
@@ -955,7 +938,7 @@ editor.once('load', () => {
         editor.once('picker:confirm:yes', () => {
             if (app.build_job_id) {
                 editor.api.globals.rest.projects.projectBuildDelete(app.build_job_id);
-            } else if (!isSampleBuild(app)) {
+            } else {
                 editor.api.globals.rest.apps.appDelete(Number(app.app_id));
             }
             removeApp(app);
@@ -1299,14 +1282,12 @@ editor.once('load', () => {
         destroyEvents();
         primaryBuild.dom.innerHTML = '';
         container.dom.innerHTML = '';
-        const filteredApps = getFilteredApps();
+        container.dom.appendChild(noMatchingBuilds.dom);
         renderPrimaryBuild();
-        container.hidden = apps.length === 0 || filteredApps.length === 0;
-        noBuilds.hidden = apps.length > 0;
-        noMatchingBuilds.hidden = apps.length === 0 || filteredApps.length > 0 || !hasActiveFilters();
-        filteredApps.forEach((app) => {
+        apps.forEach((app) => {
             createAppItem(app);
         });
+        refreshFilterVisibility();
 
         // keep the detail page in sync if one is open
         if (detailApp) {
@@ -1389,7 +1370,6 @@ editor.once('load', () => {
             openBuildDetail(app);
         };
         card.addEventListener('click', onCardClick);
-        events.push({ unbind: () => card.removeEventListener('click', onCardClick) });
 
         primaryBuild.dom.appendChild(card);
     };
@@ -1402,6 +1382,37 @@ editor.once('load', () => {
         if (app) {
             createPrimaryCard(app);
         }
+    };
+
+    const syncPrimaryBuildUi = function () {
+        renderPrimaryBuild();
+        apps.forEach((app) => {
+            const item = document.getElementById(`app-${app.id}`);
+            if (!item) {
+                return;
+            }
+
+            const primary = isPrimaryBuild(app);
+            const badge = item.querySelector('.primary-badge');
+            item.classList.toggle('primary', primary);
+
+            if (primary && !badge) {
+                const newBadge = document.createElement('span');
+                newBadge.classList.add('badge', 'primary-badge');
+                newBadge.textContent = 'Primary';
+                item.querySelector('.name-row')?.appendChild(newBadge);
+            } else if (!primary && badge) {
+                badge.remove();
+            }
+        });
+
+        if (detailApp && !detailPanel.hidden) {
+            const updated = apps.find(item => isSameBuild(item, detailApp));
+            detailApp = updated || detailApp;
+            renderDetail(detailApp);
+        }
+
+        fillViewport();
     };
 
     const destroyTooltips = function () {
@@ -1425,6 +1436,47 @@ editor.once('load', () => {
         detailEvents = [];
     };
 
+    const resetBuildsState = function () {
+        resetBuildFilters();
+        apps = [];
+        appIndex = {};
+        appList = [];
+        loadedAppIndex = false;
+        detailApp = null;
+        reloadOnNextShow = false;
+        primaryBuild.dom.innerHTML = '';
+        container.dom.innerHTML = '';
+        container.dom.appendChild(noMatchingBuilds.dom);
+        detailPanel.element.innerHTML = '';
+        destroyTooltips();
+        destroyEvents();
+        destroyDetailEvents();
+        loading.hidden = true;
+        progressBar.hidden = true;
+        container.hidden = true;
+        primaryBuildHeading.hidden = true;
+        primaryBuild.hidden = true;
+        noBuilds.hidden = true;
+        noMatchingBuilds.hidden = true;
+    };
+
+    const refreshFilterVisibility = function () {
+        const filteredApps = getFilteredApps();
+        const visible = new Set(filteredApps.map(app => `app-${app.id}`));
+
+        apps.forEach((app) => {
+            const item = document.getElementById(`app-${app.id}`);
+            if (item) {
+                item.hidden = !visible.has(item.id);
+            }
+        });
+
+        container.hidden = apps.length === 0;
+        noBuilds.hidden = apps.length > 0;
+        noMatchingBuilds.hidden = apps.length === 0 || filteredApps.length > 0 || !hasActiveFilters();
+        fillViewport();
+    };
+
     // EVENTS
 
     // handle external updates to primary app
@@ -1433,7 +1485,7 @@ editor.once('load', () => {
             return;
         }
 
-        refreshApps();
+        syncPrimaryBuildUi();
     });
 
     // handle app created externally
@@ -1487,7 +1539,8 @@ editor.once('load', () => {
     });
 
     // open publishing popup
-    editor.method('picker:builds-publish', () => {
+    editor.method('picker:builds-publish', (options: { reload?: boolean } = {}) => {
+        reloadOnNextShow = !!options.reload;
         detailApp = null;
         if (!detailPanel.hidden) {
             openingBuilds = true;
@@ -1497,6 +1550,11 @@ editor.once('load', () => {
 
         editor.call('picker:project', 'builds-publish');
         openingBuilds = false;
+
+        if (reloadOnNextShow && !panel.hidden) {
+            loadApps(apps.length === 0);
+            reloadOnNextShow = false;
+        }
     });
 
     // on show
@@ -1504,11 +1562,17 @@ editor.once('load', () => {
         detailApp = null;
         destroyDetailEvents();
         detailPanel.element.innerHTML = '';
-        loadApps();
 
         // the picker scrolls its content panel; watch it for infinite scroll
         scrollContainer = panel.dom.parentElement;
         scrollContainer?.addEventListener('scroll', onScroll);
+
+        if (reloadOnNextShow || apps.length === 0) {
+            loadApps(apps.length === 0);
+            reloadOnNextShow = false;
+        } else {
+            refreshFilterVisibility();
+        }
 
         if (editor.call('viewport:inViewport')) {
             editor.emit('viewport:hover', false);
@@ -1520,20 +1584,11 @@ editor.once('load', () => {
         scrollContainer?.removeEventListener('scroll', onScroll);
         scrollContainer = null;
 
-        if (openingDetail) {
+        if (openingDetail || openingBuildForm) {
             return;
         }
 
-        resetBuildFilters();
-        apps = [];
-        appIndex = {};
-        appList = [];
-        loadedAppIndex = false;
-        detailApp = null;
-        detailPanel.element.innerHTML = '';
-        destroyTooltips();
-        destroyEvents();
-        destroyDetailEvents();
+        resetBuildsState();
 
         if (editor.call('viewport:inViewport')) {
             editor.emit('viewport:hover', true);
@@ -1554,17 +1609,16 @@ editor.once('load', () => {
             return;
         }
 
-        resetBuildFilters();
-        apps = [];
-        appIndex = {};
-        appList = [];
-        loadedAppIndex = false;
-        detailApp = null;
-        destroyTooltips();
-        destroyEvents();
+        resetBuildsState();
 
         if (editor.call('viewport:inViewport')) {
             editor.emit('viewport:hover', true);
+        }
+    });
+
+    editor.on('picker:close', (name) => {
+        if (name === 'project' && panel.hidden && detailPanel.hidden && (apps.length > 0 || loadedAppIndex || hasActiveFilters())) {
+            resetBuildsState();
         }
     });
 

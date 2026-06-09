@@ -1519,8 +1519,17 @@ strong {
                                     height: 25px;
                                 }
 
+                                &:hover,
+                                &:focus {
+                                    color: $text-primary;
+                                    background-color: $bcg-dark;
+                                    box-shadow: $element-shadow-hover;
+                                }
+
                                 &.clicked {
+                                    color: $text-primary;
                                     background-color: $bcg-darkest;
+                                    box-shadow: $element-shadow-active;
                                 }
                             }
                         }
@@ -3690,11 +3699,16 @@ strong {
                 color: $bcg-darkest;
                 background-color: $text-darkest;
 
-                &:hover,
-                &.clicked {
+                &:hover {
                     color: $text-primary;
                     background-color: $bcg-darkest;
                     box-shadow: none;
+                }
+
+                &.clicked {
+                    color: $text-primary;
+                    background-color: $bcg-darkest;
+                    box-shadow: $element-shadow-active;
                 }
             }
 
@@ -3804,7 +3818,7 @@ strong {
         font-size: 13px;
 
         &:hover {
-            background-color: #354144;
+            background-color: $bcg-dark;
         }
 
         > .pcui-label {
@@ -3842,7 +3856,7 @@ strong {
         font-size: 13px;
 
         &:hover {
-            background-color: #354144;
+            background-color: $bcg-dark;
         }
 
         > .pcui-label {
@@ -4360,39 +4374,42 @@ strong {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            height: 32px;
+            height: 34px;
             margin: 0;
-            padding: 0 16px;
+            padding: 0 18px;
+            border: 1px solid $bcg-darkest;
             border-radius: 6px;
+            color: $text-secondary;
+            background-color: $bcg-dark;
             font-size: 13px;
             box-shadow: none;
             cursor: pointer;
+            transition: color 100ms, background-color 100ms, opacity 100ms, box-shadow 100ms;
 
-            &.download {
+            &:not(.disabled, .pcui-disabled, .pcui-readonly):hover,
+            &:not(.disabled, .pcui-disabled, .pcui-readonly):focus {
                 color: $text-primary;
-                background-color: transparent;
-                border: 1px solid $border-primary;
-
-                &:not(.disabled):hover {
-                    background-color: $bcg-darkest;
-                    border-color: $text-dark;
-                }
+                background-color: $bcg-dark;
+                box-shadow: $element-shadow-hover;
             }
 
-            &.publish {
-                color: $text-primary;
-                background-color: $text-active;
-                border: 1px solid $text-active;
-
-                &:not(.disabled):hover {
-                    filter: brightness(1.08);
-                }
+            &:not(.disabled, .pcui-disabled, .pcui-readonly):active {
+                background-color: $bcg-darkest;
+                box-shadow: none;
             }
 
-            &.disabled {
-                opacity: 0.5;
-                cursor: not-allowed;
+            &.disabled,
+            &.pcui-disabled {
+                opacity: $element-opacity-disabled;
+                cursor: default;
             }
+        }
+
+        > .builds-toolbar > .pcui-button > .pcui-label {
+            margin: 0;
+            color: inherit;
+            font-size: inherit;
+            line-height: 32px;
         }
     }
 
@@ -4442,6 +4459,7 @@ strong {
             line-height: 26px;
             box-shadow: none;
             cursor: pointer;
+            transition: color 100ms, background-color 100ms, border-color 100ms, box-shadow 100ms;
 
             &::after {
                 content: '';
@@ -4450,15 +4468,40 @@ strong {
                 margin-left: 6px;
                 background-color: currentcolor;
                 mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 6h8l-4 4-4-4Z'/%3E%3C/svg%3E") center / contain no-repeat;
+                transition: transform 100ms;
             }
 
             &:hover,
-            &.active,
+            &:focus {
+                color: $text-primary;
+                background-color: $bcg-dark;
+                border-color: $bcg-darkest;
+                box-shadow: $element-shadow-hover;
+            }
+
             &.selected {
+                color: $text-primary;
+                background-color: $bcg-dark;
+                border-color: $bcg-darkest;
+            }
+
+            &.active {
                 color: $text-primary;
                 background-color: $bcg-darkest;
                 border-color: $border-primary;
+                box-shadow: $element-shadow-active;
             }
+
+            &.active::after {
+                transform: rotate(180deg);
+            }
+        }
+
+        > .builds-filter-bar > .build-filter-button > .pcui-label {
+            margin: 0;
+            color: inherit;
+            font-size: inherit;
+            line-height: 26px;
         }
     }
 
@@ -4628,7 +4671,9 @@ strong {
                 }
 
                 > .url {
+                    align-self: flex-start;
                     display: inline-block;
+                    width: fit-content;
                     max-width: 100%;
                     color: #9dd4ff;
                     font-size: 13px;
@@ -4651,8 +4696,12 @@ strong {
                 justify-content: center;
                 width: 28px;
                 height: 28px;
+                border: 1px solid transparent;
                 border-radius: 4px;
                 color: $text-dark;
+                box-shadow: none;
+                box-sizing: border-box;
+                transition: color 100ms, background-color 100ms, border-color 100ms, box-shadow 100ms;
 
                 &::before {
                     content: '';
@@ -4662,9 +4711,18 @@ strong {
                     mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.75 2h3.5a.75.75 0 0 1 0 1.5h-3.5a.25.25 0 0 0-.25.25v8.5c0 .138.112.25.25.25h8.5a.25.25 0 0 0 .25-.25v-3.5a.75.75 0 0 1 1.5 0v3.5A1.75 1.75 0 0 1 12.25 14h-8.5A1.75 1.75 0 0 1 2 12.25v-8.5C2 2.784 2.784 2 3.75 2Zm6.854-1h4.146a.25.25 0 0 1 .25.25v4.146a.25.25 0 0 1-.427.177L13.03 4.03 9.28 7.78a.751.751 0 0 1-1.06-1.06l3.75-3.75-1.543-1.543A.25.25 0 0 1 10.604 1Z'/%3E%3C/svg%3E") center / contain no-repeat;
                 }
 
-                &:hover {
+                &:hover,
+                &:focus {
                     color: $text-primary;
+                    background-color: $bcg-dark;
+                    border-color: $bcg-darkest;
+                    box-shadow: $element-shadow-hover;
+                }
+
+                &:active {
                     background-color: $bcg-darkest;
+                    border-color: $border-primary;
+                    box-shadow: none;
                 }
             }
         }
@@ -4680,9 +4738,23 @@ strong {
         background: transparent;
 
         // shared row columns: status | name | branch | artifact | date | kebab
-        display: grid;
         grid-template-columns: max-content minmax(0, 1fr) minmax(0, 200px) 32px max-content max-content;
         column-gap: 14px;
+
+        &:not(.pcui-hidden) {
+            display: grid;
+        }
+
+        > .no-filtered-builds-label {
+            @extend .font-regular;
+
+            grid-column: 1 / -1;
+            width: 100%;
+            padding: 14px 16px;
+            color: $text-dark;
+            background-color: rgb(0 0 0 / 8%);
+            box-sizing: border-box;
+        }
 
         > .build-item {
             @extend .font-regular;
@@ -4760,6 +4832,9 @@ strong {
                     border-radius: 4px;
                     background: transparent;
                     color: $text-dark;
+                    box-shadow: none;
+                    cursor: pointer;
+                    transition: color 100ms, background-color 100ms, border-color 100ms, box-shadow 100ms;
 
                     &::before {
                         content: '';
@@ -4782,10 +4857,18 @@ strong {
                         pointer-events: none;
                     }
 
-                    &:not(.placeholder):hover {
+                    &:not(.placeholder):hover,
+                    &:not(.placeholder):focus {
                         color: $text-primary;
+                        background-color: $bcg-dark;
+                        border-color: $bcg-darkest;
+                        box-shadow: $element-shadow-hover;
+                    }
+
+                    &:not(.placeholder):active {
                         background-color: $bcg-darkest;
                         border-color: $border-primary;
+                        box-shadow: none;
                     }
                 }
 
@@ -4841,7 +4924,9 @@ strong {
                     border-radius: 4px;
                     background: transparent;
                     color: $text-dark;
+                    box-shadow: none;
                     cursor: pointer;
+                    transition: color 100ms, background-color 100ms, border-color 100ms, box-shadow 100ms;
 
                     &::before {
                         content: '';
@@ -4852,10 +4937,24 @@ strong {
                     }
 
                     &:hover,
+                    &:focus {
+                        color: $text-primary;
+                        background-color: $bcg-dark;
+                        border-color: $bcg-darkest;
+                        box-shadow: $element-shadow-hover;
+                    }
+
+                    &:active {
+                        background-color: $bcg-darkest;
+                        border-color: $border-primary;
+                        box-shadow: none;
+                    }
+
                     &.active {
                         color: $text-primary;
                         background-color: $bcg-darkest;
                         border-color: $border-primary;
+                        box-shadow: $element-shadow-active;
                     }
                 }
             }
@@ -4884,6 +4983,7 @@ strong {
         font-size: 12px;
         text-transform: uppercase;
         cursor: pointer;
+        transition: color 100ms;
 
         &::before {
             content: '';
@@ -4893,7 +4993,8 @@ strong {
             mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M7.3 3.3 2.6 8l4.7 4.7 1.1-1.1L6.2 8.8H14V7.2H6.2l2.4-2.6-1.1-1.1Z'/%3E%3C/svg%3E") center / contain no-repeat;
         }
 
-        &:hover {
+        &:hover,
+        &:focus {
             color: $text-primary;
         }
     }
@@ -5096,31 +5197,68 @@ strong {
                 margin: 0;
                 height: 32px;
                 padding: 0 14px;
-                border: 1px solid $border-primary;
+                border: 1px solid $bcg-darkest;
                 border-radius: 4px;
-                color: $text-primary;
-                background-color: rgb(0 0 0 / 12%);
+                color: $text-secondary;
+                background-color: $bcg-dark;
                 box-shadow: none;
                 font-size: 14px;
                 line-height: 30px;
                 text-decoration: none;
+                cursor: pointer;
+                transition: color 100ms, background-color 100ms, border-color 100ms, opacity 100ms, box-shadow 100ms;
             }
 
             > .pcui-button > .pcui-label {
                 margin: 0;
+                color: inherit;
                 font-size: 14px;
                 line-height: 30px;
             }
 
-            > .detail-button:hover {
-                color: $text-active;
+            > .pcui-button:not(.pcui-disabled, .pcui-readonly):hover,
+            > .pcui-button:not(.pcui-disabled, .pcui-readonly):focus,
+            > .detail-button:hover,
+            > .detail-button:focus {
+                color: $text-primary;
+                background-color: $bcg-dark;
+                border-color: $bcg-darkest;
+                box-shadow: $element-shadow-hover;
+            }
+
+            > .pcui-button:not(.pcui-disabled, .pcui-readonly):active,
+            > .detail-button:active {
                 background-color: $bcg-darkest;
+                border-color: $border-primary;
+                box-shadow: none;
             }
 
             > .pcui-button.delete {
                 color: #ff8a8a;
                 background-color: transparent;
                 border-color: rgb(168 61 61 / 65%);
+            }
+
+            > .pcui-button.delete:not(.pcui-disabled, .pcui-readonly):hover,
+            > .pcui-button.delete:not(.pcui-disabled, .pcui-readonly):focus {
+                color: #ffb3b3;
+                background-color: $bcg-dark;
+                border-color: rgb(168 61 61 / 85%);
+            }
+
+            > .pcui-button.delete:not(.pcui-disabled, .pcui-readonly):active {
+                background-color: $bcg-darkest;
+                box-shadow: none;
+            }
+
+            > .pcui-button.pcui-disabled {
+                opacity: $element-opacity-disabled;
+                cursor: default;
+            }
+
+            > .pcui-button.pcui-readonly {
+                opacity: $element-opacity-readonly;
+                cursor: default;
             }
         }
     }
@@ -5237,17 +5375,28 @@ strong {
             justify-content: center;
             height: 28px;
             padding: 0 12px;
-            border: 1px solid $border-primary;
+            border: 1px solid $bcg-darkest;
             border-radius: 4px;
-            color: $text-primary;
-            background-color: rgb(0 0 0 / 12%);
+            color: $text-secondary;
+            background-color: $bcg-dark;
+            box-shadow: none;
             font-size: 13px;
             line-height: 26px;
             text-decoration: none;
+            transition: color 100ms, background-color 100ms, border-color 100ms, box-shadow 100ms;
 
-            &:hover {
-                color: $text-active;
+            &:hover,
+            &:focus {
+                color: $text-primary;
+                background-color: $bcg-dark;
+                border-color: $bcg-darkest;
+                box-shadow: $element-shadow-hover;
+            }
+
+            &:active {
                 background-color: $bcg-darkest;
+                border-color: $border-primary;
+                box-shadow: none;
             }
         }
     }
@@ -6037,11 +6186,16 @@ strong {
                     background-color: $text-darkest;
 
                     &:hover,
-                    &:focus,
-                    &.clicked {
+                    &:focus {
                         color: $text-primary;
                         background-color: $bcg-darkest;
                         box-shadow: none;
+                    }
+
+                    &.clicked {
+                        color: $text-primary;
+                        background-color: $bcg-darkest;
+                        box-shadow: $element-shadow-active;
                     }
                 }
             }

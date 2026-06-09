@@ -568,7 +568,7 @@ editor.once('load', () => {
 
         editor.api.globals.rest.apps.appCreate(data).on('load', () => {
             jobInProgress = false;
-            editor.call('picker:builds-publish');
+            editor.call('picker:builds-publish', { reload: true });
         }).on('error', (status) => {
             jobInProgress = false;
             editor.call('status:error', `Error while publishing: ${status}`);
@@ -610,7 +610,7 @@ editor.once('load', () => {
         // ajax call
         editor.api.globals.rest.apps.appDownload(data).on('load', () => {
             jobInProgress = false;
-            editor.call('picker:builds-publish');
+            editor.call('picker:builds-publish', { reload: true });
         }).on('error', (status, error) => {
             jobInProgress = false;
 
