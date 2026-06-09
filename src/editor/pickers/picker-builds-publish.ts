@@ -1,9 +1,55 @@
-import { Container, Label, Menu, Progress, Button } from '@playcanvas/pcui';
+import { Container, Label, Menu, MenuItem, Progress, Button } from '@playcanvas/pcui';
 
 import { bytesToHuman, convertDatetime } from '@/common/utils';
 import { config } from '@/editor/config';
 
 const APP_LIMIT = 16;
+const FILTER_ALL = 'all';
+const BUILD_FILTERS = [{
+    key: 'type',
+    label: 'Type'
+}, {
+    key: 'format',
+    label: 'Format'
+}, {
+    key: 'status',
+    label: 'Status'
+}, {
+    key: 'branch',
+    label: 'Branch'
+}, {
+    key: 'actor',
+    label: 'Actor'
+}];
+const FILTER_ORDER = {
+    type: ['publish', 'download'],
+    format: ['playcanvas', 'static', 'npm', 'web_lens'],
+    status: ['complete', 'running', 'error']
+};
+const FORMAT_FILTERS = [{
+    value: 'playcanvas',
+    label: 'playcanvas'
+}, {
+    value: 'static',
+    label: 'static'
+}, {
+    value: 'npm',
+    label: 'npm'
+}, {
+    value: 'web_lens',
+    label: 'web_lens',
+    superUser: true
+}];
+const STATUS_FILTERS = [{
+    value: 'complete',
+    label: 'Succeeded'
+}, {
+    value: 'running',
+    label: 'Running'
+}, {
+    value: 'error',
+    label: 'Failed'
+}];
 const DUMMY_LEGACY_APP = {
     id: -1,
     sample: true,
@@ -35,6 +81,12 @@ editor.once('load', () => {
     let detailEvents = [];  // holds detail panel events
     let openingDetail = false;
     let openingBuilds = false;
+    const filters: Record<string, string> = {};
+    const filterButtons: Record<string, Button> = {};
+    const filterMenus: Record<string, Menu> = {};
+    BUILD_FILTERS.forEach((filter) => {
+        filters[filter.key] = FILTER_ALL;
+    });
 
     // disables / enables field depending on permissions
     const handlePermissions = function (field: { enabled: boolean }) {
@@ -104,12 +156,24 @@ editor.once('load', () => {
     primaryBuild.hidden = true;
     panel.append(primaryBuild);
 
+    const historyHeader = new Container({
+        flex: true,
+        class: 'builds-history-header'
+    });
+    panel.append(historyHeader);
+
     // Existing builds label
     const existingBuildsLabel = new Label({
         text: 'Build history',
         class: 'builds-list-heading'
     });
-    panel.append(existingBuildsLabel);
+    historyHeader.append(existingBuildsLabel);
+
+    const filterBar = new Container({
+        flex: true,
+        class: 'builds-filter-bar'
+    });
+    historyHeader.append(filterBar);
 
     // no builds message
     let noBuildsText = 'You have not created any builds.';
@@ -123,6 +187,13 @@ editor.once('load', () => {
         hidden: true
     });
     panel.append(noBuilds);
+
+    const noMatchingBuilds = new Label({
+        text: 'No builds match the selected filters.',
+        class: ['no-builds-label', 'no-filtered-builds-label'],
+        hidden: true
+    });
+    panel.append(noMatchingBuilds);
 
     // container for builds
     const container = new Container({ class: 'builds-list' });
@@ -162,8 +233,9 @@ editor.once('load', () => {
 
     // keep loading until the list fills the scroll area, so scrolling can trigger more
     const fillViewport = function () {
+        const needsFilteredRows = hasActiveFilters() && getFilteredApps().length === 0;
         if (scrollContainer && hasMore && !loadingMore && !panel.hidden && !detailApp &&
-            scrollContainer.scrollHeight <= scrollContainer.clientHeight) {
+            (needsFilteredRows || scrollContainer.scrollHeight <= scrollContainer.clientHeight)) {
             loadMoreBuilds();
         }
     };
@@ -274,6 +346,7 @@ editor.once('load', () => {
         primaryBuildHeading.hidden = true;
         primaryBuild.hidden = true;
         noBuilds.hidden = toggle || apps.length > 0;
+        noMatchingBuilds.hidden = true;
     };
 
     const loadAppIndex = function (done: () => void) {
@@ -417,6 +490,201 @@ editor.once('load', () => {
         }
         return app.task.status || 'Pending';
     };
+
+    const getTypeLabel = function (app: any) {
+        return app.type === 'publish' ? 'Publish' : 'Download';
+    };
+
+    const getFormatValue = function (app: any) {
+        return app.settings && app.settings.format || app.version || app.type || '';
+    };
+
+    const getBranchLabel = function (app: any) {
+        return app.branch && app.branch.name || 'main';
+    };
+
+    const getActorLabel = function (app: any) {
+        return app.actor && (app.actor.name || app.actor.username) || '';
+    };
+
+    const getFilterValue = function (app: any, key: string) {
+        if (key === 'type') {
+            return app.type || '';
+        }
+        if (key === 'format') {
+            return getFormatValue(app);
+        }
+        if (key === 'status') {
+            return app.task.status || '';
+        }
+        if (key === 'branch') {
+            return getBranchLabel(app);
+        }
+        if (key === 'actor') {
+            return app.actor && app.actor.id !== undefined ? String(app.actor.id) : getActorLabel(app);
+        }
+        return '';
+    };
+
+    const getFilterLabel = function (app: any, key: string) {
+        if (key === 'type') {
+            return getTypeLabel(app);
+        }
+        if (key === 'status') {
+            return getStatusLabel(app);
+        }
+        if (key === 'branch') {
+            return getBranchLabel(app);
+        }
+        if (key === 'actor') {
+            return getActorLabel(app);
+        }
+        return getFormatValue(app);
+    };
+
+    const getFilterOptions = function (key: string) {
+        const labels: Record<string, string> = {};
+        if (key === 'format') {
+            FORMAT_FILTERS.forEach((option) => {
+                if (!option.superUser || config.self.flags.superUser) {
+                    labels[option.value] = option.label;
+                }
+            });
+        } else if (key === 'status') {
+            STATUS_FILTERS.forEach((option) => {
+                labels[option.value] = option.label;
+            });
+        }
+        apps.forEach((app) => {
+            const value = getFilterValue(app, key);
+            if (value) {
+                labels[value] = getFilterLabel(app, key);
+            }
+        });
+
+        const order = (FILTER_ORDER as any)[key] || [];
+        return Object.keys(labels).map(value => ({
+            value,
+            label: labels[value]
+        })).sort((a, b) => {
+            const ai = order.indexOf(a.value);
+            const bi = order.indexOf(b.value);
+            if (ai !== -1 || bi !== -1) {
+                return (ai === -1 ? order.length : ai) - (bi === -1 ? order.length : bi);
+            }
+            return a.label.localeCompare(b.label);
+        });
+    };
+
+    const getFilterValueLabel = function (key: string, value: string) {
+        const option = getFilterOptions(key).find(item => item.value === value);
+        return option ? option.label : value;
+    };
+
+    const hasActiveFilters = function () {
+        return BUILD_FILTERS.some(filter => filters[filter.key] !== FILTER_ALL);
+    };
+
+    const getFilteredApps = function () {
+        return apps.filter((app) => {
+            return BUILD_FILTERS.every((filter) => {
+                const value = filters[filter.key];
+                return value === FILTER_ALL || getFilterValue(app, filter.key) === value;
+            });
+        });
+    };
+
+    const hideFilterMenus = function () {
+        BUILD_FILTERS.forEach((filter) => {
+            filterMenus[filter.key].hidden = true;
+        });
+    };
+
+    const updateFilterButtons = function () {
+        BUILD_FILTERS.forEach((filter) => {
+            const value = filters[filter.key];
+            const button = filterButtons[filter.key];
+            button.text = value === FILTER_ALL ? filter.label : `${filter.label}: ${getFilterValueLabel(filter.key, value)}`;
+            if (value === FILTER_ALL) {
+                button.class.remove('selected');
+            } else {
+                button.class.add('selected');
+            }
+        });
+    };
+
+    const setBuildFilter = function (key: string, value: string) {
+        if (filters[key] === value) {
+            hideFilterMenus();
+            return;
+        }
+
+        filters[key] = value;
+        updateFilterButtons();
+        hideFilterMenus();
+        refreshApps();
+        fillViewport();
+    };
+
+    const resetBuildFilters = function () {
+        BUILD_FILTERS.forEach((filter) => {
+            filters[filter.key] = FILTER_ALL;
+        });
+        updateFilterButtons();
+        hideFilterMenus();
+    };
+
+    const updateFilterMenu = function (filter: any) {
+        const menu = filterMenus[filter.key];
+        menu.clear();
+
+        const selected = filters[filter.key];
+        menu.append(new MenuItem({
+            text: 'All',
+            class: selected === FILTER_ALL ? 'selected' : '',
+            onSelect: () => setBuildFilter(filter.key, FILTER_ALL)
+        }));
+
+        getFilterOptions(filter.key).forEach((option) => {
+            menu.append(new MenuItem({
+                text: option.label,
+                class: option.value === selected ? 'selected' : '',
+                onSelect: () => setBuildFilter(filter.key, option.value)
+            }));
+        });
+    };
+
+    const openFilterMenu = function (filter: any) {
+        const button = filterButtons[filter.key];
+        const menu = filterMenus[filter.key];
+        updateFilterMenu(filter);
+        hideFilterMenus();
+        button.class.add('active');
+        menu.hidden = false;
+
+        const rect = button.dom.getBoundingClientRect();
+        const items = menu.dom.querySelector('.pcui-menu-items') as HTMLElement;
+        menu.position(rect.right - items.clientWidth, rect.bottom);
+        menu.focus();
+    };
+
+    BUILD_FILTERS.forEach((filter) => {
+        const button = new Button({
+            text: filter.label,
+            class: 'build-filter-button'
+        });
+        filterButtons[filter.key] = button;
+        filterBar.append(button);
+        button.on('click', () => openFilterMenu(filter));
+
+        const menu = new Menu({ class: 'picker-builds-filter-menu' });
+        filterMenus[filter.key] = menu;
+        editor.call('layout.root').append(menu);
+        menu.on('hide', () => {
+            button.class.remove('active');
+        });
+    });
+    updateFilterButtons();
 
     const createValue = function (row: any) {
         const value = row.value;
@@ -615,12 +883,12 @@ editor.once('load', () => {
 
         details.appendChild(createSection('Source and settings', [{
             label: 'Type',
-            value: app.type === 'publish' ? 'Publish' : 'Download',
+            value: getTypeLabel(app),
             variant: 'badge',
             class: app.type
         }, {
             label: 'Format',
-            value: settings.format || app.version,
+            value: getFormatValue(app),
             variant: 'badge'
         }, {
             label: 'Engine',
@@ -741,12 +1009,12 @@ editor.once('load', () => {
 
         const typeBadge = document.createElement('span');
         typeBadge.classList.add('badge', app.type);
-        typeBadge.textContent = app.type === 'publish' ? 'Publish' : 'Download';
+        typeBadge.textContent = getTypeLabel(app);
         nameRow.appendChild(typeBadge);
 
         const formatBadge = document.createElement('span');
         formatBadge.classList.add('badge');
-        formatBadge.textContent = app.settings && app.settings.format || app.version || app.type;
+        formatBadge.textContent = getFormatValue(app);
         nameRow.appendChild(formatBadge);
 
         if (isPrimary) {
@@ -869,12 +1137,12 @@ editor.once('load', () => {
 
         const type = document.createElement('span');
         type.classList.add('badge', app.type);
-        type.textContent = app.type === 'publish' ? 'Publish' : 'Download';
+        type.textContent = getTypeLabel(app);
         nameRow.appendChild(type);
 
         const format = document.createElement('span');
         format.classList.add('badge');
-        format.textContent = app.settings && app.settings.format || app.version || app.type;
+        format.textContent = getFormatValue(app);
         nameRow.appendChild(format);
 
         if (isPrimaryBuild(app)) {
@@ -999,23 +1267,19 @@ editor.once('load', () => {
     // removes an app from the UI
     const removeApp = function (app: any) {
         const target = apps.find(item => isSameBuild(item, app)) || app;
-        document.getElementById(`app-${target.id}`)?.remove();
-        document.getElementById(`primary-app-${target.id}`)?.remove();
+        const removedDetail = detailApp && isSameBuild(detailApp, target);
 
         const index = apps.findIndex(item => isSameBuild(item, target));
         if (index !== -1) {
             apps.splice(index, 1);
         }
 
-        container.hidden = apps.length === 0;
-        noBuilds.hidden = apps.length > 0;
+        if (removedDetail) {
+            detailApp = null;
+        }
+        refreshApps();
 
-        // drop the primary-build summary if its build was the one removed
-        const primaryExists = apps.some(item => item.type === 'publish' && item.app_id === config.project.primaryApp);
-        primaryBuildHeading.hidden = !primaryExists;
-        primaryBuild.hidden = !primaryExists;
-
-        if (detailApp && isSameBuild(detailApp, target)) {
+        if (removedDetail) {
             openBuildsPanel();
         }
     };
@@ -1035,9 +1299,12 @@ editor.once('load', () => {
         destroyEvents();
         primaryBuild.dom.innerHTML = '';
         container.dom.innerHTML = '';
+        const filteredApps = getFilteredApps();
         renderPrimaryBuild();
-        container.hidden = apps.length === 0;
-        apps.forEach((app) => {
+        container.hidden = apps.length === 0 || filteredApps.length === 0;
+        noBuilds.hidden = apps.length > 0;
+        noMatchingBuilds.hidden = apps.length === 0 || filteredApps.length > 0 || !hasActiveFilters();
+        filteredApps.forEach((app) => {
             createAppItem(app);
         });
 
@@ -1257,6 +1524,7 @@ editor.once('load', () => {
             return;
         }
 
+        resetBuildFilters();
         apps = [];
         appIndex = {};
         appList = [];
@@ -1286,6 +1554,7 @@ editor.once('load', () => {
             return;
         }
 
+        resetBuildFilters();
         apps = [];
         appIndex = {};
         appList = [];
