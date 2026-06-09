@@ -1,8 +1,7 @@
-import { Container, Label, Menu, Progress, Button } from '@playcanvas/pcui';
+import { Container, Label, Progress, Button } from '@playcanvas/pcui';
 
 import { LegacyList } from '@/common/ui/list';
 import { LegacyListItem } from '@/common/ui/list-item';
-import { LegacyTooltip } from '@/common/ui/tooltip';
 import { bytesToHuman, convertDatetime } from '@/common/utils';
 import { config } from '@/editor/config';
 
@@ -11,7 +10,7 @@ const APP_LIMIT = 16;
 editor.once('load', () => {
     // global variables
     const projectSettings = editor.call('settings:project');
-    let dropdownApp = null;  // app whose dropdown was last clicked
+    let detailApp = null;  // app whose detail page is currently open
     let apps = [];  // all loaded builds
     let tooltips = [];  // holds all tooltips
     let events = [];  // holds events that need to be destroyed
@@ -190,6 +189,18 @@ editor.once('load', () => {
     });
     panel.append(loadMore);
     handlePermissions(loadMore);
+
+    // detail "page" for a single build (hidden until a row is opened)
+    const detailView = new Container({
+        flex: true,
+        class: 'build-detail',
+        hidden: true
+    });
+    panel.append(detailView);
+
+    // list chrome that is hidden while the detail page is open
+    const listChrome = [primaryBuildHeading, primaryBuild, publishButtons, existingBuildsLabel, noBuilds, container, loadMore];
+
     let skip = 0;
     loadMore.on('click', () => {
         editor.api.globals.rest.projects.projectBuilds(APP_LIMIT, skip += APP_LIMIT).on('load', (status, data) => {
@@ -199,43 +210,8 @@ editor.once('load', () => {
                 return;
             }
             apps.push(...results);
-            results.forEach(createAppItem);
+            results.forEach(app => createAppItem(app));
         });
-    });
-
-    const dropdownMenu = new Menu({
-        class: 'picker-builds-menu',
-        items: [{
-            text: 'Delete',
-            onIsEnabled: () => editor.call('permissions:write') && !!dropdownApp?.build_job_id,
-            onSelect: () => {
-                if (!dropdownApp?.build_job_id) {
-                    return;
-                }
-
-                editor.call('picker:confirm', 'Are you sure you want to delete this build?');
-                editor.once('picker:confirm:yes', () => {
-                    removeApp(dropdownApp);
-                    editor.api.globals.rest.projects.projectBuildDelete(dropdownApp.build_job_id);
-                });
-            }
-        }]
-    });
-
-    editor.call('layout.root').append(dropdownMenu);
-
-    // on closing menu remove 'clicked' class from respective dropdown
-    dropdownMenu.on('hide', () => {
-        if (dropdownApp) {
-            const item = document.getElementById(`app-${dropdownApp.id}`);
-            if (item) {
-                const clicked = item.querySelector('.clicked');
-                if (clicked) {
-                    clicked.innerHTML = '&#57689;';
-                    clicked.classList.remove('clicked');
-                }
-            }
-        }
     });
 
     // register panel with project popup
@@ -381,15 +357,160 @@ editor.once('load', () => {
         return details;
     };
 
+    // build the detail "page" for a single build
+    const renderDetail = function (app: any) {
+        detailView.element.innerHTML = '';
+
+        const isComplete = app.task.status === 'complete';
+        const canPublish = app.type === 'publish' && !!app.app_id;
+        const canDelete = !!app.build_job_id;
+        const isPrimary = config.project.primaryApp === app.app_id;
+
+        const back = document.createElement('button');
+        back.type = 'button';
+        back.classList.add('back');
+        back.textContent = '← Back to builds';
+        back.addEventListener('click', showList);
+        events.push({ unbind: () => back.removeEventListener('click', showList) });
+        detailView.element.appendChild(back);
+
+        const header = document.createElement('div');
+        header.classList.add('detail-header');
+        detailView.element.appendChild(header);
+
+        const status = document.createElement('span');
+        status.classList.add('status', app.task.status);
+        header.appendChild(status);
+
+        const heading = document.createElement('div');
+        heading.classList.add('heading');
+        header.appendChild(heading);
+
+        const nameRow = document.createElement('div');
+        nameRow.classList.add('name-row');
+        heading.appendChild(nameRow);
+
+        const name = document.createElement('span');
+        name.classList.add('name');
+        name.textContent = app.name;
+        nameRow.appendChild(name);
+
+        const typeBadge = document.createElement('span');
+        typeBadge.classList.add('badge', app.type);
+        typeBadge.textContent = app.type === 'publish' ? 'Publish' : 'Download';
+        nameRow.appendChild(typeBadge);
+
+        const formatBadge = document.createElement('span');
+        formatBadge.classList.add('badge');
+        formatBadge.textContent = app.settings && app.settings.format || app.version || app.type;
+        nameRow.appendChild(formatBadge);
+
+        if (isPrimary) {
+            const primaryBadge = document.createElement('span');
+            primaryBadge.classList.add('badge', 'primary-badge');
+            primaryBadge.textContent = 'Primary';
+            nameRow.appendChild(primaryBadge);
+        }
+
+        const sub = document.createElement('div');
+        sub.classList.add('sub');
+        sub.textContent = [
+            isComplete ? 'Succeeded' : (app.task.status === 'error' ? 'Failed' : 'In progress'),
+            app.build_job_id ? `#${app.build_job_id}` : null
+        ].filter(Boolean).join(' · ');
+        heading.appendChild(sub);
+
+        const actions = document.createElement('div');
+        actions.classList.add('detail-actions');
+        header.appendChild(actions);
+
+        if (isComplete && app.url) {
+            const artifact = document.createElement('a');
+            artifact.classList.add('artifact');
+            artifact.href = app.url;
+            artifact.target = '_blank';
+            artifact.rel = 'noopener';
+            artifact.textContent = app.type === 'publish' ? 'Open' : 'Download';
+            actions.appendChild(artifact);
+        }
+
+        if (canPublish) {
+            const primary = new Button({ text: 'Set primary', class: 'set-primary' });
+            events.push(handlePermissions(primary));
+            if (primary.enabled && (!isComplete || isPrimary)) {
+                primary.enabled = false;
+            }
+            events.push(primary.on('click', () => {
+                if (isPrimary || !isComplete) {
+                    return;
+                }
+                editor.call('projects:setPrimaryApp', app.app_id, null, () => {
+                    refreshApps();
+                });
+                refreshApps();
+                toggleCollapsingPublishButtons(true);
+            }));
+            actions.appendChild(primary.dom);
+        }
+
+        if (canDelete) {
+            const del = new Button({ text: 'Delete', class: 'delete' });
+            events.push(handlePermissions(del));
+            events.push(del.on('click', () => {
+                editor.call('picker:confirm', 'Are you sure you want to delete this build?');
+                editor.once('picker:confirm:yes', () => {
+                    editor.api.globals.rest.projects.projectBuildDelete(app.build_job_id);
+                    removeApp(app);
+                });
+            }));
+            actions.appendChild(del.dom);
+        }
+
+        if (app.task.status === 'error' && app.task.message) {
+            const error = document.createElement('div');
+            error.classList.add('error');
+            error.textContent = app.task.message;
+            detailView.element.appendChild(error);
+        }
+
+        const details = createDetails(app);
+        details.hidden = false;
+        detailView.element.appendChild(details);
+    };
+
+    // return from the detail page to the build list
+    const showList = function () {
+        detailApp = null;
+        detailView.hidden = true;
+        detailView.element.innerHTML = '';
+
+        existingBuildsLabel.hidden = false;
+        publishButtons.hidden = false;
+        container.hidden = apps.length === 0;
+        loadMore.hidden = apps.length === 0;
+        noBuilds.hidden = apps.length > 0;
+
+        const primaryExists = apps.some(item => item.type === 'publish' && item.app_id === config.project.primaryApp);
+        primaryBuildHeading.hidden = !primaryExists;
+        primaryBuild.hidden = !primaryExists;
+    };
+
+    // open the detail page for a build
+    const showDetail = function (app: any) {
+        detailApp = app;
+        listChrome.forEach((el) => {
+            el.hidden = true;
+        });
+        renderDetail(app);
+        detailView.hidden = false;
+    };
+
     // create UI for single app
     const createAppItem = function (app: any, list: LegacyList = container, options: any = {}) {
         const item = new LegacyListItem();
         item.element.id = options.summary ? `primary-app-${app.id}` : `app-${app.id}`;
 
         list.append(item);
-
-        const canPublish = !options.summary && app.type === 'publish' && !!app.app_id;
-        const canDelete = !options.summary && !!app.build_job_id;
 
         if (config.project.primaryApp === app.app_id || config.project.primaryApp === app.id) {
             item.class.add('primary');
@@ -403,8 +524,7 @@ editor.once('load', () => {
         item.element.appendChild(row);
 
         const status = document.createElement('span');
-        status.classList.add('status');
-        status.classList.add(app.task.status);
+        status.classList.add('status', app.task.status);
         if (app.task.status === 'complete') {
             status.setAttribute('aria-label', 'Succeeded');
         } else if (app.task.status === 'error') {
@@ -427,8 +547,7 @@ editor.once('load', () => {
         nameRow.appendChild(name.dom);
 
         const type = document.createElement('span');
-        type.classList.add('badge');
-        type.classList.add(app.type);
+        type.classList.add('badge', app.type);
         type.textContent = app.type === 'publish' ? 'Publish' : 'Download';
         nameRow.appendChild(type);
 
@@ -439,167 +558,46 @@ editor.once('load', () => {
 
         if (config.project.primaryApp === app.app_id) {
             const primaryBadge = document.createElement('span');
-            primaryBadge.classList.add('badge');
-            primaryBadge.classList.add('primary-badge');
+            primaryBadge.classList.add('badge', 'primary-badge');
             primaryBadge.textContent = 'Primary';
             nameRow.appendChild(primaryBadge);
         }
 
-        const meta = document.createElement('div');
-        meta.classList.add('meta');
-        body.appendChild(meta);
+        const sub = document.createElement('div');
+        sub.classList.add('sub');
+        const actor = app.actor && (app.actor.name || app.actor.username);
+        sub.textContent = [
+            app.build_job_id ? `#${app.build_job_id}` : null,
+            actor ? `by ${actor}` : null
+        ].filter(Boolean).join(' · ');
+        body.appendChild(sub);
 
-        const addMeta = function (value: any, cls?: string) {
-            if (value === undefined || value === null || value === '') {
-                return null;
-            }
+        const branch = document.createElement('div');
+        branch.classList.add('branch');
+        const branchName = document.createElement('span');
+        branchName.classList.add('branch-name');
+        branchName.textContent = app.branch && app.branch.name || 'main';
+        branch.appendChild(branchName);
+        row.appendChild(branch);
 
-            const span = document.createElement('span');
-            span.classList.add('meta-item');
-            if (cls) {
-                span.classList.add(cls);
-            }
-            span.textContent = value;
-            meta.appendChild(span);
-            return span;
-        };
+        const rightMeta = document.createElement('div');
+        rightMeta.classList.add('right-meta');
 
-        addMeta(app.task.status === 'complete' ? 'Succeeded' : (app.task.status === 'error' ? 'Failed' : 'In progress'), 'state');
-        addMeta(app.build_job_id ? `#${app.build_job_id}` : null, 'run');
-        addMeta(convertDatetime(app.created_at), 'date');
-        addMeta(app.actor && (app.actor.name || app.actor.username), 'actor');
-        addMeta(app.branch && app.branch.name || 'main', 'branch');
-        addMeta(app.duration_ms ? `${Math.round(app.duration_ms / 1000)}s` : null, 'duration');
-        addMeta(app.size === null ? null : bytesToHuman(app.size), 'size');
+        const date = document.createElement('span');
+        date.classList.add('date');
+        date.textContent = convertDatetime(app.created_at);
+        rightMeta.appendChild(date);
 
-        const actions = document.createElement('div');
-        actions.classList.add('actions');
-        const stopActions = function (e: MouseEvent) {
-            e.stopPropagation();
-        };
-        actions.addEventListener('click', stopActions);
-        events.push({
-            unbind: () => {
-                actions.removeEventListener('click', stopActions);
-            }
-        });
-        row.appendChild(actions);
-
-        const primary = new Button({
-            icon: 'E223',
-            class: 'primary'
-        });
-        events.push(handlePermissions(primary));
-        primary.hidden = options.summary || !canPublish;
-        if (primary.enabled && (!canPublish || app.task.status !== 'complete')) {
-            primary.enabled = false;
-        }
-        actions.appendChild(primary.dom);
-
-        events.push(primary.on('click', (e?: MouseEvent) => {
-            e?.stopPropagation();
-
-            if (!canPublish || config.project.primaryApp === app.app_id || app.task.status !== 'complete') {
-                return;
-            }
-
-            editor.call('projects:setPrimaryApp', app.app_id, null, () => {
-                refreshApps();
-            });
-
-            refreshApps();
-            toggleCollapsingPublishButtons(true);
-        }));
-
-        if (canPublish) {
-            const tooltipText = config.project.primaryApp === app.app_id ? 'Primary build' : 'Change the projects\'s primary build';
-            const tooltip = LegacyTooltip.attach({
-                target: primary.dom,
-                text: tooltipText,
-                align: 'right',
-                root: editor.call('layout.root')
-            });
-            tooltips.push(tooltip);
+        if (app.duration_ms) {
+            const duration = document.createElement('span');
+            duration.classList.add('duration');
+            duration.textContent = `${Math.round(app.duration_ms / 1000)}s`;
+            rightMeta.appendChild(duration);
         }
 
-        if (app.task.status === 'complete' && app.url) {
-            const artifact = document.createElement('a');
-            artifact.classList.add('artifact');
-            artifact.href = app.url;
-            artifact.target = '_blank';
-            artifact.rel = 'noopener';
-            artifact.textContent = app.type === 'publish' ? 'Open' : 'Download';
-            actions.appendChild(artifact);
-        }
+        row.appendChild(rightMeta);
 
-        const error = new Label({
-            text: app.task.message,
-            class: 'error',
-            hidden: app.task.status !== 'error'
-        });
-        item.element.appendChild(error.dom);
-
-        const dropdown = document.createElement('button');
-        dropdown.type = 'button';
-        dropdown.classList.add('action-button');
-        dropdown.classList.add('dropdown');
-        dropdown.innerHTML = '&#57689;';
-        dropdown.hidden = !canDelete;
-        dropdown.setAttribute('aria-label', 'Build actions');
-        actions.appendChild(dropdown);
-
-        const openMenu = function (e: MouseEvent) {
-            e.preventDefault();
-            e.stopPropagation();
-
-            dropdown.classList.add('clicked');
-            dropdown.innerHTML = '&#57687;';
-            dropdownApp = app;
-
-            dropdownMenu.hidden = false;
-
-            const rect = dropdown.getBoundingClientRect();
-            const menuItems = dropdownMenu.dom.querySelector('.pcui-menu-items') as HTMLElement;
-            dropdownMenu.position(rect.right - menuItems.clientWidth, rect.bottom);
-            dropdownMenu.focus();
-        };
-        dropdown.addEventListener('click', openMenu);
-        events.push({
-            unbind: () => {
-                dropdown.removeEventListener('click', openMenu);
-            }
-        });
-
-        const details = createDetails(app);
-        item.element.appendChild(details);
-
-        const expand = document.createElement('button');
-        expand.type = 'button';
-        expand.classList.add('action-button');
-        expand.classList.add('expander');
-        expand.innerHTML = '&#57689;';
-        expand.setAttribute('aria-label', 'Show build details');
-        actions.appendChild(expand);
-
-        const toggleDetails = function () {
-            details.hidden = !details.hidden;
-            expand.innerHTML = details.hidden ? '&#57689;' : '&#57687;';
-            expand.setAttribute('aria-label', details.hidden ? 'Show build details' : 'Hide build details');
-        };
-
-        events.push(item.on('click', toggleDetails));
-
-        const expandDetails = function (e: MouseEvent) {
-            e.preventDefault();
-            e.stopPropagation();
-            toggleDetails();
-        };
-        expand.addEventListener('click', expandDetails);
-        events.push({
-            unbind: () => {
-                expand.removeEventListener('click', expandDetails);
-            }
-        });
+        events.push(item.on('click', () => showDetail(app)));
 
         return item;
     };
@@ -634,25 +632,20 @@ editor.once('load', () => {
 
     // removes an app from the UI
     const removeApp = function (app: any) {
-        const item = document.getElementById(`app-${app.id}`);
-        if (item) {
-            item.remove();
-        }
+        document.getElementById(`app-${app.id}`)?.remove();
+        document.getElementById(`primary-app-${app.id}`)?.remove();
 
-        // remove from apps array
-        for (let i = 0; i < apps.length; i++) {
-            if (apps[i].id === app.id) {
-                // close dropdown menu if current app deleted
-                if (dropdownApp === apps[i]) {
-                    dropdownMenu.hidden = true;
-                }
-
-                apps.splice(i, 1);
-                break;
-            }
+        const index = apps.findIndex(item => item.id === app.id);
+        if (index !== -1) {
+            apps.splice(index, 1);
         }
 
         container.hidden = apps.length === 0;
+
+        // if the deleted build's detail page is open, return to the list
+        if (detailApp && detailApp.id === app.id) {
+            showList();
+        }
     };
 
     const removeBuildJob = function (id: number) {
@@ -664,7 +657,6 @@ editor.once('load', () => {
 
     // recreate app list UI
     const refreshApps = function () {
-        dropdownMenu.hidden = true;
         destroyTooltips();
         destroyEvents();
         primaryBuild.element.innerHTML = '';
@@ -675,6 +667,16 @@ editor.once('load', () => {
         apps.forEach((app) => {
             createAppItem(app);
         });
+
+        // keep the detail page in sync if one is open
+        if (detailApp) {
+            const updated = apps.find(item => item.build_job_id === detailApp.build_job_id);
+            if (updated) {
+                showDetail(updated);
+            } else {
+                showList();
+            }
+        }
     };
 
     // LOCAL UTILS
@@ -764,6 +766,7 @@ editor.once('load', () => {
 
     // on show
     panel.on('show', () => {
+        showList();
         loadApps();
 
         if (editor.call('viewport:inViewport')) {
@@ -774,6 +777,8 @@ editor.once('load', () => {
     // on hide
     panel.on('hide', () => {
         apps = [];
+        detailApp = null;
+        detailView.hidden = true;
         destroyTooltips();
         destroyEvents();
 

@@ -4353,6 +4353,129 @@ strong {
         }
     }
 
+    // shared build-status indicator (list rows + detail header)
+    .status {
+        flex: 0 0 24px;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        border: 1px solid $border-primary;
+        color: $text-dark;
+        background-color: $bcg-darkest;
+        box-sizing: border-box;
+        position: relative;
+
+        &.complete {
+            color: #6fd088;
+            border-color: #3e8c54;
+            background-color: rgb(46 160 67 / 12%);
+
+            &::before {
+                content: '';
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 9px;
+                height: 5px;
+                border-bottom: 2px solid currentcolor;
+                border-left: 2px solid currentcolor;
+                box-sizing: border-box;
+                transform: translate(-50%, -60%) rotate(-45deg);
+            }
+        }
+
+        &.error {
+            color: #ff8a8a;
+            border-color: #a83d3d;
+            background-color: rgb(231 76 60 / 12%);
+
+            &::before,
+            &::after {
+                content: '';
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 11px;
+                height: 2px;
+                background-color: currentcolor;
+            }
+
+            &::before { transform: translate(-50%, -50%) rotate(45deg); }
+            &::after { transform: translate(-50%, -50%) rotate(-45deg); }
+        }
+
+        &.running {
+            border-color: $text-dark;
+            background-color: transparent;
+
+            &::after {
+                content: '';
+                width: 12px;
+                height: 12px;
+                border: 2px solid $text-dark;
+                border-top-color: $text-active;
+                border-radius: 50%;
+                animation: build-status-spin 800ms linear infinite;
+            }
+        }
+    }
+
+    // shared badge pills (list rows + detail header)
+    .badge {
+        flex: 0 0 auto;
+        height: 18px;
+        line-height: 18px;
+        padding: 0 6px;
+        border: 1px solid $border-primary;
+        border-radius: 4px;
+        color: $text-dark;
+        background-color: rgb(0 0 0 / 14%);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0;
+
+        &.publish {
+            color: #9dd4ff;
+            border-color: rgb(110 170 220 / 45%);
+        }
+
+        &.download {
+            color: #f3c16f;
+            border-color: rgb(225 166 62 / 45%);
+        }
+
+        &.primary-badge {
+            color: $text-active;
+            border-color: rgb(255 122 35 / 50%);
+        }
+    }
+
+    // shared name + badges row (list rows + detail header)
+    .name-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 0;
+        line-height: 20px;
+
+        > .name {
+            @extend .font-bold;
+
+            min-width: 0;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 14px;
+            color: $text-primary;
+            margin: 0;
+        }
+    }
+
     > ul {
         margin: 0;
         padding: 0;
@@ -4384,212 +4507,115 @@ strong {
                 cursor: pointer;
             }
 
+            // list is non-selectable; clicking to expand adds .selected, so neutralize the leaked theme background
+            &.selected:not(:hover) {
+                background-color: transparent;
+            }
+
             > .build-row {
                 display: flex;
                 align-items: center;
                 gap: 14px;
                 min-height: 72px;
                 padding: 12px 14px;
-            }
 
-            > .build-row > .status {
-                flex: 0 0 24px;
-                width: 24px;
-                height: 24px;
-                border-radius: 50%;
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 14px;
-                border: 1px solid $border-primary;
-                color: $text-dark;
-                background-color: $bcg-darkest;
-                box-sizing: border-box;
-                position: relative;
-            }
-
-            &.complete > .build-row > .status {
-                color: #6fd088;
-                border-color: #3e8c54;
-                background-color: rgb(46 160 67 / 12%);
-
-                &::before {
-                    content: '';
-                    position: absolute;
-                    top: 50%;
-                    left: 50%;
-                    width: 9px;
-                    height: 5px;
-                    border-bottom: 2px solid currentcolor;
-                    border-left: 2px solid currentcolor;
-                    box-sizing: border-box;
-                    transform: translate(-50%, -60%) rotate(-45deg);
-                }
-            }
-
-            &.error > .build-row > .status {
-                color: #ff8a8a;
-                border-color: #a83d3d;
-                background-color: rgb(231 76 60 / 12%);
-
-                &::before {
-                    content: '';
-                    position: absolute;
-                    top: 50%;
-                    left: 50%;
-                    width: 11px;
-                    height: 2px;
-                    background-color: currentcolor;
-                    transform: translate(-50%, -50%) rotate(45deg);
-                }
-
-                &::after {
-                    content: '';
-                    position: absolute;
-                    top: 50%;
-                    left: 50%;
-                    width: 11px;
-                    height: 2px;
-                    background-color: currentcolor;
-                    transform: translate(-50%, -50%) rotate(-45deg);
-                }
-            }
-
-            &.running > .build-row > .status {
-                border-color: $text-dark;
-                background-color: transparent;
-
-                &::after {
-                    content: '';
-                    width: 12px;
-                    height: 12px;
-                    border: 2px solid $text-dark;
-                    border-top-color: $text-active;
-                    border-radius: 50%;
-                    animation: build-status-spin 800ms linear infinite;
-                }
-            }
-
-            > .build-row > .body {
-                min-width: 0;
-                flex: 1 1 auto;
-            }
-
-            > .build-row > .body > .name-row {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                min-width: 0;
-                line-height: 20px;
-
-                > .name {
-                    @extend .font-bold;
-
+                > .body {
                     min-width: 0;
-                    max-width: 100%;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    white-space: nowrap;
-                    font-size: 14px;
-                    color: $text-primary;
-                    margin: 0;
+                    flex: 1 1 0;
+
+                    > .sub {
+                        margin-top: 4px;
+                        color: $text-dark;
+                        font-size: 12px;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                    }
                 }
 
-                > .badge {
-                    flex: 0 0 auto;
-                    height: 18px;
-                    line-height: 18px;
-                    padding: 0 6px;
-                    border: 1px solid $border-primary;
-                    border-radius: 4px;
+                > .branch {
+                    flex: 1 1 0;
+                    min-width: 0;
+                    display: flex;
+                    justify-content: flex-start;
+
+                    > .branch-name {
+                        max-width: 100%;
+                        padding: 2px 10px;
+                        border: 1px solid $border-primary;
+                        border-radius: 10px;
+                        color: $text-primary;
+                        background-color: rgb(0 0 0 / 14%);
+                        font-size: 12px;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+                    }
+                }
+
+                > .right-meta {
+                    flex: 1 1 0;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: flex-end;
+                    gap: 2px;
                     color: $text-dark;
-                    background-color: rgb(0 0 0 / 14%);
-                    font-size: 11px;
-                    text-transform: uppercase;
-                    letter-spacing: 0;
+                    font-size: 12px;
 
-                    &.publish {
-                        color: #9dd4ff;
-                        border-color: rgb(110 170 220 / 45%);
-                    }
-
-                    &.download {
-                        color: #f3c16f;
-                        border-color: rgb(225 166 62 / 45%);
-                    }
-
-                    &.primary-badge {
-                        color: $text-active;
-                        border-color: rgb(255 122 35 / 50%);
-                    }
-                }
-            }
-
-            > .build-row > .body > .meta {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 4px 12px;
-                min-width: 0;
-                margin-top: 5px;
-                color: $text-dark;
-                font-size: 12px;
-
-                > .meta-item {
-                    min-width: 0;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    white-space: nowrap;
-
-                    &.state {
+                    > .date {
                         color: $text-primary;
                     }
                 }
             }
+        }
+    }
 
-            > .build-row > .actions {
+    > .build-detail {
+        padding: 0;
+
+        > .back {
+            appearance: none;
+            align-self: flex-start;
+            margin: 4px 0 16px;
+            padding: 4px 0;
+            border: none;
+            background: transparent;
+            color: $text-dark;
+            font-size: 13px;
+            cursor: pointer;
+
+            &:hover {
+                color: $text-primary;
+            }
+        }
+
+        > .detail-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid $border-primary;
+
+            > .heading {
+                min-width: 0;
+                flex: 1 1 auto;
+
+                > .sub {
+                    margin-top: 4px;
+                    color: $text-dark;
+                    font-size: 12px;
+                }
+            }
+
+            > .detail-actions {
                 display: flex;
                 align-items: center;
-                justify-content: flex-end;
-                gap: 6px;
+                gap: 8px;
                 flex: 0 0 auto;
 
-                > .pcui-button,
-                > .action-button {
-                    appearance: none;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    width: 28px;
-                    height: 28px;
-                    line-height: 1;
+                > .pcui-button {
                     margin: 0;
-                    padding: 0;
-                    border: 1px solid $border-primary;
-                    border-radius: 4px;
-                    color: $text-dark;
-                    background-color: rgb(0 0 0 / 12%);
-                    text-align: center;
-                    box-sizing: border-box;
-                }
-
-                > .pcui-button.primary {
-                    @extend .font-icon;
-
-                    color: $text-darkest;
-                }
-
-                > .action-button.dropdown,
-                > .action-button.expander {
-                    @extend .font-icon;
-                }
-
-                > .pcui-button.primary:not(.disabled):hover,
-                > .action-button.dropdown:hover,
-                > .action-button.expander:hover,
-                > .action-button.clicked {
-                    color: $text-primary;
-                    background-color: $bcg-darkest;
-                    cursor: pointer;
+                    height: 28px;
                 }
 
                 > .artifact {
@@ -4597,7 +4623,7 @@ strong {
 
                     height: 28px;
                     line-height: 28px;
-                    padding: 0 10px;
+                    padding: 0 12px;
                     border: 1px solid $border-primary;
                     border-radius: 4px;
                     color: $text-primary;
@@ -4610,39 +4636,37 @@ strong {
                     }
                 }
             }
+        }
 
-            > .error {
-                color: #e74c3c;
-                margin: -8px 14px 12px 52px;
-                white-space: normal;
-                word-wrap: break-word;
-                font-size: 12px;
-            }
+        > .error {
+            margin: 14px 0 0;
+            color: #e74c3c;
+            font-size: 12px;
+            white-space: normal;
+            word-wrap: break-word;
+        }
 
-            > .details {
-                margin: -2px 14px 12px 52px;
-                padding: 10px 0 2px;
-                border-top: 1px solid rgb(255 255 255 / 6%);
-                color: $text-primary;
+        > .details {
+            margin: 14px 0 0;
+            color: $text-primary;
 
-                > .detail-row {
-                    display: flex;
-                    gap: 8px;
-                    padding-top: 4px;
+            > .detail-row {
+                display: flex;
+                gap: 8px;
+                padding-top: 8px;
+                min-width: 0;
+
+                > .key {
+                    color: $text-dark;
+                    flex: 0 0 120px;
+                }
+
+                > .value {
                     min-width: 0;
+                    overflow-wrap: anywhere;
 
-                    > .key {
-                        color: $text-dark;
-                        flex: 0 0 72px;
-                    }
-
-                    > .value {
-                        min-width: 0;
-                        overflow-wrap: anywhere;
-
-                        > a {
-                            color: $text-active;
-                        }
+                    > a {
+                        color: $text-active;
                     }
                 }
             }
