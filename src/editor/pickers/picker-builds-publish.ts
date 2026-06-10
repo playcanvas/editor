@@ -124,7 +124,7 @@ editor.once('load', () => {
     primaryBuildHeader.append(toolbar);
 
     const btnDownload = new Button({
-        text: 'Download .zip',
+        text: 'Download',
         class: 'download'
     });
     handlePermissions(btnDownload);

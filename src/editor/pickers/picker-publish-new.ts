@@ -24,6 +24,7 @@ editor.once('load', () => {
 
     // root container
     const container = new Container({
+        flex: true,
         class: 'picker-publish-new'
     });
 
@@ -59,11 +60,35 @@ editor.once('load', () => {
         refreshDownloadFormatOptions();
     });
 
+    // back to builds list
+    const back = document.createElement('button');
+    back.type = 'button';
+    back.classList.add('back');
+    back.textContent = 'Back to builds';
+    back.addEventListener('click', () => {
+        editor.call('picker:builds-publish');
+    });
+    container.dom.appendChild(back);
+
+    // card-style form section with a heading (matches build detail sections)
+    const createFormSection = (className: string, title: string) => {
+        const section = new Container({
+            class: ['form-section', className]
+        });
+        const heading = document.createElement('h3');
+        heading.textContent = title;
+        section.dom.appendChild(heading);
+        container.append(section);
+        return section;
+    };
+
+    const sectionDetails = createFormSection('details', 'Build details');
+
     // info panel
     const containerInfo = new Container({
         class: 'info'
     });
-    container.append(containerInfo);
+    sectionDetails.append(containerInfo);
 
     // image
     const imageField = document.createElement('div');
@@ -173,11 +198,11 @@ editor.once('load', () => {
     group.appendChild(labelImageClick.dom);
 
     // Helper to create a text area section with label and error
-    const createTextAreaSection = (className: string, labelText: string, maxLength: number) => {
+    const createTextAreaSection = (className: string, labelText: string, maxLength: number, placeholder?: string) => {
         const sectionContainer = new Container({
             class: className
         });
-        container.append(sectionContainer);
+        sectionDetails.append(sectionContainer);
 
         const label = new Label({
             text: labelText,
@@ -193,7 +218,8 @@ editor.once('load', () => {
         sectionContainer.append(errorLabel);
 
         const input = new TextAreaInput({
-            keyChange: true
+            keyChange: true,
+            placeholder
         });
         sectionContainer.append(input);
 
@@ -211,7 +237,7 @@ editor.once('load', () => {
     const containerVersion = new Container({
         class: 'version'
     });
-    container.append(containerVersion);
+    sectionDetails.append(containerVersion);
 
     const labelVersion = new Label({
         text: 'Version',
@@ -238,7 +264,9 @@ editor.once('load', () => {
         refreshButtonsState();
     });
 
-    const inputNotes = createTextAreaSection('notes', 'Release Notes', 10000);
+    const inputNotes = createTextAreaSection('notes', 'Release Notes', 10000, 'What\'s changed in this build?');
+
+    const sectionSettings = createFormSection('settings', 'Build settings');
 
     // engine version
     const containerEngineVersion = new Container({
@@ -264,7 +292,7 @@ editor.once('load', () => {
         })
     });
     containerEngineVersion.append(engineVersionDropdown);
-    container.append(containerEngineVersion);
+    sectionSettings.append(containerEngineVersion);
 
     let fieldOptionsConcat: BooleanInput | null = null;
     let fieldOptionsMinify: BooleanInput | null = null;
@@ -287,7 +315,7 @@ editor.once('load', () => {
             class: 'options'
         });
         containerBuildOptions = containerOptions;
-        container.append(containerOptions);
+        sectionSettings.append(containerOptions);
 
         const labelOptions = new Label({
             text: 'Options',
@@ -339,7 +367,7 @@ editor.once('load', () => {
     containerDownloadOptions = new Container({
         class: 'options'
     });
-    container.append(containerDownloadOptions);
+    sectionSettings.append(containerDownloadOptions);
     containerDownloadOptions.hidden = true;
 
     const labelDownloadOptions = new Label({
@@ -434,20 +462,31 @@ editor.once('load', () => {
     });
     container.append(containerScenes);
 
+    // header bar attached to the scene list (matches build history header)
+    const scenesHeader = new Container({
+        class: 'scenes-header'
+    });
+    containerScenes.append(scenesHeader);
+
     const labelChooseScenes = new Label({
-        text: 'Choose Scenes',
+        text: 'Scenes',
         class: 'field-label'
     });
-    containerScenes.append(labelChooseScenes);
+    scenesHeader.append(labelChooseScenes);
 
-    const selectAll = new BooleanInput();
-    containerScenes.append(selectAll);
+    const selectAllGroup = new Container({
+        class: 'select-all-group'
+    });
+    scenesHeader.append(selectAllGroup);
 
     const labelSelectAll = new Label({
         text: 'Select all',
         class: 'select-all'
     });
-    containerScenes.append(labelSelectAll);
+    selectAllGroup.append(labelSelectAll);
+
+    const selectAll = new BooleanInput();
+    selectAllGroup.append(selectAll);
 
     // scenes container
     const sceneList = new LegacyList();
@@ -455,7 +494,7 @@ editor.once('load', () => {
     containerScenes.append(sceneList);
 
     const containerNoScenes = new Container({
-        class: 'scenes'
+        class: 'scenes-empty'
     });
     container.append(containerNoScenes);
 
@@ -509,12 +548,18 @@ editor.once('load', () => {
 
     let jobInProgress = false;
 
+    // footer action buttons
+    const footer = new Container({
+        class: 'form-footer'
+    });
+    container.append(footer);
+
     // publish button
     const btnPublish = new Button({
-        text: 'Publish Now',
+        text: 'Publish',
         class: 'publish'
     });
-    container.append(btnPublish);
+    footer.append(btnPublish);
 
     btnPublish.on('click', () => {
         if (jobInProgress) {
@@ -581,7 +626,7 @@ editor.once('load', () => {
         text: 'Download',
         class: 'web-download'
     });
-    container.append(btnWebDownload);
+    footer.append(btnWebDownload);
 
     // download app
     const download = function () {

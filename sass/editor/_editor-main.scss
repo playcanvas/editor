@@ -3571,8 +3571,7 @@ strong {
     }
 }
 
-.pcui-container.picker-scene-panel,
-.pcui-container.picker-publish-new {
+.pcui-container.picker-scene-panel {
     .ui-list.scene-list {
         margin: 0;
         padding: 0;
@@ -3873,38 +3872,160 @@ strong {
 }
 
 .pcui-container.picker-publish-new {
+    padding: 18px 20px 24px !important;
+    color: $text-primary;
+
     &.disabled {
         opacity: 0.5;
         pointer-events: none;
     }
 
-    > .pcui-container > .pcui-label,
-    > .pcui-container.info > span > .pcui-label {
+    > .back {
+        @extend .font-bold;
+
+        appearance: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        align-self: flex-start;
+        margin: 0 0 14px;
+        padding: 0;
+        border: none;
+        background: transparent;
+        color: $text-dark;
         font-size: 12px;
-        height: auto;
-        line-height: initial;
-        vertical-align: top;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: color 100ms;
 
-        &.field-label {
-            margin: 0 0 8px;
+        &::before {
+            content: '';
+            width: 14px;
+            height: 14px;
+            background-color: currentcolor;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M7.3 3.3 2.6 8l4.7 4.7 1.1-1.1L6.2 8.8H14V7.2H6.2l2.4-2.6-1.1-1.1Z'/%3E%3C/svg%3E") center / contain no-repeat;
         }
 
-        &.error {
-            color: #fb222f;
-            float: right;
-        }
-
-        &.image-click {
-            margin: 3px;
+        &:hover,
+        &:focus {
+            color: $text-primary;
         }
     }
 
-    .pcui-text-input.input-field {
-        margin: 0;
-        height: 36px;
-        line-height: 34px;
-        width: 100%;
+    // card sections matching the build detail page
+    > .form-section {
+        margin: 0 0 12px;
+        padding: 14px 16px;
+        border: 1px solid $border-primary;
+        border-radius: 6px;
+        background-color: rgb(0 0 0 / 8%);
+
+        &:not(.pcui-hidden) {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        > h3 {
+            @extend .font-bold;
+
+            margin: 0;
+            color: $text-primary;
+            font-size: 13px;
+            line-height: 18px;
+            text-transform: uppercase;
+        }
+
+        > .pcui-container {
+            margin: 0;
+            padding: 0;
+            border: none;
+        }
+    }
+
+    .pcui-label.field-label {
+        @extend .font-bold;
+
         display: block;
+        margin: 0 0 6px;
+        color: $text-secondary;
+        font-size: 12px;
+        line-height: 16px;
+    }
+
+    > .form-section .pcui-label.error {
+        position: absolute;
+        top: 0;
+        right: 0;
+        margin: 0;
+        color: #ff8a8a;
+        font-size: 12px;
+        line-height: 16px;
+    }
+
+    > .form-section > .info {
+        &:not(.pcui-hidden) {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+        }
+
+        > .image {
+            flex: 0 0 auto;
+            width: 72px;
+            height: 72px;
+            border: 1px solid $border-primary;
+            border-radius: 6px;
+            background-color: $bcg-darkest;
+            background-position: 50%;
+            background-size: cover;
+            box-sizing: border-box;
+            cursor: pointer;
+            transition: box-shadow 100ms;
+
+            &:hover {
+                box-shadow: $element-shadow-hover;
+            }
+
+            &.progress {
+                background-size: 40%;
+                background-repeat: no-repeat;
+                cursor: default;
+            }
+
+            &.blank {
+                background-size: 180%;
+            }
+        }
+
+        > span {
+            position: relative;
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+    }
+
+    .pcui-label.image-click {
+        margin: 6px 0 0;
+        color: $text-dark;
+        font-size: 12px;
+        line-height: 16px;
+    }
+
+    .pcui-container.description,
+    .pcui-container.version,
+    .pcui-container.notes {
+        position: relative;
+    }
+
+    .pcui-text-input.input-field {
+        display: block;
+        width: 100%;
+        height: 34px;
+        margin: 0;
+        border-color: $bcg-darkest;
+        border-radius: 4px;
+        line-height: 32px;
 
         > input {
             @extend .font-regular;
@@ -3915,387 +4036,349 @@ strong {
 
         &[placeholder] {
             &::after {
-                line-height: 34px;
+                line-height: 32px;
             }
         }
     }
 
-    > .description > .pcui-text-area-input,
-    > .notes > .pcui-text-area-input {
-        margin: 0; // Reset PCUI default 6px margin
+    .pcui-text-area-input {
         width: 100%;
+        margin: 0; // Reset PCUI default 6px margin
+        border: 1px solid $bcg-darkest;
+        border-radius: 4px;
         background-color: $bcg-dark;
-        border: 1px solid $bcg-darker;
-        border-radius: 0;
+        transition: background-color 100ms, box-shadow 100ms;
 
         > textarea {
-            display: block;
-            background-color: transparent;
-            color: $text-primary;
-            margin: 0;
-            padding: 10px;
-
             @extend .font-regular;
 
-            font-size: 14px;
+            display: block;
             width: calc(100% - 20px);
             height: 65px;
-
-            &.active,
-            &:hover,
-            &:focus,
-            &.focus {
-                background-color: $bcg-darkest;
-                outline: none;
-                border-color: transparent;
-                box-shadow: none;
-            }
+            margin: 0;
+            padding: 10px;
+            border: none;
+            background-color: transparent;
+            color: $text-primary;
+            font-size: 14px;
+            outline: none;
+            box-shadow: none;
         }
 
-        &:hover,
+        &:hover {
+            background-color: $bcg-darker;
+            box-shadow: $element-shadow-hover;
+        }
+
         &:focus-within {
             background-color: $bcg-darkest;
-            border-color: transparent;
+            box-shadow: $element-shadow-active;
         }
     }
 
     .pcui-select-input.engine-version-dropdown,
     .pcui-select-input.download-format-dropdown {
+        width: 100%;
+        max-width: 340px;
         margin: 0;
     }
 
-    .pcui-select-input.download-format-dropdown {
-        width: 100%;
-    }
+    .pcui-container.options > .pcui-container.field {
+        margin: 0 0 8px;
+        padding: 0;
+        border: none;
 
-    > .options > .pcui-container.field {
-        line-height: 24px;
+        &:not(.pcui-hidden) {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        &:last-child {
+            margin-bottom: 0;
+        }
 
         > .pcui-boolean-input {
-            margin: 4px 8px 0 0;
+            flex: 0 0 auto;
+            margin: 0;
         }
 
         > .pcui-label {
             margin: 0;
-            font-size: 12px;
-            line-height: 24px;
-            vertical-align: top;
+            color: $text-primary;
+            font-size: 13px;
+            line-height: 18px;
         }
     }
 
-    > .pcui-button {
-        margin: 3px 0 15px 15px; // Top margin needed for PCUI button hover shadow
-        padding: 0;
-        height: 34px;
-        line-height: 34px;
-        text-transform: uppercase;
-
-        @extend .font-bold;
-
-        &::before {
-            @extend .font-icon;
-
-            font-size: 14px;
-            color: $text-secondary;
-            vertical-align: top;
-            padding-right: 10px;
-        }
-
-        &:not(.disabled, .pcui-disabled):hover::before {
-            color: $text-active;
-        }
-
-        &.publish {
-            text-align: center;
-            width: calc(100% - 30px);
-
-            &::before {
-                content: '\E226';
-            }
-        }
-
-        &.web-download {
-            display: none;
-            width: 208px;
-
-            &::before {
-                content: '\E245';
-            }
-        }
-    }
-
-    > .pcui-container {
-        margin: 0;
-        padding: 15px;
-        border-bottom: 1px solid $border-primary;
-    }
-
-    > .pcui-container.info {
-        > .image {
-            display: inline-block;
-            width: 80px;
-            height: 80px;
-            border: 2px solid $border-primary;
-            margin-right: 15px;
-            vertical-align: top;
-            background-size: 100% 100%;
-
-            &.progress {
-                background-size: 40%;
-                background-position: 50%;
-                background-repeat: no-repeat;
-                background-color: $bcg-darkest;
-            }
-
-            &.blank {
-                background-size: 180%;
-            }
-
-            &:hover {
-                cursor: pointer;
-            }
-        }
-
-        > span {
-            display: inline-block;
-            width: calc(100% - 100px);
-
-            > .name {
-                margin-bottom: 8px;
-            }
-
-            > .pcui-label {
-                margin: 3px;
-            }
-        }
-    }
-
-    > .pcui-container.scenes {
-        border-bottom: none;
+    // sticky action bar pinned to the bottom of the scrolling panel
+    > .form-footer {
+        position: sticky;
+        bottom: 0;
+        z-index: 1;
+        margin: 0 -20px -24px;
+        padding: 12px 20px;
+        border-top: 1px solid $border-primary;
+        background-color: $bcg-primary;
 
         &:not(.pcui-hidden) {
-            display: block; // Override flex for float to work
+            display: flex;
+            flex-flow: row wrap;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
         }
 
-        > .pcui-label.field-label {
-            margin: 3px;
-        }
+        > .pcui-button {
+            @extend .font-bold;
 
-        > .pcui-boolean-input {
-            float: right;
-            margin: 2px 0 0;
-        }
-
-        > .pcui-label.select-all {
-            float: right;
-            padding-right: 10px;
-            margin: 3px;
-        }
-
-        > .pcui-progress {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 34px;
             margin: 0;
+            padding: 0 18px;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            color: $text-primary;
+            background-color: $text-active;
+            font-size: 13px;
+            line-height: 32px;
+            box-shadow: none;
+            cursor: pointer;
+            transition: color 100ms, background-color 100ms, opacity 100ms, box-shadow 100ms;
+
+            &:not(.disabled, .pcui-disabled, .pcui-readonly):hover,
+            &:not(.disabled, .pcui-disabled, .pcui-readonly):focus {
+                color: $text-primary;
+                background-color: color.adjust($text-active, $lightness: -7%);
+                box-shadow: $element-shadow-hover;
+            }
+
+            &:not(.disabled, .pcui-disabled, .pcui-readonly):active {
+                background-color: color.adjust($text-active, $lightness: -12%);
+                box-shadow: none;
+            }
+
+            &.disabled,
+            &.pcui-disabled {
+                opacity: $element-opacity-disabled;
+                cursor: default;
+            }
+
+            &.web-download {
+                display: none;
+            }
         }
+    }
 
-        > .pcui-label.error {
-            float: none;
-        }
+    > .scenes {
+        margin: 0 0 12px;
+        padding: 0;
+        border: none;
 
-        > .ui-list {
-            margin-top: 10px;
+        // header bar attached to the list (matches build history header)
+        > .scenes-header {
+            margin: 0;
+            padding: 14px 16px;
+            border: 1px solid $border-primary;
+            border-radius: 6px 6px 0 0;
+            background-color: rgb(0 0 0 / 8%);
+            box-sizing: border-box;
 
-            > .ui-list-item {
-                border-top: 1px solid $border-primary;
-                border-bottom: none;
-                padding-left: 0;
+            &:not(.pcui-hidden) {
+                display: flex;
+                flex-flow: row wrap;
+                align-items: center;
+                justify-content: space-between;
+                gap: 8px 16px;
+            }
 
-                &:last-child {
-                    border-bottom: 1px solid $border-primary;
+            > .pcui-label.field-label {
+                flex: 0 0 auto;
+                margin: 0;
+                color: $text-primary;
+                font-size: 13px;
+                line-height: 18px;
+                text-transform: uppercase;
+            }
+
+            > .select-all-group {
+                flex: 0 0 auto;
+                margin: 0 0 0 auto;
+
+                &:not(.pcui-hidden) {
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
                 }
 
-                &:hover {
-                    background-color: transparent;
-                    cursor: default;
+                > .pcui-label {
+                    margin: 0;
+                    color: $text-dark;
+                    font-size: 12px;
+                    line-height: 16px;
+                }
 
-                    > .name {
-                        color: $text-primary;
+                > .pcui-boolean-input {
+                    margin: 0;
+                }
+            }
+        }
+
+        > .ui-list.scene-list {
+            margin: 0;
+            padding: 0;
+            min-height: 0;
+            border: 1px solid $border-primary;
+            border-top: none;
+            border-radius: 0 0 6px 6px;
+            background: transparent;
+            overflow: hidden;
+
+            > .ui-list-item {
+                @extend .font-regular;
+
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                height: auto;
+                padding: 11px 14px;
+                border-bottom: 1px solid $border-primary;
+                background: transparent;
+                line-height: 20px;
+
+                &:last-child {
+                    border-bottom: none;
+                }
+
+                &.selected {
+                    background-color: transparent;
+                }
+
+                // empty legacy list-item text holder
+                > span:empty {
+                    display: none;
+                }
+
+                > .pcui-button.primary {
+                    @extend .font-icon;
+
+                    flex: 0 0 auto;
+                    width: 20px;
+                    height: 20px;
+                    margin: 0;
+                    padding: 0;
+                    border: none;
+                    background: transparent;
+                    color: $text-darkest;
+                    font-size: 16px;
+                    line-height: 20px;
+                    box-shadow: none;
+                    transition: color 100ms;
+
+                    &:not(.disabled):hover {
+                        color: $text-dark;
+                        cursor: pointer;
+                        box-shadow: none;
                     }
                 }
 
-                > .name {
-                    left: 30px;
+                &.primary > .pcui-button.primary {
+                    color: $text-active;
 
                     &:hover {
+                        color: $text-active;
                         cursor: default;
                     }
                 }
 
-                > .date {
-                    left: 30px;
+                > .pcui-label.name {
+                    flex: 0 1 auto;
+                    min-width: 0;
+                    margin: 0;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    color: $text-primary;
+                    font-size: 14px;
+                    line-height: 20px;
+                }
+
+                &.current::after {
+                    @extend .font-bold;
+
+                    content: 'Current';
+                    flex: 0 0 auto;
+                    order: 1;
+                    height: 18px;
+                    padding: 0 6px;
+                    border: 1px solid rgb(255 122 35 / 50%);
+                    border-radius: 4px;
+                    color: $text-active;
+                    background-color: rgb(0 0 0 / 14%);
+                    font-size: 11px;
+                    line-height: 18px;
+                    text-transform: uppercase;
+                    box-sizing: border-box;
+                }
+
+                > .pcui-label.date {
+                    flex: 0 0 auto;
+                    order: 2;
+                    margin: 0 0 0 auto;
+                    color: $text-dark;
+                    font-size: 12px;
+                    line-height: 20px;
                 }
 
                 > .pcui-boolean-input {
-                    position: absolute;
-                    top: 25px;
-                    right: 0;
+                    flex: 0 0 auto;
+                    order: 3;
                     margin: 0;
-                }
-
-                > .pcui-button.primary {
-                    margin: 3px 3px 3px 0;
-
-                    &:hover {
-                        box-shadow: none;
-                    }
-                }
-
-                > .pcui-label.name,
-                > .pcui-label.date {
-                    margin: 3px;
                 }
             }
         }
     }
 
-    &.download-mode {
-        .pcui-container {
-            &.description,
-            &.version {
-                display: none;
-            }
+    > .scenes-empty {
+        margin: 0 0 12px;
+        padding: 14px 16px;
+        border: 1px solid $border-primary;
+        border-radius: 6px;
+        color: $text-dark;
+        background-color: rgb(0 0 0 / 8%);
+        box-sizing: border-box;
 
-            &.info {
-                > .image {
-                    display: none;
-                }
-
-                > span {
-                    width: 100%;
-
-                    > .image-click {
-                        display: none;
-                    }
-                }
-            }
+        > .pcui-label {
+            margin: 0;
+            color: inherit;
+            font-size: 13px;
+            line-height: 18px;
         }
 
-        .pcui-button.publish,
-        .pcui-container.notes {
+        > .pcui-label.error {
+            color: #ff8a8a;
+        }
+
+        > .pcui-progress {
+            width: 100%;
+            margin: 10px 0 0;
+        }
+    }
+
+    &.download-mode {
+        > .form-section > .pcui-container.description,
+        > .form-section > .pcui-container.version,
+        > .form-section > .pcui-container.notes,
+        > .form-section > .info > .image,
+        > .form-section > .info .pcui-label.image-click,
+        > .form-footer > .pcui-button.publish {
             display: none;
         }
 
-        .pcui-button.web-download {
-            display: inline-block;
-        }
-
-        .progress {
-            border-top: 1px solid $border-primary;
-            padding: 15px;
-
-            > .icon {
-                background-color: $bcg-darkest;
-                width: 74px;
-                height: 74px;
-                display: inline-block;
-                text-align: center;
-
-                > img {
-                    width: 30px;
-                    height: 30px;
-                    padding-top: 20px;
-                }
-
-                &.success,
-                &.error {
-                    > img {
-                        display: none;
-                    }
-                }
-
-                &.success {
-                    &::after {
-                        @extend .font-icon;
-
-                        font-size: 34px;
-                        display: block;
-                        margin-top: 15px;
-                        color: $text-secondary;
-                        content: '\E245';
-                    }
-                }
-
-                &.error {
-                    background-color: #e74c3c;
-
-                    &::after {
-                        @extend .font-icon;
-
-                        font-size: 34px;
-                        display: block;
-                        margin-top: 15px;
-                        color: $bcg-darkest;
-                        content: '\E132';
-                    }
-                }
-            }
-
-            > .progress-info {
-                display: inline-block;
-                position: relative;
-                vertical-align: top;
-                margin-left: 2px;
-                background-color: $bcg-darkest;
-                height: 64px;
-                line-height: 64px;
-                padding: 5px;
-                width: calc(100% - 86px);
-                overflow: auto;
-
-                > .pcui-label.progress-title {
-                    margin: 3px;
-                    line-height: 22px;
-                    height: 22px;
-                    color: $text-primary;
-                    font-size: 14px;
-                    vertical-align: middle;
-
-                    &.error {
-                        position: static;
-                        padding: 0;
-                    }
-                }
-
-                > .pcui-button.ready {
-                    position: absolute;
-                    top: 15px;
-                    right: 15px;
-                    margin: 3px;
-                    background-color: color.adjust($text-active, $alpha: -0.1);
-                    width: 122px;
-                    height: 34px;
-                    font-size: 12px;
-                    line-height: 32px;
-                    padding: 0;
-                    text-align: center;
-                    color: $text-primary;
-                    text-transform: uppercase;
-
-                    @extend .font-bold;
-
-                    &::before {
-                        @extend .font-icon;
-
-                        font-size: 16px;
-                        vertical-align: top;
-                        padding-right: 10px;
-                        content: '\E245';
-                    }
-
-                    &:hover {
-                        background-color: $text-active;
-                        box-shadow: none;
-                    }
-                }
-            }
+        > .form-footer > .pcui-button.web-download {
+            display: inline-flex;
         }
     }
 }
