@@ -24,6 +24,7 @@ editor.once('load', () => {
 
     // root container
     const container = new Container({
+        flex: true,
         class: 'picker-publish-new'
     });
 
@@ -59,11 +60,35 @@ editor.once('load', () => {
         refreshDownloadFormatOptions();
     });
 
+    // back to builds list
+    const back = document.createElement('button');
+    back.type = 'button';
+    back.classList.add('back');
+    back.textContent = 'Back to builds';
+    back.addEventListener('click', () => {
+        editor.call('picker:builds-publish');
+    });
+    container.dom.appendChild(back);
+
+    // card-style form section with a heading (matches build detail sections)
+    const createFormSection = (className: string, title: string) => {
+        const section = new Container({
+            class: ['form-section', className]
+        });
+        const heading = document.createElement('h3');
+        heading.textContent = title;
+        section.dom.appendChild(heading);
+        container.append(section);
+        return section;
+    };
+
+    const sectionDetails = createFormSection('details', 'Build details');
+
     // info panel
     const containerInfo = new Container({
         class: 'info'
     });
-    container.append(containerInfo);
+    sectionDetails.append(containerInfo);
 
     // image
     const imageField = document.createElement('div');
@@ -173,11 +198,11 @@ editor.once('load', () => {
     group.appendChild(labelImageClick.dom);
 
     // Helper to create a text area section with label and error
-    const createTextAreaSection = (className: string, labelText: string, maxLength: number) => {
+    const createTextAreaSection = (className: string, labelText: string, maxLength: number, placeholder?: string) => {
         const sectionContainer = new Container({
             class: className
         });
-        container.append(sectionContainer);
+        sectionDetails.append(sectionContainer);
 
         const label = new Label({
             text: labelText,
@@ -193,7 +218,8 @@ editor.once('load', () => {
         sectionContainer.append(errorLabel);
 
         const input = new TextAreaInput({
-            keyChange: true
+            keyChange: true,
+            placeholder
         });
         sectionContainer.append(input);
 
@@ -211,7 +237,7 @@ editor.once('load', () => {
     const containerVersion = new Container({
         class: 'version'
     });
-    container.append(containerVersion);
+    sectionDetails.append(containerVersion);
 
     const labelVersion = new Label({
         text: 'Version',
@@ -238,7 +264,9 @@ editor.once('load', () => {
         refreshButtonsState();
     });
 
-    const inputNotes = createTextAreaSection('notes', 'Release Notes', 10000);
+    const inputNotes = createTextAreaSection('notes', 'Release Notes', 10000, 'What\'s changed in this build?');
+
+    const sectionSettings = createFormSection('settings', 'Build settings');
 
     // engine version
     const containerEngineVersion = new Container({
@@ -264,7 +292,7 @@ editor.once('load', () => {
         })
     });
     containerEngineVersion.append(engineVersionDropdown);
-    container.append(containerEngineVersion);
+    sectionSettings.append(containerEngineVersion);
 
     let fieldOptionsConcat: BooleanInput | null = null;
     let fieldOptionsMinify: BooleanInput | null = null;
@@ -287,7 +315,7 @@ editor.once('load', () => {
             class: 'options'
         });
         containerBuildOptions = containerOptions;
-        container.append(containerOptions);
+        sectionSettings.append(containerOptions);
 
         const labelOptions = new Label({
             text: 'Options',
@@ -339,7 +367,7 @@ editor.once('load', () => {
     containerDownloadOptions = new Container({
         class: 'options'
     });
-    container.append(containerDownloadOptions);
+    sectionSettings.append(containerDownloadOptions);
     containerDownloadOptions.hidden = true;
 
     const labelDownloadOptions = new Label({
@@ -434,20 +462,31 @@ editor.once('load', () => {
     });
     container.append(containerScenes);
 
+    // header bar attached to the scene list (matches build history header)
+    const scenesHeader = new Container({
+        class: 'scenes-header'
+    });
+    containerScenes.append(scenesHeader);
+
     const labelChooseScenes = new Label({
-        text: 'Choose Scenes',
+        text: 'Scenes',
         class: 'field-label'
     });
-    containerScenes.append(labelChooseScenes);
+    scenesHeader.append(labelChooseScenes);
 
-    const selectAll = new BooleanInput();
-    containerScenes.append(selectAll);
+    const selectAllGroup = new Container({
+        class: 'select-all-group'
+    });
+    scenesHeader.append(selectAllGroup);
 
     const labelSelectAll = new Label({
         text: 'Select all',
         class: 'select-all'
     });
-    containerScenes.append(labelSelectAll);
+    selectAllGroup.append(labelSelectAll);
+
+    const selectAll = new BooleanInput();
+    selectAllGroup.append(selectAll);
 
     // scenes container
     const sceneList = new LegacyList();
@@ -455,7 +494,7 @@ editor.once('load', () => {
     containerScenes.append(sceneList);
 
     const containerNoScenes = new Container({
-        class: 'scenes'
+        class: 'scenes-empty'
     });
     container.append(containerNoScenes);
 
@@ -486,7 +525,7 @@ editor.once('load', () => {
     const getSelectedScenes = function () {
         const result = [];
 
-        const listItems = sceneList.innerElement.childNodes;
+        const listItems = sceneList.innerElement.childNodes as any;
         for (let i = 0; i < listItems.length; i++) {
             if (listItems[i].ui.isSelected()) {
                 result.push(listItems[i].ui.sceneId);
@@ -509,12 +548,26 @@ editor.once('load', () => {
 
     let jobInProgress = false;
 
+    // footer action buttons
+    const footer = new Container({
+        class: 'form-footer'
+    });
+    container.append(footer);
+
+    // explains why the action button is disabled
+    const footerHint = new Label({
+        class: 'footer-hint',
+        hidden: true
+    });
+    footer.append(footerHint);
+
     // publish button
     const btnPublish = new Button({
-        text: 'Publish Now',
+        text: 'Publish',
+        icon: 'E226',
         class: 'publish'
     });
-    container.append(btnPublish);
+    footer.append(btnPublish);
 
     btnPublish.on('click', () => {
         if (jobInProgress) {
@@ -525,7 +578,7 @@ editor.once('load', () => {
 
         refreshButtonsState();
 
-        const data = {
+        const data: Record<string, any> = {
             name: inputName.value,
             project_id: config.project.id,
             branch_id: config.self.branch.id,
@@ -568,7 +621,7 @@ editor.once('load', () => {
 
         editor.api.globals.rest.apps.appCreate(data).on('load', () => {
             jobInProgress = false;
-            editor.call('picker:builds-publish');
+            editor.call('picker:builds-publish', { reload: true });
         }).on('error', (status) => {
             jobInProgress = false;
             editor.call('status:error', `Error while publishing: ${status}`);
@@ -579,11 +632,10 @@ editor.once('load', () => {
     // web download button
     const btnWebDownload = new Button({
         text: 'Download',
+        icon: 'E245',
         class: 'web-download'
     });
-    container.append(btnWebDownload);
-
-    let urlToDownload: string | null = null;
+    footer.append(btnWebDownload);
 
     // download app
     const download = function () {
@@ -595,7 +647,7 @@ editor.once('load', () => {
         const npmProject = format === DOWNLOAD_FORMAT_NPM;
 
         // post data
-        const data = {
+        const data: Record<string, any> = {
             name: inputName.value,
             project_id: config.project.id,
             branch_id: config.self.branch.id,
@@ -610,61 +662,9 @@ editor.once('load', () => {
         data.engine_version = config.engineVersions[engineVersionDropdown.value].version;
 
         // ajax call
-        editor.api.globals.rest.apps.appDownload(data).on('load', (status, job) => {
-            // show download progress
-            panelDownloadProgress.hidden = false;
-            btnDownloadReady.hidden = true;
-            downloadProgressIconWrapper.classList.remove('success');
-            downloadProgressIconWrapper.classList.remove('error');
-
-            downloadProgressTitle.class.remove('error');
-            downloadProgressTitle.text = 'Preparing build...';
-
-            // smoothly scroll to the bottom
-            panelDownloadProgress.scrollIntoView({
-                behavior: 'smooth',
-                block: 'end'
-            });
-
-            // when job is updated get the job and
-            // proceed depending on job status
-            const evt = editor.on('messenger:job.update', (msg) => {
-                if (msg.job.id === job.id) {
-                    evt.unbind();
-
-                    // get job
-                    editor.api.globals.rest.jobs.jobGet({ jobId: job.id })
-                    .on('load', (status, data) => {
-                        const job = data;
-                        // success ?
-                        if (job.status === 'complete') {
-                            downloadProgressIconWrapper.classList.add('success');
-                            downloadProgressTitle.text = 'Your build is ready';
-                            urlToDownload = job.data.download_url;
-                            btnDownloadReady.hidden = false;
-                            jobInProgress = false;
-
-                            refreshButtonsState();
-                        } else if (job.status === 'error') { // handle error
-                            downloadProgressIconWrapper.classList.add('error');
-                            downloadProgressTitle.class.add('error');
-                            downloadProgressTitle.text = job.messages[0];
-                            jobInProgress = false;
-
-                            refreshButtonsState();
-                        }
-                    }).on('error', () => {
-                        // error
-                        downloadProgressIconWrapper.classList.add('error');
-                        downloadProgressTitle.class.add('error');
-                        downloadProgressTitle.text = 'Error: Could not start download';
-                        jobInProgress = false;
-
-                        refreshButtonsState();
-                    });
-                }
-            });
-            events.push(evt);
+        editor.api.globals.rest.apps.appDownload(data).on('load', () => {
+            jobInProgress = false;
+            editor.call('picker:builds-publish', { reload: true });
         }).on('error', (status, error) => {
             jobInProgress = false;
 
@@ -683,64 +683,37 @@ editor.once('load', () => {
         download();
     });
 
-    // download progress
-    const panelDownloadProgress = document.createElement('div');
-    panelDownloadProgress.classList.add('progress');
-    panelDownloadProgress.classList.add('download');
-    container.append(panelDownloadProgress);
-
-    // icon
-    const downloadProgressIconWrapper = document.createElement('span');
-    downloadProgressIconWrapper.classList.add('icon');
-    panelDownloadProgress.appendChild(downloadProgressIconWrapper);
-
-    const downloadProgressImg = new Image();
-    downloadProgressIconWrapper.appendChild(downloadProgressImg);
-    downloadProgressImg.src = `${config.url.static}/platform/images/common/ajax-loader.gif`;
-
-    // progress info
-    const downloadProgressInfo = document.createElement('span');
-    downloadProgressInfo.classList.add('progress-info');
-    panelDownloadProgress.appendChild(downloadProgressInfo);
-
-    const downloadProgressTitle = new Label({
-        text: 'Preparing build',
-        class: 'progress-title'
-    });
-    downloadProgressInfo.appendChild(downloadProgressTitle.dom);
-
-    const btnDownloadReady = new Button({
-        text: 'Download',
-        class: 'ready'
-    });
-    downloadProgressInfo.appendChild(btnDownloadReady.dom);
-
-    btnDownloadReady.on('click', () => {
-        if (urlToDownload) {
-            window.open(urlToDownload);
-        }
-
-        editor.call('picker:publish');
-    });
-
     const refreshButtonsState = function () {
         const selectedScenes = getSelectedScenes();
-        const enabled =
-            inputName.value.length > 0 &&
-            inputName.value.length <= 1000 &&
-            selectedScenes.length > 0 &&
-            inputDescription.value.length <= 10000 &&
-            inputNotes.value.length <= 10000 &&
-            inputVersion.value.length <= 20 &&
-            !isUploadingImage &&
-            !jobInProgress;
 
+        let reason = '';
+        if (!inputName.value.length) {
+            reason = 'Title is required';
+        } else if (inputName.value.length > 1000) {
+            reason = 'Title cannot exceed 1000 characters';
+        } else if (selectedScenes.length === 0) {
+            reason = 'Select at least one scene';
+        } else if (inputDescription.value.length > 10000) {
+            reason = 'Description is too long';
+        } else if (inputNotes.value.length > 10000) {
+            reason = 'Release notes are too long';
+        } else if (inputVersion.value.length > 20) {
+            reason = 'Version cannot exceed 20 characters';
+        } else if (isUploadingImage) {
+            reason = 'Uploading image…';
+        }
+
+        footerHint.text = reason;
+        // while scenes are still loading the empty state explains itself
+        footerHint.hidden = !reason || !scenes.length;
+
+        const enabled = !reason && !jobInProgress;
         btnPublish.enabled = enabled;
         btnWebDownload.enabled = enabled;
     };
 
-    const createSceneItem = function (scene: Record<string, unknown>) {
-        const row = new LegacyListItem();
+    const createSceneItem = function (scene: any) {
+        const row: any = new LegacyListItem();
         row.element.id = `picker-scene-${scene.id}`;
         row.sceneId = scene.id;
 
@@ -883,7 +856,6 @@ editor.once('load', () => {
 
     // on show
     container.on('show', () => {
-        panelDownloadProgress.hidden = true;
         containerNoScenes.hidden = false;
         labelNoScenes.hidden = true;
         loadingScenes.hidden = false;
@@ -979,7 +951,6 @@ editor.once('load', () => {
         primaryScene = null;
         imageS3Key = null;
         isUploadingImage = false;
-        urlToDownload = null;
         jobInProgress = false;
         destroyTooltips();
         destroyEvents();

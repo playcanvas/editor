@@ -233,7 +233,7 @@ editor.once('load', () => {
 
             // ensure all panels are visible
             for (const key in menuOptions) {
-                if (key !== 'publish-download' && key !== 'publish-new') {
+                if (!menuOptions[key].panelOnly) {
                     menuOptions[key].item.hidden = false;
                 }
             }
@@ -625,7 +625,8 @@ editor.once('load', () => {
         menuOptions[name] = {
             item: menuItem,
             title: title,
-            panel: panel
+            panel: panel,
+            panelOnly: false
         };
         panel.hidden = true;
         rightPanel.append(panel);
@@ -636,6 +637,8 @@ editor.once('load', () => {
     editor.method('picker:project:registerPanel', (name, title, panel) => {
         // just do the regular registration but hide the menu
         const item = editor.call('picker:project:registerMenu', name, title, panel);
+        menuOptions[name].panelOnly = true;
+        item.hidden = true;
         item.class.add('hidden');
         return item;
     });
