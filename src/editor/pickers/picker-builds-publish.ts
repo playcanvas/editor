@@ -1,4 +1,4 @@
-import { Container, Label, Menu, MenuItem, Progress, Button } from '@playcanvas/pcui';
+import { Container, Label, Menu, MenuItem, Button } from '@playcanvas/pcui';
 
 import { bytesToHuman, convertDatetime } from '@/common/utils';
 import { config } from '@/editor/config';
@@ -50,6 +50,12 @@ const STATUS_FILTERS = [{
     value: 'error',
     label: 'Failed'
 }];
+const BUILD_OPTIONS = [
+    ['scripts_concatenate', 'Concatenate scripts'],
+    ['scripts_minify', 'Minify scripts'],
+    ['scripts_sourcemaps', 'Source maps'],
+    ['optimize_scene_format', 'Optimize scene format']
+];
 
 editor.once('load', () => {
     // global variables
@@ -92,16 +98,6 @@ editor.once('load', () => {
         flex: true,
         class: 'picker-builds-publish'
     });
-
-    // progress bar and loading label
-    const loading = new Label({
-        text: 'Loading...'
-    });
-    panel.append(loading);
-
-    const progressBar = new Progress({ value: 100 });
-    progressBar.hidden = true;
-    panel.append(progressBar);
 
     const primaryBuildHeader = new Container({
         flex: true,
@@ -170,6 +166,43 @@ editor.once('load', () => {
     });
     historyHeader.append(filterBar);
 
+    // shimmer placeholder rows shown while builds load
+    const skeleton = new Container({
+        class: 'builds-skeleton',
+        hidden: true
+    });
+    for (let i = 0; i < 4; i++) {
+        const row = document.createElement('div');
+        row.classList.add('skeleton-row');
+
+        const dot = document.createElement('span');
+        dot.classList.add('bone', 'dot');
+        row.appendChild(dot);
+
+        const body = document.createElement('div');
+        body.classList.add('skeleton-body');
+        row.appendChild(body);
+
+        const title = document.createElement('span');
+        title.classList.add('bone', 'line', 'title');
+        body.appendChild(title);
+
+        const sub = document.createElement('span');
+        sub.classList.add('bone', 'line', 'sub');
+        body.appendChild(sub);
+
+        const pill = document.createElement('span');
+        pill.classList.add('bone', 'pill');
+        row.appendChild(pill);
+
+        const meta = document.createElement('span');
+        meta.classList.add('bone', 'line', 'meta');
+        row.appendChild(meta);
+
+        skeleton.dom.appendChild(row);
+    }
+    panel.append(skeleton);
+
     // no builds message
     let noBuildsText = 'You have not created any builds.';
     if (!projectSettings.get('useLegacyScripts')) {
@@ -183,11 +216,25 @@ editor.once('load', () => {
     });
     panel.append(noBuilds);
 
-    const noMatchingBuilds = new Label({
-        text: 'No builds match the selected filters.',
-        class: ['no-builds-label', 'no-filtered-builds-label'],
+    const noMatchingBuilds = new Container({
+        class: 'no-filtered-builds-label',
         hidden: true
     });
+
+    const noMatchingText = new Label({
+        text: 'No builds match the selected filters.'
+    });
+    noMatchingBuilds.append(noMatchingText);
+
+    const clearFilters = document.createElement('button');
+    clearFilters.type = 'button';
+    clearFilters.classList.add('clear-filters');
+    clearFilters.textContent = 'Clear filters';
+    clearFilters.addEventListener('click', () => {
+        resetBuildFilters();
+        refreshFilterVisibility();
+    });
+    noMatchingBuilds.dom.appendChild(clearFilters);
 
     // container for builds
     const container = new Container({ class: 'builds-list' });
@@ -330,8 +377,7 @@ editor.once('load', () => {
     // UI
 
     const toggleProgress = function (toggle: boolean) {
-        loading.hidden = !toggle;
-        progressBar.hidden = !toggle;
+        skeleton.hidden = !toggle;
         container.hidden = toggle || apps.length === 0;
         primaryBuildHeading.hidden = true;
         primaryBuild.hidden = true;
@@ -669,6 +715,24 @@ editor.once('load', () => {
     });
     updateFilterButtons();
 
+    // GitHub-style copy button; swaps to a check while the copy is fresh
+    const createCopyButton = function (text: string, label: string = 'Copy') {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.classList.add('copy-button');
+        btn.title = label;
+        btn.setAttribute('aria-label', label);
+        btn.addEventListener('click', (e: MouseEvent) => {
+            e.preventDefault();
+            e.stopPropagation();
+            navigator.clipboard.writeText(text).then(() => {
+                btn.classList.add('copied');
+                setTimeout(() => btn.classList.remove('copied'), 1500);
+            }, () => {});
+        });
+        return btn;
+    };
+
     const createValue = function (row: any) {
         const value = row.value;
         const val = document.createElement('span');
@@ -683,6 +747,9 @@ editor.once('load', () => {
             val.appendChild(value);
         } else {
             val.textContent = String(value);
+        }
+        if (row.copy) {
+            val.appendChild(createCopyButton(String(row.copy)));
         }
         return val;
     };
@@ -720,31 +787,19 @@ editor.once('load', () => {
         return section;
     };
 
+    // checklist of all build options with on / off state
     const getBuildOptions = function (settings: any) {
-        const options = [];
-        if (settings.scripts_concatenate) {
-            options.push('Concatenate scripts');
-        }
-        if (settings.scripts_minify) {
-            options.push('Minify scripts');
-        }
-        if (settings.scripts_sourcemaps) {
-            options.push('Source maps');
-        }
-        if (settings.optimize_scene_format) {
-            options.push('Optimize scene format');
-        }
-        if (!options.length) {
-            return 'None';
-        }
-
         const list = document.createElement('span');
-        list.classList.add('metadata-list');
+        list.classList.add('options-list');
         list.setAttribute('role', 'list');
-        options.forEach((option) => {
+        BUILD_OPTIONS.forEach(([key, label]) => {
             const item = document.createElement('span');
             item.setAttribute('role', 'listitem');
-            item.textContent = option;
+            item.classList.add('option');
+            if (!settings[key]) {
+                item.classList.add('off');
+            }
+            item.textContent = label;
             list.appendChild(item);
         });
         return list;
@@ -813,6 +868,73 @@ editor.once('load', () => {
         return section;
     };
 
+    // created → build → completed step strip derived from the build timestamps
+    const createTimeline = function (app: any) {
+        const section = document.createElement('section');
+        section.classList.add('detail-section', 'timeline-section');
+
+        const heading = document.createElement('h3');
+        heading.textContent = 'Timeline';
+        section.appendChild(heading);
+
+        const strip = document.createElement('div');
+        strip.classList.add('timeline');
+        section.appendChild(strip);
+
+        const status = app.task.status;
+        const duration = app.duration_ms ? `${Math.round(app.duration_ms / 1000)}s` : null;
+        const buildState = status === 'running' ? 'active' :
+            status === 'error' ? 'failed' :
+                status === 'complete' ? 'done' : 'pending';
+        const steps = [{
+            label: 'Created',
+            state: app.created_at ? 'done' : 'pending',
+            sub: app.created_at ? formatBuildDate(app.created_at) : null
+        }, {
+            label: 'Build',
+            state: buildState,
+            sub: status === 'running' ? 'In progress' : duration
+        }, {
+            label: 'Completed',
+            state: status === 'complete' ? 'done' : 'pending',
+            sub: status === 'complete' && app.completed_at ? formatBuildDate(app.completed_at) : null
+        }];
+
+        steps.forEach((step, i) => {
+            if (i) {
+                const connector = document.createElement('span');
+                connector.classList.add('connector');
+                strip.appendChild(connector);
+            }
+
+            const item = document.createElement('div');
+            item.classList.add('step', step.state);
+            strip.appendChild(item);
+
+            const head = document.createElement('div');
+            head.classList.add('step-head');
+            item.appendChild(head);
+
+            const dot = document.createElement('span');
+            dot.classList.add('dot');
+            head.appendChild(dot);
+
+            const label = document.createElement('span');
+            label.classList.add('step-label');
+            label.textContent = step.label;
+            head.appendChild(label);
+
+            if (step.sub) {
+                const sub = document.createElement('div');
+                sub.classList.add('step-sub');
+                sub.textContent = step.sub;
+                item.appendChild(sub);
+            }
+        });
+
+        return section;
+    };
+
     const createDetails = function (app: any) {
         const settings = app.settings || {};
         const artifacts = app.artifacts || [];
@@ -822,6 +944,8 @@ editor.once('load', () => {
         const details = document.createElement('div');
         details.classList.add('detail-body');
 
+        details.appendChild(createTimeline(app));
+
         details.appendChild(createSection('Build info', [{
             label: 'Status',
             value: getStatusLabel(app),
@@ -829,11 +953,13 @@ editor.once('load', () => {
         }, {
             label: 'Build',
             value: app.build_job_id ? `#${app.build_job_id}` : null,
-            variant: 'code'
+            variant: 'code',
+            copy: app.build_job_id
         }, {
             label: 'Job',
             value: app.job_id ? `#${app.job_id}` : null,
-            variant: 'code'
+            variant: 'code',
+            copy: app.job_id
         }, {
             label: 'Created',
             value: app.created_at ? convertDatetime(app.created_at) : null
@@ -879,7 +1005,8 @@ editor.once('load', () => {
             variant: 'code'
         }, {
             label: 'Branch',
-            value: app.branch && app.branch.name || 'main'
+            value: getBranchLabel(app),
+            variant: 'branch'
         }, {
             label: 'Source',
             value: source,
@@ -1041,6 +1168,8 @@ editor.once('load', () => {
             artifact.rel = 'noopener';
             artifact.textContent = app.type === 'publish' ? 'Open' : 'Download';
             actions.appendChild(artifact);
+
+            actions.appendChild(createCopyButton(app.url, 'Copy URL'));
         }
 
         if (canPrimary) {
@@ -1343,13 +1472,19 @@ editor.once('load', () => {
         body.appendChild(sub);
 
         if (app.url) {
+            const urlRow = document.createElement('div');
+            urlRow.classList.add('url-row');
+            body.appendChild(urlRow);
+
             const link = document.createElement('a');
             link.classList.add('url');
             link.href = app.url;
             link.target = '_blank';
             link.rel = 'noopener';
             link.textContent = app.url;
-            body.appendChild(link);
+            urlRow.appendChild(link);
+
+            urlRow.appendChild(createCopyButton(app.url, 'Copy URL'));
         }
 
         const open = document.createElement('a');
@@ -1451,8 +1586,7 @@ editor.once('load', () => {
         destroyTooltips();
         destroyEvents();
         destroyDetailEvents();
-        loading.hidden = true;
-        progressBar.hidden = true;
+        skeleton.hidden = true;
         container.hidden = true;
         primaryBuildHeading.hidden = true;
         primaryBuild.hidden = true;

@@ -4129,6 +4129,14 @@ strong {
             gap: 10px;
         }
 
+        // explains why the action button is disabled
+        > .footer-hint {
+            margin: 0 auto 0 0;
+            color: $text-dark;
+            font-size: 12px;
+            line-height: 16px;
+        }
+
         > .pcui-button {
             @extend .font-bold;
 
@@ -4753,20 +4761,28 @@ strong {
                     font-size: 12px;
                 }
 
-                > .url {
+                > .url-row {
                     align-self: flex-start;
-                    display: inline-block;
-                    width: fit-content;
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    min-width: 0;
                     max-width: 100%;
-                    color: #9dd4ff;
-                    font-size: 13px;
-                    text-decoration: none;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    white-space: nowrap;
 
-                    &:hover {
-                        text-decoration: underline;
+                    > .url {
+                        display: inline-block;
+                        min-width: 0;
+                        max-width: 100%;
+                        color: #9dd4ff;
+                        font-size: 13px;
+                        text-decoration: none;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
+
+                        &:hover {
+                            text-decoration: underline;
+                        }
                     }
                 }
             }
@@ -4811,6 +4827,71 @@ strong {
         }
     }
 
+    // shimmer placeholder rows shown while builds load
+    > .builds-skeleton {
+        margin: 0;
+        padding: 0;
+        border: 1px solid $border-primary;
+        border-top: none;
+        border-radius: 0 0 6px 6px;
+        overflow: hidden;
+
+        > .skeleton-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 13px 14px;
+            border-bottom: 1px solid $border-primary;
+
+            &:last-child {
+                border-bottom: none;
+            }
+
+            &:nth-child(2) .bone { animation-delay: 120ms; }
+            &:nth-child(3) .bone { animation-delay: 240ms; }
+            &:nth-child(4) .bone { animation-delay: 360ms; }
+
+            > .skeleton-body {
+                flex: 1 1 auto;
+                display: flex;
+                flex-direction: column;
+                gap: 7px;
+            }
+        }
+
+        .bone {
+            background-color: rgb(255 255 255 / 8%);
+            border-radius: 4px;
+            animation: builds-skeleton-pulse 1.4s ease-in-out infinite;
+
+            &.dot {
+                flex: 0 0 24px;
+                width: 24px;
+                height: 24px;
+                border-radius: 50%;
+            }
+
+            &.line {
+                height: 10px;
+            }
+
+            &.title { width: 38%; }
+            &.sub { width: 22%; }
+
+            &.pill {
+                flex: 0 0 auto;
+                width: 90px;
+                height: 20px;
+                border-radius: 10px;
+            }
+
+            &.meta {
+                flex: 0 0 auto;
+                width: 70px;
+            }
+        }
+    }
+
     > .builds-list {
         margin: 0;
         padding: 0;
@@ -4833,10 +4914,42 @@ strong {
 
             grid-column: 1 / -1;
             width: 100%;
+            margin: 0;
             padding: 14px 16px;
             color: $text-dark;
             background-color: rgb(0 0 0 / 8%);
             box-sizing: border-box;
+
+            &:not(.pcui-hidden) {
+                display: flex;
+                flex-flow: row wrap;
+                align-items: center;
+                gap: 4px 10px;
+            }
+
+            > .pcui-label {
+                margin: 0;
+                color: inherit;
+                font-size: 13px;
+                line-height: 18px;
+            }
+
+            > .clear-filters {
+                appearance: none;
+                margin: 0;
+                padding: 0;
+                border: none;
+                background: transparent;
+                color: #9dd4ff;
+                font-size: 13px;
+                line-height: 18px;
+                cursor: pointer;
+
+                &:hover,
+                &:focus {
+                    text-decoration: underline;
+                }
+            }
         }
 
         > .build-item {
@@ -5044,6 +5157,53 @@ strong {
         }
     }
 
+}
+
+// GitHub-style copy-to-clipboard icon button (builds panel + build detail)
+.picker-builds-publish,
+.picker-build-detail {
+    .copy-button {
+        appearance: none;
+        flex: 0 0 auto;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 22px;
+        height: 22px;
+        margin: 0;
+        padding: 0;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        background: transparent;
+        color: $text-dark;
+        box-shadow: none;
+        box-sizing: border-box;
+        cursor: pointer;
+        transition: color 100ms, background-color 100ms, border-color 100ms, opacity 100ms;
+
+        &::before {
+            content: '';
+            width: 13px;
+            height: 13px;
+            background-color: currentcolor;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z'/%3E%3Cpath d='M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z'/%3E%3C/svg%3E") center / contain no-repeat;
+        }
+
+        &:hover,
+        &:focus {
+            color: $text-primary;
+            background-color: $bcg-dark;
+            border-color: $bcg-darkest;
+        }
+
+        &.copied {
+            color: #6fd088;
+
+            &::before {
+                mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 1 1 1.06-1.06l2.72 2.72 6.72-6.72a.75.75 0 0 1 1.06 0Z'/%3E%3C/svg%3E");
+            }
+        }
+    }
 }
 
 .picker-build-detail {
@@ -5343,6 +5503,38 @@ strong {
                 opacity: $element-opacity-readonly;
                 cursor: default;
             }
+
+            > .copy-button {
+                width: 32px;
+                height: 32px;
+                border-color: $bcg-darkest;
+                border-radius: 4px;
+                color: $text-secondary;
+                background-color: $bcg-dark;
+
+                &::before {
+                    width: 15px;
+                    height: 15px;
+                }
+
+                &:hover,
+                &:focus {
+                    color: $text-primary;
+                    background-color: $bcg-dark;
+                    border-color: $bcg-darkest;
+                    box-shadow: $element-shadow-hover;
+                }
+
+                &:active {
+                    background-color: $bcg-darkest;
+                    border-color: $border-primary;
+                    box-shadow: none;
+                }
+
+                &.copied {
+                    color: #6fd088;
+                }
+            }
         }
     }
 
@@ -5378,6 +5570,121 @@ strong {
             font-size: 13px;
             line-height: 18px;
             text-transform: uppercase;
+        }
+    }
+
+    // created → build → completed step strip
+    .timeline {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 2px 0;
+
+        > .step {
+            flex: 0 0 auto;
+
+            > .step-head {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            > .step-head > .dot {
+                flex: 0 0 18px;
+                width: 18px;
+                height: 18px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                border: 1px solid $border-primary;
+                border-radius: 50%;
+                color: $text-dark;
+                background-color: $bcg-darkest;
+                box-sizing: border-box;
+                position: relative;
+            }
+
+            > .step-head > .step-label {
+                @extend .font-bold;
+
+                color: $text-primary;
+                font-size: 13px;
+                line-height: 18px;
+            }
+
+            > .step-sub {
+                margin: 4px 0 0 26px;
+                color: $text-dark;
+                font-size: 12px;
+                line-height: 16px;
+                white-space: nowrap;
+            }
+
+            &.done > .step-head > .dot {
+                color: #6fd088;
+                border-color: #3e8c54;
+                background-color: rgb(46 160 67 / 12%);
+
+                &::before {
+                    content: '';
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    width: 7px;
+                    height: 4px;
+                    border-bottom: 2px solid currentcolor;
+                    border-left: 2px solid currentcolor;
+                    box-sizing: border-box;
+                    transform: translate(-50%, -60%) rotate(-45deg);
+                }
+            }
+
+            &.failed > .step-head > .dot {
+                color: #ff8a8a;
+                border-color: #a83d3d;
+                background-color: rgb(231 76 60 / 12%);
+
+                &::before,
+                &::after {
+                    content: '';
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    width: 8px;
+                    height: 2px;
+                    background-color: currentcolor;
+                }
+
+                &::before { transform: translate(-50%, -50%) rotate(45deg); }
+                &::after { transform: translate(-50%, -50%) rotate(-45deg); }
+            }
+
+            &.active > .step-head > .dot {
+                border-color: $text-dark;
+                background-color: transparent;
+
+                &::after {
+                    content: '';
+                    width: 9px;
+                    height: 9px;
+                    border: 2px solid $text-dark;
+                    border-top-color: $text-active;
+                    border-radius: 50%;
+                    animation: build-status-spin 800ms linear infinite;
+                }
+            }
+
+            &.pending > .step-head > .step-label {
+                color: $text-dark;
+            }
+        }
+
+        > .connector {
+            flex: 1 1 auto;
+            height: 1px;
+            min-width: 20px;
+            margin-top: 9px;
+            background-color: $border-primary;
         }
     }
 
@@ -5491,6 +5798,10 @@ strong {
         min-width: 0;
         font-size: 13px;
         line-height: 18px;
+
+        &:hover .value > .copy-button {
+            opacity: 1;
+        }
     }
 
     .key {
@@ -5534,7 +5845,9 @@ strong {
         }
 
         &.metadata-code {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
             justify-self: start;
             max-width: 100%;
             padding: 1px 5px;
@@ -5548,9 +5861,75 @@ strong {
             line-height: 16px;
         }
 
-        .metadata-list {
+        // revealed on row hover (see .detail-row:hover below)
+        > .copy-button {
+            width: 16px;
+            height: 16px;
+            border: none;
+            opacity: 0;
+
+            &::before {
+                width: 12px;
+                height: 12px;
+            }
+
+            &.copied,
+            &:focus {
+                opacity: 1;
+            }
+        }
+
+        // same pill as the build history rows
+        &.metadata-branch {
+            display: inline-block;
+            justify-self: start;
+            max-width: 100%;
+            padding: 2px 10px;
+            border: 1px solid $border-primary;
+            border-radius: 10px;
+            background-color: rgb(0 0 0 / 14%);
+            color: $text-primary;
+            font-size: 12px;
+            line-height: 16px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            overflow-wrap: normal;
+            box-sizing: border-box;
+        }
+
+        // build options checklist: green check when enabled, muted dash when off
+        .options-list {
             display: grid;
-            gap: 2px;
+            gap: 6px;
+            padding: 2px 0;
+
+            > .option {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                color: $text-primary;
+                font-size: 13px;
+                line-height: 18px;
+
+                &::before {
+                    content: '';
+                    flex: 0 0 auto;
+                    width: 14px;
+                    height: 14px;
+                    background-color: #6fd088;
+                    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 1 1 1.06-1.06l2.72 2.72 6.72-6.72a.75.75 0 0 1 1.06 0Z'/%3E%3C/svg%3E") center / contain no-repeat;
+                }
+
+                &.off {
+                    color: $text-dark;
+
+                    &::before {
+                        background-color: $text-darkest;
+                        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 7.25h9v1.5h-9Z'/%3E%3C/svg%3E");
+                    }
+                }
+            }
         }
 
         a {
@@ -5602,6 +5981,17 @@ strong {
 @keyframes build-status-spin {
     to {
         transform: rotate(360deg);
+    }
+}
+
+@keyframes builds-skeleton-pulse {
+    0%,
+    100% {
+        opacity: 0.45;
+    }
+
+    50% {
+        opacity: 1;
     }
 }
 

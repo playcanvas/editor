@@ -554,6 +554,13 @@ editor.once('load', () => {
     });
     container.append(footer);
 
+    // explains why the action button is disabled
+    const footerHint = new Label({
+        class: 'footer-hint',
+        hidden: true
+    });
+    footer.append(footerHint);
+
     // publish button
     const btnPublish = new Button({
         text: 'Publish',
@@ -676,16 +683,29 @@ editor.once('load', () => {
 
     const refreshButtonsState = function () {
         const selectedScenes = getSelectedScenes();
-        const enabled =
-            inputName.value.length > 0 &&
-            inputName.value.length <= 1000 &&
-            selectedScenes.length > 0 &&
-            inputDescription.value.length <= 10000 &&
-            inputNotes.value.length <= 10000 &&
-            inputVersion.value.length <= 20 &&
-            !isUploadingImage &&
-            !jobInProgress;
 
+        let reason = '';
+        if (!inputName.value.length) {
+            reason = 'Title is required';
+        } else if (inputName.value.length > 1000) {
+            reason = 'Title cannot exceed 1000 characters';
+        } else if (selectedScenes.length === 0) {
+            reason = 'Select at least one scene';
+        } else if (inputDescription.value.length > 10000) {
+            reason = 'Description is too long';
+        } else if (inputNotes.value.length > 10000) {
+            reason = 'Release notes are too long';
+        } else if (inputVersion.value.length > 20) {
+            reason = 'Version cannot exceed 20 characters';
+        } else if (isUploadingImage) {
+            reason = 'Uploading image…';
+        }
+
+        footerHint.text = reason;
+        // while scenes are still loading the empty state explains itself
+        footerHint.hidden = !reason || !scenes.length;
+
+        const enabled = !reason && !jobInProgress;
         btnPublish.enabled = enabled;
         btnWebDownload.enabled = enabled;
     };
