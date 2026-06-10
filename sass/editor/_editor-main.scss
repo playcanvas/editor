@@ -4972,18 +4972,24 @@ strong {
             align-items: center;
             line-height: normal;
             padding: 11px 0;
-            border-bottom: 1px solid $border-primary;
             background: transparent;
             cursor: default;
             transition: background-color 100ms ease;
 
+            // author display: grid beats the UA [hidden] rule; restore it for filtering
+            &[hidden] {
+                display: none;
+            }
+
+            // separator only between visible rows; border-bottom + :last-child
+            // breaks when filtering hides the actual last child
+            &:not([hidden]) ~ .build-item:not([hidden]) {
+                border-top: 1px solid $border-primary;
+            }
+
             &:hover {
                 background-color: #354144;
                 cursor: pointer;
-            }
-
-            &:last-child {
-                border-bottom: none;
             }
 
             > .build-row {
