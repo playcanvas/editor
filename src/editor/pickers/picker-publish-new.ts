@@ -564,6 +564,7 @@ editor.once('load', () => {
     // publish button
     const btnPublish = new Button({
         text: 'Publish',
+        icon: 'E226',
         class: 'publish'
     });
     footer.append(btnPublish);
@@ -631,6 +632,7 @@ editor.once('load', () => {
     // web download button
     const btnWebDownload = new Button({
         text: 'Download',
+        icon: 'E245',
         class: 'web-download'
     });
     footer.append(btnWebDownload);

@@ -121,6 +121,7 @@ editor.once('load', () => {
 
     const btnDownload = new Button({
         text: 'Download',
+        icon: 'E245',
         class: 'download'
     });
     handlePermissions(btnDownload);
@@ -133,6 +134,7 @@ editor.once('load', () => {
 
     const btnPublish = new Button({
         text: 'Publish',
+        icon: 'E226',
         class: 'publish'
     });
     handlePermissions(btnPublish);

@@ -4156,6 +4156,11 @@ strong {
             cursor: pointer;
             transition: color 100ms, background-color 100ms, opacity 100ms, box-shadow 100ms;
 
+            &[data-icon]::before {
+                font-size: 14px;
+                line-height: 1;
+            }
+
             &:not(.disabled, .pcui-disabled, .pcui-readonly):hover,
             &:not(.disabled, .pcui-disabled, .pcui-readonly):focus {
                 color: $text-primary;
@@ -4476,6 +4481,11 @@ strong {
             box-shadow: none;
             cursor: pointer;
             transition: color 100ms, background-color 100ms, opacity 100ms, box-shadow 100ms;
+
+            &[data-icon]::before {
+                font-size: 14px;
+                line-height: 1;
+            }
 
             &:not(.disabled, .pcui-disabled, .pcui-readonly):hover,
             &:not(.disabled, .pcui-disabled, .pcui-readonly):focus {
