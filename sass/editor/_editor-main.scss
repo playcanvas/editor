@@ -6266,6 +6266,8 @@ strong {
                         margin: 3px;
 
                         &.title {
+                            @extend .font-bold;
+
                             font-size: 16px;
                             line-height: 22px;
                             color: $text-primary;
@@ -6301,38 +6303,79 @@ strong {
                         }
                     }
 
+                    // action bar styled like the builds form footer
                     &.buttons {
                         flex: none;
+                        display: flex;
+                        flex-flow: row wrap;
+                        align-items: center;
+                        justify-content: flex-end;
+                        gap: 10px;
                         border-top: 1px solid $border-primary;
                         border-bottom: 1px solid $border-primary;
-                        height: 68px;
-                        padding: 20px;
+                        padding: 14px 20px;
                         box-sizing: border-box;
                         width: 100%;
 
                         .pcui-button {
-                            float: right;
-                            text-transform: uppercase;
-                            min-width: 140px;
+                            @extend .font-bold;
+
+                            display: inline-flex;
+                            align-items: center;
+                            justify-content: center;
+                            min-width: 120px;
+                            height: 34px;
                             margin: 0;
-                            margin-left: 10px;
+                            padding: 0 18px;
+                            border: 1px solid $bcg-darkest;
+                            border-radius: 6px;
+                            color: $text-secondary;
+                            background-color: $bcg-dark;
+                            font-size: 13px;
+                            line-height: 32px;
+                            box-shadow: none;
+                            cursor: pointer;
+                            transition: color 100ms, background-color 100ms, opacity 100ms, box-shadow 100ms;
+
+                            &:not(.disabled, .pcui-disabled):hover,
+                            &:not(.disabled, .pcui-disabled):focus {
+                                color: $text-primary;
+                                background-color: $bcg-dark;
+                                box-shadow: $element-shadow-hover;
+                            }
+
+                            &:not(.disabled, .pcui-disabled):active {
+                                background-color: $bcg-darkest;
+                                box-shadow: none;
+                            }
+
+                            &.disabled,
+                            &.pcui-disabled {
+                                opacity: $element-opacity-disabled;
+                                cursor: default;
+                            }
 
                             &.highlighted {
                                 color: $text-primary;
-                                background: color.adjust(#f60, $lightness: -7%);
+                                border-color: transparent;
+                                background-color: $text-active;
 
-                                &:hover {
-                                    background: color.adjust($text-active, $lightness: -10%);
+                                &:not(.disabled, .pcui-disabled):hover,
+                                &:not(.disabled, .pcui-disabled):focus {
+                                    background-color: color.adjust($text-active, $lightness: -7%);
+                                    box-shadow: $element-shadow-hover;
                                 }
 
-                                &:active {
-                                    background: color.adjust(#f60, $lightness: -12%);
+                                &:not(.disabled, .pcui-disabled):active {
+                                    background-color: color.adjust($text-active, $lightness: -12%);
+                                    box-shadow: none;
                                 }
                             }
                         }
                     }
                 }
 
+                // bordered card with attached header, matching the builds list box
                 .pcui-panel.version-control-side-panel-box {
                     margin-bottom: 20px;
                     flex-direction: column;
@@ -6345,7 +6388,9 @@ strong {
                         justify-content: center;
                         color: $text-secondary;
                         border: 1px solid $border-primary;
-                        padding: 0 8px;
+                        border-radius: 6px 6px 0 0;
+                        background-color: rgb(0 0 0 / 8%);
+                        padding: 0 12px;
 
                         &::before {
                             @extend .font-icon;
@@ -6379,6 +6424,7 @@ strong {
                     > .pcui-panel-content {
                         border: 1px solid $border-primary;
                         border-top: 0;
+                        border-radius: 0 0 6px 6px;
                         flex-direction: column;
 
                         > .pcui-container.checkpoint-widget {
@@ -6416,20 +6462,61 @@ strong {
                         flex-direction: column;
 
                         .pcui-label {
-                            margin: 3px;
+                            @extend .font-bold;
+
+                            margin: 3px 3px 6px;
+                            color: $text-secondary;
                             font-size: 12px;
                         }
 
                         .pcui-text-area-input {
                             height: 100px;
+                            border: 1px solid $border-primary;
+                            border-radius: 4px;
                             background: $bcg-darkest;
+                            transition: box-shadow 100ms;
+
+                            > textarea {
+                                @extend .font-regular;
+
+                                color: $text-primary;
+                                font-size: 13px;
+                            }
+
+                            &:hover {
+                                box-shadow: $element-shadow-hover;
+                            }
+
+                            &:focus-within {
+                                box-shadow: $element-shadow-active;
+                            }
                         }
 
                         .pcui-button {
-                            width: 140px;
-                            text-transform: uppercase;
+                            @extend .font-bold;
+
+                            min-width: 140px;
+                            height: 30px;
                             align-self: center;
-                            background: $bcg-primary;
+                            border: 1px solid $bcg-darkest;
+                            border-radius: 6px;
+                            color: $text-secondary;
+                            background-color: $bcg-darker;
+                            font-size: 12px;
+                            box-shadow: none;
+                            transition: color 100ms, background-color 100ms, box-shadow 100ms;
+
+                            &:hover,
+                            &:focus {
+                                color: $text-primary;
+                                background-color: $bcg-darker;
+                                box-shadow: $element-shadow-hover;
+                            }
+
+                            &:active {
+                                background-color: $bcg-darkest;
+                                box-shadow: none;
+                            }
                         }
                     }
                 }
@@ -6526,6 +6613,10 @@ strong {
                     width: 28px;
                     height: 28px;
                     margin-right: 15px;
+                    border: 1px solid $border-primary;
+                    border-radius: 50%;
+                    background-color: $bcg-darkest;
+                    box-sizing: border-box;
                 }
 
                 .pcui-container.info {
@@ -6541,6 +6632,8 @@ strong {
                         white-space: nowrap;
 
                         .pcui-label.desc {
+                            @extend .font-bold;
+
                             overflow: hidden;
                             max-width: 360px;
                             color: $text-primary;
@@ -6562,13 +6655,15 @@ strong {
                             height: 24px;
                             line-height: 24px;
                             font-size: 11px;
-                            text-decoration: underline;
+                            color: #9dd4ff;
+                            text-decoration: none;
                             top: 1px;
                             right: 0;
                             z-index: 1;
 
                             &:hover {
-                                color: $text-primary;
+                                color: #9dd4ff;
+                                text-decoration: underline;
                             }
                         }
                     }
@@ -6641,6 +6736,8 @@ strong {
             display: flex;
             flex-direction: row;
             align-items: center;
+            padding: 10px 16px;
+            background-color: rgb(0 0 0 / 8%);
         }
 
         .branches-filter {
@@ -6691,12 +6788,14 @@ strong {
 
                 @extend .font-regular;
 
+                transition: background-color 100ms ease;
+
                 &:last-child {
                     border-bottom: 1px solid $border-primary;
                 }
 
                 &:hover {
-                    background: $bcg-dark;
+                    background: #354144;
                     border-color: $border-primary;
                     z-index: initial;
                 }
@@ -6706,28 +6805,42 @@ strong {
                     background: transparent;
                 }
 
+                // kebab action button matching the builds list rows
                 .pcui-button.dropdown {
-                    width: 16px;
-                    height: 16px;
-                    line-height: 16px;
-                    border: none;
-                    border-radius: 0;
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 28px;
+                    height: 28px;
                     padding: 0;
                     margin: 0;
-                    font-size: 12px;
-                    color: $bcg-darkest;
-                    background-color: $text-darkest;
+                    border: 1px solid transparent;
+                    border-radius: 4px;
+                    color: $text-dark;
+                    background-color: transparent;
+                    box-shadow: none;
+                    transition: color 100ms, background-color 100ms, border-color 100ms, box-shadow 100ms;
+
+                    &::before {
+                        content: '';
+                        width: 16px;
+                        height: 16px;
+                        background-color: currentcolor;
+                        mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='3' cy='8' r='1.4'/%3E%3Ccircle cx='8' cy='8' r='1.4'/%3E%3Ccircle cx='13' cy='8' r='1.4'/%3E%3C/svg%3E") center / contain no-repeat;
+                    }
 
                     &:hover,
                     &:focus {
                         color: $text-primary;
-                        background-color: $bcg-darkest;
-                        box-shadow: none;
+                        background-color: $bcg-dark;
+                        border-color: $bcg-darkest;
+                        box-shadow: $element-shadow-hover;
                     }
 
                     &.clicked {
                         color: $text-primary;
                         background-color: $bcg-darkest;
+                        border-color: $border-primary;
                         box-shadow: $element-shadow-active;
                     }
                 }
@@ -6755,19 +6868,41 @@ strong {
 
                 .ui-button,
                 .pcui-button {
+                    @extend .font-bold;
+
                     width: 100%;
                     margin: auto;
                     text-align: center;
                     height: 28px;
                     font-size: 12px;
-                    line-height: 28px;
+                    line-height: 26px;
+                    border: 1px solid $bcg-darkest;
+                    border-radius: 6px;
+                    color: $text-secondary;
+                    background-color: $bcg-dark;
+                    box-shadow: none;
                     pointer-events: all;
+                    transition: color 100ms, background-color 100ms, box-shadow 100ms;
+
+                    &:hover,
+                    &:focus {
+                        color: $text-primary;
+                        background-color: $bcg-dark;
+                        box-shadow: $element-shadow-hover;
+                    }
+
+                    &:active {
+                        background-color: $bcg-darkest;
+                        box-shadow: none;
+                    }
                 }
             }
         }
 
         .checkpoints .ui-list > .ui-list-item .pcui-button.dropdown {
-            margin: 10px 0 0 15px;
+            align-self: center;
+            flex-shrink: 0;
+            margin: 0 0 0 12px;
         }
 
         .branches {
@@ -6788,13 +6923,17 @@ strong {
                             margin-top: 8px;
 
                             &.active {
-                                color: #4ae22b;
+                                color: #6fd088;
                             }
                         }
 
                         &.name {
+                            @extend .font-bold;
+
                             color: $text-primary;
                             margin-left: 25px;
+                            margin-right: 40px;
+                            font-size: 13px;
                             overflow: hidden;
                             text-overflow: ellipsis;
                         }
@@ -6802,13 +6941,19 @@ strong {
                         &.branch-id {
                             margin-top: -5px;
                             margin-left: 25px;
+                            margin-right: 40px;
+                            color: $text-dark;
+                            font-size: 12px;
+                            overflow: hidden;
+                            text-overflow: ellipsis;
                         }
                     }
 
                     .pcui-button.dropdown {
                         position: absolute;
-                        right: 0;
-                        top: 8px;
+                        right: 6px;
+                        top: 50%;
+                        transform: translateY(-50%);
                     }
                 }
             }
@@ -6820,7 +6965,7 @@ strong {
             .ui-list {
                 > .ui-list-item {
                     height: auto;
-                    padding: 25px 15px;
+                    padding: 16px;
                     border-bottom: 1px solid transparent;
 
                     &.selected,
@@ -6863,14 +7008,18 @@ strong {
                     }
                 }
 
+                // section header bar matching the builds history header
                 > .date {
-                    background: $bcg-dark;
-                    color: $text-secondary;
+                    @extend .font-bold;
+
+                    background: rgb(0 0 0 / 8%);
+                    color: $text-primary;
                     border-top: 1px solid $border-primary;
                     border-bottom: 1px solid $border-primary;
                     height: 35px;
                     line-height: 35px;
-                    padding: 0 15px;
+                    padding: 0 16px;
+                    font-size: 12px;
                     text-transform: uppercase;
 
                     &:first-child {
@@ -6927,6 +7076,7 @@ strong {
                     z-index: 1;
                     background: $bcg-darker;
                     border: 1px solid $border-primary;
+                    border-radius: 6px;
 
                     &.empty {
                         border: 1px dashed $text-active;
@@ -7038,15 +7188,51 @@ strong {
                 }
 
                 > .pcui-button {
+                    @extend .font-bold;
+
                     position: absolute;
                     width: 90px;
                     right: 15px;
                     margin: 0;
                     height: 32px;
-                    background: $bcg-primary;
+                    border: 1px solid $bcg-darkest;
+                    border-radius: 6px;
+                    color: $text-secondary;
+                    background: $bcg-dark;
+                    font-size: 12px;
+                    box-shadow: none;
+                    transition: color 100ms, background-color 100ms, opacity 100ms, box-shadow 100ms;
+
+                    &:not(.disabled, .pcui-disabled):hover,
+                    &:not(.disabled, .pcui-disabled):focus {
+                        color: $text-primary;
+                        box-shadow: $element-shadow-hover;
+                    }
+
+                    &:not(.disabled, .pcui-disabled):active {
+                        background: $bcg-darkest;
+                        box-shadow: none;
+                    }
+
+                    &.disabled,
+                    &.pcui-disabled {
+                        opacity: $element-opacity-disabled;
+                    }
 
                     &.compare {
                         top: 10px;
+                        border-color: transparent;
+                        color: $text-primary;
+                        background: $text-active;
+
+                        &:not(.disabled, .pcui-disabled):hover,
+                        &:not(.disabled, .pcui-disabled):focus {
+                            background: color.adjust($text-active, $lightness: -7%);
+                        }
+
+                        &:not(.disabled, .pcui-disabled):active {
+                            background: color.adjust($text-active, $lightness: -12%);
+                        }
                     }
 
                     &.switch {
@@ -7105,8 +7291,11 @@ strong {
         }
     }
 
+    // compact toolbar matching the builds panel icon buttons
     .branch-actions {
         flex-direction: row;
+        gap: 6px;
+        padding: 8px 10px;
         border-bottom: 1px solid $border-primary;
     }
 
@@ -7115,22 +7304,41 @@ strong {
         align-items: center;
         justify-content: center;
         flex: 1 0 0;
-        border: none;
-        border-radius: 0;
-        height: 26px;
+        height: 28px;
         margin: 0;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        color: $text-dark;
+        background-color: transparent;
+        font-size: 12px;
+        box-shadow: none;
+        transition: color 100ms, background-color 100ms, border-color 100ms, box-shadow 100ms;
 
-        &:hover {
-            background-color: $bcg-darkest;
-            box-shadow: none;
+        &::before {
+            color: inherit;
+            font-size: 14px;
+        }
+
+        &:not(.pcui-disabled):hover,
+        &:not(.pcui-disabled):focus {
+            color: $text-primary;
+            background-color: $bcg-dark;
+            border-color: $bcg-darkest;
+            box-shadow: $element-shadow-hover;
 
             &::before {
-                color: $text-active;
+                color: inherit;
             }
         }
 
-        &:not(:last-of-type) {
-            border-right: 1px solid $border-primary;
+        &:not(.pcui-disabled):active {
+            background-color: $bcg-darkest;
+            border-color: $border-primary;
+            box-shadow: none;
+        }
+
+        &.pcui-disabled {
+            opacity: $element-opacity-disabled;
         }
     }
 }

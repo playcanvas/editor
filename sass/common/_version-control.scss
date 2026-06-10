@@ -131,21 +131,29 @@
                     border-top: 1px solid $border-primary;
 
                     .pcui-button {
-                        font-size: 12px;
+                        @extend .font-bold;
+
+                        font-size: 13px;
                         width: 160px;
-                        height: 28px;
-                        line-height: 28px;
+                        height: 32px;
+                        line-height: 32px;
                         text-align: center;
+                        border: 1px solid transparent;
+                        border-radius: 6px;
                         background: #fb222f;
                         color: $text-primary;
                         opacity: 0.8;
+                        box-shadow: none;
+                        transition: opacity 100ms, box-shadow 100ms;
 
                         &:hover {
                             opacity: 1;
+                            box-shadow: $element-shadow-hover;
                         }
 
                         &:active {
                             opacity: 0.9;
+                            box-shadow: none;
                         }
 
                         &.disabled {
@@ -159,29 +167,42 @@
 }
 
 .pcui-menu.version-control {
-    .pcui-menu-item {
-        text-transform: uppercase;
-        font-size: 12px;
+    // round + border the menu to match the builds panel menus
+    .pcui-menu-items {
+        border: 1px solid $border-primary;
+        border-radius: 6px;
+        overflow: hidden;
     }
 
     .pcui-menu-item-content {
-        line-height: 32px;
+        font-size: 13px;
+
+        &:hover {
+            background-color: $bcg-dark;
+        }
 
         > .pcui-label {
-            margin: 0;
-            padding: 0 0 0 8px;
+            line-height: 30px;
+            margin: 0 10px;
+            padding: 0;
         }
+    }
+
+    .pcui-menu-item.delete > .pcui-menu-item-content > .pcui-label {
+        color: $error-secondary;
     }
 }
 
 .pcui-text-input.search.version-control-search {
-    height: 22px;
-    border: none;
-    background-color: $bcg-darker;
+    height: 24px;
+    border: 1px solid $bcg-darkest;
+    border-radius: 4px;
+    background-color: $bcg-dark;
     position: sticky;
     left: 0;
     top: 0;
     z-index: 2;
+    transition: background-color 100ms, box-shadow 100ms;
 
     &.active,
     &:hover,
@@ -189,6 +210,7 @@
     &.focus {
         border-color: $bcg-darkest;
         background-color: $bcg-darkest;
+        box-shadow: $element-shadow-hover;
 
         &::before {
             content: '';
@@ -201,20 +223,21 @@
     }
 
     > input {
-        line-height: 24px;
+        @extend .font-regular;
+
+        color: $text-primary;
+        line-height: 22px;
     }
 
     &::before {
+        @extend .font-regular;
+
         content: 'Search';
         position: absolute;
         color: $text-dark;
-        line-height: 24px;
+        line-height: 22px;
         padding: 0 8px;
-
-        @extend .font-bold;
-
         font-size: 12px;
-        font-family: inconsolatamedium, Monaco, Menlo, 'Ubuntu Mono', Consolas, source-code-pro, monospace;
     }
 
     &.not-empty::before {
@@ -225,7 +248,7 @@
     &::after {
         content: '\E129';
         line-height: 21px;
-        background-color: $bcg-darker;
+        background-color: transparent;
 
         @extend .font-icon;
 

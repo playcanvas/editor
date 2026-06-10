@@ -165,7 +165,8 @@ editor.once('load', () => {
 
     // hard reset to checkpoint
     const menuCheckpointsHardReset = new MenuItem({
-        text: 'Hard Reset'
+        text: 'Hard Reset',
+        class: 'delete'
     });
     menuCheckpoints.append(menuCheckpointsHardReset);
 

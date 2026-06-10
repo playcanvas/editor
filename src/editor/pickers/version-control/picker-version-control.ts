@@ -721,7 +721,8 @@ editor.once('load', () => {
 
     // delete branch
     const menuBranchesDelete = new MenuItem({
-        text: 'Delete This Branch'
+        text: 'Delete This Branch',
+        class: 'delete'
     });
     menuBranches.append(menuBranchesDelete);
 
