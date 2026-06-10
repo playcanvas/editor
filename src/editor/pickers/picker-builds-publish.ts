@@ -208,7 +208,7 @@ editor.once('load', () => {
     // no builds message
     let noBuildsText = 'You have not created any builds.';
     if (!projectSettings.get('useLegacyScripts')) {
-        noBuildsText += ' Click PUBLISH to create a new build.';
+        noBuildsText += ' Click Publish or Download to create a new build.';
     }
 
     const noBuilds = new Label({
