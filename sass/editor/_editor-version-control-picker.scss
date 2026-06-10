@@ -1,0 +1,1022 @@
+@use 'sass:color';
+
+// modern version control picker (github desktop style)
+
+.pcui-container.picker-vc {
+    height: 100%;
+    overflow: hidden;
+    flex-direction: column;
+
+    // ---- top bar ----
+    > .vc-top-bar {
+        display: flex;
+        flex: none;
+        align-items: stretch;
+        border-bottom: 1px solid $border-primary;
+        background-color: $bcg-dark;
+
+        > .vc-branch-button {
+            appearance: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 220px;
+            margin: 0;
+            padding: 8px 16px;
+            border: none;
+            border-right: 1px solid $border-primary;
+            background-color: $bcg-darkest;
+            color: $text-secondary;
+            text-align: left;
+            cursor: pointer;
+            transition: background-color 100ms, color 100ms;
+
+            &:hover,
+            &.active {
+                color: $text-primary;
+                background-color: $bcg-darker;
+            }
+
+            > .labels {
+                min-width: 0;
+
+                > .hint {
+                    display: block;
+                    color: $text-dark;
+                    font-size: 10px;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                }
+
+                > .name {
+                    @extend .font-bold;
+
+                    display: block;
+                    max-width: 260px;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    color: $text-primary;
+                    font-size: 14px;
+                }
+            }
+
+            &::after {
+                content: '';
+                width: 10px;
+                height: 10px;
+                margin-left: auto;
+                background-color: currentcolor;
+                mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 6h8l-4 4-4-4Z'/%3E%3C/svg%3E") center / contain no-repeat;
+            }
+        }
+
+        > .vc-top-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: auto;
+            padding: 0 16px;
+
+            > .pcui-button {
+                @extend .font-bold;
+
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                height: 32px;
+                margin: 0;
+                padding: 0 14px;
+                border: 1px solid $bcg-darkest;
+                border-radius: 6px;
+                color: $text-secondary;
+                background-color: $bcg-dark;
+                font-size: 12px;
+                box-shadow: none;
+                cursor: pointer;
+                transition: color 100ms, background-color 100ms, opacity 100ms, box-shadow 100ms;
+
+                &[data-icon]::before {
+                    font-size: 14px;
+                    line-height: 1;
+                    margin-right: 6px;
+                }
+
+                &:not(.pcui-disabled):hover,
+                &:not(.pcui-disabled):focus {
+                    color: $text-primary;
+                    box-shadow: $element-shadow-hover;
+                }
+
+                &:not(.pcui-disabled):active {
+                    background-color: $bcg-darkest;
+                    box-shadow: none;
+                }
+
+                &.pcui-disabled {
+                    opacity: $element-opacity-disabled;
+                    cursor: default;
+                }
+
+                &.vc-primary {
+                    color: $text-primary;
+                    border-color: transparent;
+                    background-color: $text-active;
+
+                    &:not(.pcui-disabled):hover,
+                    &:not(.pcui-disabled):focus {
+                        background-color: color.adjust($text-active, $lightness: -7%);
+                    }
+
+                    &:not(.pcui-disabled):active {
+                        background-color: color.adjust($text-active, $lightness: -12%);
+                    }
+                }
+
+                &.vc-compare-active {
+                    color: $text-primary;
+                    background-color: $bcg-darkest;
+                    border-color: $border-primary;
+                    box-shadow: $element-shadow-active;
+                }
+            }
+        }
+    }
+
+    // ---- body: sidebar + main ----
+    > .vc-body {
+        display: flex;
+        flex: 1 1 auto;
+        min-height: 0;
+
+        > .vc-sidebar {
+            display: flex;
+            flex: none;
+            flex-direction: column;
+            width: 300px;
+            min-height: 0;
+            border-right: 1px solid $border-primary;
+
+            > .vc-view-banner {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                padding: 8px 12px;
+                border-bottom: 1px solid $border-primary;
+                background-color: rgb(255 102 0 / 8%);
+                color: $text-secondary;
+                font-size: 12px;
+
+                > .name {
+                    @extend .font-bold;
+
+                    min-width: 0;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    color: $text-primary;
+                }
+
+                > .return {
+                    appearance: none;
+                    margin-left: auto;
+                    padding: 0;
+                    border: none;
+                    background: transparent;
+                    color: #9dd4ff;
+                    font-size: 12px;
+                    cursor: pointer;
+                    white-space: nowrap;
+
+                    &:hover {
+                        text-decoration: underline;
+                    }
+                }
+            }
+
+            > .vc-tabs {
+                display: flex;
+                flex: none;
+                border-bottom: 1px solid $border-primary;
+                background-color: rgb(0 0 0 / 8%);
+
+                > .vc-tab {
+                    @extend .font-bold;
+
+                    appearance: none;
+                    flex: 1 1 0;
+                    padding: 10px 0;
+                    border: none;
+                    background: transparent;
+                    color: $text-dark;
+                    font-size: 12px;
+                    cursor: pointer;
+                    transition: color 100ms, box-shadow 100ms;
+
+                    &:hover {
+                        color: $text-secondary;
+                    }
+
+                    &.active {
+                        color: $text-primary;
+                        box-shadow: inset 0 -2px 0 $text-active;
+                    }
+
+                    &:disabled {
+                        opacity: $element-opacity-disabled;
+                        cursor: default;
+                    }
+                }
+            }
+
+            > .vc-tab-content {
+                display: flex;
+                flex: 1 1 auto;
+                flex-direction: column;
+                min-height: 0;
+            }
+        }
+
+        > .vc-main {
+            flex: 1 1 auto;
+            min-width: 0;
+            overflow-y: auto;
+            padding: 16px;
+
+            // kept progress widgets render here now (was .side-panel)
+            > .progress-widget {
+                margin: 60px auto;
+
+                .ui-label {
+                    width: 100%;
+                    color: $text-primary;
+                    font-size: 16px;
+                    text-align: center;
+
+                    &.note {
+                        color: $text-secondary;
+                        font-size: 12px;
+
+                        &:not(.hidden) {
+                            display: block;
+                        }
+                    }
+                }
+
+                svg {
+                    margin: 15px auto auto;
+                }
+            }
+        }
+    }
+
+    // ---- shared card (builds form-section style) ----
+    .vc-card {
+        margin: 0 0 12px;
+        padding: 14px 16px;
+        border: 1px solid $border-primary;
+        border-radius: 6px;
+        background-color: rgb(0 0 0 / 8%);
+
+        > h3 {
+            @extend .font-bold;
+
+            margin: 0 0 6px;
+            color: $text-primary;
+            font-size: 13px;
+        }
+
+        .vc-meta {
+            color: $text-dark;
+            font-size: 12px;
+        }
+    }
+
+    .vc-pill {
+        display: inline-block;
+        margin: 8px 6px 0 0;
+        padding: 2px 10px;
+        border: 1px solid $border-primary;
+        border-radius: 10px;
+        background-color: rgb(0 0 0 / 14%);
+        color: $text-primary;
+        font-size: 12px;
+    }
+
+    // secondary action button (cards, lists)
+    .vc-button {
+        @extend .font-bold;
+
+        appearance: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 28px;
+        margin: 0;
+        padding: 0 12px;
+        border: 1px solid $bcg-darkest;
+        border-radius: 6px;
+        color: $text-secondary;
+        background-color: $bcg-dark;
+        font-size: 12px;
+        box-shadow: none;
+        cursor: pointer;
+        transition: color 100ms, background-color 100ms, opacity 100ms, box-shadow 100ms;
+
+        &:hover,
+        &:focus {
+            color: $text-primary;
+            box-shadow: $element-shadow-hover;
+        }
+
+        &:active {
+            background-color: $bcg-darkest;
+            box-shadow: none;
+        }
+
+        &:disabled,
+        &.pcui-disabled {
+            opacity: $element-opacity-disabled;
+            cursor: default;
+        }
+
+        &.danger {
+            color: #ff8a8a;
+            border-color: rgb(211 65 65 / 40%);
+        }
+    }
+
+    .vc-link {
+        appearance: none;
+        padding: 0;
+        border: none;
+        background: transparent;
+        color: #9dd4ff;
+        font-size: 12px;
+        cursor: pointer;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+
+    // ---- history list ----
+    .vc-history {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-y: auto;
+
+        > .vc-day {
+            @extend .font-bold;
+
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            padding: 6px 12px;
+            border-top: 1px solid $border-primary;
+            border-bottom: 1px solid $border-primary;
+            background-color: $bcg-darker;
+            color: $text-primary;
+            font-size: 11px;
+            text-transform: uppercase;
+
+            &:first-child {
+                border-top: none;
+            }
+        }
+
+        > .vc-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 11px 12px;
+            border-bottom: 1px solid $border-primary;
+            cursor: pointer;
+            transition: background-color 100ms ease;
+
+            &:hover {
+                background-color: #354144;
+            }
+
+            &.selected {
+                background-color: #354144;
+                box-shadow: inset 2px 0 0 $text-active;
+            }
+
+            > .avatar {
+                flex: none;
+                width: 22px;
+                height: 22px;
+                border: 1px solid $border-primary;
+                border-radius: 50%;
+                background-color: $bcg-darkest;
+                box-sizing: border-box;
+            }
+
+            > .check {
+                flex: none;
+                margin-top: 3px;
+            }
+
+            > .body {
+                min-width: 0;
+
+                > .desc {
+                    @extend .font-bold;
+
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    color: $text-primary;
+                    font-size: 13px;
+                }
+
+                > .sub {
+                    margin-top: 2px;
+                    color: $text-dark;
+                    font-size: 11px;
+                }
+            }
+
+            &.disabled {
+                opacity: $element-opacity-disabled;
+                pointer-events: none;
+            }
+        }
+
+        > .vc-list-status {
+            padding: 12px;
+            color: $text-dark;
+            font-size: 12px;
+            text-align: center;
+        }
+    }
+
+    // ---- changes tab ----
+    .vc-changes {
+        display: flex;
+        flex: 1 1 auto;
+        flex-direction: column;
+        min-height: 0;
+
+        > .vc-changes-list {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow-y: auto;
+
+            > .vc-group {
+                @extend .font-bold;
+
+                padding: 6px 12px;
+                border-bottom: 1px solid $border-primary;
+                background-color: rgb(0 0 0 / 12%);
+                color: $text-primary;
+                font-size: 11px;
+                text-transform: uppercase;
+            }
+
+            > .vc-item {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 7px 12px;
+                border-bottom: 1px solid $border-primary;
+                color: $text-primary;
+                font-size: 12px;
+
+                > .name {
+                    min-width: 0;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+
+                > .status {
+                    @extend .font-bold;
+
+                    flex: none;
+                    margin-left: auto;
+                    padding: 1px 7px;
+                    border: 1px solid $border-primary;
+                    border-radius: 8px;
+                    background-color: rgb(0 0 0 / 14%);
+                    font-size: 9px;
+                    text-transform: uppercase;
+
+                    &.added { color: #6fd088; }
+                    &.modified { color: #f3c16f; }
+                    &.deleted { color: #ff8a8a; }
+                }
+            }
+
+            > .vc-list-status {
+                padding: 12px;
+                color: $text-dark;
+                font-size: 12px;
+                text-align: center;
+            }
+        }
+
+        > .vc-checkpoint-form {
+            flex: none;
+            padding: 12px;
+            border-top: 1px solid $border-primary;
+            background-color: $bcg-dark;
+
+            > .pcui-text-area-input {
+                width: 100%;
+                margin: 0 0 8px;
+                border: 1px solid $border-primary;
+                border-radius: 4px;
+                background-color: $bcg-darkest;
+                transition: box-shadow 100ms;
+
+                > textarea {
+                    @extend .font-regular;
+
+                    display: block;
+                    width: calc(100% - 20px);
+                    height: 56px;
+                    margin: 0;
+                    padding: 10px;
+                    border: none;
+                    background: transparent;
+                    color: $text-primary;
+                    font-size: 13px;
+                    outline: none;
+                    box-shadow: none;
+                }
+
+                &:hover { box-shadow: $element-shadow-hover; }
+                &:focus-within { box-shadow: $element-shadow-active; }
+            }
+
+            > .vc-create-checkpoint {
+                @extend .font-bold;
+
+                appearance: none;
+                display: block;
+                width: 100%;
+                height: 32px;
+                border: none;
+                border-radius: 6px;
+                background-color: $text-active;
+                color: $text-primary;
+                font-size: 13px;
+                cursor: pointer;
+                transition: background-color 100ms, opacity 100ms, box-shadow 100ms;
+
+                &:hover:not(:disabled) {
+                    background-color: color.adjust($text-active, $lightness: -7%);
+                    box-shadow: $element-shadow-hover;
+                }
+
+                &:disabled {
+                    opacity: $element-opacity-disabled;
+                    cursor: default;
+                }
+
+                &.busy {
+                    pointer-events: none;
+                    opacity: 0.7;
+                }
+            }
+        }
+    }
+
+    // shimmer skeleton (builds pattern)
+    .vc-skeleton {
+        > .skeleton-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 11px 12px;
+            border-bottom: 1px solid $border-primary;
+
+            > .bone {
+                border-radius: 4px;
+                background-color: rgb(255 255 255 / 8%);
+                animation: vc-skeleton-pulse 1.4s ease-in-out infinite;
+
+                &.dot {
+                    flex: none;
+                    width: 22px;
+                    height: 22px;
+                    border-radius: 50%;
+                }
+
+                &.line {
+                    height: 10px;
+                    flex: 1 1 auto;
+                }
+            }
+
+            &:nth-child(2) .bone { animation-delay: 120ms; }
+            &:nth-child(3) .bone { animation-delay: 240ms; }
+        }
+    }
+
+    // ---- detail pane ----
+    .vc-detail-hero {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+
+        > .avatar {
+            flex: none;
+            width: 40px;
+            height: 40px;
+            border: 1px solid $border-primary;
+            border-radius: 50%;
+            background-color: $bcg-darkest;
+            box-sizing: border-box;
+        }
+
+        > .body {
+            min-width: 0;
+            flex: 1 1 auto;
+
+            > .title {
+                @extend .font-bold;
+
+                margin: 0 0 4px;
+                color: $text-primary;
+                font-size: 15px;
+                white-space: pre-wrap;
+                word-break: break-word;
+            }
+
+            > .vc-meta > .copy-id {
+                appearance: none;
+                margin-left: 6px;
+                padding: 1px 6px;
+                border: 1px solid $border-primary;
+                border-radius: 4px;
+                background: transparent;
+                color: $text-dark;
+                font-size: 10px;
+                cursor: pointer;
+
+                &:hover { color: $text-primary; }
+            }
+        }
+    }
+
+    .vc-detail-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 12px;
+    }
+
+    .vc-empty-detail {
+        color: $text-dark;
+        font-size: 13px;
+        padding: 24px;
+        text-align: center;
+    }
+
+    // ---- compare bar ----
+    > .vc-compare-bar {
+        position: absolute;
+        right: 16px;
+        bottom: 12px;
+        left: 316px;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 14px;
+        border: 1px solid $border-primary;
+        border-radius: 8px;
+        background-color: $bcg-dark;
+        box-shadow: 0 8px 24px rgb(0 0 0 / 45%);
+
+        > .slot {
+            flex: 1 1 0;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            padding: 6px 10px;
+            border: 1px dashed $text-darkest;
+            border-radius: 6px;
+            color: $text-dark;
+            font-size: 12px;
+
+            &.full {
+                border-style: solid;
+                border-color: $border-primary;
+                background-color: rgb(0 0 0 / 14%);
+                color: $text-primary;
+            }
+        }
+    }
+}
+
+// branch switcher dropdown (appended to layout root, positioned under the button)
+.pcui-container.vc-branch-panel {
+    position: absolute;
+    z-index: 100002;
+    width: 320px;
+    max-height: 480px;
+    border: 1px solid $border-primary;
+    border-radius: 8px;
+    background-color: $bcg-dark;
+    box-shadow: 0 12px 32px rgb(0 0 0 / 55%);
+    overflow: hidden;
+    flex-direction: column;
+
+    > .vc-branch-filter {
+        display: flex;
+        flex: none;
+        gap: 6px;
+        padding: 10px;
+        border-bottom: 1px solid $border-primary;
+
+        > .pcui-text-input {
+            flex: 1 1 auto;
+            margin: 0;
+            border: 1px solid $bcg-darkest;
+            border-radius: 4px;
+            background-color: $bcg-darkest;
+        }
+
+        > .pcui-select-input {
+            flex: none;
+            width: 110px;
+            margin: 0;
+        }
+    }
+
+    > .vc-branch-list {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-y: auto;
+
+        > .vc-group {
+            @extend .font-bold;
+
+            padding: 5px 12px;
+            border-bottom: 1px solid $border-primary;
+            background-color: rgb(0 0 0 / 12%);
+            color: $text-dark;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        > .vc-branch-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-bottom: 1px solid $border-primary;
+            cursor: pointer;
+            transition: background-color 100ms ease;
+
+            &:hover { background-color: #354144; }
+
+            > .icon {
+                flex: none;
+                width: 14px;
+                color: $text-darkest;
+                font-size: 10px;
+                text-align: center;
+
+                &.current { color: #6fd088; }
+                &.favorite { color: #f3c16f; }
+            }
+
+            > .name {
+                @extend .font-bold;
+
+                min-width: 0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                color: $text-primary;
+                font-size: 13px;
+
+                &.closed { color: $text-secondary; }
+            }
+
+            > .sub {
+                flex: none;
+                color: $text-dark;
+                font-size: 10px;
+            }
+
+            > .row-actions {
+                display: none;
+                align-items: center;
+                gap: 6px;
+                margin-left: auto;
+            }
+
+            &:hover > .row-actions { display: flex; }
+            &:hover > .sub { display: none; }
+
+            > .row-actions > .switch {
+                @extend .font-bold;
+
+                appearance: none;
+                padding: 3px 10px;
+                border: 1px solid $bcg-darkest;
+                border-radius: 4px;
+                background-color: $bcg-darker;
+                color: $text-secondary;
+                font-size: 11px;
+                cursor: pointer;
+
+                &:hover {
+                    color: $text-primary;
+                    box-shadow: $element-shadow-hover;
+                }
+            }
+
+            > .row-actions > .kebab {
+                appearance: none;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 24px;
+                height: 24px;
+                padding: 0;
+                border: 1px solid transparent;
+                border-radius: 4px;
+                background: transparent;
+                color: $text-dark;
+                cursor: pointer;
+
+                &::before {
+                    content: '';
+                    width: 14px;
+                    height: 14px;
+                    background-color: currentcolor;
+                    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='3' cy='8' r='1.4'/%3E%3Ccircle cx='8' cy='8' r='1.4'/%3E%3Ccircle cx='13' cy='8' r='1.4'/%3E%3C/svg%3E") center / contain no-repeat;
+                }
+
+                &:hover {
+                    color: $text-primary;
+                    background-color: $bcg-darker;
+                    border-color: $bcg-darkest;
+                }
+            }
+        }
+
+        > .vc-list-status {
+            padding: 12px;
+            color: $text-dark;
+            font-size: 12px;
+            text-align: center;
+        }
+    }
+
+    > .vc-new-branch {
+        @extend .font-bold;
+
+        appearance: none;
+        flex: none;
+        padding: 10px 12px;
+        border: none;
+        border-top: 1px solid $border-primary;
+        background: transparent;
+        color: #9dd4ff;
+        font-size: 12px;
+        text-align: left;
+        cursor: pointer;
+
+        &:hover { background-color: #354144; }
+    }
+}
+
+// modal dialogs
+.pcui-container.vc-dialog-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100003;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(0 0 0 / 50%);
+
+    > .vc-dialog {
+        width: 360px;
+        border: 1px solid $border-primary;
+        border-radius: 8px;
+        background-color: $bcg-dark;
+        box-shadow: 0 12px 32px rgb(0 0 0 / 55%);
+        overflow: hidden;
+
+        > .hd {
+            @extend .font-bold;
+
+            padding: 12px 16px;
+            border-bottom: 1px solid $border-primary;
+            background-color: rgb(0 0 0 / 8%);
+            color: $text-primary;
+            font-size: 14px;
+
+            &.danger { color: #ff8a8a; }
+        }
+
+        > .bd {
+            padding: 14px 16px;
+            color: $text-secondary;
+            font-size: 12px;
+            line-height: 1.5;
+
+            b { color: $text-primary; }
+
+            > .pcui-text-input {
+                width: 100%;
+                margin: 10px 0 0;
+                border: 1px solid $bcg-darkest;
+                border-radius: 4px;
+                background-color: $bcg-darkest;
+            }
+
+            > .vc-dialog-check {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-top: 10px;
+
+                > .pcui-label {
+                    margin: 0;
+                    font-size: 12px;
+                    color: $text-primary;
+                }
+
+                > .pcui-boolean-input {
+                    margin: 0;
+                    flex: none;
+                }
+            }
+
+            > .vc-dialog-error {
+                margin-top: 8px;
+                color: #ff8a8a;
+                font-size: 12px;
+            }
+        }
+
+        > .ft {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            padding: 12px 16px;
+            border-top: 1px solid $border-primary;
+
+            > .pcui-button {
+                @extend .font-bold;
+
+                height: 30px;
+                margin: 0;
+                padding: 0 16px;
+                border: 1px solid $bcg-darkest;
+                border-radius: 6px;
+                color: $text-secondary;
+                background-color: $bcg-dark;
+                font-size: 12px;
+                box-shadow: none;
+
+                &:not(.pcui-disabled):hover {
+                    color: $text-primary;
+                    box-shadow: $element-shadow-hover;
+                }
+
+                &:not(.pcui-disabled):active {
+                    background-color: $bcg-darkest;
+                    box-shadow: none;
+                }
+
+                &.pcui-disabled { opacity: $element-opacity-disabled; }
+
+                &.confirm {
+                    color: $text-primary;
+                    border-color: transparent;
+                    background-color: $text-active;
+
+                    &:not(.pcui-disabled):hover { background-color: color.adjust($text-active, $lightness: -7%); }
+
+                    &:not(.pcui-disabled):active { background-color: color.adjust($text-active, $lightness: -12%); }
+                }
+
+                &.confirm.danger {
+                    background-color: $error-secondary;
+
+                    &:not(.pcui-disabled):hover { background-color: color.adjust($error-secondary, $lightness: -7%); }
+
+                    &:not(.pcui-disabled):active { background-color: color.adjust($error-secondary, $lightness: -12%); }
+                }
+            }
+        }
+    }
+}
+
+@keyframes vc-skeleton-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.45; }
+}
