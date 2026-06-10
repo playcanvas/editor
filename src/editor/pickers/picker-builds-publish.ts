@@ -234,7 +234,7 @@ editor.once('load', () => {
     clearFilters.textContent = 'Clear filters';
     clearFilters.addEventListener('click', () => {
         resetBuildFilters();
-        refreshFilterVisibility();
+        loadApps();
     });
     noMatchingBuilds.dom.appendChild(clearFilters);
 
@@ -252,7 +252,28 @@ editor.once('load', () => {
     let skip = 0;
     let hasMore = true;
     let loadingMore = false;
+    let loadGen = 0;  // invalidates in-flight responses when filters change
     let scrollContainer: HTMLElement | null = null;
+
+    // values the backend can filter on; anything else stays client-side only
+    const SERVER_FILTER_GUARDS: Record<string, (value: string) => boolean> = {
+        type: value => FILTER_ORDER.type.includes(value),
+        format: value => FORMAT_FILTERS.some(option => option.value === value),
+        status: value => STATUS_FILTERS.some(option => option.value === value),
+        branch: value => value.length > 0,
+        actor: value => /^\d+$/.test(value)
+    };
+
+    const getServerFilters = function () {
+        const result: Record<string, string> = {};
+        BUILD_FILTERS.forEach((filter) => {
+            const value = filters[filter.key];
+            if (value !== FILTER_ALL && SERVER_FILTER_GUARDS[filter.key]?.(value)) {
+                result[filter.key] = value;
+            }
+        });
+        return result;
+    };
 
     const loadMoreBuilds = function () {
         if (loadingMore || !hasMore || panel.hidden || detailApp) {
@@ -260,8 +281,12 @@ editor.once('load', () => {
         }
         loadingMore = true;
         skip += APP_LIMIT;
-        editor.api.globals.rest.projects.projectBuilds(APP_LIMIT, skip).on('load', (status, data) => {
+        const gen = loadGen;
+        editor.api.globals.rest.projects.projectBuilds(APP_LIMIT, skip, getServerFilters()).on('load', (status, data) => {
             loadingMore = false;
+            if (gen !== loadGen) {
+                return;
+            }
             const results = data.result.map(normalizeBuildJob);
             const ids = getPublishAppIds(results);
             if (ids.size) {
@@ -574,8 +599,11 @@ editor.once('load', () => {
         return getFormatValue(app);
     };
 
+    // accumulated across loads so an active server-side filter doesn't shrink its own menu
+    let knownFilterLabels: Record<string, Record<string, string>> = {};
+
     const getFilterOptions = function (key: string) {
-        const labels: Record<string, string> = {};
+        const labels = knownFilterLabels[key] || (knownFilterLabels[key] = {});
         if (key === 'format') {
             FORMAT_FILTERS.forEach((option) => {
                 if (!option.superUser || config.self.flags.superUser) {
@@ -654,7 +682,7 @@ editor.once('load', () => {
         filters[key] = value;
         updateFilterButtons();
         hideFilterMenus();
-        refreshFilterVisibility();
+        loadApps();
     };
 
     const resetBuildFilters = function () {
@@ -1353,13 +1381,17 @@ editor.once('load', () => {
         skip = 0;
         hasMore = true;
         loadingMore = false;
+        const gen = ++loadGen;
 
         if (showProgress) {
             toggleProgress(true);
         }
 
         loadAppIndex(() => {
-            editor.api.globals.rest.projects.projectBuilds(APP_LIMIT, 0).on('load', (status, data) => {
+            editor.api.globals.rest.projects.projectBuilds(APP_LIMIT, 0, getServerFilters()).on('load', (status, data) => {
+                if (gen !== loadGen) {
+                    return;
+                }
                 const rows = data.result.map(normalizeBuildJob);
                 const ids = getPublishAppIds(rows);
                 const legacy = appList
@@ -1512,7 +1544,9 @@ editor.once('load', () => {
     };
 
     const renderPrimaryBuild = function () {
-        const app = apps.find(item => item.type === 'publish' && item.app_id === config.project.primaryApp);
+        // filtering means browsing history; the primary summary only shows on the unfiltered view
+        const app = hasActiveFilters() ? null :
+            apps.find(item => item.type === 'publish' && item.app_id === config.project.primaryApp);
         primaryBuildHeading.hidden = !app;
         primaryBuild.hidden = !app;
 
@@ -1574,7 +1608,9 @@ editor.once('load', () => {
     };
 
     const resetBuildsState = function () {
+        loadGen++;
         resetBuildFilters();
+        knownFilterLabels = {};
         apps = [];
         appIndex = {};
         appList = [];
@@ -1607,9 +1643,12 @@ editor.once('load', () => {
             }
         });
 
-        container.hidden = apps.length === 0;
-        noBuilds.hidden = apps.length > 0;
-        noMatchingBuilds.hidden = apps.length === 0 || filteredApps.length > 0 || !hasActiveFilters();
+        // with server-side filtering, zero rows under an active filter means "no
+        // matches", not "no builds"; the list box stays visible to host that message
+        const filtering = hasActiveFilters();
+        container.hidden = apps.length === 0 && !filtering;
+        noBuilds.hidden = apps.length > 0 || filtering;
+        noMatchingBuilds.hidden = filteredApps.length > 0 || !filtering;
         fillViewport();
     };
 

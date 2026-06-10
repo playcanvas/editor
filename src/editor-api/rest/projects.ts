@@ -486,17 +486,31 @@ export const projectApps = (limit = 0, skip = 0) => {
     });
 };
 
+export type BuildJobFilters = {
+    type?: string;
+    status?: string;
+    format?: string;
+    branch?: string;
+    actor?: string;
+};
+
 /**
  * Fetches a list of durable build jobs for the current project
  *
  * @param limit - The maximum number of build jobs to return
  * @param skip - The number of build jobs to skip
+ * @param filters - Optional server-side filters (type, status, format, branch name, actor id)
  * @returns A request that responds with the list of build jobs
  */
-export const projectBuilds = (limit = 0, skip = 0) => {
+export const projectBuilds = (limit = 0, skip = 0, filters: BuildJobFilters = {}) => {
     const params = [];
     params.push(`limit=${limit}`);
     params.push(`skip=${skip}`);
+    Object.entries(filters).forEach(([key, value]) => {
+        if (value) {
+            params.push(`${key}=${encodeURIComponent(value)}`);
+        }
+    });
 
     return Ajax.get<{
         result: BuildJob[];
