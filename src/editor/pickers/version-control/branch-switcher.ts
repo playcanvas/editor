@@ -6,7 +6,9 @@ import { config } from '@/editor/config';
 
 const PAGE_SIZE = 50;
 
-export const createBranchSwitcher = () => {
+// host must live inside the project picker overlay or the picker's
+// outside-click handler dismisses itself when the dropdown is clicked
+export const createBranchSwitcher = (host: Container) => {
     const projectUserSettings = editor.call('settings:projectUser');
 
     let branches: Record<string, any> = {};
@@ -27,9 +29,9 @@ export const createBranchSwitcher = () => {
     const nameEl = labels.querySelector('.name') as HTMLElement;
     nameEl.textContent = config.self.branch.name;
 
-    // dropdown panel, appended to layout root so it floats over the picker
+    // dropdown panel floats inside the picker, anchored under the button
     const panel = new Container({ class: 'vc-branch-panel', hidden: true });
-    editor.call('layout.root').append(panel);
+    host.append(panel);
 
     const filter = new Container({ class: 'vc-branch-filter' });
     panel.append(filter);
@@ -288,8 +290,9 @@ export const createBranchSwitcher = () => {
 
     const positionPanel = () => {
         const rect = button.dom.getBoundingClientRect();
-        panel.style.left = `${rect.left}px`;
-        panel.style.top = `${rect.bottom + 4}px`;
+        const hostRect = host.dom.getBoundingClientRect();
+        panel.style.left = `${rect.left - hostRect.left}px`;
+        panel.style.top = `${rect.bottom - hostRect.top + 4}px`;
     };
 
     const hidePanel = () => {

@@ -22,6 +22,14 @@ export type VcDialogHandle = {
 // only one dialog at a time; opening a new one cancels the previous
 let activeDialog: VcDialogHandle = null;
 
+// dialogs must render inside the project picker overlay or its
+// outside-click handler dismisses the picker when a dialog is clicked
+let dialogHost: Container = null;
+
+export const setVcDialogHost = (host: Container) => {
+    dialogHost = host;
+};
+
 export const showVcDialog = (opts: VcDialogOpts): VcDialogHandle => {
     activeDialog?.close();
 
@@ -135,7 +143,7 @@ export const showVcDialog = (opts: VcDialogOpts): VcDialogHandle => {
     };
     overlay.dom.addEventListener('mousedown', onBackdrop);
 
-    editor.call('layout.root').append(overlay);
+    (dialogHost ?? editor.call('layout.root')).append(overlay);
 
     if (input) {
         setTimeout(() => input.focus());

@@ -4,7 +4,7 @@ import { handleCallback } from '@/common/utils';
 import { config } from '@/editor/config';
 
 import { createBranchSwitcher } from './branch-switcher';
-import { showVcDialog } from './dialogs';
+import { setVcDialogHost, showVcDialog } from './dialogs';
 import { createChangesPanel } from './panel-changes';
 import { createDetailPanel } from './panel-detail';
 import { createHistoryPanel } from './panel-history';
@@ -34,11 +34,14 @@ editor.once('load', () => {
         editor.call('picker:project:toggleMenu', 'version control', editor.call('permissions:read'));
     });
 
+    // floating surfaces must live inside the picker overlay (outside-click guard)
+    setVcDialogHost(panel);
+
     // top bar
     const topBar = new Container({ class: 'vc-top-bar' });
     panel.append(topBar);
 
-    const switcher = createBranchSwitcher();
+    const switcher = createBranchSwitcher(panel);
     topBar.append(switcher);
 
     const topActions = new Container({ class: 'vc-top-actions' });
