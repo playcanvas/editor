@@ -409,8 +409,12 @@ editor.once('load', () => {
     const toggleProgress = function (toggle: boolean) {
         skeleton.hidden = !toggle;
         container.hidden = toggle || apps.length === 0;
-        primaryBuildHeading.hidden = true;
-        primaryBuild.hidden = true;
+        // only hide the primary card on the initial empty load; reloads (e.g. filter
+        // changes) keep it in place so the layout doesn't jump
+        if (apps.length === 0) {
+            primaryBuildHeading.hidden = true;
+            primaryBuild.hidden = true;
+        }
         noBuilds.hidden = toggle || apps.length > 0;
         noMatchingBuilds.hidden = true;
     };
@@ -1610,10 +1614,10 @@ editor.once('load', () => {
 
     const renderPrimaryBuild = function () {
         const primaryId = config.project.primaryApp;
-        // filtering means browsing history; the primary summary only shows on the unfiltered view
-        let app = hasActiveFilters() || !primaryId ? null :
-            apps.find(item => item.type === 'publish' && item.app_id === primaryId);
-        if (!app && primaryId && !hasActiveFilters()) {
+        // the card stays visible while filtering so the layout doesn't jump
+        let app = primaryId ?
+            apps.find(item => item.type === 'publish' && item.app_id === primaryId) : null;
+        if (!app && primaryId) {
             if (primaryFallback && primaryFallback.app_id === primaryId) {
                 app = primaryFallback;
             } else {
