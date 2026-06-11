@@ -428,7 +428,7 @@ and add below the existing `./vc-helpers` import:
 
 ```ts
 import { buildNameIndex, valueKind, type NameIndex } from './vc-diff-data';
-import { createValueField } from './vc-diff-fields';
+import { createValueField, destroyValueFields } from './vc-diff-fields';
 ```
 
 Inside the `editor.once('load', ...)` body, next to `let current: any = null;`, add:
@@ -529,9 +529,10 @@ const SETTINGS_ROOT_RE = /^(scene |project )?settings$/i;
         return tree;
     };
 
+    // note: NOT 'vc-diff-row' — that class belongs to the sidebar buttons and their click delegation
     const fieldRow = (kind: 'del' | 'add', label: string, title: string, valueEl: HTMLElement) => {
         const row = document.createElement('div');
-        row.classList.add('vc-diff-row', kind);
+        row.classList.add('vc-diff-field-row', kind);
         row.title = title;
         const gut = document.createElement('span');
         gut.classList.add('gutter');
@@ -633,7 +634,7 @@ const SETTINGS_ROOT_RE = /^(scene |project )?settings$/i;
     };
 ```
 
-- [ ] **Step 5: Rewire `renderMain`**
+- [ ] **Step 5: Rewire `renderMain` and teardown**
 
 In `renderMain`, replace the line:
 
@@ -649,6 +650,26 @@ with:
         if (props.length) {
             detail.appendChild(renderUnifiedDiff(conflict, props));
         }
+```
+
+Curve/gradient widgets hold resize timers that only `.destroy()` clears, so every `main.innerHTML = ''` must be preceded by a destroy pass. At the top of `renderMain`, change:
+
+```ts
+        main.innerHTML = '';
+```
+
+to:
+
+```ts
+        destroyValueFields(main);
+        main.innerHTML = '';
+```
+
+and in `cleanup()`, change `main.innerHTML = '';` the same way:
+
+```ts
+        destroyValueFields(main);
+        main.innerHTML = '';
 ```
 
 - [ ] **Step 6: Type-check and lint**
@@ -969,61 +990,65 @@ $vc-add-edge: #3fb950;
 }
 
 // ---- unified diff rows ----
-.vc-diff-row {
-    .vc-diff-panel & {
+.vc-diff-field-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 32px;
+    padding: 3px 10px 3px 6px;
+
+    > .gutter {
+        flex: none;
+        width: 14px;
+        text-align: center;
+        font-family: inconsolatamedium, Monaco, Menlo, monospace;
+    }
+
+    > .label {
+        flex: none;
+        width: 35%;
+        max-width: 220px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        color: $text-secondary;
+    }
+
+    > .value {
         display: flex;
+        flex: 1;
         align-items: center;
-        gap: 8px;
-        min-height: 32px;
-        padding: 3px 10px 3px 6px;
+        min-width: 0;
+        // read-only widgets stay inert
+        pointer-events: none;
+
+        // text values stay selectable; the inputs are readOnly so this is safe
+        input,
+        textarea {
+            pointer-events: auto;
+        }
+
+        // pcui inputs carry 6px margins; rows provide their own spacing
+        .pcui-element {
+            margin: 0;
+        }
+    }
+
+    &.del {
+        background-color: $vc-del-tint;
+        box-shadow: inset 2px 0 0 $vc-del-edge;
 
         > .gutter {
-            flex: none;
-            width: 14px;
-            text-align: center;
-            font-family: inconsolatamedium, Monaco, Menlo, monospace;
+            color: #ff8a8a;
         }
+    }
 
-        > .label {
-            flex: none;
-            width: 35%;
-            max-width: 220px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            color: $text-secondary;
-        }
+    &.add {
+        background-color: $vc-add-tint;
+        box-shadow: inset 2px 0 0 $vc-add-edge;
 
-        > .value {
-            display: flex;
-            flex: 1;
-            align-items: center;
-            min-width: 0;
-            // read-only widgets stay inert
-            pointer-events: none;
-
-            // pcui inputs carry 6px margins; rows provide their own spacing
-            .pcui-element {
-                margin: 0;
-            }
-        }
-
-        &.del {
-            background-color: $vc-del-tint;
-            box-shadow: inset 2px 0 0 $vc-del-edge;
-
-            > .gutter {
-                color: #ff8a8a;
-            }
-        }
-
-        &.add {
-            background-color: $vc-add-tint;
-            box-shadow: inset 2px 0 0 $vc-add-edge;
-
-            > .gutter {
-                color: #6fd088;
-            }
+        > .gutter {
+            color: #6fd088;
         }
     }
 }
@@ -1111,7 +1136,7 @@ $vc-add-edge: #3fb950;
 }
 ```
 
-**Naming caution:** the sidebar rows and the unified diff rows both use `.vc-diff-row` (the sidebar usage already exists in the skeleton's `renderSidebar`). The partial above scopes them apart (`.vc-diff-sidebar > .vc-diff-row` vs `.vc-diff-panel .vc-diff-row`). Don't "fix" this by renaming the sidebar class — the TS skeleton references it.
+**Naming note:** the sidebar keeps `.vc-diff-row` (skeleton's `renderSidebar` + click delegation reference it); the unified field rows use `.vc-diff-field-row`. Don't rename either side.
 
 - [ ] **Step 4: Import the partial**
 
