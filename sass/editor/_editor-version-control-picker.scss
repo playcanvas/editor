@@ -827,7 +827,11 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            padding: 8px 12px;
+
+            // reserve the hover-action height so rows never grow under the cursor
+            min-height: 40px;
+            box-sizing: border-box;
+            padding: 4px 12px;
             border-bottom: 1px solid $border-primary;
             cursor: pointer;
             transition: background-color 100ms ease;
