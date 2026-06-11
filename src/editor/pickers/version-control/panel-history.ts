@@ -3,7 +3,7 @@ import { Container } from '@playcanvas/pcui';
 import { handleCallback } from '@/common/utils';
 import { config } from '@/editor/config';
 
-import { formatDayGroup, formatRelativeDate, hashChip } from './vc-helpers';
+import { formatDayGroup, formatRelativeDate, hashChip, userThumbnail } from './vc-helpers';
 
 const PAGE_SIZE = 50;
 const MAX_COMPARE = 2;
@@ -80,9 +80,15 @@ export const createHistoryPanel = () => {
             const avatar = document.createElement('img');
             avatar.classList.add('avatar');
             avatar.alt = '';
-            avatar.src = checkpoint ?
-                `/api/users/${checkpoint.user.id}/thumbnail?size=28` :
-                `${config.url.static}/platform/images/common/blank_project.png`;
+            if (checkpoint) {
+                userThumbnail(checkpoint.user.id, 28).then((src) => {
+                    if (src) {
+                        avatar.src = src;
+                    }
+                });
+            } else {
+                avatar.src = `${config.url.static}/platform/images/common/blank_project.png`;
+            }
             row.appendChild(avatar);
         }
 

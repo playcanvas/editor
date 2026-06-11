@@ -1,12 +1,13 @@
 import { Container } from '@playcanvas/pcui';
 
-import { hashChip, summarizeDiff } from './vc-helpers';
+import { hashChip, summarizeDiff, userThumbnail } from './vc-helpers';
 import { diffCreate } from '../../messenger/jobs';
 
 export const createDetailPanel = () => {
     const panel = new Container({ class: 'vc-detail' });
 
-    const diffCache: Record<string, ReturnType<typeof summarizeDiff>> = {};
+    // raw diff kept alongside the summary so open-full-diff can skip recomputing
+    const diffCache: Record<string, { diff: any; summary: ReturnType<typeof summarizeDiff> }> = {};
     let renderToken = 0;
 
     const clear = () => {
@@ -61,7 +62,7 @@ export const createDetailPanel = () => {
         link.type = 'button';
         link.classList.add('vc-link');
         link.textContent = 'Open full diff →';
-        link.addEventListener('click', () => panel.emit('openDiff', checkpoint, previous));
+        link.addEventListener('click', () => panel.emit('openDiff', checkpoint, previous, diffCache[key]?.diff));
         side.appendChild(link);
 
         const body = document.createElement('div');
@@ -107,7 +108,7 @@ export const createDetailPanel = () => {
         };
 
         if (diffCache[key]) {
-            fill(diffCache[key]);
+            fill(diffCache[key].summary);
         } else {
             body.innerHTML = `<div class="vc-diff-list"><div class="vc-skeleton">${'<div class="skeleton-row"><span class="bone line"></span></div>'.repeat(3)}</div></div>`;
             diffCreate({
@@ -116,11 +117,11 @@ export const createDetailPanel = () => {
                 dstBranchId: branchId,
                 dstCheckpointId: previous.id
             }).then((diff: any) => {
+                diffCache[key] = { diff: diff ?? {}, summary: summarizeDiff(diff ?? {}) };
                 if (token !== renderToken) {
                     return;
                 }
-                diffCache[key] = summarizeDiff(diff ?? {});
-                fill(diffCache[key]);
+                fill(diffCache[key].summary);
             }).catch(() => {
                 if (token !== renderToken) {
                     return;
@@ -148,7 +149,11 @@ export const createDetailPanel = () => {
             const avatar = document.createElement('img');
             avatar.classList.add('avatar');
             avatar.alt = '';
-            avatar.src = `/api/users/${checkpoint.user.id}/thumbnail?size=40`;
+            userThumbnail(checkpoint.user.id, 40).then((src) => {
+                if (src) {
+                    avatar.src = src;
+                }
+            });
             heroInner.appendChild(avatar);
 
             const body = document.createElement('div');

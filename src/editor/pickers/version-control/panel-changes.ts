@@ -10,6 +10,8 @@ export const createChangesPanel = () => {
     const summary = new Container({ class: 'vc-changes-summary' });
 
     let current: DiffSummary = null;
+    // raw diff matching `current`, reused by open-full-diff to skip recomputing
+    let raw: any = null;
     let loading = false;
     let stale = true;
     // generation counter: incremented by invalidate() and at the start of each fetch;
@@ -140,7 +142,7 @@ export const createChangesPanel = () => {
             openBtn.type = 'button';
             openBtn.classList.add('vc-button');
             openBtn.textContent = 'Open Full Diff';
-            openBtn.addEventListener('click', () => summary.emit('openDiff'));
+            openBtn.addEventListener('click', () => summary.emit('openDiff', raw));
             actions.appendChild(openBtn);
         }
 
@@ -169,6 +171,7 @@ export const createChangesPanel = () => {
         // no checkpoint to diff against yet
         if (!branch.latestCheckpointId) {
             current = { total: 0, groups: [] };
+            raw = null;
             stale = false;
             render();
             sidebar.emit('count', 0);
@@ -189,7 +192,8 @@ export const createChangesPanel = () => {
                 return;
             }
             stale = false;
-            current = summarizeDiff(diff ?? {});
+            raw = diff ?? {};
+            current = summarizeDiff(raw);
             render();
             sidebar.emit('count', current.total);
         }).catch((err) => {
@@ -199,6 +203,7 @@ export const createChangesPanel = () => {
             }
             log.error(err);
             current = null;
+            raw = null;
             render();
             // keep the tab label honest; the count getter now reports null
             sidebar.emit('count', 0);
@@ -210,6 +215,7 @@ export const createChangesPanel = () => {
         invalidate: () => {
             stale = true;
             current = null;
+            raw = null;
             gen++;
         },
         resetForm: () => {

@@ -35,6 +35,20 @@ export const formatDayGroup = (value: string | Date, now = new Date()) => {
     return `${WEEKDAYS[d.getDay()]}, ${MONTHS[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
 };
 
+// one network fetch per user/size per session, regardless of server cache headers;
+// resolves to an object url, or '' on failure (callers skip assignment)
+const thumbCache = new Map<string, Promise<string>>();
+export const userThumbnail = (userId: string | number, size: number) => {
+    const key = `${userId}:${size}`;
+    if (!thumbCache.has(key)) {
+        thumbCache.set(key, fetch(`/api/users/${userId}/thumbnail?size=${size}`)
+        .then(res => (res.ok ? res.blob() : Promise.reject(new Error(`${res.status}`))))
+        .then(blob => URL.createObjectURL(blob))
+        .catch(() => ''));
+    }
+    return thumbCache.get(key);
+};
+
 // verbatim-styled short checkpoint hash
 export const hashChip = (id: string) => {
     const el = document.createElement('span');

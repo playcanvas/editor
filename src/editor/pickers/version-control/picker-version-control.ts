@@ -246,6 +246,12 @@ editor.once('load', () => {
     });
 
     // ---- diff viewing ----
+    const presentDiff = (diff: any) => {
+        editor.call('picker:project:close');
+        editor.call('picker:versioncontrol:mergeOverlay:hide');
+        editor.call('picker:diffManager', diff);
+    };
+
     const viewDiff = (srcBranchId: string, srcCheckpointId: string | null, dstBranchId: string, dstCheckpointId: string | null) => {
         togglePanels(false);
         showProgress(progressDiff);
@@ -253,9 +259,7 @@ editor.once('load', () => {
             progressDiff.finish();
             togglePanels(true);
             if (diff && diff.numConflicts !== 0) {
-                editor.call('picker:project:close');
-                editor.call('picker:versioncontrol:mergeOverlay:hide');
-                editor.call('picker:diffManager', diff);
+                presentDiff(diff);
             } else {
                 progressDiff.setMessage('There are no changes');
                 setTimeout(() => {
@@ -269,10 +273,19 @@ editor.once('load', () => {
         });
     };
 
-    detail.on('openDiff', (checkpoint: any, previous: any) => {
+    // cached diffs from the panels skip the expensive diffCreate job
+    detail.on('openDiff', (checkpoint: any, previous: any, cached: any) => {
+        if (cached && cached.numConflicts) {
+            presentDiff(cached);
+            return;
+        }
         viewDiff(viewedBranch.id, checkpoint.id, viewedBranch.id, previous.id);
     });
-    changes.summary.on('openDiff', () => {
+    changes.summary.on('openDiff', (cached: any) => {
+        if (cached && cached.numConflicts) {
+            presentDiff(cached);
+            return;
+        }
         const b = config.self.branch;
         viewDiff(b.id, null, b.id, b.latestCheckpointId);
     });
