@@ -758,7 +758,7 @@ editor.once('load', () => {
         // show tooltip for primary scene icon
         const tooltipText = scene.id === primaryScene ? 'Primary Scene' : 'Set Primary Scene';
         tooltip().attach({
-            container: tooltipSimpleItem({ text: tooltipText }),
+            container: tooltipSimpleItem({ text: tooltipText, classNames: ['primary-scene-tooltip'] }),
             target: primary,
             vertAlignEl: tooltipAnchor,
             align: 'right'
