@@ -1,6 +1,5 @@
 import { Container, Menu, MenuItem, SelectInput, TextInput } from '@playcanvas/pcui';
 
-import { LegacyTooltip } from '@/common/ui/tooltip';
 import { handleCallback } from '@/common/utils';
 import { config } from '@/editor/config';
 
@@ -327,13 +326,6 @@ export const createBranchSwitcher = (host: Container) => {
         load(true);
         document.addEventListener('mousedown', onOutside, true);
         setTimeout(() => searchInput.focus());
-    });
-
-    LegacyTooltip.attach({
-        target: button.dom,
-        text: 'Switch or manage branches',
-        align: 'top',
-        root: editor.call('layout.root')
     });
 
     // public surface used by the shell

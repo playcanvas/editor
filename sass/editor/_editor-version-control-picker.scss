@@ -33,16 +33,22 @@
             padding: 8px 16px;
             border: none;
             border-right: 1px solid $border-primary;
-            background-color: $bcg-darkest;
+
+            // flush with the bar at rest; hover/open states differentiate
+            background-color: transparent;
             color: $text-secondary;
             text-align: left;
             cursor: pointer;
             transition: background-color 100ms, color 100ms;
 
-            &:hover,
-            &.active {
+            &:hover {
                 color: $text-primary;
                 background-color: $bcg-darker;
+            }
+
+            &.active {
+                color: $text-primary;
+                background-color: $bcg-darkest;
             }
 
             > .labels {
