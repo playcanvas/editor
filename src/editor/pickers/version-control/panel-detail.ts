@@ -1,6 +1,6 @@
 import { Container } from '@playcanvas/pcui';
 
-import { hashChip, summarizeDiff, userThumbnail } from './vc-helpers';
+import { hashChip, summarizeDiff, typeLabel, userThumbnail } from './vc-helpers';
 import { diffCreate } from '../../messenger/jobs';
 
 export const createDetailPanel = () => {
@@ -87,7 +87,7 @@ export const createDetailPanel = () => {
             for (const g of summary.groups) {
                 const head = document.createElement('div');
                 head.classList.add('vc-group');
-                head.textContent = `${g.type}s · ${g.items.length}`;
+                head.textContent = `${typeLabel(g.type)} · ${g.items.length}`;
                 items.appendChild(head);
                 for (const item of g.items) {
                     const row = document.createElement('div');

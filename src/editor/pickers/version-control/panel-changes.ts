@@ -2,7 +2,7 @@ import { Container, TextAreaInput } from '@playcanvas/pcui';
 
 import { config } from '@/editor/config';
 
-import { hashChip, summarizeDiff, type DiffSummary } from './vc-helpers';
+import { hashChip, summarizeDiff, typeLabel, type DiffSummary } from './vc-helpers';
 import { diffCreate } from '../../messenger/jobs';
 
 export const createChangesPanel = () => {
@@ -78,7 +78,7 @@ export const createChangesPanel = () => {
         for (const g of current.groups) {
             const head = document.createElement('div');
             head.classList.add('vc-group');
-            head.textContent = `${g.type}s · ${g.items.length}`;
+            head.textContent = `${typeLabel(g.type)} · ${g.items.length}`;
             list.appendChild(head);
             for (const item of g.items) {
                 const row = document.createElement('div');
@@ -120,7 +120,7 @@ export const createChangesPanel = () => {
             for (const g of current.groups) {
                 const pill = document.createElement('span');
                 pill.classList.add('vc-pill');
-                pill.textContent = `${g.items.length} ${g.type}${g.items.length === 1 ? '' : 's'}`;
+                pill.textContent = `${g.items.length} ${g.items.length === 1 ? g.type : typeLabel(g.type)}`;
                 card.appendChild(pill);
             }
         }

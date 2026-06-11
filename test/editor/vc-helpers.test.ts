@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { describe, it } from 'mocha';
 
-import { formatRelativeDate, formatDayGroup, summarizeDiff } from '../../src/editor/pickers/version-control/vc-helpers';
+import { formatRelativeDate, formatDayGroup, summarizeDiff, typeLabel } from '../../src/editor/pickers/version-control/vc-helpers';
 
 describe('vc-helpers', () => {
     const now = new Date('2026-06-10T15:00:00');
@@ -36,6 +36,17 @@ describe('vc-helpers', () => {
         });
     });
 
+    describe('typeLabel', () => {
+        it('pluralizes singular types', () => {
+            expect(typeLabel('asset')).to.equal('assets');
+            expect(typeLabel('scene')).to.equal('scenes');
+        });
+
+        it('keeps already-plural types', () => {
+            expect(typeLabel('settings')).to.equal('settings');
+        });
+    });
+
     describe('summarizeDiff', () => {
         it('handles empty diff', () => {
             expect(summarizeDiff({ numConflicts: 0 })).to.deep.equal({ total: 0, groups: [] });
@@ -63,6 +74,14 @@ describe('vc-helpers', () => {
                     }
                 ]
             });
+        });
+
+        it('title-cases settings item names', () => {
+            const diff = {
+                numConflicts: 1,
+                conflicts: [{ itemType: 'settings', itemName: 'project settings', data: [{}] }]
+            };
+            expect(summarizeDiff(diff).groups[0].items[0].name).to.equal('Project Settings');
         });
 
         it('treats both missing flags as added', () => {

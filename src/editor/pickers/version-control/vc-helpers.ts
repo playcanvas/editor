@@ -62,6 +62,9 @@ type DiffLike = {
     conflicts?: { itemType: string; itemName: string; data?: { missingInSrc?: boolean; missingInDst?: boolean }[] }[];
 };
 
+// group label for an item type; 'settings' is already plural
+export const typeLabel = (type: string) => (type.endsWith('s') ? type : `${type}s`);
+
 export const summarizeDiff = (diff: DiffLike): DiffSummary => {
     const groups = new Map<string, { name: string; status: DiffStatus }[]>();
     for (const c of diff.conflicts ?? []) {
@@ -71,7 +74,9 @@ export const summarizeDiff = (diff: DiffLike): DiffSummary => {
         if (!groups.has(c.itemType)) {
             groups.set(c.itemType, []);
         }
-        groups.get(c.itemType)!.push({ name: c.itemName, status });
+        // settings items are documents with lowercase names ('project settings')
+        const name = c.itemType === 'settings' ? c.itemName.replace(/\b[a-z]/g, ch => ch.toUpperCase()) : c.itemName;
+        groups.get(c.itemType)!.push({ name, status });
     }
     return {
         total: diff.numConflicts ?? 0,
