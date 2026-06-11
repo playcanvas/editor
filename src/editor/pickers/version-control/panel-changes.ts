@@ -223,11 +223,10 @@ export const createChangesPanel = () => {
         },
         focusForm: () => {
             setTimeout(() => description.focus());
-        },
-        get count() {
-            return current ? current.total : null;
         }
     });
+    // Object.assign snapshots getter values; live getters must be defined directly
+    Object.defineProperty(sidebar, 'count', { get: () => (current ? current.total : null) });
 
     return {
         sidebar: sidebar as Container & {

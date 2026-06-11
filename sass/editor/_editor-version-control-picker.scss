@@ -471,6 +471,54 @@
     }
 
     // ---- changes tab ----
+    // grouped change rows shared by the changes tab and the detail diff card
+    @mixin vc-change-rows {
+        > .vc-group {
+            @extend .font-bold;
+
+            padding: 6px 12px;
+            border-bottom: 1px solid $border-primary;
+            background-color: rgb(0 0 0 / 12%);
+            color: $text-primary;
+            font-size: 11px;
+            text-transform: uppercase;
+        }
+
+        > .vc-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 12px;
+            border-bottom: 1px solid $border-primary;
+            color: $text-primary;
+            font-size: 12px;
+
+            > .name {
+                min-width: 0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            > .status {
+                @extend .font-bold;
+
+                flex: none;
+                margin-left: auto;
+                padding: 1px 7px;
+                border: 1px solid $border-primary;
+                border-radius: 4px;
+                background-color: rgb(0 0 0 / 14%);
+                font-size: 9px;
+                text-transform: uppercase;
+
+                &.added { color: #6fd088; }
+                &.modified { color: #f3c16f; }
+                &.deleted { color: #ff8a8a; }
+            }
+        }
+    }
+
     .vc-changes {
         flex: 1 1 auto;
         flex-direction: column;
@@ -486,50 +534,7 @@
             min-height: 0;
             overflow: hidden auto;
 
-            > .vc-group {
-                @extend .font-bold;
-
-                padding: 6px 12px;
-                border-bottom: 1px solid $border-primary;
-                background-color: rgb(0 0 0 / 12%);
-                color: $text-primary;
-                font-size: 11px;
-                text-transform: uppercase;
-            }
-
-            > .vc-item {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                padding: 7px 12px;
-                border-bottom: 1px solid $border-primary;
-                color: $text-primary;
-                font-size: 12px;
-
-                > .name {
-                    min-width: 0;
-                    overflow: hidden;
-                    text-overflow: ellipsis;
-                    white-space: nowrap;
-                }
-
-                > .status {
-                    @extend .font-bold;
-
-                    flex: none;
-                    margin-left: auto;
-                    padding: 1px 7px;
-                    border: 1px solid $border-primary;
-                    border-radius: 4px;
-                    background-color: rgb(0 0 0 / 14%);
-                    font-size: 9px;
-                    text-transform: uppercase;
-
-                    &.added { color: #6fd088; }
-                    &.modified { color: #f3c16f; }
-                    &.deleted { color: #ff8a8a; }
-                }
-            }
+            @include vc-change-rows;
 
             > .vc-list-status {
                 padding: 12px;
@@ -693,6 +698,22 @@
         flex-wrap: wrap;
         gap: 8px;
         margin-top: 12px;
+    }
+
+    // grouped change list inside the detail diff card
+    .vc-diff-list {
+        max-height: 45vh;
+        margin-top: 10px;
+        border: 1px solid $border-primary;
+        border-radius: 6px;
+        background-color: rgb(0 0 0 / 10%);
+        overflow: hidden auto;
+
+        @include vc-change-rows;
+
+        > .vc-item:last-child {
+            border-bottom: none;
+        }
     }
 
     .vc-empty-detail {

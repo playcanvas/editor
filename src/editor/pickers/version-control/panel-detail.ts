@@ -52,18 +52,33 @@ export const createDetailPanel = () => {
         const fill = (summary: ReturnType<typeof summarizeDiff>) => {
             body.innerHTML = '';
             if (!summary.total) {
-                const none = document.createElement('div');
-                none.classList.add('vc-meta');
-                none.textContent = 'No changes';
-                body.appendChild(none);
-            } else {
-                for (const g of summary.groups) {
-                    const pill = document.createElement('span');
-                    pill.classList.add('vc-pill');
-                    pill.textContent = `${g.items.length} ${g.type}${g.items.length === 1 ? '' : 's'}`;
-                    body.appendChild(pill);
+                meta.textContent = `No changes vs previous checkpoint ${previous.id.substring(0, 7)}`;
+                return;
+            }
+            meta.textContent = `${summary.total} change${summary.total === 1 ? '' : 's'} vs previous checkpoint ${previous.id.substring(0, 7)}`;
+            const items = document.createElement('div');
+            items.classList.add('vc-diff-list');
+            for (const g of summary.groups) {
+                const head = document.createElement('div');
+                head.classList.add('vc-group');
+                head.textContent = `${g.type}s · ${g.items.length}`;
+                items.appendChild(head);
+                for (const item of g.items) {
+                    const row = document.createElement('div');
+                    row.classList.add('vc-item');
+                    const name = document.createElement('span');
+                    name.classList.add('name');
+                    name.textContent = item.name;
+                    name.title = item.name;
+                    row.appendChild(name);
+                    const badge = document.createElement('span');
+                    badge.classList.add('status', item.status);
+                    badge.textContent = item.status;
+                    row.appendChild(badge);
+                    items.appendChild(row);
                 }
             }
+            body.appendChild(items);
             const open = document.createElement('div');
             open.style.marginTop = '10px';
             const link = document.createElement('button');

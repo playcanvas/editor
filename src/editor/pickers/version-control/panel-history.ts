@@ -245,13 +245,12 @@ export const createHistoryPanel = () => {
             compareSlots = [];
             render();
             panel.emit('compare:change', []);
-        },
-        get checkpoints() {
-            return checkpoints;
-        },
-        get branch() {
-            return branch;
         }
+    });
+    // Object.assign snapshots getter values; live getters must be defined directly
+    Object.defineProperties(panel, {
+        checkpoints: { get: () => checkpoints },
+        branch: { get: () => branch }
     });
 
     return panel as Container & {
