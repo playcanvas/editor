@@ -64,8 +64,16 @@ export const createBranchSwitcher = (host: Container) => {
     });
 
     // context menu for row kebabs
+    let activeKebab: HTMLElement = null;
     const menu = new Menu({ class: 'version-control' });
     editor.call('layout.root').append(menu);
+
+    // release the held-open row actions when the menu goes away
+    menu.on('hide', () => {
+        activeKebab?.classList.remove('active');
+        activeKebab?.closest('.vc-branch-row')?.classList.remove('menu-open');
+        activeKebab = null;
+    });
 
     const menuItems: { item: MenuItem; show: (b: any) => boolean }[] = [];
     const addMenuItem = (text: string, event: string, show: (b: any) => boolean, cls?: string) => {
@@ -183,11 +191,13 @@ export const createBranchSwitcher = (host: Container) => {
             kebab.addEventListener('click', (e) => {
                 e.stopPropagation();
                 contextBranch = branch;
+                // hold the hover-revealed actions open while the menu is up
+                activeKebab = kebab;
+                kebab.classList.add('active');
+                row.classList.add('menu-open');
                 menu.hidden = false;
-                // open beside the row like a submenu; aligning right-edge-to-kebab
-                // would cover the panel since the menu is wider than it
                 const rect = kebab.getBoundingClientRect();
-                menu.position(rect.right + 6, rect.top);
+                menu.position(rect.right - menu.innerElement.clientWidth, rect.bottom);
             });
             actions.appendChild(kebab);
         }

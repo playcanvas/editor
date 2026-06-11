@@ -836,7 +836,11 @@
             cursor: pointer;
             transition: background-color 100ms ease;
 
-            &:hover { background-color: #354144; }
+            // menu-open mirrors hover while the row's context menu is up
+            &:hover,
+            &.menu-open {
+                background-color: #354144;
+            }
 
             > .icon {
                 flex: none;
@@ -875,8 +879,11 @@
                 margin-left: auto;
             }
 
-            &:hover > .row-actions { display: flex; }
-            &:hover > .sub { display: none; }
+            &:hover > .row-actions,
+            &.menu-open > .row-actions { display: flex; }
+
+            &:hover > .sub,
+            &.menu-open > .sub { display: none; }
 
             > .row-actions > .switch {
                 @extend .font-bold;
@@ -922,6 +929,14 @@
                     color: $text-primary;
                     background-color: $bcg-darker;
                     border-color: $bcg-darkest;
+                }
+
+                // pressed look while its menu is open (builds kebab convention)
+                &.active {
+                    color: $text-primary;
+                    background-color: $bcg-darkest;
+                    border-color: $border-primary;
+                    box-shadow: $element-shadow-active;
                 }
             }
         }
