@@ -166,7 +166,6 @@
             border-right: 1px solid $border-primary;
 
             > .vc-view-banner {
-                display: flex;
                 align-items: center;
                 gap: 6px;
                 padding: 8px 12px;
@@ -174,6 +173,11 @@
                 background-color: rgb(255 102 0 / 8%);
                 color: $text-secondary;
                 font-size: 12px;
+
+                // display:flex would defeat the [hidden] attribute otherwise
+                &:not([hidden]) {
+                    display: flex;
+                }
 
                 > .name {
                     @extend .font-bold;
@@ -462,10 +466,14 @@
 
     // ---- changes tab ----
     .vc-changes {
-        display: flex;
         flex: 1 1 auto;
         flex-direction: column;
         min-height: 0;
+
+        // pcui-hidden must win over the layout display
+        &:not(.pcui-hidden) {
+            display: flex;
+        }
 
         > .vc-changes-list {
             flex: 1 1 auto;
@@ -691,14 +699,17 @@
         bottom: 12px;
         left: 316px;
         z-index: 2;
-        display: flex;
         align-items: center;
         gap: 10px;
         padding: 10px 14px;
         border: 1px solid $border-primary;
         border-radius: 8px;
         background-color: $bcg-dark;
-        box-shadow: 0 8px 24px rgb(0 0 0 / 45%);
+
+        // pcui-hidden must win over the layout display
+        &:not(.pcui-hidden) {
+            display: flex;
+        }
 
         > .slot {
             flex: 1 1 0;
