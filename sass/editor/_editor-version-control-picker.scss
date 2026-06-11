@@ -974,6 +974,58 @@
                 color: $text-primary;
             }
         }
+
+        > .pcui-button {
+            @extend .font-bold;
+
+            display: inline-flex;
+            flex: none;
+            align-items: center;
+            justify-content: center;
+            min-width: 104px;
+            height: 32px;
+            margin: 0;
+            padding: 0 14px;
+            border: 1px solid $bcg-darkest;
+            border-radius: 4px;
+            color: $text-secondary;
+            background-color: $bcg-dark;
+            font-size: 12px;
+            box-shadow: none;
+            cursor: pointer;
+            transition: color 100ms, background-color 100ms, opacity 100ms, box-shadow 100ms;
+
+            &:not(.pcui-disabled):hover,
+            &:not(.pcui-disabled):focus {
+                color: $text-primary;
+                box-shadow: $element-shadow-hover;
+            }
+
+            &:not(.pcui-disabled):active {
+                background-color: $bcg-darkest;
+                box-shadow: none;
+            }
+
+            &.vc-primary:not(.pcui-disabled) {
+                color: $text-primary;
+                border-color: transparent;
+                background-color: $text-active;
+
+                &:hover,
+                &:focus {
+                    background-color: color.adjust($text-active, $lightness: -7%);
+                }
+
+                &:active {
+                    background-color: color.adjust($text-active, $lightness: -12%);
+                }
+            }
+
+            &.pcui-disabled {
+                opacity: $element-opacity-disabled;
+                cursor: default;
+            }
+        }
     }
 }
 
