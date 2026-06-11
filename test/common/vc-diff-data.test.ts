@@ -38,6 +38,28 @@ describe('buildNameIndex', () => {
         expect(index.asset.size).to.equal(0);
         expect(index.entity.size).to.equal(0);
     });
+
+    it('reads entity names nested under the scenes entities key (real payload shape)', () => {
+        const index = buildNameIndex({
+            srcCheckpoint: { assets: {}, scenes: { '1': { entities: { 'guid-a': 'Root' } } }, settings: {} }
+        });
+        expect(index.entity.get('guid-a')).to.equal('Root');
+    });
+
+    it('prefers src entity names over dst for the same guid', () => {
+        const index = buildNameIndex({
+            srcCheckpoint: { assets: {}, scenes: { '1': { entities: { 'guid-a': 'Renamed' } } }, settings: {} },
+            dstCheckpoint: { assets: {}, scenes: { '1': { entities: { 'guid-a': 'Original' } } }, settings: {} }
+        });
+        expect(index.entity.get('guid-a')).to.equal('Renamed');
+    });
+
+    it('accepts string-shaped batch groups', () => {
+        const index = buildNameIndex({
+            srcCheckpoint: { assets: {}, scenes: {}, settings: { batchGroups: { '7': 'UI Batch' } } }
+        });
+        expect(index.batchGroup.get('7')).to.equal('UI Batch');
+    });
 });
 
 describe('valueKind', () => {
@@ -85,5 +107,16 @@ describe('valueKind', () => {
     it('falls back to json for objects and object kind for unrenderable type', () => {
         expect(valueKind('', 'data', { foo: 1 })).to.equal('json');
         expect(valueKind('object', 'data', { foo: 1 })).to.equal('object');
+    });
+
+    it('keeps explicit json type even for curve-shaped values', () => {
+        expect(valueKind('json', 'data', { keys: [0, 1] })).to.equal('json');
+        expect(valueKind('json', 'data', { keys: [] })).to.equal('json');
+    });
+
+    it('does not classify off-size or non-numeric arrays as vectors', () => {
+        expect(valueKind('', 'values', [1])).to.equal('json');
+        expect(valueKind('', 'values', [1, 2, 3, 4, 5])).to.equal('json');
+        expect(valueKind('', 'flags', [true, false])).to.equal('json');
     });
 });
