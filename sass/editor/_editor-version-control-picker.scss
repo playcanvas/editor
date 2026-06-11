@@ -343,6 +343,20 @@
         font-size: 12px;
     }
 
+    // verbatim checkpoint hash
+    .vc-hash {
+        @extend .fixedFont;
+
+        display: inline-block;
+        padding: 0 5px;
+        border: 1px solid $border-primary;
+        border-radius: 4px;
+        background-color: rgb(0 0 0 / 20%);
+        color: $text-secondary;
+        font-size: 11px;
+        line-height: 16px;
+    }
+
     // secondary action button (cards, lists)
     .vc-button {
         @extend .font-bold;

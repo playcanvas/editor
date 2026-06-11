@@ -35,6 +35,14 @@ export const formatDayGroup = (value: string | Date, now = new Date()) => {
     return `${WEEKDAYS[d.getDay()]}, ${MONTHS[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
 };
 
+// verbatim-styled short checkpoint hash
+export const hashChip = (id: string) => {
+    const el = document.createElement('span');
+    el.classList.add('vc-hash');
+    el.textContent = id.substring(0, 7);
+    return el;
+};
+
 type DiffLike = {
     numConflicts?: number;
     conflicts?: { itemType: string; itemName: string; data?: { missingInSrc?: boolean; missingInDst?: boolean }[] }[];

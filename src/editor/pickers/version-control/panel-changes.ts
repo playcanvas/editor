@@ -2,7 +2,7 @@ import { Container, TextAreaInput } from '@playcanvas/pcui';
 
 import { config } from '@/editor/config';
 
-import { summarizeDiff, type DiffSummary } from './vc-helpers';
+import { hashChip, summarizeDiff, type DiffSummary } from './vc-helpers';
 import { diffCreate } from '../../messenger/jobs';
 
 export const createChangesPanel = () => {
@@ -108,7 +108,10 @@ export const createChangesPanel = () => {
 
         const meta = document.createElement('div');
         meta.classList.add('vc-meta');
-        meta.textContent = `Working state of ${branch.name}${branch.latestCheckpointId ? ` vs checkpoint ${branch.latestCheckpointId.substring(0, 7)}` : ''}`;
+        meta.textContent = `Working state of ${branch.name}`;
+        if (branch.latestCheckpointId) {
+            meta.append(' vs checkpoint ', hashChip(branch.latestCheckpointId));
+        }
         card.appendChild(meta);
 
         if (current) {

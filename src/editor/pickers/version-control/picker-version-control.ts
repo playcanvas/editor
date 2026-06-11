@@ -272,9 +272,6 @@ editor.once('load', () => {
     detail.on('openDiff', (checkpoint: any, previous: any) => {
         viewDiff(viewedBranch.id, checkpoint.id, viewedBranch.id, previous.id);
     });
-    detail.on('comparePrevious', (checkpoint: any, previous: any) => {
-        viewDiff(viewedBranch.id, checkpoint.id, viewedBranch.id, previous.id);
-    });
     changes.summary.on('openDiff', () => {
         const b = config.self.branch;
         viewDiff(b.id, null, b.id, b.latestCheckpointId);

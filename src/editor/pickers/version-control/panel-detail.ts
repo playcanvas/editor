@@ -1,6 +1,6 @@
 import { Container } from '@playcanvas/pcui';
 
-import { summarizeDiff } from './vc-helpers';
+import { hashChip, summarizeDiff } from './vc-helpers';
 import { diffCreate } from '../../messenger/jobs';
 
 export const createDetailPanel = () => {
@@ -48,7 +48,8 @@ export const createDetailPanel = () => {
 
         const meta = document.createElement('div');
         meta.classList.add('vc-meta');
-        meta.textContent = `vs ${previous.id.substring(0, 7)}`;
+        meta.textContent = 'vs ';
+        meta.appendChild(hashChip(previous.id));
         head.appendChild(meta);
 
         const body = document.createElement('div');
@@ -60,11 +61,13 @@ export const createDetailPanel = () => {
             if (!summary.total) {
                 const none = document.createElement('div');
                 none.classList.add('vc-meta');
-                none.textContent = `No changes vs previous checkpoint ${previous.id.substring(0, 7)}`;
+                none.textContent = 'No changes vs previous checkpoint ';
+                none.appendChild(hashChip(previous.id));
                 body.appendChild(none);
                 return;
             }
-            meta.textContent = `${summary.total} change${summary.total === 1 ? '' : 's'} · vs ${previous.id.substring(0, 7)}`;
+            meta.textContent = `${summary.total} change${summary.total === 1 ? '' : 's'} · vs `;
+            meta.appendChild(hashChip(previous.id));
             const items = document.createElement('div');
             items.classList.add('vc-diff-list');
             for (const g of summary.groups) {
@@ -156,7 +159,8 @@ export const createDetailPanel = () => {
             const meta = document.createElement('div');
             meta.classList.add('vc-meta');
             const created = new Date(checkpoint.createdAt);
-            meta.textContent = `${checkpoint.user.fullName || 'Unknown'} · ${created.toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })} · ${checkpoint.id.substring(0, 7)}`;
+            meta.textContent = `${checkpoint.user.fullName || 'Unknown'} · ${created.toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })} · `;
+            meta.appendChild(hashChip(checkpoint.id));
             // github-style icon button matching the builds publish dialog
             const copy = document.createElement('button');
             copy.type = 'button';
@@ -181,9 +185,6 @@ export const createDetailPanel = () => {
             }
             if (ctx.canWrite) {
                 actions.appendChild(button('New Branch', null, () => panel.emit('newBranch', checkpoint)));
-            }
-            if (previous) {
-                actions.appendChild(button('Compare with previous', null, () => panel.emit('comparePrevious', checkpoint, previous)));
             }
             if (ctx.isCurrentBranch && ctx.canWrite) {
                 actions.appendChild(button('Hard Reset…', 'danger', () => panel.emit('hardReset', checkpoint)));
