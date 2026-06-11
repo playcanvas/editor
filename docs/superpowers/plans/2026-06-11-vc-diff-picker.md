@@ -751,6 +751,9 @@ $vc-add-tint: rgb(63 185 80 / 15%);
 $vc-add-edge: #3fb950;
 
 .vc-diff-overlay {
+    // above the backgrounded vc graph (299), matching the legacy diff manager
+    z-index: 300;
+
     > .pcui-overlay-content {
         position: absolute;
         inset: 0;
@@ -759,6 +762,8 @@ $vc-add-edge: #3fb950;
 }
 
 .vc-diff-shell {
+    // pcui containers are display:block unless constructed with flex: true
+    display: flex;
     flex: 1;
     flex-direction: column;
     min-width: 0;
@@ -824,6 +829,8 @@ $vc-add-edge: #3fb950;
     }
 
     > .vc-diff-row {
+        @extend .font-regular;
+
         appearance: none;
         display: flex;
         flex-wrap: wrap;
@@ -1022,9 +1029,10 @@ $vc-add-edge: #3fb950;
         // read-only widgets stay inert
         pointer-events: none;
 
-        // text values stay selectable; the inputs are readOnly so this is safe
+        // text values stay selectable and chip tooltips work; all are readOnly/inert
         input,
-        textarea {
+        textarea,
+        .vc-diff-chip {
             pointer-events: auto;
         }
 
@@ -1073,6 +1081,7 @@ $vc-add-edge: #3fb950;
     display: inline-flex;
     align-items: center;
     gap: 6px;
+    max-width: 100%;
     height: 24px;
     padding: 0 7px;
     background-color: $bcg-dark;
@@ -1084,6 +1093,13 @@ $vc-add-edge: #3fb950;
         color: $text-darkest;
         font-size: 10px;
         text-transform: uppercase;
+    }
+
+    > .name {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     &.missing > .name {
@@ -1100,6 +1116,7 @@ $vc-add-edge: #3fb950;
     display: flex;
     flex: 1;
     flex-direction: column;
+    align-items: flex-start;
     gap: 4px;
     min-width: 0;
 
@@ -1124,6 +1141,11 @@ $vc-add-edge: #3fb950;
     align-items: center;
     justify-content: center;
     color: $text-dark;
+
+    // display:flex would defeat the [hidden] attribute otherwise
+    &[hidden] {
+        display: none;
+    }
 }
 
 .vc-diff-frame {
