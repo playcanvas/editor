@@ -514,7 +514,7 @@
                     margin-left: auto;
                     padding: 1px 7px;
                     border: 1px solid $border-primary;
-                    border-radius: 8px;
+                    border-radius: 4px;
                     background-color: rgb(0 0 0 / 14%);
                     font-size: 9px;
                     text-transform: uppercase;
@@ -707,7 +707,7 @@
         gap: 10px;
         padding: 10px 14px;
         border: 1px solid $border-primary;
-        border-radius: 8px;
+        border-radius: 6px;
         background-color: $bcg-dark;
 
         // pcui-hidden must win over the layout display
@@ -744,24 +744,30 @@
     width: 320px;
     max-height: 480px;
     border: 1px solid $border-primary;
-    border-radius: 8px;
+    border-radius: 6px;
     background-color: $bcg-dark;
     overflow: hidden;
     flex-direction: column;
 
+    // header bar treatment matching the builds panel
     > .vc-branch-filter {
         display: flex;
         flex: none;
-        gap: 6px;
-        padding: 10px;
+        align-items: center;
+        gap: 8px;
+        padding: 12px;
         border-bottom: 1px solid $border-primary;
+        background-color: rgb(0 0 0 / 8%);
 
         > .pcui-text-input {
+            @extend .font-regular;
+
             flex: 1 1 auto;
             margin: 0;
             border: 1px solid $bcg-darkest;
             border-radius: 4px;
             background-color: $bcg-darkest;
+            font-size: 13px;
 
             > input::placeholder {
                 color: $text-darkest;
@@ -772,6 +778,7 @@
             flex: none;
             width: 110px;
             margin: 0;
+            font-size: 13px;
         }
     }
 
@@ -788,13 +795,12 @@
         > .vc-group {
             @extend .font-bold;
 
-            padding: 5px 12px;
+            padding: 6px 12px;
             border-bottom: 1px solid $border-primary;
             background-color: rgb(0 0 0 / 12%);
-            color: $text-dark;
-            font-size: 10px;
+            color: $text-primary;
+            font-size: 11px;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
         > .vc-branch-row {
@@ -935,7 +941,7 @@
     > .vc-dialog {
         width: 360px;
         border: 1px solid $border-primary;
-        border-radius: 8px;
+        border-radius: 6px;
         background-color: $bcg-dark;
         box-shadow: 0 12px 32px rgb(0 0 0 / 55%);
         overflow: hidden;

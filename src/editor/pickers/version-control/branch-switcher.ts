@@ -295,7 +295,7 @@ export const createBranchSwitcher = (host: Container) => {
         const hostRect = host.dom.getBoundingClientRect();
         // inset from the picker frame so the panel border doesn't double it
         panel.style.left = `${Math.max(8, rect.left - hostRect.left)}px`;
-        panel.style.top = `${rect.bottom - hostRect.top + 4}px`;
+        panel.style.top = `${rect.bottom - hostRect.top + 8}px`;
     };
 
     const hidePanel = () => {
