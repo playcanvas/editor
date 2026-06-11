@@ -1311,6 +1311,18 @@ editor.once('load', () => {
         branch.appendChild(branchName);
         row.appendChild(branch);
 
+        // views only exist for published builds; placeholder keeps the subgrid columns aligned
+        const views = document.createElement('span');
+        views.classList.add('row-views');
+        if (app.type === 'publish') {
+            views.textContent = String(app.views ?? 0);
+            views.title = 'Views';
+        } else {
+            views.classList.add('placeholder');
+            views.setAttribute('aria-hidden', 'true');
+        }
+        row.appendChild(views);
+
         const artifact = document.createElement('a');
         artifact.classList.add('row-artifact');
         if (app.task.status === 'complete' && app.url) {
