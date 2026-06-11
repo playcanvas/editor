@@ -749,8 +749,12 @@
     z-index: 100002;
     width: 320px;
     max-height: 480px;
+
+    // attached drawer: the picker frame and top bar provide the other edges
     border: 1px solid $border-primary;
-    border-radius: 6px;
+    border-top: none;
+    border-left: none;
+    border-radius: 0 0 6px;
     background-color: $bcg-dark;
     overflow: hidden;
     flex-direction: column;
