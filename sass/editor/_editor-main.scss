@@ -4679,6 +4679,8 @@ strong {
 
     // shared badge pills (list rows + detail header)
     .badge {
+        @extend .font-regular;
+
         flex: 0 0 auto;
         height: 18px;
         line-height: 18px;
@@ -5360,6 +5362,8 @@ strong {
     }
 
     .badge {
+        @extend .font-regular;
+
         flex: 0 0 auto;
         height: 18px;
         line-height: 18px;
