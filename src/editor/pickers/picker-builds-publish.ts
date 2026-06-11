@@ -1531,6 +1531,16 @@ editor.once('load', () => {
         name.textContent = app.name;
         nameRow.appendChild(name);
 
+        const typeBadge = document.createElement('span');
+        typeBadge.classList.add('badge', app.type);
+        typeBadge.textContent = getTypeLabel(app);
+        nameRow.appendChild(typeBadge);
+
+        const formatBadge = document.createElement('span');
+        formatBadge.classList.add('badge');
+        formatBadge.textContent = getFormatValue(app);
+        nameRow.appendChild(formatBadge);
+
         const primaryBadge = document.createElement('span');
         primaryBadge.classList.add('badge', 'primary-badge');
         primaryBadge.textContent = 'Primary';
