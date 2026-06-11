@@ -62,6 +62,7 @@ editor.once('load', () => {
     let nameIndex: NameIndex = null;
     let selected = 0;
     let viewToken = 0;
+    let trees: TreeView[] = [];
     const fileStats = new Map<string, Promise<{ deleted: number; added: number } | null>>();
 
     sidebar.addEventListener('click', (evt) => {
@@ -122,7 +123,7 @@ editor.once('load', () => {
         return lineChangeCounts(entry.srcValue, entry.dstValue);
     };
 
-    const loadTextCounts = (conflict: any, entry: any) => {
+    const loadTextCounts = (entry: any) => {
         const id = diffId(current);
         if (!id || !entry?.id || !entry?.mergedFilePath) {
             return Promise.resolve(null);
@@ -149,7 +150,7 @@ editor.once('load', () => {
         const src = current?.srcCheckpoint?.scenes?.[conflict.itemId]?.entities?.[id];
         const dst = current?.dstCheckpoint?.scenes?.[conflict.itemId]?.entities?.[id];
         const name = src ?? dst;
-        return typeof name === 'string' ? name : undefined;
+        return typeof name === 'string' ? name : nameIndex?.entity.get(id);
     };
 
     const appendBadge = (parent: HTMLElement, status: string) => {
@@ -217,7 +218,8 @@ editor.once('load', () => {
         const isSettings = conflict.itemType === 'settings' ||
             (conflict.itemType === 'scene' && splitDiffPath(entry.path ?? '')[0] === 'settings');
         if (isSettings) {
-            const sub = SETTINGS_ROOT_RE.test(info.section) ? '' : info.section;
+            const sub = SETTINGS_ROOT_RE.test(info.section) ? '' :
+                [info.section, ...info.context.map(label => label.text)].join(' · ');
             return { entity: null, panel: 'Settings', icon: '', sub, field: info.field, title: info.title };
         }
         const subMatch = info.context[0]?.text.match(SUB_RE);
@@ -253,6 +255,7 @@ editor.once('load', () => {
             parent = item;
         });
         tree.dom.title = label.title ?? label.text;
+        trees.push(tree);
         return tree;
     };
 
@@ -320,7 +323,7 @@ editor.once('load', () => {
 
         for (const entry of entries) {
             const parts = sectionParts(conflict, entry);
-            const key = JSON.stringify([parts.entity?.text ?? '', parts.panel]);
+            const key = JSON.stringify([parts.entity?.title ?? parts.entity?.text ?? '', parts.panel]);
             if (section?.key !== key) {
                 const card = document.createElement('div');
                 card.classList.add('vc-diff-section');
@@ -385,8 +388,8 @@ editor.once('load', () => {
         return wrap;
     };
 
-    const updateCounts = (el: HTMLElement, conflict: any, entry: any, token: number) => {
-        loadTextCounts(conflict, entry).then((file) => {
+    const updateCounts = (el: HTMLElement, entry: any, token: number) => {
+        loadTextCounts(entry).then((file) => {
             if (token !== viewToken || !el.isConnected) {
                 return;
             }
@@ -395,10 +398,10 @@ editor.once('load', () => {
         });
     };
 
-    const appendSummaryStats = (parent: HTMLElement, conflict: any, text: any, props: any[]) => {
+    const appendSummaryStats = (parent: HTMLElement, text: any, props: any[]) => {
         if (text?.id && text?.mergedFilePath) {
             parent.appendChild(lineStats(null));
-            updateCounts(parent, conflict, text, viewToken);
+            updateCounts(parent, text, viewToken);
         } else if (text) {
             parent.appendChild(lineStats(localTextCounts(text) ?? { added: 0, deleted: 0 }));
         } else if (props.length) {
@@ -446,7 +449,7 @@ editor.once('load', () => {
                 counts.classList.add('counts');
                 const props = propertyEntries(conflict);
                 const text = textEntry(conflict);
-                appendSummaryStats(counts, conflict, text, props);
+                appendSummaryStats(counts, text, props);
                 row.appendChild(counts);
 
                 appendBadge(row, item.status);
@@ -456,6 +459,8 @@ editor.once('load', () => {
     };
 
     const renderMain = () => {
+        trees.forEach(t => t.destroy());
+        trees = [];
         destroyValueFields(main);
         main.innerHTML = '';
         const conflict = selectedConflict();
@@ -482,7 +487,7 @@ editor.once('load', () => {
 
         const stats = document.createElement('div');
         stats.classList.add('stats');
-        appendSummaryStats(stats, conflict, text, props);
+        appendSummaryStats(stats, text, props);
         header.appendChild(stats);
         main.appendChild(header);
 
@@ -498,7 +503,7 @@ editor.once('load', () => {
         if (showText) {
             detail.appendChild(renderIframe(conflict, text));
             const token = viewToken;
-            loadTextCounts(conflict, text).then((counts) => {
+            loadTextCounts(text).then((counts) => {
                 if (token !== viewToken || !stats.isConnected) {
                     return;
                 }
@@ -526,6 +531,8 @@ editor.once('load', () => {
     const cleanup = () => {
         viewToken++;
         sidebar.innerHTML = '';
+        trees.forEach(t => t.destroy());
+        trees = [];
         destroyValueFields(main);
         main.innerHTML = '';
         fileStats.clear();
