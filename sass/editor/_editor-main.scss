@@ -2469,6 +2469,7 @@ strong {
 
     &.cmsView { z-index: 100000; }
     &.noAdminView { z-index: 100000; }
+    &.vc-suspended { display: none; }
 
     > .pcui-overlay-content {
         @extend .font-regular;
@@ -6959,6 +6960,8 @@ strong {
     }
 
     &.diff {
+        z-index: 302; // above the version control picker it returns to
+
         > .content {
             > .ui-panel {
                 > .content {

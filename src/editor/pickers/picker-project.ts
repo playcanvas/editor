@@ -256,6 +256,8 @@ editor.once('load', () => {
     });
 
     let closeCallback: (() => boolean) | null = null;
+    let suspended = false;
+    let suspendClickable = true;
     const originalOnPointerDown = (overlay as any)._onPointerDown;
     (overlay as any)._onPointerDown = (evt: PointerEvent) => {
         if (closeCallback && !closeCallback()) {
@@ -550,7 +552,7 @@ editor.once('load', () => {
             return;
         }
 
-        if (e.keyCode === 27 && overlay.clickable) {
+        if (e.keyCode === 27 && overlay.clickable && !editor.call('picker:isOpen', 'conflict-manager')) {
             overlay.hidden = true;
         }
     };
@@ -756,6 +758,25 @@ editor.once('load', () => {
         overlay.class.remove('cmsView');
         overlay.class.remove('noAdminView');
         overlay.hidden = true;
+    });
+
+    editor.method('picker:project:suspend', () => {
+        if (suspended || overlay.hidden) {
+            return;
+        }
+        suspended = true;
+        suspendClickable = overlay.clickable;
+        overlay.clickable = false;
+        overlay.class.add('vc-suspended');
+    });
+
+    editor.method('picker:project:resume', () => {
+        if (!suspended) {
+            return;
+        }
+        suspended = false;
+        overlay.class.remove('vc-suspended');
+        overlay.clickable = suspendClickable;
     });
 
     // prevent user closing popup

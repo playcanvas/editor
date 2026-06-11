@@ -19,7 +19,19 @@ export const createChangesPanel = () => {
     // generation counter: incremented by invalidate() and at the start of each fetch;
     // .then/.catch discard results when the generation has moved on (stale-response guard)
     let gen = 0;
+    let rawDiffLive = false;
     const fileStats = new Map<string, Promise<{ deleted: number; added: number } | null>>();
+
+    const diffId = (diff: any) => diff?.id ?? diff?.merge_id;
+
+    const releaseRawDiff = () => {
+        const id = rawDiffLive ? diffId(raw) : null;
+        if (typeof id === 'string') {
+            editor.call('picker:versioncontrol:releaseDiff', id);
+        }
+        rawDiffLive = false;
+        fileStats.clear();
+    };
 
     const list = document.createElement('div');
     list.classList.add('vc-changes-list');
@@ -131,7 +143,7 @@ export const createChangesPanel = () => {
     };
 
     const loadLineCounts = (conflict: any, entry: any) => {
-        const id = raw?.id ?? raw?.merge_id;
+        const id = rawDiffLive ? diffId(raw) : null;
         if (id && entry.id && entry.mergedFilePath) {
             const key = JSON.stringify([id, entry.id, entry.mergedFilePath]);
             if (!fileStats.has(key)) {
@@ -315,7 +327,7 @@ export const createChangesPanel = () => {
             openBtn.type = 'button';
             openBtn.classList.add('vc-button');
             openBtn.textContent = 'Open Full Diff';
-            openBtn.addEventListener('click', () => summary.emit('openDiff', raw));
+            openBtn.addEventListener('click', () => summary.emit('openDiff', rawDiffLive ? raw : null));
             side.appendChild(openBtn);
         }
 
@@ -369,10 +381,10 @@ export const createChangesPanel = () => {
         }
         // no checkpoint to diff against yet
         if (!branch.latestCheckpointId) {
+            releaseRawDiff();
             current = { total: 0, groups: [] };
             raw = null;
             selIdx = null;
-            fileStats.clear();
             stale = false;
             render();
             sidebar.emit('count', 0);
@@ -393,7 +405,14 @@ export const createChangesPanel = () => {
                 return;
             }
             stale = false;
-            raw = diff ?? {};
+            const oldId = rawDiffLive ? diffId(raw) : null;
+            const next = diff ?? {};
+            const nextId = diffId(next);
+            if (typeof oldId === 'string' && oldId !== nextId) {
+                editor.call('picker:versioncontrol:releaseDiff', oldId);
+            }
+            raw = next;
+            rawDiffLive = typeof nextId === 'string';
             current = summarizeDiff(raw);
             fileStats.clear();
             // indices shift on every recompute; default to the first change
@@ -407,9 +426,9 @@ export const createChangesPanel = () => {
             }
             log.error(err);
             current = null;
+            releaseRawDiff();
             raw = null;
             selIdx = null;
-            fileStats.clear();
             render();
             // keep the tab label honest; the count getter now reports null
             sidebar.emit('count', 0);
@@ -419,11 +438,11 @@ export const createChangesPanel = () => {
     Object.assign(sidebar, {
         refresh,
         invalidate: () => {
+            releaseRawDiff();
             stale = true;
             current = null;
             raw = null;
             selIdx = null;
-            fileStats.clear();
             gen++;
         },
         resetForm: () => {
@@ -444,6 +463,13 @@ export const createChangesPanel = () => {
     });
     // Object.assign snapshots getter values; live getters must be defined directly
     Object.defineProperty(sidebar, 'count', { get: () => (current ? current.total : null) });
+
+    editor.on('picker:diffManager:closed', (id: string) => {
+        if (rawDiffLive && diffId(raw) === id) {
+            rawDiffLive = false;
+            fileStats.clear();
+        }
+    });
 
     return {
         sidebar: sidebar as Container & {

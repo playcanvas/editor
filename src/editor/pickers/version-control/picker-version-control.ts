@@ -22,6 +22,32 @@ editor.once('load', () => {
     let compareMode = false;
     let compareSlots: { branch: any; checkpoint: any | null }[] = [];
     let showNewCheckpointOnLoad = false;
+    const retainedDiffs = new Set<string>();
+
+    const diffId = (diff: any) => diff?.id ?? diff?.merge_id;
+
+    const retainDiff = (diff: any) => {
+        const id = diffId(diff);
+        if (typeof id === 'string') {
+            retainedDiffs.add(id);
+        }
+    };
+
+    const releaseDiff = (id: string) => {
+        if (!id || !retainedDiffs.delete(id)) {
+            return;
+        }
+        editor.emit('picker:diffManager:closed', id);
+        handleCallback(editor.api.globals.rest.merge.mergeDelete({ mergeId: id }), (err) => {
+            if (err) {
+                log.error(err);
+            }
+        });
+    };
+
+    const releaseDiffs = () => {
+        [...retainedDiffs].forEach(releaseDiff);
+    };
 
     // ---- layout ----
     const panel = new Container({ class: ['picker-version-control', 'picker-vc'], flex: true });
@@ -247,36 +273,55 @@ editor.once('load', () => {
 
     // ---- diff viewing ----
     const presentDiff = (diff: any) => {
-        editor.call('picker:project:close');
-        editor.call('picker:versioncontrol:mergeOverlay:hide');
-        editor.call('picker:diffManager', diff);
-    };
-
-    const viewDiff = (srcBranchId: string, srcCheckpointId: string | null, dstBranchId: string, dstCheckpointId: string | null) => {
-        togglePanels(false);
-        showProgress(progressDiff);
-        diffCreate({ srcBranchId, srcCheckpointId, dstBranchId, dstCheckpointId }).then((diff: any) => {
-            progressDiff.finish();
-            togglePanels(true);
-            if (diff && diff.numConflicts !== 0) {
-                presentDiff(diff);
-            } else {
-                progressDiff.setMessage('There are no changes');
-                setTimeout(() => {
-                    editor.call('vcgraph:moveToForeground');
-                    showProgress(null);
-                }, 1500);
-            }
-        }).catch((err) => {
-            progressDiff.finish(err instanceof Error ? err.message : `${err}`);
-            togglePanels(true);
+        retainDiff(diff);
+        togglePanels(true);
+        showProgress(null);
+        requestAnimationFrame(() => {
+            editor.call('picker:project:suspend');
+            editor.call('picker:versioncontrol:mergeOverlay:hide');
+            editor.call('picker:diffManager', diff);
         });
     };
 
+    const showNoChanges = () => {
+        progressDiff.setMessage('There are no changes');
+        setTimeout(() => {
+            editor.call('vcgraph:moveToForeground');
+            showProgress(null);
+        }, 1500);
+    };
+
+    const runDiff = (task: () => Promise<any>) => {
+        togglePanels(false);
+        showProgress(progressDiff);
+        requestAnimationFrame(() => {
+            task().then((diff: any) => {
+                progressDiff.finish();
+                togglePanels(true);
+                if (diff && diff.numConflicts !== 0) {
+                    presentDiff(diff);
+                } else {
+                    showNoChanges();
+                }
+            }).catch((err) => {
+                progressDiff.finish(err instanceof Error ? err.message : `${err}`);
+                togglePanels(true);
+            });
+        });
+    };
+
+    const viewDiff = (srcBranchId: string, srcCheckpointId: string | null, dstBranchId: string, dstCheckpointId: string | null) => {
+        runDiff(() => diffCreate({ srcBranchId, srcCheckpointId, dstBranchId, dstCheckpointId }));
+    };
+
     // cached diffs from the panels skip the expensive diffCreate job
-    detail.on('openDiff', (checkpoint: any, previous: any, cached: any) => {
+    detail.on('openDiff', (checkpoint: any, previous: any, cached: any, pending: Promise<any>) => {
         if (cached && cached.numConflicts) {
             presentDiff(cached);
+            return;
+        }
+        if (pending) {
+            runDiff(() => pending);
             return;
         }
         viewDiff(viewedBranch.id, checkpoint.id, viewedBranch.id, previous.id);
@@ -744,6 +789,7 @@ editor.once('load', () => {
     });
 
     panel.on('hide', () => {
+        releaseDiffs();
         switcher.closePanel();
         setCompareMode(false);
         detail.clear();
@@ -767,6 +813,12 @@ editor.once('load', () => {
     editor.method('picker:versioncontrol', () => {
         editor.call('picker:project', 'version control');
     });
+
+    editor.method('picker:versioncontrol:hasRetainedDiff', (id: string) => {
+        return retainedDiffs.has(id);
+    });
+
+    editor.method('picker:versioncontrol:releaseDiff', releaseDiff);
 
     editor.method('picker:versioncontrol:transformCheckpointData', (data: any) => {
         return {

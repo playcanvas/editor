@@ -263,10 +263,19 @@
 
             // kept progress widgets render here now (was .side-panel)
             > .progress-widget {
-                margin: 60px auto;
+                width: min(360px, 100%);
+                margin: clamp(96px, 24vh, 220px) auto 0;
+                background-color: transparent;
+
+                > .content {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                }
 
                 .ui-label {
                     width: 100%;
+                    margin: 0;
                     color: $text-primary;
                     font-size: 16px;
                     text-align: center;
@@ -282,7 +291,23 @@
                 }
 
                 svg {
-                    margin: 15px auto auto;
+                    display: block;
+                    flex: none;
+                    margin: 16px 0 0;
+
+                    &.spin {
+                        g {
+                            animation-name: spin;
+                            animation-duration: 500ms;
+                            animation-iteration-count: infinite;
+                            animation-timing-function: linear;
+                            transform-origin: center;
+                        }
+                    }
+
+                    &.hidden {
+                        display: none;
+                    }
                 }
             }
         }
