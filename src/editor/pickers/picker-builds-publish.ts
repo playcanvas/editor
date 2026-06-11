@@ -1,9 +1,10 @@
 import { Container, Label, Menu, MenuItem, Button } from '@playcanvas/pcui';
 
-import { bytesToHuman, convertDatetime } from '@/common/utils';
+import { bytesToHuman, convertDatetime, countToHuman } from '@/common/utils';
 import { config } from '@/editor/config';
 
 const APP_LIMIT = 16;
+const APP_INDEX_PAGE = 128;
 const FILTER_ALL = 'all';
 const BUILD_FILTERS = [{
     key: 'type',
@@ -414,21 +415,33 @@ editor.once('load', () => {
         noMatchingBuilds.hidden = true;
     };
 
+    // job rows depend on this index for app metadata like the view count, and the
+    // endpoint treats limit 0 as 16, so page through every app explicitly
     const loadAppIndex = function (done: () => void) {
         if (loadedAppIndex) {
             done();
             return;
         }
 
-        editor.api.globals.rest.projects.projectApps().on('load', (status, data) => {
-            appList = (data?.result || []).slice();
-            appIndex = {};
-            appList.forEach((app) => {
-                appIndex[String(app.id)] = app;
+        const fetched = [];
+        const fetchPage = function (skip: number) {
+            editor.api.globals.rest.projects.projectApps(APP_INDEX_PAGE, skip).on('load', (status, data) => {
+                const page = data?.result || [];
+                fetched.push(...page);
+                if (page.length === APP_INDEX_PAGE) {
+                    fetchPage(skip + APP_INDEX_PAGE);
+                    return;
+                }
+                appList = fetched.slice();
+                appIndex = {};
+                appList.forEach((app) => {
+                    appIndex[String(app.id)] = app;
+                });
+                loadedAppIndex = true;
+                done();
             });
-            loadedAppIndex = true;
-            done();
-        });
+        };
+        fetchPage(0);
     };
 
     const compareBuildDate = function (a: any, b: any) {
@@ -852,13 +865,13 @@ editor.once('load', () => {
         card.appendChild(body);
 
         const title = document.createElement('div');
-        title.classList.add('artifact-title');
+        title.classList.add('artifact-title', 'selectable');
         title.textContent = app.type === 'download' ? 'zip' : 'app';
         body.appendChild(title);
 
         if (artifact.bytes !== null && artifact.bytes !== undefined) {
             const meta = document.createElement('div');
-            meta.classList.add('artifact-meta');
+            meta.classList.add('artifact-meta', 'selectable');
             meta.textContent = bytesToHuman(artifact.bytes);
             body.appendChild(meta);
         }
@@ -1321,8 +1334,9 @@ editor.once('load', () => {
         const views = document.createElement('span');
         views.classList.add('row-views');
         if (app.type === 'publish') {
-            views.textContent = String(app.views ?? 0);
-            views.title = 'Views';
+            const count = Number(app.views) || 0;
+            views.textContent = countToHuman(count);
+            views.title = count === 1 ? '1 view' : `${count} views`;
         } else {
             views.classList.add('placeholder');
             views.setAttribute('aria-hidden', 'true');
