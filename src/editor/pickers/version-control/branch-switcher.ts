@@ -305,6 +305,10 @@ export const createBranchSwitcher = () => {
     };
 
     button.dom.addEventListener('click', () => {
+        // raw listener bypasses pcui gating; respect disabled state during operations
+        if (!button.enabled) {
+            return;
+        }
         if (!panel.hidden) {
             hidePanel();
             return;

@@ -7,6 +7,14 @@
     overflow: hidden;
     flex-direction: column;
 
+    // raw-dom controls inside these containers must respect operation gating
+    > .vc-top-bar.pcui-disabled,
+    > .vc-compare-bar.pcui-disabled,
+    > .vc-body > .vc-sidebar.pcui-disabled {
+        pointer-events: none;
+        opacity: 0.6;
+    }
+
     // ---- top bar ----
     > .vc-top-bar {
         display: flex;
