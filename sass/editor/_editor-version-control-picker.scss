@@ -2,7 +2,6 @@
 
 // modern version control picker (github desktop style)
 
-// ---- changes tab ----
 // builds-panel badge (status pills, item headers)
 %vc-badge {
     flex: none;
@@ -583,6 +582,7 @@
         }
     }
 
+    // ---- changes tab ----
     // grouped change rows shared by the changes tab and the detail diff card
     @mixin vc-change-rows {
         > .vc-group {
