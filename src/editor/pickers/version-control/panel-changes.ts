@@ -2,7 +2,7 @@ import { Container, TextAreaInput } from '@playcanvas/pcui';
 
 import { config } from '@/editor/config';
 
-import { hashChip, summarizeDiff, typeLabel, type DiffSummary } from './vc-helpers';
+import { diffTextChangeCounts, formatDiffPath, hashChip, lineChangeCounts, splitDiffPath, summarizeDiff, typeLabel, type DiffSummary } from './vc-helpers';
 import { diffCreate } from '../../messenger/jobs';
 
 export const createChangesPanel = () => {
@@ -19,6 +19,7 @@ export const createChangesPanel = () => {
     // generation counter: incremented by invalidate() and at the start of each fetch;
     // .then/.catch discard results when the generation has moved on (stale-response guard)
     let gen = 0;
+    const fileStats = new Map<string, Promise<{ deleted: number; added: number } | null>>();
 
     const list = document.createElement('div');
     list.classList.add('vc-changes-list');
@@ -113,6 +114,111 @@ export const createChangesPanel = () => {
         return s.length > 64 ? `${s.substring(0, 61)}…` : s;
     };
 
+    const appendLineCounts = (vals: HTMLElement, counts: { deleted: number; added: number }) => {
+        const add = document.createElement('span');
+        add.classList.add('new', 'count');
+        add.textContent = `+${counts.added}`;
+        vals.appendChild(add);
+        vals.appendChild(document.createTextNode(' '));
+        const del = document.createElement('span');
+        del.classList.add('old', 'count');
+        del.textContent = `-${counts.deleted}`;
+        vals.appendChild(del);
+    };
+
+    const fileName = (conflict: any, entry: any, side: 'src' | 'dst') => {
+        return side === 'src' ? entry.srcFilename ?? conflict.srcFilename : entry.dstFilename ?? conflict.dstFilename;
+    };
+
+    const loadLineCounts = (conflict: any, entry: any) => {
+        const id = raw?.id ?? raw?.merge_id;
+        if (id && entry.id && entry.mergedFilePath) {
+            const key = JSON.stringify([id, entry.id, entry.mergedFilePath]);
+            if (!fileStats.has(key)) {
+                fileStats.set(key, editor.api.globals.rest.merge.mergeConflicts({
+                    mergeId: id,
+                    conflictId: entry.id,
+                    fileName: entry.mergedFilePath,
+                    resolved: false
+                }).promisify()
+                .then(diffTextChangeCounts)
+                .catch((err: unknown) => {
+                    log.error(err);
+                    return null;
+                }));
+            }
+            return fileStats.get(key)!;
+        }
+        const inline = lineChangeCounts(entry.srcValue ?? (entry.missingInSrc ? '' : undefined), entry.dstValue ?? (entry.missingInDst ? '' : undefined));
+        if (inline) {
+            return Promise.resolve(inline);
+        }
+        return Promise.resolve(null);
+    };
+
+    const entityName = (conflict: any, value: string) => {
+        const id = splitDiffPath(value)[1];
+        const src = raw?.srcCheckpoint?.scenes?.[conflict.itemId]?.entities?.[id];
+        const dst = raw?.dstCheckpoint?.scenes?.[conflict.itemId]?.entities?.[id];
+        const name = src ?? dst;
+        return typeof name === 'string' ? name : undefined;
+    };
+
+    const appendPath = (row: HTMLElement, path: HTMLElement, vals: HTMLElement, conflict: any, entry: any) => {
+        const value = entry.path;
+        path.title = value;
+        if (conflict.itemType !== 'scene' && conflict.itemType !== 'settings') {
+            path.textContent = value;
+            return false;
+        }
+        const info = formatDiffPath(value, conflict.itemType, entityName(conflict, value));
+        if (!info.labels.length) {
+            path.textContent = value;
+            return false;
+        }
+        row.classList.add('tree');
+        path.classList.add('tree');
+        vals.hidden = true;
+        const tree = document.createElement('span');
+        tree.classList.add('vc-path-tree');
+        info.labels.forEach((label, i) => {
+            const seg = document.createElement('span');
+            seg.classList.add('seg');
+            seg.style.paddingLeft = `${Math.min(i, 8) * 12}px`;
+            seg.textContent = label.text;
+            seg.title = label.title ?? label.text;
+            tree.appendChild(seg);
+        });
+        const line = (kind: string, text: string) => {
+            const seg = document.createElement('span');
+            seg.classList.add('change', kind);
+            seg.style.paddingLeft = `${Math.min(info.labels.length, 8) * 12}px`;
+            seg.textContent = text;
+            seg.title = text;
+            tree.appendChild(seg);
+        };
+        if (entry.missingInDst) {
+            line('new', `+ ${info.field}: ${fmtVal(entry.srcValue)}`);
+        } else if (entry.missingInSrc) {
+            line('old', `- ${info.field}: ${fmtVal(entry.dstValue)}`);
+        } else {
+            line('old', `- ${info.field}: ${fmtVal(entry.dstValue)}`);
+            line('new', `+ ${info.field}: ${fmtVal(entry.srcValue)}`);
+        }
+        path.appendChild(tree);
+        return true;
+    };
+
+    const fileText = (entry: any) => {
+        if (entry.missingInDst) {
+            return 'added';
+        }
+        if (entry.missingInSrc) {
+            return 'deleted';
+        }
+        return 'changed';
+    };
+
     // field-level rows for one conflict, straight from the loaded diff
     const renderFieldDiff = (conflict: any) => {
         const wrap = document.createElement('div');
@@ -125,18 +231,28 @@ export const createChangesPanel = () => {
             const vals = document.createElement('span');
             vals.classList.add('vals');
 
-            if (entry.srcFilename || entry.dstFilename) {
-                // text asset contents; too heavy to inline — point at the full diff
-                path.textContent = 'file contents';
-                vals.textContent = 'changed — use Open Full Diff to view';
+            const srcName = fileName(conflict, entry, 'src');
+            const dstName = fileName(conflict, entry, 'dst');
+            if (srcName || dstName) {
+                path.textContent = srcName ?? dstName;
+                vals.textContent = 'Loading…';
+                loadLineCounts(conflict, entry).then((counts) => {
+                    if (!row.isConnected) {
+                        return;
+                    }
+                    vals.innerHTML = '';
+                    if (counts) {
+                        appendLineCounts(vals, counts);
+                    } else {
+                        vals.textContent = `${fileText(entry)} — use Open Full Diff to view`;
+                    }
+                });
             } else if (!entry.path) {
                 // whole-item add/delete
                 path.textContent = conflict.itemName;
                 vals.textContent = entry.missingInDst ? 'added since the checkpoint' :
                     entry.missingInSrc ? 'deleted since the checkpoint' : 'changed';
-            } else {
-                path.textContent = entry.path;
-                path.title = entry.path;
+            } else if (!appendPath(row, path, vals, conflict, entry)) {
                 // src is the working state (new), dst is the checkpoint (old)
                 if (entry.missingInDst) {
                     const nv = document.createElement('span');
@@ -193,14 +309,6 @@ export const createChangesPanel = () => {
             meta.appendChild(hashChip(branch.latestCheckpointId));
             side.appendChild(meta);
         }
-
-        const refreshBtn = document.createElement('button');
-        refreshBtn.type = 'button';
-        refreshBtn.classList.add('vc-button');
-        refreshBtn.textContent = '↻ Refresh';
-        refreshBtn.disabled = loading;
-        refreshBtn.addEventListener('click', () => refresh(true));
-        side.appendChild(refreshBtn);
 
         if (current && current.total) {
             const openBtn = document.createElement('button');
@@ -264,6 +372,7 @@ export const createChangesPanel = () => {
             current = { total: 0, groups: [] };
             raw = null;
             selIdx = null;
+            fileStats.clear();
             stale = false;
             render();
             sidebar.emit('count', 0);
@@ -286,6 +395,7 @@ export const createChangesPanel = () => {
             stale = false;
             raw = diff ?? {};
             current = summarizeDiff(raw);
+            fileStats.clear();
             // indices shift on every recompute; default to the first change
             selIdx = current.total ? current.groups[0].items[0].index : null;
             render();
@@ -299,6 +409,7 @@ export const createChangesPanel = () => {
             current = null;
             raw = null;
             selIdx = null;
+            fileStats.clear();
             render();
             // keep the tab label honest; the count getter now reports null
             sidebar.emit('count', 0);
@@ -312,6 +423,7 @@ export const createChangesPanel = () => {
             current = null;
             raw = null;
             selIdx = null;
+            fileStats.clear();
             gen++;
         },
         resetForm: () => {

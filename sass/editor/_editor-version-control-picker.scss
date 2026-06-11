@@ -806,6 +806,10 @@
                 border-bottom: none;
             }
 
+            &.tree {
+                align-items: flex-start;
+            }
+
             > .path {
                 @extend .fixedFont;
 
@@ -816,6 +820,46 @@
                 white-space: nowrap;
                 color: $text-secondary;
                 font-size: 12px;
+
+                &.tree {
+                    overflow: visible;
+                    text-overflow: clip;
+                    white-space: normal;
+                }
+            }
+
+            .vc-path-tree {
+                display: block;
+                min-width: 0;
+
+                > .seg {
+                    display: block;
+                    max-width: 100%;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+
+                    &::after {
+                        content: ':';
+                        color: $text-darkest;
+                    }
+                }
+
+                > .change {
+                    display: block;
+                    max-width: 100%;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+
+                    &.old {
+                        color: #ff8a8a;
+                    }
+
+                    &.new {
+                        color: #6fd088;
+                    }
+                }
             }
 
             > .vals {
@@ -832,6 +876,10 @@
                 .old {
                     color: #ff8a8a;
                     text-decoration: line-through;
+
+                    &.count {
+                        text-decoration: none;
+                    }
                 }
 
                 .new {
