@@ -3,7 +3,7 @@ import { Container } from '@playcanvas/pcui';
 import { handleCallback } from '@/common/utils';
 import { config } from '@/editor/config';
 
-import { formatDayGroup, formatRelativeDate } from './vc-helpers';
+import { formatDayGroup, formatRelativeDate, hashChip } from './vc-helpers';
 
 const PAGE_SIZE = 50;
 const MAX_COMPARE = 2;
@@ -99,6 +99,10 @@ export const createHistoryPanel = () => {
             'uncheckpointed changes';
         body.appendChild(sub);
         row.appendChild(body);
+
+        if (checkpoint) {
+            row.appendChild(hashChip(checkpoint.id));
+        }
 
         if (checkpoint && checkpoint.id === selectedId && !compareMode) {
             row.classList.add('selected');

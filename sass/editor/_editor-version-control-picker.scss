@@ -487,9 +487,18 @@
 
                 > .sub {
                     margin-top: 2px;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
                     color: $text-dark;
                     font-size: 11px;
                 }
+            }
+
+            > .vc-hash {
+                flex: none;
+                align-self: center;
+                margin-left: auto;
             }
 
             &.disabled {
