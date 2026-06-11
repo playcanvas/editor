@@ -5210,9 +5210,10 @@ strong {
 
 }
 
-// GitHub-style copy-to-clipboard icon button (builds panel + build detail)
+// GitHub-style copy-to-clipboard icon button (builds panel, build detail, version control)
 .picker-builds-publish,
-.picker-build-detail {
+.picker-build-detail,
+.pcui-container.picker-vc {
     .copy-button {
         appearance: none;
         flex: 0 0 auto;

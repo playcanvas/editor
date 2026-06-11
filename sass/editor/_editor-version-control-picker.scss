@@ -310,6 +310,28 @@
         }
     }
 
+    // card title row: heading left, compact meta right
+    .vc-card-head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 10px;
+        margin: 0 0 10px;
+
+        > h3 {
+            @extend .font-bold;
+
+            margin: 0;
+            color: $text-primary;
+            font-size: 13px;
+        }
+
+        > .vc-meta {
+            flex: none;
+            font-size: 11px;
+        }
+    }
+
     .vc-pill {
         display: inline-block;
         margin: 8px 6px 0 0;
@@ -476,11 +498,12 @@
         > .vc-group {
             @extend .font-bold;
 
-            padding: 6px 12px;
+            padding: 5px 12px;
             border-bottom: 1px solid $border-primary;
             background-color: rgb(0 0 0 / 12%);
-            color: $text-primary;
-            font-size: 11px;
+            color: $text-secondary;
+            font-size: 10px;
+            letter-spacing: 0.4px;
             text-transform: uppercase;
         }
 
@@ -677,18 +700,9 @@
                 word-break: break-word;
             }
 
-            > .vc-meta > .copy-id {
-                appearance: none;
-                margin-left: 6px;
-                padding: 1px 6px;
-                border: 1px solid $border-primary;
-                border-radius: 4px;
-                background: transparent;
-                color: $text-dark;
-                font-size: 10px;
-                cursor: pointer;
-
-                &:hover { color: $text-primary; }
+            > .vc-meta > .copy-button {
+                margin-left: 2px;
+                vertical-align: middle;
             }
         }
     }
@@ -703,7 +717,6 @@
     // grouped change list inside the detail diff card
     .vc-diff-list {
         max-height: 45vh;
-        margin-top: 10px;
         border: 1px solid $border-primary;
         border-radius: 6px;
         background-color: rgb(0 0 0 / 10%);

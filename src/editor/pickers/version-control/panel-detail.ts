@@ -33,17 +33,23 @@ export const createDetailPanel = () => {
     const renderChangesCard = (checkpoint: any, previous: any, branchId: string, token: number) => {
         const card = document.createElement('div');
         card.classList.add('vc-card');
-        card.innerHTML = '<h3>Changes in this checkpoint</h3>';
+        const head = document.createElement('div');
+        head.classList.add('vc-card-head');
+        head.innerHTML = '<h3>Changes in this checkpoint</h3>';
+        card.appendChild(head);
+
+        if (!previous) {
+            const note = document.createElement('div');
+            note.classList.add('vc-meta');
+            note.textContent = 'This is the oldest loaded checkpoint — scroll the history to load older ones for a comparison baseline.';
+            card.appendChild(note);
+            return card;
+        }
 
         const meta = document.createElement('div');
         meta.classList.add('vc-meta');
-        card.appendChild(meta);
-
-        if (!previous) {
-            meta.textContent = 'This is the oldest loaded checkpoint — scroll the history to load older ones for a comparison baseline.';
-            return card;
-        }
-        meta.textContent = `vs previous checkpoint ${previous.id.substring(0, 7)}`;
+        meta.textContent = `vs ${previous.id.substring(0, 7)}`;
+        head.appendChild(meta);
 
         const body = document.createElement('div');
         card.appendChild(body);
@@ -52,10 +58,13 @@ export const createDetailPanel = () => {
         const fill = (summary: ReturnType<typeof summarizeDiff>) => {
             body.innerHTML = '';
             if (!summary.total) {
-                meta.textContent = `No changes vs previous checkpoint ${previous.id.substring(0, 7)}`;
+                const none = document.createElement('div');
+                none.classList.add('vc-meta');
+                none.textContent = `No changes vs previous checkpoint ${previous.id.substring(0, 7)}`;
+                body.appendChild(none);
                 return;
             }
-            meta.textContent = `${summary.total} change${summary.total === 1 ? '' : 's'} vs previous checkpoint ${previous.id.substring(0, 7)}`;
+            meta.textContent = `${summary.total} change${summary.total === 1 ? '' : 's'} · vs ${previous.id.substring(0, 7)}`;
             const items = document.createElement('div');
             items.classList.add('vc-diff-list');
             for (const g of summary.groups) {
@@ -93,7 +102,7 @@ export const createDetailPanel = () => {
         if (diffCache[key]) {
             fill(diffCache[key]);
         } else {
-            body.innerHTML = '<div class="vc-meta">Computing changes…</div>';
+            body.innerHTML = `<div class="vc-diff-list"><div class="vc-skeleton">${'<div class="skeleton-row"><span class="bone line"></span></div>'.repeat(3)}</div></div>`;
             diffCreate({
                 srcBranchId: branchId,
                 srcCheckpointId: checkpoint.id,
@@ -148,16 +157,17 @@ export const createDetailPanel = () => {
             meta.classList.add('vc-meta');
             const created = new Date(checkpoint.createdAt);
             meta.textContent = `${checkpoint.user.fullName || 'Unknown'} · ${created.toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })} · ${checkpoint.id.substring(0, 7)}`;
+            // github-style icon button matching the builds publish dialog
             const copy = document.createElement('button');
             copy.type = 'button';
-            copy.classList.add('copy-id');
-            copy.textContent = 'copy id';
+            copy.classList.add('copy-button');
+            copy.title = 'Copy checkpoint id';
+            copy.setAttribute('aria-label', 'Copy checkpoint id');
             copy.addEventListener('click', () => {
-                navigator.clipboard?.writeText(checkpoint.id);
-                copy.textContent = 'copied';
-                setTimeout(() => {
-                    copy.textContent = 'copy id';
-                }, 1200);
+                navigator.clipboard.writeText(checkpoint.id).then(() => {
+                    copy.classList.add('copied');
+                    setTimeout(() => copy.classList.remove('copied'), 1500);
+                }, () => {});
             });
             meta.appendChild(copy);
             body.appendChild(meta);
