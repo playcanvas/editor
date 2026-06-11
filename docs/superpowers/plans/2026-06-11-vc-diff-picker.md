@@ -579,6 +579,11 @@ const SETTINGS_ROOT_RE = /^(scene |project )?settings$/i;
             if (!section.subs.has(parts.sub)) {
                 const sub = new Panel({ collapsible: true, headerText: parts.sub });
                 sub.class.add('vc-diff-subpanel');
+                // script/slot/clip sub-panels are inset like the inspector's;
+                // settings group sub-panels are flush like the settings panel's
+                if (parts.panel !== 'Settings') {
+                    sub.class.add('inset');
+                }
                 section.panel.append(sub);
                 section.subs.set(parts.sub, sub);
             }
@@ -944,7 +949,9 @@ $vc-add-edge: #3fb950;
         text-transform: uppercase;
     }
 
-    .vc-diff-subpanel {
+    // settings group sub-panels sit flush inside SETTINGS (like the real settings panel);
+    // script/slot/clip sub-panels are inset like the inspector's per-script panels
+    .vc-diff-subpanel.inset {
         margin: 6px;
     }
 }
