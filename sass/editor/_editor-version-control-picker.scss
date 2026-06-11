@@ -804,8 +804,11 @@
         // x would otherwise show the editor's 8px black scrollbar track
         overflow: hidden auto;
 
-        // the new-branch button below brings its own divider
-        > :last-child {
+        // the new-branch button below brings its own divider; outscore the
+        // row/group border rules rather than rely on source order
+        > .vc-branch-row:last-child,
+        > .vc-group:last-child,
+        > .vc-list-status:last-child {
             border-bottom: none;
         }
 
