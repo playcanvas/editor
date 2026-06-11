@@ -1,4 +1,4 @@
-const REF_KINDS = new Set(['asset', 'entity', 'layer', 'batchGroup', 'sublayer']);
+export const REF_KINDS = new Set(['asset', 'entity', 'layer', 'batchGroup', 'sublayer']);
 const COLORISH = /color|tint|gradient/i;
 
 export type NameIndex = {

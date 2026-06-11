@@ -3,10 +3,9 @@ import { BooleanInput, NumericInput, TextAreaInput, TextInput, VectorInput, Colo
 import { CurveInput } from '@/common/pcui/element/element-curve-input';
 import { GradientInput } from '@/common/pcui/element/element-gradient-input';
 
-import { valueKind, type NameIndex, type ValueKind } from './vc-diff-data';
+import { REF_KINDS, valueKind, type NameIndex, type ValueKind } from './vc-diff-data';
 
 const AXES = ['X', 'Y', 'Z', 'W'];
-const REF_LIKE = new Set<ValueKind>(['asset', 'entity', 'layer', 'batchGroup', 'sublayer']);
 const JSON_FIELD_HEIGHT = 100;
 
 const el = (cls: string, text = '') => {
@@ -44,10 +43,26 @@ const pcuiDom = (widget: { dom: HTMLElement }) => {
 const curveField = (value: any) => {
     const curve = new CurveInput({ readOnly: true });
     curve.value = Array.isArray(value) ? value : [value];
+    // detached from the pcui hierarchy: start the canvas self-sizing loop manually
+    curve.emit('showToRoot');
     return pcuiDom(curve);
 };
 
 export const createValueField = (kind: ValueKind, value: any, index: NameIndex): HTMLElement => {
+    if (kind.startsWith('array:')) {
+        // render each element through the element renderer
+        const inner = kind.substring('array:'.length);
+        const list = document.createElement('div');
+        list.className = 'vc-diff-array';
+        const items = Array.isArray(value) ? value : [value];
+        list.appendChild(el('size', `${items.length} item${items.length === 1 ? '' : 's'}`));
+        for (const item of items) {
+            const itemKind = item === undefined || item === null ? 'missing' :
+                REF_KINDS.has(inner) ? inner as ValueKind : valueKind(inner, '', item);
+            list.appendChild(createValueField(itemKind, item, index));
+        }
+        return list;
+    }
     switch (kind) {
         case 'missing':
             return missingEl(value === null ? 'null' : 'not present');
@@ -73,8 +88,7 @@ export const createValueField = (kind: ValueKind, value: any, index: NameIndex):
             if (!Array.isArray(value?.keys)) {
                 return curveField(value);
             }
-            const gradient = new GradientInput({ value, channels: value.keys.length });
-            (gradient as any).readOnly = true;
+            const gradient = new GradientInput({ value, channels: value.keys.length, readOnly: true });
             return pcuiDom(gradient);
         }
         case 'asset':
@@ -94,19 +108,14 @@ export const createValueField = (kind: ValueKind, value: any, index: NameIndex):
             const area = new TextAreaInput({ value: JSON.stringify(value, null, 2), readOnly: true, height: JSON_FIELD_HEIGHT });
             return pcuiDom(area);
         }
-        default: {
-            // array:<type> — render each element through the element renderer
-            const inner = kind.substring('array:'.length) as ValueKind;
-            const list = document.createElement('div');
-            list.className = 'vc-diff-array';
-            const items = Array.isArray(value) ? value : [value];
-            list.appendChild(el('size', `${items.length} item${items.length === 1 ? '' : 's'}`));
-            for (const item of items) {
-                const itemKind = item === undefined || item === null ? 'missing' :
-                    REF_LIKE.has(inner) ? inner : valueKind(inner, '', item);
-                list.appendChild(createValueField(itemKind, item, index));
-            }
-            return list;
-        }
+        default:
+            return missingEl('no preview available');
+    }
+};
+
+// pcui widgets hold timers (curve/gradient resize loops); destroy before discarding their dom
+export const destroyValueFields = (root: HTMLElement) => {
+    for (const node of Array.from(root.querySelectorAll('.vc-diff-widget'))) {
+        ((node as { ui?: { destroy?: () => void } }).ui)?.destroy?.();
     }
 };
