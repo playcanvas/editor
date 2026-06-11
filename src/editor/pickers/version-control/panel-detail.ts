@@ -46,25 +46,26 @@ export const createDetailPanel = () => {
             return card;
         }
 
+        const side = document.createElement('div');
+        side.classList.add('side');
+        head.appendChild(side);
+
         const meta = document.createElement('div');
         meta.classList.add('vc-meta');
         meta.textContent = 'vs ';
         meta.appendChild(hashChip(previous.id));
-        head.appendChild(meta);
-
-        const body = document.createElement('div');
-        card.appendChild(body);
+        side.appendChild(meta);
 
         // available immediately — the summary list below is informational only
-        const open = document.createElement('div');
-        open.style.marginTop = '10px';
         const link = document.createElement('button');
         link.type = 'button';
         link.classList.add('vc-link');
         link.textContent = 'Open full diff →';
         link.addEventListener('click', () => panel.emit('openDiff', checkpoint, previous));
-        open.appendChild(link);
-        card.appendChild(open);
+        side.appendChild(link);
+
+        const body = document.createElement('div');
+        card.appendChild(body);
 
         const key = `${previous.id}:${checkpoint.id}`;
         const fill = (summary: ReturnType<typeof summarizeDiff>) => {
@@ -75,7 +76,7 @@ export const createDetailPanel = () => {
                 none.textContent = 'No changes vs previous checkpoint ';
                 none.appendChild(hashChip(previous.id));
                 body.appendChild(none);
-                open.hidden = true;
+                link.hidden = true;
                 return;
             }
             meta.textContent = `${summary.total} change${summary.total === 1 ? '' : 's'} · vs `;
