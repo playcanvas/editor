@@ -1,8 +1,10 @@
-import { Button, Container, Overlay } from '@playcanvas/pcui';
+import { Button, Container, Overlay, Panel, TreeView, TreeViewItem } from '@playcanvas/pcui';
 
 import { handleCallback } from '@/common/utils';
 import { config } from '@/editor/config';
 
+import { buildNameIndex, valueKind, type NameIndex } from './vc-diff-data';
+import { createValueField, destroyValueFields } from './vc-diff-fields';
 import {
     diffTextChangeCounts,
     formatDiffPath,
@@ -11,6 +13,9 @@ import {
     summarizeDiff,
     typeLabel
 } from './vc-helpers';
+
+const SUB_RE = /^(?<kind>Script|Sound slot|Clip): (?<name>.+)$/;
+const SETTINGS_ROOT_RE = /^(?:scene |project )?settings$/i;
 
 editor.once('load', () => {
     if (config.project.settings.useLegacyScripts) {
@@ -54,6 +59,7 @@ editor.once('load', () => {
     body.dom.appendChild(main);
 
     let current: any = null;
+    let nameIndex: NameIndex = null;
     let selected = 0;
     let viewToken = 0;
     const fileStats = new Map<string, Promise<{ deleted: number; added: number } | null>>();
@@ -71,14 +77,6 @@ editor.once('load', () => {
 
     const isRetainedDiff = (id: string) => {
         return !!id && !!editor.call('picker:versioncontrol:hasRetainedDiff', id);
-    };
-
-    const fmtVal = (v: any) => {
-        if (v === undefined || v === null) {
-            return 'null';
-        }
-        const s = typeof v === 'string' ? `"${v}"` : JSON.stringify(v);
-        return s.length > 160 ? `${s.substring(0, 157)}...` : s;
     };
 
     const statusFor = (conflict: any) => {
@@ -164,183 +162,14 @@ editor.once('load', () => {
 
     const typeFor = (entry: any, side: 'src' | 'dst') => entry[`${side}Type`] ?? entry.type ?? '';
 
-    const num = (v: number) => {
-        return Number.isInteger(v) ? `${v}` : `${Number(v.toFixed(4))}`;
-    };
-
-    const looksColor = (type: string, path: string, value: any) => {
-        const p = path.toLowerCase();
-        return (type === 'rgb' || type === 'rgba' || p.includes('color') || p.includes('tint')) &&
-            Array.isArray(value) && value.length >= 3 && value.length <= 4 && value.every((n: unknown) => typeof n === 'number');
-    };
-
-    const looksCurve = (type: string, value: any) => {
-        return type === 'curve' || type === 'curveset' || !!value?.keys || !!value?.[0]?.keys;
-    };
-
-    const renderMissing = (text: string) => {
-        const el = document.createElement('span');
-        el.classList.add('vc-diff-rendered', 'missing');
-        el.textContent = text;
-        return el;
-    };
-
-    const renderBool = (value: boolean) => {
-        const el = document.createElement('span');
-        el.classList.add('vc-diff-rendered', 'boolean');
-        el.title = value ? 'true' : 'false';
-        const box = document.createElement('span');
-        box.classList.add('box');
-        if (value) {
-            box.classList.add('checked');
-        }
-        el.appendChild(box);
-        return el;
-    };
-
-    const renderColor = (value: number[]) => {
-        const el = document.createElement('span');
-        el.classList.add('vc-diff-rendered', 'color');
-        const swatch = document.createElement('span');
-        swatch.classList.add('swatch');
-        const rgba = [value[0], value[1], value[2], value[3] ?? 1];
-        swatch.style.backgroundColor = `rgba(${rgba.map((n, i) => {
-            return i < 3 ? Math.round(n * 255) : n;
-        }).join(', ')})`;
-        el.appendChild(swatch);
-        const label = document.createElement('span');
-        label.textContent = value.map(num).join(', ');
-        el.appendChild(label);
-        return el;
-    };
-
-    const renderVector = (value: number[]) => {
-        const el = document.createElement('span');
-        el.classList.add('vc-diff-rendered', 'vector');
-        const keys = ['x', 'y', 'z', 'w'];
-        value.forEach((v, i) => {
-            const chip = document.createElement('span');
-            chip.classList.add('chip');
-            chip.textContent = `${keys[i] ?? i}: ${num(v)}`;
-            el.appendChild(chip);
-        });
-        return el;
-    };
-
-    const curveSets = (value: any) => {
-        const raw = Array.isArray(value) && value[0]?.keys ? value : [value];
-        return raw.flatMap((curve: any) => {
-            const keys = curve?.keys;
-            if (!Array.isArray(keys)) {
-                return [];
-            }
-            return Array.isArray(keys[0]) ? keys : [keys];
-        });
-    };
-
-    const renderCurve = (value: any) => {
-        const el = document.createElement('span');
-        el.classList.add('vc-diff-rendered', 'curve');
-        const canvas = document.createElement('canvas');
-        canvas.width = 140;
-        canvas.height = 32;
-        el.appendChild(canvas);
-        const sets = curveSets(value);
-        const vals = sets.flatMap((keys: number[]) => keys.filter((_, i) => i % 2 === 1));
-        const min = Math.min(...vals, 0);
-        const max = Math.max(...vals, 1);
-        const ctx = canvas.getContext('2d');
-        if (ctx) {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
-            ctx.beginPath();
-            ctx.moveTo(0, canvas.height - 1);
-            ctx.lineTo(canvas.width, canvas.height - 1);
-            ctx.stroke();
-            ['#6da8ff', '#8fe59e', '#f3c16f', '#ff8a8a'].forEach((color, i) => {
-                const keys = sets[i];
-                if (!keys?.length) {
-                    return;
-                }
-                ctx.strokeStyle = color;
-                ctx.lineWidth = 1.5;
-                ctx.beginPath();
-                for (let j = 0; j < keys.length; j += 2) {
-                    const x = Math.max(0, Math.min(1, keys[j])) * canvas.width;
-                    const y = canvas.height - ((keys[j + 1] - min) / Math.max(0.0001, max - min)) * canvas.height;
-                    if (j === 0) {
-                        ctx.moveTo(x, y);
-                    } else {
-                        ctx.lineTo(x, y);
-                    }
-                }
-                ctx.stroke();
-            });
-        }
-        const label = document.createElement('span');
-        label.textContent = `${sets.length || 1} curve${sets.length === 1 ? '' : 's'}`;
-        el.appendChild(label);
-        return el;
-    };
-
-    const renderJson = (value: any) => {
-        const el = document.createElement('span');
-        el.classList.add('vc-diff-rendered', 'json');
-        el.textContent = fmtVal(value);
-        return el;
-    };
-
-    const renderValue = (entry: any, side: 'src' | 'dst', value: any) => {
-        const type = typeFor(entry, side);
-        if (value === undefined) {
-            return renderMissing('not available');
-        }
-        if (value === null) {
-            return renderMissing('null');
-        }
-        if (typeof value === 'boolean') {
-            return renderBool(value);
-        }
-        if (looksCurve(type, value)) {
-            return renderCurve(value);
-        }
-        if (looksColor(type, entry.path ?? '', value)) {
-            return renderColor(value);
-        }
-        if (Array.isArray(value) && value.length >= 2 && value.length <= 4 && value.every(v => typeof v === 'number')) {
-            return renderVector(value);
-        }
-        if (typeof value === 'number') {
-            const el = document.createElement('span');
-            el.classList.add('vc-diff-rendered', 'number');
-            el.textContent = num(value);
-            return el;
-        }
-        if (typeof value === 'string') {
-            const el = document.createElement('span');
-            el.classList.add('vc-diff-rendered', 'string');
-            if (value === '') {
-                el.classList.add('empty');
-                el.textContent = '""';
-                el.title = 'empty string';
-            } else {
-                el.textContent = value;
-            }
-            return el;
-        }
-        return renderJson(value);
-    };
-
     const sectionComponent = (value: string) => value.match(/^(.+) component$/i)?.[1]?.replace(/\s+/g, '').toLowerCase() ?? '';
-
-    const sectionTitle = (value: string) => value.replace(/ component$/i, '').toUpperCase();
 
     const inspectorInfo = (conflict: any, entry: any) => {
         const raw = entry.path || conflict.itemName;
         if (!entry.path || (conflict.itemType !== 'scene' && conflict.itemType !== 'settings')) {
             return {
                 entityContext: [],
-                section: sectionTitle(typeLabel(conflict.itemType ?? 'item')),
+                section: typeLabel(conflict.itemType ?? 'item'),
                 context: [],
                 field: raw,
                 title: raw,
@@ -374,7 +203,7 @@ editor.once('load', () => {
 
         return {
             entityContext,
-            section: sectionTitle(section),
+            section,
             context,
             field: info.field || raw,
             title: `${labels.map(label => label.text).join(' / ')} / ${info.field || raw}`,
@@ -382,154 +211,152 @@ editor.once('load', () => {
         };
     };
 
-    const appendEntityTree = (parent: HTMLElement, label: { text: string; title?: string }) => {
-        const value = label.text.replace(/^Entity:\s*/, '');
-        const parts = value.split('/').filter(Boolean);
-        if (parts.length < 2) {
-            return false;
+    // section routing for one entry: which panel, which sub-panel, which label
+    const sectionParts = (conflict: any, entry: any) => {
+        const info = inspectorInfo(conflict, entry);
+        const isSettings = conflict.itemType === 'settings' ||
+            (conflict.itemType === 'scene' && splitDiffPath(entry.path ?? '')[0] === 'settings');
+        if (isSettings) {
+            const sub = SETTINGS_ROOT_RE.test(info.section) ? '' : info.section;
+            return { entity: null, panel: 'Settings', icon: '', sub, field: info.field, title: info.title };
         }
-
-        const tree = document.createElement('div');
-        tree.classList.add('vc-diff-entity-tree', 'entities-treeview');
-        tree.title = label.title ?? value;
-
-        parts.forEach((part, i) => {
-            const item = document.createElement('div');
-            item.classList.add('tree-item', 'pcui-treeview-item');
-            if (i === parts.length - 1) {
-                item.classList.add('current');
-            }
-            const row = document.createElement('div');
-            row.classList.add('tree-row', 'pcui-treeview-item-contents');
-            row.style.paddingLeft = `${Math.min(i, 8) * 24}px`;
-            const toggle = document.createElement('span');
-            toggle.classList.add('tree-toggle');
-            toggle.textContent = i === parts.length - 1 ? '' : '-';
-            row.appendChild(toggle);
-            const dot = document.createElement('span');
-            dot.classList.add('tree-dot');
-            row.appendChild(dot);
-            const icon = document.createElement('span');
-            icon.classList.add('tree-icon', 'component-icon-postfix');
-            if (i === parts.length - 1) {
-                icon.classList.add('type-element');
-            }
-            row.appendChild(icon);
-            const name = document.createElement('span');
-            name.classList.add('tree-name', 'pcui-treeview-item-text');
-            name.textContent = part;
-            row.appendChild(name);
-            item.appendChild(row);
-            tree.appendChild(item);
-        });
-
-        parent.appendChild(tree);
-        return true;
+        const subMatch = info.context[0]?.text.match(SUB_RE);
+        // the inspector shows raw (unprettified) script attribute names
+        const field = subMatch?.groups?.kind === 'Script' ? (splitDiffPath(entry.path ?? '').pop() ?? info.field) : info.field;
+        return {
+            entity: info.entityContext[0] ?? null,
+            panel: info.section,
+            icon: info.type,
+            sub: subMatch?.groups?.name ?? '',
+            field,
+            title: info.title
+        };
     };
 
-    const appendInspectorContext = (parent: HTMLElement, context: { text: string; title?: string }[], kind = '') => {
-        if (!context.length) {
-            return;
-        }
-        const wrap = document.createElement('div');
-        wrap.classList.add('vc-diff-inspector-context');
-        if (kind) {
-            wrap.classList.add(kind);
-        }
-        context.forEach((label) => {
-            if (label.text.startsWith('Entity: ') && appendEntityTree(wrap, label)) {
-                return;
-            }
-            const line = document.createElement('div');
-            line.classList.add('context-line');
-            line.textContent = label.text;
-            line.title = label.title ?? label.text;
-            wrap.appendChild(line);
-        });
-        parent.appendChild(wrap);
-    };
-
-    const renderSideValue = (entry: any, kind: string) => {
-        if (kind === 'old') {
-            return entry.missingInDst ? renderMissing('not present') : renderValue(entry, 'dst', entry.dstValue);
-        }
-        return entry.missingInSrc ? renderMissing('removed') : renderValue(entry, 'src', entry.srcValue);
-    };
-
-    const renderInspectorSide = (conflict: any, entries: any[], kind: string) => {
-        const side = document.createElement('div');
-        side.classList.add('vc-diff-inspector-side', kind);
-
-        const head = document.createElement('div');
-        head.classList.add('vc-diff-inspector-title');
-        head.textContent = kind === 'old' ? 'Before' : 'After';
-        side.appendChild(head);
-
-        let key = '';
-        let body: HTMLElement = null;
-        for (const entry of entries) {
-            const info = inspectorInfo(conflict, entry);
-            const nextKey = JSON.stringify([info.entityContext.map(label => label.text), info.section, info.context.map(label => label.text)]);
-            if (nextKey !== key || !body) {
-                key = nextKey;
-                const section = document.createElement('section');
-                section.classList.add('vc-diff-inspector-section');
-
-                appendInspectorContext(section, info.entityContext, 'entity');
-
-                const sectionHead = document.createElement('div');
-                sectionHead.classList.add('vc-diff-inspector-section-head');
-                const icon = document.createElement('span');
-                icon.classList.add('component-icon');
-                if (info.type) {
-                    icon.classList.add(`type-${info.type}`);
+    // entity breadcrumb as a real (inert) pcui treeview, like the hierarchy panel
+    const entityTree = (label: { text: string; title?: string }, compType: string) => {
+        const parts = label.text.replace(/^Entity:\s*/, '').split('/').filter(Boolean);
+        const tree = new TreeView({ allowDrag: false, allowReordering: false });
+        tree.class.add('vc-diff-entity-tree', 'entities-treeview');
+        let parent: TreeView | TreeViewItem = tree;
+        parts.forEach((name, i) => {
+            const leaf = i === parts.length - 1;
+            const item = new TreeViewItem({ text: name, allowDrag: false, allowSelect: false, open: !leaf });
+            item.iconLabel.class.add('component-icon-postfix');
+            if (leaf) {
+                if (compType) {
+                    item.iconLabel.class.add(`type-${compType}`);
                 }
-                sectionHead.appendChild(icon);
-                const text = document.createElement('span');
-                text.textContent = info.section;
-                sectionHead.appendChild(text);
-                section.appendChild(sectionHead);
-                appendInspectorContext(section, info.context);
-
-                body = document.createElement('div');
-                body.classList.add('vc-diff-inspector-section-body');
-                section.appendChild(body);
-                side.appendChild(section);
+                item.dom.querySelector('.pcui-treeview-item-contents')?.classList.add('pcui-treeview-item-selected');
             }
-
-            const row = document.createElement('div');
-            row.classList.add('vc-diff-inspector-row', kind);
-            row.title = info.title;
-
-            const label = document.createElement('div');
-            label.classList.add('label');
-            label.textContent = info.field;
-            row.appendChild(label);
-
-            const value = document.createElement('div');
-            value.classList.add('value');
-            value.appendChild(renderSideValue(entry, kind));
-            row.appendChild(value);
-            body.appendChild(row);
-        }
-
-        return side;
+            parent.append(item);
+            parent = item;
+        });
+        tree.dom.title = label.title ?? label.text;
+        return tree;
     };
 
-    const renderPropertyDiff = (conflict: any, entries: any[]) => {
+    // note: NOT 'vc-diff-row' — that class belongs to the sidebar buttons and their click delegation
+    const fieldRow = (kind: 'del' | 'add', label: string, title: string, valueEl: HTMLElement) => {
+        const row = document.createElement('div');
+        row.classList.add('vc-diff-field-row', kind);
+        row.title = title;
+        const gut = document.createElement('span');
+        gut.classList.add('gutter');
+        gut.textContent = kind === 'del' ? '−' : '+';
+        row.appendChild(gut);
+        const lbl = document.createElement('span');
+        lbl.classList.add('label');
+        lbl.textContent = label;
+        row.appendChild(lbl);
+        const val = document.createElement('span');
+        val.classList.add('value');
+        val.appendChild(valueEl);
+        row.appendChild(val);
+        return row;
+    };
+
+    const sideField = (entry: any, side: 'src' | 'dst') => {
+        const value = side === 'src' ? entry.srcValue : entry.dstValue;
+        const missing = side === 'src' ? entry.missingInSrc : entry.missingInDst;
+        const kind = missing ? 'missing' : valueKind(typeFor(entry, side), entry.path ?? '', value);
+        return createValueField(kind, value, nameIndex);
+    };
+
+    // banner for whole-item adds/deletes (entries without a path)
+    const wholeBanner = (conflict: any, entry: any) => {
+        const banner = document.createElement('div');
+        banner.classList.add('vc-diff-banner');
+        const status = entry.missingInDst ? 'added' : entry.missingInSrc ? 'deleted' : 'modified';
+        appendBadge(banner, status);
+        const text = document.createElement('span');
+        text.textContent = `This ${conflict.assetType ?? conflict.itemType ?? 'item'} was ${status} since the checkpoint`;
+        banner.appendChild(text);
+        return banner;
+    };
+
+    const renderUnifiedDiff = (conflict: any, entries: any[]) => {
         const wrap = document.createElement('div');
         wrap.classList.add('vc-diff-inspector');
+
+        let section: { key: string; panel: Panel; subs: Map<string, Panel> } = null;
+        const hostDom = (parts: { sub: string; panel: string }) => {
+            if (!parts.sub) {
+                return section.panel.content.dom;
+            }
+            if (!section.subs.has(parts.sub)) {
+                const sub = new Panel({ collapsible: true, headerText: parts.sub });
+                sub.class.add('vc-diff-subpanel');
+                // script/slot/clip sub-panels are inset like the inspector's;
+                // settings group sub-panels are flush like the settings panel's
+                if (parts.panel !== 'Settings') {
+                    sub.class.add('inset');
+                }
+                section.panel.append(sub);
+                section.subs.set(parts.sub, sub);
+            }
+            return section.subs.get(parts.sub)!.content.dom;
+        };
+
+        for (const entry of entries) {
+            const parts = sectionParts(conflict, entry);
+            const key = JSON.stringify([parts.entity?.text ?? '', parts.panel]);
+            if (section?.key !== key) {
+                const card = document.createElement('div');
+                card.classList.add('vc-diff-section');
+                if (parts.entity) {
+                    card.appendChild(entityTree(parts.entity, parts.icon).dom);
+                }
+                const panel = new Panel({ collapsible: true, headerText: parts.panel });
+                panel.class.add('vc-diff-panel');
+                if (parts.icon) {
+                    const icon = document.createElement('span');
+                    icon.classList.add('component-icon', `type-${parts.icon}`);
+                    panel.header.dom.insertBefore(icon, panel.header.dom.querySelector('.pcui-panel-header-title'));
+                }
+                card.appendChild(panel.dom);
+                wrap.appendChild(card);
+                section = { key, panel, subs: new Map() };
+            }
+            const host = hostDom(parts);
+            if (!entry.path) {
+                host.appendChild(wholeBanner(conflict, entry));
+                continue;
+            }
+            if (!entry.missingInDst) {
+                host.appendChild(fieldRow('del', parts.field, parts.title, sideField(entry, 'dst')));
+            }
+            if (!entry.missingInSrc) {
+                host.appendChild(fieldRow('add', parts.field, parts.title, sideField(entry, 'src')));
+            }
+        }
 
         if (!entries.length) {
             const empty = document.createElement('div');
             empty.classList.add('vc-diff-empty');
             empty.textContent = 'No property changes';
             wrap.appendChild(empty);
-            return wrap;
         }
-
-        wrap.appendChild(renderInspectorSide(conflict, entries, 'old'));
-        wrap.appendChild(renderInspectorSide(conflict, entries, 'new'));
         return wrap;
     };
 
@@ -629,6 +456,7 @@ editor.once('load', () => {
     };
 
     const renderMain = () => {
+        destroyValueFields(main);
         main.innerHTML = '';
         const conflict = selectedConflict();
         if (!conflict) {
@@ -665,7 +493,7 @@ editor.once('load', () => {
             detail.classList.add('has-frame');
         }
         if (props.length) {
-            detail.appendChild(renderPropertyDiff(conflict, props));
+            detail.appendChild(renderUnifiedDiff(conflict, props));
         }
         if (showText) {
             detail.appendChild(renderIframe(conflict, text));
@@ -698,6 +526,7 @@ editor.once('load', () => {
     const cleanup = () => {
         viewToken++;
         sidebar.innerHTML = '';
+        destroyValueFields(main);
         main.innerHTML = '';
         fileStats.clear();
     };
@@ -722,6 +551,7 @@ editor.once('load', () => {
         }
         editor.call('vcgraph:moveToForeground');
         current = null;
+        nameIndex = null;
         selected = 0;
         cleanup();
         editor.emit('picker:close', 'version-control-diff');
@@ -740,6 +570,7 @@ editor.once('load', () => {
 
     editor.method('picker:versioncontrol:diffPicker', (diff: any) => {
         current = diff;
+        nameIndex = buildNameIndex(current ?? {});
         const summary = summarizeDiff(current ?? {});
         selected = summary.groups[0]?.items[0]?.index ?? 0;
         render();
