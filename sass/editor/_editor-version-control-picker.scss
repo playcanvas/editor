@@ -258,7 +258,7 @@
         > .vc-main {
             flex: 1 1 auto;
             min-width: 0;
-            overflow-y: auto;
+            overflow: hidden auto;
             padding: 16px;
 
             // kept progress widgets render here now (was .side-panel)
@@ -382,7 +382,7 @@
     .vc-history {
         flex: 1 1 auto;
         min-height: 0;
-        overflow-y: auto;
+        overflow: hidden auto;
 
         > .vc-day {
             @extend .font-bold;
@@ -484,7 +484,7 @@
         > .vc-changes-list {
             flex: 1 1 auto;
             min-height: 0;
-            overflow-y: auto;
+            overflow: hidden auto;
 
             > .vc-group {
                 @extend .font-bold;
@@ -800,7 +800,9 @@
     > .vc-branch-list {
         flex: 1 1 auto;
         min-height: 0;
-        overflow-y: auto;
+
+        // x would otherwise show the editor's 8px black scrollbar track
+        overflow: hidden auto;
 
         // the new-branch button below brings its own divider
         > :last-child {
