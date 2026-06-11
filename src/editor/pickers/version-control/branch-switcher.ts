@@ -184,8 +184,10 @@ export const createBranchSwitcher = (host: Container) => {
                 e.stopPropagation();
                 contextBranch = branch;
                 menu.hidden = false;
+                // open beside the row like a submenu; aligning right-edge-to-kebab
+                // would cover the panel since the menu is wider than it
                 const rect = kebab.getBoundingClientRect();
-                menu.position(rect.right - menu.innerElement.clientWidth, rect.bottom);
+                menu.position(rect.right + 6, rect.top);
             });
             actions.appendChild(kebab);
         }
