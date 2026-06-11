@@ -2,6 +2,37 @@
 
 // modern version control picker (github desktop style)
 
+// ---- changes tab ----
+// builds-panel badge (status pills, item headers)
+%vc-badge {
+    flex: none;
+    height: 18px;
+    padding: 0 6px;
+    border: 1px solid $border-primary;
+    border-radius: 4px;
+    background-color: rgb(0 0 0 / 14%);
+    color: $text-dark;
+    font-size: 11px;
+    line-height: 18px;
+    letter-spacing: 0;
+    text-transform: uppercase;
+
+    &.added {
+        color: #6fd088;
+        border-color: rgb(111 208 136 / 45%);
+    }
+
+    &.modified {
+        color: #f3c16f;
+        border-color: rgb(225 166 62 / 45%);
+    }
+
+    &.deleted {
+        color: #ff8a8a;
+        border-color: rgb(255 138 138 / 45%);
+    }
+}
+
 .pcui-container.picker-vc {
     height: 100%;
     overflow: hidden;
@@ -549,37 +580,6 @@
             color: $text-dark;
             font-size: 12px;
             text-align: center;
-        }
-    }
-
-    // ---- changes tab ----
-    // builds-panel badge (status pills, item headers)
-    %vc-badge {
-        flex: none;
-        height: 18px;
-        padding: 0 6px;
-        border: 1px solid $border-primary;
-        border-radius: 4px;
-        background-color: rgb(0 0 0 / 14%);
-        color: $text-dark;
-        font-size: 11px;
-        line-height: 18px;
-        letter-spacing: 0;
-        text-transform: uppercase;
-
-        &.added {
-            color: #6fd088;
-            border-color: rgb(111 208 136 / 45%);
-        }
-
-        &.modified {
-            color: #f3c16f;
-            border-color: rgb(225 166 62 / 45%);
-        }
-
-        &.deleted {
-            color: #ff8a8a;
-            border-color: rgb(255 138 138 / 45%);
         }
     }
 
