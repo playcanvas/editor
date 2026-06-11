@@ -166,8 +166,15 @@
     }
 }
 
+// mirrors .pcui-menu.picker-builds-menu so both pickers share one menu look
 .pcui-menu.version-control {
-    // round + border the menu to match the builds panel menus
+    z-index: 100001;
+
+    .pcui-menu-item:not(.pcui-menu-item-has-children):hover > .pcui-menu-item-children {
+        opacity: 0;
+        visibility: hidden;
+    }
+
     .pcui-menu-items {
         border: 1px solid $border-primary;
         border-radius: 6px;
@@ -183,7 +190,7 @@
 
         > .pcui-label {
             line-height: 30px;
-            margin: 0 10px;
+            margin: 0 0 0 10px;
             padding: 0;
         }
     }
