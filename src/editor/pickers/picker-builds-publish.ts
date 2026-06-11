@@ -1531,6 +1531,11 @@ editor.once('load', () => {
         name.textContent = app.name;
         nameRow.appendChild(name);
 
+        const primaryBadge = document.createElement('span');
+        primaryBadge.classList.add('badge', 'primary-badge');
+        primaryBadge.textContent = 'Primary';
+        nameRow.appendChild(primaryBadge);
+
         const sub = document.createElement('div');
         sub.classList.add('sub');
         const actor = app.actor && (app.actor.name || app.actor.username);
