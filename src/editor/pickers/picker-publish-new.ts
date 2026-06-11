@@ -1,5 +1,5 @@
 import type { EventHandle } from '@playcanvas/observer';
-import { BooleanInput, Button, Container, Label, Progress, SelectInput, TextAreaInput, TextInput } from '@playcanvas/pcui';
+import { BooleanInput, Button, Container, Element, Label, Progress, SelectInput, TextAreaInput, TextInput } from '@playcanvas/pcui';
 
 import { tooltip, tooltipSimpleItem } from '@/common/tooltips';
 import { LegacyList } from '@/common/ui/list';
@@ -731,6 +731,10 @@ editor.once('load', () => {
             text: '\uE223',
             class: 'primary'
         });
+        const tooltipAnchor = new Element({
+            class: 'primary-tooltip-anchor'
+        });
+        primary.dom.appendChild(tooltipAnchor.dom);
         row.element.appendChild(primary.dom);
 
         primary.on('click', () => {
@@ -756,6 +760,7 @@ editor.once('load', () => {
         tooltip().attach({
             container: tooltipSimpleItem({ text: tooltipText }),
             target: primary,
+            vertAlignEl: tooltipAnchor,
             align: 'right'
         });
         tooltipTargets.push(primary);
