@@ -1,6 +1,6 @@
 import { Container } from '@playcanvas/pcui';
 
-import { hashChip, summarizeDiff, typeLabel, userThumbnail } from './vc-helpers';
+import { diffListEl, hashChip, summarizeDiff, userThumbnail } from './vc-helpers';
 import { diffCreate } from '../../messenger/jobs';
 
 export const createDetailPanel = () => {
@@ -82,29 +82,7 @@ export const createDetailPanel = () => {
             }
             meta.textContent = `${summary.total} change${summary.total === 1 ? '' : 's'} · vs `;
             meta.appendChild(hashChip(previous.id));
-            const items = document.createElement('div');
-            items.classList.add('vc-diff-list');
-            for (const g of summary.groups) {
-                const head = document.createElement('div');
-                head.classList.add('vc-group');
-                head.textContent = `${typeLabel(g.type)} · ${g.items.length}`;
-                items.appendChild(head);
-                for (const item of g.items) {
-                    const row = document.createElement('div');
-                    row.classList.add('vc-item');
-                    const name = document.createElement('span');
-                    name.classList.add('name');
-                    name.textContent = item.name;
-                    name.title = item.name;
-                    row.appendChild(name);
-                    const badge = document.createElement('span');
-                    badge.classList.add('status', item.status);
-                    badge.textContent = item.status;
-                    row.appendChild(badge);
-                    items.appendChild(row);
-                }
-            }
-            body.appendChild(items);
+            body.appendChild(diffListEl(summary));
         };
 
         if (diffCache[key]) {

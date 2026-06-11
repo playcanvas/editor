@@ -338,17 +338,6 @@
         }
     }
 
-    .vc-pill {
-        display: inline-block;
-        margin: 8px 6px 0 0;
-        padding: 2px 10px;
-        border: 1px solid $border-primary;
-        border-radius: 10px;
-        background-color: rgb(0 0 0 / 14%);
-        color: $text-primary;
-        font-size: 12px;
-    }
-
     // verbatim checkpoint hash
     .vc-hash {
         @extend .fixedFont;

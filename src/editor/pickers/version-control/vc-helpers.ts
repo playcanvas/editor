@@ -83,3 +83,30 @@ export const summarizeDiff = (diff: DiffLike): DiffSummary => {
         groups: [...groups.entries()].map(([type, items]) => ({ type, items }))
     };
 };
+
+// grouped change rows (shared by the detail card and the changes summary card)
+export const diffListEl = (summary: DiffSummary) => {
+    const list = document.createElement('div');
+    list.classList.add('vc-diff-list');
+    for (const g of summary.groups) {
+        const head = document.createElement('div');
+        head.classList.add('vc-group');
+        head.textContent = `${typeLabel(g.type)} · ${g.items.length}`;
+        list.appendChild(head);
+        for (const item of g.items) {
+            const row = document.createElement('div');
+            row.classList.add('vc-item');
+            const name = document.createElement('span');
+            name.classList.add('name');
+            name.textContent = item.name;
+            name.title = item.name;
+            row.appendChild(name);
+            const badge = document.createElement('span');
+            badge.classList.add('status', item.status);
+            badge.textContent = item.status;
+            row.appendChild(badge);
+            list.appendChild(row);
+        }
+    }
+    return list;
+};

@@ -2,7 +2,7 @@ import { Container, TextAreaInput } from '@playcanvas/pcui';
 
 import { config } from '@/editor/config';
 
-import { hashChip, summarizeDiff, typeLabel, type DiffSummary } from './vc-helpers';
+import { diffListEl, hashChip, summarizeDiff, typeLabel, type DiffSummary } from './vc-helpers';
 import { diffCreate } from '../../messenger/jobs';
 
 export const createChangesPanel = () => {
@@ -103,31 +103,26 @@ export const createChangesPanel = () => {
         card.classList.add('vc-card');
         const branch = config.self.branch;
 
+        const head = document.createElement('div');
+        head.classList.add('vc-card-head');
+        card.appendChild(head);
+
         const h = document.createElement('h3');
         h.textContent = loading ? 'Computing changes…' :
             current ? `${current.total} change${current.total === 1 ? '' : 's'} since your last checkpoint` : 'Changes';
-        card.appendChild(h);
+        head.appendChild(h);
 
-        const meta = document.createElement('div');
-        meta.classList.add('vc-meta');
-        meta.textContent = `Working state of ${branch.name}`;
+        const side = document.createElement('div');
+        side.classList.add('side');
+        head.appendChild(side);
+
         if (branch.latestCheckpointId) {
-            meta.append(' vs checkpoint ', hashChip(branch.latestCheckpointId));
+            const meta = document.createElement('div');
+            meta.classList.add('vc-meta');
+            meta.textContent = 'vs ';
+            meta.appendChild(hashChip(branch.latestCheckpointId));
+            side.appendChild(meta);
         }
-        card.appendChild(meta);
-
-        if (current) {
-            for (const g of current.groups) {
-                const pill = document.createElement('span');
-                pill.classList.add('vc-pill');
-                pill.textContent = `${g.items.length} ${g.items.length === 1 ? g.type : typeLabel(g.type)}`;
-                card.appendChild(pill);
-            }
-        }
-
-        const actions = document.createElement('div');
-        actions.classList.add('vc-detail-actions');
-        card.appendChild(actions);
 
         const refreshBtn = document.createElement('button');
         refreshBtn.type = 'button';
@@ -135,7 +130,7 @@ export const createChangesPanel = () => {
         refreshBtn.textContent = '↻ Refresh';
         refreshBtn.disabled = loading;
         refreshBtn.addEventListener('click', () => refresh(true));
-        actions.appendChild(refreshBtn);
+        side.appendChild(refreshBtn);
 
         if (current && current.total) {
             const openBtn = document.createElement('button');
@@ -143,14 +138,26 @@ export const createChangesPanel = () => {
             openBtn.classList.add('vc-button');
             openBtn.textContent = 'Open Full Diff';
             openBtn.addEventListener('click', () => summary.emit('openDiff', raw));
-            actions.appendChild(openBtn);
+            side.appendChild(openBtn);
+        }
+
+        // change preview, mirroring the checkpoint detail card
+        if (loading) {
+            card.insertAdjacentHTML('beforeend', `<div class="vc-diff-list"><div class="vc-skeleton">${'<div class="skeleton-row"><span class="bone line"></span></div>'.repeat(3)}</div></div>`);
+        } else if (current && current.total) {
+            card.appendChild(diffListEl(current));
+        } else {
+            const none = document.createElement('div');
+            none.classList.add('vc-meta');
+            none.textContent = current ? 'No changes since your last checkpoint' : 'Changes not computed yet';
+            card.appendChild(none);
         }
 
         if (branch.latestCheckpointId) {
             const sub = document.createElement('div');
             sub.classList.add('vc-meta');
             sub.style.marginTop = '8px';
-            sub.textContent = 'Tip: ⌘/Ctrl+Enter in the description field creates the checkpoint.';
+            sub.textContent = 'Tip: Cmd/Ctrl+Enter in the description field creates the checkpoint.';
             card.appendChild(sub);
         }
 
