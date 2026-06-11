@@ -5249,7 +5249,8 @@ strong {
     padding: 18px 20px 24px !important;
     color: $text-primary;
 
-    // the overlay disables selection globally; detail fields are read-only so allow copying them
+    // detail text is read-only and tagged .selectable, which exempts it from the
+    // global mousedown preventDefault in layout.ts; user-select pairs with that
     user-select: text;
 
     button {

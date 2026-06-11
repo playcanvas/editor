@@ -766,7 +766,8 @@ editor.once('load', () => {
     const createValue = function (row: any) {
         const value = row.value;
         const val = document.createElement('span');
-        val.classList.add('value');
+        // 'selectable' exempts text from the global mousedown preventDefault in layout.ts
+        val.classList.add('value', 'selectable');
         if (row.variant) {
             val.classList.add(`metadata-${row.variant}`);
         }
@@ -789,11 +790,12 @@ editor.once('load', () => {
         section.classList.add('detail-section');
 
         const heading = document.createElement('h3');
+        heading.classList.add('selectable');
         heading.textContent = title;
         section.appendChild(heading);
 
         const grid = document.createElement('div');
-        grid.classList.add('metadata-grid');
+        grid.classList.add('metadata-grid', 'selectable');
         section.appendChild(grid);
 
         rows.forEach((row) => {
@@ -806,7 +808,7 @@ editor.once('load', () => {
             item.classList.add('detail-row');
 
             const key = document.createElement('span');
-            key.classList.add('key');
+            key.classList.add('key', 'selectable');
             key.textContent = row.label;
             item.appendChild(key);
 
@@ -820,12 +822,12 @@ editor.once('load', () => {
     // checklist of all build options with on / off state
     const getBuildOptions = function (settings: any) {
         const list = document.createElement('span');
-        list.classList.add('options-list');
+        list.classList.add('options-list', 'selectable');
         list.setAttribute('role', 'list');
         BUILD_OPTIONS.forEach(([key, label]) => {
             const item = document.createElement('span');
             item.setAttribute('role', 'listitem');
-            item.classList.add('option');
+            item.classList.add('option', 'selectable');
             if (!settings[key]) {
                 item.classList.add('off');
             }
@@ -884,6 +886,7 @@ editor.once('load', () => {
         section.classList.add('detail-section', 'artifact-section');
 
         const heading = document.createElement('h3');
+        heading.classList.add('selectable');
         heading.textContent = 'Artifacts';
         section.appendChild(heading);
 
@@ -904,6 +907,7 @@ editor.once('load', () => {
         section.classList.add('detail-section', 'timeline-section');
 
         const heading = document.createElement('h3');
+        heading.classList.add('selectable');
         heading.textContent = 'Timeline';
         section.appendChild(heading);
 
@@ -950,13 +954,13 @@ editor.once('load', () => {
             head.appendChild(dot);
 
             const label = document.createElement('span');
-            label.classList.add('step-label');
+            label.classList.add('step-label', 'selectable');
             label.textContent = step.label;
             head.appendChild(label);
 
             if (step.sub) {
                 const sub = document.createElement('div');
-                sub.classList.add('step-sub');
+                sub.classList.add('step-sub', 'selectable');
                 sub.textContent = step.sub;
                 item.appendChild(sub);
             }
@@ -972,7 +976,7 @@ editor.once('load', () => {
         const actor = app.actor && (app.actor.name || app.actor.username);
         const source = app.source && (app.source.name || app.source.type);
         const details = document.createElement('div');
-        details.classList.add('detail-body');
+        details.classList.add('detail-body', 'selectable');
 
         details.appendChild(createTimeline(app));
 
@@ -1143,7 +1147,7 @@ editor.once('load', () => {
         nameRow.appendChild(status);
 
         const name = document.createElement('span');
-        name.classList.add('name');
+        name.classList.add('name', 'selectable');
         name.textContent = app.name;
         nameRow.appendChild(name);
 
@@ -1170,14 +1174,14 @@ editor.once('load', () => {
             heading.appendChild(stats);
 
             const views = document.createElement('span');
-            views.classList.add('metric', 'views');
+            views.classList.add('metric', 'views', 'selectable');
             views.title = 'Views';
             views.textContent = String(app.views ?? 0);
             stats.appendChild(views);
         }
 
         const sub = document.createElement('div');
-        sub.classList.add('sub');
+        sub.classList.add('sub', 'selectable');
         sub.textContent = [
             getStatusLabel(app),
             app.build_job_id ? `Build #${app.build_job_id}` : null,
@@ -1222,7 +1226,7 @@ editor.once('load', () => {
 
         if (app.task.status === 'error' && app.task.message) {
             const error = document.createElement('div');
-            error.classList.add('error');
+            error.classList.add('error', 'selectable');
             error.textContent = app.task.message;
             detailPanel.element.appendChild(error);
         }
