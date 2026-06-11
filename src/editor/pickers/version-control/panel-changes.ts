@@ -24,7 +24,9 @@ export const createChangesPanel = () => {
     form.classList.add('vc-checkpoint-form');
     sidebar.dom.appendChild(form);
 
-    const description = new TextAreaInput({ blurOnEnter: false, keyChange: true, renderChanges: false, placeholder: 'Describe this checkpoint…' });
+    // native placeholder; pcui's [placeholder] renders an out-of-place chip
+    const description = new TextAreaInput({ blurOnEnter: false, keyChange: true, renderChanges: false });
+    (description.dom.querySelector('textarea') as HTMLTextAreaElement).placeholder = 'Describe this checkpoint…';
     form.appendChild(description.dom);
 
     const create = document.createElement('button');

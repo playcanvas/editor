@@ -61,7 +61,9 @@ export const showVcDialog = (opts: VcDialogOpts): VcDialogHandle => {
 
     let input: TextInput = null;
     if (opts.input) {
-        input = new TextInput({ placeholder: opts.input.placeholder, keyChange: true, renderChanges: false });
+        // native placeholder; pcui's [placeholder] renders an out-of-place chip
+        input = new TextInput({ keyChange: true, renderChanges: false });
+        (input.dom.querySelector('input') as HTMLInputElement).placeholder = opts.input.placeholder;
         bd.appendChild(input.dom);
     }
 

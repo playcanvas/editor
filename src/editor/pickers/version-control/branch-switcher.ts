@@ -36,7 +36,9 @@ export const createBranchSwitcher = (host: Container) => {
     const filter = new Container({ class: 'vc-branch-filter' });
     panel.append(filter);
 
-    const searchInput = new TextInput({ placeholder: 'Filter branches', keyChange: true, renderChanges: false });
+    // native placeholder; pcui's [placeholder] renders an out-of-place chip
+    const searchInput = new TextInput({ keyChange: true, renderChanges: false });
+    (searchInput.dom.querySelector('input') as HTMLInputElement).placeholder = 'Filter branches';
     filter.append(searchInput);
 
     const filterSelect = new SelectInput({

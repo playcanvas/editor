@@ -561,6 +561,10 @@
                     font-size: 13px;
                     outline: none;
                     box-shadow: none;
+
+                    &::placeholder {
+                        color: $text-darkest;
+                    }
                 }
 
                 &:hover { box-shadow: $element-shadow-hover; }
@@ -758,6 +762,10 @@
             border: 1px solid $bcg-darkest;
             border-radius: 4px;
             background-color: $bcg-darkest;
+
+            > input::placeholder {
+                color: $text-darkest;
+            }
         }
 
         > .pcui-select-input {
@@ -771,6 +779,11 @@
         flex: 1 1 auto;
         min-height: 0;
         overflow-y: auto;
+
+        // the new-branch button below brings its own divider
+        > :last-child {
+            border-bottom: none;
+        }
 
         > .vc-group {
             @extend .font-bold;
@@ -953,6 +966,10 @@
                 border: 1px solid $bcg-darkest;
                 border-radius: 4px;
                 background-color: $bcg-darkest;
+
+                > input::placeholder {
+                    color: $text-darkest;
+                }
             }
 
             > .vc-dialog-check {
