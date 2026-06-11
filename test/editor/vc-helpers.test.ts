@@ -64,12 +64,12 @@ describe('vc-helpers', () => {
             expect(summarizeDiff(diff)).to.deep.equal({
                 total: 3,
                 groups: [
-                    { type: 'scene', items: [{ name: 'Terrain', status: 'modified' }] },
+                    { type: 'scene', items: [{ name: 'Terrain', status: 'modified', index: 0 }] },
                     {
                         type: 'asset',
                         items: [
-                            { name: 'water.glsl', status: 'added' },
-                            { name: 'old.png', status: 'deleted' }
+                            { name: 'water.glsl', status: 'added', index: 1 },
+                            { name: 'old.png', status: 'deleted', index: 2 }
                         ]
                     }
                 ]

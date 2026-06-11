@@ -5,7 +5,8 @@ export type DiffStatus = 'added' | 'deleted' | 'modified';
 
 export type DiffSummary = {
     total: number;
-    groups: { type: string; items: { name: string; status: DiffStatus }[] }[];
+    // index points back into the source diff's conflicts array
+    groups: { type: string; items: { name: string; status: DiffStatus; index: number }[] }[];
 };
 
 const sameDay = (a: Date, b: Date) => a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
@@ -66,8 +67,8 @@ type DiffLike = {
 export const typeLabel = (type: string) => (type.endsWith('s') ? type : `${type}s`);
 
 export const summarizeDiff = (diff: DiffLike): DiffSummary => {
-    const groups = new Map<string, { name: string; status: DiffStatus }[]>();
-    for (const c of diff.conflicts ?? []) {
+    const groups = new Map<string, { name: string; status: DiffStatus; index: number }[]>();
+    (diff.conflicts ?? []).forEach((c, index) => {
         const entry = c.data?.[0] ?? {};
         // dst-missing wins if both flags are ever set: item exists in src only, so 'added'
         const status: DiffStatus = entry.missingInDst ? 'added' : entry.missingInSrc ? 'deleted' : 'modified';
@@ -76,8 +77,8 @@ export const summarizeDiff = (diff: DiffLike): DiffSummary => {
         }
         // settings items are documents with lowercase names ('project settings')
         const name = c.itemType === 'settings' ? c.itemName.replace(/\b[a-z]/g, ch => ch.toUpperCase()) : c.itemName;
-        groups.get(c.itemType)!.push({ name, status });
-    }
+        groups.get(c.itemType)!.push({ name, status, index });
+    });
     return {
         total: diff.numConflicts ?? 0,
         groups: [...groups.entries()].map(([type, items]) => ({ type, items }))

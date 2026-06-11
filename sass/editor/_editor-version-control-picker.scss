@@ -503,6 +503,36 @@
     }
 
     // ---- changes tab ----
+    // builds-panel badge (status pills, item headers)
+    %vc-badge {
+        flex: none;
+        height: 18px;
+        padding: 0 6px;
+        border: 1px solid $border-primary;
+        border-radius: 4px;
+        background-color: rgb(0 0 0 / 14%);
+        color: $text-dark;
+        font-size: 11px;
+        line-height: 18px;
+        letter-spacing: 0;
+        text-transform: uppercase;
+
+        &.added {
+            color: #6fd088;
+            border-color: rgb(111 208 136 / 45%);
+        }
+
+        &.modified {
+            color: #f3c16f;
+            border-color: rgb(225 166 62 / 45%);
+        }
+
+        &.deleted {
+            color: #ff8a8a;
+            border-color: rgb(255 138 138 / 45%);
+        }
+    }
+
     // grouped change rows shared by the changes tab and the detail diff card
     @mixin vc-change-rows {
         > .vc-group {
@@ -533,35 +563,10 @@
                 white-space: nowrap;
             }
 
-            // builds-panel badge styling
             > .status {
-                flex: none;
-                height: 18px;
+                @extend %vc-badge;
+
                 margin-left: auto;
-                padding: 0 6px;
-                border: 1px solid $border-primary;
-                border-radius: 4px;
-                background-color: rgb(0 0 0 / 14%);
-                color: $text-dark;
-                font-size: 11px;
-                line-height: 18px;
-                letter-spacing: 0;
-                text-transform: uppercase;
-
-                &.added {
-                    color: #6fd088;
-                    border-color: rgb(111 208 136 / 45%);
-                }
-
-                &.modified {
-                    color: #f3c16f;
-                    border-color: rgb(225 166 62 / 45%);
-                }
-
-                &.deleted {
-                    color: #ff8a8a;
-                    border-color: rgb(255 138 138 / 45%);
-                }
             }
         }
     }
@@ -576,19 +581,44 @@
             display: flex;
         }
 
-        // composer fills the rail; the change list lives in the summary pane
-        > .vc-checkpoint-form {
-            display: flex;
+        // github desktop layout: change list on top, composer pinned at the bottom
+        > .vc-changes-list {
             flex: 1 1 auto;
-            flex-direction: column;
             min-height: 0;
+            overflow: hidden auto;
+
+            @include vc-change-rows;
+
+            > .vc-item {
+                cursor: pointer;
+                transition: background-color 100ms ease;
+
+                &:hover {
+                    background-color: #354144;
+                }
+
+                &.selected {
+                    background-color: #354144;
+                    box-shadow: inset 2px 0 0 $text-active;
+                }
+            }
+
+            > .vc-list-status {
+                padding: 12px;
+                color: $text-dark;
+                font-size: 12px;
+                text-align: center;
+            }
+        }
+
+        > .vc-checkpoint-form {
+            flex: none;
             padding: 12px;
+            border-top: 1px solid $border-primary;
             background-color: $bcg-dark;
 
             > .pcui-text-area-input {
-                flex: 1 1 auto;
                 width: 100%;
-                min-height: 56px;
                 margin: 0 0 8px;
                 border: 1px solid $border-primary;
                 border-radius: 4px;
@@ -600,7 +630,7 @@
 
                     display: block;
                     width: calc(100% - 20px);
-                    height: calc(100% - 20px);
+                    height: 56px;
                     margin: 0;
                     padding: 10px;
                     border: none;
@@ -733,6 +763,82 @@
         flex-wrap: wrap;
         gap: 8px;
         margin-top: 12px;
+    }
+
+    // selected item header in the changes summary card
+    .vc-item-head {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0 0 10px;
+
+        > .name {
+            @extend .font-bold;
+
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: $text-primary;
+            font-size: 13px;
+        }
+
+        > .status {
+            @extend %vc-badge;
+        }
+    }
+
+    // field-level diff rows (changes tab right pane)
+    .vc-field-diff {
+        border: 1px solid $border-primary;
+        border-radius: 6px;
+        background-color: rgb(0 0 0 / 10%);
+        overflow: hidden;
+
+        > .vc-field-row {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            padding: 7px 12px;
+            border-bottom: 1px solid $border-primary;
+
+            &:last-child {
+                border-bottom: none;
+            }
+
+            > .path {
+                @extend .fixedFont;
+
+                flex: 1 1 auto;
+                min-width: 0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                color: $text-secondary;
+                font-size: 12px;
+            }
+
+            > .vals {
+                @extend .fixedFont;
+
+                flex: none;
+                max-width: 55%;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                color: $text-dark;
+                font-size: 11px;
+
+                .old {
+                    color: #ff8a8a;
+                    text-decoration: line-through;
+                }
+
+                .new {
+                    color: #6fd088;
+                }
+            }
+        }
     }
 
     // grouped change list inside the detail diff card; no inner scroll —
