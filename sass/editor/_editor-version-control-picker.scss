@@ -576,25 +576,11 @@
             display: flex;
         }
 
-        > .vc-changes-list {
-            flex: 1 1 auto;
-            min-height: 0;
-            overflow: hidden auto;
-
-            @include vc-change-rows;
-
-            > .vc-list-status {
-                padding: 12px;
-                color: $text-dark;
-                font-size: 12px;
-                text-align: center;
-            }
-        }
-
+        // composer sits at the top; the change list lives in the summary pane
         > .vc-checkpoint-form {
             flex: none;
             padding: 12px;
-            border-top: 1px solid $border-primary;
+            border-bottom: 1px solid $border-primary;
             background-color: $bcg-dark;
 
             > .pcui-text-area-input {
@@ -658,6 +644,12 @@
                     pointer-events: none;
                     opacity: 0.7;
                 }
+            }
+
+            > .vc-form-tip {
+                margin-top: 8px;
+                color: $text-dark;
+                font-size: 11px;
             }
         }
     }

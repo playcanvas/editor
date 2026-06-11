@@ -2,7 +2,7 @@ import { Container, TextAreaInput } from '@playcanvas/pcui';
 
 import { config } from '@/editor/config';
 
-import { diffListEl, hashChip, summarizeDiff, typeLabel, type DiffSummary } from './vc-helpers';
+import { diffListEl, hashChip, summarizeDiff, type DiffSummary } from './vc-helpers';
 import { diffCreate } from '../../messenger/jobs';
 
 export const createChangesPanel = () => {
@@ -18,10 +18,7 @@ export const createChangesPanel = () => {
     // .then/.catch discard results when the generation has moved on (stale-response guard)
     let gen = 0;
 
-    const list = document.createElement('div');
-    list.classList.add('vc-changes-list');
-    sidebar.dom.appendChild(list);
-
+    // the change list lives in the summary pane; the sidebar is the composer
     const form = document.createElement('div');
     form.classList.add('vc-checkpoint-form');
     sidebar.dom.appendChild(form);
@@ -54,48 +51,10 @@ export const createChangesPanel = () => {
         sidebar.emit('create', description.value.trim());
     });
 
-    const renderList = () => {
-        list.innerHTML = '';
-        if (loading) {
-            const wrap = document.createElement('div');
-            wrap.classList.add('vc-skeleton');
-            for (let i = 0; i < 3; i++) {
-                const row = document.createElement('div');
-                row.classList.add('skeleton-row');
-                row.innerHTML = '<span class="bone line"></span>';
-                wrap.appendChild(row);
-            }
-            list.appendChild(wrap);
-            return;
-        }
-        if (!current || !current.total) {
-            const status = document.createElement('div');
-            status.classList.add('vc-list-status');
-            status.textContent = current ? 'No changes since your last checkpoint' : 'Changes not computed yet';
-            list.appendChild(status);
-            return;
-        }
-        for (const g of current.groups) {
-            const head = document.createElement('div');
-            head.classList.add('vc-group');
-            head.textContent = `${typeLabel(g.type)} · ${g.items.length}`;
-            list.appendChild(head);
-            for (const item of g.items) {
-                const row = document.createElement('div');
-                row.classList.add('vc-item');
-                const name = document.createElement('span');
-                name.classList.add('name');
-                name.textContent = item.name;
-                name.title = item.name;
-                row.appendChild(name);
-                const badge = document.createElement('span');
-                badge.classList.add('status', item.status);
-                badge.textContent = item.status;
-                row.appendChild(badge);
-                list.appendChild(row);
-            }
-        }
-    };
+    const tip = document.createElement('div');
+    tip.classList.add('vc-form-tip');
+    tip.textContent = 'Tip: Cmd/Ctrl+Enter creates the checkpoint.';
+    form.appendChild(tip);
 
     const renderSummary = () => {
         summary.dom.innerHTML = '';
@@ -153,19 +112,10 @@ export const createChangesPanel = () => {
             card.appendChild(none);
         }
 
-        if (branch.latestCheckpointId) {
-            const sub = document.createElement('div');
-            sub.classList.add('vc-meta');
-            sub.style.marginTop = '8px';
-            sub.textContent = 'Tip: Cmd/Ctrl+Enter in the description field creates the checkpoint.';
-            card.appendChild(sub);
-        }
-
         summary.dom.appendChild(card);
     };
 
     const render = () => {
-        renderList();
         renderSummary();
     };
 
