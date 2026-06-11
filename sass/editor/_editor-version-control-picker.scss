@@ -576,15 +576,19 @@
             display: flex;
         }
 
-        // composer sits at the top; the change list lives in the summary pane
+        // composer fills the rail; the change list lives in the summary pane
         > .vc-checkpoint-form {
-            flex: none;
+            display: flex;
+            flex: 1 1 auto;
+            flex-direction: column;
+            min-height: 0;
             padding: 12px;
-            border-bottom: 1px solid $border-primary;
             background-color: $bcg-dark;
 
             > .pcui-text-area-input {
+                flex: 1 1 auto;
                 width: 100%;
+                min-height: 56px;
                 margin: 0 0 8px;
                 border: 1px solid $border-primary;
                 border-radius: 4px;
@@ -596,7 +600,7 @@
 
                     display: block;
                     width: calc(100% - 20px);
-                    height: 56px;
+                    height: calc(100% - 20px);
                     margin: 0;
                     padding: 10px;
                     border: none;
@@ -605,6 +609,7 @@
                     font-size: 13px;
                     outline: none;
                     box-shadow: none;
+                    resize: none;
 
                     &::placeholder {
                         color: $text-darkest;
