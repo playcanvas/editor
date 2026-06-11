@@ -55,6 +55,17 @@ export const createDetailPanel = () => {
         const body = document.createElement('div');
         card.appendChild(body);
 
+        // available immediately — the summary list below is informational only
+        const open = document.createElement('div');
+        open.style.marginTop = '10px';
+        const link = document.createElement('button');
+        link.type = 'button';
+        link.classList.add('vc-link');
+        link.textContent = 'Open full diff →';
+        link.addEventListener('click', () => panel.emit('openDiff', checkpoint, previous));
+        open.appendChild(link);
+        card.appendChild(open);
+
         const key = `${previous.id}:${checkpoint.id}`;
         const fill = (summary: ReturnType<typeof summarizeDiff>) => {
             body.innerHTML = '';
@@ -64,6 +75,7 @@ export const createDetailPanel = () => {
                 none.textContent = 'No changes vs previous checkpoint ';
                 none.appendChild(hashChip(previous.id));
                 body.appendChild(none);
+                open.hidden = true;
                 return;
             }
             meta.textContent = `${summary.total} change${summary.total === 1 ? '' : 's'} · vs `;
@@ -91,15 +103,6 @@ export const createDetailPanel = () => {
                 }
             }
             body.appendChild(items);
-            const open = document.createElement('div');
-            open.style.marginTop = '10px';
-            const link = document.createElement('button');
-            link.type = 'button';
-            link.classList.add('vc-link');
-            link.textContent = 'Open full diff →';
-            link.addEventListener('click', () => panel.emit('openDiff', checkpoint, previous));
-            open.appendChild(link);
-            body.appendChild(open);
         };
 
         if (diffCache[key]) {
