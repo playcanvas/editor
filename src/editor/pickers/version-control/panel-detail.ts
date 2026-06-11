@@ -60,8 +60,8 @@ export const createDetailPanel = () => {
         // available immediately — the summary list below is informational only
         const link = document.createElement('button');
         link.type = 'button';
-        link.classList.add('vc-link');
-        link.textContent = 'Open full diff →';
+        link.classList.add('vc-button');
+        link.textContent = 'Open Full Diff';
         link.addEventListener('click', () => panel.emit('openDiff', checkpoint, previous, diffCache[key]?.diff));
         side.appendChild(link);
 

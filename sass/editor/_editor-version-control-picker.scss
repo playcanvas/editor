@@ -313,7 +313,7 @@
     // card title row: heading left, compact meta right
     .vc-card-head {
         display: flex;
-        align-items: baseline;
+        align-items: center;
         justify-content: space-between;
         gap: 10px;
         margin: 0 0 10px;
@@ -329,7 +329,7 @@
         > .side {
             display: flex;
             flex: none;
-            align-items: baseline;
+            align-items: center;
             gap: 12px;
 
             > .vc-meta {
@@ -369,6 +369,12 @@
 
         appearance: none;
         display: inline-flex;
+
+        // the display above must not defeat the hidden attribute
+        &[hidden] {
+            display: none;
+        }
+
         align-items: center;
         justify-content: center;
         height: 28px;
@@ -403,20 +409,6 @@
         &.danger {
             color: #ff8a8a;
             border-color: rgb(211 65 65 / 40%);
-        }
-    }
-
-    .vc-link {
-        appearance: none;
-        padding: 0;
-        border: none;
-        background: transparent;
-        color: #9dd4ff;
-        font-size: 12px;
-        cursor: pointer;
-
-        &:hover {
-            text-decoration: underline;
         }
     }
 
@@ -552,21 +544,35 @@
                 white-space: nowrap;
             }
 
+            // builds-panel badge styling
             > .status {
-                @extend .font-bold;
-
                 flex: none;
+                height: 18px;
                 margin-left: auto;
-                padding: 1px 7px;
+                padding: 0 6px;
                 border: 1px solid $border-primary;
                 border-radius: 4px;
                 background-color: rgb(0 0 0 / 14%);
-                font-size: 9px;
+                color: $text-dark;
+                font-size: 11px;
+                line-height: 18px;
+                letter-spacing: 0;
                 text-transform: uppercase;
 
-                &.added { color: #6fd088; }
-                &.modified { color: #f3c16f; }
-                &.deleted { color: #ff8a8a; }
+                &.added {
+                    color: #6fd088;
+                    border-color: rgb(111 208 136 / 45%);
+                }
+
+                &.modified {
+                    color: #f3c16f;
+                    border-color: rgb(225 166 62 / 45%);
+                }
+
+                &.deleted {
+                    color: #ff8a8a;
+                    border-color: rgb(255 138 138 / 45%);
+                }
             }
         }
     }
