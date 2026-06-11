@@ -261,10 +261,12 @@ editor.once('load', () => {
         if (closeCallback && !closeCallback()) {
             return;
         }
-        if ((evt.target as HTMLElement).closest('.pcui-menu')) {
+        const target = evt.target as HTMLElement;
+        const tooltip = target.closest('.pcui-tooltip');
+        if (target.closest('.pcui-menu') || tooltip?.querySelector('.primary-scene-tooltip')) {
             return;
         }
-        const targetOverlay = (evt.target as HTMLElement).closest('.pcui-overlay');
+        const targetOverlay = target.closest('.pcui-overlay');
         if (targetOverlay && targetOverlay !== overlay.dom) {
             return;
         }

@@ -1,9 +1,10 @@
 import { Container, Label, Menu, MenuItem, Button } from '@playcanvas/pcui';
 
-import { bytesToHuman, convertDatetime } from '@/common/utils';
+import { bytesToHuman, convertDatetime, countToHuman } from '@/common/utils';
 import { config } from '@/editor/config';
 
 const APP_LIMIT = 16;
+const APP_INDEX_PAGE = 128;
 const FILTER_ALL = 'all';
 const BUILD_FILTERS = [{
     key: 'type',
@@ -74,6 +75,8 @@ editor.once('load', () => {
     let openingBuildForm = false;
     let openingBuilds = false;
     let reloadOnNextShow = false;
+    let primaryFallback = null;  // primary app fetched by id when missing from the loaded pages
+    let primaryFallbackId = null;  // last id fetched for the fallback (one attempt per id)
     const filters: Record<string, string> = {};
     const filterButtons: Record<string, Button> = {};
     const filterMenus: Record<string, Menu> = {};
@@ -406,27 +409,43 @@ editor.once('load', () => {
     const toggleProgress = function (toggle: boolean) {
         skeleton.hidden = !toggle;
         container.hidden = toggle || apps.length === 0;
-        primaryBuildHeading.hidden = true;
-        primaryBuild.hidden = true;
+        // only hide the primary card on the initial empty load; reloads (e.g. filter
+        // changes) keep it in place so the layout doesn't jump
+        if (apps.length === 0) {
+            primaryBuildHeading.hidden = true;
+            primaryBuild.hidden = true;
+        }
         noBuilds.hidden = toggle || apps.length > 0;
         noMatchingBuilds.hidden = true;
     };
 
+    // job rows depend on this index for app metadata like the view count, and the
+    // endpoint treats limit 0 as 16, so page through every app explicitly
     const loadAppIndex = function (done: () => void) {
         if (loadedAppIndex) {
             done();
             return;
         }
 
-        editor.api.globals.rest.projects.projectApps().on('load', (status, data) => {
-            appList = (data?.result || []).slice();
-            appIndex = {};
-            appList.forEach((app) => {
-                appIndex[String(app.id)] = app;
+        const fetched = [];
+        const fetchPage = function (skip: number) {
+            editor.api.globals.rest.projects.projectApps(APP_INDEX_PAGE, skip).on('load', (status, data) => {
+                const page = data?.result || [];
+                fetched.push(...page);
+                if (page.length === APP_INDEX_PAGE) {
+                    fetchPage(skip + APP_INDEX_PAGE);
+                    return;
+                }
+                appList = fetched.slice();
+                appIndex = {};
+                appList.forEach((app) => {
+                    appIndex[String(app.id)] = app;
+                });
+                loadedAppIndex = true;
+                done();
             });
-            loadedAppIndex = true;
-            done();
-        });
+        };
+        fetchPage(0);
     };
 
     const compareBuildDate = function (a: any, b: any) {
@@ -766,7 +785,8 @@ editor.once('load', () => {
     const createValue = function (row: any) {
         const value = row.value;
         const val = document.createElement('span');
-        val.classList.add('value');
+        // 'selectable' exempts text from the global mousedown preventDefault in layout.ts
+        val.classList.add('value', 'selectable');
         if (row.variant) {
             val.classList.add(`metadata-${row.variant}`);
         }
@@ -789,11 +809,12 @@ editor.once('load', () => {
         section.classList.add('detail-section');
 
         const heading = document.createElement('h3');
+        heading.classList.add('selectable');
         heading.textContent = title;
         section.appendChild(heading);
 
         const grid = document.createElement('div');
-        grid.classList.add('metadata-grid');
+        grid.classList.add('metadata-grid', 'selectable');
         section.appendChild(grid);
 
         rows.forEach((row) => {
@@ -806,7 +827,7 @@ editor.once('load', () => {
             item.classList.add('detail-row');
 
             const key = document.createElement('span');
-            key.classList.add('key');
+            key.classList.add('key', 'selectable');
             key.textContent = row.label;
             item.appendChild(key);
 
@@ -820,12 +841,12 @@ editor.once('load', () => {
     // checklist of all build options with on / off state
     const getBuildOptions = function (settings: any) {
         const list = document.createElement('span');
-        list.classList.add('options-list');
+        list.classList.add('options-list', 'selectable');
         list.setAttribute('role', 'list');
         BUILD_OPTIONS.forEach(([key, label]) => {
             const item = document.createElement('span');
             item.setAttribute('role', 'listitem');
-            item.classList.add('option');
+            item.classList.add('option', 'selectable');
             if (!settings[key]) {
                 item.classList.add('off');
             }
@@ -848,13 +869,13 @@ editor.once('load', () => {
         card.appendChild(body);
 
         const title = document.createElement('div');
-        title.classList.add('artifact-title');
+        title.classList.add('artifact-title', 'selectable');
         title.textContent = app.type === 'download' ? 'zip' : 'app';
         body.appendChild(title);
 
         if (artifact.bytes !== null && artifact.bytes !== undefined) {
             const meta = document.createElement('div');
-            meta.classList.add('artifact-meta');
+            meta.classList.add('artifact-meta', 'selectable');
             meta.textContent = bytesToHuman(artifact.bytes);
             body.appendChild(meta);
         }
@@ -884,6 +905,7 @@ editor.once('load', () => {
         section.classList.add('detail-section', 'artifact-section');
 
         const heading = document.createElement('h3');
+        heading.classList.add('selectable');
         heading.textContent = 'Artifacts';
         section.appendChild(heading);
 
@@ -904,6 +926,7 @@ editor.once('load', () => {
         section.classList.add('detail-section', 'timeline-section');
 
         const heading = document.createElement('h3');
+        heading.classList.add('selectable');
         heading.textContent = 'Timeline';
         section.appendChild(heading);
 
@@ -950,13 +973,13 @@ editor.once('load', () => {
             head.appendChild(dot);
 
             const label = document.createElement('span');
-            label.classList.add('step-label');
+            label.classList.add('step-label', 'selectable');
             label.textContent = step.label;
             head.appendChild(label);
 
             if (step.sub) {
                 const sub = document.createElement('div');
-                sub.classList.add('step-sub');
+                sub.classList.add('step-sub', 'selectable');
                 sub.textContent = step.sub;
                 item.appendChild(sub);
             }
@@ -972,7 +995,7 @@ editor.once('load', () => {
         const actor = app.actor && (app.actor.name || app.actor.username);
         const source = app.source && (app.source.name || app.source.type);
         const details = document.createElement('div');
-        details.classList.add('detail-body');
+        details.classList.add('detail-body', 'selectable');
 
         details.appendChild(createTimeline(app));
 
@@ -1143,7 +1166,7 @@ editor.once('load', () => {
         nameRow.appendChild(status);
 
         const name = document.createElement('span');
-        name.classList.add('name');
+        name.classList.add('name', 'selectable');
         name.textContent = app.name;
         nameRow.appendChild(name);
 
@@ -1170,14 +1193,14 @@ editor.once('load', () => {
             heading.appendChild(stats);
 
             const views = document.createElement('span');
-            views.classList.add('metric', 'views');
+            views.classList.add('metric', 'views', 'selectable');
             views.title = 'Views';
             views.textContent = String(app.views ?? 0);
             stats.appendChild(views);
         }
 
         const sub = document.createElement('div');
-        sub.classList.add('sub');
+        sub.classList.add('sub', 'selectable');
         sub.textContent = [
             getStatusLabel(app),
             app.build_job_id ? `Build #${app.build_job_id}` : null,
@@ -1222,7 +1245,7 @@ editor.once('load', () => {
 
         if (app.task.status === 'error' && app.task.message) {
             const error = document.createElement('div');
-            error.classList.add('error');
+            error.classList.add('error', 'selectable');
             error.textContent = app.task.message;
             detailPanel.element.appendChild(error);
         }
@@ -1310,6 +1333,19 @@ editor.once('load', () => {
         branchName.textContent = app.branch && app.branch.name || 'main';
         branch.appendChild(branchName);
         row.appendChild(branch);
+
+        // views only exist for published builds; placeholder keeps the subgrid columns aligned
+        const views = document.createElement('span');
+        views.classList.add('row-views');
+        if (app.type === 'publish') {
+            const count = Number(app.views) || 0;
+            views.textContent = countToHuman(count);
+            views.title = count === 1 ? '1 view' : `${count} views`;
+        } else {
+            views.classList.add('placeholder');
+            views.setAttribute('aria-hidden', 'true');
+        }
+        row.appendChild(views);
 
         const artifact = document.createElement('a');
         artifact.classList.add('row-artifact');
@@ -1499,26 +1535,43 @@ editor.once('load', () => {
         name.textContent = app.name;
         nameRow.appendChild(name);
 
+        const typeBadge = document.createElement('span');
+        typeBadge.classList.add('badge', app.type);
+        typeBadge.textContent = getTypeLabel(app);
+        nameRow.appendChild(typeBadge);
+
+        const formatBadge = document.createElement('span');
+        formatBadge.classList.add('badge');
+        formatBadge.textContent = getFormatValue(app);
+        nameRow.appendChild(formatBadge);
+
+        const primaryBadge = document.createElement('span');
+        primaryBadge.classList.add('badge', 'primary-badge');
+        primaryBadge.textContent = 'Primary';
+        nameRow.appendChild(primaryBadge);
+
         const sub = document.createElement('div');
         sub.classList.add('sub');
         const actor = app.actor && (app.actor.name || app.actor.username);
         sub.textContent = [`Last published ${formatBuildDate(app.created_at)}`, actor ? `by ${actor}` : null].filter(Boolean).join(' · ');
         body.appendChild(sub);
 
-        if (app.url) {
+        // the permalink always points at the current primary build, unlike the build-specific url
+        const url = config.project.playUrl || app.url;
+        if (url) {
             const urlRow = document.createElement('div');
             urlRow.classList.add('url-row');
             body.appendChild(urlRow);
 
             const link = document.createElement('a');
             link.classList.add('url');
-            link.href = app.url;
+            link.href = url;
             link.target = '_blank';
             link.rel = 'noopener';
-            link.textContent = app.url;
+            link.textContent = url;
             urlRow.appendChild(link);
 
-            urlRow.appendChild(createCopyButton(app.url, 'Copy URL'));
+            urlRow.appendChild(createCopyButton(url, 'Copy URL'));
         }
 
         const open = document.createElement('a');
@@ -1526,8 +1579,8 @@ editor.once('load', () => {
         open.target = '_blank';
         open.rel = 'noopener';
         open.setAttribute('aria-label', 'Open published build');
-        if (app.url) {
-            open.href = app.url;
+        if (url) {
+            open.href = url;
         }
         card.appendChild(open);
 
@@ -1543,10 +1596,34 @@ editor.once('load', () => {
         primaryBuild.dom.appendChild(card);
     };
 
+    // the builds and apps endpoints are paginated, so a primary build older than the
+    // loaded pages may be missing from the list; fetch the app row directly by id
+    const fetchPrimaryFallback = function (id: number) {
+        if (primaryFallbackId === id) {
+            return;
+        }
+        primaryFallbackId = id;
+        editor.api.globals.rest.apps.appGet(id).on('load', (status, data) => {
+            if (config.project.primaryApp !== id || !data) {
+                return;
+            }
+            primaryFallback = normalizeLegacyApp(data);
+            renderPrimaryBuild();
+        });
+    };
+
     const renderPrimaryBuild = function () {
-        // filtering means browsing history; the primary summary only shows on the unfiltered view
-        const app = hasActiveFilters() ? null :
-            apps.find(item => item.type === 'publish' && item.app_id === config.project.primaryApp);
+        const primaryId = config.project.primaryApp;
+        // the card stays visible while filtering so the layout doesn't jump
+        let app = primaryId ?
+            apps.find(item => item.type === 'publish' && item.app_id === primaryId) : null;
+        if (!app && primaryId) {
+            if (primaryFallback && primaryFallback.app_id === primaryId) {
+                app = primaryFallback;
+            } else {
+                fetchPrimaryFallback(primaryId);
+            }
+        }
         primaryBuildHeading.hidden = !app;
         primaryBuild.hidden = !app;
 
@@ -1617,6 +1694,8 @@ editor.once('load', () => {
         loadedAppIndex = false;
         detailApp = null;
         reloadOnNextShow = false;
+        primaryFallback = null;
+        primaryFallbackId = null;
         primaryBuild.dom.innerHTML = '';
         container.dom.innerHTML = '';
         container.dom.appendChild(noMatchingBuilds.dom);
