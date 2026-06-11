@@ -1517,20 +1517,22 @@ editor.once('load', () => {
         sub.textContent = [`Last published ${formatBuildDate(app.created_at)}`, actor ? `by ${actor}` : null].filter(Boolean).join(' · ');
         body.appendChild(sub);
 
-        if (app.url) {
+        // the permalink always points at the current primary build, unlike the build-specific url
+        const url = config.project.playUrl || app.url;
+        if (url) {
             const urlRow = document.createElement('div');
             urlRow.classList.add('url-row');
             body.appendChild(urlRow);
 
             const link = document.createElement('a');
             link.classList.add('url');
-            link.href = app.url;
+            link.href = url;
             link.target = '_blank';
             link.rel = 'noopener';
-            link.textContent = app.url;
+            link.textContent = url;
             urlRow.appendChild(link);
 
-            urlRow.appendChild(createCopyButton(app.url, 'Copy URL'));
+            urlRow.appendChild(createCopyButton(url, 'Copy URL'));
         }
 
         const open = document.createElement('a');
@@ -1538,8 +1540,8 @@ editor.once('load', () => {
         open.target = '_blank';
         open.rel = 'noopener';
         open.setAttribute('aria-label', 'Open published build');
-        if (app.url) {
-            open.href = app.url;
+        if (url) {
+            open.href = url;
         }
         card.appendChild(open);
 
