@@ -759,6 +759,11 @@
     overflow: hidden;
     flex-direction: column;
 
+    // the container is not pcui-flex; pcui-hidden must still win
+    &:not(.pcui-hidden) {
+        display: flex;
+    }
+
     // header bar treatment matching the builds panel
     > .vc-branch-filter {
         display: flex;
@@ -925,6 +930,7 @@
 
         appearance: none;
         flex: none;
+        width: 100%;
         padding: 10px 12px;
         border: none;
         border-top: 1px solid $border-primary;
