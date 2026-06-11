@@ -74,6 +74,8 @@ editor.once('load', () => {
     let openingBuildForm = false;
     let openingBuilds = false;
     let reloadOnNextShow = false;
+    let primaryFallback = null;  // primary app fetched by id when missing from the loaded pages
+    let primaryFallbackId = null;  // last id fetched for the fallback (one attempt per id)
     const filters: Record<string, string> = {};
     const filterButtons: Record<string, Button> = {};
     const filterMenus: Record<string, Menu> = {};
@@ -1561,10 +1563,34 @@ editor.once('load', () => {
         primaryBuild.dom.appendChild(card);
     };
 
+    // the builds and apps endpoints are paginated, so a primary build older than the
+    // loaded pages may be missing from the list; fetch the app row directly by id
+    const fetchPrimaryFallback = function (id: number) {
+        if (primaryFallbackId === id) {
+            return;
+        }
+        primaryFallbackId = id;
+        editor.api.globals.rest.apps.appGet(id).on('load', (status, data) => {
+            if (config.project.primaryApp !== id || !data) {
+                return;
+            }
+            primaryFallback = normalizeLegacyApp(data);
+            renderPrimaryBuild();
+        });
+    };
+
     const renderPrimaryBuild = function () {
+        const primaryId = config.project.primaryApp;
         // filtering means browsing history; the primary summary only shows on the unfiltered view
-        const app = hasActiveFilters() ? null :
-            apps.find(item => item.type === 'publish' && item.app_id === config.project.primaryApp);
+        let app = hasActiveFilters() || !primaryId ? null :
+            apps.find(item => item.type === 'publish' && item.app_id === primaryId);
+        if (!app && primaryId && !hasActiveFilters()) {
+            if (primaryFallback && primaryFallback.app_id === primaryId) {
+                app = primaryFallback;
+            } else {
+                fetchPrimaryFallback(primaryId);
+            }
+        }
         primaryBuildHeading.hidden = !app;
         primaryBuild.hidden = !app;
 
@@ -1635,6 +1661,8 @@ editor.once('load', () => {
         loadedAppIndex = false;
         detailApp = null;
         reloadOnNextShow = false;
+        primaryFallback = null;
+        primaryFallbackId = null;
         primaryBuild.dom.innerHTML = '';
         container.dom.innerHTML = '';
         container.dom.appendChild(noMatchingBuilds.dom);
