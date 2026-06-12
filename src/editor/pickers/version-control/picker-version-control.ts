@@ -279,7 +279,7 @@ editor.once('load', () => {
         requestAnimationFrame(() => {
             editor.call('picker:project:suspend');
             editor.call('picker:versioncontrol:mergeOverlay:hide');
-            editor.call('picker:diffManager', diff);
+            editor.call('picker:versioncontrol:diffPicker', diff);
         });
     };
 

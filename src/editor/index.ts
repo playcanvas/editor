@@ -354,6 +354,7 @@ import './pickers/picker-script-create';
 // version control pickers
 import './pickers/version-control/picker-version-control-progress';
 import './pickers/version-control/picker-version-control';
+import './pickers/version-control/picker-version-control-diff';
 import './pickers/version-control/picker-version-control-overlay-message';
 import './pickers/version-control/picker-version-control-overlay-merge';
 import './pickers/version-control/picker-version-control-messenger';
