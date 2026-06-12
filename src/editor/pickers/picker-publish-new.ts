@@ -36,6 +36,7 @@ editor.once('load', () => {
 
     let primaryScene: number | null = null;
     const primarySceneKey = `publish:primaryScene:${config.project.id}:${config.self.branch.id}`;
+    const selectedScenesKey = `publish:selectedScenes:${config.project.id}:${config.self.branch.id}`;
 
     editor.method('picker:publish:new', () => {
         mode = 'publish';
@@ -789,7 +790,10 @@ editor.once('load', () => {
         }));
 
         // handle checkbox tick
-        select.on('change', refreshButtonsState);
+        select.on('change', () => {
+            editor.call('localStorage:set', selectedScenesKey, getSelectedScenes());
+            refreshButtonsState();
+        });
 
         row.select = function () {
             select.value = true;
@@ -833,7 +837,15 @@ editor.once('load', () => {
         const content = document.querySelector('.ui-panel.right > .content');
         const scrollTop = content.scrollTop;
 
-        const selectedScenes = getSelectedScenes();
+        let selectedScenes = getSelectedScenes();
+
+        // restore last persisted selection on fresh open
+        if (!selectedScenes.length) {
+            const stored = editor.call('localStorage:get', selectedScenesKey);
+            if (Array.isArray(stored)) {
+                selectedScenes = stored.filter(id => scenes.some(scene => scene.id === id));
+            }
+        }
 
         destroyTooltips();
         destroyEvents();
