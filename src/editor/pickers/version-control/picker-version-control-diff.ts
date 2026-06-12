@@ -8,6 +8,7 @@ import { createValueField, destroyValueFields } from './vc-diff-fields';
 import {
     diffTextChangeCounts,
     formatDiffPath,
+    hashChip,
     lineChangeCounts,
     splitDiffPath,
     summarizeDiff,
@@ -71,7 +72,9 @@ editor.once('load', () => {
             return;
         }
         selected = Number(row.dataset.index);
-        render();
+        sidebar.querySelectorAll('.vc-diff-row.selected').forEach(el => el.classList.remove('selected'));
+        row.classList.add('selected');
+        renderMain();
     });
 
     const diffId = (diff: any) => diff?.id ?? diff?.merge_id;
@@ -82,7 +85,8 @@ editor.once('load', () => {
 
     const statusFor = (conflict: any) => {
         const entry = conflict?.data?.[0] ?? {};
-        return entry.missingInDst ? 'added' : entry.missingInSrc ? 'deleted' : 'modified';
+        const whole = !entry.path;
+        return whole && entry.missingInDst ? 'added' : whole && entry.missingInSrc ? 'deleted' : 'modified';
     };
 
     const textEntry = (conflict: any) => (conflict?.data ?? []).find((entry: any) => entry.isTextualMerge || entry.mergedFilePath);
@@ -227,7 +231,7 @@ editor.once('load', () => {
         const field = subMatch?.groups?.kind === 'Script' ? (splitDiffPath(entry.path ?? '').pop() ?? info.field) : info.field;
         return {
             entity: info.entityContext[0] ?? null,
-            panel: info.section,
+            panel: info.section.replace(/ component$/i, ''),
             icon: info.type,
             sub: subMatch?.groups?.name ?? '',
             field,
@@ -286,14 +290,23 @@ editor.once('load', () => {
         return createValueField(kind, value, nameIndex);
     };
 
+    // wholly added/deleted entities arrive as a missing-flagged entry at the entity root
+    const wholeEntity = (entry: any) => {
+        if (!entry.missingInSrc && !entry.missingInDst) {
+            return false;
+        }
+        const parts = splitDiffPath(entry.path ?? '');
+        return parts.length === 2 && parts[0] === 'entities';
+    };
+
     // banner for whole-item adds/deletes (entries without a path)
-    const wholeBanner = (conflict: any, entry: any) => {
+    const wholeBanner = (conflict: any, entry: any, noun: string) => {
         const banner = document.createElement('div');
         banner.classList.add('vc-diff-banner');
         const status = entry.missingInDst ? 'added' : entry.missingInSrc ? 'deleted' : 'modified';
         appendBadge(banner, status);
         const text = document.createElement('span');
-        text.textContent = `This ${conflict.assetType ?? conflict.itemType ?? 'item'} was ${status} since the checkpoint`;
+        text.textContent = `This ${noun} was ${status} since the checkpoint`;
         banner.appendChild(text);
         return banner;
     };
@@ -342,8 +355,8 @@ editor.once('load', () => {
                 section = { key, panel, subs: new Map() };
             }
             const host = hostDom(parts);
-            if (!entry.path) {
-                host.appendChild(wholeBanner(conflict, entry));
+            if (!entry.path || wholeEntity(entry)) {
+                host.appendChild(wholeBanner(conflict, entry, entry.path ? 'entity' : conflict.assetType ?? conflict.itemType ?? 'item'));
                 continue;
             }
             if (!entry.missingInDst) {
@@ -502,14 +515,6 @@ editor.once('load', () => {
         }
         if (showText) {
             detail.appendChild(renderIframe(conflict, text));
-            const token = viewToken;
-            loadTextCounts(text).then((counts) => {
-                if (token !== viewToken || !stats.isConnected) {
-                    return;
-                }
-                stats.innerHTML = '';
-                stats.appendChild(lineStats(counts ?? localTextCounts(text) ?? { added: 0, deleted: 0 }));
-            });
         } else if (!props.length) {
             const empty = document.createElement('div');
             empty.classList.add('vc-diff-empty');
@@ -523,7 +528,11 @@ editor.once('load', () => {
         viewToken++;
         const summary = summarizeDiff(current ?? {});
         const base = current?.destinationCheckpointId || current?.dstCheckpointId;
-        meta.textContent = `${summary.total} change${summary.total === 1 ? '' : 's'}${typeof base === 'string' ? ` · vs ${base.substring(0, 7)}` : ''}`;
+        meta.textContent = `${summary.total} change${summary.total === 1 ? '' : 's'}`;
+        if (typeof base === 'string') {
+            meta.appendChild(document.createTextNode(' · vs '));
+            meta.appendChild(hashChip(base));
+        }
         renderSidebar();
         renderMain();
     };

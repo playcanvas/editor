@@ -61,7 +61,7 @@ export const hashChip = (id: string) => {
 
 type DiffLike = {
     numConflicts?: number;
-    conflicts?: { itemType: string; itemName: string; data?: { missingInSrc?: boolean; missingInDst?: boolean }[] }[];
+    conflicts?: { itemType: string; itemName: string; data?: { path?: string; missingInSrc?: boolean; missingInDst?: boolean }[] }[];
 };
 
 // group label for an item type; 'settings' is already plural
@@ -71,8 +71,10 @@ export const summarizeDiff = (diff: DiffLike): DiffSummary => {
     const groups = new Map<string, { name: string; status: DiffStatus; index: number }[]>();
     (diff.conflicts ?? []).forEach((c, index) => {
         const entry = c.data?.[0] ?? {};
+        // whole-item adds/deletes carry no entry path; pathful missing flags are field-level
+        const whole = !entry.path;
         // dst-missing wins if both flags are ever set: item exists in src only, so 'added'
-        const status: DiffStatus = entry.missingInDst ? 'added' : entry.missingInSrc ? 'deleted' : 'modified';
+        const status: DiffStatus = whole && entry.missingInDst ? 'added' : whole && entry.missingInSrc ? 'deleted' : 'modified';
         if (!groups.has(c.itemType)) {
             groups.set(c.itemType, []);
         }
