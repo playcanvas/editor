@@ -131,21 +131,29 @@
                     border-top: 1px solid $border-primary;
 
                     .pcui-button {
-                        font-size: 12px;
+                        @extend .font-bold;
+
+                        font-size: 13px;
                         width: 160px;
-                        height: 28px;
-                        line-height: 28px;
+                        height: 32px;
+                        line-height: 32px;
                         text-align: center;
+                        border: 1px solid transparent;
+                        border-radius: 6px;
                         background: #fb222f;
                         color: $text-primary;
                         opacity: 0.8;
+                        box-shadow: none;
+                        transition: opacity 100ms, box-shadow 100ms;
 
                         &:hover {
                             opacity: 1;
+                            box-shadow: $element-shadow-hover;
                         }
 
                         &:active {
                             opacity: 0.9;
+                            box-shadow: none;
                         }
 
                         &.disabled {
@@ -158,121 +166,36 @@
     }
 }
 
+// mirrors .pcui-menu.picker-builds-menu so both pickers share one menu look
 .pcui-menu.version-control {
-    .pcui-menu-item {
-        text-transform: uppercase;
-        font-size: 12px;
+    z-index: 100001;
+
+    .pcui-menu-item:not(.pcui-menu-item-has-children):hover > .pcui-menu-item-children {
+        opacity: 0;
+        visibility: hidden;
+    }
+
+    .pcui-menu-items {
+        border: 1px solid $border-primary;
+        border-radius: 6px;
+        overflow: hidden;
     }
 
     .pcui-menu-item-content {
-        line-height: 32px;
+        font-size: 13px;
+
+        &:hover {
+            background-color: $bcg-dark;
+        }
 
         > .pcui-label {
-            margin: 0;
-            padding: 0 0 0 8px;
-        }
-    }
-}
-
-.pcui-text-input.search.version-control-search {
-    height: 22px;
-    border: none;
-    background-color: $bcg-darker;
-    position: sticky;
-    left: 0;
-    top: 0;
-    z-index: 2;
-
-    &.active,
-    &:hover,
-    &:focus,
-    &.focus {
-        border-color: $bcg-darkest;
-        background-color: $bcg-darkest;
-
-        &::before {
-            content: '';
+            line-height: 30px;
+            margin: 0 0 0 10px;
             padding: 0;
         }
-
-        &::after {
-            content: '';
-        }
     }
 
-    > input {
-        line-height: 24px;
-    }
-
-    &::before {
-        content: 'Search';
-        position: absolute;
-        color: $text-dark;
-        line-height: 24px;
-        padding: 0 8px;
-
-        @extend .font-bold;
-
-        font-size: 12px;
-        font-family: inconsolatamedium, Monaco, Menlo, 'Ubuntu Mono', Consolas, source-code-pro, monospace;
-    }
-
-    &.not-empty::before {
-        padding: 0;
-        content: '';
-    }
-
-    &::after {
-        content: '\E129';
-        line-height: 21px;
-        background-color: $bcg-darker;
-
-        @extend .font-icon;
-
-        font-size: 14px;
-        text-align: center;
-    }
-
-    &.not-empty {
-        background-color: $bcg-darkest;
-
-        > input {
-            color: $text-active;
-        }
-
-        > .clear {
-            display: block;
-        }
-
-        &::after {
-            content: '';
-        }
-    }
-
-    > .clear {
-        display: none;
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 24px;
-        height: 24px;
-        line-height: 24px;
+    .pcui-menu-item.delete > .pcui-menu-item-content > .pcui-label {
         color: $error-secondary;
-
-        @extend .font-icon;
-
-        font-size: 18px;
-        text-align: center;
-        cursor: pointer;
     }
-}
-
-
-.pcui-container.picker-version-control > .pcui-container .branches .ui-list > .ui-list-item .pcui-label.selectable {
-    user-select: text;
-}
-
-
-.pcui-container.picker-version-control > .pcui-container .branches .ui-list > .ui-list-item .pcui-label.name.closed-branch {
-    color: $text-secondary;
 }

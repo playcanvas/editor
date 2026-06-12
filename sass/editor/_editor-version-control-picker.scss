@@ -1,0 +1,1414 @@
+@use 'sass:color';
+
+// modern version control picker (github desktop style)
+
+// builds-panel badge (status pills, item headers)
+%vc-badge {
+    flex: none;
+    height: 18px;
+    padding: 0 6px;
+    border: 1px solid $border-primary;
+    border-radius: 4px;
+    background-color: rgb(0 0 0 / 14%);
+    color: $text-dark;
+    font-size: 11px;
+    line-height: 18px;
+    letter-spacing: 0;
+    text-transform: uppercase;
+
+    &.added {
+        color: #6fd088;
+        border-color: rgb(111 208 136 / 45%);
+    }
+
+    &.modified {
+        color: #f3c16f;
+        border-color: rgb(225 166 62 / 45%);
+    }
+
+    &.deleted {
+        color: #ff8a8a;
+        border-color: rgb(255 138 138 / 45%);
+    }
+}
+
+.pcui-container.picker-vc {
+    height: 100%;
+    overflow: hidden;
+    flex-direction: column;
+
+    // raw-dom controls inside these containers must respect operation gating
+    > .vc-top-bar.pcui-disabled,
+    > .vc-compare-bar.pcui-disabled,
+    > .vc-body > .vc-sidebar.pcui-disabled {
+        pointer-events: none;
+        opacity: 0.6;
+    }
+
+    // ---- top bar ----
+    > .vc-top-bar {
+        display: flex;
+        flex: none;
+        align-items: stretch;
+        border-bottom: 1px solid $border-primary;
+        background-color: $bcg-dark;
+
+        > .vc-branch-button {
+            appearance: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 220px;
+            margin: 0;
+            padding: 8px 16px;
+            border: none;
+            border-right: 1px solid $border-primary;
+
+            // flush with the bar at rest; hover/open states differentiate
+            background-color: transparent;
+            color: $text-secondary;
+            text-align: left;
+            cursor: pointer;
+            transition: background-color 100ms, color 100ms;
+
+            &:hover {
+                color: $text-primary;
+                background-color: $bcg-darker;
+            }
+
+            &.active {
+                color: $text-primary;
+                background-color: $bcg-darkest;
+            }
+
+            > .labels {
+                min-width: 0;
+
+                > .hint {
+                    display: block;
+                    color: $text-dark;
+                    font-size: 10px;
+                    text-transform: uppercase;
+                    letter-spacing: 0.5px;
+                }
+
+                > .name {
+                    @extend .font-bold;
+
+                    display: block;
+                    max-width: 260px;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    color: $text-primary;
+                    font-size: 14px;
+                }
+            }
+
+            &::after {
+                content: '';
+                width: 10px;
+                height: 10px;
+                margin-left: auto;
+                background-color: currentcolor;
+                mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 6h8l-4 4-4-4Z'/%3E%3C/svg%3E") center / contain no-repeat;
+            }
+        }
+
+        > .vc-top-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: auto;
+            padding: 0 16px;
+
+            > .pcui-button {
+                @extend .font-bold;
+
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                height: 32px;
+                margin: 0;
+                padding: 0 14px;
+                border: 1px solid $bcg-darkest;
+                border-radius: 6px;
+                color: $text-secondary;
+                background-color: $bcg-dark;
+                font-size: 12px;
+                box-shadow: none;
+                cursor: pointer;
+                transition: color 100ms, background-color 100ms, opacity 100ms, box-shadow 100ms;
+
+                &[data-icon]::before {
+                    font-size: 14px;
+                    line-height: 1;
+                    margin-right: 6px;
+                }
+
+                &:not(.pcui-disabled):hover,
+                &:not(.pcui-disabled):focus {
+                    color: $text-primary;
+                    box-shadow: $element-shadow-hover;
+                }
+
+                &:not(.pcui-disabled):active {
+                    background-color: $bcg-darkest;
+                    box-shadow: none;
+                }
+
+                &.pcui-disabled {
+                    opacity: $element-opacity-disabled;
+                    cursor: default;
+                }
+
+                &.vc-primary {
+                    color: $text-primary;
+                    border-color: transparent;
+                    background-color: $text-active;
+
+                    &:not(.pcui-disabled):hover,
+                    &:not(.pcui-disabled):focus {
+                        background-color: color.adjust($text-active, $lightness: -7%);
+                    }
+
+                    &:not(.pcui-disabled):active {
+                        background-color: color.adjust($text-active, $lightness: -12%);
+                    }
+                }
+
+                &.vc-compare-active {
+                    color: $text-primary;
+                    background-color: $bcg-darkest;
+                    border-color: $border-primary;
+                    box-shadow: $element-shadow-active;
+                }
+            }
+        }
+    }
+
+    // ---- body: sidebar + main ----
+    > .vc-body {
+        display: flex;
+        flex: 1 1 auto;
+        min-height: 0;
+
+        > .vc-sidebar {
+            display: flex;
+            flex: none;
+            flex-direction: column;
+            width: 300px;
+            min-height: 0;
+            border-right: 1px solid $border-primary;
+
+            > .vc-view-banner {
+                align-items: center;
+                gap: 6px;
+                padding: 8px 12px;
+                border-bottom: 1px solid $border-primary;
+                background-color: rgb(255 102 0 / 8%);
+                color: $text-secondary;
+                font-size: 12px;
+
+                // display:flex would defeat the [hidden] attribute otherwise
+                &:not([hidden]) {
+                    display: flex;
+                }
+
+                > .name {
+                    @extend .font-bold;
+
+                    min-width: 0;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    color: $text-primary;
+                }
+
+                > .return {
+                    appearance: none;
+                    margin-left: auto;
+                    padding: 0;
+                    border: none;
+                    background: transparent;
+                    color: #9dd4ff;
+                    font-size: 12px;
+                    cursor: pointer;
+                    white-space: nowrap;
+
+                    &:hover {
+                        text-decoration: underline;
+                    }
+                }
+            }
+
+            > .vc-tabs {
+                display: flex;
+                flex: none;
+                border-bottom: 1px solid $border-primary;
+                background-color: rgb(0 0 0 / 8%);
+
+                > .vc-tab {
+                    @extend .font-bold;
+
+                    appearance: none;
+                    flex: 1 1 0;
+                    padding: 10px 0;
+                    border: none;
+                    background: transparent;
+                    color: $text-dark;
+                    font-size: 12px;
+                    cursor: pointer;
+                    transition: color 100ms, box-shadow 100ms;
+
+                    &:hover {
+                        color: $text-secondary;
+                    }
+
+                    &.active {
+                        color: $text-primary;
+                        box-shadow: inset 0 -2px 0 $text-active;
+                    }
+
+                    &:disabled {
+                        opacity: $element-opacity-disabled;
+                        cursor: default;
+                    }
+                }
+            }
+
+            > .vc-tab-content {
+                display: flex;
+                flex: 1 1 auto;
+                flex-direction: column;
+                min-height: 0;
+            }
+        }
+
+        > .vc-main {
+            flex: 1 1 auto;
+            min-width: 0;
+            overflow: hidden auto;
+            padding: 16px;
+
+            // kept progress widgets render here now (was .side-panel)
+            > .progress-widget {
+                width: min(360px, 100%);
+                margin: clamp(96px, 24vh, 220px) auto 0;
+                background-color: transparent;
+
+                > .content {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                }
+
+                .ui-label {
+                    width: 100%;
+                    margin: 0;
+                    color: $text-primary;
+                    font-size: 16px;
+                    text-align: center;
+
+                    &.note {
+                        color: $text-secondary;
+                        font-size: 12px;
+
+                        &:not(.hidden) {
+                            display: block;
+                        }
+                    }
+                }
+
+                svg {
+                    display: block;
+                    flex: none;
+                    margin: 16px 0 0;
+
+                    &.spin {
+                        g {
+                            animation-name: spin;
+                            animation-duration: 500ms;
+                            animation-iteration-count: infinite;
+                            animation-timing-function: linear;
+                            transform-origin: center;
+                        }
+                    }
+
+                    &.hidden {
+                        display: none;
+                    }
+                }
+            }
+        }
+    }
+
+    // ---- shared card (builds form-section style) ----
+    .vc-card {
+        margin: 0 0 12px;
+        padding: 14px 16px;
+        border: 1px solid $border-primary;
+        border-radius: 6px;
+        background-color: rgb(0 0 0 / 8%);
+
+        > h3 {
+            @extend .font-bold;
+
+            margin: 0 0 6px;
+            color: $text-primary;
+            font-size: 13px;
+        }
+
+        .vc-meta {
+            color: $text-dark;
+            font-size: 12px;
+        }
+    }
+
+    // card title row: heading left, compact meta right
+    .vc-card-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin: 0 0 10px;
+
+        > h3 {
+            @extend .font-bold;
+
+            margin: 0;
+            color: $text-primary;
+            font-size: 13px;
+        }
+
+        > .side {
+            display: flex;
+            flex: none;
+            align-items: center;
+            gap: 12px;
+
+            > .vc-meta {
+                font-size: 11px;
+            }
+        }
+    }
+
+    // verbatim checkpoint hash
+    .vc-hash {
+        @extend .fixedFont;
+
+        display: inline-block;
+        padding: 0 5px;
+        border: 1px solid $border-primary;
+        border-radius: 4px;
+        background-color: rgb(0 0 0 / 20%);
+        color: $text-secondary;
+        font-size: 11px;
+        line-height: 16px;
+    }
+
+    // secondary action button (cards, lists)
+    .vc-button {
+        @extend .font-bold;
+
+        appearance: none;
+        display: inline-flex;
+
+        // the display above must not defeat the hidden attribute
+        &[hidden] {
+            display: none;
+        }
+
+        align-items: center;
+        justify-content: center;
+        height: 28px;
+        margin: 0;
+        padding: 0 12px;
+        border: 1px solid $bcg-darkest;
+        border-radius: 6px;
+        color: $text-secondary;
+        background-color: $bcg-dark;
+        font-size: 12px;
+        box-shadow: none;
+        cursor: pointer;
+        transition: color 100ms, background-color 100ms, opacity 100ms, box-shadow 100ms;
+
+        &:hover,
+        &:focus {
+            color: $text-primary;
+            box-shadow: $element-shadow-hover;
+        }
+
+        &:active {
+            background-color: $bcg-darkest;
+            box-shadow: none;
+        }
+
+        &:disabled,
+        &.pcui-disabled {
+            opacity: $element-opacity-disabled;
+            cursor: default;
+        }
+
+        &.danger {
+            color: #ff8a8a;
+            border-color: rgb(211 65 65 / 40%);
+        }
+    }
+
+    // ---- history list ----
+    .vc-history {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow: hidden auto;
+
+        > .vc-day {
+            @extend .font-bold;
+
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            padding: 6px 12px;
+            border-top: 1px solid $border-primary;
+            border-bottom: 1px solid $border-primary;
+            background-color: $bcg-darker;
+            color: $text-primary;
+            font-size: 11px;
+            text-transform: uppercase;
+
+            &:first-child {
+                border-top: none;
+            }
+        }
+
+        > .vc-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 11px 12px;
+            border-bottom: 1px solid $border-primary;
+            cursor: pointer;
+            transition: background-color 100ms ease;
+
+            &:hover {
+                background-color: #354144;
+            }
+
+            &.selected {
+                background-color: #354144;
+                box-shadow: inset 2px 0 0 $text-active;
+            }
+
+            > .avatar {
+                flex: none;
+                width: 22px;
+                height: 22px;
+                border: 1px solid $border-primary;
+                border-radius: 50%;
+                background-color: $bcg-darkest;
+                box-sizing: border-box;
+            }
+
+            > .check {
+                flex: none;
+                appearance: none;
+                position: relative;
+                width: 16px;
+                height: 16px;
+                margin-top: 3px;
+                border: 1px solid $border-primary;
+                border-radius: 3px;
+                background-color: $bcg-darkest;
+                box-sizing: border-box;
+                cursor: pointer;
+                transition: background-color 100ms, border-color 100ms, box-shadow 100ms;
+
+                &:hover {
+                    border-color: rgb(255 102 0 / 55%);
+                    background-color: rgb(255 102 0 / 8%);
+                }
+
+                &:focus {
+                    outline: none;
+                    box-shadow: $element-shadow-active;
+                }
+
+                &:checked {
+                    border-color: $text-active;
+                    background: $text-active url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.2 6.5 11 12.5 4.5' fill='none' stroke='%23fff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 13px 13px no-repeat;
+                }
+            }
+
+            > .body {
+                min-width: 0;
+
+                > .desc {
+                    @extend .font-bold;
+
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    color: $text-primary;
+                    font-size: 13px;
+                }
+
+                > .sub {
+                    margin-top: 2px;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                    color: $text-dark;
+                    font-size: 11px;
+                }
+            }
+
+            > .vc-hash {
+                flex: none;
+                align-self: center;
+                margin-left: auto;
+            }
+
+            &.disabled {
+                opacity: $element-opacity-disabled;
+                pointer-events: none;
+            }
+        }
+
+        > .vc-list-status {
+            padding: 12px;
+            color: $text-dark;
+            font-size: 12px;
+            text-align: center;
+        }
+    }
+
+    // ---- changes tab ----
+    // grouped change rows shared by the changes tab and the detail diff card
+    @mixin vc-change-rows {
+        > .vc-group {
+            @extend .font-bold;
+
+            padding: 5px 12px;
+            border-bottom: 1px solid $border-primary;
+            background-color: rgb(0 0 0 / 12%);
+            color: $text-secondary;
+            font-size: 10px;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+        }
+
+        > .vc-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 12px;
+            border-bottom: 1px solid $border-primary;
+            color: $text-primary;
+            font-size: 12px;
+
+            > .name {
+                min-width: 0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+
+            > .status {
+                @extend %vc-badge;
+
+                margin-left: auto;
+            }
+        }
+    }
+
+    .vc-changes {
+        flex: 1 1 auto;
+        flex-direction: column;
+        min-height: 0;
+
+        // pcui-hidden must win over the layout display
+        &:not(.pcui-hidden) {
+            display: flex;
+        }
+
+        // github desktop layout: change list on top, composer pinned at the bottom
+        > .vc-changes-list {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow: hidden auto;
+
+            @include vc-change-rows;
+
+            > .vc-item {
+                cursor: pointer;
+                transition: background-color 100ms ease;
+
+                &:hover {
+                    background-color: #354144;
+                }
+
+                &.selected {
+                    background-color: #354144;
+                    box-shadow: inset 2px 0 0 $text-active;
+                }
+            }
+
+            > .vc-list-status {
+                padding: 12px;
+                color: $text-dark;
+                font-size: 12px;
+                text-align: center;
+            }
+        }
+
+        > .vc-checkpoint-form {
+            flex: none;
+            padding: 12px;
+            border-top: 1px solid $border-primary;
+            background-color: $bcg-dark;
+
+            > .pcui-text-area-input {
+                width: 100%;
+                margin: 0 0 8px;
+                border: 1px solid $border-primary;
+                border-radius: 4px;
+                background-color: $bcg-darkest;
+                transition: box-shadow 100ms;
+
+                > textarea {
+                    @extend .font-regular;
+
+                    display: block;
+                    width: calc(100% - 20px);
+                    height: 56px;
+                    margin: 0;
+                    padding: 10px;
+                    border: none;
+                    background: transparent;
+                    color: $text-primary;
+                    font-size: 13px;
+                    outline: none;
+                    box-shadow: none;
+                    resize: none;
+
+                    &::placeholder {
+                        color: $text-darkest;
+                    }
+                }
+
+                &:hover { box-shadow: $element-shadow-hover; }
+                &:focus-within { box-shadow: $element-shadow-active; }
+            }
+
+            > .vc-create-checkpoint {
+                @extend .font-bold;
+
+                appearance: none;
+                display: block;
+                width: 100%;
+                height: 32px;
+                border: none;
+                border-radius: 6px;
+                background-color: $text-active;
+                color: $text-primary;
+                font-size: 13px;
+                cursor: pointer;
+                transition: background-color 100ms, opacity 100ms, box-shadow 100ms;
+
+                &:hover:not(:disabled) {
+                    background-color: color.adjust($text-active, $lightness: -7%);
+                    box-shadow: $element-shadow-hover;
+                }
+
+                &:disabled {
+                    opacity: $element-opacity-disabled;
+                    cursor: default;
+                }
+
+                &.busy {
+                    pointer-events: none;
+                    opacity: 0.7;
+                }
+            }
+
+            > .vc-form-tip {
+                margin-top: 8px;
+                color: $text-dark;
+                font-size: 11px;
+            }
+        }
+    }
+
+    // shimmer skeleton (builds pattern)
+    .vc-skeleton {
+        > .skeleton-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 11px 12px;
+            border-bottom: 1px solid $border-primary;
+
+            > .bone {
+                border-radius: 4px;
+                background-color: rgb(255 255 255 / 8%);
+                animation: vc-skeleton-pulse 1.4s ease-in-out infinite;
+
+                &.dot {
+                    flex: none;
+                    width: 22px;
+                    height: 22px;
+                    border-radius: 50%;
+                }
+
+                &.line {
+                    height: 10px;
+                    flex: 1 1 auto;
+                }
+            }
+
+            &:nth-child(2) .bone { animation-delay: 120ms; }
+            &:nth-child(3) .bone { animation-delay: 240ms; }
+        }
+    }
+
+    // ---- detail pane ----
+    .vc-detail-hero {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+
+        > .avatar {
+            flex: none;
+            width: 40px;
+            height: 40px;
+            border: 1px solid $border-primary;
+            border-radius: 50%;
+            background-color: $bcg-darkest;
+            box-sizing: border-box;
+        }
+
+        > .body {
+            min-width: 0;
+            flex: 1 1 auto;
+
+            > .title {
+                @extend .font-bold;
+
+                margin: 0 0 4px;
+                color: $text-primary;
+                font-size: 15px;
+                white-space: pre-wrap;
+                word-break: break-word;
+            }
+
+            > .vc-meta > .copy-button {
+                margin-left: 2px;
+                vertical-align: middle;
+            }
+        }
+    }
+
+    .vc-detail-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 12px;
+    }
+
+    // selected item header in the changes summary card
+    .vc-item-head {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0 0 10px;
+
+        > .name {
+            @extend .font-bold;
+
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: $text-primary;
+            font-size: 13px;
+        }
+
+        > .status {
+            @extend %vc-badge;
+        }
+    }
+
+    // field-level diff rows (changes tab right pane)
+    .vc-field-diff {
+        border: 1px solid $border-primary;
+        border-radius: 6px;
+        background-color: rgb(0 0 0 / 10%);
+        overflow: hidden;
+
+        > .vc-field-row {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            padding: 7px 12px;
+            border-bottom: 1px solid $border-primary;
+
+            &:last-child {
+                border-bottom: none;
+            }
+
+            &.tree {
+                align-items: flex-start;
+            }
+
+            > .path {
+                @extend .fixedFont;
+
+                flex: 1 1 auto;
+                min-width: 0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                color: $text-secondary;
+                font-size: 12px;
+
+                &.tree {
+                    overflow: visible;
+                    text-overflow: clip;
+                    white-space: normal;
+                }
+            }
+
+            .vc-path-tree {
+                display: block;
+                min-width: 0;
+
+                > .seg {
+                    display: block;
+                    max-width: 100%;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+
+                    &::after {
+                        content: ':';
+                        color: $text-darkest;
+                    }
+                }
+
+                > .change {
+                    display: block;
+                    max-width: 100%;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+
+                    &.old {
+                        color: #ff8a8a;
+                    }
+
+                    &.new {
+                        color: #6fd088;
+                    }
+                }
+            }
+
+            > .vals {
+                @extend .fixedFont;
+
+                flex: none;
+                max-width: 55%;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                color: $text-dark;
+                font-size: 11px;
+
+                .old {
+                    color: #ff8a8a;
+                    text-decoration: line-through;
+
+                    &.count {
+                        text-decoration: none;
+                    }
+                }
+
+                .new {
+                    color: #6fd088;
+                }
+            }
+        }
+    }
+
+    // grouped change list inside the detail diff card; no inner scroll —
+    // the surrounding .vc-main is the single scroll context
+    .vc-diff-list {
+        border: 1px solid $border-primary;
+        border-radius: 6px;
+        background-color: rgb(0 0 0 / 10%);
+        overflow: hidden;
+
+        @include vc-change-rows;
+
+        > .vc-item:last-child {
+            border-bottom: none;
+        }
+    }
+
+    .vc-empty-detail {
+        color: $text-dark;
+        font-size: 13px;
+        padding: 24px;
+        text-align: center;
+    }
+
+    // ---- compare bar ----
+    > .vc-compare-bar {
+        position: absolute;
+        right: 16px;
+        bottom: 12px;
+        left: 316px;
+        z-index: 2;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 14px;
+        border: 1px solid $border-primary;
+        border-radius: 6px;
+        background-color: $bcg-dark;
+
+        // pcui-hidden must win over the layout display
+        &:not(.pcui-hidden) {
+            display: flex;
+        }
+
+        > .slot {
+            flex: 1 1 0;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            padding: 6px 10px;
+            border: 1px dashed $text-darkest;
+            border-radius: 6px;
+            color: $text-dark;
+            font-size: 12px;
+
+            &.full {
+                border-style: solid;
+                border-color: $border-primary;
+                background-color: rgb(0 0 0 / 14%);
+                color: $text-primary;
+            }
+        }
+
+        > .pcui-button {
+            @extend .font-bold;
+
+            display: inline-flex;
+            flex: none;
+            align-items: center;
+            justify-content: center;
+            min-width: 104px;
+            height: 32px;
+            margin: 0;
+            padding: 0 14px;
+            border: 1px solid $bcg-darkest;
+            border-radius: 4px;
+            color: $text-secondary;
+            background-color: $bcg-dark;
+            font-size: 12px;
+            box-shadow: none;
+            cursor: pointer;
+            transition: color 100ms, background-color 100ms, opacity 100ms, box-shadow 100ms;
+
+            &:not(.pcui-disabled):hover,
+            &:not(.pcui-disabled):focus {
+                color: $text-primary;
+                box-shadow: $element-shadow-hover;
+            }
+
+            &:not(.pcui-disabled):active {
+                background-color: $bcg-darkest;
+                box-shadow: none;
+            }
+
+            &.vc-primary:not(.pcui-disabled) {
+                color: $text-primary;
+                border-color: transparent;
+                background-color: $text-active;
+
+                &:hover,
+                &:focus {
+                    background-color: color.adjust($text-active, $lightness: -7%);
+                }
+
+                &:active {
+                    background-color: color.adjust($text-active, $lightness: -12%);
+                }
+            }
+
+            &.pcui-disabled {
+                opacity: $element-opacity-disabled;
+                cursor: default;
+            }
+        }
+    }
+}
+
+// branch switcher dropdown (appended to layout root, positioned under the button)
+.pcui-container.vc-branch-panel {
+    position: absolute;
+    z-index: 100002;
+    width: 320px;
+    max-height: 480px;
+
+    // attached drawer: the picker frame and top bar provide the other edges
+    border: 1px solid $border-primary;
+    border-top: none;
+    border-left: none;
+    border-radius: 0 0 6px;
+    background-color: $bcg-dark;
+    overflow: hidden;
+    flex-direction: column;
+
+    // the container is not pcui-flex; pcui-hidden must still win
+    &:not(.pcui-hidden) {
+        display: flex;
+    }
+
+    // header bar treatment matching the builds panel
+    > .vc-branch-filter {
+        display: flex;
+        flex: none;
+        align-items: center;
+        gap: 8px;
+        padding: 12px;
+        border-bottom: 1px solid $border-primary;
+        background-color: rgb(0 0 0 / 8%);
+
+        > .pcui-text-input {
+            @extend .font-regular;
+
+            flex: 1 1 auto;
+            margin: 0;
+            border: 1px solid $bcg-darkest;
+            border-radius: 4px;
+            background-color: $bcg-darkest;
+            font-size: 13px;
+
+            > input::placeholder {
+                color: $text-darkest;
+            }
+        }
+
+        > .pcui-select-input {
+            flex: none;
+            width: 110px;
+            margin: 0;
+            font-size: 13px;
+        }
+    }
+
+    > .vc-branch-list {
+        flex: 1 1 auto;
+        min-height: 0;
+
+        // x would otherwise show the editor's 8px black scrollbar track
+        overflow: hidden auto;
+
+        // the new-branch button below brings its own divider; outscore the
+        // row/group border rules rather than rely on source order
+        > .vc-branch-row:last-child,
+        > .vc-group:last-child,
+        > .vc-list-status:last-child {
+            border-bottom: none;
+        }
+
+        > .vc-group {
+            @extend .font-bold;
+
+            padding: 6px 12px;
+            border-bottom: 1px solid $border-primary;
+            background-color: rgb(0 0 0 / 12%);
+            color: $text-primary;
+            font-size: 11px;
+            text-transform: uppercase;
+        }
+
+        > .vc-branch-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+
+            // reserve the hover-action height so rows never grow under the cursor
+            min-height: 40px;
+            box-sizing: border-box;
+            padding: 4px 12px;
+            border-bottom: 1px solid $border-primary;
+            cursor: pointer;
+            transition: background-color 100ms ease;
+
+            // menu-open mirrors hover while the row's context menu is up
+            &:hover,
+            &.menu-open {
+                background-color: #354144;
+            }
+
+            > .icon {
+                flex: none;
+                width: 14px;
+                color: $text-darkest;
+                font-size: 10px;
+                text-align: center;
+
+                &.current { color: #6fd088; }
+                &.favorite { color: #f3c16f; }
+            }
+
+            > .name {
+                @extend .font-bold;
+
+                min-width: 0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                color: $text-primary;
+                font-size: 13px;
+
+                &.closed { color: $text-secondary; }
+            }
+
+            > .sub {
+                flex: none;
+                color: $text-dark;
+                font-size: 10px;
+            }
+
+            > .row-actions {
+                display: none;
+                align-items: center;
+                gap: 6px;
+                margin-left: auto;
+            }
+
+            &:hover > .row-actions,
+            &.menu-open > .row-actions { display: flex; }
+
+            &:hover > .sub,
+            &.menu-open > .sub { display: none; }
+
+            > .row-actions > .switch {
+                @extend .font-bold;
+
+                appearance: none;
+                padding: 3px 10px;
+                border: 1px solid $bcg-darkest;
+                border-radius: 4px;
+                background-color: $bcg-darker;
+                color: $text-secondary;
+                font-size: 11px;
+                cursor: pointer;
+
+                &:hover {
+                    color: $text-primary;
+                    box-shadow: $element-shadow-hover;
+                }
+            }
+
+            > .row-actions > .kebab {
+                appearance: none;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 24px;
+                height: 24px;
+                padding: 0;
+                border: 1px solid transparent;
+                border-radius: 4px;
+                background: transparent;
+                color: $text-dark;
+                cursor: pointer;
+
+                &::before {
+                    content: '';
+                    width: 14px;
+                    height: 14px;
+                    background-color: currentcolor;
+                    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='3' cy='8' r='1.4'/%3E%3Ccircle cx='8' cy='8' r='1.4'/%3E%3Ccircle cx='13' cy='8' r='1.4'/%3E%3C/svg%3E") center / contain no-repeat;
+                }
+
+                &:hover {
+                    color: $text-primary;
+                    background-color: $bcg-darker;
+                    border-color: $bcg-darkest;
+                }
+
+                // pressed look while its menu is open (builds kebab convention)
+                &.active {
+                    color: $text-primary;
+                    background-color: $bcg-darkest;
+                    border-color: $border-primary;
+                    box-shadow: $element-shadow-active;
+                }
+            }
+        }
+
+        > .vc-list-status {
+            padding: 12px;
+            color: $text-dark;
+            font-size: 12px;
+            text-align: center;
+        }
+    }
+
+    > .vc-new-branch {
+        @extend .font-bold;
+
+        appearance: none;
+        flex: none;
+        width: 100%;
+        padding: 10px 12px;
+        border: none;
+        border-top: 1px solid $border-primary;
+        background: transparent;
+        color: #9dd4ff;
+        font-size: 12px;
+        text-align: left;
+        cursor: pointer;
+
+        &:hover { background-color: #354144; }
+    }
+}
+
+// modal dialogs
+.pcui-container.vc-dialog-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100003;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(0 0 0 / 50%);
+
+    > .vc-dialog {
+        width: 360px;
+        border: 1px solid $border-primary;
+        border-radius: 6px;
+        background-color: $bcg-dark;
+        box-shadow: 0 12px 32px rgb(0 0 0 / 55%);
+        overflow: hidden;
+
+        > .hd {
+            @extend .font-bold;
+
+            padding: 12px 16px;
+            border-bottom: 1px solid $border-primary;
+            background-color: rgb(0 0 0 / 8%);
+            color: $text-primary;
+            font-size: 14px;
+
+            &.danger { color: #ff8a8a; }
+        }
+
+        > .bd {
+            padding: 14px 16px;
+            color: $text-secondary;
+            font-size: 12px;
+            line-height: 1.5;
+
+            b { color: $text-primary; }
+
+            > .pcui-text-input {
+                width: 100%;
+                margin: 10px 0 0;
+                border: 1px solid $bcg-darkest;
+                border-radius: 4px;
+                background-color: $bcg-darkest;
+
+                > input::placeholder {
+                    color: $text-darkest;
+                }
+            }
+
+            > .vc-dialog-check {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-top: 10px;
+
+                > .pcui-label {
+                    margin: 0;
+                    font-size: 12px;
+                    color: $text-primary;
+                }
+
+                > .pcui-boolean-input {
+                    margin: 0;
+                    flex: none;
+                }
+            }
+
+            > .vc-dialog-error {
+                margin-top: 8px;
+                color: #ff8a8a;
+                font-size: 12px;
+            }
+        }
+
+        > .ft {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            padding: 12px 16px;
+            border-top: 1px solid $border-primary;
+
+            > .pcui-button {
+                @extend .font-bold;
+
+                height: 30px;
+                margin: 0;
+                padding: 0 16px;
+                border: 1px solid $bcg-darkest;
+                border-radius: 6px;
+                color: $text-secondary;
+                background-color: $bcg-dark;
+                font-size: 12px;
+                box-shadow: none;
+
+                &:not(.pcui-disabled):hover {
+                    color: $text-primary;
+                    box-shadow: $element-shadow-hover;
+                }
+
+                &:not(.pcui-disabled):active {
+                    background-color: $bcg-darkest;
+                    box-shadow: none;
+                }
+
+                &.pcui-disabled { opacity: $element-opacity-disabled; }
+
+                &.confirm {
+                    color: $text-primary;
+                    border-color: transparent;
+                    background-color: $text-active;
+
+                    &:not(.pcui-disabled):hover { background-color: color.adjust($text-active, $lightness: -7%); }
+
+                    &:not(.pcui-disabled):active { background-color: color.adjust($text-active, $lightness: -12%); }
+                }
+
+                &.confirm.danger {
+                    background-color: $error-secondary;
+
+                    &:not(.pcui-disabled):hover { background-color: color.adjust($error-secondary, $lightness: -7%); }
+
+                    &:not(.pcui-disabled):active { background-color: color.adjust($error-secondary, $lightness: -12%); }
+                }
+            }
+        }
+    }
+}
+
+@keyframes vc-skeleton-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.45; }
+}
