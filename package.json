@@ -46,7 +46,7 @@
     "@typescript-eslint/parser": "8.57.0",
     "autoprefixer": "10.4.27",
     "chai": "5.3.3",
-    "concurrently": "9.2.1",
+    "concurrently": "10.0.3",
     "cross-env": "7.0.3",
     "dexie": "4.3.0",
     "esbuild": "0.28.1",
