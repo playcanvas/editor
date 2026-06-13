@@ -16,7 +16,7 @@
     "eslint": "9.39.1",
     "globals": "16.5.0",
     "node-fetch": "3.3.2",
-    "tsx": "4.20.6"
+    "tsx": "4.22.4"
   },
   "peerDependencies": {
     "typescript": "^5.1.6",
