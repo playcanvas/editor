@@ -326,13 +326,32 @@ $vc-add-edge: #3fb950;
 .vc-diff-inspector {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+
+    // more space between cards than within one (tree -> panels is 6px below)
+    // so each entity's breadcrumb + panels reads as a single grouped unit
+    gap: 16px;
 }
 
 .vc-diff-section {
     > .vc-diff-entity-tree {
         margin-bottom: 6px;
         pointer-events: none;
+
+        // the root's own spine is the leftmost vertical and never connects to
+        // anything (each child draws its own spine + elbow), so collapse it in
+        // every case. top: only relocates the stub; height: 0 removes it.
+        > .pcui-treeview-item {
+            &::before {
+                height: 0;
+            }
+
+            // the root's horizontal elbow only dangles when the root is a leaf
+            // (single-node tree). with children the elbow is the junction to
+            // the first child's spine, so keep it — hide it for leaves only.
+            &.pcui-treeview-item-empty > .pcui-treeview-item-contents > .pcui-treeview-item-icon::before {
+                display: none;
+            }
+        }
     }
 }
 
