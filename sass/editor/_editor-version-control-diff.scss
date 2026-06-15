@@ -57,10 +57,14 @@ $vc-add-edge: #3fb950;
         background: transparent;
         border: 0;
 
+        // match the version control picker's header close (picker-project .close)
+        color: $text-secondary;
+        font-size: 14px;
+
         &:hover {
             border: 0;
             box-shadow: none;
-            color: $text-active;
+            color: $text-primary;
         }
     }
 }
