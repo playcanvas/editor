@@ -2,7 +2,7 @@ import { Container, TextAreaInput } from '@playcanvas/pcui';
 
 import { config } from '@/editor/config';
 
-import { templateEntityPath } from './vc-diff-data';
+import { templateEntitiesFor, templateEntityPath } from './vc-diff-data';
 import { renderPreviewPropertyDiff } from './vc-diff-preview';
 import { diffTextChangeCounts, hashChip, lineChangeCounts, splitDiffPath, summarizeDiff, typeLabel, type DiffSummary } from './vc-helpers';
 import { diffCreate } from '../../messenger/jobs';
@@ -172,11 +172,20 @@ export const createChangesPanel = () => {
         return Promise.resolve(null);
     };
 
+    // combined template entity maps, memoised per conflict (built once per render)
+    const tplEntities = new Map<any, any>();
+
     const entityName = (conflict: any, value: string) => {
         const id = splitDiffPath(value)[1];
-        // template entities live in the asset's own data.entities (best-effort)
+        // template entities live in the asset's own data.entities, plus any the
+        // diff reports as added/removed on the side that isn't loaded
         if (conflict.assetType === 'template') {
-            return templateEntityPath(editor.call('assets:get', conflict.itemId)?.get('data.entities'), id);
+            let entities = tplEntities.get(conflict);
+            if (!entities) {
+                entities = templateEntitiesFor(conflict, (assetId: any) => editor.call('assets:get', assetId));
+                tplEntities.set(conflict, entities);
+            }
+            return templateEntityPath(entities, id);
         }
         const src = raw?.srcCheckpoint?.scenes?.[conflict.itemId]?.entities?.[id];
         const dst = raw?.dstCheckpoint?.scenes?.[conflict.itemId]?.entities?.[id];

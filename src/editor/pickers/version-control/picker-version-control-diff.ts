@@ -403,6 +403,28 @@ editor.once('load', () => {
                 host.appendChild(wholeBanner(conflict, entry, entry.path ? 'entity' : conflict.assetType ?? conflict.itemType ?? 'item'));
                 continue;
             }
+            // children: show only the added/removed entries, not the whole
+            // before+after lists (the unchanged siblings are just noise)
+            if (isEntityChildren(entry.path) && Array.isArray(entry.srcValue) && Array.isArray(entry.dstValue)) {
+                const src = new Set(entry.srcValue);
+                const dst = new Set(entry.dstValue);
+                const removed = entry.dstValue.filter((id: string) => !src.has(id));
+                const added = entry.srcValue.filter((id: string) => !dst.has(id));
+                if (removed.length) {
+                    host.appendChild(fieldRow('del', parts.field, parts.title, createValueField('children', removed, nameIndex)));
+                }
+                if (added.length) {
+                    host.appendChild(fieldRow('add', parts.field, parts.title, createValueField('children', added, nameIndex)));
+                }
+                if (!removed.length && !added.length) {
+                    // same members, different order — note it without re-listing every child
+                    const note = document.createElement('span');
+                    note.classList.add('vc-diff-missing');
+                    note.textContent = `reordered (${entry.srcValue.length} item${entry.srcValue.length === 1 ? '' : 's'})`;
+                    host.appendChild(fieldRow('add', parts.field, parts.title, note));
+                }
+                continue;
+            }
             if (!entry.missingInDst) {
                 host.appendChild(fieldRow('del', parts.field, parts.title, sideField(entry, 'dst')));
             }

@@ -99,26 +99,31 @@ export const templateEntityPath = (entities: any, guid: string) => {
 // merge a template asset's entity paths (guid -> Root/.../Name) into the index
 // so template diffs resolve entity guids the way scenes do; pulled from the
 // live asset registry via getAsset (best-effort — missing assets fall back)
+// combined entity map for a template conflict: the live asset's entities (one
+// checkpoint's state) plus the whole-entity objects the diff itself reports —
+// data.entities.<guid> entries whose value is the full entity ({ name, parent }).
+// the diff payload carries no template entities otherwise (formatCheckpoint only
+// emits paths for scenes), so this is the only way entities added/removed on the
+// side that isn't loaded resolve to a name.
+export const templateEntitiesFor = (conflict: any, getAsset: (id: any) => any) => {
+    const entities = { ...(getAsset(conflict?.itemId)?.get?.('data.entities') ?? {}) };
+    for (const entry of conflict?.data ?? []) {
+        const parts = (entry?.path ?? '').split('.');
+        const obj = entry?.srcValue ?? entry?.dstValue;
+        if (parts.length === 3 && parts[0] === 'data' && parts[1] === 'entities' &&
+            obj && typeof obj === 'object' && !entities[parts[2]]) {
+            entities[parts[2]] = obj;
+        }
+    }
+    return entities;
+};
+
 export const indexTemplateEntities = (index: NameIndex, conflicts: any[], getAsset: (id: any) => any) => {
     for (const c of conflicts ?? []) {
         if (c?.assetType !== 'template') {
             continue;
         }
-        // the live asset holds only one checkpoint's entities, and the diff
-        // payload carries no template entities at all (formatCheckpoint only
-        // emits paths for scenes), so layer in the whole-entity objects the
-        // diff itself reports — data.entities.<guid> entries whose value is the
-        // full entity ({ name, parent }) — so entities added/removed on the
-        // other side resolve too, not just those on the loaded side
-        const entities = { ...(getAsset(c.itemId)?.get?.('data.entities') ?? {}) };
-        for (const entry of c.data ?? []) {
-            const parts = (entry?.path ?? '').split('.');
-            const obj = entry?.srcValue ?? entry?.dstValue;
-            if (parts.length === 3 && parts[0] === 'data' && parts[1] === 'entities' &&
-                obj && typeof obj === 'object' && !entities[parts[2]]) {
-                entities[parts[2]] = obj;
-            }
-        }
+        const entities = templateEntitiesFor(c, getAsset);
         for (const guid of Object.keys(entities)) {
             const path = !index.entity.has(guid) && templateEntityPath(entities, guid);
             if (path) {
