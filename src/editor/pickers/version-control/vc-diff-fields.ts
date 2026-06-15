@@ -101,6 +101,14 @@ export const createValueField = (kind: ValueKind, value: any, index: NameIndex):
             return chip('batchGroup', value, index.batchGroup.get(`${value}`));
         case 'sublayer':
             return sublayerEl(value, index);
+        case 'entityMap': {
+            // a guid->guid remap conveys nothing actionable inline; show the
+            // count and keep the full mapping on hover for anyone who needs it
+            const n = Object.keys(value as object).length;
+            const summary = el('vc-diff-entity-map', `${n} entit${n === 1 ? 'y' : 'ies'}`);
+            summary.title = JSON.stringify(value, null, 2);
+            return summary;
+        }
         case 'object':
             return missingEl('no preview available');
         case 'json': {

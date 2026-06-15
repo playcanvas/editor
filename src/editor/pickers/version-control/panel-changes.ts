@@ -2,6 +2,7 @@ import { Container, TextAreaInput } from '@playcanvas/pcui';
 
 import { config } from '@/editor/config';
 
+import { templateEntityPath } from './vc-diff-data';
 import { renderPreviewPropertyDiff } from './vc-diff-preview';
 import { diffTextChangeCounts, hashChip, lineChangeCounts, splitDiffPath, summarizeDiff, typeLabel, type DiffSummary } from './vc-helpers';
 import { diffCreate } from '../../messenger/jobs';
@@ -173,6 +174,10 @@ export const createChangesPanel = () => {
 
     const entityName = (conflict: any, value: string) => {
         const id = splitDiffPath(value)[1];
+        // template entities live in the asset's own data.entities (best-effort)
+        if (conflict.assetType === 'template') {
+            return templateEntityPath(editor.call('assets:get', conflict.itemId)?.get('data.entities'), id);
+        }
         const src = raw?.srcCheckpoint?.scenes?.[conflict.itemId]?.entities?.[id];
         const dst = raw?.dstCheckpoint?.scenes?.[conflict.itemId]?.entities?.[id];
         const name = src ?? dst;

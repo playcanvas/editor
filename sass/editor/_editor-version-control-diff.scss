@@ -333,12 +333,6 @@ $vc-add-edge: #3fb950;
     > .vc-diff-entity-tree {
         margin-bottom: 6px;
         pointer-events: none;
-
-        // the root item's connector spine reaches up to a parent that doesn't
-        // exist; collapse it so the orphaned line is gone
-        > .pcui-treeview-item::before {
-            height: 0;
-        }
     }
 }
 
@@ -498,6 +492,11 @@ $vc-add-edge: #3fb950;
         color: $text-dark;
         font-size: 10px;
     }
+}
+
+// entity-id remap shown as a count; the full mapping is available on hover
+.vc-diff-entity-map {
+    color: $text-dark;
 }
 
 // ---- text diff iframe (existing behaviour) ----

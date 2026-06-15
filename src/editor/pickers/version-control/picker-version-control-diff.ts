@@ -3,7 +3,7 @@ import { Button, Container, Overlay, Panel, TreeView, TreeViewItem } from '@play
 import { handleCallback } from '@/common/utils';
 import { config } from '@/editor/config';
 
-import { buildNameIndex, valueKind, type NameIndex } from './vc-diff-data';
+import { buildNameIndex, indexTemplateEntities, valueKind, type NameIndex } from './vc-diff-data';
 import { createValueField, destroyValueFields } from './vc-diff-fields';
 import {
     diffTextChangeCounts,
@@ -17,6 +17,11 @@ import {
 
 const SUB_RE = /^(?<kind>Script|Sound slot|Clip): (?<name>.+)$/;
 const SETTINGS_ROOT_RE = /^(?:scene |project )?settings$/i;
+
+// entity-level template-instance fields get their own (collapsed) panel rather
+// than sitting among the entity's regular values; values are shown friendlier
+const TEMPLATE_PANEL = 'Template instance';
+const TEMPLATE_FIELDS: Record<string, string> = { template_id: 'Source template', template_ent_ids: 'Entity mapping' };
 
 // loading-state skeleton fragments (mirror the real diff layout: sidebar rows are
 // name + status badge; main panels are a header bar over field rows of label + value)
@@ -176,8 +181,13 @@ editor.once('load', () => {
     const sectionComponent = (value: string) => value.match(/^(.+) component$/i)?.[1]?.replace(/\s+/g, '').toLowerCase() ?? '';
 
     const inspectorInfo = (conflict: any, entry: any) => {
+        // template assets carry a scene-shaped entity tree under data.entities;
+        // strip the prefix and render it exactly like a scene
+        const tpl = conflict.assetType === 'template' && entry.path?.startsWith('data.entities.');
+        const path = tpl ? entry.path.slice('data.'.length) : entry.path;
+        const type = tpl ? 'scene' : conflict.itemType;
         const raw = entry.path || conflict.itemName;
-        if (!entry.path || (conflict.itemType !== 'scene' && conflict.itemType !== 'settings')) {
+        if (!path || (type !== 'scene' && type !== 'settings')) {
             return {
                 entityContext: [],
                 section: typeLabel(conflict.itemType ?? 'item'),
@@ -188,12 +198,14 @@ editor.once('load', () => {
             };
         }
 
-        const info = formatDiffPath(entry.path, conflict.itemType, entityName(conflict, entry.path));
+        const info = formatDiffPath(path, type, entityName(conflict, path));
         const labels = info.labels;
         const entity = labels.find(label => label.text.startsWith('Entity: '));
         const comp = labels.findIndex(label => label.text.endsWith(' component'));
+        // entity-level template-instance plumbing routes to its own panel
+        const tplField = TEMPLATE_FIELDS[splitDiffPath(path).pop() ?? ''];
         let entityContext = [];
-        let section = labels[0]?.text ?? typeLabel(conflict.itemType);
+        let section = labels[0]?.text ?? typeLabel(type);
         let context = labels.slice(0, -1);
 
         if (comp >= 0) {
@@ -203,11 +215,11 @@ editor.once('load', () => {
         } else if (labels[0]?.text === 'Scene settings' && labels[1]) {
             section = labels[1].text;
             context = labels.slice(2);
-        } else if (conflict.itemType === 'settings') {
+        } else if (type === 'settings') {
             section = labels[0]?.text ?? 'Project settings';
             context = labels.slice(1);
         } else if (entity) {
-            section = 'Entity';
+            section = tplField ? TEMPLATE_PANEL : 'Entity';
             entityContext = [entity];
             context = labels.filter(label => label !== entity);
         }
@@ -216,7 +228,7 @@ editor.once('load', () => {
             entityContext,
             section,
             context,
-            field: info.field || raw,
+            field: tplField ?? info.field ?? raw,
             title: `${labels.map(label => label.text).join(' / ')} / ${info.field || raw}`,
             type: sectionComponent(section)
         };
@@ -292,6 +304,10 @@ editor.once('load', () => {
     const sideField = (entry: any, side: 'src' | 'dst') => {
         const value = side === 'src' ? entry.srcValue : entry.dstValue;
         const missing = side === 'src' ? entry.missingInSrc : entry.missingInDst;
+        // a template's source id is an asset reference — show it as the asset name
+        if (!missing && splitDiffPath(entry.path ?? '').pop() === 'template_id') {
+            return createValueField('asset', value, nameIndex);
+        }
         const kind = missing ? 'missing' : valueKind(typeFor(entry, side), entry.path ?? '', value);
         return createValueField(kind, value, nameIndex);
     };
@@ -634,6 +650,8 @@ editor.once('load', () => {
     const setDiff = (diff: any) => {
         current = diff;
         nameIndex = buildNameIndex(current ?? {});
+        // template assets carry their own entity tree; resolve its names too
+        indexTemplateEntities(nameIndex, current?.conflicts ?? [], (id: any) => editor.call('assets:get', id));
         const summary = summarizeDiff(current ?? {});
         if (!summary.total) {
             meta.textContent = 'No changes';
