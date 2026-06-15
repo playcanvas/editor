@@ -10,7 +10,9 @@ $vc-add-edge: #3fb950;
 
     > .pcui-overlay-content {
         position: absolute;
-        inset: 0;
+
+        // sit right of the 40px left toolbar (#layout-root grid column) instead of underlapping it
+        inset: 0 0 0 40px;
         display: flex;
     }
 }
@@ -47,6 +49,14 @@ $vc-add-edge: #3fb950;
 
     > .vc-diff-close {
         margin-left: auto;
+        background: transparent;
+        border: 0;
+
+        &:hover {
+            border: 0;
+            box-shadow: none;
+            color: $text-active;
+        }
     }
 }
 
