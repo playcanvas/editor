@@ -965,6 +965,15 @@
         .vc-diff-field-row {
             min-height: 26px;
             font-size: 12px;
+
+            // text values stay on one line and ellipsis; an unbreakable value would
+            // otherwise hard-clip at the pane edge (overflow-x is hidden)
+            > .value > span {
+                min-width: 0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
         }
     }
 
