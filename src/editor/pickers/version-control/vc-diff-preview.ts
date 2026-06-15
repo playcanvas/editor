@@ -165,7 +165,10 @@ export const renderPreviewPropertyDiff = (
         return span;
     };
 
-    let section: { key: string; panel: Panel; subs: Map<string, Panel> } = null;
+    // one card per entity (breadcrumb shown once); panels stack inside so an
+    // entity changed across sections isn't drawn as separate repeated parts
+    let card: { entity: string; dom: HTMLElement } = null;
+    let section: { name: string; panel: Panel; subs: Map<string, Panel> } = null;
     const hostDom = (parts: { sub: string; panel: string }) => {
         if (!parts.sub) {
             return section.panel.content.dom;
@@ -184,17 +187,22 @@ export const renderPreviewPropertyDiff = (
 
     for (const entry of entries) {
         const parts = sectionParts(conflict, entry, entityName);
-        const key = JSON.stringify([parts.entity?.title ?? parts.entity?.text ?? '', parts.panel]);
-        if (section?.key !== key) {
-            const card = document.createElement('div');
-            card.classList.add('vc-diff-section');
+        const entityKey = parts.entity?.title ?? parts.entity?.text ?? '';
+        if (!card || card.entity !== entityKey) {
+            const dom = document.createElement('div');
+            dom.classList.add('vc-diff-section');
             if (parts.entity) {
                 const crumb = document.createElement('div');
                 crumb.classList.add('vc-diff-crumb');
                 crumb.textContent = parts.entity.text.replace(/^Entity:\s*/, '').split('/').filter(Boolean).join(' / ');
                 crumb.title = parts.entity.title ?? parts.entity.text;
-                card.appendChild(crumb);
+                dom.appendChild(crumb);
             }
+            wrap.appendChild(dom);
+            card = { entity: entityKey, dom };
+            section = null;
+        }
+        if (!section || section.name !== parts.panel) {
             const panel = new Panel({ collapsible: true, headerText: parts.panel });
             panel.class.add('vc-diff-panel');
             if (parts.icon) {
@@ -202,9 +210,8 @@ export const renderPreviewPropertyDiff = (
                 icon.classList.add('component-icon', `type-${parts.icon}`);
                 panel.header.dom.insertBefore(icon, panel.header.dom.querySelector('.pcui-panel-header-title'));
             }
-            card.appendChild(panel.dom);
-            wrap.appendChild(card);
-            section = { key, panel, subs: new Map() };
+            card.dom.appendChild(panel.dom);
+            section = { name: parts.panel, panel, subs: new Map() };
         }
         const host = hostDom(parts);
         if (!entry.path || wholeEntity(entry)) {

@@ -337,7 +337,11 @@ editor.once('load', () => {
         const wrap = document.createElement('div');
         wrap.classList.add('vc-diff-inspector');
 
-        let section: { key: string; panel: Panel; subs: Map<string, Panel> } = null;
+        // one card per entity (its breadcrumb shown once); the entity's panels
+        // stack inside, so an entity changed across several sections (e.g.
+        // Entity + Template instance) isn't redrawn as separate repeated parts
+        let card: { entity: string; dom: HTMLElement } = null;
+        let section: { name: string; panel: Panel; subs: Map<string, Panel> } = null;
         const hostDom = (parts: { sub: string; panel: string }) => {
             if (!parts.sub) {
                 return section.panel.content.dom;
@@ -358,13 +362,18 @@ editor.once('load', () => {
 
         for (const entry of entries) {
             const parts = sectionParts(conflict, entry);
-            const key = JSON.stringify([parts.entity?.title ?? parts.entity?.text ?? '', parts.panel]);
-            if (section?.key !== key) {
-                const card = document.createElement('div');
-                card.classList.add('vc-diff-section');
+            const entityKey = parts.entity?.title ?? parts.entity?.text ?? '';
+            if (!card || card.entity !== entityKey) {
+                const dom = document.createElement('div');
+                dom.classList.add('vc-diff-section');
                 if (parts.entity) {
-                    card.appendChild(entityTree(parts.entity, parts.icon).dom);
+                    dom.appendChild(entityTree(parts.entity, parts.icon).dom);
                 }
+                wrap.appendChild(dom);
+                card = { entity: entityKey, dom };
+                section = null;
+            }
+            if (!section || section.name !== parts.panel) {
                 const panel = new Panel({ collapsible: true, headerText: parts.panel });
                 panel.class.add('vc-diff-panel');
                 if (parts.icon) {
@@ -372,9 +381,8 @@ editor.once('load', () => {
                     icon.classList.add('component-icon', `type-${parts.icon}`);
                     panel.header.dom.insertBefore(icon, panel.header.dom.querySelector('.pcui-panel-header-title'));
                 }
-                card.appendChild(panel.dom);
-                wrap.appendChild(card);
-                section = { key, panel, subs: new Map() };
+                card.dom.appendChild(panel.dom);
+                section = { name: parts.panel, panel, subs: new Map() };
             }
             const host = hostDom(parts);
             if (!entry.path || wholeEntity(entry)) {
