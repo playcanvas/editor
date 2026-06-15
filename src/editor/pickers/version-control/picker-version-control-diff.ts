@@ -584,12 +584,61 @@ editor.once('load', () => {
         }
     });
 
-    editor.method('picker:versioncontrol:diffPicker', (diff: any) => {
+    // single-line message in the main area (loading / empty / error states)
+    const renderNotice = (message: string) => {
+        trees.forEach(t => t.destroy());
+        trees = [];
+        destroyValueFields(main);
+        main.innerHTML = '';
+        const notice = document.createElement('div');
+        notice.classList.add('vc-diff-empty');
+        notice.textContent = message;
+        main.appendChild(notice);
+    };
+
+    const renderLoading = () => {
+        meta.textContent = 'Computing changes…';
+        sidebar.innerHTML = `<div class="vc-skeleton">${'<div class="skeleton-row"><span class="bone line"></span></div>'.repeat(6)}</div>`;
+        renderNotice('Computing changes…');
+    };
+
+    const setDiff = (diff: any) => {
         current = diff;
         nameIndex = buildNameIndex(current ?? {});
         const summary = summarizeDiff(current ?? {});
+        if (!summary.total) {
+            meta.textContent = 'No changes';
+            sidebar.innerHTML = '';
+            renderNotice('No changes since the checkpoint');
+            return;
+        }
         selected = summary.groups[0]?.items[0]?.index ?? 0;
         render();
+    };
+
+    // accepts a resolved diff or a Promise that resolves to one; a pending diff
+    // opens the overlay immediately with a loading state (viewToken guards stale opens)
+    editor.method('picker:versioncontrol:diffPicker', (input: any) => {
+        const token = ++viewToken;
+        current = null;
+        nameIndex = null;
+        selected = 0;
         overlay.hidden = false;
+        if (input && typeof input.then === 'function') {
+            renderLoading();
+            input.then((diff: any) => {
+                if (token === viewToken) {
+                    setDiff(diff);
+                }
+            }).catch((err: any) => {
+                if (token === viewToken) {
+                    meta.textContent = '';
+                    sidebar.innerHTML = '';
+                    renderNotice(`Could not load diff: ${err instanceof Error ? err.message : err}`);
+                }
+            });
+        } else {
+            setDiff(input);
+        }
     });
 });

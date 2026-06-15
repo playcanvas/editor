@@ -21,6 +21,8 @@ export const createChangesPanel = () => {
     // .then/.catch discard results when the generation has moved on (stale-response guard)
     let gen = 0;
     let rawDiffLive = false;
+    // the in-flight diff job, so Open Full Diff works before the summary finishes loading
+    let rawPromise: Promise<any> = null;
     const fileStats = new Map<string, Promise<{ deleted: number; added: number } | null>>();
 
     const diffId = (diff: any) => diff?.id ?? diff?.merge_id;
@@ -264,12 +266,13 @@ export const createChangesPanel = () => {
             side.appendChild(meta);
         }
 
-        if (current && current.total) {
+        // show while loading and whenever there are changes; hide only once we know there are none
+        if (branch.latestCheckpointId && (loading || !current || current.total)) {
             const openBtn = document.createElement('button');
             openBtn.type = 'button';
             openBtn.classList.add('vc-button');
             openBtn.textContent = 'Open Full Diff';
-            openBtn.addEventListener('click', () => summary.emit('openDiff', rawDiffLive ? raw : null));
+            openBtn.addEventListener('click', () => summary.emit('openDiff', !loading && rawDiffLive ? raw : null, rawPromise));
             side.appendChild(openBtn);
         }
 
@@ -335,17 +338,20 @@ export const createChangesPanel = () => {
         loading = true;
         const snap = ++gen;
         render();
-        diffCreate({
+        const pending = diffCreate({
             srcBranchId: branch.id,
             srcCheckpointId: null,
             dstBranchId: branch.id,
             dstCheckpointId: branch.latestCheckpointId
-        }).then((diff: any) => {
+        });
+        rawPromise = pending;
+        pending.then((diff: any) => {
             // single-flight: clear loading even for superseded responses or refresh deadlocks
             loading = false;
             if (snap !== gen) {
                 return;
             }
+            rawPromise = null;
             stale = false;
             const oldId = rawDiffLive ? diffId(raw) : null;
             const next = diff ?? {};
@@ -366,6 +372,7 @@ export const createChangesPanel = () => {
             if (snap !== gen) {
                 return;
             }
+            rawPromise = null;
             log.error(err);
             current = null;
             releaseRawDiff();

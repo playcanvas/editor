@@ -277,7 +277,12 @@ editor.once('load', () => {
 
     // ---- diff viewing ----
     const presentDiff = (diff: any) => {
-        retainDiff(diff);
+        // a pending diff is retained once it resolves; a resolved one immediately
+        if (diff && typeof diff.then === 'function') {
+            diff.then((d: any) => retainDiff(d)).catch(() => {});
+        } else {
+            retainDiff(diff);
+        }
         togglePanels(true);
         showProgress(null);
         requestAnimationFrame(() => {
@@ -318,25 +323,18 @@ editor.once('load', () => {
         runDiff(() => diffCreate({ srcBranchId, srcCheckpointId, dstBranchId, dstCheckpointId }));
     };
 
-    // cached diffs from the panels skip the expensive diffCreate job
+    // always use the modern overlay: a resolved diff renders instantly, a pending
+    // one (or a fresh job) opens with a loading state — no legacy spinner dialog
     detail.on('openDiff', (checkpoint: any, previous: any, cached: any, pending: Promise<any>) => {
-        if (cached && cached.numConflicts) {
-            presentDiff(cached);
-            return;
-        }
-        if (pending) {
-            runDiff(() => pending);
-            return;
-        }
-        viewDiff(viewedBranch.id, checkpoint.id, viewedBranch.id, previous.id);
+        presentDiff(cached ?? pending ?? diffCreate({
+            srcBranchId: viewedBranch.id, srcCheckpointId: checkpoint.id, dstBranchId: viewedBranch.id, dstCheckpointId: previous.id
+        }));
     });
-    changes.summary.on('openDiff', (cached: any) => {
-        if (cached && cached.numConflicts) {
-            presentDiff(cached);
-            return;
-        }
+    changes.summary.on('openDiff', (cached: any, pending: Promise<any>) => {
         const b = config.self.branch;
-        viewDiff(b.id, null, b.id, b.latestCheckpointId);
+        presentDiff(cached ?? pending ?? diffCreate({
+            srcBranchId: b.id, srcCheckpointId: null, dstBranchId: b.id, dstCheckpointId: b.latestCheckpointId
+        }));
     });
 
     // ---- compare mode ----
