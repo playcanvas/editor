@@ -553,25 +553,45 @@ editor.once('load', () => {
         fileStats.clear();
     };
 
+    // mouse/browser back closes the diff, mirroring how the scene picker is
+    // dismissed by the same history navigation (see the scenes-load popstate)
+    let closingViaBack = false;
+    const onPopState = () => {
+        if (!overlay.hidden) {
+            closingViaBack = true;
+            overlay.hidden = true;
+        }
+    };
+
     overlay.on('show', () => {
         editor.emit('picker:open', 'version-control-diff');
+        window.addEventListener('popstate', onPopState);
         if (editor.call('viewport:inViewport')) {
             editor.emit('viewport:hover', false);
         }
     });
 
     overlay.on('hide', () => {
+        window.removeEventListener('popstate', onPopState);
         const id = diffId(current);
         if (typeof id === 'string' && !isRetainedDiff(id)) {
             editor.emit('picker:diffManager:closed', id);
             handleCallback(editor.api.globals.rest.merge.mergeDelete({ mergeId: id }), () => {});
         }
-        if (editor.call('picker:isOpen', 'project')) {
+        if (closingViaBack) {
+            // the scene-router back already closed/navigated the picker beneath the
+            // diff; only clear its suspended state (set in presentDiff) so it's
+            // interactive again when reopened — resume is a no-op if not suspended
             editor.call('picker:project:resume');
         } else {
-            editor.call('picker:versioncontrol');
+            if (editor.call('picker:isOpen', 'project')) {
+                editor.call('picker:project:resume');
+            } else {
+                editor.call('picker:versioncontrol');
+            }
+            editor.call('vcgraph:moveToForeground');
         }
-        editor.call('vcgraph:moveToForeground');
+        closingViaBack = false;
         current = null;
         nameIndex = null;
         selected = 0;
