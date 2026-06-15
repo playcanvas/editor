@@ -30,8 +30,12 @@ $vc-add-edge: #3fb950;
     flex: none;
     align-items: center;
     gap: 12px;
-    padding: 0 16px;
-    height: 48px;
+
+    // right padding equals the close button's vertical centring gap ((33 − 28) / 2) so its corner spacing is symmetric
+    padding: 0 2.5px 0 16px;
+
+    // match the picker-project panel header height (its content is offset by 33px)
+    height: 33px;
     background-color: $bcg-dark;
     border-bottom: 1px solid $border-primary;
 
@@ -48,7 +52,8 @@ $vc-add-edge: #3fb950;
     }
 
     > .vc-diff-close {
-        margin-left: auto;
+        // reset PCUI's default 6px margin so the header padding alone sets the corner gap; auto-left keeps it pushed right
+        margin: 0 0 0 auto;
         background: transparent;
         border: 0;
 
