@@ -333,6 +333,12 @@ $vc-add-edge: #3fb950;
     > .vc-diff-entity-tree {
         margin-bottom: 6px;
         pointer-events: none;
+
+        // the root item's connector spine reaches up to a parent that doesn't
+        // exist; collapse it so the orphaned line is gone
+        > .pcui-treeview-item::before {
+            height: 0;
+        }
     }
 }
 
