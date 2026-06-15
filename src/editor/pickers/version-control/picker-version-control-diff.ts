@@ -301,12 +301,23 @@ editor.once('load', () => {
         return row;
     };
 
+    // entities.<guid>.children (scenes) / data.entities.<guid>.children (templates)
+    const isEntityChildren = (path: string) => {
+        const parts = splitDiffPath(path ?? '');
+        const e = parts[0] === 'data' ? parts.slice(1) : parts;
+        return e.length === 3 && e[0] === 'entities' && e[2] === 'children';
+    };
+
     const sideField = (entry: any, side: 'src' | 'dst') => {
         const value = side === 'src' ? entry.srcValue : entry.dstValue;
         const missing = side === 'src' ? entry.missingInSrc : entry.missingInDst;
         // a template's source id is an asset reference — show it as the asset name
         if (!missing && splitDiffPath(entry.path ?? '').pop() === 'template_id') {
             return createValueField('asset', value, nameIndex);
+        }
+        // an entity's children is a list of entity ids — resolve them to leaf names
+        if (!missing && isEntityChildren(entry.path) && Array.isArray(value)) {
+            return createValueField('children', value, nameIndex);
         }
         const kind = missing ? 'missing' : valueKind(typeFor(entry, side), entry.path ?? '', value);
         return createValueField(kind, value, nameIndex);
@@ -317,8 +328,11 @@ editor.once('load', () => {
         if (!entry.missingInSrc && !entry.missingInDst) {
             return false;
         }
+        // templates prefix the path with `data.`; normalise so a whole template
+        // entity (data.entities.<guid>) reads like a scene's (entities.<guid>)
         const parts = splitDiffPath(entry.path ?? '');
-        return parts.length === 2 && parts[0] === 'entities';
+        const e = parts[0] === 'data' ? parts.slice(1) : parts;
+        return e.length === 2 && e[0] === 'entities';
     };
 
     // banner for whole-item adds/deletes (entries without a path)

@@ -18,6 +18,13 @@ type EntityName = (conflict: any, value: string) => string | undefined;
 
 const sectionComponent = (value: string) => value.match(/^(.+) component$/i)?.[1]?.replace(/\s+/g, '').toLowerCase() ?? '';
 
+// entities.<guid>.children (scenes) / data.entities.<guid>.children (templates)
+const isEntityChildren = (path: string) => {
+    const parts = splitDiffPath(path ?? '');
+    const e = parts[0] === 'data' ? parts.slice(1) : parts;
+    return e.length === 3 && e[0] === 'entities' && e[2] === 'children';
+};
+
 const inspectorInfo = (conflict: any, entry: any, entityName: EntityName) => {
     // template assets carry a scene-shaped entity tree under data.entities;
     // strip the prefix and render it exactly like a scene
@@ -98,8 +105,11 @@ const wholeEntity = (entry: any) => {
     if (!entry.missingInSrc && !entry.missingInDst) {
         return false;
     }
+    // templates prefix the path with `data.`; normalise so a whole template
+    // entity (data.entities.<guid>) reads like a scene's (entities.<guid>)
     const parts = splitDiffPath(entry.path ?? '');
-    return parts.length === 2 && parts[0] === 'entities';
+    const e = parts[0] === 'data' ? parts.slice(1) : parts;
+    return e.length === 2 && e[0] === 'entities';
 };
 
 const fieldRow = (kind: 'del' | 'add', label: string, title: string, valueEl: HTMLElement) => {
@@ -156,6 +166,11 @@ export const renderPreviewPropertyDiff = (
             // compact summary in the preview; the full diff resolves names
             const n = Object.keys(value).length;
             span.textContent = `${n} entit${n === 1 ? 'y' : 'ies'}`;
+            span.title = JSON.stringify(value, null, 2);
+        } else if (isEntityChildren(entry.path) && Array.isArray(value)) {
+            // compact summary; the full diff resolves these ids to named chips
+            const n = value.length;
+            span.textContent = `${n} child${n === 1 ? '' : 'ren'}`;
             span.title = JSON.stringify(value, null, 2);
         } else {
             span.textContent = fmtVal(value);

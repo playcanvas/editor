@@ -95,6 +95,19 @@ export const createValueField = (kind: ValueKind, value: any, index: NameIndex):
             return chip('asset', value, index.asset.get(`${value}`));
         case 'entity':
             return chip('entity', value, index.entity.get(`${value}`));
+        case 'children': {
+            // entity-id list as chips; show only the leaf name (siblings share a path prefix)
+            const ids = Array.isArray(value) ? value : [value];
+            const list = document.createElement('div');
+            list.className = 'vc-diff-array';
+            list.appendChild(el('size', `${ids.length} item${ids.length === 1 ? '' : 's'}`));
+            for (const id of ids) {
+                const full = index.entity.get(`${id}`);
+                const leaf = typeof full === 'string' ? full.split('/').filter(Boolean).pop() : undefined;
+                list.appendChild(chip('entity', id, leaf));
+            }
+            return list;
+        }
         case 'layer':
             return chip('layer', value, index.layer.get(`${value}`));
         case 'batchGroup':

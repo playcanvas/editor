@@ -20,7 +20,7 @@ export type NameIndex = {
 };
 
 export type ValueKind = 'missing' | 'boolean' | 'number' | 'string' | 'vector' | 'color' | 'curve' | 'gradient' |
-    'asset' | 'entity' | 'layer' | 'batchGroup' | 'sublayer' | 'entityMap' | 'json' | 'object' | `array:${string}`;
+    'asset' | 'entity' | 'layer' | 'batchGroup' | 'sublayer' | 'entityMap' | 'children' | 'json' | 'object' | `array:${string}`;
 
 const settingName = (v: unknown) => {
     if (typeof v === 'string') {
@@ -104,8 +104,22 @@ export const indexTemplateEntities = (index: NameIndex, conflicts: any[], getAss
         if (c?.assetType !== 'template') {
             continue;
         }
-        const entities = getAsset(c.itemId)?.get?.('data.entities');
-        for (const guid of Object.keys(entities ?? {})) {
+        // the live asset holds only one checkpoint's entities, and the diff
+        // payload carries no template entities at all (formatCheckpoint only
+        // emits paths for scenes), so layer in the whole-entity objects the
+        // diff itself reports — data.entities.<guid> entries whose value is the
+        // full entity ({ name, parent }) — so entities added/removed on the
+        // other side resolve too, not just those on the loaded side
+        const entities = { ...(getAsset(c.itemId)?.get?.('data.entities') ?? {}) };
+        for (const entry of c.data ?? []) {
+            const parts = (entry?.path ?? '').split('.');
+            const obj = entry?.srcValue ?? entry?.dstValue;
+            if (parts.length === 3 && parts[0] === 'data' && parts[1] === 'entities' &&
+                obj && typeof obj === 'object' && !entities[parts[2]]) {
+                entities[parts[2]] = obj;
+            }
+        }
+        for (const guid of Object.keys(entities)) {
             const path = !index.entity.has(guid) && templateEntityPath(entities, guid);
             if (path) {
                 index.entity.set(guid, path);
