@@ -197,6 +197,7 @@ export const createChangesPanel = () => {
             const path = document.createElement('span');
             path.classList.add('path');
             path.textContent = fileName(conflict, entry, 'src') ?? fileName(conflict, entry, 'dst');
+            path.title = path.textContent;
             const vals = document.createElement('span');
             vals.classList.add('vals');
             vals.textContent = 'Loading…';
@@ -209,6 +210,7 @@ export const createChangesPanel = () => {
                     appendLineCounts(vals, counts);
                 } else {
                     vals.textContent = `${fileText(entry)} — use Open Full Diff to view`;
+                    vals.title = vals.textContent;
                 }
             });
             row.appendChild(path);

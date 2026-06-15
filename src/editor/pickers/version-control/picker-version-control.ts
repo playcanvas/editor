@@ -1,5 +1,6 @@
 import { Button, Container } from '@playcanvas/pcui';
 
+import { installEllipsisTooltips } from '@/common/ellipsis-tooltip';
 import { handleCallback } from '@/common/utils';
 import { config } from '@/editor/config';
 
@@ -51,6 +52,7 @@ editor.once('load', () => {
 
     // ---- layout ----
     const panel = new Container({ class: ['picker-version-control', 'picker-vc'], flex: true });
+    installEllipsisTooltips(panel.dom);
     editor.call('picker:project:registerMenu', 'version control', 'Version Control', panel);
 
     if (!editor.call('permissions:read')) {
@@ -237,7 +239,9 @@ editor.once('load', () => {
     const setViewedBranch = (branch: any) => {
         viewedBranch = branch;
         banner.hidden = isViewingCurrent();
-        (banner.querySelector('.name') as HTMLElement).textContent = branch.name;
+        const bannerName = banner.querySelector('.name') as HTMLElement;
+        bannerName.textContent = branch.name;
+        bannerName.title = branch.name;
         bannerReturn.textContent = `Return to ${config.self.branch.name}`;
         history.setBranch(branch);
         detail.clear();
@@ -344,8 +348,10 @@ editor.once('load', () => {
 
     const renderCompareBar = () => {
         slotA.textContent = compareSlots[0] ? slotLabel(compareSlots[0]) : 'Pick a checkpoint…';
+        slotA.title = slotA.textContent;
         slotA.classList.toggle('full', !!compareSlots[0]);
         slotB.textContent = compareSlots[1] ? slotLabel(compareSlots[1]) : 'Pick another…';
+        slotB.title = slotB.textContent;
         slotB.classList.toggle('full', !!compareSlots[1]);
         btnRunCompare.enabled = compareSlots.length === 2;
     };

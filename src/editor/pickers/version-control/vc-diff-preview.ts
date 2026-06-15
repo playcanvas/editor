@@ -143,6 +143,8 @@ export const renderPreviewPropertyDiff = (
             span.textContent = '(none)';
         } else {
             span.textContent = fmtVal(value);
+            // fmtVal truncates to 64 chars; hover shows the full value
+            span.title = typeof value === 'string' ? value : JSON.stringify(value);
         }
         return span;
     };

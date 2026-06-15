@@ -27,6 +27,7 @@ export const createBranchSwitcher = (host: Container) => {
     button.dom.appendChild(labels);
     const nameEl = labels.querySelector('.name') as HTMLElement;
     nameEl.textContent = config.self.branch.name;
+    nameEl.title = config.self.branch.name;
 
     // dropdown panel floats inside the picker, anchored under the button
     const panel = new Container({ class: 'vc-branch-panel', hidden: true });
@@ -347,6 +348,7 @@ export const createBranchSwitcher = (host: Container) => {
                 load(true);
             }
             nameEl.textContent = config.self.branch.name;
+            nameEl.title = config.self.branch.name;
         },
         closePanel: hidePanel,
         getBranch: (id: string) => branches[id],

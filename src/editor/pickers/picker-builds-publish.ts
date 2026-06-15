@@ -1,5 +1,6 @@
 import { Container, Label, Menu, MenuItem, Button } from '@playcanvas/pcui';
 
+import { installEllipsisTooltips } from '@/common/ellipsis-tooltip';
 import { bytesToHuman, convertDatetime, countToHuman } from '@/common/utils';
 import { config } from '@/editor/config';
 
@@ -250,6 +251,9 @@ editor.once('load', () => {
         flex: true,
         class: 'picker-build-detail'
     });
+
+    installEllipsisTooltips(panel.dom);
+    installEllipsisTooltips(detailPanel.dom);
 
     // pagination state for infinite scroll
     let skip = 0;
