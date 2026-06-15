@@ -88,16 +88,22 @@ $vc-add-edge: #3fb950;
 
         padding: 10px 12px;
         color: $text-primary;
-        font-size: 12px;
+        font-size: 13px;
         border-bottom: 1px solid $border-primary;
     }
 
     > .vc-diff-group {
-        padding: 8px 12px 4px;
-        color: $text-dark;
+        @extend .font-bold;
+
+        // match the picker's section bars (.vc-group): bold + dark bar so the
+        // header reads distinctly from the $text-dark sub line below it
+        padding: 5px 12px;
+        background-color: rgb(0 0 0 / 12%);
+        border-bottom: 1px solid $border-primary;
+        color: $text-secondary;
         font-size: 10px;
+        letter-spacing: 0.4px;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
     }
 
     > .vc-diff-row {
@@ -115,7 +121,7 @@ $vc-add-edge: #3fb950;
         border-bottom: 1px solid $border-primary;
         background: transparent;
         color: $text-primary;
-        font-size: 12px;
+        font-size: 13px;
         text-align: left;
         cursor: pointer;
         transition: background-color 100ms ease;
@@ -141,12 +147,12 @@ $vc-add-edge: #3fb950;
             width: 100%;
             order: 3;
             color: $text-dark;
-            font-size: 10px;
+            font-size: 11px;
         }
 
         > .counts {
             order: 4;
-            font-size: 10px;
+            font-size: 11px;
         }
 
         > .status {
