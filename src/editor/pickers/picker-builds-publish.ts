@@ -1417,6 +1417,13 @@ editor.once('load', () => {
     // CONTROLLERS
 
     // load build job list
+    // signature of everything the list rows + primary card render from, so a
+    // background refresh can skip the full teardown/rebuild when nothing changed
+    const appsFingerprint = function () {
+        const rows = apps.map(a => `${a.id}:${a.task?.status ?? ''}:${a.completed_at ?? ''}:${a.views ?? ''}`);
+        return `${config.project.primaryApp}|${rows.join(',')}`;
+    };
+
     const loadApps = function (showProgress: boolean = true) {
         skip = 0;
         hasMore = true;
@@ -1437,6 +1444,7 @@ editor.once('load', () => {
                 const legacy = appList
                 .filter(app => !ids.has(String(app.id)))
                 .map(normalizeLegacyApp);
+                const prevSig = appsFingerprint();
                 apps = rows.concat(legacy).sort(compareBuildDate);
                 hasMore = data.pagination ? rows.length < data.pagination.total : data.result.length === APP_LIMIT;
 
@@ -1444,7 +1452,14 @@ editor.once('load', () => {
                     toggleProgress(false);
                 }
 
-                refreshApps();
+                // explicit (progress) loads always re-render; a background refresh
+                // only tears down + rebuilds when the data actually changed, so a
+                // cached reopen doesn't reflow the whole list
+                if (showProgress || appsFingerprint() !== prevSig) {
+                    refreshApps();
+                } else {
+                    refreshFilterVisibility();
+                }
                 fillViewport();
             });
         });
@@ -1829,7 +1844,12 @@ editor.once('load', () => {
             loadApps(apps.length === 0);
             reloadOnNextShow = false;
         } else {
+            // cached (unfiltered) list is still in the DOM: show it instantly,
+            // re-apply visibility, and refresh in the background — no skeleton,
+            // no teardown, and the list only rebuilds if something changed
             refreshFilterVisibility();
+            loadedAppIndex = false;
+            loadApps(false);
         }
 
         if (editor.call('viewport:inViewport')) {
@@ -1846,7 +1866,12 @@ editor.once('load', () => {
             return;
         }
 
-        resetBuildsState();
+        // cache the loaded builds for an instant, reflow-free reopen; only a
+        // filtered session can't be reused (its rows are server-filtered), so
+        // reset just that case to keep the filter bar and data in sync
+        if (hasActiveFilters()) {
+            resetBuildsState();
+        }
 
         if (editor.call('viewport:inViewport')) {
             editor.emit('viewport:hover', true);
@@ -1867,7 +1892,11 @@ editor.once('load', () => {
             return;
         }
 
-        resetBuildsState();
+        // preserve the cache; only a filtered session needs a full reset (see
+        // the builds panel hide handler)
+        if (hasActiveFilters()) {
+            resetBuildsState();
+        }
 
         if (editor.call('viewport:inViewport')) {
             editor.emit('viewport:hover', true);
@@ -1875,7 +1904,7 @@ editor.once('load', () => {
     });
 
     editor.on('picker:close', (name) => {
-        if (name === 'project' && panel.hidden && detailPanel.hidden && (apps.length > 0 || loadedAppIndex || hasActiveFilters())) {
+        if (name === 'project' && panel.hidden && detailPanel.hidden && hasActiveFilters()) {
             resetBuildsState();
         }
     });
