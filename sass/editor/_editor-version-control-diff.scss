@@ -223,6 +223,95 @@ $vc-add-edge: #3fb950;
     text-align: center;
 }
 
+// loading skeleton — mirrors the sidebar list (dot + line rows) and the main
+// detail layout (header + panel blocks); reuses the picker's pulse keyframe
+.vc-diff-skeleton {
+    .bone {
+        border-radius: 4px;
+        background-color: rgb(255 255 255 / 8%);
+        animation: vc-skeleton-pulse 1.4s ease-in-out infinite;
+
+        &.line {
+            flex: 1 1 auto;
+            height: 10px;
+        }
+
+        &.title {
+            flex: none;
+            width: 180px;
+            height: 14px;
+        }
+
+        &.badge {
+            flex: none;
+            width: 58px;
+            height: 16px;
+        }
+
+        &.label {
+            flex: none;
+            width: 30%;
+            max-width: 180px;
+            height: 10px;
+        }
+
+        &.value {
+            flex: 1 1 auto;
+            height: 10px;
+        }
+    }
+
+    // sidebar rows: name + status badge (no leading icon, matching .vc-diff-row)
+    > .skeleton-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 11px 12px;
+        border-bottom: 1px solid $border-primary;
+    }
+
+    &.main {
+        padding: 12px 16px;
+
+        > .skeleton-head {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        // panel: header bar over field rows, like .vc-diff-panel
+        > .skeleton-panel {
+            margin-bottom: 10px;
+            border: 1px solid $border-primary;
+            border-radius: 3px;
+            overflow: hidden;
+
+            > .skeleton-phead {
+                padding: 10px 12px;
+                background-color: $bcg-dark;
+                border-bottom: 1px solid $border-primary;
+
+                > .bone.line {
+                    max-width: 120px;
+                }
+            }
+
+            > .skeleton-field {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 9px 12px;
+                border-bottom: 1px solid $border-primary;
+
+                &:last-child {
+                    border-bottom: none;
+                }
+            }
+        }
+    }
+}
+
 // ---- inspector sections ----
 .vc-diff-inspector {
     display: flex;

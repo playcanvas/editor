@@ -18,6 +18,12 @@ import {
 const SUB_RE = /^(?<kind>Script|Sound slot|Clip): (?<name>.+)$/;
 const SETTINGS_ROOT_RE = /^(?:scene |project )?settings$/i;
 
+// loading-state skeleton fragments (mirror the real diff layout: sidebar rows are
+// name + status badge; main panels are a header bar over field rows of label + value)
+const SKELETON_ROW = '<div class="skeleton-row"><span class="bone line"></span><span class="bone badge"></span></div>';
+const SKELETON_FIELD = '<div class="skeleton-field"><span class="bone label"></span><span class="bone value"></span></div>';
+const SKELETON_PANEL = `<div class="skeleton-panel"><div class="skeleton-phead"><span class="bone line"></span></div>${SKELETON_FIELD.repeat(3)}</div>`;
+
 editor.once('load', () => {
     if (config.project.settings.useLegacyScripts) {
         return;
@@ -597,9 +603,12 @@ editor.once('load', () => {
     };
 
     const renderLoading = () => {
-        meta.textContent = 'Computing changes…';
-        sidebar.innerHTML = `<div class="vc-skeleton">${'<div class="skeleton-row"><span class="bone line"></span></div>'.repeat(6)}</div>`;
-        renderNotice('Computing changes…');
+        trees.forEach(t => t.destroy());
+        trees = [];
+        destroyValueFields(main);
+        meta.textContent = '';
+        sidebar.innerHTML = `<div class="vc-diff-skeleton">${SKELETON_ROW.repeat(6)}</div>`;
+        main.innerHTML = `<div class="vc-diff-skeleton main"><div class="skeleton-head"><span class="bone title"></span><span class="bone badge"></span></div>${SKELETON_PANEL.repeat(2)}</div>`;
     };
 
     const setDiff = (diff: any) => {
