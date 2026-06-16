@@ -122,14 +122,15 @@ export const createDetailPanel = () => {
             body.appendChild(diffListEl(summary));
         };
 
-        const cached = diffCache[key];
-        if (cached?.summary) {
-            fill(cached.summary);
-        } else {
+        const show = () => {
             body.innerHTML = `<div class="vc-diff-list"><div class="vc-skeleton">${'<div class="skeleton-row"><span class="bone line"></span></div>'.repeat(3)}</div></div>`;
             const pending = loadDiff().promise;
             if (!pending) {
-                return card;
+                const ready = diffCache[key]?.summary;
+                if (ready) {
+                    fill(ready);
+                }
+                return;
             }
             pending.then(() => {
                 if (token !== renderToken) {
@@ -145,6 +146,21 @@ export const createDetailPanel = () => {
                 }
                 body.innerHTML = '<div class="vc-meta">Failed to compute changes</div>';
             });
+        };
+
+        const cached = diffCache[key];
+        if (cached?.summary) {
+            fill(cached.summary);
+        } else if (editor.call('settings:projectUser').get('editor.vcAutoLoadDiffs') !== false) {
+            show();
+        } else {
+            // diff is expensive / times out on large projects (#2098): load only on request
+            const showBtn = document.createElement('button');
+            showBtn.type = 'button';
+            showBtn.classList.add('vc-button');
+            showBtn.textContent = 'Show changes';
+            showBtn.addEventListener('click', show);
+            body.appendChild(showBtn);
         }
 
         return card;

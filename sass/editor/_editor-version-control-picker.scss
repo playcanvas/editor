@@ -476,6 +476,11 @@
         }
     }
 
+    // on-demand compute action sits below the "not computed yet" note (#2098)
+    .vc-compute {
+        margin-top: 10px;
+    }
+
     // ---- history list ----
     .vc-history {
         flex: 1 1 auto;

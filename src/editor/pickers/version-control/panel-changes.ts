@@ -295,7 +295,7 @@ export const createChangesPanel = () => {
             side.appendChild(meta);
         }
 
-        // show while loading and whenever there are changes; hide only once we know there are none
+        // show while loading, when not yet computed (so Open Full Diff works directly), and when there are changes (#2098)
         if (branch.latestCheckpointId && (loading || !current || current.total)) {
             const openBtn = document.createElement('button');
             openBtn.type = 'button';
@@ -337,6 +337,15 @@ export const createChangesPanel = () => {
             none.classList.add('vc-meta');
             none.textContent = current ? 'No changes since your last checkpoint' : 'Changes not computed yet';
             card.appendChild(none);
+            // not computed (gated or errored): let the user pull the diff on demand (#2098)
+            if (!current) {
+                const compute = document.createElement('button');
+                compute.type = 'button';
+                compute.classList.add('vc-button', 'vc-compute');
+                compute.textContent = 'Compute';
+                compute.addEventListener('click', () => refresh(true, true));
+                card.appendChild(compute);
+            }
         }
 
         summary.dom.appendChild(card);
@@ -347,7 +356,7 @@ export const createChangesPanel = () => {
         renderSummary();
     };
 
-    function refresh(force?: boolean) {
+    function refresh(force?: boolean, viaUser?: boolean) {
         const branch = config.self.branch;
         if (loading || (!stale && !force)) {
             render();
@@ -362,6 +371,16 @@ export const createChangesPanel = () => {
             stale = false;
             render();
             sidebar.emit('count', 0);
+            return;
+        }
+        // gated by the user setting: only the explicit Compute action fires the diff (#2098)
+        if (editor.call('settings:projectUser').get('editor.vcAutoLoadDiffs') === false && !viaUser) {
+            releaseRawDiff();
+            current = null;
+            raw = null;
+            selIdx = null;
+            render();
+            sidebar.emit('count', null);
             return;
         }
         loading = true;
@@ -452,7 +471,7 @@ export const createChangesPanel = () => {
 
     return {
         sidebar: sidebar as Container & {
-            refresh: (force?: boolean) => void;
+            refresh: (force?: boolean, viaUser?: boolean) => void;
             invalidate: () => void;
             resetForm: () => void;
             setBusy: (on: boolean) => void;
