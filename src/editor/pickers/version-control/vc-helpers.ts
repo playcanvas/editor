@@ -2,6 +2,10 @@ const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const LINE_DIFF_CELL_LIMIT = 120000;
 
+// after this long, a still-loading diff shows a non-blocking "this can take a while" hint (#2099)
+export const DIFF_SLOW_HINT_MS = 60000;
+export const DIFF_SLOW_HINT_TEXT = 'Large diffs can take a few minutes — you can keep waiting or come back later.';
+
 export type DiffStatus = 'added' | 'deleted' | 'modified';
 
 export type DiffSummary = {

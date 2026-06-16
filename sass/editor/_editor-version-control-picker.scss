@@ -481,6 +481,11 @@
         margin-top: 10px;
     }
 
+    // "still working" note shown after a while when an inline diff is slow (#2099)
+    .vc-slow-hint {
+        margin-top: 10px;
+    }
+
     // ---- history list ----
     .vc-history {
         flex: 1 1 auto;

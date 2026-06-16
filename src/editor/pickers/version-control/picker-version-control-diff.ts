@@ -7,6 +7,8 @@ import { arrayFieldKind, buildNameIndex, indexTemplateEntities, valueKind, type 
 import { createDeltaListField, createValueField, destroyValueFields } from './vc-diff-fields';
 import {
     assetDiffField,
+    DIFF_SLOW_HINT_MS,
+    DIFF_SLOW_HINT_TEXT,
     diffTextChangeCounts,
     formatDiffPath,
     hashChip,
@@ -654,10 +656,18 @@ editor.once('load', () => {
             overlay.hidden = true;
         }
     };
+    // esc dismisses the diff even mid-load, since the backdrop is non-clickable (#2099)
+    const onKey = (e: KeyboardEvent) => {
+        if (e.key === 'Escape' && !overlay.hidden) {
+            e.stopPropagation();
+            overlay.hidden = true;
+        }
+    };
 
     overlay.on('show', () => {
         editor.emit('picker:open', 'version-control-diff');
         window.addEventListener('popstate', onPopState);
+        window.addEventListener('keydown', onKey, true);
         if (editor.call('viewport:inViewport')) {
             editor.emit('viewport:hover', false);
         }
@@ -665,6 +675,7 @@ editor.once('load', () => {
 
     overlay.on('hide', () => {
         window.removeEventListener('popstate', onPopState);
+        window.removeEventListener('keydown', onKey, true);
         const id = diffId(current);
         if (typeof id === 'string' && !isRetainedDiff(id)) {
             editor.emit('picker:diffManager:closed', id);
@@ -749,11 +760,23 @@ editor.once('load', () => {
         overlay.hidden = false;
         if (input && typeof input.then === 'function') {
             renderLoading();
+            // large diffs legitimately take minutes; keep the skeleton running and just reassure
+            // (the job still completes via messenger) — the diff renders whenever it resolves (#2099)
+            const slowHint = setTimeout(() => {
+                if (token === viewToken) {
+                    const hint = document.createElement('div');
+                    hint.classList.add('vc-diff-slow-hint');
+                    hint.textContent = DIFF_SLOW_HINT_TEXT;
+                    main.insertBefore(hint, main.firstChild);
+                }
+            }, DIFF_SLOW_HINT_MS);
             input.then((diff: any) => {
+                clearTimeout(slowHint);
                 if (token === viewToken) {
                     setDiff(diff);
                 }
             }).catch((err: any) => {
+                clearTimeout(slowHint);
                 if (token === viewToken) {
                     meta.textContent = '';
                     sidebar.innerHTML = '';
