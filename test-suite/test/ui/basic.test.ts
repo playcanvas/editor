@@ -320,22 +320,33 @@ test.describe('publish/download', () => {
         test(`download app (scripts: ${scripts})`, async () => {
             test.setTimeout(4 * 60 * 1000);
             expect(await capture(`download-project-${scripts}`, page, async () => {
-                // open publish dialog
+                // open builds dialog
                 await page.getByRole('button', { name: '' }).click();
 
-                // download app
+                // open download form
                 const scenesList = page.waitForResponse(/playcanvas.com\/api\/projects\/\d+\/scenes/);
-                await page.getByRole('button', { name: 'Download .zip' }).click();
+                await page.locator('.builds-toolbar > .download').click();
                 await scenesList;
-                await page.getByText('Download', { exact: true }).nth(1).click();
 
-                // download link
+                // start download build
+                await page.waitForSelector('.picker-publish-new > .form-footer > .web-download.pcui-button:not(.pcui-disabled)');
+                await page.locator('.picker-publish-new > .form-footer > .web-download').click();
+
+                // wait for the new build to complete in the history list
+                await page.waitForSelector('.build-item.download.complete .row-artifact.download', { timeout: 3 * 60 * 1000 });
+
+                // download artifact link
                 const downloadPagePromise = page.waitForEvent('popup');
                 const downloadPromise = page.waitForEvent('download');
-                await page.waitForSelector('.picker-publish-new > .web-download.pcui-button:not(.pcui-disabled)', { timeout: 3 * 60 * 1000 });
-                await page.getByText('Download', { exact: true }).nth(2).click();
+                await page.locator('.build-item.download.complete .row-artifact.download').first().click();
                 await downloadPagePromise;
                 await downloadPromise;
+
+                // delete build so the next iteration starts with an empty download history
+                await page.locator('.build-item.download.complete .kebab').first().click();
+                await page.locator('.picker-builds-menu .pcui-menu-item').filter({ hasText: /^Delete$/ }).first().click();
+                await page.getByRole('button', { name: 'Yes' }).click();
+                await page.waitForSelector('.build-item.download', { state: 'detached' });
 
                 // dismiss dialog
                 await page.locator('.picker-project .close').first().click();
@@ -345,28 +356,36 @@ test.describe('publish/download', () => {
         test(`publish app (scripts: ${scripts})`, async () => {
             test.setTimeout(4 * 60 * 1000);
             expect(await capture(`publish-project-${scripts}`, page, async () => {
-                // open publish dialog
+                // open builds dialog
                 await page.getByRole('button', { name: '' }).click();
 
-                // publish app
+                // open publish form
                 const scenesList = page.waitForResponse(/playcanvas.com\/api\/projects\/\d+\/scenes/);
-                await page.getByRole('button', { name: 'Publish To PlayCanvas' }).click();
+                await page.locator('.builds-toolbar > .publish').click();
                 await scenesList;
-                await page.waitForSelector('.picker-publish-new > .publish.pcui-button:not(.pcui-disabled)');
-                await page.getByText('Publish Now').click();
-                await page.waitForSelector('.ui-list-item.complete', { timeout: 3 * 60 * 1000 });
+
+                // start publish build
+                await page.waitForSelector('.picker-publish-new > .form-footer > .publish.pcui-button:not(.pcui-disabled)');
+                await page.locator('.picker-publish-new > .form-footer > .publish').click();
+
+                // wait for the new build to complete in the history list
+                await page.waitForSelector('.build-item.publish.complete .row-artifact.open', { timeout: 3 * 60 * 1000 });
 
                 // launch app
                 const appPagePromise = page.waitForEvent('popup');
-                await page.getByText(projectName, { exact: true }).click();
+                await page.locator('.build-item.publish.complete .row-artifact.open').first().click();
                 const appPage = await appPagePromise;
                 await appPage.waitForURL('**/b/**', { waitUntil: 'networkidle' });
                 await appPage.close();
 
                 // delete app
-                await page.getByRole('button', { name: '' }).click();
-                await page.locator('.pcui-menu-item').filter({ hasText: /^Delete$/ }).first().click();
+                await page.locator('.build-item.publish.complete .kebab').first().click();
+                await page.locator('.picker-builds-menu .pcui-menu-item').filter({ hasText: /^Delete$/ }).first().click();
                 await page.getByRole('button', { name: 'Yes' }).click();
+                await page.waitForSelector('.build-item.publish', { state: 'detached' });
+
+                // dismiss dialog
+                await page.locator('.picker-project .close').first().click();
             })).toStrictEqual([]);
         });
     }

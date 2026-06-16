@@ -223,6 +223,10 @@ editor.once('load', () => {
     });
     panelFileConflicts.append(btnViewFileConflicts);
 
+    const isRetainedDiff = (id: string) => {
+        return !!id && !!editor.call('picker:versioncontrol:hasRetainedDiff', id);
+    };
+
     // close button
     const btnClose = new LegacyButton({
         text: '&#57650;'
@@ -250,22 +254,28 @@ editor.once('load', () => {
 
                 if (diffMode && currentMergeObject && currentMergeObject.id !== config.self.branch.merge.id) {
                     // delete current diff too
-                    handleCallback(editor.api.globals.rest.merge.mergeDelete({
-                        mergeId: currentMergeObject.id
-                    }), () => {
-                        // FIXME: Refresh handled by messenger
-                    });
+                    if (!isRetainedDiff(currentMergeObject.id)) {
+                        handleCallback(editor.api.globals.rest.merge.mergeDelete({
+                            mergeId: currentMergeObject.id
+                        }), () => {
+                            // FIXME: Refresh handled by messenger
+                        });
+                    }
                 }
             });
         } else if (diffMode && currentMergeObject) {
-            // delete regular diff
-            handleCallback(editor.api.globals.rest.merge.mergeDelete({
-                mergeId: currentMergeObject.id
-            }), () => {
-                // FIXME: Refresh handled by messenger
-            });
+            if (!isRetainedDiff(currentMergeObject.id)) {
+                // delete regular diff
+                handleCallback(editor.api.globals.rest.merge.mergeDelete({
+                    mergeId: currentMergeObject.id
+                }), () => {
+                    // FIXME: Refresh handled by messenger
+                });
+            }
             overlay.hidden = true;
-            editor.call('picker:versioncontrol');
+            if (!editor.call('picker:isOpen', 'project')) {
+                editor.call('picker:versioncontrol');
+            }
             editor.call('vcgraph:moveToForeground');
         }
     });
@@ -843,6 +853,14 @@ editor.once('load', () => {
 
     // clean up
     overlay.on('hide', () => {
+        if (diffMode && currentMergeObject && !config.self.branch.merge && !isRetainedDiff(currentMergeObject.id)) {
+            editor.emit('picker:diffManager:closed', currentMergeObject.id);
+        }
+
+        if (diffMode && editor.call('picker:isOpen', 'project')) {
+            editor.call('picker:project:resume');
+        }
+
         currentMergeObject = null;
 
         if (evtMessengerMergeComplete) {

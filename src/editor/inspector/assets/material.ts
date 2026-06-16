@@ -1405,13 +1405,6 @@ class MaterialAssetInspector extends Container {
         this._refractionInspector.getField('data.dispersion').parent.hidden = !pathExists(pc, 'StandardMaterial.prototype.dispersion');
         this._ambientInspector.getField('data.aoIntensity').parent.hidden = !pathExists(pc, 'StandardMaterial.prototype.aoIntensity');
 
-        // separated out because it needs more work before release
-        if (!editor.call('users:hasFlag', 'hasAnisoGGXSpec')) {
-
-            this._specularInspector.getField('data.enableGGXSpecular').parent.hidden = true;
-
-        }
-
         this._assets = null;
         this._suppressToggleFields = false;
         this._suppressOffsetTilingAndRotationFields = false;

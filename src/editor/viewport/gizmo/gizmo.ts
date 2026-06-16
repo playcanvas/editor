@@ -18,6 +18,9 @@ editor.once('load', () => {
         gizmoType = type;
 
         editor.emit('gizmo:type', type);
+
+        // render-on-demand viewport: request a frame so the new gizmo is drawn
+        editor.call('viewport:render');
     });
 
     editor.method('gizmo:coordSystem', (system?: string) => {

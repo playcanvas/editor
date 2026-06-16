@@ -233,7 +233,7 @@ editor.once('load', () => {
 
             // ensure all panels are visible
             for (const key in menuOptions) {
-                if (key !== 'publish-download' && key !== 'publish-new') {
+                if (!menuOptions[key].panelOnly) {
                     menuOptions[key].item.hidden = false;
                 }
             }
@@ -256,15 +256,19 @@ editor.once('load', () => {
     });
 
     let closeCallback: (() => boolean) | null = null;
+    let suspended = false;
+    let suspendClickable = true;
     const originalOnPointerDown = (overlay as any)._onPointerDown;
     (overlay as any)._onPointerDown = (evt: PointerEvent) => {
         if (closeCallback && !closeCallback()) {
             return;
         }
-        if ((evt.target as HTMLElement).closest('.pcui-menu')) {
+        const target = evt.target as HTMLElement;
+        const tooltip = target.closest('.pcui-tooltip');
+        if (target.closest('.pcui-menu') || tooltip?.querySelector('.primary-scene-tooltip')) {
             return;
         }
-        const targetOverlay = (evt.target as HTMLElement).closest('.pcui-overlay');
+        const targetOverlay = target.closest('.pcui-overlay');
         if (targetOverlay && targetOverlay !== overlay.dom) {
             return;
         }
@@ -548,7 +552,7 @@ editor.once('load', () => {
             return;
         }
 
-        if (e.keyCode === 27 && overlay.clickable) {
+        if (e.keyCode === 27 && overlay.clickable && !editor.call('picker:isOpen', 'conflict-manager')) {
             overlay.hidden = true;
         }
     };
@@ -625,7 +629,8 @@ editor.once('load', () => {
         menuOptions[name] = {
             item: menuItem,
             title: title,
-            panel: panel
+            panel: panel,
+            panelOnly: false
         };
         panel.hidden = true;
         rightPanel.append(panel);
@@ -636,6 +641,8 @@ editor.once('load', () => {
     editor.method('picker:project:registerPanel', (name, title, panel) => {
         // just do the regular registration but hide the menu
         const item = editor.call('picker:project:registerMenu', name, title, panel);
+        menuOptions[name].panelOnly = true;
+        item.hidden = true;
         item.class.add('hidden');
         return item;
     });
@@ -751,6 +758,25 @@ editor.once('load', () => {
         overlay.class.remove('cmsView');
         overlay.class.remove('noAdminView');
         overlay.hidden = true;
+    });
+
+    editor.method('picker:project:suspend', () => {
+        if (suspended || overlay.hidden) {
+            return;
+        }
+        suspended = true;
+        suspendClickable = overlay.clickable;
+        overlay.clickable = false;
+        overlay.class.add('vc-suspended');
+    });
+
+    editor.method('picker:project:resume', () => {
+        if (!suspended) {
+            return;
+        }
+        suspended = false;
+        overlay.class.remove('vc-suspended');
+        overlay.clickable = suspendClickable;
     });
 
     // prevent user closing popup

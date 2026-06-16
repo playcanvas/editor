@@ -352,21 +352,12 @@ import './pickers/picker-scene';
 import './pickers/picker-script-create';
 
 // version control pickers
-import './pickers/version-control/picker-version-control-side-panel';
 import './pickers/version-control/picker-version-control-progress';
-import './pickers/version-control/picker-version-control-create-checkpoint';
-import './pickers/version-control/picker-version-control-restore-checkpoint';
-import './pickers/version-control/picker-version-control-hard-reset-checkpoint';
-import './pickers/version-control/picker-version-control-create-branch';
-import './pickers/version-control/picker-version-control-close-branch';
-import './pickers/version-control/picker-version-control-delete-branch';
-import './pickers/version-control/picker-version-control-merge-branches';
-import './pickers/version-control/picker-version-control-checkpoints';
-import './pickers/version-control/picker-version-control-diff-checkpoints';
 import './pickers/version-control/picker-version-control';
+import './pickers/version-control/picker-version-control-diff';
 import './pickers/version-control/picker-version-control-overlay-message';
-import './pickers/version-control/picker-version-control-messenger';
 import './pickers/version-control/picker-version-control-overlay-merge';
+import './pickers/version-control/picker-version-control-messenger';
 
 import './pickers/picker-builds-publish';
 import './pickers/picker-publish-new';
