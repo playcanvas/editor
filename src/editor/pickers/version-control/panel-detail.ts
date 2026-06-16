@@ -98,6 +98,8 @@ export const createDetailPanel = () => {
         link.classList.add('vc-button');
         link.textContent = 'Open Full Diff';
         link.addEventListener('click', () => {
+            // also fill the inline summary so it shows on return from the full diff (#2098)
+            show();
             const cached = loadDiff();
             panel.emit('openDiff', checkpoint, previous, cached.diff, cached.promise);
         });

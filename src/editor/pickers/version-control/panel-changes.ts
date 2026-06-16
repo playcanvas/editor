@@ -301,7 +301,13 @@ export const createChangesPanel = () => {
             openBtn.type = 'button';
             openBtn.classList.add('vc-button');
             openBtn.textContent = 'Open Full Diff';
-            openBtn.addEventListener('click', () => summary.emit('openDiff', !loading && rawDiffLive ? raw : null, rawPromise));
+            openBtn.addEventListener('click', () => {
+                // also load the diff into the panel so returning from the full diff shows the changes (#2098)
+                if (!rawDiffLive && !loading) {
+                    refresh(true, true);
+                }
+                summary.emit('openDiff', !loading && rawDiffLive ? raw : null, rawPromise);
+            });
             side.appendChild(openBtn);
         }
 
