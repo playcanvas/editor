@@ -30,7 +30,8 @@ const chip = (kind: string, id: unknown, name?: string, state?: 'added' | 'remov
         c.classList.add(state);
         c.appendChild(el('sign', state === 'added' ? '+' : '−'));
     }
-    // plain pills (e.g. tags) pass an empty kind: the value is the whole label
+    // plain pills (tags, device types, any free-value list) pass an empty kind:
+    // the value is the whole label
     if (kind) {
         c.appendChild(el('tag', kind === 'batchGroup' ? 'batch group' : kind));
     } else {
@@ -129,8 +130,8 @@ export const createValueField = (kind: ValueKind, value: any, index: NameIndex):
             }
             return list;
         }
-        case 'tags': {
-            // entity/asset tag list: each tag is its own label, render as plain pills
+        case 'pills': {
+            // free-value list (tags, device types, ...): each entry is its own label
             const items = Array.isArray(value) ? value : [value];
             const list = document.createElement('div');
             list.className = 'vc-diff-array';
@@ -172,7 +173,7 @@ export const createValueField = (kind: ValueKind, value: any, index: NameIndex):
 // a list field (entity children / asset-id list) whose membership changed:
 // removed items tinted red, added tinted green, in ONE neutral list so the
 // surrounding row isn't coloured as if the whole property were added/removed
-export const createDeltaListField = (kind: 'children' | 'array:asset' | 'tags', removed: any[], added: any[], index: NameIndex): HTMLElement => {
+export const createDeltaListField = (kind: 'children' | 'array:asset' | 'pills', removed: any[], added: any[], index: NameIndex): HTMLElement => {
     const list = document.createElement('div');
     list.className = 'vc-diff-array';
     if (removed.length + added.length > 1) {
@@ -190,7 +191,7 @@ export const createDeltaListField = (kind: 'children' | 'array:asset' | 'tags', 
         if (kind === 'children') {
             return chip('entity', id, entityLeaf(index, id), state);
         }
-        if (kind === 'tags') {
+        if (kind === 'pills') {
             return chip('', id, `${id}`, state);
         }
         return chip('asset', id, index.asset.get(`${id}`), state);

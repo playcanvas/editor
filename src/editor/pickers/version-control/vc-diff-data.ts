@@ -20,7 +20,7 @@ export type NameIndex = {
 };
 
 export type ValueKind = 'missing' | 'boolean' | 'number' | 'string' | 'vector' | 'color' | 'curve' | 'gradient' |
-    'asset' | 'entity' | 'layer' | 'batchGroup' | 'sublayer' | 'entityMap' | 'children' | 'tags' | 'json' | 'object' | `array:${string}`;
+    'asset' | 'entity' | 'layer' | 'batchGroup' | 'sublayer' | 'entityMap' | 'children' | 'pills' | 'json' | 'object' | `array:${string}`;
 
 const settingName = (v: unknown) => {
     if (typeof v === 'string') {
@@ -135,6 +135,21 @@ export const indexTemplateEntities = (index: NameIndex, conflicts: any[], getAss
 
 const numArray = (value: unknown, min: number, max: number) => {
     return Array.isArray(value) && value.length >= min && value.length <= max && value.every(v => typeof v === 'number');
+};
+
+// how to render an array-valued diff field:
+//   'tuple' — numeric vector/colour (<=4, size-stable): keep the positional widget
+//   'pills' — any other primitive array (strings/numbers, any length): a membership
+//             list, shown as a delta of pills rather than a raw json blob
+//   null    — objects/curves/gradients etc.: leave to valueKind
+export const arrayFieldKind = (value: unknown) => {
+    if (!Array.isArray(value)) {
+        return null;
+    }
+    if (numArray(value, 2, 4)) {
+        return 'tuple';
+    }
+    return value.every(v => v === null || typeof v !== 'object') ? 'pills' : null;
 };
 
 // channel count for curve/curveset values; 0 when not curve-shaped

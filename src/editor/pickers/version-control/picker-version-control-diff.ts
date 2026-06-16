@@ -3,7 +3,7 @@ import { Button, Container, Overlay, Panel, TreeView, TreeViewItem } from '@play
 import { handleCallback } from '@/common/utils';
 import { config } from '@/editor/config';
 
-import { buildNameIndex, indexTemplateEntities, valueKind, type NameIndex } from './vc-diff-data';
+import { arrayFieldKind, buildNameIndex, indexTemplateEntities, valueKind, type NameIndex } from './vc-diff-data';
 import { createDeltaListField, createValueField, destroyValueFields } from './vc-diff-fields';
 import {
     assetDiffField,
@@ -335,9 +335,10 @@ editor.once('load', () => {
         if (!missing && Array.isArray(value) && ASSET_ID_ARRAY_FIELDS.has(splitDiffPath(entry.path ?? '').pop() ?? '')) {
             return createValueField('array:asset', value, nameIndex);
         }
-        // tags are a list of free-text labels — render as plain pills, not a json blob
-        if (!missing && Array.isArray(value) && splitDiffPath(entry.path ?? '').pop() === 'tags') {
-            return createValueField('tags', value, nameIndex);
+        // any other primitive array (tags, device types, ...) is a free-value list,
+        // not a fixed-size numeric tuple — render as pills instead of a json blob
+        if (!missing && arrayFieldKind(value) === 'pills') {
+            return createValueField('pills', value, nameIndex);
         }
         // an entity's children is a list of entity ids — resolve them to leaf names
         if (!missing && isEntityChildren(entry.path) && Array.isArray(value)) {
@@ -427,15 +428,18 @@ editor.once('load', () => {
                 host.appendChild(wholeBanner(conflict, entry, entry.path ? 'entity' : conflict.assetType ?? conflict.itemType ?? 'item'));
                 continue;
             }
-            // id-list fields (entity children, asset-id lists like the folder
-            // path or script loading order): show only the delta — removed in
-            // the red row, added in the green — not the whole before+after list
-            // (these run to hundreds of items)
+            // array fields are membership lists, not before/after blobs: show just
+            // the delta. children/asset-id lists resolve to names (and override the
+            // tuple test since asset ids are numeric); any other primitive array
+            // (tags, device types, ...) renders as value pills. numeric vector/colour
+            // tuples (<=4, size-stable) fall through to the positional widget below.
             const leaf = splitDiffPath(entry.path ?? '').pop() ?? '';
-            const listKind: 'children' | 'array:asset' | 'tags' | null = isEntityChildren(entry.path) ? 'children' :
-                leaf === 'tags' ? 'tags' :
-                    ASSET_ID_ARRAY_FIELDS.has(leaf) ? 'array:asset' : null;
-            if (listKind && Array.isArray(entry.srcValue) && Array.isArray(entry.dstValue)) {
+            const bothArrays = Array.isArray(entry.srcValue) && Array.isArray(entry.dstValue);
+            const listKind: 'children' | 'array:asset' | 'pills' | null = !bothArrays ? null :
+                isEntityChildren(entry.path) ? 'children' :
+                    ASSET_ID_ARRAY_FIELDS.has(leaf) ? 'array:asset' :
+                        arrayFieldKind(entry.srcValue) === 'pills' && arrayFieldKind(entry.dstValue) === 'pills' ? 'pills' : null;
+            if (listKind) {
                 const src = new Set(entry.srcValue);
                 const dst = new Set(entry.dstValue);
                 const removed = entry.dstValue.filter((id: any) => !src.has(id));
