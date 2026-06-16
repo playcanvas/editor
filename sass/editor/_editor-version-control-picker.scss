@@ -368,6 +368,9 @@
     // card title row: heading left, compact meta right
     .vc-card-head {
         display: flex;
+
+        // wrap the meta/button below the title when the main pane is narrow (#2098)
+        flex-wrap: wrap;
         align-items: center;
         justify-content: space-between;
         gap: 10px;
@@ -376,6 +379,7 @@
         > h3 {
             @extend .font-bold;
 
+            min-width: 0;
             margin: 0;
             color: $text-primary;
             font-size: 13px;
@@ -383,12 +387,28 @@
 
         > .side {
             display: flex;
-            flex: none;
+
+            // shrink so the button can ellipsize instead of overflowing a narrow pane (#2098)
+            flex: 0 1 auto;
+            min-width: 0;
+            flex-wrap: wrap;
             align-items: center;
             gap: 12px;
 
             > .vc-meta {
                 font-size: 11px;
+            }
+
+            // truncate the label to a single line + ellipsis rather than wrapping (#2098)
+            > .vc-button:not([hidden]) {
+                box-sizing: border-box;
+                display: block;
+                min-width: 0;
+                overflow: hidden;
+                line-height: 26px;
+                white-space: nowrap;
+                text-align: center;
+                text-overflow: ellipsis;
             }
         }
     }
@@ -679,8 +699,11 @@
                     @extend .font-regular;
 
                     display: block;
-                    width: calc(100% - 20px);
-                    height: 56px;
+                    box-sizing: border-box;
+                    width: 100%;
+
+                    // grows upward as you type; js caps the height to the rail (#2098)
+                    min-height: 120px;
                     margin: 0;
                     padding: 10px;
                     border: none;
@@ -689,6 +712,7 @@
                     font-size: 13px;
                     outline: none;
                     box-shadow: none;
+                    overflow-y: auto;
                     resize: none;
 
                     &::placeholder {

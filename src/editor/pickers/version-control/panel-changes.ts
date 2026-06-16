@@ -7,6 +7,10 @@ import { renderPreviewPropertyDiff } from './vc-diff-preview';
 import { diffTextChangeCounts, hashChip, isHiddenDiffField, lineChangeCounts, splitDiffPath, summarizeDiff, typeLabel, type DiffSummary } from './vc-helpers';
 import { diffCreate } from '../../messenger/jobs';
 
+// composer resting height and the slice of the change list kept visible above it
+const COMPOSER_MIN_H = 120;
+const COMPOSER_LIST_FLOOR = 80;
+
 export const createChangesPanel = () => {
     const sidebar = new Container({ class: 'vc-changes' });
     const summary = new Container({ class: 'vc-changes-summary' });
@@ -47,7 +51,8 @@ export const createChangesPanel = () => {
 
     // native placeholder; pcui's [placeholder] renders an out-of-place chip
     const description = new TextAreaInput({ blurOnEnter: false, keyChange: true, renderChanges: false });
-    (description.dom.querySelector('textarea') as HTMLTextAreaElement).placeholder = 'Describe this checkpoint…';
+    const textarea = description.dom.querySelector('textarea') as HTMLTextAreaElement;
+    textarea.placeholder = 'Describe this checkpoint…';
     form.appendChild(description.dom);
 
     const create = document.createElement('button');
@@ -77,6 +82,16 @@ export const createChangesPanel = () => {
     tip.classList.add('vc-form-tip');
     tip.textContent = 'Tip: Cmd/Ctrl+Enter creates the checkpoint.';
     form.appendChild(tip);
+
+    // bottom-pinned composer: a taller textarea grows the form upward into the change
+    // list, so cap it to the rail to keep the list and Create button on screen (#2098)
+    const autoGrow = () => {
+        textarea.style.height = 'auto';
+        const chrome = form.offsetHeight - textarea.offsetHeight;
+        const cap = Math.max(COMPOSER_MIN_H, sidebar.dom.clientHeight - chrome - COMPOSER_LIST_FLOOR);
+        textarea.style.height = `${Math.min(Math.max(textarea.scrollHeight, COMPOSER_MIN_H), cap)}px`;
+    };
+    textarea.addEventListener('input', autoGrow);
 
     const select = (index: number) => {
         selIdx = index;
@@ -410,6 +425,7 @@ export const createChangesPanel = () => {
         },
         resetForm: () => {
             description.value = '';
+            textarea.style.height = '';
             create.disabled = true;
             create.classList.remove('busy');
             create.textContent = 'Create Checkpoint';

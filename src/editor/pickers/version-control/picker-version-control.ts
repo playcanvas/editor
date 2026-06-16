@@ -88,7 +88,16 @@ editor.once('load', () => {
     const body = new Container({ class: 'vc-body' });
     panel.append(body);
 
-    const sidebar = new Container({ class: 'vc-sidebar' });
+    const sidebar = new Container({
+        class: 'vc-sidebar',
+        width: editor.call('localStorage:get', 'editor:vc:sidebar:width') || 300,
+        resizable: 'right',
+        resizeMin: 260,
+        resizeMax: 720
+    });
+    sidebar.on('resize', () => {
+        editor.call('localStorage:set', 'editor:vc:sidebar:width', sidebar.width);
+    });
     body.append(sidebar);
 
     // viewing-other-branch banner
