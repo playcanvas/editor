@@ -1,7 +1,7 @@
 import { Panel } from '@playcanvas/pcui';
 
 import { isEntityIdMap } from './vc-diff-data';
-import { formatDiffPath, splitDiffPath, typeLabel } from './vc-helpers';
+import { assetDiffField, formatDiffPath, splitDiffPath, typeLabel } from './vc-helpers';
 
 // compact, text-valued mirror of the full diff's structured renderer
 // (picker-version-control-diff.ts). kept separate so the shipped full diff
@@ -32,6 +32,12 @@ const inspectorInfo = (conflict: any, entry: any, entityName: EntityName) => {
     const path = tpl ? entry.path.slice('data.'.length) : entry.path;
     const type = tpl ? 'scene' : conflict.itemType;
     const raw = entry.path || conflict.itemName;
+    // generic asset property diffs: humanise data.opacityDither -> "Opacity
+    // Dither" and group under the asset-type panel, like the inspector
+    if (!tpl && type === 'asset' && path) {
+        const a = assetDiffField(conflict.assetType, path);
+        return { entityContext: [], section: a.section, context: [], field: a.field, title: a.title, type: '' };
+    }
     if (!path || (type !== 'scene' && type !== 'settings')) {
         return {
             entityContext: [],

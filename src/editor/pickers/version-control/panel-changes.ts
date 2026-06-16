@@ -4,7 +4,7 @@ import { config } from '@/editor/config';
 
 import { templateEntitiesFor, templateEntityPath } from './vc-diff-data';
 import { renderPreviewPropertyDiff } from './vc-diff-preview';
-import { diffTextChangeCounts, hashChip, lineChangeCounts, splitDiffPath, summarizeDiff, typeLabel, type DiffSummary } from './vc-helpers';
+import { diffTextChangeCounts, hashChip, isHiddenDiffField, lineChangeCounts, splitDiffPath, summarizeDiff, typeLabel, type DiffSummary } from './vc-helpers';
 import { diffCreate } from '../../messenger/jobs';
 
 export const createChangesPanel = () => {
@@ -240,7 +240,7 @@ export const createChangesPanel = () => {
     const renderFieldDiff = (conflict: any) => {
         const wrap = document.createElement('div');
         wrap.classList.add('vc-field-preview');
-        const data = conflict.data ?? [];
+        const data = (conflict.data ?? []).filter((e: any) => !isHiddenDiffField(e.path));
         const files = data.filter((e: any) => fileName(conflict, e, 'src') || fileName(conflict, e, 'dst'));
         const props = data.filter((e: any) => !(fileName(conflict, e, 'src') || fileName(conflict, e, 'dst')));
 

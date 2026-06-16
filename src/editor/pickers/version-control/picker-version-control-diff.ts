@@ -6,9 +6,11 @@ import { config } from '@/editor/config';
 import { buildNameIndex, indexTemplateEntities, valueKind, type NameIndex } from './vc-diff-data';
 import { createValueField, destroyValueFields } from './vc-diff-fields';
 import {
+    assetDiffField,
     diffTextChangeCounts,
     formatDiffPath,
     hashChip,
+    isHiddenDiffField,
     lineChangeCounts,
     splitDiffPath,
     summarizeDiff,
@@ -102,7 +104,7 @@ editor.once('load', () => {
 
     const textEntry = (conflict: any) => (conflict?.data ?? []).find((entry: any) => entry.isTextualMerge || entry.mergedFilePath);
 
-    const propertyEntries = (conflict: any) => (conflict?.data ?? []).filter((entry: any) => !entry.isTextualMerge && !entry.mergedFilePath);
+    const propertyEntries = (conflict: any) => (conflict?.data ?? []).filter((entry: any) => !entry.isTextualMerge && !entry.mergedFilePath && !isHiddenDiffField(entry.path));
 
     const selectedConflict = () => current?.conflicts?.[selected] ?? null;
 
@@ -187,6 +189,12 @@ editor.once('load', () => {
         const path = tpl ? entry.path.slice('data.'.length) : entry.path;
         const type = tpl ? 'scene' : conflict.itemType;
         const raw = entry.path || conflict.itemName;
+        // generic asset property diffs: humanise data.opacityDither -> "Opacity
+        // Dither" and group under the asset-type panel, like the inspector
+        if (!tpl && type === 'asset' && path) {
+            const a = assetDiffField(conflict.assetType, path);
+            return { entityContext: [], section: a.section, context: [], field: a.field, title: a.title, type: '' };
+        }
         if (!path || (type !== 'scene' && type !== 'settings')) {
             return {
                 entityContext: [],
@@ -314,6 +322,11 @@ editor.once('load', () => {
         // a template's source id is an asset reference — show it as the asset name
         if (!missing && splitDiffPath(entry.path ?? '').pop() === 'template_id') {
             return createValueField('asset', value, nameIndex);
+        }
+        // an asset's folder path is a variable-length list of folder ids; render
+        // it as a folder chip list (a move resizes it), not a fixed-size vector
+        if (!missing && entry.path === 'path' && Array.isArray(value)) {
+            return createValueField('array:asset', value, nameIndex);
         }
         // an entity's children is a list of entity ids — resolve them to leaf names
         if (!missing && isEntityChildren(entry.path) && Array.isArray(value)) {
@@ -520,7 +533,7 @@ editor.once('load', () => {
 
                 const sub = document.createElement('span');
                 sub.classList.add('sub');
-                const count = conflict?.data?.length ?? 0;
+                const count = (conflict?.data ?? []).filter((e: any) => !isHiddenDiffField(e.path)).length;
                 sub.textContent = `${conflict?.assetType ?? conflict?.itemType ?? group.type} · ${count} change${count === 1 ? '' : 's'}`;
                 row.appendChild(sub);
 

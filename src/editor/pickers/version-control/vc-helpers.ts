@@ -175,6 +175,22 @@ const settingLabel = (s: string) => ({
     scripts: 'Script loading order'
 }[s] ?? prettyPart(s));
 
+// internal version-control plumbing (file backup refs etc.) that never appears
+// in the inspector — keep it out of the diff entirely
+const HIDDEN_DIFF_FIELDS = new Set(['immutable_backup']);
+export const isHiddenDiffField = (path: string) => HIDDEN_DIFF_FIELDS.has(splitDiffPath(path ?? '').pop() ?? '');
+
+// generic asset property diff (material, texture, ...): inspector fields live
+// under data.; strip it and prettify the path so a row reads like the inspector
+// (data.opacityDither -> "Opacity Dither") grouped under the asset-type panel
+export const assetDiffField = (assetType: string, path: string) => {
+    const inner = path.startsWith('data.') ? path.slice('data.'.length) : path;
+    const info = formatDiffPath(inner, 'asset');
+    const section = prettyPart(assetType || 'asset');
+    const field = info.labels.length ? `${info.labels.map(l => l.text).join(' / ')} / ${info.field}` : info.field;
+    return { section, field, title: `${section} / ${field}` };
+};
+
 export const formatDiffPath = (path: string, type: string, entityName?: string) => {
     const parts = splitDiffPath(path);
     if (type === 'scene' && parts[0] === 'entities' && parts[1]) {
