@@ -60,7 +60,7 @@
     "karma-chrome-launcher": "3.2.0",
     "karma-mocha": "2.0.1",
     "karma-spec-reporter": "0.0.36",
-    "markdown-it": "14.1.1",
+    "markdown-it": "14.2.0",
     "mocha": "11.7.5",
     "monaco-editor": "0.47.0",
     "monaco-themes": "0.4.8",
