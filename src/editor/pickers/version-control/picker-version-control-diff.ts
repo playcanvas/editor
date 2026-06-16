@@ -4,7 +4,7 @@ import { handleCallback } from '@/common/utils';
 import { config } from '@/editor/config';
 
 import { buildNameIndex, indexTemplateEntities, valueKind, type NameIndex } from './vc-diff-data';
-import { createValueField, destroyValueFields } from './vc-diff-fields';
+import { createDeltaListField, createValueField, destroyValueFields } from './vc-diff-fields';
 import {
     assetDiffField,
     diffTextChangeCounts,
@@ -24,6 +24,9 @@ const SETTINGS_ROOT_RE = /^(?:scene |project )?settings$/i;
 // than sitting among the entity's regular values; values are shown friendlier
 const TEMPLATE_PANEL = 'Template instance';
 const TEMPLATE_FIELDS: Record<string, string> = { template_id: 'Source template', template_ent_ids: 'Entity mapping' };
+// variable-length lists of asset ids (an asset's folder path, the project's
+// script loading order) — render as asset chips, not a vector/json blob
+const ASSET_ID_ARRAY_FIELDS = new Set(['path', 'scripts']);
 
 // loading-state skeleton fragments (mirror the real diff layout: sidebar rows are
 // name + status badge; main panels are a header bar over field rows of label + value)
@@ -290,13 +293,17 @@ editor.once('load', () => {
     };
 
     // note: NOT 'vc-diff-row' — that class belongs to the sidebar buttons and their click delegation
-    const fieldRow = (kind: 'del' | 'add', label: string, title: string, valueEl: HTMLElement) => {
+    const fieldRow = (kind: 'del' | 'add' | 'mod', label: string, title: string, valueEl: HTMLElement) => {
         const row = document.createElement('div');
-        row.classList.add('vc-diff-field-row', kind);
+        row.classList.add('vc-diff-field-row');
+        // 'mod' rows stay neutral; their value carries the per-item add/remove tint
+        if (kind !== 'mod') {
+            row.classList.add(kind);
+        }
         row.title = title;
         const gut = document.createElement('span');
         gut.classList.add('gutter');
-        gut.textContent = kind === 'del' ? '−' : '+';
+        gut.textContent = kind === 'del' ? '−' : kind === 'add' ? '+' : '';
         row.appendChild(gut);
         const lbl = document.createElement('span');
         lbl.classList.add('label');
@@ -323,10 +330,14 @@ editor.once('load', () => {
         if (!missing && splitDiffPath(entry.path ?? '').pop() === 'template_id') {
             return createValueField('asset', value, nameIndex);
         }
-        // an asset's folder path is a variable-length list of folder ids; render
-        // it as a folder chip list (a move resizes it), not a fixed-size vector
-        if (!missing && entry.path === 'path' && Array.isArray(value)) {
+        // variable-length asset-id lists (folder path, script loading order):
+        // render as asset chips, not a fixed-size vector or a raw json blob
+        if (!missing && Array.isArray(value) && ASSET_ID_ARRAY_FIELDS.has(splitDiffPath(entry.path ?? '').pop() ?? '')) {
             return createValueField('array:asset', value, nameIndex);
+        }
+        // tags are a list of free-text labels — render as plain pills, not a json blob
+        if (!missing && Array.isArray(value) && splitDiffPath(entry.path ?? '').pop() === 'tags') {
+            return createValueField('tags', value, nameIndex);
         }
         // an entity's children is a list of entity ids — resolve them to leaf names
         if (!missing && isEntityChildren(entry.path) && Array.isArray(value)) {
@@ -416,25 +427,29 @@ editor.once('load', () => {
                 host.appendChild(wholeBanner(conflict, entry, entry.path ? 'entity' : conflict.assetType ?? conflict.itemType ?? 'item'));
                 continue;
             }
-            // children: show only the added/removed entries, not the whole
-            // before+after lists (the unchanged siblings are just noise)
-            if (isEntityChildren(entry.path) && Array.isArray(entry.srcValue) && Array.isArray(entry.dstValue)) {
+            // id-list fields (entity children, asset-id lists like the folder
+            // path or script loading order): show only the delta — removed in
+            // the red row, added in the green — not the whole before+after list
+            // (these run to hundreds of items)
+            const leaf = splitDiffPath(entry.path ?? '').pop() ?? '';
+            const listKind: 'children' | 'array:asset' | 'tags' | null = isEntityChildren(entry.path) ? 'children' :
+                leaf === 'tags' ? 'tags' :
+                    ASSET_ID_ARRAY_FIELDS.has(leaf) ? 'array:asset' : null;
+            if (listKind && Array.isArray(entry.srcValue) && Array.isArray(entry.dstValue)) {
                 const src = new Set(entry.srcValue);
                 const dst = new Set(entry.dstValue);
-                const removed = entry.dstValue.filter((id: string) => !src.has(id));
-                const added = entry.srcValue.filter((id: string) => !dst.has(id));
-                if (removed.length) {
-                    host.appendChild(fieldRow('del', parts.field, parts.title, createValueField('children', removed, nameIndex)));
-                }
-                if (added.length) {
-                    host.appendChild(fieldRow('add', parts.field, parts.title, createValueField('children', added, nameIndex)));
-                }
-                if (!removed.length && !added.length) {
-                    // same members, different order — note it without re-listing every child
+                const removed = entry.dstValue.filter((id: any) => !src.has(id));
+                const added = entry.srcValue.filter((id: any) => !dst.has(id));
+                if (removed.length || added.length) {
+                    // one neutral row; the chips carry the add/remove tint so it
+                    // doesn't read as the whole field (Children/Scripts/Path) being new
+                    host.appendChild(fieldRow('mod', parts.field, parts.title, createDeltaListField(listKind, removed, added, nameIndex)));
+                } else {
+                    // same members, different order — note it without re-listing everything
                     const note = document.createElement('span');
                     note.classList.add('vc-diff-missing');
                     note.textContent = `reordered (${entry.srcValue.length} item${entry.srcValue.length === 1 ? '' : 's'})`;
-                    host.appendChild(fieldRow('add', parts.field, parts.title, note));
+                    host.appendChild(fieldRow('mod', parts.field, parts.title, note));
                 }
                 continue;
             }

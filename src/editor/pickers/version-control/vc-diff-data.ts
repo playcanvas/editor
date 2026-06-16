@@ -20,7 +20,7 @@ export type NameIndex = {
 };
 
 export type ValueKind = 'missing' | 'boolean' | 'number' | 'string' | 'vector' | 'color' | 'curve' | 'gradient' |
-    'asset' | 'entity' | 'layer' | 'batchGroup' | 'sublayer' | 'entityMap' | 'children' | 'json' | 'object' | `array:${string}`;
+    'asset' | 'entity' | 'layer' | 'batchGroup' | 'sublayer' | 'entityMap' | 'children' | 'tags' | 'json' | 'object' | `array:${string}`;
 
 const settingName = (v: unknown) => {
     if (typeof v === 'string') {

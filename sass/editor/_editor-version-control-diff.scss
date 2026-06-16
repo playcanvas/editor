@@ -390,6 +390,18 @@ $vc-add-edge: #3fb950;
     min-height: 32px;
     padding: 3px 10px 3px 6px;
 
+    // a tall multi-item list pins the gutter + field name to the top (with a
+    // little breathing room) instead of floating them in the centre; single
+    // values stay vertically centred
+    &:has(.vc-diff-array.multi) {
+        align-items: flex-start;
+
+        > .gutter,
+        > .label {
+            margin-top: 6px;
+        }
+    }
+
     > .gutter {
         flex: none;
         width: 14px;
@@ -471,6 +483,10 @@ $vc-add-edge: #3fb950;
     max-width: 100%;
     height: 24px;
     padding: 0 7px;
+
+    // reset the fixed-px line-height inherited from pcui so the full-size name
+    // doesn't sit low on its baseline while the small uppercase tag centres
+    line-height: normal;
     background-color: $bcg-dark;
     border: 1px solid $bcg-darker;
     border-radius: 2px;
@@ -486,12 +502,52 @@ $vc-add-edge: #3fb950;
     > .tag {
         color: $text-darkest;
         font-size: 10px;
+
+        // collapse the inherited line box so the small uppercase label centres
+        // against the chip instead of sitting high on its baseline
+        line-height: 1;
         text-transform: uppercase;
+    }
+
+    > .sign {
+        flex: none;
+        line-height: 1;
+        font-family: inconsolatamedium, Monaco, Menlo, monospace;
+    }
+
+    // plain pills (tags) carry no type label — render a touch smaller
+    &.pill {
+        gap: 4px;
+        height: 20px;
+        padding: 0 6px;
+        font-size: 11px;
     }
 
     &.missing > .name {
         color: $text-darkest;
         font-style: italic;
+    }
+
+    // membership-delta chips: tint the chip (not the whole row) so a single
+    // changed list item doesn't read as the entire field being added/removed
+    &.added {
+        background-color: $vc-add-tint;
+        border-color: $vc-add-edge;
+
+        > .sign,
+        > .name {
+            color: #6fd088;
+        }
+    }
+
+    &.removed {
+        background-color: $vc-del-tint;
+        border-color: $vc-del-edge;
+
+        > .sign,
+        > .name {
+            color: #ff8a8a;
+        }
     }
 }
 
