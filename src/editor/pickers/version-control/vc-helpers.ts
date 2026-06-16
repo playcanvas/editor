@@ -40,15 +40,36 @@ export const formatDayGroup = (value: string | Date, now = new Date()) => {
 // one network fetch per user/size per session, regardless of server cache headers;
 // resolves to an object url, or '' on failure (callers skip assignment)
 const thumbCache = new Map<string, Promise<string>>();
+// resolved object urls kept for synchronous reuse, so re-created avatars don't flash empty
+const thumbResolved = new Map<string, string>();
 export const userThumbnail = (userId: string | number, size: number) => {
     const key = `${userId}:${size}`;
     if (!thumbCache.has(key)) {
         thumbCache.set(key, fetch(`/api/users/${userId}/thumbnail?size=${size}`)
         .then(res => (res.ok ? res.blob() : Promise.reject(new Error(`${res.status}`))))
         .then(blob => URL.createObjectURL(blob))
+        .then((url) => {
+            thumbResolved.set(key, url);
+            return url;
+        })
         .catch(() => ''));
     }
     return thumbCache.get(key);
+};
+
+// assign the avatar src synchronously when cached, so a freshly created <img> paints
+// the (already-loaded) blob immediately instead of flashing empty for a frame (#2098)
+export const applyUserThumbnail = (img: HTMLImageElement, userId: string | number, size: number) => {
+    const cached = thumbResolved.get(`${userId}:${size}`);
+    if (cached) {
+        img.src = cached;
+        return;
+    }
+    userThumbnail(userId, size).then((src) => {
+        if (src) {
+            img.src = src;
+        }
+    });
 };
 
 // verbatim-styled short checkpoint hash

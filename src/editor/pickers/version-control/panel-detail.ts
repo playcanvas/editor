@@ -1,6 +1,6 @@
 import { Container } from '@playcanvas/pcui';
 
-import { diffListEl, hashChip, summarizeDiff, userThumbnail } from './vc-helpers';
+import { applyUserThumbnail, diffListEl, hashChip, summarizeDiff } from './vc-helpers';
 import { diffCreate } from '../../messenger/jobs';
 
 type DiffCache = {
@@ -184,11 +184,7 @@ export const createDetailPanel = () => {
             const avatar = document.createElement('img');
             avatar.classList.add('avatar');
             avatar.alt = '';
-            userThumbnail(checkpoint.user.id, 40).then((src) => {
-                if (src) {
-                    avatar.src = src;
-                }
-            });
+            applyUserThumbnail(avatar, checkpoint.user.id, 40);
             heroInner.appendChild(avatar);
 
             const body = document.createElement('div');
