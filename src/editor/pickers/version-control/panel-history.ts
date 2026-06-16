@@ -97,12 +97,14 @@ export const createHistoryPanel = () => {
         const desc = document.createElement('div');
         desc.classList.add('desc');
         desc.textContent = label ?? checkpoint.description.split('\n')[0];
+        desc.title = checkpoint?.description ?? desc.textContent;
         body.appendChild(desc);
         const sub = document.createElement('div');
         sub.classList.add('sub');
         sub.textContent = checkpoint ?
             `${checkpoint.user.fullName || 'Unknown'} · ${formatRelativeDate(checkpoint.createdAt)}` :
             'uncheckpointed changes';
+        sub.title = sub.textContent;
         body.appendChild(sub);
         row.appendChild(body);
 

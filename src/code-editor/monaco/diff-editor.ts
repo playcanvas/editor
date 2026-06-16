@@ -14,6 +14,11 @@ const REGEX_HUNK = /^@@ -(\d+)(?:,\d+)? \+(\d+)(?:,\d+)? @@$/gm;
 
 const LARGE_FILE_SIZE = 300000;
 
+// colour every changed line; only bail on a pathological number of edits, so a
+// large file with few changes still gets colours (gate on changed-line count,
+// not total file size)
+const MAX_DIFF_OVERLAYS = 10000;
+
 class DiffEditor {
     type: string;
 
@@ -59,7 +64,6 @@ class DiffEditor {
 
     createOverlays() {
         const content = this.content;
-        const isLarge = (content.length > LARGE_FILE_SIZE);
         let match;
 
         let hunk;
@@ -83,7 +87,10 @@ class DiffEditor {
         // depending on the line contents
         const lineCount = this.model.getLineCount();
 
+        // hunk-label overlays are always applied; per-line add/remove colours
+        // are collected separately so they can be gated by their count
         const decorations = [];
+        const lineOverlays = [];
 
         for (let i = 0, len = hunks.length; i < len; i++) {
             hunk = hunks[i];
@@ -102,16 +109,14 @@ class DiffEditor {
                 if (line.startsWith('+')) {
                     showLine = true;
                     // 'add' overlay
-                    if (!isLarge) {
-                        decorations.push(this.createLineOverlay(j + 1, 'add'));
-                    }
-                } else if (!isLarge && line.startsWith('-')) {
+                    lineOverlays.push(this.createLineOverlay(j + 1, 'add'));
+                } else if (line.startsWith('-')) {
                     // if the line was removed from the current state
                     // then don't increase the line number
                     codeLine--;
 
                     // 'remove' overlay
-                    decorations.push(this.createLineOverlay(j + 1, 'remove'));
+                    lineOverlays.push(this.createLineOverlay(j + 1, 'remove'));
                 }
 
                 // line number (only for current state)
@@ -127,6 +132,11 @@ class DiffEditor {
                 text: `Lines ${hunk.hunkRightStart}-${codeLine - 1}:`,
                 range: new monaco.Range(hunk.hunkStart, 1, hunk.hunkStart, hunk.hunkLength + 1)
             }]);
+        }
+
+        // skip per-line colours only when there are pathologically many edits
+        if (lineOverlays.length <= MAX_DIFF_OVERLAYS) {
+            decorations.push(...lineOverlays);
         }
 
         this.decorations = this.monacoEditor.deltaDecorations(this.decorations, decorations);

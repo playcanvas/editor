@@ -1,5 +1,6 @@
 import { Button, Container } from '@playcanvas/pcui';
 
+import { installEllipsisTooltips } from '@/common/ellipsis-tooltip';
 import { handleCallback } from '@/common/utils';
 import { config } from '@/editor/config';
 
@@ -51,6 +52,7 @@ editor.once('load', () => {
 
     // ---- layout ----
     const panel = new Container({ class: ['picker-version-control', 'picker-vc'], flex: true });
+    installEllipsisTooltips(panel.dom);
     editor.call('picker:project:registerMenu', 'version control', 'Version Control', panel);
 
     if (!editor.call('permissions:read')) {
@@ -237,7 +239,9 @@ editor.once('load', () => {
     const setViewedBranch = (branch: any) => {
         viewedBranch = branch;
         banner.hidden = isViewingCurrent();
-        (banner.querySelector('.name') as HTMLElement).textContent = branch.name;
+        const bannerName = banner.querySelector('.name') as HTMLElement;
+        bannerName.textContent = branch.name;
+        bannerName.title = branch.name;
         bannerReturn.textContent = `Return to ${config.self.branch.name}`;
         history.setBranch(branch);
         detail.clear();
@@ -273,7 +277,12 @@ editor.once('load', () => {
 
     // ---- diff viewing ----
     const presentDiff = (diff: any) => {
-        retainDiff(diff);
+        // a pending diff is retained once it resolves; a resolved one immediately
+        if (diff && typeof diff.then === 'function') {
+            diff.then((d: any) => retainDiff(d)).catch(() => {});
+        } else {
+            retainDiff(diff);
+        }
         togglePanels(true);
         showProgress(null);
         requestAnimationFrame(() => {
@@ -314,25 +323,18 @@ editor.once('load', () => {
         runDiff(() => diffCreate({ srcBranchId, srcCheckpointId, dstBranchId, dstCheckpointId }));
     };
 
-    // cached diffs from the panels skip the expensive diffCreate job
+    // always use the modern overlay: a resolved diff renders instantly, a pending
+    // one (or a fresh job) opens with a loading state — no legacy spinner dialog
     detail.on('openDiff', (checkpoint: any, previous: any, cached: any, pending: Promise<any>) => {
-        if (cached && cached.numConflicts) {
-            presentDiff(cached);
-            return;
-        }
-        if (pending) {
-            runDiff(() => pending);
-            return;
-        }
-        viewDiff(viewedBranch.id, checkpoint.id, viewedBranch.id, previous.id);
+        presentDiff(cached ?? pending ?? diffCreate({
+            srcBranchId: viewedBranch.id, srcCheckpointId: checkpoint.id, dstBranchId: viewedBranch.id, dstCheckpointId: previous.id
+        }));
     });
-    changes.summary.on('openDiff', (cached: any) => {
-        if (cached && cached.numConflicts) {
-            presentDiff(cached);
-            return;
-        }
+    changes.summary.on('openDiff', (cached: any, pending: Promise<any>) => {
         const b = config.self.branch;
-        viewDiff(b.id, null, b.id, b.latestCheckpointId);
+        presentDiff(cached ?? pending ?? diffCreate({
+            srcBranchId: b.id, srcCheckpointId: null, dstBranchId: b.id, dstCheckpointId: b.latestCheckpointId
+        }));
     });
 
     // ---- compare mode ----
@@ -344,8 +346,10 @@ editor.once('load', () => {
 
     const renderCompareBar = () => {
         slotA.textContent = compareSlots[0] ? slotLabel(compareSlots[0]) : 'Pick a checkpoint…';
+        slotA.title = slotA.textContent;
         slotA.classList.toggle('full', !!compareSlots[0]);
         slotB.textContent = compareSlots[1] ? slotLabel(compareSlots[1]) : 'Pick another…';
+        slotB.title = slotB.textContent;
         slotB.classList.toggle('full', !!compareSlots[1]);
         btnRunCompare.enabled = compareSlots.length === 2;
     };

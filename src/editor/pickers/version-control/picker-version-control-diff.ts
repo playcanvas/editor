@@ -3,11 +3,14 @@ import { Button, Container, Overlay, Panel, TreeView, TreeViewItem } from '@play
 import { handleCallback } from '@/common/utils';
 import { config } from '@/editor/config';
 
-import { buildNameIndex, valueKind, type NameIndex } from './vc-diff-data';
-import { createValueField, destroyValueFields } from './vc-diff-fields';
+import { arrayFieldKind, buildNameIndex, indexTemplateEntities, valueKind, type NameIndex } from './vc-diff-data';
+import { createDeltaListField, createValueField, destroyValueFields } from './vc-diff-fields';
 import {
+    assetDiffField,
     diffTextChangeCounts,
     formatDiffPath,
+    hashChip,
+    isHiddenDiffField,
     lineChangeCounts,
     splitDiffPath,
     summarizeDiff,
@@ -16,6 +19,20 @@ import {
 
 const SUB_RE = /^(?<kind>Script|Sound slot|Clip): (?<name>.+)$/;
 const SETTINGS_ROOT_RE = /^(?:scene |project )?settings$/i;
+
+// entity-level template-instance fields get their own (collapsed) panel rather
+// than sitting among the entity's regular values; values are shown friendlier
+const TEMPLATE_PANEL = 'Template instance';
+const TEMPLATE_FIELDS: Record<string, string> = { template_id: 'Source template', template_ent_ids: 'Entity mapping' };
+// variable-length lists of asset ids (an asset's folder path, the project's
+// script loading order) — render as asset chips, not a vector/json blob
+const ASSET_ID_ARRAY_FIELDS = new Set(['path', 'scripts']);
+
+// loading-state skeleton fragments (mirror the real diff layout: sidebar rows are
+// name + status badge; main panels are a header bar over field rows of label + value)
+const SKELETON_ROW = '<div class="skeleton-row"><span class="bone line"></span><span class="bone badge"></span></div>';
+const SKELETON_FIELD = '<div class="skeleton-field"><span class="bone label"></span><span class="bone value"></span></div>';
+const SKELETON_PANEL = `<div class="skeleton-panel"><div class="skeleton-phead"><span class="bone line"></span></div>${SKELETON_FIELD.repeat(3)}</div>`;
 
 editor.once('load', () => {
     if (config.project.settings.useLegacyScripts) {
@@ -71,7 +88,9 @@ editor.once('load', () => {
             return;
         }
         selected = Number(row.dataset.index);
-        render();
+        sidebar.querySelectorAll('.vc-diff-row.selected').forEach(el => el.classList.remove('selected'));
+        row.classList.add('selected');
+        renderMain();
     });
 
     const diffId = (diff: any) => diff?.id ?? diff?.merge_id;
@@ -82,12 +101,13 @@ editor.once('load', () => {
 
     const statusFor = (conflict: any) => {
         const entry = conflict?.data?.[0] ?? {};
-        return entry.missingInDst ? 'added' : entry.missingInSrc ? 'deleted' : 'modified';
+        const whole = !entry.path;
+        return whole && entry.missingInDst ? 'added' : whole && entry.missingInSrc ? 'deleted' : 'modified';
     };
 
     const textEntry = (conflict: any) => (conflict?.data ?? []).find((entry: any) => entry.isTextualMerge || entry.mergedFilePath);
 
-    const propertyEntries = (conflict: any) => (conflict?.data ?? []).filter((entry: any) => !entry.isTextualMerge && !entry.mergedFilePath);
+    const propertyEntries = (conflict: any) => (conflict?.data ?? []).filter((entry: any) => !entry.isTextualMerge && !entry.mergedFilePath && !isHiddenDiffField(entry.path));
 
     const selectedConflict = () => current?.conflicts?.[selected] ?? null;
 
@@ -166,8 +186,19 @@ editor.once('load', () => {
     const sectionComponent = (value: string) => value.match(/^(.+) component$/i)?.[1]?.replace(/\s+/g, '').toLowerCase() ?? '';
 
     const inspectorInfo = (conflict: any, entry: any) => {
+        // template assets carry a scene-shaped entity tree under data.entities;
+        // strip the prefix and render it exactly like a scene
+        const tpl = conflict.assetType === 'template' && entry.path?.startsWith('data.entities.');
+        const path = tpl ? entry.path.slice('data.'.length) : entry.path;
+        const type = tpl ? 'scene' : conflict.itemType;
         const raw = entry.path || conflict.itemName;
-        if (!entry.path || (conflict.itemType !== 'scene' && conflict.itemType !== 'settings')) {
+        // generic asset property diffs: humanise data.opacityDither -> "Opacity
+        // Dither" and group under the asset-type panel, like the inspector
+        if (!tpl && type === 'asset' && path) {
+            const a = assetDiffField(conflict.assetType, path);
+            return { entityContext: [], section: a.section, context: [], field: a.field, title: a.title, type: '' };
+        }
+        if (!path || (type !== 'scene' && type !== 'settings')) {
             return {
                 entityContext: [],
                 section: typeLabel(conflict.itemType ?? 'item'),
@@ -178,12 +209,14 @@ editor.once('load', () => {
             };
         }
 
-        const info = formatDiffPath(entry.path, conflict.itemType, entityName(conflict, entry.path));
+        const info = formatDiffPath(path, type, entityName(conflict, path));
         const labels = info.labels;
         const entity = labels.find(label => label.text.startsWith('Entity: '));
         const comp = labels.findIndex(label => label.text.endsWith(' component'));
+        // entity-level template-instance plumbing routes to its own panel
+        const tplField = TEMPLATE_FIELDS[splitDiffPath(path).pop() ?? ''];
         let entityContext = [];
-        let section = labels[0]?.text ?? typeLabel(conflict.itemType);
+        let section = labels[0]?.text ?? typeLabel(type);
         let context = labels.slice(0, -1);
 
         if (comp >= 0) {
@@ -193,11 +226,11 @@ editor.once('load', () => {
         } else if (labels[0]?.text === 'Scene settings' && labels[1]) {
             section = labels[1].text;
             context = labels.slice(2);
-        } else if (conflict.itemType === 'settings') {
+        } else if (type === 'settings') {
             section = labels[0]?.text ?? 'Project settings';
             context = labels.slice(1);
         } else if (entity) {
-            section = 'Entity';
+            section = tplField ? TEMPLATE_PANEL : 'Entity';
             entityContext = [entity];
             context = labels.filter(label => label !== entity);
         }
@@ -206,7 +239,7 @@ editor.once('load', () => {
             entityContext,
             section,
             context,
-            field: info.field || raw,
+            field: tplField ?? info.field ?? raw,
             title: `${labels.map(label => label.text).join(' / ')} / ${info.field || raw}`,
             type: sectionComponent(section)
         };
@@ -227,7 +260,7 @@ editor.once('load', () => {
         const field = subMatch?.groups?.kind === 'Script' ? (splitDiffPath(entry.path ?? '').pop() ?? info.field) : info.field;
         return {
             entity: info.entityContext[0] ?? null,
-            panel: info.section,
+            panel: info.section.replace(/ component$/i, ''),
             icon: info.type,
             sub: subMatch?.groups?.name ?? '',
             field,
@@ -260,13 +293,17 @@ editor.once('load', () => {
     };
 
     // note: NOT 'vc-diff-row' — that class belongs to the sidebar buttons and their click delegation
-    const fieldRow = (kind: 'del' | 'add', label: string, title: string, valueEl: HTMLElement) => {
+    const fieldRow = (kind: 'del' | 'add' | 'mod', label: string, title: string, valueEl: HTMLElement) => {
         const row = document.createElement('div');
-        row.classList.add('vc-diff-field-row', kind);
+        row.classList.add('vc-diff-field-row');
+        // 'mod' rows stay neutral; their value carries the per-item add/remove tint
+        if (kind !== 'mod') {
+            row.classList.add(kind);
+        }
         row.title = title;
         const gut = document.createElement('span');
         gut.classList.add('gutter');
-        gut.textContent = kind === 'del' ? '−' : '+';
+        gut.textContent = kind === 'del' ? '−' : kind === 'add' ? '+' : '';
         row.appendChild(gut);
         const lbl = document.createElement('span');
         lbl.classList.add('label');
@@ -279,21 +316,58 @@ editor.once('load', () => {
         return row;
     };
 
+    // entities.<guid>.children (scenes) / data.entities.<guid>.children (templates)
+    const isEntityChildren = (path: string) => {
+        const parts = splitDiffPath(path ?? '');
+        const e = parts[0] === 'data' ? parts.slice(1) : parts;
+        return e.length === 3 && e[0] === 'entities' && e[2] === 'children';
+    };
+
     const sideField = (entry: any, side: 'src' | 'dst') => {
         const value = side === 'src' ? entry.srcValue : entry.dstValue;
         const missing = side === 'src' ? entry.missingInSrc : entry.missingInDst;
+        // a template's source id is an asset reference — show it as the asset name
+        if (!missing && splitDiffPath(entry.path ?? '').pop() === 'template_id') {
+            return createValueField('asset', value, nameIndex);
+        }
+        // variable-length asset-id lists (folder path, script loading order):
+        // render as asset chips, not a fixed-size vector or a raw json blob
+        if (!missing && Array.isArray(value) && ASSET_ID_ARRAY_FIELDS.has(splitDiffPath(entry.path ?? '').pop() ?? '')) {
+            return createValueField('array:asset', value, nameIndex);
+        }
+        // any other primitive array (tags, device types, ...) is a free-value list,
+        // not a fixed-size numeric tuple — render as pills instead of a json blob
+        if (!missing && arrayFieldKind(value) === 'pills') {
+            return createValueField('pills', value, nameIndex);
+        }
+        // an entity's children is a list of entity ids — resolve them to leaf names
+        if (!missing && isEntityChildren(entry.path) && Array.isArray(value)) {
+            return createValueField('children', value, nameIndex);
+        }
         const kind = missing ? 'missing' : valueKind(typeFor(entry, side), entry.path ?? '', value);
         return createValueField(kind, value, nameIndex);
     };
 
+    // wholly added/deleted entities arrive as a missing-flagged entry at the entity root
+    const wholeEntity = (entry: any) => {
+        if (!entry.missingInSrc && !entry.missingInDst) {
+            return false;
+        }
+        // templates prefix the path with `data.`; normalise so a whole template
+        // entity (data.entities.<guid>) reads like a scene's (entities.<guid>)
+        const parts = splitDiffPath(entry.path ?? '');
+        const e = parts[0] === 'data' ? parts.slice(1) : parts;
+        return e.length === 2 && e[0] === 'entities';
+    };
+
     // banner for whole-item adds/deletes (entries without a path)
-    const wholeBanner = (conflict: any, entry: any) => {
+    const wholeBanner = (conflict: any, entry: any, noun: string) => {
         const banner = document.createElement('div');
         banner.classList.add('vc-diff-banner');
         const status = entry.missingInDst ? 'added' : entry.missingInSrc ? 'deleted' : 'modified';
         appendBadge(banner, status);
         const text = document.createElement('span');
-        text.textContent = `This ${conflict.assetType ?? conflict.itemType ?? 'item'} was ${status} since the checkpoint`;
+        text.textContent = `This ${noun} was ${status} since the checkpoint`;
         banner.appendChild(text);
         return banner;
     };
@@ -302,7 +376,11 @@ editor.once('load', () => {
         const wrap = document.createElement('div');
         wrap.classList.add('vc-diff-inspector');
 
-        let section: { key: string; panel: Panel; subs: Map<string, Panel> } = null;
+        // one card per entity (its breadcrumb shown once); the entity's panels
+        // stack inside, so an entity changed across several sections (e.g.
+        // Entity + Template instance) isn't redrawn as separate repeated parts
+        let card: { entity: string; dom: HTMLElement } = null;
+        let section: { name: string; panel: Panel; subs: Map<string, Panel> } = null;
         const hostDom = (parts: { sub: string; panel: string }) => {
             if (!parts.sub) {
                 return section.panel.content.dom;
@@ -323,13 +401,18 @@ editor.once('load', () => {
 
         for (const entry of entries) {
             const parts = sectionParts(conflict, entry);
-            const key = JSON.stringify([parts.entity?.title ?? parts.entity?.text ?? '', parts.panel]);
-            if (section?.key !== key) {
-                const card = document.createElement('div');
-                card.classList.add('vc-diff-section');
+            const entityKey = parts.entity?.title ?? parts.entity?.text ?? '';
+            if (!card || card.entity !== entityKey) {
+                const dom = document.createElement('div');
+                dom.classList.add('vc-diff-section');
                 if (parts.entity) {
-                    card.appendChild(entityTree(parts.entity, parts.icon).dom);
+                    dom.appendChild(entityTree(parts.entity, parts.icon).dom);
                 }
+                wrap.appendChild(dom);
+                card = { entity: entityKey, dom };
+                section = null;
+            }
+            if (!section || section.name !== parts.panel) {
                 const panel = new Panel({ collapsible: true, headerText: parts.panel });
                 panel.class.add('vc-diff-panel');
                 if (parts.icon) {
@@ -337,13 +420,41 @@ editor.once('load', () => {
                     icon.classList.add('component-icon', `type-${parts.icon}`);
                     panel.header.dom.insertBefore(icon, panel.header.dom.querySelector('.pcui-panel-header-title'));
                 }
-                card.appendChild(panel.dom);
-                wrap.appendChild(card);
-                section = { key, panel, subs: new Map() };
+                card.dom.appendChild(panel.dom);
+                section = { name: parts.panel, panel, subs: new Map() };
             }
             const host = hostDom(parts);
-            if (!entry.path) {
-                host.appendChild(wholeBanner(conflict, entry));
+            if (!entry.path || wholeEntity(entry)) {
+                host.appendChild(wholeBanner(conflict, entry, entry.path ? 'entity' : conflict.assetType ?? conflict.itemType ?? 'item'));
+                continue;
+            }
+            // array fields are membership lists, not before/after blobs: show just
+            // the delta. children/asset-id lists resolve to names (and override the
+            // tuple test since asset ids are numeric); any other primitive array
+            // (tags, device types, ...) renders as value pills. numeric vector/colour
+            // tuples (<=4, size-stable) fall through to the positional widget below.
+            const leaf = splitDiffPath(entry.path ?? '').pop() ?? '';
+            const bothArrays = Array.isArray(entry.srcValue) && Array.isArray(entry.dstValue);
+            const listKind: 'children' | 'array:asset' | 'pills' | null = !bothArrays ? null :
+                isEntityChildren(entry.path) ? 'children' :
+                    ASSET_ID_ARRAY_FIELDS.has(leaf) ? 'array:asset' :
+                        arrayFieldKind(entry.srcValue) === 'pills' && arrayFieldKind(entry.dstValue) === 'pills' ? 'pills' : null;
+            if (listKind) {
+                const src = new Set(entry.srcValue);
+                const dst = new Set(entry.dstValue);
+                const removed = entry.dstValue.filter((id: any) => !src.has(id));
+                const added = entry.srcValue.filter((id: any) => !dst.has(id));
+                if (removed.length || added.length) {
+                    // one neutral row; the chips carry the add/remove tint so it
+                    // doesn't read as the whole field (Children/Scripts/Path) being new
+                    host.appendChild(fieldRow('mod', parts.field, parts.title, createDeltaListField(listKind, removed, added, nameIndex)));
+                } else {
+                    // same members, different order — note it without re-listing everything
+                    const note = document.createElement('span');
+                    note.classList.add('vc-diff-missing');
+                    note.textContent = `reordered (${entry.srcValue.length} item${entry.srcValue.length === 1 ? '' : 's'})`;
+                    host.appendChild(fieldRow('mod', parts.field, parts.title, note));
+                }
                 continue;
             }
             if (!entry.missingInDst) {
@@ -441,7 +552,7 @@ editor.once('load', () => {
 
                 const sub = document.createElement('span');
                 sub.classList.add('sub');
-                const count = conflict?.data?.length ?? 0;
+                const count = (conflict?.data ?? []).filter((e: any) => !isHiddenDiffField(e.path)).length;
                 sub.textContent = `${conflict?.assetType ?? conflict?.itemType ?? group.type} · ${count} change${count === 1 ? '' : 's'}`;
                 row.appendChild(sub);
 
@@ -502,14 +613,6 @@ editor.once('load', () => {
         }
         if (showText) {
             detail.appendChild(renderIframe(conflict, text));
-            const token = viewToken;
-            loadTextCounts(text).then((counts) => {
-                if (token !== viewToken || !stats.isConnected) {
-                    return;
-                }
-                stats.innerHTML = '';
-                stats.appendChild(lineStats(counts ?? localTextCounts(text) ?? { added: 0, deleted: 0 }));
-            });
         } else if (!props.length) {
             const empty = document.createElement('div');
             empty.classList.add('vc-diff-empty');
@@ -523,7 +626,11 @@ editor.once('load', () => {
         viewToken++;
         const summary = summarizeDiff(current ?? {});
         const base = current?.destinationCheckpointId || current?.dstCheckpointId;
-        meta.textContent = `${summary.total} change${summary.total === 1 ? '' : 's'}${typeof base === 'string' ? ` · vs ${base.substring(0, 7)}` : ''}`;
+        meta.textContent = `${summary.total} change${summary.total === 1 ? '' : 's'}`;
+        if (typeof base === 'string') {
+            meta.appendChild(document.createTextNode(' · vs '));
+            meta.appendChild(hashChip(base));
+        }
         renderSidebar();
         renderMain();
     };
@@ -538,25 +645,45 @@ editor.once('load', () => {
         fileStats.clear();
     };
 
+    // mouse/browser back closes the diff, mirroring how the scene picker is
+    // dismissed by the same history navigation (see the scenes-load popstate)
+    let closingViaBack = false;
+    const onPopState = () => {
+        if (!overlay.hidden) {
+            closingViaBack = true;
+            overlay.hidden = true;
+        }
+    };
+
     overlay.on('show', () => {
         editor.emit('picker:open', 'version-control-diff');
+        window.addEventListener('popstate', onPopState);
         if (editor.call('viewport:inViewport')) {
             editor.emit('viewport:hover', false);
         }
     });
 
     overlay.on('hide', () => {
+        window.removeEventListener('popstate', onPopState);
         const id = diffId(current);
         if (typeof id === 'string' && !isRetainedDiff(id)) {
             editor.emit('picker:diffManager:closed', id);
             handleCallback(editor.api.globals.rest.merge.mergeDelete({ mergeId: id }), () => {});
         }
-        if (editor.call('picker:isOpen', 'project')) {
+        if (closingViaBack) {
+            // the scene-router back already closed/navigated the picker beneath the
+            // diff; only clear its suspended state (set in presentDiff) so it's
+            // interactive again when reopened — resume is a no-op if not suspended
             editor.call('picker:project:resume');
         } else {
-            editor.call('picker:versioncontrol');
+            if (editor.call('picker:isOpen', 'project')) {
+                editor.call('picker:project:resume');
+            } else {
+                editor.call('picker:versioncontrol');
+            }
+            editor.call('vcgraph:moveToForeground');
         }
-        editor.call('vcgraph:moveToForeground');
+        closingViaBack = false;
         current = null;
         nameIndex = null;
         selected = 0;
@@ -575,12 +702,66 @@ editor.once('load', () => {
         }
     });
 
-    editor.method('picker:versioncontrol:diffPicker', (diff: any) => {
+    // single-line message in the main area (loading / empty / error states)
+    const renderNotice = (message: string) => {
+        trees.forEach(t => t.destroy());
+        trees = [];
+        destroyValueFields(main);
+        main.innerHTML = '';
+        const notice = document.createElement('div');
+        notice.classList.add('vc-diff-empty');
+        notice.textContent = message;
+        main.appendChild(notice);
+    };
+
+    const renderLoading = () => {
+        trees.forEach(t => t.destroy());
+        trees = [];
+        destroyValueFields(main);
+        meta.textContent = '';
+        sidebar.innerHTML = `<div class="vc-diff-skeleton">${SKELETON_ROW.repeat(6)}</div>`;
+        main.innerHTML = `<div class="vc-diff-skeleton main"><div class="skeleton-head"><span class="bone title"></span><span class="bone badge"></span></div>${SKELETON_PANEL.repeat(2)}</div>`;
+    };
+
+    const setDiff = (diff: any) => {
         current = diff;
         nameIndex = buildNameIndex(current ?? {});
+        // template assets carry their own entity tree; resolve its names too
+        indexTemplateEntities(nameIndex, current?.conflicts ?? [], (id: any) => editor.call('assets:get', id));
         const summary = summarizeDiff(current ?? {});
+        if (!summary.total) {
+            meta.textContent = 'No changes';
+            sidebar.innerHTML = '';
+            renderNotice('No changes since the checkpoint');
+            return;
+        }
         selected = summary.groups[0]?.items[0]?.index ?? 0;
         render();
+    };
+
+    // accepts a resolved diff or a Promise that resolves to one; a pending diff
+    // opens the overlay immediately with a loading state (viewToken guards stale opens)
+    editor.method('picker:versioncontrol:diffPicker', (input: any) => {
+        const token = ++viewToken;
+        current = null;
+        nameIndex = null;
+        selected = 0;
         overlay.hidden = false;
+        if (input && typeof input.then === 'function') {
+            renderLoading();
+            input.then((diff: any) => {
+                if (token === viewToken) {
+                    setDiff(diff);
+                }
+            }).catch((err: any) => {
+                if (token === viewToken) {
+                    meta.textContent = '';
+                    sidebar.innerHTML = '';
+                    renderNotice(`Could not load diff: ${err instanceof Error ? err.message : err}`);
+                }
+            });
+        } else {
+            setDiff(input);
+        }
     });
 });

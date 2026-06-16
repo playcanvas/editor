@@ -19,15 +19,33 @@ const el = (cls: string, text = '') => {
 
 const missingEl = (text: string) => el('vc-diff-missing', text);
 
-const chip = (kind: string, id: unknown, name?: string) => {
+const chip = (kind: string, id: unknown, name?: string, state?: 'added' | 'removed') => {
     const c = el('vc-diff-chip');
     if (!name) {
         c.classList.add('missing');
     }
-    c.appendChild(el('tag', kind === 'batchGroup' ? 'batch group' : kind));
+    // membership-delta chips tint themselves (red/green) + carry a +/− sign so a
+    // single changed list item doesn't colour its whole row
+    if (state) {
+        c.classList.add(state);
+        c.appendChild(el('sign', state === 'added' ? '+' : '−'));
+    }
+    // plain pills (tags, device types, any free-value list) pass an empty kind:
+    // the value is the whole label
+    if (kind) {
+        c.appendChild(el('tag', kind === 'batchGroup' ? 'batch group' : kind));
+    } else {
+        c.classList.add('pill');
+    }
     c.appendChild(el('name', name ?? `${id}`));
     c.title = `${id}`;
     return c;
+};
+
+// child entities share a path prefix; show only the leaf segment as the name
+const entityLeaf = (index: NameIndex, id: unknown) => {
+    const full = index.entity.get(`${id}`);
+    return typeof full === 'string' ? full.split('/').filter(Boolean).pop() : undefined;
 };
 
 const sublayerEl = (value: any, index: NameIndex) => {
@@ -55,6 +73,9 @@ export const createValueField = (kind: ValueKind, value: any, index: NameIndex):
         const list = document.createElement('div');
         list.className = 'vc-diff-array';
         const items = Array.isArray(value) ? value : [value];
+        if (items.length > 1) {
+            list.classList.add('multi');
+        }
         list.appendChild(el('size', `${items.length} item${items.length === 1 ? '' : 's'}`));
         for (const item of items) {
             const itemKind = item === undefined || item === null ? 'missing' :
@@ -95,12 +116,48 @@ export const createValueField = (kind: ValueKind, value: any, index: NameIndex):
             return chip('asset', value, index.asset.get(`${value}`));
         case 'entity':
             return chip('entity', value, index.entity.get(`${value}`));
+        case 'children': {
+            // entity-id list as chips; show only the leaf name (siblings share a path prefix)
+            const ids = Array.isArray(value) ? value : [value];
+            const list = document.createElement('div');
+            list.className = 'vc-diff-array';
+            if (ids.length > 1) {
+                list.classList.add('multi');
+            }
+            list.appendChild(el('size', `${ids.length} item${ids.length === 1 ? '' : 's'}`));
+            for (const id of ids) {
+                list.appendChild(chip('entity', id, entityLeaf(index, id)));
+            }
+            return list;
+        }
+        case 'pills': {
+            // free-value list (tags, device types, ...): each entry is its own label
+            const items = Array.isArray(value) ? value : [value];
+            const list = document.createElement('div');
+            list.className = 'vc-diff-array';
+            if (items.length > 1) {
+                list.classList.add('multi');
+            }
+            list.appendChild(el('size', `${items.length} item${items.length === 1 ? '' : 's'}`));
+            for (const t of items) {
+                list.appendChild(chip('', t, `${t}`));
+            }
+            return list;
+        }
         case 'layer':
             return chip('layer', value, index.layer.get(`${value}`));
         case 'batchGroup':
             return chip('batchGroup', value, index.batchGroup.get(`${value}`));
         case 'sublayer':
             return sublayerEl(value, index);
+        case 'entityMap': {
+            // a guid->guid remap conveys nothing actionable inline; show the
+            // count and keep the full mapping on hover for anyone who needs it
+            const n = Object.keys(value as object).length;
+            const summary = el('vc-diff-entity-map', `${n} entit${n === 1 ? 'y' : 'ies'}`);
+            summary.title = JSON.stringify(value, null, 2);
+            return summary;
+        }
         case 'object':
             return missingEl('no preview available');
         case 'json': {
@@ -111,6 +168,41 @@ export const createValueField = (kind: ValueKind, value: any, index: NameIndex):
         default:
             return missingEl('no preview available');
     }
+};
+
+// a list field (entity children / asset-id list) whose membership changed:
+// removed items tinted red, added tinted green, in ONE neutral list so the
+// surrounding row isn't coloured as if the whole property were added/removed
+export const createDeltaListField = (kind: 'children' | 'array:asset' | 'pills', removed: any[], added: any[], index: NameIndex): HTMLElement => {
+    const list = document.createElement('div');
+    list.className = 'vc-diff-array';
+    if (removed.length + added.length > 1) {
+        list.classList.add('multi');
+    }
+    const summary = [];
+    if (removed.length) {
+        summary.push(`−${removed.length}`);
+    }
+    if (added.length) {
+        summary.push(`+${added.length}`);
+    }
+    list.appendChild(el('size', summary.join('   ')));
+    const refChip = (id: unknown, state: 'added' | 'removed') => {
+        if (kind === 'children') {
+            return chip('entity', id, entityLeaf(index, id), state);
+        }
+        if (kind === 'pills') {
+            return chip('', id, `${id}`, state);
+        }
+        return chip('asset', id, index.asset.get(`${id}`), state);
+    };
+    for (const id of removed) {
+        list.appendChild(refChip(id, 'removed'));
+    }
+    for (const id of added) {
+        list.appendChild(refChip(id, 'added'));
+    }
+    return list;
 };
 
 // pcui widgets hold timers (curve/gradient resize loops); destroy before discarding their dom

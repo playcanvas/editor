@@ -27,6 +27,7 @@ export const createBranchSwitcher = (host: Container) => {
     button.dom.appendChild(labels);
     const nameEl = labels.querySelector('.name') as HTMLElement;
     nameEl.textContent = config.self.branch.name;
+    nameEl.title = config.self.branch.name;
 
     // dropdown panel floats inside the picker, anchored under the button
     const panel = new Container({ class: 'vc-branch-panel', hidden: true });
@@ -166,41 +167,43 @@ export const createBranchSwitcher = (host: Container) => {
             sub.classList.add('sub');
             sub.textContent = 'current';
             row.appendChild(sub);
-        } else {
-            const actions = document.createElement('span');
-            actions.classList.add('row-actions');
-            row.appendChild(actions);
-
-            if (!branch.closed) {
-                const sw = document.createElement('button');
-                sw.type = 'button';
-                sw.classList.add('switch');
-                sw.textContent = 'Switch';
-                sw.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    hidePanel();
-                    button.emit('switch', branch);
-                });
-                actions.appendChild(sw);
-            }
-
-            const kebab = document.createElement('button');
-            kebab.type = 'button';
-            kebab.classList.add('kebab');
-            kebab.setAttribute('aria-label', 'Branch actions');
-            kebab.addEventListener('click', (e) => {
-                e.stopPropagation();
-                contextBranch = branch;
-                // hold the hover-revealed actions open while the menu is up
-                activeKebab = kebab;
-                kebab.classList.add('active');
-                row.classList.add('menu-open');
-                menu.hidden = false;
-                const rect = kebab.getBoundingClientRect();
-                menu.position(rect.right - menu.innerElement.clientWidth, rect.bottom);
-            });
-            actions.appendChild(kebab);
         }
+
+        const actions = document.createElement('span');
+        actions.classList.add('row-actions');
+        row.appendChild(actions);
+
+        // the current branch can't be switched to, but its menu still offers
+        // Copy Branch ID / Version Control Graph
+        if (!isCurrent(branch) && !branch.closed) {
+            const sw = document.createElement('button');
+            sw.type = 'button';
+            sw.classList.add('switch');
+            sw.textContent = 'Switch';
+            sw.addEventListener('click', (e) => {
+                e.stopPropagation();
+                hidePanel();
+                button.emit('switch', branch);
+            });
+            actions.appendChild(sw);
+        }
+
+        const kebab = document.createElement('button');
+        kebab.type = 'button';
+        kebab.classList.add('kebab');
+        kebab.setAttribute('aria-label', 'Branch actions');
+        kebab.addEventListener('click', (e) => {
+            e.stopPropagation();
+            contextBranch = branch;
+            // hold the hover-revealed actions open while the menu is up
+            activeKebab = kebab;
+            kebab.classList.add('active');
+            row.classList.add('menu-open');
+            menu.hidden = false;
+            const rect = kebab.getBoundingClientRect();
+            menu.position(rect.right - menu.innerElement.clientWidth, rect.bottom);
+        });
+        actions.appendChild(kebab);
 
         row.addEventListener('click', () => {
             hidePanel();
@@ -347,6 +350,7 @@ export const createBranchSwitcher = (host: Container) => {
                 load(true);
             }
             nameEl.textContent = config.self.branch.name;
+            nameEl.title = config.self.branch.name;
         },
         closePanel: hidePanel,
         getBranch: (id: string) => branches[id],

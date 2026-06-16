@@ -61,7 +61,7 @@ export const hashChip = (id: string) => {
 
 type DiffLike = {
     numConflicts?: number;
-    conflicts?: { itemType: string; itemName: string; data?: { missingInSrc?: boolean; missingInDst?: boolean }[] }[];
+    conflicts?: { itemType: string; itemName: string; data?: { path?: string; missingInSrc?: boolean; missingInDst?: boolean }[] }[];
 };
 
 // group label for an item type; 'settings' is already plural
@@ -71,8 +71,10 @@ export const summarizeDiff = (diff: DiffLike): DiffSummary => {
     const groups = new Map<string, { name: string; status: DiffStatus; index: number }[]>();
     (diff.conflicts ?? []).forEach((c, index) => {
         const entry = c.data?.[0] ?? {};
+        // whole-item adds/deletes carry no entry path; pathful missing flags are field-level
+        const whole = !entry.path;
         // dst-missing wins if both flags are ever set: item exists in src only, so 'added'
-        const status: DiffStatus = entry.missingInDst ? 'added' : entry.missingInSrc ? 'deleted' : 'modified';
+        const status: DiffStatus = whole && entry.missingInDst ? 'added' : whole && entry.missingInSrc ? 'deleted' : 'modified';
         if (!groups.has(c.itemType)) {
             groups.set(c.itemType, []);
         }
@@ -172,6 +174,22 @@ const settingLabel = (s: string) => ({
     layerOrder: 'Layer order',
     scripts: 'Script loading order'
 }[s] ?? prettyPart(s));
+
+// internal version-control plumbing (file backup refs etc.) that never appears
+// in the inspector — keep it out of the diff entirely
+const HIDDEN_DIFF_FIELDS = new Set(['immutable_backup']);
+export const isHiddenDiffField = (path: string) => HIDDEN_DIFF_FIELDS.has(splitDiffPath(path ?? '').pop() ?? '');
+
+// generic asset property diff (material, texture, ...): inspector fields live
+// under data.; strip it and prettify the path so a row reads like the inspector
+// (data.opacityDither -> "Opacity Dither") grouped under the asset-type panel
+export const assetDiffField = (assetType: string, path: string) => {
+    const inner = path.startsWith('data.') ? path.slice('data.'.length) : path;
+    const info = formatDiffPath(inner, 'asset');
+    const section = prettyPart(assetType || 'asset');
+    const field = info.labels.length ? `${info.labels.map(l => l.text).join(' / ')} / ${info.field}` : info.field;
+    return { section, field, title: `${section} / ${field}` };
+};
 
 export const formatDiffPath = (path: string, type: string, entityName?: string) => {
     const parts = splitDiffPath(path);

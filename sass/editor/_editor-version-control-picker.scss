@@ -939,6 +939,44 @@
         }
     }
 
+    // changes-tab preview: structured property diff (compact) above any textual file rows
+    .vc-field-preview {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    // compact structured property diff reuses the full diff's .vc-diff-* classes;
+    // only density and the text breadcrumb differ from the overlay
+    .vc-card .vc-diff-inspector.compact {
+        gap: 8px;
+
+        .vc-diff-crumb {
+            padding-bottom: 8px;
+            overflow: hidden;
+            color: $text-secondary;
+            font-size: 13px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        // field rows sit in pcui panel content (larger ambient); pin them to the
+        // breadcrumb's size so the preview's text scale stays consistent
+        .vc-diff-field-row {
+            min-height: 26px;
+            font-size: 12px;
+
+            // text values stay on one line and ellipsis; an unbreakable value would
+            // otherwise hard-clip at the pane edge (overflow-x is hidden)
+            > .value > span {
+                min-width: 0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+        }
+    }
+
     // grouped change list inside the detail diff card; no inner scroll —
     // the surrounding .vc-main is the single scroll context
     .vc-diff-list {

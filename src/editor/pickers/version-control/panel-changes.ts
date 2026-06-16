@@ -2,7 +2,9 @@ import { Container, TextAreaInput } from '@playcanvas/pcui';
 
 import { config } from '@/editor/config';
 
-import { diffTextChangeCounts, formatDiffPath, hashChip, lineChangeCounts, splitDiffPath, summarizeDiff, typeLabel, type DiffSummary } from './vc-helpers';
+import { templateEntitiesFor, templateEntityPath } from './vc-diff-data';
+import { renderPreviewPropertyDiff } from './vc-diff-preview';
+import { diffTextChangeCounts, hashChip, isHiddenDiffField, lineChangeCounts, splitDiffPath, summarizeDiff, typeLabel, type DiffSummary } from './vc-helpers';
 import { diffCreate } from '../../messenger/jobs';
 
 export const createChangesPanel = () => {
@@ -20,6 +22,8 @@ export const createChangesPanel = () => {
     // .then/.catch discard results when the generation has moved on (stale-response guard)
     let gen = 0;
     let rawDiffLive = false;
+    // the in-flight diff job, so Open Full Diff works before the summary finishes loading
+    let rawPromise: Promise<any> = null;
     const fileStats = new Map<string, Promise<{ deleted: number; added: number } | null>>();
 
     const diffId = (diff: any) => diff?.id ?? diff?.merge_id;
@@ -168,57 +172,25 @@ export const createChangesPanel = () => {
         return Promise.resolve(null);
     };
 
+    // combined template entity maps, memoised per conflict (built once per render)
+    const tplEntities = new Map<any, any>();
+
     const entityName = (conflict: any, value: string) => {
         const id = splitDiffPath(value)[1];
+        // template entities live in the asset's own data.entities, plus any the
+        // diff reports as added/removed on the side that isn't loaded
+        if (conflict.assetType === 'template') {
+            let entities = tplEntities.get(conflict);
+            if (!entities) {
+                entities = templateEntitiesFor(conflict, (assetId: any) => editor.call('assets:get', assetId));
+                tplEntities.set(conflict, entities);
+            }
+            return templateEntityPath(entities, id);
+        }
         const src = raw?.srcCheckpoint?.scenes?.[conflict.itemId]?.entities?.[id];
         const dst = raw?.dstCheckpoint?.scenes?.[conflict.itemId]?.entities?.[id];
         const name = src ?? dst;
         return typeof name === 'string' ? name : undefined;
-    };
-
-    const appendPath = (row: HTMLElement, path: HTMLElement, vals: HTMLElement, conflict: any, entry: any) => {
-        const value = entry.path;
-        path.title = value;
-        if (conflict.itemType !== 'scene' && conflict.itemType !== 'settings') {
-            path.textContent = value;
-            return false;
-        }
-        const info = formatDiffPath(value, conflict.itemType, entityName(conflict, value));
-        if (!info.labels.length) {
-            path.textContent = value;
-            return false;
-        }
-        row.classList.add('tree');
-        path.classList.add('tree');
-        vals.hidden = true;
-        const tree = document.createElement('span');
-        tree.classList.add('vc-path-tree');
-        info.labels.forEach((label, i) => {
-            const seg = document.createElement('span');
-            seg.classList.add('seg');
-            seg.style.paddingLeft = `${Math.min(i, 8) * 12}px`;
-            seg.textContent = label.text;
-            seg.title = label.title ?? label.text;
-            tree.appendChild(seg);
-        });
-        const line = (kind: string, text: string) => {
-            const seg = document.createElement('span');
-            seg.classList.add('change', kind);
-            seg.style.paddingLeft = `${Math.min(info.labels.length, 8) * 12}px`;
-            seg.textContent = text;
-            seg.title = text;
-            tree.appendChild(seg);
-        };
-        if (entry.missingInDst) {
-            line('new', `+ ${info.field}: ${fmtVal(entry.srcValue)}`);
-        } else if (entry.missingInSrc) {
-            line('old', `- ${info.field}: ${fmtVal(entry.dstValue)}`);
-        } else {
-            line('old', `- ${info.field}: ${fmtVal(entry.dstValue)}`);
-            line('new', `+ ${info.field}: ${fmtVal(entry.srcValue)}`);
-        }
-        path.appendChild(tree);
-        return true;
     };
 
     const fileText = (entry: any) => {
@@ -231,66 +203,52 @@ export const createChangesPanel = () => {
         return 'changed';
     };
 
-    // field-level rows for one conflict, straight from the loaded diff
-    const renderFieldDiff = (conflict: any) => {
+    // textual asset merges (e.g. scripts) — line counts; the preview can't host the full diff's iframe
+    const renderFileRows = (conflict: any, entries: any[]) => {
         const wrap = document.createElement('div');
         wrap.classList.add('vc-field-diff');
-        for (const entry of conflict.data ?? []) {
+        for (const entry of entries) {
             const row = document.createElement('div');
             row.classList.add('vc-field-row');
             const path = document.createElement('span');
             path.classList.add('path');
+            path.textContent = fileName(conflict, entry, 'src') ?? fileName(conflict, entry, 'dst');
+            path.title = path.textContent;
             const vals = document.createElement('span');
             vals.classList.add('vals');
-
-            const srcName = fileName(conflict, entry, 'src');
-            const dstName = fileName(conflict, entry, 'dst');
-            if (srcName || dstName) {
-                path.textContent = srcName ?? dstName;
-                vals.textContent = 'Loading…';
-                loadLineCounts(conflict, entry).then((counts) => {
-                    if (!row.isConnected) {
-                        return;
-                    }
-                    vals.innerHTML = '';
-                    if (counts) {
-                        appendLineCounts(vals, counts);
-                    } else {
-                        vals.textContent = `${fileText(entry)} — use Open Full Diff to view`;
-                    }
-                });
-            } else if (!entry.path) {
-                // whole-item add/delete
-                path.textContent = conflict.itemName;
-                vals.textContent = entry.missingInDst ? 'added since the checkpoint' :
-                    entry.missingInSrc ? 'deleted since the checkpoint' : 'changed';
-            } else if (!appendPath(row, path, vals, conflict, entry)) {
-                // src is the working state (new), dst is the checkpoint (old)
-                if (entry.missingInDst) {
-                    const nv = document.createElement('span');
-                    nv.classList.add('new');
-                    nv.textContent = `+ ${fmtVal(entry.srcValue)}`;
-                    vals.appendChild(nv);
-                } else if (entry.missingInSrc) {
-                    const ov = document.createElement('span');
-                    ov.classList.add('old');
-                    ov.textContent = fmtVal(entry.dstValue);
-                    vals.appendChild(ov);
-                } else {
-                    const ov = document.createElement('span');
-                    ov.classList.add('old');
-                    ov.textContent = fmtVal(entry.dstValue);
-                    vals.appendChild(ov);
-                    vals.appendChild(document.createTextNode(' → '));
-                    const nv = document.createElement('span');
-                    nv.classList.add('new');
-                    nv.textContent = fmtVal(entry.srcValue);
-                    vals.appendChild(nv);
+            vals.textContent = 'Loading…';
+            loadLineCounts(conflict, entry).then((counts) => {
+                if (!row.isConnected) {
+                    return;
                 }
-            }
+                vals.innerHTML = '';
+                if (counts) {
+                    appendLineCounts(vals, counts);
+                } else {
+                    vals.textContent = `${fileText(entry)} — use Open Full Diff to view`;
+                    vals.title = vals.textContent;
+                }
+            });
             row.appendChild(path);
             row.appendChild(vals);
             wrap.appendChild(row);
+        }
+        return wrap;
+    };
+
+    // property diffs reuse the full diff's structured look (compact); textual merges stay as line-count rows
+    const renderFieldDiff = (conflict: any) => {
+        const wrap = document.createElement('div');
+        wrap.classList.add('vc-field-preview');
+        const data = (conflict.data ?? []).filter((e: any) => !isHiddenDiffField(e.path));
+        const files = data.filter((e: any) => fileName(conflict, e, 'src') || fileName(conflict, e, 'dst'));
+        const props = data.filter((e: any) => !(fileName(conflict, e, 'src') || fileName(conflict, e, 'dst')));
+
+        if (props.length) {
+            wrap.appendChild(renderPreviewPropertyDiff(conflict, props, { entityName, fmtVal }));
+        }
+        if (files.length) {
+            wrap.appendChild(renderFileRows(conflict, files));
         }
         return wrap;
     };
@@ -322,12 +280,13 @@ export const createChangesPanel = () => {
             side.appendChild(meta);
         }
 
-        if (current && current.total) {
+        // show while loading and whenever there are changes; hide only once we know there are none
+        if (branch.latestCheckpointId && (loading || !current || current.total)) {
             const openBtn = document.createElement('button');
             openBtn.type = 'button';
             openBtn.classList.add('vc-button');
             openBtn.textContent = 'Open Full Diff';
-            openBtn.addEventListener('click', () => summary.emit('openDiff', rawDiffLive ? raw : null));
+            openBtn.addEventListener('click', () => summary.emit('openDiff', !loading && rawDiffLive ? raw : null, rawPromise));
             side.appendChild(openBtn);
         }
 
@@ -393,17 +352,20 @@ export const createChangesPanel = () => {
         loading = true;
         const snap = ++gen;
         render();
-        diffCreate({
+        const pending = diffCreate({
             srcBranchId: branch.id,
             srcCheckpointId: null,
             dstBranchId: branch.id,
             dstCheckpointId: branch.latestCheckpointId
-        }).then((diff: any) => {
+        });
+        rawPromise = pending;
+        pending.then((diff: any) => {
             // single-flight: clear loading even for superseded responses or refresh deadlocks
             loading = false;
             if (snap !== gen) {
                 return;
             }
+            rawPromise = null;
             stale = false;
             const oldId = rawDiffLive ? diffId(raw) : null;
             const next = diff ?? {};
@@ -424,6 +386,7 @@ export const createChangesPanel = () => {
             if (snap !== gen) {
                 return;
             }
+            rawPromise = null;
             log.error(err);
             current = null;
             releaseRawDiff();

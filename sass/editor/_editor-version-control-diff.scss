@@ -10,7 +10,9 @@ $vc-add-edge: #3fb950;
 
     > .pcui-overlay-content {
         position: absolute;
-        inset: 0;
+
+        // sit right of the 40px left toolbar (#layout-root grid column) instead of underlapping it
+        inset: 0 0 0 40px;
         display: flex;
     }
 }
@@ -28,8 +30,12 @@ $vc-add-edge: #3fb950;
     flex: none;
     align-items: center;
     gap: 12px;
-    padding: 0 16px;
-    height: 48px;
+
+    // right padding equals the close button's vertical centring gap ((33 − 28) / 2) so its corner spacing is symmetric
+    padding: 0 2.5px 0 16px;
+
+    // match the picker-project panel header height (its content is offset by 33px)
+    height: 33px;
     background-color: $bcg-dark;
     border-bottom: 1px solid $border-primary;
 
@@ -46,7 +52,20 @@ $vc-add-edge: #3fb950;
     }
 
     > .vc-diff-close {
-        margin-left: auto;
+        // reset PCUI's default 6px margin so the header padding alone sets the corner gap; auto-left keeps it pushed right
+        margin: 0 0 0 auto;
+        background: transparent;
+        border: 0;
+
+        // match the version control picker's header close (picker-project .close)
+        color: $text-secondary;
+        font-size: 14px;
+
+        &:hover {
+            border: 0;
+            box-shadow: none;
+            color: $text-primary;
+        }
     }
 }
 
@@ -69,16 +88,22 @@ $vc-add-edge: #3fb950;
 
         padding: 10px 12px;
         color: $text-primary;
-        font-size: 12px;
+        font-size: 13px;
         border-bottom: 1px solid $border-primary;
     }
 
     > .vc-diff-group {
-        padding: 8px 12px 4px;
-        color: $text-dark;
+        @extend .font-bold;
+
+        // match the picker's section bars (.vc-group): bold + dark bar so the
+        // header reads distinctly from the $text-dark sub line below it
+        padding: 5px 12px;
+        background-color: rgb(0 0 0 / 12%);
+        border-bottom: 1px solid $border-primary;
+        color: $text-secondary;
         font-size: 10px;
+        letter-spacing: 0.4px;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
     }
 
     > .vc-diff-row {
@@ -96,7 +121,7 @@ $vc-add-edge: #3fb950;
         border-bottom: 1px solid $border-primary;
         background: transparent;
         color: $text-primary;
-        font-size: 12px;
+        font-size: 13px;
         text-align: left;
         cursor: pointer;
         transition: background-color 100ms ease;
@@ -122,12 +147,12 @@ $vc-add-edge: #3fb950;
             width: 100%;
             order: 3;
             color: $text-dark;
-            font-size: 10px;
+            font-size: 11px;
         }
 
         > .counts {
             order: 4;
-            font-size: 10px;
+            font-size: 11px;
         }
 
         > .status {
@@ -208,17 +233,125 @@ $vc-add-edge: #3fb950;
     text-align: center;
 }
 
+// loading skeleton — mirrors the sidebar list (dot + line rows) and the main
+// detail layout (header + panel blocks); reuses the picker's pulse keyframe
+.vc-diff-skeleton {
+    .bone {
+        border-radius: 4px;
+        background-color: rgb(255 255 255 / 8%);
+        animation: vc-skeleton-pulse 1.4s ease-in-out infinite;
+
+        &.line {
+            flex: 1 1 auto;
+            height: 10px;
+        }
+
+        &.title {
+            flex: none;
+            width: 180px;
+            height: 14px;
+        }
+
+        &.badge {
+            flex: none;
+            width: 58px;
+            height: 16px;
+        }
+
+        &.label {
+            flex: none;
+            width: 30%;
+            max-width: 180px;
+            height: 10px;
+        }
+
+        &.value {
+            flex: 1 1 auto;
+            height: 10px;
+        }
+    }
+
+    // sidebar rows: name + status badge (no leading icon, matching .vc-diff-row)
+    > .skeleton-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 11px 12px;
+        border-bottom: 1px solid $border-primary;
+    }
+
+    &.main {
+        padding: 12px 16px;
+
+        > .skeleton-head {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        // panel: header bar over field rows, like .vc-diff-panel
+        > .skeleton-panel {
+            margin-bottom: 10px;
+            border: 1px solid $border-primary;
+            border-radius: 3px;
+            overflow: hidden;
+
+            > .skeleton-phead {
+                padding: 10px 12px;
+                background-color: $bcg-dark;
+                border-bottom: 1px solid $border-primary;
+
+                > .bone.line {
+                    max-width: 120px;
+                }
+            }
+
+            > .skeleton-field {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 9px 12px;
+                border-bottom: 1px solid $border-primary;
+
+                &:last-child {
+                    border-bottom: none;
+                }
+            }
+        }
+    }
+}
+
 // ---- inspector sections ----
 .vc-diff-inspector {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+
+    // more space between cards than within one (tree -> panels is 6px below)
+    // so each entity's breadcrumb + panels reads as a single grouped unit
+    gap: 16px;
 }
 
 .vc-diff-section {
     > .vc-diff-entity-tree {
         margin-bottom: 6px;
         pointer-events: none;
+
+        // the root's own spine is the leftmost vertical and never connects to
+        // anything (each child draws its own spine + elbow), so collapse it in
+        // every case. top: only relocates the stub; height: 0 removes it.
+        > .pcui-treeview-item {
+            &::before {
+                height: 0;
+            }
+
+            // the root's horizontal elbow only dangles when the root is a leaf
+            // (single-node tree). with children the elbow is the junction to
+            // the first child's spine, so keep it — hide it for leaves only.
+            &.pcui-treeview-item-empty > .pcui-treeview-item-contents > .pcui-treeview-item-icon::before {
+                display: none;
+            }
+        }
     }
 }
 
@@ -256,6 +389,18 @@ $vc-add-edge: #3fb950;
     gap: 8px;
     min-height: 32px;
     padding: 3px 10px 3px 6px;
+
+    // a tall multi-item list pins the gutter + field name to the top (with a
+    // little breathing room) instead of floating them in the centre; single
+    // values stay vertically centred
+    &:has(.vc-diff-array.multi) {
+        align-items: flex-start;
+
+        > .gutter,
+        > .label {
+            margin-top: 6px;
+        }
+    }
 
     > .gutter {
         flex: none;
@@ -338,6 +483,10 @@ $vc-add-edge: #3fb950;
     max-width: 100%;
     height: 24px;
     padding: 0 7px;
+
+    // reset the fixed-px line-height inherited from pcui so the full-size name
+    // doesn't sit low on its baseline while the small uppercase tag centres
+    line-height: normal;
     background-color: $bcg-dark;
     border: 1px solid $bcg-darker;
     border-radius: 2px;
@@ -353,12 +502,52 @@ $vc-add-edge: #3fb950;
     > .tag {
         color: $text-darkest;
         font-size: 10px;
+
+        // collapse the inherited line box so the small uppercase label centres
+        // against the chip instead of sitting high on its baseline
+        line-height: 1;
         text-transform: uppercase;
+    }
+
+    > .sign {
+        flex: none;
+        line-height: 1;
+        font-family: inconsolatamedium, Monaco, Menlo, monospace;
+    }
+
+    // plain pills (tags) carry no type label — render a touch smaller
+    &.pill {
+        gap: 4px;
+        height: 20px;
+        padding: 0 6px;
+        font-size: 11px;
     }
 
     &.missing > .name {
         color: $text-darkest;
         font-style: italic;
+    }
+
+    // membership-delta chips: tint the chip (not the whole row) so a single
+    // changed list item doesn't read as the entire field being added/removed
+    &.added {
+        background-color: $vc-add-tint;
+        border-color: $vc-add-edge;
+
+        > .sign,
+        > .name {
+            color: #6fd088;
+        }
+    }
+
+    &.removed {
+        background-color: $vc-del-tint;
+        border-color: $vc-del-edge;
+
+        > .sign,
+        > .name {
+            color: #ff8a8a;
+        }
     }
 }
 
@@ -378,6 +567,11 @@ $vc-add-edge: #3fb950;
         color: $text-dark;
         font-size: 10px;
     }
+}
+
+// entity-id remap shown as a count; the full mapping is available on hover
+.vc-diff-entity-map {
+    color: $text-dark;
 }
 
 // ---- text diff iframe (existing behaviour) ----
