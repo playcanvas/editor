@@ -3,7 +3,7 @@ import { Container } from '@playcanvas/pcui';
 import { handleCallback } from '@/common/utils';
 import { config } from '@/editor/config';
 
-import { formatDayGroup, formatRelativeDate, hashChip, userThumbnail } from './vc-helpers';
+import { applyUserThumbnail, formatDayGroup, formatRelativeDate, hashChip } from './vc-helpers';
 
 const PAGE_SIZE = 50;
 const MAX_COMPARE = 2;
@@ -81,11 +81,7 @@ export const createHistoryPanel = () => {
             avatar.classList.add('avatar');
             avatar.alt = '';
             if (checkpoint) {
-                userThumbnail(checkpoint.user.id, 28).then((src) => {
-                    if (src) {
-                        avatar.src = src;
-                    }
-                });
+                applyUserThumbnail(avatar, checkpoint.user.id, 28);
             } else {
                 avatar.src = `${config.url.static}/platform/images/common/blank_project.png`;
             }
@@ -119,9 +115,11 @@ export const createHistoryPanel = () => {
         row.addEventListener('click', () => {
             if (compareMode) {
                 toggleSlot(checkpoint);
-            } else if (checkpoint) {
+            } else if (checkpoint && checkpoint.id !== selectedId) {
+                // move the highlight in place rather than rebuilding rows, so avatars don't reload/flicker (#2098)
                 selectedId = checkpoint.id;
-                render();
+                panel.dom.querySelectorAll('.vc-row.selected').forEach(r => r.classList.remove('selected'));
+                row.classList.add('selected');
                 panel.emit('select', checkpoint);
             }
         });

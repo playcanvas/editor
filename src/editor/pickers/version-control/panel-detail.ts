@@ -1,6 +1,6 @@
 import { Container } from '@playcanvas/pcui';
 
-import { diffListEl, hashChip, summarizeDiff, userThumbnail } from './vc-helpers';
+import { applyUserThumbnail, diffListEl, hashChip, summarizeDiff } from './vc-helpers';
 import { diffCreate } from '../../messenger/jobs';
 
 type DiffCache = {
@@ -98,6 +98,8 @@ export const createDetailPanel = () => {
         link.classList.add('vc-button');
         link.textContent = 'Open Full Diff';
         link.addEventListener('click', () => {
+            // also fill the inline summary so it shows on return from the full diff (#2098)
+            show();
             const cached = loadDiff();
             panel.emit('openDiff', checkpoint, previous, cached.diff, cached.promise);
         });
@@ -122,14 +124,15 @@ export const createDetailPanel = () => {
             body.appendChild(diffListEl(summary));
         };
 
-        const cached = diffCache[key];
-        if (cached?.summary) {
-            fill(cached.summary);
-        } else {
+        const show = () => {
             body.innerHTML = `<div class="vc-diff-list"><div class="vc-skeleton">${'<div class="skeleton-row"><span class="bone line"></span></div>'.repeat(3)}</div></div>`;
             const pending = loadDiff().promise;
             if (!pending) {
-                return card;
+                const ready = diffCache[key]?.summary;
+                if (ready) {
+                    fill(ready);
+                }
+                return;
             }
             pending.then(() => {
                 if (token !== renderToken) {
@@ -145,6 +148,21 @@ export const createDetailPanel = () => {
                 }
                 body.innerHTML = '<div class="vc-meta">Failed to compute changes</div>';
             });
+        };
+
+        const cached = diffCache[key];
+        if (cached?.summary) {
+            fill(cached.summary);
+        } else if (editor.call('settings:projectUser').get('editor.vcAutoLoadDiffs') !== false) {
+            show();
+        } else {
+            // diff is expensive / times out on large projects (#2098): load only on request
+            const showBtn = document.createElement('button');
+            showBtn.type = 'button';
+            showBtn.classList.add('vc-button');
+            showBtn.textContent = 'Show changes';
+            showBtn.addEventListener('click', show);
+            body.appendChild(showBtn);
         }
 
         return card;
@@ -166,11 +184,7 @@ export const createDetailPanel = () => {
             const avatar = document.createElement('img');
             avatar.classList.add('avatar');
             avatar.alt = '';
-            userThumbnail(checkpoint.user.id, 40).then((src) => {
-                if (src) {
-                    avatar.src = src;
-                }
-            });
+            applyUserThumbnail(avatar, checkpoint.user.id, 40);
             heroInner.appendChild(avatar);
 
             const body = document.createElement('div');

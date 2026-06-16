@@ -88,7 +88,16 @@ editor.once('load', () => {
     const body = new Container({ class: 'vc-body' });
     panel.append(body);
 
-    const sidebar = new Container({ class: 'vc-sidebar' });
+    const sidebar = new Container({
+        class: 'vc-sidebar',
+        width: editor.call('localStorage:get', 'editor:vc:sidebar:width') || 300,
+        resizable: 'right',
+        resizeMin: 260,
+        resizeMax: 720
+    });
+    sidebar.on('resize', () => {
+        editor.call('localStorage:set', 'editor:vc:sidebar:width', sidebar.width);
+    });
     body.append(sidebar);
 
     // viewing-other-branch banner
@@ -259,12 +268,13 @@ editor.once('load', () => {
     });
 
     // ---- history selection -> detail ----
-    history.on('select', (checkpoint: any) => {
+    let selectedCheckpoint: any = null;
+    const renderDetail = (checkpoint: any) => {
+        selectedCheckpoint = checkpoint;
         if (!checkpoint) {
             detail.clear();
             return;
         }
-        clearStaleProgress();
         const all = history.checkpoints || [];
         const index = all.findIndex((c: any) => c.id === checkpoint.id);
         const previous = index >= 0 && index < all.length - 1 ? all[index + 1] : null;
@@ -273,6 +283,12 @@ editor.once('load', () => {
             isCurrentBranch: isViewingCurrent(),
             canWrite: editor.call('permissions:write')
         });
+    };
+    history.on('select', (checkpoint: any) => {
+        if (checkpoint) {
+            clearStaleProgress();
+        }
+        renderDetail(checkpoint);
     });
 
     // ---- diff viewing ----
@@ -736,6 +752,14 @@ editor.once('load', () => {
             // setBranch clears both the selection highlight and the detail pane
             if (history.branch) {
                 history.setBranch(history.branch);
+            }
+        }));
+
+        // live-apply the auto-load-diffs setting to whatever is on screen (#2098)
+        events.push(projectUserSettings.on('editor.vcAutoLoadDiffs:set', () => {
+            renderDetail(selectedCheckpoint);
+            if (activeTab === 'changes') {
+                changes.sidebar.refresh();
             }
         }));
 

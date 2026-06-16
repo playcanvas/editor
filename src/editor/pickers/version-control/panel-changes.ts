@@ -7,6 +7,13 @@ import { renderPreviewPropertyDiff } from './vc-diff-preview';
 import { diffTextChangeCounts, hashChip, isHiddenDiffField, lineChangeCounts, splitDiffPath, summarizeDiff, typeLabel, type DiffSummary } from './vc-helpers';
 import { diffCreate } from '../../messenger/jobs';
 
+// composer height bounds — drag the top edge to resize; persisted per browser.
+// the min keeps the textarea usable above the Create button + tip chrome
+const COMPOSER_KEY = 'editor:vc:composer:height';
+const COMPOSER_DEFAULT_H = 160;
+const COMPOSER_MIN_H = 140;
+const COMPOSER_MAX_H = 420;
+
 export const createChangesPanel = () => {
     const sidebar = new Container({ class: 'vc-changes' });
     const summary = new Container({ class: 'vc-changes-summary' });
@@ -41,21 +48,33 @@ export const createChangesPanel = () => {
     list.classList.add('vc-changes-list');
     sidebar.dom.appendChild(list);
 
-    const form = document.createElement('div');
-    form.classList.add('vc-checkpoint-form');
-    sidebar.dom.appendChild(form);
+    // drag the top edge to resize; the textarea fills the form, growing upward into the list
+    const form = new Container({
+        class: 'vc-checkpoint-form',
+        flex: true,
+        flexDirection: 'column',
+        resizable: 'top',
+        resizeMin: COMPOSER_MIN_H,
+        resizeMax: COMPOSER_MAX_H,
+        height: Math.min(COMPOSER_MAX_H, Math.max(COMPOSER_MIN_H, editor.call('localStorage:get', COMPOSER_KEY) || COMPOSER_DEFAULT_H))
+    });
+    form.on('resize', () => {
+        editor.call('localStorage:set', COMPOSER_KEY, form.height);
+    });
+    sidebar.append(form);
 
     // native placeholder; pcui's [placeholder] renders an out-of-place chip
     const description = new TextAreaInput({ blurOnEnter: false, keyChange: true, renderChanges: false });
-    (description.dom.querySelector('textarea') as HTMLTextAreaElement).placeholder = 'Describe this checkpoint…';
-    form.appendChild(description.dom);
+    const textarea = description.dom.querySelector('textarea') as HTMLTextAreaElement;
+    textarea.placeholder = 'Describe this checkpoint…';
+    form.dom.appendChild(description.dom);
 
     const create = document.createElement('button');
     create.type = 'button';
     create.classList.add('vc-create-checkpoint');
     create.textContent = 'Create Checkpoint';
     create.disabled = true;
-    form.appendChild(create);
+    form.dom.appendChild(create);
 
     const gateCreate = () => {
         create.disabled = create.classList.contains('busy') || !description.value.trim() || !editor.call('permissions:write');
@@ -76,7 +95,7 @@ export const createChangesPanel = () => {
     const tip = document.createElement('div');
     tip.classList.add('vc-form-tip');
     tip.textContent = 'Tip: Cmd/Ctrl+Enter creates the checkpoint.';
-    form.appendChild(tip);
+    form.dom.appendChild(tip);
 
     const select = (index: number) => {
         selIdx = index;
@@ -280,13 +299,19 @@ export const createChangesPanel = () => {
             side.appendChild(meta);
         }
 
-        // show while loading and whenever there are changes; hide only once we know there are none
+        // show while loading, when not yet computed (so Open Full Diff works directly), and when there are changes (#2098)
         if (branch.latestCheckpointId && (loading || !current || current.total)) {
             const openBtn = document.createElement('button');
             openBtn.type = 'button';
             openBtn.classList.add('vc-button');
             openBtn.textContent = 'Open Full Diff';
-            openBtn.addEventListener('click', () => summary.emit('openDiff', !loading && rawDiffLive ? raw : null, rawPromise));
+            openBtn.addEventListener('click', () => {
+                // also load the diff into the panel so returning from the full diff shows the changes (#2098)
+                if (!rawDiffLive && !loading) {
+                    refresh(true, true);
+                }
+                summary.emit('openDiff', !loading && rawDiffLive ? raw : null, rawPromise);
+            });
             side.appendChild(openBtn);
         }
 
@@ -322,6 +347,15 @@ export const createChangesPanel = () => {
             none.classList.add('vc-meta');
             none.textContent = current ? 'No changes since your last checkpoint' : 'Changes not computed yet';
             card.appendChild(none);
+            // not computed (gated or errored): let the user pull the diff on demand (#2098)
+            if (!current) {
+                const compute = document.createElement('button');
+                compute.type = 'button';
+                compute.classList.add('vc-button', 'vc-compute');
+                compute.textContent = 'Compute';
+                compute.addEventListener('click', () => refresh(true, true));
+                card.appendChild(compute);
+            }
         }
 
         summary.dom.appendChild(card);
@@ -332,7 +366,7 @@ export const createChangesPanel = () => {
         renderSummary();
     };
 
-    function refresh(force?: boolean) {
+    function refresh(force?: boolean, viaUser?: boolean) {
         const branch = config.self.branch;
         if (loading || (!stale && !force)) {
             render();
@@ -347,6 +381,16 @@ export const createChangesPanel = () => {
             stale = false;
             render();
             sidebar.emit('count', 0);
+            return;
+        }
+        // gated by the user setting: only the explicit Compute action fires the diff (#2098)
+        if (editor.call('settings:projectUser').get('editor.vcAutoLoadDiffs') === false && !viaUser) {
+            releaseRawDiff();
+            current = null;
+            raw = null;
+            selIdx = null;
+            render();
+            sidebar.emit('count', null);
             return;
         }
         loading = true;
@@ -436,7 +480,7 @@ export const createChangesPanel = () => {
 
     return {
         sidebar: sidebar as Container & {
-            refresh: (force?: boolean) => void;
+            refresh: (force?: boolean, viaUser?: boolean) => void;
             invalidate: () => void;
             resetForm: () => void;
             setBusy: (on: boolean) => void;

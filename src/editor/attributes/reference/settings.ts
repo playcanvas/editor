@@ -19,6 +19,10 @@ editor.once('load', () => {
         title: 'Editor',
         description: 'Editor settings such as camera near/far clip, zoom sensitivity, and more.'
     }, {
+        name: 'settings:versionControl',
+        title: 'Version Control',
+        description: 'Version control preferences that affect only you, such as automatically loading checkpoint diffs.'
+    }, {
         name: 'settings:snap',
         description: 'Set the increment for gizmo snapping. Hold Shift or use the Snap toggle on the toolbar to enable snapping while using gizmos.'
     }, {
@@ -88,6 +92,9 @@ editor.once('load', () => {
     }, {
         name: 'settings:lightmapperAutoBake',
         description: 'Enable or disable automatic lightmap baking.'
+    }, {
+        name: 'settings:vcAutoLoadDiffs',
+        description: 'Automatically compute and show diffs in the Version Control panel. Turn off on very large projects where diff generation is slow.'
     }, {
         name: 'settings:codeEditor',
         description: 'The code editor to use when you edit scripts.'
