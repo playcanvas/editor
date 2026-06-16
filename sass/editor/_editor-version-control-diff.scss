@@ -233,6 +233,14 @@ $vc-add-edge: #3fb950;
     text-align: center;
 }
 
+// non-blocking "still working" banner above the loading skeleton for slow diffs (#2099)
+.vc-diff-slow-hint {
+    padding: 10px 16px;
+    border-bottom: 1px solid $border-primary;
+    color: $text-dark;
+    font-size: 12px;
+}
+
 // loading skeleton — mirrors the sidebar list (dot + line rows) and the main
 // detail layout (header + panel blocks); reuses the picker's pulse keyframe
 .vc-diff-skeleton {

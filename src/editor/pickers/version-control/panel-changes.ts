@@ -4,7 +4,7 @@ import { config } from '@/editor/config';
 
 import { templateEntitiesFor, templateEntityPath } from './vc-diff-data';
 import { renderPreviewPropertyDiff } from './vc-diff-preview';
-import { diffTextChangeCounts, hashChip, isHiddenDiffField, lineChangeCounts, splitDiffPath, summarizeDiff, typeLabel, type DiffSummary } from './vc-helpers';
+import { DIFF_SLOW_HINT_MS, DIFF_SLOW_HINT_TEXT, diffTextChangeCounts, hashChip, isHiddenDiffField, lineChangeCounts, splitDiffPath, summarizeDiff, typeLabel, type DiffSummary } from './vc-helpers';
 import { diffCreate } from '../../messenger/jobs';
 
 // composer height bounds — drag the top edge to resize; persisted per browser.
@@ -403,7 +403,17 @@ export const createChangesPanel = () => {
             dstCheckpointId: branch.latestCheckpointId
         });
         rawPromise = pending;
+        // large diffs can hang; reassure that it's still working after a while (#2099)
+        const slowHint = setTimeout(() => {
+            if (snap === gen && loading) {
+                const hint = document.createElement('div');
+                hint.classList.add('vc-meta', 'vc-slow-hint');
+                hint.textContent = DIFF_SLOW_HINT_TEXT;
+                (summary.dom.querySelector('.vc-card') ?? summary.dom).appendChild(hint);
+            }
+        }, DIFF_SLOW_HINT_MS);
         pending.then((diff: any) => {
+            clearTimeout(slowHint);
             // single-flight: clear loading even for superseded responses or refresh deadlocks
             loading = false;
             if (snap !== gen) {
@@ -426,6 +436,7 @@ export const createChangesPanel = () => {
             render();
             sidebar.emit('count', current.total);
         }).catch((err) => {
+            clearTimeout(slowHint);
             loading = false;
             if (snap !== gen) {
                 return;

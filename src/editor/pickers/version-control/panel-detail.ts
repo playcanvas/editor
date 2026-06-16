@@ -1,6 +1,6 @@
 import { Container } from '@playcanvas/pcui';
 
-import { applyUserThumbnail, diffListEl, hashChip, summarizeDiff } from './vc-helpers';
+import { applyUserThumbnail, DIFF_SLOW_HINT_MS, DIFF_SLOW_HINT_TEXT, diffListEl, hashChip, summarizeDiff } from './vc-helpers';
 import { diffCreate } from '../../messenger/jobs';
 
 type DiffCache = {
@@ -134,7 +134,17 @@ export const createDetailPanel = () => {
                 }
                 return;
             }
+            // large diffs can hang; reassure that it's still working after a while (#2099)
+            const slowHint = setTimeout(() => {
+                if (token === renderToken && !diffCache[key]?.summary) {
+                    const hint = document.createElement('div');
+                    hint.classList.add('vc-meta', 'vc-slow-hint');
+                    hint.textContent = DIFF_SLOW_HINT_TEXT;
+                    body.appendChild(hint);
+                }
+            }, DIFF_SLOW_HINT_MS);
             pending.then(() => {
+                clearTimeout(slowHint);
                 if (token !== renderToken) {
                     return;
                 }
@@ -143,6 +153,7 @@ export const createDetailPanel = () => {
                     fill(next);
                 }
             }).catch(() => {
+                clearTimeout(slowHint);
                 if (token !== renderToken) {
                     return;
                 }
