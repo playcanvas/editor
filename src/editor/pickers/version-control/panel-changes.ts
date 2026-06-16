@@ -7,9 +7,12 @@ import { renderPreviewPropertyDiff } from './vc-diff-preview';
 import { diffTextChangeCounts, hashChip, isHiddenDiffField, lineChangeCounts, splitDiffPath, summarizeDiff, typeLabel, type DiffSummary } from './vc-helpers';
 import { diffCreate } from '../../messenger/jobs';
 
-// composer resting height and the slice of the change list kept visible above it
-const COMPOSER_MIN_H = 120;
-const COMPOSER_LIST_FLOOR = 80;
+// composer height bounds — drag the top edge to resize; persisted per browser.
+// the min keeps the textarea usable above the Create button + tip chrome
+const COMPOSER_KEY = 'editor:vc:composer:height';
+const COMPOSER_DEFAULT_H = 160;
+const COMPOSER_MIN_H = 140;
+const COMPOSER_MAX_H = 420;
 
 export const createChangesPanel = () => {
     const sidebar = new Container({ class: 'vc-changes' });
@@ -45,22 +48,33 @@ export const createChangesPanel = () => {
     list.classList.add('vc-changes-list');
     sidebar.dom.appendChild(list);
 
-    const form = document.createElement('div');
-    form.classList.add('vc-checkpoint-form');
-    sidebar.dom.appendChild(form);
+    // drag the top edge to resize; the textarea fills the form, growing upward into the list
+    const form = new Container({
+        class: 'vc-checkpoint-form',
+        flex: true,
+        flexDirection: 'column',
+        resizable: 'top',
+        resizeMin: COMPOSER_MIN_H,
+        resizeMax: COMPOSER_MAX_H,
+        height: Math.min(COMPOSER_MAX_H, Math.max(COMPOSER_MIN_H, editor.call('localStorage:get', COMPOSER_KEY) || COMPOSER_DEFAULT_H))
+    });
+    form.on('resize', () => {
+        editor.call('localStorage:set', COMPOSER_KEY, form.height);
+    });
+    sidebar.append(form);
 
     // native placeholder; pcui's [placeholder] renders an out-of-place chip
     const description = new TextAreaInput({ blurOnEnter: false, keyChange: true, renderChanges: false });
     const textarea = description.dom.querySelector('textarea') as HTMLTextAreaElement;
     textarea.placeholder = 'Describe this checkpoint…';
-    form.appendChild(description.dom);
+    form.dom.appendChild(description.dom);
 
     const create = document.createElement('button');
     create.type = 'button';
     create.classList.add('vc-create-checkpoint');
     create.textContent = 'Create Checkpoint';
     create.disabled = true;
-    form.appendChild(create);
+    form.dom.appendChild(create);
 
     const gateCreate = () => {
         create.disabled = create.classList.contains('busy') || !description.value.trim() || !editor.call('permissions:write');
@@ -81,17 +95,7 @@ export const createChangesPanel = () => {
     const tip = document.createElement('div');
     tip.classList.add('vc-form-tip');
     tip.textContent = 'Tip: Cmd/Ctrl+Enter creates the checkpoint.';
-    form.appendChild(tip);
-
-    // bottom-pinned composer: a taller textarea grows the form upward into the change
-    // list, so cap it to the rail to keep the list and Create button on screen (#2098)
-    const autoGrow = () => {
-        textarea.style.height = 'auto';
-        const chrome = form.offsetHeight - textarea.offsetHeight;
-        const cap = Math.max(COMPOSER_MIN_H, sidebar.dom.clientHeight - chrome - COMPOSER_LIST_FLOOR);
-        textarea.style.height = `${Math.min(Math.max(textarea.scrollHeight, COMPOSER_MIN_H), cap)}px`;
-    };
-    textarea.addEventListener('input', autoGrow);
+    form.dom.appendChild(tip);
 
     const select = (index: number) => {
         selIdx = index;
@@ -450,7 +454,6 @@ export const createChangesPanel = () => {
         },
         resetForm: () => {
             description.value = '';
-            textarea.style.height = '';
             create.disabled = true;
             create.classList.remove('busy');
             create.textContent = 'Create Checkpoint';

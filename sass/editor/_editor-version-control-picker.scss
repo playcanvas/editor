@@ -693,6 +693,10 @@
             background-color: $bcg-dark;
 
             > .pcui-text-area-input {
+                display: flex;
+                flex: 1 1 auto;
+                flex-direction: column;
+                min-height: 0;
                 width: 100%;
                 margin: 0 0 8px;
                 border: 1px solid $border-primary;
@@ -705,10 +709,11 @@
 
                     display: block;
                     box-sizing: border-box;
-                    width: 100%;
 
-                    // grows upward as you type; js caps the height to the rail (#2098)
-                    min-height: 120px;
+                    // fill the resizable composer; drag its top edge to change the height (#2098)
+                    flex: 1 1 auto;
+                    min-height: 0;
+                    width: 100%;
                     margin: 0;
                     padding: 10px;
                     border: none;
