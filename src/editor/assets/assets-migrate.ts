@@ -163,6 +163,11 @@ editor.once('load', () => {
             asset.set('data.alphaFade', 1.0);
         }
 
+        if (!asset.has('data.alphaDither') || asset.get('data.alphaDither') === null) {
+            const dithered = (asset.get('data.opacityDither') ?? 'none') !== 'none' || (asset.get('data.opacityShadowDither') ?? 'none') !== 'none';
+            asset.set('data.alphaDither', dithered ? (asset.get('data.opacity') ?? 1.0) : 1.0);
+        }
+
         // migrate anisotropy to anisotropyIntensity and anisotropyRotation
         if (!asset.has('data.anisotropyIntensity') || !asset.has('data.anisotropyRotation')) {
             const anisotropy = asset.get('data.anisotropy') ?? 0;

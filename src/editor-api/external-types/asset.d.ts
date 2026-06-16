@@ -444,6 +444,10 @@ type FontAssetData = {
  */
 type MaterialAssetData = {
     /**
+     * Controls the strength of opacity dithering. Value is between 0 and 1.
+     */
+    alphaDither: number;
+    /**
      * Used to fade out materials that do not use opacity to fade specular (`opacityFadesSpecular` is false).
      */
     alphaFade: number;
