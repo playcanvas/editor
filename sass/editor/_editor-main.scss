@@ -3694,23 +3694,29 @@ strong {
                 position: absolute;
                 top: 15px;
                 right: 12px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
                 width: 28px;
                 height: 28px;
-                line-height: 28px;
                 border: 1px solid transparent;
                 border-radius: 4px;
                 padding: 0;
                 margin: 0;
-                text-align: center;
-                vertical-align: top;
                 box-shadow: none;
-
-                @extend .font-icon;
-
-                font-size: 14px;
+                font-size: 0; // hide the icon-font glyph; the kebab is drawn via ::before
                 color: $text-dark;
                 background-color: transparent;
                 transition: color 100ms, background-color 100ms, border-color 100ms, box-shadow 100ms;
+
+                // triple-dot kebab matching the builds & publish row menu
+                &::before {
+                    content: '';
+                    width: 16px;
+                    height: 16px;
+                    background-color: currentcolor;
+                    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='3' cy='8' r='1.4'/%3E%3Ccircle cx='8' cy='8' r='1.4'/%3E%3Ccircle cx='13' cy='8' r='1.4'/%3E%3C/svg%3E") center / contain no-repeat;
+                }
 
                 &:hover,
                 &:focus {
@@ -3750,8 +3756,7 @@ strong {
 
 .pcui-container.picker-scene-panel {
     box-sizing: border-box;
-    height: 100%;
-    padding: 5px 20px !important;
+    padding: 16px 20px !important;
     font-size: 12px;
 
     &:not(.pcui-hidden) {
@@ -3785,6 +3790,8 @@ strong {
             margin: 0;
             width: auto;
             height: 30px;
+            border: 1px solid $bcg-darkest;
+            border-radius: 6px;
 
             &::after {
                 line-height: 28px;
@@ -3835,11 +3842,6 @@ strong {
         }
     }
 
-    > .ui-list.scene-list {
-        flex: 1;
-        overflow-y: auto;
-        min-height: 0;
-    }
 }
 
 .pcui-menu.picker-scene-menu {
