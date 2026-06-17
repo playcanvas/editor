@@ -18,6 +18,7 @@ editor.once('load', () => {
 
     const IS_EMPTY_STATE = !config.project.id;
     const EMPTY_THUMBNAIL_IMAGE = 'url(\'/static/platform/images/home/blank_project.png\')';
+    const FULLSCREEN_KEY = 'editor:picker:project:fullscreen';
 
     // UI
 
@@ -504,6 +505,27 @@ editor.once('load', () => {
         }
     });
     rightPanel.header.append(btnClose);
+
+    // fullscreen toggle — expands the picker to fill the viewport (right of the
+    // 40px left toolbar) even when the window is large enough for the small
+    // centered picker; hidden by css below the 1060px breakpoint where the
+    // picker is force-fullscreen anyway
+    let fullscreen = editor.call('localStorage:get', FULLSCREEN_KEY) === true;
+    const btnFullscreen = new Button({
+        class: 'fullscreen-toggle'
+    });
+    const applyFullscreen = () => {
+        overlay.class[fullscreen ? 'add' : 'remove']('fullscreen');
+        btnFullscreen.class[fullscreen ? 'add' : 'remove']('active');
+        btnFullscreen.dom.setAttribute('title', fullscreen ? 'Exit fullscreen' : 'Fullscreen');
+    };
+    btnFullscreen.on('click', () => {
+        fullscreen = !fullscreen;
+        editor.call('localStorage:set', FULLSCREEN_KEY, fullscreen);
+        applyFullscreen();
+    });
+    rightPanel.header.append(btnFullscreen);
+    applyFullscreen();
 
     // LOCAL UTILS
 

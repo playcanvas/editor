@@ -21,6 +21,9 @@ import {
 
 const SUB_RE = /^(?<kind>Script|Sound slot|Clip): (?<name>.+)$/;
 const SETTINGS_ROOT_RE = /^(?:scene |project )?settings$/i;
+// own key — this overlay stacks on top of .pcui-overlay.picker-project, which uses
+// 'editor:picker:project:fullscreen'. defaults to the small box (matching the project picker)
+const FULLSCREEN_KEY = 'editor:picker:vcdiff:fullscreen';
 
 // entity-level template-instance fields get their own (collapsed) panel rather
 // than sitting among the entity's regular values; values are shown friendlier
@@ -60,11 +63,28 @@ editor.once('load', () => {
     meta.classList.add('vc-diff-meta');
     top.dom.appendChild(meta);
 
+    // fullscreen toggle — mirrors the project picker; persisted under its own key
+    let fullscreen = editor.call('localStorage:get', FULLSCREEN_KEY) === true;
+    const fullscreenToggle = new Button({ class: 'vc-diff-fullscreen-toggle' });
+    const applyFullscreen = () => {
+        overlay.class[fullscreen ? 'add' : 'remove']('fullscreen');
+        fullscreenToggle.class[fullscreen ? 'add' : 'remove']('active');
+        fullscreenToggle.dom.setAttribute('title', fullscreen ? 'Exit fullscreen' : 'Fullscreen');
+    };
+    fullscreenToggle.on('click', () => {
+        fullscreen = !fullscreen;
+        editor.call('localStorage:set', FULLSCREEN_KEY, fullscreen);
+        applyFullscreen();
+    });
+    top.append(fullscreenToggle);
+
     const close = new Button({ icon: 'E132', class: 'vc-diff-close' });
     close.on('click', () => {
         overlay.hidden = true;
     });
     top.append(close);
+
+    applyFullscreen();
 
     const body = new Container({ class: 'vc-diff-body' });
     shell.append(body);

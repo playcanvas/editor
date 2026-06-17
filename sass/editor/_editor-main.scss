@@ -2474,15 +2474,17 @@ strong {
     > .pcui-overlay-content {
         @extend .font-regular;
 
-        width: 100%;
-        max-width: 1060px;
-        height: 100%;
-        flex-shrink: 0;
+        // absolutely centred (rather than flex-centred) so width/height/position
+        // can be tweened when toggling fullscreen; the small-picker box is
+        // 1060x600, overridden below 1060px and in fullscreen
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 1060px;
+        height: 600px;
         border: 1px solid $border-primary;
-
-        @media (min-width: 1060px) {
-            height: 600px;
-        }
+        transform: translate(-50%, -50%);
+        transition: width 200ms ease, height 200ms ease, transform 200ms ease;
 
         .pcui-container.project {
             height: 100%;
@@ -2749,6 +2751,74 @@ strong {
                             box-shadow: none;
                         }
                     }
+
+                    .fullscreen-toggle {
+                        position: absolute;
+                        top: 0;
+                        right: 30px;
+                        width: 28px;
+                        padding: 0;
+                        color: $text-secondary;
+                        background-color: transparent;
+                        border-color: transparent;
+
+                        // windows-style maximise square; morphs into the restore
+                        // glyph (two squares) when fullscreen is on
+                        &::before {
+                            content: '';
+                            position: absolute;
+                            top: 50%;
+                            left: 50%;
+                            box-sizing: border-box;
+                            width: 11px;
+                            height: 10px;
+                            border: 1.5px solid currentcolor;
+                            border-radius: 1px;
+                            transform: translate(-50%, -50%);
+                            transition: width 200ms ease, height 200ms ease, transform 200ms ease;
+                        }
+
+                        // back square of the restore glyph — fades/scales in when active
+                        &::after {
+                            content: '';
+                            position: absolute;
+                            top: 50%;
+                            left: 50%;
+                            box-sizing: border-box;
+                            width: 9px;
+                            height: 9px;
+                            border-top: 1.5px solid currentcolor;
+                            border-right: 1.5px solid currentcolor;
+                            border-radius: 1px;
+                            opacity: 0;
+                            transform: translate(-38%, -62%) scale(0.6);
+                            transition: opacity 200ms ease, transform 200ms ease;
+                        }
+
+                        &:hover,
+                        &:focus {
+                            color: $text-primary;
+                            background-color: transparent;
+                            box-shadow: none;
+                        }
+
+                        &.active {
+                            color: $text-active;
+
+                            // front square nudged down-left
+                            &::before {
+                                width: 9px;
+                                height: 9px;
+                                transform: translate(-62%, -38%);
+                            }
+
+                            // back square peeking up-right (top + right edges only)
+                            &::after {
+                                opacity: 1;
+                                transform: translate(-38%, -62%) scale(1);
+                            }
+                        }
+                    }
                 }
 
                 > .pcui-panel-content {
@@ -2761,6 +2831,30 @@ strong {
                     }
                 }
             }
+        }
+    }
+
+    // fullscreen: fill the viewport to the right of the 40px left toolbar (z-index
+    // 400 > this overlay's 300, so the toolbar would otherwise be painted over).
+    // explicit width/height + a 20px centre shift keep it tweenable from the
+    // small-picker box; net span is [40px, right edge] x [top, bottom]
+    &.fullscreen > .pcui-overlay-content {
+        width: calc(100% - 40px);
+        height: 100%;
+        transform: translate(calc(-50% + 20px), -50%);
+    }
+
+    // below the small-picker breakpoint the picker is force-fullscreen, so apply
+    // the same toolbar offset and hide the manual toggle (can't shrink further)
+    @media (max-width: 1059px) {
+        > .pcui-overlay-content {
+            width: calc(100% - 40px);
+            height: 100%;
+            transform: translate(calc(-50% + 20px), -50%);
+        }
+
+        .fullscreen-toggle {
+            display: none;
         }
     }
 }
