@@ -82,6 +82,24 @@ editor.once('load', () => {
     container.append(sceneList);
     sceneList.hidden = true;
 
+    // empty-state shown when the search filter matches no scenes
+    const noScenes = new Container({
+        class: 'no-filtered-scenes',
+        hidden: true
+    });
+    const noScenesText = new Label();
+    noScenes.append(noScenesText);
+    const clearSearch = document.createElement('button');
+    clearSearch.type = 'button';
+    clearSearch.classList.add('clear-search');
+    clearSearch.textContent = 'Clear search';
+    clearSearch.addEventListener('click', () => {
+        filter.value = '';
+        refreshScenes();
+    });
+    noScenes.dom.appendChild(clearSearch);
+    container.append(noScenes);
+
     let events: EventHandle[] = [];
     let scenes: Scene[] = [];
     let loaded = false;
@@ -91,7 +109,10 @@ editor.once('load', () => {
 
     const toggleLoading = (toggle: boolean) => {
         skeleton.hidden = !toggle;
-        sceneList.hidden = toggle || !scenes.length;
+        if (toggle) {
+            sceneList.hidden = true;
+            noScenes.hidden = true;
+        }
     };
 
     const onSceneDeleted = (sceneId: number | string) => {
@@ -274,7 +295,16 @@ editor.once('load', () => {
             return scene.name.toLowerCase().indexOf(filter.value.toLowerCase()) !== -1;
         });
         sortScenes(filterScenes);
-        sceneList.hidden = filterScenes.length === 0;
+
+        const empty = filterScenes.length === 0;
+        sceneList.hidden = empty;
+        noScenes.hidden = !empty;
+        if (empty) {
+            const searching = filter.value.length > 0;
+            noScenesText.text = searching ? 'No scenes match your search.' : 'No scenes.';
+            clearSearch.style.display = searching ? '' : 'none';
+        }
+
         filterScenes.forEach(createSceneEntry);
     };
 
