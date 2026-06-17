@@ -8,12 +8,39 @@ $vc-add-edge: #3fb950;
 .vc-diff-overlay {
     z-index: 300;
 
+    // absolutely centred small box (1060x600) that tweens to fullscreen; mirrors
+    // .pcui-overlay.picker-project
     > .pcui-overlay-content {
         position: absolute;
-
-        // sit right of the 40px left toolbar (#layout-root grid column) instead of underlapping it
-        inset: 0 0 0 40px;
+        left: 50%;
+        top: 50%;
+        width: 1060px;
+        height: 600px;
         display: flex;
+        transform: translate(-50%, -50%);
+        transition: width 200ms ease, height 200ms ease, transform 200ms ease;
+    }
+
+    // fullscreen: fill the viewport to the right of the 40px left toolbar
+    // (#layout-root grid column) instead of underlapping it; net span is
+    // [40px, right edge] x [top, bottom]
+    &.fullscreen > .pcui-overlay-content {
+        width: calc(100% - 40px);
+        height: 100%;
+        transform: translate(calc(-50% + 20px), -50%);
+    }
+
+    // below the small-picker breakpoint: force fullscreen and hide the toggle
+    @media (max-width: 1059px) {
+        > .pcui-overlay-content {
+            width: calc(100% - 40px);
+            height: 100%;
+            transform: translate(calc(-50% + 20px), -50%);
+        }
+
+        .vc-diff-fullscreen-toggle {
+            display: none;
+        }
     }
 }
 
@@ -51,9 +78,74 @@ $vc-add-edge: #3fb950;
         font-size: 11px;
     }
 
-    > .vc-diff-close {
-        // reset PCUI's default 6px margin so the header padding alone sets the corner gap; auto-left keeps it pushed right
+    // fullscreen toggle — windows-style maximise/restore icon, mirrors the
+    // project picker's .fullscreen-toggle; auto-left pushes it + the close right
+    > .vc-diff-fullscreen-toggle {
+        position: relative;
         margin: 0 0 0 auto;
+        width: 28px;
+        padding: 0;
+        background: transparent;
+        border: 0;
+        color: $text-secondary;
+
+        &:hover {
+            border: 0;
+            box-shadow: none;
+            color: $text-primary;
+        }
+
+        // maximise square; morphs into the restore glyph (two squares) when active
+        &::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            box-sizing: border-box;
+            width: 11px;
+            height: 10px;
+            border: 1.5px solid currentcolor;
+            border-radius: 1px;
+            transform: translate(-50%, -50%);
+            transition: width 200ms ease, height 200ms ease, transform 200ms ease;
+        }
+
+        // back square of the restore glyph — fades/scales in when active
+        &::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            box-sizing: border-box;
+            width: 9px;
+            height: 9px;
+            border-top: 1.5px solid currentcolor;
+            border-right: 1.5px solid currentcolor;
+            border-radius: 1px;
+            opacity: 0;
+            transform: translate(-38%, -62%) scale(0.6);
+            transition: opacity 200ms ease, transform 200ms ease;
+        }
+
+        &.active {
+            color: $text-active;
+
+            &::before {
+                width: 9px;
+                height: 9px;
+                transform: translate(-62%, -38%);
+            }
+
+            &::after {
+                opacity: 1;
+                transform: translate(-38%, -62%) scale(1);
+            }
+        }
+    }
+
+    > .vc-diff-close {
+        // header padding alone sets the corner gap (the toggle carries the auto-left)
+        margin: 0;
         background: transparent;
         border: 0;
 
