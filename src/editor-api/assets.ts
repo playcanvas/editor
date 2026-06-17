@@ -8,6 +8,11 @@ import { getUniqueName, siblingNames } from './assets/unique-name';
 import { uploadFile } from './assets/upload';
 import { Entity } from './entity';
 import { globals as api } from './globals';
+
+// the script parse pipeline (engine fetch -> worker -> backend) can stall; bound
+// the wait so createScript rejects instead of hanging indefinitely
+const SCRIPT_PARSE_TIMEOUT = 30000;
+
 /**
  * Arguments passed when uploading an asset file.
  */
@@ -890,27 +895,40 @@ class Assets extends Events {
 
         // wait for asset to have a file url
         if (this._parseScriptCallback) {
-            if (!asset.get('file.url')) {
-                await new Promise((resolve) => {
-                    asset.once('file.url:set', resolve);
-                });
-            }
-
-            const scripts = await this._parseScriptCallback(asset);
-            // check if all scripts have been set to the asset
-            // because of possible network delays.
-            // if not then wait until those scripts have been set
-            // before returning
-            const wait: Promise<any>[] = [];
-            scripts.forEach((script: string) => {
-                if (!asset.has(`data.scripts.${script}`)) {
-                    wait.push(new Promise((resolve) => {
-                        asset.once(`data.scripts.${script}:set`, resolve);
-                    }));
+            const parse = (async () => {
+                if (!asset.get('file.url')) {
+                    await new Promise((resolve) => {
+                        asset.once('file.url:set', resolve);
+                    });
                 }
-            });
 
-            await Promise.all(wait);
+                const scripts = await this._parseScriptCallback(asset);
+                // check if all scripts have been set to the asset
+                // because of possible network delays.
+                // if not then wait until those scripts have been set
+                // before returning
+                const wait: Promise<any>[] = [];
+                scripts.forEach((script: string) => {
+                    if (!asset.has(`data.scripts.${script}`)) {
+                        wait.push(new Promise((resolve) => {
+                            asset.once(`data.scripts.${script}:set`, resolve);
+                        }));
+                    }
+                });
+
+                await Promise.all(wait);
+            })();
+
+            // any stage above can silently never resolve (slow engine fetch, missed
+            // realtime event); time it out so the caller gets an error, not a hang
+            let timer: ReturnType<typeof setTimeout>;
+            const timeout = new Promise<never>((resolve, reject) => {
+                timer = setTimeout(() => reject(new Error('createScript: timed out parsing script')), SCRIPT_PARSE_TIMEOUT);
+            });
+            await Promise.race([parse, timeout]).then(() => clearTimeout(timer), (err) => {
+                clearTimeout(timer);
+                throw err;
+            });
         }
 
         return asset;

@@ -426,17 +426,45 @@ export const deleteApp = async (page: Page, appId: number) => {
  * @param filename - The script filename (e.g. 'test-esm.mjs').
  * @returns The asset id.
  */
-export const createEsmScript = async (page: Page, filename: string): Promise<number> => {
-    return await page.evaluate(async (filename) => {
-        const asset = await window.editor.api.globals.assets.createScript({ filename });
+export const createEsmScript = async (page: Page, filename: string, attempts = 3): Promise<number> => {
+    let lastError = '';
+    for (let attempt = 0; attempt < attempts; attempt++) {
+        const result = await page.evaluate(async (filename) => {
+            const assets = window.editor.api.globals.assets;
 
-        // wait for the server-side upload pipeline to complete
-        if (!asset.get('file')) {
-            await new Promise<void>((resolve) => {
-                asset.once('file:set', () => resolve());
+            // reuse a script left by a prior partial attempt — the upload succeeds even
+            // when the parse step times out, so the asset (with file) already exists
+            const existing = assets.list().find((a: any) => a.get('type') === 'script' && a.get('name') === filename && a.get('file'));
+            if (existing) {
+                return { id: existing.get('id') as number };
+            }
+
+            // the ESM parse path (scripts:handleParse) is registered only after the
+            // script worker finishes init; creating a script before then drops the
+            // parse silently and createScript hangs. wait for it to be ready first.
+            const methods = (window.editor as any).methods as Map<string, unknown>;
+            for (let i = 0; i < 200 && !methods.has('scripts:handleParse'); i++) {
+                await new Promise<void>((resolve) => {
+                    setTimeout(resolve, 50);
+                });
+            }
+
+            return assets.createScript({ filename }).then(async (asset: any) => {
+                if (!asset.get('file')) {
+                    await new Promise<void>((resolve) => {
+                        asset.once('file:set', () => resolve());
+                    });
+                }
+                return { id: asset.get('id') as number };
+            }).catch((err: any) => {
+                return { error: err?.message ?? String(err) };
             });
-        }
+        }, filename);
 
-        return asset.get('id') as number;
-    }, filename);
+        if ('id' in result) {
+            return result.id;
+        }
+        lastError = result.error;
+    }
+    throw new Error(`createEsmScript failed after ${attempts} attempts: ${lastError}`);
 };
