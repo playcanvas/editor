@@ -3610,10 +3610,9 @@ strong {
                 @extend .font-bold;
 
                 font-size: 14px;
-                position: absolute;
+                display: inline-block;
+                vertical-align: middle;
                 cursor: pointer;
-                top: 50%;
-                transform: translateY(-50%);
                 max-width: calc(100% - 280px);
                 overflow: hidden;
                 text-overflow: ellipsis;
@@ -3656,40 +3655,32 @@ strong {
                 }
             }
 
-            &:not(.current, .disabled):hover {
+            &:not(.current, .disabled, .new-scene):hover {
                 background-color: #354144;
                 cursor: pointer;
             }
 
             &.current {
-                &::after {
+                // reserve room on the left for the CURRENT badge next to the name
+                > .pcui-label.name {
+                    max-width: calc(100% - 350px);
+                }
+
+                > .current-badge {
                     @extend .font-bold;
 
-                    content: 'CURRENT';
-                    position: absolute;
-                    top: 50%;
-                    transform: translateY(-50%);
-                    right: 48px;
+                    display: inline-block;
+                    vertical-align: middle;
+                    margin-left: 8px;
                     height: 18px;
                     line-height: 18px;
                     padding: 0 6px;
-                    text-align: center;
                     color: $text-active;
                     border: 1px solid rgb(255 122 35 / 50%);
                     background-color: rgb(0 0 0 / 14%);
                     border-radius: 4px;
                     text-transform: uppercase;
                     font-size: 10px;
-                }
-
-                // make room on the right for the badge, which sits between the
-                // date and the kebab on the loaded scene's row
-                > .pcui-label.name {
-                    max-width: calc(100% - 360px);
-                }
-
-                > .pcui-label.date {
-                    right: 116px;
                 }
             }
 
@@ -3762,20 +3753,33 @@ strong {
                 }
             }
 
+            &.new-scene {
+                height: auto;
+                line-height: 1;
+                padding: 12px 15px;
+                cursor: default;
+            }
+
             > .pcui-label.new-scene-label {
-                margin: 3px 0;
                 display: block;
-                line-height: 22px;
+                margin: 0 0 6px;
+                font-size: 11px;
+                line-height: 1;
+                color: $text-dark;
             }
 
             > .pcui-text-input {
                 display: block;
                 width: 100%;
-                line-height: 1;
+                height: 30px;
                 margin: 0;
+                border: 1px solid $bcg-darkest;
+                border-radius: 6px;
+                overflow: hidden;
 
                 > input {
-                    padding: 0 8px;
+                    padding: 0 10px;
+                    color: $text-primary;
                 }
             }
         }

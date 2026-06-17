@@ -64,8 +64,8 @@ editor.once('load', () => {
     toolbar.append(filter);
 
     const newScene = new Button({
-        text: 'Add New Scene',
-        icon: 'E122',
+        text: 'New Scene',
+        icon: 'E120',
         class: 'new'
     });
     handlePermissions(newScene);
@@ -172,6 +172,15 @@ editor.once('load', () => {
         });
 
         row.element.appendChild(name.dom);
+
+        // current-scene badge, sits inline next to the name
+        if (isCurrentScene) {
+            const current = new Label({
+                text: 'CURRENT',
+                class: 'current-badge'
+            });
+            row.element.appendChild(current.dom);
+        }
 
         // scene date
         const date = new Label({
@@ -338,6 +347,7 @@ editor.once('load', () => {
 
         // add list item
         const listItem = new LegacyListItem();
+        listItem.class.add('new-scene');
         sceneList.append(listItem);
         sceneList.hidden = false;
 
