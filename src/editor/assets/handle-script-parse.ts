@@ -25,9 +25,10 @@ editor.once('load', () => {
         return (Function('module', 'exports', text).call(module, module, module.exports), module).exports;
     };
 
-    const isEsmSupportedInEngine = async (url) => {
-        const pc = await importEngine(url);
-        return !!pc.Script;
+    const isEsmSupportedInEngine = (url) => {
+        // a slow or failed engine fetch must not throw out of the parse path (which
+        // would leave the parse callback unresolved); treat any failure as unsupported
+        return importEngine(url).then(pc => !!pc?.Script).catch(() => false);
     };
 
     const workerClient = new WorkerClient(`${config.url.frontend}js/esm-script.worker.js`);
@@ -191,7 +192,10 @@ editor.once('load', () => {
             if (editor.call('assets:isModule', asset)) {
                 // FIXME: just check engine version directly
                 if (!(await isEsmSupportedInEngine(config.url.engine))) {
-                    editor.call('status:error', 'ESM scripts are not supported in this version of the engine. Please update to the latest version.');
+                    const msg = 'ESM scripts are not supported in this version of the engine. Please update to the latest version.';
+                    editor.call('status:error', msg);
+                    // always settle the callback, otherwise assets.createScript() hangs
+                    callback?.(new Error(msg), undefined);
                     return;
                 }
 
