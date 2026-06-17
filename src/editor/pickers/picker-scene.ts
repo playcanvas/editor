@@ -151,6 +151,35 @@ editor.once('load', () => {
         });
     };
 
+    // relative time for recent edits (just now / minutes / hours / days ago),
+    // absolute date otherwise — mirrors the builds & publish window
+    const formatSceneDate = (value: string) => {
+        const d = new Date(value);
+        const now = new Date();
+        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+        const startOfThatDay = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+        const days = Math.round((startOfToday - startOfThatDay) / 86400000);
+
+        if (days <= 0) {
+            const mins = Math.max(0, Math.floor((now.getTime() - d.getTime()) / 60000));
+            if (mins < 1) {
+                return 'just now';
+            }
+            if (mins < 60) {
+                return mins === 1 ? '1 minute ago' : `${mins} minutes ago`;
+            }
+            const hours = Math.floor(mins / 60);
+            return hours === 1 ? '1 hour ago' : `${hours} hours ago`;
+        }
+        if (days === 1) {
+            return 'yesterday';
+        }
+        if (days < 7) {
+            return `${days} days ago`;
+        }
+        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    };
+
     // create row for scene
     const createSceneEntry = (scene: Scene) => {
         const row = new LegacyListItem();
@@ -181,11 +210,12 @@ editor.once('load', () => {
             row.element.appendChild(current.dom);
         }
 
-        // scene date
+        // scene date — relative time, full timestamp on hover
         const date = new Label({
-            text: convertDatetime(scene.modified),
+            text: formatSceneDate(scene.modified),
             class: 'date'
         });
+        date.dom.title = convertDatetime(scene.modified);
         row.element.appendChild(date.dom);
 
         // dropdown
