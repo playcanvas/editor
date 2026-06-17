@@ -1,8 +1,6 @@
 import type { EventHandle } from '@playcanvas/observer';
-import { Button, Container, Element, Label, Menu, Progress, TextInput } from '@playcanvas/pcui';
+import { Button, Container, Element, Label, Menu, TextInput } from '@playcanvas/pcui';
 
-import { LegacyList } from '@/common/ui/list';
-import { LegacyListItem } from '@/common/ui/list-item';
 import { convertDatetime } from '@/common/utils';
 import { config } from '@/editor/config';
 
@@ -26,18 +24,6 @@ editor.once('load', () => {
     if (!editor.call('permissions:write')) {
         container.class.add('disabled');
     }
-
-    // progress bar and loading label
-    const loading = new Label({
-        text: 'Loading...'
-    });
-    container.append(loading);
-
-    const progressBar = new Progress({
-        value: 100
-    });
-    progressBar.hidden = true;
-    container.append(progressBar);
 
     // disables / enables field depending on permissions
     const handlePermissions = (field: Element) => {
@@ -64,28 +50,69 @@ editor.once('load', () => {
     toolbar.append(filter);
 
     const newScene = new Button({
-        text: 'Add New Scene',
-        icon: 'E122',
+        text: 'New Scene',
+        icon: 'E120',
         class: 'new'
     });
     handlePermissions(newScene);
     toolbar.append(newScene);
 
-    const sceneList = new LegacyList();
-    sceneList.class.add('scene-list');
+    // skeleton placeholder shown only while the first scene list loads
+    const skeleton = new Container({
+        class: 'scenes-skeleton'
+    });
+    for (let i = 0; i < 4; i++) {
+        const skeletonRow = document.createElement('div');
+        skeletonRow.classList.add('skeleton-row');
+        const title = document.createElement('div');
+        title.classList.add('bone', 'title');
+        const sub = document.createElement('div');
+        sub.classList.add('bone', 'sub');
+        skeletonRow.appendChild(title);
+        skeletonRow.appendChild(sub);
+        skeleton.dom.appendChild(skeletonRow);
+    }
+    skeleton.hidden = true;
+    container.append(skeleton);
+
+    const sceneList = new Container({
+        dom: 'ul',
+        class: ['ui-list', 'scene-list']
+    });
     container.append(sceneList);
     sceneList.hidden = true;
 
+    // empty-state shown when the search filter matches no scenes
+    const noScenes = new Container({
+        class: 'no-filtered-scenes',
+        hidden: true
+    });
+    const noScenesText = new Label();
+    noScenes.append(noScenesText);
+    const clearSearch = document.createElement('button');
+    clearSearch.type = 'button';
+    clearSearch.classList.add('clear-search');
+    clearSearch.textContent = 'Clear search';
+    clearSearch.addEventListener('click', () => {
+        filter.value = '';
+        refreshScenes();
+    });
+    noScenes.dom.appendChild(clearSearch);
+    container.append(noScenes);
+
     let events: EventHandle[] = [];
     let scenes: Scene[] = [];
+    let loaded = false;
 
     let dropdownScene: Scene | null = null;
     let dropdownMenu: Menu | null = null;
 
-    const toggleProgress = (toggle: boolean) => {
-        loading.hidden = !toggle;
-        progressBar.hidden = !toggle;
-        sceneList.hidden = toggle || !scenes.length;
+    const toggleLoading = (toggle: boolean) => {
+        skeleton.hidden = !toggle;
+        if (toggle) {
+            sceneList.hidden = true;
+            noScenes.hidden = true;
+        }
     };
 
     const onSceneDeleted = (sceneId: number | string) => {
@@ -94,15 +121,7 @@ editor.once('load', () => {
             editor.call('picker:project:setClosable', false);
         }
 
-        if (container.hidden) {
-            return;
-        }
-
-        const row = document.getElementById(`picker-scene-${sceneId}`);
-        if (row) {
-            row.parentElement.removeChild(row);
-        }
-
+        // update the cache even while hidden so the next open stays fresh
         for (let i = 0; i < scenes.length; i++) {
             if (parseInt(String(scenes[i].id), 10) === parseInt(String(sceneId), 10)) {
                 // close dropdown menu if current scene deleted
@@ -115,8 +134,9 @@ editor.once('load', () => {
             }
         }
 
-        if (!scenes.length) {
-            sceneList.hidden = true;
+        // re-render in place when the panel is open
+        if (!container.hidden) {
+            refreshScenes();
         }
     };
 
@@ -152,10 +172,41 @@ editor.once('load', () => {
         });
     };
 
+    // relative time for recent edits (just now / minutes / hours / days ago),
+    // absolute date otherwise — mirrors the builds & publish window
+    const formatSceneDate = (value: string) => {
+        const d = new Date(value);
+        const now = new Date();
+        const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+        const startOfThatDay = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+        const days = Math.round((startOfToday - startOfThatDay) / 86400000);
+
+        if (days <= 0) {
+            const mins = Math.max(0, Math.floor((now.getTime() - d.getTime()) / 60000));
+            if (mins < 1) {
+                return 'just now';
+            }
+            if (mins < 60) {
+                return mins === 1 ? '1 minute ago' : `${mins} minutes ago`;
+            }
+            const hours = Math.floor(mins / 60);
+            return hours === 1 ? '1 hour ago' : `${hours} hours ago`;
+        }
+        if (days === 1) {
+            return 'yesterday';
+        }
+        if (days < 7) {
+            return `${days} days ago`;
+        }
+        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    };
+
     // create row for scene
     const createSceneEntry = (scene: Scene) => {
-        const row = new LegacyListItem();
-        row.element.id = `picker-scene-${scene.id}`;
+        const row = new Container({
+            dom: 'li',
+            id: `picker-scene-${scene.id}`
+        });
 
         sceneList.append(row);
 
@@ -171,21 +222,31 @@ editor.once('load', () => {
             class: isCurrentScene ? ['name', 'selectable'] : 'name'
         });
 
-        row.element.appendChild(name.dom);
+        row.append(name);
 
-        // scene date
+        // current-scene badge, sits inline next to the name
+        if (isCurrentScene) {
+            const current = new Label({
+                text: 'CURRENT',
+                class: 'current-badge'
+            });
+            row.append(current);
+        }
+
+        // scene date — relative time, full timestamp on hover
         const date = new Label({
-            text: convertDatetime(scene.modified),
+            text: formatSceneDate(scene.modified),
             class: 'date'
         });
-        row.element.appendChild(date.dom);
+        date.dom.title = convertDatetime(scene.modified);
+        row.append(date);
 
         // dropdown
         const dropdown = new Button({
             text: '\uE159',
             class: 'dropdown'
         });
-        row.element.appendChild(dropdown.dom);
+        row.append(dropdown);
 
         dropdown.on('click', () => {
             dropdown.class.add('clicked');
@@ -200,7 +261,7 @@ editor.once('load', () => {
 
         if (!isCurrentScene) {
             events.push(row.on('click', (e) => {
-                if (e.target === row.element || e.target === name.dom || e.target === date.dom) {
+                if (e.target === row.dom || e.target === name.dom || e.target === date.dom) {
                     if (parseInt(String(config.scene.id), 10) === parseInt(String(scene.id), 10)) {
                         return;
                     }
@@ -231,12 +292,21 @@ editor.once('load', () => {
             dropdownMenu.hidden = true;
         }
         destroyEvents();
-        sceneList.element.innerHTML = '';
+        sceneList.clear();
         const filterScenes = scenes.filter((scene) => {
             return scene.name.toLowerCase().indexOf(filter.value.toLowerCase()) !== -1;
         });
         sortScenes(filterScenes);
-        sceneList.hidden = filterScenes.length === 0;
+
+        const empty = filterScenes.length === 0;
+        sceneList.hidden = empty;
+        noScenes.hidden = !empty;
+        if (empty) {
+            const searching = filter.value.length > 0;
+            noScenesText.text = searching ? 'No scenes match your search.' : 'No scenes.';
+            clearSearch.style.display = searching ? '' : 'none';
+        }
+
         filterScenes.forEach(createSceneEntry);
     };
 
@@ -280,6 +350,7 @@ editor.once('load', () => {
             },
             {
                 text: 'Delete Scene',
+                class: 'delete',
                 onIsEnabled: () => editor.call('permissions:write'),
                 onSelect: () => {
                     editor.call('picker:confirm', `Are you sure you want to permanently delete scene '${dropdownScene.name}'?`);
@@ -336,7 +407,10 @@ editor.once('load', () => {
         newScene.enabled = false;
 
         // add list item
-        const listItem = new LegacyListItem();
+        const listItem = new Container({
+            dom: 'li',
+            class: 'new-scene'
+        });
         sceneList.append(listItem);
         sceneList.hidden = false;
 
@@ -345,7 +419,7 @@ editor.once('load', () => {
             text: 'Enter Scene name and press Enter:',
             class: 'new-scene-label'
         });
-        listItem.element.appendChild(label.dom);
+        listItem.append(label);
 
         // add new scene input field
         const input = new TextInput({
@@ -354,7 +428,7 @@ editor.once('load', () => {
             blurOnEnter: false
         });
 
-        listItem.element.appendChild(input.dom);
+        listItem.append(input);
 
         input.focus(true);
 
@@ -379,14 +453,19 @@ editor.once('load', () => {
 
     // on show
     container.on('show', () => {
-        toggleProgress(true);
-
-        // load scenes
-        editor.call('scenes:list', (items) => {
-            toggleProgress(false);
-            scenes = items;
+        if (loaded) {
+            // render cached scenes immediately; messenger keeps them fresh
+            toggleLoading(false);
             refreshScenes();
-        });
+        } else {
+            toggleLoading(true);
+            editor.call('scenes:list', (items) => {
+                scenes = items;
+                loaded = true;
+                toggleLoading(false);
+                refreshScenes();
+            });
+        }
 
         if (editor.call('viewport:inViewport')) {
             editor.emit('viewport:hover', false);
@@ -396,11 +475,10 @@ editor.once('load', () => {
     // on hide
     container.on('hide', () => {
         destroyEvents();
-        scenes = [];
 
-        // destroy scene items because same row ids
-        // might be used by download / new build popups
-        sceneList.element.innerHTML = '';
+        // clear the rendered rows (their ids may be reused by download /
+        // new build popups) but keep the cached scenes for the next open
+        sceneList.clear();
 
         editor.emit('picker:scene:close');
 
@@ -437,21 +515,21 @@ editor.once('load', () => {
 
     // subscribe to messenger scene.new
     editor.on('messenger:scene.new', (data) => {
-        if (container.hidden) {
-            return;
-        }
-        if (data.scene.branchId !== config.self.branch.id) {
+        // only maintain the cache once populated; an unopened panel fetches
+        // the full list on its first show
+        if (!loaded || data.scene.branchId !== config.self.branch.id) {
             return;
         }
 
         editor.call('scenes:get', data.scene.id, (err, scene) => {
-            if (container.hidden) {
-                return;
-            } // check if hidden when Ajax returns
+            // keep the cache fresh even while hidden; avoid duplicates
+            if (!scenes.some(s => parseInt(String(s.id), 10) === parseInt(String(scene.id), 10))) {
+                scenes.push(scene);
+            }
 
-            scenes.push(scene);
-
-            refreshScenes();
+            if (!container.hidden) {
+                refreshScenes();
+            }
         });
     });
 });

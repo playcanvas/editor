@@ -9,11 +9,12 @@ editor.once('load', () => {
         hidden: true
     });
 
-    // label
+    // label — render as textContent (not innerHTML) so user-controlled names
+    // interpolated into confirm messages (e.g. scene/asset/entity names) can't
+    // execute as stored XSS
     const label = new Label({
         class: 'text',
-        text: 'Are you sure?',
-        unsafe: true
+        text: 'Are you sure?'
     });
     overlay.append(label);
 

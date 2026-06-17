@@ -3577,18 +3577,25 @@ strong {
         margin: 0;
         padding: 0;
         background: transparent;
-        border: none;
-        border-top: 1px solid $border-primary;
+        border: 1px solid $border-primary;
+        border-top: none;
+        border-radius: 0 0 6px 6px;
+        overflow: hidden;
 
         > li {
             @extend .font-regular;
 
-            height: 65px;
-            line-height: 65px;
+            height: 58px;
+            line-height: 58px;
             padding-left: 15px;
             padding-right: 15px;
             position: relative;
             border-bottom: 1px solid $border-primary;
+            transition: background-color 100ms ease;
+
+            &:last-child {
+                border-bottom: none;
+            }
 
             &.selected {
                 background-color: transparent;
@@ -3600,17 +3607,19 @@ strong {
             }
 
             > .pcui-label.name {
+                @extend .font-bold;
+
                 font-size: 14px;
-                position: absolute;
+                display: inline-block;
+                vertical-align: middle;
                 cursor: pointer;
-                top: 15px;
-                max-width: 710px;
+                max-width: calc(100% - 280px);
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
                 line-height: 1;
                 color: $text-primary;
-                margin: 3px;
+                margin: 0;
 
                 &.selectable {
                     user-select: text;
@@ -3646,86 +3655,131 @@ strong {
                 }
             }
 
-            &:not(.current, .disabled):hover {
-                background-color: #414f52;
+            &:not(.current, .disabled, .new-scene):hover {
+                background-color: #354144;
                 cursor: pointer;
             }
 
             &.current {
-                &::after {
+                // reserve room on the left for the CURRENT badge next to the name
+                > .pcui-label.name {
+                    max-width: calc(100% - 350px);
+                }
+
+                > .current-badge {
                     @extend .font-bold;
 
-                    content: 'CURRENT';
-                    position: absolute;
-                    top: 25px;
-                    right: 40px;
-                    line-height: 16px;
-                    text-align: center;
-                    height: 16px;
-                    width: 55px;
-                    color: $bcg-primary;
-                    background-color: $text-active;
+                    display: inline-block;
+                    vertical-align: middle;
+                    margin-left: 8px;
+                    height: 18px;
+                    line-height: 18px;
+                    padding: 0 6px;
+                    color: $text-active;
+                    border: 1px solid rgb(255 122 35 / 50%);
+                    background-color: rgb(0 0 0 / 14%);
+                    border-radius: 4px;
+                    text-transform: uppercase;
                     font-size: 10px;
                 }
             }
 
             > .pcui-label.date {
                 position: absolute;
-                top: 35px;
+                top: 50%;
+                right: 48px;
+                transform: translateY(-50%);
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
                 font-size: 12px;
-                color: $text-darkest;
+                color: $text-primary;
                 line-height: 1;
-                margin: 3px;
+                white-space: nowrap;
+                margin: 0;
+
+                &::before {
+                    content: '';
+                    flex: 0 0 auto;
+                    width: 13px;
+                    height: 13px;
+                    background-color: currentcolor;
+                    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='2' y='3' width='12' height='11' rx='1.6'/%3E%3Cpath d='M2 6.5h12M5 1.4v3M11 1.4v3'/%3E%3C/svg%3E") center / contain no-repeat;
+                }
             }
 
             > .pcui-button.dropdown {
                 position: absolute;
-                top: 25px;
-                right: 15px;
-                width: 16px;
-                height: 16px;
-                line-height: 16px;
-                border: none;
-                border-radius: 0;
+                top: 50%;
+                right: 12px;
+                transform: translateY(-50%);
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 28px;
+                height: 28px;
+                border: 1px solid transparent;
+                border-radius: 4px;
                 padding: 0;
                 margin: 0;
-                text-align: center;
-                vertical-align: top;
                 box-shadow: none;
+                font-size: 0; // hide the icon-font glyph; the kebab is drawn via ::before
+                color: $text-dark;
+                background-color: transparent;
+                transition: color 100ms, background-color 100ms, border-color 100ms, box-shadow 100ms;
 
-                @extend .font-icon;
+                // triple-dot kebab matching the builds & publish row menu
+                &::before {
+                    content: '';
+                    width: 16px;
+                    height: 16px;
+                    background-color: currentcolor;
+                    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='3' cy='8' r='1.4'/%3E%3Ccircle cx='8' cy='8' r='1.4'/%3E%3Ccircle cx='13' cy='8' r='1.4'/%3E%3C/svg%3E") center / contain no-repeat;
+                }
 
-                font-size: 12px;
-                color: $bcg-darkest;
-                background-color: $text-darkest;
-
-                &:hover {
+                &:hover,
+                &:focus {
                     color: $text-primary;
-                    background-color: $bcg-darkest;
-                    box-shadow: none;
+                    background-color: $bcg-dark;
+                    border-color: $bcg-darkest;
+                    box-shadow: $element-shadow-hover;
                 }
 
                 &.clicked {
                     color: $text-primary;
                     background-color: $bcg-darkest;
+                    border-color: $border-primary;
                     box-shadow: $element-shadow-active;
                 }
             }
 
+            &.new-scene {
+                height: auto;
+                line-height: 1;
+                padding: 12px 15px;
+                cursor: default;
+            }
+
             > .pcui-label.new-scene-label {
-                margin: 3px 0;
                 display: block;
-                line-height: 22px;
+                margin: 0 0 6px;
+                font-size: 11px;
+                line-height: 1;
+                color: $text-dark;
             }
 
             > .pcui-text-input {
                 display: block;
                 width: 100%;
-                line-height: 1;
+                height: 30px;
                 margin: 0;
+                border: 1px solid $bcg-darkest;
+                border-radius: 6px;
+                overflow: hidden;
 
                 > input {
-                    padding: 0 8px;
+                    padding: 0 10px;
+                    color: $text-primary;
                 }
             }
         }
@@ -3733,8 +3787,9 @@ strong {
 }
 
 .pcui-container.picker-scene-panel {
-    height: 100%;
-    font-size: 14px;
+    box-sizing: border-box;
+    padding: 16px 20px !important;
+    font-size: 12px;
 
     &:not(.pcui-hidden) {
         display: flex;
@@ -3747,8 +3802,95 @@ strong {
         padding-left: 10px;
     }
 
-    > .pcui-progress {
+    // shimmer placeholder shown while the first scene list loads; mirrors the
+    // scene-list box so it connects to the toolbar
+    > .scenes-skeleton {
+        border: 1px solid $border-primary;
+        border-top: none;
+        border-radius: 0 0 6px 6px;
+        overflow: hidden;
+
+        > .skeleton-row {
+            box-sizing: border-box;
+            height: 58px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 8px;
+            padding: 0 15px;
+            border-bottom: 1px solid $border-primary;
+
+            &:last-child {
+                border-bottom: none;
+            }
+
+            &:nth-child(2) .bone { animation-delay: 120ms; }
+            &:nth-child(3) .bone { animation-delay: 240ms; }
+            &:nth-child(4) .bone { animation-delay: 360ms; }
+        }
+
+        .bone {
+            background-color: rgb(255 255 255 / 8%);
+            border-radius: 4px;
+            animation: builds-skeleton-pulse 1.4s ease-in-out infinite;
+
+            &.title {
+                width: 30%;
+                height: 12px;
+            }
+
+            &.sub {
+                width: 22%;
+                height: 10px;
+            }
+        }
+    }
+
+    // empty-state shown when the search filter matches no scenes; mirrors the
+    // builds & publish "no builds match" message
+    > .no-filtered-scenes {
+        @extend .font-regular;
+
         width: 100%;
+        margin: 0;
+        padding: 14px 16px;
+        border: 1px solid $border-primary;
+        border-top: none;
+        border-radius: 0 0 6px 6px;
+        color: $text-dark;
+        background-color: rgb(0 0 0 / 8%);
+        box-sizing: border-box;
+
+        &:not(.pcui-hidden) {
+            display: flex;
+            flex-flow: row wrap;
+            align-items: center;
+            gap: 4px 10px;
+        }
+
+        > .pcui-label {
+            margin: 0;
+            color: inherit;
+            font-size: 13px;
+            line-height: 18px;
+        }
+
+        > .clear-search {
+            appearance: none;
+            margin: 0;
+            padding: 0;
+            border: none;
+            background: transparent;
+            color: #9dd4ff;
+            font-size: 13px;
+            line-height: 18px;
+            cursor: pointer;
+
+            &:hover,
+            &:focus {
+                text-decoration: underline;
+            }
+        }
     }
 
     > .toolbar {
@@ -3756,33 +3898,69 @@ strong {
         flex-direction: row;
         align-items: center;
         gap: 10px;
-        padding: 10px;
+        padding: 10px 12px;
         flex-shrink: 0;
+        border: 1px solid $border-primary;
+        border-radius: 6px 6px 0 0;
+        background-color: rgb(0 0 0 / 8%);
 
         > .pcui-text-input {
             flex: 1;
             margin: 0;
             width: auto;
-            height: 28px;
+            height: 34px;
+            border: 1px solid $bcg-darkest;
+            border-radius: 6px;
+            overflow: hidden;
 
             &::after {
-                line-height: 26px;
+                line-height: 32px;
             }
         }
 
         > .pcui-button.new {
-            margin: 0;
-            text-transform: uppercase;
-
             @extend .font-bold;
+
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 34px;
+            margin: 0;
+            padding: 0 18px;
+            border: 1px solid $bcg-darkest;
+            border-radius: 6px;
+            color: $text-secondary;
+            background-color: $bcg-dark;
+            font-size: 13px;
+            box-shadow: none;
+            transition: color 100ms, background-color 100ms, box-shadow 100ms;
+
+            &[data-icon]::before {
+                font-size: 14px;
+                line-height: 1;
+            }
+
+            &:not(.disabled, .pcui-disabled, .pcui-readonly):hover,
+            &:not(.disabled, .pcui-disabled, .pcui-readonly):focus {
+                color: $text-primary;
+                background-color: $bcg-dark;
+                box-shadow: $element-shadow-hover;
+            }
+
+            &:not(.disabled, .pcui-disabled, .pcui-readonly):active {
+                background-color: $bcg-darkest;
+                box-shadow: none;
+            }
+
+            > .pcui-label {
+                margin: 0;
+                color: inherit;
+                font-size: inherit;
+                line-height: 32px;
+            }
         }
     }
 
-    > .ui-list.scene-list {
-        flex: 1;
-        overflow-y: auto;
-        min-height: 0;
-    }
 }
 
 .pcui-menu.picker-scene-menu {
@@ -3791,11 +3969,28 @@ strong {
         visibility: hidden;
     }
 
+    // round + border the menu to match the builds & publish row menu
+    .pcui-menu-items {
+        border: 1px solid $border-primary;
+        border-radius: 6px;
+        overflow: hidden;
+    }
+
     .pcui-menu-item-content {
-        > .pcui-label {
-            line-height: 32px;
-            margin: 0 0 0 8px;
+        font-size: 13px;
+
+        &:hover {
+            background-color: $bcg-dark;
         }
+
+        > .pcui-label {
+            line-height: 30px;
+            margin: 0 0 0 10px;
+        }
+    }
+
+    .pcui-menu-item.delete > .pcui-menu-item-content > .pcui-label {
+        color: $error-secondary;
     }
 }
 
