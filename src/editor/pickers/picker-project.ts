@@ -518,6 +518,8 @@ editor.once('load', () => {
         overlay.class[fullscreen ? 'add' : 'remove']('fullscreen');
         btnFullscreen.class[fullscreen ? 'add' : 'remove']('active');
         btnFullscreen.dom.setAttribute('title', fullscreen ? 'Exit fullscreen' : 'Fullscreen');
+        // let hosted panels (e.g. version control) resize their panes to the larger viewport
+        editor.emit('picker:project:fullscreen', fullscreen);
     };
     btnFullscreen.on('click', () => {
         fullscreen = !fullscreen;
@@ -526,6 +528,9 @@ editor.once('load', () => {
     });
     rightPanel.header.append(btnFullscreen);
     applyFullscreen();
+
+    // hosted panels read the current state on show (this picker loads before them)
+    editor.method('picker:project:isFullscreen', () => fullscreen);
 
     // LOCAL UTILS
 
