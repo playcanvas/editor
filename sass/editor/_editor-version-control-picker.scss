@@ -787,6 +787,13 @@
             padding: 11px 12px;
             border-bottom: 1px solid $border-primary;
 
+            // the last row sits flush against the wrapping .vc-field-diff / .vc-diff-list
+            // bottom border (like .vc-field-row / .vc-item do) — drop its border to avoid
+            // doubling up while the diff is loading
+            &:last-child {
+                border-bottom: none;
+            }
+
             > .bone {
                 border-radius: 4px;
                 background-color: rgb(255 255 255 / 8%);

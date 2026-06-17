@@ -49,7 +49,11 @@ $vc-add-edge: #3fb950;
     flex: 1;
     flex-direction: column;
     min-width: 0;
-    background-color: $bcg-darkest;
+
+    // lighter $bcg-primary base (matching the version-control picker) so panels read
+    // clearly. headers/bars sit one step darker ($bcg-dark), insets + the scrollbar
+    // track sit darkest ($bcg-darkest) — ~10+ tonal steps between every region
+    background-color: $bcg-primary;
 }
 
 .vc-diff-top {
@@ -144,8 +148,9 @@ $vc-add-edge: #3fb950;
     }
 
     > .vc-diff-close {
-        // header padding alone sets the corner gap (the toggle carries the auto-left)
-        margin: 0;
+        // negative left margin cancels the .vc-diff-top 12px flex gap so the close
+        // sits flush against the fullscreen toggle as one window-control cluster
+        margin: 0 0 0 -12px;
         background: transparent;
         border: 0;
 
@@ -170,35 +175,122 @@ $vc-add-edge: #3fb950;
 // ---- sidebar ----
 .vc-diff-sidebar {
     flex: none;
+    display: flex;
+    flex-direction: column;
     width: 280px;
-    overflow-y: auto;
-    background-color: $bcg-darker;
+    background-color: $bcg-primary;
     border-right: 1px solid $border-primary;
 
     > .vc-diff-sidebar-head {
         @extend .font-bold;
 
+        flex: none;
         padding: 10px 12px;
+        background-color: $bcg-dark;
         color: $text-primary;
         font-size: 13px;
         border-bottom: 1px solid $border-primary;
     }
 
-    > .vc-diff-group {
+    // header bar treatment matching the branch picker's .vc-branch-filter; the
+    // $bcg-dark bar sits one step darker than the $bcg-primary base, keeping regions
+    // distinct. relative + z-index lifts the open type dropdown above the sticky bars
+    > .vc-diff-filter {
+        position: relative;
+        z-index: 2;
+        flex: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px;
+        border-bottom: 1px solid $border-primary;
+        background-color: $bcg-dark;
+
+        > .pcui-text-input {
+            @extend .font-regular;
+
+            flex: 1 1 auto;
+            margin: 0;
+            border: 1px solid $border-primary;
+            border-radius: 4px;
+            background-color: $bcg-darkest;
+            font-size: 13px;
+
+            > input::placeholder {
+                color: $text-darkest;
+            }
+        }
+
+        // type select mirrors the picker's top-bar action buttons (.vc-top-actions
+        // .pcui-button): rounded $bcg-dark chip with a $bcg-darkest outline that lifts
+        // to primary text + shadow on hover
+        > .pcui-select-input {
+            @extend .font-bold;
+
+            flex: none;
+            width: 110px;
+            margin: 0;
+            border: 1px solid $bcg-darkest;
+            border-radius: 6px;
+            color: $text-secondary;
+            font-size: 12px;
+            box-shadow: none;
+            transition: color 100ms, box-shadow 100ms;
+
+            // pcui paints the fill (and clips corners) on the inner value box
+            .pcui-select-input-container-value {
+                border-radius: 6px;
+                background-color: $bcg-dark;
+            }
+
+            .pcui-select-input-value {
+                color: $text-secondary;
+            }
+
+            &:not(.pcui-disabled):hover,
+            &:not(.pcui-disabled):focus {
+                color: $text-primary;
+                box-shadow: $element-shadow-hover;
+            }
+        }
+    }
+
+    > .vc-diff-list {
+        flex: 1;
+        overflow-y: auto;
+    }
+
+    > .vc-diff-list > .vc-diff-no-match {
+        padding: 16px 12px;
+        color: $text-dark;
+        font-size: 12px;
+        text-align: center;
+    }
+
+    // section bars stick to the top of the scrolling list as you pass them, the way
+    // the history day headers do. the $bcg-dark bar reads as a darker band against the
+    // $bcg-primary rows; opaque so rows never bleed through when stuck
+    > .vc-diff-list > .vc-diff-group {
         @extend .font-bold;
 
-        // match the picker's section bars (.vc-group): bold + dark bar so the
-        // header reads distinctly from the $text-dark sub line below it
-        padding: 5px 12px;
-        background-color: rgb(0 0 0 / 12%);
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        padding: 6px 12px;
+        background-color: $bcg-dark;
+        border-top: 1px solid $border-primary;
         border-bottom: 1px solid $border-primary;
-        color: $text-secondary;
+        color: $text-primary;
         font-size: 10px;
         letter-spacing: 0.4px;
         text-transform: uppercase;
+
+        &:first-child {
+            border-top: none;
+        }
     }
 
-    > .vc-diff-row {
+    > .vc-diff-list > .vc-diff-row {
         @extend .font-regular;
 
         appearance: none;
@@ -218,12 +310,14 @@ $vc-add-edge: #3fb950;
         cursor: pointer;
         transition: background-color 100ms ease;
 
+        // white tints rather than the editor's #354144 — that fixed colour is
+        // invisible against the lighter $bcg-primary base, a tint reads on any tone
         &:hover {
-            background-color: #354144;
+            background-color: rgb(255 255 255 / 6%);
         }
 
         &.selected {
-            background-color: #354144;
+            background-color: rgb(255 255 255 / 10%);
             box-shadow: inset 2px 0 0 $text-active;
         }
 
@@ -275,6 +369,11 @@ $vc-add-edge: #3fb950;
     flex: 1;
     flex-direction: column;
     min-width: 0;
+
+    // shows the shell's $bcg-primary base — clearly lighter than the $bcg-darkest
+    // scrollbar track (which previously blended straight into it) and the $bcg-dark
+    // detail/section header bars
+    background-color: $bcg-primary;
 }
 
 .vc-diff-detail-head {
@@ -466,6 +565,7 @@ $vc-add-edge: #3fb950;
 }
 
 .vc-diff-panel {
+    border: 1px solid rgba($border-primary, 0.6);
     border-radius: 3px;
     overflow: hidden;
 
@@ -477,6 +577,9 @@ $vc-add-edge: #3fb950;
     // script/slot/clip sub-panels are inset like the inspector's per-script panels
     .vc-diff-subpanel.inset {
         margin: 6px;
+        border: 1px solid rgba($border-primary, 0.6);
+        border-radius: 3px;
+        overflow: hidden;
     }
 }
 
@@ -506,8 +609,16 @@ $vc-add-edge: #3fb950;
     &:has(.vc-diff-array.multi) {
         align-items: flex-start;
 
+        // breathing room under the last pill so it isn't flush to the card edge
+        padding-bottom: 8px;
+
         > .gutter,
         > .label {
+            margin-top: 6px;
+        }
+
+        // align the delta count with the label rather than jamming it at the top
+        > .value {
             margin-top: 6px;
         }
     }
@@ -674,6 +785,7 @@ $vc-add-edge: #3fb950;
     min-width: 0;
 
     > .size {
+        margin-bottom: 6px;
         color: $text-dark;
         font-size: 10px;
     }
