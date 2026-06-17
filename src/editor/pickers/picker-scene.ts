@@ -280,6 +280,7 @@ editor.once('load', () => {
             },
             {
                 text: 'Delete Scene',
+                class: 'delete',
                 onIsEnabled: () => editor.call('permissions:write'),
                 onSelect: () => {
                     editor.call('picker:confirm', `Are you sure you want to permanently delete scene '${dropdownScene.name}'?`);

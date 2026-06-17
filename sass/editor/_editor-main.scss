@@ -3612,14 +3612,15 @@ strong {
                 font-size: 14px;
                 position: absolute;
                 cursor: pointer;
-                top: 13px;
-                max-width: 710px;
+                top: 50%;
+                transform: translateY(-50%);
+                max-width: calc(100% - 280px);
                 overflow: hidden;
                 text-overflow: ellipsis;
                 white-space: nowrap;
                 line-height: 1;
                 color: $text-primary;
-                margin: 3px;
+                margin: 0;
 
                 &.selectable {
                     user-select: text;
@@ -3666,7 +3667,8 @@ strong {
 
                     content: 'CURRENT';
                     position: absolute;
-                    top: 19px;
+                    top: 50%;
+                    transform: translateY(-50%);
                     right: 48px;
                     height: 18px;
                     line-height: 18px;
@@ -3679,21 +3681,47 @@ strong {
                     text-transform: uppercase;
                     font-size: 10px;
                 }
+
+                // make room on the right for the badge, which sits between the
+                // date and the kebab on the loaded scene's row
+                > .pcui-label.name {
+                    max-width: calc(100% - 360px);
+                }
+
+                > .pcui-label.date {
+                    right: 116px;
+                }
             }
 
             > .pcui-label.date {
                 position: absolute;
-                top: 33px;
+                top: 50%;
+                right: 48px;
+                transform: translateY(-50%);
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
                 font-size: 12px;
-                color: $text-darkest;
+                color: $text-primary;
                 line-height: 1;
-                margin: 3px;
+                white-space: nowrap;
+                margin: 0;
+
+                &::before {
+                    content: '';
+                    flex: 0 0 auto;
+                    width: 13px;
+                    height: 13px;
+                    background-color: currentcolor;
+                    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23000' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='2' y='3' width='12' height='11' rx='1.6'/%3E%3Cpath d='M2 6.5h12M5 1.4v3M11 1.4v3'/%3E%3C/svg%3E") center / contain no-repeat;
+                }
             }
 
             > .pcui-button.dropdown {
                 position: absolute;
-                top: 15px;
+                top: 50%;
                 right: 12px;
+                transform: translateY(-50%);
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
@@ -3789,12 +3817,13 @@ strong {
             flex: 1;
             margin: 0;
             width: auto;
-            height: 30px;
+            height: 34px;
             border: 1px solid $bcg-darkest;
             border-radius: 6px;
+            overflow: hidden;
 
             &::after {
-                line-height: 28px;
+                line-height: 32px;
             }
         }
 
@@ -3804,9 +3833,9 @@ strong {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            height: 30px;
+            height: 34px;
             margin: 0;
-            padding: 0 16px;
+            padding: 0 18px;
             border: 1px solid $bcg-darkest;
             border-radius: 6px;
             color: $text-secondary;
@@ -3837,7 +3866,7 @@ strong {
                 margin: 0;
                 color: inherit;
                 font-size: inherit;
-                line-height: 28px;
+                line-height: 32px;
             }
         }
     }
@@ -3850,11 +3879,28 @@ strong {
         visibility: hidden;
     }
 
+    // round + border the menu to match the builds & publish row menu
+    .pcui-menu-items {
+        border: 1px solid $border-primary;
+        border-radius: 6px;
+        overflow: hidden;
+    }
+
     .pcui-menu-item-content {
-        > .pcui-label {
-            line-height: 32px;
-            margin: 0 0 0 8px;
+        font-size: 13px;
+
+        &:hover {
+            background-color: $bcg-dark;
         }
+
+        > .pcui-label {
+            line-height: 30px;
+            margin: 0 0 0 10px;
+        }
+    }
+
+    .pcui-menu-item.delete > .pcui-menu-item-content > .pcui-label {
+        color: $error-secondary;
     }
 }
 
