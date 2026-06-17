@@ -3585,8 +3585,8 @@ strong {
         > li {
             @extend .font-regular;
 
-            height: 65px;
-            line-height: 65px;
+            height: 58px;
+            line-height: 58px;
             padding-left: 15px;
             padding-right: 15px;
             position: relative;
@@ -3612,7 +3612,7 @@ strong {
                 font-size: 14px;
                 position: absolute;
                 cursor: pointer;
-                top: 15px;
+                top: 13px;
                 max-width: 710px;
                 overflow: hidden;
                 text-overflow: ellipsis;
@@ -3666,7 +3666,7 @@ strong {
 
                     content: 'CURRENT';
                     position: absolute;
-                    top: 22px;
+                    top: 19px;
                     right: 48px;
                     height: 18px;
                     line-height: 18px;
@@ -3683,7 +3683,7 @@ strong {
 
             > .pcui-label.date {
                 position: absolute;
-                top: 35px;
+                top: 33px;
                 font-size: 12px;
                 color: $text-darkest;
                 line-height: 1;
@@ -3692,7 +3692,7 @@ strong {
 
             > .pcui-button.dropdown {
                 position: absolute;
-                top: 19px;
+                top: 15px;
                 right: 12px;
                 width: 28px;
                 height: 28px;
@@ -3749,9 +3749,10 @@ strong {
 }
 
 .pcui-container.picker-scene-panel {
+    box-sizing: border-box;
     height: 100%;
     padding: 5px 20px !important;
-    font-size: 14px;
+    font-size: 12px;
 
     &:not(.pcui-hidden) {
         display: flex;
@@ -3773,7 +3774,7 @@ strong {
         flex-direction: row;
         align-items: center;
         gap: 10px;
-        padding: 14px 16px;
+        padding: 10px 12px;
         flex-shrink: 0;
         border: 1px solid $border-primary;
         border-radius: 6px 6px 0 0;
@@ -3783,10 +3784,10 @@ strong {
             flex: 1;
             margin: 0;
             width: auto;
-            height: 34px;
+            height: 30px;
 
             &::after {
-                line-height: 32px;
+                line-height: 28px;
             }
         }
 
@@ -3796,9 +3797,9 @@ strong {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            height: 34px;
+            height: 30px;
             margin: 0;
-            padding: 0 18px;
+            padding: 0 16px;
             border: 1px solid $bcg-darkest;
             border-radius: 6px;
             color: $text-secondary;
@@ -3829,7 +3830,7 @@ strong {
                 margin: 0;
                 color: inherit;
                 font-size: inherit;
-                line-height: 32px;
+                line-height: 28px;
             }
         }
     }
