@@ -1,8 +1,6 @@
 import type { EventHandle } from '@playcanvas/observer';
 import { Button, Container, Element, Label, Menu, TextInput } from '@playcanvas/pcui';
 
-import { LegacyList } from '@/common/ui/list';
-import { LegacyListItem } from '@/common/ui/list-item';
 import { convertDatetime } from '@/common/utils';
 import { config } from '@/editor/config';
 
@@ -77,8 +75,10 @@ editor.once('load', () => {
     skeleton.hidden = true;
     container.append(skeleton);
 
-    const sceneList = new LegacyList();
-    sceneList.class.add('scene-list');
+    const sceneList = new Container({
+        dom: 'ul',
+        class: ['ui-list', 'scene-list']
+    });
     container.append(sceneList);
     sceneList.hidden = true;
 
@@ -203,8 +203,10 @@ editor.once('load', () => {
 
     // create row for scene
     const createSceneEntry = (scene: Scene) => {
-        const row = new LegacyListItem();
-        row.element.id = `picker-scene-${scene.id}`;
+        const row = new Container({
+            dom: 'li',
+            id: `picker-scene-${scene.id}`
+        });
 
         sceneList.append(row);
 
@@ -220,7 +222,7 @@ editor.once('load', () => {
             class: isCurrentScene ? ['name', 'selectable'] : 'name'
         });
 
-        row.element.appendChild(name.dom);
+        row.append(name);
 
         // current-scene badge, sits inline next to the name
         if (isCurrentScene) {
@@ -228,7 +230,7 @@ editor.once('load', () => {
                 text: 'CURRENT',
                 class: 'current-badge'
             });
-            row.element.appendChild(current.dom);
+            row.append(current);
         }
 
         // scene date — relative time, full timestamp on hover
@@ -237,14 +239,14 @@ editor.once('load', () => {
             class: 'date'
         });
         date.dom.title = convertDatetime(scene.modified);
-        row.element.appendChild(date.dom);
+        row.append(date);
 
         // dropdown
         const dropdown = new Button({
             text: '\uE159',
             class: 'dropdown'
         });
-        row.element.appendChild(dropdown.dom);
+        row.append(dropdown);
 
         dropdown.on('click', () => {
             dropdown.class.add('clicked');
@@ -259,7 +261,7 @@ editor.once('load', () => {
 
         if (!isCurrentScene) {
             events.push(row.on('click', (e) => {
-                if (e.target === row.element || e.target === name.dom || e.target === date.dom) {
+                if (e.target === row.dom || e.target === name.dom || e.target === date.dom) {
                     if (parseInt(String(config.scene.id), 10) === parseInt(String(scene.id), 10)) {
                         return;
                     }
@@ -290,7 +292,7 @@ editor.once('load', () => {
             dropdownMenu.hidden = true;
         }
         destroyEvents();
-        sceneList.element.innerHTML = '';
+        sceneList.clear();
         const filterScenes = scenes.filter((scene) => {
             return scene.name.toLowerCase().indexOf(filter.value.toLowerCase()) !== -1;
         });
@@ -405,8 +407,10 @@ editor.once('load', () => {
         newScene.enabled = false;
 
         // add list item
-        const listItem = new LegacyListItem();
-        listItem.class.add('new-scene');
+        const listItem = new Container({
+            dom: 'li',
+            class: 'new-scene'
+        });
         sceneList.append(listItem);
         sceneList.hidden = false;
 
@@ -415,7 +419,7 @@ editor.once('load', () => {
             text: 'Enter Scene name and press Enter:',
             class: 'new-scene-label'
         });
-        listItem.element.appendChild(label.dom);
+        listItem.append(label);
 
         // add new scene input field
         const input = new TextInput({
@@ -424,7 +428,7 @@ editor.once('load', () => {
             blurOnEnter: false
         });
 
-        listItem.element.appendChild(input.dom);
+        listItem.append(input);
 
         input.focus(true);
 
@@ -474,7 +478,7 @@ editor.once('load', () => {
 
         // clear the rendered rows (their ids may be reused by download /
         // new build popups) but keep the cached scenes for the next open
-        sceneList.element.innerHTML = '';
+        sceneList.clear();
 
         editor.emit('picker:scene:close');
 
