@@ -11,6 +11,16 @@ import { createDetailPanel } from './panel-detail';
 import { createHistoryPanel } from './panel-history';
 import { checkpointCreate as checkpointCreateJob, diffCreate } from '../../messenger/jobs';
 
+// sidebar width bounds — these caps suit the small 1060px box; fullscreen lifts the
+// max (derived from the viewport so the main pane keeps room), reverting clamps back
+const SIDEBAR_KEY = 'editor:vc:sidebar:width';
+const SIDEBAR_DEFAULT_W = 300;
+const SIDEBAR_MIN_W = 260;
+const SIDEBAR_MAX_W = 720;
+// fullscreen fills the viewport right of the 40px left toolbar; keep at least this for main
+const VC_MAIN_MIN_W = 480;
+const FULLSCREEN_TOOLBAR_W = 40;
+
 editor.once('load', () => {
     if (config.project.settings.useLegacyScripts) {
         return;
@@ -90,13 +100,13 @@ editor.once('load', () => {
 
     const sidebar = new Container({
         class: 'vc-sidebar',
-        width: editor.call('localStorage:get', 'editor:vc:sidebar:width') || 300,
+        width: editor.call('localStorage:get', SIDEBAR_KEY) || SIDEBAR_DEFAULT_W,
         resizable: 'right',
-        resizeMin: 260,
-        resizeMax: 720
+        resizeMin: SIDEBAR_MIN_W,
+        resizeMax: SIDEBAR_MAX_W
     });
     sidebar.on('resize', () => {
-        editor.call('localStorage:set', 'editor:vc:sidebar:width', sidebar.width);
+        editor.call('localStorage:set', SIDEBAR_KEY, sidebar.width);
     });
     body.append(sidebar);
 
@@ -143,6 +153,21 @@ editor.once('load', () => {
     tabContent.append(history);
     main.append(changes.summary);
     main.append(detail);
+
+    // the picker can toggle fullscreen (picker-project); lift the sidebar + composer
+    // resize caps to the wider viewport while fullscreen, and clamp any oversized pane
+    // back into the small box when restored. driven by inline width/height, so the
+    // persisted value is the source of truth for clamping (the live getter reads 0 when hidden)
+    const applyResizeBounds = (full: boolean) => {
+        const sidebarMax = full ? Math.max(SIDEBAR_MAX_W, window.innerWidth - FULLSCREEN_TOOLBAR_W - VC_MAIN_MIN_W) : SIDEBAR_MAX_W;
+        sidebar.resizeMax = sidebarMax;
+        const w = editor.call('localStorage:get', SIDEBAR_KEY) || SIDEBAR_DEFAULT_W;
+        if (w > sidebarMax) {
+            sidebar.width = sidebarMax;
+            editor.call('localStorage:set', SIDEBAR_KEY, sidebarMax);
+        }
+        changes.sidebar.setComposerMax(full);
+    };
 
     // compare bar
     const compareBar = new Container({ class: 'vc-compare-bar', hidden: true });
@@ -738,6 +763,10 @@ editor.once('load', () => {
     // ---- messenger list maintenance ----
     panel.on('show', () => {
         setViewedBranch(config.self.branch);
+        // size the panes for the current fullscreen state (picker-project is loaded by
+        // now) and track live toggles; the subscription is dropped with events on hide
+        applyResizeBounds(editor.call('picker:project:isFullscreen') === true);
+        events.push(editor.on('picker:project:fullscreen', applyResizeBounds));
         changes.sidebar.invalidate();
         setCompareMode(false);
         setTab(showNewCheckpointOnLoad ? 'changes' : 'history');

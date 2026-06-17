@@ -13,6 +13,9 @@ const COMPOSER_KEY = 'editor:vc:composer:height';
 const COMPOSER_DEFAULT_H = 160;
 const COMPOSER_MIN_H = 140;
 const COMPOSER_MAX_H = 420;
+// fullscreen lifts the composer cap to the viewport height minus the picker chrome
+// (project header 33 + tabs 38) and a minimum changes-list height it must not eat into
+const COMPOSER_FULL_RESERVE = 33 + 38 + 160;
 
 export const createChangesPanel = () => {
     const sidebar = new Container({ class: 'vc-changes' });
@@ -477,6 +480,17 @@ export const createChangesPanel = () => {
         },
         focusForm: () => {
             setTimeout(() => description.focus());
+        },
+        // raise the resize cap to the viewport in fullscreen so the composer can grow;
+        // clamp the persisted height back into the small-box cap when restored
+        setComposerMax: (full: boolean) => {
+            const max = full ? Math.max(COMPOSER_MAX_H, window.innerHeight - COMPOSER_FULL_RESERVE) : COMPOSER_MAX_H;
+            form.resizeMax = max;
+            const h = editor.call('localStorage:get', COMPOSER_KEY) || COMPOSER_DEFAULT_H;
+            if (h > max) {
+                form.height = max;
+                editor.call('localStorage:set', COMPOSER_KEY, max);
+            }
         }
     });
     // Object.assign snapshots getter values; live getters must be defined directly
@@ -496,6 +510,7 @@ export const createChangesPanel = () => {
             resetForm: () => void;
             setBusy: (on: boolean) => void;
             focusForm: () => void;
+            setComposerMax: (full: boolean) => void;
             count: number | null;
         },
         summary
