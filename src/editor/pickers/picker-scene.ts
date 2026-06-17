@@ -1,5 +1,5 @@
 import type { EventHandle } from '@playcanvas/observer';
-import { Button, Container, Element, Label, Menu, Progress, TextInput } from '@playcanvas/pcui';
+import { Button, Container, Element, Label, Menu, TextInput } from '@playcanvas/pcui';
 
 import { LegacyList } from '@/common/ui/list';
 import { LegacyListItem } from '@/common/ui/list-item';
@@ -26,18 +26,6 @@ editor.once('load', () => {
     if (!editor.call('permissions:write')) {
         container.class.add('disabled');
     }
-
-    // progress bar and loading label
-    const loading = new Label({
-        text: 'Loading...'
-    });
-    container.append(loading);
-
-    const progressBar = new Progress({
-        value: 100
-    });
-    progressBar.hidden = true;
-    container.append(progressBar);
 
     // disables / enables field depending on permissions
     const handlePermissions = (field: Element) => {
@@ -71,6 +59,24 @@ editor.once('load', () => {
     handlePermissions(newScene);
     toolbar.append(newScene);
 
+    // skeleton placeholder shown only while the first scene list loads
+    const skeleton = new Container({
+        class: 'scenes-skeleton'
+    });
+    for (let i = 0; i < 4; i++) {
+        const skeletonRow = document.createElement('div');
+        skeletonRow.classList.add('skeleton-row');
+        const title = document.createElement('div');
+        title.classList.add('bone', 'title');
+        const sub = document.createElement('div');
+        sub.classList.add('bone', 'sub');
+        skeletonRow.appendChild(title);
+        skeletonRow.appendChild(sub);
+        skeleton.dom.appendChild(skeletonRow);
+    }
+    skeleton.hidden = true;
+    container.append(skeleton);
+
     const sceneList = new LegacyList();
     sceneList.class.add('scene-list');
     container.append(sceneList);
@@ -78,13 +84,13 @@ editor.once('load', () => {
 
     let events: EventHandle[] = [];
     let scenes: Scene[] = [];
+    let loaded = false;
 
     let dropdownScene: Scene | null = null;
     let dropdownMenu: Menu | null = null;
 
-    const toggleProgress = (toggle: boolean) => {
-        loading.hidden = !toggle;
-        progressBar.hidden = !toggle;
+    const toggleLoading = (toggle: boolean) => {
+        skeleton.hidden = !toggle;
         sceneList.hidden = toggle || !scenes.length;
     };
 
@@ -94,15 +100,7 @@ editor.once('load', () => {
             editor.call('picker:project:setClosable', false);
         }
 
-        if (container.hidden) {
-            return;
-        }
-
-        const row = document.getElementById(`picker-scene-${sceneId}`);
-        if (row) {
-            row.parentElement.removeChild(row);
-        }
-
+        // update the cache even while hidden so the next open stays fresh
         for (let i = 0; i < scenes.length; i++) {
             if (parseInt(String(scenes[i].id), 10) === parseInt(String(sceneId), 10)) {
                 // close dropdown menu if current scene deleted
@@ -115,8 +113,9 @@ editor.once('load', () => {
             }
         }
 
-        if (!scenes.length) {
-            sceneList.hidden = true;
+        // re-render in place when the panel is open
+        if (!container.hidden) {
+            refreshScenes();
         }
     };
 
@@ -390,14 +389,19 @@ editor.once('load', () => {
 
     // on show
     container.on('show', () => {
-        toggleProgress(true);
-
-        // load scenes
-        editor.call('scenes:list', (items) => {
-            toggleProgress(false);
-            scenes = items;
+        if (loaded) {
+            // render cached scenes immediately; messenger keeps them fresh
+            toggleLoading(false);
             refreshScenes();
-        });
+        } else {
+            toggleLoading(true);
+            editor.call('scenes:list', (items) => {
+                scenes = items;
+                loaded = true;
+                toggleLoading(false);
+                refreshScenes();
+            });
+        }
 
         if (editor.call('viewport:inViewport')) {
             editor.emit('viewport:hover', false);
@@ -407,10 +411,9 @@ editor.once('load', () => {
     // on hide
     container.on('hide', () => {
         destroyEvents();
-        scenes = [];
 
-        // destroy scene items because same row ids
-        // might be used by download / new build popups
+        // clear the rendered rows (their ids may be reused by download /
+        // new build popups) but keep the cached scenes for the next open
         sceneList.element.innerHTML = '';
 
         editor.emit('picker:scene:close');
@@ -448,21 +451,21 @@ editor.once('load', () => {
 
     // subscribe to messenger scene.new
     editor.on('messenger:scene.new', (data) => {
-        if (container.hidden) {
-            return;
-        }
-        if (data.scene.branchId !== config.self.branch.id) {
+        // only maintain the cache once populated; an unopened panel fetches
+        // the full list on its first show
+        if (!loaded || data.scene.branchId !== config.self.branch.id) {
             return;
         }
 
         editor.call('scenes:get', data.scene.id, (err, scene) => {
-            if (container.hidden) {
-                return;
-            } // check if hidden when Ajax returns
+            // keep the cache fresh even while hidden; avoid duplicates
+            if (!scenes.some(s => parseInt(String(s.id), 10) === parseInt(String(scene.id), 10))) {
+                scenes.push(scene);
+            }
 
-            scenes.push(scene);
-
-            refreshScenes();
+            if (!container.hidden) {
+                refreshScenes();
+            }
         });
     });
 });

@@ -3802,8 +3802,48 @@ strong {
         padding-left: 10px;
     }
 
-    > .pcui-progress {
-        width: 100%;
+    // shimmer placeholder shown while the first scene list loads; mirrors the
+    // scene-list box so it connects to the toolbar
+    > .scenes-skeleton {
+        border: 1px solid $border-primary;
+        border-top: none;
+        border-radius: 0 0 6px 6px;
+        overflow: hidden;
+
+        > .skeleton-row {
+            box-sizing: border-box;
+            height: 58px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 8px;
+            padding: 0 15px;
+            border-bottom: 1px solid $border-primary;
+
+            &:last-child {
+                border-bottom: none;
+            }
+
+            &:nth-child(2) .bone { animation-delay: 120ms; }
+            &:nth-child(3) .bone { animation-delay: 240ms; }
+            &:nth-child(4) .bone { animation-delay: 360ms; }
+        }
+
+        .bone {
+            background-color: rgb(255 255 255 / 8%);
+            border-radius: 4px;
+            animation: builds-skeleton-pulse 1.4s ease-in-out infinite;
+
+            &.title {
+                width: 30%;
+                height: 12px;
+            }
+
+            &.sub {
+                width: 22%;
+                height: 10px;
+            }
+        }
     }
 
     > .toolbar {
@@ -3845,7 +3885,6 @@ strong {
             color: $text-secondary;
             background-color: $bcg-dark;
             font-size: 13px;
-            text-transform: uppercase;
             box-shadow: none;
             transition: color 100ms, background-color 100ms, box-shadow 100ms;
 
