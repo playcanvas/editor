@@ -34,8 +34,9 @@ const TEMPLATE_FIELDS: Record<string, string> = { template_id: 'Source template'
 const ASSET_ID_ARRAY_FIELDS = new Set(['path', 'scripts']);
 
 // loading-state skeleton fragments (mirror the real diff layout: sidebar rows are
-// name + status badge; main panels are a header bar over field rows of label + value)
-const SKELETON_ROW = '<div class="skeleton-row"><span class="bone line"></span><span class="bone badge"></span></div>';
+// name + status badge over a sub line; the main pane is a header bar over bordered
+// panels of label + value field rows)
+const SKELETON_ROW = '<div class="skeleton-row"><span class="bone line"></span><span class="bone badge"></span><span class="bone sub"></span></div>';
 const SKELETON_FIELD = '<div class="skeleton-field"><span class="bone label"></span><span class="bone value"></span></div>';
 const SKELETON_PANEL = `<div class="skeleton-panel"><div class="skeleton-phead"><span class="bone line"></span></div>${SKELETON_FIELD.repeat(3)}</div>`;
 
@@ -812,7 +813,7 @@ editor.once('load', () => {
         meta.textContent = '';
         clearSidebar();
         list.innerHTML = `<div class="vc-diff-skeleton">${SKELETON_ROW.repeat(6)}</div>`;
-        main.innerHTML = `<div class="vc-diff-skeleton main"><div class="skeleton-head"><span class="bone title"></span><span class="bone badge"></span></div>${SKELETON_PANEL.repeat(2)}</div>`;
+        main.innerHTML = `<div class="vc-diff-skeleton main"><div class="skeleton-head"><span class="bone title"></span><span class="bone badge"></span></div><div class="skeleton-body">${SKELETON_PANEL.repeat(2)}</div></div>`;
     };
 
     const setDiff = (diff: any) => {

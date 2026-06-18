@@ -57,13 +57,12 @@ $vc-add-edge: #3fb950;
 }
 
 .vc-diff-top {
+    position: relative;
     display: flex;
     flex: none;
     align-items: center;
     gap: 12px;
-
-    // right padding equals the close button's vertical centring gap ((33 − 28) / 2) so its corner spacing is symmetric
-    padding: 0 2.5px 0 16px;
+    padding: 0 0 0 16px;
 
     // match the picker-project panel header height (its content is offset by 33px)
     height: 33px;
@@ -82,16 +81,20 @@ $vc-add-edge: #3fb950;
         font-size: 11px;
     }
 
-    // fullscreen toggle — windows-style maximise/restore icon, mirrors the
-    // project picker's .fullscreen-toggle; auto-left pushes it + the close right
+    // fullscreen toggle — windows-style maximise/restore icon, positioned exactly
+    // like the project picker's .fullscreen-toggle (absolute, right: 30px) so the
+    // two pickers' window controls line up
     > .vc-diff-fullscreen-toggle {
-        position: relative;
-        margin: 0 0 0 auto;
+        position: absolute;
+        top: 50%;
+        right: 30px;
+        margin: 0;
         width: 28px;
         padding: 0;
         background: transparent;
         border: 0;
         color: $text-secondary;
+        transform: translateY(-50%);
 
         &:hover {
             border: 0;
@@ -148,9 +151,13 @@ $vc-add-edge: #3fb950;
     }
 
     > .vc-diff-close {
-        // negative left margin cancels the .vc-diff-top 12px flex gap so the close
-        // sits flush against the fullscreen toggle as one window-control cluster
-        margin: 0 0 0 -12px;
+        // flush to the right edge like the project picker's header close, vertically
+        // centred in the 33px bar (the 28px button would otherwise top-align)
+        position: absolute;
+        top: 50%;
+        right: 0;
+        margin: 0;
+        transform: translateY(-50%);
         background: transparent;
         border: 0;
 
@@ -473,53 +480,68 @@ $vc-add-edge: #3fb950;
             flex: 1 1 auto;
             height: 10px;
         }
+
+        // the sub line under the name, matching .vc-diff-row's 'material · 1 change'
+        &.sub {
+            order: 3;
+            flex-basis: 100%;
+            max-width: 110px;
+            height: 8px;
+            margin-top: 2px;
+        }
     }
 
-    // sidebar rows: name + status badge (no leading icon, matching .vc-diff-row)
+    // sidebar rows: name + status badge over a sub line (matching .vc-diff-row)
     > .skeleton-row {
         display: flex;
+        flex-wrap: wrap;
         align-items: center;
-        gap: 10px;
-        padding: 11px 12px;
+        gap: 4px 10px;
+        padding: 9px 12px;
         border-bottom: 1px solid $border-primary;
     }
 
     &.main {
-        padding: 12px 16px;
-
+        // header bar matches .vc-diff-detail-head; the body is padded like .vc-diff-detail
         > .skeleton-head {
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-bottom: 14px;
+            padding: 10px 16px;
+            background-color: $bcg-dark;
+            border-bottom: 1px solid $border-primary;
         }
 
-        // panel: header bar over field rows, like .vc-diff-panel
-        > .skeleton-panel {
-            margin-bottom: 10px;
-            border: 1px solid $border-primary;
-            border-radius: 3px;
-            overflow: hidden;
+        > .skeleton-body {
+            padding: 10px 14px;
 
-            > .skeleton-phead {
-                padding: 10px 12px;
-                background-color: $bcg-dark;
-                border-bottom: 1px solid $border-primary;
+            // panel: header bar over field rows, like .vc-diff-detail .vc-diff-panel
+            > .skeleton-panel {
+                margin-bottom: 10px;
+                border: 1px solid rgba($border-primary, 0.6);
+                border-radius: 3px;
+                overflow: hidden;
 
-                > .bone.line {
-                    max-width: 120px;
+                > .skeleton-phead {
+                    padding: 10px 12px;
+                    background-color: $bcg-darker;
+                    border-bottom: 1px solid $border-primary;
+
+                    > .bone.line {
+                        max-width: 120px;
+                    }
                 }
-            }
 
-            > .skeleton-field {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                padding: 9px 12px;
-                border-bottom: 1px solid $border-primary;
+                > .skeleton-field {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    padding: 9px 12px;
+                    border-bottom: 1px solid $border-primary;
 
-                &:last-child {
-                    border-bottom: none;
+                    &:last-child {
+                        border-bottom: none;
+                    }
                 }
             }
         }
