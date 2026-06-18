@@ -2725,6 +2725,9 @@ strong {
                 min-width: 0;
 
                 > .pcui-panel-header {
+                    // fixed height matching the reserved body offset (calc(100% - 33px))
+                    // so it lines up exactly with the diff picker's .vc-diff-top (also 33px)
+                    height: 33px;
                     border-bottom: 1px solid $border-primary;
 
                     .pcui-panel-header-title {
@@ -2738,11 +2741,12 @@ strong {
 
                         font-size: 14px;
                         position: absolute;
-                        top: 0;
+                        top: 50%;
                         right: 0;
                         color: $text-secondary;
                         background-color: transparent;
                         border-color: transparent;
+                        transform: translateY(-50%);
 
                         &:hover,
                         &:focus {
@@ -2754,13 +2758,14 @@ strong {
 
                     .fullscreen-toggle {
                         position: absolute;
-                        top: 0;
+                        top: 50%;
                         right: 30px;
                         width: 28px;
                         padding: 0;
                         color: $text-secondary;
                         background-color: transparent;
                         border-color: transparent;
+                        transform: translateY(-50%);
 
                         // windows-style maximise square; morphs into the restore
                         // glyph (two squares) when fullscreen is on

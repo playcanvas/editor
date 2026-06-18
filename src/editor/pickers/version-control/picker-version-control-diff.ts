@@ -1,4 +1,4 @@
-import { Button, Container, Overlay, Panel, TreeView, TreeViewItem } from '@playcanvas/pcui';
+import { Button, Container, Overlay, Panel, SelectInput, TextInput, TreeView, TreeViewItem } from '@playcanvas/pcui';
 
 import { handleCallback } from '@/common/utils';
 import { config } from '@/editor/config';
@@ -25,6 +25,15 @@ const SETTINGS_ROOT_RE = /^(?:scene |project )?settings$/i;
 // 'editor:picker:project:fullscreen'. defaults to the small box (matching the project picker)
 const FULLSCREEN_KEY = 'editor:picker:vcdiff:fullscreen';
 
+// resizable sidebar bounds — mirror the version-control picker: caps suit the small
+// 1060px box, fullscreen lifts the max off the viewport keeping room for the main pane
+const SIDEBAR_KEY = 'editor:vcdiff:sidebar:width';
+const SIDEBAR_DEFAULT_W = 280;
+const SIDEBAR_MIN_W = 240;
+const SIDEBAR_MAX_W = 720;
+const DIFF_MAIN_MIN_W = 480;
+const FULLSCREEN_TOOLBAR_W = 40;
+
 // entity-level template-instance fields get their own (collapsed) panel rather
 // than sitting among the entity's regular values; values are shown friendlier
 const TEMPLATE_PANEL = 'Template instance';
@@ -34,8 +43,9 @@ const TEMPLATE_FIELDS: Record<string, string> = { template_id: 'Source template'
 const ASSET_ID_ARRAY_FIELDS = new Set(['path', 'scripts']);
 
 // loading-state skeleton fragments (mirror the real diff layout: sidebar rows are
-// name + status badge; main panels are a header bar over field rows of label + value)
-const SKELETON_ROW = '<div class="skeleton-row"><span class="bone line"></span><span class="bone badge"></span></div>';
+// name + status badge over a sub line; the main pane is a header bar over bordered
+// panels of label + value field rows)
+const SKELETON_ROW = '<div class="skeleton-row"><span class="bone line"></span><span class="bone badge"></span><span class="bone sub"></span></div>';
 const SKELETON_FIELD = '<div class="skeleton-field"><span class="bone label"></span><span class="bone value"></span></div>';
 const SKELETON_PANEL = `<div class="skeleton-panel"><div class="skeleton-phead"><span class="bone line"></span></div>${SKELETON_FIELD.repeat(3)}</div>`;
 
@@ -75,6 +85,7 @@ editor.once('load', () => {
         fullscreen = !fullscreen;
         editor.call('localStorage:set', FULLSCREEN_KEY, fullscreen);
         applyFullscreen();
+        applyResizeBounds(fullscreen);
     });
     top.append(fullscreenToggle);
 
@@ -89,9 +100,54 @@ editor.once('load', () => {
     const body = new Container({ class: 'vc-diff-body' });
     shell.append(body);
 
-    const sidebar = document.createElement('div');
-    sidebar.classList.add('vc-diff-sidebar');
-    body.dom.appendChild(sidebar);
+    // resizable container with a draggable right edge (the divider), matching the
+    // version-control picker; persisted width survives reopen, bounds clamp on restore
+    const sidebar = new Container({
+        class: 'vc-diff-sidebar',
+        resizable: 'right',
+        resizeMin: SIDEBAR_MIN_W,
+        resizeMax: SIDEBAR_MAX_W,
+        width: editor.call('localStorage:get', SIDEBAR_KEY) || SIDEBAR_DEFAULT_W
+    });
+    sidebar.on('resize', () => {
+        editor.call('localStorage:set', SIDEBAR_KEY, sidebar.width);
+    });
+    body.append(sidebar);
+
+    // persistent sidebar chrome — head (count) and the filter bar survive list
+    // re-renders so the text input keeps focus while typing
+    const head = document.createElement('div');
+    head.classList.add('vc-diff-sidebar-head');
+    sidebar.dom.appendChild(head);
+
+    const filterBar = document.createElement('div');
+    filterBar.classList.add('vc-diff-filter');
+    // native placeholder; pcui's [placeholder] renders an out-of-place chip (matches branch-switcher)
+    const filter = new TextInput({ keyChange: true, renderChanges: false });
+    (filter.dom.querySelector('input') as HTMLInputElement).placeholder = 'Filter changes';
+    filterBar.appendChild(filter.dom);
+    const typeSelect = new SelectInput({ type: 'string', value: 'all', options: [{ v: 'all', t: 'All types' }] });
+    filterBar.appendChild(typeSelect.dom);
+    sidebar.dom.appendChild(filterBar);
+    filter.on('change', () => renderSidebar());
+    typeSelect.on('change', () => renderSidebar());
+
+    const list = document.createElement('div');
+    list.classList.add('vc-diff-list');
+    sidebar.dom.appendChild(list);
+
+    // lift the resize cap to the viewport while fullscreen (keeping room for the main
+    // pane) and clamp an oversized persisted width back into the small box on restore
+    const applyResizeBounds = (full: boolean) => {
+        const sidebarMax = full ? Math.max(SIDEBAR_MAX_W, window.innerWidth - FULLSCREEN_TOOLBAR_W - DIFF_MAIN_MIN_W) : SIDEBAR_MAX_W;
+        sidebar.resizeMax = sidebarMax;
+        const w = editor.call('localStorage:get', SIDEBAR_KEY) || SIDEBAR_DEFAULT_W;
+        if (w > sidebarMax) {
+            sidebar.width = sidebarMax;
+            editor.call('localStorage:set', SIDEBAR_KEY, sidebarMax);
+        }
+    };
+    applyResizeBounds(fullscreen);
 
     const main = document.createElement('div');
     main.classList.add('vc-diff-main');
@@ -104,13 +160,13 @@ editor.once('load', () => {
     let trees: TreeView[] = [];
     const fileStats = new Map<string, Promise<{ deleted: number; added: number } | null>>();
 
-    sidebar.addEventListener('click', (evt) => {
+    sidebar.dom.addEventListener('click', (evt) => {
         const row = (evt.target as HTMLElement).closest('.vc-diff-row') as HTMLElement;
         if (!row?.dataset.index) {
             return;
         }
         selected = Number(row.dataset.index);
-        sidebar.querySelectorAll('.vc-diff-row.selected').forEach(el => el.classList.remove('selected'));
+        sidebar.dom.querySelectorAll('.vc-diff-row.selected').forEach(el => el.classList.remove('selected'));
         row.classList.add('selected');
         renderMain();
     });
@@ -542,19 +598,53 @@ editor.once('load', () => {
         }
     };
 
-    const renderSidebar = () => {
-        sidebar.innerHTML = '';
-        const summary = summarizeDiff(current ?? {});
-        const head = document.createElement('div');
-        head.classList.add('vc-diff-sidebar-head');
-        head.textContent = `${summary.total} change${summary.total === 1 ? '' : 's'}`;
-        sidebar.appendChild(head);
+    // empties the list and hides the filter bar — for loading/empty/error states
+    const clearSidebar = () => {
+        head.textContent = '';
+        filterBar.hidden = true;
+        list.innerHTML = '';
+    };
 
-        for (const group of summary.groups) {
+    const renderSidebar = () => {
+        filterBar.hidden = false;
+        list.innerHTML = '';
+        const summary = summarizeDiff(current ?? {});
+        const type = typeSelect.value;
+        const query = filter.value.trim();
+        // fuzzy match by name across all items; order maps conflict index -> rank
+        const order = query ?
+            new Map<number, number>(editor.call('search:items', summary.groups.flatMap(g => g.items.map(it => [it.name, it.index])), query).map((idx: number, i: number) => [idx, i])) :
+            null;
+
+        let shown = 0;
+        const groups = summary.groups
+        .filter(g => type === 'all' || g.type === type)
+        .map(g => ({
+            type: g.type,
+            items: order ? g.items.filter(it => order.has(it.index)).sort((a, b) => order.get(a.index)! - order.get(b.index)!) : g.items
+        }))
+        .filter(g => g.items.length);
+        groups.forEach((g) => {
+            shown += g.items.length;
+        });
+
+        const active = type !== 'all' || query !== '';
+        const plural = summary.total === 1 ? '' : 's';
+        head.textContent = active ? `${shown} of ${summary.total} change${plural}` : `${summary.total} change${plural}`;
+
+        if (!groups.length) {
+            const empty = document.createElement('div');
+            empty.classList.add('vc-diff-no-match');
+            empty.textContent = 'No changes match your filter';
+            list.appendChild(empty);
+            return;
+        }
+
+        for (const group of groups) {
             const groupHead = document.createElement('div');
             groupHead.classList.add('vc-diff-group');
             groupHead.textContent = `${typeLabel(group.type)} · ${group.items.length}`;
-            sidebar.appendChild(groupHead);
+            list.appendChild(groupHead);
 
             for (const item of group.items) {
                 const conflict = current.conflicts[item.index];
@@ -586,7 +676,7 @@ editor.once('load', () => {
                 row.appendChild(counts);
 
                 appendBadge(row, item.status);
-                sidebar.appendChild(row);
+                list.appendChild(row);
             }
         }
     };
@@ -653,13 +743,17 @@ editor.once('load', () => {
             meta.appendChild(document.createTextNode(' · vs '));
             meta.appendChild(hashChip(base));
         }
+        // type options reflect only the types present in this diff; reset filters
+        typeSelect.options = [{ v: 'all', t: 'All types' }, ...summary.groups.map(g => ({ v: g.type, t: typeLabel(g.type).replace(/^./, c => c.toUpperCase()) }))];
+        typeSelect.value = 'all';
+        filter.value = '';
         renderSidebar();
         renderMain();
     };
 
     const cleanup = () => {
         viewToken++;
-        sidebar.innerHTML = '';
+        clearSidebar();
         trees.forEach(t => t.destroy());
         trees = [];
         destroyValueFields(main);
@@ -750,8 +844,9 @@ editor.once('load', () => {
         trees = [];
         destroyValueFields(main);
         meta.textContent = '';
-        sidebar.innerHTML = `<div class="vc-diff-skeleton">${SKELETON_ROW.repeat(6)}</div>`;
-        main.innerHTML = `<div class="vc-diff-skeleton main"><div class="skeleton-head"><span class="bone title"></span><span class="bone badge"></span></div>${SKELETON_PANEL.repeat(2)}</div>`;
+        clearSidebar();
+        list.innerHTML = `<div class="vc-diff-skeleton">${SKELETON_ROW.repeat(6)}</div>`;
+        main.innerHTML = `<div class="vc-diff-skeleton main"><div class="skeleton-head"><span class="bone title"></span><span class="bone badge"></span></div><div class="skeleton-body">${SKELETON_PANEL.repeat(2)}</div></div>`;
     };
 
     const setDiff = (diff: any) => {
@@ -762,7 +857,7 @@ editor.once('load', () => {
         const summary = summarizeDiff(current ?? {});
         if (!summary.total) {
             meta.textContent = 'No changes';
-            sidebar.innerHTML = '';
+            clearSidebar();
             renderNotice('No changes since the checkpoint');
             return;
         }
@@ -799,7 +894,7 @@ editor.once('load', () => {
                 clearTimeout(slowHint);
                 if (token === viewToken) {
                     meta.textContent = '';
-                    sidebar.innerHTML = '';
+                    clearSidebar();
                     renderNotice(`Could not load diff: ${err instanceof Error ? err.message : err}`);
                 }
             });
