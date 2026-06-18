@@ -25,6 +25,15 @@ const SETTINGS_ROOT_RE = /^(?:scene |project )?settings$/i;
 // 'editor:picker:project:fullscreen'. defaults to the small box (matching the project picker)
 const FULLSCREEN_KEY = 'editor:picker:vcdiff:fullscreen';
 
+// resizable sidebar bounds — mirror the version-control picker: caps suit the small
+// 1060px box, fullscreen lifts the max off the viewport keeping room for the main pane
+const SIDEBAR_KEY = 'editor:vcdiff:sidebar:width';
+const SIDEBAR_DEFAULT_W = 280;
+const SIDEBAR_MIN_W = 240;
+const SIDEBAR_MAX_W = 720;
+const DIFF_MAIN_MIN_W = 480;
+const FULLSCREEN_TOOLBAR_W = 40;
+
 // entity-level template-instance fields get their own (collapsed) panel rather
 // than sitting among the entity's regular values; values are shown friendlier
 const TEMPLATE_PANEL = 'Template instance';
@@ -76,6 +85,7 @@ editor.once('load', () => {
         fullscreen = !fullscreen;
         editor.call('localStorage:set', FULLSCREEN_KEY, fullscreen);
         applyFullscreen();
+        applyResizeBounds(fullscreen);
     });
     top.append(fullscreenToggle);
 
@@ -90,15 +100,25 @@ editor.once('load', () => {
     const body = new Container({ class: 'vc-diff-body' });
     shell.append(body);
 
-    const sidebar = document.createElement('div');
-    sidebar.classList.add('vc-diff-sidebar');
-    body.dom.appendChild(sidebar);
+    // resizable container with a draggable right edge (the divider), matching the
+    // version-control picker; persisted width survives reopen, bounds clamp on restore
+    const sidebar = new Container({
+        class: 'vc-diff-sidebar',
+        resizable: 'right',
+        resizeMin: SIDEBAR_MIN_W,
+        resizeMax: SIDEBAR_MAX_W,
+        width: editor.call('localStorage:get', SIDEBAR_KEY) || SIDEBAR_DEFAULT_W
+    });
+    sidebar.on('resize', () => {
+        editor.call('localStorage:set', SIDEBAR_KEY, sidebar.width);
+    });
+    body.append(sidebar);
 
     // persistent sidebar chrome — head (count) and the filter bar survive list
     // re-renders so the text input keeps focus while typing
     const head = document.createElement('div');
     head.classList.add('vc-diff-sidebar-head');
-    sidebar.appendChild(head);
+    sidebar.dom.appendChild(head);
 
     const filterBar = document.createElement('div');
     filterBar.classList.add('vc-diff-filter');
@@ -108,13 +128,26 @@ editor.once('load', () => {
     filterBar.appendChild(filter.dom);
     const typeSelect = new SelectInput({ type: 'string', value: 'all', options: [{ v: 'all', t: 'All types' }] });
     filterBar.appendChild(typeSelect.dom);
-    sidebar.appendChild(filterBar);
+    sidebar.dom.appendChild(filterBar);
     filter.on('change', () => renderSidebar());
     typeSelect.on('change', () => renderSidebar());
 
     const list = document.createElement('div');
     list.classList.add('vc-diff-list');
-    sidebar.appendChild(list);
+    sidebar.dom.appendChild(list);
+
+    // lift the resize cap to the viewport while fullscreen (keeping room for the main
+    // pane) and clamp an oversized persisted width back into the small box on restore
+    const applyResizeBounds = (full: boolean) => {
+        const sidebarMax = full ? Math.max(SIDEBAR_MAX_W, window.innerWidth - FULLSCREEN_TOOLBAR_W - DIFF_MAIN_MIN_W) : SIDEBAR_MAX_W;
+        sidebar.resizeMax = sidebarMax;
+        const w = editor.call('localStorage:get', SIDEBAR_KEY) || SIDEBAR_DEFAULT_W;
+        if (w > sidebarMax) {
+            sidebar.width = sidebarMax;
+            editor.call('localStorage:set', SIDEBAR_KEY, sidebarMax);
+        }
+    };
+    applyResizeBounds(fullscreen);
 
     const main = document.createElement('div');
     main.classList.add('vc-diff-main');
@@ -127,13 +160,13 @@ editor.once('load', () => {
     let trees: TreeView[] = [];
     const fileStats = new Map<string, Promise<{ deleted: number; added: number } | null>>();
 
-    sidebar.addEventListener('click', (evt) => {
+    sidebar.dom.addEventListener('click', (evt) => {
         const row = (evt.target as HTMLElement).closest('.vc-diff-row') as HTMLElement;
         if (!row?.dataset.index) {
             return;
         }
         selected = Number(row.dataset.index);
-        sidebar.querySelectorAll('.vc-diff-row.selected').forEach(el => el.classList.remove('selected'));
+        sidebar.dom.querySelectorAll('.vc-diff-row.selected').forEach(el => el.classList.remove('selected'));
         row.classList.add('selected');
         renderMain();
     });
