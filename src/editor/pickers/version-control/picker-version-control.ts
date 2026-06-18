@@ -449,13 +449,12 @@ editor.once('load', () => {
     };
 
     // inline (no overlay) checkpoint creation from the pinned form;
-    // the new row lands in history via messenger:checkpoint.createEnded
+    // the new row lands in history and the changes list refreshes via
+    // messenger:checkpoint.createEnded (which also updates latestCheckpointId first)
     changes.sidebar.on('create', (description: string) => {
         changes.sidebar.setBusy(true);
         checkpointCreateJob({ projectId: config.project.id, branchId: config.self.branch.id, description }).then(() => {
             changes.sidebar.resetForm();
-            changes.sidebar.invalidate();
-            changes.sidebar.refresh(true);
         }).catch((err) => {
             changes.sidebar.setBusy(false);
             log.error(err);

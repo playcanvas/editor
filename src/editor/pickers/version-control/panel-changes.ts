@@ -420,6 +420,9 @@ export const createChangesPanel = () => {
             // single-flight: clear loading even for superseded responses or refresh deadlocks
             loading = false;
             if (snap !== gen) {
+                // a refresh landed while this fetch was in flight (e.g. the double
+                // invalidate() after creating a checkpoint) and was dropped — run it now
+                refresh();
                 return;
             }
             rawPromise = null;
@@ -442,6 +445,8 @@ export const createChangesPanel = () => {
             clearTimeout(slowHint);
             loading = false;
             if (snap !== gen) {
+                // superseded by a dropped refresh (see .then above) — run it now
+                refresh();
                 return;
             }
             rawPromise = null;
