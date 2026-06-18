@@ -120,21 +120,6 @@ editor.once('load', () => {
     const fieldFormatOnSave = new BooleanInput();
     addField('Format On Save:', fieldFormatOnSave, 'ide.formatOnSave', 'If enabled the document will be auto-formatted on save');
 
-    // Only show AI autocomplete settings if the user has access
-    const hasAutocompleteAccess = config?.self?.flags?.hasAutocomplete || config?.self?.flags?.superUser;
-    if (hasAutocompleteAccess) {
-        const fieldAutocompleteEnabled = new BooleanInput();
-        addField('Autocomplete:', fieldAutocompleteEnabled, 'editor.ai.autocompleteEnabled', 'Enable AI autocomplete suggestions while typing.');
-
-        const fieldAutocompleteDelay = new NumericInput({
-            min: 100,
-            max: 2000,
-            precision: 1,
-            placeholder: 'ms'
-        });
-        addField('Autocomplete Delay:', fieldAutocompleteDelay, 'editor.ai.autocompleteDelay', 'Delay before showing autocomplete suggestions.');
-    }
-
     settingsPanel.on('show', () => {
         editor.emit('picker:settings:open');
     });
