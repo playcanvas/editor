@@ -93,9 +93,7 @@ const createBranchFromCheckpoint = async (page: Page, checkpointId: string, name
 
 const dialogConfirm = (page: Page) => page.locator('.vc-dialog .pcui-button.confirm');
 const dialogInput = (page: Page) => page.locator('.vc-dialog input');
-const toggleDialogCheck = (page: Page, label: string) => {
-    return page.locator('.vc-dialog-check').filter({ hasText: label }).locator('.pcui-boolean-input').click();
-};
+const toggleDialogCheck = (page: Page, label: string) => page.locator('.vc-dialog').getByLabel(label).click();
 
 /** create a checkpoint via the inline composer and confirm it lands in history */
 const createCheckpoint = async (page: Page, description: string) => {
