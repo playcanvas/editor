@@ -1,0 +1,209 @@
+@use 'sass:color';
+
+// merge picker = diff-view core (.vc-diff-*) + per-item resolution chrome.
+// reuses the diff picker's theme variables and placeholders.
+
+.vc-diff-overlay.vc-merge {
+    // sidebar footer holding the primary Review / Complete action
+    .vc-diff-sidebar-foot {
+        padding: 10px 12px;
+        border-top: 1px solid $border-primary;
+        background: $bcg-dark;
+
+        .vc-merge-primary {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+    // resolution state dot + count on each sidebar row
+    .vc-diff-row > .vc-merge-state {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        flex: none;
+        margin-right: 8px;
+
+        > .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ff8a8a;
+        }
+
+        > .count {
+            font-size: 11px;
+            color: $text-dark;
+        }
+
+        &.resolved > .dot {
+            background: #6fd088;
+        }
+    }
+
+    // detail-pane resolution footer
+    .vc-merge-resolve {
+        margin-top: 14px;
+        padding: 14px 0 4px;
+        border-top: 1px solid $border-primary;
+
+        // each choice is a selectable row with a custom radio indicator,
+        // so it reads as part of the themed UI rather than a bare form control
+        .vc-merge-choice {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            max-width: 380px;
+            padding: 9px 12px;
+            margin-bottom: 8px;
+            border: 1px solid $border-primary;
+            border-radius: 6px;
+            background: $bcg-darker;
+            color: $text-secondary;
+            font-size: 12px;
+            cursor: pointer;
+            user-select: none;
+            transition: border-color 0.12s ease, background 0.12s ease, color 0.12s ease;
+
+            // custom radio: hide the native control, draw our own ring + dot
+            > input[type='radio'] {
+                appearance: none;
+                margin: 0;
+                width: 16px;
+                height: 16px;
+                flex: none;
+                position: relative;
+                border: 2px solid $text-dark;
+                border-radius: 50%;
+                background: transparent;
+                cursor: pointer;
+                transition: border-color 0.12s ease;
+            }
+
+            &:hover {
+                border-color: $text-dark;
+                background: $bcg-dark;
+                color: $text-primary;
+            }
+
+            // checked: light up the whole row with the accent + fill the ring
+            &:has(> input:checked) {
+                border-color: $text-active;
+                background: rgba($text-active, 0.12);
+                color: $text-primary;
+
+                > input[type='radio'] {
+                    border-color: $text-active;
+
+                    &::after {
+                        content: '';
+                        position: absolute;
+                        inset: 2px;
+                        border-radius: 50%;
+                        background: $text-active;
+                    }
+                }
+            }
+
+            // keyboard focus ring for accessibility
+            > input[type='radio']:focus-visible {
+                outline: 2px solid rgba($text-active, 0.5);
+                outline-offset: 2px;
+            }
+        }
+
+        .vc-merge-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+
+            .vc-merge-primary {
+                min-width: 96px;
+            }
+        }
+    }
+
+    // interactive code-merge editor mounted in the detail pane
+    .vc-merge-frame {
+        width: 100%;
+        height: 100%;
+        min-height: 360px;
+        border: 1px solid $border-primary;
+        border-radius: 3px;
+        background: $bcg-darkest;
+    }
+
+    // migrated from _editor-main.scss (old .picker-conflict-manager .textmerge-top)
+    .textmerge-top {
+        height: 36px;
+        line-height: 36px;
+        padding: 0 10px;
+
+        > .content {
+            > .ui-label.name {
+                color: $text-primary;
+                margin: 0;
+                vertical-align: middle;
+            }
+
+            > .ui-button {
+                font-size: 12px;
+                float: right;
+                margin: 0 0 0 15px;
+                margin-top: 5px;
+
+                &::before {
+                    @extend .font-icon;
+
+                    margin-right: 5px;
+                    vertical-align: middle;
+                    font-size: 16px;
+                }
+
+                &.mark-resolved {
+                    background: color.adjust($text-active, $lightness: -7%);
+                    color: $text-primary;
+
+                    &::before {
+                        content: '\E133';
+                    }
+
+                    &:hover,
+                    &:focus {
+                        background: color.adjust($text-active, $lightness: -12%);
+                    }
+                }
+
+                &.use-all::after {
+                    @extend .font-icon;
+
+                    margin-left: 5px;
+                    vertical-align: middle;
+                    font-size: 16px;
+                    content: '\E159';
+                }
+
+                &.go-back::before {
+                    content: '\E158';
+                }
+
+                &.go-to-prev::before {
+                    content: '\E162';
+                }
+
+                &.go-to-next {
+                    margin-left: 0;
+
+                    &::after {
+                        @extend .font-icon;
+
+                        margin-left: 5px;
+                        vertical-align: middle;
+                        font-size: 16px;
+                        content: '\E164';
+                    }
+                }
+            }
+        }
+    }
+}
