@@ -28,10 +28,92 @@ editor.once('load', () => {
 
     const allResolved = () => (currentMergeObject?.conflicts ?? []).every(isGroupResolved);
 
-    // resolution hooks (stubs; completed in Task 3-4) — declared as function
-    // declarations so they hoist above the createVcDiffView call that references them
-    function decorateResolutionRow(row: HTMLElement, conflict: any) {}
-    function renderResolveFooter(detail: HTMLElement, conflict: any) {}
+    // resolution hooks — declared as function declarations so they hoist above
+    // the createVcDiffView call that references them
+    function decorateResolutionRow(row: HTMLElement, conflict: any) {
+        row.querySelector('.vc-merge-state')?.remove();
+        const total = (conflict.data ?? []).length;
+        const done = (conflict.data ?? []).filter((d: any) => d.useSrc || d.useDst || d.useMergedFile).length;
+        const state = document.createElement('span');
+        state.className = `vc-merge-state${done === total ? ' resolved' : ''}`;
+        const dot = document.createElement('span');
+        dot.className = 'dot';
+        state.appendChild(dot);
+        const count = document.createElement('span');
+        count.className = 'count';
+        count.textContent = `${done}/${total}`;
+        state.appendChild(count);
+        row.insertBefore(state, row.firstChild);
+    }
+
+    function resolveItem(conflict: any, side: 'source' | 'destination') {
+        const ids = (conflict.data ?? []).map((d: any) => d.id);
+        if (!ids.length) {
+            return;
+        }
+        const useSrc = side === 'source';
+        handleCallback(editor.api.globals.rest.conflicts.conflictsResolve({
+            mergeId: currentMergeObject.id,
+            conflictIds: ids,
+            useSrc,
+            useDst: !useSrc
+        }), (err: string) => {
+            if (err) {
+                return editor.call('status:error', err);
+            }
+            (conflict.data ?? []).forEach((d: any) => {
+                d.useSrc = useSrc;
+                d.useDst = !useSrc;
+                d.useMergedFile = false;
+            });
+            view.renderSidebar();
+            view.renderMain();
+            updateReviewState();
+        });
+    }
+
+    function renderResolveFooter(detail: HTMLElement, conflict: any) {
+        const footer = document.createElement('div');
+        footer.className = 'vc-merge-resolve';
+
+        const allSrc = (conflict.data ?? []).length > 0 && conflict.data.every((d: any) => d.useSrc);
+        const allDst = (conflict.data ?? []).length > 0 && conflict.data.every((d: any) => d.useDst);
+        const group = `vc-merge-side-${conflict.itemId}`;
+
+        const makeChoice = (value: 'destination' | 'source', label: string, checked: boolean) => {
+            const wrap = document.createElement('label');
+            wrap.className = 'vc-merge-choice';
+            const radio = document.createElement('input');
+            radio.type = 'radio';
+            radio.name = group;
+            radio.value = value;
+            radio.checked = checked;
+            wrap.appendChild(radio);
+            wrap.appendChild(document.createTextNode(label));
+            return wrap;
+        };
+
+        const dstName = currentMergeObject?.destinationBranchName ?? 'destination';
+        const srcName = currentMergeObject?.sourceBranchName ?? 'source';
+        const choiceDst = makeChoice('destination', `Use ${dstName} (destination)`, allDst);
+        const choiceSrc = makeChoice('source', `Use ${srcName} (source)`, allSrc);
+        footer.appendChild(choiceDst);
+        footer.appendChild(choiceSrc);
+
+        const actions = document.createElement('div');
+        actions.className = 'vc-merge-actions';
+        const resolve = new Button({ text: 'Resolve', class: 'vc-merge-primary' });
+        resolve.on('click', () => {
+            const picked = (footer.querySelector(`input[name="${group}"]:checked`) as HTMLInputElement)?.value;
+            if (picked === 'source' || picked === 'destination') {
+                resolveItem(conflict, picked);
+            }
+        });
+        actions.appendChild(resolve.dom);
+        footer.appendChild(actions);
+
+        detail.appendChild(footer);
+    }
 
     const view = createVcDiffView({
         title: 'Resolve Conflicts',
