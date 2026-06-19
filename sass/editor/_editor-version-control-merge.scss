@@ -123,7 +123,12 @@
             text-transform: uppercase;
         }
 
-        &:hover {
+        &:disabled {
+            cursor: default;
+            opacity: 0.7;
+        }
+
+        &:not(:disabled):hover {
             background: $bcg-dark;
         }
 
@@ -142,6 +147,10 @@
                     background: $text-active;
                 }
             }
+        }
+
+        &.selected:disabled {
+            opacity: 1;
         }
 
         &:focus-visible {

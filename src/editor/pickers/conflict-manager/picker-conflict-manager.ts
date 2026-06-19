@@ -48,9 +48,10 @@ editor.once('load', () => {
         row.insertBefore(state, row.firstChild);
     }
 
-    function resolveItem(conflict: any, side: 'source' | 'destination') {
+    function resolveItem(conflict: any, side: 'source' | 'destination', done?: (err?: string) => void) {
         const ids = (conflict.data ?? []).map((d: any) => d.id);
         if (!ids.length) {
+            done?.();
             return;
         }
         const useSrc = side === 'source';
@@ -61,6 +62,7 @@ editor.once('load', () => {
             useDst: !useSrc
         }), (err: string) => {
             if (err) {
+                done?.(err);
                 return editor.call('status:error', err);
             }
             (conflict.data ?? []).forEach((d: any) => {
@@ -71,6 +73,7 @@ editor.once('load', () => {
             view.renderSidebar();
             view.renderMain();
             updateReviewState();
+            done?.();
         });
     }
 
@@ -79,6 +82,7 @@ editor.once('load', () => {
         const allSrc = entries.length > 0 && entries.every((d: any) => d.useSrc);
         const allDst = entries.length > 0 && entries.every((d: any) => d.useDst);
         let picked: 'destination' | 'source' | null = allDst ? 'destination' : allSrc ? 'source' : null;
+        let saved = picked;
 
         const footer = document.createElement('div');
         footer.className = 'vc-merge-resolve';
@@ -90,12 +94,11 @@ editor.once('load', () => {
 
         // primary action — declared first so the option clicks can enable it
         const resolve = new Button({ text: 'Resolve', class: 'vc-merge-primary' });
-        resolve.enabled = picked !== null;
-        resolve.on('click', () => {
-            if (picked) {
-                resolveItem(conflict, picked);
-            }
-        });
+        let pending = false;
+        const updateResolveState = () => {
+            resolve.enabled = !pending && picked !== null && picked !== saved;
+        };
+        updateResolveState();
 
         // segmented destination/source control; the chosen side picks up the accent
         const options = document.createElement('div');
@@ -133,13 +136,33 @@ editor.once('load', () => {
                 });
                 opt.classList.add('selected');
                 opt.setAttribute('aria-checked', 'true');
-                resolve.enabled = true;
+                updateResolveState();
             });
             return opt;
         };
         options.appendChild(makeOpt('destination', currentMergeObject?.destinationBranchName ?? 'main', 'Destination'));
         options.appendChild(makeOpt('source', currentMergeObject?.sourceBranchName ?? 'branch', 'Source'));
         footer.appendChild(options);
+
+        const setPending = (value: boolean) => {
+            pending = value;
+            updateResolveState();
+            options.querySelectorAll<HTMLButtonElement>('.vc-merge-opt').forEach((opt) => {
+                opt.disabled = value;
+                opt.setAttribute('aria-disabled', value ? 'true' : 'false');
+            });
+        };
+        resolve.on('click', () => {
+            if (picked && !pending) {
+                setPending(true);
+                resolveItem(conflict, picked, (err) => {
+                    if (!err) {
+                        saved = picked;
+                    }
+                    setPending(false);
+                });
+            }
+        });
 
         const actions = document.createElement('div');
         actions.className = 'vc-merge-actions';
