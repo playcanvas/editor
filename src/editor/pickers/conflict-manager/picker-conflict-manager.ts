@@ -110,9 +110,46 @@ editor.once('load', () => {
             }
         });
         actions.appendChild(resolve.dom);
+        const hasFile = (conflict.data ?? []).some((d: any) => d.isTextualMerge || d.mergedFilePath);
+        if (hasFile) {
+            const openBtn = new Button({ text: 'Open editor', class: 'vc-merge-open' });
+            openBtn.on('click', () => openTextEditor(conflict));
+            actions.appendChild(openBtn.dom);
+        }
         footer.appendChild(actions);
 
         detail.appendChild(footer);
+    }
+
+    function openTextEditor(conflict: any) {
+        if (textResolver) {
+            textResolver.destroy();
+            textResolver = null;
+        }
+        view.main.innerHTML = '';
+        textResolver = new TextResolver(conflict, currentMergeObject);
+        // the core's main is a plain element; shim a parent with .append for the
+        // legacy panel (.element) and the raw iframe
+        textResolver.appendToParent({
+            append: (el: any) => view.main.appendChild(el instanceof HTMLElement ? el : el.element)
+        });
+        view.main.querySelector('iframe')?.classList.add('vc-merge-frame');
+
+        textResolver.on('resolve', (id: string) => {
+            const entry = (conflict.data ?? []).find((d: any) => d.id === id);
+            if (entry) {
+                entry.useMergedFile = true;
+            }
+            view.renderSidebar();
+            updateReviewState();
+        });
+        textResolver.on('close', () => {
+            if (textResolver) {
+                textResolver.destroy();
+                textResolver = null;
+            }
+            view.renderMain();
+        });
     }
 
     const view = createVcDiffView({
