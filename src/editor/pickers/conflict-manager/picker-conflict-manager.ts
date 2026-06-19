@@ -159,7 +159,7 @@ editor.once('load', () => {
 
     // — messenger —
     const onMsgMergeProgress = (data: any) => {
-        if (data.dst_branch_id !== config.self.branch.id) {
+        if (data.dst_branch_id !== config.self.branch.id || !config.self.branch.merge) {
             return;
         }
         config.self.branch.merge.mergeProgressStatus = data.status;
@@ -255,6 +255,7 @@ editor.once('load', () => {
             });
         } else {
             onClose();
+            view.overlay.hidden = true;
         }
     }, true);
 
