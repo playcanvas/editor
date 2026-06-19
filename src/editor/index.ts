@@ -371,9 +371,6 @@ import './pickers/picker-fix-corrupted-templates';
 import './pickers/picker-team-management';
 
 // conflict manager picker
-import './pickers/conflict-manager/picker-conflict-manager-scene';
-import './pickers/conflict-manager/picker-conflict-manager-settings';
-import './pickers/conflict-manager/picker-conflict-manager-asset';
 import './pickers/conflict-manager/picker-conflict-manager';
 
 
