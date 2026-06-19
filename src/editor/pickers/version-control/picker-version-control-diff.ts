@@ -3,8 +3,8 @@ import { Button, Container, Overlay, Panel, SelectInput, TextInput, TreeView, Tr
 import { handleCallback } from '@/common/utils';
 import { config } from '@/editor/config';
 
-import { arrayFieldKind, buildNameIndex, indexTemplateEntities, valueKind, type NameIndex } from './vc-diff-data';
-import { createDeltaListField, createValueField, destroyValueFields } from './vc-diff-fields';
+import { arrayFieldKind, buildNameIndex, indexTemplateEntities, type NameIndex } from './vc-diff-data';
+import { ASSET_ID_ARRAY_FIELDS, createDeltaListField, createSideValueField, destroyValueFields, isEntityChildren } from './vc-diff-fields';
 import {
     assetDiffField,
     DIFF_SLOW_HINT_MS,
@@ -38,9 +38,6 @@ const FULLSCREEN_TOOLBAR_W = 40;
 // than sitting among the entity's regular values; values are shown friendlier
 const TEMPLATE_PANEL = 'Template instance';
 const TEMPLATE_FIELDS: Record<string, string> = { template_id: 'Source template', template_ent_ids: 'Entity mapping' };
-// variable-length lists of asset ids (an asset's folder path, the project's
-// script loading order) — render as asset chips, not a vector/json blob
-const ASSET_ID_ARRAY_FIELDS = new Set(['path', 'scripts']);
 
 // loading-state skeleton fragments (mirror the real diff layout: sidebar rows are
 // name + status badge over a sub line; the main pane is a header bar over bordered
@@ -259,8 +256,6 @@ editor.once('load', () => {
         return badge;
     };
 
-    const typeFor = (entry: any, side: 'src' | 'dst') => entry[`${side}Type`] ?? entry.type ?? '';
-
     const sectionComponent = (value: string) => value.match(/^(.+) component$/i)?.[1]?.replace(/\s+/g, '').toLowerCase() ?? '';
 
     const inspectorInfo = (conflict: any, entry: any) => {
@@ -394,37 +389,7 @@ editor.once('load', () => {
         return row;
     };
 
-    // entities.<guid>.children (scenes) / data.entities.<guid>.children (templates)
-    const isEntityChildren = (path: string) => {
-        const parts = splitDiffPath(path ?? '');
-        const e = parts[0] === 'data' ? parts.slice(1) : parts;
-        return e.length === 3 && e[0] === 'entities' && e[2] === 'children';
-    };
-
-    const sideField = (entry: any, side: 'src' | 'dst') => {
-        const value = side === 'src' ? entry.srcValue : entry.dstValue;
-        const missing = side === 'src' ? entry.missingInSrc : entry.missingInDst;
-        // a template's source id is an asset reference — show it as the asset name
-        if (!missing && splitDiffPath(entry.path ?? '').pop() === 'template_id') {
-            return createValueField('asset', value, nameIndex);
-        }
-        // variable-length asset-id lists (folder path, script loading order):
-        // render as asset chips, not a fixed-size vector or a raw json blob
-        if (!missing && Array.isArray(value) && ASSET_ID_ARRAY_FIELDS.has(splitDiffPath(entry.path ?? '').pop() ?? '')) {
-            return createValueField('array:asset', value, nameIndex);
-        }
-        // any other primitive array (tags, device types, ...) is a free-value list,
-        // not a fixed-size numeric tuple — render as pills instead of a json blob
-        if (!missing && arrayFieldKind(value) === 'pills') {
-            return createValueField('pills', value, nameIndex);
-        }
-        // an entity's children is a list of entity ids — resolve them to leaf names
-        if (!missing && isEntityChildren(entry.path) && Array.isArray(value)) {
-            return createValueField('children', value, nameIndex);
-        }
-        const kind = missing ? 'missing' : valueKind(typeFor(entry, side), entry.path ?? '', value);
-        return createValueField(kind, value, nameIndex);
-    };
+    const sideField = (entry: any, side: 'src' | 'dst', conflict: any) => createSideValueField(entry, side, nameIndex, conflict);
 
     // wholly added/deleted entities arrive as a missing-flagged entry at the entity root
     const wholeEntity = (entry: any) => {
@@ -536,10 +501,10 @@ editor.once('load', () => {
                 continue;
             }
             if (!entry.missingInDst) {
-                host.appendChild(fieldRow('del', parts.field, parts.title, sideField(entry, 'dst')));
+                host.appendChild(fieldRow('del', parts.field, parts.title, sideField(entry, 'dst', conflict)));
             }
             if (!entry.missingInSrc) {
-                host.appendChild(fieldRow('add', parts.field, parts.title, sideField(entry, 'src')));
+                host.appendChild(fieldRow('add', parts.field, parts.title, sideField(entry, 'src', conflict)));
             }
         }
 

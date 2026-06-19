@@ -2,7 +2,8 @@ import { Container, TextAreaInput } from '@playcanvas/pcui';
 
 import { config } from '@/editor/config';
 
-import { templateEntitiesFor, templateEntityPath } from './vc-diff-data';
+import { buildNameIndex, indexTemplateEntities, templateEntitiesFor, templateEntityPath, type NameIndex } from './vc-diff-data';
+import { destroyValueFields } from './vc-diff-fields';
 import { renderPreviewPropertyDiff } from './vc-diff-preview';
 import { DIFF_SLOW_HINT_MS, DIFF_SLOW_HINT_TEXT, diffTextChangeCounts, hashChip, isHiddenDiffField, lineChangeCounts, splitDiffPath, summarizeDiff, typeLabel, type DiffSummary } from './vc-helpers';
 import { diffCreate } from '../../messenger/jobs';
@@ -32,6 +33,8 @@ export const createChangesPanel = () => {
     // .then/.catch discard results when the generation has moved on (stale-response guard)
     let gen = 0;
     let rawDiffLive = false;
+    // resolves asset/entity/layer ids to names for the value fields; rebuilt with `raw`
+    let nameIndex: NameIndex = null;
     // the in-flight diff job, so Open Full Diff works before the summary finishes loading
     let rawPromise: Promise<any> = null;
     const fileStats = new Map<string, Promise<{ deleted: number; added: number } | null>>();
@@ -44,6 +47,7 @@ export const createChangesPanel = () => {
             editor.call('picker:versioncontrol:releaseDiff', id);
         }
         rawDiffLive = false;
+        nameIndex = null;
         fileStats.clear();
     };
 
@@ -142,14 +146,6 @@ export const createChangesPanel = () => {
                 list.appendChild(row);
             }
         }
-    };
-
-    const fmtVal = (v: any) => {
-        if (v === undefined || v === null) {
-            return '—';
-        }
-        const s = typeof v === 'string' ? `"${v}"` : JSON.stringify(v);
-        return s.length > 64 ? `${s.substring(0, 61)}…` : s;
     };
 
     const appendLineCounts = (vals: HTMLElement, counts: { deleted: number; added: number }) => {
@@ -267,7 +263,7 @@ export const createChangesPanel = () => {
         const props = data.filter((e: any) => !(fileName(conflict, e, 'src') || fileName(conflict, e, 'dst')));
 
         if (props.length) {
-            wrap.appendChild(renderPreviewPropertyDiff(conflict, props, { entityName, fmtVal }));
+            wrap.appendChild(renderPreviewPropertyDiff(conflict, props, { entityName, index: nameIndex }));
         }
         if (files.length) {
             wrap.appendChild(renderFileRows(conflict, files));
@@ -276,6 +272,8 @@ export const createChangesPanel = () => {
     };
 
     const renderSummary = () => {
+        // value fields hold pcui widgets (curve/gradient timers); destroy before discarding
+        destroyValueFields(summary.dom);
         summary.dom.innerHTML = '';
         const card = document.createElement('div');
         card.classList.add('vc-card');
@@ -436,6 +434,8 @@ export const createChangesPanel = () => {
             raw = next;
             rawDiffLive = typeof nextId === 'string';
             current = summarizeDiff(raw);
+            nameIndex = buildNameIndex(raw);
+            indexTemplateEntities(nameIndex, raw.conflicts ?? [], (id: any) => editor.call('assets:get', id));
             fileStats.clear();
             // indices shift on every recompute; default to the first change
             selIdx = current.total ? current.groups[0].items[0].index : null;

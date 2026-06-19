@@ -712,6 +712,12 @@ $vc-add-edge: #3fb950;
     &.pcui-color-input {
         flex: none;
     }
+
+    // the swatch is read-only here, but keep the inspector's corner triangle that
+    // readonly otherwise hides so it reads as a colour field
+    &.pcui-color-input.pcui-readonly::after {
+        display: block;
+    }
 }
 
 .vc-diff-missing {
