@@ -763,6 +763,15 @@ export const createVcDiffView = (opts: VcDiffViewOpts) => {
         render();
     };
 
+    // tear down only the main pane (value-field timers + breadcrumb trees), leaving
+    // the sidebar intact — for consumers mounting their own content into main
+    const clearMain = () => {
+        trees.forEach(t => t.destroy());
+        trees = [];
+        destroyValueFields(main);
+        main.innerHTML = '';
+    };
+
     return {
         overlay,
         top,
@@ -780,6 +789,7 @@ export const createVcDiffView = (opts: VcDiffViewOpts) => {
         renderLoading,
         clearSidebar,
         cleanup,
+        clearMain,
         getSelectedConflict: () => selectedConflict(),
         getSelectedIndex: () => selected
     };

@@ -110,7 +110,9 @@ editor.once('load', () => {
             }
         });
         actions.appendChild(resolve.dom);
-        const hasFile = (conflict.data ?? []).some((d: any) => d.isTextualMerge || d.mergedFilePath);
+        // only genuine textual-merge conflicts can be opened in the interactive
+        // editor — TextResolver requires an isTextualMerge entry
+        const hasFile = (conflict.data ?? []).some((d: any) => d.isTextualMerge);
         if (hasFile) {
             const openBtn = new Button({ text: 'Open editor', class: 'vc-merge-open' });
             openBtn.on('click', () => openTextEditor(conflict));
@@ -126,7 +128,7 @@ editor.once('load', () => {
             textResolver.destroy();
             textResolver = null;
         }
-        view.main.innerHTML = '';
+        view.clearMain();
         textResolver = new TextResolver(conflict, currentMergeObject);
         // the core's main is a plain element; shim a parent with .append for the
         // legacy panel (.element) and the raw iframe
