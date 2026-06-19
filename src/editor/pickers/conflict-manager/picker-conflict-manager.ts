@@ -21,19 +21,29 @@ editor.once('load', () => {
     let diffMode = false;
     let evtMessengerMergeProgress: any = null;
     let textResolver: TextResolver | null = null;
+    let previewLoading = false;
+    let previewToken = 0;       // guards stale async preview loads
+    let previewDiffId: any = null; // temp diff created for the resolve preview
+
+    // per-item resolution metadata keyed by itemId. kept separate from the
+    // displayed conflict.data, which is swapped to the diff's rich field entries
+    // for the preview — resolution always acts on these original merge entries.
+    const resolveState = new Map<string, { entries: any[]; conflictIds: any[]; fileEntry: any }>();
 
     const isRetainedDiff = (id: string) => !!id && !!editor.call('picker:versioncontrol:hasRetainedDiff', id);
 
-    const isGroupResolved = (group: any) => (group.data ?? []).every((d: any) => d.useSrc || d.useDst || d.useMergedFile);
-
-    const allResolved = () => (currentMergeObject?.conflicts ?? []).every(isGroupResolved);
+    const stateFor = (conflict: any) => resolveState.get(conflict?.itemId);
+    const entryResolved = (e: any) => e.useSrc || e.useDst || e.useMergedFile;
+    const isItemResolved = (st?: { entries: any[] }) => !!st && st.entries.length > 0 && st.entries.every(entryResolved);
+    const allResolved = () => (currentMergeObject?.conflicts ?? []).every((c: any) => isItemResolved(stateFor(c)));
 
     // resolution hooks — declared as function declarations so they hoist above
     // the createVcDiffView call that references them
     function decorateResolutionRow(row: HTMLElement, conflict: any) {
         row.querySelector('.vc-merge-state')?.remove();
-        const total = (conflict.data ?? []).length;
-        const done = (conflict.data ?? []).filter((d: any) => d.useSrc || d.useDst || d.useMergedFile).length;
+        const entries = stateFor(conflict)?.entries ?? conflict.data ?? [];
+        const total = entries.length;
+        const done = entries.filter(entryResolved).length;
         const state = document.createElement('span');
         state.className = `vc-merge-state${total > 0 && done === total ? ' resolved' : ''}`;
         const dot = document.createElement('span');
@@ -47,7 +57,9 @@ editor.once('load', () => {
     }
 
     function resolveItem(conflict: any, side: 'source' | 'destination') {
-        const ids = (conflict.data ?? []).map((d: any) => d.id);
+        const st = stateFor(conflict);
+        const entries = st?.entries ?? conflict.data ?? [];
+        const ids = st ? st.conflictIds : entries.map((d: any) => d.id);
         if (!ids.length) {
             return;
         }
@@ -61,7 +73,7 @@ editor.once('load', () => {
             if (err) {
                 return editor.call('status:error', err);
             }
-            (conflict.data ?? []).forEach((d: any) => {
+            entries.forEach((d: any) => {
                 d.useSrc = useSrc;
                 d.useDst = !useSrc;
                 d.useMergedFile = false;
@@ -73,11 +85,22 @@ editor.once('load', () => {
     }
 
     function renderResolveFooter(detail: HTMLElement, conflict: any) {
+        const st = stateFor(conflict);
+        const entries = st?.entries ?? conflict.data ?? [];
         const footer = document.createElement('div');
         footer.className = 'vc-merge-resolve';
 
-        const allSrc = (conflict.data ?? []).length > 0 && conflict.data.every((d: any) => d.useSrc);
-        const allDst = (conflict.data ?? []).length > 0 && conflict.data.every((d: any) => d.useDst);
+        // the rich preview is still loading — let the user know more is coming
+        // (they can still resolve immediately if they already know the side)
+        if (previewLoading) {
+            const hint = document.createElement('div');
+            hint.className = 'vc-merge-preview-loading';
+            hint.textContent = 'Loading change preview…';
+            footer.appendChild(hint);
+        }
+
+        const allSrc = entries.length > 0 && entries.every((d: any) => d.useSrc);
+        const allDst = entries.length > 0 && entries.every((d: any) => d.useDst);
         const group = `vc-merge-side-${conflict.itemId}`;
 
         const makeChoice = (value: 'destination' | 'source', label: string, checked: boolean) => {
@@ -95,10 +118,8 @@ editor.once('load', () => {
 
         const dstName = currentMergeObject?.destinationBranchName ?? 'destination';
         const srcName = currentMergeObject?.sourceBranchName ?? 'source';
-        const choiceDst = makeChoice('destination', `Use ${dstName} (destination)`, allDst);
-        const choiceSrc = makeChoice('source', `Use ${srcName} (source)`, allSrc);
-        footer.appendChild(choiceDst);
-        footer.appendChild(choiceSrc);
+        footer.appendChild(makeChoice('destination', `Use ${dstName} (destination)`, allDst));
+        footer.appendChild(makeChoice('source', `Use ${srcName} (source)`, allSrc));
 
         const actions = document.createElement('div');
         actions.className = 'vc-merge-actions';
@@ -112,8 +133,8 @@ editor.once('load', () => {
         actions.appendChild(resolve.dom);
         // only genuine textual-merge conflicts can be opened in the interactive
         // editor — TextResolver requires an isTextualMerge entry
-        const hasFile = (conflict.data ?? []).some((d: any) => d.isTextualMerge);
-        if (hasFile) {
+        const fileEntry = st?.fileEntry ?? (conflict.data ?? []).find((d: any) => d.isTextualMerge);
+        if (fileEntry) {
             const openBtn = new Button({ text: 'Open editor', class: 'vc-merge-open' });
             openBtn.on('click', () => openTextEditor(conflict));
             actions.appendChild(openBtn.dom);
@@ -124,12 +145,21 @@ editor.once('load', () => {
     }
 
     function openTextEditor(conflict: any) {
+        // TextResolver needs the original merge entries (their ids + mergedFilePath
+        // drive the code-editor iframe + upload), not the swapped-in diff entries
+        const entries = stateFor(conflict)?.entries ?? conflict.data ?? [];
+        const textConflict = {
+            itemName: conflict.itemName,
+            itemId: conflict.itemId,
+            assetType: conflict.assetType,
+            data: entries
+        };
         if (textResolver) {
             textResolver.destroy();
             textResolver = null;
         }
         view.clearMain();
-        textResolver = new TextResolver(conflict, currentMergeObject);
+        textResolver = new TextResolver(textConflict, currentMergeObject);
         // the core's main is a plain element; shim a parent with .append for the
         // legacy panel (.element) and the raw iframe
         textResolver.appendToParent({
@@ -138,7 +168,7 @@ editor.once('load', () => {
         view.main.querySelector('iframe')?.classList.add('vc-merge-frame');
 
         textResolver.on('resolve', (id: string) => {
-            const entry = (conflict.data ?? []).find((d: any) => d.id === id);
+            const entry = entries.find((d: any) => d.id === id);
             if (entry) {
                 entry.useMergedFile = true;
             }
@@ -204,6 +234,73 @@ editor.once('load', () => {
         btnComplete.hidden = !on || !config.self.branch.merge;
     };
 
+    // index the per-item resolution metadata from a fresh mergeGet payload
+    const indexResolveState = (data: any) => {
+        resolveState.clear();
+        (data?.conflicts ?? []).forEach((c: any) => {
+            const entries = c.data ?? [];
+            resolveState.set(c.itemId, {
+                entries,
+                conflictIds: entries.map((e: any) => e.id),
+                fileEntry: entries.find((e: any) => e.isTextualMerge) ?? null
+            });
+        });
+    };
+
+    // delete the temp diff created for the resolve preview (guarded so we never
+    // delete the active merge or a retained diff)
+    const clearPreviewDiff = () => {
+        const id = previewDiffId;
+        previewDiffId = null;
+        if (id && id !== config.self.branch.merge?.id && !isRetainedDiff(id)) {
+            handleCallback(editor.api.globals.rest.merge.mergeDelete({ mergeId: id }), () => {});
+        }
+    };
+
+    // resolve mode: the mergeGet payload only carries conflict ids + paths, no
+    // before/after values. fetch the branch diff (the same call Review merge uses)
+    // and swap each conflict's data for the diff's rich entries so the user can see
+    // what differs. non-blocking — resolve controls already work before this lands.
+    const loadResolvePreview = (mergeData: any) => {
+        const token = ++previewToken;
+        clearPreviewDiff();
+        diffCreate({
+            srcBranchId: config.self.branch.merge.sourceBranchId,
+            dstBranchId: config.self.branch.merge.destinationBranchId,
+            dstCheckpointId: config.self.branch.merge.destinationCheckpointId,
+            mergeId: config.self.branch.merge.id
+        }).then((diff: any) => {
+            if (token !== previewToken || currentMergeObject !== mergeData) {
+                return; // stale (overlay closed / reloaded)
+            }
+            previewDiffId = diff?.id ?? diff?.merge_id ?? null;
+            const byItem = new Map((diff?.conflicts ?? []).map((c: any) => [c.itemId, c]));
+            mergeData.conflicts.forEach((c: any) => {
+                const d: any = byItem.get(c.itemId);
+                if (d?.data?.length) {
+                    c.data = d.data; // rich diff entries for display
+                }
+            });
+            // the diff's checkpoints carry the richer name index the entries resolve against
+            if (diff?.srcCheckpoint) {
+                mergeData.srcCheckpoint = diff.srcCheckpoint;
+            }
+            if (diff?.dstCheckpoint) {
+                mergeData.dstCheckpoint = diff.dstCheckpoint;
+            }
+            previewLoading = false;
+            view.setData(mergeData);
+        }).catch(() => {
+            if (token !== previewToken) {
+                return;
+            }
+            // leave the coarse banners in place — resolving still works
+            previewLoading = false;
+            view.renderSidebar();
+            view.renderMain();
+        });
+    };
+
     // — data load —
     const onMergeDataLoaded = (data: any) => {
         currentMergeObject = data;
@@ -218,10 +315,17 @@ editor.once('load', () => {
             }
             return;
         }
-        view.setData(data);
-        if (!diffMode) {
-            updateReviewState();
+        if (diffMode) {
+            // review mode: data is already the rich diff
+            view.setData(data);
+            return;
         }
+        // resolve mode: render the coarse list immediately, then enrich with the diff
+        indexResolveState(data);
+        previewLoading = true;
+        view.setData(data);
+        updateReviewState();
+        loadResolvePreview(data);
     };
 
     const loadMerge = () => {
@@ -245,6 +349,7 @@ editor.once('load', () => {
     };
 
     const onReadyForReview = () => {
+        clearPreviewDiff();
         view.renderNotice('Loading changes…');
         diffCreate({
             srcBranchId: config.self.branch.merge.sourceBranchId,
@@ -263,6 +368,7 @@ editor.once('load', () => {
 
     // — apply (review = finalize:false, complete = finalize:true) —
     const applyMerge = (finalize: boolean) => {
+        clearPreviewDiff();
         btnReview.enabled = false;
         btnComplete.enabled = false;
         view.clearSidebar();
@@ -337,6 +443,10 @@ editor.once('load', () => {
     });
 
     view.overlay.on('hide', () => {
+        previewToken++;
+        clearPreviewDiff();
+        resolveState.clear();
+        previewLoading = false;
         if (diffMode && currentMergeObject && !config.self.branch.merge && !isRetainedDiff(currentMergeObject.id)) {
             editor.emit('picker:diffManager:closed', currentMergeObject.id);
         }

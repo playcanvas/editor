@@ -47,6 +47,14 @@
         padding: 14px 0 4px;
         border-top: 1px solid $border-primary;
 
+        // transient hint while the rich change preview is still loading
+        .vc-merge-preview-loading {
+            margin-bottom: 10px;
+            color: $text-dark;
+            font-size: 11px;
+            font-style: italic;
+        }
+
         // each choice is a selectable row with a custom radio indicator,
         // so it reads as part of the themed UI rather than a bare form control
         .vc-merge-choice {
