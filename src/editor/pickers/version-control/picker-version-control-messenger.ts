@@ -47,6 +47,12 @@ editor.once('load', () => {
         icon: SVG.error(50)
     });
 
+    const overlayMergeCompleting = editor.call('picker:versioncontrol:createOverlay', {
+        title: 'Completing merge',
+        message: 'Please wait while the merge is being completed.',
+        icon: SVG.spinner(50)
+    });
+
     const overlayMergeCompleted = editor.call('picker:versioncontrol:createOverlay', {
         title: 'Merge completed.',
         message: 'Refreshing browser...',
@@ -262,11 +268,10 @@ editor.once('load', () => {
 
         // if merge finished
         if (data.status === MERGE_STATUS_APPLY_ENDED) {
-            if (!editor.call('picker:isOpen', 'conflict-manager')) {
-                // hide merge overlay and refresh
-                editor.call('picker:versioncontrol:mergeOverlay:hide');
-                overlayMergeCompleted.hidden = false;
-            }
+            editor.call('picker:versioncontrol:mergeOverlay:hide');
+            overlayMergeCompleting.hidden = true;
+            overlayMergeCompleted.hidden = false;
+            overlayMergeCompleted.class.remove('show-behind-picker');
             refresh();
         }
     });
@@ -298,6 +303,16 @@ editor.once('load', () => {
         } else {
             overlayMergeStopped.class.remove('show-behind-picker');
         }
+    });
+
+    editor.method('picker:versioncontrol:mergeCompletingOverlay', () => {
+        editor.call('picker:versioncontrol:mergeOverlay:hide');
+        overlayMergeCompleting.hidden = false;
+        overlayMergeCompleting.class.remove('show-behind-picker');
+    });
+
+    editor.method('picker:versioncontrol:mergeCompletingOverlay:hide', () => {
+        overlayMergeCompleting.hidden = true;
     });
 
     // check if our current branch is different than the one we have currently loaded

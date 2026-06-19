@@ -5,17 +5,28 @@
 
     > .pcui-overlay-content {
         z-index: 10001;
+        position: fixed;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
         width: 400px;
         height: auto;
-        left: calc(50% - 200px);
-        top: calc(50% - 32px);
-        text-align: right;
-        transition: none;
+        left: 50%;
+        top: 50%;
         padding: 0;
+        border: 1px solid $border-primary;
+        border-radius: 6px;
+        background: $bcg-primary;
+        text-align: right;
+        transform: translate(-50%, -50%);
+        transition: none;
 
         > .text {
             display: block;
+            flex: 0 0 100%;
             color: $text-primary;
+            font-size: 14px;
+            line-height: 1.4;
             text-align: left;
             padding: 30px;
             margin: 0;
@@ -25,20 +36,38 @@
         }
 
         > .pcui-button {
+            @extend .font-bold;
+
             line-height: 26px;
             height: 26px;
             text-transform: uppercase;
             margin: 0 12px 8px 0;
             min-width: 100px;
+            border-radius: 4px;
+            box-shadow: none;
         }
 
-        > .no, .action {
+        > .no,
+        > .action {
             background: color.adjust($text-active, $lightness: -7%);
             color: $text-primary;
 
             &:hover,
             &:focus {
                 background: color.adjust($text-active, $lightness: -12%);
+            }
+        }
+
+        > .yes {
+            border: 1px solid $border-primary;
+            background: transparent;
+            color: $text-secondary;
+
+            &:hover,
+            &:focus {
+                border-color: $text-dark;
+                background: $bcg-dark;
+                color: $text-primary;
             }
         }
     }

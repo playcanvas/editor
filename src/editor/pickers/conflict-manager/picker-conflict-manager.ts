@@ -10,9 +10,11 @@ import {
 } from '@/core/constants';
 import { config } from '@/editor/config';
 
+import { showMergeLoading } from './loading';
+import { appendResolveFooter } from './resolve-footer';
+import { TextResolver } from './ui/text-resolver';
 import { diffCreate } from '../../messenger/jobs';
 import { createVcDiffView } from '../version-control/vc-diff-view';
-import { TextResolver } from './ui/text-resolver';
 
 const MERGE_ERROR = 'Error while merging. Please stop the merge and try again.';
 
@@ -95,8 +97,7 @@ editor.once('load', () => {
             }
         });
 
-        // selectable option cards (branch name over a muted role caption); the
-        // chosen side picks up the accent border + filled radio
+        // segmented destination/source control; the chosen side picks up the accent
         const options = document.createElement('div');
         options.className = 'vc-merge-options';
         options.setAttribute('role', 'radiogroup');
@@ -113,15 +114,15 @@ editor.once('load', () => {
 
             const text = document.createElement('span');
             text.className = 'vc-merge-opt-text';
+            const r = document.createElement('span');
+            r.className = 'role';
+            r.textContent = role;
+            text.appendChild(r);
             const n = document.createElement('span');
             n.className = 'name';
             n.textContent = name;
             n.title = name;
             text.appendChild(n);
-            const r = document.createElement('span');
-            r.className = 'role';
-            r.textContent = role;
-            text.appendChild(r);
             opt.appendChild(text);
 
             opt.addEventListener('click', () => {
@@ -153,7 +154,7 @@ editor.once('load', () => {
         }
         footer.appendChild(actions);
 
-        detail.appendChild(footer);
+        appendResolveFooter(detail, footer);
     }
 
     function openTextEditor(conflict: any) {
@@ -261,7 +262,7 @@ editor.once('load', () => {
     };
 
     const loadMerge = () => {
-        view.renderNotice('Loading conflicts…');
+        showMergeLoading(view);
         handleCallback(editor.api.globals.rest.merge.mergeGet({ mergeId: config.self.branch.merge.id }), (err, data) => {
             if (err) {
                 return view.renderNotice(err);
@@ -271,7 +272,7 @@ editor.once('load', () => {
     };
 
     const loadDiff = () => {
-        view.renderNotice('Loading changes…');
+        showMergeLoading(view);
         diffCreate({
             srcBranchId: config.self.branch.merge.sourceBranchId,
             dstBranchId: config.self.branch.merge.destinationBranchId,
@@ -281,7 +282,7 @@ editor.once('load', () => {
     };
 
     const onReadyForReview = () => {
-        view.renderNotice('Loading changes…');
+        showMergeLoading(view);
         diffCreate({
             srcBranchId: config.self.branch.merge.sourceBranchId,
             dstBranchId: config.self.branch.merge.destinationBranchId,
@@ -302,12 +303,18 @@ editor.once('load', () => {
         btnReview.enabled = false;
         btnComplete.enabled = false;
         view.clearSidebar();
-        view.renderNotice(finalize ? 'Completing merge…' : 'Resolving conflicts…');
+        showMergeLoading(view);
+        if (finalize) {
+            editor.call('picker:versioncontrol:mergeCompletingOverlay');
+        }
         handleCallback(editor.api.globals.rest.merge.mergeApply({
             mergeId: config.self.branch.merge.id,
             finalize
         }), (err: string) => {
             if (err && !/Request timed out/.test(err)) {
+                if (finalize) {
+                    editor.call('picker:versioncontrol:mergeCompletingOverlay:hide');
+                }
                 view.renderNotice(err);
                 setTimeout(() => window.location.reload(), 2000);
             }
@@ -328,14 +335,14 @@ editor.once('load', () => {
         } else if (data.status === MERGE_STATUS_AUTO_ENDED) {
             loadMerge();
         } else if (data.status === MERGE_STATUS_APPLY_ENDED) {
-            view.renderNotice('Merge complete — refreshing browser…');
+            showMergeLoading(view);
         }
     };
 
     // — close confirm (stops the merge) —
     const onClose = () => {
         if (config.self.branch.merge) {
-            view.renderNotice('Stopping merge…');
+            showMergeLoading(view);
             handleCallback(editor.api.globals.rest.merge.mergeDelete({ mergeId: config.self.branch.merge.id }), (err) => {
                 view.renderNotice(err || 'Merge stopped. Refreshing browser');
             });
@@ -358,7 +365,7 @@ editor.once('load', () => {
             } else if (!config.self.branch.merge?.mergeProgressStatus ||
                        config.self.branch.merge.mergeProgressStatus === MERGE_STATUS_APPLY_STARTED ||
                        config.self.branch.merge.mergeProgressStatus === MERGE_STATUS_AUTO_STARTED) {
-                view.renderNotice('Merging in progress…');
+                showMergeLoading(view);
             } else if (config.self.branch.merge.mergeProgressStatus === MERGE_STATUS_READY_FOR_REVIEW) {
                 onReadyForReview();
             } else {

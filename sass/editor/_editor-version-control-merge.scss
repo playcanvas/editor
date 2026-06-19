@@ -41,9 +41,12 @@
         }
     }
 
-    // detail-pane resolution footer — separated by spacing, not a divider rule
+    // fixed bottom resolution bar; .vc-diff-detail scrolls above it
     .vc-merge-resolve {
-        margin-top: 24px;
+        flex: none;
+        padding: 12px 14px 10px;
+        border-top: 1px solid $border-primary;
+        background: $bcg-primary;
     }
 
     .vc-merge-resolve-label {
@@ -56,34 +59,42 @@
     }
 
     .vc-merge-options {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        overflow: hidden;
+        border: 1px solid $border-primary;
+        border-radius: 6px;
+        background: $bcg-darker;
         margin-bottom: 16px;
     }
 
-    // selectable option card — crisp border, radio affordance, name over a
-    // muted role caption; the chosen side picks up the accent
+    // segmented destination/source control
     .vc-merge-opt {
         display: flex;
         align-items: center;
-        gap: 11px;
-        width: 210px;
-        padding: 11px 14px;
-        border: 1px solid $border-primary;
-        border-radius: 8px;
-        background: $bcg-darker;
+        gap: 10px;
+        min-width: 0;
+        min-height: 50px;
+        padding: 9px 12px;
+        border: 0;
+        border-right: 1px solid $border-primary;
+        background: transparent;
         text-align: left;
         cursor: pointer;
-        transition: border-color 0.13s ease, background 0.13s ease;
+        transition: background 0.13s ease;
+
+        &:last-child {
+            border-right: 0;
+        }
 
         .vc-merge-opt-radio {
             position: relative;
             flex: none;
             width: 16px;
             height: 16px;
-            border: 2px solid $text-dark;
+            border: 1px solid $text-dark;
             border-radius: 50%;
+            background: $bcg-darkest;
             transition: border-color 0.13s ease;
         }
 
@@ -98,7 +109,7 @@
             overflow: hidden;
             color: $text-primary;
             font-size: 13px;
-            font-weight: 500;
+            font-weight: 700;
             line-height: 1.2;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -113,13 +124,12 @@
         }
 
         &:hover {
-            border-color: $text-dark;
             background: $bcg-dark;
         }
 
         &.selected {
-            border-color: $text-active;
             background: rgba($text-active, 0.1);
+            box-shadow: inset 0 2px 0 $text-active;
 
             .vc-merge-opt-radio {
                 border-color: $text-active;
@@ -127,20 +137,15 @@
                 &::after {
                     content: '';
                     position: absolute;
-                    inset: 2px;
+                    inset: 4px;
                     border-radius: 50%;
                     background: $text-active;
                 }
-            }
-
-            .role {
-                color: $text-active;
             }
         }
 
         &:focus-visible {
             outline: none;
-            border-color: $text-active;
             box-shadow: 0 0 0 2px rgba($text-active, 0.4);
         }
     }
@@ -152,32 +157,36 @@
 
     // primary call-to-action (Resolve in the footer; Review / Complete in the sidebar)
     .vc-merge-primary {
+        box-sizing: border-box;
         height: 32px;
+        line-height: 32px;
+        margin: 0;
         padding: 0 18px;
         border: 0;
         border-radius: 6px;
-        background: color.adjust($text-active, $lightness: -6%);
+        background-color: color.adjust($text-active, $lightness: -6%);
         color: $text-primary;
         font-size: 12px;
         font-weight: 600;
+        text-align: center;
         cursor: pointer;
-        transition: background 0.12s ease;
+        transition: background-color 0.12s ease;
 
-        &:hover {
-            background: color.adjust($text-active, $lightness: -12%);
+        &:not(.pcui-disabled, [disabled]):hover {
+            background-color: color.adjust($text-active, $lightness: -12%);
         }
 
         &.pcui-disabled,
         &[disabled] {
-            background: $bcg-darker;
-            color: $text-darkest;
             cursor: default;
         }
     }
 
     // secondary / ghost action (Open editor)
     .vc-merge-open {
+        box-sizing: border-box;
         height: 32px;
+        margin: 0;
         padding: 0 16px;
         border: 1px solid $border-primary;
         border-radius: 6px;
