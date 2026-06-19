@@ -41,85 +41,135 @@
         }
     }
 
-    // detail-pane resolution footer
+    // detail-pane resolution footer — a compact, toolbar-like control rather
+    // than stranded full-width form rows
     .vc-merge-resolve {
-        margin-top: 14px;
-        padding: 14px 0 4px;
+        margin-top: 18px;
+        padding-top: 16px;
         border-top: 1px solid $border-primary;
+    }
 
-        // each choice is a selectable row with a custom radio indicator,
-        // so it reads as part of the themed UI rather than a bare form control
-        .vc-merge-choice {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            max-width: 380px;
-            padding: 9px 12px;
-            margin-bottom: 8px;
-            border: 1px solid $border-primary;
-            border-radius: 6px;
-            background: $bcg-darker;
-            color: $text-secondary;
-            font-size: 12px;
-            cursor: pointer;
-            user-select: none;
-            transition: border-color 0.12s ease, background 0.12s ease, color 0.12s ease;
+    .vc-merge-resolve-label {
+        margin-bottom: 10px;
+        color: $text-dark;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+    }
 
-            // custom radio: hide the native control, draw our own ring + dot
-            > input[type='radio'] {
-                appearance: none;
-                margin: 0;
-                width: 16px;
-                height: 16px;
-                flex: none;
-                position: relative;
-                border: 2px solid $text-dark;
-                border-radius: 50%;
-                background: transparent;
-                cursor: pointer;
-                transition: border-color 0.12s ease;
+    .vc-merge-resolve-bar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px;
+    }
+
+    // segmented two-option toggle (destination | source)
+    .vc-merge-seg {
+        display: inline-flex;
+        border: 1px solid $border-primary;
+        border-radius: 6px;
+        overflow: hidden;
+        background: $bcg-darker;
+    }
+
+    .vc-merge-seg-opt {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 7px;
+        height: 32px;
+        padding: 0 16px;
+        border: 0;
+        border-right: 1px solid $border-primary;
+        background: transparent;
+        color: $text-secondary;
+        font-size: 12px;
+        cursor: pointer;
+        transition: background 0.12s ease, color 0.12s ease, box-shadow 0.12s ease;
+
+        &:last-child {
+            border-right: 0;
+        }
+
+        > .name {
+            font-weight: 500;
+        }
+
+        > .role {
+            font-size: 10px;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: $text-dark;
+        }
+
+        &:hover {
+            background: $bcg-dark;
+            color: $text-primary;
+        }
+
+        // selected side lights up the accent + an underline rail
+        &.selected {
+            background: rgba($text-active, 0.16);
+            color: $text-primary;
+            box-shadow: inset 0 -2px 0 $text-active;
+
+            > .name {
+                font-weight: 600;
             }
 
-            &:hover {
-                border-color: $text-dark;
-                background: $bcg-dark;
-                color: $text-primary;
-            }
-
-            // checked: light up the whole row with the accent + fill the ring
-            &:has(> input:checked) {
-                border-color: $text-active;
-                background: rgba($text-active, 0.12);
-                color: $text-primary;
-
-                > input[type='radio'] {
-                    border-color: $text-active;
-
-                    &::after {
-                        content: '';
-                        position: absolute;
-                        inset: 2px;
-                        border-radius: 50%;
-                        background: $text-active;
-                    }
-                }
-            }
-
-            // keyboard focus ring for accessibility
-            > input[type='radio']:focus-visible {
-                outline: 2px solid rgba($text-active, 0.5);
-                outline-offset: 2px;
+            > .role {
+                color: $text-active;
             }
         }
 
-        .vc-merge-actions {
-            display: flex;
-            gap: 8px;
-            margin-top: 12px;
+        &:focus-visible {
+            outline: none;
+            box-shadow: inset 0 0 0 2px rgba($text-active, 0.5);
+        }
+    }
 
-            .vc-merge-primary {
-                min-width: 96px;
-            }
+    // primary call-to-action (Resolve in the footer; Review / Complete in the sidebar)
+    .vc-merge-primary {
+        height: 32px;
+        padding: 0 18px;
+        border: 0;
+        border-radius: 6px;
+        background: color.adjust($text-active, $lightness: -6%);
+        color: $text-primary;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.12s ease;
+
+        &:hover {
+            background: color.adjust($text-active, $lightness: -12%);
+        }
+
+        &.pcui-disabled,
+        &[disabled] {
+            background: $bcg-darker;
+            color: $text-darkest;
+            cursor: default;
+        }
+    }
+
+    // secondary / ghost action (Open editor)
+    .vc-merge-open {
+        height: 32px;
+        padding: 0 16px;
+        border: 1px solid $border-primary;
+        border-radius: 6px;
+        background: transparent;
+        color: $text-secondary;
+        font-size: 12px;
+        cursor: pointer;
+        transition: border-color 0.12s ease, color 0.12s ease, background 0.12s ease;
+
+        &:hover {
+            border-color: $text-dark;
+            color: $text-primary;
+            background: $bcg-dark;
         }
     }
 

@@ -45,6 +45,7 @@ type VcDiffViewOpts = {
     renderDetailFooter?: (detail: HTMLElement, conflict: any) => void;
     renderMeta?: (meta: HTMLElement, data: any) => void;
     shouldRenderFrame?: () => boolean;
+    bannerText?: (status: string, noun: string) => string;
 };
 
 export const createVcDiffView = (opts: VcDiffViewOpts) => {
@@ -410,7 +411,7 @@ export const createVcDiffView = (opts: VcDiffViewOpts) => {
         const status = entry.missingInDst ? 'added' : entry.missingInSrc ? 'deleted' : 'modified';
         appendBadge(banner, status);
         const text = document.createElement('span');
-        text.textContent = `This ${noun} was ${status} since the checkpoint`;
+        text.textContent = opts.bannerText ? opts.bannerText(status, noun) : `This ${noun} was ${status} since the checkpoint`;
         banner.appendChild(text);
         return banner;
     };

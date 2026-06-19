@@ -73,53 +73,76 @@ editor.once('load', () => {
     }
 
     function renderResolveFooter(detail: HTMLElement, conflict: any) {
+        const entries = conflict.data ?? [];
+        const allSrc = entries.length > 0 && entries.every((d: any) => d.useSrc);
+        const allDst = entries.length > 0 && entries.every((d: any) => d.useDst);
+        let picked: 'destination' | 'source' | null = allDst ? 'destination' : allSrc ? 'source' : null;
+
         const footer = document.createElement('div');
         footer.className = 'vc-merge-resolve';
 
-        const allSrc = (conflict.data ?? []).length > 0 && conflict.data.every((d: any) => d.useSrc);
-        const allDst = (conflict.data ?? []).length > 0 && conflict.data.every((d: any) => d.useDst);
-        const group = `vc-merge-side-${conflict.itemId}`;
+        const label = document.createElement('div');
+        label.className = 'vc-merge-resolve-label';
+        label.textContent = 'Keep version';
+        footer.appendChild(label);
 
-        const makeChoice = (value: 'destination' | 'source', label: string, checked: boolean) => {
-            const wrap = document.createElement('label');
-            wrap.className = 'vc-merge-choice';
-            const radio = document.createElement('input');
-            radio.type = 'radio';
-            radio.name = group;
-            radio.value = value;
-            radio.checked = checked;
-            wrap.appendChild(radio);
-            wrap.appendChild(document.createTextNode(label));
-            return wrap;
-        };
+        const bar = document.createElement('div');
+        bar.className = 'vc-merge-resolve-bar';
 
-        const dstName = currentMergeObject?.destinationBranchName ?? 'destination';
-        const srcName = currentMergeObject?.sourceBranchName ?? 'source';
-        const choiceDst = makeChoice('destination', `Use ${dstName} (destination)`, allDst);
-        const choiceSrc = makeChoice('source', `Use ${srcName} (source)`, allSrc);
-        footer.appendChild(choiceDst);
-        footer.appendChild(choiceSrc);
-
-        const actions = document.createElement('div');
-        actions.className = 'vc-merge-actions';
+        // primary action — declared first so the segment clicks can enable it
         const resolve = new Button({ text: 'Resolve', class: 'vc-merge-primary' });
+        resolve.enabled = picked !== null;
         resolve.on('click', () => {
-            const picked = (footer.querySelector(`input[name="${group}"]:checked`) as HTMLInputElement)?.value;
-            if (picked === 'source' || picked === 'destination') {
+            if (picked) {
                 resolveItem(conflict, picked);
             }
         });
-        actions.appendChild(resolve.dom);
+
+        // compact segmented toggle: branch name + role, selected lights up the accent
+        const seg = document.createElement('div');
+        seg.className = 'vc-merge-seg';
+        seg.setAttribute('role', 'radiogroup');
+        const makeSeg = (value: 'destination' | 'source', name: string, role: string) => {
+            const opt = document.createElement('button');
+            opt.type = 'button';
+            opt.className = `vc-merge-seg-opt${picked === value ? ' selected' : ''}`;
+            opt.setAttribute('role', 'radio');
+            opt.setAttribute('aria-checked', picked === value ? 'true' : 'false');
+            const n = document.createElement('span');
+            n.className = 'name';
+            n.textContent = name;
+            opt.appendChild(n);
+            const r = document.createElement('span');
+            r.className = 'role';
+            r.textContent = role;
+            opt.appendChild(r);
+            opt.addEventListener('click', () => {
+                picked = value;
+                seg.querySelectorAll('.vc-merge-seg-opt').forEach((o) => {
+                    o.classList.remove('selected');
+                    o.setAttribute('aria-checked', 'false');
+                });
+                opt.classList.add('selected');
+                opt.setAttribute('aria-checked', 'true');
+                resolve.enabled = true;
+            });
+            return opt;
+        };
+        seg.appendChild(makeSeg('destination', currentMergeObject?.destinationBranchName ?? 'main', 'destination'));
+        seg.appendChild(makeSeg('source', currentMergeObject?.sourceBranchName ?? 'branch', 'source'));
+        bar.appendChild(seg);
+
+        bar.appendChild(resolve.dom);
+
         // only genuine textual-merge conflicts can be opened in the interactive
         // editor — TextResolver requires an isTextualMerge entry
-        const hasFile = (conflict.data ?? []).some((d: any) => d.isTextualMerge);
-        if (hasFile) {
+        if (entries.some((d: any) => d.isTextualMerge)) {
             const openBtn = new Button({ text: 'Open editor', class: 'vc-merge-open' });
             openBtn.on('click', () => openTextEditor(conflict));
-            actions.appendChild(openBtn.dom);
+            bar.appendChild(openBtn.dom);
         }
-        footer.appendChild(actions);
 
+        footer.appendChild(bar);
         detail.appendChild(footer);
     }
 
@@ -177,7 +200,10 @@ editor.once('load', () => {
             meta.textContent = diffMode ?
                 `${data.destinationBranchName} ← merge result` :
                 `${data.sourceBranchName} → ${data.destinationBranchName}`;
-        }
+        },
+        bannerText: (status, noun) => (!diffMode && status === 'modified' ?
+            `This ${noun} was edited on both branches` :
+            `This ${noun} was ${status} since the checkpoint`)
     });
 
     // sidebar footer: REVIEW (resolve mode) → COMPLETE (review mode)
