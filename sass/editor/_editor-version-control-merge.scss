@@ -41,12 +41,9 @@
         }
     }
 
-    // detail-pane resolution footer — a compact, toolbar-like control rather
-    // than stranded full-width form rows
+    // detail-pane resolution footer — separated by spacing, not a divider rule
     .vc-merge-resolve {
-        margin-top: 18px;
-        padding-top: 16px;
-        border-top: 1px solid $border-primary;
+        margin-top: 24px;
     }
 
     .vc-merge-resolve-label {
@@ -58,75 +55,99 @@
         text-transform: uppercase;
     }
 
-    .vc-merge-resolve-bar {
+    .vc-merge-options {
         display: flex;
         flex-wrap: wrap;
-        align-items: center;
         gap: 10px;
+        margin-bottom: 16px;
     }
 
-    // segmented two-option toggle (destination | source)
-    .vc-merge-seg {
-        display: inline-flex;
+    // selectable option card — crisp border, radio affordance, name over a
+    // muted role caption; the chosen side picks up the accent
+    .vc-merge-opt {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        width: 210px;
+        padding: 11px 14px;
         border: 1px solid $border-primary;
-        border-radius: 6px;
-        overflow: hidden;
+        border-radius: 8px;
         background: $bcg-darker;
-    }
-
-    .vc-merge-seg-opt {
-        display: inline-flex;
-        align-items: baseline;
-        gap: 7px;
-        height: 32px;
-        padding: 0 16px;
-        border: 0;
-        border-right: 1px solid $border-primary;
-        background: transparent;
-        color: $text-secondary;
-        font-size: 12px;
+        text-align: left;
         cursor: pointer;
-        transition: background 0.12s ease, color 0.12s ease, box-shadow 0.12s ease;
+        transition: border-color 0.13s ease, background 0.13s ease;
 
-        &:last-child {
-            border-right: 0;
+        .vc-merge-opt-radio {
+            position: relative;
+            flex: none;
+            width: 16px;
+            height: 16px;
+            border: 2px solid $text-dark;
+            border-radius: 50%;
+            transition: border-color 0.13s ease;
         }
 
-        > .name {
+        .vc-merge-opt-text {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            min-width: 0;
+        }
+
+        .name {
+            overflow: hidden;
+            color: $text-primary;
+            font-size: 13px;
             font-weight: 500;
+            line-height: 1.2;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
-        > .role {
-            font-size: 10px;
-            letter-spacing: 0.04em;
-            text-transform: uppercase;
+        .role {
             color: $text-dark;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
         }
 
         &:hover {
+            border-color: $text-dark;
             background: $bcg-dark;
-            color: $text-primary;
         }
 
-        // selected side lights up the accent + an underline rail
         &.selected {
-            background: rgba($text-active, 0.16);
-            color: $text-primary;
-            box-shadow: inset 0 -2px 0 $text-active;
+            border-color: $text-active;
+            background: rgba($text-active, 0.1);
 
-            > .name {
-                font-weight: 600;
+            .vc-merge-opt-radio {
+                border-color: $text-active;
+
+                &::after {
+                    content: '';
+                    position: absolute;
+                    inset: 2px;
+                    border-radius: 50%;
+                    background: $text-active;
+                }
             }
 
-            > .role {
+            .role {
                 color: $text-active;
             }
         }
 
         &:focus-visible {
             outline: none;
-            box-shadow: inset 0 0 0 2px rgba($text-active, 0.5);
+            border-color: $text-active;
+            box-shadow: 0 0 0 2px rgba($text-active, 0.4);
         }
+    }
+
+    .vc-merge-actions {
+        display: flex;
+        gap: 10px;
     }
 
     // primary call-to-action (Resolve in the footer; Review / Complete in the sidebar)

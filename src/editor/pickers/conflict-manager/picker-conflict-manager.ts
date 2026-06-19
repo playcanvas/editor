@@ -86,10 +86,7 @@ editor.once('load', () => {
         label.textContent = 'Keep version';
         footer.appendChild(label);
 
-        const bar = document.createElement('div');
-        bar.className = 'vc-merge-resolve-bar';
-
-        // primary action — declared first so the segment clicks can enable it
+        // primary action — declared first so the option clicks can enable it
         const resolve = new Button({ text: 'Resolve', class: 'vc-merge-primary' });
         resolve.enabled = picked !== null;
         resolve.on('click', () => {
@@ -98,27 +95,38 @@ editor.once('load', () => {
             }
         });
 
-        // compact segmented toggle: branch name + role, selected lights up the accent
-        const seg = document.createElement('div');
-        seg.className = 'vc-merge-seg';
-        seg.setAttribute('role', 'radiogroup');
-        const makeSeg = (value: 'destination' | 'source', name: string, role: string) => {
+        // selectable option cards (branch name over a muted role caption); the
+        // chosen side picks up the accent border + filled radio
+        const options = document.createElement('div');
+        options.className = 'vc-merge-options';
+        options.setAttribute('role', 'radiogroup');
+        const makeOpt = (value: 'destination' | 'source', name: string, role: string) => {
             const opt = document.createElement('button');
             opt.type = 'button';
-            opt.className = `vc-merge-seg-opt${picked === value ? ' selected' : ''}`;
+            opt.className = `vc-merge-opt${picked === value ? ' selected' : ''}`;
             opt.setAttribute('role', 'radio');
             opt.setAttribute('aria-checked', picked === value ? 'true' : 'false');
+
+            const radio = document.createElement('span');
+            radio.className = 'vc-merge-opt-radio';
+            opt.appendChild(radio);
+
+            const text = document.createElement('span');
+            text.className = 'vc-merge-opt-text';
             const n = document.createElement('span');
             n.className = 'name';
             n.textContent = name;
-            opt.appendChild(n);
+            n.title = name;
+            text.appendChild(n);
             const r = document.createElement('span');
             r.className = 'role';
             r.textContent = role;
-            opt.appendChild(r);
+            text.appendChild(r);
+            opt.appendChild(text);
+
             opt.addEventListener('click', () => {
                 picked = value;
-                seg.querySelectorAll('.vc-merge-seg-opt').forEach((o) => {
+                options.querySelectorAll('.vc-merge-opt').forEach((o) => {
                     o.classList.remove('selected');
                     o.setAttribute('aria-checked', 'false');
                 });
@@ -128,21 +136,23 @@ editor.once('load', () => {
             });
             return opt;
         };
-        seg.appendChild(makeSeg('destination', currentMergeObject?.destinationBranchName ?? 'main', 'destination'));
-        seg.appendChild(makeSeg('source', currentMergeObject?.sourceBranchName ?? 'branch', 'source'));
-        bar.appendChild(seg);
+        options.appendChild(makeOpt('destination', currentMergeObject?.destinationBranchName ?? 'main', 'Destination'));
+        options.appendChild(makeOpt('source', currentMergeObject?.sourceBranchName ?? 'branch', 'Source'));
+        footer.appendChild(options);
 
-        bar.appendChild(resolve.dom);
+        const actions = document.createElement('div');
+        actions.className = 'vc-merge-actions';
+        actions.appendChild(resolve.dom);
 
         // only genuine textual-merge conflicts can be opened in the interactive
         // editor — TextResolver requires an isTextualMerge entry
         if (entries.some((d: any) => d.isTextualMerge)) {
             const openBtn = new Button({ text: 'Open editor', class: 'vc-merge-open' });
             openBtn.on('click', () => openTextEditor(conflict));
-            bar.appendChild(openBtn.dom);
+            actions.appendChild(openBtn.dom);
         }
+        footer.appendChild(actions);
 
-        footer.appendChild(bar);
         detail.appendChild(footer);
     }
 
