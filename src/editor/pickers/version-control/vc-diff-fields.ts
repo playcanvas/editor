@@ -1,12 +1,16 @@
-import { BooleanInput, NumericInput, TextAreaInput, TextInput, VectorInput, ColorPicker } from '@playcanvas/pcui';
+import { BooleanInput, NumericInput, TextAreaInput, TextInput, VectorInput } from '@playcanvas/pcui';
 
+import { ColorInput } from '@/common/pcui/element/element-color-input';
 import { CurveInput } from '@/common/pcui/element/element-curve-input';
 import { GradientInput } from '@/common/pcui/element/element-gradient-input';
 
-import { REF_KINDS, valueKind, type NameIndex, type ValueKind } from './vc-diff-data';
+import { arrayFieldKind, REF_KINDS, valueKind, type NameIndex, type ValueKind } from './vc-diff-data';
+import { splitDiffPath } from './vc-helpers';
 
 const AXES = ['X', 'Y', 'Z', 'W'];
 const JSON_FIELD_HEIGHT = 100;
+// fields whose value is a variable-length list of asset ids (rendered as chips)
+export const ASSET_ID_ARRAY_FIELDS = new Set(['path', 'scripts']);
 
 const el = (cls: string, text = '') => {
     const span = document.createElement('span');
@@ -102,7 +106,8 @@ export const createValueField = (kind: ValueKind, value: any, index: NameIndex):
         case 'vector':
             return pcuiDom(new VectorInput({ value, dimensions: value.length, placeholder: AXES.slice(0, value.length), readOnly: true }));
         case 'color':
-            return pcuiDom(new ColorPicker({ value, channels: value.length, readOnly: true }));
+            // the editor's ColorInput (the inspector's swatch), not pcui's ColorPicker
+            return pcuiDom(new ColorInput({ value, channels: value.length, readOnly: true }));
         case 'curve':
             return curveField(value);
         case 'gradient': {
@@ -203,6 +208,59 @@ export const createDeltaListField = (kind: 'children' | 'array:asset' | 'pills',
         list.appendChild(refChip(id, 'added'));
     }
     return list;
+};
+
+// entities.<guid>.children (scenes) / data.entities.<guid>.children (templates)
+export const isEntityChildren = (path: string) => {
+    const parts = splitDiffPath(path ?? '');
+    const e = parts[0] === 'data' ? parts.slice(1) : parts;
+    return e.length === 3 && e[0] === 'entities' && e[2] === 'children';
+};
+
+const typeFor = (entry: any, side: 'src' | 'dst') => entry[`${side}Type`] ?? entry.type ?? '';
+
+// material/asset colour fields (diffuse, emissive, …) aren't named "color", so the
+// path heuristic misses them — the asset schema's editor type is authoritative
+const assetColorType = (conflict: any, path: string) => {
+    if (conflict?.assetType && path?.startsWith('data.')) {
+        return editor.call('schema:asset:getDataType', conflict.assetType, path);
+    }
+    return '';
+};
+
+// the single value-cell renderer shared by the full diff and the changes-tab
+// preview so both parse colours/vectors/tags/refs the same way
+export const createSideValueField = (entry: any, side: 'src' | 'dst', index: NameIndex, conflict?: any): HTMLElement => {
+    const value = side === 'src' ? entry.srcValue : entry.dstValue;
+    const missing = side === 'src' ? entry.missingInSrc : entry.missingInDst;
+    // a template's source id is an asset reference — show it as the asset name
+    if (!missing && splitDiffPath(entry.path ?? '').pop() === 'template_id') {
+        return createValueField('asset', value, index);
+    }
+    // variable-length asset-id lists (folder path, script loading order):
+    // render as asset chips, not a fixed-size vector or a raw json blob
+    if (!missing && Array.isArray(value) && ASSET_ID_ARRAY_FIELDS.has(splitDiffPath(entry.path ?? '').pop() ?? '')) {
+        return createValueField('array:asset', value, index);
+    }
+    // any other primitive array (tags, device types, ...) is a free-value list,
+    // not a fixed-size numeric tuple — render as pills instead of a json blob
+    if (!missing && arrayFieldKind(value) === 'pills') {
+        return createValueField('pills', value, index);
+    }
+    // an entity's children is a list of entity ids — resolve them to leaf names
+    if (!missing && isEntityChildren(entry.path) && Array.isArray(value)) {
+        return createValueField('children', value, index);
+    }
+    let kind = missing ? 'missing' : valueKind(typeFor(entry, side), entry.path ?? '', value);
+    // a 3/4-number tuple read as a vector may really be a colour (material
+    // diffuse/emissive/…); trust the asset schema rather than the field name
+    if (kind === 'vector') {
+        const at = assetColorType(conflict, entry.path);
+        if (at === 'rgb' || at === 'rgba') {
+            kind = 'color';
+        }
+    }
+    return createValueField(kind, value, index);
 };
 
 // pcui widgets hold timers (curve/gradient resize loops); destroy before discarding their dom

@@ -1,11 +1,13 @@
 import { Panel } from '@playcanvas/pcui';
 
-import { isEntityIdMap } from './vc-diff-data';
+import { type NameIndex } from './vc-diff-data';
+import { createSideValueField } from './vc-diff-fields';
 import { assetDiffField, formatDiffPath, splitDiffPath, typeLabel } from './vc-helpers';
 
-// compact, text-valued mirror of the full diff's structured renderer
-// (picker-version-control-diff.ts). kept separate so the shipped full diff
-// stays untouched; the routing below intentionally tracks that file.
+// compact mirror of the full diff's structured renderer
+// (picker-version-control-diff.ts): the section/breadcrumb routing tracks that
+// file, while value cells go through the shared createSideValueField so colours,
+// vectors, tags and refs parse the same way in both.
 
 const SUB_RE = /^(?<kind>Script|Sound slot|Clip): (?<name>.+)$/;
 const SETTINGS_ROOT_RE = /^(?:scene |project )?settings$/i;
@@ -17,13 +19,6 @@ const TEMPLATE_FIELDS: Record<string, string> = { template_id: 'Source template'
 type EntityName = (conflict: any, value: string) => string | undefined;
 
 const sectionComponent = (value: string) => value.match(/^(.+) component$/i)?.[1]?.replace(/\s+/g, '').toLowerCase() ?? '';
-
-// entities.<guid>.children (scenes) / data.entities.<guid>.children (templates)
-const isEntityChildren = (path: string) => {
-    const parts = splitDiffPath(path ?? '');
-    const e = parts[0] === 'data' ? parts.slice(1) : parts;
-    return e.length === 3 && e[0] === 'entities' && e[2] === 'children';
-};
 
 const inspectorInfo = (conflict: any, entry: any, entityName: EntityName) => {
     // template assets carry a scene-shaped entity tree under data.entities;
@@ -151,40 +146,18 @@ const banner = (status: string, noun: string) => {
 };
 
 // structured property diff for the changes-tab preview: same markup/classes as
-// the full diff, but a text breadcrumb instead of a live tree and string values
+// the full diff, but a text breadcrumb instead of a live tree
 export const renderPreviewPropertyDiff = (
     conflict: any,
     entries: any[],
-    helpers: { entityName: EntityName; fmtVal: (v: any) => string }
+    helpers: { entityName: EntityName; index: NameIndex }
 ) => {
-    const { entityName, fmtVal } = helpers;
+    const { entityName, index } = helpers;
     const wrap = document.createElement('div');
     wrap.classList.add('vc-diff-inspector', 'compact');
 
-    const valueCell = (entry: any, side: 'src' | 'dst') => {
-        const value = side === 'src' ? entry.srcValue : entry.dstValue;
-        const missing = side === 'src' ? entry.missingInSrc : entry.missingInDst;
-        const span = document.createElement('span');
-        if (missing) {
-            span.classList.add('vc-diff-missing');
-            span.textContent = '(none)';
-        } else if (isEntityIdMap(value)) {
-            // compact summary in the preview; the full diff resolves names
-            const n = Object.keys(value).length;
-            span.textContent = `${n} entit${n === 1 ? 'y' : 'ies'}`;
-            span.title = JSON.stringify(value, null, 2);
-        } else if (isEntityChildren(entry.path) && Array.isArray(value)) {
-            // compact summary; the full diff resolves these ids to named chips
-            const n = value.length;
-            span.textContent = `${n} child${n === 1 ? '' : 'ren'}`;
-            span.title = JSON.stringify(value, null, 2);
-        } else {
-            span.textContent = fmtVal(value);
-            // fmtVal truncates to 64 chars; hover shows the full value
-            span.title = typeof value === 'string' ? value : JSON.stringify(value);
-        }
-        return span;
-    };
+    // same value rendering as the full diff (colours, vectors, tags, refs)
+    const valueCell = (entry: any, side: 'src' | 'dst') => createSideValueField(entry, side, index, conflict);
 
     // one card per entity (breadcrumb shown once); panels stack inside so an
     // entity changed across sections isn't drawn as separate repeated parts

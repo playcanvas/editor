@@ -32,6 +32,36 @@
     }
 }
 
+// rounded checkbox shared by the history compare list and the vc dialogs
+%vc-checkbox {
+    flex: none;
+    appearance: none;
+    position: relative;
+    width: 16px;
+    height: 16px;
+    border: 1px solid $border-primary;
+    border-radius: 3px;
+    background-color: $bcg-darkest;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: background-color 100ms, border-color 100ms, box-shadow 100ms;
+
+    &:hover {
+        border-color: rgb(255 102 0 / 55%);
+        background-color: rgb(255 102 0 / 8%);
+    }
+
+    &:focus {
+        outline: none;
+        box-shadow: $element-shadow-active;
+    }
+
+    &:checked {
+        border-color: $text-active;
+        background: $text-active url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.2 6.5 11 12.5 4.5' fill='none' stroke='%23fff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 13px 13px no-repeat;
+    }
+}
+
 .pcui-container.picker-vc {
     height: 100%;
     overflow: hidden;
@@ -540,33 +570,9 @@
             }
 
             > .check {
-                flex: none;
-                appearance: none;
-                position: relative;
-                width: 16px;
-                height: 16px;
+                @extend %vc-checkbox;
+
                 margin-top: 3px;
-                border: 1px solid $border-primary;
-                border-radius: 3px;
-                background-color: $bcg-darkest;
-                box-sizing: border-box;
-                cursor: pointer;
-                transition: background-color 100ms, border-color 100ms, box-shadow 100ms;
-
-                &:hover {
-                    border-color: rgb(255 102 0 / 55%);
-                    background-color: rgb(255 102 0 / 8%);
-                }
-
-                &:focus {
-                    outline: none;
-                    box-shadow: $element-shadow-active;
-                }
-
-                &:checked {
-                    border-color: $text-active;
-                    background: $text-active url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.2 6.5 11 12.5 4.5' fill='none' stroke='%23fff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 13px 13px no-repeat;
-                }
             }
 
             > .body {
@@ -1418,16 +1424,15 @@
                 align-items: center;
                 gap: 8px;
                 margin-top: 10px;
+                cursor: pointer;
 
-                > .pcui-label {
-                    margin: 0;
-                    font-size: 12px;
-                    color: $text-primary;
+                > .check {
+                    @extend %vc-checkbox;
                 }
 
-                > .pcui-boolean-input {
-                    margin: 0;
-                    flex: none;
+                > .label {
+                    font-size: 12px;
+                    color: $text-primary;
                 }
             }
 

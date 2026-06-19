@@ -1,4 +1,4 @@
-import { BooleanInput, Button, Container, Label, TextInput } from '@playcanvas/pcui';
+import { Button, Container, TextInput } from '@playcanvas/pcui';
 
 export type VcDialogOpts = {
     title: string;
@@ -70,15 +70,22 @@ export const showVcDialog = (opts: VcDialogOpts): VcDialogHandle => {
     const checks: Record<string, boolean> = {};
     for (const c of opts.checkboxes ?? []) {
         checks[c.key] = !!c.value;
-        const row = document.createElement('div');
+        // a <label> row so clicking the text toggles the native checkbox; the
+        // checkbox shares the compare-list .check style (see %vc-checkbox)
+        const row = document.createElement('label');
         row.classList.add('vc-dialog-check');
-        const box = new BooleanInput({ value: !!c.value });
-        box.on('change', (v: boolean) => {
-            checks[c.key] = v;
+        const box = document.createElement('input');
+        box.type = 'checkbox';
+        box.classList.add('check');
+        box.checked = !!c.value;
+        box.addEventListener('change', () => {
+            checks[c.key] = box.checked;
         });
-        row.appendChild(box.dom);
-        const label = new Label({ text: c.label });
-        row.appendChild(label.dom);
+        row.appendChild(box);
+        const label = document.createElement('span');
+        label.classList.add('label');
+        label.textContent = c.label;
+        row.appendChild(label);
         bd.appendChild(row);
     }
 
