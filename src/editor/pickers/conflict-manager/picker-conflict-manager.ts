@@ -35,7 +35,7 @@ editor.once('load', () => {
         const total = (conflict.data ?? []).length;
         const done = (conflict.data ?? []).filter((d: any) => d.useSrc || d.useDst || d.useMergedFile).length;
         const state = document.createElement('span');
-        state.className = `vc-merge-state${done === total ? ' resolved' : ''}`;
+        state.className = `vc-merge-state${total > 0 && done === total ? ' resolved' : ''}`;
         const dot = document.createElement('span');
         dot.className = 'dot';
         state.appendChild(dot);
