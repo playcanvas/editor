@@ -164,6 +164,85 @@
         gap: 10px;
     }
 
+    .vc-merge-required {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-height: 58px;
+        padding: 9px 12px;
+        border: 1px solid $border-primary;
+        border-radius: 6px;
+        background: $bcg-darker;
+        margin-bottom: 14px;
+
+        &.compact {
+            min-height: 36px;
+            margin-top: -6px;
+        }
+
+        > .dot {
+            flex: none;
+            width: 17px;
+            height: 17px;
+            border: 2px solid $text-active;
+            border-radius: 50%;
+        }
+
+        > .text {
+            min-width: 0;
+        }
+
+        .title {
+            @extend .font-bold;
+
+            color: $text-primary;
+            font-size: 13px;
+        }
+
+        .sub {
+            margin-top: 2px;
+            color: $text-dark;
+            font-size: 11px;
+        }
+
+        &.resolved > .dot {
+            border-color: #6fd088;
+            background: #6fd088;
+            box-shadow: inset 0 0 0 4px $bcg-darker;
+        }
+    }
+
+    .vc-merge-text-preview {
+        display: flex;
+        align-items: center;
+        padding: 16px;
+        border: 1px solid $border-primary;
+        border-radius: 6px;
+        background: $bcg-darker;
+
+        .vc-merge-text-info {
+            min-width: 0;
+        }
+
+        .title {
+            @extend .font-bold;
+
+            color: $text-primary;
+            font-size: 13px;
+        }
+
+        .path {
+            @extend .fixedFont;
+
+            margin-top: 4px;
+            overflow: hidden;
+            color: $text-dark;
+            font-size: 12px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+    }
+
     // primary call-to-action (Resolve in the footer; Review / Complete in the sidebar)
     .vc-merge-primary {
         box-sizing: border-box;
@@ -212,87 +291,135 @@
         }
     }
 
+    .vc-merge-editor-top {
+        display: grid;
+        grid-template-columns: minmax(180px, 1fr) auto;
+        align-items: center;
+        gap: 10px;
+        flex: none;
+        min-height: 54px;
+        padding: 10px 14px;
+        border-bottom: 1px solid $border-primary;
+        background: $bcg-dark;
+    }
+
+    .vc-merge-editor-file {
+        min-width: 0;
+
+        .pcui-label {
+            display: block;
+            margin: 0;
+        }
+
+        .name {
+            @extend .font-bold;
+
+            overflow: hidden;
+            color: $text-primary;
+            font-size: 14px;
+            line-height: 1.2;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .sub {
+            margin-top: 2px;
+            color: $text-dark;
+            font-size: 11px;
+            line-height: 1.2;
+        }
+    }
+
+    .vc-merge-editor-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .vc-merge-editor-secondary,
+    .vc-merge-editor-primary {
+        @extend .font-bold;
+
+        height: 32px;
+        margin: 0;
+        padding: 0 16px;
+        border-radius: 6px;
+        box-shadow: none;
+        font-size: 12px;
+        line-height: 32px;
+        transition: background 0.12s ease, box-shadow 0.12s ease, color 0.12s ease;
+
+        &.icon {
+            width: 32px;
+            padding: 0;
+            font-size: 16px;
+        }
+    }
+
+    .vc-merge-editor-secondary {
+        border: 1px solid $border-primary;
+        background: $bcg-darker;
+        color: $text-secondary;
+
+        &:not(.pcui-disabled):hover {
+            color: $text-primary;
+            background: $bcg-dark;
+            box-shadow: $element-shadow-hover;
+        }
+
+        &.active {
+            color: $text-primary;
+            background: $bcg-darkest;
+            box-shadow: none;
+        }
+    }
+
+    .vc-merge-editor-primary {
+        border: 0;
+        background: color.adjust($text-active, $lightness: -6%);
+        color: $text-primary;
+
+        &:not(.pcui-disabled):hover {
+            background: color.adjust($text-active, $lightness: -12%);
+        }
+    }
+
     // interactive code-merge editor mounted in the detail pane
     .vc-merge-frame {
-        width: 100%;
-        height: 100%;
-        min-height: 360px;
+        flex: 1 1 auto;
+        width: auto;
+        min-height: 0;
+        margin: 12px 14px;
         border: 1px solid $border-primary;
         border-radius: 3px;
         background: $bcg-darkest;
     }
 
-    // migrated from _editor-main.scss (old .picker-conflict-manager .textmerge-top)
-    .textmerge-top {
-        height: 36px;
-        line-height: 36px;
-        padding: 0 10px;
+    .vc-merge-editor-status {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex: none;
+        height: 34px;
+        padding: 0 14px;
+        border-top: 1px solid $border-primary;
+        background: $bcg-dark;
 
-        > .content {
-            > .ui-label.name {
-                color: $text-primary;
-                margin: 0;
-                vertical-align: middle;
-            }
+        > .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ff8a8a;
+        }
 
-            > .ui-button {
-                font-size: 12px;
-                float: right;
-                margin: 0 0 0 15px;
-                margin-top: 5px;
+        > .status {
+            margin: 0;
+            color: $text-dark;
+            font-size: 11px;
+        }
 
-                &::before {
-                    @extend .font-icon;
-
-                    margin-right: 5px;
-                    vertical-align: middle;
-                    font-size: 16px;
-                }
-
-                &.mark-resolved {
-                    background: color.adjust($text-active, $lightness: -7%);
-                    color: $text-primary;
-
-                    &::before {
-                        content: '\E133';
-                    }
-
-                    &:hover,
-                    &:focus {
-                        background: color.adjust($text-active, $lightness: -12%);
-                    }
-                }
-
-                &.use-all::after {
-                    @extend .font-icon;
-
-                    margin-left: 5px;
-                    vertical-align: middle;
-                    font-size: 16px;
-                    content: '\E159';
-                }
-
-                &.go-back::before {
-                    content: '\E158';
-                }
-
-                &.go-to-prev::before {
-                    content: '\E162';
-                }
-
-                &.go-to-next {
-                    margin-left: 0;
-
-                    &::after {
-                        @extend .font-icon;
-
-                        margin-left: 5px;
-                        vertical-align: middle;
-                        font-size: 16px;
-                        content: '\E164';
-                    }
-                }
-            }
+        &.resolved > .dot {
+            background: #6fd088;
         }
     }
 }

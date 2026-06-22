@@ -39,6 +39,10 @@ editor.once('load', () => {
         return mergeFileEditor.monacoEditor.setValue(value);
     });
 
+    editor.method('editor:merge:onContentChange', (callback: () => void) => {
+        return mergeFileEditor.monacoEditor.onDidChangeModelContent(callback);
+    });
+
     /**
      * Moves cursor to the next conflict
      */

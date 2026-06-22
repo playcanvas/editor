@@ -10,9 +10,9 @@ const MODES: Record<string, string> = {
     shader: 'javascript'
 };
 
-const REGEX_DST_BRANCH_START = /^<<<<<<< /gm;
-const REGEX_DST_BRANCH_END = /^=======$/gm;
-const REGEX_SRC_BRANCH_END = /^>>>>>>> /gm;
+const CONFLICT_DST_START = '<<<<<<< ';
+const CONFLICT_SEPARATOR = '=======';
+const CONFLICT_SRC_END = '>>>>>>>';
 
 const LARGE_FILE_SIZE = 1000000;
 
@@ -67,36 +67,60 @@ class MergeFileEditor {
     }
 
     createOverlays() {
-        const content = this.monacoEditor.getValue();
-        let match;
-        let dstStartPos;
-        let dstEndPos;
-        let srcStartPos;
-        let srcEndPos;
-
         const overlays = [];
+        const lineCount = this.model.getLineCount();
 
-        while ((match = REGEX_DST_BRANCH_START.exec(content)) !== null) {
-            dstStartPos = this.model.getPositionAt(match.index);
+        for (let line = 1; line <= lineCount; line++) {
+            if (!this.model.getLineContent(line).startsWith(CONFLICT_DST_START)) {
+                continue;
+            }
 
-            REGEX_DST_BRANCH_END.lastIndex = match.index;
-            match = REGEX_DST_BRANCH_END.exec(content);
-            if (match !== null) {
-                dstEndPos = this.model.getPositionAt(match.index);
-                dstEndPos.lineNumber--;
-                overlays.push(this.createOverlay('dst-branch', config.self.branch.merge.destinationBranchName, dstStartPos, dstEndPos));
+            let separatorLine = null;
+            let srcEndLine = null;
 
-                REGEX_SRC_BRANCH_END.lastIndex = match.index;
-                match = REGEX_SRC_BRANCH_END.exec(content);
-                if (match !== null) {
-                    srcStartPos = dstEndPos;
-                    srcStartPos.lineNumber += 2;
-                    srcEndPos = this.model.getPositionAt(match.index);
-                    overlays.push(this.createOverlay('src-branch', config.self.branch.merge.sourceBranchName, srcStartPos, srcEndPos, true));
-
-                    REGEX_DST_BRANCH_START.lastIndex = match.index;
+            for (let i = line + 1; i <= lineCount; i++) {
+                const text = this.model.getLineContent(i);
+                if (separatorLine === null) {
+                    if (text.includes(CONFLICT_SEPARATOR)) {
+                        separatorLine = i;
+                    }
+                } else if (text.includes(CONFLICT_SRC_END)) {
+                    srcEndLine = i;
+                    break;
                 }
             }
+
+            if (separatorLine === null || srcEndLine === null) {
+                continue;
+            }
+
+            const separatorText = this.model.getLineContent(separatorLine);
+            const srcEndText = this.model.getLineContent(srcEndLine);
+            const separatorOnly = separatorText.trim() === CONFLICT_SEPARATOR;
+            const dstEndLine = separatorOnly ? separatorLine - 1 : separatorLine;
+            const srcStartLine = separatorText.trimEnd().endsWith(CONFLICT_SEPARATOR) ? separatorLine + 1 : separatorLine;
+            const srcLastLine = srcEndText.trimStart().startsWith(CONFLICT_SRC_END) ? srcEndLine - 1 : srcEndLine;
+
+            if (dstEndLine >= line) {
+                overlays.push(this.createOverlay(
+                    'dst-branch',
+                    config.self.branch.merge.destinationBranchName,
+                    new monaco.Position(line, 1),
+                    new monaco.Position(dstEndLine, this.model.getLineMaxColumn(dstEndLine))
+                ));
+            }
+
+            if (srcLastLine >= srcStartLine) {
+                overlays.push(this.createOverlay(
+                    'src-branch',
+                    config.self.branch.merge.sourceBranchName,
+                    new monaco.Position(srcStartLine, 1),
+                    new monaco.Position(srcLastLine, this.model.getLineMaxColumn(srcLastLine)),
+                    true
+                ));
+            }
+
+            line = srcEndLine;
         }
 
         if (overlays.length) {

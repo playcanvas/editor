@@ -45,6 +45,7 @@ type VcDiffViewOpts = {
     renderDetailFooter?: (detail: HTMLElement, conflict: any) => void;
     renderMeta?: (meta: HTMLElement, data: any) => void;
     shouldRenderFrame?: () => boolean;
+    renderTextPreview?: (detail: HTMLElement, conflict: any, entry: any) => void;
     bannerText?: (status: string, noun: string) => string;
 };
 
@@ -693,6 +694,8 @@ export const createVcDiffView = (opts: VcDiffViewOpts) => {
         }
         if (showFrame) {
             detail.appendChild(renderIframe(conflict, text));
+        } else if (showText && opts.renderTextPreview) {
+            opts.renderTextPreview(detail, conflict, text);
         } else if (!props.length && opts.shouldRenderFrame?.() !== false) {
             const empty = document.createElement('div');
             empty.classList.add('vc-diff-empty');

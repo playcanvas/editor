@@ -1,10 +1,6 @@
 import { Events } from '@playcanvas/observer';
+import { Button, Container, Label, Menu, MenuItem } from '@playcanvas/pcui';
 
-import { LegacyButton } from '@/common/ui/button';
-import { LegacyLabel } from '@/common/ui/label';
-import { LegacyMenu } from '@/common/ui/menu';
-import { LegacyMenuItem } from '@/common/ui/menu-item';
-import { LegacyPanel } from '@/common/ui/panel';
 import { handleCallback } from '@/common/utils';
 
 /**
@@ -22,37 +18,45 @@ class TextResolver extends Events {
 
     private _isDiff: unknown;
 
-    private _panelTop: LegacyPanel;
+    private _panelTop: Container;
 
-    private _labelName: LegacyLabel;
+    private _labelStatus: Label;
 
     private _textualMergeConflict: Record<string, unknown> | null = null;
 
-    private _btnMarkResolved: LegacyButton;
+    private _btnMarkResolved: Button;
 
-    private _btnUseAllFrom: LegacyButton;
+    private _btnActions: Button;
 
-    private _btnRevert: LegacyButton;
+    private _menuActions: Menu;
 
-    private _menu: LegacyMenu;
+    private _btnUseSource: MenuItem;
 
-    private _btnUseSource: LegacyMenuItem;
+    private _btnUseDest: MenuItem;
 
-    private _btnUseDest: LegacyMenuItem;
+    private _btnRevert: MenuItem;
 
-    private _btnNextConflict: LegacyButton;
+    private _btnNextConflict: Button;
 
-    private _btnPrevConflict: LegacyButton;
+    private _btnPrevConflict: Button;
 
-    private _btnGoBack: LegacyButton;
+    private _btnGoBack: Button;
 
     private _iframe: HTMLIFrameElement;
+
+    private _panelStatus: Container;
 
     private _sourceFile: string | null = null;
 
     private _destFile: string | null = null;
 
     private _unresolvedFile: string | null = null;
+
+    private _savedContent: string | null = null;
+
+    private _saving = false;
+
+    private _evtContentChange: { dispose: () => void } | null = null;
 
     /**
      * Create a new TextResolver.
@@ -70,16 +74,15 @@ class TextResolver extends Events {
 
         this._isDiff = mergeObject.isDiff;
 
-        this._panelTop = new LegacyPanel();
-        this._panelTop.class.add('textmerge-top');
+        this._panelTop = new Container({ class: 'vc-merge-editor-top' });
         this._panelTop.hidden = true;
 
-        this._labelName = new LegacyLabel({
-            text: conflict.itemName
-        });
-        this._labelName.class.add('name');
-        this._labelName.renderChanges = false;
-        this._panelTop.append(this._labelName);
+        const info = new Container({ class: 'vc-merge-editor-file' });
+        const labelName = new Label({ class: 'name', text: `${conflict.itemName ?? ''}` });
+        info.append(labelName);
+        this._labelStatus = new Label({ class: 'sub', text: 'Loading text conflict' });
+        info.append(this._labelStatus);
+        this._panelTop.append(info);
 
         // find textual merge conflict
         for (let i = 0; i < conflict.data.length; i++) {
@@ -89,109 +92,126 @@ class TextResolver extends Events {
             }
         }
 
-        // button to mark resolved
-        this._btnMarkResolved = new LegacyButton({
-            text: 'MARK AS RESOLVED'
+        const actions = new Container({ class: 'vc-merge-editor-actions' });
+        this._panelTop.append(actions);
+
+        this._btnGoBack = new Button({
+            text: this._isDiff ? 'View asset changes' : 'Back to changes',
+            class: 'vc-merge-editor-secondary'
         });
-        this._btnMarkResolved.class.add('mark-resolved');
-        this._btnMarkResolved.on('click', this._onClickMarkResolved.bind(this));
-        this._btnMarkResolved.hidden = this._isDiff;
-        this._panelTop.append(this._btnMarkResolved);
-
-        // button that opens dropdown menu
-        this._btnUseAllFrom = new LegacyButton({
-            text: 'USE ALL FROM...'
-        });
-        this._btnUseAllFrom.class.add('use-all');
-        this._panelTop.append(this._btnUseAllFrom);
-        this._btnUseAllFrom.on('click', this._onClickUseAllFrom.bind(this));
-        this._btnUseAllFrom.hidden = this._isDiff;
-
-        // revert all changes
-        this._btnRevert = new LegacyButton({
-            text: 'REVERT CHANGES'
-        });
-        this._btnRevert.on('click', this._onClickRevert.bind(this));
-        this._panelTop.append(this._btnRevert);
-        this._btnRevert.hidden = this._isDiff;
-
-        // dropdown menu
-        this._menu = new LegacyMenu();
-        this._menu.class.add('textmerge-dropdown');
-        editor.call('layout.root').append(this._menu);
-
-        // use all from source
-        this._btnUseSource = new LegacyMenuItem({
-            icon: '&#58265;',
-            text: mergeObject.sourceBranchName
-        });
-        this._menu.append(this._btnUseSource);
-        this._btnUseSource.on('select', this._onClickUseSource.bind(this));
-
-        // use all from dest
-        this._btnUseDest = new LegacyMenuItem({
-            icon: '&#58265;',
-            text: mergeObject.destinationBranchName
-        });
-        this._menu.append(this._btnUseDest);
-        this._btnUseDest.on('select', this._onClickUseDest.bind(this));
-
-        // go to next conflict
-        this._btnNextConflict = new LegacyButton({
-            text: 'NEXT'
-        });
-        this._btnNextConflict.class.add('go-to-next');
-        this._panelTop.append(this._btnNextConflict);
-        this._btnNextConflict.on('click', this._onClickNext.bind(this));
-        this._btnNextConflict.hidden = this._isDiff;
-
-        // go to prev conflict
-        this._btnPrevConflict = new LegacyButton({
-            text: 'PREV'
-        });
-        this._btnPrevConflict.class.add('go-to-prev');
-        this._panelTop.append(this._btnPrevConflict);
-        this._btnPrevConflict.on('click', this._onClickPrev.bind(this));
-        this._btnPrevConflict.hidden = this._isDiff;
-
-        // go back to asset conflicts
-        this._btnGoBack = new LegacyButton({
-            text: this._isDiff ? 'VIEW ASSET CHANGES' : 'VIEW ASSET CONFLICTS'
-        });
-        // hide this button if there are only textual conflicts
-        if (this._textualMergeConflict && conflict.data.length <= 1)  {
-            this._btnGoBack.hidden = true;
-        }
-
-        this._btnGoBack.class.add('go-back');
-        this._panelTop.append(this._btnGoBack);
+        this._btnGoBack.hidden = !!this._textualMergeConflict && conflict.data.length <= 1;
         this._btnGoBack.on('click', this._onClickGoBack.bind(this));
+        actions.append(this._btnGoBack);
+
+        this._btnActions = new Button({
+            icon: 'E235',
+            class: ['vc-merge-editor-secondary', 'icon']
+        });
+        this._btnActions.hidden = this._isDiff;
+        this._btnActions.dom.title = 'Conflict actions';
+        this._btnActions.on('click', this._onClickActions.bind(this));
+        actions.append(this._btnActions);
+
+        this._menuActions = new Menu({ class: 'version-control' });
+        editor.call('layout.root').append(this._menuActions);
+        this._menuActions.on('hide', () => {
+            this._btnActions.class.remove('active');
+        });
+
+        this._btnUseDest = new MenuItem({
+            text: 'Use destination',
+            onSelect: this._onClickUseDest.bind(this)
+        });
+        this._menuActions.append(this._btnUseDest);
+
+        this._btnUseSource = new MenuItem({
+            text: 'Use source',
+            onSelect: this._onClickUseSource.bind(this)
+        });
+        this._menuActions.append(this._btnUseSource);
+
+        this._btnRevert = new MenuItem({
+            text: 'Revert',
+            onSelect: this._onClickRevert.bind(this)
+        });
+        this._menuActions.append(this._btnRevert);
+
+        this._btnPrevConflict = new Button({
+            icon: 'E162',
+            class: ['vc-merge-editor-secondary', 'icon']
+        });
+        this._btnPrevConflict.dom.title = 'Previous conflict';
+        this._btnPrevConflict.hidden = this._isDiff;
+        this._btnPrevConflict.on('click', this._onClickPrev.bind(this));
+        actions.append(this._btnPrevConflict);
+
+        this._btnNextConflict = new Button({
+            icon: 'E164',
+            class: ['vc-merge-editor-secondary', 'icon']
+        });
+        this._btnNextConflict.dom.title = 'Next conflict';
+        this._btnNextConflict.hidden = this._isDiff;
+        this._btnNextConflict.on('click', this._onClickNext.bind(this));
+        actions.append(this._btnNextConflict);
+
+        this._btnMarkResolved = new Button({
+            text: 'Mark resolved',
+            class: 'vc-merge-editor-primary'
+        });
+        this._btnMarkResolved.hidden = this._isDiff;
+        this._btnMarkResolved.on('click', this._onClickMarkResolved.bind(this));
+        actions.append(this._btnMarkResolved);
 
         this._iframe = document.createElement('iframe');
+        this._iframe.classList.add('vc-merge-frame');
         this._iframe.addEventListener('load', () => {
             this._panelTop.hidden = false;
+            this._evtContentChange = this._codeEditorMethod('editor:merge:onContentChange', this._onContentChange.bind(this));
+            this._updateStatus();
+            this._syncMarkResolved();
         });
 
         this._iframe.src = `/editor/code/${config.project.id}?mergeId=${this._mergeId}&conflictId=${this._textualMergeConflict.id}&assetType=${this._conflict.assetType}&mergedFilePath=${this._textualMergeConflict.mergedFilePath}`;
+
+        this._panelStatus = new Container({ class: 'vc-merge-editor-status' });
+        const dot = document.createElement('span');
+        dot.className = 'dot';
+        this._panelStatus.dom.appendChild(dot);
+        const status = new Label({ class: 'status', text: 'Resolve conflict markers, then mark this file resolved.' });
+        this._panelStatus.append(status);
     }
 
     appendToParent(parent: { append: (el: unknown) => void }) {
-        parent.append(this._panelTop);
+        parent.append(this._panelTop.dom);
         parent.append(this._iframe);
+        parent.append(this._panelStatus.dom);
     }
 
     destroy() {
+        if (this._evtContentChange) {
+            this._evtContentChange.dispose();
+        }
         this._panelTop.destroy();
+        this._panelStatus.destroy();
+        this._menuActions.destroy();
         if (this._iframe.parentElement) {
             this._iframe.parentElement.removeChild(this._iframe);
         }
 
         this._panelTop = null;
+        this._panelStatus = null;
+        this._menuActions = null;
         this._iframe = null;
+        this._evtContentChange = null;
     }
 
     _codeEditorMethod(method: string, arg1?: unknown, arg2?: unknown, arg3?: unknown, arg4?: unknown) {
         return this._iframe.contentWindow.editor.call(method, arg1, arg2, arg3, arg4);
+    }
+
+    _setContent(content: string) {
+        this._codeEditorMethod('editor:merge:setContent', content);
+        this._onContentChange();
     }
 
     _onClickMarkResolved() {
@@ -208,18 +228,18 @@ class TextResolver extends Events {
     }
 
     _uploadResolved() {
+        this._saving = true;
         this._toggleButtons(false);
 
-        this._btnMarkResolved.disabled = true;
         const content = this._codeEditorMethod('editor:merge:getContent');
         const file = new Blob([content]);
         handleCallback(editor.api.globals.rest.conflicts.conflictsUpload({
             conflictId: this._textualMergeConflict.id,
             file
         }), (err) => {
-            this._toggleButtons(true);
-            this._btnMarkResolved.disabled = false;
+            this._saving = false;
             if (err) {
+                this._toggleButtons(true);
                 log.error(err);
                 return;
             }
@@ -228,26 +248,77 @@ class TextResolver extends Events {
             this.emit('resolve', this._textualMergeConflict.id, {
                 useMergedFile: true
             });
+            this._setResolved(content);
+            this._toggleButtons(true);
 
         });
     }
 
     _toggleButtons(toggle: boolean) {
-        this._btnGoBack.disabled = !toggle;
-        this._btnMarkResolved.disabled = !toggle;
-        this._btnUseAllFrom.disabled = !toggle;
-        this._btnRevert.disabled = !toggle;
-        this._btnUseDest.disabled = !toggle;
-        this._btnUseSource.disabled = !toggle;
+        this._btnGoBack.enabled = toggle;
+        this._btnActions.enabled = toggle;
+        this._btnRevert.enabled = toggle;
+        this._btnUseDest.enabled = toggle;
+        this._btnUseSource.enabled = toggle;
+        this._btnPrevConflict.enabled = toggle;
+        this._btnNextConflict.enabled = toggle;
+        this._syncMarkResolved(toggle);
     }
 
-    _onClickUseAllFrom() {
-        this._menu.open = !this._menu.open;
-        requestAnimationFrame(() => {
-            const menuRect = this._menu.innerElement.getBoundingClientRect();
-            const btnRect = this._btnUseAllFrom.element.getBoundingClientRect();
-            this._menu.position(btnRect.left - (menuRect.width - btnRect.width), btnRect.bottom);
-        });
+    _onClickActions() {
+        const btnRect = this._btnActions.dom.getBoundingClientRect();
+        this._menuActions.hidden = false;
+        this._btnActions.class.add('active');
+        const menuRect = this._menuActions.dom.querySelector('.pcui-menu-items').getBoundingClientRect();
+        this._menuActions.position(btnRect.right - menuRect.width, btnRect.bottom);
+    }
+
+    _updateStatus() {
+        const conflicts = this._codeEditorMethod('editor:merge:getNumberOfConflicts');
+        this._labelStatus.text = conflicts === 1 ? '1 conflict remaining' : `${conflicts} conflicts remaining`;
+        this._panelStatus.class.remove('resolved');
+    }
+
+    _setResolved(content: string) {
+        this._savedContent = content;
+        this._labelStatus.text = 'File marked resolved';
+        this._panelStatus.class.add('resolved');
+        this._syncMarkResolved();
+    }
+
+    _syncMarkResolved(toggle: boolean = true) {
+        if (!toggle || this._saving) {
+            this._btnMarkResolved.enabled = false;
+            return;
+        }
+
+        if (this._savedContent === null) {
+            this._btnMarkResolved.enabled = true;
+            return;
+        }
+
+        this._btnMarkResolved.enabled = this._codeEditorMethod('editor:merge:getContent') !== this._savedContent;
+    }
+
+    _onContentChange() {
+        if (this._saving) {
+            return;
+        }
+
+        if (this._savedContent === null) {
+            this._updateStatus();
+            this._syncMarkResolved();
+            return;
+        }
+
+        const changed = this._codeEditorMethod('editor:merge:getContent') !== this._savedContent;
+        this._btnMarkResolved.enabled = changed;
+        this._labelStatus.text = changed ? 'Unsaved resolution changes' : 'File marked resolved';
+        if (changed) {
+            this._panelStatus.class.remove('resolved');
+        } else {
+            this._panelStatus.class.add('resolved');
+        }
     }
 
     _onClickGoBack() {
@@ -262,7 +333,7 @@ class TextResolver extends Events {
 
     _onClickUseSource() {
         if (this._sourceFile) {
-            this._codeEditorMethod('editor:merge:setContent', this._sourceFile);
+            this._setContent(this._sourceFile);
             return;
         }
 
@@ -278,13 +349,13 @@ class TextResolver extends Events {
             }
 
             this._sourceFile = data;
-            this._codeEditorMethod('editor:merge:setContent', this._sourceFile);
+            this._setContent(this._sourceFile);
         });
     }
 
     _onClickUseDest() {
         if (this._destFile) {
-            this._codeEditorMethod('editor:merge:setContent', this._destFile);
+            this._setContent(this._destFile);
             return;
         }
 
@@ -300,13 +371,13 @@ class TextResolver extends Events {
             }
 
             this._destFile = data;
-            this._codeEditorMethod('editor:merge:setContent', this._destFile);
+            this._setContent(this._destFile);
         });
     }
 
     _onClickRevert() {
         if (this._unresolvedFile) {
-            this._codeEditorMethod('editor:merge:setContent', this._unresolvedFile);
+            this._setContent(this._unresolvedFile);
             return;
         }
 
@@ -324,7 +395,7 @@ class TextResolver extends Events {
             }
 
             this._unresolvedFile = data;
-            this._codeEditorMethod('editor:merge:setContent', this._unresolvedFile);
+            this._setContent(this._unresolvedFile);
         });
     }
 

@@ -48,8 +48,12 @@ editor.once('load', () => {
         row.insertBefore(state, row.firstChild);
     }
 
+    const textEntries = (conflict: any) => (conflict.data ?? []).filter((d: any) => d.isTextualMerge);
+
+    const branchEntries = (conflict: any) => (conflict.data ?? []).filter((d: any) => !d.isTextualMerge);
+
     function resolveItem(conflict: any, side: 'source' | 'destination', done?: (err?: string) => void) {
-        const ids = (conflict.data ?? []).map((d: any) => d.id);
+        const ids = branchEntries(conflict).map((d: any) => d.id);
         if (!ids.length) {
             done?.();
             return;
@@ -78,7 +82,9 @@ editor.once('load', () => {
     }
 
     function renderResolveFooter(detail: HTMLElement, conflict: any) {
-        const entries = conflict.data ?? [];
+        const texts = textEntries(conflict);
+        const entries = branchEntries(conflict);
+        const textResolved = texts.length > 0 && texts.every((d: any) => d.useMergedFile);
         const allSrc = entries.length > 0 && entries.every((d: any) => d.useSrc);
         const allDst = entries.length > 0 && entries.every((d: any) => d.useDst);
         let picked: 'destination' | 'source' | null = allDst ? 'destination' : allSrc ? 'source' : null;
@@ -86,6 +92,41 @@ editor.once('load', () => {
 
         const footer = document.createElement('div');
         footer.className = 'vc-merge-resolve';
+
+        if (!entries.length && texts.length) {
+            const label = document.createElement('div');
+            label.className = 'vc-merge-resolve-label';
+            label.textContent = 'Required action';
+            footer.appendChild(label);
+
+            const required = document.createElement('div');
+            required.className = `vc-merge-required${textResolved ? ' resolved' : ''}`;
+            const dot = document.createElement('span');
+            dot.className = 'dot';
+            required.appendChild(dot);
+            const text = document.createElement('div');
+            text.className = 'text';
+            const title = document.createElement('div');
+            title.className = 'title';
+            title.textContent = textResolved ? 'Resolved in text editor' : 'Resolve in text editor';
+            text.appendChild(title);
+            const sub = document.createElement('div');
+            sub.className = 'sub';
+            sub.textContent = textResolved ? 'Merged file content has been saved.' : 'Choose the merged file content before this change can be reviewed.';
+            text.appendChild(sub);
+            required.appendChild(text);
+            footer.appendChild(required);
+
+            const actions = document.createElement('div');
+            actions.className = 'vc-merge-actions';
+            const openBtn = new Button({ text: textResolved ? 'Edit file' : 'Open editor', class: 'vc-merge-primary' });
+            openBtn.on('click', () => openTextEditor(conflict));
+            actions.appendChild(openBtn.dom);
+            footer.appendChild(actions);
+
+            appendResolveFooter(detail, footer);
+            return;
+        }
 
         const label = document.createElement('div');
         label.className = 'vc-merge-resolve-label';
@@ -144,6 +185,22 @@ editor.once('load', () => {
         options.appendChild(makeOpt('source', currentMergeObject?.sourceBranchName ?? 'branch', 'Source'));
         footer.appendChild(options);
 
+        if (texts.length) {
+            const required = document.createElement('div');
+            required.className = `vc-merge-required compact${textResolved ? ' resolved' : ''}`;
+            const dot = document.createElement('span');
+            dot.className = 'dot';
+            required.appendChild(dot);
+            const text = document.createElement('div');
+            text.className = 'text';
+            const title = document.createElement('div');
+            title.className = 'title';
+            title.textContent = textResolved ? 'Text file resolved' : 'Text file requires editor';
+            text.appendChild(title);
+            required.appendChild(text);
+            footer.appendChild(required);
+        }
+
         const setPending = (value: boolean) => {
             pending = value;
             updateResolveState();
@@ -170,7 +227,7 @@ editor.once('load', () => {
 
         // only genuine textual-merge conflicts can be opened in the interactive
         // editor — TextResolver requires an isTextualMerge entry
-        if (entries.some((d: any) => d.isTextualMerge)) {
+        if (texts.length) {
             const openBtn = new Button({ text: 'Open editor', class: 'vc-merge-open' });
             openBtn.on('click', () => openTextEditor(conflict));
             actions.appendChild(openBtn.dom);
@@ -187,12 +244,9 @@ editor.once('load', () => {
         }
         view.clearMain();
         textResolver = new TextResolver(conflict, currentMergeObject);
-        // the core's main is a plain element; shim a parent with .append for the
-        // legacy panel (.element) and the raw iframe
         textResolver.appendToParent({
-            append: (el: any) => view.main.appendChild(el instanceof HTMLElement ? el : el.element)
+            append: (el: any) => view.main.appendChild(el)
         });
-        view.main.querySelector('iframe')?.classList.add('vc-merge-frame');
 
         textResolver.on('resolve', (id: string) => {
             const entry = (conflict.data ?? []).find((d: any) => d.id === id);
@@ -209,6 +263,36 @@ editor.once('load', () => {
             }
             view.renderMain();
         });
+    }
+
+    function renderTextPreview(detail: HTMLElement, conflict: any, entry: any) {
+        if (!branchEntries(conflict).length) {
+            setTimeout(() => {
+                if (detail.isConnected) {
+                    openTextEditor(conflict);
+                }
+            });
+        }
+
+        const preview = document.createElement('div');
+        preview.className = 'vc-merge-text-preview';
+
+        const info = document.createElement('div');
+        info.className = 'vc-merge-text-info';
+
+        const title = document.createElement('div');
+        title.className = 'title';
+        title.textContent = 'Text file conflict';
+        info.appendChild(title);
+
+        const path = document.createElement('div');
+        path.className = 'path';
+        path.textContent = entry.mergedFilePath ?? conflict.srcFilename ?? conflict.dstFilename ?? conflict.itemName;
+        path.title = path.textContent;
+        info.appendChild(path);
+
+        preview.appendChild(info);
+        detail.appendChild(preview);
     }
 
     const view = createVcDiffView({
@@ -234,6 +318,11 @@ editor.once('load', () => {
             meta.textContent = diffMode ?
                 `${data.destinationBranchName} ← merge result` :
                 `${data.sourceBranchName} → ${data.destinationBranchName}`;
+        },
+        renderTextPreview: (detail, conflict, entry) => {
+            if (!diffMode) {
+                renderTextPreview(detail, conflict, entry);
+            }
         },
         bannerText: (status, noun) => (!diffMode && status === 'modified' ?
             `This ${noun} was edited on both branches` :
