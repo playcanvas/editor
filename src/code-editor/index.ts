@@ -80,7 +80,6 @@ import './status-panel/status-connection';
 import './monaco/languages/glsl';
 import './monaco/monaco';
 import './monaco/document';
-import './monaco/copilot/autocomplete';
 import './monaco/intellisense/attribute-autofill';
 import './monaco/intellisense/path-completion';
 import './monaco/intellisense/warnings';
