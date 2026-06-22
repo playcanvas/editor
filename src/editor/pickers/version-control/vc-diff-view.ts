@@ -168,7 +168,11 @@ export const createVcDiffView = (opts: VcDiffViewOpts) => {
         if (!row?.dataset.index) {
             return;
         }
-        selected = Number(row.dataset.index);
+        const index = Number(row.dataset.index);
+        if (index === selected) {
+            return;
+        }
+        selected = index;
         sidebar.dom.querySelectorAll('.vc-diff-row.selected').forEach(el => el.classList.remove('selected'));
         row.classList.add('selected');
         renderMain();
