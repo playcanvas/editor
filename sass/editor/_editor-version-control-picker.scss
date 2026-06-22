@@ -323,52 +323,143 @@
 
             // kept progress widgets render here now (was .side-panel)
             > .progress-widget {
-                width: min(360px, 100%);
-                margin: clamp(96px, 24vh, 220px) auto 0;
-                background-color: transparent;
+                width: min(480px, 100%);
+                margin: 0 auto;
+                border: 1px solid $border-primary;
+                border-radius: 6px;
+                background: $bcg-primary;
+                overflow: hidden;
 
-                > .content {
+                > .vc-progress-header {
                     display: flex;
-                    flex-direction: column;
                     align-items: center;
+                    min-height: 36px;
+                    padding: 0 14px;
+                    border-bottom: 1px solid $border-primary;
+                    background: $bcg-dark;
                 }
 
-                .ui-label {
-                    width: 100%;
+                .vc-heading {
+                    @extend .font-bold;
+
                     margin: 0;
                     color: $text-primary;
-                    font-size: 16px;
-                    text-align: center;
-
-                    &.note {
-                        color: $text-secondary;
-                        font-size: 12px;
-
-                        &:not(.hidden) {
-                            display: block;
-                        }
-                    }
+                    font-size: 14px;
+                    line-height: 1.2;
                 }
 
-                svg {
-                    display: block;
-                    flex: none;
-                    margin: 16px 0 0;
+                .status-card {
+                    border: 0;
+                    border-radius: 0;
+                    background: transparent;
+                    overflow: hidden;
+                }
 
-                    &.spin {
-                        g {
-                            animation-name: spin;
-                            animation-duration: 500ms;
-                            animation-iteration-count: infinite;
-                            animation-timing-function: linear;
-                            transform-origin: center;
-                        }
-                    }
+                .status-row {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    min-height: 56px;
+                    padding: 11px 12px;
+                }
+
+                .icon-cell {
+                    flex: none;
+                    display: grid;
+                    place-items: center;
+                    width: 24px;
+                    height: 24px;
+                    color: $text-active;
+                }
+
+                .vc-progress-icon {
+                    position: relative;
+                    display: grid;
+                    place-items: center;
+                    width: 24px;
+                    height: 24px;
+                    color: $text-active;
 
                     &.hidden {
                         display: none;
                     }
+
+                    .spinner {
+                        width: 16px;
+                        height: 16px;
+                        border: 2px solid #773417;
+                        border-top-color: $text-active;
+                        border-radius: 50%;
+                        animation: vc-skeleton-spin 850ms linear infinite;
+                    }
+
+                    .check,
+                    .cross {
+                        position: relative;
+                        display: block;
+                        width: 18px;
+                        height: 18px;
+                    }
+
+                    .check::before {
+                        content: '';
+                        position: absolute;
+                        left: 50%;
+                        top: 50%;
+                        width: 12px;
+                        height: 7px;
+                        border-left: 2px solid #82d993;
+                        border-bottom: 2px solid #82d993;
+                        transform: translate(-50%, -62%) rotate(-45deg);
+                        transform-origin: center;
+                    }
+
+                    .cross::before,
+                    .cross::after {
+                        content: '';
+                        position: absolute;
+                        left: 50%;
+                        top: 50%;
+                        width: 15px;
+                        height: 2px;
+                        border-radius: 2px;
+                        background: #ff8a8a;
+                        transform-origin: center;
+                    }
+
+                    .cross::before {
+                        transform: translate(-50%, -50%) rotate(45deg);
+                    }
+
+                    .cross::after {
+                        transform: translate(-50%, -50%) rotate(-45deg);
+                    }
                 }
+
+                .copy {
+                    min-width: 0;
+
+                    > .pcui-label {
+                        display: block;
+                        margin: 0;
+                    }
+                }
+
+                .title {
+                    @extend .font-bold;
+
+                    color: $text-primary;
+                    font-size: 14px;
+                    line-height: 1.35;
+                }
+
+                .note {
+                    margin-top: 4px;
+                    color: $text-dark;
+                    font-size: 12px;
+                    line-height: 1.35;
+                }
+
             }
         }
     }
@@ -1495,6 +1586,10 @@
             }
         }
     }
+}
+
+@keyframes vc-skeleton-spin {
+    to { transform: rotate(360deg); }
 }
 
 @keyframes vc-skeleton-pulse {

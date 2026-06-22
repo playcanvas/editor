@@ -1,4 +1,3 @@
-import * as SVG from '@/common/svg';
 import { handleCallback } from '@/common/utils';
 import { MERGE_STATUS_APPLY_ENDED } from '@/core/constants';
 import { config } from '@/editor/config';
@@ -7,62 +6,81 @@ editor.once('load', () => {
     let currentCheckpointBeingCreated = null;
 
     const overlayBranchSwitched = editor.call('picker:versioncontrol:createOverlay', {
-        message: 'Refreshing browser window...',
-        icon: SVG.completed(50)
+        title: 'Branch switched',
+        message: 'Refreshing browser',
+        status: 'success'
     });
 
     const overlayCreatingCheckpoint = editor.call('picker:versioncontrol:createOverlay', {
-        message: 'Please wait while the checkpoint is being created.',
-        icon: SVG.spinner(50)
+        title: 'Creating checkpoint',
+        message: 'This may take a few seconds.',
+        status: 'loading',
+        loading: true
     });
 
     const overlayRestoringCheckpoint = editor.call('picker:versioncontrol:createOverlay', {
-        message: 'Please wait while the checkpoint is restored.',
-        icon: SVG.spinner(50)
+        title: 'Restoring checkpoint',
+        message: 'This may take a few seconds.',
+        status: 'loading',
+        loading: true
     });
 
     const overlayCheckpointRestored = editor.call('picker:versioncontrol:createOverlay', {
-        message: 'Refreshing browser window...',
-        icon: SVG.completed(50)
+        title: 'Checkpoint restored',
+        message: 'Refreshing browser',
+        status: 'success'
     });
 
     const overlayHardResetInProgress = editor.call('picker:versioncontrol:createOverlay', {
-        message: 'Please wait while hard reset to checkpoint is in progress.',
-        icon: SVG.completed(50)
+        title: 'Performing hard reset',
+        message: 'This may take a few seconds.',
+        status: 'loading',
+        loading: true
     });
 
     const overlayHardResetDone = editor.call('picker:versioncontrol:createOverlay', {
-        message: 'Refreshing browser window...',
-        icon: SVG.completed(50)
+        title: 'Hard reset complete',
+        message: 'Refreshing browser',
+        status: 'success'
     });
 
     const overlayBranchClosed = editor.call('picker:versioncontrol:createOverlay', {
-        title: 'This branch has been closed.',
-        message: 'Switching to main branch...',
-        icon: SVG.spinner(50)
+        title: 'Branch closed',
+        message: 'Switching to main branch',
+        status: 'loading',
+        loading: true
     });
 
     const overlayMergeStopped = editor.call('picker:versioncontrol:createOverlay', {
-        message: 'Refreshing browser...',
-        icon: SVG.error(50)
+        title: 'Merge force stopped',
+        message: 'Refreshing browser',
+        status: 'error'
+    });
+
+    const overlayMergeCompleting = editor.call('picker:versioncontrol:createOverlay', {
+        title: 'Completing merge',
+        message: 'This may take a few seconds.',
+        status: 'loading',
+        loading: true
     });
 
     const overlayMergeCompleted = editor.call('picker:versioncontrol:createOverlay', {
-        title: 'Merge completed.',
-        message: 'Refreshing browser...',
-        icon: SVG.completed(50)
+        title: 'Merge completed',
+        message: 'Refreshing browser',
+        status: 'success'
     });
 
     const overlayDeletingBranch = editor.call('picker:versioncontrol:createOverlay', {
         title: 'Deleting branch',
-        message: 'Please wait while this branch is being deleted.',
-        icon: SVG.spinner(50)
+        message: 'This may take a few seconds.',
+        status: 'loading',
+        loading: true
     });
 
     const overlayDeletedBranch = editor.call('picker:versioncontrol:createOverlay', {
-        title: 'This branch has been deleted.',
-        message: 'Refreshing browser window...',
-        icon: SVG.completed(50)
+        title: 'Branch deleted',
+        message: 'Refreshing browser',
+        status: 'success'
     });
 
     // don't let the user's full name be too big
@@ -262,11 +280,10 @@ editor.once('load', () => {
 
         // if merge finished
         if (data.status === MERGE_STATUS_APPLY_ENDED) {
-            if (!editor.call('picker:isOpen', 'conflict-manager')) {
-                // hide merge overlay and refresh
-                editor.call('picker:versioncontrol:mergeOverlay:hide');
-                overlayMergeCompleted.hidden = false;
-            }
+            editor.call('picker:versioncontrol:mergeOverlay:hide');
+            overlayMergeCompleting.hidden = true;
+            overlayMergeCompleted.hidden = false;
+            overlayMergeCompleted.class.remove('show-behind-picker');
             refresh();
         }
     });
@@ -298,6 +315,16 @@ editor.once('load', () => {
         } else {
             overlayMergeStopped.class.remove('show-behind-picker');
         }
+    });
+
+    editor.method('picker:versioncontrol:mergeCompletingOverlay', () => {
+        editor.call('picker:versioncontrol:mergeOverlay:hide');
+        overlayMergeCompleting.hidden = false;
+        overlayMergeCompleting.class.remove('show-behind-picker');
+    });
+
+    editor.method('picker:versioncontrol:mergeCompletingOverlay:hide', () => {
+        overlayMergeCompleting.hidden = true;
     });
 
     // check if our current branch is different than the one we have currently loaded
