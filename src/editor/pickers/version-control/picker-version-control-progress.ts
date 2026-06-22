@@ -1,12 +1,20 @@
-import * as SVG from '@/common/svg';
-import { LegacyLabel } from '@/common/ui/label';
-import { LegacyPanel } from '@/common/ui/panel';
+import { Container, Label } from '@playcanvas/pcui';
+
+const ICONS = {
+    loading: 'spinner',
+    success: 'check',
+    error: 'cross'
+};
+
+const makeIcon = (state: keyof typeof ICONS) => {
+    const icon = document.createElement('span');
+    icon.classList.add('vc-progress-icon', state);
+    icon.setAttribute('aria-hidden', 'true');
+    icon.appendChild(document.createElement('span')).classList.add(ICONS[state]);
+    return icon;
+};
 
 editor.once('load', () => {
-    // this is true if ANY progress widget is currently
-    // showing a spinner. This is so that we don't show
-    // version control overlays on top of these windows if any widget here is showing a spinner
-    // because it looks bad.
     let showingProgress = false;
     let showingError = false;
 
@@ -19,50 +27,59 @@ editor.once('load', () => {
     });
 
     editor.method('picker:versioncontrol:createProgressWidget', (args) => {
-        const panel = new LegacyPanel();
-        panel.class.add('progress-widget');
+        const panel = new Container({ class: 'progress-widget' });
 
-        // message
-        const labelMessage = new LegacyLabel({
-            text: args.progressText
-        });
-        labelMessage.renderChanges = false;
-        panel.append(labelMessage);
+        const header = new Container({ class: 'vc-progress-header' });
+        panel.append(header);
 
-        // note
-        const labelNote = new LegacyLabel();
-        labelNote.class.add('note');
-        labelNote.renderChanges = false;
-        panel.append(labelNote);
+        header.append(new Label({
+            class: 'vc-heading',
+            text: 'Resolve conflicts'
+        }));
 
-        // spinner svg
-        const spinner = SVG.spinner(65);
-        panel.innerElement.appendChild(spinner);
+        const card = new Container({ class: 'status-card' });
+        panel.append(card);
 
-        // completed svg
-        const completed = SVG.completed(65);
-        panel.innerElement.appendChild(completed);
-        completed.classList.add('hidden');
+        const row = new Container({ class: 'status-row' });
+        card.append(row);
 
-        // error svg
-        const error = SVG.error(65);
-        panel.innerElement.appendChild(error);
-        error.classList.add('hidden');
+        const iconCell = new Container({ class: 'icon-cell' });
+        row.append(iconCell);
 
-        // Call this when the asynchronous action is finished
+        const icons = {
+            loading: makeIcon('loading'),
+            success: makeIcon('success'),
+            error: makeIcon('error')
+        };
+        iconCell.domContent.append(icons.loading, icons.success, icons.error);
+
+        const copy = new Container({ class: 'copy' });
+        const labelMessage = new Label({ class: 'title', text: args.progressText });
+        const labelNote = new Label({ class: 'note', text: 'This may take a few seconds.' });
+        copy.append(labelMessage);
+        copy.append(labelNote);
+        row.append(copy);
+
+        const setState = (state: 'loading' | 'success' | 'error') => {
+            panel.class.remove('loading', 'success', 'error');
+            panel.class.add(state);
+            icons.loading.classList.toggle('hidden', state !== 'loading');
+            icons.success.classList.toggle('hidden', state !== 'success');
+            icons.error.classList.toggle('hidden', state !== 'error');
+        };
+
         panel.finish = function (err: string | null) {
             if (err) {
                 panel.setMessage(args.errorText);
                 panel.setNote(err);
-                error.classList.remove('hidden');
+                setState('error');
                 showingError = true;
             } else {
                 panel.setMessage(args.finishText);
                 panel.setNote('');
-                completed.classList.remove('hidden');
+                setState('success');
                 showingError = false;
             }
-            spinner.classList.add('hidden');
         };
 
         panel.setMessage = function (text: string) {
@@ -76,24 +93,23 @@ editor.once('load', () => {
 
         panel.on('show', () => {
             showingProgress = true;
-            panel.parent.class.add('align-center');
+            panel.parent?.class.add('align-center');
         });
 
-        // restore panel contents when the panel is hidden
         panel.on('hide', () => {
             if (panel.parent) {
                 panel.parent.class.remove('align-center');
             }
 
             labelMessage.text = args.progressText;
-            labelNote.hidden = true;
-            completed.classList.add('hidden');
-            error.classList.add('hidden');
-            spinner.classList.remove('hidden');
+            labelNote.text = 'This may take a few seconds.';
+            labelNote.hidden = false;
+            setState('loading');
             showingProgress = false;
             showingError = false;
         });
 
+        setState('loading');
         return panel;
     });
 });

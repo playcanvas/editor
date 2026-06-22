@@ -3,13 +3,10 @@ import { Button, Container, Label, SelectInput } from '@playcanvas/pcui';
 import { handleCallback } from '@/common/utils';
 
 editor.once('load', () => {
-    const icon = document.createElement('div');
-    icon.classList.add('icon');
-    icon.innerHTML = '&#57880;';
-
     const overlay = editor.call('picker:versioncontrol:createOverlay', {
-        message: 'Please wait until merging has been completed',
-        icon: icon
+        title: 'Merge in progress',
+        message: 'Resolve the active merge before continuing.',
+        status: 'merge'
     });
     overlay.class.add('merge-overlay');
 
@@ -29,10 +26,10 @@ editor.once('load', () => {
 
     const btnSwitch = new Button({
         enabled: false,
-        text: 'SWITCH'
+        text: 'Switch'
     });
     panelSwitch.append(btnSwitch);
-    overlay.innerElement.querySelector('.right').ui.append(panelSwitch);
+    overlay.innerElement.querySelector('.vc-overlay-body').ui.append(panelSwitch);
 
     // switch to branch
     btnSwitch.on('click', () => {
@@ -57,7 +54,8 @@ editor.once('load', () => {
 
     const btnForceStopMerge = new Button({
         enabled: editor.call('permissions:write'),
-        text: 'FORCE STOP MERGE'
+        text: 'Stop merge',
+        class: 'danger'
     });
     panelBottom.append(btnForceStopMerge);
     btnForceStopMerge.on('click', () => {
@@ -81,6 +79,7 @@ editor.once('load', () => {
         }
         handleCallback(editor.api.globals.rest.projects.projectBranches(params), (err, data) => {
             if (err) {
+                overlay.setLoading(false);
                 log.error(err);
                 return;
             }
@@ -106,7 +105,10 @@ editor.once('load', () => {
     };
 
     overlay.on('show', () => {
+        branches = [];
+        overlay.setLoading(true);
         loadBranches(null, () => {
+            overlay.setLoading(false);
             if (!branches.length) {
                 return;
             }
@@ -123,6 +125,7 @@ editor.once('load', () => {
     });
 
     overlay.on('hide', () => {
+        overlay.setLoading(false);
         dropdownBranches.options = [];
         dropdownBranches.value = null;
         btnSwitch.enabled = false;

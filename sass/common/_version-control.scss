@@ -7,11 +7,10 @@
     > .pcui-overlay-content {
         z-index: 0;
         position: fixed;
-        width: 500px;
+        width: 480px;
         left: 50%;
         top: 50%;
         height: auto;
-        min-height: 106px;
         border: 1px solid $border-primary;
         border-radius: 6px;
         background: $bcg-primary;
@@ -20,49 +19,134 @@
         white-space: normal;
 
         > .pcui-container.main {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            padding: 22px 24px;
+            display: block;
+            padding: 0;
         }
 
-        .pcui-container.left {
-            flex: none;
+        .vc-overlay-header {
             display: flex;
             align-items: center;
-            justify-content: center;
-            width: 70px;
-            text-align: center;
+            min-height: 36px;
+            padding: 0 14px;
+            border-bottom: 1px solid $border-primary;
+            background: $bcg-dark;
             top: auto;
+        }
 
-            svg {
+        .vc-heading {
+            @extend .font-bold;
+
+            margin: 0;
+            color: $text-primary;
+            font-size: 14px;
+            line-height: 1.2;
+        }
+
+        .vc-overlay-body {
+            padding: 12px;
+            top: auto;
+        }
+
+        .status-card {
+            border: 1px solid $border-primary;
+            border-radius: 6px;
+            background: $bcg-dark;
+            overflow: hidden;
+        }
+
+        .status-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-height: 56px;
+            padding: 11px 12px;
+            top: auto;
+        }
+
+        .icon-cell {
+            flex: none;
+            display: grid;
+            place-items: center;
+            width: 24px;
+            height: 24px;
+            color: $text-active;
+        }
+
+        .vc-overlay-icon {
+            position: relative;
+            display: grid;
+            place-items: center;
+            width: 24px;
+            height: 24px;
+            color: $text-active;
+
+            &.merge {
+                @extend .font-icon;
+
+                font-size: 21px;
+                line-height: 1;
+            }
+
+            &.hidden {
+                display: none;
+            }
+
+            .spinner {
+                width: 16px;
+                height: 16px;
+                border: 2px solid #773417;
+                border-top-color: $text-active;
+                border-radius: 50%;
+                animation: vc-overlay-spin 850ms linear infinite;
+            }
+
+            .check,
+            .cross {
+                position: relative;
                 display: block;
-                width: 50px;
-                height: 50px;
-                margin: 0;
+                width: 18px;
+                height: 18px;
+            }
 
-                &.spin {
-                    g {
-                        animation-name: spin;
-                        animation-duration: 500ms;
-                        animation-iteration-count: infinite;
-                        animation-timing-function: linear;
-                        transform-origin: center;
-                    }
-                }
+            .check::before {
+                content: '';
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                width: 12px;
+                height: 7px;
+                border-left: 2px solid #82d993;
+                border-bottom: 2px solid #82d993;
+                transform: translate(-50%, -62%) rotate(-45deg);
+                transform-origin: center;
+            }
 
-                &.hidden {
-                    display: none;
-                }
+            .cross::before,
+            .cross::after {
+                content: '';
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                width: 15px;
+                height: 2px;
+                border-radius: 2px;
+                background: #ff8a8a;
+                transform-origin: center;
+            }
+
+            .cross::before {
+                transform: translate(-50%, -50%) rotate(45deg);
+            }
+
+            .cross::after {
+                transform: translate(-50%, -50%) rotate(-45deg);
             }
         }
 
-        .pcui-container.right {
+        .copy {
             flex: 1 1 auto;
             min-width: 0;
-            width: auto;
             white-space: normal;
-            top: auto;
 
             .pcui-label {
                 margin: 0;
@@ -73,18 +157,17 @@
                     @extend .font-bold;
 
                     color: $text-primary;
-                    font-size: 16px;
+                    font-size: 14px;
                 }
 
                 &.message {
-                    @extend .font-thin;
-
                     margin-top: 4px;
                     color: $text-dark;
-                    font-size: 14px;
+                    font-size: 12px;
                 }
             }
         }
+
     }
 
     &.merge-overlay {
@@ -95,58 +178,47 @@
         }
 
         > .pcui-overlay-content {
-            min-height: 186px;
-
-            .pcui-container.left {
-                width: 70px;
-                vertical-align: top;
-
-                .icon {
-                    @extend .font-icon;
-
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    width: 50px;
-                    height: 50px;
-                    border: 2px solid $text-active;
-                    border-radius: 50%;
-                    color: $text-active;
-                    font-size: 24px;
-                    margin-top: 0;
-                }
-            }
-
-            .pcui-container.right {
-                width: auto;
-            }
-
             .pcui-container.switch-branch {
-                display: flex;
+                display: grid;
+                grid-template-columns: auto minmax(150px, 1fr) auto;
                 align-items: center;
-                gap: 10px;
-                margin-top: 20px;
+                gap: 8px;
+                margin-top: 10px;
                 white-space: nowrap;
+                top: auto;
 
                 > .pcui-label {
                     flex: none;
                     font-size: 12px;
-                    margin-right: 20px;
+                    line-height: 28px;
+                    margin: 0;
                 }
 
                 > .pcui-select-input {
-                    flex: 1 1 auto;
-                    margin-top: -1px;
-                    max-width: 190px;
-                    width: 190px;
+                    min-width: 0;
+                    width: auto;
+                    height: 28px;
+                    margin: 0;
+                    font-size: 13px;
+                    line-height: 26px;
+
+                    .pcui-select-input-container-value {
+                        height: 28px;
+                        border-radius: 6px;
+                    }
+
+                    .pcui-select-input-value,
+                    .pcui-select-input-icon {
+                        height: 28px;
+                        line-height: 26px;
+                    }
                 }
 
                 > .pcui-button {
                     flex: none;
-                    margin-top: -1px;
-                    height: 24px;
-                    line-height: 24px;
-                    font-size: 12px;
+                    height: 28px;
+                    line-height: 26px;
+                    font-size: 13px;
                 }
             }
 
@@ -161,27 +233,37 @@
                     position: static;
                     width: 100%;
                     text-align: right;
-                    padding: 10px 12px;
+                    padding: 8px 10px;
                     box-sizing: border-box;
 
                     .pcui-button {
                         @extend .font-bold;
 
                         font-size: 13px;
-                        width: 160px;
-                        height: 32px;
-                        line-height: 32px;
+                        width: 140px;
+                        height: 28px;
+                        line-height: 26px;
                         text-align: center;
-                        border: 1px solid transparent;
+                        border: 1px solid $border-primary;
                         border-radius: 6px;
-                        background: $error-secondary;
-                        color: $text-primary;
+                        background: $bcg-darkest;
+                        color: $text-secondary;
                         box-shadow: none;
                         transition: background 100ms, box-shadow 100ms;
 
                         &:hover {
-                            background: $error-secondary;
+                            background: $bcg-dark;
                             box-shadow: $element-shadow-hover;
+                        }
+
+                        &.danger {
+                            border-color: #653235;
+                            background: #522f32;
+                            color: #ffb7b7;
+
+                            &:hover {
+                                background: #653235;
+                            }
                         }
 
                         &:active {
@@ -196,6 +278,10 @@
             }
         }
     }
+}
+
+@keyframes vc-overlay-spin {
+    to { transform: rotate(360deg); }
 }
 
 // mirrors .pcui-menu.picker-builds-menu so both pickers share one menu look
