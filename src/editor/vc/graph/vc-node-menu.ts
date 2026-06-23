@@ -133,16 +133,12 @@ editor.once('load', () => {
         },
 
         viewChangesTask: function (menu: Menu & { node: Record<string, unknown>; vcGraphState: Record<string, unknown> }) {
-            VcMenuUtils.selectForCompare(menu);
-
             const h2 = VcMenuUtils.parentForCompare(menu);
 
             VcMenuUtils.startDiffTask(menu, menu.node, h2, menu.vcGraphState.vcHistItem);
         },
 
         fullCommitForHistTask: function (menu: Menu & { node: Record<string, unknown>; vcGraphState: Record<string, unknown> }) {
-            VcMenuUtils.selectForCompare(menu);
-
             VcMenuUtils.startDiffTask(menu, menu.node, menu.node.histParentNode, null);
         },
 
