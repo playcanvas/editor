@@ -2,6 +2,20 @@ import type { Container, Menu } from '@playcanvas/pcui';
 import type Graph from '@playcanvas/pcui-graph';
 
 editor.once('load', () => {
+    const graphCache: Record<string, { data?: Record<string, unknown>; promise?: Promise<Record<string, unknown>> }> = {};
+
+    const cacheKey = (h: Record<string, unknown>) => [
+        h.branchId || h.branch,
+        h.graphStartId || '',
+        h.vcHistItem || ''
+    ].join(':');
+
+    const clone = (data: Record<string, unknown>) => editor.call('template:utils', 'deepClone', data);
+
+    const clearCache = () => {
+        Object.keys(graphCache).forEach(key => delete graphCache[key]);
+    };
+
     /**
      * Initialize and show the Version Control graph. Assign initial
      * coordinates to each node, make sure nodes do not overlap vertically
@@ -135,6 +149,8 @@ editor.once('load', () => {
 
     editor.method('vcgraph:showInitial', (h: any) => {
         h.vcNodeMenu.hidden = true;
+        const key = cacheKey(h);
+        const cached = graphCache[key];
 
         // skeleton placeholder while the backend graph task runs (replaces the old loading menu box)
         const skeleton = document.createElement('div');
@@ -143,11 +159,49 @@ editor.once('load', () => {
             '<span class="avatar"></span><span class="title"></span><span class="hash"></span>' +
             '<span class="line user"></span><span class="line date"></span>' +
             '</div>').repeat(4);
-        h.vcGraphContainer.dom.appendChild(skeleton);
+        if (!cached?.data) {
+            h.vcGraphContainer.dom.appendChild(skeleton);
+        }
 
-        editor.call('vcgraph:utils', 'backendGraphTask', h, (err, data) => {
+        const show = (data: Record<string, unknown>) => {
             skeleton.remove();
-            new VcGraphLogic(data, h).run();
+            if (!h.vcGraphContainer.dom.isConnected) {
+                return;
+            }
+            new VcGraphLogic(clone(data), h).run();
+        };
+
+        if (cached?.data) {
+            show(cached.data);
+            return;
+        }
+
+        const entry = cached || (graphCache[key] = {});
+        entry.promise = entry.promise || new Promise((resolve, reject) => {
+            editor.call('vcgraph:utils', 'backendGraphTask', h, (err, data) => {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve(data);
+            });
+        });
+        entry.promise.then((data) => {
+            entry.data = clone(data);
+            delete entry.promise;
+            show(data);
+        }).catch((err) => {
+            delete graphCache[key];
+            skeleton.remove();
+            log.error(err);
         });
     });
+
+    editor.on('messenger:checkpoint.createEnded', clearCache);
+    editor.on('messenger:checkpoint.hardResetEnded', clearCache);
+    editor.on('messenger:checkpoint.revertEnded', clearCache);
+    editor.on('messenger:branch.createEnded', clearCache);
+    editor.on('messenger:branch.close', clearCache);
+    editor.on('messenger:branch.delete', clearCache);
+    editor.on('messenger:branch.open', clearCache);
 });
