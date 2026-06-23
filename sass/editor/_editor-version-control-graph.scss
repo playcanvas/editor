@@ -68,11 +68,6 @@ $vc-node-fill: #2a3437; // matches VC_GRAPH_NODE_FILL in vc-utils.ts
     }
 
     .joint-element.vc-graph-node-menu-open {
-        rect[joint-selector='body'],
-        rect[joint-selector='labelBackground'] {
-            stroke: $text-active !important;
-        }
-
         .vc-graph-node-expandable {
             color: $text-active !important;
         }
