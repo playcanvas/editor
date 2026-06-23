@@ -66,6 +66,7 @@ editor.once('load', () => {
                 },
                 {
                     text: 'Loading...',
+                    class: 'vc-node-menu-loading-item',
                     onIsVisible: () => !m.node
                 }
             ]
@@ -218,6 +219,8 @@ editor.once('load', () => {
             menu.vcGraphState = graphState;
 
             menu.menuCoords = coords;
+
+            menu.class.toggle('vc-node-menu-loading', !h);
 
             menu.hidden = false;
 

@@ -272,20 +272,43 @@ $vc-node-fill: #2a3437; // matches VC_GRAPH_NODE_FILL in vc-utils.ts
         color: $text-primary;
     }
 
-    .vc-graph-legend {
-        display: flex;
+    .vc-graph-legend.pcui-panel {
         width: 240px;
         max-width: 100%;
-        max-height: min(60vh, 420px);
+        overflow: hidden;
+        border: 1px solid $border-primary;
+        border-radius: 6px;
+        background: $bcg-primary; // solid so the graph nodes don't bleed through
+        box-shadow: 0 6px 16px rgb(0 0 0 / 28%);
+        pointer-events: auto;
+
+        &.pcui-collapsed {
+            width: 112px;
+        }
+
+        > .pcui-panel-header {
+            display: flex;
+            height: 32px;
+            line-height: 32px;
+            list-style: none;
+        }
+
+        > .pcui-panel-header::-webkit-details-marker {
+            display: none;
+        }
+
+        > .pcui-panel-header > .pcui-panel-header-title {
+            @extend .font-bold;
+        }
+    }
+
+    .vc-graph-legend-list {
+        display: flex;
+        max-height: min(60vh, 380px);
         flex-direction: column;
         gap: 6px;
         overflow: auto;
-        padding: 8px 10px;
-        border: 1px solid $border-primary;
-        border-radius: 6px;
-        background: $bcg-darkest; // solid so the graph nodes don't bleed through
-        box-shadow: 0 6px 16px rgb(0 0 0 / 28%);
-        pointer-events: auto;
+        padding: 8px 10px 10px;
     }
 
     .vc-graph-legend-item {
@@ -435,5 +458,38 @@ $vc-node-fill: #2a3437; // matches VC_GRAPH_NODE_FILL in vc-utils.ts
     .pcui-menu-item-content:hover {
         background: #364346;
         color: #fff;
+    }
+
+    &.vc-node-menu-loading {
+        .pcui-menu-items {
+            background: $vc-node-fill;
+            box-shadow: 0 8px 18px rgb(0 0 0 / 30%);
+        }
+
+        .pcui-menu-item-content,
+        .pcui-menu-item-content:hover {
+            min-width: 118px;
+            background: $vc-node-fill;
+            color: $text-secondary;
+            cursor: default;
+        }
+
+        .vc-node-menu-loading-item .pcui-menu-item-content > .pcui-label {
+            align-items: center;
+            margin: 0 10px;
+            font-size: 12px;
+            line-height: 26px;
+        }
+
+        .vc-node-menu-loading-item .pcui-menu-item-content > .pcui-label::before {
+            content: '';
+            flex: none;
+            width: 6px;
+            height: 6px;
+            margin-right: 8px;
+            border-radius: 50%;
+            background: $text-secondary;
+            animation: vc-skeleton-pulse 1.4s ease-in-out infinite;
+        }
     }
 }

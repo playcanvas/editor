@@ -29,6 +29,8 @@ editor.once('load', () => {
 
     const VC_GRAPH_BRANCH_COLOR_START = 13;
 
+    const VC_GRAPH_SMALL_QUERY = '(max-width: 1099px)';
+
     const VC_GRAPH_DATE_FORMAT = {
         day: 'numeric',
         month: 'short',
@@ -450,6 +452,7 @@ editor.once('load', () => {
 
         renderBranchLegend: function (data: VcGraphData) {
             const legend = VcUtils.branchLegend(data.graph);
+            const list = legend.querySelector<HTMLElement>('.vc-graph-legend-list');
             const styles = editor.call('vcgraph:getAllStyles');
             const branchIds = new Set(Object.values(data.idToNode).map(h => h.branchId));
             const branches = Object.entries(data.branches)
@@ -457,8 +460,10 @@ editor.once('load', () => {
             .map(([, h]) => h);
 
             VcUtils.sortByIntField(branches, 'created_at');
-            legend.replaceChildren();
+            list?.replaceChildren();
             legend.hidden = !branches.length;
+            legend.open = legend.dataset.open ? legend.dataset.open === 'true' : !VcUtils.isSmallGraph(data.graph);
+            legend.classList.toggle('pcui-collapsed', !legend.open);
 
             branches.forEach((h) => {
                 const item = document.createElement('span');
@@ -473,7 +478,7 @@ editor.once('load', () => {
                 label.className = 'vc-graph-legend-label';
                 label.textContent = name;
                 item.append(dot, label);
-                legend.appendChild(item);
+                list?.appendChild(item);
             });
         },
 
@@ -551,15 +556,35 @@ editor.once('load', () => {
         },
 
         branchLegend: function (graph: Graph) {
-            let legend = graph.dom.querySelector<HTMLElement>('.vc-graph-legend');
+            let legend = graph.dom.querySelector<HTMLDetailsElement>('.vc-graph-legend');
 
             if (!legend) {
-                legend = document.createElement('div');
-                legend.className = 'vc-graph-legend';
+                const header = document.createElement('summary');
+                const title = document.createElement('span');
+                const list = document.createElement('div');
+
+                legend = document.createElement('details');
+                legend.className = 'pcui-panel pcui-collapsible vc-graph-legend';
+                header.className = 'pcui-panel-header';
+                title.className = 'pcui-panel-header-title';
+                title.textContent = 'LEGEND';
+                list.className = 'pcui-panel-content vc-graph-legend-list';
+                header.appendChild(title);
+                legend.append(header, list);
+                legend.addEventListener('toggle', () => {
+                    legend.dataset.open = String(legend.open);
+                    legend.classList.toggle('pcui-collapsed', !legend.open);
+                });
                 VcUtils.overlayStack(graph).appendChild(legend);
             }
 
             return legend;
+        },
+
+        isSmallGraph: function (graph: Graph) {
+            const overlay = graph.dom.closest('.vc-graph-overlay');
+
+            return window.matchMedia(VC_GRAPH_SMALL_QUERY).matches || !overlay?.classList.contains('fullscreen');
         },
 
         overlayStack: function (graph: Graph) {
