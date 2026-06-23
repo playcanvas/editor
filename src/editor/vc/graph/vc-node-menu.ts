@@ -7,6 +7,8 @@ editor.once('load', () => {
 
     const LOADING_MSG_DELAY = 70;
 
+    const ACTIVE_NODE_CLASS = 'vc-graph-node-menu-open';
+
     editor.method('vcgraph:makeNodeMenu', (mainPanel: HTMLElement) => {
         const m = new Menu({
             items: [
@@ -75,6 +77,11 @@ editor.once('load', () => {
         m.vcMainPanel = mainPanel;
 
         m.class.add('vc-node-menu');
+
+        m.on('hide', () => {
+            m.activeNodeEl?.classList.remove(ACTIVE_NODE_CLASS);
+            m.activeNodeEl = null;
+        });
 
         return m;
     });
@@ -213,7 +220,13 @@ editor.once('load', () => {
             }
         },
 
-        showNodeMenu: function (menu: Menu & { node?: unknown; vcGraphState?: unknown; menuCoords?: { x: number; y: number; w?: number }; position: (x: number, y: number) => void }, h: Record<string, unknown> | null, graphState: Record<string, unknown> | null, coords: { x: number; y: number; w?: number } | null) {
+        showNodeMenu: function (menu: Menu & { activeNodeEl?: Element | null; node?: unknown; vcGraphState?: unknown; menuCoords?: { x: number; y: number; w?: number }; position: (x: number, y: number) => void }, h: Record<string, unknown> | null, graphState: any, coords: { x: number; y: number; w?: number } | null) {
+            if (h) {
+                menu.activeNodeEl?.classList.remove(ACTIVE_NODE_CLASS);
+                menu.activeNodeEl = graphState.graph.view.getNodeDomElement(String(h.id));
+                menu.activeNodeEl?.classList.add(ACTIVE_NODE_CLASS);
+            }
+
             menu.node = h;
 
             menu.vcGraphState = graphState;
