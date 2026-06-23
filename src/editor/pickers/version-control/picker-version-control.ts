@@ -331,7 +331,6 @@ editor.once('load', () => {
         togglePanels(true);
         showProgress(null);
         requestAnimationFrame(() => {
-            editor.call('picker:project:suspend');
             editor.call('picker:versioncontrol:mergeOverlay:hide');
             editor.call('picker:versioncontrol:diffPicker', diff);
         });
@@ -367,6 +366,9 @@ editor.once('load', () => {
     const viewDiff = (srcBranchId: string, srcCheckpointId: string | null, dstBranchId: string, dstCheckpointId: string | null) => {
         runDiff(() => diffCreate({ srcBranchId, srcCheckpointId, dstBranchId, dstCheckpointId }));
     };
+    panel.on('diff', (srcBranchId: string, srcCheckpointId: string | null, dstBranchId: string, dstCheckpointId: string | null) => {
+        presentDiff(diffCreate({ srcBranchId, srcCheckpointId, dstBranchId, dstCheckpointId }));
+    });
 
     // always use the modern overlay: a resolved diff renders instantly, a pending
     // one (or a fresh job) opens with a loading state — no legacy spinner dialog
@@ -495,9 +497,10 @@ editor.once('load', () => {
 
     switcher.on('newBranch', () => openNewBranchDialog(null));
     detail.on('newBranch', (checkpoint: any) => openNewBranchDialog(checkpoint));
+    panel.on('checkpoint:branch', (checkpoint: any, branch: any) => openNewBranchDialog(checkpoint, branch));
 
-    function openNewBranchDialog(checkpoint: any | null) {
-        const source = checkpoint ? viewedBranch : config.self.branch;
+    function openNewBranchDialog(checkpoint: any | null, branch?: any) {
+        const source = branch || (checkpoint ? viewedBranch : config.self.branch);
         const fromId = checkpoint ? checkpoint.id : source.latestCheckpointId;
         const dialog = showVcDialog({
             title: 'New branch',
@@ -708,6 +711,7 @@ editor.once('load', () => {
             }
         });
     });
+    panel.on('checkpoint:restore', (checkpoint: any) => detail.emit('restore', checkpoint));
 
     detail.on('hardReset', (checkpoint: any) => {
         const dialog = showVcDialog({
@@ -733,6 +737,7 @@ editor.once('load', () => {
             }
         });
     });
+    panel.on('checkpoint:hardReset', (checkpoint: any) => detail.emit('hardReset', checkpoint));
 
     // ---- vc graph host (a picker overlay, like the diff/conflict pickers) ----
     const vcGraphOverlay = new Overlay({ class: ['picker-version-control', 'vc-graph-overlay'], clickable: false, hidden: true });
@@ -766,6 +771,7 @@ editor.once('load', () => {
     editor.method('vcgraph:moveToForeground', () => vcGraphOverlay.class.remove('vc-graph-background'));
     editor.method('vcgraph:isHidden', () => vcGraphOverlay.hidden);
     editor.method('picker:versioncontrol:graph', (h: any) => {
+        editor.call('vcgraph:moveToForeground');
         vcGraphOverlay.hidden = false; // open-only, like the diff/conflict pickers (was a toggle)
 
         // header bar matching the diff/conflict pickers (reuses their .vc-diff-* styles)

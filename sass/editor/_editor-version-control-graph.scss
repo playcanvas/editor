@@ -1,10 +1,10 @@
 $vc-node-fill: #2a3437; // matches VC_GRAPH_NODE_FILL in vc-utils.ts
 
 .pcui-overlay.vc-graph-overlay {
-    z-index: 301; // above the diff overlay (300) by default
+    z-index: 301; // above the project picker (300), below the diff picker (302)
 
     &.vc-graph-background {
-        z-index: 299; // drop below the diff overlay so a diff opened on top shows
+        z-index: 301; // legacy state class; diff picker is above this at 302
     }
 
     // small centred box that tweens to fullscreen. resized once the tween completes (see the
