@@ -2,11 +2,38 @@ import type { Button, Container, Menu } from '@playcanvas/pcui';
 import Graph from '@playcanvas/pcui-graph';
 
 import { handleCallback } from '@/common/utils';
+import { applyUserThumbnail } from '@/editor/pickers/version-control/vc-helpers';
 
 editor.once('load', () => {
     const COORD_OFFSETS = { x: 80, y: 50 };
 
     const COORD_COEFS = { x: 265, y: 110 };
+
+    const VC_GRAPH_NODE_ICON = '\uE431';
+
+    const VC_GRAPH_NODE_FILL = '#2a3437';
+
+    const VC_GRAPH_NODE_TEXT = 'transparent';
+
+    const VC_GRAPH_NODE_WIDTH = 226;
+
+    const VC_GRAPH_NODE_HEIGHT = 72;
+
+    const VC_GRAPH_NODE_RADIUS = 6;
+
+    const VC_GRAPH_NODE_LINE_HEIGHT = 13;
+
+    const VC_GRAPH_NODE_HOVER_STROKE = '#fff';
+
+    const VC_GRAPH_FALLBACK_ACCENT = '#f60';
+
+    const VC_GRAPH_BRANCH_COLOR_START = 13;
+
+    const VC_GRAPH_DATE_FORMAT = {
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric'
+    } as const;
 
     const GRAPH_DEFAULTS = {
         passiveUIEvents: false,
@@ -28,11 +55,11 @@ editor.once('load', () => {
     };
 
     const NODE_DEFAULTS = {
-        textColor: '#20292b',
-        baseHeight: 72,
-        baseWidth: 190,
-        lineHeight: 15,
-        textAlignMiddle: true,
+        textColor: VC_GRAPH_NODE_TEXT,
+        baseHeight: VC_GRAPH_NODE_HEIGHT,
+        baseWidth: VC_GRAPH_NODE_WIDTH,
+        lineHeight: VC_GRAPH_NODE_LINE_HEIGHT,
+        textAlignMiddle: false,
         includeIcon: false
     };
 
@@ -70,7 +97,7 @@ editor.once('load', () => {
 
     const TRUNCATE_TOKEN_LIMIT = 7;
 
-    const NUM_ID_CHARS = 4;
+    const NUM_ID_CHARS = 7;
 
     const CLOSED_BRANCH_SUFFIX = ' [x]';
 
@@ -89,6 +116,7 @@ editor.once('load', () => {
         renderVcNode: function (h: Record<string, unknown>, data: VcGraphData) {
             if (h.isNodeRendered) {
                 VcUtils.updateRenderedPosition(h, data);
+                VcUtils.renderNodeContent(h, data);
             } else {
                 VcUtils.renderNewNode(h, data);
             }
@@ -108,12 +136,14 @@ editor.once('load', () => {
         renderNewNode: function (h: Record<string, unknown>, data: VcGraphData) {
             data.graph.createNode({
                 id: h.id,
-                name: VcUtils.vcNodeText(h, data),
+                name: '',
                 nodeType: VcUtils.nodeToColorType(h, data),
                 posX: VcUtils.transformCoord(h, 'x'),
                 posY: VcUtils.transformCoord(h, 'y'),
                 marker: h.isExpandable
             });
+
+            VcUtils.renderNodeContent(h, data);
 
             h.isNodeRendered = true;
         },
@@ -141,6 +171,40 @@ editor.once('load', () => {
             graph.deleteNode(SELECTED_MARK.id);
         },
 
+        vcNodeContent: function (node: Record<string, unknown>, data: VcGraphData) {
+            const h = node.checkpointData as Record<string, unknown>;
+
+            return {
+                title: VcUtils.descriptionLines(node, data).join(' '),
+                user: String(h.user_full_name || ''),
+                userId: VcUtils.vcNodeUserId(h),
+                date: VcUtils.epochToDisplayStr(Number(h.created_at)),
+                hash: String(node.id).substring(0, NUM_ID_CHARS),
+                accent: VcUtils.nodeAccent(node, data),
+                expandable: Boolean(node.isExpandable)
+            };
+        },
+
+        vcNodeUserId: function (h: Record<string, unknown>) {
+            const user = h.user as Record<string, unknown> | undefined;
+
+            return h.user_id || h.userId || user?.id;
+        },
+
+        epochToDisplayStr: function (n: number) {
+            const d = new Date(n);
+
+            return d.toLocaleDateString(undefined, VC_GRAPH_DATE_FORMAT);
+        },
+
+        nodeAccent: function (node: Record<string, unknown>, data: VcGraphData) {
+            const styles = editor.call('vcgraph:getAllStyles');
+
+            const style = styles[VcUtils.nodeToColorType(node, data)];
+
+            return style?.stroke || VC_GRAPH_FALLBACK_ACCENT;
+        },
+
         vcNodeText: function (node: Record<string, unknown>, data: VcGraphData) {
             const lines = VcUtils.descriptionLines(node, data);
 
@@ -151,6 +215,89 @@ editor.once('load', () => {
             lines.push(info, branch);
 
             return lines.join('\n');
+        },
+
+        renderNodeContent: function (node: Record<string, unknown>, data: VcGraphData) {
+            const el = data.graph.view.getNodeDomElement(String(node.id));
+
+            const div = el?.querySelector<HTMLElement>('.graph-node-div');
+
+            if (!div) {
+                return;
+            }
+
+            const h = VcUtils.vcNodeContent(node, data);
+            const compareBase = VcUtils.isCompareBase(node, data.graph);
+
+            VcUtils.roundNodeRects(el);
+
+            el.classList.toggle('vc-graph-node-compare-base', compareBase);
+
+            div.className = 'graph-node-div vc-graph-node';
+            div.style.setProperty('--vc-graph-node-accent', h.accent);
+            div.replaceChildren();
+
+            VcUtils.appendNodeIcon(div, h.userId);
+            VcUtils.appendNodeText(div, 'vc-graph-node-title', h.title);
+            VcUtils.appendNodeText(div, 'vc-graph-node-user', h.user);
+            VcUtils.appendNodeText(div, 'vc-graph-node-date', h.date);
+            VcUtils.appendNodeText(div, 'vc-graph-node-hash', h.hash);
+
+            if (h.expandable) {
+                const marker = VcUtils.appendNodeText(div, 'vc-graph-node-expandable', '');
+
+                marker.style.color = h.accent;
+            }
+
+        },
+
+        isCompareBase: function (node: Record<string, unknown>, graph: Graph) {
+            const selected = (graph as Graph & { selectedForCompare?: Record<string, unknown> | null }).selectedForCompare;
+
+            return node.vcCompareBase || selected?.id === node.id;
+        },
+
+        roundNodeRects: function (el: Element) {
+            el.querySelectorAll<SVGRectElement>('rect[joint-selector="body"], rect[joint-selector="labelBackground"]').forEach((rect) => {
+                rect.setAttribute('rx', String(VC_GRAPH_NODE_RADIUS));
+                rect.setAttribute('ry', String(VC_GRAPH_NODE_RADIUS));
+            });
+        },
+
+        appendNodeIcon: function (parent: HTMLElement, userId: unknown) {
+            if (!userId) {
+                VcUtils.appendNodeText(parent, 'vc-graph-node-icon vc-graph-node-icon-fallback', VC_GRAPH_NODE_ICON);
+                return;
+            }
+
+            const img = document.createElement('img');
+
+            img.className = 'vc-graph-node-icon';
+            img.alt = '';
+            applyUserThumbnail(img, userId as string | number, 28);
+            parent.appendChild(img);
+        },
+
+        appendNodeText: function (parent: HTMLElement, cls: string, text: string) {
+            const el = document.createElement('span');
+
+            el.className = cls;
+            el.textContent = text;
+            parent.appendChild(el);
+
+            return el;
+        },
+
+        refreshCompareSelection: function (data: VcGraphData, oldNode?: Record<string, unknown> | null, newNode?: Record<string, unknown> | null) {
+            if (oldNode) {
+                VcUtils.renderNodeContent(oldNode, data);
+            }
+
+            if (newNode && newNode !== oldNode) {
+                VcUtils.renderNodeContent(newNode, data);
+            }
+
+            VcUtils.renderCompareTray(data);
         },
 
         descriptionLines: function (node: Record<string, unknown>, data: VcGraphData) {
@@ -289,6 +436,132 @@ editor.once('load', () => {
             a = a.filter(VcUtils.nodeNeedsRender);
 
             a.forEach(h => VcUtils.renderVcNode(h, data));
+        },
+
+        renderBranchLegend: function (data: VcGraphData) {
+            const legend = VcUtils.branchLegend(data.graph);
+            const styles = editor.call('vcgraph:getAllStyles');
+            const branchIds = new Set(Object.values(data.idToNode).map(h => h.branchId));
+            const branches = Object.entries(data.branches)
+            .filter(([id, h]) => branchIds.has(id) && h.name && h.vcBranchColor !== undefined)
+            .map(([, h]) => h);
+
+            VcUtils.sortByIntField(branches, 'created_at');
+            legend.replaceChildren();
+            legend.hidden = !branches.length;
+
+            branches.forEach((h) => {
+                const item = document.createElement('span');
+                const dot = document.createElement('span');
+                const label = document.createElement('span');
+                const name = String(h.name) + (h.closed ? CLOSED_BRANCH_SUFFIX : '');
+
+                item.className = 'vc-graph-legend-item';
+                item.title = name;
+                dot.className = 'vc-graph-legend-dot';
+                dot.style.backgroundColor = styles[Number(h.vcBranchColor)]?.stroke || VC_GRAPH_FALLBACK_ACCENT;
+                label.className = 'vc-graph-legend-label';
+                label.textContent = name;
+                item.append(dot, label);
+                legend.appendChild(item);
+            });
+        },
+
+        renderCompareTray: function (data: VcGraphData) {
+            const tray = VcUtils.compareTray(data.graph);
+            const selected = (data.graph as Graph & { selectedForCompare?: Record<string, unknown> | null }).selectedForCompare;
+
+            tray.replaceChildren();
+            tray.hidden = !selected;
+            tray.style.borderColor = '';
+
+            if (!selected) {
+                return;
+            }
+
+            const h = VcUtils.vcNodeContent(selected, data);
+            const branch = data.branches[String(selected.branchId)];
+            const info = document.createElement('span');
+            const label = document.createElement('span');
+            const title = document.createElement('span');
+            const meta = document.createElement('span');
+            const clear = document.createElement('button');
+
+            tray.style.borderColor = h.accent;
+            info.className = 'vc-graph-compare-info';
+            label.className = 'vc-graph-compare-label';
+            title.className = 'vc-graph-compare-title';
+            meta.className = 'vc-graph-compare-meta';
+            clear.className = 'vc-graph-compare-clear';
+            clear.type = 'button';
+            label.textContent = 'Compare base';
+            title.textContent = h.title;
+            meta.textContent = `${String(branch?.name || '')} · ${h.hash} · ${h.date}`;
+            clear.textContent = 'Clear';
+            clear.addEventListener('click', () => {
+                selected.vcCompareBase = false;
+                (data.graph as Graph & { selectedForCompare?: Record<string, unknown> | null }).selectedForCompare = null;
+                VcUtils.renderNodeContent(selected, data);
+                VcUtils.renderCompareTray(data);
+            });
+
+            info.append(label, title, meta);
+            tray.append(VcUtils.compareAvatar(h.userId), info, clear);
+        },
+
+        compareTray: function (graph: Graph) {
+            let tray = graph.dom.querySelector<HTMLElement>('.vc-graph-compare-tray');
+
+            if (!tray) {
+                tray = document.createElement('div');
+                tray.className = 'vc-graph-compare-tray';
+                VcUtils.overlayStack(graph).appendChild(tray);
+            }
+
+            return tray;
+        },
+
+        compareAvatar: function (userId: unknown) {
+            if (!userId) {
+                const icon = document.createElement('span');
+
+                icon.className = 'vc-graph-compare-avatar vc-graph-node-icon-fallback';
+                icon.textContent = VC_GRAPH_NODE_ICON;
+
+                return icon;
+            }
+
+            const img = document.createElement('img');
+
+            img.className = 'vc-graph-compare-avatar';
+            img.alt = '';
+            applyUserThumbnail(img, userId as string | number, 22);
+
+            return img;
+        },
+
+        branchLegend: function (graph: Graph) {
+            let legend = graph.dom.querySelector<HTMLElement>('.vc-graph-legend');
+
+            if (!legend) {
+                legend = document.createElement('div');
+                legend.className = 'vc-graph-legend';
+                VcUtils.overlayStack(graph).appendChild(legend);
+            }
+
+            return legend;
+        },
+
+        overlayStack: function (graph: Graph) {
+            let stack = graph.dom.querySelector<HTMLElement>('.vc-graph-overlay-stack');
+
+            if (!stack) {
+                stack = document.createElement('div');
+                stack.className = 'vc-graph-overlay-stack';
+                graph.dom.appendChild(stack);
+            }
+
+            return stack;
         },
 
         nodeNeedsRender: function (h: Record<string, unknown>) {
@@ -466,16 +739,24 @@ editor.once('load', () => {
         },
 
         vcNodeSchema: function (fill: string, stroke: string, i: number) {
+            if (!i) {
+                return Object.assign({
+                    fill: fill,
+                    stroke: stroke,
+                    strokeSelected: stroke,
+                    strokeHover: stroke
+                }, SELECTED_MARK.defaults);
+            }
+
             const h = {
-                fill: fill,
+                fill: VC_GRAPH_NODE_FILL,
                 stroke: stroke,
+                fillSecondary: VC_GRAPH_NODE_FILL,
                 strokeSelected: stroke,
-                strokeHover: stroke
+                strokeHover: VC_GRAPH_NODE_HOVER_STROKE
             };
 
-            const def = i ? NODE_DEFAULTS : SELECTED_MARK.defaults;
-
-            return Object.assign(h, def);
+            return Object.assign(h, NODE_DEFAULTS);
         },
 
         vcEdgeSchema: function (stroke: string, defaults: Record<string, unknown>) {
@@ -513,9 +794,7 @@ editor.once('load', () => {
         },
 
         assignBranchColors: function (data: VcGraphData) {
-            let a = Object.values(data.branches);
-
-            a = a.filter(h => h.vcBranchColor === undefined);
+            const a = Object.values(data.branches);
 
             VcUtils.sortByIntField(a, 'created_at');
 
@@ -528,12 +807,10 @@ editor.once('load', () => {
             });
         },
 
-        setColorForBranch: function (h: Record<string, unknown>) {
-            let n = VcUtils.strToHashCode(h.name);
+        setColorForBranch: function (h: Record<string, unknown>, i: number) {
+            const n = Number(editor.call('vcgraph:numStyles')) - 1;
 
-            n %= editor.call('vcgraph:numStyles');
-
-            h.vcBranchColor = Math.max(1, n); // 0 is the special marker node
+            h.vcBranchColor = 1 + ((VC_GRAPH_BRANCH_COLOR_START - 1 + i) % n);
         },
 
         groupByPath: function (a: Record<string, unknown>[], path: string[]) {
@@ -661,20 +938,6 @@ editor.once('load', () => {
 
         minBetweenNodes: function () {
             return MIN_BETWEEN_NODES;
-        },
-
-        strToHashCode: function (s: string) {
-            let hash = 0;
-
-            for (let i = 0; i < s.length; i++) {
-                const chr = s.charCodeAt(i);
-
-                hash = ((hash << 5) - hash) + chr;
-
-                hash |= 0; // Convert to 32bit integer
-            }
-
-            return Math.abs(hash);
         },
 
         vcNodeClick: function (id: string, expandCallback: (err: unknown, data: unknown) => void, data: VcGraphData) {

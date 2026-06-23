@@ -21,17 +21,17 @@ editor.once('load', () => {
                     onIsVisible: () => m.node && m.node.histParentNode
                 },
                 {
-                    text: 'Select for Compare',
+                    text: 'Set as Compare Base',
                     onSelect: () => VcMenuUtils.selectForCompare(m),
                     onIsVisible: () => m.node && !VcMenuUtils.isCurSelected(m)
                 },
                 {
-                    text: 'Deselect',
+                    text: 'Clear Compare Base',
                     onSelect: () => VcMenuUtils.deselectCompare(m),
                     onIsVisible: () => m.node && VcMenuUtils.isCurSelected(m)
                 },
                 {
-                    text: 'Compare with Selected',
+                    text: 'Compare with Base',
                     onSelect: () => VcMenuUtils.compareTask(m),
                     onIsVisible: () => {
                         return m.node &&
@@ -167,22 +167,29 @@ editor.once('load', () => {
 
         selectForCompare: function (menu: Menu & { node: Record<string, unknown>; vcGraphState: Record<string, unknown> }) {
             const graph = menu.vcGraphState.graph;
+            const oldNode = graph.selectedForCompare;
 
-            if (graph.selectedForCompare) {
-                editor.call('vcgraph:utils', 'rmSelectedMark', graph);
+            if (oldNode) {
+                oldNode.vcCompareBase = false;
             }
 
+            menu.node.vcCompareBase = true;
             graph.selectedForCompare = menu.node;
 
-            editor.call('vcgraph:utils', 'placeSelectedMark', graph, menu.node.coords);
+            editor.call('vcgraph:utils', 'refreshCompareSelection', menu.vcGraphState, oldNode, menu.node);
         },
 
-        deselectCompare: function (menu: Menu & { vcGraphState: Record<string, unknown> }) {
+        deselectCompare: function (menu: Menu & { vcGraphState: Record<string, unknown>; node?: Record<string, unknown> }) {
             const graph = menu.vcGraphState.graph;
+            const oldNode = graph.selectedForCompare || menu.node;
+
+            if (oldNode) {
+                oldNode.vcCompareBase = false;
+            }
 
             graph.selectedForCompare = null;
 
-            editor.call('vcgraph:utils', 'rmSelectedMark', graph);
+            editor.call('vcgraph:utils', 'refreshCompareSelection', menu.vcGraphState, oldNode);
         },
 
         isCurSelected: function (menu: Menu & { node: Record<string, unknown>; vcGraphState: Record<string, unknown> }) {

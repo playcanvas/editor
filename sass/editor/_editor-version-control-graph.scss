@@ -21,6 +21,267 @@
         font-size: 12px;
     }
 
+    text[joint-selector='label'] {
+        display: none;
+    }
+
+    path[joint-selector='marker'] {
+        display: none;
+    }
+
+    .joint-link path[joint-selector='line'] {
+        opacity: 0.68;
+    }
+
+    .joint-element.vc-graph-node-compare-base {
+        opacity: 0.2;
+    }
+
+    .vc-graph-node {
+        box-sizing: border-box;
+        position: relative;
+        width: 100%;
+        height: 100%;
+        padding: 13px 12px;
+        color: #f2f5f6;
+        font-family: 'Proxima Nova Regular', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+        pointer-events: none;
+    }
+
+    .vc-graph-node-icon {
+        position: absolute;
+        top: 13px;
+        left: 12px;
+        width: 28px;
+        height: 28px;
+        box-sizing: border-box;
+        border: 1px solid $border-primary;
+        border-radius: 50%;
+        background: $bcg-darkest;
+        object-fit: cover;
+    }
+
+    .vc-graph-node-icon-fallback {
+        display: grid;
+        place-items: center;
+        color: #d4d9db;
+        font-family: pc-icon;
+        font-size: 16px;
+        line-height: 1;
+    }
+
+    .vc-graph-node-title,
+    .vc-graph-node-user,
+    .vc-graph-node-date {
+        display: block;
+        margin-left: 42px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .vc-graph-node-title {
+        max-width: 104px;
+        color: $text-primary;
+        font-family: 'Proxima Nova Bold', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+        font-size: 13px;
+        line-height: 15px;
+    }
+
+    .vc-graph-node-user {
+        max-width: 118px;
+        margin-top: 4px;
+        color: $text-dark;
+        font-size: 11px;
+        line-height: 13px;
+    }
+
+    .vc-graph-node-date {
+        margin-top: 1px;
+        color: $text-dark;
+        font-size: 11px;
+        line-height: 13px;
+    }
+
+    .vc-graph-node-hash {
+        @extend .fixedFont;
+
+        position: absolute;
+        top: 13px;
+        right: 12px;
+        padding: 0 5px;
+        border: 1px solid $border-primary;
+        border-radius: 4px;
+        background-color: rgb(0 0 0 / 20%);
+        color: $text-secondary;
+        font-size: 11px;
+        line-height: 16px;
+    }
+
+    .vc-graph-node-expandable {
+        position: absolute;
+        right: 22px;
+        bottom: 17px;
+        display: inline-flex;
+        width: 15px;
+        height: 8px;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        font-size: 0;
+        line-height: 0;
+    }
+
+    .vc-graph-node-expandable::before {
+        content: '';
+        width: 3px;
+        height: 3px;
+        border-radius: 50%;
+        background: currentcolor;
+        box-shadow:
+            6px 0 0 currentcolor,
+            12px 0 0 currentcolor;
+        transform: translateX(-6px);
+    }
+
+    .joint-element:hover .vc-graph-node-expandable {
+        color: $text-primary !important;
+    }
+
+    .vc-graph-overlay-stack {
+        position: absolute;
+        bottom: 12px;
+        left: 12px;
+        z-index: 2;
+        display: flex;
+        max-width: min(260px, calc(100% - 24px));
+        flex-direction: column-reverse;
+        align-items: flex-start;
+        gap: 8px;
+        pointer-events: none;
+    }
+
+    .vc-graph-compare-tray {
+        display: flex;
+        max-width: 100%;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 10px;
+        border: 1px solid $border-primary;
+        border-radius: 6px;
+        background: rgb(32 41 43 / 92%);
+        box-shadow: 0 8px 18px rgb(0 0 0 / 30%);
+        pointer-events: auto;
+    }
+
+    .vc-graph-compare-tray[hidden] {
+        display: none;
+    }
+
+    .vc-graph-compare-avatar {
+        flex: none;
+        width: 22px;
+        height: 22px;
+        box-sizing: border-box;
+        border: 1px solid $border-primary;
+        border-radius: 50%;
+        background: $bcg-darkest;
+        object-fit: cover;
+    }
+
+    .vc-graph-compare-info {
+        display: grid;
+        min-width: 0;
+        gap: 1px;
+    }
+
+    .vc-graph-compare-label {
+        color: $text-dark;
+        font-size: 10px;
+        line-height: 12px;
+        text-transform: uppercase;
+    }
+
+    .vc-graph-compare-title {
+        max-width: 180px;
+        overflow: hidden;
+        color: $text-primary;
+        font-family: 'Proxima Nova Bold', 'Helvetica Neue', Arial, Helvetica, sans-serif;
+        font-size: 12px;
+        line-height: 14px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .vc-graph-compare-meta {
+        max-width: 220px;
+        overflow: hidden;
+        color: $text-dark;
+        font-size: 11px;
+        line-height: 13px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .vc-graph-compare-clear {
+        flex: none;
+        margin-left: 4px;
+        padding: 0 8px;
+        border: 1px solid $border-primary;
+        border-radius: 4px;
+        background: $bcg-darker;
+        color: $text-secondary;
+        cursor: pointer;
+        font: inherit;
+        font-size: 11px;
+        line-height: 22px;
+    }
+
+    .vc-graph-compare-clear:hover {
+        border-color: $text-primary;
+        color: $text-primary;
+    }
+
+    .vc-graph-legend {
+        display: flex;
+        width: 240px;
+        max-width: 100%;
+        max-height: 150px;
+        flex-direction: column;
+        gap: 6px;
+        overflow: auto;
+        padding: 8px 10px;
+        border: 1px solid $border-primary;
+        border-radius: 6px;
+        background: rgb(32 41 43 / 88%);
+        box-shadow: 0 6px 16px rgb(0 0 0 / 28%);
+        pointer-events: auto;
+    }
+
+    .vc-graph-legend-item {
+        display: inline-flex;
+        width: 100%;
+        min-width: 0;
+        align-items: center;
+        gap: 8px;
+        color: $text-dark;
+        font-size: 12px;
+        line-height: 18px;
+    }
+
+    .vc-graph-legend-dot {
+        flex: none;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+    }
+
+    .vc-graph-legend-label {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
     > .vc-graph-container {
         width: 100%;
         height: 100%;
@@ -32,10 +293,32 @@
         top: 6px;
         right: 5px;
     }
+
 }
 
 .pcui-menu.vc-node-menu {
-    .pcui-menu-item {
+    .pcui-menu-items {
+        overflow: hidden;
+        border: 1px solid #1b2426;
+        border-radius: 6px;
+        background: #293234;
+        box-shadow: 0 12px 24px rgb(0 0 0 / 36%);
+    }
+
+    .pcui-menu-item-content {
         background-color: #293234;
+        color: #c7ced0;
+        font-size: 12px;
+
+        > .pcui-label {
+            margin: 0 12px;
+            padding: 0;
+            line-height: 30px;
+        }
+    }
+
+    .pcui-menu-item-content:hover {
+        background: #364346;
+        color: #fff;
     }
 }

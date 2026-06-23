@@ -4,17 +4,23 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Version Control Modernization Mockup</title>
-    <link rel="stylesheet" href="/dist/css/editor.css">
     <style>
         :root {
             --bg: #20292b;
-            --panel: #364346;
-            --panel-dark: #2c393c;
-            --panel-darkest: #20292b;
-            --border: #232e30;
+            --primary: #364346;
+            --dark: #2c393c;
+            --darker: #253033;
+            --darkest: #20292b;
+            --border: #20292b;
             --text: #fff;
-            --muted: #9ba1a3;
-            --accent: #f60;
+            --secondary: #c7cdd0;
+            --muted: #a0a8ab;
+            --muted-2: #7b8588;
+            --active: #f60;
+            --add: #6fd088;
+            --del: #ff8a8a;
+            --badge: #f3c16f;
+            --shadow: 0 18px 34px rgb(0 0 0 / 24%);
         }
 
         * {
@@ -23,99 +29,923 @@
 
         body {
             margin: 0;
-            min-height: 100vh;
+            min-width: 1360px;
             background:
                 linear-gradient(135deg, rgb(255 255 255 / 4%) 0 1px, transparent 1px 120px),
-                linear-gradient(44deg, transparent 0 46%, rgb(91 39 35 / 78%) 46% 62%, transparent 62%),
+                linear-gradient(44deg, transparent 0 45%, rgb(91 39 35 / 80%) 45% 63%, transparent 63%),
                 var(--bg);
             color: var(--text);
             font: 14px/1.4 "Helvetica Neue", Arial, Helvetica, sans-serif;
         }
 
         main {
-            display: grid;
-            gap: 28px;
-            width: min(1180px, calc(100vw - 48px));
-            margin: 36px auto;
+            width: 1480px;
+            margin: 28px auto 42px;
         }
 
         h1,
         h2,
+        h3,
         p {
             margin: 0;
         }
 
         h1 {
-            font-size: 20px;
+            font-size: 22px;
             line-height: 1.2;
         }
 
         h2 {
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             color: var(--muted);
-            font-size: 13px;
+            font-size: 12px;
+            font-weight: 700;
             letter-spacing: 0;
             text-transform: uppercase;
         }
 
-        .intro {
-            display: flex;
-            align-items: baseline;
-            justify-content: space-between;
-            gap: 16px;
+        button,
+        input,
+        select {
+            font: inherit;
         }
 
-        .intro p {
+        .intro {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 18px;
             color: var(--muted);
+        }
+
+        .intro h1 {
+            color: var(--text);
         }
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
+            grid-template-columns: 1fr 1fr;
             gap: 18px;
+            margin-top: 18px;
         }
 
-        .stage {
-            min-height: 270px;
-            padding: 28px;
+        .mock-card {
             border: 1px solid var(--border);
-            background: rgb(0 0 0 / 13%);
+            background: rgb(0 0 0 / 14%);
+            box-shadow: var(--shadow);
         }
 
-        .vc-surface {
-            width: min(480px, 100%);
-            margin: 32px auto 0;
+        .mock-pad {
+            padding: 18px;
+        }
+
+        .font-bold {
+            font-weight: 700;
+        }
+
+        .fixed {
+            font-family: Menlo, Monaco, Consolas, monospace;
+        }
+
+        .branch-icon {
+            position: relative;
+            display: inline-block;
+            width: 22px;
+            height: 24px;
+            color: var(--active);
+        }
+
+        .branch-icon::before,
+        .branch-icon::after {
+            content: "";
+            position: absolute;
+            background: currentcolor;
+        }
+
+        .branch-icon::before {
+            left: 6px;
+            top: 5px;
+            width: 2px;
+            height: 14px;
+        }
+
+        .branch-icon::after {
+            left: 7px;
+            top: 11px;
+            width: 11px;
+            height: 2px;
+            transform: rotate(-35deg);
+            transform-origin: left center;
+        }
+
+        .branch-icon span {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border: 2px solid currentcolor;
+            border-radius: 50%;
+            background: var(--dark);
+        }
+
+        .branch-icon span:nth-child(1) {
+            left: 2px;
+            top: 0;
+        }
+
+        .branch-icon span:nth-child(2) {
+            right: 0;
+            top: 0;
+        }
+
+        .branch-icon span:nth-child(3) {
+            left: 2px;
+            bottom: 0;
+        }
+
+        .pcui-button,
+        .vc-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 32px;
+            margin: 0;
+            padding: 0 16px;
             border: 1px solid var(--border);
             border-radius: 6px;
-            background: var(--panel);
-            box-shadow: 0 16px 30px rgb(0 0 0 / 25%);
+            background: var(--darker);
+            color: var(--secondary);
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 30px;
+            box-shadow: none;
+        }
+
+        .pcui-button.icon {
+            width: 32px;
+            padding: 0;
+            font-size: 16px;
+        }
+
+        .pcui-button.primary,
+        .vc-merge-primary,
+        .vc-merge-editor-primary {
+            border-color: transparent;
+            background: #df5e19;
+            color: var(--text);
+        }
+
+        .pcui-button.disabled,
+        .pcui-disabled {
+            opacity: 0.4;
+        }
+
+        .status,
+        .tag {
+            flex: none;
+            height: 18px;
+            padding: 0 6px;
+            border: 1px solid rgb(225 166 62 / 45%);
+            border-radius: 4px;
+            background: rgb(0 0 0 / 14%);
+            color: var(--badge);
+            font-size: 11px;
+            line-height: 16px;
+            text-transform: uppercase;
+        }
+
+        .status.added {
+            color: var(--add);
+            border-color: rgb(111 208 136 / 45%);
+        }
+
+        .status.deleted {
+            color: var(--del);
+            border-color: rgb(255 138 138 / 45%);
+        }
+
+        .vc-diff-shell {
+            display: flex;
+            flex-direction: column;
+            height: 640px;
+            min-width: 0;
+            background: var(--primary);
+        }
+
+        .vc-diff-top {
+            position: relative;
+            display: flex;
+            flex: none;
+            align-items: center;
+            gap: 12px;
+            height: 33px;
+            padding: 0 0 0 16px;
+            border-bottom: 1px solid var(--border);
+            background: var(--dark);
+        }
+
+        .vc-diff-title {
+            color: var(--text);
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .vc-diff-meta {
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .vc-diff-window-btn {
+            position: absolute;
+            top: 50%;
+            display: grid;
+            place-items: center;
+            width: 28px;
+            height: 28px;
+            color: var(--secondary);
+            transform: translateY(-50%);
+        }
+
+        .vc-diff-window-btn.full {
+            right: 30px;
+        }
+
+        .vc-diff-window-btn.close {
+            right: 0;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .vc-diff-window-btn.full::before {
+            content: "";
+            width: 11px;
+            height: 10px;
+            border: 1.5px solid currentcolor;
+            border-radius: 1px;
+        }
+
+        .vc-diff-body {
+            display: flex;
+            flex: 1;
+            min-height: 0;
+        }
+
+        .vc-diff-sidebar {
+            display: flex;
+            flex: none;
+            flex-direction: column;
+            width: 280px;
+            border-right: 1px solid var(--border);
+            background: var(--primary);
+        }
+
+        .vc-diff-sidebar-head {
+            flex: none;
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            background: var(--dark);
+            color: var(--text);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .vc-diff-filter {
+            display: flex;
+            flex: none;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            background: var(--dark);
+        }
+
+        .pcui-text-input,
+        .pcui-select-input {
+            height: 28px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background: var(--darkest);
+            color: var(--muted-2);
+            font-size: 13px;
+            line-height: 26px;
+        }
+
+        .pcui-text-input {
+            flex: 1;
+            padding: 0 9px;
+        }
+
+        .pcui-select-input {
+            display: flex;
+            flex: none;
+            align-items: center;
+            justify-content: space-between;
+            width: 110px;
+            padding: 0 9px;
+            background: var(--dark);
+            color: var(--secondary);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .vc-diff-list {
+            flex: 1;
             overflow: hidden;
         }
 
-        .vc-header {
+        .vc-diff-group {
+            padding: 6px 12px;
+            border-bottom: 1px solid var(--border);
+            background: var(--dark);
+            color: var(--text);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+        }
+
+        .vc-diff-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 4px 8px;
+            width: 100%;
+            padding: 7px 12px;
+            border: 0;
+            border-bottom: 1px solid var(--border);
+            background: transparent;
+            color: var(--text);
+            font-size: 13px;
+            text-align: left;
+        }
+
+        .vc-diff-row.selected {
+            background: rgb(255 255 255 / 10%);
+            box-shadow: inset 2px 0 0 var(--active);
+        }
+
+        .vc-diff-row > .name {
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .vc-diff-row > .sub {
+            order: 3;
+            width: 100%;
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .vc-diff-row > .counts {
+            order: 4;
+            font-size: 11px;
+        }
+
+        .vc-diff-stats .new,
+        .new {
+            color: var(--add);
+        }
+
+        .vc-diff-stats .old,
+        .old {
+            color: var(--del);
+        }
+
+        .vc-merge-state {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            flex: none;
+            margin-right: 8px;
+        }
+
+        .vc-merge-state > .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--del);
+        }
+
+        .vc-merge-state.resolved > .dot {
+            background: var(--add);
+        }
+
+        .vc-merge-state > .count {
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .vc-diff-sidebar-foot {
+            flex: none;
+            padding: 10px 12px;
+            border-top: 1px solid var(--border);
+            background: var(--dark);
+        }
+
+        .vc-diff-sidebar-foot .vc-merge-primary {
+            width: 100%;
+        }
+
+        .vc-diff-main {
+            display: flex;
+            flex: 1;
+            flex-direction: column;
+            min-width: 0;
+            background: var(--primary);
+        }
+
+        .vc-diff-detail-head {
+            display: flex;
+            flex: none;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--border);
+            background: var(--dark);
+        }
+
+        .vc-diff-detail-head > .name {
+            min-width: 0;
+            overflow: hidden;
+            color: var(--text);
+            font-weight: 700;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .vc-diff-detail-head > .stats {
+            margin-left: auto;
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .vc-diff-detail {
+            flex: 1;
+            min-height: 0;
+            overflow: hidden auto;
+            padding: 10px 14px;
+            font-size: 12px;
+        }
+
+        .vc-diff-panel {
+            border: 1px solid rgb(32 41 43 / 60%);
+            border-radius: 3px;
+            background: rgb(0 0 0 / 10%);
+            overflow: hidden;
+        }
+
+        .pcui-panel-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-height: 34px;
+            padding: 0 12px;
+            border-bottom: 1px solid var(--border);
+            background: var(--darker);
+        }
+
+        .pcui-panel-header-title {
+            color: var(--text);
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .vc-diff-banner {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            color: var(--secondary);
+        }
+
+        .vc-diff-field-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-height: 28px;
+            padding: 2px 10px 2px 6px;
+        }
+
+        .vc-diff-field-row.del {
+            background: rgb(248 81 73 / 15%);
+            box-shadow: inset 2px 0 0 #f85149;
+        }
+
+        .vc-diff-field-row.add {
+            background: rgb(63 185 80 / 15%);
+            box-shadow: inset 2px 0 0 #3fb950;
+        }
+
+        .vc-diff-field-row > .gutter {
+            flex: none;
+            width: 14px;
+            text-align: center;
+        }
+
+        .vc-diff-field-row > .label {
+            flex: none;
+            width: 35%;
+            max-width: 220px;
+            overflow: hidden;
+            color: var(--secondary);
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .vc-diff-field-row > .value {
+            display: flex;
+            flex: 1;
+            min-width: 0;
+            color: var(--text);
+        }
+
+        .vc-merge-resolve {
+            flex: none;
+            padding: 12px 14px 10px;
+            border-top: 1px solid var(--border);
+            background: var(--primary);
+        }
+
+        .vc-merge-resolve-label {
+            margin-bottom: 10px;
+            color: var(--muted);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+        }
+
+        .vc-merge-options {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--darker);
+            overflow: hidden;
+        }
+
+        .vc-merge-opt {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-height: 50px;
+            padding: 9px 12px;
+            border-right: 1px solid var(--border);
+            background: transparent;
+        }
+
+        .vc-merge-opt:last-child {
+            border-right: 0;
+        }
+
+        .vc-merge-opt.selected {
+            background: rgb(255 102 0 / 10%);
+            box-shadow: inset 0 2px 0 var(--active);
+        }
+
+        .vc-merge-opt-radio {
+            position: relative;
+            width: 16px;
+            height: 16px;
+            border: 1px solid var(--muted);
+            border-radius: 50%;
+            background: var(--darkest);
+        }
+
+        .vc-merge-opt.selected .vc-merge-opt-radio {
+            border-color: var(--active);
+        }
+
+        .vc-merge-opt.selected .vc-merge-opt-radio::after {
+            content: "";
+            position: absolute;
+            inset: 4px;
+            border-radius: 50%;
+            background: var(--active);
+        }
+
+        .vc-merge-opt-text {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            min-width: 0;
+        }
+
+        .vc-merge-opt-text .role {
+            color: var(--muted);
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .vc-merge-opt-text .name {
+            overflow: hidden;
+            color: var(--text);
+            font-size: 13px;
+            font-weight: 700;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .vc-merge-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .vc-merge-open {
+            height: 32px;
+            padding: 0 16px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: transparent;
+            color: var(--secondary);
+            font-size: 12px;
+        }
+
+        .vc-merge-required {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-height: 58px;
+            margin-bottom: 14px;
+            padding: 9px 12px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--darker);
+        }
+
+        .vc-merge-required.compact {
+            min-height: 36px;
+            margin-top: -6px;
+        }
+
+        .vc-merge-required > .dot {
+            flex: none;
+            width: 17px;
+            height: 17px;
+            border: 2px solid var(--active);
+            border-radius: 50%;
+        }
+
+        .vc-merge-required.resolved > .dot {
+            border-color: var(--add);
+            background: var(--add);
+            box-shadow: inset 0 0 0 4px var(--darker);
+        }
+
+        .vc-merge-required .title {
+            color: var(--text);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .vc-merge-required .sub {
+            margin-top: 2px;
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .vc-merge-text-preview {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--darker);
+        }
+
+        .vc-merge-text-preview .title {
+            color: var(--text);
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .vc-merge-text-preview .path {
+            margin-top: 4px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .vc-merge-editor-top {
+            display: grid;
+            grid-template-columns: minmax(180px, 1fr) auto;
+            align-items: center;
+            gap: 10px;
+            flex: none;
+            min-height: 54px;
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border);
+            background: var(--dark);
+        }
+
+        .vc-merge-editor-file .name {
+            overflow: hidden;
+            color: var(--text);
+            font-size: 14px;
+            font-weight: 700;
+            line-height: 1.2;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .vc-merge-editor-file .sub {
+            margin-top: 2px;
+            color: var(--muted);
+            font-size: 11px;
+            line-height: 1.2;
+        }
+
+        .vc-merge-editor-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .vc-merge-editor-secondary,
+        .vc-merge-editor-primary {
+            height: 32px;
+            padding: 0 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 30px;
+        }
+
+        .vc-merge-editor-secondary {
+            border: 1px solid var(--border);
+            background: var(--darker);
+            color: var(--secondary);
+        }
+
+        .vc-merge-editor-secondary.icon {
+            width: 32px;
+            padding: 0;
+            font-size: 16px;
+        }
+
+        .vc-merge-frame {
+            flex: 1;
+            min-height: 0;
+            margin: 12px 14px;
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            background: var(--darkest);
+            overflow: hidden;
+        }
+
+        .vc-merge-editor-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: none;
+            height: 34px;
+            padding: 0 14px;
+            border-top: 1px solid var(--border);
+            background: var(--dark);
+        }
+
+        .vc-merge-editor-status > .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--del);
+        }
+
+        .vc-merge-editor-status.resolved > .dot {
+            background: var(--add);
+        }
+
+        .vc-merge-editor-status > .status-text {
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .monaco-editor {
+            height: 100%;
+            background: #1b2528;
+            color: #d8dedf;
+            overflow: hidden;
+            font: 15px/24px Menlo, Monaco, Consolas, monospace;
+        }
+
+        .monaco-head {
+            display: grid;
+            grid-template-columns: 46px 1fr 96px;
+            min-height: 100%;
+        }
+
+        .line-nos {
+            padding-top: 10px;
+            border-right: 1px solid #2b393d;
+            color: var(--muted);
+            text-align: right;
+        }
+
+        .line-nos span {
+            display: block;
+            padding-right: 12px;
+        }
+
+        .code {
+            padding-top: 10px;
+            white-space: pre;
+        }
+
+        .code div {
+            height: 24px;
+            padding: 0 12px;
+        }
+
+        .dst-branch {
+            background: rgb(11 59 118 / 50%);
+        }
+
+        .src-branch {
+            background: rgb(21 81 94 / 50%);
+        }
+
+        .minimap {
+            border-left: 1px solid #2b393d;
+            background:
+                linear-gradient(rgb(11 59 118 / 50%) 0 18px, transparent 18px 100%),
+                linear-gradient(rgb(21 81 94 / 50%) 30px 48px, transparent 48px 100%),
+                #172326;
+            background-position: 20px 28px, 20px 28px, 0 0;
+            background-repeat: no-repeat;
+            background-size: 58px 110px, 58px 110px, auto;
+        }
+
+        .pcui-menu.version-control {
+            width: 180px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--darker);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .pcui-menu-item-content {
+            height: 31px;
+            padding: 0 10px;
+            border-bottom: 1px solid var(--border);
+            color: var(--secondary);
+            font-size: 13px;
+            line-height: 30px;
+        }
+
+        .pcui-menu-item-content:last-child {
+            border-bottom: 0;
+        }
+
+        .pcui-menu-item-content.delete {
+            color: var(--del);
+        }
+
+        .version-control-overlay {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .overlay-card,
+        .progress-widget,
+        .picker-confirm {
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--primary);
+            overflow: hidden;
+        }
+
+        .vc-overlay-header,
+        .vc-progress-header {
             display: flex;
             align-items: center;
             min-height: 36px;
             padding: 0 14px;
             border-bottom: 1px solid var(--border);
-            background: var(--panel-dark);
+            background: var(--dark);
         }
 
         .vc-heading {
             color: var(--text);
             font-size: 14px;
             font-weight: 700;
-            line-height: 1.2;
         }
 
-        .vc-body {
+        .vc-overlay-body,
+        .progress-body {
             padding: 12px;
         }
 
         .status-card {
             border: 1px solid var(--border);
             border-radius: 6px;
-            background: var(--panel-dark);
+            background: var(--dark);
             overflow: hidden;
         }
 
@@ -133,20 +963,14 @@
             flex: none;
             width: 24px;
             height: 24px;
-            color: var(--accent);
-        }
-
-        .pc-glyph {
-            font-family: pc-icon, sans-serif;
-            font-size: 21px;
-            line-height: 1;
+            color: var(--active);
         }
 
         .spinner {
             width: 16px;
             height: 16px;
             border: 2px solid #773417;
-            border-top-color: var(--accent);
+            border-top-color: var(--active);
             border-radius: 50%;
             animation: spin 850ms linear infinite;
         }
@@ -169,7 +993,6 @@
             border-left: 2px solid #82d993;
             border-bottom: 2px solid #82d993;
             transform: translate(-50%, -62%) rotate(-45deg);
-            transform-origin: center;
         }
 
         .cross::before,
@@ -181,8 +1004,7 @@
             width: 15px;
             height: 2px;
             border-radius: 2px;
-            background: #ff8a8a;
-            transform-origin: center;
+            background: var(--del);
         }
 
         .cross::before {
@@ -193,25 +1015,20 @@
             transform: translate(-50%, -50%) rotate(-45deg);
         }
 
-        .copy {
-            min-width: 0;
-        }
-
-        .title {
+        .copy .title {
             color: var(--text);
             font-size: 14px;
             font-weight: 700;
-            line-height: 1.35;
         }
 
-        .message {
+        .copy .message,
+        .copy .note {
             margin-top: 4px;
             color: var(--muted);
             font-size: 12px;
-            line-height: 1.35;
         }
 
-        .merge-controls {
+        .merge-switch {
             display: grid;
             grid-template-columns: auto minmax(150px, 1fr) auto;
             align-items: center;
@@ -219,196 +1036,429 @@
             margin-top: 10px;
         }
 
-        label {
+        .merge-switch label {
             color: var(--muted);
             font-size: 12px;
-            font-weight: 400;
-            line-height: 28px;
         }
 
-        select,
-        button {
+        .merge-switch select {
             height: 28px;
             border: 1px solid var(--border);
             border-radius: 6px;
-            background: var(--panel-darkest);
-            color: #b1b8ba;
-            font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
-            font-size: 13px;
-            line-height: 26px;
+            background: var(--darkest);
+            color: var(--secondary);
         }
 
-        select {
-            min-width: 0;
-            padding: 0 8px;
-            font-weight: 400;
+        .overlay-buttons {
+            padding: 8px 10px;
+            border-top: 1px solid var(--border);
+            background: var(--dark);
+            text-align: right;
         }
 
-        button {
-            min-width: 76px;
-            padding: 0 12px;
-            font-weight: 700;
-        }
-
-        button.danger {
+        .danger {
             width: 140px;
             border-color: #653235;
             background: #522f32;
             color: #ffb7b7;
         }
 
-        .vc-footer {
-            padding: 8px 10px;
-            border-top: 1px solid var(--border);
-            background: var(--panel-dark);
-            text-align: right;
-        }
-
-        .progress-widget .status-card {
-            border: 0;
-            border-radius: 0;
-            background: transparent;
-        }
-
-        .progress-widget {
-            margin-top: 0;
-        }
-
-        .progress-widget .title {
+        .picker-confirm .text {
+            padding: 30px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text);
             font-size: 14px;
-            line-height: 1.25;
         }
 
-        .progress-widget .message {
-            font-size: 12px;
+        .picker-confirm .actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding: 0 12px 8px;
+        }
+
+        .vc-diff-skeleton .bone {
+            border-radius: 4px;
+            background: rgb(255 255 255 / 8%);
+            animation: pulse 1.4s ease-in-out infinite;
+        }
+
+        .vc-diff-skeleton .skeleton-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 4px 10px;
+            padding: 9px 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .vc-diff-skeleton .line {
+            flex: 1;
+            height: 10px;
+        }
+
+        .vc-diff-skeleton .badge {
+            flex: none;
+            width: 58px;
+            height: 16px;
+        }
+
+        .vc-diff-skeleton .sub {
+            flex-basis: 100%;
+            max-width: 110px;
+            height: 8px;
+            margin-top: 2px;
+        }
+
+        .vc-diff-skeleton.main .skeleton-head {
+            display: flex;
+            gap: 10px;
+            padding: 10px 16px;
+            border-bottom: 1px solid var(--border);
+            background: var(--dark);
+        }
+
+        .vc-diff-skeleton.main .title {
+            width: 180px;
+            height: 14px;
+        }
+
+        .vc-diff-skeleton.main .skeleton-body {
+            padding: 10px 14px;
+        }
+
+        .vc-diff-skeleton.main .skeleton-panel {
+            margin-bottom: 10px;
+            border: 1px solid rgb(32 41 43 / 60%);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .vc-diff-skeleton.main .skeleton-phead {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            background: var(--darker);
+        }
+
+        .vc-diff-skeleton.main .skeleton-field {
+            display: flex;
+            gap: 10px;
+            padding: 9px 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .vc-diff-skeleton.main .label {
+            width: 30%;
+            height: 10px;
+        }
+
+        .vc-diff-skeleton.main .value {
+            flex: 1;
+            height: 10px;
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes pulse {
+            50% {
+                opacity: 0.45;
+            }
         }
     </style>
 </head>
 <body>
     <main>
         <div class="intro">
-            <h1>Version control overlay and loading states</h1>
-            <p>Matches the implemented no-chip, no-skeleton design.</p>
+            <div>
+                <h1>Version control picker modernization</h1>
+                <p>Static snapshot of the implemented branch UI: shared diff shell, merge resolution footer, text resolver, progress widgets, and overlays.</p>
+            </div>
+            <p>feat/merge-picker-github-desktop</p>
         </div>
 
         <section>
-            <h2>Generic overlays</h2>
-            <div class="grid">
-                <div class="stage">
-                    <div class="vc-surface">
-                        <div class="vc-header">
-                            <span class="vc-heading">Version control</span>
-                        </div>
-                        <div class="vc-body">
-                            <div class="status-card">
-                                <div class="status-row">
-                                    <span class="icon-cell"><span class="spinner" aria-hidden="true"></span></span>
-                                    <div class="copy">
-                                        <p class="title">Creating checkpoint</p>
-                                        <p class="message">This may take a few seconds.</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+            <h2>Resolve conflicts - shared diff shell with merge footer</h2>
+            <div class="mock-card">
+                <div class="vc-diff-shell">
+                    <div class="vc-diff-top">
+                        <div class="vc-diff-title">Resolve conflicts</div>
+                        <div class="vc-diff-meta">other -&gt; main</div>
+                        <div class="vc-diff-window-btn full"></div>
+                        <div class="vc-diff-window-btn close">&times;</div>
                     </div>
-                </div>
-
-                <div class="stage">
-                    <div class="vc-surface">
-                        <div class="vc-header">
-                            <span class="vc-heading">Version control</span>
-                        </div>
-                        <div class="vc-body">
-                            <div class="status-card">
-                                <div class="status-row">
-                                    <span class="icon-cell"><span class="check" aria-hidden="true"></span></span>
-                                    <div class="copy">
-                                        <p class="title">Branch switched</p>
-                                        <p class="message">Refreshing browser</p>
+                    <div class="vc-diff-body">
+                        <aside class="vc-diff-sidebar">
+                            <div class="vc-diff-sidebar-head">3 changes</div>
+                            <div class="vc-diff-filter">
+                                <div class="pcui-text-input">Filter changes</div>
+                                <div class="pcui-select-input">All types <span>&#9662;</span></div>
+                            </div>
+                            <div class="vc-diff-list">
+                                <div class="vc-diff-group">Assets - 3</div>
+                                <button class="vc-diff-row selected">
+                                    <span class="vc-merge-state"><span class="dot"></span><span class="count">0/1</span></span>
+                                    <span class="name">New Material</span>
+                                    <span class="status">modified</span>
+                                    <span class="sub">material - 1 change</span>
+                                    <span class="counts">1 field</span>
+                                </button>
+                                <button class="vc-diff-row">
+                                    <span class="vc-merge-state resolved"><span class="dot"></span><span class="count">1/1</span></span>
+                                    <span class="name">new.txt</span>
+                                    <span class="status">modified</span>
+                                    <span class="sub">text - 1 change</span>
+                                    <span class="counts"><span class="vc-diff-stats"><span class="new">+4</span> <span class="old">-2</span></span></span>
+                                </button>
+                                <button class="vc-diff-row">
+                                    <span class="vc-merge-state"><span class="dot"></span><span class="count">0/2</span></span>
+                                    <span class="name">Scene Settings</span>
+                                    <span class="status">modified</span>
+                                    <span class="sub">settings - 2 changes</span>
+                                    <span class="counts">2 fields</span>
+                                </button>
+                            </div>
+                            <div class="vc-diff-sidebar-foot">
+                                <button class="pcui-button primary pcui-disabled vc-merge-primary">Review merge</button>
+                            </div>
+                        </aside>
+                        <section class="vc-diff-main">
+                            <div class="vc-diff-detail-head">
+                                <div class="name">New Material</div>
+                                <span class="status">modified</span>
+                                <div class="stats">1 field</div>
+                            </div>
+                            <div class="vc-diff-detail">
+                                <div class="vc-diff-panel">
+                                    <div class="pcui-panel-header">
+                                        <span class="branch-icon" aria-hidden="true"><span></span><span></span><span></span></span>
+                                        <span class="pcui-panel-header-title">Assets</span>
+                                    </div>
+                                    <div class="vc-diff-banner">
+                                        <span class="status">modified</span>
+                                        <span>This material was edited on both branches</span>
+                                    </div>
+                                    <div class="vc-diff-field-row del">
+                                        <span class="gutter">-</span>
+                                        <span class="label">normalMapTiling</span>
+                                        <span class="value fixed">1, 1</span>
+                                    </div>
+                                    <div class="vc-diff-field-row add">
+                                        <span class="gutter">+</span>
+                                        <span class="label">normalMapTiling</span>
+                                        <span class="value fixed">2, 2</span>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="stage">
-                    <div class="vc-surface">
-                        <div class="vc-header">
-                            <span class="vc-heading">Version control</span>
-                        </div>
-                        <div class="vc-body">
-                            <div class="status-card">
-                                <div class="status-row">
-                                    <span class="icon-cell"><span class="cross" aria-hidden="true"></span></span>
-                                    <div class="copy">
-                                        <p class="title">Merge force stopped</p>
-                                        <p class="message">Refreshing browser</p>
-                                    </div>
+                            <div class="vc-merge-resolve">
+                                <div class="vc-merge-resolve-label">Keep version</div>
+                                <div class="vc-merge-options">
+                                    <button class="vc-merge-opt selected">
+                                        <span class="vc-merge-opt-radio"></span>
+                                        <span class="vc-merge-opt-text"><span class="role">Destination</span><span class="name">main</span></span>
+                                    </button>
+                                    <button class="vc-merge-opt">
+                                        <span class="vc-merge-opt-radio"></span>
+                                        <span class="vc-merge-opt-text"><span class="role">Source</span><span class="name">other</span></span>
+                                    </button>
+                                </div>
+                                <div class="vc-merge-actions">
+                                    <button class="pcui-button primary pcui-disabled vc-merge-primary">Resolve</button>
+                                    <button class="vc-merge-open">Open editor</button>
                                 </div>
                             </div>
-                        </div>
+                        </section>
                     </div>
                 </div>
             </div>
         </section>
 
-        <section>
-            <h2>Merge in progress</h2>
-            <div class="stage">
-                <div class="vc-surface">
-                    <div class="vc-header">
-                        <span class="vc-heading">Version control</span>
+        <div class="grid">
+            <section>
+                <h2>Text conflict resolver opened inside the picker</h2>
+                <div class="mock-card">
+                    <div class="vc-diff-shell" style="height:520px">
+                        <div class="vc-diff-top">
+                            <div class="vc-diff-title">Resolve conflicts</div>
+                            <div class="vc-diff-meta">other -&gt; main</div>
+                            <div class="vc-diff-window-btn close">&times;</div>
+                        </div>
+                        <section class="vc-diff-main">
+                            <div class="vc-merge-editor-top">
+                                <div class="vc-merge-editor-file">
+                                    <div class="name">new.txt</div>
+                                    <div class="sub">1 conflict remaining</div>
+                                </div>
+                                <div class="vc-merge-editor-actions">
+                                    <button class="vc-merge-editor-secondary">Back to changes</button>
+                                    <button class="vc-merge-editor-secondary icon active">&#8942;</button>
+                                    <button class="vc-merge-editor-secondary icon">&#8249;</button>
+                                    <button class="vc-merge-editor-secondary icon">&#8250;</button>
+                                    <button class="vc-merge-editor-primary">Mark resolved</button>
+                                </div>
+                            </div>
+                            <div style="position:relative;display:flex;flex:1;min-height:0">
+                                <div class="vc-merge-frame">
+                                    <div class="monaco-editor">
+                                        <div class="monaco-head">
+                                            <div class="line-nos"><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span></div>
+                                            <div class="code">
+                                                <div class="dst-branch">&lt;&lt;&lt;&lt;&lt;&lt;&lt; Branch: main</div>
+                                                <div class="dst-branch">MAIN BRANCH</div>
+                                                <div class="dst-branch">=======</div>
+                                                <div class="src-branch">OTHER BRANCH</div>
+                                                <div class="src-branch">&gt;&gt;&gt;&gt;&gt;&gt;&gt; Branch: other</div>
+                                            </div>
+                                            <div class="minimap"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="pcui-menu version-control" style="position:absolute;right:72px;top:54px">
+                                    <div class="pcui-menu-item-content">Use destination</div>
+                                    <div class="pcui-menu-item-content">Use source</div>
+                                    <div class="pcui-menu-item-content">Revert</div>
+                                </div>
+                            </div>
+                            <div class="vc-merge-editor-status">
+                                <span class="dot"></span>
+                                <span class="status-text">Resolve conflict markers, then mark this file resolved.</span>
+                            </div>
+                        </section>
                     </div>
-                    <div class="vc-body">
-                        <div class="status-card">
-                            <div class="status-row">
-                                <span class="icon-cell"><span class="pc-glyph" aria-hidden="true">&#xE431;</span></span>
-                                <div class="copy">
-                                    <p class="title">Merge in progress</p>
-                                    <p class="message">Resolve the active merge before continuing.</p>
+                </div>
+            </section>
+
+            <section>
+                <h2>Review mode and loading skeletons</h2>
+                <div class="mock-card">
+                    <div class="vc-diff-shell" style="height:520px">
+                        <div class="vc-diff-top">
+                            <div class="vc-diff-title">Review merge changes</div>
+                            <div class="vc-diff-meta">main &lt;- merge result</div>
+                            <div class="vc-diff-window-btn close">&times;</div>
+                        </div>
+                        <div class="vc-diff-body">
+                            <aside class="vc-diff-sidebar" style="width:240px">
+                                <div class="vc-diff-sidebar-head">Loading changes</div>
+                                <div class="vc-diff-list">
+                                    <div class="vc-diff-skeleton">
+                                        <div class="skeleton-row"><span class="bone line"></span><span class="bone badge"></span><span class="bone sub"></span></div>
+                                        <div class="skeleton-row"><span class="bone line"></span><span class="bone badge"></span><span class="bone sub"></span></div>
+                                        <div class="skeleton-row"><span class="bone line"></span><span class="bone badge"></span><span class="bone sub"></span></div>
+                                    </div>
+                                </div>
+                                <div class="vc-diff-sidebar-foot">
+                                    <button class="pcui-button primary vc-merge-primary">Complete merge</button>
+                                </div>
+                            </aside>
+                            <section class="vc-diff-main">
+                                <div class="vc-diff-skeleton main">
+                                    <div class="skeleton-head"><span class="bone title"></span><span class="bone badge"></span></div>
+                                    <div class="skeleton-body">
+                                        <div class="skeleton-panel">
+                                            <div class="skeleton-phead"><span class="bone line"></span></div>
+                                            <div class="skeleton-field"><span class="bone label"></span><span class="bone value"></span></div>
+                                            <div class="skeleton-field"><span class="bone label"></span><span class="bone value"></span></div>
+                                            <div class="skeleton-field"><span class="bone label"></span><span class="bone value"></span></div>
+                                        </div>
+                                        <div class="skeleton-panel">
+                                            <div class="skeleton-phead"><span class="bone line"></span></div>
+                                            <div class="skeleton-field"><span class="bone label"></span><span class="bone value"></span></div>
+                                            <div class="skeleton-field"><span class="bone label"></span><span class="bone value"></span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div class="grid">
+            <section>
+                <h2>Version control overlays</h2>
+                <div class="version-control-overlay">
+                    <div class="overlay-card">
+                        <div class="vc-overlay-header"><span class="vc-heading">Version control</span></div>
+                        <div class="vc-overlay-body">
+                            <div class="status-card">
+                                <div class="status-row">
+                                    <span class="icon-cell"><span class="spinner"></span></span>
+                                    <div class="copy"><p class="title">Creating checkpoint</p><p class="message">This may take a few seconds.</p></div>
                                 </div>
                             </div>
                         </div>
-                        <div class="merge-controls">
-                            <label for="branch">Switch to</label>
-                            <select id="branch">
-                                <option>main</option>
-                                <option>other</option>
-                            </select>
-                            <button>Switch</button>
+                    </div>
+                    <div class="overlay-card">
+                        <div class="vc-overlay-header"><span class="vc-heading">Version control</span></div>
+                        <div class="vc-overlay-body">
+                            <div class="status-card">
+                                <div class="status-row">
+                                    <span class="icon-cell"><span class="check"></span></span>
+                                    <div class="copy"><p class="title">Branch switched</p><p class="message">Refreshing browser</p></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="vc-footer">
-                        <button class="danger">Stop merge</button>
+                    <div class="overlay-card">
+                        <div class="vc-overlay-header"><span class="vc-heading">Version control</span></div>
+                        <div class="vc-overlay-body">
+                            <div class="status-card">
+                                <div class="status-row">
+                                    <span class="icon-cell"><span class="branch-icon" aria-hidden="true"><span></span><span></span><span></span></span></span>
+                                    <div class="copy"><p class="title">Merge in progress</p><p class="message">Resolve the active merge before continuing.</p></div>
+                                </div>
+                            </div>
+                            <div class="merge-switch">
+                                <label>Switch to</label>
+                                <select><option>main</option></select>
+                                <button class="pcui-button">Switch</button>
+                            </div>
+                        </div>
+                        <div class="overlay-buttons"><button class="pcui-button danger">Stop merge</button></div>
                     </div>
-                </div>
-            </div>
-        </section>
-
-        <section>
-            <h2>Picker progress widget</h2>
-            <div class="stage">
-                <div class="vc-surface progress-widget">
-                    <div class="vc-header">
-                        <span class="vc-heading">Resolve conflicts</span>
-                    </div>
-                    <div class="status-card">
-                        <div class="status-row">
-                            <span class="icon-cell"><span class="spinner" aria-hidden="true"></span></span>
-                            <div class="copy">
-                                <p class="title">Checking merge conflicts</p>
-                                <p class="message">This may take a few seconds.</p>
+                    <div class="overlay-card">
+                        <div class="vc-overlay-header"><span class="vc-heading">Version control</span></div>
+                        <div class="vc-overlay-body">
+                            <div class="status-card">
+                                <div class="status-row">
+                                    <span class="icon-cell"><span class="cross"></span></span>
+                                    <div class="copy"><p class="title">Merge force stopped</p><p class="message">Refreshing browser</p></div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
+
+            <section>
+                <h2>Progress widget and close confirmation</h2>
+                <div class="grid" style="grid-template-columns:1fr;gap:12px;margin:0">
+                    <div class="progress-widget">
+                        <div class="vc-progress-header"><span class="vc-heading">Resolve conflicts</span></div>
+                        <div class="progress-body">
+                            <div class="status-card">
+                                <div class="status-row">
+                                    <span class="icon-cell"><span class="spinner"></span></span>
+                                    <div class="copy"><p class="title">Checking merge conflicts</p><p class="note">This may take a few seconds.</p></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="picker-confirm">
+                        <div class="text">Closing the conflict manager will stop the merge. Are you sure?</div>
+                        <div class="actions">
+                            <button class="pcui-button primary">NO</button>
+                            <button class="pcui-button">YES</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
     </main>
 </body>
 </html>

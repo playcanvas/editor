@@ -70,6 +70,10 @@ editor.once('load', () => {
             this.helper('vcgraph:utils', 'renderAllVcNodes');
 
             this.helper('vcgraph:utils', 'renderAllVcEdges');
+
+            this.helper('vcgraph:utils', 'renderBranchLegend');
+
+            this.helper('vcgraph:utils', 'renderCompareTray');
         }
 
         setVars(data: Record<string, unknown>) {
@@ -133,7 +137,7 @@ editor.once('load', () => {
         }
     }
 
-    editor.method('vcgraph:showInitial', (h: unknown) => {
+    editor.method('vcgraph:showInitial', (h: any) => {
         editor.call('vcgraph:showNodeMenu', h.vcNodeMenu);
 
         editor.call('vcgraph:utils', 'backendGraphTask', h, (err, data) => {
