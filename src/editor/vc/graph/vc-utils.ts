@@ -1,4 +1,4 @@
-import type { Button, Container, Menu } from '@playcanvas/pcui';
+import type { Container, Menu } from '@playcanvas/pcui';
 import Graph from '@playcanvas/pcui-graph';
 
 import { handleCallback } from '@/common/utils';
@@ -84,6 +84,11 @@ editor.once('load', () => {
 
     const SCREEN_COORD_OFFSET = { x: 80, y: 180 };
 
+    // graph host (.vc-graph-container) screen origin when fullscreen — 40px left toolbar, 33px
+    // header. SCREEN_COORD_OFFSET is calibrated for this; in the smaller box the host moves, so
+    // the menu shifts by (current host origin - this)
+    const VC_GRAPH_FS_HOST = { x: 40, y: 33 };
+
     const MIN_BETWEEN_NODES = {
         large: 2,
         small: 1
@@ -102,6 +107,11 @@ editor.once('load', () => {
     const CLOSED_BRANCH_SUFFIX = ' [x]';
 
     let branchCount = 0;
+
+    // current graph + its host, so the picker can force a paper resize on fullscreen toggle
+    // (pcui-graph only auto-resizes via a ResizeObserver, which misses the class-driven toggle)
+    let currentGraph: (Graph & { _resizeGraph?: (el: HTMLElement) => void }) | null = null;
+    let currentGraphDom: HTMLElement | null = null;
 
     interface VcGraphData {
         idToNode: Record<string, Record<string, unknown>>;
@@ -683,7 +693,7 @@ editor.once('load', () => {
             });
         },
 
-        initVcGraph: function (container: Container, closeBtn: Button) {
+        initVcGraph: function (container: Container) {
             branchCount = 0;
 
             const h = {
@@ -696,7 +706,8 @@ editor.once('load', () => {
 
             const graph = new Graph(schema, h);
 
-            graph.dom.appendChild(closeBtn.dom);
+            currentGraph = graph;
+            currentGraphDom = container.dom;
 
             return graph;
         },
@@ -916,19 +927,32 @@ editor.once('load', () => {
             return a;
         },
 
-        // Top left coords and width/height of the box rel to screen
+        // node box position/size relative to the screen. taken from the node's actual rendered
+        // element (via graph.view, as renderNodeContent does) so it stays correct wherever the
+        // graph box sits — the fixed offset below only holds at the box's reference position
         nodeToScreenCoords: function (node: Record<string, unknown>, graph: Graph) {
             const scale = graph.getGraphScale();
 
             const grPos = graph.getGraphPosition();
+
+            // the fixed offset is calibrated for fullscreen; when the box isn't fullscreen the host
+            // sits elsewhere, so shift the menu by how far it moved from its fullscreen origin
+            let offX = SCREEN_COORD_OFFSET.x;
+            let offY = SCREEN_COORD_OFFSET.y;
+            const overlay = graph.dom.closest('.vc-graph-overlay');
+            if (overlay && !overlay.classList.contains('fullscreen')) {
+                const rect = graph.dom.getBoundingClientRect();
+                offX += rect.left - VC_GRAPH_FS_HOST.x;
+                offY += rect.top - VC_GRAPH_FS_HOST.y;
+            }
 
             const h = {
                 x: VcUtils.transformCoord(node, 'x'),
                 y: VcUtils.transformCoord(node, 'y')
             };
 
-            h.x = grPos.x + (h.x * scale) + SCREEN_COORD_OFFSET.x;
-            h.y = grPos.y + (h.y * scale) + SCREEN_COORD_OFFSET.y;
+            h.x = grPos.x + (h.x * scale) + offX;
+            h.y = grPos.y + (h.y * scale) + offY;
 
             h.w = NODE_DEFAULTS.baseWidth * scale;
             h.h = NODE_DEFAULTS.baseHeight * scale;
@@ -988,7 +1012,7 @@ editor.once('load', () => {
 
             editor.call('picker:versioncontrol');
 
-            editor.call('vcgraph:showGraphPanel', h);
+            editor.call('picker:versioncontrol:graph', h);
         },
 
         equalHistNodes: function (h1: Record<string, unknown>, h2: Record<string, unknown>) {
@@ -1027,5 +1051,17 @@ editor.once('load', () => {
     // eslint-disable-next-line prefer-arrow-callback -- needs function for callMethod binding
     editor.method('vcgraph:utils', function (...args: unknown[]) {
         return editor.call('utils:callMethod', VcUtils, args);
+    });
+
+    editor.method('vcgraph:resize', () => {
+        if (!currentGraphDom) {
+            return;
+        }
+        // joint's setDimensions pins an inline px width/height on the host, which then ignores
+        // the css-driven fullscreen resize. clearing it lets the host follow its flex size; the
+        // optional nudge remeasures synchronously when the method is reachable
+        currentGraphDom.style.width = '';
+        currentGraphDom.style.height = '';
+        currentGraph?._resizeGraph?.(currentGraphDom);
     });
 });

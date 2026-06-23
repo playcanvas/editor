@@ -1,4 +1,4 @@
-import type { Button, Container, Menu } from '@playcanvas/pcui';
+import type { Container, Menu } from '@playcanvas/pcui';
 import type Graph from '@playcanvas/pcui-graph';
 
 editor.once('load', () => {
@@ -12,8 +12,6 @@ editor.once('load', () => {
         initData: Record<string, unknown>;
 
         container: Container;
-
-        closeBtn: Button;
 
         vcNodeMenu: Menu;
 
@@ -35,10 +33,9 @@ editor.once('load', () => {
 
         origStartId?: string;
 
-        constructor(initData: Record<string, unknown>, params: { vcGraphContainer: Container; vcGraphCloseBtn: Button; vcNodeMenu: Menu; vcHistItem: unknown }) {
+        constructor(initData: Record<string, unknown>, params: { vcGraphContainer: Container; vcNodeMenu: Menu; vcHistItem: unknown }) {
             this.initData = initData;
             this.container = params.vcGraphContainer;
-            this.closeBtn = params.vcGraphCloseBtn;
             this.vcNodeMenu = params.vcNodeMenu;
             this.vcHistItem = params.vcHistItem;
         }
@@ -47,8 +44,7 @@ editor.once('load', () => {
             this.graph = editor.call(
                 'vcgraph:utils',
                 'initVcGraph',
-                this.container,
-                this.closeBtn
+                this.container
             );
 
             this.graph.on('EVENT_SELECT_NODE', h => this.handleClick(h.node.id));
@@ -138,9 +134,19 @@ editor.once('load', () => {
     }
 
     editor.method('vcgraph:showInitial', (h: any) => {
-        editor.call('vcgraph:showNodeMenu', h.vcNodeMenu);
+        h.vcNodeMenu.hidden = true;
+
+        // skeleton placeholder while the backend graph task runs (replaces the old loading menu box)
+        const skeleton = document.createElement('div');
+        skeleton.className = 'vc-graph-skeleton';
+        skeleton.innerHTML = ('<div class="vc-graph-skeleton-node">' +
+            '<span class="avatar"></span><span class="title"></span><span class="hash"></span>' +
+            '<span class="line user"></span><span class="line date"></span>' +
+            '</div>').repeat(4);
+        h.vcGraphContainer.dom.appendChild(skeleton);
 
         editor.call('vcgraph:utils', 'backendGraphTask', h, (err, data) => {
+            skeleton.remove();
             new VcGraphLogic(data, h).run();
         });
     });

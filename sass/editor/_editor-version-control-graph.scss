@@ -1,16 +1,46 @@
-.pcui-container.vc-graph-panel {
-    position: fixed;
-    z-index: 301;
-    height: 95%;
-    width: 95%;
-    transform: translate(-50%, -50%);
-    left: 50%;
-    top: 50%;
-    overflow: hidden;
+$vc-node-fill: #2a3437; // matches VC_GRAPH_NODE_FILL in vc-utils.ts
+
+.pcui-overlay.vc-graph-overlay {
+    z-index: 301; // above the diff overlay (300) by default
 
     &.vc-graph-background {
-        z-index: 299;
+        z-index: 299; // drop below the diff overlay so a diff opened on top shows
     }
+
+    // small centred box that tweens to fullscreen. resized once the tween completes (see the
+    // toggle handler) since pcui-graph's ResizeObserver doesn't follow a class-driven size change
+    > .pcui-overlay-content {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 1060px;
+        height: 600px;
+        transform: translate(-50%, -50%);
+        overflow: hidden;
+        transition: width 200ms ease, height 200ms ease, transform 200ms ease;
+    }
+
+    // fullscreen: fill the viewport right of the 40px left toolbar
+    &.fullscreen > .pcui-overlay-content {
+        width: calc(100% - 40px);
+        height: 100%;
+        transform: translate(calc(-50% + 20px), -50%);
+    }
+
+    // below the small-box breakpoint: force fullscreen
+    @media (max-width: 1099px) {
+        > .pcui-overlay-content {
+            width: calc(100% - 40px);
+            height: 100%;
+            transform: translate(calc(-50% + 20px), -50%);
+        }
+    }
+}
+
+.pcui-container.vc-graph-panel {
+    flex-direction: column; // header bar on top, graph fills the rest
+    width: 100%;
+    height: 100%;
 
     .joint-element {
         cursor: pointer;
@@ -169,7 +199,7 @@
         padding: 8px 10px;
         border: 1px solid $border-primary;
         border-radius: 6px;
-        background: rgb(32 41 43 / 92%);
+        background: $vc-node-fill; // match the actual node cards
         box-shadow: 0 8px 18px rgb(0 0 0 / 30%);
         pointer-events: auto;
     }
@@ -246,14 +276,14 @@
         display: flex;
         width: 240px;
         max-width: 100%;
-        max-height: 150px;
+        max-height: min(60vh, 420px);
         flex-direction: column;
         gap: 6px;
         overflow: auto;
         padding: 8px 10px;
         border: 1px solid $border-primary;
         border-radius: 6px;
-        background: rgb(32 41 43 / 88%);
+        background: $bcg-darkest; // solid so the graph nodes don't bleed through
         box-shadow: 0 6px 16px rgb(0 0 0 / 28%);
         pointer-events: auto;
     }
@@ -283,15 +313,100 @@
     }
 
     > .vc-graph-container {
+        position: relative;
+        flex: 1;
+        min-height: 0;
         width: 100%;
-        height: 100%;
         background-color: #293234;
     }
 
-    .vc-graph-close-btn {
+    // a single branch of node cards, centred — mirrors the real .vc-graph-node layout
+    .vc-graph-skeleton {
         position: absolute;
-        top: 6px;
-        right: 5px;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 28px;
+        pointer-events: none;
+
+        .vc-graph-skeleton-node {
+            position: relative;
+            box-sizing: border-box;
+            width: 226px;
+            height: 72px;
+            padding: 13px 12px;
+            border: 1px solid $border-primary;
+            border-radius: 6px;
+            background-color: $vc-node-fill; // match the actual node cards
+
+            // branch line down to the next card (hidden on the last)
+            &:not(:last-child)::after {
+                content: '';
+                position: absolute;
+                left: 50%;
+                top: 100%;
+                height: 28px;
+                width: 2px;
+                transform: translateX(-50%);
+                background-color: rgb(255 255 255 / 12%);
+            }
+
+            // pulsing bones positioned like the real node (avatar, title, hash, user, date)
+            > span {
+                position: absolute;
+                background-color: rgb(255 255 255 / 10%);
+                animation: vc-skeleton-pulse 1.4s ease-in-out infinite;
+            }
+
+            .avatar {
+                top: 13px;
+                left: 12px;
+                width: 28px;
+                height: 28px;
+                border-radius: 50%;
+            }
+
+            .title {
+                top: 15px;
+                left: 54px;
+                width: 96px;
+                height: 12px;
+                border-radius: 3px;
+            }
+
+            .hash {
+                top: 13px;
+                right: 12px;
+                width: 44px;
+                height: 16px;
+                border-radius: 4px;
+            }
+
+            .line {
+                left: 54px;
+                height: 9px;
+                border-radius: 3px;
+            }
+
+            .user {
+                top: 34px;
+                width: 112px;
+            }
+
+            .date {
+                top: 49px;
+                width: 66px;
+            }
+
+            // staggered shimmer down the chain
+            @for $i from 1 through 4 {
+                &:nth-child(#{$i}) > span {
+                    animation-delay: #{($i - 1) * 0.12s};
+                }
+            }
+        }
     }
 
 }
