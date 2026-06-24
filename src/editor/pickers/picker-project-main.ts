@@ -15,7 +15,6 @@ editor.once('load', () => {
         description: IS_EMPTY_STATE ? '' : currentProject.description,
         private: IS_EMPTY_STATE ? false : currentProject.private
     };
-    let panelName = IS_EMPTY_STATE ? '' : currentProject.name.toUpperCase();
 
     // UI
 
@@ -52,7 +51,7 @@ editor.once('load', () => {
     });
 
     // register panel with project popup
-    editor.call('picker:project:registerMenu', 'project-main', 'PROJECT SETTINGS', panel, panelName);
+    editor.call('picker:project:registerMenu', 'project-main', 'PROJECT SETTINGS', panel, 'Project settings');
 
     // hide button if the user doesn't have the right permissions
     if (!editor.call('permissions:read')) {
@@ -436,9 +435,7 @@ editor.once('load', () => {
             description: currentProject.description,
             private: currentProject.private
         };
-        panelName = currentProject.name.toUpperCase();
-
-        editor.call('picker:project:updateProjectSettingsMenuItem', panelName);
+        editor.call('picker:project:updateProjectSettingsMenuItem', currentProject.name);
 
         // only show locked view if locked project
         if (currentProject.locked) {
