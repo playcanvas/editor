@@ -23,9 +23,9 @@ editor.once('load', () => {
         const isCurrentProject = currentProject && currentProject.id === config.project.id;
         const hasVersionControl = isCurrentProject && !config.project.settings.useLegacyScripts;
         if (hasVersionControl) {
-            return `EXPORT PROJECT (${config.self.branch.name})`;
+            return `Export Project (${config.self.branch.name})`;
         }
-        return 'EXPORT PROJECT';
+        return 'Export Project';
     };
 
     // displays or hides the AJAX loader UI when exporting project
@@ -79,7 +79,7 @@ editor.once('load', () => {
 
     const unlockButton = new Button({
         icon: 'E340',
-        text: 'UNLOCK'
+        text: 'Unlock'
     });
     lockedContainer.append(unlockButton);
     lockedContainer.style.display = 'none';  // hide by default
@@ -202,18 +202,16 @@ editor.once('load', () => {
     projectURLSettings.dom.appendChild(projectUrlLabel.dom);
 
     const projectURLButton = new Button({
-        icon: 'E357',
+        class: 'copy-url-button',
         text: 'Copy URL'
     });
     projectURLSettings.dom.appendChild(projectURLButton.dom);
 
     projectURLButton.on('click', () => {
-        navigator.clipboard.writeText(`${config.url.home}/editor/project/${currentProject.id}`);
-
-        copiedURLPopup.class.add('open');
-        setTimeout(() => {
-            copiedURLPopup.class.remove('open');
-        }, 3000);
+        navigator.clipboard.writeText(`${config.url.home}/editor/project/${currentProject.id}`).then(() => {
+            projectURLButton.class.add('copied');
+            setTimeout(() => projectURLButton.class.remove('copied'), 1500);
+        }, () => {});
     });
 
     // action buttons container
@@ -249,7 +247,7 @@ editor.once('load', () => {
     const deleteProjectButton = new Button({
         class: 'full-width-button',
         icon: 'E124',
-        text: 'DELETE PROJECT',
+        text: 'Delete Project',
         enabled: false,
         hidden: true
     });
@@ -259,17 +257,6 @@ editor.once('load', () => {
     deleteProjectButton.on('click', () => {
         editor.call('picker:project:modal:deleteProjectConfirmation', currentProject);
     });
-
-    // copied URL to clipboard popup box
-    const copiedURLPopup = new Container({
-        class: 'copied-url-popup'
-    });
-    panel.append(copiedURLPopup);
-
-    const copiedURLText = new Label({
-        text: 'URL Copied to the clipboard!'
-    });
-    copiedURLPopup.append(copiedURLText);
 
     // CONTROLLERS
 
@@ -409,8 +396,6 @@ editor.once('load', () => {
         if (projectSettingsChanged) {
             editor.call('picker:project:cms:refreshProjects');
         }
-
-        copiedURLPopup.class.remove('open');  // close clipboard popup
 
         editor.call('picker:project:hideAlerts');
         editor.call('picker:project:hideThumbnailControls');
