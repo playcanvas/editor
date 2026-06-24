@@ -5,6 +5,14 @@ import { LegacyListItem } from '@/common/ui/list-item';
 import { bytesToHuman } from '@/common/utils';
 import { config } from '@/editor/config';
 
+const MENU_LABELS = new Map([
+    ['project-main', 'Project settings'],
+    ['scenes', 'Scenes'],
+    ['version control', 'Version control'],
+    ['builds-publish', 'Builds & Publish'],
+    ['team', 'Team']
+]);
+
 editor.once('load', () => {
     // GLOBAL VARIABLES
     let projectSettingsListMenu;  // used to enable hot reload of sidebar menu text upon project name change
@@ -24,43 +32,6 @@ editor.once('load', () => {
 
     // build project stats
     let statsContainer;
-    const buildProjectStatsUI = () => {
-        statsContainer = new Container({
-            id: 'project-stats',
-            class: 'project-stats'
-        });
-        leftPanel.append(statsContainer);
-
-        if (!noAdminView) {
-            // Forks
-            const forksLabel = new Label({
-                text: `${currentProject.fork_count}`,
-                class: 'forks-stat'
-            });
-            statsContainer.append(forksLabel);
-
-            // Views
-            const viewsLabel = new Label({
-                text: `${currentProject.views}`,
-                class: 'views-stat'
-            });
-            statsContainer.append(viewsLabel);
-
-            // Plays
-            const playsLabel = new Label({
-                text: `${currentProject.plays}`,
-                class: 'plays-stat'
-            });
-            statsContainer.append(playsLabel);
-        }
-
-        // Size
-        const sizeLabel = new Label({
-            text: bytesToHuman(currentProject.size.total),
-            class: 'size-stat'
-        });
-        statsContainer.append(sizeLabel);
-    };
 
     // helper method to build alert
     const buildAlert = (root: Container, alert: string, showButton = false, buttonText = '', funcParameters) => {
@@ -291,13 +262,59 @@ editor.once('load', () => {
     });
     panel.append(leftPanel);
 
+    const projectSummary = new Container({
+        class: 'project-summary'
+    });
+    leftPanel.append(projectSummary);
+
     // project image
     const projectImg = document.createElement('div');
     projectImg.classList.add('image');
     if (!IS_EMPTY_STATE) {
         projectImg.style.backgroundImage = config.project.thumbnails.m ? `url("${config.project.thumbnails.m}")` : EMPTY_THUMBNAIL_IMAGE;
     }
-    leftPanel.dom.appendChild(projectImg);
+    projectSummary.dom.appendChild(projectImg);
+
+    const projectSummaryText = new Container({
+        class: 'project-summary-text'
+    });
+    projectSummary.append(projectSummaryText);
+
+    const projectTitle = new Label({
+        class: 'project-name',
+        text: IS_EMPTY_STATE ? '' : config.project.name
+    });
+    projectSummaryText.append(projectTitle);
+
+    const buildProjectStatsUI = () => {
+        projectTitle.text = currentProject.name;
+
+        statsContainer = new Container({
+            id: 'project-stats',
+            class: 'project-stats'
+        });
+        projectSummary.append(statsContainer);
+
+        if (!noAdminView) {
+            const forksLabel = new Label({
+                text: `${currentProject.fork_count}`,
+                class: 'forks-stat'
+            });
+            statsContainer.append(forksLabel);
+
+            const viewsLabel = new Label({
+                text: `${currentProject.views}`,
+                class: 'views-stat'
+            });
+            statsContainer.append(viewsLabel);
+        }
+
+        const sizeLabel = new Label({
+            text: bytesToHuman(currentProject.size.total),
+            class: 'size-stat'
+        });
+        statsContainer.append(sizeLabel);
+    };
 
     let uploadingImage = false;
 
@@ -393,14 +410,16 @@ editor.once('load', () => {
     const thumbnailButtons = new Container({
         class: 'thumbnail-buttons'
     });
-    leftPanel.append(thumbnailButtons);
+    projectSummary.append(thumbnailButtons);
     thumbnailButtons.style.opacity = '0';  // thumbnail buttons start hidden
 
     const replaceButton = new Button({
         class: 'thumbnail-replace',
         icon: 'E222',
-        text: 'REPLACE'
+        text: ''
     });
+    replaceButton.dom.setAttribute('aria-label', 'Replace project icon');
+    replaceButton.dom.setAttribute('title', 'Replace project icon');
     thumbnailButtons.append(replaceButton);
 
     replaceButton.on('click', () => {
@@ -635,12 +654,7 @@ editor.once('load', () => {
 
     // register new panel / menu option
     editor.method('picker:project:registerMenu', (name, title, panel, displayName = '') => {
-        let menuItem;
-        if (displayName.length > 0) {
-            menuItem = new LegacyListItem({ text: displayName });
-        } else {
-            menuItem = new LegacyListItem({ text: name });
-        }
+        const menuItem = new LegacyListItem({ text: MENU_LABELS.get(name) || displayName || name });
 
         if (title === 'PROJECT SETTINGS') {
             projectSettingsListMenu = menuItem;
@@ -827,7 +841,8 @@ editor.once('load', () => {
 
     // hook to retrieve project settings sidebar menu element (to enable hot reloading)
     editor.method('picker:project:updateProjectSettingsMenuItem', (newName) => {
-        projectSettingsListMenu.text = newName;
+        projectTitle.text = newName;
+        projectSettingsListMenu.text = MENU_LABELS.get('project-main') || 'Project settings';
     });
 
     // hook to upload project image
@@ -869,7 +884,7 @@ editor.once('load', () => {
     // hook to display thumbnail controls
     editor.method('picker:project:showThumbnailControls', () => {
         if (currentProject.access_level === 'admin') {
-            thumbnailButtons.style.transform = 'translate(0, 0px)';
+            thumbnailButtons.style.transform = 'scale(1)';
             thumbnailButtons.style.opacity = '1';
             thumbnailButtons.style.zIndex = '0';
             thumbnailButtons.style.pointerEvents = 'all';
@@ -879,7 +894,7 @@ editor.once('load', () => {
     // hook to hide thumbnail controls
     editor.method('picker:project:hideThumbnailControls', () => {
         if (currentProject.access_level === 'admin') {
-            thumbnailButtons.style.transform = 'translate(0, 32px)';
+            thumbnailButtons.style.transform = 'scale(0.92)';
             thumbnailButtons.style.opacity = '0';
             thumbnailButtons.style.zIndex = '-1';
             thumbnailButtons.style.pointerEvents = 'none';

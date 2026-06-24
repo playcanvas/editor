@@ -2494,23 +2494,39 @@ strong {
                 $c: &;
 
                 background-color: $bcg-dark;
+                box-sizing: border-box;
                 margin: 0;
-                padding: 0;
+                padding: 10px;
                 flex: 0 0 188px;
                 width: 188px;
                 height: 100%;
                 border-right: 1px solid $border-primary;
                 position: relative;
 
+                .project-summary {
+                    position: relative;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 10px;
+                    padding: 9px;
+                    border: 1px solid $border-primary;
+                    border-radius: 5px;
+                    background-color: rgb(0 0 0 / 8%);
+                }
+
                 .image {
-                    width: 187px;
-                    height: 187px;
-                    border-bottom: 1px solid $border-primary;
+                    box-sizing: border-box;
+                    width: 100%;
+                    aspect-ratio: 1;
+                    border: 1px solid $border-primary;
+                    border-radius: 4px;
                     background-color: $bcg-primary;
-                    background-size: 100%;
+                    background-position: center;
+                    background-size: cover;
+                    overflow: hidden;
 
                     &.progress {
-                        background-size: 17%;
+                        background-size: 18px;
                         background-position: 50%;
                         background-repeat: no-repeat;
                         background-color: $bcg-darkest;
@@ -2528,91 +2544,152 @@ strong {
                 }
 
                 .project-stats {
-                    position: absolute;
                     display: flex;
-                    padding-top: 3px;
-                    justify-content: flex-start;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    height: 50px;
-                    font-size: 0.8em;
-                    color: $text-secondary;
-                    background-image: linear-gradient(rgb(0 0 0 / 80%) 15%, transparent);
-                    opacity: 1;
-                    transition: transform 0.4s ease-in-out, opacity 0.2s ease-in, background-image 0.4s ease-in-out;
+                    gap: 10px;
+                    justify-content: space-between;
+                    padding-top: 8px;
+                    border-top: 1px solid rgb(255 255 255 / 6%);
+                    color: $text-dark;
+                    font-size: 11px;
 
                     span {
                         @extend .font-regular;
 
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 4px;
+                        margin: 0;
+                        line-height: 14px;
+
                         &::before {
                             @extend .font-icon;
 
-                            margin-right: 5px;
+                            width: 14px;
+                            height: 14px;
+                            margin: 0;
+                            line-height: 14px;
                         }
                     }
 
                     .forks-stat::before { content: '\E431'; }
                     .views-stat::before { content: '\E117'; }
-                    .plays-stat::before { content: '\E180'; }
 
                     .size-stat {
-                        position: absolute;
-                        top: 0;
-                        right: 0;
-                        padding-top: 3px;
+                        margin-left: auto;
+                    }
+                }
+
+                .project-summary-text {
+                    min-width: 0;
+
+                    > .project-name {
+                        @extend .font-bold;
+
+                        display: block;
+                        margin: 0;
+                        color: $text-primary;
+                        font-size: 14px;
+                        line-height: 18px;
+                        overflow: hidden;
+                        text-overflow: ellipsis;
+                        white-space: nowrap;
                     }
                 }
 
                 .thumbnail-buttons {
                     position: absolute;
-                    top: 150px;
-                    width: 100%;
+                    top: 9px;
+                    left: 9px;
+                    right: 9px;
+                    box-sizing: border-box;
+                    aspect-ratio: 1;
                     display: flex;
-                    flex-direction: row;
+                    align-items: center;
                     justify-content: center;
-                    transform: translate(0, 32px);
+                    border-radius: 4px;
+                    background-color: rgb(0 0 0 / 48%);
+                    transform: scale(0.92);
                     pointer-events: none;
-                    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out, z-index 0.25s ease-in-out;
+                    transition: opacity 120ms ease, transform 120ms ease, z-index 120ms ease;
+
+                    > .pcui-button {
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        min-width: 0;
+                        width: 100%;
+                        height: 100%;
+                        margin: 0;
+                        padding: 0;
+                        border: 0;
+                        border-radius: 4px;
+                        color: $text-primary;
+                        background-color: transparent;
+                        box-shadow: none;
+
+                        &[data-icon]::before {
+                            @extend .font-icon;
+
+                            content: attr(data-icon);
+                            margin: 0;
+                            font-size: 24px;
+                            line-height: 24px;
+                        }
+                    }
 
                     & > .thumbnail-replace {
-                        flex: 9;
                         margin-right: 0;
                     }
 
                     & > .thumbnail-delete {
-                        flex: 1;
+                        display: none;
                     }
                 }
 
                 .project-cms-button {
+                    @extend .font-bold;
+
                     position: absolute;
                     bottom: 10px;
-                    margin-left: 0;
-                    margin-right: 0;
-                    padding: 0;
-                    background-color: transparent;
+                    left: 10px;
+                    right: 10px;
+                    width: auto;
+                    height: 32px;
+                    margin: 0;
+                    padding: 0 12px;
+                    border: 1px solid $border-primary;
+                    border-radius: 5px;
+                    color: $text-primary;
+                    background-color: $bcg-darkest;
+                    font-size: 12px;
                     box-shadow: none;
-                    border: none;
-                    width: 100%;
+
+                    &:not(.disabled, .pcui-disabled, .pcui-readonly):hover,
+                    &:not(.disabled, .pcui-disabled, .pcui-readonly):focus {
+                        color: $text-primary;
+                        background-color: $bcg-darker;
+                        box-shadow: $element-shadow-hover;
+                    }
                 }
 
                 .cms-editor-button,
                 .cms-play-button {
-                    @extend .font-regular;
+                    @extend .font-bold;
 
                     position: absolute;
-                    left: 0;
-                    width: calc(100% - 10px);
-                    margin: 5px;
-                    border-radius: initial;
+                    left: 10px;
+                    width: calc(100% - 20px);
+                    height: 32px;
+                    margin: 0;
+                    border: 1px solid $border-primary;
+                    border-radius: 5px;
                     box-shadow: none;
 
                     &.pcui-disabled { cursor: not-allowed; }
                 }
 
                 .cms-editor-button {
-                    bottom: 40px;
+                    bottom: 48px;
                     background-color: $text-active;
                     color: $text-primary;
 
@@ -2638,54 +2715,68 @@ strong {
                     }
                 }
 
-                .info {
-                    padding: 5px 10px;
-                    border-bottom: 1px solid $border-primary;
-
-                    .name {
-                        font-size: 14px;
-                        color: $text-primary;
-                        max-width: 100%;
-                        overflow: hidden;
-                        white-space: nowrap;
-                        text-overflow: ellipsis;
-                    }
-                }
-
                 ul {
-                    padding: 0;
+                    padding: 1em 0 0;
                     margin: 0;
+                    min-height: 0;
+                    border: none;
+                    background: transparent;
 
                     li {
-                        margin: 0;
-                        padding: 0 10px;
-                        height: 36px;
-                        line-height: 36px;
-                        border: none;
-                        border-bottom: 1px solid $border-primary;
-                        text-transform: uppercase;
+                        box-sizing: border-box;
+                        display: flex;
+                        align-items: center;
+                        gap: 0.75em;
+                        margin: 0 0 0.8em;
+                        padding: 1.3em 1em;
+                        border: 1px solid transparent;
+                        border-radius: 4px;
+                        color: $text-secondary;
                         font-size: 12px;
+                        line-height: 1.2;
+                        white-space: nowrap;
 
                         @extend .font-bold;
+
+                        &.hidden {
+                            display: none;
+                        }
 
                         &:hover,
                         &.active {
                             color: $text-primary;
-                            background-color: $bcg-primary;
+                            background-color: rgb(0 0 0 / 13%);
                             cursor: pointer;
-                            margin: 0;
+                            margin: 0 0 0.8em;
 
                             &::before {
                                 color: $text-active;
                             }
                         }
 
+                        &.active {
+                            border-color: rgb(255 122 35 / 48%);
+                        }
+
                         &::before {
                             @extend .font-icon;
 
-                            font-size: 14px;
-                            vertical-align: top;
-                            padding-right: 10px;
+                            display: inline-flex;
+                            align-items: center;
+                            justify-content: center;
+                            flex: 0 0 1.25em;
+                            width: 1.25em;
+                            height: 1em;
+                            margin-top: 3px;
+                            font-size: 1.25em;
+                            line-height: 1;
+                            padding-right: 0;
+                            text-align: center;
+                        }
+
+                        > span {
+                            overflow: hidden;
+                            text-overflow: ellipsis;
                         }
 
                         &.project-main::before {
@@ -2717,6 +2808,7 @@ strong {
                         }
                     }
                 }
+
             }
 
             .pcui-panel.right {
