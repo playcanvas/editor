@@ -1,4 +1,4 @@
-import { Button, Container } from '@playcanvas/pcui';
+import { Button, Container, Overlay } from '@playcanvas/pcui';
 
 import { installEllipsisTooltips } from '@/common/ellipsis-tooltip';
 import { handleCallback } from '@/common/utils';
@@ -20,6 +20,10 @@ const SIDEBAR_MAX_W = 720;
 // fullscreen fills the viewport right of the 40px left toolbar; keep at least this for main
 const VC_MAIN_MIN_W = 480;
 const FULLSCREEN_TOOLBAR_W = 40;
+// graph picker fullscreen state, persisted like the diff picker
+const VC_GRAPH_FULLSCREEN_KEY = 'editor:picker:vcgraph:fullscreen';
+// resize the graph paper after the fullscreen tween; slightly longer than the scss 200ms
+const VC_GRAPH_RESIZE_MS = 220;
 
 editor.once('load', () => {
     if (config.project.settings.useLegacyScripts) {
@@ -327,7 +331,6 @@ editor.once('load', () => {
         togglePanels(true);
         showProgress(null);
         requestAnimationFrame(() => {
-            editor.call('picker:project:suspend');
             editor.call('picker:versioncontrol:mergeOverlay:hide');
             editor.call('picker:versioncontrol:diffPicker', diff);
         });
@@ -363,6 +366,9 @@ editor.once('load', () => {
     const viewDiff = (srcBranchId: string, srcCheckpointId: string | null, dstBranchId: string, dstCheckpointId: string | null) => {
         runDiff(() => diffCreate({ srcBranchId, srcCheckpointId, dstBranchId, dstCheckpointId }));
     };
+    panel.on('diff', (srcBranchId: string, srcCheckpointId: string | null, dstBranchId: string, dstCheckpointId: string | null) => {
+        presentDiff(diffCreate({ srcBranchId, srcCheckpointId, dstBranchId, dstCheckpointId }));
+    });
 
     // always use the modern overlay: a resolved diff renders instantly, a pending
     // one (or a fresh job) opens with a loading state — no legacy spinner dialog
@@ -491,9 +497,10 @@ editor.once('load', () => {
 
     switcher.on('newBranch', () => openNewBranchDialog(null));
     detail.on('newBranch', (checkpoint: any) => openNewBranchDialog(checkpoint));
+    panel.on('checkpoint:branch', (checkpoint: any, branch: any) => openNewBranchDialog(checkpoint, branch));
 
-    function openNewBranchDialog(checkpoint: any | null) {
-        const source = checkpoint ? viewedBranch : config.self.branch;
+    function openNewBranchDialog(checkpoint: any | null, branch?: any) {
+        const source = branch || (checkpoint ? viewedBranch : config.self.branch);
         const fromId = checkpoint ? checkpoint.id : source.latestCheckpointId;
         const dialog = showVcDialog({
             title: 'New branch',
@@ -668,10 +675,10 @@ editor.once('load', () => {
     });
 
     switcher.on('graph', (branch: any) => {
-        editor.call('vcgraph:showGraphPanel', { branchId: branch.id });
+        editor.call('picker:versioncontrol:graph', { branchId: branch.id });
     });
     btnGraph.on('click', () => {
-        editor.call('vcgraph:showGraphPanel', { branchId: viewedBranch.id });
+        editor.call('picker:versioncontrol:graph', { branchId: viewedBranch.id });
     });
 
     // ---- restore / hard reset ----
@@ -704,6 +711,7 @@ editor.once('load', () => {
             }
         });
     });
+    panel.on('checkpoint:restore', (checkpoint: any) => detail.emit('restore', checkpoint));
 
     detail.on('hardReset', (checkpoint: any) => {
         const dialog = showVcDialog({
@@ -729,33 +737,81 @@ editor.once('load', () => {
             }
         });
     });
+    panel.on('checkpoint:hardReset', (checkpoint: any) => detail.emit('hardReset', checkpoint));
 
-    // ---- vc graph host (moved from old checkpoints widget) ----
-    const vcGraphPanel = new Container({ class: ['picker-version-control', 'vc-graph-panel'], flex: true, hidden: true });
-    editor.call('layout.root').append(vcGraphPanel);
+    // ---- vc graph host (a picker overlay, like the diff/conflict pickers) ----
+    const vcGraphOverlay = new Overlay({ class: ['picker-version-control', 'vc-graph-overlay'], clickable: false, hidden: true });
+    editor.call('layout.root').append(vcGraphOverlay);
+    const vcGraphPanel = new Container({ class: 'vc-graph-panel', flex: true });
+    vcGraphOverlay.append(vcGraphPanel);
     const vcNodeMenu = editor.call('vcgraph:makeNodeMenu', panel);
     editor.call('layout.root').append(vcNodeMenu);
 
-    editor.method('vcgraph:closeGraphPanel', () => {
-        editor.call('vcgraph:moveToForeground');
-        vcGraphPanel.hidden = true;
-        vcGraphPanel.clear();
+    const onGraphKey = (e: KeyboardEvent) => {
+        if (e.key === 'Escape' && !vcGraphOverlay.hidden) {
+            e.stopPropagation();
+            vcGraphOverlay.hidden = true;
+        }
+    };
+    vcGraphOverlay.on('show', () => {
+        editor.emit('picker:open', 'vc-graph');
+        window.addEventListener('keydown', onGraphKey, true);
     });
-    editor.method('vcgraph:moveToBackground', () => vcGraphPanel.class.add('vc-graph-background'));
-    editor.method('vcgraph:moveToForeground', () => vcGraphPanel.class.remove('vc-graph-background'));
-    editor.method('vcgraph:isHidden', () => vcGraphPanel.hidden);
-    editor.method('vcgraph:showGraphPanel', (h: any) => {
-        vcGraphPanel.hidden = !vcGraphPanel.hidden;
-        const vcGraphContainer = new Container({ class: 'vc-graph-container' });
-        const vcGraphCloseBtn = new Button({ text: 'CLOSE', class: 'vc-graph-close-btn' });
+    vcGraphOverlay.on('hide', () => {
+        window.removeEventListener('keydown', onGraphKey, true);
+        editor.call('vcgraph:moveToForeground');
+        vcGraphPanel.clear();
+        editor.emit('picker:close', 'vc-graph');
+    });
+
+    editor.method('vcgraph:closeGraphPanel', () => {
+        vcGraphOverlay.hidden = true; // 'hide' handler does foreground + clear + picker:close
+    });
+    editor.method('vcgraph:moveToBackground', () => vcGraphOverlay.class.add('vc-graph-background'));
+    editor.method('vcgraph:moveToForeground', () => vcGraphOverlay.class.remove('vc-graph-background'));
+    editor.method('vcgraph:isHidden', () => vcGraphOverlay.hidden);
+    editor.method('picker:versioncontrol:graph', (h: any) => {
+        editor.call('vcgraph:moveToForeground');
+        vcGraphOverlay.hidden = false; // open-only, like the diff/conflict pickers (was a toggle)
+
+        // header bar matching the diff/conflict pickers (reuses their .vc-diff-* styles)
+        const header = new Container({ class: 'vc-diff-top' });
+        const title = document.createElement('div');
+        title.classList.add('vc-diff-title');
+        title.textContent = 'Graph';
+        header.dom.appendChild(title);
+
+        // small box by default with a fullscreen toggle, mirroring the diff picker
+        let fullscreen = editor.call('localStorage:get', VC_GRAPH_FULLSCREEN_KEY) === true;
+        const fullscreenToggle = new Button({ class: 'vc-diff-fullscreen-toggle' });
+        const applyFullscreen = () => {
+            vcGraphOverlay.class[fullscreen ? 'add' : 'remove']('fullscreen');
+            fullscreenToggle.class[fullscreen ? 'add' : 'remove']('active');
+            fullscreenToggle.dom.setAttribute('title', fullscreen ? 'Exit fullscreen' : 'Fullscreen');
+        };
+        fullscreenToggle.on('click', () => {
+            fullscreen = !fullscreen;
+            editor.call('localStorage:set', VC_GRAPH_FULLSCREEN_KEY, fullscreen);
+            vcNodeMenu.hidden = true; // the graph repositions, so the open node menu would be left offset
+            applyFullscreen();
+            window.setTimeout(() => editor.call('vcgraph:resize'), VC_GRAPH_RESIZE_MS);
+        });
+        header.append(fullscreenToggle);
+        applyFullscreen();
+
+        const vcGraphCloseBtn = new Button({ icon: 'E132', class: 'vc-diff-close' });
         vcGraphCloseBtn.on('click', () => {
             editor.call('vcgraph:closeGraphPanel');
             if (h.closeVcPicker) {
                 editor.call('picker:project:close');
             }
         });
+        header.append(vcGraphCloseBtn);
+
+        const vcGraphContainer = new Container({ class: 'vc-graph-container' });
+        vcGraphPanel.append(header);
         vcGraphPanel.append(vcGraphContainer);
-        Object.assign(h, { vcGraphContainer, vcGraphCloseBtn, vcNodeMenu });
+        Object.assign(h, { vcGraphContainer, vcNodeMenu });
         editor.call('vcgraph:showInitial', h);
     });
 

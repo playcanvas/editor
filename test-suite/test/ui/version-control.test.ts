@@ -17,9 +17,7 @@ test.describe.configure({
 
 // the version control picker was rewritten (#2098/#2099/#2100): a branch
 // switcher dropdown, Changes/History tabs, a detail pane, an inline checkpoint
-// composer, compare mode + a dedicated diff overlay, and vc-dialog dialogs.
-// the merge conflict resolution still routes through the (unchanged) legacy
-// `picker-conflict-manager`, so those selectors below are preserved.
+// composer, compare mode + dedicated diff/merge overlays, and vc-dialog dialogs.
 
 // the main vc panel (`picker-version-control` is shared with the graph panel)
 const VC_PANEL = '.picker-vc';
@@ -94,6 +92,23 @@ const createBranchFromCheckpoint = async (page: Page, checkpointId: string, name
 const dialogConfirm = (page: Page) => page.locator('.vc-dialog .pcui-button.confirm');
 const dialogInput = (page: Page) => page.locator('.vc-dialog input');
 const toggleDialogCheck = (page: Page, label: string) => page.locator('.vc-dialog').getByLabel(label).click();
+const diffOverlay = (page: Page) => page.locator('.vc-diff-overlay:not(.vc-merge)');
+const mergeOverlay = (page: Page) => page.locator('.vc-diff-overlay.vc-merge');
+const mergeDiffOverlay = (page: Page) => page.locator('.vc-diff-overlay.vc-merge.diff');
+const mergeFooterButton = (page: Page, text: RegExp) => mergeOverlay(page).locator('.vc-diff-sidebar-foot .pcui-button:not(.pcui-disabled)').filter({ hasText: text });
+const completeMerge = async (page: Page) => {
+    await mergeOverlay(page).waitFor({ state: 'visible' });
+    const step = await Promise.race([
+        mergeDiffOverlay(page).waitFor({ state: 'visible' }).then(() => 'complete'),
+        mergeFooterButton(page, /^Review merge$/).waitFor({ state: 'visible' }).then(() => 'review')
+    ]);
+    if (step === 'review') {
+        await mergeFooterButton(page, /^Review merge$/).click();
+    }
+    await mergeDiffOverlay(page).waitFor({ state: 'visible' });
+    await armReload(page);
+    await mergeFooterButton(page, /^Complete merge$/).click();
+};
 
 /** create a checkpoint via the inline composer and confirm it lands in history */
 const createCheckpoint = async (page: Page, description: string) => {
@@ -263,12 +278,13 @@ test.describe('branch/checkpoint/diff/merge', () => {
             await page.locator('.vc-compare-bar .pcui-button:not(.pcui-disabled)').click();
 
             // wait for the diff overlay to load
-            await page.locator('.vc-diff-overlay').waitFor({ state: 'visible' });
-            await page.locator('.vc-diff-sidebar .vc-diff-row').first().waitFor({ state: 'visible' });
+            const overlay = diffOverlay(page);
+            await overlay.waitFor({ state: 'visible' });
+            await overlay.locator('.vc-diff-sidebar .vc-diff-row').first().waitFor({ state: 'visible' });
 
             // close diff viewer
-            await page.locator('.vc-diff-close').click();
-            await page.locator('.vc-diff-overlay').waitFor({ state: 'hidden' });
+            await overlay.locator('.vc-diff-close').click();
+            await overlay.waitFor({ state: 'hidden' });
         })).toStrictEqual([]);
     });
 
@@ -308,18 +324,7 @@ test.describe('branch/checkpoint/diff/merge', () => {
             await toggleDialogCheck(page, 'Close red after merging');
             await dialogConfirm(page).click();
 
-            // clean merge -> goes straight to the apply view
-            await page.waitForSelector([
-                '.picker-conflict-manager.diff',
-                '.content',
-                '.ui-panel',
-                '.content',
-                '.left',
-                '.content',
-                '.confirm:not(.hidden)'
-            ].join(' > '));
-            await armReload(page);
-            await page.getByText('COMPLETE MERGE').click();
+            await completeMerge(page);
 
             // wait for the editor to reload
             await waitReload(page);
@@ -343,43 +348,10 @@ test.describe('branch/checkpoint/diff/merge', () => {
             await dialogConfirm(page).click();
 
             // review conflicts (material color conflicts with the merged red change)
-            await page.waitForSelector([
-                '.picker-conflict-manager',
-                '.content',
-                '.ui-panel',
-                '.content',
-                '.right',
-                '.content',
-                '.bottom',
-                '.content',
-                '.theirs',
-                '.content',
-                '.ui-button:not(.disabled)'
-            ].join(' > '));
-            await page.getByText('USE ALL FROM THIS BRANCH').nth(1).click();
-            await page.waitForSelector([
-                '.picker-conflict-manager',
-                '.content',
-                '.ui-panel',
-                '.content',
-                '.left',
-                '.content',
-                '.ui-button:not(.disabled)'
-            ].join(' > '));
-            await page.getByText('REVIEW MERGE').click();
-
-            // apply merge
-            await page.waitForSelector([
-                '.picker-conflict-manager.diff',
-                '.content',
-                '.ui-panel',
-                '.content',
-                '.left',
-                '.content',
-                '.confirm:not(.hidden)'
-            ].join(' > '));
-            await armReload(page);
-            await page.getByText('COMPLETE MERGE').click();
+            await mergeOverlay(page).waitFor({ state: 'visible' });
+            await mergeOverlay(page).getByRole('radio', { name: /Source/ }).click();
+            await mergeOverlay(page).locator('.vc-merge-resolve .pcui-button:not(.pcui-disabled)').filter({ hasText: /^Resolve$/ }).click();
+            await completeMerge(page);
 
             // wait for the editor to reload
             await waitReload(page);

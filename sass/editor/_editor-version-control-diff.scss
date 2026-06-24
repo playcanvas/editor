@@ -6,7 +6,7 @@ $vc-add-tint: rgb(63 185 80 / 15%);
 $vc-add-edge: #3fb950;
 
 .vc-diff-overlay {
-    z-index: 300;
+    z-index: 302; // above the vc graph (301) and project picker (300)
 
     // absolutely centred small box (1060x600) that tweens to fullscreen; mirrors
     // .pcui-overlay.picker-project

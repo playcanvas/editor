@@ -61,12 +61,10 @@ editor.once('load', () => {
             editor.emit('picker:diffManager:closed', id);
             handleCallback(editor.api.globals.rest.merge.mergeDelete({ mergeId: id }), () => {});
         }
-        if (closingViaBack) {
-            editor.call('picker:project:resume');
-        } else if (editor.call('picker:isOpen', 'project')) {
-            editor.call('picker:project:resume');
-        } else {
+        if (!closingViaBack && !editor.call('picker:isOpen', 'project')) {
             editor.call('picker:versioncontrol');
+        }
+        if (!editor.call('vcgraph:isHidden')) {
             editor.call('vcgraph:moveToForeground');
         }
         closingViaBack = false;

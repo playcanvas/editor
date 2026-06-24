@@ -7,6 +7,8 @@ editor.once('load', () => {
 
     const LOADING_MSG_DELAY = 70;
 
+    const ACTIVE_NODE_CLASS = 'vc-graph-node-menu-open';
+
     editor.method('vcgraph:makeNodeMenu', (mainPanel: HTMLElement) => {
         const m = new Menu({
             items: [
@@ -21,17 +23,17 @@ editor.once('load', () => {
                     onIsVisible: () => m.node && m.node.histParentNode
                 },
                 {
-                    text: 'Select for Compare',
+                    text: 'Set as Compare Base',
                     onSelect: () => VcMenuUtils.selectForCompare(m),
                     onIsVisible: () => m.node && !VcMenuUtils.isCurSelected(m)
                 },
                 {
-                    text: 'Deselect',
+                    text: 'Clear Compare Base',
                     onSelect: () => VcMenuUtils.deselectCompare(m),
                     onIsVisible: () => m.node && VcMenuUtils.isCurSelected(m)
                 },
                 {
-                    text: 'Compare with Selected',
+                    text: 'Compare with Base',
                     onSelect: () => VcMenuUtils.compareTask(m),
                     onIsVisible: () => {
                         return m.node &&
@@ -66,6 +68,7 @@ editor.once('load', () => {
                 },
                 {
                     text: 'Loading...',
+                    class: 'vc-node-menu-loading-item',
                     onIsVisible: () => !m.node
                 }
             ]
@@ -74,6 +77,11 @@ editor.once('load', () => {
         m.vcMainPanel = mainPanel;
 
         m.class.add('vc-node-menu');
+
+        m.on('hide', () => {
+            m.activeNodeEl?.classList.remove(ACTIVE_NODE_CLASS);
+            m.activeNodeEl = null;
+        });
 
         return m;
     });
@@ -125,16 +133,12 @@ editor.once('load', () => {
         },
 
         viewChangesTask: function (menu: Menu & { node: Record<string, unknown>; vcGraphState: Record<string, unknown> }) {
-            VcMenuUtils.selectForCompare(menu);
-
             const h2 = VcMenuUtils.parentForCompare(menu);
 
             VcMenuUtils.startDiffTask(menu, menu.node, h2, menu.vcGraphState.vcHistItem);
         },
 
         fullCommitForHistTask: function (menu: Menu & { node: Record<string, unknown>; vcGraphState: Record<string, unknown> }) {
-            VcMenuUtils.selectForCompare(menu);
-
             VcMenuUtils.startDiffTask(menu, menu.node, menu.node.histParentNode, null);
         },
 
@@ -167,22 +171,29 @@ editor.once('load', () => {
 
         selectForCompare: function (menu: Menu & { node: Record<string, unknown>; vcGraphState: Record<string, unknown> }) {
             const graph = menu.vcGraphState.graph;
+            const oldNode = graph.selectedForCompare;
 
-            if (graph.selectedForCompare) {
-                editor.call('vcgraph:utils', 'rmSelectedMark', graph);
+            if (oldNode) {
+                oldNode.vcCompareBase = false;
             }
 
+            menu.node.vcCompareBase = true;
             graph.selectedForCompare = menu.node;
 
-            editor.call('vcgraph:utils', 'placeSelectedMark', graph, menu.node.coords);
+            editor.call('vcgraph:utils', 'refreshCompareSelection', menu.vcGraphState, oldNode, menu.node);
         },
 
-        deselectCompare: function (menu: Menu & { vcGraphState: Record<string, unknown> }) {
+        deselectCompare: function (menu: Menu & { vcGraphState: Record<string, unknown>; node?: Record<string, unknown> }) {
             const graph = menu.vcGraphState.graph;
+            const oldNode = graph.selectedForCompare || menu.node;
+
+            if (oldNode) {
+                oldNode.vcCompareBase = false;
+            }
 
             graph.selectedForCompare = null;
 
-            editor.call('vcgraph:utils', 'rmSelectedMark', graph);
+            editor.call('vcgraph:utils', 'refreshCompareSelection', menu.vcGraphState, oldNode);
         },
 
         isCurSelected: function (menu: Menu & { node: Record<string, unknown>; vcGraphState: Record<string, unknown> }) {
@@ -205,12 +216,20 @@ editor.once('load', () => {
             }
         },
 
-        showNodeMenu: function (menu: Menu & { node?: unknown; vcGraphState?: unknown; menuCoords?: { x: number; y: number; w?: number }; position: (x: number, y: number) => void }, h: Record<string, unknown> | null, graphState: Record<string, unknown> | null, coords: { x: number; y: number; w?: number } | null) {
+        showNodeMenu: function (menu: Menu & { activeNodeEl?: Element | null; node?: unknown; vcGraphState?: unknown; menuCoords?: { x: number; y: number; w?: number }; position: (x: number, y: number) => void }, h: Record<string, unknown> | null, graphState: any, coords: { x: number; y: number; w?: number } | null) {
+            if (h) {
+                menu.activeNodeEl?.classList.remove(ACTIVE_NODE_CLASS);
+                menu.activeNodeEl = graphState.graph.view.getNodeDomElement(String(h.id));
+                menu.activeNodeEl?.classList.add(ACTIVE_NODE_CLASS);
+            }
+
             menu.node = h;
 
             menu.vcGraphState = graphState;
 
             menu.menuCoords = coords;
+
+            menu.class.toggle('vc-node-menu-loading', !h);
 
             menu.hidden = false;
 
