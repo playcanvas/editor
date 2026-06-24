@@ -834,8 +834,8 @@ editor.once('load', () => {
     };
 
     const refreshScenes = function () {
-        const content = document.querySelector('.ui-panel.right > .content');
-        const scrollTop = content.scrollTop;
+        const content = container.dom.parentElement;
+        const scrollTop = content?.scrollTop ?? 0;
 
         let selectedScenes = getSelectedScenes();
 
@@ -868,7 +868,9 @@ editor.once('load', () => {
             }
         });
 
-        content.scrollTop = scrollTop;
+        if (content) {
+            content.scrollTop = scrollTop;
+        }
     };
 
     // on show
