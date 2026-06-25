@@ -366,11 +366,14 @@ Manual checks:
 
 ## Task 8: Delete Legacy UI Implementation and Styles
 
+- [x] Complete
+- Verification: `rg "@/common/ui/" src` passed. `rg "Legacy(Button|Canvas|Checkbox|Code|ColorField|Container|CurveField|Element|ImageField|Label|List|ListItem|Menu|MenuItem|NumberField|Overlay|Panel|Progress|SelectField|Slider|TextAreaField|TextField|Tooltip)" src` passed. `src/common/ui/` and `sass/ui/` have no tracked files left. Legacy SASS imports were removed/renamed. `rg "\\.ui-" sass src` still reports intentional PCUI compatibility selectors used by migrated editor fields and pickers. `npm run lint` passed. `npm run build` passed. `npm run type:check` still fails on unrelated repo-wide baseline errors; targeted scan found no missing `@/common/ui` module fallout.
+
 **Files:**
 - Delete: `src/common/ui/`
-- Delete if unused: `sass/ui/_ui.scss`
-- Delete if unused: `sass/ui/_theme-dark.scss`
-- Delete if unused: `sass/common/_ui-common.scss`
+- Move active compatibility styles: `sass/ui/_ui.scss` -> `sass/editor/_editor-pcui-compat.scss`
+- Move active compatibility theme styles: `sass/ui/_theme-dark.scss` -> `sass/editor/_editor-pcui-compat-theme.scss`
+- Move shared overlay styles: `sass/common/_ui-common.scss` -> `sass/common/_shared-overlays.scss`
 - Modify: `sass/editor.scss`
 - Modify: `sass/editor/_editor-main.scss`
 - Modify: `sass/code-editor.scss`

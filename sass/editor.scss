@@ -1,9 +1,9 @@
 @import 'pcui/pcui';
 @import 'common/fonts';
 @import 'common/monaco-merge';
-@import 'ui/ui';
+@import 'editor/editor-pcui-compat';
 @import 'editor/editor-main';
-@import 'ui/theme-dark';
+@import 'editor/editor-pcui-compat-theme';
 @import 'editor/editor-common';
 @import 'editor/editor-version-control-picker';
 @import 'editor/editor-version-control-diff';
