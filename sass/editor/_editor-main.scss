@@ -3559,18 +3559,23 @@ strong {
 // Individual Alert Popup
 .alert {
     position: absolute;
-    flex-direction: row;
-    align-self: center;
-    bottom: 0;
-    left: 12px;
-    width: calc(95% - 50px);
-    padding: 20px 25px;
     display: flex;
     align-items: center;
+    gap: 12px;
     justify-content: space-between;
-    background-color: $error-secondary;
-    font-size: 14px;
-    margin: 10px;
+    left: 20px;
+    right: 20px;
+    bottom: 12px;
+    width: auto;
+    min-height: 48px;
+    margin: 0;
+    padding: 10px 12px;
+    border: 1px solid rgb(168 61 61 / 65%);
+    border-radius: 6px;
+    color: #ff8a8a;
+    background-color: rgb(231 76 60 / 10%);
+    box-shadow: none;
+    font-size: 13px;
     z-index: 10000000;
 
     // Text and icon for the alert dialog
@@ -3578,64 +3583,82 @@ strong {
         @extend .font-regular;
 
         display: flex;
-        flex-direction: row;
         align-items: center;
+        flex: 1 1 auto;
+        gap: 10px;
+        min-width: 0;
 
         .alert--info {
             @extend .font-icon;
 
             &::before {
                 content: '\E218';
-                color: $text-primary;
-                font-size: medium;
-                margin-right: 20px;
+                color: currentcolor;
+                font-size: 16px;
+                line-height: 1;
             }
         }
 
         span {
-            font-size: 14px;
-            color: $text-primary;
-            text-transform: uppercase;
+            margin: 0;
+            color: currentcolor;
+            font-size: 13px;
+            line-height: 18px;
         }
     }
 
     // Upgrade Button
     .btn {
-        position: absolute;
-        right: 70px;
-        color: #e74c3c;
-        background-color: $text-primary !important;
-        border: none !important;
-        padding: 0 50px;
+        @extend .font-bold;
+
+        flex: 0 0 auto;
+        height: 30px;
+        margin: 0;
+        padding: 0 14px;
+        border: 1px solid $error-secondary !important;
+        border-radius: 5px;
+        color: $text-primary;
+        background-color: rgb(231 76 60 / 16%) !important;
+        font-size: 12px;
+        box-shadow: none;
 
         &:hover,
         &:focus {
-            background-color: $bcg-darkest !important;
-            border: none !important;
-            color: #e74c3c;
+            color: $text-primary;
+            background-color: rgb(231 76 60 / 26%) !important;
+            box-shadow: $element-shadow-hover;
         }
     }
 
     // Close Button for dialog
     &-close {
-        display: block;
-        position: relative;
-        font-size: large;
-        background: none !important;
-        border: none;
-        color: $text-primary;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+        width: 28px;
+        height: 28px;
+        margin: 0;
+        padding: 0;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        color: $text-dark;
+        background-color: transparent !important;
         box-shadow: none !important;
         cursor: pointer;
+        transition: color 100ms, background-color 100ms, border-color 100ms;
 
-        &:hover {
-            &::before {
-                color: $bcg-darkest;
-            }
+        &:hover,
+        &:focus {
+            color: $text-primary;
+            border-color: $bcg-darkest;
+            background-color: $bcg-darkest !important;
         }
 
         &::before {
             content: '\2715';
-            font-size: large;
+            font-size: 16px;
+            line-height: 1;
         }
     }
 }
@@ -3679,88 +3702,6 @@ strong {
         }
     }
 
-    // Individual Alert Popup
-    .alert {
-        position: absolute;
-        flex-direction: row;
-        align-self: center;
-        bottom: 0;
-        left: 12px;
-        width: calc(95% - 50px);
-        padding: 20px 25px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        background-color: #e74c3c;
-        font-size: 14px;
-        margin: 10px;
-
-        // Text and icon for the alert dialog
-        &-text {
-            @extend .font-regular;
-
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-
-            .alert--info {
-                @extend .font-icon;
-
-                &::before {
-                    content: '\E218';
-                    color: #fff;
-                    font-size: medium;
-                    margin-right: 20px;
-                }
-            }
-
-            span {
-                font-size: 14px;
-                color: #fff;
-                text-transform: uppercase;
-            }
-        }
-
-        // Upgrade Button
-        .btn {
-            position: absolute;
-            right: 70px;
-            color: #e74c3c;
-            background-color: #fff !important;
-            border: none !important;
-            padding: 0 50px;
-
-            &:hover,
-            &:focus {
-                background-color: $bcg-darkest !important;
-                border: none !important;
-                color: #e74c3c;
-            }
-        }
-
-        // Close Button for dialog
-        &-close {
-            display: block;
-            position: relative;
-            font-size: large;
-            background: none !important;
-            border: none;
-            color: #fff;
-            box-shadow: none;
-            cursor: pointer;
-
-            &:hover {
-                &::before {
-                    color: $bcg-darkest;
-                }
-            }
-
-            &::before {
-                content: '\2715';
-                font-size: large;
-            }
-        }
-    }
 }
 
 .pcui-container.picker-scene-panel {
@@ -6825,12 +6766,16 @@ strong {
 }
 
 .picker-team-management {
-    display: flex;
-    height: calc(100% - 30px);
-    flex-direction: column;
-    align-items: center;
-    gap: 50px;
-    padding: 15px 20px !important;
+    box-sizing: border-box;
+    min-height: 100%;
+    padding: 16px 20px 0 !important;
+    color: $text-primary;
+    font-size: 12px;
+
+    &:not(.pcui-hidden) {
+        display: flex;
+        flex-direction: column;
+    }
 
     .pcui-disabled {
         cursor: not-allowed !important;
@@ -6844,161 +6789,373 @@ strong {
         }
     }
 
-    .section-label {
-        @extend .font-regular;
-
-        color: $text-primary;
-        text-align: start;
-        white-space: pre-wrap;
-        width: 20%;
-    }
-
     > .invite-container {
-        display: flex;
-        justify-content: space-around;
-        width: 100%;
-        height: min-content;
+        flex-shrink: 0;
+        margin: 0 0 12px;
+        padding: 10px 12px;
+        border: 1px solid $border-primary;
+        border-radius: 6px;
+        background-color: rgb(0 0 0 / 8%);
 
-        & > .invite-input-container {
-            position: relative;
+        &:not(.pcui-hidden) {
             display: flex;
-            width: 80%;
-            height: max-content;
+            align-items: flex-start;
+            gap: 10px;
+        }
 
-            & > .invite-input-group {
-                display: flex;
-                height: 100%;
-                width: 100%;
+        > .invite-input-container {
+            flex: 1 1 auto;
+            min-width: 0;
+        }
 
-                > .invite-input {
-                    width: 80%;
-                    height: 28px;
-                    margin-left: 0;
-                    margin-bottom: 0;
+        .invite-input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
 
-                    &::after {
-                        left: 0;
-                        bottom: 0;
-                        right: auto;
-                        font-size: 0.8em;
-                        line-height: 2.5em;
-                    }
+            > .invite-input {
+                flex: 1 1 auto;
+                width: auto;
+                height: 34px;
+                margin: 0;
+                border: 1px solid $bcg-darkest;
+                border-radius: 6px;
+                background-color: $bcg-dark;
+                overflow: hidden;
+
+                > input {
+                    @extend .font-regular;
+
+                    height: 32px;
+                    color: $text-primary;
+                    font-size: 13px;
+                    line-height: 32px;
                 }
 
-                > .invite-submit {
-                    width: 30%;
-                    font-weight: 500;
+                &::after {
+                    line-height: 32px;
+                }
+
+                &:hover {
                     background-color: $bcg-darker;
-                    line-height: normal !important;
-                    border: none;
+                    box-shadow: $element-shadow-hover;
+                }
+
+                &:focus-within {
+                    background-color: $bcg-darkest;
+                    box-shadow: $element-shadow-active;
                 }
             }
 
-            & > .invite-warning {
-                display: block;
-                width: 100%;
-                margin: 5px 0 0;
-                white-space: pre-wrap;
+            > .invite-submit {
+                @extend .font-bold;
 
-                & > .warning-link--white {
-                    color: $text-primary;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                height: 34px;
+                margin: 0;
+                padding: 0 18px;
+                border: 1px solid transparent;
+                border-radius: 6px;
+                color: $text-primary;
+                background-color: $text-active;
+                font-size: 13px;
+                box-shadow: none;
+                transition: background-color 100ms, box-shadow 100ms, opacity 100ms;
+
+                > .pcui-label {
+                    margin: 0;
+                    color: inherit;
+                    font-size: inherit;
+                    line-height: 32px;
                 }
 
-                & > .warning-link::after {
-                    @extend .font-icon;
-
-                    content: '\E112';
-                    margin-left: 5px;
+                &:not(.disabled, .pcui-disabled, .pcui-readonly):hover,
+                &:not(.disabled, .pcui-disabled, .pcui-readonly):focus {
+                    background-color: color.adjust($text-active, $lightness: -7%);
+                    box-shadow: $element-shadow-hover;
                 }
             }
         }
-    }
 
-    > .owner-container {
-        display: flex;
-        justify-content: space-around;
-        width: 100%;
-        height: min-content;
-
-        > .owner-widget-container {
+        .invite-warning {
             display: block;
-            height: min-content;
-            width: 80%;
+            width: 100%;
+            margin: 8px 0 0;
+            color: $text-dark;
+            font-size: 12px;
+            line-height: 17px;
+            white-space: pre-wrap;
+
+            > .warning-link--white {
+                color: $text-primary;
+            }
+
+            > .warning-link::after {
+                @extend .font-icon;
+
+                content: '\E112';
+                margin-left: 5px;
+            }
+        }
+
+        > .members-count {
+            @extend .font-bold;
+
+            flex: 0 0 auto;
+            margin: 7px 0 0;
+            color: $text-dark;
+            font-size: 11px;
+            line-height: 20px;
+            white-space: nowrap;
         }
     }
 
     > .members-container {
-        display: flex;
-        justify-content: space-around;
-        flex-direction: row;
-        width: 100%;
-        height: max-content;
-        max-height: 100%;
+        min-height: 0;
+        margin: 0 0 12px;
+        border: 1px solid $border-primary;
+        border-radius: 6px;
+        background-color: rgb(0 0 0 / 8%);
+        overflow: hidden;
+
+        &:not(.pcui-hidden) {
+            display: flex;
+            flex-direction: column;
+        }
+
+        > .members-header,
+        > .members-grid > .collaborator-container {
+            display: grid;
+            grid-template-columns: minmax(220px, 1fr) 130px 128px 72px;
+            gap: 12px;
+            align-items: center;
+            padding: 0 12px 0 14px;
+        }
+
+        > .members-header {
+            flex: 0 0 auto;
+            height: 34px;
+            border-bottom: 1px solid $border-primary;
+
+            > .pcui-label {
+                @extend .font-bold;
+
+                margin: 0;
+                color: $text-dark;
+                font-size: 10px;
+                line-height: 14px;
+                text-transform: uppercase;
+            }
+        }
 
         > .members-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            grid-auto-rows: min-content;
-            overflow-y: visible;
-            gap: 20px;
-            width: 80%;
+            min-height: 0;
+            overflow-y: auto;
 
-            > .user-collaborator {
-                border-bottom: 1px solid $text-active;
+            > .collaborator-container {
+                min-height: 58px;
+                border-bottom: 1px solid $border-primary;
+                transition: background-color 100ms ease;
+
+                &:last-child {
+                    border-bottom: none;
+                }
+
+                &:hover {
+                    background-color: #354144;
+                }
+
+                &.owner-collaborator:hover {
+                    background-color: transparent;
+                }
+
+                > .member-cell {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    min-width: 0;
+                }
+
+                .collaborator-image {
+                    flex: 0 0 auto;
+                    width: 34px;
+                    height: 34px;
+                    border: 1px solid $border-primary;
+                    border-radius: 4px;
+                    background-color: $bcg-darkest;
+                }
+
+                .collaborator-identity {
+                    min-width: 0;
+                }
+
+                .collaborator-name {
+                    @extend .font-bold;
+
+                    display: block;
+                    margin: 0;
+                    color: $text-primary;
+                    font-size: 14px;
+                    line-height: 18px;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+
+                .collaborator-subtitle {
+                    display: block;
+                    margin: 0;
+                    color: $text-dark;
+                    font-size: 12px;
+                    line-height: 16px;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+
+                > .access-cell {
+                    min-width: 0;
+                }
+
+                .role-select {
+                    width: auto;
+                    min-width: 112px;
+                    height: 22px;
+                    margin: 0;
+                    border: 1px solid $border-primary;
+                    border-radius: 4px;
+                    background-color: rgb(0 0 0 / 10%);
+
+                    .pcui-select-input-container-value {
+                        height: 22px;
+                        border-radius: 4px;
+                    }
+
+                    .pcui-select-input-value,
+                    .pcui-select-input-icon {
+                        height: 22px;
+                        line-height: 20px;
+                    }
+
+                    .pcui-select-input-value {
+                        @extend .font-bold;
+
+                        color: $text-dark;
+                        font-size: 10px;
+                        text-transform: uppercase;
+                    }
+                }
+
+                .team-pill {
+                    @extend .font-bold;
+
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: max-content;
+                    height: 20px;
+                    margin: 0;
+                    padding: 0 7px;
+                    border: 1px solid rgb(255 122 35 / 50%);
+                    border-radius: 4px;
+                    color: $text-active;
+                    background-color: rgb(255 122 35 / 16%);
+                    font-size: 10px;
+                    line-height: 18px;
+                    text-transform: uppercase;
+
+                    &.muted {
+                        border-color: $border-primary;
+                        color: $text-dark;
+                        background-color: rgb(0 0 0 / 10%);
+                    }
+
+                    &.green {
+                        border-color: rgb(111 208 136 / 42%);
+                        color: #6fd088;
+                        background-color: rgb(111 208 136 / 12%);
+                    }
+                }
+
+                > .actions-cell {
+                    display: flex;
+                    justify-content: flex-end;
+                    gap: 4px;
+                }
+
+                .team-action {
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 28px;
+                    height: 28px;
+                    min-width: 0;
+                    margin: 0;
+                    padding: 0;
+                    border: 1px solid transparent;
+                    border-radius: 4px;
+                    color: $text-dark;
+                    background-color: transparent;
+                    box-shadow: none;
+                    transition: color 100ms, background-color 100ms, border-color 100ms, box-shadow 100ms;
+
+                    &[data-icon]::before {
+                        margin: 0;
+                        font-size: 13px;
+                        line-height: 1;
+                    }
+
+                    &:not(.disabled, .pcui-disabled, .pcui-readonly):hover,
+                    &:not(.disabled, .pcui-disabled, .pcui-readonly):focus {
+                        color: $text-primary;
+                        border-color: $bcg-darkest;
+                        background-color: $bcg-dark;
+                        box-shadow: $element-shadow-hover;
+                    }
+                }
             }
         }
     }
 
-    .collaborator-container {
-        height: 62px;
-        margin: 0 10px 0 0;
-        display: grid;
-        grid-template-columns: 62px calc(100% - 62px);
+    > .add-me-as-admin {
+        @extend .font-bold;
 
-        > .collaborator-image {
-            display: inline-block;
-            background-color: white;
+        align-self: flex-start;
+        height: 34px;
+        margin: 0;
+        padding: 0 18px;
+        border: 1px solid transparent;
+        border-radius: 6px;
+        color: $text-primary;
+        background-color: $text-active;
+        font-size: 13px;
+        box-shadow: none;
+    }
+
+    @media (max-width: 760px) {
+        > .invite-container {
+            flex-wrap: wrap;
+
+            > .members-count {
+                margin-top: 0;
+            }
         }
 
-        > .collaborator-right-container {
-            width: calc(100% - 20px);
-            margin-right: 10px;
-            padding: 0 10px;
-            background-color: $bcg-darker;
-
-            > .collaborator-first-row {
-                display: flex;
-                width: 100%;
-                justify-content: space-between;
-
-                > span {
-                    width: calc(100% - 70px);
-                    margin-bottom: 0;
-                }
-
-                > .pcui-button {
-                    box-shadow: none;
-                    margin-top: 0;
-                    margin-right: 0;
-                    margin-bottom: 0;
-                    padding-right: 0;
-                    border: none;
-                    font-size: 1.1em;
-                    background-color: transparent;
-
-                    &:hover:not(.pcui-disabled) {
-                        color: $text-active;
-                    }
-                }
+        > .members-container {
+            > .members-header {
+                display: none;
             }
 
-            > .pcui-select-input {
-                width: 100%;
-                margin-left: 0;
-            }
+            > .members-grid > .collaborator-container {
+                grid-template-columns: minmax(0, 1fr) 64px;
 
-            > span {
-                color: rgba($text-primary, 0.3);
+                > .access-cell,
+                > .team-pill {
+                    display: none;
+                }
             }
         }
     }
