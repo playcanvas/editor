@@ -193,6 +193,7 @@ Manual checks:
 
 - [x] Complete
 - Verification: `rg "@/common/ui/|Legacy(Button|Canvas|Checkbox|Label|NumberField|Overlay|Panel|SelectField|TextField|Tooltip)" src/editor/pickers/picker-color.ts src/editor/pickers/picker-curve.ts src/editor/pickers/picker-gradient.ts` passed. Filtered typecheck found no errors in the migrated picker files; `npm run type:check` still fails on unrelated baseline Legacy UI/common attribute errors. `npm run lint` passed.
+- Follow-up verification: curve picker PCUI wrapper now keeps the legacy horizontal header/footer layout, preserves text-only X/Y/Z channel toggles, resizes canvases after opening, and accepts flat or missing secondary curve key data without throwing. `npm run lint` and `npm run build` passed.
 
 **Files:**
 - Modify: `src/editor/pickers/picker-color.ts`

@@ -956,7 +956,8 @@ a:visited {
 
         > .picker-curve-panel {
             > .picker-curve-header {
-                > .content {
+                > .content,
+                &.pcui-container {
                     .ui-button.picker-curve-toggle,
                     .pcui-button.picker-curve-toggle {
                         border-color: transparent;

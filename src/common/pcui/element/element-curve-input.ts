@@ -374,7 +374,8 @@ class CurveInput extends Element {
 
         if (Array.isArray(value.keys[0])) {
             return (value.keys as number[][]).map((data: number[]) => {
-                const curve = new Curve(data);
+                const keys = Array.isArray(data?.[0]) ? data[0] : data;
+                const curve = new Curve(keys || []);
                 curve.type = value.type;
                 return curve;
             });

@@ -1312,7 +1312,12 @@ strong {
             > .picker-curve-header {
                 padding: 5px 10px;
 
-                > .content {
+                &.pcui-container {
+                    align-items: center;
+                }
+
+                > .content,
+                &.pcui-container {
                     > .ui-button.picker-curve-toggle,
                     > .pcui-button.picker-curve-toggle {
                         float: right;
@@ -1340,7 +1345,12 @@ strong {
             > .picker-curve-footer {
                 padding: 5px 10px;
 
-                > .content {
+                &.pcui-container {
+                    align-items: center;
+                }
+
+                > .content,
+                &.pcui-container {
                     > .ui-number-field,
                     > .pcui-numeric-input {
                         width: 143px;

@@ -82,7 +82,10 @@ editor.once('load', () => {
     overlay.append(panel);
 
     // header
-    const header = new Container();
+    const header = new Container({
+        flex: true,
+        flexDirection: 'row'
+    });
     header.class.add('picker-curve-header');
     header.domContent.classList.add('content');
 
@@ -238,6 +241,9 @@ editor.once('load', () => {
         const btn = new Button();
         btn.class.add('picker-curve-toggle', 'active');
         btn.style.color = colors.curves[3 - i];
+        if (i === 0) {
+            btn.style['margin-left'] = 'auto';
+        }
         curveToggles.splice(0, 0, btn);
         header.append(btn);
 
@@ -272,7 +278,10 @@ editor.once('load', () => {
     panel.appendChild(gradientCanvasDom);
 
     // footer
-    const footer = new Container();
+    const footer = new Container({
+        flex: true,
+        flexDirection: 'row'
+    });
     footer.class.add('picker-curve-footer');
     footer.domContent.classList.add('content');
     panel.appendChild(footer.dom);
@@ -586,7 +595,7 @@ editor.once('load', () => {
         const suspend = suspendEvents;
         suspendEvents = true;
 
-        numCurves = value[0].keys[0].length ? value[0].keys.length : 1;
+        numCurves = Array.isArray(value[0].keys[0]) ? value[0].keys.length : 1;
 
         betweenCurves = value[0].betweenCurves;
         if (betweenCurves && value.length === 1) {
@@ -619,25 +628,21 @@ editor.once('load', () => {
             }
         }
 
+        const getCurveKeys = (keys: any, i: number) => {
+            const data = Array.isArray(keys?.[0]) ? keys[i] : keys;
+            if (!Array.isArray(data)) {
+                return [];
+            }
+            return Array.isArray(data[0]) ? data[0] : data;
+        };
+
         curves.length = 0;
         value.forEach((data: { keys: number[] | number[][] }) => {
             const keys = data?.keys || value[0].keys;
-            if (numCurves === 1) {
-                const c = new Curve(keys as any);
+            for (let i = 0; i < numCurves; i++) {
+                const c = new Curve(getCurveKeys(keys, i));
                 c.type = curveType;
                 curves.push(c);
-            } else if (Array.isArray(keys[0])) {
-                (keys as number[][]).forEach((keys: number[]) => {
-                    const c = new Curve(keys);
-                    c.type = curveType;
-                    curves.push(c);
-                });
-            } else {
-                for (let i = 0; i < numCurves; i++) {
-                    const c = new Curve(keys as number[]);
-                    c.type = curveType;
-                    curves.push(c);
-                }
             }
         });
 
@@ -1613,6 +1618,8 @@ editor.once('load', () => {
     editor.method('picker:curve', (value: { keys: number[][] }[], args?: Record<string, unknown>) => {
         // show overlay
         overlay.hidden = false;
+        canvas.resize(panel.clientWidth, 200);
+        gradientCanvas.resize(panel.clientWidth, 32);
 
         const suspend = suspendEvents;
         suspendEvents = true;
