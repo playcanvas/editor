@@ -1313,7 +1313,8 @@ strong {
                 padding: 5px 10px;
 
                 > .content {
-                    > .ui-button.picker-curve-toggle {
+                    > .ui-button.picker-curve-toggle,
+                    > .pcui-button.picker-curve-toggle {
                         float: right;
                         text-align: center;
                         height: 24px;
@@ -1340,11 +1341,13 @@ strong {
                 padding: 5px 10px;
 
                 > .content {
-                    > .ui-number-field {
+                    > .ui-number-field,
+                    > .pcui-numeric-input {
                         width: 143px;
                     }
 
-                    > .ui-button {
+                    > .ui-button,
+                    > .pcui-button {
                         @extend .font-icon;
 
                         font-size: 14px;
@@ -1390,7 +1393,8 @@ strong {
                 padding: 5px;
 
                 > .content {
-                    > .ui-number-field {
+                    > .ui-number-field,
+                    > .pcui-numeric-input {
                         vertical-align: bottom;
                     }
 
@@ -1398,7 +1402,8 @@ strong {
                         vertical-align: bottom;
                     }
 
-                    > .ui-button {
+                    > .ui-button,
+                    > .pcui-button {
                         @extend .font-icon;
 
                         vertical-align: bottom;

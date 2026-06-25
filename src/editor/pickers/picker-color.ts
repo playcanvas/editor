@@ -1,6 +1,5 @@
-import { LegacyNumberField } from '@/common/ui/number-field';
-import { LegacyOverlay } from '@/common/ui/overlay';
-import { LegacyTextField } from '@/common/ui/text-field';
+import { NumericInput, Overlay, TextInput } from '@playcanvas/pcui';
+
 import { hsv2rgb, rgb2hsv } from '@/core/color';
 
 editor.once('load', () => {
@@ -200,11 +199,13 @@ editor.once('load', () => {
 
 
     // overlay
-    const overlay = new LegacyOverlay();
-    overlay.class.add('picker-color');
-    overlay.center = false;
-    overlay.transparent = true;
-    overlay.hidden = true;
+    const overlay = new Overlay({
+        class: 'picker-color',
+        clickable: true,
+        hidden: true,
+        transparent: true
+    });
+    overlay.domContent.classList.add('content');
 
 
     // rectangular picker
@@ -296,73 +297,74 @@ editor.once('load', () => {
 
 
     // R
-    const fieldR = new LegacyNumberField({
+    const fieldR = new NumericInput({
         precision: 1,
         step: 1,
         min: 0,
-        max: 255
+        max: 255,
+        renderChanges: false,
+        placeholder: 'r',
+        flexGrow: 1
     });
     channels.push(fieldR);
-    fieldR.renderChanges = false;
-    fieldR.placeholder = 'r';
-    fieldR.flexGrow = 1;
     fieldR.class.add('field', 'field-r');
     fieldR.on('change', updateRects);
-    panelFields.appendChild(fieldR.element);
+    panelFields.appendChild(fieldR.dom);
 
     // G
-    const fieldG = new LegacyNumberField({
+    const fieldG = new NumericInput({
         precision: 1,
         step: 1,
         min: 0,
-        max: 255
+        max: 255,
+        renderChanges: false,
+        placeholder: 'g'
     });
     channels.push(fieldG);
-    fieldG.renderChanges = false;
-    fieldG.placeholder = 'g';
     fieldG.class.add('field', 'field-g');
     fieldG.on('change', updateRects);
-    panelFields.appendChild(fieldG.element);
+    panelFields.appendChild(fieldG.dom);
 
     // B
-    const fieldB = new LegacyNumberField({
+    const fieldB = new NumericInput({
         precision: 1,
         step: 1,
         min: 0,
-        max: 255
+        max: 255,
+        renderChanges: false,
+        placeholder: 'b'
     });
     channels.push(fieldB);
-    fieldB.renderChanges = false;
-    fieldB.placeholder = 'b';
     fieldB.class.add('field', 'field-b');
     fieldB.on('change', updateRects);
-    panelFields.appendChild(fieldB.element);
+    panelFields.appendChild(fieldB.dom);
 
 
     // A
-    var fieldA = new LegacyNumberField({
+    var fieldA = new NumericInput({
         precision: 1,
         step: 1,
         min: 0,
-        max: 255
+        max: 255,
+        renderChanges: false,
+        placeholder: 'a'
     });
     channels.push(fieldA);
-    fieldA.renderChanges = false;
-    fieldA.placeholder = 'a';
     fieldA.class.add('field', 'field-a');
     fieldA.on('change', updateRectAlpha);
-    panelFields.appendChild(fieldA.element);
+    panelFields.appendChild(fieldA.dom);
 
 
     // HEX
-    var fieldHex = new LegacyTextField();
-    fieldHex.renderChanges = false;
-    fieldHex.placeholder = '#';
+    var fieldHex = new TextInput({
+        renderChanges: false,
+        placeholder: '#'
+    });
     fieldHex.class.add('field', 'field-hex');
     fieldHex.on('change', () => {
         updateHex();
     });
-    panelFields.appendChild(fieldHex.element);
+    panelFields.appendChild(fieldHex.dom);
 
 
     const root = editor.call('layout.root');
@@ -420,11 +422,10 @@ editor.once('load', () => {
         overlay.hidden = false;
 
         // focus on hex field
-        fieldHex.elementInput.focus();
+        fieldHex.focus();
 
         setTimeout(() => {
-            fieldHex.elementInput.focus();
-            fieldHex.elementInput.select();
+            fieldHex.focus(true);
         }, 100);
     });
 
@@ -433,7 +434,7 @@ editor.once('load', () => {
     });
 
     editor.method('picker:color:rect', () => {
-        return overlay.rect;
+        return overlay.domContent.getBoundingClientRect();
     });
 
     // position color picker
