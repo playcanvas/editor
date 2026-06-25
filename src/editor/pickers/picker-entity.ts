@@ -1,12 +1,13 @@
-import { LegacyOverlay } from '@/common/ui/overlay';
+import { Overlay } from '@playcanvas/pcui';
 
 const CLASS_ENTITY_PICKER_MODE = 'entity-picker-mode';
 
 editor.once('load', () => {
-    const overlay = new LegacyOverlay();
-    overlay.class.add('picker-entity');
-    overlay.center = false;
-    overlay.hidden = true;
+    const overlay = new Overlay({
+        class: 'picker-entity',
+        clickable: true,
+        hidden: true
+    });
 
     const root = editor.call('layout.root');
     root.append(overlay);

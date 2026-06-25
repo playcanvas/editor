@@ -147,6 +147,9 @@ npm run type:check
 
 ## Task 4: Convert Picker Overlays Without Rebuilding Their Flows
 
+- [x] Complete
+- Verification: `rg "@/common/ui/overlay|LegacyOverlay" src/editor/pickers/picker-asset.ts src/editor/pickers/picker-entity.ts src/editor/pickers/picker-node.ts` passed. Filtered typecheck found no errors in those files; remaining `LegacyOverlay` errors are in `picker-gradient.ts` for Task 5. `npm run lint` passed.
+
 **Files:**
 - Modify: `src/editor/pickers/picker-asset.ts`
 - Modify: `src/editor/pickers/picker-entity.ts`
