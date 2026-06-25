@@ -1,8 +1,8 @@
 import { Observer } from '@playcanvas/observer';
 
-import { LegacyButton } from '@/common/ui/button';
-import { LegacyPanel } from '@/common/ui/panel';
 import { config } from '@/editor/config';
+
+import { createButton, createPanel } from './attributes-pcui';
 
 editor.once('load', () => {
     if (!editor.call('settings:project').get('useLegacyScripts')) {
@@ -111,7 +111,7 @@ editor.once('load', () => {
         const scriptNameRegex = /^(?:[\w.-]+\/)*[\w.-]+(?:\.[j|][s|](?:[o|][n|])?)?$/i;
 
         // scripts.add
-        const btnAddScript = new LegacyButton({
+        const btnAddScript = createButton({
             text: 'Add Script'
         });
         btnAddScript.class.add('add-script');
@@ -136,7 +136,7 @@ editor.once('load', () => {
             });
         });
 
-        const panelScripts = new LegacyPanel();
+        const panelScripts = createPanel();
         panelScripts.class.add('components-scripts');
         panel.append(panelScripts);
 
@@ -354,7 +354,7 @@ editor.once('load', () => {
             });
         };
 
-        const updateAttributeFields = function (script: Observer, parent: LegacyPanel) {
+        const updateAttributeFields = function (script: Observer, parent: any) {
             const attributes = script.get('attributesOrder');
             const children = parent.innerElement.childNodes;
             const list = [];
@@ -417,9 +417,9 @@ editor.once('load', () => {
             }
         };
 
-        var createAttributeField = function (script: Observer, attribute: string, parent: LegacyPanel) {
-            let choices = null;
-            attribute = script.get(`attributes.${attribute}`);
+        var createAttributeField = function (script: Observer, attributeName: string, parent: any) {
+            let choices: any = null;
+            const attribute: any = script.get(`attributes.${attributeName}`);
 
             if (attribute.type === 'enumeration') {
                 choices = [{ v: '', t: '...' }];
@@ -455,7 +455,7 @@ editor.once('load', () => {
 
             let field;
 
-            const reference = {
+            const reference: any = {
                 title: attribute.name,
                 subTitle: scriptAttributeRuntimeTypes[attribute.type]
             };
@@ -496,7 +496,7 @@ editor.once('load', () => {
                     type = 'string';
                 }
 
-                const args = {
+                const args: any = {
                     parent: parent,
                     name: attribute.displayName || attribute.name,
                     type: type,
@@ -726,7 +726,7 @@ editor.once('load', () => {
                 return;
             }
 
-            panelScript = new LegacyPanel(script.get('url'));
+            panelScript = createPanel(script.get('url'));
             panelScript.class.add('component-script');
             panelScript.count = 1;
 
@@ -759,7 +759,7 @@ editor.once('load', () => {
             }));
 
             // remove
-            const fieldRemoveScript = new LegacyButton();
+            const fieldRemoveScript = createButton();
             fieldRemoveScript.parent = panelScript;
             fieldRemoveScript.class.add('remove');
             fieldRemoveScript.on('click', (value) => {
@@ -859,7 +859,7 @@ editor.once('load', () => {
             // allow reordering scripts if all entities scripts components are identical
 
             // move down
-            const fieldMoveDown = new LegacyButton();
+            const fieldMoveDown = createButton();
             fieldMoveDown.class.add('move-down');
             fieldMoveDown.element.title = 'Move script down';
             fieldMoveDown.on('click', () => {
@@ -875,7 +875,7 @@ editor.once('load', () => {
             }
 
             // move up
-            const fieldMoveUp = new LegacyButton();
+            const fieldMoveUp = createButton();
             fieldMoveUp.class.add('move-up');
             fieldMoveUp.element.title = 'Move script up';
             fieldMoveUp.on('click', () => {
@@ -890,7 +890,7 @@ editor.once('load', () => {
             }
 
             // refresh attributes
-            const fieldRefreshAttributes = new LegacyButton();
+            const fieldRefreshAttributes = createButton();
             fieldRefreshAttributes.class.add('refresh');
             fieldRefreshAttributes.element.title = 'Refresh script attributes';
             panelScript.headerElement.appendChild(fieldRefreshAttributes.element);
@@ -903,7 +903,7 @@ editor.once('load', () => {
             fieldRefreshAttributes.hidden = true;
 
             // attributes panel
-            const attributes = new LegacyPanel();
+            const attributes = createPanel();
             panelScript.append(attributes);
 
             if (script.has('attributesOrder')) {

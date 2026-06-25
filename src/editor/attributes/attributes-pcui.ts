@@ -5,6 +5,7 @@ import {
     Container,
     Label,
     NumericInput,
+    Overlay,
     Panel,
     Progress,
     SelectInput,
@@ -285,6 +286,8 @@ const createListItem = (args: any = {}) => {
     return item;
 };
 
+const createOverlay = (args: any = {}) => withCompat(new Overlay(args), 'ui-overlay');
+
 const createNumberInput = (args: any = {}) => withCompat(new NumericInput(args), 'ui-number-field');
 
 const createProgress = (args: any = {}) => withCompat(new Progress(args), 'ui-progress');
@@ -339,6 +342,7 @@ export {
     createLabel,
     createList,
     createListItem,
+    createOverlay,
     createNumberInput,
     createPanel,
     createProgress,

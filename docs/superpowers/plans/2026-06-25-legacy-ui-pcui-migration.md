@@ -321,6 +321,9 @@ Manual checks:
 
 ## Task 7: Resolve Legacy Script UI
 
+- [x] Complete
+- Verification: `rg "@/common/ui/|Legacy(Button|Label|List|ListItem|Overlay|Panel)" src/editor/attributes/attributes-components-script.ts src/editor/settings/attributes/settings-attributes-scripts-priority.ts src/editor/index.ts` passed. Filtered typecheck found no errors in the migrated script UI files or shared helper; `npm run type:check` still fails on unrelated repo-wide baseline errors. `npm run lint` passed.
+
 **Files:**
 - Modify or delete: `src/editor/attributes/attributes-components-script.ts`
 - Modify or delete: `src/editor/settings/attributes/settings-attributes-scripts-priority.ts`
