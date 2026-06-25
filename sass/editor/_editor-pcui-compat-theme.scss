@@ -959,15 +959,19 @@ a:visited {
                 > .content {
                     .ui-button.picker-curve-toggle,
                     .pcui-button.picker-curve-toggle {
-                        background-color: $bcg-primary;
+                        border-color: transparent;
+                        background-color: transparent;
                         color: $text-secondary;
+                        box-shadow: none;
 
                         &:hover {
-                            border-color: $bcg-darker;
+                            border-color: transparent;
+                            background-color: transparent;
+                            box-shadow: none;
                         }
 
                         &.active {
-                            background-color: $bcg-darker;
+                            background-color: transparent;
                         }
                     }
                 }

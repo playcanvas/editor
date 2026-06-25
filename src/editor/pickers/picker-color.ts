@@ -302,6 +302,7 @@ editor.once('load', () => {
         step: 1,
         min: 0,
         max: 255,
+        hideSlider: true,
         renderChanges: false,
         placeholder: 'r',
         flexGrow: 1
@@ -317,6 +318,7 @@ editor.once('load', () => {
         step: 1,
         min: 0,
         max: 255,
+        hideSlider: true,
         renderChanges: false,
         placeholder: 'g'
     });
@@ -331,6 +333,7 @@ editor.once('load', () => {
         step: 1,
         min: 0,
         max: 255,
+        hideSlider: true,
         renderChanges: false,
         placeholder: 'b'
     });
@@ -346,6 +349,7 @@ editor.once('load', () => {
         step: 1,
         min: 0,
         max: 255,
+        hideSlider: true,
         renderChanges: false,
         placeholder: 'a'
     });

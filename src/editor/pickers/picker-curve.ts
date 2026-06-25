@@ -153,7 +153,9 @@ editor.once('load', () => {
     labelRandomize.style['margin-left'] = '25px';
     header.append(labelRandomize);
 
-    const fieldRandomize = new BooleanInput();
+    const fieldRandomize = new BooleanInput({
+        type: 'toggle'
+    });
     fieldRandomize.class.add('component-toggle');
     fieldRandomize.on('change', (value: boolean) => {
         let i;
@@ -280,6 +282,7 @@ editor.once('load', () => {
         min: 0,
         max: 1,
         step: 0.1,
+        hideSlider: true,
         renderChanges: false,
         value: 0,
         flexGrow: 1,
@@ -291,6 +294,7 @@ editor.once('load', () => {
 
     // value input field
     const fieldValue = new NumericInput({
+        hideSlider: true,
         renderChanges: false,
         value: 0,
         flexGrow: 1,
