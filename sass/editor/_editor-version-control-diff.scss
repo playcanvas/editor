@@ -232,33 +232,10 @@ $vc-add-edge: #3fb950;
         // .pcui-button): rounded $bcg-dark chip with a $bcg-darkest outline that lifts
         // to primary text + shadow on hover
         > .pcui-select-input {
-            @extend .font-bold;
+            @extend %modern-picker-select;
 
             flex: none;
             width: 110px;
-            margin: 0;
-            border: 1px solid $bcg-darkest;
-            border-radius: 6px;
-            color: $text-secondary;
-            font-size: 12px;
-            box-shadow: none;
-            transition: color 100ms, box-shadow 100ms;
-
-            // pcui paints the fill (and clips corners) on the inner value box
-            .pcui-select-input-container-value {
-                border-radius: 6px;
-                background-color: $bcg-dark;
-            }
-
-            .pcui-select-input-value {
-                color: $text-secondary;
-            }
-
-            &:not(.pcui-disabled):hover,
-            &:not(.pcui-disabled):focus {
-                color: $text-primary;
-                box-shadow: $element-shadow-hover;
-            }
         }
     }
 
