@@ -585,6 +585,10 @@ editor.once('load', () => {
         numCurves = value[0].keys[0].length ? value[0].keys.length : 1;
 
         betweenCurves = value[0].betweenCurves;
+        if (betweenCurves && value.length === 1) {
+            value = [value[0], value[0]];
+        }
+
         fieldRandomize.value = betweenCurves;
 
         curveType = value[0].type;
@@ -612,17 +616,24 @@ editor.once('load', () => {
         }
 
         curves.length = 0;
-        value.forEach((data: { keys: number[][] }) => {
+        value.forEach((data: { keys: number[] | number[][] }) => {
+            const keys = data?.keys || value[0].keys;
             if (numCurves === 1) {
-                const c = new Curve(data.keys as any);
+                const c = new Curve(keys as any);
                 c.type = curveType;
                 curves.push(c);
-            } else {
-                data.keys.forEach((keys: number[]) => {
+            } else if (Array.isArray(keys[0])) {
+                (keys as number[][]).forEach((keys: number[]) => {
                     const c = new Curve(keys);
                     c.type = curveType;
                     curves.push(c);
                 });
+            } else {
+                for (let i = 0; i < numCurves; i++) {
+                    const c = new Curve(keys as number[]);
+                    c.type = curveType;
+                    curves.push(c);
+                }
             }
         });
 
