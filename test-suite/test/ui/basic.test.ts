@@ -55,9 +55,9 @@ test.describe('create/delete', () => {
         expect(await capture('delete-project', page, async () => {
             await page.goto(editorBlankUrl(), { waitUntil: 'networkidle' });
             await page.getByText(projectName).first().click();
-            await page.getByRole('button', { name: 'DELETE PROJECT' }).click();
-            await page.getByRole('textbox').nth(4).fill(projectName);
-            await page.getByRole('button', { name: 'DELETE', exact: true }).click();
+            await page.locator('#delete-project-button').click();
+            await page.locator('.picker-delete-project .form-group--input input').fill(projectName);
+            await page.locator('.picker-delete-project .delete-project-button').click();
         })).toStrictEqual([]);
     });
 });
@@ -99,7 +99,7 @@ test.describe('export/import', () => {
             // save export project
             const downloadPagePromise = page.waitForEvent('popup');
             const downloadPromise = page.waitForEvent('download');
-            await page.getByRole('button', { name: 'EXPORT PROJECT' }).click();
+            await page.getByRole('button', { name: /Export Project/ }).click();
             await downloadPagePromise;
             const download = await downloadPromise;
             await download.saveAs(exportPath);
@@ -130,9 +130,9 @@ test.describe('export/import', () => {
         expect(await capture('delete-imported-project', page, async () => {
             await page.goto(editorBlankUrl(), { waitUntil: 'networkidle' });
             await page.getByText(projectName).first().click();
-            await page.getByRole('button', { name: 'DELETE PROJECT' }).click();
-            await page.getByRole('textbox').nth(4).fill(projectName);
-            await page.getByRole('button', { name: 'DELETE', exact: true }).click();
+            await page.locator('#delete-project-button').click();
+            await page.locator('.picker-delete-project .form-group--input input').fill(projectName);
+            await page.locator('.picker-delete-project .delete-project-button').click();
         })).toStrictEqual([]);
     });
 });
