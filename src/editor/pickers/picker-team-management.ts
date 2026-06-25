@@ -1,4 +1,4 @@
-import { Element, Label, Button, SelectInput, Container, TextInput } from '@playcanvas/pcui';
+import { Element, Label, Button, Menu, MenuItem, Container, TextInput } from '@playcanvas/pcui';
 
 const ACCESS_LEVEL_LABELS = new Map([
     ['admin', 'Admin'],
@@ -17,6 +17,7 @@ editor.once('load', () => {
     let invitations = [];
     let uiRefresh = false;
     let ownerRendered = false;
+    let activeRoleButton;
     const newCollaborator = {
         id: null,
         user: null,
@@ -141,9 +142,13 @@ editor.once('load', () => {
             });
             accessCell.dom.appendChild(accessLevelLabel.dom);
         } else {
-            const accessLevelDropdown = new SelectInput({
+            const accessLevelDropdown = new Button({
                 class: 'role-select',
-                options: [{
+                text: accessLabel
+            });
+            accessLevelDropdown.on('click', () => {
+                roleMenu.clear();
+                [{
                     v: 'read',
                     t: 'Read Only'
                 }, {
@@ -152,27 +157,26 @@ editor.once('load', () => {
                 }, {
                     v: 'admin',
                     t: 'Admin'
-                }],
-                value: collaborator.access_level
-            });
+                }].forEach((option) => {
+                    roleMenu.append(new MenuItem({
+                        text: option.t,
+                        class: option.v === collaborator.access_level ? 'selected' : '',
+                        onSelect: () => {
+                            accessLevelDropdown.text = option.t;
+                            updateCollaborator(collaborator, option.v);
+                        }
+                    }));
+                });
 
-            accessLevelDropdown.on('change', () => {
-                updateCollaborator(collaborator, accessLevelDropdown.value);
-            });
-            accessLevelDropdown.on('click', () => {
-                if (!accessLevelDropdown.dom.classList.contains('pcui-open')) {
-                    return;
+                if (activeRoleButton && activeRoleButton !== accessLevelDropdown) {
+                    activeRoleButton.class.remove('active');
                 }
+                activeRoleButton = accessLevelDropdown;
+                accessLevelDropdown.class.add('active');
+                roleMenu.hidden = false;
 
-                const list = accessLevelDropdown.dom.querySelector('.pcui-select-input-list');
-                if (!list) {
-                    return;
-                }
-
-                const overflow = list.getBoundingClientRect().bottom - membersGrid.dom.getBoundingClientRect().bottom;
-                if (overflow > 0) {
-                    membersGrid.dom.scrollTop += overflow + 4;
-                }
+                const rect = accessLevelDropdown.dom.getBoundingClientRect();
+                roleMenu.position(rect.left, rect.bottom);
             });
 
             accessCell.dom.appendChild(accessLevelDropdown.dom);
@@ -336,6 +340,15 @@ editor.once('load', () => {
         flex: true
     });
     membersContainer.append(membersGrid);
+
+    const roleMenu = new Menu({ class: ['picker-builds-filter-menu', 'team-role-menu'] });
+    editor.call('layout.root').append(roleMenu);
+    roleMenu.on('hide', () => {
+        if (activeRoleButton) {
+            activeRoleButton.class.remove('active');
+        }
+        activeRoleButton = null;
+    });
 
     const addMeAsAdminButton = new Button({
         class: 'add-me-as-admin',
@@ -637,6 +650,7 @@ editor.once('load', () => {
 
     // on hide
     panel.on('hide', () => {
+        roleMenu.hidden = true;
         destroyEvents();
         editor.call('picker:project:hideAlerts');
 
@@ -671,6 +685,7 @@ editor.once('load', () => {
     // hook to reload UI on project change
     editor.method('picker:team:management:refreshUI', () => {
         currentProject = editor.call('picker:project:getCurrent');
+        roleMenu.hidden = true;
         uiRefresh = true;
         membersGrid.dom.innerHTML = '';
         ownerRendered = false;

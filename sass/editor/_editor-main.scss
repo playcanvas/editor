@@ -7021,59 +7021,53 @@ strong {
                 }
 
                 .role-select {
-                    width: auto;
-                    min-width: 112px;
+                    @extend .font-bold;
+
+                    display: inline-flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    width: 112px;
                     height: 22px;
                     margin: 0;
+                    padding: 0 7px;
                     border: 1px solid $border-primary;
                     border-radius: 4px;
+                    color: $text-dark;
                     background-color: rgb(0 0 0 / 10%);
+                    font-size: 10px;
+                    line-height: 20px;
+                    text-transform: uppercase;
+                    box-shadow: none;
+                    cursor: pointer;
+                    transition: color 100ms, background-color 100ms, border-color 100ms, box-shadow 100ms;
 
-                    &.pcui-open {
-                        z-index: 2;
+                    &::after {
+                        content: '';
+                        width: 8px;
+                        height: 8px;
+                        margin-left: 6px;
+                        background-color: currentcolor;
+                        mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 6h8l-4 4-4-4Z'/%3E%3C/svg%3E") center / contain no-repeat;
+                        transition: transform 100ms;
                     }
 
-                    .pcui-select-input-container-value {
-                        height: 22px;
-                        border-radius: 4px;
-                    }
-
-                    .pcui-select-input-value,
-                    .pcui-select-input-icon {
-                        height: 22px;
-                        line-height: 20px;
-                    }
-
-                    .pcui-select-input-value {
-                        @extend .font-bold;
-
-                        color: $text-dark;
-                        font-size: 10px;
-                        text-transform: uppercase;
-                    }
-
-                    .pcui-select-input-list {
-                        border: 1px solid $border-primary;
-                        border-radius: 4px;
-                        background-color: $bcg-darker;
+                    &:hover,
+                    &:focus {
+                        color: $text-primary;
+                        background-color: $bcg-dark;
+                        border-color: $bcg-darkest;
                         box-shadow: $element-shadow-hover;
-                        overflow: hidden auto;
+                    }
 
-                        > .pcui-label {
-                            @extend .font-regular;
+                    &.active {
+                        color: $text-primary;
+                        background-color: $bcg-darkest;
+                        border-color: $border-primary;
+                        box-shadow: $element-shadow-active;
+                    }
 
-                            height: 24px;
-                            color: $text-secondary;
-                            font-size: 12px;
-                            line-height: 24px;
-                            background-color: $bcg-darker;
-
-                            &:hover,
-                            &.pcui-select-input-label-highlighted {
-                                color: $text-primary;
-                                background-color: $bcg-darkest;
-                            }
-                        }
+                    &.active::after {
+                        transform: rotate(180deg);
                     }
                 }
 
