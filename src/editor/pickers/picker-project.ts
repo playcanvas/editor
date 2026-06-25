@@ -1,7 +1,5 @@
 import { Button, Container, Element, Label, Overlay, Panel } from '@playcanvas/pcui';
 
-import { LegacyList } from '@/common/ui/list';
-import { LegacyListItem } from '@/common/ui/list-item';
 import { bytesToHuman } from '@/common/utils';
 import { config } from '@/editor/config';
 
@@ -440,8 +438,11 @@ editor.once('load', () => {
     });
 
     // menu
-    const list = new LegacyList();
-    leftPanel.dom.appendChild(list.element);
+    const list = new Container({
+        dom: 'ul',
+        class: ['ui-list', 'selectable']
+    });
+    leftPanel.dom.appendChild(list.dom);
 
     // project CMS button
     const projectCMSButton = new Button({
@@ -654,7 +655,21 @@ editor.once('load', () => {
 
     // register new panel / menu option
     editor.method('picker:project:registerMenu', (name, title, panel, displayName = '') => {
-        const menuItem = new LegacyListItem({ text: MENU_LABELS.get(name) || displayName || name });
+        const menuItem = new Container({
+            dom: 'li',
+            class: 'ui-list-item'
+        }) as Container & { text: string };
+        const menuItemText = document.createElement('span');
+        Object.defineProperty(menuItem, 'text', {
+            get() {
+                return menuItemText.textContent;
+            },
+            set(value: string) {
+                menuItemText.textContent = value;
+            }
+        });
+        menuItem.text = MENU_LABELS.get(name) || displayName || name;
+        menuItem.dom.appendChild(menuItemText);
 
         if (title === 'PROJECT SETTINGS') {
             projectSettingsListMenu = menuItem;

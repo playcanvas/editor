@@ -2,8 +2,6 @@ import type { EventHandle } from '@playcanvas/observer';
 import { BooleanInput, Button, Container, Element, Label, Progress, SelectInput, TextAreaInput, TextInput } from '@playcanvas/pcui';
 
 import { tooltip, tooltipSimpleItem } from '@/common/tooltips';
-import { LegacyList } from '@/common/ui/list';
-import { LegacyListItem } from '@/common/ui/list-item';
 import { convertDatetime } from '@/common/utils';
 import { config } from '@/editor/config';
 
@@ -490,8 +488,10 @@ editor.once('load', () => {
     selectAllGroup.append(selectAll);
 
     // scenes container
-    const sceneList = new LegacyList();
-    sceneList.class.add('scene-list');
+    const sceneList = new Container({
+        dom: 'ul',
+        class: ['ui-list', 'scene-list']
+    });
     containerScenes.append(sceneList);
 
     const containerNoScenes = new Container({
@@ -714,8 +714,13 @@ editor.once('load', () => {
     };
 
     const createSceneItem = function (scene: any) {
-        const row: any = new LegacyListItem();
-        row.element.id = `picker-scene-${scene.id}`;
+        const row: any = new Container({
+            dom: 'li',
+            id: `picker-scene-${scene.id}`,
+            class: 'ui-list-item'
+        });
+        const rowText = document.createElement('span');
+        row.dom.appendChild(rowText);
         row.sceneId = scene.id;
 
         sceneList.append(row);
@@ -736,7 +741,7 @@ editor.once('load', () => {
             class: 'primary-tooltip-anchor'
         });
         primary.dom.appendChild(tooltipAnchor.dom);
-        row.element.appendChild(primary.dom);
+        row.append(primary);
 
         primary.on('click', () => {
             if (!editor.call('permissions:write')) {
@@ -771,18 +776,18 @@ editor.once('load', () => {
             text: scene.name,
             class: 'name'
         });
-        row.element.appendChild(name.dom);
+        row.append(name);
 
         // scene date
         const date = new Label({
             text: convertDatetime(scene.modified),
             class: 'date'
         });
-        row.element.appendChild(date.dom);
+        row.append(date);
 
         // selection
         const select = new BooleanInput();
-        row.element.appendChild(select.dom);
+        row.append(select);
 
         // if selectAll changes then change this too
         events.push(selectAll.on('change', (value) => {
@@ -849,7 +854,7 @@ editor.once('load', () => {
 
         destroyTooltips();
         destroyEvents();
-        sceneList.element.innerHTML = '';
+        sceneList.clear();
         sortScenes(scenes);
         containerScenes.hidden = !scenes.length;
         containerNoScenes.hidden = !containerScenes.hidden;
@@ -879,7 +884,7 @@ editor.once('load', () => {
         labelNoScenes.hidden = true;
         loadingScenes.hidden = false;
         progressBar.hidden = false;
-        sceneList.element.innerHTML = '';
+        sceneList.clear();
         inputName.value = config.project.name;
         inputDescription.value = config.project.description;
         inputVersion.value = '';
