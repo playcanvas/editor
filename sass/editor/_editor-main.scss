@@ -20,6 +20,195 @@ strong {
     @extend .font-bold;
 }
 
+%modern-picker-card {
+    border: 1px solid $border-primary;
+    border-radius: 6px;
+    background-color: rgb(0 0 0 / 8%);
+}
+
+%modern-picker-checkbox {
+    flex: none;
+    appearance: none;
+    position: relative;
+    width: 16px;
+    height: 16px;
+    border: 1px solid $border-primary;
+    border-radius: 3px;
+    background-color: $bcg-darkest;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: background-color 100ms, border-color 100ms, box-shadow 100ms;
+
+    &:hover {
+        border-color: rgb(255 102 0 / 55%);
+        background-color: rgb(255 102 0 / 8%);
+    }
+
+    &:focus {
+        outline: none;
+        box-shadow: $element-shadow-active;
+    }
+
+    &:checked,
+    &.pcui-boolean-input-ticked {
+        border-color: $text-active;
+        background: $text-active url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.5 8.2 6.5 11 12.5 4.5' fill='none' stroke='%23fff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 13px 13px no-repeat;
+
+        &::after {
+            display: none;
+        }
+    }
+}
+
+%modern-picker-select {
+    @extend .font-bold;
+
+    margin: 0;
+    border: 1px solid $bcg-darkest;
+    border-radius: 6px;
+    color: $text-secondary;
+    font-size: 12px;
+    box-shadow: none;
+    transition: color 100ms, box-shadow 100ms;
+
+    .pcui-select-input-container-value {
+        border-radius: 6px;
+        background-color: $bcg-dark;
+    }
+
+    .pcui-select-input-value {
+        color: $text-secondary;
+    }
+
+    &:not(.pcui-disabled):hover,
+    &:not(.pcui-disabled):focus {
+        color: $text-primary;
+        box-shadow: $element-shadow-hover;
+    }
+}
+
+%modern-picker-status {
+    flex: 0 0 24px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    border: 1px solid $border-primary;
+    color: $text-dark;
+    background-color: $bcg-darkest;
+    box-sizing: border-box;
+    position: relative;
+
+    &.complete {
+        color: #6fd088;
+        border-color: #3e8c54;
+        background-color: rgb(46 160 67 / 12%);
+
+        &::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 9px;
+            height: 5px;
+            border-bottom: 2px solid currentcolor;
+            border-left: 2px solid currentcolor;
+            box-sizing: border-box;
+            transform: translate(-50%, -60%) rotate(-45deg);
+        }
+    }
+
+    &.error {
+        color: #ff8a8a;
+        border-color: #a83d3d;
+        background-color: rgb(231 76 60 / 12%);
+
+        &::before,
+        &::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 11px;
+            height: 2px;
+            background-color: currentcolor;
+        }
+
+        &::before { transform: translate(-50%, -50%) rotate(45deg); }
+        &::after { transform: translate(-50%, -50%) rotate(-45deg); }
+    }
+
+    &.running {
+        border-color: $text-dark;
+        background-color: transparent;
+
+        &::after {
+            content: '';
+            width: 12px;
+            height: 12px;
+            border: 2px solid $text-dark;
+            border-top-color: $text-active;
+            border-radius: 50%;
+            animation: build-status-spin 800ms linear infinite;
+        }
+    }
+}
+
+%modern-picker-badge {
+    @extend .font-regular;
+
+    flex: 0 0 auto;
+    height: 18px;
+    line-height: 18px;
+    padding: 0 6px;
+    border: 1px solid $border-primary;
+    border-radius: 4px;
+    color: $text-dark;
+    background-color: rgb(0 0 0 / 14%);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0;
+
+    &.publish {
+        color: #9dd4ff;
+        border-color: rgb(110 170 220 / 45%);
+    }
+
+    &.download {
+        color: #f3c16f;
+        border-color: rgb(225 166 62 / 45%);
+    }
+
+    &.primary-badge {
+        color: $text-active;
+        border-color: rgb(255 122 35 / 50%);
+    }
+}
+
+%modern-picker-name-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    line-height: 20px;
+
+    > .name {
+        @extend .font-bold;
+
+        min-width: 0;
+        max-width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 14px;
+        color: $text-primary;
+        margin: 0;
+    }
+}
+
 .noSelect {
     user-select: none;
 }
@@ -4242,11 +4431,10 @@ strong {
 
     // card sections matching the build detail page
     > .form-section {
+        @extend %modern-picker-card;
+
         margin: 0 0 12px;
         padding: 14px 16px;
-        border: 1px solid $border-primary;
-        border-radius: 6px;
-        background-color: rgb(0 0 0 / 8%);
 
         &:not(.pcui-hidden) {
             display: flex;
@@ -4406,9 +4594,10 @@ strong {
 
     .pcui-select-input.engine-version-dropdown,
     .pcui-select-input.download-format-dropdown {
+        @extend %modern-picker-select;
+
         width: 100%;
         max-width: 340px;
-        margin: 0;
     }
 
     .pcui-container.options > .pcui-container.field {
@@ -4427,7 +4616,8 @@ strong {
         }
 
         > .pcui-boolean-input {
-            flex: 0 0 auto;
+            @extend %modern-picker-checkbox;
+
             margin: 0;
         }
 
@@ -4693,12 +4883,11 @@ strong {
     }
 
     > .scenes-empty {
+        @extend %modern-picker-card;
+
         margin: 0 0 12px;
         padding: 14px 16px;
-        border: 1px solid $border-primary;
-        border-radius: 6px;
         color: $text-dark;
-        background-color: rgb(0 0 0 / 8%);
         box-sizing: border-box;
 
         > .pcui-label {
@@ -4946,127 +5135,17 @@ strong {
 
     // shared build-status indicator (list rows + detail header)
     .status {
-        flex: 0 0 24px;
-        width: 24px;
-        height: 24px;
-        border-radius: 50%;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 14px;
-        border: 1px solid $border-primary;
-        color: $text-dark;
-        background-color: $bcg-darkest;
-        box-sizing: border-box;
-        position: relative;
-
-        &.complete {
-            color: #6fd088;
-            border-color: #3e8c54;
-            background-color: rgb(46 160 67 / 12%);
-
-            &::before {
-                content: '';
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                width: 9px;
-                height: 5px;
-                border-bottom: 2px solid currentcolor;
-                border-left: 2px solid currentcolor;
-                box-sizing: border-box;
-                transform: translate(-50%, -60%) rotate(-45deg);
-            }
-        }
-
-        &.error {
-            color: #ff8a8a;
-            border-color: #a83d3d;
-            background-color: rgb(231 76 60 / 12%);
-
-            &::before,
-            &::after {
-                content: '';
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                width: 11px;
-                height: 2px;
-                background-color: currentcolor;
-            }
-
-            &::before { transform: translate(-50%, -50%) rotate(45deg); }
-            &::after { transform: translate(-50%, -50%) rotate(-45deg); }
-        }
-
-        &.running {
-            border-color: $text-dark;
-            background-color: transparent;
-
-            &::after {
-                content: '';
-                width: 12px;
-                height: 12px;
-                border: 2px solid $text-dark;
-                border-top-color: $text-active;
-                border-radius: 50%;
-                animation: build-status-spin 800ms linear infinite;
-            }
-        }
+        @extend %modern-picker-status;
     }
 
     // shared badge pills (list rows + detail header)
     .badge {
-        @extend .font-regular;
-
-        flex: 0 0 auto;
-        height: 18px;
-        line-height: 18px;
-        padding: 0 6px;
-        border: 1px solid $border-primary;
-        border-radius: 4px;
-        color: $text-dark;
-        background-color: rgb(0 0 0 / 14%);
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 0;
-
-        &.publish {
-            color: #9dd4ff;
-            border-color: rgb(110 170 220 / 45%);
-        }
-
-        &.download {
-            color: #f3c16f;
-            border-color: rgb(225 166 62 / 45%);
-        }
-
-        &.primary-badge {
-            color: $text-active;
-            border-color: rgb(255 122 35 / 50%);
-        }
+        @extend %modern-picker-badge;
     }
 
     // shared name + badges row (list rows + detail header)
     .name-row {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        min-width: 0;
-        line-height: 20px;
-
-        > .name {
-            @extend .font-bold;
-
-            min-width: 0;
-            max-width: 100%;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            font-size: 14px;
-            color: $text-primary;
-            margin: 0;
-        }
+        @extend %modern-picker-name-row;
     }
 
     > .primary-build-summary {
@@ -5631,104 +5710,11 @@ strong {
     }
 
     .status {
-        flex: 0 0 24px;
-        width: 24px;
-        height: 24px;
-        border-radius: 50%;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 14px;
-        border: 1px solid $border-primary;
-        color: $text-dark;
-        background-color: $bcg-darkest;
-        box-sizing: border-box;
-        position: relative;
-
-        &.complete {
-            color: #6fd088;
-            border-color: #3e8c54;
-            background-color: rgb(46 160 67 / 12%);
-
-            &::before {
-                content: '';
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                width: 9px;
-                height: 5px;
-                border-bottom: 2px solid currentcolor;
-                border-left: 2px solid currentcolor;
-                box-sizing: border-box;
-                transform: translate(-50%, -60%) rotate(-45deg);
-            }
-        }
-
-        &.error {
-            color: #ff8a8a;
-            border-color: #a83d3d;
-            background-color: rgb(231 76 60 / 12%);
-
-            &::before,
-            &::after {
-                content: '';
-                position: absolute;
-                top: 50%;
-                left: 50%;
-                width: 11px;
-                height: 2px;
-                background-color: currentcolor;
-            }
-
-            &::before { transform: translate(-50%, -50%) rotate(45deg); }
-            &::after { transform: translate(-50%, -50%) rotate(-45deg); }
-        }
-
-        &.running {
-            border-color: $text-dark;
-            background-color: transparent;
-
-            &::after {
-                content: '';
-                width: 12px;
-                height: 12px;
-                border: 2px solid $text-dark;
-                border-top-color: $text-active;
-                border-radius: 50%;
-                animation: build-status-spin 800ms linear infinite;
-            }
-        }
+        @extend %modern-picker-status;
     }
 
     .badge {
-        @extend .font-regular;
-
-        flex: 0 0 auto;
-        height: 18px;
-        line-height: 18px;
-        padding: 0 6px;
-        border: 1px solid $border-primary;
-        border-radius: 4px;
-        color: $text-dark;
-        background-color: rgb(0 0 0 / 14%);
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 0;
-
-        &.publish {
-            color: #9dd4ff;
-            border-color: rgb(110 170 220 / 45%);
-        }
-
-        &.download {
-            color: #f3c16f;
-            border-color: rgb(225 166 62 / 45%);
-        }
-
-        &.primary-badge {
-            color: $text-active;
-            border-color: rgb(255 122 35 / 50%);
-        }
+        @extend %modern-picker-badge;
     }
 
     .name-row {
@@ -6396,11 +6382,10 @@ strong {
     }
 
     & > .project-settings {
+        @extend %modern-picker-card;
+
         margin: 0 0 12px;
         padding: 14px 16px;
-        border: 1px solid $border-primary;
-        border-radius: 6px;
-        background-color: rgb(0 0 0 / 8%);
 
         &:not(.pcui-hidden) {
             display: flex;
@@ -6570,11 +6555,10 @@ strong {
     }
 
     & > .locked-container {
+        @extend %modern-picker-card;
+
         margin: 0 0 12px;
         padding: 14px 16px;
-        border: 1px solid $border-primary;
-        border-radius: 6px;
-        background-color: rgb(0 0 0 / 8%);
 
         &:not(.pcui-hidden) {
             display: flex;
@@ -6790,12 +6774,11 @@ strong {
     }
 
     > .invite-container {
+        @extend %modern-picker-card;
+
         flex-shrink: 0;
         margin: 0 0 12px;
         padding: 10px 12px;
-        border: 1px solid $border-primary;
-        border-radius: 6px;
-        background-color: rgb(0 0 0 / 8%);
 
         &:not(.pcui-hidden) {
             display: flex;
@@ -6914,11 +6897,10 @@ strong {
     }
 
     > .members-container {
+        @extend %modern-picker-card;
+
         min-height: 0;
         margin: 0 0 12px;
-        border: 1px solid $border-primary;
-        border-radius: 6px;
-        background-color: rgb(0 0 0 / 8%);
         overflow: hidden;
 
         &:not(.pcui-hidden) {
