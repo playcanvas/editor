@@ -251,6 +251,9 @@ Manual checks:
 
 ## Task 6: Migrate Generic Attribute Fields
 
+- [x] Complete
+- Verification: `rg "@/common/ui/|Legacy(Button|Checkbox|Code|ColorField|CurveField|ImageField|Label|List|ListItem|NumberField|Panel|Progress|SelectField|Slider|TextAreaField|TextField)" src/editor/attributes/attributes-panel.ts src/editor/attributes/attributes-array.ts src/editor/attributes/attributes-assets-list.ts src/editor/attributes/attributes-entity.ts src/editor/attributes/attributes-history.ts src/editor/attributes/reference/reference.ts` passed. Filtered typecheck found no errors in the migrated Task 6 files; `npm run type:check` still fails on unrelated repo-wide baseline errors. `npm run lint` passed.
+
 **Files:**
 - Modify: `src/editor/attributes/attributes-panel.ts`
 - Modify: `src/editor/attributes/attributes-array.ts`
@@ -258,6 +261,7 @@ Manual checks:
 - Modify: `src/editor/attributes/attributes-entity.ts`
 - Modify: `src/editor/attributes/attributes-history.ts`
 - Modify: `src/editor/attributes/reference/reference.ts`
+- Add: `src/editor/attributes/attributes-pcui.ts`
 
 This is the main island. Convert the dynamic `attributes:*` methods in place while preserving their Caller contracts.
 

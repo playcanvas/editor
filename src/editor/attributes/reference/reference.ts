@@ -89,22 +89,26 @@ editor.once('load', () => {
         let timerHover = null;
         let timerBlur = null;
 
-        tooltip.attach = function (args: {
-            target?: HTMLElement,
+        (tooltip as any).attach = function (args: {
+            target?: any,
             element?: HTMLElement,
-            panel?: HTMLElement
+            panel?: any
         }) {
             let target = args.target;
-            let element = args.element;
-            let targetPanel = args.panel || panel;
-            targetPanel = targetPanel.dom || targetPanel.element;
+            let element = args.element || target?.element || target?.dom || target;
+            let targetPanel: any = args.panel || panel;
+            targetPanel = targetPanel.dom || targetPanel.element || targetPanel;
+
+            if (!target || !element) {
+                return;
+            }
 
             const show = function () {
                 if (!target || target.hidden) {
                     return;
                 }
                 // fix top offset for new framework
-                const topOffset = (element.ui instanceof Element ? 6 : 16);
+                const topOffset = ((element as any).ui instanceof Element ? 6 : 16);
                 tooltip.position(targetPanel.getBoundingClientRect().left, element.getBoundingClientRect().top + topOffset);
                 tooltip.hidden = false;
             };
