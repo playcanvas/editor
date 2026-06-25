@@ -236,7 +236,8 @@ a:visited {
     }
 }
 
-.ui-tooltip {
+.ui-tooltip,
+.pcui-tooltip {
     padding: 0;
 
     &.flip {
