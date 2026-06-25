@@ -7029,9 +7029,18 @@ strong {
                     border-radius: 4px;
                     background-color: rgb(0 0 0 / 10%);
 
+                    &.pcui-open {
+                        z-index: 2;
+                    }
+
                     .pcui-select-input-container-value {
                         height: 22px;
                         border-radius: 4px;
+                    }
+
+                    .pcui-select-input-shadow {
+                        top: initial;
+                        bottom: 0;
                     }
 
                     .pcui-select-input-value,
@@ -7046,6 +7055,32 @@ strong {
                         color: $text-dark;
                         font-size: 10px;
                         text-transform: uppercase;
+                    }
+
+                    .pcui-select-input-list {
+                        top: initial;
+                        bottom: 100%;
+                        border: 1px solid $border-primary;
+                        border-radius: 4px;
+                        background-color: $bcg-darker;
+                        box-shadow: $element-shadow-hover;
+                        overflow: hidden auto;
+
+                        > .pcui-label {
+                            @extend .font-regular;
+
+                            height: 24px;
+                            color: $text-secondary;
+                            font-size: 12px;
+                            line-height: 24px;
+                            background-color: $bcg-darker;
+
+                            &:hover,
+                            &.pcui-select-input-label-highlighted {
+                                color: $text-primary;
+                                background-color: $bcg-darkest;
+                            }
+                        }
                     }
                 }
 
