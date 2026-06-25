@@ -1,7 +1,6 @@
 import { Button } from '@playcanvas/pcui';
 
 import { TooltipHandle } from '@/common/tooltips';
-import { LegacyButton } from '@/common/ui/button';
 
 editor.once('load', () => {
     const root = editor.call('layout.root');
@@ -60,10 +59,10 @@ editor.once('load', () => {
     elUV1.textContent = 'UV1 is missing on some models. Please upload models with UV1 or use ';
     tooltipBake.innerElement.appendChild(elUV1);
 
-    const btnAutoUnwrap = new LegacyButton({
+    const btnAutoUnwrap = new Button({
         text: 'Auto-Unwrap'
     });
-    elUV1.appendChild(btnAutoUnwrap.element);
+    elUV1.appendChild(btnAutoUnwrap.dom);
     btnAutoUnwrap.on('click', () => {
         if (!uv1Missing) {
             return;

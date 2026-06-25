@@ -112,6 +112,9 @@ Manual checks:
 
 ## Task 3: Convert Simple Leaf Widgets
 
+- [x] Complete
+- Verification: converted `templates-override-panel.ts`, `sprite-editor-frames-related-sprites-panel.ts`, and `toolbar-lightmapper.ts`; targeted `rg` check passed for those files. Filtered typecheck found no new errors in those files. `npm run lint` passed. `hotkey.ts` cleanup is deferred until the remaining `LegacyList` consumers are gone.
+
 **Files:**
 - Modify: `src/editor/templates/templates-override-panel.ts`
 - Modify: `src/editor/pickers/sprite-editor/sprite-editor-frames-related-sprites-panel.ts`
