@@ -7038,11 +7038,6 @@ strong {
                         border-radius: 4px;
                     }
 
-                    .pcui-select-input-shadow {
-                        top: initial;
-                        bottom: 0;
-                    }
-
                     .pcui-select-input-value,
                     .pcui-select-input-icon {
                         height: 22px;
@@ -7058,8 +7053,6 @@ strong {
                     }
 
                     .pcui-select-input-list {
-                        top: initial;
-                        bottom: 100%;
                         border: 1px solid $border-primary;
                         border-radius: 4px;
                         background-color: $bcg-darker;

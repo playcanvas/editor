@@ -159,6 +159,21 @@ editor.once('load', () => {
             accessLevelDropdown.on('change', () => {
                 updateCollaborator(collaborator, accessLevelDropdown.value);
             });
+            accessLevelDropdown.on('click', () => {
+                if (!accessLevelDropdown.dom.classList.contains('pcui-open')) {
+                    return;
+                }
+
+                const list = accessLevelDropdown.dom.querySelector('.pcui-select-input-list');
+                if (!list) {
+                    return;
+                }
+
+                const overflow = list.getBoundingClientRect().bottom - membersGrid.dom.getBoundingClientRect().bottom;
+                if (overflow > 0) {
+                    membersGrid.dom.scrollTop += overflow + 4;
+                }
+            });
 
             accessCell.dom.appendChild(accessLevelDropdown.dom);
         }
