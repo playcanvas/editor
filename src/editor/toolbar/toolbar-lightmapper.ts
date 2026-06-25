@@ -1,7 +1,7 @@
 import { Button } from '@playcanvas/pcui';
 
+import { TooltipHandle } from '@/common/tooltips';
 import { LegacyButton } from '@/common/ui/button';
-import { LegacyTooltip } from '@/common/ui/tooltip';
 
 editor.once('load', () => {
     const root = editor.call('layout.root');
@@ -31,7 +31,7 @@ editor.once('load', () => {
     });
 
     // tooltip
-    const tooltipBake = LegacyTooltip.attach({
+    const tooltipBake = TooltipHandle.attach({
         target: buttonBake.dom,
         align: 'left',
         root: root
@@ -63,7 +63,6 @@ editor.once('load', () => {
     const btnAutoUnwrap = new LegacyButton({
         text: 'Auto-Unwrap'
     });
-    btnAutoUnwrap.parent = tooltipBake;
     elUV1.appendChild(btnAutoUnwrap.element);
     btnAutoUnwrap.on('click', () => {
         if (!uv1Missing) {

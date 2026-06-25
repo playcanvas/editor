@@ -1,5 +1,6 @@
 import { Curve, CurveSet, math } from 'playcanvas';
 
+import { TooltipHandle } from '@/common/tooltips';
 import { LegacyButton } from '@/common/ui/button';
 import { LegacyCanvas } from '@/common/ui/canvas';
 import { LegacyCheckbox } from '@/common/ui/checkbox';
@@ -8,7 +9,6 @@ import { LegacyNumberField } from '@/common/ui/number-field';
 import { LegacyOverlay } from '@/common/ui/overlay';
 import { LegacyPanel } from '@/common/ui/panel';
 import { LegacySelectField } from '@/common/ui/select-field';
-import { LegacyTooltip } from '@/common/ui/tooltip';
 
 editor.once('load', () => {
     // used to disable event handlers
@@ -338,7 +338,7 @@ editor.once('load', () => {
 
     footer.append(btnResetZoom);
 
-    LegacyTooltip.attach({
+    TooltipHandle.attach({
         target: btnResetZoom.element,
         text: 'Reset Zoom',
         align: 'bottom',
@@ -352,7 +352,7 @@ editor.once('load', () => {
 
     btnResetCurve.flexGrow = 1;
 
-    LegacyTooltip.attach({
+    TooltipHandle.attach({
         target: btnResetCurve.element,
         text: 'Reset Curve',
         align: 'bottom',
@@ -406,7 +406,7 @@ editor.once('load', () => {
         editor.call('localStorage:set', 'playcanvas_editor_clipboard_curves', data);
     });
 
-    LegacyTooltip.attach({
+    TooltipHandle.attach({
         target: btnCopy.element,
         text: 'Copy',
         align: 'bottom',
@@ -512,7 +512,7 @@ editor.once('load', () => {
         render();
     });
 
-    LegacyTooltip.attach({
+    TooltipHandle.attach({
         target: btnPaste.element,
         text: 'Paste',
         align: 'bottom',

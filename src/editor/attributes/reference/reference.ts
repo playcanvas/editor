@@ -1,4 +1,4 @@
-import { LegacyTooltip } from '@/common/ui/tooltip';
+import { TooltipHandle } from '@/common/tooltips';
 
 import type { AttributeReference, LegacyAttributeReference } from './reference.type';
 
@@ -53,7 +53,7 @@ editor.once('load', () => {
     });
 
     editor.method('attributes:reference', (attr: LegacyAttributeReference) => {
-        const tooltip = new LegacyTooltip({
+        const tooltip = new TooltipHandle({
             align: 'right'
         });
         tooltip.hoverable = true;

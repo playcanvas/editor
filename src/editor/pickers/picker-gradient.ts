@@ -1,6 +1,7 @@
 import { Events } from '@playcanvas/observer';
 import { Curve, CURVE_LINEAR, CURVE_SPLINE, CURVE_STEP, math } from 'playcanvas';
 
+import { TooltipHandle } from '@/common/tooltips';
 import { LegacyButton } from '@/common/ui/button';
 import { LegacyCanvas } from '@/common/ui/canvas';
 import { LegacyLabel } from '@/common/ui/label';
@@ -9,7 +10,6 @@ import { LegacyOverlay } from '@/common/ui/overlay';
 import { LegacyPanel } from '@/common/ui/panel';
 import { LegacySelectField } from '@/common/ui/select-field';
 import { LegacyTextField } from '@/common/ui/text-field';
-import { LegacyTooltip } from '@/common/ui/tooltip';
 import { assignEvents } from '@/common/utils';
 import { hexStr, hsv2rgb, normalizedCoord, rgb2hsv, rgbaStr, toHsva, toRgba } from '@/core/color';
 
@@ -990,7 +990,7 @@ editor.once('load', () => {
 
     UI.resetButton.on('click', doReset);
     UI.footer.append(UI.resetButton);
-    LegacyTooltip.attach({
+    TooltipHandle.attach({
         target: UI.resetButton.element,
         text: 'Reset',
         align: 'bottom',
@@ -999,7 +999,7 @@ editor.once('load', () => {
 
     UI.copyButton.on('click', doCopy);
     UI.footer.append(UI.copyButton);
-    LegacyTooltip.attach({
+    TooltipHandle.attach({
         target: UI.copyButton.element,
         text: 'Copy',
         align: 'bottom',
@@ -1008,7 +1008,7 @@ editor.once('load', () => {
 
     UI.pasteButton.on('click', doPaste);
     UI.footer.append(UI.pasteButton);
-    LegacyTooltip.attach({
+    TooltipHandle.attach({
         target: UI.pasteButton.element,
         text: 'Paste',
         align: 'bottom',

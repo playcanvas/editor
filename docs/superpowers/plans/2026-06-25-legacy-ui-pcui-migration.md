@@ -56,6 +56,9 @@ npm run type:check
 
 ## Task 2: Migrate LegacyTooltip
 
+- [x] Complete
+- Verification: `rg "@/common/ui/tooltip|LegacyTooltip" src/editor` passed. Filtered typecheck found no `TooltipHandle` errors; `npm run type:check` still has unrelated baseline errors. `npm run lint` passed.
+
 **Files:**
 - Modify: all files importing `@/common/ui/tooltip`
 - Modify if needed: `src/common/pcui/element/element-tooltip.ts`
