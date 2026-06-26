@@ -90,6 +90,7 @@ editor.once('load', () => {
 
         update = function () {
             let different = false;
+            let values = null;
             let path = pathAt(args, 0);
             let value = args.link[0].has(path) ? args.link[0].get(path) : undefined;
             if (args.type === 'rgb') {
@@ -104,6 +105,11 @@ editor.once('load', () => {
                     }
                 }
             } else if (args.type === 'asset') {
+                values = args.link.map((link, i) => {
+                    const itemPath = pathAt(args, i);
+                    return link.has(itemPath) ? link.get(itemPath) || null : null;
+                });
+
                 let countUndefined = value === undefined ? 1 : 0;
                 for (let i = 1; i < args.link.length; i++) {
                     path = pathAt(args, i);
@@ -127,19 +133,12 @@ editor.once('load', () => {
 
                 if (countUndefined && countUndefined !== args.link.length) {
                     args.field.class.add('star');
-                    if (!/^\* /.test(args.field._title.text)) {
-                        args.field._title.text = `* ${args.field._title.text}`;
-                    }
                 } else {
                     args.field.class.remove('star');
-                    if (/^\* /.test(args.field._title.text)) {
-                        args.field._title.text = args.field._title.text.substring(2);
-                    }
                 }
 
                 if (different) {
                     args.field.class.add('null');
-                    args.field._title.text = 'various';
                 } else {
                     args.field.class.remove('null');
                 }
@@ -181,7 +180,11 @@ editor.once('load', () => {
             }
 
             args.field._changing = true;
-            args.field.value = toLinkedFieldValue(args.type, value, different);
+            if (args.type === 'asset' && different) {
+                args.field.values = values;
+            } else {
+                args.field.value = toLinkedFieldValue(args.type, value, different);
+            }
             if (args.type === 'entity' && different) {
                 args.field.text = 'various';
             }
