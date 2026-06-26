@@ -33,6 +33,7 @@ class TooltipHandle extends Container {
             hidden: args.hidden ?? true
         });
 
+        this.class.add('ui-tooltip');
         this.class.add('align-left');
         if (args.class) {
             this.class.add(args.class);
