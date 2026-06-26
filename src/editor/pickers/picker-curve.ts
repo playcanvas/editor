@@ -91,9 +91,11 @@ editor.once('load', () => {
 
     panel.appendChild(header.dom);
 
-    header.append(new Label({
+    const labelType = new Label({
         text: 'Type'
-    }));
+    });
+    labelType.class.add('ui-label');
+    header.append(labelType);
 
 
     // esc to close
@@ -123,6 +125,7 @@ editor.once('load', () => {
     });
 
     fieldType.style['font-size'] = '11px';
+    fieldType.class.add('ui-select-field', 'noSelect');
     fieldType.value = 1;
 
     fieldType.on('change', (value) => {
@@ -153,6 +156,7 @@ editor.once('load', () => {
         text: 'Randomize'
     });
 
+    labelRandomize.class.add('ui-label');
     labelRandomize.style['margin-left'] = '25px';
     header.append(labelRandomize);
 
@@ -239,12 +243,12 @@ editor.once('load', () => {
 
     for (let i = 0; i < colors.curves.length; i++) {
         const btn = new Button();
-        btn.class.add('picker-curve-toggle', 'active');
-        btn.style.color = colors.curves[3 - i];
+        btn.class.add('ui-button', 'picker-curve-toggle', 'active');
+        btn.style.color = colors.curves[i];
         if (i === 0) {
             btn.style['margin-left'] = 'auto';
         }
-        curveToggles.splice(0, 0, btn);
+        curveToggles.push(btn);
         header.append(btn);
 
         btn.on('click', onCurveToggleClick.bind(btn));
@@ -277,6 +281,13 @@ editor.once('load', () => {
     gradientCanvas.style.display = 'block';
     panel.appendChild(gradientCanvasDom);
 
+    function resizeCanvases() {
+        const width = Math.round(overlay.domContent.getBoundingClientRect().width || panel.clientWidth);
+        canvas.resize(width, 200);
+        context.setTransform(canvas.pixelRatio, 0, 0, canvas.pixelRatio, 0, 0);
+        gradientCanvas.resize(width, 32);
+    }
+
     // footer
     const footer = new Container({
         flex: true,
@@ -298,6 +309,8 @@ editor.once('load', () => {
         placeholder: 'Time'
     });
 
+    fieldTime.class.add('ui-number-field');
+    fieldTime.input.classList.add('field');
     fieldTime.on('change', onFieldChanged);
     footer.append(fieldTime);
 
@@ -309,6 +322,8 @@ editor.once('load', () => {
         flexGrow: 1,
         placeholder: 'Value'
     });
+    fieldValue.class.add('ui-number-field');
+    fieldValue.input.classList.add('field');
     fieldValue.on('change', onFieldChanged);
     footer.append(fieldValue);
 
@@ -343,6 +358,7 @@ editor.once('load', () => {
         unsafe: true
     });
 
+    btnResetZoom.class.add('ui-button');
     btnResetZoom.flexGrow = 1;
 
     btnResetZoom.on('click', () => {
@@ -366,6 +382,7 @@ editor.once('load', () => {
         unsafe: true
     });
 
+    btnResetCurve.class.add('ui-button');
     btnResetCurve.flexGrow = 1;
 
     TooltipHandle.attach({
@@ -396,6 +413,7 @@ editor.once('load', () => {
         unsafe: true
     });
 
+    btnCopy.class.add('ui-button');
     btnCopy.on('click', () => {
         const data = {
             primaryKeys: [],
@@ -437,6 +455,7 @@ editor.once('load', () => {
         unsafe: true
     });
 
+    btnPaste.class.add('ui-button');
     btnPaste.on('click', () => {
         const data = editor.call('localStorage:get', 'playcanvas_editor_clipboard_curves');
         if (!data) {
@@ -1618,8 +1637,7 @@ editor.once('load', () => {
     editor.method('picker:curve', (value: { keys: number[][] }[], args?: Record<string, unknown>) => {
         // show overlay
         overlay.hidden = false;
-        canvas.resize(panel.clientWidth, 200);
-        gradientCanvas.resize(panel.clientWidth, 32);
+        resizeCanvases();
 
         const suspend = suspendEvents;
         suspendEvents = true;
@@ -1629,6 +1647,13 @@ editor.once('load', () => {
         suspendEvents = suspend;
 
         setValue(value, args || {});
+        requestAnimationFrame(() => {
+            if (overlay.hidden) {
+                return;
+            }
+            resizeCanvases();
+            render();
+        });
 
         window.addEventListener('mouseup', onMouseUp);
         window.addEventListener('mousemove', onMouseMove);
@@ -1654,6 +1679,8 @@ editor.once('load', () => {
         }
 
         overlay.position(x, y);
+        resizeCanvases();
+        render();
     });
 
     // update value of picker

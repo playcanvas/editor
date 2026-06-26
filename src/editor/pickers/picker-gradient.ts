@@ -6,6 +6,17 @@ import { TooltipHandle } from '@/common/tooltips';
 import { assignEvents } from '@/common/utils';
 import { hexStr, hsv2rgb, normalizedCoord, rgb2hsv, rgbaStr, toHsva, toRgba } from '@/core/color';
 
+const COLOR_RECT_SIZE = 140;
+const HUE_RECT_WIDTH = 20;
+const GRADIENT_WIDTH = 344;
+const GRADIENT_HEIGHT = 28;
+
+const legacyInput = (field: NumericInput | TextInput, cls: string) => {
+    field.class.add(cls);
+    field.input.classList.add('field');
+    return field;
+};
+
 class ColorPicker extends Events {
     panel: any;
 
@@ -70,8 +81,7 @@ class ColorPicker extends Events {
         this.colorRect = new Canvas({ useDevicePixelRatio: true });
         this.colorRect.class.add('color-rect');
         this.panel.append(this.colorRect);
-        this.colorRect.resize(this.colorRect.dom.clientWidth,
-            this.colorRect.dom.clientHeight);
+        this.colorRect.resize(COLOR_RECT_SIZE, COLOR_RECT_SIZE);
 
         this.colorHandle = document.createElement('div');
         this.colorHandle.classList.add('color-handle');
@@ -80,8 +90,7 @@ class ColorPicker extends Events {
         this.hueRect = new Canvas({ useDevicePixelRatio: true });
         this.hueRect.class.add('hue-rect');
         this.panel.append(this.hueRect);
-        this.hueRect.resize(this.hueRect.dom.clientWidth,
-            this.hueRect.dom.clientHeight);
+        this.hueRect.resize(HUE_RECT_WIDTH, COLOR_RECT_SIZE);
 
         this.hueHandle = document.createElement('div');
         this.hueHandle.classList.add('hue-handle');
@@ -90,8 +99,7 @@ class ColorPicker extends Events {
         this.alphaRect = new Canvas({ useDevicePixelRatio: true });
         this.alphaRect.class.add('alpha-rect');
         this.panel.append(this.alphaRect);
-        this.alphaRect.resize(this.alphaRect.dom.clientWidth,
-            this.alphaRect.dom.clientHeight);
+        this.alphaRect.resize(HUE_RECT_WIDTH, COLOR_RECT_SIZE);
 
         this.alphaHandle = document.createElement('div');
         this.alphaHandle.classList.add('alpha-handle');
@@ -108,14 +116,15 @@ class ColorPicker extends Events {
         this.upHandler = genEvtHandler(this, this._onMouseUp);
 
         function numberField(label: string) {
-            const field = new NumericInput({
+            const field = legacyInput(new NumericInput({
                 precision: 1,
                 step: 1,
                 min: 0,
                 max: 255,
+                hideSlider: true,
                 renderChanges: false,
                 placeholder: label
-            });
+            }), 'ui-number-field');
             field.on('change', this.fieldChangeHandler);
             this.fields.appendChild(field.dom);
             return field;
@@ -126,10 +135,10 @@ class ColorPicker extends Events {
         this.bField = numberField.call(this, 'b');
         this.aField = numberField.call(this, 'a');
 
-        this.hexField = new TextInput({
+        this.hexField = legacyInput(new TextInput({
             renderChanges: false,
             placeholder: '#'
-        });
+        }), 'ui-text-field');
         this.hexField.on('change', this.hexChangeHandler);
         this.fields.appendChild(this.hexField.dom);
 
@@ -140,6 +149,17 @@ class ColorPicker extends Events {
 
         this._generateHue(this.hueRect);
         this._generateAlpha(this.alphaRect);
+    }
+
+    resize() {
+        this.colorRect.resize(COLOR_RECT_SIZE, COLOR_RECT_SIZE);
+        this.hueRect.resize(HUE_RECT_WIDTH, COLOR_RECT_SIZE);
+        this.alphaRect.resize(HUE_RECT_WIDTH, COLOR_RECT_SIZE);
+
+        this._generateHue(this.hueRect);
+        this._generateAlpha(this.alphaRect);
+        this._generateGradient(this.colorRect, hsv2rgb([this._hsva[0], 1, 1]));
+        this.hsva = this._hsva.slice();
     }
 
     _generateHue(canvas: Canvas) {
@@ -356,14 +376,17 @@ editor.once('load', () => {
         gradient: new Canvas({ useDevicePixelRatio: true }),
         checkerPattern: createCheckerPattern(),
         anchors: new Canvas({ useDevicePixelRatio: true }),
-        footer: new Container(),
+        footer: new Container({
+            flex: true,
+            flexDirection: 'row'
+        }),
         typeLabel: new Label({ text: 'Type' }),
         typeCombo: new SelectInput({
             options: [{ v: 0, t: 'placeholder' }],
             type: 'number'
         }),
         positionLabel: new Label({ text: 'Position' }),
-        positionEdit: new NumericInput({ min: 0, max: 100, step: 1, allowNull: true }),
+        positionEdit: new NumericInput({ min: 0, max: 100, step: 1, hideSlider: true, allowNull: true }),
         resetButton: new Button({ text: '&#57680', unsafe: true }),
         copyButton: new Button({ text: '&#58193', unsafe: true }),
         pasteButton: new Button({ text: '&#58184', unsafe: true }),
@@ -372,6 +395,13 @@ editor.once('load', () => {
     };
     UI.overlay.domContent.classList.add('content');
     UI.footer.domContent.classList.add('content');
+    UI.typeLabel.class.add('ui-label');
+    UI.typeCombo.class.add('ui-select-field', 'noSelect');
+    UI.positionLabel.class.add('ui-label');
+    legacyInput(UI.positionEdit, 'ui-number-field');
+    UI.resetButton.class.add('ui-button');
+    UI.copyButton.class.add('ui-button');
+    UI.pasteButton.class.add('ui-button');
 
     // current state
     const STATE = {
@@ -439,6 +469,12 @@ editor.once('load', () => {
     function render() {
         renderGradient();
         renderAnchors();
+    }
+
+    function resizeCanvases() {
+        UI.gradient.resize(GRADIENT_WIDTH, GRADIENT_HEIGHT);
+        UI.anchors.resize(GRADIENT_WIDTH, GRADIENT_HEIGHT);
+        UI.colorPicker.resize();
     }
 
     function renderGradient() {
@@ -959,14 +995,12 @@ editor.once('load', () => {
     // gradient
     UI.panel.appendChild(UI.gradient.dom);
     UI.gradient.class.add('picker-gradient-gradient');
-    let r = getClientRect(UI.gradient.dom);
-    UI.gradient.resize(r.width, r.height);
+    UI.gradient.resize(GRADIENT_WIDTH, GRADIENT_HEIGHT);
 
     // anchors
     UI.panel.appendChild(UI.anchors.dom);
     UI.anchors.class.add('picker-gradient-anchors');
-    r = getClientRect(UI.anchors.dom);
-    UI.anchors.resize(r.width, r.height);
+    UI.anchors.resize(GRADIENT_WIDTH, GRADIENT_HEIGHT);
 
     // footer
     UI.panel.appendChild(UI.footer.dom);
@@ -1043,6 +1077,15 @@ editor.once('load', () => {
     editor.method('picker:gradient', (value, args) => {
         setValue(value, args);
         open();
+        resizeCanvases();
+        render();
+        requestAnimationFrame(() => {
+            if (UI.overlay.hidden) {
+                return;
+            }
+            resizeCanvases();
+            render();
+        });
     });
 
     editor.method('picker:gradient:set', (value, args) => {
@@ -1050,7 +1093,7 @@ editor.once('load', () => {
     });
 
     editor.method('picker:gradient:rect', () => {
-        return UI.overlay.rect;
+        return UI.overlay.domContent.getBoundingClientRect();
     });
 
     editor.method('picker:gradient:position', (x, y) => {
@@ -1058,5 +1101,7 @@ editor.once('load', () => {
             y = window.innerHeight - UI.panel.clientHeight;
         }
         UI.overlay.position(x, y);
+        resizeCanvases();
+        render();
     });
 });

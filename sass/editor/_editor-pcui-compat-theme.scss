@@ -949,36 +949,9 @@ a:visited {
     }
 }
 
-.picker-curve {
-    > .content {
-        border: 1px solid $bcg-darkest;
-        background-color: $bcg-dark;
-
-        > .picker-curve-panel {
-            > .picker-curve-header {
-                > .content,
-                &.pcui-container {
-                    .ui-button.picker-curve-toggle,
-                    .pcui-button.picker-curve-toggle {
-                        border-color: transparent;
-                        background-color: transparent;
-                        color: $text-secondary;
-                        box-shadow: none;
-
-                        &:hover {
-                            border-color: transparent;
-                            background-color: transparent;
-                            box-shadow: none;
-                        }
-
-                        &.active {
-                            background-color: transparent;
-                        }
-                    }
-                }
-            }
-        }
-    }
+.picker-curve > .content {
+    border: 1px solid $bcg-darkest;
+    background-color: $bcg-dark;
 }
 
 .picker-gradient {
@@ -988,7 +961,8 @@ a:visited {
 
         > .picker-gradient-panel {
             > .color-panel {
-                > .content {
+                > .content,
+                &.pcui-container {
                     > .color-rect,
                     > .hue-rect,
                     > .alpha-rect {
