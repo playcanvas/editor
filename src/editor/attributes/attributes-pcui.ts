@@ -14,29 +14,12 @@ import {
     TextInput
 } from '@playcanvas/pcui';
 
+import { toOptions } from '@/common/pcui/compat-utils';
 import { AssetInput } from '@/common/pcui/element/element-asset-input';
 import { ColorInput } from '@/common/pcui/element/element-color-input';
 import { CurveInput } from '@/common/pcui/element/element-curve-input';
 import { EntityInput } from '@/common/pcui/element/element-entity-input';
 import { GradientInput } from '@/common/pcui/element/element-gradient-input';
-
-const toOptions = (options: any = [], type = 'string') => {
-    const entries = Array.isArray(options) ? options : Object.entries(options).map(([v, t]) => ({ v, t }));
-
-    return entries.map((option: any) => {
-        let v = option.v;
-        if (type === 'number') {
-            v = Number(v);
-        } else if (type === 'boolean') {
-            v = v === true || v === 'true';
-        }
-
-        return {
-            v,
-            t: String(option.t)
-        };
-    });
-};
 
 const defineAlias = (element: any, name: string, descriptor: PropertyDescriptor) => {
     if (!Object.getOwnPropertyDescriptor(element, name)) {
@@ -241,6 +224,15 @@ const createAssetInput = (args: any = {}) => withCompat(new AssetInput(args), 'u
 
 const createEntityInput = (args: any = {}) => {
     const field = withCompat(new EntityInput(args), 'ui-label', 'add-entity');
+    defineAlias(field, 'text', {
+        get() {
+            return this._label?.value;
+        },
+        set(value: string) {
+            this._label.value = value || '';
+        }
+    });
+
     if (args.pickEntityFn) {
         field._pickEntity = args.pickEntityFn;
     }
@@ -293,16 +285,38 @@ const createNumberInput = (args: any = {}) => withCompat(new NumericInput(args),
 const createProgress = (args: any = {}) => withCompat(new Progress(args), 'ui-progress');
 
 const createSelectInput = (args: any = {}) => {
+    let options = toOptions(args.options, args.type);
+    const hidden = new Set<any>();
     const field = withCompat(new SelectInput({
         ...args,
-        options: toOptions(args.options, args.type),
+        options,
         defaultValue: args.default,
         value: args.default
     }), 'ui-select-field', 'noSelect');
+    const applyOptions = () => {
+        field.options = options.filter((option: any) => !hidden.has(option.v));
+    };
 
-    field.optionElements = {};
-    field._updateOptions = (options: any = args.options) => {
-        field.options = toOptions(options, args.type);
+    field.optionElements = {
+        '': {
+            style: {
+                set display(value: string) {
+                    if (value === 'none') {
+                        hidden.add('');
+                    } else {
+                        hidden.delete('');
+                    }
+                    applyOptions();
+                },
+                get display() {
+                    return hidden.has('') ? 'none' : '';
+                }
+            }
+        }
+    };
+    field._updateOptions = (value: any = args.options) => {
+        options = toOptions(value, args.type);
+        applyOptions();
     };
 
     return field;

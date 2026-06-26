@@ -1,5 +1,7 @@
 import type { Observer } from '@playcanvas/observer';
 
+import { toLinkedFieldValue } from '@/common/pcui/compat-utils';
+
 import {
     createAssetInput,
     createButton,
@@ -179,7 +181,10 @@ editor.once('load', () => {
             }
 
             args.field._changing = true;
-            args.field.value = value;
+            args.field.value = toLinkedFieldValue(args.type, value, different);
+            if (args.type === 'entity' && different) {
+                args.field.text = 'various';
+            }
 
             if (args.type === 'checkbox') {
                 args.field._onLinkChange(value);
