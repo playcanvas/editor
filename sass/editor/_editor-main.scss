@@ -1312,49 +1312,8 @@ strong {
             > .picker-curve-header {
                 padding: 5px 10px;
 
-                &.pcui-container {
-                    align-items: center;
-                    background-color: $bcg-primary;
-                }
-
-                > .content,
-                &.pcui-container {
-                    > .ui-label {
-                        flex: none;
-                        line-height: 22px;
-                        vertical-align: bottom;
-                    }
-
-                    > .ui-select-field.pcui-select-input {
-                        flex: none;
-                        height: 24px;
-                        min-height: 0;
-                        padding: 0;
-                        border-radius: 0;
-                        vertical-align: bottom;
-
-                        > .pcui-select-input-container-value {
-                            height: 100%;
-                            background-color: transparent;
-                        }
-
-                        .pcui-select-input-value {
-                            height: 22px;
-                            line-height: 22px;
-                            padding: 0 22px 0 8px;
-                        }
-
-                        .pcui-select-input-icon {
-                            right: 0;
-                            width: 22px;
-                            height: 22px;
-                            line-height: 22px;
-                        }
-                    }
-
-                    > .ui-button.picker-curve-toggle,
-                    > .pcui-button.picker-curve-toggle {
-                        border-radius: 0;
+                > .content {
+                    > .ui-button.picker-curve-toggle {
                         float: right;
                         text-align: center;
                         height: 24px;
@@ -1380,32 +1339,14 @@ strong {
             > .picker-curve-footer {
                 padding: 5px 10px;
 
-                &.pcui-container {
-                    align-items: center;
-                    padding-top: 0;
-                    padding-bottom: 0;
-                    background-color: $bcg-primary;
-                }
-
-                > .content,
-                &.pcui-container {
-                    > .ui-number-field,
-                    > .pcui-numeric-input {
-                        flex: none;
+                > .content {
+                    > .ui-number-field {
                         width: 143px;
-                        border-radius: 0;
-
-                        > input.field {
-                            line-height: 22px;
-                        }
                     }
 
-                    > .ui-button,
-                    > .pcui-button {
+                    > .ui-button {
                         @extend .font-icon;
 
-                        flex: none;
-                        border-radius: 0;
                         font-size: 14px;
                         width: 32px;
                         height: 24px;
@@ -1432,14 +1373,14 @@ strong {
             font-size: 11px;
 
             > .picker-gradient-gradient {
-                width: 344px;
+                width: 346px;
                 height: 28px;
                 display: block;
                 padding: 10px 10px 0;
             }
 
             > .picker-gradient-anchors {
-                width: 344px;
+                width: 346px;
                 height: 28px;
                 display: block;
                 padding: 0 10px;
@@ -1448,50 +1389,8 @@ strong {
             > .picker-gradient-footer {
                 padding: 5px;
 
-                &.pcui-container {
-                    align-items: center;
-                    background-color: $bcg-primary;
-                }
-
-                > .content,
-                &.pcui-container {
-                    > .ui-label {
-                        flex: none;
-                        line-height: 22px;
-                        vertical-align: bottom;
-                    }
-
-                    > .ui-select-field.pcui-select-input {
-                        flex: none;
-                        height: 24px;
-                        min-height: 0;
-                        padding: 0;
-                        border-radius: 0;
-                        vertical-align: bottom;
-
-                        > .pcui-select-input-container-value {
-                            height: 100%;
-                            background-color: transparent;
-                        }
-
-                        .pcui-select-input-value {
-                            height: 22px;
-                            line-height: 22px;
-                            padding: 0 22px 0 8px;
-                        }
-
-                        .pcui-select-input-icon {
-                            right: 0;
-                            width: 22px;
-                            height: 22px;
-                            line-height: 22px;
-                        }
-                    }
-
-                    > .ui-number-field,
-                    > .pcui-numeric-input {
-                        flex: none;
-                        border-radius: 0;
+                > .content {
+                    > .ui-number-field {
                         vertical-align: bottom;
                     }
 
@@ -1499,12 +1398,9 @@ strong {
                         vertical-align: bottom;
                     }
 
-                    > .ui-button,
-                    > .pcui-button {
+                    > .ui-button {
                         @extend .font-icon;
 
-                        flex: none;
-                        border-radius: 0;
                         vertical-align: bottom;
                     }
                 }
@@ -1513,12 +1409,7 @@ strong {
             > .color-panel {
                 height: 156px;
 
-                &.pcui-container {
-                    background-color: $bcg-primary;
-                }
-
-                > .content,
-                &.pcui-container {
+                > .content {
                     > .color-rect {
                         margin: 5px 10px 10px;
                         width: 140px;
@@ -1562,26 +1453,14 @@ strong {
                         height: 145px;
                         vertical-align: top;
 
-                        > .ui-number-field,
-                        > .pcui-numeric-input {
+                        > .ui-number-field {
                             margin: 2px 0;
                             width: 162px;
-                            border-radius: 0;
-
-                            > input.field {
-                                line-height: 22px;
-                            }
                         }
 
-                        > .ui-text-field,
-                        > .pcui-text-input {
+                        > .ui-text-field {
                             margin: 2px 0;
                             width: 162px;
-                            border-radius: 0;
-
-                            > input.field {
-                                line-height: 22px;
-                            }
                         }
                     }
                 }
@@ -7496,6 +7375,6 @@ strong {
     }
 }
 
-@import '../common/shared-overlays';
+@import '../common/ui-common';
 @import '../common/version-control';
 @import 'playcanvas-theme';

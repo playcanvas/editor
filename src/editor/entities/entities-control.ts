@@ -1,6 +1,6 @@
 import { Menu, Container, Button } from '@playcanvas/pcui';
 
-import { TooltipHandle } from '@/common/tooltips';
+import { LegacyTooltip } from '@/common/ui/tooltip';
 
 editor.once('load', () => {
     const root = editor.call('layout.root');
@@ -35,7 +35,7 @@ editor.once('load', () => {
     });
     controls.append(btnAdd);
 
-    TooltipHandle.attach({
+    LegacyTooltip.attach({
         target: btnAdd.dom,
         text: 'Add Entity',
         align: 'top',
@@ -57,7 +57,7 @@ editor.once('load', () => {
     });
     controls.append(btnDuplicate);
 
-    const tooltipDuplicate = TooltipHandle.attach({
+    const tooltipDuplicate = LegacyTooltip.attach({
         target: btnDuplicate.dom,
         text: 'Duplicate Entity',
         align: 'top',
@@ -80,7 +80,7 @@ editor.once('load', () => {
     });
     controls.append(btnDelete);
 
-    const tooltipDelete = TooltipHandle.attach({
+    const tooltipDelete = LegacyTooltip.attach({
         target: btnDelete.dom,
         text: 'Delete Entity',
         align: 'top',
@@ -99,7 +99,7 @@ editor.once('load', () => {
     });
     controls.append(btnMore);
 
-    TooltipHandle.attach({
+    LegacyTooltip.attach({
         target: btnMore.dom,
         text: 'More Options',
         align: 'top',

@@ -1,7 +1,7 @@
 import type { Observer } from '@playcanvas/observer';
 import { Button } from '@playcanvas/pcui';
 
-import { TooltipHandle } from '@/common/tooltips';
+import { LegacyTooltip } from '@/common/ui/tooltip';
 
 editor.once('load', () => {
     const projectUserSettings = editor.call('settings:projectUser');
@@ -88,7 +88,7 @@ editor.once('load', () => {
         }
     });
 
-    TooltipHandle.attach({
+    LegacyTooltip.attach({
         target: button.dom,
         text: 'Code Editor (Shift-click to open in popup)',
         align: 'left',

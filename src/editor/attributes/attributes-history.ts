@@ -1,6 +1,6 @@
 import { Button, Container } from '@playcanvas/pcui';
 
-import { TooltipHandle } from '@/common/tooltips';
+import { LegacyTooltip } from '@/common/ui/tooltip';
 
 editor.once('load', () => {
     let list = [];
@@ -121,7 +121,7 @@ editor.once('load', () => {
         }
     };
 
-    const tooltip = TooltipHandle.attach({
+    const tooltip = LegacyTooltip.attach({
         target: btnBack.dom,
         text: '-',
         align: 'top',

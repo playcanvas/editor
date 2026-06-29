@@ -1,6 +1,6 @@
 import { Button } from '@playcanvas/pcui';
 
-import { TooltipHandle } from '@/common/tooltips';
+import { LegacyTooltip } from '@/common/ui/tooltip';
 
 const discordSvg = (color, style = '') => {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
@@ -49,7 +49,7 @@ editor.once('load', () => {
         path.setAttribute('fill', color);
     });
 
-    TooltipHandle.attach({
+    LegacyTooltip.attach({
         target: button.dom,
         text: 'Join our Discord server',
         align: 'left',

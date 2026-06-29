@@ -1,5 +1,6 @@
-import { NumericInput, Overlay, TextInput } from '@playcanvas/pcui';
-
+import { LegacyNumberField } from '@/common/ui/number-field';
+import { LegacyOverlay } from '@/common/ui/overlay';
+import { LegacyTextField } from '@/common/ui/text-field';
 import { hsv2rgb, rgb2hsv } from '@/core/color';
 
 editor.once('load', () => {
@@ -199,13 +200,11 @@ editor.once('load', () => {
 
 
     // overlay
-    const overlay = new Overlay({
-        class: 'picker-color',
-        clickable: true,
-        hidden: true,
-        transparent: true
-    });
-    overlay.domContent.classList.add('content');
+    const overlay = new LegacyOverlay();
+    overlay.class.add('picker-color');
+    overlay.center = false;
+    overlay.transparent = true;
+    overlay.hidden = true;
 
 
     // rectangular picker
@@ -297,78 +296,73 @@ editor.once('load', () => {
 
 
     // R
-    const fieldR = new NumericInput({
+    const fieldR = new LegacyNumberField({
         precision: 1,
         step: 1,
         min: 0,
-        max: 255,
-        hideSlider: true,
-        renderChanges: false,
-        placeholder: 'r',
-        flexGrow: 1
+        max: 255
     });
     channels.push(fieldR);
+    fieldR.renderChanges = false;
+    fieldR.placeholder = 'r';
+    fieldR.flexGrow = 1;
     fieldR.class.add('field', 'field-r');
     fieldR.on('change', updateRects);
-    panelFields.appendChild(fieldR.dom);
+    panelFields.appendChild(fieldR.element);
 
     // G
-    const fieldG = new NumericInput({
+    const fieldG = new LegacyNumberField({
         precision: 1,
         step: 1,
         min: 0,
-        max: 255,
-        hideSlider: true,
-        renderChanges: false,
-        placeholder: 'g'
+        max: 255
     });
     channels.push(fieldG);
+    fieldG.renderChanges = false;
+    fieldG.placeholder = 'g';
     fieldG.class.add('field', 'field-g');
     fieldG.on('change', updateRects);
-    panelFields.appendChild(fieldG.dom);
+    panelFields.appendChild(fieldG.element);
 
     // B
-    const fieldB = new NumericInput({
+    const fieldB = new LegacyNumberField({
         precision: 1,
         step: 1,
         min: 0,
-        max: 255,
-        hideSlider: true,
-        renderChanges: false,
-        placeholder: 'b'
+        max: 255
     });
     channels.push(fieldB);
+    fieldB.renderChanges = false;
+    fieldB.placeholder = 'b';
     fieldB.class.add('field', 'field-b');
     fieldB.on('change', updateRects);
-    panelFields.appendChild(fieldB.dom);
+    panelFields.appendChild(fieldB.element);
 
 
     // A
-    var fieldA = new NumericInput({
+    var fieldA = new LegacyNumberField({
         precision: 1,
         step: 1,
         min: 0,
-        max: 255,
-        hideSlider: true,
-        renderChanges: false,
-        placeholder: 'a'
+        max: 255
     });
     channels.push(fieldA);
+    fieldA.renderChanges = false;
+    fieldA.placeholder = 'a';
     fieldA.class.add('field', 'field-a');
     fieldA.on('change', updateRectAlpha);
-    panelFields.appendChild(fieldA.dom);
+    panelFields.appendChild(fieldA.element);
 
 
     // HEX
-    var fieldHex = new TextInput({
-        renderChanges: false,
-        placeholder: '#'
-    });
+    var fieldHex = new LegacyTextField();
+    fieldHex.renderChanges = false;
+    fieldHex.placeholder = '#';
     fieldHex.class.add('field', 'field-hex');
     fieldHex.on('change', () => {
         updateHex();
     });
-    panelFields.appendChild(fieldHex.dom);
+    panelFields.appendChild(fieldHex.element);
 
 
     const root = editor.call('layout.root');
@@ -426,10 +420,11 @@ editor.once('load', () => {
         overlay.hidden = false;
 
         // focus on hex field
-        fieldHex.focus();
+        fieldHex.elementInput.focus();
 
         setTimeout(() => {
-            fieldHex.focus(true);
+            fieldHex.elementInput.focus();
+            fieldHex.elementInput.select();
         }, 100);
     });
 
@@ -438,7 +433,7 @@ editor.once('load', () => {
     });
 
     editor.method('picker:color:rect', () => {
-        return overlay.domContent.getBoundingClientRect();
+        return overlay.rect;
     });
 
     // position color picker

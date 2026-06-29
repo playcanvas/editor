@@ -1,3 +1,5 @@
+import { LegacyList } from '@/common/ui/list';
+
 editor.once('load', () => {
     // State management
     const hotkeys = new Map();
@@ -153,4 +155,8 @@ editor.once('load', () => {
     ['keyup', 'mousedown', 'mouseup', 'click'].forEach((eventName: string) => {
         window.addEventListener(eventName, updateModifierState, false);
     });
+
+    // Legacy support
+    LegacyList._ctrl = () => modifierState.ctrl;
+    LegacyList._shift = () => modifierState.shift;
 });

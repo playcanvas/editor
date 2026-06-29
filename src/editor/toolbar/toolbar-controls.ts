@@ -1,6 +1,6 @@
 import { Button } from '@playcanvas/pcui';
 
-import { TooltipHandle } from '@/common/tooltips';
+import { LegacyTooltip } from '@/common/ui/tooltip';
 
 editor.once('load', () => {
     const toolbar = editor.call('layout.toolbar');
@@ -23,7 +23,7 @@ editor.once('load', () => {
         button.class.remove('active');
     });
 
-    TooltipHandle.attach({
+    LegacyTooltip.attach({
         target: button.dom,
         text: 'Controls',
         align: 'left',
