@@ -53,10 +53,6 @@ editor.once('load', () => {
         settings.history.enabled = false;
         settings.sync.enabled = editor.call('permissions:write');
 
-        if (!Object.prototype.hasOwnProperty.call(config.project.settings, 'engineV2')) {
-            settings.set('engineV2', false, undefined, undefined, true);
-        }
-
         if (Object.prototype.hasOwnProperty.call(config.project.settings, 'useLegacyScripts')) {
             if (settings.get('useLegacyScripts')) {
                 settings.set('useLegacyScripts', false);
@@ -102,6 +98,10 @@ editor.once('load', () => {
             }
 
             editor.call('console:log:settings', settings, msg);
+        }
+
+        if (!settings.get('enableWebGpu') && !settings.get('enableWebGl2')) {
+            settings.set('enableWebGl2', true);
         }
 
         if (!settings.get('batchGroups')) {

@@ -40,12 +40,6 @@ editor.once('load', () => {
         app.scene.layers.insertOpaque(depthLayer, 2);
 
         app.enableBundles = false;
-
-        // Force compatibility mode for Specular and Sheen maps when Editor is running with V2
-        // and project running on V1.
-        if (!editor.projectEngineV2) {
-            app.scene.forcePassThroughSpecular = true;
-        }
     } catch (ex) {
         editor.emit('viewport:error', ex);
         return;

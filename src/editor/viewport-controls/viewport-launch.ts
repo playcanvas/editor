@@ -60,7 +60,6 @@ editor.once('load', () => {
         deviceOptions: {
             webgpu?: boolean;
             webgl2?: boolean;
-            webgl1?: boolean;
             [key: string]: boolean | undefined;
         } = {},
         popup?: boolean
@@ -73,8 +72,6 @@ editor.once('load', () => {
             query.push('device=webgpu');
         } else if (deviceOptions.webgl2) {
             query.push('device=webgl2');
-        } else if (deviceOptions.webgl1) {
-            query.push('device=webgl1');
         }
 
         if (launchOptions.profiler) {
@@ -109,12 +106,13 @@ editor.once('load', () => {
             query.push(`use_local_engine=${params.get('use_local_engine')}`);
         } else if (releaseCandidate && launchOptions.releaseCandidate) {
             query.push(`version=${releaseCandidate}`);
-        } else if (launchOptions.force) {
+        } else if (launchOptions.force && config.engineVersions.force) {
             query.push(`version=${config.engineVersions.force.version}`);
         } else {
             const engineVersion = editor.call('settings:session').get('engineVersion');
-            if (engineVersion && engineVersion !== 'current') {
-                query.push(`version=${config.engineVersions[engineVersion].version}`);
+            const version = config.engineVersions[engineVersion]?.version;
+            if (version && engineVersion !== 'current') {
+                query.push(`version=${version}`);
             }
         }
 
@@ -206,11 +204,11 @@ editor.once('load', () => {
         return option;
     };
 
-    const launchWithWebGpu = createButton('webgpu', `Launch with WebGPU${editor.projectEngineV2 ? '' : ' (beta)'}`);
+    const launchWithWebGpu = createButton('webgpu', 'Launch with WebGPU');
 
     const tooltipPreferWebGpu = TooltipHandle.attach({
         target: launchWithWebGpu.parent.dom,
-        text: `Launch the scene using WebGPU${editor.projectEngineV2 ? '' : ' (beta)'}.`,
+        text: 'Launch the scene using WebGPU.',
         align: 'right',
         root: root
     });
@@ -224,16 +222,6 @@ editor.once('load', () => {
         root: root
     });
     tooltipPreferWebGl2.class.add('launch-tooltip');
-
-    const launchWithWebGL1 = createButton('webgl1', 'Launch with WebGL 1.0');
-    const tooltipPreferWebGl1 = TooltipHandle.attach({
-        target: launchWithWebGL1.parent.dom,
-        text: 'Launch the scene using WebGL 1.0.',
-        align: 'right',
-        root: root
-    });
-    tooltipPreferWebGl1.class.add('launch-tooltip');
-    launchWithWebGL1.parent.hidden = editor.projectEngineV2;
 
     const optionProfiler = createOption('profiler', 'Profiler');
     const tooltipProfiler = TooltipHandle.attach({
@@ -311,14 +299,16 @@ editor.once('load', () => {
 
     // force engine version
     const force = config.engineVersions.force;
-    const optionForce = createOption('force', `Force Engine V${force.version[0]}`);
-    const tooltipForce = TooltipHandle.attach({
-        target: optionForce.parent.dom,
-        text: `Force the launcher to use v${force.version}.`,
-        align: 'right',
-        root: root
-    });
-    tooltipForce.class.add('launch-tooltip');
+    if (force) {
+        const optionForce = createOption('force', `Force Engine V${force.version[0]}`);
+        const tooltipForce = TooltipHandle.attach({
+            target: optionForce.parent.dom,
+            text: `Force the launcher to use v${force.version}.`,
+            align: 'right',
+            root: root
+        });
+        tooltipForce.class.add('launch-tooltip');
+    }
 
     // release-candidate
     if (releaseCandidate) {
@@ -435,7 +425,6 @@ editor.once('load', () => {
         const { enableWebGpu, enableWebGl2 } = editor.call('settings:project').json();
         launchWithWebGpu.parent.hidden = enableWebGpu;
         launchWithWebGL2.parent.hidden = !enableWebGpu && enableWebGl2;
-        launchWithWebGL1.parent.hidden = editor.projectEngineV2 || (!enableWebGpu && !enableWebGl2);
     });
 
     // collapse button text to icon-only when the viewport is too narrow

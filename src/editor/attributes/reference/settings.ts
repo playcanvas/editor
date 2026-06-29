@@ -380,8 +380,8 @@ editor.once('load', () => {
         },
         {
             name: 'settings:project:enableWebGpu',
-            title: `Enable WebGPU${editor.projectEngineV2 ? '' : ' (beta)'}`,
-            description: `When enabled, the application will try to use WebGPU${editor.projectEngineV2 ? '' : ' (beta)'} if available.`
+            title: 'Enable WebGPU',
+            description: 'When enabled, the application will try to use WebGPU if available.'
         },
         {
             name: 'settings:project:enableWebGl2',

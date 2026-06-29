@@ -1,5 +1,5 @@
 import type { Observer } from '@playcanvas/observer';
-import { GAMMA_NONE, GAMMA_SRGB } from 'playcanvas';
+import { GAMMA_NONE, GAMMA_SRGB, TONEMAP_LINEAR } from 'playcanvas';
 
 import { ObserverSync } from '@/common/observer-sync';
 import { formatter as f } from '@/common/utils';
@@ -40,73 +40,67 @@ editor.once('load', () => {
         editor.emit('sceneSettings:load', settings);
     });
 
-    // migrate camera settings
-    let entitiesLoaded = false;
-    let projectUserSettingsLoaded = false;
-    let migrateEntityHandle = null;
-    const migrateCameraSettings = () => {
-        if (!entitiesLoaded || !projectUserSettingsLoaded) {
-            return;
-        }
+    if (!editor.projectEngineV2) {
+        let entitiesReady = false;
+        let userReady = false;
+        let migrating = false;
+        const migrate = () => {
+            if (!entitiesReady || !userReady || migrating) {
+                return;
+            }
+            migrating = true;
 
-        // migrate entities
-        // NOTE: Defaults are set so we need to force the update
-        const migrateEntity = (entity: Observer) => {
-            // Defeer the migration to the next frame to ensure entity document has been created
+            // defer until every entity document exists
             setTimeout(() => {
-                entity.history.enabled = false;
+                for (const entity of editor.call('entities:list')) {
+                    entity.history.enabled = false;
 
-                if (entity.get('components.camera')) {
-                    // gamma correction
-                    const gammaCorrection = settings.get('render.gamma_correction');
-                    const oldGammaCorrection = entity.get('components.camera.gammaCorrection');
-                    entity.set('components.camera.gammaCorrection', gammaCorrection, false, false, true);
-                    if (gammaCorrection !== oldGammaCorrection) {
-                        const msg = [
-                            `Setting ${f.path('components.camera.gammaCorrection')} on ${f.entity(entity)} from`,
-                            `${f.value(oldGammaCorrection)}`,
-                            `to ${f.value(gammaCorrection)}`
-                        ].join(' ');
-                        editor.call('console:log:entity', entity, msg, true);
-                    }
+                    if (entity.get('components.camera')) {
+                        const gamma = settings.get('render.gamma_correction');
+                        const oldGamma = entity.get('components.camera.gammaCorrection');
+                        entity.set('components.camera.gammaCorrection', gamma, false, false, true);
+                        if (gamma !== oldGamma) {
+                            editor.call(
+                                'console:log:entity',
+                                entity,
+                                `Setting ${f.path('components.camera.gammaCorrection')} on ${f.entity(entity)} from ${f.value(oldGamma)} to ${f.value(gamma)}`,
+                                true
+                            );
+                        }
 
-                    // tonemapping
-                    const tonemapping = settings.get('render.tonemapping');
-                    const oldTonemapping = entity.get('components.camera.toneMapping');
-                    entity.set('components.camera.toneMapping', tonemapping, false, false, true);
-                    if (tonemapping !== oldTonemapping) {
-                        const msg = [
-                            `Setting ${f.path('components.camera.toneMapping')} on ${f.entity(entity)} from`,
-                            `${f.value(oldTonemapping)}`,
-                            `to ${f.value(tonemapping)}`
-                        ].join(' ');
-                        editor.call('console:log:entity', entity, msg, true);
+                        const tone = settings.get('render.tonemapping') ?? TONEMAP_LINEAR;
+                        const oldTone = entity.get('components.camera.toneMapping');
+                        entity.set('components.camera.toneMapping', tone, false, false, true);
+                        if (tone !== oldTone) {
+                            editor.call(
+                                'console:log:entity',
+                                entity,
+                                `Setting ${f.path('components.camera.toneMapping')} on ${f.entity(entity)} from ${f.value(oldTone)} to ${f.value(tone)}`,
+                                true
+                            );
+                        }
                     }
+                    entity.history.enabled = true;
                 }
-                entity.history.enabled = true;
+
+                editor.call('status:clear');
+                if (editor.call('permissions:write')) {
+                    editor.call('settings:project').set('engineV2', true);
+                    window.location.reload();
+                }
             });
         };
-        editor.call('entities:list').forEach(migrateEntity);
 
-        // remove existing handle if found
-        if (migrateEntityHandle) {
-            migrateEntityHandle.unbind();
-        }
-        migrateEntityHandle = editor.on('entities:add', migrateEntity);
-
-        editor.call('status:clear');
-    };
-    if (!editor.projectEngineV2) {
         editor.on('entities:load', () => {
-            entitiesLoaded = true;
-            migrateCameraSettings();
+            entitiesReady = true;
+            migrate();
         });
         editor.on('settings:projectUser:load', () => {
-            projectUserSettingsLoaded = true;
-            migrateCameraSettings();
+            userReady = true;
+            migrate();
         });
-        settings.on('render.gamma_correction:set', migrateCameraSettings);
-        settings.on('render.tonemapping:set', migrateCameraSettings);
+        settings.on('render.gamma_correction:set', migrate);
+        settings.on('render.tonemapping:set', migrate);
     }
 
     editor.on('sceneSettings:load', (settings: Observer) => {
@@ -138,24 +132,19 @@ editor.once('load', () => {
             }
         }
 
-        // migrations
         const history = settings.history.enabled;
         const sync = settings.sync.enabled;
-
         settings.history.enabled = false;
         settings.sync.enabled = editor.call('permissions:write');
 
-        // gamma correction migration
-        const oldGammaCorrection = settings.get('render.gamma_correction');
-        if (oldGammaCorrection !== GAMMA_NONE && oldGammaCorrection !== GAMMA_SRGB) {
-            const gammaCorrection = GAMMA_SRGB;
-            settings.set('render.gamma_correction', gammaCorrection);
-            const msg = [
-                `Setting scene setting ${f.path('render.gamma_correction')} from`,
-                `${f.value(oldGammaCorrection)}`,
-                `to ${f.value(gammaCorrection)}`
-            ].join(' ');
-            editor.call('console:log:settings', settings, msg);
+        const oldGamma = settings.get('render.gamma_correction');
+        if (oldGamma !== GAMMA_NONE && oldGamma !== GAMMA_SRGB) {
+            settings.set('render.gamma_correction', GAMMA_SRGB);
+            editor.call(
+                'console:log:settings',
+                settings,
+                `Setting scene setting ${f.path('render.gamma_correction')} from ${f.value(oldGamma)} to ${f.value(GAMMA_SRGB)}`
+            );
         }
 
         settings.history.enabled = history;

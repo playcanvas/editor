@@ -27,7 +27,7 @@ class Editor<T extends EditorMethods> extends Caller<T> {
     isCodeEditor = false;
 
     /**
-     * Whether the Editor project is using engine v2.
+     * Whether the Editor project has completed the engine v2 migration.
      */
     projectEngineV2: boolean =
         'settings' in config.project ? ((config.project.settings as Record<string, any>)?.engineV2 ?? false) : false;
