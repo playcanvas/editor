@@ -1,9 +1,11 @@
-import { LegacyButton } from '@/common/ui/button';
-import { LegacyLabel } from '@/common/ui/label';
-import { LegacyList } from '@/common/ui/list';
-import { LegacyListItem } from '@/common/ui/list-item';
-import { LegacyOverlay } from '@/common/ui/overlay';
-import { LegacyPanel } from '@/common/ui/panel';
+import {
+    createButton,
+    createLabel,
+    createList,
+    createListItem,
+    createOverlay,
+    createPanel
+} from '../../attributes/attributes-pcui';
 
 editor.once('load', () => {
     if (!editor.call('settings:project').get('useLegacyScripts')) {
@@ -13,20 +15,20 @@ editor.once('load', () => {
     const sceneSettings = editor.call('sceneSettings');
     let priorityScripts = [];
 
-    const priorityList = new LegacyList();
+    const priorityList = createList();
 
     const refreshPriorityList = function () {
         priorityList.clear();
 
         if (priorityScripts.length === 0) {
-            const item = new LegacyListItem();
+            const item = createListItem();
             priorityList.append(item);
         } else {
             priorityScripts.forEach((script, index) => {
-                const item = new LegacyListItem();
+                const item = createListItem();
                 item.text = script;
 
-                const moveUp = new LegacyButton();
+                const moveUp = createButton();
                 moveUp.class.add('move-up');
                 if (index) {
                     moveUp.on('click', () => {
@@ -40,7 +42,7 @@ editor.once('load', () => {
                     moveUp.class.add('not-visible');
                 }
 
-                const moveDown = new LegacyButton();
+                const moveDown = createButton();
                 moveDown.class.add('move-down');
                 if (index < priorityScripts.length - 1) {
                     moveDown.on('click', () => {
@@ -54,7 +56,7 @@ editor.once('load', () => {
                     moveDown.class.add('not-visible');
                 }
 
-                const remove = new LegacyButton();
+                const remove = createButton();
                 remove.class.add('remove');
                 remove.on('click', () => {
                     const index = priorityScripts.indexOf(script);
@@ -78,25 +80,25 @@ editor.once('load', () => {
 
     const root = editor.call('layout.root');
 
-    const overlay = new LegacyOverlay();
+    const overlay = createOverlay();
     overlay.class.add('script-priorities');
     overlay.hidden = true;
 
-    const label = new LegacyLabel();
+    const label = createLabel();
     label.text = 'Script Loading Priority';
     label.class.add('title');
     overlay.append(label);
 
-    const description = new LegacyLabel();
+    const description = createLabel();
     description.text = 'Scripts in the priority list are loaded first in the order that they are listed. Other scripts are loaded in an unspecified order.';
     description.class.add('description');
     overlay.append(description);
 
-    const panel = new LegacyPanel();
+    const panel = createPanel();
     overlay.append(panel);
 
     // Add new script button
-    const button = new LegacyButton();
+    const button = createButton();
     button.text = 'Add Script';
     button.class.add('add-script');
     button.on('click', (evt) => {

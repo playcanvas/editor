@@ -9,7 +9,6 @@ import { CurveInput } from '@/common/pcui/element/element-curve-input';
 import { EntityInput } from '@/common/pcui/element/element-entity-input';
 import { GradientInput } from '@/common/pcui/element/element-gradient-input';
 import { LayersInput } from '@/common/pcui/element/element-layers-input';
-import { LegacyLabel } from '@/common/ui/label';
 
 import { AttributesInspector } from '../inspector/attributes-inspector';
 
@@ -146,10 +145,10 @@ class TemplateOverridesView extends Container {
 
     private _dropdownMenu: Container;
 
-    private _dropdownMarker: LegacyLabel | null = null;
+    private _dropdownMarker: Label | null = null;
 
     private _evtWindowClick = (e: MouseEvent) => {
-        if (this._dropdownMarker && this._dropdownMarker.dom.contains(e.target)) {
+        if (this._dropdownMarker && this._dropdownMarker.dom.contains(e.target as Node)) {
             return;
         }
 
@@ -471,8 +470,8 @@ class TemplateOverridesView extends Container {
         });
     }
 
-    _createOverrideMarker(override: Record<string, unknown> | null, type?: string): LegacyLabel {
-        const label = new LegacyLabel({
+    _createOverrideMarker(override: Record<string, unknown> | null, type?: string) {
+        const label = new Label({
             text: override ? '&#58208;' : '',
             unsafe: true
         });
@@ -577,7 +576,7 @@ class TemplateOverridesView extends Container {
     }
 
     // Creates an override group for the left and right sides
-    _handleOverrideGroup(name: string, override: Record<string, unknown>, result: OverrideGroup[]) {
+    _handleOverrideGroup(name: string, override: Record<string, unknown>, result: (OverrideGroup | Label)[]) {
         let markerOverride = override;
 
         if (override.missing_in_dst) {

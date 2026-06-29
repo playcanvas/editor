@@ -1,4 +1,4 @@
-import { LegacyTooltip } from '@/common/ui/tooltip';
+import { TooltipHandle } from '@/common/tooltips';
 
 editor.once('load', () => {
     const root = editor.call('layout.root');
@@ -123,7 +123,7 @@ editor.once('load', () => {
 
                 const date = new Date();
 
-                element.tooltip = LegacyTooltip.attach({
+                element.tooltip = TooltipHandle.attach({
                     target: img,
                     text: `${(`00${date.getHours()}`).slice(-2)}:${(`00${date.getMinutes()}`).slice(-2)}`,
                     align: 'right',

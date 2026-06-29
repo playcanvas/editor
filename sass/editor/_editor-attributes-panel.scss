@@ -687,12 +687,12 @@
     .ui-panel.component {
         outline: none;
 
-        > header {
+        > :is(header, .ui-header) {
             text-transform: uppercase;
         }
 
         &.pcui-collapsible {
-            > header {
+            > :is(header, .ui-header) {
                 border-top: 1px solid $bcg-darker;
 
                 &:hover {
@@ -702,7 +702,7 @@
             }
 
             &.pcui-collapsed {
-                > header {
+                > :is(header, .ui-header) {
                     background-color: $bcg-primary;
 
                     &:hover {
@@ -714,7 +714,7 @@
         }
 
         &.entity {
-            > header {
+            > :is(header, .ui-header) {
                 border-top: 1px solid $bcg-dark;
 
                 > .title {
@@ -774,80 +774,80 @@
                 }
             }
 
-            &.script > header > .title::before {
+            &.script > :is(header, .ui-header) > .title::before {
                 content: '\E236';
             }
 
-            &.model > header > .title::before {
+            &.model > :is(header, .ui-header) > .title::before {
                 content: '\E188';
             }
 
-            &.animation > header > .title::before {
+            &.animation > :is(header, .ui-header) > .title::before {
                 content: '\E198';
             }
 
-            &.audiosource > header > .title::before {
+            &.audiosource > :is(header, .ui-header) > .title::before {
                 content: '\E197';
             }
 
-            &.sound > header > .title::before {
+            &.sound > :is(header, .ui-header) > .title::before {
                 content: '\E197';
             }
 
-            &.collision > header > .title::before {
+            &.collision > :is(header, .ui-header) > .title::before {
                 content: '\E187';
             }
 
-            &.rigidbody > header > .title::before {
+            &.rigidbody > :is(header, .ui-header) > .title::before {
                 content: '\E189';
             }
 
-            &.particlesystem > header > .title::before {
+            &.particlesystem > :is(header, .ui-header) > .title::before {
                 content: '\E199';
             }
 
-            &.light > header > .title::before {
+            &.light > :is(header, .ui-header) > .title::before {
                 content: '\E194';
             }
 
-            &.audiolistener > header > .title::before {
+            &.audiolistener > :is(header, .ui-header) > .title::before {
                 content: '\E196';
             }
 
-            &.camera > header > .title::before {
+            &.camera > :is(header, .ui-header) > .title::before {
                 content: '\E212';
             }
 
-            &.screen > header > .title::before {
+            &.screen > :is(header, .ui-header) > .title::before {
                 content: '\E403';
             }
 
-            &.element > header > .title::before {
+            &.element > :is(header, .ui-header) > .title::before {
                 content: '\E378';
             }
 
-            &.button > header > .title::before {
+            &.button > :is(header, .ui-header) > .title::before {
                 content: '\E405';
             }
 
-            &.scrollview > header > .title::before {
+            &.scrollview > :is(header, .ui-header) > .title::before {
                 content: '\E408';
             }
 
-            &.scrollbar > header > .title::before {
+            &.scrollbar > :is(header, .ui-header) > .title::before {
                 content: '\E409';
             }
 
-            &.sprite > header > .title::before {
+            &.sprite > :is(header, .ui-header) > .title::before {
                 content: '\E395';
             }
 
-            &.layoutgroup > header > .title::before,
-            &.layoutchild > header > .title::before {
+            &.layoutgroup > :is(header, .ui-header) > .title::before,
+            &.layoutchild > :is(header, .ui-header) > .title::before {
                 content: '\E143';
             }
 
-            &.gsplat > header > .title::before {
+            &.gsplat > :is(header, .ui-header) > .title::before {
                 content: '\E217';
             }
         }
