@@ -4,7 +4,7 @@ export const fields: AttributeReference[] = [{
     name: 'audiosource:component',
     title: 'pc.AudioSourceComponent',
     subTitle: '{pc.Component}',
-    description: `The AudioSource Component controls playback of an audio sample. ${editor.projectEngineV2 ? 'This class has been removed' : 'This class will be deprecated'} in favor of {@link pc.SoundComponent}.`,
+    description: 'The AudioSource Component controls playback of an audio sample. This class has been removed in favor of {@link pc.SoundComponent}.',
     url: 'https://api.playcanvas.com/engine/classes/AudioSourceComponent.html'
 }, {
     name: 'audiosource:3d',

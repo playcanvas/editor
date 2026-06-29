@@ -127,7 +127,7 @@ editor.once('load', () => {
             asset.set('data.useSkybox', true);
         }
 
-        // NOTE: useGammaTonemap is used by engine v1 so bind useTonemap to useGammaTonemap
+        // NOTE: keep legacy tonemap data in sync
         asset.on('data.useTonemap:set', (value: boolean) => {
             asset.set('data.useGammaTonemap', value);
         });
@@ -281,7 +281,7 @@ editor.once('load', () => {
             asset.set('data.clearCoatNormalMapOffset', [0, 0]);
         }
 
-        // NOTE: set shader to blinn if it is not already for engine v1
+        // NOTE: keep legacy shader data normalized
         if (asset.get('data.shader') !== 'blinn') {
             const shader = asset.get('data.shader');
             asset.set('data.shader', 'blinn');

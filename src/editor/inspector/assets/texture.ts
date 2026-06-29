@@ -1150,33 +1150,6 @@ class TextureAssetInspector extends Container {
         this._webgl1NonPotWithoutAddressClampWarning.hidden = true;
         this._webgl1NonPotWithMipmapsWarning.hidden = true;
 
-        // Don't show WebGL1 warnings when running in Engine v2 mode
-        if (editor.projectEngineV2) {
-            return;
-        }
-
-        const assets = this._assets;
-        // Show the warnings if any of the assets have an issue
-
-        for (let i = 0; i < assets.length; i++) {
-            const asset = assets[i];
-            if (!TextureCompressor.isPOT(asset.get('meta.width'), asset.get('meta.height'))) {
-                if (asset.get('data.mipmaps')) {
-                    this._webgl1NonPotWithMipmapsWarning.hidden = false;
-                    break;
-                }
-            }
-        }
-
-        for (let i = 0; i < assets.length; i++) {
-            const asset = assets[i];
-            if (!TextureCompressor.isPOT(asset.get('meta.width'), asset.get('meta.height'))) {
-                if (asset.get('data.addressu') !== 'clamp' || asset.get('data.addressv') !== 'clamp') {
-                    this._webgl1NonPotWithoutAddressClampWarning.hidden = false;
-                    break;
-                }
-            }
-        }
     }
 
     link(assets: Observer[]) {
