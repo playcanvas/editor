@@ -1,11 +1,11 @@
-import {
-    createButton,
-    createLabel,
-    createList,
-    createListItem,
-    createPanel,
-    createTextInput
-} from './attributes-pcui';
+import type { Observer } from '@playcanvas/observer';
+
+import { LegacyButton } from '@/common/ui/button';
+import { LegacyLabel } from '@/common/ui/label';
+import { LegacyList } from '@/common/ui/list';
+import { LegacyListItem } from '@/common/ui/list-item';
+import { LegacyPanel } from '@/common/ui/panel';
+import { LegacyTextField } from '@/common/ui/text-field';
 
 
 editor.once('load', () => {
@@ -13,11 +13,11 @@ editor.once('load', () => {
     const root = editor.call('layout.attributes');
 
     // get the right path from args
-    const pathAt = function (args: any, index: number) {
+    const pathAt = function (args: { path?: string; paths?: string[] }, index: number) {
         return args.paths ? args.paths[index] : args.path;
     };
 
-    const historyState = function (item: any, state: boolean) {
+    const historyState = function (item: Observer, state: boolean) {
         if (item.history !== undefined) {
             if (typeof item.history === 'boolean') {
                 item.history = state;
@@ -40,7 +40,12 @@ editor.once('load', () => {
      * @param args.filterFn - A custom function that filters assets that can be dragged on the list. The function
      * takes the asset as its only argument.
      */
-    editor.method('attributes:addAssetsList', (args: any) => {
+    editor.method('attributes:addAssetsList', (args: {
+        link: Observer[];
+        type?: string;
+        filterFn?: (asset: Observer) => boolean;
+        panel: LegacyPanel;
+    }) => {
         const link = args.link;
         const assetType = args.type;
         const assetFilterFn = args.filterFn;
@@ -49,7 +54,7 @@ editor.once('load', () => {
         // index list items by asset id
         let assetIndex = {};
 
-        const panelWidget = createPanel();
+        const panelWidget = new LegacyPanel();
         panelWidget.flex = true;
         panelWidget.class.add('asset-list');
 
@@ -57,26 +62,26 @@ editor.once('load', () => {
         let currentSelection = null;
 
         // button that enables selection mode
-        const btnSelectionMode = createButton({
+        const btnSelectionMode = new LegacyButton({
             text: 'Add Assets'
         });
         btnSelectionMode.class.add('selection-mode');
         panelWidget.append(btnSelectionMode);
 
         // panel for buttons
-        const panelButtons = createPanel();
+        const panelButtons = new LegacyPanel();
         panelButtons.class.add('buttons');
         panelButtons.flex = true;
         panelButtons.hidden = true;
 
         // label
-        const labelAdd = createLabel({
+        const labelAdd = new LegacyLabel({
             text: 'Add Assets'
         });
         panelButtons.append(labelAdd);
 
         // add button
-        const btnAdd = createButton({
+        const btnAdd = new LegacyButton({
             text: 'ADD SELECTION'
         });
         btnAdd.disabled = true;
@@ -85,7 +90,7 @@ editor.once('load', () => {
         panelButtons.append(btnAdd);
 
         // done button
-        const btnDone = createButton({
+        const btnDone = new LegacyButton({
             text: 'DONE'
         });
         btnDone.flexGrow = 1;
@@ -148,7 +153,7 @@ editor.once('load', () => {
         });
 
         // search field
-        const fieldFilter = createTextInput();
+        const fieldFilter = new LegacyTextField();
         fieldFilter.hidden = true;
         fieldFilter.elementInput.setAttribute('placeholder', 'Type to filter');
         fieldFilter.keyChange = true;
@@ -157,7 +162,7 @@ editor.once('load', () => {
 
         // assets
         var fieldAssets;
-        const fieldAssetsList = createList();
+        const fieldAssetsList = new LegacyList();
         fieldAssetsList.class.add('empty');
         fieldAssetsList.flexGrow = 1;
 
@@ -279,25 +284,25 @@ editor.once('load', () => {
         };
 
         // add asset list item to the list
-        const addAssetListItem = function (assetId: number | string, after?: any) {
-            const id = typeof assetId === 'number' ? assetId : parseInt(assetId, 10);
+        const addAssetListItem = function (assetId: number | string, after: LegacyListItem | null) {
+            assetId = parseInt(assetId, 10);
 
-            let item = assetIndex[id];
+            let item = assetIndex[assetId];
             if (item) {
                 item.count++;
                 item.text = (item.count === link.length ? '' : '* ') + item._assetText;
                 return;
             }
 
-            const asset = editor.call('assets:get', id);
-            let text = String(id);
+            const asset = editor.call('assets:get', assetId);
+            let text = assetId;
             if (asset && asset.get('name')) {
                 text = asset.get('name');
             } else if (!asset) {
                 text += ' (Missing)';
             }
 
-            item = createListItem({
+            item = new LegacyListItem({
                 text: (link.length === 1) ? text : `* ${text}`
             });
             if (asset) {
@@ -316,20 +321,20 @@ editor.once('load', () => {
             fieldAssetsList.class.remove('empty');
             fieldFilter.hidden = false;
 
-            assetIndex[id] = item;
+            assetIndex[assetId] = item;
 
             // remove button
-            const btnRemove = createButton();
+            const btnRemove = new LegacyButton();
             btnRemove.class.add('remove');
             btnRemove.on('click', () => {
-                removeAsset(id);
+                removeAsset(assetId);
 
             });
             btnRemove.parent = item;
             item.element.appendChild(btnRemove.element);
 
             item.once('destroy', () => {
-                delete assetIndex[id];
+                delete assetIndex[assetId];
             });
         };
 
@@ -347,7 +352,7 @@ editor.once('load', () => {
                 item.destroy();
                 fieldAssets.emit('remove', item);
 
-                if (!fieldAssetsList.innerElement.children.length) {
+                if (!fieldAssetsList.element.children.length) {
                     fieldAssetsList.class.add('empty');
                     fieldFilter.hidden = true;
                 }
@@ -411,10 +416,10 @@ editor.once('load', () => {
             dropRef.disabled = true;
 
             // clear list item
-            const items = fieldAssetsList.innerElement.children;
+            const items = fieldAssetsList.element.children;
             let i = items.length;
             while (i--) {
-                if (!items[i].ui?.isListItem) {
+                if (!items[i].ui || !(items[i].ui instanceof LegacyListItem)) {
                     continue;
                 }
 

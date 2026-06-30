@@ -1,25 +1,25 @@
 import type { Observer } from '@playcanvas/observer';
 
-import { toLinkedFieldValue } from '@/common/pcui/compat-utils';
-
-import {
-    createAssetInput,
-    createButton,
-    createCheckbox,
-    createCode,
-    createColorInput,
-    createCurveInput,
-    createEntityInput,
-    createGradientInput,
-    createLabel,
-    createNumberInput,
-    createPanel,
-    createProgress,
-    createSelectInput,
-    createSliderInput,
-    createTextAreaInput,
-    createTextInput
-} from './attributes-pcui';
+import { CubemapThumbnailRenderer } from '@/common/thumbnail-renderers/cubemap-thumbnail-renderer';
+import { FontThumbnailRenderer } from '@/common/thumbnail-renderers/font-thumbnail-renderer';
+import { MaterialThumbnailRenderer } from '@/common/thumbnail-renderers/material-thumbnail-renderer';
+import { ModelThumbnailRenderer } from '@/common/thumbnail-renderers/model-thumbnail-renderer';
+import { SpriteThumbnailRenderer } from '@/common/thumbnail-renderers/sprite-thumbnail-renderer';
+import { LegacyButton } from '@/common/ui/button';
+import { LegacyCheckbox } from '@/common/ui/checkbox';
+import { LegacyCode } from '@/common/ui/code';
+import { LegacyColorField } from '@/common/ui/color-field';
+import { LegacyCurveField } from '@/common/ui/curve-field';
+import { LegacyImageField } from '@/common/ui/image-field';
+import { LegacyLabel } from '@/common/ui/label';
+import { LegacyNumberField } from '@/common/ui/number-field';
+import { LegacyPanel } from '@/common/ui/panel';
+import { LegacyProgress } from '@/common/ui/progress';
+import { LegacySelectField } from '@/common/ui/select-field';
+import { LegacySlider } from '@/common/ui/slider';
+import { LegacyTextField } from '@/common/ui/text-field';
+import { LegacyTextAreaField } from '@/common/ui/textarea-field';
+import { buildQueryUrl } from '@/common/utils';
 
 editor.once('load', () => {
     const legacyScripts = editor.call('settings:project').get('useLegacyScripts');
@@ -49,7 +49,7 @@ editor.once('load', () => {
     // add panel
     editor.method('attributes:addPanel', (args = {}) => {
         // panel
-        const panel = createPanel(args.name || '');
+        const panel = new LegacyPanel(args.name || '');
         // parent
         (args.parent || root).append(panel);
 
@@ -60,7 +60,7 @@ editor.once('load', () => {
         return panel;
     });
 
-    const historyState = function (item: any, state: boolean) {
+    const historyState = function (item: Observer, state: boolean) {
         if (item.history !== undefined) {
             if (typeof item.history === 'boolean') {
                 item.history = state;
@@ -75,7 +75,7 @@ editor.once('load', () => {
     };
 
     // get the right path from args
-    const pathAt = function (args: any, index: number) {
+    const pathAt = function (args: { path?: string; paths?: string[] }, index: number) {
         return args.paths ? args.paths[index] : args.path;
     };
 
@@ -90,7 +90,6 @@ editor.once('load', () => {
 
         update = function () {
             let different = false;
-            let values = null;
             let path = pathAt(args, 0);
             let value = args.link[0].has(path) ? args.link[0].get(path) : undefined;
             if (args.type === 'rgb') {
@@ -104,12 +103,12 @@ editor.once('load', () => {
                         }
                     }
                 }
+                if (value) {
+                    value = value.map((v) => {
+                        return Math.floor(v * 255);
+                    });
+                }
             } else if (args.type === 'asset') {
-                values = args.link.map((link, i) => {
-                    const itemPath = pathAt(args, i);
-                    return link.has(itemPath) ? link.get(itemPath) || null : null;
-                });
-
                 let countUndefined = value === undefined ? 1 : 0;
                 for (let i = 1; i < args.link.length; i++) {
                     path = pathAt(args, i);
@@ -133,12 +132,19 @@ editor.once('load', () => {
 
                 if (countUndefined && countUndefined !== args.link.length) {
                     args.field.class.add('star');
+                    if (!/^\* /.test(args.field._title.text)) {
+                        args.field._title.text = `* ${args.field._title.text}`;
+                    }
                 } else {
                     args.field.class.remove('star');
+                    if (/^\* /.test(args.field._title.text)) {
+                        args.field._title.text = args.field._title.text.substring(2);
+                    }
                 }
 
                 if (different) {
                     args.field.class.add('null');
+                    args.field._title.text = 'various';
                 } else {
                     args.field.class.remove('null');
                 }
@@ -180,14 +186,7 @@ editor.once('load', () => {
             }
 
             args.field._changing = true;
-            if (args.type === 'asset' && different) {
-                args.field.values = values;
-            } else {
-                args.field.value = toLinkedFieldValue(args.type, value, different);
-            }
-            if (args.type === 'entity' && different) {
-                args.field.text = 'various';
-            }
+            args.field.value = value;
 
             if (args.type === 'checkbox') {
                 args.field._onLinkChange(value);
@@ -220,10 +219,14 @@ editor.once('load', () => {
             }
 
             if (args.trim) {
-                value = typeof value === 'string' ? value.trim() : value;
+                value = value.trim();
             }
 
-            if (args.type === 'asset') {
+            if (args.type === 'rgb') {
+                value = value.map((v) => {
+                    return v / 255;
+                });
+            } else if (args.type === 'asset') {
                 args.field.class.remove('null');
             }
 
@@ -380,6 +383,9 @@ editor.once('load', () => {
             events.push(args.field.on('click', () => {
                 colorPickerOn = true;
 
+                // set picker color
+                editor.call('picker:color', args.field.value);
+
                 let items = [];
 
                 // picking starts
@@ -387,14 +393,33 @@ editor.once('load', () => {
                     items = historyStart();
                 });
 
+                // picked color
+                const evtColorPick = editor.on('picker:color', (color) => {
+                    args.field.value = color;
+                });
+
                 const evtColorPickEnd = editor.on('picker:color:end', () => {
-                    historyEnd(items.slice(0), args.field.value);
+                    historyEnd(items.slice(0), args.field.value.map((v) => {
+                        return v / 255;
+                    }));
+                });
+
+                // position picker
+                const rectPicker = editor.call('picker:color:rect');
+                const rectField = args.field.element.getBoundingClientRect();
+                editor.call('picker:color:position', rectField.left - rectPicker.width, rectField.top);
+
+                // color changed, update picker
+                const evtColorToPicker = args.field.on('change', function () {
+                    editor.call('picker:color:set', this.value);
                 });
 
                 // picker closed
                 editor.once('picker:color:close', () => {
+                    evtColorPick.unbind();
                     evtColorPickStart.unbind();
                     evtColorPickEnd.unbind();
+                    evtColorToPicker.unbind();
                     colorPickerOn = false;
                     args.field.element.focus();
                 });
@@ -440,7 +465,7 @@ editor.once('load', () => {
         let panel = args.panel;
 
         if (!panel) {
-            panel = createPanel();
+            panel = new LegacyPanel();
             panel.flexWrap = 'nowrap';
             panel.WebkitFlexWrap = 'nowrap';
             panel.style.display = '';
@@ -456,7 +481,7 @@ editor.once('load', () => {
 
         let label;
         if (args.name) {
-            label = createLabel({
+            label = new LegacyLabel({
                 text: args.name
             });
             label.class.add('label-field');
@@ -496,8 +521,8 @@ editor.once('load', () => {
 
         const linkField = args.linkField = function () {
             if (args.link) {
-                const link = function (field: any, path?: string | string[]) {
-                    const data: any = {
+                const link = function (field: LegacyNumberField | LegacyTextField | LegacyCheckbox | LegacySelectField | LegacySlider | LegacyColorField | LegacyImageField | LegacyLabel, path: string | string[]) {
+                    const data = {
                         field: field,
                         type: args.type,
                         slider: args.slider,
@@ -555,11 +580,11 @@ editor.once('load', () => {
         switch (args.type) {
             case 'string':
                 if (args.enum) {
-                    field = createSelectInput({
+                    field = new LegacySelectField({
                         options: args.enum
                     });
                 } else {
-                    field = createTextInput();
+                    field = new LegacyTextField();
                 }
 
                 field.value = args.value || '';
@@ -577,11 +602,11 @@ editor.once('load', () => {
             case 'tags':
                 // TODO: why isn't this in a seperate class/file???
 
-                var innerPanel = createPanel();
+                var innerPanel = new LegacyPanel();
                 var tagType = args.tagType || 'string';
 
                 if (args.enum) {
-                    field = createSelectInput({
+                    field = new LegacySelectField({
                         options: args.enum,
                         type: tagType
                     });
@@ -602,7 +627,7 @@ editor.once('load', () => {
                     innerPanel.append(field);
 
                 } else {
-                    field = createTextInput();
+                    field = new LegacyTextField();
                     field.blurOnEnter = false;
                     field.renderChanges = false;
 
@@ -617,7 +642,7 @@ editor.once('load', () => {
 
                     innerPanel.append(field);
 
-                    const btnAdd = createButton({
+                    const btnAdd = new LegacyButton({
                         text: '&#57632'
                     });
                     btnAdd.flexGrow = 0;
@@ -633,7 +658,7 @@ editor.once('load', () => {
                 }
 
 
-                var tagsPanel = createPanel();
+                var tagsPanel = new LegacyPanel();
                 tagsPanel.class.add('tags');
                 tagsPanel.flex = true;
                 innerPanel.append(tagsPanel);
@@ -713,16 +738,15 @@ editor.once('load', () => {
                     }
                 };
 
-                var addTag = function (tag: string | number) {
+                var addTag = function (tag: string) {
                     const records = [];
 
                     // convert to number if needed
                     if (args.tagType === 'number') {
-                        const numeric = parseInt(String(tag), 10);
-                        if (isNaN(numeric)) {
+                        tag = parseInt(tag, 10);
+                        if (isNaN(tag)) {
                             return;
                         }
-                        tag = numeric;
                     }
 
                     for (let i = 0; i < args.link.length; i++) {
@@ -853,7 +877,7 @@ editor.once('load', () => {
 
                         // the original tag value before tagToString is called. Useful
                         // if the tag value is an id for example
-                        (item as any).originalValue = tag;
+                        item.originalValue = tag;
 
                         // attach click handler on text part of the tag - bind the listener
                         // to the tag item so that `this` refers to that tag in the listener
@@ -864,7 +888,7 @@ editor.once('load', () => {
                         const icon = document.createElement('span');
                         icon.innerHTML = '&#57650;';
                         icon.classList.add('icon');
-                        (icon as any).tag = tag;
+                        icon.tag = tag;
                         icon.addEventListener('click', onRemoveClick, false);
                         item.appendChild(icon);
 
@@ -956,7 +980,7 @@ editor.once('load', () => {
                 break;
 
             case 'text':
-                field = createTextAreaInput();
+                field = new LegacyTextAreaField();
 
                 field.value = args.value || '';
                 field.flexGrow = 1;
@@ -972,14 +996,14 @@ editor.once('load', () => {
 
             case 'number':
                 if (args.enum) {
-                    field = createSelectInput({
+                    field = new LegacySelectField({
                         options: args.enum,
                         type: 'number'
                     });
                 } else if (args.slider) {
-                    field = createSliderInput();
+                    field = new LegacySlider();
                 } else {
-                    field = createNumberInput();
+                    field = new LegacyNumberField();
                 }
 
                 field.value = args.value || 0;
@@ -1016,13 +1040,13 @@ editor.once('load', () => {
 
             case 'checkbox':
                 if (args.enum) {
-                    field = createSelectInput({
+                    field = new LegacySelectField({
                         options: args.enum,
                         type: 'boolean'
                     });
                     field.flexGrow = 1;
                 } else {
-                    field = createCheckbox();
+                    field = new LegacyCheckbox();
                 }
 
                 field.value = args.value || 0;
@@ -1040,7 +1064,7 @@ editor.once('load', () => {
                 field = [];
 
                 for (let i = 0; i < channels; i++) {
-                    field[i] = createNumberInput();
+                    field[i] = new LegacyNumberField();
                     field[i].flexGrow = 1;
                     field[i].style.width = '24px';
                     field[i].value = (args.value && args.value[i]) || 0;
@@ -1074,64 +1098,524 @@ editor.once('load', () => {
                 break;
 
             case 'rgb':
-                field = createColorInput(args);
+                field = new LegacyColorField();
 
                 if (args.channels != null) {
                     field.channels = args.channels;
                 }
 
                 linkField();
+
+                var colorPickerOn = false;
+                field.on('click', () => {
+                    colorPickerOn = true;
+
+                    // set picker color
+                    editor.call('picker:color', field.value);
+
+                    // picking starts
+                    const evtColorPickStart = editor.on('picker:color:start', () => {
+                    });
+
+                    // picked color
+                    const evtColorPick = editor.on('picker:color', (color) => {
+                        field.value = color;
+                    });
+
+                    // position picker
+                    const rectPicker = editor.call('picker:color:rect');
+                    const rectField = field.element.getBoundingClientRect();
+                    editor.call('picker:color:position', rectField.left - rectPicker.width, rectField.top);
+
+                    // color changed, update picker
+                    const evtColorToPicker = field.on('change', function () {
+                        editor.call('picker:color:set', this.value);
+                    });
+
+                    // picker closed
+                    editor.once('picker:color:close', () => {
+                        evtColorPick.unbind();
+                        evtColorPickStart.unbind();
+                        evtColorToPicker.unbind();
+                        colorPickerOn = false;
+                        field.element.focus();
+                    });
+                });
+
+                // close picker if field destroyed
+                field.on('destroy', () => {
+                    if (colorPickerOn) {
+                        editor.call('picker:color:close');
+                    }
+                });
+
                 panel.append(field);
                 break;
 
             case 'asset':
-                field = createAssetInput({
-                    assets: editor.call('assets:raw'),
-                    assetType: args.kind || args.assetType || '*',
-                    allowDragDrop: true,
-                    validateAssetFn: (asset: Observer) => {
-                        if (legacyScripts && asset.get('type') === 'script') {
-                            return false;
+                field = new LegacyImageField({
+                    canvas: args.kind === 'material' || args.kind === 'model' || args.kind === 'cubemap' || args.kind === 'font' || args.kind === 'sprite'
+                });
+                var evtPick;
+
+                if (label) {
+                    label.renderChanges = false;
+                    field._label = label;
+
+                    label.style.width = '32px';
+                    label.flexGrow = 1;
+                }
+
+
+                var panelFields = document.createElement('div');
+                panelFields.classList.add('top');
+
+                var panelControls = document.createElement('div');
+                panelControls.classList.add('controls');
+
+                var fieldTitle = field._title = new LegacyLabel();
+                fieldTitle.text = 'Empty';
+                fieldTitle.parent = panel;
+                fieldTitle.flexGrow = 1;
+                fieldTitle.placeholder = '...';
+
+                var btnEdit = new LegacyButton({
+                    text: '&#57648;'
+                });
+                btnEdit.disabled = true;
+                btnEdit.parent = panel;
+                btnEdit.flexGrow = 0;
+
+                var btnRemove = new LegacyButton({
+                    text: '&#57650;'
+                });
+                btnRemove.disabled = true;
+                btnRemove.parent = panel;
+                btnRemove.flexGrow = 0;
+
+                fieldTitle.on('click', () => {
+                    const asset = editor.call('assets:get', field.value);
+                    editor.call('picker:asset', {
+                        type: args.kind,
+                        currentAsset: asset
+                    });
+
+                    evtPick = editor.once('picker:asset', (asset) => {
+                        const oldValues = { };
+                        if (args.onSet && args.link && args.link instanceof Array) {
+                            for (let i = 0; i < args.link.length; i++) {
+                                let id = 0;
+                                if (args.link[i]._type === 'asset') {
+                                    id = args.link[i].get('id');
+                                } else if (args.link[i]._type === 'entity') {
+                                    id = args.link[i].get('resource_id');
+                                } else {
+                                    continue;
+                                }
+
+                                oldValues[id] = args.link[i].get(pathAt(args, i));
+                            }
                         }
 
-                        return args.filterFn ? args.filterFn(asset) : true;
-                    },
-                    dragEnterFn: args.over,
-                    dragLeaveFn: args.leave
+                        field.emit('beforechange', asset.get('id'));
+                        field.value = asset.get('id');
+                        evtPick = null;
+                        if (args.onSet) {
+                            args.onSet(asset, oldValues);
+                        }
+                    });
+
+                    editor.once('picker:asset:close', () => {
+                        if (evtPick) {
+                            evtPick.unbind();
+                            evtPick = null;
+                        }
+                        field.element.focus();
+                    });
                 });
-                field.flexGrow = 1;
+
+                field.on('click', function () {
+                    if (!this.value) {
+                        return;
+                    }
+
+                    const asset = editor.call('assets:get', this.value);
+                    if (!asset) {
+                        return;
+                    }
+                    editor.call('selector:set', 'asset', [asset]);
+
+                    if (legacyScripts && asset.get('type') === 'script') {
+                        editor.call('assets:panel:currentFolder', 'scripts');
+                    } else {
+                        const path = asset.get('path');
+                        if (path.length) {
+                            editor.call('assets:panel:currentFolder', editor.call('assets:get', path[path.length - 1]));
+                        } else {
+                            editor.call('assets:panel:currentFolder', null);
+                        }
+                    }
+                });
+                btnEdit.on('click', () => {
+                    field.emit('click');
+                });
+
+                btnRemove.on('click', () => {
+                    field.emit('beforechange', null);
+                    field.value = null;
+                });
+
+                var previewRenderer;
+                var renderQueued;
+                var queueRender;
+
+                var evtThumbnailChange;
+                var updateThumbnail = function (empty?: boolean) {
+                    const asset = editor.call('assets:get', field.value);
+
+                    if (previewRenderer) {
+                        previewRenderer.destroy();
+                        previewRenderer = null;
+                    }
+
+                    if (empty) {
+                        field.image = '';
+                    } else if (!asset) {
+                        field.image = `${config.url.home}/editor/scene/img/asset-placeholder-texture.png`;
+                    } else {
+                        if (asset.has('thumbnails.m')) {
+                            const src = asset.get('thumbnails.m');
+                            if (src.startsWith('data:image/png;base64')) {
+                                field.image = asset.get('thumbnails.m');
+                            } else {
+                                field.image = buildQueryUrl(config.url.home + asset.get('thumbnails.m'), { t: asset.get('file.hash') });
+                            }
+                        } else {
+                            field.image = `/editor/scene/img/asset-placeholder-${asset.get('type')}.png`;
+                        }
+
+                        if (args.kind === 'material') {
+                            previewRenderer = new MaterialThumbnailRenderer(asset, field.elementImage);
+                        } else if (args.kind === 'model') {
+                            previewRenderer = new ModelThumbnailRenderer(asset, field.elementImage);
+                        } else if (args.kind === 'cubemap') {
+                            previewRenderer = new CubemapThumbnailRenderer(asset, field.elementImage, editor.call('assets:raw'));
+                        } else if (args.kind === 'font') {
+                            previewRenderer = new FontThumbnailRenderer(asset, field.elementImage);
+                        } else if (args.kind === 'sprite') {
+                            previewRenderer = new SpriteThumbnailRenderer(asset, field.elementImage, editor.call('assets:raw'));
+                        }
+                    }
+
+                    if (queueRender) {
+                        queueRender();
+                    }
+                };
+
+                if (args.kind === 'material' || args.kind === 'model' || args.kind === 'font' || args.kind === 'sprite' || args.kind === 'cubemap') {
+                    if (args.kind !== 'sprite' && args.kind !== 'cubemap') {
+                        field.elementImage.classList.add('flipY');
+                    }
+
+                    const renderPreview = function () {
+                        renderQueued = false;
+
+                        if (previewRenderer) {
+                            // render
+                            previewRenderer.render();
+                        } else {
+                            let ctx = field.elementImage.ctx;
+                            if (!ctx) {
+                                ctx = field.elementImage.ctx = field.elementImage.getContext('2d');
+                            }
+
+                            ctx.clearRect(0, 0, field.elementImage.width, field.elementImage.height);
+                        }
+                    };
+
+                    renderPreview();
+
+                    queueRender = function () {
+                        if (renderQueued) {
+                            return;
+                        }
+                        renderQueued = true;
+                        requestAnimationFrame(renderPreview);
+                    };
+
+                    field.once('destroy', () => {
+                        if (previewRenderer) {
+                            previewRenderer.destroy();
+                            previewRenderer = null;
+                        }
+                    });
+                }
+
                 linkField();
+
+                var updateField = function () {
+                    const value = field.value;
+
+                    fieldTitle.text = field.class.contains('null') ? 'various' : 'Empty';
+
+                    btnEdit.disabled = !value;
+                    btnRemove.disabled = !value && !field.class.contains('null');
+
+                    if (evtThumbnailChange) {
+                        evtThumbnailChange.unbind();
+                        evtThumbnailChange = null;
+                    }
+
+                    if (!value) {
+                        if (field.class.contains('star')) {
+                            fieldTitle.text = `* ${fieldTitle.text}`;
+                        }
+
+                        field.empty = true;
+                        updateThumbnail(true);
+
+                        return;
+                    }
+
+                    field.empty = false;
+
+                    const asset = editor.call('assets:get', value);
+
+                    if (!asset) {
+                        return updateThumbnail();
+                    }
+
+                    evtThumbnailChange = asset.on('file.hash.m:set', updateThumbnail);
+                    updateThumbnail();
+
+                    fieldTitle.text = asset.get('name');
+
+                    if (field.class.contains('star')) {
+                        fieldTitle.text = `* ${fieldTitle.text}`;
+                    }
+                };
+                field.on('change', updateField);
+
                 if (args.value) {
                     field.value = args.value;
                 }
-                panel.append(field);
-                break;
 
-            case 'entity':
-                field = createEntityInput({
-                    entities: editor.call('entities:raw'),
-                    allowDragDrop: true,
-                    pickEntityFn: (callback: (resourceId: string | null) => void) => {
-                        let evtEntityPick = editor.once('picker:entity', (entity) => {
-                            callback(entity ? entity.get('resource_id') : null);
-                            evtEntityPick = null;
-                        });
+                updateField();
 
-                        editor.call('picker:entity', field.value, args.filter || null);
+                var assetDropRef = editor.call('drop:target', {
+                    ref: panel,
+                    filter: function (type: string, data: { id?: string }) {
+                        const rectA = root.innerElement.getBoundingClientRect();
+                        const rectB = panel.element.getBoundingClientRect();
+                        return data.id && (args.kind === '*' || type === `asset.${args.kind}`) && parseInt(data.id, 10) !== field.value && !editor.call('assets:get', parseInt(data.id, 10)).get('source') && rectB.top > rectA.top && rectB.bottom < rectA.bottom;
+                    },
+                    drop: function (type: string, data: { id?: string }) {
+                        if ((args.kind !== '*' && type !== `asset.${args.kind}`) || editor.call('assets:get', parseInt(data.id, 10)).get('source')) {
+                            return;
+                        }
 
-                        editor.once('picker:entity:close', () => {
-                            if (evtEntityPick) {
-                                evtEntityPick.unbind();
-                                evtEntityPick = null;
+                        const oldValues = { };
+                        if (args.onSet && args.link && args.link instanceof Array) {
+                            for (let i = 0; i < args.link.length; i++) {
+                                let id = 0;
+                                if (args.link[i]._type === 'asset') {
+                                    id = args.link[i].get('id');
+                                } else if (args.link[i]._type === 'entity') {
+                                    id = args.link[i].get('resource_id');
+                                } else {
+                                    continue;
+                                }
+
+                                oldValues[id] = args.link[i].get(pathAt(args, i));
                             }
-                        });
+                        }
+
+                        field.emit('beforechange', parseInt(data.id, 10));
+                        field.value = parseInt(data.id, 10);
+
+                        if (args.onSet) {
+                            const asset = editor.call('assets:get', parseInt(data.id, 10));
+                            if (asset) {
+                                args.onSet(asset, oldValues);
+                            }
+                        }
+                    },
+                    over: function (type: string, data: { id?: string }) {
+                        if (args.over) {
+                            args.over(type, data);
+                        }
+                    },
+                    leave: function () {
+                        if (args.leave) {
+                            args.leave();
+                        }
                     }
                 });
-                field.flexGrow = 1;
-                linkField();
+                field.on('destroy', () => {
+                    assetDropRef.destroy();
+                    if (evtThumbnailChange) {
+                        evtThumbnailChange.unbind();
+                        evtThumbnailChange = null;
+                    }
+                });
+
+                // thumbnail
                 panel.append(field);
+                // right side
+                panel.append(panelFields);
+                // controls
+                panelFields.appendChild(panelControls);
+                // label
+                if (label) {
+                    panel.innerElement.removeChild(label.element);
+                    panelControls.appendChild(label.element);
+                }
+                panelControls.classList.remove('label-field');
+                // edit
+                panelControls.appendChild(btnEdit.element);
+                // remove
+                panelControls.appendChild(btnRemove.element);
+
+                // title
+                panelFields.appendChild(fieldTitle.element);
                 break;
 
+            // entity picker
+            case 'entity':
+                field = new LegacyLabel();
+                field.class.add('add-entity');
+                field.flexGrow = 1;
+                field.class.add('null');
+
+                field.text = 'Select Entity';
+                field.placeholder = '...';
+
+                panel.append(field);
+
+                var icon = document.createElement('span');
+                icon.classList.add('icon');
+
+                icon.addEventListener('click', (e) => {
+                    e.stopPropagation();
+
+                    if (editor.call('permissions:write')) {
+                        field.text = '';
+                    }
+                });
+
+                field.on('change', (value) => {
+                    if (value) {
+                        const entity = editor.call('entities:get', value);
+                        if (!entity) {
+                            field.text = null;
+                            return;
+                        }
+
+                        field.element.innerHTML = entity.get('name');
+                        field.element.appendChild(icon);
+                        field.placeholder = '';
+
+                        if (value !== 'various') {
+                            field.class.remove('null');
+                        }
+                    } else {
+                        field.element.innerHTML = 'Select Entity';
+                        field.placeholder = '...';
+                        field.class.add('null');
+                    }
+                });
+
+                linkField();
+
+                var getCurrentEntity = function () {
+                    let entity = null;
+                    if (args.link) {
+                        if (!(args.link instanceof Array)) {
+                            args.link = [args.link];
+                        }
+
+                        // get initial value only if it's the same for all
+                        // links otherwise set it to null
+                        for (let i = 0, len = args.link.length; i < len; i++) {
+                            const val = args.link[i].get(pathAt(args, i));
+                            if (entity !== val) {
+                                if (entity) {
+                                    entity = null;
+                                    break;
+                                } else {
+                                    entity = val;
+                                }
+                            }
+                        }
+                    }
+
+                    return entity;
+                };
+
+                field.on('click', () => {
+                    var evtEntityPick = editor.once('picker:entity', (entity) => {
+                        field.text = entity ? entity.get('resource_id') : null;
+                        evtEntityPick = null;
+                    });
+
+                    const initialValue = getCurrentEntity();
+
+                    editor.call('picker:entity', initialValue, args.filter || null);
+
+                    editor.once('picker:entity:close', () => {
+                        if (evtEntityPick) {
+                            evtEntityPick.unbind();
+                            evtEntityPick = null;
+                        }
+                    });
+                });
+
+                // highlight on hover
+                field.on('hover', () => {
+                    const entity = getCurrentEntity();
+                    if (!entity) {
+                        return;
+                    }
+
+                    editor.call('entities:panel:highlight', entity, true);
+
+                    field.once('blur', () => {
+                        editor.call('entities:panel:highlight', entity, false);
+                    });
+
+                    field.once('click', () => {
+                        editor.call('entities:panel:highlight', entity, false);
+                    });
+                });
+
+                editor.call('drop:target', {
+                    ref: field,
+                    filter: function (type: string, data: { resource_id?: string }) {
+                        const rectA = root.innerElement.getBoundingClientRect();
+                        const rectB = field.element.getBoundingClientRect();
+                        return type === 'entity' && data.resource_id !== field.value && rectB.top > rectA.top && rectB.bottom < rectA.bottom;
+                    },
+                    drop: function (type: string, data: { resource_id?: string }) {
+                        if (type !== 'entity') {
+                            return;
+                        }
+
+                        field.value = data.resource_id;
+                    },
+                    over: function (type: string, data: { resource_id?: string }) {
+                        if (args.over) {
+                            args.over(type, data);
+                        }
+                    },
+                    leave: function () {
+                        if (args.leave) {
+                            args.leave();
+                        }
+                    }
+                });
+
+
+                break;
             case 'image':
                 panel.flex = false;
 
@@ -1144,14 +1628,14 @@ editor.once('load', () => {
                 break;
 
             case 'progress':
-                field = createProgress();
+                field = new LegacyProgress();
                 field.flexGrow = 1;
 
                 panel.append(field);
                 break;
 
             case 'code':
-                field = createCode();
+                field = new LegacyCode();
                 field.flexGrow = 1;
 
                 if (args.value) {
@@ -1162,7 +1646,7 @@ editor.once('load', () => {
                 break;
 
             case 'button':
-                field = createButton();
+                field = new LegacyButton();
                 field.flexGrow = 1;
                 field.text = args.text || 'Button';
                 panel.append(field);
@@ -1174,7 +1658,7 @@ editor.once('load', () => {
                 break;
 
             case 'curveset':
-                field = createCurveInput(args);
+                field = new LegacyCurveField(args);
                 field.flexGrow = 1;
                 field.text = args.text || '';
 
@@ -1342,11 +1826,123 @@ editor.once('load', () => {
                 break;
 
             case 'gradient':
-                field = createGradientInput(args);
+                field = new LegacyCurveField(args);
                 field.flexGrow = 1;
                 field.text = args.text || '';
 
-                linkField();
+                if (args.link) {
+                    let link = args.link;
+                    if (args.link instanceof Array) {
+                        link = args.link[0];
+                    }
+                    const path = pathAt(args, 0);
+                    field.link(link, [path]);
+                }
+
+                var gradientPickerVisible = false;
+
+                var toggleGradientPicker = function () {
+                    if (!field.class.contains('disabled') && !gradientPickerVisible) {
+                        editor.call('picker:gradient', field.value, args);
+
+                        gradientPickerVisible = true;
+
+                        // position picker
+                        const rectPicker = editor.call('picker:gradient:rect');
+                        const rectField = field.element.getBoundingClientRect();
+                        editor.call('picker:gradient:position', rectField.right - rectPicker.width, rectField.bottom);
+
+                        const evtPickerChanged = editor.on('picker:curve:change', (paths, values) => {
+                            if (!field._link) {
+                                return;
+                            }
+
+                            const link = field._link;
+
+                            const previous = {
+                                paths: [],
+                                values: []
+                            };
+
+                            let path;
+                            for (let i = 0; i < paths.length; i++) {
+                                // always use 0 because we do not support multiselect
+                                path = pathAt(args, 0) + paths[i].substring(1);
+                                previous.paths.push(path);
+                                previous.values.push(field._link.get(path));
+                            }
+
+                            const undo = function () {
+                                const item = link.latest();
+
+                                if (!item) {
+                                    return;
+                                }
+
+                                let history = false;
+                                if (item.history) {
+                                    history = item.history.enabled;
+                                    item.history.enabled = false;
+                                }
+
+                                for (let i = 0; i < previous.paths.length; i++) {
+                                    item.set(previous.paths[i], previous.values[i]);
+                                }
+
+                                if (item.history) {
+                                    item.history.enabled = history;
+                                }
+                            };
+
+                            const redo = function () {
+                                const item = link.latest();
+
+                                if (!item) {
+                                    return;
+                                }
+
+                                let history = false;
+                                if (item.history) {
+                                    history = item.history.enabled;
+                                    item.history.enabled = false;
+                                }
+
+                                for (let i = 0; i < paths.length; i++) {
+                                    // always use 0 because we do not support multiselect
+                                    path = pathAt(args, 0) + paths[i].substring(1);
+                                    item.set(path, values[i]);
+                                }
+
+                                if (item.history) {
+                                    item.history.enabled = history;
+                                }
+                            };
+
+                            redo();
+
+                            editor.api.globals.history.add({
+                                name: `${path}.curves`,
+                                combine: false,
+                                undo: undo,
+                                redo: redo
+                            });
+                        });
+
+                        const evtRefreshPicker = field.on('change', (value) => {
+                            editor.call('picker:gradient:set', value, args);
+                        });
+
+                        editor.once('picker:gradient:close', () => {
+                            evtRefreshPicker.unbind();
+                            evtPickerChanged.unbind();
+                            gradientPickerVisible = false;
+                        });
+                    }
+                };
+
+                // open curve editor on click
+                field.on('click', toggleGradientPicker);
+
                 panel.append(field);
                 break;
 
@@ -1357,7 +1953,7 @@ editor.once('load', () => {
                 break;
 
             default:
-                field = createLabel();
+                field = new LegacyLabel();
                 field.flexGrow = 1;
                 field.text = args.value || '';
                 field.class.add('selectable');
@@ -1372,10 +1968,8 @@ editor.once('load', () => {
                 break;
         }
 
-        if (args.className && field?.class) {
+        if (args.className && field instanceof Element) {
             field.class.add(args.className);
-        } else if (args.className && field?.classList) {
-            field.classList.add(args.className);
         }
 
         return field;
@@ -1408,7 +2002,7 @@ editor.once('load', () => {
 
         // nothing selected
         if (items.length === 0) {
-            const label = createLabel({ text: 'Select anything to Inspect' });
+            const label = new LegacyLabel({ text: 'Select anything to Inspect' });
             label.style.display = 'block';
             label.style.textAlign = 'center';
             root.append(label);

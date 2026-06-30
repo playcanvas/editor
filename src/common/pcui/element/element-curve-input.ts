@@ -245,12 +245,12 @@ class CurveInput extends Element {
 
         let evtPickerChanged = editor.on('picker:curve:change', this._onPickerChange.bind(this));
 
-        let evtRefreshPicker = this.on('change', () => {
+        let evtRefreshPicker = this.on('change', (value: any) => {
             const args = Object.assign({
                 keepZoom: true
             }, this._pickerArgs);
 
-            editor.call('picker:curve:set', this.value, args);
+            editor.call('picker:curve:set', value, args);
         });
 
         editor.once('picker:curve:close', () => {
@@ -372,16 +372,15 @@ class CurveInput extends Element {
             return null;
         }
 
-        if (Array.isArray(value.keys[0])) {
-            return (value.keys as number[][]).map((data: number[]) => {
-                const keys = Array.isArray(data?.[0]) ? data[0] : data;
-                const curve = new Curve(keys || []);
+        if (value.keys[0].length !== undefined) {
+            return value.keys.map((data: number[]) => {
+                const curve = new Curve(data);
                 curve.type = value.type;
                 return curve;
             });
         }
 
-        const curve = new Curve(value.keys as number[]);
+        const curve = new Curve(value.keys);
         curve.type = value.type;
         return [curve];
     }
@@ -442,10 +441,9 @@ class CurveInput extends Element {
                 context.lineTo(x * precision, this._clampEdge(height * (1 - (val - minValue) / (maxValue - minValue)), 1, height - 1));
             }
 
-            const secondaryCurve = secondaryCurves?.[i];
-            if (secondaryCurve) {
+            if (secondaryCurves) {
                 for (let x = Math.floor(width / precision); x >= 0; x--) {
-                    const val = secondaryCurve.value(x * precision / width);
+                    const val = secondaryCurves[i].value(x * precision / width);
                     context.lineTo(x * precision, this._clampEdge(height * (1 - (val - minValue) / (maxValue - minValue)), 1, height - 1));
                 }
 
@@ -482,26 +480,7 @@ class CurveInput extends Element {
         // TODO: maybe we should check for equality
         // but since this value will almost always be set using
         // the picker it's not worth the effort
-        const values = Array.isArray(value) ? deepCopy(value) : [deepCopy(value)];
-        const first = values[0];
-
-        if (first?.betweenCurves && first.keys) {
-            const count = Array.isArray(first.keys[0]) ? first.keys.length : 1;
-            const second = values[1];
-            const secondCount = second?.keys ? (Array.isArray(second.keys[0]) ? second.keys.length : 1) : 0;
-
-            if (secondCount !== count) {
-                values[1] = secondCount === 1 && count > 1 && !Array.isArray(second.keys[0]) ? {
-                    ...second,
-                    keys: first.keys.map(() => deepCopy(second.keys))
-                } : {
-                    type: second?.type ?? first.type,
-                    keys: deepCopy(first.keys)
-                };
-            }
-        }
-
-        this._value = values;
+        this._value = Array.isArray(value) ? deepCopy(value) : [deepCopy(value)];
 
         this.class.remove(CLASS_MULTIPLE_VALUES);
 

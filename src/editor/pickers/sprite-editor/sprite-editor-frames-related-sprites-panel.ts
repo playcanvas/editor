@@ -1,5 +1,8 @@
 import type { EventHandle, Observer } from '@playcanvas/observer';
-import { Container, Label, Panel } from '@playcanvas/pcui';
+import { type Container, Label, Panel } from '@playcanvas/pcui';
+
+import { LegacyList } from '@/common/ui/list';
+import { LegacyListItem } from '@/common/ui/list-item';
 
 editor.once('load', () => {
     editor.method('picker:sprites:attributes:frames:relatedSprites', (args) => {
@@ -23,7 +26,7 @@ editor.once('load', () => {
         });
         panel.append(labelNoAssets);
 
-        const list = new Container();
+        const list = new LegacyList();
         list.class.add('related-assets');
         panel.append(list);
 
@@ -48,7 +51,7 @@ editor.once('load', () => {
         const createAssetPanel = (asset: Observer): void => {
             const assetEvents = [];
 
-            const item = new Label({
+            const item = new LegacyListItem({
                 text: asset.get('name')
             });
             item.class.add('type-sprite');

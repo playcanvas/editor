@@ -1,14 +1,14 @@
 import type { Observer } from '@playcanvas/observer';
-import { Overlay } from '@playcanvas/pcui';
+
+import { LegacyOverlay } from '@/common/ui/overlay';
 
 editor.once('load', () => {
     const legacyScripts = editor.call('settings:project').get('useLegacyScripts');
 
-    const overlay = new Overlay({
-        class: 'picker-asset',
-        clickable: true,
-        hidden: true
-    });
+    const overlay = new LegacyOverlay();
+    overlay.class.add('picker-asset');
+    overlay.center = false;
+    overlay.hidden = true;
 
     const root = editor.call('layout.root');
     root.append(overlay);

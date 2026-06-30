@@ -2,7 +2,8 @@ import type { Observer, ObserverList } from '@playcanvas/observer';
 import { Element, type IBindable, Container, LabelGroup, Panel, Button, ArrayInput, BindingTwoWay, Label, type ContainerArgs } from '@playcanvas/pcui';
 
 import { AssetInput } from '@/common/pcui/element/element-asset-input';
-import { tooltip, tooltipRefItem, TooltipHandle } from '@/common/tooltips';
+import { tooltip, tooltipRefItem } from '@/common/tooltips';
+import { LegacyTooltip } from '@/common/ui/tooltip';
 import type { History } from '@/editor-api';
 
 import type { Attribute, Divider } from './attribute.type.d';
@@ -27,8 +28,8 @@ const isEnabledAttribute = ({ label, type }: { label?: string; type?: string }) 
 
 const CLASS_ROOT = 'pcui-inspector';
 
-let tooltipCopy: TooltipHandle | null = null;
-let tooltipPaste: TooltipHandle | null = null;
+let tooltipCopy: LegacyTooltip | null = null;
+let tooltipPaste: LegacyTooltip | null = null;
 
 class AttributesInspector extends Container {
     private _observers: Observer[] | null;
@@ -285,7 +286,7 @@ class AttributesInspector extends Container {
 
                         // tooltip on hover for copy
                         if (!tooltipCopy) {
-                            tooltipCopy = TooltipHandle.make({
+                            tooltipCopy = LegacyTooltip.create({
                                 text: 'Copy',
                                 align: 'bottom',
                                 class: 'pcui-tooltip-clipboard',
@@ -295,7 +296,7 @@ class AttributesInspector extends Container {
 
                         // tooltip on hover for paste
                         if (!tooltipPaste) {
-                            tooltipPaste = TooltipHandle.make({
+                            tooltipPaste = LegacyTooltip.create({
                                 text: 'Paste',
                                 align: 'bottom',
                                 class: 'pcui-tooltip-clipboard',

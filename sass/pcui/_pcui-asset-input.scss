@@ -51,12 +51,6 @@
     box-sizing: border-box;
 }
 
-.pcui-asset-input.star .pcui-asset-input-controls::before {
-    content: '*';
-    margin: $element-margin;
-    align-self: flex-start;
-}
-
 // asset name field
 .pcui-asset-input-asset {
     flex-grow: 1;

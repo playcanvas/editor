@@ -14,7 +14,7 @@ import {
     SHADOWUPDATE_THISFRAME
 } from 'playcanvas';
 
-import { TooltipHandle } from '@/common/tooltips';
+import { LegacyTooltip } from '@/common/ui/tooltip';
 import type { EntityObserver } from '@/editor-api';
 
 import { ComponentInspector, type ComponentInspectorArgs } from './component';
@@ -494,7 +494,7 @@ class LightComponentInspector extends ComponentInspector {
         });
         this._field('shadowUpdateMode').parent.append(this._btnUpdateShadow);
 
-        const tooltip = TooltipHandle.attach({
+        const tooltip = LegacyTooltip.attach({
             target: this._btnUpdateShadow.dom,
             text: 'Update Shadows',
             align: 'bottom',

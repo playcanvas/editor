@@ -1,6 +1,6 @@
 import { Button } from '@playcanvas/pcui';
 
-import { TooltipHandle } from '@/common/tooltips';
+import { LegacyTooltip } from '@/common/ui/tooltip';
 
 editor.once('load', () => {
     const root = editor.call('layout.root');
@@ -28,7 +28,7 @@ editor.once('load', () => {
         history.undo();
     });
 
-    const tooltipUndo = TooltipHandle.attach({
+    const tooltipUndo = LegacyTooltip.attach({
         target: buttonUndo.dom,
         text: 'Undo',
         align: 'left',
@@ -60,7 +60,7 @@ editor.once('load', () => {
         history.redo();
     });
 
-    const tooltipRedo = TooltipHandle.attach({
+    const tooltipRedo = LegacyTooltip.attach({
         target: buttonRedo.dom,
         text: 'Redo',
         align: 'left',
