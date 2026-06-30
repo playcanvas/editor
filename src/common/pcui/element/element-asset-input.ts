@@ -4,6 +4,7 @@ import { Element, ElementArgs, Label, Container, Button, BindingObserversToEleme
 import { type AssetObserver } from '@/editor-api';
 
 import { AssetThumbnail } from './element-asset-thumbnail';
+import { acceptsAssetDropType } from '../compat-utils';
 import { CLASS_MULTIPLE_VALUES } from '../constants';
 
 const CLASS_ASSET_INPUT = 'pcui-asset-input';
@@ -177,7 +178,7 @@ class AssetInput extends Element {
             ref: this,
             filter: (type: string, dropData: any) => {
                 if (dropData.id && type.startsWith('asset') &&
-                    (!this._assetType || type === `asset.${this._assetType}`) &&
+                    acceptsAssetDropType(this._assetType, type) &&
                     parseInt(dropData.id, 10) !== this.value) {
 
                     const asset = this._assets.get(dropData.id);

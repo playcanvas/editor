@@ -319,7 +319,7 @@ const DOM = parent => [
                 ]
             }, {
                 root: {
-                    compressionLegacyContainer: new Container()
+                    compressionLegacySection: new Container()
                 },
                 children: [
                     {
@@ -553,7 +553,7 @@ class TextureAssetInspector extends Container {
 
     _basisDivider: Divider;
 
-    _compressionLegacyContainer: Container;
+    _compressionLegacySection: Container;
 
     _compressionLegacyAttributesInspector: AttributesInspector;
 

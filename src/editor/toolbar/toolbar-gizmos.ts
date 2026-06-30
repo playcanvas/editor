@@ -1,6 +1,6 @@
 import { Button } from '@playcanvas/pcui';
 
-import { LegacyTooltip } from '@/common/ui/tooltip';
+import { TooltipHandle } from '@/common/tooltips';
 
 editor.once('load', () => {
     const root = editor.call('layout.root');
@@ -52,7 +52,7 @@ editor.once('load', () => {
 
         toolbar.append(button);
 
-        button.tooltip = LegacyTooltip.attach({
+        button.tooltip = TooltipHandle.attach({
             target: button.dom,
             text: item.tooltip,
             align: 'left',
@@ -86,7 +86,7 @@ editor.once('load', () => {
         editor.call('gizmo:coordSystem', buttonWorld.class.contains('active') ? 'world' : 'local');
     });
 
-    const tooltipWorld = LegacyTooltip.attach({
+    const tooltipWorld = TooltipHandle.attach({
         target: buttonWorld.dom,
         align: 'left',
         root: root
@@ -113,7 +113,7 @@ editor.once('load', () => {
     });
     toolbar.append(buttonSnap);
 
-    const tooltipSnap = LegacyTooltip.attach({
+    const tooltipSnap = TooltipHandle.attach({
         target: buttonSnap.dom,
         text: 'Snap',
         align: 'left',
@@ -156,7 +156,7 @@ editor.once('load', () => {
         }
     });
 
-    const tooltipFocus = LegacyTooltip.attach({
+    const tooltipFocus = TooltipHandle.attach({
         target: buttonFocus.dom,
         text: 'Focus',
         align: 'left',

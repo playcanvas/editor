@@ -1,8 +1,8 @@
 import { Observer } from '@playcanvas/observer';
 
-import { LegacyButton } from '@/common/ui/button';
-import { LegacyPanel } from '@/common/ui/panel';
 import { deepCopy } from '@/common/utils';
+
+import { createButton, createPanel } from './attributes-pcui';
 
 editor.once('load', () => {
     const defaults = {
@@ -34,7 +34,7 @@ editor.once('load', () => {
         const arrayElements = [];
         let timeoutRefreshElements = null;
 
-        const panel = new LegacyPanel();
+        const panel = createPanel();
         panel.class.add('attributes-array');
         panel.flex = true;
         panel.flexGrow = 1;
@@ -90,7 +90,7 @@ editor.once('load', () => {
         });
 
         // container for array elements
-        const panelElements = new LegacyPanel();
+        const panelElements = createPanel();
         panelElements.class.add('attributes-array-elements');
         panelElements.flex = true;
         panelElements.flexGrow = 1;
@@ -153,7 +153,7 @@ editor.once('load', () => {
                 arrayElements.push(field);
 
                 // button to remove array element
-                const btnRemove = new LegacyButton({
+                const btnRemove = createButton({
                     text: '&#57636;',
                     unsafe: true
                 });
