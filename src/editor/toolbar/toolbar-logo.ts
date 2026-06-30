@@ -1,6 +1,6 @@
 import { Button, Menu } from '@playcanvas/pcui';
 
-import { TooltipHandle } from '@/common/tooltips';
+import { LegacyTooltip } from '@/common/ui/tooltip';
 import { formatShortcut } from '@/common/utils';
 
 editor.once('load', () => {
@@ -403,7 +403,7 @@ editor.once('load', () => {
     menu.position(40, 0);
     root.append(menu);
 
-    const tooltip = TooltipHandle.attach({
+    const tooltip = LegacyTooltip.attach({
         target: logo.dom,
         text: 'Menu',
         align: 'left',

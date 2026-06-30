@@ -1,6 +1,6 @@
 import { Panel, Button, Container, TextInput } from '@playcanvas/pcui';
 
-import { TooltipHandle } from '@/common/tooltips';
+import { LegacyTooltip } from '@/common/ui/tooltip';
 
 editor.once('load', () => {
     const root = editor.call('layout.root');
@@ -42,7 +42,7 @@ editor.once('load', () => {
     });
     chatPanel.header.append(notify);
 
-    const tooltipNotify = TooltipHandle.attach({
+    const tooltipNotify = LegacyTooltip.attach({
         target: notify.dom,
         text: 'Notifications (enabled)',
         align: 'bottom',

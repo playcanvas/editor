@@ -1,4 +1,4 @@
-import { TooltipHandle } from '@/common/tooltips';
+import { LegacyTooltip } from '@/common/ui/tooltip';
 
 import type { AttributeReference, LegacyAttributeReference } from './reference.type';
 
@@ -53,7 +53,7 @@ editor.once('load', () => {
     });
 
     editor.method('attributes:reference', (attr: LegacyAttributeReference) => {
-        const tooltip = new TooltipHandle({
+        const tooltip = new LegacyTooltip({
             align: 'right'
         });
         tooltip.hoverable = true;
@@ -89,26 +89,22 @@ editor.once('load', () => {
         let timerHover = null;
         let timerBlur = null;
 
-        (tooltip as any).attach = function (args: {
-            target?: any,
+        tooltip.attach = function (args: {
+            target?: HTMLElement,
             element?: HTMLElement,
-            panel?: any
+            panel?: HTMLElement
         }) {
             let target = args.target;
-            let element = args.element || target?.element || target?.dom || target;
-            let targetPanel: any = args.panel || panel;
-            targetPanel = targetPanel.dom || targetPanel.element || targetPanel;
-
-            if (!target || !element) {
-                return;
-            }
+            let element = args.element;
+            let targetPanel = args.panel || panel;
+            targetPanel = targetPanel.dom || targetPanel.element;
 
             const show = function () {
                 if (!target || target.hidden) {
                     return;
                 }
                 // fix top offset for new framework
-                const topOffset = ((element as any).ui instanceof Element ? 6 : 16);
+                const topOffset = (element.ui instanceof Element ? 6 : 16);
                 tooltip.position(targetPanel.getBoundingClientRect().left, element.getBoundingClientRect().top + topOffset);
                 tooltip.hidden = false;
             };

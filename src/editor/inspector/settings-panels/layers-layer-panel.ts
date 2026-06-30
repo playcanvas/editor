@@ -1,5 +1,5 @@
 import { CLASS_ERROR } from '@/common/pcui/constants';
-import { TooltipHandle } from '@/common/tooltips';
+import { LegacyTooltip } from '@/common/ui/tooltip';
 
 import { BaseSettingsPanel, type BaseSettingsPanelArgs } from './base';
 import type { Attribute } from '../attribute.type.d';
@@ -96,7 +96,7 @@ class LayersSettingsPanelLayerPanel extends BaseSettingsPanel {
         let deleteTooltip;
 
         if (!this.enabled) {
-            deleteTooltip = TooltipHandle.attach({
+            deleteTooltip = LegacyTooltip.attach({
                 target: this._btnRemove.dom,
                 text: 'You cannot delete a built-in layer',
                 align: 'bottom',

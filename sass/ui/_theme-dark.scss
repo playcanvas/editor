@@ -236,8 +236,7 @@ a:visited {
     }
 }
 
-.ui-tooltip,
-.pcui-tooltip {
+.ui-tooltip {
     padding: 0;
 
     &.flip {
@@ -949,9 +948,30 @@ a:visited {
     }
 }
 
-.picker-curve > .content {
-    border: 1px solid $bcg-darkest;
-    background-color: $bcg-dark;
+.picker-curve {
+    > .content {
+        border: 1px solid $bcg-darkest;
+        background-color: $bcg-dark;
+
+        > .picker-curve-panel {
+            > .picker-curve-header {
+                > .content {
+                    .ui-button.picker-curve-toggle {
+                        background-color: $bcg-primary;
+                        color: $text-secondary;
+
+                        &:hover {
+                            border-color: $bcg-darker;
+                        }
+
+                        &.active {
+                            background-color: $bcg-darker;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 .picker-gradient {
@@ -961,8 +981,7 @@ a:visited {
 
         > .picker-gradient-panel {
             > .color-panel {
-                > .content,
-                &.pcui-container {
+                > .content {
                     > .color-rect,
                     > .hue-rect,
                     > .alpha-rect {

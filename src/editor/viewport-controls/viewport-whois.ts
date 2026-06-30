@@ -1,6 +1,6 @@
 import { Button, Container } from '@playcanvas/pcui';
 
-import { TooltipHandle } from '@/common/tooltips';
+import { LegacyTooltip } from '@/common/ui/tooltip';
 
 editor.once('load', () => {
     const root = editor.call('layout.root');
@@ -26,7 +26,7 @@ editor.once('load', () => {
     assetPanel.on('collapse', adjustPosition);
     assetPanel.on('expand', adjustPosition);
 
-    const userMap = new Map<number, { button: Button; tooltip: TooltipHandle }>();
+    const userMap = new Map<number, { button: Button; tooltip: LegacyTooltip }>();
 
     editor.on('whoisonline:add', (id: number) => {
         if (userMap.has(id)) {
@@ -41,7 +41,7 @@ editor.once('load', () => {
 
         let clickHandle = button.on('click', () => window.open(`/${id}`, '_blank'));
 
-        const tooltip = TooltipHandle.attach({
+        const tooltip = LegacyTooltip.attach({
             target: button.dom,
             text: '',
             align: 'bottom',

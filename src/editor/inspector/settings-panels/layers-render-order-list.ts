@@ -1,7 +1,7 @@
 import { Observer, type EventHandle } from '@playcanvas/observer';
 import { Container, Panel, Label, BooleanInput, type ContainerArgs } from '@playcanvas/pcui';
 
-import { TooltipHandle } from '@/common/tooltips';
+import { LegacyTooltip } from '@/common/ui/tooltip';
 
 interface RenderOrderListArgs extends ContainerArgs {
     settings?: Observer;
@@ -143,7 +143,7 @@ class LayersSettingsPanelRenderOrderList extends Container {
         let deleteTooltip;
 
         if (layer.layer < 1000) {
-            deleteTooltip = TooltipHandle.attach({
+            deleteTooltip = LegacyTooltip.attach({
                 target: layerPanel._btnRemove.dom,
                 text: 'You cannot delete a built-in layer',
                 align: 'bottom',
