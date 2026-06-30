@@ -1,6 +1,6 @@
 import { Button } from '@playcanvas/pcui';
 
-import { LegacyTooltip } from '@/common/ui/tooltip';
+import { TooltipHandle } from '@/common/tooltips';
 
 editor.once('load', () => {
     const toolbar = editor.call('layout.toolbar');
@@ -15,7 +15,7 @@ editor.once('load', () => {
         window.open('https://github.com/playcanvas/editor/issues', '_blank');
     });
 
-    LegacyTooltip.attach({
+    TooltipHandle.attach({
         target: button.dom,
         text: 'Report Github Issues',
         align: 'left',

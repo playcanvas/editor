@@ -1,6 +1,6 @@
 import { Button } from '@playcanvas/pcui';
 
-import { LegacyTooltip } from '@/common/ui/tooltip';
+import { TooltipHandle } from '@/common/tooltips';
 
 editor.once('load', () => {
     const toolbar = editor.call('layout.toolbar');
@@ -11,7 +11,7 @@ editor.once('load', () => {
     });
     toolbar.append(contact);
 
-    LegacyTooltip.attach({
+    TooltipHandle.attach({
         target: contact.dom,
         text: 'Ask for help on our Forum',
         align: 'left',

@@ -25,8 +25,7 @@ import { DropTarget } from '@/common/pcui/element/element-drop-target';
 import { Table } from '@/common/pcui/element/element-table';
 import { TableCell } from '@/common/pcui/element/element-table-cell';
 import { TableRow } from '@/common/pcui/element/element-table-row';
-import { type Tooltip } from '@/common/pcui/element/element-tooltip';
-import { LegacyTooltip } from '@/common/ui/tooltip';
+import { TooltipHandle } from '@/common/tooltips';
 import { bytesToHuman, naturalCompare } from '@/common/utils';
 import { config } from '@/editor/config';
 import { type AssetObserver } from '@/editor-api';
@@ -270,7 +269,7 @@ class AssetPanel extends Panel {
 
     private _containerControls: Container;
 
-    private _tooltips: Tooltip[];
+    private _tooltips: TooltipHandle[];
 
     private _btnNew: Button;
 
@@ -453,7 +452,7 @@ class AssetPanel extends Panel {
 
         // header controls
 
-        const tooltip = LegacyTooltip.create({
+        const tooltip = TooltipHandle.make({
             text: 'Add Asset',
             align: 'bottom',
             class: 'pcui-tooltip-clipboard',

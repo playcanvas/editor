@@ -1,6 +1,6 @@
 import { Button } from '@playcanvas/pcui';
 
-import { LegacyTooltip } from '@/common/ui/tooltip';
+import { TooltipHandle } from '@/common/tooltips';
 
 editor.once('load', () => {
     const toolbar = editor.call('layout.toolbar');
@@ -30,7 +30,7 @@ editor.once('load', () => {
         button.enabled = !state;
     });
 
-    LegacyTooltip.attach({
+    TooltipHandle.attach({
         target: button.dom,
         text: 'Settings',
         align: 'left',
