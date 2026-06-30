@@ -313,16 +313,6 @@ const startChecker = () => {
             const isMaterial = usage.type === 'asset' && observer.get('type') === 'material';
             const isUIElement = usage.path.includes('components.element');
             const isSprite = usage.path.includes('components.sprite');
-            const isSpecularSheen = usage.path === 'data.specularMap' || usage.path === 'data.sheenMap';
-
-            // if project is using engine v1 and the usage is a specular or sheen map
-            // suppress the issue and log info message
-            if (!editor.projectEngineV2 && isSpecularSheen) {
-                editor.call('console:log', uiMsg, verboseMsg, usage.jump);
-                suppressed++;
-                continue;
-            }
-
             // if all issues are usages then fixable so log a warning
             if (issues.length === usages.length) {
                 editor.call('console:warn', uiMsg, verboseMsg, usage.jump);

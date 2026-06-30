@@ -26,14 +26,6 @@ const ATTRIBUTES: Attribute[] = [
                 };
             })
         }
-    }, {
-        label: '',
-        type: 'button',
-        alias: 'switchEngine',
-        args: {
-            text: `SWITCH TO ENGINE V${config.project.settings.engineV2 ? '1' : '2'}`,
-            icon: 'E304'
-        }
     }
 ];
 
@@ -63,50 +55,6 @@ class EngineSettingsPanel extends BaseSettingsPanel {
             }
         }
 
-        const switchEngine = this._attributesInspector.getField('switchEngine');
-
-        let manualSet = false;
-        switchEngine.on('click', () => {
-            const engineV2 = this._projectSettings.get('engineV2');
-            editor.call('picker:engine', false, !engineV2, () => {
-                manualSet = true;
-                this._projectSettings.set('engineV2', !engineV2);
-                manualSet = false;
-                window.location.reload();
-            });
-        });
-
-        this._projectSettings.on('engineV2:set', (value, oldValue) => {
-            // check if user has write permissions
-            if (!editor.call('permissions:write')) {
-                return;
-            }
-
-            // check if value is changing
-            if (value === oldValue) {
-                return;
-            }
-
-            // disable switch button if hidden
-            if (switchEngine.hidden) {
-                return;
-            }
-
-            // ignore set if we initiated it
-            if (manualSet) {
-                return;
-            }
-
-            // skip initial set
-            if (oldValue === null) {
-                return;
-            }
-
-            editor.call('picker:engine', true, value);
-
-            // reload after a second
-            setTimeout(() => window.location.reload(), 1000);
-        });
     }
 }
 

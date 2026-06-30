@@ -41,5 +41,5 @@ export const fields: AttributeReference[]  = [{
 }, {
     name: 'asset:cubemap:generateLegacyCubemap',
     title: 'Generate Legacy Cubemap',
-    description: 'Generate the prefiltered lighting data in cubemap format instead of atlas format. This option will result in larger prefiltered data that is slower to download at runtime, but is kept to be backwards compatible. This option should be used when running on PlayCanvas Engine v1.63 and earlier.'
+    description: 'Generate the prefiltered lighting data in cubemap format instead of atlas format. This option will result in larger prefiltered data that is slower to download at runtime, but is kept for backwards compatibility.'
 }];

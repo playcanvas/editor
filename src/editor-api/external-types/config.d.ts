@@ -9,7 +9,6 @@ type Plan = {
 };
 
 type ProjectSettings = {
-    engineV2: boolean,
     antiAlias: boolean,
     fillMode: string,
     resolutionMode: string,
@@ -112,7 +111,7 @@ type Url = {
 
 type EngineVersions = {
     current: { version: string, description: string },
-    force: { version: string, description: string },
+    force?: { version: string, description: string },
     previous?: { version: string, description: string },
     releaseCandidate?: { version: string, description: string },
 };

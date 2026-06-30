@@ -90,7 +90,7 @@ class AudiosourceComponentInspector extends ComponentInspector {
 
         super(args);
 
-        this.headerText += editor.projectEngineV2 ? ' (REMOVED)' : ' (LEGACY)';
+        this.headerText += ' (REMOVED)';
 
         this._attributesInspector = new AttributesInspector({
             assets: args.assets,
@@ -102,9 +102,7 @@ class AudiosourceComponentInspector extends ComponentInspector {
 
         this._field('3d').on('change', this._toggleFields.bind(this));
 
-        if (editor.projectEngineV2) {
-            this._attributesInspector.enabled = false;
-        }
+        this._attributesInspector.enabled = false;
     }
 
     _toggleFields() {
