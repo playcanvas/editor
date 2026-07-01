@@ -1,13 +1,14 @@
 import { Overlay } from '@playcanvas/pcui';
 
+import { addSidePanelOverlayClose } from './side-panel-overlay';
 import { ModelAssetInspectorMeshInstances } from '../inspector/assets/model-mesh-instances';
 
 editor.once('load', () => {
     const overlay = new Overlay({
         class: 'picker-node',
-        clickable: true,
         hidden: true
     });
+    addSidePanelOverlayClose(overlay);
 
     const root = editor.call('layout.root');
     root.append(overlay);
