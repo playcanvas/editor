@@ -1,12 +1,14 @@
-import { LegacyOverlay } from '@/common/ui/overlay';
+import { Overlay } from '@playcanvas/pcui';
 
+import { addSidePanelOverlayClose } from './side-panel-overlay';
 import { ModelAssetInspectorMeshInstances } from '../inspector/assets/model-mesh-instances';
 
 editor.once('load', () => {
-    const overlay = new LegacyOverlay();
-    overlay.class.add('picker-node');
-    overlay.center = false;
-    overlay.hidden = true;
+    const overlay = new Overlay({
+        class: 'picker-node',
+        hidden: true
+    });
+    addSidePanelOverlayClose(overlay);
 
     const root = editor.call('layout.root');
     root.append(overlay);

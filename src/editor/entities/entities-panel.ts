@@ -1,7 +1,7 @@
 import type { Observer } from '@playcanvas/observer';
 import { Button, Container, TreeViewItem } from '@playcanvas/pcui';
 
-import { LegacyTooltip } from '@/common/ui/tooltip';
+import { TooltipHandle } from '@/common/tooltips';
 
 import { EntitiesTreeView } from './entities-treeview';
 
@@ -11,7 +11,7 @@ const CLASS_ROW_HOVERED = 'entities-treeview-row-hovered';
 
 interface EyeEntry {
     button: Button;
-    tooltip: LegacyTooltip;
+    tooltip: TooltipHandle;
     onMouseEnter: () => void;
     onMouseLeave: () => void;
     contentsRow: HTMLElement;
@@ -66,7 +66,7 @@ editor.once('load', () => {
             ignoreParent: true
         });
 
-        const tooltip = LegacyTooltip.attach({
+        const tooltip = TooltipHandle.attach({
             target: button.dom,
             text: 'Hide in viewport',
             align: 'left',

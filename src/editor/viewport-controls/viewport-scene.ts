@@ -1,6 +1,6 @@
 import { Button, Container } from '@playcanvas/pcui';
 
-import { LegacyTooltip } from '@/common/ui/tooltip';
+import { TooltipHandle } from '@/common/tooltips';
 import { config } from '@/editor/config';
 
 editor.once('load', () => {
@@ -26,7 +26,7 @@ editor.once('load', () => {
         window.open(`/project/${config.project.id}`, '_blank');
     });
 
-    LegacyTooltip.attach({
+    TooltipHandle.attach({
         target: homeButton.dom,
         text: 'Home',
         align: 'top',
@@ -39,7 +39,7 @@ editor.once('load', () => {
     });
     panel.append(settingsButton);
 
-    LegacyTooltip.attach({
+    TooltipHandle.attach({
         target: settingsButton.dom,
         text: 'Settings',
         align: 'top',
@@ -74,7 +74,7 @@ editor.once('load', () => {
             editor.call('picker:versioncontrol');
         });
 
-        LegacyTooltip.attach({
+        TooltipHandle.attach({
             target: versionControlButton.dom,
             text: 'Version Control',
             align: 'top',
@@ -100,7 +100,7 @@ editor.once('load', () => {
         scenesButton.text = name;
     });
 
-    LegacyTooltip.attach({
+    TooltipHandle.attach({
         target: scenesButton.dom,
         text: 'Manage Scenes',
         align: 'top',

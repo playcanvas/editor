@@ -1,6 +1,4 @@
-import { LegacyButton } from '@/common/ui/button';
-import { LegacyLabel } from '@/common/ui/label';
-
+import { createButton, createLabel } from './attributes-pcui';
 import { EntityInspector } from '../inspector/entity';
 import { TemplatesEntityInspector } from '../templates/templates-entity-inspector';
 import { TemplateOverridesView } from '../templates/templates-override-panel';
@@ -70,7 +68,7 @@ editor.once('load', () => {
         });
 
         // remove
-        const fieldRemove = new LegacyButton();
+        const fieldRemove = createButton();
 
         fieldRemove.hidden = !editor.call('permissions:write');
         events.push(editor.on('permissions:writeState', (state) => {
@@ -137,7 +135,7 @@ editor.once('load', () => {
         panel.headerAppend(fieldEnabled);
 
         // toggle-label
-        const labelEnabled = new LegacyLabel();
+        const labelEnabled = createLabel();
         labelEnabled.renderChanges = false;
         labelEnabled.class.add('component-toggle-label');
         panel.headerAppend(labelEnabled);
