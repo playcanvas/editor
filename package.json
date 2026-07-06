@@ -80,7 +80,7 @@
     "vite": "7.3.5"
   },
   "dependencies": {
-    "@playcanvas/attribute-parser": "^1.10.1"
+    "@playcanvas/attribute-parser": "^1.11.0"
   },
   "scripts": {
     "build": "cross-env NODE_ENV=production vite build",
