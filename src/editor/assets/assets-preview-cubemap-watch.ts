@@ -3,15 +3,27 @@ editor.once('load', () => {
     if (!app) {
         return;
     } // webgl not available
-    const watching = { };
+    const watching = {};
 
-    const trigger = function (watch: { callbacks: Record<string | number, { callback: (slot?: number) => void }> }, slot?: number) {
+    const trigger = function (
+        watch: { callbacks: Record<string | number, { callback: (slot?: number) => void }> },
+        slot?: number
+    ) {
         for (const key in watch.callbacks) {
             watch.callbacks[key].callback(slot);
         }
     };
 
-    const addTextureWatch = function (watch: { textures: Record<string | number, { id: string | number; fn: () => void; addFn: () => void }>; asset: { get: (path: string) => string | number }; callbacks: Record<string | number, unknown>; autoLoad: number }, slot: number, id: string | number) {
+    const addTextureWatch = function (
+        watch: {
+            textures: Record<string | number, { id: string | number; fn: () => void; addFn: () => void }>;
+            asset: { get: (path: string) => string | number };
+            callbacks: Record<string | number, unknown>;
+            autoLoad: number;
+        },
+        slot: number,
+        id: string | number
+    ) {
         watch.textures[slot] = {
             id: id,
             fn: function () {
@@ -56,7 +68,10 @@ editor.once('load', () => {
         }
     };
 
-    const removeTextureWatch = function (watch: { textures: Record<string | number, { id: string | number; fn: () => void; addFn: () => void }> }, slot: string | number) {
+    const removeTextureWatch = function (
+        watch: { textures: Record<string | number, { id: string | number; fn: () => void; addFn: () => void }> },
+        slot: string | number
+    ) {
         if (!watch.textures[slot]) {
             return;
         }
@@ -79,7 +94,14 @@ editor.once('load', () => {
         delete watch.textures[slot];
     };
 
-    const addSlotWatch = function (watch: { asset: { get: (path: string) => string | number }; textures: Record<string | number, unknown>; watching: Record<string | number, { unbind: () => void }> }, slot: number) {
+    const addSlotWatch = function (
+        watch: {
+            asset: { get: (path: string) => string | number };
+            textures: Record<string | number, unknown>;
+            watching: Record<string | number, { unbind: () => void }>;
+        },
+        slot: number
+    ) {
         watch.watching[slot] = watch.asset.on(`data.textures.${slot}:set`, (value) => {
             if (watch.textures[slot]) {
                 if (value !== watch.textures[slot].id) {
@@ -96,7 +118,15 @@ editor.once('load', () => {
         });
     };
 
-    const subscribe = function (watch: { asset: { get: (path: string) => string | number }; textures: Record<string | number, unknown>; watching: Record<string, { unbind: () => void }>; onAdd: ((asset: unknown) => void) | null; onLoad: (() => void) | null; onError: ((err: unknown, asset: unknown) => void) | null; retryTimeout: ReturnType<typeof setTimeout> | null }) {
+    const subscribe = function (watch: {
+        asset: { get: (path: string) => string | number };
+        textures: Record<string | number, unknown>;
+        watching: Record<string, { unbind: () => void }>;
+        onAdd: ((asset: unknown) => void) | null;
+        onLoad: (() => void) | null;
+        onError: ((err: unknown, asset: unknown) => void) | null;
+        retryTimeout: ReturnType<typeof setTimeout> | null;
+    }) {
         for (let i = 0; i < 6; i++) {
             const textureId = watch.asset.get(`data.textures.${i}`);
             if (textureId) {
@@ -176,7 +206,15 @@ editor.once('load', () => {
         app.assets.on(`error:${watch.asset.get('id')}`, watch.onError);
     };
 
-    const unsubscribe = function (watch: { textures: Record<string | number, unknown>; watching: Record<string | number, { unbind: () => void }>; asset: { get: (path: string) => string | number }; onAdd: ((asset: unknown) => void) | null; onLoad: (() => void) | null; onError: ((err: unknown, asset: unknown) => void) | null; retryTimeout: ReturnType<typeof setTimeout> | null }) {
+    const unsubscribe = function (watch: {
+        textures: Record<string | number, unknown>;
+        watching: Record<string | number, { unbind: () => void }>;
+        asset: { get: (path: string) => string | number };
+        onAdd: ((asset: unknown) => void) | null;
+        onLoad: (() => void) | null;
+        onError: ((err: unknown, asset: unknown) => void) | null;
+        retryTimeout: ReturnType<typeof setTimeout> | null;
+    }) {
         for (const key in watch.textures) {
             removeTextureWatch(watch, key);
         }
@@ -195,7 +233,6 @@ editor.once('load', () => {
         app.assets.off(`error:${watch.asset.get('id')}`, watch.onError);
     };
 
-
     editor.method('assets:cubemap:watch', (args) => {
         let watch = watching[args.asset.get('id')];
 
@@ -203,10 +240,10 @@ editor.once('load', () => {
             watch = watching[args.asset.get('id')] = {
                 asset: args.asset,
                 autoLoad: 0,
-                textures: { },
-                watching: { },
+                textures: {},
+                watching: {},
                 ind: 0,
-                callbacks: { },
+                callbacks: {},
                 onLoad: null,
                 onAdd: null,
                 onError: null,
@@ -235,14 +272,13 @@ editor.once('load', () => {
         return watch.ind;
     });
 
-
     editor.method('assets:cubemap:unwatch', (asset, handle) => {
         const watch = watching[asset.get('id')];
         if (!watch) {
             return;
         }
 
-        if (!watch.callbacks.hasOwnProperty(handle)) {
+        if (!Object.hasOwn(watch.callbacks, handle)) {
             return;
         }
 

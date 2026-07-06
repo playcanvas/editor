@@ -8,7 +8,6 @@
 import { config } from '@/editor/config';
 
 editor.once('load', () => {
-
     const model = {
         currentProject: ''
     };
@@ -82,8 +81,8 @@ editor.once('load', () => {
     // method that returns true if current user is admin or owner of organization with specified id
     editor.method('project:management:isOrgAdmin', (orgId, user) => {
         if (user && user.organizations) {
-            for (let i = 0; i < user.organizations.length; i++) {
-                if (user.organizations[i].id === orgId) {
+            for (const organization of user.organizations) {
+                if (organization.id === orgId) {
                     return true;
                 }
             }
@@ -102,35 +101,40 @@ editor.once('load', () => {
         let collaborators;
         let access_level;
 
-        editor.call('users:getCollaborators', config.self.id, (result) => {
-            collaborators = result.sort((a, b) => {
-                if (a.username === config.owner.username) {
-                    return -1;
-                }
-                if (b.username === config.owner.username) {
-                    return 1;
-                }
-                if (a.access_level === b.access_level) {
-                    if (a.full_name < b.full_name) {
+        editor.call(
+            'users:getCollaborators',
+            config.self.id,
+            (result) => {
+                collaborators = result.sort((a, b) => {
+                    if (a.username === config.owner.username) {
+                        return -1;
+                    }
+                    if (b.username === config.owner.username) {
+                        return 1;
+                    }
+                    if (a.access_level === b.access_level) {
+                        if (a.full_name < b.full_name) {
+                            return -1;
+                        }
+                        return 1;
+                    }
+
+                    if (a.access_level === 'admin') {
+                        return -1;
+                    }
+                    if (b.access_level === 'admin') {
+                        return 1;
+                    }
+                    if (a.access_level === 'write') {
                         return -1;
                     }
                     return 1;
-                }
-
-                if (a.access_level === 'admin') {
-                    return -1;
-                }
-                if (b.access_level === 'admin') {
-                    return 1;
-                }
-                if (a.access_level === 'write') {
-                    return -1;
-                }
-                return 1;
-            });
-        }, (err) => {
-            console.log(err);
-        });
+                });
+            },
+            (err) => {
+                console.log(err);
+            }
+        );
 
         if (config.self) {
             if (collaborators) {
@@ -152,7 +156,7 @@ editor.once('load', () => {
                 owner: config.owner.username,
                 name: '',
                 fork_from: fork,
-                private: !!((editor.call('project:management:isEnterprise') || allowPrivate)),
+                private: !!(editor.call('project:management:isEnterprise') || allowPrivate),
                 settings: {
                     useLegacyScripts: false,
                     vr: false
@@ -195,5 +199,4 @@ editor.once('load', () => {
     editor.method('project:management:getModel', () => {
         return model;
     });
-
 });

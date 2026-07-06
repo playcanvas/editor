@@ -40,7 +40,6 @@ editor.once('viewport:load', (app) => {
 
     // Option Fields UI
     const createOption = (cameraName: string, guid: string) => {
-
         // Create UI Panel
         const panelCameraOption = new Container({
             flex: true
@@ -223,28 +222,44 @@ editor.once('viewport:load', (app) => {
         }
     };
 
-    cameraPanel.dom.addEventListener('mouseenter', () => {
-        inButton = true;
-        enable();
-    }, false);
+    cameraPanel.dom.addEventListener(
+        'mouseenter',
+        () => {
+            inButton = true;
+            enable();
+        },
+        false
+    );
 
-    cameraPanel.dom.addEventListener('mouseleave', () => {
-        inButton = false;
-        disable();
-    }, false);
+    cameraPanel.dom.addEventListener(
+        'mouseleave',
+        () => {
+            inButton = false;
+            disable();
+        },
+        false
+    );
 
-    cameraOptions.dom.addEventListener('mouseenter', () => {
-        inOptions = true;
+    cameraOptions.dom.addEventListener(
+        'mouseenter',
+        () => {
+            inOptions = true;
 
-        if (timeout) {
-            clearTimeout(timeout);
-            timeout = null;
-        }
-    }, false);
+            if (timeout) {
+                clearTimeout(timeout);
+                timeout = null;
+            }
+        },
+        false
+    );
 
-    cameraOptions.dom.addEventListener('mouseleave', () => {
-        inOptions = false;
+    cameraOptions.dom.addEventListener(
+        'mouseleave',
+        () => {
+            inOptions = false;
 
-        disable();
-    }, false);
+            disable();
+        },
+        false
+    );
 });

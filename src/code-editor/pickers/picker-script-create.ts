@@ -102,18 +102,21 @@ editor.once('load', () => {
 
     editor.method('picker:script-create:validate', normalizeScriptName);
 
-    editor.method('picker:script-create', (fn: ((name: string) => void) | null, string?: string, validator?: (filename: string) => string | null) => {
-        callback = fn ?? null;
-        extraValidate = validator ?? null;
-        overlay.hidden = false;
-        validate.text = INVALID_FILENAME;
-        validate.hidden = true;
-        input.value = string ?? '';
-        if (input.value) {
-            onInputChange();
+    editor.method(
+        'picker:script-create',
+        (fn: ((name: string) => void) | null, string?: string, validator?: (filename: string) => string | null) => {
+            callback = fn ?? null;
+            extraValidate = validator ?? null;
+            overlay.hidden = false;
+            validate.text = INVALID_FILENAME;
+            validate.hidden = true;
+            input.value = string ?? '';
+            if (input.value) {
+                onInputChange();
+            }
+            input.focus(true);
         }
-        input.focus(true);
-    });
+    );
 
     editor.method('picker:script-create:close', () => {
         overlay.hidden = true;

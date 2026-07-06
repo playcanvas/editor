@@ -9,11 +9,13 @@ editor.once('load', () => {
      * @param entities - The entities to duplicate
      */
     editor.method('entities:duplicate', (entities: EntityObserver[]) => {
-
-        editor.api.globals.entities.duplicate(entities.map(entity => entity.apiEntity), {
-            select: true,
-            history: true,
-            rename: projectUserSettings.get('editor.renameDuplicatedEntities')
-        });
+        editor.api.globals.entities.duplicate(
+            entities.map((entity) => entity.apiEntity),
+            {
+                select: true,
+                history: true,
+                rename: projectUserSettings.get('editor.renameDuplicatedEntities')
+            }
+        );
     });
 });

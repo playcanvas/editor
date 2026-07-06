@@ -14,7 +14,7 @@ export type InvitationListOptions = {
          * The owner of the project
          */
         owner: string;
-    }
+    };
 
     /**
      * The username to get the invitations for

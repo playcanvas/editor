@@ -1,5 +1,6 @@
 import type { EventHandle } from '@playcanvas/observer';
-import { Button, Canvas, Container, Label, Panel, type TextInput } from '@playcanvas/pcui';
+import { Button, Canvas, Container, Label, Panel } from '@playcanvas/pcui';
+import type { TextInput } from '@playcanvas/pcui';
 
 import type { Attribute } from '@/editor/inspector/attribute.type.d';
 import { AttributesInspector } from '@/editor/inspector/attributes-inspector';
@@ -76,9 +77,11 @@ editor.once('load', () => {
         inspector.link([spriteAsset]);
 
         inspector.enabled = editor.call('permissions:write');
-        events.push(editor.on('permissions:writeState', (canWrite: boolean) => {
-            inspector.enabled = canWrite;
-        }));
+        events.push(
+            editor.on('permissions:writeState', (canWrite: boolean) => {
+                inspector.enabled = canWrite;
+            })
+        );
 
         // Custom handling for Name field (rename asset)
         let suspendRenameEvt = false;
@@ -96,28 +99,32 @@ editor.once('load', () => {
         };
         fieldName.value = spriteAsset.get('name');
 
-        events.push(fieldName.on('change', (value: string) => {
-            rootPanel.headerText = `SPRITE ASSET - ${value}`;
-            if (value !== spriteAsset.get('name') && !suspendRenameEvt) {
-                suspendRenameEvt = true;
-                const error = editor.call('assets:rename', spriteAsset, value);
-                if (error) {
-                    setRenameError(error);
-                } else {
+        events.push(
+            fieldName.on('change', (value: string) => {
+                rootPanel.headerText = `SPRITE ASSET - ${value}`;
+                if (value !== spriteAsset.get('name') && !suspendRenameEvt) {
+                    suspendRenameEvt = true;
+                    const error = editor.call('assets:rename', spriteAsset, value);
+                    if (error) {
+                        setRenameError(error);
+                    } else {
+                        setRenameError();
+                    }
+                    suspendRenameEvt = false;
+                } else if (!value) {
                     setRenameError();
                 }
-                suspendRenameEvt = false;
-            } else if (!value) {
-                setRenameError();
-            }
-        }));
+            })
+        );
 
-        events.push(spriteAsset.on('name:set', (value: string) => {
-            suspendRenameEvt = true;
-            fieldName.value = value;
-            setRenameError();
-            suspendRenameEvt = false;
-        }));
+        events.push(
+            spriteAsset.on('name:set', (value: string) => {
+                suspendRenameEvt = true;
+                fieldName.value = value;
+                setRenameError();
+                suspendRenameEvt = false;
+            })
+        );
 
         const panelEdit = new Panel({
             headerText: 'FRAMES IN SPRITE ASSET',
@@ -126,9 +133,11 @@ editor.once('load', () => {
         rootPanelContent.append(panelEdit);
 
         panelEdit.enabled = editor.call('permissions:write');
-        events.push(editor.on('permissions:writeState', (canWrite: boolean) => {
-            panelEdit.enabled = canWrite;
-        }));
+        events.push(
+            editor.on('permissions:writeState', (canWrite: boolean) => {
+                panelEdit.enabled = canWrite;
+            })
+        );
 
         // add frames tooltip
         const panelAddFramesInfo = new Panel({
@@ -216,7 +225,6 @@ editor.once('load', () => {
             handle.classList.add('handle');
             panel.append(handle);
 
-
             const onDragStart = (evt: MouseEvent): void => {
                 if (!editor.call('permissions:write')) {
                     return;
@@ -302,14 +310,18 @@ editor.once('load', () => {
             });
             panel.append(fieldName);
 
-            frameEvents.push(atlasAsset.on(`data.frames.${key}.name:set`, (value) => {
-                fieldName.value = value;
-            }));
+            frameEvents.push(
+                atlasAsset.on(`data.frames.${key}.name:set`, (value) => {
+                    fieldName.value = value;
+                })
+            );
 
-            frameEvents.push(atlasAsset.on(`data.frames.${key}:unset`, () => {
-                fieldName.value = 'Missing';
-                panel.queueRender();
-            }));
+            frameEvents.push(
+                atlasAsset.on(`data.frames.${key}:unset`, () => {
+                    fieldName.value = 'Missing';
+                    panel.queueRender();
+                })
+            );
 
             // remove frame
             const btnRemove = new Button({
@@ -342,7 +354,7 @@ editor.once('load', () => {
 
             // clean up events
             panel.once('destroy', () => {
-                frameEvents.forEach(event => event.unbind());
+                frameEvents.forEach((event) => event.unbind());
                 frameEvents.length = 0;
 
                 handle.removeEventListener('mousedown', onDragStart);
@@ -410,130 +422,147 @@ editor.once('load', () => {
             addFramePanel(frameKeys[i]);
         }
 
-        events.push(spriteAsset.on('data.frameKeys:remove', (value, index) => {
-            if (!panels[index]) {
-                return;
-            }
+        events.push(
+            spriteAsset.on('data.frameKeys:remove', (value, index) => {
+                if (!panels[index]) {
+                    return;
+                }
 
-            panels[index].destroy();
-            panels.splice(index, 1);
+                panels[index].destroy();
+                panels.splice(index, 1);
 
-            frameKeys = spriteAsset.get('data.frameKeys');
+                frameKeys = spriteAsset.get('data.frameKeys');
 
-            preview.setFrames(frameKeys);
-        }));
+                preview.setFrames(frameKeys);
+            })
+        );
 
-        events.push(spriteAsset.on('data.frameKeys:insert', (value, index) => {
-            frameKeys = spriteAsset.get('data.frameKeys');
-            addFramePanel(frameKeys[index], index);
-            preview.setFrames(frameKeys);
-        }));
+        events.push(
+            spriteAsset.on('data.frameKeys:insert', (value, index) => {
+                frameKeys = spriteAsset.get('data.frameKeys');
+                addFramePanel(frameKeys[index], index);
+                preview.setFrames(frameKeys);
+            })
+        );
 
-        events.push(spriteAsset.on('data.frameKeys:move', (value, indNew, indOld) => {
-            // update the draggedIndex if another user dragged the same frame we're dragging
-            if (indOld === draggedIndex) {
-                draggedIndex = indNew;
-            }
+        events.push(
+            spriteAsset.on('data.frameKeys:move', (value, indNew, indOld) => {
+                // update the draggedIndex if another user dragged the same frame we're dragging
+                if (indOld === draggedIndex) {
+                    draggedIndex = indNew;
+                }
 
-            if (draggedIndex === indNew) {
-                return;
-            }
+                if (draggedIndex === indNew) {
+                    return;
+                }
 
-            const movedPanel = panels[indOld];
-            if (movedPanel && movedPanel._frameKey === value) {
-                panelFrames.remove(movedPanel);
-                panelFrames.appendBefore(movedPanel, panelFrames.innerElement.childNodes[indNew]);
+                const movedPanel = panels[indOld];
+                if (movedPanel && movedPanel._frameKey === value) {
+                    panelFrames.remove(movedPanel);
+                    panelFrames.appendBefore(movedPanel, panelFrames.innerElement.childNodes[indNew]);
 
-                panels.splice(indOld, 1);
-                panels.splice(indNew, 0, movedPanel);
-            }
+                    panels.splice(indOld, 1);
+                    panels.splice(indNew, 0, movedPanel);
+                }
 
-            frameKeys = spriteAsset.get('data.frameKeys');
-            preview.setFrames(frameKeys);
-        }));
+                frameKeys = spriteAsset.get('data.frameKeys');
+                preview.setFrames(frameKeys);
+            })
+        );
 
-        events.push(spriteAsset.on('data.frameKeys:set', (value) => {
-            panels.forEach(panel => panel.destroy());
-            panels.length = 0;
+        events.push(
+            spriteAsset.on('data.frameKeys:set', (value) => {
+                panels.forEach((panel) => panel.destroy());
+                panels.length = 0;
 
-            frameKeys = spriteAsset.get('data.frameKeys');
-            frameKeys.forEach(key => addFramePanel(key));
+                frameKeys = spriteAsset.get('data.frameKeys');
+                frameKeys.forEach((key) => addFramePanel(key));
 
-            preview.setFrames(frameKeys);
-        }));
+                preview.setFrames(frameKeys);
+            })
+        );
 
-        events.push(atlasAsset.on('*:set', (path: string) => {
-            if (!path.startsWith('data.frames')) {
-                return;
-            }
+        events.push(
+            atlasAsset.on('*:set', (path: string) => {
+                if (!path.startsWith('data.frames')) {
+                    return;
+                }
 
-            const parts = path.split('.');
-            const partsLen = parts.length;
-            if (partsLen >= 3) {
-                // re-render frame preview
-                for (let i = 0, len = panels.length; i < len; i++) {
-                    if (panels[i]._frameKey === parts[2]) {
-                        panels[i].queueRender();
+                const parts = path.split('.');
+                const partsLen = parts.length;
+                if (partsLen >= 3) {
+                    // re-render frame preview
+                    for (let i = 0, len = panels.length; i < len; i++) {
+                        if (panels[i]._frameKey === parts[2]) {
+                            panels[i].queueRender();
 
-                        // if this frame was added back to the atlas
-                        // then re-render preview
-                        if (partsLen === 3) {
-                            preview.setFrames(frameKeys);
+                            // if this frame was added back to the atlas
+                            // then re-render preview
+                            if (partsLen === 3) {
+                                preview.setFrames(frameKeys);
+                            }
+
+                            break;
                         }
-
-                        break;
                     }
                 }
-            }
-        }));
+            })
+        );
 
-        events.push(editor.on('picker:sprites:pickFrames:start', () => {
-            spriteEditMode = true;
-            btnAddFrames.hidden = true;
-            btnAddSelected.enabled = false;
-            containerEditButtons.hidden = false;
-            panelAddFramesInfo.hidden = false;
-        }));
+        events.push(
+            editor.on('picker:sprites:pickFrames:start', () => {
+                spriteEditMode = true;
+                btnAddFrames.hidden = true;
+                btnAddSelected.enabled = false;
+                containerEditButtons.hidden = false;
+                panelAddFramesInfo.hidden = false;
+            })
+        );
 
-        events.push(editor.on('picker:sprites:pickFrames:end', () => {
-            spriteEditMode = false;
-            btnAddFrames.hidden = false;
-            containerEditButtons.hidden = true;
-            panelAddFramesInfo.hidden = true;
+        events.push(
+            editor.on('picker:sprites:pickFrames:end', () => {
+                spriteEditMode = false;
+                btnAddFrames.hidden = false;
+                containerEditButtons.hidden = true;
+                panelAddFramesInfo.hidden = true;
 
-            // restore preview to the actual frames that the sprite currently has
-            preview.setFrames(frameKeys);
-        }));
+                // restore preview to the actual frames that the sprite currently has
+                preview.setFrames(frameKeys);
+            })
+        );
 
-        events.push(editor.on('picker:sprites:framesSelected', (keys) => {
-            if (!spriteEditMode) {
-                return;
-            }
+        events.push(
+            editor.on('picker:sprites:framesSelected', (keys) => {
+                if (!spriteEditMode) {
+                    return;
+                }
 
-            const hasKeys = keys?.length > 0;
-            btnAddSelected.enabled = hasKeys;
+                const hasKeys = keys?.length > 0;
+                btnAddSelected.enabled = hasKeys;
 
-            // update preview to show what sprite would look like after
-            // the selected keys were added
-            if (hasKeys) {
-                preview.setFrames(frameKeys.slice().concat(keys));
-            }
-        }));
+                // update preview to show what sprite would look like after
+                // the selected keys were added
+                if (hasKeys) {
+                    preview.setFrames(frameKeys.slice().concat(keys));
+                }
+            })
+        );
 
-        events.push(rootPanel.on('clear', () => {
-            preview.destroy();
-            inspector.unlink();
-            inspector.destroy();
-            panelEdit.destroy();
-        }));
+        events.push(
+            rootPanel.on('clear', () => {
+                preview.destroy();
+                inspector.unlink();
+                inspector.destroy();
+                panelEdit.destroy();
+            })
+        );
 
         inspector.once('destroy', () => {
-            events.forEach(event => event.unbind());
+            events.forEach((event) => event.unbind());
             events.length = 0;
 
             panels.length = 0;
             spriteEditMode = false;
         });
-
     });
 });

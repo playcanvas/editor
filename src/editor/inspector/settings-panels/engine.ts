@@ -1,9 +1,11 @@
-import { SelectInput } from '@playcanvas/pcui';
+import type { SelectInput } from '@playcanvas/pcui';
 
 import { config } from '@/editor/config';
 
-import { BaseSettingsPanel, type BaseSettingsPanelArgs } from './base';
 import type { Attribute } from '../attribute.type.d';
+
+import { BaseSettingsPanel } from './base';
+import type { BaseSettingsPanelArgs } from './base';
 
 const DEFAULT_ENGINE_URL_PREFIX = 'https://code.playcanvas.com/playcanvas-';
 
@@ -17,16 +19,17 @@ const ATTRIBUTES: Attribute[] = [
         args: {
             type: 'string',
             options: ['previous', 'current', 'releaseCandidate']
-            .filter(type => config.engineVersions.hasOwnProperty(type))
-            .map((type) => {
-                const t = config.engineVersions[type];
-                return {
-                    t: t.description,
-                    v: type
-                };
-            })
+                .filter((type) => Object.hasOwn(config.engineVersions, type))
+                .map((type) => {
+                    const t = config.engineVersions[type];
+                    return {
+                        t: t.description,
+                        v: type
+                    };
+                })
         }
-    }, {
+    },
+    {
         label: '',
         type: 'button',
         alias: 'switchEngine',
@@ -37,12 +40,14 @@ const ATTRIBUTES: Attribute[] = [
     }
 ];
 
-
 class EngineSettingsPanel extends BaseSettingsPanel {
     constructor(args: BaseSettingsPanelArgs) {
-        args = Object.assign({
-            collapsed: false
-        }, args);
+        args = Object.assign(
+            {
+                collapsed: false
+            },
+            args
+        );
         args.headerText = 'ENGINE';
         args.attributes = ATTRIBUTES;
         args.userOnlySettings = false;

@@ -1,4 +1,7 @@
-import { Color, type Entity, OutlineRenderer } from 'playcanvas';
+import { Color, OutlineRenderer } from 'playcanvas';
+import type { Entity } from 'playcanvas';
+
+import type { EntityObserver } from '@/editor-api';
 
 editor.once('load', () => {
     const app = editor.call('viewport:app');
@@ -6,19 +9,17 @@ editor.once('load', () => {
         return;
     } // webgl not available
 
-    const userSelections: Map<Number, any[]> = new Map();
+    const userSelections = new Map<number | string, any[]>();
 
-    const userColors: Map<Number, any> = new Map();
+    const userColors = new Map<number | string, any>();
 
     // create outline renderer
     // internally an existing Viewport Outline layer is used to render outlines
     const outlineLayer = editor.call('gizmo:layers', 'Viewport Outline');
     const outlineRenderer = new OutlineRenderer(app, outlineLayer);
 
-    const isSelectableEntity = function (item: import('@/editor-api').EntityObserver | null): boolean {
-
+    const isSelectableEntity = function (item: EntityObserver | null): boolean {
         if (item && item.entity) {
-
             // model component
             const modelType = item.get('components.model.type');
             if ((modelType === 'asset' && item.get('components.model.asset')) || modelType !== 'asset') {
@@ -36,13 +37,13 @@ editor.once('load', () => {
     };
 
     const getUserSelectionColor = (user: number | string) => {
-
         let color = userColors.get(user);
         if (!color) {
             const id = parseInt(user, 10);
-            const data = (config.self.id === user) ?
-                [1, 1, 1] :                                 // local user
-                editor.call('users:color', id, 'data');     // remote user
+            const data =
+                config.self.id === user
+                    ? [1, 1, 1] // local user
+                    : editor.call('users:color', id, 'data'); // remote user
 
             color = new Color(data[0], data[1], data[2]);
         }
@@ -52,20 +53,19 @@ editor.once('load', () => {
 
     // request rendering of entities for a user
     const setUserSelection = (id: number | string, entities: Entity[], render = true): void => {
-
         // remove existing entities
         const existingEntities = userSelections.get(id);
         if (existingEntities) {
-            for (let i = 0; i < existingEntities.length; i++) {
-                outlineRenderer.removeEntity(existingEntities[i], false);
+            for (const existingEntity of existingEntities) {
+                outlineRenderer.removeEntity(existingEntity, false);
             }
         }
 
         // add new entities
         const color = getUserSelectionColor(id);
         userSelections.set(id, entities);
-        for (let i = 0; i < entities.length; i++) {
-            outlineRenderer.addEntity(entities[i], color, false);
+        for (const entity of entities) {
+            outlineRenderer.addEntity(entity, color, false);
         }
 
         if (render) {
@@ -74,14 +74,13 @@ editor.once('load', () => {
     };
 
     // local user selection changed
-    editor.on('selector:change', (type: string, items: import('@/editor-api').EntityObserver[]) => {
-
+    editor.on('selector:change', (type: string, items: EntityObserver[]) => {
         const entities = [];
 
         if (type === 'entity') {
-            for (let i = 0; i < items.length; i++) {
-                if (isSelectableEntity(items[i])) {
-                    entities.push(items[i].entity);
+            for (const item of items) {
+                if (isSelectableEntity(item)) {
+                    entities.push(item.entity);
                 }
             }
         }
@@ -91,12 +90,11 @@ editor.once('load', () => {
 
     // remote user selection changed
     editor.on('selector:sync', (user: number | string, data: { type: string; ids: string[] }) => {
-
         const entities = [];
 
         if (data.type === 'entity') {
-            for (let i = 0; i < data.ids.length; i++) {
-                const entity = editor.call('entities:get', data.ids[i]);
+            for (const entityId of data.ids) {
+                const entity = editor.call('entities:get', entityId);
                 if (isSelectableEntity(entity)) {
                     entities.push(entity.entity);
                 }
@@ -107,7 +105,7 @@ editor.once('load', () => {
     });
 
     // entity was removed from selection (for example deleted)
-    editor.on('selector:remove', (item: import('@/editor-api').EntityObserver, type: string) => {
+    editor.on('selector:remove', (item: EntityObserver, type: string) => {
         if (type === 'entity') {
             outlineRenderer.removeEntity(item.entity, false);
         }

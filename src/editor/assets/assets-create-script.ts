@@ -13,37 +13,45 @@ editor.once('load', () => {
             const isSameFile = asset.get('name').toLowerCase() === filename.toLowerCase();
             return isSameFolder && isSameFile;
         });
-        return collision ? `A script named "${filename}" already exists in this folder. Please use another name.` : null;
+        return collision
+            ? `A script named "${filename}" already exists in this folder. Please use another name.`
+            : null;
     });
 
-    editor.method('assets:create:script', (args = {}, callback = (asset) => {}) => {
+    editor.method(
+        'assets:create:script',
+        (
+            args = {},
+            callback = (asset) => {
+                // intentionally empty
+            }
+        ) => {
+            editor.call('status:clear');
 
-        editor.call('status:clear');
+            if (!editor.call('permissions:write')) {
+                return;
+            }
 
-        if (!editor.call('permissions:write')) {
-            return;
+            const { filename = 'script.js', parent = editor.call('assets:selected:folder'), text } = args;
+
+            const collisionError = editor.call('assets:script:checkCollision', filename, parent);
+            if (collisionError) {
+                editor.call('status:error', collisionError);
+                return;
+            }
+
+            editor.api.globals.assets
+                .createScript({
+                    filename: filename,
+                    folder: parent,
+                    text: text
+                })
+                .then((asset) => {
+                    callback(asset);
+                })
+                .catch((err) => {
+                    editor.call('status:error', err);
+                });
         }
-
-        const {
-            filename = 'script.js',
-            parent = editor.call('assets:selected:folder'),
-            text
-        } = args;
-
-        const collisionError = editor.call('assets:script:checkCollision', filename, parent);
-        if (collisionError) {
-            editor.call('status:error', collisionError);
-            return;
-        }
-
-        editor.api.globals.assets.createScript({
-            filename: filename,
-            folder: parent,
-            text: text
-        }).then((asset) => {
-            callback(asset);
-        }).catch((err) => {
-            editor.call('status:error', err);
-        });
-    });
+    );
 });

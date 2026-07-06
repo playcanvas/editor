@@ -377,28 +377,30 @@ editor.once('load', () => {
 
         if (args.type === 'rgb') {
             let colorPickerOn = false;
-            events.push(args.field.on('click', () => {
-                colorPickerOn = true;
+            events.push(
+                args.field.on('click', () => {
+                    colorPickerOn = true;
 
-                let items = [];
+                    let items = [];
 
-                // picking starts
-                const evtColorPickStart = editor.on('picker:color:start', () => {
-                    items = historyStart();
-                });
+                    // picking starts
+                    const evtColorPickStart = editor.on('picker:color:start', () => {
+                        items = historyStart();
+                    });
 
-                const evtColorPickEnd = editor.on('picker:color:end', () => {
-                    historyEnd(items.slice(0), args.field.value);
-                });
+                    const evtColorPickEnd = editor.on('picker:color:end', () => {
+                        historyEnd(items.slice(0), args.field.value);
+                    });
 
-                // picker closed
-                editor.once('picker:color:close', () => {
-                    evtColorPickStart.unbind();
-                    evtColorPickEnd.unbind();
-                    colorPickerOn = false;
-                    args.field.element.focus();
-                });
-            }));
+                    // picker closed
+                    editor.once('picker:color:close', () => {
+                        evtColorPickStart.unbind();
+                        evtColorPickEnd.unbind();
+                        colorPickerOn = false;
+                        args.field.element.focus();
+                    });
+                })
+            );
 
             // close picker if field destroyed
             args.field.once('destroy', () => {
@@ -409,13 +411,17 @@ editor.once('load', () => {
         } else if (args.slider) {
             let sliderRecords;
 
-            events.push(args.field.on('start', () => {
-                sliderRecords = historyStart();
-            }));
+            events.push(
+                args.field.on('start', () => {
+                    sliderRecords = historyStart();
+                })
+            );
 
-            events.push(args.field.on('end', () => {
-                historyEnd(sliderRecords.slice(0), args.field.value);
-            }));
+            events.push(
+                args.field.on('end', () => {
+                    historyEnd(sliderRecords.slice(0), args.field.value);
+                })
+            );
         }
 
         update();
@@ -426,11 +432,13 @@ editor.once('load', () => {
             events.push(args.link[i].on(`${pathAt(args, i)}:unset`, changeFieldQueue));
         }
 
-        events.push(args.field.once('destroy', () => {
-            for (let i = 0; i < events.length; i++) {
-                events[i].unbind();
-            }
-        }));
+        events.push(
+            args.field.once('destroy', () => {
+                for (let i = 0; i < events.length; i++) {
+                    events[i].unbind();
+                }
+            })
+        );
 
         return events;
     });
@@ -464,11 +472,11 @@ editor.once('load', () => {
             panel.append(label);
 
             if (args.reference) {
-                const tooltip = label._tooltip = editor.call('attributes:reference', {
+                const tooltip = (label._tooltip = editor.call('attributes:reference', {
                     title: args.reference.title,
                     subTitle: args.reference.subTitle,
                     description: args.reference.description
-                });
+                }));
 
                 tooltip.attach({
                     target: label,
@@ -494,7 +502,7 @@ editor.once('load', () => {
             }
         }
 
-        const linkField = args.linkField = function () {
+        const linkField = (args.linkField = function () {
             if (args.link) {
                 const link = function (field: any, path?: string | string[]) {
                     const data: any = {
@@ -536,13 +544,13 @@ editor.once('load', () => {
                             });
                         }
 
-                        link(field[i], paths || (`${args.path}.${i}`));
+                        link(field[i], paths || `${args.path}.${i}`);
                     }
                 } else {
                     link(field);
                 }
             }
-        };
+        });
 
         args.unlinkField = function () {
             for (let i = 0; i < args.linkEvents.length; i++) {
@@ -600,7 +608,6 @@ editor.once('load', () => {
                     });
 
                     innerPanel.append(field);
-
                 } else {
                     field = createTextInput();
                     field.blurOnEnter = false;
@@ -632,14 +639,13 @@ editor.once('load', () => {
                     innerPanel.append(btnAdd);
                 }
 
-
                 var tagsPanel = createPanel();
                 tagsPanel.class.add('tags');
                 tagsPanel.flex = true;
                 innerPanel.append(tagsPanel);
 
-                var tagItems = { };
-                var tagIndex = { };
+                var tagItems = {};
+                var tagIndex = {};
                 var tagList = [];
 
                 var onRemoveClick = function () {
@@ -944,8 +950,8 @@ editor.once('load', () => {
                     }
 
                     tagList = [];
-                    tagIndex = { };
-                    tagItems = { };
+                    tagIndex = {};
+                    tagItems = {};
                 };
 
                 args.linkField();
@@ -1241,7 +1247,6 @@ editor.once('load', () => {
                                 previous.values.push(field._link.get(path));
                             }
 
-
                             const undo = function () {
                                 const item = link.latest();
 
@@ -1311,7 +1316,6 @@ editor.once('load', () => {
                                 undo: undo,
                                 redo: redo
                             });
-
                         });
 
                         const evtRefreshPicker = field.on('change', (value) => {
@@ -1394,9 +1398,11 @@ editor.once('load', () => {
         clearPanel();
 
         // clear if destroyed
-        inspectedItems.push(item.once('destroy', () => {
-            editor.call('attributes:clear');
-        }));
+        inspectedItems.push(
+            item.once('destroy', () => {
+                editor.call('attributes:clear');
+            })
+        );
 
         root.headerText = type;
         editor.emit(`attributes:inspect[${type}]`, [item]);
@@ -1420,9 +1426,11 @@ editor.once('load', () => {
 
         // clear if destroyed
         for (let i = 0; i < items.length; i++) {
-            inspectedItems.push(items[i].once('destroy', () => {
-                editor.call('attributes:clear');
-            }));
+            inspectedItems.push(
+                items[i].once('destroy', () => {
+                    editor.call('attributes:clear');
+                })
+            );
         }
 
         root.headerText = type;

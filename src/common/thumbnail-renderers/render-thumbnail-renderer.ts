@@ -39,7 +39,6 @@ function initializeScene() {
     });
     scene.lightEntity.setLocalEulerAngles(45, 135, 0);
 
-
     // camera
     scene.cameraOrigin = new Entity();
 
@@ -139,16 +138,21 @@ class RenderThumbnailRenderer extends ThumbnailRenderer {
             return;
         }
 
-        const firstMeshInstanceIndex = model.meshInstances.findIndex(a => a.node.name === this._asset.get('name'));
+        const firstMeshInstanceIndex = model.meshInstances.findIndex((a) => a.node.name === this._asset.get('name'));
         const meshInstanceCount = this._asset.get('meta.meshInstances');
-        const meshInstanceMaterialMappings = materialMappings.slice(firstMeshInstanceIndex, firstMeshInstanceIndex + meshInstanceCount);
+        const meshInstanceMaterialMappings = materialMappings.slice(
+            firstMeshInstanceIndex,
+            firstMeshInstanceIndex + meshInstanceCount
+        );
         const materialAssets = meshInstanceMaterialMappings.map((m: any, i: number) => {
             // TODO we shouldn't rely on a material having a specific name here. Ideally we'd have access to material id's here
             const materialName = containerObserver.get(`meta.materials.${m}.name`);
             const materialObserverResult = editor.call('assets:find', (a: any) => {
-                return a.get('source_asset_id') === containerObserver.get('id').toString() &&
+                return (
+                    a.get('source_asset_id') === containerObserver.get('id').toString() &&
                     a.get('name') === materialName &&
-                    a.get('type') === 'material';
+                    a.get('type') === 'material'
+                );
             });
 
             if (materialObserverResult.length === 0) {
@@ -162,7 +166,7 @@ class RenderThumbnailRenderer extends ThumbnailRenderer {
         scene.renderEntity.render.materialAssets = materialAssets;
 
         for (const id in this._materialWatches) {
-            if (!materialAssets.find(m => parseInt(m.id, 10) === parseInt(id, 10))) {
+            if (!materialAssets.find((m) => parseInt(m.id, 10) === parseInt(id, 10))) {
                 this._unwatchMaterial(id);
             }
         }
@@ -214,7 +218,10 @@ class RenderThumbnailRenderer extends ThumbnailRenderer {
         });
     }
 
-    render(rotationX: number = -15, rotationY: number = 45) {
+    render(rotationX?: number, rotationY?: number) {
+        rotationX = rotationX === undefined ? -15 : rotationX;
+        rotationY = rotationY === undefined ? 45 : rotationY;
+
         this._queuedRender = false;
 
         if (!this._asset) {
@@ -267,17 +274,17 @@ class RenderThumbnailRenderer extends ThumbnailRenderer {
 
         // generate aabb for render
         const meshInstances = scene.renderEntity.render.meshInstances;
-        for (let i = 0; i < meshInstances.length; i++) {
+        for (const meshInstance of meshInstances) {
             // initialize any skin instance
-            if (meshInstances[i].skinInstance) {
-                meshInstances[i].skinInstance.updateMatrices(meshInstances[i].node);
+            if (meshInstance.skinInstance) {
+                meshInstance.skinInstance.updateMatrices(meshInstance.node);
             }
 
             if (first) {
                 first = false;
-                scene.aabb.copy(meshInstances[i].aabb);
+                scene.aabb.copy(meshInstance.aabb);
             } else {
-                scene.aabb.add(meshInstances[i].aabb);
+                scene.aabb.add(meshInstance.aabb);
             }
         }
 
@@ -333,7 +340,11 @@ class RenderThumbnailRenderer extends ThumbnailRenderer {
 
         // render to canvas
         const ctx = this._canvas.getContext('2d');
-        ctx.putImageData(new ImageData(rt.pixelsClamped, width, height), (this._canvas.width - width) / 2, (this._canvas.height - height) / 2);
+        ctx.putImageData(
+            new ImageData(rt.pixelsClamped, width, height),
+            (this._canvas.width - width) / 2,
+            (this._canvas.height - height) / 2
+        );
 
         layer.removeLight(scene.lightEntity.light);
         layer.removeCamera(scene.cameraEntity.camera);

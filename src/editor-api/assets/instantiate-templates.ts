@@ -1,10 +1,14 @@
-import { Asset } from '../asset';
-import { Entity } from '../entity';
+import type { Asset } from '../asset';
+import type { Entity } from '../entity';
 import { globals as api } from '../globals';
 
 let evtMessenger: any;
 
-async function instantiateTemplates(assets: Asset[], parent: any, options: { index?: number, extraData?: any, history?: boolean, select?: boolean } = {}) {
+async function instantiateTemplates(
+    assets: Asset[],
+    parent: any,
+    options: { index?: number; extraData?: any; history?: boolean; select?: boolean } = {}
+) {
     parent = parent || api.entities.root;
     if (!parent) {
         throw new Error('Invalid parent');
@@ -75,8 +79,7 @@ async function instantiateTemplates(assets: Asset[], parent: any, options: { ind
                 // delete entities
                 entities = entities.map((e: any) => e.latest()).filter((e: any) => !!e);
                 if (entities.length) {
-                    api.entities.delete(entities, { history: false })
-                    .catch((err) => {
+                    api.entities.delete(entities, { history: false }).catch((err) => {
                         console.error(err);
                     });
                 }
@@ -92,12 +95,12 @@ async function instantiateTemplates(assets: Asset[], parent: any, options: { ind
 
                 // re-instantiate templates
                 instantiateTemplates(assets, parent, newOptions)
-                .then((newEntities) => {
-                    entities = newEntities;
-                })
-                .catch((err) => {
-                    console.error(err);
-                });
+                    .then((newEntities) => {
+                        entities = newEntities;
+                    })
+                    .catch((err) => {
+                        console.error(err);
+                    });
             }
         });
     }

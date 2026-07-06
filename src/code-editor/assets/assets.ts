@@ -1,4 +1,5 @@
-import { ObserverList, type Observer } from '@playcanvas/observer';
+import { ObserverList } from '@playcanvas/observer';
+import type { Observer } from '@playcanvas/observer';
 editor.once('load', () => {
     const uniqueIdToItemId = {};
     const assetToVirtualPath = new Map();
@@ -43,23 +44,24 @@ editor.once('load', () => {
 
     editor.on('assets:load', () => {
         // store virtual path
-        editor.call('assets:list')
-        .filter(asset => editor.call('assets:isModule', asset))
-        .forEach((asset) => {
-            asset.on('file:set', () => {
-                const path = virtualPathToAsset.get(asset);
-                assetToVirtualPath.delete(path);
-                virtualPathToAsset.delete(asset);
-                updateAssetVirtualPath(asset);
+        editor
+            .call('assets:list')
+            .filter((asset) => editor.call('assets:isModule', asset))
+            .forEach((asset) => {
+                asset.on('file:set', () => {
+                    const path = virtualPathToAsset.get(asset);
+                    assetToVirtualPath.delete(path);
+                    virtualPathToAsset.delete(asset);
+                    updateAssetVirtualPath(asset);
 
-                // After changing the file, update the dependencies of the focused tab
-                const tab = editor.call('tabs:focused');
-                if (tab) {
-                    editor.call('asset:update-dependencies', tab.asset);
-                }
+                    // After changing the file, update the dependencies of the focused tab
+                    const tab = editor.call('tabs:focused');
+                    if (tab) {
+                        editor.call('asset:update-dependencies', tab.asset);
+                    }
+                });
+                updateAssetVirtualPath(asset);
             });
-            updateAssetVirtualPath(asset);
-        });
     });
 
     // allow adding assets
@@ -96,11 +98,11 @@ editor.once('load', () => {
                 return 0;
             });
 
-            if (pos === -1 && (ind + 1) === assets.data.length) {
+            if (pos === -1 && ind + 1 === assets.data.length) {
                 return;
             }
 
-            if (ind !== -1 && (ind + 1 === pos) || (ind === pos)) {
+            if ((ind !== -1 && ind + 1 === pos) || ind === pos) {
                 return;
             }
 
@@ -169,8 +171,7 @@ editor.once('load', () => {
     });
 
     editor.method('assets:isModule', (asset: Observer) => {
-        return editor.call('assets:isScript', asset) &&
-            asset.get('file.filename')?.endsWith('.mjs');
+        return editor.call('assets:isScript', asset) && asset.get('file.filename')?.endsWith('.mjs');
     });
 
     const assetVirtualPath = (asset: Observer) => {

@@ -23,7 +23,6 @@ import { ScriptsSettingsPanel } from './settings-panels/scripts';
 import { ProjectHistorySettingsPanel } from './settings-panels/settings-history';
 import { VersionControlSettingsPanel } from './settings-panels/version-control';
 
-
 const CLASS_ROOT = 'settings';
 
 const SETTINGS_PANELS = [
@@ -56,7 +55,7 @@ const ATTRIBUTES: Attribute[] = [
     }
 ];
 
-const DOM = parent => [
+const DOM = (parent) => [
     {
         sceneAttributes: new AttributesInspector({
             attributes: ATTRIBUTES,
@@ -124,22 +123,24 @@ class SettingsPanel extends Container {
     _linkSceneNameField() {
         const sceneNameField = this._sceneAttributes.getField('name');
         sceneNameField.value = this._sceneName;
-        this._settingsEvents.push(sceneNameField.on('change', (newSceneName) => {
-            if (this._suspendSceneNameEvt) {
-                return;
-            }
-            if (!editor.call('permissions:write')) {
-                return;
-            }
+        this._settingsEvents.push(
+            sceneNameField.on('change', (newSceneName) => {
+                if (this._suspendSceneNameEvt) {
+                    return;
+                }
+                if (!editor.call('permissions:write')) {
+                    return;
+                }
 
-            editor.call('realtime:scene:op', {
-                p: ['name'],
-                od: this._sceneName || '',
-                oi: newSceneName || ''
-            });
-            this._sceneName = newSceneName;
-            editor.emit('scene:name', newSceneName);
-        }));
+                editor.call('realtime:scene:op', {
+                    p: ['name'],
+                    od: this._sceneName || '',
+                    oi: newSceneName || ''
+                });
+                this._sceneName = newSceneName;
+                editor.emit('scene:name', newSceneName);
+            })
+        );
     }
 }
 

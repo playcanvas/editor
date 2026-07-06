@@ -1,3 +1,7 @@
+import type { Observer } from '@playcanvas/observer';
+
+import type { EntityObserver } from '@/editor-api';
+
 editor.once('load', () => {
     const app = editor.call('viewport:app');
     if (!app) {
@@ -19,10 +23,10 @@ editor.once('load', () => {
                 timeoutId = null;
             });
 
-            return (entities?: import('@/editor-api').EntityObserver[]) => {
+            return (entities?: EntityObserver[]) => {
                 // collect entities
                 if (entities) {
-                    entities.forEach(e => entSet.add(e));
+                    entities.forEach((e) => entSet.add(e));
                 }
 
                 if (!timeoutId) {
@@ -128,20 +132,20 @@ editor.once('load', () => {
             'components.render.castShadowsLightmap'
         ];
 
-        editor.on('entities:add', (entity: import('@playcanvas/observer').Observer) => {
+        editor.on('entities:add', (entity: Observer) => {
             // model
-            for (let i = 0; i < fieldsLocal.length; i++) {
-                entity.on(`${fieldsLocal[i]}:set`, evtRebakeEntity);
+            for (const field of fieldsLocal) {
+                entity.on(`${field}:set`, evtRebakeEntity);
             }
 
             // light
-            for (let i = 0; i < fieldsLight.length; i++) {
-                entity.on(`${fieldsLight[i]}:set`, evtRebakeLight);
+            for (const field of fieldsLight) {
+                entity.on(`${field}:set`, evtRebakeLight);
             }
 
             // global
-            for (let i = 0; i < fieldsGlobal.length; i++) {
-                entity.on(`${fieldsGlobal[i]}:set`, evtRebakeScene);
+            for (const field of fieldsGlobal) {
+                entity.on(`${field}:set`, evtRebakeScene);
             }
         });
 

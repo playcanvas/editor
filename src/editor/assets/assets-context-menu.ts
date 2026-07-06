@@ -2,7 +2,8 @@ import type { Observer } from '@playcanvas/observer';
 import { Menu, MenuItem } from '@playcanvas/pcui';
 
 import { config } from '@/editor/config';
-import { Asset, Entity, type AssetObserver } from '@/editor-api';
+import { Asset, Entity } from '@/editor-api';
+import type { AssetObserver } from '@/editor-api';
 
 import { formatShortcut } from '../../common/utils';
 
@@ -17,7 +18,7 @@ editor.once('load', () => {
 
     const isModelAsset = (asset: Asset) => {
         const filename = asset.get('file.filename');
-        return (filename && String(filename).match(/\.glb$/) !== null) || (asset.get('type') === 'gsplat');
+        return (filename && String(filename).match(/\.glb$/) !== null) || asset.get('type') === 'gsplat';
     };
 
     const isTextureAsset = (asset: Asset) => {
@@ -46,14 +47,23 @@ editor.once('load', () => {
 
             const folder = editor.call('assets:selected:folder');
             const validate = (name: string) => editor.call('assets:script:checkCollision', name, folder);
-            editor.call('picker:script-create', (filename) => {
-                editor.call('assets:create:script', {
-                    filename: filename,
-                    parent: folder
-                }, (asset: Asset) => {
-                    editor.api.globals.selection.set([asset]);
-                });
-            }, undefined, validate);
+            editor.call(
+                'picker:script-create',
+                (filename) => {
+                    editor.call(
+                        'assets:create:script',
+                        {
+                            filename: filename,
+                            parent: folder
+                        },
+                        (asset: Asset) => {
+                            editor.api.globals.selection.set([asset]);
+                        }
+                    );
+                },
+                undefined,
+                validate
+            );
         }
     });
     if (editor.call('permissions:write')) {
@@ -70,34 +80,29 @@ editor.once('load', () => {
     }
 
     // Asset types that are NOT downloadable (via context menu)
-    const notDownloadable = new Set([
-        'folder',
-        'sprite',
-        'render',
-        'template'
-    ]);
+    const notDownloadable = new Set(['folder', 'sprite', 'render', 'template']);
 
     const icons = {
-        'upload': 'E235',
-        'folder': 'E139',
-        'css': 'E208',
-        'cubemap': 'E217',
-        'html': 'E208',
-        'json': 'E208',
-        'layers': 'E288',
-        'material': 'E195',
-        'font': 'E406',
-        'script': 'E208',
-        'shader': 'E208',
-        'text': 'E208',
-        'texture': 'E201',
-        'textureatlas': 'E201',
-        'model': 'E187',
-        'scene': 'E187',
-        'animation': 'E213',
-        'audio': 'E210',
-        'bundle': 'E410',
-        'animstategraph': 'E412'
+        upload: 'E235',
+        folder: 'E139',
+        css: 'E208',
+        cubemap: 'E217',
+        html: 'E208',
+        json: 'E208',
+        layers: 'E288',
+        material: 'E195',
+        font: 'E406',
+        script: 'E208',
+        shader: 'E208',
+        text: 'E208',
+        texture: 'E201',
+        textureatlas: 'E201',
+        model: 'E187',
+        scene: 'E187',
+        animation: 'E213',
+        audio: 'E210',
+        bundle: 'E410',
+        animstategraph: 'E412'
     };
 
     const ICONS = {
@@ -119,37 +124,37 @@ editor.once('load', () => {
     };
 
     const assets = {
-        'upload': 'Upload',
-        'folder': 'Folder',
-        'css': 'CSS',
-        'cubemap': 'CubeMap',
-        'html': 'HTML',
-        'json': 'JSON',
-        'material': 'Material',
-        'script': 'Script',
-        'shader': 'Shader',
-        'text': 'Text',
-        'animstategraph': 'Anim State Graph'
+        upload: 'Upload',
+        folder: 'Folder',
+        css: 'CSS',
+        cubemap: 'CubeMap',
+        html: 'HTML',
+        json: 'JSON',
+        material: 'Material',
+        script: 'Script',
+        shader: 'Shader',
+        text: 'Text',
+        animstategraph: 'Anim State Graph'
     };
 
     const assetCreateCallback = {
-        'folder': 'createFolder',
-        'css': 'createCss',
-        'cubemap': 'createCubemap',
-        'html': 'createHtml',
-        'json': 'createJson',
-        'material': 'createMaterial',
-        'script': 'createScript',
-        'shader': 'createShader',
-        'text': 'createText',
-        'animstategraph': 'createAnimStateGraph'
+        folder: 'createFolder',
+        css: 'createCss',
+        cubemap: 'createCubemap',
+        html: 'createHtml',
+        json: 'createJson',
+        material: 'createMaterial',
+        script: 'createScript',
+        shader: 'createShader',
+        text: 'createText',
+        animstategraph: 'createAnimStateGraph'
     };
 
     const conversionFormats = {
-        'webp': 'WebP',
-        'avif': 'AVIF',
-        'png': 'PNG',
-        'jpeg': 'JPEG'
+        webp: 'WebP',
+        avif: 'AVIF',
+        png: 'PNG',
+        jpeg: 'JPEG'
     };
 
     if (editor.call('users:hasFlag', 'hasBundles')) {
@@ -167,9 +172,8 @@ editor.once('load', () => {
             value: conversionFormats[format],
             icon: icons[format] || null,
             onSelect: () => {
-
                 // Get the list of 'Assets' that have been selected in the assets panel
-                let assets = editor.api.globals.selection.items.filter(item => item instanceof Asset);
+                let assets = editor.api.globals.selection.items.filter((item) => item instanceof Asset);
 
                 // If none are selected, check whether `currentAsset` exists and use this instead
                 if (assets.length === 0) {
@@ -177,7 +181,6 @@ editor.once('load', () => {
                 }
 
                 assets.forEach((asset: Asset) => {
-
                     const type = asset.get('type');
                     const meta = asset.get('meta');
 
@@ -233,7 +236,9 @@ editor.once('load', () => {
                         selectionChanged = true;
                     });
                     return (asset: Asset) => {
-                        const isFocusedOnEntity = editor.api.globals.selection.items.some(item => item instanceof Entity);
+                        const isFocusedOnEntity = editor.api.globals.selection.items.some(
+                            (item) => item instanceof Entity
+                        );
 
                         // Reason for skipping the selection can be read here: https://github.com/playcanvas/editor/issues/1063
                         const wouldDisruptWorkflow = isFocusedOnEntity || selectionChanged;
@@ -251,12 +256,21 @@ editor.once('load', () => {
                         editor.call('sourcefiles:new');
                     } else {
                         const validate = (name: string) => editor.call('assets:script:checkCollision', name, folder);
-                        editor.call('picker:script-create', (filename) => {
-                            editor.call('assets:create:script', {
-                                filename: filename,
-                                parent: folder
-                            }, selectAsset());
-                        }, undefined, validate);
+                        editor.call(
+                            'picker:script-create',
+                            (filename) => {
+                                editor.call(
+                                    'assets:create:script',
+                                    {
+                                        filename: filename,
+                                        parent: folder
+                                    },
+                                    selectAsset()
+                                );
+                            },
+                            undefined,
+                            validate
+                        );
                     }
                 } else {
                     if (assetCreateCallback[key]) {
@@ -264,10 +278,10 @@ editor.once('load', () => {
                             folder: folder,
                             preload
                         })
-                        .then(selectAsset())
-                        .catch((err) => {
-                            editor.call('status:error', err);
-                        });
+                            .then(selectAsset())
+                            .catch((err) => {
+                                editor.call('status:error', err);
+                            });
                     }
                 }
             }
@@ -290,13 +304,13 @@ editor.once('load', () => {
             keys.splice(scriptsIdx, 1);
         }
     }
-    for (let i = 0; i < keys.length; i++) {
-        if (!assets.hasOwnProperty(keys[i])) {
+    for (const key of keys) {
+        if (!Object.hasOwn(assets, key)) {
             continue;
         }
 
-        addNewMenuItem(menuItemNew, keys[i], assets[keys[i]]);
-        addNewMenuItem(menuCreate, keys[i], assets[keys[i]]);
+        addNewMenuItem(menuItemNew, key, assets[key]);
+        addNewMenuItem(menuCreate, key, assets[key]);
     }
 
     // related
@@ -373,11 +387,11 @@ editor.once('load', () => {
 
                 if (type === 'asset') {
                     items = editor.call('selector:items');
-                    for (let i = 0; i < items.length; i++) {
+                    for (const item of items) {
                         // if the asset that was right-clicked is in the selection
                         // then include all the other selected items
                         // otherwise only copy the right-clicked item
-                        if (items[i].get('id') === asset.get('id')) {
+                        if (item.get('id') === asset.get('id')) {
                             multiple = true;
                             break;
                         }
@@ -401,7 +415,11 @@ editor.once('load', () => {
             }
 
             const keepFolderStructure = editor.call('hotkey:shift');
-            editor.call('assets:paste', currentAsset === null ? editor.call('assets:panel:currentFolder') : currentAsset, keepFolderStructure);
+            editor.call(
+                'assets:paste',
+                currentAsset === null ? editor.call('assets:panel:currentFolder') : currentAsset,
+                keepFolderStructure
+            );
         }
     });
     menu.append(menuItemPaste);
@@ -411,7 +429,6 @@ editor.once('load', () => {
         text: 'Convert',
         icon: ICONS.OPEN_IN_VIEWER,
         onIsVisible: function () {
-
             // If this is a multiple selection don't limit the transcode options
             if (editor.api.globals.selection.items.length > 1) {
                 return;
@@ -433,7 +450,7 @@ editor.once('load', () => {
     menu.append(menuItemQuickConvert);
 
     let evtShift = editor.on('hotkey:shift', (shift) => {
-        menuItemPaste.text = (shift ? 'Paste (keep folders)' : 'Paste');
+        menuItemPaste.text = shift ? 'Paste (keep folders)' : 'Paste';
     });
     menuItemPaste.once('destroy', () => {
         evtShift.unbind();
@@ -591,17 +608,17 @@ editor.once('load', () => {
 
                 if (type === 'asset') {
                     items = editor.call('selector:items');
-                    for (let i = 0; i < items.length; i++) {
-                        const assetType = items[i].get('type');
+                    for (const item of items) {
+                        const assetType = item.get('type');
                         // if the asset that was right-clicked is in the selection
                         // then include all the other selected items in the delete
                         // otherwise only delete the right-clicked item
                         if (assetType === 'script' && legacyScripts) {
-                            if (items[i].get('filename') === asset.get('filename')) {
+                            if (item.get('filename') === asset.get('filename')) {
                                 multiple = true;
                                 break;
                             }
-                        } else if (items[i].get('id') === asset.get('id')) {
+                        } else if (item.get('id') === asset.get('id')) {
                             multiple = true;
                             break;
                         }
@@ -611,7 +628,6 @@ editor.once('load', () => {
                 editor.call('assets:delete:picker', multiple ? items : [asset]);
             }
         }
-
     });
     if (editor.call('permissions:write')) {
         menu.append(menuItemDelete);
@@ -634,7 +650,7 @@ editor.once('load', () => {
         text: 'Open In Viewer',
         icon: ICONS.OPEN_IN_VIEWER,
         onSelect: () => {
-            let assets = editor.api.globals.selection.items.filter(item => item instanceof Asset);
+            let assets = editor.api.globals.selection.items.filter((item) => item instanceof Asset);
             // If none are selected, use currentAsset instead
             if (assets.length === 0 && currentAsset) {
                 assets = [currentAsset];
@@ -669,7 +685,10 @@ editor.once('load', () => {
                 menuItemCopy.hidden = true;
             }
         } else {
-            menuItemNewScript.hidden = !((currentAsset === null || (currentAsset && currentAsset.get('type') === 'script')) && isCurrentFolderLegacyScripts());
+            menuItemNewScript.hidden = !(
+                (currentAsset === null || (currentAsset && currentAsset.get('type') === 'script')) &&
+                isCurrentFolderLegacyScripts()
+            );
 
             if (menuItemPaste) {
                 menuItemPaste.hidden = false;
@@ -701,10 +720,13 @@ editor.once('load', () => {
         }
 
         if (currentAsset) {
-
             // download
-            const hasDownloadPermission = !config.project.privateAssets || (config.project.privateAssets && editor.call('permissions:read'));
-            const isDownloadable = currentAsset.get('source') || (!notDownloadable.has(currentAsset.get('type')) && !(legacyScripts && currentAsset.get('type') === 'script'));
+            const hasDownloadPermission =
+                !config.project.privateAssets || (config.project.privateAssets && editor.call('permissions:read'));
+            const isDownloadable =
+                currentAsset.get('source') ||
+                (!notDownloadable.has(currentAsset.get('type')) &&
+                    !(legacyScripts && currentAsset.get('type') === 'script'));
 
             menuItemDownload.hidden = !(hasDownloadPermission && isDownloadable);
 
@@ -715,7 +737,7 @@ editor.once('load', () => {
                 menuItemEditCursor.hidden = true;
                 if (editor.call('selector:type') === 'asset') {
                     const items = editor.call('selector:items');
-                    menuItemDuplicate.hidden = (items.length > 1 && items.indexOf(currentAsset) !== -1);
+                    menuItemDuplicate.hidden = items.length > 1 && items.indexOf(currentAsset) !== -1;
                 } else {
                     menuItemDuplicate.hidden = false;
                 }
@@ -724,10 +746,13 @@ editor.once('load', () => {
             }
 
             // edit
-            if (!currentAsset.get('source') && ['html', 'css', 'json', 'text', 'script', 'shader'].indexOf(currentAsset.get('type')) !== -1) {
+            if (
+                !currentAsset.get('source') &&
+                ['html', 'css', 'json', 'text', 'script', 'shader'].indexOf(currentAsset.get('type')) !== -1
+            ) {
                 if (editor.call('selector:type') === 'asset') {
                     const items = editor.call('selector:items');
-                    const editHidden = (items.length > 1 && items.indexOf(currentAsset) !== -1);
+                    const editHidden = items.length > 1 && items.indexOf(currentAsset) !== -1;
                     menuItemEditWeb.hidden = editHidden;
                     menuItemEditVSCode.hidden = editHidden;
                     menuItemEditCursor.hidden = editHidden;
@@ -743,15 +768,23 @@ editor.once('load', () => {
             }
 
             // create atlas
-            menuItemTextureToAtlas.hidden = (currentAsset.get('type') !== 'texture' || currentAsset.get('source') || currentAsset.get('task') || !editor.call('permissions:write'));
+            menuItemTextureToAtlas.hidden =
+                currentAsset.get('type') !== 'texture' ||
+                currentAsset.get('source') ||
+                currentAsset.get('task') ||
+                !editor.call('permissions:write');
             menuItemTextureToCubemap.hidden = menuItemTextureToAtlas.hidden;
 
             // create sprite
-            menuItemCreateSprite.hidden = (currentAsset.get('type') !== 'textureatlas' || currentAsset.get('source') || currentAsset.get('task') || !editor.call('permissions:write'));
+            menuItemCreateSprite.hidden =
+                currentAsset.get('type') !== 'textureatlas' ||
+                currentAsset.get('source') ||
+                currentAsset.get('task') ||
+                !editor.call('permissions:write');
             menuItemCreateSlicedSprite.hidden = menuItemCreateSprite.hidden;
 
             // delete
-            menuItemDelete.hidden = (currentAsset && currentAsset.get('id') === LEGACY_SCRIPTS_ID);
+            menuItemDelete.hidden = currentAsset && currentAsset.get('id') === LEGACY_SCRIPTS_ID;
 
             // convert
             menuItemQuickConvert.hidden = currentAsset && currentAsset.get('type') !== 'texture';
@@ -762,9 +795,15 @@ editor.once('load', () => {
                 if (sourceId) {
                     const source = editor.call('assets:get', sourceId);
                     if (source) {
-                        if (source.get('type') === 'scene' && (['texture', 'material'].indexOf(currentAsset.get('type')) !== -1 || !source.get('meta'))) {
+                        if (
+                            source.get('type') === 'scene' &&
+                            (['texture', 'material'].indexOf(currentAsset.get('type')) !== -1 || !source.get('meta'))
+                        ) {
                             menuItemReImport.hidden = true;
-                        } else if (currentAsset.get('type') === 'animation' && !source.get('meta.animation.available')) {
+                        } else if (
+                            currentAsset.get('type') === 'animation' &&
+                            !source.get('meta.animation.available')
+                        ) {
                             menuItemReImport.hidden = true;
                         } else if (currentAsset.get('type') === 'material' && !currentAsset.has('meta.index')) {
                             menuItemReImport.hidden = true;
@@ -783,7 +822,8 @@ editor.once('load', () => {
                 if (ref && ref.count && ref.ref) {
                     menuItemReferences.hidden = false;
                     menuItemReplace.hidden = !replaceAvailable.has(currentAsset.get('type'));
-                    menuItemReplaceTextureToSprite.hidden = !editor.call('users:hasFlag', 'hasTextureToSprite') || (currentAsset.get('type') !== 'texture');
+                    menuItemReplaceTextureToSprite.hidden =
+                        !editor.call('users:hasFlag', 'hasTextureToSprite') || currentAsset.get('type') !== 'texture';
 
                     menuItemReferences.clear();
 
@@ -848,9 +888,9 @@ editor.once('load', () => {
                     }
 
                     const typeSort = {
-                        'editorSettings': 1,
-                        'asset': 2,
-                        'entity': 3
+                        editorSettings: 1,
+                        asset: 2,
+                        entity: 3
                     };
 
                     menuItems.sort((a, b) => {
@@ -864,12 +904,10 @@ editor.once('load', () => {
                             return -1;
                         }
                         return 0;
-
-
                     });
 
-                    for (let i = 0; i < menuItems.length; i++) {
-                        menuItemReferences.append(menuItems[i].element);
+                    for (const menuItem of menuItems) {
+                        menuItemReferences.append(menuItem.element);
                     }
                 } else {
                     menuItemReferences.hidden = true;
@@ -881,17 +919,23 @@ editor.once('load', () => {
                 menuItemReferences.hidden = true;
                 menuItemReplace.hidden = true;
                 menuItemReplaceTextureToSprite.hidden = true;
-                menuItemReImport.hidden = ['scene', 'texture', 'textureatlas'].indexOf(currentAsset.get('type')) === -1 || !currentAsset.get('meta');
+                menuItemReImport.hidden =
+                    ['scene', 'texture', 'textureatlas'].indexOf(currentAsset.get('type')) === -1 ||
+                    !currentAsset.get('meta');
             }
 
             // move-to-store
-            menuItemMoveToStore.hidden = !editor.call('users:isSuperUser') || !currentAsset || currentAsset.get('id') === LEGACY_SCRIPTS_ID || (legacyScripts && currentAsset.get('type') === 'script');
+            menuItemMoveToStore.hidden =
+                !editor.call('users:isSuperUser') ||
+                !currentAsset ||
+                currentAsset.get('id') === LEGACY_SCRIPTS_ID ||
+                (legacyScripts && currentAsset.get('type') === 'script');
 
             // open-in-viewer - only show when all viewable assets are the same type (all models OR all textures)
-            const selectedAssets = editor.api.globals.selection.items.filter(item => item instanceof Asset);
-            const assetsToCheck = selectedAssets.length > 0 ? selectedAssets : (currentAsset ? [currentAsset] : []);
-            const modelAssets = assetsToCheck.filter(asset => isModelAsset(asset));
-            const textureAssets = assetsToCheck.filter(asset => isTextureAsset(asset));
+            const selectedAssets = editor.api.globals.selection.items.filter((item) => item instanceof Asset);
+            const assetsToCheck = selectedAssets.length > 0 ? selectedAssets : currentAsset ? [currentAsset] : [];
+            const modelAssets = assetsToCheck.filter((asset) => isModelAsset(asset));
+            const textureAssets = assetsToCheck.filter((asset) => isTextureAsset(asset));
             const hasOnlyModels = modelAssets.length > 0 && textureAssets.length === 0;
             const hasOnlyTextures = textureAssets.length > 0 && modelAssets.length === 0;
             menuItemOpenInViewer.hidden = !(hasOnlyModels || hasOnlyTextures);
@@ -915,7 +959,6 @@ editor.once('load', () => {
             menuItemOpenInViewer.hidden = true;
         }
     });
-
 
     // for each asset added
     editor.on('assets:add', (asset: AssetObserver) => {
@@ -943,22 +986,28 @@ editor.once('load', () => {
         }
     });
 
-    editor.method('assets:contextmenu:attach', (element: { dom: HTMLElement; on: (event: string, callback: (dom: HTMLElement) => void) => void }, asset: Asset) => {
-        const contextMenuHandler = function (evt: MouseEvent) {
-            evt.stopPropagation();
-            evt.preventDefault();
+    editor.method(
+        'assets:contextmenu:attach',
+        (
+            element: { dom: HTMLElement; on: (event: string, callback: (dom: HTMLElement) => void) => void },
+            asset: Asset
+        ) => {
+            const contextMenuHandler = function (evt: MouseEvent) {
+                evt.stopPropagation();
+                evt.preventDefault();
 
-            currentAsset = asset;
-            menu.hidden = false;
-            menu.position(evt.clientX + 1, evt.clientY);
-        };
+                currentAsset = asset;
+                menu.hidden = false;
+                menu.position(evt.clientX + 1, evt.clientY);
+            };
 
-        element.dom.addEventListener('contextmenu', contextMenuHandler);
+            element.dom.addEventListener('contextmenu', contextMenuHandler);
 
-        element.on('destroy', (dom) => {
-            dom.removeEventListener('contextmenu', contextMenuHandler);
-        });
-    });
+            element.on('destroy', (dom) => {
+                dom.removeEventListener('contextmenu', contextMenuHandler);
+            });
+        }
+    );
 
     // Show the context menu for a given asset at the specified position
     editor.method('assets:contextmenu:show', (asset: Asset, x: number, y: number) => {
@@ -989,7 +1038,22 @@ editor.once('load', () => {
         });
     });
 
-    function createCustomContextMenu(data: { text: string; icon?: string; onIsVisible?: (asset: AssetObserver | null) => boolean; onSelect?: (asset: AssetObserver | null) => void; items?: Array<{ text: string; icon?: string; onIsVisible?: (asset: AssetObserver | null) => boolean; onSelect?: (asset: AssetObserver | null) => void; items?: unknown[] }> }, parent: Menu | MenuItem) {
+    function createCustomContextMenu(
+        data: {
+            text: string;
+            icon?: string;
+            onIsVisible?: (asset: AssetObserver | null) => boolean;
+            onSelect?: (asset: AssetObserver | null) => void;
+            items?: {
+                text: string;
+                icon?: string;
+                onIsVisible?: (asset: AssetObserver | null) => boolean;
+                onSelect?: (asset: AssetObserver | null) => void;
+                items?: unknown[];
+            }[];
+        },
+        parent: Menu | MenuItem
+    ) {
         const item = new MenuItem({
             text: data.text,
             icon: data.icon,
@@ -1008,7 +1072,15 @@ editor.once('load', () => {
         });
 
         if (data.items) {
-            data.items.forEach((child: { text: string; icon?: string; onIsVisible?: (asset: AssetObserver | null) => boolean; onSelect?: (asset: AssetObserver | null) => void; items?: unknown[] }) => createCustomContextMenu(child, item));
+            data.items.forEach(
+                (child: {
+                    text: string;
+                    icon?: string;
+                    onIsVisible?: (asset: AssetObserver | null) => boolean;
+                    onSelect?: (asset: AssetObserver | null) => void;
+                    items?: unknown[];
+                }) => createCustomContextMenu(child, item)
+            );
         }
 
         parent.append(item);
@@ -1016,13 +1088,22 @@ editor.once('load', () => {
         return item;
     }
 
-    editor.method('assets:contextmenu:add', (data: {
-        text: string;
-        icon?: string;
-        items?: Array<{ text: string; icon?: string; onIsVisible?: (asset: AssetObserver | null) => boolean; onSelect?: (asset: AssetObserver | null) => void; items?: unknown[] }>;
-        onIsVisible?: (asset: AssetObserver | null) => boolean;
-        onSelect?: (asset: AssetObserver | null) => void;
-    }) => {
-        return createCustomContextMenu(data, menu);
-    });
+    editor.method(
+        'assets:contextmenu:add',
+        (data: {
+            text: string;
+            icon?: string;
+            items?: {
+                text: string;
+                icon?: string;
+                onIsVisible?: (asset: AssetObserver | null) => boolean;
+                onSelect?: (asset: AssetObserver | null) => void;
+                items?: unknown[];
+            }[];
+            onIsVisible?: (asset: AssetObserver | null) => boolean;
+            onSelect?: (asset: AssetObserver | null) => void;
+        }) => {
+            return createCustomContextMenu(data, menu);
+        }
+    );
 });

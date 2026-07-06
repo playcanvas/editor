@@ -1,7 +1,6 @@
 import { WorkerClient } from '@/core/worker/worker-client';
 
 editor.once('load', () => {
-
     const SUPPORTED_FORMATS = ['avif', 'jpeg', 'png', 'webp'];
 
     editor.method('assets:texture:convert', async (id, targetFormat, callback) => {
@@ -27,7 +26,7 @@ editor.once('load', () => {
             // FIXME: No way to use arrayBuffer with AJAX
             const response = await fetch(`/api/assets/${id}/download?branchId=${config.self.branch.id}`);
             if (!response.ok) {
-                log.error`texture download failed ${response.status}: ${response.statusText}`;
+                void log.error`texture download failed ${response.status}: ${response.statusText}`;
                 return;
             }
             const buffer = await response.arrayBuffer();
@@ -38,16 +37,20 @@ editor.once('load', () => {
                 workerClient.on('convert', (data) => {
                     const file = new Blob([data], { type: `image/${targetFormat}` });
 
-                    editor.call('assets:uploadFile', {
-                        name: targetFilename,
-                        type: 'texture',
-                        filename: targetFilename,
-                        file,
-                        parent
-                    }, () => {
-                        callback();
-                        workerClient.stop();
-                    });
+                    editor.call(
+                        'assets:uploadFile',
+                        {
+                            name: targetFilename,
+                            type: 'texture',
+                            filename: targetFilename,
+                            file,
+                            parent
+                        },
+                        () => {
+                            callback();
+                            workerClient.stop();
+                        }
+                    );
                 });
 
                 workerClient.with([buffer]).send('convert', config.url.frontend, buffer, sourceFormat, targetFormat);

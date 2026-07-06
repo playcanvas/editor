@@ -1,5 +1,6 @@
 import type { Observer, ObserverList, EventHandle } from '@playcanvas/observer';
-import { Container, Button, Panel, Label, type ContainerArgs } from '@playcanvas/pcui';
+import { Container, Button, Panel, Label } from '@playcanvas/pcui';
+import type { ContainerArgs } from '@playcanvas/pcui';
 import {
     ANIM_EQUAL_TO,
     ANIM_INTERRUPTION_NONE,
@@ -11,11 +12,11 @@ import {
 
 import type { History } from '@/editor-api';
 
-import { AnimStateGraphCondition } from './condition';
-import type { AnimStateGraphView } from './view';
 import type { Attribute, Divider } from '../inspector/attribute.type.d';
 import { AttributesInspector } from '../inspector/attributes-inspector';
 
+import { AnimStateGraphCondition } from './condition';
+import type { AnimStateGraphView } from './view';
 
 const CLASS_ANIMSTATEGRAPH = 'asset-animstategraph-inspector';
 const CLASS_ANIMSTATEGRAPH_TRANSITION = `${CLASS_ANIMSTATEGRAPH}-transition`;
@@ -44,10 +45,10 @@ class TransitionInspector extends AttributesInspector {
     }
 }
 
-interface AnimStateGraphTransitionsArgs extends ContainerArgs {
+type AnimStateGraphTransitionsArgs = {
     assets?: ObserverList;
     history?: History;
-}
+} & ContainerArgs;
 
 class AnimStateGraphTransitions extends Container {
     _view: AnimStateGraphView;
@@ -109,16 +110,19 @@ class AnimStateGraphTransitions extends Container {
     }
 
     _onDragEnd(_inspector: unknown, newIndex: number, oldIndex: number) {
-        let transitions = this._assets[0].get(`data.layers.${this._selectedLayer}.transitions`).filter((transitionId) => {
-            const transition = this._assets[0].get(`data.transitions.${transitionId}`);
-            return this._edge === `${transition.from}-${transition.to}`;
-        }).map((transitionId) => {
-            const transition = this._assets[0].get(`data.transitions.${transitionId}`);
-            return {
-                transition,
-                id: transitionId
-            };
-        });
+        let transitions = this._assets[0]
+            .get(`data.layers.${this._selectedLayer}.transitions`)
+            .filter((transitionId) => {
+                const transition = this._assets[0].get(`data.transitions.${transitionId}`);
+                return this._edge === `${transition.from}-${transition.to}`;
+            })
+            .map((transitionId) => {
+                const transition = this._assets[0].get(`data.transitions.${transitionId}`);
+                return {
+                    transition,
+                    id: transitionId
+                };
+            });
         transitions.sort((a, b) => {
             return a.transition.priority - b.transition.priority;
         });
@@ -364,7 +368,8 @@ class AnimStateGraphTransitions extends Container {
                 text: 'Note: No Exit Time or Conditions set - transition will activate instantly.'
             });
             const hideConditionNote = () => {
-                const hasConditions = Object.keys(this._assets[0].get(`data.transitions.${transitionId}.conditions`)).length > 0;
+                const hasConditions =
+                    Object.keys(this._assets[0].get(`data.transitions.${transitionId}.conditions`)).length > 0;
                 const hasExitTime = this._assets[0].get(`data.transitions.${transitionId}.exitTime`) > 0;
                 return hasExitTime || hasConditions;
             };
@@ -379,7 +384,11 @@ class AnimStateGraphTransitions extends Container {
                     if (exitTime > 0) {
                         lastExitTimeValue = exitTime;
                     }
-                } else if (!path || path.includes('parameters') || path.includes(`transitions.${transitionId}`) && transition.conditions) {
+                } else if (
+                    !path ||
+                    path.includes('parameters') ||
+                    (path.includes(`transitions.${transitionId}`) && transition.conditions)
+                ) {
                     addConditions();
                     conditionNote.hidden = hideConditionNote();
                 }
@@ -390,7 +399,6 @@ class AnimStateGraphTransitions extends Container {
                     addConditions();
                 }
             });
-
         });
         this._newTransitionButton.hidden = edge.defaultTransition;
         this.parent.headerText = 'TRANSITION';

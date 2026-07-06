@@ -1,7 +1,8 @@
+import type { Observer } from '@playcanvas/observer';
+
 import { ObserverSync } from '@/common/observer-sync';
 
 editor.once('load', () => {
-
     const syncPaths = [
         'name',
         'tags',
@@ -16,7 +17,7 @@ editor.once('load', () => {
         'components'
     ];
 
-    function addObserverSync(entity: import('@playcanvas/observer').Observer) {
+    function addObserverSync(entity: Observer) {
         if (entity.sync) {
             return;
         }
@@ -43,14 +44,14 @@ editor.once('load', () => {
         }
 
         if (op.p.length === 2) {
-            if (op.hasOwnProperty('od')) {
+            if (Object.hasOwn(op, 'od')) {
                 // delete entity
                 if (entity) {
                     editor.api.globals.entities.serverRemove(entity);
                 } else {
                     console.log('delete operation entity not found', op);
                 }
-            } else if (op.hasOwnProperty('oi')) {
+            } else if (Object.hasOwn(op, 'oi')) {
                 // new entity
                 editor.api.globals.entities.serverAdd(op.oi);
             } else {

@@ -39,8 +39,8 @@ function createScript(filename: string, text: string) {
             scriptName += tokens[i].charAt(0).toUpperCase() + tokens[i].slice(1);
         }
 
-        for (let i = 0; i < tokens.length; i++) {
-            className += tokens[i].charAt(0).toUpperCase() + tokens[i].slice(1);
+        for (const token of tokens) {
+            className += token.charAt(0).toUpperCase() + token.slice(1);
         }
     } else {
         className = 'Script';
@@ -55,7 +55,7 @@ function createScript(filename: string, text: string) {
         filename = `${scriptName}.js`;
     }
 
-    const hasValidExtension = validExtensions.some(ext => filename.endsWith(ext));
+    const hasValidExtension = validExtensions.some((ext) => filename.endsWith(ext));
     if (!hasValidExtension) {
         filename += '.js';
     }

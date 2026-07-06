@@ -147,10 +147,14 @@ const createPanel = (headerText = '') => {
     return withPanelCompat(new Container({ flex: true }));
 };
 
-const createButton = (args: any = {}) => withCompat(new Button({
-    ...args,
-    unsafe: args.unsafe ?? true
-}), 'ui-button');
+const createButton = (args: any = {}) =>
+    withCompat(
+        new Button({
+            ...args,
+            unsafe: args.unsafe ?? true
+        }),
+        'ui-button'
+    );
 
 const createCheckbox = (args: any = {}) => {
     const field = withCompat(new BooleanInput(args), 'ui-checkbox', 'noSelect');
@@ -193,11 +197,13 @@ const withCurveLink = (field: any, arrayValue = true) => {
             field.value = arrayValue ? values : values[0];
         };
 
-        field._linkSetHandlers.push(link.on('*:set', (path: string) => {
-            if (paths.some(p => path.indexOf(p) === 0)) {
-                update();
-            }
-        }));
+        field._linkSetHandlers.push(
+            link.on('*:set', (path: string) => {
+                if (paths.some((p) => path.indexOf(p) === 0)) {
+                    update();
+                }
+            })
+        );
 
         update();
     };
@@ -218,7 +224,8 @@ const createCurveInput = (args: any = {}) => {
     return field;
 };
 
-const createGradientInput = (args: any = {}) => withCurveLink(withCompat(new GradientInput(args), 'ui-curve-field'), false);
+const createGradientInput = (args: any = {}) =>
+    withCurveLink(withCompat(new GradientInput(args), 'ui-curve-field'), false);
 
 const createAssetInput = (args: any = {}) => withCompat(new AssetInput(args), 'ui-image-field');
 
@@ -287,12 +294,16 @@ const createProgress = (args: any = {}) => withCompat(new Progress(args), 'ui-pr
 const createSelectInput = (args: any = {}) => {
     let options = toOptions(args.options, args.type);
     const hidden = new Set<any>();
-    const field = withCompat(new SelectInput({
-        ...args,
-        options,
-        defaultValue: args.default,
-        value: args.default
-    }), 'ui-select-field', 'noSelect');
+    const field = withCompat(
+        new SelectInput({
+            ...args,
+            options,
+            defaultValue: args.default,
+            value: args.default
+        }),
+        'ui-select-field',
+        'noSelect'
+    );
     const applyOptions = () => {
         field.options = options.filter((option: any) => !hidden.has(option.v));
     };

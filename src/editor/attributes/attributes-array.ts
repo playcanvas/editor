@@ -47,7 +47,11 @@ editor.once('load', () => {
         });
 
         if (args.canOverrideTemplate && (args.path || args.paths)) {
-            editor.call('attributes:registerOverridePath', pathAt(args, 0), args.panel ? args.panel.element : panel.element);
+            editor.call(
+                'attributes:registerOverridePath',
+                pathAt(args, 0),
+                args.panel ? args.panel.element : panel.element
+            );
         }
 
         panel.parent.flex = true;
@@ -265,8 +269,8 @@ editor.once('load', () => {
             while (rowExistsEverywhere) {
                 row++;
 
-                for (let i = 0; i < allArrays.length; i++) {
-                    if (!allArrays[i] || (!(allArrays[i] instanceof Array)) || allArrays[i].length <= row) {
+                for (const arr of allArrays) {
+                    if (!arr || !(arr instanceof Array) || arr.length <= row) {
                         rowExistsEverywhere = false;
                         break;
                     }
@@ -451,7 +455,6 @@ editor.once('load', () => {
                         for (let c = 0; c < len; c++) {
                             result.keys.push([0, 0]);
                         }
-
                     }
                 }
             }
@@ -459,5 +462,4 @@ editor.once('load', () => {
 
         return result;
     };
-
 });

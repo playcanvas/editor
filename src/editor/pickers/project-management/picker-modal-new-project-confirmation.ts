@@ -1,7 +1,6 @@
 import { Button, Label, Overlay, Panel } from '@playcanvas/pcui';
 
 editor.once('load', () => {
-
     // GLOBAL VARIABLES
     let projectURL;
     const IS_EMPTY_STATE = config.project.id === null;
@@ -62,7 +61,6 @@ editor.once('load', () => {
         returnToCMS();
     });
 
-
     // CONTROLLERS
 
     // helper method to close current panel and return to CMS
@@ -104,5 +102,4 @@ editor.once('load', () => {
         }
         overlay.hidden = false;
     });
-
 });

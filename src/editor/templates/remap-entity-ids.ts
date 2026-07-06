@@ -1,6 +1,8 @@
+import type { Observer } from '@playcanvas/observer';
+
 editor.once('load', () => {
     class RemapEntityIds {
-        constructor(entity: import('@playcanvas/observer').Observer, scriptAttrs: Record<string, unknown>, srcToDst: Record<string, string>) {
+        constructor(entity: Observer, scriptAttrs: Record<string, unknown>, srcToDst: Record<string, string>) {
             this.entity = entity;
 
             this.scriptAttrs = scriptAttrs;
@@ -28,21 +30,11 @@ editor.once('load', () => {
         }
 
         setEntPaths() {
-            this.entPaths = editor.call(
-                'template:allEntityPaths',
-                this.entity,
-                this.scriptAttrs
-            );
+            this.entPaths = editor.call('template:allEntityPaths', this.entity, this.scriptAttrs);
         }
 
         remapAtPath(path: string) {
-            editor.call(
-                'template:utils',
-                'remapEntAtPath',
-                this.entity,
-                path,
-                this.srcToDst
-            );
+            editor.call('template:utils', 'remapEntAtPath', this.entity, path, this.srcToDst);
         }
     }
 

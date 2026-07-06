@@ -1,4 +1,5 @@
-import { type Entity, MeshInstance } from 'playcanvas';
+import { MeshInstance } from 'playcanvas';
+import type { Entity } from 'playcanvas';
 
 import { config } from '@/editor/config';
 
@@ -15,7 +16,15 @@ editor.once('load', () => {
     let hoverCubemap = null;
     let hoverEntity;
     let hoverMeshInstance = null;
-    const hoverSkyboxFields = ['cubeMap', 'prefilteredCubeMap128', 'prefilteredCubeMap64', 'prefilteredCubeMap32', 'prefilteredCubeMap16', 'prefilteredCubeMap8', 'prefilteredCubeMap4'];
+    const hoverSkyboxFields = [
+        'cubeMap',
+        'prefilteredCubeMap128',
+        'prefilteredCubeMap64',
+        'prefilteredCubeMap32',
+        'prefilteredCubeMap16',
+        'prefilteredCubeMap8',
+        'prefilteredCubeMap4'
+    ];
 
     const onLeave = function () {
         if (hoverSkybox) {
@@ -25,8 +34,8 @@ editor.once('load', () => {
         }
 
         if (hoverMaterial) {
-            for (let i = 0; i < hoverSkyboxFields.length; i++) {
-                hoverMaterial[hoverSkyboxFields[i]] = hoverMaterial._hoverCubeMap[hoverSkyboxFields[i]];
+            for (const field of hoverSkyboxFields) {
+                hoverMaterial[field] = hoverMaterial._hoverCubeMap[field];
             }
             hoverMaterial.update();
             delete hoverMaterial._hoverCubeMap;
@@ -42,9 +51,9 @@ editor.once('load', () => {
 
             if (hoverMaterial) {
                 if (!hoverMaterial._hoverCubeMap) {
-                    hoverMaterial._hoverCubeMap = { };
-                    for (let i = 0; i < hoverSkyboxFields.length; i++) {
-                        hoverMaterial._hoverCubeMap[hoverSkyboxFields[i]] = hoverMaterial[hoverSkyboxFields[i]];
+                    hoverMaterial._hoverCubeMap = {};
+                    for (const field of hoverSkyboxFields) {
+                        hoverMaterial._hoverCubeMap[field] = hoverMaterial[field];
                     }
                 }
 

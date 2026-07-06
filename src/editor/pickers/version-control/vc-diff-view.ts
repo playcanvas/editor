@@ -2,8 +2,15 @@ import { Button, Container, Overlay, Panel, SelectInput, TextInput, TreeView, Tr
 
 import { config } from '@/editor/config';
 
-import { arrayFieldKind, buildNameIndex, indexTemplateEntities, type NameIndex } from './vc-diff-data';
-import { ASSET_ID_ARRAY_FIELDS, createDeltaListField, createSideValueField, destroyValueFields, isEntityChildren } from './vc-diff-fields';
+import { arrayFieldKind, buildNameIndex, indexTemplateEntities } from './vc-diff-data';
+import type { NameIndex } from './vc-diff-data';
+import {
+    ASSET_ID_ARRAY_FIELDS,
+    createDeltaListField,
+    createSideValueField,
+    destroyValueFields,
+    isEntityChildren
+} from './vc-diff-fields';
 import {
     assetDiffField,
     diffTextChangeCounts,
@@ -32,8 +39,10 @@ const TEMPLATE_FIELDS: Record<string, string> = { template_id: 'Source template'
 // loading-state skeleton fragments (mirror the real diff layout: sidebar rows are
 // name + status badge over a sub line; the main pane is a header bar over bordered
 // panels of label + value field rows)
-const SKELETON_ROW = '<div class="skeleton-row"><span class="bone line"></span><span class="bone badge"></span><span class="bone sub"></span></div>';
-const SKELETON_FIELD = '<div class="skeleton-field"><span class="bone label"></span><span class="bone value"></span></div>';
+const SKELETON_ROW =
+    '<div class="skeleton-row"><span class="bone line"></span><span class="bone badge"></span><span class="bone sub"></span></div>';
+const SKELETON_FIELD =
+    '<div class="skeleton-field"><span class="bone label"></span><span class="bone value"></span></div>';
 const SKELETON_PANEL = `<div class="skeleton-panel"><div class="skeleton-phead"><span class="bone line"></span></div>${SKELETON_FIELD.repeat(3)}</div>`;
 
 type VcDiffViewOpts = {
@@ -142,7 +151,9 @@ export const createVcDiffView = (opts: VcDiffViewOpts) => {
     // lift the resize cap to the viewport while fullscreen (keeping room for the main
     // pane) and clamp an oversized persisted width back into the small box on restore
     const applyResizeBounds = (full: boolean) => {
-        const sidebarMax = full ? Math.max(SIDEBAR_MAX_W, window.innerWidth - FULLSCREEN_TOOLBAR_W - DIFF_MAIN_MIN_W) : SIDEBAR_MAX_W;
+        const sidebarMax = full
+            ? Math.max(SIDEBAR_MAX_W, window.innerWidth - FULLSCREEN_TOOLBAR_W - DIFF_MAIN_MIN_W)
+            : SIDEBAR_MAX_W;
         sidebar.resizeMax = sidebarMax;
         const w = editor.call('localStorage:get', opts.sidebarKey) || SIDEBAR_DEFAULT_W;
         if (w > sidebarMax) {
@@ -173,7 +184,7 @@ export const createVcDiffView = (opts: VcDiffViewOpts) => {
             return;
         }
         selected = index;
-        sidebar.dom.querySelectorAll('.vc-diff-row.selected').forEach(el => el.classList.remove('selected'));
+        sidebar.dom.querySelectorAll('.vc-diff-row.selected').forEach((el) => el.classList.remove('selected'));
         row.classList.add('selected');
         renderMain();
     });
@@ -186,9 +197,13 @@ export const createVcDiffView = (opts: VcDiffViewOpts) => {
         return whole && entry.missingInDst ? 'added' : whole && entry.missingInSrc ? 'deleted' : 'modified';
     };
 
-    const textEntry = (conflict: any) => (conflict?.data ?? []).find((entry: any) => entry.isTextualMerge || entry.mergedFilePath);
+    const textEntry = (conflict: any) =>
+        (conflict?.data ?? []).find((entry: any) => entry.isTextualMerge || entry.mergedFilePath);
 
-    const propertyEntries = (conflict: any) => (conflict?.data ?? []).filter((entry: any) => !entry.isTextualMerge && !entry.mergedFilePath && !isHiddenDiffField(entry.path));
+    const propertyEntries = (conflict: any) =>
+        (conflict?.data ?? []).filter(
+            (entry: any) => !entry.isTextualMerge && !entry.mergedFilePath && !isHiddenDiffField(entry.path)
+        );
 
     const selectedConflict = () => current?.conflicts?.[selected] ?? null;
 
@@ -231,17 +246,22 @@ export const createVcDiffView = (opts: VcDiffViewOpts) => {
         }
         const key = JSON.stringify([id, entry.id, entry.mergedFilePath]);
         if (!fileStats.has(key)) {
-            fileStats.set(key, editor.api.globals.rest.merge.mergeConflicts({
-                mergeId: id,
-                conflictId: entry.id,
-                fileName: entry.mergedFilePath,
-                resolved: false
-            }).promisify()
-            .then(diffTextChangeCounts)
-            .catch((err: unknown) => {
-                log.error(err);
-                return null;
-            }));
+            fileStats.set(
+                key,
+                editor.api.globals.rest.merge
+                    .mergeConflicts({
+                        mergeId: id,
+                        conflictId: entry.id,
+                        fileName: entry.mergedFilePath,
+                        resolved: false
+                    })
+                    .promisify()
+                    .then(diffTextChangeCounts)
+                    .catch((err: unknown) => {
+                        log.error(err);
+                        return null;
+                    })
+            );
         }
         return fileStats.get(key)!;
     };
@@ -262,7 +282,11 @@ export const createVcDiffView = (opts: VcDiffViewOpts) => {
         return badge;
     };
 
-    const sectionComponent = (value: string) => value.match(/^(.+) component$/i)?.[1]?.replace(/\s+/g, '').toLowerCase() ?? '';
+    const sectionComponent = (value: string) =>
+        value
+            .match(/^(.+) component$/i)?.[1]
+            ?.replace(/\s+/g, '')
+            .toLowerCase() ?? '';
 
     const inspectorInfo = (conflict: any, entry: any) => {
         // template assets carry a scene-shaped entity tree under data.entities;
@@ -290,8 +314,8 @@ export const createVcDiffView = (opts: VcDiffViewOpts) => {
 
         const info = formatDiffPath(path, type, entityName(conflict, path));
         const labels = info.labels;
-        const entity = labels.find(label => label.text.startsWith('Entity: '));
-        const comp = labels.findIndex(label => label.text.endsWith(' component'));
+        const entity = labels.find((label) => label.text.startsWith('Entity: '));
+        const comp = labels.findIndex((label) => label.text.endsWith(' component'));
         // entity-level template-instance plumbing routes to its own panel
         const tplField = TEMPLATE_FIELDS[splitDiffPath(path).pop() ?? ''];
         let entityContext = [];
@@ -311,7 +335,7 @@ export const createVcDiffView = (opts: VcDiffViewOpts) => {
         } else if (entity) {
             section = tplField ? TEMPLATE_PANEL : 'Entity';
             entityContext = [entity];
-            context = labels.filter(label => label !== entity);
+            context = labels.filter((label) => label !== entity);
         }
 
         return {
@@ -319,7 +343,7 @@ export const createVcDiffView = (opts: VcDiffViewOpts) => {
             section,
             context,
             field: tplField ?? info.field ?? raw,
-            title: `${labels.map(label => label.text).join(' / ')} / ${info.field || raw}`,
+            title: `${labels.map((label) => label.text).join(' / ')} / ${info.field || raw}`,
             type: sectionComponent(section)
         };
     };
@@ -327,16 +351,19 @@ export const createVcDiffView = (opts: VcDiffViewOpts) => {
     // section routing for one entry: which panel, which sub-panel, which label
     const sectionParts = (conflict: any, entry: any) => {
         const info = inspectorInfo(conflict, entry);
-        const isSettings = conflict.itemType === 'settings' ||
+        const isSettings =
+            conflict.itemType === 'settings' ||
             (conflict.itemType === 'scene' && splitDiffPath(entry.path ?? '')[0] === 'settings');
         if (isSettings) {
-            const sub = SETTINGS_ROOT_RE.test(info.section) ? '' :
-                [info.section, ...info.context.map(label => label.text)].join(' · ');
+            const sub = SETTINGS_ROOT_RE.test(info.section)
+                ? ''
+                : [info.section, ...info.context.map((label) => label.text)].join(' · ');
             return { entity: null, panel: 'Settings', icon: '', sub, field: info.field, title: info.title };
         }
         const subMatch = info.context[0]?.text.match(SUB_RE);
         // the inspector shows raw (unprettified) script attribute names
-        const field = subMatch?.groups?.kind === 'Script' ? (splitDiffPath(entry.path ?? '').pop() ?? info.field) : info.field;
+        const field =
+            subMatch?.groups?.kind === 'Script' ? (splitDiffPath(entry.path ?? '').pop() ?? info.field) : info.field;
         return {
             entity: info.entityContext[0] ?? null,
             panel: info.section.replace(/ component$/i, ''),
@@ -349,7 +376,10 @@ export const createVcDiffView = (opts: VcDiffViewOpts) => {
 
     // entity breadcrumb as a real (inert) pcui treeview, like the hierarchy panel
     const entityTree = (label: { text: string; title?: string }, compType: string) => {
-        const parts = label.text.replace(/^Entity:\s*/, '').split('/').filter(Boolean);
+        const parts = label.text
+            .replace(/^Entity:\s*/, '')
+            .split('/')
+            .filter(Boolean);
         const tree = new TreeView({ allowDrag: false, allowReordering: false });
         tree.class.add('vc-diff-entity-tree', 'entities-treeview');
         let parent: TreeView | TreeViewItem = tree;
@@ -395,7 +425,8 @@ export const createVcDiffView = (opts: VcDiffViewOpts) => {
         return row;
     };
 
-    const sideField = (entry: any, side: 'src' | 'dst', conflict: any) => createSideValueField(entry, side, nameIndex, conflict);
+    const sideField = (entry: any, side: 'src' | 'dst', conflict: any) =>
+        createSideValueField(entry, side, nameIndex, conflict);
 
     // wholly added/deleted entities arrive as a missing-flagged entry at the entity root
     const wholeEntity = (entry: any) => {
@@ -416,7 +447,9 @@ export const createVcDiffView = (opts: VcDiffViewOpts) => {
         const status = entry.missingInDst ? 'added' : entry.missingInSrc ? 'deleted' : 'modified';
         appendBadge(banner, status);
         const text = document.createElement('span');
-        text.textContent = opts.bannerText ? opts.bannerText(status, noun) : `This ${noun} was ${status} since the checkpoint`;
+        text.textContent = opts.bannerText
+            ? opts.bannerText(status, noun)
+            : `This ${noun} was ${status} since the checkpoint`;
         banner.appendChild(text);
         return banner;
     };
@@ -474,7 +507,13 @@ export const createVcDiffView = (opts: VcDiffViewOpts) => {
             }
             const host = hostDom(parts);
             if (!entry.path || wholeEntity(entry)) {
-                host.appendChild(wholeBanner(conflict, entry, entry.path ? 'entity' : conflict.assetType ?? conflict.itemType ?? 'item'));
+                host.appendChild(
+                    wholeBanner(
+                        conflict,
+                        entry,
+                        entry.path ? 'entity' : (conflict.assetType ?? conflict.itemType ?? 'item')
+                    )
+                );
                 continue;
             }
             // array fields are membership lists, not before/after blobs: show just
@@ -484,10 +523,15 @@ export const createVcDiffView = (opts: VcDiffViewOpts) => {
             // tuples (<=4, size-stable) fall through to the positional widget below.
             const leaf = splitDiffPath(entry.path ?? '').pop() ?? '';
             const bothArrays = Array.isArray(entry.srcValue) && Array.isArray(entry.dstValue);
-            const listKind: 'children' | 'array:asset' | 'pills' | null = !bothArrays ? null :
-                isEntityChildren(entry.path) ? 'children' :
-                    ASSET_ID_ARRAY_FIELDS.has(leaf) ? 'array:asset' :
-                        arrayFieldKind(entry.srcValue) === 'pills' && arrayFieldKind(entry.dstValue) === 'pills' ? 'pills' : null;
+            const listKind: 'children' | 'array:asset' | 'pills' | null = !bothArrays
+                ? null
+                : isEntityChildren(entry.path)
+                  ? 'children'
+                  : ASSET_ID_ARRAY_FIELDS.has(leaf)
+                    ? 'array:asset'
+                    : arrayFieldKind(entry.srcValue) === 'pills' && arrayFieldKind(entry.dstValue) === 'pills'
+                      ? 'pills'
+                      : null;
             if (listKind) {
                 const src = new Set(entry.srcValue);
                 const dst = new Set(entry.dstValue);
@@ -496,7 +540,14 @@ export const createVcDiffView = (opts: VcDiffViewOpts) => {
                 if (removed.length || added.length) {
                     // one neutral row; the chips carry the add/remove tint so it
                     // doesn't read as the whole field (Children/Scripts/Path) being new
-                    host.appendChild(fieldRow('mod', parts.field, parts.title, createDeltaListField(listKind, removed, added, nameIndex)));
+                    host.appendChild(
+                        fieldRow(
+                            'mod',
+                            parts.field,
+                            parts.title,
+                            createDeltaListField(listKind, removed, added, nameIndex)
+                        )
+                    );
                 } else {
                     // same members, different order — note it without re-listing everything
                     const note = document.createElement('span');
@@ -583,18 +634,30 @@ export const createVcDiffView = (opts: VcDiffViewOpts) => {
         const type = typeSelect.value;
         const query = filter.value.trim();
         // fuzzy match by name across all items; order maps conflict index -> rank
-        const order = query ?
-            new Map<number, number>(editor.call('search:items', summary.groups.flatMap(g => g.items.map(it => [it.name, it.index])), query).map((idx: number, i: number) => [idx, i])) :
-            null;
+        const order = query
+            ? new Map<number, number>(
+                  editor
+                      .call(
+                          'search:items',
+                          summary.groups.flatMap((g) => g.items.map((it) => [it.name, it.index])),
+                          query
+                      )
+                      .map((idx: number, i: number) => [idx, i])
+              )
+            : null;
 
         let shown = 0;
         const groups = summary.groups
-        .filter(g => type === 'all' || g.type === type)
-        .map(g => ({
-            type: g.type,
-            items: order ? g.items.filter(it => order.has(it.index)).sort((a, b) => order.get(a.index)! - order.get(b.index)!) : g.items
-        }))
-        .filter(g => g.items.length);
+            .filter((g) => type === 'all' || g.type === type)
+            .map((g) => ({
+                type: g.type,
+                items: order
+                    ? g.items
+                          .filter((it) => order.has(it.index))
+                          .sort((a, b) => order.get(a.index)! - order.get(b.index)!)
+                    : g.items
+            }))
+            .filter((g) => g.items.length);
         groups.forEach((g) => {
             shown += g.items.length;
         });
@@ -654,7 +717,7 @@ export const createVcDiffView = (opts: VcDiffViewOpts) => {
     };
 
     const renderMain = () => {
-        trees.forEach(t => t.destroy());
+        trees.forEach((t) => t.destroy());
         trees = [];
         destroyValueFields(main);
         main.innerHTML = '';
@@ -716,7 +779,10 @@ export const createVcDiffView = (opts: VcDiffViewOpts) => {
         meta.textContent = '';
         opts.renderMeta?.(meta, current);
         // type options reflect only the types present in this diff; reset filters
-        typeSelect.options = [{ v: 'all', t: 'All types' }, ...summary.groups.map(g => ({ v: g.type, t: typeLabel(g.type).replace(/^./, c => c.toUpperCase()) }))];
+        typeSelect.options = [
+            { v: 'all', t: 'All types' },
+            ...summary.groups.map((g) => ({ v: g.type, t: typeLabel(g.type).replace(/^./, (c) => c.toUpperCase()) }))
+        ];
         typeSelect.value = 'all';
         filter.value = '';
         renderSidebar();
@@ -726,7 +792,7 @@ export const createVcDiffView = (opts: VcDiffViewOpts) => {
     const cleanup = () => {
         viewToken++;
         clearSidebar();
-        trees.forEach(t => t.destroy());
+        trees.forEach((t) => t.destroy());
         trees = [];
         destroyValueFields(main);
         main.innerHTML = '';
@@ -735,7 +801,7 @@ export const createVcDiffView = (opts: VcDiffViewOpts) => {
 
     // single-line message in the main area (loading / empty / error states)
     const renderNotice = (message: string) => {
-        trees.forEach(t => t.destroy());
+        trees.forEach((t) => t.destroy());
         trees = [];
         destroyValueFields(main);
         main.innerHTML = '';
@@ -746,7 +812,7 @@ export const createVcDiffView = (opts: VcDiffViewOpts) => {
     };
 
     const renderLoading = () => {
-        trees.forEach(t => t.destroy());
+        trees.forEach((t) => t.destroy());
         trees = [];
         destroyValueFields(main);
         meta.textContent = '';
@@ -774,7 +840,7 @@ export const createVcDiffView = (opts: VcDiffViewOpts) => {
     // tear down only the main pane (value-field timers + breadcrumb trees), leaving
     // the sidebar intact — for consumers mounting their own content into main
     const clearMain = () => {
-        trees.forEach(t => t.destroy());
+        trees.forEach((t) => t.destroy());
         trees = [];
         destroyValueFields(main);
         main.innerHTML = '';

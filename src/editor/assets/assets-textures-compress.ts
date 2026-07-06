@@ -1,24 +1,24 @@
 import type { Observer } from '@playcanvas/observer';
 
-class TextureCompressor {
+const TextureCompressor = {
     // returns true if the dimensions are power of two and false otherwise.
-    static isPOT(width: number, height: number): boolean {
-        return ((width & (width - 1)) === 0) && ((height & (height - 1)) === 0);
-    }
+    isPOT(width: number, height: number): boolean {
+        return (width & (width - 1)) === 0 && (height & (height - 1)) === 0;
+    },
 
     // returns true if the texture has an alpha channel
-    static hasAlpha(asset: Observer): boolean {
-        return asset.get('meta.alpha') || ((asset.get('meta.type') || '').toLowerCase() === 'truecoloralpha');
-    }
+    hasAlpha(asset: Observer): boolean {
+        return asset.get('meta.alpha') || (asset.get('meta.type') || '').toLowerCase() === 'truecoloralpha';
+    },
 
     // get the asset alpha flag
-    static getAssetAlpha(asset: Observer): boolean {
+    getAssetAlpha(asset: Observer): boolean {
         return this.hasAlpha(asset) && asset.get('meta.compress.alpha');
-    }
+    },
 
     // determine whether the image may be compressed to the supplied format
     // given platform and compression format restrictions
-    static isCompressAllowed(asset: Observer, format: string): boolean {
+    isCompressAllowed(asset: Observer, format: string): boolean {
         // only allow POT textures to be compressed due to WebGL1 restrictions (for now)
         const width = asset.get('meta.width');
         const height = asset.get('meta.height');
@@ -39,17 +39,17 @@ class TextureCompressor {
         }
 
         return true;
-    }
+    },
 
     // check whether a variant of a texture asset is dirty compared to the current user selection
     // (and so requires recompression)
-    static checkRecompressRequired(asset: Observer, format: string): boolean {
+    checkRecompressRequired(asset: Observer, format: string): boolean {
         // get the existing variant structure
         const variant = asset.get(`file.variants.${format}`);
 
         // extract flags of the variant in question
         const variantHasAlpha = !!(variant.opt & 1);
-        const variantHasMipmaps =  !(variant.opt & 4);  // NOTE: mipmap flag indicates NO mipmaps
+        const variantHasMipmaps = !(variant.opt & 4); // NOTE: mipmap flag indicates NO mipmaps
         const variantHasNormals = !!(variant.opt & 8);
         const variantHasPVR4Bpp = !!(variant.opt & 128);
 
@@ -80,33 +80,34 @@ class TextureCompressor {
             }
 
             // pvr bpp dirty
-            if (format === 'pvr' && ((variantHasPVR4Bpp ? 4 : 2) !== asset.get('meta.compress.pvrBpp'))) {
+            if (format === 'pvr' && (variantHasPVR4Bpp ? 4 : 2) !== asset.get('meta.compress.pvrBpp')) {
                 return true;
             }
         }
 
         // check whether the compressed texture requires flipY due to https://github.com/playcanvas/engine/pull/3335
-        if (editor.call('users:hasFlag', 'hasRecompressFlippedTextures') &&
+        if (
+            editor.call('users:hasFlag', 'hasRecompressFlippedTextures') &&
             asset.has(`file.variants.${format}`) &&
-            !asset.get(`file.variants.${format}.noFlip`)) {
+            !asset.get(`file.variants.${format}.noFlip`)
+        ) {
             return true;
         }
 
         return false;
-    }
+    },
 
     // determine the type of processing required for the asset: returns either 'none', 'delete' or 'compress'
-    static determineRequiredProcessing(asset: Observer, format: string, force: boolean): 'none' | 'delete' | 'compress' {
-        const variantRequested = asset.get(`meta.compress.${format}`) &&
-                                    this.isCompressAllowed(asset, format);
+    determineRequiredProcessing(asset: Observer, format: string, force: boolean): 'none' | 'delete' | 'compress' {
+        const variantRequested = asset.get(`meta.compress.${format}`) && this.isCompressAllowed(asset, format);
         const variantExists = !!asset.get(`file.variants.${format}`);
 
         if (variantRequested !== variantExists) {
             return variantRequested ? 'compress' : 'delete';
         }
 
-        return (variantExists && (force || this.checkRecompressRequired(asset, format))) ? 'compress' : 'none';
-    }
+        return variantExists && (force || this.checkRecompressRequired(asset, format)) ? 'compress' : 'none';
+    },
 
     /**
      * Compresses textures
@@ -116,10 +117,8 @@ class TextureCompressor {
      * @param force - Force recompression. If false then the method will
      * check if recompression is needed first.
      */
-    static compress(assets: Observer[], formats: string[], force: boolean): void {
-        for (let i = 0; i < assets.length; i++) {
-            const asset = assets[i];
-
+    compress(assets: Observer[], formats: string[], force: boolean): void {
+        for (const asset of assets) {
             if (!asset.get('file')) {
                 continue;
             }
@@ -190,6 +189,6 @@ class TextureCompressor {
             }
         }
     }
-}
+};
 
 export { TextureCompressor };

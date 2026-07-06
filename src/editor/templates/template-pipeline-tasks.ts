@@ -13,7 +13,7 @@ editor.once('load', () => {
     }
 
     function removeJob(jobId: string, result?: unknown) {
-        if (jobsInProgress.hasOwnProperty(jobId)) {
+        if (Object.hasOwn(jobsInProgress, jobId)) {
             editor.call('status:job', jobId);
 
             const callback = jobsInProgress[jobId];
@@ -28,7 +28,10 @@ editor.once('load', () => {
         removeJob(data.job_id);
     });
 
-    function checkCircularReferences(entity: { get: (key: string) => unknown }, templateIds: Record<string, boolean>): boolean {
+    function checkCircularReferences(
+        entity: { get: (key: string) => unknown },
+        templateIds: Record<string, boolean>
+    ): boolean {
         const templateId = entity.get('template_id');
 
         if (templateId) {
@@ -40,6 +43,7 @@ editor.once('load', () => {
         }
 
         const children = entity.get('children');
+        // eslint-disable-next-line @typescript-eslint/prefer-for-of -- `entity.get('children')` is typed unknown; index access matches the original behavior
         for (let i = 0; i < children.length; i++) {
             const child = editor.call('entities:get', children[i]);
             if (!child) {
@@ -54,7 +58,10 @@ editor.once('load', () => {
         return false;
     }
 
-    function checkCircularReferencesSingleOverride(root: { get: (key: string) => unknown }, override: Record<string, unknown>): boolean {
+    function checkCircularReferencesSingleOverride(
+        root: { get: (key: string) => unknown },
+        override: Record<string, unknown>
+    ): boolean {
         let entity = editor.call('entities:get', override.resource_id);
 
         const templateIds = {};
@@ -79,7 +86,10 @@ editor.once('load', () => {
         return false;
     }
 
-    function checkIfReparentedUnderNewEntity(root: { get: (key: string) => unknown }, override: Record<string, unknown>): { get: (key: string) => unknown } | undefined {
+    function checkIfReparentedUnderNewEntity(
+        root: { get: (key: string) => unknown },
+        override: Record<string, unknown>
+    ): { get: (key: string) => unknown } | undefined {
         const templateEntIds = root.get('template_ent_ids');
         if (!templateEntIds) {
             return;
@@ -117,11 +127,14 @@ editor.once('load', () => {
             editor.call(
                 'picker:confirm',
                 'Template instances cannot contain children that are instances of the same template. Please remove those children and try applying again.',
-                () => { },
+                () => {
+                    // no-op
+                },
                 {
                     yesText: 'OK',
                     noText: ''
-                });
+                }
+            );
             return false;
         }
 
@@ -143,76 +156,86 @@ editor.once('load', () => {
         return true;
     });
 
-    editor.method('templates:applyOverride', (root: { get: (key: string) => unknown }, override: Record<string, unknown>) => {
-        if (!editor.call('permissions:write')) {
-            return;
-        }
+    editor.method(
+        'templates:applyOverride',
+        (root: { get: (key: string) => unknown }, override: Record<string, unknown>) => {
+            if (!editor.call('permissions:write')) {
+                return;
+            }
 
-        const resourceId = root.get('resource_id');
-        const templateId = root.get('template_id');
-        const templateAsset = editor.call('assets:get', templateId);
-        if (!templateAsset) {
-            return;
-        }
+            const resourceId = root.get('resource_id');
+            const templateId = root.get('template_id');
+            const templateAsset = editor.call('assets:get', templateId);
+            if (!templateAsset) {
+                return;
+            }
 
-        // check if there are any circular references
-        if (checkCircularReferencesSingleOverride(root, override)) {
-            editor.call(
-                'picker:confirm',
-                'Template instances cannot contain children that are instances of the same template. Please remove those children and try applying again.',
-                () => { },
-                {
-                    yesText: 'OK',
-                    noText: ''
-                });
-            return false;
-        }
-
-        // check if this is a reparenting and if so do not allow it
-        // if the entity was reparented under a new entity that has not been applied yet
-        if (override.path === 'parent') {
-            const newEntity = checkIfReparentedUnderNewEntity(root, override);
-            if (newEntity) {
+            // check if there are any circular references
+            if (checkCircularReferencesSingleOverride(root, override)) {
                 editor.call(
                     'picker:confirm',
-                    `This Entity was reparented under "${newEntity.get('name')}" which is a new Entity. Please apply "${newEntity.get('name')}" first.`,
-                    () => { },
+                    'Template instances cannot contain children that are instances of the same template. Please remove those children and try applying again.',
+                    () => {
+                        // no-op
+                    },
                     {
                         yesText: 'OK',
                         noText: ''
                     }
                 );
-
                 return false;
             }
+
+            // check if this is a reparenting and if so do not allow it
+            // if the entity was reparented under a new entity that has not been applied yet
+            if (override.path === 'parent') {
+                const newEntity = checkIfReparentedUnderNewEntity(root, override);
+                if (newEntity) {
+                    editor.call(
+                        'picker:confirm',
+                        `This Entity was reparented under "${newEntity.get('name')}" which is a new Entity. Please apply "${newEntity.get('name')}" first.`,
+                        () => {
+                            // no-op
+                        },
+                        {
+                            yesText: 'OK',
+                            noText: ''
+                        }
+                    );
+
+                    return false;
+                }
+            }
+
+            const jobId = randomGuid();
+
+            const taskData = {
+                entityId: resourceId,
+                templateId: templateAsset.get('uniqueId'),
+                templateItemId: templateAsset.get('id'),
+                branchId: config.self.branch.id,
+                resourceId: override.resource_id,
+                overrides: [
+                    {
+                        type: override.override_type,
+                        path: override.path
+                    }
+                ],
+                jobId: jobId
+            };
+
+            if (override.path) {
+                taskData.path = override.path;
+            }
+
+            editor.call('realtime:send', 'pipeline', {
+                name: 'template-apply-override',
+                data: taskData
+            });
+
+            addJob(jobId);
+
+            return true;
         }
-
-        const jobId = randomGuid();
-
-        const taskData = {
-            entityId: resourceId,
-            templateId: templateAsset.get('uniqueId'),
-            templateItemId: templateAsset.get('id'),
-            branchId: config.self.branch.id,
-            resourceId: override.resource_id,
-            overrides: [{
-                type: override.override_type,
-                path: override.path
-            }],
-            jobId: jobId
-        };
-
-        if (override.path) {
-            taskData.path = override.path;
-        }
-
-        editor.call('realtime:send', 'pipeline', {
-            name: 'template-apply-override',
-            data: taskData
-        });
-
-        addJob(jobId);
-
-        return true;
-    });
+    );
 });

@@ -1,11 +1,11 @@
 editor.once('load', () => {
     let typing = 0;
-    const users = { };
+    const users = {};
 
     const notifyTypers = function () {
         const typers = [];
         for (const id in users) {
-            if (!users.hasOwnProperty(id) || !users[id].typing) {
+            if (!Object.hasOwn(users, id) || !users[id].typing) {
                 continue;
             }
 

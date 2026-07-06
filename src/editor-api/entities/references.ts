@@ -1,4 +1,4 @@
-import { Entity } from '../entity';
+import type { Entity } from '../entity';
 import { globals as api } from '../globals';
 import { utils } from '../utils';
 
@@ -18,7 +18,12 @@ function findReferencesInComponents(entity: Entity, refType: string) {
         });
     }
 
-    function handleScriptAttribute(entity: Entity, path: string, attributeDefinition: { array: any; }, attributeValue: any[]) {
+    function handleScriptAttribute(
+        entity: Entity,
+        path: string,
+        attributeDefinition: { array: any },
+        attributeValue: any[]
+    ) {
         if (!attributeValue) {
             return;
         }
@@ -105,7 +110,12 @@ function findReferencesInComponents(entity: Entity, refType: string) {
                                             return;
                                         }
 
-                                        handleScriptAttribute(entity, `${componentAttributePath}.${i}.${field.name}`, field, attributeValue[i]?.[field.name]);
+                                        handleScriptAttribute(
+                                            entity,
+                                            `${componentAttributePath}.${i}.${field.name}`,
+                                            field,
+                                            attributeValue[i]?.[field.name]
+                                        );
                                     });
                                 }
                             } else {
@@ -114,7 +124,12 @@ function findReferencesInComponents(entity: Entity, refType: string) {
                                         return;
                                     }
 
-                                    handleScriptAttribute(entity, `${componentAttributePath}.${field.name}`, field, attributeValue[field.name]);
+                                    handleScriptAttribute(
+                                        entity,
+                                        `${componentAttributePath}.${field.name}`,
+                                        field,
+                                        attributeValue[field.name]
+                                    );
                                 });
                             }
                         } else if (attributeDef.type === refType) {
@@ -127,10 +142,7 @@ function findReferencesInComponents(entity: Entity, refType: string) {
     });
 
     return result;
-
-
 }
-
 
 /**
  * Return a map of all entity reference properties in the graph. This will
@@ -167,7 +179,7 @@ function updateReferences(references: Record<string, any>, oldValue: string | nu
         return;
     }
 
-    referencesToEntity.forEach((reference: { entityId: string; path: any; }) => {
+    referencesToEntity.forEach((reference: { entityId: string; path: any }) => {
         const entity = api.entities.get(reference.entityId);
         if (entity && entity.has(reference.path)) {
             const history = entity.history.enabled;
@@ -178,9 +190,4 @@ function updateReferences(references: Record<string, any>, oldValue: string | nu
     });
 }
 
-
-export {
-    findEntityReferencesInComponents,
-    findAssetReferencesInComponents,
-    updateReferences
-};
+export { findEntityReferencesInComponents, findAssetReferencesInComponents, updateReferences };

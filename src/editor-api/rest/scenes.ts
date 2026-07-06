@@ -1,7 +1,6 @@
 import { Ajax } from '../ajax';
 import { globals as api } from '../globals';
 
-
 export type SceneCreateData = {
     /**
      * The ID of the project the scene is in

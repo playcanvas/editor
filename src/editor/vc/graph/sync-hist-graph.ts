@@ -16,7 +16,10 @@ editor.once('load', () => {
 
         newNodes!: Record<string, unknown>[];
 
-        constructor(newGraph: Record<string, Record<string, unknown>>, data: { idToNode: Record<string, Record<string, unknown>> }) {
+        constructor(
+            newGraph: Record<string, Record<string, unknown>>,
+            data: { idToNode: Record<string, Record<string, unknown>> }
+        ) {
             this.newGraph = newGraph;
             this.oldGraph = data.idToNode;
             this.data = data;
@@ -53,7 +56,6 @@ editor.once('load', () => {
 
             if (this.oldGraph[id]) {
                 delete this.newGraph[id];
-
             } else {
                 this.addEdgesToOld(h, 'parent', 'child');
 
@@ -73,7 +75,7 @@ editor.once('load', () => {
             });
         }
 
-        addOneEdge(dst: Array<Record<string, unknown>>, edge: Record<string, unknown>) {
+        addOneEdge(dst: Record<string, unknown>[], edge: Record<string, unknown>) {
             edge = editor.call('template:utils', 'deepClone', edge);
 
             dst.push(edge);

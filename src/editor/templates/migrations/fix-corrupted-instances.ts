@@ -1,3 +1,5 @@
+import type { Observer } from '@playcanvas/observer';
+
 import { config } from '@/editor/config';
 
 editor.once('load', () => {
@@ -76,7 +78,7 @@ editor.once('load', () => {
         parentPathIndex = {};
 
         if (evtErrors) {
-            evtErrors.forEach(evt => evt.unbind());
+            evtErrors.forEach((evt) => evt.unbind());
             evtErrors = [];
         }
 
@@ -112,7 +114,10 @@ editor.once('load', () => {
     }
 
     // Gets entity path
-    function getEntityPath(entity: { get: (key: string) => unknown; parent?: { get: (key: string) => unknown } }): string {
+    function getEntityPath(entity: {
+        get: (key: string) => unknown;
+        parent?: { get: (key: string) => unknown };
+    }): string {
         let path = parentPathIndex[entity.get('parent')];
         if (!path) {
             path = '';
@@ -176,8 +181,7 @@ editor.once('load', () => {
             });
         });
 
-        fixCorrupted(dryRun)
-        .finally(() => {
+        fixCorrupted(dryRun).finally(() => {
             if (!dryRun) {
                 onStopMigration();
             }
@@ -203,7 +207,7 @@ editor.once('load', () => {
     }
 
     // Checks if entity has invalid template ent ids
-    function isCorruptedTemplateInstance(entity: import('@playcanvas/observer').Observer) {
+    function isCorruptedTemplateInstance(entity: Observer) {
         const templateEntIds = entity.get('template_ent_ids');
         if (!templateEntIds) {
             return false;
@@ -216,7 +220,7 @@ editor.once('load', () => {
     }
 
     // Checks if asset has corrupted nested templates
-    function isCorruptedTemplateAsset(asset: import('@playcanvas/observer').Observer) {
+    function isCorruptedTemplateAsset(asset: Observer) {
         const entities = asset.get('data.entities');
         if (!entities) {
             return;
@@ -258,9 +262,8 @@ editor.once('load', () => {
         const scenes = await listScenes();
 
         try {
-            for (let i = 0; i < scenes.length; i++) {
-                // eslint-disable-next-line
-                await fixScene(scenes[i], dryRun, report);
+            for (const scene of scenes) {
+                await fixScene(scene, dryRun, report);
             }
 
             editor.emit('editor:fixCorruptedTemplates:end', report);
@@ -322,9 +325,12 @@ editor.once('load', () => {
 
     // Checks all template assets for corruptions and migrates them
     function fixAssets(dryRun: boolean, report: Record<string, unknown>): void {
-        const assets = editor.api.globals.assets.filter(asset => asset.get('type') === 'template');
+        const assets = editor.api.globals.assets.filter((asset) => asset.get('type') === 'template');
 
-        function getEntityPathInAsset(entity: Record<string, unknown>, entities: Record<string, Record<string, unknown>>): string {
+        function getEntityPathInAsset(
+            entity: Record<string, unknown>,
+            entities: Record<string, Record<string, unknown>>
+        ): string {
             let path = entity.name;
             let parent = entity.parent;
             while (parent && entities[parent]) {
@@ -367,15 +373,25 @@ editor.once('load', () => {
     }
 
     // load scene and fix it
-    async function fixScene(scene: { id: number; uniqueId: string }, dryRun: boolean, report: Record<string, unknown>): Promise<void> {
+    async function fixScene(
+        scene: { id: number; uniqueId: string },
+        dryRun: boolean,
+        report: Record<string, unknown>
+    ): Promise<void> {
         function checkStop() {
             if (stopMigration) {
                 onStopMigration();
-                throw new Error('Migration was interrupted by an external error. Please reload the Editor to try again.');
+                throw new Error(
+                    'Migration was interrupted by an external error. Please reload the Editor to try again.'
+                );
             }
         }
 
-        function unlinkEntityAndAddToReport(entity: { get: (key: string) => unknown; history: { enabled: boolean }; unset: (key: string) => void }): void {
+        function unlinkEntityAndAddToReport(entity: {
+            get: (key: string) => unknown;
+            history: { enabled: boolean };
+            unset: (key: string) => void;
+        }): void {
             if (!dryRun) {
                 const history = entity.history.enabled;
                 entity.history.enabled = false;

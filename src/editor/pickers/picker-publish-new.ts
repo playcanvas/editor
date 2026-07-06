@@ -1,5 +1,15 @@
 import type { EventHandle } from '@playcanvas/observer';
-import { BooleanInput, Button, Container, Element, Label, Progress, SelectInput, TextAreaInput, TextInput } from '@playcanvas/pcui';
+import {
+    BooleanInput,
+    Button,
+    Container,
+    Element,
+    Label,
+    Progress,
+    SelectInput,
+    TextAreaInput,
+    TextInput
+} from '@playcanvas/pcui';
 
 import { tooltip, tooltipSimpleItem } from '@/common/tooltips';
 import { convertDatetime } from '@/common/utils';
@@ -146,19 +156,25 @@ editor.once('load', () => {
         const file = fileInput.files[0];
         fileInput.value = null;
 
-        editor.call('images:upload', file, config.project, (data) => {
-            imageS3Key = data.s3Key;
-            isUploadingImage = false;
-            refreshButtonsState();
+        editor.call(
+            'images:upload',
+            file,
+            config.project,
+            (data) => {
+                imageS3Key = data.s3Key;
+                isUploadingImage = false;
+                refreshButtonsState();
 
-            setAppImage(data.url);
-        }, (status, data) => {
-            // error
-            isUploadingImage = false;
-            refreshButtonsState();
+                setAppImage(data.url);
+            },
+            (status, data) => {
+                // error
+                isUploadingImage = false;
+                refreshButtonsState();
 
-            clearAppImage();
-        });
+                clearAppImage();
+            }
+        );
     });
 
     const group = document.createElement('span');
@@ -263,7 +279,7 @@ editor.once('load', () => {
         refreshButtonsState();
     });
 
-    const inputNotes = createTextAreaSection('notes', 'Release Notes', 10000, 'What\'s changed in this build?');
+    const inputNotes = createTextAreaSection('notes', 'Release Notes', 10000, "What's changed in this build?");
 
     const sectionSettings = createFormSection('settings', 'Build settings');
 
@@ -279,16 +295,18 @@ editor.once('load', () => {
 
     const engineVersionDropdown = new SelectInput({
         class: 'engine-version-dropdown',
-        value: editor.call('settings:projectUser').get('editor.launchReleaseCandidate') ? 'releaseCandidate' : editor.call('settings:session').get('engineVersion'),
+        value: editor.call('settings:projectUser').get('editor.launchReleaseCandidate')
+            ? 'releaseCandidate'
+            : editor.call('settings:session').get('engineVersion'),
         options: ['previous', 'current', 'releaseCandidate']
-        .filter(type => config.engineVersions.hasOwnProperty(type))
-        .map((type) => {
-            const t = config.engineVersions[type];
-            return {
-                t: t.description,
-                v: type
-            };
-        })
+            .filter((type) => Object.hasOwn(config.engineVersions, type))
+            .map((type) => {
+                const t = config.engineVersions[type];
+                return {
+                    t: t.description,
+                    v: type
+                };
+            })
     });
     containerEngineVersion.append(engineVersionDropdown);
     sectionSettings.append(containerEngineVersion);
@@ -302,10 +320,10 @@ editor.once('load', () => {
     let rowOptionsMinify: Container | null = null;
     let rowOptionsSourcemaps: Container | null = null;
     let optionsBeforeNpmProject: {
-        concatenate: boolean,
-        minify: boolean,
-        sourcemaps: boolean,
-        optimizeSceneFormat: boolean
+        concatenate: boolean;
+        minify: boolean;
+        sourcemaps: boolean;
+        optimizeSceneFormat: boolean;
     } | null = null;
     let refreshingDownloadFormatOptions = false;
 
@@ -375,13 +393,16 @@ editor.once('load', () => {
     });
     containerDownloadOptions.append(labelDownloadOptions);
 
-    const downloadFormatOptions = [{
-        t: 'Static Website',
-        v: DOWNLOAD_FORMAT_STATIC
-    }, {
-        t: 'NPM + Vite Project (WIP)',
-        v: DOWNLOAD_FORMAT_NPM
-    }];
+    const downloadFormatOptions = [
+        {
+            t: 'Static Website',
+            v: DOWNLOAD_FORMAT_STATIC
+        },
+        {
+            t: 'NPM + Vite Project (WIP)',
+            v: DOWNLOAD_FORMAT_NPM
+        }
+    ];
 
     if (config.self.flags.superUser) {
         downloadFormatOptions.splice(1, 0, {
@@ -519,7 +540,7 @@ editor.once('load', () => {
     containerNoScenes.append(progressBar);
 
     // holds all scenes
-    let scenes: { id: number | string, name: string, modified: string }[] = [];
+    let scenes: { id: number | string; name: string; modified: string }[] = [];
 
     // returns a list of the selected scenes
     // with the primary scene first
@@ -527,6 +548,7 @@ editor.once('load', () => {
         const result = [];
 
         const listItems = sceneList.innerElement.childNodes as any;
+        // eslint-disable-next-line @typescript-eslint/prefer-for-of -- listItems is a NodeList cast to `any`, not a genuine array type
         for (let i = 0; i < listItems.length; i++) {
             if (listItems[i].ui.isSelected()) {
                 result.push(listItems[i].ui.sceneId);
@@ -620,14 +642,17 @@ editor.once('load', () => {
 
         data.engine_version = config.engineVersions[engineVersionDropdown.value].version;
 
-        editor.api.globals.rest.apps.appCreate(data).on('load', () => {
-            jobInProgress = false;
-            editor.call('picker:builds-publish', { reload: true });
-        }).on('error', (status) => {
-            jobInProgress = false;
-            editor.call('status:error', `Error while publishing: ${status}`);
-            editor.call('picker:builds-publish');
-        });
+        editor.api.globals.rest.apps
+            .appCreate(data)
+            .on('load', () => {
+                jobInProgress = false;
+                editor.call('picker:builds-publish', { reload: true });
+            })
+            .on('error', (status) => {
+                jobInProgress = false;
+                editor.call('status:error', `Error while publishing: ${status}`);
+                editor.call('picker:builds-publish');
+            });
     });
 
     // web download button
@@ -663,17 +688,20 @@ editor.once('load', () => {
         data.engine_version = config.engineVersions[engineVersionDropdown.value].version;
 
         // ajax call
-        editor.api.globals.rest.apps.appDownload(data).on('load', () => {
-            jobInProgress = false;
-            editor.call('picker:builds-publish', { reload: true });
-        }).on('error', (status, error) => {
-            jobInProgress = false;
+        editor.api.globals.rest.apps
+            .appDownload(data)
+            .on('load', () => {
+                jobInProgress = false;
+                editor.call('picker:builds-publish', { reload: true });
+            })
+            .on('error', (status, error) => {
+                jobInProgress = false;
 
-            refreshButtonsState();
+                refreshButtonsState();
 
-            // error
-            log.error`publish error ${status}: ${error}`;
-        });
+                // error
+                void log.error`publish error ${status}: ${error}`;
+            });
     };
 
     btnWebDownload.on('click', () => {
@@ -790,9 +818,11 @@ editor.once('load', () => {
         row.append(select);
 
         // if selectAll changes then change this too
-        events.push(selectAll.on('change', (value) => {
-            select.value = value;
-        }));
+        events.push(
+            selectAll.on('change', (value) => {
+                select.value = value;
+            })
+        );
 
         // handle checkbox tick
         select.on('change', () => {
@@ -848,7 +878,7 @@ editor.once('load', () => {
         if (!selectedScenes.length) {
             const stored = editor.call('localStorage:get', selectedScenesKey);
             if (Array.isArray(stored)) {
-                selectedScenes = stored.filter(id => scenes.some(scene => scene.id === id));
+                selectedScenes = stored.filter((id) => scenes.some((scene) => scene.id === id));
             }
         }
 
@@ -868,7 +898,7 @@ editor.once('load', () => {
         // the primary scene
         scenes.forEach((scene) => {
             const item = createSceneItem(scene);
-            if (selectedScenes.indexOf(scene.id) !== -1 || selectedScenes.length === 0 && scene.id === primaryScene) {
+            if (selectedScenes.indexOf(scene.id) !== -1 || (selectedScenes.length === 0 && scene.id === primaryScene)) {
                 item.select();
             }
         });
@@ -912,7 +942,7 @@ editor.once('load', () => {
             }
             if (!primaryScene && items.length > 0) {
                 const currentScene = parseInt(config.scene.id, 10);
-                if (items.some(scene => scene.id === currentScene)) {
+                if (items.some((scene) => scene.id === currentScene)) {
                     primaryScene = currentScene;
                 } else {
                     primaryScene = items[0].id;
@@ -1041,5 +1071,4 @@ editor.once('load', () => {
             refreshScenes();
         });
     });
-
 });

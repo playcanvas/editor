@@ -56,37 +56,36 @@ editor.once('load', () => {
             if (!filename) {
                 return;
             }
-            editor.api.globals.rest.assets.assetGetFile(
-                asset.get('id'),
-                filename,
-                { branchId: config.self.branch.id }
-            )
-            .on('load', (_status: number, data: unknown) => {
-                const text = typeof data === 'string' ? data.replace(/\r\n?/g, '\n') : '';
-                const sourceName = asset.get('name');
-                if (type === 'json') {
-                    let parsed: object;
-                    try {
-                        parsed = text ? JSON.parse(text) : {};
-                    } catch (e) {
-                        parsed = {};
+            editor.api.globals.rest.assets
+                .assetGetFile(asset.get('id'), filename, { branchId: config.self.branch.id })
+                .on('load', (_status: number, data: unknown) => {
+                    const text = typeof data === 'string' ? data.replace(/\r\n?/g, '\n') : '';
+                    const sourceName = asset.get('name');
+                    if (type === 'json') {
+                        let parsed: object;
+                        try {
+                            parsed = text ? JSON.parse(text) : {};
+                        } catch (e) {
+                            parsed = {};
+                        }
+                        editor.api.globals.assets
+                            .createJson({
+                                name: sourceName,
+                                json: parsed,
+                                folder: parentApi
+                            })
+                            .catch((err: unknown) => editor.call('status:error', err));
+                        return;
                     }
-                    editor.api.globals.assets.createJson({
+                    editor.api.globals.assets[TEXT_CREATE_METHOD[type]]({
                         name: sourceName,
-                        json: parsed,
+                        text,
                         folder: parentApi
                     }).catch((err: unknown) => editor.call('status:error', err));
-                    return;
-                }
-                editor.api.globals.assets[TEXT_CREATE_METHOD[type]]({
-                    name: sourceName,
-                    text,
-                    folder: parentApi
-                }).catch((err: unknown) => editor.call('status:error', err));
-            })
-            .on('error', (_status: number, errData: unknown) => {
-                editor.call('status:error', errData ?? `Could not duplicate ${type} asset`);
-            });
+                })
+                .on('error', (_status: number, errData: unknown) => {
+                    editor.call('status:error', errData ?? `Could not duplicate ${type} asset`);
+                });
             return;
         }
 
@@ -96,25 +95,28 @@ editor.once('load', () => {
             if (!sourceFilename) {
                 return;
             }
-            editor.api.globals.rest.assets.assetGetFile(
-                asset.get('id'),
-                sourceFilename,
-                { branchId: config.self.branch.id }
-            )
-            .on('load', (_status: number, data: unknown) => {
-                const text = typeof data === 'string' ? data.replace(/\r\n?/g, '\n') : '';
-                const validate = (name: string) => editor.call('assets:script:checkCollision', name, parentObserver);
-                editor.call('picker:script-create', (newFilename: string) => {
-                    editor.call('assets:create:script', {
-                        filename: newFilename,
-                        parent: parentObserver,
-                        text
-                    });
-                }, sourceFilename, validate);
-            })
-            .on('error', (_status: number, errData: unknown) => {
-                editor.call('status:error', errData ?? 'Could not duplicate script asset');
-            });
+            editor.api.globals.rest.assets
+                .assetGetFile(asset.get('id'), sourceFilename, { branchId: config.self.branch.id })
+                .on('load', (_status: number, data: unknown) => {
+                    const text = typeof data === 'string' ? data.replace(/\r\n?/g, '\n') : '';
+                    const validate = (name: string) =>
+                        editor.call('assets:script:checkCollision', name, parentObserver);
+                    editor.call(
+                        'picker:script-create',
+                        (newFilename: string) => {
+                            editor.call('assets:create:script', {
+                                filename: newFilename,
+                                parent: parentObserver,
+                                text
+                            });
+                        },
+                        sourceFilename,
+                        validate
+                    );
+                })
+                .on('error', (_status: number, errData: unknown) => {
+                    editor.call('status:error', errData ?? 'Could not duplicate script asset');
+                });
         }
     });
 });

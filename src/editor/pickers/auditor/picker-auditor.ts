@@ -2,7 +2,7 @@ import { Overlay, Label, Button, Container } from '@playcanvas/pcui';
 
 editor.on('load', () => {
     // badge-count aggregator: each audit source reports under a name; emit the combined total
-    const reports = new Map<string, { issues: number, errors: number }>();
+    const reports = new Map<string, { issues: number; errors: number }>();
     editor.method('assets:auditor:report', (name: string, issues: number, errors: number) => {
         reports.set(name, { issues, errors });
         let totalIssues = 0;
@@ -14,7 +14,7 @@ editor.on('load', () => {
         editor.emit('assets:auditor:issues', totalIssues, totalErrors);
     });
 
-    const callbacks: Array<() => void> = [];
+    const callbacks: (() => void)[] = [];
 
     // overlay
     const overlay = new Overlay({
@@ -27,9 +27,11 @@ editor.on('load', () => {
         class: 'picker-auditor-container',
         hidden: true
     });
-    fallbackContainer.append(new Label({
-        text: 'No audits found'
-    }));
+    fallbackContainer.append(
+        new Label({
+            text: 'No audits found'
+        })
+    );
     overlay.append(fallbackContainer);
 
     // main container
@@ -74,7 +76,8 @@ editor.on('load', () => {
 
         if (evt.key === 'Escape') {
             btnCancel.emit('click');
-        } else if (evt.key === 'Enter') { // click focused button
+        } else if (evt.key === 'Enter') {
+            // click focused button
             if (document.activeElement === btnCancel.dom) {
                 if (btnCancel.enabled) {
                     btnCancel.emit('click');
@@ -82,15 +85,18 @@ editor.on('load', () => {
             } else if (btnAction.enabled) {
                 btnAction.emit('click');
             }
-        } else if (evt.key === 'Tab') { // focus yes / no buttons
+        } else if (evt.key === 'Tab') {
+            // focus yes / no buttons
             if (document.activeElement === btnCancel.dom) {
                 btnAction.focus();
             } else {
                 btnCancel.focus();
             }
-        } else if (evt.key === 'ArrowRight') { // focus right button (Yes)
+        } else if (evt.key === 'ArrowRight') {
+            // focus right button (Yes)
             btnAction.focus();
-        } else if (evt.key === 'ArrowLeft') { // focus left button (No)
+        } else if (evt.key === 'ArrowLeft') {
+            // focus left button (No)
             btnCancel.focus();
         }
     };
@@ -215,7 +221,7 @@ editor.on('load', () => {
         callbacks.length = 0;
         mainContainer.clear();
 
-        const srgbIssues: { fixes: Set<number>, conflicts: Set<number> } = editor.call('assets:srgb:issues');
+        const srgbIssues: { fixes: Set<number>; conflicts: Set<number> } = editor.call('assets:srgb:issues');
         const pathIssues: { fixes: Set<string> } = editor.call('assets:paths:issues');
 
         const srgbFixes = srgbIssues?.fixes ?? new Set<number>();

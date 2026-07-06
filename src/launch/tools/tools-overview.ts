@@ -2,7 +2,7 @@ editor.once('load', () => {
     // variables
     const enabled = editor.call('tools:enabled');
     let events = [];
-    let eventsIndex = { };
+    let eventsIndex = {};
 
     // canvas
     const canvas = document.createElement('canvas');
@@ -21,8 +21,8 @@ editor.once('load', () => {
         const capacity = editor.call('tools:time:capacity');
         ctx.textBaseline = 'alphabetic';
 
-        const startX = scrollTime / now * canvas.width;
-        const endX = (Math.min(now, scrollTime + capacity)) / now * canvas.width;
+        const startX = (scrollTime / now) * canvas.width;
+        const endX = (Math.min(now, scrollTime + capacity) / now) * canvas.width;
 
         // view rect
         ctx.beginPath();
@@ -37,18 +37,17 @@ editor.once('load', () => {
         ctx.stroke();
 
         // events
-        let x, x2, e;
-        for (let i = 0; i < events.length; i++) {
-            e = events[i];
-            x = e.t / now * canvas.width;
+        let x, x2;
+        for (const e of events) {
+            x = (e.t / now) * canvas.width;
 
-            if (events[i].t2 !== null) {
+            if (e.t2 !== null) {
                 let t2 = e.t2;
                 if (e.t2 === -1) {
                     t2 = now;
                 }
 
-                x2 = Math.max(t2 / now * canvas.width, x + 1);
+                x2 = Math.max((t2 / now) * canvas.width, x + 1);
 
                 ctx.beginPath();
                 ctx.rect(x, Math.floor((canvas.height - 8) / 2), x2 - x, 8);
@@ -99,7 +98,7 @@ editor.once('load', () => {
         }
 
         // view end
-        if ((scrollTime + capacity) < now - 100) {
+        if (scrollTime + capacity < now - 100) {
             text = editor.call('tools:time:toHuman', Math.min(now, scrollTime + capacity), 1);
             measures = ctx.measureText(text);
             offset = 2.5;
@@ -127,18 +126,23 @@ editor.once('load', () => {
 
     editor.on('tools:clear', () => {
         events = [];
-        eventsIndex = { };
+        eventsIndex = {};
     });
 
     editor.on('tools:timeline:add', (item: { i: number; t: number; t2: number | null; k: string }) => {
         let found = false;
 
         // check if can extend existing event
-        for (let i = 0; i < events.length; i++) {
-            if (events[i].t2 !== null && events[i].k === item.k && (events[i].t - 1) <= item.t && (events[i].t2 === -1 || (events[i].t2 + 1) >= item.t)) {
+        for (const event of events) {
+            if (
+                event.t2 !== null &&
+                event.k === item.k &&
+                event.t - 1 <= item.t &&
+                (event.t2 === -1 || event.t2 + 1 >= item.t)
+            ) {
                 found = true;
-                events[i].t2 = item.t2;
-                eventsIndex[item.i] = events[i];
+                event.t2 = item.t2;
+                eventsIndex[item.i] = event;
                 break;
             }
         }

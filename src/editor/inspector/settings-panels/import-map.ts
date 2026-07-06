@@ -73,7 +73,6 @@ class ImportMapSettingsPanel extends BaseSettingsPanel {
             }
         });
 
-
         this._selectExistingTooltip = TooltipHandle.attach({
             target: this._selectExistingButton.dom,
             text: 'Select an existing Import Map',

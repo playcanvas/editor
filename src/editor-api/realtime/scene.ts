@@ -2,6 +2,7 @@ import { Events } from '@playcanvas/observer';
 
 import type { Entity } from '../entity';
 import type { Realtime } from '../realtime';
+
 import type { RealtimeConnection } from './connection';
 
 /**
@@ -125,7 +126,7 @@ class RealtimeScene extends Events {
      *
      * @param callback - The callback
      */
-    whenNothingPending(callback: Function) {
+    whenNothingPending(callback: (...args: any[]) => unknown) {
         if (this._document) {
             this._document.whenNothingPending(callback);
         }
@@ -147,9 +148,9 @@ class RealtimeScene extends Events {
             return;
         }
 
-        for (let i = 0; i < ops.length; i++) {
-            if (ops[i].p[0]) {
-                this._realtime.emit('scene:op', ops[i].p[0], ops[i]);
+        for (const op of ops) {
+            if (op.p[0]) {
+                this._realtime.emit('scene:op', op.p[0], op);
             }
         }
     }
@@ -165,7 +166,7 @@ class RealtimeScene extends Events {
      * The scene data
      */
     get data() {
-        return ((this._loaded && this._document) ? this._document.data : null) as any;
+        return (this._loaded && this._document ? this._document.data : null) as any;
     }
 
     /**

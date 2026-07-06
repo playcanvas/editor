@@ -1,15 +1,15 @@
 import { Button } from '@playcanvas/pcui';
-import { type Application, type Entity, FOG_NONE, Vec4 } from 'playcanvas';
+import { FOG_NONE, Vec4 } from 'playcanvas';
+import type { Application, Entity } from 'playcanvas';
 
 import type { EntityObserver } from '@/editor-api';
 
 editor.once('load', () => {
-
     let selectedEntity = null; // currently selected entity
-    let currentCamera = null;  // current camera rendering to viewport
+    let currentCamera = null; // current camera rendering to viewport
     let renderCamera = false;
-    let pinnedCamera = null;   // camera that is currently pinned in preview
-    let lastCamera = null;     // camera that was last set to preview
+    let pinnedCamera = null; // camera that is currently pinned in preview
+    let lastCamera = null; // camera that was last set to preview
     let preRenderEvent = null;
     let postRenderEvent = null;
     let events = [];
@@ -38,7 +38,12 @@ editor.once('load', () => {
             } else {
                 renderCamera = true;
             }
-        } else if (selectedEntity && selectedEntity.entity && !(currentCamera && selectedEntity.entity === currentCamera) && selectedEntity.has('components.camera')) {
+        } else if (
+            selectedEntity &&
+            selectedEntity.entity &&
+            !(currentCamera && selectedEntity.entity === currentCamera) &&
+            selectedEntity.has('components.camera')
+        ) {
             renderCamera = true;
         } else {
             renderCamera = false;
@@ -87,7 +92,6 @@ editor.once('load', () => {
                 lastCamera = camera;
             }
         } else {
-
             // stop rendering preview
             cameraPreviewBorder.classList.remove('active');
 
@@ -155,7 +159,7 @@ editor.once('load', () => {
 
     editor.on('viewport:resize', (width: number, height: number) => {
         rect.x = 6.0 / width;
-        rect.y = 1.0 - ((43.0 + 196.0) / (height || 1.0));
+        rect.y = 1.0 - (43.0 + 196.0) / (height || 1.0);
         rect.z = 258.0 / width;
         rect.w = 198.0 / height;
 
@@ -174,8 +178,8 @@ editor.once('load', () => {
 
     editor.on('selector:change', (type: string | null, items: EntityObserver[]) => {
         if (events.length) {
-            for (let i = 0; i < events.length; i++) {
-                events[i].unbind();
+            for (const event of events) {
+                event.unbind();
             }
 
             events = [];

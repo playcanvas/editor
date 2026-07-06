@@ -1,5 +1,6 @@
 import type { Observer, ObserverList } from '@playcanvas/observer';
-import { Panel, Label, type PanelArgs } from '@playcanvas/pcui';
+import { Panel, Label } from '@playcanvas/pcui';
+import type { PanelArgs } from '@playcanvas/pcui';
 
 import { tooltip, tooltipRefItem } from '@/common/tooltips';
 import type { History } from '@/editor-api';
@@ -7,7 +8,7 @@ import type { History } from '@/editor-api';
 import type { Attribute, Divider } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
-interface BaseSettingsPanelArgs extends PanelArgs {
+type BaseSettingsPanelArgs = {
     entities?: Observer[];
     settings?: Observer;
     projectSettings: Observer;
@@ -20,7 +21,7 @@ interface BaseSettingsPanelArgs extends PanelArgs {
     hideIcon?: boolean;
     _tooltipReference?: string;
     userOnlySettings?: boolean;
-}
+} & PanelArgs;
 
 class BaseSettingsPanel extends Panel {
     _args: BaseSettingsPanelArgs;
@@ -73,7 +74,10 @@ class BaseSettingsPanel extends Panel {
 
         if (!args.hideIcon) {
             const settingsScopeIcon = new Label({ class: 'settings-scope-icon' });
-            settingsScopeIcon.dom.setAttribute('data-icon', String.fromCodePoint(parseInt(args.userOnlySettings ? 'E337' : 'E217', 16)));
+            settingsScopeIcon.dom.setAttribute(
+                'data-icon',
+                String.fromCodePoint(parseInt(args.userOnlySettings ? 'E337' : 'E217', 16))
+            );
             this.header.append(settingsScopeIcon);
         }
 
@@ -87,7 +91,9 @@ class BaseSettingsPanel extends Panel {
         if (!ref) {
             ref = {};
         }
-        ref.subTitle = userOnlySettings ? 'These settings affect only you' : 'These settings affect all users on this branch';
+        ref.subTitle = userOnlySettings
+            ? 'These settings affect only you'
+            : 'These settings affect all users on this branch';
         if (ref) {
             const item = tooltipRefItem({
                 reference: ref

@@ -1,10 +1,10 @@
 editor.once('load', () => {
-
     function componentToHex(c: number) {
         const hex = Math.round(c * 255).toString(16);
         return hex.length === 1 ? `0${hex}` : hex;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-inferrable-types -- required by typedef (parameter: true), conflicts with this rule for defaulted primitive params
     function rgbaToHex(r: number, g: number, b: number, a: number = 1) {
         // Check if alpha is necessary to include
         const alphaHex = a < 1 ? componentToHex(a) : '';
@@ -14,7 +14,10 @@ editor.once('load', () => {
     function parseHex(hex: string) {
         if (hex.length === 3 || hex.length === 4) {
             // Convert shorthand hex to full hex
-            hex = hex.split('').map(c => c + c).join('');
+            hex = hex
+                .split('')
+                .map((c) => c + c)
+                .join('');
         }
         if (hex.length === 6) {
             hex += 'ff'; // Assume fully opaque if alpha isn't specified
@@ -31,13 +34,15 @@ editor.once('load', () => {
             const { red, green, blue, alpha } = colorInfo.color;
             const hex = rgbaToHex(red, green, blue, alpha); // Ensure rgbaToHex outputs the string in correct format.
 
-            return [{
-                label: hex,
-                textEdit: {
-                    range: colorInfo.range,
-                    text: hex
+            return [
+                {
+                    label: hex,
+                    textEdit: {
+                        range: colorInfo.range,
+                        text: hex
+                    }
                 }
-            }];
+            ];
         },
 
         provideDocumentColors(model: monaco.editor.ITextModel) {
@@ -49,7 +54,6 @@ editor.once('load', () => {
                 const hex = match[2];
                 const [red, green, blue, alpha] = parseHex(hex);
 
-                // @ts-ignore
                 const range = new monaco.Range(
                     model.getPositionAt(match.index).lineNumber,
                     model.getPositionAt(match.index).column + 1,

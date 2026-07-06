@@ -8,7 +8,7 @@ editor.once('load', () => {
 
     // manage if uv1 is missing
     let uv1Missing = false;
-    let uv1MissingAssets = { };
+    let uv1MissingAssets = {};
 
     // coordinate system
     const buttonBake = new Button({
@@ -69,12 +69,12 @@ editor.once('load', () => {
         }
 
         const assetIds = Object.keys(uv1MissingAssets);
-        for (let i = 0; i < assetIds.length; i++) {
-            if (!uv1MissingAssets.hasOwnProperty(assetIds[i])) {
+        for (const assetId of assetIds) {
+            if (!Object.hasOwn(uv1MissingAssets, assetId)) {
                 continue;
             }
 
-            const asset = uv1MissingAssets[assetIds[i]];
+            const asset = uv1MissingAssets[assetId];
             editor.call('assets:model:unwrap', asset);
         }
     });

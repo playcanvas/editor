@@ -4,7 +4,6 @@ import { Curve } from 'playcanvas';
 import { deepCopy } from '../../utils';
 import { CLASS_MULTIPLE_VALUES } from '../constants';
 
-
 const CLASS_CURVE = 'pcui-curve';
 
 /**
@@ -193,11 +192,13 @@ class CurveInput extends Element {
     }
 
     _getDefaultValue() {
-        return [{
-            type: 4,
-            keys: [0, 0],
-            betweenCurves: false
-        }];
+        return [
+            {
+                type: 4,
+                keys: [0, 0],
+                betweenCurves: false
+            }
+        ];
     }
 
     _openCurvePicker() {
@@ -246,9 +247,12 @@ class CurveInput extends Element {
         let evtPickerChanged = editor.on('picker:curve:change', this._onPickerChange.bind(this));
 
         let evtRefreshPicker = this.on('change', () => {
-            const args = Object.assign({
-                keepZoom: true
-            }, this._pickerArgs);
+            const args = Object.assign(
+                {
+                    keepZoom: true
+                },
+                this._pickerArgs
+            );
 
             editor.call('picker:curve:set', this.value, args);
         });
@@ -401,7 +405,12 @@ class CurveInput extends Element {
         context.clearRect(0, 0, width, height);
 
         const curveColors = ['rgb(255, 0, 0)', 'rgb(0, 255, 0)', 'rgb(133, 133, 252)', 'rgb(255, 255, 255)'];
-        const fillColors = ['rgba(255, 0, 0, 0.5)', 'rgba(0, 255, 0, 0.5)', 'rgba(133, 133, 252, 0.5)', 'rgba(255, 255, 255, 0.5)'];
+        const fillColors = [
+            'rgba(255, 0, 0, 0.5)',
+            'rgba(0, 255, 0, 0.5)',
+            'rgba(133, 133, 252, 0.5)',
+            'rgba(255, 255, 255, 0.5)'
+        ];
 
         const minMax = this._getMinMaxValues(value);
 
@@ -416,7 +425,8 @@ class CurveInput extends Element {
             return;
         }
 
-        const secondaryCurves = value[0].betweenCurves && value.length > 1 ? this._convertValueToCurves(value[1]) : null;
+        const secondaryCurves =
+            value[0].betweenCurves && value.length > 1 ? this._convertValueToCurves(value[1]) : null;
 
         const minValue = minMax[0];
         const maxValue = minMax[1];
@@ -433,20 +443,33 @@ class CurveInput extends Element {
             context.fillStyle = fillColors[i];
 
             context.beginPath();
-            context.moveTo(0, this._clampEdge(height * (1 - (primaryCurves[i].value(0) - minValue) / (maxValue - minValue)), 1, height - 1));
+            context.moveTo(
+                0,
+                this._clampEdge(
+                    height * (1 - (primaryCurves[i].value(0) - minValue) / (maxValue - minValue)),
+                    1,
+                    height - 1
+                )
+            );
 
             const precision = 1;
 
             for (let x = 0; x < Math.floor(width / precision); x++) {
-                const val = primaryCurves[i].value(x * precision / width);
-                context.lineTo(x * precision, this._clampEdge(height * (1 - (val - minValue) / (maxValue - minValue)), 1, height - 1));
+                const val = primaryCurves[i].value((x * precision) / width);
+                context.lineTo(
+                    x * precision,
+                    this._clampEdge(height * (1 - (val - minValue) / (maxValue - minValue)), 1, height - 1)
+                );
             }
 
             const secondaryCurve = secondaryCurves?.[i];
             if (secondaryCurve) {
                 for (let x = Math.floor(width / precision); x >= 0; x--) {
-                    const val = secondaryCurve.value(x * precision / width);
-                    context.lineTo(x * precision, this._clampEdge(height * (1 - (val - minValue) / (maxValue - minValue)), 1, height - 1));
+                    const val = secondaryCurve.value((x * precision) / width);
+                    context.lineTo(
+                        x * precision,
+                        this._clampEdge(height * (1 - (val - minValue) / (maxValue - minValue)), 1, height - 1)
+                    );
                 }
 
                 context.closePath();
@@ -491,13 +514,16 @@ class CurveInput extends Element {
             const secondCount = second?.keys ? (Array.isArray(second.keys[0]) ? second.keys.length : 1) : 0;
 
             if (secondCount !== count) {
-                values[1] = secondCount === 1 && count > 1 && !Array.isArray(second.keys[0]) ? {
-                    ...second,
-                    keys: first.keys.map(() => deepCopy(second.keys))
-                } : {
-                    type: second?.type ?? first.type,
-                    keys: deepCopy(first.keys)
-                };
+                values[1] =
+                    secondCount === 1 && count > 1 && !Array.isArray(second.keys[0])
+                        ? {
+                              ...second,
+                              keys: first.keys.map(() => deepCopy(second.keys))
+                          }
+                        : {
+                              type: second?.type ?? first.type,
+                              keys: deepCopy(first.keys)
+                          };
             }
         }
 

@@ -7,9 +7,9 @@ editor.once('plugins:load:entities-to-obj', () => {
     editor.method('plugins:entities-to-obj', (items) => {
         const entities = [];
 
-        for (let i = 0; i < items.length; i++) {
-            if (items[i].entity && items[i].entity.model) {
-                entities.push(items[i].entity);
+        for (const item of items) {
+            if (item.entity && item.entity.model) {
+                entities.push(item.entity);
             }
         }
 
@@ -63,16 +63,20 @@ editor.once('plugins:load:entities-to-obj', () => {
                     const transform = meshes[j].node.getWorldTransform();
                     obj += `g ${entities[i].name}_${meshes[j].node.name}_${i}_${j}\n`;
                     for (k = 0; k < numVerts; k++) {
-                        vec.set(dataF[k * vertSizeF + offsetPF],
+                        vec.set(
+                            dataF[k * vertSizeF + offsetPF],
                             dataF[k * vertSizeF + offsetPF + 1],
-                            dataF[k * vertSizeF + offsetPF + 2]);
+                            dataF[k * vertSizeF + offsetPF + 2]
+                        );
                         transform.transformPoint(vec, vec);
                         obj += `v ${vec.x} ${vec.y} ${vec.z}\n`;
                     }
                     for (k = 0; k < numVerts; k++) {
-                        vec.set(dataF[k * vertSizeF + offsetNF],
+                        vec.set(
+                            dataF[k * vertSizeF + offsetNF],
                             dataF[k * vertSizeF + offsetNF + 1],
-                            dataF[k * vertSizeF + offsetNF + 2]);
+                            dataF[k * vertSizeF + offsetNF + 2]
+                        );
                         transform.transformVector(vec, vec).normalize();
                         obj += `vn ${vec.x} ${vec.y} ${vec.z}\n`;
                     }
@@ -85,9 +89,7 @@ editor.once('plugins:load:entities-to-obj', () => {
                         v0 = dataIb[k * 3 + ibOffset] + voffset;
                         v1 = dataIb[k * 3 + 1 + ibOffset] + voffset;
                         v2 = dataIb[k * 3 + 2 + ibOffset] + voffset;
-                        obj += `f ${v0}/${v0}/${v0} ${
-                            v1}/${v1}/${v1} ${
-                            v2}/${v2}/${v2}\n`;
+                        obj += `f ${v0}/${v0}/${v0} ${v1}/${v1}/${v1} ${v2}/${v2}/${v2}\n`;
                     }
                     voffset += numVerts;
                 }
@@ -101,7 +103,7 @@ editor.once('plugins:load:entities-to-obj', () => {
         editor.call('entities:contextmenu:add', {
             text: 'Export to OBJ',
             icon: 'E228',
-            onSelect: function (selection: Array<{ entity?: pc.Entity }>) {
+            onSelect: function (selection: { entity?: pc.Entity }[]) {
                 const obj = editor.call('plugins:entities-to-obj', selection);
                 if (!obj) {
                     return;
@@ -115,9 +117,9 @@ editor.once('plugins:load:entities-to-obj', () => {
                 element.click();
                 document.body.removeChild(element);
             },
-            onIsEnabled: function (selection: Array<{ entity?: pc.Entity }>) {
-                for (let i = 0; i < selection.length; i++) {
-                    if (selection[i].entity && selection[i].entity.model) {
+            onIsEnabled: function (selection: { entity?: pc.Entity }[]) {
+                for (const item of selection) {
+                    if (item.entity && item.entity.model) {
                         return true;
                     }
                 }

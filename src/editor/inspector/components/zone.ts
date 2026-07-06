@@ -1,19 +1,22 @@
-import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
+import { ComponentInspector } from './component';
+import type { ComponentInspectorArgs } from './component';
 
-const ATTRIBUTES: Attribute[] = [{
-    label: 'Size',
-    path: 'components.zone.size',
-    type: 'vec3',
-    args: {
-        precision: 2,
-        step: 0.1,
-        min: 0,
-        placeholder: ['W', 'H', 'D']
+const ATTRIBUTES: Attribute[] = [
+    {
+        label: 'Size',
+        path: 'components.zone.size',
+        type: 'vec3',
+        args: {
+            precision: 2,
+            step: 0.1,
+            min: 0,
+            placeholder: ['W', 'H', 'D']
+        }
     }
-}];
+];
 
 class ZoneComponentInspector extends ComponentInspector {
     constructor(args: ComponentInspectorArgs) {

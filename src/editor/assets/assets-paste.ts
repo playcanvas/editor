@@ -34,26 +34,28 @@ editor.once('load', () => {
     };
 
     // fetch a text asset's file contents via REST
-    const fetchTextContent = (asset: any) => new Promise<string>((resolve, reject) => {
-        const filename = asset.get('file.filename');
-        if (!filename) {
-            resolve('');
-            return;
-        }
-        editor.api.globals.rest.assets.assetGetFile(
-            asset.get('id'),
-            filename,
-            { branchId: config.self.branch.id }
-        )
-        .on('load', (_status: number, data: unknown) => {
-            resolve(typeof data === 'string' ? data.replace(/\r\n?/g, '\n') : '');
-        })
-        .on('error', (_status: number, err: unknown) => reject(err));
-    });
+    const fetchTextContent = (asset: any) =>
+        new Promise<string>((resolve, reject) => {
+            const filename = asset.get('file.filename');
+            if (!filename) {
+                resolve('');
+                return;
+            }
+            editor.api.globals.rest.assets
+                .assetGetFile(asset.get('id'), filename, { branchId: config.self.branch.id })
+                .on('load', (_status: number, data: unknown) => {
+                    resolve(typeof data === 'string' ? data.replace(/\r\n?/g, '\n') : '');
+                })
+                .on('error', (_status: number, err: unknown) => reject(err));
+        });
 
     // create one asset under targetFolder mirroring source. returns the newly
     // created Asset (editor-api object) so callers can recurse into folders.
-    const pasteOne = async (source: any, targetFolderApi: any, targetFolderId: string | number | null): Promise<any> => {
+    const pasteOne = async (
+        source: any,
+        targetFolderApi: any,
+        targetFolderId: string | number | null
+    ): Promise<any> => {
         const type = source.get('type');
         const desired = source.get('name');
         const taken = takenIn(targetFolderId);
@@ -106,10 +108,9 @@ editor.once('load', () => {
             if (!CLIENT_PASTE_TYPES.has(child.get('type'))) {
                 continue;
             }
-            // eslint-disable-next-line no-await-in-loop
+
             const created = await pasteOne(child, newFolderApi, newFolderId);
             if (created && child.get('type') === 'folder') {
-                // eslint-disable-next-line no-await-in-loop
                 await pasteFolderChildren(child, created);
             }
         }
@@ -146,10 +147,11 @@ editor.once('load', () => {
             if (asset.get('file.filename')) {
                 update.filename = newName;
             }
-            editor.api.globals.rest.assets.assetUpdate(String(assetId), update)
-            .on('error', (_status: number, errData: unknown) => {
-                console.warn(`paste rename error: ${errData}`);
-            });
+            editor.api.globals.rest.assets
+                .assetUpdate(String(assetId), update)
+                .on('error', (_status: number, errData: unknown) => {
+                    console.warn(`paste rename error: ${errData}`);
+                });
         };
 
         if (editor.call('assets:get', assetId)) {
@@ -173,8 +175,7 @@ editor.once('load', () => {
         const targetFolderObserver = parentFolder ?? null;
         const targetFolderId = targetFolderObserver ? targetFolderObserver.get('id') : null;
         const targetFolderApi = targetFolderObserver?.apiAsset ?? undefined;
-        const sameProject = value.projectId === config.project.id &&
-                            value.branchId === config.self.branch.id;
+        const sameProject = value.projectId === config.project.id && value.branchId === config.self.branch.id;
 
         // partition source asset IDs into client-side and server-side groups
         const clientIds: string[] = [];
@@ -205,67 +206,67 @@ editor.once('load', () => {
                 if (!source) {
                     continue;
                 }
-                // eslint-disable-next-line no-await-in-loop
+
                 const created = await pasteOne(source, targetFolderApi, targetFolderId);
                 if (created && source.get('type') === 'folder' && keepFolderStructure !== false) {
-                    // eslint-disable-next-line no-await-in-loop
                     await pasteFolderChildren(source, created);
                 }
             }
         };
 
-        const runServerSide = () => new Promise<any>((resolve, reject) => {
-            if (serverIds.length === 0) {
-                resolve(null);
-                return;
-            }
-            const data: any = {
-                projectId: value.projectId,
-                branchId: value.branchId,
-                targetProjectId: config.project.id,
-                targetBranchId: config.self.branch.id,
-                keepFolderStructure: !!keepFolderStructure,
-                assets: serverIds.slice()
-            };
-            if (parentFolder) {
-                data.targetFolderId = parentFolder.get('id');
-            }
-            editor.api.globals.rest.assets.assetPaste(data)
-            .on('load', (status: number, response: any) => {
-                if (status === 201 && Array.isArray(response.result)) {
-                    for (const item of response.result) {
-                        const id = item?.id ?? item;
-                        if (id !== undefined && id !== null) {
-                            ensureUniqueOnPaste(id, targetFolderId);
-                        }
-                    }
+        const runServerSide = () =>
+            new Promise<any>((resolve, reject) => {
+                if (serverIds.length === 0) {
+                    resolve(null);
+                    return;
                 }
-                resolve(response);
-            })
-            .on('error', (_status: number, err: unknown) => reject(err));
-        });
+                const data: any = {
+                    projectId: value.projectId,
+                    branchId: value.branchId,
+                    targetProjectId: config.project.id,
+                    targetBranchId: config.self.branch.id,
+                    keepFolderStructure: !!keepFolderStructure,
+                    assets: serverIds.slice()
+                };
+                if (parentFolder) {
+                    data.targetFolderId = parentFolder.get('id');
+                }
+                editor.api.globals.rest.assets
+                    .assetPaste(data)
+                    .on('load', (status: number, response: any) => {
+                        if (status === 201 && Array.isArray(response.result)) {
+                            for (const item of response.result) {
+                                const id = item?.id ?? item;
+                                if (id !== undefined && id !== null) {
+                                    ensureUniqueOnPaste(id, targetFolderId);
+                                }
+                            }
+                        }
+                        resolve(response);
+                    })
+                    .on('error', (_status: number, err: unknown) => reject(err));
+            });
 
         runClientSide()
-        .then(() => runServerSide())
-        .then((response) => {
-            const total = clientIds.length + (response?.result?.length ?? 0);
-            if (total > 0) {
-                editor.call('status:text', `${total} asset${total > 1 ? 's' : ''} created`);
-            } else {
-                editor.call('status:clear');
-            }
-            finishJob();
-            if (callback) {
-                callback(null, response);
-            }
-        })
-        .catch((err) => {
-            editor.call('status:error', err ?? 'Error while pasting assets');
-            finishJob();
-            if (callback) {
-                callback(err);
-            }
-        });
+            .then(() => runServerSide())
+            .then((response) => {
+                const total = clientIds.length + (response?.result?.length ?? 0);
+                if (total > 0) {
+                    editor.call('status:text', `${total} asset${total > 1 ? 's' : ''} created`);
+                } else {
+                    editor.call('status:clear');
+                }
+                finishJob();
+                if (callback) {
+                    callback(null, response);
+                }
+            })
+            .catch((err) => {
+                editor.call('status:error', err ?? 'Error while pasting assets');
+                finishJob();
+                if (callback) {
+                    callback(err);
+                }
+            });
     });
-
 });

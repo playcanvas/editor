@@ -8,7 +8,7 @@ editor.once('load', () => {
             name: 'New Cubemap',
             type: 'cubemap',
             source: false,
-            parent: (args.parent !== undefined) ? args.parent : editor.call('assets:panel:currentFolder'),
+            parent: args.parent !== undefined ? args.parent : editor.call('assets:panel:currentFolder'),
             data: {
                 name: 'New Cubemap',
                 textures: [null, null, null, null, null, null],

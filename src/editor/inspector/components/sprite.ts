@@ -5,125 +5,147 @@ import { LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from 'playcanvas';
 import { deepCopy } from '@/common/utils';
 import type { EntityObserver } from '@/editor-api';
 
-import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { TemplateOverrideInspector } from '../../templates/templates-override-inspector.js';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
+import { ComponentInspector } from './component';
+import type { ComponentInspectorArgs } from './component';
 
-const COMPONENT_ATTRIBUTES: Attribute[] = [{
-    label: 'Type',
-    path: 'components.sprite.type',
-    type: 'select',
-    args: {
-        type: 'string',
-        options: [{
-            v: 'simple', t: 'Simple'
-        }, {
-            v: 'animated', t: 'Animated'
-        }]
+const COMPONENT_ATTRIBUTES: Attribute[] = [
+    {
+        label: 'Type',
+        path: 'components.sprite.type',
+        type: 'select',
+        args: {
+            type: 'string',
+            options: [
+                {
+                    v: 'simple',
+                    t: 'Simple'
+                },
+                {
+                    v: 'animated',
+                    t: 'Animated'
+                }
+            ]
+        }
+    },
+    {
+        label: 'Sprite',
+        path: 'components.sprite.spriteAsset',
+        type: 'asset',
+        args: {
+            assetType: 'sprite'
+        }
+    },
+    {
+        label: 'Frame',
+        path: 'components.sprite.frame',
+        type: 'number',
+        args: {
+            min: 0,
+            precision: 0
+        }
+    },
+    {
+        label: 'Width',
+        path: 'components.sprite.width',
+        type: 'number'
+    },
+    {
+        label: 'Height',
+        path: 'components.sprite.height',
+        type: 'number'
+    },
+    {
+        label: 'Color',
+        path: 'components.sprite.color',
+        type: 'rgb'
+    },
+    {
+        label: 'Opacity',
+        path: 'components.sprite.opacity',
+        type: 'slider',
+        args: {
+            min: 0,
+            max: 1,
+            precision: 3
+        }
+    },
+    {
+        label: 'Flip X',
+        path: 'components.sprite.flipX',
+        type: 'boolean'
+    },
+    {
+        label: 'Flip Y',
+        path: 'components.sprite.flipY',
+        type: 'boolean'
+    },
+    {
+        label: 'Speed',
+        path: 'components.sprite.speed',
+        type: 'number'
+    },
+    {
+        label: 'Batch Group',
+        path: 'components.sprite.batchGroupId',
+        type: 'batchgroup'
+    },
+    {
+        label: 'Layers',
+        path: 'components.sprite.layers',
+        type: 'layers',
+        args: {
+            excludeLayers: [LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE]
+        }
+    },
+    {
+        label: 'Draw Order',
+        path: 'components.sprite.drawOrder',
+        type: 'number'
+    },
+    {
+        label: 'Auto Play',
+        path: 'components.sprite.autoPlayClip',
+        type: 'select',
+        args: {
+            type: 'string',
+            allowNull: true,
+            options: []
+        }
     }
-}, {
-    label: 'Sprite',
-    path: 'components.sprite.spriteAsset',
-    type: 'asset',
-    args: {
-        assetType: 'sprite'
-    }
-}, {
-    label: 'Frame',
-    path: 'components.sprite.frame',
-    type: 'number',
-    args: {
-        min: 0,
-        precision: 0
-    }
-}, {
-    label: 'Width',
-    path: 'components.sprite.width',
-    type: 'number'
-}, {
-    label: 'Height',
-    path: 'components.sprite.height',
-    type: 'number'
-}, {
-    label: 'Color',
-    path: 'components.sprite.color',
-    type: 'rgb'
-}, {
-    label: 'Opacity',
-    path: 'components.sprite.opacity',
-    type: 'slider',
-    args: {
-        min: 0,
-        max: 1,
-        precision: 3
-    }
-}, {
-    label: 'Flip X',
-    path: 'components.sprite.flipX',
-    type: 'boolean'
-}, {
-    label: 'Flip Y',
-    path: 'components.sprite.flipY',
-    type: 'boolean'
-}, {
-    label: 'Speed',
-    path: 'components.sprite.speed',
-    type: 'number'
-}, {
-    label: 'Batch Group',
-    path: 'components.sprite.batchGroupId',
-    type: 'batchgroup'
-}, {
-    label: 'Layers',
-    path: 'components.sprite.layers',
-    type: 'layers',
-    args: {
-        excludeLayers: [
-            LAYERID_DEPTH,
-            LAYERID_SKYBOX,
-            LAYERID_IMMEDIATE
-        ]
-    }
-}, {
-    label: 'Draw Order',
-    path: 'components.sprite.drawOrder',
-    type: 'number'
-}, {
-    label: 'Auto Play',
-    path: 'components.sprite.autoPlayClip',
-    type: 'select',
-    args: {
-        type: 'string',
-        allowNull: true,
-        options: []
-    }
-}];
+];
 
-const CLIP_ATTRIBUTES: Attribute[] = [{
-    label: 'Name',
-    path: 'components.sprite.clips.$.name',
-    type: 'string'
-}, {
-    label: 'Loop',
-    path: 'components.sprite.clips.$.loop',
-    type: 'boolean'
-}, {
-    label: 'Frames Per Second',
-    path: 'components.sprite.clips.$.fps',
-    type: 'number',
-    args: {
-        step: 1
+const CLIP_ATTRIBUTES: Attribute[] = [
+    {
+        label: 'Name',
+        path: 'components.sprite.clips.$.name',
+        type: 'string'
+    },
+    {
+        label: 'Loop',
+        path: 'components.sprite.clips.$.loop',
+        type: 'boolean'
+    },
+    {
+        label: 'Frames Per Second',
+        path: 'components.sprite.clips.$.fps',
+        type: 'number',
+        args: {
+            step: 1
+        }
+    },
+    {
+        label: 'Sprite',
+        path: 'components.sprite.clips.$.spriteAsset',
+        type: 'asset',
+        args: {
+            assetType: 'sprite'
+        }
     }
-}, {
-    label: 'Sprite',
-    path: 'components.sprite.clips.$.spriteAsset',
-    type: 'asset',
-    args: {
-        assetType: 'sprite'
-    }
-}];
+];
 
 // add reference fields
 COMPONENT_ATTRIBUTES.forEach((attr) => {
@@ -197,10 +219,13 @@ class SpriteClipInspector extends Panel {
     _inspector: AttributesInspector;
 
     constructor(args: Record<string, unknown>) {
-        args = Object.assign({
-            collapsible: true,
-            headerText: args.clipName
-        }, args);
+        args = Object.assign(
+            {
+                collapsible: true,
+                headerText: args.clipName
+            },
+            args
+        );
 
         super(args);
 
@@ -214,7 +239,7 @@ class SpriteClipInspector extends Panel {
         this._attrs = deepCopy(CLIP_ATTRIBUTES);
         // replace '$' with the actual clip key
         this._attrs.forEach((attr) => {
-            attr.paths = args.clipKeys.map(key => attr.path.replace('$', key));
+            attr.paths = args.clipKeys.map((key) => attr.path.replace('$', key));
             delete attr.path;
         });
 
@@ -228,7 +253,10 @@ class SpriteClipInspector extends Panel {
         this.append(this._inspector);
 
         if (this._templateOverridesInspector) {
-            this._templateOverridesInspector.registerElementForPath(`components.sprite.clips.${args.clipKeys[0]}`, this);
+            this._templateOverridesInspector.registerElementForPath(
+                `components.sprite.clips.${args.clipKeys[0]}`,
+                this
+            );
         }
 
         const fieldName = this._inspector.getField(this._getPathTo('name'));
@@ -415,8 +443,8 @@ class SpriteComponentInspector extends ComponentInspector {
 
         // search clips of all entities for the largest key
         let largestKey = 1;
-        for (let i = 0; i < entities.length; i++) {
-            const clips = entities[i].get('components.sprite.clips');
+        for (const entity of entities) {
+            const clips = entity.get('components.sprite.clips');
             if (!clips) {
                 continue;
             }
@@ -503,7 +531,12 @@ class SpriteComponentInspector extends ComponentInspector {
         redo();
     }
 
-    _createClipInspector(entities: EntityObserver[], clipName: string, clipKeys: string[], insertBeforeElement?: Element) {
+    _createClipInspector(
+        entities: EntityObserver[],
+        clipName: string,
+        clipKeys: string[],
+        insertBeforeElement?: Element
+    ) {
         const inspector = new SpriteClipInspector({
             clipName: clipName,
             clipKeys: clipKeys,
@@ -611,14 +644,18 @@ class SpriteComponentInspector extends ComponentInspector {
         commonClips = commonClips || getCommonClips(this._entities);
 
         // fill auto play enum with clip names
-        const autoPlayOptions = [{
-            v: null, t: 'None'
-        }];
+        const autoPlayOptions = [
+            {
+                v: null,
+                t: 'None'
+            }
+        ];
 
         for (const name in commonClips) {
             if (commonClips[name].length === this._entities.length) {
                 autoPlayOptions.push({
-                    v: name, t: name
+                    v: name,
+                    t: name
                 });
             }
         }
@@ -663,23 +700,27 @@ class SpriteComponentInspector extends ComponentInspector {
 
         // event for new clips
         entities.forEach((e, i) => {
-            this._entityEvents.push(e.on('*:set', (path, value, oldValue) => {
-                if (REGEX_CLIP.test(path)) {
-                    this._onSetClip(value.name);
-                } else if (REGEX_CLIP_NAME.test(path)) {
-                    this._onSetClipName(e, value, oldValue);
-                }
-            }));
+            this._entityEvents.push(
+                e.on('*:set', (path, value, oldValue) => {
+                    if (REGEX_CLIP.test(path)) {
+                        this._onSetClip(value.name);
+                    } else if (REGEX_CLIP_NAME.test(path)) {
+                        this._onSetClipName(e, value, oldValue);
+                    }
+                })
+            );
         });
 
         // event for deleted clips
         entities.forEach((e, i) => {
-            this._entityEvents.push(e.on('*:unset', (path, value) => {
-                if (!REGEX_CLIP.test(path)) {
-                    return;
-                }
-                this._onUnsetClip(value.name);
-            }));
+            this._entityEvents.push(
+                e.on('*:unset', (path, value) => {
+                    if (!REGEX_CLIP.test(path)) {
+                        return;
+                    }
+                    this._onUnsetClip(value.name);
+                })
+            );
         });
 
         // group clips by name to find the ones that are common between entities

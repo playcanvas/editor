@@ -15,19 +15,21 @@ editor.once('load', () => {
     menu.append(item);
 
     const ctxMenu = editor.call('files:contextmenu');
-    ctxMenu.append(new MenuItem({
-        text: 'Download',
-        onIsEnabled: () => {
-            const selected = editor.call('files:contextmenu:selected');
-            return selected.length === 1 && selected[0].get('type') !== 'folder';
-        },
-        onSelect: () => {
-            const selected = editor.call('files:contextmenu:selected');
-            if (selected.length && selected[0].get('type') !== 'folder') {
-                editor.call('editor:command:download', selected[0].get('id'));
+    ctxMenu.append(
+        new MenuItem({
+            text: 'Download',
+            onIsEnabled: () => {
+                const selected = editor.call('files:contextmenu:selected');
+                return selected.length === 1 && selected[0].get('type') !== 'folder';
+            },
+            onSelect: () => {
+                const selected = editor.call('files:contextmenu:selected');
+                if (selected.length && selected[0].get('type') !== 'folder') {
+                    editor.call('editor:command:download', selected[0].get('id'));
+                }
             }
-        }
-    }));
+        })
+    );
 
     // Download asset
     editor.method('editor:command:download', (id?: string) => {

@@ -39,5 +39,4 @@ editor.once('load', () => {
         // initialize
         queueApplySettings();
     });
-
 });

@@ -1,4 +1,4 @@
-import { Schema } from '../schema';
+import type { Schema } from '../schema';
 import { utils } from '../utils';
 
 /**
@@ -30,7 +30,7 @@ class SettingsSchema {
                 continue;
             }
 
-            if (obj[key].hasOwnProperty('$default')) {
+            if (Object.hasOwn(obj[key], '$default')) {
                 if (obj[key].$scope === scope) {
                     result[key] = utils.deepCopy(obj[key].$default);
                 }

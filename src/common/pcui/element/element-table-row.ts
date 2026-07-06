@@ -1,4 +1,5 @@
-import { Container, ContainerArgs } from '@playcanvas/pcui';
+import type { ContainerArgs } from '@playcanvas/pcui';
+import { Container } from '@playcanvas/pcui';
 
 import type { Table } from './element-table';
 
@@ -8,10 +9,10 @@ const CLASS_SELECTED_ROW = `${CLASS_ROW}-selected`;
 /**
  * The arguments for the {@link TableRow} constructor.
  */
-interface TableRowArgs extends ContainerArgs {
+type TableRowArgs = {
     /** If true then this is a header row */
     header?: boolean;
-}
+} & ContainerArgs;
 
 /**
  * Represents the row of a Table.

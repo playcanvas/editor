@@ -7,26 +7,31 @@ editor.once('load', () => {
     const toolbar = editor.call('layout.toolbar');
 
     let activeGizmo = null;
-    const gizmoButtons = { };
+    const gizmoButtons = {};
 
     // create gizmo type buttons
-    [{
-        icon: 'E111',
-        tooltip: 'Translate',
-        op: 'translate'
-    }, {
-        icon: 'E113',
-        tooltip: 'Rotate',
-        op: 'rotate'
-    }, {
-        icon: 'E112',
-        tooltip: 'Scale',
-        op: 'scale'
-    }, {
-        icon: 'E142',
-        tooltip: 'Resize Element Component',
-        op: 'resize'
-    }].forEach((item, index) => {
+    [
+        {
+            icon: 'E111',
+            tooltip: 'Translate',
+            op: 'translate'
+        },
+        {
+            icon: 'E113',
+            tooltip: 'Rotate',
+            op: 'rotate'
+        },
+        {
+            icon: 'E112',
+            tooltip: 'Scale',
+            op: 'scale'
+        },
+        {
+            icon: 'E142',
+            tooltip: 'Resize Element Component',
+            op: 'resize'
+        }
+    ].forEach((item, index) => {
         const button = new Button({
             class: 'pc-icon',
             hidden: !editor.call('permissions:write'),
@@ -94,7 +99,6 @@ editor.once('load', () => {
     tooltipWorld.html = '<span style="color:#fff">World</span> / Local';
     tooltipWorld.class.add('inactive');
 
-
     // toggle grid snap
     const buttonSnap = new Button({
         class: 'pc-icon',
@@ -121,7 +125,6 @@ editor.once('load', () => {
     });
     tooltipSnap.class.add('inactive');
 
-
     editor.on('permissions:writeState', (state) => {
         for (const key in gizmoButtons) {
             gizmoButtons[key].hidden = !state;
@@ -130,7 +133,6 @@ editor.once('load', () => {
         buttonWorld.hidden = !state;
         buttonSnap.hidden = !state;
     });
-
 
     // focus on entity
     const buttonFocus = new Button({
@@ -163,7 +165,6 @@ editor.once('load', () => {
         root: root
     });
     tooltipFocus.class.add('inactive');
-
 
     // translate hotkey
     editor.call('hotkey:register', 'gizmo:translate', {

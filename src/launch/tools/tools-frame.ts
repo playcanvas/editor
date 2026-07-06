@@ -13,7 +13,7 @@ editor.once('load', () => {
         enabled = state;
     });
 
-    const fieldsCustom = { };
+    const fieldsCustom = {};
 
     const panel = document.createElement('div');
     panel.classList.add('frame');
@@ -29,19 +29,27 @@ editor.once('load', () => {
         element._header.textContent = args.title;
         element.appendChild(element._header);
 
-        element._header.addEventListener('click', () => {
-            if (element.classList.contains('folded')) {
-                element.classList.remove('folded');
-            } else {
-                element.classList.add('folded');
-            }
-        }, false);
+        element._header.addEventListener(
+            'click',
+            () => {
+                if (element.classList.contains('folded')) {
+                    element.classList.remove('folded');
+                } else {
+                    element.classList.add('folded');
+                }
+            },
+            false
+        );
 
         return element;
     };
 
     const addField = function (args: { title?: string; value?: string }) {
-        const row = document.createElement('div') as HTMLDivElement & { _title: HTMLDivElement; _field: HTMLDivElement; value: string };
+        const row = document.createElement('div') as HTMLDivElement & {
+            _title: HTMLDivElement;
+            _field: HTMLDivElement;
+            value: string;
+        };
         row.classList.add('row');
 
         row._title = document.createElement('div');
@@ -53,7 +61,6 @@ editor.once('load', () => {
         row._field.classList.add('field');
         row._field.textContent = args.value || '-';
         row.appendChild(row._field);
-
 
         Object.defineProperty(row, 'value', {
             set: function (value: string | undefined) {
@@ -120,342 +127,406 @@ editor.once('load', () => {
         title: 'App'
     });
 
-
-    const fields = [{
-        key: ['frame', 'fps'],
-        panel: panelFrame,
-        title: 'FPS',
-        update: false
-    }, {
-        key: ['frame', 'ms'],
-        panel: panelFrame,
-        title: 'MS',
-        format: function (value: number) {
-            return value.toFixed(2);
+    const fields = [
+        {
+            key: ['frame', 'fps'],
+            panel: panelFrame,
+            title: 'FPS',
+            update: false
+        },
+        {
+            key: ['frame', 'ms'],
+            panel: panelFrame,
+            title: 'MS',
+            format: function (value: number) {
+                return value.toFixed(2);
+            }
+        },
+        {
+            key: ['frame', 'cameras'],
+            title: 'Cameras',
+            panel: panelFrame
+        },
+        {
+            key: ['frame', 'cullTime'],
+            title: 'Cull Time',
+            panel: panelFrame,
+            format: function (value: number) {
+                return value.toFixed(3);
+            }
+        },
+        {
+            key: ['frame', 'sortTime'],
+            title: 'Sort Time',
+            panel: panelFrame,
+            format: function (value: number) {
+                return value.toFixed(3);
+            }
+        },
+        {
+            key: ['frame', 'shaders'],
+            title: 'Shaders',
+            panel: panelFrame
+        },
+        {
+            key: ['frame', 'materials'],
+            title: 'Materials',
+            panel: panelFrame
+        },
+        {
+            key: ['frame', 'triangles'],
+            title: 'Triangles',
+            panel: panelFrame,
+            format: function (value: number) {
+                return value.toLocaleString();
+            }
+        },
+        {
+            key: ['frame', 'otherPrimitives'],
+            title: 'Other Primitives',
+            panel: panelFrame
+        },
+        {
+            key: ['frame', 'shadowMapUpdates'],
+            title: 'ShadowMaps Updates',
+            panel: panelFrame
+        },
+        {
+            key: ['frame', 'shadowMapTime'],
+            title: 'ShadowMaps Time',
+            panel: panelFrame,
+            format: function (value: number) {
+                return value.toFixed(2);
+            }
+        },
+        {
+            key: ['frame', 'updateTime'],
+            title: 'Update Time',
+            panel: panelFrame,
+            format: function (value: number) {
+                return value.toFixed(2);
+            }
+        },
+        {
+            key: ['frame', 'physicsTime'],
+            title: 'Physics Time',
+            panel: panelFrame,
+            format: function (value: number) {
+                return value.toFixed(2);
+            }
+        },
+        {
+            key: ['frame', 'renderTime'],
+            title: 'Render Time',
+            panel: panelFrame,
+            format: function (value: number) {
+                return value.toFixed(2);
+            }
+        },
+        {
+            key: ['frame', 'forwardTime'],
+            title: 'Forward Time',
+            panel: panelFrame,
+            format: function (value: number) {
+                return value.toFixed(2);
+            }
+        },
+        {
+            key: ['scene', 'meshInstances'],
+            title: 'Mesh Instances',
+            panel: panelScene
+        },
+        {
+            key: ['scene', 'drawCalls'],
+            title: 'Draw Calls (potential)',
+            panel: panelScene
+        },
+        {
+            key: ['scene', 'lights'],
+            title: 'Lights',
+            panel: panelScene
+        },
+        {
+            key: ['scene', 'dynamicLights'],
+            title: 'Lights (Dynamic)',
+            panel: panelScene
+        },
+        {
+            key: ['scene', 'bakedLights'],
+            title: 'Lights (Baked)',
+            panel: panelScene
+        },
+        {
+            key: ['drawCalls', 'total'],
+            title: 'Total',
+            panel: panelDrawCalls,
+            format: function (value: number) {
+                return value.toLocaleString();
+            }
+        },
+        {
+            key: ['drawCalls', 'forward'],
+            title: 'Forward',
+            panel: panelDrawCalls,
+            format: function (value: number) {
+                return value.toLocaleString();
+            }
+        },
+        {
+            key: ['drawCalls', 'skinned'],
+            title: 'Skinned',
+            panel: panelDrawCalls,
+            format: function (value: number) {
+                return value.toLocaleString();
+            }
+        },
+        {
+            key: ['drawCalls', 'shadow'],
+            title: 'Shadow',
+            panel: panelDrawCalls,
+            format: function (value: number) {
+                return value.toLocaleString();
+            }
+        },
+        {
+            key: ['drawCalls', 'depth'],
+            title: 'Depth',
+            panel: panelDrawCalls,
+            format: function (value: number) {
+                return value.toLocaleString();
+            }
+        },
+        {
+            key: ['drawCalls', 'instanced'],
+            title: 'Instanced',
+            panel: panelDrawCalls,
+            format: function (value: number) {
+                return value.toLocaleString();
+            }
+        },
+        {
+            key: ['drawCalls', 'removedByInstancing'],
+            title: 'Instancing Benefit',
+            panel: panelDrawCalls,
+            format: function (value: number) {
+                return `-${value.toLocaleString()}`;
+            }
+        },
+        {
+            key: ['drawCalls', 'immediate'],
+            title: 'Immediate',
+            panel: panelDrawCalls,
+            format: function (value: number) {
+                return value.toLocaleString();
+            }
+        },
+        {
+            key: ['drawCalls', 'misc'],
+            title: 'Misc',
+            panel: panelDrawCalls,
+            format: function (value: number) {
+                return value.toLocaleString();
+            }
+        },
+        {
+            key: ['batcher', 'createTime'],
+            title: 'Create Time',
+            panel: panelBatching,
+            format: function (value: number) {
+                return value.toFixed(2);
+            }
+        },
+        {
+            key: ['batcher', 'updateLastFrameTime'],
+            title: 'Update Last Frame Time',
+            panel: panelBatching,
+            format: function (value: number) {
+                return value.toFixed(2);
+            }
+        },
+        {
+            key: ['particles', 'updatesPerFrame'],
+            title: 'Updates',
+            panel: panelParticles
+        },
+        {
+            key: ['particles', 'frameTime'],
+            title: 'Update Time',
+            panel: panelParticles,
+            format: function (value: number) {
+                return value.toLocaleString();
+            }
+        },
+        {
+            key: ['shaders', 'linked'],
+            title: 'Linked',
+            panel: panelShaders,
+            format: function (value: number) {
+                return value.toLocaleString();
+            }
+        },
+        {
+            key: ['shaders', 'vsCompiled'],
+            title: 'Compiled VS',
+            panel: panelShaders,
+            format: function (value: number) {
+                return value.toLocaleString();
+            }
+        },
+        {
+            key: ['shaders', 'fsCompiled'],
+            title: 'Compiled FS',
+            panel: panelShaders,
+            format: function (value: number) {
+                return value.toLocaleString();
+            }
+        },
+        {
+            key: ['shaders', 'materialShaders'],
+            title: 'Materials',
+            panel: panelShaders,
+            format: function (value: number) {
+                return value.toLocaleString();
+            }
+        },
+        {
+            key: ['shaders', 'compileTime'],
+            title: 'Compile Time',
+            panel: panelShaders,
+            format: function (value: number) {
+                return value.toFixed(3);
+            }
+        },
+        {
+            key: ['lightmapper', 'renderPasses'],
+            title: 'Render Passes',
+            panel: panelLightmap,
+            format: function (value: number) {
+                return value.toLocaleString();
+            }
+        },
+        {
+            key: ['lightmapper', 'lightmapCount'],
+            title: 'Textures',
+            panel: panelLightmap,
+            format: function (value: number) {
+                return value.toLocaleString();
+            }
+        },
+        {
+            key: ['lightmapper', 'shadersLinked'],
+            title: 'Shaders Linked',
+            panel: panelLightmap,
+            format: function (value: number) {
+                return value.toLocaleString();
+            }
+        },
+        {
+            key: ['lightmapper', 'totalRenderTime'],
+            title: 'Total Render Time',
+            panel: panelLightmap,
+            format: function (value: number) {
+                return value.toFixed(3);
+            }
+        },
+        {
+            key: ['lightmapper', 'forwardTime'],
+            title: 'Forward Time',
+            panel: panelLightmap,
+            format: function (value: number) {
+                return value.toFixed(3);
+            }
+        },
+        {
+            key: ['lightmapper', 'fboTime'],
+            title: 'FBO Time',
+            panel: panelLightmap,
+            format: function (value: number) {
+                return value.toFixed(3);
+            }
+        },
+        {
+            key: ['lightmapper', 'shadowMapTime'],
+            title: 'ShadowMap Time',
+            panel: panelLightmap,
+            format: function (value: number) {
+                return value.toFixed(3);
+            }
+        },
+        {
+            key: ['lightmapper', 'compileTime'],
+            title: 'Shader Compile Time',
+            panel: panelLightmap,
+            format: function (value: number) {
+                return value.toFixed(3);
+            }
+        },
+        {
+            key: ['vram', 'ib'],
+            title: 'Index Buffers',
+            panel: panelVram,
+            format: bytesToHuman
+        },
+        {
+            key: ['vram', 'vb'],
+            title: 'Vertex Buffers',
+            panel: panelVram,
+            format: bytesToHuman
+        },
+        {
+            key: ['vram', 'texShadow'],
+            title: 'Shadowmaps',
+            panel: panelVram,
+            format: bytesToHuman
+        },
+        {
+            key: ['vram', 'texLightmap'],
+            title: 'Lightmaps',
+            panel: panelVram,
+            format: bytesToHuman
+        },
+        {
+            key: ['vram', 'texAsset'],
+            title: 'Texture Assets',
+            panel: panelVram,
+            format: bytesToHuman
+        },
+        {
+            key: ['vram', 'tex'],
+            title: 'Textures Other',
+            panel: panelVram,
+            format: function (bytes: number) {
+                return bytesToHuman(
+                    bytes - (app.stats.vram.texLightmap + app.stats.vram.texShadow + app.stats.vram.texAsset)
+                );
+            }
+        },
+        {
+            key: ['vram', 'tex'],
+            title: 'Textures Total',
+            panel: panelVram,
+            format: bytesToHuman
+        },
+        {
+            key: ['vram', 'totalUsed'],
+            title: 'Total',
+            panel: panelVram,
+            format: bytesToHuman
         }
-    }, {
-        key: ['frame', 'cameras'],
-        title: 'Cameras',
-        panel: panelFrame
-    }, {
-        key: ['frame', 'cullTime'],
-        title: 'Cull Time',
-        panel: panelFrame,
-        format: function (value: number) {
-            return value.toFixed(3);
-        }
-    }, {
-        key: ['frame', 'sortTime'],
-        title: 'Sort Time',
-        panel: panelFrame,
-        format: function (value: number) {
-            return value.toFixed(3);
-        }
-    }, {
-        key: ['frame', 'shaders'],
-        title: 'Shaders',
-        panel: panelFrame
-    }, {
-        key: ['frame', 'materials'],
-        title: 'Materials',
-        panel: panelFrame
-    }, {
-        key: ['frame', 'triangles'],
-        title: 'Triangles',
-        panel: panelFrame,
-        format: function (value: number) {
-            return value.toLocaleString();
-        }
-    }, {
-        key: ['frame', 'otherPrimitives'],
-        title: 'Other Primitives',
-        panel: panelFrame
-    }, {
-        key: ['frame', 'shadowMapUpdates'],
-        title: 'ShadowMaps Updates',
-        panel: panelFrame
-    }, {
-        key: ['frame', 'shadowMapTime'],
-        title: 'ShadowMaps Time',
-        panel: panelFrame,
-        format: function (value: number) {
-            return value.toFixed(2);
-        }
-    }, {
-        key: ['frame', 'updateTime'],
-        title: 'Update Time',
-        panel: panelFrame,
-        format: function (value: number) {
-            return value.toFixed(2);
-        }
-    }, {
-        key: ['frame', 'physicsTime'],
-        title: 'Physics Time',
-        panel: panelFrame,
-        format: function (value: number) {
-            return value.toFixed(2);
-        }
-    }, {
-        key: ['frame', 'renderTime'],
-        title: 'Render Time',
-        panel: panelFrame,
-        format: function (value: number) {
-            return value.toFixed(2);
-        }
-    }, {
-        key: ['frame', 'forwardTime'],
-        title: 'Forward Time',
-        panel: panelFrame,
-        format: function (value: number) {
-            return value.toFixed(2);
-        }
-    }, {
-        key: ['scene', 'meshInstances'],
-        title: 'Mesh Instances',
-        panel: panelScene
-    }, {
-        key: ['scene', 'drawCalls'],
-        title: 'Draw Calls (potential)',
-        panel: panelScene
-    }, {
-        key: ['scene', 'lights'],
-        title: 'Lights',
-        panel: panelScene
-    }, {
-        key: ['scene', 'dynamicLights'],
-        title: 'Lights (Dynamic)',
-        panel: panelScene
-    }, {
-        key: ['scene', 'bakedLights'],
-        title: 'Lights (Baked)',
-        panel: panelScene
-    }, {
-        key: ['drawCalls', 'total'],
-        title: 'Total',
-        panel: panelDrawCalls,
-        format: function (value: number) {
-            return value.toLocaleString();
-        }
-    }, {
-        key: ['drawCalls', 'forward'],
-        title: 'Forward',
-        panel: panelDrawCalls,
-        format: function (value: number) {
-            return value.toLocaleString();
-        }
-    }, {
-        key: ['drawCalls', 'skinned'],
-        title: 'Skinned',
-        panel: panelDrawCalls,
-        format: function (value: number) {
-            return value.toLocaleString();
-        }
-    }, {
-        key: ['drawCalls', 'shadow'],
-        title: 'Shadow',
-        panel: panelDrawCalls,
-        format: function (value: number) {
-            return value.toLocaleString();
-        }
-    }, {
-        key: ['drawCalls', 'depth'],
-        title: 'Depth',
-        panel: panelDrawCalls,
-        format: function (value: number) {
-            return value.toLocaleString();
-        }
-    }, {
-        key: ['drawCalls', 'instanced'],
-        title: 'Instanced',
-        panel: panelDrawCalls,
-        format: function (value: number) {
-            return value.toLocaleString();
-        }
-    }, {
-        key: ['drawCalls', 'removedByInstancing'],
-        title: 'Instancing Benefit',
-        panel: panelDrawCalls,
-        format: function (value: number) {
-            return `-${value.toLocaleString()}`;
-        }
-    }, {
-        key: ['drawCalls', 'immediate'],
-        title: 'Immediate',
-        panel: panelDrawCalls,
-        format: function (value: number) {
-            return value.toLocaleString();
-        }
-    }, {
-        key: ['drawCalls', 'misc'],
-        title: 'Misc',
-        panel: panelDrawCalls,
-        format: function (value: number) {
-            return value.toLocaleString();
-        }
-    }, {
-        key: ['batcher', 'createTime'],
-        title: 'Create Time',
-        panel: panelBatching,
-        format: function (value: number) {
-            return value.toFixed(2);
-        }
-    }, {
-        key: ['batcher', 'updateLastFrameTime'],
-        title: 'Update Last Frame Time',
-        panel: panelBatching,
-        format: function (value: number) {
-            return value.toFixed(2);
-        }
-    }, {
-        key: ['particles', 'updatesPerFrame'],
-        title: 'Updates',
-        panel: panelParticles
-    }, {
-        key: ['particles', 'frameTime'],
-        title: 'Update Time',
-        panel: panelParticles,
-        format: function (value: number) {
-            return value.toLocaleString();
-        }
-    }, {
-        key: ['shaders', 'linked'],
-        title: 'Linked',
-        panel: panelShaders,
-        format: function (value: number) {
-            return value.toLocaleString();
-        }
-    }, {
-        key: ['shaders', 'vsCompiled'],
-        title: 'Compiled VS',
-        panel: panelShaders,
-        format: function (value: number) {
-            return value.toLocaleString();
-        }
-    }, {
-        key: ['shaders', 'fsCompiled'],
-        title: 'Compiled FS',
-        panel: panelShaders,
-        format: function (value: number) {
-            return value.toLocaleString();
-        }
-    }, {
-        key: ['shaders', 'materialShaders'],
-        title: 'Materials',
-        panel: panelShaders,
-        format: function (value: number) {
-            return value.toLocaleString();
-        }
-    }, {
-        key: ['shaders', 'compileTime'],
-        title: 'Compile Time',
-        panel: panelShaders,
-        format: function (value: number) {
-            return value.toFixed(3);
-        }
-    }, {
-        key: ['lightmapper', 'renderPasses'],
-        title: 'Render Passes',
-        panel: panelLightmap,
-        format: function (value: number) {
-            return value.toLocaleString();
-        }
-    }, {
-        key: ['lightmapper', 'lightmapCount'],
-        title: 'Textures',
-        panel: panelLightmap,
-        format: function (value: number) {
-            return value.toLocaleString();
-        }
-    }, {
-        key: ['lightmapper', 'shadersLinked'],
-        title: 'Shaders Linked',
-        panel: panelLightmap,
-        format: function (value: number) {
-            return value.toLocaleString();
-        }
-    }, {
-        key: ['lightmapper', 'totalRenderTime'],
-        title: 'Total Render Time',
-        panel: panelLightmap,
-        format: function (value: number) {
-            return value.toFixed(3);
-        }
-    }, {
-        key: ['lightmapper', 'forwardTime'],
-        title: 'Forward Time',
-        panel: panelLightmap,
-        format: function (value: number) {
-            return value.toFixed(3);
-        }
-    }, {
-        key: ['lightmapper', 'fboTime'],
-        title: 'FBO Time',
-        panel: panelLightmap,
-        format: function (value: number) {
-            return value.toFixed(3);
-        }
-    }, {
-        key: ['lightmapper', 'shadowMapTime'],
-        title: 'ShadowMap Time',
-        panel: panelLightmap,
-        format: function (value: number) {
-            return value.toFixed(3);
-        }
-    }, {
-        key: ['lightmapper', 'compileTime'],
-        title: 'Shader Compile Time',
-        panel: panelLightmap,
-        format: function (value: number) {
-            return value.toFixed(3);
-        }
-    }, {
-        key: ['vram', 'ib'],
-        title: 'Index Buffers',
-        panel: panelVram,
-        format: bytesToHuman
-    }, {
-        key: ['vram', 'vb'],
-        title: 'Vertex Buffers',
-        panel: panelVram,
-        format: bytesToHuman
-    }, {
-        key: ['vram', 'texShadow'],
-        title: 'Shadowmaps',
-        panel: panelVram,
-        format: bytesToHuman
-    }, {
-        key: ['vram', 'texLightmap'],
-        title: 'Lightmaps',
-        panel: panelVram,
-        format: bytesToHuman
-    }, {
-        key: ['vram', 'texAsset'],
-        title: 'Texture Assets',
-        panel: panelVram,
-        format: bytesToHuman
-    }, {
-        key: ['vram', 'tex'],
-        title: 'Textures Other',
-        panel: panelVram,
-        format: function (bytes: number) {
-            return bytesToHuman(bytes - (app.stats.vram.texLightmap + app.stats.vram.texShadow + app.stats.vram.texAsset));
-        }
-    }, {
-        key: ['vram', 'tex'],
-        title: 'Textures Total',
-        panel: panelVram,
-        format: bytesToHuman
-    }, {
-        key: ['vram', 'totalUsed'],
-        title: 'Total',
-        panel: panelVram,
-        format: bytesToHuman
-    }];
+    ];
 
     // create fields
-    type FieldItem = { key: string[]; panel: HTMLDivElement; title?: string; update?: boolean; format?: (v: number) => string; custom?: string; field?: HTMLDivElement & { _title: HTMLDivElement; _field: HTMLDivElement; value: string } };
-    for (let i = 0; i < fields.length; i++) {
-        const item = fields[i] as FieldItem;
+    type FieldItem = {
+        key: string[];
+        panel: HTMLDivElement;
+        title?: string;
+        update?: boolean;
+        format?: (v: number) => string;
+        custom?: string;
+        field?: HTMLDivElement & { _title: HTMLDivElement; _field: HTMLDivElement; value: string };
+    };
+    for (const field of fields) {
+        const item = field as FieldItem;
         item.field = addField({
             title: item.title || item.key[1]
         });
@@ -465,7 +536,6 @@ editor.once('load', () => {
             fieldsCustom[item.custom] = item.field;
         }
     }
-
 
     // controls to skip rendering of draw calls
     const row = document.createElement('div');
@@ -502,7 +572,7 @@ editor.once('load', () => {
         }
     });
 
-    const cameraIndex = { };
+    const cameraIndex = {};
     let cameraAddQueue = [];
 
     const cameraNone = document.createElement('option');
@@ -510,7 +580,6 @@ editor.once('load', () => {
     cameraNone.selected = true;
     cameraNone.textContent = 'Disabled';
     cameras.appendChild(cameraNone);
-
 
     // frames control
     rowCameraSkip = document.createElement('div');
@@ -553,9 +622,13 @@ editor.once('load', () => {
     cameraSkipFrames.addEventListener('mousedown', (evt: MouseEvent) => {
         evt.stopPropagation();
     });
-    cameraSkipFrames.addEventListener('change', () => {
-        pc.ForwardRenderer.skipRenderAfter = parseInt(cameraSkipFrames.value, 10) || 0;
-    }, false);
+    cameraSkipFrames.addEventListener(
+        'change',
+        () => {
+            pc.ForwardRenderer.skipRenderAfter = parseInt(cameraSkipFrames.value, 10) || 0;
+        },
+        false
+    );
     cameraSkipFrames.addEventListener('keydown', (evt: KeyboardEvent) => {
         let inc = 0;
 
@@ -572,7 +645,10 @@ editor.once('load', () => {
         evt.preventDefault();
         evt.stopPropagation();
 
-        cameraSkipFrames.value = Math.max(0, Math.min(Number.MAX_SAFE_INTEGER, (parseInt(cameraSkipFrames.value, 10) || 0) + inc));
+        cameraSkipFrames.value = Math.max(
+            0,
+            Math.min(Number.MAX_SAFE_INTEGER, (parseInt(cameraSkipFrames.value, 10) || 0) + inc)
+        );
         pc.ForwardRenderer.skipRenderAfter = parseInt(cameraSkipFrames.value, 10) || 0;
     });
 
@@ -594,7 +670,6 @@ editor.once('load', () => {
     });
     rowCameraSkip.appendChild(cameraSkipFramesRight10);
 
-
     const cameraAdd = function (id: string) {
         if (cameraAddQueue) {
             cameraAddQueue.push(id);
@@ -610,7 +685,7 @@ editor.once('load', () => {
             return;
         }
 
-        const option = cameraIndex[id] = document.createElement('option');
+        const option = (cameraIndex[id] = document.createElement('option'));
         option.value = id;
         option.entity = entity;
         option.textContent = entity.name;
@@ -657,8 +732,8 @@ editor.once('load', () => {
             const queue = cameraAddQueue;
             cameraAddQueue = null;
 
-            for (let i = 0; i < queue.length; i++) {
-                cameraAdd(queue[i]);
+            for (const id of queue) {
+                cameraAdd(id);
             }
         }
     });
@@ -669,17 +744,16 @@ editor.once('load', () => {
             return;
         }
 
-        for (let i = 0; i < fields.length; i++) {
-            if (fields[i].ignore) {
+        for (const field of fields) {
+            if (field.ignore) {
                 continue;
             }
 
-            const item = fields[i] as FieldItem;
+            const item = field as FieldItem;
             const key0 = item.key[0];
             const key1 = item.key[1];
 
             if (app.stats && key0 in app.stats && app.stats[key0] && key1 in app.stats[key0]) {
-
                 let value = app.stats[key0][key1];
 
                 if (item.format) {

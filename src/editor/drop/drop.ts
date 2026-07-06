@@ -25,7 +25,12 @@ editor.once('load', () => {
 
             // scroll all drop targets that are targeting attribute panel children
             dropManager.domContent.childNodes.forEach((child) => {
-                if (child.ui && !child.ui.hidden && child.ui._domTargetElement && attributesPanel.dom.contains(child.ui._domTargetElement)) {
+                if (
+                    child.ui &&
+                    !child.ui.hidden &&
+                    child.ui._domTargetElement &&
+                    attributesPanel.dom.contains(child.ui._domTargetElement)
+                ) {
                     let top = child.style.top;
                     if (top.endsWith('px')) {
                         top = parseFloat(top.substring(0, top.length - 2));
@@ -67,35 +72,39 @@ editor.once('load', () => {
                     return obj.leave();
                 }
             }
-
         });
 
         dropManager.append(dropTarget);
         return dropTarget;
     });
 
-
     editor.method('drop:item', (args: { element: HTMLElement; type: string; data: unknown }) => {
         args.element.draggable = true;
 
-        args.element.addEventListener('mousedown', (evt: MouseEvent) => {
-            evt.stopPropagation();
-        }, false);
+        args.element.addEventListener(
+            'mousedown',
+            (evt: MouseEvent) => {
+                evt.stopPropagation();
+            },
+            false
+        );
 
-        args.element.addEventListener('dragstart', (evt: DragEvent) => {
-            evt.preventDefault();
-            evt.stopPropagation();
+        args.element.addEventListener(
+            'dragstart',
+            (evt: DragEvent) => {
+                evt.preventDefault();
+                evt.stopPropagation();
 
-            if (!editor.call('permissions:write')) {
-                return;
-            }
+                if (!editor.call('permissions:write')) {
+                    return;
+                }
 
-
-            editor.call('drop:set', args.type, args.data);
-            editor.call('drop:activate');
-        }, false);
+                editor.call('drop:set', args.type, args.data);
+                editor.call('drop:activate');
+            },
+            false
+        );
     });
-
 
     editor.method('drop:set', (type: string, data: unknown) => {
         dropManager.dropType = type;

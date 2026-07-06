@@ -1,3 +1,4 @@
+import type { Container } from '@playcanvas/pcui';
 import filenamify from 'filenamify/browser';
 
 import { bytesToHuman } from '@/common/utils';
@@ -7,20 +8,20 @@ import { BaseStore, EMPTY_THUMBNAIL_IMAGE, EMPTY_THUMBNAIL_IMAGE_LARGE, STORE_IT
 class MyAssetsStore extends BaseStore {
     sortPolicy = 'createdAt';
 
-    get name() {
-        return 'myAssetsStore';
-    }
+    readonly name = 'myAssetsStore';
 
     async load(selectedFilter: { text: string }, searchString: string, tags: string[], sortDescending: boolean) {
         this.totalCount = 0;
         this.startItem = 0;
-        this.searchResults = await editor.call('store:assets:list',
+        this.searchResults = await editor.call(
+            'store:assets:list',
             searchString,
             0,
             STORE_ITEM_PAGE_SIZE,
             tags,
             this.sortPolicy,
-            sortDescending);
+            sortDescending
+        );
 
         // real number of records matching the query
         this.totalCount = this.searchResults.pagination?.total || 0;
@@ -29,13 +30,15 @@ class MyAssetsStore extends BaseStore {
 
     async loadMore(selectedFilter: { text: string }, searchString: string, tags: string[], sortDescending: boolean) {
         // sketchfab store - get the list of items
-        const searchResults = await editor.call('store:assets:list',
+        const searchResults = await editor.call(
+            'store:assets:list',
             searchString,
             this.items.length,
             STORE_ITEM_PAGE_SIZE,
             tags,
             this.sortPolicy,
-            sortDescending);
+            sortDescending
+        );
 
         if (searchResults.result) {
             this.startItem = this.items.length;
@@ -52,7 +55,7 @@ class MyAssetsStore extends BaseStore {
         await editor.call('myassets:clone', asset.id, filenamify(asset.name), config.project.id);
     }
 
-    buildSorting(sortingDropdown: import('@playcanvas/pcui').Container, sortCallback: () => void) {
+    buildSorting(sortingDropdown: Container, sortCallback: () => void) {
         this.buildSortingMenuItem(sortingDropdown, 'Sort By Name', 'name', false);
         this.buildSortingMenuItem(sortingDropdown, 'Sort By Created', 'created', true);
         this.buildSortingMenuItem(sortingDropdown, 'Sort By Size', 'size');
@@ -65,7 +68,16 @@ class MyAssetsStore extends BaseStore {
     }
 
     // prepare users assets for the list view
-    prepareItems(items: { id: string; name: string; hasThumbnail?: boolean; file?: { size: number }; createdAt?: string; modifiedAt?: string }[]) {
+    prepareItems(
+        items: {
+            id: string;
+            name: string;
+            hasThumbnail?: boolean;
+            file?: { size: number };
+            createdAt?: string;
+            modifiedAt?: string;
+        }[]
+    ) {
         const newItems = [];
 
         if (!items) {
@@ -79,7 +91,7 @@ class MyAssetsStore extends BaseStore {
         for (const item of items) {
             let thumb = EMPTY_THUMBNAIL_IMAGE;
             if (item.hasThumbnail) {
-                thumb =  this._getThumbnailUrl(item.id);
+                thumb = this._getThumbnailUrl(item.id);
             }
 
             const newItem = {
@@ -107,11 +119,17 @@ class MyAssetsStore extends BaseStore {
         return `/viewer?load=${splatUrl}`;
     }
 
-    _prepareItem(asset: { id: string; hasThumbnail?: boolean; file?: { filename: string; size: number }; tags: string[]; name: string; modifiedAt?: string }) {
-
+    _prepareItem(asset: {
+        id: string;
+        hasThumbnail?: boolean;
+        file?: { filename: string; size: number };
+        tags: string[];
+        name: string;
+        modifiedAt?: string;
+    }) {
         let thumbnail = EMPTY_THUMBNAIL_IMAGE_LARGE;
         if (asset.hasThumbnail) {
-            thumbnail =  `/api/assets/${asset.id}/thumbnail/xlarge`;
+            thumbnail = `/api/assets/${asset.id}/thumbnail/xlarge`;
         }
 
         const viewerUrl = this._prepareViewerUrl(asset);

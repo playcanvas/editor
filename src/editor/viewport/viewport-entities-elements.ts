@@ -1,9 +1,11 @@
 import { ORIENTATION_HORIZONTAL, ORIENTATION_VERTICAL } from 'playcanvas';
 
+import type { EntityObserver } from '@/editor-api';
+
 editor.once('load', () => {
     const events = [];
 
-    editor.on('attributes:inspect[entity]', (entities: import('@/editor-api').EntityObserver[]) => {
+    editor.on('attributes:inspect[entity]', (entities: EntityObserver[]) => {
         if (events.length) {
             clear();
         }
@@ -21,7 +23,7 @@ editor.once('load', () => {
     // update entities stored properties with whatever the realtime element
     // has - that's because depending on the screen size an element might not have
     // the correct properties when inspected so make sure these are right
-    var updateElementProperties = function (entity: import('@/editor-api').EntityObserver): void {
+    var updateElementProperties = function (entity: EntityObserver): void {
         if (!entity.entity || !entity.has('components.element')) {
             return;
         }
@@ -44,7 +46,11 @@ editor.once('load', () => {
         entity.history.enabled = history;
     };
 
-    const applyProperties = function (entity: import('@/editor-api').EntityObserver, pathPrefix: string, properties: Record<string, unknown>): void {
+    const applyProperties = function (
+        entity: EntityObserver,
+        pathPrefix: string,
+        properties: Record<string, unknown>
+    ): void {
         Object.keys(properties).forEach((key) => {
             const value = properties[key];
             const path = `${pathPrefix}.${key}`;
@@ -56,7 +62,7 @@ editor.once('load', () => {
         });
     };
 
-    var addEvents = function (entity: import('@/editor-api').EntityObserver): void {
+    var addEvents = function (entity: EntityObserver): void {
         const setting: {
             position?: boolean;
             anchor?: boolean;
@@ -77,276 +83,299 @@ editor.once('load', () => {
             autoHeight: false
         };
 
-        events.push(entity.on('*:set', (path: string, value: unknown, valueOld: unknown, remote?: boolean) => {
-            if (remote || !entity.entity || !entity.has('components.element')) {
-                return;
-            }
-
-            // position change
-            if (/^position/.test(path)) {
-                if (setting.position) {
+        events.push(
+            entity.on('*:set', (path: string, value: unknown, valueOld: unknown, remote?: boolean) => {
+                if (remote || !entity.entity || !entity.has('components.element')) {
                     return;
                 }
 
-                setting.position = true;
-
-                // timeout because if we do it in the handler
-                // it won't get sent to C3 due to observer.silence
-                setTimeout(() => {
-                    if (!editor.call('entities:layout:isUnderControlOfLayoutGroup', entity)) {
-                        const margin = entity.entity.element.margin;
-                        const history = entity.history.enabled;
-                        entity.history.enabled = false;
-                        setting.margin = true;
-                        entity.set('components.element.margin', [fixed(margin.x), fixed(margin.y), fixed(margin.z), fixed(margin.w)]);
-                        setting.margin = false;
-                        entity.history.enabled = history;
+                // position change
+                if (/^position/.test(path)) {
+                    if (setting.position) {
+                        return;
                     }
 
-                    setting.position = false;
-                });
-            } else if (/^components.element.anchor/.test(path)) {
-                // anchor change
-
-                if (setting.anchor) {
-                    return;
-                }
-                setting.anchor = true;
-
-                setTimeout(() => {
-                    const pos = entity.entity.getLocalPosition();
-                    const width = entity.entity.element.width;
-                    const height = entity.entity.element.height;
-
-                    const history = entity.history.enabled;
-                    entity.history.enabled = false;
-                    setting.size = true;
-                    entity.set('position', [fixed(pos.x), fixed(pos.y), fixed(pos.z)]);
-                    entity.set('components.element.width', fixed(width));
-                    entity.set('components.element.height', fixed(height));
-                    setting.size = false;
-                    entity.history.enabled = history;
-
-                    setting.anchor = false;
-                });
-            } else if (/^components.element.pivot/.test(path)) {
-                // pivot change
-
-                if (setting.pivot) {
-                    return;
-                }
-
-                setting.pivot = true;
-
-                setTimeout(() => {
-
-                    const pos = entity.entity.getLocalPosition();
-                    const margin = entity.entity.element.margin;
-
-                    const history = entity.history.enabled;
-                    entity.history.enabled = false;
                     setting.position = true;
-                    setting.margin = true;
-                    entity.set('position', [fixed(pos.x), fixed(pos.y), fixed(pos.z)]);
-                    entity.set('components.element.margin', [fixed(margin.x), fixed(margin.y), fixed(margin.z), fixed(margin.w)]);
-                    setting.position = false;
-                    setting.margin = false;
-                    entity.history.enabled = history;
 
-                    setting.pivot = false;
-                });
-            } else if (/^components.element.(?:width|height)/.test(path)) {
-                // width / height change
+                    // timeout because if we do it in the handler
+                    // it won't get sent to C3 due to observer.silence
+                    setTimeout(() => {
+                        if (!editor.call('entities:layout:isUnderControlOfLayoutGroup', entity)) {
+                            const margin = entity.entity.element.margin;
+                            const history = entity.history.enabled;
+                            entity.history.enabled = false;
+                            setting.margin = true;
+                            entity.set('components.element.margin', [
+                                fixed(margin.x),
+                                fixed(margin.y),
+                                fixed(margin.z),
+                                fixed(margin.w)
+                            ]);
+                            setting.margin = false;
+                            entity.history.enabled = history;
+                        }
 
-                if (setting.size) {
-                    return;
-                }
+                        setting.position = false;
+                    });
+                } else if (/^components.element.anchor/.test(path)) {
+                    // anchor change
 
-                setting.size = true;
-
-                setTimeout(() => {
-                    const margin = entity.entity.element.margin;
-
-                    const history = entity.history.enabled;
-                    entity.history.enabled = false;
-                    setting.margin = true;
-                    entity.set('components.element.margin', [fixed(margin.x), fixed(margin.y), fixed(margin.z), fixed(margin.w)]);
-                    setting.margin = false;
-                    entity.history.enabled = history;
-
-                    setting.size = false;
-                });
-            } else if (/^components.element.margin/.test(path)) {
-                // margin change
-
-                if (setting.margin) {
-                    return;
-                }
-
-                setting.margin = true;
-
-                setTimeout(() => {
-                    const pos = entity.entity.getLocalPosition();
-                    const width = entity.entity.element.width;
-                    const height = entity.entity.element.height;
-
-                    const history = entity.history.enabled;
-                    entity.history.enabled = false;
-                    setting.position = true;
-                    setting.size = true;
-                    entity.set('position', [fixed(pos.x), fixed(pos.y), fixed(pos.z)]);
-                    entity.set('components.element.width', fixed(width));
-                    entity.set('components.element.height', fixed(height));
-                    setting.size = false;
-                    setting.position = false;
-                    entity.history.enabled = history;
-
-                    setting.margin = false;
-                });
-            } else if (/^components.element.autoWidth/.test(path)) {
-                // autoWidth change
-
-                if (setting.autoWidth) {
-                    return;
-                }
-
-                setting.autoWidth = true;
-                setTimeout(() => {
-                    const width = entity.entity.element.width;
-
-                    const history = entity.history.enabled;
-                    entity.history.enabled = false;
-                    entity.set('components.element.width', fixed(width));
-                    entity.history.enabled = history;
-                    setting.autoWidth = false;
-                });
-            } else if (/^components.element.autoHeight/.test(path)) {
-                // autoHeight change
-
-                if (setting.autoHeight) {
-                    return;
-                }
-
-                setting.autoHeight = true;
-                setTimeout(() => {
-                    const height = entity.entity.element.height;
-
-                    const history = entity.history.enabled;
-                    entity.history.enabled = false;
-                    entity.set('components.element.height', fixed(height));
-                    entity.history.enabled = history;
-                    setting.autoHeight = false;
-                });
-            } else if (/^components.element.(?:text|fontAsset)/.test(path)) {
-                // text / font change
-
-                if (setting.text) {
-                    return;
-                }
-
-                setting.text = true;
-                if (entity.get('components.element.autoWidth') ||
-                    entity.get('components.element.autoHeight')) {
+                    if (setting.anchor) {
+                        return;
+                    }
+                    setting.anchor = true;
 
                     setTimeout(() => {
+                        const pos = entity.entity.getLocalPosition();
                         const width = entity.entity.element.width;
                         const height = entity.entity.element.height;
 
                         const history = entity.history.enabled;
                         entity.history.enabled = false;
-                        if (entity.get('components.element.autoWidth')) {
-                            entity.set('components.element.width', fixed(width));
-                        }
-                        if (entity.get('components.element.autoHeight')) {
-                            entity.set('components.element.height', fixed(height));
-                        }
+                        setting.size = true;
+                        entity.set('position', [fixed(pos.x), fixed(pos.y), fixed(pos.z)]);
+                        entity.set('components.element.width', fixed(width));
+                        entity.set('components.element.height', fixed(height));
+                        setting.size = false;
                         entity.history.enabled = history;
 
-                        setting.text = false;
+                        setting.anchor = false;
                     });
+                } else if (/^components.element.pivot/.test(path)) {
+                    // pivot change
 
-                }
-            } else if (/^components.layoutgroup.enabled/.test(path)) {
-                // disabling a layout group
-
-                if (value === false && valueOld === true) {
-                    editor.call('entities:layout:storeLayout', entity.get('children'));
-                }
-            } else if (/^components.layoutchild.excludeFromLayout/.test(path)) {
-                // excluding a layout child from the layout
-
-                if (value === true && valueOld === false) {
-                    editor.call('entities:layout:storeLayout', [entity.entity.getGuid()]);
-                }
-            } else if (/^components.scrollbar.orientation/.test(path)) {
-                // switching the orientation of a scrollbar - we need to update the anchoring
-                // and margins of the track element and handle element to account for the new
-                // orientation.
-
-                if (value !== valueOld) {
-                    const orientation = value;
-
-                    const containerElementDefaults = editor.call('components:scrollbar:getContainerElementDefaultsForOrientation', orientation);
-                    const handleElementDefaults = editor.call('components:scrollbar:getHandleElementDefaultsForOrientation', orientation);
-
-                    if (orientation === ORIENTATION_HORIZONTAL) {
-                        delete containerElementDefaults.width;
-                    } else if (orientation === ORIENTATION_VERTICAL) {
-                        delete containerElementDefaults.height;
+                    if (setting.pivot) {
+                        return;
                     }
 
-                    const containerEntity = entity;
-                    applyProperties(containerEntity, 'components.element', containerElementDefaults);
+                    setting.pivot = true;
 
-                    const handleEntityGuid = entity.get('components.scrollbar.handleEntity');
-                    const handleEntity = handleEntityGuid && editor.call('entities:get', handleEntityGuid);
-                    if (handleEntity) {
-                        applyProperties(handleEntity, 'components.element', handleElementDefaults);
+                    setTimeout(() => {
+                        const pos = entity.entity.getLocalPosition();
+                        const margin = entity.entity.element.margin;
+
+                        const history = entity.history.enabled;
+                        entity.history.enabled = false;
+                        setting.position = true;
+                        setting.margin = true;
+                        entity.set('position', [fixed(pos.x), fixed(pos.y), fixed(pos.z)]);
+                        entity.set('components.element.margin', [
+                            fixed(margin.x),
+                            fixed(margin.y),
+                            fixed(margin.z),
+                            fixed(margin.w)
+                        ]);
+                        setting.position = false;
+                        setting.margin = false;
+                        entity.history.enabled = history;
+
+                        setting.pivot = false;
+                    });
+                } else if (/^components.element.(?:width|height)/.test(path)) {
+                    // width / height change
+
+                    if (setting.size) {
+                        return;
+                    }
+
+                    setting.size = true;
+
+                    setTimeout(() => {
+                        const margin = entity.entity.element.margin;
+
+                        const history = entity.history.enabled;
+                        entity.history.enabled = false;
+                        setting.margin = true;
+                        entity.set('components.element.margin', [
+                            fixed(margin.x),
+                            fixed(margin.y),
+                            fixed(margin.z),
+                            fixed(margin.w)
+                        ]);
+                        setting.margin = false;
+                        entity.history.enabled = history;
+
+                        setting.size = false;
+                    });
+                } else if (/^components.element.margin/.test(path)) {
+                    // margin change
+
+                    if (setting.margin) {
+                        return;
+                    }
+
+                    setting.margin = true;
+
+                    setTimeout(() => {
+                        const pos = entity.entity.getLocalPosition();
+                        const width = entity.entity.element.width;
+                        const height = entity.entity.element.height;
+
+                        const history = entity.history.enabled;
+                        entity.history.enabled = false;
+                        setting.position = true;
+                        setting.size = true;
+                        entity.set('position', [fixed(pos.x), fixed(pos.y), fixed(pos.z)]);
+                        entity.set('components.element.width', fixed(width));
+                        entity.set('components.element.height', fixed(height));
+                        setting.size = false;
+                        setting.position = false;
+                        entity.history.enabled = history;
+
+                        setting.margin = false;
+                    });
+                } else if (/^components.element.autoWidth/.test(path)) {
+                    // autoWidth change
+
+                    if (setting.autoWidth) {
+                        return;
+                    }
+
+                    setting.autoWidth = true;
+                    setTimeout(() => {
+                        const width = entity.entity.element.width;
+
+                        const history = entity.history.enabled;
+                        entity.history.enabled = false;
+                        entity.set('components.element.width', fixed(width));
+                        entity.history.enabled = history;
+                        setting.autoWidth = false;
+                    });
+                } else if (/^components.element.autoHeight/.test(path)) {
+                    // autoHeight change
+
+                    if (setting.autoHeight) {
+                        return;
+                    }
+
+                    setting.autoHeight = true;
+                    setTimeout(() => {
+                        const height = entity.entity.element.height;
+
+                        const history = entity.history.enabled;
+                        entity.history.enabled = false;
+                        entity.set('components.element.height', fixed(height));
+                        entity.history.enabled = history;
+                        setting.autoHeight = false;
+                    });
+                } else if (/^components.element.(?:text|fontAsset)/.test(path)) {
+                    // text / font change
+
+                    if (setting.text) {
+                        return;
+                    }
+
+                    setting.text = true;
+                    if (entity.get('components.element.autoWidth') || entity.get('components.element.autoHeight')) {
+                        setTimeout(() => {
+                            const width = entity.entity.element.width;
+                            const height = entity.entity.element.height;
+
+                            const history = entity.history.enabled;
+                            entity.history.enabled = false;
+                            if (entity.get('components.element.autoWidth')) {
+                                entity.set('components.element.width', fixed(width));
+                            }
+                            if (entity.get('components.element.autoHeight')) {
+                                entity.set('components.element.height', fixed(height));
+                            }
+                            entity.history.enabled = history;
+
+                            setting.text = false;
+                        });
+                    }
+                } else if (/^components.layoutgroup.enabled/.test(path)) {
+                    // disabling a layout group
+
+                    if (value === false && valueOld === true) {
+                        editor.call('entities:layout:storeLayout', entity.get('children'));
+                    }
+                } else if (/^components.layoutchild.excludeFromLayout/.test(path)) {
+                    // excluding a layout child from the layout
+
+                    if (value === true && valueOld === false) {
+                        editor.call('entities:layout:storeLayout', [entity.entity.getGuid()]);
+                    }
+                } else if (/^components.scrollbar.orientation/.test(path)) {
+                    // switching the orientation of a scrollbar - we need to update the anchoring
+                    // and margins of the track element and handle element to account for the new
+                    // orientation.
+
+                    if (value !== valueOld) {
+                        const orientation = value;
+
+                        const containerElementDefaults = editor.call(
+                            'components:scrollbar:getContainerElementDefaultsForOrientation',
+                            orientation
+                        );
+                        const handleElementDefaults = editor.call(
+                            'components:scrollbar:getHandleElementDefaultsForOrientation',
+                            orientation
+                        );
+
+                        if (orientation === ORIENTATION_HORIZONTAL) {
+                            delete containerElementDefaults.width;
+                        } else if (orientation === ORIENTATION_VERTICAL) {
+                            delete containerElementDefaults.height;
+                        }
+
+                        const containerEntity = entity;
+                        applyProperties(containerEntity, 'components.element', containerElementDefaults);
+
+                        const handleEntityGuid = entity.get('components.scrollbar.handleEntity');
+                        const handleEntity = handleEntityGuid && editor.call('entities:get', handleEntityGuid);
+                        if (handleEntity) {
+                            applyProperties(handleEntity, 'components.element', handleElementDefaults);
+                        }
                     }
                 }
-            }
-        }));
+            })
+        );
 
         // removing a layout group component
-        events.push(entity.on('components.layoutgroup:unset', () => {
-            setTimeout(() => {
-                editor.call('entities:layout:storeLayout', entity.get('children'));
-            });
-        }));
+        events.push(
+            entity.on('components.layoutgroup:unset', () => {
+                setTimeout(() => {
+                    editor.call('entities:layout:storeLayout', entity.get('children'));
+                });
+            })
+        );
 
-        events.push(editor.on('gizmo:translate:end', () => {
-            const translatedEntities = editor.call('selector:items');
+        events.push(
+            editor.on('gizmo:translate:end', () => {
+                const translatedEntities = editor.call('selector:items');
 
-            setTimeout(() => {
-                let didReflow = false;
+                setTimeout(() => {
+                    let didReflow = false;
 
-                // Trigger reflow if the user has moved an element that is under
-                // the control of a layout group.
-                let entity;
-                for (let i = 0; i < translatedEntities.length; ++i) {
-                    entity = translatedEntities[i];
+                    // Trigger reflow if the user has moved an element that is under
+                    // the control of a layout group.
+                    let entity;
+                    for (const translatedEntity of translatedEntities) {
+                        entity = translatedEntity;
 
-                    if (editor.call('entities:layout:isUnderControlOfLayoutGroup', entity)) {
-                        editor.call('entities:layout:scheduleReflow', entity.get('parent'));
-                        didReflow = true;
+                        if (editor.call('entities:layout:isUnderControlOfLayoutGroup', entity)) {
+                            editor.call('entities:layout:scheduleReflow', entity.get('parent'));
+                            didReflow = true;
+                        }
                     }
-                }
 
-                if (didReflow) {
-                    setTimeout(() => {
-                        // Ensure the reflowed positions are synced to other clients.
-                        const parent = editor.call('entities:get', entity.get('parent'));
-                        const siblings = parent.get('children');
-                        editor.call('entities:layout:storeLayout', siblings);
+                    if (didReflow) {
+                        setTimeout(() => {
+                            // Ensure the reflowed positions are synced to other clients.
+                            const parent = editor.call('entities:get', entity.get('parent'));
+                            const siblings = parent.get('children');
+                            editor.call('entities:layout:storeLayout', siblings);
 
-                        // Trigger the translate gizmo to re-sync with the position of
-                        // the selected elements, as they will likely have moved as a
-                        // result of the reflow.
-                        editor.emit('gizmo:translate:sync');
-                    });
-                }
-            });
-        }));
+                            // Trigger the translate gizmo to re-sync with the position of
+                            // the selected elements, as they will likely have moved as a
+                            // result of the reflow.
+                            editor.emit('gizmo:translate:sync');
+                        });
+                    }
+                });
+            })
+        );
     };
 
     var clear = function (): void {
@@ -358,5 +387,4 @@ editor.once('load', () => {
     };
 
     editor.on('attributes:clear', clear);
-
 });

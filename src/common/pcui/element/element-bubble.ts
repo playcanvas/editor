@@ -38,8 +38,8 @@ class Bubble extends Element {
     }
 
     position(x: number | string = 0, y: number | string = 0) {
-        this.style.left = (typeof x === 'number') ? `${x}px` : x;
-        this.style.top = (typeof y === 'number') ? `${y}px` : y;
+        this.style.left = typeof x === 'number' ? `${x}px` : x;
+        this.style.top = typeof y === 'number' ? `${y}px` : y;
     }
 }
 

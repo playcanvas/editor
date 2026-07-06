@@ -1,3 +1,4 @@
+import type { Container } from '@playcanvas/pcui';
 import filenamify from 'filenamify/browser';
 
 import { bytesToHuman } from '@/common/utils';
@@ -6,22 +7,22 @@ import { config } from '@/editor/config';
 import { BaseStore, EMPTY_THUMBNAIL_IMAGE, EMPTY_THUMBNAIL_IMAGE_LARGE, STORE_ITEM_PAGE_SIZE } from './baseStore';
 
 class AssetsStore extends BaseStore {
-    get name() {
-        return 'playcanvasStore';
-    }
+    readonly name = 'playcanvasStore';
 
     async load(selectedFilter: { text: string }, searchString: string, tags: string[], sortDescending: boolean) {
         this.totalCount = 0;
         this.startItem = 0;
 
-        this.searchResults = await editor.call('store:list',
+        this.searchResults = await editor.call(
+            'store:list',
             searchString,
             0,
             STORE_ITEM_PAGE_SIZE,
             selectedFilter.text,
             tags,
             this.sortPolicy,
-            sortDescending);
+            sortDescending
+        );
 
         // real number of records matching the query
         this.totalCount = this.searchResults.pagination?.total || 0;
@@ -29,14 +30,16 @@ class AssetsStore extends BaseStore {
     }
 
     async loadMore(selectedFilter: { text: string }, searchString: string, tags: string[], sortDescending: boolean) {
-        const values = await editor.call('store:list',
+        const values = await editor.call(
+            'store:list',
             searchString,
             this.items.length,
             STORE_ITEM_PAGE_SIZE,
             selectedFilter.text,
             tags,
             this.sortPolicy,
-            sortDescending);
+            sortDescending
+        );
 
         // real number of records matching the query
         this.totalCount = values.pagination.total;
@@ -52,10 +55,16 @@ class AssetsStore extends BaseStore {
 
     async cloneItem(storeItem: { id: string; name: string; license: string }) {
         // use invoke to handle exceptions
-        await editor.call('store:clone', storeItem.id, filenamify(storeItem.name), storeItem.license, config.project.id);
+        await editor.call(
+            'store:clone',
+            storeItem.id,
+            filenamify(storeItem.name),
+            storeItem.license,
+            config.project.id
+        );
     }
 
-    buildSorting(sortingDropdown: import('@playcanvas/pcui').Container, sortCallback: () => void) {
+    buildSorting(sortingDropdown: Container, sortCallback: () => void) {
         this.buildSortingMenuItem(sortingDropdown, 'Sort By Name', 'name');
         this.buildSortingMenuItem(sortingDropdown, 'Sort By Created', 'created', true);
         this.buildSortingMenuItem(sortingDropdown, 'Sort By Size', 'size');
@@ -86,13 +95,13 @@ class AssetsStore extends BaseStore {
     }
 
     async _loadAssets(id: string) {
-        const results =  await editor.api.globals.rest.store.storeAssets(id).promisify();
+        const results = await editor.api.globals.rest.store.storeAssets(id).promisify();
         return results.result;
     }
 
     _isModelAsset(asset: { file?: { filename: string }; type: string }) {
         const filename = asset.file ? asset.file.filename : null;
-        return (filename && String(filename).match(/\.glb$/) !== null) || (asset.type === 'gsplat');
+        return (filename && String(filename).match(/\.glb$/) !== null) || asset.type === 'gsplat';
     }
 
     _isTextureAsset(asset: { type: string }) {
@@ -101,7 +110,6 @@ class AssetsStore extends BaseStore {
     }
 
     _prepareViewerUrl(item: { id: string }, assets: { file?: { filename: string }; id: string; type: string }[]) {
-
         // model viewer with the first asset in the list
         const hostname = window.location.hostname;
         const encodeUrl = (url: string) => {
@@ -133,8 +141,18 @@ class AssetsStore extends BaseStore {
         }
     }
 
-    async _prepareItem(item: { id: string; pictures: string[]; tags: string[]; name: string; size: string; modified: string; views: number; downloads: number; description: string; license: string }) {
-
+    async _prepareItem(item: {
+        id: string;
+        pictures: string[];
+        tags: string[];
+        name: string;
+        size: string;
+        modified: string;
+        views: number;
+        downloads: number;
+        description: string;
+        license: string;
+    }) {
         let thumbnail = EMPTY_THUMBNAIL_IMAGE_LARGE;
         if (item.pictures.length) {
             const pictures = `${config.url.images}/${config.aws.s3Prefix}files/pictures/`;
@@ -170,7 +188,19 @@ class AssetsStore extends BaseStore {
         };
     }
 
-    prepareItems(items: { id: string; name: string; description: string; pictures: string[]; views: number; size: string; downloads: number; created: string; license: string }[]) {
+    prepareItems(
+        items: {
+            id: string;
+            name: string;
+            description: string;
+            pictures: string[];
+            views: number;
+            size: string;
+            downloads: number;
+            created: string;
+            license: string;
+        }[]
+    ) {
         const newItems = [];
 
         if (!items) {

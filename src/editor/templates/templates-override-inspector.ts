@@ -11,9 +11,9 @@ const CLASS_OVERRIDE = 'template-inspector-override';
 class TemplateOverrideInspector {
     private _entities: ObserverList;
 
-    private _overrides: Record<string, { element: Element, tooltipItem: Container }> = {};
+    private _overrides: Record<string, { element: Element; tooltipItem: Container }> = {};
 
-    private _registeredElements: Record<string, { element: Element, tooltipGroup: Container }> = {};
+    private _registeredElements: Record<string, { element: Element; tooltipGroup: Container }> = {};
 
     private _entityEvents: EventHandle[] = [];
 
@@ -62,7 +62,7 @@ class TemplateOverrideInspector {
     }
 
     _unbindEntityEvents() {
-        this._entityEvents.forEach(evt => evt.unbind());
+        this._entityEvents.forEach((evt) => evt.unbind());
         this._entityEvents.length = 0;
     }
 

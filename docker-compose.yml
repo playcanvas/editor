@@ -1,19 +1,19 @@
 services:
-  test-suite:
-    build: ./test-suite
-    image: ghcr.io/playcanvas/editor/test:latest
-    command: "true"
+    test-suite:
+        build: ./test-suite
+        image: ghcr.io/playcanvas/editor/test:latest
+        command: 'true'
 
-  playcanvas-editor:
-    build: .
-    container_name: playcanvas-editor
-    depends_on:
-      test-suite:
-        condition: service_completed_successfully
-    env_file:
-      - .env
-    environment:
-      - PC_LOCAL_FRONTEND=true
-    volumes:
-      - ./test-suite/.auth:/usr/src/test/.auth
-      - ./test-results:/usr/src/test/test-results
+    playcanvas-editor:
+        build: .
+        container_name: playcanvas-editor
+        depends_on:
+            test-suite:
+                condition: service_completed_successfully
+        env_file:
+            - .env
+        environment:
+            - PC_LOCAL_FRONTEND=true
+        volumes:
+            - ./test-suite/.auth:/usr/src/test/.auth
+            - ./test-results:/usr/src/test/test-results

@@ -1,7 +1,6 @@
-import { ReparentArguments } from '../entities';
-import { Entity } from '../entity';
+import type { ReparentArguments } from '../entities';
+import type { Entity } from '../entity';
 import { globals as api } from '../globals';
-
 
 /**
  * Reparents entities under new parent.
@@ -10,7 +9,7 @@ import { globals as api } from '../globals';
  * @param options.preserveTransform - Whether to preserve the transform of the entities
  * @param options.history - Whether to record history. Defaults to true
  */
-function reparentEntities(data: ReparentArguments[], options: { preserveTransform?: boolean, history?: boolean } = {}) {
+function reparentEntities(data: ReparentArguments[], options: { preserveTransform?: boolean; history?: boolean } = {}) {
     if (options.history === undefined) {
         options.history = true;
     }
@@ -24,7 +23,8 @@ function reparentEntities(data: ReparentArguments[], options: { preserveTransfor
             parentOld: parentOld,
             indOld: indexOld,
             parent: entry.parent,
-            indNew: entry.index !== undefined && entry.index !== null ? entry.index : entry.parent.get('children').length
+            indNew:
+                entry.index !== undefined && entry.index !== null ? entry.index : entry.parent.get('children').length
         };
 
         if (options.preserveTransform) {
@@ -45,7 +45,10 @@ function reparentEntities(data: ReparentArguments[], options: { preserveTransfor
 
     const isValidRecord = (entity: Entity, parentOld: Entity, parent: Entity) => {
         const resourceId = entity.get('resource_id');
-        if (parentOld.get('children').indexOf(resourceId) === -1 || (parent.get('children').indexOf(resourceId) !== -1 && parent !== parentOld)) {
+        if (
+            parentOld.get('children').indexOf(resourceId) === -1 ||
+            (parent.get('children').indexOf(resourceId) !== -1 && parent !== parentOld)
+        ) {
             return false;
         }
 
@@ -65,7 +68,6 @@ function reparentEntities(data: ReparentArguments[], options: { preserveTransfor
         return !deny;
     };
 
-
     const doReparent = (entity: Entity, parent: Entity, indNew: number, position: any, rotation: any, scale: any) => {
         const history = {
             parent: parent.history.enabled,
@@ -82,7 +84,9 @@ function reparentEntities(data: ReparentArguments[], options: { preserveTransfor
 
         // BUG TRACKING: missing children
         if (!api.entities.get(entity.get('resource_id'))) {
-            console.error(`BUG TRACKING: reparenting missing child guid ${entity.get('resource_id')} to parent ${parent.get('resource_id')}`);
+            console.error(
+                `BUG TRACKING: reparenting missing child guid ${entity.get('resource_id')} to parent ${parent.get('resource_id')}`
+            );
         }
 
         entity.history.enabled = false;
@@ -99,9 +103,11 @@ function reparentEntities(data: ReparentArguments[], options: { preserveTransfor
                 // Only preserve scale if parent scale is valid (non-zero on all axes)
                 // to avoid division by zero or NaN/Infinity values
                 const epsilon = 0.0001;
-                if (Math.abs(parentWorldScale.x) > epsilon &&
+                if (
+                    Math.abs(parentWorldScale.x) > epsilon &&
                     Math.abs(parentWorldScale.y) > epsilon &&
-                    Math.abs(parentWorldScale.z) > epsilon) {
+                    Math.abs(parentWorldScale.z) > epsilon
+                ) {
                     const x = scale.x / parentWorldScale.x;
                     const y = scale.y / parentWorldScale.y;
                     const z = scale.z / parentWorldScale.z;
@@ -157,7 +163,7 @@ function reparentEntities(data: ReparentArguments[], options: { preserveTransfor
         // remember selection
         let selection;
         let selectionHistory;
-        if (api.selection)  {
+        if (api.selection) {
             selection = api.selection.items;
             selectionHistory = api.selection.history.enabled;
             api.selection.history.enabled = false;
@@ -176,14 +182,7 @@ function reparentEntities(data: ReparentArguments[], options: { preserveTransfor
         validRecords.forEach((record: any) => {
             const data = latest(record);
 
-            doReparent(
-                data.entity,
-                data.parent,
-                record.indNew,
-                record.position,
-                record.rotation,
-                record.scale
-            );
+            doReparent(data.entity, data.parent, record.indNew, record.position, record.rotation, record.scale);
         });
 
         // restore selection
@@ -239,7 +238,7 @@ function reparentEntities(data: ReparentArguments[], options: { preserveTransfor
             // remember selection
             let selection;
             let selectionHistory;
-            if (api.selection)  {
+            if (api.selection) {
                 selection = api.selection.items;
                 selectionHistory = api.selection.history.enabled;
                 api.selection.history.enabled = false;
@@ -258,14 +257,7 @@ function reparentEntities(data: ReparentArguments[], options: { preserveTransfor
             validRecords.forEach((record: any) => {
                 const data = latest(record);
 
-                doReparent(
-                    data.entity,
-                    data.parentOld,
-                    record.indOld,
-                    record.position,
-                    record.rotation,
-                    record.scale
-                );
+                doReparent(data.entity, data.parentOld, record.indOld, record.position, record.rotation, record.scale);
             });
 
             // restore selection
@@ -282,7 +274,6 @@ function reparentEntities(data: ReparentArguments[], options: { preserveTransfor
             redo: redo
         });
     }
-
 }
 
 export { reparentEntities };

@@ -38,7 +38,7 @@ editor.once('load', () => {
     });
 
     const checkSnap = function () {
-        const state = (snapToggle || snapShift) && (snapToggle !== snapShift);
+        const state = (snapToggle || snapShift) && snapToggle !== snapShift;
         if (snap === state) {
             return;
         }

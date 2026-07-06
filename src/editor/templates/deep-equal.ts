@@ -17,18 +17,14 @@ editor.once('load', () => {
         run() {
             if (this.node1 === this.node2) {
                 return true;
-
             }
             if (this.areBothMaps()) {
                 return this.handleMaps();
-
             }
             if (this.areBothArrays()) {
                 return this.handleArrays();
-
             }
             return false;
-
         }
 
         handleMaps() {
@@ -43,8 +39,7 @@ editor.once('load', () => {
 
         compareMapsRecursively(keys1: string[]): boolean {
             return keys1.every((k1) => {
-                return this.node2.hasOwnProperty(k1) &&
-                    new DeepEqual(this.node1[k1], this.node2[k1]).run();
+                return Object.hasOwn(this.node2, k1) && new DeepEqual(this.node1[k1], this.node2[k1]).run();
             });
         }
 
@@ -56,7 +51,6 @@ editor.once('load', () => {
 
         compareArraysRecursively() {
             return this.node1.every((v1, index) => {
-
                 const v2 = this.node2[index];
 
                 return new DeepEqual(v1, v2).run();

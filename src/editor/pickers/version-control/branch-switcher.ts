@@ -94,13 +94,13 @@ export const createBranchSwitcher = (host: Container) => {
     const isCurrent = (b: any) => b.id === config.self.branch.id;
     const isMaster = (b: any) => b.id === config.project.masterBranch;
 
-    const favItem = addMenuItem('Favorite', 'favorite', b => writable() && !isCurrent(b));
-    addMenuItem('Merge Into Current Branch', 'merge', b => writable() && !isCurrent(b) && !b.closed);
+    const favItem = addMenuItem('Favorite', 'favorite', (b) => writable() && !isCurrent(b));
+    addMenuItem('Merge Into Current Branch', 'merge', (b) => writable() && !isCurrent(b) && !b.closed);
     addMenuItem('Version Control Graph', 'graph', () => true);
     addMenuItem('Copy Branch ID', 'copyId', () => true);
-    addMenuItem('Re-Open This Branch', 'open', b => writable() && !!b.closed);
-    addMenuItem('Close This Branch', 'close', b => writable() && !b.closed && !isCurrent(b) && !isMaster(b));
-    addMenuItem('Delete This Branch', 'delete', b => writable() && !isCurrent(b) && !isMaster(b), 'delete');
+    addMenuItem('Re-Open This Branch', 'open', (b) => writable() && !!b.closed);
+    addMenuItem('Close This Branch', 'close', (b) => writable() && !b.closed && !isCurrent(b) && !isMaster(b));
+    addMenuItem('Delete This Branch', 'delete', (b) => writable() && !isCurrent(b) && !isMaster(b), 'delete');
 
     menu.on('show', () => {
         const favs = projectUserSettings.get('favoriteBranches') || [];
@@ -234,7 +234,7 @@ export const createBranchSwitcher = (host: Container) => {
             head.classList.add('vc-group');
             head.textContent = title;
             list.dom.appendChild(head);
-            items.forEach(b => list.dom.appendChild(createRow(b)));
+            items.forEach((b) => list.dom.appendChild(createRow(b)));
         };
 
         addGroup('Favorites', favBranches);
@@ -259,35 +259,38 @@ export const createBranchSwitcher = (host: Container) => {
         const gen = loadGen;
         render();
 
-        handleCallback(editor.api.globals.rest.projects.projectBranches({
-            limit: PAGE_SIZE,
-            skip: skip as unknown as number,
-            closed: filterSelect.value === 'closed',
-            favorite: filterSelect.value === 'favorite'
-        }), (err: any, data: any) => {
-            // a newer reset superseded this response
-            if (gen !== loadGen) {
-                return;
-            }
-            loading = false;
-            if (err) {
-                log.error(err);
+        handleCallback(
+            editor.api.globals.rest.projects.projectBranches({
+                limit: PAGE_SIZE,
+                skip: skip as unknown as number,
+                closed: filterSelect.value === 'closed',
+                favorite: filterSelect.value === 'favorite'
+            }),
+            (err: any, data: any) => {
+                // a newer reset superseded this response
+                if (gen !== loadGen) {
+                    return;
+                }
+                loading = false;
+                if (err) {
+                    log.error(err);
+                    render();
+                    return;
+                }
+                // current branch always present at the top
+                if (!skip && filterSelect.value !== 'closed') {
+                    branches[config.self.branch.id] = config.self.branch;
+                }
+                data.result.forEach((b: any) => {
+                    branches[b.id] = b;
+                });
+                hasMore = data.pagination.hasMore;
+                if (data.result.length) {
+                    skip = data.result[data.result.length - 1].id;
+                }
                 render();
-                return;
             }
-            // current branch always present at the top
-            if (!skip && filterSelect.value !== 'closed') {
-                branches[config.self.branch.id] = config.self.branch;
-            }
-            data.result.forEach((b: any) => {
-                branches[b.id] = b;
-            });
-            hasMore = data.pagination.hasMore;
-            if (data.result.length) {
-                skip = data.result[data.result.length - 1].id;
-            }
-            render();
-        });
+        );
     };
 
     // infinite scroll

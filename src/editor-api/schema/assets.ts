@@ -1,4 +1,4 @@
-import { Schema } from '../schema';
+import type { Schema } from '../schema';
 import { utils } from '../utils';
 
 /**
@@ -39,7 +39,7 @@ class AssetsSchema {
                 continue;
             }
             const block = schema[key];
-            if (block.hasOwnProperty('$default')) {
+            if (Object.hasOwn(block, '$default')) {
                 result[key] = utils.deepCopy(block.$default);
             }
         }
@@ -61,7 +61,7 @@ class AssetsSchema {
     getFieldsOfType(assetType: string, type: string) {
         const result: string[] = [];
 
-        const recurse = (schemaField: Record<string, any>, path: string, prefix: string = '') => {
+        const recurse = (schemaField: Record<string, any>, path: string, prefix = '') => {
             if (!schemaField) {
                 return;
             }

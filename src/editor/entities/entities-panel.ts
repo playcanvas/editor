@@ -1,5 +1,6 @@
 import type { Observer } from '@playcanvas/observer';
-import { Button, Container, TreeViewItem } from '@playcanvas/pcui';
+import type { TreeViewItem } from '@playcanvas/pcui';
+import { Button, Container } from '@playcanvas/pcui';
 
 import { TooltipHandle } from '@/common/tooltips';
 
@@ -9,13 +10,13 @@ const CLASS_VISIBILITY_TOGGLE = 'entities-treeview-visibility-toggle';
 const CLASS_VISIBILITY_HIDDEN = 'entities-treeview-visibility-hidden';
 const CLASS_ROW_HOVERED = 'entities-treeview-row-hovered';
 
-interface EyeEntry {
+type EyeEntry = {
     button: Button;
     tooltip: TooltipHandle;
     onMouseEnter: () => void;
     onMouseLeave: () => void;
     contentsRow: HTMLElement;
-}
+};
 
 editor.once('load', () => {
     const panel = editor.call('layout.hierarchy');
@@ -57,7 +58,7 @@ editor.once('load', () => {
     treeView.createDropTarget(wrapper);
 
     // Eye icon management
-    const eyeEntries: Map<string, EyeEntry> = new Map();
+    const eyeEntries = new Map<string, EyeEntry>();
 
     const createEyeIcon = (resourceId: string, contentsRow: HTMLElement): EyeEntry => {
         const button = new Button({
@@ -109,7 +110,7 @@ editor.once('load', () => {
         const columnRect = visibilityColumn.dom.getBoundingClientRect();
 
         // Phase 1: Read all geometry (no writes — single layout recalc)
-        const updates: Array<{ button: Button; top: number; visible: boolean }> = [];
+        const updates: { button: Button; top: number; visible: boolean }[] = [];
         eyeEntries.forEach(({ button }, resourceId) => {
             const treeItem = treeView.getTreeItemForEntity(resourceId);
             if (!treeItem) {

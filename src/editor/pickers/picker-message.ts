@@ -10,7 +10,6 @@ const md = Markdown({});
 // cancelText - text to display on the Cancel button. If it's null, the Cancel button will not be displayed
 // callback - function to call when the user clicks OK or Cancel. The function will be passed a boolean value indicating whether the user clicked OK or Cancel
 editor.once('load', () => {
-
     // GLOBAL VARIABLES
     let _callback = null;
 

@@ -5,7 +5,6 @@ import { evaluate } from '../../src/editor/scripting/expr-eval/evaluate';
 import { parse } from '../../src/editor/scripting/expr-eval/parser';
 
 describe('expr-eval: Evaluate Function', () => {
-
     it('should handle integer arithmetic', () => {
         expect(evaluate('2 + 3')).to.equal(5);
         expect(evaluate('10 - 4')).to.equal(6);
@@ -81,19 +80,17 @@ describe('expr-eval: Evaluate Function', () => {
     // Failures
 
     it('should throw correct Syntax Errors', () => {
-        expect(_ => evaluate('a + ')).to.throw(SyntaxError);
-        expect(_ => evaluate('a asd')).to.throw(SyntaxError);
-        expect(_ => evaluate('(((')).to.throw(SyntaxError);
+        expect((_) => evaluate('a + ')).to.throw(SyntaxError);
+        expect((_) => evaluate('a asd')).to.throw(SyntaxError);
+        expect((_) => evaluate('(((')).to.throw(SyntaxError);
     });
 
     it('should throw correct Reference Errors', () => {
         expect(() => evaluate('a')).to.throw(ReferenceError);
     });
-
 });
 
 describe('expr-eval: Parse Expression', () => {
-
     it('should parse and expression into AST', () => {
         expect(parse('2 + 3')).to.deep.equal({
             type: 'BinaryExpression',
@@ -107,5 +104,4 @@ describe('expr-eval: Parse Expression', () => {
         const ast = parse('2 + 3');
         expect(evaluate(ast)).to.equal(5);
     });
-
 });

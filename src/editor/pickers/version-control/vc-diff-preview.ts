@@ -1,6 +1,6 @@
 import { Panel } from '@playcanvas/pcui';
 
-import { type NameIndex } from './vc-diff-data';
+import type { NameIndex } from './vc-diff-data';
 import { createSideValueField } from './vc-diff-fields';
 import { assetDiffField, formatDiffPath, splitDiffPath, typeLabel } from './vc-helpers';
 
@@ -18,7 +18,11 @@ const TEMPLATE_FIELDS: Record<string, string> = { template_id: 'Source template'
 
 type EntityName = (conflict: any, value: string) => string | undefined;
 
-const sectionComponent = (value: string) => value.match(/^(.+) component$/i)?.[1]?.replace(/\s+/g, '').toLowerCase() ?? '';
+const sectionComponent = (value: string) =>
+    value
+        .match(/^(.+) component$/i)?.[1]
+        ?.replace(/\s+/g, '')
+        .toLowerCase() ?? '';
 
 const inspectorInfo = (conflict: any, entry: any, entityName: EntityName) => {
     // template assets carry a scene-shaped entity tree under data.entities;
@@ -46,8 +50,8 @@ const inspectorInfo = (conflict: any, entry: any, entityName: EntityName) => {
 
     const info = formatDiffPath(path, type, entityName(conflict, path));
     const labels = info.labels;
-    const entity = labels.find(label => label.text.startsWith('Entity: '));
-    const comp = labels.findIndex(label => label.text.endsWith(' component'));
+    const entity = labels.find((label) => label.text.startsWith('Entity: '));
+    const comp = labels.findIndex((label) => label.text.endsWith(' component'));
     const tplField = TEMPLATE_FIELDS[splitDiffPath(path).pop() ?? ''];
     let entityContext = [];
     let section = labels[0]?.text ?? typeLabel(type);
@@ -66,7 +70,7 @@ const inspectorInfo = (conflict: any, entry: any, entityName: EntityName) => {
     } else if (entity) {
         section = tplField ? TEMPLATE_PANEL : 'Entity';
         entityContext = [entity];
-        context = labels.filter(label => label !== entity);
+        context = labels.filter((label) => label !== entity);
     }
 
     return {
@@ -74,23 +78,26 @@ const inspectorInfo = (conflict: any, entry: any, entityName: EntityName) => {
         section,
         context,
         field: tplField ?? info.field ?? raw,
-        title: `${labels.map(label => label.text).join(' / ')} / ${info.field || raw}`,
+        title: `${labels.map((label) => label.text).join(' / ')} / ${info.field || raw}`,
         type: sectionComponent(section)
     };
 };
 
 const sectionParts = (conflict: any, entry: any, entityName: EntityName) => {
     const info = inspectorInfo(conflict, entry, entityName);
-    const isSettings = conflict.itemType === 'settings' ||
+    const isSettings =
+        conflict.itemType === 'settings' ||
         (conflict.itemType === 'scene' && splitDiffPath(entry.path ?? '')[0] === 'settings');
     if (isSettings) {
-        const sub = SETTINGS_ROOT_RE.test(info.section) ? '' :
-            [info.section, ...info.context.map(label => label.text)].join(' · ');
+        const sub = SETTINGS_ROOT_RE.test(info.section)
+            ? ''
+            : [info.section, ...info.context.map((label) => label.text)].join(' · ');
         return { entity: null, panel: 'Settings', icon: '', sub, field: info.field, title: info.title };
     }
     const subMatch = info.context[0]?.text.match(SUB_RE);
     // the inspector shows raw (unprettified) script attribute names
-    const field = subMatch?.groups?.kind === 'Script' ? (splitDiffPath(entry.path ?? '').pop() ?? info.field) : info.field;
+    const field =
+        subMatch?.groups?.kind === 'Script' ? (splitDiffPath(entry.path ?? '').pop() ?? info.field) : info.field;
     return {
         entity: info.entityContext[0] ?? null,
         panel: info.section.replace(/ component$/i, ''),
@@ -188,7 +195,11 @@ export const renderPreviewPropertyDiff = (
             if (parts.entity) {
                 const crumb = document.createElement('div');
                 crumb.classList.add('vc-diff-crumb');
-                crumb.textContent = parts.entity.text.replace(/^Entity:\s*/, '').split('/').filter(Boolean).join(' / ');
+                crumb.textContent = parts.entity.text
+                    .replace(/^Entity:\s*/, '')
+                    .split('/')
+                    .filter(Boolean)
+                    .join(' / ');
                 crumb.title = parts.entity.title ?? parts.entity.text;
                 dom.appendChild(crumb);
             }
@@ -210,7 +221,9 @@ export const renderPreviewPropertyDiff = (
         const host = hostDom(parts);
         if (!entry.path || wholeEntity(entry)) {
             const status = entry.missingInDst ? 'added' : entry.missingInSrc ? 'deleted' : 'modified';
-            host.appendChild(banner(status, entry.path ? 'entity' : conflict.assetType ?? conflict.itemType ?? 'item'));
+            host.appendChild(
+                banner(status, entry.path ? 'entity' : (conflict.assetType ?? conflict.itemType ?? 'item'))
+            );
             continue;
         }
         if (!entry.missingInDst) {

@@ -12,7 +12,7 @@ editor.once('load', () => {
     const runtimeComponentData = function (component: string, data: Record<string, unknown>) {
         const result = {};
         for (const key in data) {
-            if (data.hasOwnProperty(key)) {
+            if (Object.hasOwn(data, key)) {
                 result[key] = editor.call('components:convertValue', component, key, data[key]);
             }
         }
@@ -21,13 +21,21 @@ editor.once('load', () => {
     };
 
     editor.on('entities:add', (obj: Observer) => {
-
-        function onSetProperty(entity: pc.Entity, component: string, property: string, parts: string[], value: unknown) {
+        function onSetProperty(
+            entity: pc.Entity,
+            component: string,
+            property: string,
+            parts: string[],
+            value: unknown
+        ) {
             // edit component property
-            if (component === 'script' && property === 'scripts' && !editor.call('settings:project').get('useLegacyScripts')) {
+            if (
+                component === 'script' &&
+                property === 'scripts' &&
+                !editor.call('settings:project').get('useLegacyScripts')
+            ) {
                 /* eslint-disable-next-line no-empty */
                 if (parts.length <= 2) {
-
                 } else if (parts.length === 3) {
                     for (let i = entity.script.scripts.length - 1; i >= 0; i--) {
                         entity.script.destroy(entity.script.scripts[i].__scriptType);
@@ -46,17 +54,25 @@ editor.once('load', () => {
                     } else if (script && parts.length === 5 && parts[4] === 'enabled') {
                         // enabled
                         script.enabled = value;
-                    } else if (script && parts.length >= 6 && parts[4] === 'attributes' && !pc.createScript.reservedAttributes[parts[5]]) {
+                    } else if (
+                        script &&
+                        parts.length >= 6 &&
+                        parts[4] === 'attributes' &&
+                        !pc.createScript.reservedAttributes[parts[5]]
+                    ) {
                         // set attribute
                         const scriptName = parts[3];
                         const attributeName = parts[5];
-                        const newValue = parts.length > 6 ? obj.get(`components.script.scripts.${parts[3]}.attributes.${parts[5]}`) : value;
+                        const newValue =
+                            parts.length > 6
+                                ? obj.get(`components.script.scripts.${parts[3]}.attributes.${parts[5]}`)
+                                : value;
 
                         // If a ScriptType, we just need to assign the value. The copy operation happens in ScriptAttributes
                         if (script instanceof pc.ScriptType) {
                             script[attributeName] = newValue;
-
-                        } else if (pc.Script && script instanceof pc.Script) { // otherwise we need to manually assign the value
+                        } else if (pc.Script && script instanceof pc.Script) {
+                            // otherwise we need to manually assign the value
 
                             // Script has not been initialized yet
                             if (!script.app) {
@@ -65,10 +81,16 @@ editor.once('load', () => {
 
                             const schema = script.app.scripts.getSchema(scriptName);
                             const attributeSchema = schema.attributes[attributeName];
-                            assignAttributesToScript(script.app, { [attributeName]: attributeSchema }, { [attributeName]: newValue }, script);
-
+                            assignAttributesToScript(
+                                script.app,
+                                { [attributeName]: attributeSchema },
+                                { [attributeName]: newValue },
+                                script
+                            );
                         } else {
-                            console.error(`The script '${scriptName}' does not inherit from pc.Script or pc.ScriptType. Unable to set attribute '${parts[5]}'`);
+                            console.error(
+                                `The script '${scriptName}' does not inherit from pc.Script or pc.ScriptType. Unable to set attribute '${parts[5]}'`
+                            );
                         }
                     }
                 }
@@ -76,12 +98,18 @@ editor.once('load', () => {
                 if (component === 'element') {
                     if (property === 'width') {
                         // do not set width for elements with autoWidth or split horizontal anchors
-                        if (entity.element.autoWidth || Math.abs(entity.element.anchor.x - entity.element.anchor.z) > 0.001) {
+                        if (
+                            entity.element.autoWidth ||
+                            Math.abs(entity.element.anchor.x - entity.element.anchor.z) > 0.001
+                        ) {
                             return;
                         }
                     } else if (property === 'height') {
                         // do not set height for elements with autoHeight or split vertical anchors
-                        if (entity.element.autoHeight || Math.abs(entity.element.anchor.y - entity.element.anchor.w) > 0.001) {
+                        if (
+                            entity.element.autoHeight ||
+                            Math.abs(entity.element.anchor.y - entity.element.anchor.w) > 0.001
+                        ) {
                             return;
                         }
                     }
@@ -90,7 +118,10 @@ editor.once('load', () => {
                         const aabbCenter = obj.get(`components.${component}.aabbCenter`);
                         const aabbHalfExtents = obj.get(`components.${component}.aabbHalfExtents`);
                         if (aabbCenter && aabbHalfExtents) {
-                            entity[component].customAabb = new pc.BoundingBox(new pc.Vec3(aabbCenter), new pc.Vec3(aabbHalfExtents));
+                            entity[component].customAabb = new pc.BoundingBox(
+                                new pc.Vec3(aabbCenter),
+                                new pc.Vec3(aabbHalfExtents)
+                            );
                         }
                         return;
                     }
@@ -134,7 +165,6 @@ editor.once('load', () => {
             }
         });
 
-
         obj.on('*:unset', (path: string) => {
             if (obj._silent || !path.startsWith('components')) {
                 return;
@@ -150,7 +180,11 @@ editor.once('load', () => {
             const property = parts[2];
 
             if (property) {
-                if (component === 'script' && property === 'scripts' && !editor.call('settings:project').get('useLegacyScripts')) {
+                if (
+                    component === 'script' &&
+                    property === 'scripts' &&
+                    !editor.call('settings:project').get('useLegacyScripts')
+                ) {
                     if (!entity.script || parts.length <= 3) {
                         return;
                     }
@@ -163,15 +197,26 @@ editor.once('load', () => {
                     if (parts.length === 4) {
                         // remove script
                         entity.script.destroy(parts[3]);
-                    } else if (parts.length === 6 && parts[4] === 'attributes' && !pc.createScript.reservedAttributes[parts[5]]) {
+                    } else if (
+                        parts.length === 6 &&
+                        parts[4] === 'attributes' &&
+                        !pc.createScript.reservedAttributes[parts[5]]
+                    ) {
                         // unset attribute
                         delete script[parts[5]];
                         delete script.__attributes[parts[5]];
-                    } else if (parts.length > 6 && parts[4] === 'attributes' && !pc.createScript.reservedAttributes[parts[5]]) {
+                    } else if (
+                        parts.length > 6 &&
+                        parts[4] === 'attributes' &&
+                        !pc.createScript.reservedAttributes[parts[5]]
+                    ) {
                         // update attribute
                         script[parts[5]] = obj.get(`components.script.scripts.${parts[3]}.attributes.${parts[5]}`);
                     }
-                } else if ((component === 'model' || component === 'render') && (property === 'aabbCenter' || property === 'aabbHalfExtents')) {
+                } else if (
+                    (component === 'model' || component === 'render') &&
+                    (property === 'aabbCenter' || property === 'aabbHalfExtents')
+                ) {
                     entity[component].customAabb = null;
                 } else {
                     // edit component property
@@ -213,7 +258,11 @@ editor.once('load', () => {
                             return;
                         }
 
-                        if (parts.length > 6 && parts[4] === 'attributes' && !pc.createScript.reservedAttributes[parts[5]]) {
+                        if (
+                            parts.length > 6 &&
+                            parts[4] === 'attributes' &&
+                            !pc.createScript.reservedAttributes[parts[5]]
+                        ) {
                             // update attribute
                             script[parts[5]] = obj.get(`components.script.scripts.${parts[3]}.attributes.${parts[5]}`);
                         }

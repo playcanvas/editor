@@ -2,7 +2,7 @@ import { JSDocParser } from '@playcanvas/attribute-parser';
 
 import { WorkerServer } from '@/core/worker/worker-server';
 
-import { type Fix } from '../code-editor/monaco/intellisense/attribute-autofill';
+import type { Fix } from '../code-editor/monaco/intellisense/attribute-autofill';
 
 const PLAYCANVAS_ATTRIBUTE_DOCS_URL = {
     target: 'https://developer.playcanvas.com/user-manual/scripting/fundamentals/script-attributes/esm/#attribute-types',
@@ -25,9 +25,12 @@ export type SerializableParsingError = {
 };
 
 /** Parsing error from the JSDoc attribute parser */
-interface ParsingErrorLike {
+type ParsingErrorLike = {
     node?: {
-        getSourceFile(): { fileName: string; getLineAndCharacterOfPosition(pos: number): { line: number; character: number } };
+        getSourceFile(): {
+            fileName: string;
+            getLineAndCharacterOfPosition(pos: number): { line: number; character: number };
+        };
         getStart(): number;
         getEnd(): number;
         getText(): string;
@@ -37,7 +40,7 @@ interface ParsingErrorLike {
     type: string;
     message: string;
     fix: Fix | null;
-}
+};
 
 /**
  * Convert an error to a serializable error
@@ -114,13 +117,12 @@ workerServer.once('init', async (frontendURL) => {
                 return acc;
             }, {});
 
-
             workerServer.send('attributes:parse', guid, scripts, errors);
-
         } catch (error) {
-            const errorMessage = error instanceof Error ?
-                'The Attribute Parser failed unexpectedly.' :
-                `Attribute parsing error: ${error.toString()}`;
+            const errorMessage =
+                error instanceof Error
+                    ? 'The Attribute Parser failed unexpectedly.'
+                    : `Attribute parsing error: ${error.toString()}`;
 
             workerServer.send('attributes:parse', guid, {}, [errorMessage]);
         }

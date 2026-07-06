@@ -63,7 +63,7 @@ class TextureAssetInspectorPreview extends AssetInspectorPreviewBase {
 
                 // decode RGBM in-place
                 for (let i = 0; i < numPixels; ++i) {
-                    const a = data[i * 4 + 3] / 255 * 8;
+                    const a = (data[i * 4 + 3] / 255) * 8;
                     data[i * 4 + 0] = Math.min(255, data[i * 4 + 0] * a);
                     data[i * 4 + 1] = Math.min(255, data[i * 4 + 1] * a);
                     data[i * 4 + 2] = Math.min(255, data[i * 4 + 2] * a);
@@ -98,7 +98,7 @@ class TextureAssetInspectorPreview extends AssetInspectorPreviewBase {
     unlink() {
         super.unlink();
 
-        this._assetEvents.forEach(e => e.unbind());
+        this._assetEvents.forEach((e) => e.unbind());
         this._assetEvents.length = 0;
         this._assets = null;
     }

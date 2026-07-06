@@ -8,7 +8,10 @@ editor.once('load', () => {
     const ctrl = editor.call('hotkey:ctrl:string');
 
     const canEditLine = function () {
-        return editor.call('editor:resolveConflictMode') || editor.call('documents:getFocused') && !editor.call('editor:isReadOnly');
+        return (
+            editor.call('editor:resolveConflictMode') ||
+            (editor.call('documents:getFocused') && !editor.call('editor:isReadOnly'))
+        );
     };
 
     // toggle comment

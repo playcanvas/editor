@@ -27,9 +27,9 @@ class MergeFileEditor {
 
     decorations: string[] | null = null;
 
-    overlays: Array<{ pos: number; className: string }> = [];
+    overlays: { pos: number; className: string }[] = [];
 
-    overlayGroups: Array<{ dest: number | null; src: number | null }> = [];
+    overlayGroups: { dest: number | null; src: number | null }[] = [];
 
     timeoutRefreshOverlays: ReturnType<typeof setTimeout> | null = null;
 
@@ -47,7 +47,13 @@ class MergeFileEditor {
         });
     }
 
-    createOverlay(className: string, branchName: string, startPos: Monaco.Position, endPos: Monaco.Position, reverse?: boolean) {
+    createOverlay(
+        className: string,
+        branchName: string,
+        startPos: Monaco.Position,
+        endPos: Monaco.Position,
+        reverse?: boolean
+    ) {
         this.overlays.push({
             pos: this.model.getOffsetAt({
                 lineNumber: startPos.lineNumber,
@@ -98,26 +104,32 @@ class MergeFileEditor {
             const srcEndText = this.model.getLineContent(srcEndLine);
             const separatorOnly = separatorText.trim() === CONFLICT_SEPARATOR;
             const dstEndLine = separatorOnly ? separatorLine - 1 : separatorLine;
-            const srcStartLine = separatorText.trimEnd().endsWith(CONFLICT_SEPARATOR) ? separatorLine + 1 : separatorLine;
+            const srcStartLine = separatorText.trimEnd().endsWith(CONFLICT_SEPARATOR)
+                ? separatorLine + 1
+                : separatorLine;
             const srcLastLine = srcEndText.trimStart().startsWith(CONFLICT_SRC_END) ? srcEndLine - 1 : srcEndLine;
 
             if (dstEndLine >= line) {
-                overlays.push(this.createOverlay(
-                    'dst-branch',
-                    config.self.branch.merge.destinationBranchName,
-                    new monaco.Position(line, 1),
-                    new monaco.Position(dstEndLine, this.model.getLineMaxColumn(dstEndLine))
-                ));
+                overlays.push(
+                    this.createOverlay(
+                        'dst-branch',
+                        config.self.branch.merge.destinationBranchName,
+                        new monaco.Position(line, 1),
+                        new monaco.Position(dstEndLine, this.model.getLineMaxColumn(dstEndLine))
+                    )
+                );
             }
 
             if (srcLastLine >= srcStartLine) {
-                overlays.push(this.createOverlay(
-                    'src-branch',
-                    config.self.branch.merge.sourceBranchName,
-                    new monaco.Position(srcStartLine, 1),
-                    new monaco.Position(srcLastLine, this.model.getLineMaxColumn(srcLastLine)),
-                    true
-                ));
+                overlays.push(
+                    this.createOverlay(
+                        'src-branch',
+                        config.self.branch.merge.sourceBranchName,
+                        new monaco.Position(srcStartLine, 1),
+                        new monaco.Position(srcLastLine, this.model.getLineMaxColumn(srcLastLine)),
+                        true
+                    )
+                );
             }
 
             line = srcEndLine;
@@ -142,28 +154,28 @@ class MergeFileEditor {
         }
 
         let currentGroup;
-        for (let i = 0; i < sortedOverlays.length; i++) {
+        for (const overlay of sortedOverlays) {
             if (!currentGroup) {
                 currentGroup = createOverlayGroup();
             }
 
-            if (sortedOverlays[i].className === 'dst-branch') {
+            if (overlay.className === 'dst-branch') {
                 if (currentGroup.dest !== null) {
                     this.overlayGroups.push(currentGroup);
                     currentGroup = createOverlayGroup();
                 }
 
-                currentGroup.dest = sortedOverlays[i].pos;
+                currentGroup.dest = overlay.pos;
             } else {
                 if (currentGroup.src !== null) {
                     this.overlayGroups.push(currentGroup);
                     currentGroup = createOverlayGroup();
                 } else if (currentGroup.dest === null) {
-                    currentGroup.src = sortedOverlays[i].pos;
+                    currentGroup.src = overlay.pos;
                     this.overlayGroups.push(currentGroup);
                     currentGroup = createOverlayGroup();
                 } else {
-                    currentGroup.src = sortedOverlays[i].pos;
+                    currentGroup.src = overlay.pos;
                 }
             }
 
@@ -217,7 +229,7 @@ class MergeFileEditor {
         for (let i = 0; i < len; i++) {
             const group = this.overlayGroups[i];
             const overlayPos = group.dest !== null ? group.dest : group.src;
-            if (stayInCurrentConflictIfPossible && overlayPos >= currentPos || overlayPos > currentPos) {
+            if ((stayInCurrentConflictIfPossible && overlayPos >= currentPos) || overlayPos > currentPos) {
                 foundPos = overlayPos;
                 break;
             }
@@ -276,31 +288,34 @@ class MergeFileEditor {
         const conflict = config.self.branch.merge.conflict;
         const isResolved = conflict.useSrc || conflict.useDst || conflict.useMergedFile;
 
-        handleCallback(editor.api.globals.rest.merge.mergeConflicts({
-            mergeId: config.self.branch.merge.id,
-            conflictId: config.self.branch.merge.conflict.id,
-            fileName: config.self.branch.merge.conflict.mergedFilePath,
-            resolved: isResolved
-        }), (err: unknown, contents: string) => {
-            if (err) {
-                log.error(err);
-                editor.call('status:error', err);
-                return;
+        handleCallback(
+            editor.api.globals.rest.merge.mergeConflicts({
+                mergeId: config.self.branch.merge.id,
+                conflictId: config.self.branch.merge.conflict.id,
+                fileName: config.self.branch.merge.conflict.mergedFilePath,
+                resolved: isResolved
+            }),
+            (err: unknown, contents: string) => {
+                if (err) {
+                    log.error(err);
+                    editor.call('status:error', err);
+                    return;
+                }
+
+                let mode = MODES[this.type];
+                if (contents.length > LARGE_FILE_SIZE) {
+                    mode = 'text';
+                }
+
+                this.model = monaco.editor.createModel(contents, mode);
+                this.model.onDidChangeContent(() => {
+                    this.isDirty = true;
+                    this.deferredRefreshOverlays();
+                });
+
+                this.renderDocument();
             }
-
-            let mode = MODES[this.type];
-            if (contents.length > LARGE_FILE_SIZE) {
-                mode = 'text';
-            }
-
-            this.model = monaco.editor.createModel(contents, mode);
-            this.model.onDidChangeContent(() => {
-                this.isDirty = true;
-                this.deferredRefreshOverlays();
-            });
-
-            this.renderDocument();
-        });
+        );
     }
 }
 

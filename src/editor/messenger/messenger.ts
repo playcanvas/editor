@@ -17,5 +17,4 @@ editor.on('start', () => {
     editor.method('messenger:isConnected', () => {
         return messenger.isConnected;
     });
-
 });

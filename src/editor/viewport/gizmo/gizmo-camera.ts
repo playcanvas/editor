@@ -1,11 +1,12 @@
-import { type AppBase, Color, Mat4, PROJECTION_PERSPECTIVE, Vec3 } from 'playcanvas';
+import { Color, Mat4, PROJECTION_PERSPECTIVE, Vec3 } from 'playcanvas';
+import type { AppBase } from 'playcanvas';
 
 import type { EntityObserver } from '@/editor-api';
 
 editor.once('load', () => {
     let app;
     // selected entity gizmos
-    let entities = { };
+    let entities = {};
     // pool of gizmos
     const pool = [];
     // colors
@@ -28,7 +29,7 @@ editor.once('load', () => {
 
         events: any[] = [];
 
-        visible: boolean = false;
+        visible = false;
 
         constructor() {
             for (let i = 0; i < 24; i++) {
@@ -48,14 +49,18 @@ editor.once('load', () => {
             }
 
             const camera = this._link.entity.camera;
-            this.visible = camera && this._link.get('enabled') && this._link.get('components.camera.enabled') && editor.call('camera:current') !== this._link.entity;
+            this.visible =
+                camera &&
+                this._link.get('enabled') &&
+                this._link.get('components.camera.enabled') &&
+                editor.call('camera:current') !== this._link.entity;
             if (!this.visible) {
                 return;
             }
 
             const nearClip = camera.nearClip || 0.0001;
             const farClip = camera.farClip;
-            const fov = camera.fov * Math.PI / 180.0;
+            const fov = (camera.fov * Math.PI) / 180.0;
             const projection = camera.projection;
 
             const device = app.graphicsDevice;
@@ -105,8 +110,8 @@ editor.once('load', () => {
 
             // transform lines according to camera transform
             const wtm = new Mat4().setTRS(this._link.entity.getPosition(), this._link.entity.getRotation(), Vec3.ONE);
-            for (let i = 0; i < this.lines.length; i++) {
-                wtm.transformPoint(this.lines[i], this.lines[i]);
+            for (const line of this.lines) {
+                wtm.transformPoint(line, line);
             }
 
             this.visible = true;
@@ -134,9 +139,11 @@ editor.once('load', () => {
             this.unlink();
             this._link = obj;
 
-            this.events.push(this._link.once('destroy', () => {
-                this.unlink();
-            }));
+            this.events.push(
+                this._link.once('destroy', () => {
+                    this.unlink();
+                })
+            );
         }
 
         // unlink
@@ -145,8 +152,8 @@ editor.once('load', () => {
                 return;
             }
 
-            for (let i = 0; i < this.events.length; i++) {
-                this.events[i].unbind();
+            for (const event of this.events) {
+                event.unbind();
             }
 
             this.events = [];
@@ -162,14 +169,14 @@ editor.once('load', () => {
                 entities[key].unlink();
                 pool.push(entities[key]);
             }
-            entities = { };
+            entities = {};
             return;
         }
 
         // index selection
-        const ids = { };
-        for (let i = 0; i < items.length; i++) {
-            ids[items[i].get('resource_id')] = items[i];
+        const ids = {};
+        for (const item of items) {
+            ids[item.get('resource_id')] = item;
         }
 
         let render = false;

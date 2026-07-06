@@ -3,7 +3,7 @@ editor.once('load', () => {
     if (!app) {
         return;
     } // webgl not available
-    const watching = { };
+    const watching = {};
 
     const trigger = function (watch: { callbacks: Record<string | number, { callback: () => void }> }) {
         for (const key in watch.callbacks) {
@@ -11,7 +11,11 @@ editor.once('load', () => {
         }
     };
 
-    const loadFont = function (watch: { callbacks: Record<string | number, unknown> }, asset: { unload?: () => void; ready: (fn: () => void) => void }, reload?: boolean) {
+    const loadFont = function (
+        watch: { callbacks: Record<string | number, unknown> },
+        asset: { unload?: () => void; ready: (fn: () => void) => void },
+        reload?: boolean
+    ) {
         if (reload && asset) {
             asset.unload();
         }
@@ -22,14 +26,28 @@ editor.once('load', () => {
         app.assets.load(asset);
     };
 
-    const subscribe = function (watch: { asset: { get: (path: string) => string | number }; engineAsset: { off: (event: string, fn: () => void) => void; on: (event: string, fn: () => void) => void } | null; onAdd: ((asset: unknown) => void) | null; onLoad: (() => void) | null; onChange: ((asset: unknown, name: string, value: unknown) => void) | null; autoLoad: number; watching: Record<string, { unbind: () => void }> }) {
+    const subscribe = function (watch: {
+        asset: { get: (path: string) => string | number };
+        engineAsset: {
+            off: (event: string, fn: () => void) => void;
+            on: (event: string, fn: () => void) => void;
+        } | null;
+        onAdd: ((asset: unknown) => void) | null;
+        onLoad: (() => void) | null;
+        onChange: ((asset: unknown, name: string, value: unknown) => void) | null;
+        autoLoad: number;
+        watching: Record<string, { unbind: () => void }>;
+    }) {
         watch.onChange = function (_asset: unknown, name: string, _value: unknown) {
             if (name === 'data') {
                 trigger(watch);
             }
         };
 
-        watch.onAdd = function (asset: { off: (event: string, fn: () => void) => void; on: (event: string, fn: () => void) => void }) {
+        watch.onAdd = function (asset: {
+            off: (event: string, fn: () => void) => void;
+            on: (event: string, fn: () => void) => void;
+        }) {
             app.assets.off(`add:${watch.asset.get('id')}`, watch.onAdd);
             watch.onAdd = null;
             watch.engineAsset = asset;
@@ -49,13 +67,16 @@ editor.once('load', () => {
         const asset = app.assets.get(watch.asset.get('id'));
         if (asset) {
             watch.onAdd(asset);
-
         } else {
             app.assets.once(`add:${watch.asset.get('id')}`, watch.onAdd);
         }
     };
 
-    const unsubscribe = function (watch: { engineAsset: { off: (event: string, fn: () => void) => void } | null; onAdd: (() => void) | null; watching: Record<string, { unbind: () => void }> }) {
+    const unsubscribe = function (watch: {
+        engineAsset: { off: (event: string, fn: () => void) => void } | null;
+        onAdd: (() => void) | null;
+        watching: Record<string, { unbind: () => void }>;
+    }) {
         if (watch.engineAsset) {
             watch.engineAsset.off('load', watch.onLoad);
             watch.engineAsset.off('change', watch.onChange);
@@ -70,7 +91,6 @@ editor.once('load', () => {
         }
     };
 
-
     editor.method('assets:font:watch', (args) => {
         let watch = watching[args.asset.get('id')];
 
@@ -81,9 +101,9 @@ editor.once('load', () => {
                 autoLoad: 0,
                 onLoad: null,
                 onAdd: null,
-                watching: { },
+                watching: {},
                 ind: 0,
-                callbacks: { }
+                callbacks: {}
             };
             subscribe(watch);
         }
@@ -114,7 +134,7 @@ editor.once('load', () => {
             return;
         }
 
-        if (!watch.callbacks.hasOwnProperty(handle)) {
+        if (!Object.hasOwn(watch.callbacks, handle)) {
             return;
         }
 

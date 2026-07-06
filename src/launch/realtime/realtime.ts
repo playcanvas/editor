@@ -3,7 +3,7 @@ import { share } from '@/common/sharedb';
 editor.once('load', () => {
     let auth = false;
     let socket, connection;
-    let data; // eslint-disable-line no-unused-vars
+    let data;
     let reconnectAttempts = 0;
     let reconnectInterval = 1;
 
@@ -16,6 +16,7 @@ editor.once('load', () => {
 
     connect = function () {
         if (reconnectAttempts > 8) {
+            // eslint-disable-next-line @typescript-eslint/no-unused-expressions -- tagged template call sets sentry fingerprint for grouping
             log.error`launch websocket failed to connect after 8 attempts (url: ${config.url.realtime.http})`;
             editor.emit('realtime:cannotConnect');
             return;
@@ -36,22 +37,29 @@ editor.once('load', () => {
 
                         editor.emit('realtime:authenticated');
                     }
-                } else if (!msg.data.startsWith('permissions') && !msg.data.startsWith('chat') && !msg.data.startsWith('selection') && !msg.data.startsWith('whoisonline') && !msg.data.startsWith('fs:')) {
+                } else if (
+                    !msg.data.startsWith('permissions') &&
+                    !msg.data.startsWith('chat') &&
+                    !msg.data.startsWith('selection') &&
+                    !msg.data.startsWith('whoisonline') &&
+                    !msg.data.startsWith('fs:')
+                ) {
                     shareDbMessage(msg);
                 }
             } catch (e) {
                 log.error(e);
             }
-
         };
 
         connection.on('connected', function (this: { socket: WebSocket }) {
             reconnectAttempts = 0;
             reconnectInterval = 1;
 
-            this.socket.send(`auth${JSON.stringify({
-                timeout: false
-            })}`);
+            this.socket.send(
+                `auth${JSON.stringify({
+                    timeout: false
+                })}`
+            );
 
             editor.emit('realtime:connected');
         });

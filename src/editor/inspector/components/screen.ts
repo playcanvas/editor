@@ -1,67 +1,80 @@
 import type { EntityObserver } from '@/editor-api';
 
-import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
+import { ComponentInspector } from './component';
+import type { ComponentInspectorArgs } from './component';
 
-const ATTRIBUTES: Attribute[] = [{
-    label: 'Screen Space',
-    path: 'components.screen.screenSpace',
-    reference: 'screen:screenSpace',
-    type: 'boolean'
-}, {
-    label: 'Resolution',
-    path: 'components.screen.resolution',
-    reference: 'screen:resolution',
-    type: 'vec2',
-    args: {
-        placeholder: ['Width', 'Height']
+const ATTRIBUTES: Attribute[] = [
+    {
+        label: 'Screen Space',
+        path: 'components.screen.screenSpace',
+        reference: 'screen:screenSpace',
+        type: 'boolean'
+    },
+    {
+        label: 'Resolution',
+        path: 'components.screen.resolution',
+        reference: 'screen:resolution',
+        type: 'vec2',
+        args: {
+            placeholder: ['Width', 'Height']
+        }
+    },
+    {
+        label: 'Ref Resolution',
+        path: 'components.screen.referenceResolution',
+        reference: 'screen:referenceResolution',
+        type: 'vec2',
+        args: {
+            placeholder: ['Width', 'Height']
+        }
+    },
+    {
+        label: 'Scale Mode',
+        path: 'components.screen.scaleMode',
+        reference: 'screen:scaleMode',
+        type: 'select',
+        args: {
+            type: 'string',
+            options: [
+                {
+                    v: 'none',
+                    t: 'None'
+                },
+                {
+                    v: 'blend',
+                    t: 'Blend'
+                }
+            ]
+        }
+    },
+    {
+        label: 'Scale Blend',
+        path: 'components.screen.scaleBlend',
+        reference: 'screen:scaleBlend',
+        type: 'slider',
+        args: {
+            min: 0,
+            max: 1,
+            precision: 2,
+            step: 0.1
+        }
+    },
+    {
+        label: 'Priority',
+        path: 'components.screen.priority',
+        reference: 'screen:priority',
+        type: 'number',
+        args: {
+            min: 0,
+            max: 127,
+            precision: 0,
+            step: 1
+        }
     }
-}, {
-    label: 'Ref Resolution',
-    path: 'components.screen.referenceResolution',
-    reference: 'screen:referenceResolution',
-    type: 'vec2',
-    args: {
-        placeholder: ['Width', 'Height']
-    }
-}, {
-    label: 'Scale Mode',
-    path: 'components.screen.scaleMode',
-    reference: 'screen:scaleMode',
-    type: 'select',
-    args: {
-        type: 'string',
-        options: [{
-            v: 'none', t: 'None'
-        }, {
-            v: 'blend', t: 'Blend'
-        }]
-    }
-}, {
-    label: 'Scale Blend',
-    path: 'components.screen.scaleBlend',
-    reference: 'screen:scaleBlend',
-    type: 'slider',
-    args: {
-        min: 0,
-        max: 1,
-        precision: 2,
-        step: 0.1
-    }
-}, {
-    label: 'Priority',
-    path: 'components.screen.priority',
-    reference: 'screen:priority',
-    type: 'number',
-    args: {
-        min: 0,
-        max: 127,
-        precision: 0,
-        step: 1
-    }
-}];
+];
 
 class ScreenComponentInspector extends ComponentInspector {
     _suppressToggleFields = false;

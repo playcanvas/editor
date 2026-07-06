@@ -10,11 +10,12 @@ import {
 } from '@/core/constants';
 import { config } from '@/editor/config';
 
+import { diffCreate } from '../../messenger/jobs';
+import { createVcDiffView } from '../version-control/vc-diff-view';
+
 import { showMergeLoading } from './loading';
 import { appendResolveFooter } from './resolve-footer';
 import { TextResolver } from './ui/text-resolver';
-import { diffCreate } from '../../messenger/jobs';
-import { createVcDiffView } from '../version-control/vc-diff-view';
 
 const MERGE_ERROR = 'Error while merging. Please stop the merge and try again.';
 
@@ -26,7 +27,8 @@ editor.once('load', () => {
 
     const isRetainedDiff = (id: string) => !!id && !!editor.call('picker:versioncontrol:hasRetainedDiff', id);
 
-    const isGroupResolved = (group: any) => (group.data ?? []).every((d: any) => d.useSrc || d.useDst || d.useMergedFile);
+    const isGroupResolved = (group: any) =>
+        (group.data ?? []).every((d: any) => d.useSrc || d.useDst || d.useMergedFile);
 
     const allResolved = () => (currentMergeObject?.conflicts ?? []).every(isGroupResolved);
 
@@ -59,26 +61,29 @@ editor.once('load', () => {
             return;
         }
         const useSrc = side === 'source';
-        handleCallback(editor.api.globals.rest.conflicts.conflictsResolve({
-            mergeId: currentMergeObject.id,
-            conflictIds: ids,
-            useSrc,
-            useDst: !useSrc
-        }), (err: string) => {
-            if (err) {
-                done?.(err);
-                return editor.call('status:error', err);
+        handleCallback(
+            editor.api.globals.rest.conflicts.conflictsResolve({
+                mergeId: currentMergeObject.id,
+                conflictIds: ids,
+                useSrc,
+                useDst: !useSrc
+            }),
+            (err: string) => {
+                if (err) {
+                    done?.(err);
+                    return editor.call('status:error', err);
+                }
+                (conflict.data ?? []).forEach((d: any) => {
+                    d.useSrc = useSrc;
+                    d.useDst = !useSrc;
+                    d.useMergedFile = false;
+                });
+                view.renderSidebar();
+                view.renderMain();
+                updateReviewState();
+                done?.();
             }
-            (conflict.data ?? []).forEach((d: any) => {
-                d.useSrc = useSrc;
-                d.useDst = !useSrc;
-                d.useMergedFile = false;
-            });
-            view.renderSidebar();
-            view.renderMain();
-            updateReviewState();
-            done?.();
-        });
+        );
     }
 
     function renderResolveFooter(detail: HTMLElement, conflict: any) {
@@ -112,7 +117,9 @@ editor.once('load', () => {
             text.appendChild(title);
             const sub = document.createElement('div');
             sub.className = 'sub';
-            sub.textContent = textResolved ? 'Merged file content has been saved.' : 'Choose the merged file content before this change can be reviewed.';
+            sub.textContent = textResolved
+                ? 'Merged file content has been saved.'
+                : 'Choose the merged file content before this change can be reviewed.';
             text.appendChild(sub);
             required.appendChild(text);
             footer.appendChild(required);
@@ -315,18 +322,19 @@ editor.once('load', () => {
             if (!data) {
                 return;
             }
-            meta.textContent = diffMode ?
-                `${data.destinationBranchName} ← merge result` :
-                `${data.sourceBranchName} → ${data.destinationBranchName}`;
+            meta.textContent = diffMode
+                ? `${data.destinationBranchName} ← merge result`
+                : `${data.sourceBranchName} → ${data.destinationBranchName}`;
         },
         renderTextPreview: (detail, conflict, entry) => {
             if (!diffMode) {
                 renderTextPreview(detail, conflict, entry);
             }
         },
-        bannerText: (status, noun) => (!diffMode && status === 'modified' ?
-            `This ${noun} was edited on both branches` :
-            `This ${noun} was ${status} since the checkpoint`)
+        bannerText: (status, noun) =>
+            !diffMode && status === 'modified'
+                ? `This ${noun} was edited on both branches`
+                : `This ${noun} was ${status} since the checkpoint`
     });
 
     // sidebar footer: REVIEW (resolve mode) → COMPLETE (review mode)
@@ -375,12 +383,15 @@ editor.once('load', () => {
 
     const loadMerge = () => {
         showMergeLoading(view);
-        handleCallback(editor.api.globals.rest.merge.mergeGet({ mergeId: config.self.branch.merge.id }), (err, data) => {
-            if (err) {
-                return view.renderNotice(err);
+        handleCallback(
+            editor.api.globals.rest.merge.mergeGet({ mergeId: config.self.branch.merge.id }),
+            (err, data) => {
+                if (err) {
+                    return view.renderNotice(err);
+                }
+                onMergeDataLoaded(data);
             }
-            onMergeDataLoaded(data);
-        });
+        );
     };
 
     const loadDiff = () => {
@@ -390,7 +401,9 @@ editor.once('load', () => {
             dstBranchId: config.self.branch.merge.destinationBranchId,
             dstCheckpointId: config.self.branch.merge.destinationCheckpointId,
             mergeId: config.self.branch.merge.id
-        }).then(onMergeDataLoaded).catch((err: any) => view.renderNotice(`${err}`));
+        })
+            .then(onMergeDataLoaded)
+            .catch((err: any) => view.renderNotice(`${err}`));
     };
 
     const onReadyForReview = () => {
@@ -400,14 +413,16 @@ editor.once('load', () => {
             dstBranchId: config.self.branch.merge.destinationBranchId,
             dstCheckpointId: config.self.branch.merge.destinationCheckpointId,
             mergeId: config.self.branch.merge.id
-        }).then((data: any) => {
-            toggleDiffMode(true);
-            btnComplete.enabled = true;
-            onMergeDataLoaded(data);
-        }).catch((err: any) => {
-            toggleDiffMode(true);
-            view.renderNotice(`${err}`);
-        });
+        })
+            .then((data: any) => {
+                toggleDiffMode(true);
+                btnComplete.enabled = true;
+                onMergeDataLoaded(data);
+            })
+            .catch((err: any) => {
+                toggleDiffMode(true);
+                view.renderNotice(`${err}`);
+            });
     };
 
     // — apply (review = finalize:false, complete = finalize:true) —
@@ -419,18 +434,21 @@ editor.once('load', () => {
         if (finalize) {
             editor.call('picker:versioncontrol:mergeCompletingOverlay');
         }
-        handleCallback(editor.api.globals.rest.merge.mergeApply({
-            mergeId: config.self.branch.merge.id,
-            finalize
-        }), (err: string) => {
-            if (err && !/Request timed out/.test(err)) {
-                if (finalize) {
-                    editor.call('picker:versioncontrol:mergeCompletingOverlay:hide');
+        handleCallback(
+            editor.api.globals.rest.merge.mergeApply({
+                mergeId: config.self.branch.merge.id,
+                finalize
+            }),
+            (err: string) => {
+                if (err && !/Request timed out/.test(err)) {
+                    if (finalize) {
+                        editor.call('picker:versioncontrol:mergeCompletingOverlay:hide');
+                    }
+                    view.renderNotice(err);
+                    setTimeout(() => window.location.reload(), 2000);
                 }
-                view.renderNotice(err);
-                setTimeout(() => window.location.reload(), 2000);
             }
-        });
+        );
     };
 
     // — messenger —
@@ -455,14 +473,26 @@ editor.once('load', () => {
     const onClose = () => {
         if (config.self.branch.merge) {
             showMergeLoading(view);
-            handleCallback(editor.api.globals.rest.merge.mergeDelete({ mergeId: config.self.branch.merge.id }), (err) => {
-                view.renderNotice(err || 'Merge stopped. Refreshing browser');
-            });
-            if (diffMode && currentMergeObject && currentMergeObject.id !== config.self.branch.merge.id && !isRetainedDiff(currentMergeObject.id)) {
-                handleCallback(editor.api.globals.rest.merge.mergeDelete({ mergeId: currentMergeObject.id }), () => {});
+            handleCallback(
+                editor.api.globals.rest.merge.mergeDelete({ mergeId: config.self.branch.merge.id }),
+                (err) => {
+                    view.renderNotice(err || 'Merge stopped. Refreshing browser');
+                }
+            );
+            if (
+                diffMode &&
+                currentMergeObject &&
+                currentMergeObject.id !== config.self.branch.merge.id &&
+                !isRetainedDiff(currentMergeObject.id)
+            ) {
+                handleCallback(editor.api.globals.rest.merge.mergeDelete({ mergeId: currentMergeObject.id }), () => {
+                    // intentionally empty
+                });
             }
         } else if (diffMode && currentMergeObject && !isRetainedDiff(currentMergeObject.id)) {
-            handleCallback(editor.api.globals.rest.merge.mergeDelete({ mergeId: currentMergeObject.id }), () => {});
+            handleCallback(editor.api.globals.rest.merge.mergeDelete({ mergeId: currentMergeObject.id }), () => {
+                // intentionally empty
+            });
         }
     };
 
@@ -474,9 +504,11 @@ editor.once('load', () => {
                 loadDiff();
             } else if (config.self.branch.merge?.task_failed) {
                 view.renderNotice(MERGE_ERROR);
-            } else if (!config.self.branch.merge?.mergeProgressStatus ||
-                       config.self.branch.merge.mergeProgressStatus === MERGE_STATUS_APPLY_STARTED ||
-                       config.self.branch.merge.mergeProgressStatus === MERGE_STATUS_AUTO_STARTED) {
+            } else if (
+                !config.self.branch.merge?.mergeProgressStatus ||
+                config.self.branch.merge.mergeProgressStatus === MERGE_STATUS_APPLY_STARTED ||
+                config.self.branch.merge.mergeProgressStatus === MERGE_STATUS_AUTO_STARTED
+            ) {
                 showMergeLoading(view);
             } else if (config.self.branch.merge.mergeProgressStatus === MERGE_STATUS_READY_FOR_REVIEW) {
                 onReadyForReview();
@@ -522,18 +554,22 @@ editor.once('load', () => {
 
     // intercept the core's close button so it runs the merge-stop confirm first
     const coreClose = view.top.dom.querySelector('.vc-diff-close') as HTMLElement;
-    coreClose?.addEventListener('click', (e) => {
-        if (config.self.branch.merge) {
-            e.stopImmediatePropagation();
-            editor.call('picker:confirm', 'Closing the conflict manager will stop the merge. Are you sure?', () => {
+    coreClose?.addEventListener(
+        'click',
+        (e) => {
+            if (config.self.branch.merge) {
+                e.stopImmediatePropagation();
+                editor.call('picker:confirm', 'Closing the conflict manager will stop the merge. Are you sure?', () => {
+                    onClose();
+                    view.overlay.hidden = true;
+                });
+            } else {
                 onClose();
                 view.overlay.hidden = true;
-            });
-        } else {
-            onClose();
-            view.overlay.hidden = true;
-        }
-    }, true);
+            }
+        },
+        true
+    );
 
     editor.method('picker:conflictManager', (data: any) => {
         toggleDiffMode(false);

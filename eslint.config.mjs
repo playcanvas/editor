@@ -24,12 +24,15 @@ const coreConfig = {
         }
     },
     rules: {
-        '@typescript-eslint/typedef': ['error', {
-            parameter: true,
-            arrowParameter: false
-        }],
+        '@typescript-eslint/typedef': [
+            'error',
+            {
+                parameter: true,
+                arrowParameter: false
+            }
+        ],
         'accessor-pairs': ['error', { setWithoutGet: false, getWithoutSet: false }],
-        'curly': ['error', 'all'],
+        curly: ['error', 'all'],
         'no-use-before-define': 'off',
         'no-var': 'off'
     }
@@ -44,12 +47,15 @@ const workersConfig = {
         }
     },
     rules: {
-        '@typescript-eslint/typedef': ['error', {
-            parameter: true,
-            arrowParameter: false
-        }],
+        '@typescript-eslint/typedef': [
+            'error',
+            {
+                parameter: true,
+                arrowParameter: false
+            }
+        ],
         'accessor-pairs': ['error', { setWithoutGet: false, getWithoutSet: false }],
-        'curly': ['error', 'all'],
+        curly: ['error', 'all'],
         'no-use-before-define': 'off',
         'no-var': 'off'
     }
@@ -63,12 +69,15 @@ const serviceWorkersConfig = {
         }
     },
     rules: {
-        '@typescript-eslint/typedef': ['error', {
-            parameter: true,
-            arrowParameter: false
-        }],
+        '@typescript-eslint/typedef': [
+            'error',
+            {
+                parameter: true,
+                arrowParameter: false
+            }
+        ],
         'accessor-pairs': ['error', { setWithoutGet: false, getWithoutSet: false }],
-        'curly': ['error', 'all'],
+        curly: ['error', 'all'],
         'no-use-before-define': 'off',
         'no-var': 'off'
     }
@@ -82,12 +91,15 @@ const modulesConfig = {
         }
     },
     rules: {
-        '@typescript-eslint/typedef': ['error', {
-            parameter: true,
-            arrowParameter: false
-        }],
+        '@typescript-eslint/typedef': [
+            'error',
+            {
+                parameter: true,
+                arrowParameter: false
+            }
+        ],
         'accessor-pairs': ['error', { setWithoutGet: false, getWithoutSet: false }],
-        'curly': ['error', 'all'],
+        curly: ['error', 'all'],
         'no-use-before-define': 'off',
         'no-var': 'off'
     }
@@ -101,13 +113,17 @@ const testConfig = {
         }
     },
     rules: {
-        '@typescript-eslint/typedef': ['error', {
-            parameter: true,
-            arrowParameter: false
-        }],
+        '@typescript-eslint/typedef': [
+            'error',
+            {
+                parameter: true,
+                arrowParameter: false
+            }
+        ],
         'accessor-pairs': ['error', { setWithoutGet: false, getWithoutSet: false }],
-        'curly': ['error', 'all'],
+        curly: ['error', 'all'],
         'no-unused-expressions': 'off',
+        '@typescript-eslint/no-unused-expressions': 'off',
         'no-use-before-define': 'off',
         'no-var': 'off'
     }
@@ -121,7 +137,7 @@ const esmJsConfig = {
         }
     },
     rules: {
-        'curly': ['error', 'all'],
+        curly: ['error', 'all'],
         'import-x/no-named-as-default': 'off',
         'import-x/default': 'off'
     }
@@ -146,6 +162,13 @@ export default [
         ],
         rules: {
             'no-unused-expressions': ['error', { allowTaggedTemplates: true }]
+        }
+    },
+    {
+        // deferred during @playcanvas/eslint-config v3 migration — fix incrementally
+        rules: {
+            '@typescript-eslint/no-explicit-any': 'warn',
+            '@typescript-eslint/no-unused-vars': 'warn'
         }
     },
     {

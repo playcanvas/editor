@@ -1,9 +1,10 @@
-import { EventHandle, type ObserverList } from '@playcanvas/observer';
-import { BindingObserversToElement, Button, Container, type ContainerArgs, type Element, Label } from '@playcanvas/pcui';
+import type { EventHandle, ObserverList } from '@playcanvas/observer';
+import { BindingObserversToElement, Button, Container, Label } from '@playcanvas/pcui';
+import type { ContainerArgs, Element } from '@playcanvas/pcui';
 
-import { type EntityObserver } from '@/editor-api';
+import type { EntityObserver } from '@/editor-api';
 
-import { type TemplateOverridesView } from './templates-override-panel';
+import type { TemplateOverridesView } from './templates-override-panel';
 
 const CLASS_ROOT = 'template-entity-inspector';
 const CLASS_HEADER = `${CLASS_ROOT}-header`;
@@ -26,7 +27,7 @@ type TemplatesEntityInspectorArgs = {
     entities: ObserverList;
     assets: ObserverList;
     templateOverridesDiffView: TemplateOverridesView;
-}
+};
 
 class TemplatesEntityInspector extends Container {
     private _entities: ObserverList;
@@ -86,10 +87,12 @@ class TemplatesEntityInspector extends Container {
 
         this._diffView = args.templateOverridesDiffView;
 
-        this.append(new Label({
-            text: 'TEMPLATE INSTANCE',
-            class: CLASS_HEADER
-        }));
+        this.append(
+            new Label({
+                text: 'TEMPLATE INSTANCE',
+                class: CLASS_HEADER
+            })
+        );
 
         this._innerContainer = new Container({
             flex: true,
@@ -265,7 +268,13 @@ class TemplatesEntityInspector extends Container {
         return this._overrides ? this._overrides.totalOverrides : 0;
     }
 
-    _createEntityListItem(data: { name: string; resourceId?: string; overrides?: unknown[]; added?: unknown; removed?: unknown }): { item: Container; name: string } {
+    _createEntityListItem(data: {
+        name: string;
+        resourceId?: string;
+        overrides?: unknown[];
+        added?: unknown;
+        removed?: unknown;
+    }): { item: Container; name: string } {
         const container = new Container({
             flex: true,
             flexDirection: 'row'
@@ -329,11 +338,26 @@ class TemplatesEntityInspector extends Container {
         // find all parent templates where overrides can be applied
         let parentTemplates;
         if (data.added) {
-            parentTemplates = editor.call('templates:findApplyCandidatesForNewEntity', this._entity, data.added, this._entities);
+            parentTemplates = editor.call(
+                'templates:findApplyCandidatesForNewEntity',
+                this._entity,
+                data.added,
+                this._entities
+            );
         } else if (data.removed) {
-            parentTemplates = editor.call('templates:findApplyCandidatesForDeletedEntity', this._entity, data.removed, this._entities);
+            parentTemplates = editor.call(
+                'templates:findApplyCandidatesForDeletedEntity',
+                this._entity,
+                data.removed,
+                this._entities
+            );
         } else {
-            parentTemplates = editor.call('templates:findApplyCandidatesForOverride', data.overrides[0], this._entities, this._entity);
+            parentTemplates = editor.call(
+                'templates:findApplyCandidatesForOverride',
+                data.overrides[0],
+                this._entities,
+                this._entity
+            );
         }
 
         btnDropdown.on('click', (e) => {
@@ -349,7 +373,6 @@ class TemplatesEntityInspector extends Container {
             }
 
             if (!this._entityDropdownMenu.hidden) {
-
                 this._selectedEntityListItem = container;
                 this._selectedEntityListItem.class.add(CLASS_ENTITY_LIST_CLICKED);
 
@@ -453,48 +476,54 @@ class TemplatesEntityInspector extends Container {
             // show entities with overrides
             for (const key in entities) {
                 const entity = this._entities.get(key);
-                listItems.push(this._createEntityListItem({
-                    name: entity.get('name'),
-                    resourceId: key,
-                    overrides: entities[key]
-                }));
+                listItems.push(
+                    this._createEntityListItem({
+                        name: entity.get('name'),
+                        resourceId: key,
+                        overrides: entities[key]
+                    })
+                );
             }
 
             // show new entities
             this._overrides.addedEntities.forEach((entity) => {
-                listItems.push(this._createEntityListItem({
-                    name: entity.name,
-                    resourceId: entity.resource_id,
-                    added: entity
-                }));
+                listItems.push(
+                    this._createEntityListItem({
+                        name: entity.name,
+                        resourceId: entity.resource_id,
+                        added: entity
+                    })
+                );
             });
 
             // show deleted entities
             this._overrides.deletedEntities.forEach((entity) => {
-                listItems.push(this._createEntityListItem({
-                    name: entity.name,
-                    removed: entity
-                }));
+                listItems.push(
+                    this._createEntityListItem({
+                        name: entity.name,
+                        removed: entity
+                    })
+                );
             });
 
             // sort list items by name and add them to the container
-            listItems.sort((a, b) => {
-                if (a.name < b.name) {
-                    return -1;
-                }
-                if (a.name > b.name) {
-                    return 1;
-                }
-                return 0;
-            })
-            .forEach((l) => {
-                this._containerEntitiesList.append(l.item);
-            });
+            listItems
+                .sort((a, b) => {
+                    if (a.name < b.name) {
+                        return -1;
+                    }
+                    if (a.name > b.name) {
+                        return 1;
+                    }
+                    return 0;
+                })
+                .forEach((l) => {
+                    this._containerEntitiesList.append(l.item);
+                });
 
             if (!this._diffView.hidden) {
                 this._showOverrides();
             }
-
         } else {
             this.class.remove(CLASS_OVERRIDES_POSITIVE);
 
@@ -598,7 +627,7 @@ class TemplatesEntityInspector extends Container {
         // if entity is null then unbind all events
         if (!entity) {
             for (const key in this._entityEvents) {
-                this._entityEvents[key].forEach(e => e.unbind());
+                this._entityEvents[key].forEach((e) => e.unbind());
             }
             this._entityEvents = {};
             return;
@@ -606,7 +635,7 @@ class TemplatesEntityInspector extends Container {
 
         const entry = this._entityEvents[entity.get('resource_id')];
         if (entry) {
-            entry.forEach(e => e.unbind());
+            entry.forEach((e) => e.unbind());
             delete this._entityEvents[entity.get('resource_id')];
         }
     }
@@ -629,7 +658,6 @@ class TemplatesEntityInspector extends Container {
         this._bindEntityEventsRecursively(this._entity);
         this._refresh();
     }
-
 
     unlink() {
         if (!this._entity) {

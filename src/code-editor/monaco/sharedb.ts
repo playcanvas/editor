@@ -1,10 +1,26 @@
 type SharedbDocumentEntry = {
     id: string;
-    doc: { data: string; type: { transform: (a: unknown, b: unknown, p: string) => unknown; compose: (a: unknown, b: unknown) => unknown; semanticInvert: (s: string, o: unknown) => unknown; api: (get: () => string, submit: (c: unknown, o: unknown, cb: (err?: unknown) => void) => void) => unknown }; submitOp: (op: unknown, cb: (err?: unknown) => void) => void };
-    context: { get: () => string; remove: (pos: number, len: number) => void; insert: (pos: number, text: string) => void; _onOp: (ops: unknown) => void; onInsert?: (pos: number, text: string) => void; onRemove?: (pos: number, length: number) => void };
+    doc: {
+        data: string;
+        type: {
+            transform: (a: unknown, b: unknown, p: string) => unknown;
+            compose: (a: unknown, b: unknown) => unknown;
+            semanticInvert: (s: string, o: unknown) => unknown;
+            api: (get: () => string, submit: (c: unknown, o: unknown, cb: (err?: unknown) => void) => void) => unknown;
+        };
+        submitOp: (op: unknown, cb: (err?: unknown) => void) => void;
+    };
+    context: {
+        get: () => string;
+        remove: (pos: number, len: number) => void;
+        insert: (pos: number, text: string) => void;
+        _onOp: (ops: unknown) => void;
+        onInsert?: (pos: number, text: string) => void;
+        onRemove?: (pos: number, length: number) => void;
+    };
     view: monaco.editor.ITextModel;
-    undo: Array<{ op: unknown; time: number; isWhiteSpace?: boolean; isNewLine?: boolean }>;
-    redo: Array<{ op: unknown; time: number; isWhiteSpace?: boolean; isNewLine?: boolean }>;
+    undo: { op: unknown; time: number; isWhiteSpace?: boolean; isNewLine?: boolean }[];
+    redo: { op: unknown; time: number; isWhiteSpace?: boolean; isNewLine?: boolean }[];
     lastEditTime: number;
     forceConcatenate: boolean;
     lastChangedLine: number | null;
@@ -41,9 +57,7 @@ editor.once('load', () => {
 
     // Creates local copy of remove operation
     function createRemoveOp(pos: number | undefined, length: number, text?: string) {
-        const result = customOp(
-            pos ? [pos, { d: length }] : [{ d: length }]
-        );
+        const result = customOp(pos ? [pos, { d: length }] : [{ d: length }]);
 
         // if text exists remember if it's whitespace
         // so that we concatenate multiple whitespaces together
@@ -79,7 +93,10 @@ editor.once('load', () => {
             localOp.op = transform(localOp.op, remoteOp.op, 'left', entry);
 
             // remove noop
-            if (localOp.op.length === 0 || (localOp.op.length === 1 && typeof localOp.op === 'object' && localOp.op.d === 0)) {
+            if (
+                localOp.op.length === 0 ||
+                (localOp.op.length === 1 && typeof localOp.op === 'object' && localOp.op.d === 0)
+            ) {
                 undo.splice(i, 1);
             } else {
                 remoteOp.op = transform(remoteOp.op, old, 'right', entry);
@@ -94,7 +111,10 @@ editor.once('load', () => {
             localOp.op = transform(localOp.op, remoteOp.op, 'left', entry);
 
             // remove noop
-            if (localOp.op.length === 0 || (localOp.op.length === 1 && typeof localOp.op === 'object' && localOp.op.d === 0)) {
+            if (
+                localOp.op.length === 0 ||
+                (localOp.op.length === 1 && typeof localOp.op === 'object' && localOp.op.d === 0)
+            ) {
                 redo.splice(i, 1);
             } else {
                 remoteOp.op = transform(remoteOp.op, old, 'right', entry);
@@ -103,10 +123,15 @@ editor.once('load', () => {
     }
 
     // transform dummy ops with remote op
-    function transformCursorOps(ops: Array<Array<{ op: unknown }> | { op: unknown }>, remoteOp: { op: unknown }, entry: SharedbDocumentEntry) {
+    function transformCursorOps(
+        ops: ({ op: unknown }[] | { op: unknown })[],
+        remoteOp: { op: unknown },
+        entry: SharedbDocumentEntry
+    ) {
         for (let i = 0, len = ops.length; i < len; i++) {
             const data = ops[i];
             if (data.length) {
+                // eslint-disable-next-line @typescript-eslint/prefer-for-of -- data is a union with a non-array member; a for-of would break the non-iterable branch
                 for (let j = 0; j < data.length; j++) {
                     data[j].op = transform(data[j].op, remoteOp, 'right', entry);
                 }
@@ -117,7 +142,11 @@ editor.once('load', () => {
     }
 
     // concatenate two ops
-    function concat(prev: { isWhiteSpace: boolean; isNewLine: boolean; op: unknown }, next: { isWhiteSpace?: boolean; isNewLine?: boolean; op: unknown }, entry: SharedbDocumentEntry) {
+    function concat(
+        prev: { isWhiteSpace: boolean; isNewLine: boolean; op: unknown },
+        next: { isWhiteSpace?: boolean; isNewLine?: boolean; op: unknown },
+        entry: SharedbDocumentEntry
+    ) {
         if (!next.isWhiteSpace) {
             prev.isWhiteSpace = false;
             prev.isNewLine = false;
@@ -131,7 +160,11 @@ editor.once('load', () => {
     }
 
     // returns true if the two operations can be concatenated
-    function canConcatOps(prev: { op: unknown; isWhiteSpace?: boolean; isNewLine?: boolean }, next: { op: unknown; isWhiteSpace?: boolean; isNewLine?: boolean }, entry: SharedbDocumentEntry) {
+    function canConcatOps(
+        prev: { op: unknown; isWhiteSpace?: boolean; isNewLine?: boolean },
+        next: { op: unknown; isWhiteSpace?: boolean; isNewLine?: boolean },
+        entry: SharedbDocumentEntry
+    ) {
         if (entry.forceConcatenate) {
             return true;
         }
@@ -146,7 +179,7 @@ editor.once('load', () => {
 
         let prevDelete = false;
         for (let i = 0; i < prevLen; i++) {
-            if (typeof (prev.op[i]) === 'object') {
+            if (typeof prev.op[i] === 'object') {
                 prevDelete = true;
                 break;
             }
@@ -154,12 +187,11 @@ editor.once('load', () => {
 
         let nextDelete = false;
         for (let i = 0; i < nextLen; i++) {
-            if (typeof (next.op[i]) === 'object') {
+            if (typeof next.op[i] === 'object') {
                 nextDelete = true;
                 break;
             }
         }
-
 
         // if one of the ops is a delete op and the other an insert op return false
         if (prevDelete !== nextDelete) {
@@ -194,7 +226,10 @@ editor.once('load', () => {
     }
 
     // add local op to undo history
-    function addToHistory(localOp: { time: number; op: unknown; isWhiteSpace?: boolean; isNewLine?: boolean }, entry: SharedbDocumentEntry) {
+    function addToHistory(
+        localOp: { time: number; op: unknown; isWhiteSpace?: boolean; isNewLine?: boolean },
+        entry: SharedbDocumentEntry
+    ) {
         // try to concatenate new op with latest op in the undo stack
         const timeSinceLastEdit = localOp.time - entry.lastEditTime;
         if (timeSinceLastEdit <= MERGE_EDITS_DELAY || entry.forceConcatenate) {
@@ -218,7 +253,15 @@ editor.once('load', () => {
     }
 
     // Convert a monaco change into an op understood by sharedb
-    function applyToShareDb(change: { rangeOffset: number; rangeLength: number; range: { isEmpty: () => boolean; startLineNumber: number }; text?: string }, entry: SharedbDocumentEntry) {
+    function applyToShareDb(
+        change: {
+            rangeOffset: number;
+            rangeLength: number;
+            range: { isEmpty: () => boolean; startLineNumber: number };
+            text?: string;
+        },
+        entry: SharedbDocumentEntry
+    ) {
         const startPos = change.rangeOffset;
         const docData = entry.doc.data;
 
@@ -361,11 +404,14 @@ editor.once('load', () => {
         const entry = {
             id: asset.get('id'),
             doc: doc, // our document
-            context: doc.type.api(() => {
-                return doc.data;
-            }, (component, options, callback) => {
-                return doc.submitOp(component, options, callback);
-            }),
+            context: doc.type.api(
+                () => {
+                    return doc.data;
+                },
+                (component, options, callback) => {
+                    return doc.submitOp(component, options, callback);
+                }
+            ),
             view: editor.call('views:get', asset.get('id')),
             undo: [], // undo stack
             redo: [], // redo stack
@@ -422,11 +468,13 @@ editor.once('load', () => {
 
             const position = entry.view.getPositionAt(pos);
 
-            entry.view.applyEdits([{
-                forceMoveMarkers: true,
-                text: text,
-                range: monaco.Range.fromPositions(position)
-            }]);
+            entry.view.applyEdits([
+                {
+                    forceMoveMarkers: true,
+                    text: text,
+                    range: monaco.Range.fromPositions(position)
+                }
+            ]);
 
             entry.ignoreLocalChanges = false;
         };
@@ -442,10 +490,12 @@ editor.once('load', () => {
             transformStacks(remoteOp, entry);
 
             // apply operation locally
-            entry.view.applyEdits([{
-                text: '',
-                range: monaco.Range.fromPositions(from, to)
-            }]);
+            entry.view.applyEdits([
+                {
+                    text: '',
+                    range: monaco.Range.fromPositions(from, to)
+                }
+            ]);
 
             entry.ignoreLocalChanges = false;
         };
@@ -464,7 +514,7 @@ editor.once('load', () => {
             return;
         }
 
-        change.changes.forEach(c => applyToShareDb(c, entry));
+        change.changes.forEach((c) => applyToShareDb(c, entry));
 
         // clear redo stack
         entry.redo.length = 0;
@@ -487,9 +537,10 @@ editor.once('load', () => {
     });
 
     editor.method('editor:command:can:undo', () => {
-        return editor.call('editor:resolveConflictMode') ||
-               !editor.call('editor:isReadOnly') &&
-               focusedDocument && focusedDocument.undo.length;
+        return (
+            editor.call('editor:resolveConflictMode') ||
+            (!editor.call('editor:isReadOnly') && focusedDocument && focusedDocument.undo.length)
+        );
     });
 
     // Undo
@@ -498,7 +549,7 @@ editor.once('load', () => {
             if (editor.call('editor:resolveConflictMode')) {
                 // missing cm definition
                 // legacy script Code Mirror is read only now
-                return cm.undo(); // eslint-disable-line no-undef
+                return cm.undo();
             }
 
             const snapshot = focusedDocument.context.get() || '';
@@ -514,9 +565,10 @@ editor.once('load', () => {
     });
 
     editor.method('editor:command:can:redo', () => {
-        return editor.call('editor:resolveConflictMode') ||
-               !editor.call('editor:isReadOnly') &&
-               focusedDocument && focusedDocument.redo.length;
+        return (
+            editor.call('editor:resolveConflictMode') ||
+            (!editor.call('editor:isReadOnly') && focusedDocument && focusedDocument.redo.length)
+        );
     });
 
     // Redo
@@ -525,7 +577,7 @@ editor.once('load', () => {
             if (editor.call('editor:resolveConflictMode')) {
                 // missing cm definition
                 // legacy script Code Mirror is read only now
-                return cm.redo(); // eslint-disable-line no-undef
+                return cm.redo();
             }
 
             const snapshot = focusedDocument.context.get() || '';

@@ -55,7 +55,7 @@ editor.once('load', () => {
 
         // migrate old device properties
         // FIXME: Remove at some point as old not official supported
-        if (device.hasOwnProperty('webgl2')) {
+        if (Object.hasOwn(device, 'webgl2')) {
             device.isWebGL2 = device.webgl2;
             device.isWebGL1 = !device.webgl2;
         }
@@ -66,10 +66,11 @@ editor.once('load', () => {
         const actualDeviceType = getDeviceType(device.isWebGPU, device.isWebGL2, device.isWebGL1);
 
         if (currentDeviceType !== actualDeviceType) {
-            showTooltipMessage(`${nameMap[currentDeviceType]} graphics device not supported. You are currently using the graphics device: ${nameMap[actualDeviceType]}`);
+            showTooltipMessage(
+                `${nameMap[currentDeviceType]} graphics device not supported. You are currently using the graphics device: ${nameMap[actualDeviceType]}`
+            );
         } else if (paramDeviceType !== pc.DEVICETYPE_NULL) {
             showTooltipMessage(`You are currently using the graphics device: ${nameMap[actualDeviceType]}`);
         }
     });
-
 });

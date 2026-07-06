@@ -1,9 +1,9 @@
 import type { Observer } from '@playcanvas/observer';
-import { Element, Container, ContainerArgs, Label } from '@playcanvas/pcui';
+import type { ContainerArgs } from '@playcanvas/pcui';
+import { Element, Container, Label } from '@playcanvas/pcui';
 
 import { TableCell } from './element-table-cell';
 import { TableRow } from './element-table-row';
-
 
 const CLASS_TABLE = 'pcui-table';
 
@@ -23,7 +23,7 @@ const CSS_PROPERTY_HEIGHT_AFTER = '--resizing-after';
 /**
  * Column definition for the Table.
  */
-interface TableColumn {
+type TableColumn = {
     /** The title displayed on the column */
     title: string;
     /** CSS width of the initial column width */
@@ -34,12 +34,12 @@ interface TableColumn {
     sortKey?: string;
     /** Overrides the sortKey method to sort the observers using this function instead */
     sortFn?: (a: Observer, b: Observer, ascending: boolean) => number;
-}
+};
 
 /**
  * The arguments for the {@link Table} constructor.
  */
-interface TableArgs extends ContainerArgs {
+type TableArgs = {
     /** A function like (observer) => TableRow that creates a TableRow from an observer. */
     createRowFn?: (observer: Observer) => TableRow;
     /** A function like (observer) => TableRow that returns an existing row from an observer. Used for faster sorting. */
@@ -50,7 +50,7 @@ interface TableArgs extends ContainerArgs {
     columns?: TableColumn[];
     /** The default column index to sort by */
     defaultSortColumn?: number;
-}
+} & ContainerArgs;
 
 /**
  * Represents a table view with optional resizable and sortable columns.
@@ -208,8 +208,10 @@ class Table extends Container {
                 }
 
                 // add sort class to header cell
-                if (column.sortKey && this._sort.key === column.sortKey ||
-                    column.sortFn && this._sort.fn === column.sortFn)  {
+                if (
+                    (column.sortKey && this._sort.key === column.sortKey) ||
+                    (column.sortFn && this._sort.fn === column.sortFn)
+                ) {
                     cell.class.add(CLASS_SORT_CELL);
                     if (!this._sort.ascending) {
                         cell.class.add(CLASS_SORT_CELL_DESCENDING);
@@ -247,7 +249,7 @@ class Table extends Container {
     _createRow(observer: Observer) {
         const row = this._createRowFn(observer);
         row.table = this;
-        row.on('click', evt => this._onRowClick(evt, row));
+        row.on('click', (evt) => this._onRowClick(evt, row));
         row.on('select', this._onRowSelectHandler);
         row.on('deselect', this._onRowDeselectHandler);
         row.on('focus', this._onRowFocusHandler);
@@ -275,7 +277,7 @@ class Table extends Container {
     }
 
     _onRowClick(evt: MouseEvent, row: any) {
-        if (evt.ctrlKey || evt.metaKey)  {
+        if (evt.ctrlKey || evt.metaKey) {
             // toggle selection
             row.selected = !row.selected;
         } else if (evt.shiftKey) {
@@ -380,6 +382,7 @@ class Table extends Container {
             this._activeRow = null;
         }
         const children = this._containerBody.dom.childNodes;
+        // eslint-disable-next-line @typescript-eslint/prefer-for-of -- NodeListOf<ChildNode> not iterable under project tsconfig
         for (let i = 0; i < children.length; i++) {
             const row = (children[i] as any).ui;
             if (row instanceof TableRow && !row.header && !row.hidden) {
@@ -453,9 +456,9 @@ class Table extends Container {
         const rowRect = next.dom.getBoundingClientRect();
 
         if (rowRect.top < containerRect.top + headerHeight) {
-            this.dom.scrollTop -= (containerRect.top + headerHeight - rowRect.top);
+            this.dom.scrollTop -= containerRect.top + headerHeight - rowRect.top;
         } else if (rowRect.bottom > containerRect.bottom) {
-            this.dom.scrollTop += (rowRect.bottom - containerRect.bottom);
+            this.dom.scrollTop += rowRect.bottom - containerRect.bottom;
         }
     }
 
@@ -489,10 +492,11 @@ class Table extends Container {
         container.forEachChild((row: any) => {
             if (row instanceof TableRow) {
                 let index = columnIndex + 1;
+                // eslint-disable-next-line @typescript-eslint/prefer-for-of -- NodeListOf<ChildNode> not iterable under project tsconfig
                 for (let i = 0; i < row.dom.childNodes.length; i++) {
                     const rowCell = row.dom.childNodes[i] as HTMLElement & { ui?: TableCell };
                     if (rowCell.ui && rowCell.ui instanceof TableCell) {
-                        index -= ((rowCell.ui as any).colSpan || 1);
+                        index -= (rowCell.ui as any).colSpan || 1;
                         if (index === 0) {
                             fn(rowCell.ui);
                         } else if (index < 0) {
@@ -701,7 +705,6 @@ class Table extends Container {
             this._restoreRowsOutOfView();
 
             this.dom.removeEventListener('wheel', this._domEvtWheel);
-
         };
 
         handle.dom.addEventListener('mousedown', onMouseDown, true);
@@ -972,8 +975,10 @@ class Table extends Container {
         }
 
         // toggle ascending
-        if (column.sortKey && this._sort.key === column.sortKey ||
-            column.sortFn && this._sort.fn === column.sortFn) {
+        if (
+            (column.sortKey && this._sort.key === column.sortKey) ||
+            (column.sortFn && this._sort.fn === column.sortFn)
+        ) {
             this._sort.ascending = !this._sort.ascending;
         }
 
@@ -1009,7 +1014,6 @@ class Table extends Container {
                     }
                 });
             });
-
         } else {
             requestAnimationFrame(() => {
                 this._refreshLayout();

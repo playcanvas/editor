@@ -4,12 +4,13 @@ import { installEllipsisTooltips } from '@/common/ellipsis-tooltip';
 import { handleCallback } from '@/common/utils';
 import { config } from '@/editor/config';
 
+import { checkpointCreate as checkpointCreateJob, diffCreate } from '../../messenger/jobs';
+
 import { createBranchSwitcher } from './branch-switcher';
 import { setVcDialogHost, showVcDialog } from './dialogs';
 import { createChangesPanel } from './panel-changes';
 import { createDetailPanel } from './panel-detail';
 import { createHistoryPanel } from './panel-history';
-import { checkpointCreate as checkpointCreateJob, diffCreate } from '../../messenger/jobs';
 
 // sidebar width bounds — these caps suit the small 1060px box; fullscreen lifts the
 // max (derived from the viewport so the main pane keeps room), reverting clamps back
@@ -163,7 +164,9 @@ editor.once('load', () => {
     // back into the small box when restored. driven by inline width/height, so the
     // persisted value is the source of truth for clamping (the live getter reads 0 when hidden)
     const applyResizeBounds = (full: boolean) => {
-        const sidebarMax = full ? Math.max(SIDEBAR_MAX_W, window.innerWidth - FULLSCREEN_TOOLBAR_W - VC_MAIN_MIN_W) : SIDEBAR_MAX_W;
+        const sidebarMax = full
+            ? Math.max(SIDEBAR_MAX_W, window.innerWidth - FULLSCREEN_TOOLBAR_W - VC_MAIN_MIN_W)
+            : SIDEBAR_MAX_W;
         sidebar.resizeMax = sidebarMax;
         const w = editor.call('localStorage:get', SIDEBAR_KEY) || SIDEBAR_DEFAULT_W;
         if (w > sidebarMax) {
@@ -195,20 +198,54 @@ editor.once('load', () => {
         main.append(w);
         return w;
     };
-    const progressCheckpoint = makeProgress('Creating checkpoint', 'Checkpoint created', 'Failed to create new checkpoint');
+    const progressCheckpoint = makeProgress(
+        'Creating checkpoint',
+        'Checkpoint created',
+        'Failed to create new checkpoint'
+    );
     const progressDiff = makeProgress('Getting changes', 'Showing changes', 'Failed to get changes');
-    const progressBranch = makeProgress('Creating branch', 'Branch created - refreshing the browser', 'Failed to create new branch');
+    const progressBranch = makeProgress(
+        'Creating branch',
+        'Branch created - refreshing the browser',
+        'Failed to create new branch'
+    );
     const progressClose = makeProgress('Closing branch', 'Branch closed', 'Failed to close branch');
     const progressOpen = makeProgress('Opening branch', 'Branch opened', 'Failed to open branch');
     const progressDelete = makeProgress('Deleting branch', 'Branch deleted', 'Failed to delete branch');
-    const progressMerge = makeProgress('Checking merge conflicts', 'Merge ready - opening merge review', 'Unable to auto merge');
-    const progressRestore = makeProgress('Restoring checkpoint', 'Checkpoint restored - refreshing the browser', 'Failed to restore checkpoint');
-    const progressHardReset = makeProgress('Performing hard reset to checkpoint', 'Finished - refreshing the browser', 'Failed to hard reset to checkpoint');
-    const progressSwitch = makeProgress('Switching branch', 'Switched branch - refreshing the browser', 'Failed to switch branch');
+    const progressMerge = makeProgress(
+        'Checking merge conflicts',
+        'Merge ready - opening merge review',
+        'Unable to auto merge'
+    );
+    const progressRestore = makeProgress(
+        'Restoring checkpoint',
+        'Checkpoint restored - refreshing the browser',
+        'Failed to restore checkpoint'
+    );
+    const progressHardReset = makeProgress(
+        'Performing hard reset to checkpoint',
+        'Finished - refreshing the browser',
+        'Failed to hard reset to checkpoint'
+    );
+    const progressSwitch = makeProgress(
+        'Switching branch',
+        'Switched branch - refreshing the browser',
+        'Failed to switch branch'
+    );
 
     const showProgress = (w: any | null) => {
-        [progressCheckpoint, progressDiff, progressBranch, progressClose, progressOpen, progressDelete,
-            progressMerge, progressRestore, progressHardReset, progressSwitch].forEach((p) => {
+        [
+            progressCheckpoint,
+            progressDiff,
+            progressBranch,
+            progressClose,
+            progressOpen,
+            progressDelete,
+            progressMerge,
+            progressRestore,
+            progressHardReset,
+            progressSwitch
+        ].forEach((p) => {
             p.hidden = p !== w;
         });
         const op = !!w;
@@ -324,7 +361,9 @@ editor.once('load', () => {
     const presentDiff = (diff: any) => {
         // a pending diff is retained once it resolves; a resolved one immediately
         if (diff && typeof diff.then === 'function') {
-            diff.then((d: any) => retainDiff(d)).catch(() => {});
+            diff.then((d: any) => retainDiff(d)).catch(() => {
+                // intentionally empty
+            });
         } else {
             retainDiff(diff);
         }
@@ -348,47 +387,71 @@ editor.once('load', () => {
         togglePanels(false);
         showProgress(progressDiff);
         requestAnimationFrame(() => {
-            task().then((diff: any) => {
-                progressDiff.finish();
-                togglePanels(true);
-                if (diff && diff.numConflicts !== 0) {
-                    presentDiff(diff);
-                } else {
-                    showNoChanges();
-                }
-            }).catch((err) => {
-                progressDiff.finish(err instanceof Error ? err.message : `${err}`);
-                togglePanels(true);
-            });
+            task()
+                .then((diff: any) => {
+                    progressDiff.finish();
+                    togglePanels(true);
+                    if (diff && diff.numConflicts !== 0) {
+                        presentDiff(diff);
+                    } else {
+                        showNoChanges();
+                    }
+                })
+                .catch((err) => {
+                    progressDiff.finish(err instanceof Error ? err.message : `${err}`);
+                    togglePanels(true);
+                });
         });
     };
 
-    const viewDiff = (srcBranchId: string, srcCheckpointId: string | null, dstBranchId: string, dstCheckpointId: string | null) => {
+    const viewDiff = (
+        srcBranchId: string,
+        srcCheckpointId: string | null,
+        dstBranchId: string,
+        dstCheckpointId: string | null
+    ) => {
         runDiff(() => diffCreate({ srcBranchId, srcCheckpointId, dstBranchId, dstCheckpointId }));
     };
-    panel.on('diff', (srcBranchId: string, srcCheckpointId: string | null, dstBranchId: string, dstCheckpointId: string | null) => {
-        presentDiff(diffCreate({ srcBranchId, srcCheckpointId, dstBranchId, dstCheckpointId }));
-    });
+    panel.on(
+        'diff',
+        (srcBranchId: string, srcCheckpointId: string | null, dstBranchId: string, dstCheckpointId: string | null) => {
+            presentDiff(diffCreate({ srcBranchId, srcCheckpointId, dstBranchId, dstCheckpointId }));
+        }
+    );
 
     // always use the modern overlay: a resolved diff renders instantly, a pending
     // one (or a fresh job) opens with a loading state — no legacy spinner dialog
     detail.on('openDiff', (checkpoint: any, previous: any, cached: any, pending: Promise<any>) => {
-        presentDiff(cached ?? pending ?? diffCreate({
-            srcBranchId: viewedBranch.id, srcCheckpointId: checkpoint.id, dstBranchId: viewedBranch.id, dstCheckpointId: previous.id
-        }));
+        presentDiff(
+            cached ??
+                pending ??
+                diffCreate({
+                    srcBranchId: viewedBranch.id,
+                    srcCheckpointId: checkpoint.id,
+                    dstBranchId: viewedBranch.id,
+                    dstCheckpointId: previous.id
+                })
+        );
     });
     changes.summary.on('openDiff', (cached: any, pending: Promise<any>) => {
         const b = config.self.branch;
-        presentDiff(cached ?? pending ?? diffCreate({
-            srcBranchId: b.id, srcCheckpointId: null, dstBranchId: b.id, dstCheckpointId: b.latestCheckpointId
-        }));
+        presentDiff(
+            cached ??
+                pending ??
+                diffCreate({
+                    srcBranchId: b.id,
+                    srcCheckpointId: null,
+                    dstBranchId: b.id,
+                    dstCheckpointId: b.latestCheckpointId
+                })
+        );
     });
 
     // ---- compare mode ----
     const slotLabel = (slot: { branch: any; checkpoint: any | null }) => {
-        return slot.checkpoint ?
-            `${slot.checkpoint.id.substring(0, 7)} · ${slot.branch.name}` :
-            `Working state · ${slot.branch.name}`;
+        return slot.checkpoint
+            ? `${slot.checkpoint.id.substring(0, 7)} · ${slot.branch.name}`
+            : `Working state · ${slot.branch.name}`;
     };
 
     const renderCompareBar = () => {
@@ -432,26 +495,38 @@ editor.once('load', () => {
         }
         const [a, b] = compareSlots;
         setCompareMode(false);
-        viewDiff(a.branch.id, a.checkpoint ? a.checkpoint.id : null, b.branch.id, b.checkpoint ? b.checkpoint.id : null);
+        viewDiff(
+            a.branch.id,
+            a.checkpoint ? a.checkpoint.id : null,
+            b.branch.id,
+            b.checkpoint ? b.checkpoint.id : null
+        );
     });
 
     // ---- checkpoint creation ----
-    const createCheckpoint = (branchId: string, description: string, callback: (checkpoint?: any) => void, useOverlay = true) => {
+    const createCheckpoint = (
+        branchId: string,
+        description: string,
+        callback: (checkpoint?: any) => void,
+        useOverlay = true
+    ) => {
         if (useOverlay) {
             togglePanels(false);
             showProgress(progressCheckpoint);
         }
-        checkpointCreateJob({ projectId: config.project.id, branchId, description }).then((checkpoint) => {
-            if (useOverlay) {
-                progressCheckpoint.finish(null);
-            }
-            callback(checkpoint);
-        }).catch((err) => {
-            if (useOverlay) {
-                progressCheckpoint.finish(err instanceof Error ? err.message : `${err}`);
-            }
-            togglePanels(true);
-        });
+        checkpointCreateJob({ projectId: config.project.id, branchId, description })
+            .then((checkpoint) => {
+                if (useOverlay) {
+                    progressCheckpoint.finish(null);
+                }
+                callback(checkpoint);
+            })
+            .catch((err) => {
+                if (useOverlay) {
+                    progressCheckpoint.finish(err instanceof Error ? err.message : `${err}`);
+                }
+                togglePanels(true);
+            });
     };
 
     // inline (no overlay) checkpoint creation from the pinned form;
@@ -459,12 +534,14 @@ editor.once('load', () => {
     // messenger:checkpoint.createEnded (which also updates latestCheckpointId first)
     changes.sidebar.on('create', (description: string) => {
         changes.sidebar.setBusy(true);
-        checkpointCreateJob({ projectId: config.project.id, branchId: config.self.branch.id, description }).then(() => {
-            changes.sidebar.resetForm();
-        }).catch((err) => {
-            changes.sidebar.setBusy(false);
-            log.error(err);
-        });
+        checkpointCreateJob({ projectId: config.project.id, branchId: config.self.branch.id, description })
+            .then(() => {
+                changes.sidebar.resetForm();
+            })
+            .catch((err) => {
+                changes.sidebar.setBusy(false);
+                log.error(err);
+            });
     });
 
     // single entry point so compare mode and viewed branch are always reset first
@@ -504,7 +581,11 @@ editor.once('load', () => {
         const fromId = checkpoint ? checkpoint.id : source.latestCheckpointId;
         const dialog = showVcDialog({
             title: 'New branch',
-            body: ['From: ', { bold: `${fromId ? fromId.substring(0, 7) : 'latest'}` }, ` · ${checkpoint ? `checkpoint of ${source.name}` : `latest checkpoint of ${source.name}`}`],
+            body: [
+                'From: ',
+                { bold: `${fromId ? fromId.substring(0, 7) : 'latest'}` },
+                ` · ${checkpoint ? `checkpoint of ${source.name}` : `latest checkpoint of ${source.name}`}`
+            ],
             confirmText: 'Create Branch',
             input: { placeholder: 'Branch name' },
             onConfirm: ({ input }) => {
@@ -515,21 +596,24 @@ editor.once('load', () => {
                 dialog.close();
                 togglePanels(false);
                 showProgress(progressBranch);
-                handleCallback(editor.api.globals.rest.branches.branchCreate({
-                    name: input,
-                    projectId: config.project.id,
-                    sourceBranchId: source.id,
-                    sourceCheckpointId: checkpoint ? checkpoint.id : undefined
-                }), (err) => {
-                    if (panel.hidden) {
-                        return;
+                handleCallback(
+                    editor.api.globals.rest.branches.branchCreate({
+                        name: input,
+                        projectId: config.project.id,
+                        sourceBranchId: source.id,
+                        sourceCheckpointId: checkpoint ? checkpoint.id : undefined
+                    }),
+                    (err) => {
+                        if (panel.hidden) {
+                            return;
+                        }
+                        // async success handled by messenger:branch.createEnded
+                        if (err && !/Request timed out/.test(err)) {
+                            progressBranch.finish(err);
+                            togglePanels(true);
+                        }
                     }
-                    // async success handled by messenger:branch.createEnded
-                    if (err && !/Request timed out/.test(err)) {
-                        progressBranch.finish(err);
-                        togglePanels(true);
-                    }
-                });
+                );
             }
         });
     }
@@ -537,7 +621,12 @@ editor.once('load', () => {
     switcher.on('merge', (branch: any) => {
         const dialog = showVcDialog({
             title: `Merge into ${config.self.branch.name}`,
-            body: [{ bold: branch.name }, ' → ', { bold: config.self.branch.name }, '. Conflicts open the merge resolution view.'],
+            body: [
+                { bold: branch.name },
+                ' → ',
+                { bold: config.self.branch.name },
+                '. Conflicts open the merge resolution view.'
+            ],
             confirmText: 'Merge',
             checkboxes: [
                 { key: 'srcCheckpoint', label: `Take a checkpoint of ${branch.name} first`, value: true },
@@ -551,7 +640,12 @@ editor.once('load', () => {
         });
     });
 
-    function runMerge(sourceBranch: any, createSrcCheckpoint: boolean, createDstCheckpoint: boolean, closeSrc: boolean) {
+    function runMerge(
+        sourceBranch: any,
+        createSrcCheckpoint: boolean,
+        createDstCheckpoint: boolean,
+        closeSrc: boolean
+    ) {
         togglePanels(false);
 
         const merge = () => {
@@ -576,23 +670,26 @@ editor.once('load', () => {
                 });
             });
 
-            handleCallback(editor.api.globals.rest.merge.mergeCreate({
-                srcBranchId: sourceBranch.id,
-                dstBranchId: config.self.branch.id,
-                srcBranchClose: closeSrc
-            }), (err) => {
-                if (panel.hidden) {
-                    return;
-                }
-                if (err && !/Request timed out/.test(err)) {
-                    progressMerge.finish(err);
-                    togglePanels(true);
-                    if (evtOnMergeCreated) {
-                        evtOnMergeCreated.unbind();
-                        evtOnMergeCreated = null;
+            handleCallback(
+                editor.api.globals.rest.merge.mergeCreate({
+                    srcBranchId: sourceBranch.id,
+                    dstBranchId: config.self.branch.id,
+                    srcBranchClose: closeSrc
+                }),
+                (err) => {
+                    if (panel.hidden) {
+                        return;
+                    }
+                    if (err && !/Request timed out/.test(err)) {
+                        progressMerge.finish(err);
+                        togglePanels(true);
+                        if (evtOnMergeCreated) {
+                            evtOnMergeCreated.unbind();
+                            evtOnMergeCreated = null;
+                        }
                     }
                 }
-            });
+            );
         };
 
         const desc = `Checkpoint before merging branch "${sourceBranch.name}" into "${config.self.branch.name}"`;
@@ -685,26 +782,39 @@ editor.once('load', () => {
     detail.on('restore', (checkpoint: any) => {
         const dialog = showVcDialog({
             title: 'Restore checkpoint?',
-            body: ['The current state of ', { bold: config.self.branch.name }, ' becomes checkpoint ', { bold: checkpoint.id.substring(0, 7) }, '.'],
+            body: [
+                'The current state of ',
+                { bold: config.self.branch.name },
+                ' becomes checkpoint ',
+                { bold: checkpoint.id.substring(0, 7) },
+                '.'
+            ],
             confirmText: 'Restore',
             checkboxes: [{ key: 'checkpoint', label: 'Take a checkpoint of the current state first', value: true }],
             onConfirm: ({ checks }) => {
                 dialog.close();
                 const restore = () => {
                     showProgress(progressRestore);
-                    handleCallback(editor.api.globals.rest.checkpoints.checkpointRestore({
-                        checkpointId: checkpoint.id,
-                        branchId: config.self.branch.id
-                    }), (err) => {
-                        progressRestore.finish(err);
-                        if (err) {
-                            togglePanels(true);
+                    handleCallback(
+                        editor.api.globals.rest.checkpoints.checkpointRestore({
+                            checkpointId: checkpoint.id,
+                            branchId: config.self.branch.id
+                        }),
+                        (err) => {
+                            progressRestore.finish(err);
+                            if (err) {
+                                togglePanels(true);
+                            }
                         }
-                    });
+                    );
                 };
                 togglePanels(false);
                 if (checks.checkpoint) {
-                    createCheckpoint(config.self.branch.id, `Checkpoint before restoring "${checkpoint.id.substring(0, 7)}"`, restore);
+                    createCheckpoint(
+                        config.self.branch.id,
+                        `Checkpoint before restoring "${checkpoint.id.substring(0, 7)}"`,
+                        restore
+                    );
                 } else {
                     restore();
                 }
@@ -717,7 +827,11 @@ editor.once('load', () => {
         const dialog = showVcDialog({
             title: 'Hard reset?',
             danger: true,
-            body: ['Deletes ALL checkpoints and changes after ', { bold: checkpoint.id.substring(0, 7) }, '. This cannot be undone. Type the checkpoint id (first 7 characters) to confirm.'],
+            body: [
+                'Deletes ALL checkpoints and changes after ',
+                { bold: checkpoint.id.substring(0, 7) },
+                '. This cannot be undone. Type the checkpoint id (first 7 characters) to confirm.'
+            ],
             confirmText: 'Hard Reset',
             input: { placeholder: checkpoint.id.substring(0, 7) },
             confirmMatch: checkpoint.id.substring(0, 7),
@@ -725,22 +839,29 @@ editor.once('load', () => {
                 dialog.close();
                 togglePanels(false);
                 showProgress(progressHardReset);
-                handleCallback(editor.api.globals.rest.checkpoints.checkpointHardReset({
-                    checkpointId: checkpoint.id,
-                    branchId: config.self.branch.id
-                }), (err) => {
-                    progressHardReset.finish(err);
-                    if (err) {
-                        togglePanels(true);
+                handleCallback(
+                    editor.api.globals.rest.checkpoints.checkpointHardReset({
+                        checkpointId: checkpoint.id,
+                        branchId: config.self.branch.id
+                    }),
+                    (err) => {
+                        progressHardReset.finish(err);
+                        if (err) {
+                            togglePanels(true);
+                        }
                     }
-                });
+                );
             }
         });
     });
     panel.on('checkpoint:hardReset', (checkpoint: any) => detail.emit('hardReset', checkpoint));
 
     // ---- vc graph host (a picker overlay, like the diff/conflict pickers) ----
-    const vcGraphOverlay = new Overlay({ class: ['picker-version-control', 'vc-graph-overlay'], clickable: false, hidden: true });
+    const vcGraphOverlay = new Overlay({
+        class: ['picker-version-control', 'vc-graph-overlay'],
+        clickable: false,
+        hidden: true
+    });
     editor.call('layout.root').append(vcGraphOverlay);
     const vcGraphPanel = new Container({ class: 'vc-graph-panel', flex: true });
     vcGraphOverlay.append(vcGraphPanel);
@@ -831,66 +952,78 @@ editor.once('load', () => {
         }
         showProgress(null);
 
-        events.push(editor.on('permissions:writeState', () => {
-            updateTabsState();
-            // setBranch clears both the selection highlight and the detail pane
-            if (history.branch) {
-                history.setBranch(history.branch);
-            }
-        }));
+        events.push(
+            editor.on('permissions:writeState', () => {
+                updateTabsState();
+                // setBranch clears both the selection highlight and the detail pane
+                if (history.branch) {
+                    history.setBranch(history.branch);
+                }
+            })
+        );
 
         // live-apply the auto-load-diffs setting to whatever is on screen (#2098)
-        events.push(projectUserSettings.on('editor.vcAutoLoadDiffs:set', () => {
-            renderDetail(selectedCheckpoint);
-            if (activeTab === 'changes') {
-                changes.sidebar.refresh();
-            }
-        }));
-
-        events.push(editor.on('messenger:checkpoint.createEnded', (data: any) => {
-            if (data.status === 'error') {
-                return;
-            }
-            const b = switcher.getBranch(data.branch_id);
-            if (b) {
-                b.latestCheckpointId = data.checkpoint_id;
-            }
-            if (config.self.branch.id === data.branch_id) {
-                config.self.branch.latestCheckpointId = data.checkpoint_id;
-                changes.sidebar.invalidate();
-                // visible changes tab must not strand a stale list/skeleton
+        events.push(
+            projectUserSettings.on('editor.vcAutoLoadDiffs:set', () => {
+                renderDetail(selectedCheckpoint);
                 if (activeTab === 'changes') {
-                    changes.sidebar.refresh(true);
+                    changes.sidebar.refresh();
                 }
-            }
-            if (history.branch && history.branch.id === data.branch_id && history.checkpoints) {
-                history.prependCheckpoint(editor.call('picker:versioncontrol:transformCheckpointData', data));
-            }
-        }));
+            })
+        );
 
-        events.push(editor.on('messenger:branch.close', (data: any) => {
-            switcher.removeBranch(data.branch_id);
-            if (viewedBranch.id === data.branch_id) {
-                setViewedBranch(config.self.branch);
-            }
-        }));
-        events.push(editor.on('messenger:branch.delete', (data: any) => {
-            switcher.removeBranch(data.branch_id);
-            if (viewedBranch.id === data.branch_id) {
-                setViewedBranch(config.self.branch);
-            }
-        }));
+        events.push(
+            editor.on('messenger:checkpoint.createEnded', (data: any) => {
+                if (data.status === 'error') {
+                    return;
+                }
+                const b = switcher.getBranch(data.branch_id);
+                if (b) {
+                    b.latestCheckpointId = data.checkpoint_id;
+                }
+                if (config.self.branch.id === data.branch_id) {
+                    config.self.branch.latestCheckpointId = data.checkpoint_id;
+                    changes.sidebar.invalidate();
+                    // visible changes tab must not strand a stale list/skeleton
+                    if (activeTab === 'changes') {
+                        changes.sidebar.refresh(true);
+                    }
+                }
+                if (history.branch && history.branch.id === data.branch_id && history.checkpoints) {
+                    history.prependCheckpoint(editor.call('picker:versioncontrol:transformCheckpointData', data));
+                }
+            })
+        );
+
+        events.push(
+            editor.on('messenger:branch.close', (data: any) => {
+                switcher.removeBranch(data.branch_id);
+                if (viewedBranch.id === data.branch_id) {
+                    setViewedBranch(config.self.branch);
+                }
+            })
+        );
+        events.push(
+            editor.on('messenger:branch.delete', (data: any) => {
+                switcher.removeBranch(data.branch_id);
+                if (viewedBranch.id === data.branch_id) {
+                    setViewedBranch(config.self.branch);
+                }
+            })
+        );
         events.push(editor.on('messenger:branch.open', () => switcher.refresh()));
-        events.push(editor.on('messenger:branch.createEnded', (data: any) => {
-            if (data.user_id !== config.self.id) {
-                return;
-            }
-            const err = data.status === 'error' ? data.message : null;
-            progressBranch.finish(err);
-            if (err) {
-                togglePanels(true);
-            }
-        }));
+        events.push(
+            editor.on('messenger:branch.createEnded', (data: any) => {
+                if (data.user_id !== config.self.id) {
+                    return;
+                }
+                const err = data.status === 'error' ? data.message : null;
+                progressBranch.finish(err);
+                if (err) {
+                    togglePanels(true);
+                }
+            })
+        );
 
         events.push(projectUserSettings.on('favoriteBranches:insert', () => switcher.refresh()));
         events.push(projectUserSettings.on('favoriteBranches:remove', () => switcher.refresh()));
@@ -906,7 +1039,7 @@ editor.once('load', () => {
         setCompareMode(false);
         detail.clear();
         showNewCheckpointOnLoad = false;
-        events.forEach(evt => evt.unbind());
+        events.forEach((evt) => evt.unbind());
         events.length = 0;
         if (editor.call('viewport:inViewport')) {
             editor.emit('viewport:hover', true);

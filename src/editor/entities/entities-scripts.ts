@@ -55,8 +55,8 @@ editor.once('load', () => {
                 return;
             }
 
-            for (let i = 0; i < item.events.length; i++) {
-                item.events[i].unbind();
+            for (const event of item.events) {
+                event.unbind();
             }
 
             delete index[script][entity.get('resource_id')];
@@ -71,8 +71,8 @@ editor.once('load', () => {
         onEntityAdd(entity: Observer) {
             const scripts = entity.get('components.script.order');
             if (scripts) {
-                for (let i = 0; i < scripts.length; i++) {
-                    this.add(entity, scripts[i]);
+                for (const script of scripts) {
+                    this.add(entity, script);
                 }
             }
 

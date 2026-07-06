@@ -1,7 +1,8 @@
+import type { Observer } from '@playcanvas/observer';
 import { PROJECTION_ORTHOGRAPHIC } from 'playcanvas';
 
 editor.once('load', () => {
-    editor.on('userdata:load', (userdata: import('@playcanvas/observer').Observer) => {
+    editor.on('userdata:load', (userdata: Observer) => {
         if (!editor.call('permissions:read')) {
             return;
         }
@@ -10,7 +11,7 @@ editor.once('load', () => {
 
         if (cameras) {
             for (const name in cameras) {
-                if (!cameras.hasOwnProperty(name)) {
+                if (!Object.hasOwn(cameras, name)) {
                     continue;
                 }
 

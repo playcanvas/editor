@@ -22,14 +22,14 @@
  */
 
 // Type cast
-const worker: ServiceWorkerGlobalScope & self = (self);
+const worker: ServiceWorkerGlobalScope & self = self;
 
 // Constants
 const SCOPE = '/api/assets/';
 const SUPPORTED_FILE_TYPES = ['.mjs'];
 
-const isWithinScope = url => url.startsWith(SCOPE);
-const isSupportedFile = url => SUPPORTED_FILE_TYPES.some(suffix => url.endsWith(suffix));
+const isWithinScope = (url) => url.startsWith(SCOPE);
+const isSupportedFile = (url) => SUPPORTED_FILE_TYPES.some((suffix) => url.endsWith(suffix));
 const requestOriginatesFromSupportedFile = (request) => {
     if (!request.referrer) {
         return false;
@@ -62,7 +62,10 @@ const getCacheStorage = async (id: string): Promise<Cache | undefined> => {
 
     // If no cache storage is found, the request may be from a worker, so check all clients
     const allClients = await worker.clients.matchAll({ type: 'window' });
-    const client =  allClients.find(({ frameType, visibilityState }) => (frameType === 'top-level' || frameType === 'auxiliary') && visibilityState === 'visible');
+    const client = allClients.find(
+        ({ frameType, visibilityState }) =>
+            (frameType === 'top-level' || frameType === 'auxiliary') && visibilityState === 'visible'
+    );
 
     if (!client) {
         return;
@@ -72,7 +75,6 @@ const getCacheStorage = async (id: string): Promise<Cache | undefined> => {
         return caches.open(client.id);
     }
 };
-
 
 /**
  * Given a Request object, maps the import to the actual file
@@ -93,7 +95,6 @@ const mapImport = async (event: FetchEvent): Promise<Response> => {
         const mappedUrl = await cacheResponse?.text();
         const response = fetch(mappedUrl ?? event.request.url);
         return response;
-
     } catch (error) {
         console.error('Fetch error:', error);
         return new Response('Service Worker fetch error', { status: 500 });
@@ -105,7 +106,7 @@ const mapImport = async (event: FetchEvent): Promise<Response> => {
  */
 const deleteCache = async () => {
     const keys = await caches.keys();
-    const deletePromise = keys.map(key => caches.delete(key));
+    const deletePromise = keys.map((key) => caches.delete(key));
     await Promise.all(deletePromise);
 };
 
@@ -129,7 +130,6 @@ const deleteCacheForUncontrolledClients = async () => {
 };
 
 const isValidUrlMapping = ({ url, mappedUrl }) => {
-
     // Check if defined
     if (url === undefined || mappedUrl === undefined) {
         return false;
@@ -169,7 +169,6 @@ const isValidUrlMapping = ({ url, mappedUrl }) => {
 // Event listeners
 
 worker.addEventListener('message', async (event) => {
-
     const message = event.data?.message;
     if (!message) {
         return;
@@ -234,16 +233,24 @@ worker.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
 
     // If the request is for an es module, map the import to the actual file
-    if (isWithinScope(url.pathname) && isSupportedFile(url.pathname) && requestOriginatesFromSupportedFile(event.request)) {
+    if (
+        isWithinScope(url.pathname) &&
+        isSupportedFile(url.pathname) &&
+        requestOriginatesFromSupportedFile(event.request)
+    ) {
         event.respondWith(mapImport(event));
     }
 });
 
 // These helper functions ensure the SW is active and controlling the page when it' installed
-worker.addEventListener('activate', event => event.waitUntil(worker.clients.claim()));
-worker.addEventListener('install', event => event.waitUntil(Promise.all([
-    deleteCache(), // Flush all cache storage on load
-    worker.skipWaiting() // resilient against Ctrl_F5 hard reset
-])));
+worker.addEventListener('activate', (event) => event.waitUntil(worker.clients.claim()));
+worker.addEventListener('install', (event) =>
+    event.waitUntil(
+        Promise.all([
+            deleteCache(), // Flush all cache storage on load
+            worker.skipWaiting() // resilient against Ctrl_F5 hard reset
+        ])
+    )
+);
 // Purge cache every 10 minutes for any orphaned client storage
 setInterval(deleteCacheForUncontrolledClients, 1000 * 60 * 10);

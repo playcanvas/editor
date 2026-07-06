@@ -1,19 +1,49 @@
-import { ADDRESS_CLAMP_TO_EDGE, BLEND_NONE, BLEND_NORMAL, Color, Entity, FILTER_NEAREST, StandardMaterial, Texture } from 'playcanvas';
+import type { Observer } from '@playcanvas/observer';
+import {
+    ADDRESS_CLAMP_TO_EDGE,
+    BLEND_NONE,
+    BLEND_NORMAL,
+    Color,
+    Entity,
+    FILTER_NEAREST,
+    StandardMaterial,
+    Texture
+} from 'playcanvas';
 
 editor.once('load', () => {
     let app;
     let iconsEntity;
-    const textureNames = ['animation', 'audiolistener', 'audiosource', 'sound', 'camera', 'collision', 'light-point', 'light-directional', 'light-spot', 'particlesystem', 'rigidbody', 'script', 'unknown'];
-    const components = ['camera', 'light', 'audiolistener', 'audiosource', 'sound', 'particlesystem', 'script', 'animation', 'model'];
+    const textureNames = [
+        'animation',
+        'audiolistener',
+        'audiosource',
+        'sound',
+        'camera',
+        'collision',
+        'light-point',
+        'light-directional',
+        'light-spot',
+        'particlesystem',
+        'rigidbody',
+        'script',
+        'unknown'
+    ];
+    const components = [
+        'camera',
+        'light',
+        'audiolistener',
+        'audiosource',
+        'sound',
+        'particlesystem',
+        'script',
+        'animation',
+        'model'
+    ];
     const icons = [];
     const pool = [];
-    const dirtifyKeys = [
-        'enabled:set',
-        'components.model.type:set',
-        'components.model.asset:set'
-    ];
+    const dirtifyKeys = ['enabled:set', 'components.model.type:set', 'components.model.asset:set'];
     const dirtifyLocalKeys = {
-        'light': [
+        light: [
             'components.light.color.0:set',
             'components.light.color.1:set',
             'components.light.color.2:set',
@@ -23,7 +53,7 @@ editor.once('load', () => {
     const materials = new Map();
     const materialsBehind = new Map();
     let scale = 0.5;
-    let selectedIds = { };
+    let selectedIds = {};
 
     const ICON_ALPHA_TEST = 0.05;
     const ICON_BEHIND_OPACITY = 0.25;
@@ -65,7 +95,7 @@ editor.once('load', () => {
             this.entity = new Entity('front', app);
             this.entity._icon = true;
             this.entity._getEntity = () => {
-                return this._link && this._link.entity || null;
+                return (this._link && this._link.entity) || null;
             };
 
             const layerFront = editor.call('gizmo:layers', 'Bright Gizmo');
@@ -121,7 +151,13 @@ editor.once('load', () => {
             }
 
             // don't render if selected or disabled
-            if (!this._link.entity._enabled || !this._link.entity._enabledInHierarchy || this._link.entity.__noIcon || scale === 0 || selectedIds[this._link.entity.getGuid()]) {
+            if (
+                !this._link.entity._enabled ||
+                !this._link.entity._enabledInHierarchy ||
+                this._link.entity.__noIcon ||
+                scale === 0 ||
+                selectedIds[this._link.entity.getGuid()]
+            ) {
                 if (this.entity) {
                     this.entityDelete();
                 }
@@ -144,7 +180,11 @@ editor.once('load', () => {
             this.dirty = false;
 
             // hide icon if model is set
-            if (this._link.has('components.model') && this._link.get('components.model.enabled') && (this._link.get('components.model.type') !== 'asset' || this._link.get('components.model.asset'))) {
+            if (
+                this._link.has('components.model') &&
+                this._link.get('components.model.enabled') &&
+                (this._link.get('components.model.type') !== 'asset' || this._link.get('components.model.asset'))
+            ) {
                 if (this.entity) {
                     this.entityDelete();
                 }
@@ -160,7 +200,7 @@ editor.once('load', () => {
             }
 
             // Find the first component that should display an icon (priority order)
-            const component = components.find(c => this._link.has(`components.${c}`)) || '';
+            const component = components.find((c) => this._link.has(`components.${c}`)) || '';
 
             if (component) {
                 let textureName = component;
@@ -195,13 +235,21 @@ editor.once('load', () => {
                 // Update light color if needed
                 if (component === 'light') {
                     const lightColor = this._link.entity.light.color;
-                    this.entity.render.meshInstances[0].setParameter('material_emissive', [lightColor.r, lightColor.g, lightColor.b]);
-                    this.behind.render.meshInstances[0].setParameter('material_emissive', [lightColor.r, lightColor.g, lightColor.b]);
+                    this.entity.render.meshInstances[0].setParameter('material_emissive', [
+                        lightColor.r,
+                        lightColor.g,
+                        lightColor.b
+                    ]);
+                    this.behind.render.meshInstances[0].setParameter('material_emissive', [
+                        lightColor.r,
+                        lightColor.g,
+                        lightColor.b
+                    ]);
                 }
 
                 if (this.local !== component) {
                     // clear local binds
-                    this.eventsLocal.forEach(evt => evt.unbind());
+                    this.eventsLocal.forEach((evt) => evt.unbind());
                     this.eventsLocal = [];
 
                     // add local binds
@@ -218,7 +266,7 @@ editor.once('load', () => {
             }
         }
 
-        link(obj: import('@playcanvas/observer').Observer) {
+        link(obj: Observer) {
             this.unlink();
 
             this._link = obj;
@@ -231,9 +279,11 @@ editor.once('load', () => {
                 this.events.push(obj.on(`components.${component}:unset`, this.dirtify));
             });
 
-            this.events.push(obj.once('destroy', () => {
-                this.unlink();
-            }));
+            this.events.push(
+                obj.once('destroy', () => {
+                    this.unlink();
+                })
+            );
 
             icons.push(this);
 
@@ -245,8 +295,8 @@ editor.once('load', () => {
                 return;
             }
 
-            this.events.forEach(evt => evt.unbind());
-            this.eventsLocal.forEach(evt => evt.unbind());
+            this.events.forEach((evt) => evt.unbind());
+            this.eventsLocal.forEach((evt) => evt.unbind());
 
             if (this.entity) {
                 this.entityDelete();
@@ -319,7 +369,7 @@ editor.once('load', () => {
     });
 
     editor.on('selector:change', (type, items) => {
-        selectedIds = { };
+        selectedIds = {};
 
         if (type !== 'entity') {
             return;
@@ -331,7 +381,7 @@ editor.once('load', () => {
     });
 
     editor.on('viewport:postUpdate', () => {
-        icons.forEach(icon => icon.update());
+        icons.forEach((icon) => icon.update());
     });
 
     editor.method('viewport:icons:size', (size) => {

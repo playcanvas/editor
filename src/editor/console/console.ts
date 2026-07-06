@@ -58,7 +58,12 @@ editor.on('load', () => {
      * @param onclick - Click handler
      * @returns A promise that resolves when the log is added
      */
-    const addLog = (type: 'info' | 'warn' | 'error', msg: string, verboseMsg?: string | (() => void), onclick?: () => void): Promise<void> => {
+    const addLog = (
+        type: 'info' | 'warn' | 'error',
+        msg: string,
+        verboseMsg?: string | (() => void),
+        onclick?: () => void
+    ): Promise<void> => {
         if (typeof verboseMsg === 'function') {
             onclick = verboseMsg;
             verboseMsg = undefined;

@@ -1,15 +1,23 @@
 import type { Observer } from '@playcanvas/observer';
 import { BindingTwoWay, BindingElementToObservers } from '@playcanvas/pcui';
-import { FITMODE_CONTAIN, FITMODE_COVER, FITMODE_STRETCH, LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE } from 'playcanvas';
+import {
+    FITMODE_CONTAIN,
+    FITMODE_COVER,
+    FITMODE_STRETCH,
+    LAYERID_DEPTH,
+    LAYERID_SKYBOX,
+    LAYERID_IMMEDIATE
+} from 'playcanvas';
 
 import { CLASS_MULTIPLE_VALUES } from '@/common/pcui/constants';
 import { tooltip, tooltipRefItem } from '@/common/tooltips';
 import type { Assets, EntityObserver } from '@/editor-api';
 
-import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute, Divider } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
+import { ComponentInspector } from './component';
+import type { ComponentInspectorArgs } from './component';
 
 const PRESETS = {
     '0,1,0,1': 'Top Left Anchor',
@@ -31,348 +39,402 @@ const PRESETS = {
     '1,0,1,0': 'Bottom Right Anchor',
     '1,0,1,0/1,0': 'Bottom Right Anchor & Pivot',
     '0,0,1,1': 'Stretch',
-    'custom': 'Custom'
+    custom: 'Custom'
 };
 
-const ATTRIBUTES: (Attribute | Divider)[] = [{
-    label: 'Type',
-    path: 'components.element.type',
-    reference: 'element:type',
-    type: 'select',
-    args: {
-        type: 'string',
-        options: [{
-            v: 'text', t: 'Text'
-        }, {
-            v: 'image', t: 'Image'
-        }, {
-            v: 'group', t: 'Group'
-        }]
+const ATTRIBUTES: (Attribute | Divider)[] = [
+    {
+        label: 'Type',
+        path: 'components.element.type',
+        reference: 'element:type',
+        type: 'select',
+        args: {
+            type: 'string',
+            options: [
+                {
+                    v: 'text',
+                    t: 'Text'
+                },
+                {
+                    v: 'image',
+                    t: 'Image'
+                },
+                {
+                    v: 'group',
+                    t: 'Group'
+                }
+            ]
+        }
+    },
+    {
+        label: 'Preset',
+        type: 'select',
+        alias: 'components.element.preset',
+        reference: 'element:preset',
+        args: {
+            type: 'string',
+            options: Object.keys(PRESETS).map((key) => {
+                return { v: key, t: PRESETS[key] };
+            })
+        }
+    },
+    {
+        label: 'Anchor',
+        path: 'components.element.anchor',
+        reference: 'element:anchor',
+        type: 'vec4',
+        args: {
+            precision: 3,
+            step: 0.1,
+            min: 0,
+            max: 1,
+            placeholder: ['←', '↓', '→', '↑']
+        }
+    },
+    {
+        label: 'Pivot',
+        path: 'components.element.pivot',
+        reference: 'element:pivot',
+        type: 'vec2',
+        args: {
+            precision: 3,
+            step: 0.1,
+            min: 0,
+            max: 1,
+            placeholder: ['↔', '↕']
+        }
+    },
+    {
+        label: 'Auto Width',
+        path: 'components.element.autoWidth',
+        reference: 'element:autoWidth',
+        type: 'boolean'
+    },
+    {
+        label: 'Auto Fit Width',
+        path: 'components.element.autoFitWidth',
+        reference: 'element:autoFitWidth',
+        type: 'boolean'
+    },
+    {
+        label: 'Width',
+        path: 'components.element.width',
+        reference: 'element:width',
+        type: 'number',
+        args: {
+            precision: 3,
+            step: 1
+        }
+    },
+    {
+        label: 'Auto Height',
+        path: 'components.element.autoHeight',
+        reference: 'element:autoHeight',
+        type: 'boolean'
+    },
+    {
+        label: 'Auto Fit Height',
+        path: 'components.element.autoFitHeight',
+        reference: 'element:autoFitHeight',
+        type: 'boolean'
+    },
+    {
+        label: 'Height',
+        path: 'components.element.height',
+        reference: 'element:height',
+        type: 'number',
+        args: {
+            precision: 3,
+            step: 1
+        }
+    },
+    {
+        label: ' ',
+        alias: 'components.element.resetSize',
+        type: 'button',
+        args: {
+            text: 'Reset Size',
+            size: 'small'
+        }
+    },
+    {
+        label: 'Margin',
+        path: 'components.element.margin',
+        reference: 'element:margin',
+        type: 'vec4',
+        args: {
+            placeholder: ['←', '↓', '→', '↑'],
+            precision: 3,
+            step: 1
+        }
+    },
+    {
+        label: 'Alignment',
+        path: 'components.element.alignment',
+        reference: 'element:alignment',
+        type: 'vec2',
+        args: {
+            precision: 3,
+            step: 0.1,
+            min: 0,
+            max: 1,
+            placeholder: ['↔', '↕']
+        }
+    },
+    {
+        label: 'Font',
+        path: 'components.element.fontAsset',
+        reference: 'element:fontAsset',
+        type: 'asset',
+        args: {
+            assetType: 'font'
+        }
+    },
+    {
+        label: 'Localized',
+        alias: 'components.element.localized',
+        reference: 'element:localized',
+        type: 'boolean'
+    },
+    {
+        label: 'Text',
+        path: 'components.element.text',
+        reference: 'element:text',
+        type: 'text',
+        args: {
+            resizable: 'vertical'
+        }
+    },
+    {
+        label: 'Key',
+        path: 'components.element.key',
+        reference: 'element:key',
+        type: 'text'
+    },
+    {
+        label: 'Enable Markup',
+        path: 'components.element.enableMarkup',
+        reference: 'element:enableMarkup',
+        type: 'boolean'
+    },
+    {
+        label: 'Font Size',
+        path: 'components.element.fontSize',
+        reference: 'element:fontSize',
+        type: 'number'
+    },
+    {
+        label: 'Min Font Size',
+        path: 'components.element.minFontSize',
+        reference: 'element:minFontSize',
+        type: 'number',
+        args: {
+            min: 0
+        }
+    },
+    {
+        label: 'Max Font Size',
+        path: 'components.element.maxFontSize',
+        reference: 'element:maxFontSize',
+        type: 'number',
+        args: {
+            min: 0
+        }
+    },
+    {
+        label: 'Line Height',
+        path: 'components.element.lineHeight',
+        reference: 'element:lineHeight',
+        type: 'number'
+    },
+    {
+        label: 'Wrap Lines',
+        path: 'components.element.wrapLines',
+        reference: 'element:wrapLines',
+        type: 'boolean'
+    },
+    {
+        label: 'Max Lines',
+        path: 'components.element.maxLines',
+        reference: 'element:maxLines',
+        type: 'number',
+        args: {
+            min: 1,
+            allowNull: true
+        }
+    },
+    {
+        label: 'Spacing',
+        path: 'components.element.spacing',
+        reference: 'element:spacing',
+        type: 'number'
+    },
+    {
+        label: 'Color',
+        path: 'components.element.color',
+        reference: 'element:color',
+        type: 'rgb'
+    },
+    {
+        label: 'Opacity',
+        path: 'components.element.opacity',
+        reference: 'element:opacity',
+        type: 'slider',
+        args: {
+            min: 0,
+            max: 1,
+            precision: 3,
+            step: 0.01
+        }
+    },
+    {
+        label: 'Outline Color',
+        path: 'components.element.outlineColor',
+        reference: 'element:outlineColor',
+        type: 'rgba'
+    },
+    {
+        label: 'Outline Thickness',
+        path: 'components.element.outlineThickness',
+        reference: 'element:outlineThickness',
+        type: 'slider',
+        args: {
+            precision: 3,
+            step: 0.1,
+            min: 0,
+            max: 1
+        }
+    },
+    {
+        label: 'Shadow Color',
+        path: 'components.element.shadowColor',
+        reference: 'element:shadowColor',
+        type: 'rgba'
+    },
+    {
+        label: 'Shadow Offset',
+        path: 'components.element.shadowOffset',
+        reference: 'element:shadowOffset',
+        type: 'vec2',
+        args: {
+            precision: 3,
+            step: 0.1,
+            min: -1,
+            max: 1,
+            placeholder: ['↔', '↕']
+        }
+    },
+    {
+        label: 'Rect',
+        path: 'components.element.rect',
+        reference: 'element:rect',
+        type: 'vec4',
+        args: {
+            placeholder: ['U', 'V', 'W', 'H']
+        }
+    },
+    {
+        label: 'Mask',
+        path: 'components.element.mask',
+        reference: 'element:mask',
+        type: 'boolean'
+    },
+    {
+        label: 'Texture',
+        path: 'components.element.textureAsset',
+        reference: 'element:textureAsset',
+        type: 'asset',
+        args: {
+            assetType: 'texture'
+        }
+    },
+    {
+        label: 'Sprite',
+        path: 'components.element.spriteAsset',
+        reference: 'element:spriteAsset',
+        type: 'asset',
+        args: {
+            assetType: 'sprite'
+        }
+    },
+    {
+        label: 'Frame',
+        path: 'components.element.spriteFrame',
+        reference: 'element:spriteFrame',
+        type: 'number',
+        args: {
+            min: 0,
+            precision: 0,
+            step: 1
+        }
+    },
+    {
+        label: 'Pixels Per Unit',
+        path: 'components.element.pixelsPerUnit',
+        reference: 'element:pixelsPerUnit',
+        type: 'number',
+        args: {
+            min: 0,
+            allowNull: true
+        }
+    },
+    {
+        label: 'Material',
+        path: 'components.element.materialAsset',
+        reference: 'element:materialAsset',
+        type: 'asset',
+        args: {
+            assetType: 'material'
+        }
+    },
+    {
+        label: 'Fit Mode',
+        path: 'components.element.fitMode',
+        reference: 'element:fitMode',
+        type: 'select',
+        args: {
+            type: 'string',
+            options: [
+                {
+                    v: FITMODE_STRETCH,
+                    t: 'Stretch'
+                },
+                {
+                    v: FITMODE_CONTAIN,
+                    t: 'Contain'
+                },
+                {
+                    v: FITMODE_COVER,
+                    t: 'Cover'
+                }
+            ]
+        }
+    },
+    {
+        label: 'Use Input',
+        path: 'components.element.useInput',
+        reference: 'element:useInput',
+        type: 'boolean'
+    },
+    {
+        type: 'divider'
+    },
+    {
+        label: 'Batch Group',
+        path: 'components.element.batchGroupId',
+        reference: 'element:batchGroupId',
+        type: 'batchgroup'
+    },
+    {
+        label: 'Layers',
+        path: 'components.element.layers',
+        reference: 'element:layers',
+        type: 'layers',
+        args: {
+            excludeLayers: [LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE]
+        }
     }
-}, {
-    label: 'Preset',
-    type: 'select',
-    alias: 'components.element.preset',
-    reference: 'element:preset',
-    args: {
-        type: 'string',
-        options: Object.keys(PRESETS).map((key) => {
-            return { v: key, t: PRESETS[key] };
-        })
-    }
-}, {
-    label: 'Anchor',
-    path: 'components.element.anchor',
-    reference: 'element:anchor',
-    type: 'vec4',
-    args: {
-        precision: 3,
-        step: 0.1,
-        min: 0,
-        max: 1,
-        placeholder: ['←', '↓', '→', '↑']
-    }
-}, {
-    label: 'Pivot',
-    path: 'components.element.pivot',
-    reference: 'element:pivot',
-    type: 'vec2',
-    args: {
-        precision: 3,
-        step: 0.1,
-        min: 0,
-        max: 1,
-        placeholder: ['↔', '↕']
-    }
-}, {
-    label: 'Auto Width',
-    path: 'components.element.autoWidth',
-    reference: 'element:autoWidth',
-    type: 'boolean'
-}, {
-    label: 'Auto Fit Width',
-    path: 'components.element.autoFitWidth',
-    reference: 'element:autoFitWidth',
-    type: 'boolean'
-}, {
-    label: 'Width',
-    path: 'components.element.width',
-    reference: 'element:width',
-    type: 'number',
-    args: {
-        precision: 3,
-        step: 1
-    }
-}, {
-    label: 'Auto Height',
-    path: 'components.element.autoHeight',
-    reference: 'element:autoHeight',
-    type: 'boolean'
-}, {
-    label: 'Auto Fit Height',
-    path: 'components.element.autoFitHeight',
-    reference: 'element:autoFitHeight',
-    type: 'boolean'
-}, {
-    label: 'Height',
-    path: 'components.element.height',
-    reference: 'element:height',
-    type: 'number',
-    args: {
-        precision: 3,
-        step: 1
-    }
-}, {
-    label: ' ',
-    alias: 'components.element.resetSize',
-    type: 'button',
-    args: {
-        text: 'Reset Size',
-        size: 'small'
-    }
-}, {
-    label: 'Margin',
-    path: 'components.element.margin',
-    reference: 'element:margin',
-    type: 'vec4',
-    args: {
-        placeholder: ['←', '↓', '→', '↑'],
-        precision: 3,
-        step: 1
-    }
-}, {
-    label: 'Alignment',
-    path: 'components.element.alignment',
-    reference: 'element:alignment',
-    type: 'vec2',
-    args: {
-        precision: 3,
-        step: 0.1,
-        min: 0,
-        max: 1,
-        placeholder: ['↔', '↕']
-    }
-}, {
-    label: 'Font',
-    path: 'components.element.fontAsset',
-    reference: 'element:fontAsset',
-    type: 'asset',
-    args: {
-        assetType: 'font'
-    }
-}, {
-    label: 'Localized',
-    alias: 'components.element.localized',
-    reference: 'element:localized',
-    type: 'boolean'
-}, {
-    label: 'Text',
-    path: 'components.element.text',
-    reference: 'element:text',
-    type: 'text',
-    args: {
-        resizable: 'vertical'
-    }
-}, {
-    label: 'Key',
-    path: 'components.element.key',
-    reference: 'element:key',
-    type: 'text'
-}, {
-    label: 'Enable Markup',
-    path: 'components.element.enableMarkup',
-    reference: 'element:enableMarkup',
-    type: 'boolean'
-}, {
-    label: 'Font Size',
-    path: 'components.element.fontSize',
-    reference: 'element:fontSize',
-    type: 'number'
-}, {
-    label: 'Min Font Size',
-    path: 'components.element.minFontSize',
-    reference: 'element:minFontSize',
-    type: 'number',
-    args: {
-        min: 0
-    }
-}, {
-    label: 'Max Font Size',
-    path: 'components.element.maxFontSize',
-    reference: 'element:maxFontSize',
-    type: 'number',
-    args: {
-        min: 0
-    }
-}, {
-    label: 'Line Height',
-    path: 'components.element.lineHeight',
-    reference: 'element:lineHeight',
-    type: 'number'
-}, {
-    label: 'Wrap Lines',
-    path: 'components.element.wrapLines',
-    reference: 'element:wrapLines',
-    type: 'boolean'
-}, {
-    label: 'Max Lines',
-    path: 'components.element.maxLines',
-    reference: 'element:maxLines',
-    type: 'number',
-    args: {
-        min: 1,
-        allowNull: true
-    }
-}, {
-    label: 'Spacing',
-    path: 'components.element.spacing',
-    reference: 'element:spacing',
-    type: 'number'
-}, {
-    label: 'Color',
-    path: 'components.element.color',
-    reference: 'element:color',
-    type: 'rgb'
-}, {
-    label: 'Opacity',
-    path: 'components.element.opacity',
-    reference: 'element:opacity',
-    type: 'slider',
-    args: {
-        min: 0,
-        max: 1,
-        precision: 3,
-        step: 0.01
-    }
-}, {
-    label: 'Outline Color',
-    path: 'components.element.outlineColor',
-    reference: 'element:outlineColor',
-    type: 'rgba'
-}, {
-    label: 'Outline Thickness',
-    path: 'components.element.outlineThickness',
-    reference: 'element:outlineThickness',
-    type: 'slider',
-    args: {
-        precision: 3,
-        step: 0.1,
-        min: 0,
-        max: 1
-    }
-}, {
-    label: 'Shadow Color',
-    path: 'components.element.shadowColor',
-    reference: 'element:shadowColor',
-    type: 'rgba'
-}, {
-    label: 'Shadow Offset',
-    path: 'components.element.shadowOffset',
-    reference: 'element:shadowOffset',
-    type: 'vec2',
-    args: {
-        precision: 3,
-        step: 0.1,
-        min: -1,
-        max: 1,
-        placeholder: ['↔', '↕']
-    }
-}, {
-    label: 'Rect',
-    path: 'components.element.rect',
-    reference: 'element:rect',
-    type: 'vec4',
-    args: {
-        placeholder: ['U', 'V', 'W', 'H']
-    }
-}, {
-    label: 'Mask',
-    path: 'components.element.mask',
-    reference: 'element:mask',
-    type: 'boolean'
-}, {
-    label: 'Texture',
-    path: 'components.element.textureAsset',
-    reference: 'element:textureAsset',
-    type: 'asset',
-    args: {
-        assetType: 'texture'
-    }
-}, {
-    label: 'Sprite',
-    path: 'components.element.spriteAsset',
-    reference: 'element:spriteAsset',
-    type: 'asset',
-    args: {
-        assetType: 'sprite'
-    }
-}, {
-    label: 'Frame',
-    path: 'components.element.spriteFrame',
-    reference: 'element:spriteFrame',
-    type: 'number',
-    args: {
-        min: 0,
-        precision: 0,
-        step: 1
-    }
-}, {
-    label: 'Pixels Per Unit',
-    path: 'components.element.pixelsPerUnit',
-    reference: 'element:pixelsPerUnit',
-    type: 'number',
-    args: {
-        min: 0,
-        allowNull: true
-    }
-}, {
-    label: 'Material',
-    path: 'components.element.materialAsset',
-    reference: 'element:materialAsset',
-    type: 'asset',
-    args: {
-        assetType: 'material'
-    }
-}, {
-    label: 'Fit Mode',
-    path: 'components.element.fitMode',
-    reference: 'element:fitMode',
-    type: 'select',
-    args: {
-        type: 'string',
-        options: [{
-            v: FITMODE_STRETCH, t: 'Stretch'
-        }, {
-            v: FITMODE_CONTAIN, t: 'Contain'
-        }, {
-            v: FITMODE_COVER, t: 'Cover'
-        }]
-    }
-}, {
-    label: 'Use Input',
-    path: 'components.element.useInput',
-    reference: 'element:useInput',
-    type: 'boolean'
-}, {
-    type: 'divider'
-}, {
-    label: 'Batch Group',
-    path: 'components.element.batchGroupId',
-    reference: 'element:batchGroupId',
-    type: 'batchgroup'
-}, {
-    label: 'Layers',
-    path: 'components.element.layers',
-    reference: 'element:layers',
-    type: 'layers',
-    args: {
-        excludeLayers: [
-            LAYERID_DEPTH,
-            LAYERID_SKYBOX,
-            LAYERID_IMMEDIATE
-        ]
-    }
-}];
+];
 
 function getSpriteDimensions(id: number, frame: number, assets: Assets) {
     const spriteAsset = assets.get(id);
@@ -401,8 +463,8 @@ function getSpriteDimensions(id: number, frame: number, assets: Assets) {
 
 function getTextureDimensions(id: number, assets: Assets) {
     const asset = assets.get(id);
-    const width = asset && asset.get('meta.width') || 0;
-    const height = asset && asset.get('meta.height') || 0;
+    const width = (asset && asset.get('meta.width')) || 0;
+    const height = (asset && asset.get('meta.height')) || 0;
     return {
         width,
         height
@@ -431,9 +493,7 @@ class ImageAssetElementToObserversBinding extends BindingElementToObservers {
 
     _hasSplitAnchor(entity: Observer) {
         const anchor = entity.get('components.element.anchor');
-        return !anchor ||
-                Math.abs(anchor[0] - anchor[2]) > 0.01 ||
-                Math.abs(anchor[1] - anchor[3]) > 0.01;
+        return !anchor || Math.abs(anchor[0] - anchor[2]) > 0.01 || Math.abs(anchor[1] - anchor[3]) > 0.01;
     }
 
     // Override setValue to set additional fields
@@ -473,7 +533,7 @@ class ImageAssetElementToObserversBinding extends BindingElementToObservers {
 
                 latest.set(path, prevEntry.value);
 
-                if (prevEntry.hasOwnProperty('width')) {
+                if (Object.hasOwn(prevEntry, 'width')) {
                     latest.set('components.element.width', prevEntry.width);
                     latest.set('components.element.height', prevEntry.height);
                     latest.set('components.element.margin', prevEntry.margin);
@@ -603,7 +663,7 @@ class SpriteFrameElementToObserversBinding extends ImageAssetElementToObserversB
 
                 latest.set(path, prevEntry.value);
 
-                if (prevEntry.hasOwnProperty('width')) {
+                if (Object.hasOwn(prevEntry, 'width')) {
                     latest.set('components.element.width', prevEntry.width);
                     latest.set('components.element.height', prevEntry.height);
                 }
@@ -798,14 +858,18 @@ class ElementComponentInspector extends ComponentInspector {
         this._field('fontAsset').hidden = !isText;
         this._field('maxLines').parent.hidden = !isText || !this._field('wrapLines').value;
         this._field('localized').parent.hidden = !isText;
-        this._field('text').parent.hidden = !isText || this._field('localized').value || this._field('localized').class.contains(CLASS_MULTIPLE_VALUES);
-        this._field('key').parent.hidden = !isText || !this._field('localized').value || this._field('localized').class.contains(CLASS_MULTIPLE_VALUES);
+        this._field('text').parent.hidden =
+            !isText || this._field('localized').value || this._field('localized').class.contains(CLASS_MULTIPLE_VALUES);
+        this._field('key').parent.hidden =
+            !isText ||
+            !this._field('localized').value ||
+            this._field('localized').class.contains(CLASS_MULTIPLE_VALUES);
         this._field('spriteAsset').hidden = !isImage || texture || material;
         this._field('spriteFrame').parent.hidden = this._field('spriteAsset').hidden || !sprite;
         this._field('pixelsPerUnit').parent.hidden = this._field('spriteFrame').parent.hidden;
         this._field('textureAsset').hidden = !isImage || sprite || material;
         this._field('materialAsset').hidden = !isImage || texture || sprite;
-        this._field('color').parent.hidden = !isImage && !isText || material;
+        this._field('color').parent.hidden = (!isImage && !isText) || material;
         this._field('opacity').parent.hidden = this._field('color').parent.hidden;
         this._field('rect').parent.hidden = !isImage || sprite;
         this._field('mask').parent.hidden = !isImage;
@@ -818,7 +882,10 @@ class ElementComponentInspector extends ComponentInspector {
         this._field('fitMode').parent.hidden = !isImage || (!texture && !sprite) || material;
         this._field('autoFitWidth').enabled = !(this._field('autoWidth').value && this._field('autoWidth').enabled);
         this._field('autoFitHeight').enabled = !(this._field('autoHeight').value && this._field('autoHeight').enabled);
-        this._field('maxFontSize').parent.hidden = !isText || ((!this._field('autoFitWidth').enabled || !this._field('autoFitWidth').value) && (!this._field('autoFitHeight').enabled || !this._field('autoFitHeight').value));
+        this._field('maxFontSize').parent.hidden =
+            !isText ||
+            ((!this._field('autoFitWidth').enabled || !this._field('autoFitWidth').value) &&
+                (!this._field('autoFitHeight').enabled || !this._field('autoFitHeight').value));
         this._field('minFontSize').parent.hidden = this._field('maxFontSize').parent.hidden;
         this._field('fontSize').parent.hidden = !isText || !this._field('maxFontSize').parent.hidden;
 
@@ -863,24 +930,24 @@ class ElementComponentInspector extends ComponentInspector {
         this._suppressPresetEvents = true;
 
         const fields = value.split('/');
-        const anchor = fields[0].split(',').map(v => parseFloat(v));
-        const pivot = fields.length === 2 ? fields[1].split(',').map(v => parseFloat(v)) : null;
+        const anchor = fields[0].split(',').map((v) => parseFloat(v));
+        const pivot = fields.length === 2 ? fields[1].split(',').map((v) => parseFloat(v)) : null;
 
         const prev = {};
 
-        for (let i = 0; i < entities.length; i++) {
-            prev[entities[i].get('resource_id')] = {
-                anchor: entities[i].get('components.element.anchor'),
-                pivot: entities[i].get('components.element.pivot'),
-                width: entities[i].get('components.element.width'),
-                height: entities[i].get('components.element.height'),
-                margin: entities[i].get('components.element.margin')
+        for (const entityObserver of entities) {
+            prev[entityObserver.get('resource_id')] = {
+                anchor: entityObserver.get('components.element.anchor'),
+                pivot: entityObserver.get('components.element.pivot'),
+                width: entityObserver.get('components.element.width'),
+                height: entityObserver.get('components.element.height'),
+                margin: entityObserver.get('components.element.margin')
             };
         }
 
         function undo() {
-            for (let i = 0; i < entities.length; i++) {
-                const entity = entities[i].latest();
+            for (const entityObserver of entities) {
+                const entity = entityObserver.latest();
                 if (!entity || !entity.has('components.element')) {
                     continue;
                 }
@@ -902,8 +969,8 @@ class ElementComponentInspector extends ComponentInspector {
         }
 
         function redo() {
-            for (let i = 0; i < entities.length; i++) {
-                const entity = entities[i].latest();
+            for (const entityObserver of entities) {
+                const entity = entityObserver.latest();
                 if (!entity || !entity.has('components.element')) {
                     continue;
                 }

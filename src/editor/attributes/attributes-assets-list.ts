@@ -1,12 +1,4 @@
-import {
-    createButton,
-    createLabel,
-    createList,
-    createListItem,
-    createPanel,
-    createTextInput
-} from './attributes-pcui';
-
+import { createButton, createLabel, createList, createListItem, createPanel, createTextInput } from './attributes-pcui';
 
 editor.once('load', () => {
     const legacyScripts = editor.call('settings:project').get('useLegacyScripts');
@@ -110,19 +102,21 @@ editor.once('load', () => {
 
             // on pick
             let evtPick = editor.on('picker:assets', (assets) => {
-                currentSelection = assets.filter((asset) => {
-                    if (assetFilterFn) {
-                        return assetFilterFn(asset);
-                    }
+                currentSelection = assets
+                    .filter((asset) => {
+                        if (assetFilterFn) {
+                            return assetFilterFn(asset);
+                        }
 
-                    if (legacyScripts && asset.get('type') === 'script') {
-                        return false;
-                    }
+                        if (legacyScripts && asset.get('type') === 'script') {
+                            return false;
+                        }
 
-                    return true;
-                }).map((asset) => {
-                    return parseInt(asset.get('id'), 10);
-                });
+                        return true;
+                    })
+                    .map((asset) => {
+                        return parseInt(asset.get('id'), 10);
+                    });
 
                 btnAdd.disabled = !currentSelection.length;
             });
@@ -298,7 +292,7 @@ editor.once('load', () => {
             }
 
             item = createListItem({
-                text: (link.length === 1) ? text : `* ${text}`
+                text: link.length === 1 ? text : `* ${text}`
             });
             if (asset) {
                 item.class.add(`type-${asset.get('type')}`);
@@ -323,7 +317,6 @@ editor.once('load', () => {
             btnRemove.class.add('remove');
             btnRemove.on('click', () => {
                 removeAsset(id);
-
             });
             btnRemove.parent = item;
             item.element.appendChild(btnRemove.element);
@@ -351,7 +344,6 @@ editor.once('load', () => {
                     fieldAssetsList.class.add('empty');
                     fieldFilter.hidden = true;
                 }
-
             } else {
                 item.text = (item.count === link.length ? '' : '* ') + item._assetText;
             }
@@ -363,7 +355,11 @@ editor.once('load', () => {
             type: `asset.${assetType}`,
             filter: function (type: string, data: { id: string }) {
                 // type
-                if ((assetType && assetType !== '*' && type !== `asset.${assetType}`) || !type.startsWith('asset') || editor.call('assets:get', parseInt(data.id, 10)).get('source')) {
+                if (
+                    (assetType && assetType !== '*' && type !== `asset.${assetType}`) ||
+                    !type.startsWith('asset') ||
+                    editor.call('assets:get', parseInt(data.id, 10)).get('source')
+                ) {
                     return false;
                 }
 
@@ -393,7 +389,11 @@ editor.once('load', () => {
                 return false;
             },
             drop: function (type: string, data: { id: string }) {
-                if ((assetType && assetType !== '*' && type !== `asset.${assetType}`) || !type.startsWith('asset') || editor.call('assets:get', parseInt(data.id, 10)).get('source')) {
+                if (
+                    (assetType && assetType !== '*' && type !== `asset.${assetType}`) ||
+                    !type.startsWith('asset') ||
+                    editor.call('assets:get', parseInt(data.id, 10)).get('source')
+                ) {
                     return;
                 }
 
@@ -479,24 +479,25 @@ editor.once('load', () => {
                 }
             }
 
+            events.push(
+                link[i].on(`${pathAt(args, i)}:set`, (assets, assetsOld) => {
+                    if (!(assets instanceof Array)) {
+                        return;
+                    }
 
-            events.push(link[i].on(`${pathAt(args, i)}:set`, (assets, assetsOld) => {
-                if (!(assets instanceof Array)) {
-                    return;
-                }
+                    if (!(assetsOld instanceof Array)) {
+                        assetsOld = [];
+                    }
 
-                if (!(assetsOld instanceof Array)) {
-                    assetsOld = [];
-                }
+                    for (let a = 0; a < assetsOld.length; a++) {
+                        removeAssetListItem(assetsOld[a]);
+                    }
 
-                for (let a = 0; a < assetsOld.length; a++) {
-                    removeAssetListItem(assetsOld[a]);
-                }
-
-                for (let a = 0; a < assets.length; a++) {
-                    addAssetListItem(assets[a]);
-                }
-            }));
+                    for (let a = 0; a < assets.length; a++) {
+                        addAssetListItem(assets[a]);
+                    }
+                })
+            );
 
             events.push(createInsertHandler(i));
 

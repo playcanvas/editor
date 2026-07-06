@@ -9,8 +9,7 @@ editor.once('load', () => {
         run() {
             this.rmAdded();
 
-            return this.isReorder() ?
-                this.prepReorderConflict() : null;
+            return this.isReorder() ? this.prepReorderConflict() : null;
         }
 
         rmAdded() {
@@ -23,8 +22,7 @@ editor.once('load', () => {
         }
 
         isReorder() {
-            return this.conflict.src_value.length >= 2 &&
-                !this.sameSrcDstOrder();
+            return this.conflict.src_value.length >= 2 && !this.sameSrcDstOrder();
         }
 
         sameSrcDstOrder() {

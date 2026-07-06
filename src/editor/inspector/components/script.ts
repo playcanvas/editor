@@ -1,5 +1,17 @@
 import type { EventHandle, Observer, ObserverList } from '@playcanvas/observer';
-import { Panel, Container, Button, BooleanInput, LabelGroup, Label, Menu, SelectInput, BindingTwoWay, ArrayInput, type PanelArgs } from '@playcanvas/pcui';
+import {
+    Panel,
+    Container,
+    Button,
+    BooleanInput,
+    LabelGroup,
+    Label,
+    Menu,
+    SelectInput,
+    BindingTwoWay,
+    ArrayInput
+} from '@playcanvas/pcui';
+import type { PanelArgs } from '@playcanvas/pcui';
 
 import { CLASS_ERROR, DEFAULTS } from '@/common/pcui/constants';
 import { AssetInput } from '@/common/pcui/element/element-asset-input';
@@ -7,7 +19,6 @@ import { tooltip, tooltipSimpleItem, TooltipHandle } from '@/common/tooltips';
 import { deepCopy } from '@/common/utils';
 import type { AssetObserver, EntityObserver, History, LocalStorage } from '@/editor-api';
 
-import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import { evaluate } from '../../scripting/expr-eval/evaluate';
 import { parse } from '../../scripting/expr-eval/parser';
 import type { ASTNode } from '../../scripting/expr-eval/parser.js';
@@ -15,6 +26,8 @@ import type { TemplateOverrideInspector } from '../../templates/templates-overri
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
+import { ComponentInspector } from './component';
+import type { ComponentInspectorArgs } from './component';
 
 const CLASS_SCRIPT_CONTAINER = 'script-component-inspector-scripts';
 const CLASS_SCRIPT = 'script-component-inspector-script';
@@ -48,40 +61,45 @@ function getScriptContextMenu() {
     }
 
     scriptContextMenu = new Menu({
-        items: [{
-            text: 'Copy Script',
-            icon: 'E351',
-            onSelect: () => {
-                activeScriptInspector?._onCopyScript();
+        items: [
+            {
+                text: 'Copy Script',
+                icon: 'E351',
+                onSelect: () => {
+                    activeScriptInspector?._onCopyScript();
+                },
+                onIsEnabled: () => {
+                    return activeScriptInspector?.canCopyScript() ?? false;
+                }
             },
-            onIsEnabled: () => {
-                return activeScriptInspector?.canCopyScript() ?? false;
-            }
-        }, {
-            text: 'Remove Script',
-            icon: 'E124',
-            onSelect: () => {
-                activeScriptInspector?._onDeleteScript();
-            }
-        }, {
-            text: 'Copy Attributes',
-            icon: 'E351',
-            onSelect: () => {
-                activeScriptInspector?._onCopyAttributes();
+            {
+                text: 'Remove Script',
+                icon: 'E124',
+                onSelect: () => {
+                    activeScriptInspector?._onDeleteScript();
+                }
             },
-            onIsEnabled: () => {
-                return activeScriptInspector?.canCopyAttributes() ?? false;
-            }
-        }, {
-            text: 'Paste Attributes',
-            icon: 'E348',
-            onSelect: () => {
-                activeScriptInspector?._onPasteAttributes();
+            {
+                text: 'Copy Attributes',
+                icon: 'E351',
+                onSelect: () => {
+                    activeScriptInspector?._onCopyAttributes();
+                },
+                onIsEnabled: () => {
+                    return activeScriptInspector?.canCopyAttributes() ?? false;
+                }
             },
-            onIsEnabled: () => {
-                return activeScriptInspector?.canPasteAttributes() ?? false;
+            {
+                text: 'Paste Attributes',
+                icon: 'E348',
+                onSelect: () => {
+                    activeScriptInspector?._onPasteAttributes();
+                },
+                onIsEnabled: () => {
+                    return activeScriptInspector?.canPasteAttributes() ?? false;
+                }
             }
-        }]
+        ]
     });
 
     editor.call('layout.root').append(scriptContextMenu);
@@ -89,14 +107,14 @@ function getScriptContextMenu() {
     return scriptContextMenu;
 }
 
-interface ScriptInspectorArgs extends PanelArgs {
+type ScriptInspectorArgs = {
     componentInspector: ScriptComponentInspector;
     scriptName: string;
     history: History;
     assets: ObserverList;
     entities: ObserverList;
     templateOverridesInspector?: TemplateOverrideInspector;
-}
+} & PanelArgs;
 
 class ScriptInspector extends Panel {
     private _componentInspector: ScriptComponentInspector;
@@ -119,7 +137,7 @@ class ScriptInspector extends Panel {
 
     private _asset: AssetObserver;
 
-    private _attributeWarnings: Map<string, string[]> = new Map();
+    private _attributeWarnings = new Map<string, string[]>();
 
     /**
      * Holds the container that lists validation errors under the header
@@ -130,7 +148,7 @@ class ScriptInspector extends Panel {
      * AST cache for script parsing. This means expressions are parsed only once,
      * and then the AST is cached for future evaluation.
      */
-    private _astCache: Map<string, ASTNode> = new Map();
+    private _astCache = new Map<string, ASTNode>();
 
     private _entities: EntityObserver[] | null = null;
 
@@ -148,7 +166,7 @@ class ScriptInspector extends Panel {
 
     private _editorEvents: EventHandle[] = [];
 
-    private _changedAttributes: Set<string> = new Set();
+    private _changedAttributes = new Set<string>();
 
     containerErrors: Container;
 
@@ -243,10 +261,15 @@ class ScriptInspector extends Panel {
         });
 
         if (this._templateOverridesInspector) {
-            this._templateOverridesInspector.registerElementForPath(`components.script.scripts.${this._scriptName}.enabled`, enableGroup);
+            this._templateOverridesInspector.registerElementForPath(
+                `components.script.scripts.${this._scriptName}.enabled`,
+                enableGroup
+            );
 
             enableGroup.once('destroy', () => {
-                this._templateOverridesInspector.unregisterElementForPath(`components.script.scripts.${this._scriptName}.enabled`);
+                this._templateOverridesInspector.unregisterElementForPath(
+                    `components.script.scripts.${this._scriptName}.enabled`
+                );
             });
         }
 
@@ -257,6 +280,7 @@ class ScriptInspector extends Panel {
         });
         this.header.append(btnMenu);
         btnMenu.on('click', () => {
+            // eslint-disable-next-line @typescript-eslint/no-this-alias -- tracks the singleton "active" inspector for shared context-menu actions, not a closure workaround
             activeScriptInspector = this;
             const menu = getScriptContextMenu();
             const rect = btnMenu.dom.getBoundingClientRect();
@@ -279,12 +303,24 @@ class ScriptInspector extends Panel {
             horzAlignEl: this
         });
 
-        this._editorEvents.push(editor.on(`assets:scripts[${this._scriptName}]:attribute:set`, this._onAddAttribute.bind(this)));
-        this._editorEvents.push(editor.on(`assets:scripts[${this._scriptName}]:attribute:unset`, this._onRemoveAttribute.bind(this)));
-        this._editorEvents.push(editor.on(`assets:scripts[${this._scriptName}]:attribute:change`, this._onChangeAttribute.bind(this)));
-        this._editorEvents.push(editor.on(`assets:scripts[${this._scriptName}]:attribute:move`, this._onMoveAttribute.bind(this)));
-        this._editorEvents.push(editor.on(`assets:scripts[${this._scriptName}]:primary:set`, this._onPrimaryScriptSet.bind(this)));
-        this._editorEvents.push(editor.on(`assets:scripts[${this._scriptName}]:primary:unset`, this._onPrimaryScriptUnset.bind(this)));
+        this._editorEvents.push(
+            editor.on(`assets:scripts[${this._scriptName}]:attribute:set`, this._onAddAttribute.bind(this))
+        );
+        this._editorEvents.push(
+            editor.on(`assets:scripts[${this._scriptName}]:attribute:unset`, this._onRemoveAttribute.bind(this))
+        );
+        this._editorEvents.push(
+            editor.on(`assets:scripts[${this._scriptName}]:attribute:change`, this._onChangeAttribute.bind(this))
+        );
+        this._editorEvents.push(
+            editor.on(`assets:scripts[${this._scriptName}]:attribute:move`, this._onMoveAttribute.bind(this))
+        );
+        this._editorEvents.push(
+            editor.on(`assets:scripts[${this._scriptName}]:primary:set`, this._onPrimaryScriptSet.bind(this))
+        );
+        this._editorEvents.push(
+            editor.on(`assets:scripts[${this._scriptName}]:primary:unset`, this._onPrimaryScriptUnset.bind(this))
+        );
     }
 
     _initializeScriptAttributes() {
@@ -419,8 +455,24 @@ class ScriptInspector extends Panel {
      * @param inspector - The Attribute Inspector associated with the attribute
      * @param unusedKeys - Captures all AST nodes that are not used in the current state
      */
-    _updateAttributeStatus(attr: Record<string, { visibleif?: string; enabledif?: string; name: string; type: string; array?: boolean; schema?: Record<string, unknown> }>, state: Record<string, unknown>, path: string = `components.script.scripts.${this._scriptName}.attributes`, inspector: AttributesInspector | null = this._attributesInspector, unusedKeys: Set<string> | null = null) {
-
+    _updateAttributeStatus(
+        attr: Record<
+            string,
+            {
+                visibleif?: string;
+                enabledif?: string;
+                name: string;
+                type: string;
+                array?: boolean;
+                schema?: Record<string, unknown>;
+            }
+        >,
+        state: Record<string, unknown>,
+        // eslint-disable-next-line @typescript-eslint/no-inferrable-types -- typedef requires a parameter annotation here, which no-inferrable-types then flags as redundant on the literal default
+        path: string = `components.script.scripts.${this._scriptName}.attributes`,
+        inspector: AttributesInspector | null = this._attributesInspector,
+        unusedKeys: Set<string> | null = null
+    ) {
         const firstRecursion = !unusedKeys;
 
         // Create a set of all current AST nodes, and remove them as we go, so we can remove the unused ones at the end
@@ -438,7 +490,8 @@ class ScriptInspector extends Panel {
             }
 
             // Specific fields are actually within a LabelGroups, and we want to target this, so we need the parent
-            if (!(field instanceof AssetInput) &&
+            if (
+                !(field instanceof AssetInput) &&
                 !(field instanceof AttributesInspector) &&
                 !(field instanceof ArrayInput) &&
                 field.parent
@@ -466,7 +519,13 @@ class ScriptInspector extends Panel {
             if (array) {
                 // If the field is an array, we need to loop over each element
                 field.value.forEach((nestedState, i) => {
-                    this._updateAttributeStatus(schema, nestedState, `${subPath}.${i}`, field._arrayElements[i].element, unusedKeys);
+                    this._updateAttributeStatus(
+                        schema,
+                        nestedState,
+                        `${subPath}.${i}`,
+                        field._arrayElements[i].element,
+                        unusedKeys
+                    );
                 });
             } else {
                 // otherwise recurse into the sub attributes
@@ -476,12 +535,11 @@ class ScriptInspector extends Panel {
 
         // If we are at the first recursion, we need to clear the AST cache for the remaining keys
         if (firstRecursion) {
-            unusedKeys.forEach(key => this._astCache.delete(key));
+            unusedKeys.forEach((key) => this._astCache.delete(key));
         }
     }
 
     _evaluateCondition(name: string, tag: string, expression: string | undefined, state: Record<string, unknown>) {
-
         if (!expression) {
             return true;
         }
@@ -601,7 +659,11 @@ class ScriptInspector extends Panel {
         // find matching attributes (same name + same type)
         const matchingValues: Record<string, any> = {};
         for (const name in targetDefs) {
-            if (stored.types[name] && stored.types[name] === targetDefs[name].type && stored.values.hasOwnProperty(name)) {
+            if (
+                stored.types[name] &&
+                stored.types[name] === targetDefs[name].type &&
+                Object.hasOwn(stored.values, name)
+            ) {
                 matchingValues[name] = deepCopy(stored.values[name]);
             }
         }
@@ -668,10 +730,17 @@ class ScriptInspector extends Panel {
             return;
         }
 
-        editor.api.globals.entities.removeScript(this._entities.map(e => e.apiEntity), this._scriptName);
+        editor.api.globals.entities.removeScript(
+            this._entities.map((e) => e.apiEntity),
+            this._scriptName
+        );
     }
 
-    _convertAttributeDataToInspectorData(attributeName: string, attributePath: string, attributeData: Record<string, unknown>) {
+    _convertAttributeDataToInspectorData(
+        attributeName: string,
+        attributePath: string,
+        attributeData: Record<string, unknown>
+    ) {
         let type = attributeData.type;
 
         let fieldArgs = {};
@@ -684,8 +753,7 @@ class ScriptInspector extends Panel {
                 options: []
             };
 
-            for (let i = 0; i < attributeData.enum.order.length; i++) {
-                const key = attributeData.enum.order[i];
+            for (const key of attributeData.enum.order) {
                 selectInputArgs.options.push({
                     v: attributeData.enum.options[key],
                     t: key
@@ -697,7 +765,6 @@ class ScriptInspector extends Panel {
             } else {
                 fieldArgs = selectInputArgs;
             }
-
         } else if (attributeData.color) {
             type = 'gradient';
             if (attributeData.color.length) {
@@ -726,7 +793,7 @@ class ScriptInspector extends Panel {
 
                     if (attributeData.schema) {
                         attributeData.schema.forEach((field) => {
-                            if (field.hasOwnProperty('default')) {
+                            if (Object.hasOwn(field, 'default')) {
                                 result[field.name] = deepCopy(field.default);
                             } else {
                                 if (field.array) {
@@ -756,16 +823,23 @@ class ScriptInspector extends Panel {
                     fieldArgs.elementArgs = {};
                 }
                 fieldArgs.elementArgs.attributes = attributeData.schema.map((field) => {
-                    return this._convertAttributeDataToInspectorData(field.name, `${attributePath}.${field.name}`, field);
+                    return this._convertAttributeDataToInspectorData(
+                        field.name,
+                        `${attributePath}.${field.name}`,
+                        field
+                    );
                 });
                 fieldArgs.elementArgs.history = this._history;
                 fieldArgs.elementArgs.assets = this._argsAssets;
                 fieldArgs.elementArgs.entities = this._argsEntities;
                 fieldArgs.elementArgs.templateOverridesInspector = this._templateOverridesInspector;
-
             } else {
                 fieldArgs.attributes = attributeData.schema.map((field) => {
-                    return this._convertAttributeDataToInspectorData(field.name, `${attributePath}.${field.name}`, field);
+                    return this._convertAttributeDataToInspectorData(
+                        field.name,
+                        `${attributePath}.${field.name}`,
+                        field
+                    );
                 });
                 fieldArgs.history = this._history;
                 fieldArgs.assets = this._argsAssets;
@@ -803,7 +877,7 @@ class ScriptInspector extends Panel {
 
         // add additional properties
         ['precision', 'step', 'min', 'max', 'placeholder'].forEach((field) => {
-            if (attributeData.hasOwnProperty(field)) {
+            if (Object.hasOwn(attributeData, field)) {
                 data.args[field] = attributeData[field];
             }
         });
@@ -890,7 +964,10 @@ class ScriptInspector extends Panel {
             return;
         }
 
-        this._attributesInspector.moveAttribute(`components.script.scripts.${this._scriptName}.attributes.${name}`, index);
+        this._attributesInspector.moveAttribute(
+            `components.script.scripts.${this._scriptName}.attributes.${name}`,
+            index
+        );
     }
 
     _onPrimaryScriptSet(asset: AssetObserver) {
@@ -946,7 +1023,7 @@ class ScriptInspector extends Panel {
             return;
         }
 
-        this._editorEvents.forEach(e => e.unbind());
+        this._editorEvents.forEach((e) => e.unbind());
         this._editorEvents.length = 0;
 
         super.destroy();
@@ -964,7 +1041,7 @@ class ScriptComponentInspector extends ComponentInspector {
 
     private _selectScript: SelectInput;
 
-    private _dirtyScripts: Set<string> = new Set();
+    private _dirtyScripts = new Set<string>();
 
     private _rafDirtyScripts: number | null = null;
 
@@ -1001,27 +1078,34 @@ class ScriptComponentInspector extends ComponentInspector {
         this._containerScripts.on('child:dragend', this._onDragEnd.bind(this));
 
         if (this._templateOverridesInspector) {
-            this._templateOverridesInspector.registerElementForPath('components.script.order', this, this._tooltipGroup);
+            this._templateOverridesInspector.registerElementForPath(
+                'components.script.order',
+                this,
+                this._tooltipGroup
+            );
         }
     }
 
     _getContextMenuItems() {
-        return [...super._getContextMenuItems(), {
-            text: 'Paste Script',
-            icon: 'E348',
-            onSelect: this._onPasteScript.bind(this),
-            onIsEnabled: () => {
-                if (!this._localStorage.has('copy-script') || !this._localStorage.has('copy-script-name')) {
-                    return false;
-                }
-                try {
-                    const data = JSON.parse(this._localStorage.get('copy-script') as string);
-                    return !!(data && typeof data === 'object');
-                } catch (e) {
-                    return false;
+        return [
+            ...super._getContextMenuItems(),
+            {
+                text: 'Paste Script',
+                icon: 'E348',
+                onSelect: this._onPasteScript.bind(this),
+                onIsEnabled: () => {
+                    if (!this._localStorage.has('copy-script') || !this._localStorage.has('copy-script-name')) {
+                        return false;
+                    }
+                    try {
+                        const data = JSON.parse(this._localStorage.get('copy-script') as string);
+                        return !!(data && typeof data === 'object');
+                    } catch (e) {
+                        return false;
+                    }
                 }
             }
-        }];
+        ];
     }
 
     _onPasteScript() {
@@ -1049,8 +1133,8 @@ class ScriptComponentInspector extends ComponentInspector {
         const entities = this._entities.slice();
 
         // separate entities that already have this script from those that don't
-        const entitiesWithScript = entities.filter(e => e.has(`components.script.scripts.${scriptName}`));
-        const entitiesWithoutScript = entities.filter(e => !e.has(`components.script.scripts.${scriptName}`));
+        const entitiesWithScript = entities.filter((e) => e.has(`components.script.scripts.${scriptName}`));
+        const entitiesWithoutScript = entities.filter((e) => !e.has(`components.script.scripts.${scriptName}`));
 
         // for entities that already have the script, set the data directly with undo/redo
         if (entitiesWithScript.length) {
@@ -1106,7 +1190,7 @@ class ScriptComponentInspector extends ComponentInspector {
         // for entities that don't have the script, add it via the API
         if (entitiesWithoutScript.length) {
             editor.api.globals.entities.addScript(
-                entitiesWithoutScript.map(e => e.apiEntity),
+                entitiesWithoutScript.map((e) => e.apiEntity),
                 scriptName,
                 {
                     enabled: data.enabled,
@@ -1231,18 +1315,19 @@ class ScriptComponentInspector extends ComponentInspector {
     _findUnparsedScripts() {
         let assets = this._argsAssets.array();
 
-        assets = assets.filter(a => a.get('type') === 'script');
+        assets = assets.filter((a) => a.get('type') === 'script');
 
         return assets.filter((a) => {
-            return a.get('data.lastParsedHash') === '0' &&
-                a.get('file.hash');
+            return a.get('data.lastParsedHash') === '0' && a.get('file.hash');
         });
     }
 
     _parseUnparsedScripts(assets: Observer[]) {
-        assets.forEach(a => editor.call('scripts:parse', a, (err) => {
-            a.set('data.lastParsedHash', a.get('file.hash'));
-        }));
+        assets.forEach((a) =>
+            editor.call('scripts:parse', a, (err) => {
+                a.set('data.lastParsedHash', a.get('file.hash'));
+            })
+        );
     }
 
     _findDropdownScripts() {
@@ -1280,14 +1365,16 @@ class ScriptComponentInspector extends ComponentInspector {
             return 0;
         });
 
-        const result = scripts.filter((s) => {
-            return counts[s] !== this._entities.length;
-        }).map((s) => {
-            return {
-                v: s,
-                t: s
-            };
-        });
+        const result = scripts
+            .filter((s) => {
+                return counts[s] !== this._entities.length;
+            })
+            .map((s) => {
+                return {
+                    v: s,
+                    t: s
+                };
+            });
 
         return result;
     }
@@ -1301,7 +1388,10 @@ class ScriptComponentInspector extends ComponentInspector {
 
         this._selectScript.blur();
 
-        editor.api.globals.entities.addScript(this._entities.map(e => e.apiEntity), script);
+        editor.api.globals.entities.addScript(
+            this._entities.map((e) => e.apiEntity),
+            script
+        );
     }
 
     _onCreateScript(script: string) {
@@ -1311,27 +1401,32 @@ class ScriptComponentInspector extends ComponentInspector {
         const folder = editor.call('assets:panel:currentFolder');
 
         // Copy entities reference in case focus changed during script creation
-        const entities = [...this._entities.map(e => e.apiEntity)];
+        const entities = [...this._entities.map((e) => e.apiEntity)];
 
         const onFilename = (filename) => {
-            editor.call('assets:create:script', {
-                filename: filename,
-                parent: folder && folder.apiAsset
-            }, (asset) => {
-                const scripts = asset.get('data.scripts');
-                if (scripts) {
-                    const keys = Object.keys(scripts);
-                    if (keys.length === 1) {
-                        editor.api.globals.entities.addScript(entities, keys[0]);
+            editor.call(
+                'assets:create:script',
+                {
+                    filename: filename,
+                    parent: folder && folder.apiAsset
+                },
+                (asset) => {
+                    const scripts = asset.get('data.scripts');
+                    if (scripts) {
+                        const keys = Object.keys(scripts);
+                        if (keys.length === 1) {
+                            editor.api.globals.entities.addScript(entities, keys[0]);
+                        }
                     }
                 }
-            });
+            );
         };
 
         if (filename) {
             onFilename(filename);
         } else {
-            const validate = (name: string) => editor.call('assets:script:checkCollision', name, folder && folder.apiAsset);
+            const validate = (name: string) =>
+                editor.call('assets:script:checkCollision', name, folder && folder.apiAsset);
             editor.call('picker:script-create', onFilename, script, validate);
         }
     }
@@ -1400,7 +1495,7 @@ class ScriptComponentInspector extends ComponentInspector {
         // Start by clearing any existing UI for this script
         this.clearValidationIssues(scriptName);
 
-        const fileNameFallback = asset && asset.get ? (asset.get('name') || 'unknown') : 'unknown';
+        const fileNameFallback = asset && asset.get ? asset.get('name') || 'unknown' : 'unknown';
 
         // Separate warnings and errors
         const warnings = [];
@@ -1515,31 +1610,39 @@ class ScriptComponentInspector extends ComponentInspector {
         this._updateScripts();
 
         entities.forEach((e) => {
-            this._entityEvents.push(e.on('components.script.order:remove', (value) => {
-                this._dirtyScripts.add(value);
-                this._deferUpdateDirtyScripts();
-            }));
+            this._entityEvents.push(
+                e.on('components.script.order:remove', (value) => {
+                    this._dirtyScripts.add(value);
+                    this._deferUpdateDirtyScripts();
+                })
+            );
 
-            this._entityEvents.push(e.on('components.script.order:insert', (value) => {
-                this._dirtyScripts.add(value);
-                this._deferUpdateDirtyScripts();
-            }));
+            this._entityEvents.push(
+                e.on('components.script.order:insert', (value) => {
+                    this._dirtyScripts.add(value);
+                    this._deferUpdateDirtyScripts();
+                })
+            );
 
-            this._entityEvents.push(e.on('components.script.order:move', (value) => {
-                this._dirtyScripts.add(value);
-                this._deferUpdateDirtyScripts();
-            }));
+            this._entityEvents.push(
+                e.on('components.script.order:move', (value) => {
+                    this._dirtyScripts.add(value);
+                    this._deferUpdateDirtyScripts();
+                })
+            );
 
-            this._entityEvents.push(e.on('components.script.order:set', (value) => {
-                if (!value) {
-                    return;
-                }
+            this._entityEvents.push(
+                e.on('components.script.order:set', (value) => {
+                    if (!value) {
+                        return;
+                    }
 
-                value.forEach((script) => {
-                    this._dirtyScripts.add(script);
-                });
-                this._deferUpdateDirtyScripts();
-            }));
+                    value.forEach((script) => {
+                        this._dirtyScripts.add(script);
+                    });
+                    this._deferUpdateDirtyScripts();
+                })
+            );
         });
 
         this._entityEvents.push(editor.on('assets:scripts:add', this._onScriptAddOrRemove.bind(this)));

@@ -1,7 +1,7 @@
 import { Observer } from '@playcanvas/observer';
 import type { EventHandle } from '@playcanvas/observer';
 
-import { Entity } from '../entity';
+import type { Entity } from '../entity';
 import { globals as api } from '../globals';
 import { Guid } from '../guid';
 
@@ -69,9 +69,7 @@ function remapAsset(assetId: any, assetsIndex: Record<string, any>): number {
     for (let i = 0; i < assetLen; i++) {
         const asset = assets[i];
 
-        if (asset.get('name') === name &&
-            asset.get('type') === type &&
-            !asset.get('source')) {
+        if (asset.get('name') === name && asset.get('type') === type && !asset.get('source')) {
             const path = asset.get('path');
             const pathLen = path && path.length;
             if (path && pathLen === pathToIdLen) {
@@ -153,7 +151,15 @@ function remapField(entity: Entity, path: string, mapping: Record<string, any>, 
     }
 }
 
-function remapScriptAttribute(assetAttr: any, componentAttr: any, entity: Entity, path: string, entityMapping: Record<string, any>, assetMapping: Record<string, any>, sameProject: boolean) {
+function remapScriptAttribute(
+    assetAttr: any,
+    componentAttr: any,
+    entity: Entity,
+    path: string,
+    entityMapping: Record<string, any>,
+    assetMapping: Record<string, any>,
+    sameProject: boolean
+) {
     if (assetAttr.type === 'asset') {
         if (sameProject) {
             return;
@@ -191,8 +197,14 @@ function remapScriptAttribute(assetAttr: any, componentAttr: any, entity: Entity
  * @param entityMapping - An index that maps old resource ids to new resource ids
  * @param assetMapping - An index that maps old asset ids to new asset ids
  */
-function remapEntitiesAndAssets(entity: Entity, parent: Entity, data: Record<string, any>, entityMapping: Record<string, any>, assetMapping: Record<string, any>) {
-    const sameProject = (data.project === api.projectId);
+function remapEntitiesAndAssets(
+    entity: Entity,
+    parent: Entity,
+    data: Record<string, any>,
+    entityMapping: Record<string, any>,
+    assetMapping: Record<string, any>
+) {
+    const sameProject = data.project === api.projectId;
     const resourceId = entity.get('resource_id');
 
     const newResourceId = entityMapping[resourceId];
@@ -235,8 +247,7 @@ function remapEntitiesAndAssets(entity: Entity, parent: Entity, data: Record<str
             });
         }
 
-        for (let i = 0; i < ASSET_PATHS.length; i++) {
-            const path = ASSET_PATHS[i];
+        for (const path of ASSET_PATHS) {
             remapField(entity, path, assetMapping, sameProject);
         }
     }
@@ -267,28 +278,46 @@ function remapEntitiesAndAssets(entity: Entity, parent: Entity, data: Record<str
                                 if (attr.value) {
                                     if (attr.value instanceof Array) {
                                         for (let j = 0; j < attr.value.length; j++) {
-                                            entity.set(`components.script.scripts.${i}.attributes.${name}.value.${j}`, mapValue(attr.value[j], assetMapping, sameProject));
+                                            entity.set(
+                                                `components.script.scripts.${i}.attributes.${name}.value.${j}`,
+                                                mapValue(attr.value[j], assetMapping, sameProject)
+                                            );
                                         }
                                     } else {
-                                        entity.set(`components.script.scripts.${i}.attributes.${name}.value`, mapValue(attr.value, assetMapping, sameProject));
+                                        entity.set(
+                                            `components.script.scripts.${i}.attributes.${name}.value`,
+                                            mapValue(attr.value, assetMapping, sameProject)
+                                        );
                                     }
                                 }
 
                                 if (attr.defaultValue) {
                                     if (attr.defaultValue instanceof Array) {
                                         for (let j = 0; j < attr.defaultValue.length; j++) {
-                                            entity.set(`components.script.scripts.${i}.attributes.${name}.defaultValue.${j}`, mapValue(attr.value[j], assetMapping, sameProject));
+                                            entity.set(
+                                                `components.script.scripts.${i}.attributes.${name}.defaultValue.${j}`,
+                                                mapValue(attr.value[j], assetMapping, sameProject)
+                                            );
                                         }
                                     } else {
-                                        entity.set(`components.script.scripts.${i}.attributes.${name}.defaultValue`, mapValue(attr.value, assetMapping, sameProject));
+                                        entity.set(
+                                            `components.script.scripts.${i}.attributes.${name}.defaultValue`,
+                                            mapValue(attr.value, assetMapping, sameProject)
+                                        );
                                     }
                                 }
                             } else if (attr.type === 'entity') {
                                 if (entityMapping[attr.value]) {
-                                    entity.set(`components.script.scripts.${i}.attributes.${name}.value`, mapValue(attr.value, entityMapping, sameProject));
+                                    entity.set(
+                                        `components.script.scripts.${i}.attributes.${name}.value`,
+                                        mapValue(attr.value, entityMapping, sameProject)
+                                    );
                                 }
                                 if (entityMapping[attr.defaultValue]) {
-                                    entity.set(`components.script.scripts.${i}.attributes.${name}.defaultValue`, mapValue(attr.defaultValue, entityMapping, sameProject));
+                                    entity.set(
+                                        `components.script.scripts.${i}.attributes.${name}.defaultValue`,
+                                        mapValue(attr.defaultValue, entityMapping, sameProject)
+                                    );
                                 }
                             }
                         }
@@ -319,25 +348,47 @@ function remapEntitiesAndAssets(entity: Entity, parent: Entity, data: Record<str
                                                     continue;
                                                 }
 
-                                                for (let k = 0; k < attrData.schema.length; k++) {
-                                                    const field = attrData.schema[k];
+                                                for (const field of attrData.schema) {
                                                     if (attrs[key][j][field.name]) {
-                                                        remapScriptAttribute(field, attrs[key][j][field.name], entity, `components.script.scripts.${script}.attributes.${key}.${j}.${field.name}`, entityMapping, assetMapping, sameProject);
+                                                        remapScriptAttribute(
+                                                            field,
+                                                            attrs[key][j][field.name],
+                                                            entity,
+                                                            `components.script.scripts.${script}.attributes.${key}.${j}.${field.name}`,
+                                                            entityMapping,
+                                                            assetMapping,
+                                                            sameProject
+                                                        );
                                                     }
                                                 }
                                             }
                                         } else {
                                             // regular json attribute
-                                            for (let k = 0; k < attrData.schema.length; k++) {
-                                                const field = attrData.schema[k];
+                                            for (const field of attrData.schema) {
                                                 if (attrs[key][field.name]) {
-                                                    remapScriptAttribute(field, attrs[key][field.name], entity, `components.script.scripts.${script}.attributes.${key}.${field.name}`, entityMapping, assetMapping, sameProject);
+                                                    remapScriptAttribute(
+                                                        field,
+                                                        attrs[key][field.name],
+                                                        entity,
+                                                        `components.script.scripts.${script}.attributes.${key}.${field.name}`,
+                                                        entityMapping,
+                                                        assetMapping,
+                                                        sameProject
+                                                    );
                                                 }
                                             }
                                         }
                                     } else {
                                         // non json attribute
-                                        remapScriptAttribute(attrData, attrs[key], entity, `components.script.scripts.${script}.attributes.${key}`, entityMapping, assetMapping, sameProject);
+                                        remapScriptAttribute(
+                                            attrData,
+                                            attrs[key],
+                                            entity,
+                                            `components.script.scripts.${script}.attributes.${key}`,
+                                            entityMapping,
+                                            assetMapping,
+                                            sameProject
+                                        );
                                     }
                                 }
                             }
@@ -346,7 +397,6 @@ function remapEntitiesAndAssets(entity: Entity, parent: Entity, data: Record<str
                 }
             }
         }
-
     }
 
     // remap entity references in components
@@ -378,19 +428,19 @@ function pasteInBackend(data: Record<string, any>, parent: Entity, options: { hi
         reject: null
     };
 
-    const promise: Promise<Entity[]> = new Promise((resolve, reject) => {
+    const promise = new Promise<Entity[]>((resolve, reject) => {
         deferred.resolve = resolve;
         deferred.reject = reject;
     });
 
-    if (!evtMessenger)  {
+    if (!evtMessenger) {
         evtMessenger = api.messenger.on('entity.copy', (data: any) => {
             const callback = api.jobs.finish(data.job_id);
             if (!callback) {
                 return;
             }
 
-            const result = data.multTaskResults.map((d: { newRootId: any; }) => d.newRootId);
+            const result = data.multTaskResults.map((d: { newRootId: any }) => d.newRootId);
             callback(result);
         });
     }
@@ -432,14 +482,14 @@ function pasteInBackend(data: Record<string, any>, parent: Entity, options: { hi
             children: children,
             childIndex: children.length,
             entities: Object.keys(data.hierarchy)
-            .filter((id: string) => {
-                return data.hierarchy[id].parent === null;
-            })
-            .map((id: string) => {
-                return {
-                    id: id
-                };
-            })
+                .filter((id: string) => {
+                    return data.hierarchy[id].parent === null;
+                })
+                .map((id: string) => {
+                    return {
+                        id: id
+                    };
+                })
         };
 
         if (data.scene && data.scene !== api.realtime.scenes.current.uniqueId) {
@@ -503,9 +553,10 @@ async function pasteEntities(parent: Entity, options: { history?: boolean } = {}
         parent = api.entities.root;
     }
 
-    if (data.project === api.projectId &&
-        (data.branch !== api.branchId ||
-            Object.keys(data.hierarchy).length > USE_BACKEND_LIMIT)) {
+    if (
+        data.project === api.projectId &&
+        (data.branch !== api.branchId || Object.keys(data.hierarchy).length > USE_BACKEND_LIMIT)
+    ) {
         // TODO support pasting in different projects
         const result = await pasteInBackend(data, parent, options);
         return result;
@@ -599,7 +650,8 @@ async function pasteEntities(parent: Entity, options: { history?: boolean } = {}
 
                 if (deletedHierarchy.length) {
                     api.entities.delete(
-                        deletedHierarchy.map((data: any) => api.entities.get(data.resource_id)), {
+                        deletedHierarchy.map((data: any) => api.entities.get(data.resource_id)),
+                        {
                             history: false
                         }
                     );
@@ -619,9 +671,7 @@ async function pasteEntities(parent: Entity, options: { history?: boolean } = {}
                 deletedHierarchy = null;
 
                 // restore selection
-                previousSelection = previousSelection
-                .map((item: any) => item.latest())
-                .filter((item: any) => !!item);
+                previousSelection = previousSelection.map((item: any) => item.latest()).filter((item: any) => !!item);
 
                 api.selection.set(previousSelection, { history: false });
 

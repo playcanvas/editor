@@ -108,7 +108,8 @@ export type AssetProps = {
 /**
  * Represents the data for an Asset.
  */
-export type AssetData = AnimationAssetData
+export type AssetData =
+    | AnimationAssetData
     | AnimStateGraphAssetData
     | BundleAssetData
     | CubemapAssetData
@@ -129,8 +130,9 @@ type AnimationAssetData = {
     /**
      * A set of events tied to the playback of this animation asset.
      */
-    events: {
-        [key: string]: {
+    events: Record<
+        string,
+        {
             /**
              * The name of this event.
              */
@@ -150,8 +152,8 @@ type AnimationAssetData = {
              * The time during the playback of this animation that the event should trigger. Given in normalized time.
              */
             time: number;
-        };
-    };
+        }
+    >;
 };
 
 /**
@@ -161,8 +163,9 @@ type AnimStateGraphAssetData = {
     /**
      * A set of AnimStateGraph layers.
      */
-    layers: {
-        [key: string]: {
+    layers: Record<
+        string,
+        {
             /**
              * Defines the way in which this layer should blend with previous layers.
              * Can be: `pc.ANIM_LAYER_OVERWRITE`, `pc.ANIM_LAYER_ADDITIVE`.
@@ -185,13 +188,14 @@ type AnimStateGraphAssetData = {
              * Given as a normalized value.
              */
             weight: number;
-        };
-    };
+        }
+    >;
     /**
      * A set of AnimStateGraph parameters.
      */
-    parameters: {
-        [key: string]: {
+    parameters: Record<
+        string,
+        {
             /**
              * The name of the parameter.
              */
@@ -205,13 +209,14 @@ type AnimStateGraphAssetData = {
              * The value of this parameter.
              */
             value: any;
-        };
-    };
+        }
+    >;
     /**
      * A set of AnimStateGraph states.
      */
-    states: {
-        [key: string]: {
+    states: Record<
+        string,
+        {
             /**
              * If true, the START node will transition directly to this node at the start of playback.
              */
@@ -244,15 +249,17 @@ type AnimStateGraphAssetData = {
              * The playback speed for this state.
              */
             speed: number;
-        };
-    };
+        }
+    >;
     /**
      * A set of AnimStateGraph transitions.
      */
-    transitions: {
-        [key: string]: {
-            conditions: {
-                [key: string]: {
+    transitions: Record<
+        string,
+        {
+            conditions: Record<
+                string,
+                {
                     /**
                      * The name of the parameter this condition is evaluated on.
                      */
@@ -266,8 +273,8 @@ type AnimStateGraphAssetData = {
                      * The value that the condition should be compared against.
                      */
                     value: any;
-                };
-            };
+                }
+            >;
             /**
              * This should be true if this transition moves from the START state.
              * Only one transition should contain this per layer.
@@ -309,8 +316,8 @@ type AnimStateGraphAssetData = {
              * Defines the point during this to state's timeline that this transition should begin playback at.
              */
             transitionOffset: number;
-        };
-    };
+        }
+    >;
 };
 
 /**
@@ -358,8 +365,9 @@ type FontAssetData = {
     /**
      * Information about the characters in the font.
      */
-    chars: {
-        [key: string]: {
+    chars: Record<
+        string,
+        {
             /**
              * The height of the character.
              */
@@ -404,8 +412,8 @@ type FontAssetData = {
              * The offset in the y axis.
              */
             yoffset: number;
-        };
-    };
+        }
+    >;
     /**
      * Information about the font.
      */
@@ -430,9 +438,7 @@ type FontAssetData = {
     /**
      * Information about the kerning.
      */
-    kerning: {
-        [key: string]: any;
-    };
+    kerning: Record<string, any>;
     /**
      * The font version.
      */
@@ -931,7 +937,7 @@ type MaterialAssetData = {
      * Apply scene skybox as prefiltered environment map.
      */
     useSkybox: boolean;
-}
+};
 
 /**
  * Represents the data for a Model asset.
@@ -940,12 +946,7 @@ type ModelAssetData = {
     /**
      * Defines the material mapping for each mesh instance.
      */
-    mapping: Array<{
-        /**
-         * The material mapping object for a mesh instance.
-         */
-        [key: string]: any;
-    }>;
+    mapping: Record<string, any>[];
 };
 
 /**
@@ -978,13 +979,15 @@ type ScriptAssetData = {
     /**
      * Contains all the script data.
      */
-    scripts: {
-        [key: string]: {
+    scripts: Record<
+        string,
+        {
             /**
              * Contains the script attribute definitions.
              */
-            attributes: {
-                [key: string]: {
+            attributes: Record<
+                string,
+                {
                     /**
                      * Whether this attribute is an array.
                      */
@@ -1016,9 +1019,7 @@ type ScriptAssetData = {
                         /**
                          * Options for the enum.
                          */
-                        options: {
-                            [key: string]: any;
-                        };
+                        options: Record<string, any>;
                         /**
                          * The order of the enumerated values.
                          */
@@ -1043,9 +1044,7 @@ type ScriptAssetData = {
                     /**
                      * The schema for the json attribute.
                      */
-                    schema: {
-                        [key: string]: any;
-                    }[];
+                    schema: Record<string, any>[];
                     /**
                      * The step for the numeric input.
                      */
@@ -1058,14 +1057,14 @@ type ScriptAssetData = {
                      * The type of the script attribute. Can be: asset, boolean, curve, entity, json, number, rgb, rgba, string, vec2, vec3, vec4.
                      */
                     type: string;
-                };
-            };
+                }
+            >;
             /**
              * An array that controls the order of the scripts in the script asset.
              */
             attributesOrder: string[];
-        };
-    };
+        }
+    >;
 };
 
 /**
@@ -1145,8 +1144,9 @@ type TextureAtlasAssetData = {
     /**
      * The definitions of the frames that can be referenced by sprite assets.
      */
-    frames: {
-        [key: string]: {
+    frames: Record<
+        string,
+        {
             /**
              * Array of 4 numbers controlling the frame border.
              */
@@ -1163,8 +1163,8 @@ type TextureAtlasAssetData = {
              * Array of 4 numbers controlling the frame dimensions.
              */
             rect: number[];
-        };
-    };
+        }
+    >;
     /**
      * The magnification filter to be applied to the texture.
      * Can be: nearest, linear, nearest_mip_nearest, linear_mip_nearest, nearest_mip_linear, linear_mip_linear.

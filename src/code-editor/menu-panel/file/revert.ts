@@ -28,15 +28,17 @@ editor.once('load', () => {
     });
     menu.append(item);
 
-    menu.append(new MenuItem({
-        text: 'Revert All Files',
-        onIsEnabled: () => {
-            return editor.call('editor:command:can:revertAll');
-        },
-        onSelect: () => {
-            return editor.call('editor:command:revertAll');
-        }
-    }));
+    menu.append(
+        new MenuItem({
+            text: 'Revert All Files',
+            onIsEnabled: () => {
+                return editor.call('editor:command:can:revertAll');
+            },
+            onSelect: () => {
+                return editor.call('editor:command:revertAll');
+            }
+        })
+    );
 
     const revert = function (id: string) {
         const asset = editor.call('assets:get', id);
@@ -62,26 +64,27 @@ editor.once('load', () => {
     };
 
     const ctxMenu = editor.call('files:contextmenu');
-    ctxMenu.append(new MenuItem({
-        text: 'Revert',
-        onIsEnabled: () => {
-            const selected = editor.call('files:contextmenu:selected');
-            for (const doc of selected) {
-                if (editor.call('editor:command:can:revert', doc.get('id'))) {
-                    return true;
+    ctxMenu.append(
+        new MenuItem({
+            text: 'Revert',
+            onIsEnabled: () => {
+                const selected = editor.call('files:contextmenu:selected');
+                for (const doc of selected) {
+                    if (editor.call('editor:command:can:revert', doc.get('id'))) {
+                        return true;
+                    }
+                }
+            },
+            onSelect: () => {
+                const selected = editor.call('files:contextmenu:selected');
+                for (const doc of selected) {
+                    if (editor.call('editor:command:can:revert', doc.get('id'))) {
+                        revert(doc.get('id'));
+                    }
                 }
             }
-        },
-        onSelect: () => {
-            const selected = editor.call('files:contextmenu:selected');
-            for (const doc of selected) {
-                if (editor.call('editor:command:can:revert', doc.get('id'))) {
-                    revert(doc.get('id'));
-                }
-            }
-        }
-    }));
-
+        })
+    );
 
     // True if you can revert
     editor.method('editor:command:can:revert', (id?: string) => {

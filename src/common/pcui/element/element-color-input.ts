@@ -1,4 +1,5 @@
-import { Element, ElementArgs } from '@playcanvas/pcui';
+import type { ElementArgs } from '@playcanvas/pcui';
+import { Element } from '@playcanvas/pcui';
 
 import { CLASS_MULTIPLE_VALUES, CLASS_NOT_FLEXIBLE } from '../constants';
 
@@ -7,14 +8,14 @@ const CLASS_COLOR_INPUT = 'pcui-color-input';
 /**
  * The arguments for the {@link ColorInput} constructor.
  */
-interface ColorInputArgs extends ElementArgs {
+type ColorInputArgs = {
     /** An array of 1 to 4 numbers that range from 0 to 1. */
     value?: number[];
     /** Number of channels. Can be 1 to 4. */
     channels?: number;
     /** If true the input will flash when changed. */
     renderChanges?: boolean;
-}
+} & ElementArgs;
 
 /**
  * Represents a color input. Clicking on the color input will open a color picker.
@@ -123,11 +124,14 @@ class ColorInput extends Element {
         // without relying on the editor global methods
 
         // open color picker
-        editor.call('picker:color', this.value.map(c => Math.floor(c * 255)));
+        editor.call(
+            'picker:color',
+            this.value.map((c) => Math.floor(c * 255))
+        );
 
         // picked color
         let evtColorPick = editor.on('picker:color', (color: any) => {
-            this.value = color.map(c => c / 255);
+            this.value = color.map((c) => c / 255);
         });
 
         let evtColorPickStart = editor.on('picker:color:start', () => {
@@ -142,7 +146,6 @@ class ColorInput extends Element {
                 // history between this picker:color:start and picker:color:end events
                 // not further back
                 this._binding.historyPostfix = `(${Date.now()})`;
-
             } else {
                 this._historyCombine = false;
                 this._historyPostfix = null;
@@ -163,7 +166,10 @@ class ColorInput extends Element {
 
         // color changed, update picker
         let evtColorToPicker = this.on('change', () => {
-            editor.call('picker:color:set', this.value.map(c => Math.floor(c * 255)));
+            editor.call(
+                'picker:color:set',
+                this.value.map((c) => Math.floor(c * 255))
+            );
         });
 
         // picker closed
@@ -187,7 +193,6 @@ class ColorInput extends Element {
     _valueToColor(value: number) {
         value = Math.floor(value * 255);
         return Math.max(0, Math.min(value, 255));
-
     }
 
     _setValue(value: number[]) {

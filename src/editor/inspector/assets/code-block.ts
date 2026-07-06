@@ -5,7 +5,7 @@ import { CLASS_ERROR } from '@/common/pcui/constants';
 import { tooltip, tooltipRefItem } from '@/common/tooltips';
 import { buildQueryUrl } from '@/common/utils';
 
-const DOM = parent => [
+const DOM = (parent) => [
     {
         root: {
             panel: new Panel({
@@ -105,21 +105,22 @@ class CodeBlockAssetInspector extends Container {
         const fileUrl = this._assets[0].get('file.url');
         const fileHash = this._assets[0].get('file.hash');
 
-        this._request = editor.api.globals.rest.home.homeFile(buildQueryUrl(fileUrl, { t: fileHash }), this._assetType !== 'json')
-        .on('load', (status, data) => {
-            this._loading = false;
-            if (this._dataFormatter) {
-                this._code.text = this._dataFormatter(data);
-            } else {
-                this._code.text = data;
-            }
-            this._progress.hidden = true;
-        })
-        .on('error', () => {
-            this._loading = false;
-            this._errorLoadingDataContainer.hidden = false;
-            this._progress.hidden = true;
-        });
+        this._request = editor.api.globals.rest.home
+            .homeFile(buildQueryUrl(fileUrl, { t: fileHash }), this._assetType !== 'json')
+            .on('load', (status, data) => {
+                this._loading = false;
+                if (this._dataFormatter) {
+                    this._code.text = this._dataFormatter(data);
+                } else {
+                    this._code.text = data;
+                }
+                this._progress.hidden = true;
+            })
+            .on('error', () => {
+                this._loading = false;
+                this._errorLoadingDataContainer.hidden = false;
+                this._progress.hidden = true;
+            });
     }
 
     link(assets: Observer[]) {

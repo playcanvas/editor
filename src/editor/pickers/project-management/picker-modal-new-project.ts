@@ -1,7 +1,17 @@
-import { BooleanInput, Button, Container, Element, Label, Overlay, Panel, SelectInput, TextAreaInput, TextInput } from '@playcanvas/pcui';
+import {
+    BooleanInput,
+    Button,
+    Container,
+    Element,
+    Label,
+    Overlay,
+    Panel,
+    SelectInput,
+    TextAreaInput,
+    TextInput
+} from '@playcanvas/pcui';
 
 editor.once('load', () => {
-
     // GLOBAL VARIABLES
     const blankProject = {
         name: 'Blank Project',
@@ -35,8 +45,8 @@ editor.once('load', () => {
 
     let rootUser;
     let newProjectOwner;
-    let selectedKitElement;  // ui element of selected starter kit
-    let newKitData = blankProject;  // will store starterkit metadata to create project
+    let selectedKitElement; // ui element of selected starter kit
+    let newKitData = blankProject; // will store starterkit metadata to create project
 
     const starterKits = { 0: blankProject, 446385: modelViewer, 435780: vr };
 
@@ -76,7 +86,7 @@ editor.once('load', () => {
 
             selectedKitElement.class.add('selected');
 
-            buildSidebar();  // rebuild sidebar
+            buildSidebar(); // rebuild sidebar
         });
 
         // Thumbnail
@@ -240,7 +250,9 @@ editor.once('load', () => {
         ownerDropdownSelectedProfile.dom.src = `${config.url.api}/users/${newProjectOwner.id}/thumbnail?size=32`;
         ownerDropdownContainer.appendChild(ownerDropdownSelectedProfile.dom);
 
-        const ownerDropdownList = ownerDropdown.dom.querySelector('.pcui-select-input-container-value .pcui-select-input-list');
+        const ownerDropdownList = ownerDropdown.dom.querySelector(
+            '.pcui-select-input-container-value .pcui-select-input-list'
+        );
         let imageContainer;
         for (let i = 0; i < possibleOwners.length; i++) {
             const dropdownOption = ownerDropdownList.childNodes[i];
@@ -255,10 +267,10 @@ editor.once('load', () => {
 
         ownerDropdown.on('change', () => {
             const oldOwner = newProjectOwner;
-            newProjectOwner = possibleOwners.filter(org => org.id === ownerDropdown.value)[0];
+            newProjectOwner = possibleOwners.filter((org) => org.id === ownerDropdown.value)[0];
             if (oldOwner !== newProjectOwner) {
-                possibleOwners = [];  // reset possible owners list
-                buildSidebar();  // rebuild sidebar on owner change
+                possibleOwners = []; // reset possible owners list
+                buildSidebar(); // rebuild sidebar on owner change
             }
         });
     };
@@ -383,77 +395,90 @@ editor.once('load', () => {
         const data = newKitData;
 
         let evt;
-        editor.call('projects:create', data, (result) => {
-            if (!data.fork_from) {
-                editor.call('projects:getOne', result.id, (newProject) => {
-                    if (newProject) {
-                        result = newProject;
-                    }
-
-                    evt = editor.on('messenger:project.create', (msg) => {
-                        if (msg.project_id !== result.id) {
-                            return;
+        editor.call(
+            'projects:create',
+            data,
+            (result) => {
+                if (!data.fork_from) {
+                    editor.call('projects:getOne', result.id, (newProject) => {
+                        if (newProject) {
+                            result = newProject;
                         }
-                        evt.unbind();
-                        result.disabled = false;
 
-                        toggleLoader(false);
-
-                        // open confirmation modal
-                        editor.call('picker:project:newProjectConfirmation', result.id);
-                        overlay.hidden = true;  // close new project modal
-                    });
-                });
-            } else {
-                const jobId = result.id;
-
-                evt = editor.on('messenger:job.update', (msg) => {
-                    if (!jobId || jobId === msg.job.id) {
-                        evt.unbind();
-
-                        // get job
-                        editor.api.globals.rest.jobs.jobGet({ jobId: msg.job.id })
-                        .on('load', (status, response) => {
-                            const job = response.data;
-
-                            // handle job error
-                            if (job.status === 'error') {
-                                editor.call('picker:project:buildAlert', mainView, job.messages[0]);
-                            } else {
-                                window.open(`/editor/project/${job.forked_id}`);
+                        evt = editor.on('messenger:project.create', (msg) => {
+                            if (msg.project_id !== result.id) {
+                                return;
                             }
+                            evt.unbind();
+                            result.disabled = false;
 
                             toggleLoader(false);
+
+                            // open confirmation modal
+                            editor.call('picker:project:newProjectConfirmation', result.id);
+                            overlay.hidden = true; // close new project modal
                         });
-                    }
-                });
-            }
-        }, (err) => {
-            // unsubscribe from messenger job.update
-            if (data.fork_from && evt) {
-                evt.unbind();
-            }
+                    });
+                } else {
+                    const jobId = result.id;
 
-            toggleLoader(false);
+                    evt = editor.on('messenger:job.update', (msg) => {
+                        if (!jobId || jobId === msg.job.id) {
+                            evt.unbind();
 
-            if (err === 'Disk allowance exceeded') {
-                editor.call('picker:project:buildAlert', mainView, err, true, 'UPGRADE', { url: `${config.url.home}/upgrade` });
-            } else {
-                editor.call('picker:project:buildAlert', mainView, err);
+                            // get job
+                            editor.api.globals.rest.jobs
+                                .jobGet({ jobId: msg.job.id })
+                                .on('load', (status, response) => {
+                                    const job = response.data;
+
+                                    // handle job error
+                                    if (job.status === 'error') {
+                                        editor.call('picker:project:buildAlert', mainView, job.messages[0]);
+                                    } else {
+                                        window.open(`/editor/project/${job.forked_id}`);
+                                    }
+
+                                    toggleLoader(false);
+                                });
+                        }
+                    });
+                }
+            },
+            (err) => {
+                // unsubscribe from messenger job.update
+                if (data.fork_from && evt) {
+                    evt.unbind();
+                }
+
+                toggleLoader(false);
+
+                if (err === 'Disk allowance exceeded') {
+                    editor.call('picker:project:buildAlert', mainView, err, true, 'UPGRADE', {
+                        url: `${config.url.home}/upgrade`
+                    });
+                } else {
+                    editor.call('picker:project:buildAlert', mainView, err);
+                }
             }
-        });
+        );
 
-        newKitData = blankProject;  // restart new kit data
+        newKitData = blankProject; // restart new kit data
     };
 
     // handles clicks on preview button on starter kits
     const previewProject = (project_id) => {
-        editor.call('projects:getOne', project_id, (response) => {
-            const previewURL = response.primary_app_url;
-            window.open(previewURL, '_blank');
-        }, (err) => {
-            editor.call('picker:project:buildAlert', mainView, err);
-        });
+        editor.call(
+            'projects:getOne',
+            project_id,
+            (response) => {
+                const previewURL = response.primary_app_url;
+                window.open(previewURL, '_blank');
+            },
+            (err) => {
+                editor.call('picker:project:buildAlert', mainView, err);
+            }
+        );
     };
 
     // LOCAL UTILS
@@ -491,7 +516,7 @@ editor.once('load', () => {
     // clean up
     overlay.on('hide', () => {
         kitsContainer.destroy();
-        editor.emit('picker:close', 'project-new');  // close panel
+        editor.emit('picker:close', 'project-new'); // close panel
 
         editor.call('picker:project:hideAlerts');
 
@@ -516,5 +541,4 @@ editor.once('load', () => {
         buildSidebar();
         overlay.hidden = false;
     });
-
 });

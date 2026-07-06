@@ -12,7 +12,10 @@ editor.once('load', () => {
 
         xToLimits: Record<number, unknown> = {};
 
-        constructor(data: { idToNode: Record<string, Record<string, unknown>>; branches: Record<string, Record<string, unknown>> }) {
+        constructor(data: {
+            idToNode: Record<string, Record<string, unknown>>;
+            branches: Record<string, Record<string, unknown>>;
+        }) {
             this.allNodes = Object.values(data.idToNode);
             this.branches = data.branches;
         }
@@ -20,7 +23,6 @@ editor.once('load', () => {
         run() {
             try {
                 this.iteration();
-
             } catch (e) {
                 if (e.name === 'CompactIterDone') {
                     this.run();
@@ -63,19 +65,20 @@ editor.once('load', () => {
         }
 
         canMove(branch: Record<string, unknown>[], dst: number) {
-            const rendered = branch.find(h => h.isNodeRendered || h.wasRendered);
+            const rendered = branch.find((h) => h.isNodeRendered || h.wasRendered);
 
             if (rendered) {
                 return false;
-
             }
             const dstLim = this.xToLimits[dst];
 
             return !dstLim || this.branchFits(branch, dstLim);
-
         }
 
-        branchFits(branch: Record<string, unknown>[], dstLim: { minYNode: Record<string, unknown>; maxYNode: Record<string, unknown> }) {
+        branchFits(
+            branch: Record<string, unknown>[],
+            dstLim: { minYNode: Record<string, unknown>; maxYNode: Record<string, unknown> }
+        ) {
             const diff = this.helper('minBetweenNodes').large;
 
             const brLim = this.helper('findLimitNodes', branch);
@@ -86,11 +89,8 @@ editor.once('load', () => {
             const d2 = dstLim.maxYNode;
 
             return (
-                b1.coords.y >= d2.coords.y + diff &&
-                !b1.isExpandable && !d2.isExpandable
-            ) || (
-                b2.coords.y + diff <= d1.coords.y &&
-                !b2.isExpandable && !d1.isExpandable
+                (b1.coords.y >= d2.coords.y + diff && !b1.isExpandable && !d2.isExpandable) ||
+                (b2.coords.y + diff <= d1.coords.y && !b2.isExpandable && !d1.isExpandable)
             );
         }
 
@@ -103,7 +103,7 @@ editor.once('load', () => {
 
             this.branches[branch[0].branchId].branchXCoord = dst;
 
-            throw { name: 'CompactIterDone' }; // eslint-disable-line no-throw-literal
+            throw { name: 'CompactIterDone' };
         }
 
         setXToLimit(x: number) {

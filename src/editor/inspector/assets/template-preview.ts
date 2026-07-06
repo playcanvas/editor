@@ -42,10 +42,7 @@ class TemplateAssetInspectorPreview extends AssetInspectorPreviewBase {
     link(assets: Observer[]) {
         super.link();
 
-        this._previewRenderer = new TemplateThumbnailRenderer(
-            assets[0],
-            this._preview.dom as HTMLCanvasElement
-        );
+        this._previewRenderer = new TemplateThumbnailRenderer(assets[0], this._preview.dom as HTMLCanvasElement);
 
         this._previewRenderer.on('preview-available', this.handlePreviewAvailable.bind(this));
         this._queueRender();
@@ -117,7 +114,7 @@ class TemplateAssetInspectorPreview extends AssetInspectorPreviewBase {
 
     _onPointerUp(evt: PointerEvent) {
         if (this._pointerId === evt.pointerId && this._dragging) {
-            if ((Math.abs(this._sx - this._x) + Math.abs(this._sy - this._y)) < 8) {
+            if (Math.abs(this._sx - this._x) + Math.abs(this._sy - this._y) < 8) {
                 this._preview.height = this.height;
             }
 

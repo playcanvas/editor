@@ -11,22 +11,22 @@ import {
     Model,
     PRIMITIVE_LINES,
     SEMANTIC_POSITION,
-    type AppBase,
     TYPE_FLOAT32,
     VertexBuffer,
     VertexFormat,
     VertexIterator
 } from 'playcanvas';
+import type { AppBase } from 'playcanvas';
 
 import { GIZMO_MASK } from '@/core/constants';
-import { type EntityObserver } from '@/editor-api';
+import type { EntityObserver } from '@/editor-api';
 
 import { createColorMaterial } from '../viewport-color-material';
 
 editor.once('load', () => {
     let app;
     // selected entity gizmos
-    let entities = { };
+    let entities = {};
     // pool of gizmos
     const pool = [];
     // colors
@@ -36,11 +36,16 @@ editor.once('load', () => {
     let materialDefault;
     const materialBehind = createColorMaterial();
     materialBehind.color = colorBehind;
-    materialBehind.blendState = new BlendState(true, BLENDEQUATION_ADD, BLENDMODE_SRC_ALPHA, BLENDMODE_ONE_MINUS_SRC_ALPHA);
+    materialBehind.blendState = new BlendState(
+        true,
+        BLENDEQUATION_ADD,
+        BLENDMODE_SRC_ALPHA,
+        BLENDMODE_ONE_MINUS_SRC_ALPHA
+    );
     materialBehind.depthTest = false;
     materialBehind.update();
-    const models = { };
-    const poolModels = { 'box': [], 'sphere': [] };
+    const models = {};
+    const poolModels = { box: [], sphere: [] };
     const shapes = { 0: 'box', 1: 'sphere' };
 
     const layerBack = editor.call('gizmo:layers', 'Bright Gizmo');
@@ -67,7 +72,7 @@ editor.once('load', () => {
 
         events: any[] = [];
 
-        type: string = '';
+        type = '';
 
         entity: any = null;
 
@@ -136,10 +141,18 @@ editor.once('load', () => {
 
             switch (this.type) {
                 case 'sphere':
-                    this.entity.setLocalScale(particles.emitterRadius || 0.000001, particles.emitterRadius || 0.000001, particles.emitterRadius || 0.000001);
+                    this.entity.setLocalScale(
+                        particles.emitterRadius || 0.000001,
+                        particles.emitterRadius || 0.000001,
+                        particles.emitterRadius || 0.000001
+                    );
                     break;
                 case 'box':
-                    this.entity.setLocalScale(particles.emitterExtents.x / 2 || 0.00001, particles.emitterExtents.y / 2 || 0.00001, particles.emitterExtents.z / 2 || 0.00001);
+                    this.entity.setLocalScale(
+                        particles.emitterExtents.x / 2 || 0.00001,
+                        particles.emitterExtents.y / 2 || 0.00001,
+                        particles.emitterExtents.z / 2 || 0.00001
+                    );
                     break;
             }
         }
@@ -153,9 +166,11 @@ editor.once('load', () => {
             this.unlink();
             this._link = obj;
 
-            this.events.push(this._link.once('destroy', () => {
-                this.unlink();
-            }));
+            this.events.push(
+                this._link.once('destroy', () => {
+                    this.unlink();
+                })
+            );
 
             this.entity = new Entity();
             this.entity.addComponent('model', {
@@ -179,9 +194,9 @@ editor.once('load', () => {
                 return;
             }
 
-            for (let i = 0; i < this.events.length; i++) {
-                if (this.events[i] && this.events[i].unbind) {
-                    this.events[i].unbind();
+            for (const event of this.events) {
+                if (event && event.unbind) {
+                    event.unbind();
                 }
             }
 
@@ -209,14 +224,14 @@ editor.once('load', () => {
                 entities[key].unlink();
                 pool.push(entities[key]);
             }
-            entities = { };
+            entities = {};
             return;
         }
 
         // index selection
-        const ids = { };
-        for (let i = 0; i < items.length; i++) {
-            ids[items[i].get('resource_id')] = items[i];
+        const ids = {};
+        for (const item of items) {
+            ids[item.get('resource_id')] = item;
         }
 
         let render = false;
@@ -271,7 +286,6 @@ editor.once('load', () => {
             { semantic: SEMANTIC_POSITION, components: 3, type: TYPE_FLOAT32 }
         ]);
         const rad = Math.PI / 180;
-
 
         // ================
         // box
@@ -354,7 +368,6 @@ editor.once('load', () => {
         model.meshInstances = [meshInstance, meshInstanceBehind];
         models.box = model;
 
-
         // ================
         // sphere
         const segments = 72;
@@ -362,17 +375,41 @@ editor.once('load', () => {
         iterator = new VertexIterator(buffer);
         // circles
         for (let i = 0; i < segments; i++) {
-            iterator.element[SEMANTIC_POSITION].set(Math.sin(360 / segments * i * rad), 0, Math.cos(360 / segments * i * rad));
+            iterator.element[SEMANTIC_POSITION].set(
+                Math.sin((360 / segments) * i * rad),
+                0,
+                Math.cos((360 / segments) * i * rad)
+            );
             iterator.next();
-            iterator.element[SEMANTIC_POSITION].set(Math.sin(360 / segments * (i + 1) * rad), 0, Math.cos(360 / segments * (i + 1) * rad));
+            iterator.element[SEMANTIC_POSITION].set(
+                Math.sin((360 / segments) * (i + 1) * rad),
+                0,
+                Math.cos((360 / segments) * (i + 1) * rad)
+            );
             iterator.next();
-            iterator.element[SEMANTIC_POSITION].set(Math.sin(360 / segments * i * rad), Math.cos(360 / segments * i * rad), 0);
+            iterator.element[SEMANTIC_POSITION].set(
+                Math.sin((360 / segments) * i * rad),
+                Math.cos((360 / segments) * i * rad),
+                0
+            );
             iterator.next();
-            iterator.element[SEMANTIC_POSITION].set(Math.sin(360 / segments * (i + 1) * rad), Math.cos(360 / segments * (i + 1) * rad), 0);
+            iterator.element[SEMANTIC_POSITION].set(
+                Math.sin((360 / segments) * (i + 1) * rad),
+                Math.cos((360 / segments) * (i + 1) * rad),
+                0
+            );
             iterator.next();
-            iterator.element[SEMANTIC_POSITION].set(0, Math.cos(360 / segments * i * rad), Math.sin(360 / segments * i * rad));
+            iterator.element[SEMANTIC_POSITION].set(
+                0,
+                Math.cos((360 / segments) * i * rad),
+                Math.sin((360 / segments) * i * rad)
+            );
             iterator.next();
-            iterator.element[SEMANTIC_POSITION].set(0, Math.cos(360 / segments * (i + 1) * rad), Math.sin(360 / segments * (i + 1) * rad));
+            iterator.element[SEMANTIC_POSITION].set(
+                0,
+                Math.cos((360 / segments) * (i + 1) * rad),
+                Math.sin((360 / segments) * (i + 1) * rad)
+            );
             iterator.next();
         }
         iterator.end();
@@ -402,7 +439,6 @@ editor.once('load', () => {
 
     editor.on('viewport:gizmoUpdate', (dt: number) => {
         for (const key in entities) {
-
             // mark particle system when running inside Editor - allow it to render screenspace particles in world space
             const entity = app.root.findByGuid(key);
             entity?.particlesystem?.setInTools?.(true);

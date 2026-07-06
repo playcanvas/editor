@@ -1,7 +1,10 @@
-import { Panel, Button, Container, Label, type Element } from '@playcanvas/pcui';
+import { Panel, Button, Container, Label } from '@playcanvas/pcui';
+import type { Element } from '@playcanvas/pcui';
 
-import { BaseSettingsPanel, type BaseSettingsPanelArgs } from './base';
 import type { Attribute } from '../attribute.type.d';
+
+import { BaseSettingsPanel } from './base';
+import type { BaseSettingsPanelArgs } from './base';
 
 const CLASS_ROOT = 'asset-import-settings-panel';
 const CLASS_SECTION = `${CLASS_ROOT}-section`;
@@ -259,9 +262,18 @@ class AssetImportSettingsPanel extends BaseSettingsPanel {
         this._attributesInspector.class.add(CLASS_ATTRIBUTES);
 
         // add sections
-        this._appendSection('Texture Import Settings', this._attributesInspector.getField('editor.pipeline.defaultAssetPreload'));
-        this._appendSection('Model Import Settings', this._attributesInspector.getField('editor.pipeline.textureDefaultToAtlas'));
-        this._appendSection('Animation Import Settings', this._attributesInspector.getField('editor.pipeline.createFBXFolder'));
+        this._appendSection(
+            'Texture Import Settings',
+            this._attributesInspector.getField('editor.pipeline.defaultAssetPreload')
+        );
+        this._appendSection(
+            'Model Import Settings',
+            this._attributesInspector.getField('editor.pipeline.textureDefaultToAtlas')
+        );
+        this._appendSection(
+            'Animation Import Settings',
+            this._attributesInspector.getField('editor.pipeline.createFBXFolder')
+        );
 
         if (!editor.call('users:hasFlag', 'hasUnwrapUv')) {
             this._attributesInspector.getField('editor.pipeline.unwrapUv').parent.hidden = true;
@@ -294,11 +306,11 @@ class AssetImportSettingsPanel extends BaseSettingsPanel {
         // draco
         this._setupDracoImportButton(meshCompressionField, 'draco.js', 'draco');
         const updateDracoImport = (value) => {
-            this._containerImportDraco.hidden = (value !== 'draco') || editor.call('project:module:hasModule', 'draco');
-            dracoDecodeSpeed.parent.hidden = (value !== 'draco');
-            dracoMeshSize.parent.hidden = (value !== 'draco');
+            this._containerImportDraco.hidden = value !== 'draco' || editor.call('project:module:hasModule', 'draco');
+            dracoDecodeSpeed.parent.hidden = value !== 'draco';
+            dracoMeshSize.parent.hidden = value !== 'draco';
         };
-        meshCompressionField.on('change', value => updateDracoImport(value));
+        meshCompressionField.on('change', (value) => updateDracoImport(value));
         this.on('showToRoot', () => {
             updateDracoImport(meshCompressionField.value);
         });
@@ -344,7 +356,7 @@ class AssetImportSettingsPanel extends BaseSettingsPanel {
         events.push(editor.on('onModuleImported', handleModuleImported));
 
         this._containerImportDraco.once('destroy', () => {
-            events.forEach(evt => evt.unbind());
+            events.forEach((evt) => evt.unbind());
             events.length = 0;
         });
     }

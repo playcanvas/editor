@@ -85,6 +85,7 @@ class TextResolver extends Events {
         this._panelTop.append(info);
 
         // find textual merge conflict
+        // eslint-disable-next-line @typescript-eslint/prefer-for-of -- conflict.data is `unknown` (conflict: Record<string, unknown>), not a genuine array type
         for (let i = 0; i < conflict.data.length; i++) {
             if (conflict.data[i].isTextualMerge) {
                 this._textualMergeConflict = conflict.data[i];
@@ -166,7 +167,10 @@ class TextResolver extends Events {
         this._iframe.classList.add('vc-merge-frame');
         this._iframe.addEventListener('load', () => {
             this._panelTop.hidden = false;
-            this._evtContentChange = this._codeEditorMethod('editor:merge:onContentChange', this._onContentChange.bind(this));
+            this._evtContentChange = this._codeEditorMethod(
+                'editor:merge:onContentChange',
+                this._onContentChange.bind(this)
+            );
             this._updateStatus();
             this._syncMarkResolved();
         });
@@ -233,25 +237,27 @@ class TextResolver extends Events {
 
         const content = this._codeEditorMethod('editor:merge:getContent');
         const file = new Blob([content]);
-        handleCallback(editor.api.globals.rest.conflicts.conflictsUpload({
-            conflictId: this._textualMergeConflict.id,
-            file
-        }), (err) => {
-            this._saving = false;
-            if (err) {
+        handleCallback(
+            editor.api.globals.rest.conflicts.conflictsUpload({
+                conflictId: this._textualMergeConflict.id,
+                file
+            }),
+            (err) => {
+                this._saving = false;
+                if (err) {
+                    this._toggleButtons(true);
+                    log.error(err);
+                    return;
+                }
+
+                this._textualMergeConflict.useMergedFile = true;
+                this.emit('resolve', this._textualMergeConflict.id, {
+                    useMergedFile: true
+                });
+                this._setResolved(content);
                 this._toggleButtons(true);
-                log.error(err);
-                return;
             }
-
-            this._textualMergeConflict.useMergedFile = true;
-            this.emit('resolve', this._textualMergeConflict.id, {
-                useMergedFile: true
-            });
-            this._setResolved(content);
-            this._toggleButtons(true);
-
-        });
+        );
     }
 
     _toggleButtons(toggle: boolean) {
@@ -286,6 +292,7 @@ class TextResolver extends Events {
         this._syncMarkResolved();
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-inferrable-types -- typedef requires a parameter annotation here, which no-inferrable-types then flags as redundant on the literal default
     _syncMarkResolved(toggle: boolean = true) {
         if (!toggle || this._saving) {
             this._btnMarkResolved.enabled = false;
@@ -323,9 +330,13 @@ class TextResolver extends Events {
 
     _onClickGoBack() {
         if (!this._isDiff && this._codeEditorMethod('editor:merge:isDirty')) {
-            editor.call('picker:confirm', 'Your changes will not be saved unless you hit "Mark As Resolved". Are you sure you want to go back?', () => {
-                this.emit('close');
-            });
+            editor.call(
+                'picker:confirm',
+                'Your changes will not be saved unless you hit "Mark As Resolved". Are you sure you want to go back?',
+                () => {
+                    this.emit('close');
+                }
+            );
         } else {
             this.emit('close');
         }
@@ -338,19 +349,22 @@ class TextResolver extends Events {
         }
 
         this._toggleButtons(false);
-        handleCallback(editor.api.globals.rest.assets.assetGetFile(this._conflict.itemId, this._conflict.srcFilename, {
-            immutableBackup: this._conflict.srcImmutableBackup,
-            branchId: this._sourceBranchId
-        }), (err, data) => {
-            this._toggleButtons(true);
+        handleCallback(
+            editor.api.globals.rest.assets.assetGetFile(this._conflict.itemId, this._conflict.srcFilename, {
+                immutableBackup: this._conflict.srcImmutableBackup,
+                branchId: this._sourceBranchId
+            }),
+            (err, data) => {
+                this._toggleButtons(true);
 
-            if (err) {
-                return editor.call('status:error', err);
+                if (err) {
+                    return editor.call('status:error', err);
+                }
+
+                this._sourceFile = data;
+                this._setContent(this._sourceFile);
             }
-
-            this._sourceFile = data;
-            this._setContent(this._sourceFile);
-        });
+        );
     }
 
     _onClickUseDest() {
@@ -360,19 +374,22 @@ class TextResolver extends Events {
         }
 
         this._toggleButtons(false);
-        handleCallback(editor.api.globals.rest.assets.assetGetFile(this._conflict.itemId, this._conflict.dstFilename, {
-            immutableBackup: this._conflict.dstImmutableBackup,
-            branchId: this._destBranchId
-        }), (err, data) => {
-            this._toggleButtons(true);
+        handleCallback(
+            editor.api.globals.rest.assets.assetGetFile(this._conflict.itemId, this._conflict.dstFilename, {
+                immutableBackup: this._conflict.dstImmutableBackup,
+                branchId: this._destBranchId
+            }),
+            (err, data) => {
+                this._toggleButtons(true);
 
-            if (err) {
-                return editor.call('status:error', err);
+                if (err) {
+                    return editor.call('status:error', err);
+                }
+
+                this._destFile = data;
+                this._setContent(this._destFile);
             }
-
-            this._destFile = data;
-            this._setContent(this._destFile);
-        });
+        );
     }
 
     _onClickRevert() {
@@ -383,20 +400,23 @@ class TextResolver extends Events {
 
         this._toggleButtons(false);
 
-        handleCallback(editor.api.globals.rest.merge.mergeConflicts({
-            mergeId: this._mergeId,
-            conflictId: this._textualMergeConflict.id,
-            fileName: this._textualMergeConflict.mergedFilePath,
-            resolved: false
-        }), (err, data) => {
-            this._toggleButtons(true);
-            if (err) {
-                return editor.call('status:error', err);
-            }
+        handleCallback(
+            editor.api.globals.rest.merge.mergeConflicts({
+                mergeId: this._mergeId,
+                conflictId: this._textualMergeConflict.id,
+                fileName: this._textualMergeConflict.mergedFilePath,
+                resolved: false
+            }),
+            (err, data) => {
+                this._toggleButtons(true);
+                if (err) {
+                    return editor.call('status:error', err);
+                }
 
-            this._unresolvedFile = data;
-            this._setContent(this._unresolvedFile);
-        });
+                this._unresolvedFile = data;
+                this._setContent(this._unresolvedFile);
+            }
+        );
     }
 
     _onClickNext() {

@@ -7,12 +7,20 @@ editor.once('load', () => {
 
     let errorCount = 0;
 
-    panel.addEventListener('mousedown', (evt: MouseEvent) => {
-        evt.stopPropagation();
-    }, false);
-    panel.addEventListener('click', (evt: MouseEvent) => {
-        evt.stopPropagation();
-    }, false);
+    panel.addEventListener(
+        'mousedown',
+        (evt: MouseEvent) => {
+            evt.stopPropagation();
+        },
+        false
+    );
+    panel.addEventListener(
+        'click',
+        (evt: MouseEvent) => {
+            evt.stopPropagation();
+        },
+        false
+    );
 
     // close button img
     const closeBtn = document.createElement('img');
@@ -97,7 +105,11 @@ editor.once('load', () => {
 
                 codeEditorUrl = config.url.home + target;
                 query = `?line=${line}&col=${col}&error=true`;
-            } else if (!editor.call('settings:project').get('useLegacyScripts') && url.includes('/api/assets/') && (url.includes('.js') || url.includes('.mjs'))) {
+            } else if (
+                !editor.call('settings:project').get('useLegacyScripts') &&
+                url.includes('/api/assets/') &&
+                (url.includes('.js') || url.includes('.mjs'))
+            ) {
                 const match = url.match(/\/api\/assets\/files\/.+?id=(\d+)/);
                 if (match) {
                     assetId = parseInt(match[1], 10);
@@ -128,7 +140,19 @@ editor.once('load', () => {
             const relativeUrl = url.slice(slash + 1);
             errorCount++;
 
-            append(pc.string.format('<a href="{0}{1}" target="{2}" class="code-link" id="{6}">[{3}:{4}]</a>: {5}', codeEditorUrl, query, target, relativeUrl, line, msg, `error-${errorCount}`), 'error');
+            append(
+                pc.string.format(
+                    '<a href="{0}{1}" target="{2}" class="code-link" id="{6}">[{3}:{4}]</a>: {5}',
+                    codeEditorUrl,
+                    query,
+                    target,
+                    relativeUrl,
+                    line,
+                    msg,
+                    `error-${errorCount}`
+                ),
+                'error'
+            );
 
             if (assetId) {
                 const link = document.getElementById(`error-${errorCount}`);
@@ -217,5 +241,4 @@ editor.once('load', () => {
             }
         });
     };
-
 });

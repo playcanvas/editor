@@ -17,7 +17,6 @@ editor.once('load', () => {
         data: projectPrivateSettings
     });
 
-
     // add history
     settings.history = new ObserverHistory({
         item: settings,
@@ -102,5 +101,4 @@ editor.once('load', () => {
             }
         });
     }
-
 });

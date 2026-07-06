@@ -74,7 +74,6 @@ class LoadingScreenSettingsPanel extends BaseSettingsPanel {
             }
         });
 
-
         this._selectExistingTooltip = TooltipHandle.attach({
             target: this._selectExistingButton.dom,
             text: 'Select an existing loading screen script',
@@ -145,15 +144,24 @@ class LoadingScreenSettingsPanel extends BaseSettingsPanel {
     _clickCreateDefault() {
         const folder = editor.call('sourcefiles:loadingScreen:skeleton');
         const validate = (name: string) => editor.call('assets:script:checkCollision', name, folder && folder.apiAsset);
-        editor.call('picker:script-create', (filename) => {
-            editor.call('assets:create:script', {
-                filename: filename,
-                parent: folder && folder.apiAsset,
-                text: editor.call('sourcefiles:loadingScreen:skeleton')
-            }, (asset: Asset) => {
-                this._setLoadingScreen(asset.observer);
-            });
-        }, undefined, validate);
+        editor.call(
+            'picker:script-create',
+            (filename) => {
+                editor.call(
+                    'assets:create:script',
+                    {
+                        filename: filename,
+                        parent: folder && folder.apiAsset,
+                        text: editor.call('sourcefiles:loadingScreen:skeleton')
+                    },
+                    (asset: Asset) => {
+                        this._setLoadingScreen(asset.observer);
+                    }
+                );
+            },
+            undefined,
+            validate
+        );
     }
 }
 

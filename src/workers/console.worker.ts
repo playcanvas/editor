@@ -24,7 +24,6 @@ type Log = {
 
 const workerServer = new WorkerServer(self);
 workerServer.on('init', async ({ projectId, branchId, legacyLogs }) => {
-
     const db = new Dexie('editor-console') as Dexie & { logs: Dexie.Table<Log, number> };
     db.version(1).stores({ logs: '++id' });
 
@@ -62,7 +61,6 @@ workerServer.on('init', async ({ projectId, branchId, legacyLogs }) => {
         // get all logs
         const all = await db.logs.toArray();
         const skip = all.length - RECORD_LIMIT;
-
 
         // collect all ids to delete
         const ids = all.reduce((acc, r, i) => {

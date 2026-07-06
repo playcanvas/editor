@@ -1,8 +1,8 @@
-interface Vec3 { x: number; y: number; z: number }
-interface Vec4 { x: number; y: number; z: number; w: number }
+type Vec3 = { x: number; y: number; z: number };
+type Vec4 = { x: number; y: number; z: number; w: number };
 
 class Unwrap {
-    now = (!performance.now || !performance.timing) ? Date.now : () => performance.now();
+    now = !performance.now || !performance.timing ? Date.now : () => performance.now();
 
     progress: ((percent: number) => void) | null = null;
 
@@ -35,7 +35,17 @@ class Unwrap {
         return { x: crossX, y: crossY, z: crossZ };
     }
 
-    triNormal(ax: number, ay: number, az: number, bx: number, by: number, bz: number, cx: number, cy: number, cz: number) {
+    triNormal(
+        ax: number,
+        ay: number,
+        az: number,
+        bx: number,
+        by: number,
+        bz: number,
+        cx: number,
+        cy: number,
+        cz: number
+    ) {
         const px = ax - bx;
         const py = ay - by;
         const pz = az - bz;
@@ -66,7 +76,6 @@ class Unwrap {
             return n.y < 0 ? 2 : 3;
         }
         return n.z < 0 ? 4 : 5;
-
     }
 
     // (in/out) ib: index buffer
@@ -122,17 +131,17 @@ class Unwrap {
         // var addVertsNew = [];
         for (face = 0; face < 6; face++) {
             for (face2 = face + 1; face2 < 6; face2++) {
-
                 for (i = 0; i < ibCube[face].length; i++) {
                     remapVertList = [];
                     for (let j = 0; j < ibCube[face2].length; j++) {
-                        if (ibCube[face][i] === ibCube[face2][j]) { // 2 verts in different faces are same - have to split
+                        if (ibCube[face][i] === ibCube[face2][j]) {
+                            // 2 verts in different faces are same - have to split
                             remapVertList.push(j);
                         }
                     }
                     if (remapVertList.length > 0) {
-                        for (let j = 0; j < remapVertList.length; j++) {
-                            ibCube[face2][remapVertList[j]] = vertCount;
+                        for (const remapVert of remapVertList) {
+                            ibCube[face2][remapVert] = vertCount;
                         }
                         addVerts.push(ibCube[face][i]);
                         // addVertsNew.push( ibFaceStart[face] + i );
@@ -154,15 +163,21 @@ class Unwrap {
         // patch IB and generate UVs
         const UV = [];
         const cubeNormal = [
-            { x: -1, y: 0, z: 0 }, { x: 1, y: 0, z: 0 },
-            { x: 0, y: -1, z: 0 }, { x: 0, y: 1, z: 0 },
-            { x: 0, y: 0, z: -1 }, { x: 0, y: 0, z: 1 }
+            { x: -1, y: 0, z: 0 },
+            { x: 1, y: 0, z: 0 },
+            { x: 0, y: -1, z: 0 },
+            { x: 0, y: 1, z: 0 },
+            { x: 0, y: 0, z: -1 },
+            { x: 0, y: 0, z: 1 }
         ];
         let normal, tangent, binormal;
         let offset = 0;
         for (face = 0; face < 6; face++) {
             normal = cubeNormal[face];
-            tangent = this.crossNormalize(normal, Math.abs(normal.y) > 0.5 ? { x: 1, y: 0, z: 0 } : { x: 0, y: 1, z: 0 });
+            tangent = this.crossNormalize(
+                normal,
+                Math.abs(normal.y) > 0.5 ? { x: 1, y: 0, z: 0 } : { x: 0, y: 1, z: 0 }
+            );
             binormal = this.crossNormalize(normal, tangent);
             tangent = this.crossNormalize(normal, binormal);
 
@@ -182,11 +197,9 @@ class Unwrap {
         return { append: addVerts, uv: UV };
     }
 
-
     // (in/out) ib: index buffer
     // return value: array of triangle counts in each consequent chart
     findCharts(ib: number[]) {
-
         let i, j, v0i, v0j;
         const charts = [];
         let ptr = 0;
@@ -201,7 +214,8 @@ class Unwrap {
             }
 
             for (j = ptr; j < ib.length; j++) {
-                if (ib[i] === ib[j]) { // same index in different triangle
+                if (ib[i] === ib[j]) {
+                    // same index in different triangle
                     v0j = Math.floor(j / 3) * 3;
 
                     // pack connected triangles together
@@ -233,8 +247,17 @@ class Unwrap {
         return charts;
     }
 
-
-    triangleArea(Ax: number, Ay: number, Az: number, Bx: number, By: number, Bz: number, Cx: number, Cy: number, Cz: number) {
+    triangleArea(
+        Ax: number,
+        Ay: number,
+        Az: number,
+        Bx: number,
+        By: number,
+        Bz: number,
+        Cx: number,
+        Cy: number,
+        Cz: number
+    ) {
         Bx -= Ax;
         By -= Ay;
         Bz -= Az;
@@ -249,7 +272,6 @@ class Unwrap {
 
         return 0.5 * Math.sqrt(cx * cx + cy * cy + cz * cz);
     }
-
 
     // (in) ib: index buffer
     // (in) charts: result of findCharts
@@ -367,11 +389,28 @@ class Unwrap {
             totalAreaT += areaT;
             areasT.push(areaT);
         }
-        return { areas: areas, areasT: areasT, totalArea: totalArea, totalAreaT: totalAreaT, aabbs: aabbs } as { areas: number[]; areasT: number[]; totalArea: number; totalAreaT: number; aabbs: Vec4[]; usedArea?: number; notFitted?: number; maxWidth?: number; maxHeight?: number; minWidth?: number };
+        return { areas: areas, areasT: areasT, totalArea: totalArea, totalAreaT: totalAreaT, aabbs: aabbs } as {
+            areas: number[];
+            areasT: number[];
+            totalArea: number;
+            totalAreaT: number;
+            aabbs: Vec4[];
+            usedArea?: number;
+            notFitted?: number;
+            maxWidth?: number;
+            maxHeight?: number;
+            minWidth?: number;
+        };
     }
 
-
-    normalizeCharts(ib: number[], charts: number[], areasObj: { areas: number[]; areasT: number[]; totalArea: number; aabbs: Vec4[] }, uv: number[], aabbs?: Vec4[], _mult?: number) {
+    normalizeCharts(
+        ib: number[],
+        charts: number[],
+        areasObj: { areas: number[]; areasT: number[]; totalArea: number; aabbs: Vec4[] },
+        uv: number[],
+        aabbs?: Vec4[],
+        _mult?: number
+    ) {
         let i, scale;
 
         const areas = areasObj.areas;
@@ -384,7 +423,6 @@ class Unwrap {
             const scaleNormalize = 1.0 / areasT[i];
             const scaleByArea = areas[i] / totalArea;
             scale = Math.sqrt(scaleNormalize * scaleByArea) * 0.8; // magic constant
-
 
             // var scaleNormalize2 = 1.0 / (aabbs[i].z * aabbs[i].w);
             // var scale2 = Math.sqrt(scaleNormalize2 * scaleByArea) * 0.8;
@@ -399,16 +437,24 @@ class Unwrap {
         return scales;
     }
 
-
     fits(what: Vec4, where: Vec4) {
-        return (what.z <= where.z && what.w <= where.w);
+        return what.z <= where.z && what.w <= where.w;
     }
 
     fitsExactly(what: Vec4, where: Vec4) {
-        return (what.z === where.z && what.w === where.w);
+        return what.z === where.z && what.w === where.w;
     }
 
-    findHoles(node: { aabb: Vec4 }, id: number, aabb: Vec4, uv: number[], charts: number[], ib: number[], aabbs: Vec4[], scale: number) {
+    findHoles(
+        node: { aabb: Vec4 },
+        id: number,
+        aabb: Vec4,
+        uv: number[],
+        charts: number[],
+        ib: number[],
+        aabbs: Vec4[],
+        scale: number
+    ) {
         let i;
         const tilePixelSize = 4;
         const gridPixelWidth = Math.floor((node.aabb.z * this.resolution - this.padding * 2) / tilePixelSize);
@@ -419,7 +465,6 @@ class Unwrap {
         if (gridPixelWidth > 1000 || gridPixelHeight > 1000) {
             return [];
         }
-
 
         const grid = new Uint8Array(gridPixelWidth * gridPixelHeight);
 
@@ -441,7 +486,6 @@ class Unwrap {
         let minx, miny, maxx, maxy;
 
         for (i = 0; i < numTris; i++) {
-
             a = ib[(offset + i) * 3];
             b = ib[(offset + i) * 3 + 1];
             c = ib[(offset + i) * 3 + 2];
@@ -510,7 +554,6 @@ class Unwrap {
                 maxy = gridPixelHeight - 1;
             }
 
-
             for (y = miny; y <= maxy; y++) {
                 for (x = minx; x <= maxx; x++) {
                     grid[y * gridPixelWidth + x] = 255;
@@ -578,7 +621,6 @@ class Unwrap {
                         let growMode = 0;
                         let earlyExit = true;
                         while (freeRect) {
-
                             if (minx < 0 || miny < 0 || maxx > gridPixelWidth - 1 || maxy > gridPixelHeight - 1) {
                                 freeRect = false; // can't expand out of bounds
                             } else {
@@ -597,7 +639,12 @@ class Unwrap {
 
                             if (freeRect) {
                                 for (j = 0; j < rects.length; j++) {
-                                    const overlap = !(rects[j].maxx < minx || rects[j].minx > maxx || rects[j].maxy < miny || rects[j].miny > maxy);
+                                    const overlap = !(
+                                        rects[j].maxx < minx ||
+                                        rects[j].minx > maxx ||
+                                        rects[j].maxy < miny ||
+                                        rects[j].miny > maxy
+                                    );
                                     if (overlap) {
                                         freeRect = false; // can't expand over other rects
                                         break;
@@ -662,7 +709,16 @@ class Unwrap {
         return rects;
     }
 
-    insertToAtlas(node: { aabb: Vec4; leaf: boolean; id: number; child: any[] }, id: number, aabb: Vec4, uv: number[], charts: number[], ib: number[], aabbs: Vec4[], scale: number) {
+    insertToAtlas(
+        node: { aabb: Vec4; leaf: boolean; id: number; child: any[] },
+        id: number,
+        aabb: Vec4,
+        uv: number[],
+        charts: number[],
+        ib: number[],
+        aabbs: Vec4[],
+        scale: number
+    ) {
         if (node.leaf) {
             if (node.id >= 0) {
                 return null;
@@ -714,14 +770,13 @@ class Unwrap {
             node.child[1] = { aabb: r1, id: -1, child: [], leaf: true, test: false };
             return this.insertToAtlas(node.child[0], id, aabb, uv, charts, ib, aabbs, scale);
         }
-        for (let i = 0; i < node.child.length; i++) {
-            const result = this.insertToAtlas(node.child[i], id, aabb, uv, charts, ib, aabbs, scale);
+        for (const child of node.child) {
+            const result = this.insertToAtlas(child, id, aabb, uv, charts, ib, aabbs, scale);
             if (result) {
                 return result;
             }
         }
         return null;
-
     }
 
     transformUv(uv: { x: number; y: number }, tform: Vec4) {
@@ -729,8 +784,26 @@ class Unwrap {
         uv.y = uv.y * tform.y + tform.w;
     }
 
-
-    packCharts(ib: number[], charts: number[], aabbs: Vec4[], areasObj: { areas: number[]; areasT: number[]; totalArea: number; totalAreaT: number; aabbs: Vec4[]; usedArea?: number; notFitted?: number; maxWidth?: number; maxHeight?: number; minWidth?: number }, uv: number[], scales: number[], globalScale: number) {
+    packCharts(
+        ib: number[],
+        charts: number[],
+        aabbs: Vec4[],
+        areasObj: {
+            areas: number[];
+            areasT: number[];
+            totalArea: number;
+            totalAreaT: number;
+            aabbs: Vec4[];
+            usedArea?: number;
+            notFitted?: number;
+            maxWidth?: number;
+            maxHeight?: number;
+            minWidth?: number;
+        },
+        uv: number[],
+        scales: number[],
+        globalScale: number
+    ) {
         let i;
         const root = { aabb: { x: 0, y: 0, z: 1, w: 1 }, id: -1, child: [], leaf: true, test: false };
         const packedAabbs = [];
@@ -739,7 +812,8 @@ class Unwrap {
         for (i = 0; i < charts.length; i++) {
             sortedChartIndices[i] = i;
         }
-        sortedChartIndices.sort((a, b) => { // sort from larger to smaller
+        sortedChartIndices.sort((a, b) => {
+            // sort from larger to smaller
             const sizeA = Math.max(aabbs[a].z * scales[a], aabbs[a].w * scales[a]);
             const sizeB = Math.max(aabbs[b].z * scales[b], aabbs[b].w * scales[b]);
             return sizeB - sizeA;
@@ -799,7 +873,6 @@ class Unwrap {
 
         const scaleOffset = [];
         for (i = 0; i < aabbs.length; i++) {
-
             scaledAabb = { x: aabbs[i].x, y: aabbs[i].y, z: aabbs[i].z, w: aabbs[i].w };
             scaledAabb.x *= scales[i] * globalScale;
             scaledAabb.y *= scales[i] * globalScale;
@@ -822,7 +895,14 @@ class Unwrap {
         return this.transformUv(p, scaleOffset);
     }
 
-    finalTransformUv(ib: number[], charts: number[], uv: number[], scales: number[], globalScale: number, packedScaleOffset: Vec4[]) {
+    finalTransformUv(
+        ib: number[],
+        charts: number[],
+        uv: number[],
+        scales: number[],
+        globalScale: number,
+        packedScaleOffset: Vec4[]
+    ) {
         let i, j, tri, v0, v1, v2;
         const p0 = { x: 0, y: 0 };
         const p1 = { x: 0, y: 0 };
@@ -890,9 +970,7 @@ class Unwrap {
         return [sx, sy, sz];
     }
 
-
     unwrapJsonModel(data: any, forceFromScratch: boolean, padding: number, fillHoles: boolean) {
-
         this.resolution = 1024;
         this.padding = padding;
         this.paddingUv = this.padding / this.resolution;
@@ -934,7 +1012,6 @@ class Unwrap {
         }
 
         for (i = 0; i < data.model.meshInstances.length; i++) {
-
             if (this.progress) {
                 this.progress((i / data.model.meshInstances.length) * 30); // assume the whole loop takes about 30%
             }
@@ -969,7 +1046,7 @@ class Unwrap {
                 if (attrib === 'position') {
                     continue;
                 } // already patched
-                if (attribs.hasOwnProperty(attrib)) {
+                if (Object.hasOwn(attribs, attrib)) {
                     const arr = attribs[attrib].data;
                     const components = attribs[attrib].components;
                     for (k = 0; k < append.length; k++) {
@@ -990,9 +1067,7 @@ class Unwrap {
             _scales[vbId] = objectScale;
         }
 
-
         for (i = 0; i < data.model.vertices.length; i++) {
-
             attribs = data.model.vertices[i];
             _positions = attribs.position.data;
             _uv = _uvs[i];
@@ -1012,7 +1087,6 @@ class Unwrap {
             ibOffset += _positions.length / 3;
         }
 
-
         for (i = 0; i < data.model.meshInstances.length; i++) {
             meshId = data.model.meshInstances[i].mesh;
             vbId = data.model.meshes[meshId].vertices;
@@ -1021,7 +1095,6 @@ class Unwrap {
                 ib.push(_ib[j] + firstIndex[vbId]);
             }
         }
-
 
         const charts = this.findCharts(ib);
         const areasObj = this.calculateChartArea(ib, charts, positions, uv);
@@ -1077,7 +1150,6 @@ class Unwrap {
         packedScaleOffset = packResult.scaleOffset;
 
         this.finalTransformUv(ib, charts, uv, scales, globalScale, packedScaleOffset);
-
 
         for (i = 0; i < data.model.vertices.length; i++) {
             _uv = [];

@@ -15,14 +15,14 @@ editor.once('load', () => {
             return;
         }
 
-        for (let i = 0; i < assetIds.length; i++) {
-            if (!bundlesIndex[assetIds[i]]) {
-                bundlesIndex[assetIds[i]] = [bundleAsset];
-                editor.emit('assets:bundles:insert', bundleAsset, assetIds[i]);
+        for (const assetId of assetIds) {
+            if (!bundlesIndex[assetId]) {
+                bundlesIndex[assetId] = [bundleAsset];
+                editor.emit('assets:bundles:insert', bundleAsset, assetId);
             } else {
-                if (bundlesIndex[assetIds[i]].indexOf(bundleAsset) === -1) {
-                    bundlesIndex[assetIds[i]].push(bundleAsset);
-                    editor.emit('assets:bundles:insert', bundleAsset, assetIds[i]);
+                if (bundlesIndex[assetId].indexOf(bundleAsset) === -1) {
+                    bundlesIndex[assetId].push(bundleAsset);
+                    editor.emit('assets:bundles:insert', bundleAsset, assetId);
                 }
             }
         }
@@ -213,8 +213,8 @@ editor.once('load', () => {
 
             const history = asset.history.enabled;
             asset.history.enabled = false;
-            for (let i = 0; i < assets.length; i++) {
-                asset.removeValue('data.assets', assets[i].get('id'));
+            for (const a of assets) {
+                asset.removeValue('data.assets', a.get('id'));
             }
             asset.history.enabled = history;
         };
@@ -227,9 +227,9 @@ editor.once('load', () => {
 
             const history = asset.history.enabled;
             asset.history.enabled = false;
-            for (let i = 0; i < assets.length; i++) {
-                if (isAssetValid(assets[i], asset)) {
-                    asset.insert('data.assets', assets[i].get('id'));
+            for (const a of assets) {
+                if (isAssetValid(a, asset)) {
+                    asset.insert('data.assets', a.get('id'));
                 }
             }
             asset.history.enabled = history;
@@ -255,8 +255,8 @@ editor.once('load', () => {
     editor.method('assets:bundles:calculateSize', (bundleAsset: Observer): number => {
         let size = 0;
         const assets = bundleAsset.get('data.assets');
-        for (let i = 0; i < assets.length; i++) {
-            const asset = editor.call('assets:get', assets[i]);
+        for (const assetId of assets) {
+            const asset = editor.call('assets:get', assetId);
             if (!asset || !asset.has('file.size')) {
                 continue;
             }

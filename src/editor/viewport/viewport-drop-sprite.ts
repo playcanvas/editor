@@ -32,8 +32,8 @@ editor.once('load', () => {
             }
 
             if (type === 'assets') {
-                for (let i = 0; i < data.ids.length; i++) {
-                    const asset = editor.call('assets:get', data.ids[i]);
+                for (const id of data.ids) {
+                    const asset = editor.call('assets:get', id);
                     if (!asset) {
                         return false;
                     }
@@ -43,8 +43,8 @@ editor.once('load', () => {
                     }
                 }
 
-                for (let i = 0; i < data.ids.length; i++) {
-                    const asset = app.assets.get(data.ids[i]);
+                for (const id of data.ids) {
+                    const asset = app.assets.get(id);
                     if (asset) {
                         app.assets.load(asset);
                     }
@@ -66,8 +66,8 @@ editor.once('load', () => {
                     assets.push(asset);
                 }
             } else if (type === 'assets') {
-                for (let i = 0; i < data.ids.length; i++) {
-                    const asset = editor.call('assets:get', parseInt(data.ids[i], 10));
+                for (const id of data.ids) {
+                    const asset = editor.call('assets:get', parseInt(id, 10));
                     if (asset && asset.get('type') === 'sprite') {
                         assets.push(asset);
                     }
@@ -91,8 +91,8 @@ editor.once('load', () => {
 
             // calculate aabb
             let first = true;
-            for (let i = 0; i < assets.length; i++) {
-                const assetEngine = app.assets.get(assets[i].get('id'));
+            for (const asset of assets) {
+                const assetEngine = app.assets.get(asset.get('id'));
                 if (!assetEngine) {
                     continue;
                 }
@@ -142,12 +142,12 @@ editor.once('load', () => {
                 distance = aabb.halfExtents.length() * 2.2;
             }
 
-            for (let i = 0; i < assets.length; i++) {
+            for (const asset of assets) {
                 const component = editor.call('components:getDefault', 'sprite');
 
-                const name = assets[i].get('name') || 'Untitled';
+                const name = asset.get('name') || 'Untitled';
 
-                if (assets[i].get('data.frameKeys').length > 1) {
+                if (asset.get('data.frameKeys').length > 1) {
                     component.type = 'animated';
                     component.clips = {
                         '0': {
@@ -155,23 +155,26 @@ editor.once('load', () => {
                             fps: 10,
                             loop: true,
                             autoPlay: true,
-                            spriteAsset: parseInt(assets[i].get('id'), 10)
+                            spriteAsset: parseInt(asset.get('id'), 10)
                         }
                     };
                     component.autoPlayClip = name;
                 } else {
-                    component.spriteAsset =  parseInt(assets[i].get('id'), 10);
+                    component.spriteAsset = parseInt(asset.get('id'), 10);
                 }
 
                 // new entity
-                const entity = editor.api.globals.entities.create(({
-                    parent: parent,
-                    name: name,
-                    position: [vecC.x, vecC.y, vecC.z],
-                    components: {
-                        sprite: component
-                    }
-                } as any), { history: false });
+                const entity = editor.api.globals.entities.create(
+                    {
+                        parent: parent,
+                        name: name,
+                        position: [vecC.x, vecC.y, vecC.z],
+                        components: {
+                            sprite: component
+                        }
+                    } as any,
+                    { history: false }
+                );
 
                 entities.push(entity);
                 data.push(entity.json());
@@ -198,6 +201,7 @@ editor.once('load', () => {
 
                     entities.length = 0;
 
+                    // eslint-disable-next-line @typescript-eslint/prefer-for-of -- `data` is a union type; for-of loses the array narrowing (data is an array here at runtime)
                     for (let i = 0; i < data.length; i++) {
                         const entity = editor.api.globals.entities.create(data[i], { history: false });
                         entities.push(entity);

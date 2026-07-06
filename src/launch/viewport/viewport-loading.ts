@@ -100,6 +100,5 @@ editor.once('load', () => {
             app.on('preload:progress', setProgress);
             app.on('start', hideSplash);
         });
-
     });
 });

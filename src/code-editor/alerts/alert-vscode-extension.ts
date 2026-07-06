@@ -2,7 +2,7 @@ import { Container, Label, Button } from '@playcanvas/pcui';
 
 const LOCALSTORAGE_KEY = 'ide:vscode-ext-banner';
 const EXT_URL = 'https://marketplace.visualstudio.com/items?itemName=playcanvas.playcanvas';
-const VSCODE_ICON = /* html */`
+const VSCODE_ICON = /* html */ `
     <svg width="22" height="22" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
         <mask id="vs-m" mask-type="alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100">
             <path fill-rule="evenodd" clip-rule="evenodd" d="M70.912 99.317a6.223 6.223 0 004.874-.637l20.17-10.482A6.25
@@ -32,7 +32,9 @@ editor.once('load', () => {
     const root = editor.call('layout.root');
     const container = new Container({ class: 'vscode-ext-banner' });
 
-    const label = new Label({ text: 'Accelerate your workflow with Cursor, Codex, and Claude Code using the VSCode extension' });
+    const label = new Label({
+        text: 'Accelerate your workflow with Cursor, Codex, and Claude Code using the VSCode extension'
+    });
     container.append(label);
 
     const icon = new Label({

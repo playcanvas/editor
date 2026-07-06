@@ -1,7 +1,8 @@
 import type { EventHandle } from '@playcanvas/observer';
 import { Container, Panel, Label } from '@playcanvas/pcui';
 
-import { BaseSettingsPanel, type BaseSettingsPanelArgs } from './base';
+import { BaseSettingsPanel } from './base';
+import type { BaseSettingsPanelArgs } from './base';
 
 const CLASS_ROOT = 'scripts-settings-panel';
 const CLASS_SCRIPTS_LIST = `${CLASS_ROOT}-scripts-list`;
@@ -56,9 +57,11 @@ class ScriptsSettingsPanel extends BaseSettingsPanel {
         const asset = assets.get(id);
         return new Promise((resolve) => {
             if (!asset) {
-                this._assetEvents.push(editor.once(`assets:add[${id}]`, (asset) => {
-                    resolve(asset);
-                }));
+                this._assetEvents.push(
+                    editor.once(`assets:add[${id}]`, (asset) => {
+                        resolve(asset);
+                    })
+                );
             } else {
                 resolve(asset);
             }
@@ -80,9 +83,11 @@ class ScriptsSettingsPanel extends BaseSettingsPanel {
             editor.call('selector:set', 'asset', [asset]);
         });
 
-        this._assetEvents.push(asset.on('name:set', (name) => {
-            panel.headerText = name;
-        }));
+        this._assetEvents.push(
+            asset.on('name:set', (name) => {
+                panel.headerText = name;
+            })
+        );
 
         panel._fieldOrder = new Label();
         panel._fieldOrder.text = `#${index + 1}`;
@@ -91,7 +96,6 @@ class ScriptsSettingsPanel extends BaseSettingsPanel {
         this._scriptList.splice(index, 0, panel);
         const before = this._scriptListContainer.dom.childNodes[index];
         this._scriptListContainer.appendBefore(panel, before && before.ui);
-
     }
 
     _onScriptInsert(assetId: number, index: number) {
@@ -134,7 +138,7 @@ class ScriptsSettingsPanel extends BaseSettingsPanel {
         this._scriptList.length = 0;
         this._scriptListContainer.clear();
 
-        this._assetEvents.forEach(evt => evt.unbind());
+        this._assetEvents.forEach((evt) => evt.unbind());
         this._assetEvents.length = 0;
 
         list.forEach((script, i) => {
@@ -147,11 +151,11 @@ class ScriptsSettingsPanel extends BaseSettingsPanel {
             return;
         }
 
-        this._scriptEvents.forEach(evt => evt.unbind());
+        this._scriptEvents.forEach((evt) => evt.unbind());
         this._scriptEvents.length = 0;
         this._scriptList.length = 0;
 
-        this._assetEvents.forEach(evt => evt.unbind());
+        this._assetEvents.forEach((evt) => evt.unbind());
         this._assetEvents.length = 0;
 
         super.destroy();

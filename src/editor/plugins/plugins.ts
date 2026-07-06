@@ -1,9 +1,8 @@
 editor.once('load', () => {
     const pluginNameCheck = /[\w-]/;
-    const pluginsLoading = { };
-    const plugins = { };
+    const pluginsLoading = {};
+    const plugins = {};
     const projectSettings = editor.call('settings:project');
-
 
     editor.method('plugins:load', (name: string, fn?: (err: Error | null) => void) => {
         if (!name || !pluginNameCheck.test(name)) {
@@ -44,7 +43,7 @@ editor.once('load', () => {
                 return;
             }
 
-            if (this.readyState && (this.readyState !== 'loaded' && this.readyState === 'complete')) {
+            if (this.readyState && this.readyState !== 'loaded' && this.readyState === 'complete') {
                 return;
             }
 
@@ -79,11 +78,10 @@ editor.once('load', () => {
         editor.emit('plugins:removed', name);
     });
 
-
     const pluginsPreload = projectSettings.get('plugins');
     if (pluginsPreload) {
-        for (let i = 0; i < pluginsPreload.length; i++) {
-            editor.call('plugins:load', pluginsPreload[i]);
+        for (const plugin of pluginsPreload) {
+            editor.call('plugins:load', plugin);
         }
     }
 });

@@ -37,7 +37,6 @@ export const searchStringEditDistance = function (a: string, b: string) {
     return matrix[b.length][a.length];
 };
 
-
 // calculate, how many characters string `b`
 // contains of a string `a`
 export const searchCharsContains = function (a: string, b: string) {
@@ -46,7 +45,7 @@ export const searchCharsContains = function (a: string, b: string) {
     }
 
     let contains = 0;
-    const ind = { };
+    const ind = {};
     let i;
 
     for (i = 0; i < b.length; i++) {
@@ -61,7 +60,6 @@ export const searchCharsContains = function (a: string, b: string) {
 
     return contains;
 };
-
 
 // tokenize string into array of tokens
 export const searchStringTokenize = function (name: string) {
@@ -95,7 +93,11 @@ export const getMap = function (items: unknown[], key: string) {
         case 'Component Type': {
             const componentItems = [];
             items.forEach((item: [string, unknown]) => {
-                (item[1] as { entity: { _data: { components: { _keys: string[] } } } }).entity._data.components._keys.forEach((component: string) => componentItems.push([component.toLowerCase(), item[1]]));
+                (
+                    item[1] as { entity: { _data: { components: { _keys: string[] } } } }
+                ).entity._data.components._keys.forEach((component: string) =>
+                    componentItems.push([component.toLowerCase(), item[1]])
+                );
             });
             return componentItems;
         }
@@ -105,7 +107,9 @@ export const getMap = function (items: unknown[], key: string) {
                 const entry = item[1] as any;
                 const entityData = entry?.entity?._data;
                 if (entityData?.components?._data?.script) {
-                    entityData.components._data.script._data.order.forEach((script: string) => scriptItems.push([script.toLowerCase(), item[1]]));
+                    entityData.components._data.script._data.order.forEach((script: string) =>
+                        scriptItems.push([script.toLowerCase(), item[1]])
+                    );
                 }
             });
             return scriptItems;
@@ -113,7 +117,9 @@ export const getMap = function (items: unknown[], key: string) {
         case 'Tags': {
             const tagItems = [];
             items.forEach((item: [string, unknown]) => {
-                (item[1] as { entity: { _data: { tags: string[] } } }).entity._data.tags.forEach((tag: string) => tagItems.push([tag.toLowerCase(), item[1]]));
+                (item[1] as { entity: { _data: { tags: string[] } } }).entity._data.tags.forEach((tag: string) =>
+                    tagItems.push([tag.toLowerCase(), item[1]])
+                );
             });
             return tagItems;
         }
@@ -121,11 +127,9 @@ export const getMap = function (items: unknown[], key: string) {
 };
 
 const _searchExact = function (items: { name: string }[], search: string) {
-
     const results = [];
 
-    for (let i = 0; i < items.length; i++) {
-        const item = items[i];
+    for (const item of items) {
         if (item.name.toLowerCase().includes(search)) {
             results.push(item);
         }
@@ -134,12 +138,14 @@ const _searchExact = function (items: { name: string }[], search: string) {
     return results;
 };
 
-const _searchItems = function (items: { name: string; subFull: number; edits: number; sub: number; tokens: string[] }[], search: string, args: { containsCharsTolerance?: number; editsDistanceTolerance?: number }) {
+const _searchItems = function (
+    items: { name: string; subFull: number; edits: number; sub: number; tokens: string[] }[],
+    search: string,
+    args: { containsCharsTolerance?: number; editsDistanceTolerance?: number }
+) {
     const results = [];
 
-    for (let i = 0; i < items.length; i++) {
-        const item = items[i];
-
+    for (const item of items) {
         // direct hit
         if (item.subFull !== Infinity) {
             results.push(item);
@@ -194,7 +200,7 @@ const _searchItems = function (items: { name: string; subFull: number; edits: nu
                 continue;
             } else if (subCandidate === Infinity && edits < editsCandidate) {
                 // new edits candidate, not a substring of a token
-                if ((edits / Math.max(search.length, item.tokens[t].length)) <= args.editsDistanceTolerance) {
+                if (edits / Math.max(search.length, item.tokens[t].length) <= args.editsDistanceTolerance) {
                     // check if edits tolerance is satisfied
                     editsCandidate = edits;
                 }
@@ -239,7 +245,7 @@ export const searchItems = function (items: [string, any][], search: string, arg
         return [];
     }
 
-    args = args || { };
+    args = args || {};
     args.containsCharsTolerance = args.containsCharsTolerance || 0.5;
     args.editsDistanceTolerance = args.editsDistanceTolerance || 0.5;
 
@@ -253,7 +259,7 @@ export const searchItems = function (items: [string, any][], search: string, arg
             item: items[i][1],
             tokens: args.fuzzy ? searchStringTokenize(items[i][0]) : [],
             edits: Infinity,
-            subFull: (subInd !== -1) ? subInd : Infinity,
+            subFull: subInd !== -1 ? subInd : Infinity,
             sub: Infinity
         });
     }
@@ -283,7 +289,7 @@ export const searchItems = function (items: [string, any][], search: string, arg
     }
 
     // limit number of results
-    if (args.hasOwnProperty('limitResults') && records.length > args.limitResults) {
+    if (Object.hasOwn(args, 'limitResults') && records.length > args.limitResults) {
         records = records.slice(0, args.limitResults);
     }
 

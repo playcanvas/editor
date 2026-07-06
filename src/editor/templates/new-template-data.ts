@@ -63,25 +63,15 @@ editor.once('load', () => {
         }
 
         setScriptAttrs() {
-            this.scriptAttrs = editor.call(
-                'template:getScriptAttributes', this.dstEnts);
+            this.scriptAttrs = editor.call('template:getScriptAttributes', this.dstEnts);
         }
 
         remapIds(ent: Record<string, unknown>): void {
-            editor.call(
-                'template:remapEntityIds',
-                ent,
-                this.scriptAttrs,
-                this.srcToDst
-            );
+            editor.call('template:remapEntityIds', ent, this.scriptAttrs, this.srcToDst);
         }
 
         prepResult() {
-            const ents = editor.call(
-                'template:utils',
-                'entArrayToMap',
-                this.dstEnts
-            );
+            const ents = editor.call('template:utils', 'entArrayToMap', this.dstEnts);
 
             return {
                 assetData: { entities: ents },
@@ -100,7 +90,13 @@ editor.once('load', () => {
      * asset, it has the format { entities: <guid to entity map> }), and 'srcToDst' (a map from
      * original to new guids).
      */
-    editor.method('template:newTemplateData', (root: unknown, sceneEnts: unknown[]): { assetData: { entities: Record<string, unknown> }; srcToDst: Record<string, string> } => {
-        return new NewTemplateData(root, sceneEnts).run();
-    });
+    editor.method(
+        'template:newTemplateData',
+        (
+            root: unknown,
+            sceneEnts: unknown[]
+        ): { assetData: { entities: Record<string, unknown> }; srcToDst: Record<string, string> } => {
+            return new NewTemplateData(root, sceneEnts).run();
+        }
+    );
 });

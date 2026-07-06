@@ -2,7 +2,6 @@ import type { Observer } from '@playcanvas/observer';
 
 import { registerSW } from '@/common/service-worker';
 
-
 editor.on('load', async () => {
     // Register the service worker
     const { error, swc, worker } = await registerSW('/editor/scene/js/url-map.sw.js');
@@ -23,23 +22,24 @@ editor.on('load', async () => {
      * @param data - The data to send to the service worker
      * @returns A promise that resolves when the service worker responds to the message
      */
-    const send = (message: string, data?: unknown): Promise<void> => new Promise((resolve, reject) => {
-        const onMessage = (event: MessageEvent) => {
-            navigator.serviceWorker.removeEventListener('message', onMessage);
-            switch (event.data.message) {
-                case `${message}:success`: {
-                    resolve();
-                    break;
+    const send = (message: string, data?: unknown): Promise<void> =>
+        new Promise((resolve, reject) => {
+            const onMessage = (event: MessageEvent) => {
+                navigator.serviceWorker.removeEventListener('message', onMessage);
+                switch (event.data.message) {
+                    case `${message}:success`: {
+                        resolve();
+                        break;
+                    }
+                    case `${message}:error`: {
+                        reject(new Error(event.data.error));
+                        break;
+                    }
                 }
-                case `${message}:error`: {
-                    reject(new Error(event.data.error));
-                    break;
-                }
-            }
-        };
-        navigator.serviceWorker.addEventListener('message', onMessage);
-        worker.postMessage({ message, data });
-    });
+            };
+            navigator.serviceWorker.addEventListener('message', onMessage);
+            worker.postMessage({ message, data });
+        });
 
     /**
      * Watches an asset for changes to its name and path
@@ -79,7 +79,7 @@ editor.on('load', async () => {
      * @param scriptAsset - The asset to create a url mapping from
      * @returns - The url mapping
      */
-    const createUrlMapping = (scriptAsset: Observer): { url: string, mappedUrl: string } => {
+    const createUrlMapping = (scriptAsset: Observer): { url: string; mappedUrl: string } => {
         const url = new URL(`${pc.app.assets.prefix}${scriptAsset.get('file.url')}`, location.origin);
         return {
             url: `${url.origin}${url.pathname}`,
@@ -101,7 +101,7 @@ editor.on('load', async () => {
             // remove the old mapping
             await send('importmap:remove', { url });
             unwatchAsset(assetId, update);
-            asset.get('path').forEach(id => unwatchAsset(id, update));
+            asset.get('path').forEach((id) => unwatchAsset(id, update));
 
             // add the new mapping
             addScript(asset);
@@ -109,7 +109,7 @@ editor.on('load', async () => {
 
         // listen for path/name changes and register the new script
         watchAsset(assetId, update);
-        asset.get('path').forEach(id => watchAsset(id, update));
+        asset.get('path').forEach((id) => watchAsset(id, update));
         return send('importmap:add', { url, mappedUrl });
     };
 
@@ -141,9 +141,6 @@ editor.on('load', async () => {
         editor.on('assets:add', registerAsset);
 
         // Register assets sequentially
-        return assets.reduce(
-            (p, asset) => p.then(() => registerAsset(asset)), Promise.resolve());
-
+        return assets.reduce((p, asset) => p.then(() => registerAsset(asset)), Promise.resolve());
     });
-
 });

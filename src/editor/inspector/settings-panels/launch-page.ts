@@ -1,5 +1,7 @@
-import { BaseSettingsPanel, type BaseSettingsPanelArgs } from './base';
 import type { Attribute } from '../attribute.type.d';
+
+import { BaseSettingsPanel } from './base';
+import type { BaseSettingsPanelArgs } from './base';
 
 const CLASS_ROOT = 'launch-page-settings-panel';
 const CLASS_ATTRIBUTES = `${CLASS_ROOT}-attributes`;

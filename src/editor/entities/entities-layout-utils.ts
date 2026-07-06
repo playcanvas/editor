@@ -1,10 +1,12 @@
+import type { Observer } from '@playcanvas/observer';
+
 editor.once('load', () => {
     const getLayoutGroup = function (entityId: string) {
         const entity = editor.call('entities:get', entityId);
         return entity && entity.entity && entity.entity.layoutgroup;
     };
 
-    function forceSet(entity: import('@playcanvas/observer').Observer, path: string, value: unknown) {
+    function forceSet(entity: Observer, path: string, value: unknown) {
         entity.set(path, value, false, false, true);
     }
 
@@ -14,8 +16,8 @@ editor.once('load', () => {
     // graph, we still want the positions to stay the same after the page
     // is refreshed.
     editor.method('entities:layout:storeLayout', (childEntityIds) => {
-        for (let i = 0; i < childEntityIds.length; ++i) {
-            const entity = editor.call('entities:get', childEntityIds[i]);
+        for (const childEntityId of childEntityIds) {
+            const entity = editor.call('entities:get', childEntityId);
             const historyEnabled = entity.history.enabled;
             entity.history.enabled = false;
 

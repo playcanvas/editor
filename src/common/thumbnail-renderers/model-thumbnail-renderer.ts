@@ -1,5 +1,17 @@
 import type { EventHandle, Observer } from '@playcanvas/observer';
-import { Application, BoundingBox, Color, Entity, FOG_NONE, GraphNode, Mesh, MeshInstance, Model, SphereGeometry, StandardMaterial } from 'playcanvas';
+import {
+    Application,
+    BoundingBox,
+    Color,
+    Entity,
+    FOG_NONE,
+    GraphNode,
+    Mesh,
+    MeshInstance,
+    Model,
+    SphereGeometry,
+    StandardMaterial
+} from 'playcanvas';
 
 import { ThumbnailRenderer } from './thumbnail-renderer';
 
@@ -28,11 +40,14 @@ function initializeScene() {
     // model
     const modelNode = new GraphNode();
 
-    const meshSphere = Mesh.fromGeometry(app.graphicsDevice, new SphereGeometry({
-        radius: 0,
-        latitudeBands: 2,
-        longitudeBands: 2
-    }));
+    const meshSphere = Mesh.fromGeometry(
+        app.graphicsDevice,
+        new SphereGeometry({
+            radius: 0,
+            latitudeBands: 2,
+            longitudeBands: 2
+        })
+    );
 
     scene.modelPlaceholder = new Model();
     scene.modelPlaceholder.node = modelNode;
@@ -45,7 +60,6 @@ function initializeScene() {
         layers: []
     });
     scene.lightEntity.setLocalEulerAngles(45, 135, 0);
-
 
     // camera
     scene.cameraOrigin = new Entity();
@@ -182,7 +196,10 @@ class ModelThumbnailRenderer extends ThumbnailRenderer {
         });
     }
 
-    render(rotationX: number = -15, rotationY: number = 45) {
+    render(rotationX?: number, rotationY?: number) {
+        rotationX = rotationX === undefined ? -15 : rotationX;
+        rotationY = rotationY === undefined ? 45 : rotationY;
+
         this._queuedRender = false;
 
         if (!this._asset) {
@@ -332,7 +349,11 @@ class ModelThumbnailRenderer extends ThumbnailRenderer {
 
         // render to canvas
         const ctx = this._canvas.getContext('2d');
-        ctx.putImageData(new ImageData(rt.pixelsClamped, width, height), (this._canvas.width - width) / 2, (this._canvas.height - height) / 2);
+        ctx.putImageData(
+            new ImageData(rt.pixelsClamped, width, height),
+            (this._canvas.width - width) / 2,
+            (this._canvas.height - height) / 2
+        );
 
         layer.removeLight(scene.lightEntity.light);
         layer.removeCamera(scene.cameraEntity.camera);

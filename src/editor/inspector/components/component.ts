@@ -1,20 +1,22 @@
 import type { EventHandle, Observer, ObserverList } from '@playcanvas/observer';
-import { BindingTwoWay, BooleanInput, Button, Container, Label, LabelGroup, Menu, Panel, type PanelArgs } from '@playcanvas/pcui';
+import { BindingTwoWay, BooleanInput, Button, Container, Label, LabelGroup, Menu, Panel } from '@playcanvas/pcui';
+import type { PanelArgs } from '@playcanvas/pcui';
 
 import { tooltip, tooltipRefItem } from '@/common/tooltips';
-import { LocalStorage, type EntityObserver, type History } from '@/editor-api';
+import { LocalStorage } from '@/editor-api';
+import type { EntityObserver, History } from '@/editor-api';
 
 import type { TemplateOverrideInspector } from '../../templates/templates-override-inspector.js';
 import type { AttributesInspector } from '../attributes-inspector';
 
-interface ComponentInspectorArgs extends PanelArgs {
+type ComponentInspectorArgs = {
     component?: string;
     history: History;
     templateOverridesInspector?: TemplateOverrideInspector;
     assets: ObserverList;
     entities: ObserverList;
     projectSettings?: Observer;
-}
+} & PanelArgs;
 
 const CLASS_ROOT = 'component-inspector';
 const CLASS_COMPONENT_ICON = 'component-icon';
@@ -79,9 +81,11 @@ class ComponentInspector extends Panel {
         // reference
         const ref = editor.call('attributes:reference:get', `${args.component}:component`);
         if (ref) {
-            this._tooltipGroup.append(tooltipRefItem({
-                reference: ref
-            }));
+            this._tooltipGroup.append(
+                tooltipRefItem({
+                    reference: ref
+                })
+            );
         }
 
         this._fieldEnable = new BooleanInput({
@@ -109,7 +113,11 @@ class ComponentInspector extends Panel {
         });
         this._btnHelp.on('click', () => {
             const slug = this._component === 'audiosource' ? 'sound' : this._component;
-            window.open(`https://developer.playcanvas.com/user-manual/editor/scenes/components/${slug}/`, '_blank', 'noopener,noreferrer');
+            window.open(
+                `https://developer.playcanvas.com/user-manual/editor/scenes/components/${slug}/`,
+                '_blank',
+                'noopener,noreferrer'
+            );
         });
         this.header.append(this._btnHelp);
 
@@ -125,32 +133,45 @@ class ComponentInspector extends Panel {
 
         this._templateOverridesInspector = args.templateOverridesInspector;
         if (this._templateOverridesInspector) {
-            this._templateOverridesInspector.registerElementForPath(`components.${this._component}`, this, this._tooltipGroup);
-            this._templateOverridesInspector.registerElementForPath(`components.${this._component}.enabled`, enableGroup);
+            this._templateOverridesInspector.registerElementForPath(
+                `components.${this._component}`,
+                this,
+                this._tooltipGroup
+            );
+            this._templateOverridesInspector.registerElementForPath(
+                `components.${this._component}.enabled`,
+                enableGroup
+            );
         }
     }
 
     _getContextMenuItems() {
-        return [{
-            text: 'Copy Component',
-            icon: 'E351',
-            onSelect: this._onClickCopy.bind(this),
-            onIsEnabled: () => {
-                return (this._entities && this._entities.length === 1);
+        return [
+            {
+                text: 'Copy Component',
+                icon: 'E351',
+                onSelect: this._onClickCopy.bind(this),
+                onIsEnabled: () => {
+                    return this._entities && this._entities.length === 1;
+                }
+            },
+            {
+                text: 'Paste Component',
+                icon: 'E348',
+                onSelect: this._onClickPaste.bind(this),
+                onIsEnabled: () => {
+                    return (
+                        this._localStorage.has('copy-component') &&
+                        this._localStorage.get('copy-component-name') === this._component
+                    );
+                }
+            },
+            {
+                text: 'Remove Component',
+                icon: 'E124',
+                onSelect: this._onClickDelete.bind(this)
             }
-        }, {
-            text: 'Paste Component',
-            icon: 'E348',
-            onSelect: this._onClickPaste.bind(this),
-            onIsEnabled: () => {
-                return this._localStorage.has('copy-component') &&
-                        this._localStorage.get('copy-component-name') === this._component;
-            }
-        }, {
-            text: 'Remove Component',
-            icon: 'E124',
-            onSelect: this._onClickDelete.bind(this)
-        }];
+        ];
     }
 
     _createContextMenu(target: Button) {
@@ -196,8 +217,8 @@ class ComponentInspector extends Panel {
         let oldValues = {};
 
         const undo = () => {
-            for (let i = 0; i < entities.length; i++) {
-                const entity = entities[i].latest();
+            for (const entityObserver of entities) {
+                const entity = entityObserver.latest();
                 if (!entity) {
                     return;
                 }
@@ -214,8 +235,8 @@ class ComponentInspector extends Panel {
         const redo = () => {
             oldValues = {};
 
-            for (let i = 0; i < entities.length; i++) {
-                const entity = entities[i].latest();
+            for (const entityObserver of entities) {
+                const entity = entityObserver.latest();
                 if (!entity) {
                     return;
                 }
@@ -258,7 +279,7 @@ class ComponentInspector extends Panel {
         this._fieldEnable.unlink();
         this._attributesInspector?.unlink();
 
-        this._entityEvents.forEach(e => e.unbind());
+        this._entityEvents.forEach((e) => e.unbind());
         this._entityEvents.length = 0;
         this._entities = null;
     }

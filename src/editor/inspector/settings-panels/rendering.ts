@@ -2,8 +2,10 @@ import { Button, Label, Overlay } from '@playcanvas/pcui';
 
 import { TONEMAPPING } from '@/core/constants';
 
-import { BaseSettingsPanel, type BaseSettingsPanelArgs } from './base';
 import type { Attribute, Divider } from '../attribute.type.d';
+
+import { BaseSettingsPanel } from './base';
+import type { BaseSettingsPanelArgs } from './base';
 
 const ATTRIBUTES: (Attribute | Divider)[] = [
     {
@@ -233,13 +235,20 @@ const ATTRIBUTES: (Attribute | Divider)[] = [
         type: 'select',
         args: {
             type: 'number',
-            options: [{
-                v: 5, t: 'Shadow Map PCF 1x1'
-            }, {
-                v: 0, t: 'Shadow Map PCF 3x3'
-            }, {
-                v: 4, t: 'Shadow Map PCF 5x5'
-            }]
+            options: [
+                {
+                    v: 5,
+                    t: 'Shadow Map PCF 1x1'
+                },
+                {
+                    v: 0,
+                    t: 'Shadow Map PCF 3x3'
+                },
+                {
+                    v: 4,
+                    t: 'Shadow Map PCF 5x5'
+                }
+            ]
         }
     },
     {
@@ -647,7 +656,6 @@ class RenderingSettingsPanel extends BaseSettingsPanel {
         });
 
         clusteredEnabled.on('change', (value) => {
-
             const oldclusteredEnabled = sceneSettings.get('render.clusteredLightingEnabled');
 
             // if the user changed clusteredLightingEnabled tickbox, reload the Editor
@@ -700,7 +708,9 @@ class RenderingSettingsPanel extends BaseSettingsPanel {
                 enableWebGpu.value ? `WebGPU${editor.projectEngineV2 ? '' : ' (beta)'}` : '',
                 enableWebGl2.value ? 'WebGL 2.0' : '',
                 editor.projectEngineV2 ? '' : 'WebGL 1.0'
-            ].filter(Boolean).join(' ► ');
+            ]
+                .filter(Boolean)
+                .join(' ► ');
             setTimeout(() => editor.emit('toolbar:launch:refresh'));
         };
         enableWebGpu.on('change', onDeviceChange);

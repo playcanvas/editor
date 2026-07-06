@@ -34,11 +34,14 @@ editor.once('load', () => {
     // switch to branch
     btnSwitch.on('click', () => {
         overlay.innerElement.classList.add('hidden'); // hide the inner contents of the overlay but not the whole overlay
-        handleCallback(editor.api.globals.rest.branches.branchCheckout({
-            branchId: dropdownBranches.value
-        }), () => {
-            // FIXME: Refresh handled by messenger
-        });
+        handleCallback(
+            editor.api.globals.rest.branches.branchCheckout({
+                branchId: dropdownBranches.value
+            }),
+            () => {
+                // FIXME: Refresh handled by messenger
+            }
+        );
     });
 
     // bottom buttons panel
@@ -62,11 +65,14 @@ editor.once('load', () => {
         editor.call('picker:confirm', 'Are you sure you want to force stop this merge process?', () => {
             overlay.innerElement.classList.add('hidden'); // hide the inner contents of the overlay but not the whole overlay
 
-            handleCallback(editor.api.globals.rest.merge.mergeDelete({
-                mergeId: config.self.branch.merge.id
-            }), () => {
-                // FIXME: Refresh handled by messenger
-            });
+            handleCallback(
+                editor.api.globals.rest.merge.mergeDelete({
+                    mergeId: config.self.branch.merge.id
+                }),
+                () => {
+                    // FIXME: Refresh handled by messenger
+                }
+            );
         });
     });
 
@@ -117,7 +123,8 @@ editor.once('load', () => {
             btnSwitch.enabled = true;
             dropdownBranches.options = branches.map((branch) => {
                 return {
-                    v: branch.id, t: branch.name
+                    v: branch.id,
+                    t: branch.name
                 };
             });
             dropdownBranches.value = branches[0].id;

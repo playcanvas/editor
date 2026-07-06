@@ -7,26 +7,29 @@ editor.once('load', () => {
 
     // keep metrics on number of writeable projects
     if (metrics) {
-        metrics.increment({ metricsName: `editor.script.count.by_type.legacy_script${
-            editor.call('permissions:write') ? '.writable' : '.read_only'
-        }.with_project_id.${config.project.id}` });
+        metrics.increment({
+            metricsName: `editor.script.count.by_type.legacy_script${
+                editor.call('permissions:write') ? '.writable' : '.read_only'
+            }.with_project_id.${config.project.id}`
+        });
     }
 
     const repositories = new Observer();
 
     // Load repositories
     editor.once('start', () => {
-        editor.api.globals.rest.projects.projectRepoList()
-        .on('load', (_status: number, data: Record<string, unknown>) => {
-            const response = data;
-            for (const key in response) {
-                if (response.hasOwnProperty(key)) {
-                    repositories.set(key, response[key]);
+        editor.api.globals.rest.projects
+            .projectRepoList()
+            .on('load', (_status: number, data: Record<string, unknown>) => {
+                const response = data;
+                for (const key in response) {
+                    if (Object.hasOwn(response, key)) {
+                        repositories.set(key, response[key]);
+                    }
                 }
-            }
 
-            editor.emit('repositories:load', repositories);
-        });
+                editor.emit('repositories:load', repositories);
+            });
     });
 
     // get repositories

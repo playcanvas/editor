@@ -165,7 +165,9 @@ editor.once('load', () => {
         if (data.branch_id !== config.self.branch.id) {
             return;
         }
-        overlayRestoringCheckpoint.setTitle(`${truncateFullName(data.user_full_name)} is restoring checkpoint ${data.checkpoint_id.substring(0, 7)}`);
+        overlayRestoringCheckpoint.setTitle(
+            `${truncateFullName(data.user_full_name)} is restoring checkpoint ${data.checkpoint_id.substring(0, 7)}`
+        );
         overlayRestoringCheckpoint.hidden = false;
     });
 
@@ -176,7 +178,9 @@ editor.once('load', () => {
         }
         if (data.status === 'success') {
             overlayRestoringCheckpoint.hidden = true;
-            overlayCheckpointRestored.setTitle(`${truncateFullName(data.user_full_name)} restored checkpoint ${data.checkpoint_id.substring(0, 7)}`);
+            overlayCheckpointRestored.setTitle(
+                `${truncateFullName(data.user_full_name)} restored checkpoint ${data.checkpoint_id.substring(0, 7)}`
+            );
             overlayCheckpointRestored.hidden = false;
             refresh();
         } else {
@@ -214,7 +218,9 @@ editor.once('load', () => {
         if (data.branch_id !== config.self.branch.id) {
             return;
         }
-        overlayHardResetInProgress.setTitle(`${truncateFullName(data.user_full_name)} is hard resetting to checkpoint ${data.checkpoint_id.substring(0, 7)}`);
+        overlayHardResetInProgress.setTitle(
+            `${truncateFullName(data.user_full_name)} is hard resetting to checkpoint ${data.checkpoint_id.substring(0, 7)}`
+        );
         overlayHardResetInProgress.hidden = false;
     });
 
@@ -225,7 +231,9 @@ editor.once('load', () => {
         }
         if (data.status === 'success') {
             overlayHardResetInProgress.hidden = true;
-            overlayHardResetDone.setTitle(`${truncateFullName(data.user_full_name)} performed hard reset to checkpoint ${data.checkpoint_id.substring(0, 7)}`);
+            overlayHardResetDone.setTitle(
+                `${truncateFullName(data.user_full_name)} performed hard reset to checkpoint ${data.checkpoint_id.substring(0, 7)}`
+            );
             overlayHardResetDone.hidden = false;
             refresh();
         } else {
@@ -244,11 +252,14 @@ editor.once('load', () => {
         overlayBranchClosed.hidden = false;
 
         // check out main branch and then refresh the browser
-        handleCallback(editor.api.globals.rest.branches.branchCheckout({
-            branchId: config.project.masterBranch
-        }), () => {
-            // FIXME: Refresh handled by branch switch
-        });
+        handleCallback(
+            editor.api.globals.rest.branches.branchCheckout({
+                branchId: config.project.masterBranch
+            }),
+            () => {
+                // FIXME: Refresh handled by branch switch
+            }
+        );
     });
 
     // if a merge has started for our branch then show overlay

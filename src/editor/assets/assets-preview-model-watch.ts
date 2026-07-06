@@ -8,7 +8,7 @@ editor.once('load', () => {
         return;
     } // webgl not available
 
-    const watching = { };
+    const watching = {};
 
     const trigger = function (watch: { callbacks: Record<string | number, { callback: () => void }> }) {
         for (const key in watch.callbacks) {
@@ -16,7 +16,11 @@ editor.once('load', () => {
         }
     };
 
-    const loadModel = function (watch: { asset: { get: (path: string) => unknown }; callbacks: Record<string | number, unknown> }, asset: { _editorPreviewModel?: unknown; type: string }, reload?: boolean) {
+    const loadModel = function (
+        watch: { asset: { get: (path: string) => unknown }; callbacks: Record<string | number, unknown> },
+        asset: { _editorPreviewModel?: unknown; type: string },
+        reload?: boolean
+    ) {
         let url;
         const file = watch.asset.get('file');
 
@@ -45,7 +49,13 @@ editor.once('load', () => {
         }
     };
 
-    const subscribe = function (watch: { asset: { get: (path: string) => string | number }; engineAsset: unknown; onAdd: ((asset: unknown) => void) | null; onLoad: (() => void) | null; watching: Record<string, { unbind: () => void }> }) {
+    const subscribe = function (watch: {
+        asset: { get: (path: string) => string | number };
+        engineAsset: unknown;
+        onAdd: ((asset: unknown) => void) | null;
+        onLoad: (() => void) | null;
+        watching: Record<string, { unbind: () => void }>;
+    }) {
         const onChange = function () {
             loadModel(watch, watch.engineAsset, true);
         };
@@ -76,7 +86,11 @@ editor.once('load', () => {
         }
     };
 
-    const unsubscribe = function (watch: { engineAsset: { off: (event: string, fn: () => void) => void } | null; onAdd: (() => void) | null; watching: Record<string, { unbind: () => void }> }) {
+    const unsubscribe = function (watch: {
+        engineAsset: { off: (event: string, fn: () => void) => void } | null;
+        onAdd: (() => void) | null;
+        watching: Record<string, { unbind: () => void }>;
+    }) {
         if (watch.engineAsset) {
             watch.engineAsset.off('load', watch.onLoad);
         }
@@ -90,7 +104,6 @@ editor.once('load', () => {
         }
     };
 
-
     editor.method('assets:model:watch', (args) => {
         let watch = watching[args.asset.get('id')];
 
@@ -101,9 +114,9 @@ editor.once('load', () => {
                 autoLoad: 0,
                 onLoad: null,
                 onAdd: null,
-                watching: { },
+                watching: {},
                 ind: 0,
-                callbacks: { }
+                callbacks: {}
             };
             subscribe(watch);
         }
@@ -128,14 +141,13 @@ editor.once('load', () => {
         return watch.ind;
     });
 
-
     editor.method('assets:model:unwatch', (asset, handle) => {
         const watch = watching[asset.get('id')];
         if (!watch) {
             return;
         }
 
-        if (!watch.callbacks.hasOwnProperty(handle)) {
+        if (!Object.hasOwn(watch.callbacks, handle)) {
             return;
         }
 

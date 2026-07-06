@@ -5,8 +5,9 @@ import { ANIM_INTERRUPTION_NONE } from 'playcanvas';
 
 import { diff } from '@/common/diff';
 
-import { AnimStateGraphState } from './state';
 import type { AnimStateGraphAssetInspector } from '../inspector/assets/animstategraph';
+
+import { AnimStateGraphState } from './state';
 
 const GRAPH_ACTIONS = {
     ADD_NODE: 'EVENT_ADD_NODE',
@@ -52,7 +53,8 @@ const animSchema = (asset: Observer) => ({
             stroke: '#20292b',
             icon: '',
             iconColor: '#FFFFFF',
-            headerTextFormatter: (attributes: Record<string, unknown>, nodeId: number) => updateNodeHeaderText(attributes, nodeId, asset),
+            headerTextFormatter: (attributes: Record<string, unknown>, nodeId: number) =>
+                updateNodeHeaderText(attributes, nodeId, asset),
             contextMenuItems: [
                 {
                     text: 'Add transition',
@@ -85,7 +87,8 @@ const animSchema = (asset: Observer) => ({
             stroke: '#20292b',
             icon: '',
             iconColor: '#FFFFFF',
-            headerTextFormatter: (attributes: Record<string, unknown>, nodeId: number) => updateNodeHeaderText(attributes, nodeId, asset),
+            headerTextFormatter: (attributes: Record<string, unknown>, nodeId: number) =>
+                updateNodeHeaderText(attributes, nodeId, asset),
             contextMenuItems: [
                 {
                     text: 'Add transition',
@@ -114,8 +117,7 @@ const animSchema = (asset: Observer) => ({
             icon: '',
             iconColor: '#14CC47',
             stroke: '#20292b',
-            contextMenuItems: [
-            ]
+            contextMenuItems: []
         },
         [ANIM_SCHEMA.NODE.ANY_STATE]: {
             name: 'anyState',
@@ -145,12 +147,8 @@ const animSchema = (asset: Observer) => ({
             stroke: '#41D37B',
             strokeWidth: 2,
             targetMarker: true,
-            from: [
-                ANIM_SCHEMA.NODE.START_STATE
-            ],
-            to: [
-                ANIM_SCHEMA.NODE.STATE
-            ],
+            from: [ANIM_SCHEMA.NODE.START_STATE],
+            to: [ANIM_SCHEMA.NODE.STATE],
             contextMenuItems: []
         },
         [ANIM_SCHEMA.EDGE.TRANSITION]: {
@@ -158,16 +156,8 @@ const animSchema = (asset: Observer) => ({
             strokeWidth: 2,
             targetMarkerStroke: '#0379EE',
             targetMarker: true,
-            from: [
-                ANIM_SCHEMA.NODE.STATE,
-                ANIM_SCHEMA.NODE.START_STATE,
-                ANIM_SCHEMA.NODE.DEFAULT_STATE
-            ],
-            to: [
-                ANIM_SCHEMA.NODE.STATE,
-                ANIM_SCHEMA.NODE.DEFAULT_STATE,
-                ANIM_SCHEMA.NODE.END_STATE
-            ],
+            from: [ANIM_SCHEMA.NODE.STATE, ANIM_SCHEMA.NODE.START_STATE, ANIM_SCHEMA.NODE.DEFAULT_STATE],
+            to: [ANIM_SCHEMA.NODE.STATE, ANIM_SCHEMA.NODE.DEFAULT_STATE, ANIM_SCHEMA.NODE.END_STATE],
             contextMenuItems: []
         },
         [ANIM_SCHEMA.EDGE.TRANSITION_FROM_ANY]: {
@@ -176,14 +166,8 @@ const animSchema = (asset: Observer) => ({
             targetMarkerStroke: '#0379EE',
             targetMarker: true,
             contextMenuItems: [],
-            from: [
-                ANIM_SCHEMA.NODE.ANY_STATE
-            ],
-            to: [
-                ANIM_SCHEMA.NODE.STATE,
-                ANIM_SCHEMA.NODE.DEFAULT_STATE,
-                ANIM_SCHEMA.NODE.END_STATE
-            ]
+            from: [ANIM_SCHEMA.NODE.ANY_STATE],
+            to: [ANIM_SCHEMA.NODE.STATE, ANIM_SCHEMA.NODE.DEFAULT_STATE, ANIM_SCHEMA.NODE.END_STATE]
         }
     }
 });
@@ -231,7 +215,9 @@ class AnimStateGraphView {
         this._args = args;
 
         this._graphElement = document.createElement('div');
-        this._graphElement.setAttribute('style', `
+        this._graphElement.setAttribute(
+            'style',
+            `
             position: absolute;
             width: 100%;
             left: 0;
@@ -239,7 +225,8 @@ class AnimStateGraphView {
             height: 100%;
             border: none;
             display: none;
-        `);
+        `
+        );
         document.getElementById('layout-viewport').prepend(this._graphElement);
     }
 
@@ -275,17 +262,23 @@ class AnimStateGraphView {
             } else {
                 this.parent.closeAsset(this._assets[0]);
             }
-        } else if (e.key === 'Delete' && this._graph.selectedItem && !(document.activeElement instanceof HTMLInputElement)) {
+        } else if (
+            e.key === 'Delete' &&
+            this._graph.selectedItem &&
+            !(document.activeElement instanceof HTMLInputElement)
+        ) {
             const item = this._graph.selectedItem;
             switch (item.type) {
                 case 'NODE': {
                     const node = this._assets[0].get(`data.states.${item.id}`);
-                    if (![
-                        ANIM_SCHEMA.NODE.DEFAULT_STATE,
-                        ANIM_SCHEMA.NODE.START_STATE,
-                        ANIM_SCHEMA.NODE.END_STATE,
-                        ANIM_SCHEMA.NODE.ANY_STATE
-                    ].includes(node.nodeType)) {
+                    if (
+                        ![
+                            ANIM_SCHEMA.NODE.DEFAULT_STATE,
+                            ANIM_SCHEMA.NODE.START_STATE,
+                            ANIM_SCHEMA.NODE.END_STATE,
+                            ANIM_SCHEMA.NODE.ANY_STATE
+                        ].includes(node.nodeType)
+                    ) {
                         const data = this._assets[0].get('data');
                         const edges = Object.keys(data.transitions).filter((key) => {
                             const t = data.transitions[key];
@@ -458,7 +451,10 @@ class AnimStateGraphView {
                         this._assets[0].set(`data.transitions.${transitionKey}.edgeType`, transition.edgeType);
                         break;
                 }
-                if ((!this._assets[0].get(`data.states.${transition.from}`)) || (!this._assets[0].get(`data.states.${transition.to}`))) {
+                if (
+                    !this._assets[0].get(`data.states.${transition.from}`) ||
+                    !this._assets[0].get(`data.states.${transition.to}`)
+                ) {
                     return;
                 }
             }
@@ -489,7 +485,6 @@ class AnimStateGraphView {
                 if (updates.states) {
                     Object.keys(updates.states).forEach((stateKey) => {
                         if (stateKey.includes('__added')) {
-
                             let state = updates.states[stateKey];
                             const stateAttributes = {
                                 name: state.name,
@@ -528,9 +523,12 @@ class AnimStateGraphView {
                             this._graph.deleteEdge(key);
 
                             // Find remaining transitions on the same from-to path in the current layer
-                            const layerTransitionIds = new Set(newValue.layers?.[this._selectedLayer]?.transitions || []);
-                            const remainingTransitions = Object.entries(newValue.transitions || {})
-                            .filter(([id, t]: [string, { from: number; to: number }]) => layerTransitionIds.has(Number(id)) &&
+                            const layerTransitionIds = new Set(
+                                newValue.layers?.[this._selectedLayer]?.transitions || []
+                            );
+                            const remainingTransitions = Object.entries(newValue.transitions || {}).filter(
+                                ([id, t]: [string, { from: number; to: number }]) =>
+                                    layerTransitionIds.has(Number(id)) &&
                                     t.from === deletedTransition.from &&
                                     t.to === deletedTransition.to
                             );
@@ -543,7 +541,10 @@ class AnimStateGraphView {
                                 });
                             } else {
                                 // Only unlink if no remaining transitions exist on this path
-                                if (this._parent._transitionsContainer._edge === `${deletedTransition.from}-${deletedTransition.to}`) {
+                                if (
+                                    this._parent._transitionsContainer._edge ===
+                                    `${deletedTransition.from}-${deletedTransition.to}`
+                                ) {
                                     this._parent._transitionsContainer.unlink();
                                 }
                             }
@@ -625,7 +626,10 @@ class AnimStateGraphView {
         edges.forEach((edge) => {
             edge = Number(edge);
             if (data.layers[this._selectedLayer].transitions.includes(edge)) {
-                data.layers[this._selectedLayer].transitions.splice(data.layers[this._selectedLayer].transitions.indexOf(edge), 1);
+                data.layers[this._selectedLayer].transitions.splice(
+                    data.layers[this._selectedLayer].transitions.indexOf(edge),
+                    1
+                );
             }
 
             const edgeData = data.transitions[edge];
@@ -701,10 +705,13 @@ class AnimStateGraphView {
         if (!data.layers[this._selectedLayer].transitions.includes(edgeId)) {
             data.layers[this._selectedLayer].transitions.push(edgeId);
         }
-        data.transitions[edgeId] = Object.assign({
-            exitTime: 0,
-            interruptionSource: ANIM_INTERRUPTION_NONE
-        }, edge);
+        data.transitions[edgeId] = Object.assign(
+            {
+                exitTime: 0,
+                interruptionSource: ANIM_INTERRUPTION_NONE
+            },
+            edge
+        );
         this._assets[0].set('data', data);
     }
 
@@ -713,7 +720,10 @@ class AnimStateGraphView {
         const data = this._assets[0].get('data');
 
         if (data.layers[this._selectedLayer].transitions.includes(edgeId)) {
-            data.layers[this._selectedLayer].transitions.splice(data.layers[this._selectedLayer].transitions.indexOf(edgeId), 1);
+            data.layers[this._selectedLayer].transitions.splice(
+                data.layers[this._selectedLayer].transitions.indexOf(edgeId),
+                1
+            );
         }
         delete data.transitions[edgeId];
         this._assets[0].set('data', data);
@@ -895,7 +905,10 @@ class AnimStateGraphView {
         };
 
         const updateGraphSettings = (graphSettings: Record<string, unknown>) => {
-            sessionStorage.setItem(`graph-${this._assets[0].get('id')}-${this._selectedLayer}`, JSON.stringify(graphSettings));
+            sessionStorage.setItem(
+                `graph-${this._assets[0].get('id')}-${this._selectedLayer}`,
+                JSON.stringify(graphSettings)
+            );
         };
 
         this._graph.on(GRAPH_ACTIONS.UPDATE_TRANSLATE, ({ pos }) => {
@@ -917,10 +930,12 @@ class AnimStateGraphView {
         this._events.push(this._assets[0].on('*:set', this._handleIncomingUpdates.bind(this)));
 
         const viewportCanvas = editor.call('viewport:canvas');
-        this._events.push(viewportCanvas.on('resize', () => {
-            this._graph.style.width = viewportCanvas.style.width;
-            this._graph.style.height = viewportCanvas.style.height;
-        }));
+        this._events.push(
+            viewportCanvas.on('resize', () => {
+                this._graph.style.width = viewportCanvas.style.width;
+                this._graph.style.height = viewportCanvas.style.height;
+            })
+        );
 
         // add keyboard listener
         this._keyboardListenerBound = this._keyboardListener.bind(this);
@@ -930,7 +945,7 @@ class AnimStateGraphView {
     unlink() {
         this._destroyGraph();
 
-        this._events.forEach(e => e.unbind());
+        this._events.forEach((e) => e.unbind());
         this._events.length = 0;
 
         // remove keyboard listener

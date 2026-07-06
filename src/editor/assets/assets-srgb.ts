@@ -2,7 +2,6 @@ import type { Observer } from '@playcanvas/observer';
 
 import { formatter as f } from '@/common/utils';
 
-
 const SRGB_PATH_MAP = {
     texture: {
         'data.srgb': true
@@ -39,10 +38,7 @@ const SRGB_PATH_MAP = {
     }
 };
 
-const SPRITE_PATHS = [
-    'components.element.spriteAsset',
-    'components.sprite.spriteAsset'
-];
+const SPRITE_PATHS = ['components.element.spriteAsset', 'components.sprite.spriteAsset'];
 
 const MATERIAL_PATH_CHANNEL_MAP = Object.keys(SRGB_PATH_MAP.material).reduce((map, path) => {
     map.set(`${path}Channel`, path);
@@ -68,7 +64,6 @@ type TextureUsage = {
  * entities and determines the srgb flag based on the majority of references.
  */
 const startChecker = () => {
-
     /**
      * A map of texture asset ids to their usages
      */
@@ -108,8 +103,8 @@ const startChecker = () => {
 
         for (const id in assetUsed.ref) {
             const ref = assetUsed.ref[id];
-            for (let i = 0; i < ref.length; i++) {
-                const { owner } = ref[i];
+            for (const refItem of ref) {
+                const { owner } = refItem;
                 if (!owner || owner === editor) {
                     continue;
                 }
@@ -131,7 +126,6 @@ const startChecker = () => {
                                     editor.call('selector:set', 'entity', [entity]);
                                 }
                             });
-
                         }
                         continue;
                     }
@@ -156,7 +150,10 @@ const startChecker = () => {
                                     }
 
                                     // Skip if sheen is disabled for sheen map and sheen gloss map
-                                    if (!asset.get('data.useSheen') && (path === 'data.sheenMap' || path === 'data.sheenGlossMap')) {
+                                    if (
+                                        !asset.get('data.useSheen') &&
+                                        (path === 'data.sheenMap' || path === 'data.sheenGlossMap')
+                                    ) {
                                         continue;
                                     }
 
@@ -202,10 +199,7 @@ const startChecker = () => {
             // Set srgb false if the texture is rgbm
             if (asset.get('data.rgbm')) {
                 asset.set('data.srgb', false);
-                const msg = [
-                    `The ${f.asset(asset)} asset is using RGBM encoding.`,
-                    'sRGB was set to false'
-                ].join(' ');
+                const msg = [`The ${f.asset(asset)} asset is using RGBM encoding.`, 'sRGB was set to false'].join(' ');
                 editor.call('console:log:asset', asset, msg);
                 return;
             }
@@ -226,10 +220,7 @@ const startChecker = () => {
             const srgbRefs = textureUsages.get(asset.get('id'));
             if (!srgbRefs?.length) {
                 asset.set('data.srgb', true);
-                const msg = [
-                    `The ${f.asset(asset)} asset is not referenced.`,
-                    'sRGB was set to true'
-                ].join(' ');
+                const msg = [`The ${f.asset(asset)} asset is not referenced.`, 'sRGB was set to true'].join(' ');
                 editor.call('console:log:asset', asset, msg);
                 return;
             }
@@ -246,7 +237,7 @@ const startChecker = () => {
             }
 
             // If the asset has multiple srgb references, set the srgb flag to the majority
-            const srgb = srgbRefs.filter(r => r.srgb).length > srgbRefs.length / 2;
+            const srgb = srgbRefs.filter((r) => r.srgb).length > srgbRefs.length / 2;
             asset.set('data.srgb', srgb);
             const msg = [
                 `The ${f.asset(asset)} asset has multiple references with conflicting sRGB flags.`,
@@ -298,7 +289,8 @@ const startChecker = () => {
         let enforce = 0;
         let suppressed = 0;
         for (const usage of issues) {
-            const observer = usage.type === 'entity' ? editor.call('entities:get', usage.id) : editor.call('assets:get', usage.id);
+            const observer =
+                usage.type === 'entity' ? editor.call('entities:get', usage.id) : editor.call('assets:get', usage.id);
             if (!observer) {
                 console.warn(`Could not find ${usage.type} with id ${usage.id}`);
                 continue;
@@ -387,7 +379,7 @@ const startChecker = () => {
 
                 // listen for changes to the srgb flag
                 asset.on('*:set', (path: string) => {
-                    if (!SRGB_PATH_MAP.texture.hasOwnProperty(path)) {
+                    if (!Object.hasOwn(SRGB_PATH_MAP.texture, path)) {
                         return;
                     }
 
@@ -417,7 +409,7 @@ const startChecker = () => {
             case 'material': {
                 // listen for changes to material assets
                 asset.on('*:set', (path, value, oldValue) => {
-                    if (SRGB_PATH_MAP.material.hasOwnProperty(path)) {
+                    if (Object.hasOwn(SRGB_PATH_MAP.material, path)) {
                         const textureAsset = editor.call('assets:get', value || oldValue);
                         if (!textureAsset) {
                             return;
@@ -472,7 +464,6 @@ const startChecker = () => {
 
                         updateAuditButton();
                     }
-
                 });
                 break;
             }
@@ -487,7 +478,7 @@ const startChecker = () => {
     const checkEntity = (entity: Observer) => {
         // listen for changes to entities
         entity.on('*:set', (path, value, oldValue) => {
-            if (!SRGB_PATH_MAP.entity.hasOwnProperty(path)) {
+            if (!Object.hasOwn(SRGB_PATH_MAP.entity, path)) {
                 return;
             }
 

@@ -41,10 +41,12 @@ editor.once('load', () => {
         });
         panel.append(header);
 
-        header.append(new Label({
-            class: 'vc-heading',
-            text: 'Version control'
-        }));
+        header.append(
+            new Label({
+                class: 'vc-heading',
+                text: 'Version control'
+            })
+        );
 
         const body = new Container({
             class: 'vc-overlay-body'

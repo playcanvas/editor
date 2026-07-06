@@ -1,10 +1,8 @@
 import { config } from '@/code-editor/config';
 
 editor.once('load', () => {
-
     // Update url with new tab order
     const updateUrl = function () {
-
         const tabs = editor.call('tabs:list');
         let str = '';
         let comma = '';
@@ -53,11 +51,12 @@ editor.once('load', () => {
 
     // Select tabs when ready
     const focusedParam = new URLSearchParams(window.location.search).get('focused');
-    const focusedAssetId = focusedParam && config.tabs.includes(parseInt(focusedParam, 10)) ?
-        parseInt(focusedParam, 10) :
-        config.tabs[config.tabs.length - 1];
+    const focusedAssetId =
+        focusedParam && config.tabs.includes(parseInt(focusedParam, 10))
+            ? parseInt(focusedParam, 10)
+            : config.tabs[config.tabs.length - 1];
 
-    config.tabs.forEach(tab => editor.call('integration:selectWhenReady', tab));
+    config.tabs.forEach((tab) => editor.call('integration:selectWhenReady', tab));
 
     editor.call('integration:selectWhenReady', focusedAssetId, config.file);
 });

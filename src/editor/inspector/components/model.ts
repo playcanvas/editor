@@ -6,126 +6,154 @@ import { CLASS_ERROR } from '@/common/pcui/constants';
 import { AssetInput } from '@/common/pcui/element/element-asset-input';
 import type { Assets, EntityObserver } from '@/editor-api';
 
-import { ComponentInspector, type ComponentInspectorArgs } from './component';
 import type { Attribute } from '../attribute.type.d';
 import { AttributesInspector } from '../attributes-inspector';
 
+import { ComponentInspector } from './component';
+import type { ComponentInspectorArgs } from './component';
 
-const ATTRIBUTES: Attribute[] = [{
-    label: 'Type',
-    path: 'components.model.type',
-    reference: 'model:type',
-    type: 'select',
-    args: {
-        type: 'string',
-        options: [{
-            v: 'asset', t: 'Asset'
-        }, {
-            v: 'box', t: 'Box'
-        }, {
-            v: 'capsule', t: 'Capsule'
-        }, {
-            v: 'sphere', t: 'Sphere'
-        }, {
-            v: 'cylinder', t: 'Cylinder'
-        }, {
-            v: 'cone', t: 'Cone'
-        }, {
-            v: 'plane', t: 'Plane'
-        }]
+const ATTRIBUTES: Attribute[] = [
+    {
+        label: 'Type',
+        path: 'components.model.type',
+        reference: 'model:type',
+        type: 'select',
+        args: {
+            type: 'string',
+            options: [
+                {
+                    v: 'asset',
+                    t: 'Asset'
+                },
+                {
+                    v: 'box',
+                    t: 'Box'
+                },
+                {
+                    v: 'capsule',
+                    t: 'Capsule'
+                },
+                {
+                    v: 'sphere',
+                    t: 'Sphere'
+                },
+                {
+                    v: 'cylinder',
+                    t: 'Cylinder'
+                },
+                {
+                    v: 'cone',
+                    t: 'Cone'
+                },
+                {
+                    v: 'plane',
+                    t: 'Plane'
+                }
+            ]
+        }
+    },
+    {
+        label: 'Model',
+        path: 'components.model.asset',
+        reference: 'model:asset',
+        type: 'asset',
+        args: {
+            assetType: 'model'
+        }
+    },
+    {
+        label: 'Material',
+        path: 'components.model.materialAsset',
+        reference: 'model:materialAsset',
+        type: 'asset',
+        args: {
+            assetType: 'material'
+        }
+    },
+    {
+        label: 'Cast Shadows',
+        path: 'components.model.castShadows',
+        reference: 'model:castShadows',
+        type: 'boolean'
+    },
+    {
+        label: 'Cast Lightmap Shadows',
+        path: 'components.model.castShadowsLightmap',
+        reference: 'model:castShadowsLightmap',
+        type: 'boolean'
+    },
+    {
+        label: 'Receive Shadows',
+        path: 'components.model.receiveShadows',
+        reference: 'model:receiveShadows',
+        type: 'boolean'
+    },
+    {
+        label: 'Static',
+        path: 'components.model.isStatic',
+        reference: 'model:isStatic',
+        type: 'boolean'
+    },
+    {
+        label: 'Lightmapped',
+        path: 'components.model.lightmapped',
+        reference: 'model:lightmapped',
+        type: 'boolean'
+    },
+    {
+        label: 'Lightmap Size',
+        alias: 'components.model.lightmapSize',
+        type: 'label'
+    },
+    {
+        label: 'Lightmap Size Multiplier',
+        path: 'components.model.lightmapSizeMultiplier',
+        reference: 'model:lightmapSizeMultiplier',
+        type: 'number',
+        args: {
+            min: 0
+        }
+    },
+    {
+        label: 'Custom AABB',
+        alias: 'components.model.customAabb',
+        reference: 'model:customAabb',
+        type: 'boolean',
+        args: {
+            renderChanges: false
+        }
+    },
+    {
+        label: 'AABB Center',
+        path: 'components.model.aabbCenter',
+        reference: 'model:aabbCenter',
+        type: 'vec3'
+    },
+    {
+        label: 'AABB Half Extents',
+        path: 'components.model.aabbHalfExtents',
+        reference: 'model:aabbHalfExtents',
+        type: 'vec3',
+        args: {
+            min: 0
+        }
+    },
+    {
+        label: 'Batch Group',
+        path: 'components.model.batchGroupId',
+        reference: 'model:batchGroupId',
+        type: 'batchgroup'
+    },
+    {
+        label: 'Layers',
+        path: 'components.model.layers',
+        reference: 'model:layers',
+        type: 'layers',
+        args: {
+            excludeLayers: [LAYERID_DEPTH, LAYERID_SKYBOX, LAYERID_IMMEDIATE]
+        }
     }
-}, {
-    label: 'Model',
-    path: 'components.model.asset',
-    reference: 'model:asset',
-    type: 'asset',
-    args: {
-        assetType: 'model'
-    }
-}, {
-    label: 'Material',
-    path: 'components.model.materialAsset',
-    reference: 'model:materialAsset',
-    type: 'asset',
-    args: {
-        assetType: 'material'
-    }
-}, {
-    label: 'Cast Shadows',
-    path: 'components.model.castShadows',
-    reference: 'model:castShadows',
-    type: 'boolean'
-}, {
-    label: 'Cast Lightmap Shadows',
-    path: 'components.model.castShadowsLightmap',
-    reference: 'model:castShadowsLightmap',
-    type: 'boolean'
-}, {
-    label: 'Receive Shadows',
-    path: 'components.model.receiveShadows',
-    reference: 'model:receiveShadows',
-    type: 'boolean'
-}, {
-    label: 'Static',
-    path: 'components.model.isStatic',
-    reference: 'model:isStatic',
-    type: 'boolean'
-}, {
-    label: 'Lightmapped',
-    path: 'components.model.lightmapped',
-    reference: 'model:lightmapped',
-    type: 'boolean'
-}, {
-    label: 'Lightmap Size',
-    alias: 'components.model.lightmapSize',
-    type: 'label'
-}, {
-    label: 'Lightmap Size Multiplier',
-    path: 'components.model.lightmapSizeMultiplier',
-    reference: 'model:lightmapSizeMultiplier',
-    type: 'number',
-    args: {
-        min: 0
-    }
-}, {
-    label: 'Custom AABB',
-    alias: 'components.model.customAabb',
-    reference: 'model:customAabb',
-    type: 'boolean',
-    args: {
-        renderChanges: false
-    }
-}, {
-    label: 'AABB Center',
-    path: 'components.model.aabbCenter',
-    reference: 'model:aabbCenter',
-    type: 'vec3'
-}, {
-    label: 'AABB Half Extents',
-    path: 'components.model.aabbHalfExtents',
-    reference: 'model:aabbHalfExtents',
-    type: 'vec3',
-    args: {
-        min: 0
-    }
-}, {
-    label: 'Batch Group',
-    path: 'components.model.batchGroupId',
-    reference: 'model:batchGroupId',
-    type: 'batchgroup'
-}, {
-    label: 'Layers',
-    path: 'components.model.layers',
-    reference: 'model:layers',
-    type: 'layers',
-    args: {
-        excludeLayers: [
-            LAYERID_DEPTH,
-            LAYERID_SKYBOX,
-            LAYERID_IMMEDIATE
-        ]
-    }
-}];
+];
 
 const CLASS_NOT_EVERYWHERE = 'model-component-inspector-mapping-not-everywhere';
 
@@ -188,7 +216,7 @@ class AssetElementToObserversBinding extends BindingElementToObservers {
 
                 latest.set(path, prevEntry.value);
 
-                if (prevEntry.hasOwnProperty('mapping')) {
+                if (Object.hasOwn(prevEntry, 'mapping')) {
                     latest.set('components.model.mapping', prevEntry.mapping);
                 }
 
@@ -391,9 +419,9 @@ class ModelComponentInspector extends ComponentInspector {
     _getMeshInstanceName(index: number, entities: EntityObserver[]) {
         // get name of meshinstance from engine
         let meshInstanceName;
-        for (let i = 0; i < entities.length; i++) {
-            if (entities[i].entity && entities[i].entity.model && entities[i].entity.model.meshInstances) {
-                const mi = entities[i].entity.model.meshInstances[index];
+        for (const entity of entities) {
+            if (entity.entity && entity.entity.model && entity.entity.model.meshInstances) {
+                const mi = entity.entity.model.meshInstances[index];
                 if (mi) {
                     if (!meshInstanceName) {
                         meshInstanceName = mi.node.name;
@@ -446,7 +474,7 @@ class ModelComponentInspector extends ComponentInspector {
                     }
 
                     const mapping = e.entity.model.mapping;
-                    if (!mapping || !mapping.hasOwnProperty(key)) {
+                    if (!mapping || !Object.hasOwn(mapping, key)) {
                         return;
                     }
 
@@ -464,7 +492,7 @@ class ModelComponentInspector extends ComponentInspector {
                     }
 
                     const mapping = e.entity.model.mapping;
-                    if (!mapping || !mapping.hasOwnProperty(key)) {
+                    if (!mapping || !Object.hasOwn(mapping, key)) {
                         return;
                     }
 
@@ -547,7 +575,7 @@ class ModelComponentInspector extends ComponentInspector {
         this._suppressCustomAabb = true;
         this._suppressToggleFields = true;
 
-        const customAabbs = this._entities.map(e => e.has('components.model.aabbCenter'));
+        const customAabbs = this._entities.map((e) => e.has('components.model.aabbCenter'));
         this._field('customAabb').values = customAabbs;
 
         this._suppressCustomAabb = false;
@@ -565,11 +593,13 @@ class ModelComponentInspector extends ComponentInspector {
             let min = Infinity;
             let max = -Infinity;
             this._entities.forEach((e) => {
-                if (!e.get('components.model.lightmapped') ||
-                    !e.entity || !e.entity.model ||
-                    !e.entity.model.asset && e.entity.model.type === 'asset' ||
-                    e.entity.model.asset && !app.assets.get(e.entity.model.asset)) {
-
+                if (
+                    !e.get('components.model.lightmapped') ||
+                    !e.entity ||
+                    !e.entity.model ||
+                    (!e.entity.model.asset && e.entity.model.type === 'asset') ||
+                    (e.entity.model.asset && !app.assets.get(e.entity.model.asset))
+                ) {
                     return;
                 }
 
@@ -583,7 +613,7 @@ class ModelComponentInspector extends ComponentInspector {
             });
 
             if (min) {
-                value = (min !== max ? `${min} - ${max}` : min);
+                value = min !== max ? `${min} - ${max}` : min;
             }
         }
 
@@ -593,13 +623,10 @@ class ModelComponentInspector extends ComponentInspector {
     _isUv1Missing() {
         for (let i = 0; this._entities && i < this._entities.length; i++) {
             const e = this._entities[i];
-            if (e.has('components.model') &&
-                e.get('components.model.type') === 'asset') {
+            if (e.has('components.model') && e.get('components.model.type') === 'asset') {
                 const assetId = e.get('components.model.asset');
                 const asset = assetId && this._assets.get(assetId);
-                if (asset &&
-                    !asset.has('meta.attributes.texCoord1') &&
-                    !asset.has('meta.attributes.TEXCOORD_1')) {
+                if (asset && !asset.has('meta.attributes.texCoord1') && !asset.has('meta.attributes.TEXCOORD_1')) {
                     return true;
                 }
             }
@@ -635,7 +662,8 @@ class ModelComponentInspector extends ComponentInspector {
         this._containerMappings.hidden = this._containerButtons.hidden;
 
         this._field('asset').hidden = this._field('type').value !== 'asset';
-        this._field('materialAsset').hidden = this._field('type').value === 'asset' || this._field('type').value === null;
+        this._field('materialAsset').hidden =
+            this._field('type').value === 'asset' || this._field('type').value === null;
 
         const customAabb = this._field('customAabb').value;
         this._field('aabbCenter').parent.hidden = !customAabb;
@@ -738,35 +766,43 @@ class ModelComponentInspector extends ComponentInspector {
         const customAabbValues = [];
 
         entities.forEach((e) => {
-            this._entityEvents.push(e.on('*:set', (path) => {
-                const match = path.match(REGEX_MAPPING);
-                if (!match) {
-                    return;
-                }
+            this._entityEvents.push(
+                e.on('*:set', (path) => {
+                    const match = path.match(REGEX_MAPPING);
+                    if (!match) {
+                        return;
+                    }
 
-                this._dirtyMappings.add(match[1]);
+                    this._dirtyMappings.add(match[1]);
 
-                this._refreshMappings(this._dirtyMappings);
-            }));
+                    this._refreshMappings(this._dirtyMappings);
+                })
+            );
 
-            this._entityEvents.push(e.on('*:unset', (path) => {
-                const match = path.match(REGEX_MAPPING);
-                if (!match) {
-                    return;
-                }
+            this._entityEvents.push(
+                e.on('*:unset', (path) => {
+                    const match = path.match(REGEX_MAPPING);
+                    if (!match) {
+                        return;
+                    }
 
-                this._dirtyMappings.add(match[1]);
+                    this._dirtyMappings.add(match[1]);
 
-                this._refreshMappings(this._dirtyMappings);
-            }));
+                    this._refreshMappings(this._dirtyMappings);
+                })
+            );
 
-            this._entityEvents.push(e.on('components.model.mapping:set', () => {
-                this._refreshMappings();
-            }));
+            this._entityEvents.push(
+                e.on('components.model.mapping:set', () => {
+                    this._refreshMappings();
+                })
+            );
 
-            this._entityEvents.push(e.on('components.model.mapping:unset', () => {
-                this._refreshMappings();
-            }));
+            this._entityEvents.push(
+                e.on('components.model.mapping:unset', () => {
+                    this._refreshMappings();
+                })
+            );
 
             customAabbValues.push(e.has('components.model.aabbCenter'));
 

@@ -1,4 +1,4 @@
-import { type Observer } from '@playcanvas/observer';
+import type { Observer } from '@playcanvas/observer';
 
 editor.once('load', () => {
     editor.method('assets:delete:picker', (items: Observer[]) => {
@@ -16,15 +16,20 @@ editor.once('load', () => {
             msg = `Delete ${items.length} Assets?`;
         }
 
-        editor.call('picker:confirm', msg, () => {
-            if (!editor.call('permissions:write')) {
-                return;
-            }
+        editor.call(
+            'picker:confirm',
+            msg,
+            () => {
+                if (!editor.call('permissions:write')) {
+                    return;
+                }
 
-            editor.call('assets:fs:delete', items);
-        }, {
-            yesText: 'Delete',
-            noText: 'Cancel'
-        });
+                editor.call('assets:fs:delete', items);
+            },
+            {
+                yesText: 'Delete',
+                noText: 'Cancel'
+            }
+        );
     });
 });

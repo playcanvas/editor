@@ -98,7 +98,6 @@ class CubemapThumbnailRenderer {
             height = width;
         }
 
-
         for (let i = 0; i < 6; i++) {
             const id = this._asset.get(`data.textures.${i}`);
             let image = null;
@@ -135,7 +134,13 @@ class CubemapThumbnailRenderer {
             }
 
             if (image) {
-                ctx.drawImage(image, POSITIONS[i][0] * width, POSITIONS[i][1] * height, width * GRID_SIZE, height * GRID_SIZE);
+                ctx.drawImage(
+                    image,
+                    POSITIONS[i][0] * width,
+                    POSITIONS[i][1] * height,
+                    width * GRID_SIZE,
+                    height * GRID_SIZE
+                );
             } else {
                 ctx.beginPath();
                 ctx.rect(POSITIONS[i][0] * width, POSITIONS[i][1] * height, width * GRID_SIZE, height * GRID_SIZE);

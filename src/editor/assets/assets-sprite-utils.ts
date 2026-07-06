@@ -5,22 +5,23 @@ editor.once('load', () => {
             return;
         }
 
-        editor.api.globals.rest.assets.assetDuplicate(asset.get('id'), {
-            type: 'textureatlas',
-            branchId: config.self.branch.id
-        })
-        .on('load', (status, res) => {
-            if (callback) {
-                callback(null, res.id);
-            }
-        })
-        .on('error', (status, res) => {
-            if (callback) {
-                callback(status);
-            } else {
-                log.error`sprite utils error ${status}: ${res}`;
-            }
-        });
+        editor.api.globals.rest.assets
+            .assetDuplicate(asset.get('id'), {
+                type: 'textureatlas',
+                branchId: config.self.branch.id
+            })
+            .on('load', (status, res) => {
+                if (callback) {
+                    callback(null, res.id);
+                }
+            })
+            .on('error', (status, res) => {
+                if (callback) {
+                    callback(status);
+                } else {
+                    void log.error`sprite utils error ${status}: ${res}`;
+                }
+            });
     });
 
     // Creates new Sprite Asset from Texture Atlas Asset
@@ -43,11 +44,12 @@ editor.once('load', () => {
         if (count) {
             for (const key in frames) {
                 // search for existing frame that covers the entire atlas
-                if (frames[key]._data.rect[0] <= 0 &&
+                if (
+                    frames[key]._data.rect[0] <= 0 &&
                     frames[key]._data.rect[1] <= 0 &&
                     frames[key]._data.rect[2] >= width &&
-                    frames[key]._data.rect[3] >= height) {
-
+                    frames[key]._data.rect[3] >= height
+                ) {
                     frame = key;
                     break;
                 }
@@ -92,20 +94,20 @@ editor.once('load', () => {
 
         const folder = editor.call('assets:panel:currentFolder');
 
-        editor.api.globals.assets.createSprite({
-            name: name,
-            pixelsPerUnit: ppu,
-            renderMode: renderMode,
-            frameKeys: [frame],
-            textureAtlas: asset.apiAsset,
-            folder: folder && folder.apiAsset
-        })
-        .then((sprite) => {
-            editor.api.globals.selection.set([sprite]);
-        })
-        .catch((err) => {
-            editor.call('status:error', err);
-        });
+        editor.api.globals.assets
+            .createSprite({
+                name: name,
+                pixelsPerUnit: ppu,
+                renderMode: renderMode,
+                frameKeys: [frame],
+                textureAtlas: asset.apiAsset,
+                folder: folder && folder.apiAsset
+            })
+            .then((sprite) => {
+                editor.api.globals.selection.set([sprite]);
+            })
+            .catch((err) => {
+                editor.call('status:error', err);
+            });
     });
-
 });

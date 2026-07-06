@@ -33,30 +33,34 @@ By participating in this project, you are expected to uphold our Code of Conduct
 
 1. **Fork the repository** on GitHub
 2. **Clone your fork** locally:
-   ```bash
-   git clone https://github.com/YOUR_USERNAME/editor.git
-   cd editor
-   ```
+
+    ```bash
+    git clone https://github.com/YOUR_USERNAME/editor.git
+    cd editor
+    ```
 
 3. **Add the upstream remote**:
-   ```bash
-   git remote add upstream https://github.com/playcanvas/editor.git
-   ```
+
+    ```bash
+    git remote add upstream https://github.com/playcanvas/editor.git
+    ```
 
 4. **Install dependencies**:
-   ```bash
-   npm install
-   ```
+
+    ```bash
+    npm install
+    ```
 
 5. **Start the development server**:
-   ```bash
-   npm run develop
-   ```
+
+    ```bash
+    npm run develop
+    ```
 
 6. **Test the local build** by visiting PlayCanvas Editor with the query parameter:
-   ```
-   https://playcanvas.com/editor/project/YOUR_PROJECT_ID?use_local_frontend
-   ```
+    ```
+    https://playcanvas.com/editor/project/YOUR_PROJECT_ID?use_local_frontend
+    ```
 
 ## Project Structure
 
@@ -85,39 +89,42 @@ editor/
 ### Branch Management
 
 1. **Create a feature branch** from `main`:
-   ```bash
-   git checkout -b feat/your-feature-name
-   ```
+
+    ```bash
+    git checkout -b feat/your-feature-name
+    ```
 
 2. **Keep your branch up to date**:
-   ```bash
-   git fetch upstream
-   git rebase upstream/main
-   ```
+    ```bash
+    git fetch upstream
+    git rebase upstream/main
+    ```
 
 ### Making Changes
 
 1. **Write clear, concise commit messages**:
-   ```
-   feat: add new asset inspector component
-   
-   - Add support for custom asset types
-   - Improve preview functionality
-   - Update related documentation
-   ```
+
+    ```
+    feat: add new asset inspector component
+
+    - Add support for custom asset types
+    - Improve preview functionality
+    - Update related documentation
+    ```
 
 2. **Test your changes** thoroughly:
-   ```bash
-   npm test
-   npm run lint
-   npm run fmt
-   npm run typecheck
-   ```
+
+    ```bash
+    npm test
+    npm run lint
+    npm run fmt
+    npm run typecheck
+    ```
 
 3. **Build the project** to ensure everything compiles:
-   ```bash
-   npm run build
-   ```
+    ```bash
+    npm run build
+    ```
 
 ## Coding Standards
 
@@ -151,11 +158,13 @@ npm run lint
 Testing for the Editor Frontend is handled through the [playcanvas/editor-test](https://github.com/playcanvas/editor-test) repository. Tests are automatically triggered via GitHub Actions workflow when a pull request is labeled with `test`.
 
 The test workflow:
+
 1. Builds a Docker image of the Editor Frontend
 2. Runs comprehensive end-to-end tests against the PlayCanvas platform
 3. Tests are executed in a containerized environment with access to PlayCanvas services
 
 To run tests on your PR:
+
 1. Ensure your PR is ready for testing
 2. A maintainer will add the `test` label to trigger the test suite
 3. Monitor the test results in the GitHub Actions tab
@@ -163,6 +172,7 @@ To run tests on your PR:
 ### Test Environment
 
 Tests run with the following configuration:
+
 - Docker-based test environment
 - Integration with PlayCanvas platform services
 - Access to live PlayCanvas editor functionality
@@ -171,6 +181,7 @@ Tests run with the following configuration:
 ### Writing Tests
 
 If you need to add new test cases:
+
 - Tests should be added to the [playcanvas/editor-test](https://github.com/playcanvas/editor-test) repository
 - Follow the existing test patterns in that repository
 - Coordinate with maintainers for test additions
@@ -180,15 +191,16 @@ If you need to add new test cases:
 ### Pull Request Process
 
 1. **Push your branch** to your fork:
-   ```bash
-   git push origin feat/your-feature-name
-   ```
+
+    ```bash
+    git push origin feat/your-feature-name
+    ```
 
 2. **Create a Pull Request** on GitHub with:
-   - Clear title describing the change
-   - Detailed description of what was changed and why
-   - Screenshots or GIFs for UI changes
-   - Reference to any related issues
+    - Clear title describing the change
+    - Detailed description of what was changed and why
+    - Screenshots or GIFs for UI changes
+    - Reference to any related issues
 
 3. **Respond to feedback** promptly and make requested changes
 
@@ -211,11 +223,11 @@ When reporting bugs or requesting features:
 1. **Check existing issues** first to avoid duplicates
 2. **Use the issue templates** when available
 3. **Provide detailed information**:
-   - Steps to reproduce (for bugs)
-   - Expected vs actual behavior
-   - Browser and OS information
-   - Relevant console errors or logs
-   - Screenshots or recordings when helpful
+    - Steps to reproduce (for bugs)
+    - Expected vs actual behavior
+    - Browser and OS information
+    - Relevant console errors or logs
+    - Screenshots or recordings when helpful
 
 ## Getting Help
 

@@ -47,7 +47,6 @@ editor.once('load', () => {
         });
     };
 
-
     editor.on('whoisonline:add', (assetId: string, userId: string) => {
         // check if this is the focused document
         if (editor.call('documents:getFocused') !== assetId || itemsIndex[userId]) {

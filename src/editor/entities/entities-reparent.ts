@@ -8,16 +8,22 @@ editor.once('load', () => {
      * being reparented, parent is the new parent and index is the new index under the parent's children
      * @param preserveTransform - Whether to preserve the world transform when reparenting
      */
-    editor.method('entities:reparent', (data: Array<{ entity: EntityObserver; parent: EntityObserver; index: number }>, preserveTransform?: boolean) => {
-        editor.api.globals.entities.reparent(data.map((entry) => {
-            return {
-                entity: entry.entity.apiEntity,
-                parent: entry.parent.apiEntity,
-                index: entry.index
-            };
-        }), {
-            preserveTransform: preserveTransform,
-            history: true
-        });
-    });
+    editor.method(
+        'entities:reparent',
+        (data: { entity: EntityObserver; parent: EntityObserver; index: number }[], preserveTransform?: boolean) => {
+            editor.api.globals.entities.reparent(
+                data.map((entry) => {
+                    return {
+                        entity: entry.entity.apiEntity,
+                        parent: entry.parent.apiEntity,
+                        index: entry.index
+                    };
+                }),
+                {
+                    preserveTransform: preserveTransform,
+                    history: true
+                }
+            );
+        }
+    );
 });

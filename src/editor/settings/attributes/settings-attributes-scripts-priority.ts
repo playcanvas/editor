@@ -74,9 +74,7 @@ editor.once('load', () => {
         }
     };
 
-    editor.on('sourcefiles:load', (obs) => {
-
-    });
+    editor.on('sourcefiles:load', (obs) => {});
 
     const root = editor.call('layout.root');
 
@@ -90,7 +88,8 @@ editor.once('load', () => {
     overlay.append(label);
 
     const description = createLabel();
-    description.text = 'Scripts in the priority list are loaded first in the order that they are listed. Other scripts are loaded in an unspecified order.';
+    description.text =
+        'Scripts in the priority list are loaded first in the order that they are listed. Other scripts are loaded in an unspecified order.';
     description.class.add('description');
     overlay.append(description);
 

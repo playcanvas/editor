@@ -1,13 +1,5 @@
 editor.once('load', () => {
-    const validTypes = [
-        'css',
-        'folder',
-        'html',
-        'json',
-        'script',
-        'shader',
-        'text'
-    ];
+    const validTypes = ['css', 'folder', 'html', 'json', 'script', 'shader', 'text'];
 
     // create new asset
     editor.on('messenger:asset.new', (data: unknown) => {
@@ -42,8 +34,8 @@ editor.once('load', () => {
 
     // remove multiple
     editor.on('messenger:assets.delete', (data: unknown) => {
-        for (let i = 0; i < data.assets.length; i++) {
-            const asset = editor.call('assets:getUnique', parseInt(data.assets[i], 10));
+        for (const assetId of data.assets) {
+            const asset = editor.call('assets:getUnique', parseInt(assetId, 10));
             if (!asset) {
                 continue;
             }

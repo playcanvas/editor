@@ -1,7 +1,8 @@
 import * as coreElements from '@playcanvas/pcui';
 
-import * as constants from './constants';
 import { deepCopy } from '../utils';
+
+import * as constants from './constants';
 import { AssetInput } from './element/element-asset-input';
 import { AssetList } from './element/element-asset-list';
 import { AssetThumbnail } from './element/element-asset-thumbnail';
@@ -22,7 +23,7 @@ import { Tooltip } from './element/element-tooltip';
 
 // Core elements
 for (const name in constants.DEFAULTS) {
-    if (!coreElements.ArrayInput.DEFAULTS.hasOwnProperty(name)) {
+    if (!Object.hasOwn(coreElements.ArrayInput.DEFAULTS, name)) {
         coreElements.Element.register(`array:${name}`, coreElements.ArrayInput, { type: name, renderChanges: true });
     }
     coreElements.ArrayInput.DEFAULTS[name] = deepCopy(constants.DEFAULTS[name]);

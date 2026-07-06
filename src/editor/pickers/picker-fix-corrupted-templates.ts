@@ -45,9 +45,10 @@ editor.once('load', () => {
 
     const text = new Label({
         unsafe: true,
-        text: '<p>We identified some template instances with invalid data. These might cause further issues as you continue development if not fixed.</p>' +
-              '<p>Please see <a href="https://forum.playcanvas.com/t/draft-corruption-of-template-instances-please-read/23265" target="_blank">this post</a> for more information.</p>' +
-              '<p>We will need to modify these templates instances but this will mean that some entities in your scene will lose their template connection. Click CANCEL to continue without any modifications or click PROCEED and follow the instructions in the following screens.</p>'
+        text:
+            '<p>We identified some template instances with invalid data. These might cause further issues as you continue development if not fixed.</p>' +
+            '<p>Please see <a href="https://forum.playcanvas.com/t/draft-corruption-of-template-instances-please-read/23265" target="_blank">this post</a> for more information.</p>' +
+            '<p>We will need to modify these templates instances but this will mean that some entities in your scene will lose their template connection. Click CANCEL to continue without any modifications or click PROCEED and follow the instructions in the following screens.</p>'
     });
 
     overlay.append(text);
@@ -145,7 +146,8 @@ editor.once('load', () => {
             btnReport.hidden = true;
             btnCancelMigration.hidden = true;
         } else if (currentState === STATE_FOUND_ISSUES) {
-            progressText.text = '<p>Issues found. Please click DOWNLOAD REPORT to download a report of all the issues.</p><p>Click CREATE CHECKPOINT AND MIGRATE to begin the process or click CANCEL to stop.</p>';
+            progressText.text =
+                '<p>Issues found. Please click DOWNLOAD REPORT to download a report of all the issues.</p><p>Click CREATE CHECKPOINT AND MIGRATE to begin the process or click CANCEL to stop.</p>';
             spinner.hidden = true;
             btnFindIssues.hidden = true;
             btnReport.hidden = false;
@@ -158,7 +160,8 @@ editor.once('load', () => {
             btnProceedWithMigration.hidden = true;
             btnCancelMigration.hidden = true;
         } else if (currentState === STATE_END) {
-            progressText.text = 'Migration complete. Please click the button to download a report and refresh the Editor.';
+            progressText.text =
+                'Migration complete. Please click the button to download a report and refresh the Editor.';
             spinner.hidden = true;
             btnFindIssues.hidden = true;
             btnReport.hidden = false;
@@ -187,7 +190,7 @@ editor.once('load', () => {
     progressButtons.append(btnReport);
 
     btnReport.on('click', () => {
-        const title = (currentState === STATE_FOUND_ISSUES ? 'issues' : 'migration-report');
+        const title = currentState === STATE_FOUND_ISSUES ? 'issues' : 'migration-report';
         downloadReport(title);
     });
 
@@ -205,12 +208,14 @@ editor.once('load', () => {
             projectId: config.project.id,
             branchId: config.self.branch.id,
             description: `Checkpoint before executing corrupted templates migration in branch '${config.self.branch.name}'`
-        }).then(() => {
-            progressText.text = 'Migrating...';
-            editor.emit('picker:fixCorruptedTemplates:confirm');
-        }).catch((err) => {
-            setState(STATE_ERROR, err instanceof Error ? err.message : `${err}`);
-        });
+        })
+            .then(() => {
+                progressText.text = 'Migrating...';
+                editor.emit('picker:fixCorruptedTemplates:confirm');
+            })
+            .catch((err) => {
+                setState(STATE_ERROR, err instanceof Error ? err.message : `${err}`);
+            });
     });
 
     const btnCancelMigration = new Button({

@@ -35,7 +35,7 @@ function createTemplate(rootEntity: Entity) {
             }
         }
 
-        const newEntity =  new Entity(json);
+        const newEntity = new Entity(json);
         newEntity.set('children', entity.get('children'));
         entities[newId] = newEntity;
     });
@@ -44,14 +44,15 @@ function createTemplate(rootEntity: Entity) {
     const references: Record<string, any> = findEntityReferencesInComponents(rootEntity);
     for (const oldId in references) {
         const prevEntity = api.entities.get(oldId);
-        const isExternalReference = (!prevEntity || (prevEntity !== rootEntity && !prevEntity.isDescendantOf(rootEntity)));
+        const isExternalReference =
+            !prevEntity || (prevEntity !== rootEntity && !prevEntity.isDescendantOf(rootEntity));
 
         const referencesToEntity = references[oldId];
-        referencesToEntity.forEach((reference: { entityId: string; path: string; }) => {
+        referencesToEntity.forEach((reference: { entityId: string; path: string }) => {
             const entity = entities[oldToNewIds[reference.entityId]];
             if (entity) {
                 let value = null;
-                if (!isExternalReference && oldToNewIds[oldId])  {
+                if (!isExternalReference && oldToNewIds[oldId]) {
                     value = oldToNewIds[oldId];
                 }
                 entity.set(reference.path, value);
@@ -65,7 +66,10 @@ function createTemplate(rootEntity: Entity) {
         if (parent) {
             entities[id].set('parent', oldToNewIds[parent]);
         }
-        entities[id].set('children', entities[id].get('children').map((child: string) => oldToNewIds[child]));
+        entities[id].set(
+            'children',
+            entities[id].get('children').map((child: string) => oldToNewIds[child])
+        );
 
         const templateEntIds = entities[id].get('template_ent_ids');
         if (templateEntIds) {

@@ -1,20 +1,26 @@
 import type { Observer, ObserverList, EventHandle } from '@playcanvas/observer';
-import { Panel, Button, type PanelArgs } from '@playcanvas/pcui';
-import { ANIM_EQUAL_TO, ANIM_PARAMETER_BOOLEAN, ANIM_PARAMETER_FLOAT, ANIM_PARAMETER_INTEGER, ANIM_PARAMETER_TRIGGER } from 'playcanvas';
+import { Panel, Button } from '@playcanvas/pcui';
+import type { PanelArgs } from '@playcanvas/pcui';
+import {
+    ANIM_EQUAL_TO,
+    ANIM_PARAMETER_BOOLEAN,
+    ANIM_PARAMETER_FLOAT,
+    ANIM_PARAMETER_INTEGER,
+    ANIM_PARAMETER_TRIGGER
+} from 'playcanvas';
 
 import type { History } from '@/editor-api';
 
 import type { Attribute } from '../inspector/attribute.type.d';
 import { AttributesInspector } from '../inspector/attributes-inspector';
 
-
 const CLASS_ANIMSTATEGRAPH = 'asset-animstategraph-inspector';
 const CLASS_ANIMSTATEGRAPH_PARAMETER = `${CLASS_ANIMSTATEGRAPH}-parameter`;
 
-interface AnimStateGraphParametersArgs extends PanelArgs {
+type AnimStateGraphParametersArgs = {
     assets?: ObserverList;
     history?: History;
-}
+} & PanelArgs;
 
 class AnimStateGraphParameters extends Panel {
     _args!: AnimStateGraphParametersArgs;
@@ -140,17 +146,27 @@ class AnimStateGraphParameters extends Panel {
                                         prevConditionPredicates.push({
                                             transition: transitionKey,
                                             condition: conditionKey,
-                                            value: asset.get(`data.transitions.${transitionKey}.conditions.${conditionKey}.predicate`)
+                                            value: asset.get(
+                                                `data.transitions.${transitionKey}.conditions.${conditionKey}.predicate`
+                                            )
                                         });
-                                        asset.set(`data.transitions.${transitionKey}.conditions.${conditionKey}.predicate`, ANIM_EQUAL_TO);
+                                        asset.set(
+                                            `data.transitions.${transitionKey}.conditions.${conditionKey}.predicate`,
+                                            ANIM_EQUAL_TO
+                                        );
                                         break;
                                 }
                                 prevConditionValues.push({
                                     transition: transitionKey,
                                     condition: conditionKey,
-                                    value: asset.get(`data.transitions.${transitionKey}.conditions.${conditionKey}.value`)
+                                    value: asset.get(
+                                        `data.transitions.${transitionKey}.conditions.${conditionKey}.value`
+                                    )
                                 });
-                                asset.set(`data.transitions.${transitionKey}.conditions.${conditionKey}.value`, updatedValue);
+                                asset.set(
+                                    `data.transitions.${transitionKey}.conditions.${conditionKey}.value`,
+                                    updatedValue
+                                );
                             }
                         });
                     }
@@ -239,7 +255,10 @@ class AnimStateGraphParameters extends Panel {
                                     transition: transitionKey,
                                     condition: conditionKey
                                 });
-                                asset.set(`data.transitions.${transitionKey}.conditions.${conditionKey}.parameterName`, value);
+                                asset.set(
+                                    `data.transitions.${transitionKey}.conditions.${conditionKey}.parameterName`,
+                                    value
+                                );
                             }
                         });
                     }
@@ -272,7 +291,6 @@ class AnimStateGraphParameters extends Panel {
             });
             redo();
         });
-
 
         attributesInspector.link(this._assets);
         return attributesInspector;
@@ -315,8 +333,7 @@ class AnimStateGraphParameters extends Panel {
 
     _deleteParameter(paramId: string) {
         const param = this._assets[0].get(`data.parameters.${paramId}`);
-        const conditions = {
-        };
+        const conditions = {};
         const redo = () => {
             const asset = this._assets[0].latest();
             const historyEnabled = asset.history.enabled;
@@ -348,7 +365,10 @@ class AnimStateGraphParameters extends Panel {
             Object.keys(asset.get('data.transitions')).forEach((transitionKey) => {
                 if (conditions[transitionKey]) {
                     Object.keys(conditions[transitionKey]).forEach((conditionKey) => {
-                        asset.set(`data.transitions.${transitionKey}.conditions.${conditionKey}`, conditions[transitionKey][conditionKey]);
+                        asset.set(
+                            `data.transitions.${transitionKey}.conditions.${conditionKey}`,
+                            conditions[transitionKey][conditionKey]
+                        );
                     });
                 }
             });
@@ -402,12 +422,25 @@ class AnimStateGraphParameters extends Panel {
                 const pathArr = path.split('.');
                 if (path.includes('data.parameters.') && pathArr.length === 3 && !this._parameterPanels[pathArr[2]]) {
                     this._addParamPanel(pathArr[2]);
-                } else if (path.includes('data.parameters.') && path.includes('.name') && pathArr.length === 4 && this._parameterPanels[pathArr[2]]) {
+                } else if (
+                    path.includes('data.parameters.') &&
+                    path.includes('.name') &&
+                    pathArr.length === 4 &&
+                    this._parameterPanels[pathArr[2]]
+                ) {
                     this._parameterPanels[pathArr[2]].headerText = value;
-                } else if (path.includes('data.parameters.') && path.includes('.type') && pathArr.length === 4 && this._parameterPanels[pathArr[2]]) {
+                } else if (
+                    path.includes('data.parameters.') &&
+                    path.includes('.type') &&
+                    pathArr.length === 4 &&
+                    this._parameterPanels[pathArr[2]]
+                ) {
                     const paramPanel = this._parameterPanels[pathArr[2]];
                     paramPanel.remove(paramPanel._attributesInspector);
-                    paramPanel._attributesInspector = this._createParamAttributesInspector(pathArr[2], this._assets[0].get(`data.parameters.${pathArr[2]}`));
+                    paramPanel._attributesInspector = this._createParamAttributesInspector(
+                        pathArr[2],
+                        this._assets[0].get(`data.parameters.${pathArr[2]}`)
+                    );
                     paramPanel.append(paramPanel._attributesInspector);
                 }
             })
@@ -420,7 +453,7 @@ class AnimStateGraphParameters extends Panel {
             this._removeParameterList();
             this._assets = null;
             if (this._assetEvents) {
-                this._assetEvents.forEach(evt => evt.unbind());
+                this._assetEvents.forEach((evt) => evt.unbind());
                 this._assetEvents = [];
             }
         }

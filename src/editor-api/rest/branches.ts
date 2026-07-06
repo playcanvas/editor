@@ -23,31 +23,31 @@ export type BranchCreateArgs = {
      * the ID of the source checkpoint
      */
     sourceCheckpointId?: string;
-}
+};
 export type BranchCheckoutArgs = {
     /**
      * The ID of the branch to checkout
      */
     branchId: string;
-}
+};
 export type BranchOpenArgs = {
     /**
      * The ID of the branch to open
      */
     branchId: string;
-}
+};
 export type BranchCloseArgs = {
     /**
      * The ID of the branch to close
      */
     branchId: string;
-}
+};
 export type BranchDeleteArgs = {
     /**
      * The ID of the branch to delete
      */
     branchId: string;
-}
+};
 export type BranchCheckpointArgs = {
     /**
      * The ID of the branch to get checkpoints for

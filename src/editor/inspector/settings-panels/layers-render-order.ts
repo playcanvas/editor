@@ -1,9 +1,11 @@
 import type { EventHandle } from '@playcanvas/observer';
 import type { Element as PcuiElement, SelectInput } from '@playcanvas/pcui';
 
-import { BaseSettingsPanel, type BaseSettingsPanelArgs } from './base';
-import { LayersSettingsPanelRenderOrderList } from './layers-render-order-list';
 import type { Attribute } from '../attribute.type.d';
+
+import { BaseSettingsPanel } from './base';
+import type { BaseSettingsPanelArgs } from './base';
+import { LayersSettingsPanelRenderOrderList } from './layers-render-order-list';
 
 const CLASS_ROOT = 'layers-settings-panel';
 const CLASS_RENDER_ORDER_PANEL = `${CLASS_ROOT}-render-order-panel`;
@@ -103,9 +105,11 @@ class LayersSettingsPanelRenderOrderPanel extends BaseSettingsPanel {
         this._layerUpdateEvts = [];
         const events = ['*:set', '*:unset', 'layerOrder:remove', 'layerOrder:insert', 'layerOrder:move'];
         events.forEach((evt) => {
-            this._layerUpdateEvts.push(this._projectSettings.on(evt, () => {
-                this._updateAddSublayerOptions();
-            }));
+            this._layerUpdateEvts.push(
+                this._projectSettings.on(evt, () => {
+                    this._updateAddSublayerOptions();
+                })
+            );
         });
         this.collapsed = false;
     }
@@ -118,29 +122,32 @@ class LayersSettingsPanelRenderOrderPanel extends BaseSettingsPanel {
         }
 
         const options = Object.keys(layers)
-        .map((layerKey) => {
-            return [{
-                v: `${layerKey}.transparent`,
-                t: `${layers[layerKey].name} Transparent`,
-                layerKey,
-                transparent: true
-            }, {
-                v: `${layerKey}.opaque`,
-                t: `${layers[layerKey].name} Opaque`,
-                layerKey,
-                transparent: false
-            }];
-        })
-        .filter((layer) => {
-            return layer[0].layerKey >= 1000;
-        })
-        .flat()
-        .filter((layer) => {
-            const layerIsInLayerOrder = projectSettings.get('layerOrder').find((option) => {
-                return option.layer === parseInt(layer.layerKey, 10) && option.transparent === layer.transparent;
+            .map((layerKey) => {
+                return [
+                    {
+                        v: `${layerKey}.transparent`,
+                        t: `${layers[layerKey].name} Transparent`,
+                        layerKey,
+                        transparent: true
+                    },
+                    {
+                        v: `${layerKey}.opaque`,
+                        t: `${layers[layerKey].name} Opaque`,
+                        layerKey,
+                        transparent: false
+                    }
+                ];
+            })
+            .filter((layer) => {
+                return layer[0].layerKey >= 1000;
+            })
+            .flat()
+            .filter((layer) => {
+                const layerIsInLayerOrder = projectSettings.get('layerOrder').find((option) => {
+                    return option.layer === parseInt(layer.layerKey, 10) && option.transparent === layer.transparent;
+                });
+                return !layerIsInLayerOrder;
             });
-            return !layerIsInLayerOrder;
-        });
         this._addSubLayerSelect.options = options;
     }
 }

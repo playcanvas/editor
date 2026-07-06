@@ -17,7 +17,7 @@ editor.once('load', () => {
         }
 
         let timeout;
-        const updatedFields = { };
+        const updatedFields = {};
 
         const onChange = function (path: string, value: unknown) {
             const realtimeAsset = app.assets.get(asset.get('id'));
@@ -35,12 +35,17 @@ editor.once('load', () => {
                     const raw = asset.get(key);
 
                     // do not hot-reload script if it has no `swap` methods already defined
-                    if (key === 'file' && asset.get('type') === 'script' && realtimeAsset.data && realtimeAsset.data.scripts) {
+                    if (
+                        key === 'file' &&
+                        asset.get('type') === 'script' &&
+                        realtimeAsset.data &&
+                        realtimeAsset.data.scripts
+                    ) {
                         let swappable = false;
 
                         for (const script in realtimeAsset.data.scripts) {
                             const scriptType = app.scripts.get(script);
-                            if (scriptType && scriptType.prototype.hasOwnProperty('swap')) {
+                            if (scriptType && Object.hasOwn(scriptType.prototype, 'swap')) {
                                 swappable = true;
                                 break;
                             }
@@ -125,7 +130,6 @@ editor.once('load', () => {
                     const parts = path.split('.');
                     realtimeAsset.removeLocalizedAssetId(parts[1]);
                 }
-
             } else if (asset.get('type') === 'textureatlas') {
                 // handle deleting frames from texture atlas
                 realtimeAsset = app.assets.get(asset.get('id'));
@@ -150,7 +154,6 @@ editor.once('load', () => {
                 // everything else
                 onChange(path, value);
             }
-
         });
 
         // handle changing sprite frame keys
@@ -202,13 +205,15 @@ editor.once('load', () => {
                 id: parseInt(assetJson.id, 10),
                 name: assetJson.name,
                 tags: assetJson.tags,
-                file: assetJson.file ? {
-                    filename: assetJson.file.filename,
-                    url: assetJson.file.url,
-                    hash: assetJson.file.hash,
-                    size: assetJson.file.size,
-                    variants: assetJson.file.variants || null
-                } : null,
+                file: assetJson.file
+                    ? {
+                          filename: assetJson.file.filename,
+                          url: assetJson.file.url,
+                          hash: assetJson.file.hash,
+                          size: assetJson.file.size,
+                          variants: assetJson.file.variants || null
+                      }
+                    : null,
                 data: assetJson.data,
                 type: assetJson.type
             };

@@ -177,10 +177,12 @@ class AssetInput extends Element {
         editor.call('drop:target', {
             ref: this,
             filter: (type: string, dropData: any) => {
-                if (dropData.id && type.startsWith('asset') &&
+                if (
+                    dropData.id &&
+                    type.startsWith('asset') &&
                     acceptsAssetDropType(this._assetType, type) &&
-                    parseInt(dropData.id, 10) !== this.value) {
-
+                    parseInt(dropData.id, 10) !== this.value
+                ) {
                     const asset = this._assets.get(dropData.id);
                     return !!asset && !asset.get('source') && this.validateAsset(asset);
                 }

@@ -312,7 +312,7 @@ class AssetPanel extends Panel {
 
     private _legacyScriptsIndex: Record<string, Observer>;
 
-    private _hoveredAsset: Observer|undefined|null;
+    private _hoveredAsset: Observer | undefined | null;
 
     private _eventsDropManager: EventHandle[];
 
@@ -345,16 +345,20 @@ class AssetPanel extends Panel {
      * AssetPanel.VIEW_SMALL_GRID,
      * AssetPanel.VIEW_DETAILS
      */
-    private _viewMode: typeof AssetPanel.VIEW_LARGE_GRID | typeof AssetPanel.VIEW_SMALL_GRID | typeof AssetPanel.VIEW_DETAILS;
+    private _viewMode:
+        typeof AssetPanel.VIEW_LARGE_GRID | typeof AssetPanel.VIEW_SMALL_GRID | typeof AssetPanel.VIEW_DETAILS;
 
     private _rowsIndex: Record<string, TableRow>;
 
     private _gridIndex: Record<string, AssetGridViewItem>;
 
-    private _usersIndex: Record<string, {
-        elements: Element[];
-        color: string;
-    }>;
+    private _usersIndex: Record<
+        string,
+        {
+            elements: Element[];
+            color: string;
+        }
+    >;
 
     /**
      * If true changes to filters will not re-filter the asset panel.
@@ -421,15 +425,21 @@ class AssetPanel extends Panel {
 
     validateAssetsFn?: (asset: AssetObserver) => boolean;
 
-    constructor(args: PanelArgs & {
-        dropManager: any;
-        viewMode?: typeof AssetPanel.VIEW_LARGE_GRID | typeof AssetPanel.VIEW_SMALL_GRID | typeof AssetPanel.VIEW_DETAILS;
-        writePermissions?: boolean;
-        assets?: ObserverList;
-    }) {
-        args = Object.assign({
-            headerText: 'ASSETS'
-        }, args);
+    constructor(
+        args: PanelArgs & {
+            dropManager: any;
+            viewMode?:
+                typeof AssetPanel.VIEW_LARGE_GRID | typeof AssetPanel.VIEW_SMALL_GRID | typeof AssetPanel.VIEW_DETAILS;
+            writePermissions?: boolean;
+            assets?: ObserverList;
+        }
+    ) {
+        args = Object.assign(
+            {
+                headerText: 'ASSETS'
+            },
+            args
+        );
 
         args.flex = true;
         args.flexDirection = 'row';
@@ -554,13 +564,13 @@ class AssetPanel extends Panel {
 
         // asset type dropdown filter
         const dropdownTypeOptions = Object.keys(TYPES)
-        .filter((type: string) => type !== 'bundle' || editor.call('users:hasFlag', 'hasBundles'))
-        .map((type: string) => {
-            return {
-                v: type,
-                t: TYPES[type]
-            };
-        });
+            .filter((type: string) => type !== 'bundle' || editor.call('users:hasFlag', 'hasBundles'))
+            .map((type: string) => {
+                return {
+                    v: type,
+                    t: TYPES[type]
+                };
+            });
         this._dropdownType = new SelectInput({
             options: dropdownTypeOptions,
             value: 'all',
@@ -572,7 +582,6 @@ class AssetPanel extends Panel {
 
         this._containerControls.append(this._dropdownType);
         this._dropdownType.on('change', this._onDropDownTypeChange.bind(this));
-
 
         this._dropdownType._labelValue.on('hover', () => {
             tooltip.attach(this._dropdownType._labelValue.dom);
@@ -703,25 +712,29 @@ class AssetPanel extends Panel {
         this._detailsView = new Table({
             scrollable: true,
             hidden: true,
-            columns: [{
-                title: 'Name',
-                width: '40%',
-                minWidth: 100,
-                sortKey: 'name',
-                sortFn: this._sortByName.bind(this)
-            }, {
-                title: 'Type',
-                width: '25%',
-                minWidth: 70,
-                sortKey: 'type',
-                sortFn: this._sortByType.bind(this)
-            }, {
-                title: 'Size',
-                width: '10%',
-                minWidth: 60,
-                sortKey: 'file.size',
-                sortFn: this._sortByFileSize.bind(this)
-            }],
+            columns: [
+                {
+                    title: 'Name',
+                    width: '40%',
+                    minWidth: 100,
+                    sortKey: 'name',
+                    sortFn: this._sortByName.bind(this)
+                },
+                {
+                    title: 'Type',
+                    width: '25%',
+                    minWidth: 70,
+                    sortKey: 'type',
+                    sortFn: this._sortByType.bind(this)
+                },
+                {
+                    title: 'Size',
+                    width: '10%',
+                    minWidth: 60,
+                    sortKey: 'file.size',
+                    sortFn: this._sortByFileSize.bind(this)
+                }
+            ],
             defaultSortColumn: 0,
             createRowFn: this._createDetailsViewRow.bind(this),
             getRowFn: this._getDetailsViewRow.bind(this),
@@ -824,7 +837,6 @@ class AssetPanel extends Panel {
                 shift: true,
                 callback: () => this._onPasteAssets(true)
             });
-
         });
 
         this.on('hideToRoot', () => {
@@ -889,7 +901,6 @@ class AssetPanel extends Panel {
         const comp = naturalCompare(nameA, nameB);
         return ascending ? comp : -comp;
     }
-
 
     // Sorts assets by type. Keeps legacy scripts folder on top always.
     _sortByType(a: AssetObserver | Observer, b: AssetObserver | Observer, ascending: boolean) {
@@ -1003,7 +1014,10 @@ class AssetPanel extends Panel {
     // Convert string in form "tag1, tag2" to an array
     // of strings like so: "tag1", "tag2"
     _processTagsString(str: string) {
-        return str.trim().split(',').map(s => s.trim());
+        return str
+            .trim()
+            .split(',')
+            .map((s) => s.trim());
     }
 
     // switch folder to selected asset
@@ -1022,7 +1036,7 @@ class AssetPanel extends Panel {
 
         const suspendFiltering = this._suspendFiltering;
         this._suspendFiltering = true;
-        this.currentFolder = (path.length ? this._assets.get(path[path.length - 1]) : null);
+        this.currentFolder = path.length ? this._assets.get(path[path.length - 1]) : null;
         this._suspendFiltering = suspendFiltering;
     }
 
@@ -1144,13 +1158,14 @@ class AssetPanel extends Panel {
             }
         } else if (type === 'sprite' || type === 'textureatlas') {
             editor.call('picker:sprites', asset);
-        } else if (type === 'css' ||
-                    type === 'html' ||
-                    type === 'json' ||
-                    type === 'script' ||
-                    type === 'shader' ||
-                    type === 'text') {
-
+        } else if (
+            type === 'css' ||
+            type === 'html' ||
+            type === 'json' ||
+            type === 'script' ||
+            type === 'shader' ||
+            type === 'text'
+        ) {
             if (type === 'script' && config.project.settings.useLegacyScripts) {
                 editor.call('assets:edit', asset);
             } else {
@@ -1191,7 +1206,7 @@ class AssetPanel extends Panel {
                 return !!parseInt(data.id, 10);
             }
             if (data.ids) {
-                return data.ids.filter(id => parseInt(id, 10)).length === data.ids.length;
+                return data.ids.filter((id) => parseInt(id, 10)).length === data.ids.length;
             }
         }
 
@@ -1342,8 +1357,8 @@ class AssetPanel extends Panel {
             // do not allow source assets in bundle
             if (hoveredType === 'bundle') {
                 const sourceAssets = dropData.ids
-                .map(id => this._assets.get(id))
-                .filter(asset => asset && asset.get('source'));
+                    .map((id) => this._assets.get(id))
+                    .filter((asset) => asset && asset.get('source'));
 
                 if (sourceAssets.length) {
                     return;
@@ -1412,7 +1427,9 @@ class AssetPanel extends Panel {
                 }
             }
 
-            const folder = this._hoveredAsset ? this._foldersIndex[this._hoveredAsset.get('id')] : this._foldersViewRoot;
+            const folder = this._hoveredAsset
+                ? this._foldersIndex[this._hoveredAsset.get('id')]
+                : this._foldersViewRoot;
             if (folder) {
                 folder.class.remove(CLASS_ASSET_HIGHLIGHTED);
                 this._foldersView.showDragHandle(null);
@@ -1435,7 +1452,9 @@ class AssetPanel extends Panel {
                 }
             }
 
-            const folder = this._hoveredAsset ? this._foldersIndex[this._hoveredAsset.get('id')] : this._foldersViewRoot;
+            const folder = this._hoveredAsset
+                ? this._foldersIndex[this._hoveredAsset.get('id')]
+                : this._foldersViewRoot;
             if (folder) {
                 folder.class.add(CLASS_ASSET_HIGHLIGHTED);
                 this._foldersView.showDragHandle(folder);
@@ -1459,7 +1478,7 @@ class AssetPanel extends Panel {
         // store row in index
         this._rowsIndex[asset.get('id')] = row;
 
-        const isLegacyScriptFolder = (asset === LEGACY_SCRIPTS_FOLDER_ASSET);
+        const isLegacyScriptFolder = asset === LEGACY_SCRIPTS_FOLDER_ASSET;
         if (isLegacyScriptFolder) {
             row.class.add(CLASS_LEGACY_SCRIPTS_FOLDER);
         }
@@ -1484,7 +1503,7 @@ class AssetPanel extends Panel {
             row.dom.draggable = true;
 
             // this allows dragging that gets disabled by layout.js
-            onMouseDown = evt => evt.stopPropagation();
+            onMouseDown = (evt) => evt.stopPropagation();
             row.dom.addEventListener('mousedown', onMouseDown);
 
             onDragStart = (evt: DragEvent) => this._onAssetDragStart(evt, asset);
@@ -1694,7 +1713,6 @@ class AssetPanel extends Panel {
                     progress.class.add(CLASS_ERROR);
                 }
             }
-
         } else if (task === 'running') {
             element.class.add(CLASS_TASK_RUNNING);
             if (element.showProgress) {
@@ -1741,7 +1759,7 @@ class AssetPanel extends Panel {
         this._selectorItems = assets;
 
         this._suspendSelectEvents = true;
-        this.selectedAssets = (type === 'asset' ? assets : []);
+        this.selectedAssets = type === 'asset' ? assets : [];
         this._suspendSelectEvents = false;
     }
 
@@ -1842,19 +1860,25 @@ class AssetPanel extends Panel {
         // if it's a target asset then update it if its references
         // change
         if (!asset.get('source')) {
-            this._assetEvents[id].push(editor.on(`assets:used:${id}`, (used) => {
-                this._onAssetUsedChange(asset, used);
-            }));
+            this._assetEvents[id].push(
+                editor.on(`assets:used:${id}`, (used) => {
+                    this._onAssetUsedChange(asset, used);
+                })
+            );
         }
 
         // change asset path
-        this._assetEvents[id].push(asset.on('path:set', (path, oldPath) => {
-            this._onAssetPathChange(asset, path, oldPath);
-        }));
+        this._assetEvents[id].push(
+            asset.on('path:set', (path, oldPath) => {
+                this._onAssetPathChange(asset, path, oldPath);
+            })
+        );
 
-        this._assetEvents[id].push(asset.on('task:set', () => {
-            this._onAssetTaskChange(asset);
-        }));
+        this._assetEvents[id].push(
+            asset.on('task:set', () => {
+                this._onAssetTaskChange(asset);
+            })
+        );
 
         // add to grid view
         this._addGridItem(asset, index);
@@ -1875,7 +1899,7 @@ class AssetPanel extends Panel {
 
         this._setElementTaskStatus(item, asset);
 
-        const isLegacyScriptFolder = (asset === LEGACY_SCRIPTS_FOLDER_ASSET);
+        const isLegacyScriptFolder = asset === LEGACY_SCRIPTS_FOLDER_ASSET;
         if (isLegacyScriptFolder) {
             item.class.add(CLASS_LEGACY_SCRIPTS_FOLDER);
         }
@@ -1938,7 +1962,7 @@ class AssetPanel extends Panel {
     _removeAsset(asset: AssetObserver) {
         const id = asset.get('id');
         if (this._assetEvents[id]) {
-            this._assetEvents[id].forEach(evt => evt.unbind());
+            this._assetEvents[id].forEach((evt) => evt.unbind());
             delete this._assetEvents[id];
         }
 
@@ -2024,7 +2048,6 @@ class AssetPanel extends Panel {
         }
 
         if (asset.get('type') === 'folder') {
-
             // early out if the asset has the same parent
             if (path[path.length - 1] === oldPath[oldPath.length - 1]) {
                 return;
@@ -2089,7 +2112,7 @@ class AssetPanel extends Panel {
             return;
         }
 
-        const isLegacyScriptFolder = (asset === LEGACY_SCRIPTS_FOLDER_ASSET);
+        const isLegacyScriptFolder = asset === LEGACY_SCRIPTS_FOLDER_ASSET;
 
         const treeItem = new TreeViewItem({
             text: asset.get('name'),
@@ -2207,7 +2230,13 @@ class AssetPanel extends Panel {
         }
     }
 
-    _onFolderTreeReparent(reparentedItems: Array<{ item: TreeViewItem & { asset: AssetObserver | null }; newParent: TreeViewItem & { asset: AssetObserver | null }; newChildIndex: number }>) {
+    _onFolderTreeReparent(
+        reparentedItems: Array<{
+            item: TreeViewItem & { asset: AssetObserver | null };
+            newParent: TreeViewItem & { asset: AssetObserver | null };
+            newChildIndex: number;
+        }>
+    ) {
         const assets = reparentedItems.map((reparented) => {
             return reparented.item.asset;
         });
@@ -2252,7 +2281,11 @@ class AssetPanel extends Panel {
             return;
         }
 
-        if (this._foldersView.selected.length === 1 && !this._foldersView.pressedCtrl && !this._foldersView.pressedShift) {
+        if (
+            this._foldersView.selected.length === 1 &&
+            !this._foldersView.pressedCtrl &&
+            !this._foldersView.pressedShift
+        ) {
             // if we deselected all folders but one then this probably means we
             // just clicked on an already selected folder so clear the current selection completely
             // and switch to that folder as this feels more like what would be expected by the user.
@@ -2308,7 +2341,10 @@ class AssetPanel extends Panel {
         }
 
         if (this._dropdownType.value !== 'all' && !this.assetTypes) {
-            if (this._dropdownType.value !== (element.asset.get('source') ? `${element.asset.get('type')}Source` : element.asset.get('type'))) {
+            if (
+                this._dropdownType.value !==
+                (element.asset.get('source') ? `${element.asset.get('type')}Source` : element.asset.get('type'))
+            ) {
                 return false;
             }
         }
@@ -2335,7 +2371,6 @@ class AssetPanel extends Panel {
                 }
 
                 return this._tagsOR(this._searchTags, tags);
-
             }
             if (searchQuery[0] === '*' && searchQuery.length > 1) {
                 // check for regular expression first if the query starts with '*'
@@ -2348,10 +2383,9 @@ class AssetPanel extends Panel {
 
             // check if name includes search query
             if (!name.toLowerCase().includes(searchQuery.toLowerCase())) {
-
                 // if id matches then return true immediately
                 const id = parseInt(searchQuery, 10);
-                if (id && element.asset.get('id') === id)  {
+                if (id && element.asset.get('id') === id) {
                     return true;
                 }
 
@@ -2526,14 +2560,14 @@ class AssetPanel extends Panel {
 
         this._legacyScriptsIndex = {};
 
-        this._eventsEditor.forEach(e => e.unbind());
+        this._eventsEditor.forEach((e) => e.unbind());
         this._eventsEditor.length = 0;
 
         this.dropManager = null;
 
         this.assets = null;
 
-        this._tooltips.forEach(tooltip => tooltip.destroy());
+        this._tooltips.forEach((tooltip) => tooltip.destroy());
         this._tooltips.length = 0;
 
         super.destroy();
@@ -2548,7 +2582,7 @@ class AssetPanel extends Panel {
         this._selectorItems = [];
         this._selectedAssets = [];
 
-        this._assetListEvents.forEach(e => e.unbind());
+        this._assetListEvents.forEach((e) => e.unbind());
         this._assetListEvents.length = 0;
 
         this._detailsView.unlink();
@@ -2582,15 +2616,21 @@ class AssetPanel extends Panel {
 
         this._detailsView.link(assets);
 
-        this._assetListEvents.push(this._assets.on('add', (asset, _, index) => {
-            this._addAsset(asset, index, true);
-        }));
-        this._assetListEvents.push(this._assets.on('remove', (asset) => {
-            this._removeAsset(asset);
-        }));
-        this._assetListEvents.push(this._assets.on('move', (asset: AssetObserver, index: number) => {
-            this._moveAsset(asset, index);
-        }));
+        this._assetListEvents.push(
+            this._assets.on('add', (asset, _, index) => {
+                this._addAsset(asset, index, true);
+            })
+        );
+        this._assetListEvents.push(
+            this._assets.on('remove', (asset) => {
+                this._removeAsset(asset);
+            })
+        );
+        this._assetListEvents.push(
+            this._assets.on('move', (asset: AssetObserver, index: number) => {
+                this._moveAsset(asset, index);
+            })
+        );
 
         this.filter();
     }
@@ -2633,7 +2673,6 @@ class AssetPanel extends Panel {
                 // focus folder in order to scroll it into view
                 this._foldersIndex[id].focus();
             }
-
         } else {
             this._btnBack.enabled = false;
             this._foldersViewRoot.class.add(CLASS_CURRENT_FOLDER);
@@ -2676,7 +2715,7 @@ class AssetPanel extends Panel {
             this._gridViewDropTarget = null;
         }
 
-        this._eventsDropManager.forEach(e => e.unbind());
+        this._eventsDropManager.forEach((e) => e.unbind());
         this._eventsDropManager.length = 0;
 
         this._dropManager = value;
@@ -2797,7 +2836,7 @@ class AssetPanel extends Panel {
     get visibleAssets() {
         const result = [];
 
-        const dict = (this._viewMode === AssetPanel.VIEW_DETAILS ? this._rowsIndex : this._gridIndex);
+        const dict = this._viewMode === AssetPanel.VIEW_DETAILS ? this._rowsIndex : this._gridIndex;
         for (const key in dict) {
             const item = dict[key];
             if (!item.hidden) {

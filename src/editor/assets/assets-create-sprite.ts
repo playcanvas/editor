@@ -6,7 +6,7 @@ editor.once('load', () => {
 
         const data = {
             pixelsPerUnit: args.pixelsPerUnit !== undefined ? args.pixelsPerUnit : 100,
-            frameKeys: args.frameKeys !== undefined ? args.frameKeys.map(val => val.toString()) : [],
+            frameKeys: args.frameKeys !== undefined ? args.frameKeys.map((val) => val.toString()) : [],
             textureAtlasAsset: args.textureAtlasAsset !== undefined ? parseInt(args.textureAtlasAsset, 10) : null,
             renderMode: args.renderMode !== undefined ? args.renderMode : 0
         };
@@ -16,7 +16,7 @@ editor.once('load', () => {
             type: 'sprite',
             source: false,
             data: data,
-            parent: (args.parent !== undefined) ? args.parent : editor.call('assets:panel:currentFolder'),
+            parent: args.parent !== undefined ? args.parent : editor.call('assets:panel:currentFolder'),
             scope: {
                 type: 'project',
                 id: config.project.id

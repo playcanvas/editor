@@ -1,4 +1,4 @@
-import { Schema } from '../schema';
+import type { Schema } from '../schema';
 import { utils } from '../utils';
 
 /**
@@ -50,7 +50,7 @@ class ComponentSchema {
                 continue;
             }
             const field = this._schema[component][fieldName];
-            if (field.hasOwnProperty('$default')) {
+            if (Object.hasOwn(field, '$default')) {
                 result[fieldName] = utils.deepCopy(field.$default);
             }
         }

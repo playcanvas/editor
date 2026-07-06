@@ -13,29 +13,38 @@ const waitForJob = <T extends object>(request: JobStart<T>, message: string) => 
     const defer = new Defer<{ id: number; data: T }>();
     const promise = new Promise((resolve, reject) => {
         const jobUpdate = editor.on('messenger:job.update', ({ job: jobData }: { job: { id: number } }) => {
-            defer.promise.then((job) => {
-                if (jobData.id !== job.id) {
-                    return;
-                }
-                jobUpdate.unbind();
-
-                rest.jobs.jobGet({ jobId: job.id }).promisify().then((completedJob) => {
-                    if (completedJob.status === 'error') {
-                        reject(new Error(completedJob.messages?.[0] ?? message));
+            defer.promise
+                .then((job) => {
+                    if (jobData.id !== job.id) {
                         return;
                     }
-                    resolve({
-                        job,
-                        completedJob
-                    });
-                }).catch(reject);
-            }).catch(reject);
+                    jobUpdate.unbind();
+
+                    rest.jobs
+                        .jobGet({ jobId: job.id })
+                        .promisify()
+                        .then((completedJob) => {
+                            if (completedJob.status === 'error') {
+                                reject(new Error(completedJob.messages?.[0] ?? message));
+                                return;
+                            }
+                            resolve({
+                                job,
+                                completedJob
+                            });
+                        })
+                        .catch(reject);
+                })
+                .catch(reject);
         });
 
-        request.promisify().then(defer.resolve).catch((err) => {
-            jobUpdate.unbind();
-            reject(err);
-        });
+        request
+            .promisify()
+            .then(defer.resolve)
+            .catch((err) => {
+                jobUpdate.unbind();
+                reject(err);
+            });
     });
     return promise;
 };

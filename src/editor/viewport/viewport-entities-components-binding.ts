@@ -1,11 +1,12 @@
-import { Application, BoundingBox, Entity, Vec3 } from 'playcanvas';
+import type { Application, Entity } from 'playcanvas';
+import { BoundingBox, Vec3 } from 'playcanvas';
 
 editor.once('load', () => {
     // converts the data to runtime types
     const runtimeComponentData = function (component: string, data: Record<string, unknown>): Record<string, unknown> {
         const result = {};
         for (const key in data) {
-            if (data.hasOwnProperty(key)) {
+            if (Object.hasOwn(data, key)) {
                 result[key] = editor.call('components:convertValue', component, key, data[key]);
             }
         }
@@ -56,10 +57,12 @@ editor.once('load', () => {
                 if (property === 'margin' || property === 'anchor') {
                     const existing = entity.element[property];
 
-                    if (approxEqual(value[0], existing.x) &&
+                    if (
+                        approxEqual(value[0], existing.x) &&
                         approxEqual(value[1], existing.y) &&
                         approxEqual(value[2], existing.z) &&
-                        approxEqual(value[3], existing.w)) {
+                        approxEqual(value[3], existing.w)
+                    ) {
                         callSetter = false;
                     }
                 } else if (property === 'type') {

@@ -1,8 +1,9 @@
 import type { EventHandle } from '@playcanvas/observer';
 
-import { findEntityReferencesInComponents, updateReferences } from './references';
-import { Entity } from '../entity';
+import type { Entity } from '../entity';
 import { globals as api } from '../globals';
+
+import { findEntityReferencesInComponents, updateReferences } from './references';
 
 const USE_BACKEND_LIMIT = 500;
 
@@ -58,7 +59,7 @@ function deleteInBackend(entities: any[]) {
 }
 
 function rememberPrevious(entities: any[]) {
-    const previous: { entity: any; index: any; }[] = [];
+    const previous: { entity: any; index: any }[] = [];
     entities.forEach((entity: Entity) => {
         previous.push({
             entity: entity.jsonHierarchy(),
@@ -82,7 +83,10 @@ function rememberPrevious(entities: any[]) {
  * when entities are removed. Useful when entities are immediately re-created with the same
  * resource_id (e.g. during template revert). Defaults to false.
  */
-async function deleteEntities(entities: Entity[] | Entity, options: { history?: boolean; waitSubmitted?: boolean; preserveEntityReferences?: boolean } = {}) {
+async function deleteEntities(
+    entities: Entity[] | Entity,
+    options: { history?: boolean; waitSubmitted?: boolean; preserveEntityReferences?: boolean } = {}
+) {
     if (options.history === undefined) {
         options.history = true;
     }
@@ -121,12 +125,13 @@ async function deleteEntities(entities: Entity[] | Entity, options: { history?: 
         return !parentInSelection;
     });
 
-    if (api.messenger &&
+    if (
+        api.messenger &&
         api.jobs &&
         api.realtime &&
         api.realtime.scenes.current &&
-        getTotalEntityCount(entities) > USE_BACKEND_LIMIT) {
-
+        getTotalEntityCount(entities) > USE_BACKEND_LIMIT
+    ) {
         if (options.history) {
             const ok = await api.confirmFn('Deleting this many entities is not undoable. Are you sure?');
             if (ok) {
@@ -144,7 +149,9 @@ async function deleteEntities(entities: Entity[] | Entity, options: { history?: 
 
     // find entity references (skip when preserveEntityReferences is true,
     // e.g. during template revert where entities are immediately re-created with same IDs)
-    const entityReferences = options.preserveEntityReferences ? null : findEntityReferencesInComponents(api.entities.root);
+    const entityReferences = options.preserveEntityReferences
+        ? null
+        : findEntityReferencesInComponents(api.entities.root);
 
     entities.forEach((entity: Entity) => {
         api.entities.remove(entity, entityReferences);
@@ -188,7 +195,6 @@ async function deleteEntities(entities: Entity[] | Entity, options: { history?: 
     }
 
     if (options.waitSubmitted) {
-
         // wait for scene operational transforms to finish:
         // sometimes we need to execute the next operation on the backend
         // just after delete - use waitSubmitted to guarantee the order of operations

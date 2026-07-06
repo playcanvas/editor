@@ -1,8 +1,13 @@
 import type { EventHandle, Observer, ObserverList } from '@playcanvas/observer';
-import { Container, Button, Menu, TextInput, VectorInput } from '@playcanvas/pcui';
+import type { TextInput, VectorInput } from '@playcanvas/pcui';
+import { Container, Button, Menu } from '@playcanvas/pcui';
 
 import { COMPONENT_LOGOS } from '@/core/constants';
-import { LocalStorage, type EntityObserver, type History } from '@/editor-api';
+import { LocalStorage } from '@/editor-api';
+import type { EntityObserver, History } from '@/editor-api';
+
+import { TemplatesEntityInspector } from '../templates/templates-entity-inspector';
+import { TemplateOverrideInspector } from '../templates/templates-override-inspector';
 
 import type { Attribute } from './attribute.type.d';
 import { AttributesInspector } from './attributes-inspector';
@@ -30,11 +35,8 @@ import { ScrollviewComponentInspector } from './components/scrollview';
 import { SoundComponentInspector } from './components/sound';
 import { SpriteComponentInspector } from './components/sprite';
 import { ZoneComponentInspector } from './components/zone';
-import { TemplatesEntityInspector } from '../templates/templates-entity-inspector';
-import { TemplateOverrideInspector } from '../templates/templates-override-inspector';
 
-
-const componentToConstructor: Map<string, new (...args: any[]) => any> = new Map();
+const componentToConstructor = new Map<string, new (...args: any[]) => any>();
 componentToConstructor.set('anim', AnimComponentInspector);
 componentToConstructor.set('animation', AnimationComponentInspector);
 componentToConstructor.set('audiolistener', AudiolistenerComponentInspector);
@@ -66,44 +68,44 @@ const CLASS_ADD_COMPONENT = `${CLASS_ROOT}-add-component`;
 const CONTEXT_MENU_OFFSET = 10;
 
 const additionalComponents = {
-    'light': [
-        { title: 'Directional Light', icon: 'directional', data: { 'type': 'directional' } },
-        { title: 'Omni Light', icon: 'point', data: { 'type': 'point', 'shadowResolution': 256 } },
-        { title: 'Spot Light', icon: 'spot', data: { 'type': 'spot' } }
+    light: [
+        { title: 'Directional Light', icon: 'directional', data: { type: 'directional' } },
+        { title: 'Omni Light', icon: 'point', data: { type: 'point', shadowResolution: 256 } },
+        { title: 'Spot Light', icon: 'spot', data: { type: 'spot' } }
     ],
-    'camera': [
-        { title: 'Perspective', icon: 'camera', data: { 'projection': 0 } },
-        { title: 'Orthographic', icon: 'camera', data: { 'projection': 1 } }
+    camera: [
+        { title: 'Perspective', icon: 'camera', data: { projection: 0 } },
+        { title: 'Orthographic', icon: 'camera', data: { projection: 1 } }
     ],
-    'sprite': [
+    sprite: [
         {
             title: 'Animated Sprite',
             icon: 'animatedsprite',
             data: {
-                'type': 'animated',
-                'clips': {
+                type: 'animated',
+                clips: {
                     '0': {
-                        'name': 'Clip 1',
-                        'fps': 10,
-                        'loop': true,
-                        'autoPlay': true,
-                        'spriteAsset': null
+                        name: 'Clip 1',
+                        fps: 10,
+                        loop: true,
+                        autoPlay: true,
+                        spriteAsset: null
                     }
                 },
-                'autoPlayClip': 'Clip 1'
+                autoPlayClip: 'Clip 1'
             }
         }
     ],
-    'screen': [
-        { title: '2D Screen', icon: '2d-screen', data: { 'screenSpace': true } },
-        { title: '3D Screen', icon: '3d-screen', data: { 'screenSpace': false } }
+    screen: [
+        { title: '2D Screen', icon: '2d-screen', data: { screenSpace: true } },
+        { title: '3D Screen', icon: '3d-screen', data: { screenSpace: false } }
     ]
 };
 
 const getSubMenu = function (key: string) {
-
     switch (key) {
-        case 'sprite': return '2d-sub-menu';
+        case 'sprite':
+            return '2d-sub-menu';
 
         case 'render':
         case 'model':
@@ -122,9 +124,11 @@ const getSubMenu = function (key: string) {
         case 'collision':
             return 'physics-sub-menu';
 
-        case 'light': return 'light-sub-menu';
+        case 'light':
+            return 'light-sub-menu';
 
-        case 'camera': return 'camera-sub-menu';
+        case 'camera':
+            return 'camera-sub-menu';
 
         case 'element':
         case 'screen':
@@ -140,56 +144,63 @@ const getSubMenu = function (key: string) {
     }
 };
 
-const ATTRIBUTES: Attribute[] = [{
-    label: 'Enabled',
-    path: 'enabled',
-    reference: 'entity:enabled',
-    type: 'boolean'
-}, {
-    label: 'Name',
-    path: 'name',
-    reference: 'entity:name',
-    type: 'string'
-}, {
-    label: 'Tags',
-    path: 'tags',
-    reference: 'entity:tags',
-    type: 'tags',
-    args: {
-        type: 'string',
-        placeholder: 'Add Tags'
+const ATTRIBUTES: Attribute[] = [
+    {
+        label: 'Enabled',
+        path: 'enabled',
+        reference: 'entity:enabled',
+        type: 'boolean'
+    },
+    {
+        label: 'Name',
+        path: 'name',
+        reference: 'entity:name',
+        type: 'string'
+    },
+    {
+        label: 'Tags',
+        path: 'tags',
+        reference: 'entity:tags',
+        type: 'tags',
+        args: {
+            type: 'string',
+            placeholder: 'Add Tags'
+        }
+    },
+    {
+        label: 'Position',
+        path: 'position',
+        reference: 'entity:position',
+        type: 'vec3',
+        args: {
+            placeholder: ['X', 'Y', 'Z'],
+            precision: 3,
+            step: 0.5
+        }
+    },
+    {
+        label: 'Rotation',
+        path: 'rotation',
+        reference: 'entity:rotation',
+        type: 'vec3',
+        args: {
+            placeholder: ['X', 'Y', 'Z'],
+            precision: 2,
+            step: 5
+        }
+    },
+    {
+        label: 'Scale',
+        path: 'scale',
+        reference: 'entity:scale',
+        type: 'vec3',
+        args: {
+            placeholder: ['X', 'Y', 'Z'],
+            precision: 3,
+            step: 1
+        }
     }
-}, {
-    label: 'Position',
-    path: 'position',
-    reference: 'entity:position',
-    type: 'vec3',
-    args: {
-        placeholder: ['X', 'Y', 'Z'],
-        precision: 3,
-        step: 0.5
-    }
-}, {
-    label: 'Rotation',
-    path: 'rotation',
-    reference: 'entity:rotation',
-    type: 'vec3',
-    args: {
-        placeholder: ['X', 'Y', 'Z'],
-        precision: 2,
-        step: 5
-    }
-}, {
-    label: 'Scale',
-    path: 'scale',
-    reference: 'entity:scale',
-    type: 'vec3',
-    args: {
-        placeholder: ['X', 'Y', 'Z'],
-        precision: 3,
-        step: 1
-    }
-}];
+];
 
 type EntityInspectorArgs = {
     history?: History;
@@ -320,7 +331,14 @@ class EntityInspector extends Container {
         });
     }
 
-    _makeAddComponentMenuItem(component: string, title: string, logos: Record<string, string>, logoName: string = '', dataComponent: Record<string, unknown> = {}) {
+    _makeAddComponentMenuItem(
+        component: string,
+        title: string,
+        logos: Record<string, string>,
+        // eslint-disable-next-line @typescript-eslint/no-inferrable-types -- typedef requires a parameter annotation here, which no-inferrable-types then flags as redundant on the literal default
+        logoName: string = '',
+        dataComponent: Record<string, unknown> = {}
+    ) {
         const data = {
             text: title,
             icon: logoName.length > 0 ? logos[logoName] : logos[component],
@@ -342,33 +360,36 @@ class EntityInspector extends Container {
 
     _createContextMenu(target: Button) {
         const menu = new Menu({
-            items: [{
-                text: 'Paste Component',
-                icon: 'E348',
-                onSelect: () => {
-                    this._onClickPasteComponent();
-                },
-                onIsEnabled: () => {
-                    return this._localStorage.has('copy-component');
-                }
-            }, {
-                text: 'Remove All Components',
-                icon: 'E124',
-                onSelect: () => {
-                    this._onClickRemoveComponents();
-                },
-                onIsEnabled: () => {
-                    let deleteDisabled = true;
-                    for (const entity of this._entities) {
-                        if (Object.keys(entity.get('components')).length > 0) {
-                            deleteDisabled = false;
-                            break;
-                        }
+            items: [
+                {
+                    text: 'Paste Component',
+                    icon: 'E348',
+                    onSelect: () => {
+                        this._onClickPasteComponent();
+                    },
+                    onIsEnabled: () => {
+                        return this._localStorage.has('copy-component');
                     }
+                },
+                {
+                    text: 'Remove All Components',
+                    icon: 'E124',
+                    onSelect: () => {
+                        this._onClickRemoveComponents();
+                    },
+                    onIsEnabled: () => {
+                        let deleteDisabled = true;
+                        for (const entity of this._entities) {
+                            if (Object.keys(entity.get('components')).length > 0) {
+                                deleteDisabled = false;
+                                break;
+                            }
+                        }
 
-                    return !deleteDisabled;
+                        return !deleteDisabled;
+                    }
                 }
-            }]
+            ]
         });
 
         editor.call('layout.root').append(menu);
@@ -380,7 +401,6 @@ class EntityInspector extends Container {
         });
 
         return menu;
-
     }
 
     // add component menu
@@ -448,7 +468,7 @@ class EntityInspector extends Container {
             const submenu = getSubMenu(component);
             let newComponent = null;
 
-            if (!(abstractComponents.has(component)) && !(hiddenComponents.has(component))) {
+            if (!abstractComponents.has(component) && !hiddenComponents.has(component)) {
                 // Build single component
                 newComponent = this._makeAddComponentMenuItem(component, title, COMPONENT_LOGOS);
 
@@ -470,7 +490,13 @@ class EntityInspector extends Container {
 
                 // Generate each subcomponent
                 additional.forEach((subcomponent) => {
-                    newComponent = this._makeAddComponentMenuItem(component, subcomponent.title, COMPONENT_LOGOS, subcomponent.icon, subcomponent.data);
+                    newComponent = this._makeAddComponentMenuItem(
+                        component,
+                        subcomponent.title,
+                        COMPONENT_LOGOS,
+                        subcomponent.icon,
+                        subcomponent.data
+                    );
                     // Add it to relevant submenu (will always exist as subcomponents live in submenus)
                     items[submenu].items.push(newComponent);
                 });
@@ -490,20 +516,20 @@ class EntityInspector extends Container {
                 return;
             }
 
-            for (let i = 0; i < components.length; i++) {
+            for (const component of components) {
                 let different = false;
-                const hasComponent = entities[0].has(`components.${components[i]}`);
+                const hasComponent = entities[0].has(`components.${component}`);
 
                 for (let n = 1; n < entities.length; n++) {
-                    if (hasComponent !== entities[n].has(`components.${components[i]}`)) {
+                    if (hasComponent !== entities[n].has(`components.${component}`)) {
                         different = true;
                         break;
                     }
                 }
 
-                const submenu = getSubMenu(components[i]);
+                const submenu = getSubMenu(component);
                 if (submenu) {
-                    let title = componentsSchema[components[i]].$title;
+                    let title = componentsSchema[component].$title;
                     if (title === 'Model' || title === 'Animation') {
                         title += ' (legacy)';
                     }
@@ -511,11 +537,11 @@ class EntityInspector extends Container {
                         return object.text === title;
                     });
 
-                    if (!(abstractComponents.has(components[i])) && !(hiddenComponents.has(components[i]))) {
+                    if (!abstractComponents.has(component) && !hiddenComponents.has(component)) {
                         items[submenu].items[index].enabled = different ? true : !hasComponent;
                     }
                 } else {
-                    items[components[i]].enabled = different ? true : !hasComponent;
+                    items[component].enabled = different ? true : !hasComponent;
                 }
             }
         });
@@ -680,8 +706,8 @@ class EntityInspector extends Container {
 
     _doAllEntitiesHaveComponent(entities: EntityObserver[], component: string) {
         let result = true;
-        for (let i = 0; i < entities.length; i++) {
-            if (!entities[i].has(`components.${component}`)) {
+        for (const entity of entities) {
+            if (!entity.has(`components.${component}`)) {
                 result = false;
                 break;
             }
@@ -719,7 +745,9 @@ class EntityInspector extends Container {
 
             this._entityEvents.push(e.on('parent:set', this._disableUiFields.bind(this)));
             this._entityEvents.push(e.on('components.screen.screenSpace:set', this._disableUiFields.bind(this)));
-            this._entityEvents.push(e.on('components.layoutchild.excludeFromLayout:set', this._disableUiFields.bind(this)));
+            this._entityEvents.push(
+                e.on('components.layoutchild.excludeFromLayout:set', this._disableUiFields.bind(this))
+            );
         });
 
         for (const component in this._componentInspectors) {
@@ -767,7 +795,7 @@ class EntityInspector extends Container {
             this._templateInspector.unlink();
         }
 
-        this._entityEvents.forEach(evt => evt.unbind());
+        this._entityEvents.forEach((evt) => evt.unbind());
         this._entityEvents.length = 0;
 
         for (const component in this._componentInspectors) {

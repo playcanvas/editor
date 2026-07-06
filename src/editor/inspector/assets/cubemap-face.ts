@@ -8,7 +8,7 @@ const CLASS_FACE = `${CLASS_ROOT}-face`;
 const CLASS_FACE_LABEL = `${CLASS_FACE}-label`;
 const CLASS_FACE_BUTTON = `${CLASS_FACE}-button`;
 
-const DOM_CUBEMAP_FACE = args => [
+const DOM_CUBEMAP_FACE = (args) => [
     {
         thumbnail: new AssetThumbnail({
             assets: args.assets,
@@ -17,47 +17,49 @@ const DOM_CUBEMAP_FACE = args => [
                 history: args.history
             })
         })
-    }, {
+    },
+    {
         deleteButton: new Button({ icon: 'E124', class: CLASS_FACE_BUTTON })
-    }, {
+    },
+    {
         faceLabel: new Label({ text: args.label, class: CLASS_FACE_LABEL })
     }
 ];
 
 const FACE_SORT = {
     '0': 0,
-    'posx': 0,
-    'right': 0,
-    'px': 0,
+    posx: 0,
+    right: 0,
+    px: 0,
 
     '1': 1,
-    'negx': 1,
-    'left': 1,
-    'nx': 1,
+    negx: 1,
+    left: 1,
+    nx: 1,
 
     '2': 2,
-    'posy': 2,
-    'top': 2,
-    'up': 2,
-    'py': 2,
+    posy: 2,
+    top: 2,
+    up: 2,
+    py: 2,
 
     '3': 3,
-    'negy': 3,
-    'bottom': 3,
-    'down': 3,
-    'ny': 3,
+    negy: 3,
+    bottom: 3,
+    down: 3,
+    ny: 3,
 
     '4': 4,
-    'posz': 4,
-    'front': 4,
-    'forward': 4,
-    'pz': 4,
+    posz: 4,
+    front: 4,
+    forward: 4,
+    pz: 4,
 
     '5': 5,
-    'negz': 5,
-    'back': 5,
-    'backward': 5,
-    'nz': 5,
+    negz: 5,
+    back: 5,
+    backward: 5,
+    nz: 5,
 
     '6': 6
 };
@@ -92,16 +94,16 @@ class CubemapFace extends Container {
     _setRgbmIfNeeded() {
         let allHdr = true;
         const textures = this._asset.get('data.textures');
-        for (let i = 0; i < textures.length; i++) {
-            if (textures[i] >= 0) {
-                const texture = editor.call('assets:get', textures[i]);
+        for (const textureId of textures) {
+            if (textureId >= 0) {
+                const texture = editor.call('assets:get', textureId);
                 if (texture && !texture.get('data.rgbm')) {
                     allHdr = false;
                     break;
                 }
             }
         }
-        if (allHdr)  {
+        if (allHdr) {
             this._asset.set('data.rgbm', true);
         } else {
             this._asset.unset('data.rgbm');
@@ -146,9 +148,12 @@ class CubemapFace extends Container {
         this._dropTarget = editor.call('drop:target', {
             ref: this._thumbnail,
             filter: (type, dropData) => {
-                if (dropData.id && type.startsWith('asset') &&
-                    (type === 'asset.texture') &&
-                    parseInt(dropData.id, 10) !== this._asset.get(`data.textures.${this._args.face}`)) {
+                if (
+                    dropData.id &&
+                    type.startsWith('asset') &&
+                    type === 'asset.texture' &&
+                    parseInt(dropData.id, 10) !== this._asset.get(`data.textures.${this._args.face}`)
+                ) {
                     const asset = (this._args.assets as any).get(dropData.id);
                     return !!asset && !asset.get('source');
                 }
@@ -161,8 +166,8 @@ class CubemapFace extends Container {
                 try {
                     let empty = true;
                     const faces = this._asset.get('data.textures');
-                    for (let i = 0; i < faces.length; i++) {
-                        if (faces[i]) {
+                    for (const face of faces) {
+                        if (face) {
                             empty = false;
                             break;
                         }
@@ -170,7 +175,8 @@ class CubemapFace extends Container {
 
                     if (empty) {
                         const name = asset.get('name');
-                        const check = /((neg|pos)([xyz])|(right|left|top|up|bottom|down|front|forward|back|backward)|[0-6])(\.|$)/i;
+                        const check =
+                            /((neg|pos)([xyz])|(right|left|top|up|bottom|down|front|forward|back|backward)|[0-6])(\.|$)/i;
                         let match = name.match(check);
 
                         if (match != null) {
@@ -194,7 +200,10 @@ class CubemapFace extends Container {
                                     return;
                                 }
 
-                                if (a.get('meta.width') !== asset.get('meta.width') || a.get('meta.height') !== asset.get('meta.height')) {
+                                if (
+                                    a.get('meta.width') !== asset.get('meta.width') ||
+                                    a.get('meta.height') !== asset.get('meta.height')
+                                ) {
                                     return;
                                 }
 
@@ -220,7 +229,6 @@ class CubemapFace extends Container {
                             });
 
                             if (faceAssets.length === 6) {
-
                                 for (let i = 0; i < faceAssets.length; i++) {
                                     let p = faceAssets[i][1].get('name').toLowerCase();
                                     if (match) {
@@ -242,7 +250,7 @@ class CubemapFace extends Container {
                                 });
 
                                 const currentAsset = this._asset;
-                                const faceAssetIds = faceAssets.map(faceAsset => faceAsset.asset.get('id'));
+                                const faceAssetIds = faceAssets.map((faceAsset) => faceAsset.asset.get('id'));
 
                                 const undo = () => {
                                     currentAsset.latest();
@@ -299,12 +307,16 @@ class CubemapFace extends Container {
         this._initializeDropTarget();
         this._assetEvents.push(this._deleteButton.on('click', this._onClickDeleteFace.bind(this)));
         this._assetEvents.push(this.on('click', this._onClickFace.bind(this)));
-        this._assetEvents.push(this._asset.on('*:set', () => {
-            this._deleteButton.hidden = !this._asset.get(`data.textures.${this._args.face}`);
-        }));
-        this._assetEvents.push(this._asset.on('*:unset', () => {
-            this._deleteButton.hidden = !this._asset.get(`data.textures.${this._args.face}`);
-        }));
+        this._assetEvents.push(
+            this._asset.on('*:set', () => {
+                this._deleteButton.hidden = !this._asset.get(`data.textures.${this._args.face}`);
+            })
+        );
+        this._assetEvents.push(
+            this._asset.on('*:unset', () => {
+                this._deleteButton.hidden = !this._asset.get(`data.textures.${this._args.face}`);
+            })
+        );
         this.hidden = false;
         this._deleteButton.hidden = !this._asset.get(`data.textures.${this._args.face}`);
     }
@@ -314,7 +326,7 @@ class CubemapFace extends Container {
             return;
         }
         this._thumbnail.unlink();
-        this._assetEvents.forEach(evt => evt.unbind());
+        this._assetEvents.forEach((evt) => evt.unbind());
         this._assetEvents = [];
         if (this._dropTarget) {
             this._dropTarget.destroy();

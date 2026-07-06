@@ -11,7 +11,7 @@ type JobGetRequest = {
 };
 
 // responses
-type JobGetResponse = Job<object>
+type JobGetResponse = Job<object>;
 
 /**
  * Gets the job with the given ID

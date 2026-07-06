@@ -20,7 +20,11 @@ describe('summarizeDiff', () => {
         const summary = summarizeDiff({
             numConflicts: 1,
             conflicts: [
-                { itemType: 'scene', itemName: 'Main', data: [{ path: 'entities.g.components.light.color', missingInDst: true }] }
+                {
+                    itemType: 'scene',
+                    itemName: 'Main',
+                    data: [{ path: 'entities.g.components.light.color', missingInDst: true }]
+                }
             ]
         });
         expect(summary.groups[0].items[0].status).to.equal('modified');

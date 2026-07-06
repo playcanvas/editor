@@ -19,7 +19,6 @@ editor.once('load', () => {
             const connection = editor.call('realtime:connection');
 
             const initialize = () => {
-
                 if (doc) {
                     doc.destroy();
                 }
@@ -93,8 +92,8 @@ editor.once('load', () => {
                         if (history) {
                             settings.history.enabled = false;
                         }
-                        for (let i = 0; i < ops.length; i++) {
-                            settings.sync.write(ops[i]);
+                        for (const op of ops) {
+                            settings.sync.write(op);
                         }
                         if (history) {
                             settings.history.enabled = true;
@@ -139,7 +138,6 @@ editor.once('load', () => {
                 delete settings.sync;
             }
         };
-
 
         return settings;
     });

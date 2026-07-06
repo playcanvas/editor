@@ -1,3 +1,5 @@
+import type { Observer } from '@playcanvas/observer';
+
 import { config } from '@/editor/config';
 
 editor.once('load', () => {
@@ -11,13 +13,12 @@ editor.once('load', () => {
         const bubble = editor.call(
             'guide:bubble',
             'Complete this level (1 / 4)',
-            'Let\'s duplicate one of those platforms. Click on a platform in the 3D view to select it.',
+            "Let's duplicate one of those platforms. Click on a platform in the 3D view to select it.",
             '50%',
             '50%',
             'left',
             editor.call('layout.viewport')
         );
-
 
         return bubble;
     };
@@ -32,7 +33,6 @@ editor.once('load', () => {
             'left',
             editor.call('layout.viewport')
         );
-
 
         return bubble;
     };
@@ -55,7 +55,7 @@ editor.once('load', () => {
         return editor.call(
             'guide:bubble',
             'Complete this level (4 / 4)',
-            'Click <span class=\'font-icon\'>&#57649;</span> <strong>Launch</strong> to play the game. Use the arrow keys to move the ball. The game will open in a new tab so just switch back to the Editor tab when you\'re done.<br/><br/>Any changes you make to the scene will automatically update the launched game.',
+            "Click <span class='font-icon'>&#57649;</span> <strong>Launch</strong> to play the game. Use the arrow keys to move the ball. The game will open in a new tab so just switch back to the Editor tab when you're done.<br/><br/>Any changes you make to the scene will automatically update the launched game.",
             180,
             40,
             'top-right',
@@ -187,7 +187,13 @@ editor.once('load', () => {
         return bubble;
     };
 
-    const showBubble = function (name: string, bubbleFn: () => { on: (event: string, cb: () => void) => void; destroy: () => void }, delay: number, force?: boolean, callback?: () => void) {
+    const showBubble = function (
+        name: string,
+        bubbleFn: () => { on: (event: string, cb: () => void) => void; destroy: () => void },
+        delay: number,
+        force?: boolean,
+        callback?: () => void
+    ) {
         if (!force && config.self.flags.tips[name] !== false) {
             return false;
         }
@@ -220,10 +226,18 @@ editor.once('load', () => {
         return true;
     };
 
-    editor.method('guide:bubble:show', (name: string, bubbleFn: () => { on: (event: string, cb: () => void) => void; destroy: () => void }, delay: number, force?: boolean, callback?: () => void) => {
-        showBubble(name, bubbleFn, delay, force, callback);
-    });
-
+    editor.method(
+        'guide:bubble:show',
+        (
+            name: string,
+            bubbleFn: () => { on: (event: string, cb: () => void) => void; destroy: () => void },
+            delay: number,
+            force?: boolean,
+            callback?: () => void
+        ) => {
+            showBubble(name, bubbleFn, delay, force, callback);
+        }
+    );
 
     let selectEvents = null;
     const showBubbles = function (initialDelay: number) {
@@ -260,7 +274,7 @@ editor.once('load', () => {
 
         // entity bubble on select entity
         if (config.self.flags.tips.entityInspector === false) {
-            var evtEntitySelect = editor.on('selector:change', (type: string | null, items: import('@playcanvas/observer').Observer[]) => {
+            var evtEntitySelect = editor.on('selector:change', (type: string | null, items: Observer[]) => {
                 if (type !== 'entity') {
                     return;
                 }
@@ -273,8 +287,7 @@ editor.once('load', () => {
 
         // sound component bubble
         if (!config.self.flags.tips.soundComponent) {
-            var evtEntityWithSoundSelect = editor.on('selector:change', (type: string | null, items: import('@playcanvas/observer').Observer[]) => {
-
+            var evtEntityWithSoundSelect = editor.on('selector:change', (type: string | null, items: Observer[]) => {
                 if (selectEvents) {
                     selectEvents.forEach((evt: { unbind: () => void }) => {
                         evt.unbind();
@@ -300,8 +313,8 @@ editor.once('load', () => {
                     }
                 };
 
-                for (let i = 0; i < items.length; i++) {
-                    if (items[i].has('components.sound')) {
+                for (const item of items) {
+                    if (item.has('components.sound')) {
                         showSoundBubble();
                         return;
                     }
@@ -312,12 +325,11 @@ editor.once('load', () => {
                     selectEvents = [];
                 }
 
-                for (let i = 0; i < items.length; i++) {
-                    selectEvents.push(items[i].on('components.sound:set', showSoundBubble));
+                for (const item of items) {
+                    selectEvents.push(item.on('components.sound:set', showSoundBubble));
                 }
             });
         }
-
     };
 
     editor.method('editor:tips:reset', () => {
@@ -330,7 +342,8 @@ editor.once('load', () => {
 
         editor.api.globals.rest.home.homeSceneTip(config.scene.id, 'reset');
 
-        ['hierarchy',
+        [
+            'hierarchy',
             'assets',
             'store',
             'dashboard',
@@ -339,7 +352,8 @@ editor.once('load', () => {
             'mainMenu',
             'controls',
             'launch',
-            'howdoi'].forEach((tip) => {
+            'howdoi'
+        ].forEach((tip) => {
             config.self.flags.tips[tip] = false;
         });
 

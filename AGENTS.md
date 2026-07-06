@@ -13,10 +13,10 @@
 - Injects `var config = {...}` (user, project, flags, URLs) into a `<script>` tag
 - Frontend bundle loaded from a configurable base URL; `window.config` drives all runtime behavior
 - Page variants:
-  - **Editor** — `src/editor/index.ts` → `editor.js` (full editor)
-  - **Blank** — `src/editor/blank.ts` → `editor-empty.js` (project/scene selection)
-  - **Code Editor** — `src/code-editor/index.ts` → `code-editor.js` (Monaco)
-  - **Launch** — `src/launch/index.ts` → `launch.js` (app preview)
+    - **Editor** — `src/editor/index.ts` → `editor.js` (full editor)
+    - **Blank** — `src/editor/blank.ts` → `editor-empty.js` (project/scene selection)
+    - **Code Editor** — `src/code-editor/index.ts` → `code-editor.js` (Monaco)
+    - **Launch** — `src/launch/index.ts` → `launch.js` (app preview)
 
 ## Architecture
 

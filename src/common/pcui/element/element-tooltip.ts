@@ -1,5 +1,6 @@
 import type { EventHandle } from '@playcanvas/observer';
-import { Container, Element } from '@playcanvas/pcui';
+import type { Element } from '@playcanvas/pcui';
+import { Container } from '@playcanvas/pcui';
 
 /**
  * A floating tooltip that can be attached to a target element.
@@ -9,19 +10,22 @@ class Tooltip extends Container {
 
     private _delay = 200;
 
-    private _targets: Map<Element, {
-        container: Container,
-        target: Element,
-        arrow: HTMLDivElement,
-        events: EventHandle[]
-    }> = new Map();
+    private _targets = new Map<
+        Element,
+        {
+            container: Container;
+            target: Element;
+            arrow: HTMLDivElement;
+            events: EventHandle[];
+        }
+    >();
 
     /**
      * Creates new tooltip.
      *
      * @param args - The arguments.
      */
-    constructor({ id, delay, margin }: { id?: string, delay?: number, margin?: number } = {}) {
+    constructor({ id, delay, margin }: { id?: string; delay?: number; margin?: number } = {}) {
         super({
             id,
             class: 'pcui-tooltip',
@@ -137,12 +141,12 @@ class Tooltip extends Container {
         align = 'right',
         arrowAlign
     }: {
-        container: Container,
-        target: Element,
-        horzAlignEl?: Element,
-        vertAlignEl?: Element,
-        align?: 'top' | 'bottom' | 'left' | 'right',
-        arrowAlign?: 'start' | 'end'
+        container: Container;
+        target: Element;
+        horzAlignEl?: Element;
+        vertAlignEl?: Element;
+        align?: 'top' | 'bottom' | 'left' | 'right';
+        arrowAlign?: 'start' | 'end';
     }) {
         const horz = horzAlignEl ?? target;
         const vert = vertAlignEl ?? target;
@@ -220,7 +224,7 @@ class Tooltip extends Container {
         if (!data) {
             return this;
         }
-        const { container, arrow, events }  = data;
+        const { container, arrow, events } = data;
 
         events.forEach((evt: EventHandle) => evt.unbind());
         arrow.remove();

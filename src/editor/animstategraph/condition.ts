@@ -1,5 +1,6 @@
 import type { Observer } from '@playcanvas/observer';
-import { Container, SelectInput, NumericInput, BooleanInput, Button, type ContainerArgs } from '@playcanvas/pcui';
+import { Container, SelectInput, NumericInput, BooleanInput, Button } from '@playcanvas/pcui';
+import type { ContainerArgs } from '@playcanvas/pcui';
 import {
     ANIM_EQUAL_TO,
     ANIM_NOT_EQUAL_TO,
@@ -15,18 +16,21 @@ import {
 
 const CLASS_ROOT = 'pcui-animstategraph-condition';
 
-interface AnimStateGraphConditionArgs extends ContainerArgs {
+type AnimStateGraphConditionArgs = {
     parameters: string[];
     onDelete: () => void;
-}
+} & ContainerArgs;
 
 class AnimStateGraphCondition extends Container {
     _args!: AnimStateGraphConditionArgs;
 
     constructor(args: AnimStateGraphConditionArgs) {
-        args = Object.assign({
-            class: CLASS_ROOT
-        }, args);
+        args = Object.assign(
+            {
+                class: CLASS_ROOT
+            },
+            args
+        );
 
         super(args);
         this._args = args;
@@ -51,7 +55,10 @@ class AnimStateGraphCondition extends Container {
             const params = assets[0].latest().get('data.parameters');
             Object.keys(params).forEach((paramKey) => {
                 const param = params[paramKey];
-                if (param.name === condition.parameterName && [ANIM_PARAMETER_BOOLEAN, ANIM_PARAMETER_TRIGGER].includes(param.type)) {
+                if (
+                    param.name === condition.parameterName &&
+                    [ANIM_PARAMETER_BOOLEAN, ANIM_PARAMETER_TRIGGER].includes(param.type)
+                ) {
                     condition.value = true;
                 }
             });
@@ -62,7 +69,10 @@ class AnimStateGraphCondition extends Container {
         let shouldSelectPredicate;
         Object.keys(assets[0].get('data.parameters')).forEach((paramKey) => {
             const param = assets[0].get('data.parameters')[paramKey];
-            if (param.name === assets[0].get(path).parameterName && [ANIM_PARAMETER_INTEGER, ANIM_PARAMETER_FLOAT].includes(param.type)) {
+            if (
+                param.name === assets[0].get(path).parameterName &&
+                [ANIM_PARAMETER_INTEGER, ANIM_PARAMETER_FLOAT].includes(param.type)
+            ) {
                 shouldSelectPredicate = true;
             }
         });
@@ -109,7 +119,9 @@ class AnimStateGraphCondition extends Container {
         }
         const condition = assets[0].get(path);
         const parameters = assets[0].get('data.parameters');
-        const parameter = Object.keys(parameters).map(key => parameters[key]).filter(param => param.name === condition.parameterName)[0];
+        const parameter = Object.keys(parameters)
+            .map((key) => parameters[key])
+            .filter((param) => param.name === condition.parameterName)[0];
         if (parameter) {
             if ([ANIM_PARAMETER_FLOAT, ANIM_PARAMETER_INTEGER].includes(parameter.type)) {
                 const valueInput = new NumericInput({

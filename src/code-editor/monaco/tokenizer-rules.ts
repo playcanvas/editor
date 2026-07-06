@@ -1,19 +1,8 @@
 /* eslint-disable */
 const CUSTOM_TAGS = {
-    number: [
-        'precision',
-        'step',
-        'size'
-    ],
-    string: [
-        'resource',
-        'placeholder',
-        'color'
-    ],
-    array: [
-        'range',
-        'curve'
-    ]
+    number: ['precision', 'step', 'size'],
+    string: ['resource', 'placeholder', 'color'],
+    array: ['range', 'curve']
 };
 
 const NUMBER_STATE = [
@@ -28,9 +17,12 @@ const NUMBER_STATE = [
 export const jsRules = {
     jsdoc: [
         [/\*\//, 'comment.doc', '@pop'],
-        ...(CUSTOM_TAGS.number.map(tag => ([`([@]${tag})`, 'keyword', '@jsdocNumber']))),
-        ...(CUSTOM_TAGS.string.map(tag => ([`([@]${tag})(\\s*(?:(?!\\*\\/).)+)`, ['keyword', 'identifier']]))),
-        ...(CUSTOM_TAGS.array.map(tag => ([`([@]${tag})(\\s*\\[)`, ['keyword', { token: 'identifier', next: '@jsdocSquareBrackets' }]]))),
+        ...CUSTOM_TAGS.number.map((tag) => [`([@]${tag})`, 'keyword', '@jsdocNumber']),
+        ...CUSTOM_TAGS.string.map((tag) => [`([@]${tag})(\\s*(?:(?!\\*\\/).)+)`, ['keyword', 'identifier']]),
+        ...CUSTOM_TAGS.array.map((tag) => [
+            `([@]${tag})(\\s*\\[)`,
+            ['keyword', { token: 'identifier', next: '@jsdocSquareBrackets' }]
+        ]),
         [/@\w+/, 'keyword'],
         [/(\})([^-]+)(?=-)/, ['comment.doc', 'identifier']],
         [/\{/, 'comment.doc', '@jsdocCurlyBrackets'],
@@ -51,9 +43,6 @@ export const jsRules = {
         [/`/, 'string', '@string_backtick'],
         [/./, 'identifier']
     ],
-    jsdocNumber: [
-        ...NUMBER_STATE.map(([regex, token]) => [regex, token, '@pop']),
-        [/./, 'identifier']
-    ]
+    jsdocNumber: [...NUMBER_STATE.map(([regex, token]) => [regex, token, '@pop']), [/./, 'identifier']]
 };
 /* eslint-enable */

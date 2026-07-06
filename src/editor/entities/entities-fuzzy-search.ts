@@ -3,8 +3,8 @@ editor.once('load', () => {
         const items = [];
         const entities = editor.call('entities:list');
 
-        for (let i = 0; i < entities.length; i++) {
-            items.push([entities[i].get('name'), entities[i]]);
+        for (const entity of entities) {
+            items.push([entity.get('name'), entity]);
         }
 
         return editor.call('search:items', items, query);

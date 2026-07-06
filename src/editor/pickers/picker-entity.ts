@@ -50,7 +50,6 @@ editor.once('load', () => {
         overlay.hidden = true;
     });
 
-
     // on close entity picker
     overlay.on('hide', () => {
         // fold back hierarchy panel if needed
@@ -79,7 +78,6 @@ editor.once('load', () => {
         hierarchyPanel.style.zIndex = '';
         hierarchyPanel.style.overflow = '';
     });
-
 
     // open entity picker
     editor.method('picker:entity', (resourceId, fn) => {
@@ -133,7 +131,6 @@ editor.once('load', () => {
             }
         }, 100);
     });
-
 
     // close entity picker
     editor.method('picker:entity:close', () => {

@@ -7,51 +7,66 @@ import { config } from '@/editor/config';
 const APP_LIMIT = 16;
 const APP_INDEX_PAGE = 128;
 const FILTER_ALL = 'all';
-const BUILD_FILTERS = [{
-    key: 'type',
-    label: 'Type'
-}, {
-    key: 'format',
-    label: 'Format'
-}, {
-    key: 'status',
-    label: 'Status'
-}, {
-    key: 'branch',
-    label: 'Branch'
-}, {
-    key: 'actor',
-    label: 'Actor'
-}];
+const BUILD_FILTERS = [
+    {
+        key: 'type',
+        label: 'Type'
+    },
+    {
+        key: 'format',
+        label: 'Format'
+    },
+    {
+        key: 'status',
+        label: 'Status'
+    },
+    {
+        key: 'branch',
+        label: 'Branch'
+    },
+    {
+        key: 'actor',
+        label: 'Actor'
+    }
+];
 const FILTER_ORDER = {
     type: ['publish', 'download'],
     format: ['playcanvas', 'static', 'npm', 'web_lens'],
     status: ['complete', 'running', 'error']
 };
-const FORMAT_FILTERS = [{
-    value: 'playcanvas',
-    label: 'playcanvas'
-}, {
-    value: 'static',
-    label: 'static'
-}, {
-    value: 'npm',
-    label: 'npm'
-}, {
-    value: 'web_lens',
-    label: 'web_lens',
-    superUser: true
-}];
-const STATUS_FILTERS = [{
-    value: 'complete',
-    label: 'Succeeded'
-}, {
-    value: 'running',
-    label: 'Running'
-}, {
-    value: 'error',
-    label: 'Failed'
-}];
+const FORMAT_FILTERS = [
+    {
+        value: 'playcanvas',
+        label: 'playcanvas'
+    },
+    {
+        value: 'static',
+        label: 'static'
+    },
+    {
+        value: 'npm',
+        label: 'npm'
+    },
+    {
+        value: 'web_lens',
+        label: 'web_lens',
+        superUser: true
+    }
+];
+const STATUS_FILTERS = [
+    {
+        value: 'complete',
+        label: 'Succeeded'
+    },
+    {
+        value: 'running',
+        label: 'Running'
+    },
+    {
+        value: 'error',
+        label: 'Failed'
+    }
+];
 const BUILD_OPTIONS = [
     ['scripts_concatenate', 'Concatenate scripts'],
     ['scripts_minify', 'Minify scripts'],
@@ -62,22 +77,22 @@ const BUILD_OPTIONS = [
 editor.once('load', () => {
     // global variables
     const projectSettings = editor.call('settings:project');
-    let detailApp = null;  // app whose detail page is currently open
-    let menuApp = null;  // app whose row action menu is open
-    let activeKebab = null;  // kebab button that opened the menu
-    let apps = [];  // all loaded builds
+    let detailApp = null; // app whose detail page is currently open
+    let menuApp = null; // app whose row action menu is open
+    let activeKebab = null; // kebab button that opened the menu
+    let apps = []; // all loaded builds
     let appIndex: Record<string, any> = {};
     let appList = [];
     let loadedAppIndex = false;
-    let tooltips = [];  // holds all tooltips
-    let events = [];  // holds events that need to be destroyed
-    let detailEvents = [];  // holds detail panel events
+    let tooltips = []; // holds all tooltips
+    let events = []; // holds events that need to be destroyed
+    let detailEvents = []; // holds detail panel events
     let openingDetail = false;
     let openingBuildForm = false;
     let openingBuilds = false;
     let reloadOnNextShow = false;
-    let primaryFallback = null;  // primary app fetched by id when missing from the loaded pages
-    let primaryFallbackId = null;  // last id fetched for the fallback (one attempt per id)
+    let primaryFallback = null; // primary app fetched by id when missing from the loaded pages
+    let primaryFallbackId = null; // last id fetched for the fallback (one attempt per id)
     const filters: Record<string, string> = {};
     const filterButtons: Record<string, Button> = {};
     const filterMenus: Record<string, Menu> = {};
@@ -259,16 +274,16 @@ editor.once('load', () => {
     let skip = 0;
     let hasMore = true;
     let loadingMore = false;
-    let loadGen = 0;  // invalidates in-flight responses when filters change
+    let loadGen = 0; // invalidates in-flight responses when filters change
     let scrollContainer: HTMLElement | null = null;
 
     // values the backend can filter on; anything else stays client-side only
     const SERVER_FILTER_GUARDS: Record<string, (value: string) => boolean> = {
-        type: value => FILTER_ORDER.type.includes(value),
-        format: value => FORMAT_FILTERS.some(option => option.value === value),
-        status: value => STATUS_FILTERS.some(option => option.value === value),
-        branch: value => value.length > 0,
-        actor: value => /^\d+$/.test(value)
+        type: (value) => FILTER_ORDER.type.includes(value),
+        format: (value) => FORMAT_FILTERS.some((option) => option.value === value),
+        status: (value) => STATUS_FILTERS.some((option) => option.value === value),
+        branch: (value) => value.length > 0,
+        actor: (value) => /^\d+$/.test(value)
     };
 
     const getServerFilters = function () {
@@ -289,29 +304,41 @@ editor.once('load', () => {
         loadingMore = true;
         skip += APP_LIMIT;
         const gen = loadGen;
-        editor.api.globals.rest.projects.projectBuilds(APP_LIMIT, skip, getServerFilters()).on('load', (status, data) => {
-            loadingMore = false;
-            if (gen !== loadGen) {
-                return;
-            }
-            const results = data.result.map(normalizeBuildJob);
-            const ids = getPublishAppIds(results);
-            if (ids.size) {
-                apps = apps.filter(app => app.build_job_id || app.type !== 'publish' || !ids.has(String(app.app_id)));
-            }
-            apps.push(...results);
-            apps.sort(compareBuildDate);
-            hasMore = data.pagination ? skip + results.length < data.pagination.total : results.length === APP_LIMIT;
-            refreshApps();
-            fillViewport();
-        });
+        editor.api.globals.rest.projects
+            .projectBuilds(APP_LIMIT, skip, getServerFilters())
+            .on('load', (status, data) => {
+                loadingMore = false;
+                if (gen !== loadGen) {
+                    return;
+                }
+                const results = data.result.map(normalizeBuildJob);
+                const ids = getPublishAppIds(results);
+                if (ids.size) {
+                    apps = apps.filter(
+                        (app) => app.build_job_id || app.type !== 'publish' || !ids.has(String(app.app_id))
+                    );
+                }
+                apps.push(...results);
+                apps.sort(compareBuildDate);
+                hasMore = data.pagination
+                    ? skip + results.length < data.pagination.total
+                    : results.length === APP_LIMIT;
+                refreshApps();
+                fillViewport();
+            });
     };
 
     // keep loading until the list fills the scroll area, so scrolling can trigger more
     const fillViewport = function () {
         const needsFilteredRows = hasActiveFilters() && getFilteredApps().length === 0;
-        if (scrollContainer && hasMore && !loadingMore && !panel.hidden && !detailApp &&
-            (needsFilteredRows || scrollContainer.scrollHeight <= scrollContainer.clientHeight)) {
+        if (
+            scrollContainer &&
+            hasMore &&
+            !loadingMore &&
+            !panel.hidden &&
+            !detailApp &&
+            (needsFilteredRows || scrollContainer.scrollHeight <= scrollContainer.clientHeight)
+        ) {
             loadMoreBuilds();
         }
     };
@@ -334,7 +361,9 @@ editor.once('load', () => {
     };
 
     const canSetPrimaryBuild = function (app: any) {
-        return !!app && app.type === 'publish' && app.task.status === 'complete' && !!app.app_id && !isPrimaryBuild(app);
+        return (
+            !!app && app.type === 'publish' && app.task.status === 'complete' && !!app.app_id && !isPrimaryBuild(app)
+        );
     };
 
     const canDeleteBuild = function (app: any) {
@@ -357,23 +386,27 @@ editor.once('load', () => {
     // shared per-row action menu (opened from the kebab button on each row)
     const rowMenu = new Menu({
         class: 'picker-builds-menu',
-        items: [{
-            text: 'Set Primary Build',
-            class: 'primary',
-            onIsVisible: () => menuApp?.type === 'publish',
-            onIsEnabled: () => editor.call('permissions:write') && canSetPrimaryBuild(menuApp),
-            onSelect: () => menuApp && setPrimaryBuild(menuApp)
-        }, {
-            text: 'View',
-            onSelect: () => menuApp && openBuildDetail(menuApp)
-        }, {
-            text: 'Delete',
-            class: 'delete',
-            onIsEnabled: () => editor.call('permissions:write') && canDeleteBuild(menuApp),
-            onSelect: () => {
-                deleteBuild(menuApp);
+        items: [
+            {
+                text: 'Set Primary Build',
+                class: 'primary',
+                onIsVisible: () => menuApp?.type === 'publish',
+                onIsEnabled: () => editor.call('permissions:write') && canSetPrimaryBuild(menuApp),
+                onSelect: () => menuApp && setPrimaryBuild(menuApp)
+            },
+            {
+                text: 'View',
+                onSelect: () => menuApp && openBuildDetail(menuApp)
+            },
+            {
+                text: 'Delete',
+                class: 'delete',
+                onIsEnabled: () => editor.call('permissions:write') && canDeleteBuild(menuApp),
+                onSelect: () => {
+                    deleteBuild(menuApp);
+                }
             }
-        }]
+        ]
     });
     editor.call('layout.root').append(rowMenu);
 
@@ -466,12 +499,21 @@ editor.once('load', () => {
         const name = raw.name || meta?.name || job.app?.name || 'Untitled';
         const description = raw.description || meta?.description || job.app?.description || '';
         const version = raw.version || meta?.version || job.app?.version || '';
-        const releaseNotes = raw.release_notes || raw.releaseNotes || meta?.release_notes ||
-            meta?.releaseNotes || job.app?.release_notes || job.app?.releaseNotes || '';
-        const size = artifact && artifact.bytes !== undefined ? artifact.bytes : meta?.size ?? job.app?.size ?? null;
-        const url = artifact && artifact.url || meta?.url || job.app?.url;
-        const rowArtifacts = artifacts.length ? artifacts :
-            url ? [{ type: job.type === 'publish' ? 'app' : job.type, url, bytes: size }] : artifacts;
+        const releaseNotes =
+            raw.release_notes ||
+            raw.releaseNotes ||
+            meta?.release_notes ||
+            meta?.releaseNotes ||
+            job.app?.release_notes ||
+            job.app?.releaseNotes ||
+            '';
+        const size = artifact && artifact.bytes !== undefined ? artifact.bytes : (meta?.size ?? job.app?.size ?? null);
+        const url = (artifact && artifact.url) || meta?.url || job.app?.url;
+        const rowArtifacts = artifacts.length
+            ? artifacts
+            : url
+              ? [{ type: job.type === 'publish' ? 'app' : job.type, url, bytes: size }]
+              : artifacts;
         const settings = Object.assign({}, raw, {
             name,
             description,
@@ -540,9 +582,11 @@ editor.once('load', () => {
     };
 
     const getPublishAppIds = function (rows: any[]) {
-        return new Set(rows
-        .filter(item => item.type === 'publish' && item.app_id !== null && item.app_id !== undefined)
-        .map(item => String(item.app_id)));
+        return new Set(
+            rows
+                .filter((item) => item.type === 'publish' && item.app_id !== null && item.app_id !== undefined)
+                .map((item) => String(item.app_id))
+        );
     };
 
     const isSameBuild = function (a: any, b: any) {
@@ -576,15 +620,15 @@ editor.once('load', () => {
     };
 
     const getFormatValue = function (app: any) {
-        return app.settings && app.settings.format || app.version || app.type || '';
+        return (app.settings && app.settings.format) || app.version || app.type || '';
     };
 
     const getBranchLabel = function (app: any) {
-        return app.branch && app.branch.name || 'main';
+        return (app.branch && app.branch.name) || 'main';
     };
 
     const getActorLabel = function (app: any) {
-        return app.actor && (app.actor.name || app.actor.username) || '';
+        return (app.actor && (app.actor.name || app.actor.username)) || '';
     };
 
     const getFilterValue = function (app: any, key: string) {
@@ -646,26 +690,28 @@ editor.once('load', () => {
         });
 
         const order = (FILTER_ORDER as any)[key] || [];
-        return Object.keys(labels).map(value => ({
-            value,
-            label: labels[value]
-        })).sort((a, b) => {
-            const ai = order.indexOf(a.value);
-            const bi = order.indexOf(b.value);
-            if (ai !== -1 || bi !== -1) {
-                return (ai === -1 ? order.length : ai) - (bi === -1 ? order.length : bi);
-            }
-            return a.label.localeCompare(b.label);
-        });
+        return Object.keys(labels)
+            .map((value) => ({
+                value,
+                label: labels[value]
+            }))
+            .sort((a, b) => {
+                const ai = order.indexOf(a.value);
+                const bi = order.indexOf(b.value);
+                if (ai !== -1 || bi !== -1) {
+                    return (ai === -1 ? order.length : ai) - (bi === -1 ? order.length : bi);
+                }
+                return a.label.localeCompare(b.label);
+            });
     };
 
     const getFilterValueLabel = function (key: string, value: string) {
-        const option = getFilterOptions(key).find(item => item.value === value);
+        const option = getFilterOptions(key).find((item) => item.value === value);
         return option ? option.label : value;
     };
 
     const hasActiveFilters = function () {
-        return BUILD_FILTERS.some(filter => filters[filter.key] !== FILTER_ALL);
+        return BUILD_FILTERS.some((filter) => filters[filter.key] !== FILTER_ALL);
     };
 
     const getFilteredApps = function () {
@@ -687,7 +733,8 @@ editor.once('load', () => {
         BUILD_FILTERS.forEach((filter) => {
             const value = filters[filter.key];
             const button = filterButtons[filter.key];
-            button.text = value === FILTER_ALL ? filter.label : `${filter.label}: ${getFilterValueLabel(filter.key, value)}`;
+            button.text =
+                value === FILTER_ALL ? filter.label : `${filter.label}: ${getFilterValueLabel(filter.key, value)}`;
             if (value === FILTER_ALL) {
                 button.class.remove('selected');
             } else {
@@ -721,18 +768,22 @@ editor.once('load', () => {
         menu.clear();
 
         const selected = filters[filter.key];
-        menu.append(new MenuItem({
-            text: 'All',
-            class: selected === FILTER_ALL ? 'selected' : '',
-            onSelect: () => setBuildFilter(filter.key, FILTER_ALL)
-        }));
+        menu.append(
+            new MenuItem({
+                text: 'All',
+                class: selected === FILTER_ALL ? 'selected' : '',
+                onSelect: () => setBuildFilter(filter.key, FILTER_ALL)
+            })
+        );
 
         getFilterOptions(filter.key).forEach((option) => {
-            menu.append(new MenuItem({
-                text: option.label,
-                class: option.value === selected ? 'selected' : '',
-                onSelect: () => setBuildFilter(filter.key, option.value)
-            }));
+            menu.append(
+                new MenuItem({
+                    text: option.label,
+                    class: option.value === selected ? 'selected' : '',
+                    onSelect: () => setBuildFilter(filter.key, option.value)
+                })
+            );
         });
     };
 
@@ -769,6 +820,7 @@ editor.once('load', () => {
     updateFilterButtons();
 
     // GitHub-style copy button; swaps to a check while the copy is fresh
+    // eslint-disable-next-line @typescript-eslint/no-inferrable-types -- typedef requires a parameter annotation here, which no-inferrable-types then flags as redundant on the literal default
     const createCopyButton = function (text: string, label: string = 'Copy') {
         const btn = document.createElement('button');
         btn.type = 'button';
@@ -778,10 +830,15 @@ editor.once('load', () => {
         btn.addEventListener('click', (e: MouseEvent) => {
             e.preventDefault();
             e.stopPropagation();
-            navigator.clipboard.writeText(text).then(() => {
-                btn.classList.add('copied');
-                setTimeout(() => btn.classList.remove('copied'), 1500);
-            }, () => {});
+            navigator.clipboard.writeText(text).then(
+                () => {
+                    btn.classList.add('copied');
+                    setTimeout(() => btn.classList.remove('copied'), 1500);
+                },
+                () => {
+                    // intentionally empty
+                }
+            );
         });
         return btn;
     };
@@ -899,10 +956,12 @@ editor.once('load', () => {
 
     const createArtifactSection = function (app: any, artifacts: any[]) {
         if (!artifacts.length) {
-            return createSection('Artifacts', [{
-                label: 'Artifacts',
-                value: 'None'
-            }]);
+            return createSection('Artifacts', [
+                {
+                    label: 'Artifacts',
+                    value: 'None'
+                }
+            ]);
         }
 
         const section = document.createElement('section');
@@ -940,22 +999,31 @@ editor.once('load', () => {
 
         const status = app.task.status;
         const duration = app.duration_ms ? `${Math.round(app.duration_ms / 1000)}s` : null;
-        const buildState = status === 'running' ? 'active' :
-            status === 'error' ? 'failed' :
-                status === 'complete' ? 'done' : 'pending';
-        const steps = [{
-            label: 'Created',
-            state: app.created_at ? 'done' : 'pending',
-            sub: app.created_at ? formatBuildDate(app.created_at) : null
-        }, {
-            label: 'Build',
-            state: buildState,
-            sub: status === 'running' ? 'In progress' : duration
-        }, {
-            label: 'Completed',
-            state: status === 'complete' ? 'done' : 'pending',
-            sub: status === 'complete' && app.completed_at ? formatBuildDate(app.completed_at) : null
-        }];
+        const buildState =
+            status === 'running'
+                ? 'active'
+                : status === 'error'
+                  ? 'failed'
+                  : status === 'complete'
+                    ? 'done'
+                    : 'pending';
+        const steps = [
+            {
+                label: 'Created',
+                state: app.created_at ? 'done' : 'pending',
+                sub: app.created_at ? formatBuildDate(app.created_at) : null
+            },
+            {
+                label: 'Build',
+                state: buildState,
+                sub: status === 'running' ? 'In progress' : duration
+            },
+            {
+                label: 'Completed',
+                state: status === 'complete' ? 'done' : 'pending',
+                sub: status === 'complete' && app.completed_at ? formatBuildDate(app.completed_at) : null
+            }
+        ];
 
         steps.forEach((step, i) => {
             if (i) {
@@ -1003,86 +1071,121 @@ editor.once('load', () => {
 
         details.appendChild(createTimeline(app));
 
-        details.appendChild(createSection('Build info', [{
-            label: 'Status',
-            value: getStatusLabel(app),
-            variant: 'badge'
-        }, {
-            label: 'Build',
-            value: app.build_job_id ? `#${app.build_job_id}` : null,
-            variant: 'code',
-            copy: app.build_job_id
-        }, {
-            label: 'Job',
-            value: app.job_id ? `#${app.job_id}` : null,
-            variant: 'code',
-            copy: app.job_id
-        }, {
-            label: 'Created',
-            value: app.created_at ? convertDatetime(app.created_at) : null
-        }, {
-            label: 'Completed',
-            value: app.completed_at ? convertDatetime(app.completed_at) : null
-        }, {
-            label: 'Duration',
-            value: app.duration_ms ? `${Math.round(app.duration_ms / 1000)}s` : null
-        }, {
-            label: 'Created by',
-            value: actor
-        }]));
+        details.appendChild(
+            createSection('Build info', [
+                {
+                    label: 'Status',
+                    value: getStatusLabel(app),
+                    variant: 'badge'
+                },
+                {
+                    label: 'Build',
+                    value: app.build_job_id ? `#${app.build_job_id}` : null,
+                    variant: 'code',
+                    copy: app.build_job_id
+                },
+                {
+                    label: 'Job',
+                    value: app.job_id ? `#${app.job_id}` : null,
+                    variant: 'code',
+                    copy: app.job_id
+                },
+                {
+                    label: 'Created',
+                    value: app.created_at ? convertDatetime(app.created_at) : null
+                },
+                {
+                    label: 'Completed',
+                    value: app.completed_at ? convertDatetime(app.completed_at) : null
+                },
+                {
+                    label: 'Duration',
+                    value: app.duration_ms ? `${Math.round(app.duration_ms / 1000)}s` : null
+                },
+                {
+                    label: 'Created by',
+                    value: actor
+                }
+            ])
+        );
 
         if (app.type === 'publish') {
-            details.appendChild(createSection('Publish details', [{
-                label: 'Title',
-                value: app.name
-            }, {
-                label: 'Description',
-                value: app.description
-            }, {
-                label: 'Version',
-                value: app.version
-            }, {
-                label: 'Release notes',
-                value: app.release_notes
-            }]));
+            details.appendChild(
+                createSection('Publish details', [
+                    {
+                        label: 'Title',
+                        value: app.name
+                    },
+                    {
+                        label: 'Description',
+                        value: app.description
+                    },
+                    {
+                        label: 'Version',
+                        value: app.version
+                    },
+                    {
+                        label: 'Release notes',
+                        value: app.release_notes
+                    }
+                ])
+            );
         }
 
-        details.appendChild(createSection('Source and settings', [{
-            label: 'Type',
-            value: getTypeLabel(app),
-            variant: 'badge',
-            class: app.type
-        }, {
-            label: 'Format',
-            value: getFormatValue(app),
-            variant: 'badge'
-        }, {
-            label: 'Engine',
-            value: settings.engine_version,
-            variant: 'code'
-        }, {
-            label: 'Branch',
-            value: getBranchLabel(app),
-            variant: 'branch'
-        }, {
-            label: 'Source',
-            value: source,
-            variant: 'badge'
-        }, {
-            label: 'Options',
-            value: getBuildOptions(settings)
-        }]));
+        details.appendChild(
+            createSection('Source and settings', [
+                {
+                    label: 'Type',
+                    value: getTypeLabel(app),
+                    variant: 'badge',
+                    class: app.type
+                },
+                {
+                    label: 'Format',
+                    value: getFormatValue(app),
+                    variant: 'badge'
+                },
+                {
+                    label: 'Engine',
+                    value: settings.engine_version,
+                    variant: 'code'
+                },
+                {
+                    label: 'Branch',
+                    value: getBranchLabel(app),
+                    variant: 'branch'
+                },
+                {
+                    label: 'Source',
+                    value: source,
+                    variant: 'badge'
+                },
+                {
+                    label: 'Options',
+                    value: getBuildOptions(settings)
+                }
+            ])
+        );
 
-        details.appendChild(createSection('Scenes', scenes.length ? scenes.map((scene) => {
-            return {
-                label: scene.name || 'Untitled scene',
-                value: scene.id ? `ID ${scene.id}` : 'Included',
-                variant: scene.id ? 'code' : null
-            };
-        }) : [{
-            label: 'Scenes',
-            value: 'None'
-        }]));
+        details.appendChild(
+            createSection(
+                'Scenes',
+                scenes.length
+                    ? scenes.map((scene) => {
+                          return {
+                              label: scene.name || 'Untitled scene',
+                              value: scene.id ? `ID ${scene.id}` : 'Included',
+                              variant: scene.id ? 'code' : null
+                          };
+                      })
+                    : [
+                          {
+                              label: 'Scenes',
+                              value: 'None'
+                          }
+                      ]
+            )
+        );
 
         details.appendChild(createArtifactSection(app, artifacts));
 
@@ -1093,7 +1196,8 @@ editor.once('load', () => {
     const formatBuildDate = function (value: any) {
         const d = new Date(value);
         const now = new Date();
-        const sameDay = d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
+        const sameDay =
+            d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
         if (!sameDay) {
             return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
         }
@@ -1153,7 +1257,8 @@ editor.once('load', () => {
         const thumb = document.createElement('img');
         thumb.classList.add('thumb');
         thumb.alt = '';
-        thumb.src = config.project.thumbnails && (config.project.thumbnails.m || config.project.thumbnails.s) ||
+        thumb.src =
+            (config.project.thumbnails && (config.project.thumbnails.m || config.project.thumbnails.s)) ||
             `${config.url.static}/platform/images/common/blank_project.png`;
         header.appendChild(thumb);
 
@@ -1210,7 +1315,9 @@ editor.once('load', () => {
             app.build_job_id ? `Build #${app.build_job_id}` : null,
             app.job_id ? `Job #${app.job_id}` : null,
             app.created_at ? `Created ${formatBuildDate(app.created_at)}` : null
-        ].filter(Boolean).join(' · ');
+        ]
+            .filter(Boolean)
+            .join(' · ');
         heading.appendChild(sub);
 
         const actions = document.createElement('div');
@@ -1324,17 +1431,16 @@ editor.once('load', () => {
         const sub = document.createElement('div');
         sub.classList.add('sub');
         const actor = app.actor && (app.actor.name || app.actor.username);
-        sub.textContent = [
-            app.build_job_id ? `#${app.build_job_id}` : null,
-            actor ? `by ${actor}` : null
-        ].filter(Boolean).join(' · ');
+        sub.textContent = [app.build_job_id ? `#${app.build_job_id}` : null, actor ? `by ${actor}` : null]
+            .filter(Boolean)
+            .join(' · ');
         body.appendChild(sub);
 
         const branch = document.createElement('div');
         branch.classList.add('branch');
         const branchName = document.createElement('span');
         branchName.classList.add('branch-name');
-        branchName.textContent = app.branch && app.branch.name || 'main';
+        branchName.textContent = (app.branch && app.branch.name) || 'main';
         branch.appendChild(branchName);
         row.appendChild(branch);
 
@@ -1420,10 +1526,11 @@ editor.once('load', () => {
     // signature of everything the list rows + primary card render from, so a
     // background refresh can skip the full teardown/rebuild when nothing changed
     const appsFingerprint = function () {
-        const rows = apps.map(a => `${a.id}:${a.task?.status ?? ''}:${a.completed_at ?? ''}:${a.views ?? ''}`);
+        const rows = apps.map((a) => `${a.id}:${a.task?.status ?? ''}:${a.completed_at ?? ''}:${a.views ?? ''}`);
         return `${config.project.primaryApp}|${rows.join(',')}`;
     };
 
+    // eslint-disable-next-line @typescript-eslint/no-inferrable-types -- typedef requires a parameter annotation here, which no-inferrable-types then flags as redundant on the literal default
     const loadApps = function (showProgress: boolean = true) {
         skip = 0;
         hasMore = true;
@@ -1435,42 +1542,42 @@ editor.once('load', () => {
         }
 
         loadAppIndex(() => {
-            editor.api.globals.rest.projects.projectBuilds(APP_LIMIT, 0, getServerFilters()).on('load', (status, data) => {
-                if (gen !== loadGen) {
-                    return;
-                }
-                const rows = data.result.map(normalizeBuildJob);
-                const ids = getPublishAppIds(rows);
-                const legacy = appList
-                .filter(app => !ids.has(String(app.id)))
-                .map(normalizeLegacyApp);
-                const prevSig = appsFingerprint();
-                apps = rows.concat(legacy).sort(compareBuildDate);
-                hasMore = data.pagination ? rows.length < data.pagination.total : data.result.length === APP_LIMIT;
+            editor.api.globals.rest.projects
+                .projectBuilds(APP_LIMIT, 0, getServerFilters())
+                .on('load', (status, data) => {
+                    if (gen !== loadGen) {
+                        return;
+                    }
+                    const rows = data.result.map(normalizeBuildJob);
+                    const ids = getPublishAppIds(rows);
+                    const legacy = appList.filter((app) => !ids.has(String(app.id))).map(normalizeLegacyApp);
+                    const prevSig = appsFingerprint();
+                    apps = rows.concat(legacy).sort(compareBuildDate);
+                    hasMore = data.pagination ? rows.length < data.pagination.total : data.result.length === APP_LIMIT;
 
-                if (showProgress) {
-                    toggleProgress(false);
-                }
+                    if (showProgress) {
+                        toggleProgress(false);
+                    }
 
-                // explicit (progress) loads always re-render; a background refresh
-                // only tears down + rebuilds when the data actually changed, so a
-                // cached reopen doesn't reflow the whole list
-                if (showProgress || appsFingerprint() !== prevSig) {
-                    refreshApps();
-                } else {
-                    refreshFilterVisibility();
-                }
-                fillViewport();
-            });
+                    // explicit (progress) loads always re-render; a background refresh
+                    // only tears down + rebuilds when the data actually changed, so a
+                    // cached reopen doesn't reflow the whole list
+                    if (showProgress || appsFingerprint() !== prevSig) {
+                        refreshApps();
+                    } else {
+                        refreshFilterVisibility();
+                    }
+                    fillViewport();
+                });
         });
     };
 
     // removes an app from the UI
     const removeApp = function (app: any) {
-        const target = apps.find(item => isSameBuild(item, app)) || app;
+        const target = apps.find((item) => isSameBuild(item, app)) || app;
         const removedDetail = detailApp && isSameBuild(detailApp, target);
 
-        const index = apps.findIndex(item => isSameBuild(item, target));
+        const index = apps.findIndex((item) => isSameBuild(item, target));
         if (index !== -1) {
             apps.splice(index, 1);
         }
@@ -1486,7 +1593,7 @@ editor.once('load', () => {
     };
 
     const removeBuildJob = function (id: number) {
-        const app = apps.find(item => item.build_job_id === id);
+        const app = apps.find((item) => item.build_job_id === id);
         if (app) {
             removeApp(app);
         } else if (detailApp?.build_job_id === id) {
@@ -1509,7 +1616,7 @@ editor.once('load', () => {
 
         // keep the detail page in sync if one is open
         if (detailApp) {
-            const updated = apps.find(item => isSameBuild(item, detailApp));
+            const updated = apps.find((item) => isSameBuild(item, detailApp));
             if (updated) {
                 detailApp = updated;
                 renderDetail(updated);
@@ -1533,7 +1640,8 @@ editor.once('load', () => {
         const thumb = document.createElement('img');
         thumb.classList.add('thumb');
         thumb.alt = '';
-        thumb.src = config.project.thumbnails && (config.project.thumbnails.m || config.project.thumbnails.s) ||
+        thumb.src =
+            (config.project.thumbnails && (config.project.thumbnails.m || config.project.thumbnails.s)) ||
             `${config.url.static}/platform/images/common/blank_project.png`;
         card.appendChild(thumb);
 
@@ -1572,7 +1680,9 @@ editor.once('load', () => {
         const sub = document.createElement('div');
         sub.classList.add('sub');
         const actor = app.actor && (app.actor.name || app.actor.username);
-        sub.textContent = [`Last published ${formatBuildDate(app.created_at)}`, actor ? `by ${actor}` : null].filter(Boolean).join(' · ');
+        sub.textContent = [`Last published ${formatBuildDate(app.created_at)}`, actor ? `by ${actor}` : null]
+            .filter(Boolean)
+            .join(' · ');
         body.appendChild(sub);
 
         // the permalink always points at the current primary build, unlike the build-specific url
@@ -1634,8 +1744,7 @@ editor.once('load', () => {
     const renderPrimaryBuild = function () {
         const primaryId = config.project.primaryApp;
         // the card stays visible while filtering so the layout doesn't jump
-        let app = primaryId ?
-            apps.find(item => item.type === 'publish' && item.app_id === primaryId) : null;
+        let app = primaryId ? apps.find((item) => item.type === 'publish' && item.app_id === primaryId) : null;
         if (!app && primaryId) {
             if (primaryFallback && primaryFallback.app_id === primaryId) {
                 app = primaryFallback;
@@ -1674,7 +1783,7 @@ editor.once('load', () => {
         });
 
         if (detailApp && !detailPanel.hidden) {
-            const updated = apps.find(item => isSameBuild(item, detailApp));
+            const updated = apps.find((item) => isSameBuild(item, detailApp));
             detailApp = updated || detailApp;
             renderDetail(detailApp);
         }
@@ -1732,7 +1841,7 @@ editor.once('load', () => {
 
     const refreshFilterVisibility = function () {
         const filteredApps = getFilteredApps();
-        const visible = new Set(filteredApps.map(app => `app-${app.id}`));
+        const visible = new Set(filteredApps.map((app) => `app-${app.id}`));
 
         apps.forEach((app) => {
             const item = document.getElementById(`app-${app.id}`);
@@ -1804,7 +1913,7 @@ editor.once('load', () => {
         }
 
         const id = Number(msg.job.id);
-        if (!apps.some(app => app.job_id === id) && detailApp?.job_id !== id) {
+        if (!apps.some((app) => app.job_id === id) && detailApp?.job_id !== id) {
             return;
         }
 

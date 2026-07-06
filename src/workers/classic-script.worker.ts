@@ -9,7 +9,7 @@ onmessage = (evt: MessageEvent) => {
 
     const __results = {
         scriptsInvalid: [],
-        scripts: { },
+        scripts: {},
         loading: false
     };
 
@@ -58,8 +58,10 @@ onmessage = (evt: MessageEvent) => {
             }
         }
 
-        const obj = { };
-        obj[name] = function () { };
+        const obj = {};
+        obj[name] = function () {
+            /* placeholder constructor for validation only */
+        };
 
         // name
         obj[name].name = name;
@@ -72,29 +74,32 @@ onmessage = (evt: MessageEvent) => {
                 return 'can be used only with boolean, string or number';
             }
 
-            const enumIndex = { };
+            const enumIndex = {};
 
-            for (let i = 0; i < args.enum.length; i++) {
-                if (typeof args.enum[i] !== 'object' || args.enum[i] instanceof Array) {
+            for (const entry of args.enum) {
+                if (typeof entry !== 'object' || entry instanceof Array) {
                     return 'option must be an object';
                 }
-                if (Object.keys(args.enum[i]).length !== 1) {
+                if (Object.keys(entry).length !== 1) {
                     return 'option must have one key';
                 }
-                if (args.type === 'number' && typeof parseInt(args.enum[i][Object.keys(args.enum[i])[0]], 10) !== 'number') {
+                if (args.type === 'number' && typeof parseInt(entry[Object.keys(entry)[0]], 10) !== 'number') {
                     return 'option value must be a number';
                 }
-                if (args.type === 'string' && typeof (args.enum[i][Object.keys(args.enum[i])[0]]) !== 'string') {
+                if (args.type === 'string' && typeof entry[Object.keys(entry)[0]] !== 'string') {
                     return 'option value must be a string';
                 }
-                if (args.type === 'boolean' && typeof (args.enum[i][Object.keys(args.enum[i])[0]]) !== 'boolean') {
+                if (args.type === 'boolean' && typeof entry[Object.keys(entry)[0]] !== 'boolean') {
                     return 'option value must be a boolean';
                 }
-                if (['rgb', 'rgba', 'vec2', 'vec3', 'vec4'].indexOf(args.type) !== -1 && !(args.enum[i][Object.keys(args.enum[i])[0]] instanceof Array)) {
+                if (
+                    ['rgb', 'rgba', 'vec2', 'vec3', 'vec4'].indexOf(args.type) !== -1 &&
+                    !(entry[Object.keys(entry)[0]] instanceof Array)
+                ) {
                     return 'option value must be an array';
                 }
 
-                const key = Object.keys(args.enum[i])[0];
+                const key = Object.keys(entry)[0];
 
                 if (key.indexOf('.') !== -1) {
                     return `invalid enum name \`${key}\` - enum names cannot contain dots`;
@@ -168,7 +173,7 @@ onmessage = (evt: MessageEvent) => {
                     return;
                 }
 
-                if (!args.hasOwnProperty('type')) {
+                if (!Object.hasOwn(args, 'type')) {
                     script.attributesInvalid.push(`attribute \`${attr}\` args.type must be defined`);
                     return;
                 }
@@ -190,13 +195,16 @@ onmessage = (evt: MessageEvent) => {
                         'vec3',
                         'vec4',
                         'json'
-                    ].indexOf(args.type) === -1) {
+                    ].indexOf(args.type) === -1
+                ) {
                     script.attributesInvalid.push(`attribute \`${attr}\` invalid type: ${args.type}`);
                     return;
                 }
 
                 if (args.type !== 'json' && args.schema) {
-                    script.attributesInvalid.push(`attribute \`${attr}\` invalid field \`schema\` for type ${args.type}`);
+                    script.attributesInvalid.push(
+                        `attribute \`${attr}\` invalid field \`schema\` for type ${args.type}`
+                    );
                     return;
                 }
 
@@ -213,8 +221,7 @@ onmessage = (evt: MessageEvent) => {
                     }
 
                     const schemaFields = {};
-                    for (let i = 0; i < args.schema.length; i++) {
-                        const field = args.schema[i];
+                    for (const field of args.schema) {
                         const name = field.name;
                         if (!name || typeof name !== 'string') {
                             script.attributesInvalid.push(`attribute \`${attr}\` invalid schema: missing field name`);
@@ -222,58 +229,74 @@ onmessage = (evt: MessageEvent) => {
                         }
 
                         if (schemaFields[name]) {
-                            script.attributesInvalid.push(`attribute \`${attr}\` invalid schema: duplicate field name \`${name}\``);
+                            script.attributesInvalid.push(
+                                `attribute \`${attr}\` invalid schema: duplicate field name \`${name}\``
+                            );
                             return;
                         }
 
                         schemaFields[name] = true;
 
                         if (!/^\w+$/.test(name)) {
-                            script.attributesInvalid.push(`attribute \`${attr}\` invalid schema: field name \`${name}\` has invalid characters`);
+                            script.attributesInvalid.push(
+                                `attribute \`${attr}\` invalid schema: field name \`${name}\` has invalid characters`
+                            );
                             return;
                         }
 
-                        if (!field.hasOwnProperty('type')) {
-                            script.attributesInvalid.push(`attribute \`${attr}\` invalid schema: field type must be defined`);
+                        if (!Object.hasOwn(field, 'type')) {
+                            script.attributesInvalid.push(
+                                `attribute \`${attr}\` invalid schema: field type must be defined`
+                            );
                             return;
                         }
 
-                        if (['asset',
-                            'boolean',
-                            'curve',
-                            'entity',
-                            'number',
-                            'rgb',
-                            'rgba',
-                            'string',
-                            'vec2',
-                            'vec3',
-                            'vec4'].indexOf(field.type) === -1) {
-                            script.attributesInvalid.push(`attribute \`${attr}\` invalid schema: field \`${name}\` has invalid type`);
+                        if (
+                            [
+                                'asset',
+                                'boolean',
+                                'curve',
+                                'entity',
+                                'number',
+                                'rgb',
+                                'rgba',
+                                'string',
+                                'vec2',
+                                'vec3',
+                                'vec4'
+                            ].indexOf(field.type) === -1
+                        ) {
+                            script.attributesInvalid.push(
+                                `attribute \`${attr}\` invalid schema: field \`${name}\` has invalid type`
+                            );
                             return;
                         }
 
                         // validate enum
-                        if (field.hasOwnProperty('enum')) {
+                        if (Object.hasOwn(field, 'enum')) {
                             const err = validateEnum(field);
                             if (err) {
-                                script.attributesInvalid.push(`attribute \`${attr}\` invalid schema: field \`${name}\` enum ${err}`);
+                                script.attributesInvalid.push(
+                                    `attribute \`${attr}\` invalid schema: field \`${name}\` enum ${err}`
+                                );
                                 return;
                             }
                         }
 
                         // validate default value
-                        if (field.hasOwnProperty('default')) {
+                        if (Object.hasOwn(field, 'default')) {
                             const err = validateDefaultValue(field);
                             if (err) {
-                                script.attributesInvalid.push(`attribute \`${attr}\` invalid schema: field \`${name}\` ${err}`);
+                                script.attributesInvalid.push(
+                                    `attribute \`${attr}\` invalid schema: field \`${name}\` ${err}`
+                                );
                                 return;
                             }
                         }
                     }
                 }
 
-                if (args.hasOwnProperty('enum')) {
+                if (Object.hasOwn(args, 'enum')) {
                     const err = validateEnum(args);
                     if (err) {
                         script.attributesInvalid.push(`attribute \`${attr}\` args.enum ${err}`);
@@ -282,7 +305,7 @@ onmessage = (evt: MessageEvent) => {
                 }
 
                 // validate default value
-                if (args.hasOwnProperty('default')) {
+                if (Object.hasOwn(args, 'default')) {
                     const err = validateDefaultValue(args);
                     if (err) {
                         script.attributesInvalid.push(`attribute \`${attr}\`: ${err}`);
@@ -349,26 +372,24 @@ onmessage = (evt: MessageEvent) => {
                 }
                 return null;
             },
-            json: function (value: unknown, schema: Array<{ name: string; type: string }>) {
+            json: function (value: unknown, schema: { name: string; type: string }[]) {
                 if (typeof value !== 'object') {
                     return 'needs to be valid JSON';
                 }
 
                 const schemaIndex = {};
-                for (let i = 0; i < schema.length; i++) {
-                    schemaIndex[schema[i].name] = schema[i];
+                for (const field of schema) {
+                    schemaIndex[field.name] = field;
 
                     // make sure all fields in the schema are in the value
-                    if (!value.hasOwnProperty(schema[i].name)) {
-                        return `missing field \`${schema[i].name}\` as defined in schema`;
+                    if (!Object.hasOwn(value, field.name)) {
+                        return `missing field \`${field.name}\` as defined in schema`;
                     }
                 }
 
-
                 const keys = Object.keys(value);
                 // do not allow fields not in the schema
-                for (let i = 0; i < keys.length; i++) {
-                    const key = keys[i];
+                for (const key of keys) {
                     if (!schemaIndex[key]) {
                         return `field \`${key}\` not defined in schema`;
                     }
@@ -389,7 +410,7 @@ onmessage = (evt: MessageEvent) => {
         // extend
         obj[name].extend = function (methods: Record<string, unknown>) {
             for (const key in methods) {
-                if (!methods.hasOwnProperty(key)) {
+                if (!Object.hasOwn(methods, key)) {
                     continue;
                 }
 
@@ -402,7 +423,7 @@ onmessage = (evt: MessageEvent) => {
             __results.scripts[name] = {
                 attributesInvalid: [],
                 attributesOrder: [],
-                attributes: { }
+                attributes: {}
             };
         }
 
@@ -422,7 +443,9 @@ onmessage = (evt: MessageEvent) => {
     // which will happen if users try to call this method before calling
     // registerScript
     pc.ScriptAttributes.prototype.add = function (name: string) {
-        __results.scriptsInvalid.push(`script \`${this.scriptType.name}\` you have to call pc.registerScript or pc.createScript before declaring script attributes.`);
+        __results.scriptsInvalid.push(
+            `script \`${this.scriptType.name}\` you have to call pc.registerScript or pc.createScript before declaring script attributes.`
+        );
     };
 
     // import script

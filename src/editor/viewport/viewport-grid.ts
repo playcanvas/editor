@@ -1,9 +1,9 @@
-import { type Application, GraphNode, Mesh, MeshInstance, PRIMITIVE_LINES } from 'playcanvas';
+import { GraphNode, Mesh, MeshInstance, PRIMITIVE_LINES } from 'playcanvas';
+import type { Application } from 'playcanvas';
 
 import { createColorMaterial } from './viewport-color-material';
 
 editor.once('viewport:load', (app: Application) => {
-
     const material = createColorMaterial(true);
     material.name = 'GridMaterial';
 
@@ -33,7 +33,7 @@ editor.once('viewport:load', (app: Application) => {
             const col = [];
 
             for (let i = -(divisions / 2); i <= divisions / 2; i++) {
-                const color = (i === 0) ? axisColor : gridColor;
+                const color = i === 0 ? axisColor : gridColor;
 
                 pos.push(-width / 2, 0, i * size);
                 col.push(...color);
@@ -48,7 +48,7 @@ editor.once('viewport:load', (app: Application) => {
             const mesh = new Mesh(app.graphicsDevice);
             mesh.setPositions(pos);
             mesh.setColors32(col);
-            mesh.setNormals(pos);            // normals (unused, by standard material requires it)
+            mesh.setNormals(pos); // normals (unused, by standard material requires it)
             mesh.update(PRIMITIVE_LINES, true);
 
             meshInstance = new MeshInstance(mesh, material, node);

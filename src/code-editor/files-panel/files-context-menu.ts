@@ -1,4 +1,5 @@
-import { Menu, type Container, type TreeViewItem } from '@playcanvas/pcui';
+import { Menu } from '@playcanvas/pcui';
+import type { Container, TreeViewItem } from '@playcanvas/pcui';
 
 editor.once('load', () => {
     const root: Container = editor.call('layout.root');

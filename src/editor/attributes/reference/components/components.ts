@@ -1,3 +1,5 @@
+import type { AttributeReference } from '../reference.type';
+
 import { fields as anim } from './anim';
 import { fields as animation } from './animation';
 import { fields as audiolistener } from './audiolistener';
@@ -23,7 +25,6 @@ import { fields as soundslot } from './soundslot';
 import { fields as sprite } from './sprite';
 import { fields as spriteAnimationClip } from './sprite-animation-clip';
 import { fields as zone } from './zone';
-import type { AttributeReference } from '../reference.type';
 
 editor.once('load', () => {
     const fields: AttributeReference[] = [
@@ -54,7 +55,7 @@ editor.once('load', () => {
         ...zone
     ];
 
-    for (let i = 0; i < fields.length; i++) {
-        editor.call('attributes:reference:add', fields[i]);
+    for (const field of fields) {
+        editor.call('attributes:reference:add', field);
     }
 });

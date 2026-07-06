@@ -1,13 +1,14 @@
 import type { Observer } from '@playcanvas/observer';
-import { Element, SelectInput, SelectInputArgs } from '@playcanvas/pcui';
+import type { SelectInputArgs } from '@playcanvas/pcui';
+import { Element, SelectInput } from '@playcanvas/pcui';
 
 /**
  * The arguments for the {@link BatchGroupInput} constructor.
  */
-interface BatchGroupInputArgs extends SelectInputArgs {
+type BatchGroupInputArgs = {
     /** The project settings observer */
     projectSettings?: Observer;
-}
+} & SelectInputArgs;
 
 /**
  * A select input that holds batch group options.
@@ -36,15 +37,19 @@ class BatchGroupInput extends SelectInput {
     }
 
     protected _refreshOptions() {
-        const options: { v: number | null, t: string }[] = [{
-            v: null, t: 'None'
-        }];
+        const options: { v: number | null; t: string }[] = [
+            {
+                v: null,
+                t: 'None'
+            }
+        ];
 
         const batchGroups = this._projectSettings?.get('batchGroups');
         if (batchGroups) {
             for (const key in batchGroups) {
                 options.push({
-                    v: parseInt(key, 10), t: batchGroups[key].name
+                    v: parseInt(key, 10),
+                    t: batchGroups[key].name
                 });
             }
         }

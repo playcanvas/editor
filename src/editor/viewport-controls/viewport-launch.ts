@@ -50,9 +50,17 @@ editor.once('load', () => {
     // Prevent the tooltip from intercepting mouse events when moving to adjacent buttons
     tooltipLaunch.style.pointerEvents = 'none';
 
-    const launchOptions = { };
+    const launchOptions = {};
 
-    const launchApp = (deviceOptions: { webgpu?: boolean; webgl2?: boolean; webgl1?: boolean; [key: string]: boolean | undefined } = {}, popup?: boolean) => {
+    const launchApp = (
+        deviceOptions: {
+            webgpu?: boolean;
+            webgl2?: boolean;
+            webgl1?: boolean;
+            [key: string]: boolean | undefined;
+        } = {},
+        popup?: boolean
+    ) => {
         let url = config.url.launch + config.scene.id;
 
         const query = [];
@@ -331,7 +339,6 @@ editor.once('load', () => {
         }
     });
 
-
     let timeout;
 
     // show dropdown menu
@@ -378,7 +385,6 @@ editor.once('load', () => {
             timeout = null;
         }, 50);
     });
-
 
     // fullscreen
     const buttonExpand = new Button({

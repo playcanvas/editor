@@ -68,7 +68,7 @@ class Schema {
      *
      * @category Internal
      */
-    getType(field: any, fixedLength: number = 0): string {
+    getType(field: any, fixedLength = 0): string {
         if (typeof field === 'string') {
             if (field === 'map' || field === 'mixed') {
                 field = 'object';

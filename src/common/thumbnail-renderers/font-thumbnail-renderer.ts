@@ -122,8 +122,8 @@ function initializeScene() {
 }
 
 function hasChars(chars: string, font: any) {
-    for (let i = 0; i < chars.length; i++) {
-        if (!font.data.chars[chars[i]]) {
+    for (const char of chars) {
+        if (!font.data.chars[char]) {
             return false;
         }
     }
@@ -174,7 +174,7 @@ function updateMeshes(text: string, font: any) {
 
         // scale of character relative to max scale
         let scale = 1 / (charData.scale || 1);
-        scale = GSCALE * scale / maxScale;
+        scale = (GSCALE * scale) / maxScale;
 
         // yoffset of character relative to maxYOffset
         const yoffset = GSCALE * (maxYOffset - height / 2) * maxScale;
@@ -184,13 +184,21 @@ function updateMeshes(text: string, font: any) {
         const oy = charData.yoffset + (charData.bounds ? charData.bounds[1] : 0);
 
         // char width
-        const dw = GSCALE * charData.xadvance / charData.width;
+        const dw = (GSCALE * charData.xadvance) / charData.width;
 
         // calculate position for character
         scene.positions.push(maxWidth, yoffset, 0);
         scene.positions.push(maxWidth + dw, yoffset, 0);
-        scene.positions.push(maxWidth + dw, yoffset + scale * (height - 2 * oy * charData.scale / charData.height) * maxScale, 0);
-        scene.positions.push(maxWidth, yoffset + scale * (height - 2 * oy * charData.scale / charData.height) * maxScale, 0);
+        scene.positions.push(
+            maxWidth + dw,
+            yoffset + scale * (height - (2 * oy * charData.scale) / charData.height) * maxScale,
+            0
+        );
+        scene.positions.push(
+            maxWidth,
+            yoffset + scale * (height - (2 * oy * charData.scale) / charData.height) * maxScale,
+            0
+        );
 
         // increment total width
         maxWidth += dw;
@@ -223,12 +231,15 @@ function updateMeshes(text: string, font: any) {
 
         const numVertices = 4;
         for (let v = 0; v < numVertices; v++) {
-            it.element[pc.SEMANTIC_POSITION].set(scene.positions[i * 4 * 3 + v * 3 + 0], scene.positions[i * 4 * 3 + v * 3 + 1], scene.positions[i * 4 * 3 + v * 3 + 2]);
+            it.element[pc.SEMANTIC_POSITION].set(
+                scene.positions[i * 4 * 3 + v * 3 + 0],
+                scene.positions[i * 4 * 3 + v * 3 + 1],
+                scene.positions[i * 4 * 3 + v * 3 + 2]
+            );
             it.element[pc.SEMANTIC_TEXCOORD0].set(scene.uvs[i * 4 * 2 + v * 2 + 0], scene.uvs[i * 4 * 2 + v * 2 + 1]);
             it.next();
         }
         it.end();
-
     }
 
     return true;
@@ -314,7 +325,14 @@ class FontThumbnailRenderer extends ThumbnailRenderer {
         const engineAsset = app.assets.get(this._asset.get('id'));
 
         // skip if the font isn't ready
-        if (!engineAsset || !engineAsset.resource || !engineAsset.resource.textures || !engineAsset.resource.textures.length || !engineAsset.resource.data || !engineAsset.resource.data.chars) {
+        if (
+            !engineAsset ||
+            !engineAsset.resource ||
+            !engineAsset.resource.textures ||
+            !engineAsset.resource.textures.length ||
+            !engineAsset.resource.data ||
+            !engineAsset.resource.data.chars
+        ) {
             app.renderComposition(layerComposition);
         } else {
             // try to use Aa as the text in different languages
@@ -335,14 +353,13 @@ class FontThumbnailRenderer extends ThumbnailRenderer {
                 text = '';
                 const chars = this._asset.get('meta.chars');
                 for (let i = 0, len = chars.length; i < len && text.length < 2; i++) {
-
                     // skip space character
                     if (/\s/.test(chars[i])) {
                         continue;
                     }
 
                     // skip characters which doesn't exists in character set
-                    if (!engineAsset.resource.data.chars.hasOwnProperty(chars[i])) {
+                    if (!Object.hasOwn(engineAsset.resource.data.chars, chars[i])) {
                         continue;
                     }
 
@@ -355,13 +372,15 @@ class FontThumbnailRenderer extends ThumbnailRenderer {
             scene.defaultScreenSpaceTextMaterial.setParameter('font_sdfIntensity', this._asset.get('data.intensity'));
 
             if (text) {
-
                 const char = engineAsset.resource.data.chars[text[0]];
-                const pxRange = (char && char.range) ? ((char.scale || 1) * char.range) : 2;
+                const pxRange = char && char.range ? (char.scale || 1) * char.range : 2;
                 scene.defaultScreenSpaceTextMaterial.setParameter('font_pxrange', pxRange);
 
                 const map = char.map || 0;
-                scene.defaultScreenSpaceTextMaterial.setParameter('font_textureWidth', engineAsset.resource.data.info.maps[map].width);
+                scene.defaultScreenSpaceTextMaterial.setParameter(
+                    'font_textureWidth',
+                    engineAsset.resource.data.info.maps[map].width
+                );
 
                 scene.defaultScreenSpaceTextMaterial.setParameter('outline_thickness', 0);
 
@@ -386,7 +405,6 @@ class FontThumbnailRenderer extends ThumbnailRenderer {
                 // restore camera layers
                 scene.cameraEntity.camera.layers = backupLayers;
 
-
                 // read pixels from texture
                 const device = app.graphicsDevice;
                 device.gl.bindFramebuffer(device.gl.FRAMEBUFFER, rt.impl._glFrameBuffer);
@@ -394,7 +412,11 @@ class FontThumbnailRenderer extends ThumbnailRenderer {
 
                 // render to canvas
                 const ctx = this._canvas.getContext('2d');
-                ctx.putImageData(new ImageData(rt.pixelsClamped, width, height), (this._canvas.width - width) / 2, (this._canvas.height - height) / 2);
+                ctx.putImageData(
+                    new ImageData(rt.pixelsClamped, width, height),
+                    (this._canvas.width - width) / 2,
+                    (this._canvas.height - height) / 2
+                );
 
                 layer.removeMeshInstances(scene.model.meshInstances);
                 layer.removeCamera(scene.cameraEntity.camera);

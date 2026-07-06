@@ -29,7 +29,7 @@ const createTooltip = (target: HTMLElement, text: string) => {
 };
 
 const createCounters = (consolePanel: { collapsed: boolean }) => {
-    const counters: Record<string, { tooltip: string, el: Label }> = {
+    const counters: Record<string, { tooltip: string; el: Label }> = {
         info: {
             tooltip: 'Toggle info console messages'
         },
@@ -106,7 +106,7 @@ const createActiveJobs = () => {
 
     // status job
     editor.method('status:job', (id, value) => {
-        if (jobs.hasOwnProperty(id) && value === undefined) {
+        if (Object.hasOwn(jobs, id) && value === undefined) {
             delete jobs[id];
         } else {
             jobs[id] = value;
@@ -309,9 +309,9 @@ export const createConsolePanel = () => {
 
     const logTypes = ['info', 'warn', 'error'];
 
-    const consoleItems: { el: Container, textEl: Label, counterEl: Label, timeEl: Label }[] = [];
+    const consoleItems: { el: Container; textEl: Label; counterEl: Label; timeEl: Label }[] = [];
 
-    const consoleLogs: { ts: number, mask: number, msg: string, onclick: () => void }[] = [];
+    const consoleLogs: { ts: number; mask: number; msg: string; onclick: () => void }[] = [];
 
     let consoleFilter = '';
     let consoleTypeFlag = 0b111;
@@ -458,8 +458,7 @@ export const createConsolePanel = () => {
         // only update counts
         if (onlyCounts) {
             // update values
-            for (let i = 0; i < consoleLogs.length; i++) {
-                const { mask } = consoleLogs[i];
+            for (const { mask } of consoleLogs) {
                 const type = logTypes[Math.log2(mask)];
                 counts[type]++;
             }
@@ -563,11 +562,13 @@ export const createConsolePanel = () => {
         refresh();
     });
     editor.method('layout:console:copy', () => {
-        const copy = consoleLogs.map(({ ts, mask, msg }) => {
-            const type = logTypes[Math.log2(mask)];
-            const time = new Date(ts).toLocaleString().replace(', ', '|');
-            return `[${time}] [${type[0]}] ${msg}`;
-        }).join('\n');
+        const copy = consoleLogs
+            .map(({ ts, mask, msg }) => {
+                const type = logTypes[Math.log2(mask)];
+                const time = new Date(ts).toLocaleString().replace(', ', '|');
+                return `[${time}] [${type[0]}] ${msg}`;
+            })
+            .join('\n');
         navigator.clipboard.writeText(copy);
         editor.call('status:text', 'Console copied to clipboard');
     });
@@ -576,9 +577,13 @@ export const createConsolePanel = () => {
     });
 
     // error
-    window.addEventListener('error', (evt: ErrorEvent) => {
-        editor.call('status:error', evt.message);
-    }, false);
+    window.addEventListener(
+        'error',
+        (evt: ErrorEvent) => {
+            editor.call('status:error', evt.message);
+        },
+        false
+    );
 
     return consolePanel;
 };

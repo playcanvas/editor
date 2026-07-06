@@ -1,4 +1,5 @@
-import { type Application, PROJECTION_PERSPECTIVE, Quat, Vec2, Vec3 } from 'playcanvas';
+import { PROJECTION_PERSPECTIVE, Quat, Vec2, Vec3 } from 'playcanvas';
+import type { Application } from 'playcanvas';
 
 import type { ViewportTap } from '../viewport-tap';
 
@@ -17,7 +18,6 @@ editor.once('viewport:load', (app: Application) => {
     const vec2 = new Vec2();
     const vecA = new Vec3();
     const quat = new Quat();
-
 
     editor.on('viewport:update', (dt: number) => {
         const camera = editor.call('camera:current');
@@ -95,7 +95,7 @@ editor.once('viewport:load', (app: Application) => {
             // pitch
             const x = Math.cos(Math.asin(camera.forward.y));
             vec2.set(x, camera.forward.y).normalize();
-            pitch =  Math.max(-89.99, Math.min(89.99, Math.atan2(vec2.y, vec2.x) / (Math.PI / 180)));
+            pitch = Math.max(-89.99, Math.min(89.99, Math.atan2(vec2.y, vec2.x) / (Math.PI / 180)));
 
             // yaw — use right vector to avoid NaN when forward is near-vertical (±Y poles)
             if (camera.forward.x * camera.forward.x + camera.forward.z * camera.forward.z > 0.001) {

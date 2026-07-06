@@ -1,14 +1,16 @@
-import { Observer, type EventHandle } from '@playcanvas/observer';
-import { Container, Panel, Label, BooleanInput, type ContainerArgs } from '@playcanvas/pcui';
+import { Observer } from '@playcanvas/observer';
+import type { EventHandle } from '@playcanvas/observer';
+import { Container, Panel, Label, BooleanInput } from '@playcanvas/pcui';
+import type { ContainerArgs } from '@playcanvas/pcui';
 
 import { TooltipHandle } from '@/common/tooltips';
 
-interface RenderOrderListArgs extends ContainerArgs {
+type RenderOrderListArgs = {
     settings?: Observer;
     projectSettings: Observer;
     userSettings?: Observer;
     sceneSettings?: Observer;
-}
+} & ContainerArgs;
 
 const CLASS_ROOT = 'layers-settings-panel';
 const CLASS_RENDER_ORDER_LIST = `${CLASS_ROOT}-render-order-list`;
@@ -161,7 +163,7 @@ class LayersSettingsPanelRenderOrderList extends Container {
     }
 
     _onLayerInsert(value: Observer | { layer: number; transparent: boolean }, index: number) {
-        const data = value instanceof Observer ? value.json() as { layer: number; transparent: boolean } : value;
+        const data = value instanceof Observer ? (value.json() as { layer: number; transparent: boolean }) : value;
 
         const name = this._projectSettings.get(`layers.${data.layer}.name`);
         const layerPanel = this._createLayerElement(data, name);
@@ -220,7 +222,7 @@ class LayersSettingsPanelRenderOrderList extends Container {
 
         this._layerList.length = 0;
 
-        this._settingsEvents.forEach(evt => evt.unbind());
+        this._settingsEvents.forEach((evt) => evt.unbind());
         this._settingsEvents.length = 0;
 
         super.destroy();

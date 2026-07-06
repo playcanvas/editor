@@ -15,11 +15,9 @@ import {
     MeshInstance,
     PRIMITIVE_LINES,
     SEMANTIC_ATTR15,
-    ShaderMaterial,
-    type AppBase,
-    type GraphicsDevice,
-    type Material
+    ShaderMaterial
 } from 'playcanvas';
+import type { AppBase, GraphicsDevice, Material } from 'playcanvas';
 
 import { GIZMO_MASK } from '@/core/constants';
 import type { EntityObserver } from '@/editor-api';
@@ -29,7 +27,7 @@ import { createColorMaterial } from '../viewport-color-material';
 editor.once('load', () => {
     let app;
     // selected entity gizmos
-    let entities = { };
+    let entities = {};
     // pool of gizmos
     const pool = [];
 
@@ -77,7 +75,7 @@ editor.once('load', () => {
         outers: number[] | null = null,
         outerValue = 0
     ) => {
-        const factor = 360 / CIRCLE_SEGMENTS * math.DEG_TO_RAD;
+        const factor = (360 / CIRCLE_SEGMENTS) * math.DEG_TO_RAD;
         for (let i = 0; i < CIRCLE_SEGMENTS; i++) {
             const s0 = Math.sin(factor * i) * radius;
             const c0 = Math.cos(factor * i) * radius;
@@ -229,9 +227,11 @@ editor.once('load', () => {
             this.unlink();
             this._link = obj;
 
-            this.events.push(this._link.once('destroy', () => {
-                this.unlink();
-            }));
+            this.events.push(
+                this._link.once('destroy', () => {
+                    this.unlink();
+                })
+            );
 
             this.entity = makeLayerEntity(layerFront.id);
             container.addChild(this.entity);
@@ -250,7 +250,7 @@ editor.once('load', () => {
                 return;
             }
 
-            this.events.forEach(event => event.unbind());
+            this.events.forEach((event) => event.unbind());
             this.events = [];
 
             this._link = null;
@@ -270,7 +270,12 @@ editor.once('load', () => {
             // materialBehind
             materialBehind = createColorMaterial();
             materialBehind.color = colorBehind;
-            materialBehind.blendState = new BlendState(true, BLENDEQUATION_ADD, BLENDMODE_SRC_ALPHA, BLENDMODE_ONE_MINUS_SRC_ALPHA);
+            materialBehind.blendState = new BlendState(
+                true,
+                BLENDEQUATION_ADD,
+                BLENDMODE_SRC_ALPHA,
+                BLENDMODE_ONE_MINUS_SRC_ALPHA
+            );
             materialBehind.depthTest = false;
             materialBehind.update();
 
@@ -313,12 +318,23 @@ editor.once('load', () => {
             };
 
             materialSpot = new ShaderMaterial(shaderSpotDesc);
-            materialSpot.setParameter('uColorSpot', new Float32Array([colorPrimary.r, colorPrimary.g, colorPrimary.b, colorPrimary.a]));
+            materialSpot.setParameter(
+                'uColorSpot',
+                new Float32Array([colorPrimary.r, colorPrimary.g, colorPrimary.b, colorPrimary.a])
+            );
             materialSpot.update();
 
             materialSpotBehind = new ShaderMaterial(shaderSpotDesc);
-            materialSpotBehind.setParameter('uColorSpot', new Float32Array([colorBehind.r, colorBehind.g, colorBehind.b, colorBehind.a]));
-            materialSpotBehind.blendState = new BlendState(true, BLENDEQUATION_ADD, BLENDMODE_SRC_ALPHA, BLENDMODE_ONE_MINUS_SRC_ALPHA);
+            materialSpotBehind.setParameter(
+                'uColorSpot',
+                new Float32Array([colorBehind.r, colorBehind.g, colorBehind.b, colorBehind.a])
+            );
+            materialSpotBehind.blendState = new BlendState(
+                true,
+                BLENDEQUATION_ADD,
+                BLENDMODE_SRC_ALPHA,
+                BLENDMODE_ONE_MINUS_SRC_ALPHA
+            );
             materialSpotBehind.depthTest = false;
             materialSpotBehind.update();
         }
@@ -328,24 +344,52 @@ editor.once('load', () => {
             const size = 0.2;
             const length = -(2 - size * 2);
             const positions = [
-                0, 0, 0,
-                0, length, 0,
+                0,
+                0,
+                0,
+                0,
+                length,
+                0,
 
                 // triangle
-                Math.sin(0 * rad) * size, length, Math.cos(0 * rad) * size,
-                Math.sin(120 * rad) * size, length, Math.cos(120 * rad) * size,
-                Math.sin(120 * rad) * size, length, Math.cos(120 * rad) * size,
-                Math.sin(240 * rad) * size, length, Math.cos(240 * rad) * size,
-                Math.sin(240 * rad) * size, length, Math.cos(240 * rad) * size,
-                Math.sin(0 * rad) * size, length, Math.cos(0 * rad) * size,
+                Math.sin(0 * rad) * size,
+                length,
+                Math.cos(0 * rad) * size,
+                Math.sin(120 * rad) * size,
+                length,
+                Math.cos(120 * rad) * size,
+                Math.sin(120 * rad) * size,
+                length,
+                Math.cos(120 * rad) * size,
+                Math.sin(240 * rad) * size,
+                length,
+                Math.cos(240 * rad) * size,
+                Math.sin(240 * rad) * size,
+                length,
+                Math.cos(240 * rad) * size,
+                Math.sin(0 * rad) * size,
+                length,
+                Math.cos(0 * rad) * size,
 
                 // triangle corners
-                Math.sin(0 * rad) * size, length, Math.cos(0 * rad) * size,
-                0, length - (size * 2), 0,
-                Math.sin(120 * rad) * size, length, Math.cos(120 * rad) * size,
-                0, length - (size * 2), 0,
-                Math.sin(240 * rad) * size, length, Math.cos(240 * rad) * size,
-                0, length - (size * 2), 0
+                Math.sin(0 * rad) * size,
+                length,
+                Math.cos(0 * rad) * size,
+                0,
+                length - size * 2,
+                0,
+                Math.sin(120 * rad) * size,
+                length,
+                Math.cos(120 * rad) * size,
+                0,
+                length - size * 2,
+                0,
+                Math.sin(240 * rad) * size,
+                length,
+                Math.cos(240 * rad) * size,
+                0,
+                length - size * 2,
+                0
             ];
 
             return Gizmo.createMesh(device, positions, null);
@@ -368,8 +412,18 @@ editor.once('load', () => {
         static createSpot(device: GraphicsDevice) {
             // two edge lines from apex down to the rim at y=-1
             const positions: number[] = [
-                0, 0, 0, Math.sin(0), -1, Math.cos(0),
-                0, 0, 0, Math.sin(Math.PI), -1, Math.cos(Math.PI)
+                0,
+                0,
+                0,
+                Math.sin(0),
+                -1,
+                Math.cos(0),
+                0,
+                0,
+                0,
+                Math.sin(Math.PI),
+                -1,
+                Math.cos(Math.PI)
             ];
             const outers: number[] = [1, 1, 1, 1];
 
@@ -383,10 +437,8 @@ editor.once('load', () => {
         static createRectangle(device: GraphicsDevice) {
             // 4 lines
             const positions = [
-                -0.5, 0, -0.5, 0.5, 0, -0.5,
-                -0.5, 0, 0.5, 0.5, 0, 0.5,
-                -0.5, 0, -0.5, -0.5, 0, 0.5,
-                0.5, 0, -0.5, 0.5, 0, 0.5
+                -0.5, 0, -0.5, 0.5, 0, -0.5, -0.5, 0, 0.5, 0.5, 0, 0.5, -0.5, 0, -0.5, -0.5, 0, 0.5, 0.5, 0, -0.5, 0.5,
+                0, 0.5
             ];
 
             return Gizmo.createMesh(device, positions, null);
@@ -431,14 +483,14 @@ editor.once('load', () => {
                 entities[key].unlink();
                 pool.push(entities[key]);
             }
-            entities = { };
+            entities = {};
             return;
         }
 
         // index selection
-        const ids = { };
-        for (let i = 0; i < items.length; i++) {
-            ids[items[i].get('resource_id')] = items[i];
+        const ids = {};
+        for (const item of items) {
+            ids[item.get('resource_id')] = item;
         }
 
         let render = false;

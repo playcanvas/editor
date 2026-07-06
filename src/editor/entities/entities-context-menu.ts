@@ -5,7 +5,7 @@ import { formatShortcut } from '../../common/utils';
 
 editor.once('load', () => {
     let entity = null; // the entity that was clicked on to open the context menu
-    let items = [];   // the current selection
+    let items = []; // the current selection
     const root = editor.call('layout.root');
 
     const legacyScripts = editor.call('settings:project').get('useLegacyScripts');
@@ -20,48 +20,47 @@ editor.once('load', () => {
             return selection;
         }
         return [entity];
-
     };
 
     const setField = function (field: string, value: boolean) {
         const records = [];
 
-        for (let i = 0; i < items.length; i++) {
+        for (const item of items) {
             records.push({
-                item: items[i],
+                item: item,
                 value: value,
-                valueOld: items[i].get(field)
+                valueOld: item.get(field)
             });
 
-            items[i].history.enabled = false;
-            items[i].set(field, value);
-            items[i].history.enabled = true;
+            item.history.enabled = false;
+            item.set(field, value);
+            item.history.enabled = true;
         }
 
         editor.api.globals.history.add({
             name: `entities.set[${field}]`,
             combine: false,
             undo: function () {
-                for (let i = 0; i < records.length; i++) {
-                    const item = records[i].item.latest();
+                for (const record of records) {
+                    const item = record.item.latest();
                     if (!item) {
                         continue;
                     }
 
                     item.history.enabled = false;
-                    item.set(field, records[i].valueOld);
+                    item.set(field, record.valueOld);
                     item.history.enabled = true;
                 }
             },
             redo: function () {
-                for (let i = 0; i < records.length; i++) {
-                    const item = records[i].item.latest();
+                for (const record of records) {
+                    const item = record.item.latest();
                     if (!item) {
                         continue;
                     }
 
                     item.history.enabled = false;
-                    item.set(field, records[i].value);
+                    item.set(field, record.value);
                     item.history.enabled = true;
                 }
             }
@@ -124,7 +123,7 @@ editor.once('load', () => {
                     }
                     // For multi-select, enable if at least one entity is linked to a template
                     // For instance, allows "Unlink Template" for multiple entity selection.
-                    return items.some(e => e.get('template_id'));
+                    return items.some((e) => e.get('template_id'));
                 },
                 onIsVisible: hasWriteAccess,
                 items: editor.call('menu:entities:template')
@@ -149,7 +148,6 @@ editor.once('load', () => {
                     }
                 }
                 return !enabled;
-
             },
             onSelect: function () {
                 setField('enabled', true);
@@ -174,7 +172,6 @@ editor.once('load', () => {
                     }
                 }
                 return disabled;
-
             },
             onSelect: function () {
                 setField('enabled', false);
@@ -185,15 +182,19 @@ editor.once('load', () => {
             text: 'Show',
             icon: 'E117',
             onIsVisible: function () {
-                for (let i = 0; i < items.length; i++) {
-                    if (editor.call('entities:visibility:isHidden', items[i].get('resource_id'))) {
+                for (const item of items) {
+                    if (editor.call('entities:visibility:isHidden', item.get('resource_id'))) {
                         return true;
                     }
                 }
                 return false;
             },
             onSelect: function () {
-                editor.call('entities:visibility:set', items.map((item: any) => item.get('resource_id')), false);
+                editor.call(
+                    'entities:visibility:set',
+                    items.map((item: any) => item.get('resource_id')),
+                    false
+                );
             }
         });
 
@@ -202,15 +203,19 @@ editor.once('load', () => {
             icon: 'E117',
             class: 'entities-context-menu-hide',
             onIsVisible: function () {
-                for (let i = 0; i < items.length; i++) {
-                    if (!editor.call('entities:visibility:isHidden', items[i].get('resource_id'))) {
+                for (const item of items) {
+                    if (!editor.call('entities:visibility:isHidden', item.get('resource_id'))) {
                         return true;
                     }
                 }
                 return false;
             },
             onSelect: function () {
-                editor.call('entities:visibility:set', items.map((item: any) => item.get('resource_id')), true);
+                editor.call(
+                    'entities:visibility:set',
+                    items.map((item: any) => item.get('resource_id')),
+                    true
+                );
             }
         });
 
@@ -231,7 +236,13 @@ editor.once('load', () => {
             onIsEnabled: function () {
                 if (items.length <= 1) {
                     const clipboard = editor.call('clipboard:get');
-                    if (clipboard && clipboard.type === 'entity' && clipboard.branch && clipboard.scene && clipboard.hierarchy) {
+                    if (
+                        clipboard &&
+                        clipboard.type === 'entity' &&
+                        clipboard.branch &&
+                        clipboard.scene &&
+                        clipboard.hierarchy
+                    ) {
                         return true;
                     }
                 }
@@ -296,8 +307,8 @@ editor.once('load', () => {
             onIsVisible: hasWriteAccess,
             onIsEnabled: function () {
                 const root = editor.call('entities:root');
-                for (let i = 0; i < items.length; i++) {
-                    if (items[i] === root) {
+                for (const item of items) {
+                    if (item === root) {
                         return false;
                     }
                 }
@@ -365,5 +376,4 @@ editor.once('load', () => {
     editor.method('entities:contextmenu:entity', () => {
         return entity;
     });
-
 });

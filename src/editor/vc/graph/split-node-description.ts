@@ -45,7 +45,6 @@ editor.once('load', () => {
         splitIfNeeded(s: string) {
             if (s.length > this.maxPerToken) {
                 this.splitTransition(s);
-
             } else {
                 this.transition();
 

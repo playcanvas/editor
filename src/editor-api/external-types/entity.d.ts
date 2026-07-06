@@ -66,26 +66,26 @@ export type EntityProps = {
  * Components of an Entity.
  */
 export type Components = {
-    'anim'? : AnimComponent;
-    'animation'? : AnimationComponent;
-    'audiolistener'? : AudioListenerComponent;
-    'button'? : ButtonComponent;
-    'camera'? : CameraComponent;
-    'collision'? : CollisionComponent;
-    'element'? : ElementComponent;
-    'layoutchild'? : LayoutChildComponent;
-    'layoutgroup'? : LayoutGroupComponent;
-    'light'? : LightComponent;
-    'model'? : ModelComponent;
-    'particlesystem'? : ParticleSystemComponent;
-    'render'? : RenderComponent;
-    'rigidbody'? : RigidBodyComponent;
-    'screen'? : ScreenComponent;
-    'script'? : ScriptComponent;
-    'scrollbar'? : ScrollbarComponent;
-    'scrollview'? : ScrollviewComponent;
-    'sound'? : SoundComponent;
-    'sprite'? : SpriteComponent;
+    anim?: AnimComponent;
+    animation?: AnimationComponent;
+    audiolistener?: AudioListenerComponent;
+    button?: ButtonComponent;
+    camera?: CameraComponent;
+    collision?: CollisionComponent;
+    element?: ElementComponent;
+    layoutchild?: LayoutChildComponent;
+    layoutgroup?: LayoutGroupComponent;
+    light?: LightComponent;
+    model?: ModelComponent;
+    particlesystem?: ParticleSystemComponent;
+    render?: RenderComponent;
+    rigidbody?: RigidBodyComponent;
+    screen?: ScreenComponent;
+    script?: ScriptComponent;
+    scrollbar?: ScrollbarComponent;
+    scrollview?: ScrollviewComponent;
+    sound?: SoundComponent;
+    sprite?: SpriteComponent;
 };
 
 /**
@@ -102,15 +102,16 @@ type AnimComponent = {
      * Each key is a string representing a path to a state.
      * @default {}
      */
-    animationAssets: {
-        [key: string]: {
+    animationAssets: Record<
+        string,
+        {
             /**
              * The `id` of the animation asset.
              * @default null
              */
             asset: number;
-        };
-    };
+        }
+    >;
     /**
      * Whether the component is enabled.
      * @default true
@@ -120,14 +121,16 @@ type AnimComponent = {
      * The layer masks associated with this component.
      * @default {}
      */
-    masks: {
-        [key: string]: {
+    masks: Record<
+        string,
+        {
             /**
              * A set of paths to bones in the current model that should be animated by the layer.
              * @default {}
              */
-            mask: {
-                [key: string]: {
+            mask: Record<
+                string,
+                {
                     /**
                      * Whether the children of this bone should also be included in the mask.
                      */
@@ -136,10 +139,10 @@ type AnimComponent = {
                      * Whether this bone should also be included in the mask.
                      */
                     value: boolean;
-                };
-            };
-        };
-    };
+                }
+            >;
+        }
+    >;
     /**
      * The `resource_id` of the entity that this anim component should use as the root of the animation hierarchy.
      * @default null
@@ -1297,20 +1300,19 @@ type ScriptComponent = {
     /**
      * A dictionary containing all scripts attached to this component, indexed by script name.
      */
-    scripts: {
-        [key: string]: {
+    scripts: Record<
+        string,
+        {
             /**
              * A dictionary holding the values for each attribute, indexed by attribute name.
              */
-            attributes: {
-                [key: string]: any;
-            };
+            attributes: Record<string, any>;
             /**
              * Whether the individual script instance is enabled.
              */
             enabled: boolean;
-        };
-    };
+        }
+    >;
 };
 
 /**
@@ -1462,8 +1464,9 @@ type SoundComponent = {
     /**
      * Dictionary of sound slots, each controlling playback of an audio asset.
      */
-    slots: {
-        [key: string]: {
+    slots: Record<
+        string,
+        {
             /**
              * The `id` of the audio asset in this sound slot.
              */
@@ -1500,8 +1503,8 @@ type SoundComponent = {
              * Volume modifier for this sound slot.
              */
             volume: number;
-        };
-    };
+        }
+    >;
     /**
      * Overall volume modifier for the component.
      * @default 1
@@ -1526,8 +1529,9 @@ type SpriteComponent = {
     /**
      * A dictionary containing data for all sprite animation clips. Each key is the index of the clip.
      */
-    clips: {
-        [key: string]: {
+    clips: Record<
+        string,
+        {
             /**
              * If true, automatically start playing this animation clip when loaded.
              */
@@ -1548,8 +1552,8 @@ type SpriteComponent = {
              * The `id` of the sprite asset containing all frames for this animation clip.
              */
             spriteAsset: number;
-        };
-    };
+        }
+    >;
     /**
      * The color tint of the sprite, represented as an array of 3 numbers.
      * @default [1,1,1]

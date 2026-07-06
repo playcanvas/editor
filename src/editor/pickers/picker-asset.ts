@@ -54,11 +54,13 @@ editor.once('load', () => {
 
         if (!parseInt(asset.get('id'), 10)) {
             // probably a legacy script
-            if (overlay.hidden ||
-                (currentType !== '*' && !Array.isArray(currentType) && currentType !== 'script')) {
+            if (overlay.hidden || (currentType !== '*' && !Array.isArray(currentType) && currentType !== 'script')) {
                 return;
             }
-        } else if ((currentType !== '*' && !Array.isArray(currentType) && asset.get('type') !== currentType) || asset === currentAsset) {
+        } else if (
+            (currentType !== '*' && !Array.isArray(currentType) && asset.get('type') !== currentType) ||
+            asset === currentAsset
+        ) {
             return;
         } else if (Array.isArray(currentType) && !currentType.includes(asset.get('type'))) {
             return;
@@ -138,89 +140,96 @@ editor.once('load', () => {
         assetsPanel.style.overflow = '';
     });
 
-
     /**
      * Opens the asset picker. To get the selected asset(s) listen for the 'picker:asset' event or
      * the 'picker:assets' event if args.multi is true.
      *
      * @param args - Arguments
      */
-    editor.method('picker:asset', (args: { type?: string; multi?: boolean; currentAsset?: import('@playcanvas/observer').Observer; validateAssetsFn?: (asset: import('@playcanvas/observer').Observer) => boolean }) => {
-        const type = args.type;
+    editor.method(
+        'picker:asset',
+        (args: {
+            type?: string;
+            multi?: boolean;
+            currentAsset?: Observer;
+            validateAssetsFn?: (asset: Observer) => boolean;
+        }) => {
+            const type = args.type;
 
-        allowMultiSelection = !!args.multi;
-        assetSelection = [];
+            allowMultiSelection = !!args.multi;
+            assetSelection = [];
 
-        currentType = type;
-        currentAsset = args.currentAsset;
+            currentType = type;
+            currentAsset = args.currentAsset;
 
-        // remember previous settings
-        assetsPanelFilter = assetsPanel.dropdownType.value;
-        assetsPanelSearch = assetsPanel.searchInput.value;
-        assetsPanelFolder = assetsPanel.currentFolder;
+            // remember previous settings
+            assetsPanelFilter = assetsPanel.dropdownType.value;
+            assetsPanelSearch = assetsPanel.searchInput.value;
+            assetsPanelFolder = assetsPanel.currentFolder;
 
-        assetsPanel.suspendFiltering = true;
+            assetsPanel.suspendFiltering = true;
 
-        // navigate to scripts folder
-        if (legacyScripts && type === 'script') {
-            assetsPanel.currentFolder = 'scripts';
-        }
-
-        // remember selected
-        assetsPanel.suspendSelectionEvents = true;
-        gridSelected = assetsPanel.selectedAssets;
-        assetsPanel.selectedAssets = [];
-
-        // filters
-        let pickerType = type;
-        if (pickerType === '*') {
-            pickerType = 'all';
-            assetsPanel.dropdownType.value = pickerType;
-            assetsPanel.dropdownType.enabled = true;
-        } else if (Array.isArray(pickerType)) {
-            assetsPanel.assetTypes = pickerType;
-            assetsPanel.dropdownType.value = 'all';
-            assetsPanel.dropdownType.enabled = false;
-        } else {
-            assetsPanel.dropdownType.value = pickerType;
-            assetsPanel.dropdownType.enabled = false;
-        }
-
-        // disable selector
-        editor.call('selector:enabled', false);
-
-        // disable showing source assets
-        assetsPanel.showSourceAssets = false;
-
-        // set current folder to currentAsset
-        if (currentAsset) {
-            assetsPanel.selectedAssets = [currentAsset];
-            let currentFolder = null;
-            const path = currentAsset.get('path');
-            if (path.length) {
-                currentFolder = editor.call('assets:get', path[path.length - 1]);
+            // navigate to scripts folder
+            if (legacyScripts && type === 'script') {
+                assetsPanel.currentFolder = 'scripts';
             }
-            assetsPanel.currentFolder = currentFolder;
+
+            // remember selected
+            assetsPanel.suspendSelectionEvents = true;
+            gridSelected = assetsPanel.selectedAssets;
+            assetsPanel.selectedAssets = [];
+
+            // filters
+            let pickerType = type;
+            if (pickerType === '*') {
+                pickerType = 'all';
+                assetsPanel.dropdownType.value = pickerType;
+                assetsPanel.dropdownType.enabled = true;
+            } else if (Array.isArray(pickerType)) {
+                assetsPanel.assetTypes = pickerType;
+                assetsPanel.dropdownType.value = 'all';
+                assetsPanel.dropdownType.enabled = false;
+            } else {
+                assetsPanel.dropdownType.value = pickerType;
+                assetsPanel.dropdownType.enabled = false;
+            }
+
+            // disable selector
+            editor.call('selector:enabled', false);
+
+            // disable showing source assets
+            assetsPanel.showSourceAssets = false;
+
+            // set current folder to currentAsset
+            if (currentAsset) {
+                assetsPanel.selectedAssets = [currentAsset];
+                let currentFolder = null;
+                const path = currentAsset.get('path');
+                if (path.length) {
+                    currentFolder = editor.call('assets:get', path[path.length - 1]);
+                }
+                assetsPanel.currentFolder = currentFolder;
+            }
+
+            assetsPanel.suspendFiltering = false;
+            assetsPanel.validateAssetsFn = args.validateAssetsFn;
+            assetsPanel.filter();
+            assetsPanel.validateAssetsFn = null;
+
+            // show asset panel in front
+            assetsPanel.style.zIndex = 102;
+            assetsPanel.style.overflow = 'visible';
+            // if panel folded?
+            assetsPanelFolded = assetsPanel.collapsed;
+            if (assetsPanelFolded) {
+                assetsPanel.collapsed = false;
+            }
+            // show overlay
+            overlay.hidden = false;
+
+            assetsPanel.suspendSelectionEvents = false;
         }
-
-        assetsPanel.suspendFiltering = false;
-        assetsPanel.validateAssetsFn = args.validateAssetsFn;
-        assetsPanel.filter();
-        assetsPanel.validateAssetsFn = null;
-
-        // show asset panel in front
-        assetsPanel.style.zIndex = 102;
-        assetsPanel.style.overflow = 'visible';
-        // if panel folded?
-        assetsPanelFolded = assetsPanel.collapsed;
-        if (assetsPanelFolded) {
-            assetsPanel.collapsed = false;
-        }
-        // show overlay
-        overlay.hidden = false;
-
-        assetsPanel.suspendSelectionEvents = false;
-    });
+    );
 
     // Deselects all picked assets
     editor.method('picker:asset:deselect', () => {

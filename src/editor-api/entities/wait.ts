@@ -1,6 +1,6 @@
 import type { EventHandle } from '@playcanvas/observer';
 
-import { Entity } from '../entity';
+import type { Entity } from '../entity';
 import { globals as api } from '../globals';
 
 /**
@@ -14,7 +14,7 @@ import { globals as api } from '../globals';
  * @returns Returns a cancel function which can be called to cancel calling the
  * callback when the entities are added.
  */
-function wait(entityIds: string[], timeoutMs: number, callback: Function) {
+function wait(entityIds: string[], timeoutMs: number, callback: (entities: Entity[]) => void) {
     const index: Record<string, any> = {};
     let earlyOut = true;
 
@@ -27,7 +27,9 @@ function wait(entityIds: string[], timeoutMs: number, callback: Function) {
 
     if (earlyOut) {
         callback(entityIds.map((id: string) => index[id]));
-        return () => { };
+        return () => {
+            /* intentionally empty */
+        };
     }
 
     let timeout: ReturnType<typeof setTimeout>;
@@ -52,7 +54,7 @@ function wait(entityIds: string[], timeoutMs: number, callback: Function) {
 
     const onAdd = (entity: Entity) => {
         const id = entity.get('resource_id');
-        if (!index.hasOwnProperty(id)) {
+        if (!Object.hasOwn(index, id)) {
             return;
         }
 

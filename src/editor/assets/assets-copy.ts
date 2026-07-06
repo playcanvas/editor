@@ -1,5 +1,4 @@
 editor.once('load', () => {
-
     // Copy the asset data into local storage
     editor.method('assets:copy', (assets) => {
         const clipboard = editor.call('clipboard');
@@ -8,7 +7,7 @@ editor.once('load', () => {
             type: 'asset',
             projectId: config.project.id,
             branchId: config.self.branch.id,
-            assets: assets.map(asset => asset.get('id'))
+            assets: assets.map((asset) => asset.get('id'))
         };
 
         const assetClipboardIds = assets.reduce((ids, asset) => {

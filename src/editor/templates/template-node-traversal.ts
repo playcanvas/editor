@@ -112,19 +112,14 @@ editor.once('load', () => {
         handleNode() {
             if (editor.call('template:attrUtils', 'insideArrayAtMissingIndex', this.data)) {
                 this.reportDiff();
-
             } else if (this.areNodesEqual()) {
                 this.traversal.addCurPathToKnown();
-
             } else if (this.pathStop()) {
                 this.reportDiff();
-
             } else if (this.pathAttrs()) {
                 this.handleAttrs();
-
             } else if (this.areBothNodesMaps()) {
                 this.traversal.makeRecursiveCalls();
-
             } else {
                 this.reportDiff();
             }
@@ -133,10 +128,8 @@ editor.once('load', () => {
         handleAttrs() {
             if (editor.call('template:attrUtils', 'isJsonArrayNode', this.data)) {
                 this.traversal.callArrayRecursion();
-
             } else if (editor.call('template:attrUtils', 'isJsonMapNode', this.data)) {
                 this.traversal.makeRecursiveCalls();
-
             } else {
                 const h = editor.call('template:attrUtils', 'conflictFieldsForAttr', this.data);
 
@@ -145,8 +138,7 @@ editor.once('load', () => {
         }
 
         areNodesEqual() {
-            return editor.call(
-                'assets:isDeepEqual', this.data.node1, this.data.node2);
+            return editor.call('assets:isDeepEqual', this.data.node1, this.data.node2);
         }
 
         areBothNodesMaps() {
@@ -156,21 +148,11 @@ editor.once('load', () => {
         }
 
         pathStop() {
-            return editor.call(
-                'template:utils',
-                'isPathInSchema',
-                this.fullPath,
-                'stop_and_report_conflict'
-            );
+            return editor.call('template:utils', 'isPathInSchema', this.fullPath, 'stop_and_report_conflict');
         }
 
         pathAttrs() {
-            return editor.call(
-                'template:utils',
-                'isPathInSchema',
-                this.fullPath,
-                'merge_entity_script_attributes'
-            );
+            return editor.call('template:utils', 'isPathInSchema', this.fullPath, 'merge_entity_script_attributes');
         }
 
         reportDiff(extraFields: Record<string, unknown> = {}): void {
@@ -272,15 +254,13 @@ editor.once('load', () => {
         nodeFromRoot(type: string): unknown {
             const root = this.data.typeToRoot[type];
 
-            return editor.call(
-                'template:utils', 'getNodeAtPath', root, this.data.path);
+            return editor.call('template:utils', 'getNodeAtPath', root, this.data.path);
         }
 
         parentFromRoot(type: string): unknown {
             const root = this.data.typeToRoot[type];
 
-            return editor.call(
-                'template:utils', 'getParentAtPath', root, this.data.path);
+            return editor.call('template:utils', 'getParentAtPath', root, this.data.path);
         }
     }
 
@@ -299,7 +279,10 @@ editor.once('load', () => {
      *
      * @param data - Traversal state data with fields: typeToRoot, conflicts, path, type1.
      */
-    editor.method('assets:templateNodeTraversal', (data: { typeToRoot: Record<string, unknown>; conflicts: unknown[]; path: string[]; type1: string }) => {
-        new NodeTraversal(data).run();
-    });
+    editor.method(
+        'assets:templateNodeTraversal',
+        (data: { typeToRoot: Record<string, unknown>; conflicts: unknown[]; path: string[]; type1: string }) => {
+            new NodeTraversal(data).run();
+        }
+    );
 });

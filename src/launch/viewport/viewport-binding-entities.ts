@@ -7,7 +7,7 @@ editor.once('load', () => {
     } // webgl not available
 
     // entities awaiting parent
-    const awaitingParent = { };
+    const awaitingParent = {};
 
     // queue for hierarchy resync
     let awaitingResyncHierarchy = false;
@@ -49,7 +49,6 @@ editor.once('load', () => {
         if (!obj.get('parent')) {
             // root
             app.root.addChild(entity);
-
         } else {
             // get parent
             let parent = editor.call('entities:get', obj.get('parent'));
@@ -74,8 +73,7 @@ editor.once('load', () => {
         // check if there are awaiting children
         if (awaitingParent[obj.get('resource_id')]) {
             // add all awaiting children
-            for (let i = 0; i < awaitingParent[obj.get('resource_id')].length; i++) {
-                const awaiting = awaitingParent[obj.get('resource_id')][i];
+            for (const awaiting of awaitingParent[obj.get('resource_id')]) {
                 entity.addChild(app.root.findByGuid(awaiting.get('resource_id')));
             }
 
@@ -112,8 +110,7 @@ editor.once('load', () => {
         awaitingComponentCreation = false;
 
         // Process all pending entities - add components now that all entities exist
-        for (let i = 0; i < pendingEntities.length; i++) {
-            const pending = pendingEntities[i];
+        for (const pending of pendingEntities) {
             addEntityComponents(pending.entity, pending.obj);
         }
         pendingEntities.length = 0;
@@ -175,20 +172,15 @@ editor.once('load', () => {
 
             if (path === 'name') {
                 entity.name = obj.get('name');
-
             } else if (path.startsWith('position')) {
                 resetPhysics(entity);
-
             } else if (path.startsWith('rotation')) {
                 resetPhysics(entity);
-
             } else if (path.startsWith('scale')) {
                 resetPhysics(entity);
-
             } else if (path.startsWith('enabled')) {
                 const hidden = editor.call('entities:visibility:isHidden', obj.get('resource_id'));
                 entity.enabled = obj.get('enabled') && !hidden;
-
             } else if (path.startsWith('parent')) {
                 const parent = editor.call('entities:get', obj.get('parent'));
                 if (parent && parent.entity && entity.parent !== parent.entity) {

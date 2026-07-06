@@ -6,7 +6,7 @@ const SUCCESS_CODES = [
     200, // OK
     201, // Created
     202, // Accepted
-    204  // No Content
+    204 // No Content
 ];
 
 type AjaxArgs = {
@@ -36,7 +36,7 @@ type AjaxArgs = {
 
     // Whether the response is not JSON.
     notJson?: boolean;
-}
+};
 
 class Ajax<T> extends Events {
     private _xhr: XMLHttpRequest;
@@ -114,7 +114,11 @@ class Ajax<T> extends Events {
         this._notJson = args.notJson || false;
 
         // header for PUT/POST (don't add automatically if sending form [binary] data)
-        if (!args.ignoreContentType && (args.method === 'PUT' || args.method === 'POST' || args.method === 'DELETE') && (args.mimeType !== 'multipart/form-data')) {
+        if (
+            !args.ignoreContentType &&
+            (args.method === 'PUT' || args.method === 'POST' || args.method === 'DELETE') &&
+            args.mimeType !== 'multipart/form-data'
+        ) {
             this._xhr.setRequestHeader('Content-Type', 'application/json');
         }
 
@@ -133,7 +137,7 @@ class Ajax<T> extends Events {
         if (args.data) {
             if (args.data instanceof FormData) {
                 body = args.data;
-            } else if (typeof (args.data) === 'string') {
+            } else if (typeof args.data === 'string') {
                 body = args.data;
             } else {
                 body = JSON.stringify(args.data);

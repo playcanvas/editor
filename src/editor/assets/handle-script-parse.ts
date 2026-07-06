@@ -4,15 +4,14 @@ import { WorkerClient } from '@/core/worker/worker-client';
 editor.once('load', () => {
     const genGUID = () => {
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-            const r = Math.random() * 16 | 0;
-            const v = c === 'x' ? r : (r & 0x3 | 0x8);
+            const r = (Math.random() * 16) | 0;
+            const v = c === 'x' ? r : (r & 0x3) | 0x8;
             return v.toString(16);
         });
     };
 
     const importEngine = async (url) => {
         if (url.endsWith('.mjs')) {
-            // @ts-ignore
             return await import(url);
         }
 
@@ -21,19 +20,20 @@ editor.once('load', () => {
         const module = {
             exports: {}
         };
-        // eslint-disable-next-line no-new-func
+
         return (Function('module', 'exports', text).call(module, module, module.exports), module).exports;
     };
 
     const isEsmSupportedInEngine = (url) => {
         // a slow or failed engine fetch must not throw out of the parse path (which
         // would leave the parse callback unresolved); treat any failure as unsupported
-        return importEngine(url).then(pc => !!pc?.Script).catch(() => false);
+        return importEngine(url)
+            .then((pc) => !!pc?.Script)
+            .catch(() => false);
     };
 
     const workerClient = new WorkerClient(`${config.url.frontend}js/esm-script.worker.js`);
     workerClient.once('init', async () => {
-
         const typesURL = config.url.engine.replace(/(\.min|\.dbg|\.prf)?\.js$/, '.d.ts');
         const res = await fetch(typesURL);
         const types = await res.text();
@@ -95,7 +95,9 @@ editor.once('load', () => {
 
         const postUrl = (asset) => {
             const encodedFileName = encodeURIComponent(asset.get('file.filename'));
-            return buildQueryUrl(`/api/assets/${asset.get('id')}/file/${encodedFileName}`, { branchId: config.self.branch.id });
+            return buildQueryUrl(`/api/assets/${asset.get('id')}/file/${encodedFileName}`, {
+                branchId: config.self.branch.id
+            });
         };
 
         workerClient.on('attributes:parse', (guid, scripts, scriptsInvalid) => {
@@ -121,9 +123,11 @@ editor.once('load', () => {
 
             // Get all the files that no longer exist. ie files in the cache, but not in esmScripts
             const deletedFiles = [];
-            const esmPaths = new Set(assets
-            .filter(asset => editor.call('assets:isModule', asset))
-            .map(asset => editor.call('assets:virtualPath', asset)));
+            const esmPaths = new Set(
+                assets
+                    .filter((asset) => editor.call('assets:isModule', asset))
+                    .map((asset) => editor.call('assets:virtualPath', asset))
+            );
 
             // loop over the file cache, remove any files that do no exist in the script assets
             for (const path of fileCache.keys()) {
@@ -133,34 +137,36 @@ editor.once('load', () => {
                 }
             }
 
-            const scripts = await Promise.all(assets.map(async (asset) => {
-                if (!editor.call('assets:isModule', asset)) {
-                    return;
-                }
+            const scripts = await Promise.all(
+                assets.map(async (asset) => {
+                    if (!editor.call('assets:isModule', asset)) {
+                        return;
+                    }
 
-                const path = editor.call('assets:virtualPath', asset);
-                if (pathFilter.includes(path)) {
-                    return;
-                }
+                    const path = editor.call('assets:virtualPath', asset);
+                    if (pathFilter.includes(path)) {
+                        return;
+                    }
 
-                const hash = asset.get('file.hash');
-                if (fileCache.get(path) === hash) {
-                    return;
-                }
+                    const hash = asset.get('file.hash');
+                    if (fileCache.get(path) === hash) {
+                        return;
+                    }
 
-                // Attempt to fetch the script
-                try {
-                    const url = editor.call('assets:realPath', asset);
-                    const res = await fetch(url);
-                    const content = await res.text();
-                    fileCache.set(path, hash);
-                    return [path, content];
-                } catch (e) {
-                    console.error(`Failed to fetch ESM script ${path}`, e);
-                }
-            }));
+                    // Attempt to fetch the script
+                    try {
+                        const url = editor.call('assets:realPath', asset);
+                        const res = await fetch(url);
+                        const content = await res.text();
+                        fileCache.set(path, hash);
+                        return [path, content];
+                    } catch (e) {
+                        console.error(`Failed to fetch ESM script ${path}`, e);
+                    }
+                })
+            );
 
-            return [scripts.filter(script => !!script), deletedFiles];
+            return [scripts.filter((script) => !!script), deletedFiles];
         };
 
         const classicParse = (asset, inEditor, callback) => {
@@ -192,7 +198,8 @@ editor.once('load', () => {
             if (editor.call('assets:isModule', asset)) {
                 // FIXME: just check engine version directly
                 if (!(await isEsmSupportedInEngine(config.url.engine))) {
-                    const msg = 'ESM scripts are not supported in this version of the engine. Please update to the latest version.';
+                    const msg =
+                        'ESM scripts are not supported in this version of the engine. Please update to the latest version.';
                     editor.call('status:error', msg);
                     // always settle the callback, otherwise assets.createScript() hangs
                     callback?.(new Error(msg), undefined);
