@@ -5,7 +5,7 @@
 - TypeScript frontend for the PlayCanvas web-based 3D editor
 - Build: Rollup + SWC | Styles: SASS | Lint: ESLint 9 + Stylelint 16 | Test: Mocha + Chai
 - Node >=22.x (see `.nvmrc`)
-- Commands: `npm run build`, `npm run develop`, `npm run lint`, `npm test`, `npm run type:check`
+- Commands: `npm run build`, `npm run develop`, `npm run lint`, `npm run fmt`, `npm test`, `npm run typecheck`
 
 ## How the Editor Loads
 

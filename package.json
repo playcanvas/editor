@@ -63,6 +63,7 @@
     "ot-text": "github:playcanvas/ot-text",
     "playcanvas": "2.20.6",
     "postcss": "8.5.12",
+    "prettier": "3.9.4",
     "rollup": "4.59.0",
     "rollup-plugin-polyfill-node": "0.13.0",
     "sass-embedded": "1.98.0",
@@ -81,12 +82,14 @@
   "scripts": {
     "build": "cross-env NODE_ENV=production vite build",
     "develop": "concurrently --kill-others \"npm run watch\" \"npm run serve\"",
+    "fmt": "prettier --check .",
+    "fmt:fix": "prettier --write .",
     "lint": "stylelint sass && eslint",
     "lint:fix": "stylelint sass --fix && eslint --fix",
     "serve": "serve dist -p 3487 --cors",
     "test": "mocha",
     "test:api": "rollup -c test/editor-api/rollup.test.config.mjs && karma start test/editor-api/karma.conf.cjs --single-run",
-    "type:check": "tsc",
+    "typecheck": "tsc",
     "watch": "cross-env NODE_ENV=development vite build --watch"
   },
   "engines": {

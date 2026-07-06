@@ -1,0 +1,19 @@
+# Dependencies
+node_modules
+package-lock.json
+
+# Build/cache output
+dist
+test-results
+
+# Generated/vendored sources
+src/realtime/share.uncompressed.js
+src/wasm
+static
+
+# Owned by stylelint
+sass
+
+# Separate tooling/package
+test/editor-api
+test-suite

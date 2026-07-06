@@ -44,8 +44,11 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      - name: Run ESLint
+      - name: Run Linter
         run: npm run lint
+
+      - name: Run Formatter
+        run: npm run fmt
 
   test:
     name: Test

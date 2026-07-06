@@ -110,7 +110,8 @@ editor/
    ```bash
    npm test
    npm run lint
-   npm run type:check
+   npm run fmt
+   npm run typecheck
    ```
 
 3. **Build the project** to ensure everything compiles:
@@ -243,8 +244,11 @@ npm run watch:js
 # Run linting
 npm run lint
 
+# Check formatting
+npm run fmt
+
 # Type checking
-npm run type:check
+npm run typecheck
 
 # Serve built files
 npm run serve
