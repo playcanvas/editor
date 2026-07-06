@@ -32,20 +32,16 @@ editor.once('load', () => {
     // display device type popup
     const app = editor.call('viewport:app');
     const nameMap = {
-        [pc.DEVICETYPE_WEBGPU]: `WebGPU${editor.projectEngineV2 ? '' : ' (beta)'}`,
+        [pc.DEVICETYPE_WEBGPU]: 'WebGPU',
         [pc.DEVICETYPE_WEBGL2]: 'WebGL 2.0',
-        [pc.DEVICETYPE_WEBGL1]: 'WebGL 1.0',
         [pc.DEVICETYPE_NULL]: 'Null'
     };
-    const getDeviceType = (isWebGPU, isWebGL2, isWebGL1) => {
+    const getDeviceType = (isWebGPU, isWebGL2) => {
         if (isWebGPU) {
             return pc.DEVICETYPE_WEBGPU;
         }
         if (isWebGL2) {
             return pc.DEVICETYPE_WEBGL2;
-        }
-        if (isWebGL1) {
-            return pc.DEVICETYPE_WEBGL1;
         }
         return pc.DEVICETYPE_NULL;
     };
@@ -60,10 +56,10 @@ editor.once('load', () => {
             device.isWebGL1 = !device.webgl2;
         }
 
-        const projectDeviceType = getDeviceType(enableWebGpu, enableWebGl2, !editor.projectEngineV2);
+        const projectDeviceType = getDeviceType(enableWebGpu, enableWebGl2);
         const paramDeviceType = Object.keys(nameMap).includes(deviceType) ? deviceType : pc.DEVICETYPE_NULL;
         const currentDeviceType = paramDeviceType === pc.DEVICETYPE_NULL ? projectDeviceType : paramDeviceType;
-        const actualDeviceType = getDeviceType(device.isWebGPU, device.isWebGL2, device.isWebGL1);
+        const actualDeviceType = getDeviceType(device.isWebGPU, device.isWebGL2);
 
         if (currentDeviceType !== actualDeviceType) {
             showTooltipMessage(`${nameMap[currentDeviceType]} graphics device not supported. You are currently using the graphics device: ${nameMap[actualDeviceType]}`);

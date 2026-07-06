@@ -27,11 +27,6 @@ class Editor<T extends EditorMethods> extends Caller<T> {
     isCodeEditor: boolean = false;
 
     /**
-     * Whether the Editor project is using engine v2.
-     */
-    projectEngineV2: boolean = ('settings' in config.project) ? (config.project.settings as Record<string, any>)?.engineV2 ?? false : false;
-
-    /**
      * Editor API history global
      */
     history: typeof api.globals.history;

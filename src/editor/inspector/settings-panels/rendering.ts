@@ -1,7 +1,5 @@
 import { Button, Label, Overlay } from '@playcanvas/pcui';
 
-import { TONEMAPPING } from '@/core/constants';
-
 import { BaseSettingsPanel, type BaseSettingsPanelArgs } from './base';
 import type { Attribute, Divider } from '../attribute.type.d';
 
@@ -254,22 +252,6 @@ const ATTRIBUTES: (Attribute | Divider)[] = [
     },
     {
         observer: 'sceneSettings',
-        label: 'Tonemapping',
-        reference: 'settings:toneMapping',
-        path: 'render.tonemapping',
-        type: 'select',
-        args: {
-            type: 'number',
-            options: TONEMAPPING.map((v, i) => {
-                return {
-                    v: i,
-                    t: v
-                };
-            })
-        }
-    },
-    {
-        observer: 'sceneSettings',
         label: 'Exposure',
         path: 'render.exposure',
         reference: 'settings:exposure',
@@ -277,26 +259,6 @@ const ATTRIBUTES: (Attribute | Divider)[] = [
         args: {
             min: 0,
             max: 8
-        }
-    },
-    {
-        observer: 'sceneSettings',
-        label: 'Gamma',
-        reference: 'settings:gammaCorrection',
-        path: 'render.gamma_correction',
-        type: 'select',
-        args: {
-            type: 'number',
-            options: [
-                {
-                    v: 0,
-                    t: '1.0'
-                },
-                {
-                    v: 1,
-                    t: '2.2'
-                }
-            ]
         }
     },
     {
@@ -454,7 +416,7 @@ const ATTRIBUTES: (Attribute | Divider)[] = [
     },
     {
         observer: 'projectSettings',
-        label: `Enable WebGPU${editor.projectEngineV2 ? '' : ' (beta)'}`,
+        label: 'Enable WebGPU',
         type: 'boolean',
         reference: 'settings:project:enableWebGpu',
         path: 'enableWebGpu'
@@ -697,9 +659,8 @@ class RenderingSettingsPanel extends BaseSettingsPanel {
 
         const onDeviceChange = () => {
             (deviceOrder as Label).text = [
-                enableWebGpu.value ? `WebGPU${editor.projectEngineV2 ? '' : ' (beta)'}` : '',
-                enableWebGl2.value ? 'WebGL 2.0' : '',
-                editor.projectEngineV2 ? '' : 'WebGL 1.0'
+                enableWebGpu.value ? 'WebGPU' : '',
+                enableWebGl2.value ? 'WebGL 2.0' : ''
             ].filter(Boolean).join(' ► ');
             setTimeout(() => editor.emit('toolbar:launch:refresh'));
         };
@@ -707,9 +668,6 @@ class RenderingSettingsPanel extends BaseSettingsPanel {
         enableWebGl2.on('change', onDeviceChange);
 
         onDeviceChange();
-
-        this._attributesInspector.getField('render.tonemapping').parent.hidden = editor.projectEngineV2;
-        this._attributesInspector.getField('render.gamma_correction').parent.hidden = editor.projectEngineV2;
     }
 
     showReloadDialog() {

@@ -172,9 +172,6 @@ class CameraComponentInspector extends ComponentInspector {
             this._field(field).on('change', this._toggleFields.bind(this));
         });
 
-        this._attributesInspector.getField('divider:0').hidden = !editor.projectEngineV2;
-        this._field('toneMapping').parent.hidden = !editor.projectEngineV2;
-        this._field('gammaCorrection').parent.hidden = !editor.projectEngineV2;
     }
 
     _toggleFields() {

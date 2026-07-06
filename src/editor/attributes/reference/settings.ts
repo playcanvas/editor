@@ -298,8 +298,8 @@ editor.once('load', () => {
         description: 'The order in which attempts are made to create the graphics devices.'
     }, {
         name: 'settings:project:enableWebGpu',
-        title: `Enable WebGPU${editor.projectEngineV2 ? '' : ' (beta)'}`,
-        description: `When enabled, the application will try to use WebGPU${editor.projectEngineV2 ? '' : ' (beta)'} if available.`
+        title: 'Enable WebGPU',
+        description: 'When enabled, the application will try to use WebGPU if available.'
     }, {
         name: 'settings:project:enableWebGl2',
         title: 'Enable WebGL 2.0',
