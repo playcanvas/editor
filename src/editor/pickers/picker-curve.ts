@@ -959,7 +959,7 @@ editor.once('load', () => {
     // if we only have one curve then
     // use 'swizzle' - an array of indexes
     // that remaps other arrays to different colors
-    var getColorSwizzle = function () {
+    const getColorSwizzle = function () {
         let result = [0, 1, 2, 3];
         if (gradient && curves.length === 1) {
             if (curveNames[0] === 'g') {
@@ -1548,7 +1548,7 @@ editor.once('load', () => {
     });
 
     // Handles mouse move
-    var onMouseMove = function (e: MouseEvent) {
+    const onMouseMove = function (e: MouseEvent) {
         const coords = getTargetCoords(e);
 
         // if we are dragging the selected anchor
@@ -1592,7 +1592,7 @@ editor.once('load', () => {
     };
 
     // Handles mouse up
-    var onMouseUp = function (e: MouseEvent) {
+    const onMouseUp = function (e: MouseEvent) {
         toggleTextSelection(true);
 
         if (e.button === 0) {
@@ -1630,7 +1630,7 @@ editor.once('load', () => {
     };
 
     // Handle mouse wheel
-    var onMouseWheel = function (e: WheelEvent) {
+    const onMouseWheel = function (e: WheelEvent) {
         e.stopPropagation();
         if (e.deltaY > 0) {
             adjustZoom(-0.3);

@@ -23,7 +23,7 @@ editor.once('load', () => {
     // update entities stored properties with whatever the realtime element
     // has - that's because depending on the screen size an element might not have
     // the correct properties when inspected so make sure these are right
-    var updateElementProperties = function (entity: EntityObserver): void {
+    const updateElementProperties = function (entity: EntityObserver): void {
         if (!entity.entity || !entity.has('components.element')) {
             return;
         }
@@ -62,7 +62,7 @@ editor.once('load', () => {
         });
     };
 
-    var addEvents = function (entity: EntityObserver): void {
+    const addEvents = function (entity: EntityObserver): void {
         const setting: {
             position?: boolean;
             anchor?: boolean;
@@ -378,7 +378,7 @@ editor.once('load', () => {
         );
     };
 
-    var clear = function (): void {
+    const clear = function (): void {
         for (let i = 0, len = events.length; i < len; i++) {
             events[i].unbind();
         }

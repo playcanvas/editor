@@ -111,6 +111,7 @@ export default [
         ignores: [
             '**/node_modules/**',
             '**/dist/**',
+            '.claude/**',
             'src/realtime/share.uncompressed.js', // added when serving
             'src/wasm/**/*.js',
             'test/editor-api',

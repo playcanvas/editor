@@ -325,7 +325,7 @@ editor.once('load', () => {
     });
 
     editor.method('entities:contextmenu:add', (data) => {
-        var item = new MenuItem({
+        const item = new MenuItem({
             text: data.text,
             icon: data.icon,
             items: data.items,

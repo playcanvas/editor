@@ -74,7 +74,9 @@ editor.once('load', () => {
         }
     };
 
-    editor.on('sourcefiles:load', (obs) => {});
+    editor.on('sourcefiles:load', (obs) => {
+        // no-op
+    });
 
     const root = editor.call('layout.root');
 

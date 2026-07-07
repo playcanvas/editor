@@ -414,7 +414,7 @@ editor.once('load', () => {
             });
             const jobId = response.jobId;
 
-            var evt = editor.on('messenger:job.update', (msg) => {
+            const evt = editor.on('messenger:job.update', (msg) => {
                 if (msg.job.id === jobId) {
                     evt.unbind();
 

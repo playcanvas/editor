@@ -57,7 +57,7 @@ editor.once('load', () => {
             checkState(item);
         };
 
-        var item = (index[id] = {
+        const item = (index[id] = {
             id: id,
             entity: entity,
             active: false,

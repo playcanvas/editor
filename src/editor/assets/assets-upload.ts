@@ -170,7 +170,7 @@ editor.once('load', () => {
                     return;
                 }
                 let currentFolder;
-                var interval = setInterval(() => {
+                const interval = setInterval(() => {
                     const asset = editor.api.globals.assets.get(assetId);
                     if (asset) {
                         currentFolder = asset.observer;

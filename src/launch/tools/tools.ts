@@ -74,8 +74,7 @@ editor.once('load', () => {
             barMove: false
         }
     };
-
-    let resize;
+    let resize = undefined;
 
     editor.method('tools:enabled', () => {
         return enabled;

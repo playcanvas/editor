@@ -150,7 +150,7 @@ editor.once('load', () => {
         panelWidget.append(fieldFilter);
 
         // assets
-        let fieldAssets;
+        let fieldAssets = undefined;
         const fieldAssetsList = createList();
         fieldAssetsList.class.add('empty');
         fieldAssetsList.flexGrow = 1;
@@ -350,7 +350,7 @@ editor.once('load', () => {
         };
 
         // drop
-        var dropRef = editor.call('drop:target', {
+        const dropRef = editor.call('drop:target', {
             ref: panelWidget,
             type: `asset.${assetType}`,
             filter: function (type: string, data: { id: string }) {

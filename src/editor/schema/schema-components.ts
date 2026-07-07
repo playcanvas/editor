@@ -16,7 +16,7 @@ editor.once('load', () => {
             continue;
         }
 
-        var title;
+        let title;
         switch (componentName) {
             case 'audiosource':
                 title = 'Audio Source';

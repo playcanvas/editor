@@ -321,7 +321,7 @@ editor.once('load', () => {
         });
 
         // Undoable action - change the size of the array of each link
-        var changeArraySize = function (size: number) {
+        const changeArraySize = function (size: number) {
             let prev;
 
             const redo = function () {
@@ -440,7 +440,7 @@ editor.once('load', () => {
 
     // Returns the default value for a new array element
     // based on the args provided
-    var getDefaultValue = function (args: { type?: string; color?: unknown[]; curves?: unknown[] }) {
+    const getDefaultValue = function (args: { type?: string; color?: unknown[]; curves?: unknown[] }) {
         let result = null;
 
         if (defaults[args.type] !== undefined) {

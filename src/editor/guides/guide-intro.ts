@@ -274,7 +274,7 @@ editor.once('load', () => {
 
         // entity bubble on select entity
         if (config.self.flags.tips.entityInspector === false) {
-            var evtEntitySelect = editor.on('selector:change', (type: string | null, items: Observer[]) => {
+            const evtEntitySelect = editor.on('selector:change', (type: string | null, items: Observer[]) => {
                 if (type !== 'entity') {
                     return;
                 }
@@ -287,7 +287,7 @@ editor.once('load', () => {
 
         // sound component bubble
         if (!config.self.flags.tips.soundComponent) {
-            var evtEntityWithSoundSelect = editor.on('selector:change', (type: string | null, items: Observer[]) => {
+            const evtEntityWithSoundSelect = editor.on('selector:change', (type: string | null, items: Observer[]) => {
                 if (selectEvents) {
                     selectEvents.forEach((evt: { unbind: () => void }) => {
                         evt.unbind();

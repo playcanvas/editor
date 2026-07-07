@@ -220,7 +220,9 @@ const withCurveLink = (field: any, arrayValue = true) => {
 
 const createCurveInput = (args: any = {}) => {
     const field = withCurveLink(withCompat(new CurveInput(args), 'ui-curve-field'));
-    field._openCurvePicker = () => {};
+    field._openCurvePicker = () => {
+        // no-op
+    };
     return field;
 };
 

@@ -395,7 +395,7 @@ editor.once('load', () => {
             }
         });
 
-        var onTapStart = function (tap: { button: number; x: number; y: number }) {
+        const onTapStart = function (tap: { button: number; x: number; y: number }) {
             if (moving || tap.button !== 0) {
                 return;
             }
@@ -482,7 +482,7 @@ editor.once('load', () => {
             }
         };
 
-        var pickPlane = function (x: number, y: number): Vec3 {
+        const pickPlane = function (x: number, y: number): Vec3 {
             const camera = editor.call('camera:current');
 
             const mouseWPos = camera.camera.screenToWorld(x, y, camera.camera.farClip);

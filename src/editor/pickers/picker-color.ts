@@ -119,7 +119,7 @@ editor.once('load', () => {
     };
 
     // update rgb
-    var updateRects = function () {
+    const updateRects = function () {
         const color = channels
             .map((channel) => {
                 return channel.value || 0;
@@ -191,7 +191,7 @@ editor.once('load', () => {
                 .slice(0, channelsNumber)
         );
     };
-    var callCallback = function () {
+    const callCallback = function () {
         if (callingCallback) {
             return;
         }
@@ -210,7 +210,7 @@ editor.once('load', () => {
     overlay.domContent.classList.add('content');
 
     // rectangular picker
-    var pickRect = document.createElement('div');
+    const pickRect = document.createElement('div');
     pickRect.classList.add('pick-rect');
     overlay.append(pickRect);
 
@@ -238,12 +238,12 @@ editor.once('load', () => {
     pickRect.appendChild(pickRectBlack);
 
     // handle
-    var pickRectHandle = document.createElement('div');
+    const pickRectHandle = document.createElement('div');
     pickRectHandle.classList.add('handle');
     pickRect.appendChild(pickRectHandle);
 
     // hue (rainbow) picker
-    var pickHue = document.createElement('div');
+    const pickHue = document.createElement('div');
     pickHue.classList.add('pick-hue');
     overlay.append(pickHue);
 
@@ -261,7 +261,7 @@ editor.once('load', () => {
     });
 
     // handle
-    var pickHueHandle = document.createElement('div');
+    const pickHueHandle = document.createElement('div');
     pickHueHandle.classList.add('handle');
     pickHue.appendChild(pickHueHandle);
 
@@ -284,7 +284,7 @@ editor.once('load', () => {
     });
 
     // handle
-    var pickOpacityHandle = document.createElement('div');
+    const pickOpacityHandle = document.createElement('div');
     pickOpacityHandle.classList.add('handle');
     pickOpacity.appendChild(pickOpacityHandle);
 
@@ -340,7 +340,7 @@ editor.once('load', () => {
     panelFields.appendChild(fieldB.dom);
 
     // A
-    var fieldA = new NumericInput({
+    const fieldA = new NumericInput({
         precision: 1,
         step: 1,
         min: 0,
@@ -355,7 +355,7 @@ editor.once('load', () => {
     panelFields.appendChild(fieldA.dom);
 
     // HEX
-    var fieldHex = new TextInput({
+    const fieldHex = new TextInput({
         renderChanges: false,
         placeholder: '#'
     });

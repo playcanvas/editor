@@ -6,9 +6,8 @@ editor.once('load', () => {
     let data;
     let reconnectAttempts = 0;
     let reconnectInterval = 1;
-
-    let connect;
-    let reconnect;
+    let connect = undefined;
+    let reconnect = undefined;
 
     editor.method('realtime:connection', () => {
         return connection;

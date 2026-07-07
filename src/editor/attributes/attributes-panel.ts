@@ -80,7 +80,6 @@ editor.once('load', () => {
     };
 
     editor.method('attributes:linkField', (args) => {
-        let update, changeField, changeFieldQueue;
         args.field._changing = false;
         const events = [];
 
@@ -88,7 +87,7 @@ editor.once('load', () => {
             args.link = [args.link];
         }
 
-        update = function () {
+        const update = function () {
             let different = false;
             let values = null;
             let path = pathAt(args, 0);
@@ -205,7 +204,7 @@ editor.once('load', () => {
             }
         };
 
-        changeField = function (value: unknown) {
+        const changeField = function (value: unknown) {
             if (args.field._changing) {
                 return;
             }
@@ -309,7 +308,7 @@ editor.once('load', () => {
             }
         };
 
-        changeFieldQueue = function () {
+        const changeFieldQueue = function () {
             if (args.field._changing) {
                 return;
             }
@@ -582,11 +581,11 @@ editor.once('load', () => {
                 panel.append(field);
                 break;
 
-            case 'tags':
+            case 'tags': {
                 // TODO: why isn't this in a seperate class/file???
 
-                var innerPanel = createPanel();
-                var tagType = args.tagType || 'string';
+                const innerPanel = createPanel();
+                const tagType = args.tagType || 'string';
 
                 if (args.enum) {
                     field = createSelectInput({
@@ -639,16 +638,16 @@ editor.once('load', () => {
                     innerPanel.append(btnAdd);
                 }
 
-                var tagsPanel = createPanel();
+                const tagsPanel = createPanel();
                 tagsPanel.class.add('tags');
                 tagsPanel.flex = true;
                 innerPanel.append(tagsPanel);
 
-                var tagItems = {};
-                var tagIndex = {};
-                var tagList = [];
+                let tagItems = {};
+                let tagIndex = {};
+                let tagList = [];
 
-                var onRemoveClick = function () {
+                const onRemoveClick = function () {
                     if (innerPanel.disabled) {
                         return;
                     }
@@ -656,7 +655,7 @@ editor.once('load', () => {
                     removeTag(this.tag);
                 };
 
-                var removeTag = function (tag: string | number) {
+                const removeTag = function (tag: string | number) {
                     if (tagType === 'string' && !tag) {
                         return;
                     }
@@ -664,7 +663,7 @@ editor.once('load', () => {
                         return;
                     }
 
-                    if (!tagIndex.hasOwnProperty(tag)) {
+                    if (!Object.hasOwn(tagIndex, tag)) {
                         return;
                     }
 
@@ -719,7 +718,7 @@ editor.once('load', () => {
                     }
                 };
 
-                var addTag = function (tag: string | number) {
+                const addTag = function (tag: string | number) {
                     const records = [];
 
                     // convert to number if needed
@@ -780,8 +779,8 @@ editor.once('load', () => {
                     }
                 };
 
-                var onInsert = function (tag: string | number) {
-                    if (!tagIndex.hasOwnProperty(tag)) {
+                const onInsert = function (tag: string | number) {
+                    if (!Object.hasOwn(tagIndex, tag)) {
                         tagIndex[tag] = 0;
                         tagList.push(tag);
                     }
@@ -790,7 +789,7 @@ editor.once('load', () => {
                     insertElement(tag);
                 };
 
-                var onRemove = function (tag: string | number) {
+                const onRemove = function (tag: string | number) {
                     if (!tagIndex[tag]) {
                         return;
                     }
@@ -816,7 +815,7 @@ editor.once('load', () => {
                 };
 
                 // when tag field is initialized
-                var onSet = function (values: (string | number)[], oldValues?: (string | number)[]) {
+                const onSet = function (values: (string | number)[], oldValues?: (string | number)[]) {
                     if (oldValues) {
                         for (let i = 0; i < oldValues.length; i++) {
                             onRemove(oldValues[i]);
@@ -829,7 +828,7 @@ editor.once('load', () => {
                     }
                 };
 
-                var sortTags = function () {
+                const sortTags = function () {
                     tagList.sort((a, b) => {
                         if (args.tagToString) {
                             a = args.tagToString(a);
@@ -846,7 +845,7 @@ editor.once('load', () => {
                     });
                 };
 
-                var insertElement = function (tag: string | number) {
+                const insertElement = function (tag: string | number) {
                     if (!tagItems[tag]) {
                         sortTags();
 
@@ -921,7 +920,7 @@ editor.once('load', () => {
                                     continue;
                                 }
 
-                                if (!tagIndex.hasOwnProperty(tags[t])) {
+                                if (!Object.hasOwn(tagIndex, tags[t])) {
                                     tagIndex[tags[t]] = 0;
                                     tagList.push(tags[t]);
                                 }
@@ -960,6 +959,7 @@ editor.once('load', () => {
 
                 panel.append(innerPanel);
                 break;
+            }
 
             case 'text':
                 field = createTextAreaInput();
@@ -1041,8 +1041,8 @@ editor.once('load', () => {
 
             case 'vec2':
             case 'vec3':
-            case 'vec4':
-                var channels = parseInt(args.type[3], 10);
+            case 'vec4': {
+                const channels = parseInt(args.type[3], 10);
                 field = [];
 
                 for (let i = 0; i < channels; i++) {
@@ -1078,6 +1078,7 @@ editor.once('load', () => {
 
                 linkField();
                 break;
+            }
 
             case 'rgb':
                 field = createColorInput(args);
@@ -1179,7 +1180,7 @@ editor.once('load', () => {
                 panel.append(field);
                 break;
 
-            case 'curveset':
+            case 'curveset': {
                 field = createCurveInput(args);
                 field.flexGrow = 1;
                 field.text = args.text || '';
@@ -1196,9 +1197,9 @@ editor.once('load', () => {
                     field.link(link, args.canRandomize ? [path, `${path}2`] : [path]);
                 }
 
-                var curvePickerOn = false;
+                let curvePickerOn = false;
 
-                var toggleCurvePicker = function () {
+                const toggleCurvePicker = function () {
                     if (!field.class.contains('disabled') && !curvePickerOn) {
                         editor.call('picker:curve', field.value, args);
 
@@ -1344,6 +1345,7 @@ editor.once('load', () => {
 
                 panel.append(field);
                 break;
+            }
 
             case 'gradient':
                 field = createGradientInput(args);
