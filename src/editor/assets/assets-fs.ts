@@ -7,7 +7,8 @@ editor.once('load', () => {
         }
 
         const ids = [];
-        for (const asset of assets) {
+        for (let i = 0; i < assets.length; i++) {
+            const asset = assets[i];
             ids.push(parseInt(asset.get('uniqueId'), 10));
         }
 

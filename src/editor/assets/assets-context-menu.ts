@@ -304,7 +304,8 @@ editor.once('load', () => {
             keys.splice(scriptsIdx, 1);
         }
     }
-    for (const key of keys) {
+    for (let i = 0; i < keys.length; i++) {
+        const key = keys[i];
         if (!Object.prototype.hasOwnProperty.call(assets, key)) {
             continue;
         }
@@ -387,7 +388,8 @@ editor.once('load', () => {
 
                 if (type === 'asset') {
                     items = editor.call('selector:items');
-                    for (const item of items) {
+                    for (let i = 0; i < items.length; i++) {
+                        const item = items[i];
                         // if the asset that was right-clicked is in the selection
                         // then include all the other selected items
                         // otherwise only copy the right-clicked item
@@ -608,7 +610,8 @@ editor.once('load', () => {
 
                 if (type === 'asset') {
                     items = editor.call('selector:items');
-                    for (const item of items) {
+                    for (let i = 0; i < items.length; i++) {
+                        const item = items[i];
                         const assetType = item.get('type');
                         // if the asset that was right-clicked is in the selection
                         // then include all the other selected items in the delete
@@ -906,7 +909,8 @@ editor.once('load', () => {
                         return 0;
                     });
 
-                    for (const menuItem of menuItems) {
+                    for (let i = 0; i < menuItems.length; i++) {
+                        const menuItem = menuItems[i];
                         menuItemReferences.append(menuItem.element);
                     }
                 } else {

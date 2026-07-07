@@ -80,7 +80,8 @@ editor.once('load', () => {
 
     const pluginsPreload = projectSettings.get('plugins');
     if (pluginsPreload) {
-        for (const plugin of pluginsPreload) {
+        for (let i = 0; i < pluginsPreload.length; i++) {
+            const plugin = pluginsPreload[i];
             editor.call('plugins:load', plugin);
         }
     }

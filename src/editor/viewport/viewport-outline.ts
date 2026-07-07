@@ -56,7 +56,8 @@ editor.once('load', () => {
         // remove existing entities
         const existingEntities = userSelections.get(id);
         if (existingEntities) {
-            for (const existingEntity of existingEntities) {
+            for (let i = 0; i < existingEntities.length; i++) {
+                const existingEntity = existingEntities[i];
                 outlineRenderer.removeEntity(existingEntity, false);
             }
         }
@@ -64,7 +65,8 @@ editor.once('load', () => {
         // add new entities
         const color = getUserSelectionColor(id);
         userSelections.set(id, entities);
-        for (const entity of entities) {
+        for (let i = 0; i < entities.length; i++) {
+            const entity = entities[i];
             outlineRenderer.addEntity(entity, color, false);
         }
 
@@ -78,7 +80,8 @@ editor.once('load', () => {
         const entities = [];
 
         if (type === 'entity') {
-            for (const item of items) {
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
                 if (isSelectableEntity(item)) {
                     entities.push(item.entity);
                 }
@@ -93,7 +96,8 @@ editor.once('load', () => {
         const entities = [];
 
         if (data.type === 'entity') {
-            for (const entityId of data.ids) {
+            for (let i = 0; i < data.ids.length; i++) {
+                const entityId = data.ids[i];
                 const entity = editor.call('entities:get', entityId);
                 if (isSelectableEntity(entity)) {
                     entities.push(entity.entity);

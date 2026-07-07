@@ -154,7 +154,8 @@ class MergeFileEditor {
         }
 
         let currentGroup;
-        for (const overlay of sortedOverlays) {
+        for (let i = 0; i < sortedOverlays.length; i++) {
+            const overlay = sortedOverlays[i];
             if (!currentGroup) {
                 currentGroup = createOverlayGroup();
             }

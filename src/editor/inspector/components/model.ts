@@ -419,7 +419,8 @@ class ModelComponentInspector extends ComponentInspector {
     _getMeshInstanceName(index: number, entities: EntityObserver[]) {
         // get name of meshinstance from engine
         let meshInstanceName;
-        for (const entity of entities) {
+        for (let i = 0; i < entities.length; i++) {
+            const entity = entities[i];
             if (entity.entity && entity.entity.model && entity.entity.model.meshInstances) {
                 const mi = entity.entity.model.meshInstances[index];
                 if (mi) {

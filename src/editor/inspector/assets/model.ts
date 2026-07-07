@@ -363,7 +363,8 @@ class ModelAssetInspector extends Container {
 
         this._meshInstancesPanel.hidden = assets.length > 1;
         let hidePipelinePanel = false;
-        for (const asset of assets) {
+        for (let i = 0; i < assets.length; i++) {
+            const asset = assets[i];
             if (asset.get('file.filename').match(/.*\.glb$/)) {
                 hidePipelinePanel = true;
                 break;

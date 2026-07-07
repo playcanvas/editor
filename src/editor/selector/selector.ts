@@ -188,7 +188,8 @@ editor.once('load', () => {
             });
 
         // add
-        for (const item of items) {
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
             selector.add(item);
         }
     });

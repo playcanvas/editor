@@ -62,7 +62,8 @@ editor.once('load', () => {
             text: 'Save',
             onIsEnabled: () => {
                 const selected = editor.call('files:contextmenu:selected');
-                for (const doc of selected) {
+                for (let i = 0; i < selected.length; i++) {
+                    const doc = selected[i];
                     const id = doc.get('id');
                     if (editor.call('editor:command:can:save', id)) {
                         return true;
@@ -71,7 +72,8 @@ editor.once('load', () => {
             },
             onSelect: () => {
                 const selected = editor.call('files:contextmenu:selected');
-                for (const doc of selected) {
+                for (let i = 0; i < selected.length; i++) {
+                    const doc = selected[i];
                     const id = doc.get('id');
                     if (editor.call('editor:command:can:save', id)) {
                         editor.call('editor:command:save', id);

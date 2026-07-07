@@ -73,7 +73,8 @@ editor.once('load', () => {
         // check if there are awaiting children
         if (awaitingParent[obj.get('resource_id')]) {
             // add all awaiting children
-            for (const awaiting of awaitingParent[obj.get('resource_id')]) {
+            for (let i = 0; i < awaitingParent[obj.get('resource_id')].length; i++) {
+                const awaiting = awaitingParent[obj.get('resource_id')][i];
                 entity.addChild(app.root.findByGuid(awaiting.get('resource_id')));
             }
 
@@ -110,7 +111,8 @@ editor.once('load', () => {
         awaitingComponentCreation = false;
 
         // Process all pending entities - add components now that all entities exist
-        for (const pending of pendingEntities) {
+        for (let i = 0; i < pendingEntities.length; i++) {
+            const pending = pendingEntities[i];
             addEntityComponents(pending.entity, pending.obj);
         }
         pendingEntities.length = 0;

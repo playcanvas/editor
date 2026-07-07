@@ -701,7 +701,8 @@ class TemplateOverridesView extends Container {
                                 attributeName += `.${pathParts[6]}`;
                             }
 
-                            for (const schemaField of attributeOptions.schema) {
+                            for (let i = 0; i < attributeOptions.schema.length; i++) {
+                                const schemaField = attributeOptions.schema[i];
                                 if (schemaField.name === subField) {
                                     type = schemaField.type;
                                     isArray = schemaField.array;

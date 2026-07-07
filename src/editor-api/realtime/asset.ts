@@ -136,7 +136,8 @@ class RealtimeAsset extends Events {
             return;
         }
 
-        for (const op of ops) {
+        for (let i = 0; i < ops.length; i++) {
+            const op = ops[i];
             if (op.p[0]) {
                 this._realtime.emit('asset:op', op, this._uniqueId);
             }

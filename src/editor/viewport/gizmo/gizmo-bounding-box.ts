@@ -112,7 +112,8 @@ editor.once('load', () => {
 
             if (meshInstances) {
                 let first = true;
-                for (const meshInstance of meshInstances) {
+                for (let i = 0; i < meshInstances.length; i++) {
+                    const meshInstance = meshInstances[i];
                     if (meshInstance._hidden) {
                         continue;
                     }
@@ -267,7 +268,8 @@ editor.once('load', () => {
         }
 
         const children = root.children;
-        for (const child of children) {
+        for (let i = 0; i < children.length; i++) {
+            const child = children[i];
             if (child.__editor || !(child instanceof Entity)) {
                 continue;
             }

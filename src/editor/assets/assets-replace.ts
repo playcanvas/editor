@@ -20,7 +20,8 @@ editor.once('load', () => {
 
         const entities = editor.call('entities:list');
 
-        for (const obj of entities) {
+        for (let i = 0; i < entities.length; i++) {
+            const obj = entities[i];
             const element = obj.get('components.element');
             if (element && element.textureAsset === oldId) {
                 changed.push(obj);
@@ -36,7 +37,8 @@ editor.once('load', () => {
                         name: 'asset texture to sprite',
                         combine: false,
                         undo: function () {
-                            for (const c of changed) {
+                            for (let i = 0; i < changed.length; i++) {
+                                const c = changed[i];
                                 const obj = c.latest();
                                 if (!obj) {
                                     continue;
@@ -50,7 +52,8 @@ editor.once('load', () => {
                         },
 
                         redo: function () {
-                            for (const c of changed) {
+                            for (let i = 0; i < changed.length; i++) {
+                                const c = changed[i];
                                 const obj = c.latest();
                                 if (!obj) {
                                     continue;

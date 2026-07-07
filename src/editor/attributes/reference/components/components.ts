@@ -55,7 +55,8 @@ editor.once('load', () => {
         ...zone
     ];
 
-    for (const field of fields) {
+    for (let i = 0; i < fields.length; i++) {
+        const field = fields[i];
         editor.call('attributes:reference:add', field);
     }
 });

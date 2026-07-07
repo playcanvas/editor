@@ -56,7 +56,8 @@ editor.once('load', () => {
                 collisionStates[script] = {};
             }
 
-            for (const collider of collides) {
+            for (let i = 0; i < collides.length; i++) {
+                const collider = collides[i];
                 const key = collider.get('id');
                 if (collisionStates[script][key]) {
                     continue;
@@ -204,7 +205,8 @@ editor.once('load', () => {
         asset.on('*:set', function (path: string, value: unknown, old: unknown) {
             if (path === 'preload') {
                 const scripts = Object.keys(this.get('data.scripts'));
-                for (const scriptName of scripts) {
+                for (let i = 0; i < scripts.length; i++) {
+                    const scriptName = scripts[i];
                     checkCollisions(this, scriptName);
                 }
 

@@ -16,7 +16,8 @@ editor.once('load', () => {
         aabbA.add(editor.call('entities:getBoundingBoxForEntity', entity));
 
         const children = entity.children;
-        for (const child of children) {
+        for (let i = 0; i < children.length; i++) {
+            const child = children[i];
             if (!(child instanceof Entity) || child.__editor) {
                 continue;
             }

@@ -186,7 +186,8 @@ editor.once('load', () => {
             return asset.get('type') === 'sprite' && parseInt(asset.get('data.textureAtlasAsset'), 10) === atlasId;
         });
 
-        for (const spriteAsset of spriteAssets) {
+        for (let i = 0; i < spriteAssets.length; i++) {
+            const spriteAsset = spriteAssets[i];
             createSpriteItem(spriteAsset[1]);
         }
 

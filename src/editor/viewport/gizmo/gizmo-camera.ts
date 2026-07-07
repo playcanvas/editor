@@ -110,7 +110,8 @@ editor.once('load', () => {
 
             // transform lines according to camera transform
             const wtm = new Mat4().setTRS(this._link.entity.getPosition(), this._link.entity.getRotation(), Vec3.ONE);
-            for (const line of this.lines) {
+            for (let i = 0; i < this.lines.length; i++) {
+                const line = this.lines[i];
                 wtm.transformPoint(line, line);
             }
 
@@ -152,7 +153,8 @@ editor.once('load', () => {
                 return;
             }
 
-            for (const event of this.events) {
+            for (let i = 0; i < this.events.length; i++) {
+                const event = this.events[i];
                 event.unbind();
             }
 
@@ -175,7 +177,8 @@ editor.once('load', () => {
 
         // index selection
         const ids = {};
-        for (const item of items) {
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
             ids[item.get('resource_id')] = item;
         }
 

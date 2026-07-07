@@ -94,7 +94,8 @@ class CubemapFace extends Container {
     _setRgbmIfNeeded() {
         let allHdr = true;
         const textures = this._asset.get('data.textures');
-        for (const textureId of textures) {
+        for (let i = 0; i < textures.length; i++) {
+            const textureId = textures[i];
             if (textureId >= 0) {
                 const texture = editor.call('assets:get', textureId);
                 if (texture && !texture.get('data.rgbm')) {
@@ -166,7 +167,8 @@ class CubemapFace extends Container {
                 try {
                     let empty = true;
                     const faces = this._asset.get('data.textures');
-                    for (const face of faces) {
+                    for (let i = 0; i < faces.length; i++) {
+                        const face = faces[i];
                         if (face) {
                             empty = false;
                             break;

@@ -188,7 +188,8 @@ editor.once('load', () => {
 
         grabbedTab.tab.class.remove('grabbed');
 
-        for (const entry of tabOrder) {
+        for (let i = 0; i < tabOrder.length; i++) {
+            const entry = tabOrder[i];
             entry.tab.style.position = '';
             entry.tab.style.left = '';
             entry.tab.style.top = '';
@@ -223,7 +224,8 @@ editor.once('load', () => {
         // but first get their coords before we start
         // changing them
         const widths = [];
-        for (const entry of tabOrder) {
+        for (let i = 0; i < tabOrder.length; i++) {
+            const entry = tabOrder[i];
             tabPositions.push(entry.tab.dom.offsetLeft);
             widths.push(entry.tab.dom.offsetWidth);
         }
@@ -243,7 +245,8 @@ editor.once('load', () => {
                 return;
             }
 
-            for (const entry of tabOrder) {
+            for (let i = 0; i < tabOrder.length; i++) {
+                const entry = tabOrder[i];
                 if (entry !== grabbedTab) {
                     entry.tab.class.add('animated');
                 }

@@ -118,7 +118,8 @@ const TextureCompressor = {
      * check if recompression is needed first.
      */
     compress(assets: Observer[], formats: string[], force: boolean): void {
-        for (const asset of assets) {
+        for (let i = 0; i < assets.length; i++) {
+            const asset = assets[i];
             if (!asset.get('file')) {
                 continue;
             }

@@ -98,7 +98,8 @@ editor.once('viewport:load', (app) => {
         // Listen for radio button clicks
         renderOption.dom.addEventListener('click', () => {
             renderButton.text = name;
-            for (const renderRadioOption of renderRadioOptions) {
+            for (let i = 0; i < renderRadioOptions.length; i++) {
+                const renderRadioOption = renderRadioOptions[i];
                 renderRadioOption.value = false;
             }
             renderOptionRadio.value = true;
@@ -119,11 +120,13 @@ editor.once('viewport:load', (app) => {
         const renderStyle = state ? RENDERSTYLE_WIREFRAME : RENDERSTYLE_SOLID;
         const sceneLayers = app.scene.layers.layerList;
         const gizmoLayers = editor.call('gizmo:layers:list');
-        for (const layer of sceneLayers) {
+        for (let i = 0; i < sceneLayers.length; i++) {
+            const layer = sceneLayers[i];
             if (gizmoLayers.some((gizmoLayer) => gizmoLayer.id === layer.id)) {
                 continue;
             }
-            for (const meshInstance of layer.meshInstances) {
+            for (let i = 0; i < layer.meshInstances.length; i++) {
+                const meshInstance = layer.meshInstances[i];
                 meshInstance.renderStyle = renderStyle;
             }
         }

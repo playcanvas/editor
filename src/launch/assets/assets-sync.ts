@@ -35,7 +35,8 @@ editor.once('load', () => {
         }
 
         let path = '';
-        for (const folderId of folders) {
+        for (let i = 0; i < folders.length; i++) {
+            const folderId = folders[i];
             const folder = editor.call('assets:get', folderId);
             if (folder) {
                 path += `${encodeURIComponent(folder.get('name'))}/`;
@@ -82,7 +83,8 @@ editor.once('load', () => {
                     return;
                 }
 
-                for (const op of ops) {
+                for (let i = 0; i < ops.length; i++) {
+                    const op = ops[i];
                     editor.emit('realtime:op:assets', op, uniqueId);
                 }
             });
@@ -353,7 +355,8 @@ editor.once('load', () => {
         const loadScripts = function (wasmAssetIds: Record<string, number>) {
             const order = settings.get('scripts');
 
-            for (const scriptId of order) {
+            for (let i = 0; i < order.length; i++) {
+                const scriptId = order[i];
                 if (!scripts[scriptId]) {
                     continue;
                 }

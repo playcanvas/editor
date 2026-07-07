@@ -153,7 +153,8 @@ editor.once('load', () => {
 
         const elements = parseMessage(message);
         const fragment = document.createDocumentFragment();
-        for (const element of elements) {
+        for (let i = 0; i < elements.length; i++) {
+            const element = elements[i];
             fragment.appendChild(element);
         }
         text.appendChild(fragment);

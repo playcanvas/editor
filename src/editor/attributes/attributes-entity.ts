@@ -58,7 +58,8 @@ editor.once('load', () => {
             setTimeout(checkPanel);
         };
         checkPanel();
-        for (const entity of entities) {
+        for (let i = 0; i < entities.length; i++) {
+            const entity = entities[i];
             events.push(entity.on(`components.${name}:set`, queueCheckPanel));
             events.push(entity.on(`components.${name}:unset`, queueCheckPanel));
         }
@@ -82,7 +83,8 @@ editor.once('load', () => {
         fieldRemove.on('click', () => {
             const records = [];
 
-            for (const entity of entities) {
+            for (let i = 0; i < entities.length; i++) {
+                const entity = entities[i];
                 records.push({
                     item: entity,
                     value: entity.get(`components.${name}`)
@@ -97,7 +99,8 @@ editor.once('load', () => {
                 name: `entities.set[components.${name}]`,
                 combine: false,
                 undo: function () {
-                    for (const record of records) {
+                    for (let i = 0; i < records.length; i++) {
+                        const record = records[i];
                         const item = record.item.latest();
                         if (!item) {
                             continue;
@@ -109,7 +112,8 @@ editor.once('load', () => {
                     }
                 },
                 redo: function () {
-                    for (const record of records) {
+                    for (let i = 0; i < records.length; i++) {
+                        const record = records[i];
                         const item = record.item.latest();
                         if (!item) {
                             continue;

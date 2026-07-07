@@ -25,7 +25,8 @@ editor.once('load', () => {
     const setField = function (field: string, value: boolean) {
         const records = [];
 
-        for (const item of items) {
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
             records.push({
                 item: item,
                 value: value,
@@ -41,7 +42,8 @@ editor.once('load', () => {
             name: `entities.set[${field}]`,
             combine: false,
             undo: function () {
-                for (const record of records) {
+                for (let i = 0; i < records.length; i++) {
+                    const record = records[i];
                     const item = record.item.latest();
                     if (!item) {
                         continue;
@@ -53,7 +55,8 @@ editor.once('load', () => {
                 }
             },
             redo: function () {
-                for (const record of records) {
+                for (let i = 0; i < records.length; i++) {
+                    const record = records[i];
                     const item = record.item.latest();
                     if (!item) {
                         continue;
@@ -182,7 +185,8 @@ editor.once('load', () => {
             text: 'Show',
             icon: 'E117',
             onIsVisible: function () {
-                for (const item of items) {
+                for (let i = 0; i < items.length; i++) {
+                    const item = items[i];
                     if (editor.call('entities:visibility:isHidden', item.get('resource_id'))) {
                         return true;
                     }
@@ -203,7 +207,8 @@ editor.once('load', () => {
             icon: 'E117',
             class: 'entities-context-menu-hide',
             onIsVisible: function () {
-                for (const item of items) {
+                for (let i = 0; i < items.length; i++) {
+                    const item = items[i];
                     if (!editor.call('entities:visibility:isHidden', item.get('resource_id'))) {
                         return true;
                     }
@@ -307,7 +312,8 @@ editor.once('load', () => {
             onIsVisible: hasWriteAccess,
             onIsEnabled: function () {
                 const root = editor.call('entities:root');
-                for (const item of items) {
+                for (let i = 0; i < items.length; i++) {
+                    const item = items[i];
                     if (item === root) {
                         return false;
                     }

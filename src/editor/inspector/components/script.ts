@@ -752,7 +752,8 @@ class ScriptInspector extends Panel {
                 options: []
             };
 
-            for (const key of attributeData.enum.order) {
+            for (let i = 0; i < attributeData.enum.order.length; i++) {
+                const key = attributeData.enum.order[i];
                 selectInputArgs.options.push({
                     v: attributeData.enum.options[key],
                     t: key

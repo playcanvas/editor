@@ -122,7 +122,8 @@ function initializeScene() {
 }
 
 function hasChars(chars: string, font: any) {
-    for (const char of chars) {
+    for (let i = 0; i < chars.length; i++) {
+        const char = chars[i];
         if (!font.data.chars[char]) {
             return false;
         }

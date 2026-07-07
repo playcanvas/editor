@@ -17,7 +17,8 @@ editor.once('load', () => {
 
         expanded = state;
 
-        for (const panel of panels) {
+        for (let i = 0; i < panels.length; i++) {
+            const panel = panels[i];
             panel.hidden = expanded;
         }
 

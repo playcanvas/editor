@@ -73,7 +73,8 @@ editor.once('load', () => {
                     return;
                 }
 
-                for (const op of ops) {
+                for (let i = 0; i < ops.length; i++) {
+                    const op = ops[i];
                     let dirty = true;
 
                     // When the file changes this means that the
@@ -107,7 +108,8 @@ editor.once('load', () => {
         const connection = editor.call('realtime:connection');
         const assets = connection.collections.assets;
 
-        for (const item of data) {
+        for (let i = 0; i < data.length; i++) {
+            const item = data[i];
             if (!Object.prototype.hasOwnProperty.call(assets, item.uniqueId)) {
                 continue;
             }

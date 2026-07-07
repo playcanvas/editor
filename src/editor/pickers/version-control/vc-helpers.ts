@@ -156,7 +156,8 @@ const commonLines = (a: string[], b: string[]) => {
     }
     let prev = new Uint32Array(b.length + 1);
     let cur = new Uint32Array(b.length + 1);
-    for (const av of a) {
+    for (let i = 0; i < a.length; i++) {
+        const av = a[i];
         for (let j = 0; j < b.length; j++) {
             cur[j + 1] = av === b[j] ? prev[j] + 1 : Math.max(prev[j + 1], cur[j]);
         }

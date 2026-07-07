@@ -178,7 +178,8 @@ editor.once('load', () => {
 
     editor.on('selector:change', (type: string | null, items: EntityObserver[]) => {
         if (events.length) {
-            for (const event of events) {
+            for (let i = 0; i < events.length; i++) {
+                const event = events[i];
                 event.unbind();
             }
 

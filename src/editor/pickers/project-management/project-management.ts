@@ -81,7 +81,8 @@ editor.once('load', () => {
     // method that returns true if current user is admin or owner of organization with specified id
     editor.method('project:management:isOrgAdmin', (orgId, user) => {
         if (user && user.organizations) {
-            for (const organization of user.organizations) {
+            for (let i = 0; i < user.organizations.length; i++) {
+                const organization = user.organizations[i];
                 if (organization.id === orgId) {
                     return true;
                 }

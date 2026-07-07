@@ -154,7 +154,8 @@ class LayersSettingsPanelLayerPanel extends BaseSettingsPanel {
 
             const layerOrder = projectSettings.getRaw('layerOrder');
 
-            for (const prevSublayer of prevSublayers) {
+            for (let i = 0; i < prevSublayers.length; i++) {
+                const prevSublayer = prevSublayers[i];
                 const idx = prevSublayer.index;
                 const transparent = prevSublayer.transparent;
                 const enabled = prevSublayer.enabled;

@@ -313,7 +313,8 @@ editor.once('load', () => {
                     }
                 };
 
-                for (const item of items) {
+                for (let i = 0; i < items.length; i++) {
+                    const item = items[i];
                     if (item.has('components.sound')) {
                         showSoundBubble();
                         return;
@@ -325,7 +326,8 @@ editor.once('load', () => {
                     selectEvents = [];
                 }
 
-                for (const item of items) {
+                for (let i = 0; i < items.length; i++) {
+                    const item = items[i];
                     selectEvents.push(item.on('components.sound:set', showSoundBubble));
                 }
             });

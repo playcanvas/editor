@@ -119,7 +119,8 @@ class EntitiesTreeView extends TreeView {
     _onReparent = (reparentedItems: ReparentedItem[]) => {
         const newParentTemplates: Record<string, Observer> = {};
 
-        for (const reparentedItem of reparentedItems) {
+        for (let i = 0; i < reparentedItems.length; i++) {
+            const reparentedItem = reparentedItems[i];
             const item = reparentedItem.item as EntityTreeViewItem;
             const newParent = reparentedItem.newParent as EntityTreeViewItem;
             const templateRoot = editor.call('templates:isTemplateChild', item.entity, this._entities);
@@ -886,7 +887,8 @@ class EntitiesTreeView extends TreeView {
         }
 
         const children = entity.get('children');
-        for (const childId of children) {
+        for (let i = 0; i < children.length; i++) {
+            const childId = children[i];
             const child = this._entities.get(childId);
             if (child) {
                 this._resetTemplateIcons(child);
@@ -1006,7 +1008,8 @@ class EntitiesTreeView extends TreeView {
             }
 
             const children = entity.get('children');
-            for (const childId of children) {
+            for (let i = 0; i < children.length; i++) {
+                const childId = children[i];
                 recurse(this._entities.get(childId));
             }
         };

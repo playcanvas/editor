@@ -92,7 +92,8 @@ editor.once('load', () => {
                         if (history) {
                             settings.history.enabled = false;
                         }
-                        for (const op of ops) {
+                        for (let i = 0; i < ops.length; i++) {
+                            const op = ops[i];
                             settings.sync.write(op);
                         }
                         if (history) {

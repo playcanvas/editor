@@ -16,11 +16,13 @@ editor.once('load', () => {
         const ids = [];
 
         if (type === 'entity') {
-            for (const item of items) {
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
                 ids.push(item.get('resource_id'));
             }
         } else if (type === 'asset') {
-            for (const item of items) {
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
                 const id = item.get('id');
                 if (item.get('type') === 'script' && !id) {
                     ids.push(item.get('filename'));

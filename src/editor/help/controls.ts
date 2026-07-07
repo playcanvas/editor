@@ -188,7 +188,8 @@ editor.once('load', () => {
         });
     }
 
-    for (const item of items) {
+    for (let i = 0; i < items.length; i++) {
+        const item = items[i];
         const row = document.createElement('div');
         row.classList.add('row');
 
@@ -196,7 +197,8 @@ editor.once('load', () => {
         buttons.classList.add('buttons');
         row.appendChild(buttons);
 
-        for (const buttonLabel of item.buttons) {
+        for (let i = 0; i < item.buttons.length; i++) {
+            const buttonLabel = item.buttons[i];
             const button = document.createElement('div');
             const divider = buttonLabel.startsWith('$');
             let sign = '';
@@ -221,7 +223,8 @@ editor.once('load', () => {
         title.textContent = item.title;
         row.appendChild(title);
 
-        for (const iconHtml of item.icons) {
+        for (let i = 0; i < item.icons.length; i++) {
+            const iconHtml = item.icons[i];
             const icon = document.createElement('div');
             icon.classList.add('icon');
             icon.innerHTML = iconHtml;

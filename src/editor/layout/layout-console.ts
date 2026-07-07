@@ -458,7 +458,8 @@ export const createConsolePanel = () => {
         // only update counts
         if (onlyCounts) {
             // update values
-            for (const { mask } of consoleLogs) {
+            for (let i = 0; i < consoleLogs.length; i++) {
+                const { mask } = consoleLogs[i];
                 const type = logTypes[Math.log2(mask)];
                 counts[type]++;
             }

@@ -29,7 +29,8 @@ editor.once('load', () => {
         });
 
         const addGizmoLayers = function (camera: CameraComponent, layers: Layer[]): void {
-            for (const layer of layers) {
+            for (let i = 0; i < layers.length; i++) {
+                const layer = layers[i];
                 const idx = camera.layers.indexOf(layer.id);
                 if (idx === -1) {
                     camera.layers.push(layer.id);
@@ -40,7 +41,8 @@ editor.once('load', () => {
         };
 
         const removeGizmoLayers = function (camera: CameraComponent, layers: Layer[]): void {
-            for (const layer of layers) {
+            for (let i = 0; i < layers.length; i++) {
+                const layer = layers[i];
                 const idx = camera.layers.indexOf(layer.id);
                 if (idx !== -1) {
                     camera.layers.splice(idx, 1);
@@ -297,7 +299,8 @@ editor.once('load', () => {
         };
 
         // add default cameras
-        for (const item of list) {
+        for (let i = 0; i < list.length; i++) {
+            const item = list[i];
             const entity = createCamera(item);
 
             editor.call('camera:add', entity);

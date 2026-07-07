@@ -425,7 +425,8 @@ editor.once('load', () => {
                     return;
                 }
 
-                for (const event of this.events) {
+                for (let i = 0; i < this.events.length; i++) {
+                    const event = this.events[i];
                     event.unbind();
                 }
 
@@ -476,7 +477,8 @@ editor.once('load', () => {
             dragGizmoType = editor.call('gizmo:type');
             editor.call(`gizmo:${dragGizmoType}:toggle`, false);
 
-            for (const point of points) {
+            for (let i = 0; i < points.length; i++) {
+                const point = points[i];
                 point.entity.enabled = false;
             }
 
@@ -495,7 +497,8 @@ editor.once('load', () => {
             dragPoint = null;
             editor.call(`gizmo:${dragGizmoType}:toggle`, true);
 
-            for (const point of points) {
+            for (let i = 0; i < points.length; i++) {
+                const point = points[i];
                 point.entity.enabled = true;
             }
 
@@ -583,17 +586,20 @@ editor.once('load', () => {
                 return;
             }
 
-            for (const point of points) {
+            for (let i = 0; i < points.length; i++) {
+                const point = points[i];
                 point.entity.enabled = state;
             }
         });
 
         const pointsDestroy = function () {
-            for (const point of points) {
+            for (let i = 0; i < points.length; i++) {
+                const point = points[i];
                 editor.call('gizmo:point:recycle', point);
             }
 
-            for (const event of events) {
+            for (let i = 0; i < events.length; i++) {
+                const event = events[i];
                 event.unbind();
             }
 
@@ -712,7 +718,8 @@ editor.once('load', () => {
         editor.on('selector:change', (type: string, items: EntityObserver[] | undefined) => {
             selected = {};
             if (items) {
-                for (const item of items) {
+                for (let i = 0; i < items.length; i++) {
+                    const item = items[i];
                     selected[item.get('resource_id')] = item;
                 }
             }

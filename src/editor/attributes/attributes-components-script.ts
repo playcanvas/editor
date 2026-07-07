@@ -83,14 +83,16 @@ editor.once('load', () => {
         let events = [];
         const scriptsIndex = {};
 
-        for (const entity of entities) {
+        for (let i = 0; i < entities.length; i++) {
+            const entity = entities[i];
             events.push(
                 entity.on('components.script:unset', (valueOld) => {
                     if (!valueOld) {
                         return;
                     }
 
-                    for (const script of valueOld.scripts) {
+                    for (let i = 0; i < valueOld.scripts.length; i++) {
+                        const script = valueOld.scripts[i];
                         const scriptPanel = scriptsIndex[script.url];
                         if (!scriptPanel) {
                             continue;
@@ -160,10 +162,12 @@ editor.once('load', () => {
                 requestScript = true;
             }
 
-            for (const entity of entities) {
+            for (let i = 0; i < entities.length; i++) {
+                const entity = entities[i];
                 let addScript = true;
                 const scripts = entity.getRaw('components.script.scripts');
-                for (const s of scripts) {
+                for (let i = 0; i < scripts.length; i++) {
+                    const s = scripts[i];
                     if (s.get('url') === url) {
                         addScript = false;
                         break;
@@ -205,7 +209,8 @@ editor.once('load', () => {
                 name: 'entities.components.script.scripts',
                 combine: false,
                 undo: function () {
-                    for (const record of records) {
+                    for (let i = 0; i < records.length; i++) {
+                        const record = records[i];
                         const item = record.item.latest();
                         if (!item) {
                             continue;
@@ -216,7 +221,8 @@ editor.once('load', () => {
                             continue;
                         }
 
-                        for (const script of scripts) {
+                        for (let i = 0; i < scripts.length; i++) {
+                            const script = scripts[i];
                             if (script.get('url') !== url) {
                                 continue;
                             }
@@ -229,7 +235,8 @@ editor.once('load', () => {
                     }
                 },
                 redo: function () {
-                    for (const record of records) {
+                    for (let i = 0; i < records.length; i++) {
+                        const record = records[i];
                         const item = record.item.latest();
                         if (!item) {
                             continue;
@@ -237,7 +244,8 @@ editor.once('load', () => {
 
                         let addScript = true;
                         const scripts = item.getRaw('components.script.scripts');
-                        for (const script of scripts) {
+                        for (let i = 0; i < scripts.length; i++) {
+                            const script = scripts[i];
                             if (script.get('url') !== url) {
                                 continue;
                             }
@@ -442,7 +450,8 @@ editor.once('load', () => {
                 choices = [{ v: '', t: '...' }];
 
                 try {
-                    for (const enumeration of attribute.options.enumerations) {
+                    for (let i = 0; i < attribute.options.enumerations.length; i++) {
+                        const enumeration = attribute.options.enumerations[i];
                         choices.push({
                             v: enumeration.value,
                             t: enumeration.name
@@ -456,13 +465,15 @@ editor.once('load', () => {
 
             const url = script.get('url');
             const scripts = [];
-            for (const entity of entities) {
+            for (let i = 0; i < entities.length; i++) {
+                const entity = entities[i];
                 const items = entity.getRaw('components.script.scripts');
                 if (!items) {
                     continue;
                 }
 
-                for (const item of items) {
+                for (let i = 0; i < items.length; i++) {
+                    const item = items[i];
                     if (item.get('url') === url) {
                         scripts.push(item);
                         break;
@@ -800,7 +811,8 @@ editor.once('load', () => {
             fieldRemoveScript.on('click', (value) => {
                 const records = [];
 
-                for (const entity of entities) {
+                for (let i = 0; i < entities.length; i++) {
+                    const entity = entities[i];
                     entity.history.enabled = false;
                     const scripts = entity.getRaw('components.script.scripts');
                     for (let s = 0; s < scripts.length; s++) {
@@ -830,7 +842,8 @@ editor.once('load', () => {
                     name: 'entities.components.script.scripts',
                     combine: false,
                     undo: function () {
-                        for (const record of records) {
+                        for (let i = 0; i < records.length; i++) {
+                            const record = records[i];
                             const item = record.item.latest();
                             if (!item) {
                                 continue;
@@ -843,7 +856,8 @@ editor.once('load', () => {
 
                             let addScript = true;
 
-                            for (const s of scripts) {
+                            for (let i = 0; i < scripts.length; i++) {
+                                const s = scripts[i];
                                 if (s.get('url') === record.value.url) {
                                     addScript = false;
                                     break;
@@ -864,7 +878,8 @@ editor.once('load', () => {
                         refreshScriptAttributes(records[0].value.url);
                     },
                     redo: function () {
-                        for (const record of records) {
+                        for (let i = 0; i < records.length; i++) {
+                            const record = records[i];
                             const item = record.item.latest();
                             if (!item) {
                                 continue;
@@ -872,7 +887,8 @@ editor.once('load', () => {
 
                             const scripts = item.getRaw('components.script.scripts');
 
-                            for (const s of scripts) {
+                            for (let i = 0; i < scripts.length; i++) {
+                                const s = scripts[i];
                                 if (s.get('url') !== record.value.url) {
                                     continue;
                                 }
@@ -945,7 +961,8 @@ editor.once('load', () => {
                 // add attributes if has any
                 const order = script.get('attributesOrder');
                 if (order) {
-                    for (const attributeName of order) {
+                    for (let i = 0; i < order.length; i++) {
+                        const attributeName = order[i];
                         createAttributeField(script, attributeName, attributes);
                     }
                 }
@@ -1005,11 +1022,13 @@ editor.once('load', () => {
         };
 
         // add existing scripts and subscribe to scripts Observer list
-        for (const entity of entities) {
+        for (let i = 0; i < entities.length; i++) {
+            const entity = entities[i];
             const scripts = entity.getRaw('components.script.scripts');
 
             if (scripts) {
-                for (const script of scripts) {
+                for (let i = 0; i < scripts.length; i++) {
+                    const script = scripts[i];
                     addScriptPanel(script);
                 }
             }
@@ -1017,7 +1036,8 @@ editor.once('load', () => {
             // subscribe to scripts:set
             events.push(
                 entity.on('components.script.scripts:set', (value, valueOld) => {
-                    for (const item of value) {
+                    for (let i = 0; i < value.length; i++) {
+                        const item = value[i];
                         addScriptPanel(item);
                     }
                 })
@@ -1082,9 +1102,11 @@ editor.once('load', () => {
                 const rectA = root.innerElement.getBoundingClientRect();
                 const rectB = panel.element.getBoundingClientRect();
                 if (rectB.top > rectA.top && rectB.bottom < rectA.bottom) {
-                    for (const entity of entities) {
+                    for (let i = 0; i < entities.length; i++) {
+                        const entity = entities[i];
                         const scripts = entity.getRaw('components.script.scripts');
-                        for (const s of scripts) {
+                        for (let i = 0; i < scripts.length; i++) {
+                            const s = scripts[i];
                             if (s.get('url') === data.filename) {
                                 return false;
                             }
@@ -1107,7 +1129,8 @@ editor.once('load', () => {
 
         // clean up events
         panel.once('destroy', () => {
-            for (const event of events) {
+            for (let i = 0; i < events.length; i++) {
+                const event = events[i];
                 event.unbind();
             }
 

@@ -217,7 +217,8 @@ class ComponentInspector extends Panel {
         let oldValues = {};
 
         const undo = () => {
-            for (const entityObserver of entities) {
+            for (let i = 0; i < entities.length; i++) {
+                const entityObserver = entities[i];
                 const entity = entityObserver.latest();
                 if (!entity) {
                     return;
@@ -235,7 +236,8 @@ class ComponentInspector extends Panel {
         const redo = () => {
             oldValues = {};
 
-            for (const entityObserver of entities) {
+            for (let i = 0; i < entities.length; i++) {
+                const entityObserver = entities[i];
                 const entity = entityObserver.latest();
                 if (!entity) {
                     return;

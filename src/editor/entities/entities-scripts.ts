@@ -55,7 +55,8 @@ editor.once('load', () => {
                 return;
             }
 
-            for (const event of item.events) {
+            for (let i = 0; i < item.events.length; i++) {
+                const event = item.events[i];
                 event.unbind();
             }
 
@@ -71,7 +72,8 @@ editor.once('load', () => {
         onEntityAdd(entity: Observer) {
             const scripts = entity.get('components.script.order');
             if (scripts) {
-                for (const script of scripts) {
+                for (let i = 0; i < scripts.length; i++) {
+                    const script = scripts[i];
                     this.add(entity, script);
                 }
             }

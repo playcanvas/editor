@@ -114,7 +114,8 @@ class AnimationComponentInspector extends ComponentInspector {
     _playAnimation(entities: EntityObserver[], assetId: string | number) {
         assetId = parseInt(assetId, 10);
 
-        for (const entity of entities) {
+        for (let i = 0; i < entities.length; i++) {
+            const entity = entities[i];
             if (!entity.entity || !entity.entity.animation) {
                 continue;
             }
@@ -134,7 +135,8 @@ class AnimationComponentInspector extends ComponentInspector {
     }
 
     _stopAnimation(entities: EntityObserver[]) {
-        for (const entity of entities) {
+        for (let i = 0; i < entities.length; i++) {
+            const entity = entities[i];
             if (!entity.entity || !entity.entity.animation) {
                 continue;
             }

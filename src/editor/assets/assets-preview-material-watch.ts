@@ -125,7 +125,8 @@ editor.once('load', () => {
         textures: Record<string, unknown>;
         watching: Record<string, { unbind: () => void }>;
     }) {
-        for (const slot of slots) {
+        for (let i = 0; i < slots.length; i++) {
+            const slot = slots[i];
             const textureId = watch.asset.get(`data.${slot}`);
             if (textureId) {
                 addTextureWatch(watch, slot, textureId);
@@ -142,7 +143,8 @@ editor.once('load', () => {
 
         watch.watching.all = watch.asset.on('data:set', (value) => {
             if (value) {
-                for (const slot of slots) {
+                for (let i = 0; i < slots.length; i++) {
+                    const slot = slots[i];
                     const id = value[slot];
                     if (watch.textures[slot]) {
                         if (id !== watch.textures[slot].id) {
@@ -156,7 +158,8 @@ editor.once('load', () => {
                     }
                 }
             } else {
-                for (const slot of slots) {
+                for (let i = 0; i < slots.length; i++) {
+                    const slot = slots[i];
                     if (watch.textures[slot]) {
                         removeTextureWatch(watch, slot);
                     }
@@ -164,7 +167,8 @@ editor.once('load', () => {
             }
         });
 
-        for (const slot of slots) {
+        for (let i = 0; i < slots.length; i++) {
+            const slot = slots[i];
             addSlotWatch(watch, slot);
         }
     };

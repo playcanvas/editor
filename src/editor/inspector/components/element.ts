@@ -935,7 +935,8 @@ class ElementComponentInspector extends ComponentInspector {
 
         const prev = {};
 
-        for (const entityObserver of entities) {
+        for (let i = 0; i < entities.length; i++) {
+            const entityObserver = entities[i];
             prev[entityObserver.get('resource_id')] = {
                 anchor: entityObserver.get('components.element.anchor'),
                 pivot: entityObserver.get('components.element.pivot'),
@@ -946,7 +947,8 @@ class ElementComponentInspector extends ComponentInspector {
         }
 
         function undo() {
-            for (const entityObserver of entities) {
+            for (let i = 0; i < entities.length; i++) {
+                const entityObserver = entities[i];
                 const entity = entityObserver.latest();
                 if (!entity || !entity.has('components.element')) {
                     continue;
@@ -969,7 +971,8 @@ class ElementComponentInspector extends ComponentInspector {
         }
 
         function redo() {
-            for (const entityObserver of entities) {
+            for (let i = 0; i < entities.length; i++) {
+                const entityObserver = entities[i];
                 const entity = entityObserver.latest();
                 if (!entity || !entity.has('components.element')) {
                     continue;

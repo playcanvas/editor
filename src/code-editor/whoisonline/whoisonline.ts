@@ -3,7 +3,8 @@ editor.once('load', () => {
 
     editor.method('whoisonline:set', (assetId, list) => {
         const index = {};
-        for (const id of list) {
+        for (let i = 0; i < list.length; i++) {
+            const id = list[i];
             index[id] = true;
         }
 

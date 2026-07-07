@@ -29,7 +29,8 @@ editor.once('load', () => {
         };
 
         // validate lightmapped entities
-        for (const obj of entities!) {
+        for (let i = 0; i < entities!.length; i++) {
+            const obj = entities![i];
             // might be primitive
             if (obj.get('components.model.type') !== 'asset') {
                 continue;
@@ -96,7 +97,8 @@ editor.once('load', () => {
             return;
         }
 
-        for (const entity of entities) {
+        for (let i = 0; i < entities.length; i++) {
+            const entity = entities[i];
             entity.entity.light.light.shadowUpdateMode = SHADOWUPDATE_THISFRAME;
         }
 

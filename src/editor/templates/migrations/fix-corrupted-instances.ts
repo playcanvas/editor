@@ -262,7 +262,8 @@ editor.once('load', () => {
         const scenes = await listScenes();
 
         try {
-            for (const scene of scenes) {
+            for (let i = 0; i < scenes.length; i++) {
+                const scene = scenes[i];
                 await fixScene(scene, dryRun, report);
             }
 

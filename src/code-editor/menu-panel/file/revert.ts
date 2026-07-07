@@ -69,7 +69,8 @@ editor.once('load', () => {
             text: 'Revert',
             onIsEnabled: () => {
                 const selected = editor.call('files:contextmenu:selected');
-                for (const doc of selected) {
+                for (let i = 0; i < selected.length; i++) {
+                    const doc = selected[i];
                     if (editor.call('editor:command:can:revert', doc.get('id'))) {
                         return true;
                     }
@@ -77,7 +78,8 @@ editor.once('load', () => {
             },
             onSelect: () => {
                 const selected = editor.call('files:contextmenu:selected');
-                for (const doc of selected) {
+                for (let i = 0; i < selected.length; i++) {
+                    const doc = selected[i];
                     if (editor.call('editor:command:can:revert', doc.get('id'))) {
                         revert(doc.get('id'));
                     }

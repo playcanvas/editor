@@ -28,7 +28,8 @@ editor.once('load', () => {
         const connection = editor.call('realtime:connection');
         const assets = connection.collections.assets;
 
-        for (const item of data) {
+        for (let i = 0; i < data.length; i++) {
+            const item = data[i];
             if (!Object.prototype.hasOwnProperty.call(assets, item.uniqueId)) {
                 continue;
             }
@@ -142,7 +143,8 @@ editor.once('load', () => {
 
         const assets = [];
 
-        for (const item of list) {
+        for (let i = 0; i < list.length; i++) {
+            const item = list[i];
             if (legacyScripts && item.get('type') === 'script') {
                 editor.emit('sourcefiles:remove', item);
                 editor.api.globals.rest.projects.projectRepoSourcefilesDelete(item.get('filename'));

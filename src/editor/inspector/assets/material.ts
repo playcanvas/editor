@@ -1587,7 +1587,8 @@ const BULK_SLOTS = {
 
 const POSTFIX_TO_BULK_SLOT = {};
 for (const key in BULK_SLOTS) {
-    for (const postfix of BULK_SLOTS[key]) {
+    for (let i = 0; i < BULK_SLOTS[key].length; i++) {
+        const postfix = BULK_SLOTS[key][i];
         POSTFIX_TO_BULK_SLOT[postfix] = POSTFIX_TO_BULK_SLOT[postfix] || [];
         POSTFIX_TO_BULK_SLOT[postfix].push(key);
     }
@@ -1971,7 +1972,8 @@ class MaterialAssetInspector extends Container {
         let tiling = null;
         let rotation = null;
 
-        for (const asset of this._assets) {
+        for (let i = 0; i < this._assets.length; i++) {
+            const asset = this._assets[i];
             for (const map in MAPS) {
                 const currentOffset = asset.get(`data.${map}MapOffset`);
                 if (!offset) {
@@ -2280,7 +2282,8 @@ class MaterialAssetInspector extends Container {
                     return;
                 }
 
-                for (const slot of POSTFIX_TO_BULK_SLOT[t[1]]) {
+                for (let i = 0; i < POSTFIX_TO_BULK_SLOT[t[1]].length; i++) {
+                    const slot = POSTFIX_TO_BULK_SLOT[t[1]][i];
                     if (slot === name) {
                         continue;
                     }
@@ -2499,7 +2502,8 @@ class MaterialAssetInspector extends Container {
         const parts = filename.split(/([-_.])/g);
         const tokens = [];
 
-        for (const part of parts) {
+        for (let i = 0; i < parts.length; i++) {
+            const part = parts[i];
             if (part === '-' || part === '_' || part === '.') {
                 continue;
             }
@@ -2670,8 +2674,10 @@ class MaterialAssetInspector extends Container {
             for (const panelName in COLLAPSED_PANEL_DEPENDENCIES) {
                 let collapsed = true;
 
-                for (const field of COLLAPSED_PANEL_DEPENDENCIES[panelName]) {
-                    for (const asset of this._assets) {
+                for (let i = 0; i < COLLAPSED_PANEL_DEPENDENCIES[panelName].length; i++) {
+                    const field = COLLAPSED_PANEL_DEPENDENCIES[panelName][i];
+                    for (let i = 0; i < this._assets.length; i++) {
+                        const asset = this._assets[i];
                         const type = editor.call('schema:material:getType', field);
                         if (type === 'asset') {
                             if (asset.get(`data.${field}`)) {

@@ -82,7 +82,8 @@ editor.once('load', () => {
 
     const evtMouseMove = function (evt: MouseEvent) {
         const rect = canvas.dom.getBoundingClientRect();
-        for (const tap of taps) {
+        for (let i = 0; i < taps.length; i++) {
+            const tap = taps[i];
             if (!tap.mouse) {
                 continue;
             }
@@ -134,7 +135,8 @@ editor.once('load', () => {
         }
         const items = taps.slice(0);
 
-        for (const item of items) {
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
             // if (tapMouse.down) {
             if (!item.mouse || !item.down || item.button !== evt.button) {
                 continue;

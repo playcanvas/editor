@@ -360,7 +360,8 @@ editor.once('load', () => {
             editor.on('picker:sprites:pickFrames:end', () => {
                 spriteEditMode = false;
 
-                for (const key of spriteEditModeKeys) {
+                for (let i = 0; i < spriteEditModeKeys.length; i++) {
+                    const key = spriteEditModeKeys[i];
                     if (panels[key]) {
                         panels[key].class.remove('highlighted');
                     }
@@ -374,7 +375,8 @@ editor.once('load', () => {
             editor.on('picker:sprites:spriteSelected', (spriteAsset) => {
                 selectedSprite = spriteAsset;
                 const keys = spriteEditMode ? spriteEditModeKeys : selectedKeys;
-                for (const key of keys) {
+                for (let i = 0; i < keys.length; i++) {
+                    const key = keys[i];
                     const panel = panels[key];
                     if (!panel) {
                         continue;

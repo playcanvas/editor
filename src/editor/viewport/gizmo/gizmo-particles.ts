@@ -194,7 +194,8 @@ editor.once('load', () => {
                 return;
             }
 
-            for (const event of this.events) {
+            for (let i = 0; i < this.events.length; i++) {
+                const event = this.events[i];
                 if (event && event.unbind) {
                     event.unbind();
                 }
@@ -230,7 +231,8 @@ editor.once('load', () => {
 
         // index selection
         const ids = {};
-        for (const item of items) {
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
             ids[item.get('resource_id')] = item;
         }
 

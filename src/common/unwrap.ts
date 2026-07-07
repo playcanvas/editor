@@ -140,7 +140,8 @@ class Unwrap {
                         }
                     }
                     if (remapVertList.length > 0) {
-                        for (const remapVert of remapVertList) {
+                        for (let i = 0; i < remapVertList.length; i++) {
+                            const remapVert = remapVertList[i];
                             ibCube[face2][remapVert] = vertCount;
                         }
                         addVerts.push(ibCube[face][i]);
@@ -770,7 +771,8 @@ class Unwrap {
             node.child[1] = { aabb: r1, id: -1, child: [], leaf: true, test: false };
             return this.insertToAtlas(node.child[0], id, aabb, uv, charts, ib, aabbs, scale);
         }
-        for (const child of node.child) {
+        for (let i = 0; i < node.child.length; i++) {
+            const child = node.child[i];
             const result = this.insertToAtlas(child, id, aabb, uv, charts, ib, aabbs, scale);
             if (result) {
                 return result;

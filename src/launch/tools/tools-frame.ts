@@ -525,7 +525,8 @@ editor.once('load', () => {
         custom?: string;
         field?: HTMLDivElement & { _title: HTMLDivElement; _field: HTMLDivElement; value: string };
     };
-    for (const field of fields) {
+    for (let i = 0; i < fields.length; i++) {
+        const field = fields[i];
         const item = field as FieldItem;
         item.field = addField({
             title: item.title || item.key[1]
@@ -732,7 +733,8 @@ editor.once('load', () => {
             const queue = cameraAddQueue;
             cameraAddQueue = null;
 
-            for (const id of queue) {
+            for (let i = 0; i < queue.length; i++) {
+                const id = queue[i];
                 cameraAdd(id);
             }
         }
@@ -744,7 +746,8 @@ editor.once('load', () => {
             return;
         }
 
-        for (const field of fields) {
+        for (let i = 0; i < fields.length; i++) {
+            const field = fields[i];
             if (field.ignore) {
                 continue;
             }

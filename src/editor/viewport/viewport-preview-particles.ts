@@ -91,7 +91,8 @@ editor.once('load', () => {
     const clear = function () {
         const keys = Object.keys(index);
 
-        for (const key of keys) {
+        for (let i = 0; i < keys.length; i++) {
+            const key = keys[i];
             remove(index[key]);
         }
     };
@@ -103,7 +104,8 @@ editor.once('load', () => {
             return;
         }
 
-        for (const item of items) {
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
             add(item);
         }
     });

@@ -378,7 +378,8 @@ class EntityInspector extends Container {
                     },
                     onIsEnabled: () => {
                         let deleteDisabled = true;
-                        for (const entity of this._entities) {
+                        for (let i = 0; i < this._entities.length; i++) {
+                            const entity = this._entities[i];
                             if (Object.keys(entity.get('components')).length > 0) {
                                 deleteDisabled = false;
                                 break;
@@ -515,7 +516,8 @@ class EntityInspector extends Container {
                 return;
             }
 
-            for (const component of components) {
+            for (let i = 0; i < components.length; i++) {
+                const component = components[i];
                 let different = false;
                 const hasComponent = entities[0].has(`components.${component}`);
 
@@ -705,7 +707,8 @@ class EntityInspector extends Container {
 
     _doAllEntitiesHaveComponent(entities: EntityObserver[], component: string) {
         let result = true;
-        for (const entity of entities) {
+        for (let i = 0; i < entities.length; i++) {
+            const entity = entities[i];
             if (!entity.has(`components.${component}`)) {
                 result = false;
                 break;

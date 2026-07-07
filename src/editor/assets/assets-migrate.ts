@@ -46,7 +46,8 @@ editor.once('load', () => {
             return '';
         };
 
-        for (const [oldPath, newPath] of LEGACY_TINT_PROPERTIES) {
+        for (let i = 0; i < LEGACY_TINT_PROPERTIES.length; i++) {
+            const [oldPath, newPath] = LEGACY_TINT_PROPERTIES[i];
             // check if the old tint path exists
             if (asset.has(oldPath)) {
                 const oldVal = asset.get(oldPath);
@@ -71,7 +72,8 @@ editor.once('load', () => {
             }
         }
 
-        for (const tintPath of TINT_REMOVE_PATHS) {
+        for (let i = 0; i < TINT_REMOVE_PATHS.length; i++) {
+            const tintPath = TINT_REMOVE_PATHS[i];
             // skip migration if tints set to true
             if (asset.get(tintPath)) {
                 continue;

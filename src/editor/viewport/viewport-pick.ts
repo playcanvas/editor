@@ -145,7 +145,8 @@ editor.once('load', () => {
             const entities: Entity[] = [];
             const seenGuids = new Set<string>();
 
-            for (const meshInstance of picked) {
+            for (let i = 0; i < picked.length; i++) {
+                const meshInstance = picked[i];
                 if (!meshInstance || !(meshInstance as { node?: GraphNode }).node) {
                     continue;
                 }

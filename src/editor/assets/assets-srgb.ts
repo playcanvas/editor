@@ -103,7 +103,8 @@ const startChecker = () => {
 
         for (const id in assetUsed.ref) {
             const ref = assetUsed.ref[id];
-            for (const refItem of ref) {
+            for (let i = 0; i < ref.length; i++) {
+                const refItem = ref[i];
                 const { owner } = refItem;
                 if (!owner || owner === editor) {
                     continue;

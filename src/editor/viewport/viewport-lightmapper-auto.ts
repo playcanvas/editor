@@ -134,17 +134,20 @@ editor.once('load', () => {
 
         editor.on('entities:add', (entity: Observer) => {
             // model
-            for (const field of fieldsLocal) {
+            for (let i = 0; i < fieldsLocal.length; i++) {
+                const field = fieldsLocal[i];
                 entity.on(`${field}:set`, evtRebakeEntity);
             }
 
             // light
-            for (const field of fieldsLight) {
+            for (let i = 0; i < fieldsLight.length; i++) {
+                const field = fieldsLight[i];
                 entity.on(`${field}:set`, evtRebakeLight);
             }
 
             // global
-            for (const field of fieldsGlobal) {
+            for (let i = 0; i < fieldsGlobal.length; i++) {
+                const field = fieldsGlobal[i];
                 entity.on(`${field}:set`, evtRebakeScene);
             }
         });

@@ -1116,7 +1116,8 @@ class AssetPanel extends Panel {
             }
         } else {
             const children = this._gridView.dom.childNodes;
-            for (const child of children) {
+            for (let i = 0; i < children.length; i++) {
+                const child = children[i];
                 const el = child as any;
                 if (el.ui instanceof AssetGridViewItem && !el.ui.hidden) {
                     el.ui.selected = true;
@@ -1281,7 +1282,8 @@ class AssetPanel extends Panel {
 
             if (selectorItems.indexOf(asset) !== -1) {
                 const ids = [];
-                for (const item of selectorItems) {
+                for (let i = 0; i < selectorItems.length; i++) {
+                    const item = selectorItems[i];
                     // don't allow multi-path dragging
                     const curPath = item.get('path');
                     if (path.length !== curPath.length || path[path.length - 1] !== curPath[path.length - 1]) {
@@ -1393,7 +1395,8 @@ class AssetPanel extends Panel {
         // do not allow dragging a folder into one of its child folders
         const hoveredPath = asset.get('path');
         if (dropData.ids) {
-            for (const id of dropData.ids) {
+            for (let i = 0; i < dropData.ids.length; i++) {
+                const id = dropData.ids[i];
                 if (hoveredPath.indexOf(id) !== -1) {
                     return;
                 }
@@ -2304,7 +2307,8 @@ class AssetPanel extends Panel {
 
     // Perform AND operation between tags
     _tagsAND(tagGroup: string[], assetTags: string[]) {
-        for (const tag of tagGroup) {
+        for (let i = 0; i < tagGroup.length; i++) {
+            const tag = tagGroup[i];
             if (assetTags.indexOf(tag) === -1) {
                 return false;
             }
@@ -2315,7 +2319,8 @@ class AssetPanel extends Panel {
 
     // Perform OR operation between tags or groups of subtags
     _tagsOR(tagGroup: (string | string[])[], assetTags: string[]) {
-        for (const tag of tagGroup) {
+        for (let i = 0; i < tagGroup.length; i++) {
+            const tag = tagGroup[i];
             if (Array.isArray(tag)) {
                 if (this._tagsAND(tag, assetTags)) {
                     return true;

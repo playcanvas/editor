@@ -406,7 +406,8 @@ editor.once('load', () => {
         if (items) {
             delete waitingParent[id];
 
-            for (const child of items) {
+            for (let i = 0; i < items.length; i++) {
+                const child = items[i];
                 append(child, item);
             }
         }

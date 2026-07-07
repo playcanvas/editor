@@ -170,7 +170,8 @@ const convertTypes = new Map<string, (n: unknown, o: unknown) => unknown>([
             const items = [];
             const data = n.split(',');
 
-            for (const entry of data) {
+            for (let i = 0; i < data.length; i++) {
+                const entry = data[i];
                 const string = entry.trim();
                 if (string) {
                     items.push(string);
@@ -185,7 +186,8 @@ const convertTypes = new Map<string, (n: unknown, o: unknown) => unknown>([
         (n: unknown, o: unknown) => {
             const set = new Set();
             const items = n.split(',');
-            for (const item of items) {
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
                 const tag = item.trim();
                 if (!tag) {
                     continue;
@@ -272,7 +274,8 @@ const convertTypes = new Map<string, (n: unknown, o: unknown) => unknown>([
         (n: unknown, _o: unknown) => {
             const set = new Set();
             const items = n.split('\n');
-            for (const item of items) {
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
                 const tag = item.trim();
                 if (!tag) {
                     continue;
@@ -613,7 +616,8 @@ for (const type of assetTypes) {
 
         if (Array.isArray(n)) {
             const items = [];
-            for (const id of n) {
+            for (let i = 0; i < n.length; i++) {
+                const id = n[i];
                 const assetType = editor.call('assets:get', id)?.get('type');
 
                 if (!assetType) {
@@ -991,7 +995,8 @@ editor.once('load', () => {
         // store list of records and their values before modifying for history undo/redo
         const records = [];
 
-        for (const item of items) {
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
             const valueOld = item.get(path);
             let valueNew = convert ? convertTypes.get(conversionTuple)(paste.value, valueOld) : paste.value;
 
@@ -1023,7 +1028,8 @@ editor.once('load', () => {
             name: 'clipboard.paste',
             combine: false,
             undo: () => {
-                for (const record of records) {
+                for (let i = 0; i < records.length; i++) {
+                    const record = records[i];
                     const item = record.item.latest();
                     if (!item) {
                         continue;
@@ -1034,7 +1040,8 @@ editor.once('load', () => {
                 }
             },
             redo: () => {
-                for (const record of records) {
+                for (let i = 0; i < records.length; i++) {
+                    const record = records[i];
                     const item = record.item.latest();
                     if (!item) {
                         continue;

@@ -76,7 +76,8 @@ onmessage = (evt: MessageEvent) => {
 
             const enumIndex = {};
 
-            for (const entry of args.enum) {
+            for (let i = 0; i < args.enum.length; i++) {
+                const entry = args.enum[i];
                 if (typeof entry !== 'object' || entry instanceof Array) {
                     return 'option must be an object';
                 }
@@ -221,7 +222,8 @@ onmessage = (evt: MessageEvent) => {
                     }
 
                     const schemaFields = {};
-                    for (const field of args.schema) {
+                    for (let i = 0; i < args.schema.length; i++) {
+                        const field = args.schema[i];
                         const name = field.name;
                         if (!name || typeof name !== 'string') {
                             script.attributesInvalid.push(`attribute \`${attr}\` invalid schema: missing field name`);
@@ -378,7 +380,8 @@ onmessage = (evt: MessageEvent) => {
                 }
 
                 const schemaIndex = {};
-                for (const field of schema) {
+                for (let i = 0; i < schema.length; i++) {
+                    const field = schema[i];
                     schemaIndex[field.name] = field;
 
                     // make sure all fields in the schema are in the value
@@ -389,7 +392,8 @@ onmessage = (evt: MessageEvent) => {
 
                 const keys = Object.keys(value);
                 // do not allow fields not in the schema
-                for (const key of keys) {
+                for (let i = 0; i < keys.length; i++) {
+                    const key = keys[i];
                     if (!schemaIndex[key]) {
                         return `field \`${key}\` not defined in schema`;
                     }

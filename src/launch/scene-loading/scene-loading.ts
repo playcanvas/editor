@@ -42,7 +42,8 @@ editor.once('load', () => {
                     return;
                 }
 
-                for (const op of ops) {
+                for (let i = 0; i < ops.length; i++) {
+                    const op = ops[i];
                     // console.log('in: [ ' + Object.keys(op).filter(function(i) { return i !== 'p' }).join(', ') + ' ]', op.p.join('.'));
 
                     if (op.p[0]) {

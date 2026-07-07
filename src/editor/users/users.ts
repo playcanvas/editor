@@ -33,7 +33,8 @@ editor.once('load', () => {
         editor.api.globals.rest.users.userGet(id).on('load', (status, data) => {
             users[id] = data;
 
-            for (const request of userRequests[id]) {
+            for (let i = 0; i < userRequests[id].length; i++) {
+                const request = userRequests[id][i];
                 request(data);
             }
 

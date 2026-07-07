@@ -167,7 +167,8 @@ editor.once('load', () => {
 
         let offset = 128;
         if (!texture.cubemap) {
-            for (const level of texture._levels) {
+            for (let i = 0; i < texture._levels.length; i++) {
+                const level = texture._levels[i];
                 const mip = new Uint8Array(buff, offset, level.length);
                 for (let j = 0; j < level.length; j++) {
                     mip[j] = level[j];
@@ -176,7 +177,8 @@ editor.once('load', () => {
             }
         } else {
             for (let face = 0; face < 6; face++) {
-                for (const levelFaces of texture._levels) {
+                for (let i = 0; i < texture._levels.length; i++) {
+                    const levelFaces = texture._levels[i];
                     const level = levelFaces[face];
                     const mip = new Uint8Array(buff, offset, level.length);
                     for (let j = 0; j < level.length; j++) {

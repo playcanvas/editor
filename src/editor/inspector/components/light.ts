@@ -731,7 +731,8 @@ class LightComponentInspector extends ComponentInspector {
     }
 
     _updateShadows(entities: EntityObserver[]) {
-        for (const entity of entities) {
+        for (let i = 0; i < entities.length; i++) {
+            const entity = entities[i];
             if (
                 entity.entity &&
                 entity.entity.light &&

@@ -89,7 +89,8 @@ function splitEntityNameAndNumber(entityName: string) {
 }
 
 function isEntityNameTaken(name: string, entities: Entity[]) {
-    for (const entity of entities) {
+    for (let i = 0; i < entities.length; i++) {
+        const entity = entities[i];
         const entityName = entity.get('name');
         if (entity && entityName === name) {
             return true;

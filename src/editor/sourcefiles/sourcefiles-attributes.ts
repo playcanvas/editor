@@ -166,7 +166,8 @@ editor.once('load', () => {
                 let valueType;
                 const enumerations = attribute.options.enumerations;
                 // TODO check enumerations max length
-                for (const enumeration of enumerations) {
+                for (let i = 0; i < enumerations.length; i++) {
+                    const enumeration = enumerations[i];
                     if (type(enumeration) !== 'object') {
                         throw attributeErrorMsg(
                             url,
@@ -203,7 +204,8 @@ editor.once('load', () => {
                 validateValue(url, attribute, valueType, enumerations[0].value);
 
                 let isValueInEnumerations = false;
-                for (const enumeration of enumerations) {
+                for (let i = 0; i < enumerations.length; i++) {
+                    const enumeration = enumerations[i];
                     if (enumeration.value === attribute.defaultValue) {
                         isValueInEnumerations = true;
                         break;
@@ -326,7 +328,8 @@ editor.once('load', () => {
                 if (attribute.options.curves.length === 1) {
                     attribute.defaultValue.keys = [0, 0];
                 } else {
-                    for (const _curve of attribute.options.curves) {
+                    for (let i = 0; i < attribute.options.curves.length; i++) {
+                        const _curve = attribute.options.curves[i];
                         attribute.defaultValue.keys.push([0, 0]);
                     }
                 }

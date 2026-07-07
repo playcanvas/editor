@@ -318,10 +318,12 @@ class Assets extends Events {
     listByTag(...tags: any[]) {
         return this.filter((asset: Asset) => {
             const t = asset.get('tags');
-            for (const tag of tags) {
+            for (let i = 0; i < tags.length; i++) {
+                const tag = tags[i];
                 if (Array.isArray(tag)) {
                     let countTags = 0;
-                    for (const value of tag) {
+                    for (let i = 0; i < tag.length; i++) {
+                        const value = tag[i];
                         if (t.includes(value)) {
                             countTags++;
                         } else {

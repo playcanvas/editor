@@ -465,7 +465,8 @@ class FontAssetInspector extends Container {
             const chars = {};
             const arr = Array.from(characterValues);
 
-            for (const char of arr) {
+            for (let i = 0; i < arr.length; i++) {
+                const char = arr[i];
                 if (!Object.prototype.hasOwnProperty.call(chars, char)) {
                     chars[char] = true;
                     unique += char;

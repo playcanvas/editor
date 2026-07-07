@@ -27,7 +27,8 @@ editor.once('load', () => {
     };
 
     const initLayers = function () {
-        for (const event of events) {
+        for (let i = 0; i < events.length; i++) {
+            const event = events[i];
             event.unbind();
         }
         events.length = 0;

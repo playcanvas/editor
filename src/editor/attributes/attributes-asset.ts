@@ -73,7 +73,8 @@ editor.once('load', () => {
         if (multi) {
             editor.call('attributes:header', `${assets.length} assets`);
 
-            for (const asset of assets) {
+            for (let i = 0; i < assets.length; i++) {
+                const asset = assets[i];
                 if (
                     type !==
                     (assets[0].get('source') && assets[0].get('type') !== 'folder' ? 'source ' : '') + asset.get('type')
@@ -100,7 +101,8 @@ editor.once('load', () => {
         panel.once('destroy', () => {
             assetsPanel = null;
 
-            for (const event of events) {
+            for (let i = 0; i < events.length; i++) {
+                const event = events[i];
                 event.unbind();
             }
 

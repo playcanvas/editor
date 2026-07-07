@@ -76,7 +76,8 @@ export const deepEqual = (a: any, b: any): boolean => {
     if (keysA.length !== keysB.length) {
         return false;
     }
-    for (const key of keysA) {
+    for (let i = 0; i < keysA.length; i++) {
+        const key = keysA[i];
         if (!Object.prototype.hasOwnProperty.call(b, key)) {
             return false;
         }
@@ -480,7 +481,8 @@ export const handleCallback = <T extends { on: (event: string, handler: (status:
  */
 export const pathExists = (obj: Record<string, any>, path: string): boolean => {
     const parts = path.split('.');
-    for (const part of parts) {
+    for (let i = 0; i < parts.length; i++) {
+        const part = parts[i];
         if (!(part in obj) && obj[part] === undefined) {
             return false;
         }

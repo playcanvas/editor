@@ -354,7 +354,8 @@ editor.once('load', () => {
                     // Trigger reflow if the user has moved an element that is under
                     // the control of a layout group.
                     let entity;
-                    for (const translatedEntity of translatedEntities) {
+                    for (let i = 0; i < translatedEntities.length; i++) {
+                        const translatedEntity = translatedEntities[i];
                         entity = translatedEntity;
 
                         if (editor.call('entities:layout:isUnderControlOfLayoutGroup', entity)) {

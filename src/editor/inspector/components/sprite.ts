@@ -443,7 +443,8 @@ class SpriteComponentInspector extends ComponentInspector {
 
         // search clips of all entities for the largest key
         let largestKey = 1;
-        for (const entity of entities) {
+        for (let i = 0; i < entities.length; i++) {
+            const entity = entities[i];
             const clips = entity.get('components.sprite.clips');
             if (!clips) {
                 continue;

@@ -489,7 +489,8 @@ editor.once('load', () => {
 
         // index selection
         const ids = {};
-        for (const item of items) {
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
             ids[item.get('resource_id')] = item;
         }
 

@@ -16,7 +16,8 @@ function storeAssetPaths(assetIds: number[], assets: Record<number, any>) {
         assetIds = [assetIds];
     }
 
-    for (const assetId of assetIds) {
+    for (let i = 0; i < assetIds.length; i++) {
+        const assetId = assetIds[i];
         if (!assetId || assets[assetId]) {
             continue;
         }
@@ -30,7 +31,8 @@ function storeAssetPaths(assetIds: number[], assets: Record<number, any>) {
 
         const path = asset.get('path');
         if (path && path.length) {
-            for (const pathId of path) {
+            for (let i = 0; i < path.length; i++) {
+                const pathId = path[i];
                 const a = api.assets.get(pathId);
                 if (!a) {
                     continue;
@@ -75,7 +77,8 @@ function gatherDependencies(entity: Entity, data: Record<string, any>) {
 
     // gather all asset references from the entity
     // and store their path + name
-    for (const path of ASSET_PATHS) {
+    for (let i = 0; i < ASSET_PATHS.length; i++) {
+        const path = ASSET_PATHS[i];
         // handle paths that contain a '*' as a wildcard
         if (REGEX_CONTAINS_STAR.test(path)) {
             const parts = path.split('.*.');
@@ -119,7 +122,8 @@ function gatherDependencies(entity: Entity, data: Record<string, any>) {
         if (scripts) {
             // legacy scripts
             if (api.hasLegacyScripts) {
-                for (const script of scripts) {
+                for (let i = 0; i < scripts.length; i++) {
+                    const script = scripts[i];
                     if (!script.attributes) {
                         continue;
                     }
@@ -170,10 +174,12 @@ function gatherDependencies(entity: Entity, data: Record<string, any>) {
                         } else if (assetData[name].type === 'json') {
                             const schema = assetData[name].schema;
                             if (Array.isArray(schema)) {
-                                for (const field of schema) {
+                                for (let i = 0; i < schema.length; i++) {
+                                    const field = schema[i];
                                     if (field.type === 'asset') {
                                         if (Array.isArray(componentAttribute)) {
-                                            for (const attr of componentAttribute) {
+                                            for (let i = 0; i < componentAttribute.length; i++) {
+                                                const attr = componentAttribute[i];
                                                 if (attr && attr[field.name]) {
                                                     storeAssetPaths(attr[field.name], data.assets);
                                                 }
@@ -192,7 +198,8 @@ function gatherDependencies(entity: Entity, data: Record<string, any>) {
     }
 
     const children = entity.get('children');
-    for (const child of children) {
+    for (let i = 0; i < children.length; i++) {
+        const child = children[i];
         gatherDependencies(api.entities.get(child), data);
     }
 }
@@ -259,7 +266,8 @@ function copyEntities(entities: Entity[]) {
 
     sortEntities(entities);
 
-    for (const e of entities) {
+    for (let i = 0; i < entities.length; i++) {
+        const e = entities[i];
         let p = e.parent;
         let isParentSelected = false;
         while (p) {

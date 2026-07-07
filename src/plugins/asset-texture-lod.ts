@@ -34,7 +34,8 @@ editor.once('plugins:load:asset-texture-lod', () => {
             items = editor.call('selector:items');
         }
 
-        for (const item of items) {
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
             if (item.get('type') !== 'texture' || item.get('source') === true) {
                 return false;
             }
@@ -143,7 +144,8 @@ editor.once('plugins:load:asset-texture-lod', () => {
         const assetsMid = [];
         const assetsHi = [];
 
-        for (const asset of assets) {
+        for (let i = 0; i < assets.length; i++) {
+            const asset = assets[i];
             if (asset.get('type') !== 'texture' || asset.get('source')) {
                 continue;
             }
@@ -169,7 +171,8 @@ editor.once('plugins:load:asset-texture-lod', () => {
 
         const assetsLod = assetsMid.concat(assetsLow);
 
-        for (const assetLod of assetsLod) {
+        for (let i = 0; i < assetsLod.length; i++) {
+            const assetLod = assetsLod[i];
             const tags = assetLod.get('tags');
             let level = '';
 
@@ -183,7 +186,8 @@ editor.once('plugins:load:asset-texture-lod', () => {
                 continue;
             }
 
-            for (const tag of tags) {
+            for (let i = 0; i < tags.length; i++) {
+                const tag = tags[i];
                 if (!tag.startsWith('source-')) {
                     continue;
                 }
@@ -202,7 +206,8 @@ editor.once('plugins:load:asset-texture-lod', () => {
         const usedIndex = editor.call('assets:used:index');
 
         if (quality === 'original') {
-            for (const asset of assetsLod) {
+            for (let i = 0; i < assetsLod.length; i++) {
+                const asset = assetsLod[i];
                 const used = usedIndex[asset.get('id')];
                 if (!used || !used.parent) {
                     continue;
@@ -218,7 +223,8 @@ editor.once('plugins:load:asset-texture-lod', () => {
                         continue;
                     }
 
-                    for (const slot of slots) {
+                    for (let i = 0; i < slots.length; i++) {
+                        const slot = slots[i];
                         if (parseInt(assetRef.get(`data.${slot}`), 10) !== parseInt(asset.get('id'), 10)) {
                             continue;
                         }
@@ -241,7 +247,8 @@ editor.once('plugins:load:asset-texture-lod', () => {
                 list = assetsHi.concat(assetsMid);
             }
 
-            for (const asset of list) {
+            for (let i = 0; i < list.length; i++) {
+                const asset = list[i];
                 const used = usedIndex[asset.get('id')];
                 if (!used || !used.parent) {
                     continue;
@@ -257,7 +264,8 @@ editor.once('plugins:load:asset-texture-lod', () => {
                         continue;
                     }
 
-                    for (const slot of slots) {
+                    for (let i = 0; i < slots.length; i++) {
+                        const slot = slots[i];
                         if (parseInt(assetRef.get(`data.${slot}`), 10) !== parseInt(asset.get('id'), 10)) {
                             continue;
                         }

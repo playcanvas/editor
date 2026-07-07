@@ -96,7 +96,8 @@ editor.once('load', () => {
     ) {
         const results = [];
 
-        for (const item of items) {
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
             // direct hit
             if (item.subFull !== Infinity) {
                 results.push(item);
@@ -201,7 +202,8 @@ editor.once('load', () => {
 
         let records = [];
 
-        for (const item of items) {
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
             const subInd = item[0].toLowerCase().trim().indexOf(search);
 
             records.push({
@@ -215,7 +217,8 @@ editor.once('load', () => {
         }
 
         // search each token
-        for (const searchToken of searchTokens) {
+        for (let i = 0; i < searchTokens.length; i++) {
+            const searchToken = searchTokens[i];
             records = searchItems(records, searchToken, args);
         }
 

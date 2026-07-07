@@ -26,14 +26,16 @@ editor.once('load', () => {
             }
 
             if (type === 'assets') {
-                for (const id of data.ids) {
+                for (let i = 0; i < data.ids.length; i++) {
+                    const id = data.ids[i];
                     const asset = app.assets.get(id);
                     if (!asset || asset.type !== 'template') {
                         return false;
                     }
                 }
 
-                for (const id of data.ids) {
+                for (let i = 0; i < data.ids.length; i++) {
+                    const id = data.ids[i];
                     const asset = app.assets.get(id);
                     app.assets.load(asset);
                 }
@@ -54,7 +56,8 @@ editor.once('load', () => {
                     assets.push(asset);
                 }
             } else if (type === 'assets') {
-                for (const id of data.ids) {
+                for (let i = 0; i < data.ids.length; i++) {
+                    const id = data.ids[i];
                     const asset = editor.call('assets:get', parseInt(id, 10));
                     if (asset && asset.get('type') === 'template') {
                         assets.push(asset);

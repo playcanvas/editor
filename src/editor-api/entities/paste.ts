@@ -247,7 +247,8 @@ function remapEntitiesAndAssets(
             });
         }
 
-        for (const path of ASSET_PATHS) {
+        for (let i = 0; i < ASSET_PATHS.length; i++) {
+            const path = ASSET_PATHS[i];
             remapField(entity, path, assetMapping, sameProject);
         }
     }
@@ -348,7 +349,8 @@ function remapEntitiesAndAssets(
                                                     continue;
                                                 }
 
-                                                for (const field of attrData.schema) {
+                                                for (let i = 0; i < attrData.schema.length; i++) {
+                                                    const field = attrData.schema[i];
                                                     if (attrs[key][j][field.name]) {
                                                         remapScriptAttribute(
                                                             field,
@@ -364,7 +366,8 @@ function remapEntitiesAndAssets(
                                             }
                                         } else {
                                             // regular json attribute
-                                            for (const field of attrData.schema) {
+                                            for (let i = 0; i < attrData.schema.length; i++) {
+                                                const field = attrData.schema[i];
                                                 if (attrs[key][field.name]) {
                                                     remapScriptAttribute(
                                                         field,

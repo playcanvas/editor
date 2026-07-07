@@ -175,7 +175,8 @@ editor.once('load', () => {
         editor.on('entities:remove', (obj: any) => {
             delete entitiesIndex[obj.get('resource_id')];
             const children = obj.get('children');
-            for (const child of children) {
+            for (let i = 0; i < children.length; i++) {
+                const child = children[i];
                 delete childIndex[child];
             }
         });

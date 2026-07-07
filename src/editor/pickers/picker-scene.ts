@@ -336,7 +336,8 @@ editor.once('load', () => {
                     while (true) {
                         name = `${namePart} ${numberPart}`;
                         let found = true;
-                        for (const s of scenes) {
+                        for (let i = 0; i < scenes.length; i++) {
+                            const s = scenes[i];
                             if (s.name === name) {
                                 numberPart++;
                                 found = false;

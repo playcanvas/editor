@@ -351,7 +351,8 @@ editor.once('load', () => {
                         const type = primaryScript.get(`data.scripts.${parts[3]}.attributes.${parts[5]}.type`);
                         if (type === 'asset') {
                             if (value.attributes[parts[5]] instanceof Array) {
-                                for (const attrValue of value.attributes[parts[5]]) {
+                                for (let i = 0; i < value.attributes[parts[5]].length; i++) {
+                                    const attrValue = value.attributes[parts[5]][i];
                                     updateAsset(this.get('resource_id'), 'entity', attrValue, null);
                                 }
                             } else {
@@ -370,7 +371,8 @@ editor.once('load', () => {
                             const type = primaryScript.get(`data.scripts.${parts[3]}.attributes.${attrName}.type`);
                             if (type === 'asset') {
                                 if (value.attributes[attrName] instanceof Array) {
-                                    for (const attrValue of value.attributes[attrName]) {
+                                    for (let i = 0; i < value.attributes[attrName].length; i++) {
+                                        const attrValue = value.attributes[attrName][i];
                                         updateAsset(this.get('resource_id'), 'entity', attrValue, null);
                                     }
                                 } else {
@@ -393,7 +395,8 @@ editor.once('load', () => {
             }
 
             if (value instanceof Array) {
-                for (const v of value) {
+                for (let i = 0; i < value.length; i++) {
+                    const v = value[i];
                     updateAsset(this.get('resource_id'), 'entity', v, null);
                 }
             } else {
@@ -431,7 +434,8 @@ editor.once('load', () => {
             }
 
             if (value instanceof Array) {
-                for (const v of value) {
+                for (let i = 0; i < value.length; i++) {
+                    const v = value[i];
                     updateAsset(this.get('resource_id'), 'entity', null, v);
                 }
             } else {
@@ -482,7 +486,8 @@ editor.once('load', () => {
         const itemsOrder = asset.get(`data.scripts.${script}.attributesOrder`);
         const items = asset.get(`data.scripts.${script}.attributes`);
         const attributes = [];
-        for (const item of itemsOrder) {
+        for (let i = 0; i < itemsOrder.length; i++) {
+            const item = itemsOrder[i];
             if (items[item].type === 'asset') {
                 attributes.push(item);
             }
@@ -493,14 +498,16 @@ editor.once('load', () => {
 
             updateAsset(entity.get('resource_id'), 'entity', null, asset.get('id'));
 
-            for (const attribute of attributes) {
+            for (let i = 0; i < attributes.length; i++) {
+                const attribute = attributes[i];
                 const value = entity.get(`components.script.scripts.${script}.attributes.${attribute}`);
                 if (!value) {
                     continue;
                 }
 
                 if (value instanceof Array) {
-                    for (const v of value) {
+                    for (let i = 0; i < value.length; i++) {
+                        const v = value[i];
                         if (typeof v === 'number') {
                             updateAsset(entity.get('resource_id'), 'entity', null, v);
                         }
@@ -526,7 +533,8 @@ editor.once('load', () => {
             const itemsOrder = data.attributesOrder;
             const items = data.attributes;
 
-            for (const item of itemsOrder) {
+            for (let i = 0; i < itemsOrder.length; i++) {
+                const item = itemsOrder[i];
                 if (items[item].type === 'asset') {
                     attributes.push(item);
                 }
@@ -538,14 +546,16 @@ editor.once('load', () => {
 
             updateAsset(entity.get('resource_id'), 'entity', asset.get('id'), null);
 
-            for (const attribute of attributes) {
+            for (let i = 0; i < attributes.length; i++) {
+                const attribute = attributes[i];
                 const value = entity.get(`components.script.scripts.${script}.attributes.${attribute}`);
                 if (!value) {
                     continue;
                 }
 
                 if (value instanceof Array) {
-                    for (const v of value) {
+                    for (let i = 0; i < value.length; i++) {
+                        const v = value[i];
                         if (typeof v === 'number') {
                             updateAsset(entity.get('resource_id'), 'entity', v, null);
                         }
@@ -592,7 +602,8 @@ editor.once('load', () => {
             if (type === 'model') {
                 const mapping = asset.get('data.mapping');
                 if (mapping) {
-                    for (const map of mapping) {
+                    for (let i = 0; i < mapping.length; i++) {
+                        const map = mapping[i];
                         updateAsset(asset.get('id'), 'asset', null, map.material);
                     }
                 }
@@ -633,7 +644,8 @@ editor.once('load', () => {
                 continue;
             }
 
-            for (const item of items) {
+            for (let i = 0; i < items.length; i++) {
+                const item = items[i];
                 updateAsset(entity.get('resource_id'), 'entity', null, item);
             }
         }
@@ -683,7 +695,8 @@ editor.once('load', () => {
                             const value = attributes[attr];
 
                             if (value instanceof Array) {
-                                for (const v of value) {
+                                for (let i = 0; i < value.length; i++) {
+                                    const v = value[i];
                                     updateAsset(entity.get('resource_id'), 'entity', null, v);
                                 }
                             } else if (value) {

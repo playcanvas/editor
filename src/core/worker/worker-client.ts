@@ -23,7 +23,8 @@ class WorkerClient {
             return;
         }
         const callbacks = this._callbacks.get(type).slice();
-        for (const callback of callbacks) {
+        for (let i = 0; i < callbacks.length; i++) {
+            const callback = callbacks[i];
             callback(...args);
         }
     }

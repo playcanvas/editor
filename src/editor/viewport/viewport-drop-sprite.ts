@@ -32,7 +32,8 @@ editor.once('load', () => {
             }
 
             if (type === 'assets') {
-                for (const id of data.ids) {
+                for (let i = 0; i < data.ids.length; i++) {
+                    const id = data.ids[i];
                     const asset = editor.call('assets:get', id);
                     if (!asset) {
                         return false;
@@ -43,7 +44,8 @@ editor.once('load', () => {
                     }
                 }
 
-                for (const id of data.ids) {
+                for (let i = 0; i < data.ids.length; i++) {
+                    const id = data.ids[i];
                     const asset = app.assets.get(id);
                     if (asset) {
                         app.assets.load(asset);
@@ -66,7 +68,8 @@ editor.once('load', () => {
                     assets.push(asset);
                 }
             } else if (type === 'assets') {
-                for (const id of data.ids) {
+                for (let i = 0; i < data.ids.length; i++) {
+                    const id = data.ids[i];
                     const asset = editor.call('assets:get', parseInt(id, 10));
                     if (asset && asset.get('type') === 'sprite') {
                         assets.push(asset);
@@ -91,7 +94,8 @@ editor.once('load', () => {
 
             // calculate aabb
             let first = true;
-            for (const asset of assets) {
+            for (let i = 0; i < assets.length; i++) {
+                const asset = assets[i];
                 const assetEngine = app.assets.get(asset.get('id'));
                 if (!assetEngine) {
                     continue;
@@ -142,7 +146,8 @@ editor.once('load', () => {
                 distance = aabb.halfExtents.length() * 2.2;
             }
 
-            for (const asset of assets) {
+            for (let i = 0; i < assets.length; i++) {
+                const asset = assets[i];
                 const component = editor.call('components:getDefault', 'sprite');
 
                 const name = asset.get('name') || 'Untitled';

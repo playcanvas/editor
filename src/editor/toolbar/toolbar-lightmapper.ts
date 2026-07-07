@@ -69,7 +69,8 @@ editor.once('load', () => {
         }
 
         const assetIds = Object.keys(uv1MissingAssets);
-        for (const assetId of assetIds) {
+        for (let i = 0; i < assetIds.length; i++) {
+            const assetId = assetIds[i];
             if (!Object.prototype.hasOwnProperty.call(uv1MissingAssets, assetId)) {
                 continue;
             }

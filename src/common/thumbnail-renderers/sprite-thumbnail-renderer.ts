@@ -252,7 +252,8 @@ class SpriteThumbnailRenderer {
         let bottomBound = Number.POSITIVE_INFINITY;
         let topBound = Number.NEGATIVE_INFINITY;
 
-        for (const frameKey of frameKeys) {
+        for (let i = 0; i < frameKeys.length; i++) {
+            const frameKey = frameKeys[i];
             const f = frames[frameKey];
             if (!f) {
                 continue;

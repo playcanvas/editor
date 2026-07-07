@@ -265,7 +265,8 @@ class MaterialThumbnailRenderer extends ThumbnailRenderer {
         // convert asset references to engine resources
 
         // first handle texture assets
-        for (const name of StandardMaterial.TEXTURE_PARAMETERS) {
+        for (let i = 0; i < StandardMaterial.TEXTURE_PARAMETERS.length; i++) {
+            const name = StandardMaterial.TEXTURE_PARAMETERS[i];
             if (!Object.prototype.hasOwnProperty.call(migrated, name) || !migrated[name]) {
                 continue;
             }

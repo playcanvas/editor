@@ -122,7 +122,8 @@ editor.once('load', () => {
 
             // pass any buffered messages that came before
             // authentication to the connection
-            for (const msg of msgBuffer) {
+            for (let i = 0; i < msgBuffer.length; i++) {
+                const msg = msgBuffer[i];
                 connection.socket.onmessage(msg);
             }
             msgBuffer.length = 0;

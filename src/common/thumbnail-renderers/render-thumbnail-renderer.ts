@@ -274,7 +274,8 @@ class RenderThumbnailRenderer extends ThumbnailRenderer {
 
         // generate aabb for render
         const meshInstances = scene.renderEntity.render.meshInstances;
-        for (const meshInstance of meshInstances) {
+        for (let i = 0; i < meshInstances.length; i++) {
+            const meshInstance = meshInstances[i];
             // initialize any skin instance
             if (meshInstance.skinInstance) {
                 meshInstance.skinInstance.updateMatrices(meshInstance.node);

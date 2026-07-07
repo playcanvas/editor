@@ -49,7 +49,8 @@ class ObserverSync extends Events {
             // check if path is allowed
             if (this._paths) {
                 let allowedPath = false;
-                for (const allowed of this._paths) {
+                for (let i = 0; i < this._paths.length; i++) {
+                    const allowed = this._paths[i];
                     if (path.indexOf(allowed) !== -1) {
                         allowedPath = true;
                         break;

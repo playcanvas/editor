@@ -273,7 +273,8 @@ editor.once('load', () => {
             while (rowExistsEverywhere) {
                 row++;
 
-                for (const arr of allArrays) {
+                for (let i = 0; i < allArrays.length; i++) {
+                    const arr = allArrays[i];
                     if (!arr || !(arr instanceof Array) || arr.length <= row) {
                         rowExistsEverywhere = false;
                         break;

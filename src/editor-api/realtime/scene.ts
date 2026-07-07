@@ -148,7 +148,8 @@ class RealtimeScene extends Events {
             return;
         }
 
-        for (const op of ops) {
+        for (let i = 0; i < ops.length; i++) {
+            const op = ops[i];
             if (op.p[0]) {
                 this._realtime.emit('scene:op', op.p[0], op);
             }

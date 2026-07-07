@@ -243,7 +243,8 @@ const initGizmo = <T extends TransformGizmo>(gizmo: T) => {
         if (!observers.length) {
             return;
         }
-        for (const observer of observers) {
+        for (let i = 0; i < observers.length; i++) {
+            const observer = observers[i];
             getTRS(observer);
         }
     });

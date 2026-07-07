@@ -34,7 +34,8 @@ editor.once('load', () => {
         }
 
         if (hoverMaterial) {
-            for (const field of hoverSkyboxFields) {
+            for (let i = 0; i < hoverSkyboxFields.length; i++) {
+                const field = hoverSkyboxFields[i];
                 hoverMaterial[field] = hoverMaterial._hoverCubeMap[field];
             }
             hoverMaterial.update();
@@ -52,7 +53,8 @@ editor.once('load', () => {
             if (hoverMaterial) {
                 if (!hoverMaterial._hoverCubeMap) {
                     hoverMaterial._hoverCubeMap = {};
-                    for (const field of hoverSkyboxFields) {
+                    for (let i = 0; i < hoverSkyboxFields.length; i++) {
+                        const field = hoverSkyboxFields[i];
                         hoverMaterial._hoverCubeMap[field] = hoverMaterial[field];
                     }
                 }

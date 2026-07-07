@@ -34,7 +34,8 @@ editor.once('load', () => {
 
     // remove multiple
     editor.on('messenger:assets.delete', (data: unknown) => {
-        for (const assetId of data.assets) {
+        for (let i = 0; i < data.assets.length; i++) {
+            const assetId = data.assets[i];
             const asset = editor.call('assets:getUnique', parseInt(assetId, 10));
             if (!asset) {
                 continue;

@@ -24,7 +24,8 @@ editor.once('load', () => {
                 return;
             }
 
-            for (const op of ops) {
+            for (let i = 0; i < ops.length; i++) {
+                const op = ops[i];
                 if (op.p[0]) {
                     editor.emit(`realtime:userdata:${userId}:op:${op.p[0]}`, op);
                 }

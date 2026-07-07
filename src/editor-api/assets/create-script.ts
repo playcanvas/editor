@@ -39,7 +39,8 @@ function createScript(filename: string, text: string) {
             scriptName += tokens[i].charAt(0).toUpperCase() + tokens[i].slice(1);
         }
 
-        for (const token of tokens) {
+        for (let i = 0; i < tokens.length; i++) {
+            const token = tokens[i];
             className += token.charAt(0).toUpperCase() + token.slice(1);
         }
     } else {

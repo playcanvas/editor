@@ -35,7 +35,8 @@ editor.once('load', () => {
             }
         };
 
-        for (const entity of entities) {
+        for (let i = 0; i < entities.length; i++) {
+            const entity = entities[i];
             if (entity) {
                 const model = entity.model;
                 if (model?.model) {

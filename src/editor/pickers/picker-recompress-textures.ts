@@ -43,7 +43,8 @@ editor.once('load', () => {
                     return;
                 }
 
-                for (const variant of variants) {
+                for (let i = 0; i < variants.length; i++) {
+                    const variant = variants[i];
                     if (!asset.has(`file.variants.${variant}`)) {
                         continue;
                     }

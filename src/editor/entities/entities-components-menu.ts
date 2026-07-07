@@ -94,7 +94,8 @@ editor.once('load', () => {
         const components = editor.call('components:schema');
         const list = editor.call('components:list');
 
-        for (const key of list) {
+        for (let i = 0; i < list.length; i++) {
+            const key = list[i];
             const submenu = getSubMenu(key);
             if (submenu) {
                 items[submenu].items.push(makeAddComponentMenuItem(key, components, COMPONENT_LOGOS));
@@ -106,7 +107,8 @@ editor.once('load', () => {
         // sort alphabetically and add to new object to be returned
         const orderedKeys = Object.keys(items).sort();
         const sorted = [];
-        for (const key of orderedKeys) {
+        for (let i = 0; i < orderedKeys.length; i++) {
+            const key = orderedKeys[i];
             sorted.push(items[key]);
         }
 

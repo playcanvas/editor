@@ -129,7 +129,8 @@ export const getMap = function (items: unknown[], key: string) {
 const _searchExact = function (items: { name: string }[], search: string) {
     const results = [];
 
-    for (const item of items) {
+    for (let i = 0; i < items.length; i++) {
+        const item = items[i];
         if (item.name.toLowerCase().includes(search)) {
             results.push(item);
         }
@@ -145,7 +146,8 @@ const _searchItems = function (
 ) {
     const results = [];
 
-    for (const item of items) {
+    for (let i = 0; i < items.length; i++) {
+        const item = items[i];
         // direct hit
         if (item.subFull !== Infinity) {
             results.push(item);

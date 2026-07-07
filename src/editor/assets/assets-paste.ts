@@ -235,7 +235,8 @@ editor.once('load', () => {
                     .assetPaste(data)
                     .on('load', (status: number, response: any) => {
                         if (status === 201 && Array.isArray(response.result)) {
-                            for (const item of response.result) {
+                            for (let i = 0; i < response.result.length; i++) {
+                                const item = response.result[i];
                                 const id = item?.id ?? item;
                                 if (id !== undefined && id !== null) {
                                     ensureUniqueOnPaste(id, targetFolderId);

@@ -7,7 +7,8 @@ editor.once('plugins:load:entities-to-obj', () => {
     editor.method('plugins:entities-to-obj', (items) => {
         const entities = [];
 
-        for (const item of items) {
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
             if (item.entity && item.entity.model) {
                 entities.push(item.entity);
             }
@@ -118,7 +119,8 @@ editor.once('plugins:load:entities-to-obj', () => {
                 document.body.removeChild(element);
             },
             onIsEnabled: function (selection: { entity?: pc.Entity }[]) {
-                for (const item of selection) {
+                for (let i = 0; i < selection.length; i++) {
+                    const item = selection[i];
                     if (item.entity && item.entity.model) {
                         return true;
                     }

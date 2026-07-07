@@ -51,14 +51,16 @@ editor.once('load', () => {
 
     const extToType = {};
     for (const type in typeToExt) {
-        for (const ext of typeToExt[type]) {
+        for (let i = 0; i < typeToExt[type].length; i++) {
+            const ext = typeToExt[type][i];
             extToType[ext] = type;
         }
     }
 
     // returns true if the filename is recognized as a scene file and false otherwise
     editor.method('assets:isSceneFilename', (filename) => {
-        for (const ext of typeToExt.scene) {
+        for (let i = 0; i < typeToExt.scene.length; i++) {
+            const ext = typeToExt.scene[i];
             if (filename.match(new RegExp(`.${ext}$`, 'i'))) {
                 return true;
             }
@@ -69,7 +71,8 @@ editor.once('load', () => {
     editor.method('assets:canUploadFiles', (files) => {
         // check usage first
         let totalSize = 0;
-        for (const file of files) {
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
             totalSize += file.size;
         }
 
@@ -272,7 +275,8 @@ editor.once('load', () => {
         // if one exists then overwrite the textureatlas instead.
         let asset = candidates[0];
         if (type === 'texture') {
-            for (const candidate of candidates) {
+            for (let i = 0; i < candidates.length; i++) {
+                const candidate = candidates[i];
                 if (candidate[1].get('type') === 'textureatlas') {
                     asset = candidate;
                     type = 'textureatlas';
@@ -360,7 +364,8 @@ editor.once('load', () => {
         }
 
         const currentFolder = editor.call('assets:panel:currentFolder');
-        for (const file of files) {
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
             uploadFile(currentFolder, file, files.length > 1);
         }
     });

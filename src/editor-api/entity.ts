@@ -275,7 +275,8 @@ class Entity extends Events {
         }
 
         const children = this.children;
-        for (const child of children) {
+        for (let i = 0; i < children.length; i++) {
+            const child = children[i];
             if (child) {
                 const found = child.findByName(name);
                 if (found) {
@@ -306,10 +307,12 @@ class Entity extends Events {
     listByTag(...tags: any[]) {
         return this.filter((entity: Entity) => {
             const t = entity.get('tags');
-            for (const tag of tags) {
+            for (let i = 0; i < tags.length; i++) {
+                const tag = tags[i];
                 if (Array.isArray(tag)) {
                     let countTags = 0;
-                    for (const subTag of tag) {
+                    for (let i = 0; i < tag.length; i++) {
+                        const subTag = tag[i];
                         if (t.includes(subTag)) {
                             countTags++;
                         } else {
@@ -350,7 +353,8 @@ class Entity extends Events {
         }
 
         const children = this.children;
-        for (const child of children) {
+        for (let i = 0; i < children.length; i++) {
+            const child = children[i];
             if (child) {
                 result = result.concat(child.filter(fn));
             }

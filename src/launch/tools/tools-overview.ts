@@ -38,7 +38,8 @@ editor.once('load', () => {
 
         // events
         let x, x2;
-        for (const e of events) {
+        for (let i = 0; i < events.length; i++) {
+            const e = events[i];
             x = (e.t / now) * canvas.width;
 
             if (e.t2 !== null) {
@@ -133,7 +134,8 @@ editor.once('load', () => {
         let found = false;
 
         // check if can extend existing event
-        for (const event of events) {
+        for (let i = 0; i < events.length; i++) {
+            const event = events[i];
             if (
                 event.t2 !== null &&
                 event.k === item.k &&

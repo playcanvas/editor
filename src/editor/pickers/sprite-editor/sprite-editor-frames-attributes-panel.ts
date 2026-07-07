@@ -171,7 +171,8 @@ editor.once('load', () => {
             const frameData = atlasAsset.getRaw('data.frames')._data;
             const values: number[] = [];
 
-            for (const frame of frames) {
+            for (let i = 0; i < frames.length; i++) {
+                const frame = frames[i];
                 const f = frameData[frame];
                 if (f) {
                     values.push(f._data.rect[componentIndex]);

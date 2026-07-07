@@ -403,7 +403,8 @@ class MultiPathBindingElementToObservers extends BindingElementToObservers {
             return false;
         }
 
-        for (const path of paths) {
+        for (let i = 0; i < paths.length; i++) {
+            const path = paths[i];
             if (!latest.has(path)) {
                 return false;
             }
@@ -431,7 +432,8 @@ class MultiPathBindingElementToObservers extends BindingElementToObservers {
         let previous = new WeakMap();
 
         const undo = () => {
-            for (const observer of observers) {
+            for (let i = 0; i < observers.length; i++) {
+                const observer = observers[i];
                 const latest = observer.latest();
                 if (!this._latestHasPaths(latest, paths)) {
                     continue;
@@ -456,7 +458,8 @@ class MultiPathBindingElementToObservers extends BindingElementToObservers {
         const redo = () => {
             previous = new WeakMap();
 
-            for (const observer of observers) {
+            for (let i = 0; i < observers.length; i++) {
+                const observer = observers[i];
                 const latest = observer.latest();
                 if (!this._latestHasPaths(latest, paths)) {
                     continue;
@@ -672,7 +675,8 @@ class TextureAssetInspector extends Container {
         const assets = this._assets;
 
         let visible = false;
-        for (const asset of assets) {
+        for (let i = 0; i < assets.length; i++) {
+            const asset = assets[i];
             if (!visible && !asset.get('meta')) {
                 visible = true;
                 break;
@@ -687,7 +691,8 @@ class TextureAssetInspector extends Container {
 
         formats[format].size = 0;
         formats[format].vram = 0;
-        for (const asset of assets) {
+        for (let i = 0; i < assets.length; i++) {
+            const asset = assets[i];
             if (!asset.get('file') || !asset.get('meta')) {
                 continue;
             }
@@ -759,7 +764,8 @@ class TextureAssetInspector extends Container {
 
         let differentBasis = false;
         let differentLegacy = false;
-        for (const asset of assets) {
+        for (let i = 0; i < assets.length; i++) {
+            const asset = assets[i];
             if (!asset.get('file') || !!asset.get('task')) {
                 continue;
             }
@@ -801,7 +807,8 @@ class TextureAssetInspector extends Container {
         const allowed: Record<string, boolean> = {};
         const selected: Record<string, boolean> = {};
 
-        for (const asset of assets) {
+        for (let i = 0; i < assets.length; i++) {
+            const asset = assets[i];
             if (!asset.get('file')) {
                 continue;
             }
@@ -920,7 +927,8 @@ class TextureAssetInspector extends Container {
             return;
         }
 
-        for (const asset of assets) {
+        for (let i = 0; i < assets.length; i++) {
+            const asset = assets[i];
             if (asset.get('meta')) {
                 continue;
             }
@@ -1167,7 +1175,8 @@ class TextureAssetInspector extends Container {
         // only show pvr warning if any selected texture is non-square and pvr is ticked
         let hidden = true;
         if (fieldPvr.value && fieldPvr.enabled) {
-            for (const asset of assets) {
+            for (let i = 0; i < assets.length; i++) {
+                const asset = assets[i];
                 if (asset.get('meta.width') !== asset.get('meta.height')) {
                     hidden = false;
                     break;
@@ -1190,7 +1199,8 @@ class TextureAssetInspector extends Container {
         const assets = this._assets;
         // Show the warnings if any of the assets have an issue
 
-        for (const asset of assets) {
+        for (let i = 0; i < assets.length; i++) {
+            const asset = assets[i];
             if (!TextureCompressor.isPOT(asset.get('meta.width'), asset.get('meta.height'))) {
                 if (asset.get('data.mipmaps')) {
                     this._webgl1NonPotWithMipmapsWarning.hidden = false;
@@ -1199,7 +1209,8 @@ class TextureAssetInspector extends Container {
             }
         }
 
-        for (const asset of assets) {
+        for (let i = 0; i < assets.length; i++) {
+            const asset = assets[i];
             if (!TextureCompressor.isPOT(asset.get('meta.width'), asset.get('meta.height'))) {
                 if (asset.get('data.addressu') !== 'clamp' || asset.get('data.addressv') !== 'clamp') {
                     this._webgl1NonPotWithoutAddressClampWarning.hidden = false;
